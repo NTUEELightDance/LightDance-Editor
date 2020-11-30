@@ -7,7 +7,7 @@ const path = require("path");
 
 const app = express();
 
-if (process.env.NODE_ENV === "dev") {
+if (process.env.NODE_ENV !== "prod") {
   const webpack = require("webpack");
   const { merge } = require("webpack-merge");
   const commonConfig = require("../../config/webpack.common.js");
@@ -20,13 +20,22 @@ if (process.env.NODE_ENV === "dev") {
       publicPath: webpackConfig.output.publicPath,
     })
   );
-  // app.use(require("webpack-hot-middleware")(compiler));
+  app.use(
+    require("webpack-hot-middleware")(compiler, {
+      log: false,
+      path: "/__hmr",
+      heartbeat: 2000,
+    })
+  );
 } else {
   const buildPath = path.resolve(__dirname, "..", "..", "./build");
   app.use(express.static(buildPath));
 }
 
-const port = 9000;
+const assetPath = path.resolve(__dirname, "..", "..", "./asset");
+app.use("/asset", express.static(assetPath));
+
+const port = 8080;
 
 app.listen(port, () => {
   console.log(`Listening on port: ${port}`);

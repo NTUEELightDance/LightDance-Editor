@@ -14,9 +14,9 @@
     "redux": "^4.0.5"
   },
   "scripts": {
-    "start": "webpack serve --config config/webpack.config.js",
+    "start": "node src/server/app.js",
     "build": "webpack --config config/webpack.config.js",
-    "start-server": "nodemon src/server/app.js",
+    "start-client": "webpack serve --config config/webpack.config.js",
     "start-dev": "nodemon src/server/app.js",
     "format": "npx prettier --write ."
   },
