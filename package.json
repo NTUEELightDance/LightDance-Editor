@@ -11,7 +11,8 @@
     "react-dom": "^17.0.1",
     "react-hot-loader": "^4.13.0",
     "react-redux": "^7.2.2",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "wavesurfer.js": "^4.2.0"
   },
   "scripts": {
     "start": "node src/server/app.js",

@@ -19,8 +19,8 @@ const App = () => {
         <h1>This is 2021 LightDance Editor</h1>
         <Counter />
         <Pixi />
-        <Wavesurfer />
         <Preset />
+        <Wavesurfer />
       </div>
     </Provider>
   );
