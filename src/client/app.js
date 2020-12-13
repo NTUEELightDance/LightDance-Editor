@@ -16,10 +16,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <div>
-        <h1>This is 2021 LightDance Editor</h1>
-        <Counter />
         <Pixi />
-        <Preset />
         <Wavesurfer />
       </div>
     </Provider>

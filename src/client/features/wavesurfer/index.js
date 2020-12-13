@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
+import WaveSurfer from "wavesurfer.js";
 import { useSelector, useDispatch } from "react-redux";
 import {
   playPause,
   selectWavesurfer,
   wavesurferSlice,
 } from "./wavesurferSlice";
-import WaveSurferApp from "./wavesurferApp";
 /**
  *
  * This is Wave component
@@ -16,8 +16,19 @@ const Wavesurfer = () => {
   const [waveSurferApp, setWaveSurferApp] = useState(null);
   const dispatch = useDispatch();
 
+  const initailize = () => {
+    const wavesurfer = WaveSurfer.create({
+      container: "#waveform",
+      waveColor: "tomato",
+      progressColor: "purple",
+    });
+    wavesurfer.load("./asset/music.flac");
+    return wavesurfer;
+  };
+
   useEffect(() => {
-    setWaveSurferApp(new WaveSurferApp());
+    const wavesurfer = initailize();
+    setWaveSurferApp(wavesurfer);
   }, []);
 
   useEffect(() => {
