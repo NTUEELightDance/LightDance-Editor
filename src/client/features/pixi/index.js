@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import * as PIXI from "pixi.js";
-import toLoad from "./pixiClasses/toLoad.json";
 import Dancer from "./dancer";
 import { DANCER_NUM } from "../../constants";
+import { selectPixi, setCurrentStatus } from "./pixiSlice";
 
 import load from "../../data/load.json";
 
@@ -12,16 +13,46 @@ import load from "../../data/load.json";
  * @component
  */
 
+const testStatus = {
+  HAT1: 1,
+  HAT2: 1,
+  FACE1: 1,
+  FACE2: 1,
+  INNER1: 1,
+  INNER2: 1,
+  L_COAT1: 1,
+  L_COAT2: 1,
+  R_COAT1: 1,
+  R_COAT2: 1,
+  L_ARM1: 1,
+  L_ARM2: 1,
+  R_ARM1: 1,
+  R_ARM2: 1,
+  L_HAND: 1,
+  R_HAND: 1,
+  L_PANTS1: 1,
+  L_PANTS2: 1,
+  R_PANTS1: 1,
+  R_PANTS2: 1,
+  L_SHOES1: 1,
+  L_SHOES2: 1,
+  R_SHOES1: 1,
+  R_SHOES2: 1,
+  LED_CHEST: { name: "", alpha: 0 },
+  LED_R_SHOE: { name: "", alpha: 0 },
+  LED_L_SHOE: { name: "", alpha: 0 },
+  LED_FAN: { name: "", alpha: 0 },
+};
+
 const Pixi = () => {
   const [pixiApp, setPixiApp] = useState(null);
   const [dancers, setDancers] = useState(null);
 
-  const texture = {};
-  console.log(toLoad);
+  const dispatch = useDispatch();
+  const { selected, currentStatus } = useSelector(selectPixi);
 
   const initialize = () => {
     const app = new PIXI.Application({ width: 960, height: 720 });
-    const BlackParts = [];
     document.getElementById("main_stage").appendChild(app.view);
 
     const dancerTemp = [];
@@ -38,8 +69,16 @@ const Pixi = () => {
   }, []);
 
   useEffect(() => {
-    console.log(pixiApp);
-  }, [pixiApp]);
+    console.log(selected);
+    if (dancers && selected && selected.length) {
+      dancers[selected[0]].update(testStatus);
+      dispatch(setCurrentStatus(testStatus));
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    console.log(currentStatus);
+  }, [currentStatus]);
 
   return (
     <div className="Simulator">

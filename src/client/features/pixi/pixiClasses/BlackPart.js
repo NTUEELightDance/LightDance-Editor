@@ -8,6 +8,17 @@ class BlackPart extends Part {
       `./asset/BlackPart/${this.paths[0]}.svg`
     );
     this.sprite.texture = this.textures[this.paths[0]];
+
+    // this.sprite.on("click", () => {
+    //   store.dispatch(setSeletected([this.dancerID]));
+    //   /*
+    //   const checkBox = document.querySelector("#dancer-checkbox-list").children[
+    //     dancer.id
+    //   ].children[0];
+    //   checkBox.onclick();
+    //   checkBox.checked = true;
+    //   */
+    // });
   }
 
   updateTexture(args) {

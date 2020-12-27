@@ -9,6 +9,8 @@ import {
   DISPLAY_WIDTH,
   DANCER_NUM,
 } from "../../constants";
+import store from "../../store";
+import { setSeletected } from "./pixiSlice";
 
 class Dancer {
   constructor(id, app, loadTexture) {
@@ -32,16 +34,64 @@ class Dancer {
     // this.parts["LEDH"] = new LEDPart(this, this.app, loadTexture["LEDH"]);    // LED Head
 
     // PIXI Rendering
+    // render dancer
     this.container = new PIXI.Container();
     this.container.sortableChildren = true;
     Object.keys(this.parts).forEach((key) => {
       this.container.addChild(this.parts[key].sprite);
     });
+    // render dancer Id
+    const text = new PIXI.Text(this.id, {
+      fontFamily: "Arial",
+      fontSize: 44,
+      fill: 0xff1010,
+      align: "center",
+    });
+
+    this.container.addChild(text);
+
     // Calculate position and scale
     this.setPos();
     app.stage.addChild(this.container);
 
+    // Dragging
+    this.container.interactive = true;
+    this.container.buttonMode = true;
+    this.container
+      .on("pointerdown", this.onDragStart)
+      .on("pointerup", this.onDragEnd)
+      .on("pointerupoutside", this.onDragEnd)
+      .on("pointermove", this.onDragMove)
+      .on("click", () => {
+        store.dispatch(setSeletected([this.id]));
+      });
+
     console.log("Dancer Constructed", this);
+  }
+
+  onDragStart(event) {
+    console.log(event, this);
+    // store a reference to the data
+    // the reason for this is because of multitouch
+    // we want to track the movement of this particular touch
+    this.data = event.data;
+    this.alpha = 0.5;
+    this.dragging = true;
+  }
+
+  onDragEnd() {
+    this.alpha = 1;
+    this.dragging = false;
+    // set the interaction data to null
+    this.data = null;
+  }
+
+  onDragMove() {
+    if (this.dragging) {
+      const newPosition = this.data.getLocalPosition(this.parent);
+      this.x = newPosition.x - this.width / 2;
+      this.y = newPosition.y - this.height / 2;
+    }
   }
 
   setPos(num = DANCER_NUM, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
