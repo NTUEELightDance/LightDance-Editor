@@ -1,6 +1,5 @@
-import toLoad from "./toLoad.json";
-import Part from "./Part";
 import * as PIXI from "pixi.js";
+import Part from "./Part";
 
 class BlackPart extends Part {
   constructor(dancer, name) {

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import * as PIXI from "pixi.js";
 import toLoad from "./pixiClasses/toLoad.json";
-import BlackPart from "./pixiClasses/BlackPart";
+import Dancer from "./dancer";
+import { DANCER_NUM } from "../../constants";
+
+import load from "../../data/load.json";
 
 /**
  * This is Display component
@@ -11,28 +14,21 @@ import BlackPart from "./pixiClasses/BlackPart";
 
 const Pixi = () => {
   const [pixiApp, setPixiApp] = useState(null);
-  //const toLoad = {};
+  const [dancers, setDancers] = useState(null);
+
   const texture = {};
   console.log(toLoad);
 
   const initialize = () => {
-    const app = new PIXI.Application({ width: 500, height: 500 });
+    const app = new PIXI.Application({ width: 960, height: 720 });
     const BlackParts = [];
     document.getElementById("main_stage").appendChild(app.view);
-    toLoad.BlackPart.forEach((imageName) => {
-      app.loader.add(imageName, "./asset/BlackPart/" + imageName + ".svg");
-    });
 
-    toLoad.BlackPart.forEach((imageName) => {
-      BlackParts.push(new BlackPart("dancer1", imageName));
-    });
-
-    toLoad.BlackPart.forEach((imageName) => {
-      app.loader.load((loader, resources) => {
-        texture[imageName] = PIXI.Texture.from(imageName);
-      });
-    });
-    console.log(BlackParts);
+    const dancerTemp = [];
+    for (let i = 0; i < DANCER_NUM; ++i) {
+      dancerTemp.push(new Dancer(i, app, load.Texture));
+    }
+    setDancers(dancerTemp);
 
     return app;
   };
