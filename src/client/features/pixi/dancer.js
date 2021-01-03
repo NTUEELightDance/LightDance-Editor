@@ -10,7 +10,7 @@ import {
   DANCER_NUM,
 } from "../../constants";
 import store from "../../store";
-import { setSeletected } from "./pixiSlice";
+import { setSeletected, setCurrentPos } from "../globalSlice";
 
 class Dancer {
   constructor(id, app, loadTexture) {
@@ -55,6 +55,7 @@ class Dancer {
     app.stage.addChild(this.container);
 
     // Dragging
+    this.container.id = this.id;
     this.container.interactive = true;
     this.container.buttonMode = true;
     this.container
@@ -67,10 +68,13 @@ class Dancer {
       });
 
     console.log("Dancer Constructed", this);
+    store.dispatch(
+      setCurrentPos([this.id, [this.container.x, this.container.y]])
+    );
   }
 
   onDragStart(event) {
-    console.log(event, this);
+    //console.log(event, this);
     // store a reference to the data
     // the reason for this is because of multitouch
     // we want to track the movement of this particular touch
@@ -84,6 +88,7 @@ class Dancer {
     this.dragging = false;
     // set the interaction data to null
     this.data = null;
+    store.dispatch(setCurrentPos([this.id, [this.x, this.y]]));
   }
 
   onDragMove() {
@@ -103,7 +108,7 @@ class Dancer {
     const half = num > 1 ? num / 2 : num;
     const wOffset = (width - half * this.container.width) / (half + 1);
     const y = this.id >= half ? height / 2 : 0;
-    let _id = this.id % half;
+    const _id = this.id % half;
     const x = (_id + 1) * wOffset + _id * this.container.width;
     this.container.position.set(x, y);
   }
@@ -115,7 +120,7 @@ class Dancer {
 
   updateTexture() {
     // console.log("Update Texture");
-    Object.keys(this.parts).map((key) => {
+    Object.keys(this.parts).forEach((key) => {
       this.parts[key].updateTexture(this.status[key]);
     });
   }

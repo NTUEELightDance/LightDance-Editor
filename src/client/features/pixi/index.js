@@ -3,9 +3,9 @@ import { useSelector, useDispatch } from "react-redux";
 import * as PIXI from "pixi.js";
 import Dancer from "./dancer";
 import { DANCER_NUM } from "../../constants";
-import { selectPixi, setCurrentStatus } from "./pixiSlice";
-
+import { selectGlobal, setCurrentStatus, setFrame } from "../globalSlice";
 import load from "../../data/load.json";
+import control from "../../data/control.json";
 
 /**
  * This is Display component
@@ -49,7 +49,9 @@ const Pixi = () => {
   const [dancers, setDancers] = useState(null);
 
   const dispatch = useDispatch();
-  const { selected, currentStatus } = useSelector(selectPixi);
+  const { selected, currentStatus, currentPos, time, frame } = useSelector(
+    selectGlobal
+  );
 
   const initialize = () => {
     const app = new PIXI.Application({ width: 960, height: 720 });
@@ -67,18 +69,35 @@ const Pixi = () => {
   useEffect(() => {
     setPixiApp(initialize());
   }, []);
-
+  /*
   useEffect(() => {
     console.log(selected);
     if (dancers && selected && selected.length) {
       dancers[selected[0]].update(testStatus);
-      dispatch(setCurrentStatus(testStatus));
+      dispatch(setCurrentStatus([selected[0], testStatus]));
     }
   }, [selected]);
 
   useEffect(() => {
-    console.log(currentStatus);
+    console.log("currentPos", currentPos);
+  }, [currentPos]);
+
+  useEffect(() => {
+    console.log("currentStatus", currentStatus);
   }, [currentStatus]);
+ 
+  useEffect(() => {
+    console.log(frame);
+  }, [frame]);
+  */
+  useEffect(() => {
+    if (time >= control[0][frame + 1].Start) {
+      dispatch(setFrame(frame + 1));
+      dancers.forEach((dancer, i) => {
+        dancer.update(control[i][frame + 1].Status);
+      });
+    }
+  }, [time]);
 
   return (
     <div className="Simulator">
