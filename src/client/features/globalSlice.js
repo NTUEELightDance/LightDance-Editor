@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import control from "../data/control.json";
+import control from "../../../data/control.json";
 
 export const globalSlice = createSlice({
   name: "global",

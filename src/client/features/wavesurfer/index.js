@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from "react";
-import WaveSurfer from "wavesurfer.js";
+import React, { useEffect, useState, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  playPause,
-  selectGlobal,
-  udpateTime,
-  findCurrentFrame,
-} from "../globalSlice";
+import { playPause, selectGlobal } from "../globalSlice";
+
+import { ControllerContext } from "../../controllerContext";
 
 /**
  *
@@ -14,38 +10,12 @@ import {
  * @component
  */
 const Wavesurfer = () => {
-  const { status, time } = useSelector(selectGlobal);
-  const [wavesurferApp, setWavesurferApp] = useState(null);
+  const controller = useContext(ControllerContext);
+  const { time } = useSelector(selectGlobal);
   const dispatch = useDispatch();
 
-  const initailize = () => {
-    const wavesurfer = WaveSurfer.create({
-      container: "#waveform",
-      waveColor: "tomato",
-      progressColor: "purple",
-    });
-    wavesurfer.load("./asset/eenight.wav");
-    wavesurfer.on("seek", () => {
-      dispatch(
-        findCurrentFrame(Math.round(wavesurfer.getCurrentTime() * 1000))
-      );
-    });
-    wavesurfer.on("audioprocess", () => {
-      dispatch(udpateTime(Math.round(wavesurfer.getCurrentTime() * 1000)));
-    });
-    return wavesurfer;
-  };
-
-  useEffect(() => {
-    const wavesurfer = initailize();
-    setWavesurferApp(wavesurfer);
-  }, []);
-
-  useEffect(() => {
-    if (wavesurferApp) wavesurferApp.playPause();
-  }, [status]);
-
   const handlePlayPause = () => {
+    controller.wavesurferApp.playPause();
     dispatch(playPause());
   };
 

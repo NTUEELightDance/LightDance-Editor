@@ -6,6 +6,7 @@ import Wavesurfer from "./features/wavesurfer";
 import Preset from "./features/preset";
 import Counter from "./features/counter";
 import store from "./store";
+import ControllerProvider from "./controllerContext";
 
 /**
  * Component for the main
@@ -15,10 +16,12 @@ import store from "./store";
 const App = () => {
   return (
     <Provider store={store}>
-      <div>
-        <Pixi />
-        <Wavesurfer />
-      </div>
+      <ControllerProvider>
+        <div>
+          <Pixi />
+          <Wavesurfer />
+        </div>
+      </ControllerProvider>
     </Provider>
   );
 };

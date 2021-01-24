@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { BlackPart, LightPart, LEDPart } from "./pixiClasses";
+import { BlackPart, LightPart, LEDPart } from "./parts";
 import {
   BLPARTS,
   LIGHTPARTS,
@@ -10,7 +10,7 @@ import {
   DANCER_NUM,
 } from "../../constants";
 import store from "../../store";
-import { setSeletected, setCurrentPos } from "../globalSlice";
+import { setSeletected, setCurrentPos } from "../../features/globalSlice";
 
 class Dancer {
   constructor(id, app, loadTexture) {
@@ -52,7 +52,7 @@ class Dancer {
 
     // Calculate position and scale
     this.setPos();
-    app.stage.addChild(this.container);
+    this.app.stage.addChild(this.container);
 
     // Dragging
     this.container.id = this.id;
