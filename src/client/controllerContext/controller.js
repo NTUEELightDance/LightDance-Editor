@@ -31,10 +31,10 @@ class Controller {
   }
 
   updateWhilePlaying(time, frame) {
-    if (time >= control[0][frame + 1].Start) {
+    if (time >= control["player0"][frame + 1].Start) {
       store.dispatch(setFrame(frame + 1));
       this.dancers.forEach((dancer, i) => {
-        dancer.update(control[i][frame + 1].Status);
+        dancer.update(control[dancer.name][frame + 1].Status);
       });
     }
   }

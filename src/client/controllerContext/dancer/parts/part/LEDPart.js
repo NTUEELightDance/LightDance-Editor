@@ -15,9 +15,9 @@ class LEDPart extends Part {
     });
   }
 
-  updateTexture({ name, alpha }) {
+  updateTexture({ src, alpha }) {
     // console.log("Updating LEDPart", name, alpha)
-    this.sprite.texture = this.textures[name];
+    this.sprite.texture = this.textures[src];
     this.sprite.alpha = alpha;
   }
 }

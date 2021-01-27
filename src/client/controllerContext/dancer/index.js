@@ -16,6 +16,7 @@ class Dancer {
   constructor(id, app, loadTexture) {
     this.app = app;
     this.id = id; // dancer id
+    this.name = `player${id.toString()}`;
     this.status = {}; // dancer current status
     this.parts = {}; // dancer body part
 

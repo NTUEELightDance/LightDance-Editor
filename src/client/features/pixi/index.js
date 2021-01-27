@@ -14,6 +14,7 @@ const Pixi = () => {
   const { time, frame } = useSelector(selectGlobal);
 
   useEffect(() => {
+    // console.log(time, frame);
     if (controller) controller.updateWhilePlaying(time, frame);
   }, [time]);
 

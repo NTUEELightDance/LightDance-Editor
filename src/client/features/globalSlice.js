@@ -28,10 +28,13 @@ export const globalSlice = createSlice({
       const time = action.payload;
       // binary search timeInd with this.time
       let l = 0;
-      let r = control[0].length - 1;
+      // let r = control[0].length - 1;
+      let r = control["player0"].length - 1;
       let m = Math.floor((l + r + 1) / 2);
       while (l < r) {
-        if (control[0][m].Start <= time) l = m;
+        // if (control[0][m].Start <= time) l = m;
+        // else r = m - 1;
+        if (control["player0"][m].Start <= time) l = m;
         else r = m - 1;
         m = Math.floor((l + r + 1) / 2);
       }
