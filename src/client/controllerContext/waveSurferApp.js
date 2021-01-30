@@ -1,6 +1,10 @@
 import WaveSurfer from "wavesurfer.js";
 import store from "../store";
-import { udpateTime, findCurrentFrame } from "../features/globalSlice";
+import {
+  updateTime,
+  findCurrentControlFrame,
+  findCurrentPosFrame,
+} from "../features/globalSlice";
 import load from "../../../data/load.json";
 
 class WaveSurferApp {
@@ -16,13 +20,14 @@ class WaveSurferApp {
     });
     this.waveSurferApp.load(load.Music);
     this.waveSurferApp.on("seek", () => {
+      console.log("seeking");
       store.dispatch(
-        findCurrentFrame(Math.round(this.waveSurferApp.getCurrentTime() * 1000))
+        updateTime(Math.round(this.waveSurferApp.getCurrentTime() * 1000))
       );
     });
     this.waveSurferApp.on("audioprocess", () => {
       store.dispatch(
-        udpateTime(Math.round(this.waveSurferApp.getCurrentTime() * 1000))
+        updateTime(Math.round(this.waveSurferApp.getCurrentTime() * 1000))
       );
     });
   }

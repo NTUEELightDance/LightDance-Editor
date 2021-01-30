@@ -11,12 +11,28 @@ import { ControllerContext } from "../../controllerContext";
 
 const Pixi = () => {
   const controller = useContext(ControllerContext);
-  const { time, frame } = useSelector(selectGlobal);
+  const { time, controlFrame, posFrame } = useSelector(selectGlobal);
 
   useEffect(() => {
-    // console.log(time, frame);
-    if (controller) controller.updateWhilePlaying(time, frame);
+    // console.log(time, controlFrame);
+    if (controller) {
+      controller.updateDancersPos(time, posFrame);
+    }
   }, [time]);
+
+  useEffect(() => {
+    // console.log(time, controlFrame);
+    if (controller) {
+      controller.updateDancersControl(controlFrame);
+    }
+  }, [controlFrame]);
+
+  useEffect(() => {
+    // console.log(time, controlFrame);
+    if (controller) {
+      controller.updateDancersPos(time, posFrame);
+    }
+  }, [posFrame]);
 
   return (
     <div className="Simulator">

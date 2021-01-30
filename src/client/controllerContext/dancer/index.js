@@ -10,11 +10,16 @@ import {
   DANCER_NUM,
 } from "../../constants";
 import store from "../../store";
-import { setSeletected, setCurrentPos } from "../../features/globalSlice";
+import {
+  setSeletected,
+  setCurrentPos,
+  setNewPosRecord,
+} from "../../features/globalSlice";
 
 class Dancer {
-  constructor(id, app, loadTexture) {
+  constructor(id, app, loadTexture, mainContainer) {
     this.app = app;
+    this.mainContainer = mainContainer;
     this.id = id; // dancer id
     this.name = `player${id.toString()}`;
     this.status = {}; // dancer current status
@@ -38,6 +43,7 @@ class Dancer {
     // render dancer
     this.container = new PIXI.Container();
     this.container.sortableChildren = true;
+
     Object.keys(this.parts).forEach((key) => {
       this.container.addChild(this.parts[key].sprite);
     });
@@ -52,8 +58,9 @@ class Dancer {
     this.container.addChild(text);
 
     // Calculate position and scale
-    this.setPos();
-    this.app.stage.addChild(this.container);
+    this.initPos();
+    // this.app.stage.addChild(this.container);
+    this.mainContainer.addChild(this.container);
 
     // Dragging
     this.container.id = this.id;
@@ -70,7 +77,12 @@ class Dancer {
 
     console.log("Dancer Constructed", this);
     store.dispatch(
-      setCurrentPos([this.id, [this.container.x, this.container.y]])
+      setCurrentPos({
+        id: this.id,
+        x: this.container.position.x,
+        y: this.container.position.y,
+        z: this.container.zIndex,
+      })
     );
   }
 
@@ -89,7 +101,19 @@ class Dancer {
     this.dragging = false;
     // set the interaction data to null
     this.data = null;
-    store.dispatch(setCurrentPos([this.id, [this.x, this.y]]));
+    this.zIndex = this.position.y;
+    store.dispatch(
+      setCurrentPos({
+        id: this.id,
+        x: this.x,
+        y: this.y,
+        z: this.zIndex,
+        save: true,
+      })
+    );
+    store.dispatch(setNewPosRecord());
+    console.log(store.getState().global.currentPos);
+    console.log(store.getState().global.posRecord);
   }
 
   onDragMove() {
@@ -100,7 +124,7 @@ class Dancer {
     }
   }
 
-  setPos(num = DANCER_NUM, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
+  initPos(num = DANCER_NUM, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
     const ratio = this.container.width / this.container.height;
     this.container.height = height * 0.95;
     if (num > 1) this.container.height = this.container.height / 2;
@@ -112,6 +136,13 @@ class Dancer {
     const _id = this.id % half;
     const x = (_id + 1) * wOffset + _id * this.container.width;
     this.container.position.set(x, y);
+    this.container.zIndex = this.container.position.y;
+  }
+
+  setPos(position) {
+    const { x, y, z } = position;
+    this.container.position.set(x, y);
+    this.container.zIndex = z;
   }
 
   setStat(status) {
@@ -126,9 +157,24 @@ class Dancer {
     });
   }
 
-  update(status) {
+  updateControl(status) {
     this.setStat(status);
     this.updateTexture();
+  }
+
+  updatePos(time, nextFrame, preFrame) {
+    const { x: preX, y: preY, z: preZ, Start: preStart } = preFrame;
+    const { x: nextX, y: nextY, z: nextZ, Start: nextStart } = nextFrame;
+    if (preFrame === nextFrame) {
+      this.setPos({ x: preX, y: preY, z: preZ });
+    } else {
+      const duration = nextStart - preStart;
+      const mutiplier = (time - preStart) / duration;
+      const curX = preX + (nextX - preX) * mutiplier;
+      const curY = preY + (nextY - preY) * mutiplier;
+      const curZ = preY + (nextZ - preZ) * mutiplier;
+      this.setPos({ x: curX, y: curY, z: curZ });
+    }
   }
 }
 

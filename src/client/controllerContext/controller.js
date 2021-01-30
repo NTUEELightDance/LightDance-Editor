@@ -3,8 +3,13 @@ import WaveSurferApp from "./waveSurferApp";
 import Dancer from "./dancer";
 import { DANCER_NUM } from "../constants";
 import load from "../../../data/load.json";
+import position from "../../../data/position.json";
 import control from "../../../data/control.json";
-import { setFrame } from "../features/globalSlice";
+import {
+  setControlFrame,
+  setPosFrame,
+  setNewPosRecord,
+} from "../features/globalSlice";
 import store from "../store";
 
 class Controller {
@@ -12,31 +17,79 @@ class Controller {
     this.wavesurferApp = null;
     this.dancers = null;
     this.pixiApp = null;
+    this.mainContainer = null;
+    this.localStorage = null;
   }
 
   init() {
+    this.localStorage = window.localStorage;
+
     // initialization for wavesurferApp
     this.wavesurferApp = new WaveSurferApp();
     this.wavesurferApp.init();
 
     // initialization for PIXIApp
     this.pixiApp = new PIXI.Application({ width: 960, height: 720 });
+    this.mainContainer = new PIXI.Container();
+    this.mainContainer.sortableChildren = true;
+    this.pixiApp.stage.addChild(this.mainContainer);
     document.getElementById("main_stage").appendChild(this.pixiApp.view);
 
     // initialization for dancers
     this.dancers = [];
     for (let i = 0; i < DANCER_NUM; ++i) {
-      this.dancers.push(new Dancer(i, this.pixiApp, load.Texture));
+      this.dancers.push(
+        new Dancer(i, this.pixiApp, load.Texture, this.mainContainer)
+      );
+    }
+    store.dispatch(setNewPosRecord());
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  updateFrameWhilePlaying(time, controlFrame, posFrame) {
+    // update for control
+    if (time >= control["player0"][controlFrame + 1].Start) {
+      store.dispatch(setControlFrame(controlFrame + 1));
+    }
+    // update for position
+    if (!position["player0"][posFrame + 1]) return;
+    if (time >= position["player0"][posFrame + 1].Start) {
+      store.dispatch(setPosFrame(posFrame + 1));
     }
   }
 
-  updateWhilePlaying(time, frame) {
-    if (time >= control["player0"][frame + 1].Start) {
-      store.dispatch(setFrame(frame + 1));
-      this.dancers.forEach((dancer, i) => {
-        dancer.update(control[dancer.name][frame + 1].Status);
+  updateDancersControl(controlFrame) {
+    this.dancers.forEach((dancer) => {
+      dancer.updateControl(control[dancer.name][controlFrame + 1].Status);
+    });
+  }
+
+  updateDancersPos(time, posFrame) {
+    if (position["player0"][posFrame + 1]) {
+      this.dancers.forEach((dancer) => {
+        const preFrame = position[dancer.name][posFrame];
+        const nextFrame = position[dancer.name][posFrame + 1];
+        dancer.updatePos(time, preFrame, nextFrame);
+      });
+    } else {
+      this.dancers.forEach((dancer) => {
+        const preFrame = position[dancer.name][posFrame];
+        dancer.updatePos(time, preFrame, preFrame);
       });
     }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  downloadJson(exportObj, exportName) {
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
+      JSON.stringify(exportObj)
+    )}`;
+    const downloadAnchorNode = document.createElement("a");
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `${exportName}.json`);
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
   }
 }
 

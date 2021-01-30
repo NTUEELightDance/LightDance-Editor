@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { playPause, selectGlobal } from "../globalSlice";
 
@@ -11,7 +11,7 @@ import { ControllerContext } from "../../controllerContext";
  */
 const Wavesurfer = () => {
   const controller = useContext(ControllerContext);
-  const { time } = useSelector(selectGlobal);
+  const { controlFrame, posFrame, posRecord, time } = useSelector(selectGlobal);
   const dispatch = useDispatch();
 
   const handlePlayPause = () => {
@@ -21,8 +21,18 @@ const Wavesurfer = () => {
 
   return (
     <>
-      <button onClick={handlePlayPause}>Play/Pause</button>
-      <div id="waveform">wavesurfer {time}</div>
+      <button onClick={handlePlayPause} type="button">
+        Play/Pause
+      </button>
+      <button
+        onClick={() => controller.downloadJson(posRecord, "position.json")}
+        type="button"
+      >
+        Download position
+      </button>
+      <div id="waveform">
+        wavesurfer time:{time} controlFram:{controlFrame} posFrame: {posFrame}
+      </div>
     </>
   );
 };
