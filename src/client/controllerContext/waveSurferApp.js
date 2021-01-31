@@ -19,11 +19,17 @@ class WaveSurferApp {
       progressColor: "purple",
     });
     this.waveSurferApp.load(load.Music);
-    this.waveSurferApp.on("seek", () => {
+    this.waveSurferApp.on("seek", (data) => {
       console.log("seeking");
       store.dispatch(
         updateTime(Math.round(this.waveSurferApp.getCurrentTime() * 1000))
       );
+
+      if (this.waveSurferApp.isPlaying()) {
+        this.waveSurferApp.play();
+      } else {
+        this.waveSurferApp.pause();
+      }
     });
     this.waveSurferApp.on("audioprocess", () => {
       store.dispatch(

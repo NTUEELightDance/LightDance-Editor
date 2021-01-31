@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { playPause, selectGlobal } from "../globalSlice";
 
@@ -11,7 +11,9 @@ import { ControllerContext } from "../../controllerContext";
  */
 const Wavesurfer = () => {
   const controller = useContext(ControllerContext);
-  const { controlFrame, posFrame, posRecord, time } = useSelector(selectGlobal);
+  const { isPlaying, posRecord, timeData } = useSelector(selectGlobal);
+  const { controlFrame, posFrame, time } = timeData;
+
   const dispatch = useDispatch();
 
   const handlePlayPause = () => {

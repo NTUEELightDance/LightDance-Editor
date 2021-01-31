@@ -11,7 +11,8 @@ import { ControllerContext } from "../../controllerContext";
 
 const Pixi = () => {
   const controller = useContext(ControllerContext);
-  const { time, controlFrame, posFrame } = useSelector(selectGlobal);
+  const { timeData } = useSelector(selectGlobal);
+  const { time, controlFrame, posFrame } = timeData;
 
   useEffect(() => {
     // console.log(time, controlFrame);
@@ -33,6 +34,8 @@ const Pixi = () => {
       controller.updateDancersPos(time, posFrame);
     }
   }, [posFrame]);
+
+  // store.dispatch(setControllerPos(controller, posFrame))
 
   return (
     <div className="Simulator">

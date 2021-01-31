@@ -60,7 +60,7 @@ class Controller {
 
   updateDancersControl(controlFrame) {
     this.dancers.forEach((dancer) => {
-      dancer.updateControl(control[dancer.name][controlFrame + 1].Status);
+      dancer.updateControl(control[dancer.name][controlFrame].Status);
     });
   }
 
