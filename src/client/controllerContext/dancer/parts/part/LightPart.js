@@ -7,14 +7,6 @@ class LightPart extends Part {
     this.textures[this.paths[0]] = PIXI.Texture.from(
       `./asset/Part/${this.paths[0]}.svg`
     );
-    /*
-      const checkBox = document.querySelector("#dancer-checkbox-list").children[
-        dancer.id
-      ].children[0];
-      checkBox.onclick();
-      checkBox.checked = true;
-      */
-    // });
   }
 
   updateTexture(alpha) {

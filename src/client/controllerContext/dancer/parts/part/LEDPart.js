@@ -13,20 +13,11 @@ class LEDPart extends Part {
         console.error(err);
       }
     });
-
-    /*
-      const checkBox = document.querySelector("#dancer-checkbox-list").children[
-        dancer.id
-      ].children[0];
-      checkBox.onclick();
-      checkBox.checked = true;
-      */
-    // };
   }
 
-  updateTexture({ name, alpha }) {
+  updateTexture({ src, alpha }) {
     // console.log("Updating LEDPart", name, alpha)
-    this.sprite.texture = this.textures[name];
+    this.sprite.texture = this.textures[src];
     this.sprite.alpha = alpha;
   }
 }

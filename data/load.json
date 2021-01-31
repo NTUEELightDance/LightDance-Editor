@@ -1,5 +1,5 @@
 {
-  "Music": "eenight.wav",
+  "Music": "./asset/eenight.wav",
   "Control": "control.json",
   "Presets": "presets.json",
   "Texture": {
