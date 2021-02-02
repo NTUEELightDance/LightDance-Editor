@@ -1,45 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const SliderBar = (props) => {
-  const { partName, disabled } = props;
+  // ======= const value props ============
+  const { partName, disabled, isChosen, value } = props;
 
-  const [value, setValue] = useState(0);
+  // ======= const function props =========
+  const { setChosenParts, setValue } = props;
 
-  const step = 1;
+  // const [value, setValue] = useState(0);
+  // const [isChosen, setIsChosen] = useState(false); //wrong!
 
-  const keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
+  const step = 0.01;
+
   const preventDefault = (e) => e.preventDefault();
-  const preventDefaultForScrollKeys = (e) => {
-    if (keys[e.keyCode]) {
-      preventDefault(e);
-      return false;
-    }
-  };
+
   const mousewheelevt = /Firefox/i.test(navigator.userAgent)
     ? "DOMMouseScroll"
     : "mousewheel";
 
-  // modern Chrome requires { passive: false } when adding event
-  const supportsPassive = true;
+  const editor = document.getElementById("editor");
 
   const disableWindowScroll = () => {
-    const wheelOpt = supportsPassive ? { passive: false } : false;
-    window.addEventListener(mousewheelevt, preventDefault, wheelOpt); // modern desktop
-    /* window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
-    window.addEventListener("keydown", preventDefaultForScrollKeys, false); */
+    editor.onwheel = preventDefault;
   };
 
   const enableWindowScroll = (e) => {
-    const wheelOpt = supportsPassive ? { passive: false } : false;
-    console.log("enableWindowScroll");
-    window.removeEventListener(mousewheelevt, preventDefault, wheelOpt);
-    /* window.removeEventListener("touchmove", preventDefault, wheelOpt);
-    window.removeEventListener("keydown", preventDefaultForScrollKeys, false); */
+    editor.onwheel = null;
   };
 
   const moveSlider = (e) => {
-    // console.log("moveSlider");
-    const zoomLevel = parseInt(e.target.value, 10);
+    const zoomLevel = Number(e.target.value);
 
     // console.log(e.deltaY);
 
@@ -57,7 +47,7 @@ const SliderBar = (props) => {
       e.target.value = zoomLevel;
     }
 
-    setValue(e.target.value);
+    setValue(Number(e.target.value), isChosen);
   };
 
   const handleWheel = (e) => {
@@ -65,11 +55,20 @@ const SliderBar = (props) => {
   };
 
   const handleChange = (e) => {
-    setValue(e.target.value);
+    setValue(Number(e.target.value), isChosen);
   };
 
   const handleInputChange = (e) => {
-    setValue(e.target.value);
+    setValue(e.target.value ? Number(e.target.value) : 0, isChosen);
+  };
+
+  const setIsChosen = () => {
+    setChosenParts((state) => ({ ...state, [partName]: true }));
+  };
+
+  const handleMultiChoose = (e) => {
+    e.preventDefault();
+    setIsChosen();
   };
 
   return (
@@ -77,25 +76,36 @@ const SliderBar = (props) => {
       <label for={partName} className="form-label">
         {partName}
       </label>
-      <div className="input-group">
+      <div
+        className="input-group"
+        onDoubleClick={handleMultiChoose}
+        style={{
+          boxShadow: isChosen ? "0 0 0 0.25rem rgb(13 110 253 / 25%)" : "none",
+        }}
+      >
         <input
           type="range"
           className="form-range form-control me-2"
-          style={{ border: "none" }}
+          style={{ border: "none", backgroundColor: "transparent" }}
           id={partName}
           value={value}
           onMouseOver={handleWheel}
           onMouseOut={enableWindowScroll}
           onChange={handleChange}
           disabled={disabled}
+          min={0}
+          max={1}
+          step={0.01}
         />
         <input
           type="number"
           className="form-control"
-          value={value / 100}
+          value={value}
           onChange={handleInputChange}
           disabled={disabled}
-          min="0"
+          min={0}
+          max={1}
+          step={0.01}
         />
       </div>
     </>

@@ -18,11 +18,9 @@ const App = () => {
   return (
     <Provider store={store}>
       <ControllerProvider>
-        <div>
-          <Pixi />
-          <Wavesurfer />
-          <Editor />
-        </div>
+        <Pixi />
+        <Editor />
+        <Wavesurfer />
       </ControllerProvider>
     </Provider>
   );

@@ -38,7 +38,7 @@ const Pixi = () => {
   // store.dispatch(setControllerPos(controller, posFrame))
 
   return (
-    <div className="Simulator">
+    <div className="Simulator d-inline-block">
       <div id="main_stage" />
     </div>
   );
