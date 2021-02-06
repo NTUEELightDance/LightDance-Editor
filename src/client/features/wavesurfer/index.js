@@ -29,17 +29,18 @@ const Wavesurfer = () => {
 
   const handleSetFrame = (event) => {
     console.log(frameInput, controller.wavesurferApp);
-    const newTimeData = controller.updateTimeDataByFrame(
-      parseInt(frameInput, 10)
-    );
+    const newFrame = parseInt(frameInput, 10);
+    const newTimeData = controller.updateTimeDataByFrame(newFrame);
     console.log(newTimeData);
-    store.dispatch(updateTimeData(newTimeData));
+    if (timeData !== {}) {
+      store.dispatch(updateTimeData(newTimeData));
+    }
     event.preventDefault();
   };
 
   return (
     <>
-      <form>
+      <form onSubmit={handleSetFrame}>
         <label>
           ControlFrame:
           <input
@@ -51,6 +52,7 @@ const Wavesurfer = () => {
         </label>
         <input type="button" value="Submit" onClick={handleSetFrame} />
       </form>
+
       <button onClick={handlePlayPause} type="button">
         Play/Pause
       </button>
