@@ -1,8 +1,9 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { playPause, selectGlobal } from "../globalSlice";
+import { playPause, selectGlobal, updateTimeData } from "../globalSlice";
 
 import { ControllerContext } from "../../controllerContext";
+import store from "../../store";
 
 /**
  *
@@ -11,7 +12,8 @@ import { ControllerContext } from "../../controllerContext";
  */
 const Wavesurfer = () => {
   const controller = useContext(ControllerContext);
-  const { isPlaying, posRecord, timeData } = useSelector(selectGlobal);
+  const [frameInput, setFrameInput] = useState("");
+  const { posRecord, timeData } = useSelector(selectGlobal);
   const { controlFrame, posFrame, time } = timeData;
 
   const dispatch = useDispatch();
@@ -21,8 +23,34 @@ const Wavesurfer = () => {
     dispatch(playPause());
   };
 
+  const handleInputChange = (event) => {
+    setFrameInput(event.target.value);
+  };
+
+  const handleSetFrame = (event) => {
+    console.log(frameInput, controller.wavesurferApp);
+    const newTimeData = controller.updateTimeDataByFrame(
+      parseInt(frameInput, 10)
+    );
+    console.log(newTimeData);
+    store.dispatch(updateTimeData(newTimeData));
+    event.preventDefault();
+  };
+
   return (
     <>
+      <form>
+        <label>
+          ControlFrame:
+          <input
+            type="text"
+            name="frame"
+            value={frameInput}
+            onChange={handleInputChange}
+          />
+        </label>
+        <input type="button" value="Submit" onClick={handleSetFrame} />
+      </form>
       <button onClick={handlePlayPause} type="button">
         Play/Pause
       </button>

@@ -1,10 +1,6 @@
 import WaveSurfer from "wavesurfer.js";
 import store from "../store";
-import {
-  updateTime,
-  findCurrentControlFrame,
-  findCurrentPosFrame,
-} from "../features/globalSlice";
+import { updateTimeData } from "../features/globalSlice";
 import load from "../../../data/load.json";
 
 class WaveSurferApp {
@@ -19,10 +15,12 @@ class WaveSurferApp {
       progressColor: "purple",
     });
     this.waveSurferApp.load(load.Music);
-    this.waveSurferApp.on("seek", (data) => {
+    this.waveSurferApp.on("seek", () => {
       console.log("seeking");
       store.dispatch(
-        updateTime(Math.round(this.waveSurferApp.getCurrentTime() * 1000))
+        updateTimeData({
+          time: Math.round(this.waveSurferApp.getCurrentTime() * 1000),
+        })
       );
 
       if (this.waveSurferApp.isPlaying()) {
@@ -33,7 +31,9 @@ class WaveSurferApp {
     });
     this.waveSurferApp.on("audioprocess", () => {
       store.dispatch(
-        updateTime(Math.round(this.waveSurferApp.getCurrentTime() * 1000))
+        updateTimeData({
+          time: Math.round(this.waveSurferApp.getCurrentTime() * 1000),
+        })
       );
     });
   }

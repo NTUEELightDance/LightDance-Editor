@@ -5,10 +5,12 @@ import { DANCER_NUM } from "../constants";
 import load from "../../../data/load.json";
 import position from "../../../data/position.json";
 import control from "../../../data/control.json";
+import updateFrameByTime from "../features/utils";
 import {
   setControlFrame,
   setPosFrame,
   setNewPosRecord,
+  updateTimeData,
 } from "../features/globalSlice";
 import store from "../store";
 
@@ -27,6 +29,7 @@ class Controller {
     // initialization for wavesurferApp
     this.wavesurferApp = new WaveSurferApp();
     this.wavesurferApp.init();
+    this.wavesurferApp = this.wavesurferApp.waveSurferApp;
 
     // initialization for PIXIApp
     this.pixiApp = new PIXI.Application({ width: 960, height: 720 });
@@ -43,6 +46,23 @@ class Controller {
       );
     }
     store.dispatch(setNewPosRecord());
+  }
+
+  updateTimeDataByFrame(newControlFrame) {
+    const newTimeData = {};
+    if (
+      newControlFrame <= control["player0"].length - 1 &&
+      newControlFrame >= 0
+    ) {
+      const newTime = control["player0"][newControlFrame].Start;
+      newTimeData.time = newTime;
+      newTimeData.controlFrame = newControlFrame;
+      newTimeData.posFrame = updateFrameByTime(position, 0, newTime);
+      this.wavesurferApp.seekTo(
+        newTime / this.wavesurferApp.getDuration() / 1000
+      );
+    }
+    return newTimeData;
   }
 
   // eslint-disable-next-line class-methods-use-this

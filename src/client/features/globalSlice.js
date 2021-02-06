@@ -1,28 +1,14 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
+import updateFrameByTime from "./utils";
 import control from "../../../data/control.json";
 import position from "../../../data/position.json";
-
-const binarySearchFrame = (data, time) => {
-  let l = 0;
-  let r = data["player0"].length - 1;
-  let m = Math.floor((l + r + 1) / 2);
-  while (l < r) {
-    if (data["player0"][m].Start <= time) l = m;
-    else r = m - 1;
-    m = Math.floor((l + r + 1) / 2);
-  }
-  return m;
-};
 
 export const globalSlice = createSlice({
   name: "global",
   initialState: {
     dancerNum: Object.keys(control).length,
     isPlaying: false,
-    // time: 0,
-    // controlFrame: 0,
-    // posFrame: 0,
     selected: [0],
     currentStatus: {},
     currentPos: {},
@@ -37,29 +23,21 @@ export const globalSlice = createSlice({
     playPause: (state) => {
       state.isPlaying = !state.isPlaying;
     },
-    updateTime: (state, action) => {
-      const time = action.payload;
+    updateTimeData: (state, action) => {
+      let {
+        time: newTime,
+        controlFrame: newControlFrame,
+        posFram: newPosFrame,
+      } = action.payload;
 
-      if (
-        control["player0"][state.timeData.controlFrame + 2] &&
-        time >= control["player0"][state.timeData.controlFrame + 1].Start &&
-        time <= control["player0"][state.timeData.controlFrame + 2].Start
-      ) {
-        state.timeData.controlFrame += 1;
-      } else {
-        state.timeData.controlFrame = binarySearchFrame(control, time);
+      if (!newControlFrame || !newPosFrame) {
+        const { posFrame, controlFrame } = state.timeData;
+        newControlFrame = updateFrameByTime(control, controlFrame, newTime);
+        newPosFrame = updateFrameByTime(position, posFrame, newTime);
       }
-
-      if (
-        position["player0"][state.timeData.posFrame + 2] &&
-        time >= position["player0"][state.timeData.posFrame + 1].Start &&
-        time <= position["player0"][state.timeData.posFrame + 2].Start
-      ) {
-        state.timeData.posFrame += 1;
-      } else {
-        state.timeData.posFrame = binarySearchFrame(position, time);
-      }
-      state.timeData.time = action.payload;
+      state.timeData.controlFrame = newControlFrame;
+      state.timeData.posFrame = newPosFrame;
+      state.timeData.time = newTime;
     },
     setControlFrame: (state, action) => {
       state.timeData.controlFrame = action.payload;
@@ -96,11 +74,9 @@ export const globalSlice = createSlice({
 
 export const {
   playPause,
-  updateTime,
+  updateTimeData,
   setControlFrame,
   setPosFrame,
-  findCurrentControlFrame,
-  findCurrentPosFrame,
   setSeletected,
   setCurrentStatus,
   setCurrentPos,
