@@ -1,17 +1,18 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
 import updateFrameByTime from "./utils";
-import control from "../../../data/control.json";
-import position from "../../../data/position.json";
+// import control from "../../../data/control.json";
+// import position from "../../../data/position.json";
 
 export const globalSlice = createSlice({
   name: "global",
   initialState: {
-    dancerNum: Object.keys(control).length,
+    dancerNum: 0,
     isPlaying: false,
     selected: [0],
     currentStatus: {},
     currentPos: {},
+    controlRecord: {},
     posRecord: {},
     timeData: {
       time: 0,
@@ -23,17 +24,28 @@ export const globalSlice = createSlice({
     playPause: (state) => {
       state.isPlaying = !state.isPlaying;
     },
+    controlInit: (state, action) => {
+      state.controlRecord = action.payload;
+      state.dancerNum = Object.keys(state.controlRecord).length;
+    },
+    posInit: (state, action) => {
+      state.posRecord = action.payload;
+    },
     updateTimeData: (state, action) => {
+      const { time: newTime } = action.payload;
       let {
-        time: newTime,
         controlFrame: newControlFrame,
         posFram: newPosFrame,
       } = action.payload;
 
       if (!newControlFrame || !newPosFrame) {
         const { posFrame, controlFrame } = state.timeData;
-        newControlFrame = updateFrameByTime(control, controlFrame, newTime);
-        newPosFrame = updateFrameByTime(position, posFrame, newTime);
+        newControlFrame = updateFrameByTime(
+          state.controlRecord,
+          controlFrame,
+          newTime
+        );
+        newPosFrame = updateFrameByTime(state.posRecord, posFrame, newTime);
       }
       state.timeData.controlFrame = newControlFrame;
       state.timeData.posFrame = newPosFrame;
@@ -49,21 +61,36 @@ export const globalSlice = createSlice({
       state.selected = action.payload;
     },
     setCurrentStatus: (state, action) => {
-      state.currentStatus = action.payload;
+      const { id, status } = action.payload;
+      state.currentStatus[`player${id}`] = status;
     },
     setCurrentPos: (state, action) => {
       const { id, x, y, z } = action.payload;
       state.currentPos[`player${id}`] = { x, y, z };
     },
     setNewPosRecord: (state) => {
-      const curTime = state.timeData.time;
+      // can't save while playing
+      if (state.isPlaying) return;
+
+      const { time: curTime, posFrame } = state.timeData;
+
       Object.keys(state.currentPos).forEach((curName) => {
         const posData = state.currentPos[curName];
         let { x, y, z } = posData;
         [x, y, z] = [x, y, z].map((ele) => Math.round(ele * 1000) / 1000);
         const newPosFrame = { Start: curTime, x, y, z };
+        const cloestPosFrame = updateFrameByTime(
+          state.posRecord,
+          posFrame,
+          curTime
+        );
+        state.timeData.posFrame = cloestPosFrame;
         if (state.posRecord[curName]) {
-          state.posRecord[curName].push(newPosFrame);
+          if (state.posRecord["player0"][cloestPosFrame].Start === curTime) {
+            state.posRecord[curName][cloestPosFrame] = newPosFrame;
+          } else {
+            state.posRecord[curName].splice(cloestPosFrame + 1, 0, newPosFrame);
+          }
         } else {
           state.posRecord[curName] = [newPosFrame];
         }
@@ -74,6 +101,8 @@ export const globalSlice = createSlice({
 
 export const {
   playPause,
+  posInit,
+  controlInit,
   updateTimeData,
   setControlFrame,
   setPosFrame,

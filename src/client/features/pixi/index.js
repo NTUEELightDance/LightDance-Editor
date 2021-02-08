@@ -11,27 +11,27 @@ import { ControllerContext } from "../../controllerContext";
 
 const Pixi = () => {
   const controller = useContext(ControllerContext);
-  const { timeData } = useSelector(selectGlobal);
+  const { timeData, controlRecord, posRecord } = useSelector(selectGlobal);
   const { time, controlFrame, posFrame } = timeData;
 
   useEffect(() => {
     // console.log(time, controlFrame);
     if (controller) {
-      controller.updateDancersPos(time, posFrame);
+      controller.updateDancersPos(posRecord, time, posFrame);
     }
   }, [time]);
 
   useEffect(() => {
     // console.log(time, controlFrame);
     if (controller) {
-      controller.updateDancersControl(controlFrame);
+      controller.updateDancersControl(controlRecord, controlFrame);
     }
   }, [controlFrame]);
 
   useEffect(() => {
     // console.log(time, controlFrame);
     if (controller) {
-      controller.updateDancersPos(time, posFrame);
+      controller.updateDancersPos(posRecord, time, posFrame);
     }
   }, [posFrame]);
 

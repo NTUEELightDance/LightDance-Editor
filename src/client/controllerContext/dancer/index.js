@@ -11,6 +11,7 @@ import {
 } from "../../constants";
 import store from "../../store";
 import {
+  setCurrentStatus,
   setSeletected,
   setCurrentPos,
   setNewPosRecord,
@@ -84,6 +85,7 @@ class Dancer {
         z: this.container.zIndex,
       })
     );
+    console.log(this.status);
   }
 
   onDragStart(event) {
@@ -94,6 +96,14 @@ class Dancer {
     this.data = event.data;
     this.alpha = 0.5;
     this.dragging = true;
+  }
+
+  onDragMove() {
+    if (this.dragging) {
+      const newPosition = this.data.getLocalPosition(this.parent);
+      this.x = newPosition.x - this.width / 2;
+      this.y = newPosition.y - this.height / 2;
+    }
   }
 
   onDragEnd() {
@@ -112,22 +122,13 @@ class Dancer {
       })
     );
     store.dispatch(setNewPosRecord());
-    console.log(store.getState().global.currentPos);
     console.log(store.getState().global.posRecord);
-  }
-
-  onDragMove() {
-    if (this.dragging) {
-      const newPosition = this.data.getLocalPosition(this.parent);
-      this.x = newPosition.x - this.width / 2;
-      this.y = newPosition.y - this.height / 2;
-    }
   }
 
   initPos(num = DANCER_NUM, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
     const ratio = this.container.width / this.container.height;
     this.container.height = height * 0.95;
-    if (num > 1) this.container.height = this.container.height / 2;
+    if (num > 1) this.container.height /= 2;
     this.container.width = this.container.height * ratio;
 
     const half = num > 1 ? num / 2 : num;
@@ -148,6 +149,7 @@ class Dancer {
   setStat(status) {
     // console.log("Dancer setStat", status);
     this.status = Object.assign({}, status);
+    store.dispatch(setCurrentStatus({ id: this.id, status }));
   }
 
   updateTexture() {
