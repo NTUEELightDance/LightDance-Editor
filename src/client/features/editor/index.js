@@ -12,6 +12,7 @@ const Editor = (props) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [currentMode, setCurrentMode] = useState("");
   const [currentFrame, setCurrentFrame] = useState(0);
+
   const [currentPeopleNum, setCurrentPeopleNum] = useState(8);
 
   const [currentChoose, setCurrentChoose] = useState(
@@ -44,8 +45,6 @@ const Editor = (props) => {
   // ========= scroll bar config ============
 
   // ========= self state =================
-
-  const [multiChosenValue, setMultiChosenValue] = useState(0);
 
   // ========= self state =================
 
@@ -141,6 +140,11 @@ const Editor = (props) => {
   useEffect(() => {
     renderDisplayPeoples();
   }, [currentChoose]);
+
+  useEffect(() => {
+    // TODO
+    // get new frame and update other state
+  }, [currentFrame]);
 
   return (
     <div
@@ -322,6 +326,20 @@ const Editor = (props) => {
         >
           {renderSlideBars()}
         </div>
+        {/* =============== Del Button ================ */}
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={currentMode !== "EDIT" && currentMode !== "ADD"}
+          onClick={(e) => {
+            e.preventDefault();
+            // TODO
+            // delete current frame
+          }}
+        >
+          DEL
+        </button>
+        {/* =============== Del Button ================ */}
       </Scrollbars>
       {/* =============== SlideBars ================= */}
     </div>
