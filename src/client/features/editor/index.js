@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Scrollbars from "react-custom-scrollbars";
 
 // import components
 import SlideBar from "./slidebar";
-import Scrollbars from "react-custom-scrollbars";
 // import light part constant
 import { LIGHTPARTS } from "../../constants/index";
 
@@ -10,7 +10,7 @@ const Editor = (props) => {
   // ========= State need to be change into Redux ==============
 
   const [currentTime, setCurrentTime] = useState(0);
-  const [currentMode, setCurrentMode] = useState("SAVE");
+  const [currentMode, setCurrentMode] = useState("");
   const [currentFrame, setCurrentFrame] = useState(0);
   const [currentPeopleNum, setCurrentPeopleNum] = useState(8);
 
@@ -24,12 +24,13 @@ const Editor = (props) => {
   );
   const [chosenParts, setChosenParts] = useState(defaultChosenParts);
 
-  const testPartsValue = LIGHTPARTS.reduce(
-    (acc, key) => ({ ...acc, [key]: 0 }),
-    {}
-  );
+  const testPartsValue = Array(currentPeopleNum)
+    .fill(LIGHTPARTS.reduce((acc, key) => ({ ...acc, [key]: 0 }), {}))
+    .reduce((acc, item, key) => ({ ...acc, [key]: item }), {});
 
   const [partsValue, setPartsValue] = useState(testPartsValue);
+
+  const [currentDisplayPeople, setCurrentDisplayPeople] = useState(0);
 
   // ========= State need to be change into Redux ==============
   // ========= scroll bar config ============
@@ -78,11 +79,21 @@ const Editor = (props) => {
   };
 
   const handleChangeMultiValues = (newValue) => {
-    Object.keys(chosenParts)
-      .filter((part) => chosenParts[part])
-      .forEach((part) => {
-        setPartsValue((state) => ({ ...state, [part]: newValue }));
-      });
+    currentChoose.forEach((isChosen, peopleNum) => {
+      if (isChosen) {
+        Object.keys(chosenParts)
+          .filter((part) => chosenParts[part])
+          .forEach((part) => {
+            setPartsValue((state) => ({
+              ...state,
+              [peopleNum]: {
+                ...state[peopleNum],
+                [part]: newValue,
+              },
+            }));
+          });
+      }
+    });
   };
 
   const renderSlideBars = () => {
@@ -98,15 +109,38 @@ const Editor = (props) => {
             if (isChosen) {
               handleChangeMultiValues(newValue);
             } else {
-              setPartsValue((state) => ({ ...state, [lightpart]: newValue }));
+              currentChoose.forEach((isPeopleChosen, peopleNum) => {
+                if (isPeopleChosen) {
+                  setPartsValue((state) => ({
+                    ...state,
+                    [peopleNum]: {
+                      ...state[peopleNum],
+                      [lightpart]: newValue,
+                    },
+                  }));
+                }
+              });
             }
           }}
           isChosen={chosenParts[lightpart]}
-          value={partsValue[lightpart]}
+          value={partsValue[currentDisplayPeople][lightpart]}
         />
       );
     });
   };
+
+  const renderDisplayPeoples = () => {
+    for (let i = currentChoose.length - 1; i > -1; i -= 1) {
+      if (currentChoose[i]) {
+        setCurrentDisplayPeople(i);
+        break;
+      }
+    }
+  };
+
+  useEffect(() => {
+    renderDisplayPeoples();
+  }, [currentChoose]);
 
   return (
     <div
@@ -137,7 +171,7 @@ const Editor = (props) => {
             <button
               type="button"
               className="btn btn-primary me-2"
-              disabled={currentFrame === 0 ? true : false}
+              disabled={currentFrame === 0}
               onClick={(e) => {
                 e.preventDefault();
                 setCurrentFrame((state) => state - 1);
@@ -198,13 +232,15 @@ const Editor = (props) => {
         {/* =============== People Ratio =============== */}
 
         {/* =============== Mode Select =============== */}
+        {/* TODO */}
+        {/* need to implement appearance */}
         <div className="btn-group" role="group" aria-label="Basic example">
           <button
             type="button"
             className="btn btn-primary me-2"
             onClick={(e) => {
               e.preventDefault();
-              setCurrentMode("EDIT");
+              setCurrentMode(currentMode === "EDIT" ? "" : "EDIT");
             }}
           >
             EDIT
@@ -214,7 +250,7 @@ const Editor = (props) => {
             className="btn btn-primary me-2"
             onClick={(e) => {
               e.preventDefault();
-              setCurrentMode("ADD");
+              setCurrentMode(currentMode === "ADD" ? "" : "ADD");
             }}
           >
             ADD
@@ -224,13 +260,55 @@ const Editor = (props) => {
             className="btn btn-primary"
             onClick={(e) => {
               e.preventDefault();
-              setCurrentMode("SAVE");
+              setCurrentMode("");
+              // TODO
+              // save to db
             }}
           >
             SAVE
           </button>
+          {/* ============= Current Display Value =========== */}
+          <div className="btn-group" role="group">
+            <button
+              type="button"
+              className="btn btn-primary me-2"
+              disabled={currentDisplayPeople === 0}
+              onClick={(e) => {
+                e.preventDefault();
+                setCurrentDisplayPeople((state) => state - 1);
+              }}
+            >
+              {"<"}
+            </button>
+            <input
+              type="number"
+              className="form-control me-2"
+              placeholder="Display"
+              onChange={(e) => {
+                if (e.target.value !== "") {
+                  setCurrentDisplayPeople(parseInt(e.target.value, 10));
+                }
+              }}
+              value={currentDisplayPeople}
+              min="0"
+              max={`${currentPeopleNum - 1}`}
+            />
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={currentDisplayPeople === currentPeopleNum - 1}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentDisplayPeople((state) => state + 1);
+            }}
+          >
+            {">"}
+          </button>
+          {/* ============= Current Display Value =========== */}
         </div>
         {/* =============== Mode Select =============== */}
+        {/* =============== SlideBars ================= */}
 
         <div
           id="slidebars"
@@ -245,6 +323,7 @@ const Editor = (props) => {
           {renderSlideBars()}
         </div>
       </Scrollbars>
+      {/* =============== SlideBars ================= */}
     </div>
   );
 };

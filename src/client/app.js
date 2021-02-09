@@ -19,7 +19,7 @@ const App = () => {
     <Provider store={store}>
       <ControllerProvider>
         <Pixi />
-        {/* <Editor /> */}
+        <Editor />
         <Wavesurfer />
       </ControllerProvider>
     </Provider>
