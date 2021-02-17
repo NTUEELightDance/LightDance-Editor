@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
 import updateFrameByTime from "./utils";
+// constants
 // import control from "../../../data/control.json";
 // import position from "../../../data/position.json";
 
@@ -12,25 +13,33 @@ export const globalSlice = createSlice({
     selected: [], // dancer selected
 
     currentStatus: {}, // current dancers' frame, TODO: kill this
-    currentFrame: {}, // current dancers' frame
     currentPos: {}, // currnet dancers' position
 
-    controlRecord: {}, // all dancer's frame
+    controlRecord: {}, // all dancer's status, TODEL
     posRecord: {}, // all dancer's position
+    // TODO
+    statusRecord: {}, // all dancer's status
 
     timeData: {
+      controlFrame: 0, // control frame's index, TODEL
+      posFrame: 0, // positions' index, TODEL
+
+      // TODO
       time: 0, // time
-      controlFrame: 0, // control frame index
-      posFrame: 0, // position frame index
+      from: "", // update from what component
+      statusIdx: 0, // status index
+      posIdx: 0, // pos index
     },
   },
   reducers: {
     /**
      * Play or Pause
      * @param {*} state - redux state
+     * @param {boolean} action.payload
      */
-    playPause: (state) => {
-      state.isPlaying = !state.isPlaying;
+    playPause: (state, action) => {
+      console.log(`isPlaying ${action.payload}`);
+      state.isPlaying = action.payload;
     },
 
     /**
@@ -55,7 +64,7 @@ export const globalSlice = createSlice({
     /**
      * Update Time data
      * @param {*} state
-     * @param {object} action.payload -  {time, controlFrame, postFrame}
+     * @param {object} action.payload -  {time, controlFrame, postFrame, from: string}
      */
     updateTimeData: (state, action) => {
       const { time: newTime } = action.payload;
@@ -63,7 +72,6 @@ export const globalSlice = createSlice({
         controlFrame: newControlFrame,
         posFram: newPosFrame, // ?????? posFrame?
       } = action.payload;
-
       if (!newControlFrame || !newPosFrame) {
         const { posFrame, controlFrame } = state.timeData;
         newControlFrame = updateFrameByTime(
@@ -157,6 +165,51 @@ export const globalSlice = createSlice({
         }
       });
     },
+
+    /**
+     * set timeData by time
+     * @param {} state
+     * @param {*} action.payload - number
+     */
+    setTime: (state, action) => {
+      const { from, time } = action.payload;
+      if (from === undefined || time === undefined) {
+        // Throw Error
+      }
+      state.timeData.from = from;
+      state.timeData.time = time >= 0 ? time : 0;
+      // TODO: change statusIdx and posIdx
+    },
+
+    /**
+     * set timeData by statusIdx
+     * @param {} state
+     * @param {*} action.payload - number
+     */
+    setStatusIdx: (state, action) => {
+      const { from, statusIdx } = action.payload;
+      if (from === undefined || statusIdx === undefined) {
+        // Throw Error
+      }
+      state.timeData.from = from;
+      state.timeData.statusIdx = statusIdx >= 0 ? statusIdx : 0;
+      // TODO: change time by statusRecord as well
+    },
+
+    /**
+     * set timeData by posIdx
+     * @param {} state
+     * @param {*} action.payload - number
+     */
+    setPosIdx: (state, action) => {
+      const { from, posIdx } = action.payload;
+      if (from === undefined || posIdx === undefined) {
+        // Throw Error
+      }
+      state.timeData.from = from;
+      state.timeData.posIdx = posIdx >= 0 ? posIdx : 0;
+      // TODO: change time by posRecord as well
+    },
   },
 });
 
@@ -171,6 +224,9 @@ export const {
   setCurrentStatus,
   setCurrentPos,
   setNewPosRecord,
+  setTime,
+  setPosIdx,
+  setStatusIdx,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;

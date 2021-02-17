@@ -14,12 +14,15 @@ const Pixi = () => {
   const { timeData, controlRecord, posRecord } = useSelector(selectGlobal);
   const { time, controlFrame, posFrame } = timeData;
 
+  // TOKILL
   useEffect(() => {
     // console.log(time, controlFrame);
     if (controller) {
       controller.updateDancersPos(posRecord, time, posFrame);
     }
   }, [time]);
+
+  // TODO, update by currentStatus
 
   useEffect(() => {
     // console.log(time, controlFrame);

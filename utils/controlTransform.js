@@ -33,10 +33,10 @@ const P0 = "player0";
 const control_transform = [];
 control[P0].forEach((frame, idx) => {
   const newFrame = { start: frame.Start };
-  newFrame.frame = {};
+  newFrame.status = {};
   Object.entries(control).forEach(([key, value]) => {
     const newKey = `dancer${key[key.length - 1]}`; // turn player0 to dancer0
-    newFrame.frame[newKey] = value[idx].Status;
+    newFrame.status[newKey] = value[idx].Status;
   });
   control_transform.push(newFrame);
 });

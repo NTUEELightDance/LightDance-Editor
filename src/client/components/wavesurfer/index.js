@@ -7,7 +7,8 @@ import {
   setNewPosRecord,
 } from "../../slices/globalSlice";
 
-import { ControllerContext } from "../../controllerContext";
+// import { ControllerContext } from "../../controllerContext";
+import { WaveSurferAppContext } from "../../contexts/wavesurferapp";
 import store from "../../store";
 
 /**
@@ -16,81 +17,88 @@ import store from "../../store";
  * @component
  */
 const Wavesurfer = () => {
-  const controller = useContext(ControllerContext);
-  const [controlFrameInput, setControlFrameInput] = useState("");
-  const [posFrameInput, setPosFrameInput] = useState("");
-  const { controlRecord, posRecord, timeData, currentStatus } = useSelector(
-    selectGlobal
-  );
-  const { controlFrame, posFrame, time } = timeData;
-
+  // redux
   const dispatch = useDispatch();
-
+  // waveSurferApp
+  const waveSurferApp = useContext(WaveSurferAppContext);
   const handlePlayPause = () => {
-    controller.wavesurferApp.playPause();
-    dispatch(playPause());
+    waveSurferApp.playPause();
+    // dispatch(playPause());
   };
+  const handleStop = () => {
+    waveSurferApp.stop();
+    // dispatch(playPause());
+  };
+  // const controller = useContext(ControllerContext);
+  // const [controlFrameInput, setControlFrameInput] = useState("");
+  // const [posFrameInput, setPosFrameInput] = useState("");
+  // const { controlRecord, posRecord, timeData, currentStatus } = useSelector(
+  //   selectGlobal
+  // );
+  // const { controlFrame, posFrame, time } = timeData;
 
-  const handleControlInputChange = (event) => {
-    setControlFrameInput(event.target.value);
-  };
-  const handlePosInputChange = (event) => {
-    setPosFrameInput(event.target.value);
-  };
+  // const dispatch = useDispatch();
 
-  const handleSetControlFrame = (event) => {
-    console.log(controlFrameInput, controller.wavesurferApp);
-    const newFrame = parseInt(controlFrameInput, 10);
-    const newTimeData = controller.updateTimeDataByFrame(
-      controlRecord,
-      posRecord,
-      newFrame,
-      "control"
-    );
-    console.log(newTimeData);
-    if (timeData !== {}) {
-      store.dispatch(updateTimeData(newTimeData));
-    }
-    event.preventDefault();
-  };
+  // const handleControlInputChange = (event) => {
+  //   setControlFrameInput(event.target.value);
+  // };
+  // const handlePosInputChange = (event) => {
+  //   setPosFrameInput(event.target.value);
+  // };
 
-  const handleSetPosFrame = (event) => {
-    console.log(posFrameInput, controller.wavesurferApp);
-    const newFrame = parseInt(posFrameInput, 10);
-    const newTimeData = controller.updateTimeDataByFrame(
-      controlRecord,
-      posRecord,
-      newFrame,
-      "position"
-    );
-    console.log(newTimeData);
-    if (timeData !== {}) {
-      store.dispatch(updateTimeData(newTimeData));
-    }
-    event.preventDefault();
-  };
+  // const handleSetControlFrame = (event) => {
+  //   console.log(controlFrameInput, controller.wavesurferApp);
+  //   const newFrame = parseInt(controlFrameInput, 10);
+  //   const newTimeData = controller.updateTimeDataByFrame(
+  //     controlRecord,
+  //     posRecord,
+  //     newFrame,
+  //     "control"
+  //   );
+  //   console.log(newTimeData);
+  //   if (timeData !== {}) {
+  //     store.dispatch(updateTimeData(newTimeData));
+  //   }
+  //   event.preventDefault();
+  // };
 
-  const handleSaveControlFrame = () => {
-    // controller.updateLocalStorage(
-    //   "controlTest",
-    //   store.getState().global.controlRecord
-    // );
-    console.log(controller.localStorage);
-    // console.log(currentStatus);
-  };
+  // const handleSetPosFrame = (event) => {
+  //   console.log(posFrameInput, controller.wavesurferApp);
+  //   const newFrame = parseInt(posFrameInput, 10);
+  //   const newTimeData = controller.updateTimeDataByFrame(
+  //     controlRecord,
+  //     posRecord,
+  //     newFrame,
+  //     "position"
+  //   );
+  //   console.log(newTimeData);
+  //   if (timeData !== {}) {
+  //     store.dispatch(updateTimeData(newTimeData));
+  //   }
+  //   event.preventDefault();
+  // };
 
-  const handleSavePosFrame = () => {
-    controller.updateLocalStorage(
-      "position",
-      store.getState().global.posRecord
-    );
-  };
+  // const handleSaveControlFrame = () => {
+  //   // controller.updateLocalStorage(
+  //   //   "controlTest",
+  //   //   store.getState().global.controlRecord
+  //   // );
+  //   console.log(controller.localStorage);
+  //   // console.log(currentStatus);
+  // };
+
+  // const handleSavePosFrame = () => {
+  //   controller.updateLocalStorage(
+  //     "position",
+  //     store.getState().global.posRecord
+  //   );
+  // };
 
   return (
-    <>
+    <div>
       {/* <button onClick={handleSaveControlFrame} type="button">
         Save Control Frame
-      </button> */}
+      </button>
       <button onClick={handleSavePosFrame} type="button">
         Save Position Frame
       </button>
@@ -120,19 +128,22 @@ const Wavesurfer = () => {
         <input type="button" value="Submit" onClick={handleSetPosFrame} />
       </form>
 
+      <button
+      onClick={() => controller.downloadJson(posRecord, "position")}
+      type="button"
+      >
+      Download position
+    </button> */}
       <button onClick={handlePlayPause} type="button">
         Play/Pause
       </button>
-      <button
-        onClick={() => controller.downloadJson(posRecord, "position")}
-        type="button"
-      >
-        Download position
+      <button onClick={handleStop} type="button">
+        Stop
       </button>
-      <div id="waveform">
-        wavesurfer time:{time} controlFram:{controlFrame} posFrame: {posFrame}
-      </div>
-    </>
+
+      <div id="waveform" style={{ position: "relative" }} />
+      <div id="wave-timeline" />
+    </div>
   );
 };
 

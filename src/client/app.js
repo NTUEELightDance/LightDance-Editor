@@ -4,12 +4,14 @@ import React from "react";
 import { Provider } from "react-redux";
 import store from "./store";
 // context
-import ControllerProvider from "./controllerContext";
+import WaveSurferAppProvider from "./contexts/wavesurferapp";
+// import ControllerProvider from "./controllerContext";
 // components
 import Pixi from "./components/pixi";
 import Wavesurfer from "./components/wavesurfer";
 import Preset from "./components/preset";
 import Editor from "./components/editor";
+import TimeController from "./components/timeController";
 
 /**
  * Component for the main
@@ -18,11 +20,14 @@ import Editor from "./components/editor";
 const App = () => {
   return (
     <Provider store={store}>
-      <ControllerProvider>
-        <Pixi />
-        {/* <Editor /> */}
+      <WaveSurferAppProvider>
+        <TimeController />
         <Wavesurfer />
-      </ControllerProvider>
+        {/* <ControllerProvider>
+        <Editor />
+        <Pixi />
+      </ControllerProvider> */}
+      </WaveSurferAppProvider>
     </Provider>
   );
 };

@@ -23,13 +23,16 @@ import store from "../store";
  */
 class Controller {
   constructor() {
+    this.dancers = null; // include items
     this.wavesurferApp = null;
-    this.dancers = null;
     this.pixiApp = null;
     this.mainContainer = null;
     this.localStorage = null;
   }
 
+  /**
+   * Initiate localStorage, waveSurferApp, PixiApp, dancers
+   */
   init() {
     // initialization for localStorage
     this.localStorage = window.localStorage;
@@ -67,10 +70,21 @@ class Controller {
     store.dispatch(setNewPosRecord());
   }
 
+  /**
+   * Update Local Storage
+   * @param {string} key
+   * @param {*} newData
+   */
   updateLocalStorage(key, newData) {
     this.localStorage.setItem(key, JSON.stringify(newData));
   }
 
+  /**
+   * @param {*} control
+   * @param {*} position
+   * @param {*} newFrame
+   * @param {*} type
+   */
   updateTimeDataByFrame(control, position, newFrame, type) {
     const newTimeData = {};
     if (type === "control") {
