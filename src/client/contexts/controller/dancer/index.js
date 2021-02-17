@@ -8,14 +8,14 @@ import {
   DISPLAY_HEIGHT,
   DISPLAY_WIDTH,
   DANCER_NUM,
-} from "../../constants";
-import store from "../../store";
+} from "../../../constants";
+import store from "../../../store";
 import {
   setCurrentStatus,
   setSeletected,
   setCurrentPos,
   setNewPosRecord,
-} from "../../slices/globalSlice";
+} from "../../../slices/globalSlice";
 
 class Dancer {
   constructor(id, app, loadTexture, mainContainer) {
@@ -76,7 +76,7 @@ class Dancer {
         store.dispatch(setSeletected([this.id]));
       });
 
-    console.log("Dancer Constructed", this);
+    // console.log("Dancer Constructed", this);
     store.dispatch(
       setCurrentPos({
         id: this.id,
@@ -85,7 +85,7 @@ class Dancer {
         z: this.container.zIndex,
       })
     );
-    console.log(this.status);
+    // console.log(this.status);
   }
 
   onDragStart(event) {

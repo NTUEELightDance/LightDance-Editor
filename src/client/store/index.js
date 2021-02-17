@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { getDefaultMiddleware } from "@reduxjs/toolkit";
+import logger from "redux-logger";
 import globalReducer from "../slices/globalSlice";
 
 export default configureStore({
@@ -7,5 +7,8 @@ export default configureStore({
     global: globalReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ immutableCheck: false, serializableCheck: false }),
+    getDefaultMiddleware({
+      immutableCheck: false,
+      serializableCheck: false,
+    }).concat(logger),
 });

@@ -2,23 +2,21 @@
 import { createSlice } from "@reduxjs/toolkit";
 import updateFrameByTime from "./utils";
 // constants
-// import control from "../../../data/control.json";
-// import position from "../../../data/position.json";
+
+// utils
+import { clamp } from "../utils/calculator";
 
 export const globalSlice = createSlice({
   name: "global",
   initialState: {
-    dancerNum: 0, // dancerNum
     isPlaying: false, // isPlaying
     selected: [], // dancer selected
 
-    currentStatus: {}, // current dancers' frame, TODO: kill this
+    currentStatus: {}, // current dancers' frame
     currentPos: {}, // currnet dancers' position
 
-    controlRecord: {}, // all dancer's status, TODEL
+    controlRecord: [], // array of all dancer's status
     posRecord: {}, // all dancer's position
-    // TODO
-    statusRecord: {}, // all dancer's status
 
     timeData: {
       controlFrame: 0, // control frame's index, TODEL
@@ -44,11 +42,10 @@ export const globalSlice = createSlice({
     /**
      * Initiate controlRecord
      * @param {*} state - redux state
-     * @param {object} action.payload - controlRecord
+     * @param {array} action.payload - controlRecord
      */
     controlInit: (state, action) => {
       state.controlRecord = action.payload;
-      state.dancerNum = Object.keys(state.controlRecord).length;
     },
 
     /**
@@ -166,12 +163,11 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * set timeData by time
+     * set timeData by time, also set currentStatus and currentPos
      * @param {} state
      * @param {*} action.payload - number
      */
     setTime: (state, action) => {
-      // TODO: check type
       const { from, time } = action.payload;
       if (from === undefined || time === undefined) {
         throw new Error(
@@ -180,34 +176,35 @@ export const globalSlice = createSlice({
       }
       state.timeData.from = from;
       state.timeData.time = time >= 0 ? time : 0;
-      // TODO: change statusIdx and posIdx
+      // change timeData.statusIdx and currentStatus
+
+      // change timeData.posIdx and currentPos
     },
 
     /**
-     * set timeData by statusIdx
+     * set timeData by statusIdx, also set currentStatus
      * @param {} state
      * @param {*} action.payload - number
      */
     setStatusIdx: (state, action) => {
-      // TODO: check type
-      const { from, statusIdx } = action.payload;
-      if (from === undefined || statusIdx === undefined) {
-        throw new Error(
-          `[Error] setStatusIdx invalid parameter(from ${from}, statusIdx ${statusIdx})`
-        );
+      let { from, statusIdx } = action.payload;
+      if (from === undefined) {
+        throw new Error(`[Error] setStatusIdx invalid parameter(from ${from})`);
       }
+      if (statusIdx === undefined) statusIdx = 0;
       state.timeData.from = from;
-      state.timeData.statusIdx = statusIdx >= 0 ? statusIdx : 0;
-      // TODO: change time by statusRecord as well
+      statusIdx = clamp(statusIdx, 0, state.controlRecord.length); //
+      state.timeData.statusIdx = statusIdx;
+      state.timeData.time = state.controlRecord[statusIdx].start;
+      state.currentStatus = state.controlRecord[statusIdx].status;
     },
 
     /**
-     * set timeData by posIdx
+     * set timeData by posIdx, also set currentPos
      * @param {} state
      * @param {*} action.payload - number
      */
     setPosIdx: (state, action) => {
-      // TODO: check type
       const { from, posIdx } = action.payload;
       if (from === undefined || posIdx === undefined) {
         throw new Error(
@@ -232,6 +229,7 @@ export const {
   setCurrentStatus,
   setCurrentPos,
   setNewPosRecord,
+
   setTime,
   setPosIdx,
   setStatusIdx,

@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import store from "./store";
 // context
 import WaveSurferAppProvider from "./contexts/wavesurferapp";
-// import ControllerProvider from "./controllerContext";
+import ControllerProvider from "./contexts/controller";
 // components
 import Pixi from "./components/pixi";
 import Wavesurfer from "./components/wavesurfer";
@@ -21,12 +21,12 @@ const App = () => {
   return (
     <Provider store={store}>
       <WaveSurferAppProvider>
-        <TimeController />
-        <Wavesurfer />
-        {/* <ControllerProvider>
-        <Editor />
-        <Pixi />
-      </ControllerProvider> */}
+        <ControllerProvider>
+          <TimeController />
+          <Wavesurfer />
+          {/* <Editor /> */}
+          <Pixi />
+        </ControllerProvider>
       </WaveSurferAppProvider>
     </Provider>
   );

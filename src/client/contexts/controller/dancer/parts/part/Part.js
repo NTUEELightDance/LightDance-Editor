@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { PARTARGS } from "../../../../constants";
+import { PARTARGS } from "../../../../../constants";
 
 class Part {
   constructor(dancer, name, textures) {

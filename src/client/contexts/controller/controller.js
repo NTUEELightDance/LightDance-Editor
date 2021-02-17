@@ -1,11 +1,12 @@
 import * as PIXI from "pixi.js";
-import WaveSurferApp from "./waveSurferApp";
-import Dancer from "./dancer";
-import { DANCER_NUM } from "../constants";
-import load from "../../../data/load.json";
-import loadedPosition from "../../../data/position.json";
-import loadedControl from "../../../data/control.json";
-import updateFrameByTime from "../slices/utils";
+// constants
+import { DANCER_NUM } from "../../constants";
+// load
+import load from "../../../../data/load.json";
+// utils
+import updateFrameByTime from "../../slices/utils";
+import { setItem, getItem } from "../../utils/localStorage";
+// redux
 import {
   setCurrentStatus,
   setControlFrame,
@@ -14,8 +15,13 @@ import {
   posInit,
   controlInit,
   updateTimeData,
-} from "../slices/globalSlice";
-import store from "../store";
+} from "../../slices/globalSlice";
+import store from "../../store";
+// components
+import Dancer from "./dancer";
+// TODEL
+import loadedPosition from "../../../../data/position.json";
+import loadedControl from "../../../../data/control_transform.json";
 
 /**
  * Control the dancers (or other light objects) on display
@@ -24,32 +30,23 @@ import store from "../store";
 class Controller {
   constructor() {
     this.dancers = null; // include items
-    this.wavesurferApp = null;
     this.pixiApp = null;
     this.mainContainer = null;
-    this.localStorage = null;
   }
 
   /**
    * Initiate localStorage, waveSurferApp, PixiApp, dancers
    */
   init() {
-    // initialization for localStorage
-    this.localStorage = window.localStorage;
-    if (!this.localStorage.control) {
-      this.localStorage.setItem("control", JSON.stringify(loadedControl));
+    // initialization by localStorage
+    if (!getItem("control")) {
+      setItem("control", JSON.stringify(loadedControl));
     }
-    if (!this.localStorage.position) {
-      this.localStorage.setItem("position", JSON.stringify(loadedPosition));
+    if (!getItem("position")) {
+      setItem("position", JSON.stringify(loadedPosition));
     }
-    store.dispatch(controlInit(JSON.parse(this.localStorage.control)));
-    store.dispatch(posInit(JSON.parse(this.localStorage.position)));
-    // console.log(this.localStorage);
-
-    // initialization for wavesurferApp
-    this.wavesurferApp = new WaveSurferApp();
-    this.wavesurferApp.init();
-    this.wavesurferApp = this.wavesurferApp.waveSurferApp;
+    store.dispatch(controlInit(JSON.parse(getItem("control"))));
+    store.dispatch(posInit(JSON.parse(getItem("position"))));
 
     // initialization for PIXIApp
     this.pixiApp = new PIXI.Application({ width: 960, height: 720 });
@@ -60,12 +57,12 @@ class Controller {
 
     // initialization for dancers
     this.dancers = [];
-    for (let i = 0; i < DANCER_NUM; ++i) {
+    for (let i = 0; i < DANCER_NUM; i += 1) {
       this.dancers.push(
         new Dancer(i, this.pixiApp, load.Texture, this.mainContainer)
       );
     }
-    this.updateDancersPos(JSON.parse(this.localStorage.position), 0, 0);
+    this.updateDancersPos(JSON.parse(getItem("position")), 0, 0);
 
     store.dispatch(setNewPosRecord());
   }
@@ -76,7 +73,7 @@ class Controller {
    * @param {*} newData
    */
   updateLocalStorage(key, newData) {
-    this.localStorage.setItem(key, JSON.stringify(newData));
+    setItem(key, JSON.stringify(newData));
   }
 
   /**
@@ -93,9 +90,9 @@ class Controller {
         newTimeData.time = newTime;
         newTimeData.controlFrame = newFrame;
         newTimeData.posFrame = updateFrameByTime(position, 0, newTime);
-        this.wavesurferApp.seekTo(
-          newTime / this.wavesurferApp.getDuration() / 1000
-        );
+        // this.wavesurferApp.seekTo(
+        //   newTime / this.wavesurferApp.getDuration() / 1000
+        // );
       }
     } else if (type === "position") {
       if (newFrame <= position["player0"].length - 1 && newFrame >= 0) {
@@ -103,9 +100,9 @@ class Controller {
         newTimeData.time = newTime;
         newTimeData.controlFrame = updateFrameByTime(control, 0, newTime);
         newTimeData.posFrame = newFrame;
-        this.wavesurferApp.seekTo(
-          newTime / this.wavesurferApp.getDuration() / 1000
-        );
+        // this.wavesurferApp.seekTo(
+        //   newTime / this.wavesurferApp.getDuration() / 1000
+        // );
       }
     }
     return newTimeData;

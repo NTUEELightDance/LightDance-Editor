@@ -1,6 +1,6 @@
 {
   "Music": "./asset/eenight.wav",
-  "Control": "control.json",
+  "Control": "control_transform.json",
   "Presets": "presets.json",
   "Texture": {
     "LED_CHEST": [
