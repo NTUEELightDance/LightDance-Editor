@@ -3,7 +3,7 @@ import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
 import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min";
 // redux
 import store from "../../store";
-import { playPause, updateTimeData, setTime } from "../../slices/globalSlice";
+import { playPause, setTime } from "../../slices/globalSlice";
 
 // constant
 import load from "../../../../data/load.json";
@@ -16,10 +16,15 @@ class WaveSurferApp {
   constructor() {
     this.waveSurfer = null;
     this.from = WAVESURFERAPP;
-    // this.addClickEvent();
+    this.ready = false;
   }
 
+  /**
+   * Initiate waveSurfer with CursorPlugin, TimelinePlugin
+   * @function
+   */
   init() {
+    // create
     this.waveSurfer = WaveSurfer.create({
       container: "#waveform",
       waveColor: "#5bc1f0",
@@ -48,66 +53,92 @@ class WaveSurferApp {
         }),
       ],
     });
+
+    // load music
     this.waveSurfer.load(load.Music);
-    // Listener for seek event
-    this.waveSurfer.on("seek", () => {
-      // Q: Not really the same as addClickEvent's calculate
-      console.log(`seek to ${this.waveSurfer.getCurrentTime() * 1000}`);
-      // store.dispatch(
-      //   updateTimeData({
-      //     time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-      //   })
-      // );
-      // if (this.waveSurfer.isPlaying()) {
-      //   this.waveSurfer.play();
-      // } else {
-      //   this.waveSurfer.pause();
-      // }
+
+    // get ready
+    this.waveSurfer.on("ready", () => {
+      this.ready = true;
     });
 
+    // Listener for seek event
+    // waveSurfer.on("seek") will conflict
+    this.addClickEvent();
+
     // Listener when playing, which will update time
-    // this.waveSurfer.on("audioprocess", () => {
-    // store.dispatch(
-    //   updateTimeData({
-    //     time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-    //   })
-    // );
-    // });
+    this.waveSurfer.on("audioprocess", () => {
+      store.dispatch(
+        setTime({
+          from: this.from,
+          time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+        })
+      );
+    });
   }
 
-  // play or pause the music
+  /**
+   * Play or Pause the music
+   * @function
+   */
   playPause() {
     this.waveSurfer.playPause();
     store.dispatch(playPause(this.waveSurfer.isPlaying()));
   }
 
-  // stop the music
+  /**
+   * Stop the music
+   * @function
+   */
   stop() {
     this.waveSurfer.stop();
-    // TODO: store dispatch time
     store.dispatch(playPause(this.waveSurfer.isPlaying()));
+    store.dispatch(
+      setTime({
+        from: this.from,
+        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+      })
+    );
   }
 
-  // add cursor click event, not the same as seek
-  // addClickEvent() {
-  //   document.getElementById("waveform").addEventListener("click", (e) => {
-  //     // From CursorPlugin Source Code
-  //     const bbox = this.waveSurfer.container.getBoundingClientRect();
-  //     const xpos = e.clientX - bbox.left;
-  //     const duration = this.waveSurfer.getDuration();
-  //     const elementWidth =
-  //       this.waveSurfer.drawer.width / this.waveSurfer.params.pixelRatio;
-  //     const scrollWidth = this.waveSurfer.drawer.getScrollX();
+  /**
+   * Seek to time
+   * @param {number} time
+   */
+  seekTo(time) {
+    if (!this.ready) return;
+    const duration = this.waveSurfer.getDuration();
+    this.waveSurfer.seekTo(Number.parseFloat(time) / 1000 / duration);
+  }
 
-  //     const scrollTime =
-  //       (duration / this.waveSurfer.drawer.width) * scrollWidth;
+  /**
+   * click on waveform to get time by cursor
+   * origin wavesurfer.on("seek", callback) will dispatch time again
+   * @function
+   */
+  addClickEvent() {
+    document.getElementById("waveform").addEventListener("click", (e) => {
+      // From CursorPlugin Source Code
+      const bbox = this.waveSurfer.container.getBoundingClientRect();
+      const xpos = e.clientX - bbox.left;
+      const duration = this.waveSurfer.getDuration();
+      const elementWidth =
+        this.waveSurfer.drawer.width / this.waveSurfer.params.pixelRatio;
+      const scrollWidth = this.waveSurfer.drawer.getScrollX();
 
-  //     const timeValue =
-  //       Math.max(0, (xpos / elementWidth) * duration) + scrollTime;
-  //     console.log(timeValue);
-  //     // this.mgr.changeTime(Math.round(timeValue * 1000));
-  //   });
-  // }
+      const scrollTime =
+        (duration / this.waveSurfer.drawer.width) * scrollWidth;
+
+      const timeValue =
+        Math.max(0, (xpos / elementWidth) * duration) + scrollTime;
+      store.dispatch(
+        setTime({
+          from: this.from,
+          time: Math.round(timeValue * 1000),
+        })
+      );
+    });
+  }
 }
 
 export default WaveSurferApp;

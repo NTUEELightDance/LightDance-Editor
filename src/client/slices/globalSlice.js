@@ -38,7 +38,6 @@ export const globalSlice = createSlice({
      * @param {boolean} action.payload
      */
     playPause: (state, action) => {
-      console.log(`isPlaying ${action.payload}`);
       state.isPlaying = action.payload;
     },
 
@@ -172,9 +171,12 @@ export const globalSlice = createSlice({
      * @param {*} action.payload - number
      */
     setTime: (state, action) => {
+      // TODO: check type
       const { from, time } = action.payload;
       if (from === undefined || time === undefined) {
-        // Throw Error
+        throw new Error(
+          `[Error] setTime invalid parameter(from ${from}, time ${time})`
+        );
       }
       state.timeData.from = from;
       state.timeData.time = time >= 0 ? time : 0;
@@ -187,9 +189,12 @@ export const globalSlice = createSlice({
      * @param {*} action.payload - number
      */
     setStatusIdx: (state, action) => {
+      // TODO: check type
       const { from, statusIdx } = action.payload;
       if (from === undefined || statusIdx === undefined) {
-        // Throw Error
+        throw new Error(
+          `[Error] setStatusIdx invalid parameter(from ${from}, statusIdx ${statusIdx})`
+        );
       }
       state.timeData.from = from;
       state.timeData.statusIdx = statusIdx >= 0 ? statusIdx : 0;
@@ -202,9 +207,12 @@ export const globalSlice = createSlice({
      * @param {*} action.payload - number
      */
     setPosIdx: (state, action) => {
+      // TODO: check type
       const { from, posIdx } = action.payload;
       if (from === undefined || posIdx === undefined) {
-        // Throw Error
+        throw new Error(
+          `[Error] setPosIdx invalid parameter(from ${from}, posIdx ${posIdx})`
+        );
       }
       state.timeData.from = from;
       state.timeData.posIdx = posIdx >= 0 ? posIdx : 0;

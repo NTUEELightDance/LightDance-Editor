@@ -10,7 +10,6 @@ export default ({ children }) => {
 
   useEffect(() => {
     const newWaveSurferApp = new WaveSurferApp();
-    console.log(newWaveSurferApp);
     newWaveSurferApp.init();
     setWaveSurferApp(newWaveSurferApp);
   }, []);

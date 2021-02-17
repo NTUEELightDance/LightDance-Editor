@@ -11,24 +11,38 @@ import {
 import { WaveSurferAppContext } from "../../contexts/wavesurferapp";
 import store from "../../store";
 
+// constants
+import { WAVESURFERAPP } from "../../constants";
+
 /**
  *
  * This is Wave component
  * @component
  */
 const Wavesurfer = () => {
-  // redux
-  const dispatch = useDispatch();
-  // waveSurferApp
   const waveSurferApp = useContext(WaveSurferAppContext);
-  const handlePlayPause = () => {
-    waveSurferApp.playPause();
-    // dispatch(playPause());
-  };
-  const handleStop = () => {
-    waveSurferApp.stop();
-    // dispatch(playPause());
-  };
+  // redux
+  const {
+    timeData: { from, time },
+  } = useSelector(selectGlobal);
+
+  // listen to time set by other component
+  useEffect(() => {
+    if (waveSurferApp) {
+      if (from !== WAVESURFERAPP) {
+        try {
+          waveSurferApp.seekTo(time);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+  }, [waveSurferApp, time]);
+
+  // event
+  const handlePlayPause = () => waveSurferApp.playPause();
+  const handleStop = () => waveSurferApp.stop();
+
   // const controller = useContext(ControllerContext);
   // const [controlFrameInput, setControlFrameInput] = useState("");
   // const [posFrameInput, setPosFrameInput] = useState("");
