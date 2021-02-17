@@ -5,7 +5,7 @@ import {
   selectGlobal,
   updateTimeData,
   setNewPosRecord,
-} from "../globalSlice";
+} from "../../slices/globalSlice";
 
 import { ControllerContext } from "../../controllerContext";
 import store from "../../store";

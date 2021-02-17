@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from "react";
 import { useSelector } from "react-redux";
-import { selectGlobal } from "../globalSlice";
+import { selectGlobal } from "../../slices/globalSlice";
 import { ControllerContext } from "../../controllerContext";
 
 /**
@@ -34,8 +34,6 @@ const Pixi = () => {
       controller.updateDancersPos(posRecord, time, posFrame);
     }
   }, [posFrame]);
-
-  // store.dispatch(setControllerPos(controller, posFrame))
 
   return (
     <div className="Simulator d-inline-block">

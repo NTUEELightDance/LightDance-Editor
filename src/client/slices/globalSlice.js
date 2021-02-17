@@ -7,35 +7,61 @@ import updateFrameByTime from "./utils";
 export const globalSlice = createSlice({
   name: "global",
   initialState: {
-    dancerNum: 0,
-    isPlaying: false,
-    selected: [0],
-    currentStatus: {},
-    currentPos: {},
-    controlRecord: {},
-    posRecord: {},
+    dancerNum: 0, // dancerNum
+    isPlaying: false, // isPlaying
+    selected: [], // dancer selected
+
+    currentStatus: {}, // current dancers' frame, TODO: kill this
+    currentFrame: {}, // current dancers' frame
+    currentPos: {}, // currnet dancers' position
+
+    controlRecord: {}, // all dancer's frame
+    posRecord: {}, // all dancer's position
+
     timeData: {
-      time: 0,
-      controlFrame: 0,
-      posFrame: 0,
+      time: 0, // time
+      controlFrame: 0, // control frame index
+      posFrame: 0, // position frame index
     },
   },
   reducers: {
+    /**
+     * Play or Pause
+     * @param {*} state - redux state
+     */
     playPause: (state) => {
       state.isPlaying = !state.isPlaying;
     },
+
+    /**
+     * Initiate controlRecord
+     * @param {*} state - redux state
+     * @param {object} action.payload - controlRecord
+     */
     controlInit: (state, action) => {
       state.controlRecord = action.payload;
       state.dancerNum = Object.keys(state.controlRecord).length;
     },
+
+    /**
+     * Initiate posRecord
+     * @param {*} state
+     * @param {object} action.payload - posRecord
+     */
     posInit: (state, action) => {
       state.posRecord = action.payload;
     },
+
+    /**
+     * Update Time data
+     * @param {*} state
+     * @param {object} action.payload -  {time, controlFrame, postFrame}
+     */
     updateTimeData: (state, action) => {
       const { time: newTime } = action.payload;
       let {
         controlFrame: newControlFrame,
-        posFram: newPosFrame,
+        posFram: newPosFrame, // ?????? posFrame?
       } = action.payload;
 
       if (!newControlFrame || !newPosFrame) {
@@ -51,23 +77,58 @@ export const globalSlice = createSlice({
       state.timeData.posFrame = newPosFrame;
       state.timeData.time = newTime;
     },
+
+    /**
+     * Set control frame index
+     * @param {*} state
+     * @param {number} action.payload - new Frame Index
+     */
     setControlFrame: (state, action) => {
       state.timeData.controlFrame = action.payload;
     },
+
+    /**
+     * Set pos frame index
+     * @param {*} state
+     * @param {number} action.payload - new Pos Index
+     */
     setPosFrame: (state, action) => {
       state.timeData.posFrame = action.payload;
     },
+
+    /**
+     * Set selected array
+     * @param {*} state
+     * @param {array of number} action.payload - new selected array
+     */
     setSeletected: (state, action) => {
       state.selected = action.payload;
     },
+
+    /**
+     * Set current Frame
+     * @param {*} state
+     * @param {object} action.payload - new frame object
+     */
     setCurrentStatus: (state, action) => {
       const { id, status } = action.payload;
       state.currentStatus[`player${id}`] = status;
     },
+
+    /**
+     * Set current pos
+     * @param {*} state
+     * @param {object} action.payload - new pos
+     */
     setCurrentPos: (state, action) => {
       const { id, x, y, z } = action.payload;
       state.currentPos[`player${id}`] = { x, y, z };
     },
+
+    /**
+     *
+     * @param {*} state
+     */
     setNewPosRecord: (state) => {
       // can't save while playing
       if (state.isPlaying) return;

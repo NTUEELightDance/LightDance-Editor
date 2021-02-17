@@ -10,7 +10,14 @@ const binarySearchFrame = (data, time) => {
   return m;
 };
 
+/**
+ * Update Frame Index By Time
+ * @param {object} data - control
+ * @param {object} frame - frame idx
+ * @param {object} time - timestamp
+ */
 const updateFrameByTime = (data, frame, time) => {
+  // Check if need to do binarysearch
   if (
     data["player0"][frame + 2] &&
     time >= data["player0"][frame + 1].Start &&

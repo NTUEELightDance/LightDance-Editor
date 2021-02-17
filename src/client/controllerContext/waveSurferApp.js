@@ -1,6 +1,6 @@
 import WaveSurfer from "wavesurfer.js";
 import store from "../store";
-import { updateTimeData } from "../features/globalSlice";
+import { updateTimeData } from "../slices/globalSlice";
 import load from "../../../data/load.json";
 
 class WaveSurferApp {

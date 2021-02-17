@@ -5,7 +5,7 @@ import { DANCER_NUM } from "../constants";
 import load from "../../../data/load.json";
 import loadedPosition from "../../../data/position.json";
 import loadedControl from "../../../data/control.json";
-import updateFrameByTime from "../features/utils";
+import updateFrameByTime from "../slices/utils";
 import {
   setCurrentStatus,
   setControlFrame,
@@ -14,9 +14,13 @@ import {
   posInit,
   controlInit,
   updateTimeData,
-} from "../features/globalSlice";
+} from "../slices/globalSlice";
 import store from "../store";
 
+/**
+ * Control the dancers (or other light objects) on display
+ * @constructor
+ */
 class Controller {
   constructor() {
     this.wavesurferApp = null;

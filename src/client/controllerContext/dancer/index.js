@@ -15,7 +15,7 @@ import {
   setSeletected,
   setCurrentPos,
   setNewPosRecord,
-} from "../../features/globalSlice";
+} from "../../slices/globalSlice";
 
 class Dancer {
   constructor(id, app, loadTexture, mainContainer) {
