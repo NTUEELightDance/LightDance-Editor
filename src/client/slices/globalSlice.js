@@ -35,7 +35,7 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * Initiate controlRecord
+     * Initiate controlRecord and currentStatus
      * @param {*} state - redux state
      * @param {array} action.payload - controlRecord
      */
@@ -44,43 +44,21 @@ export const globalSlice = createSlice({
       if (controlRecord.length === 0)
         throw new Error(`[Error] controlInit, controlRecord is empty `);
       state.controlRecord = controlRecord;
-      // initailize currentStatus
       state.currentStatus = controlRecord[0].status;
     },
 
     /**
-     * Initiate posRecord
+     * Initiate posRecord and currentPos
      * @param {*} state
      * @param {object} action.payload - posRecord
      */
     posInit: (state, action) => {
-      state.posRecord = action.payload;
+      const posRecord = action.payload;
+      if (posRecord.length === 0)
+        throw new Error(`[Error] posInit, posRecord is empty `);
+      state.posRecord = posRecord;
+      state.currentPos = posRecord[0].pos;
     },
-
-    // /**
-    //  * Update Time data
-    //  * @param {*} state
-    //  * @param {object} action.payload -  {time, controlFrame, postFrame, from: string}
-    //  */
-    // updateTimeData: (state, action) => {
-    //   const { time: newTime } = action.payload;
-    //   let {
-    //     controlFrame: newControlFrame,
-    //     posFram: newPosFrame, // ?????? posFrame?
-    //   } = action.payload;
-    //   if (!newControlFrame || !newPosFrame) {
-    //     const { posFrame, controlFrame } = state.timeData;
-    //     newControlFrame = updateFrameByTime(
-    //       state.controlRecord,
-    //       controlFrame,
-    //       newTime
-    //     );
-    //     newPosFrame = updateFrameByTime(state.posRecord, posFrame, newTime);
-    //   }
-    //   state.timeData.controlFrame = newControlFrame;
-    //   state.timeData.posFrame = newPosFrame;
-    //   state.timeData.time = newTime;
-    // },
 
     /**
      * Set selected array
@@ -94,11 +72,11 @@ export const globalSlice = createSlice({
     /**
      * Set current Frame
      * @param {*} state
-     * @param {object} action.payload - new frame object
+     * @param {object} action.payload - new status object
      */
     setCurrentStatus: (state, action) => {
-      const { id, status } = action.payload;
-      state.currentStatus[`player${id}`] = status;
+      // const { id, status } = action.payload;
+      // state.currentStatus[`player${id}`] = status;
     },
 
     /**
@@ -107,8 +85,20 @@ export const globalSlice = createSlice({
      * @param {object} action.payload - new pos
      */
     setCurrentPos: (state, action) => {
-      // const { id, x, y, z } = action.payload;
-      // state.currentPos[`player${id}`] = { x, y, z };
+      const { name, x, y, z } = action.payload;
+      if (!state.currentPos[name])
+        throw new Error(
+          `[Error] setCurrentPos, invalid parameter(name), ${name}`
+        );
+      if (
+        typeof x !== "number" ||
+        typeof y !== "number" ||
+        typeof z !== "number"
+      )
+        throw new Error(
+          `[Error] setCurrentPos, invalid parameter(x, y, z) ${x}, ${y}, ${z}`
+        );
+      state.currentPos[name] = { x, y, z };
     },
 
     /**
@@ -148,26 +138,34 @@ export const globalSlice = createSlice({
      * @param {*} action.payload - number
      */
     setTime: (state, action) => {
-      const { from, time } = action.payload;
+      let { from, time } = action.payload;
       if (from === undefined || time === undefined) {
         throw new Error(
           `[Error] setTime invalid parameter(from ${from}, time ${time})`
         );
       }
       if (typeof time !== "number") return;
+      time = Math.max(time, 0);
+
       state.timeData.from = from;
-      state.timeData.time = Math.max(time, 0);
-      // change timeData.controlFrame and currentStatus
+      state.timeData.time = time;
+      // set timeData.controlFrame and currentStatus
       const newControlFrame = updateFrameByTime(
         state.controlRecord,
         state.timeData.controlFrame,
         time
       );
-      // change timeData.controlFrame and currentStatus
       state.timeData.controlFrame = newControlFrame;
       state.currentStatus = state.controlRecord[newControlFrame].status;
-      // change timeData.posFrame and currentPos
-      // TODO
+      // set timeData.posFrame and currentPos
+      const newPosFrame = updateFrameByTime(
+        state.posRecord,
+        state.timeData.posFrame,
+        time
+      );
+      state.timeData.posFrame = newPosFrame;
+      // TODO: interpolation
+      state.currentPos = state.posRecord[newPosFrame].pos;
     },
 
     /**
@@ -183,9 +181,9 @@ export const globalSlice = createSlice({
         );
       }
       if (typeof controlFrame !== "number") return;
+      controlFrame = clamp(controlFrame, 0, state.controlRecord.length); //
 
       state.timeData.from = from;
-      controlFrame = clamp(controlFrame, 0, state.controlRecord.length); //
       state.timeData.controlFrame = controlFrame;
       state.timeData.time = state.controlRecord[controlFrame].start;
       state.currentStatus = state.controlRecord[controlFrame].status;
@@ -197,17 +195,19 @@ export const globalSlice = createSlice({
      * @param {*} action.payload - number
      */
     setPosFrame: (state, action) => {
-      const { from, posFrame } = action.payload;
+      let { from, posFrame } = action.payload;
       if (from === undefined || posFrame === undefined) {
         throw new Error(
           `[Error] setPosFrame invalid parameter(from ${from}, posFrame ${posFrame})`
         );
       }
       if (typeof posFrame !== "number") return;
+      posFrame = clamp(posFrame, 0, state.posRecord.length);
 
       state.timeData.from = from;
-      state.timeData.posFrame = posFrame >= 0 ? posFrame : 0;
-      // TODO: change time by posRecord as well
+      state.timeData.posFrame = posFrame;
+      state.timeData.time = state.posRecord[posFrame].start;
+      state.currentPos = state.posRecord[posFrame].pos;
     },
   },
 });
@@ -216,7 +216,6 @@ export const {
   playPause,
   posInit,
   controlInit,
-  // updateTimeData,
   setSelected,
   setCurrentStatus,
   setCurrentPos,

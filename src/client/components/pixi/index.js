@@ -21,6 +21,12 @@ const Pixi = () => {
       controller.updateDancersStatus(currentStatus);
     }
   }, [controller, currentStatus]);
+
+  useEffect(() => {
+    if (controller) {
+      controller.updateDancersPos(currentPos);
+    }
+  }, [controller, currentPos]);
   // const { timeData, controlRecord, posRecord } = useSelector(selectGlobal);
   // const { time, controlFrame, posFrame } = timeData;
 

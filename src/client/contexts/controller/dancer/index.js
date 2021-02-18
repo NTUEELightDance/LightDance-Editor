@@ -4,17 +4,12 @@ import {
   BLPARTS,
   LIGHTPARTS,
   LEDPARTS,
-  DANCERPOS,
   DISPLAY_HEIGHT,
   DISPLAY_WIDTH,
   DANCER_NUM,
 } from "../../../constants";
 import store from "../../../store";
-import {
-  setSelected,
-  setCurrentPos,
-  setNewPosRecord,
-} from "../../../slices/globalSlice";
+import { setSelected, setCurrentPos } from "../../../slices/globalSlice";
 
 /**
  * Dancer
@@ -67,11 +62,12 @@ class Dancer {
     this.container.addChild(text);
 
     // Calculate position and scale
-    this.initPos();
+    this.initScale();
     this.mainContainer.addChild(this.container);
 
     // Dragging
     this.container.id = this.id;
+    this.container.name = this.name;
     this.container.interactive = true;
     this.container.buttonMode = true;
     this.container
@@ -82,55 +78,34 @@ class Dancer {
       .on("click", () => {
         store.dispatch(setSelected([this.id]));
       });
-
-    // console.log("Dancer Constructed", this);
-    // store.dispatch(
-    //   setCurrentPos({
-    //     id: this.id,
-    //     x: this.container.position.x,
-    //     y: this.container.position.y,
-    //     z: this.container.zIndex,
-    //   })
-    // );
-    // console.log(this.status);
   }
-
 
   /**
    * update all the parts' texture by this.status
    */
   updateTexture() {
-    // console.log("Update Texture");
     Object.keys(this.parts).forEach((key) => {
       this.parts[key].updateTexture(this.status[key]);
     });
   }
 
   /**
-   * update dancer's status, and call updateTexture
+   * set dancer's status, and call updateTexture
    * @param {object} status ex. { HAT: 0 ...}
    */
-  updateStatus(status) {
+  setStatus(status) {
     this.status = status;
     this.updateTexture();
   }
 
   /**
-   * Initiate Dancers' pos by split equally
+   * Initiate Dancers' container scale to fit in the screen
    */
-  initPos(num = DANCER_NUM, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
+  initScale(num = DANCER_NUM, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
     const ratio = this.container.width / this.container.height;
     this.container.height = height * 0.95;
     if (num > 1) this.container.height /= 2;
     this.container.width = this.container.height * ratio;
-
-    const half = num > 1 ? num / 2 : num;
-    const wOffset = (width - half * this.container.width) / (half + 1);
-    const y = this.id >= half ? height / 2 : 0;
-    const _id = this.id % half;
-    const x = (_id + 1) * wOffset + _id * this.container.width;
-    this.container.position.set(x, y);
-    this.container.zIndex = this.container.position.y;
   }
 
   /**
@@ -142,7 +117,6 @@ class Dancer {
     this.container.position.set(x, y);
     this.container.zIndex = z;
   }
-
 
   updatePos(time, nextFrame, preFrame) {
     const { x: preX, y: preY, z: preZ, Start: preStart } = preFrame;
@@ -184,15 +158,14 @@ class Dancer {
     this.zIndex = this.position.y;
     store.dispatch(
       setCurrentPos({
-        id: this.id,
+        name: this.name,
         x: this.x,
         y: this.y,
         z: this.zIndex,
         save: true,
       })
     );
-    // store.dispatch(setNewPosRecord());
-    // console.log(store.getState().global.posRecord);
+    // TODO: save
   }
 }
 

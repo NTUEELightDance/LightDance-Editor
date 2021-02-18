@@ -6,17 +6,13 @@ import load from "../../../../data/load.json";
 // utils
 import { setItem, getItem } from "../../utils/localStorage";
 // redux actions and store
-import {
-  setNewPosRecord,
-  posInit,
-  controlInit,
-} from "../../slices/globalSlice";
+import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 import Dancer from "./dancer";
 // TODEL, need to be load including to load.json
-import loadedPosition from "../../../../data/position.json";
-import loadedControl from "../../../../data/control_transform.json";
+import loadedPosition from "../../../../data/default_position.json";
+import loadedControl from "../../../../data/default_control.json";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -24,7 +20,7 @@ import loadedControl from "../../../../data/control_transform.json";
  */
 class Controller {
   constructor() {
-    this.dancers = null;
+    this.dancers = {};
     this.pixiApp = null;
     this.mainContainer = null;
   }
@@ -51,7 +47,6 @@ class Controller {
     document.getElementById("main_stage").appendChild(this.pixiApp.view);
 
     // initialization for dancers
-    this.dancers = {};
     for (let i = 0; i < DANCER_NUM; i += 1) {
       const name = `dancer${i}`;
       this.dancers[name] = new Dancer(
@@ -62,11 +57,6 @@ class Controller {
         this.mainContainer
       );
     }
-
-    // ????
-    this.updateDancersPos(JSON.parse(getItem("position")), 0, 0);
-
-    store.dispatch(setNewPosRecord());
   }
 
   /**
@@ -80,23 +70,23 @@ class Controller {
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
     Object.entries(currentStatus).forEach(([key, value]) => {
-      this.dancers[key].updateStatus(value);
+      this.dancers[key].setStatus(value);
     });
   }
 
-  updateDancersPos(position, time, posFrame) {
-    // if (position["player0"][posFrame + 1]) {
-    //   this.dancers.forEach((dancer) => {
-    //     const preFrame = position[dancer.name][posFrame];
-    //     const nextFrame = position[dancer.name][posFrame + 1];
-    //     dancer.updatePos(time, preFrame, nextFrame);
-    //   });
-    // } else {
-    //   this.dancers.forEach((dancer) => {
-    //     const preFrame = position[dancer.name][posFrame];
-    //     dancer.updatePos(time, preFrame, preFrame);
-    //   });
-    // }
+  /**
+   * updateDancersPos
+   * @param {*} currentPos
+   * ex. { dancer0: { "x": 49.232, "y": 0, "z": 0 }}
+   */
+  updateDancersPos(currentPos) {
+    if (Object.entries(currentPos).length === 0)
+      throw new Error(
+        `[Error] updateDancersPos, invalid parameter(currentPos)`
+      );
+    Object.entries(currentPos).forEach(([key, value]) => {
+      this.dancers[key].setPos(value);
+    });
   }
 
   // TODEL: make this a util
