@@ -1,42 +1,32 @@
 import React, { useState, useEffect } from "react";
 
-const SliderBar = (props) => {
-  // ======= const value props ============
-  const { partName, disabled, isChosen, value } = props;
-
-  // ======= const function props =========
-  const { setChosenParts, setValue } = props;
-
-  // const [value, setValue] = useState(0);
-  // const [isChosen, setIsChosen] = useState(false); //wrong!
-
-  const step = 0.01;
+const SliderBar = ({
+  partName,
+  disabled,
+  isChosen,
+  value,
+  setChosenParts,
+  setValue,
+}) => {
+  console.log(partName, value);
+  const step = 0.1;
 
   const preventDefault = (e) => e.preventDefault();
 
   const mousewheelevt = /Firefox/i.test(navigator.userAgent)
     ? "DOMMouseScroll"
     : "mousewheel";
-
   const editor = document.getElementById("editor");
-
   const disableWindowScroll = () => {
     editor.onwheel = preventDefault;
   };
-
   const enableWindowScroll = (e) => {
     editor.onwheel = null;
   };
 
   const moveSlider = (e) => {
     const zoomLevel = Number(e.target.value);
-
-    // console.log(e.deltaY);
-
-    // ========================= disable window scrolling ==================
     disableWindowScroll();
-    // ========================= disable window scrolling ==================
-
     if (e.deltaY < 0) {
       //  scroll down
       e.target.value = zoomLevel - step;
@@ -46,8 +36,7 @@ const SliderBar = (props) => {
     } else {
       e.target.value = zoomLevel;
     }
-
-    setValue(Number(e.target.value), isChosen);
+    // setValue(Number(e.target.value), isChosen);
   };
 
   const handleWheel = (e) => {
@@ -55,15 +44,15 @@ const SliderBar = (props) => {
   };
 
   const handleChange = (e) => {
-    setValue(Number(e.target.value), isChosen);
+    // setValue(Number(e.target.value), isChosen);
   };
 
   const handleInputChange = (e) => {
-    setValue(e.target.value ? Number(e.target.value) : 0, isChosen);
+    // setValue(e.target.value ? Number(e.target.value) : 0, isChosen);
   };
 
   const setIsChosen = () => {
-    setChosenParts((state) => ({ ...state, [partName]: true }));
+    // setChosenParts((state) => ({ ...state, [partName]: true }));
   };
 
   const handleMultiChoose = (e) => {
@@ -73,7 +62,7 @@ const SliderBar = (props) => {
 
   return (
     <>
-      <label for={partName} className="form-label">
+      <label htmlFor={partName} className="form-label">
         {partName}
       </label>
       <div

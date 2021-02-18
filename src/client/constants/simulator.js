@@ -1,42 +1,11 @@
-export const DANCER_NUM = 8;
+import { Dancers } from "../../../data/load.json";
+
+export const DANCER_NUM = Dancers.length;
+export const DANCER_NAMES = Dancers;
 export const DISPLAY_WIDTH = 900;
 export const DISPLAY_HEIGHT = (DISPLAY_WIDTH * 3) / 4;
 export const FPS = 30;
-// Set All Dancer position
-export const DANCERPOS = [
-  // {
-  //     x: -82 + 4.89,
-  //     y: -41 + 9.891
-  // },
-  // {
-  //     x: -82 + 363.548,
-  //     y: -41 + 9.891
-  // },
-  // {
-  //     x: -82 + 666.273,
-  //     y: -41 + 9.891
-  // },
-  // {
-  //     x: -82 + 972.775,
-  //     y: -41 + 9.891
-  // },
-  // {
-  //     x: -82 + 181.15,
-  //     y: -41 + 281.435
-  // },
-  // {
-  //     x: -82 + 504.745,
-  //     y: -41 + 281.435
-  // },
-  // {
-  //     x: -82 + 807.47,
-  //     y: -41 + 281.435
-  // },
-  // {
-  //     x: -82 + 1141.242,
-  //     y: -41 + 281.435
-  // }
-];
+
 // All Parts
 export const BLPARTS = [
   "BLHAT",

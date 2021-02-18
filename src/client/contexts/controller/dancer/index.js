@@ -9,7 +9,7 @@ import {
   DANCER_NUM,
 } from "../../../constants";
 import store from "../../../store";
-import { setSelected, setCurrentPos } from "../../../slices/globalSlice";
+import { toggleSelected, setCurrentPos } from "../../../slices/globalSlice";
 
 /**
  * Dancer
@@ -76,7 +76,7 @@ class Dancer {
       .on("pointerupoutside", this.onDragEnd)
       .on("pointermove", this.onDragMove)
       .on("click", () => {
-        store.dispatch(setSelected([this.id]));
+        store.dispatch(toggleSelected(this.name));
       });
   }
 

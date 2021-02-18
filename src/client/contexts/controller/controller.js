@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 // constants
-import { DANCER_NUM } from "../../constants";
+import { DANCER_NUM, DANCER_NAMES } from "../../constants";
 // load
 import load from "../../../../data/load.json";
 // utils
@@ -47,16 +47,16 @@ class Controller {
     document.getElementById("main_stage").appendChild(this.pixiApp.view);
 
     // initialization for dancers
-    for (let i = 0; i < DANCER_NUM; i += 1) {
-      const name = `dancer${i}`;
+    DANCER_NAMES.forEach((name, idx) => {
       this.dancers[name] = new Dancer(
-        i,
+        idx,
         name,
         this.pixiApp,
         load.Texture,
         this.mainContainer
       );
-    }
+    });
+    console.log(this.dancers);
   }
 
   /**

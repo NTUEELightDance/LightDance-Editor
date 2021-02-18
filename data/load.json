@@ -1,6 +1,7 @@
 {
   "Music": "./asset/eenight.wav",
-  "Control": "control_transform.json",
+  "Control": "default_control.json",
+  "Position": "default_position.json",
   "Presets": "presets.json",
   "Texture": {
     "LED_CHEST": [
@@ -703,7 +704,6 @@
       "fan_all_red",
       "fan_all_pink",
       "fan_three_noMid",
-      "fan_two_noMid",
       "fan_left1_dark",
       "fan_left2_dark",
       "fan_left3_dark",
@@ -711,5 +711,15 @@
       "fan_right2_dark",
       "fan_right3_dark"
     ]
-  }
+  },
+  "Dancers": [
+    "dancer0",
+    "dancer1",
+    "dancer2",
+    "dancer3",
+    "dancer4",
+    "dancer5",
+    "dancer6",
+    "dancer7"
+  ]
 }

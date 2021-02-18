@@ -20,14 +20,14 @@ import TimeController from "./components/timeController";
 const App = () => {
   return (
     <Provider store={store}>
-      <WaveSurferAppProvider>
-        <ControllerProvider>
-          <TimeController />
-          <Wavesurfer />
-          {/* <Editor /> */}
-          <Pixi />
-        </ControllerProvider>
-      </WaveSurferAppProvider>
+      {/* <WaveSurferAppProvider> */}
+      <ControllerProvider>
+        <TimeController />
+        {/* <Wavesurfer /> */}
+        <Editor />
+        <Pixi />
+      </ControllerProvider>
+      {/* </WaveSurferAppProvider> */}
     </Provider>
   );
 };

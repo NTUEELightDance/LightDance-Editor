@@ -9,7 +9,7 @@ export const globalSlice = createSlice({
   name: "global",
   initialState: {
     isPlaying: false, // isPlaying
-    selected: [], // dancer selected
+    selected: [], // array of selected dancer's name
 
     currentStatus: {}, // current dancers' status
     currentPos: {}, // currnet dancers' position
@@ -23,6 +23,8 @@ export const globalSlice = createSlice({
       controlFrame: 0, // control frame's index
       posFrame: 0, // positions' index
     },
+
+    mode: 0, // 0: nothing, 1: edit, 2: add
   },
   reducers: {
     /**
@@ -63,10 +65,23 @@ export const globalSlice = createSlice({
     /**
      * Set selected array
      * @param {*} state
-     * @param {array of number} action.payload - new selected array
+     * @param {array of number} action.payload - array of dancer's name
      */
     setSelected: (state, action) => {
       state.selected = action.payload;
+    },
+
+    /**
+     * toggle one in selected array
+     * @param {*} state
+     * @param {string} action.payload - one of dancer's name
+     */
+    toggleSelected: (state, action) => {
+      const name = action.payload;
+      if (state.selected.includes(name)) {
+        // delete the name
+        state.selected = state.selected.filter((n) => n !== name);
+      } else state.selected.push(name);
     },
 
     /**
@@ -209,6 +224,16 @@ export const globalSlice = createSlice({
       state.timeData.time = state.posRecord[posFrame].start;
       state.currentPos = state.posRecord[posFrame].pos;
     },
+
+    /**
+     * set editor mode, 0: IDLE, 1: EDIT, 2: ADD
+     * @param {*} state
+     * @param {number} action.payload - new mode
+     */
+    setMode: (state, action) => {
+      state.mode = action.payload;
+      console.log(`setMode, ${action.payload}`);
+    },
   },
 });
 
@@ -217,6 +242,8 @@ export const {
   posInit,
   controlInit,
   setSelected,
+  toggleSelected,
+
   setCurrentStatus,
   setCurrentPos,
   setNewPosRecord,
@@ -224,6 +251,8 @@ export const {
   setTime,
   setPosFrame,
   setControlFrame,
+
+  setMode,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;
