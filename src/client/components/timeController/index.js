@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   selectGlobal,
   setTime,
-  setPosIdx,
-  setStatusIdx,
+  setPosFrame,
+  setControlFrame,
 } from "../../slices/globalSlice";
 // mui
 
@@ -13,13 +13,13 @@ import {
 import { TIMECONTROLLER } from "../../constants";
 
 /**
- * Time Data Controller (time, statusIdx, posIdx)
+ * Time Data Controller (time, controlFrame, posFrame)
  */
 export default function TimeController() {
   // redux
   const dispatch = useDispatch();
   const {
-    timeData: { time, statusIdx, posIdx },
+    timeData: { time, controlFrame, posFrame },
   } = useSelector(selectGlobal);
 
   // constant
@@ -34,21 +34,21 @@ export default function TimeController() {
       })
     );
   };
-  const handleChangeStatusIdx = (value) => {
-    console.log(`${from} ChangeStatusIdx ${value}`);
+  const handleChangeControlFrame = (value) => {
+    console.log(`${from} ChangeControlFrame ${value}`);
     dispatch(
-      setStatusIdx({
+      setControlFrame({
         from,
-        statusIdx: parseInt(value, 10),
+        controlFrame: parseInt(value, 10),
       })
     );
   };
-  const handleChangePosIdx = (value) => {
-    console.log(`${from} ChangePosIdx ${value}`);
+  const handleChangePosFrame = (value) => {
+    console.log(`${from} ChangePosFrame ${value}`);
     dispatch(
-      setPosIdx({
+      setPosFrame({
         from,
-        posIdx: parseInt(value, 10),
+        posFrame: parseInt(value, 10),
       })
     );
   };
@@ -67,37 +67,43 @@ export default function TimeController() {
       <div className="btn-group" role="group">
         <button
           type="button"
-          onClick={() => handleChangeStatusIdx(statusIdx - 1)}
+          onClick={() => handleChangeControlFrame(controlFrame - 1)}
         >
           {"<"}
         </button>
         <input
           type="number"
           placeholder="status index"
-          value={statusIdx}
-          onChange={(e) => handleChangeStatusIdx(e.target.value)}
+          value={controlFrame}
+          onChange={(e) => handleChangeControlFrame(e.target.value)}
           min="0"
         />
         <button
           type="button"
-          onClick={() => handleChangeStatusIdx(statusIdx + 1)}
+          onClick={() => handleChangeControlFrame(controlFrame + 1)}
         >
           {">"}
         </button>
       </div>
       pos:
       <div className="btn-group" role="group">
-        <button type="button" onClick={() => handleChangePosIdx(posIdx - 1)}>
+        <button
+          type="button"
+          onClick={() => handleChangePosFrame(posFrame - 1)}
+        >
           {"<"}
         </button>
         <input
           type="number"
           placeholder="position index"
-          value={posIdx}
-          onChange={(e) => handleChangePosIdx(e.target.value)}
+          value={posFrame}
+          onChange={(e) => handleChangePosFrame(e.target.value)}
           min="0"
         />
-        <button type="button" onClick={() => handleChangePosIdx(posIdx + 1)}>
+        <button
+          type="button"
+          onClick={() => handleChangePosFrame(posFrame + 1)}
+        >
           {">"}
         </button>
       </div>

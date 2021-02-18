@@ -4,32 +4,27 @@ import { DANCER_NUM } from "../../constants";
 // load
 import load from "../../../../data/load.json";
 // utils
-import updateFrameByTime from "../../slices/utils";
 import { setItem, getItem } from "../../utils/localStorage";
-// redux
+// redux actions and store
 import {
-  setCurrentStatus,
-  setControlFrame,
-  setPosFrame,
   setNewPosRecord,
   posInit,
   controlInit,
-  updateTimeData,
 } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 import Dancer from "./dancer";
-// TODEL
+// TODEL, need to be load including to load.json
 import loadedPosition from "../../../../data/position.json";
 import loadedControl from "../../../../data/control_transform.json";
 
 /**
- * Control the dancers (or other light objects) on display
+ * Control the dancers (or other light objects)'s status and pos
  * @constructor
  */
 class Controller {
   constructor() {
-    this.dancers = null; // include items
+    this.dancers = null;
     this.pixiApp = null;
     this.mainContainer = null;
   }
@@ -56,80 +51,55 @@ class Controller {
     document.getElementById("main_stage").appendChild(this.pixiApp.view);
 
     // initialization for dancers
-    this.dancers = [];
+    this.dancers = {};
     for (let i = 0; i < DANCER_NUM; i += 1) {
-      this.dancers.push(
-        new Dancer(i, this.pixiApp, load.Texture, this.mainContainer)
+      const name = `dancer${i}`;
+      this.dancers[name] = new Dancer(
+        i,
+        name,
+        this.pixiApp,
+        load.Texture,
+        this.mainContainer
       );
     }
+
+    // ????
     this.updateDancersPos(JSON.parse(getItem("position")), 0, 0);
 
     store.dispatch(setNewPosRecord());
   }
 
   /**
-   * Update Local Storage
-   * @param {string} key
-   * @param {*} newData
+   * update DancersStatus
+   * @param {object} currentStatus - all dancers' status
+   * ex. { dancer0: { HAT1: 0, ... }}
    */
-  updateLocalStorage(key, newData) {
-    setItem(key, JSON.stringify(newData));
-  }
-
-  /**
-   * @param {*} control
-   * @param {*} position
-   * @param {*} newFrame
-   * @param {*} type
-   */
-  updateTimeDataByFrame(control, position, newFrame, type) {
-    const newTimeData = {};
-    if (type === "control") {
-      if (newFrame <= control["player0"].length - 1 && newFrame >= 0) {
-        const newTime = control["player0"][newFrame].Start;
-        newTimeData.time = newTime;
-        newTimeData.controlFrame = newFrame;
-        newTimeData.posFrame = updateFrameByTime(position, 0, newTime);
-        // this.wavesurferApp.seekTo(
-        //   newTime / this.wavesurferApp.getDuration() / 1000
-        // );
-      }
-    } else if (type === "position") {
-      if (newFrame <= position["player0"].length - 1 && newFrame >= 0) {
-        const newTime = position["player0"][newFrame].Start;
-        newTimeData.time = newTime;
-        newTimeData.controlFrame = updateFrameByTime(control, 0, newTime);
-        newTimeData.posFrame = newFrame;
-        // this.wavesurferApp.seekTo(
-        //   newTime / this.wavesurferApp.getDuration() / 1000
-        // );
-      }
-    }
-    return newTimeData;
-  }
-
-  updateDancersControl(control, controlFrame) {
-    this.dancers.forEach((dancer) => {
-      dancer.updateControl(control[dancer.name][controlFrame].Status);
+  updateDancersStatus(currentStatus) {
+    if (Object.entries(currentStatus).length === 0)
+      throw new Error(
+        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
+      );
+    Object.entries(currentStatus).forEach(([key, value]) => {
+      this.dancers[key].updateStatus(value);
     });
-    // console.log(store.getState().global.currentStatus);
   }
 
   updateDancersPos(position, time, posFrame) {
-    if (position["player0"][posFrame + 1]) {
-      this.dancers.forEach((dancer) => {
-        const preFrame = position[dancer.name][posFrame];
-        const nextFrame = position[dancer.name][posFrame + 1];
-        dancer.updatePos(time, preFrame, nextFrame);
-      });
-    } else {
-      this.dancers.forEach((dancer) => {
-        const preFrame = position[dancer.name][posFrame];
-        dancer.updatePos(time, preFrame, preFrame);
-      });
-    }
+    // if (position["player0"][posFrame + 1]) {
+    //   this.dancers.forEach((dancer) => {
+    //     const preFrame = position[dancer.name][posFrame];
+    //     const nextFrame = position[dancer.name][posFrame + 1];
+    //     dancer.updatePos(time, preFrame, nextFrame);
+    //   });
+    // } else {
+    //   this.dancers.forEach((dancer) => {
+    //     const preFrame = position[dancer.name][posFrame];
+    //     dancer.updatePos(time, preFrame, preFrame);
+    //   });
+    // }
   }
 
+  // TODEL: make this a util
   // eslint-disable-next-line class-methods-use-this
   downloadJson(exportObj, exportName) {
     const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(

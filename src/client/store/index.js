@@ -10,5 +10,5 @@ export default configureStore({
     getDefaultMiddleware({
       immutableCheck: false,
       serializableCheck: false,
-    }).concat(logger),
+    }),
 });
