@@ -2,6 +2,7 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
 // constants
+import { IDLE, EDIT, ADD } from "../constants";
 
 // utils
 import { clamp, updateFrameByTime } from "../utils/math";
@@ -86,16 +87,6 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * Set current Frame
-     * @param {*} state
-     * @param {object} action.payload - new status object
-     */
-    setCurrentStatus: (state, action) => {
-      // const { id, status } = action.payload;
-      // state.currentStatus[`player${id}`] = status;
-    },
-
-    /**
      * Edit current Status
      * @param {} state
      * @param {*} action.payload - { dancerName, partName, value}
@@ -103,6 +94,36 @@ export const globalSlice = createSlice({
     editCurrentStatus: (state, action) => {
       const { dancerName, partName, value } = action.payload;
       state.currentStatus[dancerName][partName] = value;
+    },
+
+    /**
+     * Save currentStatus, according to controlFrame and mode
+     * @param {*} state
+     * @param {*} action
+     */
+    saveCurrentStatus: (state) => {
+      if (state.mode === EDIT) {
+        state.controlRecord[state.timeData.controlFrame].status =
+          state.currentStatus;
+      } else if (state.mode === ADD) {
+        state.controlRecord.splice(state.timeData.controlFrame + 1, 1, {
+          start: state.timeData.time,
+          status: state.currentStatus,
+        });
+      }
+      state.mode = IDLE;
+    },
+    /**
+     * Delete currentStatus, according to controlFrame
+     * @param {*} state
+     * @param {*} action
+     */
+    deleteCurrentStatus: (state) => {
+      if (state.timeData.controlFrame === 0) {
+        console.error(`Can't Delete Frame 0`);
+        return;
+      }
+      state.controlRecord.splice(state.timeData.controlFrame, 1);
     },
 
     /**
@@ -253,10 +274,12 @@ export const {
   setSelected,
   toggleSelected,
 
-  setCurrentStatus,
+  editCurrentStatus,
+  saveCurrentStatus,
+  deleteCurrentStatus,
+
   setCurrentPos,
   setNewPosRecord,
-  editCurrentStatus,
 
   setTime,
   setPosFrame,

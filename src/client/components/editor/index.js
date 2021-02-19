@@ -2,7 +2,12 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
 // redux selector and actions
-import { selectGlobal, setMode } from "../../slices/globalSlice";
+import {
+  selectGlobal,
+  setMode,
+  saveCurrentStatus,
+  deleteCurrentStatus,
+} from "../../slices/globalSlice";
 // components
 import SelectDancer from "./selectDancer";
 import SlidebarList from "./slidebarList";
@@ -20,12 +25,10 @@ export default function Editor() {
     else dispatch(setMode(m));
   };
   const handleSave = () => {
-    dispatch(setMode(IDLE));
-    // TODO
-    // check time, mode ...
+    dispatch(saveCurrentStatus());
   };
   const handleDelete = () => {
-    // TODO
+    dispatch(deleteCurrentStatus());
   };
 
   // scroll bar config
