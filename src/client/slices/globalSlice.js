@@ -96,6 +96,16 @@ export const globalSlice = createSlice({
     },
 
     /**
+     * Edit current Status
+     * @param {} state
+     * @param {*} action.payload - { dancerName, partName, value}
+     */
+    editCurrentStatus: (state, action) => {
+      const { dancerName, partName, value } = action.payload;
+      state.currentStatus[dancerName][partName] = value;
+    },
+
+    /**
      * Set current pos
      * @param {*} state
      * @param {object} action.payload - new pos
@@ -246,6 +256,7 @@ export const {
   setCurrentStatus,
   setCurrentPos,
   setNewPosRecord,
+  editCurrentStatus,
 
   setTime,
   setPosFrame,

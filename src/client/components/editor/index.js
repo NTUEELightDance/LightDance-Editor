@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
 // redux selector and actions
@@ -11,7 +11,7 @@ import { IDLE, ADD, EDIT } from "../../constants";
 
 export default function Editor() {
   // redux states
-  const { mode, currentStatus } = useSelector(selectGlobal);
+  const { mode } = useSelector(selectGlobal);
   const dispatch = useDispatch();
 
   // mode

@@ -1,17 +1,33 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/mouse-events-have-key-events */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React from "react";
+import PropTypes from "prop-types";
+// import { Slide } from "@material-ui/core";
 
-const SliderBar = ({
+const SlideBar = ({
   partName,
   disabled,
   isChosen,
   value,
-  setChosenParts,
-  setValue,
+  handleChangeValue,
+  handleChosenPart,
 }) => {
   const step = 0.1;
 
-  const preventDefault = (e) => e.preventDefault();
+  // change value
+  const handleSlideChange = (e) => {
+    handleChangeValue(partName, Number(e.target.value));
+  };
+  const handleInputChange = (e) => {
+    handleChangeValue(partName, Number(e.target.value));
+  };
 
+  // multi choose
+  const handleMultiChoose = () => handleChosenPart(partName);
+
+  // scroll to change value
+  const preventDefault = (e) => e.preventDefault();
   const mousewheelevt = /Firefox/i.test(navigator.userAgent)
     ? "DOMMouseScroll"
     : "mousewheel";
@@ -19,71 +35,54 @@ const SliderBar = ({
   const disableWindowScroll = () => {
     editor.onwheel = preventDefault;
   };
-  const enableWindowScroll = (e) => {
+  const enableWindowScroll = () => {
     editor.onwheel = null;
   };
-
   const moveSlider = (e) => {
     const zoomLevel = Number(e.target.value);
     disableWindowScroll();
     if (e.deltaY < 0) {
       //  scroll down
       e.target.value = zoomLevel - step;
+      handleSlideChange(e);
     } else if (e.deltaY > 0) {
       //  scroll up
       e.target.value = zoomLevel + step;
+      handleSlideChange(e);
     } else {
       e.target.value = zoomLevel;
     }
-    // setValue(Number(e.target.value), isChosen);
   };
-
   const handleWheel = (e) => {
     e.target.addEventListener(mousewheelevt, moveSlider);
   };
 
-  const handleChange = (e) => {
-    // setValue(Number(e.target.value), isChosen);
-  };
-
-  const handleInputChange = (e) => {
-    // setValue(e.target.value ? Number(e.target.value) : 0, isChosen);
-  };
-
-  const setIsChosen = () => {
-    // setChosenParts((state) => ({ ...state, [partName]: true }));
-  };
-
-  const handleMultiChoose = (e) => {
-    e.preventDefault();
-    setIsChosen();
-  };
-
   return (
     <>
-      <label htmlFor={partName} className="form-label">
-        {partName}
-      </label>
-      <div
-        className="input-group"
-        onDoubleClick={handleMultiChoose}
+      <label
+        htmlFor={partName}
+        className="form-label"
+        onClick={handleMultiChoose}
         style={{
+          cursor: "pointer",
           boxShadow: isChosen ? "0 0 0 0.25rem rgb(13 110 253 / 25%)" : "none",
         }}
       >
+        {partName}
+      </label>
+      <div className="input-group">
         <input
           type="range"
           className="form-range form-control me-2"
           style={{ border: "none", backgroundColor: "transparent" }}
-          id={partName}
           value={value}
           onMouseOver={handleWheel}
           onMouseOut={enableWindowScroll}
-          onChange={handleChange}
+          onChange={handleSlideChange}
           disabled={disabled}
           min={0}
           max={1}
-          step={0.01}
+          step={step}
         />
         <input
           type="number"
@@ -93,11 +92,20 @@ const SliderBar = ({
           disabled={disabled}
           min={0}
           max={1}
-          step={0.01}
+          step={step}
         />
       </div>
     </>
   );
 };
 
-export default SliderBar;
+SlideBar.propTypes = {
+  partName: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
+  isChosen: PropTypes.bool.isRequired,
+  value: PropTypes.number.isRequired,
+  handleChangeValue: PropTypes.func.isRequired,
+  handleChosenPart: PropTypes.func.isRequired,
+};
+
+export default SlideBar;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 // redux selector and actions
-import { selectGlobal, setCurrentStatus } from "../../slices/globalSlice";
+import { selectGlobal, editCurrentStatus } from "../../slices/globalSlice";
 import { selectLoad } from "../../slices/loadSlice";
 
 // components
@@ -19,12 +19,13 @@ export default function SlidebarList() {
   const { dancers } = useSelector(selectLoad);
   const { mode, currentStatus, selected } = useSelector(selectGlobal);
 
-  // multi selected dancers' elpart
+  // selected dancers' elparts
   const [intersectParts, setIntersectParts] = useState([]);
   useEffect(() => {
     if (selected.length) {
       // pick intersection parts
       const elParts = selected.map((dancerName) =>
+        // eslint-disable-next-line dot-notation
         Object.keys(dancers[dancerName]["ELPARTS"])
       );
       setIntersectParts(
@@ -33,81 +34,56 @@ export default function SlidebarList() {
     } else setIntersectParts([]);
   }, [selected]);
 
-  const handleChangeStatus = () => {
-    // dispatch(setCurrentStatus)
+  // multi chosen elparts
+  const [chosenParts, setChosenParts] = useState([]);
+  const handleChosenPart = (partName) => {
+    if (chosenParts.includes(partName))
+      setChosenParts(chosenParts.filter((n) => n !== partName));
+    else {
+      setChosenParts([...chosenParts, partName]);
+    }
   };
+  // clear chosen elparts by key "esc"
+  const handleClearChosenPart = (e) => {
+    if (e.key === "Escape") setChosenParts([]);
+  };
+  useEffect(() => {
+    window.addEventListener("keydown", handleClearChosenPart);
+    return () => {
+      window.removeEventListener("keydown", handleClearChosenPart);
+    };
+  }, []);
+
+  // changeStatus
+  const handleChangeValue = (partName, value) => {
+    selected.forEach((dancerName) => {
+      // if chosenParts not empty => change all chosenParts value
+      if (chosenParts.length)
+        chosenParts.forEach((chosenPartName) => {
+          dispatch(
+            editCurrentStatus({ dancerName, partName: chosenPartName, value })
+          );
+        });
+      // only one change
+      else dispatch(editCurrentStatus({ dancerName, partName, value }));
+    });
+  };
+
   return (
-    <div
-      id="slidebars"
-      // tabIndex="0"
-      // onKeyUp={(e) => {
-      //   if (e.keyCode === 27) {
-      //     setChosenParts(defaultChosenParts);
-      //   }
-      // }}
-      style={{ outline: "0", border: "0" }}
-    >
+    <div>
       {selected.length
-        ? intersectParts.map((lightpart) => (
+        ? intersectParts.map((partName) => (
             <SlideBar
-              key={lightpart}
-              partName={lightpart}
+              key={partName}
+              partName={partName}
               disabled={mode === IDLE}
-              setChosenParts={() => {}}
-              setValue={(newValue, isChosen) => {}}
-              isChosen={false}
-              value={currentStatus[selected[0]][lightpart]}
+              isChosen={chosenParts.includes(partName)}
+              value={currentStatus[selected[0]][partName]}
+              handleChosenPart={handleChosenPart}
+              handleChangeValue={handleChangeValue}
             />
           ))
         : null}
     </div>
   );
 }
-
-// const [currentChoose, setCurrentChoose] = useState(
-//   Array(DANCER_NUM).fill(false)
-// );
-// const defaultChosenParts = LIGHTPARTS.reduce(
-//   (acc, key) => ({ ...acc, [key]: false }),
-//   {}
-// );
-// const [chosenParts, setChosenParts] = useState(defaultChosenParts);
-
-// const testPartsValue = Array(DANCER_NUM)
-//   .fill(LIGHTPARTS.reduce((acc, key) => ({ ...acc, [key]: 0 }), {}))
-//   .reduce((acc, item, key) => ({ ...acc, [key]: item }), {});
-
-// const [partsValue, setPartsValue] = useState(testPartsValue);
-
-// const [currentDisplayPeople, setCurrentDisplayPeople] = useState(0);
-
-// const handleChangeMultiValues = (newValue) => {
-//   currentChoose.forEach((isChosen, peopleNum) => {
-//     if (isChosen) {
-//       Object.keys(chosenParts)
-//         .filter((part) => chosenParts[part])
-//         .forEach((part) => {
-//           setPartsValue((state) => ({
-//             ...state,
-//             [peopleNum]: {
-//               ...state[peopleNum],
-//               [part]: newValue,
-//             },
-//           }));
-//         });
-//     }
-//   });
-// };
-
-// const renderDisplayPeoples = () => {
-//   for (let i = currentChoose.length - 1; i > -1; i -= 1) {
-//     if (currentChoose[i]) {
-//       setCurrentDisplayPeople(i);
-//       break;
-//     }
-//   }
-// };
-
-// useEffect(() => {
-//   renderDisplayPeoples();
-// }, [currentChoose]);

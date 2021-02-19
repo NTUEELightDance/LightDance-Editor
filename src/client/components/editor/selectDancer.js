@@ -15,7 +15,7 @@ export default function SelectDancer() {
   const dispatch = useDispatch();
 
   // selected
-  const handletoggleSelected = (name) => {
+  const handleToggleSelected = (name) => {
     dispatch(toggleSelected(name));
   };
   const handleSelectAll = () => {
@@ -33,7 +33,7 @@ export default function SelectDancer() {
             className="form-check-input"
             type="checkbox"
             id={`checkbox_${name}`}
-            onChange={() => handletoggleSelected(name)}
+            onChange={() => handleToggleSelected(name)}
             checked={selected.includes(name)}
           />
           <label className="form-check-label" htmlFor={`checkbox_${name}`}>
