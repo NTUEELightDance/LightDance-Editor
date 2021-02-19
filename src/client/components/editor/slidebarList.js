@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+// styles
+import { makeStyles } from "@material-ui/core/styles";
 
 // redux selector and actions
 import { selectGlobal, editCurrentStatus } from "../../slices/globalSlice";
@@ -10,10 +12,18 @@ import SlideBar from "./slidebar";
 // constants
 import { IDLE } from "../../constants";
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(2),
+  },
+}));
+
 /**
  * EL parts' slidebar list
  */
 export default function SlidebarList() {
+  // classes
+  const classes = useStyles();
   // redux states
   const dispatch = useDispatch();
   const { dancers } = useSelector(selectLoad);
@@ -70,7 +80,7 @@ export default function SlidebarList() {
   };
 
   return (
-    <div>
+    <div className={classes.root}>
       {selected.length
         ? intersectParts.map((partName) => (
             <SlideBar

@@ -1,21 +1,52 @@
 import React, { useState, useEffect } from "react";
+import clsx from "clsx";
 // redux
 import { useSelector, useDispatch } from "react-redux";
+// mui
+import { makeStyles } from "@material-ui/styles";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
+import IconButton from "@material-ui/core/IconButton";
+
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+// actions and selector
 import {
   selectGlobal,
   setTime,
   setPosFrame,
   setControlFrame,
 } from "../../slices/globalSlice";
-// mui
-
 // constant
 import { TIMECONTROLLER } from "../../constants";
+
+const useStyles = makeStyles((theme) => ({
+  flex: {
+    display: "flex",
+    alignItems: "center",
+  },
+  frameBtn: {
+    height: "100%",
+  },
+  marginTB: {
+    marginTop: theme.spacing(1),
+    marginButton: theme.spacing(1),
+  },
+  marginLR: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
+  input: {
+    width: "120px",
+  },
+}));
 
 /**
  * Time Data Controller (time, controlFrame, posFrame)
  */
 export default function TimeController() {
+  // styles
+  const classes = useStyles();
   // redux
   const dispatch = useDispatch();
   const {
@@ -26,7 +57,6 @@ export default function TimeController() {
   const from = TIMECONTROLLER;
   // handle Change
   const handleChangeTime = (value) => {
-    console.log(`${from} ChangeTime ${value}`);
     dispatch(
       setTime({
         from,
@@ -35,7 +65,6 @@ export default function TimeController() {
     );
   };
   const handleChangeControlFrame = (value) => {
-    console.log(`${from} ChangeControlFrame ${value}`);
     dispatch(
       setControlFrame({
         from,
@@ -44,7 +73,6 @@ export default function TimeController() {
     );
   };
   const handleChangePosFrame = (value) => {
-    console.log(`${from} ChangePosFrame ${value}`);
     dispatch(
       setPosFrame({
         from,
@@ -54,58 +82,86 @@ export default function TimeController() {
   };
 
   return (
-    <div>
-      time:{" "}
-      <input
-        type="number"
-        placeholder="time"
-        value={time}
-        onChange={(e) => handleChangeTime(e.target.value)}
-        min="0"
-      />
-      status:
-      <div className="btn-group" role="group">
-        <button
-          type="button"
-          onClick={() => handleChangeControlFrame(controlFrame - 1)}
-        >
-          {"<"}
-        </button>
-        <input
+    <div className={classes.flex}>
+      <div className={clsx(classes.flex, classes.marginLR)}>
+        <Typography variant="body1" color="initial">
+          time:{" "}
+        </Typography>
+        <TextField
+          className={classes.input}
+          size="small"
+          margin="none"
+          variant="outlined"
           type="number"
-          placeholder="status index"
-          value={controlFrame}
-          onChange={(e) => handleChangeControlFrame(e.target.value)}
-          min="0"
+          placeholder="time"
+          value={time}
+          inputProps={{ min: 0 }}
+          onChange={(e) => handleChangeTime(e.target.value)}
         />
-        <button
-          type="button"
-          onClick={() => handleChangeControlFrame(controlFrame + 1)}
-        >
-          {">"}
-        </button>
       </div>
-      pos:
-      <div className="btn-group" role="group">
-        <button
-          type="button"
-          onClick={() => handleChangePosFrame(posFrame - 1)}
-        >
-          {"<"}
-        </button>
-        <input
-          type="number"
-          placeholder="position index"
-          value={posFrame}
-          onChange={(e) => handleChangePosFrame(e.target.value)}
-          min="0"
-        />
-        <button
-          type="button"
-          onClick={() => handleChangePosFrame(posFrame + 1)}
-        >
-          {">"}
-        </button>
+      <div className={clsx(classes.flex, classes.marginLR)}>
+        <Typography variant="body1" color="initial">
+          controlFrame:
+        </Typography>
+        <div className={classes.flex}>
+          <IconButton
+            className={classes.frameBtn}
+            variant="outlined"
+            onClick={() => handleChangeControlFrame(controlFrame - 1)}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          <TextField
+            className={classes.input}
+            size="small"
+            margin="none"
+            variant="outlined"
+            type="number"
+            placeholder="status index"
+            value={controlFrame}
+            inputProps={{ min: 0 }}
+            onChange={(e) => handleChangeControlFrame(e.target.value)}
+          />
+          <IconButton
+            className={classes.frameBtn}
+            variant="outlined"
+            onClick={() => handleChangeControlFrame(controlFrame + 1)}
+          >
+            <ChevronRightIcon />
+          </IconButton>
+        </div>
+      </div>
+      <div className={clsx(classes.flex, classes.marginLR)}>
+        <Typography variant="body1" color="initial">
+          posFrame:
+        </Typography>
+        <div className={classes.flex}>
+          <IconButton
+            className={classes.frameBtn}
+            variant="outlined"
+            onClick={() => handleChangePosFrame(posFrame - 1)}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          <TextField
+            className={classes.input}
+            size="small"
+            margin="none"
+            variant="outlined"
+            type="number"
+            placeholder="position index"
+            value={posFrame}
+            inputProps={{ min: 0 }}
+            onChange={(e) => handleChangePosFrame(e.target.value)}
+          />
+          <IconButton
+            className={classes.frameBtn}
+            variant="outlined"
+            onClick={() => handleChangePosFrame(posFrame + 1)}
+          >
+            <ChevronRightIcon />
+          </IconButton>
+        </div>
       </div>
     </div>
   );

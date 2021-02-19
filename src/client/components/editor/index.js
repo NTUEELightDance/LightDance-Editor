@@ -1,6 +1,10 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
+// mui
+import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+
 // redux selector and actions
 import {
   selectGlobal,
@@ -14,7 +18,25 @@ import SlidebarList from "./slidebarList";
 // constants
 import { IDLE, ADD, EDIT } from "../../constants";
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: "28vw",
+    height: "80vh",
+    display: "flex",
+    flexDirection: "column",
+    padding: theme.spacing(1),
+  },
+  selectDancer: {
+    position: "fixed",
+  },
+  grow: {
+    flexGrow: 1,
+  },
+}));
+
 export default function Editor() {
+  // styles
+  const classes = useStyles();
   // redux states
   const { mode } = useSelector(selectGlobal);
   const dispatch = useDispatch();
@@ -41,33 +63,55 @@ export default function Editor() {
   };
 
   return (
-    <div
-      id="editor"
-      className="col-4 d-inline-block container"
-      style={{ height: "720px" }} // ugly for now
-    >
-      <Scrollbars renderThumbVertical={renderThumb}>
+    <div id="editor" className={classes.root}>
+      <div>
         <div>
-          <div className="btn-group" role="group" aria-label="Basic example">
-            <button type="button" onClick={() => handleChangeMode(EDIT)}>
-              EDIT
-            </button>
-            <button type="button" onClick={() => handleChangeMode(ADD)}>
-              ADD
-            </button>
-            <button type="button" onClick={handleSave}>
-              SAVE
-            </button>
-          </div>
+          <Button
+            variant="outlined"
+            size="small"
+            style={{
+              backgroundColor: mode === EDIT ? "#505050" : "",
+            }}
+            onClick={() => handleChangeMode(EDIT)}
+          >
+            EDIT
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            style={{
+              backgroundColor: mode === ADD ? "#505050" : "",
+            }}
+            onClick={() => handleChangeMode(ADD)}
+          >
+            ADD
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            disabled={mode === IDLE}
+            onClick={handleSave}
+          >
+            SAVE
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="default"
+            onClick={handleDelete}
+            disabled={mode !== IDLE}
+          >
+            DEL
+          </Button>
         </div>
-        <SelectDancer />
-        <SlidebarList />
-        {/* TODO: led slider, selection  */}
-
-        <button type="button" onClick={handleDelete}>
-          DEL
-        </button>
-      </Scrollbars>
+      </div>
+      <SelectDancer className={classes.selectDancer} />
+      <div className={classes.grow}>
+        <Scrollbars renderThumbVertical={renderThumb}>
+          <SlidebarList />
+        </Scrollbars>
+      </div>
+      {/* TODO: led slider, selection  */}
     </div>
   );
 }

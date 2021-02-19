@@ -1,5 +1,11 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
+// mui
+import { makeStyles } from "@material-ui/core/styles";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import Button from "@material-ui/core/Button";
 // redux selector and actions
 import {
   selectGlobal,
@@ -26,27 +32,28 @@ export default function SelectDancer() {
   };
 
   return (
-    <div className="input-group" role="group">
-      {dancerNames.map((name) => (
-        <div className="form-check form-check-inline" key={`checkbox_${name}`}>
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id={`checkbox_${name}`}
-            onChange={() => handleToggleSelected(name)}
-            checked={selected.includes(name)}
+    <div>
+      <FormGroup row>
+        {dancerNames.map((name) => (
+          <FormControlLabel
+            key={name}
+            control={
+              <Checkbox
+                color="primary"
+                onChange={() => handleToggleSelected(name)}
+                checked={selected.includes(name)}
+              />
+            }
+            label={name}
           />
-          <label className="form-check-label" htmlFor={`checkbox_${name}`}>
-            {name}
-          </label>
-        </div>
-      ))}
-      <button type="button" onClick={handleSelectAll}>
-        Select All
-      </button>
-      <button type="button" onClick={handleCancelSelect}>
-        Cancel All
-      </button>
+        ))}
+        <Button variant="outlined" size="small" onClick={handleSelectAll}>
+          Select All
+        </Button>
+        <Button variant="outlined" size="small" onClick={handleCancelSelect}>
+          Cancel All
+        </Button>
+      </FormGroup>
     </div>
   );
 }

@@ -119,6 +119,10 @@ export const globalSlice = createSlice({
      * @param {*} action
      */
     deleteCurrentStatus: (state) => {
+      if (state.mode !== IDLE) {
+        console.error(`Can't Delete in EDIT or IDLE Mode`);
+        return;
+      }
       if (state.timeData.controlFrame === 0) {
         console.error(`Can't Delete Frame 0`);
         return;

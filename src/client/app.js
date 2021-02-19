@@ -1,5 +1,8 @@
 import { hot } from "react-hot-loader/root";
 import React, { useEffect } from "react";
+// mui
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import CssBaseline from "@material-ui/core/CssBaseline";
 // redux
 import { useSelector, useDispatch } from "react-redux";
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
@@ -12,6 +15,20 @@ import Wavesurfer from "./components/wavesurfer";
 import Preset from "./components/preset";
 import Editor from "./components/editor";
 import TimeController from "./components/timeController";
+
+const theme = createMuiTheme({
+  palette: {
+    type: "dark",
+    primary: {
+      main: "#94BBFF",
+      dark: "#94BBFF",
+    },
+    background: {
+      paper: "#292929",
+      default: "#121212",
+    },
+  },
+});
 
 /**
  * Component for the main
@@ -26,15 +43,20 @@ const App = () => {
   return (
     <div>
       {init ? (
-        // {/* <WaveSurferAppProvider> */}
-        <ControllerProvider>
-          <TimeController />
-          {/* <Wavesurfer /> */}
-          <Editor />
-          <Pixi />
-        </ControllerProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ControllerProvider>
+            {/* <WaveSurferAppProvider> */}
+            <TimeController />
+            {/* <Wavesurfer /> */}
+            <div style={{ display: "flex" }}>
+              <Pixi />
+              <Editor />
+            </div>
+            {/* </WaveSurferAppProvider> */}
+          </ControllerProvider>
+        </ThemeProvider>
       ) : (
-        // {/* </WaveSurferAppProvider> */}
         "Loading..."
       )}
     </div>
