@@ -34,6 +34,8 @@ if (process.env.NODE_ENV !== "prod") {
 
 const assetPath = path.resolve(__dirname, "..", "..", "./asset");
 app.use("/asset", express.static(assetPath));
+const dataPath = path.resolve(__dirname, "..", "..", "./data");
+app.use("/data", express.static(dataPath));
 
 const port = 8080;
 

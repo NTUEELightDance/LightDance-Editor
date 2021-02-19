@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import Part from "./Part";
 
-class BlackPart extends Part {
+class ELPart extends Part {
   constructor(dancer, name, settings, textures) {
     super(dancer, name, settings);
     // only one texture.name, and it's a string
@@ -11,9 +11,10 @@ class BlackPart extends Part {
     this.sprite.texture = this.textures[textures.name];
   }
 
-  updateTexture(args) {
-    // console.log("Error: Black Part shouldn't be updateTexture!!!", args);
+  updateTexture(alpha) {
+    // console.log("Updating bright", alpha);
+    this.sprite.alpha = alpha;
   }
 }
 
-export default BlackPart;
+export default ELPart;

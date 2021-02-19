@@ -8,7 +8,6 @@ const SliderBar = ({
   setChosenParts,
   setValue,
 }) => {
-  console.log(partName, value);
   const step = 0.1;
 
   const preventDefault = (e) => e.preventDefault();

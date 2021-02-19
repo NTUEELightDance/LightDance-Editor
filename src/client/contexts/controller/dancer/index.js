@@ -1,13 +1,6 @@
 import * as PIXI from "pixi.js";
-import { BlackPart, LightPart, LEDPart } from "./parts";
-import {
-  BLPARTS,
-  LIGHTPARTS,
-  LEDPARTS,
-  DISPLAY_HEIGHT,
-  DISPLAY_WIDTH,
-  DANCER_NUM,
-} from "../../../constants";
+import { BlackPart, ELPart, LEDPart } from "./parts";
+import { DISPLAY_HEIGHT, DISPLAY_WIDTH } from "../../../constants";
 import store from "../../../store";
 import { toggleSelected, setCurrentPos } from "../../../slices/globalSlice";
 
@@ -25,22 +18,37 @@ class Dancer {
     this.app = app;
     this.mainContainer = mainContainer;
     this.id = id; // dancer id
-    // this.name = `player${id.toString()}`;
     this.name = name;
     this.status = {}; // dancer current status
     this.parts = {}; // dancer body part
 
     // BlackPart
-    BLPARTS.forEach((blpart) => {
-      this.parts[blpart] = new BlackPart(this, blpart);
+    const { BLPARTS, ELPARTS, LEDPARTS } = store.getState().load.dancers[name];
+    Object.entries(BLPARTS).forEach(([blpart, settings]) => {
+      this.parts[blpart] = new BlackPart(
+        this,
+        blpart,
+        settings,
+        loadTexture[blpart]
+      );
     });
-    // LightPart
-    LIGHTPARTS.forEach((lipart) => {
-      this.parts[lipart] = new LightPart(this, lipart);
+    // ELPart
+    Object.entries(ELPARTS).forEach(([elpart, settings]) => {
+      this.parts[elpart] = new ELPart(
+        this,
+        elpart,
+        settings,
+        loadTexture[elpart]
+      );
     });
     // LEDPART
-    LEDPARTS.forEach((ledpart) => {
-      this.parts[ledpart] = new LEDPart(this, ledpart, loadTexture);
+    Object.entries(LEDPARTS).forEach(([ledpart, settings]) => {
+      this.parts[ledpart] = new LEDPart(
+        this,
+        ledpart,
+        settings,
+        loadTexture[ledpart]
+      );
     });
 
     // PIXI Rendering
@@ -62,7 +70,7 @@ class Dancer {
     this.container.addChild(text);
 
     // Calculate position and scale
-    this.initScale();
+    this.initScale(store.getState().load.dancerNames.length);
     this.mainContainer.addChild(this.container);
 
     // Dragging
@@ -101,7 +109,7 @@ class Dancer {
   /**
    * Initiate Dancers' container scale to fit in the screen
    */
-  initScale(num = DANCER_NUM, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
+  initScale(num, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
     const ratio = this.container.width / this.container.height;
     this.container.height = height * 0.95;
     if (num > 1) this.container.height /= 2;

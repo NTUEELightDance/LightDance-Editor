@@ -2,17 +2,20 @@ import * as PIXI from "pixi.js";
 import Part from "./Part";
 
 class LEDPart extends Part {
-  constructor(dancer, name, textures) {
-    super(dancer, name, textures);
-    this.paths[name].forEach((path) => {
-      try {
+  constructor(dancer, name, settings, textures) {
+    super(dancer, name, settings);
+    // textures.name: array of strings
+    try {
+      textures.name.forEach((path) => {
         this.textures[path] = PIXI.Texture.from(
-          `./asset/LED/${name}/${path}.png`
+          `${textures.prefix}${path}${textures.postfix}`
         );
-      } catch (err) {
-        console.error(err);
-      }
-    });
+      });
+      if (textures.name.length)
+        this.sprite.texture = this.textures[textures.name[0]];
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   updateTexture({ src, alpha }) {

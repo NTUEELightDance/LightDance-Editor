@@ -1,8 +1,8 @@
 import { hot } from "react-hot-loader/root";
-import React from "react";
+import React, { useEffect } from "react";
 // redux
-import { Provider } from "react-redux";
-import store from "./store";
+import { useSelector, useDispatch } from "react-redux";
+import { selectLoad, fetchLoad } from "./slices/loadSlice";
 // context
 import WaveSurferAppProvider from "./contexts/wavesurferapp";
 import ControllerProvider from "./contexts/controller";
@@ -18,17 +18,26 @@ import TimeController from "./components/timeController";
  * @component
  */
 const App = () => {
+  const { init } = useSelector(selectLoad);
+  const dispatch = useDispatch();
+  useEffect(async () => {
+    if (!init) await dispatch(fetchLoad());
+  }, [init]);
   return (
-    <Provider store={store}>
-      {/* <WaveSurferAppProvider> */}
-      <ControllerProvider>
-        <TimeController />
-        {/* <Wavesurfer /> */}
-        <Editor />
-        <Pixi />
-      </ControllerProvider>
-      {/* </WaveSurferAppProvider> */}
-    </Provider>
+    <div>
+      {init ? (
+        // {/* <WaveSurferAppProvider> */}
+        <ControllerProvider>
+          <TimeController />
+          {/* <Wavesurfer /> */}
+          <Editor />
+          <Pixi />
+        </ControllerProvider>
+      ) : (
+        // {/* </WaveSurferAppProvider> */}
+        "Loading..."
+      )}
+    </div>
   );
 };
 

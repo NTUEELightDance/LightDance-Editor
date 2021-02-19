@@ -59,6 +59,7 @@ export default function Editor() {
         </div>
         <SelectDancer />
         <SlidebarList />
+        {/* TODO: led slider, selection  */}
 
         <button type="button" onClick={handleDelete}>
           DEL

@@ -1,8 +1,4 @@
 import * as PIXI from "pixi.js";
-// constants
-import { DANCER_NUM, DANCER_NAMES } from "../../constants";
-// load
-import load from "../../../../data/load.json";
 // utils
 import { setItem, getItem } from "../../utils/localStorage";
 // redux actions and store
@@ -10,9 +6,6 @@ import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 import Dancer from "./dancer";
-// TODEL, need to be load including to load.json
-import loadedPosition from "../../../../data/default_position.json";
-import loadedControl from "../../../../data/default_control.json";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -31,10 +24,10 @@ class Controller {
   init() {
     // initialization by localStorage
     if (!getItem("control")) {
-      setItem("control", JSON.stringify(loadedControl));
+      setItem("control", JSON.stringify(store.getState().load.control));
     }
     if (!getItem("position")) {
-      setItem("position", JSON.stringify(loadedPosition));
+      setItem("position", JSON.stringify(store.getState().load.position));
     }
     store.dispatch(controlInit(JSON.parse(getItem("control"))));
     store.dispatch(posInit(JSON.parse(getItem("position"))));
@@ -47,12 +40,13 @@ class Controller {
     document.getElementById("main_stage").appendChild(this.pixiApp.view);
 
     // initialization for dancers
-    DANCER_NAMES.forEach((name, idx) => {
+    const { dancerNames } = store.getState().load;
+    dancerNames.forEach((name, idx) => {
       this.dancers[name] = new Dancer(
         idx,
         name,
         this.pixiApp,
-        load.Texture,
+        store.getState().load.texture,
         this.mainContainer
       );
     });

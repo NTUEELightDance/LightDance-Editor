@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
 // constants
@@ -159,7 +160,7 @@ export const globalSlice = createSlice({
           `[Error] setTime invalid parameter(from ${from}, time ${time})`
         );
       }
-      if (typeof time !== "number") return;
+      if (isNaN(time)) return;
       time = Math.max(time, 0);
 
       state.timeData.from = from;
@@ -195,9 +196,8 @@ export const globalSlice = createSlice({
           `[Error] setControlFrame invalid parameter(from ${from}, controlFrame ${controlFrame})`
         );
       }
-      if (typeof controlFrame !== "number") return;
-      controlFrame = clamp(controlFrame, 0, state.controlRecord.length); //
-
+      if (isNaN(controlFrame)) return;
+      controlFrame = clamp(controlFrame, 0, state.controlRecord.length - 1);
       state.timeData.from = from;
       state.timeData.controlFrame = controlFrame;
       state.timeData.time = state.controlRecord[controlFrame].start;
@@ -216,9 +216,8 @@ export const globalSlice = createSlice({
           `[Error] setPosFrame invalid parameter(from ${from}, posFrame ${posFrame})`
         );
       }
-      if (typeof posFrame !== "number") return;
-      posFrame = clamp(posFrame, 0, state.posRecord.length);
-
+      if (isNaN(posFrame)) return;
+      posFrame = clamp(posFrame, 0, state.posRecord.length - 1);
       state.timeData.from = from;
       state.timeData.posFrame = posFrame;
       state.timeData.time = state.posRecord[posFrame].start;

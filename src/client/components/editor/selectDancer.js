@@ -6,12 +6,12 @@ import {
   setSelected,
   toggleSelected,
 } from "../../slices/globalSlice";
-// constants
-import { DANCER_NAMES } from "../../constants";
+import { selectLoad } from "../../slices/loadSlice";
 
 export default function SelectDancer() {
   // redux states
   const { selected } = useSelector(selectGlobal);
+  const { dancerNames } = useSelector(selectLoad);
   const dispatch = useDispatch();
 
   // selected
@@ -19,7 +19,7 @@ export default function SelectDancer() {
     dispatch(toggleSelected(name));
   };
   const handleSelectAll = () => {
-    dispatch(setSelected(DANCER_NAMES));
+    dispatch(setSelected(dancerNames));
   };
   const handleCancelSelect = () => {
     dispatch(setSelected([]));
@@ -27,7 +27,7 @@ export default function SelectDancer() {
 
   return (
     <div className="input-group" role="group">
-      {DANCER_NAMES.map((name) => (
+      {dancerNames.map((name) => (
         <div className="form-check form-check-inline" key={`checkbox_${name}`}>
           <input
             className="form-check-input"

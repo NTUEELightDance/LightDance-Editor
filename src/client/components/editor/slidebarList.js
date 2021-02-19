@@ -1,20 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 // redux selector and actions
 import { selectGlobal, setCurrentStatus } from "../../slices/globalSlice";
+import { selectLoad } from "../../slices/loadSlice";
 
 // components
 import SlideBar from "./slidebar";
 // constants
-import { LIGHTPARTS, LEDPARTS, IDLE } from "../../constants";
+import { IDLE } from "../../constants";
 
+/**
+ * EL parts' slidebar list
+ */
 export default function SlidebarList() {
   // redux states
-  const { mode, currentStatus, selected } = useSelector(selectGlobal);
   const dispatch = useDispatch();
+  const { dancers } = useSelector(selectLoad);
+  const { mode, currentStatus, selected } = useSelector(selectGlobal);
 
-  //
+  // multi selected dancers' elpart
+  const [intersectParts, setIntersectParts] = useState([]);
+  useEffect(() => {
+    if (selected.length) {
+      // pick intersection parts
+      const elParts = selected.map((dancerName) =>
+        Object.keys(dancers[dancerName]["ELPARTS"])
+      );
+      setIntersectParts(
+        elParts.reduce((a, b) => a.filter((c) => b.includes(c)))
+      );
+    } else setIntersectParts([]);
+  }, [selected]);
+
   const handleChangeStatus = () => {
     // dispatch(setCurrentStatus)
   };
@@ -29,8 +47,8 @@ export default function SlidebarList() {
       // }}
       style={{ outline: "0", border: "0" }}
     >
-      {selected.length > 0
-        ? LIGHTPARTS.map((lightpart) => (
+      {selected.length
+        ? intersectParts.map((lightpart) => (
             <SlideBar
               key={lightpart}
               partName={lightpart}
