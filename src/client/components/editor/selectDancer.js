@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
@@ -31,6 +31,20 @@ export default function SelectDancer() {
     dispatch(setSelected([]));
   };
 
+  // keyDown to select (0 ~ 9)
+  const handleKeyDown = (e) => {
+    const index = e.keyCode - 48;
+    if (index >= 0 && index < dancerNames.length)
+      // between 0 ~ 9
+      handleToggleSelected(dancerNames[index]);
+  };
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   return (
     <div>
       <FormGroup row>
@@ -47,13 +61,13 @@ export default function SelectDancer() {
             label={name}
           />
         ))}
-        <Button variant="outlined" size="small" onClick={handleSelectAll}>
-          Select All
-        </Button>
-        <Button variant="outlined" size="small" onClick={handleCancelSelect}>
-          Cancel All
-        </Button>
       </FormGroup>
+      <Button variant="outlined" size="small" onClick={handleSelectAll}>
+        Select All
+      </Button>
+      <Button variant="outlined" size="small" onClick={handleCancelSelect}>
+        Cancel All
+      </Button>
     </div>
   );
 }

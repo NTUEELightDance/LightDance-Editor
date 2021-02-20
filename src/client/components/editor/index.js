@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
 // mui
@@ -8,7 +8,7 @@ import Button from "@material-ui/core/Button";
 // redux selector and actions
 import {
   selectGlobal,
-  setMode,
+  toggleMode,
   saveCurrentStatus,
   deleteCurrentStatus,
 } from "../../slices/globalSlice";
@@ -43,15 +43,30 @@ export default function Editor() {
 
   // mode
   const handleChangeMode = (m) => {
-    if (m === mode) dispatch(setMode(IDLE));
-    else dispatch(setMode(m));
+    dispatch(toggleMode(m));
   };
   const handleSave = () => {
     dispatch(saveCurrentStatus());
   };
   const handleDelete = () => {
-    dispatch(deleteCurrentStatus());
+    if (window.confirm(`Are you sure to delete ?`))
+      dispatch(deleteCurrentStatus());
   };
+  // keyDown to change mode (include multiple keyDown)
+  const handleKeyDown = (e) => {
+    if (e.code === "KeyE") handleChangeMode(EDIT);
+    else if (e.code === "KeyA") handleChangeMode(ADD);
+    else if (e.code === "KeyS" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      handleSave();
+    } else if (e.code === "Delete") handleDelete();
+  };
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   // scroll bar config
   const renderThumb = ({ style, ...props }) => {
@@ -64,46 +79,47 @@ export default function Editor() {
 
   return (
     <div id="editor" className={classes.root}>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
       <div>
-        <div>
-          <Button
-            variant="outlined"
-            size="small"
-            style={{
-              backgroundColor: mode === EDIT ? "#505050" : "",
-            }}
-            onClick={() => handleChangeMode(EDIT)}
-          >
-            EDIT
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            style={{
-              backgroundColor: mode === ADD ? "#505050" : "",
-            }}
-            onClick={() => handleChangeMode(ADD)}
-          >
-            ADD
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={mode === IDLE}
-            onClick={handleSave}
-          >
-            SAVE
-          </Button>
-          <Button
-            size="small"
-            variant="outlined"
-            color="default"
-            onClick={handleDelete}
-            disabled={mode !== IDLE}
-          >
-            DEL
-          </Button>
-        </div>
+        <Button
+          variant="outlined"
+          size="small"
+          style={{
+            backgroundColor: mode === EDIT ? "#505050" : "",
+          }}
+          onClick={() => handleChangeMode(EDIT)}
+        >
+          EDIT
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          style={{
+            backgroundColor: mode === ADD ? "#505050" : "",
+          }}
+          onClick={() => handleChangeMode(ADD)}
+        >
+          ADD
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          color="primary"
+          disabled={mode === IDLE}
+          onClick={handleSave}
+        >
+          SAVE
+        </Button>
+        <Button
+          size="small"
+          variant="outlined"
+          color="secondary"
+          onClick={handleDelete}
+          disabled={mode !== IDLE}
+        >
+          DEL
+        </Button>
       </div>
       <SelectDancer className={classes.selectDancer} />
       <div className={classes.grow}>

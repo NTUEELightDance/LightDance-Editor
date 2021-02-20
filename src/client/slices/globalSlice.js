@@ -266,7 +266,14 @@ export const globalSlice = createSlice({
      */
     setMode: (state, action) => {
       state.mode = action.payload;
-      console.log(`setMode, ${action.payload}`);
+    },
+
+    /**
+     * toggle editor mode
+     */
+    toggleMode: (state, action) => {
+      if (action.payload === state.mode) state.mode = IDLE;
+      else state.mode = action.payload;
     },
   },
 });
@@ -290,6 +297,7 @@ export const {
   setControlFrame,
 
   setMode,
+  toggleMode,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;
