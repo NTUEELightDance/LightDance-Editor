@@ -1,6 +1,5 @@
 import WaveSurfer from "wavesurfer.js";
 import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
-import TimelinePlugin from "wavesurfer.js/dist/plugin/wavesurfer.timeline.min";
 // redux
 import store from "../../store";
 import { playPause, setTime } from "../../slices/globalSlice";
@@ -42,14 +41,6 @@ class WaveSurferApp {
             padding: "2px",
             "font-size": "10px",
           },
-        }),
-        TimelinePlugin.create({
-          container: "#wave-timeline",
-          unlabeledNotchColor: "white",
-          primaryColor: "white",
-          secondaryColor: "white",
-          primaryFontColor: "white",
-          secondaryFontColor: "white",
         }),
       ],
     });

@@ -1,16 +1,16 @@
-import React, { useEffect, useContext, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  playPause,
-  selectGlobal,
-  updateTimeData,
-  setNewPosRecord,
-} from "../../slices/globalSlice";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import Scrollbars from "react-custom-scrollbars";
 
-// import { ControllerContext } from "../../controllerContext";
-import { WaveSurferAppContext } from "../../contexts/wavesurferapp";
-import store from "../../store";
-
+// mui
+import Button from "@material-ui/core/Button";
+import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+import PauseIcon from "@material-ui/icons/Pause";
+import StopIcon from "@material-ui/icons/Stop";
+// my class
+import WaveSurferApp from "./waveSurferApp";
+// selector
+import { selectGlobal } from "../../slices/globalSlice";
 // constants
 import { WAVESURFERAPP } from "../../constants";
 
@@ -20,7 +20,14 @@ import { WAVESURFERAPP } from "../../constants";
  * @component
  */
 const Wavesurfer = () => {
-  const waveSurferApp = useContext(WaveSurferAppContext);
+  const [waveSurferApp, setWaveSurferApp] = useState(null);
+
+  useEffect(() => {
+    const newWaveSurferApp = new WaveSurferApp();
+    newWaveSurferApp.init();
+    setWaveSurferApp(newWaveSurferApp);
+  }, []);
+
   // redux
   const {
     timeData: { from, time },
@@ -43,120 +50,49 @@ const Wavesurfer = () => {
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
 
-  // const controller = useContext(ControllerContext);
-  // const [controlFrameInput, setControlFrameInput] = useState("");
-  // const [posFrameInput, setPosFrameInput] = useState("");
-  // const { controlRecord, posRecord, timeData, currentStatus } = useSelector(
-  //   selectGlobal
-  // );
-  // const { controlFrame, posFrame, time } = timeData;
-
-  // const dispatch = useDispatch();
-
-  // const handleControlInputChange = (event) => {
-  //   setControlFrameInput(event.target.value);
-  // };
-  // const handlePosInputChange = (event) => {
-  //   setPosFrameInput(event.target.value);
-  // };
-
-  // const handleSetControlFrame = (event) => {
-  //   console.log(controlFrameInput, controller.wavesurferApp);
-  //   const newFrame = parseInt(controlFrameInput, 10);
-  //   const newTimeData = controller.updateTimeDataByFrame(
-  //     controlRecord,
-  //     posRecord,
-  //     newFrame,
-  //     "control"
-  //   );
-  //   console.log(newTimeData);
-  //   if (timeData !== {}) {
-  //     store.dispatch(updateTimeData(newTimeData));
-  //   }
-  //   event.preventDefault();
-  // };
-
-  // const handleSetPosFrame = (event) => {
-  //   console.log(posFrameInput, controller.wavesurferApp);
-  //   const newFrame = parseInt(posFrameInput, 10);
-  //   const newTimeData = controller.updateTimeDataByFrame(
-  //     controlRecord,
-  //     posRecord,
-  //     newFrame,
-  //     "position"
-  //   );
-  //   console.log(newTimeData);
-  //   if (timeData !== {}) {
-  //     store.dispatch(updateTimeData(newTimeData));
-  //   }
-  //   event.preventDefault();
-  // };
-
-  // const handleSaveControlFrame = () => {
-  //   // controller.updateLocalStorage(
-  //   //   "controlTest",
-  //   //   store.getState().global.controlRecord
-  //   // );
-  //   console.log(controller.localStorage);
-  //   // console.log(currentStatus);
-  // };
-
-  // const handleSavePosFrame = () => {
-  //   controller.updateLocalStorage(
-  //     "position",
-  //     store.getState().global.posRecord
-  //   );
-  // };
-
+  // scroll bar config
+  const renderThumb = ({ style, ...props }) => {
+    const thumbStyle = {
+      borderRadius: 6,
+      backgroundColor: "rgba(192,192,200, 0.5)",
+    };
+    return <div style={{ ...style, ...thumbStyle }} {...props} />;
+  };
   return (
-    <div>
-      {/* <button onClick={handleSaveControlFrame} type="button">
-        Save Control Frame
-      </button>
-      <button onClick={handleSavePosFrame} type="button">
-        Save Position Frame
-      </button>
-      <form onSubmit={handleSetControlFrame}>
-        <label>
-          ControlFrame:
-          <input
-            type="text"
-            name="frame"
-            value={controlFrameInput}
-            onChange={handleControlInputChange}
-          />
-        </label>
-        <input type="button" value="Submit" onClick={handleSetControlFrame} />
-      </form>
-
-      <form onSubmit={handleSetPosFrame}>
-        <label>
-          PosFrame:
-          <input
-            type="text"
-            name="frame"
-            value={posFrameInput}
-            onChange={handlePosInputChange}
-          />
-        </label>
-        <input type="button" value="Submit" onClick={handleSetPosFrame} />
-      </form>
-
-      <button
-      onClick={() => controller.downloadJson(posRecord, "position")}
-      type="button"
-      >
-      Download position
-    </button> */}
-      <button onClick={handlePlayPause} type="button">
-        Play/Pause
-      </button>
-      <button onClick={handleStop} type="button">
-        Stop
-      </button>
-
-      <div id="waveform" style={{ position: "relative" }} />
-      <div id="wave-timeline" />
+    <div style={{ height: "100%" }}>
+      <Scrollbars renderThumbVertical={renderThumb}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "fixed",
+            marginTop: "6px",
+            width: "100%",
+            zIndex: 10,
+          }}
+        >
+          <div style={{ marginRight: "8px" }}>
+            <Button
+              size="small"
+              variant="contained"
+              color="default"
+              onClick={handlePlayPause}
+            >
+              <PlayArrowIcon /> / <PauseIcon />
+            </Button>
+          </div>
+          <Button
+            size="small"
+            variant="contained"
+            color="default"
+            onClick={handleStop}
+          >
+            <StopIcon />
+          </Button>
+        </div>
+        <div id="waveform" />
+      </Scrollbars>
     </div>
   );
 };

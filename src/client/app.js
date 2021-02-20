@@ -5,17 +5,13 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 // redux
 import { useSelector, useDispatch } from "react-redux";
+// actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
 // context
-import WaveSurferAppProvider from "./contexts/wavesurferapp";
-import ControllerProvider from "./contexts/controller";
+// layout
+import Layout from "./layout";
 // components
-import Pixi from "./components/pixi";
-import Wavesurfer from "./components/wavesurfer";
-import Preset from "./components/preset";
-import Editor from "./components/editor";
-import PosEditor from "./components/posEditor";
-import TimeController from "./components/timeController";
+import Bar from "./components/bar";
 
 const theme = createMuiTheme({
   palette: {
@@ -43,24 +39,25 @@ const App = () => {
   }, [init]);
   return (
     <div>
-      {init ? (
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <ControllerProvider>
-            {/* <WaveSurferAppProvider> */}
-            <TimeController />
-            {/* <Wavesurfer /> */}
-            <div style={{ display: "flex" }}>
-              <Pixi />
-              {/* <Editor /> */}
-              <PosEditor />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {init ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100vh",
+            }}
+          >
+            <Bar />
+            <div style={{ flexGrow: 1, position: "relative" }}>
+              <Layout />
             </div>
-            {/* </WaveSurferAppProvider> */}
-          </ControllerProvider>
-        </ThemeProvider>
-      ) : (
-        "Loading..."
-      )}
+          </div>
+        ) : (
+          "Loading..."
+        )}
+      </ThemeProvider>
     </div>
   );
 };

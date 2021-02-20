@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React from "react";
+import { useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 
 // redux selector and actions
-import {
-  selectGlobal,
-  saveCurrentPos,
-  deleteCurrentPos,
-} from "../../slices/globalSlice";
+import { saveCurrentPos, deleteCurrentPos } from "../../slices/globalSlice";
 // components
 import ModeSelector from "../modeSelector";
 import PosList from "./posList";
@@ -18,8 +13,7 @@ import PosList from "./posList";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "28vw",
-    height: "80vh",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
     padding: theme.spacing(1),

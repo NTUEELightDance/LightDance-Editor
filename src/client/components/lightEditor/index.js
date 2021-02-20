@@ -17,8 +17,7 @@ import ModeSelector from "../modeSelector";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "28vw",
-    height: "80vh",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
     padding: theme.spacing(1),
@@ -31,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Editor() {
+export default function LightEditor() {
   // styles
   const classes = useStyles();
 

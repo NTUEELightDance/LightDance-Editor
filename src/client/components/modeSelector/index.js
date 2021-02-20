@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 // mui
-import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
 // redux selector and actions
@@ -77,3 +77,8 @@ export default function ModeSelector({ handleSave, handleDelete }) {
     </div>
   );
 }
+
+ModeSelector.propTypes = {
+  handleSave: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+};
