@@ -112,6 +112,7 @@ export const globalSlice = createSlice({
       }
       state.mode = IDLE;
     },
+
     /**
      * Delete currentStatus, according to controlFrame
      * @param {*} state
@@ -283,6 +284,7 @@ export const {
   playPause,
   posInit,
   controlInit,
+
   setSelected,
   toggleSelected,
 

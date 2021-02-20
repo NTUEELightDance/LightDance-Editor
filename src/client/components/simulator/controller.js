@@ -50,7 +50,6 @@ class Controller {
         this.mainContainer
       );
     });
-    console.log(this.dancers);
   }
 
   /**

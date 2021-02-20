@@ -5,12 +5,12 @@ export const loadSlice = createSlice({
   name: "load",
   initialState: {
     init: false,
-    music: "",
-    control: [],
-    position: [],
-    presets: "",
-    texture: {},
-    dancers: {}, // name: data, data will be load next
+    music: "", // load music path
+    control: [], // loaded control.json, may not be same as localStorage (this is for default)
+    position: [], // loaded position.json, may not be same as localStorage (this is for default)
+    presets: [], // loaded presets.json, may not be same as localStorage (this is for default)
+    texture: {}, // loaded texture
+    dancers: {}, // name: data, data is like content of 'dancer0.json'
     dancerNames: {}, // [name]
   },
   reducers: {
