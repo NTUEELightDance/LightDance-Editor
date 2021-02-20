@@ -1,8 +1,11 @@
 import * as PIXI from "pixi.js";
 import { BlackPart, ELPart, LEDPart } from "./parts";
-import { DISPLAY_HEIGHT, DISPLAY_WIDTH } from "../../../constants";
-import store from "../../../store";
+// constants
+import { IDLE, DISPLAY_HEIGHT, DISPLAY_WIDTH } from "../../../constants";
+// actions
 import { toggleSelected, setCurrentPos } from "../../../slices/globalSlice";
+// store
+import store from "../../../store";
 
 /**
  * Dancer
@@ -147,7 +150,8 @@ class Dancer {
     // we want to track the movement of this particular touch
     this.data = event.data;
     this.alpha = 0.5;
-    this.dragging = true;
+    // can't drag when mode is IDLE
+    this.dragging = store.getState().global.mode !== IDLE;
   }
 
   onDragMove() {

@@ -1,18 +1,19 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 
 // redux selector and actions
 import {
-  saveCurrentStatus,
-  deleteCurrentStatus,
+  selectGlobal,
+  saveCurrentPos,
+  deleteCurrentPos,
 } from "../../slices/globalSlice";
 // components
-import SelectDancer from "./selectDancer";
-import SlidebarList from "./slidebarList";
 import ModeSelector from "../modeSelector";
+import PosList from "./posList";
 // constants
 
 const useStyles = makeStyles((theme) => ({
@@ -23,30 +24,27 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     padding: theme.spacing(1),
   },
-  selectDancer: {
-    position: "fixed",
-  },
+
   grow: {
     flexGrow: 1,
   },
 }));
 
-export default function Editor() {
+export default function PosEditor() {
   // styles
   const classes = useStyles();
 
   const dispatch = useDispatch();
-
   // save
   const handleSave = () => {
-    dispatch(saveCurrentStatus());
+    dispatch(saveCurrentPos());
   };
   // delete
   const handleDelete = () => {
-    if (window.confirm(`Are you sure to delete ?`))
-      dispatch(deleteCurrentStatus());
+    if (window.confirm(`Are you sure to delete ?`)) {
+      dispatch(deleteCurrentPos());
+    }
   };
-
   // scroll bar config
   const renderThumb = ({ style, ...props }) => {
     const thumbStyle = {
@@ -57,12 +55,11 @@ export default function Editor() {
   };
 
   return (
-    <div id="editor" className={classes.root}>
+    <div className={classes.root}>
       <ModeSelector handleSave={handleSave} handleDelete={handleDelete} />
-      <SelectDancer className={classes.selectDancer} />
       <div className={classes.grow}>
         <Scrollbars renderThumbVertical={renderThumb}>
-          <SlidebarList />
+          <PosList />
         </Scrollbars>
       </div>
       {/* TODO: led slider, selection  */}

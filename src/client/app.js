@@ -14,6 +14,7 @@ import Pixi from "./components/pixi";
 import Wavesurfer from "./components/wavesurfer";
 import Preset from "./components/preset";
 import Editor from "./components/editor";
+import PosEditor from "./components/posEditor";
 import TimeController from "./components/timeController";
 
 const theme = createMuiTheme({
@@ -51,7 +52,8 @@ const App = () => {
             {/* <Wavesurfer /> */}
             <div style={{ display: "flex" }}>
               <Pixi />
-              <Editor />
+              {/* <Editor /> */}
+              <PosEditor />
             </div>
             {/* </WaveSurferAppProvider> */}
           </ControllerProvider>

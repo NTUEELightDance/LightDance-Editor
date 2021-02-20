@@ -17,7 +17,7 @@ export const globalSlice = createSlice({
     currentPos: {}, // currnet dancers' position
 
     controlRecord: [], // array of all dancer's status
-    posRecord: {}, // array of all dancer's pos
+    posRecord: [], // array of all dancer's pos
 
     timeData: {
       from: "", // update from what component
@@ -99,7 +99,6 @@ export const globalSlice = createSlice({
     /**
      * Save currentStatus, according to controlFrame and mode
      * @param {*} state
-     * @param {*} action
      */
     saveCurrentStatus: (state) => {
       if (state.mode === EDIT) {
@@ -116,7 +115,6 @@ export const globalSlice = createSlice({
     /**
      * Delete currentStatus, according to controlFrame
      * @param {*} state
-     * @param {*} action
      */
     deleteCurrentStatus: (state) => {
       if (state.mode !== IDLE) {
@@ -153,34 +151,35 @@ export const globalSlice = createSlice({
     },
 
     /**
-     *
+     * Save currentPos to posRecord
      * @param {*} state
      */
-    setNewPosRecord: (state) => {
-      // // can't save while playing
-      // if (state.isPlaying) return;
-      // const { time: curTime, posFrame } = state.timeData;
-      // Object.keys(state.currentPos).forEach((curName) => {
-      //   const posData = state.currentPos[curName];
-      //   let { x, y, z } = posData;
-      //   [x, y, z] = [x, y, z].map((ele) => Math.round(ele * 1000) / 1000);
-      //   const newPosFrame = { Start: curTime, x, y, z };
-      //   const cloestPosFrame = updateFrameByTime(
-      //     state.posRecord,
-      //     posFrame,
-      //     curTime
-      //   );
-      //   state.timeData.posFrame = cloestPosFrame;
-      //   if (state.posRecord[curName]) {
-      //     if (state.posRecord["player0"][cloestPosFrame].Start === curTime) {
-      //       state.posRecord[curName][cloestPosFrame] = newPosFrame;
-      //     } else {
-      //       state.posRecord[curName].splice(cloestPosFrame + 1, 0, newPosFrame);
-      //     }
-      //   } else {
-      //     state.posRecord[curName] = [newPosFrame];
-      //   }
-      // });
+    saveCurrentPos: (state) => {
+      if (state.mode === EDIT) {
+        state.posRecord[state.timeData.posFrame].pos = state.currentPos;
+      } else if (state.mode === ADD) {
+        state.posRecord.splice(state.timeData.posFrame + 1, 1, {
+          start: state.timeData.time,
+          pos: state.currentPos,
+        });
+      }
+      state.mode = IDLE;
+    },
+
+    /**
+     * Delete current pos
+     * @param {*} state
+     */
+    deleteCurrentPos: (state) => {
+      if (state.mode !== IDLE) {
+        console.error(`Can't Delete in EDIT or IDLE Mode`);
+        return;
+      }
+      if (state.timeData.posFrame === 0) {
+        console.error(`Can't Delete Frame 0`);
+        return;
+      }
+      state.posRecord.splice(state.timeData.posFrame, 1);
     },
 
     /**
@@ -269,7 +268,9 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * toggle editor mode
+     * toggle editor mode, 0: IDLE, 1: EDIT, 2: ADD
+     * @param {*} state
+     * @param {number} action.payload - new mode
      */
     toggleMode: (state, action) => {
       if (action.payload === state.mode) state.mode = IDLE;
@@ -290,7 +291,8 @@ export const {
   deleteCurrentStatus,
 
   setCurrentPos,
-  setNewPosRecord,
+  saveCurrentPos,
+  deleteCurrentPos,
 
   setTime,
   setPosFrame,
