@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { selectGlobal } from "../../slices/globalSlice";
 // my-class
 import Controller from "./controller";
+// useSelector
 
 /**
  * This is Display component

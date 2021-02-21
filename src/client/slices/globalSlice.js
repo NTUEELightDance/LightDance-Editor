@@ -3,9 +3,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 // constants
 import { IDLE, EDIT, ADD } from "../constants";
-
 // utils
 import { clamp, updateFrameByTime } from "../utils/math";
+import { setItem, getItem } from "../utils/localStorage";
 
 export const globalSlice = createSlice({
   name: "global",
@@ -39,7 +39,7 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * Initiate controlRecord and currentStatus
+     * Initiate controlRecord and currentStatus (call by simulator/controller.js)
      * @param {*} state - redux state
      * @param {array} action.payload - controlRecord
      */
@@ -52,7 +52,7 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * Initiate posRecord and currentPos
+     * Initiate posRecord and currentPos (call by simulator/controller.js)
      * @param {*} state
      * @param {object} action.payload - posRecord
      */
@@ -237,6 +237,14 @@ export const globalSlice = createSlice({
       state.timeData.controlFrame = controlFrame;
       state.timeData.time = state.controlRecord[controlFrame].start;
       state.currentStatus = state.controlRecord[controlFrame].status;
+      // set posFrame and currentPos as well (by time)
+      const newPosFrame = updateFrameByTime(
+        state.posRecord,
+        state.timeData.posFrame,
+        state.controlRecord[controlFrame].start
+      );
+      state.timeData.posFrame = newPosFrame;
+      state.currentPos = state.posRecord[newPosFrame].pos;
     },
 
     /**
@@ -257,6 +265,14 @@ export const globalSlice = createSlice({
       state.timeData.posFrame = posFrame;
       state.timeData.time = state.posRecord[posFrame].start;
       state.currentPos = state.posRecord[posFrame].pos;
+      // set controlFrame and currentStatus as well (by time)
+      const newControlFrame = updateFrameByTime(
+        state.controlRecord,
+        state.timeData.controlFrame,
+        state.posRecord[posFrame].start
+      );
+      state.timeData.controlFrame = newControlFrame;
+      state.currentStatus = state.controlRecord[newControlFrame].status;
     },
 
     /**
