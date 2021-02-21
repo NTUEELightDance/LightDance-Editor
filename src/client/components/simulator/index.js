@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Scrollbars from "react-custom-scrollbars";
 // redux
 import { useSelector } from "react-redux";
 // actions
@@ -36,15 +35,6 @@ export default function Simulator() {
     }
   }, [controller, currentPos]);
 
-  // scroll bar config
-  const renderThumb = ({ style, ...props }) => {
-    const thumbStyle = {
-      borderRadius: 6,
-      backgroundColor: "rgba(192,192,200, 0.5)",
-    };
-    return <div style={{ ...style, ...thumbStyle }} {...props} />;
-  };
-
   return (
     <div
       style={{
@@ -52,22 +42,17 @@ export default function Simulator() {
         width: "100%",
       }}
     >
-      <Scrollbars
-        renderThumbVertical={renderThumb}
-        renderThumbHorizontal={renderThumb}
+      <div
+        id="pixi"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100%",
+        }}
       >
-        <div
-          id="pixi"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-          }}
-        >
-          <div id="main_stage" />
-        </div>
-      </Scrollbars>
+        <div id="main_stage" />
+      </div>
     </div>
   );
 }

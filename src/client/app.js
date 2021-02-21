@@ -7,9 +7,9 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { useSelector, useDispatch } from "react-redux";
 // actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
-// context
 // layout
 import Layout from "./layout";
+import "./app.css";
 // components
 import Bar from "./components/bar";
 

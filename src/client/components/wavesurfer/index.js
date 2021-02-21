@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import Scrollbars from "react-custom-scrollbars";
 
 // mui
 import Button from "@material-ui/core/Button";
@@ -50,49 +49,39 @@ const Wavesurfer = () => {
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
 
-  // scroll bar config
-  const renderThumb = ({ style, ...props }) => {
-    const thumbStyle = {
-      borderRadius: 6,
-      backgroundColor: "rgba(192,192,200, 0.5)",
-    };
-    return <div style={{ ...style, ...thumbStyle }} {...props} />;
-  };
   return (
     <div style={{ height: "100%" }}>
-      <Scrollbars renderThumbVertical={renderThumb}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            position: "fixed",
-            marginTop: "6px",
-            width: "100%",
-            zIndex: 10,
-          }}
-        >
-          <div style={{ marginRight: "8px" }}>
-            <Button
-              size="small"
-              variant="text"
-              color="default"
-              onClick={handlePlayPause}
-            >
-              <PlayArrowIcon /> / <PauseIcon />
-            </Button>
-          </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "fixed",
+          marginTop: "6px",
+          width: "100%",
+          zIndex: 10,
+        }}
+      >
+        <div style={{ marginRight: "8px" }}>
           <Button
             size="small"
             variant="text"
             color="default"
-            onClick={handleStop}
+            onClick={handlePlayPause}
           >
-            <StopIcon />
+            <PlayArrowIcon /> / <PauseIcon />
           </Button>
         </div>
-        <div id="waveform" />
-      </Scrollbars>
+        <Button
+          size="small"
+          variant="text"
+          color="default"
+          onClick={handleStop}
+        >
+          <StopIcon />
+        </Button>
+      </div>
+      <div id="waveform" />
     </div>
   );
 };

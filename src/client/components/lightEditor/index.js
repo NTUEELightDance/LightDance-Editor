@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import Scrollbars from "react-custom-scrollbars";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -29,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   },
   grow: {
     flexGrow: 1,
+  },
+  fixed: {
+    position: "fixed",
   },
 }));
 
@@ -60,28 +62,20 @@ export default function LightEditor() {
     }
   };
 
-  // scroll bar config
-  const renderThumb = ({ style, ...props }) => {
-    const thumbStyle = {
-      borderRadius: 6,
-      backgroundColor: "rgba(192,192,200, 0.5)",
-    };
-    return <div style={{ ...style, ...thumbStyle }} {...props} />;
-  };
-
+  // TODO: make ModeSelector and e selectDancer fixed
   return (
     <div id="editor" className={classes.root}>
-      <ModeSelector handleSave={handleSave} handleDelete={handleDelete} />
-      <SelectDancer className={classes.selectDancer} />
+      <div>
+        <ModeSelector handleSave={handleSave} handleDelete={handleDelete} />
+        <SelectDancer className={classes.selectDancer} />
+      </div>
       <div className={classes.grow}>
-        <Scrollbars renderThumbVertical={renderThumb}>
-          <div>
-            <Button variant="text" onClick={handleChangeEditor}>
-              {editor}
-            </Button>
-            {editor === ELEDITOR ? <ElEditor /> : <LedEditor />}
-          </div>
-        </Scrollbars>
+        <div>
+          <Button variant="text" onClick={handleChangeEditor}>
+            {editor}
+          </Button>
+          {editor === ELEDITOR ? <ElEditor /> : <LedEditor />}
+        </div>
       </div>
     </div>
   );
