@@ -11,6 +11,7 @@ import Wavesurfer from "./components/wavesurfer";
 import Preset from "./components/preset";
 import LightEditor from "./components/lightEditor";
 import PosEditor from "./components/posEditor";
+import File from "./components/file";
 
 export default function Layout() {
   // layout
@@ -27,6 +28,8 @@ export default function Layout() {
         return <Wavesurfer />;
       case "Preset":
         return <Preset />;
+      case "File":
+        return <File />;
       default:
         return null;
     }

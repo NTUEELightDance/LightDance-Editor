@@ -33,7 +33,10 @@ class Controller {
     store.dispatch(posInit(JSON.parse(getItem("position"))));
 
     // initialization for PIXIApp
-    this.pixiApp = new PIXI.Application({ width: 960, height: 720 });
+    this.pixiApp = new PIXI.Application({
+      resizeTo: document.getElementById("pixi"),
+      backgroundColor: 0x000000,
+    });
     this.mainContainer = new PIXI.Container();
     this.mainContainer.sortableChildren = true;
     this.pixiApp.stage.addChild(this.mainContainer);

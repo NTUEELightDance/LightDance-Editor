@@ -4,13 +4,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 
 // redux selector and actions
-import { selectGlobal, editCurrentStatus } from "../../slices/globalSlice";
-import { selectLoad } from "../../slices/loadSlice";
+import { selectGlobal, editCurrentStatus } from "../../../slices/globalSlice";
+import { selectLoad } from "../../../slices/loadSlice";
 
 // components
-import SlideBar from "./slidebar";
+import SlideBar from "../slidebar";
 // constants
-import { IDLE } from "../../constants";
+import { IDLE } from "../../../constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 /**
  * EL parts' slidebar list
  */
-export default function SlidebarList() {
+export default function ElEditor() {
   // classes
   const classes = useStyles();
   // redux states

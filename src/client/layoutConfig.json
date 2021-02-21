@@ -1,5 +1,7 @@
 {
-  "global": {},
+  "global": {
+    "borderSize": 500
+  },
   "borders": [
     {
       "type": "border",
@@ -10,6 +12,18 @@
           "enableClose": false,
           "name": "CommandCenter",
           "component": "CommandCenter"
+        }
+      ]
+    },
+    {
+      "type": "border",
+      "location": "right",
+      "children": [
+        {
+          "type": "tab",
+          "enableClose": false,
+          "name": "File",
+          "component": "File"
         }
       ]
     }
@@ -53,7 +67,7 @@
               },
               {
                 "type": "tabset",
-                "weight": 30,
+                "weight": 20,
                 "selected": 0,
                 "enableMaximize": false,
                 "children": [
@@ -67,6 +81,20 @@
                     "type": "tab",
                     "name": "PosEditor",
                     "component": "PosEditor",
+                    "enableClose": false
+                  }
+                ]
+              },
+              {
+                "type": "tabset",
+                "weight": 15,
+                "selected": 0,
+                "enableMaximize": false,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "Preset",
+                    "component": "Preset",
                     "enableClose": false
                   }
                 ]

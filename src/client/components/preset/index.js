@@ -1,10 +1,13 @@
 import React from "react";
 
 /**
- * This is Preset component
- *
+ * This is Preset component, list of status,
  * @component
  */
-const Preset = () => <h1>This is Preset</h1>;
-
-export default Preset;
+export default function Preset() {
+  return (
+    <div>
+      <h3>This should be list of status</h3>
+    </div>
+  );
+}

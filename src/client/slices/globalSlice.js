@@ -111,6 +111,7 @@ export const globalSlice = createSlice({
         });
       }
       state.mode = IDLE;
+      setItem("control", JSON.stringify(state.controlRecord));
     },
 
     /**
@@ -127,6 +128,7 @@ export const globalSlice = createSlice({
         return;
       }
       state.controlRecord.splice(state.timeData.controlFrame, 1);
+      setItem("control", JSON.stringify(state.controlRecord));
     },
 
     /**
@@ -165,6 +167,7 @@ export const globalSlice = createSlice({
         });
       }
       state.mode = IDLE;
+      setItem("position", JSON.stringify(state.posRecord));
     },
 
     /**
@@ -181,6 +184,7 @@ export const globalSlice = createSlice({
         return;
       }
       state.posRecord.splice(state.timeData.posFrame, 1);
+      setItem("position", JSON.stringify(state.posRecord));
     },
 
     /**

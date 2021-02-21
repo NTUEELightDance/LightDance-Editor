@@ -46,12 +46,27 @@ export default function Simulator() {
   };
 
   return (
-    <div style={{ height: "100%", width: "100%" }}>
+    <div
+      style={{
+        height: "100%",
+        width: "100%",
+      }}
+    >
       <Scrollbars
         renderThumbVertical={renderThumb}
         renderThumbHorizontal={renderThumb}
       >
-        <div id="main_stage" />
+        <div
+          id="pixi"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <div id="main_stage" />
+        </div>
       </Scrollbars>
     </div>
   );

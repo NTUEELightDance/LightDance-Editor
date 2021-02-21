@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 
 // redux selector and actions
 import {
@@ -11,7 +12,8 @@ import {
 } from "../../slices/globalSlice";
 // components
 import SelectDancer from "./selectDancer";
-import SlidebarList from "./slidebarList";
+import ElEditor from "./el";
+import LedEditor from "./led";
 import ModeSelector from "../modeSelector";
 // constants
 
@@ -30,11 +32,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * LightEditor
+ */
 export default function LightEditor() {
   // styles
   const classes = useStyles();
-
+  // redux
   const dispatch = useDispatch();
+
+  // switch between ElEditor and LedEditor
+  const ELEDITOR = "EL Editor",
+    LEDEDITOR = "Led Editor";
+  const [editor, setEditor] = useState(ELEDITOR);
+  const handleChangeEditor = () => {
+    setEditor(editor === ELEDITOR ? LEDEDITOR : ELEDITOR);
+  };
 
   // save
   const handleSave = () => {
@@ -42,8 +55,9 @@ export default function LightEditor() {
   };
   // delete
   const handleDelete = () => {
-    if (window.confirm(`Are you sure to delete ?`))
+    if (window.confirm(`Are you sure to delete ?`)) {
       dispatch(deleteCurrentStatus());
+    }
   };
 
   // scroll bar config
@@ -61,10 +75,14 @@ export default function LightEditor() {
       <SelectDancer className={classes.selectDancer} />
       <div className={classes.grow}>
         <Scrollbars renderThumbVertical={renderThumb}>
-          <SlidebarList />
+          <div>
+            <Button variant="text" onClick={handleChangeEditor}>
+              {editor}
+            </Button>
+            {editor === ELEDITOR ? <ElEditor /> : <LedEditor />}
+          </div>
         </Scrollbars>
       </div>
-      {/* TODO: led slider, selection  */}
     </div>
   );
 }

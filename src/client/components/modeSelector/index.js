@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 // mui
 import Button from "@material-ui/core/Button";
-
 // redux selector and actions
 import { selectGlobal, toggleMode } from "../../slices/globalSlice";
 // constants

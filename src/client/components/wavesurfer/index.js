@@ -75,7 +75,7 @@ const Wavesurfer = () => {
           <div style={{ marginRight: "8px" }}>
             <Button
               size="small"
-              variant="contained"
+              variant="text"
               color="default"
               onClick={handlePlayPause}
             >
@@ -84,7 +84,7 @@ const Wavesurfer = () => {
           </div>
           <Button
             size="small"
-            variant="contained"
+            variant="text"
             color="default"
             onClick={handleStop}
           >
