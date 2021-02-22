@@ -108,6 +108,21 @@ export const globalSlice = createSlice({
     },
 
     /**
+     * Edit current Status (LED)
+     * @param {} state
+     */
+    editCurrentStatusLED: (state, action) => {
+      const {
+        dancerName,
+        partName,
+        value: { src, alpha },
+      } = action.payload;
+      if (src && src !== "")
+        state.currentStatus[dancerName][partName].src = src;
+      if (alpha) state.currentStatus[dancerName][partName].alpha = alpha;
+    },
+
+    /**
      * Save currentStatus, according to controlFrame and mode
      * @param {*} state
      */
@@ -364,6 +379,7 @@ export const {
 
   setCurrentStatus,
   editCurrentStatus,
+  editCurrentStatusLED,
   saveCurrentStatus,
   deleteCurrentStatus,
 

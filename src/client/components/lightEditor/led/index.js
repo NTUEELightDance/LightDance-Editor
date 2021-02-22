@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-// styles
+// mui
 import { makeStyles } from "@material-ui/core/styles";
-
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 // redux selector and actions
-import { selectGlobal, editCurrentStatus } from "../../../slices/globalSlice";
+import {
+  selectGlobal,
+  editCurrentStatusLED,
+} from "../../../slices/globalSlice";
 import { selectLoad } from "../../../slices/loadSlice";
 
 // components
@@ -26,10 +31,10 @@ export default function LedEditor() {
   const classes = useStyles();
   // redux states
   const dispatch = useDispatch();
-  const { dancers } = useSelector(selectLoad);
+  const { dancers, texture } = useSelector(selectLoad);
   const { mode, currentStatus, selected } = useSelector(selectGlobal);
 
-  // selected dancers' elparts
+  // selected dancers' ledparts
   const [intersectParts, setIntersectParts] = useState([]);
   useEffect(() => {
     if (selected.length) {
@@ -44,7 +49,7 @@ export default function LedEditor() {
     } else setIntersectParts([]);
   }, [selected]);
 
-  // multi chosen elparts
+  // multi chosen ledparts
   const [chosenParts, setChosenParts] = useState([]);
   const handleChosenPart = (partName) => {
     if (chosenParts.includes(partName))
@@ -53,7 +58,7 @@ export default function LedEditor() {
       setChosenParts([...chosenParts, partName]);
     }
   };
-  // clear chosen elparts by key "esc"
+  // clear chosen ledparts by key "esc"
   const handleClearChosenPart = (e) => {
     if (e.key === "Escape") setChosenParts([]);
   };
@@ -65,19 +70,32 @@ export default function LedEditor() {
   }, []);
 
   // changeStatus
-  const handleChangeValue = (partName, value) => {
+  // led value: { src, alpha }
+  const handleChangeAlpha = (partName, alpha) => {
     // TODO
-    // selected.forEach((dancerName) => {
-    //   // if chosenParts not empty => change all chosenParts value
-    //   if (chosenParts.length)
-    //     chosenParts.forEach((chosenPartName) => {
-    //       dispatch(
-    //         editCurrentStatus({ dancerName, partName: chosenPartName, value })
-    //       );
-    //     });
-    //   // only one change
-    //   else dispatch(editCurrentStatus({ dancerName, partName, value }));
-    // });
+    selected.forEach((dancerName) => {
+      // if chosenParts not empty => change all chosenParts value
+      if (chosenParts.length)
+        chosenParts.forEach((chosenPartName) => {
+          dispatch(
+            editCurrentStatusLED({
+              dancerName,
+              partName: chosenPartName,
+              value: { alpha },
+            })
+          );
+        });
+      // only one change
+      else
+        dispatch(
+          editCurrentStatusLED({ dancerName, partName, value: { alpha } })
+        );
+    });
+  };
+  const handleChangeSrc = (partName, src) => {
+    selected.forEach((dancerName) => {
+      dispatch(editCurrentStatusLED({ dancerName, partName, value: { src } }));
+    });
   };
 
   // TODO: change texture
@@ -85,15 +103,30 @@ export default function LedEditor() {
     <div className={classes.root}>
       {selected.length
         ? intersectParts.map((partName) => (
-            <SlideBar
-              key={partName}
-              partName={partName}
-              disabled={mode === IDLE}
-              isChosen={chosenParts.includes(partName)}
-              value={currentStatus[selected[0]][partName].alpha}
-              handleChosenPart={handleChosenPart}
-              handleChangeValue={handleChangeValue}
-            />
+            <div style={{ marginBottom: 16 }}>
+              <SlideBar
+                key={partName}
+                partName={partName}
+                disabled={mode === IDLE}
+                isChosen={chosenParts.includes(partName)}
+                value={currentStatus[selected[0]][partName].alpha}
+                handleChosenPart={handleChosenPart}
+                handleChangeValue={handleChangeAlpha}
+              />
+              <FormControl>
+                <Select
+                  disabled={mode === IDLE}
+                  value={currentStatus[selected[0]][partName].src}
+                  onChange={(e) => handleChangeSrc(partName, e.target.value)}
+                >
+                  {texture[partName].name.map((name) => (
+                    <MenuItem key={name} value={name}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
           ))
         : null}
     </div>
