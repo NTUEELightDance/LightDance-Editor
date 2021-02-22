@@ -3,12 +3,11 @@ import FlexLayout from "flexlayout-react";
 // config
 import "flexlayout-react/style/dark.css";
 import "./layout.css";
-
 import layoutConfig from "./layoutConfig.json";
 // components
 import Simulator from "./components/simulator";
 import Wavesurfer from "./components/wavesurfer";
-import Preset from "./components/preset";
+import Presets from "./components/presets";
 import LightEditor from "./components/lightEditor";
 import PosEditor from "./components/posEditor";
 import File from "./components/file";
@@ -27,7 +26,7 @@ export default function Layout() {
       case "Wavesurfer":
         return <Wavesurfer />;
       case "Preset":
-        return <Preset />;
+        return <Presets />;
       case "File":
         return <File />;
       default:

@@ -76,9 +76,8 @@ export const fetchLoad = () => async (dispatch) => {
   const position = await fetchJson(Position);
   dispatch(setPosition(position));
   // set Presets
-  // TODO
-  // const preset = await fetchJson(Presets);
-  // dispatch(setPresets(presets));
+  const presets = await fetchJson(Presets);
+  dispatch(setPresets(presets));
   // set Dancer Names
   dispatch(setDancerNames(Dancers.names));
 
@@ -92,7 +91,8 @@ export const fetchLoad = () => async (dispatch) => {
   }
   dispatch(setDancers(dancers));
   // set Textures
-  dispatch(setTexture(Texture));
+  const texture = await fetchJson(Texture);
+  dispatch(setTexture(texture));
   // finish, set Init
   dispatch(setInit());
 };

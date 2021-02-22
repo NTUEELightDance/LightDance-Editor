@@ -27,6 +27,8 @@ export const globalSlice = createSlice({
     },
 
     mode: 0, // 0: nothing, 1: edit, 2: add
+
+    presets: [],
   },
   reducers: {
     /**
@@ -84,6 +86,15 @@ export const globalSlice = createSlice({
         // delete the name
         state.selected = state.selected.filter((n) => n !== name);
       } else state.selected.push(name);
+    },
+
+    /**
+     * Set currentStatus
+     * @param {*} state
+     * @param {*} action.payload - status
+     */
+    setCurrentStatus: (state, action) => {
+      state.currentStatus = action.payload;
     },
 
     /**
@@ -297,6 +308,49 @@ export const globalSlice = createSlice({
       if (action.payload === state.mode) state.mode = IDLE;
       else state.mode = action.payload;
     },
+
+    /**
+     * set Presets
+     * @param {*} state
+     * @param {*} action
+     */
+    setPresets: (state, action) => {
+      state.presets = action.payload;
+      setItem("presets", JSON.stringify(state.presets));
+    },
+
+    /**
+     * edit a preset's name
+     * @param {*} state
+     * @param {*} action.payload - index and newName
+     */
+    editPresetsName: (state, action) => {
+      const { name, idx } = action.payload;
+      state.presets[idx].name = name;
+      setItem("presets", JSON.stringify(state.presets));
+    },
+
+    /**
+     * add Preset
+     * @param {*} state
+     * @param {*} action.payload
+     */
+    addPresets: (state, action) => {
+      const name = action.payload;
+      state.presets.push({ name, status: state.currentStatus });
+      setItem("presets", JSON.stringify(state.presets));
+    },
+
+    /**
+     * delete a preset (by index)
+     * @param {*} state
+     * @param {*} action
+     */
+    deletePresets: (state, action) => {
+      const idx = action.payload;
+      state.presets.splice(idx, 1);
+      setItem("presets", JSON.stringify(state.presets));
+    },
   },
 });
 
@@ -308,6 +362,7 @@ export const {
   setSelected,
   toggleSelected,
 
+  setCurrentStatus,
   editCurrentStatus,
   saveCurrentStatus,
   deleteCurrentStatus,
@@ -322,6 +377,11 @@ export const {
 
   setMode,
   toggleMode,
+
+  setPresets,
+  editPresetsName,
+  addPresets,
+  deletePresets,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;
