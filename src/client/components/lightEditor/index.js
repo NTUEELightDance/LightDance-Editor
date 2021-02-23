@@ -8,12 +8,14 @@ import Button from "@material-ui/core/Button";
 import {
   saveCurrentStatus,
   deleteCurrentStatus,
+  saveCurrentFade,
 } from "../../slices/globalSlice";
 // components
 import SelectDancer from "./selectDancer";
 import ElEditor from "./el";
 import LedEditor from "./led";
 import ModeSelector from "../modeSelector";
+import Fade from "./fade";
 // constants
 
 const useStyles = makeStyles((theme) => ({
@@ -25,6 +27,11 @@ const useStyles = makeStyles((theme) => ({
   },
   selectDancer: {
     position: "fixed",
+  },
+  switches: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   grow: {
     flexGrow: 1,
@@ -54,6 +61,7 @@ export default function LightEditor() {
   // save
   const handleSave = () => {
     dispatch(saveCurrentStatus());
+    dispatch(saveCurrentFade());
   };
   // delete
   const handleDelete = () => {
@@ -62,7 +70,7 @@ export default function LightEditor() {
     }
   };
 
-  // TODO: make ModeSelector and e selectDancer fixed
+  // TODO: make ModeSelector and  selectDancer fixed position
   return (
     <div id="editor" className={classes.root}>
       <div>
@@ -71,9 +79,12 @@ export default function LightEditor() {
       </div>
       <div className={classes.grow}>
         <div>
-          <Button variant="text" onClick={handleChangeEditor}>
-            {editor}
-          </Button>
+          <div className={classes.switches}>
+            <Button variant="text" onClick={handleChangeEditor}>
+              {editor}
+            </Button>
+            <Fade />
+          </div>
           {editor === ELEDITOR ? <ElEditor /> : <LedEditor />}
         </div>
       </div>

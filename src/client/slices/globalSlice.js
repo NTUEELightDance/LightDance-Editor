@@ -4,7 +4,12 @@ import { createSlice } from "@reduxjs/toolkit";
 // constants
 import { IDLE, EDIT, ADD } from "../constants";
 // utils
-import { clamp, updateFrameByTime, interpolationPos } from "../utils/math";
+import {
+  clamp,
+  updateFrameByTime,
+  interpolationPos,
+  fadeStatus,
+} from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 
 export const globalSlice = createSlice({
@@ -13,6 +18,7 @@ export const globalSlice = createSlice({
     isPlaying: false, // isPlaying
     selected: [], // array of selected dancer's name
 
+    currentFade: false, // current control Frame will fade to next
     currentStatus: {}, // current dancers' status
     currentPos: {}, // currnet dancers' position
 
@@ -86,6 +92,29 @@ export const globalSlice = createSlice({
         // delete the name
         state.selected = state.selected.filter((n) => n !== name);
       } else state.selected.push(name);
+    },
+
+    /**
+     * Set current Fade
+     * @param {*} state
+     * @param {*} action
+     */
+    setCurrentFade: (state, action) => {
+      const fade = action.payload;
+      if (typeof fade !== "boolean")
+        throw new Error(
+          `[Error] setCurrentFade, invalid paramter(fade), ${fade}`
+        );
+      state.currentFade = fade;
+    },
+
+    /**
+     * Save currentFade to controlRecord
+     * @param {*} state
+     */
+    saveCurrentFade: (state) => {
+      state.controlRecord[state.timeData.controlFrame].fade = state.currentFade;
+      setItem("control", JSON.stringify(state.controlRecord));
     },
 
     /**
@@ -230,6 +259,7 @@ export const globalSlice = createSlice({
 
       state.timeData.from = from;
       state.timeData.time = time;
+
       // set timeData.controlFrame and currentStatus
       const newControlFrame = updateFrameByTime(
         state.controlRecord,
@@ -237,7 +267,18 @@ export const globalSlice = createSlice({
         time
       );
       state.timeData.controlFrame = newControlFrame;
-      state.currentStatus = state.controlRecord[newControlFrame].status;
+      // status fade
+      if (newControlFrame === state.controlRecord.length - 1) {
+        // Can't fade
+        state.currentStatus = state.controlRecord[newControlFrame].status;
+      } else {
+        // do fade
+        state.currentStatus = fadeStatus(
+          time,
+          state.controlRecord[newControlFrame],
+          state.controlRecord[newControlFrame + 1]
+        );
+      }
 
       // set timeData.posFrame and currentPos
       const newPosFrame = updateFrameByTime(
@@ -246,9 +287,9 @@ export const globalSlice = createSlice({
         time
       );
       state.timeData.posFrame = newPosFrame;
-      // calculate
+      // position interpolation
       if (newPosFrame === state.posRecord.length - 1) {
-        // Can't interpolation
+        // can't interpolation
         state.currentPos = state.posRecord[newPosFrame].pos;
       } else {
         // do interpolation
@@ -258,6 +299,9 @@ export const globalSlice = createSlice({
           state.posRecord[newPosFrame + 1]
         );
       }
+
+      // set currentFade
+      state.currentFade = state.controlRecord[newControlFrame].fade;
     },
 
     /**
@@ -286,6 +330,8 @@ export const globalSlice = createSlice({
       );
       state.timeData.posFrame = newPosFrame;
       state.currentPos = state.posRecord[newPosFrame].pos;
+      // set currentFade
+      state.currentFade = state.controlRecord[controlFrame].fade;
     },
 
     /**
@@ -314,6 +360,8 @@ export const globalSlice = createSlice({
       );
       state.timeData.controlFrame = newControlFrame;
       state.currentStatus = state.controlRecord[newControlFrame].status;
+      // set currentFade
+      state.currentFade = state.controlRecord[newControlFrame].fade;
     },
 
     /**
@@ -387,6 +435,9 @@ export const {
 
   setSelected,
   toggleSelected,
+
+  setCurrentFade,
+  saveCurrentFade,
 
   setCurrentStatus,
   editCurrentStatus,

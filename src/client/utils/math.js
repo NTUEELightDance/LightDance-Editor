@@ -57,12 +57,12 @@ export function updateFrameByTime(data, frame, time) {
 /**
  * Calculate Interpolation of the position, return new position
  * @param {*} time
- * @param {*} preFrame - the position frame data (posRecord[posFrame])
- * @param {*} nextFrame - the next position frame data (posRecord[posFrame + 1])
+ * @param {*} preFrame - the position frame data (posRecord[timeData.posFrame])
+ * @param {*} nextFrame - the next position frame data (posRecord[timeData.posFrame + 1])
  */
-export function interpolationPos(time, prePosFrame, nextPosFrame) {
-  const { start: preTime, pos: prePos } = prePosFrame;
-  const { start: nextTime, pos: nextPos } = nextPosFrame;
+export function interpolationPos(time, preFrame, nextFrame) {
+  const { start: preTime, pos: prePos } = preFrame;
+  const { start: nextTime, pos: nextPos } = nextFrame;
   if (preTime === undefined || prePos === undefined)
     throw new Error(
       `[Error] interplolationPos, invalid prePosFrame ${preTime}`,
@@ -88,4 +88,50 @@ export function interpolationPos(time, prePosFrame, nextPosFrame) {
     newPos[dancer] = dancerPos;
   });
   return newPos;
+}
+
+function Round1(number) {
+  return Math.round(number * 10) / 10;
+}
+
+/**
+ * Fade between the status
+ * @param {*} time
+ * @param {*} preStatus - previous frame, controlRecord[timeData.controlFrame]
+ * @param {*} nextStatus - next frame, controlRecord[timeData.controlFrame + 1]
+ */
+export function fadeStatus(time, preFrame, nextFrame) {
+  const { start: preTime, fade, status: preStatus } = preFrame;
+  const { start: nextTime, status: nextStatus } = nextFrame;
+  if (!fade) return preFrame.status; // Don't need to fade
+  // need to fade - interpolation
+  const newStatus = {};
+  Object.keys(preStatus).forEach((dancer) => {
+    const preParts = preStatus[dancer];
+    const nextParts = nextStatus[dancer];
+    newStatus[dancer] = {};
+    Object.keys(preParts).forEach((part) => {
+      const preVal = preParts[part];
+      const nextVal = nextParts[part];
+      // LED Parts
+      if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
+        newStatus[dancer][part] = {
+          alpha: Round1(
+            ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
+              (nextTime - preTime) +
+              preVal.alpha
+          ),
+          src: preVal.src,
+        };
+      }
+      // El Parts
+      else {
+        newStatus[dancer][part] = Round1(
+          ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
+            preVal
+        );
+      }
+    });
+  });
+  return newStatus;
 }
