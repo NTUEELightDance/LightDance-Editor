@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // constants
 import { IDLE, EDIT, ADD } from "../constants";
 // utils
-import { clamp, updateFrameByTime } from "../utils/math";
+import { clamp, updateFrameByTime, interpolationPos } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 
 export const globalSlice = createSlice({
@@ -238,6 +238,7 @@ export const globalSlice = createSlice({
       );
       state.timeData.controlFrame = newControlFrame;
       state.currentStatus = state.controlRecord[newControlFrame].status;
+
       // set timeData.posFrame and currentPos
       const newPosFrame = updateFrameByTime(
         state.posRecord,
@@ -245,8 +246,18 @@ export const globalSlice = createSlice({
         time
       );
       state.timeData.posFrame = newPosFrame;
-      // TODO: interpolation
-      state.currentPos = state.posRecord[newPosFrame].pos;
+      // calculate
+      if (newPosFrame === state.posRecord.length - 1) {
+        // Can't interpolation
+        state.currentPos = state.posRecord[newPosFrame].pos;
+      } else {
+        // do interpolation
+        state.currentPos = interpolationPos(
+          time,
+          state.posRecord[newPosFrame],
+          state.posRecord[newPosFrame + 1]
+        );
+      }
     },
 
     /**

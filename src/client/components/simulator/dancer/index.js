@@ -129,21 +129,10 @@ class Dancer {
     this.container.zIndex = z;
   }
 
-  updatePos(time, nextFrame, preFrame) {
-    const { x: preX, y: preY, z: preZ, Start: preStart } = preFrame;
-    const { x: nextX, y: nextY, z: nextZ, Start: nextStart } = nextFrame;
-    if (preFrame === nextFrame) {
-      this.setPos({ x: preX, y: preY, z: preZ });
-    } else {
-      const duration = nextStart - preStart;
-      const mutiplier = (time - preStart) / duration;
-      const curX = preX + (nextX - preX) * mutiplier;
-      const curY = preY + (nextY - preY) * mutiplier;
-      const curZ = preY + (nextZ - preZ) * mutiplier;
-      this.setPos({ x: curX, y: curY, z: curZ });
-    }
-  }
-
+  /**
+   * Drag Start
+   * @param {*} event
+   */
   onDragStart(event) {
     // store a reference to the data
     // the reason for this is because of multitouch
@@ -154,6 +143,9 @@ class Dancer {
     this.dragging = store.getState().global.mode !== IDLE;
   }
 
+  /**
+   * Drag Moving
+   */
   onDragMove() {
     if (this.dragging) {
       const newPosition = this.data.getLocalPosition(this.parent);
@@ -162,6 +154,9 @@ class Dancer {
     }
   }
 
+  /**
+   * Drag end
+   */
   onDragEnd() {
     this.alpha = 1;
     this.dragging = false;

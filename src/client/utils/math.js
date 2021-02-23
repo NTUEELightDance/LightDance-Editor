@@ -46,10 +46,46 @@ export function updateFrameByTime(data, frame, time) {
   // Check if need to do binarysearch
   if (
     data[frame + 2] &&
-    time >= data[frame + 1].Start &&
-    time <= data[frame + 2].Start
+    time >= data[frame + 1].start &&
+    time <= data[frame + 2].start
   ) {
     return frame + 1;
   }
   return binarySearchFrame(data, time);
+}
+
+/**
+ * Calculate Interpolation of the position, return new position
+ * @param {*} time
+ * @param {*} preFrame - the position frame data (posRecord[posFrame])
+ * @param {*} nextFrame - the next position frame data (posRecord[posFrame + 1])
+ */
+export function interpolationPos(time, prePosFrame, nextPosFrame) {
+  const { start: preTime, pos: prePos } = prePosFrame;
+  const { start: nextTime, pos: nextPos } = nextPosFrame;
+  if (preTime === undefined || prePos === undefined)
+    throw new Error(
+      `[Error] interplolationPos, invalid prePosFrame ${preTime}`,
+      prePos
+    );
+  if (nextTime === undefined || nextPos === undefined)
+    throw new Error(
+      `[Error] interplolationPos, invalid nextPosFrame ${nextTime}`,
+      nextPos
+    );
+
+  const newPos = {};
+  Object.keys(prePos).forEach((dancer) => {
+    const dancerPrePos = prePos[dancer];
+    const dancerNextPos = nextPos[dancer];
+    const dancerPos = {};
+    Object.keys(dancerPrePos).forEach((x) => {
+      dancerPos[x] =
+        ((dancerNextPos[x] - dancerPrePos[x]) * (time - preTime)) /
+          (nextTime - preTime) +
+        dancerPrePos[x];
+    });
+    newPos[dancer] = dancerPos;
+  });
+  return newPos;
 }
