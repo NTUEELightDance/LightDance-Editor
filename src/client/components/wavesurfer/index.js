@@ -6,8 +6,10 @@ import Button from "@material-ui/core/Button";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
 import StopIcon from "@material-ui/icons/Stop";
+
 // my class
 import WaveSurferApp from "./waveSurferApp";
+import Setting from "./timeline";
 // selector
 import { selectGlobal } from "../../slices/globalSlice";
 // constants
@@ -45,6 +47,32 @@ const Wavesurfer = () => {
     }
   }, [waveSurferApp, time]);
 
+  const addRegion = (start, end) => {
+    waveSurferApp.waveSurfer.addRegion({
+      start,
+      end,
+      loop: false,
+      color: "hsla(400, 100%, 30%, 0.5)",
+    });
+  };
+
+  const zoom = (newValue) => {
+    waveSurferApp.waveSurfer.zoom(
+      (newValue *
+        (window.screen.availWidth -
+          waveSurferApp.waveSurfer.params.minPxPerSec)) /
+        50
+    );
+  };
+
+  const clickLast = (last) => {
+    waveSurferApp.waveSurfer.setCurrentTime(last);
+  };
+
+  const clickNext = (next) => {
+    waveSurferApp.waveSurfer.setCurrentTime(next);
+  };
+
   // event
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
@@ -81,6 +109,13 @@ const Wavesurfer = () => {
           <StopIcon />
         </Button>
       </div>
+      <Setting
+        wavesurfer={waveSurferApp}
+        addRegion={addRegion}
+        zoom={zoom}
+        clickLast={clickLast}
+        clickNext={clickNext}
+      />
       <div id="waveform" />
     </div>
   );

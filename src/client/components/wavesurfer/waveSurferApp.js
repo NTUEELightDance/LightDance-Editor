@@ -1,5 +1,7 @@
 import WaveSurfer from "wavesurfer.js";
 import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
+import regions from "wavesurfer.js/src/plugin/regions";
+
 // redux
 import store from "../../store";
 import { playPause, setTime } from "../../slices/globalSlice";
@@ -41,6 +43,9 @@ class WaveSurferApp {
             padding: "2px",
             "font-size": "10px",
           },
+        }),
+        regions.create({
+          regionsMinLength: 0,
         }),
       ],
     });
