@@ -4,8 +4,13 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
+const http = require("http");
+
+const WebSocketApp = require("./websocket");
+const apiRouter = require("./routes");
 
 const app = express();
+const server = http.createServer(app);
 
 if (process.env.NODE_ENV !== "prod") {
   const webpack = require("webpack");
@@ -36,9 +41,17 @@ const assetPath = path.resolve(__dirname, "..", "..", "./asset");
 app.use("/asset", express.static(assetPath));
 const dataPath = path.resolve(__dirname, "..", "..", "./data");
 app.use("/data", express.static(dataPath));
+app.use("/api", apiRouter);
 
 const port = 8080;
 
-app.listen(port, () => {
-  console.log(`Listening on port: ${port}`);
+// app.listen(port, () => {
+//   const wss = new WebSocketApp(server);
+//   console.log(`Listening on port: ${port}`);
+// });
+
+server.listen(port, () => {
+  const wss = new WebSocketApp(server);
+  wss.listen();
+  console.log(`Listening on http://localhost:${port}`);
 });
