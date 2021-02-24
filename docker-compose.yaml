@@ -7,10 +7,13 @@ services:
     volumes:
       - ./data:/app/data
       - ./asset:/app/asset
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./utils:/app/utils
     links:
       - mongo
     environment:
-      NODE_ENV: prod
+      NODE_ENV: dev
   mongo:
     image: mongo
     volumes:
