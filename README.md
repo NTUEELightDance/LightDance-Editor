@@ -1,63 +1,24 @@
-# 2021LightDanceEditor
+# 2021 LightDanceEditor
+
+Lightdance Editor to edit the light control and simulate the show
 
 ## Development
 
-set `NODE_ENV=dev` in `.env`
-
 ```bash
-$ npm start # will run server on localhost:8080
+$ npm start # will run server on port 8080
 ```
 
 ## Production
 
-set `NODE_ENV=prod` in `.env`
-
 ```bash
 $ npm run build
-$ npm start # will run server on localhost:8080
+$ npm run deploy # will run server on port 8080
 ```
 
-## Folder Structure
+## Deploy
 
-```
-.
-├── assets
-│   ├── LED_CHEST
-│   ├── LED_SHOES
-│   ├── BLACK_PARTS
-│   ├── ...
-├── src
-│   ├── client
-│   │   ├── features
-│   │   │   ├── pixi
-│   │   │   │   ├── index.js
-│   │   │   ├── wavesurfer
-│   │   │   │   ├── index.js
-│   │   │   ├── ...
-│   │   ├── reducers
-│   │   ├── store
-│   │   ├── index.html
-│   │   ├── app.js
-│   │   └── index.js
-│   ├── constant
-│   │   └── index.js
-│   ├── server
-│   │   ├── router
-|   │   └── app.js
-├── config
-│   ├── webpack.common.js
-│   ├── webpack.config.js
-|   ├── webpack.dev.js
-|   └── webpack.prod.js
-├── .env
-├── .eslintrc.js
-├── .gitignore
-├── .prettierignore
-├── .prettierc.json
-├── LICENSE
-├── package-lock.json
-├── package.json
-└── README.md
+```bash
+$ docker-compose up -d
 ```
 
 ## Code Format

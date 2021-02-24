@@ -1,0 +1,18 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+      - ./asset:/app/asset
+    links:
+      - mongo
+    environment:
+      NODE_ENV: prod
+  mongo:
+    image: mongo
+    volumes:
+      - db_data:/data/db
+volumes:
+  db_data:

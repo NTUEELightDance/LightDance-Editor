@@ -1,13 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
 /* eslint-disable global-require */
-require("dotenv").config();
 const express = require("express");
 const path = require("path");
 
 const app = express();
 
-if (process.env.NODE_ENV !== "prod") {
+if (process.env.NODE_ENV === "dev") {
+  require("dotenv").config();
   const webpack = require("webpack");
   const { merge } = require("webpack-merge");
   const commonConfig = require("../../config/webpack.common.js");

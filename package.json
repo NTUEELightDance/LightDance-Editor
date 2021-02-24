@@ -25,11 +25,12 @@
     "wavesurfer.js": "^4.2.0"
   },
   "scripts": {
-    "start": "node src/server/app.js",
+    "start": "NODE_ENV=dev node src/server/app.js",
     "build": "webpack --config config/webpack.config.js",
     "start-client": "webpack serve --config config/webpack.config.js",
     "start-dev": "nodemon src/server/app.js",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "deploy": "node src/server/app.js"
   },
   "browserslist": {
     "production": [
