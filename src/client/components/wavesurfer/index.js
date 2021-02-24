@@ -49,6 +49,28 @@ const Wavesurfer = () => {
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
 
+  const syncPost = (type, mode, data) => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+    const urlencoded = new URLSearchParams();
+    urlencoded.append("type", type);
+    urlencoded.append("mode", mode);
+    urlencoded.append("data", data);
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: urlencoded,
+      redirect: "follow",
+    };
+
+    return fetch("/api/sync", requestOptions)
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
+  };
+
   return (
     <div style={{ height: "100%" }}>
       <div
@@ -79,6 +101,9 @@ const Wavesurfer = () => {
           onClick={handleStop}
         >
           <StopIcon />
+        </Button>
+        <Button size="small" variant="text" color="default" onClick={syncPost}>
+          SYNC
         </Button>
       </div>
       <div id="waveform" />
