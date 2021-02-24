@@ -10,7 +10,7 @@ class WebSocketApp {
     this.wss.on("connection", (ws) => {
       console.log("Client connected");
       ws.send("Hello");
-      this.handleSync();
+      this.handleSync("12321");
       ws.on("close", () => {
         console.log("Close connected");
       });
@@ -21,7 +21,7 @@ class WebSocketApp {
     console.log(action);
     this.wss.clients.forEach((client) => {
       console.log(client.readyState === WebSocket.OPEN);
-      client.send("data");
+      client.send(action);
       //   ws.send(JSON.stringify(action));
     });
   }

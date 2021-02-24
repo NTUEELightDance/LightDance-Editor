@@ -43,6 +43,9 @@ const dataPath = path.resolve(__dirname, "..", "..", "./data");
 app.use("/data", express.static(dataPath));
 app.use("/api", apiRouter);
 
+const wss = new WebSocketApp(server);
+app.set("wss", wss);
+
 const port = 8080;
 
 // app.listen(port, () => {
@@ -51,7 +54,6 @@ const port = 8080;
 // });
 
 server.listen(port, () => {
-  const wss = new WebSocketApp(server);
   wss.listen();
   console.log(`Listening on http://localhost:${port}`);
 });
