@@ -63,8 +63,8 @@ export default function LightEditor() {
   // save
   const handleSave = () => {
     const status = store.getState().global.currentStatus;
-    const { controlFrame } = store.getState().global.timeData;
-    dispatch(saveCurrentStatus({ status, frame: controlFrame }));
+    const { controlFrame, time } = store.getState().global.timeData;
+    dispatch(saveCurrentStatus({ status, frame: controlFrame, time }));
     dispatch(saveCurrentFade());
   };
   // delete

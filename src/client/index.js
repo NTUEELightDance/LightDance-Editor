@@ -11,7 +11,15 @@ const ws = new WebSocket(`ws://${window.location.host}`);
 
 ws.onmessage = function (e) {
   const { mode, type } = JSON.parse(e.data);
-  if (mode === "edit") {
+  if (mode === "EDIT") {
+    if (type === "control") {
+      store.dispatch(syncStatus(JSON.parse(e.data)));
+    }
+    if (type === "position") {
+      store.dispatch(syncPos(JSON.parse(e.data)));
+    }
+  }
+  if (mode === "ADD") {
     if (type === "control") {
       store.dispatch(syncStatus(JSON.parse(e.data)));
     }
