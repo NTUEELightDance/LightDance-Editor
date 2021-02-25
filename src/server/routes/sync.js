@@ -9,7 +9,7 @@ router.route("/").post(express.urlencoded({ extended: false }), (req, res) => {
   wss.handleSync(JSON.stringify(req.body));
   console.log(wss);
   console.log(type, mode, data);
-  res.send("sync");
+  res.send({ message: "sync", type, mode, data });
 });
 
 module.exports = router;

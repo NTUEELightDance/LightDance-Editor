@@ -11,6 +11,8 @@ import ModeSelector from "../modeSelector";
 import PosList from "./posList";
 // constants
 
+import store from "../../store";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100%",
@@ -31,7 +33,9 @@ export default function PosEditor() {
   const dispatch = useDispatch();
   // save
   const handleSave = () => {
-    dispatch(saveCurrentPos());
+    const { currentPos } = store.getState().global;
+    const { controlFrame } = store.getState().global.timeData;
+    dispatch(saveCurrentPos({ currentPos, controlFrame }));
   };
   // delete
   const handleDelete = () => {

@@ -18,6 +18,8 @@ import ModeSelector from "../modeSelector";
 import Fade from "./fade";
 // constants
 
+import store from "../../store";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100%",
@@ -51,8 +53,8 @@ export default function LightEditor() {
   const dispatch = useDispatch();
 
   // switch between ElEditor and LedEditor
-  const ELEDITOR = "EL Editor",
-    LEDEDITOR = "Led Editor";
+  const ELEDITOR = "EL Editor";
+  const LEDEDITOR = "Led Editor";
   const [editor, setEditor] = useState(ELEDITOR);
   const handleChangeEditor = () => {
     setEditor(editor === ELEDITOR ? LEDEDITOR : ELEDITOR);
@@ -60,7 +62,9 @@ export default function LightEditor() {
 
   // save
   const handleSave = () => {
-    dispatch(saveCurrentStatus());
+    const status = store.getState().global.currentStatus;
+    const { controlFrame } = store.getState().global.timeData;
+    dispatch(saveCurrentStatus({ status, frame: controlFrame }));
     dispatch(saveCurrentFade());
   };
   // delete

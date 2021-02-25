@@ -5,10 +5,20 @@ import store from "./store";
 
 import App from "./app";
 
+import { syncStatus, syncPos } from "./slices/globalSlice";
+
 const ws = new WebSocket(`ws://${window.location.host}`);
 
 ws.onmessage = function (e) {
-  console.log(e.data);
+  const { mode, type } = JSON.parse(e.data);
+  if (mode === "edit") {
+    if (type === "control") {
+      store.dispatch(syncStatus(JSON.parse(e.data)));
+    }
+    if (type === "position") {
+      store.dispatch(syncPos(JSON.parse(e.data)));
+    }
+  }
 };
 
 const Index = () => (

@@ -12,6 +12,31 @@ import {
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 
+const syncPost = (type, mode, data, frame) => {
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+  const urlencoded = new URLSearchParams();
+  urlencoded.append("type", type);
+  urlencoded.append("mode", mode);
+  urlencoded.append("data", data);
+  if (mode === "edit") {
+    urlencoded.append("frame", frame);
+  }
+
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: urlencoded,
+    redirect: "follow",
+  };
+
+  return fetch("/api/sync", requestOptions)
+    .then((response) => response.text())
+    .then((result) => console.log(JSON.parse(JSON.parse(result).data)))
+    .catch((error) => console.log("error", error));
+};
+
 export const globalSlice = createSlice({
   name: "global",
   initialState: {
@@ -155,10 +180,16 @@ export const globalSlice = createSlice({
      * Save currentStatus, according to controlFrame and mode
      * @param {*} state
      */
-    saveCurrentStatus: (state) => {
+    saveCurrentStatus: (state, newChange) => {
       if (state.mode === EDIT) {
         state.controlRecord[state.timeData.controlFrame].status =
           state.currentStatus;
+        syncPost(
+          "control",
+          "edit",
+          JSON.stringify(newChange.payload.status),
+          newChange.payload.frame
+        );
       } else if (state.mode === ADD) {
         state.controlRecord.splice(state.timeData.controlFrame + 1, 1, {
           start: state.timeData.time,
@@ -167,6 +198,22 @@ export const globalSlice = createSlice({
       }
       state.mode = IDLE;
       setItem("control", JSON.stringify(state.controlRecord));
+    },
+
+    /**
+     * Sync status
+     * @param {*} state
+     */
+    syncStatus: (state, syncData) => {
+      const { mode, data } = syncData.payload;
+      if (mode === "edit") {
+        let { frame } = syncData.payload;
+        frame = Number(frame);
+        state.controlRecord[frame].status = JSON.parse(data);
+        if (frame === state.timeData.controlFrame) {
+          state.currentStatus = JSON.parse(data);
+        }
+      }
     },
 
     /**
@@ -212,9 +259,15 @@ export const globalSlice = createSlice({
      * Save currentPos to posRecord
      * @param {*} state
      */
-    saveCurrentPos: (state) => {
+    saveCurrentPos: (state, newChange) => {
       if (state.mode === EDIT) {
         state.posRecord[state.timeData.posFrame].pos = state.currentPos;
+        syncPost(
+          "position",
+          "edit",
+          JSON.stringify(newChange.payload.currentPos),
+          newChange.payload.controlFrame
+        );
       } else if (state.mode === ADD) {
         state.posRecord.splice(state.timeData.posFrame + 1, 1, {
           start: state.timeData.time,
@@ -223,6 +276,22 @@ export const globalSlice = createSlice({
       }
       state.mode = IDLE;
       setItem("position", JSON.stringify(state.posRecord));
+    },
+
+    /**
+     * Sync pos
+     * @param {*} state
+     */
+    syncPos: (state, syncData) => {
+      const { mode, data } = syncData.payload;
+      if (mode === "edit") {
+        let { frame } = syncData.payload;
+        frame = Number(frame);
+        state.posRecord[frame].pos = JSON.parse(data);
+        if (frame === state.timeData.posFrame) {
+          state.currentPos = JSON.parse(data);
+        }
+      }
     },
 
     /**
@@ -443,10 +512,12 @@ export const {
   editCurrentStatus,
   editCurrentStatusLED,
   saveCurrentStatus,
+  syncStatus,
   deleteCurrentStatus,
 
   setCurrentPos,
   saveCurrentPos,
+  syncPos,
   deleteCurrentPos,
 
   setTime,
