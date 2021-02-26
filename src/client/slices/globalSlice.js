@@ -160,7 +160,7 @@ export const globalSlice = createSlice({
         state.controlRecord[state.timeData.controlFrame].status =
           state.currentStatus;
       } else if (state.mode === ADD) {
-        state.controlRecord.splice(state.timeData.controlFrame + 1, 1, {
+        state.controlRecord.splice(state.timeData.controlFrame + 1, 0, {
           start: state.timeData.time,
           status: state.currentStatus,
         });
@@ -216,7 +216,7 @@ export const globalSlice = createSlice({
       if (state.mode === EDIT) {
         state.posRecord[state.timeData.posFrame].pos = state.currentPos;
       } else if (state.mode === ADD) {
-        state.posRecord.splice(state.timeData.posFrame + 1, 1, {
+        state.posRecord.splice(state.timeData.posFrame + 1, 0, {
           start: state.timeData.time,
           pos: state.currentPos,
         });
