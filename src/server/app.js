@@ -4,8 +4,10 @@
 const express = require("express");
 const path = require("path");
 const http = require("http");
-
+const mongoose = require("mongoose");
 const WebSocketApp = require("./websocket");
+const bodyParser = require("body-parser");
+
 const apiRouter = require("./routes");
 
 const app = express();
@@ -37,6 +39,8 @@ if (process.env.NODE_ENV === "dev") {
   app.use(express.static(buildPath));
 }
 
+app.use(bodyParser.json());
+
 const assetPath = path.resolve(__dirname, "..", "..", "./asset");
 app.use("/asset", express.static(assetPath));
 const dataPath = path.resolve(__dirname, "..", "..", "./data");
@@ -53,7 +57,26 @@ const port = 8080;
 //   console.log(`Listening on port: ${port}`);
 // });
 
-server.listen(port, () => {
-  wss.listen();
-  console.log(`Listening on http://localhost:${port}`);
+// db settings below
+
+const dbOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  auto_reconnect: true,
+  useUnifiedTopology: true,
+  poolSize: 10,
+};
+
+mongoose.connect("mongodb://localhost:27017", dbOptions);
+const db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "connection error:"));
+
+db.once("open", () => {
+  console.log("Successfully connect to MongoDB!");
+
+  server.listen(port, () => {
+    wss.listen();
+    console.log(`Listening on http://localhost:${port}`);
+  });
 });

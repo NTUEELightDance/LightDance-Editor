@@ -5,20 +5,17 @@ const db = require("../db");
 
 const router = express.Router();
 
-// Handle login post
+// Handle register post
 router.route("/").post(
   asyncHandler(async (req, res) => {
     const { username, password } = req.body;
     const user = await db.findUser(username);
-    if (!user) {
-      res.status(404).send("user not found");
-    } else if (password !== user.password) {
-      res.status(401).send("wrong password");
+    if (user !== null) {
+      res.send("Username used");
     } else {
-      res.status(201).send(username);
+      await db.createUser(username, password);
+      res.send("User created");
     }
-    console.log(user);
-    console.log(password);
   })
 );
 

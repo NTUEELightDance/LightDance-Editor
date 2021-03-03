@@ -1,6 +1,5 @@
 import React, { useState, useEffect, createContext } from "react";
 import WebSocketAPI from "./websocket";
-import { multiEditAgent } from "./api";
 
 const WebSocketContext = createContext(null);
 export { WebSocketContext };
@@ -10,7 +9,7 @@ export default function WebSocket({ children }) {
 
   useEffect(() => {
     const webAPI = new WebSocketAPI();
-    webAPI.init(`ws://${window.location.host}`, multiEditAgent);
+    webAPI.init();
     setWebSocket(webAPI);
   }, []);
 
