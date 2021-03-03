@@ -1,19 +1,25 @@
+/**
+ * Usage: node parser.js <path_to_control.json> <ouput_path_to_control.json>
+ */
 const fs = require("fs");
-const { output } = require("../config/webpack.common");
+const { exit } = require("process");
 
-const originalFilePath = __dirname + "/../data/control.json";
-const outputFilePath = __dirname + "/../data/new_control.json";
-console.log(originalFilePath);
+// Read Argument
+const args = process.argv; // 0: node, 1: controlTransform.js
+if (args.length < 4) {
+  console.error(`[Error] Invalid Arguments !!!`);
+  exit();
+}
+
+const originalFilePath = args[2];
+const outputFilePath = args[3];
 
 const originalFile = fs.readFileSync(originalFilePath);
 const originalData = JSON.parse(originalFile);
 
-const firstPerson = originalData[0];
-// console.log(originalData);s
-
 const outputData = {};
 originalData.forEach((person, i) => {
-  const name = "player" + i.toString();
+  const name = `dancer${i.toString()}`;
   outputData[name] = [];
   person.forEach((timeSlice, j) => {
     const { Start, Status } = timeSlice;
@@ -31,5 +37,3 @@ originalData.forEach((person, i) => {
   });
 });
 fs.writeFileSync(outputFilePath, JSON.stringify(outputData));
-console.log(outputData["player0"][0]);
-// console.log(firstPerson[Object.keys(firstPerson)[0]]);

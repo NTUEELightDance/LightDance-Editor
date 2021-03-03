@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 // mui
-import { makeStyles } from "@material-ui/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -13,7 +8,14 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import TextField from "@material-ui/core/TextField";
 // action and selector
-import { selectGlobal, setPresets, addPresets } from "../../slices/globalSlice";
+import {
+  selectGlobal,
+  setPosPresets,
+  addPosPresets,
+  setCurrentPos,
+  editPosPresetsName,
+  deletePosPresets,
+} from "../../slices/globalSlice";
 import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { getItem } from "../../utils/localStorage";
@@ -21,20 +23,20 @@ import { getItem } from "../../utils/localStorage";
 import PresetsList from "./presetsList";
 
 /**
- * This is Presets component, list of status
+ * This is Presets component, list of pos
  * @component
  */
-export default function Presets() {
+export default function PosPresets() {
   const dispatch = useDispatch();
   // presets intialize
   // get loadedPresets or storagePresets
-  const { presets: loadedPresets } = useSelector(selectLoad);
-  const { presets } = useSelector(selectGlobal);
+  const { posPresets: loadedPosPresets } = useSelector(selectLoad);
+  const { posPresets } = useSelector(selectGlobal);
   useEffect(() => {
-    if (getItem("presets")) {
-      dispatch(setPresets(JSON.parse(getItem("presets"))));
+    if (getItem("posPresets")) {
+      dispatch(setPosPresets(JSON.parse(getItem("posPresets"))));
     } else {
-      dispatch(setPresets(loadedPresets));
+      dispatch(setPosPresets(loadedPosPresets));
     }
   }, []);
 
@@ -50,18 +52,33 @@ export default function Presets() {
 
   // dispatch
   const handleAddPresets = (name) => {
-    if (name.trim() !== "") dispatch(addPresets(name));
+    if (name.trim() !== "") dispatch(addPosPresets(name));
     closeDialog();
   };
+  const handleEditPresets = (name, idx) => {
+    dispatch(editPosPresetsName({ name, idx }));
+    closeDialog();
+  };
+  const handleDeletePresets = (idx) => {
+    dispatch(deletePosPresets(idx));
+  };
+  const handleSetCurrentPos = (pos) => {
+    dispatch(setCurrentPos(pos));
+  };
 
-  // short cut of key to save currentStatus
+  // short cut of key to save currentPos
   return (
     <div>
       <div style={{ padding: 8 }}>
         <Button variant="outlined" size="small" onClick={openDialog}>
           Add
         </Button>
-        <PresetsList presets={presets} />
+        <PresetsList
+          presets={posPresets}
+          handleEditPresets={handleEditPresets}
+          handleDeletePresets={handleDeletePresets}
+          handleSetCurrent={handleSetCurrentPos}
+        />
       </div>
       <div>
         <Dialog fullWidth size="md" open={open} onClose={closeDialog}>

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-// redux
-import { useDispatch } from "react-redux";
 // mui
 import { makeStyles } from "@material-ui/styles";
 import List from "@material-ui/core/List";
@@ -16,12 +14,6 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-// action and selector
-import {
-  setCurrentStatus,
-  editPresetsName,
-  deletePresets,
-} from "../../slices/globalSlice";
 
 const useStyles = makeStyles({
   flex: {
@@ -39,9 +31,13 @@ const useStyles = makeStyles({
  * This is Presets List
  * @component
  */
-export default function PresetsList({ presets }) {
+export default function PresetsList({
+  presets,
+  handleEditPresets,
+  handleDeletePresets,
+  handleSetCurrent,
+}) {
   const classes = useStyles();
-  const dispatch = useDispatch();
 
   // dialog
   const [open, setOpen] = useState(false);
@@ -58,26 +54,14 @@ export default function PresetsList({ presets }) {
   };
   const handleChangeName = (e) => setNameVal(e.target.value);
 
-  // dispatch
-  const handleEditPresets = (name, idx) => {
-    dispatch(editPresetsName({ name, idx }));
-    closeDialog();
-  };
-  const handleDeletePresets = (idx) => {
-    dispatch(deletePresets(idx));
-  };
-  const handleSetCurrentStatus = (status) => {
-    dispatch(setCurrentStatus(status));
-  };
-
   return (
     <div>
       <List>
-        {presets.map(({ name, status }, i) => (
+        {presets.map(({ name, status, pos }, i) => (
           <ListItem
             key={`${i}_preset`}
             className={classes.flex}
-            onDoubleClick={() => handleSetCurrentStatus(status)}
+            onDoubleClick={() => handleSetCurrent(status || pos)}
           >
             <div className={classes.grow}>
               <Typography variant="body1">

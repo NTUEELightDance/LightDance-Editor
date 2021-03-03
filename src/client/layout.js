@@ -7,7 +7,8 @@ import layoutConfig from "./layoutConfig.json";
 // components
 import Simulator from "./components/simulator";
 import Wavesurfer from "./components/wavesurfer";
-import Presets from "./components/presets";
+import LightPresets from "./components/presets/lightPresets";
+import PosPresets from "./components/presets/posPresets";
 import LightEditor from "./components/lightEditor";
 import PosEditor from "./components/posEditor";
 import File from "./components/file";
@@ -25,8 +26,10 @@ export default function Layout() {
         return <PosEditor />;
       case "Wavesurfer":
         return <Wavesurfer />;
-      case "Preset":
-        return <Presets />;
+      case "LightPresets":
+        return <LightPresets />;
+      case "PosPresets":
+        return <PosPresets />;
       case "File":
         return <File />;
       default:

@@ -34,7 +34,8 @@ export const globalSlice = createSlice({
 
     mode: 0, // 0: nothing, 1: edit, 2: add
 
-    presets: [],
+    lightPresets: [], // lightPresets, presets for light
+    posPresets: [], // posPresets, presets for pos
   },
   reducers: {
     /**
@@ -187,11 +188,11 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * Set current pos
+     * Set current pos By Name
      * @param {*} state
-     * @param {object} action.payload - new pos
+     * @param {object} action.payload - new dancer's pos
      */
-    setCurrentPos: (state, action) => {
+    setCurrentPosByName: (state, action) => {
       const { name, x, y, z } = action.payload;
       if (!state.currentPos[name])
         throw new Error(
@@ -206,6 +207,15 @@ export const globalSlice = createSlice({
           `[Error] setCurrentPos, invalid parameter(x, y, z) ${x}, ${y}, ${z}`
         );
       state.currentPos[name] = { x, y, z };
+    },
+
+    /**
+     * set current pos
+     * @param {*} state
+     * @param {*} action.payload - new pos
+     */
+    setCurrentPos: (state, action) => {
+      state.currentPos = action.payload;
     },
 
     /**
@@ -384,46 +394,89 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * set Presets
+     * set lightPresets
      * @param {*} state
      * @param {*} action
      */
-    setPresets: (state, action) => {
-      state.presets = action.payload;
-      setItem("presets", JSON.stringify(state.presets));
+    setLightPresets: (state, action) => {
+      state.lightPresets = action.payload;
+      setItem("lightPresets", JSON.stringify(state.lightPresets));
     },
 
     /**
-     * edit a preset's name
+     * edit a lightPreset's name
      * @param {*} state
      * @param {*} action.payload - index and newName
      */
-    editPresetsName: (state, action) => {
+    editLightPresetsName: (state, action) => {
       const { name, idx } = action.payload;
-      state.presets[idx].name = name;
-      setItem("presets", JSON.stringify(state.presets));
+      state.lightPresets[idx].name = name;
+      setItem("lightPresets", JSON.stringify(state.lightPresets));
     },
 
     /**
-     * add Preset
+     * add lightPresets
      * @param {*} state
      * @param {*} action.payload
      */
-    addPresets: (state, action) => {
+    addLightPresets: (state, action) => {
       const name = action.payload;
-      state.presets.push({ name, status: state.currentStatus });
-      setItem("presets", JSON.stringify(state.presets));
+      state.lightPresets.push({ name, status: state.currentStatus });
+      setItem("lightPresets", JSON.stringify(state.lightPresets));
     },
 
     /**
-     * delete a preset (by index)
+     * delete a lightPreset (by index)
      * @param {*} state
      * @param {*} action
      */
-    deletePresets: (state, action) => {
+    deleteLightPresets: (state, action) => {
       const idx = action.payload;
-      state.presets.splice(idx, 1);
-      setItem("presets", JSON.stringify(state.presets));
+      state.lightPresets.splice(idx, 1);
+      setItem("lightPresets", JSON.stringify(state.lightPresets));
+    },
+
+    /**
+     * set lightPresets
+     * @param {*} state
+     * @param {*} action
+     */
+    setPosPresets: (state, action) => {
+      state.posPresets = action.payload;
+      setItem("posPresets", JSON.stringify(state.posPresets));
+    },
+
+    /**
+     * edit a lightPreset's name
+     * @param {*} state
+     * @param {*} action.payload - index and newName
+     */
+    editPosPresetsName: (state, action) => {
+      const { name, idx } = action.payload;
+      state.posPresets[idx].name = name;
+      setItem("posPresets", JSON.stringify(state.posPresets));
+    },
+
+    /**
+     * add lightPresets
+     * @param {*} state
+     * @param {*} action.payload
+     */
+    addPosPresets: (state, action) => {
+      const name = action.payload;
+      state.posPresets.push({ name, pos: state.currentPos });
+      setItem("posPresets", JSON.stringify(state.posPresets));
+    },
+
+    /**
+     * delete a lightPreset (by index)
+     * @param {*} state
+     * @param {*} action
+     */
+    deletePosPresets: (state, action) => {
+      const idx = action.payload;
+      state.posPresets.splice(idx, 1);
+      setItem("posPresets", JSON.stringify(state.posPresets));
     },
   },
 });
@@ -445,6 +498,7 @@ export const {
   saveCurrentStatus,
   deleteCurrentStatus,
 
+  setCurrentPosByName,
   setCurrentPos,
   saveCurrentPos,
   deleteCurrentPos,
@@ -456,10 +510,15 @@ export const {
   setMode,
   toggleMode,
 
-  setPresets,
-  editPresetsName,
-  addPresets,
-  deletePresets,
+  setLightPresets,
+  editLightPresetsName,
+  addLightPresets,
+  deleteLightPresets,
+
+  setPosPresets,
+  editPosPresetsName,
+  addPosPresets,
+  deletePosPresets,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;

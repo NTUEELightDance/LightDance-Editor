@@ -93,8 +93,14 @@
                 "children": [
                   {
                     "type": "tab",
-                    "name": "Preset",
-                    "component": "Preset",
+                    "name": "LightPresets",
+                    "component": "LightPresets",
+                    "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "PosPresets",
+                    "component": "PosPresets",
                     "enableClose": false
                   }
                 ]

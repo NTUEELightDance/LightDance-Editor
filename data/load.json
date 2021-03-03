@@ -2,7 +2,8 @@
   "Music": "/asset/eenight.wav",
   "Control": "/data/default_control.json",
   "Position": "/data/default_position.json",
-  "Presets": "/data/default_presets.json",
+  "LightPresets": "/data/default_lightPresets.json",
+  "PosPresets": "/data/default_posPresets.json",
   "Dancers": {
     "prefix": "/data/dancers/",
     "postfix": ".json",

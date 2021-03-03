@@ -3,7 +3,10 @@ import { BlackPart, ELPart, LEDPart } from "./parts";
 // constants
 import { IDLE, DISPLAY_HEIGHT, DISPLAY_WIDTH } from "../../../constants";
 // actions
-import { toggleSelected, setCurrentPos } from "../../../slices/globalSlice";
+import {
+  toggleSelected,
+  setCurrentPosByName,
+} from "../../../slices/globalSlice";
 // store
 import store from "../../../store";
 
@@ -164,12 +167,11 @@ class Dancer {
     this.data = null;
     this.zIndex = this.position.y;
     store.dispatch(
-      setCurrentPos({
+      setCurrentPosByName({
         name: this.name,
         x: this.x,
         y: this.y,
         z: this.zIndex,
-        save: true,
       })
     );
     // TODO: save

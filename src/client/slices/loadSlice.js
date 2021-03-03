@@ -8,7 +8,8 @@ export const loadSlice = createSlice({
     music: "", // load music path
     control: [], // loaded control.json, may not be same as localStorage (this is for default)
     position: [], // loaded position.json, may not be same as localStorage (this is for default)
-    presets: [], // loaded presets.json, may not be same as localStorage (this is for default)
+    lightPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
+    posPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
     texture: {}, // loaded texture
     dancers: {}, // name: data, data is like content of 'dancer0.json'
     dancerNames: {}, // [name]
@@ -26,8 +27,11 @@ export const loadSlice = createSlice({
     setPosition: (state, action) => {
       state.position = action.payload;
     },
-    setPresets: (state, action) => {
-      state.presets = action.payload;
+    setLightPresets: (state, action) => {
+      state.lightPresets = action.payload;
+    },
+    setPosPresets: (state, action) => {
+      state.posPresets = action.payload;
     },
     setTexture: (state, action) => {
       state.texture = action.payload;
@@ -46,7 +50,8 @@ const {
   setMusic,
   setControl,
   setPosition,
-  setPresets,
+  setLightPresets,
+  setPosPresets,
   setTexture,
   setDancers,
   setDancerNames,
@@ -63,7 +68,8 @@ export const fetchLoad = () => async (dispatch) => {
     Music,
     Control,
     Position,
-    Presets,
+    LightPresets,
+    PosPresets,
     Dancers,
     Texture,
   } = await fetchJson("/data/load.json");
@@ -75,9 +81,12 @@ export const fetchLoad = () => async (dispatch) => {
   // set Position
   const position = await fetchJson(Position);
   dispatch(setPosition(position));
-  // set Presets
-  const presets = await fetchJson(Presets);
-  dispatch(setPresets(presets));
+  // set lightPresets
+  const lightPresets = await fetchJson(LightPresets);
+  dispatch(setLightPresets(lightPresets));
+  // set lightPresets
+  const posPresets = await fetchJson(PosPresets);
+  dispatch(setLightPresets(posPresets));
   // set Dancer Names
   dispatch(setDancerNames(Dancers.names));
 
