@@ -1,7 +1,6 @@
 const User = require("./models/user");
 const { Action } = require("./models/action");
 const Branch = require("./models/branch");
-const { LensOutlined } = require("@material-ui/icons");
 
 // operations for Branch
 const createBranch = async (name, actions = []) => {
@@ -26,8 +25,14 @@ const findBranch = async (name) => {
   return !((await Branch.findOne({ name })) === null);
 };
 
-const addActionToBranch = async (branchName, from, type, mode, data) => {
-  const newAction = Action({ from, type, mode, data: JSON.stringify(data) });
+const addActionToBranch = async (branchName, time, from, type, mode, data) => {
+  const newAction = Action({
+    time,
+    from,
+    type,
+    mode,
+    data: JSON.stringify(data),
+  });
   const branch = await Branch.findOne({ name: branchName });
   branch.actions.push(newAction);
   return branch.save();
@@ -67,40 +72,9 @@ const getCommitToPull = async (time, name) => {
 };
 
 const initialize = async () => {
-  let time;
-  let x;
   const actions = [];
   await deleteAllBranches();
   await createBranch("main", actions);
-
-  for (let i = 0; i < 5; i += 1) {
-    x = Math.random();
-    time = 1000 * i;
-    await addActionToBranch("main", "Ken", "position", "ADD", {
-      Start: time,
-      x,
-      y: x,
-      z: x,
-    });
-    await addActionToBranch("main", "Ken", "position", "EDIT", {
-      Start: time,
-      x,
-      y: x,
-      z: x,
-    });
-  }
-
-  for (let i = 0; i < 5; i += 1) {
-    x = Math.random();
-    time = 1000 * i;
-    console.log(x);
-    await addActionToBranch("main", "Ken", "position", "EDIT", {
-      Start: time,
-      x,
-      y: x,
-      z: x,
-    });
-  }
   // console.log(actions);
 };
 
