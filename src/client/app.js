@@ -13,6 +13,8 @@ import "./app.css";
 // components
 import Bar from "./components/bar";
 
+import WebSocketContext from "./webSocketContext";
+
 const theme = createMuiTheme({
   palette: {
     type: "dark",
@@ -40,23 +42,25 @@ const App = () => {
   return (
     <div>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {init ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              height: "100vh",
-            }}
-          >
-            <Bar />
-            <div style={{ flexGrow: 1, position: "relative" }}>
-              <Layout />
+        <WebSocketContext>
+          <CssBaseline />
+          {init ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100vh",
+              }}
+            >
+              <Bar />
+              <div style={{ flexGrow: 1, position: "relative" }}>
+                <Layout />
+              </div>
             </div>
-          </div>
-        ) : (
-          "Loading..."
-        )}
+          ) : (
+            "Loading..."
+          )}
+        </WebSocketContext>
       </ThemeProvider>
     </div>
   );

@@ -12,27 +12,7 @@ import {
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 
-const syncPost = (type, mode, data) => {
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-  const urlencoded = new URLSearchParams();
-  urlencoded.append("type", type);
-  urlencoded.append("mode", mode);
-  urlencoded.append("data", data);
-
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: urlencoded,
-    redirect: "follow",
-  };
-
-  return fetch("/api/sync", requestOptions)
-    .then((response) => response.text())
-    .then((result) => console.log(JSON.parse(JSON.parse(result).data)))
-    .catch((error) => console.log("error", error));
-};
+import { syncPost } from "../api";
 
 export const globalSlice = createSlice({
   name: "global",
@@ -177,13 +157,13 @@ export const globalSlice = createSlice({
      * Save currentStatus, according to controlFrame and mode
      * @param {*} state
      */
-    saveCurrentStatus: (state, newChange) => {
+    saveCurrentStatus: (state) => {
       if (state.mode === EDIT) {
         state.controlRecord[state.timeData.controlFrame].status =
           state.currentStatus;
         const data = {
-          status: JSON.stringify(newChange.payload.status),
-          frame: newChange.payload.frame,
+          status: JSON.stringify(state.currentStatus),
+          frame: state.timeData.controlFrame,
         };
         syncPost("control", "EDIT", JSON.stringify(data));
       } else if (state.mode === ADD) {
@@ -199,9 +179,9 @@ export const globalSlice = createSlice({
         });
 
         const data = {
-          status: JSON.stringify(newChange.payload.status),
-          frame: newChange.payload.frame + 1,
-          time: newChange.payload.time,
+          status: JSON.stringify(state.currentStatus),
+          frame: state.timeData.controlFrame + 1,
+          time: state.timeData.time,
         };
 
         if (sub) syncPost("control", "EDIT", JSON.stringify(data));
@@ -283,12 +263,12 @@ export const globalSlice = createSlice({
      * Save currentPos to posRecord
      * @param {*} state
      */
-    saveCurrentPos: (state, newChange) => {
+    saveCurrentPos: (state) => {
       if (state.mode === EDIT) {
         state.posRecord[state.timeData.posFrame].pos = state.currentPos;
         const data = {
-          pos: JSON.stringify(newChange.payload.currentPos),
-          frame: newChange.payload.posFrame,
+          pos: JSON.stringify(state.currentPos),
+          frame: state.timeData.posFrame,
         };
         syncPost("position", "EDIT", JSON.stringify(data));
       } else if (state.mode === ADD) {
@@ -305,9 +285,9 @@ export const globalSlice = createSlice({
         });
 
         const data = {
-          pos: JSON.stringify(newChange.payload.currentPos),
-          frame: newChange.payload.posFrame + 1,
-          time: newChange.payload.time,
+          pos: JSON.stringify(state.currentPos),
+          frame: state.timeData.posFrame + 1,
+          time: state.timeData.time,
         };
 
         if (sub) syncPost("position", "EDIT", JSON.stringify(data));
