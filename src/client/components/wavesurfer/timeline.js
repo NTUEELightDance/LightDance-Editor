@@ -21,6 +21,9 @@ import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 // constant
 import load from "../../../../data/load.json";
 
+// local storage
+import { setItem, getItem } from "../../utils/localStorage";
+
 export default function Timeline(props) {
   /**
    * params
@@ -205,6 +208,7 @@ export default function Timeline(props) {
     const b = getPeaksAtThreshold(data2[0], data2[1], data2[2]);
     // console.log(b.length);
     setPeak(b);
+    setItem("peak", b);
     const c = countIntervalsBetweenNearbyPeaks(b);
 
     let MaxInt = 0;
@@ -223,6 +227,10 @@ export default function Timeline(props) {
 
   useEffect(() => {
     loadMusic(load.Music, filterNow);
+    if (getItem("peak")) setPeak(getItem("peak"));
+    if (getItem("region")) {
+      setRegion(JSON.parse(getItem("region")));
+    } else console.log("no region");
   }, []);
 
   useEffect(() => {
@@ -248,18 +256,19 @@ export default function Timeline(props) {
   };
 
   const updateRegion = (regionID) => {
-    const Region = Object.values(wavesurfer.regions.list)[regionID];
+    const Region = Object.values(wavesurfer.waveSurfer.regions.list)[regionID];
     Region.update({ start: newStart, end: newEnd });
     const sub = region;
     sub[regionID].Start = newStart;
     sub[regionID].End = newEnd;
     setRegion(sub);
+    setItem("region", JSON.stringify(sub));
     setNewStart("");
     setNewEnd("");
   };
 
   const deleteRegion = (regionID) => {
-    const Region = Object.values(wavesurfer.regions.list)[regionID];
+    const Region = Object.values(wavesurfer.waveSurfer.regions.list)[regionID];
     Region.remove();
     let sub = region;
     sub = sub.filter((item) => {
@@ -269,6 +278,7 @@ export default function Timeline(props) {
       if (sub[i].Value > regionID) sub[i].Value -= 1;
     }
     setRegion(sub);
+    setItem("region", JSON.stringify(sub));
   };
 
   const Regions =
@@ -331,6 +341,7 @@ export default function Timeline(props) {
                   // console.log("change", sub[r.Value].ThreashRatio);
                   sub[r.Value].ThreashRatio = newValue;
                   setRegion(sub);
+                  setItem("region", JSON.stringify(sub));
                   setSubThrRatio(true);
                 }}
                 aria-labelledby="discrete-slider-small-steps"
@@ -455,6 +466,19 @@ export default function Timeline(props) {
                     ThreashRatio: thrRatio,
                   },
                 ]);
+
+                setItem(
+                  "region",
+                  JSON.stringify([
+                    ...region,
+                    {
+                      Start: start,
+                      End: end,
+                      Value: region.length,
+                      ThreashRatio: thrRatio,
+                    },
+                  ])
+                );
 
                 setStart("");
                 setEnd("");

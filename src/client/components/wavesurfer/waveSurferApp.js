@@ -9,6 +9,7 @@ import { playPause, setTime } from "../../slices/globalSlice";
 // constant
 import load from "../../../../data/load.json";
 import { WAVESURFERAPP } from "../../constants";
+import { getItem } from "../../utils/localStorage";
 
 /**
  * control 3rd party package, WaveSurfer
@@ -56,6 +57,8 @@ class WaveSurferApp {
     // get ready
     this.waveSurfer.on("ready", () => {
       this.ready = true;
+      const region = JSON.parse(getItem("region"));
+      region.map((r) => this.addRegion(r.Start, r.End));
     });
 
     // Listener for seek event
