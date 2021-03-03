@@ -9,6 +9,7 @@ class WebSocketAPI {
 
   init() {
     const ws = new WebSocket(this.url);
+
     ws.onmessage = (e) => {
       console.log(e);
       this.multiEditAgent(e);

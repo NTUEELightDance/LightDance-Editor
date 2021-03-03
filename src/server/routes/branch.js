@@ -17,7 +17,7 @@ router
   )
   .post(
     asyncHandler(async (req, res) => {
-      const { name } = req.body;
+      const { branchName: name } = req.body;
 
       if (!(await db.findBranch(name))) {
         await db.createBranch(name);
@@ -28,9 +28,8 @@ router
     })
   )
   .delete(
-    express.urlencoded({ extended: false }),
     asyncHandler(async (req, res) => {
-      const { name } = req.body;
+      const { branchName: name } = req.body;
 
       if (name === "All") {
         await db.deleteAllBranches();

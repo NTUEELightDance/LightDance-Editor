@@ -12,7 +12,7 @@ import {
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 
-import { syncPost, Login } from "../api";
+import { syncPost, loginPost } from "../api";
 
 export const globalSlice = createSlice({
   name: "global",
@@ -38,10 +38,10 @@ export const globalSlice = createSlice({
 
     presets: [],
 
-    username,
-    branch,
-    isLogin,
-    lastUpdateTime,
+    username: "Ken",
+    branch: "main",
+    isLogin: false,
+    lastUpdateTime: null,
   },
   reducers: {
     /**
@@ -171,7 +171,13 @@ export const globalSlice = createSlice({
           frame: state.timeData.controlFrame,
           fade: state.currentFade,
         };
-        syncPost("control", "EDIT", JSON.stringify(data));
+        syncPost(
+          state.branch,
+          state.username,
+          "control",
+          "EDIT",
+          JSON.stringify(data)
+        );
       } else if (state.mode === ADD) {
         let sub = false;
         if (
@@ -192,8 +198,22 @@ export const globalSlice = createSlice({
           fade: state.currentFade,
         };
 
-        if (sub) syncPost("control", "EDIT", JSON.stringify(data));
-        else syncPost("control", "ADD", JSON.stringify(data));
+        if (sub)
+          syncPost(
+            state.branch,
+            state.username,
+            "control",
+            "EDIT",
+            JSON.stringify(data)
+          );
+        else
+          syncPost(
+            state.branch,
+            state.username,
+            "control",
+            "ADD",
+            JSON.stringify(data)
+          );
       }
       state.mode = IDLE;
       setItem("control", JSON.stringify(state.controlRecord));
@@ -246,7 +266,13 @@ export const globalSlice = createSlice({
         return;
       }
       const data = { frame: state.timeData.controlFrame };
-      syncPost("control", "DEL", JSON.stringify(data));
+      syncPost(
+        state.branch,
+        state.username,
+        "control",
+        "DEL",
+        JSON.stringify(data)
+      );
       state.controlRecord.splice(state.timeData.controlFrame, 1);
       setItem("control", JSON.stringify(state.controlRecord));
     },
@@ -284,7 +310,13 @@ export const globalSlice = createSlice({
           pos: JSON.stringify(state.currentPos),
           frame: state.timeData.posFrame,
         };
-        syncPost("position", "EDIT", JSON.stringify(data));
+        syncPost(
+          state.branch,
+          state.username,
+          "position",
+          "EDIT",
+          JSON.stringify(data)
+        );
       } else if (state.mode === ADD) {
         let sub = false;
         if (
@@ -304,8 +336,22 @@ export const globalSlice = createSlice({
           time: state.timeData.time,
         };
 
-        if (sub) syncPost("position", "EDIT", JSON.stringify(data));
-        else syncPost("position", "ADD", JSON.stringify(data));
+        if (sub)
+          syncPost(
+            state.branch,
+            state.username,
+            "position",
+            "EDIT",
+            JSON.stringify(data)
+          );
+        else
+          syncPost(
+            state.branch,
+            state.username,
+            "position",
+            "ADD",
+            JSON.stringify(data)
+          );
       }
       state.mode = IDLE;
       setItem("position", JSON.stringify(state.posRecord));
@@ -355,7 +401,13 @@ export const globalSlice = createSlice({
         return;
       }
       const data = { frame: state.timeData.posFrame };
-      syncPost("position", "DEL", JSON.stringify(data));
+      syncPost(
+        state.branch,
+        state.username,
+        "position",
+        "DEL",
+        JSON.stringify(data)
+      );
       state.posRecord.splice(state.timeData.posFrame, 1);
       setItem("position", JSON.stringify(state.posRecord));
     },
@@ -563,7 +615,7 @@ export const globalSlice = createSlice({
      * Login
      */
     login: (state, action) => {
-      Login(action.username, action.password);
+      loginPost(action.username, action.password);
     },
   },
 });
