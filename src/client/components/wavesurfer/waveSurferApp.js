@@ -86,6 +86,25 @@ class WaveSurferApp {
   }
 
   /**
+   * Play the region repeatly
+   * @function
+   */
+  playLoop() {
+    const Regions = Object.values(this.waveSurfer.regions.list);
+    let Region = null;
+    const setRegion = (r) => {
+      if (
+        this.waveSurfer.getCurrentTime() <= r.end &&
+        this.waveSurfer.getCurrentTime() >= r.start
+      )
+        Region = r;
+    };
+    Regions.map((r) => setRegion(r));
+
+    if (Region) Region.playLoop();
+  }
+
+  /**
    * Stop the music
    * @function
    */

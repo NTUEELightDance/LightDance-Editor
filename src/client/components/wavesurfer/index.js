@@ -6,6 +6,7 @@ import Button from "@material-ui/core/Button";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import PauseIcon from "@material-ui/icons/Pause";
 import StopIcon from "@material-ui/icons/Stop";
+import LoopIcon from "@material-ui/icons/Loop";
 
 // my class
 import WaveSurferApp from "./waveSurferApp";
@@ -50,6 +51,7 @@ const Wavesurfer = () => {
   // event
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
+  const handlePlayLoop = () => waveSurferApp.playLoop();
 
   return (
     <div style={{ height: "100%" }}>
@@ -81,6 +83,14 @@ const Wavesurfer = () => {
           onClick={handleStop}
         >
           <StopIcon />
+        </Button>
+        <Button
+          size="small"
+          variant="text"
+          color="default"
+          onClick={handlePlayLoop}
+        >
+          <LoopIcon />
         </Button>
       </div>
       <Setting wavesurfer={waveSurferApp} />

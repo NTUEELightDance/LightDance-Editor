@@ -119,13 +119,12 @@ export default function Timeline(props) {
 
   function getPeaksAtThreshold(musicdata, threashold, originaldata) {
     let peaksArray = [];
-    // const Peaks = getPeaks(musicdata);
     const { length } = originaldata;
-    const mean = threashold / thrRatio;
-    // V1------------------------------------------------------------------
-    // let findLower = true;
+
+    /**
+     * if data[i] > threashold && data[i] is peak, let it be the beat point
+     */
     for (let i = 0; i < length; i += 1) {
-      // if (!findLower && originaldata[i] < Subthreashold) findLower = true;
       if (
         originaldata[i] > threashold &&
         musicdata[i - 1] > musicdata[i] &&
@@ -137,11 +136,18 @@ export default function Timeline(props) {
       }
     }
 
+    /**
+     * calculate the beat points on specific region
+     */
     for (let i = 0; i < region.length; i += 1) {
-      // console.log("dao");
       const s = region[i].Start * 44100;
       const e = region[i].End * 44100;
-      const thr = mean * region[i].ThreashRatio;
+
+      let regionMean = 0;
+      for (let j = s; j < e; j += 1) regionMean += originaldata[j];
+      regionMean /= e - s;
+      const thr = regionMean * region[i].ThreashRatio;
+
       const subPeak = [];
       for (let t = s; t < e; t += 1) {
         if (
@@ -156,81 +162,76 @@ export default function Timeline(props) {
       }
       const front = peaksArray.filter((time) => time < region[i].Start);
       const back = peaksArray.filter((time) => time > region[i].End);
-      // console.log(s, e, front.length, back.length);
       peaksArray = front.concat(subPeak).concat(back);
     }
-    // V1 end--------------------------------------------------------------
-    // V2 -----------------------------------------------------------------
-    // let smallest = 10 ** -15;
-    // for (let i = 0; i < length; i += 1) {
-    //   if()
-    // }
-    // v2 end--------------------------------------------------------------
     return peaksArray;
   }
 
-  function countIntervalsBetweenNearbyPeaks(peaks) {
-    const intervals = [];
-    peaks.forEach((Peak, index) => {
-      for (let i = 0; i < 10; i += 1) {
-        let int = 60 / (peaks[index + i] - Peak);
-        if (int !== Infinity && int !== 0) {
-          while (int < lowerBPM) int *= 2;
-        }
-        if (int <= upperBPM) intervals.push(Math.round(int));
-      }
-    });
+  /**
+   * count BPM but seems to be useless QQ
+   */
+  // function countIntervalsBetweenNearbyPeaks(peaks) {
+  //   const intervals = [];
+  //   peaks.forEach((Peak, index) => {
+  //     for (let i = 0; i < 10; i += 1) {
+  //       let int = 60 / (peaks[index + i] - Peak);
+  //       if (int !== Infinity && int !== 0) {
+  //         while (int < lowerBPM) int *= 2;
+  //       }
+  //       if (int <= upperBPM) intervals.push(Math.round(int));
+  //     }
+  //   });
 
-    const intervalCounts = [];
-    for (let i = 0; i < intervals.length; i += 1) {
-      const thisInt = intervals[i];
+  //   const intervalCounts = [];
+  //   for (let i = 0; i < intervals.length; i += 1) {
+  //     const thisInt = intervals[i];
 
-      const foundInterval = intervalCounts.some((intervalCount) => {
-        if (intervalCount.interval === thisInt) {
-          intervalCount.count += 1;
-          return true;
-        }
-        return false;
-      });
+  //     const foundInterval = intervalCounts.some((intervalCount) => {
+  //       if (intervalCount.interval === thisInt) {
+  //         intervalCount.count += 1;
+  //         return true;
+  //       }
+  //       return false;
+  //     });
 
-      if (!foundInterval) {
-        intervalCounts.push({
-          interval: thisInt,
-          count: 1,
-        });
-      }
-    }
-    return intervalCounts;
-  }
+  //     if (!foundInterval) {
+  //       intervalCounts.push({
+  //         interval: thisInt,
+  //         count: 1,
+  //       });
+  //     }
+  //   }
+  //   return intervalCounts;
+  // }
 
+  /**
+   * Find peaks
+   */
   const findPeakAndCountBPM = () => {
     const data2 = musicProcessing(DATA);
     const b = getPeaksAtThreshold(data2[0], data2[1], data2[2]);
-    // console.log(b.length);
     setPeak(b);
     setItem("peak", b);
-    const c = countIntervalsBetweenNearbyPeaks(b);
 
-    let MaxInt = 0;
-    let MaxCou = 0;
-    for (let i = 1; i < c.length; i += 1) {
-      if (c[i].count > MaxCou) {
-        MaxCou = c[i].count;
-        MaxInt = c[i].interval;
-      }
-    }
-    // console.log(`max interval: ${MaxInt}, count= ${MaxCou}`);
-    // setInterval(MaxInt / 1000);
-    // console.log("bpm:", MaxInt);
-    setInterval(60 / MaxInt);
+    /**
+     * count BPM
+     */
+    // const c = countIntervalsBetweenNearbyPeaks(b);
+
+    // let MaxInt = 0;
+    // let MaxCou = 0;
+    // for (let i = 1; i < c.length; i += 1) {
+    //   if (c[i].count > MaxCou) {
+    //     MaxCou = c[i].count;
+    //     MaxInt = c[i].interval;
+    //   }
+    // }
   };
 
   useEffect(() => {
     loadMusic(load.Music, filterNow);
     if (getItem("peak")) setPeak(getItem("peak"));
-    if (getItem("region")) {
-      setRegion(JSON.parse(getItem("region")));
-    } else console.log("no region");
+    if (getItem("region")) setRegion(JSON.parse(getItem("region")));
   }, []);
 
   useEffect(() => {
@@ -333,7 +334,7 @@ export default function Timeline(props) {
               <Slider
                 key={`slider-${r.ThreashRatio}`}
                 defaultValue={r.ThreashRatio}
-                max={25}
+                max={35}
                 min={5}
                 step={1}
                 onChange={(event, newValue) => {
