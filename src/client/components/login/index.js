@@ -7,7 +7,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { login } from "../../slices/globalSlice";
+import { loginPost } from "../../api";
 
 import store from "../../store";
 
@@ -26,7 +26,7 @@ export default function Login() {
 
   const handleLogin = () => {
     console.log("login");
-    store.dispatch(login({ username, password }));
+    loginPost(username, password);
     setOpen(false);
   };
 

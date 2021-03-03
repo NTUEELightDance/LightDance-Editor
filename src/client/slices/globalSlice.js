@@ -38,7 +38,7 @@ export const globalSlice = createSlice({
 
     presets: [],
 
-    username: "Ken",
+    username: null,
     branch: "main",
     isLogin: false,
     lastUpdateTime: null,
@@ -615,8 +615,9 @@ export const globalSlice = createSlice({
      * Login
      */
     login: (state, action) => {
-      const { username, password } = action.payload;
-      loginPost(username, password);
+      const { username } = action.payload;
+      state.username = username;
+      state.isLogin = true;
     },
   },
 });

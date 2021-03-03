@@ -1,3 +1,6 @@
+import { login } from "./slices/globalSlice";
+import store from "./store";
+
 export const syncPost = (branchName, from, type, mode, data) => {
   const payload = JSON.stringify({ branchName, from, type, mode, data });
   console.log(payload);
@@ -23,7 +26,12 @@ export const loginPost = (username, password) => {
     },
   })
     .then((response) => response.text())
-    .then((result) => console.log(JSON.parse(result).data))
+    .then((result) => {
+      const data = JSON.parse(result);
+      if (data.username) {
+        store.dispatch(login(data));
+      }
+    })
     .catch((error) => console.log("error", error));
 };
 
