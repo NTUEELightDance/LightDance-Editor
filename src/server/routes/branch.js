@@ -16,7 +16,6 @@ router
     })
   )
   .post(
-    express.urlencoded({ extended: false }),
     asyncHandler(async (req, res) => {
       const { name } = req.body;
 
