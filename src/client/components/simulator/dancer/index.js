@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { BlackPart, ELPart, LEDPart } from "./parts";
 // constants
-import { IDLE, DISPLAY_HEIGHT, DISPLAY_WIDTH } from "../../../constants";
+import { IDLE } from "../../../constants";
 // actions
 import {
   toggleSelected,
@@ -76,12 +76,13 @@ class Dancer {
     this.container.addChild(text);
 
     // Calculate position and scale
-    this.initScale(store.getState().load.dancerNames.length);
+    this.initScale();
     this.mainContainer.addChild(this.container);
 
     // Dragging
     this.container.id = this.id;
     this.container.name = this.name;
+    this.container.posMinusCenter = this.posMinusCenter.bind(this);
     this.container.interactive = true;
     this.container.buttonMode = true;
     this.container
@@ -113,21 +114,20 @@ class Dancer {
   }
 
   /**
-   * Initiate Dancers' container scale to fit in the screen
+   * Initiate Dancers' container scale to fit in the screen (screen height's 0.4)
    */
-  initScale(num, height = DISPLAY_HEIGHT, width = DISPLAY_WIDTH) {
+  initScale() {
     const ratio = this.container.width / this.container.height;
-    this.container.height = height * 0.95;
-    if (num > 1) this.container.height /= 2;
+    this.container.height = this.app.renderer.height * 0.4;
     this.container.width = this.container.height * ratio;
   }
 
   /**
-   * Set Dancer's position
+   * Set Dancer's position, relative to the center
    * @param {*} position
    */
   setPos(position) {
-    const { x, y, z } = position;
+    const { x, y, z } = this.posAddCenter(position); // turn relative position to static position
     this.container.position.set(x, y);
     this.container.zIndex = z;
   }
@@ -169,12 +169,40 @@ class Dancer {
     store.dispatch(
       setCurrentPosByName({
         name: this.name,
-        x: this.x,
-        y: this.y,
-        z: this.zIndex,
+        ...this.posMinusCenter({
+          x: this.x,
+          y: this.y,
+          z: this.zIndex,
+        }),
       })
     );
-    // TODO: save
+  }
+
+  /**
+   * Calculate real position according to the center
+   */
+  posAddCenter(position) {
+    const centerX = this.app.renderer.width * 0.5;
+    const centerY = this.app.renderer.height * 0.5;
+    return {
+      x: position.x + centerX,
+      y: position.y + centerY,
+      z: position.z + centerY,
+    };
+  }
+
+  /**
+   * Calculate related position according to the center
+   * @param { { x, y, z }} position
+   */
+  posMinusCenter(position) {
+    const centerX = this.app.renderer.width * 0.5;
+    const centerY = this.app.renderer.height * 0.5;
+    return {
+      x: position.x - centerX,
+      y: position.y - centerY,
+      z: position.z - centerY,
+    };
   }
 }
 
