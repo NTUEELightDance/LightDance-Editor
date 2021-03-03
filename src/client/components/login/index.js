@@ -12,8 +12,8 @@ import { login } from "../../slices/globalSlice";
 import store from "../../store";
 
 export default function Login() {
-  const [username, setUsername] = useState();
-  const [password, setPassword] = useState();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleClose = () => {
