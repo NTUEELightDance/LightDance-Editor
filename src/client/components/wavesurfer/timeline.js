@@ -39,7 +39,7 @@ export default function Timeline(props) {
   const [start, setStart] = useState();
   const [end, setEnd] = useState();
 
-  const { wavesurfer, addRegion, zoom, clickNext, clickLast } = props;
+  const { wavesurfer } = props;
 
   const upperBPM = 200;
   const lowerBPM = 90;
@@ -343,7 +343,7 @@ export default function Timeline(props) {
 
   const handleChange = (event, newValue) => {
     setRatio(newValue);
-    zoom(newValue);
+    wavesurfer.zoom(newValue);
   };
 
   const newRatio = (event, newValue) => {
@@ -385,7 +385,9 @@ export default function Timeline(props) {
       <IconButton
         onClick={() => {
           if (wavesurfer) {
-            clickLast(findPosLast(wavesurfer.waveSurfer.getCurrentTime()));
+            wavesurfer.clickLast(
+              findPosLast(wavesurfer.waveSurfer.getCurrentTime())
+            );
           }
         }}
         style={{ position: "fixed", zIndex: 10, right: 120 }}
@@ -395,7 +397,9 @@ export default function Timeline(props) {
       <IconButton
         onClick={() => {
           if (wavesurfer) {
-            clickNext(findPosNext(wavesurfer.waveSurfer.getCurrentTime()));
+            wavesurfer.clickNext(
+              findPosNext(wavesurfer.waveSurfer.getCurrentTime())
+            );
           }
         }}
         style={{ position: "fixed", zIndex: 10, right: 90 }}
@@ -440,7 +444,7 @@ export default function Timeline(props) {
               onClick={() => {
                 // setWavesurfer(wavesurferInitilize(wavesurfer, start, end));
                 // wavesurfer.regions.update((start: start), (end: end));
-                addRegion(start, end);
+                wavesurfer.addRegion(start, end);
 
                 setRegion([
                   ...region,

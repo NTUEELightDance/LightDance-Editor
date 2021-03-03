@@ -135,6 +135,45 @@ class WaveSurferApp {
       );
     });
   }
+
+  addRegion(start, end) {
+    this.waveSurfer.addRegion({
+      start,
+      end,
+      loop: false,
+      color: "hsla(400, 100%, 30%, 0.5)",
+    });
+  }
+
+  zoom(newValue) {
+    this.waveSurfer.zoom(
+      (newValue *
+        (window.screen.availWidth - this.waveSurfer.params.minPxPerSec)) /
+        50
+    );
+  }
+
+  clickLast(last) {
+    this.waveSurfer.setCurrentTime(last);
+    store.dispatch(playPause(this.waveSurfer.isPlaying()));
+    store.dispatch(
+      setTime({
+        from: this.from,
+        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+      })
+    );
+  }
+
+  clickNext(next) {
+    this.waveSurfer.setCurrentTime(next);
+    store.dispatch(playPause(this.waveSurfer.isPlaying()));
+    store.dispatch(
+      setTime({
+        from: this.from,
+        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+      })
+    );
+  }
 }
 
 export default WaveSurferApp;

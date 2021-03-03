@@ -47,32 +47,6 @@ const Wavesurfer = () => {
     }
   }, [waveSurferApp, time]);
 
-  const addRegion = (start, end) => {
-    waveSurferApp.waveSurfer.addRegion({
-      start,
-      end,
-      loop: false,
-      color: "hsla(400, 100%, 30%, 0.5)",
-    });
-  };
-
-  const zoom = (newValue) => {
-    waveSurferApp.waveSurfer.zoom(
-      (newValue *
-        (window.screen.availWidth -
-          waveSurferApp.waveSurfer.params.minPxPerSec)) /
-        50
-    );
-  };
-
-  const clickLast = (last) => {
-    waveSurferApp.waveSurfer.setCurrentTime(last);
-  };
-
-  const clickNext = (next) => {
-    waveSurferApp.waveSurfer.setCurrentTime(next);
-  };
-
   // event
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
@@ -109,13 +83,7 @@ const Wavesurfer = () => {
           <StopIcon />
         </Button>
       </div>
-      <Setting
-        wavesurfer={waveSurferApp}
-        addRegion={addRegion}
-        zoom={zoom}
-        clickLast={clickLast}
-        clickNext={clickNext}
-      />
+      <Setting wavesurfer={waveSurferApp} />
       <div id="waveform" />
     </div>
   );
