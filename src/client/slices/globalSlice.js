@@ -12,7 +12,7 @@ import {
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 
-import { syncPost } from "../api";
+import { syncPost, Login } from "../api";
 
 export const globalSlice = createSlice({
   name: "global",
@@ -37,6 +37,11 @@ export const globalSlice = createSlice({
     mode: 0, // 0: nothing, 1: edit, 2: add
 
     presets: [],
+
+    username,
+    branch,
+    isLogin,
+    lastUpdateTime,
   },
   reducers: {
     /**
@@ -553,6 +558,13 @@ export const globalSlice = createSlice({
       state.presets.splice(idx, 1);
       setItem("presets", JSON.stringify(state.presets));
     },
+
+    /**
+     * Login
+     */
+    login: (state, action) => {
+      Login(action.username, action.password);
+    },
   },
 });
 
@@ -592,6 +604,8 @@ export const {
   editPresetsName,
   addPresets,
   deletePresets,
+
+  login,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;
