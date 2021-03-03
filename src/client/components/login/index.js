@@ -1,70 +1,76 @@
-import react, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import Dialog from "@material-ui/core/Dialog";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+
+import { login } from "../../slices/globalSlice";
+
+import store from "../../store";
 
 export default function Login() {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
+  const [open, setOpen] = useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleLogin = () => {
+    console.log("login");
+    store.dispatch(login(username, password));
+    setOpen(false);
+  };
 
   return (
     <div>
-      <header className="App-header">
-        <div className="Login">
+      <Button
+        onClick={handleOpen}
+        Button
+        size="small"
+        variant="text"
+        color="default"
+      >
+        LOGIN
+      </Button>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle id="max-width-dialog-title">Login</DialogTitle>
+        <DialogContent>
           <TextField
-            variant="standard"
-            placeholder="Username"
-            margin="normal"
-            required
+            autoFocus
+            margin="dense"
+            id="name"
+            label="username"
+            type="email"
+            fullWidth
             onChange={(e) => setUsername(e.target.value)}
             value={username}
           />
           <TextField
-            variant="standard"
-            placeholder="Password"
-            margin="normal"
-            required
+            autoFocus
+            margin="dense"
+            id="name"
+            label="password"
             type="password"
-            onChange={this.setPassword}
-            value={this.state.password}
+            fullWidth
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
           />
-
-          <div className="Button">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                this.signIn();
-              }}
-            >
-              Log In
-            </Button>
-          </div>
-        </div>
-        <Dialog
-          open={this.state.open}
-          onClose={this.handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Sign In</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {this.state.message}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
-              Okay
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </header>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleLogin} color="primary">
+            LOGIN
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

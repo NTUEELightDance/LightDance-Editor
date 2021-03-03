@@ -8,6 +8,7 @@ import PauseIcon from "@material-ui/icons/Pause";
 import StopIcon from "@material-ui/icons/Stop";
 // my class
 import WaveSurferApp from "./waveSurferApp";
+import Login from "../login";
 // selector
 import { selectGlobal } from "../../slices/globalSlice";
 // constants
@@ -49,27 +50,27 @@ const Wavesurfer = () => {
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
 
-  const syncPost = (type, mode, data) => {
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+  // const syncPost = (type, mode, data) => {
+  //   const myHeaders = new Headers();
+  //   myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
-    const urlencoded = new URLSearchParams();
-    urlencoded.append("type", type);
-    urlencoded.append("mode", mode);
-    urlencoded.append("data", data);
+  //   const urlencoded = new URLSearchParams();
+  //   urlencoded.append("type", type);
+  //   urlencoded.append("mode", mode);
+  //   urlencoded.append("data", data);
 
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: urlencoded,
-      redirect: "follow",
-    };
+  //   const requestOptions = {
+  //     method: "POST",
+  //     headers: myHeaders,
+  //     body: urlencoded,
+  //     redirect: "follow",
+  //   };
 
-    return fetch("/api/sync", requestOptions)
-      .then((response) => response.text())
-      .then((result) => console.log(result))
-      .catch((error) => console.log("error", error));
-  };
+  //   return fetch("/api/sync", requestOptions)
+  //     .then((response) => response.text())
+  //     .then((result) => console.log(result))
+  //     .catch((error) => console.log("error", error));
+  // };
 
   return (
     <div style={{ height: "100%" }}>
@@ -102,9 +103,7 @@ const Wavesurfer = () => {
         >
           <StopIcon />
         </Button>
-        <Button size="small" variant="text" color="default" onClick={syncPost}>
-          SYNC
-        </Button>
+        <Login />
       </div>
       <div id="waveform" />
     </div>
