@@ -164,6 +164,7 @@ export const globalSlice = createSlice({
         const data = {
           status: JSON.stringify(state.currentStatus),
           frame: state.timeData.controlFrame,
+          fade: state.currentFade,
         };
         syncPost("control", "EDIT", JSON.stringify(data));
       } else if (state.mode === ADD) {
@@ -176,12 +177,14 @@ export const globalSlice = createSlice({
         state.controlRecord.splice(state.timeData.controlFrame + 1, sub, {
           start: state.timeData.time,
           status: state.currentStatus,
+          fade: state.currentFade,
         });
 
         const data = {
           status: JSON.stringify(state.currentStatus),
           frame: state.timeData.controlFrame + 1,
           time: state.timeData.time,
+          fade: state.currentFade,
         };
 
         if (sub) syncPost("control", "EDIT", JSON.stringify(data));
@@ -202,22 +205,26 @@ export const globalSlice = createSlice({
         let { frame } = data;
         frame = Number(frame);
         state.controlRecord[frame].status = JSON.parse(data.status);
+        state.controlRecord[frame].fade = data.fade;
         if (frame === state.timeData.controlFrame) {
           state.currentStatus = JSON.parse(data.status);
         }
       }
       if (mode === "ADD") {
         let { frame } = data;
-        const { time, status } = data;
+        const { time, status, fade } = data;
         frame = Number(frame);
         state.controlRecord.splice(frame, 0, {
           start: Number(time),
           status: JSON.parse(status),
+          fade,
         });
         if (frame === state.timeData.controlFrame) {
           state.currentStatus = JSON.parse(status);
+          state.currentFade = fade;
         }
       }
+      setItem("control", JSON.stringify(state.controlRecord));
     },
 
     /**
@@ -233,6 +240,8 @@ export const globalSlice = createSlice({
         console.error(`Can't Delete Frame 0`);
         return;
       }
+      const data = { frame: state.timeData.controlFrame };
+      syncPost("control", "DEL", JSON.stringify(data));
       state.controlRecord.splice(state.timeData.controlFrame, 1);
       setItem("control", JSON.stringify(state.controlRecord));
     },
@@ -324,6 +333,7 @@ export const globalSlice = createSlice({
         //   state.currentStatus = JSON.parse(pos);
         // }
       }
+      setItem("position", JSON.stringify(state.posRecord));
     },
 
     /**
@@ -339,8 +349,25 @@ export const globalSlice = createSlice({
         console.error(`Can't Delete Frame 0`);
         return;
       }
+      const data = { frame: state.timeData.posFrame };
+      syncPost("position", "DEL", JSON.stringify(data));
       state.posRecord.splice(state.timeData.posFrame, 1);
       setItem("position", JSON.stringify(state.posRecord));
+    },
+
+    /**
+     * sync Delete
+     */
+    syncDelete: (state, deleteData) => {
+      const data = JSON.parse(deleteData.payload.data);
+      if (deleteData.payload.type === "position") {
+        state.posRecord.splice(data.frame, 1);
+        setItem("control", JSON.stringify(state.controlRecord));
+      }
+      if (deleteData.payload.type === "control") {
+        state.controlRecord.splice(data.frame, 1);
+        setItem("position", JSON.stringify(state.posRecord));
+      }
     },
 
     /**
@@ -551,6 +578,8 @@ export const {
   saveCurrentPos,
   syncPos,
   deleteCurrentPos,
+
+  syncDelete,
 
   setTime,
   setPosFrame,

@@ -1,4 +1,4 @@
-import { syncPos, syncStatus } from "./slices/globalSlice";
+import { syncPos, syncStatus, syncDelete } from "./slices/globalSlice";
 import store from "./store";
 
 export const multiEditAgent = (e) => {
@@ -18,6 +18,9 @@ export const multiEditAgent = (e) => {
     if (type === "position") {
       store.dispatch(syncPos(JSON.parse(e.data)));
     }
+  }
+  if (mode === "DEL") {
+    store.dispatch(syncDelete(JSON.parse(e.data)));
   }
 };
 
