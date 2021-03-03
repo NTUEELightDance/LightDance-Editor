@@ -9,8 +9,6 @@ services:
       - ./asset:/app/asset
     links:
       - mongo
-    environment:
-      NODE_ENV: prod
   mongo:
     image: mongo
     volumes:
