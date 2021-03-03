@@ -26,19 +26,13 @@ export default function Login() {
 
   const handleLogin = () => {
     console.log("login");
-    store.dispatch(login(username, password));
+    store.dispatch(login({ username, password }));
     setOpen(false);
   };
 
   return (
     <div>
-      <Button
-        onClick={handleOpen}
-        Button
-        size="small"
-        variant="text"
-        color="default"
-      >
+      <Button onClick={handleOpen} size="small" variant="text" color="default">
         LOGIN
       </Button>
       <Dialog open={open} onClose={handleClose}>

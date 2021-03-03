@@ -15,7 +15,7 @@ router.route("/").post(
     } else if (password !== user.password) {
       res.status(401).send("wrong password");
     } else {
-      res.status(201).send(username);
+      res.status(201).send({ username });
     }
     console.log(user);
     console.log(password);

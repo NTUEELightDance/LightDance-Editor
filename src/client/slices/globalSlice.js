@@ -615,8 +615,8 @@ export const globalSlice = createSlice({
      * Login
      */
     login: (state, action) => {
-      console.log(action);
-      loginPost(action.username, action.password);
+      const { username, password } = action.payload;
+      loginPost(username, password);
     },
   },
 });
