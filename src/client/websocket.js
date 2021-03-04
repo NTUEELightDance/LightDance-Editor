@@ -29,6 +29,7 @@ class WebSocketAPI {
       }
     }
     if (mode === "DEL") {
+      console.log(JSON.parse(e.data));
       store.dispatch(syncDelete(JSON.parse(e.data)));
     }
   }

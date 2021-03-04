@@ -7,14 +7,17 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-import { login } from "../../slices/globalSlice";
+import { useSelector } from "react-redux";
 
-import store from "../../store";
+import { loginPost } from "../../api";
+
+import { selectGlobal } from "../../slices/globalSlice";
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [open, setOpen] = useState(false);
+  const { username } = useSelector(selectGlobal);
 
   const handleClose = () => {
     setOpen(false);
@@ -26,14 +29,14 @@ export default function Login() {
 
   const handleLogin = () => {
     console.log("login");
-    store.dispatch(login({ username, password }));
+    loginPost(user, password);
     setOpen(false);
   };
 
   return (
     <div>
       <Button onClick={handleOpen} size="small" variant="text" color="default">
-        LOGIN
+        {username || "LOGIN"}
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle id="max-width-dialog-title">Login</DialogTitle>
@@ -45,8 +48,8 @@ export default function Login() {
             label="username"
             type="email"
             fullWidth
-            onChange={(e) => setUsername(e.target.value)}
-            value={username}
+            onChange={(e) => setUser(e.target.value)}
+            value={user}
           />
           <TextField
             margin="dense"
