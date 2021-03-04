@@ -324,19 +324,20 @@ export const globalSlice = createSlice({
       } else if (state.mode === ADD) {
         let sub = false;
         if (
-          state.controlRecord[state.timeData.posFrame + 1].start ===
-          state.timeData.time
+          state.posRecord[state.timeData.posFrame].start === state.timeData.time
         )
           sub = true;
 
-        state.posRecord.splice(state.timeData.posFrame + 1, sub, {
+        console.log(sub);
+
+        state.posRecord.splice(state.timeData.posFrame, sub, {
           start: state.timeData.time,
           pos: state.currentPos,
         });
 
         const data = {
           pos: JSON.stringify(state.currentPos),
-          frame: state.timeData.posFrame + 1,
+          frame: state.timeData.posFrame + 1 - sub,
           time: state.timeData.time,
         };
 
