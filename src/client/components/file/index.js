@@ -54,22 +54,27 @@ export default function File() {
       const data = JSON.parse(e.target.result);
       if (Array.isArray(data) && data.length !== 0) valid = true;
 
-      data.map((Data) => {
-        if (!("start" in Data)) valid = false;
-        if (!("pos" in Data)) valid = false;
+      if (valid)
+        data.map((Data) => {
+          try {
+            if (!("start" in Data)) valid = false;
+            if (!("pos" in Data)) valid = false;
 
-        const dancerKeys = Object.keys(Data.pos);
-        dancerKeys.map((key) => {
-          if (
-            !(
-              "x" in Data.pos[key] &&
-              "y" in Data.pos[key] &&
-              "z" in Data.pos[key]
-            )
-          )
+            const dancerKeys = Object.keys(Data.pos);
+            dancerKeys.map((key) => {
+              if (
+                !(
+                  "x" in Data.pos[key] &&
+                  "y" in Data.pos[key] &&
+                  "z" in Data.pos[key]
+                )
+              )
+                valid = false;
+            });
+          } catch (error) {
             valid = false;
+          }
         });
-      });
       if (!valid) alert("Wrong JSON format");
       else {
         alert("success");
@@ -85,11 +90,13 @@ export default function File() {
     reader.onload = (e) => {
       const data = JSON.parse(e.target.result);
       if (Array.isArray(data) && data.length !== 0) valid = true;
-      data.map((Data) => {
-        if (!("start" in Data)) valid = false;
-        if (!("fade" in Data)) valid = false;
-        if (!("status" in Data)) valid = false;
-      });
+
+      if (valid)
+        data.map((Data) => {
+          if (!("start" in Data)) valid = false;
+          if (!("fade" in Data)) valid = false;
+          if (!("status" in Data)) valid = false;
+        });
       if (!valid) alert("Wrong JSON format");
       else {
         alert("success");
