@@ -40,7 +40,7 @@ export const getBranches = () => {
     method: "GET",
   })
     .then((response) => response.text())
-    .then((result) => console.log(JSON.parse(result).data))
+    .then((result) => console.log(JSON.parse(result).branches))
     .catch((error) => console.log("error", error));
 };
 

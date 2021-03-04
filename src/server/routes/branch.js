@@ -12,7 +12,9 @@ router
   .route("/")
   .get(
     asyncHandler(async (req, res) => {
-      res.send(await db.findAllBranches());
+      const branches = await db.findAllBranches();
+      const responseData = Object.values(branches).map((e) => e.name);
+      res.send({ branches: responseData });
     })
   )
   .post(
