@@ -69,7 +69,7 @@ export default function File() {
           Upload [name].png (should select part)
         </Typography>
 
-        <input type="file" />
+        <input type="file" accept="image/*" multiple />
       </div>
       <br />
       <Divider />
