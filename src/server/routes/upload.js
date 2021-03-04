@@ -14,10 +14,9 @@ router.post(
   asyncHandler(async (req, res) => {
     // Uploaded files
     console.log(req.files);
-    // console.log(req.files.my_profile_pic.name);
-    // console.log(req.files.my_pet.name);
-    // console.log(req.files.my_cover_photo.name);
-    res.send("get");
+    console.log(req.body);
+
+    res.send("success");
   })
 );
 

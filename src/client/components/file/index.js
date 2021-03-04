@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+
 // mui
 import { makeStyles } from "@material-ui/styles";
 import Button from "@material-ui/core/Button";
@@ -13,6 +15,8 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { setItem, getItem } from "../../utils/localStorage";
+
+import { uploadImages } from "../../api";
 
 const useStyles = makeStyles({});
 
@@ -36,11 +40,26 @@ const useStyles = makeStyles({});
 export default function File() {
   const classes = useStyles();
   // upload to server
+  const { texture } = useSelector(selectLoad);
   const [toServer, setToServer] = useState(false);
+  const [posRecordFile, setPosRecordFile] = useState(null);
+  const [controlRecordFile, setControlRecordFile] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]);
+  const [path, setPath] = useState("default path");
+
+  const handlePosInput = (e) => {
+    setPosRecordFile(e.target.files);
+  };
+  const handleControlInput = (e) => {
+    setControlRecordFile(e.target.files);
+  };
 
   const handleImagesInput = (e) => {
     setSelectedImages(e.target.files);
+  };
+
+  const handlePathChange = (e) => {
+    setPath(e.target.value);
   };
 
   const handleSwitchServer = () => setToServer(!toServer);
@@ -62,38 +81,47 @@ export default function File() {
           <Typography variant="h6" color="initial">
             Upload control.json
           </Typography>
-          <input type="file" />
+          <input
+            id="control"
+            name="control"
+            type="file"
+            onChange={handleControlInput}
+          />
         </div>
         <div>
           <Typography variant="h6" color="initial">
             Upload position.json
           </Typography>
-          <input type="file" />
+          <input
+            id="position"
+            name="position"
+            type="file"
+            onChange={handlePosInput}
+          />
         </div>
       </div>
       <div>
         <Typography variant="h6" color="initial">
           Upload [name].png (should select part)
         </Typography>
-        <form
-          method="post"
-          encType="multipart/form-data"
-          action="/api/upload/images"
-        >
-          <div>
-            <input
-              id="images"
-              name="images"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImagesInput}
-            />
-          </div>
-          <div>
-            <input type="submit" value="Upload!" />
-          </div>
-        </form>
+
+        <div>
+          <input
+            id="images"
+            name="images"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImagesInput}
+          />
+        </div>
+        <select value={path} onChange={handlePathChange}>
+          {Object.keys(texture.LEDPARTS).map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
       </div>
       <br />
       <Divider />
@@ -102,7 +130,7 @@ export default function File() {
         variant="outlined"
         color="default"
         onClick={() => {
-          console.log(selectedImages);
+          uploadImages(selectedImages, path);
         }}
       >
         list selected files

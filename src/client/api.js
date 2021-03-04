@@ -74,15 +74,23 @@ export const deleteBranch = (branchName) => {
 
 export const uploadImages = (files, path) => {
   const formData = new FormData();
-
-  // HTML file input, chosen by user
-  formData.append("file", files[0]);
+  files.forEach((file, i) => {
+    formData.append(`image${i}`, file);
+  });
 
   formData.append("path", path);
 
-  const request = new XMLHttpRequest();
-  request.open("POST", "/upload/images");
-  request.send(formData);
+  fetch("/api/upload/images", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 export const CommandAgent = () => {};
