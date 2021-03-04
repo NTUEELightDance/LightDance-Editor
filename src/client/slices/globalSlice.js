@@ -224,8 +224,12 @@ export const globalSlice = createSlice({
      * @param {*} state
      */
     syncStatus: (state, syncData) => {
-      const { mode } = syncData.payload;
+      const { mode, from, time } = syncData.payload;
       const data = JSON.parse(syncData.payload.data);
+
+      state.lastUpdateTime = time;
+      setItem("lastUpdateTime", state.lastUpdateTime);
+
       if (mode === "EDIT") {
         let { frame } = data;
         frame = Number(frame);
@@ -235,7 +239,7 @@ export const globalSlice = createSlice({
           state.currentStatus = JSON.parse(data.status);
         }
       }
-      if (mode === "ADD") {
+      if (mode === "ADD" && from !== state.username) {
         let { frame } = data;
         const { time, status, fade } = data;
         frame = Number(frame);
@@ -362,8 +366,12 @@ export const globalSlice = createSlice({
      * @param {*} state
      */
     syncPos: (state, syncData) => {
-      const { mode } = syncData.payload;
+      const { mode, from, time } = syncData.payload;
       const data = JSON.parse(syncData.payload.data);
+
+      state.lastUpdateTime = time;
+      setItem("lastUpdateTime", state.lastUpdateTime);
+
       if (mode === "EDIT") {
         let { frame } = data;
         frame = Number(frame);
@@ -372,7 +380,7 @@ export const globalSlice = createSlice({
           state.currentPos = JSON.parse(data.pos);
         }
       }
-      if (mode === "ADD") {
+      if (mode === "ADD" && from !== state.username) {
         let { frame } = data;
         const { time, pos } = data;
         frame = Number(frame);
@@ -416,7 +424,12 @@ export const globalSlice = createSlice({
      * sync Delete
      */
     syncDelete: (state, deleteData) => {
+      const { time } = deleteData.payload;
       const data = JSON.parse(deleteData.payload.data);
+
+      state.lastUpdateTime = time;
+      setItem("lastUpdateTime", state.lastUpdateTime);
+
       if (deleteData.payload.type === "position") {
         state.posRecord.splice(data.frame, 1);
         setItem("control", JSON.stringify(state.controlRecord));
