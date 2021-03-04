@@ -6,7 +6,7 @@ const syncRouter = require("./sync");
 const fetchRouter = require("./fetch");
 const branchRouter = require("./branch");
 const registerRouter = require("./register");
-
+const uploadRouter = require("./upload");
 // constants
 const { COMMANDS } = require("../../constant");
 
@@ -29,6 +29,9 @@ router.use("/fetch", fetchRouter);
 
 // Handle fetcg get
 router.use("/branch", branchRouter);
+
+// Handle fetcg get
+router.use("/upload", uploadRouter);
 
 // Handle command post
 COMMANDS.forEach((command) => {

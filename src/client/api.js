@@ -72,4 +72,17 @@ export const deleteBranch = (branchName) => {
     .catch((error) => console.log("error", error));
 };
 
+export const uploadImages = (files, path) => {
+  const formData = new FormData();
+
+  // HTML file input, chosen by user
+  formData.append("file", files[0]);
+
+  formData.append("path", path);
+
+  const request = new XMLHttpRequest();
+  request.open("POST", "/upload/images");
+  request.send(formData);
+};
+
 export const CommandAgent = () => {};

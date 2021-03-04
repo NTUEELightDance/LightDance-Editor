@@ -5,8 +5,8 @@ const express = require("express");
 const path = require("path");
 const http = require("http");
 const mongoose = require("mongoose");
-const WebSocketApp = require("./websocket");
 const bodyParser = require("body-parser");
+const WebSocketApp = require("./websocket");
 
 const apiRouter = require("./routes");
 

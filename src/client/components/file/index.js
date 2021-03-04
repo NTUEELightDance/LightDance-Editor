@@ -32,10 +32,17 @@ const useStyles = makeStyles({});
  * |- position.json
  * |- texture.json
  */
+
 export default function File() {
   const classes = useStyles();
   // upload to server
   const [toServer, setToServer] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
+
+  const handleImagesInput = (e) => {
+    setSelectedImages(e.target.files);
+  };
+
   const handleSwitchServer = () => setToServer(!toServer);
   // TODO: make upload and download functional
   return (
@@ -68,12 +75,38 @@ export default function File() {
         <Typography variant="h6" color="initial">
           Upload [name].png (should select part)
         </Typography>
-
-        <input type="file" accept="image/*" multiple />
+        <form
+          method="post"
+          encType="multipart/form-data"
+          action="/api/upload/images"
+        >
+          <div>
+            <input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImagesInput}
+            />
+          </div>
+          <div>
+            <input type="submit" value="Upload!" />
+          </div>
+        </form>
       </div>
       <br />
       <Divider />
       <br />
+      <Button
+        variant="outlined"
+        color="default"
+        onClick={() => {
+          console.log(selectedImages);
+        }}
+      >
+        list selected files
+      </Button>
       <Button variant="outlined" color="default">
         download
       </Button>
