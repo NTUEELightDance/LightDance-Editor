@@ -5,7 +5,7 @@ const db = require("../db");
 
 const router = express.Router();
 
-db.initialize();
+// db.initialize();
 
 // Handle login post
 router

@@ -15,8 +15,10 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { setItem, getItem } from "../../utils/localStorage";
-
+// api
 import { uploadImages } from "../../api";
+// utils
+import { checkControlJson, checkPosJson, checkImages } from "./utils";
 
 const useStyles = makeStyles({});
 
@@ -42,77 +44,18 @@ export default function File() {
   // upload to server
   const { texture } = useSelector(selectLoad);
   const [toServer, setToServer] = useState(false);
-  const [posRecordFile, setPosRecordFile] = useState(null);
   const [controlRecordFile, setControlRecordFile] = useState(null);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [path, setPath] = useState("default path");
-
-  const checkPosJsonValidation = (file) => {
-    let valid = false;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = JSON.parse(e.target.result);
-      if (Array.isArray(data) && data.length !== 0) valid = true;
-
-      if (valid)
-        data.map((Data) => {
-          try {
-            if (!("start" in Data)) valid = false;
-            if (!("pos" in Data)) valid = false;
-
-            const dancerKeys = Object.keys(Data.pos);
-            dancerKeys.map((key) => {
-              if (
-                !(
-                  "x" in Data.pos[key] &&
-                  "y" in Data.pos[key] &&
-                  "z" in Data.pos[key]
-                )
-              )
-                valid = false;
-            });
-          } catch (error) {
-            valid = false;
-          }
-        });
-      if (!valid) alert("Wrong JSON format");
-      else {
-        alert("success");
-        setPosRecordFile(file);
-      }
-    };
-    reader.readAsText(file[0]);
-  };
-
-  const checkControlJsonValidation = (file) => {
-    let valid = false;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = JSON.parse(e.target.result);
-      if (Array.isArray(data) && data.length !== 0) valid = true;
-
-      if (valid)
-        data.map((Data) => {
-          if (!("start" in Data)) valid = false;
-          if (!("fade" in Data)) valid = false;
-          if (!("status" in Data)) valid = false;
-        });
-      if (!valid) alert("Wrong JSON format");
-      else {
-        alert("success");
-        setControlRecordFile(file);
-      }
-    };
-    reader.readAsText(file[0]);
-  };
+  const [posRecordFile, setPosRecordFile] = useState(null);
+  const [selectedImages, setSelectedImages] = useState(null);
+  const [path, setPath] = useState("");
 
   const handlePosInput = (e) => {
-    checkPosJsonValidation(e.target.files);
-    // setPosRecordFile(e.target.files);
+    // checkPosJson(e.target.files);
+    setPosRecordFile(e.target.files);
   };
   const handleControlInput = (e) => {
-    checkControlJsonValidation(e.target.files);
-    // setControlRecordFile(e.target.files);
+    // checkControlJson(e.target.files);
+    setControlRecordFile(e.target.files);
   };
 
   const handleImagesInput = (e) => {
@@ -121,6 +64,22 @@ export default function File() {
 
   const handlePathChange = (e) => {
     setPath(e.target.value);
+  };
+
+  const handleUpload = () => {
+    if (controlRecordFile) {
+      checkControlJson(controlRecordFile);
+      setControlRecordFile(undefined);
+    }
+    if (posRecordFile) {
+      checkPosJson(posRecordFile);
+      setPosRecordFile(undefined);
+    }
+    if (selectedImages && path) {
+      checkImages(selectedImages, path);
+      setSelectedImages(undefined);
+      setPath("");
+    }
   };
 
   const handleSwitchServer = () => setToServer(!toServer);
@@ -193,10 +152,10 @@ export default function File() {
         variant="outlined"
         color="default"
         onClick={() => {
-          uploadImages(selectedImages, path);
+          handleUpload();
         }}
       >
-        list selected files
+        Upload
       </Button>
       <Button variant="outlined" color="default">
         download

@@ -59,24 +59,29 @@ const port = 8080;
 
 // db settings below
 
-const dbOptions = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  auto_reconnect: true,
-  useUnifiedTopology: true,
-  poolSize: 10,
-};
+// const dbOptions = {
+//   useNewUrlParser: true,
+//   useCreateIndex: true,
+//   auto_reconnect: true,
+//   useUnifiedTopology: true,
+//   poolSize: 10,
+// };
 
-mongoose.connect("mongodb://localhost:27017", dbOptions);
-const db = mongoose.connection;
+// mongoose.connect("mongodb://localhost:27017", dbOptions);
+// const db = mongoose.connection;
 
-db.on("error", console.error.bind(console, "connection error:"));
+// db.on("error", console.error.bind(console, "connection error:"));
 
-db.once("open", () => {
-  console.log("Successfully connect to MongoDB!");
+// db.once("open", () => {
+//   console.log("Successfully connect to MongoDB!");
 
-  server.listen(port, () => {
-    wss.listen();
-    console.log(`Listening on http://localhost:${port}`);
-  });
+//   server.listen(port, () => {
+//     wss.listen();
+//     console.log(`Listening on http://localhost:${port}`);
+//   });
+// });
+
+server.listen(port, () => {
+  wss.listen();
+  console.log(`Listening on http://localhost:${port}`);
 });
