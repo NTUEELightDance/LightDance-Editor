@@ -18,10 +18,14 @@ import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { setItem, getItem } from "../../utils/localStorage";
 // api
-import { uploadImages, requestDowload } from "../../api";
+import { uploadImages, requestDownload } from "../../api";
 // utils
-import { checkControlJson, checkPosJson, uploadJson } from "./utils";
-import store from "../../store";
+import {
+  downloadEverything,
+  checkControlJson,
+  checkPosJson,
+  uploadJson,
+} from "./utils";
 
 const useStyles = makeStyles({});
 
@@ -74,7 +78,6 @@ export default function File() {
   const handleControlUpload = async () => {
     if (controlRecordFile) {
       const control = await uploadJson(controlRecordFile);
-      console.log(control);
       if (checkControlJson(control)) {
         if (
           window.confirm(
@@ -91,7 +94,6 @@ export default function File() {
   const handlePosUpload = async () => {
     if (posRecordFile) {
       const position = await uploadJson(posRecordFile);
-      console.log(position);
       if (checkPosJson(position)) {
         if (
           window.confirm(
@@ -112,8 +114,8 @@ export default function File() {
     }
   };
 
-  const handleDownload = async () => {
-    requestDowload(controlRecord, posRecord, texture);
+  const handleDownload = () => {
+    downloadEverything(controlRecord, posRecord, texture);
   };
 
   const handleSwitchServer = () => setToServer(!toServer);

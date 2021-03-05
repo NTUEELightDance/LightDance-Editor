@@ -7,6 +7,7 @@ const fs = require("fs");
 // const branchRouter = require("./branch");
 // const registerRouter = require("./register");
 const uploadRouter = require("./upload");
+const downloadRouter = require("./download");
 // constants
 const { COMMANDS } = require("../../constant");
 
@@ -32,6 +33,9 @@ const router = express.Router();
 
 // Handle fetcg get
 router.use("/upload", uploadRouter);
+
+// Handle fetcg get
+router.use("/download", downloadRouter);
 
 // Handle command post
 COMMANDS.forEach((command) => {

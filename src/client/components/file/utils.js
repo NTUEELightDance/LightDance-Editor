@@ -1,9 +1,13 @@
 /* eslint-disable no-console */
+// for zip
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+import JSZipUtils from "jszip-utils";
+
 // import store
 import store from "../../store";
 
 export const uploadJson = (files) => {
-  console.log(files);
   return new Promise((resolve, reject) => {
     const file = files[0];
     const reader = new FileReader();
@@ -108,5 +112,66 @@ export const checkPosJson = (position) => {
       }
       return true;
     });
+  });
+};
+
+const createFolder = (currentFolder, remainPath) => {
+  if (remainPath.length && !(remainPath[0] in currentFolder.files)) {
+    const newFolder = currentFolder.folder(remainPath[0]);
+    return createFolder(newFolder, remainPath.slice(1));
+  }
+  return currentFolder;
+};
+
+const urlToPromise = (url) =>
+  new Promise(function (resolve, reject) {
+    JSZipUtils.getBinaryContent(url, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+
+// * |- asset/
+//  *      |- BlackPart
+//  *      |- LED
+//  *      |- Part
+//  * |- control.json
+//  * |- position.json
+//  * |- texture.json
+
+export const downloadEverything = async (control, position, texture) => {
+  const zip = new JSZip();
+  zip.file("control.json", JSON.stringify(control));
+  zip.file("position.json", JSON.stringify(position));
+  zip.file("texture.json", JSON.stringify(texture));
+
+  Object.keys(texture).forEach((partType) => {
+    // here, the image is fetched from the server, only to be zippeds
+    Object.values(texture[partType]).forEach((partData) => {
+      const { prefix, name, postfix } = partData;
+      const folderToStore = createFolder(zip, prefix.split("/").slice(1));
+      if (typeof name === "string") {
+        const href = `${prefix}${name}${postfix}`;
+        folderToStore.file(`${name}${postfix}`, urlToPromise(href), {
+          binary: true,
+        });
+      } else {
+        name.forEach((partName) => {
+          const href = `${prefix}${partName}${postfix}`;
+          folderToStore.file(`${partName}${postfix}`, urlToPromise(href), {
+            binary: true,
+          });
+        });
+      }
+    });
+  });
+  const now = new Date();
+  const timeStamp = now.toJSON().slice(0, 10).split("-").join("_");
+  zip.generateAsync({ type: "blob" }).then((content) => {
+    // see FileSaver.js
+    saveAs(content, `light_dance_${timeStamp}.zip`);
   });
 };

@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === "dev") {
   app.use(express.static(buildPath));
 }
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "10mb" }));
 
 const assetPath = path.resolve(__dirname, "..", "..", "./asset");
 app.use("/asset", express.static(assetPath));

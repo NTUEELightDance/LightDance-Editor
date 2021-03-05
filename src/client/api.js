@@ -111,17 +111,17 @@ export const uploadImages = (files, path) => {
     });
 };
 
-export const requestDowload = (control, position, texture) => {
-  const formData = new FormData();
-
-  formData.append("control", control);
-  formData.append("position", position);
+export const requestDownload = (control, position, texture) => {
+  const payload = JSON.stringify({ control, position, texture });
 
   fetch("/api/download", {
     method: "POST",
-    body: formData,
+    body: payload,
+    headers: {
+      "Content-Type": "application/json",
+    },
   })
-    .then((response) => response.json())
+    .then((response) => response.text())
     .then((data) => {
       console.log(data);
     })
