@@ -72,6 +72,25 @@ export const deleteBranch = (branchName) => {
     .catch((error) => console.log("error", error));
 };
 
+export const uploadJson = (file, type) => {
+  const formData = new FormData();
+
+  formData.append(type, file);
+  if (type === "position" && type === "control") {
+    fetch(`/api/upload/${type}`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+};
+
 export const uploadImages = (files, path) => {
   const formData = new FormData();
   files.forEach((file, i) => {

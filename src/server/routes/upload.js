@@ -10,9 +10,10 @@ router.use(fileUpload());
 // Handle upload post
 
 router.post(
-  "/images",
+  "/:fileType",
   asyncHandler(async (req, res) => {
     // Uploaded files
+    console.log(req.params.fileType);
     console.log(req.files);
     console.log(req.body);
 

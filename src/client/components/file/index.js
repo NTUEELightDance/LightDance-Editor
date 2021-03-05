@@ -85,6 +85,7 @@ export default function File() {
             id="control"
             name="control"
             type="file"
+            accept=".json"
             onChange={handleControlInput}
           />
         </div>
@@ -96,6 +97,7 @@ export default function File() {
             id="position"
             name="position"
             type="file"
+            accept=".json"
             onChange={handlePosInput}
           />
         </div>
