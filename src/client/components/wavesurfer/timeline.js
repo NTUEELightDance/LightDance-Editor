@@ -17,8 +17,17 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
 import SkipNextIcon from "@material-ui/icons/SkipNext";
 import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
+import PublishIcon from "@material-ui/icons/Publish";
+import DeleteIcon from "@material-ui/icons/Delete";
+import AddIcon from "@material-ui/icons/Add";
 
 // constant
+import {
+  Box,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+} from "@material-ui/core";
 import load from "../../../../data/load.json";
 
 // local storage
@@ -36,16 +45,17 @@ export default function Timeline(props) {
   const [filterNow, setFilterNow] = useState("lowpass");
   const [open, setOpen] = useState(false);
   const [subThrRatioChange, setSubThrRatio] = useState(false);
-  const [newStart, setNewStart] = useState();
-  const [newEnd, setNewEnd] = useState();
+  const [newStart, setNewStart] = useState("");
+  const [newEnd, setNewEnd] = useState("");
   const [ratio, setRatio] = useState(0);
-  const [start, setStart] = useState();
-  const [end, setEnd] = useState();
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [expanded, setExpanded] = useState(false);
 
   const { wavesurfer } = props;
 
-  const upperBPM = 200;
-  const lowerBPM = 90;
+  // const upperBPM = 200;
+  // const lowerBPM = 90;
 
   function loadMusic(url, filterType) {
     const request = new XMLHttpRequest();
@@ -236,13 +246,20 @@ export default function Timeline(props) {
 
   useEffect(() => {
     if (DATA) findPeakAndCountBPM(DATA);
-  }, DATA);
+  }, [DATA]);
 
   useEffect(() => {
     if (DATA) {
       findPeakAndCountBPM(DATA);
     }
   }, thrRatio);
+
+  const handelExpanded = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+    const index = panel[panel.length - 1];
+    setNewStart(region[index].Start);
+    setNewEnd(region[index].End);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -258,12 +275,13 @@ export default function Timeline(props) {
 
   const updateRegion = (regionID) => {
     const Region = Object.values(wavesurfer.waveSurfer.regions.list)[regionID];
-    Region.update({ start: newStart, end: newEnd });
+    Region.update({ start: newStart / 1000, end: newEnd / 1000 });
     const sub = region;
-    sub[regionID].Start = newStart;
-    sub[regionID].End = newEnd;
+    sub[regionID].Start = newStart / 1000;
+    sub[regionID].End = newEnd / 1000;
     setRegion(sub);
     setItem("region", JSON.stringify(sub));
+    setExpanded(false);
     setNewStart("");
     setNewEnd("");
   };
@@ -280,13 +298,25 @@ export default function Timeline(props) {
     }
     setRegion(sub);
     setItem("region", JSON.stringify(sub));
+    if (sub[regionID]) {
+      setNewStart(sub[regionID].Start);
+      setNewEnd(sub[regionID].End);
+    } else {
+      setNewStart("");
+      setNewEnd("");
+      setExpanded(false);
+    }
   };
 
   const Regions =
     region === []
       ? ""
       : region.map((r) => (
-          <Accordion>
+          <Accordion
+            expanded={expanded === `panel${r.Value}`}
+            onChange={handelExpanded(`panel${r.Value}`)}
+            key={`panel${r.Value}`}
+          >
             <AccordionSummary
               aria-controls="panel1a-content"
               id="panel1a-header"
@@ -295,60 +325,62 @@ export default function Timeline(props) {
             </AccordionSummary>
             <AccordionDetails>
               <TextField
-                id="standard-basic"
                 label="Start"
                 placeholder="start"
                 value={newStart}
                 onChange={(e) => {
                   setNewStart(e.target.value);
                 }}
+                style={{ width: 100, marginRight: 10 }}
               />
               <TextField
-                id="standard-basic"
                 label="End"
                 placeholder="end"
                 value={newEnd}
                 onChange={(e) => {
                   setNewEnd(e.target.value);
                 }}
+                style={{ width: 100, marginRight: 10 }}
               />
-              <Button
+              <div>
+                <Typography id="discrete-slider-small-steps" gutterBottom>
+                  Threashhold Ratio: {r.ThreashRatio}
+                </Typography>
+                <Slider
+                  key={`slider-${r.ThreashRatio}`}
+                  defaultValue={r.ThreashRatio}
+                  max={35}
+                  min={5}
+                  step={1}
+                  onChange={(event, newValue) => {
+                    const sub = region;
+                    // console.log("change", sub[r.Value].ThreashRatio);
+                    sub[r.Value].ThreashRatio = newValue;
+                    setRegion(sub);
+                    setItem("region", JSON.stringify(sub));
+                    setSubThrRatio(true);
+                  }}
+                  aria-labelledby="discrete-slider-small-steps"
+                  valueLabelDisplay="auto"
+                  marks
+                />
+              </div>
+              <IconButton
                 color="primary"
                 onClick={() => {
                   updateRegion(r.Value);
                 }}
               >
-                UPDATE
-              </Button>
-              <Button
+                <PublishIcon />
+              </IconButton>
+              <IconButton
                 color="primary"
                 onClick={() => {
                   deleteRegion(r.Value);
                 }}
               >
-                DELETE
-              </Button>
-              <Typography id="discrete-slider-small-steps" gutterBottom>
-                Threashhold Ratio: {r.ThreashRatio}
-              </Typography>
-              <Slider
-                key={`slider-${r.ThreashRatio}`}
-                defaultValue={r.ThreashRatio}
-                max={35}
-                min={5}
-                step={1}
-                onChange={(event, newValue) => {
-                  const sub = region;
-                  // console.log("change", sub[r.Value].ThreashRatio);
-                  sub[r.Value].ThreashRatio = newValue;
-                  setRegion(sub);
-                  setItem("region", JSON.stringify(sub));
-                  setSubThrRatio(true);
-                }}
-                aria-labelledby="discrete-slider-small-steps"
-                valueLabelDisplay="auto"
-                marks
-              />
+                <DeleteIcon />
+              </IconButton>
             </AccordionDetails>
           </Accordion>
         ));
@@ -433,44 +465,33 @@ export default function Timeline(props) {
         <DialogContent>
           {Regions}
           <div>
-            <TextField
-              id="standard-basic"
-              label="Start"
-              placeholder="start"
-              value={start}
-              onChange={(e) => {
-                setStart(e.target.value);
-              }}
-            />
-            <TextField
-              id="standard-basic"
-              label="End"
-              placeholder="end"
-              value={end}
-              onChange={(e) => {
-                setEnd(e.target.value);
-              }}
-            />
-            <Button
-              color="primary"
-              onClick={() => {
-                // setWavesurfer(wavesurferInitilize(wavesurfer, start, end));
-                // wavesurfer.regions.update((start: start), (end: end));
-                wavesurfer.addRegion(start, end);
+            <div>
+              <TextField
+                label="Start"
+                placeholder="start"
+                value={start}
+                onChange={(e) => {
+                  setStart(e.target.value);
+                }}
+                style={{ marginRight: 10, width: 100 }}
+              />
+              <TextField
+                label="End"
+                placeholder="end"
+                value={end}
+                onChange={(e) => {
+                  setEnd(e.target.value);
+                }}
+                style={{ marginRight: 10, width: 100 }}
+              />
+              <IconButton
+                color="primary"
+                onClick={() => {
+                  // setWavesurfer(wavesurferInitilize(wavesurfer, start, end));
+                  // wavesurfer.regions.update((start: start), (end: end));
+                  wavesurfer.addRegion(start, end);
 
-                setRegion([
-                  ...region,
-                  {
-                    Start: start,
-                    End: end,
-                    Value: region.length,
-                    ThreashRatio: thrRatio,
-                  },
-                ]);
-
-                setItem(
-                  "region",
-                  JSON.stringify([
+                  setRegion([
                     ...region,
                     {
                       Start: start,
@@ -478,16 +499,30 @@ export default function Timeline(props) {
                       Value: region.length,
                       ThreashRatio: thrRatio,
                     },
-                  ])
-                );
+                  ]);
 
-                setStart("");
-                setEnd("");
-              }}
-            >
-              add
-            </Button>
-            {/* <TextField
+                  setItem(
+                    "region",
+                    JSON.stringify([
+                      ...region,
+                      {
+                        Start: start,
+                        End: end,
+                        Value: region.length,
+                        ThreashRatio: thrRatio,
+                      },
+                    ])
+                  );
+
+                  setStart("");
+                  setEnd("");
+                }}
+                style={{ marginTop: 12 }}
+              >
+                <AddIcon />
+              </IconButton>
+
+              {/* <TextField
               id="standard-basic"
               label="Zone"
               onChange={(e) => {
@@ -508,22 +543,30 @@ export default function Timeline(props) {
                 }
               }}
             /> */}
-            <Typography variant="subtitle1" gutterBottom>
-              filter type
-            </Typography>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={filterNow}
-              onChange={(e) => {
-                setFilterNow(e.target.value);
-                loadMusic(load.Music, e.target.value);
-              }}
-            >
-              <MenuItem value="lowpass">lowpass</MenuItem>
-              <MenuItem value="highpass">highpass</MenuItem>
-              <MenuItem value="notch">notch</MenuItem>
-            </Select>
+              <span style={{ marginLeft: 80 }}>
+                <FormControl>
+                  <InputLabel
+                    htmlFor="uncontrolled-native"
+                    style={{ marginTop: 5 }}
+                  >
+                    filter type
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={filterNow}
+                    onChange={(e) => {
+                      setFilterNow(e.target.value);
+                      loadMusic(load.Music, e.target.value);
+                    }}
+                  >
+                    <MenuItem value="lowpass">lowpass</MenuItem>
+                    <MenuItem value="highpass">highpass</MenuItem>
+                    <MenuItem value="notch">notch</MenuItem>
+                  </Select>
+                </FormControl>
+              </span>
+            </div>
 
             {wavesurfer === undefined ? (
               ""

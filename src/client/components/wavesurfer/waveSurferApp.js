@@ -160,8 +160,8 @@ class WaveSurferApp {
 
   addRegion(start, end) {
     this.waveSurfer.addRegion({
-      start,
-      end,
+      start: start / 1000,
+      end: end / 1000,
       loop: false,
       color: "hsla(400, 100%, 30%, 0.5)",
     });
