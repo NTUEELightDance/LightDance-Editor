@@ -165,10 +165,11 @@ export default function Timeline(props) {
           // Skip forward ~ 1/4s to get past this peak.
         }
       }
-      const front = peaksArray.filter((time) => time < region[i].Start);
-      const back = peaksArray.filter((time) => time > region[i].End);
+      const front = peaksArray.filter((time) => time < region[i].Start / 1000);
+      const back = peaksArray.filter((time) => time > region[i].End / 1000);
       peaksArray = front.concat(subPeak).concat(back);
     }
+    console.log(peaksArray);
     return peaksArray;
   }
 
@@ -272,8 +273,8 @@ export default function Timeline(props) {
     const Region = Object.values(wavesurfer.waveSurfer.regions.list)[regionID];
     Region.update({ start: newStart / 1000, end: newEnd / 1000 });
     const sub = region;
-    sub[regionID].Start = newStart / 1000;
-    sub[regionID].End = newEnd / 1000;
+    sub[regionID].Start = newStart;
+    sub[regionID].End = newEnd;
     setRegion(sub);
     setItem("region", JSON.stringify(sub));
     setExpanded(false);
@@ -482,8 +483,6 @@ export default function Timeline(props) {
               <IconButton
                 color="primary"
                 onClick={() => {
-                  // setWavesurfer(wavesurferInitilize(wavesurfer, start, end));
-                  // wavesurfer.regions.update((start: start), (end: end));
                   wavesurfer.addRegion(start, end);
 
                   setRegion([
@@ -517,27 +516,6 @@ export default function Timeline(props) {
                 <AddIcon />
               </IconButton>
 
-              {/* <TextField
-              id="standard-basic"
-              label="Zone"
-              onChange={(e) => {
-                const v = e.target.value;
-                setRegionNow(v);
-                if (
-                  v < region.length &&
-                  v >= 0 &&
-                  !Number.isNaN(v) &&
-                  v !== ""
-                ) {
-                  wavesurfer.setCurrentTime(region[v].Start);
-                  wavesurfer.zoom(
-                    window.screen.availWidth / (region[v].End - region[v].Start)
-                  );
-                } else {
-                  wavesurfer.zoom();
-                }
-              }}
-            /> */}
               <span style={{ marginLeft: 80 }}>
                 <FormControl>
                   <InputLabel
@@ -573,7 +551,6 @@ export default function Timeline(props) {
                 <Slider
                   defaultValue={0}
                   max={10}
-                  // min={window.screen.availWidth / wavesurfer.getDuration()}
                   min={0}
                   step={1}
                   onChange={handleChange}
