@@ -47,11 +47,72 @@ export default function File() {
   const [selectedImages, setSelectedImages] = useState([]);
   const [path, setPath] = useState("default path");
 
+  const checkPosJsonValidation = (file) => {
+    let valid = false;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = JSON.parse(e.target.result);
+      if (Array.isArray(data) && data.length !== 0) valid = true;
+
+      if (valid)
+        data.map((Data) => {
+          try {
+            if (!("start" in Data)) valid = false;
+            if (!("pos" in Data)) valid = false;
+
+            const dancerKeys = Object.keys(Data.pos);
+            dancerKeys.map((key) => {
+              if (
+                !(
+                  "x" in Data.pos[key] &&
+                  "y" in Data.pos[key] &&
+                  "z" in Data.pos[key]
+                )
+              )
+                valid = false;
+            });
+          } catch (error) {
+            valid = false;
+          }
+        });
+      if (!valid) alert("Wrong JSON format");
+      else {
+        alert("success");
+        setPosRecordFile(file);
+      }
+    };
+    reader.readAsText(file[0]);
+  };
+
+  const checkControlJsonValidation = (file) => {
+    let valid = false;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = JSON.parse(e.target.result);
+      if (Array.isArray(data) && data.length !== 0) valid = true;
+
+      if (valid)
+        data.map((Data) => {
+          if (!("start" in Data)) valid = false;
+          if (!("fade" in Data)) valid = false;
+          if (!("status" in Data)) valid = false;
+        });
+      if (!valid) alert("Wrong JSON format");
+      else {
+        alert("success");
+        setControlRecordFile(file);
+      }
+    };
+    reader.readAsText(file[0]);
+  };
+
   const handlePosInput = (e) => {
-    setPosRecordFile(e.target.files);
+    checkPosJsonValidation(e.target.files);
+    // setPosRecordFile(e.target.files);
   };
   const handleControlInput = (e) => {
-    setControlRecordFile(e.target.files);
+    checkControlJsonValidation(e.target.files);
+    // setControlRecordFile(e.target.files);
   };
 
   const handleImagesInput = (e) => {
