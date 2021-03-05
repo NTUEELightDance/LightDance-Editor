@@ -22,12 +22,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
 
 // constant
-import {
-  Box,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-} from "@material-ui/core";
+import { FormControl, InputLabel } from "@material-ui/core";
 import load from "../../../../data/load.json";
 
 // local storage
@@ -150,8 +145,8 @@ export default function Timeline(props) {
      * calculate the beat points on specific region
      */
     for (let i = 0; i < region.length; i += 1) {
-      const s = region[i].Start * 44100;
-      const e = region[i].End * 44100;
+      const s = Math.round(region[i].Start * 44.1);
+      const e = Math.round(region[i].End * 44.1);
 
       let regionMean = 0;
       for (let j = s; j < e; j += 1) regionMean += originaldata[j];
