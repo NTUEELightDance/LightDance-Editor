@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 // Creating a schema, sort of like working with an ORM
-const ActionSchema = new Schema({
+const ControlFrameSchema = new Schema({
   time: { type: Date, default: Date.now },
   from: {
     type: String,
@@ -24,8 +24,8 @@ const ActionSchema = new Schema({
 });
 
 // Creating a table within database with the defined schema
-const Action = mongoose.model("action", ActionSchema);
+const ControlFrame = mongoose.model("posFrame", ControlFrameSchema);
 
 // Exporting table for querying and mutating
 
-module.exports = { ActionSchema, Action };
+module.exports = { ControlFrameSchema, ControlFrame };

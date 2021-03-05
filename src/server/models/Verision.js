@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const { ActionSchema } = require("./action");
+const { ControlFrameSchema } = require("./ControlFrame");
+const { PosFrameSchema } = require("./PosFrame");
 
 const { Schema } = mongoose;
 
@@ -11,8 +12,12 @@ const BranchSchema = new Schema({
     type: String,
     required: [true, "Name field is required."],
   },
-  actions: {
-    type: [ActionSchema],
+  controlRecord: {
+    type: [ControlFrameSchema],
+    default: [],
+  },
+  posRecord: {
+    type: [PosFrameSchema],
     default: [],
   },
 });

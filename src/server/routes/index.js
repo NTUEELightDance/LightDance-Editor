@@ -1,11 +1,11 @@
 const express = require("express");
 const fs = require("fs");
 
-const loginRouter = require("./login");
-const syncRouter = require("./sync");
-const fetchRouter = require("./fetch");
-const branchRouter = require("./branch");
-const registerRouter = require("./register");
+// const loginRouter = require("./login");
+// const syncRouter = require("./sync");
+// const fetchRouter = require("./fetch");
+// const branchRouter = require("./branch");
+// const registerRouter = require("./register");
 const uploadRouter = require("./upload");
 // constants
 const { COMMANDS } = require("../../constant");
@@ -15,20 +15,20 @@ const { COMMANDS } = require("../../constant");
 
 const router = express.Router();
 
-// Handle register post
-router.use("/register", registerRouter);
+// // Handle register post
+// router.use("/register", registerRouter);
 
-// Handle login post
-router.use("/login", loginRouter);
+// // Handle login post
+// router.use("/login", loginRouter);
 
-// Handle sync post
-router.use("/sync", syncRouter);
+// // Handle sync post
+// router.use("/sync", syncRouter);
 
-// Handle fetcg get
-router.use("/fetch", fetchRouter);
+// // Handle fetcg get
+// router.use("/fetch", fetchRouter);
 
-// Handle fetcg get
-router.use("/branch", branchRouter);
+// // Handle fetcg get
+// router.use("/branch", branchRouter);
 
 // Handle fetcg get
 router.use("/upload", uploadRouter);

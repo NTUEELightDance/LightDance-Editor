@@ -3,7 +3,6 @@ import store from "./store";
 
 export const syncPost = (branchName, from, type, mode, data) => {
   const payload = JSON.stringify({ branchName, from, type, mode, data });
-  console.log(payload);
   return fetch("/api/sync", {
     method: "POST",
     body: payload,
@@ -100,6 +99,25 @@ export const uploadImages = (files, path) => {
   formData.append("path", path);
 
   fetch("/api/upload/images", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
+export const requestDowload = (control, position, texture) => {
+  const formData = new FormData();
+
+  formData.append("control", control);
+  formData.append("position", position);
+
+  fetch("/api/download", {
     method: "POST",
     body: formData,
   })

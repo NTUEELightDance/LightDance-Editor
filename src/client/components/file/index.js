@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 // mui
 import { makeStyles } from "@material-ui/styles";
@@ -11,14 +11,17 @@ import Divider from "@material-ui/core/Divider";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
+// write record
+import { posInit, controlInit, selectGlobal } from "../../slices/globalSlice";
 // select
 import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { setItem, getItem } from "../../utils/localStorage";
 // api
-import { uploadImages } from "../../api";
+import { uploadImages, requestDowload } from "../../api";
 // utils
-import { checkControlJson, checkPosJson, checkImages } from "./utils";
+import { checkControlJson, checkPosJson, uploadJson } from "./utils";
+import store from "../../store";
 
 const useStyles = makeStyles({});
 
@@ -42,7 +45,9 @@ const useStyles = makeStyles({});
 export default function File() {
   const classes = useStyles();
   // upload to server
+  const dispatch = useDispatch();
   const { texture } = useSelector(selectLoad);
+  const { posRecord, controlRecord } = useSelector(selectGlobal);
   const [toServer, setToServer] = useState(false);
   const [controlRecordFile, setControlRecordFile] = useState(null);
   const [posRecordFile, setPosRecordFile] = useState(null);
@@ -66,20 +71,49 @@ export default function File() {
     setPath(e.target.value);
   };
 
-  const handleUpload = () => {
+  const handleControlUpload = async () => {
     if (controlRecordFile) {
-      checkControlJson(controlRecordFile);
-      setControlRecordFile(undefined);
+      const control = await uploadJson(controlRecordFile);
+      console.log(control);
+      if (checkControlJson(control)) {
+        if (
+          window.confirm(
+            "Check Pass! Are you sure to upload new Control file ?"
+          )
+        ) {
+          setItem("control", JSON.stringify(control));
+          dispatch(controlInit(control));
+        }
+      } else alert("Control: Wrong JSON format");
+      // setControlRecordFile(undefined);
     }
+  };
+  const handlePosUpload = async () => {
     if (posRecordFile) {
-      checkPosJson(posRecordFile);
-      setPosRecordFile(undefined);
+      const position = await uploadJson(posRecordFile);
+      console.log(position);
+      if (checkPosJson(position)) {
+        if (
+          window.confirm(
+            "Check Pass! Are you sure to upload new Position file?"
+          )
+        )
+          setItem("position", JSON.stringify(position));
+        dispatch(posInit(position));
+      } else alert("Pos: Wrong JSON format");
+      // setPosRecordFile(undefined);
     }
+  };
+  const handleImagesUpload = async () => {
     if (selectedImages && path) {
-      checkImages(selectedImages, path);
-      setSelectedImages(undefined);
-      setPath("");
+      uploadImages(selectedImages, path);
+      // setSelectedImages(undefined);
+      // setPath("");
     }
+  };
+
+  const handleDownload = async () => {
+    requestDowload(controlRecord, posRecord, texture);
   };
 
   const handleSwitchServer = () => setToServer(!toServer);
@@ -108,6 +142,15 @@ export default function File() {
             accept=".json"
             onChange={handleControlInput}
           />
+          <Button
+            variant="outlined"
+            color="default"
+            onClick={() => {
+              handleControlUpload();
+            }}
+          >
+            Upload
+          </Button>
         </div>
         <div>
           <Typography variant="h6" color="initial">
@@ -120,6 +163,15 @@ export default function File() {
             accept=".json"
             onChange={handlePosInput}
           />
+          <Button
+            variant="outlined"
+            color="default"
+            onClick={() => {
+              handlePosUpload();
+            }}
+          >
+            Upload
+          </Button>
         </div>
       </div>
       <div>
@@ -144,21 +196,29 @@ export default function File() {
             </option>
           ))}
         </select>
+        <Button
+          variant="outlined"
+          color="default"
+          onClick={() => {
+            handleImagesUpload();
+          }}
+        >
+          Upload
+        </Button>
       </div>
+
       <br />
       <Divider />
       <br />
+
       <Button
         variant="outlined"
         color="default"
         onClick={() => {
-          handleUpload();
+          handleDownload();
         }}
       >
-        Upload
-      </Button>
-      <Button variant="outlined" color="default">
-        download
+        Download
       </Button>
     </Container>
   );
