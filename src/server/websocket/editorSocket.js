@@ -18,7 +18,7 @@ class EditorSocket {
 
       // switch (task) {
       //   case "boardInfo": {
-          
+
       //     return;
       //   }
       // }
