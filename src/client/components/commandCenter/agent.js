@@ -5,50 +5,35 @@ export default COMMANDS.reduce((acc, command) => {
   let callback = null;
   switch (command) {
     case "play":
-      callback = ({ startTime, whenToPlay }) => {
-        // fetch(`api/${command}`, {
-        //   method: "POST",
-        //   body: JSON.stringify({ startTime, whenToPlay }),
-        // });
+      callback = ({ startTime, whenToPlay, selectedDancers }) => {
         axios.post(`/api/${command}`, {
           startTime,
           whenToPlay,
+          selectedDancers,
         });
       };
       break;
     case "uploadControl":
-      callback = ({ controlJson }) => {
+      callback = ({ controlJson, selectedDancers }) => {
         console.log(controlJson);
-        // fetch(`api/${command}`, {
-        //   method: "POST",
-        //   body: JSON.stringify(controlJson),
-        // });
-        axios.post(`/api/${command}`, { controlJson });
+
+        axios.post(`/api/${command}`, { controlJson, selectedDancers });
       };
       break;
     case "uploadLed":
       // ledData is an array
-      callback = ({ ledData }) => {
-        // fetch(`api/${command}`, {
-        //   method: "POST",
-        //   body: JSON.stringify({ ledData }),
-        // });
-        axios.post(`/api/${command}`, { ledData });
+      callback = ({ ledData, selectedDancers }) => {
+        axios.post(`/api/${command}`, { ledData, selectedDancers });
       };
       break;
     case "lightCurrentStatus":
-      callback = ({ lightCurrentStatus }) => {
-        // fetch(`api/${command}`, {
-        //   method: "POST",
-        //   body: JSON.stringify({ lightCurrentStatus }),
-        // });
-        axios.post(`/api/${command}`, { lightCurrentStatus });
+      callback = ({ lightCurrentStatus, selectedDancers }) => {
+        axios.post(`/api/${command}`, { lightCurrentStatus, selectedDancers });
       };
       break;
     default:
-      callback = () => {
-        //         fetch(`api/${command}`, { method: "POST" });
-        axios.post(`/api/${command}`);
+      callback = ({ selectedDancers }) => {
+        axios.post(`/api/${command}`, { selectedDancers });
       };
       break;
   }

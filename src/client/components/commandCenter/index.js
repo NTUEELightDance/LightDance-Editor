@@ -28,13 +28,13 @@ export default function CommandCenter() {
 
   const [statusBar, setStatusBar] = useState({});
 
-  const renderStatusBar = (dancers) => {
+  /* const renderStatusBar = (dancers) => {
     setStatusBar(
       Object.keys(dancers).map((dancer) => {
         return <p>{dancers[dancer].msg}</p>;
       })
     );
-  };
+  }; */
 
   useEffect(() => {
     console.log(commandApi); // for test
@@ -54,6 +54,7 @@ export default function CommandCenter() {
               onClick={(e) => {
                 e.preventDefault();
                 const dataToServer = {
+                  selectedDancers: [], // fill the state
                   startTime: 0, // fill the number with variable
                   whenToPlay: 0, // fill the number with variable
                   ledData: [], // fill the array with variable

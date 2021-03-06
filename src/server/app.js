@@ -4,10 +4,13 @@
 
 const express = require("express");
 const path = require("path");
+const http = require("http");
+const WebSocket = require("ws");
 
 const apiRouter = require("./routes");
 
 const app = express();
+const server = http.createServer(app);
 
 if (process.env.NODE_ENV === "dev") {
   require("dotenv").config();
@@ -44,6 +47,8 @@ const dataPath = path.resolve(__dirname, "..", "..", "./data");
 app.use("/data", express.static(dataPath));
 
 app.use("/api", apiRouter);
+
+const wss = new WebSocket.Server({ server });
 
 const port = 8080;
 
