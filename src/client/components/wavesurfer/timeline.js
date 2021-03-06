@@ -29,7 +29,7 @@ import load from "../../../../data/load.json";
 // local storage
 import { setItem, getItem } from "../../utils/localStorage";
 
-export default function Timeline(props) {
+export default function Timeline({ wavesurfer }) {
   /**
    * params
    */
@@ -47,8 +47,6 @@ export default function Timeline(props) {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [expanded, setExpanded] = useState(false);
-
-  const { wavesurfer } = props;
 
   // const upperBPM = 200;
   // const lowerBPM = 90;
@@ -170,7 +168,7 @@ export default function Timeline(props) {
       const back = peaksArray.filter((time) => time > region[i].End / 1000);
       peaksArray = front.concat(subPeak).concat(back);
     }
-    console.log(peaksArray);
+    // console.log(peaksArray);
     return peaksArray;
   }
 
@@ -305,83 +303,77 @@ export default function Timeline(props) {
     }
   };
 
-  const Regions =
-    region === []
-      ? ""
-      : region.map((r) => (
-          <Accordion
-            expanded={expanded === `panel${r.Value}`}
-            onChange={handelExpanded(`panel${r.Value}`)}
-            key={`panel${r.Value}`}
-          >
-            <AccordionSummary
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>Accordion {r.Value}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <TextField
-                label="Start"
-                placeholder="start"
-                value={newStart}
-                onChange={(e) => {
-                  setNewStart(e.target.value);
-                }}
-                style={{ width: 100, marginRight: 10 }}
-              />
-              <TextField
-                label="End"
-                placeholder="end"
-                value={newEnd}
-                onChange={(e) => {
-                  setNewEnd(e.target.value);
-                }}
-                style={{ width: 100, marginRight: 10 }}
-              />
-              <div>
-                <Typography id="discrete-slider-small-steps" gutterBottom>
-                  Threashhold Ratio: {r.ThreashRatio}
-                </Typography>
-                <Slider
-                  key={`slider-${r.ThreashRatio}`}
-                  defaultValue={r.ThreashRatio}
-                  max={35}
-                  min={5}
-                  step={1}
-                  onChange={(event, newValue) => {
-                    const sub = region;
-                    // console.log("change", sub[r.Value].ThreashRatio);
-                    sub[r.Value].ThreashRatio = newValue;
-                    setRegion(sub);
-                    setItem("region", JSON.stringify(sub));
-                    setSubThrRatio(true);
-                  }}
-                  aria-labelledby="discrete-slider-small-steps"
-                  valueLabelDisplay="auto"
-                  marks
-                />
-              </div>
-              <IconButton
-                color="primary"
-                onClick={() => {
-                  updateRegion(r.Value);
-                }}
-                style={{ marginLeft: 10 }}
-              >
-                <DoneIcon />
-              </IconButton>
-              <IconButton
-                color="primary"
-                onClick={() => {
-                  deleteRegion(r.Value);
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </AccordionDetails>
-          </Accordion>
-        ));
+  const Regions = region.map((r) => (
+    <Accordion
+      expanded={expanded === `panel${r.Value}`}
+      onChange={handelExpanded(`panel${r.Value}`)}
+      key={`panel${r.Value}`}
+    >
+      <AccordionSummary aria-controls="panel1a-content" id="panel1a-header">
+        <Typography>Accordion {r.Value}</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <TextField
+          label="Start"
+          placeholder="start"
+          value={newStart}
+          onChange={(e) => {
+            setNewStart(e.target.value);
+          }}
+          style={{ width: 100, marginRight: 10 }}
+        />
+        <TextField
+          label="End"
+          placeholder="end"
+          value={newEnd}
+          onChange={(e) => {
+            setNewEnd(e.target.value);
+          }}
+          style={{ width: 100, marginRight: 10 }}
+        />
+        <div>
+          <Typography id="discrete-slider-small-steps" gutterBottom>
+            Threashhold Ratio: {r.ThreashRatio}
+          </Typography>
+          <Slider
+            key={`slider-${r.ThreashRatio}`}
+            defaultValue={r.ThreashRatio}
+            max={35}
+            min={5}
+            step={1}
+            onChange={(event, newValue) => {
+              const sub = region;
+              // console.log("change", sub[r.Value].ThreashRatio);
+              sub[r.Value].ThreashRatio = newValue;
+              setRegion(sub);
+              setItem("region", JSON.stringify(sub));
+              setSubThrRatio(true);
+            }}
+            aria-labelledby="discrete-slider-small-steps"
+            valueLabelDisplay="auto"
+            marks
+          />
+        </div>
+        <IconButton
+          color="primary"
+          onClick={() => {
+            updateRegion(r.Value);
+          }}
+          style={{ marginLeft: 10 }}
+        >
+          <DoneIcon />
+        </IconButton>
+        <IconButton
+          color="primary"
+          onClick={() => {
+            deleteRegion(r.Value);
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </AccordionDetails>
+    </Accordion>
+  ));
 
   const handleChange = (event, newValue) => {
     setRatio(newValue);
@@ -543,9 +535,7 @@ export default function Timeline(props) {
               </span>
             </div>
 
-            {wavesurfer === undefined ? (
-              ""
-            ) : (
+            {wavesurfer === undefined ? null : (
               <div>
                 <Typography id="discrete-slider-small-steps" gutterBottom>
                   zoom: {ratio}
