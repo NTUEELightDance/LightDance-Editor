@@ -29,7 +29,9 @@ const useStyles = makeStyles((theme) => ({
 export default function CommandCenter() {
   // styles
   const classes = useStyles();
-  const { dancerStatus } = useSelector(selectGlobal);
+  const { dancerStatus, controlRecord, currentStatus } = useSelector(
+    selectGlobal
+  );
   const { dancerNames } = useSelector(selectLoad);
   const dispatch = useDispatch();
   const [statusBar, setStatusBar] = useState({});
@@ -65,12 +67,12 @@ export default function CommandCenter() {
               onClick={(e) => {
                 e.preventDefault();
                 const dataToServer = {
-                  selectedDancers: ["dancer0test"], // fill the state
+                  selectedDancers: ["dancer0"], // fill the state
                   startTime: 0, // fill the number with variable
                   whenToPlay: 0, // fill the number with variable
                   ledData: [], // fill the array with variable
-                  controlJson: {}, // fill
-                  lightCurrentStatus: {},
+                  controlJson: controlRecord, // fill
+                  lightCurrentStatus: currentStatus,
                 };
                 commandApi[command](dataToServer);
               }}
@@ -80,7 +82,6 @@ export default function CommandCenter() {
           </div>
         );
       })}
-      
     </div>
   );
 }
