@@ -20,6 +20,7 @@ import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 import PublishIcon from "@material-ui/icons/Publish";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
+import DoneIcon from "@material-ui/icons/Done";
 
 // constant
 import { FormControl, InputLabel } from "@material-ui/core";
@@ -366,8 +367,9 @@ export default function Timeline(props) {
                 onClick={() => {
                   updateRegion(r.Value);
                 }}
+                style={{ marginLeft: 10 }}
               >
-                <PublishIcon />
+                <DoneIcon />
               </IconButton>
               <IconButton
                 color="primary"
