@@ -65,7 +65,7 @@ export default function CommandCenter() {
               onClick={(e) => {
                 e.preventDefault();
                 const dataToServer = {
-                  selectedDancers: [], // fill the state
+                  selectedDancers: ["dancer0test"], // fill the state
                   startTime: 0, // fill the number with variable
                   whenToPlay: 0, // fill the number with variable
                   ledData: [], // fill the array with variable
@@ -80,7 +80,7 @@ export default function CommandCenter() {
           </div>
         );
       })}
-      {statusBar}
+      
     </div>
   );
 }

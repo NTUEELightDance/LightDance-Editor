@@ -8,6 +8,7 @@ class EditorSocket {
 
   init(ws) {
     this.ws = ws;
+    this.editorAgent.addEditorClient(this.editorName, this);
   }
 
   handleMessage() {
@@ -15,14 +16,14 @@ class EditorSocket {
       const [task, payload] = JSON.parse(message.data);
       console.log("Client response: ", task, "\nPayload: ", payload);
 
-      switch (task) {
-        case "boardInfo": {
-          this.editorAgent.addEditorClient(this.editorName, this);
-          return;
-        }
-      }
+      // switch (task) {
+      //   case "boardInfo": {
+          
+      //     return;
+      //   }
+      // }
 
-      this.editorAgent.socketRecieveData(this.editorName, {
+      this.editorAgent.socketReceiveData(this.editorName, {
         task: task,
         payload: payload,
         type: "Editor",
