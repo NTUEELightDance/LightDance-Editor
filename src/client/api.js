@@ -96,7 +96,7 @@ export const uploadImages = (files, path) => {
     formData.append(`image${i}`, file);
   });
 
-  formData.append("path", path);
+  formData.append("filePath", path);
 
   fetch("/api/upload/images", {
     method: "POST",
