@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import { updateDancerMsg, updateDancerOK } from "../slices/globalSlice";
 import store from "../store";
 
 class EditorSocketAPI {
@@ -23,6 +24,9 @@ class EditorSocketAPI {
     } = payload;
 
     console.log(data);
+
+    store.dispatch(updateDancerMsg(msg));
+    store.dispatch(updateDancerOK(OK));
   }
 }
 

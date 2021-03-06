@@ -36,6 +36,14 @@ export const globalSlice = createSlice({
 
     lightPresets: [], // lightPresets, presets for light
     posPresets: [], // posPresets, presets for pos
+
+    dancerStatus: {},
+    /* {
+      dancerName:{
+        msg:
+        OK:
+    }
+  } */
   },
   reducers: {
     /**
@@ -478,6 +486,44 @@ export const globalSlice = createSlice({
       state.posPresets.splice(idx, 1);
       setItem("posPresets", JSON.stringify(state.posPresets));
     },
+
+    /**
+     *  initialize dancer status bar with dancerName
+     * @param {*} state
+     * @param {*} action
+     */
+    initDancerStatus: (state, action) => {
+      const dancerNames = action.payload;
+      state.dancerStatus = dancerNames.reduce((acc, dancerName) => {
+        return {
+          ...acc,
+          [dancerName]: {
+            msg: "",
+            OK: NaN,
+          },
+        };
+      }, {});
+    },
+
+    /**
+     *  update dancerStatus with dancer's name and new message
+     * @param {*} state
+     * @param {*} action
+     */
+    updateDancerMsg: (state, action) => {
+      const { dancerName, newMsg } = action.payload;
+      state.dancerStatus[dancerName].msg = newMsg;
+    },
+
+    /**
+     *  update dancerStatus with dancer's name and OK
+     * @param {*} state
+     * @param {*} action
+     */
+    updateDancerOK: (state, action) => {
+      const { dancerName, newOK } = action.payload;
+      state.dancerStatus[dancerName].OK = newOK;
+    },
   },
 });
 
@@ -519,6 +565,10 @@ export const {
   editPosPresetsName,
   addPosPresets,
   deletePosPresets,
+
+  initDancerStatus,
+  updateDancerMsg,
+  updateDancerOK,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;

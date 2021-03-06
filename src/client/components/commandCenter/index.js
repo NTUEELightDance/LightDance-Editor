@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 // mui
 import { makeStyles } from "@material-ui/core/styles";
@@ -10,7 +11,10 @@ import { COMMANDS } from "../../constants";
 // command api
 import commandApi from "./agent";
 
-// client socket
+// redux selector and actions
+import { selectGlobal, initDancerStatus } from "../../slices/globalSlice";
+
+import { selectLoad } from "../../slices/loadSlice";
 
 const useStyles = makeStyles((theme) => ({
   commands: {
@@ -25,20 +29,27 @@ const useStyles = makeStyles((theme) => ({
 export default function CommandCenter() {
   // styles
   const classes = useStyles();
-
+  const { dancerStatus } = useSelector(selectGlobal);
+  const { dancerNames } = useSelector(selectLoad);
+  const dispatch = useDispatch();
   const [statusBar, setStatusBar] = useState({});
 
-  /* const renderStatusBar = (dancers) => {
+  const renderStatusBar = (dancers) => {
     setStatusBar(
       Object.keys(dancers).map((dancer) => {
-        return <p>{dancers[dancer].msg}</p>;
+        return <p>{dancer}</p>;
       })
     );
-  }; */
+  };
 
   useEffect(() => {
     console.log(commandApi); // for test
+    dispatch(initDancerStatus(dancerNames));
   }, []);
+
+  useEffect(() => {
+    renderStatusBar(dancerStatus);
+  }, [dancerStatus]);
 
   // useEffect(() => {
   //   renderStatusBar(socket.statusBar);
