@@ -1,0 +1,16 @@
+module.exports.COMMANDS = [
+  "sync",
+  "uploadLed",
+  "uploadControl",
+  "start",
+  "load",
+  "play",
+  "pause",
+  "stop",
+  "lightCurrentStatus",
+  "terminate",
+  "kick",
+  "shutdown",
+  "reboot",
+  "kill",
+];

@@ -1,19 +1,25 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
 /* eslint-disable global-require */
+
 const express = require("express");
 const path = require("path");
+
+const apiRouter = require("./routes");
 
 const app = express();
 
 if (process.env.NODE_ENV === "dev") {
   require("dotenv").config();
   const webpack = require("webpack");
+  const bodyParser = require("body-parser");
   const { merge } = require("webpack-merge");
   const commonConfig = require("../../config/webpack.common.js");
   const envConfig = require("../../config/webpack.dev.js");
   const webpackConfig = merge(commonConfig, envConfig);
   const compiler = webpack(webpackConfig);
+
+  app.use(bodyParser.json());
 
   app.use(
     require("webpack-dev-middleware")(compiler, {
@@ -36,6 +42,8 @@ const assetPath = path.resolve(__dirname, "..", "..", "./asset");
 app.use("/asset", express.static(assetPath));
 const dataPath = path.resolve(__dirname, "..", "..", "./data");
 app.use("/data", express.static(dataPath));
+
+app.use("/api", apiRouter);
 
 const port = 8080;
 

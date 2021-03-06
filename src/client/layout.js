@@ -12,12 +12,15 @@ import PosPresets from "./components/presets/posPresets";
 import LightEditor from "./components/lightEditor";
 import PosEditor from "./components/posEditor";
 import File from "./components/file";
+import CommandCenter from "./components/commandCenter";
 
 export default function Layout() {
   // layout
   const factory = (node) => {
     const component = node.getComponent();
     switch (component) {
+      case "CommandCenter":
+        return <CommandCenter />;
       case "Simulator":
         return <Simulator />;
       case "LightEditor":
