@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
 /* eslint-disable global-require */
@@ -20,6 +21,13 @@ const wss = new Websocket.Server({ server });
 const dancerClients = {};
 const editorClients = {};
 
+/**
+ * handle all message received from webSocket, and emit to other sockets
+ * Ex. message from RPi's webSocket => emit message to editor's websocket
+ * Ex. message from Editor's webSocket => emit to RPi (performance) or emit to other editor (multi editing)
+ * @param {string} from - from who
+ * @param {{ type, task, payload }} msg
+ */
 const socketReceiveData = (from, msg) => {
   console.log("dancerClients: ", Object.keys(dancerClients));
   console.log("editorClients: ", Object.keys(editorClients));
@@ -45,7 +53,9 @@ const socketReceiveData = (from, msg) => {
       break;
   }
 };
-const DancerSocketAgent = {
+
+// DancerClientsAgent: to handle add or delete someone in dancerClients
+const DancerClientsAgent = {
   addDancerClient: (dancerName, dancerSocket) => {
     dancerClients[dancerName] = dancerSocket;
   },
@@ -54,7 +64,8 @@ const DancerSocketAgent = {
   },
   socketReceiveData,
 };
-const EditorSocketAgent = {
+// EditorClientsAgent: to handle add or delete someone in editorClients
+const EditorClientsAgent = {
   addEditorClient: (editorName, editorSocket) => {
     editorClients[editorName] = editorSocket;
   },
@@ -64,6 +75,65 @@ const EditorSocketAgent = {
   socketReceiveData,
 };
 
+// websocket
+wss.on("connection", (ws) => {
+  ws.onmessage = (msg) => {
+    const [task, payload] = JSON.parse(msg.data);
+    console.log("Client response: ", task, "\nPayload: ", payload);
+
+    const { type } = payload;
+
+    // We defined that the first task for clients (dancer and editor) will be boardInfo
+    // This can then let us split the logic between dancerClients and editorClients
+    if (task === "boardInfo") {
+      const hostName = payload.name;
+      if (type === "dancer") {
+        // check if `dancer` type's hostname is in board_config.json
+        if (hostName in board_config) {
+          const { dancerName } = board_config[hostName];
+          // ask about dancerClient
+          const dancerSocket = new DancerSocket(
+            ws,
+            dancerName,
+            DancerClientsAgent
+          );
+          dancerSocket.handleMessage();
+
+          // TOFIX: should send dancerClient's data to all editor when editor onconnect
+          // const firstMsg = {
+          //   type,
+          //   task,
+          //   payload: {
+          //     ...payload,
+          //     ip: dancerSocket.clientIp,
+          //   },
+          // };
+
+          // socketReceiveData(dancerName, firstMsg);
+        } else {
+          // `dancer` type's hostName is not in board_config
+          console.error(
+            `'dancer' type board connected, but not found hostname in board_config`
+          );
+        }
+      } else if (type === "editor") {
+        const editorName = hostName; // send from editorSocketAPI
+
+        const editorSocket = new EditorSocket(
+          ws,
+          editorName,
+          EditorClientsAgent
+        );
+
+        editorSocket.handleMessage();
+      } else {
+        console.error(`Invalid type ${type} on connection`);
+      }
+    }
+  };
+});
+
+// build
 if (process.env.NODE_ENV === "dev") {
   require("dotenv").config();
   const webpack = require("webpack");
@@ -90,66 +160,17 @@ if (process.env.NODE_ENV === "dev") {
   app.use(express.static(buildPath));
 }
 
+// serve asset and data
 const assetPath = path.resolve(__dirname, "..", "..", "./asset");
 app.use("/asset", express.static(assetPath));
 const dataPath = path.resolve(__dirname, "..", "..", "./data");
 app.use("/data", express.static(dataPath));
 
-wss.on("connection", (ws) => {
-  ws.onmessage = (msg) => {
-    const [task, payload] = JSON.parse(msg.data);
-    console.log("Client response: ", task, "\nPayload: ", payload);
+app.use(bodyParser.json({ limit: "20mb" }));
 
-    const { type } = payload;
-
-    if (task === "boardInfo") {
-      const hostName = payload.name;
-      // import board_config to check dancer's name
-      // get dancerName from hostname
-      if (type === "dancer") {
-        if (board_config[hostName] !== undefined) {
-          const { dancerName } = board_config[hostName];
-          // ask about dancerClient
-          const dancerSocket = new DancerSocket(
-            ws,
-            dancerName,
-            DancerSocketAgent
-          );
-          dancerSocket.handleMessage();
-
-          const firstMsg = {
-            type: payload.type,
-            task,
-            payload: {
-              OK: payload.OK,
-              msg: payload.msg,
-              ip: dancerSocket.clientIp,
-            },
-          };
-
-          socketReceiveData(dancerName, firstMsg);
-        }
-      } else if (type === "editor") {
-        const editorName = hostName; // send from editorSocketAPI
-
-        const editorSocket = new EditorSocket(
-          ws,
-          editorName,
-          EditorSocketAgent
-        );
-
-        editorSocket.handleMessage();
-      }
-    }
-  };
-});
-
-app.use(bodyParser.json({ limit: "200mb" }));
-
+// router api
 COMMANDS.forEach((command) => {
   app.post(`/api/${command}`, (req, res) => {
-    // console.log(command); // for test
-    // console.log(req.body);
     const { selectedDancers } = req.body;
     switch (command) {
       case "play": {
