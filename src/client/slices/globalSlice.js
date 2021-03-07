@@ -493,36 +493,36 @@ export const globalSlice = createSlice({
      * @param {*} action
      */
     initDancerStatus: (state, action) => {
-      const dancerNames = action.payload;
-      state.dancerStatus = dancerNames.reduce((acc, dancerName) => {
+      const boardConfig = action.payload;
+      state.dancerStatus = Object.keys(boardConfig).reduce((acc, hostname) => {
+        const { dancerName } = boardConfig[hostname];
         return {
           ...acc,
           [dancerName]: {
+            ip: "",
+            hostname,
+            OK: false,
             msg: "",
-            OK: NaN,
           },
         };
       }, {});
     },
 
     /**
-     *  update dancerStatus with dancer's name and new message
+     *  update dancerStatus with dancer's name and new status
+     *  if no new value, remain the same as previous
      * @param {*} state
      * @param {*} action
      */
-    updateDancerMsg: (state, action) => {
-      const { dancerName, newMsg } = action.payload;
-      state.dancerStatus[dancerName].msg = newMsg;
-    },
-
-    /**
-     *  update dancerStatus with dancer's name and OK
-     * @param {*} state
-     * @param {*} action
-     */
-    updateDancerOK: (state, action) => {
-      const { dancerName, newOK } = action.payload;
-      state.dancerStatus[dancerName].OK = newOK;
+    updateDancerStatus: (state, action) => {
+      const { dancerName, newStatus } = action.payload;
+      const { OK, msg } = newStatus;
+      state.dancerStatus[dancerName].OK = OK;
+      state.dancerStatus[dancerName].msg =
+        msg || state.dancerStatus[dancerName].msg;
+      state.dancerStatus[dancerName].ip = newStatus.ip
+        ? newStatus.ip
+        : state.dancerStatus[dancerName].ip;
     },
   },
 });
@@ -567,8 +567,7 @@ export const {
   deletePosPresets,
 
   initDancerStatus,
-  updateDancerMsg,
-  updateDancerOK,
+  updateDancerStatus,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;

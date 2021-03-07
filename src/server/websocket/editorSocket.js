@@ -26,7 +26,7 @@ class EditorSocket {
       this.editorAgent.socketReceiveData(this.editorName, {
         task: task,
         payload: payload,
-        type: "Editor",
+        type: "editor",
       });
     };
   }

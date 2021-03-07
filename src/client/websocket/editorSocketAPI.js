@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { updateDancerMsg, updateDancerOK } from "../slices/globalSlice";
+import { updateDancerStatus } from "../slices/globalSlice";
 import store from "../store";
 
 class EditorSocketAPI {
@@ -9,24 +9,81 @@ class EditorSocketAPI {
   }
 
   init() {
-    const ws = new WebSocket(this.url);
-    ws.onmessage = (message) => {
-      this.handleMessage(message.data);
+    this.ws = new WebSocket(this.url);
+    if (this.ws.readyState !== WebSocket.CONNECTING) {
+      setTimeout(() => {
+        this.init();
+      }, 3000);
+      return;
+    }
+    this.ws.onopen = () => {
+      console.log("Websocket for Editor Connected");
+      this.sendDataToServer([
+        "boardInfo",
+        {
+          type: "editor",
+          name: location.hostname, // get hostname or something else
+        },
+      ]);
+
+      this.ws.onerror = (err) => {
+        console.log(`Editor's Websocket error : ${err.message} `);
+      };
+
+      this.ws.onmessage = (msg) => {
+        const data = JSON.parse(msg.data);
+        console.log(`Data from server :${data}`);
+        this.handleMessage(data);
+      };
+
+      this.ws.onclose = (e) => {
+        console.log(`Websocket for Editor closed`);
+      };
     };
-    this.ws = ws;
+  }
+
+  sendDataToServer(data) {
+    this.ws.send(JSON.stringify(data));
   }
 
   handleMessage(data) {
     const [task, payload] = data;
-    const {
-      from,
-      response: { OK, msg },
-    } = payload;
 
-    console.log(data);
-
-    store.dispatch(updateDancerMsg(msg));
-    store.dispatch(updateDancerOK(OK));
+    switch (task) {
+      case "boardInfo": {
+        const {
+          from,
+          response: { OK, msg, ip },
+        } = payload;
+        console.log("IP:", ip);
+        store.dispatch(
+          updateDancerStatus({
+            dancerName: from,
+            newStatus: {
+              OK,
+              msg,
+              ip,
+            },
+          })
+        );
+        break;
+      }
+      default:
+        const {
+          from,
+          response: { OK, msg },
+        } = payload;
+        store.dispatch(
+          updateDancerStatus({
+            dancerName: from,
+            newStatus: {
+              OK,
+              msg,
+            },
+          })
+        );
+        break;
+    }
   }
 }
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext } from "react";
 import EditorSocketAPI from "./websocket/editorSocketAPI";
 
 const WebSocketContext = createContext(null);
-export { WebSocketContext };
+// export { WebSocketContext };
 
 export default function WebSocket({ children }) {
   const [webSocket, setWebSocket] = useState(1);

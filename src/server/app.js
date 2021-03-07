@@ -8,9 +8,9 @@ const http = require("http");
 const bodyParser = require("body-parser");
 
 const { COMMANDS } = require("../constant");
-const DancerSocket = require("./websocket/DancerSocket");
+const DancerSocket = require("./websocket/dancerSocket");
 const EditorSocket = require("./websocket/editorSocket");
-const board_config = require("./board_config.json");
+const board_config = require("../../data/board_config.json");
 
 // const router = express.Router();
 const app = express();
@@ -21,6 +21,9 @@ const dancerClients = {};
 const editorClients = {};
 
 const socketReceiveData = (from, msg) => {
+  console.log("dancerClients: ", Object.keys(dancerClients));
+  console.log("editorClients: ", Object.keys(editorClients));
+
   const { type, task, payload } = msg;
   switch (type) {
     case "dancer": {
@@ -97,26 +100,46 @@ wss.on("connection", (ws) => {
     const [task, payload] = JSON.parse(msg.data);
     console.log("Client response: ", task, "\nPayload: ", payload);
 
+    const { type } = payload;
+
     if (task === "boardInfo") {
       const hostName = payload.name;
-      // TODO import board_config to check dancer's name
+      // import board_config to check dancer's name
       // get dancerName from hostname
-      if (board_config[hostName] !== undefined) {
-        const { dancerName } = board_config[hostName];
-        // ask about dancerClient
-        const dancerSocket = new DancerSocket(
-          ws,
-          dancerName,
-          DancerSocketAgent
-        );
-        dancerSocket.handleMessage();
-      }
-    }
-    if (task === "editor") {
-      const editorName = "test_editor"; // test
+      if (type === "dancer") {
+        if (board_config[hostName] !== undefined) {
+          const { dancerName } = board_config[hostName];
+          // ask about dancerClient
+          const dancerSocket = new DancerSocket(
+            ws,
+            dancerName,
+            DancerSocketAgent
+          );
+          dancerSocket.handleMessage();
 
-      const editorSocket = new EditorSocket(ws, editorName, EditorSocketAgent);
-      editorSocket.handleMessage();
+          const firstMsg = {
+            type: payload.type,
+            task,
+            payload: {
+              OK: payload.OK,
+              msg: payload.msg,
+              ip: dancerSocket.clientIp,
+            },
+          };
+
+          socketReceiveData(dancerName, firstMsg);
+        }
+      } else if (type === "editor") {
+        const editorName = hostName; // send from editorSocketAPI
+
+        const editorSocket = new EditorSocket(
+          ws,
+          editorName,
+          EditorSocketAgent
+        );
+
+        editorSocket.handleMessage();
+      }
     }
   };
 });
@@ -145,7 +168,7 @@ COMMANDS.forEach((command) => {
             fade,
             status: status[dancerName],
           }));
-          console.log(`server/app.js, uploadControl`, dancerJson);
+          // console.log(`server/app.js, uploadControl`, dancerJson);
           dancerClients[dancerName].uploadControl(dancerJson);
         });
         break;
