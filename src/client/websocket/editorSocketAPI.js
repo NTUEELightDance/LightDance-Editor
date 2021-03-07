@@ -1,11 +1,15 @@
 /* eslint-disable class-methods-use-this */
-import { updateDancerStatus } from "../slices/globalSlice";
+import { updateDancerStatus, fetchBoardConfig } from "../slices/globalSlice";
 import store from "../store";
 
 class EditorSocketAPI {
   constructor() {
     this.ws = null;
     this.url = `ws://${window.location.host}`;
+  }
+
+  async fetch() {
+    await store.dispatch(fetchBoardConfig());
   }
 
   init() {
@@ -16,8 +20,9 @@ class EditorSocketAPI {
       }, 3000);
       return;
     }
-    this.ws.onopen = () => {
+    this.ws.onopen = async () => {
       console.log("Websocket for Editor Connected");
+
       this.sendDataToServer([
         "boardInfo",
         {
@@ -50,19 +55,38 @@ class EditorSocketAPI {
     const [task, payload] = data;
 
     switch (task) {
-      case "boardInfo": {
+      case "getIp": {
+        const { dancerClients } = payload;
+
+        console.log(dancerClients);
+
+        Object.keys(dancerClients).forEach((dancerName) => {
+          store.dispatch(
+            updateDancerStatus({
+              dancerName,
+              newStatus: {
+                OK: true,
+                isConnected: true,
+                msg: "Connect Success",
+                ip: dancerClients[dancerName].clientIp,
+              },
+            })
+          );
+        });
+        break;
+      }
+      case "disconnect": {
         const {
           from,
-          response: { OK, msg, ip },
+          response: { OK, msg },
         } = payload;
-        console.log("IP:", ip);
         store.dispatch(
           updateDancerStatus({
             dancerName: from,
             newStatus: {
               OK,
               msg,
-              ip,
+              isConnected: false,
             },
           })
         );

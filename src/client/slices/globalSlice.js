@@ -501,7 +501,7 @@ export const globalSlice = createSlice({
           [dancerName]: {
             ip: "",
             hostname,
-            OK: false,
+            isConnected: false,
             msg: "",
           },
         };
@@ -517,7 +517,12 @@ export const globalSlice = createSlice({
     updateDancerStatus: (state, action) => {
       const { dancerName, newStatus } = action.payload;
       const { OK, msg } = newStatus;
+      state.dancerStatus[dancerName].isConnected =
+        newStatus.isConnected !== undefined
+          ? newStatus.isConnected
+          : state.dancerStatus[dancerName].isConnected;
       state.dancerStatus[dancerName].OK = OK;
+
       state.dancerStatus[dancerName].msg =
         msg || state.dancerStatus[dancerName].msg;
       state.dancerStatus[dancerName].ip = newStatus.ip

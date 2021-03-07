@@ -25,10 +25,15 @@ import { selectGlobal } from "../../slices/globalSlice";
 const useStyles = makeStyles((theme) => ({
   commands: {
     display: "inline-block",
-    padding: theme.spacing(1),
+    padding: theme.spacing(0.5),
   },
   btns: {
     textTransform: "none",
+  },
+  root: {
+    display: "inline-block",
+    padding: theme.spacing(0.5),
+    width: "100px",
   },
 }));
 
@@ -43,13 +48,12 @@ export default function CommandCenter() {
   const { dancerStatus, controlRecord, currentStatus } = useSelector(
     selectGlobal
   );
-  const dispatch = useDispatch();
 
   // local state
   const [statusBar, setStatusBar] = useState([]);
   const [selectedDancer, setSelectedDancer] = useState({});
   const [startTime, setStartTime] = useState(0);
-  const [whenToPlay, setWhenToPlay] = useState(0);
+  const [delay, setDelay] = useState(0);
 
   const renderStatusBar = (dancers) => {
     setStatusBar(
@@ -92,19 +96,21 @@ export default function CommandCenter() {
   return (
     <div>
       <TextField
+        size="small"
         type="number"
-        className={classes.commands}
+        className={classes.root}
         label="start time"
         onChange={(e) => {
           setStartTime(e.target.value);
         }}
       />
       <TextField
+        size="small"
         type="number"
-        className={classes.commands}
-        label="when to play"
+        className={classes.root}
+        label="delay(ms)"
         onChange={(e) => {
-          setWhenToPlay(e.target.value);
+          setDelay(e.target.value);
         }}
       />
 
@@ -122,8 +128,8 @@ export default function CommandCenter() {
                       return selectedDancer[dancer];
                     }
                   ), // fill the state
-                  startTime: startTime !== "" ? startTime : 0, // fill the number with variable
-                  whenToPlay: whenToPlay !== "" ? whenToPlay : 0, // fill the number with variable
+                  startTime: startTime !== "" ? parseInt(startTime, 10) : 0, // fill the number with variable
+                  delay: delay !== "" ? parseInt(delay, 10) : 0, // fill the number with variable
                   ledData: [], // fill the array with variable
                   controlJson: controlRecord, // fill
                   lightCurrentStatus: currentStatus,
@@ -137,7 +143,7 @@ export default function CommandCenter() {
         );
       })}
       <TableContainer component={Paper}>
-        <Table className={classes.table}>
+        <Table className={classes.table} size="small">
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
@@ -161,7 +167,7 @@ export default function CommandCenter() {
           </TableHead>
           <TableBody>
             {statusBar.map((row) => {
-              const { dancerName, hostname, ip, OK, msg } = row;
+              const { dancerName, hostname, ip, OK, msg, isConnected } = row;
               const isItemSelected = selectedDancer[dancerName];
 
               return (
@@ -185,13 +191,15 @@ export default function CommandCenter() {
                   <TableCell>{hostname}</TableCell>
                   <TableCell>{ip}</TableCell>
                   <TableCell>
-                    {OK ? (
-                      <p style={{ color: "green" }}>Success</p>
+                    {isConnected ? (
+                      <p style={{ color: "green" }}>Connected</p>
                     ) : (
-                      <p style={{ color: "red" }}>Failed</p>
+                      <p style={{ color: "red" }}>Disconnected</p>
                     )}
                   </TableCell>
-                  <TableCell>{msg}</TableCell>
+                  <TableCell>
+                    <p style={{ color: OK ? "green" : "red" }}>{msg}</p>
+                  </TableCell>
                 </TableRow>
               );
             })}

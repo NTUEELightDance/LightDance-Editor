@@ -7,7 +7,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { useSelector, useDispatch } from "react-redux";
 // actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
-import { fetchBoardConfig } from "./slices/globalSlice";
 // layout
 import Layout from "./layout";
 import "./app.css";
@@ -38,7 +37,6 @@ const App = () => {
   useEffect(async () => {
     if (!init) {
       await dispatch(fetchLoad());
-      await dispatch(fetchBoardConfig());
     }
   }, [init]);
   return (

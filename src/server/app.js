@@ -126,6 +126,8 @@ wss.on("connection", (ws) => {
         );
 
         editorSocket.handleMessage();
+
+        ws.send(JSON.stringify(["getIp", { dancerClients }]));
       } else {
         console.error(`Invalid type ${type} on connection`);
       }
@@ -174,9 +176,14 @@ COMMANDS.forEach((command) => {
     const { selectedDancers } = req.body;
     switch (command) {
       case "play": {
-        const { startTime, whenToPlay } = req.body;
+        const { startTime, delay } = req.body;
+        const currentTime = new Date();
+        console.log(currentTime.getTime() + delay);
         selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].play(startTime, whenToPlay);
+          dancerClients[dancerName].play(
+            startTime,
+            delay + currentTime.getTime()
+          );
         });
         break;
       }

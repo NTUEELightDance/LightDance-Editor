@@ -32,7 +32,7 @@ class DancerSocket {
   handleDisconnect = () => {
     this.ws.onclose = (mes) => {
       this.dancerAgent.socketReceiveData(this.dancerName, {
-        task: "Disconnect",
+        task: "disconnect",
         payload: { msg: "Diconnected", OK: false },
         type: "dancer",
       });
