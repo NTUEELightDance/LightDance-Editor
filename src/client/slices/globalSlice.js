@@ -572,4 +572,14 @@ export const {
 
 export const selectGlobal = (state) => state.global;
 
+const fetchJson = (path) => {
+  return fetch(path).then((data) => data.json());
+};
+
+export const fetchBoardConfig = () => async (dispath) => {
+  const boardConfig = await fetchJson("/data/board_config.json");
+
+  dispath(initDancerStatus(boardConfig));
+};
+
 export default globalSlice.reducer;

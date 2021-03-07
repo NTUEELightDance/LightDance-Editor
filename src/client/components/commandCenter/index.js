@@ -20,7 +20,7 @@ import { COMMANDS } from "../../constants";
 import commandApi from "./agent";
 
 // redux selector and actions
-import { selectGlobal, initDancerStatus } from "../../slices/globalSlice";
+import { selectGlobal } from "../../slices/globalSlice";
 
 const useStyles = makeStyles((theme) => ({
   commands: {
@@ -62,16 +62,9 @@ export default function CommandCenter() {
     );
   };
 
-  const initStatusBar = async () => {
-    const fetchJson = (path) => {
-      return fetch(path).then((data) => data.json());
-    };
-    const boardConfig = await fetchJson("/data/board_config.json");
-
-    dispatch(initDancerStatus(boardConfig));
+  const initStatusBar = () => {
     setSelectedDancer(
-      Object.keys(boardConfig).reduce((acc, hostname) => {
-        const { dancerName } = boardConfig[hostname];
+      Object.keys(dancerStatus).reduce((acc, dancerName) => {
         return {
           ...acc,
           [dancerName]: false,
