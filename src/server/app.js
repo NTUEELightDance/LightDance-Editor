@@ -8,7 +8,6 @@ const Websocket = require("ws");
 const http = require("http");
 const bodyParser = require("body-parser");
 
-const { COMMANDS } = require("../constant");
 const DancerSocket = require("./websocket/dancerSocket");
 const EditorSocket = require("./websocket/editorSocket");
 const board_config = require("../../data/board_config.json");
@@ -29,9 +28,6 @@ const editorClients = {};
  * @param {{ type, task, payload }} msg
  */
 const socketReceiveData = (from, msg) => {
-  console.log("dancerClients: ", Object.keys(dancerClients));
-  console.log("editorClients: ", Object.keys(editorClients));
-
   const { type, task, payload } = msg;
   switch (type) {
     case "dancer": {
@@ -52,6 +48,9 @@ const socketReceiveData = (from, msg) => {
     default:
       break;
   }
+
+  console.log("dancerClients: ", Object.keys(dancerClients));
+  console.log("editorClients: ", Object.keys(editorClients));
 };
 
 // DancerClientsAgent: to handle add or delete someone in dancerClients
@@ -98,18 +97,6 @@ wss.on("connection", (ws) => {
             DancerClientsAgent
           );
           dancerSocket.handleMessage();
-
-          // TOFIX: should send dancerClient's data to all editor when editor onconnect
-          // const firstMsg = {
-          //   type,
-          //   task,
-          //   payload: {
-          //     ...payload,
-          //     ip: dancerSocket.clientIp,
-          //   },
-          // };
-
-          // socketReceiveData(dancerName, firstMsg);
         } else {
           // `dancer` type's hostName is not in board_config
           console.error(
@@ -171,118 +158,16 @@ app.use("/data", express.static(dataPath));
 app.use(bodyParser.json({ limit: "20mb" }));
 
 // router api
-COMMANDS.forEach((command) => {
-  app.post(`/api/${command}`, (req, res) => {
-    const { selectedDancers } = req.body;
-    switch (command) {
-      case "play": {
-        const { startTime, delay } = req.body;
-        const currentTime = new Date();
-        console.log(currentTime.getTime() + delay);
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].play(
-            startTime,
-            delay + currentTime.getTime()
-          );
-        });
-        break;
-      }
-      case "uploadControl": {
-        const { controlJson } = req.body;
-        selectedDancers.forEach((dancerName) => {
-          // TODO: if the status is same as last one => need to delete
-          const dancerJson = controlJson.map(({ start, status, fade }) => ({
-            start,
-            fade,
-            status: status[dancerName],
-          }));
-          // console.log(`server/app.js, uploadControl`, dancerJson);
-          dancerClients[dancerName].uploadControl(dancerJson);
-        });
-        break;
-      }
-      case "uploadLed": {
-        const { ledData } = req.body;
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].uploadLED(ledData);
-        });
-        break;
-      }
-      case "lightCurrentStatus": {
-        const { lightCurrentStatus } = req.body;
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].lightCurrentStatus(
-            lightCurrentStatus[dancerName]
-          );
-        });
-        break;
-      }
-      case "sync": {
-        selectedDancers.forEach((dancerName) => {
-          // TODO
-        });
-        break;
-      }
-      case "start": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].start();
-        });
-        break;
-      }
-      case "load": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].load();
-        });
-        break;
-      }
-      case "pause": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].pause();
-        });
-        break;
-      }
-      case "stop": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].stop();
-        });
-        break;
-      }
-      case "terminate": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].terminate();
-        });
-        break;
-      }
-      case "kick": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].kick();
-        });
-        break;
-      }
-      case "shutdown": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].shutdown();
-        });
-        break;
-      }
-      case "reboot": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].reboot();
-        });
-        break;
-      }
-      case "kill": {
-        selectedDancers.forEach((dancerName) => {
-          dancerClients[dancerName].kill();
-        });
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-    res.send(command);
+
+app.post("/api/:command", (req, res) => {
+  const { command } = req.params;
+  const { selectedDancers, args } = req.body;
+
+  selectedDancers.forEach((dancerName) => {
+    dancerClients[dancerName].methods[command](args);
   });
+
+  res.status(200).send(command);
 });
 
 const port = 8080;
