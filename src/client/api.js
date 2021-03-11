@@ -130,4 +130,15 @@ export const requestDownload = (control, position, texture) => {
     });
 };
 
+export const fetchTexture = () => {
+  const texturePath = store.getState().load.load.Texture;
+  return fetch(texturePath, {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
 export const CommandAgent = () => {};

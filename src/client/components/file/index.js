@@ -25,6 +25,8 @@ import {
   checkControlJson,
   checkPosJson,
   uploadJson,
+  downloadControl,
+  downloadPos,
 } from "./utils";
 
 const useStyles = makeStyles({});
@@ -114,8 +116,16 @@ export default function File() {
     }
   };
 
-  const handleDownload = () => {
-    downloadEverything(controlRecord, posRecord, texture);
+  const handleDownloadControl = () => {
+    downloadControl(controlRecord);
+  };
+
+  const handleDownloadPos = () => {
+    downloadPos(posRecord);
+  };
+
+  const handleDownloadEverything = () => {
+    downloadEverything(controlRecord, posRecord);
   };
 
   const handleSwitchServer = () => setToServer(!toServer);
@@ -137,76 +147,101 @@ export default function File() {
           <Typography variant="h6" color="initial">
             Upload control.json
           </Typography>
-          <input
-            id="control"
-            name="control"
-            type="file"
-            accept=".json"
-            onChange={handleControlInput}
-          />
-          <Button
-            variant="outlined"
-            color="default"
-            onClick={() => {
-              handleControlUpload();
-            }}
-          >
-            Upload
-          </Button>
+          <div style={{ display: "flex", alignItems: "normal" }}>
+            <input
+              id="control"
+              name="control"
+              type="file"
+              accept=".json"
+              onChange={handleControlInput}
+            />
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => {
+                handleControlUpload();
+              }}
+            >
+              Upload
+            </Button>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => {
+                handleDownloadControl();
+              }}
+            >
+              Download
+            </Button>
+          </div>
         </div>
         <div>
           <Typography variant="h6" color="initial">
             Upload position.json
           </Typography>
-          <input
-            id="position"
-            name="position"
-            type="file"
-            accept=".json"
-            onChange={handlePosInput}
-          />
-          <Button
-            variant="outlined"
-            color="default"
-            onClick={() => {
-              handlePosUpload();
-            }}
-          >
-            Upload
-          </Button>
+          <div style={{ display: "flex", alignItems: "normal" }}>
+            <input
+              id="position"
+              name="position"
+              type="file"
+              accept=".json"
+              onChange={handlePosInput}
+            />
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => {
+                handlePosUpload();
+              }}
+            >
+              Upload
+            </Button>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => {
+                handleDownloadPos();
+              }}
+            >
+              Download
+            </Button>
+          </div>
         </div>
       </div>
       <div>
         <Typography variant="h6" color="initial">
           Upload [name].png (should select part)
         </Typography>
+        <div style={{ display: "flex", alignItems: "normal" }}>
+          <div>
+            <input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImagesInput}
+            />
+          </div>
 
-        <div>
-          <input
-            id="images"
-            name="images"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImagesInput}
-          />
+          <select value={path} onChange={handlePathChange}>
+            {Object.keys(texture.LEDPARTS).map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+
+          <Button
+            variant="outlined"
+            color="default"
+            onClick={() => {
+              handleImagesUpload();
+            }}
+          >
+            Upload
+          </Button>
         </div>
-        <select value={path} onChange={handlePathChange}>
-          {Object.keys(texture.LEDPARTS).map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
-        <Button
-          variant="outlined"
-          color="default"
-          onClick={() => {
-            handleImagesUpload();
-          }}
-        >
-          Upload
-        </Button>
       </div>
 
       <br />
@@ -217,7 +252,7 @@ export default function File() {
         variant="outlined"
         color="default"
         onClick={() => {
-          handleDownload();
+          handleDownloadEverything();
         }}
       >
         Download

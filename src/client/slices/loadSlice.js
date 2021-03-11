@@ -6,6 +6,7 @@ export const loadSlice = createSlice({
   initialState: {
     init: false,
     music: "", // load music path
+    load: {},
     control: [], // loaded control.json, may not be same as localStorage (this is for default)
     position: [], // loaded position.json, may not be same as localStorage (this is for default)
     lightPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
@@ -17,6 +18,9 @@ export const loadSlice = createSlice({
   reducers: {
     setInit: (state) => {
       state.init = true;
+    },
+    setLoad: (state, action) => {
+      state.load = action.payload;
     },
     setMusic: (state, action) => {
       state.music = action.payload;
@@ -47,6 +51,7 @@ export const loadSlice = createSlice({
 
 const {
   setInit,
+  setLoad,
   setMusic,
   setControl,
   setPosition,
@@ -64,6 +69,7 @@ const fetchJson = (path) => {
 };
 
 export const fetchLoad = () => async (dispatch) => {
+  const load = await fetchJson("/data/load.json");
   const {
     Music,
     Control,
@@ -72,7 +78,9 @@ export const fetchLoad = () => async (dispatch) => {
     PosPresets,
     Dancers,
     Texture,
-  } = await fetchJson("/data/load.json");
+  } = load;
+  // set load
+  dispatch(setLoad(load));
   // set Music
   dispatch(setMusic(Music));
   // set Control
@@ -86,7 +94,7 @@ export const fetchLoad = () => async (dispatch) => {
   dispatch(setLightPresets(lightPresets));
   // set lightPresets
   const posPresets = await fetchJson(PosPresets);
-  dispatch(setLightPresets(posPresets));
+  dispatch(setPosPresets(posPresets));
   // set Dancer Names
   dispatch(setDancerNames(Dancers.names));
 
