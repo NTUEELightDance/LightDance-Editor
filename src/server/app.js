@@ -3,8 +3,15 @@
 /* eslint-disable global-require */
 const express = require("express");
 const path = require("path");
+const http = require("http");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const WebSocketApp = require("./websocket");
+
+const apiRouter = require("./routes");
 
 const app = express();
+const server = http.createServer(app);
 
 if (process.env.NODE_ENV === "dev") {
   require("dotenv").config();
@@ -32,13 +39,49 @@ if (process.env.NODE_ENV === "dev") {
   app.use(express.static(buildPath));
 }
 
+app.use(bodyParser.json({ limit: "10mb" }));
+
 const assetPath = path.resolve(__dirname, "..", "..", "./asset");
 app.use("/asset", express.static(assetPath));
 const dataPath = path.resolve(__dirname, "..", "..", "./data");
 app.use("/data", express.static(dataPath));
+app.use("/api", apiRouter);
+
+const wss = new WebSocketApp(server);
+app.set("wss", wss);
 
 const port = 8080;
 
-app.listen(port, () => {
-  console.log(`Listening on port: ${port}`);
+// app.listen(port, () => {
+//   const wss = new WebSocketApp(server);
+//   console.log(`Listening on port: ${port}`);
+// });
+
+// db settings below
+
+// const dbOptions = {
+//   useNewUrlParser: true,
+//   useCreateIndex: true,
+//   auto_reconnect: true,
+//   useUnifiedTopology: true,
+//   poolSize: 10,
+// };
+
+// mongoose.connect("mongodb://localhost:27017", dbOptions);
+// const db = mongoose.connection;
+
+// db.on("error", console.error.bind(console, "connection error:"));
+
+// db.once("open", () => {
+//   console.log("Successfully connect to MongoDB!");
+
+//   server.listen(port, () => {
+//     wss.listen();
+//     console.log(`Listening on http://localhost:${port}`);
+//   });
+// });
+
+server.listen(port, () => {
+  wss.listen();
+  console.log(`Listening on http://localhost:${port}`);
 });

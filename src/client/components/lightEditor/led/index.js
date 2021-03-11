@@ -119,7 +119,7 @@ export default function LedEditor() {
                   value={currentStatus[selected[0]][partName].src}
                   onChange={(e) => handleChangeSrc(partName, e.target.value)}
                 >
-                  {texture[partName].name.map((name) => (
+                  {texture["LEDPARTS"][partName].name.map((name) => (
                     <MenuItem key={name} value={name}>
                       {name}
                     </MenuItem>

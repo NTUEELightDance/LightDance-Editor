@@ -27,7 +27,7 @@ const position = JSON.parse(raw);
 
 // Centering
 const centerX = 650;
-const centerY = 400;
+const centerY = 300;
 
 position.forEach(({ pos }) => {
   Object.values(pos).forEach((val) => {

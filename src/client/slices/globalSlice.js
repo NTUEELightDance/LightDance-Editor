@@ -12,6 +12,8 @@ import {
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 
+// import { syncPost, loginPost } from "../api";
+
 export const globalSlice = createSlice({
   name: "global",
   initialState: {
@@ -160,13 +162,87 @@ export const globalSlice = createSlice({
       if (state.mode === EDIT) {
         state.controlRecord[state.timeData.controlFrame].status =
           state.currentStatus;
+        // const data = {
+        //   status: JSON.stringify(state.currentStatus),
+        //   frame: state.timeData.controlFrame,
+        //   fade: state.currentFade,
+        // };
+        // syncPost(
+        //   state.branch,
+        //   state.username,
+        //   "control",
+        //   "EDIT",
+        //   JSON.stringify(data)
+        // );
       } else if (state.mode === ADD) {
         state.controlRecord.splice(state.timeData.controlFrame + 1, 0, {
           start: state.timeData.time,
           status: state.currentStatus,
+          fade: state.currentFade,
         });
+
+        // const data = {
+        //   status: JSON.stringify(state.currentStatus),
+        //   frame: state.timeData.controlFrame + 1,
+        //   time: state.timeData.time,
+        //   fade: state.currentFade,
+        // };
+
+        // if (sub)
+        //   syncPost(
+        //     state.branch,
+        //     state.username,
+        //     "control",
+        //     "EDIT",
+        //     JSON.stringify(data)
+        //   );
+        // else
+        //   syncPost(
+        //     state.branch,
+        //     state.username,
+        //     "control",
+        //     "ADD",
+        //     JSON.stringify(data)
+        //   );
       }
       state.mode = IDLE;
+      setItem("control", JSON.stringify(state.controlRecord));
+    },
+
+    /**
+     * Sync status
+     * @param {*} state
+     */
+    syncStatus: (state, syncData) => {
+      const { mode, from, time } = syncData.payload;
+      const data = JSON.parse(syncData.payload.data);
+
+      state.lastUpdateTime = time;
+      setItem("lastUpdateTime", state.lastUpdateTime);
+
+      if (mode === "EDIT") {
+        let { frame } = data;
+        frame = Number(frame);
+        state.controlRecord[frame].status = JSON.parse(data.status);
+        state.controlRecord[frame].fade = data.fade;
+        if (frame === state.timeData.controlFrame) {
+          state.currentStatus = JSON.parse(data.status);
+        }
+      }
+      if (mode === "ADD" && from !== state.username) {
+        let { frame } = data;
+        const { time, status, fade } = data;
+        frame = Number(frame);
+        state.controlRecord.splice(frame, 0, {
+          start: Number(time),
+          status: JSON.parse(status),
+          fade,
+        });
+        if (frame === state.timeData.controlFrame) {
+          state.currentStatus = JSON.parse(status);
+          state.currentFade = fade;
+        }
+      }
       setItem("control", JSON.stringify(state.controlRecord));
     },
 
@@ -183,6 +259,14 @@ export const globalSlice = createSlice({
         console.error(`Can't Delete Frame 0`);
         return;
       }
+      // const data = { frame: state.timeData.controlFrame };
+      // syncPost(
+      //   state.branch,
+      //   state.username,
+      //   "control",
+      //   "DEL",
+      //   JSON.stringify(data)
+      // );
       state.controlRecord.splice(state.timeData.controlFrame, 1);
       setItem("control", JSON.stringify(state.controlRecord));
     },
@@ -225,13 +309,81 @@ export const globalSlice = createSlice({
     saveCurrentPos: (state) => {
       if (state.mode === EDIT) {
         state.posRecord[state.timeData.posFrame].pos = state.currentPos;
+        // const data = {
+        //   pos: JSON.stringify(state.currentPos),
+        //   frame: state.timeData.posFrame,
+        // };
+        // syncPost(
+        //   state.branch,
+        //   state.username,
+        //   "position",
+        //   "EDIT",
+        //   JSON.stringify(data)
+        // );
       } else if (state.mode === ADD) {
         state.posRecord.splice(state.timeData.posFrame + 1, 0, {
           start: state.timeData.time,
           pos: state.currentPos,
         });
+
+        // const data = {
+        //   pos: JSON.stringify(state.currentPos),
+        //   frame: state.timeData.posFrame + 1 - sub,
+        //   time: state.timeData.time,
+        // };
+
+        // if (sub)
+        //   syncPost(
+        //     state.branch,
+        //     state.username,
+        //     "position",
+        //     "EDIT",
+        //     JSON.stringify(data)
+        //   );
+        // else
+        //   syncPost(
+        //     state.branch,
+        //     state.username,
+        //     "position",
+        //     "ADD",
+        //     JSON.stringify(data)
+        //   );
       }
       state.mode = IDLE;
+      setItem("position", JSON.stringify(state.posRecord));
+    },
+
+    /**
+     * Sync pos
+     * @param {*} state
+     */
+    syncPos: (state, syncData) => {
+      const { mode, from, time } = syncData.payload;
+      const data = JSON.parse(syncData.payload.data);
+
+      state.lastUpdateTime = time;
+      setItem("lastUpdateTime", state.lastUpdateTime);
+
+      if (mode === "EDIT") {
+        let { frame } = data;
+        frame = Number(frame);
+        state.posRecord[frame].pos = JSON.parse(data.pos);
+        if (frame === state.timeData.posFrame) {
+          state.currentPos = JSON.parse(data.pos);
+        }
+      }
+      if (mode === "ADD" && from !== state.username) {
+        let { frame } = data;
+        const { time, pos } = data;
+        frame = Number(frame);
+        state.posRecord.splice(frame, 0, {
+          start: Number(time),
+          pos: JSON.parse(pos),
+        });
+        // if (frame === state.timeData.posFrame) {
+        //   state.currentStatus = JSON.parse(pos);
+        // }
+      }
       setItem("position", JSON.stringify(state.posRecord));
     },
 
@@ -248,8 +400,36 @@ export const globalSlice = createSlice({
         console.error(`Can't Delete Frame 0`);
         return;
       }
+      // const data = { frame: state.timeData.posFrame };
+      // syncPost(
+      //   state.branch,
+      //   state.username,
+      //   "position",
+      //   "DEL",
+      //   JSON.stringify(data)
+      // );
       state.posRecord.splice(state.timeData.posFrame, 1);
       setItem("position", JSON.stringify(state.posRecord));
+    },
+
+    /**
+     * sync Delete
+     */
+    syncDelete: (state, deleteData) => {
+      const { time } = deleteData.payload;
+      const data = JSON.parse(deleteData.payload.data);
+
+      state.lastUpdateTime = time;
+      setItem("lastUpdateTime", state.lastUpdateTime);
+
+      if (deleteData.payload.type === "position") {
+        state.posRecord.splice(data.frame, 1);
+        setItem("control", JSON.stringify(state.controlRecord));
+      }
+      if (deleteData.payload.type === "control") {
+        state.controlRecord.splice(data.frame, 1);
+        setItem("position", JSON.stringify(state.posRecord));
+      }
     },
 
     /**
@@ -478,6 +658,15 @@ export const globalSlice = createSlice({
       state.posPresets.splice(idx, 1);
       setItem("posPresets", JSON.stringify(state.posPresets));
     },
+
+    /**
+     * Login
+     */
+    login: (state, action) => {
+      const { username } = action.payload;
+      state.username = username;
+      state.isLogin = true;
+    },
   },
 });
 
@@ -496,12 +685,16 @@ export const {
   editCurrentStatus,
   editCurrentStatusLED,
   saveCurrentStatus,
+  syncStatus,
   deleteCurrentStatus,
 
   setCurrentPosByName,
   setCurrentPos,
   saveCurrentPos,
+  syncPos,
   deleteCurrentPos,
+
+  syncDelete,
 
   setTime,
   setPosFrame,

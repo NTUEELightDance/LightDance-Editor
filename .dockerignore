@@ -1,1 +1,6 @@
 node_modules
+.git
+build
+.vscode
+.eslint*
+.prettier*

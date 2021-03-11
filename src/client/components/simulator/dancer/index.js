@@ -35,7 +35,7 @@ class Dancer {
         this,
         blpart,
         settings,
-        loadTexture[blpart]
+        loadTexture["BLPARTS"][blpart]
       );
     });
     // ELPart
@@ -44,7 +44,7 @@ class Dancer {
         this,
         elpart,
         settings,
-        loadTexture[elpart]
+        loadTexture["ELPARTS"][elpart]
       );
     });
     // LEDPART
@@ -53,7 +53,7 @@ class Dancer {
         this,
         ledpart,
         settings,
-        loadTexture[ledpart]
+        loadTexture["LEDPARTS"][ledpart]
       );
     });
 

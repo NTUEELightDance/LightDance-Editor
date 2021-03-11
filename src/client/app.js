@@ -13,6 +13,8 @@ import "./app.css";
 // components
 import Bar from "./components/bar";
 
+import WebSocketContext from "./webSocketContext";
+
 const theme = createMuiTheme({
   palette: {
     type: "dark",
@@ -40,6 +42,7 @@ const App = () => {
   return (
     <div>
       <ThemeProvider theme={theme}>
+        {/* <WebSocketContext> */}
         <CssBaseline />
         {init ? (
           <div
@@ -57,6 +60,7 @@ const App = () => {
         ) : (
           "Loading..."
         )}
+        {/* </WebSocketContext> */}
       </ThemeProvider>
     </div>
   );
