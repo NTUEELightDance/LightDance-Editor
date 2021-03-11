@@ -1,17 +1,29 @@
-// command Client and command Server
-module.exports.COMMANDS = [
-  "load",
-  "sync",
-  "start",
-  "play",
-  "pause",
-  "stop",
-  "uploadControl",
-  "uploadLed",
-  "lightCurrentStatus",
-  "halt",
-  "kill",
-  "shutdown",
-  "reboot",
-  "terminate",
-];
+const SYNC = "sync";
+const UPLOAD_LED = "uploadLed";
+const UPLOAD_CONTROL = "uploadControl";
+const START = "start";
+const LOAD = "load";
+const PLAY = "play";
+const PAUSE = "pause";
+const STOP = "stop";
+const LIGTHCURRENTSTATUS = "lightCurrentStatus";
+const KICK = "kick";
+const SHUTDOWN = "shutdown";
+const REBOOT = "reboot";
+const TERMINATE = "terminate";
+
+module.exports = {
+  SYNC,
+  UPLOAD_LED,
+  UPLOAD_CONTROL,
+  START,
+  LOAD,
+  PLAY,
+  PAUSE,
+  STOP,
+  LIGTHCURRENTSTATUS,
+  KICK,
+  SHUTDOWN,
+  REBOOT,
+  TERMINATE,
+};

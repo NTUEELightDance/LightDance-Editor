@@ -38,6 +38,14 @@ export const globalSlice = createSlice({
 
     lightPresets: [], // lightPresets, presets for light
     posPresets: [], // posPresets, presets for pos
+
+    dancerStatus: {},
+    /* {
+      dancerName:{
+        msg:
+        OK:
+    }
+  } */
   },
   reducers: {
     /**
@@ -660,12 +668,46 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * Login
+     *  initialize dancer status bar with dancerName
+     * @param {*} state
+     * @param {*} action
      */
-    login: (state, action) => {
-      const { username } = action.payload;
-      state.username = username;
-      state.isLogin = true;
+    initDancerStatus: (state, action) => {
+      const boardConfig = action.payload;
+      state.dancerStatus = Object.keys(boardConfig).reduce((acc, hostname) => {
+        const { dancerName } = boardConfig[hostname];
+        return {
+          ...acc,
+          [dancerName]: {
+            ip: "",
+            hostname,
+            isConnected: false,
+            msg: "",
+          },
+        };
+      }, {});
+    },
+
+    /**
+     *  update dancerStatus with dancer's name and new status
+     *  if no new value, remain the same as previous
+     * @param {*} state
+     * @param {*} action
+     */
+    updateDancerStatus: (state, action) => {
+      const { dancerName, newStatus } = action.payload;
+      const { OK, msg } = newStatus;
+      state.dancerStatus[dancerName].isConnected =
+        newStatus.isConnected !== undefined
+          ? newStatus.isConnected
+          : state.dancerStatus[dancerName].isConnected;
+      state.dancerStatus[dancerName].OK = OK;
+
+      state.dancerStatus[dancerName].msg =
+        msg || state.dancerStatus[dancerName].msg;
+      state.dancerStatus[dancerName].ip = newStatus.ip
+        ? newStatus.ip
+        : state.dancerStatus[dancerName].ip;
     },
   },
 });
@@ -712,8 +754,21 @@ export const {
   editPosPresetsName,
   addPosPresets,
   deletePosPresets,
+
+  initDancerStatus,
+  updateDancerStatus,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;
+
+const fetchJson = (path) => {
+  return fetch(path).then((data) => data.json());
+};
+
+export const fetchBoardConfig = () => async (dispath) => {
+  const boardConfig = await fetchJson("/data/board_config.json");
+
+  dispath(initDancerStatus(boardConfig));
+};
 
 export default globalSlice.reducer;

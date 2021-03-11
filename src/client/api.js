@@ -3,7 +3,7 @@ import store from "./store";
 
 export const syncPost = (branchName, from, type, mode, data) => {
   const payload = JSON.stringify({ branchName, from, type, mode, data });
-  return fetch("/api/sync", {
+  return fetch("/api/editor/sync", {
     method: "POST",
     body: payload,
     headers: {
@@ -17,7 +17,7 @@ export const syncPost = (branchName, from, type, mode, data) => {
 
 export const loginPost = (username, password) => {
   const payload = JSON.stringify({ username, password });
-  return fetch("/api/login", {
+  return fetch("/api/editor/login", {
     method: "POST",
     body: payload,
     headers: {
@@ -35,7 +35,7 @@ export const loginPost = (username, password) => {
 };
 
 export const getBranches = () => {
-  return fetch("/api/branch", {
+  return fetch("/api/editor/branch", {
     method: "GET",
   })
     .then((response) => response.text())
@@ -45,7 +45,7 @@ export const getBranches = () => {
 
 export const createBranch = (branchName) => {
   const payload = JSON.stringify({ branchName });
-  return fetch("/api/branch", {
+  return fetch("/api/editor/branch", {
     method: "POST",
     body: payload,
     headers: {
@@ -59,7 +59,7 @@ export const createBranch = (branchName) => {
 
 export const deleteBranch = (branchName) => {
   const payload = JSON.stringify({ branchName });
-  return fetch("/api/branch", {
+  return fetch("/api/editor/branch", {
     method: "DELETE",
     body: payload,
     headers: {
@@ -76,7 +76,7 @@ export const uploadJson = (file, type) => {
 
   formData.append(type, file);
   if (type === "position" && type === "control") {
-    fetch(`/api/upload/${type}`, {
+    fetch(`/api/editor/upload/${type}`, {
       method: "POST",
       body: formData,
     })
@@ -98,7 +98,7 @@ export const uploadImages = (files, path) => {
 
   formData.append("filePath", path);
 
-  fetch("/api/upload/images", {
+  fetch("/api/editor/upload/images", {
     method: "POST",
     body: formData,
   })
@@ -114,7 +114,7 @@ export const uploadImages = (files, path) => {
 export const requestDownload = (control, position, texture) => {
   const payload = JSON.stringify({ control, position, texture });
 
-  fetch("/api/download", {
+  fetch("/api/editor/download", {
     method: "POST",
     body: payload,
     headers: {

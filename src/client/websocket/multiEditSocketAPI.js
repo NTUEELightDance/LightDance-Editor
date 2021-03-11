@@ -1,5 +1,5 @@
-import { syncPos, syncStatus, syncDelete } from "./slices/globalSlice";
-import store from "./store";
+import { syncPos, syncStatus, syncDelete } from "../slices/globalSlice";
+import store from "../store";
 
 class WebSocketAPI {
   constructor() {

@@ -1,16 +1,20 @@
 import React, { useState, useEffect, createContext } from "react";
-import WebSocketAPI from "./websocket";
+import EditorSocketAPI from "./websocket/editorSocketAPI";
+
+import { fetchBoardConfig } from "./slices/globalSlice";
+import store from "./store";
 
 const WebSocketContext = createContext(null);
-export { WebSocketContext };
+// export { WebSocketContext };
 
 export default function WebSocket({ children }) {
   const [webSocket, setWebSocket] = useState(1);
 
-  useEffect(() => {
-    const webAPI = new WebSocketAPI();
-    webAPI.init();
-    setWebSocket(webAPI);
+  useEffect(async () => {
+    const editorSocket = new EditorSocketAPI();
+    await store.dispatch(fetchBoardConfig());
+    editorSocket.init();
+    setWebSocket(editorSocket);
   }, []);
 
   return (

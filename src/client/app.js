@@ -37,7 +37,9 @@ const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
   useEffect(async () => {
-    if (!init) await dispatch(fetchLoad());
+    if (!init) {
+      await dispatch(fetchLoad());
+    }
   }, [init]);
   return (
     <div>

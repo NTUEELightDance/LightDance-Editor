@@ -1,0 +1,37 @@
+{
+  "noidname-X510UNR": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "dancer0"
+  },
+  "KenMac": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "dancer1"
+  },
+  "test2": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "dancer2"
+  },
+  "test3": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "dancer3"
+  },
+  "test4": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "dancer4"
+  },
+  "test5": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "dancer5"
+  },
+  "test6": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "dancer6"
+  }
+}
