@@ -9,6 +9,7 @@ import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import Divider from "@material-ui/core/Divider";
 import Switch from "@material-ui/core/Switch";
+import MenuItem from "@material-ui/core/MenuItem";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 // write record
@@ -210,7 +211,7 @@ export default function File() {
       </div>
       <div>
         <Typography variant="h6" color="initial">
-          Upload [name].png (should select part)
+          Upload [name].png <strong>(should select part)</strong>
         </Typography>
         <div style={{ display: "flex", alignItems: "normal" }}>
           <div>
@@ -224,13 +225,19 @@ export default function File() {
             />
           </div>
 
-          <select value={path} onChange={handlePathChange}>
+          <TextField
+            select
+            value={path}
+            variant="outlined"
+            onChange={handlePathChange}
+            size="small"
+          >
             {Object.keys(texture.LEDPARTS).map((name) => (
-              <option key={name} value={name}>
+              <MenuItem key={name} value={name}>
                 {name}
-              </option>
+              </MenuItem>
             ))}
-          </select>
+          </TextField>
 
           <Button
             variant="outlined"
