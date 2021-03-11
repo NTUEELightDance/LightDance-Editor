@@ -3,6 +3,10 @@
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import JSZipUtils from "jszip-utils";
+import dayjs from "dayjs";
+
+// import fetchTexture for img download
+import { fetchTexture } from "../../api";
 
 // import store
 import store from "../../store";
@@ -142,8 +146,34 @@ const urlToPromise = (url) =>
 //  * |- position.json
 //  * |- texture.json
 
-export const downloadEverything = async (control, position, texture) => {
+// TODEL: make this a util
+// eslint-disable-next-line class-methods-use-this
+const downloadJson = (exportObj, exportName) => {
+  const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
+    JSON.stringify(exportObj)
+  )}`;
+  const downloadAnchorNode = document.createElement("a");
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", `${exportName}.json`);
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+};
+
+export const downloadControl = async (control) => {
+  const now = dayjs().format("YYYYMMDD_HHmm");
+  downloadJson(control, `control_${now}`);
+};
+
+export const downloadPos = async (position) => {
+  const now = dayjs().format("YYYYMMDD_HHmm");
+  downloadJson(position, `position_${now}`);
+};
+
+export const downloadEverything = async (control, position) => {
+  const texture = await fetchTexture();
   const zip = new JSZip();
+
   zip.file("control.json", JSON.stringify(control));
   zip.file("position.json", JSON.stringify(position));
   zip.file("texture.json", JSON.stringify(texture));
@@ -168,10 +198,9 @@ export const downloadEverything = async (control, position, texture) => {
       }
     });
   });
-  const now = new Date();
-  const timeStamp = now.toJSON().slice(0, 10).split("-").join("_");
+  const now = dayjs().format("YYYYMMDD_HHmm");
   zip.generateAsync({ type: "blob" }).then((content) => {
     // see FileSaver.js
-    saveAs(content, `light_dance_${timeStamp}.zip`);
+    saveAs(content, `light_dance_${now}.zip`);
   });
 };
