@@ -7,16 +7,7 @@
   "Dancers": {
     "prefix": "/data/dancers/",
     "postfix": ".json",
-    "names": [
-      "dancer0",
-      "dancer1",
-      "dancer2",
-      "dancer3",
-      "dancer4",
-      "dancer5",
-      "dancer6",
-      "dancer7"
-    ]
+    "names": ["dancer0"]
   },
   "Texture": "/data/texture.json"
 }
