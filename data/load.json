@@ -7,7 +7,18 @@
   "Dancers": {
     "prefix": "/data/dancers/",
     "postfix": ".json",
-    "names": ["dancer0"]
+    "names": [
+      "1_191",
+      "2_ke",
+      "3_zhou",
+      "4_kuang",
+      "5_lin",
+      "6_liao",
+      "7_mon",
+      "8_fan",
+      "9_chia",
+      "10_lu"
+    ]
   },
   "Texture": "/data/texture.json"
 }

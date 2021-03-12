@@ -67,9 +67,9 @@ class Dancer {
     });
 
     // render dancer Id
-    const text = new PIXI.Text(this.id, {
+    const text = new PIXI.Text(this.name, {
       fontFamily: "Arial",
-      fontSize: 44,
+      fontSize: 30,
       fill: 0xff1010,
       align: "center",
     });
