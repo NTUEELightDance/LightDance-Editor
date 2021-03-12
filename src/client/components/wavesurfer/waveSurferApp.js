@@ -7,7 +7,6 @@ import store from "../../store";
 import { playPause, setTime } from "../../slices/globalSlice";
 
 // constant
-import load from "../../../../data/load.json";
 import { WAVESURFERAPP } from "../../constants";
 import { getItem } from "../../utils/localStorage";
 
@@ -52,7 +51,7 @@ class WaveSurferApp {
     });
 
     // load music
-    this.waveSurfer.load(load.Music);
+    this.waveSurfer.load(store.getState().load.music);
 
     // get ready
     this.waveSurfer.on("ready", () => {
