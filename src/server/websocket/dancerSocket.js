@@ -117,7 +117,10 @@ class DancerSocket {
     this.sendDataToRpiSocket(["reboot"]);
   };
   lightCurrentStatus = ({ lightCurrentStatus }) => {
-    this.sendDataToRpiSocket(["lightCurrentStatus", lightCurrentStatus]);
+    this.sendDataToRpiSocket([
+      "lightCurrentStatus",
+      lightCurrentStatus[this.dancerName],
+    ]);
   };
   getBoardInfo = () => {
     this.sendDataToRpiSocket(["boardInfo"]);
