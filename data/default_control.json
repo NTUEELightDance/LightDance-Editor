@@ -31,6 +31,7 @@
         "S_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -64,6 +65,7 @@
         "S_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -97,6 +99,7 @@
         "S_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -130,6 +133,7 @@
         "S_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -163,6 +167,7 @@
         "S_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -196,6 +201,7 @@
         "S_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -229,6 +235,7 @@
         "S_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -264,6 +271,7 @@
         "B_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -299,6 +307,7 @@
         "B_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
@@ -334,6 +343,7 @@
         "B_R_SHOE": 0,
         "LED_L_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
         "LED_R_SHOULDER": { "src": "bl_shoulder", "alpha": 0 },
+        "LED_NECKTIE": { "src": "bl_necktie", "alpha": 0 },
         "LED_BELT": { "src": "bl_belt", "alpha": 0 },
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }

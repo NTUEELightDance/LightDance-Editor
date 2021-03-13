@@ -274,6 +274,11 @@
       "postfix": ".png",
       "name": ["bl_shoulder", "red"]
     },
+    "LED_NECKTIE": {
+      "prefix": "/asset/LEDParts/led_necktie/",
+      "postfix": ".png",
+      "name": ["bl_shoulder", "red"]
+    },
     "LED_BELT": {
       "prefix": "/asset/LEDParts/led_belt/",
       "postfix": ".png",

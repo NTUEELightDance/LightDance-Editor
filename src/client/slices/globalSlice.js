@@ -159,7 +159,8 @@ export const globalSlice = createSlice({
       } = action.payload;
       if (src && src !== "")
         state.currentStatus[dancerName][partName].src = src;
-      if (alpha) state.currentStatus[dancerName][partName].alpha = alpha;
+      if (typeof alpha === "number")
+        state.currentStatus[dancerName][partName].alpha = alpha;
     },
 
     /**
