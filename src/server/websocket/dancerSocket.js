@@ -73,12 +73,11 @@ class DancerSocket {
     this.sendDataToRpiSocket(["start", this.dancerName]);
   };
   play = ({ startTime = 0, delay = 0 }) => {
-    const currentTime = new Date();
     this.sendDataToRpiSocket([
       "play",
       {
         startTime: startTime,
-        whenToPlay: delay + currentTime.getTime(),
+        whenToPlay: delay,
       },
     ]);
   };
