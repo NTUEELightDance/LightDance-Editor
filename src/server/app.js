@@ -98,6 +98,11 @@ wss.on("connection", (ws) => {
             DancerClientsAgent
           );
           dancerSocket.handleMessage();
+
+          Object.values(editorClients).forEach((editor) => {
+            const ws = editor.ws;
+            ws.send(JSON.stringify(["getIp", { dancerClients }])); // render dancer's info at frontend
+          });
         } else {
           // `dancer` type's hostName is not in board_config
           console.error(
@@ -115,7 +120,7 @@ wss.on("connection", (ws) => {
 
         editorSocket.handleMessage();
 
-        ws.send(JSON.stringify(["getIp", { dancerClients }]));
+        ws.send(JSON.stringify(["getIp", { dancerClients }])); // render dancer's info at frontend
       } else {
         console.error(`Invalid type ${type} on connection`);
       }

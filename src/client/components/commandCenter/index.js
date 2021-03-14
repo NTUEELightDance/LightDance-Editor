@@ -13,14 +13,17 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-// contants
-import { COMMANDS } from "../../constants";
 
+// constant
+// import { COMMANDS } from "../../constants";
 // command api
 import commandApi from "./agent";
 
 // redux selector and actions
-import { selectGlobal } from "../../slices/globalSlice";
+import { selectGlobal, clearDancerStatusMsg } from "../../slices/globalSlice";
+
+// contants
+const COMMANDS = require("../../../constant");
 
 const useStyles = makeStyles((theme) => ({
   commands: {
@@ -58,6 +61,8 @@ export default function CommandCenter() {
     currentStatus,
     timeData: { time },
   } = useSelector(selectGlobal);
+
+  const dispatch = useDispatch();
 
   // local state
   const [statusBar, setStatusBar] = useState([]);
@@ -117,7 +122,7 @@ export default function CommandCenter() {
         }}
       />
 
-      {COMMANDS.map((command) => {
+      {Object.values(COMMANDS).map((command) => {
         return (
           <div className={classes.commands} key={command}>
             <Button
@@ -125,6 +130,15 @@ export default function CommandCenter() {
               variant="outlined"
               onClick={(e) => {
                 e.preventDefault();
+                dispatch(
+                  clearDancerStatusMsg({
+                    dancerNames: Object.keys(selectedDancer).filter(
+                      (dancer) => {
+                        return selectedDancer[dancer];
+                      }
+                    ),
+                  })
+                );
                 const dataToServer = {
                   selectedDancers: Object.keys(selectedDancer).filter(
                     (dancer) => {

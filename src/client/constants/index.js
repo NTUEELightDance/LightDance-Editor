@@ -9,7 +9,7 @@ export const IDLE = 0;
 export const EDIT = 1;
 export const ADD = 2;
 
-export const SYNC = "sync";
+/* export const SYNC = "sync";
 export const UPLOAD_LED = "uploadLed";
 export const UPLOAD_CONTROL = "uploadControl";
 export const START = "start";
@@ -37,4 +37,4 @@ export const COMMANDS = [
   SHUTDOWN,
   REBOOT,
   TERMINATE,
-];
+]; */

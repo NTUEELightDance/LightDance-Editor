@@ -710,6 +710,13 @@ export const globalSlice = createSlice({
         ? newStatus.ip
         : state.dancerStatus[dancerName].ip;
     },
+
+    clearDancerStatusMsg: (state, action) => {
+      const { dancerNames } = action.payload;
+      dancerNames.forEach((dancerName) => {
+        state.dancerStatus[dancerName].msg = "";
+      });
+    },
   },
 });
 
@@ -758,6 +765,7 @@ export const {
 
   initDancerStatus,
   updateDancerStatus,
+  clearDancerStatusMsg,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;

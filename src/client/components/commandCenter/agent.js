@@ -1,10 +1,11 @@
 import axios from "axios";
-import * as CONSTANT from "../../constants";
+// import * as CONSTANT from "../../constants";
+const COMMANDS = require("../../../constant");
 
-export default CONSTANT.COMMANDS.reduce((acc, command) => {
+export default Object.values(COMMANDS).reduce((acc, command) => {
   let callback = null;
   switch (command) {
-    case CONSTANT.PLAY:
+    case COMMANDS.PLAY:
       callback = ({ startTime, delay, selectedDancers }) => {
         axios.post(`/api/${command}`, {
           args: { startTime, delay },
@@ -12,7 +13,7 @@ export default CONSTANT.COMMANDS.reduce((acc, command) => {
         });
       };
       break;
-    case CONSTANT.UPLOAD_CONTROL:
+    case COMMANDS.UPLOAD_CONTROL:
       callback = ({ controlJson, selectedDancers }) => {
         console.log(controlJson);
 
@@ -22,13 +23,13 @@ export default CONSTANT.COMMANDS.reduce((acc, command) => {
         });
       };
       break;
-    case CONSTANT.UPLOAD_LED:
+    case COMMANDS.UPLOAD_LED:
       // ledData is an array
       callback = ({ ledData, selectedDancers }) => {
         axios.post(`/api/${command}`, { args: { ledData }, selectedDancers });
       };
       break;
-    case CONSTANT.LIGTHCURRENTSTATUS:
+    case COMMANDS.LIGTHCURRENTSTATUS:
       callback = ({ lightCurrentStatus, selectedDancers }) => {
         axios.post(`/api/${command}`, {
           args: { lightCurrentStatus },
