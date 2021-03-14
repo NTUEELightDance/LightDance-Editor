@@ -48,5 +48,10 @@
     "type": "dancer",
     "ip": "",
     "dancerName": "10_lu"
+  },
+  "sword1": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "1_sword"
   }
 }

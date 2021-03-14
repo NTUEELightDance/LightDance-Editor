@@ -36,6 +36,11 @@
         "LED_R_SHOE": { "src": "bl_shoe", "alpha": 0 },
         "LED_L_SHOE": { "src": "bl_shoe", "alpha": 0 }
       },
+      "1_sword": {
+        "LED_HANDLE": { "src": "bl_handle", "alpha": 0 },
+        "LED_GUARD": { "src": "bl_guard", "alpha": 0 },
+        "LED_SWORD": { "src": "bl_sword", "alpha": 0 }
+      },
       "2_ke": {
         "B_BELT": 0,
         "B_BODY": 0,

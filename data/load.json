@@ -17,7 +17,8 @@
       "7_mon",
       "8_fan",
       "9_chia",
-      "10_lu"
+      "10_lu",
+      "1_sword"
     ]
   },
   "Texture": "/data/texture.json"

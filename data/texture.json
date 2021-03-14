@@ -293,6 +293,21 @@
       "prefix": "/asset/LEDParts/led_l_shoe/",
       "postfix": ".png",
       "name": ["bl_shoe", "red"]
+    },
+    "LED_HANDLE": {
+      "prefix": "/asset/LEDParts/led_handle/",
+      "postfix": ".png",
+      "name": ["bl_handle", "red_handle"]
+    },
+    "LED_GUARD": {
+      "prefix": "/asset/LEDParts/led_guard/",
+      "postfix": ".png",
+      "name": ["bl_guard", "red_guard"]
+    },
+    "LED_SWORD": {
+      "prefix": "/asset/LEDParts/led_sword/",
+      "postfix": ".png",
+      "name": ["bl_sword", "red_sword"]
     }
   }
 }
