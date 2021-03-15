@@ -23,7 +23,7 @@ class DancerSocket {
       [COMMANDS.STOP]: this.stop,
       [COMMANDS.TERMINATE]: this.terminate,
       [COMMANDS.UPLOAD_CONTROL]: this.uploadControl,
-      [COMMANDS.UPLOAD_LED]: this.uploadLED,
+      [COMMANDS.UPLOAD_LED]: this.uploadLED
     };
   }
 
@@ -44,16 +44,17 @@ class DancerSocket {
       this.dancerAgent.socketReceiveData(this.dancerName, {
         task: task,
         payload: payload,
-        type: "dancer",
+        type: "dancer"
       });
     };
   };
   handleDisconnect = () => {
     this.ws.onclose = (mes) => {
+      console.log(`${this.dancerName} disconnected!`);
       this.dancerAgent.socketReceiveData(this.dancerName, {
         task: "disconnect",
         payload: { msg: "Disconnected", OK: false },
-        type: "dancer",
+        type: "dancer"
       });
       this.dancerAgent.deleteDancerClient(this.dancerName);
     };
@@ -76,9 +77,9 @@ class DancerSocket {
     this.sendDataToRpiSocket([
       "play",
       {
-        startTime: startTime,
-        whenToPlay: delay,
-      },
+        startTime,
+        delay
+      }
     ]);
   };
   pause = () => {
@@ -102,7 +103,7 @@ class DancerSocket {
     const dancerJson = controlJson.map(({ start, status, fade }) => ({
       start,
       fade,
-      status: status[this.dancerName],
+      status: status[this.dancerName]
     }));
     this.sendDataToRpiSocket(["uploadControl", dancerJson]);
   };
@@ -118,7 +119,7 @@ class DancerSocket {
   lightCurrentStatus = ({ lightCurrentStatus }) => {
     this.sendDataToRpiSocket([
       "lightCurrentStatus",
-      lightCurrentStatus[this.dancerName],
+      lightCurrentStatus[this.dancerName]
     ]);
   };
   getBoardInfo = () => {
