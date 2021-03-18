@@ -307,14 +307,14 @@
       "x": 101.161,
       "y": 229.53
     },
-    "LED_R_SHOE": {
+    "LED_L_SHOE": {
       "zIndex": 30,
       "width": 46.4,
       "height": 4.738,
       "x": 144.732,
       "y": 385.475
     },
-    "LED_L_SHOE": {
+    "LED_R_SHOE": {
       "zIndex": 30,
       "width": 46.4,
       "height": 4.738,

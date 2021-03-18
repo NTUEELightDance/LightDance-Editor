@@ -267,12 +267,12 @@
     "LED_L_SHOULDER": {
       "prefix": "/asset/LEDParts/led_l_shoulder/",
       "postfix": ".png",
-      "name": ["bl_shoulder", "red"]
+      "name": ["bl_shoulder", "red", "light_blue"]
     },
     "LED_R_SHOULDER": {
       "prefix": "/asset/LEDParts/led_r_shoulder/",
       "postfix": ".png",
-      "name": ["bl_shoulder", "red"]
+      "name": ["bl_shoulder", "red", "light_blue"]
     },
     "LED_NECKTIE": {
       "prefix": "/asset/LEDParts/led_necktie/",
@@ -287,12 +287,12 @@
     "LED_R_SHOE": {
       "prefix": "/asset/LEDParts/led_l_shoe/",
       "postfix": ".png",
-      "name": ["bl_shoe", "red"]
+      "name": ["bl_shoe", "red", "light_blue"]
     },
     "LED_L_SHOE": {
       "prefix": "/asset/LEDParts/led_l_shoe/",
       "postfix": ".png",
-      "name": ["bl_shoe", "red"]
+      "name": ["bl_shoe", "red", "light_blue"]
     },
     "LED_HANDLE": {
       "prefix": "/asset/LEDParts/led_handle/",
