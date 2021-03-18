@@ -43,6 +43,7 @@ export default function Layout() {
     <FlexLayout.Layout
       model={FlexLayout.Model.fromJson(layoutConfig)}
       factory={factory}
+      font={{ size: "12px" }}
     />
   );
 }

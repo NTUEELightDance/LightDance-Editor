@@ -277,7 +277,7 @@
     "LED_NECKTIE": {
       "prefix": "/asset/LEDParts/led_necktie/",
       "postfix": ".png",
-      "name": ["bl_shoulder", "red"]
+      "name": ["bl_necktie", "red"]
     },
     "LED_BELT": {
       "prefix": "/asset/LEDParts/led_belt/",

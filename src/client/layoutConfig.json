@@ -1,6 +1,7 @@
 {
   "global": {
-    "borderSize": 500
+    "borderSize": 500,
+    "splitterSize": 4
   },
   "borders": [
     {
@@ -36,7 +37,7 @@
         "children": [
           {
             "type": "tabset",
-            "weight": 20,
+            "weight": 18,
             "selected": 0,
             "enableMaximize": false,
             "children": [
@@ -53,7 +54,7 @@
             "children": [
               {
                 "type": "tabset",
-                "weight": 70,
+                "weight": 80,
                 "selected": 0,
                 "enableMaximize": false,
                 "children": [
@@ -82,15 +83,7 @@
                     "name": "PosEditor",
                     "component": "PosEditor",
                     "enableClose": false
-                  }
-                ]
-              },
-              {
-                "type": "tabset",
-                "weight": 15,
-                "selected": 0,
-                "enableMaximize": false,
-                "children": [
+                  },
                   {
                     "type": "tab",
                     "name": "LightPresets",
@@ -104,6 +97,13 @@
                     "enableClose": false
                   }
                 ]
+              },
+              {
+                "type": "tabset",
+                "weight": 15,
+                "selected": 0,
+                "enableMaximize": false,
+                "children": []
               }
             ]
           }

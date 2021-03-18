@@ -18,7 +18,16 @@
       "8_fan",
       "9_chia",
       "10_lu",
-      "1_sword"
+      "1_sw",
+      "2_sw",
+      "3_sw",
+      "4_sw",
+      "5_sw",
+      "6_sw",
+      "7_sw",
+      "8_sw",
+      "9_sw",
+      "10_sw"
     ]
   },
   "Texture": "/data/texture.json"

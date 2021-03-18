@@ -69,8 +69,8 @@ class Dancer {
     // render dancer Id
     const text = new PIXI.Text(this.name, {
       fontFamily: "Arial",
-      fontSize: 30,
-      fill: 0xff1010,
+      fontSize: 25,
+      fill: 0x9ca8bc,
       align: "center",
     });
     this.container.addChild(text);
@@ -118,7 +118,7 @@ class Dancer {
    */
   initScale() {
     const ratio = this.container.width / this.container.height;
-    this.container.height = this.app.renderer.height * 0.4;
+    this.container.height = this.app.renderer.height * 0.35;
     this.container.width = this.container.height * ratio;
   }
 
