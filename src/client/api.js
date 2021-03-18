@@ -90,13 +90,14 @@ export const uploadJson = (file, type) => {
   }
 };
 
-export const uploadImages = (files, path) => {
+export const uploadImages = (files, path, imagePrefix) => {
   const formData = new FormData();
   files.forEach((file, i) => {
     formData.append(`image${i}`, file);
   });
 
   formData.append("filePath", path);
+  formData.append("imagePrefix", imagePrefix);
 
   fetch("/api/editor/upload/images", {
     method: "POST",

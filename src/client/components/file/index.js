@@ -61,6 +61,8 @@ export default function File() {
   const [selectedImages, setSelectedImages] = useState(null);
   const [path, setPath] = useState("");
 
+  const imagePrefix = Object.values(texture.LEDPARTS)[0].prefix;
+
   const handlePosInput = (e) => {
     // checkPosJson(e.target.files);
     setPosRecordFile(e.target.files);
@@ -111,7 +113,7 @@ export default function File() {
   };
   const handleImagesUpload = async () => {
     if (selectedImages && path) {
-      uploadImages(selectedImages, path);
+      uploadImages(selectedImages, path, imagePrefix);
       // setSelectedImages(undefined);
       // setPath("");
     }

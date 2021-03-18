@@ -4,7 +4,6 @@ const express = require("express");
 const asyncHandler = require("express-async-handler");
 const fileUpload = require("express-fileupload");
 const expressAsyncHandler = require("express-async-handler");
-const { ContactSupportOutlined } = require("@material-ui/icons");
 
 const router = express.Router();
 
@@ -17,9 +16,15 @@ router.post(
   "/images",
   asyncHandler(async (req, res) => {
     // Uploaded files
-    const { filePath } = req.body;
+    const { filePath, imagePrefix } = req.body;
     const appDir = path.dirname(require.main.filename);
-    const uploadPath = path.resolve(appDir, `../../asset/LED/${filePath}`);
+    const uploadPrefix = imagePrefix.slice(
+      0,
+      imagePrefix.slice(0, -1).lastIndexOf("/") + 1
+    );
+
+    const uploadPath = path.resolve(appDir, `../../${uploadPrefix + filePath}`);
+    console.log(uploadPath);
     const texturePath = path.resolve(appDir, "../../data/texture.json");
     let modified = false;
     const { files } = req;
@@ -43,8 +48,10 @@ router.post(
       const texture = JSON.parse(data);
 
       const existedImages = texture.LEDPARTS[filePath].name;
+      console.log(existedImages);
       Object.values(files).forEach((file) => {
         const fileToCheck = file.name.split(".")[0];
+        console.log(fileToCheck);
         if (!existedImages.includes(fileToCheck)) {
           texture.LEDPARTS[filePath].name.push(fileToCheck);
           modified = true;
