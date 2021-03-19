@@ -44,8 +44,7 @@ export const globalSlice = createSlice({
       dancerName:{
         msg:
         OK:
-    }
-  } */
+    } */
   },
   reducers: {
     /**

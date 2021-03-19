@@ -9,11 +9,11 @@ import WebSocketContext from "./webSocketContext";
 import App from "./app";
 
 const Index = () => (
-  <WebSocketContext>
-    <Provider store={store}>
+  <Provider store={store}>
+    <WebSocketContext>
       <App />
-    </Provider>
-  </WebSocketContext>
+    </WebSocketContext>
+  </Provider>
 );
 
 ReactDOM.render(<Index />, document.getElementById("app"));

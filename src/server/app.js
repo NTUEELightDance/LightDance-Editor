@@ -177,6 +177,11 @@ app.post("/api/:command", (req, res) => {
     dancerClients[dancerName].methods[command](args);
   });
 
+  // for editor play, pause stop
+  Object.values(editorClients).map(
+    (ec) => ec.methods[command] && ec.methods[command](args)
+  );
+
   res.status(200).send(command);
 });
 

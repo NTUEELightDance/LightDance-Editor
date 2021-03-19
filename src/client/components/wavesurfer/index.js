@@ -13,6 +13,7 @@ import WaveSurferApp from "./waveSurferApp";
 import Setting from "./timeline";
 // selector
 import { selectGlobal } from "../../slices/globalSlice";
+import { selectCommand } from "../../slices/commandSlice";
 // constants
 import { WAVESURFERAPP } from "../../constants";
 
@@ -33,6 +34,7 @@ const Wavesurfer = () => {
   // redux
   const {
     timeData: { from, time },
+    isPlaying,
   } = useSelector(selectGlobal);
 
   // listen to time set by other component
@@ -52,6 +54,26 @@ const Wavesurfer = () => {
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
   const handlePlayLoop = () => waveSurferApp.playLoop();
+
+  // This is from command center play, pause stop -> backend -> back (socket)
+  const { play, stop, sysTime } = useSelector(selectCommand);
+  useEffect(() => {
+    if (waveSurferApp) {
+      if (stop) {
+        handleStop();
+        return;
+      }
+      const realDelay = Math.max(sysTime - Date.now(), 0);
+      if (play && !isPlaying) {
+        // play
+        console.log("realDelay:", realDelay);
+        setTimeout(handlePlayPause, realDelay);
+      } else if (!play && isPlaying) {
+        // pause
+        handlePlayPause();
+      }
+    }
+  }, [play, stop, sysTime]);
 
   // const syncPost = (type, mode, data) => {
   //   const myHeaders = new Headers();

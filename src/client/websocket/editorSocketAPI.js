@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import { updateDancerStatus, fetchBoardConfig } from "../slices/globalSlice";
+import { setPlay, setStop, startPlay } from "../slices/commandSlice";
 import store from "../store";
 
 class EditorSocketAPI {
@@ -37,7 +38,7 @@ class EditorSocketAPI {
 
       this.ws.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
-        console.log(`Data from server :${data}`);
+        console.log(`Data from server :`, data);
         this.handleMessage(data);
       };
 
@@ -90,6 +91,18 @@ class EditorSocketAPI {
             },
           })
         );
+        break;
+      }
+      case "play": {
+        store.dispatch(startPlay(payload));
+        break;
+      }
+      case "pause": {
+        store.dispatch(setPlay(false));
+        break;
+      }
+      case "stop": {
+        store.dispatch(setStop(true));
         break;
       }
       default:
