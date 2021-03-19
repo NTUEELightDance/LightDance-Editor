@@ -100,13 +100,34 @@ class DancerSocket {
   };
   uploadControl = ({ controlJson }) => {
     //needs to be json file
-    // TODO: if the status is same as last one => need to delete
-    const dancerJson = controlJson.map(({ start, status, fade }) => ({
+    // if the status is same as last one => need to delete
+    let dancerJson = controlJson.map(({ start, status, fade }) => ({
       start,
       fade,
       status: status[this.dancerName],
     }));
-    this.sendDataToRpiSocket(["uploadControl", dancerJson]);
+
+    let compressedDancerJson = dancerJson.reduce(
+      (acc, currentFrame) => {
+        const lastFrame = acc[acc.length - 1];
+        const lastFrameFade = lastFrame.fade;
+        const lastFrameStatus = lastFrame.status;
+        const currentFrameFade = currentFrame.fade;
+        const currentFrameStatus = currentFrame.status;
+        if (lastFrameFade || currentFrameFade) {
+          return [...acc, currentFrame];
+        } else if (
+          JSON.stringify(lastFrameStatus) !== JSON.stringify(currentFrameStatus)
+        ) {
+          return [...acc, currentFrame];
+        } else {
+          return [...acc];
+        }
+      },
+      [dancerJson[0]]
+    );
+
+    this.sendDataToRpiSocket(["uploadControl", compressedDancerJson]);
   };
   uploadLED = ({ ledData }) => {
     this.sendDataToRpiSocket(["uploadLED", ledData]);
