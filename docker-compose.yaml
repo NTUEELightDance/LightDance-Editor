@@ -7,13 +7,3 @@ services:
     volumes:
       - ./data:/app/data
       - ./asset:/app/asset
-    links:
-      - mongo
-  mongo:
-    ports:
-      - "27017:27017"
-    image: mongo
-    volumes:
-      - db_data:/data/db
-volumes:
-  db_data:
