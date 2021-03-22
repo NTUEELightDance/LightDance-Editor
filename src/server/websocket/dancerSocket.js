@@ -1,4 +1,5 @@
 const COMMANDS = require("../../constant");
+const led = require("../../../data/led.json");
 
 class DancerSocket {
   constructor(ws, dancerName, dancerAgent) {
@@ -130,7 +131,8 @@ class DancerSocket {
     this.sendDataToRpiSocket(["uploadControl", compressedDancerJson]);
   };
   uploadLED = ({ ledData }) => {
-    this.sendDataToRpiSocket(["uploadLED", ledData]);
+    // TODO parse LED
+    this.sendDataToRpiSocket(["uploadLED", led]);
   };
   shutDown = () => {
     this.sendDataToRpiSocket(["shutDown"]);
