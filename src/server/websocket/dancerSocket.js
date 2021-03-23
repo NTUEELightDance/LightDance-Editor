@@ -70,11 +70,15 @@ class DancerSocket {
     }
   };
   //below are functions for editor server to use
-  sync = () => {};
+  sync = () => {
+    console.log("sync");
+    this.sendDataToRpiSocket(["sync"]);
+  };
   start = () => {
     this.sendDataToRpiSocket(["start", this.dancerName]);
   };
   play = ({ startTime = 0, delay = 0 }) => {
+    console.log(`[Debug] play: systime=${delay + Date.now()}`);
     this.sendDataToRpiSocket([
       "play",
       {

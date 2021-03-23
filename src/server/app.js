@@ -13,10 +13,12 @@ const DancerSocket = require("./websocket/dancerSocket");
 const EditorSocket = require("./websocket/editorSocket");
 const board_config = require("../../data/board_config.json");
 
-// const router = express.Router();
 const app = express();
 const server = http.createServer(app);
 const wss = new Websocket.Server({ server });
+
+const NtpServer = require("./ntp");
+const ntpServer = new NtpServer(); // ntp server for sync time
 
 const dancerClients = {};
 const editorClients = {};

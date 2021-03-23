@@ -94,15 +94,66 @@ class EditorSocketAPI {
         break;
       }
       case "play": {
-        store.dispatch(startPlay(payload));
+        const {
+          from,
+          response: { OK, msg },
+        } = payload;
+        if (from === location.hostname) {
+          console.log("play control editor");
+          store.dispatch(startPlay(msg));
+        } else {
+          store.dispatch(
+            updateDancerStatus({
+              dancerName: from,
+              newStatus: {
+                OK,
+                msg,
+              },
+            })
+          );
+        }
         break;
       }
       case "pause": {
-        store.dispatch(setPlay(false));
+        const {
+          from,
+          response: { OK, msg },
+        } = payload;
+        if (from === location.hostname) {
+          console.log("pause control editor");
+          store.dispatch(setPlay(false));
+        } else {
+          store.dispatch(
+            updateDancerStatus({
+              dancerName: from,
+              newStatus: {
+                OK,
+                msg,
+              },
+            })
+          );
+        }
         break;
       }
       case "stop": {
-        store.dispatch(setStop(true));
+        const {
+          from,
+          response: { OK, msg },
+        } = payload;
+        if (from === location.hostname) {
+          console.log("stop control editor");
+          store.dispatch(setStop(true));
+        } else {
+          store.dispatch(
+            updateDancerStatus({
+              dancerName: from,
+              newStatus: {
+                OK,
+                msg,
+              },
+            })
+          );
+        }
         break;
       }
       default:

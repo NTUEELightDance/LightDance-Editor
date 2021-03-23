@@ -51,20 +51,47 @@ class EditorSocket {
   };
 
   play = ({ startTime = 0, delay = 0 }) => {
+    console.log(`To Editor, play`);
     this.sendDataToClientEditor([
       "play",
       {
-        startTime,
-        delay,
-        sysTime: delay + Date.now(),
+        from: this.editorName,
+        response: {
+          OK: true,
+          msg: {
+            startTime,
+            delay,
+            sysTime: delay + Date.now(),
+          },
+        },
       },
     ]);
   };
   pause = () => {
-    this.sendDataToClientEditor(["pause"]);
+    console.log(`To Editor, pause`);
+    this.sendDataToClientEditor([
+      "pause",
+      {
+        from: this.editorName,
+        response: {
+          OK: true,
+          msg: "call by editor",
+        },
+      },
+    ]);
   };
   stop = () => {
-    this.sendDataToClientEditor(["stop"]);
+    console.log(`To Editor, stop`);
+    this.sendDataToClientEditor([
+      "stop",
+      {
+        from: this.editorName,
+        response: {
+          OK: true,
+          msg: "call by editor",
+        },
+      },
+    ]);
   };
 }
 
