@@ -24,9 +24,8 @@ export default Object.values(COMMANDS).reduce((acc, command) => {
       };
       break;
     case COMMANDS.UPLOAD_LED:
-      // ledData is an array
-      callback = ({ ledData, selectedDancers }) => {
-        axios.post(`/api/${command}`, { args: { ledData }, selectedDancers });
+      callback = ({ selectedDancers }) => {
+        axios.post(`/api/${command}`, { args: {}, selectedDancers });
       };
       break;
     case COMMANDS.LIGTHCURRENTSTATUS:

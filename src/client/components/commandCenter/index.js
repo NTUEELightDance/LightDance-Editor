@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
-
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -13,17 +12,14 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-
-// constant
-// import { COMMANDS } from "../../constants";
 // command api
 import commandApi from "./agent";
-
 // redux selector and actions
 import { selectGlobal, clearDancerStatusMsg } from "../../slices/globalSlice";
-
 // contants
 const COMMANDS = require("../../../constant");
+// contexts
+import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
 
 const useStyles = makeStyles((theme) => ({
   commands: {
@@ -67,9 +63,9 @@ export default function CommandCenter() {
   // local state
   const [statusBar, setStatusBar] = useState([]);
   const [selectedDancer, setSelectedDancer] = useState({});
-  // const [startTime, setStartTime] = useState(0);
   const [delay, setDelay] = useState(0);
 
+  // status bar
   const renderStatusBar = (dancers) => {
     setStatusBar(
       Object.keys(dancers).map((dancerName) => {
@@ -102,6 +98,42 @@ export default function CommandCenter() {
     }
   }, [dancerStatus]);
 
+  // wavesurfer for play pause
+  const { waveSurferApp } = useContext(WaveSurferAppContext);
+  const handlePlay = () => waveSurferApp.play();
+  const handlePause = () => waveSurferApp.pause();
+  const handleStop = () => waveSurferApp.stop();
+
+  // click btn, will call api to server
+  const handleClickBtn = (command) => {
+    dispatch(
+      clearDancerStatusMsg({
+        dancerNames: Object.keys(selectedDancer).filter((dancer) => {
+          return selectedDancer[dancer];
+        }),
+      })
+    );
+    const dataToServer = {
+      selectedDancers: Object.keys(selectedDancer).filter((dancer) => {
+        return selectedDancer[dancer];
+      }), // fill the state
+      startTime: time,
+      delay: delay !== "" ? parseInt(delay, 10) : 0, // fill the number with variable
+      controlJson: controlRecord, // fill
+      lightCurrentStatus: currentStatus,
+    };
+    commandApi[command](dataToServer);
+
+    // play or pause or stop
+    if (command === COMMANDS.PLAY) {
+      setTimeout(() => handlePlay(), delay);
+    } else if (command === COMMANDS.PAUSE) {
+      handlePause();
+    } else if (command === COMMANDS.STOP) {
+      handleStop();
+    }
+  };
+
   return (
     <div style={{ padding: "16px" }}>
       <TextField
@@ -128,31 +160,7 @@ export default function CommandCenter() {
             <Button
               className={classes.btns}
               variant="outlined"
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(
-                  clearDancerStatusMsg({
-                    dancerNames: Object.keys(selectedDancer).filter(
-                      (dancer) => {
-                        return selectedDancer[dancer];
-                      }
-                    ),
-                  })
-                );
-                const dataToServer = {
-                  selectedDancers: Object.keys(selectedDancer).filter(
-                    (dancer) => {
-                      return selectedDancer[dancer];
-                    }
-                  ), // fill the state
-                  startTime: time,
-                  delay: delay !== "" ? parseInt(delay, 10) : 0, // fill the number with variable
-                  ledData: [], // fill the array with variable
-                  controlJson: controlRecord, // fill
-                  lightCurrentStatus: currentStatus,
-                };
-                commandApi[command](dataToServer);
-              }}
+              onClick={(e) => handleClickBtn(command)}
             >
               {command}
             </Button>

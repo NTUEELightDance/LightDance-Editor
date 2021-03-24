@@ -93,69 +93,73 @@ class EditorSocketAPI {
         );
         break;
       }
-      case "play": {
-        const {
-          from,
-          response: { OK, msg },
-        } = payload;
-        if (from === location.hostname) {
-          console.log("play control editor");
-          store.dispatch(startPlay(msg));
-        } else {
-          store.dispatch(
-            updateDancerStatus({
-              dancerName: from,
-              newStatus: {
-                OK,
-                msg,
-              },
-            })
-          );
-        }
-        break;
-      }
-      case "pause": {
-        const {
-          from,
-          response: { OK, msg },
-        } = payload;
-        if (from === location.hostname) {
-          console.log("pause control editor");
-          store.dispatch(setPlay(false));
-        } else {
-          store.dispatch(
-            updateDancerStatus({
-              dancerName: from,
-              newStatus: {
-                OK,
-                msg,
-              },
-            })
-          );
-        }
-        break;
-      }
-      case "stop": {
-        const {
-          from,
-          response: { OK, msg },
-        } = payload;
-        if (from === location.hostname) {
-          console.log("stop control editor");
-          store.dispatch(setStop(true));
-        } else {
-          store.dispatch(
-            updateDancerStatus({
-              dancerName: from,
-              newStatus: {
-                OK,
-                msg,
-              },
-            })
-          );
-        }
-        break;
-      }
+      // case "play": {
+      //   const {
+      //     from,
+      //     response: { OK, msg },
+      //   } = payload;
+      //   if (from === location.hostname) {
+      //     const { sysTime } = msg;
+      //     const realDelay = Math.max(sysTime - Date.now(), 0);
+      //     console.log(`play control editor, ${sysTime}, delay:${realDelay}`);
+      //     // store.dispatch(startPlay(msg));
+      //     setTimeout(() => this.waveSurferApp.playPause(), realDelay);
+      //   } else {
+      //     store.dispatch(
+      //       updateDancerStatus({
+      //         dancerName: from,
+      //         newStatus: {
+      //           OK,
+      //           msg,
+      //         },
+      //       })
+      //     );
+      //   }
+      //   break;
+      // }
+      // case "pause": {
+      //   const {
+      //     from,
+      //     response: { OK, msg },
+      //   } = payload;
+      //   if (from === location.hostname) {
+      //     console.log("pause control editor");
+      //     // store.dispatch(setPlay(false));
+      //   } else {
+      //     store.dispatch(
+      //       updateDancerStatus({
+      //         dancerName: from,
+      //         newStatus: {
+      //           OK,
+      //           msg,
+      //         },
+      //       })
+      //     );
+      //   }
+      //   break;
+      // }
+      // case "stop": {
+      //   const {
+      //     from,
+      //     response: { OK, msg },
+      //   } = payload;
+      //   if (from === location.hostname) {
+      //     console.log("stop control editor");
+      //     // store.dispatch(setStop(true));
+      //     this.waveSurferApp.stop();
+      //   } else {
+      //     store.dispatch(
+      //       updateDancerStatus({
+      //         dancerName: from,
+      //         newStatus: {
+      //           OK,
+      //           msg,
+      //         },
+      //       })
+      //     );
+      //   }
+      //   break;
+      // }
       default:
         const {
           from,

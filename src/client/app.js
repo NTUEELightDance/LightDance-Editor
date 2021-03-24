@@ -13,8 +13,6 @@ import "./app.css";
 // components
 import Bar from "./components/bar";
 
-import WebSocketContext from "./webSocketContext";
-
 const theme = createMuiTheme({
   palette: {
     type: "dark",

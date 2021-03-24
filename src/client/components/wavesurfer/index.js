@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { useSelector } from "react-redux";
 
 // mui
@@ -16,6 +16,8 @@ import { selectGlobal } from "../../slices/globalSlice";
 import { selectCommand } from "../../slices/commandSlice";
 // constants
 import { WAVESURFERAPP } from "../../constants";
+// contexts
+import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
 
 /**
  *
@@ -23,18 +25,17 @@ import { WAVESURFERAPP } from "../../constants";
  * @component
  */
 const Wavesurfer = () => {
-  const [waveSurferApp, setWaveSurferApp] = useState(null);
-
+  const { waveSurferApp, initWaveSurferApp } = useContext(WaveSurferAppContext);
+  // const [waveSurferApp, setWaveSurferApp] = useState(null);
   useEffect(() => {
     const newWaveSurferApp = new WaveSurferApp();
     newWaveSurferApp.init();
-    setWaveSurferApp(newWaveSurferApp);
+    initWaveSurferApp(newWaveSurferApp);
   }, []);
 
   // redux
   const {
     timeData: { from, time },
-    isPlaying,
   } = useSelector(selectGlobal);
 
   // listen to time set by other component
@@ -54,48 +55,6 @@ const Wavesurfer = () => {
   const handlePlayPause = () => waveSurferApp.playPause();
   const handleStop = () => waveSurferApp.stop();
   const handlePlayLoop = () => waveSurferApp.playLoop();
-
-  // This is from command center play, pause stop -> backend -> back (socket)
-  const { play, stop, sysTime } = useSelector(selectCommand);
-  useEffect(() => {
-    if (waveSurferApp) {
-      if (stop) {
-        handleStop();
-        return;
-      }
-      const realDelay = Math.max(sysTime - Date.now(), 0);
-      if (play && !isPlaying) {
-        // play
-        console.log("realDelay:", realDelay);
-        setTimeout(handlePlayPause, realDelay);
-      } else if (!play && isPlaying) {
-        // pause
-        handlePlayPause();
-      }
-    }
-  }, [play, stop, sysTime]);
-
-  // const syncPost = (type, mode, data) => {
-  //   const myHeaders = new Headers();
-  //   myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-  //   const urlencoded = new URLSearchParams();
-  //   urlencoded.append("type", type);
-  //   urlencoded.append("mode", mode);
-  //   urlencoded.append("data", data);
-
-  //   const requestOptions = {
-  //     method: "POST",
-  //     headers: myHeaders,
-  //     body: urlencoded,
-  //     redirect: "follow",
-  //   };
-
-  //   return fetch("/api/sync", requestOptions)
-  //     .then((response) => response.text())
-  //     .then((result) => console.log(result))
-  //     .catch((error) => console.log("error", error));
-  // };
 
   return (
     <div style={{ height: "100%" }}>

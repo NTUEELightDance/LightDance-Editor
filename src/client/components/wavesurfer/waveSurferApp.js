@@ -85,6 +85,24 @@ class WaveSurferApp {
   }
 
   /**
+   * Play the music
+   * @function
+   */
+  play() {
+    this.waveSurfer.play();
+    store.dispatch(playPause(this.waveSurfer.isPlaying()));
+  }
+
+  /**
+   * Pause the music
+   * @function
+   */
+  pause() {
+    this.waveSurfer.pause();
+    store.dispatch(playPause(this.waveSurfer.isPlaying()));
+  }
+
+  /**
    * Play the region repeatly
    * @function
    */

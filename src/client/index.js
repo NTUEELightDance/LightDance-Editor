@@ -4,14 +4,17 @@ import { Provider } from "react-redux";
 import store from "./store";
 
 // test for websocket
-import WebSocketContext from "./webSocketContext";
+import WebSocketContext from "./contexts/webSocketContext";
+import WaveSurferAppContext from "./contexts/wavesurferContext";
 
 import App from "./app";
 
 const Index = () => (
   <Provider store={store}>
     <WebSocketContext>
-      <App />
+      <WaveSurferAppContext>
+        <App />
+      </WaveSurferAppContext>
     </WebSocketContext>
   </Provider>
 );
