@@ -4,12 +4,12 @@
     "ip": "",
     "dancerName": "1_191"
   },
-  "KenMac": {
+  "lightdancer-2": {
     "type": "dancer",
     "ip": "",
     "dancerName": "2_ke"
   },
-  "test3": {
+  "lightdancer-3": {
     "type": "dancer",
     "ip": "",
     "dancerName": "3_zhou"
@@ -19,32 +19,32 @@
     "ip": "",
     "dancerName": "4_kuang"
   },
-  "test5": {
+  "lightdancer-5": {
     "type": "dancer",
     "ip": "",
     "dancerName": "5_lin"
   },
-  "test6": {
+  "lightdancer-6": {
     "type": "dancer",
     "ip": "",
     "dancerName": "6_liao"
   },
-  "test7": {
+  "lightdancer-7": {
     "type": "dancer",
     "ip": "",
     "dancerName": "7_mon"
   },
-  "test8": {
+  "lightdancer-8": {
     "type": "dancer",
     "ip": "",
     "dancerName": "8_fan"
   },
-  "test9": {
+  "lightdancer-9": {
     "type": "dancer",
     "ip": "",
     "dancerName": "9_chia"
   },
-  "test10": {
+  "lightdancer-10": {
     "type": "dancer",
     "ip": "",
     "dancerName": "10_lu"
