@@ -1,6 +1,11 @@
 /* eslint-disable class-methods-use-this */
-import { updateDancerStatus, fetchBoardConfig } from "../slices/globalSlice";
-import { setPlay, setStop, startPlay } from "../slices/commandSlice";
+import {
+  setPlay,
+  setStop,
+  startPlay,
+  // fetchBoardConfig,
+  updateDancerStatus,
+} from "../slices/commandSlice";
 import store from "../store";
 
 class EditorSocketAPI {
@@ -9,9 +14,9 @@ class EditorSocketAPI {
     this.url = `ws://${window.location.host}`;
   }
 
-  async fetch() {
-    await store.dispatch(fetchBoardConfig());
-  }
+  // async fetch() {
+  //   await store.dispatch(fetchBoardConfig());
+  // }
 
   init() {
     this.ws = new WebSocket(this.url);

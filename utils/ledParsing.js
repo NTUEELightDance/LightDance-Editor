@@ -51,7 +51,7 @@ async function main() {
                 const g = this.data[idx + 1];
                 const b = this.data[idx + 2];
                 // eslint-disable-next-line no-bitwise
-                pixel.push(`0x${((r << 16) + (g << 8) + b).toString(16)}`);
+                pixel.push((r << 16) + (g << 8) + b);
               }
             });
             switch (key) {

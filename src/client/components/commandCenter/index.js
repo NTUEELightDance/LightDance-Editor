@@ -15,11 +15,12 @@ import TextField from "@material-ui/core/TextField";
 // command api
 import commandApi from "./agent";
 // redux selector and actions
-import { selectGlobal, clearDancerStatusMsg } from "../../slices/globalSlice";
+import { selectGlobal } from "../../slices/globalSlice";
+import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
 // contants
+import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
 const COMMANDS = require("../../../constant");
 // contexts
-import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
 
 const useStyles = makeStyles((theme) => ({
   commands: {
@@ -52,51 +53,32 @@ export default function CommandCenter() {
 
   // redux
   const {
-    dancerStatus,
     controlRecord,
     currentStatus,
     timeData: { time },
   } = useSelector(selectGlobal);
 
-  const dispatch = useDispatch();
+  const { dancerStatus } = useSelector(selectCommand);
 
-  // local state
-  const [statusBar, setStatusBar] = useState([]);
-  const [selectedDancer, setSelectedDancer] = useState({});
+  const dispatch = useDispatch();
+  // delay
   const [delay, setDelay] = useState(0);
 
-  // status bar
-  const renderStatusBar = (dancers) => {
-    setStatusBar(
-      Object.keys(dancers).map((dancerName) => {
-        return {
-          dancerName,
-          ...dancers[dancerName],
-        };
-      })
-    );
+  const [selectedDancers, setSelectedDancers] = useState([]); // array of dancerName that is selected
+  const handleToggleDancer = (dancerName) => {
+    if (selectedDancers.includes(dancerName)) {
+      // remove from array
+      setSelectedDancers(selectedDancers.filter((name) => name !== dancerName));
+    } else setSelectedDancers([...selectedDancers, dancerName]); // add to array
   };
-
-  const initStatusBar = () => {
-    setSelectedDancer(
-      Object.keys(dancerStatus).reduce((acc, dancerName) => {
-        return {
-          ...acc,
-          [dancerName]: false,
-        };
-      }, {})
-    );
-  };
-
-  useEffect(() => {
-    initStatusBar();
-  }, []);
-
-  useEffect(() => {
-    if (dancerStatus !== {}) {
-      renderStatusBar(dancerStatus);
+  const handleAllDancer = () => {
+    if (selectedDancers.length) {
+      setSelectedDancers([]); // clear all
+    } else {
+      // select all
+      setSelectedDancers(Object.keys(dancerStatus));
     }
-  }, [dancerStatus]);
+  };
 
   // wavesurfer for play pause
   const { waveSurferApp } = useContext(WaveSurferAppContext);
@@ -108,15 +90,11 @@ export default function CommandCenter() {
   const handleClickBtn = (command) => {
     dispatch(
       clearDancerStatusMsg({
-        dancerNames: Object.keys(selectedDancer).filter((dancer) => {
-          return selectedDancer[dancer];
-        }),
+        dancerNames: selectedDancers,
       })
     );
     const dataToServer = {
-      selectedDancers: Object.keys(selectedDancer).filter((dancer) => {
-        return selectedDancer[dancer];
-      }), // fill the state
+      selectedDancers,
       startTime: time,
       delay: delay !== "" ? parseInt(delay, 10) : 0, // fill the number with variable
       controlJson: controlRecord, // fill
@@ -126,6 +104,7 @@ export default function CommandCenter() {
 
     // play or pause or stop
     if (command === COMMANDS.PLAY) {
+      console.log(`Start to play at delay ${delay}`);
       setTimeout(() => handlePlay(), delay);
     } else if (command === COMMANDS.PAUSE) {
       handlePause();
@@ -136,14 +115,6 @@ export default function CommandCenter() {
 
   return (
     <div style={{ padding: "16px" }}>
-      <TextField
-        size="small"
-        type="number"
-        className={classes.root}
-        label="start time"
-        disabled
-        value={time}
-      />
       <TextField
         size="small"
         type="number"
@@ -172,16 +143,7 @@ export default function CommandCenter() {
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
-                <Checkbox
-                  onChange={(e) => {
-                    Object.keys(selectedDancer).forEach((dancer) => {
-                      setSelectedDancer((state) => ({
-                        ...state,
-                        [dancer]: e.target.checked,
-                      }));
-                    });
-                  }}
-                />
+                <Checkbox onChange={handleAllDancer} />
               </TableCell>
               <TableCell className={classes.mediumCell}>DancerName</TableCell>
               <TableCell className={classes.mediumCell}>HostName</TableCell>
@@ -191,47 +153,42 @@ export default function CommandCenter() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {statusBar.map((row) => {
-              const { dancerName, hostname, ip, OK, msg, isConnected } = row;
-              const isItemSelected = selectedDancer[dancerName];
+            {Object.entries(dancerStatus).map(
+              ([dancerName, { hostname, ip, OK, msg, isConnected }]) => {
+                const isItemSelected = selectedDancers.includes(dancerName);
 
-              return (
-                <TableRow
-                  key={dancerName}
-                  hover
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setSelectedDancer((state) => ({
-                      ...state,
-                      [dancerName]: !state[dancerName],
-                    }));
-                  }}
-                  role="checkbox"
-                  selected={isItemSelected}
-                >
-                  <TableCell padding="checkbox">
-                    <Checkbox checked={isItemSelected} />
-                  </TableCell>
-                  <TableCell className={classes.mediumCell}>
-                    {dancerName}
-                  </TableCell>
-                  <TableCell className={classes.mediumCell}>
-                    {hostname}
-                  </TableCell>
-                  <TableCell className={classes.mediumCell}>{ip}</TableCell>
-                  <TableCell className={classes.mediumCell}>
-                    {isConnected ? (
-                      <span style={{ color: "green" }}>Connected</span>
-                    ) : (
-                      <span style={{ color: "red" }}>Disconnected</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <p style={{ color: OK ? "green" : "red" }}>{msg}</p>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                return (
+                  <TableRow
+                    key={dancerName}
+                    hover
+                    onClick={() => handleToggleDancer(dancerName)}
+                    role="checkbox"
+                    selected={isItemSelected}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox checked={isItemSelected} />
+                    </TableCell>
+                    <TableCell className={classes.mediumCell}>
+                      {dancerName}
+                    </TableCell>
+                    <TableCell className={classes.mediumCell}>
+                      {hostname}
+                    </TableCell>
+                    <TableCell className={classes.mediumCell}>{ip}</TableCell>
+                    <TableCell className={classes.mediumCell}>
+                      {isConnected ? (
+                        <span style={{ color: "green" }}>Connected</span>
+                      ) : (
+                        <span style={{ color: "red" }}>Disconnected</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <p style={{ color: OK ? "green" : "red" }}>{msg}</p>
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+            )}
           </TableBody>
         </Table>
       </TableContainer>

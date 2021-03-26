@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext } from "react";
 import EditorSocketAPI from "../websocket/editorSocketAPI";
 
-import { fetchBoardConfig } from "../slices/globalSlice";
+import { fetchBoardConfig } from "../slices/commandSlice";
 import store from "../store";
 
 export const WebSocketContext = createContext(null);
