@@ -93,10 +93,13 @@ export default function CommandCenter() {
         dancerNames: selectedDancers,
       })
     );
+    const de = delay !== "" ? parseInt(delay, 10) : 0;
+    const sysTime = de + Date.now();
     const dataToServer = {
       selectedDancers,
       startTime: time,
-      delay: delay !== "" ? parseInt(delay, 10) : 0, // fill the number with variable
+      delay: de, // fill the number with variable
+      sysTime,
       controlJson: controlRecord, // fill
       lightCurrentStatus: currentStatus,
     };

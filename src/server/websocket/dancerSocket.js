@@ -77,14 +77,15 @@ class DancerSocket {
   start = () => {
     this.sendDataToRpiSocket(["start", this.dancerName]);
   };
-  play = ({ startTime = 0, delay = 0 }) => {
-    console.log(`[Debug] play: systime=${delay + Date.now()}`);
+  play = ({ startTime = 0, delay = 0, sysTime = 0 }) => {
+    console.log(`[Debug] play: systime=${sysTime}`);
     this.sendDataToRpiSocket([
       "play",
       {
         startTime,
         delay,
-        sysTime: delay + Date.now(),
+        sysTime,
+        // sysTime: delay + Date.now(),
       },
     ]);
   };

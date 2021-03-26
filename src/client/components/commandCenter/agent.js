@@ -6,9 +6,9 @@ export default Object.values(COMMANDS).reduce((acc, command) => {
   let callback = null;
   switch (command) {
     case COMMANDS.PLAY:
-      callback = ({ startTime, delay, selectedDancers }) => {
+      callback = ({ startTime, delay, sysTime, selectedDancers }) => {
         axios.post(`/api/${command}`, {
-          args: { startTime, delay },
+          args: { startTime, delay, sysTime },
           selectedDancers,
         });
       };

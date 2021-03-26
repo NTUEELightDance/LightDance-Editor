@@ -12,7 +12,9 @@ class NtpServer {
 
     this.server.on("message", (msg, rinfo) => {
       // send server's system time
-      this.server.send(`${Date.now()}`, rinfo.port, rinfo.address);
+      const sysTime = Date.now();
+      console.log(`RPi should sync with ${sysTime}`);
+      this.server.send(`${sysTime}`, rinfo.port, rinfo.address);
     });
 
     this.server.on("listening", () => {
