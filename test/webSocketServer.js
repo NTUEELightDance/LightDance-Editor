@@ -65,6 +65,12 @@ const testStatus = {
   LED_SWORD: { src: "red_sword", alpha: 1 },
 };
 
+const darkTestStatus = {
+  LED_HANDLE: { src: "bl_handle", alpha: 1 },
+  LED_GUARD: { src: "bl_guard", alpha: 1 },
+  LED_SWORD: { src: "bl_sword", alpha: 1 },
+};
+
 const testControl = [
   {
     start: 0,
@@ -76,7 +82,7 @@ const testControl = [
     },
   },
   {
-    start: 2029,
+    start: 2000,
     fade: false,
     status: {
       LED_HANDLE: { src: "red_handle", alpha: 1 },
@@ -85,16 +91,16 @@ const testControl = [
     },
   },
   {
-    start: 3077,
+    start: 3000,
     fade: false,
     status: {
-      LED_HANDLE: { src: "red_handle", alpha: 0 },
-      LED_GUARD: { src: "red_guard", alpha: 0 },
-      LED_SWORD: { src: "red_sword", alpha: 0 },
+      LED_HANDLE: { src: "bl_handle", alpha: 0 },
+      LED_GUARD: { src: "bl_guard", alpha: 0 },
+      LED_SWORD: { src: "bl_sword", alpha: 0 },
     },
   },
   {
-    start: 4321,
+    start: 4000,
     fade: true,
     status: {
       LED_HANDLE: { src: "red_handle", alpha: 1 },
@@ -103,12 +109,12 @@ const testControl = [
     },
   },
   {
-    start: 5826,
+    start: 5000,
     fade: false,
     status: {
-      LED_HANDLE: { src: "red_handle", alpha: 0 },
-      LED_GUARD: { src: "red_guard", alpha: 0 },
-      LED_SWORD: { src: "red_sword", alpha: 0 },
+      LED_HANDLE: { src: "bl_handle", alpha: 0 },
+      LED_GUARD: { src: "bl_guard", alpha: 0 },
+      LED_SWORD: { src: "bl_sword", alpha: 0 },
     },
   },
 ];

@@ -52,6 +52,51 @@
   "sword1": {
     "type": "dancer",
     "ip": "",
-    "dancerName": "1_sword"
+    "dancerName": "1_sw"
+  },
+  "sword2": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "2_sw"
+  },
+  "sword3": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "3_sw"
+  },
+  "sword4": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "4_sw"
+  },
+  "sword5": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "5_sw"
+  },
+  "sword6": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "6_sw"
+  },
+  "sword7": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "7_sw"
+  },
+  "sword8": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "8_sw"
+  },
+  "sword9": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "9_sw"
+  },
+  "sword10": {
+    "type": "dancer",
+    "ip": "",
+    "dancerName": "10_sw"
   }
 }
