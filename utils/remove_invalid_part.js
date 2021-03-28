@@ -146,20 +146,28 @@ try {
 // remove invalid part
 const control = JSON.parse(raw);
 
-control.map(({ status }) => {
-  Object.entries(status).forEach(([dancerName, parts]) => {
-    Object.keys(parts).forEach((partName) => {
-      if (dancersPart[dancerName]) {
-        if (!dancersPart[dancerName].includes(partName)) {
-          console.log(`Delete ${dancerName} ${partName}`);
-          delete parts[partName];
+control.map((c) => {
+  if (c !== null) {
+    const status = c.status;
+    Object.entries(status).forEach(([dancerName, parts]) => {
+      Object.keys(parts).forEach((partName) => {
+        if (dancersPart[dancerName]) {
+          if (!dancersPart[dancerName].includes(partName)) {
+            console.log(`Delete ${dancerName} ${partName}`);
+            delete parts[partName];
+          }
         }
-      }
+      });
     });
-  });
+  }
 });
 
+const newControl = [];
+for (let i = 0; i < control.length; ++i) {
+  if (control[i]) newControl.push(control[i]);
+}
+
 // Write File
-fs.writeFile(outputPath, JSON.stringify(control), () => {
+fs.writeFile(outputPath, JSON.stringify(newControl), () => {
   console.log(`Writing new file to ... ${outputPath}`);
 });

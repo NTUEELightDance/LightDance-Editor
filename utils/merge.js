@@ -36,7 +36,7 @@ try {
   console.error(`[Error] Can't open file ${json_2}`);
   exit();
 }
-const json2 = JSON.parse(raw);
+let json2 = JSON.parse(raw);
 
 function compareNumbers(a, b) {
   return a.start - b.start;
@@ -60,6 +60,11 @@ for (let i = 0; i < json2.length - 1; ++i) {
   }
 }
 
+// // remove json2 from time > 60000
+// console.log(json2.length);
+// json2 = json2.filter((c) => c.start < 60000);
+// console.log(json2[json2.length - 1].start);
+
 // merge
 const new_json = [];
 let i = 0,
@@ -78,11 +83,14 @@ for (let k = 0; k < json1.length + json2.length; ++k) {
 if (i === json1.length) {
   for (j; j < json2.length; ++j) new_json.push(json2[j]);
 } else if (j === json2.length) {
-  for (i; i < json1.length; ++i) new_json.push(json1[j]);
+  for (i; i < json1.length; ++i) new_json.push(json1[i]);
 }
 
 // check new json increasing
-for (let i = 0; i < new_json.length - 1; ++i) {
+for (let i = 0; i < new_json.length - 2; ++i) {
+  if (new_json[i + 1] === undefined || new_json[i + 1] === null) {
+    continue;
+  }
   if (new_json[i].start > new_json[i + 1].start) {
     console.error(`[Error] ${new_json} at ${i} is not an increasing format`);
     exit();
