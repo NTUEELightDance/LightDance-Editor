@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import Typography from "@material-ui/core/Typography";
 // components
 import TimeController from "./timeController";
+import Tools from "../tools";
 
 const useStyles = makeStyles({
   flex: {
@@ -28,6 +29,7 @@ export default function Bar() {
         2021 NTUEE LightDance
       </Typography>
       <TimeController />
+      <Tools />
     </div>
   );
 }

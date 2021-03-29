@@ -113,6 +113,18 @@ class DancerSocket {
       status: status[this.dancerName],
     }));
 
+    // set fade false if status are the same
+    for (let i = 0; i < dancerJson.length - 1; i++) {
+      if (
+        dancerJson[i].fade === true &&
+        JSON.stringify(dancerJson[i].status) ===
+          JSON.stringify(dancerJson[i + 1].status)
+      ) {
+        dancerJson[i].fade = false;
+      }
+    }
+
+    // compress dancer JSON if adjacent frame are the same
     let compressedDancerJson = dancerJson.reduce(
       (acc, currentFrame) => {
         const lastFrame = acc[acc.length - 1];
