@@ -1,0 +1,677 @@
+[
+  {
+    "start": 0,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 1000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 1500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 2000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 2500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 3000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 3500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 4000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 4500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 5000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 5500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 6000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 6500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 7000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 7500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 8000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 8500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 9000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 9500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 10000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 10500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 11000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 11500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 12000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 12500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 13000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 13500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 14000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 14500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 15000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 15500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 16000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 16500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 17000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 17500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 18000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 18500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 19000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 19500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 20000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 20500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 21000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 21500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 22000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 22500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 23000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 23500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 24000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 24500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 25000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 25500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 26000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 26500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 27000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 27500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 28000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 28500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 29000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 29500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 30000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 30500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 31000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 31500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 32000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 32500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 33000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 33500,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 34000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 34500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 35000,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "red_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 35500,
+    "status": {
+      "LED_HANDLE": { "src": "bl_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "red_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 36000,
+    "status": {
+      "LED_HANDLE": { "src": "blue_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 36500,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "blue_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "bl_sword", "alpha": 1 }
+    },
+    "fade": false
+  },
+  {
+    "start": 37000,
+    "status": {
+      "LED_HANDLE": { "src": "red_handle", "alpha": 1 },
+      "LED_GUARD": { "src": "bl_guard", "alpha": 1 },
+      "LED_SWORD": { "src": "blue_sword", "alpha": 1 }
+    },
+    "fade": false
+  }
+]
