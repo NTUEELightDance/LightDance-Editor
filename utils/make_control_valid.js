@@ -168,7 +168,7 @@ const control = JSON.parse(raw);
 
 control.map((c, idx) => {
   if (c) {
-    const status = c.status;
+    const { status } = c;
     Object.entries(status).forEach(([dancerName, parts]) => {
       Object.keys(parts).forEach((partName) => {
         if (dancersPart[dancerName]) {
@@ -184,12 +184,99 @@ control.map((c, idx) => {
   }
 });
 
+const LED_HANDLE = "LED_HANDLE";
+const LED_GUARD = "LED_GUARD";
+const LED_SWORD = "LED_SWORD";
+
 // fill missing  led parts
+control.sort((a, b) => a.start - b.start);
 for (let i = 0; i < control.length; ++i) {
-  Object.keys(swordsDancer).forEach((swordName) => {
-    if (!(swordName in control[i].status)) {
-      control[i].swordName = swordsDancer[swordName];
-      console.log(`Filling LED Sword at frame ${i}`);
+  const { status } = control[i];
+  let test = false;
+  Object.keys(status).map((e) => {
+    if (e.includes("_sw")) test = true;
+  });
+  if (test === false) {
+    control[i].status = {
+      ...control[i].status,
+      "1_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "2_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "3_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "4_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "5_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "6_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "7_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "8_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "9_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+      "10_sw": {
+        LED_HANDLE: { src: "bl_handle", alpha: 0 },
+        LED_GUARD: { src: "bl_guard", alpha: 0 },
+        LED_SWORD: { src: "bl_sword", alpha: 0 },
+      },
+    };
+  }
+  Object.keys(status).map((e) => {
+    if (e.includes("_sw")) {
+      if (!status[e].LED_SWORD) {
+        status[e] = {
+          LED_HANDLE: { src: "bl_handle", alpha: 0 },
+          LED_GUARD: { src: "bl_guard", alpha: 0 },
+          LED_SWORD: { src: "bl_sword", alpha: 0 },
+        };
+        console.log("jizz", i);
+      }
+      status[e].LED_HANDLE.src = status[e].LED_HANDLE.src || "bl_handle";
+      status[e].LED_HANDLE.alpha =
+        typeof status[e].LED_HANDLE.alpha === "number"
+          ? status[e].LED_HANDLE.alpha
+          : 0;
+
+      status[e][LED_GUARD].src = status[e][LED_GUARD].src || "bl_guard";
+      status[e][LED_GUARD].alpha =
+        typeof status[e][LED_GUARD].alpha === "number"
+          ? status[e][LED_GUARD].alpha
+          : 0;
+      status[e][LED_SWORD].src = status[e][LED_SWORD].src || "bl_sword";
+      status[e][LED_SWORD].alpha =
+        typeof status[e][LED_SWORD].alpha === "number"
+          ? status[e][LED_SWORD].alpha
+          : 0;
     }
   });
 }

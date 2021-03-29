@@ -26,7 +26,7 @@ try {
   console.error(`[Error] Can't open file ${json_1}`);
   exit();
 }
-const json1 = JSON.parse(raw);
+let json1 = JSON.parse(raw);
 
 console.log("Reading json from ... ", json_2);
 raw = null;
@@ -60,10 +60,16 @@ for (let i = 0; i < json2.length - 1; ++i) {
   }
 }
 
-// // remove json2 from time > 60000
-// console.log(json2.length);
-// json2 = json2.filter((c) => c.start < 60000);
-// console.log(json2[json2.length - 1].start);
+// ke
+// json1: 0 ~ 90000   , 286000 ~ 312000
+json1 = json1.filter(
+  ({ start }) => start < 90000 || (start > 286000 && start < 312000)
+);
+
+// laio
+json2 = json2.filter(
+  ({ start }) => start > 90000 && !(start > 286000 && start < 312000)
+);
 
 // merge
 const new_json = [];

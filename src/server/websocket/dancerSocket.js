@@ -24,7 +24,7 @@ class DancerSocket {
       [COMMANDS.STOP]: this.stop,
       [COMMANDS.TERMINATE]: this.terminate,
       [COMMANDS.UPLOAD_CONTROL]: this.uploadControl,
-      [COMMANDS.UPLOAD_LED]: this.uploadLED,
+      [COMMANDS.UPLOAD_LED]: this.uploadLED
     };
   }
 
@@ -45,7 +45,7 @@ class DancerSocket {
       this.dancerAgent.socketReceiveData(this.dancerName, {
         task: task,
         payload: payload,
-        type: "dancer",
+        type: "dancer"
       });
     };
   };
@@ -55,7 +55,7 @@ class DancerSocket {
       this.dancerAgent.socketReceiveData(this.dancerName, {
         task: "disconnect",
         payload: { msg: "Disconnected", OK: false },
-        type: "dancer",
+        type: "dancer"
       });
       this.dancerAgent.deleteDancerClient(this.dancerName);
     };
@@ -84,9 +84,9 @@ class DancerSocket {
       {
         startTime,
         delay,
-        sysTime,
+        sysTime
         // sysTime: delay + Date.now(),
-      },
+      }
     ]);
   };
   pause = () => {
@@ -110,7 +110,7 @@ class DancerSocket {
     let dancerJson = controlJson.map(({ start, status, fade }) => ({
       start,
       fade,
-      status: status[this.dancerName],
+      status: status[this.dancerName]
     }));
 
     // set fade false if status are the same
@@ -132,7 +132,12 @@ class DancerSocket {
         const lastFrameStatus = lastFrame.status;
         const currentFrameFade = currentFrame.fade;
         const currentFrameStatus = currentFrame.status;
-        if (lastFrameFade || currentFrameFade) {
+        if (lastFrameFade !== currentFrameFade) {
+          if (
+            JSON.stringify(lastFrameStatus) ===
+            JSON.stringify(currentFrameStatus)
+          )
+            return [...acc];
           return [...acc, currentFrame];
         } else if (
           JSON.stringify(lastFrameStatus) !== JSON.stringify(currentFrameStatus)
@@ -144,7 +149,7 @@ class DancerSocket {
       },
       [dancerJson[0]]
     );
-
+    console.log("Upload size: ", compressedDancerJson.length);
     this.sendDataToRpiSocket(["uploadControl", compressedDancerJson]);
   };
   uploadLED = ({ ledData }) => {
@@ -160,7 +165,7 @@ class DancerSocket {
   lightCurrentStatus = ({ lightCurrentStatus }) => {
     this.sendDataToRpiSocket([
       "lightCurrentStatus",
-      lightCurrentStatus[this.dancerName],
+      lightCurrentStatus[this.dancerName]
     ]);
   };
   getBoardInfo = () => {
