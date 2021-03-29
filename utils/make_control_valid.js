@@ -3,6 +3,7 @@
 /**
  * Usage: node controlTransform.js <path_to_control.json> <output_path.json>
  */
+const { ControlCameraSharp } = require("@material-ui/icons");
 const fs = require("fs");
 const { exit } = require("process");
 
@@ -111,6 +112,12 @@ const good_bad = [
   "LED_R_SHOE",
 ];
 
+const sword = {
+  LED_HANDLE: { src: "bl_handle", alpha: 0 },
+  LED_GUARD: { src: "bl_guard", alpha: 0 },
+  LED_SWORD: { src: "bl_sword", alpha: 0 },
+};
+
 const dancersPart = {
   "1_191": suit_bad,
   "2_ke": suit_bad,
@@ -122,6 +129,19 @@ const dancersPart = {
   "8_fan": good_bad,
   "9_chia": good_bad,
   "10_lu": good_bad,
+};
+
+const swordsDancer = {
+  "1_sw": sword,
+  "2_sw": sword,
+  "3_sw": sword,
+  "4_sw": sword,
+  "5_sw": sword,
+  "6_sw": sword,
+  "7_sw": sword,
+  "8_sw": sword,
+  "9_sw": sword,
+  "10_sw": sword,
 };
 
 // Read Argument
@@ -146,8 +166,8 @@ try {
 // remove invalid part
 const control = JSON.parse(raw);
 
-control.map((c) => {
-  if (c !== null) {
+control.map((c, idx) => {
+  if (c) {
     const status = c.status;
     Object.entries(status).forEach(([dancerName, parts]) => {
       Object.keys(parts).forEach((partName) => {
@@ -159,8 +179,20 @@ control.map((c) => {
         }
       });
     });
+  } else {
+    console.error(`[Error] frame ${idx} is null`);
   }
 });
+
+// fill missing  led parts
+for (let i = 0; i < control.length; ++i) {
+  Object.keys(swordsDancer).forEach((swordName) => {
+    if (!(swordName in control[i].status)) {
+      control[i].swordName = swordsDancer[swordName];
+      console.log(`Filling LED Sword at frame ${i}`);
+    }
+  });
+}
 
 const newControl = [];
 for (let i = 0; i < control.length; ++i) {
