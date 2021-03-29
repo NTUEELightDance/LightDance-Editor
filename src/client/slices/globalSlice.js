@@ -659,6 +659,22 @@ export const globalSlice = createSlice({
       state.posPresets.splice(idx, 1);
       setItem("posPresets", JSON.stringify(state.posPresets));
     },
+
+    /**
+     * Shift frame time from startFrame to endFrame += shiftTime
+     */
+    shiftFrameTime: (state, action) => {
+      const { type, startFrame, endFrame, shiftTime } = action.payload;
+      console.log(type, startFrame, endFrame, shiftTime);
+      const record =
+        type === "CONTROL" ? [...state.controlRecord] : [...state.posRecord];
+      for (let i = startFrame; i <= endFrame; i += 1) {
+        record[i] += shiftTime;
+      }
+      record.sort((a, b) => a.start - b.start);
+      if (type === "CONTROL") state.controlRecord = record;
+      else if (type === "POSITION") state.posRecord = record;
+    },
   },
 });
 
@@ -704,6 +720,8 @@ export const {
   editPosPresetsName,
   addPosPresets,
   deletePosPresets,
+
+  shiftFrameTime,
 } = globalSlice.actions;
 
 export const selectGlobal = (state) => state.global;
