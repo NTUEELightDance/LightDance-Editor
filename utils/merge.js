@@ -62,14 +62,10 @@ for (let i = 0; i < json2.length - 1; ++i) {
 
 // ke
 // json1: 0 ~ 90000   , 286000 ~ 312000
-json1 = json1.filter(
-  ({ start }) => start < 90000 || (start > 286000 && start < 312000)
-);
+json1 = json1.filter(({ start }) => start >= 286000 && start <= 311000);
 
 // laio
-json2 = json2.filter(
-  ({ start }) => start > 90000 && !(start > 286000 && start < 312000)
-);
+json2 = json2.filter(({ start }) => start < 286000 || start > 311000);
 
 // merge
 const new_json = [];

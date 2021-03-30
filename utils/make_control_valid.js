@@ -188,15 +188,18 @@ const LED_HANDLE = "LED_HANDLE";
 const LED_GUARD = "LED_GUARD";
 const LED_SWORD = "LED_SWORD";
 
-// fill missing  led parts
 control.sort((a, b) => a.start - b.start);
+
+// fill missing  led parts
 for (let i = 0; i < control.length; ++i) {
   const { status } = control[i];
   let test = false;
   Object.keys(status).map((e) => {
     if (e.includes("_sw")) test = true;
   });
+  // missing whole sword
   if (test === false) {
+    console.error("missing sword parts");
     control[i].status = {
       ...control[i].status,
       "1_sw": {

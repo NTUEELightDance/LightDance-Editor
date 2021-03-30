@@ -40,22 +40,33 @@ const swordsDancer = [
   "10_sw",
 ];
 
-const newControl = control.map(({ status }) => {
-  swordsDancer.forEach((sword) => {
-    console.log(sword);
-    if (status[sword]) {
-      if (
-        status[sword]["LED_SWORD"].src !== "bl_sword" &&
-        status[sword]["LED_SWORD"].alpha !== 0
-      ) {
-        status[sword]["LED_HANDLE"] = { src: "white_handle", alpha: 1 };
-        status[sword]["LED_GUARD"] = { src: "white_guard", alpha: 1 };
+// 480
+control.forEach(({ status }, idx) => {
+  if (idx >= 480) {
+    swordsDancer.forEach((sword) => {
+      console.log(sword);
+      if (status[sword]) {
+        if (
+          status[sword]["LED_SWORD"].src !== "bl_sword" &&
+          status[sword]["LED_SWORD"].alpha !== 0
+        ) {
+          if (status[sword]["LED_SWORD"].src.includes("white")) {
+            status[sword]["LED_HANDLE"] = { src: "white_handle", alpha: 0.5 };
+            status[sword]["LED_GUARD"] = { src: "white_guard", alpha: 0.5 };
+          } else if (status[sword]["LED_SWORD"].src.includes("blue")) {
+            status[sword]["LED_HANDLE"] = { src: "blue_handle", alpha: 1 };
+            status[sword]["LED_GUARD"] = { src: "blue_guard", alpha: 1 };
+          } else if (status[sword]["LED_SWORD"].src.includes("red")) {
+            status[sword]["LED_HANDLE"] = { src: "red_handle", alpha: 1 };
+            status[sword]["LED_GUARD"] = { src: "red_guard", alpha: 1 };
+          }
+        }
       }
-    }
-  });
+    });
+  }
 });
 
 // Write File
-fs.writeFile(outputPath, JSON.stringify(newControl), () => {
+fs.writeFile(outputPath, JSON.stringify(control), () => {
   console.log(`Writing new file to ... ${outputPath}`);
 });
