@@ -7,4 +7,5 @@ services:
     volumes:
       - ./data:/app/data
       - ./asset:/app/asset
+      - ./music:/app/music
       - "/etc/localtime:/etc/localtime:ro"
