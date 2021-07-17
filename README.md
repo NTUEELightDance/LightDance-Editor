@@ -2,6 +2,8 @@
 
 Lightdance Editor to edit the light control and simulate the show
 
+![lightdance_editor_gif](https://user-images.githubusercontent.com/17617373/126040650-b25e5a8f-5b40-4636-93b9-4a79e690e816.gif)
+
 ## Development
 
 ```bash
