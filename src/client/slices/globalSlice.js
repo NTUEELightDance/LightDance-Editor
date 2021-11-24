@@ -117,7 +117,7 @@ export const globalSlice = createSlice({
      */
     saveCurrentFade: (state) => {
       state.controlRecord[state.timeData.controlFrame].fade = state.currentFade;
-      setItem("control", JSON.stringify(state.controlRecord));
+      // setItem("control", JSON.stringify(state.controlRecord));
     },
 
     /**
@@ -207,7 +207,12 @@ export const globalSlice = createSlice({
         //   );
       }
       state.mode = IDLE;
+      // setItem("control", JSON.stringify(state.controlRecord));
+    },
+
+    saveToLocal: (state) => {
       setItem("control", JSON.stringify(state.controlRecord));
+      console.log("Control Saved to Local Storage...");
     },
 
     /**
@@ -699,6 +704,7 @@ export const {
   setCurrentPosByName,
   setCurrentPos,
   saveCurrentPos,
+  saveToLocal,
   syncPos,
   deleteCurrentPos,
 

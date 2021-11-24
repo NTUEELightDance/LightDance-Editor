@@ -4,7 +4,11 @@ import { useSelector, useDispatch } from "react-redux";
 // mui
 import Button from "@material-ui/core/Button";
 // redux selector and actions
-import { selectGlobal, toggleMode } from "../../slices/globalSlice";
+import {
+  selectGlobal,
+  toggleMode,
+  saveToLocal,
+} from "../../slices/globalSlice";
 // constants
 import { IDLE, ADD, EDIT } from "../../constants";
 
@@ -16,6 +20,10 @@ export default function ModeSelector({ handleSave, handleDelete }) {
   // mode
   const handleChangeMode = (m) => {
     dispatch(toggleMode(m));
+  };
+
+  const handleSaveToLocal = () => {
+    dispatch(saveToLocal());
   };
 
   // keyDown to change mode (include multiple keyDown)
@@ -72,6 +80,15 @@ export default function ModeSelector({ handleSave, handleDelete }) {
         disabled={mode !== IDLE}
       >
         DEL
+      </Button>
+      <Button
+        size="small"
+        variant="outlined"
+        color="primary"
+        onClick={handleSaveToLocal}
+        disabled={false}
+      >
+        SAVE_LOCAL
       </Button>
     </div>
   );
