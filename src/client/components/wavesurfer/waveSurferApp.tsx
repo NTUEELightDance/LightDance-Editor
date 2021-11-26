@@ -75,14 +75,14 @@ class WaveSurferApp {
     this.addClickEvent();
 
     // Listener when playing, which will update time
-    this.waveSurfer.on("audioprocess", () => {
-      store.dispatch(
-        setTime({
-          from: this.from,
-          time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-        })
-      );
-    });
+    // this.waveSurfer.on("audioprocess", () => {
+    //   store.dispatch(
+    //     setTime({
+    //       from: this.from,
+    //       time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+    //     })
+    //   );
+    // })s;
   }
 
   /**
@@ -92,6 +92,15 @@ class WaveSurferApp {
   playPause() {
     this.waveSurfer.playPause();
     store.dispatch(playPause(this.waveSurfer.isPlaying()));
+    if (!this.waveSurfer.isPlaying()) {
+      console.log("update Time");
+      store.dispatch(
+        setTime({
+          from: this.from,
+          time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+        })
+      );
+    }
   }
 
   /**
