@@ -27,3 +27,10 @@ $ docker-compose up -d
 
 Prettier + Eslint
 Please turn on VSCode setting `FormatOnSave`, and set the formatter to `revest.vs-code-prettier-eslint`
+
+## Issue Tracking System
+
+Jira Software
+https://ntueelightdance.atlassian.net/jira/software/projects/EDITOR/boards/1
+
+
