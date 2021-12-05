@@ -30,5 +30,7 @@ Please turn on VSCode setting `FormatOnSave`, and set the formatter to `revest.v
 
 ## Issue Tracking System
 
-JIRA
+Jira Software
+https://ntueelightdance.atlassian.net/jira/software/projects/EDITOR/boards/1
+
 
