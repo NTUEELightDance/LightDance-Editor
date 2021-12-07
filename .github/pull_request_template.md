@@ -8,9 +8,9 @@
 ### Todos
 * [ ] - Task
 
-### What is the Jira issue?
-<!-- * Open an issue on Jira
-* Put link here, and add [EDITOR-*Jira number*] in PR title, eg. `EDITOR-23. PR title`
+### What is the Github issue?
+<!-- * Open an issue on Github
+* Put link here, and add [EDITOR-#issue_number] in PR title, eg. `EDITOR-#9. PR title`
 -->
 ### How should this be tested?
 <!--
