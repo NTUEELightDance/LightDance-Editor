@@ -1,6 +1,7 @@
 import WaveSurfer from "wavesurfer.js";
 import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
 import regions from "wavesurfer.js/src/plugin/regions";
+import MarkersPlugin from "wavesurfer.js/dist/plugin/wavesurfer.markers";
 
 // redux
 import store from "../../store";
@@ -46,6 +47,16 @@ class WaveSurferApp {
         }),
         regions.create({
           regionsMinLength: 0,
+        }),
+        MarkersPlugin.create({
+          markers: [
+            {
+              time: 0,
+              label: "Begin",
+              color: "#ffffff",
+              position: "bottom",
+            },
+          ],
         }),
       ],
     });
@@ -181,6 +192,22 @@ class WaveSurferApp {
       end: end / 1000,
       loop: false,
       color: "hsla(400, 100%, 30%, 0.5)",
+    });
+  }
+
+  addMarkers(start, index) {
+    this.waveSurfer.addMarker({
+      time: start,
+      color: "#ffffff",
+      label: index ? index : "Begin",
+      position: "top",
+    });
+  }
+
+  updateMarkers(controlRecord) {
+    this.waveSurfer.clearMarkers();
+    controlRecord.map((e, index) => {
+      this.addMarkers(e.start / 1000, index);
     });
   }
 

@@ -37,6 +37,13 @@ const Wavesurfer = () => {
   const {
     timeData: { from, time },
   } = useSelector(selectGlobal);
+  const { controlRecord } = useSelector(selectGlobal);
+
+  //update Markers
+  useEffect(() => {
+    if (controlRecord && waveSurferApp)
+      waveSurferApp.updateMarkers(controlRecord);
+  }, [controlRecord]);
 
   // listen to time set by other component
   useEffect(() => {

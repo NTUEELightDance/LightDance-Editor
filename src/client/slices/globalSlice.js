@@ -575,8 +575,33 @@ export const globalSlice = createSlice({
      * @param {number} action.payload - new mode
      */
     toggleMode: (state, action) => {
-      if (action.payload === state.mode) state.mode = IDLE;
-      else state.mode = action.payload;
+      if (action.payload === state.mode) {
+        state.mode = IDLE;
+        const currentControlFrame = state.timeData.controlFrame;
+        if (currentControlFrame === state.controlRecord.length - 1) {
+          // Can't fade
+          state.currentStatus = state.controlRecord[currentControlFrame].status;
+        } else {
+          // do fade
+          state.currentStatus = fadeStatus(
+            state.timeData.time,
+            state.controlRecord[currentControlFrame],
+            state.controlRecord[currentControlFrame + 1]
+          );
+        }
+        const currentPosFrame = state.timeData.posFrame
+        if (currentPosFrame === state.posRecord.length - 1) {
+          // can't interpolation
+          state.currentPos = state.posRecord[currentPosFrame].pos;
+        } else {
+          // do interpolation
+          state.currentPos = interpolationPos(
+            state.timeData.time,
+            state.posRecord[currentPosFrame],
+            state.posRecord[currentPosFrame + 1]
+          );
+        }
+      } else state.mode = action.payload;
     },
 
     /**
