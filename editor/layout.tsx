@@ -13,6 +13,7 @@ import LightEditor from "./components/lightEditor";
 import PosEditor from "./components/posEditor";
 import File from "./components/file";
 import CommandCenter from "./components/commandCenter";
+import ThreeSimulator from "./components/threeSimulator";
 
 export default function Layout() {
   // layout
@@ -23,6 +24,8 @@ export default function Layout() {
         return <CommandCenter />;
       case "Simulator":
         return <Simulator />;
+      case "ThreeSimulator":
+        return <ThreeSimulator />;
       case "LightEditor":
         return <LightEditor />;
       case "PosEditor":
