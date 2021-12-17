@@ -61,6 +61,7 @@ class WaveSurferApp {
     });
 
     // load music
+    console.log(store.getState().load.music);
     this.waveSurfer.load(store.getState().load.music);
 
     // get ready

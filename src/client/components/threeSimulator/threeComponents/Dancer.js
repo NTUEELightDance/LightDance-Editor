@@ -2,28 +2,57 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 class ThreeDancer {
-  constructor(scene) {
+  constructor(scene, name) {
     this.scene = scene;
     this.model = null;
     this.skeleton = null;
     this.mixer = null;
-  }
-
-  updatePos(currentPos) {
-    this.model.position.setX(currentPos.x);
-    this.model.position.setY(currentPos.y);
-    this.model.position.setZ(currentPos.z);
+    this.name = name;
+    this.parts = {};
   }
 
   addModel2Scene(position) {
     const loader = new GLTFLoader();
     const initModel = (gltf) => {
       this.model = gltf.scene;
+      // this.model.remove(this.model.children[1]);
+      console.log(this.model);
+      const hairMesh = this.model.getObjectByName("Hair");
 
-      const hairMeshes = this.model.getObjectByName("Hair");
-      hairMeshes.material.map = new THREE.TextureLoader().load(
-        "data/models/Remy_Top_Diffuse.png"
-      );
+      hairMesh.material.color.setHex(0x000000);
+      hairMesh.material.emissive.setHex(0xcc00ff);
+      hairMesh.material.emissiveIntensity = 0.0;
+      this.parts.S_HAT = hairMesh;
+
+      const bodyMesh = this.model.getObjectByName("Body");
+
+      bodyMesh.material.color.setHex(0x000000);
+      bodyMesh.material.emissive.setHex(0x004cff);
+      bodyMesh.material.emissiveIntensity = 0.0;
+      this.parts.S_L_HAND = bodyMesh;
+
+      const bottomsMesh = this.model.getObjectByName("Bottoms");
+
+      bottomsMesh.material.color.setHex(0x000000);
+      bottomsMesh.material.emissive.setHex(0x004cff);
+      bottomsMesh.material.emissiveIntensity = 0.0;
+      this.parts.S_R_PANT = bottomsMesh;
+
+      const shoesMesh = this.model.getObjectByName("Shoes");
+
+      shoesMesh.material.color.setHex(0x000000);
+      shoesMesh.material.emissive.setHex(0xff0000);
+      shoesMesh.material.emissiveIntensity = 0.0;
+      this.parts.S_L_SHOE = shoesMesh;
+
+      const topsMesh = this.model.getObjectByName("Tops");
+
+      topsMesh.material.color.setHex(0x000000);
+      topsMesh.material.emissive.setHex(0x8000ff);
+      topsMesh.material.emissiveIntensity = 0.0;
+      this.parts.S_L_SHOE = topsMesh;
+
+      this.parts.S_L_COAT = topsMesh;
 
       this.skeleton = new THREE.SkeletonHelper(this.model);
       this.skeleton.visible = false;
@@ -35,6 +64,26 @@ class ThreeDancer {
       this.model.position.setZ(position.z);
     };
     loader.load("data/models/remy.gltf", initModel.bind(this));
+  }
+
+  update(currentPos, currentStatus) {
+    this.updatePos(currentPos);
+    this.updateStatus(currentStatus);
+  }
+
+  updatePos(currentPos) {
+    this.model.position.setX(currentPos.x / 30);
+    this.model.position.setY(0);
+    this.model.position.setZ(currentPos.z / 30);
+  }
+
+  updateStatus(currentStatus) {
+    console.log(currentStatus);
+    Object.entries(this.parts).forEach(([name, e]) => {
+      // console.log(name, e);
+      // console.log(currentStatus[name]);
+      e.material.emissiveIntensity = currentStatus[name];
+    });
   }
 }
 

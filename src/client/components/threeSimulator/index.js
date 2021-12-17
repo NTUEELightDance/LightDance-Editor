@@ -1,3 +1,5 @@
+import Stats from "three/examples/jsm/libs/stats.module";
+
 import React, { useState, useEffect, useRef } from "react";
 // redux
 import { useSelector } from "react-redux";
@@ -30,8 +32,7 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     if (threeController) {
-      console.log(isPlaying ? "Play" : "Stop");
-
+      threeController.startTime = performance.now();
       threeController.waveSuferTime = timeData.time;
       threeController.state = { controlRecord, posRecord };
       threeController.state.timeData = { ...timeData };
