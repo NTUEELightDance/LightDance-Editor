@@ -47,9 +47,6 @@ export default function ModeSelector({ handleSave, handleDelete }) {
         variant="outlined"
         size="small"
         color={ mode === EDIT ? "secondary" : ""}
-        // style={{
-        //   backgroundColor: mode === EDIT ? "#505050" : "",
-        // }}
         onClick={() => handleChangeMode(EDIT)}
       >
         { mode === EDIT ? "Cancel" : "EDIT" }
@@ -58,9 +55,6 @@ export default function ModeSelector({ handleSave, handleDelete }) {
         variant="outlined"
         size="small"
         color={ mode === ADD ? "secondary" : ""}
-        // style={{
-        //   backgroundColor: mode === ADD ? "#505050" : "",
-        // }}
         onClick={() => handleChangeMode(ADD)}
       >
         { mode === ADD ? "Cancel" : "ADD" }

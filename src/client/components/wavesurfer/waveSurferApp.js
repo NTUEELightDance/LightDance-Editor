@@ -195,6 +195,11 @@ class WaveSurferApp {
     });
   }
 
+  /**
+   * create a new marker
+   * @param { number } time  - time where marker created
+   * @param { number } index - marker's label
+   */
   addMarkers(start, index) {
     this.waveSurfer.addMarker({
       time: start,
@@ -204,6 +209,10 @@ class WaveSurferApp {
     });
   }
 
+  /**
+   * create markers according to all dancer's status
+   * @param { Array<{}> } controlRecord - array of all dancer's status
+   */
   updateMarkers(controlRecord) {
     this.waveSurfer.clearMarkers();
     controlRecord.map((e, index) => {

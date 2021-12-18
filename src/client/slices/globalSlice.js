@@ -577,6 +577,7 @@ export const globalSlice = createSlice({
     toggleMode: (state, action) => {
       if (action.payload === state.mode) {
         state.mode = IDLE;
+        //reset currentStatus when switching mode back to IDLE
         const currentControlFrame = state.timeData.controlFrame;
         if (currentControlFrame === state.controlRecord.length - 1) {
           // Can't fade
@@ -589,6 +590,7 @@ export const globalSlice = createSlice({
             state.controlRecord[currentControlFrame + 1]
           );
         }
+        //reset currentPosFrame when switching mode back to IDLE
         const currentPosFrame = state.timeData.posFrame
         if (currentPosFrame === state.posRecord.length - 1) {
           // can't interpolation
