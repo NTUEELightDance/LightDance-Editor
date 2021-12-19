@@ -22,6 +22,7 @@
     "jszip": "^3.6.0",
     "jszip-utils": "^0.1.0",
     "mongoose": "^5.11.15",
+    "nanoid": "^3.1.30",
     "pixi.js": "^5.3.3",
     "pixi.js-legacy": "^5.3.8",
     "pngjs": "^6.0.0",
