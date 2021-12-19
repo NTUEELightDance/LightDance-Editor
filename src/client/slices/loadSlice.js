@@ -8,6 +8,7 @@ export const loadSlice = createSlice({
     music: "", // load music path
     load: {},
     control: [], // loaded control.json, may not be same as localStorage (this is for default)
+    controlMap: {}, // loaded controlMap.json
     position: [], // loaded position.json, may not be same as localStorage (this is for default)
     lightPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
     posPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
@@ -27,6 +28,10 @@ export const loadSlice = createSlice({
     },
     setControl: (state, action) => {
       state.control = action.payload;
+    },
+    setControlMap: (state, action) => {
+      state.controlMap = action.payload;
+      console.log(action.payload);
     },
     setPosition: (state, action) => {
       state.position = action.payload;
@@ -54,6 +59,7 @@ const {
   setLoad,
   setMusic,
   setControl,
+  setControlMap,
   setPosition,
   setLightPresets,
   setPosPresets,
@@ -73,6 +79,7 @@ export const fetchLoad = () => async (dispatch) => {
   const {
     Music,
     Control,
+    ControlMap,
     Position,
     LightPresets,
     PosPresets,
@@ -86,6 +93,9 @@ export const fetchLoad = () => async (dispatch) => {
   // set Control
   const control = await fetchJson(Control);
   dispatch(setControl(control));
+  // set ControlMap
+  const controlMap = await fetchJson(ControlMap);
+  dispatch(setControlMap(controlMap));
   // set Position
   const position = await fetchJson(Position);
   dispatch(setPosition(position));
