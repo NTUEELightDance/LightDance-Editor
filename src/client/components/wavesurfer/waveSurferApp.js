@@ -52,8 +52,8 @@ class WaveSurferApp {
           markers: [
             {
               time: 0,
-              label: "Begin",
-              color: "#ffffff",
+              // label: "Begin",
+              color: "#8AE5C8",
               position: "bottom",
             },
           ],
@@ -203,8 +203,8 @@ class WaveSurferApp {
   addMarkers(start, index) {
     this.waveSurfer.addMarker({
       time: start,
-      color: "#ffffff",
-      label: index ? index : "Begin",
+      color: "#8AE5C8",
+      // label: index ? index : "Begin",
       position: "top",
     });
   }
@@ -218,6 +218,14 @@ class WaveSurferApp {
     controlRecord.map((e, index) => {
       this.addMarkers(e.start / 1000, index);
     });
+  }
+
+  /**
+   * clear all markers
+   * @function
+   */
+  clearMarker() {
+    this.waveSurfer.clearMarkers();
   }
 
   zoom(newValue) {

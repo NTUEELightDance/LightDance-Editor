@@ -25,7 +25,9 @@ import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
  * @component
  */
 const Wavesurfer = () => {
-  const { waveSurferApp, initWaveSurferApp } = useContext(WaveSurferAppContext);
+  const { waveSurferApp, initWaveSurferApp, markersToggle } = useContext(
+    WaveSurferAppContext
+  );
   // const [waveSurferApp, setWaveSurferApp] = useState(null);
   useEffect(() => {
     const newWaveSurferApp = new WaveSurferApp();
@@ -41,9 +43,18 @@ const Wavesurfer = () => {
 
   //update Markers
   useEffect(() => {
-    if (controlRecord && waveSurferApp)
+    if (controlRecord && waveSurferApp && markersToggle)
       waveSurferApp.updateMarkers(controlRecord);
   }, [controlRecord]);
+
+  //update Markers when markers switched on
+  useEffect(() => {
+    if (!controlRecord || !waveSurferApp)return;
+    if (markersToggle)
+      waveSurferApp.updateMarkers(controlRecord);
+    else
+      waveSurferApp.clearMarker();
+  }, [markersToggle]);
 
   // listen to time set by other component
   useEffect(() => {
