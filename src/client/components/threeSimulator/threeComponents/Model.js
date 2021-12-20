@@ -1,5 +1,4 @@
 import * as THREE from "three";
-// import { GLTFLoader } from "../utils/GLTFLoader";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 let model, skeleton, mixer;
@@ -23,12 +22,12 @@ const additiveActions = {
 };
 let numAnimations;
 
-function activateAction(action) {
-  const clip = action.getClip();
-  const settings = baseActions[clip.name] || additiveActions[clip.name];
-  setWeight(action, settings.weight);
-  action.play();
-}
+// function activateAction(action) {
+//   const clip = action.getClip();
+//   const settings = baseActions[clip.name] || additiveActions[clip.name];
+//   setWeight(action, settings.weight);
+//   action.play();
+// }
 
 function updateModel(clockDelta) {
   if (allActions.length !== numAnimations) return;
@@ -48,11 +47,11 @@ const addModel2Scene = (scene) => {
   loader.load("data/models/remy.gltf", (gltf) => {
     model = gltf.scene;
 
-    const hairMeshes = model.getObjectByName("Hair");
+    // const hairMeshes = model.getObjectByName("Hair");
 
-    hairMeshes.material.map = new THREE.TextureLoader().load(
-      "data/models/Remy_Top_Diffuse.png"
-    );
+    // hairMeshes.material.map = new THREE.TextureLoader().load(
+    //   "data/models/Remy_Top_Diffuse.jpg"
+    // );
 
     scene.add(model);
 
