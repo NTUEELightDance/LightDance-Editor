@@ -1,6 +1,7 @@
 import WaveSurfer from "wavesurfer.js";
 import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
 import regions from "wavesurfer.js/src/plugin/regions";
+import MarkersPlugin from "wavesurfer.js/dist/plugin/wavesurfer.markers";
 
 // redux
 import store from "../../store";
@@ -46,6 +47,16 @@ class WaveSurferApp {
         }),
         regions.create({
           regionsMinLength: 0,
+        }),
+        MarkersPlugin.create({
+          markers: [
+            {
+              time: 0,
+              // label: "Begin",
+              color: "#8AE5C8",
+              position: "bottom",
+            },
+          ],
         }),
       ],
     });
@@ -182,6 +193,39 @@ class WaveSurferApp {
       loop: false,
       color: "hsla(400, 100%, 30%, 0.5)",
     });
+  }
+
+  /**
+   * create a new marker
+   * @param { number } time  - time where marker created
+   * @param { number } index - marker's label
+   */
+  addMarkers(start, index) {
+    this.waveSurfer.addMarker({
+      time: start,
+      color: "#8AE5C8",
+      // label: index ? index : "Begin",
+      position: "top",
+    });
+  }
+
+  /**
+   * create markers according to all dancer's status
+   * @param { Array<{}> } controlRecord - array of all dancer's status
+   */
+  updateMarkers(controlRecord) {
+    this.waveSurfer.clearMarkers();
+    controlRecord.map((e, index) => {
+      this.addMarkers(e.start / 1000, index);
+    });
+  }
+
+  /**
+   * clear all markers
+   * @function
+   */
+  clearMarker() {
+    this.waveSurfer.clearMarkers();
   }
 
   zoom(newValue) {

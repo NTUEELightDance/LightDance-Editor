@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography";
 // components
 import TimeController from "./timeController";
 import Tools from "../tools";
+import MarkerSwitch from "../wavesurfer/markerSwitch";
 
 const useStyles = makeStyles({
   flex: {
@@ -30,6 +31,7 @@ export default function Bar() {
       </Typography>
       <TimeController />
       <Tools />
+      <MarkerSwitch/>
     </div>
   );
 }

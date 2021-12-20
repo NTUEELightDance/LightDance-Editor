@@ -46,22 +46,18 @@ export default function ModeSelector({ handleSave, handleDelete }) {
       <Button
         variant="outlined"
         size="small"
-        style={{
-          backgroundColor: mode === EDIT ? "#505050" : "",
-        }}
+        color={ mode === EDIT ? "secondary" : ""}
         onClick={() => handleChangeMode(EDIT)}
       >
-        EDIT
+        { mode === EDIT ? "Cancel" : "EDIT" }
       </Button>
       <Button
         variant="outlined"
         size="small"
-        style={{
-          backgroundColor: mode === ADD ? "#505050" : "",
-        }}
+        color={ mode === ADD ? "secondary" : ""}
         onClick={() => handleChangeMode(ADD)}
       >
-        ADD
+        { mode === ADD ? "Cancel" : "ADD" }
       </Button>
       <Button
         variant="outlined"
