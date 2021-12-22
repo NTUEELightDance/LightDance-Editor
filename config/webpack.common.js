@@ -27,15 +27,15 @@ module.exports = {
     }),
   ],
   module: {
-    rules: [ 
+    rules: [
       {
-        test: /\.(ts|tsx|js|jsx)$/,                        
+        test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
           options: {
             presets: [
-              '@babel/typescript',                  
+              "@babel/typescript",
               [
                 "@babel/preset-env",
                 {
