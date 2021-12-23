@@ -55,7 +55,7 @@ class ThreeDancer {
       this.model.position.setY(position.y);
       this.model.position.setZ(position.z);
     };
-    loader.load("data/models/remy.gltf", initModel.bind(this));
+    loader.load("data/models/remy_with_sword.glb", initModel.bind(this));
   }
 
   update(currentPos, currentStatus) {

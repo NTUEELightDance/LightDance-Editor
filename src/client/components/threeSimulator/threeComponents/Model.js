@@ -44,7 +44,7 @@ function updateModel(clockDelta) {
 const addModel2Scene = (scene) => {
   const loader = new GLTFLoader();
 
-  loader.load("data/models/remy.gltf", (gltf) => {
+  loader.load("data/models/remy_with_sword.glb", (gltf) => {
     model = gltf.scene;
 
     // const hairMeshes = model.getObjectByName("Hair");

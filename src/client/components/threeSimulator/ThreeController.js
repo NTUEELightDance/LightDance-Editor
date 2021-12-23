@@ -40,17 +40,17 @@ const far = 100;
  * @constructor
  */
 class ThreeController {
-  constructor(canvas, stats) {
+  constructor(canvas, container) {
     this.dancers = {};
     this.mainContainer = null;
     this.threeApp = {};
-    this.canvas = canvas;
     this.height = 500;
     this.width = 1000;
     this.isPlaying = false;
     this.animateID = null;
     this.dancers = {};
-    this.stats = stats;
+    this.canvas = canvas;
+    this.container = container;
   }
 
   /**
@@ -177,13 +177,13 @@ class ThreeController {
       }
     });
 
-    const newSword = new ThreeSword(this.scene, "sword");
-    const newPos = {
-      x: 0,
-      y: 0,
-      z: 0,
-    };
-    newSword.addModel2Scene(newPos);
+    // const newSword = new ThreeSword(this.scene, "sword");
+    // const newPos = {
+    //   x: 0,
+    //   y: 0,
+    //   z: 0,
+    // };
+    // newSword.addModel2Scene(newPos);
 
     const params = {
       color: 0x000000,
@@ -200,20 +200,12 @@ class ThreeController {
       })
     );
 
-    // Add stats to monitor fps
-    // const stats = new Stats();
-    // document.body.appendChild(stats.domElement);
+    const statsPanel = new Stats();
+    statsPanel.domElement.style.position = "absolute";
+    this.container.appendChild(statsPanel.domElement);
 
-    // const gpuPanel = new GPUStatsPanel(renderer.getContext());
-    // stats.addPanel(gpuPanel);
-    // stats.showPanel(0);
-    // this.stats = stats;
-    // this.gpuPanel = gpuPanel;
-
-    const thisStats = this.stats;
     requestAnimationFrame(function loop() {
-      // console.log(thisStats);
-      thisStats.update();
+      statsPanel.update();
       requestAnimationFrame(loop);
     });
   }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 // redux
 import { useSelector } from "react-redux";
-import Stats from "three/examples/jsm/libs/stats.module";
 // actions
 import { selectGlobal } from "../../slices/globalSlice";
 // useSelector
@@ -16,21 +15,18 @@ import ThreeController from "./ThreeController";
 
 export default function ThreeSimulator() {
   const canvasRef = useRef();
+  const containerRef = useRef();
 
   const [threeController, setThreeController] = useState(null);
 
-  const { posRecord, controlRecord, timeData, isPlaying } =
-    useSelector(selectGlobal);
-  
-  let statsPanel;
+  const { posRecord, controlRecord, timeData, isPlaying } = useSelector(
+    selectGlobal
+  );
 
-  useEffect(async() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
-    statsPanel = await new Stats();
-    statsPanel.domElement.style.position = "relative";
-    canvas.appendChild(statsPanel.domElement);
-    // pass in for animation update
-    const newThreeController = new ThreeController(canvas, statsPanel);
+    const container = containerRef.current;
+    const newThreeController = new ThreeController(canvas, container);
     newThreeController.init();
     setThreeController(newThreeController);
   }, []);
@@ -54,6 +50,7 @@ export default function ThreeSimulator() {
         alignItems: "center",
         justifyContent: "center",
       }}
+      ref={containerRef}
     >
       <div ref={canvasRef} />
     </div>
