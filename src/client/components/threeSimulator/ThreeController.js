@@ -1,8 +1,9 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { DragControls } from "three/examples/jsm/controls/DragControls";
 
 import Stats from "three/examples/jsm/libs/stats.module";
-import { GPUStatsPanel } from "three/examples/jsm/utils/GPUStatsPanel";
+// import { GPUStatsPanel } from "three/examples/jsm/utils/GPUStatsPanel";
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
@@ -67,6 +68,8 @@ class ThreeController {
 
     // initialization for Three
 
+    THREE.Cache.enabled = true;
+
     const pixelRatio = window.devicePixelRatio;
     let AA = true;
     if (pixelRatio > 1) {
@@ -126,11 +129,18 @@ class ThreeController {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x00000);
 
-    const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 3);
-    scene.add(light);
+    // const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 10);
+    // scene.add(light);
 
-    const grid = new THREE.GridHelper(25, 25, 0x888888, 0x444444);
-    scene.add(grid);
+    // const ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
+    // scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    directionalLight.position.set(-1, 1, 1);
+    scene.add(directionalLight);
+
+    // const grid = new THREE.GridHelper(25, 25, 0x888888, 0x444444);
+    // scene.add(grid);
 
     this.scene = scene;
 
