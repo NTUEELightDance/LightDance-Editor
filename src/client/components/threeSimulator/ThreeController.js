@@ -1,9 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { DragControls } from "three/examples/jsm/controls/DragControls";
 
 import Stats from "three/examples/jsm/libs/stats.module";
-// import { GPUStatsPanel } from "three/examples/jsm/utils/GPUStatsPanel";
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
@@ -17,18 +15,12 @@ import store from "../../store";
 // components
 
 import ThreeDancer from "./threeComponents/Dancer";
-import ThreeSword from "./threeComponents/Sword";
 
 import {
   updateFrameByTime,
   interpolationPos,
   fadeStatus,
 } from "../../utils/math";
-
-// const fov = 75;
-// const aspect = 2; // the canvas default
-// const near = 0.1;
-// const far = 100;
 
 const fov = 45;
 const aspect = window.innerWidth / window.innerHeight;
@@ -130,18 +122,9 @@ class ThreeController {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x00000);
 
-    // const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 10);
-    // scene.add(light);
-
-    // const ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
-    // scene.add(ambientLight);
-
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(-1, 1, 1);
     scene.add(directionalLight);
-
-    // const grid = new THREE.GridHelper(25, 25, 0x888888, 0x444444);
-    // scene.add(grid);
 
     this.scene = scene;
 
@@ -163,6 +146,7 @@ class ThreeController {
 
     const { currentPos } = store.getState().global;
 
+    // eslint-disable-next-line no-unused-vars
     Object.entries(currentPos).forEach(([name, position], i) => {
       if (!name.includes("sw")) {
         const newDancer = new ThreeDancer(this.scene, name);
@@ -173,31 +157,23 @@ class ThreeController {
         };
         newDancer.addModel2Scene(newPos);
         this.dancers[name] = newDancer;
+        // eslint-disable-next-line no-console
         console.log(name);
       }
     });
-
-    // const newSword = new ThreeSword(this.scene, "sword");
-    // const newPos = {
-    //   x: 0,
-    //   y: 0,
-    //   z: 0,
-    // };
-    // newSword.addModel2Scene(newPos);
 
     const params = {
       color: 0x000000,
     };
 
     const gui = new GUI();
-    gui.addColor(params, "color").onChange(function (value) {
+    gui.addColor(params, "color").onChange((value) => {
       scene.background.set(value);
     });
 
     this.animateID = requestAnimationFrame(() =>
-      this.animate((clockDelta) => {
-        return;
-      })
+      // eslint-disable-next-line no-unused-vars
+      this.animate((clockDelta) => {})
     );
 
     const statsPanel = new Stats();
@@ -210,6 +186,7 @@ class ThreeController {
     });
   }
 
+  // eslint-disable-next-line no-unused-vars
   update(clockDelta) {
     const time = this.waveSuferTime + performance.now() - this.startTime;
 
@@ -266,9 +243,7 @@ class ThreeController {
   }
 
   animate(animation) {
-    // this.gpuPanel.startQuery();
     this.renderer.render(this.scene, this.camera);
-    // this.gpuPanel.endQuery();
 
     if (this.isPlaying) {
       this.update(this.clock.getDelta());
