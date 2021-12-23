@@ -6,6 +6,8 @@ import { selectGlobal } from "../../slices/globalSlice";
 import useThree from "./hooks/useThree";
 import Dancer from "./threeComponents/Dancer";
 
+import Stats from "three/examples/jsm/libs/stats.module";
+
 import {
   updateFrameByTime,
   interpolationPos,

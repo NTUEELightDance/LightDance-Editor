@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-let MODEL = null;
-
 class ThreeDancer {
   constructor(scene, name) {
     this.scene = scene;

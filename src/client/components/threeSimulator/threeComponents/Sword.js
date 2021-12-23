@@ -18,7 +18,7 @@ class ThreeSword {
       this.model.scale.set(0.1, 0.1, 0.1);
       this.model.rotation.set(3.14, 0, 0);
 
-      console.log(this.model);
+      // console.log(this.model);
 
       // const guardMesh = this.model.getObjectByName("mesh_0");
       // // console.log(guardMesh);

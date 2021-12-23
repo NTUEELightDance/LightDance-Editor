@@ -40,7 +40,7 @@ const far = 100;
  * @constructor
  */
 class ThreeController {
-  constructor(canvas) {
+  constructor(canvas, stats) {
     this.dancers = {};
     this.mainContainer = null;
     this.threeApp = {};
@@ -50,6 +50,7 @@ class ThreeController {
     this.isPlaying = false;
     this.animateID = null;
     this.dancers = {};
+    this.stats = stats;
   }
 
   /**
@@ -200,8 +201,8 @@ class ThreeController {
     );
 
     // Add stats to monitor fps
-    const stats = new Stats();
-    document.body.appendChild(stats.domElement);
+    // const stats = new Stats();
+    // document.body.appendChild(stats.domElement);
 
     // const gpuPanel = new GPUStatsPanel(renderer.getContext());
     // stats.addPanel(gpuPanel);
@@ -209,8 +210,10 @@ class ThreeController {
     // this.stats = stats;
     // this.gpuPanel = gpuPanel;
 
+    const thisStats = this.stats;
     requestAnimationFrame(function loop() {
-      stats.update();
+      // console.log(thisStats);
+      thisStats.update();
       requestAnimationFrame(loop);
     });
   }
