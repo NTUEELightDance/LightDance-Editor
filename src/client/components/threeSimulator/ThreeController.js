@@ -1,12 +1,17 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
-import Stats from "three/examples/jsm/libs/stats.module";
+// three.js
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
+// postprocessing for three.js
+
+import Stats from "three/examples/jsm/libs/stats.module";
+// performance monitor
+
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
+// three gui
 
 import { setItem, getItem } from "../../utils/localStorage";
 // redux actions and store
@@ -33,23 +38,38 @@ const far = 100;
  */
 class ThreeController {
   constructor(canvas, container) {
-    this.dancers = {};
-    this.mainContainer = null;
-    this.threeApp = {};
-    this.height = 500;
-    this.width = 1000;
-    this.isPlaying = false;
-    this.animateID = null;
-    this.dancers = {};
+    // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
     this.container = container;
+
+    // Basic attributes for three.js
+    this.renderer = null;
+    this.camera = null;
+    this.controls = null;
+    this.scene = null;
+    this.composer = null;
+    this.clock = null;
+
+    // Configuration of the scene
+    this.height = 500;
+    this.width = 1500;
+
+    // Dancer
+    this.dancers = {};
+
+    // Data and status for playback
+    this.state = {};
+    this.isPlaying = false;
+
+    // record the return id of requestAnimationFrame
+    this.animateID = null;
   }
 
   /**
-   * Initiate localStorage, waveSurferApp, PixiApp, dancers
+   * Initiate localStorage, threeApp, dancers
    */
   init() {
-    // initialization by localStorage
+    // Initialization by localStorage
     if (!getItem("control")) {
       setItem("control", JSON.stringify(store.getState().load.control));
     }
@@ -59,15 +79,18 @@ class ThreeController {
     store.dispatch(controlInit(JSON.parse(getItem("control"))));
     store.dispatch(posInit(JSON.parse(getItem("position"))));
 
-    // initialization for Three
+    // Initialization for Three
 
     THREE.Cache.enabled = true;
 
+    // Set best configuration for different monitor devices
     const pixelRatio = window.devicePixelRatio;
     let AA = true;
     if (pixelRatio > 1) {
       AA = false;
     }
+
+    // Initilization of 3D renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: AA,
       powerPreference: "high-performance",
@@ -75,9 +98,9 @@ class ThreeController {
     renderer.setSize(this.width, this.height);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.outputEncoding = THREE.sRGBEncoding;
-
     this.renderer = renderer;
 
+    // Add a camera to view the scene, all the parameters are customizable
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.set(
       -0.27423481610277156,
@@ -97,9 +120,9 @@ class ThreeController {
     );
     camera.aspect = this.width / this.height;
     camera.updateProjectionMatrix();
-
     this.camera = camera;
 
+    // Add a orbit control to view the scene from different perspectives and scales
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enablePan = true;
     controls.enableZoom = true;
@@ -114,20 +137,21 @@ class ThreeController {
       2.128295812145451,
       16.22834309576409
     );
-
     controls.update();
-
     this.controls = controls;
 
+    // Add a background scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x00000);
 
+    // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(-1, 1, 1);
     scene.add(directionalLight);
 
     this.scene = scene;
 
+    // Postprocessing for antialiasing effect
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
 
@@ -138,15 +162,15 @@ class ThreeController {
     composer.addPass(pass);
     this.composer = composer;
 
+    // Set the clock for animation
     this.clock = new THREE.Clock();
 
+    // Append the canvas to given ref
     this.canvas.appendChild(renderer.domElement);
 
-    // initialization for dancers
-
+    // Initialization of all dancers with currentPos
     const { currentPos } = store.getState().global;
 
-    // eslint-disable-next-line no-unused-vars
     Object.entries(currentPos).forEach(([name, position], i) => {
       if (!name.includes("sw")) {
         const newDancer = new ThreeDancer(this.scene, name);
@@ -157,25 +181,27 @@ class ThreeController {
         };
         newDancer.addModel2Scene(newPos);
         this.dancers[name] = newDancer;
-        // eslint-disable-next-line no-console
-        console.log(name);
       }
     });
 
-    const params = {
-      color: 0x000000,
-    };
+    // add gui to adjust parameters
+    this.gui();
 
-    const gui = new GUI();
-    gui.addColor(params, "color").onChange((value) => {
-      scene.background.set(value);
-    });
+    // start rendering
+    this.animateID = this.animate((clockDelta) => {});
+    this.renderer.render(this.scene, this.camera);
 
-    this.animateID = requestAnimationFrame(() =>
-      // eslint-disable-next-line no-unused-vars
-      this.animate((clockDelta) => {})
-    );
+    // monitor perfomance and delay
+    this.monitor();
+  }
 
+  // Return true if all the dancer is successfully initialized
+  initialized() {
+    return Object.values(this.dancers).every((dancer) => dancer.initialized);
+  }
+
+  // Monitor fps, memory and delay
+  monitor() {
     const statsPanel = new Stats();
     statsPanel.domElement.style.position = "absolute";
     this.container.appendChild(statsPanel.domElement);
@@ -186,7 +212,19 @@ class ThreeController {
     });
   }
 
-  // eslint-disable-next-line no-unused-vars
+  // gui to change paramters including color, positon, controlls
+  gui() {
+    this.params = {
+      color: 0x000000,
+    };
+
+    const gui = new GUI();
+    gui.addColor(this.params, "color").onChange((value) => {
+      this.scene.background.set(value);
+    });
+  }
+
+  // calculate and set next frame status according to time and call updateDancers
   update(clockDelta) {
     const time = this.waveSuferTime + performance.now() - this.startTime;
 
@@ -234,6 +272,13 @@ class ThreeController {
     // set currentFade
     state.currentFade = state.controlRecord[newControlFrame].fade;
 
+    // update threeDancers staus and position
+    this.updateDancers();
+  }
+
+  // call each dancers's update
+  updateDancers() {
+    const { state } = this;
     Object.values(this.dancers).forEach((dancer) => {
       dancer.update(
         state.currentPos[dancer.name],
@@ -242,6 +287,7 @@ class ThreeController {
     });
   }
 
+  // a recursive function to render each new frame
   animate(animation) {
     this.renderer.render(this.scene, this.camera);
 
@@ -253,12 +299,9 @@ class ThreeController {
     requestAnimationFrame(() => this.animate(animation));
   }
 
-  addObject(object) {
-    this.scene.add(object);
-  }
-
-  cleanUp() {
-    this.canvas.removeChild(this.renderer.domElement);
+  // render current scene and dancers
+  render() {
+    this.renderer.render(this.scene, this.camera);
   }
 }
 

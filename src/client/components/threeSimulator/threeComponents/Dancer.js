@@ -9,10 +9,22 @@ class ThreeDancer {
     this.mixer = null;
     this.name = name;
     this.parts = {};
+    this.initialized = false;
   }
 
+  // Load model with given URL and capture all the meshes for light status
   addModel2Scene(position) {
+    // Use GLTF loader to load target model from URL
     const loader = new GLTFLoader();
+
+    // Intilization procedures after the model is successfully loaded.
+    // 1. Add model to the scene.
+    // 2. Select desired part of mesh to display light status.
+    // 3. Set color of selected meshes to black and set their emissive color.
+    // 4. Set alpha(emissiveIntensity) of selected meshes to 0.
+    // 5. Set the position of the model to given position
+    // 6. Signal this dancer is successfully initialized.
+
     const initModel = (gltf) => {
       this.model = gltf.scene;
 
@@ -54,27 +66,32 @@ class ThreeDancer {
       this.model.position.setX(position.x);
       this.model.position.setY(position.y);
       this.model.position.setZ(position.z);
+      this.initialized = true;
     };
     loader.load("data/models/remy_with_sword.glb", initModel.bind(this));
   }
 
+  // Update the model's positon and status
   update(currentPos, currentStatus) {
     this.updatePos(currentPos);
     this.updateStatus(currentStatus);
   }
 
+  // Update the model's positon
   updatePos(currentPos) {
     this.model.position.setX(currentPos.x / 35);
     this.model.position.setY(0);
     this.model.position.setZ(currentPos.z / 35);
   }
 
+  // Update the model's status
   updateStatus(currentStatus) {
     Object.entries(this.parts).forEach(([name, e]) => {
       e.material.emissiveIntensity = currentStatus[name];
     });
   }
 
+  // Update the model's color
   updateColor(color) {
     Object.values(this.parts).forEach(([name, e]) => {
       e.material.color.setHex(color);

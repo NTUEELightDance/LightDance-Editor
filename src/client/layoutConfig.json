@@ -55,7 +55,7 @@
               {
                 "type": "tabset",
                 "weight": 80,
-                "selected": 1,
+                "selected": 0,
                 "enableMaximize": false,
                 "children": [
                   {
