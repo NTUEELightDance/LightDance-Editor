@@ -27,29 +27,9 @@ module.exports = {
     }),
   ],
   module: {
-    rules: [
+    rules: [ 
       {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              [
-                "@babel/preset-env",
-                {
-                  useBuiltIns: "usage",
-                  corejs: { version: "3.9", proposals: true },
-                },
-              ],
-              "@babel/preset-react",
-            ],
-            plugins: ["react-hot-loader/babel"],
-          },
-        },
-      },
-      {
-        test: /\.(ts|tsx)$/,                        
+        test: /\.(ts|tsx|js|jsx)$/,                        
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
