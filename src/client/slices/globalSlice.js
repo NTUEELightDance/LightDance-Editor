@@ -11,6 +11,7 @@ import {
   fadeStatus,
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
+import nanoid from "nanoid";
 
 // import { syncPost, loginPost } from "../api";
 
@@ -25,6 +26,7 @@ export const globalSlice = createSlice({
     currentPos: {}, // currnet dancers' position
 
     controlRecord: [], // array of all dancer's status
+    controlMap: {},
     posRecord: [], // array of all dancer's pos
 
     timeData: {
@@ -55,11 +57,12 @@ export const globalSlice = createSlice({
      * @param {array} action.payload - controlRecord
      */
     controlInit: (state, action) => {
-      const controlRecord = action.payload;
+      const { controlRecord, controlMap } = action.payload;
       if (controlRecord.length === 0)
         throw new Error(`[Error] controlInit, controlRecord is empty `);
       state.controlRecord = controlRecord;
-      state.currentStatus = controlRecord[0].status;
+      state.controlMap = controlMap;
+      state.currentStatus = controlMap[controlRecord[0]].status;
     },
 
     /**
@@ -116,7 +119,8 @@ export const globalSlice = createSlice({
      * @param {*} state
      */
     saveCurrentFade: (state) => {
-      state.controlRecord[state.timeData.controlFrame].fade = state.currentFade;
+      state.controlMap[state.controlRecord[state.timeData.controlFrame]].fade =
+        state.currentFade;
       // setItem("control", JSON.stringify(state.controlRecord));
     },
 
@@ -160,9 +164,11 @@ export const globalSlice = createSlice({
      * @param {*} state
      */
     saveCurrentStatus: (state) => {
+      console.log("state", state);
       if (state.mode === EDIT) {
-        state.controlRecord[state.timeData.controlFrame].status =
-          state.currentStatus;
+        state.controlMap[
+          state.controlRecord[state.timeData.controlFrame]
+        ].status = state.currentStatus;
         // const data = {
         //   status: JSON.stringify(state.currentStatus),
         //   frame: state.timeData.controlFrame,
@@ -176,11 +182,15 @@ export const globalSlice = createSlice({
         //   JSON.stringify(data)
         // );
       } else if (state.mode === ADD) {
-        state.controlRecord.splice(state.timeData.controlFrame + 1, 0, {
+        // generate id
+        const newId = nanoid(6);
+        state.controlMap[newId] = {
           start: state.timeData.time,
           status: state.currentStatus,
           fade: state.currentFade,
-        });
+        };
+
+        state.controlRecord.splice(state.timeData.controlFrame + 1, 0, newId);
 
         // const data = {
         //   status: JSON.stringify(state.currentStatus),
@@ -212,6 +222,7 @@ export const globalSlice = createSlice({
 
     saveToLocal: (state) => {
       setItem("control", JSON.stringify(state.controlRecord));
+      setItem("controlMap", JSON.stringify(state.controlMap));
       console.log("Control Saved to Local Storage...");
     },
 
@@ -227,7 +238,7 @@ export const globalSlice = createSlice({
       setItem("lastUpdateTime", state.lastUpdateTime);
 
       if (mode === "EDIT") {
-        let { frame } = data;
+        let { frame } = data; //probably from backend
         frame = Number(frame);
         state.controlRecord[frame].status = JSON.parse(data.status);
         state.controlRecord[frame].fade = data.fade;
@@ -273,6 +284,7 @@ export const globalSlice = createSlice({
       //   "DEL",
       //   JSON.stringify(data)
       // );
+      delete state.controlMap[state.controlRecord[state.timeData.controlFrame]];
       state.controlRecord.splice(state.timeData.controlFrame, 1);
       setItem("control", JSON.stringify(state.controlRecord));
     },
@@ -457,8 +469,12 @@ export const globalSlice = createSlice({
       state.timeData.time = time;
 
       // set timeData.controlFrame and currentStatus
+      const tmp = [];
+      for (let id of state.controlRecord) {
+        tmp.push(state.controlMap[id]);
+      }
       const newControlFrame = updateFrameByTime(
-        state.controlRecord,
+        tmp,
         state.timeData.controlFrame,
         time
       );
@@ -466,13 +482,14 @@ export const globalSlice = createSlice({
       // status fade
       if (newControlFrame === state.controlRecord.length - 1) {
         // Can't fade
-        state.currentStatus = state.controlRecord[newControlFrame].status;
+        state.currentStatus =
+          state.controlMap[state.controlRecord[newControlFrame]].status;
       } else {
         // do fade
         state.currentStatus = fadeStatus(
           time,
-          state.controlRecord[newControlFrame],
-          state.controlRecord[newControlFrame + 1]
+          state.controlMap[state.controlRecord[newControlFrame]],
+          state.controlMap[state.controlRecord[newControlFrame + 1]]
         );
       }
 
@@ -497,7 +514,8 @@ export const globalSlice = createSlice({
       }
 
       // set currentFade
-      state.currentFade = state.controlRecord[newControlFrame].fade;
+      state.currentFade =
+        state.controlMap[state.controlRecord[newControlFrame]].fade;
     },
 
     /**
@@ -516,18 +534,21 @@ export const globalSlice = createSlice({
       controlFrame = clamp(controlFrame, 0, state.controlRecord.length - 1);
       state.timeData.from = from;
       state.timeData.controlFrame = controlFrame;
-      state.timeData.time = state.controlRecord[controlFrame].start;
-      state.currentStatus = state.controlRecord[controlFrame].status;
+      state.timeData.time =
+        state.controlMap[state.controlRecord[controlFrame]].start;
+      state.currentStatus =
+        state.controlMap[state.controlRecord[controlFrame]].status;
       // set posFrame and currentPos as well (by time)
       const newPosFrame = updateFrameByTime(
         state.posRecord,
         state.timeData.posFrame,
-        state.controlRecord[controlFrame].start
+        state.controlMap[state.controlRecord[controlFrame]].start
       );
       state.timeData.posFrame = newPosFrame;
       state.currentPos = state.posRecord[newPosFrame].pos;
       // set currentFade
-      state.currentFade = state.controlRecord[controlFrame].fade;
+      state.currentFade =
+        state.controlMap[state.controlRecord[controlFrame]].fade;
     },
 
     /**
@@ -549,15 +570,20 @@ export const globalSlice = createSlice({
       state.timeData.time = state.posRecord[posFrame].start;
       state.currentPos = state.posRecord[posFrame].pos;
       // set controlFrame and currentStatus as well (by time)
+      const tmp = [];
+      for (const id of state.controlRecord) tmp.push(state.controlMap[id]);
+
       const newControlFrame = updateFrameByTime(
-        state.controlRecord,
+        tmp,
         state.timeData.controlFrame,
         state.posRecord[posFrame].start
       );
       state.timeData.controlFrame = newControlFrame;
-      state.currentStatus = state.controlRecord[newControlFrame].status;
+      state.currentStatus =
+        state.controlMap[state.controlRecord[newControlFrame]].status;
       // set currentFade
-      state.currentFade = state.controlRecord[newControlFrame].fade;
+      state.currentFade =
+        state.controlMap[state.controlRecord[newControlFrame]].fade;
     },
 
     /**
@@ -698,14 +724,24 @@ export const globalSlice = createSlice({
     shiftFrameTime: (state, action) => {
       const { type, startFrame, endFrame, shiftTime } = action.payload;
       console.log(type, startFrame, endFrame, shiftTime);
-      const record =
-        type === "CONTROL" ? [...state.controlRecord] : [...state.posRecord];
-      for (let i = startFrame; i <= endFrame; i += 1) {
-        record[i] += shiftTime;
+
+      if (type === "control") {
+        const controlMapCopy = { ...state.controlMap };
+        for (let i = Number(startFrame); i <= Number(endFrame); i += 1) {
+          controlMapCopy[state.controlRecord[i]].start += shiftTime;
+        }
+        const controlRecordCopy = [...state.controlRecord];
+        state.controlRecord = controlRecordCopy.sort(
+          (a, b) => controlMapCopy[a].start - controlMapCopy[b].start
+        );
+        state.controlMap = controlMapCopy;
+      } else {
+        const posRecordCopy = [...state.posRecord];
+        for (let i = Number(startFrame); i <= Number(endFrame); i += 1) {
+          posRecordCopy += shiftTime;
+        }
+        posRecordCopy.sort((a, b) => a.start - b.start);
       }
-      record.sort((a, b) => a.start - b.start);
-      if (type === "CONTROL") state.controlRecord = record;
-      else if (type === "POSITION") state.posRecord = record;
     },
   },
 });

@@ -25,12 +25,8 @@ export const uploadJson = (files) => {
 
 // start order strictly increasing && dancer parts exists in store.load.dancers.dancer0
 
-export const checkControlJson = (control) => {
-  if (!Array.isArray(control) || control.length === 0) {
-    console.error("[Error] control not array or position is empty");
-    return false;
-  }
-  return control.every((frame, frameIdx) => {
+export const checkControlJson = (controlRecord, controlMap) => {
+  const mapIsValid = Object.values(controlMap).every((frame, frameIdx) => {
     if (typeof frame.start !== "number") {
       console.error(`[Error] "start" is not a number in frame ${frameIdx}`);
       return false;
@@ -88,6 +84,24 @@ export const checkControlJson = (control) => {
       });
     });
   });
+  const recordIsValid =
+    Array.isArray(controlRecord) &&
+    controlRecord.length !== 0 &&
+    controlRecord.every((id, index) => {
+      if (index === controlRecord.length - 1) return true;
+      const nextId = controlRecord[index + 1];
+      if (controlMap[id].start > controlMap[nextId].start) return false;
+      return true;
+    });
+
+  const idListofMap = Object.keys(controlMap);
+  const isMatched =
+    controlRecord.length === idListofMap.length &&
+    controlRecord.every((id) => {
+      if (!idListofMap.includes(id)) return false;
+      return true;
+    });
+  return mapIsValid && recordIsValid && isMatched;
 };
 export const checkPosJson = (position) => {
   if (!Array.isArray(position) || position.length === 0) {
@@ -142,7 +156,7 @@ const urlToPromise = (url) =>
 //  *      |- BlackPart
 //  *      |- LED
 //  *      |- Part
-//  * |- control.json
+//  * |- controlRecord.json
 //  * |- position.json
 //  * |- texture.json
 
@@ -160,9 +174,10 @@ const downloadJson = (exportObj, exportName) => {
   downloadAnchorNode.remove();
 };
 
-export const downloadControl = async (control) => {
+export const downloadControlJson = async (controlRecord, controlMap) => {
   const now = dayjs().format("YYYYMMDD_HHmm");
-  downloadJson(control, `control_${now}`);
+  downloadJson(controlRecord, `controlRecord_${now}`);
+  downloadJson(controlMap, `controlMap_${now}`);
 };
 
 export const downloadPos = async (position) => {
@@ -170,11 +185,16 @@ export const downloadPos = async (position) => {
   downloadJson(position, `position_${now}`);
 };
 
-export const downloadEverything = async (control, position) => {
+export const downloadEverything = async (
+  controlRecord,
+  controlMap,
+  position
+) => {
   const texture = await fetchTexture();
   const zip = new JSZip();
 
-  zip.file("control.json", JSON.stringify(control));
+  zip.file("controlRecord.json", JSON.stringify(controlRecord));
+  zip.file("controlMap.json", JSON.stringify(controlMap));
   zip.file("position.json", JSON.stringify(position));
   zip.file("texture.json", JSON.stringify(texture));
 

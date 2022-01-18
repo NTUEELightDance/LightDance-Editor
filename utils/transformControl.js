@@ -1,5 +1,5 @@
 /**
- * Usage: node transformControl.js <path_to_control.js> <output_controlRecord.json> <output_controlMap.json>
+ * Usage: node transformControl.js <path_to_control.json> <output_controlRecord.json> <output_controlMap.json>
  */
 
 const fs = require("fs");
@@ -46,3 +46,5 @@ fs.writeFile(controlRecordPath, JSON.stringify(controlRecord), () => {
 fs.writeFile(controlMapPath, JSON.stringify(controlMap), () => {
   console.log(`Writing controlMap to ${controlMapPath}`);
 });
+console.log(JSON.stringify(controlRecord));
+console.log(JSON.stringify(controlMap));

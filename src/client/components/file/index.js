@@ -26,7 +26,7 @@ import {
   checkControlJson,
   checkPosJson,
   uploadJson,
-  downloadControl,
+  downloadControlJson,
   downloadPos,
 } from "./utils";
 
@@ -54,9 +54,10 @@ export default function File() {
   // upload to server
   const dispatch = useDispatch();
   const { texture } = useSelector(selectLoad);
-  const { posRecord, controlRecord } = useSelector(selectGlobal);
+  const { posRecord, controlRecord, controlMap } = useSelector(selectGlobal);
   const [toServer, setToServer] = useState(false);
   const [controlRecordFile, setControlRecordFile] = useState(null);
+  const [controlMapFile, setControlMap] = useState(null);
   const [posRecordFile, setPosRecordFile] = useState(null);
   const [selectedImages, setSelectedImages] = useState(null);
   const [path, setPath] = useState("");
@@ -71,6 +72,10 @@ export default function File() {
     // checkControlJson(e.target.files);
     setControlRecordFile(e.target.files);
   };
+  const handleControlMapInput = (e) => {
+    // checkControlJson(e.target.files);
+    setControlMap(e.target.files);
+  };
 
   const handleImagesInput = (e) => {
     setSelectedImages(e.target.files);
@@ -81,21 +86,24 @@ export default function File() {
   };
 
   const handleControlUpload = async () => {
-    if (controlRecordFile) {
-      const control = await uploadJson(controlRecordFile);
-      if (checkControlJson(control)) {
-        if (
-          window.confirm(
-            "Check Pass! Are you sure to upload new Control file ?"
-          )
-        ) {
-          setItem("control", JSON.stringify(control));
-          dispatch(controlInit(control));
-        }
-      } else alert("Control: Wrong JSON format");
-      // setControlRecordFile(undefined);
+    if (!controlRecordFile || !controlMapFile) {
+      alert("Both controlRecord and controlMap files are required");
+      return;
     }
+    const controlRecord = await uploadJson(controlRecordFile);
+    const controlMap = await uploadJson(controlMapFile);
+    //Todo: check controlMap and controlRecord are matched
+    if (checkControlJson(controlRecord, controlMap)) {
+      if (
+        window.confirm("Check Pass! Are you sure to upload new Control file ?")
+      ) {
+        setItem("control", JSON.stringify(controlRecord));
+        setItem("controlMap", JSON.stringify(controlMap));
+        dispatch(controlInit({ controlRecord, controlMap }));
+      }
+    } else alert("Control: Wrong JSON format");
   };
+
   const handlePosUpload = async () => {
     if (posRecordFile) {
       const position = await uploadJson(posRecordFile);
@@ -120,7 +128,7 @@ export default function File() {
   };
 
   const handleDownloadControl = () => {
-    downloadControl(controlRecord);
+    downloadControlJson(controlRecord, controlMap);
   };
 
   const handleDownloadPos = () => {
@@ -128,7 +136,7 @@ export default function File() {
   };
 
   const handleDownloadEverything = () => {
-    downloadEverything(controlRecord, posRecord);
+    downloadEverything(controlRecord, controlMap, posRecord);
   };
 
   const handleSwitchServer = () => setToServer(!toServer);
@@ -151,12 +159,42 @@ export default function File() {
             Upload control.json
           </Typography>
           <div style={{ display: "flex", alignItems: "normal" }}>
+            <label htmlFor="control">controlRecord: </label>
             <input
               id="control"
               name="control"
               type="file"
               accept=".json"
               onChange={handleControlInput}
+            />
+
+            {/* <Button
+              variant="outlined"
+              color="default"
+              onClick={() => {
+                handleControlUpload();
+              }}
+            >
+              Upload
+            </Button>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => {
+                handleDownloadControl();
+              }}
+            >
+              Download
+            </Button> */}
+          </div>
+          <div style={{ display: "flex", alignItems: "normal" }}>
+            <label htmlFor="controlMap">controlMap: </label>
+            <input
+              id="controlMap"
+              name="controlMap"
+              type="file"
+              accept=".json"
+              onChange={handleControlMapInput}
             />
             <Button
               variant="outlined"

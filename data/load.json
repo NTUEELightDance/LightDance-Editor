@@ -1,6 +1,6 @@
 {
   "Music": "/music/LightDance_v2.mp3",
-  "Control": "/data/default_control.json",
+  "Control": "/data/newControlRecord.json",
   "ControlMap": "/data/newControlMap.json",
   "Position": "/data/default_position.json",
   "LightPresets": "/data/default_lightPresets.json",

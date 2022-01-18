@@ -26,10 +26,18 @@ class Controller {
     if (!getItem("control")) {
       setItem("control", JSON.stringify(store.getState().load.control));
     }
+    if (!getItem("controlMap")) {
+      setItem("controlMap", JSON.stringify(store.getState().load.controlMap));
+    }
     if (!getItem("position")) {
       setItem("position", JSON.stringify(store.getState().load.position));
     }
-    store.dispatch(controlInit(JSON.parse(getItem("control"))));
+    store.dispatch(
+      controlInit({
+        controlRecord: JSON.parse(getItem("control")),
+        controlMap: JSON.parse(getItem("controlMap")),
+      })
+    );
     store.dispatch(posInit(JSON.parse(getItem("position"))));
 
     // initialization for PIXIApp
