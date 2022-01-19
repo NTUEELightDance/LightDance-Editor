@@ -105,9 +105,9 @@ export const checkControlJson = (controlRecord, controlMap) => {
   const checkPass = mapIsValid && recordIsValid && isMatched;
   let errorMessage;
   if (!mapIsValid) {
-    errorMessage = "controlRecord.json format wrong, please check console";
+    errorMessage = "controlMap.json format wrong, please check console";
   } else if (!recordIsValid) {
-    errorMessage = "controlMap.json format wrong";
+    errorMessage = "controlRecord.json format wrong";
   } else if (!isMatched) {
     errorMessage = "controlMap and controlRecord are not matched";
   }
