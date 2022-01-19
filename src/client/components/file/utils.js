@@ -10,6 +10,7 @@ import { fetchTexture } from "../../api";
 
 // import store
 import store from "../../store";
+import { map } from "core-js/core/array";
 
 export const uploadJson = (files) => {
   return new Promise((resolve, reject) => {
@@ -101,7 +102,17 @@ export const checkControlJson = (controlRecord, controlMap) => {
       if (!idListofMap.includes(id)) return false;
       return true;
     });
-  return mapIsValid && recordIsValid && isMatched;
+  const checkPass = mapIsValid && recordIsValid && isMatched;
+  let errorMessage;
+  if (!mapIsValid) {
+    errorMessage = "controlRecord.json format wrong, please check console";
+  } else if (!recordIsValid) {
+    errorMessage = "controlMap.json format wrong";
+  } else if (!isMatched) {
+    errorMessage = "controlMap and controlRecord are not matched";
+  }
+
+  return { checkPass, errorMessage };
 };
 export const checkPosJson = (position) => {
   if (!Array.isArray(position) || position.length === 0) {

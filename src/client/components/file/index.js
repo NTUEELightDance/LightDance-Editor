@@ -69,11 +69,9 @@ export default function File() {
     setPosRecordFile(e.target.files);
   };
   const handleControlInput = (e) => {
-    // checkControlJson(e.target.files);
     setControlRecordFile(e.target.files);
   };
   const handleControlMapInput = (e) => {
-    // checkControlJson(e.target.files);
     setControlMap(e.target.files);
   };
 
@@ -93,7 +91,11 @@ export default function File() {
     const controlRecord = await uploadJson(controlRecordFile);
     const controlMap = await uploadJson(controlMapFile);
     //Todo: check controlMap and controlRecord are matched
-    if (checkControlJson(controlRecord, controlMap)) {
+    const { checkPass, errorMessage } = checkControlJson(
+      controlRecord,
+      controlMap
+    );
+    if (checkPass) {
       if (
         window.confirm("Check Pass! Are you sure to upload new Control file ?")
       ) {
@@ -101,7 +103,7 @@ export default function File() {
         setItem("controlMap", JSON.stringify(controlMap));
         dispatch(controlInit({ controlRecord, controlMap }));
       }
-    } else alert("Control: Wrong JSON format");
+    } else alert(errorMessage);
   };
 
   const handlePosUpload = async () => {
@@ -167,25 +169,6 @@ export default function File() {
               accept=".json"
               onChange={handleControlInput}
             />
-
-            {/* <Button
-              variant="outlined"
-              color="default"
-              onClick={() => {
-                handleControlUpload();
-              }}
-            >
-              Upload
-            </Button>
-            <Button
-              variant="outlined"
-              color="default"
-              onClick={() => {
-                handleDownloadControl();
-              }}
-            >
-              Download
-            </Button> */}
           </div>
           <div style={{ display: "flex", alignItems: "normal" }}>
             <label htmlFor="controlMap">controlMap: </label>
