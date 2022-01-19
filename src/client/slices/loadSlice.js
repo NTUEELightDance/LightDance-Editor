@@ -31,7 +31,6 @@ export const loadSlice = createSlice({
     },
     setControlMap: (state, action) => {
       state.controlMap = action.payload;
-      console.log(action.payload);
     },
     setPosition: (state, action) => {
       state.position = action.payload;
