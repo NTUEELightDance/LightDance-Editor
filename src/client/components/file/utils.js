@@ -10,7 +10,6 @@ import { fetchTexture } from "../../api";
 
 // import store
 import store from "../../store";
-import { map } from "core-js/core/array";
 
 export const uploadJson = (files) => {
   return new Promise((resolve, reject) => {

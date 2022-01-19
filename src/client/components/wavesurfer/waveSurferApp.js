@@ -1,7 +1,6 @@
 import WaveSurfer from "wavesurfer.js";
 import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
 import regions from "wavesurfer.js/src/plugin/regions";
-import MarkersPlugin from "wavesurfer.js/dist/plugin/wavesurfer.markers";
 
 // redux
 import store from "../../store";
