@@ -7,7 +7,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
   entry: [
     "react-hot-loader/patch",
-    path.resolve(__dirname, "..", "./src/client/index.js"),
+    path.resolve(__dirname, "..", "./src/client/index.tsx"),
   ],
   output: {
     path: path.resolve(__dirname, "..", "./build"),
@@ -15,7 +15,7 @@ module.exports = {
     publicPath: "/",
   },
   resolve: {
-    extensions: ["*", ".js", ".jsx"],
+    extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
   },
   performance: {
     hints: false,
@@ -27,14 +27,15 @@ module.exports = {
     }),
   ],
   module: {
-    rules: [
+    rules: [ 
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(ts|tsx|js|jsx)$/,                        
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
           options: {
             presets: [
+              '@babel/typescript',                  
               [
                 "@babel/preset-env",
                 {
