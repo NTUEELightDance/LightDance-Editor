@@ -1,4 +1,4 @@
-const dgram = require("dgram");
+import dgram from"dgram";
 const SERVER_PORT = 7122;
 const SERVER_IP = "0.0.0.0"; // should be changed
 

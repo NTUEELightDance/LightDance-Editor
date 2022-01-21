@@ -1,4 +1,4 @@
-const dgram = require("dgram");
+import dgram from "dgram"
 class NtpServer {
   constructor() {
     this.server = dgram.createSocket("udp4");
@@ -32,7 +32,6 @@ class NtpServer {
   };
 }
 
-module.exports = NtpServer;
-
+export default NtpServer;
 // Usage
 // const ntpServer = new NtpServer();

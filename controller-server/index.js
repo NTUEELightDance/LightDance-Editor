@@ -2,20 +2,24 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
 /* eslint-disable global-require */
-const express = require("express");
-const http = require("http");
-const bodyParser = require("body-parser");
-const Websocket = require("ws");
+import express from "express";
+import http from "http";
+import bodyParser from "body-parser";
+import { WebSocketServer } from "ws";
 
-const DancerSocket = require("./websocket/dancerSocket");
-const EditorSocket = require("./websocket/editorSocket");
+import DancerSocket from "./websocket/dancerSocket.js";
+import EditorSocket from "./websocket/editorSocket.js";
+
+import NtpServer from "./ntp/index.js";
+
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 const board_config = require("../data/board_config.json");
 
 const app = express();
 const server = http.createServer(app);
-const wss = new Websocket.Server({ server });
+const wss = new WebSocketServer({ server });
 
-const NtpServer = require("./ntp");
 const ntpServer = new NtpServer(); // ntp server for sync time
 
 const dancerClients = {};

@@ -1,4 +1,6 @@
-const COMMANDS = require("../../editor-common/constants");
+import COMMANDS from "../constants/index.js";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 const led = require("../../data/led.json");
 
 class DancerSocket {
@@ -173,4 +175,4 @@ class DancerSocket {
   };
 }
 
-module.exports = DancerSocket;
+export default DancerSocket;

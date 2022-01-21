@@ -1,4 +1,4 @@
-const COMMANDS = require("../../editor-common/constants");
+import COMMANDS from "../constants/index.js";
 
 class EditorSocket {
   constructor(ws, editorName, editorAgent) {
@@ -95,4 +95,4 @@ class EditorSocket {
   };
 }
 
-module.exports = EditorSocket;
+export default EditorSocket;
