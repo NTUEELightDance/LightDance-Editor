@@ -15,9 +15,9 @@ import { getItem } from "../../utils/localStorage";
 import {
   LocalRegion,
   Region,
-  ControlMap,
 } from "../../types/components/wavesurfer";
 
+import { ControlMap } from "../../types/slice"
 /**
  * control 3rd party package, WaveSurfer
  */

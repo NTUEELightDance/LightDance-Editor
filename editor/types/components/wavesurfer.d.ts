@@ -12,16 +12,6 @@ export interface Region {
   color: string;
 }
 
-interface ControlMapElement {
-  start: number;
-  status: {};
-  fade: boolean;
-}
-
-export interface ControlMap {
-  [index: string]: ControlMapElement;
-}
-
 export type FilterType = "lowpass" | "highpass" | "notch";
 
 export interface wavesurferContext {
