@@ -24,8 +24,6 @@ const globalSlice_1 = require("../../slices/globalSlice");
 // components
 const modeSelector_1 = __importDefault(require("../modeSelector"));
 const posList_1 = __importDefault(require("./posList"));
-// constants
-const store_1 = __importDefault(require("../../store"));
 const useStyles = (0, styles_1.makeStyles)((theme) => ({
     root: {
         height: "100%",
@@ -43,9 +41,7 @@ function PosEditor() {
     const dispatch = (0, react_redux_1.useDispatch)();
     // save
     const handleSave = () => {
-        const { currentPos } = store_1.default.getState().global;
-        const { posFrame, time } = store_1.default.getState().global.timeData;
-        dispatch((0, globalSlice_1.saveCurrentPos)({ currentPos, posFrame, time }));
+        dispatch((0, globalSlice_1.saveCurrentPos)());
     };
     // delete
     const handleDelete = () => {
