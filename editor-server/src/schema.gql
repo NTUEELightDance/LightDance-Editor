@@ -3,6 +3,15 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+input ColorInput {
+  color: String!
+  colorCode: String!
+}
+
+type Mutation {
+  updateColor(color: ColorInput!): String!
+}
+
 type Query {
   color(color: String!): String!
 }

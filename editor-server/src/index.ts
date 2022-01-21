@@ -11,9 +11,9 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { PubSub } from 'graphql-subscriptions';
 import "reflect-metadata";
 import { buildSchema } from 'type-graphql'
-import ColorResolver from './color-resolver'
+import ColorResolver from './resolvers/color-resolver'
 
-import resolvers from "./resolvers"
+// import resolvers from "./resolvers"
 import db from "./models"
 import mongo from "./mongo"
 
@@ -35,7 +35,7 @@ const { SECRET_KEY } = process.env;
     // automatically create `schema.gql` file with schema definition in current folder
     emitSchemaFile: path.resolve(__dirname, "schema.gql"),
   });
-  const pubsub = new PubSub()
+  var pubsub = new PubSub()
 
   const subscriptionBuildOptions = async (connectionParams: any, webSocket: any) => {
     try {
@@ -81,8 +81,9 @@ const { SECRET_KEY } = process.env;
         if (!user) {
           const newUser = await new db.User({ name, userID: userid }).save()
         }
+
         return { db, userID: userid, pubsub }
-      } catch (e) { }
+      } catch (e) { console.log(e) }
     },
     plugins: [
       {
@@ -105,3 +106,5 @@ const { SECRET_KEY } = process.env;
     console.log(`Graphql Port at ${port}${server.graphqlPath}`);
   });
 })()
+
+

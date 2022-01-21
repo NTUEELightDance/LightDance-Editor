@@ -99,6 +99,7 @@
     "skipLibCheck": true,                             /* Skip type checking all .d.ts files. */
     "lib": ["es2018", "esnext.asynciterable"],
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
   }
 }
