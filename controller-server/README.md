@@ -1,5 +1,11 @@
-# Server for controller
+# Controller server
 
-Responsible for communicating to Hardware.
+Responsible for communicating to the remote hardware.
 
-Run on port 8082 as default.
+## Run
+
+Run on `http://localhost:8082` as default.
+
+```
+yarn start
+```
