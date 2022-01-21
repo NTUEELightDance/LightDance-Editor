@@ -18,7 +18,8 @@ import { selectCommand } from "../../slices/commandSlice";
 import { WAVESURFERAPP } from "../../constants";
 // contexts
 import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
-
+//types
+import { wavesurferContext } from "types/components/wavesurfer";
 /**
  *
  * This is Wave component
@@ -27,7 +28,7 @@ import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
 const Wavesurfer = () => {
   const { waveSurferApp, initWaveSurferApp, markersToggle } = useContext(
     WaveSurferAppContext
-  );
+  ) as wavesurferContext;
   // const [waveSurferApp, setWaveSurferApp] = useState(null);
   useEffect(() => {
     const newWaveSurferApp = new WaveSurferApp();
@@ -39,21 +40,19 @@ const Wavesurfer = () => {
   const {
     timeData: { from, time },
   } = useSelector(selectGlobal);
-  const { controlRecord } = useSelector(selectGlobal);
+  const { controlRecord, controlMap } = useSelector(selectGlobal);
 
   //update Markers
   useEffect(() => {
-    if (controlRecord && waveSurferApp && markersToggle)
-      waveSurferApp.updateMarkers(controlRecord);
+    if (controlMap && waveSurferApp && markersToggle)
+      waveSurferApp.updateMarkers(controlMap);
   }, [controlRecord]);
 
   //update Markers when markers switched on
   useEffect(() => {
-    if (!controlRecord || !waveSurferApp)return;
-    if (markersToggle)
-      waveSurferApp.updateMarkers(controlRecord);
-    else
-      waveSurferApp.clearMarker();
+    if (!controlMap || !waveSurferApp) return;
+    if (markersToggle) waveSurferApp.updateMarkers(controlMap);
+    else waveSurferApp.clearMarker();
   }, [markersToggle]);
 
   // listen to time set by other component
