@@ -33,8 +33,6 @@ export default function PosEditor() {
   const dispatch = useDispatch();
   // save
   const handleSave = () => {
-    const { currentPos } = store.getState().global;
-    const { posFrame, time } = store.getState().global.timeData;
     dispatch(saveCurrentPos());
   };
   // delete
