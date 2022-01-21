@@ -1,0 +1,9 @@
+# This file is used for development, not for production!
+
+version: "3.4"
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
