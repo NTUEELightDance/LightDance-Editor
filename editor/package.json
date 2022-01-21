@@ -31,7 +31,7 @@
   },
   "scripts": {
     "start": "webpack serve --config webpack-config/webpack.config.js",
-    "build": "NODE_ENV=prod webpack --config webpack-onfig/webpack.config.js",
+    "build": "NODE_ENV=prod webpack --config webpack-config/webpack.config.js",
     "format": "npx prettier --write ."
   },
   "devDependencies": {
