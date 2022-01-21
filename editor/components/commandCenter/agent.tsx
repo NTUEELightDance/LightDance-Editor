@@ -7,7 +7,7 @@ export default Object.values(COMMANDS).reduce((acc, command) => {
   switch (command) {
     case COMMANDS.PLAY:
       callback = ({ startTime, delay, sysTime, selectedDancers }) => {
-        axios.post(`/api/${command}`, {
+        axios.post(`/api/controller/${command}`, {
           args: { startTime, delay, sysTime },
           selectedDancers,
         });
@@ -15,7 +15,7 @@ export default Object.values(COMMANDS).reduce((acc, command) => {
       break;
     case COMMANDS.UPLOAD_CONTROL:
       callback = ({ controlJson, selectedDancers }) => {
-        axios.post(`/api/${command}`, {
+        axios.post(`/api/controller/${command}`, {
           args: { controlJson },
           selectedDancers,
         });
@@ -23,12 +23,12 @@ export default Object.values(COMMANDS).reduce((acc, command) => {
       break;
     case COMMANDS.UPLOAD_LED:
       callback = ({ selectedDancers }) => {
-        axios.post(`/api/${command}`, { args: {}, selectedDancers });
+        axios.post(`/api/controller/${command}`, { args: {}, selectedDancers });
       };
       break;
     case COMMANDS.LIGTHCURRENTSTATUS:
       callback = ({ lightCurrentStatus, selectedDancers }) => {
-        axios.post(`/api/${command}`, {
+        axios.post(`/api/controller/${command}`, {
           args: { lightCurrentStatus },
           selectedDancers,
         });
@@ -36,7 +36,7 @@ export default Object.values(COMMANDS).reduce((acc, command) => {
       break;
     default:
       callback = ({ selectedDancers }) => {
-        axios.post(`/api/${command}`, { args: {}, selectedDancers });
+        axios.post(`/api/controller/${command}`, { args: {}, selectedDancers });
       };
       break;
   }

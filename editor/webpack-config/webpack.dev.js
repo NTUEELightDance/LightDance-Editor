@@ -12,6 +12,8 @@ module.exports = {
       "/asset": "http://localhost:8081",
       "/music": "http://localhost:8081",
       "/data": "http://localhost:8081",
+      // controller-server
+      "/api/controller": "http://localhost:8082",
     },
   },
   devtool: "eval-source-map",

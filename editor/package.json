@@ -10,6 +10,8 @@
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
     "dayjs": "^1.10.4",
+    "dotenv": "^14.2.0",
+    "file-saver": "^2.0.5",
     "flexlayout-react": "^0.5.5",
     "jszip": "^3.6.0",
     "jszip-utils": "^0.1.0",

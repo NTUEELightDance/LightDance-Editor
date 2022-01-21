@@ -1,0 +1,14 @@
+{
+  "name": "controller-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "express": "^4.17.2",
+    "ws": "^8.4.2"
+  },
+  "scripts": {
+    "start": "node ./index.js"
+  }
+}
