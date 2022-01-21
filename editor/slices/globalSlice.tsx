@@ -617,7 +617,7 @@ export const globalSlice = createSlice({
           );
         }
         //reset currentPosFrame when switching mode back to IDLE
-        const currentPosFrame = state.timeData.posFrame
+        const currentPosFrame = state.timeData.posFrame;
         if (currentPosFrame === state.posRecord.length - 1) {
           // can't interpolation
           state.currentPos = state.posRecord[currentPosFrame].pos;
@@ -738,7 +738,7 @@ export const globalSlice = createSlice({
       } else {
         const posRecordCopy = [...state.posRecord];
         for (let i = Number(startFrame); i <= Number(endFrame); i += 1) {
-          posRecordCopy += shiftTime;
+          posRecordCopy[i] += shiftTime;
         }
         posRecordCopy.sort((a, b) => a.start - b.start);
       }

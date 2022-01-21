@@ -1,6 +1,5 @@
 import axios from "axios";
-// import * as CONSTANT from "../../constants";
-const COMMANDS = require("../../../editor-common/constants");
+import COMMANDS from "../../../editor-common/constants";
 
 export default Object.values(COMMANDS).reduce((acc, command) => {
   let callback = null;

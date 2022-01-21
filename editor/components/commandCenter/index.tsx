@@ -19,7 +19,7 @@ import { selectGlobal } from "../../slices/globalSlice";
 import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
 // contants
 import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
-const COMMANDS = require("../../../editor-common/constants");
+import COMMANDS from "../../../editor-common/constants";
 // contexts
 
 const useStyles = makeStyles((theme) => ({

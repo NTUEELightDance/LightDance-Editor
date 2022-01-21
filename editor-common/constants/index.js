@@ -12,7 +12,7 @@ const SHUTDOWN = "shutdown";
 const REBOOT = "reboot";
 const TERMINATE = "terminate";
 
-module.exports = {
+const COMMANDS = {
   SYNC,
   UPLOAD_LED,
   UPLOAD_CONTROL,
@@ -27,3 +27,5 @@ module.exports = {
   REBOOT,
   TERMINATE,
 };
+
+export default COMMANDS;

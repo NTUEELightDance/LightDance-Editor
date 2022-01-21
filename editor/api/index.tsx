@@ -1,4 +1,3 @@
-import { login } from "../slices/globalSlice";
 import store from "../store";
 
 export const syncPost = (branchName, from, type, mode, data) => {
@@ -15,24 +14,24 @@ export const syncPost = (branchName, from, type, mode, data) => {
     .catch((error) => console.log("error", error));
 };
 
-export const loginPost = (username, password) => {
-  const payload = JSON.stringify({ username, password });
-  return fetch("/api/editor/login", {
-    method: "POST",
-    body: payload,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.text())
-    .then((result) => {
-      const data = JSON.parse(result);
-      if (data.username) {
-        store.dispatch(login(data));
-      }
-    })
-    .catch((error) => console.log("error", error));
-};
+// export const loginPost = (username, password) => {
+//   const payload = JSON.stringify({ username, password });
+//   return fetch("/api/editor/login", {
+//     method: "POST",
+//     body: payload,
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   })
+//     .then((response) => response.text())
+//     .then((result) => {
+//       const data = JSON.parse(result);
+//       if (data.username) {
+//         store.dispatch(login(data));
+//       }
+//     })
+//     .catch((error) => console.log("error", error));
+// };
 
 export const getBranches = () => {
   return fetch("/api/editor/branch", {
