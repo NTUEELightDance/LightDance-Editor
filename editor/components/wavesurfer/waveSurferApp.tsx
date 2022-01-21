@@ -1,7 +1,7 @@
 import WaveSurfer from "wavesurfer.js";
 import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
-import MarkersPlugin from "wavesurfer.js/src/plugin/markers";
 import regions from "wavesurfer.js/src/plugin/regions";
+import MarkersPlugin from "wavesurfer.js/src/plugin/markers";
 
 // redux
 import store from "../../store";
@@ -11,10 +11,22 @@ import { playPause, setTime } from "../../slices/globalSlice";
 import { WAVESURFERAPP } from "../../constants";
 import { getItem } from "../../utils/localStorage";
 
+// types
+import {
+  LocalRegion,
+  Region,
+  ControlMap,
+} from "../../types/client/components/wavesurfer";
+
 /**
  * control 3rd party package, WaveSurfer
  */
+
 class WaveSurferApp {
+  waveSurfer: any;
+  from: string;
+  ready: boolean;
+
   constructor() {
     this.waveSurfer = null;
     this.from = WAVESURFERAPP;
@@ -67,8 +79,8 @@ class WaveSurferApp {
     // get ready
     this.waveSurfer.on("ready", () => {
       this.ready = true;
-      const region = JSON.parse(getItem("region"));
-      region.map((r) => this.addRegion(r.Start, r.End));
+      const region = JSON.parse(getItem("region") || "");
+      region.map((r: LocalRegion) => this.addRegion(r.Start, r.End));
     });
 
     // Listener for seek event
@@ -120,16 +132,16 @@ class WaveSurferApp {
   playLoop() {
     const Regions = Object.values(this.waveSurfer.regions.list);
     let Region = null;
-    const setRegion = (r) => {
+    const setRegion = (r: Region) => {
       if (
-        this.waveSurfer.getCurrentTime() <= r.end &&
-        this.waveSurfer.getCurrentTime() >= r.start
+        this.waveSurfer.getCurrentTime() <= (r.end || 0) &&
+        this.waveSurfer.getCurrentTime() >= (r.start || 0)
       )
         Region = r;
     };
-    Regions.map((r) => setRegion(r));
+    (Regions as Array<Region>).map((r) => setRegion(r));
 
-    if (Region) Region.playLoop();
+    if (Region) (Region as any).playLoop();
   }
 
   /**
@@ -151,10 +163,10 @@ class WaveSurferApp {
    * Seek to time
    * @param {number} time
    */
-  seekTo(time) {
+  seekTo(time: number) {
     if (!this.ready) return;
     const duration = this.waveSurfer.getDuration();
-    this.waveSurfer.seekTo(Number.parseFloat(time) / 1000 / duration);
+    this.waveSurfer.seekTo(time / 1000 / duration);
   }
 
   /**
@@ -163,30 +175,32 @@ class WaveSurferApp {
    * @function
    */
   addClickEvent() {
-    document.getElementById("waveform").addEventListener("click", (e) => {
-      // From CursorPlugin Source Code
-      const bbox = this.waveSurfer.container.getBoundingClientRect();
-      const xpos = e.clientX - bbox.left;
-      const duration = this.waveSurfer.getDuration();
-      const elementWidth =
-        this.waveSurfer.drawer.width / this.waveSurfer.params.pixelRatio;
-      const scrollWidth = this.waveSurfer.drawer.getScrollX();
+    document
+      .getElementById("waveform")
+      ?.addEventListener("click", (e: MouseEvent) => {
+        // From CursorPlugin Source Code
+        const bbox = this.waveSurfer.container.getBoundingClientRect();
+        const xpos = e.clientX - bbox.left;
+        const duration = this.waveSurfer.getDuration();
+        const elementWidth =
+          this.waveSurfer.drawer.width / this.waveSurfer.params.pixelRatio;
+        const scrollWidth = this.waveSurfer.drawer.getScrollX();
 
-      const scrollTime =
-        (duration / this.waveSurfer.drawer.width) * scrollWidth;
+        const scrollTime =
+          (duration / this.waveSurfer.drawer.width) * scrollWidth;
 
-      const timeValue =
-        Math.max(0, (xpos / elementWidth) * duration) + scrollTime;
-      store.dispatch(
-        setTime({
-          from: this.from,
-          time: Math.round(timeValue * 1000),
-        })
-      );
-    });
+        const timeValue =
+          Math.max(0, (xpos / elementWidth) * duration) + scrollTime;
+        store.dispatch(
+          setTime({
+            from: this.from,
+            time: Math.round(timeValue * 1000),
+          })
+        );
+      });
   }
 
-  addRegion(start, end) {
+  addRegion(start: number, end: number) {
     this.waveSurfer.addRegion({
       start: start / 1000,
       end: end / 1000,
@@ -200,7 +214,7 @@ class WaveSurferApp {
    * @param { number } time  - time where marker created
    * @param { number } index - marker's label
    */
-  addMarkers(start, index) {
+  addMarkers(start: number, index: number) {
     this.waveSurfer.addMarker({
       time: start,
       color: "#8AE5C8",
@@ -211,11 +225,11 @@ class WaveSurferApp {
 
   /**
    * create markers according to all dancer's status
-   * @param { Array<{}> } controlRecord - array of all dancer's status
+   * @param { Object<{}> } controlMap - object of all dancer's status
    */
-  updateMarkers(controlRecord) {
+  updateMarkers(controlMap: ControlMap) {
     this.waveSurfer.clearMarkers();
-    controlRecord.map((e, index) => {
+    Object.values(controlMap).map((e, index) => {
       this.addMarkers(e.start / 1000, index);
     });
   }
@@ -228,7 +242,7 @@ class WaveSurferApp {
     this.waveSurfer.clearMarkers();
   }
 
-  zoom(newValue) {
+  zoom(newValue: number) {
     this.waveSurfer.zoom(
       (newValue *
         (window.screen.availWidth - this.waveSurfer.params.minPxPerSec)) /
@@ -236,7 +250,7 @@ class WaveSurferApp {
     );
   }
 
-  clickLast(last) {
+  clickLast(last: number) {
     this.waveSurfer.setCurrentTime(last);
     store.dispatch(playPause(this.waveSurfer.isPlaying()));
     store.dispatch(
@@ -247,7 +261,7 @@ class WaveSurferApp {
     );
   }
 
-  clickNext(next) {
+  clickNext(next: number) {
     this.waveSurfer.setCurrentTime(next);
     store.dispatch(playPause(this.waveSurfer.isPlaying()));
     store.dispatch(

@@ -29,29 +29,36 @@ import load from "../../../data/load.json";
 // local storage
 import { setItem, getItem } from "../../utils/localStorage";
 
-export default function Timeline({ wavesurfer }) {
+//types
+import {
+  FilterType,
+  LocalRegion,
+} from "../../types/client/components/wavesurfer";
+import WaveSurferApp from "./waveSurferApp";
+
+export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
   /**
    * params
    */
   const music = new (window.AudioContext || window.webkitAudioContext)();
-  const [DATA, setDATA] = useState();
+  const [DATA, setDATA] = useState<Float32Array>(new Float32Array());
   const [thrRatio, setThrRatio] = useState(10);
-  const [region, setRegion] = useState([]);
-  const [peak, setPeak] = useState();
-  const [filterNow, setFilterNow] = useState("lowpass");
+  const [region, setRegion] = useState<Array<LocalRegion>>([]);
+  const [peak, setPeak] = useState<Array<number>>([]);
+  const [filterNow, setFilterNow] = useState<FilterType>("lowpass");
   const [open, setOpen] = useState(false);
   const [subThrRatioChange, setSubThrRatio] = useState(false);
-  const [newStart, setNewStart] = useState("");
-  const [newEnd, setNewEnd] = useState("");
+  const [newStart, setNewStart] = useState(0);
+  const [newEnd, setNewEnd] = useState(0);
   const [ratio, setRatio] = useState(0);
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
-  const [expanded, setExpanded] = useState(false);
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(0);
+  const [expanded, setExpanded] = useState("");
 
   // const upperBPM = 200;
   // const lowerBPM = 90;
 
-  function loadMusic(url, filterType) {
+  function loadMusic(url: string, filterType: FilterType) {
     const request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "arraybuffer";
@@ -95,7 +102,7 @@ export default function Timeline({ wavesurfer }) {
     request.send();
   }
 
-  const musicProcessing = (Data) => {
+  const musicProcessing = (Data: Float32Array) => {
     const square = [];
     const difference = [];
     let mean = 0;
@@ -118,10 +125,19 @@ export default function Timeline({ wavesurfer }) {
     const Threashold = (mean / square.length) * thrRatio;
     // const Subthreashold = mean / square.length / 10000;
     // return [difference, Threashold, Subthreashold, square];
-    return [difference, Threashold, square];
+    const music: [number[], number, number[]] = [
+      difference,
+      Threashold,
+      square,
+    ];
+    return music;
   };
 
-  function getPeaksAtThreshold(musicdata, threashold, originaldata) {
+  function getPeaksAtThreshold(
+    musicdata: Array<number>,
+    threashold: number,
+    originaldata: Array<number>
+  ) {
     let peaksArray = [];
     const { length } = originaldata;
 
@@ -164,8 +180,12 @@ export default function Timeline({ wavesurfer }) {
           // Skip forward ~ 1/4s to get past this peak.
         }
       }
-      const front = peaksArray.filter((time) => time < region[i].Start / 1000);
-      const back = peaksArray.filter((time) => time > region[i].End / 1000);
+      const front: Array<number> = peaksArray.filter(
+        (time) => time < region[i].Start / 1000
+      );
+      const back: Array<number> = peaksArray.filter(
+        (time) => time > region[i].End / 1000
+      );
       peaksArray = front.concat(subPeak).concat(back);
     }
     // console.log(peaksArray);
@@ -216,7 +236,7 @@ export default function Timeline({ wavesurfer }) {
     const data2 = musicProcessing(DATA);
     const b = getPeaksAtThreshold(data2[0], data2[1], data2[2]);
     setPeak(b);
-    setItem("peak", b);
+    setItem("peak", JSON.stringify(b));
 
     /**
      * count BPM
@@ -235,23 +255,21 @@ export default function Timeline({ wavesurfer }) {
 
   useEffect(() => {
     loadMusic(load.Music, filterNow);
-    if (getItem("peak")) setPeak(getItem("peak"));
-    if (getItem("region")) setRegion(JSON.parse(getItem("region")));
+    if (getItem("peak")) setPeak(JSON.parse(getItem("peak") || ""));
+    if (getItem("region")) setRegion(JSON.parse(getItem("region") || ""));
   }, []);
 
   useEffect(() => {
-    if (DATA) findPeakAndCountBPM(DATA);
+    if (DATA) findPeakAndCountBPM();
   }, [DATA]);
 
   useEffect(() => {
-    if (DATA) {
-      findPeakAndCountBPM(DATA);
-    }
-  }, thrRatio);
+    if (DATA) findPeakAndCountBPM();
+  }, [thrRatio]);
 
-  const handelExpanded = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
-    const index = panel[panel.length - 1];
+  const handelExpanded = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : "");
+    const index = Number(panel[panel.length - 1]);
     setNewStart(region[index].Start);
     setNewEnd(region[index].End);
   };
@@ -263,27 +281,27 @@ export default function Timeline({ wavesurfer }) {
   const handleClose = () => {
     setOpen(false);
     if (subThrRatioChange) {
-      findPeakAndCountBPM(DATA);
+      findPeakAndCountBPM();
       setSubThrRatio(false);
     }
   };
 
-  const updateRegion = (regionID) => {
+  const updateRegion = (regionID: number) => {
     const Region = Object.values(wavesurfer.waveSurfer.regions.list)[regionID];
-    Region.update({ start: newStart / 1000, end: newEnd / 1000 });
+    (Region as any).update({ start: newStart / 1000, end: newEnd / 1000 });
     const sub = region;
     sub[regionID].Start = newStart;
     sub[regionID].End = newEnd;
     setRegion(sub);
     setItem("region", JSON.stringify(sub));
-    setExpanded(false);
-    setNewStart("");
-    setNewEnd("");
+    setExpanded("");
+    setNewStart(0);
+    setNewEnd(0);
   };
 
-  const deleteRegion = (regionID) => {
+  const deleteRegion = (regionID: number) => {
     const Region = Object.values(wavesurfer.waveSurfer.regions.list)[regionID];
-    Region.remove();
+    (Region as any).remove();
     let sub = region;
     sub = sub.filter((item) => {
       return item.Value !== regionID;
@@ -297,9 +315,9 @@ export default function Timeline({ wavesurfer }) {
       setNewStart(sub[regionID].Start);
       setNewEnd(sub[regionID].End);
     } else {
-      setNewStart("");
-      setNewEnd("");
-      setExpanded(false);
+      setNewStart(0);
+      setNewEnd(0);
+      setExpanded("");
     }
   };
 
@@ -318,7 +336,7 @@ export default function Timeline({ wavesurfer }) {
           placeholder="start"
           value={newStart}
           onChange={(e) => {
-            setNewStart(e.target.value);
+            setNewStart(Number(e.target.value));
           }}
           style={{ width: 100, marginRight: 10 }}
         />
@@ -327,7 +345,7 @@ export default function Timeline({ wavesurfer }) {
           placeholder="end"
           value={newEnd}
           onChange={(e) => {
-            setNewEnd(e.target.value);
+            setNewEnd(Number(e.target.value));
           }}
           style={{ width: 100, marginRight: 10 }}
         />
@@ -344,7 +362,7 @@ export default function Timeline({ wavesurfer }) {
             onChange={(event, newValue) => {
               const sub = region;
               // console.log("change", sub[r.Value].ThreashRatio);
-              sub[r.Value].ThreashRatio = newValue;
+              sub[r.Value].ThreashRatio = (newValue as number);
               setRegion(sub);
               setItem("region", JSON.stringify(sub));
               setSubThrRatio(true);
@@ -375,16 +393,16 @@ export default function Timeline({ wavesurfer }) {
     </Accordion>
   ));
 
-  const handleChange = (event, newValue) => {
-    setRatio(newValue);
-    wavesurfer.zoom(newValue);
+  const handleChange = (event: React.ChangeEvent<{}>, newValue: number | number[]) => {
+    setRatio((newValue as number));
+    wavesurfer.zoom(Number(newValue));
   };
 
-  const newRatio = (event, newValue) => {
-    setThrRatio(newValue);
+  const newRatio = (event: React.ChangeEvent<{}>, newValue: number | number[]) => {
+    setThrRatio((newValue as number));
   };
 
-  const findPosLast = (currentTime) => {
+  const findPosLast = (currentTime: number) => {
     let lowerLimit = 0;
     let HigherLimit = peak.length;
     while (lowerLimit !== HigherLimit) {
@@ -400,7 +418,7 @@ export default function Timeline({ wavesurfer }) {
     return 0;
   };
 
-  const findPosNext = (currentTime) => {
+  const findPosNext = (currentTime: number) => {
     let lowerLimit = 0;
     let HigherLimit = peak.length;
     while (lowerLimit !== HigherLimit) {
@@ -461,7 +479,7 @@ export default function Timeline({ wavesurfer }) {
                 placeholder="start"
                 value={start}
                 onChange={(e) => {
-                  setStart(e.target.value);
+                  setStart(Number(e.target.value));
                 }}
                 style={{ marginRight: 10, width: 100 }}
               />
@@ -470,7 +488,7 @@ export default function Timeline({ wavesurfer }) {
                 placeholder="end"
                 value={end}
                 onChange={(e) => {
-                  setEnd(e.target.value);
+                  setEnd(Number(e.target.value));
                 }}
                 style={{ marginRight: 10, width: 100 }}
               />
@@ -502,8 +520,8 @@ export default function Timeline({ wavesurfer }) {
                     ])
                   );
 
-                  setStart("");
-                  setEnd("");
+                  setStart(0);
+                  setEnd(0);
                 }}
                 style={{ marginTop: 12 }}
               >
@@ -523,8 +541,8 @@ export default function Timeline({ wavesurfer }) {
                     id="demo-simple-select"
                     value={filterNow}
                     onChange={(e) => {
-                      setFilterNow(e.target.value);
-                      loadMusic(load.Music, e.target.value);
+                      setFilterNow((e.target.value as FilterType));
+                      loadMusic(load.Music, (e.target.value as FilterType));
                     }}
                   >
                     <MenuItem value="lowpass">lowpass</MenuItem>
