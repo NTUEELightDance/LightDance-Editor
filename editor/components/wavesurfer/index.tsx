@@ -19,7 +19,7 @@ import { WAVESURFERAPP } from "../../constants";
 // contexts
 import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
 //types
-import { wavesurferContext } from "types/client/components/wavesurfer";
+import { wavesurferContext } from "types/components/wavesurfer";
 /**
  *
  * This is Wave component

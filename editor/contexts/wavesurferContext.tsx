@@ -1,6 +1,6 @@
 import React, { useState, createContext } from "react";
 import WaveSurferApp from "components/wavesurfer/waveSurferApp";
-import { wavesurferContext } from "types/client/components/wavesurfer";
+import { wavesurferContext } from "types/components/wavesurfer";
 
 export const WaveSurferAppContext = createContext<wavesurferContext | null>(null);
 // export { WebSocketContext };

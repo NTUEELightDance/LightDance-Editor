@@ -33,7 +33,7 @@ import { setItem, getItem } from "../../utils/localStorage";
 import {
   FilterType,
   LocalRegion,
-} from "../../types/client/components/wavesurfer";
+} from "../../types/components/wavesurfer";
 import WaveSurferApp from "./waveSurferApp";
 
 export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) {

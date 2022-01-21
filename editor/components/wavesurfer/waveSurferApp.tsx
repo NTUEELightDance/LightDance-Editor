@@ -16,7 +16,7 @@ import {
   LocalRegion,
   Region,
   ControlMap,
-} from "../../types/client/components/wavesurfer";
+} from "../../types/components/wavesurfer";
 
 /**
  * control 3rd party package, WaveSurfer
