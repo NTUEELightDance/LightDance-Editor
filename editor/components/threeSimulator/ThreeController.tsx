@@ -10,6 +10,7 @@ import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
 import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
 
+//? gui is working but doen not come with a type even after installing @types/three
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // three gui
 
@@ -37,7 +38,29 @@ const far = 100;
  * @constructor
  */
 class ThreeController {
-  constructor(canvas, container) {
+  canvas: HTMLElement;
+  container: HTMLElement;
+
+  renderer: THREE.WebGLRenderer | null;
+  camera: THREE.PerspectiveCamera | null;
+  controls: OrbitControls | null;
+  // THREE.Object3D<THREE.Event>
+  scene: THREE.Scene | null;
+  composer: EffectComposer | null;
+  clock: THREE.Clock | null;
+
+  height: number;
+  width: number;
+
+  dancers: { [index: string]: ThreeDancer };
+
+  //TODO use global state type
+  state: any;
+  isPlaying: boolean;
+  //? seems always undefined, not sure why its here
+  animateID: any;
+
+  constructor(canvas: HTMLElement, container: HTMLElement) {
     // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
     this.container = container;
@@ -83,6 +106,7 @@ class ThreeController {
       antialias: AA,
       powerPreference: "high-performance",
     });
+
     renderer.setSize(this.width, this.height);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.outputEncoding = THREE.sRGBEncoding;
@@ -120,11 +144,12 @@ class ThreeController {
       2.533987823530335,
       -0.07978443261089622
     );
-    controls.position0.set(
-      -4.4559744063642555,
-      2.128295812145451,
-      16.22834309576409
-    );
+    //? there is no such property on the controller
+    // controls.position0.set(
+    //   -4.4559744063642555,
+    //   2.128295812145451,
+    //   16.22834309576409
+    // );
     controls.update();
     this.controls = controls;
 
@@ -177,10 +202,21 @@ class ThreeController {
 
     // start rendering
     this.animateID = this.animate((clockDelta) => {});
+    console.log("ANIMATEID", this.animateID);
     this.renderer.render(this.scene, this.camera);
 
     // monitor perfomance and delay
     this.monitor();
+
+    //! debug
+    console.log(
+      typeof this.renderer,
+      typeof this.camera,
+      typeof this.controls,
+      typeof this.scene,
+      typeof this.composer,
+      typeof this.clock
+    );
   }
 
   // Return true if all the dancer is successfully initialized
@@ -190,7 +226,7 @@ class ThreeController {
 
   // Monitor fps, memory and delay
   monitor() {
-    const statsPanel = new Stats();
+    const statsPanel = Stats();
     statsPanel.domElement.style.position = "absolute";
     this.container.appendChild(statsPanel.domElement);
 
@@ -280,7 +316,7 @@ class ThreeController {
     this.renderer.render(this.scene, this.camera);
 
     if (this.isPlaying) {
-      this.update(this.clock.getDelta());
+      this.update(this.clock?.getDelta());
     } else {
       cancelAnimationFrame(this.animateID);
     }
@@ -289,7 +325,7 @@ class ThreeController {
 
   // render current scene and dancers
   render() {
-    this.renderer.render(this.scene, this.camera);
+    this.renderer?.render(this.scene, this.camera);
   }
 }
 
