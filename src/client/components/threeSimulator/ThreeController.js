@@ -1,5 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+
 // three.js
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -19,7 +22,7 @@ import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 
-import ThreeDancer from "./threeComponents/Dancer";
+import ThreeDancer from "./threeComponents/threeDancer";
 
 import {
   updateFrameByTime,
@@ -63,6 +66,11 @@ class ThreeController {
 
     // record the return id of requestAnimationFrame
     this.animateID = null;
+
+    this.mouse = new THREE.Vector2();
+    this.raycaster = new THREE.Raycaster();
+    this.objects = [];
+    this.group = null;
   }
 
   /**
@@ -149,6 +157,9 @@ class ThreeController {
     directionalLight.position.set(-1, 1, 1);
     scene.add(directionalLight);
 
+    this.group = new THREE.Group();
+    scene.add(this.group);
+
     this.scene = scene;
 
     // Postprocessing for antialiasing effect
@@ -169,6 +180,36 @@ class ThreeController {
     this.canvas.appendChild(renderer.domElement);
 
     // Initialization of all dancers with currentPos
+
+    const manager = new THREE.LoadingManager();
+    manager.onLoad = (item, loaded, total) => {
+      console.log(item, loaded, total);
+      console.log("213");
+    };
+    manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      console.log(url, itemsLoaded, itemsTotal);
+    };
+
+    const onProgress = (xhr) => {
+      if (xhr.lengthComputable) {
+        const percentComplete = (xhr.loaded / xhr.total) * 100;
+        console.log(`model ${Math.round(percentComplete, 2)}% downloaded`);
+      }
+    };
+
+    const onError = () => {};
+
+    const loader = new GLTFLoader(manager);
+    loader.load(
+      "data/models/remy_with_sword.glb",
+      (gltf) => {
+        const model = gltf.scene;
+        scene.add(model);
+      },
+      onProgress,
+      onError
+    );
+
     const { currentPos } = store.getState().global;
 
     Object.entries(currentPos).forEach(([name, position], i) => {
@@ -181,6 +222,7 @@ class ThreeController {
         };
         newDancer.addModel2Scene(newPos);
         this.dancers[name] = newDancer;
+        this.objects.push(newDancer);
       }
     });
 
@@ -222,6 +264,35 @@ class ThreeController {
     gui.addColor(this.params, "color").onChange((value) => {
       this.scene.background.set(value);
     });
+  }
+
+  // fetch timeData and all record for animation
+  fetch() {
+    const { timeData, controlRecord, posRecord } = store.getState().global;
+    this.startTime = performance.now();
+    this.waveSuferTime = timeData.time;
+    this.state = { controlRecord, posRecord };
+    this.state.timeData = { ...timeData };
+  }
+
+  // fetch currentStatus and currentPos
+  fetchCurrent() {
+    const { currentStatus, currentPos } = store.getState().global;
+    this.state = {
+      ...this.state,
+      currentStatus,
+      currentPos,
+    };
+  }
+
+  // set isPlaying to true
+  play() {
+    this.isPlaying = true;
+  }
+
+  // set isPlaying to false
+  stop() {
+    this.isPlaying = false;
   }
 
   // calculate and set next frame status according to time and call updateDancers

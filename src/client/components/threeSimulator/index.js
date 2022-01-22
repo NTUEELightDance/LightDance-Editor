@@ -18,15 +18,9 @@ export default function ThreeSimulator() {
   const containerRef = useRef();
 
   const [threeController, setThreeController] = useState(null);
+  const [edit, setEdit] = useState(null);
 
-  const {
-    currentStatus,
-    currentPos,
-    posRecord,
-    controlRecord,
-    timeData,
-    isPlaying,
-  } = useSelector(selectGlobal);
+  const { currentStatus, currentPos, isPlaying } = useSelector(selectGlobal);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,21 +32,18 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     if (threeController) {
-      threeController.startTime = performance.now();
-      threeController.waveSuferTime = timeData.time;
-      threeController.state = { controlRecord, posRecord };
-      threeController.state.timeData = { ...timeData };
-      threeController.isPlaying = isPlaying;
+      if (isPlaying) {
+        threeController.fetch();
+        threeController.play();
+      } else {
+        threeController.stop();
+      }
     }
   }, [isPlaying]);
 
   useEffect(() => {
     if (threeController && threeController.initialized()) {
-      threeController.state = {
-        ...threeController.state,
-        currentStatus,
-        currentPos,
-      };
+      threeController.fetchCurrent();
       threeController.updateDancers();
       threeController.render();
     }
