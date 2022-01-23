@@ -12,6 +12,7 @@ import { PubSub } from 'graphql-subscriptions';
 import "reflect-metadata";
 import { buildSchema } from 'type-graphql'
 import ColorResolver from './resolvers/color-resolver'
+import { DancerResolver, PartResolver, ControlResolver } from './resolvers/dancer-resolver'
 
 // import resolvers from "./resolvers"
 import db from "./models"
@@ -31,7 +32,7 @@ const { SECRET_KEY } = process.env;
   const typeDefs = fs.readFileSync(path.join(__dirname, './schema.graphql')).toString('utf-8')
   // const schema = makeExecutableSchema({ typeDefs, resolvers })
   const schema = await buildSchema({
-    resolvers: [ColorResolver],
+    resolvers: [ColorResolver, DancerResolver, PartResolver, ControlResolver],
     // automatically create `schema.gql` file with schema definition in current folder
     emitSchemaFile: path.resolve(__dirname, "schema.gql"),
   });

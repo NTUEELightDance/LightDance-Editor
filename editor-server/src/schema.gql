@@ -8,10 +8,55 @@ input ColorInput {
   colorCode: String!
 }
 
+type Control {
+  frame: ControlFrame!
+  status: ControlDevice!
+  type: ControlType!
+}
+
+union ControlDevice = EL | FIBER | LED
+
+type ControlFrame {
+  fade: Boolean!
+  start: Float!
+}
+
+"""The basic control types"""
+enum ControlType {
+  EL
+  FIBER
+  LED
+}
+
+type Dancer {
+  name: String!
+  parts: [Part!]!
+}
+
+type EL {
+  value: Int!
+}
+
+type FIBER {
+  alpha: Float!
+  color: String!
+}
+
+type LED {
+  alpha: Float!
+  src: String!
+}
+
 type Mutation {
   updateColor(color: ColorInput!): String!
 }
 
+type Part {
+  controlData: [Control!]!
+  name: String!
+}
+
 type Query {
   color(color: String!): String!
+  dancer: [Dancer!]!
 }
