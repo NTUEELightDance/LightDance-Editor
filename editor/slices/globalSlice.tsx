@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-param-reassign */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // constants
 import { IDLE, EDIT, ADD } from "../constants";
 // utils
@@ -12,34 +12,38 @@ import {
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 import { nanoid } from "nanoid";
-// import { syncPost, loginPost } from "../api";
+import {
+  globalState,
+  ControlRecordType,
+  ControlMapType,
+} from "types/globalSlice";
+const initialState: globalState = {
+  isPlaying: false, // isPlaying
+  selected: [], // array of selected dancer's name
 
+  currentFade: false, // current control Frame will fade to next
+  currentStatus: {}, // current dancers' status
+  currentPos: {}, // currnet dancers' position
+
+  controlRecord: [], // array of all dancer's status
+  controlMap: {},
+  posRecord: [], // array of all dancer's pos
+
+  timeData: {
+    from: "", // update from what component
+    time: 0, // time
+    controlFrame: 0, // control frame's index
+    posFrame: 0, // positions' index
+  },
+
+  mode: 0, // 0: nothing, 1: edit, 2: add
+
+  lightPresets: [], // lightPresets, presets for light
+  posPresets: [], // posPresets, presets for pos
+};
 export const globalSlice = createSlice({
   name: "global",
-  initialState: {
-    isPlaying: false, // isPlaying
-    selected: [], // array of selected dancer's name
-
-    currentFade: false, // current control Frame will fade to next
-    currentStatus: {}, // current dancers' status
-    currentPos: {}, // currnet dancers' position
-
-    controlRecord: [], // array of all dancer's status
-    controlMap: {},
-    posRecord: [], // array of all dancer's pos
-
-    timeData: {
-      from: "", // update from what component
-      time: 0, // time
-      controlFrame: 0, // control frame's index
-      posFrame: 0, // positions' index
-    },
-
-    mode: 0, // 0: nothing, 1: edit, 2: add
-
-    lightPresets: [], // lightPresets, presets for light
-    posPresets: [], // posPresets, presets for pos
-  },
+  initialState,
   reducers: {
     /**
      * Play or Pause

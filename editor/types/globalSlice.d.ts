@@ -35,29 +35,29 @@ interface positionType {
   [index: string]: coordinates; //dancer corresponds to his/her position
 }
 
-interface lightPresetsType {
-  name: string;
-  status: ControlMapStatus;
-}
-
-interface posPresetsType {
-  name: string;
-  pos: positionType;
-}
-interface poseRecordElement {
+interface posRecordElement {
   pos: positionType;
   start: number;
 }
-export interface posRecordType {
-  [index: number]: poseRecordElement;
+
+interface lightPresetsElemnt {
+  name: string;
+  status: ControlMapStatus;
 }
-export interface controlMapType {
+interface posPresetsElemnt {
+  name: string;
+  pos: positionType;
+}
+type LightPresetsType = lightPresetsElemnt[];
+type posPresetsType = posPresetsElemnt[];
+export interface posRecordType {
+  [index: number]: posRecordElement;
+}
+export type ControlRecordType = string[];
+
+export interface ControlMapType {
   [index: string]: ControlMapElement;
 }
-export interface controlRecordType {
-  [index: number]: string; //array of IDs
-}
-
 export interface globalState {
   isPlaying: boolean; // isPlaying
   selected: string[]; // array of selected dancer's name
@@ -70,4 +70,5 @@ export interface globalState {
   timeData: timeDataType;
   mode: number; // 0: nothing, 1: edit, 2: add
   lightPresets: lightPresetsType;
+  posPresets: posPresetsType;
 }
