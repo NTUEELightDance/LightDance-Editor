@@ -8,10 +8,6 @@ const ControlSchema = new Schema({
     type: mongoose.Types.ObjectId,
     ref: "ControlFrame",
   },
-  type: {
-    type: String,
-    required: [true, "type field is required."],
-  },
   value: { type: Object, required: [true, "value field is required."] },
 });
 

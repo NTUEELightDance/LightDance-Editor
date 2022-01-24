@@ -3,6 +3,10 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+input AddDancerInput {
+  name: String!
+}
+
 input ColorInput {
   color: String!
   colorCode: String!
@@ -11,12 +15,12 @@ input ColorInput {
 type Control {
   frame: ControlFrame!
   status: ControlDevice!
-  type: ControlType!
 }
 
 union ControlDevice = EL | FIBER | LED
 
 type ControlFrame {
+  editing: String
   fade: Boolean!
   start: Float!
 }
@@ -31,6 +35,7 @@ enum ControlType {
 type Dancer {
   name: String!
   parts: [Part!]!
+  positionData: [Position!]!
 }
 
 type EL {
@@ -48,12 +53,27 @@ type LED {
 }
 
 type Mutation {
+  addDancer(dancer: AddDancerInput!): Dancer!
   updateColor(color: ColorInput!): String!
 }
 
 type Part {
   controlData: [Control!]!
   name: String!
+  type: ControlType!
+}
+
+type Position {
+  frame: PositionFrame!
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+type PositionFrame {
+  editing: String
+  id: ID!
+  start: Float!
 }
 
 type Query {

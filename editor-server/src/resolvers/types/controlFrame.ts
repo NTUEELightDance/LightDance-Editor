@@ -7,4 +7,7 @@ export class ControlFrame {
 
     @Field(type => Boolean)
     fade: boolean
+
+    @Field({ nullable: true })
+    editing: string
 }
