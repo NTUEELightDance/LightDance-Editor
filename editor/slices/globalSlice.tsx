@@ -12,7 +12,6 @@ import {
 } from "../utils/math";
 import { setItem, getItem } from "../utils/localStorage";
 import { nanoid } from "nanoid";
-
 // import { syncPost, loginPost } from "../api";
 
 export const globalSlice = createSlice({
@@ -76,6 +75,7 @@ export const globalSlice = createSlice({
         throw new Error(`[Error] posInit, posRecord is empty `);
       state.posRecord = posRecord;
       state.currentPos = posRecord[0].pos;
+      console.log(posRecord);
     },
 
     /**

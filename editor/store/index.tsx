@@ -3,7 +3,7 @@ import globalReducer from "../slices/globalSlice";
 import loadReducer from "../slices/loadSlice";
 import CommandReducer from "../slices/commandSlice";
 
-export default configureStore({
+const store = configureStore({
   reducer: {
     global: globalReducer,
     load: loadReducer,
@@ -16,3 +16,9 @@ export default configureStore({
       // }).concat(logger),
     }),
 });
+// Infer the `RootState` and `AppDispatch` types from the store itself
+export type RootState = ReturnType<typeof store.getState>;
+// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+export type AppDispatch = typeof store.dispatch;
+
+export default store;

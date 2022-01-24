@@ -56,7 +56,7 @@ class Controller {
 
     // initialization for dancers
     const { dancerNames } = store.getState().load;
-    dancerNames.forEach((name, idx) => {
+    dancerNames.forEach((name: string, idx: number) => {
       this.dancers[name] = new Dancer(
         idx,
         name,
