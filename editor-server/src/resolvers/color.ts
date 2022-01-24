@@ -9,7 +9,7 @@ import {
     Int,
     ResolverInterface,
 } from 'type-graphql';
-import { ColorInput } from './types/color-input'
+import { ColorInput } from './inputs/color'
 
 @Resolver()
 class ColorResolver {

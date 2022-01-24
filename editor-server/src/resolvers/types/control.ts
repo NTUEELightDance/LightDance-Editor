@@ -1,7 +1,7 @@
 import { Field, ObjectType, Int, Float } from "type-graphql";
-import { ControlType } from "./controlType-type";
-import { ControlFrame } from "./controlFrame-type";
-import { ControlDevice } from "./controlDevice-type";
+import { ControlType } from "./controlType";
+import { ControlFrame } from "./controlFrame";
+import { ControlDevice } from "./controlDevice";
 
 @ObjectType()
 export class Control {

@@ -5,9 +5,9 @@ import {
     Ctx,
     Root,
 } from 'type-graphql';
-import { Control } from './types/control-type';
-import { Part } from './types/part-type';
-import { Dancer } from './types/dancer-type';
+import { Control } from './types/control';
+import { Part } from './types/part';
+import { Dancer } from './types/dancer';
 
 @Resolver()
 export class DancerResolver {

@@ -1,5 +1,5 @@
 import { Field, ObjectType, Int, Float } from "type-graphql";
-import { Control } from './control-type'
+import { Control } from './control'
 
 @ObjectType()
 export class Part {

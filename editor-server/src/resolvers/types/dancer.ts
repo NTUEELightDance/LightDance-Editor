@@ -1,5 +1,5 @@
 import { Field, ObjectType, Int, Float } from "type-graphql";
-import { Part } from './part-type'
+import { Part } from './part'
 
 @ObjectType()
 export class Dancer {
