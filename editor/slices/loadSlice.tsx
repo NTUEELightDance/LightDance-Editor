@@ -14,7 +14,7 @@ export const loadSlice = createSlice({
     posPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
     texture: {}, // loaded texture
     dancers: {}, // name: data, data is like content of 'dancer0.json'
-    dancerNames: {}, // [name]
+    dancerNames: [], // [name]
   },
   reducers: {
     setInit: (state) => {
