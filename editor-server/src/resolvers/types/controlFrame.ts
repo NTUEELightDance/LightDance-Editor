@@ -1,4 +1,4 @@
-import { Field, ObjectType, Int, Float } from "type-graphql";
+import { Field, ObjectType, ID, Float } from "type-graphql";
 
 @ObjectType()
 export class ControlFrame {
@@ -10,4 +10,7 @@ export class ControlFrame {
 
     @Field({ nullable: true })
     editing: string
+
+    @Field(type => ID)
+    id: string
 }

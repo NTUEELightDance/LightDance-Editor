@@ -17,6 +17,7 @@ import { PositionFrame } from './types/positionFrame';
 import { Position } from './types/position'
 import { Topic } from './subscriptions/topic';
 import { DancerPayload, dancerMutation } from './subscriptions/dancer';
+import { ControlFrame } from './types/controlFrame';
 
 @Resolver()
 export class DancerResolver {
@@ -29,7 +30,7 @@ export class DancerResolver {
     @Mutation(returns => Dancer)
     async addDancer(
         @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
-        @Arg("dancer") newDancerData: AddDancerInput, 
+        @Arg("dancer") newDancerData: AddDancerInput,
         @Ctx() ctx: any
     ): Promise<Dancer> {
         let newDancer = new ctx.db.Dancer({ name: newDancerData.name, parts: [], positionData: [] })
@@ -57,31 +58,16 @@ export class DancerResolver {
 
 }
 
-@Resolver(of => Part)
-export class PartResolver {
-    @FieldResolver()
-    async controlData(@Root() part: any, @Ctx() ctx: any) {
-        console.log(part)
-        const controlDataRef = part.controlData
-        let data = controlDataRef.map(async (ref: string) => {
-            await ctx.db.Control.findOne({ _id: ref })
-        })
-        console.log(data)
-        return data
-    }
-}
-
 @Resolver(of => Control)
 export class ControlResolver {
     @FieldResolver()
-    async frame(@Root() control: any, @Ctx() ctx: any) {
+    async frame(@Root() control: Control, @Ctx() ctx: any) {
         let data = await ctx.db.ControlFrame.findOne({ _id: control.frame })
         return data
     }
 
     @FieldResolver()
     async status(@Root() control: any, @Ctx() ctx: any) {
-
         return control.value
     }
 }
@@ -89,10 +75,26 @@ export class ControlResolver {
 @Resolver(of => Position)
 export class PositionResolver {
     @FieldResolver()
-    async frame(@Root() position: any, @Ctx() ctx: any) {
+    async frame(@Root() position: Position, @Ctx() ctx: any) {
         console.log(position)
         let data = await ctx.db.PositionFrame.findOne({ _id: position.frame })
         return data
+    }
+}
+
+@Resolver(of => PositionFrame)
+export class PositionFrameResolver {
+    @FieldResolver()
+    async id(@Root() positionframe: any, @Ctx() ctx: any) {
+        return positionframe._id
+    }
+}
+
+@Resolver(of => ControlFrame)
+export class ControlFrameResolver {
+    @FieldResolver()
+    async id(@Root() controlframe: any, @Ctx() ctx: any) {
+        return controlframe._id
     }
 }
 

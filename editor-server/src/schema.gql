@@ -7,6 +7,17 @@ input AddDancerInput {
   name: String!
 }
 
+input AddPartForDancer {
+  partName: String!
+  partType: String!
+}
+
+input AddPartInput {
+  dancerName: String!
+  name: String!
+  type: String!
+}
+
 input ColorInput {
   color: String!
   colorCode: String!
@@ -29,6 +40,7 @@ union ControlDevice = EL | FIBER | LED
 type ControlFrame {
   editing: String
   fade: Boolean!
+  id: ID!
   start: Float!
 }
 
@@ -83,7 +95,8 @@ type LED {
 }
 
 type Mutation {
-  addDancer(dancer: AddDancerInput!): Dancer!
+  addDancer(dancer: AddDancerInput!, parts: AddPartForDancer!): Dancer!
+  addPart(part: AddPartInput!): Part!
   updateColor(color: ColorInput!): String!
 }
 
