@@ -13,9 +13,9 @@ import Controller from "./controller";
  * @component
  */
 
-export default function Simulator() {
+const Simulator: React.FC = ({}) => {
   const { currentStatus, currentPos } = useSelector(selectGlobal);
-  const [controller, setController] = useState(null);
+  const [controller, setController] = useState<Controller | null>(null);
 
   useEffect(() => {
     const newController = new Controller();
@@ -55,4 +55,5 @@ export default function Simulator() {
       </div>
     </div>
   );
-}
+};
+export default Simulator;
