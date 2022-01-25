@@ -4,7 +4,7 @@
  * @param {number} mi - lowerbound of the target
  * @param {number} ma - upperbound of the target
  */
-export function clamp(val, mi, ma) {
+export function clamp(val: number, mi: number, ma: number) {
   // eslint-disable-next-line no-nested-ternary
   return val > ma ? ma : val < mi ? mi : val;
 }
@@ -14,7 +14,7 @@ export function clamp(val, mi, ma) {
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrame(data, time) {
+export function binarySearchFrame(data, time: number) {
   if (!Array.isArray(data))
     throw new Error(`[Error] binarySearchFrame, invalid parameter(data)`);
   if (typeof time !== "number")
@@ -36,7 +36,7 @@ export function binarySearchFrame(data, time) {
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
-export function updateFrameByTime(data, frame, time) {
+export function updateFrameByTime(data, frame, time: number) {
   if (!Array.isArray(data))
     throw new Error(`[Error] updateFrameByTime, invalid parameter(data)`);
   if (typeof frame !== "number")
@@ -60,7 +60,7 @@ export function updateFrameByTime(data, frame, time) {
  * @param {*} preFrame - the position frame data (posRecord[timeData.posFrame])
  * @param {*} nextFrame - the next position frame data (posRecord[timeData.posFrame + 1])
  */
-export function interpolationPos(time, preFrame, nextFrame) {
+export function interpolationPos(time: number, preFrame, nextFrame) {
   const { start: preTime, pos: prePos } = preFrame;
   const { start: nextTime, pos: nextPos } = nextFrame;
   if (preTime === undefined || prePos === undefined)
@@ -90,7 +90,7 @@ export function interpolationPos(time, preFrame, nextFrame) {
   return newPos;
 }
 
-function Round1(number) {
+function Round1(number: number) {
   return Math.round(number * 10) / 10;
 }
 
@@ -100,7 +100,7 @@ function Round1(number) {
  * @param {*} preStatus - previous frame, controlRecord[timeData.controlFrame]
  * @param {*} nextStatus - next frame, controlRecord[timeData.controlFrame + 1]
  */
-export function fadeStatus(time, preFrame, nextFrame) {
+export function fadeStatus(time: number, preFrame, nextFrame) {
   const { start: preTime, fade, status: preStatus } = preFrame;
   const { start: nextTime, status: nextStatus } = nextFrame;
   if (!fade) return preFrame.status; // Don't need to fade
