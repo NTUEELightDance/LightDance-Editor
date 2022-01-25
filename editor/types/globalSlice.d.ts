@@ -1,6 +1,6 @@
 interface Fiber {
   color: string;
-  alpha: number;
+  alpha: number; //brightness
 }
 
 type El = number;
@@ -15,9 +15,9 @@ interface ControlMapStatus {
 }
 
 interface ControlMapElement {
-  start: number;
+  start: number; //frame's start time
   status: ControlMapStatus;
-  fade: boolean;
+  fade: boolean; // if this frame fades to the next
 }
 interface timeDataType {
   from: string; // update from what component
@@ -37,23 +37,23 @@ interface positionType {
 
 interface posRecordElement {
   pos: positionType;
-  start: number;
+  start: number; //start time
 }
 
-interface lightPresetsElemnt {
-  name: string;
+interface lightPresetsElement {
+  name: string; // ID named by user
   status: ControlMapStatus;
 }
-interface posPresetsElemnt {
+interface posPresetsElement {
   name: string;
   pos: positionType;
 }
-type LightPresetsType = lightPresetsElemnt[];
-type posPresetsType = posPresetsElemnt[];
+type LightPresetsType = lightPresetsElement[];
+type posPresetsType = posPresetsElement[];
 export interface posRecordType {
   [index: number]: posRecordElement;
 }
-export type ControlRecordType = string[];
+export type ControlRecordType = string[]; // array of all IDs , each correspondsto diff status
 
 export interface ControlMapType {
   [index: string]: ControlMapElement;
