@@ -10,8 +10,12 @@ interface LED {
   alpha: number;
 }
 
+interface DancerStatus {
+  [index: string]: Fiber | El | LED; //partNames: partStatus
+}
+
 interface ControlMapStatus {
-  [index: string]: Fiber | El | LED;
+  [index: string]: DancerStatus; //dancerNames :  dancerStatus
 }
 
 interface ControlMapElement {
@@ -50,9 +54,8 @@ interface posPresetsElement {
 }
 type LightPresetsType = lightPresetsElement[];
 type posPresetsType = posPresetsElement[];
-export interface posRecordType {
-  [index: number]: posRecordElement;
-}
+
+export type posRecordType = Array<posRecordElement>;
 export type ControlRecordType = string[]; // array of all IDs , each correspondsto diff status
 
 export interface ControlMapType {

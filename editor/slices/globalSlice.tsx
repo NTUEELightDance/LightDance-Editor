@@ -17,6 +17,7 @@ import {
   ControlRecordType,
   ControlMapType,
 } from "types/globalSlice";
+import Action from "./ActionTypes/globalSliceActions";
 const initialState: globalState = {
   isPlaying: false, // isPlaying
   selected: [], // array of selected dancer's name
@@ -142,7 +143,7 @@ export const globalSlice = createSlice({
      * @param {} state
      * @param {*} action.payload - { dancerName, partName, value}
      */
-    editCurrentStatus: (state, action) => {
+    editCurrentStatus: (state, action: Action) => {
       const { dancerName, partName, value } = action.payload;
       state.currentStatus[dancerName][partName] = value;
     },
@@ -151,7 +152,7 @@ export const globalSlice = createSlice({
      * Edit current Status (LED)
      * @param {} state
      */
-    editCurrentStatusLED: (state, action) => {
+    editCurrentStatusLED: (state, action: Action) => {
       const {
         dancerName,
         partName,
@@ -228,43 +229,6 @@ export const globalSlice = createSlice({
       setItem("control", JSON.stringify(state.controlRecord));
       setItem("controlMap", JSON.stringify(state.controlMap));
       console.log("Control Saved to Local Storage...");
-    },
-
-    /**
-     * Sync status
-     * @param {*} state
-     */
-    syncStatus: (state, syncData) => {
-      const { mode, from, time } = syncData.payload;
-      const data = JSON.parse(syncData.payload.data);
-
-      state.lastUpdateTime = time;
-      setItem("lastUpdateTime", state.lastUpdateTime);
-
-      if (mode === "EDIT") {
-        let { frame } = data; //probably from backend
-        frame = Number(frame);
-        state.controlRecord[frame].status = JSON.parse(data.status);
-        state.controlRecord[frame].fade = data.fade;
-        if (frame === state.timeData.controlFrame) {
-          state.currentStatus = JSON.parse(data.status);
-        }
-      }
-      if (mode === "ADD" && from !== state.username) {
-        let { frame } = data;
-        const { time, status, fade } = data;
-        frame = Number(frame);
-        state.controlRecord.splice(frame, 0, {
-          start: Number(time),
-          status: JSON.parse(status),
-          fade,
-        });
-        if (frame === state.timeData.controlFrame) {
-          state.currentStatus = JSON.parse(status);
-          state.currentFade = fade;
-        }
-      }
-      setItem("control", JSON.stringify(state.controlRecord));
     },
 
     /**
@@ -376,40 +340,6 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * Sync pos
-     * @param {*} state
-     */
-    syncPos: (state, syncData) => {
-      const { mode, from, time } = syncData.payload;
-      const data = JSON.parse(syncData.payload.data);
-
-      state.lastUpdateTime = time;
-      setItem("lastUpdateTime", state.lastUpdateTime);
-
-      if (mode === "EDIT") {
-        let { frame } = data;
-        frame = Number(frame);
-        state.posRecord[frame].pos = JSON.parse(data.pos);
-        if (frame === state.timeData.posFrame) {
-          state.currentPos = JSON.parse(data.pos);
-        }
-      }
-      if (mode === "ADD" && from !== state.username) {
-        let { frame } = data;
-        const { time, pos } = data;
-        frame = Number(frame);
-        state.posRecord.splice(frame, 0, {
-          start: Number(time),
-          pos: JSON.parse(pos),
-        });
-        // if (frame === state.timeData.posFrame) {
-        //   state.currentStatus = JSON.parse(pos);
-        // }
-      }
-      setItem("position", JSON.stringify(state.posRecord));
-    },
-
-    /**
      * Delete current pos
      * @param {*} state
      */
@@ -432,26 +362,6 @@ export const globalSlice = createSlice({
       // );
       state.posRecord.splice(state.timeData.posFrame, 1);
       setItem("position", JSON.stringify(state.posRecord));
-    },
-
-    /**
-     * sync Delete
-     */
-    syncDelete: (state, deleteData) => {
-      const { time } = deleteData.payload;
-      const data = JSON.parse(deleteData.payload.data);
-
-      state.lastUpdateTime = time;
-      setItem("lastUpdateTime", state.lastUpdateTime);
-
-      if (deleteData.payload.type === "position") {
-        state.posRecord.splice(data.frame, 1);
-        setItem("control", JSON.stringify(state.controlRecord));
-      }
-      if (deleteData.payload.type === "control") {
-        state.controlRecord.splice(data.frame, 1);
-        setItem("position", JSON.stringify(state.posRecord));
-      }
     },
 
     /**
@@ -765,17 +675,13 @@ export const {
   editCurrentStatus,
   editCurrentStatusLED,
   saveCurrentStatus,
-  syncStatus,
   deleteCurrentStatus,
 
   setCurrentPosByName,
   setCurrentPos,
   saveCurrentPos,
   saveToLocal,
-  syncPos,
   deleteCurrentPos,
-
-  syncDelete,
 
   setTime,
   setPosFrame,

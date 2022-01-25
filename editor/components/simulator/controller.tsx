@@ -6,8 +6,6 @@ import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 import Dancer from "./dancer";
-import dancer from "./dancer";
-
 /**
  * Control the dancers (or other light objects)'s status and pos
  * @constructor
