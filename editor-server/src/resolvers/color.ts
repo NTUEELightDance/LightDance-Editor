@@ -8,8 +8,14 @@ import {
     Mutation,
     Int,
     ResolverInterface,
+    Publisher,
+    PubSub,
+    Subscription,
 } from 'type-graphql';
 import { ColorInput } from './inputs/color'
+import { Topic } from "./topic"
+import { ColorPayload } from './subscriptions/color';
+import {mutation} from "./subscriptions/mutation"
 
 @Resolver()
 class ColorResolver {
@@ -22,16 +28,33 @@ class ColorResolver {
     }
 
     @Mutation(returns => String)
-    async updateColor(@Arg("color") colorInput: ColorInput, @Ctx() ctx: any) {
+    async updateColor(
+        @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
+        @Arg("color") colorInput: ColorInput, 
+        @Ctx() ctx: any
+    ) {
         let existedColorCode = await ctx.db.Color.findOne({ color: colorInput.color })
         if (!existedColorCode) {
             let newColor = new ctx.db.Color({ color: colorInput.color, colorCode: colorInput.colorCode })
             await newColor.save()
+            const payload: ColorPayload = {mutation: mutation.UPDATED, color: colorInput.color, colorCode: colorInput.colorCode}
+            await publish(payload)
         }
         else {
             await ctx.db.Color.findOneAndUpdate({ color: colorInput.color }, { colorCode: colorInput.colorCode })
+            const payload: ColorPayload = {mutation: mutation.UPDATED, color: colorInput.color, colorCode: colorInput.colorCode}
+            await publish(payload)
         }
         return colorInput.colorCode
+    }
+
+    @Subscription({
+        topics: Topic.Color
+    })
+    colorSubscription(
+        @Root() colorPayload: ColorPayload
+    ): ColorPayload{
+        return colorPayload
     }
 }
 

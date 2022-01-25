@@ -12,6 +12,12 @@ input ColorInput {
   colorCode: String!
 }
 
+type ColorPayload {
+  color: String!
+  colorCode: String
+  mutation: String!
+}
+
 type Control {
   frame: ControlFrame!
   status: ControlDevice!
@@ -79,4 +85,8 @@ type PositionFrame {
 type Query {
   color(color: String!): String!
   dancer: [Dancer!]!
+}
+
+type Subscription {
+  colorSubscription: ColorPayload!
 }
