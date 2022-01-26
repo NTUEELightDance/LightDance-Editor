@@ -5,7 +5,7 @@ import {
   ControlMapElement,
   ControlMapType,
   ControlRecordType,
-} from "types/globalSlice";
+} from "../types/globalSlice";
 
 /**
  * clamp a value between mi and ma
