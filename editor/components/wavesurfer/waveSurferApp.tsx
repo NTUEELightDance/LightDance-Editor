@@ -87,15 +87,17 @@ class WaveSurferApp {
     // waveSurfer.on("seek") will conflict
     this.addClickEvent();
 
+    // This function is disabled considering performance issues
     // Listener when playing, which will update time
-    this.waveSurfer.on("audioprocess", () => {
-      store.dispatch(
-        setTime({
-          from: this.from,
-          time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-        })
-      );
-    });
+    // this.waveSurfer.on("audioprocess", () => {
+    //   console.log("Update current time");
+    //   store.dispatch(
+    //     setTime({
+    //       from: this.from,
+    //       time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+    //     })
+    //   );
+    // });
   }
 
   /**
@@ -105,6 +107,14 @@ class WaveSurferApp {
   playPause() {
     this.waveSurfer.playPause();
     store.dispatch(playPause(this.waveSurfer.isPlaying()));
+
+    // Update waveSurfer time to global state
+    store.dispatch(
+      setTime({
+        from: this.from,
+        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
+      })
+    );
   }
 
   /**
