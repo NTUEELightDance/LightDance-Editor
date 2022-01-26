@@ -8,6 +8,6 @@ export class FiberResolver {
         const color = await ctx.db.Color.findOne({ color: fiber.color })
         if (color)
             return color.colorCode
-        return null
+        return fiber.color
     }
 }
