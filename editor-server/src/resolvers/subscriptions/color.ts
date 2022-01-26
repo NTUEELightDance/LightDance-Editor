@@ -1,15 +1,23 @@
 import {ObjectType, Field, ID} from "type-graphql"
-import {mutation} from "./mutation"
 
 @ObjectType()
 export class ColorPayload {
     @Field()
-    mutation: mutation;
+    mutation: colorMutation;
+
+    @Field()
+    editBy: string;
 
     @Field()
     color: string;
 
     @Field({nullable: true})
     colorCode?: string;
+}
+
+export enum colorMutation {
+  UPDATED = "UPDATED",
+  CREATED = "CREATED",
+  DELETED = "DELETED"
 }
 

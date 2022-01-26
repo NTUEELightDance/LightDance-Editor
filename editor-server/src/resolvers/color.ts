@@ -13,9 +13,8 @@ import {
     Subscription,
 } from 'type-graphql';
 import { ColorInput } from './inputs/color'
-import { Topic } from "./topic"
-import { ColorPayload } from './subscriptions/color';
-import {mutation} from "./subscriptions/mutation"
+import { Topic } from "./subscriptions/topic"
+import { ColorPayload, colorMutation } from './subscriptions/color';
 
 @Resolver()
 class ColorResolver {
@@ -37,12 +36,22 @@ class ColorResolver {
         if (!existedColorCode) {
             let newColor = new ctx.db.Color({ color: colorInput.color, colorCode: colorInput.colorCode })
             await newColor.save()
-            const payload: ColorPayload = {mutation: mutation.UPDATED, color: colorInput.color, colorCode: colorInput.colorCode}
+            const payload: ColorPayload = {
+                mutation: colorMutation.CREATED, 
+                color: colorInput.color, 
+                colorCode: colorInput.colorCode,
+                editBy: ctx.userID
+            }
             await publish(payload)
         }
         else {
             await ctx.db.Color.findOneAndUpdate({ color: colorInput.color }, { colorCode: colorInput.colorCode })
-            const payload: ColorPayload = {mutation: mutation.UPDATED, color: colorInput.color, colorCode: colorInput.colorCode}
+            const payload: ColorPayload = {
+                mutation: colorMutation.UPDATED, 
+                color: colorInput.color, 
+                colorCode: colorInput.colorCode,
+                editBy: ctx.userID
+            }
             await publish(payload)
         }
         return colorInput.colorCode

@@ -4,6 +4,8 @@ import {
     Mutation,
     FieldResolver,
     Ctx,
+    PubSub,
+    Publisher,
     Arg,
     Root,
 } from 'type-graphql';
@@ -13,6 +15,8 @@ import { Dancer } from './types/dancer';
 import { AddDancerInput } from './inputs/dancer';
 import { PositionFrame } from './types/positionFrame';
 import { Position } from './types/position'
+import { Topic } from './subscriptions/topic';
+import { DancerPayload, dancerMutation } from './subscriptions/dancer';
 
 @Resolver()
 export class DancerResolver {
@@ -23,7 +27,11 @@ export class DancerResolver {
     }
 
     @Mutation(returns => Dancer)
-    async addDancer(@Arg("dancer") newDancerData: AddDancerInput, @Ctx() ctx: any): Promise<Dancer> {
+    async addDancer(
+        @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
+        @Arg("dancer") newDancerData: AddDancerInput, 
+        @Ctx() ctx: any
+    ): Promise<Dancer> {
         let newDancer = new ctx.db.Dancer({ name: newDancerData.name, parts: [], positionData: [] })
 
         // for each position frame, add empty position data to the dancer
@@ -34,9 +42,16 @@ export class DancerResolver {
             newDancer.positionData.push(newPosition)
             await newPosition.save()
         })
+        const dancerData = await newDancer.save()
+        const payload: DancerPayload = {
+            mutation: dancerMutation.CREATED,
+            editBy: ctx.userID,
+            dancerData
+        }
+        await publish(payload)
 
         // save dancer
-        return newDancer.save()
+        return dancerData
     }
 
 

@@ -15,6 +15,7 @@ input ColorInput {
 type ColorPayload {
   color: String!
   colorCode: String
+  editBy: String!
   mutation: String!
 }
 
@@ -31,6 +32,17 @@ type ControlFrame {
   start: Float!
 }
 
+type ControlMapPayload {
+  mutation: String!
+}
+
+type ControlRecordPayload {
+  editBy: String!
+  frameID: ID!
+  index: Int!
+  mutation: String!
+}
+
 """The basic control types"""
 enum ControlType {
   EL
@@ -42,6 +54,18 @@ type Dancer {
   name: String!
   parts: [Part!]!
   positionData: [Position!]!
+}
+
+enum dancerMutation {
+  CREATED
+  DELETED
+  UPDATED
+}
+
+type DancerPayload {
+  dancerData: Dancer
+  editBy: String!
+  mutation: dancerMutation!
 }
 
 type EL {
@@ -89,4 +113,7 @@ type Query {
 
 type Subscription {
   colorSubscription: ColorPayload!
+  controlMapSubscription: ControlMapPayload!
+  controlRecordSubscription: ControlRecordPayload!
+  DancerSubscription: DancerPayload!
 }
