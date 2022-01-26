@@ -74,6 +74,8 @@ type DancerPayload {
   dancerData: Dancer
   editBy: String!
   mutation: dancerMutation!
+}
+
 input editDancerInput {
   id: ID!
   name: String!

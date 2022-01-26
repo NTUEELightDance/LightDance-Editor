@@ -56,10 +56,20 @@ export class DancerResolver {
     }
 
     @Mutation(returns => Dancer)
-    async editDancer(@Arg("dancer") newDancerData: editDancerInput, @Ctx() ctx: any): Promise<Dancer> {
+    async editDancer(
+        @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
+        @Arg("dancer") newDancerData: editDancerInput, 
+        @Ctx() ctx: any
+    ): Promise<Dancer> {
         const { id, name } = newDancerData
-        return ctx.db.Dancer.findOneAndUpdate({ _id: id }, { name }).populate('parts').populate('positionData')
-
+        const dancerData = ctx.db.Dancer.findOneAndUpdate({ _id: id }, { name }).populate('parts').populate('positionData')
+        const payload: DancerPayload = {
+            mutation: dancerMutation.UPDATED,
+            editBy: ctx.userID,
+            dancerData
+        }
+        await publish(payload)
+        return dancerData
     }
 
     @FieldResolver()

@@ -46,6 +46,7 @@ class SubscriptionResolver{
     ): DancerPayload{
         return dancerPayload
     }
+
 }
 
 export default SubscriptionResolver
