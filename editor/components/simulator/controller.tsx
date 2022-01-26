@@ -8,6 +8,7 @@ import store from "../../store";
 import Dancer from "./dancer";
 // math
 import {
+  updateFrameByTimeMap,
   updateFrameByTime,
   interpolationPos,
   fadeStatus,
@@ -104,26 +105,21 @@ class Controller {
 
   // update each frame according to the current time
   animate() {
-    console.log(
-      "Calculate lastest frame and call updateDancersPos and updateDancersStatus."
-    );
+    // calculate simluation time + waveSurferTime to find the latset frame
     const time =
       this.pixiApp.waveSurferTime + performance.now() - this.pixiApp.startTime;
     const { state } = this.pixiApp;
 
     // set timeData.controlFrame and currentStatus
-    const tmp = [];
-    for (let id of state.controlRecord) {
-      tmp.push(state.controlMap[id]);
-    }
-    const newControlFrame = updateFrameByTime(
-      tmp,
+    const newControlFrame = updateFrameByTimeMap(
+      state.controlRecord,
+      state.controlMap,
       state.timeData.controlFrame,
       time
     );
+
     state.timeData.controlFrame = newControlFrame;
 
-    console.log(time);
     // status fade
     if (newControlFrame === state.controlRecord.length - 1) {
       // Can't fade
@@ -168,7 +164,6 @@ class Controller {
 
   // fetch controlRecord, posRecord and timeData and update ticker function
   fetch() {
-    console.log("Fetch controlMap and controlRecord.");
     const { timeData, controlRecord, controlMap, posRecord } =
       store.getState().global;
     this.pixiApp.startTime = performance.now();
@@ -180,13 +175,11 @@ class Controller {
 
   // add ticker funciton to ticker and start playing
   play() {
-    console.log("Simulation Start...");
     this.pixiApp.ticker.add(this.tickerF);
   }
 
   // remove ticker function from ticker
   stop() {
-    console.log("Simulation Stop...");
     this.pixiApp.ticker.remove(this.tickerF);
   }
 }

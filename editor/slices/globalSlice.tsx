@@ -7,6 +7,7 @@ import { IDLE, EDIT, ADD } from "../constants";
 import {
   clamp,
   updateFrameByTime,
+  updateFrameByTimeMap,
   interpolationPos,
   fadeStatus,
 } from "../utils/math";
@@ -383,12 +384,10 @@ export const globalSlice = createSlice({
       state.timeData.time = time;
 
       // set timeData.controlFrame and currentStatus
-      const tmp = [];
-      for (let id of state.controlRecord) {
-        tmp.push(state.controlMap[id]);
-      }
-      const newControlFrame = updateFrameByTime(
-        tmp,
+
+      const newControlFrame = updateFrameByTimeMap(
+        state.controlRecord,
+        state.controlMap,
         state.timeData.controlFrame,
         time
       );
