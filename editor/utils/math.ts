@@ -3,8 +3,11 @@ import {
   posRecordElement,
   coordinates,
   ControlMapElement,
+<<<<<<< HEAD
   ControlMapType,
   ControlRecordType,
+=======
+>>>>>>> b8be20e8 (__trying to rebase)
 } from "../types/globalSlice";
 
 /**
@@ -63,6 +66,7 @@ export function updateFrameByTime(data, frame: number, time: number) {
   return binarySearchFrame(data, time);
 }
 /**
+<<<<<<< HEAD
  * binarySearch based on controlRecord and controlMap (array of object with start), return the index
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
@@ -124,6 +128,8 @@ export function updateFrameByTimeMap(
   return binarySearchFrameMap(controlRecord, controlMap, time);
 }
 /**
+=======
+>>>>>>> b8be20e8 (__trying to rebase)
  * Calculate Interpolation of the position, return new position
  * @param {*} time
  * @param {*} preFrame - the position frame data (posRecord[timeData.posFrame])
