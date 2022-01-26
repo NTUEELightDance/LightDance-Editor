@@ -14,7 +14,7 @@ import Controller from "./controller";
  */
 
 const Simulator: React.FC = ({}) => {
-  const { currentStatus, currentPos } = useSelector(selectGlobal);
+  const { currentStatus, currentPos, isPlaying } = useSelector(selectGlobal);
   const [controller, setController] = useState<Controller | null>(null);
 
   useEffect(() => {
@@ -34,6 +34,17 @@ const Simulator: React.FC = ({}) => {
       controller.updateDancersPos(currentPos);
     }
   }, [controller, currentPos]);
+
+  useEffect(() => {
+    if (controller) {
+      if (isPlaying) {
+        controller.fetch();
+        controller.play();
+      } else {
+        controller.stop();
+      }
+    }
+  }, [isPlaying]);
 
   return (
     <div
