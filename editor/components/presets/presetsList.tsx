@@ -15,6 +15,13 @@ import Typography from "@material-ui/core/Typography";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 
+//types
+import { PresetList, setStatus, setPos } from "types/components/presets";
+import {
+  lightPresetsElement,
+  posPresetsElement,
+} from "types/globalSlice";
+
 const useStyles = makeStyles({
   flex: {
     display: "flex",
@@ -36,14 +43,14 @@ export default function PresetsList({
   handleEditPresets,
   handleDeletePresets,
   handleSetCurrent,
-}) {
+}: PresetList) {
   const classes = useStyles();
 
   // dialog
   const [open, setOpen] = useState(false);
   const [nameVal, setNameVal] = useState("");
   const [presetId, setPresetId] = useState(0);
-  const openDialog = (name, id) => {
+  const openDialog = (name: string, id: number) => {
     setNameVal(name);
     setPresetId(id);
     setOpen(true);
@@ -52,39 +59,58 @@ export default function PresetsList({
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e) => setNameVal(e.target.value);
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setNameVal(e.target.value);
 
+  function instanceOflightPresetsElement(
+    preset: any
+  ): preset is lightPresetsElement {
+    return 'status' in preset;
+  }
+  function instanceOfposPresetsElement(
+    preset: any
+  ): preset is posPresetsElement {
+    return 'pos' in preset;
+  }
   return (
     <div>
       <List>
-        {presets.map(({ name, status, pos }, i) => (
-          <ListItem
-            key={`${i}_preset`}
-            className={classes.flex}
-            onDoubleClick={() => handleSetCurrent(status || pos)}
-          >
-            <div className={classes.grow}>
-              <Typography variant="body1">
-                [{i}] {name}
-              </Typography>
-            </div>
-            <div>
-              <IconButton
-                className={classes.btn}
-                onClick={() => openDialog(name, i)}
-              >
-                <EditIcon />
-              </IconButton>
-              <IconButton>
-                <DeleteIcon
+        {presets.map(
+          (preset: lightPresetsElement | posPresetsElement, i: number) => (
+            <ListItem
+              key={`${i}_preset`}
+              className={classes.flex}
+              onDoubleClick={() => {
+                instanceOflightPresetsElement(preset)
+                  ? (handleSetCurrent as setStatus)(preset.status)
+                  : instanceOfposPresetsElement(preset)
+                  ? (handleSetCurrent as setPos)(preset.pos)
+                  : "";
+              }}
+            >
+              <div className={classes.grow}>
+                <Typography variant="body1">
+                  [{i}] {preset.name}
+                </Typography>
+              </div>
+              <div>
+                <IconButton
                   className={classes.btn}
-                  onClick={() => handleDeletePresets(i)}
-                />
-              </IconButton>
-            </div>
-          </ListItem>
-        ))}
-        <Dialog fullWidth size="md" open={open} onClose={closeDialog}>
+                  onClick={() => openDialog(preset.name, i)}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton>
+                  <DeleteIcon
+                    className={classes.btn}
+                    onClick={() => handleDeletePresets(i)}
+                  />
+                </IconButton>
+              </div>
+            </ListItem>
+          )
+        )}
+        <Dialog fullWidth maxWidth="md" open={open} onClose={closeDialog}>
           <DialogTitle>Preset name</DialogTitle>
           <DialogContent>
             <TextField fullWidth value={nameVal} onChange={handleChangeName} />

@@ -21,6 +21,9 @@ import { selectLoad } from "../../slices/loadSlice";
 import { getItem } from "../../utils/localStorage";
 // components
 import PresetsList from "./presetsList";
+import { string } from "prop-types";
+//types
+import { ControlMapStatus } from "types/globalSlice";
 
 /**
  * This is Presets component, list of status
@@ -34,7 +37,7 @@ export default function LightPresets() {
   const { lightPresets } = useSelector(selectGlobal);
   useEffect(() => {
     if (getItem("lightPresets")) {
-      dispatch(setLightPresets(JSON.parse(getItem("lightPresets"))));
+      dispatch(setLightPresets(JSON.parse(getItem("lightPresets") || "")));
     } else {
       dispatch(setLightPresets(loadedLightPresets));
     }
@@ -48,21 +51,22 @@ export default function LightPresets() {
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e) => setNameVal(e.target.value);
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => setNameVal(e.target.value);
 
   // dispatch
-  const handleAddPresets = (name) => {
+  const handleAddPresets = (name: string) => {
     if (name.trim() !== "") dispatch(addLightPresets(name));
     closeDialog();
   };
-  const handleEditPresets = (name, idx) => {
+  const handleEditPresets = (name: string, idx: number) => {
+    console.log()
     dispatch(editLightPresetsName({ name, idx }));
     closeDialog();
   };
-  const handleDeletePresets = (idx) => {
+  const handleDeletePresets = (idx: number) => {
     dispatch(deleteLightPresets(idx));
   };
-  const handleSetCurrentStatus = (status) => {
+  const handleSetCurrentStatus = (status: ControlMapStatus) => {
     dispatch(setCurrentStatus(status));
   };
 
@@ -81,7 +85,7 @@ export default function LightPresets() {
         />
       </div>
       <div>
-        <Dialog fullWidth size="md" open={open} onClose={closeDialog}>
+        <Dialog fullWidth maxWidth="md" open={open} onClose={closeDialog}>
           <DialogTitle>Preset name</DialogTitle>
           <DialogContent>
             <TextField fullWidth value={nameVal} onChange={handleChangeName} />

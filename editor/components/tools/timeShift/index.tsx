@@ -11,28 +11,40 @@ import TextField from "@material-ui/core/TextField";
 // slices
 import { selectGlobal, shiftFrameTime } from "../../../slices/globalSlice";
 
+//types
+import { TimeShiftTool } from "types/components/tools";
+
 const CONTROL = "control";
 const POSITION = "position";
 
-export default function TimeShift({ open, handleClose }) {
+export default function TimeShift({
+  open,
+  handleClose,
+}: {
+  open: boolean;
+  handleClose: () => void;
+}) {
   const dispatch = useDispatch();
   const { controlRecord, positionRecord } = useSelector(selectGlobal);
   // type
-  const [type, setType] = useState(CONTROL); // another is POSITION
+  const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
   const handleChangeType = () => setType(type === CONTROL ? POSITION : CONTROL);
 
   // frame index
   const [startFrame, setStartFrame] = useState(0);
   const [endFrame, setEndFrame] = useState(0);
-  const handleChangeStartFrame = (e) => setStartFrame(e.target.value);
-  const handleChangeEndFrame = (e) => setEndFrame(e.target.value);
+  const handleChangeStartFrame = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setStartFrame(e.target.valueAsNumber);
+  const handleChangeEndFrame = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEndFrame(e.target.valueAsNumber);
 
   // time
   const [shiftTime, setShiftTime] = useState(0);
-  const handleChangeShiftTime = (e) => setShiftTime(e.target.value);
+  const handleChangeShiftTime = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setShiftTime(e.target.valueAsNumber);
 
   // submit
-  const submitTimeShift = (e) => {
+  const submitTimeShift = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     const record = type === CONTROL ? controlRecord : positionRecord;
     if (startFrame < 0 || startFrame >= record.length) {
