@@ -19,14 +19,7 @@ export default function ThreeSimulator() {
 
   const [threeController, setThreeController] = useState(null);
 
-  const {
-    currentStatus,
-    currentPos,
-    posRecord,
-    controlRecord,
-    timeData,
-    isPlaying,
-  } = useSelector(selectGlobal);
+  const { currentStatus, currentPos, isPlaying } = useSelector(selectGlobal);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -38,10 +31,7 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     if (threeController) {
-      threeController.startTime = performance.now();
-      threeController.waveSuferTime = timeData.time;
-      threeController.state = { controlRecord, posRecord };
-      threeController.state.timeData = { ...timeData };
+      threeController.fetch();
       threeController.isPlaying = isPlaying;
     }
   }, [isPlaying]);

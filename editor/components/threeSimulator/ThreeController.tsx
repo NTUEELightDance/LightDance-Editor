@@ -10,7 +10,7 @@ import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
 import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
 
-//? gui is working but doen not come with a type even after installing @types/three
+//? gui is working but does not come with a type even after installing @types/three
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // three gui
 
@@ -23,6 +23,7 @@ import store from "../../store";
 import ThreeDancer from "./threeComponents/Dancer";
 
 import {
+  updateFrameByTimeMap,
   updateFrameByTime,
   interpolationPos,
   fadeStatus,
@@ -202,21 +203,10 @@ class ThreeController {
 
     // start rendering
     this.animateID = this.animate((clockDelta) => {});
-    console.log("ANIMATEID", this.animateID);
     this.renderer.render(this.scene, this.camera);
 
     // monitor perfomance and delay
     this.monitor();
-
-    //! debug
-    console.log(
-      typeof this.renderer,
-      typeof this.camera,
-      typeof this.controls,
-      typeof this.scene,
-      typeof this.composer,
-      typeof this.clock
-    );
   }
 
   // Return true if all the dancer is successfully initialized
@@ -250,36 +240,41 @@ class ThreeController {
 
   // calculate and set next frame status according to time and call updateDancers
   update(clockDelta) {
+    // calculate simluation time + waveSurferTime to find the latset frame
     const time = this.waveSuferTime + performance.now() - this.startTime;
-
     const { state } = this;
 
     // set timeData.controlFrame and currentStatus
-    const newControlFrame = updateFrameByTime(
+    const newControlFrame = updateFrameByTimeMap(
       state.controlRecord,
+      state.controlMap,
       state.timeData.controlFrame,
       time
     );
+
     state.timeData.controlFrame = newControlFrame;
+
     // status fade
     if (newControlFrame === state.controlRecord.length - 1) {
       // Can't fade
-      state.currentStatus = state.controlRecord[newControlFrame].status;
+      state.currentStatus =
+        state.controlMap[state.controlRecord[newControlFrame]].status;
     } else {
       // do fade
       state.currentStatus = fadeStatus(
         time,
-        state.controlRecord[newControlFrame],
-        state.controlRecord[newControlFrame + 1]
+        state.controlMap[state.controlRecord[newControlFrame]],
+        state.controlMap[state.controlRecord[newControlFrame + 1]]
       );
     }
 
+    // set timeData.posFrame and currentPos
     const newPosFrame = updateFrameByTime(
       state.posRecord,
-      this.state.timeData.posFrame,
+      state.timeData.posFrame,
       time
     );
-    this.state.timeData.posFrame = newPosFrame;
+    state.timeData.posFrame = newPosFrame;
     // position interpolation
     if (newPosFrame === state.posRecord.length - 1) {
       // can't interpolation
@@ -294,7 +289,8 @@ class ThreeController {
     }
 
     // set currentFade
-    state.currentFade = state.controlRecord[newControlFrame].fade;
+    state.currentFade =
+      state.controlMap[state.controlRecord[newControlFrame]].fade;
 
     // update threeDancers staus and position
     this.updateDancers();
@@ -321,6 +317,16 @@ class ThreeController {
       cancelAnimationFrame(this.animateID);
     }
     requestAnimationFrame(() => this.animate(animation));
+  }
+
+  // fetch controlRecord, controlMap, posRecord, and set Start time
+  fetch() {
+    const { timeData, controlRecord, controlMap, posRecord } =
+      store.getState().global;
+    this.startTime = performance.now();
+    this.waveSuferTime = timeData.time;
+    this.state = { controlRecord, controlMap, posRecord };
+    this.state.timeData = { ...timeData };
   }
 
   // render current scene and dancers
