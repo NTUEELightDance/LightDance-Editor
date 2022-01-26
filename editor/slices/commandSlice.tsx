@@ -1,17 +1,18 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
+import { commandState, dancerStatusType } from "../types/commandSlice";
+const initialState: commandState = {
+  play: false,
+  stop: false,
 
+  startTime: 0,
+  sysTime: 0,
+
+  dancerStatus: {},
+};
 export const commandSlice = createSlice({
   name: "command",
-  initialState: {
-    play: false,
-    stop: false,
-
-    startTime: 0,
-    sysTime: 0,
-
-    dancerStatus: {}, // { dancerName: status }
-  },
+  initialState,
   reducers: {
     setPlay: (state, action) => {
       state.play = action.payload;

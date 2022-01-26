@@ -17,7 +17,7 @@ import {
   globalState,
   ControlRecordType,
   ControlMapType,
-} from "types/globalSlice";
+} from "../types/globalSlice";
 import Action from "./ActionTypes/globalSliceActions";
 const initialState: globalState = {
   isPlaying: false, // isPlaying
@@ -153,6 +153,7 @@ export const globalSlice = createSlice({
      * Edit current Status (LED)
      * @param {} state
      */
+
     editCurrentStatusLED: (state, action: Action) => {
       const {
         dancerName,
@@ -520,13 +521,15 @@ export const globalSlice = createSlice({
         const currentControlFrame = state.timeData.controlFrame;
         if (currentControlFrame === state.controlRecord.length - 1) {
           // Can't fade
-          state.currentStatus = state.controlRecord[currentControlFrame].status;
+          state.currentStatus =
+            state.controlMap[state.controlRecord[currentControlFrame]].status;
         } else {
           // do fade
           state.currentStatus = fadeStatus(
             state.timeData.time,
-            state.controlRecord[currentControlFrame],
-            state.controlRecord[currentControlFrame + 1]
+
+            state.controlMap[state.controlRecord[currentControlFrame]],
+            state.controlMap[state.controlRecord[currentControlFrame + 1]]
           );
         }
         //reset currentPosFrame when switching mode back to IDLE

@@ -5,7 +5,7 @@ interface Fiber {
 
 type El = number;
 
-interface LED {
+export interface LED {
   src: string;
   alpha: number;
 }
@@ -15,7 +15,7 @@ interface editCurrentStatusAction {
   payload: {
     dancerName: string;
     partName: string;
-    value: El;
+    value: El | LED | Fiber;
   };
 }
 type Action = editCurrentStatusAction;
