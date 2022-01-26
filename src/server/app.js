@@ -163,6 +163,9 @@ const musicPath = path.resolve(__dirname, "..", "..", "./music");
 app.use("/music", express.static(musicPath));
 const dataPath = path.resolve(__dirname, "..", "..", "./data");
 app.use("/data", express.static(dataPath));
+const otherPath = path.resolve(__dirname, "..", "..", "./data/textures");
+app.use("/textures", express.static(otherPath));
+
 const apiRouter = require("./routes");
 app.use("/api/editor", apiRouter);
 

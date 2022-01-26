@@ -36,6 +36,7 @@
     "react-redux": "^7.2.2",
     "react-resizable": "^1.11.0",
     "redux": "^4.0.5",
+    "three": "^0.135.0",
     "wavesurfer.js": "^4.6.0",
     "ws": "^7.4.3"
   },
@@ -72,6 +73,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^3.0.0",
+    "core-js": "^3.20.3",
     "css-loader": "^5.0.1",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
