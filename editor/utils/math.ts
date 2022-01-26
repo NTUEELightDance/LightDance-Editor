@@ -183,6 +183,7 @@ export function fadeStatus(
     Object.keys(preParts).forEach((part) => {
       const preVal = preParts[part];
       const nextVal = nextParts[part];
+
       // LED Parts
       if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
         newStatus[dancer][part] = {
@@ -196,11 +197,14 @@ export function fadeStatus(
       }
       // El Parts
       else {
-        newStatus[dancer][part] = Round1(
-          ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
-            preVal
-        );
+        if (typeof preVal === "number" && typeof nextVal === "number") {
+          newStatus[dancer][part] = Round1(
+            ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
+              preVal
+          );
+        }
       }
+      // fiber Parts
     });
   });
   return newStatus;
