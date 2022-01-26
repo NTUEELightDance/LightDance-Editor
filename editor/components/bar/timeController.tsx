@@ -57,27 +57,27 @@ export default function TimeController() {
   // constant
   const from = TIMECONTROLLER;
   // handle Change
-  const handleChangeTime = (value: string) => {
+  const handleChangeTime = (value: number) => {
     dispatch(
       setTime({
         from,
-        time: parseInt(value, 10),
+        time: value,
       })
     );
   };
-  const handleChangeControlFrame = (value: string) => {
+  const handleChangeControlFrame = (value: number) => {
     dispatch(
       setControlFrame({
         from,
-        controlFrame: parseInt(value, 10),
+        controlFrame: value,
       })
     );
   };
-  const handleChangePosFrame = (value: string) => {
+  const handleChangePosFrame = (value: number) => {
     dispatch(
       setPosFrame({
         from,
-        posFrame: parseInt(value, 10),
+        posFrame: value,
       })
     );
   };
@@ -97,7 +97,7 @@ export default function TimeController() {
           placeholder="time"
           value={time}
           inputProps={{ min: 0 }}
-          onChange={(e) => handleChangeTime(e.target.value)}
+          onChange={(e) => handleChangeTime(parseInt(e.target.value, 10))}
         />
       </div>
       <div className={clsx(classes.flex, classes.marginLR)}>
@@ -107,7 +107,7 @@ export default function TimeController() {
         <div className={classes.flex}>
           <IconButton
             className={classes.frameBtn}
-            onClick={() => handleChangeControlFrame(JSON.stringify(controlFrame - 1))}
+            onClick={() => handleChangeControlFrame(controlFrame - 1)}
           >
             <ChevronLeftIcon />
           </IconButton>
@@ -120,11 +120,11 @@ export default function TimeController() {
             placeholder="status index"
             value={controlFrame}
             inputProps={{ min: 0 }}
-            onChange={(e) => handleChangeControlFrame(e.target.value)}
+            onChange={(e) => handleChangeControlFrame(parseInt(e.target.value, 10))}
           />
           <IconButton
             className={classes.frameBtn}
-            onClick={() => handleChangeControlFrame(JSON.stringify(controlFrame + 1))}
+            onClick={() => handleChangeControlFrame(controlFrame + 1)}
           >
             <ChevronRightIcon />
           </IconButton>
@@ -137,7 +137,7 @@ export default function TimeController() {
         <div className={classes.flex}>
           <IconButton
             className={classes.frameBtn}
-            onClick={() => handleChangePosFrame(JSON.stringify(posFrame - 1))}
+            onClick={() => handleChangePosFrame(posFrame - 1)}
           >
             <ChevronLeftIcon />
           </IconButton>
@@ -150,11 +150,11 @@ export default function TimeController() {
             placeholder="position index"
             value={posFrame}
             inputProps={{ min: 0 }}
-            onChange={(e) => handleChangePosFrame(e.target.value)}
+            onChange={(e) => handleChangePosFrame(parseInt(e.target.value, 10))}
           />
           <IconButton
             className={classes.frameBtn}
-            onClick={() => handleChangePosFrame(JSON.stringify(posFrame + 1))}
+            onClick={() => handleChangePosFrame(posFrame + 1)}
           >
             <ChevronRightIcon />
           </IconButton>
