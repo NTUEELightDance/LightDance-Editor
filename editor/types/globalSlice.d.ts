@@ -29,7 +29,7 @@ interface timeDataType {
   controlFrame: number; // control frame's index
   posFrame: number; // positions' index
 }
-interface coordinates {
+export interface coordinates {
   x: number;
   y: number;
   z: number;
@@ -39,7 +39,7 @@ export interface positionType {
   [index: string]: coordinates; //dancer corresponds to his/her position
 }
 
-interface posRecordElement {
+export interface posRecordElement {
   pos: positionType;
   start: number; //start time
 }

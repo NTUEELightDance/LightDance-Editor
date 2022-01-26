@@ -1,3 +1,10 @@
+import {
+  posRecordType,
+  posRecordElement,
+  coordinates,
+  ControlMapElement,
+} from "types/globalSlice";
+
 /**
  * clamp a value between mi and ma
  * @param {number} val - target
@@ -36,7 +43,7 @@ export function binarySearchFrame(data, time: number) {
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
-export function updateFrameByTime(data, frame, time: number) {
+export function updateFrameByTime(data, frame: number, time: number) {
   if (!Array.isArray(data))
     throw new Error(`[Error] updateFrameByTime, invalid parameter(data)`);
   if (typeof frame !== "number")
@@ -117,25 +124,27 @@ export function updateFrameByTimeMap(controlRecord, controlMap, frame, time) {
  * @param {*} preFrame - the position frame data (posRecord[timeData.posFrame])
  * @param {*} nextFrame - the next position frame data (posRecord[timeData.posFrame + 1])
  */
-export function interpolationPos(time: number, preFrame, nextFrame) {
+export function interpolationPos(
+  time: number,
+  preFrame: posRecordElement,
+  nextFrame: posRecordElement
+) {
   const { start: preTime, pos: prePos } = preFrame;
   const { start: nextTime, pos: nextPos } = nextFrame;
   if (preTime === undefined || prePos === undefined)
     throw new Error(
-      `[Error] interplolationPos, invalid prePosFrame ${preTime}`,
-      prePos
+      `[Error] interplolationPos, invalid prePosFrame ${preTime}, ${prePos}`
     );
   if (nextTime === undefined || nextPos === undefined)
     throw new Error(
-      `[Error] interplolationPos, invalid nextPosFrame ${nextTime}`,
-      nextPos
+      `[Error] interplolationPos, invalid nextPosFrame ${nextTime}, ${nextPos}`
     );
 
   const newPos = {};
   Object.keys(prePos).forEach((dancer) => {
     const dancerPrePos = prePos[dancer];
     const dancerNextPos = nextPos[dancer];
-    const dancerPos = {};
+    const dancerPos = {}; //should be coordinatebs
     Object.keys(dancerPrePos).forEach((x) => {
       dancerPos[x] =
         ((dancerNextPos[x] - dancerPrePos[x]) * (time - preTime)) /
@@ -157,7 +166,11 @@ function Round1(number: number) {
  * @param {*} preStatus - previous frame, controlRecord[timeData.controlFrame]
  * @param {*} nextStatus - next frame, controlRecord[timeData.controlFrame + 1]
  */
-export function fadeStatus(time: number, preFrame, nextFrame) {
+export function fadeStatus(
+  time: number,
+  preFrame: ControlMapElement,
+  nextFrame: ControlMapElement
+) {
   const { start: preTime, fade, status: preStatus } = preFrame;
   const { start: nextTime, status: nextStatus } = nextFrame;
   if (!fade) return preFrame.status; // Don't need to fade
