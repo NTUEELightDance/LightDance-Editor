@@ -52,7 +52,7 @@ interface posPresetsElement {
   name: string;
   pos: positionType;
 }
-type LightPresetsType = lightPresetsElement[];
+type lightPresetsType = lightPresetsElement[];
 type posPresetsType = posPresetsElement[];
 
 export type posRecordType = Array<posRecordElement>;
@@ -67,8 +67,8 @@ export interface globalState {
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: positionType; // currnet dancers' position
-  controlRecord: controlRecordType; // array of all IDs , each correspondsto diff status
-  controlMap: controlMapType;
+  controlRecord: ControlRecordType; // array of all IDs , each correspondsto diff status
+  controlMap: ControlMapType;
   posRecord: posRecordType; // array of all dancer's pos
   timeData: timeDataType;
   mode: number; // 0: nothing, 1: edit, 2: add
