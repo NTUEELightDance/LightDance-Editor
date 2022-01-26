@@ -29,7 +29,7 @@ interface timeDataType {
   controlFrame: number; // control frame's index
   posFrame: number; // positions' index
 }
-export interface coordinates {
+interface coordinates {
   x: number;
   y: number;
   z: number;
@@ -39,7 +39,7 @@ export interface positionType {
   [index: string]: coordinates; //dancer corresponds to his/her position
 }
 
-export interface posRecordElement {
+interface posRecordElement {
   pos: positionType;
   start: number; //start time
 }
@@ -67,8 +67,8 @@ export interface globalState {
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: positionType; // currnet dancers' position
-  controlRecord: ControlRecordType; // array of all IDs , each correspondsto diff status
-  controlMap: ControlMapType;
+  controlRecord: controlRecordType; // array of all IDs , each correspondsto diff status
+  controlMap: controlMapType;
   posRecord: posRecordType; // array of all dancer's pos
   timeData: timeDataType;
   mode: number; // 0: nothing, 1: edit, 2: add
