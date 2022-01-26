@@ -1,4 +1,4 @@
-import { Field, ObjectType, Int, Float } from "type-graphql";
+import { Field, ObjectType, ID, Float } from "type-graphql";
 import { Part } from './part'
 import { Position } from './position'
 
@@ -12,4 +12,7 @@ export class Dancer {
 
   @Field(type => [Position])
   positionData: Position[]
+
+  @Field(type => ID)
+  id: string
 }

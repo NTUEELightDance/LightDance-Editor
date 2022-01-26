@@ -7,11 +7,6 @@ input AddDancerInput {
   name: String!
 }
 
-input AddPartForDancer {
-  partName: String!
-  partType: String!
-}
-
 input AddPartInput {
   dancerName: String!
   name: String!
@@ -63,6 +58,7 @@ enum ControlType {
 }
 
 type Dancer {
+  id: ID!
   name: String!
   parts: [Part!]!
   positionData: [Position!]!
@@ -78,6 +74,15 @@ type DancerPayload {
   dancerData: Dancer
   editBy: String!
   mutation: dancerMutation!
+input editDancerInput {
+  id: ID!
+  name: String!
+}
+
+input EditPartInput {
+  id: ID!
+  name: String!
+  type: String!
 }
 
 type EL {
@@ -95,13 +100,16 @@ type LED {
 }
 
 type Mutation {
-  addDancer(dancer: AddDancerInput!, parts: AddPartForDancer!): Dancer!
+  addDancer(dancer: AddDancerInput!): Dancer!
   addPart(part: AddPartInput!): Part!
+  editDancer(dancer: editDancerInput!): Dancer!
+  editPart(part: EditPartInput!): Part!
   updateColor(color: ColorInput!): String!
 }
 
 type Part {
   controlData: [Control!]!
+  id: ID!
   name: String!
   type: ControlType!
 }
@@ -121,7 +129,9 @@ type PositionFrame {
 
 type Query {
   color(color: String!): String!
+  controlFrameIDs: [ID!]!
   dancer: [Dancer!]!
+  positionFrameIDs: [ID!]!
 }
 
 type Subscription {

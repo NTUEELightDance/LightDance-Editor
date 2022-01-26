@@ -6,10 +6,10 @@ export const ControlDevice = createUnionType({
     types: () => [FIBER, LED, EL] as const,
     resolveType: value => {
         if ("color" in value) {
-            return FIBER; // we can return object type class (the one with `@ObjectType()`)
+            return FIBER;
         }
         if ("value" in value) {
-            return EL; // or the schema name of the type as a string
+            return EL;
         }
         if ("src" in value) {
             return LED
@@ -19,7 +19,7 @@ export const ControlDevice = createUnionType({
 })
 
 @ObjectType()
-class FIBER {
+export class FIBER {
 
 
     @Field(type => String)

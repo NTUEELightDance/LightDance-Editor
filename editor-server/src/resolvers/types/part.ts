@@ -1,4 +1,4 @@
-import { Field, ObjectType, Resolver, FieldResolver, Root, Ctx } from "type-graphql";
+import { Field, ObjectType, ID, Float } from "type-graphql";
 import { Control } from './control'
 import { ControlType } from "./controlType";
 
@@ -13,18 +13,8 @@ export class Part {
 
     @Field(type => [Control])
     controlData: Control[]
+
+    @Field(type => ID)
+    id: string
 }
 
-@Resolver(of => Part)
-export class PartResolver {
-    @FieldResolver()
-    async controlData(@Root() part: any, @Ctx() ctx: any) {
-        console.log(part)
-        const controlDataRef = part.controlData
-        let data = controlDataRef.map(async (ref: string) => {
-            await ctx.db.Control.findOne({ _id: ref })
-        })
-        console.log(data)
-        return data
-    }
-}

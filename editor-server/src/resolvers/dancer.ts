@@ -12,14 +12,14 @@ import {
 import { Control } from './types/control';
 import { Part } from './types/part';
 import { Dancer } from './types/dancer';
-import { AddDancerInput } from './inputs/dancer';
+import { AddDancerInput, editDancerInput } from './inputs/dancer';
 import { PositionFrame } from './types/positionFrame';
 import { Position } from './types/position'
 import { Topic } from './subscriptions/topic';
 import { DancerPayload, dancerMutation } from './subscriptions/dancer';
 import { ControlFrame } from './types/controlFrame';
 
-@Resolver()
+@Resolver(of => Dancer)
 export class DancerResolver {
     @Query(returns => [Dancer])
     async dancer(@Ctx() ctx: any) {
@@ -55,19 +55,31 @@ export class DancerResolver {
         return dancerData
     }
 
+    @Mutation(returns => Dancer)
+    async editDancer(@Arg("dancer") newDancerData: editDancerInput, @Ctx() ctx: any): Promise<Dancer> {
+        const { id, name } = newDancerData
+        return ctx.db.Dancer.findOneAndUpdate({ _id: id }, { name }).populate('parts').populate('positionData')
 
+    }
+
+    @FieldResolver()
+    id(@Root() dancer: any, @Ctx() ctx: any) {
+        return dancer._id
+    }
 }
 
 @Resolver(of => Control)
 export class ControlResolver {
     @FieldResolver()
-    async frame(@Root() control: Control, @Ctx() ctx: any) {
+    async frame(@Root() control: any, @Ctx() ctx: any) {
+        console.log(control.frame)
         let data = await ctx.db.ControlFrame.findOne({ _id: control.frame })
         return data
     }
 
     @FieldResolver()
     async status(@Root() control: any, @Ctx() ctx: any) {
+
         return control.value
     }
 }
@@ -82,20 +94,7 @@ export class PositionResolver {
     }
 }
 
-@Resolver(of => PositionFrame)
-export class PositionFrameResolver {
-    @FieldResolver()
-    async id(@Root() positionframe: any, @Ctx() ctx: any) {
-        return positionframe._id
-    }
-}
 
-@Resolver(of => ControlFrame)
-export class ControlFrameResolver {
-    @FieldResolver()
-    async id(@Root() controlframe: any, @Ctx() ctx: any) {
-        return controlframe._id
-    }
-}
+
 
 

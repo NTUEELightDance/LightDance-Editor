@@ -1,4 +1,4 @@
-import { InputType, Field } from "type-graphql";
+import { InputType, Field, ID } from "type-graphql";
 import { ControlType } from "../types/controlType";
 
 @InputType()
@@ -11,5 +11,18 @@ export class AddPartInput {
 
     @Field()
     dancerName: string
+
+}
+
+@InputType()
+export class EditPartInput {
+    @Field(type => ID)
+    id: string
+
+    @Field()
+    name: string
+
+    @Field()
+    type: ControlType
 
 }
