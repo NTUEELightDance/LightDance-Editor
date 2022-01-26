@@ -18,13 +18,13 @@ export default function PosList() {
   const dispatch = useDispatch();
 
   // select item, change posFrame
-  const handleSelectItem = (idx) => {
+  const handleSelectItem = (idx: number) => {
     dispatch(setPosFrame({ from: POSEDITOR, posFrame: idx }));
   };
 
   return (
     <List component="nav">
-      {posRecord.map((pos, idx) => (
+      {posRecord.map((pos, idx: number) => (
         <ListItem
           // eslint-disable-next-line react/no-array-index-key
           key={`posItem_${idx}`}
