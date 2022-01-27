@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import "dotenv-defaults/config"
 import {initData} from "./utility"
+import { syncBuiltinESMExports } from "module";
 
 export default () => {
     const { MONGO_HOST, MONGO_DBNAME } = process.env;
@@ -10,7 +11,10 @@ export default () => {
         useUnifiedTopology: true,
     }).then((res)=>{
         console.log("mongo db connection created")
-        initData()
     })
     const db = mongoose.connection
+    db.once("open", async () => {
+        // await db.dropDatabase()
+        initData()
+    })
 }
