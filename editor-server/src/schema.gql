@@ -83,6 +83,13 @@ type DancerPayload {
   mutation: dancerMutation!
 }
 
+input EditControlFrameInput {
+  fade: Boolean!
+  id: String!
+  start: Float!
+  user: String!
+}
+
 input editDancerInput {
   id: ID!
   name: String!
@@ -109,8 +116,10 @@ type LED {
 }
 
 type Mutation {
+  addControlFrame(start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): Dancer!
   addPart(part: AddPartInput!): Part!
+  editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editDancer(dancer: editDancerInput!): Dancer!
   editPart(part: EditPartInput!): Part!
   updateColor(color: ColorInput!): String!
@@ -138,6 +147,7 @@ type PositionFrame {
 
 type Query {
   color(color: String!): String!
+  controlFrame(start: Float!): ControlFrame!
   controlFrameIDs: [ID!]!
   ControlMap: ControlMap!
   dancer: [Dancer!]!
