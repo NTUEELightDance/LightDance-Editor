@@ -66,11 +66,14 @@ class ThreeDancer {
       this.skeleton = new THREE.SkeletonHelper(this.model);
       this.skeleton.visible = false;
 
-      this.scene.add(this.model);
-      this.scene.add(this.skeleton);
       this.model.position.setX(position.x);
       this.model.position.setY(position.y);
       this.model.position.setZ(position.z);
+      this.model.scale.set(1.3, 1.3, 1.3);
+
+      this.scene.add(this.model);
+      this.scene.add(this.skeleton);
+
       this.initialized = true;
     };
     loader.load("/asset/models/remy_with_sword.glb", initModel.bind(this));

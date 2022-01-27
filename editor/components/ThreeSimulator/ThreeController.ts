@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { DragControls } from "three/examples/jsm/controls/DragControls";
 // three.js
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
@@ -41,7 +42,7 @@ class ThreeController {
 
   renderer: THREE.WebGLRenderer | null;
   camera: THREE.PerspectiveCamera | null;
-  controls: OrbitControls | null;
+  orbitControls: OrbitControls | null;
   // THREE.Object3D<THREE.Event>
   scene: THREE.Scene | null;
   composer: EffectComposer | null;
@@ -62,14 +63,14 @@ class ThreeController {
     // Basic attributes for three.js
     this.renderer = null;
     this.camera = null;
-    this.controls = null;
+    this.orbitControls = null;
     this.scene = null;
     this.composer = null;
     this.clock = null;
 
     // Configuration of the scene
-    this.height = 500;
-    this.width = 1500;
+    this.height = 600;
+    this.width = 800;
 
     // Dancer
     this.dancers = {};
@@ -112,6 +113,7 @@ class ThreeController {
 
     // Add a camera to view the scene, all the parameters are customizable
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
     camera.position.set(
       -0.27423481610277156,
       3.9713106563331033,
@@ -133,11 +135,11 @@ class ThreeController {
     this.camera = camera;
 
     // Add a orbit control to view the scene from different perspectives and scales
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enablePan = true;
-    controls.enableZoom = true;
+    const orbitControls = new OrbitControls(camera, renderer.domElement);
+    orbitControls.enablePan = true;
+    orbitControls.enableZoom = true;
     // controls.screenSpacePanning = true;
-    controls.target.set(
+    orbitControls.target.set(
       -0.7125719340319995,
       2.533987823530335,
       -0.07978443261089622
@@ -148,12 +150,12 @@ class ThreeController {
     //   2.128295812145451,
     //   16.22834309576409
     // );
-    controls.update();
-    this.controls = controls;
+    orbitControls.update();
+    this.orbitControls = orbitControls;
 
     // Add a background scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x00000);
+    scene.background = new THREE.Color(0x000000);
 
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
@@ -182,6 +184,8 @@ class ThreeController {
     // Initialization of all dancers with currentPos
     const currentPos = reactiveState.currentPos();
 
+    this.objects = [];
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
     Object.entries(currentPos).forEach(([name, position], i) => {
       if (!name.includes("sw")) {
         const newDancer = new ThreeDancer(this.scene, name);
@@ -190,8 +194,21 @@ class ThreeController {
           y: 0,
           z: position.z / 35,
         };
+
         newDancer.addModel2Scene(newPos);
         this.dancers[name] = newDancer;
+
+        // Add a box for control
+        const object = new THREE.Mesh(
+          geometry,
+          new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff })
+        );
+        object.position.set(position.x / 35, 0, position.z / 35);
+        object.userData["name"] = name;
+        // object.visible = false;
+        this.objects.push(object);
+        this.scene.add(object);
+        console.log(object);
       }
     });
 
@@ -209,6 +226,104 @@ class ThreeController {
   // Return true if all the dancer is successfully initialized
   initialized() {
     return Object.values(this.dancers).every((dancer) => dancer.initialized);
+  }
+
+  dragControlInit() {
+    this.enableSelection = false;
+    this.mouse = new THREE.Vector2();
+    this.raycaster = new THREE.Raycaster();
+
+    // this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
+    this.group = new THREE.Group();
+    this.scene.add(this.group);
+    this.dragControls = new DragControls(
+      [...this.objects],
+      this.camera,
+      this.renderer.domElement
+    );
+    console.log(this.dragControls);
+    this.dragControls.enabled = false;
+    this.dragControls.addEventListener("drag", (event) => {
+      this.render();
+      const { name } = event.object.userData;
+      const { position } = event.object;
+      this.dancers[name].model.position.set(position.x, 0, position.z);
+    });
+
+    console.log("DragControls initialized");
+
+    addEventListener("click", this.onClick.bind(this));
+    addEventListener("keydown", this.onKeyDown.bind(this));
+    addEventListener("keyup", this.onKeyUp.bind(this));
+  }
+
+  onKeyDown(event) {
+    // hold ctrl to enable grouping
+    if (event.keyCode === 16) {
+      this.enableSelection = true;
+      console.log("groupControl enabled");
+    }
+    // press v to enable moving
+    if (event.keyCode === 86) {
+      this.dragControls.enabled = !this.dragControls.enabled;
+      this.orbitControls.enabled = !this.orbitControls.enabled;
+
+      this.objects.forEach((o) => {
+        const { name } = o.userData;
+        const { position } = this.dancers[name].model;
+        o.position.set(position.x, 0, position.z);
+      });
+
+      console.log(`dragControls ${this.dragControls.enabled}`);
+    }
+  }
+
+  onKeyUp(event) {
+    if (event.keyCode === 16) {
+      this.enableSelection = false;
+      console.log("groupControl disabled");
+    }
+  }
+
+  onClick(event) {
+    event.preventDefault();
+    console.log(`onClick: ${this.enableSelection}`);
+
+    if (this.enableSelection === true) {
+      const draggableObjects = this.dragControls.getObjects();
+      draggableObjects.length = 0;
+
+      const rect = this.renderer.domElement.getBoundingClientRect();
+
+      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      const intersections = this.raycaster.intersectObjects(this.objects, true);
+      console.log(intersections);
+
+      if (intersections.length > 0) {
+        const object = intersections[0].object;
+
+        if (this.group.children.includes(object) === true) {
+          object.material.emissive.set(0x000000);
+          this.scene.attach(object);
+        } else {
+          object.material.emissive.set(0xaaaaaa);
+          this.group.attach(object);
+        }
+
+        this.dragControls.transformGroup = true;
+        draggableObjects.push(this.group);
+      }
+
+      if (this.group.children.length === 0) {
+        this.dragControls.transformGroup = false;
+        draggableObjects.push(...this.objects);
+      }
+    }
+    this.render();
   }
 
   // Monitor fps, memory and delay
