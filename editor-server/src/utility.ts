@@ -1,7 +1,7 @@
 import model from "./models"
 import "dotenv-defaults/config"
 
-const initData = async() => {
+const initData = async () => {
     await model.User.deleteMany()
     // const saltRounds = 10;
     // await Promise.all(
@@ -14,6 +14,12 @@ const initData = async() => {
     // )
 }
 
+const generateID = () => {
+    var unique = new Date().valueOf();
+    return (unique % 1000000000).toString(32);
+}
+
 export {
-    initData
+    initData,
+    generateID
 }

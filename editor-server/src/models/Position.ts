@@ -12,6 +12,7 @@ const PositionSchema = new Schema({
   x: Number,
   y: Number,
   z: Number,
+
 });
 
 // Creating a table within database with the defined schema

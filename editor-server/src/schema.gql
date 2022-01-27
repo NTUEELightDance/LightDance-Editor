@@ -152,6 +152,13 @@ type Query {
   ControlMap: ControlMap!
   dancer: [Dancer!]!
   positionFrameIDs: [ID!]!
+  RequestEditControl(FrameID: String!): RequestEditResponse!
+  RequestEditPosition(FrameID: String!): RequestEditResponse!
+}
+
+type RequestEditResponse {
+  editing: String!
+  ok: Boolean!
 }
 
 type Subscription {

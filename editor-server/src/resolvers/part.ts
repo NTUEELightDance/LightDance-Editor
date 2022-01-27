@@ -18,18 +18,29 @@ import { Position } from './types/position'
 import { ControlDefault } from './types/controlType';
 import { Topic } from './subscriptions/topic';
 import { DancerPayload, dancerMutation } from './subscriptions/dancer';
+import { generateID } from '../utility';
 
 @Resolver(of => Part)
 export class PartResolver {
     @Mutation(returns => Part)
     async addPart(
         @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
-        @Arg("part") newPartData: AddPartInput, 
+        @Arg("part") newPartData: AddPartInput,
         @Ctx() ctx: any
     ): Promise<Part> {
-        let newPart = new ctx.db.Part({ name: newPartData.name, type: newPartData.type, value: ControlDefault[newPartData.type] })
+        const existDancer = await ctx.db.Dancer.findOne({ name: newPartData.dancerName }).populate('parts')
+        if (existDancer) {
+            const duplicatePartName = existDancer.parts.filter((part: Part) => part.name === newPartData.name);
+            console.log(duplicatePartName)
+            if (duplicatePartName.length === 0) {
+                console.log("no duplicate")
+            }
+        }
+
+
+
+        let newPart = new ctx.db.Part({ name: newPartData.name, type: newPartData.type, value: ControlDefault[newPartData.type], id: generateID() })
         let allControlFrames = await ctx.db.ControlFrame.find()
-        console.log(allControlFrames)
         allControlFrames.map(async (controlframe: ControlFrame) => {
             let newControl = new ctx.db.Control({ frame: controlframe.id, value: ControlDefault[newPartData.type] })
             newPart.controlData.push(newControl._id)
@@ -38,7 +49,6 @@ export class PartResolver {
 
         // for each position frame, add empty position data to the dancer
         const dancer = await ctx.db.Dancer.update({ name: newPartData.dancerName }, { $push: { parts: newPart._id } })
-        console.log(dancer)
         const result = await newPart.save()
         const dancerData = await ctx.db.Dancer.findOne({ name: newPartData.dancerName }).populate('parts').populate('positionData')
         const payload: DancerPayload = {
@@ -54,7 +64,7 @@ export class PartResolver {
     @Mutation(returns => Part)
     async editPart(
         @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
-        @Arg("part") newPartData: EditPartInput, 
+        @Arg("part") newPartData: EditPartInput,
         @Ctx() ctx: any
     ): Promise<Part> {
         const { id, name, type } = newPartData
@@ -80,20 +90,15 @@ export class PartResolver {
     async controlData(@Root() part: any, @Ctx() ctx: any) {
         const result = await Promise.all(part.controlData.map(async (ref: string) => {
             const data = await ctx.db.Control.findOne({ _id: ref }).populate("frame")
-            console.log(data)
             return data
         })).then(result => {
             // console.log(result)
             return result
         })
-        console.log(result)
         // return data
 
         return result
     }
 
-    @FieldResolver()
-    id(@Root() part: any, @Ctx() ctx: any) {
-        return part._id
-    }
+
 }

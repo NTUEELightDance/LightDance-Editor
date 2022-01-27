@@ -12,7 +12,9 @@ const PartSchema = new Schema({
     type: String,
     required: [true, "type field is required."],
   },
-  controlData: [{ type: mongoose.Types.ObjectId, ref: "Control" }]
+  controlData: [{ type: mongoose.Types.ObjectId, ref: "Control" }],
+  id: { type: String, required: [true, "id is needed"] }
+
 });
 
 // Creating a table within database with the defined schema

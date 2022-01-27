@@ -17,7 +17,7 @@ import { PositionFrame } from './types/positionFrame';
 import { Position } from './types/position'
 import { Topic } from './subscriptions/topic';
 import { DancerPayload, dancerMutation } from './subscriptions/dancer';
-import { ControlFrame } from './types/controlFrame';
+import { generateID } from '../utility';
 
 @Resolver(of => Dancer)
 export class DancerResolver {
@@ -33,11 +33,15 @@ export class DancerResolver {
         @Arg("dancer") newDancerData: AddDancerInput,
         @Ctx() ctx: any
     ): Promise<Dancer> {
-        let newDancer = new ctx.db.Dancer({ name: newDancerData.name, parts: [], positionData: [] })
+        const existDancer = await ctx.db.Dancer.findOne({ name: newDancerData.name })
+        if (!existDancer) {
+            console.log("duplicate")
+
+        }
+        let newDancer = new ctx.db.Dancer({ name: newDancerData.name, parts: [], positionData: [], id: generateID() })
 
         // for each position frame, add empty position data to the dancer
         let allPositionFrames = await ctx.db.PositionFrame.find()
-        console.log(allPositionFrames)
         allPositionFrames.map(async (positionframe: PositionFrame) => {
             let newPosition = new ctx.db.Position({ frame: positionframe.id, x: 0, y: 0, z: 0 })
             newDancer.positionData.push(newPosition)
@@ -56,25 +60,9 @@ export class DancerResolver {
     }
 
     @Mutation(returns => Dancer)
-    async editDancer(
-        @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
-        @Arg("dancer") newDancerData: editDancerInput, 
-        @Ctx() ctx: any
-    ): Promise<Dancer> {
+    async editDancer(@Arg("dancer") newDancerData: editDancerInput, @Ctx() ctx: any): Promise<Dancer> {
         const { id, name } = newDancerData
-        const dancerData = ctx.db.Dancer.findOneAndUpdate({ _id: id }, { name }).populate('parts').populate('positionData')
-        const payload: DancerPayload = {
-            mutation: dancerMutation.UPDATED,
-            editBy: ctx.userID,
-            dancerData
-        }
-        await publish(payload)
-        return dancerData
-    }
-
-    @FieldResolver()
-    id(@Root() dancer: any, @Ctx() ctx: any) {
-        return dancer._id
+        return ctx.db.Dancer.findOneAndUpdate({ id }, { name }).populate('parts').populate('positionData')
     }
 }
 
