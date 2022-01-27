@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "file-server": "cd ./file-server && yarn start",
-    "editor": "cd ./editor && yarn start",
-    "editor-server": "cd ./editor-server && yarn start",
-    "controller-server": "cd ./controller-server && yarn start",
-    "deploy": "NODE_ENV=prod node src/server/app.js"
+    "install:editor": "yarn --cwd ./editor",
+    "install:editor-server": "yarn --cwd ./editor-server",
+    "install:controller-server": "yarn --cwd ./controller-server",
+    "install:file-server": "yarn --cwd ./file-server",
+    "install:all": "(yarn install:editor); (yarn install:editor-server); (yarn install:controller-server); (yarn install:file-server)",
+    "dev:file-server": "cd ./file-server && yarn start",
+    "dev:editor": "cd ./editor && yarn start",
+    "dev:editor-server": "cd ./editor-server && yarn start",
+    "dev:controller-server": "cd ./controller-server && yarn start"
   },
   "browserslist": {
     "production": [
