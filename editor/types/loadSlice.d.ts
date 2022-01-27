@@ -65,7 +65,7 @@ export interface loadType {
 export interface loadState {
   init: boolean;
   music: string; // load music path
-  load: any;
+  load: loadType;
   control: ControlRecordType; // loaded control.json, may not be same as localStorage (this is for default)
   controlMap: ControlMapType; // loaded controlMap.json
   position: posRecordType; // loaded position.json, may not be same as localStorage (this is for default)

@@ -15,10 +15,17 @@ import { setItem, getItem } from "../utils/localStorage";
 import { nanoid } from "nanoid";
 import {
   globalState,
-  ControlRecordType,
   ControlMapType,
+  ControlRecordType,
+  posRecordType,
+  ControlMapStatus,
+  LED,
+  positionType,
+  lightPresetsType,
+  posPresetsType,
 } from "../types/globalSlice";
-import Action from "./ActionTypes/globalSliceActions";
+import { RootState } from "../store/index";
+
 const initialState: globalState = {
   isPlaying: false, // isPlaying
   selected: [], // array of selected dancer's name
@@ -61,7 +68,13 @@ export const globalSlice = createSlice({
      * @param {*} state - redux state
      * @param {array} action.payload - controlRecord
      */
-    controlInit: (state, action) => {
+    controlInit: (
+      state,
+      action: PayloadAction<{
+        controlRecord: ControlRecordType;
+        controlMap: ControlMapType;
+      }>
+    ) => {
       const { controlRecord, controlMap } = action.payload;
       if (controlRecord.length === 0)
         throw new Error(`[Error] controlInit, controlRecord is empty `);
@@ -75,7 +88,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {object} action.payload - posRecord
      */
-    posInit: (state, action) => {
+    posInit: (state, action: PayloadAction<posRecordType>) => {
       const posRecord = action.payload;
       if (posRecord.length === 0)
         throw new Error(`[Error] posInit, posRecord is empty `);
@@ -89,7 +102,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {array of number} action.payload - array of dancer's name
      */
-    setSelected: (state, action) => {
+    setSelected: (state, action: PayloadAction<string[]>) => {
       state.selected = action.payload;
     },
 
@@ -98,7 +111,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {string} action.payload - one of dancer's name
      */
-    toggleSelected: (state, action) => {
+    toggleSelected: (state, action: PayloadAction<string>) => {
       const name = action.payload;
       if (state.selected.includes(name)) {
         // delete the name
@@ -111,7 +124,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    setCurrentFade: (state, action) => {
+    setCurrentFade: (state, action: PayloadAction<boolean>) => {
       const fade = action.payload;
       if (typeof fade !== "boolean")
         throw new Error(
@@ -135,16 +148,23 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload - status
      */
-    setCurrentStatus: (state, action) => {
+    setCurrentStatus: (state, action: PayloadAction<ControlMapStatus>) => {
       state.currentStatus = action.payload;
     },
 
     /**
      * Edit current Status
      * @param {} state
-     * @param {*} action.payload - { dancerName, partName, value}
+     * @param {*} action.payload - { dancerName, partName, value} to set EL part
      */
-    editCurrentStatus: (state, action: Action) => {
+    editCurrentStatus: (
+      state,
+      action: PayloadAction<{
+        dancerName: string;
+        partName: string;
+        value: number;
+      }>
+    ) => {
       const { dancerName, partName, value } = action.payload;
       state.currentStatus[dancerName][partName] = value;
     },
@@ -154,16 +174,23 @@ export const globalSlice = createSlice({
      * @param {} state
      */
 
-    editCurrentStatusLED: (state, action: Action) => {
+    editCurrentStatusLED: (
+      state,
+      action: PayloadAction<{
+        dancerName: string;
+        partName: string;
+        value: { src: string; alpha: number };
+      }>
+    ) => {
       const {
         dancerName,
         partName,
         value: { src, alpha },
       } = action.payload;
       if (src && src !== "")
-        state.currentStatus[dancerName][partName].src = src;
+        (state.currentStatus[dancerName][partName] as LED).src = src;
       if (typeof alpha === "number")
-        state.currentStatus[dancerName][partName].alpha = alpha;
+        (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
     },
 
     /**
@@ -264,7 +291,15 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {object} action.payload - new dancer's pos
      */
-    setCurrentPosByName: (state, action) => {
+    setCurrentPosByName: (
+      state,
+      action: PayloadAction<{
+        name: string;
+        x: number;
+        y: number;
+        z: number;
+      }>
+    ) => {
       const { name, x, y, z } = action.payload;
       if (!state.currentPos[name])
         throw new Error(
@@ -286,7 +321,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload - new pos
      */
-    setCurrentPos: (state, action) => {
+    setCurrentPos: (state, action: PayloadAction<positionType>) => {
       state.currentPos = action.payload;
     },
 
@@ -371,7 +406,7 @@ export const globalSlice = createSlice({
      * @param {} state
      * @param {*} action.payload - number
      */
-    setTime: (state, action) => {
+    setTime: (state, action: PayloadAction<{ from: string; time: number }>) => {
       let { from, time } = action.payload;
       if (from === undefined || time === undefined) {
         throw new Error(
@@ -437,7 +472,13 @@ export const globalSlice = createSlice({
      * @param {} state
      * @param {*} action.payload - number
      */
-    setControlFrame: (state, action) => {
+    setControlFrame: (
+      state,
+      action: PayloadAction<{
+        from: string;
+        controlFrame: number;
+      }>
+    ) => {
       let { from, controlFrame } = action.payload;
       if (from === undefined || controlFrame === undefined) {
         throw new Error(
@@ -470,7 +511,13 @@ export const globalSlice = createSlice({
      * @param {} state
      * @param {*} action.payload - number
      */
-    setPosFrame: (state, action) => {
+    setPosFrame: (
+      state,
+      action: PayloadAction<{
+        from: string;
+        posFrame: number;
+      }>
+    ) => {
       let { from, posFrame } = action.payload;
       if (from === undefined || posFrame === undefined) {
         throw new Error(
@@ -505,7 +552,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {number} action.payload - new mode
      */
-    setMode: (state, action) => {
+    setMode: (state, action: PayloadAction<number>) => {
       state.mode = action.payload;
     },
 
@@ -514,7 +561,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {number} action.payload - new mode
      */
-    toggleMode: (state, action) => {
+    toggleMode: (state, action: PayloadAction<number>) => {
       if (action.payload === state.mode) {
         state.mode = IDLE;
         //reset currentStatus when switching mode back to IDLE
@@ -553,7 +600,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    setLightPresets: (state, action) => {
+    setLightPresets: (state, action: PayloadAction<lightPresetsType>) => {
       state.lightPresets = action.payload;
       setItem("lightPresets", JSON.stringify(state.lightPresets));
     },
@@ -563,7 +610,10 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload - index and newName
      */
-    editLightPresetsName: (state, action) => {
+    editLightPresetsName: (
+      state,
+      action: PayloadAction<{ name: string; idx: number }>
+    ) => {
       const { name, idx } = action.payload;
       state.lightPresets[idx].name = name;
       setItem("lightPresets", JSON.stringify(state.lightPresets));
@@ -574,7 +624,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload
      */
-    addLightPresets: (state, action) => {
+    addLightPresets: (state, action: PayloadAction<string>) => {
       const name = action.payload;
       state.lightPresets.push({ name, status: state.currentStatus });
       setItem("lightPresets", JSON.stringify(state.lightPresets));
@@ -585,7 +635,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    deleteLightPresets: (state, action) => {
+    deleteLightPresets: (state, action: PayloadAction<number>) => {
       const idx = action.payload;
       state.lightPresets.splice(idx, 1);
       setItem("lightPresets", JSON.stringify(state.lightPresets));
@@ -596,7 +646,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    setPosPresets: (state, action) => {
+    setPosPresets: (state, action: PayloadAction<posPresetsType>) => {
       state.posPresets = action.payload;
       setItem("posPresets", JSON.stringify(state.posPresets));
     },
@@ -606,7 +656,13 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload - index and newName
      */
-    editPosPresetsName: (state, action) => {
+    editPosPresetsName: (
+      state,
+      action: PayloadAction<{
+        name: string;
+        idx: number;
+      }>
+    ) => {
       const { name, idx } = action.payload;
       state.posPresets[idx].name = name;
       setItem("posPresets", JSON.stringify(state.posPresets));
@@ -617,7 +673,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload
      */
-    addPosPresets: (state, action) => {
+    addPosPresets: (state, action: PayloadAction<string>) => {
       const name = action.payload;
       state.posPresets.push({ name, pos: state.currentPos });
       setItem("posPresets", JSON.stringify(state.posPresets));
@@ -628,7 +684,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    deletePosPresets: (state, action) => {
+    deletePosPresets: (state, action: PayloadAction<number>) => {
       const idx = action.payload;
       state.posPresets.splice(idx, 1);
       setItem("posPresets", JSON.stringify(state.posPresets));
@@ -637,7 +693,15 @@ export const globalSlice = createSlice({
     /**
      * Shift frame time from startFrame to endFrame += shiftTime
      */
-    shiftFrameTime: (state, action) => {
+    shiftFrameTime: (
+      state,
+      action: PayloadAction<{
+        type: string;
+        startFrame: number;
+        endFrame: number;
+        shiftTime: number;
+      }>
+    ) => {
       const { type, startFrame, endFrame, shiftTime } = action.payload;
       console.log(type, startFrame, endFrame, shiftTime);
 
@@ -654,7 +718,7 @@ export const globalSlice = createSlice({
       } else {
         const posRecordCopy = [...state.posRecord];
         for (let i = Number(startFrame); i <= Number(endFrame); i += 1) {
-          posRecordCopy[i] += shiftTime;
+          posRecordCopy[i].start += shiftTime;
         }
         posRecordCopy.sort((a, b) => a.start - b.start);
       }
@@ -705,6 +769,6 @@ export const {
   shiftFrameTime,
 } = globalSlice.actions;
 
-export const selectGlobal = (state) => state.global;
+export const selectGlobal = (state: RootState) => state.global;
 
 export default globalSlice.reducer;

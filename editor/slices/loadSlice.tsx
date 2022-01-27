@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
-import { loadState, textureType } from "../types/loadSlice";
+import { loadState, textureType, loadType } from "../types/loadSlice";
 const initialState: loadState = {
   init: false,
   music: "",
-  load: {},
+  load: {} as loadType,
   control: [],
   controlMap: {},
   position: [],
