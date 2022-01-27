@@ -1,10 +1,19 @@
+import {
+  posRecordType,
+  posRecordElement,
+  coordinates,
+  ControlMapElement,
+  ControlMapType,
+  ControlRecordType,
+} from "types/globalSlice";
+
 /**
  * clamp a value between mi and ma
  * @param {number} val - target
  * @param {number} mi - lowerbound of the target
  * @param {number} ma - upperbound of the target
  */
-export function clamp(val, mi, ma) {
+export function clamp(val: number, mi: number, ma: number) {
   // eslint-disable-next-line no-nested-ternary
   return val > ma ? ma : val < mi ? mi : val;
 }
@@ -14,7 +23,7 @@ export function clamp(val, mi, ma) {
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrame(data, time) {
+export function binarySearchFrame(data, time: number) {
   if (!Array.isArray(data))
     throw new Error(`[Error] binarySearchFrame, invalid parameter(data)`);
   if (typeof time !== "number")
@@ -36,7 +45,7 @@ export function binarySearchFrame(data, time) {
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
-export function updateFrameByTime(data, frame, time) {
+export function updateFrameByTime(data, frame: number, time: number) {
   if (!Array.isArray(data))
     throw new Error(`[Error] updateFrameByTime, invalid parameter(data)`);
   if (typeof frame !== "number")
@@ -53,13 +62,12 @@ export function updateFrameByTime(data, frame, time) {
   }
   return binarySearchFrame(data, time);
 }
-
 /**
  * binarySearch based on controlRecord and controlMap (array of object with start), return the index
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrameMap(controlRecord, controlMap, time) {
+export function binarySearchFrameMap(controlRecord, controlMap, time: number) {
   if (!Array.isArray(controlRecord))
     throw new Error(
       `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
@@ -87,7 +95,12 @@ export function binarySearchFrameMap(controlRecord, controlMap, time) {
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
-export function updateFrameByTimeMap(controlRecord, controlMap, frame, time) {
+export function updateFrameByTimeMap(
+  controlRecord,
+  controlMap,
+  frame: number,
+  time: number
+) {
   if (!Array.isArray(controlRecord))
     throw new Error(
       `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
@@ -110,32 +123,33 @@ export function updateFrameByTimeMap(controlRecord, controlMap, frame, time) {
   }
   return binarySearchFrameMap(controlRecord, controlMap, time);
 }
-
 /**
  * Calculate Interpolation of the position, return new position
  * @param {*} time
  * @param {*} preFrame - the position frame data (posRecord[timeData.posFrame])
  * @param {*} nextFrame - the next position frame data (posRecord[timeData.posFrame + 1])
  */
-export function interpolationPos(time, preFrame, nextFrame) {
+export function interpolationPos(
+  time: number,
+  preFrame: posRecordElement,
+  nextFrame: posRecordElement
+) {
   const { start: preTime, pos: prePos } = preFrame;
   const { start: nextTime, pos: nextPos } = nextFrame;
   if (preTime === undefined || prePos === undefined)
     throw new Error(
-      `[Error] interplolationPos, invalid prePosFrame ${preTime}`,
-      prePos
+      `[Error] interplolationPos, invalid prePosFrame ${preTime}, ${prePos}`
     );
   if (nextTime === undefined || nextPos === undefined)
     throw new Error(
-      `[Error] interplolationPos, invalid nextPosFrame ${nextTime}`,
-      nextPos
+      `[Error] interplolationPos, invalid nextPosFrame ${nextTime}, ${nextPos}`
     );
 
   const newPos = {};
   Object.keys(prePos).forEach((dancer) => {
     const dancerPrePos = prePos[dancer];
     const dancerNextPos = nextPos[dancer];
-    const dancerPos = {};
+    const dancerPos = {}; //should be coordinatebs
     Object.keys(dancerPrePos).forEach((x) => {
       dancerPos[x] =
         ((dancerNextPos[x] - dancerPrePos[x]) * (time - preTime)) /
@@ -147,7 +161,7 @@ export function interpolationPos(time, preFrame, nextFrame) {
   return newPos;
 }
 
-function Round1(number) {
+function Round1(number: number) {
   return Math.round(number * 10) / 10;
 }
 
@@ -157,7 +171,11 @@ function Round1(number) {
  * @param {*} preStatus - previous frame, controlRecord[timeData.controlFrame]
  * @param {*} nextStatus - next frame, controlRecord[timeData.controlFrame + 1]
  */
-export function fadeStatus(time, preFrame, nextFrame) {
+export function fadeStatus(
+  time: number,
+  preFrame: ControlMapElement,
+  nextFrame: ControlMapElement
+) {
   const { start: preTime, fade, status: preStatus } = preFrame;
   const { start: nextTime, status: nextStatus } = nextFrame;
   if (!fade) return preFrame.status; // Don't need to fade
@@ -170,6 +188,7 @@ export function fadeStatus(time, preFrame, nextFrame) {
     Object.keys(preParts).forEach((part) => {
       const preVal = preParts[part];
       const nextVal = nextParts[part];
+
       // LED Parts
       if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
         newStatus[dancer][part] = {
@@ -183,11 +202,14 @@ export function fadeStatus(time, preFrame, nextFrame) {
       }
       // El Parts
       else {
-        newStatus[dancer][part] = Round1(
-          ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
-            preVal
-        );
+        if (typeof preVal === "number" && typeof nextVal === "number") {
+          newStatus[dancer][part] = Round1(
+            ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
+              preVal
+          );
+        }
       }
+      // fiber Parts
     });
   });
   return newStatus;
