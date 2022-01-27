@@ -3,15 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "install:editor": "yarn --cwd ./editor",
-    "install:editor-server": "yarn --cwd ./editor-server",
-    "install:controller-server": "yarn --cwd ./controller-server",
-    "install:file-server": "yarn --cwd ./file-server",
-    "install:all": "(yarn install:editor); (yarn install:editor-server); (yarn install:controller-server); (yarn install:file-server)",
-    "dev:file-server": "cd ./file-server && yarn start",
+    "install:editor": "yarn install  --cwd ./editor",
+    "install:editor-server": "yarn install --cwd ./editor-server",
+    "install:controller-server": "yarn install --cwd ./controller-server",
+    "install:file-server": "yarn install --cwd ./file-server",
+    "install:all": "(yarn install); (yarn install:editor); (yarn install:editor-server); (yarn install:controller-server); (yarn install:file-server)",
     "dev:editor": "cd ./editor && yarn start",
     "dev:editor-server": "cd ./editor-server && yarn start",
-    "dev:controller-server": "cd ./controller-server && yarn start"
+    "dev:controller-server": "cd ./controller-server && yarn start",
+    "dev:file-server": "cd ./file-server && yarn start",
+    "dev": "run-p dev:*"
   },
   "browserslist": {
     "production": [
@@ -24,5 +25,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
   }
 }

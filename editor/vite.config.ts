@@ -7,6 +7,7 @@ import mkcert from "vite-plugin-mkcert";
 const defineConfig: UserConfigFn = ({ command, mode }) => {
   const config: UserConfig = {
     server: {
+      host: true,
       https: false,
       port: 8080,
       proxy: {

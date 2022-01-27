@@ -1,6 +1,10 @@
 # Editor
 
-Frontend workspace for editing.
+## Installation
+
+```bash
+yarn install
+```
 
 ## Development
 
@@ -12,5 +16,4 @@ yarn start
 
 ```bash
 yarn build
-yarn deploy // TODO
 ```
