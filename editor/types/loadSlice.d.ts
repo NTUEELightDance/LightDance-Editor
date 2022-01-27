@@ -36,14 +36,14 @@ interface dancerPARTs {
     y: number;
   };
 }
-interface dancerTextureElement {
+interface dancerPARTs {
   //refered to data/dancers
   BLPARTS: dancerPARTs;
   ELPARTS: dancerPARTs;
   LEDPARTS: dancerPARTs;
 }
-export interface dancerTexture {
-  [index: string]: dancerTextureElement;
+export interface DancersType {
+  [index: string]: dancerPARTs;
 }
 
 export interface loadType {
@@ -71,7 +71,7 @@ export interface loadState {
   position: posRecordType; // loaded position.json, may not be same as localStorage (this is for default)
   lightPresets: lightPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
   posPresets: posPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
-  dancers: dancerTexture;
+  dancers: DancersType;
   texture: textureType;
   dancerNames: string[]; // [name]
 }

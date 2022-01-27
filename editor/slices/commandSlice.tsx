@@ -1,6 +1,12 @@
 /* eslint-disable no-param-reassign */
-import { createSlice } from "@reduxjs/toolkit";
-import { commandState, dancerStatusType } from "../types/commandSlice";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  commandState,
+  dancerStatusType,
+  boardConfigType,
+} from "../types/commandSlice";
+import { RootState, AppDispatch } from "../store/index";
+
 const initialState: commandState = {
   play: false,
   stop: false,
@@ -14,14 +20,17 @@ export const commandSlice = createSlice({
   name: "command",
   initialState,
   reducers: {
-    setPlay: (state, action) => {
+    setPlay: (state, action: PayloadAction<boolean>) => {
       state.play = action.payload;
     },
-    setStop: (state, action) => {
+    setStop: (state, action: PayloadAction<boolean>) => {
       state.stop = action.payload;
       state.play = false;
     },
-    startPlay: (state, action) => {
+    startPlay: (
+      state,
+      action: PayloadAction<{ startTime: number; sysTime: number }>
+    ) => {
       const { startTime, sysTime } = action.payload;
       state.startTime = startTime;
       state.sysTime = sysTime;
@@ -34,9 +43,9 @@ export const commandSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload - boardConfig
      */
-    initDancerStatus: (state, action) => {
+    initDancerStatus: (state, action: PayloadAction<boardConfigType>) => {
       const boardConfig = action.payload;
-      const newDancerStatus = {};
+      const newDancerStatus: dancerStatusType = {};
       Object.entries(boardConfig).forEach(([hostname, { dancerName }]) => {
         newDancerStatus[dancerName] = {
           dancerName,
@@ -54,7 +63,18 @@ export const commandSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    updateDancerStatus: (state, action) => {
+    updateDancerStatus: (
+      state,
+      action: PayloadAction<{
+        dancerName: string;
+        newStatus: {
+          OK: boolean;
+          msg: string;
+          isConnected: boolean;
+          ip: string;
+        };
+      }>
+    ) => {
       const {
         dancerName,
         newStatus: { OK, msg, isConnected, ip },
@@ -75,7 +95,10 @@ export const commandSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    clearDancerStatusMsg: (state, action) => {
+    clearDancerStatusMsg: (
+      state,
+      action: PayloadAction<{ dancerNames: string[] }>
+    ) => {
       const { dancerNames } = action.payload;
       dancerNames.forEach((dancerName) => {
         state.dancerStatus[dancerName].msg = "";
@@ -93,13 +116,13 @@ export const {
   clearDancerStatusMsg,
 } = commandSlice.actions;
 
-export const selectCommand = (state) => state.command;
+export const selectCommand = (state: RootState) => state.command;
 
-const fetchJson = (path) => {
+const fetchJson = (path: string) => {
   return fetch(path).then((data) => data.json());
 };
 
-export const fetchBoardConfig = () => async (dispath) => {
+export const fetchBoardConfig = () => async (dispath: AppDispatch) => {
   const boardConfig = await fetchJson("/data/board_config.json");
 
   dispath(initDancerStatus(boardConfig));
