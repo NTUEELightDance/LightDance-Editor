@@ -5,7 +5,7 @@ import { wavesurferContext } from "types/components/wavesurfer";
 export const WaveSurferAppContext = createContext<wavesurferContext | null>(null);
 // export { WebSocketContext };
 
-export default function WaveSurfer({ children }: any) {
+export default function WaveSurfer({ children }: { children: JSX.Element}) {
   const [waveSurferApp, setWaveSurferApp] = useState<WaveSurferApp | null>(null);
   const [markersToggle, toggleMarkers] = useState(true);
   const initWaveSurferApp = (wave: WaveSurferApp ) => {

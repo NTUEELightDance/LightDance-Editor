@@ -3,7 +3,8 @@ import clsx from "clsx";
 // redux
 import { useSelector, useDispatch } from "react-redux";
 // mui
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/core/styles";
+import { Theme } from "@mui/system";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import IconButton from "@material-ui/core/IconButton";
@@ -20,7 +21,7 @@ import {
 // constant
 import { TIMECONTROLLER } from "../../constants";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   flex: {
     display: "flex",
     alignItems: "center",
@@ -56,27 +57,27 @@ export default function TimeController() {
   // constant
   const from = TIMECONTROLLER;
   // handle Change
-  const handleChangeTime = (value) => {
+  const handleChangeTime = (value: number) => {
     dispatch(
       setTime({
         from,
-        time: parseInt(value, 10),
+        time: value,
       })
     );
   };
-  const handleChangeControlFrame = (value) => {
+  const handleChangeControlFrame = (value: number) => {
     dispatch(
       setControlFrame({
         from,
-        controlFrame: parseInt(value, 10),
+        controlFrame: value,
       })
     );
   };
-  const handleChangePosFrame = (value) => {
+  const handleChangePosFrame = (value: number) => {
     dispatch(
       setPosFrame({
         from,
-        posFrame: parseInt(value, 10),
+        posFrame: value,
       })
     );
   };
@@ -96,7 +97,7 @@ export default function TimeController() {
           placeholder="time"
           value={time}
           inputProps={{ min: 0 }}
-          onChange={(e) => handleChangeTime(e.target.value)}
+          onChange={(e) => handleChangeTime(parseInt(e.target.value, 10))}
         />
       </div>
       <div className={clsx(classes.flex, classes.marginLR)}>
@@ -106,7 +107,6 @@ export default function TimeController() {
         <div className={classes.flex}>
           <IconButton
             className={classes.frameBtn}
-            variant="outlined"
             onClick={() => handleChangeControlFrame(controlFrame - 1)}
           >
             <ChevronLeftIcon />
@@ -120,11 +120,10 @@ export default function TimeController() {
             placeholder="status index"
             value={controlFrame}
             inputProps={{ min: 0 }}
-            onChange={(e) => handleChangeControlFrame(e.target.value)}
+            onChange={(e) => handleChangeControlFrame(parseInt(e.target.value, 10))}
           />
           <IconButton
             className={classes.frameBtn}
-            variant="outlined"
             onClick={() => handleChangeControlFrame(controlFrame + 1)}
           >
             <ChevronRightIcon />
@@ -138,7 +137,6 @@ export default function TimeController() {
         <div className={classes.flex}>
           <IconButton
             className={classes.frameBtn}
-            variant="outlined"
             onClick={() => handleChangePosFrame(posFrame - 1)}
           >
             <ChevronLeftIcon />
@@ -152,11 +150,10 @@ export default function TimeController() {
             placeholder="position index"
             value={posFrame}
             inputProps={{ min: 0 }}
-            onChange={(e) => handleChangePosFrame(e.target.value)}
+            onChange={(e) => handleChangePosFrame(parseInt(e.target.value, 10))}
           />
           <IconButton
             className={classes.frameBtn}
-            variant="outlined"
             onClick={() => handleChangePosFrame(posFrame + 1)}
           >
             <ChevronRightIcon />

@@ -21,6 +21,8 @@ import { selectLoad } from "../../slices/loadSlice";
 import { getItem } from "../../utils/localStorage";
 // components
 import PresetsList from "./presetsList";
+//types
+import { positionType } from "types/globalSlice";
 
 /**
  * This is Presets component, list of pos
@@ -34,7 +36,7 @@ export default function PosPresets() {
   const { posPresets } = useSelector(selectGlobal);
   useEffect(() => {
     if (getItem("posPresets")) {
-      dispatch(setPosPresets(JSON.parse(getItem("posPresets"))));
+      dispatch(setPosPresets(JSON.parse(getItem("posPresets") || "")));
     } else {
       dispatch(setPosPresets(loadedPosPresets));
     }
@@ -48,21 +50,21 @@ export default function PosPresets() {
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e) => setNameVal(e.target.value);
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => setNameVal(e.target.value);
 
   // dispatch
-  const handleAddPresets = (name) => {
+  const handleAddPresets = (name: string) => {
     if (name.trim() !== "") dispatch(addPosPresets(name));
     closeDialog();
   };
-  const handleEditPresets = (name, idx) => {
+  const handleEditPresets = (name: string, idx: number) => {
     dispatch(editPosPresetsName({ name, idx }));
     closeDialog();
   };
-  const handleDeletePresets = (idx) => {
+  const handleDeletePresets = (idx: number) => {
     dispatch(deletePosPresets(idx));
   };
-  const handleSetCurrentPos = (pos) => {
+  const handleSetCurrentPos = (pos: positionType) => {
     dispatch(setCurrentPos(pos));
   };
 
@@ -81,7 +83,7 @@ export default function PosPresets() {
         />
       </div>
       <div>
-        <Dialog fullWidth size="md" open={open} onClose={closeDialog}>
+        <Dialog fullWidth maxWidth="md" open={open} onClose={closeDialog}>
           <DialogTitle>Preset name</DialogTitle>
           <DialogContent>
             <TextField fullWidth value={nameVal} onChange={handleChangeName} />

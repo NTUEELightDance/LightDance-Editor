@@ -10,8 +10,8 @@ import TimeShift from "./timeShift";
 
 export default function Tools() {
   // open or close menu
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const handleClick = (event) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {

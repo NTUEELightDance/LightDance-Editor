@@ -1,5 +1,5 @@
 import WaveSurfer from "wavesurfer.js";
-import CursorPlugin from "wavesurfer.js/dist/plugin/wavesurfer.cursor";
+import CursorPlugin from "wavesurfer.js/src/plugin/cursor";
 import regions from "wavesurfer.js/src/plugin/regions";
 import MarkersPlugin from "wavesurfer.js/src/plugin/markers";
 
@@ -17,7 +17,7 @@ import {
   Region,
 } from "../../types/components/wavesurfer";
 
-import { ControlMap } from "../../types/slice"
+import { ControlMapElement } from "../../types/globalSlice"
 /**
  * control 3rd party package, WaveSurfer
  */
@@ -48,7 +48,7 @@ class WaveSurferApp {
       plugins: [
         CursorPlugin.create({
           showTime: true,
-          opacity: 1,
+          opacity: '1',
           color: "#edf0f1",
           customShowTimeStyle: {
             "background-color": "#000",
@@ -237,7 +237,7 @@ class WaveSurferApp {
    * create markers according to all dancer's status
    * @param { Object<{}> } controlMap - object of all dancer's status
    */
-  updateMarkers(controlMap: ControlMap) {
+  updateMarkers(controlMap: ControlMapElement) {
     this.waveSurfer.clearMarkers();
     Object.values(controlMap).map((e, index) => {
       this.addMarkers(e.start / 1000, index);
