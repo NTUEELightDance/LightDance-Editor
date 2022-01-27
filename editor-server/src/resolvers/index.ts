@@ -5,7 +5,7 @@ import { PartResolver } from './part'
 import { ControlFrameResolver } from './controlFrame'
 import { PositionFrameResolver } from './positionFrame'
 import { FiberResolver } from './fiber'
-import { ControlMapTestResolver } from './types/controlMapTest'
+import { ControlMapResolver } from './controlMap'
 
 export const resolvers = [
     ColorResolver,
@@ -17,5 +17,5 @@ export const resolvers = [
     ControlFrameResolver,
     PositionFrameResolver,
     FiberResolver,
-    ControlMapTestResolver
+    ControlMapResolver
 ] as const

@@ -1,30 +1,31 @@
 import { Field, ObjectType, Resolver, FieldResolver, Ctx, Float, Query, Root } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
+import { ObjectId } from "mongodb";
+import db from "../../models"
 import { ControlFrame } from "./controlFrame";
 
+interface LooseObject {
+    [key: string]: any
+}
+
 @ObjectType()
-export class ControlMapTest {
+export class ControlMap {
     @Field(type => ObjectIdScalar)
-    id: string
-
-    @Field(type => Float)
-    start: number
-
-    @Field(type => Boolean)
-    fade: boolean
-
-    @Field({ nullable: true })
-    editing: string
+    frames: ObjectId[]
 }
 
 export const ObjectIdScalar = new GraphQLScalarType({
-    name: "ObjectId",
+    name: "ControlMapQueryObjectId",
     description: "Mongo object id scalar type",
-    serialize(value: any): any {
+    async serialize(value: any): Promise<any> {
         // check the type of received value
-        console.log(value)
-
-        return value + "hello"; // value sent to the client
+        const result: LooseObject = {}
+        await Promise.all(
+            value.map(async(id: string)=> {
+                result[id] = await db.ControlFrame.findById(id)
+            })
+        )
+        return result; // value sent to the client
     },
     parseValue(value: unknown): any {
         // check the type of received value
@@ -39,16 +40,5 @@ export const ObjectIdScalar = new GraphQLScalarType({
 })
 
 
-@Resolver(of => ControlMapTest)
-export class ControlMapTestResolver {
-    @Query(returns => [ControlMapTest])
-    async ControlMap(@Ctx() ctx: any) {
-        let frames = await ctx.db.ControlFrame.find()
-        return frames
-    }
-    @FieldResolver()
-    async id(@Root() positionframe: any) {
-        return positionframe._id
-    }
-}
+
 

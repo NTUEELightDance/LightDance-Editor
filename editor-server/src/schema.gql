@@ -39,16 +39,16 @@ type ControlFrame {
   start: Float!
 }
 
+type ControlMap {
+  frames: ControlMapQueryObjectId!
+}
+
 type ControlMapPayload {
   mutation: String!
 }
 
-type ControlMapTest {
-  editing: String
-  fade: Boolean!
-  id: ObjectId!
-  start: Float!
-}
+"""Mongo object id scalar type"""
+scalar ControlMapQueryObjectId
 
 type ControlRecordPayload {
   editBy: String!
@@ -116,9 +116,6 @@ type Mutation {
   updateColor(color: ColorInput!): String!
 }
 
-"""Mongo object id scalar type"""
-scalar ObjectId
-
 type Part {
   controlData: [Control!]!
   id: ID!
@@ -142,7 +139,7 @@ type PositionFrame {
 type Query {
   color(color: String!): String!
   controlFrameIDs: [ID!]!
-  ControlMap: [ControlMapTest!]!
+  ControlMap: ControlMap!
   dancer: [Dancer!]!
   positionFrameIDs: [ID!]!
 }
