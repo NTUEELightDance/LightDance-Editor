@@ -3,6 +3,8 @@ import {
   posRecordElement,
   coordinates,
   ControlMapElement,
+  ControlMapType,
+  ControlRecordType,
 } from "types/globalSlice";
 
 /**
@@ -60,7 +62,67 @@ export function updateFrameByTime(data, frame: number, time: number) {
   }
   return binarySearchFrame(data, time);
 }
+/**
+ * binarySearch based on controlRecord and controlMap (array of object with start), return the index
+ * @param {object} data - target control (array of status)
+ * @param {number} time - target time
+ */
+export function binarySearchFrameMap(controlRecord, controlMap, time: number) {
+  if (!Array.isArray(controlRecord))
+    throw new Error(
+      `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
+    );
+  if (typeof controlMap !== "object")
+    throw new Error(
+      `[Error] updateFrameByTimeMap, invalid parameter(controlMap)`
+    );
+  if (typeof time !== "number")
+    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
+  let l = 0;
+  let r = controlRecord.length - 1;
+  let m = Math.floor((l + r + 1) / 2);
+  while (l < r) {
+    if (controlMap[controlRecord[m]].start <= time) l = m;
+    else r = m - 1;
+    m = Math.floor((l + r + 1) / 2);
+  }
+  return m;
+}
 
+/**
+ * Update Frame Index By Time With controlRecord and controlMap
+ * @param {object} data - control
+ * @param {number} frame - frame idx
+ * @param {number} time - timestamp
+ */
+export function updateFrameByTimeMap(
+  controlRecord,
+  controlMap,
+  frame: number,
+  time: number
+) {
+  if (!Array.isArray(controlRecord))
+    throw new Error(
+      `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
+    );
+  if (typeof controlMap !== "object")
+    throw new Error(
+      `[Error] updateFrameByTimeMap, invalid parameter(controlMap)`
+    );
+  if (typeof frame !== "number")
+    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(frame)`);
+  if (typeof time !== "number")
+    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(time)`);
+  // Check if need to do binarysearch
+  if (
+    controlMap[frame + 2] &&
+    time >= controlRecord[controlMap[frame + 1]].start &&
+    time <= controlRecord[controlMap[frame + 2]].start
+  ) {
+    return frame + 1;
+  }
+  return binarySearchFrameMap(controlRecord, controlMap, time);
+}
 /**
  * Calculate Interpolation of the position, return new position
  * @param {*} time
