@@ -10,19 +10,28 @@ interface LooseObject {
 
 @ObjectType()
 export class ControlMap {
-    @Field(type => ObjectIdScalar)
+    @Field(type => ControlMapScalar)
     frames: ObjectId[]
 }
 
-export const ObjectIdScalar = new GraphQLScalarType({
+export const ControlMapScalar = new GraphQLScalarType({
     name: "ControlMapQueryObjectId",
     description: "Mongo object id scalar type",
     async serialize(value: any): Promise<any> {
         // check the type of received value
         const result: LooseObject = {}
+        const dancers = await db.Dancer.find()
         await Promise.all(
             value.map(async(id: string)=> {
-                result[id] = await db.ControlFrame.findById(id)
+                const {fade, start, editing} = await db.ControlFrame.findById(id)
+                const status: LooseObject = {}
+                await Promise.all(
+                    dancers.map(async(dancer: any)=> {
+                        const {name, parts} = await db.Dancer.findById(dancer.id)
+                        status[name] = parts
+                    })
+                )
+                result[id] = {fade, start, editing, status}
             })
         )
         return result; // value sent to the client
