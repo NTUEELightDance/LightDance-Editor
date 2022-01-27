@@ -16,11 +16,9 @@
     <img src="https://user-images.githubusercontent.com/17617373/126040650-b25e5a8f-5b40-4636-93b9-4a79e690e816.gif" width="100%">
 </div>
 
-
 ## Architecture
 
 ![image](https://user-images.githubusercontent.com/17617373/151387263-944c1fe0-d6d9-44a9-9c9b-75fc9fee656d.png)
-
 
 ### Services
 
@@ -31,7 +29,7 @@ http://localhost:8081 - file-server
 http://localhost:8082 - controller-server
 ```
 
-## Getting started
+## Development
 
 ### Docker
 
@@ -44,7 +42,7 @@ docker-compose -f dev.docker-compose.yml up -d
 
 ### Local
 
-#### Installation
+#### Install the dependencies
 
 This will install all the dependencies in the subfolders.
 
@@ -52,10 +50,18 @@ This will install all the dependencies in the subfolders.
 yarn install:all
 ```
 
-#### Development
+#### Run the services
 
 This will run all the services parallelly. You can see the editor on `http://localhost:8080`.
 
 ```bash
 yarn dev
+```
+
+**For development for editor-server**
+
+You need to have MongoDB running on `mongodb://localhost:27017`
+
+```bash
+docker-compose -f dev.docker-compose.yml up -d mongodb
 ```
