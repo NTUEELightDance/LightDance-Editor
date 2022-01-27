@@ -1,21 +1,22 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from "@reduxjs/toolkit";
-
+import { loadState, textureType } from "../types/loadSlice";
+const initialState: loadState = {
+  init: false,
+  music: "",
+  load: {},
+  control: [],
+  controlMap: {},
+  position: [],
+  lightPresets: [],
+  posPresets: [],
+  texture: {} as textureType,
+  dancers: {},
+  dancerNames: [],
+};
 export const loadSlice = createSlice({
   name: "load",
-  initialState: {
-    init: false,
-    music: "", // load music path
-    load: {},
-    control: [], // loaded control.json, may not be same as localStorage (this is for default)
-    controlMap: {}, // loaded controlMap.json
-    position: [], // loaded position.json, may not be same as localStorage (this is for default)
-    lightPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
-    posPresets: [], // loaded lightPresets.json, may not be same as localStorage (this is for default)
-    texture: {}, // loaded texture
-    dancers: {}, // name: data, data is like content of 'dancer0.json'
-    dancerNames: [], // [name]
-  },
+  initialState,
   reducers: {
     setInit: (state) => {
       state.init = true;

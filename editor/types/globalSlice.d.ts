@@ -52,8 +52,8 @@ interface posPresetsElement {
   name: string;
   pos: positionType;
 }
-type lightPresetsType = lightPresetsElement[];
-type posPresetsType = posPresetsElement[];
+export type lightPresetsType = lightPresetsElement[];
+export type posPresetsType = posPresetsElement[];
 
 export type posRecordType = Array<posRecordElement>;
 export type ControlRecordType = string[]; // array of all IDs , each correspondsto diff status
