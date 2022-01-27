@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 // mui
 import Slider from "@material-ui/core/Slider";
@@ -25,6 +26,9 @@ import DoneIcon from "@material-ui/icons/Done";
 // constant
 import { FormControl, InputLabel } from "@material-ui/core";
 import load from "../../../data/load.json";
+
+// select
+import { selectLoad } from "../../slices/loadSlice";
 
 // local storage
 import { setItem, getItem } from "../../utils/localStorage";
@@ -54,6 +58,8 @@ export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) 
   const [start, setStart] = useState(0);
   const [end, setEnd] = useState(0);
   const [expanded, setExpanded] = useState("");
+
+  const { music: load } = useSelector(selectLoad);
 
   // const upperBPM = 200;
   // const lowerBPM = 90;
