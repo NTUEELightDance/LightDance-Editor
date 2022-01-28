@@ -7,8 +7,8 @@ export class ControlMapResolver {
     @Query(returns => ControlMap)
     async ControlMap(@Ctx() ctx: any) {
         let frames = await ctx.db.ControlFrame.find()
-        const id = frames.map((frame: any)=>frame.id)
-        return {frames: id}
+        const id = frames.map((frame: any) => { return { id: frame.id, _id: frame._id } })
+        return { frames: id }
     }
-    
+
 }

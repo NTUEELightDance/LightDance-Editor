@@ -7,6 +7,8 @@ const ControlFrameSchema = new Schema({
   fade: { type: Boolean, required: [true, "fade field is required."] },
   start: { type: Number, required: [true, "start field is required."] },
   editing: { type: String },
+  id: { type: String, required: [true, "id is needed"] }
+
 });
 
 // Creating a table within database with the defined schema

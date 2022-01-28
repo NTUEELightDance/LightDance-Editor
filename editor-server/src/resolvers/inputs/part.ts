@@ -26,3 +26,13 @@ export class EditPartInput {
     type: ControlType
 
 }
+
+@InputType()
+export class DeletePartInput {
+    @Field(type => ID)
+    id: string
+
+    @Field()
+    dancerName: string
+
+}

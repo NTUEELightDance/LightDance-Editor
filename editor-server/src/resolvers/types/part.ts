@@ -8,7 +8,7 @@ export class Part {
     @Field(type => String)
     name: string
 
-    @Field(type => ControlType)
+    @Field(type => ControlType, { nullable: true })
     type: ControlType
 
     @Field(type => [Control])

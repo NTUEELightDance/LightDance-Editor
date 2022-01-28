@@ -83,6 +83,24 @@ type DancerPayload {
   mutation: dancerMutation!
 }
 
+type DancerResponse {
+  id: ID!
+  msg: String
+  name: String!
+  ok: Boolean!
+  parts: [Part!]!
+  positionData: [Position!]!
+}
+
+input deleteDancerInput {
+  id: ID!
+}
+
+input DeletePartInput {
+  dancerName: String!
+  id: ID!
+}
+
 input EditControlFrameInput {
   fade: Boolean!
   id: String!
@@ -117,11 +135,13 @@ type LED {
 
 type Mutation {
   addControlFrame(start: Float!): ControlFrame!
-  addDancer(dancer: AddDancerInput!): Dancer!
-  addPart(part: AddPartInput!): Part!
+  addDancer(dancer: AddDancerInput!): DancerResponse!
+  addPart(part: AddPartInput!): PartResponse!
+  deleteDancer(dancer: deleteDancerInput!): DancerResponse!
+  deletePart(part: DeletePartInput!): PartResponse!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editDancer(dancer: editDancerInput!): Dancer!
-  editPart(part: EditPartInput!): Part!
+  editDancer(dancer: editDancerInput!): DancerResponse!
+  editPart(part: EditPartInput!): PartResponse!
   updateColor(color: ColorInput!): String!
 }
 
@@ -129,7 +149,16 @@ type Part {
   controlData: [Control!]!
   id: ID!
   name: String!
-  type: ControlType!
+  type: ControlType
+}
+
+type PartResponse {
+  controlData: [Control!]!
+  id: ID!
+  msg: String
+  name: String!
+  ok: Boolean!
+  type: ControlType
 }
 
 type Position {

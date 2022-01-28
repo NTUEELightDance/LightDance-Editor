@@ -1,4 +1,4 @@
-import { DancerResolver, ControlResolver, PositionResolver } from './dancer'
+import { DancerResolver } from './dancer'
 import ColorResolver from './color'
 import SubscriptionResolver from "./subscriptions"
 import { PartResolver } from './part'
@@ -7,6 +7,8 @@ import { PositionFrameResolver } from './positionFrame'
 import { FiberResolver } from './fiber'
 import { ControlMapResolver } from './controlMap'
 import { RequestEditResolver } from './requestEdit'
+import { ControlResolver } from './control'
+import { PositionResolver } from './position'
 
 export const resolvers = [
     ColorResolver,

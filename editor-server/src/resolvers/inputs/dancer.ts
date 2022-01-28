@@ -28,3 +28,11 @@ export class editDancerInput {
     id: string
 }
 
+
+@InputType()
+export class deleteDancerInput {
+
+    @Field(type => ID)
+    id: string
+}
+

@@ -1,10 +1,8 @@
-// todo
-// extend dancer, {ok, msg}
 import { Field, ObjectType } from "type-graphql";
-import { Dancer } from "../types/dancer";
+import { Part } from "../types/part";
 
 @ObjectType()
-export class DancerResponse extends Dancer {
+export class PartResponse extends Part {
     @Field(type => Boolean)
     ok: boolean
 
