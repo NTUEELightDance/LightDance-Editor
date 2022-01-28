@@ -23,6 +23,7 @@ import {
   positionType,
   lightPresetsType,
   posPresetsType,
+  ControlMapElement,
 } from "../types/globalSlice";
 import { RootState } from "../store/index";
 

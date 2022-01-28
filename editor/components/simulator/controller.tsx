@@ -13,6 +13,7 @@ import {
   interpolationPos,
   fadeStatus,
 } from "../../utils/math";
+import { ControlMapStatus, positionType } from "../../types/globalSlice";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -78,7 +79,7 @@ class Controller {
    * @param {object} currentStatus - all dancers' status
    * ex. { dancer0: { HAT1: 0, ... }}
    */
-  updateDancersStatus(currentStatus) {
+  updateDancersStatus(currentStatus: ControlMapStatus) {
     if (Object.entries(currentStatus).length === 0)
       throw new Error(
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
@@ -93,7 +94,7 @@ class Controller {
    * @param {*} currentPos
    * ex. { dancer0: { "x": 49.232, "y": 0, "z": 0 }}
    */
-  updateDancersPos(currentPos) {
+  updateDancersPos(currentPos: positionType) {
     if (Object.entries(currentPos).length === 0)
       throw new Error(
         `[Error] updateDancersPos, invalid parameter(currentPos)`
