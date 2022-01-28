@@ -10,6 +10,18 @@ export interface LED {
   alpha: number;
 }
 
+export function CheckTypeOfLED(object: any): object is LED {
+  return "src" in object && "alpha" in object;
+}
+
+export function CheckTypeOfFiber(object: any): object is Fiber {
+  return "color" in object && "alpha" in object;
+}
+
+export function CheckTypeOfEl(object: any): object is El {
+  return typeof object === "number";
+}
+
 interface DancerStatus {
   [index: string]: Fiber | El | LED; //partNames: partStatus
 }

@@ -5,7 +5,11 @@ import {
   ControlMapElement,
   ControlMapType,
   ControlRecordType,
-} from "types/globalSlice";
+  CheckTypeOfEl,
+  CheckTypeOfFiber,
+  CheckTypeOfLED,
+  ControlMapStatus,
+} from "../types/globalSlice";
 
 /**
  * clamp a value between mi and ma
@@ -23,7 +27,10 @@ export function clamp(val: number, mi: number, ma: number) {
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrame(data, time: number) {
+export function binarySearchFrame(
+  data: posRecordType | ControlMapElement[],
+  time: number
+) {
   if (!Array.isArray(data))
     throw new Error(`[Error] binarySearchFrame, invalid parameter(data)`);
   if (typeof time !== "number")
@@ -45,7 +52,11 @@ export function binarySearchFrame(data, time: number) {
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
-export function updateFrameByTime(data, frame: number, time: number) {
+export function updateFrameByTime(
+  data: posRecordType | ControlMapElement[],
+  frame: number,
+  time: number
+) {
   if (!Array.isArray(data))
     throw new Error(`[Error] updateFrameByTime, invalid parameter(data)`);
   if (typeof frame !== "number")
@@ -67,7 +78,11 @@ export function updateFrameByTime(data, frame: number, time: number) {
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrameMap(controlRecord, controlMap, time: number) {
+export function binarySearchFrameMap(
+  controlRecord: ControlRecordType,
+  controlMap: ControlMapType,
+  time: number
+) {
   if (!Array.isArray(controlRecord))
     throw new Error(
       `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
@@ -96,8 +111,8 @@ export function binarySearchFrameMap(controlRecord, controlMap, time: number) {
  * @param {number} time - timestamp
  */
 export function updateFrameByTimeMap(
-  controlRecord,
-  controlMap,
+  controlRecord: ControlRecordType,
+  controlMap: ControlMapType,
   frame: number,
   time: number
 ) {
@@ -116,8 +131,8 @@ export function updateFrameByTimeMap(
   // Check if need to do binarysearch
   if (
     controlMap[frame + 2] &&
-    time >= controlRecord[controlMap[frame + 1]].start &&
-    time <= controlRecord[controlMap[frame + 2]].start
+    time >= controlMap[controlRecord[frame + 1]].start &&
+    time <= controlMap[controlRecord[frame + 2]].start
   ) {
     return frame + 1;
   }
@@ -149,7 +164,7 @@ export function interpolationPos(
   Object.keys(prePos).forEach((dancer) => {
     const dancerPrePos = prePos[dancer];
     const dancerNextPos = nextPos[dancer];
-    const dancerPos = {}; //should be coordinatebs
+    const dancerPos: coordinates = { x: 0, y: 0, z: 0 }; //should be coordinates
     Object.keys(dancerPrePos).forEach((x) => {
       dancerPos[x] =
         ((dancerNextPos[x] - dancerPrePos[x]) * (time - preTime)) /
@@ -180,7 +195,7 @@ export function fadeStatus(
   const { start: nextTime, status: nextStatus } = nextFrame;
   if (!fade) return preFrame.status; // Don't need to fade
   // need to fade - interpolation
-  const newStatus = {};
+  const newStatus: ControlMapStatus = {};
   Object.keys(preStatus).forEach((dancer) => {
     const preParts = preStatus[dancer];
     const nextParts = nextStatus[dancer];
@@ -190,7 +205,7 @@ export function fadeStatus(
       const nextVal = nextParts[part];
 
       // LED Parts
-      if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
+      if (CheckTypeOfLED(preVal) && CheckTypeOfLED(nextVal)) {
         newStatus[dancer][part] = {
           alpha: Round1(
             ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
@@ -200,16 +215,41 @@ export function fadeStatus(
           src: preVal.src,
         };
       }
+      /*
+      if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
+        newStatus[dancer][part] = {
+          alpha: Round1(
+            ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
+              (nextTime - preTime) +
+              preVal.alpha
+          ),
+          src: preVal.src,
+        };
+      }*/
       // El Parts
-      else {
-        if (typeof preVal === "number" && typeof nextVal === "number") {
-          newStatus[dancer][part] = Round1(
-            ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
-              preVal
-          );
-        }
+      else if (CheckTypeOfEl(preVal) && CheckTypeOfEl(nextVal)) {
+        //if (typeof preVal === "number" && typeof nextVal === "number") {
+        newStatus[dancer][part] = Round1(
+          ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
+            preVal
+        );
+        //}
       }
       // fiber Parts
+      else if (CheckTypeOfFiber(preVal) && CheckTypeOfFiber(nextVal)) {
+        newStatus[dancer][part] = {
+          alpha: Round1(
+            ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
+              (nextTime - preTime) +
+              preVal.alpha
+          ),
+          color: preVal.color,
+        };
+      } else {
+        throw new Error(
+          `[Error] fadeStatus, invalid parts ${preVal}, ${nextVal}`
+        );
+      }
     });
   });
   return newStatus;
