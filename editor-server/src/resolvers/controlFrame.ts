@@ -50,7 +50,6 @@ export class ControlFrameResolver {
         let frameToEdit = await ctx.db.findOne({_id: input.id});
         if (frameToEdit.editing && frameToEdit.editing !== ctx.userID){
             throw new Error("The frame is now editing by other user.");
-            return;
         }
     }
 }
