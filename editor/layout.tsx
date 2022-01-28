@@ -1,9 +1,9 @@
-import React from "react";
-import FlexLayout from "flexlayout-react";
+import FlexLayout, { TabNode } from "flexlayout-react";
 // config
 import "flexlayout-react/style/dark.css";
 import "./layout.css";
-import layoutConfig from "./layoutConfig.json";
+// import layoutConfig from "./layouts/editor.json";
+import layoutConfig from "./layouts/commandCenter.json";
 // components
 import Simulator from "./components/Simulator";
 import Wavesurfer from "./components/Wavesurfer";
@@ -17,7 +17,7 @@ import ThreeSimulator from "./components/ThreeSimulator";
 
 export default function Layout() {
   // layout
-  const factory = (node) => {
+  const factory = (node: TabNode) => {
     const component = node.getComponent();
     switch (component) {
       case "CommandCenter":
@@ -32,6 +32,8 @@ export default function Layout() {
         return <PosEditor />;
       case "Wavesurfer":
         return <Wavesurfer />;
+      case "WavesurferClean":
+        return <Wavesurfer cleanMode/>;
       case "LightPresets":
         return <LightPresets />;
       case "PosPresets":

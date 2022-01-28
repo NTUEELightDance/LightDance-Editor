@@ -11,7 +11,8 @@ import { selectLoad, fetchLoad } from "./slices/loadSlice";
 import Layout from "./layout";
 import "./app.css";
 // components
-import Bar from "./components/Bar";
+import Header from "./components/Header";
+import Loading from "components/Loading";
 
 const theme = createTheme({
   palette: {
@@ -47,7 +48,6 @@ const App = () => {
   return (
     <div>
       <ThemeProvider theme={theme}>
-        {/* <WebSocketContext> */}
         <CssBaseline />
         {init ? (
           <div
@@ -57,15 +57,14 @@ const App = () => {
               height: "100vh",
             }}
           >
-            <Bar />
+            <Header />
             <div style={{ flexGrow: 1, position: "relative" }}>
               <Layout />
             </div>
           </div>
         ) : (
-          "Loading..."
+          <Loading />
         )}
-        {/* </WebSocketContext> */}
       </ThemeProvider>
     </div>
   );

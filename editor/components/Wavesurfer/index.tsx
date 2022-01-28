@@ -1,16 +1,9 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useSelector } from "react-redux";
 
-// mui
-import Button from "@material-ui/core/Button";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import PauseIcon from "@material-ui/icons/Pause";
-import StopIcon from "@material-ui/icons/Stop";
-import LoopIcon from "@material-ui/icons/Loop";
-
 // my class
 import WaveSurferApp from "./WaveSurferApp";
-import Setting from "./Timeline";
+import ControlBar from "../ControlBar";
 // selector
 import { selectGlobal } from "../../slices/globalSlice";
 import { selectCommand } from "../../slices/commandSlice";
@@ -20,12 +13,15 @@ import { WAVESURFERAPP } from "../../constants";
 import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
 //types
 import { wavesurferContext } from "types/components/wavesurfer";
+
+import Stack from "@mui/material/Stack";
+
 /**
  *
- * This is Wave component
+ * This is the Wave component
  * @component
  */
-const Wavesurfer = () => {
+const Wavesurfer = ({ cleanMode = false }) => {
   const { waveSurferApp, initWaveSurferApp, markersToggle } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;
@@ -68,54 +64,20 @@ const Wavesurfer = () => {
     }
   }, [waveSurferApp, time]);
 
-  // event
-  const handlePlayPause = () => waveSurferApp.playPause();
-  const handleStop = () => waveSurferApp.stop();
-  const handlePlayLoop = () => waveSurferApp.playLoop();
-
   return (
-    <div style={{ height: "100%" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          position: "fixed",
-          marginTop: "6px",
-          width: "100%",
-          zIndex: 10,
-        }}
-      >
-        <div style={{ marginRight: "8px" }}>
-          <Button
-            size="small"
-            variant="text"
-            color="default"
-            onClick={handlePlayPause}
-          >
-            <PlayArrowIcon /> / <PauseIcon />
-          </Button>
-        </div>
-        <Button
-          size="small"
-          variant="text"
-          color="default"
-          onClick={handleStop}
+    <>
+      {cleanMode || (
+        <Stack
+          direction="row"
+          justifyContent="space-evenly"
+          alignItems="center"
+          spacing={1}
         >
-          <StopIcon />
-        </Button>
-        <Button
-          size="small"
-          variant="text"
-          color="default"
-          onClick={handlePlayLoop}
-        >
-          <LoopIcon />
-        </Button>
-      </div>
-      <Setting wavesurfer={waveSurferApp} />
-      <div id="waveform" />
-    </div>
+          <ControlBar wavesurfer={waveSurferApp} />
+        </Stack>
+      )}
+      <div id="waveform" style={{ position: "relative" }} />
+    </>
   );
 };
 
