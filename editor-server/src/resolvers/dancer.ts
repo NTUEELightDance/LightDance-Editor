@@ -29,16 +29,15 @@ export class DancerResolver {
         @Arg("dancer") newDancerData: AddDancerInput,
         @Ctx() ctx: any
     ) {
-        const existDancer = await ctx.db.Dancer.findOne({ name: newDancerData.name })
+        const existDancer = await ctx.db.Dancer.findOne({ name: newDancerData.name }).populate('positionData').populate('parts')
         if (!existDancer) {
-            console.log("duplicate")
 
             let newDancer = new ctx.db.Dancer({ name: newDancerData.name, parts: [], positionData: [], id: generateID() })
 
             // for each position frame, add empty position data to the dancer
             let allPositionFrames = await ctx.db.PositionFrame.find()
-            allPositionFrames.map(async (positionframe: PositionFrame) => {
-                let newPosition = new ctx.db.Position({ frame: positionframe.id, x: 0, y: 0, z: 0 })
+            allPositionFrames.map(async (positionframe: any) => {
+                let newPosition = new ctx.db.Position({ frame: positionframe._id, x: 0, y: 0, z: 0 })
                 newDancer.positionData.push(newPosition)
                 await newPosition.save()
             })
@@ -50,11 +49,11 @@ export class DancerResolver {
                 dancerData
             }
             await publish(payload)
-            console.log({ ...dancerData, ok: true })
 
             // save dancer
             return Object.assign(dancerData, { ok: true })
         }
+        console.log(existDancer)
         return Object.assign(existDancer, { ok: false, msg: "dancer exists" })
     }
 

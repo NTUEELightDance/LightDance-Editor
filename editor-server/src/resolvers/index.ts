@@ -9,6 +9,7 @@ import { ControlMapResolver } from './controlMap'
 import { RequestEditResolver } from './requestEdit'
 import { ControlResolver } from './control'
 import { PositionResolver } from './position'
+import { PosMapResolver } from './positionMap'
 
 export const resolvers = [
     ColorResolver,
@@ -21,5 +22,6 @@ export const resolvers = [
     PositionFrameResolver,
     FiberResolver,
     ControlMapResolver,
-    RequestEditResolver
+    RequestEditResolver,
+    PosMapResolver
 ] as const

@@ -10,8 +10,4 @@ export class PositionFrameResolver {
         const id = frames.map((frame: PositionFrame) => frame.id)
         return id
     }
-    @FieldResolver()
-    async id(@Root() positionframe: any) {
-        return positionframe._id
-    }
 }

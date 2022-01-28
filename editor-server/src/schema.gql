@@ -174,6 +174,13 @@ type PositionFrame {
   start: Float!
 }
 
+"""Mongo object id scalar type"""
+scalar PositionMapQueryObjectId
+
+type PosMap {
+  frames: PositionMapQueryObjectId!
+}
+
 type Query {
   color(color: String!): String!
   controlFrame(start: Float!): ControlFrame!
@@ -181,6 +188,7 @@ type Query {
   ControlMap: ControlMap!
   dancer: [Dancer!]!
   positionFrameIDs: [ID!]!
+  PosMap: PosMap!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
 }
