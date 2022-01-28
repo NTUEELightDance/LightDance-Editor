@@ -1,4 +1,4 @@
-import { Field, ObjectType, Int, Float, ID } from "type-graphql";
+import { Field, ObjectType, Int, Float, ID, InputType } from "type-graphql";
 import { createUnionType } from "type-graphql";
 
 export const ControlDevice = createUnionType({
@@ -19,6 +19,7 @@ export const ControlDevice = createUnionType({
 })
 
 @ObjectType()
+@InputType("FIBERInput")
 export class FIBER {
 
 
@@ -30,6 +31,7 @@ export class FIBER {
 }
 
 @ObjectType()
+@InputType("ELInput")
 class EL {
 
 
@@ -38,6 +40,7 @@ class EL {
 }
 
 @ObjectType()
+@InputType("LEDInput")
 class LED {
 
     @Field(type => String)

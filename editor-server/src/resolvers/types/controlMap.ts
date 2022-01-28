@@ -33,11 +33,14 @@ export const ControlMapScalar = new GraphQLScalarType({
                         const { name, parts } = await db.Dancer.findById(dancer._id)
                         const partData: LooseObject = {}
                         await Promise.all(
-                            parts.map(async (partID: any) => {
-                                const { name, type, controlData } = await db.Part.findById(partID).populate("controlData")
-                                const wanted = controlData.filter((data: any) => data.frame.toString() === _id.toString())
-                                console.log(controlData, id)
-                                partData[name] = wanted[0].value
+                            parts.map(async(partID: any)=> {
+                                const {name, type, controlData} = await db.Part.findById(partID).populate("controlData")
+                                const wanted = controlData.filter((data: any)=>data.frame.toString() ===  _id.toString())
+                                if(type !== "EL"){
+                                    partData[name] = wanted[0].value
+                                }else{
+                                    partData[name] = wanted[0].value.value
+                                }
                             })
                         )
                         status[name] = partData

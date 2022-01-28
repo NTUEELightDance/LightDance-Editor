@@ -30,6 +30,14 @@ type Control {
   status: ControlDevice!
 }
 
+input ControlDataInput {
+  alpha: Float
+  color: String
+  ELValue: Float
+  partName: String!
+  src: String
+}
+
 union ControlDevice = EL | FIBER | LED
 
 type ControlFrame {
@@ -102,10 +110,14 @@ input DeletePartInput {
 }
 
 input EditControlFrameInput {
-  fade: Boolean!
+  fade: Boolean
   id: String!
-  start: Float!
-  user: String!
+  start: Float
+}
+
+input EditControlInput {
+  controlDatas: [ControlDataInput!]!
+  dancerName: String!
 }
 
 input editDancerInput {
@@ -140,6 +152,7 @@ type Mutation {
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
+  editControlMap(controlDatas: [EditControlInput!]!, frameID: String!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   updateColor(color: ColorInput!): String!

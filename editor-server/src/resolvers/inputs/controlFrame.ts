@@ -5,12 +5,9 @@ export class EditControlFrameInput{
   @Field()
   id: string;
 
-  @Field()
-  user: string;
+  @Field({nullable: true})
+  start?: number;
 
-  @Field()
-  start: number;
-
-  @Field()
-  fade: boolean;
+  @Field({nullable: true})
+  fade?: boolean;
 }

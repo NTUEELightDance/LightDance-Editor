@@ -46,12 +46,11 @@ export class ControlFrameResolver {
     }
 
     @Mutation(returns => ControlFrame)
-    async editControlFrame(@Arg("input") input: EditControlFrameInput, @Ctx() ctx: any) {
-        let frameToEdit = await ctx.db.findOne({ _id: input.id });
-        if (frameToEdit.editing && frameToEdit.editing !== input.user) {
+    async editControlFrame(@Arg("input") input: EditControlFrameInput, @Ctx() ctx: any){
+        let frameToEdit = await ctx.db.findOne({_id: input.id});
+        if (frameToEdit.editing && frameToEdit.editing !== ctx.userID){
             throw new Error("The frame is now editing by other user.");
             return;
         }
-        return await ctx.db.findOneAndUpdate({ _id: input.id }, input);
     }
 }
