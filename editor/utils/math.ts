@@ -27,7 +27,10 @@ export function clamp(val: number, mi: number, ma: number) {
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrame(data, time: number) {
+export function binarySearchFrame(
+  data: posRecordType | ControlMapElement[],
+  time: number
+) {
   if (!Array.isArray(data))
     throw new Error(`[Error] binarySearchFrame, invalid parameter(data)`);
   if (typeof time !== "number")
@@ -49,7 +52,11 @@ export function binarySearchFrame(data, time: number) {
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
-export function updateFrameByTime(data, frame: number, time: number) {
+export function updateFrameByTime(
+  data: posRecordType | ControlMapElement[],
+  frame: number,
+  time: number
+) {
   if (!Array.isArray(data))
     throw new Error(`[Error] updateFrameByTime, invalid parameter(data)`);
   if (typeof frame !== "number")
@@ -71,7 +78,11 @@ export function updateFrameByTime(data, frame: number, time: number) {
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrameMap(controlRecord, controlMap, time: number) {
+export function binarySearchFrameMap(
+  controlRecord: ControlRecordType,
+  controlMap: ControlMapType,
+  time: number
+) {
   if (!Array.isArray(controlRecord))
     throw new Error(
       `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
@@ -100,8 +111,8 @@ export function binarySearchFrameMap(controlRecord, controlMap, time: number) {
  * @param {number} time - timestamp
  */
 export function updateFrameByTimeMap(
-  controlRecord,
-  controlMap,
+  controlRecord: ControlRecordType,
+  controlMap: ControlMapType,
   frame: number,
   time: number
 ) {
@@ -120,8 +131,8 @@ export function updateFrameByTimeMap(
   // Check if need to do binarysearch
   if (
     controlMap[frame + 2] &&
-    time >= controlRecord[controlMap[frame + 1]].start &&
-    time <= controlRecord[controlMap[frame + 2]].start
+    time >= controlMap[controlRecord[frame + 1]].start &&
+    time <= controlMap[controlRecord[frame + 2]].start
   ) {
     return frame + 1;
   }
