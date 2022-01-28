@@ -919,10 +919,10 @@
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
 
-"@types/three@^0.136.1":
-  version "0.136.1"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.136.1.tgz#030fc01cdc5ce82cad93db17b94a24515cb4b50e"
-  integrity sha512-gzTw6RR4dU8sGf+RpLBWWKHRVIJ4gwKVQPk+IFCgha04Efg/itXYUalX6iBcYeSmaDu0qE5M7uTq0XLQpU4FAg==
+"@types/three@^0.137.0":
+  version "0.137.0"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.137.0.tgz#6047e0658262b4de7c464a40288f9071ddd9a6d5"
+  integrity sha512-Xc5EAlfYmgrCLI/VlSVqiRJAtzhWF0Rw2jSq48nqJy+Hcb5sfDOXyfZn1+RNcHyi9l8CeCAXCZygO8IyeOJVEA==
 
 "@vitejs/plugin-legacy@^1.6.4":
   version "1.6.4"
@@ -2709,6 +2709,11 @@ systemjs@^6.11.0:
   version "6.11.0"
   resolved "https://registry.yarnpkg.com/systemjs/-/systemjs-6.11.0.tgz#8df8e74fc05822e6c40170aa409b9ca64833315f"
   integrity sha512-7YPIY44j+BoY+E6cGBSw0oCU8SNTTIHKZgftcBdwWkDzs/M86Fdlr21FrzAyph7Zo8r3CFGscyFe4rrBtixrBg==
+
+three@^0.137.4:
+  version "0.137.4"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.137.4.tgz#ec73b6a6c40b733d56544b13d0c3cdb0bce5d0a7"
+  integrity sha512-kUyOZNX+dMbvaS0mGYM1BaXHkHVNQdpryWH8dBg3mn725dJcTo9/5rjyH+OJ8V0r+XbZPz7sncV+c3Gjpc9UBA==
 
 tiny-warning@^1.0.2:
   version "1.0.3"
