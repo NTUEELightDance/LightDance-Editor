@@ -14,7 +14,7 @@ import NtpServer from "./ntp/index.js";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const board_config = require("../data/board_config.json");
+const board_config = require("../files/data/board_config.json");
 
 const app = express();
 const server = http.createServer(app);

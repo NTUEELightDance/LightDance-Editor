@@ -5,11 +5,30 @@ import {
   ControlMapElement,
   ControlMapType,
   ControlRecordType,
-  CheckTypeOfEl,
-  CheckTypeOfFiber,
-  CheckTypeOfLED,
   ControlMapStatus,
+  LED,
+  Fiber,
+  El,
 } from "../types/globalSlice";
+
+function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
+  console.log((object as LED).type);
+  return (
+    (object as LED)["src"] !== undefined &&
+    (object as LED)["alpha"] !== undefined
+  );
+}
+
+function CheckTypeOfFiber(object: LED | Fiber | El): object is Fiber {
+  return (
+    (object as Fiber)["color"] !== undefined &&
+    (object as Fiber)["alpha"] !== undefined
+  );
+}
+
+function CheckTypeOfEl(object: LED | Fiber | El): object is El {
+  return typeof (object as El) === "number";
+}
 
 /**
  * clamp a value between mi and ma

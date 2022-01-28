@@ -10,18 +10,6 @@ export interface LED {
   alpha: number;
 }
 
-export function CheckTypeOfLED(object: any): object is LED {
-  return "src" in object && "alpha" in object;
-}
-
-export function CheckTypeOfFiber(object: any): object is Fiber {
-  return "color" in object && "alpha" in object;
-}
-
-export function CheckTypeOfEl(object: any): object is El {
-  return typeof object === "number";
-}
-
 interface DancerStatus {
   [index: string]: Fiber | El | LED; //partNames: partStatus
 }
@@ -30,7 +18,7 @@ export interface ControlMapStatus {
   [index: string]: DancerStatus; //dancerNames :  dancerStatus
 }
 
-interface ControlMapElement {
+export interface ControlMapElement {
   start: number; //frame's start time
   status: ControlMapStatus;
   fade: boolean; // if this frame fades to the next

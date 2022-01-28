@@ -11,7 +11,7 @@ import { selectLoad, fetchLoad } from "./slices/loadSlice";
 import Layout from "./layout";
 import "./app.css";
 // components
-import Bar from "./components/bar";
+import Bar from "./components/Bar";
 
 const theme = createTheme({
   palette: {

@@ -4,8 +4,8 @@ import { Provider } from "react-redux";
 import store from "./store";
 
 // test for websocket
-import WebSocketContext from "./contexts/webSocketContext";
-import WaveSurferAppContext from "./contexts/wavesurferContext";
+import WebSocketContext from "./contexts/WebSocketContext";
+import WaveSurferAppContext from "./contexts/WavesurferContext";
 
 import App from "./app";
 

@@ -1,7 +1,7 @@
 import COMMANDS from "../constants/index.js";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const led = require("../../data/led.json");
+const led = require("../../files/data/led.json");
 
 class DancerSocket {
   constructor(ws, dancerName, dancerAgent) {

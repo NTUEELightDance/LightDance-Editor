@@ -7,6 +7,7 @@ import mkcert from "vite-plugin-mkcert";
 const defineConfig: UserConfigFn = ({ command, mode }) => {
   const config: UserConfig = {
     server: {
+      host: true,
       https: false,
       port: 8080,
       proxy: {
@@ -14,7 +15,7 @@ const defineConfig: UserConfigFn = ({ command, mode }) => {
         "/asset": "http://localhost:8081",
         "/music": "http://localhost:8081",
         "/data": "http://localhost:8081",
-        // controller-server
+        // controller-server port at 8082
         "/api/controller": "http://localhost:8082",
       },
     },

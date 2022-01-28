@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  all:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+      - "4000:4000"
+    volumes:
+      - .:/app
+      - /app/editor/node_modules
+      - /app/editor-server/node_modules
+      - /app/controller-server/node_modules
+      - /app/file-server/node_modules
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
