@@ -6,6 +6,7 @@ import store from "./store";
 // test for websocket
 import WebSocketContext from "./contexts/WebSocketContext";
 import WaveSurferAppContext from "./contexts/WavesurferContext";
+import LayoutContextProvider from "./contexts/layoutContext";
 
 import App from "./app";
 
@@ -13,7 +14,9 @@ const Index = () => (
   <Provider store={store}>
     <WebSocketContext>
       <WaveSurferAppContext>
-        <App />
+        <LayoutContextProvider>
+          <App />
+        </LayoutContextProvider>
       </WaveSurferAppContext>
     </WebSocketContext>
   </Provider>

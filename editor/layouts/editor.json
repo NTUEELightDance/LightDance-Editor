@@ -76,6 +76,12 @@
                     "name": "Simulator",
                     "component": "Simulator",
                     "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "Three Simulator",
+                    "component": "ThreeSimulator",
+                    "enableClose": false
                   }
                 ]
               }

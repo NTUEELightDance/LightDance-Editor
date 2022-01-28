@@ -1,25 +1,19 @@
-import { useState } from "react";
-import {
-  AppBar,
-  Container,
-  Toolbar,
-  Typography,
-  Box,
-  IconButton,
-  Tooltip,
-  Menu,
-  MenuItem,
-  Button,
-} from "@mui/material";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useState, useContext } from "react";
+import { AppBar, Container, Toolbar, Typography } from "@mui/material";
 
+import { LayoutContext } from "contexts/layoutContext";
+
+import { LayoutButtons } from "./LayoutButtons";
+import { Settings } from "../Settings";
+
+import { layoutContext } from "types/layout";
 /**
  * Top Bar, include title, timeController, upload/download btn
  */
 export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const pages = ["editor", "command center"];
-  const settings = ["test"];
+  const { setMode } = useContext(LayoutContext) as layoutContext;
+
   return (
     <AppBar position="static" color="transparent">
       <Container maxWidth={false}>
@@ -28,43 +22,12 @@ export default function Header() {
             NTUEE Light Dance Editor
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: "flex", gap: "1vw" }}>
-            {pages.map((page) => (
-              <Button key={page} sx={{ color: "white", display: "block" }}>
-                {page}
-              </Button>
-            ))}
-          </Box>
+          <LayoutButtons setMode={setMode} />
 
-          <Box sx={{ flexGrow: 0 }}>
-            <IconButton
-              sx={{ p: 0 }}
-              onClick={() => setShowSettings(!showSettings)}
-            >
-              <AccountCircleIcon fontSize="large" sx={{ color: "white" }} />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              sx={{ transform: "translate(-40px, 45px)" }}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={showSettings}
-              onClose={() => setShowSettings(false)}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+          <Settings
+            showSettings={showSettings}
+            setShowSettings={setShowSettings}
+          />
         </Toolbar>
       </Container>
     </AppBar>

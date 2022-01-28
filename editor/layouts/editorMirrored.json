@@ -4,6 +4,38 @@
     "splitterSize": 4,
     "enableRenderOnDemand": true
   },
+  "borders": [
+    {
+      "type": "border",
+      "location": "bottom",
+      "children": [
+        {
+          "type": "tab",
+          "enableClose": false,
+          "name": "CommandCenter",
+          "component": "CommandCenter"
+        }
+      ]
+    },
+    {
+      "type": "border",
+      "location": "right",
+      "children": [
+        {
+          "type": "tab",
+          "name": "LightPresets",
+          "component": "LightPresets",
+          "enableClose": false
+        },
+        {
+          "type": "tab",
+          "name": "PosPresets",
+          "component": "PosPresets",
+          "enableClose": false
+        }
+      ]
+    }
+  ],
   "layout": {
     "type": "row",
     "children": [
@@ -12,25 +44,11 @@
         "children": [
           {
             "type": "row",
+            "weight": 80,
             "children": [
               {
                 "type": "tabset",
                 "selected": 0,
-                "weight": 40,
-                "enableMaximize": true,
-                "children": [
-                  {
-                    "type": "tab",
-                    "enableClose": false,
-                    "name": "CommandCenter",
-                    "component": "CommandCenter"
-                  }
-                ]
-              },
-              {
-                "type": "tabset",
-                "selected": 0,
-                "weight": 60,
                 "enableMaximize": true,
                 "children": [
                   {
@@ -51,7 +69,7 @@
           },
           {
             "type": "row",
-            "weight": 18,
+            "weight": 19.5,
             "children": [
               {
                 "type": "tabset",
@@ -65,12 +83,32 @@
                   {
                     "type": "tab",
                     "name": "Wavesurfer",
-                    "component": "WavesurferClean",
+                    "component": "Wavesurfer",
                     "enableClose": false
                   }
                 ]
               }
             ]
+          }
+        ]
+      },
+      {
+        "type": "tabset",
+        "weight": 25,
+        "selected": 0,
+        "enableMaximize": false,
+        "children": [
+          {
+            "type": "tab",
+            "name": "LightEditor",
+            "component": "LightEditor",
+            "enableClose": false
+          },
+          {
+            "type": "tab",
+            "name": "PosEditor",
+            "component": "PosEditor",
+            "enableClose": false
           }
         ]
       }

@@ -199,7 +199,7 @@ class ThreeController {
     });
 
     // add gui to adjust parameters
-    this.gui();
+    // this.gui();
 
     // start rendering
     this.animateID = this.animate((clockDelta) => {});

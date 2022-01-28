@@ -18,9 +18,12 @@ const Simulator: React.FC = ({}) => {
   const [controller, setController] = useState<Controller | null>(null);
 
   useEffect(() => {
-    const newController = new Controller();
-    newController.init();
-    setController(newController);
+    if (!controller) {
+      console.log("new controllers");
+      const newController = new Controller();
+      newController.init();
+      setController(newController);
+    }
   }, []);
 
   useEffect(() => {
