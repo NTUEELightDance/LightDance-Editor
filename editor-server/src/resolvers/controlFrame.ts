@@ -38,9 +38,13 @@ export class ControlFrameResolver {
         let newControlFrame = new ctx.db.ControlFrame({ start: start, fade: false, id: generateID() });
         let allParts = await ctx.db.Part.find();
         allParts.map(async (part: Part) => {
-            let newControl = new ctx.db.Control({ frame: newControlFrame, value: ControlDefault[part.type] });
+            let newControl = new ctx.db.Control({ frame: newControlFrame, value: ControlDefault[part.type], id: generateID()});
             await newControl.save()
-            await ctx.db.Part.findOneAndUpdate({ name: part.name }, { name: part.name, type: part.type, controlData: part.controlData.concat([newControl]) });
+            await ctx.db.Part.findOneAndUpdate({ id: part.id}, {
+            name: part.name,
+            type: part.type,
+            controlData: part.controlData.concat([newControl]),
+            id: part.id});
         });
         return newControlFrame.save();
     }
