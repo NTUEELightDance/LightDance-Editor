@@ -3,11 +3,12 @@ import {
   posRecordElement,
   coordinates,
   ControlMapElement,
-<<<<<<< HEAD
   ControlMapType,
   ControlRecordType,
-=======
->>>>>>> b8be20e8 (__trying to rebase)
+  CheckTypeOfEl,
+  CheckTypeOfFiber,
+  CheckTypeOfLED,
+  ControlMapStatus,
 } from "../types/globalSlice";
 
 /**
@@ -66,7 +67,6 @@ export function updateFrameByTime(data, frame: number, time: number) {
   return binarySearchFrame(data, time);
 }
 /**
-<<<<<<< HEAD
  * binarySearch based on controlRecord and controlMap (array of object with start), return the index
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
@@ -128,8 +128,6 @@ export function updateFrameByTimeMap(
   return binarySearchFrameMap(controlRecord, controlMap, time);
 }
 /**
-=======
->>>>>>> b8be20e8 (__trying to rebase)
  * Calculate Interpolation of the position, return new position
  * @param {*} time
  * @param {*} preFrame - the position frame data (posRecord[timeData.posFrame])
@@ -155,7 +153,7 @@ export function interpolationPos(
   Object.keys(prePos).forEach((dancer) => {
     const dancerPrePos = prePos[dancer];
     const dancerNextPos = nextPos[dancer];
-    const dancerPos = {}; //should be coordinatebs
+    const dancerPos: coordinates = { x: 0, y: 0, z: 0 }; //should be coordinates
     Object.keys(dancerPrePos).forEach((x) => {
       dancerPos[x] =
         ((dancerNextPos[x] - dancerPrePos[x]) * (time - preTime)) /
@@ -186,7 +184,7 @@ export function fadeStatus(
   const { start: nextTime, status: nextStatus } = nextFrame;
   if (!fade) return preFrame.status; // Don't need to fade
   // need to fade - interpolation
-  const newStatus = {};
+  const newStatus: ControlMapStatus = {};
   Object.keys(preStatus).forEach((dancer) => {
     const preParts = preStatus[dancer];
     const nextParts = nextStatus[dancer];
@@ -196,7 +194,7 @@ export function fadeStatus(
       const nextVal = nextParts[part];
 
       // LED Parts
-      if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
+      if (CheckTypeOfLED(preVal) && CheckTypeOfLED(nextVal)) {
         newStatus[dancer][part] = {
           alpha: Round1(
             ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
@@ -206,16 +204,41 @@ export function fadeStatus(
           src: preVal.src,
         };
       }
+      /*
+      if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
+        newStatus[dancer][part] = {
+          alpha: Round1(
+            ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
+              (nextTime - preTime) +
+              preVal.alpha
+          ),
+          src: preVal.src,
+        };
+      }*/
       // El Parts
-      else {
-        if (typeof preVal === "number" && typeof nextVal === "number") {
-          newStatus[dancer][part] = Round1(
-            ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
-              preVal
-          );
-        }
+      else if (CheckTypeOfEl(preVal) && CheckTypeOfEl(nextVal)) {
+        //if (typeof preVal === "number" && typeof nextVal === "number") {
+        newStatus[dancer][part] = Round1(
+          ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
+            preVal
+        );
+        //}
       }
       // fiber Parts
+      else if (CheckTypeOfFiber(preVal) && CheckTypeOfFiber(nextVal)) {
+        newStatus[dancer][part] = {
+          alpha: Round1(
+            ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
+              (nextTime - preTime) +
+              preVal.alpha
+          ),
+          color: preVal.color,
+        };
+      } else {
+        throw new Error(
+          `[Error] fadeStatus, invalid parts ${preVal}, ${nextVal}`
+        );
+      }
     });
   });
   return newStatus;
