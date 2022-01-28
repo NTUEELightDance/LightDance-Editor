@@ -60,7 +60,6 @@ export default function LightPresets() {
     closeDialog();
   };
   const handleEditPresets = (name: string, idx: number) => {
-    console.log();
     dispatch(editLightPresetsName({ name, idx }));
     closeDialog();
   };
