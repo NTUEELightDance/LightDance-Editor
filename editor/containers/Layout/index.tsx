@@ -6,14 +6,14 @@ import { layoutContext } from "types/layout";
 import "flexlayout-react/style/dark.css";
 import "./layout.css";
 // components
-import Simulator from "../../components/simulator";
-import Wavesurfer from "../../components/wavesurfer";
-import LightPresets from "../../components/presets/lightPresets";
-import PosPresets from "../../components/presets/posPresets";
-import LightEditor from "../../components/lightEditor";
-import PosEditor from "../../components/posEditor";
-import CommandCenter from "../../components/commandCenter";
-import ThreeSimulator from "../../components/threeSimulator";
+import Simulator from "../../components/Simulator";
+import Wavesurfer from "../../components/Wavesurfer";
+import LightPresets from "../../components/Presets/LightPresets";
+import PosPresets from "../../components/Presets/PosPresets";
+import LightEditor from "../../components/LightEditor";
+import PosEditor from "../../components/PosEditor";
+import CommandCenter from "../../components/CommandCenter";
+import ThreeSimulator from "../../components/ThreeSimulator";
 
 import { LayoutContext } from "contexts/layoutContext";
 

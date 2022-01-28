@@ -1,6 +1,6 @@
-import Part from "./part/Part";
-import BlackPart from "./part/BlackPart";
-import ELPart from "./part/ELPart";
-import LEDPart from "./part/LEDPart";
+import Part from "./Part/Part";
+import BlackPart from "./Part/BlackPart";
+import ELPart from "./Part/ELPart";
+import LEDPart from "./Part/LEDPart";
 
 export { Part, BlackPart, ELPart, LEDPart };
