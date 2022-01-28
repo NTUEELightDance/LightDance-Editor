@@ -9,15 +9,15 @@ import StopIcon from "@material-ui/icons/Stop";
 import LoopIcon from "@material-ui/icons/Loop";
 
 // my class
-import WaveSurferApp from "./waveSurferApp";
-import Setting from "./timeline";
+import WaveSurferApp from "./WaveSurferApp";
+import Setting from "./Timeline";
 // selector
 import { selectGlobal } from "../../slices/globalSlice";
 import { selectCommand } from "../../slices/commandSlice";
 // constants
 import { WAVESURFERAPP } from "../../constants";
 // contexts
-import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
+import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
 //types
 import { wavesurferContext } from "types/components/wavesurfer";
 /**

@@ -7,8 +7,8 @@ import { makeStyles } from "@material-ui/core/styles";
 // redux selector and actions
 import { saveCurrentPos, deleteCurrentPos } from "../../slices/globalSlice";
 // components
-import ModeSelector from "../modeSelector";
-import PosList from "./posList";
+import ModeSelector from "../ModeSelector";
+import PosList from "./PosList";
 // constants
 
 import store from "../../store";

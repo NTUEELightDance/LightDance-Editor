@@ -8,7 +8,7 @@ import { selectGlobal, editCurrentStatus } from "../../../slices/globalSlice";
 import { selectLoad } from "../../../slices/loadSlice";
 
 // components
-import SlideBar from "../slidebar";
+import SlideBar from "../Slidebar";
 // constants
 import { IDLE } from "../../../constants";
 

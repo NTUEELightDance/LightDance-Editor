@@ -3,9 +3,9 @@ import React from "react";
 import { makeStyles } from "@material-ui/styles";
 import Typography from "@material-ui/core/Typography";
 // components
-import TimeController from "./timeController";
-import Tools from "../tools";
-import MarkerSwitch from "../wavesurfer/markerSwitch";
+import TimeController from "./TimeController";
+import Tools from "../Tools";
+import MarkerSwitch from "../Wavesurfer/MarkerSwitch";
 
 const useStyles = makeStyles({
   flex: {

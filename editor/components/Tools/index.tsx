@@ -6,7 +6,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 
 // components
-import TimeShift from "./timeShift";
+import TimeShift from "./TimeShift";
 
 export default function Tools() {
   // open or close menu

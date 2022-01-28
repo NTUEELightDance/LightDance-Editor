@@ -10,35 +10,36 @@ import TextField from "@material-ui/core/TextField";
 // action and selector
 import {
   selectGlobal,
-  setPosPresets,
-  addPosPresets,
-  setCurrentPos,
-  editPosPresetsName,
-  deletePosPresets,
+  setLightPresets,
+  addLightPresets,
+  setCurrentStatus,
+  editLightPresetsName,
+  deleteLightPresets,
 } from "../../slices/globalSlice";
 import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { getItem } from "../../utils/localStorage";
 // components
-import PresetsList from "./presetsList";
+import PresetsList from "./PresetsList";
+import { string } from "prop-types";
 //types
-import { positionType } from "types/globalSlice";
+import { ControlMapStatus } from "types/globalSlice";
 
 /**
- * This is Presets component, list of pos
+ * This is Presets component, list of status
  * @component
  */
-export default function PosPresets() {
+export default function LightPresets() {
   const dispatch = useDispatch();
   // presets intialize
   // get loadedPresets or storagePresets
-  const { posPresets: loadedPosPresets } = useSelector(selectLoad);
-  const { posPresets } = useSelector(selectGlobal);
+  const { lightPresets: loadedLightPresets } = useSelector(selectLoad);
+  const { lightPresets } = useSelector(selectGlobal);
   useEffect(() => {
-    if (getItem("posPresets")) {
-      dispatch(setPosPresets(JSON.parse(getItem("posPresets") || "")));
+    if (getItem("lightPresets")) {
+      dispatch(setLightPresets(JSON.parse(getItem("lightPresets") || "")));
     } else {
-      dispatch(setPosPresets(loadedPosPresets));
+      dispatch(setLightPresets(loadedLightPresets));
     }
   }, []);
 
@@ -50,25 +51,27 @@ export default function PosPresets() {
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => setNameVal(e.target.value);
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setNameVal(e.target.value);
 
   // dispatch
   const handleAddPresets = (name: string) => {
-    if (name.trim() !== "") dispatch(addPosPresets(name));
+    if (name.trim() !== "") dispatch(addLightPresets(name));
     closeDialog();
   };
   const handleEditPresets = (name: string, idx: number) => {
-    dispatch(editPosPresetsName({ name, idx }));
+    console.log();
+    dispatch(editLightPresetsName({ name, idx }));
     closeDialog();
   };
   const handleDeletePresets = (idx: number) => {
-    dispatch(deletePosPresets(idx));
+    dispatch(deleteLightPresets(idx));
   };
-  const handleSetCurrentPos = (pos: positionType) => {
-    dispatch(setCurrentPos(pos));
+  const handleSetCurrentStatus = (status: ControlMapStatus) => {
+    dispatch(setCurrentStatus(status));
   };
 
-  // short cut of key to save currentPos
+  // short cut of key to save currentStatus
   return (
     <div>
       <div style={{ padding: 8 }}>
@@ -76,10 +79,10 @@ export default function PosPresets() {
           Add
         </Button>
         <PresetsList
-          presets={posPresets}
+          presets={lightPresets}
           handleEditPresets={handleEditPresets}
           handleDeletePresets={handleDeletePresets}
-          handleSetCurrent={handleSetCurrentPos}
+          handleSetCurrent={handleSetCurrentStatus}
         />
       </div>
       <div>

@@ -1,11 +1,13 @@
 import React, { useContext } from "react";
-import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
+import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
 import { Switch } from "@material-ui/core";
 import { FormControlLabel } from "@material-ui/core";
 import { wavesurferContext } from "types/components/wavesurfer";
 
 export default function MarkerSwitch() {
-  const { markersToggle, toggleMarkers } = useContext(WaveSurferAppContext) as wavesurferContext;
+  const { markersToggle, toggleMarkers } = useContext(
+    WaveSurferAppContext
+  ) as wavesurferContext;
 
   //toggle markers
   const handleChange = () => {

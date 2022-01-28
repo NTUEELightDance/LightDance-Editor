@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { BlackPart, ELPart, LEDPart } from "./parts";
+import { BlackPart, ELPart, LEDPart } from "./Parts";
 // constants
 import { IDLE } from "../../../constants";
 // actions

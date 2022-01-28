@@ -23,6 +23,8 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
 import DoneIcon from "@material-ui/icons/Done";
 
+// components
+import WaveSurferApp from "./WaveSurferApp";
 // constant
 import { FormControl, InputLabel } from "@material-ui/core";
 import load from "../../../data/load.json";
@@ -34,13 +36,13 @@ import { selectLoad } from "../../slices/loadSlice";
 import { setItem, getItem } from "../../utils/localStorage";
 
 //types
-import {
-  FilterType,
-  LocalRegion,
-} from "../../types/components/wavesurfer";
-import WaveSurferApp from "./waveSurferApp";
+import { FilterType, LocalRegion } from "../../types/components/wavesurfer";
 
-export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
+export default function Timeline({
+  wavesurfer,
+}: {
+  wavesurfer: WaveSurferApp;
+}) {
   /**
    * params
    */
@@ -273,12 +275,13 @@ export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) 
     if (DATA) findPeakAndCountBPM();
   }, [thrRatio]);
 
-  const handelExpanded = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
-    setExpanded(isExpanded ? panel : "");
-    const index = Number(panel[panel.length - 1]);
-    setNewStart(region[index].Start);
-    setNewEnd(region[index].End);
-  };
+  const handelExpanded =
+    (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+      setExpanded(isExpanded ? panel : "");
+      const index = Number(panel[panel.length - 1]);
+      setNewStart(region[index].Start);
+      setNewEnd(region[index].End);
+    };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -368,7 +371,7 @@ export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) 
             onChange={(event, newValue) => {
               const sub = region;
               // console.log("change", sub[r.Value].ThreashRatio);
-              sub[r.Value].ThreashRatio = (newValue as number);
+              sub[r.Value].ThreashRatio = newValue as number;
               setRegion(sub);
               setItem("region", JSON.stringify(sub));
               setSubThrRatio(true);
@@ -399,13 +402,19 @@ export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) 
     </Accordion>
   ));
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number | number[]) => {
-    setRatio((newValue as number));
+  const handleChange = (
+    event: React.ChangeEvent<{}>,
+    newValue: number | number[]
+  ) => {
+    setRatio(newValue as number);
     wavesurfer.zoom(Number(newValue));
   };
 
-  const newRatio = (event: React.ChangeEvent<{}>, newValue: number | number[]) => {
-    setThrRatio((newValue as number));
+  const newRatio = (
+    event: React.ChangeEvent<{}>,
+    newValue: number | number[]
+  ) => {
+    setThrRatio(newValue as number);
   };
 
   const findPosLast = (currentTime: number) => {
@@ -547,8 +556,8 @@ export default function Timeline({ wavesurfer }: { wavesurfer: WaveSurferApp }) 
                     id="demo-simple-select"
                     value={filterNow}
                     onChange={(e) => {
-                      setFilterNow((e.target.value as FilterType));
-                      loadMusic(load.Music, (e.target.value as FilterType));
+                      setFilterNow(e.target.value as FilterType);
+                      loadMusic(load.Music, e.target.value as FilterType);
                     }}
                   >
                     <MenuItem value="lowpass">lowpass</MenuItem>

@@ -18,9 +18,9 @@ import commandApi from "./agent";
 import { selectGlobal } from "../../slices/globalSlice";
 import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
 // contants
-import { WaveSurferAppContext } from "../../contexts/wavesurferContext";
 import COMMANDS from "../../../editor-common/constants";
 // contexts
+import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
 
 const useStyles = makeStyles((theme) => ({
   commands: {

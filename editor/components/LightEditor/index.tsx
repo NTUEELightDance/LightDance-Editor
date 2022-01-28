@@ -11,11 +11,11 @@ import {
   saveCurrentFade,
 } from "../../slices/globalSlice";
 // components
-import SelectDancer from "./selectDancer";
-import ElEditor from "./el";
-import LedEditor from "./led";
-import ModeSelector from "../modeSelector";
-import Fade from "./fade";
+import SelectDancer from "./SelectDancer";
+import ElEditor from "./ElEditor";
+import LedEditor from "./LedEditor";
+import ModeSelector from "../ModeSelector";
+import Fade from "./Fade";
 // constants
 
 import store from "../../store";

@@ -20,7 +20,7 @@ import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 
-import ThreeDancer from "./threeComponents/Dancer";
+import ThreeDancer from "./ThreeComponents/Dancer";
 
 import {
   updateFrameByTimeMap,

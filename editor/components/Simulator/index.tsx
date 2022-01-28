@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 // actions
 import { selectGlobal } from "../../slices/globalSlice";
 // my-class
-import Controller from "./controller";
+import Controller from "./Controller";
 // useSelector
 
 /**

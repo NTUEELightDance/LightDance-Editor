@@ -5,7 +5,7 @@ import { setItem, getItem } from "../../utils/localStorage";
 import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
-import Dancer from "./dancer";
+import Dancer from "./Dancer";
 // math
 import {
   updateFrameByTimeMap,

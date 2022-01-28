@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from "react";
-import EditorSocketAPI from "../websocket/editorSocketAPI";
+import EditorSocketAPI from "../websocket/EditorSocketAPI";
 
 import { fetchBoardConfig } from "../slices/commandSlice";
 import store from "../store";
