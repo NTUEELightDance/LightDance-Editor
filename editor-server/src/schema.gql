@@ -3,15 +3,267 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+input AddDancerInput {
+  name: String!
+}
+
+input AddPartInput {
+  dancerName: String!
+  name: String!
+  type: String!
+}
+
 input ColorInput {
   color: String!
   colorCode: String!
 }
 
+type ColorPayload {
+  color: String!
+  colorCode: String
+  editBy: String!
+  mutation: String!
+}
+
+type Control {
+  frame: ControlFrame!
+  status: ControlDevice!
+}
+
+input ControlDataInput {
+  alpha: Float
+  color: String
+  ELValue: Float
+  partName: String!
+  src: String
+}
+
+union ControlDevice = EL | FIBER | LED
+
+type ControlFrame {
+  editing: String
+  fade: Boolean!
+  id: ID!
+  start: Float!
+}
+
+type ControlMap {
+  frames: ControlMapQueryObjectId!
+}
+
+type ControlMapPayload {
+  editBy: String!
+  frameID: String!
+  frames: ControlMapQueryObjectId
+  mutation: String!
+}
+
+"""Mongo object id scalar type"""
+scalar ControlMapQueryObjectId
+
+type ControlRecordPayload {
+  editBy: String!
+  frameID: ID!
+  index: Int!
+  mutation: String!
+}
+
+"""The basic control types"""
+enum ControlType {
+  EL
+  FIBER
+  LED
+}
+
+type Dancer {
+  id: ID!
+  name: String!
+  parts: [Part!]!
+  positionData: [Position!]!
+}
+
+enum dancerMutation {
+  CREATED
+  DELETED
+  UPDATED
+}
+
+type DancerPayload {
+  dancerData: Dancer
+  editBy: String!
+  mutation: dancerMutation!
+}
+
+type DancerResponse {
+  id: ID!
+  msg: String
+  name: String!
+  ok: Boolean!
+  parts: [Part!]!
+  positionData: [Position!]!
+}
+
+input DeleteControlFrameInput {
+  id: String!
+}
+
+input deleteDancerInput {
+  id: ID!
+}
+
+input DeletePartInput {
+  dancerName: String!
+  id: ID!
+}
+
+input DeletePositionFrameInput {
+  id: String!
+}
+
+input EditControlFrameInput {
+  fade: Boolean
+  id: String!
+  start: Float
+}
+
+input EditControlInput {
+  controlDatas: [ControlDataInput!]!
+  dancerName: String!
+}
+
+input editDancerInput {
+  id: ID!
+  name: String!
+}
+
+input EditPartInput {
+  dancerName: String!
+  id: ID!
+  name: String!
+  type: String!
+}
+
+input EditPositionFrameInput {
+  id: String!
+  start: Float!
+}
+
+input EditPositionInput {
+  dancerName: String!
+  positionDatas: PositionDataInput!
+}
+
+type EL {
+  value: Int!
+}
+
+type FIBER {
+  alpha: Float!
+  color: String!
+}
+
+type LED {
+  alpha: Float!
+  src: String!
+}
+
 type Mutation {
+  addControlFrame(start: Float!): ControlFrame!
+  addDancer(dancer: AddDancerInput!): DancerResponse!
+  addPart(part: AddPartInput!): PartResponse!
+  addPositionFrame(start: Float!): PositionFrame!
+  deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
+  deleteDancer(dancer: deleteDancerInput!): DancerResponse!
+  deletePart(part: DeletePartInput!): PartResponse!
+  deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
+  editControlFrame(input: EditControlFrameInput!): ControlFrame!
+  editControlMap(controlDatas: [EditControlInput!]!, frameID: String!): ControlMap!
+  editDancer(dancer: editDancerInput!): DancerResponse!
+  editPart(part: EditPartInput!): PartResponse!
+  editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
+  editPosMap(frameID: String!, positionDatas: [EditPositionInput!]!): PosMap!
+  RequestEditControl(FrameID: String!): RequestEditResponse!
+  RequestEditPosition(FrameID: String!): RequestEditResponse!
   updateColor(color: ColorInput!): String!
+}
+
+type Part {
+  controlData: [Control!]!
+  id: ID!
+  name: String!
+  type: ControlType
+}
+
+type PartResponse {
+  controlData: [Control!]!
+  id: ID!
+  msg: String
+  name: String!
+  ok: Boolean!
+  type: ControlType
+}
+
+type Position {
+  frame: PositionFrame!
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+input PositionDataInput {
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+type PositionFrame {
+  editing: String
+  id: ID!
+  start: Float!
+}
+
+type PositionMapPayload {
+  editBy: String!
+  frameID: String!
+  frames: PositionMapQueryObjectId
+  mutation: String!
+}
+
+"""Mongo object id scalar type"""
+scalar PositionMapQueryObjectId
+
+type PositionRecordPayload {
+  editBy: String!
+  frameID: ID!
+  index: Int!
+  mutation: String!
+}
+
+type PosMap {
+  frames: PositionMapQueryObjectId!
 }
 
 type Query {
   color(color: String!): String!
+  controlFrame(start: Float!): ControlFrame!
+  controlFrameIDs: [ID!]!
+  ControlMap: ControlMap!
+  dancer: [Dancer!]!
+  positionFrame(start: Float!): PositionFrame!
+  positionFrameIDs: [ID!]!
+  PosMap: PosMap!
+}
+
+type RequestEditResponse {
+  editing: String!
+  ok: Boolean!
+}
+
+type Subscription {
+  colorSubscription: ColorPayload!
+  controlMapSubscription: ControlMapPayload!
+  controlRecordSubscription: ControlRecordPayload!
+  DancerSubscription: DancerPayload!
+  positionMapSubscription: PositionMapPayload!
+  positionRecordSubscription: PositionRecordPayload!
 }

@@ -11,7 +11,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { PubSub } from 'graphql-subscriptions';
 import "reflect-metadata";
 import { buildSchema } from 'type-graphql'
-import ColorResolver from './resolvers/color-resolver'
+import { resolvers } from "./resolvers";
 
 // import resolvers from "./resolvers"
 import db from "./models"
@@ -28,14 +28,14 @@ const { SECRET_KEY } = process.env;
   mongo();
 
   const httpServer = http.createServer(app);
-  const typeDefs = fs.readFileSync(path.join(__dirname, './schema.graphql')).toString('utf-8')
   // const schema = makeExecutableSchema({ typeDefs, resolvers })
+  var pubsub = new PubSub()
   const schema = await buildSchema({
-    resolvers: [ColorResolver],
+    resolvers,
     // automatically create `schema.gql` file with schema definition in current folder
     emitSchemaFile: path.resolve(__dirname, "schema.gql"),
+    pubSub: pubsub
   });
-  var pubsub = new PubSub()
 
   const subscriptionBuildOptions = async (connectionParams: any, webSocket: any) => {
     try {
@@ -43,7 +43,7 @@ const { SECRET_KEY } = process.env;
       if (!userID || !name) throw new Error("UserID and name must be filled.")
       const user = await db.User.findOne({ name, userID })
       if (user) {
-        return { db, userID, pubsub };
+        return { db, userID };
       } else {
         throw new Error("User not found.")
       }
@@ -54,6 +54,7 @@ const { SECRET_KEY } = process.env;
     const initialContext = await context.initPromise
     if (initialContext) {
       const { userID } = initialContext;
+      console.log(userID)
       // TODO: delete this user from editing
       await db.User.deleteOne({ userID })
     }
@@ -82,7 +83,7 @@ const { SECRET_KEY } = process.env;
           const newUser = await new db.User({ name, userID: userid }).save()
         }
 
-        return { db, userID: userid, pubsub }
+        return { db, userID: userid }
       } catch (e) { console.log(e) }
     },
     plugins: [
