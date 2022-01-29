@@ -29,20 +29,20 @@ export default function TimeController() {
     timeData: { time, controlFrame, posFrame },
   } = useSelector(selectGlobal);
 
-  const handleChange = (setValue: (arg0: any) => void) => {
-    return (value: string | number) => {
+  const handleChange = (setValue: (arg0: any) => void, valueName: string) => {
+    return (value: number) => {
       dispatch(
         setValue({
           from: TIMECONTROLLER,
-          time: typeof value === "number" ? value : parseInt(value, 10),
+          [valueName]: value,
         })
       );
     };
   };
 
-  const handleChangeTime = handleChange(setTime);
-  const handleChangeControlFrame = handleChange(setControlFrame);
-  const handleChangePosFrame = handleChange(setPosFrame);
+  const handleChangeTime = handleChange(setTime, "time");
+  const handleChangeControlFrame = handleChange(setControlFrame, "controlFrame");
+  const handleChangePosFrame = handleChange(setPosFrame, "posFrame");
 
   return (
     <Stack direction="row" justifyContent="center" alignItems="center">

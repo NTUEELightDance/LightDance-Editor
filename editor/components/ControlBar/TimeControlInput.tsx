@@ -6,7 +6,7 @@ const TimeControlInput = ({
   placeholder,
 }: {
   value: number;
-  handleChange: (value: string | number) => void;
+  handleChange: (value: number) => void;
   placeholder: string;
 }) => {
   return (

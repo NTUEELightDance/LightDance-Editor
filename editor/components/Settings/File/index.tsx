@@ -4,10 +4,20 @@ import { useSelector, useDispatch } from "react-redux";
 // mui
 import Divider from "@material-ui/core/Divider";
 import Switch from "@material-ui/core/Switch";
-import MenuItem from "@material-ui/core/MenuItem";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+// import MenuItem from "@material-ui/core/MenuItem";
 
-import { Stack, Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Stack,
+  Box,
+  Button,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+
 // write record
 import {
   posInit,
@@ -223,22 +233,23 @@ export default function File() {
           gap: "1vw",
         }}
       >
-        <TextField
-          select
-          value={path}
-          variant="outlined"
-          color="info"
-          onChange={handlePathChange}
-          size="small"
-        >
-          {Object.keys(texture.LEDPARTS).map((name) => (
-            <MenuItem key={name} value={name}>
-              {name}
-            </MenuItem>
-          ))}
-        </TextField>
+        <FormControl sx={{ width: "18em" }}>
+          <InputLabel id="part-select-label">Part to upload</InputLabel>
+          <Select
+            labelId="part-select-label"
+            value={path}
+            label="Part to upload"
+            onChange={handlePathChange}
+          >
+            {Object.keys(texture.LEDPARTS).map((name) => (
+              <MenuItem key={name} value={name}>
+                <Typography>{name}</Typography>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-        <Button variant="outlined" onClick={handleImagesUpload}>
+        <Button variant="outlined" size="small" onClick={handleImagesUpload}>
           Upload
         </Button>
       </Box>
@@ -270,7 +281,7 @@ const ItemWrapper = ({
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "end",
-        pr: "40%",
+        pr: "30%",
         gap: "1vh",
       }}
     >
