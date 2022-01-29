@@ -137,6 +137,7 @@ input editDancerInput {
 }
 
 input EditPartInput {
+  dancerName: String!
   id: ID!
   name: String!
   type: String!

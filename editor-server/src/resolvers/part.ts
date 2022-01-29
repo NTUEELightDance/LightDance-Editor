@@ -64,23 +64,22 @@ export class PartResolver {
         @Arg("part") newPartData: EditPartInput,
         @Ctx() ctx: any
     ) {
-        const { id, name, type } = newPartData
+        const { id, name, type, dancerName } = newPartData
         const edit_part = await ctx.db.Part.findOne({ id })
         if (edit_part) {
             if (edit_part.type !== type) {
                 edit_part.controlData.map(async (id: string) => {
                     const data = await ctx.db.Control.findOneAndUpdate({ _id: id }, { value: ControlDefault[type] })
-                    console.log(data)
                 })
             }
-            const result = await ctx.db.Part.findOneAndUpdate({ id }, { name, type })
-            // const dancerData = await ctx.db.Dancer.findOne({ id }).populate('parts').populate('positionData')
-            // const payload: DancerPayload = {
-            //     mutation: dancerMutation.UPDATED,
-            //     editBy: ctx.userID,
-            //     dancerData
-            // }
-            // await publish(payload)
+            const result = await ctx.db.Part.findOneAndUpdate({ id }, { name, type }, {new: true})
+            const dancerData = await ctx.db.Dancer.findOne({ name: dancerName }).populate('parts').populate('positionData')
+            const payload: DancerPayload = {
+                mutation: dancerMutation.UPDATED,
+                editBy: ctx.userID,
+                dancerData
+            }
+            await publish(payload)
             return Object.assign(result, { ok: true })
         }
         return { name: "", type: null, id: "", ok: false, msg: "no part found", controlData: [] }
@@ -105,12 +104,13 @@ export class PartResolver {
             if (dancer) {
                 await ctx.db.Dancer.updateOne({ name: dancerName }, { $pullAll: { parts: [{ _id: part_id }] } })
             }
-            // const payload: DancerPayload = {
-            //     mutation: dancerMutation.UPDATED,
-            //     editBy: ctx.userID,
-            //     dancerData
-            // }
-            // await publish(payload)
+            const dancerData = await ctx.db.Dancer.findOne({ name: dancerName }).populate('parts').populate('positionData')
+            const payload: DancerPayload = {
+                mutation: dancerMutation.UPDATED,
+                editBy: ctx.userID,
+                dancerData
+            }
+            await publish(payload)
             return Object.assign(part, { ok: true })
         }
         return { name: "", type: null, id: "", ok: false, msg: "no part found", controlData: [] }

@@ -25,6 +25,8 @@ export class EditPartInput {
     @Field()
     type: ControlType
 
+    @Field()
+    dancerName: string
 }
 
 @InputType()
