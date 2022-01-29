@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import MAPPING from "./mapping";
 
-class Dancer {
+class YellowDancer {
   scene: THREE.Scene;
   name: string;
 
@@ -13,8 +14,13 @@ class Dancer {
     this.skeleton = null;
     this.mixer = null;
     this.name = name;
-    this.parts = {};
+    this.OFParts = {};
     this.initialized = false;
+    this.color = {
+      r: 1,
+      g: 1,
+      b: 0.17821459099650383,
+    };
   }
 
   // Load model with given URL and capture all the meshes for light status
@@ -32,39 +38,31 @@ class Dancer {
 
     const initModel = (gltf) => {
       this.model = gltf.scene;
+      console.log(this.model);
+      console.log(MAPPING);
 
-      const hairMesh = this.model.getObjectByName("Hair");
-      hairMesh.material.color.setHex(0x000000);
-      hairMesh.material.emissive.setHex(0xcc00ff);
-      hairMesh.material.emissiveIntensity = 0.0;
-      this.parts.S_HAT = hairMesh;
+      this.model.traverse((part) => {
+        const { name, type } = part;
+        // clone a new material to prevent shared material
+        if (type === "Mesh") {
+          part.material = part.material.clone();
+          part.material.color.setHex(0x000000);
+          part.material.emissiveIntensity = 0.0;
+          if (!name.includes("LED") && !(name === "human")) {
+            // part.material.color.setHex(0x000000);
+            // part.material.emissiveIntensity = 0.0;
+            this.OFParts[name] = part;
+          }
+        }
+      });
 
-      const bodyMesh = this.model.getObjectByName("Body");
-      bodyMesh.material.color.setHex(0x000000);
-      bodyMesh.material.emissive.setHex(0x004cff);
-      bodyMesh.material.emissiveIntensity = 0.0;
-      this.parts.S_L_HAND = bodyMesh;
+      const human = this.model.getObjectByName("human");
+      human.material.color.setHex(0x000000);
+      human.material.emissive.setHex(0x000000);
+      human.material.emissiveIntensity = 0.0;
 
-      const bottomsMesh = this.model.getObjectByName("Bottoms");
-      bottomsMesh.material.color.setHex(0x000000);
-      bottomsMesh.material.emissive.setHex(0x004cff);
-      bottomsMesh.material.emissiveIntensity = 0.0;
-      this.parts.S_R_PANT = bottomsMesh;
-
-      const shoesMesh = this.model.getObjectByName("Shoes");
-      shoesMesh.material.color.setHex(0x000000);
-      shoesMesh.material.emissive.setHex(0xff0000);
-      shoesMesh.material.emissiveIntensity = 0.0;
-      this.parts.S_L_SHOE = shoesMesh;
-
-      const topsMesh = this.model.getObjectByName("Tops");
-      topsMesh.material.color.setHex(0x000000);
-      topsMesh.material.emissive.setHex(0x8000ff);
-      topsMesh.material.emissiveIntensity = 0.0;
-      this.parts.S_L_COAT = topsMesh;
-
-      this.skeleton = new THREE.SkeletonHelper(this.model);
-      this.skeleton.visible = false;
+      // this.skeleton = new THREE.SkeletonHelper(this.model);
+      // this.skeleton.visible = false;
 
       this.model.position.setX(position.x);
       this.model.position.setY(position.y);
@@ -72,11 +70,10 @@ class Dancer {
       this.model.scale.set(1.3, 1.3, 1.3);
 
       this.scene.add(this.model);
-      this.scene.add(this.skeleton);
-
+      // this.scene.add(this.skeleton);
       this.initialized = true;
     };
-    loader.load("/asset/models/remy_with_sword.glb", initModel.bind(this));
+    loader.load("/asset/models/yellow_clean.glb", initModel.bind(this));
   }
 
   // Update the model's positon and status
@@ -89,12 +86,12 @@ class Dancer {
   updatePos(currentPos) {
     this.model.position.set(currentPos.x, currentPos.y, currentPos.z);
     if (this.nameTag) {
-      this.nameTag.position.set(currentPos.x, currentPos.y + 5, currentPos.z);
+      this.nameTag.position.set(currentPos.x, currentPos.y + 8, currentPos.z);
     }
     if (this.controlBox) {
       this.controlBox.position.set(
         currentPos.x,
-        currentPos.y + 2.5,
+        currentPos.y + 4,
         currentPos.z
       );
     }
@@ -102,17 +99,26 @@ class Dancer {
 
   // Update the model's status
   updateStatus(currentStatus) {
-    Object.entries(this.parts).forEach(([name, e]) => {
-      e.material.emissiveIntensity = currentStatus[name];
+    console.log(currentStatus);
+    Object.entries(this.OFParts).forEach(([name, e]) => {
+      let intensity = 0.0;
+      Object.values(MAPPING).forEach((MAP) => {
+        if (currentStatus[MAP[name]]) {
+          intensity += currentStatus[MAP[name]];
+          if (intensity == 1) this.color = MAP.color;
+        }
+      });
+      e.material.emissive.setRGB(this.color.r, this.color.g, this.color.b);
+      e.material.emissiveIntensity = intensity;
     });
   }
 
   // Update the model's color
   updateColor(color) {
-    Object.values(this.parts).forEach(([name, e]) => {
+    Object.values(this.OFParts).forEach(([name, e]) => {
       e.material.color.setHex(color);
     });
   }
 }
 
-export default Dancer;
+export default YellowDancer;

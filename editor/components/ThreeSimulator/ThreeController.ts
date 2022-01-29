@@ -70,7 +70,7 @@ class ThreeController {
 
     // Configuration of the scene
     this.height = 600;
-    this.width = 800;
+    this.width = 1200;
 
     // Dancer
     this.dancers = {};
@@ -144,12 +144,7 @@ class ThreeController {
       2.533987823530335,
       -0.07978443261089622
     );
-    //? there is no such property on the controller
-    // controls.position0.set(
-    //   -4.4559744063642555,
-    //   2.128295812145451,
-    //   16.22834309576409
-    // );
+
     orbitControls.update();
     this.orbitControls = orbitControls;
 
@@ -157,13 +152,13 @@ class ThreeController {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    const helper = new THREE.GridHelper(20, 10);
+    const helper = new THREE.GridHelper(30, 10);
     scene.add(helper);
 
     // Add a dim light to identity each dancers
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(-1, 1, 1);
-    scene.add(directionalLight);
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    // directionalLight.position.set(-1, 1, 1);
+    // scene.add(directionalLight);
 
     this.scene = scene;
 
@@ -190,14 +185,16 @@ class ThreeController {
     this.objects = [];
     const gridPosition = new THREE.Vector3();
     gridPosition.set(0, 0, 0);
-    const geometry = new THREE.BoxGeometry(1, 5, 1);
+    const geometry = new THREE.BoxGeometry(1, 8, 1);
     Object.entries(currentPos).forEach(([name, position], i) => {
       if (!name.includes("sw")) {
-        const newDancer = new ThreeDancer(this.scene, name);
+        // if (name.includes("191")) {
+        // const newDancer = new ThreeDancer(this.scene, name);
+        const newDancer = new YellowDancer(this.scene, name);
         const newPos = {
-          x: position.x / 35,
+          x: position.x / 30,
           y: 0,
-          z: position.z / 35,
+          z: position.z / 30,
         };
         gridPosition.x += position.x;
         gridPosition.z += position.z;
@@ -209,7 +206,7 @@ class ThreeController {
           geometry,
           new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff })
         );
-        object.position.set(position.x / 35, 2.5, position.z / 35);
+        object.position.set(position.x / 30, 4, position.z / 30);
         object.userData["name"] = name;
         newDancer.controlBox = object;
         object.visible = false;
@@ -257,7 +254,7 @@ class ThreeController {
       const { name } = event.object.userData;
       const { position } = event.object;
       const newPosition = position.clone();
-      newPosition.setY(newPosition.y - 2.5);
+      newPosition.setY(newPosition.y - 4);
       this.nameTags[name].material.color.setRGB(1, 1, 1);
       this.dancers[name].updatePos(newPosition);
       this.render();
@@ -392,7 +389,7 @@ class ThreeController {
 
         const text = new THREE.Mesh(geometry, matLite);
         // text.position.z = -150;
-        text.position.set(position.x / 35, 5, position.z / 35);
+        text.position.set(position.x / 30, 8, position.z / 30);
         this.nameTags[name] = text;
         this.dancers[name].nameTag = text;
         this.scene.add(text);
@@ -522,9 +519,9 @@ class ThreeController {
     const { state } = this;
     Object.values(this.dancers).forEach((dancer) => {
       const newPos = {
-        x: state.currentPos[dancer.name].x / 35,
+        x: state.currentPos[dancer.name].x / 30,
         y: 0,
-        z: state.currentPos[dancer.name].z / 35,
+        z: state.currentPos[dancer.name].z / 30,
       };
       dancer.update(newPos, state.currentStatus[dancer.name]);
     });
