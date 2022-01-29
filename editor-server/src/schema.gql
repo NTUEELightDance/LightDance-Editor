@@ -133,6 +133,12 @@ input EditPartInput {
   type: String!
 }
 
+input EditPositionFrameInput {
+  id: String!
+  start: Float!
+  user: String!
+}
+
 type EL {
   value: Int!
 }
@@ -151,12 +157,14 @@ type Mutation {
   addControlFrame(start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addPart(part: AddPartInput!): PartResponse!
+  addPositionFrame(start: Float!): PositionFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editControlMap(controlDatas: [EditControlInput!]!, frameID: String!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
+  editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   updateColor(color: ColorInput!): String!
 }
 
@@ -202,6 +210,7 @@ type Query {
   controlFrameIDs: [ID!]!
   ControlMap: ControlMap!
   dancer: [Dancer!]!
+  positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
   PosMap: PosMap!
   RequestEditControl(FrameID: String!): RequestEditResponse!
