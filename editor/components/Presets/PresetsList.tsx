@@ -17,10 +17,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 
 //types
 import { PresetList, setStatus, setPos } from "types/components/presets";
-import {
-  lightPresetsElement,
-  posPresetsElement,
-} from "types/globalSlice";
+import { lightPresetsElement, posPresetsElement } from "types/globalSlice";
 
 const useStyles = makeStyles({
   flex: {
@@ -65,12 +62,12 @@ export default function PresetsList({
   function instanceOflightPresetsElement(
     preset: any
   ): preset is lightPresetsElement {
-    return 'status' in preset;
+    return "status" in preset;
   }
   function instanceOfposPresetsElement(
     preset: any
   ): preset is posPresetsElement {
-    return 'pos' in preset;
+    return "pos" in preset;
   }
   return (
     <div>

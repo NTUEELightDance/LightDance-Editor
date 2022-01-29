@@ -10,6 +10,7 @@ import Simulator from "../../components/Simulator";
 import Wavesurfer from "../../components/Wavesurfer";
 import LightPresets from "../../components/Presets/LightPresets";
 import PosPresets from "../../components/Presets/PosPresets";
+import EffectList from "../../components/EffectList";
 import LightEditor from "../../components/LightEditor";
 import PosEditor from "../../components/PosEditor";
 import CommandCenter from "../../components/CommandCenter";
@@ -31,6 +32,7 @@ const Layout = () => {
   const PosEditorNode = useMemo<JSX.Element>(() => <PosEditor />, []);
   const LightPresetsNode = useMemo<JSX.Element>(() => <LightPresets />, []);
   const PosPresetsNode = useMemo<JSX.Element>(() => <PosPresets />, []);
+  const EffectListNode = useMemo<JSX.Element>(() => <EffectList />, []);
   const WavesurferNode = useMemo<JSX.Element>(() => <Wavesurfer />, []);
   const WaveSuferCleanNode = useMemo<JSX.Element>(
     () => <Wavesurfer cleanMode />,
@@ -54,6 +56,8 @@ const Layout = () => {
         return LightPresetsNode;
       case "PosPresets":
         return PosPresetsNode;
+      case "EffectList":
+        return EffectListNode;
       case "Wavesurfer":
         return WavesurferNode;
       case "WavesurferClean":

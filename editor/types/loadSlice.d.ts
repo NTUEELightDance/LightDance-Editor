@@ -4,6 +4,8 @@ import {
   posRecordType,
   lightPresetsType,
   posPresetsType,
+  EffectRecordMapType,
+  EffectStatusMapType,
 } from "./globalSlice";
 interface BLPARTSTYPE {
   [index: string]: {
@@ -54,7 +56,8 @@ export interface loadType {
   Position: string;
   LightPresets: string;
   PosPresets: string;
-  PosPresets: string;
+  EffectRecordMap: string;
+  EffectStatueMap: string;
   Dancers: {
     prefix: string;
     postfix: string;
@@ -70,7 +73,9 @@ export interface loadState {
   controlMap: ControlMapType; // loaded controlMap.json
   position: posRecordType; // loaded position.json, may not be same as localStorage (this is for default)
   lightPresets: lightPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
-  posPresets: posPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
+  posPresets: posPresetsType; // loaded posPresets.json, may not be same as localStorage (this is for default)
+  effectRecordMap: EffectRecordMapType; // loaded effectRecord.json
+  effectStatusMap: EffectStatusMapType; // loaded effectStatus.json
   dancers: DancersType;
   texture: textureType;
   dancerNames: string[]; // [name]

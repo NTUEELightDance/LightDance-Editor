@@ -61,14 +61,38 @@ export type ControlRecordType = string[]; // array of all IDs , each corresponds
 export interface ControlMapType {
   [index: string]: ControlMapElement;
 }
+
+//  for effect list
+type EffectRecordType = string[];
+
+interface EffectRecordMapType {
+  [index: string]: EffectRecordType; // effectName: effectRecord
+}
+
+interface EffectStatusType {
+  [index: string]: DancerStatus; //dancerNames :  dancerStatus
+}
+
+interface EffectStatueMapElementType {
+  start: number;
+  status: EffectStatus;
+  fade: boolean; // if this frame fades to the next
+}
+
+interface EffectStatusMapType {
+  [index: string]: EffectStatueMapElement;
+}
+
 export interface globalState {
   isPlaying: boolean; // isPlaying
   selected: string[]; // array of selected dancer's name
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: positionType; // currnet dancers' position
-  controlRecord: ControlRecordType; // array of all IDs , each correspondsto diff status
+  controlRecord: ControlRecordType; // array of all IDs , each corresponds to diff status
   controlMap: ControlMapType;
+  effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
+  effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
   posRecord: posRecordType; // array of all dancer's pos
   timeData: timeDataType;
   mode: number; // 0: nothing, 1: edit, 2: add

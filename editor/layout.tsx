@@ -9,6 +9,7 @@ import Simulator from "./components/Simulator";
 import Wavesurfer from "./components/Wavesurfer";
 import LightPresets from "./components/Presets/LightPresets";
 import PosPresets from "./components/Presets/PosPresets";
+import EffectList from "./components/EffectList";
 import LightEditor from "./components/LightEditor";
 import PosEditor from "./components/PosEditor";
 import File from "./components/File";
@@ -33,11 +34,13 @@ export default function Layout() {
       case "Wavesurfer":
         return <Wavesurfer />;
       case "WavesurferClean":
-        return <Wavesurfer cleanMode/>;
+        return <Wavesurfer cleanMode />;
       case "LightPresets":
         return <LightPresets />;
       case "PosPresets":
         return <PosPresets />;
+      case "EffectList":
+        return <EffectList />;
       case "File":
         return <File />;
       default:

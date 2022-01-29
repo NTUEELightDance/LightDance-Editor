@@ -101,6 +101,12 @@
                     "name": "PosPresets",
                     "component": "PosPresets",
                     "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "Effect",
+                    "component": "EffectList",
+                    "enableClose": false
                   }
                 ]
               },

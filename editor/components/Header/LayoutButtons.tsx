@@ -1,7 +1,11 @@
 import { Box, Button } from "@mui/material";
 import { layoutMode } from "types/layout";
 
-export const LayoutButtons = ({ setMode }: { setMode: (mode: layoutMode) => void }) => {
+export const LayoutButtons = ({
+  setMode,
+}: {
+  setMode: (mode: layoutMode) => void;
+}) => {
   return (
     <Box sx={{ display: "flex", gap: "1vw" }}>
       <Button

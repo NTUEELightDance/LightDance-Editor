@@ -24,6 +24,8 @@ import {
   lightPresetsType,
   posPresetsType,
   ControlMapElement,
+  EffectRecordMapType,
+  EffectStatusMapType,
 } from "../types/globalSlice";
 import { RootState } from "../store/index";
 
@@ -50,6 +52,9 @@ const initialState: globalState = {
 
   lightPresets: [], // lightPresets, presets for light
   posPresets: [], // posPresets, presets for pos
+
+  effectRecordMap: {}, // map of all effects and corresponding record ID array
+  effectStatusMap: {}, // map of effect record ID and its status
 };
 export const globalSlice = createSlice({
   name: "global",
@@ -692,6 +697,26 @@ export const globalSlice = createSlice({
     },
 
     /**
+     * set effectRecordMap
+     * @param {*} state
+     * @param {*} action
+     */
+    setEffectRecordMap: (state, action: PayloadAction<EffectRecordMapType>) => {
+      state.effectRecordMap = action.payload;
+      setItem("effectRecordMap", JSON.stringify(state.effectRecordMap));
+    },
+
+    /**
+     * set effectStatusMap
+     * @param {*} state
+     * @param {*} action
+     */
+    setEffectStatusMap: (state, action: PayloadAction<EffectStatusMapType>) => {
+      state.effectStatusMap = action.payload;
+      setItem("effectStatusMap", JSON.stringify(state.effectStatusMap));
+    },
+
+    /**
      * Shift frame time from startFrame to endFrame += shiftTime
      */
     shiftFrameTime: (
@@ -766,6 +791,9 @@ export const {
   editPosPresetsName,
   addPosPresets,
   deletePosPresets,
+
+  setEffectRecordMap,
+  setEffectStatusMap,
 
   shiftFrameTime,
 } = globalSlice.actions;

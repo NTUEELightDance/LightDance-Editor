@@ -12,6 +12,8 @@ import {
   posRecordType,
   lightPresetsType,
   posPresetsType,
+  EffectRecordMapType,
+  EffectStatusMapType,
 } from "../types/globalSlice";
 import { RootState, AppDispatch } from "../store/index";
 
@@ -24,6 +26,8 @@ const initialState: loadState = {
   position: [],
   lightPresets: [],
   posPresets: [],
+  effectRecordMap: {},
+  effectStatusMap: {},
   texture: {} as textureType,
   dancers: {},
   dancerNames: [],
@@ -56,6 +60,12 @@ export const loadSlice = createSlice({
     setPosPresets: (state, action: PayloadAction<posPresetsType>) => {
       state.posPresets = action.payload;
     },
+    setEffectRecordMap: (state, action: PayloadAction<EffectRecordMapType>) => {
+      state.effectRecordMap = action.payload;
+    },
+    setEffectStatusMap: (state, action: PayloadAction<EffectStatusMapType>) => {
+      state.effectStatusMap = action.payload;
+    },
     setTexture: (state, action: PayloadAction<textureType>) => {
       state.texture = action.payload;
     },
@@ -77,6 +87,8 @@ const {
   setPosition,
   setLightPresets,
   setPosPresets,
+  setEffectRecordMap,
+  setEffectStatusMap,
   setTexture,
   setDancers,
   setDancerNames,
@@ -97,6 +109,8 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
     Position,
     LightPresets,
     PosPresets,
+    EffectRecordMap,
+    EffectStatusMap,
     Dancers,
     Texture,
   } = load;
@@ -119,6 +133,12 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
   // set lightPresets
   const posPresets = await fetchJson(PosPresets);
   dispatch(setPosPresets(posPresets));
+  // set effectRecordMap
+  const effectRecordMap = await fetchJson(EffectRecordMap);
+  dispatch(setEffectRecordMap(effectRecordMap));
+  // set effectStatusMap
+  const effectStatusMap = await fetchJson(EffectStatusMap);
+  dispatch(setEffectStatusMap(effectStatusMap));
   // set Dancer Names
   dispatch(setDancerNames(Dancers.names));
 

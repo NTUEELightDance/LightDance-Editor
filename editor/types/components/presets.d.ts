@@ -14,5 +14,5 @@ export interface PresetList {
     | ((pos: positionType) => void);
 }
 
-export type setStatus = ((status: ControlMapStatus) => void)
-export type setPos = ((pos: positionType) => void);
+export type setStatus = (status: ControlMapStatus) => void;
+export type setPos = (pos: positionType) => void;
