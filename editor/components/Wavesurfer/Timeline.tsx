@@ -1,3 +1,8 @@
+/**
+ * the count beat functionality is useless, I really wonder why this PR can be passed
+ * guess I'm just gonna leave it here for now
+ */
+
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -37,6 +42,7 @@ import { setItem, getItem } from "../../utils/localStorage";
 
 //types
 import { FilterType, LocalRegion } from "../../types/components/wavesurfer";
+import WaveSurferApp from "./waveSurferApp";
 
 export default function Timeline({
   wavesurfer,

@@ -1,5 +1,5 @@
 import { hot } from "react-hot-loader/root";
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 // mui
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -7,11 +7,13 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { useSelector, useDispatch } from "react-redux";
 // actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
-// layout
-import Layout from "./layout";
-import "./app.css";
 // components
-import Bar from "./components/Bar";
+import Header from "./components/Header";
+import Loading from "components/Loading";
+import { LayoutContext } from "contexts/layoutContext";
+
+import "./app.css";
+import Layout from "containers/Layout";
 
 const theme = createTheme({
   palette: {
@@ -39,15 +41,16 @@ const theme = createTheme({
 const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
+
   useEffect(async () => {
     if (!init) {
       await dispatch(fetchLoad());
     }
   }, [init]);
+
   return (
     <div>
       <ThemeProvider theme={theme}>
-        {/* <WebSocketContext> */}
         <CssBaseline />
         {init ? (
           <div
@@ -57,15 +60,14 @@ const App = () => {
               height: "100vh",
             }}
           >
-            <Bar />
+            <Header />
             <div style={{ flexGrow: 1, position: "relative" }}>
               <Layout />
             </div>
           </div>
         ) : (
-          "Loading..."
+          <Loading />
         )}
-        {/* </WebSocketContext> */}
       </ThemeProvider>
     </div>
   );

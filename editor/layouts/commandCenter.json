@@ -1,0 +1,79 @@
+{
+  "global": {
+    "borderSize": 400,
+    "splitterSize": 4,
+    "enableRenderOnDemand": true
+  },
+  "layout": {
+    "type": "row",
+    "children": [
+      {
+        "type": "row",
+        "children": [
+          {
+            "type": "row",
+            "children": [
+              {
+                "type": "tabset",
+                "selected": 0,
+                "weight": 40,
+                "enableMaximize": true,
+                "children": [
+                  {
+                    "type": "tab",
+                    "enableClose": false,
+                    "name": "CommandCenter",
+                    "component": "CommandCenter"
+                  }
+                ]
+              },
+              {
+                "type": "tabset",
+                "selected": 0,
+                "weight": 60,
+                "enableMaximize": true,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "Simulator",
+                    "component": "Simulator",
+                    "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "Three Simulator",
+                    "component": "ThreeSimulator",
+                    "enableClose": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "weight": 18,
+            "children": [
+              {
+                "type": "tabset",
+                "selected": 0,
+                "enableMaximize": false,
+                "enableTabStrip": false,
+                "enableDrop": false,
+                "enableDrag": false,
+                "enableSplit": false,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "Wavesurfer",
+                    "component": "WavesurferClean",
+                    "enableClose": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
