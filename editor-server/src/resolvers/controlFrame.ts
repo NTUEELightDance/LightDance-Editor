@@ -18,6 +18,7 @@ import { generateID } from '../utility';
 import { ControlDefault } from './types/controlType';
 import { Topic } from './subscriptions/topic';
 import { ControlMapPayload, ControlMapMutation } from './subscriptions/controlMap';
+import { controlRecordMutation, ControlRecordPayload } from './subscriptions/controlRecord';
 
 @Resolver(of => ControlFrame)
 export class ControlFrameResolver {
@@ -39,10 +40,15 @@ export class ControlFrameResolver {
 
     @Mutation(returns => ControlFrame)
     async addControlFrame(
+        @PubSub(Topic.ControlRecord) publishControlRecord: Publisher<ControlRecordPayload>,
         @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
         @Arg("start", { nullable: false }) start: number, 
         @Ctx() ctx: any
     ) {
+        const check = await ctx.db.ControlFrame.findOne({start})
+        if(check){
+            throw new Error("Start Time overlapped!")
+        }
         const newControlFrame = await new ctx.db.ControlFrame({ start: start, fade: false, id: generateID() }).save();
         let allParts = await ctx.db.Part.find();
         allParts.map(async (part: Part) => {
@@ -55,21 +61,45 @@ export class ControlFrameResolver {
                 id: part.id
             });
         });
-        const payload: ControlMapPayload = {
-                mutation: ControlMapMutation.CREATED,
-                editBy: ctx.userID,
-                frames: [{_id: newControlFrame._id, id: newControlFrame.id}]
+        const mapPayload: ControlMapPayload = {
+            mutation: ControlMapMutation.CREATED,
+            editBy: ctx.userID,
+            frames: [{_id: newControlFrame._id, id: newControlFrame.id}]
         }
-        await publishControlMap(payload)
+        await publishControlMap(mapPayload)
+        const allControlFrames = await ctx.db.ControlFrame.find().sort({start: 1})
+        let index = -1
+        await allControlFrames.map((frame: any, idx: number)=> {
+            if (frame.id === newControlFrame.id){
+                index = idx
+            }
+        })
+        const recordPayload: ControlRecordPayload = {
+            mutation: controlRecordMutation.CREATED,
+            editBy: ctx.userID,
+            frameID: newControlFrame.id,
+            index
+        }
+        await publishControlRecord(recordPayload)
         return newControlFrame;
     }
 
     @Mutation(returns => ControlFrame)
     async editControlFrame(
+        @PubSub(Topic.ControlRecord) publishControlRecord: Publisher<ControlRecordPayload>,
         @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
         @Arg("input") input: EditControlFrameInput, 
         @Ctx() ctx: any
     ){
+        const {start} = input
+        if(start){
+            const check = await ctx.db.ControlFrame.findOne({start: input.start})
+            if(check){
+                if(check.id !== input.id){
+                    throw new Error("Start Time overlapped!")
+                }
+            }
+        }
         let frameToEdit = await ctx.db.ControlFrame.findOne({id: input.id});
         if (frameToEdit.editing && frameToEdit.editing !== ctx.userID){
             throw new Error("The frame is now editing by other user.");
@@ -82,6 +112,20 @@ export class ControlFrameResolver {
                 frames: [{_id: controlFrame._id, id: controlFrame.id}]
         }
         await publishControlMap(payload) 
+        const allControlFrames = await ctx.db.ControlFrame.find().sort({start: 1})
+        let index = -1
+        await allControlFrames.map((frame: any, idx: number)=> {
+            if (frame.id === controlFrame.id){
+                index = idx
+            }
+        })
+        const recordPayload: ControlRecordPayload = {
+            mutation: controlRecordMutation.UPDATED,
+            editBy: ctx.userID,
+            frameID: controlFrame.id,
+            index
+        }
+        await publishControlRecord(recordPayload)
         return controlFrame
     }
 }
