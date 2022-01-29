@@ -14,7 +14,7 @@ export class PositionFrameResolver {
 
     @Query(returns => [ID])
     async positionFrameIDs(@Ctx() ctx: any) {
-        let frames = await ctx.db.PositionFrame.find()
+        let frames = await ctx.db.PositionFrame.find().sort({start: 1})
         const id = frames.map((frame: PositionFrame) => frame.id)
         return id
     }

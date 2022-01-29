@@ -28,7 +28,7 @@ export class ControlFrameResolver {
 
     @Query(returns => [ID])
     async controlFrameIDs(@Ctx() ctx: any) {
-        let frames = await ctx.db.ControlFrame.find()
+        let frames = await ctx.db.ControlFrame.find().sort({start: 1})
         const id = frames.map((frame: ControlFrame) => frame.id)
         return id
     }
