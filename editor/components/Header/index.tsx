@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { AppBar, Container, Toolbar, Typography } from "@mui/material";
 
-import { LayoutContext } from "contexts/layoutContext";
+import { LayoutContext } from "contexts/LayoutContext";
 
 import { LayoutButtons } from "./LayoutButtons";
 import { Settings } from "../Settings";

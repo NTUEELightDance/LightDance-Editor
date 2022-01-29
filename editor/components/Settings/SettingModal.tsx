@@ -1,4 +1,5 @@
-import { Modal, Box, Paper } from "@mui/material";
+import { Modal, Box, Paper, IconButton, Grow } from "@mui/material";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 export const SettingModal = ({
   children,
@@ -10,28 +11,37 @@ export const SettingModal = ({
   onClose: () => void;
 }) => {
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          display: "flex",
-          width: "30vw",
-          mx: "auto",
-          mt: "10vh",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Paper
+    <Modal open={open} onClose={onClose} closeAfterTransition>
+      <Grow in={open}>
+        <Box
           sx={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#202020",
-            p: "5%",
+            display: "flex",
+            width: "30vw",
+            mx: "auto",
+            mt: "10vh",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          {children}
-        </Paper>
-      </Box>
+          <Paper
+            sx={{
+              display: "relative",
+              width: "100%",
+              height: "100%",
+              backgroundColor: "#AAAAAA",
+              p: "5% 8%",
+            }}
+          >
+            <IconButton
+              style={{ transform: "translate(-20px, -10px)" }}
+              onClick={onClose}
+            >
+              <CloseRoundedIcon />
+            </IconButton>
+            {children}
+          </Paper>
+        </Box>
+      </Grow>
     </Modal>
   );
 };

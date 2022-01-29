@@ -16,11 +16,13 @@ import PosEditor from "../../components/PosEditor";
 import CommandCenter from "../../components/CommandCenter";
 import ThreeSimulator from "../../components/ThreeSimulator";
 
-import { LayoutContext } from "contexts/layoutContext";
+import { LayoutContext } from "contexts/LayoutContext";
 
 import editorConfig from "layouts/editor.json";
 import legacyEditorConfig from "layouts/legacyEditor.json";
+import mirroredEditorConfig from "layouts/mirroredEditor.json";
 import commandConfig from "layouts/commandCenter.json";
+import File from "components/Settings/File";
 
 const Layout = () => {
   const { preferedEditor, mode } = useContext(LayoutContext) as layoutContext;
@@ -38,6 +40,7 @@ const Layout = () => {
     () => <Wavesurfer cleanMode />,
     []
   );
+  const FileNode = useMemo<JSX.Element>(() => <File />, []);
 
   const factory = (node: TabNode) => {
     const component = node.getComponent();
@@ -62,6 +65,8 @@ const Layout = () => {
         return WavesurferNode;
       case "WavesurferClean":
         return WaveSuferCleanNode;
+      case "File":
+        return FileNode;
       default:
         return null;
     }
@@ -69,7 +74,11 @@ const Layout = () => {
 
   const EditorNode = useMemo(() => {
     const configFile =
-      preferedEditor === "default" ? editorConfig : legacyEditorConfig;
+      preferedEditor === "default"
+        ? editorConfig
+        : preferedEditor === "legacy"
+        ? legacyEditorConfig
+        : mirroredEditorConfig;
     return (
       <FlexLayout.Layout
         model={FlexLayout.Model.fromJson(configFile as IJsonModel)}
@@ -82,7 +91,6 @@ const Layout = () => {
   const CommandNode = useMemo(() => {
     return (
       <FlexLayout.Layout
-        // @ts-ignore:next-line
         model={FlexLayout.Model.fromJson(commandConfig as IJsonModel)}
         factory={factory}
         font={{ size: "12px" }}

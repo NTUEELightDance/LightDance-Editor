@@ -1,5 +1,5 @@
 import { hot } from "react-hot-loader/root";
-import React, { useEffect, useContext } from "react";
+import { useEffect } from "react";
 // mui
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -10,7 +10,6 @@ import { selectLoad, fetchLoad } from "./slices/loadSlice";
 // components
 import Header from "./components/Header";
 import Loading from "components/Loading";
-import { LayoutContext } from "contexts/layoutContext";
 
 import "./app.css";
 import Layout from "containers/Layout";
@@ -42,9 +41,9 @@ const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
 
-  useEffect(async () => {
+  useEffect(() => {
     if (!init) {
-      await dispatch(fetchLoad());
+      dispatch(fetchLoad());
     }
   }, [init]);
 

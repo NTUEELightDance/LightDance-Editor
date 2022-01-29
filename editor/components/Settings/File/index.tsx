@@ -157,7 +157,7 @@ export default function File() {
   const handleSwitchServer = () => setToServer(!toServer);
   // TODO: make upload and download functional
   return (
-    <Stack spacing={3} sx={{ color: "white" }}>
+    <Stack spacing={3}>
       <FormControlLabel
         control={
           <Switch
