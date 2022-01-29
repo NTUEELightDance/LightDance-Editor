@@ -9,6 +9,9 @@ export class PositionMapPayload {
 
     @Field(type => PositionMapScalar, {nullable: true})
     frames?: any[]   
+
+    @Field()
+    frameID: string
     
     @Field()
     editBy: string; 
@@ -16,6 +19,7 @@ export class PositionMapPayload {
 
 export enum PositionMapMutation {
   UPDATED = "UPDATED",
-  CREATED = "CREATED"
+  CREATED = "CREATED",
+  DELETED = "DELETED"
 }
 

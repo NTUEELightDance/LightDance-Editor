@@ -9,6 +9,9 @@ export class ControlMapPayload {
 
     @Field(type => ControlMapScalar, {nullable: true})
     frames?: any[]   
+
+    @Field()
+    frameID: string
     
     @Field()
     editBy: string; 
@@ -16,6 +19,7 @@ export class ControlMapPayload {
 
 export enum ControlMapMutation {
   UPDATED = "UPDATED",
-  CREATED = "CREATED"
+  CREATED = "CREATED",
+  DELETED = "DELETED"
 }
 

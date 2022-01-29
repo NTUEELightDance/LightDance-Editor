@@ -53,6 +53,7 @@ type ControlMap {
 
 type ControlMapPayload {
   editBy: String!
+  frameID: String!
   frames: ControlMapQueryObjectId
   mutation: String!
 }
@@ -144,7 +145,6 @@ input EditPartInput {
 input EditPositionFrameInput {
   id: String!
   start: Float!
-  user: String!
 }
 
 input EditPositionInput {
@@ -180,7 +180,7 @@ type Mutation {
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
-  editPosMap(controlDatas: [EditPositionInput!]!, frameID: String!): PosMap!
+  editPosMap(frameID: String!, positionDatas: [EditPositionInput!]!): PosMap!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
   updateColor(color: ColorInput!): String!
@@ -223,6 +223,7 @@ type PositionFrame {
 
 type PositionMapPayload {
   editBy: String!
+  frameID: String!
   frames: PositionMapQueryObjectId
   mutation: String!
 }

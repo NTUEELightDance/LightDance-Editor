@@ -6,9 +6,6 @@ export class EditPositionFrameInput {
   id: string;
 
   @Field()
-  user: string;
-
-  @Field()
   start: number;
 }
 

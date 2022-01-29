@@ -73,9 +73,10 @@ export class ControlMapResolver {
         )
         
         const payload: ControlMapPayload = {
-                mutation: ControlMapMutation.UPDATED,
-                editBy: ctx.userID,
-                frames: [{_id, id: frameID}]
+            mutation: ControlMapMutation.UPDATED,
+            editBy: ctx.userID,
+            frameID,
+            frames: [{_id, id: frameID}]
         }
         await publish(payload)
         return {frames:[{_id, id: frameID}]}

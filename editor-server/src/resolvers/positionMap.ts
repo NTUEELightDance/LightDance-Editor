@@ -1,6 +1,8 @@
-import { Resolver, FieldResolver, ID, Ctx, Arg, Query, Mutation } from 'type-graphql'
+import { Resolver, FieldResolver, ID, Ctx, Arg, Query, Mutation, PubSub, Publisher } from 'type-graphql'
 import { PosMap } from './types/positionMap'
 import { EditPositionInput } from './inputs/position'
+import { Topic } from './subscriptions/topic'
+import { PositionMapPayload, PositionMapMutation } from './subscriptions/positionMap'
 
 
 @Resolver(of => PosMap)
@@ -14,7 +16,8 @@ export class PosMapResolver {
 
     @Mutation(returns => PosMap)
     async editPosMap(
-        @Arg("controlDatas", type => [EditPositionInput]) positionDatas: EditPositionInput[],
+        @PubSub(Topic.PositionMap) publish: Publisher<PositionMapPayload>,
+        @Arg("positionDatas", type => [EditPositionInput]) positionDatas: EditPositionInput[],
         @Arg("frameID") frameID: string,
         @Ctx() ctx: any
     ) {
@@ -34,12 +37,13 @@ export class PosMapResolver {
             })
         )
 
-        // const payload: ControlMapPayload = {
-        //     mutation: ControlMapMutation.UPDATED,
-        //     editBy: ctx.userID,
-        //     frames: [{ _id, id: frameID }]
-        // }
-        // await publish(payload)
+        const payload: PositionMapPayload = {
+            mutation: PositionMapMutation.UPDATED,
+            editBy: ctx.userID,
+            frameID,
+            frames: [{_id, id: frameID}]
+        }
+        await publish(payload)
         return { frames: [{ _id, id: frameID }] }
     }
 }

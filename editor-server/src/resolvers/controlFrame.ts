@@ -18,7 +18,7 @@ import { generateID } from '../utility';
 import { ControlDefault } from './types/controlType';
 import { Topic } from './subscriptions/topic';
 import { ControlMapPayload, ControlMapMutation } from './subscriptions/controlMap';
-import { controlRecordMutation, ControlRecordPayload } from './subscriptions/controlRecord';
+import { ControlRecordMutation, ControlRecordPayload } from './subscriptions/controlRecord';
 
 @Resolver(of => ControlFrame)
 export class ControlFrameResolver {
@@ -64,6 +64,7 @@ export class ControlFrameResolver {
         const mapPayload: ControlMapPayload = {
             mutation: ControlMapMutation.CREATED,
             editBy: ctx.userID,
+            frameID: newControlFrame.id,
             frames: [{ _id: newControlFrame._id, id: newControlFrame.id }]
         }
         await publishControlMap(mapPayload)
@@ -75,7 +76,7 @@ export class ControlFrameResolver {
             }
         })
         const recordPayload: ControlRecordPayload = {
-            mutation: controlRecordMutation.CREATED,
+            mutation: ControlRecordMutation.CREATED,
             editBy: ctx.userID,
             frameID: newControlFrame.id,
             index
@@ -109,6 +110,7 @@ export class ControlFrameResolver {
         const payload: ControlMapPayload = {
             mutation: ControlMapMutation.CREATED,
             editBy: ctx.userID,
+            frameID: controlFrame.id,
             frames: [{ _id: controlFrame._id, id: controlFrame.id }]
         }
         await publishControlMap(payload)
@@ -120,7 +122,7 @@ export class ControlFrameResolver {
             }
         })
         const recordPayload: ControlRecordPayload = {
-            mutation: controlRecordMutation.UPDATED,
+            mutation: ControlRecordMutation.UPDATED,
             editBy: ctx.userID,
             frameID: controlFrame.id,
             index
@@ -131,18 +133,18 @@ export class ControlFrameResolver {
 
     @Mutation(returns => ControlFrame)
     async deleteControlFrame(
+        @PubSub(Topic.ControlRecord) publishControlRecord: Publisher<ControlRecordPayload>,
         @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
         @Arg("input") input: DeleteControlFrameInput,
         @Ctx() ctx: any
     ) {
         const { id } = input
         const frameToDelete = await ctx.db.ControlFrame.findOne({ id });
-        // if(frameToDelete)
         if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
             throw new Error("The frame is now editing by other user.");
         }
         const _id = frameToDelete._id
-        const controlFrame = await ctx.db.ControlFrame.deleteOne({ id })
+        await ctx.db.ControlFrame.deleteOne({ id })
         const targetControl = await ctx.db.Control.find({ frame: _id })
         const parts = await ctx.db.Part.find()
         await Promise.all(
@@ -152,16 +154,20 @@ export class ControlFrameResolver {
                 })
             })
         )
-
-
         await ctx.db.Control.deleteMany({ frame: _id })
-        const payload: ControlMapPayload = {
-            mutation: ControlMapMutation.CREATED,
+        const mapPayload: ControlMapPayload = {
+            mutation: ControlMapMutation.DELETED,
             editBy: ctx.userID,
-            frames: [{ _id: controlFrame._id, id: controlFrame.id }]
+            frameID: id
         }
-        await publishControlMap(payload)
-        console.log(controlFrame)
+        await publishControlMap(mapPayload)
+        const recordPayload: ControlRecordPayload = {
+            mutation: ControlRecordMutation.DELETED,
+            frameID: id,
+            editBy: ctx.userID,
+            index: -1
+        }
+        await publishControlRecord(recordPayload)
         return frameToDelete
     }
 }

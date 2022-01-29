@@ -3,7 +3,7 @@ import {ObjectType, Field, ID, Int} from "type-graphql"
 @ObjectType()
 export class PositionRecordPayload {
     @Field()
-    mutation: positionRecordMutation;
+    mutation: PositionRecordMutation;
 
     @Field(type => ID)
     frameID: string;
@@ -15,7 +15,7 @@ export class PositionRecordPayload {
     index: number;
 }
 
-export enum positionRecordMutation {
+export enum PositionRecordMutation {
   CREATED = "CREATED",
   UPDATED = "UPDATED",
   DELETED = "DELETED"
