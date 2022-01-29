@@ -1,9 +1,9 @@
-import { Resolver, FieldResolver, Root, Ctx, Query, Arg } from "type-graphql"
+import { Resolver, FieldResolver, Root, Ctx, Mutation, Arg } from "type-graphql"
 import { RequestEditResponse } from "./response/requestEditResponse"
 
 @Resolver()
 export class RequestEditResolver {
-    @Query(returns => RequestEditResponse)
+    @Mutation(returns => RequestEditResponse)
     async RequestEditControl(@Arg('FrameID') frameID: String, @Ctx() ctx: any) {
         const controlFrame = await ctx.db.ControlFrame.findOne({ id: frameID })
         if (!controlFrame.editing) {
@@ -19,7 +19,7 @@ export class RequestEditResolver {
         }
     }
 
-    @Query(returns => RequestEditResponse)
+    @Mutation(returns => RequestEditResponse)
     async RequestEditPosition(@Arg('FrameID') frameID: String, @Ctx() ctx: any) {
         const positionFrame = await ctx.db.PositionFrame.findOne({ id: frameID })
         if (!positionFrame.editing) {

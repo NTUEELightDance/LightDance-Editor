@@ -181,6 +181,8 @@ type Mutation {
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   editPosMap(controlDatas: [EditPositionInput!]!, frameID: String!): PosMap!
+  RequestEditControl(FrameID: String!): RequestEditResponse!
+  RequestEditPosition(FrameID: String!): RequestEditResponse!
   updateColor(color: ColorInput!): String!
 }
 
@@ -248,8 +250,6 @@ type Query {
   positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
   PosMap: PosMap!
-  RequestEditControl(FrameID: String!): RequestEditResponse!
-  RequestEditPosition(FrameID: String!): RequestEditResponse!
 }
 
 type RequestEditResponse {
