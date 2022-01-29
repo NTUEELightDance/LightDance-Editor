@@ -36,12 +36,14 @@ export class PosMapResolver {
                 })
             })
         )
+        await ctx.db.PositionFrame.updateOne({ id: frameID }, { editing: null })
+
 
         const payload: PositionMapPayload = {
             mutation: PositionMapMutation.UPDATED,
             editBy: ctx.userID,
             frameID,
-            frames: [{_id, id: frameID}]
+            frames: [{ _id, id: frameID }]
         }
         await publish(payload)
         return { frames: [{ _id, id: frameID }] }

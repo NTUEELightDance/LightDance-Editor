@@ -72,6 +72,7 @@ export class ControlMapResolver {
                 )
             })
         )
+        await ctx.db.ControlFrame.updateOne({ id: frameID }, { editing: null })
 
         const payload: ControlMapPayload = {
             mutation: ControlMapMutation.UPDATED,

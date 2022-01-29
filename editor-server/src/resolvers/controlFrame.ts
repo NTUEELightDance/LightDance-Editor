@@ -106,6 +106,8 @@ export class ControlFrameResolver {
             throw new Error("The frame is now editing by other user.");
         }
         await ctx.db.ControlFrame.updateOne({ id: input.id }, input);
+        await ctx.db.ControlFrame.updateOne({ id: input.id }, { editing: null });
+
         const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.id })
         const payload: ControlMapPayload = {
             mutation: ControlMapMutation.CREATED,

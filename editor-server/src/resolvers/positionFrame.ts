@@ -17,7 +17,7 @@ export class PositionFrameResolver {
 
     @Query(returns => [ID])
     async positionFrameIDs(@Ctx() ctx: any) {
-        let frames = await ctx.db.PositionFrame.find().sort({start: 1})
+        let frames = await ctx.db.PositionFrame.find().sort({ start: 1 })
         const id = frames.map((frame: PositionFrame) => frame.id)
         return id
     }
@@ -90,6 +90,7 @@ export class PositionFrameResolver {
             throw new Error("The frame is now editing by other user.");
         }
         await ctx.db.PositionFrame.updateOne({ id: input.id }, input);
+        await ctx.db.PositionFrame.updateOne({ id: input.id }, { editing: null });
         const positionFrame = await ctx.db.PositionFrame.findOne({ id: input.id }, input);
         const payload: PositionMapPayload = {
             mutation: PositionMapMutation.CREATED,
