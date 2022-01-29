@@ -39,7 +39,7 @@ export const Settings = ({
 
   return (
     <>
-      <Box sx={{ position: "absolute", left: "95vw" }}>
+      <Box sx={{ position: "absolute", left: "96vw" }}>
         <IconButton
           sx={{ p: 0 }}
           onClick={() => setShowSettings(!showSettings)}
