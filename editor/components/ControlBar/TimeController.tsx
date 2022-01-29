@@ -41,7 +41,10 @@ export default function TimeController() {
   };
 
   const handleChangeTime = handleChange(setTime, "time");
-  const handleChangeControlFrame = handleChange(setControlFrame, "controlFrame");
+  const handleChangeControlFrame = handleChange(
+    setControlFrame,
+    "controlFrame"
+  );
   const handleChangePosFrame = handleChange(setPosFrame, "posFrame");
 
   return (

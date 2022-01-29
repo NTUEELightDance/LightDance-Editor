@@ -1,126 +1,126 @@
 {
-    "global": {
-        "borderSize": 500,
-        "splitterSize": 4
-    },
-    "borders": [
+  "global": {
+    "borderSize": 500,
+    "splitterSize": 4
+  },
+  "borders": [
+    {
+      "type": "border",
+      "location": "bottom",
+      "children": [
         {
-            "type": "border",
-            "location": "bottom",
-            "children": [
-                {
-                    "type": "tab",
-                    "enableClose": false,
-                    "name": "CommandCenter",
-                    "component": "CommandCenter"
-                }
-            ]
-        },
-        {
-            "type": "border",
-            "location": "right",
-            "children": [
-                {
-                    "type": "tab",
-                    "enableClose": false,
-                    "name": "File",
-                    "component": "File"
-                }
-            ]
+          "type": "tab",
+          "enableClose": false,
+          "name": "CommandCenter",
+          "component": "CommandCenter"
         }
-    ],
-    "layout": {
+      ]
+    },
+    {
+      "type": "border",
+      "location": "right",
+      "children": [
+        {
+          "type": "tab",
+          "enableClose": false,
+          "name": "File",
+          "component": "File"
+        }
+      ]
+    }
+  ],
+  "layout": {
+    "type": "row",
+    "children": [
+      {
         "type": "row",
         "children": [
-            {
-                "type": "row",
+          {
+            "type": "tabset",
+            "weight": 18,
+            "selected": 0,
+            "enableMaximize": false,
+            "children": [
+              {
+                "type": "tab",
+                "name": "Wavesurfer",
+                "component": "Wavesurfer",
+                "enableClose": false
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "children": [
+              {
+                "type": "tabset",
+                "weight": 80,
+                "selected": 0,
+                "enableMaximize": false,
                 "children": [
-                    {
-                        "type": "tabset",
-                        "weight": 18,
-                        "selected": 0,
-                        "enableMaximize": false,
-                        "children": [
-                            {
-                                "type": "tab",
-                                "name": "Wavesurfer",
-                                "component": "Wavesurfer",
-                                "enableClose": false
-                            }
-                        ]
-                    },
-                    {
-                        "type": "row",
-                        "children": [
-                            {
-                                "type": "tabset",
-                                "weight": 80,
-                                "selected": 0,
-                                "enableMaximize": false,
-                                "children": [
-                                    {
-                                        "type": "tab",
-                                        "name": "Simulator",
-                                        "component": "Simulator",
-                                        "enableClose": false
-                                    },
-                                    {
-                                        "type": "tab",
-                                        "name": "Three Simulator",
-                                        "component": "ThreeSimulator",
-                                        "enableClose": false
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "tabset",
-                                "weight": 20,
-                                "selected": 0,
-                                "enableMaximize": false,
-                                "children": [
-                                    {
-                                        "type": "tab",
-                                        "name": "LightEditor",
-                                        "component": "LightEditor",
-                                        "enableClose": false
-                                    },
-                                    {
-                                        "type": "tab",
-                                        "name": "PosEditor",
-                                        "component": "PosEditor",
-                                        "enableClose": false
-                                    },
-                                    {
-                                        "type": "tab",
-                                        "name": "LightPresets",
-                                        "component": "LightPresets",
-                                        "enableClose": false
-                                    },
-                                    {
-                                        "type": "tab",
-                                        "name": "PosPresets",
-                                        "component": "PosPresets",
-                                        "enableClose": false
-                                    },
-                                    {
-                                        "type": "tab",
-                                        "name": "Effect",
-                                        "component": "EffectList",
-                                        "enableClose": false
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "tabset",
-                                "weight": 15,
-                                "selected": 0,
-                                "enableMaximize": false,
-                                "children": []
-                            }
-                        ]
-                    }
+                  {
+                    "type": "tab",
+                    "name": "Simulator",
+                    "component": "Simulator",
+                    "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "Three Simulator",
+                    "component": "ThreeSimulator",
+                    "enableClose": false
+                  }
                 ]
-            }
+              },
+              {
+                "type": "tabset",
+                "weight": 20,
+                "selected": 0,
+                "enableMaximize": false,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "LightEditor",
+                    "component": "LightEditor",
+                    "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "PosEditor",
+                    "component": "PosEditor",
+                    "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "LightPresets",
+                    "component": "LightPresets",
+                    "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "PosPresets",
+                    "component": "PosPresets",
+                    "enableClose": false
+                  },
+                  {
+                    "type": "tab",
+                    "name": "Effect",
+                    "component": "EffectList",
+                    "enableClose": false
+                  }
+                ]
+              },
+              {
+                "type": "tabset",
+                "weight": 15,
+                "selected": 0,
+                "enableMaximize": false,
+                "children": []
+              }
+            ]
+          }
         ]
-    }
+      }
+    ]
+  }
 }

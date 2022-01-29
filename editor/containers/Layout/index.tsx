@@ -23,72 +23,76 @@ import legacyEditorConfig from "layouts/legacyEditor.json";
 import commandConfig from "layouts/commandCenter.json";
 
 const Layout = () => {
-    const { preferedEditor, mode } = useContext(LayoutContext) as layoutContext;
+  const { preferedEditor, mode } = useContext(LayoutContext) as layoutContext;
 
-    const CommandCenterNode = useMemo<JSX.Element>(() => <CommandCenter />, []);
-    const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
-    const ThreeSimulatorNode = useMemo<JSX.Element>(() => <ThreeSimulator />, []);
-    const LightEditorNode = useMemo<JSX.Element>(() => <LightEditor />, []);
-    const PosEditorNode = useMemo<JSX.Element>(() => <PosEditor />, []);
-    const LightPresetsNode = useMemo<JSX.Element>(() => <LightPresets />, []);
-    const PosPresetsNode = useMemo<JSX.Element>(() => <PosPresets />, []);
-    const EffectListNode = useMemo<JSX.Element>(() => <EffectList />, []);
-    const WavesurferNode = useMemo<JSX.Element>(() => <Wavesurfer />, []);
-    const WaveSuferCleanNode = useMemo<JSX.Element>(() => <Wavesurfer cleanMode />, []);
+  const CommandCenterNode = useMemo<JSX.Element>(() => <CommandCenter />, []);
+  const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
+  const ThreeSimulatorNode = useMemo<JSX.Element>(() => <ThreeSimulator />, []);
+  const LightEditorNode = useMemo<JSX.Element>(() => <LightEditor />, []);
+  const PosEditorNode = useMemo<JSX.Element>(() => <PosEditor />, []);
+  const LightPresetsNode = useMemo<JSX.Element>(() => <LightPresets />, []);
+  const PosPresetsNode = useMemo<JSX.Element>(() => <PosPresets />, []);
+  const EffectListNode = useMemo<JSX.Element>(() => <EffectList />, []);
+  const WavesurferNode = useMemo<JSX.Element>(() => <Wavesurfer />, []);
+  const WaveSuferCleanNode = useMemo<JSX.Element>(
+    () => <Wavesurfer cleanMode />,
+    []
+  );
 
-    const factory = (node: TabNode) => {
-        const component = node.getComponent();
-        switch (component) {
-            case "CommandCenter":
-                return CommandCenterNode;
-            case "Simulator":
-                return SimulatorNode;
-            case "ThreeSimulator":
-                return ThreeSimulatorNode;
-            case "LightEditor":
-                return LightEditorNode;
-            case "PosEditor":
-                return PosEditorNode;
-            case "LightPresets":
-                return LightPresetsNode;
-            case "PosPresets":
-                return PosPresetsNode;
-            case "EffectList":
-                return EffectListNode;
-            case "Wavesurfer":
-                return WavesurferNode;
-            case "WavesurferClean":
-                return WaveSuferCleanNode;
-            default:
-                return null;
-        }
-    };
+  const factory = (node: TabNode) => {
+    const component = node.getComponent();
+    switch (component) {
+      case "CommandCenter":
+        return CommandCenterNode;
+      case "Simulator":
+        return SimulatorNode;
+      case "ThreeSimulator":
+        return ThreeSimulatorNode;
+      case "LightEditor":
+        return LightEditorNode;
+      case "PosEditor":
+        return PosEditorNode;
+      case "LightPresets":
+        return LightPresetsNode;
+      case "PosPresets":
+        return PosPresetsNode;
+      case "EffectList":
+        return EffectListNode;
+      case "Wavesurfer":
+        return WavesurferNode;
+      case "WavesurferClean":
+        return WaveSuferCleanNode;
+      default:
+        return null;
+    }
+  };
 
-    const EditorNode = useMemo(() => {
-        const configFile = preferedEditor === "default" ? editorConfig : legacyEditorConfig;
-        return (
-            <FlexLayout.Layout
-                model={FlexLayout.Model.fromJson(configFile as IJsonModel)}
-                factory={factory}
-                font={{ size: "12px" }}
-            />
-        );
-    }, [preferedEditor]);
+  const EditorNode = useMemo(() => {
+    const configFile =
+      preferedEditor === "default" ? editorConfig : legacyEditorConfig;
+    return (
+      <FlexLayout.Layout
+        model={FlexLayout.Model.fromJson(configFile as IJsonModel)}
+        factory={factory}
+        font={{ size: "12px" }}
+      />
+    );
+  }, [preferedEditor]);
 
-    const CommandNode = useMemo(() => {
-        return (
-            <FlexLayout.Layout
-                // @ts-ignore:next-line
-                model={FlexLayout.Model.fromJson(commandConfig as IJsonModel)}
-                factory={factory}
-                font={{ size: "12px" }}
-            />
-        );
-    }, []);
+  const CommandNode = useMemo(() => {
+    return (
+      <FlexLayout.Layout
+        // @ts-ignore:next-line
+        model={FlexLayout.Model.fromJson(commandConfig as IJsonModel)}
+        factory={factory}
+        font={{ size: "12px" }}
+      />
+    );
+  }, []);
 
-    const LayoutNode = mode === "editor" ? EditorNode : CommandNode;
+  const LayoutNode = mode === "editor" ? EditorNode : CommandNode;
 
-    return <>{LayoutNode}</>;
+  return <>{LayoutNode}</>;
 };
 
 export default Layout;

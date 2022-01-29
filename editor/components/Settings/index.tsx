@@ -1,12 +1,6 @@
 import { useState } from "react";
 
-import {
-  Typography,
-  Box,
-  IconButton,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+import { Typography, Box, IconButton, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import File from "./File";
 import { SettingModal } from "./SettingModal";

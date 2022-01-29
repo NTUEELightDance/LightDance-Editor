@@ -12,12 +12,9 @@ import { WAVESURFERAPP } from "../../constants";
 import { getItem } from "../../utils/localStorage";
 
 // types
-import {
-  LocalRegion,
-  Region,
-} from "../../types/components/wavesurfer";
+import { LocalRegion, Region } from "../../types/components/wavesurfer";
 
-import { ControlMapElement } from "../../types/globalSlice"
+import { ControlMapElement } from "../../types/globalSlice";
 /**
  * control 3rd party package, WaveSurfer
  */
@@ -48,7 +45,7 @@ class WaveSurferApp {
       plugins: [
         CursorPlugin.create({
           showTime: true,
-          opacity: '1',
+          opacity: "1",
           color: "#edf0f1",
           customShowTimeStyle: {
             "background-color": "#000",

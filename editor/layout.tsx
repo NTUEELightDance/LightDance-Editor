@@ -17,37 +17,41 @@ import CommandCenter from "./components/CommandCenter";
 import ThreeSimulator from "./components/ThreeSimulator";
 
 export default function Layout() {
-    // layout
-    const factory = (node: TabNode) => {
-        const component = node.getComponent();
-        switch (component) {
-            case "CommandCenter":
-                return <CommandCenter />;
-            case "Simulator":
-                return <Simulator />;
-            case "ThreeSimulator":
-                return <ThreeSimulator />;
-            case "LightEditor":
-                return <LightEditor />;
-            case "PosEditor":
-                return <PosEditor />;
-            case "Wavesurfer":
-                return <Wavesurfer />;
-            case "WavesurferClean":
-                return <Wavesurfer cleanMode />;
-            case "LightPresets":
-                return <LightPresets />;
-            case "PosPresets":
-                return <PosPresets />;
-            case "EffectList":
-                return <EffectList />;
-            case "File":
-                return <File />;
-            default:
-                return null;
-        }
-    };
-    return (
-        <FlexLayout.Layout model={FlexLayout.Model.fromJson(layoutConfig)} factory={factory} font={{ size: "12px" }} />
-    );
+  // layout
+  const factory = (node: TabNode) => {
+    const component = node.getComponent();
+    switch (component) {
+      case "CommandCenter":
+        return <CommandCenter />;
+      case "Simulator":
+        return <Simulator />;
+      case "ThreeSimulator":
+        return <ThreeSimulator />;
+      case "LightEditor":
+        return <LightEditor />;
+      case "PosEditor":
+        return <PosEditor />;
+      case "Wavesurfer":
+        return <Wavesurfer />;
+      case "WavesurferClean":
+        return <Wavesurfer cleanMode />;
+      case "LightPresets":
+        return <LightPresets />;
+      case "PosPresets":
+        return <PosPresets />;
+      case "EffectList":
+        return <EffectList />;
+      case "File":
+        return <File />;
+      default:
+        return null;
+    }
+  };
+  return (
+    <FlexLayout.Layout
+      model={FlexLayout.Model.fromJson(layoutConfig)}
+      factory={factory}
+      font={{ size: "12px" }}
+    />
+  );
 }
