@@ -1,7 +1,7 @@
-import {InputType, Field} from 'type-graphql';
+import { InputType, Field } from 'type-graphql';
 
 @InputType()
-export class EditPositionFrameInput{
+export class EditPositionFrameInput {
   @Field()
   id: string;
 
@@ -10,4 +10,10 @@ export class EditPositionFrameInput{
 
   @Field()
   start: number;
+}
+
+@InputType()
+export class DeletePositionFrameInput {
+  @Field()
+  id: string;
 }

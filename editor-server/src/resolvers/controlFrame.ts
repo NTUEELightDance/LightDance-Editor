@@ -12,7 +12,7 @@ import {
     ID
 } from 'type-graphql';
 import { ControlFrame } from './types/controlFrame';
-import { EditControlFrameInput } from './inputs/controlFrame';
+import { EditControlFrameInput, DeleteControlFrameInput } from './inputs/controlFrame';
 import { Part } from './types/part'
 import { generateID } from '../utility';
 import { ControlDefault } from './types/controlType';
@@ -29,7 +29,7 @@ export class ControlFrameResolver {
 
     @Query(returns => [ID])
     async controlFrameIDs(@Ctx() ctx: any) {
-        let frames = await ctx.db.ControlFrame.find().sort({start: 1})
+        let frames = await ctx.db.ControlFrame.find().sort({ start: 1 })
         const id = frames.map((frame: ControlFrame) => frame.id)
         return id
     }
@@ -42,19 +42,19 @@ export class ControlFrameResolver {
     async addControlFrame(
         @PubSub(Topic.ControlRecord) publishControlRecord: Publisher<ControlRecordPayload>,
         @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
-        @Arg("start", { nullable: false }) start: number, 
+        @Arg("start", { nullable: false }) start: number,
         @Ctx() ctx: any
     ) {
-        const check = await ctx.db.ControlFrame.findOne({start})
-        if(check){
+        const check = await ctx.db.ControlFrame.findOne({ start })
+        if (check) {
             throw new Error("Start Time overlapped!")
         }
         const newControlFrame = await new ctx.db.ControlFrame({ start: start, fade: false, id: generateID() }).save();
         let allParts = await ctx.db.Part.find();
         allParts.map(async (part: Part) => {
-            let newControl = await new ctx.db.Control({ frame: newControlFrame, value: ControlDefault[part.type], id: generateID()});
+            let newControl = await new ctx.db.Control({ frame: newControlFrame, value: ControlDefault[part.type], id: generateID() });
             await newControl.save()
-            await ctx.db.Part.findOneAndUpdate({ id: part.id}, {
+            await ctx.db.Part.findOneAndUpdate({ id: part.id }, {
                 name: part.name,
                 type: part.type,
                 controlData: part.controlData.concat([newControl]),
@@ -64,13 +64,13 @@ export class ControlFrameResolver {
         const mapPayload: ControlMapPayload = {
             mutation: ControlMapMutation.CREATED,
             editBy: ctx.userID,
-            frames: [{_id: newControlFrame._id, id: newControlFrame.id}]
+            frames: [{ _id: newControlFrame._id, id: newControlFrame.id }]
         }
         await publishControlMap(mapPayload)
-        const allControlFrames = await ctx.db.ControlFrame.find().sort({start: 1})
+        const allControlFrames = await ctx.db.ControlFrame.find().sort({ start: 1 })
         let index = -1
-        await allControlFrames.map((frame: any, idx: number)=> {
-            if (frame.id === newControlFrame.id){
+        await allControlFrames.map((frame: any, idx: number) => {
+            if (frame.id === newControlFrame.id) {
                 index = idx
             }
         })
@@ -88,34 +88,34 @@ export class ControlFrameResolver {
     async editControlFrame(
         @PubSub(Topic.ControlRecord) publishControlRecord: Publisher<ControlRecordPayload>,
         @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
-        @Arg("input") input: EditControlFrameInput, 
+        @Arg("input") input: EditControlFrameInput,
         @Ctx() ctx: any
-    ){
-        const {start} = input
-        if(start){
-            const check = await ctx.db.ControlFrame.findOne({start: input.start})
-            if(check){
-                if(check.id !== input.id){
+    ) {
+        const { start } = input
+        if (start) {
+            const check = await ctx.db.ControlFrame.findOne({ start: input.start })
+            if (check) {
+                if (check.id !== input.id) {
                     throw new Error("Start Time overlapped!")
                 }
             }
         }
-        let frameToEdit = await ctx.db.ControlFrame.findOne({id: input.id});
-        if (frameToEdit.editing && frameToEdit.editing !== ctx.userID){
+        let frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.id });
+        if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
             throw new Error("The frame is now editing by other user.");
         }
-        await ctx.db.ControlFrame.updateOne({id: input.id}, input); 
-        const controlFrame = await ctx.db.ControlFrame.findOne({id: input.id})
+        await ctx.db.ControlFrame.updateOne({ id: input.id }, input);
+        const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.id })
         const payload: ControlMapPayload = {
-                mutation: ControlMapMutation.CREATED,
-                editBy: ctx.userID,
-                frames: [{_id: controlFrame._id, id: controlFrame.id}]
+            mutation: ControlMapMutation.CREATED,
+            editBy: ctx.userID,
+            frames: [{ _id: controlFrame._id, id: controlFrame.id }]
         }
-        await publishControlMap(payload) 
-        const allControlFrames = await ctx.db.ControlFrame.find().sort({start: 1})
+        await publishControlMap(payload)
+        const allControlFrames = await ctx.db.ControlFrame.find().sort({ start: 1 })
         let index = -1
-        await allControlFrames.map((frame: any, idx: number)=> {
-            if (frame.id === controlFrame.id){
+        await allControlFrames.map((frame: any, idx: number) => {
+            if (frame.id === controlFrame.id) {
                 index = idx
             }
         })
@@ -127,5 +127,41 @@ export class ControlFrameResolver {
         }
         await publishControlRecord(recordPayload)
         return controlFrame
+    }
+
+    @Mutation(returns => ControlFrame)
+    async deleteControlFrame(
+        @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
+        @Arg("input") input: DeleteControlFrameInput,
+        @Ctx() ctx: any
+    ) {
+        const { id } = input
+        const frameToDelete = await ctx.db.ControlFrame.findOne({ id });
+        // if(frameToDelete)
+        if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
+            throw new Error("The frame is now editing by other user.");
+        }
+        const _id = frameToDelete._id
+        const controlFrame = await ctx.db.ControlFrame.deleteOne({ id })
+        const targetControl = await ctx.db.Control.find({ frame: _id })
+        const parts = await ctx.db.Part.find()
+        await Promise.all(
+            targetControl.map((control: any) => {
+                parts.map(async (part: any) => {
+                    await ctx.db.Part.updateOne({ id: part.id }, { $pullAll: { controlData: [{ _id: control._id }] } })
+                })
+            })
+        )
+
+
+        await ctx.db.Control.deleteMany({ frame: _id })
+        const payload: ControlMapPayload = {
+            mutation: ControlMapMutation.CREATED,
+            editBy: ctx.userID,
+            frames: [{ _id: controlFrame._id, id: controlFrame.id }]
+        }
+        await publishControlMap(payload)
+        console.log(controlFrame)
+        return frameToDelete
     }
 }

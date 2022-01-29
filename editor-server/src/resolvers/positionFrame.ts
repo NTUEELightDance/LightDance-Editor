@@ -1,8 +1,8 @@
-import { Resolver, ID, Ctx, Query, Arg, Mutation} from 'type-graphql';
+import { Resolver, ID, Ctx, Query, Arg, Mutation } from 'type-graphql';
 import { PositionFrame } from './types/positionFrame';
 import { Dancer } from './types/dancer'
 import { generateID } from '../utility';
-import { EditPositionFrameInput } from './inputs/positionFrame';
+import { EditPositionFrameInput, DeletePositionFrameInput } from './inputs/positionFrame';
 
 
 @Resolver(of => PositionFrame)
@@ -21,17 +21,17 @@ export class PositionFrameResolver {
 
     @Mutation(returns => PositionFrame)
     async addPositionFrame(
-        @Arg("start", { nullable: false }) start: number, 
+        @Arg("start", { nullable: false }) start: number,
         @Ctx() ctx: any
     ) {
-        const newPositionFrame = new ctx.db.PositionFrame({ start: start, fade: false, id: generateID() }).save();
+        const newPositionFrame = await new ctx.db.PositionFrame({ start: start, fade: false, id: generateID() }).save();
         let allDancers = await ctx.db.Dancer.find();
         allDancers.map(async (dancer: Dancer) => {
-            let newPosition = new ctx.db.Position({ frame: newPositionFrame, x:0, y: 0, z: 0, id: generateID()});
+            let newPosition = new ctx.db.Position({ frame: newPositionFrame, x: 0, y: 0, z: 0, id: generateID() });
             await newPosition.save()
             await ctx.db.Dancer.findOneAndUpdate({ id: dancer.id }, {
                 name: dancer.name,
-                parts: dancer.parts ,
+                parts: dancer.parts,
                 positionData: dancer.positionData.concat([newPosition]),
                 id: dancer.id
             });
@@ -47,7 +47,7 @@ export class PositionFrameResolver {
 
     @Mutation(returns => PositionFrame)
     async editPositionFrame(
-        @Arg("input") input: EditPositionFrameInput, 
+        @Arg("input") input: EditPositionFrameInput,
         @Ctx() ctx: any
     ) {
         let frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.id });
@@ -63,5 +63,34 @@ export class PositionFrameResolver {
         // }
         // await publishControlMap(payload) 
         return positionFrame
+    }
+
+    @Mutation(returns => PositionFrame)
+    async deletePositionFrame(
+        @Arg("input") input: DeletePositionFrameInput,
+        @Ctx() ctx: any
+    ) {
+        const { id } = input
+        let frameToDelete = await ctx.db.PositionFrame.findOne({ id });
+        if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
+            throw new Error("The frame is now editing by other user.");
+        }
+        const _id = frameToDelete._id
+        const positionFrame = await ctx.db.PositionFrame.deleteOne({ id });
+        const positions = await ctx.db.Position.find({ frame: _id })
+        const dancers = await ctx.db.Dancer.find()
+        await Promise.all(positions.map((pos: any) => {
+            dancers.map(async (dancer: any) => {
+                await ctx.db.Dancer.updateOne({ id: dancer.id }, { $pullAll: { positionData: [{ _id: pos._id }] } })
+            })
+        }))
+        await ctx.db.Position.deleteMany({ frame: _id })
+        // const payload: ControlMapPayload = {
+        //         mutation: ControlMapMutation.CREATED,
+        //         editBy: ctx.userID,
+        //         frames: [{_id: controlFrame._id, id: controlFrame.id}]
+        // }
+        // await publishControlMap(payload) 
+        return frameToDelete
     }
 }

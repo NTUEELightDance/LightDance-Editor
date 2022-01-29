@@ -102,6 +102,10 @@ type DancerResponse {
   positionData: [Position!]!
 }
 
+input DeleteControlFrameInput {
+  id: String!
+}
+
 input deleteDancerInput {
   id: ID!
 }
@@ -109,6 +113,10 @@ input deleteDancerInput {
 input DeletePartInput {
   dancerName: String!
   id: ID!
+}
+
+input DeletePositionFrameInput {
+  id: String!
 }
 
 input EditControlFrameInput {
@@ -139,6 +147,11 @@ input EditPositionFrameInput {
   user: String!
 }
 
+input EditPositionInput {
+  dancerName: String!
+  positionDatas: PositionDataInput!
+}
+
 type EL {
   value: Int!
 }
@@ -158,13 +171,16 @@ type Mutation {
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
+  deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deletePart(part: DeletePartInput!): PartResponse!
+  deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editControlMap(controlDatas: [EditControlInput!]!, frameID: String!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
+  editPosMap(controlDatas: [EditPositionInput!]!, frameID: String!): PosMap!
   updateColor(color: ColorInput!): String!
 }
 
@@ -186,6 +202,12 @@ type PartResponse {
 
 type Position {
   frame: PositionFrame!
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+input PositionDataInput {
   x: Float!
   y: Float!
   z: Float!
