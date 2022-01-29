@@ -197,8 +197,21 @@ type PositionFrame {
   start: Float!
 }
 
+type PositionMapPayload {
+  editBy: String!
+  frames: PositionMapQueryObjectId
+  mutation: String!
+}
+
 """Mongo object id scalar type"""
 scalar PositionMapQueryObjectId
+
+type PositionRecordPayload {
+  editBy: String!
+  frameID: ID!
+  index: Int!
+  mutation: String!
+}
 
 type PosMap {
   frames: PositionMapQueryObjectId!
@@ -227,4 +240,6 @@ type Subscription {
   controlMapSubscription: ControlMapPayload!
   controlRecordSubscription: ControlRecordPayload!
   DancerSubscription: DancerPayload!
+  positionMapSubscription: PositionMapPayload!
+  positionRecordSubscription: PositionRecordPayload!
 }

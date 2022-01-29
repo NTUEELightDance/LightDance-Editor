@@ -16,6 +16,8 @@ import {
 import {Topic} from "./topic"
 import { ControlRecordPayload } from './controlRecord';
 import { ControlMapPayload } from './controlMap';
+import { PositionRecordPayload } from './positionRecord';
+import { PositionMapPayload } from './positionMap';
 import { DancerPayload } from './dancer';
 import { ColorPayload } from './color';
 
@@ -57,6 +59,23 @@ class SubscriptionResolver{
         return dancerPayload
     }
 
+    @Subscription({
+        topics: Topic.PositionRecord
+    })
+    positionRecordSubscription(
+        @Root() positionRecordPayload:PositionRecordPayload
+    ): PositionRecordPayload{
+        return positionRecordPayload
+    }
+
+    @Subscription({
+        topics: Topic.PositionMap
+    })
+    positionMapSubscription(
+        @Root() positionMapPayload:PositionMapPayload
+    ): PositionMapPayload{
+        return positionMapPayload
+    }
 }
 
 export default SubscriptionResolver
