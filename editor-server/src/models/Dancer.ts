@@ -10,8 +10,7 @@ const DancerSchema = new Schema({
   },
   parts: [{ type: mongoose.Types.ObjectId, ref: "Part" }],
   positionData: [{ type: mongoose.Types.ObjectId, ref: "Position" }],
-  id: { type: String, required: [true, "id is needed"] }
-
+  id: { type: String, required: [true, "id is needed"] },
 });
 
 // Creating a table within database with the defined schema

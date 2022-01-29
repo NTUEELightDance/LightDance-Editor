@@ -4,5 +4,5 @@ export enum Topic {
   ControlMap = "CONTROL_MAP",
   PositionRecord = "POSITION_RECORD",
   PositionMap = "POSITION_MAP",
-  Dancer = "DANCER"
+  Dancer = "DANCER",
 }

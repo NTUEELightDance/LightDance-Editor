@@ -1,18 +1,18 @@
 import { Field, ObjectType, ID, Float } from "type-graphql";
-import { Part } from './part'
-import { Position } from './position'
+import { Part } from "./part";
+import { Position } from "./position";
 
 @ObjectType()
 export class Dancer {
-  @Field(type => String)
+  @Field((type) => String)
   name: string;
 
-  @Field(type => [Part])
-  parts: Part[]
+  @Field((type) => [Part])
+  parts: Part[];
 
-  @Field(type => [Position])
-  positionData: Position[]
+  @Field((type) => [Position])
+  positionData: Position[];
 
-  @Field(type => ID)
-  id: string
+  @Field((type) => ID)
+  id: string;
 }

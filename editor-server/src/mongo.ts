@@ -1,20 +1,22 @@
-import mongoose from "mongoose"
-import "dotenv-defaults/config"
-import {initData} from "./utility"
+import mongoose from "mongoose";
+import "dotenv-defaults/config";
+import { initData } from "./utility";
 import { syncBuiltinESMExports } from "module";
 
 export default () => {
-    const { MONGO_HOST, MONGO_DBNAME } = process.env;
+  const { MONGO_HOST, MONGO_DBNAME } = process.env;
 
-    mongoose.connect(`mongodb://${MONGO_HOST}/${MONGO_DBNAME}`, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    }).then((res)=>{
-        console.log("mongo db connection created")
+  mongoose
+    .connect(`mongodb://${MONGO_HOST}/${MONGO_DBNAME}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     })
-    const db = mongoose.connection
-    db.once("open", async () => {
-        // await db.dropDatabase()
-        initData()
-    })
-}
+    .then((res) => {
+      console.log("mongo db connection created");
+    });
+  const db = mongoose.connection;
+  db.once("open", async () => {
+    // await db.dropDatabase()
+    initData();
+  });
+};

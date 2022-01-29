@@ -5,11 +5,10 @@ type Query {
   controlMap(frameID: ID!): ControlMap
 }
 
-enum FrameType{
-  control,
+enum FrameType {
+  control
   position
 }
-
 
 type Dancer {
   name: String!
@@ -27,11 +26,11 @@ type Control {
   status: ControlDevice!
 }
 
-interface ControlDevice{
+interface ControlDevice {
   id: ID!
 }
 
-type Fiber implements ControlDevice{
+type Fiber implements ControlDevice {
   id: ID!
   color: String!
   alpha: Int!
@@ -48,13 +47,13 @@ type LED implements ControlDevice {
   alpha: Int!
 }
 
-enum ControlType{
-  FIBER,
-  EL,
+enum ControlType {
+  FIBER
+  EL
   LED
 }
 
-type ControlMap{
+type ControlMap {
   start: Int!
   fade: Boolean!
   dancerStatus: [DancerStatus!]!

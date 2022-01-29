@@ -1,22 +1,22 @@
-import {ObjectType, Field, ID, Int} from "type-graphql"
+import { ObjectType, Field, ID, Int } from "type-graphql";
 
 @ObjectType()
 export class PositionRecordPayload {
-    @Field()
-    mutation: PositionRecordMutation;
+  @Field()
+  mutation: PositionRecordMutation;
 
-    @Field(type => ID)
-    frameID: string;
-    
-    @Field()
-    editBy: string;
+  @Field((type) => ID)
+  frameID: string;
 
-    @Field(type => Int)
-    index: number;
+  @Field()
+  editBy: string;
+
+  @Field((type) => Int)
+  index: number;
 }
 
 export enum PositionRecordMutation {
   CREATED = "CREATED",
   UPDATED = "UPDATED",
-  DELETED = "DELETED"
+  DELETED = "DELETED",
 }
