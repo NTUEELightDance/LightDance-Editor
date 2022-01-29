@@ -58,9 +58,7 @@ type ControlMapPayload {
   mutation: String!
 }
 
-"""
-Mongo object id scalar type
-"""
+"""Mongo object id scalar type"""
 scalar ControlMapQueryObjectId
 
 type ControlRecordPayload {
@@ -70,9 +68,7 @@ type ControlRecordPayload {
   mutation: String!
 }
 
-"""
-The basic control types
-"""
+"""The basic control types"""
 enum ControlType {
   EL
   FIBER
@@ -181,10 +177,7 @@ type Mutation {
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(
-    controlDatas: [EditControlInput!]!
-    frameID: String!
-  ): ControlMap!
+  editControlMap(controlDatas: [EditControlInput!]!, frameID: String!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
@@ -236,9 +229,7 @@ type PositionMapPayload {
   mutation: String!
 }
 
-"""
-Mongo object id scalar type
-"""
+"""Mongo object id scalar type"""
 scalar PositionMapQueryObjectId
 
 type PositionRecordPayload {
