@@ -16,7 +16,6 @@ export class ControlMapPayload {
 
 export enum ControlMapMutation {
   UPDATED = "UPDATED",
-  CREATED = "CREATED",
-  DELETED = "DELETED"
+  CREATED = "CREATED"
 }
 
