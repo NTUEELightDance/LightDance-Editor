@@ -157,6 +157,9 @@ class ThreeController {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
+    const helper = new THREE.GridHelper(20, 10);
+    scene.add(helper);
+
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(-1, 1, 1);
@@ -185,7 +188,9 @@ class ThreeController {
     const currentPos = reactiveState.currentPos();
 
     this.objects = [];
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const gridPosition = new THREE.Vector3();
+    gridPosition.set(0, 0, 0);
+    const geometry = new THREE.BoxGeometry(1, 5, 1);
     Object.entries(currentPos).forEach(([name, position], i) => {
       if (!name.includes("sw")) {
         const newDancer = new ThreeDancer(this.scene, name);
@@ -194,7 +199,8 @@ class ThreeController {
           y: 0,
           z: position.z / 35,
         };
-
+        gridPosition.x += position.x;
+        gridPosition.z += position.z;
         newDancer.addModel2Scene(newPos);
         this.dancers[name] = newDancer;
 
@@ -203,14 +209,19 @@ class ThreeController {
           geometry,
           new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff })
         );
-        object.position.set(position.x / 35, 0, position.z / 35);
+        object.position.set(position.x / 35, 2.5, position.z / 35);
         object.userData["name"] = name;
-        // object.visible = false;
+        newDancer.controlBox = object;
+        object.visible = false;
         this.objects.push(object);
         this.scene.add(object);
-        console.log(object);
       }
     });
+
+    gridPosition.x = gridPosition.x / this.dancers.length;
+    gridPosition.x = gridPosition.x / this.dancers.length;
+
+    this.fontInit();
 
     // add gui to adjust parameters
     // this.gui();
@@ -241,16 +252,24 @@ class ThreeController {
       this.camera,
       this.renderer.domElement
     );
-    console.log(this.dragControls);
     this.dragControls.enabled = false;
     this.dragControls.addEventListener("drag", (event) => {
-      this.render();
       const { name } = event.object.userData;
       const { position } = event.object;
-      this.dancers[name].model.position.set(position.x, 0, position.z);
+      const newPosition = position.clone();
+      newPosition.setY(newPosition.y - 2.5);
+      this.nameTags[name].material.color.setRGB(1, 1, 1);
+      this.dancers[name].updatePos(newPosition);
+      this.render();
     });
-
-    console.log("DragControls initialized");
+    this.dragControls.addEventListener("dragend", (event) => {
+      const { name } = event.object.userData;
+      this.nameTags[name].material.color.setRGB(0, 0.4, 0.6);
+      this.render();
+      // this.dragControls.enabled = false;
+      this.dragControls.enabled = false;
+      this.orbitControls.enabled = true;
+    });
 
     addEventListener("click", this.onClick.bind(this));
     addEventListener("keydown", this.onKeyDown.bind(this));
@@ -265,15 +284,14 @@ class ThreeController {
     }
     // press v to enable moving
     if (event.keyCode === 86) {
-      this.dragControls.enabled = !this.dragControls.enabled;
-      this.orbitControls.enabled = !this.orbitControls.enabled;
+      this.dragControls.enabled = true;
+      this.orbitControls.enabled = false;
 
-      this.objects.forEach((o) => {
-        const { name } = o.userData;
-        const { position } = this.dancers[name].model;
-        o.position.set(position.x, 0, position.z);
-      });
-
+      // this.objects.forEach((o) => {
+      //   const { name } = o.userData;
+      //   const { position } = this.dancers[name].model;
+      //   o.position.set(position.x, 0, position.z);
+      // });
       console.log(`dragControls ${this.dragControls.enabled}`);
     }
   }
@@ -282,6 +300,10 @@ class ThreeController {
     if (event.keyCode === 16) {
       this.enableSelection = false;
       console.log("groupControl disabled");
+    }
+    if (event.keyCode === 86) {
+      this.dragControls.enabled = false;
+      this.orbitControls.enabled = true;
     }
   }
 
@@ -326,6 +348,91 @@ class ThreeController {
     this.render();
   }
 
+  fontInit() {
+    const loader = new FontLoader();
+    loader.load(
+      "asset/fonts/helvetiker_regular.typeface.json",
+      this.fontLoader.bind(this)
+    ); //end load function
+  }
+
+  fontLoader(font) {
+    const color = 0x006699;
+
+    this.nameTags = {};
+    const { currentPos } = store.getState().global;
+    Object.entries(currentPos).forEach(([name, position], i) => {
+      if (!name.includes("sw")) {
+        const matLite = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.4,
+          side: THREE.DoubleSide,
+        });
+
+        const matDark = new THREE.LineBasicMaterial({
+          color: color,
+          side: THREE.DoubleSide,
+        });
+
+        const message = name;
+
+        const shapes = font.generateShapes(message, 0.3);
+
+        const geometry = new THREE.ShapeGeometry(shapes);
+
+        geometry.computeBoundingBox();
+
+        const xMid =
+          -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+        geometry.translate(xMid, 0, 0);
+
+        // make shape ( N.B. edge view not visible )
+
+        const text = new THREE.Mesh(geometry, matLite);
+        // text.position.z = -150;
+        text.position.set(position.x / 35, 5, position.z / 35);
+        this.nameTags[name] = text;
+        this.dancers[name].nameTag = text;
+        this.scene.add(text);
+
+        // make line shape ( N.B. edge view remains visible )
+
+        // const holeShapes = [];
+
+        // for (let i = 0; i < shapes.length; i++) {
+        //   const shape = shapes[i];
+
+        //   if (shape.holes && shape.holes.length > 0) {
+        //     for (let j = 0; j < shape.holes.length; j++) {
+        //       const hole = shape.holes[j];
+        //       holeShapes.push(hole);
+        //     }
+        //   }
+        // }
+
+        // shapes.push.apply(shapes, holeShapes);
+
+        // const lineText = new THREE.Object3D();
+
+        // for (let i = 0; i < shapes.length; i++) {
+        //   const shape = shapes[i];
+
+        //   const points = shape.getPoints();
+        //   const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+        //   geometry.translate(xMid, 0, 0);
+
+        //   const lineMesh = new THREE.Line(geometry, matDark);
+        //   lineText.add(lineMesh);
+        // }
+        // // lineText.position.set(position.x, 5, position.z);
+        // this.scene.add(lineText);
+      }
+    });
+    this.render();
+  }
   // Monitor fps, memory and delay
   monitor() {
     const statsPanel = Stats();
@@ -400,7 +507,8 @@ class ThreeController {
         state.posMap[state.posRecord[newPosFrame + 1]]
       );
     }
-
+    state.currentPos.x /= 35;
+    state.currentPos.z /= 35;
     // set currentFade
     state.currentFade =
       state.controlMap[state.controlRecord[newControlFrame]].fade;
@@ -413,10 +521,12 @@ class ThreeController {
   updateDancers() {
     const { state } = this;
     Object.values(this.dancers).forEach((dancer) => {
-      dancer.update(
-        state.currentPos[dancer.name],
-        state.currentStatus[dancer.name]
-      );
+      const newPos = {
+        x: state.currentPos[dancer.name].x / 35,
+        y: 0,
+        z: state.currentPos[dancer.name].z / 35,
+      };
+      dancer.update(newPos, state.currentStatus[dancer.name]);
     });
   }
 
@@ -429,6 +539,12 @@ class ThreeController {
     } else {
       cancelAnimationFrame(this.animateID);
     }
+    if (this.nameTags) {
+      Object.values(this.nameTags).forEach((text) => {
+        text.lookAt(this.camera.position);
+      });
+    }
+
     requestAnimationFrame(() => this.animate(animation));
   }
 

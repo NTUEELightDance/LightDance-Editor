@@ -87,9 +87,17 @@ class ThreeDancer {
 
   // Update the model's positon
   updatePos(currentPos) {
-    this.model.position.setX(currentPos.x / 35);
-    this.model.position.setY(0);
-    this.model.position.setZ(currentPos.z / 35);
+    this.model.position.set(currentPos.x, currentPos.y, currentPos.z);
+    if (this.nameTag) {
+      this.nameTag.position.set(currentPos.x, currentPos.y + 5, currentPos.z);
+    }
+    if (this.controlBox) {
+      this.controlBox.position.set(
+        currentPos.x,
+        currentPos.y + 2.5,
+        currentPos.z
+      );
+    }
   }
 
   // Update the model's status
