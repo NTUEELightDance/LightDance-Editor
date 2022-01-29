@@ -52,6 +52,8 @@ type ControlMap {
 }
 
 type ControlMapPayload {
+  editBy: String!
+  frames: ControlMapQueryObjectId!
   mutation: String!
 }
 

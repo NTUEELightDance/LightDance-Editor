@@ -17,9 +17,19 @@ import {Topic} from "./topic"
 import { ControlRecordPayload } from './controlRecord';
 import { ControlMapPayload } from './controlMap';
 import { DancerPayload } from './dancer';
+import { ColorPayload } from './color';
 
 @Resolver()
 class SubscriptionResolver{
+    @Subscription({
+        topics: Topic.Color
+    })
+    colorSubscription(
+        @Root() colorPayload: ColorPayload
+    ): ColorPayload{
+        return colorPayload
+    }
+
     @Subscription({
         topics: Topic.ControlRecord
     })

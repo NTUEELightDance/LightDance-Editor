@@ -1,16 +1,11 @@
 import {
     Resolver,
     Query,
-    FieldResolver,
     Arg,
     Ctx,
-    Root,
     Mutation,
-    Int,
-    ResolverInterface,
     Publisher,
     PubSub,
-    Subscription,
 } from 'type-graphql';
 import { ColorInput } from './inputs/color'
 import { Topic } from "./subscriptions/topic"
@@ -55,15 +50,6 @@ class ColorResolver {
             await publish(payload)
         }
         return colorInput.colorCode
-    }
-
-    @Subscription({
-        topics: Topic.Color
-    })
-    colorSubscription(
-        @Root() colorPayload: ColorPayload
-    ): ColorPayload{
-        return colorPayload
     }
 }
 
