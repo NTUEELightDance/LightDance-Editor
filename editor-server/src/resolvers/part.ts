@@ -73,14 +73,14 @@ export class PartResolver {
                     console.log(data)
                 })
             }
-            const result = await ctx.db.Part.findOneAndUpdate({ _id: id }, { name, type })
-            const dancerData = await ctx.db.Dancer.findOne({ _id: id }).populate('parts').populate('positionData')
-            const payload: DancerPayload = {
-                mutation: dancerMutation.UPDATED,
-                editBy: ctx.userID,
-                dancerData
-            }
-            await publish(payload)
+            const result = await ctx.db.Part.findOneAndUpdate({ id }, { name, type })
+            // const dancerData = await ctx.db.Dancer.findOne({ id }).populate('parts').populate('positionData')
+            // const payload: DancerPayload = {
+            //     mutation: dancerMutation.UPDATED,
+            //     editBy: ctx.userID,
+            //     dancerData
+            // }
+            // await publish(payload)
             return Object.assign(result, { ok: true })
         }
         return { name: "", type: null, id: "", ok: false, msg: "no part found", controlData: [] }
