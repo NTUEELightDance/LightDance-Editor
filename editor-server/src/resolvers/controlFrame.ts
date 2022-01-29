@@ -7,6 +7,8 @@ import {
     Arg,
     Root,
     Float,
+    PubSub,
+    Publisher,
     ID
 } from 'type-graphql';
 import { ControlFrame } from './types/controlFrame';
@@ -14,6 +16,8 @@ import { EditControlFrameInput } from './inputs/controlFrame';
 import { Part } from './types/part'
 import { generateID } from '../utility';
 import { ControlDefault } from './types/controlType';
+import { Topic } from './subscriptions/topic';
+import { ControlMapPayload, ControlMapMutation } from './subscriptions/controlMap';
 
 @Resolver(of => ControlFrame)
 export class ControlFrameResolver {
@@ -34,27 +38,50 @@ export class ControlFrameResolver {
     // }
 
     @Mutation(returns => ControlFrame)
-    async addControlFrame(@Arg("start", { nullable: false }) start: number, @Ctx() ctx: any) {
-        let newControlFrame = new ctx.db.ControlFrame({ start: start, fade: false, id: generateID() });
+    async addControlFrame(
+        @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
+        @Arg("start", { nullable: false }) start: number, 
+        @Ctx() ctx: any
+    ) {
+        const newControlFrame = await new ctx.db.ControlFrame({ start: start, fade: false, id: generateID() }).save();
         let allParts = await ctx.db.Part.find();
         allParts.map(async (part: Part) => {
-            let newControl = new ctx.db.Control({ frame: newControlFrame, value: ControlDefault[part.type], id: generateID()});
+            let newControl = await new ctx.db.Control({ frame: newControlFrame, value: ControlDefault[part.type], id: generateID()});
             await newControl.save()
             await ctx.db.Part.findOneAndUpdate({ id: part.id}, {
-            name: part.name,
-            type: part.type,
-            controlData: part.controlData.concat([newControl]),
-            id: part.id});
+                name: part.name,
+                type: part.type,
+                controlData: part.controlData.concat([newControl]),
+                id: part.id
+            });
         });
-        return newControlFrame.save();
+        const payload: ControlMapPayload = {
+                mutation: ControlMapMutation.CREATED,
+                editBy: ctx.userID,
+                frames: [{_id: newControlFrame._id, id: newControlFrame.id}]
+        }
+        await publishControlMap(payload)
+        return newControlFrame;
     }
 
     @Mutation(returns => ControlFrame)
-    async editControlFrame(@Arg("input") input: EditControlFrameInput, @Ctx() ctx: any){
-        let frameToEdit = await ctx.db.findOne({_id: input.id});
+    async editControlFrame(
+        @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
+        @Arg("input") input: EditControlFrameInput, 
+        @Ctx() ctx: any
+    ){
+        let frameToEdit = await ctx.db.ControlFrame.findOne({id: input.id});
         if (frameToEdit.editing && frameToEdit.editing !== ctx.userID){
             throw new Error("The frame is now editing by other user.");
         }
-        return await ctx.db.findOneAndUpdate({_id: input.id}, input);  
+        await ctx.db.ControlFrame.updateOne({id: input.id}, input); 
+        const controlFrame = await ctx.db.ControlFrame.findOne({id: input.id})
+        const payload: ControlMapPayload = {
+                mutation: ControlMapMutation.CREATED,
+                editBy: ctx.userID,
+                frames: [{_id: controlFrame._id, id: controlFrame.id}]
+        }
+        await publishControlMap(payload) 
+        return controlFrame
     }
 }

@@ -7,8 +7,8 @@ export class ControlMapPayload {
     @Field()
     mutation: ControlMapMutation;
 
-    @Field(type => ControlMapScalar)
-    frames: any[]   
+    @Field(type => ControlMapScalar, {nullable: true})
+    frames?: any[]   
     
     @Field()
     editBy: string; 
