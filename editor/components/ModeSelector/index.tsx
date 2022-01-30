@@ -1,0 +1,101 @@
+import React, { useEffect, useContext } from "react";
+import PropTypes from "prop-types";
+import { useSelector, useDispatch } from "react-redux";
+// mui
+import Button from "@material-ui/core/Button";
+// redux selector and actions
+import {
+  selectGlobal,
+  toggleMode,
+  saveToLocal,
+} from "../../slices/globalSlice";
+// constants
+import { IDLE, ADD, EDIT } from "../../constants";
+// hotkeys
+import { useHotkeys } from "react-hotkeys-hook";
+
+export default function ModeSelector({ handleSave, handleDelete }) {
+  // redux states
+  const { mode } = useSelector(selectGlobal);
+  const dispatch = useDispatch();
+
+  // mode
+  const handleChangeMode = (m) => {
+    dispatch(toggleMode(m));
+  };
+
+  const handleSaveToLocal = () => {
+    dispatch(saveToLocal());
+  };
+
+  // hotkeys
+  useHotkeys("ctrl+s, cmd+s", (e) => {
+    e.preventDefault();
+    handleSave();
+  });
+
+  useHotkeys("delete", () => {
+    handleDelete();
+  });
+
+  useHotkeys("e", () => {
+    handleChangeMode(EDIT);
+  });
+
+  useHotkeys("a", () => {
+    handleChangeMode(ADD);
+  });
+
+  return (
+    <div>
+      <Button
+        variant="outlined"
+        size="small"
+        color={mode === EDIT ? "secondary" : "default"}
+        onClick={() => handleChangeMode(EDIT)}
+      >
+        {mode === EDIT ? "Cancel" : "EDIT"}
+      </Button>
+      <Button
+        variant="outlined"
+        size="small"
+        color={mode === ADD ? "secondary" : "default"}
+        onClick={() => handleChangeMode(ADD)}
+      >
+        {mode === ADD ? "Cancel" : "ADD"}
+      </Button>
+      <Button
+        variant="outlined"
+        size="small"
+        color="primary"
+        disabled={mode === IDLE}
+        onClick={handleSave}
+      >
+        SAVE
+      </Button>
+      <Button
+        size="small"
+        variant="outlined"
+        color="secondary"
+        onClick={handleDelete}
+        disabled={mode !== IDLE}
+      >
+        DEL
+      </Button>
+      <Button
+        size="small"
+        variant="outlined"
+        color="primary"
+        onClick={handleSaveToLocal}
+        disabled={false}
+      >
+        SAVE_LOCAL
+      </Button>
+    </div>
+  );
+}
+
+ModeSelector.propTypes = {
+  handleSave: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+};

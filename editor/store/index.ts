@@ -2,12 +2,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import globalReducer from "../slices/globalSlice";
 import loadReducer from "../slices/loadSlice";
 import CommandReducer from "../slices/commandSlice";
-
+import clipboardReducer from "../slices/clipboardSlice";
 const store = configureStore({
   reducer: {
     global: globalReducer,
     load: loadReducer,
     command: CommandReducer,
+    clipboard: clipboardReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
