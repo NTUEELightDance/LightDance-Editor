@@ -8,21 +8,21 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 // import MenuItem from "@material-ui/core/MenuItem";
 
 import {
-	Stack,
-	Box,
-	Button,
-	Typography,
-	FormControl,
-	InputLabel,
-	Select,
-	MenuItem,
+  Stack,
+  Box,
+  Button,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 // write record
 import {
-	posInit,
-	controlInit,
-	selectGlobal,
+  posInit,
+  controlInit,
+  selectGlobal,
 } from "../../../slices/globalSlice";
 // select
 import { selectLoad } from "../../../slices/loadSlice";
@@ -32,12 +32,12 @@ import { setItem, getItem } from "../../../utils/localStorage";
 import { uploadImages, requestDownload } from "../../../api";
 // utils
 import {
-	downloadEverything,
-	checkControlJson,
-	checkPosJson,
-	uploadJson,
-	downloadControlJson,
-	downloadPos,
+  downloadEverything,
+  checkControlJson,
+  checkPosJson,
+  uploadJson,
+  downloadControlJson,
+  downloadPos,
 } from "./utils";
 import { UploadDownload } from "./UploadDownload";
 
@@ -58,253 +58,253 @@ import { UploadDownload } from "./UploadDownload";
  * |- texture.json
  */
 export default function File() {
-	// upload to server
-	const dispatch = useDispatch();
-	const { texture } = useSelector(selectLoad);
-	const { posRecord, controlRecord, controlMap } = useSelector(selectGlobal);
-	const [toServer, setToServer] = useState(false);
-	const [controlRecordFile, setControlRecordFile] = useState(null);
-	const [controlMapFile, setControlMap] = useState(null);
-	const [posRecordFile, setPosRecordFile] = useState(null);
-	const [posMapFile, setPosMapFile] = useState(null);
-	const [selectedImages, setSelectedImages] = useState(null);
-	const [path, setPath] = useState("");
+  // upload to server
+  const dispatch = useDispatch();
+  const { texture } = useSelector(selectLoad);
+  const { posRecord, controlRecord, controlMap } = useSelector(selectGlobal);
+  const [toServer, setToServer] = useState(false);
+  const [controlRecordFile, setControlRecordFile] = useState(null);
+  const [controlMapFile, setControlMap] = useState(null);
+  const [posRecordFile, setPosRecordFile] = useState(null);
+  const [posMapFile, setPosMapFile] = useState(null);
+  const [selectedImages, setSelectedImages] = useState(null);
+  const [path, setPath] = useState("");
 
-	const imagePrefix = Object.values(texture.LEDPARTS)[0].prefix;
+  const imagePrefix = Object.values(texture.LEDPARTS)[0].prefix;
 
-	const handlePosRecordInput = (e) => {
-		setPosRecordFile(e.target.files);
-	};
-	const handlePosMapInput = (e) => {
-		setPosMapFile(e.target.files);
-	};
-	const handleControlInput = (e) => {
-		setControlRecordFile(e.target.files);
-	};
-	const handleControlMapInput = (e) => {
-		setControlMap(e.target.files);
-	};
+  const handlePosRecordInput = (e) => {
+    setPosRecordFile(e.target.files);
+  };
+  const handlePosMapInput = (e) => {
+    setPosMapFile(e.target.files);
+  };
+  const handleControlInput = (e) => {
+    setControlRecordFile(e.target.files);
+  };
+  const handleControlMapInput = (e) => {
+    setControlMap(e.target.files);
+  };
 
-	const handleImagesInput = (e) => {
-		setSelectedImages(e.target.files);
-	};
+  const handleImagesInput = (e) => {
+    setSelectedImages(e.target.files);
+  };
 
-	const handlePathChange = (e) => {
-		setPath(e.target.value);
-	};
+  const handlePathChange = (e) => {
+    setPath(e.target.value);
+  };
 
-	const handleControlUpload = async () => {
-		if (!controlRecordFile || !controlMapFile) {
-			alert("Both controlRecord and controlMap files are required");
-			return;
-		}
-		const controlRecord = await uploadJson(controlRecordFile);
-		const controlMap = await uploadJson(controlMapFile);
-		//Todo: check controlMap and controlRecord are matched
-		const { checkPass, errorMessage } = checkControlJson(
-			controlRecord,
-			controlMap
-		);
-		if (checkPass) {
-			if (
-				window.confirm("Check Pass! Are you sure to upload new Control file ?")
-			) {
-				setItem("control", JSON.stringify(controlRecord));
-				setItem("controlMap", JSON.stringify(controlMap));
-				dispatch(controlInit({ controlRecord, controlMap }));
-			}
-		} else alert(errorMessage);
-	};
+  const handleControlUpload = async () => {
+    if (!controlRecordFile || !controlMapFile) {
+      alert("Both controlRecord and controlMap files are required");
+      return;
+    }
+    const controlRecord = await uploadJson(controlRecordFile);
+    const controlMap = await uploadJson(controlMapFile);
+    //Todo: check controlMap and controlRecord are matched
+    const { checkPass, errorMessage } = checkControlJson(
+      controlRecord,
+      controlMap
+    );
+    if (checkPass) {
+      if (
+        window.confirm("Check Pass! Are you sure to upload new Control file ?")
+      ) {
+        setItem("control", JSON.stringify(controlRecord));
+        setItem("controlMap", JSON.stringify(controlMap));
+        dispatch(controlInit({ controlRecord, controlMap }));
+      }
+    } else alert(errorMessage);
+  };
 
-	const handlePosUpload = async () => {
-		if (!posRecordFile || !posMapFile) {
-			alert("Both posRecord and posMap files are required");
-			return;
-		}
-		const posRecord = await uploadJson(posRecordFile);
-		const posMap = await uploadJson(posMapFile);
-		const { checkPass, errorMessage } = checkPosJson(posRecord, posMap);
-		if (checkPass) {
-			if (
-				window.confirm("Check Pass! Are you sure to upload new Position file?")
-			) {
-				setItem("position", JSON.stringify(posRecord));
-				setItem("positionMap", JSON.stringify(posMap));
-				dispatch(posInit({ posRecord, posMap }));
-			}
-		} else alert(errorMessage);
-	};
-	const handleImagesUpload = async () => {
-		if (selectedImages && path) {
-			uploadImages(selectedImages, path, imagePrefix);
-			// setSelectedImages(undefined);
-			// setPath("");
-		}
-	};
+  const handlePosUpload = async () => {
+    if (!posRecordFile || !posMapFile) {
+      alert("Both posRecord and posMap files are required");
+      return;
+    }
+    const posRecord = await uploadJson(posRecordFile);
+    const posMap = await uploadJson(posMapFile);
+    const { checkPass, errorMessage } = checkPosJson(posRecord, posMap);
+    if (checkPass) {
+      if (
+        window.confirm("Check Pass! Are you sure to upload new Position file?")
+      ) {
+        setItem("position", JSON.stringify(posRecord));
+        setItem("positionMap", JSON.stringify(posMap));
+        dispatch(posInit({ posRecord, posMap }));
+      }
+    } else alert(errorMessage);
+  };
+  const handleImagesUpload = async () => {
+    if (selectedImages && path) {
+      uploadImages(selectedImages, path, imagePrefix);
+      // setSelectedImages(undefined);
+      // setPath("");
+    }
+  };
 
-	const handleDownloadControl = () => {
-		downloadControlJson(controlRecord, controlMap);
-	};
+  const handleDownloadControl = () => {
+    downloadControlJson(controlRecord, controlMap);
+  };
 
-	const handleDownloadPos = () => {
-		downloadPos(posRecord);
-	};
+  const handleDownloadPos = () => {
+    downloadPos(posRecord);
+  };
 
-	const handleDownloadEverything = () => {
-		downloadEverything(controlRecord, controlMap, posRecord);
-	};
+  const handleDownloadEverything = () => {
+    downloadEverything(controlRecord, controlMap, posRecord);
+  };
 
-	const handleSwitchServer = () => setToServer(!toServer);
-	// TODO: make upload and download functional
-	return (
-		<Stack spacing={3} sx={{ color: "white" }}>
-			<FormControlLabel
-				control={
-					<Switch
-						checked={toServer}
-						onChange={handleSwitchServer}
-						name="switchServer"
-					/>
-				}
-				label="Upload to Server (Don't open this when testing)"
-			/>
+  const handleSwitchServer = () => setToServer(!toServer);
+  // TODO: make upload and download functional
+  return (
+    <Stack spacing={3} sx={{ color: "white" }}>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={toServer}
+            onChange={handleSwitchServer}
+            name="switchServer"
+          />
+        }
+        label="Upload to Server (Don't open this when testing)"
+      />
 
-			<Typography variant="h6">Upload control.json</Typography>
+      <Typography variant="h6">Upload control.json</Typography>
 
-			<ItemWrapper>
-				<div>
-					<label htmlFor="control">controlRecord: </label>
-					<input
-						id="control"
-						name="control"
-						type="file"
-						accept=".json"
-						onChange={handleControlInput}
-					/>
-				</div>
-				<div>
-					<label htmlFor="controlMap">controlMap: </label>
-					<input
-						id="controlMap"
-						name="controlMap"
-						type="file"
-						accept=".json"
-						onChange={handleControlMapInput}
-					/>
-				</div>
-			</ItemWrapper>
+      <ItemWrapper>
+        <div>
+          <label htmlFor="control">controlRecord: </label>
+          <input
+            id="control"
+            name="control"
+            type="file"
+            accept=".json"
+            onChange={handleControlInput}
+          />
+        </div>
+        <div>
+          <label htmlFor="controlMap">controlMap: </label>
+          <input
+            id="controlMap"
+            name="controlMap"
+            type="file"
+            accept=".json"
+            onChange={handleControlMapInput}
+          />
+        </div>
+      </ItemWrapper>
 
-			<UploadDownload
-				handleUpload={handleControlUpload}
-				handleDownload={handleDownloadControl}
-			/>
+      <UploadDownload
+        handleUpload={handleControlUpload}
+        handleDownload={handleDownloadControl}
+      />
 
-			<Typography variant="h6">Upload position.json</Typography>
-			<ItemWrapper>
-				<div>
-					<label htmlFor="posReocord">posReocord: </label>
-					<input
-						id="posReocord"
-						name="posReocord"
-						type="file"
-						accept=".json"
-						onChange={handlePosRecordInput}
-					/>
-				</div>
-				<div>
-					<label htmlFor="controlMap">posMap: </label>
-					<input
-						id="posMap"
-						name="posMap"
-						type="file"
-						accept=".json"
-						onChange={handlePosMapInput}
-					/>
-				</div>
-			</ItemWrapper>
+      <Typography variant="h6">Upload position.json</Typography>
+      <ItemWrapper>
+        <div>
+          <label htmlFor="posReocord">posReocord: </label>
+          <input
+            id="posReocord"
+            name="posReocord"
+            type="file"
+            accept=".json"
+            onChange={handlePosRecordInput}
+          />
+        </div>
+        <div>
+          <label htmlFor="controlMap">posMap: </label>
+          <input
+            id="posMap"
+            name="posMap"
+            type="file"
+            accept=".json"
+            onChange={handlePosMapInput}
+          />
+        </div>
+      </ItemWrapper>
 
-			<UploadDownload
-				handleUpload={handlePosUpload}
-				handleDownload={handleDownloadPos}
-			/>
+      <UploadDownload
+        handleUpload={handlePosUpload}
+        handleDownload={handleDownloadPos}
+      />
 
-			<Typography variant="h6">
-				Upload [name].png <strong>(should select part)</strong>
-			</Typography>
-			<ItemWrapper>
-				<div>
-					<input
-						id="images"
-						name="images"
-						type="file"
-						accept="image/*"
-						multiple
-						onChange={handleImagesInput}
-					/>
-				</div>
-			</ItemWrapper>
+      <Typography variant="h6">
+        Upload [name].png <strong>(should select part)</strong>
+      </Typography>
+      <ItemWrapper>
+        <div>
+          <input
+            id="images"
+            name="images"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImagesInput}
+          />
+        </div>
+      </ItemWrapper>
 
-			<Box
-				sx={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					gap: "1vw",
-				}}
-			>
-				<FormControl sx={{ width: "18em" }}>
-					<InputLabel id="part-select-label">Part to upload</InputLabel>
-					<Select
-						labelId="part-select-label"
-						value={path}
-						label="Part to upload"
-						onChange={handlePathChange}
-					>
-						{Object.keys(texture.LEDPARTS).map((name) => (
-							<MenuItem key={name} value={name}>
-								<Typography>{name}</Typography>
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "1vw",
+        }}
+      >
+        <FormControl sx={{ width: "18em" }}>
+          <InputLabel id="part-select-label">Part to upload</InputLabel>
+          <Select
+            labelId="part-select-label"
+            value={path}
+            label="Part to upload"
+            onChange={handlePathChange}
+          >
+            {Object.keys(texture.LEDPARTS).map((name) => (
+              <MenuItem key={name} value={name}>
+                <Typography>{name}</Typography>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-				<Button variant="outlined" size="small" onClick={handleImagesUpload}>
-					Upload
-				</Button>
-			</Box>
+        <Button variant="outlined" size="small" onClick={handleImagesUpload}>
+          Upload
+        </Button>
+      </Box>
 
-			<Divider />
+      <Divider />
 
-			<Box sx={{ display: "flex", justifyContent: "center", px: "30%" }}>
-				<Button
-					variant="outlined"
-					onClick={handleDownloadEverything}
-					size="medium"
-				>
-					Download All
-				</Button>
-			</Box>
-		</Stack>
-	);
+      <Box sx={{ display: "flex", justifyContent: "center", px: "30%" }}>
+        <Button
+          variant="outlined"
+          onClick={handleDownloadEverything}
+          size="medium"
+        >
+          Download All
+        </Button>
+      </Box>
+    </Stack>
+  );
 }
 
 const ItemWrapper = ({
-	children,
+  children,
 }: {
-	children: JSX.Element | JSX.Element[];
+  children: JSX.Element | JSX.Element[];
 }) => {
-	return (
-		<Box
-			sx={{
-				display: "flex",
-				flexDirection: "column",
-				justifyContent: "center",
-				alignItems: "end",
-				pr: "30%",
-				gap: "1vh",
-			}}
-		>
-			{children}
-		</Box>
-	);
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "end",
+        pr: "30%",
+        gap: "1vh",
+      }}
+    >
+      {children}
+    </Box>
+  );
 };
