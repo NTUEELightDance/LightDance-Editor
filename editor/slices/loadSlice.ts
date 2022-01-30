@@ -10,16 +10,11 @@ import {
 	ControlMapType,
 	ControlRecordType,
 	PosRecordType,
-<<<<<<< HEAD
+	PosMapType,
 	LightPresetsType,
 	PosPresetsType,
 	EffectRecordMapType,
 	EffectStatusMapType,
-=======
-	PosMapType,
-	LightPresetsType,
-	PosPresetsType,
->>>>>>> new position format done
 } from "../types/globalSlice";
 import { RootState, AppDispatch } from "../store/index";
 
@@ -30,16 +25,11 @@ const initialState: LoadState = {
 	control: [],
 	controlMap: {},
 	position: [],
-<<<<<<< HEAD
+	posMap: {},
 	lightPresets: [],
 	posPresets: [],
 	effectRecordMap: {},
 	effectStatusMap: {},
-=======
-	posMap: {},
-	lightPresets: [],
-	posPresets: [],
->>>>>>> new position format done
 	texture: {} as TextureType,
 	dancers: {},
 	dancerNames: [],
@@ -63,12 +53,9 @@ export const loadSlice = createSlice({
 		setControlMap: (state, action: PayloadAction<ControlMapType>) => {
 			state.controlMap = action.payload;
 		},
-<<<<<<< HEAD
-=======
 		setPosMap: (state, action: PayloadAction<PosMapType>) => {
 			state.posMap = action.payload;
 		},
->>>>>>> new position format done
 		setPosition: (state, action: PayloadAction<PosRecordType>) => {
 			state.position = action.payload;
 		},
@@ -78,15 +65,12 @@ export const loadSlice = createSlice({
 		setPosPresets: (state, action: PayloadAction<PosPresetsType>) => {
 			state.posPresets = action.payload;
 		},
-<<<<<<< HEAD
 		setEffectRecordMap: (state, action: PayloadAction<EffectRecordMapType>) => {
 			state.effectRecordMap = action.payload;
 		},
 		setEffectStatusMap: (state, action: PayloadAction<EffectStatusMapType>) => {
 			state.effectStatusMap = action.payload;
 		},
-=======
->>>>>>> new position format done
 		setTexture: (state, action: PayloadAction<TextureType>) => {
 			state.texture = action.payload;
 		},
@@ -106,16 +90,11 @@ const {
 	setControl,
 	setControlMap,
 	setPosition,
-<<<<<<< HEAD
-	setLightPresets,
-	setPosPresets,
+	setPosMap,
 	setEffectRecordMap,
 	setEffectStatusMap,
-=======
-	setPosMap,
 	setLightPresets,
 	setPosPresets,
->>>>>>> new position format done
 	setTexture,
 	setDancers,
 	setDancerNames,
@@ -134,16 +113,11 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
 		Control,
 		ControlMap,
 		Position,
-<<<<<<< HEAD
-		LightPresets,
-		PosPresets,
-		EffectRecordMap,
-		EffectStatusMap,
-=======
 		PosMap,
 		LightPresets,
+		EffectRecordMap,
+		EffectStatusMap,
 		PosPresets,
->>>>>>> new position format done
 		Dancers,
 		Texture,
 	} = load;
@@ -160,27 +134,21 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
 	// set Position
 	const position = await fetchJson(Position);
 	dispatch(setPosition(position));
-<<<<<<< HEAD
-=======
 	// set PosMap
 	const posMap = await fetchJson(PosMap);
 	dispatch(setPosMap(posMap));
->>>>>>> new position format done
 	// set lightPresets
 	const lightPresets = await fetchJson(LightPresets);
 	dispatch(setLightPresets(lightPresets));
 	// set lightPresets
 	const posPresets = await fetchJson(PosPresets);
 	dispatch(setPosPresets(posPresets));
-<<<<<<< HEAD
 	// set effectRecordMap
 	const effectRecordMap = await fetchJson(EffectRecordMap);
 	dispatch(setEffectRecordMap(effectRecordMap));
 	// set effectStatusMap
 	const effectStatusMap = await fetchJson(EffectStatusMap);
 	dispatch(setEffectStatusMap(effectStatusMap));
-=======
->>>>>>> new position format done
 	// set Dancer Names
 	dispatch(setDancerNames(Dancers.names));
 
