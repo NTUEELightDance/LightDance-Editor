@@ -16,14 +16,20 @@ import PosEditor from "../../components/PosEditor";
 import CommandCenter from "../../components/CommandCenter";
 import ThreeSimulator from "../../components/ThreeSimulator";
 import File from "components/Settings/File";
+import DancerList from "components/DancerList";
+import LightProps from "components/LightProps";
+
 import { Box } from "@mui/material";
 
 import { LayoutContext } from "contexts/LayoutContext";
 
-import editorConfig from "layouts/editor.json";
-import legacyEditorConfig from "layouts/legacyEditor.json";
-import mirroredEditorConfig from "layouts/mirroredEditor.json";
-import commandConfig from "layouts/commandCenter.json";
+import {
+  betaConfig,
+  defaultEditorConfig,
+  mirroredEditorConfig,
+  legacyEditorConfig,
+  commandCenterConfig,
+} from "layouts";
 
 const Layout = () => {
   const { preferedEditor, mode } = useContext(LayoutContext) as layoutContext;
@@ -33,6 +39,8 @@ const Layout = () => {
   const ThreeSimulatorNode = useMemo<JSX.Element>(() => <ThreeSimulator />, []);
   const LightEditorNode = useMemo<JSX.Element>(() => <LightEditor />, []);
   const PosEditorNode = useMemo<JSX.Element>(() => <PosEditor />, []);
+  const DancerListNode = useMemo<JSX.Element>(() => <DancerList />, []);
+  const LightPropsNode = useMemo<JSX.Element>(() => <LightProps />, []);
   const LightPresetsNode = useMemo<JSX.Element>(() => <LightPresets />, []);
   const PosPresetsNode = useMemo<JSX.Element>(() => <PosPresets />, []);
   const EffectListNode = useMemo<JSX.Element>(() => <EffectList />, []);
@@ -69,6 +77,10 @@ const Layout = () => {
         return LightEditorNode;
       case "PosEditor":
         return PosEditorNode;
+      case "DancerList":
+        return DancerListNode;
+      case "LightProps":
+        return LightPropsNode;
       case "LightPresets":
         return LightPresetsNode;
       case "PosPresets":
@@ -88,11 +100,13 @@ const Layout = () => {
 
   const EditorNode = useMemo(() => {
     const configFile =
-      preferedEditor === "default"
-        ? editorConfig
+      preferedEditor === "mirrored"
+        ? mirroredEditorConfig
         : preferedEditor === "legacy"
         ? legacyEditorConfig
-        : mirroredEditorConfig;
+        : preferedEditor === "beta"
+        ? betaConfig
+        : defaultEditorConfig;
     return (
       <FlexLayout.Layout
         model={FlexLayout.Model.fromJson(configFile as IJsonModel)}
@@ -105,7 +119,7 @@ const Layout = () => {
   const CommandNode = useMemo(() => {
     return (
       <FlexLayout.Layout
-        model={FlexLayout.Model.fromJson(commandConfig as IJsonModel)}
+        model={FlexLayout.Model.fromJson(commandCenterConfig as IJsonModel)}
         factory={factory}
         font={{ size: "12px" }}
       />

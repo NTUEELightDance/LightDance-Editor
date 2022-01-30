@@ -17,8 +17,9 @@ export const SettingModal = ({
           sx={{
             display: "flex",
             width: "30vw",
+            minWidth: "600px",
             mx: "auto",
-            mt: "10vh",
+            mt: "8vh",
             justifyContent: "center",
             alignItems: "center",
           }}
