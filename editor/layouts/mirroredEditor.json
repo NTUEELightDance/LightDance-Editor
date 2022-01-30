@@ -19,7 +19,7 @@
     },
     {
       "type": "border",
-      "location": "right",
+      "location": "left",
       "children": [
         {
           "type": "tab",

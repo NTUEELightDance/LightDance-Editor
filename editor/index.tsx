@@ -6,7 +6,7 @@ import store from "./store";
 // test for websocket
 import WebSocketContext from "./contexts/WebSocketContext";
 import WaveSurferAppContext from "./contexts/WavesurferContext";
-import LayoutContextProvider from "./contexts/layoutContext";
+import LayoutContextProvider from "./contexts/LayoutContext";
 
 import App from "./app";
 

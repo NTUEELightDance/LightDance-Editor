@@ -157,7 +157,7 @@ export default function File() {
   const handleSwitchServer = () => setToServer(!toServer);
   // TODO: make upload and download functional
   return (
-    <Stack spacing={3} sx={{ color: "white" }}>
+    <Stack spacing={3}>
       <FormControlLabel
         control={
           <Switch
@@ -252,7 +252,7 @@ export default function File() {
           gap: "1vw",
         }}
       >
-        <FormControl sx={{ width: "18em" }}>
+        <FormControl sx={{ width: "18em" }} focused>
           <InputLabel id="part-select-label">Part to upload</InputLabel>
           <Select
             labelId="part-select-label"

@@ -15,11 +15,14 @@ import LightEditor from "../../components/LightEditor";
 import PosEditor from "../../components/PosEditor";
 import CommandCenter from "../../components/CommandCenter";
 import ThreeSimulator from "../../components/ThreeSimulator";
+import File from "components/Settings/File";
+import { Box } from "@mui/material";
 
-import { LayoutContext } from "contexts/layoutContext";
+import { LayoutContext } from "contexts/LayoutContext";
 
 import editorConfig from "layouts/editor.json";
 import legacyEditorConfig from "layouts/legacyEditor.json";
+import mirroredEditorConfig from "layouts/mirroredEditor.json";
 import commandConfig from "layouts/commandCenter.json";
 
 const Layout = () => {
@@ -36,6 +39,20 @@ const Layout = () => {
   const WavesurferNode = useMemo<JSX.Element>(() => <Wavesurfer />, []);
   const WaveSuferCleanNode = useMemo<JSX.Element>(
     () => <Wavesurfer cleanMode />,
+    []
+  );
+  const FileNode = useMemo<JSX.Element>(
+    () => (
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          p: "5% 8%",
+        }}
+      >
+        <File />
+      </Box>
+    ),
     []
   );
 
@@ -62,6 +79,8 @@ const Layout = () => {
         return WavesurferNode;
       case "WavesurferClean":
         return WaveSuferCleanNode;
+      case "File":
+        return FileNode;
       default:
         return null;
     }
@@ -69,7 +88,11 @@ const Layout = () => {
 
   const EditorNode = useMemo(() => {
     const configFile =
-      preferedEditor === "default" ? editorConfig : legacyEditorConfig;
+      preferedEditor === "default"
+        ? editorConfig
+        : preferedEditor === "legacy"
+        ? legacyEditorConfig
+        : mirroredEditorConfig;
     return (
       <FlexLayout.Layout
         model={FlexLayout.Model.fromJson(configFile as IJsonModel)}
@@ -82,7 +105,6 @@ const Layout = () => {
   const CommandNode = useMemo(() => {
     return (
       <FlexLayout.Layout
-        // @ts-ignore:next-line
         model={FlexLayout.Model.fromJson(commandConfig as IJsonModel)}
         factory={factory}
         font={{ size: "12px" }}

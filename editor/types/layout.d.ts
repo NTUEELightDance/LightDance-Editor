@@ -5,6 +5,8 @@ export interface layoutContext {
   setMode: (mode: layoutMode) => void;
   preferedEditor: editorPreference;
   setPreferedEditor: (preference: editorPreference) => void;
+  showSimulator: boolean;
+  setShowSimulator: (showSimulator: boolean) => void;
 }
 
 export type layoutMode = "editor" | "command";

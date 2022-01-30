@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Typography, Box, IconButton, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import File from "./File";
+import Preference from "./Preference";
 import { SettingModal } from "./SettingModal";
 
 export const Settings = ({
@@ -13,6 +14,7 @@ export const Settings = ({
   setShowSettings: (showSettings: boolean) => void;
 }) => {
   const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
+  const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
 
   const settings = [
     {
@@ -20,6 +22,12 @@ export const Settings = ({
       modalOpen: fileModalOpen,
       setModalOpen: setFileModalOpen,
       modalChildren: <File />,
+    },
+    {
+      label: "preferences",
+      modalOpen: prefModalOpen,
+      setModalOpen: setPrefModalOpen,
+      modalChildren: <Preference />,
     },
   ];
 
@@ -31,7 +39,7 @@ export const Settings = ({
 
   return (
     <>
-      <Box sx={{ position: "absolute", left: "95vw" }}>
+      <Box sx={{ position: "absolute", left: "96vw" }}>
         <IconButton
           sx={{ p: 0 }}
           onClick={() => setShowSettings(!showSettings)}
@@ -53,25 +61,26 @@ export const Settings = ({
           open={showSettings}
           onClose={() => setShowSettings(false)}
         >
-          {settings.map(({ label, modalOpen, setModalOpen, modalChildren }) => (
-            <>
-              <MenuItem
-                key={`${label}_label`}
-                onClick={handleMenuItemClick(setModalOpen)}
-              >
-                <Typography textAlign="center">{label}</Typography>
-              </MenuItem>
-              <SettingModal
-                key={`${label}_modal`}
-                open={modalOpen}
-                onClose={() => setModalOpen(false)}
-              >
-                {modalChildren}
-              </SettingModal>
-            </>
+          {settings.map(({ label, setModalOpen }) => (
+            <MenuItem
+              key={`${label}_label`}
+              onClick={handleMenuItemClick(setModalOpen)}
+            >
+              <Typography textAlign="center">{label}</Typography>
+            </MenuItem>
           ))}
         </Menu>
       </Box>
+
+      {settings.map(({ label, modalOpen, setModalOpen, modalChildren }) => (
+        <SettingModal
+          key={`${label}_modal`}
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+        >
+          {modalChildren}
+        </SettingModal>
+      ))}
     </>
   );
 };
