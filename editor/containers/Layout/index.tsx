@@ -15,6 +15,8 @@ import LightEditor from "../../components/LightEditor";
 import PosEditor from "../../components/PosEditor";
 import CommandCenter from "../../components/CommandCenter";
 import ThreeSimulator from "../../components/ThreeSimulator";
+import File from "components/Settings/File";
+import { Box } from "@mui/material";
 
 import { LayoutContext } from "contexts/LayoutContext";
 
@@ -22,7 +24,6 @@ import editorConfig from "layouts/editor.json";
 import legacyEditorConfig from "layouts/legacyEditor.json";
 import mirroredEditorConfig from "layouts/mirroredEditor.json";
 import commandConfig from "layouts/commandCenter.json";
-import File from "components/Settings/File";
 
 const Layout = () => {
   const { preferedEditor, mode } = useContext(LayoutContext) as layoutContext;
@@ -40,7 +41,20 @@ const Layout = () => {
     () => <Wavesurfer cleanMode />,
     []
   );
-  const FileNode = useMemo<JSX.Element>(() => <File />, []);
+  const FileNode = useMemo<JSX.Element>(
+    () => (
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          p: "5% 8%",
+        }}
+      >
+        <File />
+      </Box>
+    ),
+    []
+  );
 
   const factory = (node: TabNode) => {
     const component = node.getComponent();

@@ -252,7 +252,7 @@ export default function File() {
           gap: "1vw",
         }}
       >
-        <FormControl sx={{ width: "18em" }}>
+        <FormControl sx={{ width: "18em" }} focused>
           <InputLabel id="part-select-label">Part to upload</InputLabel>
           <Select
             labelId="part-select-label"

@@ -25,7 +25,6 @@ export const SettingModal = ({
         >
           <Paper
             sx={{
-              display: "relative",
               width: "100%",
               height: "100%",
               backgroundColor: "#AAAAAA",
