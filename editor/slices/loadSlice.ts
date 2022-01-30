@@ -24,7 +24,7 @@ const initialState: LoadState = {
   load: {} as LoadType,
   control: [],
   controlMap: {},
-  position: [],
+  posRecord: [],
   posMap: {},
   lightPresets: [],
   posPresets: [],
@@ -57,7 +57,7 @@ export const loadSlice = createSlice({
       state.posMap = action.payload;
     },
     setPosition: (state, action: PayloadAction<PosRecordType>) => {
-      state.position = action.payload;
+      state.posRecord = action.payload;
     },
     setLightPresets: (state, action: PayloadAction<LightPresetsType>) => {
       state.lightPresets = action.payload;
@@ -112,7 +112,7 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
     Music,
     Control,
     ControlMap,
-    Position,
+    PosRecord,
     PosMap,
     LightPresets,
     EffectRecordMap,
@@ -132,7 +132,7 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
   const controlMap = await fetchJson(ControlMap);
   dispatch(setControlMap(controlMap));
   // set Position
-  const position = await fetchJson(Position);
+  const position = await fetchJson(PosRecord);
   dispatch(setPosition(position));
   // set PosMap
   const posMap = await fetchJson(PosMap);

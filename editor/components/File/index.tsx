@@ -122,8 +122,8 @@ export default function File() {
       if (
         window.confirm("Check Pass! Are you sure to upload new Position file?")
       ) {
-        setItem("position", JSON.stringify(posRecord));
-        setItem("positionMap", JSON.stringify(posMap));
+        setItem("posRecord", JSON.stringify(posRecord));
+        setItem("posMap", JSON.stringify(posMap));
         dispatch(posInit({ posRecord, posMap }));
       }
     } else alert(errorMessage);
@@ -208,13 +208,13 @@ export default function File() {
         </div>
         <div>
           <Typography variant="h6" color="initial">
-            Upload position.json
+            Upload posRecord.json
           </Typography>
           <div style={{ display: "flex", alignItems: "normal" }}>
-            <label htmlFor="position">posRecord: </label>
+            <label htmlFor="posRecord">posRecord: </label>
             <input
-              id="position"
-              name="position"
+              id="posRecord"
+              name="posRecord"
               type="file"
               accept=".json"
               onChange={handlePosRecordInput}

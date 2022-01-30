@@ -54,7 +54,7 @@ export interface LoadType {
   Music: string;
   Control: string;
   ControlMap: string;
-  Position: string;
+  PosRecord: string;
   PosMap: string;
   LightPresets: string;
   PosPresets: string;
@@ -74,7 +74,7 @@ export interface LoadState {
   load: LoadType;
   control: ControlRecordType; // loaded control.json, may not be same as localStorage (this is for default)
   controlMap: ControlMapType; // loaded controlMap.json
-  position: PosRecordType; // loaded position.json, may not be same as localStorage (this is for default)
+  posRecord: PosRecordType; // loaded position.json, may not be same as localStorage (this is for default)
   posMap: PosMapType; // loaded position.json, may not be
   lightPresets: LightPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
   posPresets: PosPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)

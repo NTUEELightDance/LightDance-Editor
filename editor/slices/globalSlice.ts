@@ -408,7 +408,7 @@ export const globalSlice = createSlice({
       //   JSON.stringify(data)
       // );
       state.posRecord.splice(state.timeData.posFrame, 1);
-      setItem("position", JSON.stringify(state.posRecord));
+      setItem("posRecord", JSON.stringify(state.posRecord));
     },
 
     /**

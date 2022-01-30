@@ -40,11 +40,10 @@ class Controller {
     if (!getItem("controlMap")) {
       setItem("controlMap", JSON.stringify(store.getState().load.controlMap));
     }
-    if (!getItem("position")) {
-      setItem("position", JSON.stringify(store.getState().load.position));
+    if (!getItem("posRecord")) {
+      setItem("posRecord", JSON.stringify(store.getState().load.position));
     }
     if (!getItem("posMap")) {
-      console.log("!!!!", JSON.stringify(store.getState().load.posMap));
       setItem("posMap", JSON.stringify(store.getState().load.posMap));
     }
     store.dispatch(
@@ -55,7 +54,7 @@ class Controller {
     );
     store.dispatch(
       posInit({
-        posRecord: JSON.parse(getItem("position")!),
+        posRecord: JSON.parse(getItem("posRecord")!),
         posMap: JSON.parse(getItem("posMap")!),
       })
     );
