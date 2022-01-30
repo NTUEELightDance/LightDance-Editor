@@ -44,6 +44,17 @@ export default function ThreeSimulator() {
     }
   }, [currentStatus]);
 
+  useEffect(() => {
+    if (threeController && threeController.initialized()) {
+      threeController.dragControlInit();
+      if (mode === 0) {
+        threeController.dragControls.deactivate();
+      } else {
+        threeController.dragControls.activate();
+      }
+    }
+  }, [mode]);
+
   return (
     <div
       style={{
