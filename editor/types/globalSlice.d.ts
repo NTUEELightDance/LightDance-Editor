@@ -36,14 +36,7 @@ export interface DancerCoordinates {
 		z: number;
 	};
 }
-export interface PosMapType {
-	//IDs: {start, pos}
-	[index: string]: {
-		start: number;
-		pos: DancerCoordinates;
-	};
-}
-export type PositionRecordType = string[]; //array of IDs
+
 interface LightPresetsElement {
 	name: string; // ID named by user
 	status: ControlMapStatus;
@@ -80,9 +73,16 @@ interface EffectStatueMapElementType {
 }
 
 interface EffectStatusMapType {
-	[index: string]: EffectStatueMapElement;
+	[index: string]: EffectStatueMapElementType;
 }
 
+export interface PosMapType {
+	//IDs: {start, pos}
+	[index: string]: {
+		start: number;
+		pos: DancerCoordinates;
+	};
+}
 export interface GlobalState {
 	isPlaying: boolean; // isPlaying
 	selected: string[]; // array of selected dancer's name

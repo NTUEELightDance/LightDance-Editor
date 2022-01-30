@@ -89,13 +89,18 @@ export const globalSlice = createSlice({
 		 * @param {*} state
 		 * @param {object} action.payload - posRecord
 		 */
-		posInit: (state, action: PayloadAction<PosRecordType>) => {
-			const posRecord = action.payload;
+		posInit: (
+			state,
+			action: PayloadAction<{
+				posRecord: PosRecordType;
+				posMap: PosMapType;
+			}>
+		) => {
+			const { posRecord, posMap } = action.payload;
 			if (posRecord.length === 0)
 				throw new Error(`[Error] posInit, posRecord is empty `);
 			state.posRecord = posRecord;
-			state.currentPos = state.posMap[posRecord[0]].pos;
-			console.log(posRecord);
+			state.currentPos = posMap[posRecord[0]].pos;
 		},
 
 		/**
