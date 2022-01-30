@@ -59,7 +59,7 @@ export default function EffectList() {
   const [effectSelected, setEffectSelected] = useState("");
   const [applyOpened, setApplyOpened] = useState(false);
 
-  const handleOpenApply = (key) => {
+  const handleOpenApply = (key: string) => {
     setEffectSelected(key);
     setApplyOpened(true);
   };
@@ -87,7 +87,11 @@ export default function EffectList() {
                     />
                   </IconButton>
                 }
-                sx={{ paddingLeft: 0, paddingTop: 0, paddingBottom: 0 }}
+                sx={{
+                  paddingLeft: 0,
+                  paddingTop: 0,
+                  paddingBottom: 0,
+                }}
               >
                 <Box
                   sx={{
@@ -111,12 +115,22 @@ export default function EffectList() {
                 </Box>
                 <ListItemText
                   primary={
-                    <Typography sx={{ fontSize: "20px", color: "white" }}>
+                    <Typography
+                      sx={{
+                        fontSize: "20px",
+                        color: "white",
+                      }}
+                    >
                       {key}
                     </Typography>
                   }
                   secondary={
-                    <Typography sx={{ fontSize: "10px", color: "white" }}>
+                    <Typography
+                      sx={{
+                        fontSize: "10px",
+                        color: "white",
+                      }}
+                    >
                       Length: {value.length}
                     </Typography>
                   }
@@ -126,7 +140,9 @@ export default function EffectList() {
             <Divider
               variant="inset"
               component="li"
-              sx={{ backgroundColor: "rgba(255, 255, 255, 0.16)" }}
+              sx={{
+                backgroundColor: "rgba(255, 255, 255, 0.16)",
+              }}
             />
           </>
         ))}

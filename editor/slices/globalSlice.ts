@@ -26,6 +26,8 @@ import {
   ControlMapElement,
   EffectRecordMapType,
   EffectStatusMapType,
+  EffectRecordType,
+  EffectStatusType,
 } from "../types/globalSlice";
 import { RootState } from "../store/index";
 
@@ -682,6 +684,72 @@ export const globalSlice = createSlice({
       state.effectStatusMap = action.payload;
       setItem("effectStatusMap", JSON.stringify(state.effectStatusMap));
     },
+
+    /**
+     * add effect to record map and status map, the effect doesn't contain frame of endIndex
+     * @param {*} state
+     * @param {*} action
+     */
+    addEffect: (
+      state,
+      action: PayloadAction<{
+        effectName: string;
+        startIndex: number;
+        endIndex: number;
+      }>
+    ) => {
+      const { effectName, startIndex, endIndex } = action.payload;
+      state.effectRecordMap[effectName] = state.controlRecord.slice(
+        startIndex,
+        endIndex
+      );
+      state.effectRecordMap[effectName].map((id) => {
+        state.effectStatusMap[id] = state.controlMap[id];
+      });
+      setItem("effectRecordMap", JSON.stringify(state.effectRecordMap));
+      setItem("effectStatusMap", JSON.stringify(state.effectStatusMap));
+    },
+
+    /**
+     * delete chosen effect from EffectRecodeMap and EffectStatusMap
+     * @param {*} state
+     * @param {*} action
+     */
+    deleteEffect: (state, action: PayloadAction<string>) => {
+      const effectName: string = action.payload;
+      const effectFrameId: EffectRecordType = state.effectRecordMap[effectName];
+      effectFrameId.map((id) => {
+        delete state.effectStatusMap[id];
+      });
+      delete state.effectRecordMap[effectName];
+      setItem("effectStatusMap", JSON.stringify(state.effectStatusMap));
+      setItem("effectRecodeMap", JSON.stringify(state.effectRecordMap));
+    },
+
+    /**
+     * apply effect to current frame
+     * @param {*} state
+     * @param {*} action
+     */
+    applyEffect: (state, action: PayloadAction<string>) => {
+      const effectName: string = action.payload;
+      const shiftTime: number =
+        state.timeData.time -
+        state.effectStatusMap[state.effectRecordMap[effectName][0]].start;
+      const controlRecordCopy = [...state.controlRecord];
+      const controlMapCopy = { ...state.controlMap };
+      state.effectRecordMap[effectName].map((id) => {
+        const newId: string = nanoid(6);
+        controlRecordCopy.push(newId);
+        controlMapCopy[newId] = { ...state.effectStatusMap[id] };
+        controlMapCopy[newId].start += shiftTime;
+      });
+      state.controlRecord = controlRecordCopy.sort(
+        (a, b) => controlMapCopy[a].start - controlMapCopy[b].start
+      );
+      state.controlMap = controlMapCopy;
+    },
+
     /**
      * edit a lightPreset's name
      * @param {*} state
