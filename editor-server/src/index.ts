@@ -55,7 +55,8 @@ const { SECRET_KEY } = process.env;
     if (initialContext) {
       const { userID } = initialContext;
       console.log(userID)
-      // TODO: delete this user from editing
+      await db.ControlFrame.updateMany({ editing: userID }, { editing: null });
+      await db.PositionFrame.updateMany({ editing: userID }, { editing: null });
       await db.User.deleteOne({ userID })
     }
   }
