@@ -39,10 +39,18 @@ export default function ThreeSimulator() {
         currentStatus,
         currentPos,
       };
+      console.log(currentPos);
       threeController.updateDancers();
       threeController.render();
     }
   }, [currentStatus]);
+
+  useEffect(() => {
+    if (threeController) {
+      threeController.fetch();
+      console.log("Detect change, fetching new record and map...");
+    }
+  }, [controlMap, posMap]);
 
   useEffect(() => {
     if (threeController && threeController.initialized()) {

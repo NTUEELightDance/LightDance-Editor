@@ -274,8 +274,18 @@ class ThreeController {
       this.dragControls.enabled = false;
       // this.orbitControls.enabled = true;
       this.controls.enableOrbitControls();
+
       console.log("setCurrentPos");
-      // store.dispatch(setCurrentPos(pos));
+      const currentPos = {};
+      Object.entries(this.dancers).forEach(([name, dancer], i) => {
+        const { position } = dancer.model;
+        currentPos[name] = {
+          x: position.x * 35,
+          y: position.z * 35,
+          z: position.z * 35,
+        };
+      });
+      store.dispatch(setCurrentPos(currentPos));
     });
 
     addEventListener("click", this.onClick.bind(this));
@@ -287,31 +297,21 @@ class ThreeController {
     // hold ctrl to enable grouping
     if (event.keyCode === 16) {
       this.enableSelection = true;
-      console.log("groupControl enabled");
     }
     // press v to enable moving
     if (event.keyCode === 86) {
       this.dragControls.enabled = true;
       // this.orbitControls.enabled = false;
       this.controls.disableOrbitControls();
-
-      // this.objects.forEach((o) => {
-      //   const { name } = o.userData;
-      //   const { position } = this.dancers[name].model;
-      //   o.position.set(position.x, 0, position.z);
-      // });
-      console.log(`dragControls ${this.dragControls.enabled}`);
     }
   }
 
   onKeyUp(event) {
     if (event.keyCode === 16) {
       this.enableSelection = false;
-      console.log("groupControl disabled");
     }
     if (event.keyCode === 86) {
       this.dragControls.enabled = false;
-      // this.orbitControls.enabled = true;
       this.controls.enableOrbitControls();
     }
   }
@@ -379,22 +379,12 @@ class ThreeController {
           side: THREE.DoubleSide,
         });
 
-        const matDark = new THREE.LineBasicMaterial({
-          color: color,
-          side: THREE.DoubleSide,
-        });
-
         const message = name;
-
         const shapes = font.generateShapes(message, 0.3);
-
         const geometry = new THREE.ShapeGeometry(shapes);
-
         geometry.computeBoundingBox();
-
         const xMid =
           -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-
         geometry.translate(xMid, 0, 0);
 
         // make shape ( N.B. edge view not visible )
@@ -405,39 +395,6 @@ class ThreeController {
         this.nameTags[name] = text;
         this.dancers[name].nameTag = text;
         this.scene.add(text);
-
-        // make line shape ( N.B. edge view remains visible )
-
-        // const holeShapes = [];
-
-        // for (let i = 0; i < shapes.length; i++) {
-        //   const shape = shapes[i];
-
-        //   if (shape.holes && shape.holes.length > 0) {
-        //     for (let j = 0; j < shape.holes.length; j++) {
-        //       const hole = shape.holes[j];
-        //       holeShapes.push(hole);
-        //     }
-        //   }
-        // }
-
-        // shapes.push.apply(shapes, holeShapes);
-
-        // const lineText = new THREE.Object3D();
-
-        // for (let i = 0; i < shapes.length; i++) {
-        //   const shape = shapes[i];
-
-        //   const points = shape.getPoints();
-        //   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-        //   geometry.translate(xMid, 0, 0);
-
-        //   const lineMesh = new THREE.Line(geometry, matDark);
-        //   lineText.add(lineMesh);
-        // }
-        // // lineText.position.set(position.x, 5, position.z);
-        // this.scene.add(lineText);
       }
     });
     this.render();
@@ -508,7 +465,7 @@ class ThreeController {
     // position interpolation
     if (newPosFrame === state.posRecord.length - 1) {
       // can't interpolation
-      state.currentPos = state.posRecord[newPosFrame].pos;
+      state.currentPos = state.posMap[state.posRecord[newPosFrame]].pos;
     } else {
       // do interpolation
       state.currentPos = interpolationPos(
@@ -517,6 +474,7 @@ class ThreeController {
         state.posMap[state.posRecord[newPosFrame + 1]]
       );
     }
+
     state.currentPos.x /= 35;
     state.currentPos.z /= 35;
     // set currentFade
@@ -560,12 +518,16 @@ class ThreeController {
 
   // fetch controlRecord, controlMap, posRecord, and set Start time
   fetch() {
-    const { timeData, controlRecord, controlMap, posRecord } =
+    const { timeData, controlRecord, controlMap, posRecord, posMap } =
       store.getState().global;
-    this.startTime = performance.now();
     this.waveSuferTime = timeData.time;
-    this.state = { controlRecord, controlMap, posRecord };
+    this.state = { controlRecord, controlMap, posRecord, posMap };
     this.state.timeData = { ...timeData };
+  }
+
+  playPause(isPlaying) {
+    this.isPlaying = isPlaying;
+    if (isPlaying) this.startTime = performance.now();
   }
 
   // render current scene and dancers

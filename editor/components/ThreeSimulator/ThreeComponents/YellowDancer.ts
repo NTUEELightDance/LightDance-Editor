@@ -99,7 +99,6 @@ class YellowDancer {
 
   // Update the model's status
   updateStatus(currentStatus) {
-    console.log(currentStatus);
     Object.entries(this.OFParts).forEach(([name, e]) => {
       let intensity = 0.0;
       Object.values(MAPPING).forEach((MAP) => {
