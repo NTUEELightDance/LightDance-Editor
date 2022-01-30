@@ -1,4 +1,4 @@
-interface dancerStatusElement {
+interface DancerStatusElement {
   dancerName?: string;
   ip: string;
   hostname?: string;
@@ -6,20 +6,20 @@ interface dancerStatusElement {
   msg: string;
   OK?: boolean;
 }
-export interface boardConfigType {
+export interface BoardConfigType {
   [index: string]: {
     type: string;
     ip: string;
     dancerName: string;
   };
 }
-export interface dancerStatusType {
-  [index: string]: dancerStatusElement;
+export interface DancerStatusType {
+  [index: string]: DancerStatusElement;
 }
-export interface commandState {
+export interface CommandState {
   play: boolean;
   stop: boolean;
   startTime: number;
   sysTime: number;
-  dancerStatus: dancerStatusType;
+  dancerStatus: DancerStatusType;
 }

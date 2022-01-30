@@ -1,7 +1,4 @@
 import {
-  posRecordType,
-  posRecordElement,
-  coordinates,
   ControlMapElement,
   ControlMapType,
   ControlRecordType,
@@ -9,10 +6,13 @@ import {
   LED,
   Fiber,
   El,
+  PosRecordType,
+  PosMapType,
+  PosMapElement,
+  Coordinates,
 } from "../types/globalSlice";
 
 function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
-  console.log((object as LED).type);
   return (
     (object as LED)["src"] !== undefined &&
     (object as LED)["alpha"] !== undefined
@@ -42,121 +42,68 @@ export function clamp(val: number, mi: number, ma: number) {
 }
 
 /**
- * binarySearch the data (array of object with start), return the index
- * @param {object} data - target control (array of status)
- * @param {number} time - target time
- */
-export function binarySearchFrame(
-  data: posRecordType | ControlMapElement[],
-  time: number
-) {
-  if (!Array.isArray(data))
-    throw new Error(`[Error] binarySearchFrame, invalid parameter(data)`);
-  if (typeof time !== "number")
-    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
-  let l = 0;
-  let r = data.length - 1;
-  let m = Math.floor((l + r + 1) / 2);
-  while (l < r) {
-    if (data[m].start <= time) l = m;
-    else r = m - 1;
-    m = Math.floor((l + r + 1) / 2);
-  }
-  return m;
-}
-
-/**
- * Update Frame Index By Time
- * @param {object} data - control
- * @param {number} frame - frame idx
- * @param {number} time - timestamp
- */
-export function updateFrameByTime(
-  data: posRecordType | ControlMapElement[],
-  frame: number,
-  time: number
-) {
-  if (!Array.isArray(data))
-    throw new Error(`[Error] updateFrameByTime, invalid parameter(data)`);
-  if (typeof frame !== "number")
-    throw new Error(`[Error] updateFrameByTime, invalid parameter(frame)`);
-  if (typeof time !== "number")
-    throw new Error(`[Error] updateFrameByTime, invalid parameter(time)`);
-  // Check if need to do binarysearch
-  if (
-    data[frame + 2] &&
-    time >= data[frame + 1].start &&
-    time <= data[frame + 2].start
-  ) {
-    return frame + 1;
-  }
-  return binarySearchFrame(data, time);
-}
-/**
- * binarySearch based on controlRecord and controlMap (array of object with start), return the index
- * @param {object} data - target control (array of status)
- * @param {number} time - target time
- */
-export function binarySearchFrameMap(
-  controlRecord: ControlRecordType,
-  controlMap: ControlMapType,
-  time: number
-) {
-  if (!Array.isArray(controlRecord))
-    throw new Error(
-      `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
-    );
-  if (typeof controlMap !== "object")
-    throw new Error(
-      `[Error] updateFrameByTimeMap, invalid parameter(controlMap)`
-    );
-  if (typeof time !== "number")
-    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
-  let l = 0;
-  let r = controlRecord.length - 1;
-  let m = Math.floor((l + r + 1) / 2);
-  while (l < r) {
-    if (controlMap[controlRecord[m]].start <= time) l = m;
-    else r = m - 1;
-    m = Math.floor((l + r + 1) / 2);
-  }
-  return m;
-}
-
-/**
- * Update Frame Index By Time With controlRecord and controlMap
- * @param {object} data - control
+ * Update Frame Index By Time With controlRecord/posRecord and controlMap/posMap
+ * @param {array} record - controlRecord or posRecord
+ * @param {object} map - controlMap or posMap
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
 export function updateFrameByTimeMap(
-  controlRecord: ControlRecordType,
-  controlMap: ControlMapType,
+  record: ControlRecordType | PosRecordType,
+  map: ControlMapType | PosMapType,
   frame: number,
   time: number
 ) {
-  if (!Array.isArray(controlRecord))
-    throw new Error(
-      `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
-    );
-  if (typeof controlMap !== "object")
-    throw new Error(
-      `[Error] updateFrameByTimeMap, invalid parameter(controlMap)`
-    );
+  if (!Array.isArray(record))
+    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(record)`);
+  if (typeof map !== "object")
+    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(map)`);
   if (typeof frame !== "number")
     throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(frame)`);
   if (typeof time !== "number")
     throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(time)`);
   // Check if need to do binarysearch
   if (
-    controlMap[frame + 2] &&
-    time >= controlMap[controlRecord[frame + 1]].start &&
-    time <= controlMap[controlRecord[frame + 2]].start
+    map[frame + 2] &&
+    time >= map[record[frame + 1]].start &&
+    time <= map[record[frame + 2]].start
   ) {
     return frame + 1;
   }
-  return binarySearchFrameMap(controlRecord, controlMap, time);
+  return binarySearchFrameMap(record, map, time);
 }
+
+/**
+ * binarySearch based on controlRecord and controlMap (array of object with start), return the index
+ * @param {object} data - target control (array of status)
+ * @param {number} time - target time
+ */
+export function binarySearchFrameMap(
+  record: ControlRecordType | PosRecordType,
+  map: ControlMapType | PosMapType,
+  time: number
+) {
+  if (!Array.isArray(record))
+    throw new Error(
+      `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
+    );
+  if (typeof map !== "object")
+    throw new Error(
+      `[Error] updateFrameByTimeMap, invalid parameter(controlMap)`
+    );
+  if (typeof time !== "number")
+    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
+  let l = 0;
+  let r = record.length - 1;
+  let m = Math.floor((l + r + 1) / 2);
+  while (l < r) {
+    if (map[record[m]].start <= time) l = m;
+    else r = m - 1;
+    m = Math.floor((l + r + 1) / 2);
+  }
+  return m;
+}
+
 /**
  * Calculate Interpolation of the position, return new position
  * @param {*} time
@@ -165,8 +112,8 @@ export function updateFrameByTimeMap(
  */
 export function interpolationPos(
   time: number,
-  preFrame: posRecordElement,
-  nextFrame: posRecordElement
+  preFrame: PosMapElement,
+  nextFrame: PosMapElement
 ) {
   const { start: preTime, pos: prePos } = preFrame;
   const { start: nextTime, pos: nextPos } = nextFrame;
@@ -181,9 +128,9 @@ export function interpolationPos(
 
   const newPos = {};
   Object.keys(prePos).forEach((dancer) => {
-    const dancerPrePos = prePos[dancer];
-    const dancerNextPos = nextPos[dancer];
-    const dancerPos: coordinates = { x: 0, y: 0, z: 0 }; //should be coordinates
+    const dancerPrePos: Coordinates = prePos[dancer];
+    const dancerNextPos: Coordinates = nextPos[dancer];
+    const dancerPos: Coordinates = { x: 0, y: 0, z: 0 }; //should be coordinates
     Object.keys(dancerPrePos).forEach((x) => {
       dancerPos[x] =
         ((dancerNextPos[x] - dancerPrePos[x]) * (time - preTime)) /

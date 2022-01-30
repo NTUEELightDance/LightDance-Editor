@@ -25,7 +25,7 @@ export default function TimeShift({
   handleClose: () => void;
 }) {
   const dispatch = useDispatch();
-  const { controlRecord, positionRecord } = useSelector(selectGlobal);
+  const { controlRecord, posRecord } = useSelector(selectGlobal);
   // type
   const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
   const handleChangeType = () => setType(type === CONTROL ? POSITION : CONTROL);
@@ -46,7 +46,7 @@ export default function TimeShift({
   // submit
   const submitTimeShift = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const record = type === CONTROL ? controlRecord : positionRecord;
+    const record = type === CONTROL ? controlRecord : posRecord;
     if (startFrame < 0 || startFrame >= record.length) {
       window.alert("Invalid start frame");
       return;

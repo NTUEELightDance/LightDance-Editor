@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  commandState,
-  dancerStatusType,
-  boardConfigType,
+  CommandState,
+  DancerStatusType,
+  BoardConfigType,
 } from "../types/commandSlice";
 import { RootState, AppDispatch } from "../store/index";
 
-const initialState: commandState = {
+const initialState: CommandState = {
   play: false,
   stop: false,
 
@@ -43,9 +43,9 @@ export const commandSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload - boardConfig
      */
-    initDancerStatus: (state, action: PayloadAction<boardConfigType>) => {
+    initDancerStatus: (state, action: PayloadAction<BoardConfigType>) => {
       const boardConfig = action.payload;
-      const newDancerStatus: dancerStatusType = {};
+      const newDancerStatus: DancerStatusType = {};
       Object.entries(boardConfig).forEach(([hostname, { dancerName }]) => {
         newDancerStatus[dancerName] = {
           dancerName,

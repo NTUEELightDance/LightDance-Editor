@@ -9,11 +9,10 @@ import Dancer from "./Dancer";
 // math
 import {
   updateFrameByTimeMap,
-  updateFrameByTime,
   interpolationPos,
   fadeStatus,
 } from "../../utils/math";
-import { ControlMapStatus, positionType } from "../../types/globalSlice";
+import { ControlMapStatus, DancerCoordinates } from "../../types/globalSlice";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -34,22 +33,30 @@ class Controller {
    */
   init() {
     // initialization by localStorage
-    if (!getItem("control")) {
-      setItem("control", JSON.stringify(store.getState().load.control));
+    if (!getItem("controlRecord")) {
+      setItem("controlRecord", JSON.stringify(store.getState().load.control));
     }
     if (!getItem("controlMap")) {
       setItem("controlMap", JSON.stringify(store.getState().load.controlMap));
     }
-    if (!getItem("position")) {
-      setItem("position", JSON.stringify(store.getState().load.position));
+    if (!getItem("posRecord")) {
+      setItem("posRecord", JSON.stringify(store.getState().load.posRecord));
+    }
+    if (!getItem("posMap")) {
+      setItem("posMap", JSON.stringify(store.getState().load.posMap));
     }
     store.dispatch(
       controlInit({
-        controlRecord: JSON.parse(getItem("control")!),
+        controlRecord: JSON.parse(getItem("controlRecord")!),
         controlMap: JSON.parse(getItem("controlMap")!),
       })
     );
-    store.dispatch(posInit(JSON.parse(getItem("position")!)));
+    store.dispatch(
+      posInit({
+        posRecord: JSON.parse(getItem("posRecord")!),
+        posMap: JSON.parse(getItem("posMap")!),
+      })
+    );
 
     // initialization for PIXIApp
     this.pixiApp = new PIXI.Application({
@@ -94,7 +101,7 @@ class Controller {
    * @param {*} currentPos
    * ex. { dancer0: { "x": 49.232, "y": 0, "z": 0 }}
    */
-  updateDancersPos(currentPos: positionType) {
+  updateDancersPos(currentPos: DancerCoordinates) {
     if (Object.entries(currentPos).length === 0)
       throw new Error(
         `[Error] updateDancersPos, invalid parameter(currentPos)`
@@ -136,8 +143,9 @@ class Controller {
     }
 
     // set timeData.posFrame and currentPos
-    const newPosFrame = updateFrameByTime(
+    const newPosFrame = updateFrameByTimeMap(
       state.posRecord,
+      state.posMap,
       state.timeData.posFrame,
       time
     );
@@ -150,8 +158,8 @@ class Controller {
       // do interpolation
       state.currentPos = interpolationPos(
         time,
-        state.posRecord[newPosFrame],
-        state.posRecord[newPosFrame + 1]
+        state.posMap[state.posRecord[newPosFrame]],
+        state.posMap[state.posRecord[newPosFrame + 1]]
       );
     }
 
@@ -165,11 +173,11 @@ class Controller {
 
   // fetch controlRecord, posRecord and timeData and update ticker function
   fetch() {
-    const { timeData, controlRecord, controlMap, posRecord } =
+    const { timeData, controlRecord, controlMap, posRecord, posMap } =
       store.getState().global;
     this.pixiApp.startTime = performance.now();
     this.pixiApp.waveSurferTime = timeData.time;
-    this.pixiApp.state = { controlRecord, controlMap, posRecord };
+    this.pixiApp.state = { controlRecord, controlMap, posRecord, posMap };
     this.pixiApp.state.timeData = { ...timeData };
     this.tickerF = this.animate.bind(this);
   }

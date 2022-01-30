@@ -22,7 +22,7 @@ import { getItem } from "../../utils/localStorage";
 // components
 import PresetsList from "./PresetsList";
 //types
-import { positionType } from "types/globalSlice";
+import { DancerCoordinates } from "types/globalSlice";
 
 /**
  * This is Presets component, list of pos
@@ -65,7 +65,7 @@ export default function PosPresets() {
   const handleDeletePresets = (idx: number) => {
     dispatch(deletePosPresets(idx));
   };
-  const handleSetCurrentPos = (pos: positionType) => {
+  const handleSetCurrentPos = (pos: DancerCoordinates) => {
     dispatch(setCurrentPos(pos));
   };
 

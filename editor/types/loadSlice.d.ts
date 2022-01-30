@@ -1,35 +1,36 @@
 import {
   ControlMapType,
   ControlRecordType,
-  posRecordType,
-  lightPresetsType,
-  posPresetsType,
+  PosRecordType,
+  PosMapType,
+  LightPresetsType,
+  PosPresetsType,
   EffectRecordMapType,
   EffectStatusMapType,
 } from "./globalSlice";
-interface BLPARTSTYPE {
+interface BlPartType {
   [index: string]: {
     prefix: string;
     name: string;
     postfix: string;
   };
 }
-interface ELPARTS extends BLPARTSTYPE {}
-interface LEDPARTS {
+interface ElPartsType extends BlPartsType {}
+interface LedPartsType {
   [index: string]: {
     prefix: string;
     name: string;
     postfix: string[];
   };
 }
-export interface textureType {
+export interface TextureType {
   //refered to /data/texture.json
-  BLPARTS: BLPARTSTYPE;
-  ELPARTS: ELPARTSTYPE;
-  LEDPARTS: LEDPARTTYPE;
+  BLPARTS: BlPartType;
+  ELPARTS: ElPartsType;
+  LEDPARTS: LedPartsType;
 }
 
-interface dancerPARTs {
+interface DancerPartType {
   [index: string]: {
     zIndex: number;
     width: number;
@@ -38,23 +39,25 @@ interface dancerPARTs {
     y: number;
   };
 }
-interface dancerPARTs {
+interface DancerParts {
   //refered to data/dancers
-  BLPARTS: dancerPARTs;
-  ELPARTS: dancerPARTs;
-  LEDPARTS: dancerPARTs;
+  BLPARTS: DancerPartType;
+  ELPARTS: DancerPartType;
+  LEDPARTS: DancerPartType;
 }
 export interface DancersType {
-  [index: string]: dancerPARTs;
+  [index: string]: DancerParts; //dancerName : dancer parts
 }
 
-export interface loadType {
+export interface LoadType {
   // refered to /data/load.json""
   Music: string;
   Control: string;
   ControlMap: string;
-  Position: string;
+  PosRecord: string;
+  PosMap: string;
   LightPresets: string;
+  PosPresets: string;
   PosPresets: string;
   EffectRecordMap: string;
   EffectStatueMap: string;
@@ -65,18 +68,19 @@ export interface loadType {
   };
   Texture: string;
 }
-export interface loadState {
+export interface LoadState {
   init: boolean;
   music: string; // load music path
-  load: loadType;
+  load: LoadType;
   control: ControlRecordType; // loaded control.json, may not be same as localStorage (this is for default)
   controlMap: ControlMapType; // loaded controlMap.json
-  position: posRecordType; // loaded position.json, may not be same as localStorage (this is for default)
-  lightPresets: lightPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
-  posPresets: posPresetsType; // loaded posPresets.json, may not be same as localStorage (this is for default)
+  posRecord: PosRecordType; // loaded position.json, may not be same as localStorage (this is for default)
+  posMap: PosMapType; // loaded position.json, may not be
+  lightPresets: LightPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
+  posPresets: PosPresetsType; // loaded lightPresets.json, may not be same as localStorage (this is for default)
   effectRecordMap: EffectRecordMapType; // loaded effectRecord.json
   effectStatusMap: EffectStatusMapType; // loaded effectStatus.json
   dancers: DancersType;
-  texture: textureType;
+  texture: TextureType;
   dancerNames: string[]; // [name]
 }

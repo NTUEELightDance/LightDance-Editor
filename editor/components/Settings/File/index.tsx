@@ -66,14 +66,17 @@ export default function File() {
   const [controlRecordFile, setControlRecordFile] = useState(null);
   const [controlMapFile, setControlMap] = useState(null);
   const [posRecordFile, setPosRecordFile] = useState(null);
+  const [posMapFile, setPosMapFile] = useState(null);
   const [selectedImages, setSelectedImages] = useState(null);
   const [path, setPath] = useState("");
 
   const imagePrefix = Object.values(texture.LEDPARTS)[0].prefix;
 
-  const handlePosInput = (e) => {
-    // checkPosJson(e.target.files);
+  const handlePosRecordInput = (e) => {
     setPosRecordFile(e.target.files);
+  };
+  const handlePosMapInput = (e) => {
+    setPosMapFile(e.target.files);
   };
   const handleControlInput = (e) => {
     setControlRecordFile(e.target.files);
@@ -106,7 +109,7 @@ export default function File() {
       if (
         window.confirm("Check Pass! Are you sure to upload new Control file ?")
       ) {
-        setItem("control", JSON.stringify(controlRecord));
+        setItem("controlRecord", JSON.stringify(controlRecord));
         setItem("controlMap", JSON.stringify(controlMap));
         dispatch(controlInit({ controlRecord, controlMap }));
       }
@@ -114,19 +117,22 @@ export default function File() {
   };
 
   const handlePosUpload = async () => {
-    if (posRecordFile) {
-      const position = await uploadJson(posRecordFile);
-      if (checkPosJson(position)) {
-        if (
-          window.confirm(
-            "Check Pass! Are you sure to upload new Position file?"
-          )
-        )
-          setItem("position", JSON.stringify(position));
-        dispatch(posInit(position));
-      } else alert("Pos: Wrong JSON format");
-      // setPosRecordFile(undefined);
+    if (!posRecordFile || !posMapFile) {
+      alert("Both posRecord and posMap files are required");
+      return;
     }
+    const posRecord = await uploadJson(posRecordFile);
+    const posMap = await uploadJson(posMapFile);
+    const { checkPass, errorMessage } = checkPosJson(posRecord, posMap);
+    if (checkPass) {
+      if (
+        window.confirm("Check Pass! Are you sure to upload new Position file?")
+      ) {
+        setItem("posRecord", JSON.stringify(posRecord));
+        setItem("posMap", JSON.stringify(posMap));
+        dispatch(posInit({ posRecord, posMap }));
+      }
+    } else alert(errorMessage);
   };
   const handleImagesUpload = async () => {
     if (selectedImages && path) {
@@ -195,13 +201,26 @@ export default function File() {
 
       <Typography variant="h6">Upload position.json</Typography>
       <ItemWrapper>
-        <input
-          id="position"
-          name="position"
-          type="file"
-          accept=".json"
-          onChange={handlePosInput}
-        />
+        <div>
+          <label htmlFor="posRecord">posRecord: </label>
+          <input
+            id="posRecord"
+            name="posRecord"
+            type="file"
+            accept=".json"
+            onChange={handlePosRecordInput}
+          />
+        </div>
+        <div>
+          <label htmlFor="controlMap">posMap: </label>
+          <input
+            id="posMap"
+            name="posMap"
+            type="file"
+            accept=".json"
+            onChange={handlePosMapInput}
+          />
+        </div>
       </ItemWrapper>
 
       <UploadDownload

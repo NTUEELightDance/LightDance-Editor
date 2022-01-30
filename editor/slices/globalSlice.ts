@@ -6,7 +6,6 @@ import { IDLE, EDIT, ADD } from "../constants";
 // utils
 import {
   clamp,
-  updateFrameByTime,
   updateFrameByTimeMap,
   interpolationPos,
   fadeStatus,
@@ -14,22 +13,23 @@ import {
 import { setItem, getItem } from "../utils/localStorage";
 import { nanoid } from "nanoid";
 import {
-  globalState,
+  GlobalState,
   ControlMapType,
   ControlRecordType,
-  posRecordType,
+  PosRecordType,
+  PosMapType,
   ControlMapStatus,
   LED,
-  positionType,
-  lightPresetsType,
-  posPresetsType,
+  DancerCoordinates,
+  LightPresetsType,
+  PosPresetsType,
   ControlMapElement,
   EffectRecordMapType,
   EffectStatusMapType,
 } from "../types/globalSlice";
 import { RootState } from "../store/index";
 
-const initialState: globalState = {
+const initialState: GlobalState = {
   isPlaying: false, // isPlaying
   selected: [], // array of selected dancer's name
 
@@ -40,7 +40,7 @@ const initialState: globalState = {
   controlRecord: [], // array of all dancer's status
   controlMap: {},
   posRecord: [], // array of all dancer's pos
-
+  posMap: {}, //
   timeData: {
     from: "", // update from what component
     time: 0, // time
@@ -49,12 +49,10 @@ const initialState: globalState = {
   },
 
   mode: 0, // 0: nothing, 1: edit, 2: add
-
+  effectRecordMap: {}, // map of all effects and corresponding record ID array
+  effectStatusMap: {},
   lightPresets: [], // lightPresets, presets for light
   posPresets: [], // posPresets, presets for pos
-
-  effectRecordMap: {}, // map of all effects and corresponding record ID array
-  effectStatusMap: {}, // map of effect record ID and its status
 };
 export const globalSlice = createSlice({
   name: "global",
@@ -68,7 +66,6 @@ export const globalSlice = createSlice({
     playPause: (state, action) => {
       state.isPlaying = action.payload;
     },
-
     /**
      * Initiate controlRecord and currentStatus (call by simulator/controller.js)
      * @param {*} state - redux state
@@ -94,13 +91,19 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {object} action.payload - posRecord
      */
-    posInit: (state, action: PayloadAction<posRecordType>) => {
-      const posRecord = action.payload;
+    posInit: (
+      state,
+      action: PayloadAction<{
+        posRecord: PosRecordType;
+        posMap: PosMapType;
+      }>
+    ) => {
+      const { posRecord, posMap } = action.payload;
       if (posRecord.length === 0)
         throw new Error(`[Error] posInit, posRecord is empty `);
       state.posRecord = posRecord;
-      state.currentPos = posRecord[0].pos;
-      console.log(posRecord);
+      state.posMap = posMap;
+      state.currentPos = posMap[posRecord[0]].pos;
     },
 
     /**
@@ -261,7 +264,7 @@ export const globalSlice = createSlice({
     },
 
     saveToLocal: (state) => {
-      setItem("control", JSON.stringify(state.controlRecord));
+      setItem("controlRecord", JSON.stringify(state.controlRecord));
       setItem("controlMap", JSON.stringify(state.controlMap));
       console.log("Control Saved to Local Storage...");
     },
@@ -289,7 +292,7 @@ export const globalSlice = createSlice({
       // );
       delete state.controlMap[state.controlRecord[state.timeData.controlFrame]];
       state.controlRecord.splice(state.timeData.controlFrame, 1);
-      setItem("control", JSON.stringify(state.controlRecord));
+      setItem("controlRecord", JSON.stringify(state.controlRecord));
     },
 
     /**
@@ -327,7 +330,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action.payload - new pos
      */
-    setCurrentPos: (state, action: PayloadAction<positionType>) => {
+    setCurrentPos: (state, action: PayloadAction<DancerCoordinates>) => {
       state.currentPos = action.payload;
     },
 
@@ -337,7 +340,8 @@ export const globalSlice = createSlice({
      */
     saveCurrentPos: (state) => {
       if (state.mode === EDIT) {
-        state.posRecord[state.timeData.posFrame].pos = state.currentPos;
+        const frameIndex = state.timeData.posFrame;
+        state.posMap[state.posRecord[frameIndex]].pos = state.currentPos;
         // const data = {
         //   pos: JSON.stringify(state.currentPos),
         //   frame: state.timeData.posFrame,
@@ -350,11 +354,13 @@ export const globalSlice = createSlice({
         //   JSON.stringify(data)
         // );
       } else if (state.mode === ADD) {
-        state.posRecord.splice(state.timeData.posFrame + 1, 0, {
+        // generate id
+        const newId = nanoid(6);
+        state.posMap[newId] = {
           start: state.timeData.time,
           pos: state.currentPos,
-        });
-
+        };
+        state.posRecord.splice(state.timeData.controlFrame + 1, 0, newId);
         // const data = {
         //   pos: JSON.stringify(state.currentPos),
         //   frame: state.timeData.posFrame + 1 - sub,
@@ -379,7 +385,8 @@ export const globalSlice = createSlice({
         //   );
       }
       state.mode = IDLE;
-      setItem("position", JSON.stringify(state.posRecord));
+      setItem("posRecord", JSON.stringify(state.posRecord));
+      setItem("posMap", JSON.stringify(state.posRecord));
     },
 
     /**
@@ -404,7 +411,7 @@ export const globalSlice = createSlice({
       //   JSON.stringify(data)
       // );
       state.posRecord.splice(state.timeData.posFrame, 1);
-      setItem("position", JSON.stringify(state.posRecord));
+      setItem("posRecord", JSON.stringify(state.posRecord));
     },
 
     /**
@@ -426,7 +433,6 @@ export const globalSlice = createSlice({
       state.timeData.time = time;
 
       // set timeData.controlFrame and currentStatus
-
       const newControlFrame = updateFrameByTimeMap(
         state.controlRecord,
         state.controlMap,
@@ -449,8 +455,9 @@ export const globalSlice = createSlice({
       }
 
       // set timeData.posFrame and currentPos
-      const newPosFrame = updateFrameByTime(
+      const newPosFrame = updateFrameByTimeMap(
         state.posRecord,
+        state.posMap,
         state.timeData.posFrame,
         time
       );
@@ -458,13 +465,13 @@ export const globalSlice = createSlice({
       // position interpolation
       if (newPosFrame === state.posRecord.length - 1) {
         // can't interpolation
-        state.currentPos = state.posRecord[newPosFrame].pos;
+        state.currentPos = state.posMap[state.posRecord[newPosFrame]].pos;
       } else {
         // do interpolation
         state.currentPos = interpolationPos(
           time,
-          state.posRecord[newPosFrame],
-          state.posRecord[newPosFrame + 1]
+          state.posMap[state.posRecord[newPosFrame]],
+          state.posMap[state.posRecord[newPosFrame + 1]]
         );
       }
 
@@ -500,13 +507,14 @@ export const globalSlice = createSlice({
       state.currentStatus =
         state.controlMap[state.controlRecord[controlFrame]].status;
       // set posFrame and currentPos as well (by time)
-      const newPosFrame = updateFrameByTime(
+      const newPosFrame = updateFrameByTimeMap(
         state.posRecord,
+        state.posMap,
         state.timeData.posFrame,
         state.controlMap[state.controlRecord[controlFrame]].start
       );
       state.timeData.posFrame = newPosFrame;
-      state.currentPos = state.posRecord[newPosFrame].pos;
+      state.currentPos = state.posMap[state.posRecord[newPosFrame]].pos;
       // set currentFade
       state.currentFade =
         state.controlMap[state.controlRecord[controlFrame]].fade;
@@ -534,16 +542,14 @@ export const globalSlice = createSlice({
       posFrame = clamp(posFrame, 0, state.posRecord.length - 1);
       state.timeData.from = from;
       state.timeData.posFrame = posFrame;
-      state.timeData.time = state.posRecord[posFrame].start;
-      state.currentPos = state.posRecord[posFrame].pos;
+      state.timeData.time = state.posMap[state.posRecord[posFrame]].start;
+      state.currentPos = state.posMap[state.posRecord[posFrame]].pos;
       // set controlFrame and currentStatus as well (by time)
-      const tmp = [];
-      for (const id of state.controlRecord) tmp.push(state.controlMap[id]);
-
-      const newControlFrame = updateFrameByTime(
-        tmp,
+      const newControlFrame = updateFrameByTimeMap(
+        state.controlRecord,
+        state.controlMap,
         state.timeData.controlFrame,
-        state.posRecord[posFrame].start
+        state.posMap[state.posRecord[posFrame]].start
       );
       state.timeData.controlFrame = newControlFrame;
       state.currentStatus =
@@ -589,13 +595,13 @@ export const globalSlice = createSlice({
         const currentPosFrame = state.timeData.posFrame;
         if (currentPosFrame === state.posRecord.length - 1) {
           // can't interpolation
-          state.currentPos = state.posRecord[currentPosFrame].pos;
+          state.currentPos = state.posMap[state.posRecord[currentPosFrame]].pos;
         } else {
           // do interpolation
           state.currentPos = interpolationPos(
             state.timeData.time,
-            state.posRecord[currentPosFrame],
-            state.posRecord[currentPosFrame + 1]
+            state.posMap[state.posRecord[currentPosFrame]],
+            state.posMap[state.posRecord[currentPosFrame + 1]]
           );
         }
       } else state.mode = action.payload;
@@ -606,7 +612,7 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    setLightPresets: (state, action: PayloadAction<lightPresetsType>) => {
+    setLightPresets: (state, action: PayloadAction<LightPresetsType>) => {
       state.lightPresets = action.payload;
       setItem("lightPresets", JSON.stringify(state.lightPresets));
     },
@@ -652,11 +658,30 @@ export const globalSlice = createSlice({
      * @param {*} state
      * @param {*} action
      */
-    setPosPresets: (state, action: PayloadAction<posPresetsType>) => {
+    setPosPresets: (state, action: PayloadAction<PosPresetsType>) => {
       state.posPresets = action.payload;
       setItem("posPresets", JSON.stringify(state.posPresets));
     },
 
+    /**
+     * set effectRecordMap
+     * @param {*} state
+     * @param {*} action
+     */
+    setEffectRecordMap: (state, action: PayloadAction<EffectRecordMapType>) => {
+      state.effectRecordMap = action.payload;
+      setItem("effectRecordMap", JSON.stringify(state.effectRecordMap));
+    },
+
+    /**
+     * set effectStatusMap
+     * @param {*} state
+     * @param {*} action
+     */
+    setEffectStatusMap: (state, action: PayloadAction<EffectStatusMapType>) => {
+      state.effectStatusMap = action.payload;
+      setItem("effectStatusMap", JSON.stringify(state.effectStatusMap));
+    },
     /**
      * edit a lightPreset's name
      * @param {*} state
@@ -697,26 +722,6 @@ export const globalSlice = createSlice({
     },
 
     /**
-     * set effectRecordMap
-     * @param {*} state
-     * @param {*} action
-     */
-    setEffectRecordMap: (state, action: PayloadAction<EffectRecordMapType>) => {
-      state.effectRecordMap = action.payload;
-      setItem("effectRecordMap", JSON.stringify(state.effectRecordMap));
-    },
-
-    /**
-     * set effectStatusMap
-     * @param {*} state
-     * @param {*} action
-     */
-    setEffectStatusMap: (state, action: PayloadAction<EffectStatusMapType>) => {
-      state.effectStatusMap = action.payload;
-      setItem("effectStatusMap", JSON.stringify(state.effectStatusMap));
-    },
-
-    /**
      * Shift frame time from startFrame to endFrame += shiftTime
      */
     shiftFrameTime: (
@@ -742,11 +747,15 @@ export const globalSlice = createSlice({
         );
         state.controlMap = controlMapCopy;
       } else {
-        const posRecordCopy = [...state.posRecord];
+        const posMapCopy = { ...state.posMap };
         for (let i = Number(startFrame); i <= Number(endFrame); i += 1) {
-          posRecordCopy[i].start += shiftTime;
+          posMapCopy[state.posRecord[i]].start += shiftTime;
         }
-        posRecordCopy.sort((a, b) => a.start - b.start);
+        const posRecordCopy = [...state.posRecord];
+        state.posRecord = posRecordCopy.sort(
+          (a, b) => posMapCopy[a].start - posMapCopy[b].start
+        );
+        state.posMap = posMapCopy;
       }
     },
   },
@@ -791,7 +800,6 @@ export const {
   editPosPresetsName,
   addPosPresets,
   deletePosPresets,
-
   setEffectRecordMap,
   setEffectStatusMap,
 

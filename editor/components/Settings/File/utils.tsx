@@ -113,12 +113,8 @@ export const checkControlJson = (controlRecord, controlMap) => {
 
   return { checkPass, errorMessage };
 };
-export const checkPosJson = (position) => {
-  if (!Array.isArray(position) || position.length === 0) {
-    console.error("[Error] position not array or position is empty");
-    return false;
-  }
-  return position.every((frame, frameIdx) => {
+export const checkPosJson = (posRecord, posMap) => {
+  const mapIsValid = Object.values(posMap).every((frame, frameIdx) => {
     if (!("start" in frame)) {
       console.error(`[Error] "start" is undefined in frame ${frameIdx}`);
       return false;
@@ -141,6 +137,36 @@ export const checkPosJson = (position) => {
       return true;
     });
   });
+
+  const recordIsValid =
+    Array.isArray(posRecord) &&
+    posRecord.length !== 0 &&
+    posRecord.every((id, index) => {
+      if (index === posRecord.length - 1) return true;
+      const nextId = posRecord[index + 1];
+      if (posMap[id].start > posMap[nextId].start) return false;
+      return true;
+    });
+
+  const idListofMap = Object.keys(posMap);
+  const isMatched =
+    posRecord.length === idListofMap.length &&
+    posRecord.every((id) => {
+      if (!idListofMap.includes(id)) return false;
+      return true;
+    });
+
+  const checkPass = mapIsValid && recordIsValid && isMatched;
+  let errorMessage;
+  if (!mapIsValid) {
+    errorMessage = "controlMap.json format wrong, please check console";
+  } else if (!recordIsValid) {
+    errorMessage = "controlRecord.json format wrong";
+  } else if (!isMatched) {
+    errorMessage = "controlMap and controlRecord are not matched";
+  }
+
+  return { checkPass, errorMessage };
 };
 
 const createFolder = (currentFolder, remainPath) => {

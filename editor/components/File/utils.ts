@@ -113,12 +113,8 @@ export const checkControlJson = (controlRecord, controlMap) => {
 
   return { checkPass, errorMessage };
 };
-export const checkPosJson = (position) => {
-  if (!Array.isArray(position) || position.length === 0) {
-    console.error("[Error] position not array or position is empty");
-    return false;
-  }
-  return position.every((frame, frameIdx) => {
+export const checkPosJson = (posRecord, posMap) => {
+  const mapIsValid = Object.values(posMap).every((frame, frameIdx) => {
     if (!("start" in frame)) {
       console.error(`[Error] "start" is undefined in frame ${frameIdx}`);
       return false;
@@ -141,6 +137,36 @@ export const checkPosJson = (position) => {
       return true;
     });
   });
+
+  const recordIsValid =
+    Array.isArray(posRecord) &&
+    posRecord.length !== 0 &&
+    posRecord.every((id, index) => {
+      if (index === posRecord.length - 1) return true;
+      const nextId = posRecord[index + 1];
+      if (posRecord[id].start > posRecord[nextId].start) return false;
+      return true;
+    });
+
+  const idListofMap = Object.keys(posMap);
+  const isMatched =
+    posRecord.length === idListofMap.length &&
+    posRecord.every((id) => {
+      if (!idListofMap.includes(id)) return false;
+      return true;
+    });
+
+  const checkPass = mapIsValid && recordIsValid && isMatched;
+  let errorMessage;
+  if (!mapIsValid) {
+    errorMessage = "controlMap.json format wrong, please check console";
+  } else if (!recordIsValid) {
+    errorMessage = "controlRecord.json format wrong";
+  } else if (!isMatched) {
+    errorMessage = "controlMap and controlRecord are not matched";
+  }
+
+  return { checkPass, errorMessage };
 };
 
 const createFolder = (currentFolder, remainPath) => {
@@ -167,7 +193,7 @@ const urlToPromise = (url) =>
 //  *      |- LED
 //  *      |- Part
 //  * |- controlRecord.json
-//  * |- position.json
+//  * |- posRecord.json
 //  * |- texture.json
 
 // TODEL: make this a util
@@ -190,22 +216,22 @@ export const downloadControlJson = async (controlRecord, controlMap) => {
   downloadJson(controlMap, `controlMap_${now}`);
 };
 
-export const downloadPos = async (position) => {
+export const downloadPos = async (posRecord) => {
   const now = dayjs().format("YYYYMMDD_HHmm");
-  downloadJson(position, `position_${now}`);
+  downloadJson(posRecord, `posRecord_${now}`);
 };
 
 export const downloadEverything = async (
   controlRecord,
   controlMap,
-  position
+  posRecord
 ) => {
   const texture = await fetchTexture();
   const zip = new JSZip();
 
   zip.file("controlRecord.json", JSON.stringify(controlRecord));
   zip.file("controlMap.json", JSON.stringify(controlMap));
-  zip.file("position.json", JSON.stringify(position));
+  zip.file("posRecord.json", JSON.stringify(posRecord));
   zip.file("texture.json", JSON.stringify(texture));
 
   Object.keys(texture).forEach((partType) => {

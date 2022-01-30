@@ -24,7 +24,6 @@ import ThreeDancer from "./ThreeComponents/Dancer";
 
 import {
   updateFrameByTimeMap,
-  updateFrameByTime,
   interpolationPos,
   fadeStatus,
 } from "../../utils/math";
@@ -269,8 +268,9 @@ class ThreeController {
     }
 
     // set timeData.posFrame and currentPos
-    const newPosFrame = updateFrameByTime(
+    const newPosFrame = updateFrameByTimeMap(
       state.posRecord,
+      state.posMap,
       state.timeData.posFrame,
       time
     );
@@ -283,8 +283,8 @@ class ThreeController {
       // do interpolation
       state.currentPos = interpolationPos(
         time,
-        state.posRecord[newPosFrame],
-        state.posRecord[newPosFrame + 1]
+        state.posMap[state.posRecord[newPosFrame]],
+        state.posMap[state.posRecord[newPosFrame + 1]]
       );
     }
 
