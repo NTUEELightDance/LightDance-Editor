@@ -1,25 +1,25 @@
-interface dancerStatusElement {
-  dancerName?: string;
-  ip: string;
-  hostname?: string;
-  isConnected: boolean;
-  msg: string;
-  OK?: boolean;
+interface DancerStatusElement {
+	dancerName?: string;
+	ip: string;
+	hostname?: string;
+	isConnected: boolean;
+	msg: string;
+	OK?: boolean;
 }
-export interface boardConfigType {
-  [index: string]: {
-    type: string;
-    ip: string;
-    dancerName: string;
-  };
+export interface BoardConfigType {
+	[index: string]: {
+		type: string;
+		ip: string;
+		dancerName: string;
+	};
 }
-export interface dancerStatusType {
-  [index: string]: dancerStatusElement;
+export interface DancerStatusType {
+	[index: string]: DancerStatusElement;
 }
-export interface commandState {
-  play: boolean;
-  stop: boolean;
-  startTime: number;
-  sysTime: number;
-  dancerStatus: dancerStatusType;
+export interface CommandState {
+	play: boolean;
+	stop: boolean;
+	startTime: number;
+	sysTime: number;
+	dancerStatus: DancerStatusType;
 }
