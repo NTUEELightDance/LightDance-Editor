@@ -109,7 +109,7 @@ export default function File() {
       if (
         window.confirm("Check Pass! Are you sure to upload new Control file ?")
       ) {
-        setItem("control", JSON.stringify(controlRecord));
+        setItem("controlRecord", JSON.stringify(controlRecord));
         setItem("controlMap", JSON.stringify(controlMap));
         dispatch(controlInit({ controlRecord, controlMap }));
       }
@@ -128,8 +128,8 @@ export default function File() {
       if (
         window.confirm("Check Pass! Are you sure to upload new Position file?")
       ) {
-        setItem("position", JSON.stringify(posRecord));
-        setItem("positionMap", JSON.stringify(posMap));
+        setItem("posRecord", JSON.stringify(posRecord));
+        setItem("posMap", JSON.stringify(posMap));
         dispatch(posInit({ posRecord, posMap }));
       }
     } else alert(errorMessage);
@@ -202,10 +202,10 @@ export default function File() {
       <Typography variant="h6">Upload position.json</Typography>
       <ItemWrapper>
         <div>
-          <label htmlFor="posReocord">posReocord: </label>
+          <label htmlFor="posRecord">posRecord: </label>
           <input
-            id="posReocord"
-            name="posReocord"
+            id="posRecord"
+            name="posRecord"
             type="file"
             accept=".json"
             onChange={handlePosRecordInput}

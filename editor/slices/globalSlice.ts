@@ -264,7 +264,7 @@ export const globalSlice = createSlice({
     },
 
     saveToLocal: (state) => {
-      setItem("control", JSON.stringify(state.controlRecord));
+      setItem("controlRecord", JSON.stringify(state.controlRecord));
       setItem("controlMap", JSON.stringify(state.controlMap));
       console.log("Control Saved to Local Storage...");
     },
@@ -292,7 +292,7 @@ export const globalSlice = createSlice({
       // );
       delete state.controlMap[state.controlRecord[state.timeData.controlFrame]];
       state.controlRecord.splice(state.timeData.controlFrame, 1);
-      setItem("control", JSON.stringify(state.controlRecord));
+      setItem("controlRecord", JSON.stringify(state.controlRecord));
     },
 
     /**

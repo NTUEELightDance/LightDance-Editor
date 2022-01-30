@@ -9,7 +9,6 @@ import Dancer from "./Dancer";
 // math
 import {
   updateFrameByTimeMap,
-  updateFrameByTime,
   interpolationPos,
   fadeStatus,
 } from "../../utils/math";
@@ -34,8 +33,8 @@ class Controller {
    */
   init() {
     // initialization by localStorage
-    if (!getItem("control")) {
-      setItem("control", JSON.stringify(store.getState().load.control));
+    if (!getItem("controlRecord")) {
+      setItem("controlRecord", JSON.stringify(store.getState().load.control));
     }
     if (!getItem("controlMap")) {
       setItem("controlMap", JSON.stringify(store.getState().load.controlMap));
@@ -48,7 +47,7 @@ class Controller {
     }
     store.dispatch(
       controlInit({
-        controlRecord: JSON.parse(getItem("control")!),
+        controlRecord: JSON.parse(getItem("controlRecord")!),
         controlMap: JSON.parse(getItem("controlMap")!),
       })
     );

@@ -103,7 +103,7 @@ export default function File() {
       if (
         window.confirm("Check Pass! Are you sure to upload new Control file ?")
       ) {
-        setItem("control", JSON.stringify(controlRecord));
+        setItem("controlRecord", JSON.stringify(controlRecord));
         setItem("controlMap", JSON.stringify(controlMap));
         dispatch(controlInit({ controlRecord, controlMap }));
       }
