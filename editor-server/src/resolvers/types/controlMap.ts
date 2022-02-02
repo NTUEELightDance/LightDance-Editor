@@ -29,7 +29,12 @@ export const ControlMapScalar = new GraphQLScalarType({
   async serialize(value: any): Promise<any> {
     // check the type of received value
     const result: LooseObject = {};
-    const dancers = await db.Dancer.find();
+    const allDancers = await db.Dancer.find().populate({
+      path: "parts",
+      populate: {
+        path: "controlData"
+      }
+    });
     await Promise.all(
       value.map(async (data: any) => {
         const { _id, id } = data;
@@ -37,14 +42,12 @@ export const ControlMapScalar = new GraphQLScalarType({
         const { fade, start, editing } = await db.ControlFrame.findById(_id);
         const status: LooseObject = {};
         await Promise.all(
-          dancers.map(async (dancer: any) => {
-            const { name, parts } = await db.Dancer.findById(dancer._id);
+          allDancers.map(async (dancer: any) => {
+            const { name, parts } = dancer;
             const partData: LooseObject = {};
             await Promise.all(
-              parts.map(async (partID: any) => {
-                const { name, type, controlData } = await db.Part.findById(
-                  partID
-                ).populate("controlData");
+              parts.map(async (part: any) => {
+                const { name, type, controlData } = part
                 const wanted = controlData.filter(
                   (data: any) => data.frame.toString() === _id.toString()
                 );
