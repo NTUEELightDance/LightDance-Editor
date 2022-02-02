@@ -23,7 +23,6 @@ const Simulator: React.FC = ({}) => {
   // console.log(data);
   useEffect(() => {
     if (!controller) {
-      console.log("new controllers");
       const newController = new Controller();
       newController.init();
       setController(newController);

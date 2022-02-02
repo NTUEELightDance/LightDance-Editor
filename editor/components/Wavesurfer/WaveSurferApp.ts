@@ -41,7 +41,7 @@ class WaveSurferApp {
       waveColor: "#5bc1f0",
       progressColor: "#1883b5",
       cursorColor: "#edf0f1",
-      // height: screen.height * 0.08,
+      responsive: true,
       plugins: [
         CursorPlugin.create({
           showTime: true,
@@ -277,6 +277,10 @@ class WaveSurferApp {
         time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
       })
     );
+  }
+
+  resize() {
+    window.dispatchEvent(new Event("resize"));
   }
 }
 

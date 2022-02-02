@@ -13,6 +13,7 @@ export default function WaveSurfer({ children }: { children: JSX.Element }) {
   );
   const [markersToggle, toggleMarkers] = useState(true);
   const initWaveSurferApp = (wave: WaveSurferApp) => {
+    wave.init();
     setWaveSurferApp(wave);
   };
 
