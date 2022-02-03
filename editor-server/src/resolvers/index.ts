@@ -5,7 +5,7 @@ import { PartResolver } from "./part";
 import { ControlFrameResolver } from "./controlFrame";
 import { PositionFrameResolver } from "./positionFrame";
 import { FiberResolver } from "./fiber";
-import { ControlMapResolver } from "./controlMap";
+import { ControlMapResolver, EditControlMapResolver } from "./controlMap";
 import { RequestEditResolver } from "./requestEdit";
 import { ControlResolver } from "./control";
 import { PositionResolver } from "./position";
@@ -24,4 +24,5 @@ export const resolvers = [
   ControlMapResolver,
   RequestEditResolver,
   PosMapResolver,
+  EditControlMapResolver
 ] as const;

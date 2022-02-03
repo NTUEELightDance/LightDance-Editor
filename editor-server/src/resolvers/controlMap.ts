@@ -9,6 +9,7 @@ import {
   ID,
 } from "type-graphql";
 import { ControlMap } from "./types/controlMap";
+import { ControlData } from "./types/controlData" 
 import { EditControlInput } from "./inputs/control";
 import { Topic } from "./subscriptions/topic";
 import {
@@ -30,8 +31,12 @@ export class ControlMapResolver {
     });
     return { frames: id };
   }
+}
 
-  @Mutation((returns) => ControlMap)
+@Resolver((of)=> ControlData)
+export class EditControlMapResolver
+{
+  @Mutation((returns) => ControlData)
   async editControlMap(
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
     @Arg("controlDatas", (type) => [EditControlInput])
@@ -48,23 +53,22 @@ export class ControlMapResolver {
         const { dancerName, controlDatas } = data;
         const dancer = await ctx.db.Dancer.findOne({
           name: dancerName,
-        }).populate("parts");
+        }).populate({
+          path: "parts",
+          populate: {
+            path: "controlData",
+            match: {frame: _id}
+          }
+        });
         await Promise.all(
           controlDatas.map(async (data: any) => {
             const { partName, ELValue, color, src, alpha } = data;
-            const { controlData, type } = dancer.parts.filter(
+            const wanted = dancer.parts.find(
               (part: any) => part.name === partName
-            )[0];
-            const oldControls = await Promise.all(
-              controlData.map(async (control: any) => {
-                const data = await ctx.db.Control.findById(control);
-                if (data.frame.toString() === _id.toString()) {
-                  return control;
-                }
-              })
             );
-            const controlID = oldControls.filter((data: any) => data)[0];
-            const { value } = await ctx.db.Control.findById(controlID);
+            if (!wanted) throw new Error(`part ${partName} not found`)
+            const { controlData, type } = wanted
+            const { value, _id } = controlData[0];
             if (type === "FIBER") {
               if (color) {
                 const { colorCode } = await ctx.db.Color.findOne({ color });
@@ -85,13 +89,12 @@ export class ControlMapResolver {
                 value.alpha = alpha;
               }
             }
-            await ctx.db.Control.updateOne({ _id: controlID }, { value });
+            await ctx.db.Control.updateOne({ _id }, { value });
           })
         );
       })
     );
     await ctx.db.ControlFrame.updateOne({ id: frameID }, { editing: null });
-
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.UPDATED,
       editBy: ctx.userID,
@@ -99,6 +102,6 @@ export class ControlMapResolver {
       frames: [{ _id, id: frameID }],
     };
     await publish(payload);
-    return { frames: [{ _id, id: frameID }] };
+    return { frame: { _id, id: frameID }};
   }
 }

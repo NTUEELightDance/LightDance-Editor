@@ -1,17 +1,10 @@
 import {
   Field,
   ObjectType,
-  Resolver,
-  FieldResolver,
-  Ctx,
-  Float,
-  Query,
-  Root,
 } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
-import { ControlFrame } from "./controlFrame";
 
 interface LooseObject {
   [key: string]: any;
@@ -28,6 +21,7 @@ export const ControlMapScalar = new GraphQLScalarType({
   description: "Mongo object id scalar type",
   async serialize(value: any): Promise<any> {
     // check the type of received value
+    const time = Date.now()
     const result: LooseObject = {};
     const allDancers = await db.Dancer.find().populate({
       path: "parts",
@@ -35,6 +29,7 @@ export const ControlMapScalar = new GraphQLScalarType({
         path: "controlData"
       }
     });
+    console.log(Date.now() - time)
     await Promise.all(
       value.map(async (data: any) => {
         const { _id, id } = data;
@@ -72,6 +67,8 @@ export const ControlMapScalar = new GraphQLScalarType({
         result[id] = { fade, start, editing, status };
       })
     );
+
+    console.log(Date.now() - time)
     return result; // value sent to the client
   },
   parseValue(value: unknown): any {

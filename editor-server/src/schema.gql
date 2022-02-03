@@ -30,6 +30,10 @@ type Control {
   status: ControlDevice!
 }
 
+type ControlData {
+  frame: ControlMapMutationObjectId!
+}
+
 input ControlDataInput {
   alpha: Float
   color: String
@@ -50,6 +54,9 @@ type ControlFrame {
 type ControlMap {
   frames: ControlMapQueryObjectId!
 }
+
+"""Mongo object id scalar type"""
+scalar ControlMapMutationObjectId
 
 type ControlMapPayload {
   editBy: String!
@@ -177,7 +184,7 @@ type Mutation {
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(controlDatas: [EditControlInput!]!, frameID: String!): ControlMap!
+  editControlMap(controlDatas: [EditControlInput!]!, frameID: String!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
