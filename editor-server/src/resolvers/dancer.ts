@@ -18,6 +18,7 @@ import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { generateID } from "../utility";
 import { DancerResponse } from "./response/dancerResponse";
+import { initRedis } from "../utility";
 
 @Resolver((of) => Dancer)
 export class DancerResolver {
@@ -60,6 +61,7 @@ export class DancerResolver {
         newDancer.positionData.push(newPosition);
         await newPosition.save();
       });
+      await initRedis()
       const dancerData = await newDancer.save();
       console.log(dancerData);
       const payload: DancerPayload = {
@@ -91,6 +93,7 @@ export class DancerResolver {
       .populate("positionData");
     console.log(newDancer);
     if (newDancer) {
+      await initRedis()
       return Object.assign(newDancer, { ok: true });
     }
     return Object.assign(
@@ -120,6 +123,7 @@ export class DancerResolver {
         })
       );
       await ctx.db.Dancer.deleteOne({ id });
+      await initRedis()
       return Object.assign(dancer, { ok: true });
     }
     return Object.assign(

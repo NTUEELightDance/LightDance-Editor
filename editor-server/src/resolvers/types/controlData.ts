@@ -5,6 +5,7 @@ import {
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
+import redis from "../../redis"
 
 interface LooseObject {
   [key: string]: any;
@@ -21,7 +22,6 @@ export const ControlDataScalar = new GraphQLScalarType({
   description: "Mongo object id scalar type",
   async serialize(data: any): Promise<any> {
     // check the type of received value
-    const time = Date.now()
     const { _id, id } = data;
     const result: LooseObject = {};
     const allDancers = await db.Dancer.find().populate({
@@ -31,7 +31,6 @@ export const ControlDataScalar = new GraphQLScalarType({
         match: {frame: _id}
       }
     });
-    console.log(Date.now() - time)
     // const frameID = new ObjectId(id)
     const { fade, start, editing } = await db.ControlFrame.findById(_id);
     const status: LooseObject = {};
@@ -62,8 +61,6 @@ export const ControlDataScalar = new GraphQLScalarType({
       })
     );
     result[id] = { fade, start, editing, status };
-
-    console.log(Date.now() - time)
     return result; // value sent to the client
   },
   parseValue(value: unknown): any {

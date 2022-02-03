@@ -15,7 +15,7 @@ import { ControlDefault } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { PartResponse } from "./response/partResponse";
-import { generateID } from "../utility";
+import { generateID, initRedis } from "../utility";
 import Dancer from "../models/Dancer";
 
 @Resolver((of) => Part)
@@ -62,6 +62,7 @@ export class PartResolver {
         })
           .populate("parts")
           .populate("positionData");
+        await initRedis()
         const payload: DancerPayload = {
           mutation: dancerMutation.UPDATED,
           editBy: ctx.userID,
@@ -115,6 +116,7 @@ export class PartResolver {
       const dancerData = await ctx.db.Dancer.findOne({ name: dancerName })
         .populate("parts")
         .populate("positionData");
+      await initRedis()
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
         editBy: ctx.userID,
@@ -159,6 +161,7 @@ export class PartResolver {
       const dancerData = await ctx.db.Dancer.findOne({ name: dancerName })
         .populate("parts")
         .populate("positionData");
+      await initRedis()
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
         editBy: ctx.userID,

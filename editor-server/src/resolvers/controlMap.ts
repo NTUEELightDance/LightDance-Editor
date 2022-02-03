@@ -16,6 +16,7 @@ import {
   ControlMapPayload,
   ControlMapMutation,
 } from "./subscriptions/controlMap";
+import { updateRedis } from "../utility"
 
 interface LooseObject {
   [key: string]: any;
@@ -95,11 +96,12 @@ export class EditControlMapResolver
       })
     );
     await ctx.db.ControlFrame.updateOne({ id: frameID }, { editing: null });
+    await updateRedis(frameID)
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.UPDATED,
       editBy: ctx.userID,
       frameID,
-      frames: [{ _id, id: frameID }],
+      frame: [{ _id, id: frameID }],
     };
     await publish(payload);
     return { frame: { _id, id: frameID }};

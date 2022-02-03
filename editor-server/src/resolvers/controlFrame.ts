@@ -17,7 +17,7 @@ import {
   DeleteControlFrameInput,
 } from "./inputs/controlFrame";
 import { Part } from "./types/part";
-import { generateID } from "../utility";
+import { generateID, updateRedis } from "../utility";
 import { ControlDefault } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
 import {
@@ -28,6 +28,7 @@ import {
   ControlRecordMutation,
   ControlRecordPayload,
 } from "./subscriptions/controlRecord";
+import redis from "../redis"
 
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
@@ -65,28 +66,31 @@ export class ControlFrameResolver {
       id: generateID(),
     }).save();
     let allParts = await ctx.db.Part.find();
-    allParts.map(async (part: Part) => {
-      let newControl = await new ctx.db.Control({
-        frame: newControlFrame,
-        value: ControlDefault[part.type],
-        id: generateID(),
-      });
-      await newControl.save();
-      await ctx.db.Part.findOneAndUpdate(
-        { id: part.id },
-        {
-          name: part.name,
-          type: part.type,
-          controlData: part.controlData.concat([newControl]),
-          id: part.id,
-        }
-      );
-    });
+    await Promise.all(
+      allParts.map(async (part: Part) => {
+        let newControl = await new ctx.db.Control({
+          frame: newControlFrame,
+          value: ControlDefault[part.type],
+          id: generateID(),
+        });
+        await newControl.save();
+        await ctx.db.Part.findOneAndUpdate(
+          { id: part.id },
+          {
+            name: part.name,
+            type: part.type,
+            controlData: part.controlData.concat([newControl]),
+            id: part.id,
+          }
+        );
+      })
+    )
+    await updateRedis(newControlFrame.id)
     const mapPayload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: newControlFrame.id,
-      frames: [{ _id: newControlFrame._id, id: newControlFrame.id }],
+      frame: [{ _id: newControlFrame._id, id: newControlFrame.id }],
     };
     await publishControlMap(mapPayload);
     const allControlFrames = await ctx.db.ControlFrame.find().sort({
@@ -133,11 +137,12 @@ export class ControlFrameResolver {
     await ctx.db.ControlFrame.updateOne({ id: input.id }, { editing: null });
 
     const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.id });
+    await updateRedis(controlFrame.id)
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: controlFrame.id,
-      frames: [{ _id: controlFrame._id, id: controlFrame.id }],
+      frame: [{ _id: controlFrame._id, id: controlFrame.id }],
     };
     await publishControlMap(payload);
     const allControlFrames = await ctx.db.ControlFrame.find().sort({
@@ -174,19 +179,17 @@ export class ControlFrameResolver {
     }
     const _id = frameToDelete._id;
     await ctx.db.ControlFrame.deleteOne({ id });
-    const targetControl = await ctx.db.Control.find({ frame: _id });
-    const parts = await ctx.db.Part.find();
+    const parts = await ctx.db.Part.find().populate("controlData");
     await Promise.all(
-      targetControl.map((control: any) => {
-        parts.map(async (part: any) => {
-          await ctx.db.Part.updateOne(
-            { id: part.id },
-            { $pullAll: { controlData: [{ _id: control._id }] } }
-          );
-        });
+      parts.map(async (part: any) => {
+        await ctx.db.Part.updateOne(
+          { id: part.id },
+          { $pull: { controlData: { frame: _id } } }
+        );
       })
     );
     await ctx.db.Control.deleteMany({ frame: _id });
+    await redis.del(id)
     const mapPayload: ControlMapPayload = {
       mutation: ControlMapMutation.DELETED,
       editBy: ctx.userID,
