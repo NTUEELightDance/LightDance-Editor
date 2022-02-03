@@ -48,19 +48,21 @@ export const ControlMapScalar = new GraphQLScalarType({
             await Promise.all(
               parts.map(async (part: any) => {
                 const { name, type, controlData } = part
-                const wanted = controlData.filter(
+                const wanted = controlData.find(
                   (data: any) => data.frame.toString() === _id.toString()
                 );
+                if (!wanted) throw new Error(`ControlData ${_id} not found`)
+                const { value } = wanted
                 if (type === "LED") {
-                  partData[name] = wanted[0].value;
+                  partData[name] = value;
                 } else if (type === "FIBER") {
-                  partData[name] = wanted[0].value;
+                  partData[name] = value;
                   const { colorCode } = await db.Color.findOne({
                     color: partData[name].color,
                   });
                   partData[name].color = colorCode;
                 } else {
-                  partData[name] = wanted[0].value.value;
+                  partData[name] = value.value;
                 }
               })
             );
