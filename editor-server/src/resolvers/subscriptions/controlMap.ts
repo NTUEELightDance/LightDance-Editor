@@ -1,14 +1,14 @@
 import { ObjectType, Field, ID } from "type-graphql";
 import { ObjectId } from "mongodb";
-import { ControlMapScalar } from "../types/controlMap";
+import { ControlDataScalar } from "../types/controlData";
 
 @ObjectType()
 export class ControlMapPayload {
   @Field()
   mutation: ControlMapMutation;
 
-  @Field((type) => ControlMapScalar, { nullable: true })
-  frames?: any[];
+  @Field((type) => ControlDataScalar, { nullable: true })
+  frame?: any[];
 
   @Field()
   frameID: string;
