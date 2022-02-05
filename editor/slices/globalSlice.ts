@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { useQuery, useMutation } from "@apollo/client";
 
 // constants
 import { IDLE, EDIT, ADD } from "../constants";
@@ -83,8 +82,6 @@ export const globalSlice = createSlice({
 				controlMap: ControlMapType;
 			}>
 		) => {
-			// const result = useQuery(GET_COLORS);
-			// console.log("test:", result);
 			const { controlRecord, controlMap } = action.payload;
 			if (controlRecord.length === 0)
 				throw new Error(`[Error] controlInit, controlRecord is empty `);
