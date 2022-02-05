@@ -54,11 +54,12 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     if (threeController && threeController.initialized()) {
-      threeController.dragControlInit();
+      // threeController.dragControlInit();
+      threeController.controls.initDragControls();
       if (mode === 0) {
-        threeController.dragControls.deactivate();
+        threeController.controls.dragControls.deactivate();
       } else {
-        threeController.dragControls.activate();
+        threeController.controls.dragControls.activate();
       }
     }
   }, [mode]);

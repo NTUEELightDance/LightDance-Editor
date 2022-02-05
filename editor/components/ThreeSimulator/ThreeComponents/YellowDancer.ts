@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
+
 import MAPPING from "./mapping";
 
 class YellowDancer {
@@ -26,54 +28,94 @@ class YellowDancer {
   // Load model with given URL and capture all the meshes for light status
   addModel2Scene(position) {
     // Use GLTF loader to load target model from URL
-    const loader = new GLTFLoader();
+    this.initPosition = position;
+    const modelLoader = new GLTFLoader();
+    modelLoader.load(
+      "/asset/models/yellow_clean.glb",
+      this.initModel.bind(this)
+    );
 
-    // Intilization procedures after the model is successfully loaded.
-    // 1. Add model to the scene.
-    // 2. Select desired part of mesh to display light status.
-    // 3. Set color of selected meshes to black and set their emissive color.
-    // 4. Set alpha(emissiveIntensity) of selected meshes to 0.
-    // 5. Set the position of the model to given position
-    // 6. Signal this dancer is successfully initialized.
+    // Use fontLoader to load font and create nameTag
+    const fontLoader = new FontLoader();
+    fontLoader.load(
+      "asset/fonts/helvetiker_regular.typeface.json",
+      this.initNameTag.bind(this)
+    );
+  }
 
-    const initModel = (gltf) => {
-      this.model = gltf.scene;
-      console.log(this.model);
-      console.log(MAPPING);
+  // Intilization procedures after the model is successfully loaded.
+  // 1. Add model to the scene.
+  // 2. Select desired part of mesh to display light status.
+  // 3. Set color of selected meshes to black and set their emissive color.
+  // 4. Set alpha(emissiveIntensity) of selected meshes to 0.
+  // 5. Set the position of the model to given position
+  // 6. Signal this dancer is successfully initialized.
+  initModel(gltf) {
+    this.model = gltf.scene;
+    this.model.name = this.name;
+    const position = this.initPosition;
 
-      this.model.traverse((part) => {
-        const { name, type } = part;
-        // clone a new material to prevent shared material
-        if (type === "Mesh") {
-          part.material = part.material.clone();
-          part.material.color.setHex(0x000000);
-          part.material.emissiveIntensity = 0.0;
-          if (!name.includes("LED") && !(name === "human")) {
-            // part.material.color.setHex(0x000000);
-            // part.material.emissiveIntensity = 0.0;
-            this.OFParts[name] = part;
-          }
+    this.model.traverse((part) => {
+      const { name, type } = part;
+      // clone a new material to prevent shared material
+      if (type === "Mesh") {
+        part.material = part.material.clone();
+        part.material.color.setHex(0x000000);
+        part.material.emissiveIntensity = 0.0;
+        if (!name.includes("LED") && !(name === "human")) {
+          // part.material.color.setHex(0x000000);
+          // part.material.emissiveIntensity = 0.0;
+          this.OFParts[name] = part;
         }
-      });
+      }
+    });
 
-      const human = this.model.getObjectByName("human");
-      human.material.color.setHex(0x000000);
-      human.material.emissive.setHex(0x000000);
-      human.material.emissiveIntensity = 0.0;
+    const human = this.model.getObjectByName("human");
+    human.material.color.setHex(0x000000);
+    human.material.emissive.setHex(0x000000);
+    human.material.emissiveIntensity = 0.0;
 
-      // this.skeleton = new THREE.SkeletonHelper(this.model);
-      // this.skeleton.visible = false;
+    // this.skeleton = new THREE.SkeletonHelper(this.model);
+    // this.skeleton.visible = false;
 
-      this.model.position.setX(position.x);
-      this.model.position.setY(position.y);
-      this.model.position.setZ(position.z);
-      this.model.scale.set(1.3, 1.3, 1.3);
+    this.model.position.setX(position.x);
+    this.model.position.setY(position.y);
+    this.model.position.setZ(position.z);
+    this.model.scale.set(1.3, 1.3, 1.3);
 
-      this.scene.add(this.model);
-      // this.scene.add(this.skeleton);
-      this.initialized = true;
-    };
-    loader.load("/asset/models/yellow_clean.glb", initModel.bind(this));
+    this.scene.add(this.model);
+    // this.scene.add(this.skeleton);
+
+    // attach nameTag to the model
+    this.model.attach(this.nameTag);
+    this.initialized = true;
+  }
+
+  // Create nameTag given font
+  initNameTag(font) {
+    const position = this.initPosition;
+    const color = 0x006699;
+
+    const matLite = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.4,
+      side: THREE.DoubleSide,
+    });
+
+    const message = this.name;
+    const shapes = font.generateShapes(message, 0.3);
+    const geometry = new THREE.ShapeGeometry(shapes);
+    geometry.computeBoundingBox();
+    const xMid =
+      -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+    geometry.translate(xMid, 0, 0);
+
+    // make shape ( N.B. edge view not visible )
+    const text = new THREE.Mesh(geometry, matLite);
+    text.position.set(position.x, 8, position.z);
+
+    this.nameTag = text;
   }
 
   // Update the model's positon and status

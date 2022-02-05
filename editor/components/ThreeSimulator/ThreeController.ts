@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { DragControls } from "three/examples/jsm/controls/DragControls";
 // three.js
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
@@ -22,6 +20,7 @@ import ThreeDancer from "./ThreeComponents/Dancer";
 import { reactiveState } from "core/state";
 
 import Controls from "./Controls";
+// controls to control the scene
 
 import {
   updateFrameByTimeMap,
@@ -46,7 +45,6 @@ class ThreeController {
 
   renderer: THREE.WebGLRenderer | null;
   camera: THREE.PerspectiveCamera | null;
-  orbitControls: OrbitControls | null;
   // THREE.Object3D<THREE.Event>
   scene: THREE.Scene | null;
   composer: EffectComposer | null;
@@ -124,12 +122,9 @@ class ThreeController {
     this.scene = scene;
 
     // Add a dim light to identity each dancers
-    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
-    // directionalLight.position.set(-1, 1, 1);
-    // scene.add(directionalLight);
-
-    // Add a orbit control to view the scene from different perspectives and scales
-    this.controls = new Controls(this.renderer, this.scene, this.camera);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    directionalLight.position.set(-1, 1, 1);
+    scene.add(directionalLight);
 
     // Postprocessing for antialiasing effect
     this.initPostprocessing();
@@ -143,8 +138,13 @@ class ThreeController {
     // Initialization of all dancers with currentPos
     this.initDancers();
 
-    // Initialization of all dancer's nameTag
-    this.initNameTag();
+    // Add a orbit control to view the scene from different perspectives and scales
+    this.controls = new Controls(
+      this.renderer,
+      this.scene,
+      this.camera,
+      this.dancers
+    );
 
     // Initialization of grid helper on the floor
     this.initGridHelper();
@@ -235,169 +235,10 @@ class ThreeController {
     const helper = new THREE.GridHelper(30, 10);
     this.scene.add(helper);
   }
+
   // Return true if all the dancer is successfully initialized
   initialized() {
     return Object.values(this.dancers).every((dancer) => dancer.initialized);
-  }
-
-  dragControlInit() {
-    if (this.dragControls) {
-      console.log("DragControls already initialized...");
-    }
-    this.enableSelection = false;
-    this.mouse = new THREE.Vector2();
-    this.raycaster = new THREE.Raycaster();
-
-    // this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
-    this.group = new THREE.Group();
-    this.scene.add(this.group);
-    this.dragControls = new DragControls(
-      [...this.objects],
-      this.camera,
-      this.renderer.domElement
-    );
-    this.dragControls.enabled = false;
-    this.dragControls.addEventListener("drag", (event) => {
-      const { name } = event.object.userData;
-      const { position } = event.object;
-      const newPosition = position.clone();
-      newPosition.setY(newPosition.y - 4);
-      this.nameTags[name].material.color.setRGB(1, 1, 1);
-      this.dancers[name].updatePos(newPosition);
-      this.render();
-    });
-    this.dragControls.addEventListener("dragend", (event) => {
-      const { name } = event.object.userData;
-      this.nameTags[name].material.color.setRGB(0, 0.4, 0.6);
-      this.render();
-      // this.dragControls.enabled = false;
-      this.dragControls.enabled = false;
-      // this.orbitControls.enabled = true;
-      this.controls.enableOrbitControls();
-
-      console.log("setCurrentPos");
-      const currentPos = {};
-      Object.entries(this.dancers).forEach(([name, dancer], i) => {
-        const { position } = dancer.model;
-        currentPos[name] = {
-          x: position.x * 35,
-          y: position.z * 35,
-          z: position.z * 35,
-        };
-      });
-      store.dispatch(setCurrentPos(currentPos));
-    });
-
-    addEventListener("click", this.onClick.bind(this));
-    addEventListener("keydown", this.onKeyDown.bind(this));
-    addEventListener("keyup", this.onKeyUp.bind(this));
-  }
-
-  onKeyDown(event) {
-    // hold ctrl to enable grouping
-    if (event.keyCode === 16) {
-      this.enableSelection = true;
-    }
-    // press v to enable moving
-    if (event.keyCode === 86) {
-      this.dragControls.enabled = true;
-      // this.orbitControls.enabled = false;
-      this.controls.disableOrbitControls();
-    }
-  }
-
-  onKeyUp(event) {
-    if (event.keyCode === 16) {
-      this.enableSelection = false;
-    }
-    if (event.keyCode === 86) {
-      this.dragControls.enabled = false;
-      this.controls.enableOrbitControls();
-    }
-  }
-
-  onClick(event) {
-    event.preventDefault();
-    console.log(`onClick: ${this.enableSelection}`);
-
-    if (this.enableSelection === true) {
-      const draggableObjects = this.dragControls.getObjects();
-      draggableObjects.length = 0;
-
-      const rect = this.renderer.domElement.getBoundingClientRect();
-
-      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-      this.raycaster.setFromCamera(this.mouse, this.camera);
-
-      const intersections = this.raycaster.intersectObjects(this.objects, true);
-      console.log(intersections);
-
-      if (intersections.length > 0) {
-        const object = intersections[0].object;
-
-        if (this.group.children.includes(object) === true) {
-          object.material.emissive.set(0x000000);
-          this.scene.attach(object);
-        } else {
-          object.material.emissive.set(0xaaaaaa);
-          this.group.attach(object);
-        }
-
-        this.dragControls.transformGroup = true;
-        draggableObjects.push(this.group);
-      }
-
-      if (this.group.children.length === 0) {
-        this.dragControls.transformGroup = false;
-        draggableObjects.push(...this.objects);
-      }
-    }
-    this.render();
-  }
-
-  initNameTag() {
-    const loader = new FontLoader();
-    loader.load(
-      "asset/fonts/helvetiker_regular.typeface.json",
-      this.fontLoader.bind(this)
-    ); //end load function
-  }
-
-  fontLoader(font) {
-    const color = 0x006699;
-
-    this.nameTags = {};
-    const { currentPos } = store.getState().global;
-    Object.entries(currentPos).forEach(([name, position], i) => {
-      if (!name.includes("sw")) {
-        const matLite = new THREE.MeshBasicMaterial({
-          color: color,
-          transparent: true,
-          opacity: 0.4,
-          side: THREE.DoubleSide,
-        });
-
-        const message = name;
-        const shapes = font.generateShapes(message, 0.3);
-        const geometry = new THREE.ShapeGeometry(shapes);
-        geometry.computeBoundingBox();
-        const xMid =
-          -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-        geometry.translate(xMid, 0, 0);
-
-        // make shape ( N.B. edge view not visible )
-
-        const text = new THREE.Mesh(geometry, matLite);
-        // text.position.z = -150;
-        text.position.set(position.x / 30, 8, position.z / 30);
-        this.nameTags[name] = text;
-        this.dancers[name].nameTag = text;
-        this.scene.add(text);
-      }
-    });
-    this.render();
   }
 
   // Monitor fps, memory and delay
@@ -507,9 +348,10 @@ class ThreeController {
     } else {
       cancelAnimationFrame(this.animateID);
     }
-    if (this.nameTags) {
-      Object.values(this.nameTags).forEach((text) => {
-        text.lookAt(this.camera.position);
+    if (this.initialized()) {
+      Object.values(this.dancers).forEach((dancer) => {
+        const { nameTag } = dancer;
+        nameTag.lookAt(this.camera.position);
       });
     }
 
