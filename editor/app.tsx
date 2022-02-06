@@ -18,22 +18,22 @@ import "./app.css";
 import Layout from "containers/Layout";
 
 const theme = createTheme({
-	palette: {
-		type: "dark",
-		primary: {
-			main: "#94BBFF",
-			dark: "#94BBFF",
-		},
-		background: {
-			paper: "#292929",
-			default: "#121212",
-		},
-	},
-	typography: {
-		// In Chinese and Japanese the characters are usually larger,
-		// so a smaller fontsize may be appropriate.
-		fontSize: 12,
-	},
+  palette: {
+    type: "dark",
+    primary: {
+      main: "#94BBFF",
+      dark: "#94BBFF",
+    },
+    background: {
+      paper: "#292929",
+      default: "#121212",
+    },
+  },
+  typography: {
+    // In Chinese and Japanese the characters are usually larger,
+    // so a smaller fontsize may be appropriate.
+    fontSize: 12,
+  },
 });
 
 /**
@@ -41,40 +41,40 @@ const theme = createTheme({
  * @component
  */
 const App = () => {
-	const { init } = useSelector(selectLoad);
-	const dispatch = useDispatch();
-	const { data } = useQuery(GET_DANCERS);
+  const { init } = useSelector(selectLoad);
+  const dispatch = useDispatch();
+  const { data } = useQuery(GET_DANCERS);
 
-	useEffect(() => {
-		if (!init) {
-			dispatch(fetchLoad());
-		}
-		console.log(data);
-	}, [init]);
+  useEffect(() => {
+    if (!init) {
+      dispatch(fetchLoad());
+    }
+    console.log(data);
+  }, [init]);
 
-	return (
-		<div>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				{init ? (
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "column",
-							height: "100vh",
-						}}
-					>
-						<Header />
-						<div style={{ flexGrow: 1, position: "relative" }}>
-							<Layout />
-						</div>
-					</div>
-				) : (
-					<Loading />
-				)}
-			</ThemeProvider>
-		</div>
-	);
+  return (
+    <div>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {init ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100vh",
+            }}
+          >
+            <Header />
+            <div style={{ flexGrow: 1, position: "relative" }}>
+              <Layout />
+            </div>
+          </div>
+        ) : (
+          <Loading />
+        )}
+      </ThemeProvider>
+    </div>
+  );
 };
 
 export default hot(App);
