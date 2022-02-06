@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import store from "./store";
@@ -16,6 +15,7 @@ import {
 	HttpLink,
 	split,
 } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
 
@@ -29,7 +29,17 @@ const wsLink = new WebSocketLink({
 		reconnect: true,
 	},
 });
-
+const authLink = setContext((_, { headers }) => {
+	// // get the authentication token from local storage if it exists
+	// const token = localStorage.getItem("token");
+	// // return the headers to the context so httpLink can read them
+	return {
+		headers: {
+			userID: 1234,
+			name: "editor",
+		},
+	};
+});
 const splitLink = split(
 	({ query }) => {
 		const definition = getMainDefinition(query);
@@ -42,7 +52,7 @@ const splitLink = split(
 	httpLink
 );
 const client = new ApolloClient({
-	link: splitLink,
+	link: authLink.concat(splitLink),
 	cache: new InMemoryCache().restore({}),
 });
 const Index = () => (

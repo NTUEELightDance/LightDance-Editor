@@ -7,3 +7,11 @@ export const GET_COLORS = gql`
 		}
 	}
 `;
+export const GET_DANCERS = gql`
+	query Dancer {
+		dancer {
+			name
+			id
+		}
+	}
+`;
