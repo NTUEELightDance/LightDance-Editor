@@ -6,6 +6,9 @@ import { selectGlobal } from "../../slices/globalSlice";
 // my-class
 import Controller from "./Controller";
 // useSelector
+import { useQuery } from "@apollo/client";
+
+import { GET_COLORS } from "../../graphql";
 
 /**
  * This is Display component
@@ -16,7 +19,8 @@ import Controller from "./Controller";
 const Simulator: React.FC = ({}) => {
   const { currentStatus, currentPos, isPlaying } = useSelector(selectGlobal);
   const [controller, setController] = useState<Controller | null>(null);
-
+  // const { data } = useQuery(GET_COLORS);
+  // console.log(data);
   useEffect(() => {
     if (!controller) {
       console.log("new controllers");

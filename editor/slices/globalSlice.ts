@@ -30,7 +30,6 @@ import {
   EffectStatusType,
 } from "../types/globalSlice";
 import { RootState } from "../store/index";
-
 const initialState: GlobalState = {
   isPlaying: false, // isPlaying
   selected: [], // array of selected dancer's name
