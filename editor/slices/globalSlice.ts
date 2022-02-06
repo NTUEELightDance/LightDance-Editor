@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 // constants
 import { IDLE, EDIT, ADD } from "../constants";
 // utils
@@ -31,8 +30,6 @@ import {
   EffectStatusType,
 } from "../types/globalSlice";
 import { RootState } from "../store/index";
-import { GET_COLORS } from "../graphql";
-import { color } from "@mui/system";
 const initialState: GlobalState = {
   isPlaying: false, // isPlaying
   selected: [], // array of selected dancer's name
