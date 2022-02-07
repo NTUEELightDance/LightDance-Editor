@@ -141,9 +141,13 @@ export class ControlFrameResolver {
       { editing: null }
     );
 
+<<<<<<< HEAD
     const controlFrame = await ctx.db.ControlFrame.findOne({
       id: input.frameID,
     });
+=======
+    const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.frameID });
+>>>>>>> 9aa804f (EDITOR-#70 editor server trivial problems)
     await updateRedisControl(controlFrame.id);
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,

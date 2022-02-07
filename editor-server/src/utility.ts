@@ -50,6 +50,7 @@ const initRedisControl = async () => {
                 partData[name] = value;
               } else if (type === "FIBER") {
                 partData[name] = value;
+<<<<<<< HEAD
                 // const color = await model.Color.findOne({
                 //   color: partData[name].color,
                 // });
@@ -57,6 +58,12 @@ const initRedisControl = async () => {
                 //   const { colorCode } = color;
                 //   partData[name].color = colorCode;
                 // }
+=======
+                // const { colorCode } = await model.Color.findOne({
+                //   color: partData[name].color,
+                // });
+                // partData[name].color = colorCode;
+>>>>>>> 9aa804f (EDITOR-#70 editor server trivial problems)
               } else {
                 partData[name] = value.value;
               }
