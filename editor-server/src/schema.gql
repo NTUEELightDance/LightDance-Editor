@@ -197,7 +197,11 @@ type Mutation {
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
+<<<<<<< HEAD
   editPosMap(positionData: [EditPositionInput!]!, start: Float!): Map!
+=======
+  editPosMap(frameID: String!, positionData: [EditPositionInput!]!): Map!
+>>>>>>> 9aa804f (EDITOR-#70 editor server trivial problems)
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
   updateColor(color: ColorInput!): String!
@@ -257,7 +261,10 @@ scalar PosMapMutationObjectId
 
 type Query {
   color(color: String!): String!
+<<<<<<< HEAD
   colorMap: ColorMap!
+=======
+>>>>>>> 9aa804f (EDITOR-#70 editor server trivial problems)
   controlFrame(frameID: String!): ControlFrame!
   controlFrameIDs: [ID!]!
   ControlMap: Map!
