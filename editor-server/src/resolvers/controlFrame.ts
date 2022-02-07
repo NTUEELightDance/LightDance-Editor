@@ -33,8 +33,8 @@ import redis from "../redis";
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
   @Query((returns) => ControlFrame)
-  async controlFrame(@Arg("start") start: number, @Ctx() ctx: any) {
-    return await ctx.db.ControlFrame.findOne({ start: start });
+  async controlFrame(@Arg("frameID") frameID: string, @Ctx() ctx: any) {
+    return await ctx.db.ControlFrame.findOne({ id: frameID });
   }
 
   @Query((returns) => [ID])
@@ -54,6 +54,7 @@ export class ControlFrameResolver {
     publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("start", { nullable: false }) start: number,
+    @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
     @Ctx() ctx: any
   ) {
     const check = await ctx.db.ControlFrame.findOne({ start });
@@ -62,7 +63,7 @@ export class ControlFrameResolver {
     }
     const newControlFrame = await new ctx.db.ControlFrame({
       start: start,
-      fade: false,
+      fade: fade,
       id: generateID(),
     }).save();
     let allParts = await ctx.db.Part.find();
@@ -124,19 +125,22 @@ export class ControlFrameResolver {
     if (start) {
       const check = await ctx.db.ControlFrame.findOne({ start: input.start });
       if (check) {
-        if (check.id !== input.id) {
+        if (check.id !== input.frameID) {
           throw new Error("Start Time overlapped!");
         }
       }
     }
-    let frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.id });
+    let frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
     if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
       throw new Error("The frame is now editing by other user.");
     }
-    await ctx.db.ControlFrame.updateOne({ id: input.id }, input);
-    await ctx.db.ControlFrame.updateOne({ id: input.id }, { editing: null });
+    await ctx.db.ControlFrame.updateOne({ id: input.frameID }, input);
+    await ctx.db.ControlFrame.updateOne(
+      { id: input.frameID },
+      { editing: null }
+    );
 
-    const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.id });
+    const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.frameID });
     await updateRedisControl(controlFrame.id);
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,
@@ -172,33 +176,38 @@ export class ControlFrameResolver {
     @Arg("input") input: DeleteControlFrameInput,
     @Ctx() ctx: any
   ) {
-    const { id } = input;
-    const frameToDelete = await ctx.db.ControlFrame.findOne({ id });
+    const { frameID } = input;
+    const frameToDelete = await ctx.db.ControlFrame.findOneAndDelete({
+      id: frameID,
+    });
     if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
       throw new Error("The frame is now editing by other user.");
     }
     const _id = frameToDelete._id;
-    await ctx.db.ControlFrame.deleteOne({ id });
     const parts = await ctx.db.Part.find().populate("controlData");
+
     await Promise.all(
       parts.map(async (part: any) => {
+        const controlToDelete = part.controlData.find(
+          (control: any) => control.frame.toString() === _id.toString()
+        );
         await ctx.db.Part.updateOne(
           { id: part.id },
-          { $pull: { controlData: { frame: _id } } }
+          { $pull: { controlData: controlToDelete._id } }
         );
       })
     );
     await ctx.db.Control.deleteMany({ frame: _id });
-    await redis.del(id);
+    await redis.del(frameID);
     const mapPayload: ControlMapPayload = {
       mutation: ControlMapMutation.DELETED,
       editBy: ctx.userID,
-      frameID: id,
+      frameID: frameID,
     };
     await publishControlMap(mapPayload);
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.DELETED,
-      frameID: id,
+      frameID: frameID,
       editBy: ctx.userID,
       index: -1,
     };

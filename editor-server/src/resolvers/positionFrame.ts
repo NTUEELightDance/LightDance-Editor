@@ -119,19 +119,22 @@ export class PositionFrameResolver {
     if (start) {
       const check = await ctx.db.PositionFrame.findOne({ start: input.start });
       if (check) {
-        if (check.id !== input.id) {
+        if (check.id !== input.frameID) {
           throw new Error("Start Time overlapped!");
         }
       }
     }
-    let frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.id });
+    let frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.frameID });
     if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
       throw new Error("The frame is now editing by other user.");
     }
-    await ctx.db.PositionFrame.updateOne({ id: input.id }, input);
-    await ctx.db.PositionFrame.updateOne({ id: input.id }, { editing: null });
+    await ctx.db.PositionFrame.updateOne({ id: input.frameID }, input);
+    await ctx.db.PositionFrame.updateOne(
+      { id: input.frameID },
+      { editing: null }
+    );
     const positionFrame = await ctx.db.PositionFrame.findOne(
-      { id: input.id },
+      { id: input.frameID },
       input
     );
     await updateRedisPosition(positionFrame.id);
@@ -170,35 +173,36 @@ export class PositionFrameResolver {
     @Arg("input") input: DeletePositionFrameInput,
     @Ctx() ctx: any
   ) {
-    const { id } = input;
-    let frameToDelete = await ctx.db.PositionFrame.findOne({ id });
+    const { frameID } = input;
+    let frameToDelete = await ctx.db.PositionFrame.findOne({ id: frameID });
     if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
       throw new Error("The frame is now editing by other user.");
     }
     const _id = frameToDelete._id;
-    await ctx.db.PositionFrame.deleteOne({ id });
-    const positions = await ctx.db.Position.find({ frame: _id });
-    const dancers = await ctx.db.Dancer.find();
-    await Promise.all(
-      positions.map((pos: any) => {
-        dancers.map(async (dancer: any) => {
-          await ctx.db.Dancer.updateOne(
-            { id: dancer.id },
-            { $pullAll: { positionData: [{ _id: pos._id }] } }
-          );
-        });
+    await ctx.db.PositionFrame.deleteOne({ id: frameID });
+    const dancers = await ctx.db.Dancer.find().populate("positionData");
+    Promise.all(
+      dancers.map(async (dancer: any) => {
+        const positionToDelete = dancer.positionData.find(
+          (position: any) => position.frame.toString() === _id.toString()
+        );
+        await ctx.db.Dancer.updateOne(
+          { id: dancer.id },
+          { $pull: { positionData: positionToDelete._id } }
+        );
       })
     );
+
     await ctx.db.Position.deleteMany({ frame: _id });
     const mapPayload: PositionMapPayload = {
       mutation: PositionMapMutation.DELETED,
       editBy: ctx.userID,
-      frameID: id,
+      frameID: frameID,
     };
     await publishPositionMap(mapPayload);
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.DELETED,
-      frameID: id,
+      frameID: frameID,
       editBy: ctx.userID,
       index: -1,
     };

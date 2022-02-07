@@ -6,7 +6,7 @@ export class EditPositionInput {
   dancerName: string;
 
   @Field((type) => PositionDataInput)
-  positionDatas: any;
+  positionData: any;
 }
 
 @InputType()

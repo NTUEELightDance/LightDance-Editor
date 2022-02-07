@@ -3,7 +3,7 @@ import { InputType, Field } from "type-graphql";
 @InputType()
 export class EditControlFrameInput {
   @Field()
-  id: string;
+  frameID: string;
 
   @Field({ nullable: true })
   start?: number;
@@ -15,5 +15,5 @@ export class EditControlFrameInput {
 @InputType()
 export class DeleteControlFrameInput {
   @Field()
-  id: string;
+  frameID: string;
 }

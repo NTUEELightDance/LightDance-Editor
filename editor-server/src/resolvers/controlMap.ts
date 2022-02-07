@@ -38,8 +38,8 @@ export class EditControlMapResolver {
   @Mutation((returns) => ControlData)
   async editControlMap(
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
-    @Arg("controlDatas", (type) => [EditControlInput])
-    controlDatas: EditControlInput[],
+    @Arg("controlData", (type) => [EditControlInput])
+    controlData: EditControlInput[],
     @Arg("frameID") frameID: string,
     @Ctx() ctx: any
   ) {
@@ -48,8 +48,8 @@ export class EditControlMapResolver {
       throw new Error("The frame is now editing by other user.");
     }
     await Promise.all(
-      controlDatas.map(async (data: any) => {
-        const { dancerName, controlDatas } = data;
+      controlData.map(async (data: any) => {
+        const { dancerName, controlData } = data;
         const dancer = await ctx.db.Dancer.findOne({
           name: dancerName,
         }).populate({
@@ -60,7 +60,7 @@ export class EditControlMapResolver {
           },
         });
         await Promise.all(
-          controlDatas.map(async (data: any) => {
+          controlData.map(async (data: any) => {
             const { partName, ELValue, color, src, alpha } = data;
             const wanted = dancer.parts.find(
               (part: any) => part.name === partName
@@ -70,8 +70,7 @@ export class EditControlMapResolver {
             const { value, _id } = controlData[0];
             if (type === "FIBER") {
               if (color) {
-                const { colorCode } = await ctx.db.Color.findOne({ color });
-                value.color = colorCode;
+                value.color = color
               }
               if (alpha) {
                 value.alpha = alpha;

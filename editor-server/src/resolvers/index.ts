@@ -20,7 +20,6 @@ export const resolvers = [
   SubscriptionResolver,
   ControlFrameResolver,
   PositionFrameResolver,
-  FiberResolver,
   ControlMapResolver,
   RequestEditResolver,
   PosMapResolver,
