@@ -29,8 +29,6 @@ const actions = registerActions({
     }
   ) => {
     const { dancerName, partName, value } = payload;
-    console.log("editCurrentStatus", payload);
-    console.log(state.currentStatus);
     try {
       state.currentStatus[dancerName][partName] = value;
     } catch (err) {
