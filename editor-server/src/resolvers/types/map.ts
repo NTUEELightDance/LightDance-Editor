@@ -11,13 +11,13 @@ interface LooseObject {
 }
 
 @ObjectType()
-export class ControlMap {
-  @Field((type) => ControlMapScalar)
+export class Map {
+  @Field((type) => MapScalar)
   frames: ObjectId[];
 }
 
-export const ControlMapScalar = new GraphQLScalarType({
-  name: "ControlMapQueryObjectId",
+export const MapScalar = new GraphQLScalarType({
+  name: "MapQueryObjectId",
   description: "Mongo object id scalar type",
   async serialize(value: any): Promise<any> {
     const result: LooseObject = {};

@@ -5,7 +5,6 @@ import {
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
-import redis from "../../redis"
 
 interface LooseObject {
   [key: string]: any;

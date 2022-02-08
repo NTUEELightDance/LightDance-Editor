@@ -17,7 +17,7 @@ import {
   DeleteControlFrameInput,
 } from "./inputs/controlFrame";
 import { Part } from "./types/part";
-import { generateID, updateRedis } from "../utility";
+import { generateID, updateRedisControl } from "../utility";
 import { ControlDefault } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
 import {
@@ -85,7 +85,7 @@ export class ControlFrameResolver {
         );
       })
     )
-    await updateRedis(newControlFrame.id)
+    await updateRedisControl(newControlFrame.id)
     const mapPayload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
@@ -137,7 +137,7 @@ export class ControlFrameResolver {
     await ctx.db.ControlFrame.updateOne({ id: input.id }, { editing: null });
 
     const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.id });
-    await updateRedis(controlFrame.id)
+    await updateRedisControl(controlFrame.id)
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,

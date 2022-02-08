@@ -10,7 +10,7 @@ const initData = async () => {
   await model.User.deleteMany();
 };
 
-const initRedis = async ()=> {
+const initRedisControl = async ()=> {
   let frames = await model.ControlFrame.find();
   const result: LooseObject = {}
   const value = frames.map((frame: any) => {
@@ -63,10 +63,42 @@ const initRedis = async ()=> {
   if(Object.keys(result).length !== 0){
       await redis.mSet(result)
   }
-  console.log("done")
+  console.log("Redis done initializing ControlMap")
 }
 
-const updateRedis = async (id: string) => {
+const initRedisPosition = async () => {
+  let frames = await model.PositionFrame.find();
+  const result: LooseObject = {}
+  const value = frames.map((frame: any)=>{
+    return {id: frame.id, _id: frame._id};
+  })
+  const allDancers = await model.Dancer.find().populate("positionData");
+  await Promise.all(
+    value.map(async (data: any) => {
+      const { _id, id } = data;
+      // const frameID = new ObjectId(id)
+      const { start, editing } = await model.PositionFrame.findById(_id);
+      const pos: LooseObject = {};
+      await Promise.all(
+        allDancers.map(async (dancer: any) => {
+          const { name, positionData } = dancer
+          const wanted = positionData.find(
+            (data: any) => data.frame.toString() === _id.toString()
+          );
+          pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
+        })
+      );
+      const resultObj = { start, editing, pos };
+      result[id] = JSON.stringify(resultObj);
+    })
+  );
+  if(Object.keys(result).length !== 0){
+      await redis.mSet(result)
+  }
+  console.log("Redis done initializing PositionMap")
+}
+
+const updateRedisControl = async (id: string) => {
   const { fade, start, editing, _id } = await model.ControlFrame.findOne({id});
   const allDancers = await model.Dancer.find().populate({
     path: "parts",
@@ -107,11 +139,29 @@ const updateRedis = async (id: string) => {
   await redis.set(id, JSON.stringify(cacheObj))
 }
 
+const updateRedisPosition = async (id: string)=> {
+  const {start, editing, _id } = await model.PositionFrame.findOne({id});
+  const allDancers = await model.Dancer.find().populate("positionData")
+  const pos: LooseObject = {};
+  await Promise.all(
+    allDancers.map(async (dancer: any) => {
+      const { name, positionData } = dancer
+      const wanted = positionData.find(
+        (data: any) => data.frame.toString() === _id.toString()
+      );
+      pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
+    })
+  );
+  const cacheObj = { start, editing, pos };
+  await redis.set(id, JSON.stringify(cacheObj))
+}
+
 const generateID = () => {
   var unique = new Date().valueOf();
   return (unique % 1000000000).toString(32);
 };
 
-initRedis()
+initRedisControl()
+initRedisPosition()
 
-export { initData, generateID, updateRedis, initRedis };
+export { initData, generateID, updateRedisControl, updateRedisPosition, initRedisControl, initRedisPosition };
