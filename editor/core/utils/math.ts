@@ -10,7 +10,7 @@ import {
   PosMapType,
   PosMapElement,
   Coordinates,
-} from "../types/globalSlice";
+} from "../models";
 
 function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
   return (
@@ -182,16 +182,16 @@ export function fadeStatus(
         };
       }
       /*
-      if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
-        newStatus[dancer][part] = {
-          alpha: Round1(
-            ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
-              (nextTime - preTime) +
-              preVal.alpha
-          ),
-          src: preVal.src,
-        };
-      }*/
+        if (preVal.alpha !== undefined && nextVal.alpha !== undefined) {
+          newStatus[dancer][part] = {
+            alpha: Round1(
+              ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
+                (nextTime - preTime) +
+                preVal.alpha
+            ),
+            src: preVal.src,
+          };
+        }*/
       // El Parts
       else if (CheckTypeOfEl(preVal) && CheckTypeOfEl(nextVal)) {
         //if (typeof preVal === "number" && typeof nextVal === "number") {

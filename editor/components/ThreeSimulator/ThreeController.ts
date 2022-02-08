@@ -14,9 +14,7 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // three gui
 
-import { setItem, getItem } from "../../utils/localStorage";
 // redux actions and store
-import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 
@@ -26,7 +24,7 @@ import {
   updateFrameByTimeMap,
   interpolationPos,
   fadeStatus,
-} from "../../utils/math";
+} from "../../core/utils/math";
 
 const fov = 45;
 const aspect = window.innerWidth / window.innerHeight;

@@ -17,7 +17,7 @@ export type FilterType = "lowpass" | "highpass" | "notch";
 export interface wavesurferContext {
   waveSurferApp: WaveSurferApp;
   showMarkers: boolean;
-  initWaveSurferApp: (wave: WaveSurferApp) => void;
+  initWaveSurferApp: () => void;
   toggleMarkers: () => void;
 }
 
@@ -31,7 +31,6 @@ export type MarkerParams = {
   draggable?: boolean;
   markerElement?: HTMLElement;
 };
-
 
 export type Marker = {
   time: number;

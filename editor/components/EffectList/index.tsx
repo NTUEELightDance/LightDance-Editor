@@ -8,7 +8,7 @@ import {
   setEffectStatusMap,
 } from "slices/globalSlice";
 import { selectLoad } from "slices/loadSlice";
-import { getItem } from "utils/localStorage";
+import { getItem } from "core/utils/localStorage";
 
 // mui materials
 import {

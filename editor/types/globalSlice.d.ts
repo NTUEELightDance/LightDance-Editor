@@ -62,7 +62,7 @@ export interface Coordinates {
 /**
  * Time Data
  */
-interface TimeDataType {
+export interface TimeDataType {
   from: string; // update from what component (input bar, or waveSurferApp cursor)
   time: number; // time
   controlFrame: number; // control frame's index

@@ -1,73 +1,41 @@
 import store from "../store";
+import client from "../client";
 
-export const syncPost = (branchName, from, type, mode, data) => {
-  const payload = JSON.stringify({ branchName, from, type, mode, data });
-  return fetch("/api/editor/sync", {
-    method: "POST",
-    body: payload,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.text())
-    .then((result) => console.log(JSON.parse(JSON.parse(result).data)))
-    .catch((error) => console.log("error", error));
+// gql
+import {
+  GET_CONTROL_MAP,
+  GET_CONTROL_RECORD,
+  GET_POS_MAP,
+  GET_POS_RECORD,
+} from "../graphql";
+
+/**
+ * controlAgent: reponsible for controlMap and controlRecord
+ */
+export const controlAgent = {
+  getControlMap: async () => {
+    const controlMapData = await client.query({ query: GET_CONTROL_MAP });
+    return controlMapData.data.ControlMap.frames;
+  },
+  getControlRecord: async () => {
+    const controlRecordData = await client.query({ query: GET_CONTROL_RECORD });
+    return controlRecordData.data.controlFrameIDs;
+  },
 };
 
-// export const loginPost = (username, password) => {
-//   const payload = JSON.stringify({ username, password });
-//   return fetch("/api/editor/login", {
-//     method: "POST",
-//     body: payload,
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//   })
-//     .then((response) => response.text())
-//     .then((result) => {
-//       const data = JSON.parse(result);
-//       if (data.username) {
-//         store.dispatch(login(data));
-//       }
-//     })
-//     .catch((error) => console.log("error", error));
-// };
+/**
+ * posAgent: responsible for posMap and posRecord
+ */
+export const posAgent = {
+  getPosMap: async () => {
+    const posMapData = await client.query({ query: GET_POS_MAP });
+    return posMapData.data.PosMap.frames;
+  },
 
-export const getBranches = () => {
-  return fetch("/api/editor/branch", {
-    method: "GET",
-  })
-    .then((response) => response.text())
-    .then((result) => console.log(JSON.parse(result).branches))
-    .catch((error) => console.log("error", error));
-};
-
-export const createBranch = (branchName) => {
-  const payload = JSON.stringify({ branchName });
-  return fetch("/api/editor/branch", {
-    method: "POST",
-    body: payload,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.text())
-    .then((result) => console.log(JSON.parse(result).data))
-    .catch((error) => console.log("error", error));
-};
-
-export const deleteBranch = (branchName) => {
-  const payload = JSON.stringify({ branchName });
-  return fetch("/api/editor/branch", {
-    method: "DELETE",
-    body: payload,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.text())
-    .then((result) => console.log(JSON.parse(result).data))
-    .catch((error) => console.log("error", error));
+  getPosRecord: async () => {
+    const posRecordData = await client.query({ query: GET_POS_RECORD });
+    return posRecordData.data.positionFrameIDs;
+  },
 };
 
 export const uploadJson = (file, type) => {
@@ -140,5 +108,3 @@ export const fetchTexture = () => {
       console.error(error);
     });
 };
-
-export const CommandAgent = () => {};

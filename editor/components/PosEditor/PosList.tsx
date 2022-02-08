@@ -1,30 +1,30 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
 // mui
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Typography from "@material-ui/core/Typography";
-// redux selector and actions
-import { selectGlobal, setPosFrame } from "../../slices/globalSlice";
-// components
+// states and actions
+import { useReactiveVar } from "@apollo/client";
+import { setPosFrame } from "../../core/actions";
+import { reactiveState } from "../../core/state";
+// hooks
+import usePos from "../../hooks/usePos";
 // constants
 import { POSEDITOR } from "../../constants";
 
 export default function PosList() {
-  const {
-    timeData: { posFrame },
-    posRecord,
-  } = useSelector(selectGlobal);
-  const dispatch = useDispatch();
+  const { loading, posMap, posRecord } = usePos();
+  const { posFrame } = useReactiveVar(reactiveState.timeData);
 
   // select item, change posFrame
   const handleSelectItem = (idx: number) => {
-    dispatch(setPosFrame({ from: POSEDITOR, posFrame: idx }));
+    setPosFrame({
+      payload: { from: POSEDITOR, posFrame: idx },
+    });
   };
-
+  if (loading) return null;
   return (
     <List component="nav">
-      {posRecord.map((pos, idx: number) => (
+      {posRecord.map((posId: string, idx: number) => (
         <ListItem
           // eslint-disable-next-line react/no-array-index-key
           key={`posItem_${idx}`}
@@ -33,7 +33,7 @@ export default function PosList() {
           onClick={() => handleSelectItem(idx)}
         >
           <Typography variant="body1" color="initial">
-            [{idx}] time: {pos.start}
+            [{idx}] time: {posMap[posId].start}
           </Typography>
         </ListItem>
       ))}

@@ -12,16 +12,17 @@ import {
   selectGlobal,
   setLightPresets,
   addLightPresets,
-  setCurrentStatus,
   editLightPresetsName,
   deleteLightPresets,
 } from "../../slices/globalSlice";
+
+// actions
+import { setCurrentStatus } from "../../core/actions";
 import { selectLoad } from "../../slices/loadSlice";
 // utils
-import { getItem } from "../../utils/localStorage";
+import { getItem } from "../../core/utils/localStorage";
 // components
 import PresetsList from "./PresetsList";
-import { string } from "prop-types";
 //types
 import { ControlMapStatus } from "types/globalSlice";
 
@@ -67,7 +68,7 @@ export default function LightPresets() {
     dispatch(deleteLightPresets(idx));
   };
   const handleSetCurrentStatus = (status: ControlMapStatus) => {
-    dispatch(setCurrentStatus(status));
+    setCurrentStatus({ payload: status });
   };
 
   // short cut of key to save currentStatus

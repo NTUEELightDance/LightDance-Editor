@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useReactiveVar } from "@apollo/client";
+import { useState, useEffect, useRef } from "react";
 // redux
 import { useSelector } from "react-redux";
+import { reactiveState } from "../../core/state";
 // actions
 import { selectGlobal } from "../../slices/globalSlice";
 // useSelector
@@ -12,14 +14,14 @@ import ThreeController from "./ThreeController";
  *
  * @component
  */
-
 export default function ThreeSimulator() {
   const canvasRef = useRef();
   const containerRef = useRef();
 
   const [threeController, setThreeController] = useState(null);
 
-  const { currentStatus, currentPos, isPlaying } = useSelector(selectGlobal);
+  const { currentStatus, currentPos } = useSelector(selectGlobal);
+  const isPlaying = useReactiveVar(reactiveState.isPlaying);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -1,56 +1,15 @@
-import React, { useState, useEffect } from "react";
-// redux
-import { useSelector } from "react-redux";
-// actions
-import { selectGlobal } from "../../slices/globalSlice";
+import React, { useLayoutEffect } from "react";
 // my-class
-import Controller from "./Controller";
-// useSelector
-import { useQuery } from "@apollo/client";
-
-import { GET_COLORS } from "../../graphql";
+import controller from "./Controller";
 
 /**
  * This is Display component
- *
  * @component
  */
-
 const Simulator: React.FC = ({}) => {
-  const { currentStatus, currentPos, isPlaying } = useSelector(selectGlobal);
-  const [controller, setController] = useState<Controller | null>(null);
-  // const { data } = useQuery(GET_COLORS);
-  // console.log(data);
-  useEffect(() => {
-    if (!controller) {
-      const newController = new Controller();
-      newController.init();
-      setController(newController);
-    }
+  useLayoutEffect(() => {
+    controller.init();
   }, []);
-
-  useEffect(() => {
-    if (controller) {
-      controller.updateDancersStatus(currentStatus);
-    }
-  }, [controller, currentStatus]);
-
-  useEffect(() => {
-    if (controller) {
-      controller.updateDancersPos(currentPos);
-    }
-  }, [controller, currentPos]);
-
-  useEffect(() => {
-    if (controller) {
-      if (isPlaying) {
-        controller.fetch();
-        controller.play();
-      } else {
-        controller.stop();
-      }
-    }
-  }, [isPlaying]);
 
   return (
     <div

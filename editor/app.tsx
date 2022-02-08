@@ -7,12 +7,12 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { useSelector, useDispatch } from "react-redux";
 // actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
-//graphql
-import { GET_DANCERS } from "graphql";
-import { useQuery } from "@apollo/client";
 // components
-import Header from "./components/Header";
+import Header from "components/Header";
 import Loading from "components/Loading";
+// hooks
+import useControl from "hooks/useControl";
+import usePos from "hooks/usePos";
 
 import "./app.css";
 import Layout from "containers/Layout";
@@ -43,20 +43,21 @@ const theme = createTheme({
 const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
-  const { data } = useQuery(GET_DANCERS);
+
+  const { loading: controlLoading, error: controlError } = useControl();
+  const { loading: posLoading, error: posError } = usePos();
 
   useEffect(() => {
     if (!init) {
       dispatch(fetchLoad());
     }
-    console.log(data);
   }, [init]);
 
   return (
     <div>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {init ? (
+        {init && !controlLoading && !posLoading ? (
           <div
             style={{
               display: "flex",

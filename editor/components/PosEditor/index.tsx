@@ -1,17 +1,11 @@
-import React from "react";
-import { useDispatch } from "react-redux";
 import Scrollbars from "react-custom-scrollbars";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
-
-// redux selector and actions
-import { saveCurrentPos, deleteCurrentPos } from "../../slices/globalSlice";
+// actions
+import { saveCurrentPos, deleteCurrentPos } from "../../core/actions";
 // components
 import ModeSelector from "../LightEditor/ModeSelector";
 import PosList from "./PosList";
-// constants
-
-import store from "../../store";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,15 +24,14 @@ export default function PosEditor() {
   // styles
   const classes = useStyles();
 
-  const dispatch = useDispatch();
   // save
   const handleSave = () => {
-    dispatch(saveCurrentPos());
+    saveCurrentPos();
   };
   // delete
   const handleDelete = () => {
     if (window.confirm(`Are you sure to delete ?`)) {
-      dispatch(deleteCurrentPos());
+      deleteCurrentPos();
     }
   };
   // scroll bar config

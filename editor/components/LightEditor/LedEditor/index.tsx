@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useReactiveVar } from "@apollo/client";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 // redux selector and actions
-import {
-  selectGlobal,
-  editCurrentStatusLED,
-} from "../../../slices/globalSlice";
 import { selectLoad } from "../../../slices/loadSlice";
+
+// states and actions
+import { reactiveState } from "core/state";
+import { editCurrentStatusLED } from "../../../core/actions";
 
 // components
 import SlideBar from "../Slidebar";
@@ -30,9 +31,11 @@ export default function LedEditor() {
   // classes
   const classes = useStyles();
   // redux states
-  const dispatch = useDispatch();
   const { dancers, texture } = useSelector(selectLoad);
-  const { mode, currentStatus, selected } = useSelector(selectGlobal);
+  // states
+  const mode = useReactiveVar(reactiveState.mode);
+  const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const selected = useReactiveVar(reactiveState.selected);
 
   // selected dancers' ledparts
   const [intersectParts, setIntersectParts] = useState([]);
@@ -77,24 +80,26 @@ export default function LedEditor() {
       // if chosenParts not empty => change all chosenParts value
       if (chosenParts.length)
         chosenParts.forEach((chosenPartName) => {
-          dispatch(
-            editCurrentStatusLED({
+          editCurrentStatusLED({
+            payload: {
               dancerName,
               partName: chosenPartName,
               value: { alpha },
-            })
-          );
+            },
+          });
         });
       // only one change
       else
-        dispatch(
-          editCurrentStatusLED({ dancerName, partName, value: { alpha } })
-        );
+        editCurrentStatusLED({
+          payload: { dancerName, partName, value: { alpha } },
+        });
     });
   };
   const handleChangeSrc = (partName, src) => {
     selected.forEach((dancerName) => {
-      dispatch(editCurrentStatusLED({ dancerName, partName, value: { src } }));
+      editCurrentStatusLED({
+        payload: { dancerName, partName, value: { src } },
+      });
     });
   };
 

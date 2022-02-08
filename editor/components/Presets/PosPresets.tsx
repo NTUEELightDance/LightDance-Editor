@@ -12,17 +12,18 @@ import {
   selectGlobal,
   setPosPresets,
   addPosPresets,
-  setCurrentPos,
   editPosPresetsName,
   deletePosPresets,
 } from "../../slices/globalSlice";
 import { selectLoad } from "../../slices/loadSlice";
 // utils
-import { getItem } from "../../utils/localStorage";
+import { getItem } from "../../core/utils/localStorage";
 // components
 import PresetsList from "./PresetsList";
 //types
 import { DancerCoordinates } from "types/globalSlice";
+// states and actions
+import { setCurrentPos } from "../../core/actions";
 
 /**
  * This is Presets component, list of pos
@@ -66,7 +67,7 @@ export default function PosPresets() {
     dispatch(deletePosPresets(idx));
   };
   const handleSetCurrentPos = (pos: DancerCoordinates) => {
-    dispatch(setCurrentPos(pos));
+    setCurrentPos({ payload: pos });
   };
 
   // short cut of key to save currentPos

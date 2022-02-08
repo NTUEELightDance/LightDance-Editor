@@ -1,3 +1,5 @@
+import { ReactiveVar } from "@apollo/client";
+
 /**
  * ControlRecord and ControlMap
  */
@@ -110,22 +112,27 @@ export interface EffectStatusType {
 }
 
 /**
- * Global State for redux
+ * Mutable State
  */
-export interface GlobalState {
+export interface State {
   isPlaying: boolean; // isPlaying
   selected: string[]; // array of selected dancer's name
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: DancerCoordinates; // currnet dancers' position
-  controlRecord: ControlRecordType; // array of all IDs , each correspondsto diff status
-  controlMap: ControlMapType;
-  posRecord: PosRecordType; // array of all dancer's pos
-  posMap: PosMapType;
   timeData: TimeDataType;
   mode: number; // 0: nothing, 1: edit, 2: add
-  effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
-  effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
-  lightPresets: LightPresetsType;
-  posPresets: PosPresetsType;
+}
+
+/**
+ * Reactive State, can trigger react component
+ */
+export interface ReactiveState {
+  isPlaying: ReactiveVar<boolean>; // isPlaying
+  selected: ReactiveVar<string[]>; // array of selected dancer's name
+  currentFade: ReactiveVar<boolean>; // current control Frame will fade to next
+  currentStatus: ReactiveVar<ControlMapStatus>; // current dancers' status
+  currentPos: ReactiveVar<DancerCoordinates>; // currnet dancers' position
+  timeData: ReactiveVar<TimeDataType>;
+  mode: ReactiveVar<number>; // 0: nothing, 1: edit, 2: add
 }

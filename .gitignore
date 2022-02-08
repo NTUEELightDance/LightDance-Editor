@@ -142,3 +142,5 @@ utils/door_led/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+mongodbData
