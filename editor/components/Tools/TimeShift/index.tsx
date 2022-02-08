@@ -1,18 +1,17 @@
 import React, { useState } from "react";
-// redux
-import { useSelector, useDispatch } from "react-redux";
 // material ui
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import TextField from "@material-ui/core/TextField";
-
-// slices
-import { selectGlobal, shiftFrameTime } from "../../../slices/globalSlice";
-
+// states and actions
+import { shiftFrameTime } from "core/actions";
 //types
 import { TimeShiftTool } from "types/components/tools";
+// hooks
+import useControl from "hooks/useControl";
+import usePos from "hooks/usePos";
 
 const CONTROL = "control";
 const POSITION = "position";
@@ -24,8 +23,8 @@ export default function TimeShift({
   open: boolean;
   handleClose: () => void;
 }) {
-  const dispatch = useDispatch();
-  const { controlRecord, posRecord } = useSelector(selectGlobal);
+  const { controlRecord } = useControl();
+  const { posRecord } = usePos();
   // type
   const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
   const handleChangeType = () => setType(type === CONTROL ? POSITION : CONTROL);
@@ -59,8 +58,7 @@ export default function TimeShift({
       window.alert("Invalid, startFrame should <= endFrame");
       return;
     }
-    // TODO: dispatch
-    dispatch(shiftFrameTime({ type, startFrame, endFrame, shiftTime }));
+    shiftFrameTime({ payload: { type, startFrame, endFrame, shiftTime } });
     handleClose();
   };
   return (

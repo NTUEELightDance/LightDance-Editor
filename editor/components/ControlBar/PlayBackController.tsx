@@ -1,4 +1,4 @@
-import WaveSurferApp from "../wavesurfer/waveSurferApp";
+import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
 
 import IconButton from "@material-ui/core/IconButton";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";

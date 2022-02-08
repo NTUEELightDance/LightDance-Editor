@@ -122,6 +122,10 @@ export interface State {
   currentPos: DancerCoordinates; // currnet dancers' position
   timeData: TimeDataType;
   mode: number; // 0: nothing, 1: edit, 2: add
+  effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
+  effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
+  lightPresets: LightPresetsType;
+  posPresets: PosPresetsType;
 }
 
 /**
@@ -135,4 +139,8 @@ export interface ReactiveState {
   currentPos: ReactiveVar<DancerCoordinates>; // currnet dancers' position
   timeData: ReactiveVar<TimeDataType>;
   mode: ReactiveVar<number>; // 0: nothing, 1: edit, 2: add
+  effectRecordMap: ReactiveVar<EffectRecordMapType>; // map of all effects and corresponding record ID array
+  effectStatusMap: ReactiveVar<EffectStatusMapType>; // map of effect record ID and its status
+  lightPresets: ReactiveVar<LightPresetsType>;
+  posPresets: ReactiveVar<PosPresetsType>;
 }

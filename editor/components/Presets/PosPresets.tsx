@@ -7,14 +7,16 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import TextField from "@material-ui/core/TextField";
-// action and selector
+// states and actions
 import {
-  selectGlobal,
   setPosPresets,
   addPosPresets,
   editPosPresetsName,
   deletePosPresets,
-} from "../../slices/globalSlice";
+} from "core/actions";
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "core/state";
+// redux states
 import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { getItem } from "../../core/utils/localStorage";
@@ -30,16 +32,15 @@ import { setCurrentPos } from "../../core/actions";
  * @component
  */
 export default function PosPresets() {
-  const dispatch = useDispatch();
   // presets intialize
   // get loadedPresets or storagePresets
   const { posPresets: loadedPosPresets } = useSelector(selectLoad);
-  const { posPresets } = useSelector(selectGlobal);
+  const posPresets = useReactiveVar(reactiveState.posPresets);
   useEffect(() => {
     if (getItem("posPresets")) {
-      dispatch(setPosPresets(JSON.parse(getItem("posPresets") || "")));
+      setPosPresets({ payload: JSON.parse(getItem("posPresets") || "") });
     } else {
-      dispatch(setPosPresets(loadedPosPresets));
+      setPosPresets({ payload: loadedPosPresets });
     }
   }, []);
 
@@ -56,15 +57,15 @@ export default function PosPresets() {
 
   // dispatch
   const handleAddPresets = (name: string) => {
-    if (name.trim() !== "") dispatch(addPosPresets(name));
+    if (name.trim() !== "") addPosPresets({ payload: name });
     closeDialog();
   };
   const handleEditPresets = (name: string, idx: number) => {
-    dispatch(editPosPresetsName({ name, idx }));
+    editPosPresetsName({ payload: { name, idx } });
     closeDialog();
   };
   const handleDeletePresets = (idx: number) => {
-    dispatch(deletePosPresets(idx));
+    deletePosPresets({ payload: idx });
   };
   const handleSetCurrentPos = (pos: DancerCoordinates) => {
     setCurrentPos({ payload: pos });

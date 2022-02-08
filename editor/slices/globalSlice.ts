@@ -6,21 +6,15 @@ import { setItem } from "../core/utils/localStorage";
 import { nanoid } from "nanoid";
 import {
   GlobalState,
-  LightPresetsType,
-  PosPresetsType,
   EffectRecordMapType,
   EffectStatusMapType,
   EffectRecordType,
 } from "../types/globalSlice";
 import { RootState } from "../store/index";
-const initialState: GlobalState = {
-  currentStatus: {}, // current dancers' status
-  currentPos: {}, // currnet dancers' position
 
+const initialState: GlobalState = {
   controlRecord: [], // array of all dancer's status
   controlMap: {},
-  posRecord: [], // array of all dancer's pos
-  posMap: {}, //
   timeData: {
     from: "", // update from what component
     time: 0, // time
@@ -37,62 +31,6 @@ export const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    /**
-     * set lightPresets
-     * @param {*} state
-     * @param {*} action
-     */
-    setLightPresets: (state, action: PayloadAction<LightPresetsType>) => {
-      state.lightPresets = action.payload;
-      setItem("lightPresets", JSON.stringify(state.lightPresets));
-    },
-
-    /**
-     * edit a lightPreset's name
-     * @param {*} state
-     * @param {*} action.payload - index and newName
-     */
-    editLightPresetsName: (
-      state,
-      action: PayloadAction<{ name: string; idx: number }>
-    ) => {
-      const { name, idx } = action.payload;
-      state.lightPresets[idx].name = name;
-      setItem("lightPresets", JSON.stringify(state.lightPresets));
-    },
-
-    /**
-     * add lightPresets
-     * @param {*} state
-     * @param {*} action.payload
-     */
-    addLightPresets: (state, action: PayloadAction<string>) => {
-      const name = action.payload;
-      state.lightPresets.push({ name, status: state.currentStatus });
-      setItem("lightPresets", JSON.stringify(state.lightPresets));
-    },
-
-    /**
-     * delete a lightPreset (by index)
-     * @param {*} state
-     * @param {*} action
-     */
-    deleteLightPresets: (state, action: PayloadAction<number>) => {
-      const idx = action.payload;
-      state.lightPresets.splice(idx, 1);
-      setItem("lightPresets", JSON.stringify(state.lightPresets));
-    },
-
-    /**
-     * set lightPresets
-     * @param {*} state
-     * @param {*} action
-     */
-    setPosPresets: (state, action: PayloadAction<PosPresetsType>) => {
-      state.posPresets = action.payload;
-      setItem("posPresets", JSON.stringify(state.posPresets));
-    },
-
     /**
      * set effectRecordMap
      * @param {*} state
@@ -177,101 +115,10 @@ export const globalSlice = createSlice({
       );
       state.controlMap = controlMapCopy;
     },
-
-    /**
-     * edit a lightPreset's name
-     * @param {*} state
-     * @param {*} action.payload - index and newName
-     */
-    editPosPresetsName: (
-      state,
-      action: PayloadAction<{
-        name: string;
-        idx: number;
-      }>
-    ) => {
-      const { name, idx } = action.payload;
-      state.posPresets[idx].name = name;
-      setItem("posPresets", JSON.stringify(state.posPresets));
-    },
-
-    /**
-     * add lightPresets
-     * @param {*} state
-     * @param {*} action.payload
-     */
-    addPosPresets: (state, action: PayloadAction<string>) => {
-      const name = action.payload;
-      state.posPresets.push({ name, pos: state.currentPos });
-      setItem("posPresets", JSON.stringify(state.posPresets));
-    },
-
-    /**
-     * delete a lightPreset (by index)
-     * @param {*} state
-     * @param {*} action
-     */
-    deletePosPresets: (state, action: PayloadAction<number>) => {
-      const idx = action.payload;
-      state.posPresets.splice(idx, 1);
-      setItem("posPresets", JSON.stringify(state.posPresets));
-    },
-
-    /**
-     * Shift frame time from startFrame to endFrame += shiftTime
-     */
-    shiftFrameTime: (
-      state,
-      action: PayloadAction<{
-        type: string;
-        startFrame: number;
-        endFrame: number;
-        shiftTime: number;
-      }>
-    ) => {
-      const { type, startFrame, endFrame, shiftTime } = action.payload;
-      console.log(type, startFrame, endFrame, shiftTime);
-
-      if (type === "control") {
-        const controlMapCopy = { ...state.controlMap };
-        for (let i = Number(startFrame); i <= Number(endFrame); i += 1) {
-          controlMapCopy[state.controlRecord[i]].start += shiftTime;
-        }
-        const controlRecordCopy = [...state.controlRecord];
-        state.controlRecord = controlRecordCopy.sort(
-          (a, b) => controlMapCopy[a].start - controlMapCopy[b].start
-        );
-        state.controlMap = controlMapCopy;
-      } else {
-        const posMapCopy = { ...state.posMap };
-        for (let i = Number(startFrame); i <= Number(endFrame); i += 1) {
-          posMapCopy[state.posRecord[i]].start += shiftTime;
-        }
-        const posRecordCopy = [...state.posRecord];
-        state.posRecord = posRecordCopy.sort(
-          (a, b) => posMapCopy[a].start - posMapCopy[b].start
-        );
-        state.posMap = posMapCopy;
-      }
-    },
   },
 });
 
-export const {
-  setLightPresets,
-  editLightPresetsName,
-  addLightPresets,
-  deleteLightPresets,
-
-  setPosPresets,
-  editPosPresetsName,
-  addPosPresets,
-  deletePosPresets,
-  setEffectRecordMap,
-  setEffectStatusMap,
-
-  shiftFrameTime,
-} = globalSlice.actions;
+export const { setEffectRecordMap, setEffectStatusMap } = globalSlice.actions;
 
 export const selectGlobal = (state: RootState) => state.global;
 

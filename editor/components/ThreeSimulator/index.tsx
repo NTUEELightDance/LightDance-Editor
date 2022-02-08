@@ -1,11 +1,10 @@
-import { useReactiveVar } from "@apollo/client";
 import { useState, useEffect, useRef } from "react";
 // redux
 import { useSelector } from "react-redux";
+
+// states and actions
 import { reactiveState } from "../../core/state";
-// actions
-import { selectGlobal } from "../../slices/globalSlice";
-// useSelector
+import { useReactiveVar } from "@apollo/client";
 
 import ThreeController from "./ThreeController";
 
@@ -20,7 +19,8 @@ export default function ThreeSimulator() {
 
   const [threeController, setThreeController] = useState(null);
 
-  const { currentStatus, currentPos } = useSelector(selectGlobal);
+  const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const currentPos = useReactiveVar(reactiveState.currentPos);
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
 
   useEffect(() => {

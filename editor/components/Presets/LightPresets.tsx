@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 // mui
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -7,23 +7,24 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import TextField from "@material-ui/core/TextField";
-// action and selector
+
+// states and actions
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "core/state";
 import {
-  selectGlobal,
+  setCurrentStatus,
   setLightPresets,
   addLightPresets,
   editLightPresetsName,
   deleteLightPresets,
-} from "../../slices/globalSlice";
-
-// actions
-import { setCurrentStatus } from "../../core/actions";
+} from "core/actions";
+// redux states
 import { selectLoad } from "../../slices/loadSlice";
 // utils
 import { getItem } from "../../core/utils/localStorage";
 // components
 import PresetsList from "./PresetsList";
-//types
+// types
 import { ControlMapStatus } from "types/globalSlice";
 
 /**
@@ -31,16 +32,17 @@ import { ControlMapStatus } from "types/globalSlice";
  * @component
  */
 export default function LightPresets() {
-  const dispatch = useDispatch();
   // presets intialize
   // get loadedPresets or storagePresets
   const { lightPresets: loadedLightPresets } = useSelector(selectLoad);
-  const { lightPresets } = useSelector(selectGlobal);
+
+  const lightPresets = useReactiveVar(reactiveState.lightPresets);
+
   useEffect(() => {
     if (getItem("lightPresets")) {
-      dispatch(setLightPresets(JSON.parse(getItem("lightPresets") || "")));
+      setLightPresets({ payload: JSON.parse(getItem("lightPresets") || "") });
     } else {
-      dispatch(setLightPresets(loadedLightPresets));
+      setLightPresets({ payload: loadedLightPresets });
     }
   }, []);
 
@@ -57,15 +59,15 @@ export default function LightPresets() {
 
   // dispatch
   const handleAddPresets = (name: string) => {
-    if (name.trim() !== "") dispatch(addLightPresets(name));
+    if (name.trim() !== "") addLightPresets({ payload: name });
     closeDialog();
   };
   const handleEditPresets = (name: string, idx: number) => {
-    dispatch(editLightPresetsName({ name, idx }));
+    editLightPresetsName({ payload: { name, idx } });
     closeDialog();
   };
   const handleDeletePresets = (idx: number) => {
-    dispatch(deleteLightPresets(idx));
+    deleteLightPresets({ payload: idx });
   };
   const handleSetCurrentStatus = (status: ControlMapStatus) => {
     setCurrentStatus({ payload: status });

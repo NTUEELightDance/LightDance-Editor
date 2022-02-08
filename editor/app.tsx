@@ -13,6 +13,7 @@ import Loading from "components/Loading";
 // hooks
 import useControl from "hooks/useControl";
 import usePos from "hooks/usePos";
+import { setCurrentPos, setCurrentStatus } from "core/actions";
 
 import "./app.css";
 import Layout from "containers/Layout";
@@ -44,14 +45,37 @@ const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
 
-  const { loading: controlLoading, error: controlError } = useControl();
-  const { loading: posLoading, error: posError } = usePos();
+  const {
+    loading: controlLoading,
+    error: controlError,
+    controlMap,
+    controlRecord,
+  } = useControl();
+  const { loading: posLoading, error: posError, posMap, posRecord } = usePos();
 
   useEffect(() => {
     if (!init) {
       dispatch(fetchLoad());
     }
   }, [init]);
+
+  useEffect(() => {
+    if (!controlLoading) {
+      if (controlError) console.error(controlError);
+      // init the currentStatus
+      // TODO: check record size and auto generate currentStatus if empty
+      setCurrentStatus({ payload: controlMap[controlRecord[0]].status });
+    }
+  }, [controlLoading, controlError]);
+
+  useEffect(() => {
+    if (!posLoading) {
+      if (posError) console.error(posError);
+      // init the currentPos
+      // TODO: check record size and auto generate currentPos if empty
+      setCurrentPos({ payload: posMap[posRecord[0]].pos });
+    }
+  }, [posLoading, posError]);
 
   return (
     <div>

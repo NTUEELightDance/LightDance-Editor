@@ -7,6 +7,10 @@ import {
   ReactiveState,
   ControlMapStatus,
   TimeDataType,
+  EffectRecordMapType,
+  EffectStatusMapType,
+  LightPresetsType,
+  PosPresetsType,
 } from "../models";
 
 /**
@@ -25,6 +29,11 @@ export const state: State = {
     posFrame: 0,
   },
   mode: 0,
+
+  effectRecordMap: {}, // map of all effects and corresponding record ID array
+  effectStatusMap: {},
+  lightPresets: [], // lightPresets, presets for light
+  posPresets: [], // posPresets, presets for pos
 };
 
 /**
@@ -43,6 +52,11 @@ export const reactiveState: ReactiveState = {
     posFrame: 0,
   }),
   mode: makeVar<number>(0),
+
+  effectRecordMap: makeVar<EffectRecordMapType>({}), // map of all effects and corresponding record ID array
+  effectStatusMap: makeVar<EffectStatusMapType>({}),
+  lightPresets: makeVar<LightPresetsType>([]), // lightPresets, presets for light
+  posPresets: makeVar<PosPresetsType>([]), // posPresets, presets for pos
 };
 
 /**

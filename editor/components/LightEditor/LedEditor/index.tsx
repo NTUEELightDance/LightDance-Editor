@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useReactiveVar } from "@apollo/client";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
