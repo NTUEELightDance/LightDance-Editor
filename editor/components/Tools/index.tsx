@@ -26,7 +26,12 @@ export default function Tools() {
   };
   return (
     <>
-      <Button aria-haspopup="true" onClick={handleClick}>
+      <Button
+        aria-haspopup="true"
+        onClick={handleClick}
+        variant="text"
+        sx={{ color: "white" }}
+      >
         Tools
       </Button>
       <Menu
