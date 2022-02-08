@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 
-// mui
-import Button from "@material-ui/core/Button";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
+import { Button, Menu, MenuItem } from "@mui/material";
 
 // components
 import TimeShift from "./TimeShift";
@@ -28,7 +25,7 @@ export default function Tools() {
     setOpenTimeShift(false);
   };
   return (
-    <div>
+    <>
       <Button aria-haspopup="true" onClick={handleClick}>
         Tools
       </Button>
@@ -42,6 +39,6 @@ export default function Tools() {
         <MenuItem onClick={handleClose}>Merge</MenuItem>
       </Menu>
       <TimeShift open={openTimeShift} handleClose={handleCloseTimeShift} />
-    </div>
+    </>
   );
 }
