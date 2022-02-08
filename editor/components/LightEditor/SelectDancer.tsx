@@ -28,19 +28,19 @@ export default function SelectDancer() {
     setSelected({ payload: [] });
   };
 
-  // // keyDown to select (0 ~ 9)
-  // const handleKeyDown = (e) => {
-  //   const index = e.keyCode - 48;
-  //   if (index >= 0 && index < dancerNames.length)
-  //     // between 0 ~ 9
-  //     handleToggleSelected(dancerNames[index]);
-  // };
-  // useEffect(() => {
-  //   window.addEventListener("keydown", handleKeyDown);
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, []);
+  // keyDown to select (0 ~ 9)
+  const handleKeyDown = (e) => {
+    const index = e.keyCode - 48;
+    if (index >= 0 && index < dancerNames.length)
+      // between 0 ~ 9
+      handleToggleSelected(dancerNames[index]);
+  };
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <div>
