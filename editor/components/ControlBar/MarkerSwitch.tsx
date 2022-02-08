@@ -5,22 +5,17 @@ import { FormControlLabel } from "@material-ui/core";
 import { wavesurferContext } from "types/components/wavesurfer";
 
 export default function MarkerSwitch() {
-  const { markersToggle, toggleMarkers } = useContext(
+  const { showMarkers, toggleMarkers } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;
-
-  //toggle markers
-  const handleChange = () => {
-    toggleMarkers(!markersToggle);
-  };
 
   return (
     <FormControlLabel
       control={
         <Switch
           color="primary"
-          checked={markersToggle}
-          onChange={handleChange}
+          checked={showMarkers}
+          onChange={toggleMarkers}
         />
       }
       label="Markers"

@@ -11,7 +11,10 @@ export default function WaveSurfer({ children }: { children: JSX.Element }) {
   const [waveSurferApp, setWaveSurferApp] = useState<WaveSurferApp | null>(
     null
   );
-  const [markersToggle, toggleMarkers] = useState(true);
+  const [showMarkers, setShowMarkers] = useState(true);
+  const toggleMarkers = () => {
+    setShowMarkers(!showMarkers);
+  };
   const initWaveSurferApp = (wave: WaveSurferApp) => {
     wave.init();
     setWaveSurferApp(wave);
@@ -19,7 +22,7 @@ export default function WaveSurfer({ children }: { children: JSX.Element }) {
 
   return (
     <WaveSurferAppContext.Provider
-      value={{ waveSurferApp, markersToggle, initWaveSurferApp, toggleMarkers }}
+      value={{ waveSurferApp, showMarkers, initWaveSurferApp, toggleMarkers }}
     >
       {children}
     </WaveSurferAppContext.Provider>
