@@ -44,9 +44,9 @@ export class EditControlMapResolver {
     @Ctx() ctx: any
   ) {
     const { editing, _id } = await ctx.db.ControlFrame.findOne({ id: frameID });
-    // if (editing !== ctx.userID) {
-    //   throw new Error("The frame is now editing by other user.");
-    // }
+    if (editing !== ctx.userID) {
+      throw new Error("The frame is now editing by other user.");
+    }
     await Promise.all(
       controlDatas.map(async (data: any) => {
         const { dancerName, controlDatas } = data;
