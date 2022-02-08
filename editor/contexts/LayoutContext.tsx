@@ -6,7 +6,7 @@ export const LayoutContext = createContext<layoutContext | null>(null);
 const LayoutContextProvider = ({ children }: { children: JSX.Element }) => {
   const [mode, setMode] = useState<layoutMode>("editor");
   const [preferedEditor, setPreferedEditor] =
-    useState<editorPreference>("beta");
+    useState<editorPreference>("default");
   const [showSimulator, setShowSimulator] = useState<boolean>(false);
 
   return (
