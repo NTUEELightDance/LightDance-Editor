@@ -9,7 +9,7 @@ import { setTime, setIsPlaying } from "../../core/actions";
 
 // constant
 import { WAVESURFERAPP } from "../../constants";
-import { getItem } from "../../core/utils";
+import { fadeStatus, getItem } from "../../core/utils";
 
 import { LocalRegion, Region } from "../../types/components/wavesurfer";
 // types
@@ -78,7 +78,7 @@ class WaveSurferApp {
     // This function is disabled considering performance issues
     // Listener when playing, which will update time
     this.waveSurfer.on("audioprocess", () => {
-      this.setTime(this.getCurrentTime());
+      this.setTimeWhenPlaying(this.getCurrentTime());
     });
   }
 
@@ -265,6 +265,24 @@ class WaveSurferApp {
       options: {
         states: ["timeData", "currentPos", "currentStatus"],
         refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
+      },
+    });
+  }
+
+  /**
+   * set the time when playing
+   */
+  setTimeWhenPlaying(time: number) {
+    setTime({
+      payload: {
+        from: this.from,
+        time,
+      },
+      options: {
+        states: ["timeData"], // only update timeData, don't update reactiveState for performance
+        refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
+        refreshPixiSimulator: false, // they will get their own start playing
+        refreshThreeSimulator: false, // they will get their own start playing
       },
     });
   }

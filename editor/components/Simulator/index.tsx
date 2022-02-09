@@ -1,5 +1,6 @@
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useEffect } from "react";
 // states and actions
+import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 // controller instance
 import controller from "./Controller";
@@ -16,6 +17,15 @@ const Simulator: React.FC = ({}) => {
     controller.updateDancersStatus(currentStatus);
     controller.updateDancersPos(currentPos);
   }, []);
+
+  const isPlaying = useReactiveVar(reactiveState.isPlaying);
+  useEffect(() => {
+    if (isPlaying) {
+      controller.play();
+    } else {
+      controller.stop();
+    }
+  }, [isPlaying]);
 
   return (
     <div

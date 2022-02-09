@@ -5,6 +5,8 @@ import store from "../../store";
 import Dancer from "./Dancer";
 // math
 import { ControlMapStatus, DancerCoordinates } from "../../types/globalSlice";
+// states
+import { state } from "core/state";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -75,6 +77,28 @@ class Controller {
     Object.entries(currentPos).forEach(([key, value]) => {
       this.dancers[key].setPos(value);
     });
+  }
+
+  /**
+   * animate function
+   */
+  animate = () => {
+    this.updateDancersPos(state.currentPos);
+    this.updateDancersStatus(state.currentStatus);
+  };
+
+  /**
+   * start playing the animation
+   */
+  play() {
+    this.pixiApp?.ticker.add(this.animate);
+  }
+
+  /**
+   * stop playing the animation
+   */
+  stop() {
+    this.pixiApp?.ticker.remove(this.animate);
   }
 }
 
