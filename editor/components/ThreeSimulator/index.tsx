@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import ThreeController from "./ThreeController";
+import { threeController } from "./ThreeController";
 
 /**
  * This is Display component
@@ -16,30 +16,23 @@ import ThreeController from "./ThreeController";
 export default function ThreeSimulator() {
   const canvasRef = useRef();
   const containerRef = useRef();
-
-  const [threeController, setThreeController] = useState(null);
-
-  const currentStatus = useReactiveVar(reactiveState.currentStatus);
-  const currentPos = useReactiveVar(reactiveState.currentPos);
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
+  const currentPos = useReactiveVar(reactiveState.currentPos);
+  const currentStatus = useReactiveVar(reactiveState.currentStatus);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    const newThreeController = new ThreeController(canvas, container);
-    newThreeController.init();
-    setThreeController(newThreeController);
+    threeController.init(canvas, container);
   }, []);
 
   useEffect(() => {
-    if (threeController) {
-      threeController.fetch();
-      threeController.isPlaying = isPlaying;
-    }
+    threeController.fetch();
+    threeController.isPlaying = isPlaying;
   }, [isPlaying]);
 
   useEffect(() => {
-    if (threeController && threeController.initialized()) {
+    if (threeController.initialized()) {
       threeController.state = {
         ...threeController.state,
         currentStatus,
@@ -48,7 +41,7 @@ export default function ThreeSimulator() {
       threeController.updateDancers();
       threeController.render();
     }
-  }, [threeController, currentStatus]);
+  }, [currentStatus]);
 
   return (
     <div

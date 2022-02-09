@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // three.js
-
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
@@ -17,8 +16,9 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // redux actions and store
 import store from "../../store";
 // components
-
 import ThreeDancer from "./ThreeComponents/Dancer";
+// states
+import { reactiveState } from "core/state";
 
 import {
   updateFrameByTimeMap,
@@ -58,11 +58,7 @@ class ThreeController {
   //? seems always undefined, not sure why its here
   animateID: any;
 
-  constructor(canvas: HTMLElement, container: HTMLElement) {
-    // canvas: for 3D rendering, container: for performance monitor
-    this.canvas = canvas;
-    this.container = container;
-
+  constructor() {
     // Basic attributes for three.js
     this.renderer = null;
     this.camera = null;
@@ -89,7 +85,11 @@ class ThreeController {
   /**
    * Initiate localStorage, threeApp, dancers
    */
-  init() {
+  init(canvas: HTMLElement, container: HTMLElement) {
+    // canvas: for 3D rendering, container: for performance monitor
+    this.canvas = canvas;
+    this.container = container;
+
     THREE.Cache.enabled = true;
 
     // Set best configuration for different monitor devices
@@ -180,7 +180,7 @@ class ThreeController {
     this.canvas.appendChild(renderer.domElement);
 
     // Initialization of all dancers with currentPos
-    const { currentPos } = store.getState().global;
+    const currentPos = reactiveState.currentPos();
 
     Object.entries(currentPos).forEach(([name, position], i) => {
       if (!name.includes("sw")) {
@@ -334,3 +334,5 @@ class ThreeController {
 }
 
 export default ThreeController;
+
+export const threeController = new ThreeController();

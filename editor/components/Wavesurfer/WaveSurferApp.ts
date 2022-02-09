@@ -263,8 +263,7 @@ class WaveSurferApp {
         time,
       },
       options: {
-        rerender: true,
-        states: ["timeData"],
+        states: ["timeData", "currentPos", "currentStatus"],
         refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
       },
     });

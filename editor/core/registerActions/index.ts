@@ -3,7 +3,7 @@ import { State } from "../models";
 // observers
 import { waveSurferAppInstance } from "../../components/Wavesurfer/WaveSurferApp";
 import controller from "../../components/Simulator/Controller";
-
+import { threeController } from "../../components/ThreeSimulator/ThreeController";
 /**
  * A mapping of actionName to the wrapped action.
  */
@@ -83,7 +83,7 @@ function actionCreator(action: Action) {
     }
     if (options.refreshThreeSimulator) {
       console.debug("refreshThreeSimulator");
-      // TODO
+      // TODO: Refresh three siimulator
     }
   };
 }
