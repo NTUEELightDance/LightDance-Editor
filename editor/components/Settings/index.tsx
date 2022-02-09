@@ -39,38 +39,33 @@ export const Settings = ({
 
   return (
     <>
-      <Box sx={{ position: "absolute", left: "96vw" }}>
-        <IconButton
-          sx={{ p: 0 }}
-          onClick={() => setShowSettings(!showSettings)}
-        >
-          <SettingsIcon sx={{ color: "white" }} />
-        </IconButton>
-        <Menu
-          id="menu-appbar"
-          sx={{ transform: "translate(-30px, 45px)" }}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          keepMounted
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          open={showSettings}
-          onClose={() => setShowSettings(false)}
-        >
-          {settings.map(({ label, setModalOpen }) => (
-            <MenuItem
-              key={`${label}_label`}
-              onClick={handleMenuItemClick(setModalOpen)}
-            >
-              <Typography textAlign="center">{label}</Typography>
-            </MenuItem>
-          ))}
-        </Menu>
-      </Box>
+      <IconButton sx={{ p: 0 }} onClick={() => setShowSettings(!showSettings)}>
+        <SettingsIcon sx={{ color: "white" }} />
+      </IconButton>
+      <Menu
+        id="menu-appbar"
+        sx={{ transform: "translate(-30px, 45px)" }}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+      >
+        {settings.map(({ label, setModalOpen }) => (
+          <MenuItem
+            key={`${label}_label`}
+            onClick={handleMenuItemClick(setModalOpen)}
+          >
+            <Typography textAlign="center">{label}</Typography>
+          </MenuItem>
+        ))}
+      </Menu>
 
       {settings.map(({ label, modalOpen, setModalOpen, modalChildren }) => (
         <SettingModal

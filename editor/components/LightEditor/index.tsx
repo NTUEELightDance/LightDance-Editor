@@ -14,7 +14,7 @@ import {
 import SelectDancer from "./SelectDancer";
 import ElEditor from "./ElEditor";
 import LedEditor from "./LedEditor";
-import ModeSelector from "../ModeSelector";
+import ModeSelector from "./ModeSelector";
 import Fade from "./Fade";
 // constants
 

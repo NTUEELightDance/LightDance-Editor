@@ -13,15 +13,7 @@ const Preference = () => {
       <PreferenceSelector
         label="prefered editor"
         value={preferedEditor}
-        Options={["default", "mirrored", "legacy"]}
-        onChange={(e) => {
-          setPreferedEditor(e.target.value as editorPreference);
-        }}
-      />
-      <PreferenceSelector
-        label="prefered editor"
-        value={preferedEditor}
-        Options={["default", "mirrored", "legacy"]}
+        Options={["default", "mirrored", "legacy", "beta"]}
         onChange={(e) => {
           setPreferedEditor(e.target.value as editorPreference);
         }}

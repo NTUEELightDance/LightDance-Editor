@@ -232,16 +232,14 @@ export default function File() {
         Upload [name].png <strong>(should select part)</strong>
       </Typography>
       <ItemWrapper>
-        <div>
-          <input
-            id="images"
-            name="images"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImagesInput}
-          />
-        </div>
+        <input
+          id="images"
+          name="images"
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleImagesInput}
+        />
       </ItemWrapper>
 
       <Box

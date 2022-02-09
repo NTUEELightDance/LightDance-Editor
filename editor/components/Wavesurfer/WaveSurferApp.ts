@@ -1,7 +1,7 @@
 import WaveSurfer from "wavesurfer.js";
 import CursorPlugin from "wavesurfer.js/src/plugin/cursor";
 import regions from "wavesurfer.js/src/plugin/regions";
-import MarkersPlugin from "wavesurfer.js/src/plugin/markers";
+import MarkersPlugin from "./MarkersPlugin";
 
 // redux
 import store from "../../store";
@@ -41,7 +41,7 @@ class WaveSurferApp {
       waveColor: "#5bc1f0",
       progressColor: "#1883b5",
       cursorColor: "#edf0f1",
-      // height: screen.height * 0.08,
+      responsive: true,
       plugins: [
         CursorPlugin.create({
           showTime: true,
@@ -53,20 +53,12 @@ class WaveSurferApp {
             padding: "2px",
             "font-size": "10px",
           },
+          hideOnBlur: true,
         }),
         regions.create({
           regionsMinLength: 0,
         }),
-        MarkersPlugin.create({
-          markers: [
-            {
-              time: 0,
-              // label: "Begin",
-              color: "#8AE5C8",
-              position: "bottom",
-            },
-          ],
-        }),
+        MarkersPlugin.create({}),
       ],
     });
 
@@ -225,8 +217,8 @@ class WaveSurferApp {
     this.waveSurfer.addMarker({
       time: start,
       color: "#8AE5C8",
-      // label: index ? index : "Begin",
       position: "top",
+      draggable: false,
     });
   }
 
@@ -247,6 +239,10 @@ class WaveSurferApp {
    */
   clearMarker() {
     this.waveSurfer.clearMarkers();
+  }
+
+  toggleMarkers() {
+    this.waveSurfer.toggleMarkers();
   }
 
   zoom(newValue: number) {
@@ -277,6 +273,10 @@ class WaveSurferApp {
         time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
       })
     );
+  }
+
+  resize() {
+    window.dispatchEvent(new Event("resize"));
   }
 }
 

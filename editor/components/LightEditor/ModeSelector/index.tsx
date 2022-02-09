@@ -8,9 +8,9 @@ import {
   selectGlobal,
   toggleMode,
   saveToLocal,
-} from "../../slices/globalSlice";
+} from "../../../slices/globalSlice";
 // constants
-import { IDLE, ADD, EDIT } from "../../constants";
+import { IDLE, ADD, EDIT } from "../../../constants";
 
 export default function ModeSelector({ handleSave, handleDelete }) {
   // redux states

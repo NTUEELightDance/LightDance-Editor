@@ -1,12 +1,12 @@
-import React, { useEffect, useContext, useState } from "react";
+import { useEffect, useContext, useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
+import { useResizeDetector } from "react-resize-detector";
 
 // my class
 import WaveSurferApp from "./WaveSurferApp";
 import ControlBar from "../ControlBar";
 // selector
 import { selectGlobal } from "../../slices/globalSlice";
-import { selectCommand } from "../../slices/commandSlice";
 // constants
 import { WAVESURFERAPP } from "../../constants";
 // contexts
@@ -22,13 +22,18 @@ import Stack from "@mui/material/Stack";
  * @component
  */
 const Wavesurfer = ({ cleanMode = false }) => {
-  const { waveSurferApp, initWaveSurferApp, markersToggle } = useContext(
+  const { waveSurferApp, initWaveSurferApp, showMarkers } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;
-  // const [waveSurferApp, setWaveSurferApp] = useState(null);
+
+  const { ref: resizeDetectorRef } = useResizeDetector({
+    onResize: (width, height) => {
+      waveSurferApp.resize();
+    },
+  });
+
   useEffect(() => {
     const newWaveSurferApp = new WaveSurferApp();
-    newWaveSurferApp.init();
     initWaveSurferApp(newWaveSurferApp);
   }, []);
 
@@ -40,16 +45,15 @@ const Wavesurfer = ({ cleanMode = false }) => {
 
   //update Markers
   useEffect(() => {
-    if (controlMap && waveSurferApp && markersToggle)
+    if (controlMap && waveSurferApp && showMarkers)
       waveSurferApp.updateMarkers(controlMap);
   }, [controlRecord]);
 
   //update Markers when markers switched on
   useEffect(() => {
     if (!controlMap || !waveSurferApp) return;
-    if (markersToggle) waveSurferApp.updateMarkers(controlMap);
-    else waveSurferApp.clearMarker();
-  }, [markersToggle]);
+    waveSurferApp.toggleMarkers();
+  }, [showMarkers]);
 
   // listen to time set by other component
   useEffect(() => {
@@ -65,7 +69,7 @@ const Wavesurfer = ({ cleanMode = false }) => {
   }, [waveSurferApp, time]);
 
   return (
-    <>
+    <div ref={resizeDetectorRef}>
       {cleanMode || (
         <Stack
           direction="row"
@@ -76,8 +80,8 @@ const Wavesurfer = ({ cleanMode = false }) => {
           <ControlBar wavesurfer={waveSurferApp} />
         </Stack>
       )}
-      <div id="waveform" style={{ position: "relative" }} />
-    </>
+      <div id="waveform" />
+    </div>
   );
 };
 

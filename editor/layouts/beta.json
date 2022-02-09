@@ -19,7 +19,7 @@
     },
     {
       "type": "border",
-      "location": "right",
+      "location": "left",
       "children": [
         {
           "type": "tab",
@@ -46,27 +46,8 @@
     "type": "row",
     "children": [
       {
-        "type": "tabset",
-        "weight": 25,
-        "selected": 0,
-        "enableMaximize": false,
-        "children": [
-          {
-            "type": "tab",
-            "name": "LightEditor",
-            "component": "LightEditor",
-            "enableClose": false
-          },
-          {
-            "type": "tab",
-            "name": "PosEditor",
-            "component": "PosEditor",
-            "enableClose": false
-          }
-        ]
-      },
-      {
         "type": "row",
+        "weight": 75,
         "children": [
           {
             "type": "row",
@@ -113,6 +94,56 @@
                     "enableClose": false
                   }
                 ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "weight": 25,
+        "children": [
+          {
+            "type": "row",
+            "children": [
+              {
+                "type": "tabset",
+                "weight": 25,
+                "selected": 0,
+                "enableMaximize": false,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "properties",
+                    "component": "LightProps",
+                    "enableClose": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "tabset",
+            "selected": 0,
+            "enableMaximize": false,
+            "children": [
+              {
+                "type": "tab",
+                "name": "DancerList",
+                "component": "DancerList",
+                "enableClose": false
+              },
+              {
+                "type": "tab",
+                "name": "LightEditor",
+                "component": "LightEditor",
+                "enableClose": false
+              },
+              {
+                "type": "tab",
+                "name": "PosEditor",
+                "component": "PosEditor",
+                "enableClose": false
               }
             ]
           }

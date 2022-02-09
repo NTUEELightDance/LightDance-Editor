@@ -9,7 +9,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import TextField from "@material-ui/core/TextField";
 
 // slices
-import { selectGlobal, shiftFrameTime } from "../../../../slices/globalSlice";
+import { selectGlobal, shiftFrameTime } from "../../../slices/globalSlice";
 
 //types
 import { TimeShiftTool } from "types/components/tools";

@@ -11,7 +11,7 @@ const TimeControlInput = ({
 }) => {
   return (
     <TextField
-      style={{ width: "9em" }}
+      style={{ width: "8em" }}
       size="small"
       variant="outlined"
       type="number"
@@ -20,7 +20,7 @@ const TimeControlInput = ({
       inputProps={{
         min: 0,
       }}
-      onChange={(e) => handleChange(e.target.value)}
+      onChange={(e) => handleChange(Number(e.target.value))}
     />
   );
 };

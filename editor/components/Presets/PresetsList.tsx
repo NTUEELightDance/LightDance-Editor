@@ -97,11 +97,8 @@ export default function PresetsList({
                 >
                   <EditIcon />
                 </IconButton>
-                <IconButton>
-                  <DeleteIcon
-                    className={classes.btn}
-                    onClick={() => handleDeletePresets(i)}
-                  />
+                <IconButton onClick={() => handleDeletePresets(i)}>
+                  <DeleteIcon className={classes.btn} />
                 </IconButton>
               </div>
             </ListItem>

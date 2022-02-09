@@ -80,11 +80,12 @@ export default function EffectList() {
             <React.Fragment key={key}>
               <ListItem
                 secondaryAction={
-                  <IconButton edge="end" aria-label="apply">
-                    <AddIcon
-                      onClick={() => handleOpenApply(key)}
-                      sx={{ color: "white" }}
-                    />
+                  <IconButton
+                    edge="end"
+                    aria-label="apply"
+                    onClick={() => handleOpenApply(key)}
+                  >
+                    <AddIcon sx={{ color: "white" }} />
                   </IconButton>
                 }
                 sx={{

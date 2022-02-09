@@ -19,7 +19,7 @@
     },
     {
       "type": "border",
-      "location": "right",
+      "location": "left",
       "children": [
         {
           "type": "tab",
@@ -45,26 +45,6 @@
   "layout": {
     "type": "row",
     "children": [
-      {
-        "type": "tabset",
-        "weight": 25,
-        "selected": 0,
-        "enableMaximize": false,
-        "children": [
-          {
-            "type": "tab",
-            "name": "LightEditor",
-            "component": "LightEditor",
-            "enableClose": false
-          },
-          {
-            "type": "tab",
-            "name": "PosEditor",
-            "component": "PosEditor",
-            "enableClose": false
-          }
-        ]
-      },
       {
         "type": "row",
         "children": [
@@ -115,6 +95,26 @@
                 ]
               }
             ]
+          }
+        ]
+      },
+      {
+        "type": "tabset",
+        "weight": 25,
+        "selected": 0,
+        "enableMaximize": false,
+        "children": [
+          {
+            "type": "tab",
+            "name": "LightEditor",
+            "component": "LightEditor",
+            "enableClose": false
+          },
+          {
+            "type": "tab",
+            "name": "PosEditor",
+            "component": "PosEditor",
+            "enableClose": false
           }
         ]
       }

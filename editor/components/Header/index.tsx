@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { AppBar, Toolbar, Typography, Box } from "@mui/material";
+import { AppBar, Toolbar, Box } from "@mui/material";
 
 import { LayoutButtons } from "./LayoutButtons";
 import { Settings } from "../Settings";
+import Tools from "components/Tools";
 
 /**
  * Top Bar, include title, timeController, upload/download btn
@@ -20,13 +21,21 @@ export default function Header() {
             style={{ height: "100%" }}
           />
         </Box>
-
         <LayoutButtons />
-
-        <Settings
-          showSettings={showSettings}
-          setShowSettings={setShowSettings}
-        />
+        <Box
+          sx={{
+            display: "flex",
+            position: "absolute",
+            right: "2vw",
+            gap: "1vw",
+          }}
+        >
+          <Tools />
+          <Settings
+            showSettings={showSettings}
+            setShowSettings={setShowSettings}
+          />
+        </Box>
       </Toolbar>
     </AppBar>
   );

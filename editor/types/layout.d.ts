@@ -11,4 +11,4 @@ export interface layoutContext {
 
 export type layoutMode = "editor" | "command";
 
-export type editorPreference = "default" | "legacy" | "mirrored";
+export type editorPreference = "default" | "legacy" | "mirrored" | "beta";
