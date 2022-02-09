@@ -25,5 +25,5 @@ export const resolvers = [
   RequestEditResolver,
   PosMapResolver,
   EditControlMapResolver,
-  EditPosMapResolver
+  EditPosMapResolver,
 ] as const;

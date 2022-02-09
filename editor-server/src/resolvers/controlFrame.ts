@@ -28,7 +28,7 @@ import {
   ControlRecordMutation,
   ControlRecordPayload,
 } from "./subscriptions/controlRecord";
-import redis from "../redis"
+import redis from "../redis";
 
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
@@ -84,8 +84,8 @@ export class ControlFrameResolver {
           }
         );
       })
-    )
-    await updateRedisControl(newControlFrame.id)
+    );
+    await updateRedisControl(newControlFrame.id);
     const mapPayload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
@@ -137,7 +137,7 @@ export class ControlFrameResolver {
     await ctx.db.ControlFrame.updateOne({ id: input.id }, { editing: null });
 
     const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.id });
-    await updateRedisControl(controlFrame.id)
+    await updateRedisControl(controlFrame.id);
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
@@ -189,7 +189,7 @@ export class ControlFrameResolver {
       })
     );
     await ctx.db.Control.deleteMany({ frame: _id });
-    await redis.del(id)
+    await redis.del(id);
     const mapPayload: ControlMapPayload = {
       mutation: ControlMapMutation.DELETED,
       editBy: ctx.userID,

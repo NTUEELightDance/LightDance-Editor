@@ -1,7 +1,4 @@
-import {
-  Field,
-  ObjectType,
-} from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
@@ -29,12 +26,12 @@ export const PosDataScalar = new GraphQLScalarType({
     const pos: LooseObject = {};
     await Promise.all(
       allDancers.map(async (dancer: any) => {
-      const { name, positionData } = dancer
-      const wanted = positionData.find(
-        (data: any) => data.frame.toString() === _id.toString()
-      );
-      pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
-    })
+        const { name, positionData } = dancer;
+        const wanted = positionData.find(
+          (data: any) => data.frame.toString() === _id.toString()
+        );
+        pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
+      })
     );
     result[id] = { start, editing, pos };
     return result; // value sent to the client

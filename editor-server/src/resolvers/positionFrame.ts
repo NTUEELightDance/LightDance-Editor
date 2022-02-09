@@ -78,8 +78,8 @@ export class PositionFrameResolver {
           }
         );
       })
-    )
-    await updateRedisPosition(newPositionFrame.id)
+    );
+    await updateRedisPosition(newPositionFrame.id);
     const mapPayload: PositionMapPayload = {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
@@ -134,7 +134,7 @@ export class PositionFrameResolver {
       { id: input.id },
       input
     );
-    await updateRedisPosition(positionFrame.id)
+    await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,

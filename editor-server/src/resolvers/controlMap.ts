@@ -8,14 +8,14 @@ import {
   Arg,
 } from "type-graphql";
 import { Map } from "./types/map";
-import { ControlData } from "./types/controlData" 
+import { ControlData } from "./types/controlData";
 import { EditControlInput } from "./inputs/control";
 import { Topic } from "./subscriptions/topic";
 import {
   ControlMapPayload,
   ControlMapMutation,
 } from "./subscriptions/controlMap";
-import { updateRedisControl } from "../utility"
+import { updateRedisControl } from "../utility";
 
 interface LooseObject {
   [key: string]: any;
@@ -33,9 +33,8 @@ export class ControlMapResolver {
   }
 }
 
-@Resolver((of)=> ControlData)
-export class EditControlMapResolver
-{
+@Resolver((of) => ControlData)
+export class EditControlMapResolver {
   @Mutation((returns) => ControlData)
   async editControlMap(
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
@@ -57,8 +56,8 @@ export class EditControlMapResolver
           path: "parts",
           populate: {
             path: "controlData",
-            match: {frame: _id}
-          }
+            match: { frame: _id },
+          },
         });
         await Promise.all(
           controlDatas.map(async (data: any) => {
@@ -66,8 +65,8 @@ export class EditControlMapResolver
             const wanted = dancer.parts.find(
               (part: any) => part.name === partName
             );
-            if (!wanted) throw new Error(`part ${partName} not found`)
-            const { controlData, type } = wanted
+            if (!wanted) throw new Error(`part ${partName} not found`);
+            const { controlData, type } = wanted;
             const { value, _id } = controlData[0];
             if (type === "FIBER") {
               if (color) {
@@ -95,7 +94,7 @@ export class EditControlMapResolver
       })
     );
     await ctx.db.ControlFrame.updateOne({ id: frameID }, { editing: null });
-    await updateRedisControl(frameID)
+    await updateRedisControl(frameID);
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.UPDATED,
       editBy: ctx.userID,
@@ -103,6 +102,6 @@ export class EditControlMapResolver
       frame: [{ _id, id: frameID }],
     };
     await publish(payload);
-    return { frame: { _id, id: frameID }};
+    return { frame: { _id, id: frameID } };
   }
 }

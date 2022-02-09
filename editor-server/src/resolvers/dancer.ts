@@ -61,8 +61,8 @@ export class DancerResolver {
         newDancer.positionData.push(newPosition);
         await newPosition.save();
       });
-      await initRedisControl()
-      await initRedisPosition()
+      await initRedisControl();
+      await initRedisPosition();
       const dancerData = await newDancer.save();
       const payload: DancerPayload = {
         mutation: dancerMutation.CREATED,
@@ -89,12 +89,11 @@ export class DancerResolver {
       { id },
       { name },
       { new: true }
-    )
-      .populate("parts");
+    ).populate("parts");
     console.log(newDancer);
     if (newDancer) {
-      await initRedisControl()
-      await initRedisPosition()
+      await initRedisControl();
+      await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
         editBy: ctx.userID,
@@ -131,11 +130,11 @@ export class DancerResolver {
         })
       );
       await ctx.db.Dancer.deleteOne({ id });
-      await initRedisControl()
-      await initRedisPosition()
+      await initRedisControl();
+      await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.DELETED,
-        editBy: ctx.userID
+        editBy: ctx.userID,
       };
       await publish(payload);
       return Object.assign(dancer, { ok: true });

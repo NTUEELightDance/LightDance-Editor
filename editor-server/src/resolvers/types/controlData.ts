@@ -1,7 +1,4 @@
-import {
-  Field,
-  ObjectType,
-} from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
@@ -27,8 +24,8 @@ export const ControlDataScalar = new GraphQLScalarType({
       path: "parts",
       populate: {
         path: "controlData",
-        match: {frame: _id}
-      }
+        match: { frame: _id },
+      },
     });
     // const frameID = new ObjectId(id)
     const { fade, start, editing } = await db.ControlFrame.findById(_id);
@@ -39,10 +36,10 @@ export const ControlDataScalar = new GraphQLScalarType({
         const partData: LooseObject = {};
         await Promise.all(
           parts.map(async (part: any) => {
-            const { name, type, controlData } = part
-            const wanted = controlData[0]
-            if (!wanted) throw new Error(`ControlData ${_id} not found`)
-            const { value } = wanted
+            const { name, type, controlData } = part;
+            const wanted = controlData[0];
+            if (!wanted) throw new Error(`ControlData ${_id} not found`);
+            const { value } = wanted;
             if (type === "LED") {
               partData[name] = value;
             } else if (type === "FIBER") {

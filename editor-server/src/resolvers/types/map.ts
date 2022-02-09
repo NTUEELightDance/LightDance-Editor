@@ -1,10 +1,7 @@
-import {
-  Field,
-  ObjectType,
-} from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
-import redis from "../../redis"
+import redis from "../../redis";
 
 interface LooseObject {
   [key: string]: any;
@@ -24,14 +21,14 @@ export const MapScalar = new GraphQLScalarType({
     await Promise.all(
       value.map(async (data: any) => {
         const { id } = data;
-        const cache = await redis.get(id)
-        if(cache){
-          const cacheObj = JSON.parse(cache)
-          result[id] = cacheObj
+        const cache = await redis.get(id);
+        if (cache) {
+          const cacheObj = JSON.parse(cache);
+          result[id] = cacheObj;
         }
-      })   
-    )
-    return result
+      })
+    );
+    return result;
   },
   parseValue(value: unknown): any {
     // check the type of received value

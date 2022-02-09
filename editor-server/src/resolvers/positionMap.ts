@@ -62,7 +62,7 @@ export class EditPosMapResolver {
       })
     );
     await ctx.db.PositionFrame.updateOne({ id: frameID }, { editing: null });
-    await updateRedisPosition(frameID)
+    await updateRedisPosition(frameID);
     const payload: PositionMapPayload = {
       mutation: PositionMapMutation.UPDATED,
       editBy: ctx.userID,

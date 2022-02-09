@@ -59,10 +59,9 @@ export class PartResolver {
         const result = await newPart.save();
         const dancerData = await ctx.db.Dancer.findOne({
           name: newPartData.dancerName,
-        })
-          .populate("parts");
-        await initRedisControl()
-        await initRedisPosition()
+        }).populate("parts");
+        await initRedisControl();
+        await initRedisPosition();
         const payload: DancerPayload = {
           mutation: dancerMutation.UPDATED,
           editBy: ctx.userID,
@@ -113,10 +112,11 @@ export class PartResolver {
         { name, type },
         { new: true }
       );
-      const dancerData = await ctx.db.Dancer.findOne({ name: dancerName })
-        .populate("parts")
-      await initRedisControl()
-      await initRedisPosition()
+      const dancerData = await ctx.db.Dancer.findOne({
+        name: dancerName,
+      }).populate("parts");
+      await initRedisControl();
+      await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
         editBy: ctx.userID,
@@ -158,10 +158,11 @@ export class PartResolver {
           { $pullAll: { parts: [{ _id: part_id }] } }
         );
       }
-      const dancerData = await ctx.db.Dancer.findOne({ name: dancerName })
-        .populate("parts")
-      await initRedisControl()
-      await initRedisPosition()
+      const dancerData = await ctx.db.Dancer.findOne({
+        name: dancerName,
+      }).populate("parts");
+      await initRedisControl();
+      await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
         editBy: ctx.userID,
