@@ -64,4 +64,5 @@ You need to have MongoDB running on `mongodb://localhost:27017`
 
 ```bash
 docker-compose -f dev.docker-compose.yml up -d mongodb
+docker-compose -f dev.docker-compose.yml up -d redisdb
 ```
