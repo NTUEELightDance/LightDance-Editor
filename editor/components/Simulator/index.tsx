@@ -1,5 +1,7 @@
 import React, { useLayoutEffect } from "react";
-// my-class
+// states and actions
+import { reactiveState } from "core/state";
+// controller instance
 import controller from "./Controller";
 
 /**
@@ -9,6 +11,10 @@ import controller from "./Controller";
 const Simulator: React.FC = ({}) => {
   useLayoutEffect(() => {
     controller.init();
+    const currentStatus = reactiveState.currentStatus();
+    const currentPos = reactiveState.currentPos();
+    controller.updateDancersStatus(currentStatus);
+    controller.updateDancersPos(currentPos);
   }, []);
 
   return (
