@@ -1,6 +1,7 @@
 import { makeVar } from "@apollo/client";
-import { cloneDeep, isEqual } from "lodash";
-import { DancerCoordinates } from "types/globalSlice";
+import { cloneDeep } from "lodash";
+import onChange from "on-change";
+
 // types
 import {
   State,
@@ -9,14 +10,13 @@ import {
   TimeDataType,
   EffectRecordMapType,
   EffectStatusMapType,
-  LightPresetsType,
-  PosPresetsType,
+  DancerCoordinates,
 } from "../models";
 
 /**
  * Mutable State
  */
-export const state: State = {
+const _state: State = {
   isPlaying: false,
   selected: [],
   currentStatus: {},
@@ -32,9 +32,16 @@ export const state: State = {
 
   effectRecordMap: {}, // map of all effects and corresponding record ID array
   effectStatusMap: {},
-  lightPresets: [], // lightPresets, presets for light
-  posPresets: [], // posPresets, presets for pos
 };
+
+// The diffSet will save changed attributes in state
+const diffSet = new Set<string>();
+export const state = onChange(
+  _state,
+  (path: string, value, previousValue, applyData) => {
+    diffSet.add(path.split(".")[0]);
+  }
+);
 
 /**
  * Reactive State, can trigger react component rerender
@@ -55,8 +62,6 @@ export const reactiveState: ReactiveState = {
 
   effectRecordMap: makeVar<EffectRecordMapType>({}), // map of all effects and corresponding record ID array
   effectStatusMap: makeVar<EffectStatusMapType>({}),
-  lightPresets: makeVar<LightPresetsType>([]), // lightPresets, presets for light
-  posPresets: makeVar<PosPresetsType>([]), // posPresets, presets for pos
 };
 
 /**
@@ -65,22 +70,20 @@ export const reactiveState: ReactiveState = {
  */
 export function syncReactiveState(states: string[]) {
   if (states.length === 0) {
-    Object.keys(reactiveState).forEach((key) => {
-      if (key in state) {
-        if (!isEqual(reactiveState[key](), state[key])) {
-          console.debug("update reactiveState", key);
-          reactiveState[key](cloneDeep(state[key]));
-        }
+    // only update states in diffSet
+    diffSet.forEach((key) => {
+      if (key in state && key in reactiveState) {
+        console.debug("update reactiveState", key);
+        reactiveState[key](cloneDeep(state[key]));
       } else {
-        console.error(
-          `[syncReactiveState] Cannot find the key ${key} in state.`
-        );
+        console.error(`[syncReactiveState] Cannot find the key ${key}`);
       }
     });
+    diffSet.clear();
   } else {
     states.forEach((key) => {
-      console.debug("update reactiveState", key);
       if (key in reactiveState && key in state) {
+        console.debug("update reactiveState", key);
         reactiveState[key](cloneDeep(state[key]));
       } else {
         console.error(

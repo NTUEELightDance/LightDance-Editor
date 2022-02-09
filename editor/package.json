@@ -25,6 +25,7 @@
     "jszip-utils": "^0.1.0",
     "lodash": "^4.17.21",
     "nanoid": "^3.1.30",
+    "on-change": "^4.0.0",
     "pixi.js": "^5.3.3",
     "pngjs": "^6.0.0",
     "prop-types": "^15.7.2",
@@ -40,6 +41,7 @@
     "subscriptions-transport-ws": "^0.11.0",
     "three": "^0.137.4",
     "wavesurfer.js": "^6.0.0",
+    "use-immer": "^0.6.0",
     "ws": "^7.4.3"
   },
   "scripts": {
@@ -49,6 +51,7 @@
     "format": "npx prettier --write ."
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.178",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/three": "^0.137.0",
