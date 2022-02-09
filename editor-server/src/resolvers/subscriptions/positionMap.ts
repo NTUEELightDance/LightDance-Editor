@@ -1,14 +1,14 @@
 import { ObjectType, Field, ID } from "type-graphql";
 import { ObjectId } from "mongodb";
-import { PositionMapScalar } from "../types/positionMap";
+import { PosData, PosDataScalar } from "../types/posData";
 
 @ObjectType()
 export class PositionMapPayload {
   @Field()
   mutation: PositionMapMutation;
 
-  @Field((type) => PositionMapScalar, { nullable: true })
-  frames?: any[];
+  @Field((type) => PosDataScalar, { nullable: true })
+  frame?: any[];
 
   @Field()
   frameID: string;

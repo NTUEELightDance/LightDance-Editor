@@ -51,10 +51,6 @@ type ControlFrame {
   start: Float!
 }
 
-type ControlMap {
-  frames: ControlMapQueryObjectId!
-}
-
 """Mongo object id scalar type"""
 scalar ControlMapMutationObjectId
 
@@ -64,9 +60,6 @@ type ControlMapPayload {
   frameID: String!
   mutation: String!
 }
-
-"""Mongo object id scalar type"""
-scalar ControlMapQueryObjectId
 
 type ControlRecordPayload {
   editBy: String!
@@ -174,6 +167,13 @@ type LED {
   src: String!
 }
 
+type Map {
+  frames: MapQueryObjectId!
+}
+
+"""Mongo object id scalar type"""
+scalar MapQueryObjectId
+
 type Mutation {
   addControlFrame(start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
@@ -188,7 +188,7 @@ type Mutation {
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
-  editPosMap(frameID: String!, positionDatas: [EditPositionInput!]!): PosMap!
+  editPosMap(frameID: String!, positionDatas: [EditPositionInput!]!): Map!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
   updateColor(color: ColorInput!): String!
@@ -231,13 +231,10 @@ type PositionFrame {
 
 type PositionMapPayload {
   editBy: String!
+  frame: PosMapMutationObjectId
   frameID: String!
-  frames: PositionMapQueryObjectId
   mutation: String!
 }
-
-"""Mongo object id scalar type"""
-scalar PositionMapQueryObjectId
 
 type PositionRecordPayload {
   editBy: String!
@@ -246,19 +243,18 @@ type PositionRecordPayload {
   mutation: String!
 }
 
-type PosMap {
-  frames: PositionMapQueryObjectId!
-}
+"""Mongo object id scalar type"""
+scalar PosMapMutationObjectId
 
 type Query {
   color(color: String!): String!
   controlFrame(start: Float!): ControlFrame!
   controlFrameIDs: [ID!]!
-  ControlMap: ControlMap!
+  ControlMap: Map!
   dancer: [Dancer!]!
   positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
-  PosMap: PosMap!
+  PosMap: Map!
 }
 
 type RequestEditResponse {

@@ -10,7 +10,7 @@ import {
 } from "type-graphql";
 import { PositionFrame } from "./types/positionFrame";
 import { Dancer } from "./types/dancer";
-import { generateID } from "../utility";
+import { generateID, updateRedisPosition } from "../utility";
 import {
   EditPositionFrameInput,
   DeletePositionFrameInput,
@@ -58,30 +58,33 @@ export class PositionFrameResolver {
       id: generateID(),
     }).save();
     let allDancers = await ctx.db.Dancer.find();
-    allDancers.map(async (dancer: Dancer) => {
-      let newPosition = new ctx.db.Position({
-        frame: newPositionFrame,
-        x: 0,
-        y: 0,
-        z: 0,
-        id: generateID(),
-      });
-      await newPosition.save();
-      await ctx.db.Dancer.findOneAndUpdate(
-        { id: dancer.id },
-        {
-          name: dancer.name,
-          parts: dancer.parts,
-          positionData: dancer.positionData.concat([newPosition]),
-          id: dancer.id,
-        }
-      );
-    });
+    await Promise.all(
+      allDancers.map(async (dancer: Dancer) => {
+        let newPosition = new ctx.db.Position({
+          frame: newPositionFrame,
+          x: 0,
+          y: 0,
+          z: 0,
+          id: generateID(),
+        });
+        await newPosition.save();
+        await ctx.db.Dancer.findOneAndUpdate(
+          { id: dancer.id },
+          {
+            name: dancer.name,
+            parts: dancer.parts,
+            positionData: dancer.positionData.concat([newPosition]),
+            id: dancer.id,
+          }
+        );
+      })
+    );
+    await updateRedisPosition(newPositionFrame.id);
     const mapPayload: PositionMapPayload = {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: newPositionFrame.id,
-      frames: [{ _id: newPositionFrame._id, id: newPositionFrame.id }],
+      frame: [{ _id: newPositionFrame._id, id: newPositionFrame.id }],
     };
     await publishPositionMap(mapPayload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({
@@ -131,11 +134,12 @@ export class PositionFrameResolver {
       { id: input.id },
       input
     );
+    await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: positionFrame.id,
-      frames: [{ _id: positionFrame._id, id: positionFrame.id }],
+      frame: [{ _id: positionFrame._id, id: positionFrame.id }],
     };
     await publishPositionMap(payload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({

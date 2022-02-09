@@ -18,7 +18,7 @@ import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { generateID } from "../utility";
 import { DancerResponse } from "./response/dancerResponse";
-import { initRedis } from "../utility";
+import { initRedisControl, initRedisPosition } from "../utility";
 
 @Resolver((of) => Dancer)
 export class DancerResolver {
@@ -61,9 +61,9 @@ export class DancerResolver {
         newDancer.positionData.push(newPosition);
         await newPosition.save();
       });
-      await initRedis()
+      await initRedisControl();
+      await initRedisPosition();
       const dancerData = await newDancer.save();
-      console.log(dancerData);
       const payload: DancerPayload = {
         mutation: dancerMutation.CREATED,
         editBy: ctx.userID,
@@ -80,6 +80,7 @@ export class DancerResolver {
 
   @Mutation((returns) => DancerResponse)
   async editDancer(
+    @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("dancer") newDancerData: editDancerInput,
     @Ctx() ctx: any
   ) {
@@ -88,12 +89,17 @@ export class DancerResolver {
       { id },
       { name },
       { new: true }
-    )
-      .populate("parts")
-      .populate("positionData");
+    ).populate("parts");
     console.log(newDancer);
     if (newDancer) {
-      await initRedis()
+      await initRedisControl();
+      await initRedisPosition();
+      const payload: DancerPayload = {
+        mutation: dancerMutation.UPDATED,
+        editBy: ctx.userID,
+        dancerData: newDancer,
+      };
+      await publish(payload);
       return Object.assign(newDancer, { ok: true });
     }
     return Object.assign(
@@ -104,6 +110,7 @@ export class DancerResolver {
 
   @Mutation((returns) => DancerResponse)
   async deleteDancer(
+    @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("dancer") newDancerData: deleteDancerInput,
     @Ctx() ctx: any
   ) {
@@ -123,7 +130,13 @@ export class DancerResolver {
         })
       );
       await ctx.db.Dancer.deleteOne({ id });
-      await initRedis()
+      await initRedisControl();
+      await initRedisPosition();
+      const payload: DancerPayload = {
+        mutation: dancerMutation.DELETED,
+        editBy: ctx.userID,
+      };
+      await publish(payload);
       return Object.assign(dancer, { ok: true });
     }
     return Object.assign(

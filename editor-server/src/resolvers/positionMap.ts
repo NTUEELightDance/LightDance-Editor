@@ -1,7 +1,5 @@
 import {
   Resolver,
-  FieldResolver,
-  ID,
   Ctx,
   Arg,
   Query,
@@ -9,17 +7,19 @@ import {
   PubSub,
   Publisher,
 } from "type-graphql";
-import { PosMap } from "./types/positionMap";
+import { PosData } from "./types/posData";
+import { Map } from "./types/map";
 import { EditPositionInput } from "./inputs/position";
 import { Topic } from "./subscriptions/topic";
 import {
   PositionMapPayload,
   PositionMapMutation,
 } from "./subscriptions/positionMap";
+import { updateRedisPosition } from "../utility";
 
-@Resolver((of) => PosMap)
+@Resolver((of) => Map)
 export class PosMapResolver {
-  @Query((returns) => PosMap)
+  @Query((returns) => Map)
   async PosMap(@Ctx() ctx: any) {
     let frames = await ctx.db.PositionFrame.find();
     const id = frames.map((frame: any) => {
@@ -27,8 +27,11 @@ export class PosMapResolver {
     });
     return { frames: id };
   }
+}
 
-  @Mutation((returns) => PosMap)
+@Resolver((of) => PosData)
+export class EditPosMapResolver {
+  @Mutation((returns) => Map)
   async editPosMap(
     @PubSub(Topic.PositionMap) publish: Publisher<PositionMapPayload>,
     @Arg("positionDatas", (type) => [EditPositionInput])
@@ -59,14 +62,14 @@ export class PosMapResolver {
       })
     );
     await ctx.db.PositionFrame.updateOne({ id: frameID }, { editing: null });
-
+    await updateRedisPosition(frameID);
     const payload: PositionMapPayload = {
       mutation: PositionMapMutation.UPDATED,
       editBy: ctx.userID,
       frameID,
-      frames: [{ _id, id: frameID }],
+      frame: [{ _id, id: frameID }],
     };
     await publish(payload);
-    return { frames: [{ _id, id: frameID }] };
+    return { frame: [{ _id, id: frameID }] };
   }
 }
