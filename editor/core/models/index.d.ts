@@ -72,24 +72,6 @@ export interface TimeDataType {
 }
 
 /**
- * Light Presets
- */
-export type LightPresetsType = LightPresetsElement[];
-interface LightPresetsElement {
-  name: string; // ID named by user
-  status: ControlMapStatus;
-}
-
-/**
- * Pos Presets
- */
-export type PosPresetsType = PosPresetsElement[];
-interface PosPresetsElement {
-  name: string;
-  pos: DancerCoordinates;
-}
-
-/**
  * EffectRecordMap and EffectStatusMap
  */
 export interface EffectRecordMapType {
@@ -124,8 +106,6 @@ export interface State {
   mode: number; // 0: nothing, 1: edit, 2: add
   effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
   effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
-  lightPresets: LightPresetsType;
-  posPresets: PosPresetsType;
 }
 
 /**
@@ -141,6 +121,4 @@ export interface ReactiveState {
   mode: ReactiveVar<number>; // 0: nothing, 1: edit, 2: add
   effectRecordMap: ReactiveVar<EffectRecordMapType>; // map of all effects and corresponding record ID array
   effectStatusMap: ReactiveVar<EffectStatusMapType>; // map of effect record ID and its status
-  lightPresets: ReactiveVar<LightPresetsType>;
-  posPresets: ReactiveVar<PosPresetsType>;
 }

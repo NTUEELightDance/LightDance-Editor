@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 // mui
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -8,24 +8,17 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import TextField from "@material-ui/core/TextField";
 // states and actions
-import {
-  setPosPresets,
-  addPosPresets,
-  editPosPresetsName,
-  deletePosPresets,
-} from "core/actions";
-import { useReactiveVar } from "@apollo/client";
-import { reactiveState } from "core/state";
+import { setCurrentPos } from "core/actions";
+// hooks
+import usePosPresets from "./hooks/usePosPresets";
 // redux states
-import { selectLoad } from "../../slices/loadSlice";
+import { selectLoad } from "slices/loadSlice";
 // utils
-import { getItem } from "../../core/utils/localStorage";
+import { getItem } from "core/utils";
 // components
 import PresetsList from "./PresetsList";
-//types
-import { DancerCoordinates } from "types/globalSlice";
-// states and actions
-import { setCurrentPos } from "../../core/actions";
+// types
+import { DancerCoordinates } from "core/models";
 
 /**
  * This is Presets component, list of pos
@@ -35,12 +28,20 @@ export default function PosPresets() {
   // presets intialize
   // get loadedPresets or storagePresets
   const { posPresets: loadedPosPresets } = useSelector(selectLoad);
-  const posPresets = useReactiveVar(reactiveState.posPresets);
+
+  const {
+    posPresets,
+    setPosPresets,
+    addPosPresets,
+    editPosPresetsName,
+    deletePosPresets,
+  } = usePosPresets();
+
   useEffect(() => {
     if (getItem("posPresets")) {
-      setPosPresets({ payload: JSON.parse(getItem("posPresets") || "") });
+      setPosPresets(JSON.parse(getItem("posPresets") || ""));
     } else {
-      setPosPresets({ payload: loadedPosPresets });
+      setPosPresets(loadedPosPresets);
     }
   }, []);
 
@@ -57,15 +58,15 @@ export default function PosPresets() {
 
   // dispatch
   const handleAddPresets = (name: string) => {
-    if (name.trim() !== "") addPosPresets({ payload: name });
+    if (name.trim() !== "") addPosPresets(name);
     closeDialog();
   };
   const handleEditPresets = (name: string, idx: number) => {
-    editPosPresetsName({ payload: { name, idx } });
+    editPosPresetsName({ name, idx });
     closeDialog();
   };
   const handleDeletePresets = (idx: number) => {
-    deletePosPresets({ payload: idx });
+    deletePosPresets(idx);
   };
   const handleSetCurrentPos = (pos: DancerCoordinates) => {
     setCurrentPos({ payload: pos });

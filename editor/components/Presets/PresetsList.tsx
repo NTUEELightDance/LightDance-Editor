@@ -14,10 +14,12 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-
-//types
-import { PresetList, setStatus, setPos } from "types/components/presets";
-import { lightPresetsElement, posPresetsElement } from "types/globalSlice";
+// types
+import {
+  PresetsListType,
+  LightPresetsElement,
+  PosPresetsElement,
+} from "./presets";
 
 const useStyles = makeStyles({
   flex: {
@@ -31,6 +33,15 @@ const useStyles = makeStyles({
   },
 });
 
+function InstanceOfLightPresetsElement(
+  preset: any
+): preset is LightPresetsElement {
+  return "status" in preset;
+}
+function InstanceOfPosPresetsElement(preset: any): preset is PosPresetsElement {
+  return "pos" in preset;
+}
+
 /**
  * This is Presets List
  * @component
@@ -40,7 +51,7 @@ export default function PresetsList({
   handleEditPresets,
   handleDeletePresets,
   handleSetCurrent,
-}: PresetList) {
+}: PresetsListType) {
   const classes = useStyles();
 
   // dialog
@@ -56,34 +67,31 @@ export default function PresetsList({
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNameVal(e.target.value);
+  };
 
-  function instanceOflightPresetsElement(
-    preset: any
-  ): preset is lightPresetsElement {
-    return "status" in preset;
-  }
-  function instanceOfposPresetsElement(
-    preset: any
-  ): preset is posPresetsElement {
-    return "pos" in preset;
-  }
+  const handleApplyPreset = (
+    preset: LightPresetsElement | PosPresetsElement
+  ) => {
+    if (InstanceOfLightPresetsElement(preset)) {
+      handleSetCurrent(preset.status);
+    } else if (InstanceOfPosPresetsElement(preset)) {
+      handleSetCurrent(preset.pos);
+    } else {
+      console.error("Not a valid lightPreset or posPreset.");
+    }
+  };
+
   return (
     <div>
       <List>
         {presets.map(
-          (preset: lightPresetsElement | posPresetsElement, i: number) => (
+          (preset: LightPresetsElement | PosPresetsElement, i: number) => (
             <ListItem
               key={`${i}_preset`}
               className={classes.flex}
-              onDoubleClick={() => {
-                instanceOflightPresetsElement(preset)
-                  ? (handleSetCurrent as setStatus)(preset.status)
-                  : instanceOfposPresetsElement(preset)
-                  ? (handleSetCurrent as setPos)(preset.pos)
-                  : "";
-              }}
+              onDoubleClick={() => handleApplyPreset(preset)}
             >
               <div className={classes.grow}>
                 <Typography variant="body1">

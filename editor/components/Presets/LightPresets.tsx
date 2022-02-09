@@ -7,25 +7,18 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import TextField from "@material-ui/core/TextField";
-
 // states and actions
-import { useReactiveVar } from "@apollo/client";
-import { reactiveState } from "core/state";
-import {
-  setCurrentStatus,
-  setLightPresets,
-  addLightPresets,
-  editLightPresetsName,
-  deleteLightPresets,
-} from "core/actions";
+import { setCurrentStatus } from "core/actions";
+// hooks
+import useLightPresets from "./hooks/useLightPresets";
 // redux states
-import { selectLoad } from "../../slices/loadSlice";
+import { selectLoad } from "slices/loadSlice";
 // utils
-import { getItem } from "../../core/utils/localStorage";
+import { getItem } from "core/utils";
 // components
 import PresetsList from "./PresetsList";
 // types
-import { ControlMapStatus } from "types/globalSlice";
+import { ControlMapStatus } from "core/models";
 
 /**
  * This is Presets component, list of status
@@ -36,13 +29,19 @@ export default function LightPresets() {
   // get loadedPresets or storagePresets
   const { lightPresets: loadedLightPresets } = useSelector(selectLoad);
 
-  const lightPresets = useReactiveVar(reactiveState.lightPresets);
+  const {
+    lightPresets,
+    setLightPresets,
+    addLightPresets,
+    editLightPresetsName,
+    deleteLightPresets,
+  } = useLightPresets();
 
   useEffect(() => {
     if (getItem("lightPresets")) {
-      setLightPresets({ payload: JSON.parse(getItem("lightPresets") || "") });
+      setLightPresets(JSON.parse(getItem("lightPresets") || ""));
     } else {
-      setLightPresets({ payload: loadedLightPresets });
+      setLightPresets(loadedLightPresets);
     }
   }, []);
 
@@ -54,20 +53,21 @@ export default function LightPresets() {
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNameVal(e.target.value);
+  };
 
   // dispatch
   const handleAddPresets = (name: string) => {
-    if (name.trim() !== "") addLightPresets({ payload: name });
+    if (name.trim() !== "") addLightPresets(name);
     closeDialog();
   };
   const handleEditPresets = (name: string, idx: number) => {
-    editLightPresetsName({ payload: { name, idx } });
+    editLightPresetsName({ name, idx });
     closeDialog();
   };
   const handleDeletePresets = (idx: number) => {
-    deleteLightPresets({ payload: idx });
+    deleteLightPresets(idx);
   };
   const handleSetCurrentStatus = (status: ControlMapStatus) => {
     setCurrentStatus({ payload: status });
