@@ -70,7 +70,7 @@ export class EditControlMapResolver {
             const { value, _id } = controlData[0];
             if (type === "FIBER") {
               if (color) {
-                value.color = color
+                value.color = color;
               }
               if (alpha) {
                 value.alpha = alpha;

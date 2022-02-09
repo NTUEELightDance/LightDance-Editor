@@ -18,6 +18,13 @@ input ColorInput {
   colorCode: String!
 }
 
+type ColorMap {
+  colorMap: ColorMapCustomScalar!
+}
+
+"""Color map scalar type"""
+scalar ColorMapCustomScalar
+
 type ColorPayload {
   color: String!
   colorCode: String
@@ -68,9 +75,7 @@ type ControlRecordPayload {
   mutation: String!
 }
 
-"""
-The basic control types
-"""
+"""The basic control types"""
 enum ControlType {
   EL
   FIBER
@@ -186,14 +191,11 @@ type Mutation {
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(
-    controlData: [EditControlInput!]!
-    frameID: String!
-  ): ControlData!
+  editControlMap(controlData: [EditControlInput!]!, frameID: String!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
-  editPosMap(frameID: String!, positionData: [EditPositionInput!]!): Map!
+  editPosMap(positionData: [EditPositionInput!]!, start: Float!): Map!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
   updateColor(color: ColorInput!): String!
@@ -253,6 +255,7 @@ scalar PosMapMutationObjectId
 
 type Query {
   color(color: String!): String!
+  colorMap: ColorMap!
   controlFrame(frameID: String!): ControlFrame!
   controlFrameIDs: [ID!]!
   ControlMap: Map!

@@ -11,11 +11,16 @@ import { PosData } from "./types/posData";
 import { Map } from "./types/map";
 import { EditPositionInput } from "./inputs/position";
 import { Topic } from "./subscriptions/topic";
+import { generateID } from "../utility";
 import {
   PositionMapPayload,
   PositionMapMutation,
 } from "./subscriptions/positionMap";
 import { updateRedisPosition } from "../utility";
+import {
+  PositionRecordPayload,
+  PositionRecordMutation,
+} from "./subscriptions/positionRecord";
 
 @Resolver((of) => Map)
 export class PosMapResolver {
