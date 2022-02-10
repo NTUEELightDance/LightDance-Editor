@@ -2,9 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { DragControls } from "three/examples/jsm/controls/DragControls";
 
-import store from "../../../store";
-
-import { setCurrentPos, setSelected } from "../../../slices/globalSlice";
+import { setCurrentPos } from "../../../core/actions/currentPos";
 
 class Controls {
   constructor(renderer, scene, camera, dancers) {
@@ -116,7 +114,7 @@ class Controls {
         this.group.attach(dancer.model);
       }
     });
-    store.dispatch(setCurrentPos(currentPos));
+    setCurrentPos({ payload: currentPos });
   }
 
   onClick(event) {
@@ -167,7 +165,6 @@ class Controls {
       this.dragControls.transformGroup = true;
       draggableObjects.push(this.group);
       const selected = this.group.children.map((child) => child.name);
-      store.dispatch(setSelected(selected));
     }
   }
 }
