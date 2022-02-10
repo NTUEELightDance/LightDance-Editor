@@ -127,7 +127,7 @@ export class EditPosMapResolver {
       };
       await publishPositionRecord(recordPayload);
       return {
-        frames: [{ _id: newPositionFrame._id, id: newPositionFrame.id }],
+        frame: [{ _id: newPositionFrame._id, id: newPositionFrame.id }],
       };
     }
 
