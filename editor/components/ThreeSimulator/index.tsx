@@ -39,7 +39,6 @@ export default function ThreeSimulator() {
         currentStatus,
         currentPos,
       };
-      console.log(currentPos);
       threeController.updateDancers();
       threeController.render();
     }
@@ -55,10 +54,15 @@ export default function ThreeSimulator() {
   useEffect(() => {
     if (threeController && threeController.initialized()) {
       // threeController.dragControlInit();
-      threeController.controls.initDragControls();
+      if (!threeController.controls.dragControls) {
+        threeController.controls.initDragControls();
+        threeController.controls.initDanceSelector();
+      }
       if (mode === 0) {
+        threeController.controls.enableSelection = false;
         threeController.controls.dragControls.deactivate();
       } else {
+        threeController.controls.enableSelection = true;
         threeController.controls.dragControls.activate();
       }
     }

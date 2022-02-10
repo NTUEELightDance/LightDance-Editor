@@ -2,6 +2,10 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { DragControls } from "three/examples/jsm/controls/DragControls";
 
+import store from "../../../store";
+
+import { setCurrentPos, setSelected } from "../../../slices/globalSlice";
+
 class Controls {
   constructor(renderer, scene, camera, dancers) {
     this.renderer = renderer;
@@ -35,11 +39,9 @@ class Controls {
   }
 
   initDragControls() {
-    if (this.dragControls) {
-      console.log("DragControls already initialized...");
-    }
     this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
     this.enableSelection = false;
+    this.enableMultiSelection = false;
     this.mouse = new THREE.Vector2();
     this.raycaster = new THREE.Raycaster();
 
@@ -53,11 +55,10 @@ class Controls {
     );
     this.dragControls.enabled = false;
 
-    // this.dragControls.addEventListener("dragend", (event) => {
-    //   console.log(this.group);
-    //   console.log(event);
-    // });
+    this.dragControls.addEventListener("dragend", this.dragEnd.bind(this));
+  }
 
+  initDanceSelector() {
     addEventListener("click", this.onClick.bind(this));
     addEventListener("keydown", this.onKeyDown.bind(this));
     addEventListener("keyup", this.onKeyUp.bind(this));
@@ -66,32 +67,62 @@ class Controls {
   onKeyDown(event) {
     // hold ctrl to enable grouping
     if (event.keyCode === 17 || event.keyCode === 91) {
-      this.enableSelection = true;
+      this.enableMultiSelection = true;
     }
     // press v to enable moving
     if (event.keyCode === 86) {
-      this.dragControls.enabled = true;
+      // this.dragControls.enabled = true;
+      this.dragControls.enabled = !this.dragControls.enabled;
+      this.enableSelection = !this.dragControls.enabled;
+      console.log(this.dragControls.enabled, this.enableSelection);
+      console.log(this.group);
       // this.orbitControls.enabled = false;
-      this.disableOrbitControls();
+      if (this.dragControls.enabled) this.disableOrbitControls();
+      else this.enableOrbitControls();
     }
   }
 
   onKeyUp(event) {
     if (event.keyCode === 17 || event.keyCode === 91) {
-      this.enableSelection = false;
+      this.enableMultiSelection = false;
     }
-    if (event.keyCode === 86) {
-      this.dragControls.enabled = false;
-      this.enableOrbitControls();
+    // if (event.keyCode === 86) {
+    //   this.dragEnd();
+    //   this.dragControls.enabled = false;
+    //   this.enableSelection = true;
+    //   this.enableOrbitControls();
+    // }
+  }
+
+  dragEnd() {
+    const selected = [];
+    while (this.group.children.length) {
+      selected.push(this.group.children[0].name);
+      this.scene.attach(this.group.children[0]);
     }
+    this.group.position.set(0, 0, 0);
+
+    const currentPos = {};
+    Object.entries(this.dancers).forEach(([name, dancer], i) => {
+      const { position } = dancer.model;
+
+      currentPos[name] = {
+        x: position.x * 30,
+        y: position.z * 30,
+        z: position.z * 30,
+      };
+
+      if (selected.includes(name)) {
+        this.group.attach(dancer.model);
+      }
+    });
+    store.dispatch(setCurrentPos(currentPos));
   }
 
   onClick(event) {
+    if (!this.enableSelection) return;
     event.preventDefault();
     console.log(`onClick: ${this.enableSelection}`);
-
-    const draggableObjects = this.dragControls.getObjects();
-    draggableObjects.length = 0;
 
     const rect = this.renderer.domElement.getBoundingClientRect();
 
@@ -104,56 +135,39 @@ class Controls {
     console.log(intersections);
 
     if (intersections.length > 0) {
+      const draggableObjects = this.dragControls.getObjects();
+      draggableObjects.length = 0;
       const object = intersections[0].object.parent;
       const { name } = object;
-      console.log(object);
-      // const dancer = object.parent
 
-      if (this.enableSelection === true) {
+      if (this.enableMultiSelection) {
         // Cancel selection
         if (this.group.children.includes(object) === true) {
-          // object.material.emissive.set(0x000000);
-          this.dancers[name].nameTag.material.color.setRGB(0, 0.4, 0.6);
+          this.dancers[name].unselect();
           this.scene.attach(object);
         }
         // Add selection
         else {
-          // object.material.emissive.set(0xaaaaaa);
-          this.dancers[name].nameTag.material.color.setRGB(1, 1, 1);
+          this.dancers[name].select();
           this.group.attach(object);
-          // this.group.attach(this.dancers[object.userData.name].model);
         }
       } else {
         while (this.group.children.length) {
           const object = this.group.children[0];
           const { name } = object;
-          this.dancers[name].nameTag.material.color.setRGB(0, 0.4, 0.6);
-          // object.material.emissive.set(0x000000);
+          this.dancers[name].unselect();
           this.scene.attach(object);
         }
 
         // Add selection
-        // object.material.emissive.set(0xaaaaaa);
-        this.dancers[name].nameTag.material.color.setRGB(1, 1, 1);
+        this.dancers[name].select();
         this.group.attach(object);
-        // this.group.attach(this.dancers[object.userData.name].model);
       }
 
       this.dragControls.transformGroup = true;
       draggableObjects.push(this.group);
-    } else {
-      while (this.group.children.length) {
-        const object = this.group.children[0];
-        const { name } = object;
-        // object.material.emissive.set(0x000000);
-        this.dancers[name].nameTag.material.color.setRGB(0, 0.4, 0.6);
-        this.scene.attach(object);
-      }
-    }
-
-    if (this.group.children.length === 0) {
-      this.dragControls.transformGroup = false;
-      draggableObjects.push(...this.objects);
+      const selected = this.group.children.map((child) => child.name);
+      store.dispatch(setSelected(selected));
     }
   }
 }

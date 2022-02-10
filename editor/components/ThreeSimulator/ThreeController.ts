@@ -206,7 +206,12 @@ class ThreeController {
       if (!name.includes("sw")) {
         // if (name.includes("191")) {
         // const newDancer = new ThreeDancer(this.scene, name);
-        const newDancer = new YellowDancer(this.scene, name);
+
+        const newDancer = new Dancer(
+          this.scene,
+          name,
+          "/asset/models/yellow_clean.glb"
+        );
         const newPos = {
           x: position.x / 30,
           y: 0,
