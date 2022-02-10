@@ -44,10 +44,13 @@ const initRedisControl = async () => {
                 partData[name] = value;
               } else if (type === "FIBER") {
                 partData[name] = value;
-                const { colorCode } = await model.Color.findOne({
-                  color: partData[name].color,
-                });
-                partData[name].color = colorCode;
+                // const color = await model.Color.findOne({
+                //   color: partData[name].color,
+                // });
+                // if (color) {
+                //   const { colorCode } = color;
+                //   partData[name].color = colorCode;
+                // }
               } else {
                 partData[name] = value.value;
               }
@@ -125,10 +128,13 @@ const updateRedisControl = async (id: string) => {
             partData[name] = value;
           } else if (type === "FIBER") {
             partData[name] = value;
-            const { colorCode } = await model.Color.findOne({
-              color: partData[name].color,
-            });
-            partData[name].color = colorCode;
+            // const color = await model.Color.findOne({
+            //   color: partData[name].color,
+            // });
+            // if (color) {
+            //   const { colorCode } = color;
+            //   partData[name].color = colorCode;
+            // }
           } else {
             partData[name] = value.value;
           }

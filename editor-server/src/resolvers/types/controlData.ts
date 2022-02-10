@@ -44,10 +44,10 @@ export const ControlDataScalar = new GraphQLScalarType({
               partData[name] = value;
             } else if (type === "FIBER") {
               partData[name] = value;
-              const { colorCode } = await db.Color.findOne({
-                color: partData[name].color,
-              });
-              partData[name].color = colorCode;
+              // const { colorCode } = await db.Color.findOne({
+              //   color: partData[name].color,
+              // });
+              // partData[name].color = colorCode;
             } else {
               partData[name] = value.value;
             }

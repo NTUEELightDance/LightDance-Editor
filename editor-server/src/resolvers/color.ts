@@ -10,6 +10,7 @@ import {
 import { ColorInput } from "./inputs/color";
 import { Topic } from "./subscriptions/topic";
 import { ColorPayload, colorMutation } from "./subscriptions/color";
+import { ColorMap } from "./types/colorMap";
 
 @Resolver()
 class ColorResolver {
@@ -19,6 +20,13 @@ class ColorResolver {
     let { colorCode } = await ctx.db.Color.findOne({ color });
     console.log(colorCode);
     return colorCode;
+  }
+
+  @Query((returns) => ColorMap)
+  async colorMap(@Ctx() ctx: any) {
+    const colors = await ctx.db.Color.find();
+    console.log(colors);
+    return { colorMap: colors };
   }
 
   @Mutation((returns) => String)

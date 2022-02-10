@@ -93,9 +93,9 @@ const ADD_POSFRAME = gql`
 const EDIT_CONTROLMAP = gql`
   mutation EditControlMap(
     $frameId: String!
-    $controlDatas: [EditControlInput!]!
+    $controlData: [EditControlInput!]!
   ) {
-    editControlMap(frameID: $frameId, controlDatas: $controlDatas) {
+    editControlMap(frameID: $frameId, controlData: $controlData) {
       frame
     }
   }
@@ -112,11 +112,8 @@ const EDIT_CONTROLFRAME = gql`
 `;
 
 const EDIT_POSMAP = gql`
-  mutation EditPosMap(
-    $frameId: String!
-    $positionDatas: [EditPositionInput!]!
-  ) {
-    editPosMap(frameID: $frameId, positionDatas: $positionDatas) {
+  mutation EditPosMap($frameId: String!, $positionData: [EditPositionInput!]!) {
+    editPosMap(frameID: $frameId, positionData: $positionData) {
       frames
     }
   }
@@ -181,10 +178,10 @@ const initControl = async (client) => {
       });
 
       console.log(`Editing controlMap of id: ${frameId} ...`);
-      const controlDatas = Object.keys(status).map((dancerName) => {
+      const controlData = Object.keys(status).map((dancerName) => {
         const re = {};
         re.dancerName = dancerName;
-        re.controlDatas = Object.keys(status[dancerName]).map((partName) => {
+        re.controlData = Object.keys(status[dancerName]).map((partName) => {
           const part = {};
           part.partName = partName;
           if (typeof status[dancerName][partName] === "number") {
@@ -199,7 +196,7 @@ const initControl = async (client) => {
       });
       await client.request(EDIT_CONTROLMAP, {
         frameId,
-        controlDatas: controlDatas,
+        controlData: controlData,
         fade,
       });
     } catch (err) {
@@ -241,14 +238,14 @@ const initPos = async (client) => {
 
     try {
       console.log(`Editing posMap of id: ${frameId} ...`);
-      const positionDatas = Object.keys(pos).map((dancerName) => ({
+      const positionData = Object.keys(pos).map((dancerName) => ({
         dancerName,
-        positionDatas: pos[dancerName],
+        positionData: pos[dancerName],
       }));
 
       await client.request(EDIT_POSMAP, {
         frameId,
-        positionDatas,
+        positionData,
       });
     } catch (err) {
       console.error(JSON.stringify(err, undefined, 2));

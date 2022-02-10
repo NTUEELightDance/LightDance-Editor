@@ -6,7 +6,7 @@ export class EditControlInput {
   dancerName: string;
 
   @Field((type) => [ControlDataInput])
-  controlDatas: any;
+  controlData: any;
 }
 
 @InputType()
