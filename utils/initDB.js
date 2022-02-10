@@ -28,6 +28,24 @@ const dancerNames = [
   "10_sw",
 ];
 
+const REQUEST_EDIT_POS = gql`
+  mutation RequestEditPosition($frameId: String!) {
+    RequestEditPosition(FrameID: $frameId) {
+      editing
+      ok
+    }
+  }
+`;
+
+const REQUEST_EDIT_CONTROL = gql`
+  mutation RequestEditControl($frameId: String!) {
+    RequestEditControl(FrameID: $frameId) {
+      editing
+      ok
+    }
+  }
+`;
+
 const ADD_DANCER = gql`
   mutation addDancer($dancer: AddDancerInput!) {
     addDancer(dancer: $dancer) {
@@ -156,6 +174,12 @@ const initControl = async (client) => {
           fade,
         },
       });
+
+      console.log(`Requesting edit control: ${frameId} ...`);
+      await client.request(REQUEST_EDIT_CONTROL, {
+        frameId,
+      });
+
       console.log(`Editing controlMap of id: ${frameId} ...`);
       const controlDatas = Object.keys(status).map((dancerName) => {
         const re = {};
@@ -201,10 +225,19 @@ const initPos = async (client) => {
       console.error(JSON.stringify(err, undefined, 2));
       continue;
     }
-    // after adding frmae, we need to have a delay, or it may have errors
+    // after adding frame, we need to have a delay, or it may have errors
     // I don't know why
     // only occurs in first three pos frame
     await new Promise((r) => setTimeout(r, 300));
+
+    try {
+      console.log("requesting edit pos");
+      await client.request(REQUEST_EDIT_POS, {
+        frameId,
+      });
+    } catch (err) {
+      console.error(JSON.stringify(err, undefined, 2));
+    }
 
     try {
       console.log(`Editing posMap of id: ${frameId} ...`);

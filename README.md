@@ -37,7 +37,6 @@ You can use Docker to install and start all the services. You can see the editor
 
 ```bash
 docker-compose -f dev.docker-compose.yml up -d
-
 ```
 
 ### Local
@@ -65,4 +64,14 @@ You need to have MongoDB running on `mongodb://localhost:27017`
 ```bash
 docker-compose -f dev.docker-compose.yml up -d mongodb
 docker-compose -f dev.docker-compose.yml up -d redisdb
+```
+
+### Initialize Database
+
+After starting all services, one can add 2021's control and position data into mongoDB.
+
+```bash
+cd utils
+yarn
+node initDB.js
 ```
