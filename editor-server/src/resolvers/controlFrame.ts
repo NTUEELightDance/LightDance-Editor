@@ -140,7 +140,9 @@ export class ControlFrameResolver {
       { editing: null }
     );
 
-    const controlFrame = await ctx.db.ControlFrame.findOne({ id: input.frameID });
+    const controlFrame = await ctx.db.ControlFrame.findOne({
+      id: input.frameID,
+    });
     await updateRedisControl(controlFrame.id);
     const payload: ControlMapPayload = {
       mutation: ControlMapMutation.CREATED,

@@ -117,7 +117,7 @@ export class EditPosMapResolver {
           index = idx;
         }
       });
-      await updateRedisPosition(newPositionFrame.id)
+      await updateRedisPosition(newPositionFrame.id);
 
       const recordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.CREATED,
@@ -175,7 +175,7 @@ export class EditPosMapResolver {
       // positionframe editing cancel
       await ctx.db.PositionFrame.updateOne({ id: frameID }, { editing: null });
 
-      await updateRedisPosition(frameID)
+      await updateRedisPosition(frameID);
       // subscription
       const payload: PositionMapPayload = {
         mutation: PositionMapMutation.UPDATED,
