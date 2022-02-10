@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 // redux
 import { useSelector } from "react-redux";
 
@@ -20,36 +20,21 @@ export default function ThreeSimulator() {
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
   const currentPos = useReactiveVar(reactiveState.currentPos);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const mode = useReactiveVar(reactiveState.mode);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     threeController.init(canvas, container);
   }, []);
 
-  useEffect(() => {
-    threeController.fetch();
-    threeController.isPlaying = isPlaying;
-  }, [isPlaying]);
-
-  useEffect(() => {
-    if (threeController.initialized()) {
-      threeController.state = {
-        ...threeController.state,
-        currentStatus,
-        currentPos,
-      };
-      threeController.updateDancers();
-      threeController.render();
-    }
-  }, [currentStatus]);
-
-  useEffect(() => {
-    if (threeController) {
-      threeController.fetch();
-      console.log("Detect change, fetching new record and map...");
-    }
-  }, [controlMap, posMap]);
+  // useEffect(() => {
+  //   if (isPlaying) {
+  //     threeController.play();
+  //   } else {
+  //     threeController.stop();
+  //   }
+  // }, [isPlaying]);
 
   useEffect(() => {
     if (threeController && threeController.initialized()) {

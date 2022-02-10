@@ -28,9 +28,10 @@ class Dancer {
   }
 
   // Load model with given URL and capture all the meshes for light status
-  addModel2Scene(position) {
+  addModel2Scene(currentStatus, currentPos) {
+    this.initStatus = currentStatus;
+    this.initPos = currentPos;
     // Use GLTF loader to load target model from URL
-    this.initPosition = position;
     const modelLoader = new GLTFLoader();
     modelLoader.load(this.modelSrc, this.initModel.bind(this));
 
@@ -52,7 +53,6 @@ class Dancer {
   initModel(gltf) {
     this.model = gltf.scene;
     this.model.name = this.name;
-    const position = this.initPosition;
     const partMapping = {};
     this.model.children.forEach(
       (child) => (partMapping[child.name] = child.name)
@@ -82,9 +82,6 @@ class Dancer {
     // this.skeleton = new THREE.SkeletonHelper(this.model);
     // this.skeleton.visible = false;
 
-    this.model.position.setX(position.x);
-    this.model.position.setY(position.y);
-    this.model.position.setZ(position.z);
     this.model.scale.set(1.3, 1.3, 1.3);
 
     this.scene.attach(this.model);
@@ -92,12 +89,16 @@ class Dancer {
 
     // attach nameTag to the model
     this.model.attach(this.nameTag);
+
+    this.setStatus(this.initStatus);
+    this.setPos(this.initPos);
+
+    if (this.name.includes("sw")) this.model.visible = false;
     this.initialized = true;
   }
 
   // Create nameTag given font
   initNameTag(font) {
-    const position = this.initPosition;
     const color = 0x006699;
 
     const matLite = new THREE.MeshBasicMaterial({
@@ -117,7 +118,7 @@ class Dancer {
 
     // make shape ( N.B. edge view not visible )
     const text = new THREE.Mesh(geometry, matLite);
-    text.position.set(position.x, 8, position.z);
+    text.position.setY(8);
 
     this.nameTag = text;
   }
@@ -134,17 +135,17 @@ class Dancer {
 
   // Update the model's positon and status
   update(currentPos, currentStatus) {
-    this.updatePos(currentPos);
-    this.updateStatus(currentStatus);
+    this.setPos(currentPos);
+    this.setStatus(currentStatus);
   }
 
   // Update the model's positon
-  updatePos(currentPos) {
-    this.model.position.set(currentPos.x, currentPos.y, currentPos.z);
+  setPos(currentPos) {
+    this.model.position.set(currentPos.x / 30, 0, currentPos.z / 30);
   }
 
   // Update the model's status
-  updateStatus(currentStatus) {
+  setStatus(currentStatus) {
     Object.entries(this.OFParts).forEach(([name, e]) => {
       let intensity = 0.0;
       Object.values(MAPPING).forEach((MAP) => {
