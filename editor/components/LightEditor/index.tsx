@@ -1,24 +1,21 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState } from "react";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
-// redux selector and actions
+// states and actions
 import {
   saveCurrentStatus,
   deleteCurrentStatus,
   saveCurrentFade,
-} from "../../slices/globalSlice";
+} from "../../core/actions";
+
 // components
 import SelectDancer from "./SelectDancer";
 import ElEditor from "./ElEditor";
 import LedEditor from "./LedEditor";
 import ModeSelector from "./ModeSelector";
 import Fade from "./Fade";
-// constants
-
-import store from "../../store";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,8 +46,6 @@ const useStyles = makeStyles((theme) => ({
 export default function LightEditor() {
   // styles
   const classes = useStyles();
-  // redux
-  const dispatch = useDispatch();
 
   // switch between ElEditor and LedEditor
   const ELEDITOR = "EL Editor";
@@ -62,15 +57,13 @@ export default function LightEditor() {
 
   // save
   const handleSave = () => {
-    const status = store.getState().global.currentStatus;
-    const { controlFrame, time } = store.getState().global.timeData;
-    dispatch(saveCurrentStatus({ status, frame: controlFrame, time }));
-    dispatch(saveCurrentFade());
+    saveCurrentStatus();
+    saveCurrentFade();
   };
   // delete
   const handleDelete = () => {
     if (window.confirm(`Are you sure to delete ?`)) {
-      dispatch(deleteCurrentStatus());
+      deleteCurrentStatus();
     }
   };
 

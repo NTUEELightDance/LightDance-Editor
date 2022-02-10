@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useReactiveVar } from "@apollo/client";
 // styles
 import { makeStyles } from "@material-ui/core/styles";
 
 // redux selector and actions
-import { selectGlobal, editCurrentStatus } from "../../../slices/globalSlice";
 import { selectLoad } from "../../../slices/loadSlice";
+
+// state and actions
+import { reactiveState } from "../../../core/state";
+import { editCurrentStatus } from "../../../core/actions/currentStatus";
 
 // components
 import SlideBar from "../Slidebar";
@@ -25,9 +29,11 @@ export default function ElEditor() {
   // classes
   const classes = useStyles();
   // redux states
-  const dispatch = useDispatch();
   const { dancers } = useSelector(selectLoad);
-  const { mode, currentStatus, selected } = useSelector(selectGlobal);
+  // states
+  const mode = useReactiveVar(reactiveState.mode);
+  const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const selected = useReactiveVar(reactiveState.selected);
 
   // selected dancers' elparts
   const [intersectParts, setIntersectParts] = useState([]);
@@ -70,12 +76,12 @@ export default function ElEditor() {
       // if chosenParts not empty => change all chosenParts value
       if (chosenParts.length)
         chosenParts.forEach((chosenPartName) => {
-          dispatch(
-            editCurrentStatus({ dancerName, partName: chosenPartName, value })
-          );
+          editCurrentStatus({
+            payload: { dancerName, partName: chosenPartName, value },
+          });
         });
       // only one change
-      else dispatch(editCurrentStatus({ dancerName, partName, value }));
+      else editCurrentStatus({ payload: { dancerName, partName, value } });
     });
   };
 

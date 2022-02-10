@@ -1,18 +1,12 @@
 import * as PIXI from "pixi.js";
-// utils
-import { setItem, getItem } from "../../utils/localStorage";
 // redux actions and store
-import { posInit, controlInit } from "../../slices/globalSlice";
 import store from "../../store";
 // components
 import Dancer from "./Dancer";
 // math
-import {
-  updateFrameByTimeMap,
-  interpolationPos,
-  fadeStatus,
-} from "../../utils/math";
 import { ControlMapStatus, DancerCoordinates } from "../../types/globalSlice";
+// states
+import { state } from "core/state";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -32,32 +26,6 @@ class Controller {
    * Initiate localStorage, waveSurferApp, PixiApp, dancers
    */
   init() {
-    // initialization by localStorage
-    if (!getItem("controlRecord")) {
-      setItem("controlRecord", JSON.stringify(store.getState().load.control));
-    }
-    if (!getItem("controlMap")) {
-      setItem("controlMap", JSON.stringify(store.getState().load.controlMap));
-    }
-    if (!getItem("posRecord")) {
-      setItem("posRecord", JSON.stringify(store.getState().load.posRecord));
-    }
-    if (!getItem("posMap")) {
-      setItem("posMap", JSON.stringify(store.getState().load.posMap));
-    }
-    store.dispatch(
-      controlInit({
-        controlRecord: JSON.parse(getItem("controlRecord")!),
-        controlMap: JSON.parse(getItem("controlMap")!),
-      })
-    );
-    store.dispatch(
-      posInit({
-        posRecord: JSON.parse(getItem("posRecord")!),
-        posMap: JSON.parse(getItem("posMap")!),
-      })
-    );
-
     // initialization for PIXIApp
     this.pixiApp = new PIXI.Application({
       resizeTo: document.getElementById("pixi")!,
@@ -111,86 +79,29 @@ class Controller {
     });
   }
 
-  // update each frame according to the current time
-  animate() {
-    // calculate simluation time + waveSurferTime to find the latset frame
-    const time =
-      this.pixiApp.waveSurferTime + performance.now() - this.pixiApp.startTime;
-    const { state } = this.pixiApp;
-
-    // set timeData.controlFrame and currentStatus
-    const newControlFrame = updateFrameByTimeMap(
-      state.controlRecord,
-      state.controlMap,
-      state.timeData.controlFrame,
-      time
-    );
-
-    state.timeData.controlFrame = newControlFrame;
-
-    // status fade
-    if (newControlFrame === state.controlRecord.length - 1) {
-      // Can't fade
-      state.currentStatus =
-        state.controlMap[state.controlRecord[newControlFrame]].status;
-    } else {
-      // do fade
-      state.currentStatus = fadeStatus(
-        time,
-        state.controlMap[state.controlRecord[newControlFrame]],
-        state.controlMap[state.controlRecord[newControlFrame + 1]]
-      );
-    }
-
-    // set timeData.posFrame and currentPos
-    const newPosFrame = updateFrameByTimeMap(
-      state.posRecord,
-      state.posMap,
-      state.timeData.posFrame,
-      time
-    );
-    state.timeData.posFrame = newPosFrame;
-    // position interpolation
-    if (newPosFrame === state.posRecord.length - 1) {
-      // can't interpolation
-      state.currentPos = state.posRecord[newPosFrame].pos;
-    } else {
-      // do interpolation
-      state.currentPos = interpolationPos(
-        time,
-        state.posMap[state.posRecord[newPosFrame]],
-        state.posMap[state.posRecord[newPosFrame + 1]]
-      );
-    }
-
-    // set currentFade
-    state.currentFade =
-      state.controlMap[state.controlRecord[newControlFrame]].fade;
-
-    this.updateDancersStatus(state.currentStatus);
+  /**
+   * animate function
+   */
+  animate = () => {
     this.updateDancersPos(state.currentPos);
-  }
+    this.updateDancersStatus(state.currentStatus);
+  };
 
-  // fetch controlRecord, posRecord and timeData and update ticker function
-  fetch() {
-    const { timeData, controlRecord, controlMap, posRecord, posMap } =
-      store.getState().global;
-    this.pixiApp.startTime = performance.now();
-    this.pixiApp.waveSurferTime = timeData.time;
-    this.pixiApp.state = { controlRecord, controlMap, posRecord, posMap };
-    this.pixiApp.state.timeData = { ...timeData };
-    this.tickerF = this.animate.bind(this);
-  }
-
-  // add ticker funciton to ticker and start playing
+  /**
+   * start playing the animation
+   */
   play() {
-    this.pixiApp.ticker.add(this.tickerF);
+    this.pixiApp?.ticker.add(this.animate);
   }
 
-  // remove ticker function from ticker
+  /**
+   * stop playing the animation
+   */
   stop() {
-    this.pixiApp.ticker.remove(this.tickerF);
+    this.pixiApp?.ticker.remove(this.animate);
   }
 }
 
-export default Controller;
+const controller = new Controller();
+
+export default controller;

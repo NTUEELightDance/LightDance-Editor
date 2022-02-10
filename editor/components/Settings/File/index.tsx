@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-
+import { useState } from "react";
+import { useSelector } from "react-redux";
 // mui
 import Divider from "@material-ui/core/Divider";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-// import MenuItem from "@material-ui/core/MenuItem";
-
 import {
   Stack,
   Box,
@@ -19,15 +16,11 @@ import {
 } from "@mui/material";
 
 // write record
-import {
-  posInit,
-  controlInit,
-  selectGlobal,
-} from "../../../slices/globalSlice";
+import { selectGlobal } from "../../../slices/globalSlice";
 // select
 import { selectLoad } from "../../../slices/loadSlice";
 // utils
-import { setItem, getItem } from "../../../utils/localStorage";
+import { setItem, getItem } from "../../../core/utils";
 // api
 import { uploadImages, requestDownload } from "../../../api";
 // utils
@@ -59,7 +52,6 @@ import { UploadDownload } from "./UploadDownload";
  */
 export default function File() {
   // upload to server
-  const dispatch = useDispatch();
   const { texture } = useSelector(selectLoad);
   const { posRecord, controlRecord, controlMap } = useSelector(selectGlobal);
   const [toServer, setToServer] = useState(false);
@@ -111,7 +103,6 @@ export default function File() {
       ) {
         setItem("controlRecord", JSON.stringify(controlRecord));
         setItem("controlMap", JSON.stringify(controlMap));
-        dispatch(controlInit({ controlRecord, controlMap }));
       }
     } else alert(errorMessage);
   };
@@ -130,7 +121,6 @@ export default function File() {
       ) {
         setItem("posRecord", JSON.stringify(posRecord));
         setItem("posMap", JSON.stringify(posMap));
-        dispatch(posInit({ posRecord, posMap }));
       }
     } else alert(errorMessage);
   };

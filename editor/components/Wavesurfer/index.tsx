@@ -1,20 +1,16 @@
-import { useEffect, useContext, useMemo, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useContext, useLayoutEffect } from "react";
 import { useResizeDetector } from "react-resize-detector";
 
-// my class
-import WaveSurferApp from "./WaveSurferApp";
+// mui
+import Stack from "@mui/material/Stack";
+// components
 import ControlBar from "../ControlBar";
-// selector
-import { selectGlobal } from "../../slices/globalSlice";
-// constants
-import { WAVESURFERAPP } from "../../constants";
 // contexts
 import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
-//types
+// types
 import { wavesurferContext } from "types/components/wavesurfer";
-
-import Stack from "@mui/material/Stack";
+// hooks
+import useControl from "../../hooks/useControl";
 
 /**
  *
@@ -32,41 +28,23 @@ const Wavesurfer = ({ cleanMode = false }) => {
     },
   });
 
-  useEffect(() => {
-    const newWaveSurferApp = new WaveSurferApp();
-    initWaveSurferApp(newWaveSurferApp);
+  useLayoutEffect(() => {
+    initWaveSurferApp();
   }, []);
 
-  // redux
-  const {
-    timeData: { from, time },
-  } = useSelector(selectGlobal);
-  const { controlRecord, controlMap } = useSelector(selectGlobal);
+  const { loading, error, controlMap, controlRecord } = useControl();
 
-  //update Markers
+  // update Markers
   useEffect(() => {
-    if (controlMap && waveSurferApp && showMarkers)
+    if (!loading && controlMap && showMarkers)
       waveSurferApp.updateMarkers(controlMap);
   }, [controlRecord]);
 
-  //update Markers when markers switched on
+  // update Markers when markers switched on
   useEffect(() => {
-    if (!controlMap || !waveSurferApp) return;
+    if (loading || !controlMap || !waveSurferApp) return;
     waveSurferApp.toggleMarkers();
   }, [showMarkers]);
-
-  // listen to time set by other component
-  useEffect(() => {
-    if (waveSurferApp) {
-      if (from !== WAVESURFERAPP) {
-        try {
-          waveSurferApp.seekTo(time);
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    }
-  }, [waveSurferApp, time]);
 
   return (
     <div ref={resizeDetectorRef}>

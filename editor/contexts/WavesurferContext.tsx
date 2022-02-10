@@ -1,28 +1,31 @@
-import React, { useState, createContext } from "react";
-import WaveSurferApp from "components/Wavesurfer/WaveSurferApp";
+import { useState, createContext, useRef } from "react";
+import WaveSurferApp, {
+  waveSurferAppInstance,
+} from "components/Wavesurfer/WaveSurferApp";
 import { wavesurferContext } from "types/components/wavesurfer";
 
 export const WaveSurferAppContext = createContext<wavesurferContext | null>(
   null
 );
-// export { WebSocketContext };
 
 export default function WaveSurfer({ children }: { children: JSX.Element }) {
-  const [waveSurferApp, setWaveSurferApp] = useState<WaveSurferApp | null>(
-    null
-  );
+  const waveSurferApp = useRef<WaveSurferApp>(waveSurferAppInstance);
   const [showMarkers, setShowMarkers] = useState(true);
   const toggleMarkers = () => {
     setShowMarkers(!showMarkers);
   };
-  const initWaveSurferApp = (wave: WaveSurferApp) => {
-    wave.init();
-    setWaveSurferApp(wave);
+  const initWaveSurferApp = () => {
+    waveSurferApp.current.init();
   };
 
   return (
     <WaveSurferAppContext.Provider
-      value={{ waveSurferApp, showMarkers, initWaveSurferApp, toggleMarkers }}
+      value={{
+        waveSurferApp: waveSurferApp.current,
+        showMarkers,
+        initWaveSurferApp,
+        toggleMarkers,
+      }}
     >
       {children}
     </WaveSurferAppContext.Provider>

@@ -7,12 +7,13 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import { useSelector, useDispatch } from "react-redux";
 // actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
-//graphql
-import { GET_DANCERS } from "graphql";
-import { useQuery } from "@apollo/client";
 // components
-import Header from "./components/Header";
+import Header from "components/Header";
 import Loading from "components/Loading";
+// hooks
+import useControl from "hooks/useControl";
+import usePos from "hooks/usePos";
+import { setCurrentPos, setCurrentStatus } from "core/actions";
 
 import "./app.css";
 import Layout from "containers/Layout";
@@ -43,20 +44,44 @@ const theme = createTheme({
 const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
-  const { data } = useQuery(GET_DANCERS);
+
+  const {
+    loading: controlLoading,
+    error: controlError,
+    controlMap,
+    controlRecord,
+  } = useControl();
+  const { loading: posLoading, error: posError, posMap, posRecord } = usePos();
 
   useEffect(() => {
     if (!init) {
       dispatch(fetchLoad());
     }
-    console.log(data);
   }, [init]);
+
+  useEffect(() => {
+    if (!controlLoading) {
+      if (controlError) console.error(controlError);
+      // init the currentStatus
+      // TODO: check record size and auto generate currentStatus if empty
+      setCurrentStatus({ payload: controlMap[controlRecord[0]].status });
+    }
+  }, [controlLoading, controlError]);
+
+  useEffect(() => {
+    if (!posLoading) {
+      if (posError) console.error(posError);
+      // init the currentPos
+      // TODO: check record size and auto generate currentPos if empty
+      setCurrentPos({ payload: posMap[posRecord[0]].pos });
+    }
+  }, [posLoading, posError]);
 
   return (
     <div>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {init ? (
+        {init && !controlLoading && !posLoading ? (
           <div
             style={{
               display: "flex",

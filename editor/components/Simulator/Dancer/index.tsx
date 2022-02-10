@@ -2,11 +2,9 @@ import * as PIXI from "pixi.js";
 import { BlackPart, ELPart, LEDPart } from "./Parts";
 // constants
 import { IDLE } from "../../../constants";
-// actions
-import {
-  toggleSelected,
-  setCurrentPosByName,
-} from "../../../slices/globalSlice";
+// states and actions
+import { reactiveState } from "../../../core/state";
+import { setCurrentPosByName, toggleSelected } from "../../../core/actions";
 // store
 import store from "../../../store";
 
@@ -91,7 +89,7 @@ class Dancer {
       .on("pointerupoutside", this.onDragEnd)
       .on("pointermove", this.onDragMove)
       .on("click", () => {
-        store.dispatch(toggleSelected(this.name));
+        toggleSelected({ payload: this.name });
       });
   }
 
@@ -143,7 +141,7 @@ class Dancer {
     this.data = event.data;
     this.alpha = 0.5;
     // can't drag when mode is IDLE
-    this.dragging = store.getState().global.mode !== IDLE;
+    this.dragging = reactiveState.mode() !== IDLE;
   }
 
   /**
@@ -166,16 +164,19 @@ class Dancer {
     // set the interaction data to null
     this.data = null;
     this.zIndex = this.position.y;
-    store.dispatch(
-      setCurrentPosByName({
+    setCurrentPosByName({
+      payload: {
         name: this.name,
         ...this.posMinusCenter({
           x: this.x,
           y: this.y,
           z: this.zIndex,
         }),
-      })
-    );
+      },
+      options: {
+        refreshPixiSimulator: false,
+      },
+    });
   }
 
   /**

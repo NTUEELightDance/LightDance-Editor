@@ -17,6 +17,9 @@ import commandApi from "./agent";
 // redux selector and actions
 import { selectGlobal } from "../../slices/globalSlice";
 import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
+// states
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "core/state";
 // contants
 import COMMANDS from "../../../editor-common/constants";
 // contexts
@@ -52,11 +55,10 @@ export default function CommandCenter() {
   const classes = useStyles();
 
   // redux
-  const {
-    controlRecord,
-    currentStatus,
-    timeData: { time },
-  } = useSelector(selectGlobal);
+  const { controlRecord } = useSelector(selectGlobal);
+
+  const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const { time } = useReactiveVar(reactiveState.timeData);
 
   const { dancerStatus } = useSelector(selectCommand);
 

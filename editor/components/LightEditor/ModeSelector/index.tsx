@@ -1,29 +1,25 @@
-import React, { useEffect, useContext } from "react";
+import { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
 // mui
 import Button from "@material-ui/core/Button";
-// redux selector and actions
-import {
-  selectGlobal,
-  toggleMode,
-  saveToLocal,
-} from "../../../slices/globalSlice";
+// actions
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "core/state";
+import { toggleMode, saveToLocal } from "core/actions";
 // constants
 import { IDLE, ADD, EDIT } from "../../../constants";
 
 export default function ModeSelector({ handleSave, handleDelete }) {
   // redux states
-  const { mode } = useSelector(selectGlobal);
-  const dispatch = useDispatch();
+  const mode = useReactiveVar(reactiveState.mode);
 
   // mode
-  const handleChangeMode = (m) => {
-    dispatch(toggleMode(m));
+  const handleChangeMode = (m: number) => {
+    toggleMode({ payload: m });
   };
 
   const handleSaveToLocal = () => {
-    dispatch(saveToLocal());
+    saveToLocal();
   };
 
   // keyDown to change mode (include multiple keyDown)

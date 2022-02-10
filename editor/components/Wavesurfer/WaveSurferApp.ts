@@ -5,20 +5,19 @@ import MarkersPlugin from "./MarkersPlugin";
 
 // redux
 import store from "../../store";
-import { playPause, setTime } from "../../slices/globalSlice";
+import { setTime, setIsPlaying } from "../../core/actions";
 
 // constant
 import { WAVESURFERAPP } from "../../constants";
-import { getItem } from "../../utils/localStorage";
+import { fadeStatus, getItem } from "../../core/utils";
 
-// types
 import { LocalRegion, Region } from "../../types/components/wavesurfer";
-
+// types
 import { ControlMapElement } from "../../types/globalSlice";
+
 /**
  * control 3rd party package, WaveSurfer
  */
-
 class WaveSurferApp {
   waveSurfer: any;
   from: string;
@@ -78,15 +77,13 @@ class WaveSurferApp {
 
     // This function is disabled considering performance issues
     // Listener when playing, which will update time
-    // this.waveSurfer.on("audioprocess", () => {
-    //   console.log("Update current time");
-    //   store.dispatch(
-    //     setTime({
-    //       from: this.from,
-    //       time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-    //     })
-    //   );
-    // });
+    this.waveSurfer.on("audioprocess", () => {
+      this.setTimeWhenPlaying(this.getCurrentTime());
+    });
+  }
+
+  getCurrentTime() {
+    return Math.round(this.waveSurfer.getCurrentTime() * 1000);
   }
 
   /**
@@ -95,15 +92,9 @@ class WaveSurferApp {
    */
   playPause() {
     this.waveSurfer.playPause();
-    store.dispatch(playPause(this.waveSurfer.isPlaying()));
-
     // Update waveSurfer time to global state
-    store.dispatch(
-      setTime({
-        from: this.from,
-        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-      })
-    );
+    this.setIsPlaying();
+    this.setTime(this.getCurrentTime());
   }
 
   /**
@@ -112,7 +103,7 @@ class WaveSurferApp {
    */
   play() {
     this.waveSurfer.play();
-    store.dispatch(playPause(this.waveSurfer.isPlaying()));
+    this.setIsPlaying();
   }
 
   /**
@@ -121,7 +112,7 @@ class WaveSurferApp {
    */
   pause() {
     this.waveSurfer.pause();
-    store.dispatch(playPause(this.waveSurfer.isPlaying()));
+    this.setIsPlaying();
   }
 
   /**
@@ -149,13 +140,9 @@ class WaveSurferApp {
    */
   stop() {
     this.waveSurfer.stop();
-    store.dispatch(playPause(this.waveSurfer.isPlaying()));
-    store.dispatch(
-      setTime({
-        from: this.from,
-        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-      })
-    );
+    this.setIsPlaying();
+    this.seekTo(this.getCurrentTime());
+    this.setTime(this.getCurrentTime());
   }
 
   /**
@@ -190,12 +177,7 @@ class WaveSurferApp {
 
         const timeValue =
           Math.max(0, (xpos / elementWidth) * duration) + scrollTime;
-        store.dispatch(
-          setTime({
-            from: this.from,
-            time: Math.round(timeValue * 1000),
-          })
-        );
+        this.setTime(Math.round(timeValue * 1000));
       });
   }
 
@@ -255,24 +237,54 @@ class WaveSurferApp {
 
   clickLast(last: number) {
     this.waveSurfer.setCurrentTime(last);
-    store.dispatch(playPause(this.waveSurfer.isPlaying()));
-    store.dispatch(
-      setTime({
-        from: this.from,
-        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-      })
-    );
+    this.setTime(this.getCurrentTime());
   }
 
   clickNext(next: number) {
     this.waveSurfer.setCurrentTime(next);
-    store.dispatch(playPause(this.waveSurfer.isPlaying()));
-    store.dispatch(
-      setTime({
+    this.setTime(this.getCurrentTime());
+  }
+
+  /**
+   * set the global state
+   */
+  setIsPlaying() {
+    setIsPlaying({
+      payload: this.waveSurfer.isPlaying(),
+    });
+  }
+  /**
+   * set the global state
+   */
+  setTime(time: number) {
+    setTime({
+      payload: {
         from: this.from,
-        time: Math.round(this.waveSurfer.getCurrentTime() * 1000),
-      })
-    );
+        time,
+      },
+      options: {
+        states: ["timeData", "currentPos", "currentStatus"],
+        refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
+      },
+    });
+  }
+
+  /**
+   * set the time when playing
+   */
+  setTimeWhenPlaying(time: number) {
+    setTime({
+      payload: {
+        from: this.from,
+        time,
+      },
+      options: {
+        states: ["timeData"], // only update timeData, don't update reactiveState for performance
+        refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
+        refreshPixiSimulator: false, // they will get their own start playing
+        refreshThreeSimulator: false, // they will get their own start playing
+      },
+    });
   }
 
   resize() {
@@ -281,3 +293,5 @@ class WaveSurferApp {
 }
 
 export default WaveSurferApp;
+
+export const waveSurferAppInstance = new WaveSurferApp();

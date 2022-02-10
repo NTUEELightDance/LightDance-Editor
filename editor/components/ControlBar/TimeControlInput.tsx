@@ -20,7 +20,7 @@ const TimeControlInput = ({
       inputProps={{
         min: 0,
       }}
-      onChange={(e) => handleChange(Number(e.target.value))}
+      onChange={(e) => handleChange(parseInt(e.target.value, 10))}
     />
   );
 };

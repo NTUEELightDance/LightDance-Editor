@@ -78,7 +78,7 @@ const EDIT_CONTROLMAP = gql`
     $controlDatas: [EditControlInput!]!
   ) {
     editControlMap(frameID: $frameId, controlDatas: $controlDatas) {
-      frames
+      frame
     }
   }
 `;
@@ -142,13 +142,7 @@ const initDancers = async (client) => {
  */
 const initControl = async (client) => {
   const control = readJson("../others/dance_json/control_2021.json");
-  const MAX_CONTROLS = 100; // Only insert first 100 frames. Inserting all frames will lead to out of memory
-  let cnt = 0;
   for (const { start, status, fade } of control) {
-    if (cnt >= MAX_CONTROLS) {
-      console.log(`Added ${cnt} frames`);
-      return;
-    }
     try {
       console.log(`Adding controlRecord start: ${start} ...`);
       const data = await client.request(ADD_CONTROLFRAME, {

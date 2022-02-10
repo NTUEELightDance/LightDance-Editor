@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 // mui
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
@@ -7,39 +7,41 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import TextField from "@material-ui/core/TextField";
-// action and selector
-import {
-  selectGlobal,
-  setLightPresets,
-  addLightPresets,
-  setCurrentStatus,
-  editLightPresetsName,
-  deleteLightPresets,
-} from "../../slices/globalSlice";
-import { selectLoad } from "../../slices/loadSlice";
+// states and actions
+import { setCurrentStatus } from "core/actions";
+// hooks
+import useLightPresets from "./hooks/useLightPresets";
+// redux states
+import { selectLoad } from "slices/loadSlice";
 // utils
-import { getItem } from "../../utils/localStorage";
+import { getItem } from "core/utils";
 // components
 import PresetsList from "./PresetsList";
-import { string } from "prop-types";
-//types
-import { ControlMapStatus } from "types/globalSlice";
+// types
+import { ControlMapStatus } from "core/models";
 
 /**
  * This is Presets component, list of status
  * @component
  */
 export default function LightPresets() {
-  const dispatch = useDispatch();
   // presets intialize
   // get loadedPresets or storagePresets
   const { lightPresets: loadedLightPresets } = useSelector(selectLoad);
-  const { lightPresets } = useSelector(selectGlobal);
+
+  const {
+    lightPresets,
+    setLightPresets,
+    addLightPresets,
+    editLightPresetsName,
+    deleteLightPresets,
+  } = useLightPresets();
+
   useEffect(() => {
     if (getItem("lightPresets")) {
-      dispatch(setLightPresets(JSON.parse(getItem("lightPresets") || "")));
+      setLightPresets(JSON.parse(getItem("lightPresets") || ""));
     } else {
-      dispatch(setLightPresets(loadedLightPresets));
+      setLightPresets(loadedLightPresets);
     }
   }, []);
 
@@ -51,23 +53,24 @@ export default function LightPresets() {
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNameVal(e.target.value);
+  };
 
   // dispatch
   const handleAddPresets = (name: string) => {
-    if (name.trim() !== "") dispatch(addLightPresets(name));
+    if (name.trim() !== "") addLightPresets(name);
     closeDialog();
   };
   const handleEditPresets = (name: string, idx: number) => {
-    dispatch(editLightPresetsName({ name, idx }));
+    editLightPresetsName({ name, idx });
     closeDialog();
   };
   const handleDeletePresets = (idx: number) => {
-    dispatch(deleteLightPresets(idx));
+    deleteLightPresets(idx);
   };
   const handleSetCurrentStatus = (status: ControlMapStatus) => {
-    dispatch(setCurrentStatus(status));
+    setCurrentStatus({ payload: status });
   };
 
   // short cut of key to save currentStatus

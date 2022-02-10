@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 // mui
-import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-// redux selector and actions
-import { setCurrentFade, selectGlobal } from "../../slices/globalSlice";
+// states and actions
+import { reactiveState } from "../../core/state";
+import { setCurrentFade } from "../../core/actions";
+import { useReactiveVar } from "@apollo/client";
 // constants
 import { IDLE } from "../../constants";
 
@@ -15,12 +13,12 @@ import { IDLE } from "../../constants";
  * @component
  */
 export default function Fade() {
-  const dispatch = useDispatch();
-  const { mode, currentFade } = useSelector(selectGlobal);
+  const mode = useReactiveVar(reactiveState.mode);
+  const currentFade = useReactiveVar(reactiveState.currentFade);
 
   // handle action
   const handleSwitchFade = () => {
-    dispatch(setCurrentFade(!currentFade));
+    setCurrentFade({ payload: !currentFade });
   };
 
   return (

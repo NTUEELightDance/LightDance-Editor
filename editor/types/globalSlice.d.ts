@@ -62,7 +62,7 @@ export interface Coordinates {
 /**
  * Time Data
  */
-interface TimeDataType {
+export interface TimeDataType {
   from: string; // update from what component (input bar, or waveSurferApp cursor)
   time: number; // time
   controlFrame: number; // control frame's index
@@ -113,17 +113,9 @@ export interface EffectStatusType {
  * Global State for redux
  */
 export interface GlobalState {
-  isPlaying: boolean; // isPlaying
-  selected: string[]; // array of selected dancer's name
-  currentFade: boolean; // current control Frame will fade to next
-  currentStatus: ControlMapStatus; // current dancers' status
-  currentPos: DancerCoordinates; // currnet dancers' position
   controlRecord: ControlRecordType; // array of all IDs , each correspondsto diff status
   controlMap: ControlMapType;
-  posRecord: PosRecordType; // array of all dancer's pos
-  posMap: PosMapType;
   timeData: TimeDataType;
-  mode: number; // 0: nothing, 1: edit, 2: add
   effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
   effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
   lightPresets: LightPresetsType;

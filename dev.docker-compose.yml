@@ -19,6 +19,8 @@ services:
     image: mongo
     ports:
       - "27017:27017"
+    volumes:
+      - ./mongodbData:/data/db
   redisdb:
     image: redis
     ports:

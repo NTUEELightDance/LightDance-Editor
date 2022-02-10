@@ -1,5 +1,3 @@
-// redux
-import { useSelector, useDispatch } from "react-redux";
 // mui
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
@@ -7,40 +5,37 @@ import { Stack } from "@mui/material";
 
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-// actions and selector
-import {
-  selectGlobal,
-  setTime,
-  setPosFrame,
-  setControlFrame,
-} from "../../slices/globalSlice";
 // constant
 import { TIMECONTROLLER } from "../../constants";
-
+// type
 import TimeControlInput from "./TimeControlInput";
+
+// reactive state
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "../../core/state";
+import { setTime, setControlFrame, setPosFrame } from "../../core/actions";
 
 /**
  * Time Data Controller (time, controlFrame, posFrame)
  */
 export default function TimeController() {
-  // redux
-  const dispatch = useDispatch();
-  const {
-    timeData: { time, controlFrame, posFrame },
-  } = useSelector(selectGlobal);
+  const { time, controlFrame, posFrame } = useReactiveVar(
+    reactiveState.timeData
+  );
 
   const handleChange = (setValue: (arg0: any) => void, valueName: string) => {
-    return (value: number) => {
-      dispatch(
-        setValue({
+    return async (value: number) => {
+      await setValue({
+        payload: {
           from: TIMECONTROLLER,
-          [valueName]: value,
-        })
-      );
+          [valueName]: parseInt(value, 10),
+        },
+      });
     };
   };
 
   const handleChangeTime = handleChange(setTime, "time");
+
   const handleChangeControlFrame = handleChange(
     setControlFrame,
     "controlFrame"
