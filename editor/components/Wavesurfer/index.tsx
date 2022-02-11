@@ -43,7 +43,7 @@ const Wavesurfer = ({ cleanMode = false }) => {
   // update Markers when markers switched on
   useEffect(() => {
     if (loading || !controlMap || !waveSurferApp) return;
-    waveSurferApp.toggleMarkers();
+    waveSurferApp.toggleMarkers(showMarkers);
   }, [showMarkers]);
 
   return (

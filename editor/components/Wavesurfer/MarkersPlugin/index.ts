@@ -5,6 +5,7 @@ import {
 } from "../../../types/components/wavesurfer";
 
 const DEFAULT_FILL_COLOR = "#D8D8D8";
+const DEFAULT_HOVER_COLOR = "#888888";
 const DEFAULT_POSITION = "bottom";
 
 export default class MarkersPlugin {
@@ -41,8 +42,8 @@ export default class MarkersPlugin {
         clearMarkers() {
           this.markers && this.markers.clear();
         },
-        toggleMarkers() {
-          this.markers && this.markers.toggle();
+        toggleMarkers(showMarkers: boolean) {
+          this.markers && this.markers.toggle(showMarkers);
         },
       } as any,
       instance: MarkersPlugin,
@@ -55,8 +56,8 @@ export default class MarkersPlugin {
     this.util = ws.util;
     this.style = this.util.style;
     this.markerLineWidth = 1;
-    this.markerWidth = 11;
-    this.markerHeight = 22;
+    this.markerWidth = 7;
+    this.markerHeight = 20;
     this.showMarkers = true;
     this.dragging = false;
 
@@ -191,9 +192,19 @@ export default class MarkersPlugin {
       "flex-direction": marker.position == "top" ? "column-reverse" : "column",
     });
 
+    el.onmouseover = (e) => {
+      (e?.target as HTMLElement).style.filter = "brightness(60%)";
+      (e?.target as HTMLElement).style.zIndex = "5";
+    };
+
+    el.onmouseout = (e) => {
+      (e?.target as HTMLElement).style.removeProperty("filter");
+      (e?.target as HTMLElement).style.zIndex = "4";
+    };
+
     const line = document.createElement("div");
     const width = markerElement ? markerElement.width : this.markerWidth;
-    marker.offset = (width - this.markerLineWidth) / 2;
+    marker.offset = (width + this.markerLineWidth) / 2;
     this.style(line, {
       "flex-grow": 1,
       "margin-left": marker.offset + "px",
@@ -302,14 +313,16 @@ export default class MarkersPlugin {
     this.wavesurfer.fireEvent("marker-drop", this.selectedMarker, event);
   }
 
-  toggle(): void {
-    this.showMarkers = !this.showMarkers;
+  toggle(showMarkers: boolean): void {
+    if (this.showMarkers == showMarkers) return;
+
+    this.showMarkers = showMarkers;
     this.markers.forEach((marker) => {
       this.style(marker.el, {
         display: this.showMarkers ? "flex" : "none",
       });
     });
-    this.showMarkers && this._updateMarkerPositions();
+    this._updateMarkerPositions();
   }
 
   clear(): void {

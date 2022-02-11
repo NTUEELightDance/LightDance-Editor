@@ -223,8 +223,8 @@ class WaveSurferApp {
     this.waveSurfer.clearMarkers();
   }
 
-  toggleMarkers() {
-    this.waveSurfer.toggleMarkers();
+  toggleMarkers(showMarkers: boolean) {
+    this.waveSurfer.toggleMarkers(showMarkers);
   }
 
   zoom(newValue: number) {
