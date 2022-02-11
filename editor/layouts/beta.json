@@ -55,7 +55,7 @@
             "children": [
               {
                 "type": "tabset",
-                "selected": 0,
+                "selected": 1,
                 "enableMaximize": true,
                 "children": [
                   {
@@ -114,8 +114,8 @@
                 "children": [
                   {
                     "type": "tab",
-                    "name": "properties",
-                    "component": "LightProps",
+                    "name": "DancerList",
+                    "component": "DancerList",
                     "enableClose": false
                   }
                 ]
@@ -129,8 +129,8 @@
             "children": [
               {
                 "type": "tab",
-                "name": "DancerList",
-                "component": "DancerList",
+                "name": "properties",
+                "component": "LightProps",
                 "enableClose": false
               },
               {
