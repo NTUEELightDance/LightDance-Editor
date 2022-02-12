@@ -15,7 +15,11 @@ import {
   ControlMapPayload,
   ControlMapMutation,
 } from "./subscriptions/controlMap";
-import { updateRedisControl } from "../utility";
+import { updateRedisControl, generateID } from "../utility";
+import {
+  ControlRecordPayload,
+  ControlRecordMutation,
+} from "./subscriptions/controlRecord";
 
 interface LooseObject {
   [key: string]: any;
@@ -37,6 +41,8 @@ export class ControlMapResolver {
 export class EditControlMapResolver {
   @Mutation((returns) => ControlData)
   async editControlMap(
+    @PubSub(Topic.ControlRecord)
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
     @Arg("controlData", (type) => [EditControlInput])
     controlData: EditControlInput[],
@@ -45,12 +51,41 @@ export class EditControlMapResolver {
     @Ctx() ctx: any
   ) {
     // find control frame
-    const controlFrame = await ctx.db.ControlFrame.findOne({ start: startTime });
+    const controlFrame = await ctx.db.ControlFrame.findOne({
+      start: startTime,
+    });
 
+    // check payload
+    const dancers = await ctx.db.Dancer.find();
+    if (controlData.length !== dancers.length) {
+      throw new Error("Not all dancers in payload");
+    }
+    await Promise.all(
+      controlData.map(async (data: any) => {
+        const { dancerName, controlData } = data;
+        const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
+        if (!dancer) {
+          throw new Error("Dancer not found");
+        }
+        if (dancer.parts.length !== controlData.length) {
+          throw new Error("Not all parts in payload");
+        }
+        await Promise.all(
+          controlData.map(async (partData: any) => {
+            const part = await ctx.db.Part.findOne({ name: partData.partName });
+            console.log(part);
+
+            if (!part) {
+              throw new Error("Part not found");
+            }
+          })
+        );
+      })
+    );
 
     // if control frame already exists -> edit
     if (controlFrame) {
-      const { editing, _id, id: frameID } = controlFrame
+      const { editing, _id, id: frameID } = controlFrame;
       if (editing !== ctx.userID) {
         throw new Error("The frame is now editing by other user.");
       }
@@ -69,6 +104,7 @@ export class EditControlMapResolver {
           await Promise.all(
             controlData.map(async (data: any) => {
               const { partName, ELValue, color, src, alpha } = data;
+              console.log(ELValue);
               const wanted = dancer.parts.find(
                 (part: any) => part.name === partName
               );
@@ -79,18 +115,18 @@ export class EditControlMapResolver {
                 if (color) {
                   value.color = color;
                 }
-                if (alpha) {
+                if (alpha || alpha === 0) {
                   value.alpha = alpha;
                 }
               } else if (type === "EL") {
-                if (ELValue) {
+                if (ELValue || ELValue === 0) {
                   value.value = ELValue;
                 }
               } else if (type === "LED") {
                 if (src) {
                   value.src = src;
                 }
-                if (alpha) {
+                if (alpha || alpha === 0) {
                   value.alpha = alpha;
                 }
               }
@@ -99,7 +135,10 @@ export class EditControlMapResolver {
           );
         })
       );
-      await ctx.db.ControlFrame.updateOne({ start: startTime }, { editing: null });
+      await ctx.db.ControlFrame.updateOne(
+        { start: startTime },
+        { editing: null, fade }
+      );
       await updateRedisControl(frameID);
       const payload: ControlMapPayload = {
         mutation: ControlMapMutation.UPDATED,
@@ -113,48 +152,39 @@ export class EditControlMapResolver {
 
     // control frame not found -> add
     else {
-
-      // check payload
-      const dancers = await ctx.db.Dancer.find();
-      if (controlData.length !== dancers.length) {
-        throw new Error("Not all dancer in payload");
-      }
-      await Promise.all(
-        controlData.map(async (data: any) => {
-          const { dancerName } = data;
-          const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
-          if (!dancer) {
-            throw new Error("Dancer not found");
-          }
-        })
-      );
-
       // add control frame
       const newControlFrame = await new ctx.db.ControlFrame({
         start: startTime,
         fade: fade,
         id: generateID(),
       }).save();
-      let allParts = await ctx.db.Part.find();
-      await Promise.all(
-        allParts.map(async (part: Part) => {
-          let newControl = await new ctx.db.Control({
-            frame: newControlFrame,
-            value: ControlDefault[part.type],
-            id: generateID(),
+
+      Promise.all(
+        controlData.map((dancerParts: any) => {
+          // data for one of the dancers
+          const { dancerName, controlData } = dancerParts;
+          controlData.map(async (partData: any) => {
+            // for the part of a certain dancer, create a new control of the part with designated value
+            const value = await examineType(partData, ctx);
+            console.log(value);
+            let newControl = await new ctx.db.Control({
+              frame: newControlFrame,
+              value,
+              id: generateID(),
+            });
+            await ctx.db.Part.findOneAndUpdate(
+              { name: partData.partName },
+              {
+                $push: {
+                  controlData: newControl,
+                },
+              }
+            );
+            await newControl.save();
           });
-          await newControl.save();
-          await ctx.db.Part.findOneAndUpdate(
-            { id: part.id },
-            {
-              name: part.name,
-              type: part.type,
-              controlData: part.controlData.concat([newControl]),
-              id: part.id,
-            }
-          );
         })
       );
+
       await updateRedisControl(newControlFrame.id);
       const mapPayload: ControlMapPayload = {
         mutation: ControlMapMutation.CREATED,
@@ -162,7 +192,7 @@ export class EditControlMapResolver {
         frameID: newControlFrame.id,
         frame: [{ _id: newControlFrame._id, id: newControlFrame.id }],
       };
-      await publishControlMap(mapPayload);
+      await publish(mapPayload);
       const allControlFrames = await ctx.db.ControlFrame.find().sort({
         start: 1,
       });
@@ -179,9 +209,24 @@ export class EditControlMapResolver {
         index,
       };
       await publishControlRecord(recordPayload);
-      return newControlFrame;
-
-
+      return { frame: { _id: newControlFrame._id, id: newControlFrame.id } };
     }
+  }
+}
+
+async function examineType(partData: any, ctx: any) {
+  const { partName, ELValue, color, src, alpha } = partData;
+  const { type } = await ctx.db.Part.findOne({ name: partName });
+  if (type === "FIBER") {
+    return {
+      color,
+      alpha,
+    };
+  } else if (type === "EL") {
+    return {
+      value: ELValue,
+    };
+  } else if (type === "LED") {
+    return { src, alpha };
   }
 }

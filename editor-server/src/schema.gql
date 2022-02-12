@@ -186,12 +186,14 @@ type Mutation {
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
+  CancelEditControl(FrameID: String!): RequestEditResponse!
+  CancelEditPosition(FrameID: String!): RequestEditResponse!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(controlData: [EditControlInput!]!, frameID: String!): ControlData!
+  editControlMap(controlData: [EditControlInput!]!, fade: Boolean = false, start: Float!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
@@ -266,7 +268,7 @@ type Query {
 }
 
 type RequestEditResponse {
-  editing: String!
+  editing: String
   ok: Boolean!
 }
 
