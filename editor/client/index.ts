@@ -13,6 +13,7 @@ const wsLink = new WebSocketLink({
     reconnect: true,
   },
 });
+//randomly generate a unique ID
 const _userID = nanoid();
 const authLink = setContext((_, { headers }) => {
   return {

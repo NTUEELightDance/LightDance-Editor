@@ -69,3 +69,19 @@ export const EDIT_POS_FRAME_TIME = gql`
     }
   }
 `;
+export const REQUEST_EDIT_CONTROL_BY_ID = gql`
+  mutation RequestEditControl($frameId: String!) {
+    RequestEditControl(FrameID: $frameId) {
+      editing
+      ok
+    }
+  }
+`;
+export const REQUEST_EDIT_POS_BY_ID = gql`
+  mutation RequestEditControl($frameId: String!) {
+    RequestEditPosition(FrameID: $frameId) {
+      editing
+      ok
+    }
+  }
+`;
