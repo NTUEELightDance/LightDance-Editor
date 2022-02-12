@@ -73,5 +73,6 @@ After starting all services, one can add 2021's control and position data into m
 ```bash
 cd utils
 yarn
-node initDB.js
+node initDB.js ${filePath}  
+// node initDB.js ../others/dance_json/export.json
 ```

@@ -5,8 +5,7 @@ const axios = require("axios");
 const fs = require("fs");
 const FormData = require("form-data");
 
-const filePath =
-  "/home/mecoli1219/Code/LightDance/local/LightDance-Editor/others/dance_json/export.json";
+const filePath = process.argv[2];
 
 const instance = axios.create({
   baseURL: `http://localhost:4000/`,
