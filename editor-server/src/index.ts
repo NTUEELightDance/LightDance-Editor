@@ -22,6 +22,7 @@ const { SECRET_KEY } = process.env;
 (async function () {
   const app = express();
   app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(fileUpload());
   app.use("/api", apiRoute);
 

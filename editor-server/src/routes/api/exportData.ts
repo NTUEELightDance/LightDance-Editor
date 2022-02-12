@@ -5,8 +5,9 @@ interface LooseObject {
   [key: string]: any;
 }
 
-export default async (req: any, res: any) => {
+const exportData = async (req: any, res: any) => {
   try {
+    // grab control data from redis
     const controlFrames = await db.ControlFrame.find();
     const control: LooseObject = {};
     await Promise.all(
@@ -22,6 +23,8 @@ export default async (req: any, res: any) => {
         }
       })
     );
+
+    // grab position data from redis
     const positionFrames = await db.PositionFrame.find();
     const position: LooseObject = {};
     await Promise.all(
@@ -37,6 +40,8 @@ export default async (req: any, res: any) => {
         }
       })
     );
+
+    // grab dancer data from db
     const dancer = await db.Dancer.find({}, "name parts -_id").populate({
       path: "parts",
       select: "name type -_id",
@@ -48,3 +53,5 @@ export default async (req: any, res: any) => {
     res.status(404).send({ err });
   }
 };
+
+export default exportData;

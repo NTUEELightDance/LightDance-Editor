@@ -5,18 +5,25 @@ interface LooseObject {
   [key: string]: any;
 }
 
-export default async (req: any, res: any) => {
+const uploadData = async (req: any, res: any) => {
   try {
+    // read request
     const { data } = req.files;
     const dataObj = JSON.parse(data.data.toString("ascii"));
     const { position, control, dancer } = dataObj;
+
+    // save dancer & part data temporarily before executing .save()
     const allDancer: LooseObject = {};
+
+    // clear DB
     await db.Dancer.deleteMany();
     await db.Part.deleteMany();
     await db.Control.deleteMany();
     await db.ControlFrame.deleteMany();
     await db.Position.deleteMany();
     await db.PositionFrame.deleteMany();
+
+    // create dancer & part mongoose object
     await Promise.all(
       dancer.map(async (dancerObj: any) => {
         const { parts, name } = dancerObj;
@@ -43,6 +50,8 @@ export default async (req: any, res: any) => {
         allDancer[name] = { dancer, parts: allPart };
       })
     );
+
+    // deal with position data
     await Promise.all(
       Object.values(position).map(async (frameObj: any) => {
         const { start, pos } = frameObj;
@@ -65,6 +74,8 @@ export default async (req: any, res: any) => {
         );
       })
     );
+
+    // deal with control data
     await Promise.all(
       Object.values(control).map(async (frameObj: any) => {
         const { fade, start, status } = frameObj;
@@ -93,6 +104,8 @@ export default async (req: any, res: any) => {
         );
       })
     );
+
+    // execute .save() on dancer & part
     await Promise.all(
       Object.values(allDancer).map(async (dancerObj: any) => {
         const { dancer, parts } = dancerObj;
@@ -104,6 +117,8 @@ export default async (req: any, res: any) => {
         );
       })
     );
+
+    // update redis
     await initRedisPosition();
     await initRedisControl();
     res.status(200).end();
@@ -111,3 +126,5 @@ export default async (req: any, res: any) => {
     res.status(400).send({ err });
   }
 };
+
+export default uploadData;
