@@ -16,7 +16,7 @@ import FrameList from "../../components/FrameList";
 import CommandCenter from "../../components/CommandCenter";
 import ThreeSimulator from "../../components/ThreeSimulator";
 import File from "components/Settings/File";
-import DancerList from "components/DancerList";
+import DancerList from "components/DancerTree";
 import LightProps from "components/LightProps";
 
 import { Box } from "@mui/material";
