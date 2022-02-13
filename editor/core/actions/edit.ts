@@ -8,6 +8,7 @@ import { getControl, getPos } from "../utils";
 import { controlAgent, posAgent } from "api";
 // other actions
 import { setCurrentTime } from "./timeData";
+import { is } from "immer/dist/internal";
 
 /**
  * This is a helper function for getting data from pos and map
@@ -74,13 +75,18 @@ const actions = registerActions({
    */
   startEditing: async (state: State) => {
     const { map, index, frameId, agent } = await getDataHandler(state);
-    state.editMode = EDITING;
+    console.log("frameId: " + frameId);
     state.editingData = {
       start: map[frameId].start,
       frameId,
       index,
     };
-    // TODO: Call request edit api throught agent
+    const isPermitted = await agent.requestEditPermission(frameId);
+    if (!isPermitted) {
+      alert("Permission denied");
+      return;
+    }
+    state.editMode = EDITING;
   },
 
   /**
@@ -99,7 +105,10 @@ const actions = registerActions({
   cancelEditing: async (state: State) => {
     const { frameId, agent } = await getDataHandler(state);
     // TODO: call cancel api through agent
-    state.editMode = IDLE;
+    const isCancelled = await agent.cancelEditPermission(frameId);
+    if (isCancelled) {
+      state.editMode = IDLE;
+    } else alert("Cancel Permission Error");
   },
 
   /**

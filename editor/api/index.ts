@@ -15,6 +15,9 @@ import {
   DELETE_CONTROL_FRAME_BY_ID,
   DELETE_POS_FRAME,
   REQUEST_EDIT_CONTROL_BY_ID,
+  REQUEST_EDIT_POS_BY_ID,
+  CANCEL_EDIT_CONTROL_BY_ID,
+  CANCEL_EDIT_POS_BY_ID,
 } from "../graphql";
 
 // types
@@ -216,6 +219,23 @@ export const controlAgent = {
     } catch (error) {
       console.error(error);
     }
+  requestEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: REQUEST_EDIT_CONTROL_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.RequestEditControl.ok;
+  },
+  cancelEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: CANCEL_EDIT_CONTROL_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.CancelEditControl.ok;
   },
 };
 
@@ -387,6 +407,23 @@ export const posAgent = {
     } catch (error) {
       console.error(error);
     }
+  requestEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: REQUEST_EDIT_POS_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.RequestEditControl.ok;
+  },
+  cancelEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: CANCEL_EDIT_POS_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.CancelEditControl.ok;
   },
 };
 
@@ -459,14 +496,4 @@ export const fetchTexture = () => {
     .catch((error) => {
       console.error(error);
     });
-};
-
-export const requestEditPermission = async (_frameID) => {
-  const response = await client.mutate({
-    mutation: REQUEST_EDIT_CONTROL_BY_ID,
-    variables: {
-      frameId: _frameID,
-    },
-  });
-  return response.data.RequestEditControl.ok;
 };

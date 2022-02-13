@@ -85,3 +85,19 @@ export const REQUEST_EDIT_POS_BY_ID = gql`
     }
   }
 `;
+export const CANCEL_EDIT_CONTROL_BY_ID = gql`
+  mutation CancelEditControl($frameId: String!) {
+    CancelEditControl(FrameID: $frameId) {
+      editing
+      ok
+    }
+  }
+`;
+export const CANCEL_EDIT_POS_BY_ID = gql`
+  mutation RequestEditControl($frameId: String!) {
+    CancelEditPosition(FrameID: $frameId) {
+      editing
+      ok
+    }
+  }
+`;
