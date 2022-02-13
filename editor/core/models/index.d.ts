@@ -95,6 +95,9 @@ export interface EditingDataType {
   frameId: string;
   index: number;
 }
+ * selection mode
+ */
+export type SelectionModeType = "DANCER" | "PART" | "POSITION";
 
 /**
  * Mutable State
@@ -114,6 +117,8 @@ export interface State {
   editMode: EditModeType; // IDLE | EDITING | ADDING
   editor: EditorType; // editor, should be CONTROL_EDITOR or POS_EDITOR
   editingData: EditingDataType; // store the editingData's start time id and index
+  
+  selectionMode: SelectionModeType; // selection mode used by simulator and dancer tree
 
   effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
   effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
@@ -138,6 +143,9 @@ export interface ReactiveState {
   editor: ReactiveVar<EditorType>;
   editingData: ReactiveVar<EditingDataType>;
 
+  currentPos: ReactiveVar<DancerCoordinates>; // currnet dancers' position
+  mode: ReactiveVar<number>; // 0: nothing, 1: edit, 2: add
+  selectionMode: ReactiveVar<SelectionModeType>; // selection mode used by simulator and dancer tree
   effectRecordMap: ReactiveVar<EffectRecordMapType>; // map of all effects and corresponding record ID array
   effectStatusMap: ReactiveVar<EffectStatusMapType>; // map of effect record ID and its status
 }

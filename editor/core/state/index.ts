@@ -14,6 +14,7 @@ import {
   EditingDataType,
   EditModeType,
   EditorType,
+  SelectionModeType,
 } from "../models";
 
 /**
@@ -38,6 +39,8 @@ const _state: State = {
     start: 0,
     index: 0,
   },
+  
+  selectionMode: "DANCER",
 
   effectRecordMap: {}, // map of all effects and corresponding record ID array
   effectStatusMap: {},
@@ -73,6 +76,7 @@ export const reactiveState: ReactiveState = {
     start: 0,
     index: 0,
   }),
+  selectionMode: makeVar<SelectionModeType>("DANCER"),
 
   effectRecordMap: makeVar<EffectRecordMapType>({}), // map of all effects and corresponding record ID array
   effectStatusMap: makeVar<EffectStatusMapType>({}),

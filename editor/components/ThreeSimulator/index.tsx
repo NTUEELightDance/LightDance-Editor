@@ -7,6 +7,7 @@ import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { threeController } from "./ThreeController";
+import SelectionModeSelector from "components/SelectionModeSelector";
 
 /**
  * This is Display component
@@ -55,6 +56,7 @@ export default function ThreeSimulator() {
       ref={containerRef}
     >
       <div ref={canvasRef} />
+      <SelectionModeSelector />
     </div>
   );
 }
