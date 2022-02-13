@@ -6,6 +6,12 @@ interface LooseObject {
   [key: string]: any;
 }
 
+let unique = 0;
+const idList =
+  "0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-";
+const idListLength = idList.length;
+const idLength = 5;
+
 const initData = async () => {
   await model.User.deleteMany();
 };
@@ -165,8 +171,14 @@ const updateRedisPosition = async (id: string) => {
 };
 
 const generateID = () => {
-  var unique = new Date().valueOf();
-  return (unique % 1000000000).toString(32);
+  let num = unique;
+  unique += 1;
+  let id = "";
+  for (let i = 0; i < idLength; i++) {
+    id = idList.charAt(num % idListLength) + id;
+    num = Math.round(num / idListLength);
+  }
+  return id;
 };
 
 initRedisControl();

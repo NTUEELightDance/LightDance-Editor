@@ -1,5 +1,4 @@
 import path from "path";
-import fs from "fs";
 import express from "express";
 import "dotenv-defaults/config";
 import http from "http";
@@ -7,15 +6,15 @@ import bodyParser from "body-parser";
 import { ApolloServer } from "apollo-server-express";
 import { execute, subscribe } from "graphql";
 import { SubscriptionServer } from "subscriptions-transport-ws";
-import { makeExecutableSchema } from "@graphql-tools/schema";
 import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
-import { resolvers } from "./resolvers";
+import fileUpload from "express-fileupload";
 
-// import resolvers from "./resolvers"
+import { resolvers } from "./resolvers";
 import db from "./models";
 import mongo from "./mongo";
+import apiRoute from "./routes";
 
 const port = process.env.PORT || 4000;
 const { SECRET_KEY } = process.env;
@@ -23,6 +22,9 @@ const { SECRET_KEY } = process.env;
 (async function () {
   const app = express();
   app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(fileUpload());
+  app.use("/api", apiRoute);
 
   mongo();
 
