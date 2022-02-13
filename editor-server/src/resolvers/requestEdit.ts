@@ -51,4 +51,22 @@ export class RequestEditResolver {
       return { editing: positionFrame.editing, ok: true };
     }
   }
+
+  @Mutation((returns) => RequestEditResponse)
+  async CancelEditPosition(@Arg("FrameID") frameID: String, @Ctx() ctx: any) {
+    const positionFrame = await ctx.db.PositionFrame.findOneAndUpdate(
+      { id: frameID },
+      { editing: null }
+    );
+    return { editing: null, ok: true };
+  }
+
+  @Mutation((returns) => RequestEditResponse)
+  async CancelEditControl(@Arg("FrameID") frameID: String, @Ctx() ctx: any) {
+    const controlFrame = await ctx.db.ControlFrame.findOneAndUpdate(
+      { id: frameID },
+      { editing: null }
+    );
+    return { editing: null, ok: true };
+  }
 }

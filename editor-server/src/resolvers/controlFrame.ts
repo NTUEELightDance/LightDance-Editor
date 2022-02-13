@@ -113,6 +113,7 @@ export class ControlFrameResolver {
     return newControlFrame;
   }
 
+  // mainly for adjust frame time
   @Mutation((returns) => ControlFrame)
   async editControlFrame(
     @PubSub(Topic.ControlRecord)
