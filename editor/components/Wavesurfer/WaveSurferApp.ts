@@ -14,6 +14,7 @@ import { LocalRegion, Region } from "../../types/components/wavesurfer";
 // types
 import { ControlMapElement } from "../../types/globalSlice";
 
+import { throttle } from "throttle-debounce";
 /**
  * control 3rd party package, WaveSurfer
  */
@@ -75,9 +76,12 @@ class WaveSurferApp {
 
     // This function is disabled considering performance issues
     // Listener when playing, which will update time
-    this.waveSurfer.on("audioprocess", () => {
-      this.setTimeWhenPlaying(this.getCurrentTime());
-    });
+    this.waveSurfer.on(
+      "audioprocess",
+      throttle(1000 / 30, () => {
+        this.setTimeWhenPlaying(this.getCurrentTime());
+      })
+    );
   }
 
   getCurrentTime() {

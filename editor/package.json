@@ -47,6 +47,7 @@
     "redux": "^4.0.5",
     "subscriptions-transport-ws": "^0.11.0",
     "three": "^0.137.4",
+    "throttle-debounce": "^3.0.1",
     "use-immer": "^0.6.0",
     "wavesurfer.js": "^6.0.0",
     "ws": "^7.4.3"
