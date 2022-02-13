@@ -9,20 +9,23 @@ import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
 
 import { reactiveState } from "../../core/state";
 import { setSelectionMode } from "../../core/actions";
+import { SelectionModeType } from "../../core/models";
 import { useReactiveVar } from "@apollo/client";
+
+import { DANCER, PART, POSITION } from "../../constants";
 
 const SelectionModeSelector = () => {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
-  const icons = {
-    DANCER: <DancerIcon />,
-    PART: (
-      // to center the icon
+  const icons: { [index: string]: JSX.Element } = {
+    [DANCER]: <DancerIcon />,
+    [PART]: (
+    // to center the icon
       <div className="MuiSpeedDial-actionsClosed">
         <FontAwesomeIcon icon={faShirt} />
       </div>
     ),
-    POSITION: (
-      // to center the icon
+    [POSITION]: (
+    // to center the icon
       <div className="MuiSpeedDial-actionsClosed">
         <FontAwesomeIcon icon={faArrowsUpDownLeftRight} />
       </div>

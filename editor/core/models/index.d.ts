@@ -1,5 +1,14 @@
 import { ReactiveVar } from "@apollo/client";
-import { CONTROL_EDITOR, POS_EDITOR, IDLE, EDITING, ADDING } from "constants";
+import {
+  CONTROL_EDITOR,
+  POS_EDITOR,
+  IDLE,
+  EDITING,
+  ADDING,
+  DANCER,
+  PART,
+  POSITION,
+} from "constants";
 import { number, string } from "prop-types";
 
 /**
@@ -115,7 +124,7 @@ export type PartPayloadType = {
 /**
  * selection mode
  */
-export type SelectionModeType = "DANCER" | "PART" | "POSITION";
+export type SelectionModeType = DANCER | PART | POSITION;
 
 /**
  * Mutable State
