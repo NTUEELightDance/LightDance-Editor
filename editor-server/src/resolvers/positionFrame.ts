@@ -84,7 +84,7 @@ export class PositionFrameResolver {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: newPositionFrame.id,
-      frame: [{ _id: newPositionFrame._id, id: newPositionFrame.id }],
+      frame: { _id: newPositionFrame._id, id: newPositionFrame.id },
     };
     await publishPositionMap(mapPayload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({
@@ -141,7 +141,7 @@ export class PositionFrameResolver {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: positionFrame.id,
-      frame: [{ _id: positionFrame._id, id: positionFrame.id }],
+      frame: { _id: positionFrame._id, id: positionFrame.id },
     };
     await publishPositionMap(payload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({

@@ -144,7 +144,7 @@ export class EditControlMapResolver {
         mutation: ControlMapMutation.UPDATED,
         editBy: ctx.userID,
         frameID,
-        frame: [{ _id, id: frameID }],
+        frame: { _id, id: frameID },
       };
       await publish(payload);
       return { frame: { _id, id: frameID } };
@@ -197,7 +197,7 @@ export class EditControlMapResolver {
         mutation: ControlMapMutation.CREATED,
         editBy: ctx.userID,
         frameID: newControlFrame.id,
-        frame: [{ _id: newControlFrame._id, id: newControlFrame.id }],
+        frame: { _id: newControlFrame._id, id: newControlFrame.id },
       };
       await publish(mapPayload);
       const allControlFrames = await ctx.db.ControlFrame.find().sort({

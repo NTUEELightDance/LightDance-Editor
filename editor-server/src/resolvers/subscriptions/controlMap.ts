@@ -8,7 +8,7 @@ export class ControlMapPayload {
   mutation: ControlMapMutation;
 
   @Field((type) => ControlDataScalar, { nullable: true })
-  frame?: any[];
+  frame?: any;
 
   @Field()
   frameID: string;

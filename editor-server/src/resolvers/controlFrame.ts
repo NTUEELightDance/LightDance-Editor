@@ -91,7 +91,7 @@ export class ControlFrameResolver {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: newControlFrame.id,
-      frame: [{ _id: newControlFrame._id, id: newControlFrame.id }],
+      frame: { _id: newControlFrame._id, id: newControlFrame.id },
     };
     await publishControlMap(mapPayload);
     const allControlFrames = await ctx.db.ControlFrame.find().sort({
@@ -149,7 +149,7 @@ export class ControlFrameResolver {
       mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: controlFrame.id,
-      frame: [{ _id: controlFrame._id, id: controlFrame.id }],
+      frame: { _id: controlFrame._id, id: controlFrame.id },
     };
     await publishControlMap(payload);
     const allControlFrames = await ctx.db.ControlFrame.find().sort({
