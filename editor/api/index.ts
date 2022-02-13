@@ -414,7 +414,7 @@ export const posAgent = {
         frameId: _frameID,
       },
     });
-    return response.data.RequestEditControl.ok;
+    return response.data.RequestEditPosition.ok;
   },
   cancelEditPermission: async (_frameID) => {
     const response = await client.mutate({
@@ -423,7 +423,7 @@ export const posAgent = {
         frameId: _frameID,
       },
     });
-    return response.data.CancelEditControl.ok;
+    return response.data.CancelEditPosition.ok;
   },
 };
 

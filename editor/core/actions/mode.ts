@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 // constants
-import { IDLE, POS_ADD, POS_EDIT, CONTROL_EDIT, CONTROL_ADD } from "constants";
+import { IDLE } from "constants";
 // types
 import { State } from "../models";
 // actions

@@ -75,12 +75,11 @@ const actions = registerActions({
    */
   startEditing: async (state: State) => {
     const { map, index, frameId, agent } = await getDataHandler(state);
-    console.log("frameId: " + frameId);
-    state.editingData = {
-      start: map[frameId].start,
-      frameId,
-      index,
-    };
+    // state.editingData = {
+    //   start: map[frameId].start,
+    //   frameId,
+    //   index,
+    // };
     const isPermitted = await agent.requestEditPermission(frameId);
     if (!isPermitted) {
       alert("Permission denied");
@@ -104,7 +103,6 @@ const actions = registerActions({
    */
   cancelEditing: async (state: State) => {
     const { frameId, agent } = await getDataHandler(state);
-    // TODO: call cancel api through agent
     const isCancelled = await agent.cancelEditPermission(frameId);
     if (isCancelled) {
       state.editMode = IDLE;
