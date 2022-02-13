@@ -87,9 +87,9 @@ const actions = registerActions({
    * @param payload: a boolean, indicating whether to edit the start time or not
    */
   save: async (state: State, payload: boolean) => {
-    const { frameId, frame, agent } = await getDataHandler(state);
+    const { frameId, frame, agent, fade } = await getDataHandler(state);
     const requestTimeChange = payload;
-    // TODO: call save api through agent
+    agent.saveFrame(frameId, frame, state.currentTime, requestTimeChange, fade);
   },
 
   /**
@@ -105,8 +105,8 @@ const actions = registerActions({
    * Add a frame to currentTime, use current frame (status or pos) as default
    */
   add: async (state: State) => {
-    const { agent, frame } = await getDataHandler(state);
-    // TODO: Call add api through agent
+    const { agent, frame, fade, index } = await getDataHandler(state);
+    agent.addFrame(frame, state.currentTime, index, fade);
   },
 
   /**
@@ -114,7 +114,7 @@ const actions = registerActions({
    */
   deleteCurrent: async (state: State) => {
     const { frameId, agent } = await getDataHandler(state);
-    // TODO: Call delete api through agent
+    agent.deleteFrame(frameId);
   },
 });
 
