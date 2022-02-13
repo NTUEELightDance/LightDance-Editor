@@ -159,14 +159,13 @@ export class EditControlMapResolver {
         id: generateID(),
       }).save();
 
-      Promise.all(
-        controlData.map((dancerParts: any) => {
+      await Promise.all(
+        controlData.map(async (dancerParts: any) => {
           // data for one of the dancers
           const { dancerName, controlData } = dancerParts;
-          controlData.map(async (partData: any) => {
+          await Promise.all(controlData.map(async (partData: any) => {
             // for the part of a certain dancer, create a new control of the part with designated value
             const value = await examineType(partData, ctx);
-            console.log(value);
             let newControl = await new ctx.db.Control({
               frame: newControlFrame,
               value,
@@ -181,7 +180,7 @@ export class EditControlMapResolver {
               }
             );
             await newControl.save();
-          });
+          }))
         })
       );
 

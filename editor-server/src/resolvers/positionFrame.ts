@@ -134,8 +134,7 @@ export class PositionFrameResolver {
       { editing: null }
     );
     const positionFrame = await ctx.db.PositionFrame.findOne(
-      { id: input.frameID },
-      input
+      { id: input.frameID }
     );
     await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {

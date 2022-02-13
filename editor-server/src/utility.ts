@@ -150,6 +150,7 @@ const updateRedisControl = async (id: string) => {
     })
   );
   const cacheObj = { fade, start, editing, status };
+
   await redis.set(id, JSON.stringify(cacheObj));
 };
 
