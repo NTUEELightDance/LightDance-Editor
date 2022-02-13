@@ -1,16 +1,19 @@
 import { makeVar } from "@apollo/client";
 import { cloneDeep } from "lodash";
 import onChange from "on-change";
+import { IDLE, CONTROL_EDITOR } from "constants";
 
 // types
 import {
   State,
   ReactiveState,
   ControlMapStatus,
-  TimeDataType,
   EffectRecordMapType,
   EffectStatusMapType,
   DancerCoordinates,
+  EditingDataType,
+  EditModeType,
+  EditorType,
 } from "../models";
 
 /**
@@ -19,16 +22,22 @@ import {
 const _state: State = {
   isPlaying: false,
   selected: [],
+
+  currentTime: 0,
+  currentControlIndex: 0,
+  currentPosIndex: 0,
+
   currentStatus: {},
-  currentPos: {},
   currentFade: false,
-  timeData: {
-    from: "",
-    time: 0,
-    controlFrame: 0,
-    posFrame: 0,
+  currentPos: {},
+
+  editMode: IDLE,
+  editor: CONTROL_EDITOR,
+  editingData: {
+    frameId: "",
+    start: 0,
+    index: 0,
   },
-  mode: 0,
 
   effectRecordMap: {}, // map of all effects and corresponding record ID array
   effectStatusMap: {},
@@ -49,16 +58,21 @@ export const state = onChange(
 export const reactiveState: ReactiveState = {
   isPlaying: makeVar<boolean>(false),
   selected: makeVar<string[]>([]),
+  currentTime: makeVar<number>(0),
+  currentControlIndex: makeVar<number>(0),
+  currentPosIndex: makeVar<number>(0),
+
   currentStatus: makeVar<ControlMapStatus>({}),
   currentPos: makeVar<DancerCoordinates>({}),
   currentFade: makeVar<boolean>(false),
-  timeData: makeVar<TimeDataType>({
-    from: "",
-    time: 0,
-    controlFrame: 0,
-    posFrame: 0,
+
+  editMode: makeVar<EditModeType>(IDLE),
+  editor: makeVar<EditorType>(CONTROL_EDITOR),
+  editingData: makeVar<EditingDataType>({
+    frameId: "",
+    start: 0,
+    index: 0,
   }),
-  mode: makeVar<number>(0),
 
   effectRecordMap: makeVar<EffectRecordMapType>({}), // map of all effects and corresponding record ID array
   effectStatusMap: makeVar<EffectStatusMapType>({}),

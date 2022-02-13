@@ -16,7 +16,7 @@ import { editCurrentStatusLED } from "../../../core/actions";
 // components
 import SlideBar from "../Slidebar";
 // constants
-import { IDLE } from "../../../constants";
+import { IDLE } from "constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,7 +33,7 @@ export default function LedEditor() {
   // redux states
   const { dancers, texture } = useSelector(selectLoad);
   // states
-  const mode = useReactiveVar(reactiveState.mode);
+  const mode = useReactiveVar(reactiveState.editMode);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const selected = useReactiveVar(reactiveState.selected);
 

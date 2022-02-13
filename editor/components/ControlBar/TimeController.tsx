@@ -5,42 +5,38 @@ import { Stack } from "@mui/material";
 
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-// constant
-import { TIMECONTROLLER } from "../../constants";
 // type
 import TimeControlInput from "./TimeControlInput";
 
 // reactive state
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "../../core/state";
-import { setTime, setControlFrame, setPosFrame } from "../../core/actions";
+import {
+  setCurrentTime,
+  setCurrentControlIndex,
+  setCurrentPosIndex,
+} from "../../core/actions";
 
 /**
  * Time Data Controller (time, controlFrame, posFrame)
  */
 export default function TimeController() {
-  const { time, controlFrame, posFrame } = useReactiveVar(
-    reactiveState.timeData
-  );
+  const currentTime = useReactiveVar(reactiveState.currentTime);
+  const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
+  const currentPosIndex = useReactiveVar(reactiveState.currentPosIndex);
 
-  const handleChange = (setValue: (arg0: any) => void, valueName: string) => {
+  const handleChange = (setValue: (arg0: any) => void) => {
     return async (value: number) => {
       await setValue({
-        payload: {
-          from: TIMECONTROLLER,
-          [valueName]: parseInt(value, 10),
-        },
+        payload: parseInt(value, 10),
       });
     };
   };
 
-  const handleChangeTime = handleChange(setTime, "time");
+  const handleChangeTime = handleChange(setCurrentTime);
 
-  const handleChangeControlFrame = handleChange(
-    setControlFrame,
-    "controlFrame"
-  );
-  const handleChangePosFrame = handleChange(setPosFrame, "posFrame");
+  const handleChangeControlFrame = handleChange(setCurrentControlIndex);
+  const handleChangePosFrame = handleChange(setCurrentPosIndex);
 
   return (
     <Stack direction="row" justifyContent="center" alignItems="center">
@@ -52,7 +48,7 @@ export default function TimeController() {
         time:
       </Typography>
       <TimeControlInput
-        value={time}
+        value={currentTime}
         placeholder="time"
         handleChange={handleChangeTime}
       />
@@ -60,31 +56,35 @@ export default function TimeController() {
       <Typography variant="body1" color="initial" style={{ marginLeft: "1em" }}>
         control frame:
       </Typography>
-      <IconButton onClick={() => handleChangeControlFrame(controlFrame - 1)}>
+      <IconButton
+        onClick={() => handleChangeControlFrame(currentControlIndex - 1)}
+      >
         <ChevronLeftIcon />
       </IconButton>
       <TimeControlInput
-        value={controlFrame}
+        value={currentControlIndex}
         placeholder="status index"
         handleChange={handleChangeControlFrame}
       />
-      <IconButton onClick={() => handleChangeControlFrame(controlFrame + 1)}>
+      <IconButton
+        onClick={() => handleChangeControlFrame(currentControlIndex + 1)}
+      >
         <ChevronRightIcon />
       </IconButton>
 
       <Typography variant="body1" color="initial">
         position frame:
       </Typography>
-      <IconButton onClick={() => handleChangePosFrame(posFrame - 1)}>
+      <IconButton onClick={() => handleChangePosFrame(currentPosIndex - 1)}>
         <ChevronLeftIcon />
       </IconButton>
 
       <TimeControlInput
-        value={posFrame}
+        value={currentPosIndex}
         placeholder="position index"
         handleChange={handleChangePosFrame}
       />
-      <IconButton onClick={() => handleChangePosFrame(posFrame + 1)}>
+      <IconButton onClick={() => handleChangePosFrame(currentPosIndex + 1)}>
         <ChevronRightIcon />
       </IconButton>
     </Stack>

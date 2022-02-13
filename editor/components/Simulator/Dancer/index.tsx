@@ -141,7 +141,7 @@ class Dancer {
     this.data = event.data;
     this.alpha = 0.5;
     // can't drag when mode is IDLE
-    this.dragging = reactiveState.mode() !== IDLE;
+    this.dragging = reactiveState.editMode() !== IDLE;
   }
 
   /**

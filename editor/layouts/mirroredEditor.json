@@ -59,8 +59,8 @@
           },
           {
             "type": "tab",
-            "name": "PosEditor",
-            "component": "PosEditor",
+            "name": "FrameList",
+            "component": "FrameList",
             "enableClose": false
           }
         ]

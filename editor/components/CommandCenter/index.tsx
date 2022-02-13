@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
@@ -58,7 +58,7 @@ export default function CommandCenter() {
   const { controlRecord } = useSelector(selectGlobal);
 
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
-  const { time } = useReactiveVar(reactiveState.timeData);
+  const time = useReactiveVar(reactiveState.currentTime);
 
   const { dancerStatus } = useSelector(selectCommand);
 

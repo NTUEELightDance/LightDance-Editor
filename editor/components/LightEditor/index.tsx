@@ -3,18 +3,10 @@ import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
-// states and actions
-import {
-  saveCurrentStatus,
-  deleteCurrentStatus,
-  saveCurrentFade,
-} from "../../core/actions";
-
 // components
 import SelectDancer from "./SelectDancer";
 import ElEditor from "./ElEditor";
 import LedEditor from "./LedEditor";
-import ModeSelector from "./ModeSelector";
 import Fade from "./Fade";
 
 const useStyles = makeStyles((theme) => ({
@@ -55,23 +47,9 @@ export default function LightEditor() {
     setEditor(editor === ELEDITOR ? LEDEDITOR : ELEDITOR);
   };
 
-  // save
-  const handleSave = () => {
-    saveCurrentStatus();
-    saveCurrentFade();
-  };
-  // delete
-  const handleDelete = () => {
-    if (window.confirm(`Are you sure to delete ?`)) {
-      deleteCurrentStatus();
-    }
-  };
-
-  // TODO: make ModeSelector and  selectDancer fixed position
   return (
     <div id="editor" className={classes.root}>
       <div>
-        <ModeSelector handleSave={handleSave} handleDelete={handleDelete} />
         <SelectDancer className={classes.selectDancer} />
       </div>
       <div className={classes.grow}>
