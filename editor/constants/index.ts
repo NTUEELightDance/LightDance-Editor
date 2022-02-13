@@ -8,3 +8,7 @@ export const EDITING = "EDITING";
 export const DANCER = "DANCER_MODE";
 export const PART = "PART_MODE";
 export const POSITION = "POSITION_MODE";
+// part type
+export const LED = "LED";
+export const EL = "EL";
+export const FIBER = "FIBER";
