@@ -9,8 +9,10 @@ import { IDLE, EDITING } from "constants";
 // hooks
 import useEditHandler from "hooks/useEditHandler";
 
+/**
+ * TODO: Need beautify, and maybe the buttons may not be here in the future
+ */
 export default function EditButtons() {
-  // redux states
   const mode = useReactiveVar(reactiveState.editMode);
 
   const {
