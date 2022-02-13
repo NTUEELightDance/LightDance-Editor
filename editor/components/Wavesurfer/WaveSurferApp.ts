@@ -5,10 +5,9 @@ import MarkersPlugin from "./MarkersPlugin";
 
 // redux
 import store from "../../store";
-import { setTime, setIsPlaying } from "../../core/actions";
+import { setCurrentTime, setIsPlaying } from "../../core/actions";
 
 // constant
-import { WAVESURFERAPP } from "../../constants";
 import { fadeStatus, getItem } from "../../core/utils";
 
 import { LocalRegion, Region } from "../../types/components/wavesurfer";
@@ -25,7 +24,6 @@ class WaveSurferApp {
 
   constructor() {
     this.waveSurfer = null;
-    this.from = WAVESURFERAPP;
     this.ready = false;
   }
 
@@ -257,13 +255,9 @@ class WaveSurferApp {
    * set the global state
    */
   setTime(time: number) {
-    setTime({
-      payload: {
-        from: this.from,
-        time,
-      },
+    setCurrentTime({
+      payload: time,
       options: {
-        states: ["timeData", "currentPos", "currentStatus"],
         refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
       },
     });
@@ -273,13 +267,10 @@ class WaveSurferApp {
    * set the time when playing
    */
   setTimeWhenPlaying(time: number) {
-    setTime({
-      payload: {
-        from: this.from,
-        time,
-      },
+    setCurrentTime({
+      payload: time,
       options: {
-        states: ["timeData"], // only update timeData, don't update reactiveState for performance
+        states: ["currentTime"], // only update timeData, don't update reactiveState for performance
         refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
         refreshPixiSimulator: false, // they will get their own start playing
         refreshThreeSimulator: false, // they will get their own start playing

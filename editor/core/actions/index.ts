@@ -6,3 +6,4 @@ export * from "./currentPos";
 export * from "./mode";
 export * from "./currentFade";
 export * from "./shiftFrameTime";
+export * from "./edit";

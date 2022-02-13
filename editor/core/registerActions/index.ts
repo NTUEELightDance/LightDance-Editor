@@ -74,7 +74,7 @@ function actionCreator(action: Action) {
     // 3rd-party rerender
     if (options.refreshWavesurfer) {
       console.debug("refreshWavesurfer");
-      waveSurferAppInstance.seekTo(state.timeData.time);
+      waveSurferAppInstance.seekTo(state.currentTime);
     }
     if (options.refreshPixiSimulator) {
       console.debug("refreshPixiSimulator");

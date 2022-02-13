@@ -12,7 +12,7 @@ import LightPresets from "../../components/Presets/LightPresets";
 import PosPresets from "../../components/Presets/PosPresets";
 import EffectList from "../../components/EffectList";
 import LightEditor from "../../components/LightEditor";
-import PosEditor from "../../components/PosEditor";
+import FrameList from "../../components/FrameList";
 import CommandCenter from "../../components/CommandCenter";
 import ThreeSimulator from "../../components/ThreeSimulator";
 import File from "components/Settings/File";
@@ -38,7 +38,7 @@ const Layout = () => {
   const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
   const ThreeSimulatorNode = useMemo<JSX.Element>(() => <ThreeSimulator />, []);
   const LightEditorNode = useMemo<JSX.Element>(() => <LightEditor />, []);
-  const PosEditorNode = useMemo<JSX.Element>(() => <PosEditor />, []);
+  const FrameListNode = useMemo<JSX.Element>(() => <FrameList />, []);
   const DancerListNode = useMemo<JSX.Element>(() => <DancerList />, []);
   const LightPropsNode = useMemo<JSX.Element>(() => <LightProps />, []);
   const LightPresetsNode = useMemo<JSX.Element>(() => <LightPresets />, []);
@@ -75,8 +75,8 @@ const Layout = () => {
         return ThreeSimulatorNode;
       case "LightEditor":
         return LightEditorNode;
-      case "PosEditor":
-        return PosEditorNode;
+      case "FrameList":
+        return FrameListNode;
       case "DancerList":
         return DancerListNode;
       case "LightProps":

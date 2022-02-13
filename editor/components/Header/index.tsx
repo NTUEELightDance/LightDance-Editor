@@ -5,6 +5,10 @@ import { LayoutButtons } from "./LayoutButtons";
 import { Settings } from "../Settings";
 import Tools from "components/Tools";
 
+// components
+import EditorSelector from "components/EditorSelector";
+import EditButtons from "components/EditButtons";
+
 /**
  * Top Bar, include title, timeController, upload/download btn
  */
@@ -30,6 +34,8 @@ export default function Header() {
             gap: "1vw",
           }}
         >
+          <EditButtons />
+          <EditorSelector />
           <Tools />
           <Settings
             showSettings={showSettings}

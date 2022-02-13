@@ -17,142 +17,126 @@ const actions = registerActions({
    * @param {State} statue
    * @param {object} payload
    */
-  setTime: async (state: State, payload: { from: string; time: number }) => {
+  setCurrentTime: async (state: State, payload: number) => {
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
 
-    let { from, time } = payload;
-    if (from === undefined || time === undefined) {
-      throw new Error(
-        `[Error] setTime invalid parameter(from ${from}, time ${time})`
-      );
+    let time = payload;
+    if (isNaN(time)) {
+      throw new Error(`[Error] setTime invalid parameter(time ${time})`);
     }
-    if (isNaN(time)) return;
     time = Math.max(time, 0);
 
-    state.timeData.from = from;
-    state.timeData.time = time;
+    state.currentTime = time;
 
-    // set timeData.controlFrame and currentStatus
-    const newControlFrame = updateFrameByTimeMap(
+    // set currentControlIndex
+    const newControlIndex = updateFrameByTimeMap(
       controlRecord,
       controlMap,
-      state.timeData.controlFrame,
+      state.currentControlIndex,
       time
     );
-    state.timeData.controlFrame = newControlFrame;
+    state.currentControlIndex = newControlIndex;
     // status fade
-    if (newControlFrame === controlRecord.length - 1) {
+    if (newControlIndex === controlRecord.length - 1) {
       // Can't fade
-      state.currentStatus = controlMap[controlRecord[newControlFrame]].status;
+      state.currentStatus = controlMap[controlRecord[newControlIndex]].status;
     } else {
       // do fade
       state.currentStatus = fadeStatus(
         time,
-        controlMap[controlRecord[newControlFrame]],
-        controlMap[controlRecord[newControlFrame + 1]]
+        controlMap[controlRecord[newControlIndex]],
+        controlMap[controlRecord[newControlIndex + 1]]
       );
     }
 
-    // set timeData.posFrame and currentPos
-    const newPosFrame = updateFrameByTimeMap(
+    // set currentPosIndex
+    const newPosIndex = updateFrameByTimeMap(
       posRecord,
       posMap,
-      state.timeData.posFrame,
+      state.currentPosIndex,
       time
     );
-    state.timeData.posFrame = newPosFrame;
+    state.currentPosIndex = newPosIndex;
     // position interpolation
-    if (newPosFrame === posRecord.length - 1) {
+    if (newPosIndex === posRecord.length - 1) {
       // can't interpolation
-      state.currentPos = posMap[posRecord[newPosFrame]].pos;
+      state.currentPos = posMap[posRecord[newPosIndex]].pos;
     } else {
       // do interpolation
       state.currentPos = interpolationPos(
         time,
-        posMap[posRecord[newPosFrame]],
-        posMap[posRecord[newPosFrame + 1]]
+        posMap[posRecord[newPosIndex]],
+        posMap[posRecord[newPosIndex + 1]]
       );
     }
 
     // set currentFade
-    state.currentFade = controlMap[controlRecord[newControlFrame]].fade;
+    state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
   },
 
   /**
-   * set timeData by controlFrame, also set currentStatus
+   * set currentControlIndex by controlIndex, also set currentStatus
    * @param {State} state
    * @param {object} payload
    */
-  setControlFrame: async (
-    state: State,
-    payload: {
-      from: string;
-      controlFrame: number;
-    }
-  ) => {
+  setCurrentControlIndex: async (state: State, payload: number) => {
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
-    let { from, controlFrame } = payload;
-    if (from === undefined || controlFrame === undefined) {
+    let controlIndex = payload;
+    if (isNaN(controlIndex)) {
       throw new Error(
-        `[Error] setControlFrame invalid parameter(from ${from}, controlFrame ${controlFrame})`
+        `[Error] setCurrentControlIndex invalid parameter(controlIndex ${controlIndex})`
       );
     }
-    if (isNaN(controlFrame)) return;
-    controlFrame = clamp(controlFrame, 0, controlRecord.length - 1);
-    state.timeData.from = from;
-    state.timeData.controlFrame = controlFrame;
-    state.timeData.time = controlMap[controlRecord[controlFrame]].start;
-    state.currentStatus = controlMap[controlRecord[controlFrame]].status;
-    // set posFrame and currentPos as well (by time)
-    const newPosFrame = updateFrameByTimeMap(
+    controlIndex = clamp(controlIndex, 0, controlRecord.length - 1);
+    state.currentControlIndex = controlIndex;
+    state.currentTime = controlMap[controlRecord[controlIndex]].start;
+    state.currentStatus = controlMap[controlRecord[controlIndex]].status;
+    // set posIndex and currentPos as well (by time)
+    const newPosIndex = updateFrameByTimeMap(
       posRecord,
       posMap,
-      state.timeData.posFrame,
-      controlMap[controlRecord[controlFrame]].start
+      state.currentPosIndex,
+      controlMap[controlRecord[controlIndex]].start
     );
-    state.timeData.posFrame = newPosFrame;
-    state.currentPos = posMap[posRecord[newPosFrame]].pos;
+    state.currentPosIndex = newPosIndex;
+    state.currentPos = posMap[posRecord[newPosIndex]].pos;
     // set currentFade
-    state.currentFade = controlMap[controlRecord[controlFrame]].fade;
+    state.currentFade = controlMap[controlRecord[controlIndex]].fade;
   },
 
   /**
-   * set timeData by posFrame, also set currentPos
+   * set currentPosIndex by posIndex, also set currentPos
    * @param {State} state
    * @param {object} payload
    */
-  setPosFrame: async (
-    state: State,
-    payload: { from: string; posFrame: number }
-  ) => {
+  setCurrentPosIndex: async (state: State, payload: number) => {
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
-    let { from, posFrame } = payload;
-    if (from === undefined || posFrame === undefined) {
+    let posIndex = payload;
+    if (isNaN(posIndex)) {
       throw new Error(
-        `[Error] setPosFrame invalid parameter(from ${from}, posFrame ${posFrame})`
+        `[Error] setCurrentPosIndex invalid parameter(posIndex ${posIndex})`
       );
     }
-    if (isNaN(posFrame)) return;
-    posFrame = clamp(posFrame, 0, posRecord.length - 1);
-    state.timeData.from = from;
-    state.timeData.posFrame = posFrame;
-    state.timeData.time = posMap[posRecord[posFrame]].start;
-    state.currentPos = posMap[posRecord[posFrame]].pos;
-    // set controlFrame and currentStatus as well (by time)
-    const newControlFrame = updateFrameByTimeMap(
+    posIndex = clamp(posIndex, 0, posRecord.length - 1);
+    state.currentPosIndex = posIndex;
+    state.currentTime = posMap[posRecord[posIndex]].start;
+    state.currentPos = posMap[posRecord[posIndex]].pos;
+    // set controlIndex and currentStatus as well (by time)
+    const newControlIndex = updateFrameByTimeMap(
       controlRecord,
       controlMap,
-      state.timeData.controlFrame,
-      posMap[posRecord[posFrame]].start
+      state.currentControlIndex,
+      posMap[posRecord[posIndex]].start
     );
-    state.timeData.controlFrame = newControlFrame;
-    state.currentStatus = controlMap[controlRecord[newControlFrame]].status;
+    state.currentControlIndex = newControlIndex;
+    state.currentStatus = controlMap[controlRecord[newControlIndex]].status;
     // set currentFade
-    state.currentFade = controlMap[controlRecord[newControlFrame]].fade;
+    state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
   },
 });
 
-export const { setTime, setControlFrame, setPosFrame } = actions;
+export const { setCurrentTime, setCurrentControlIndex, setCurrentPosIndex } =
+  actions;

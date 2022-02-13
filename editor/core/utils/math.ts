@@ -107,8 +107,8 @@ export function binarySearchFrameMap(
 /**
  * Calculate Interpolation of the position, return new position
  * @param {*} time
- * @param {*} preFrame - the position frame data (posRecord[timeData.posFrame])
- * @param {*} nextFrame - the next position frame data (posRecord[timeData.posFrame + 1])
+ * @param {*} preFrame - the position frame data (posRecord[posIndex])
+ * @param {*} nextFrame - the next position frame data (posRecord[posIndex + 1])
  */
 export function interpolationPos(
   time: number,
@@ -149,8 +149,8 @@ function Round1(number: number) {
 /**
  * Fade between the status
  * @param {*} time
- * @param {*} preStatus - previous frame, controlRecord[timeData.controlFrame]
- * @param {*} nextStatus - next frame, controlRecord[timeData.controlFrame + 1]
+ * @param {*} preStatus - previous frame, controlRecord[controlIndex]
+ * @param {*} nextStatus - next frame, controlRecord[controlIndex + 1]
  */
 export function fadeStatus(
   time: number,

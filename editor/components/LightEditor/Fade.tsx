@@ -2,18 +2,18 @@
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 // states and actions
-import { reactiveState } from "../../core/state";
-import { setCurrentFade } from "../../core/actions";
+import { reactiveState } from "core/state";
+import { setCurrentFade } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 // constants
-import { IDLE } from "../../constants";
+import { IDLE } from "constants";
 
 /**
  * Fade button
  * @component
  */
 export default function Fade() {
-  const mode = useReactiveVar(reactiveState.mode);
+  const mode = useReactiveVar(reactiveState.editMode);
   const currentFade = useReactiveVar(reactiveState.currentFade);
 
   // handle action
