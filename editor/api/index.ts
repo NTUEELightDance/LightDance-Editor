@@ -14,6 +14,10 @@ import {
   EDIT_POS_FRAME_TIME,
   DELETE_CONTROL_FRAME_BY_ID,
   DELETE_POS_FRAME,
+  REQUEST_EDIT_CONTROL_BY_ID,
+  REQUEST_EDIT_POS_BY_ID,
+  CANCEL_EDIT_CONTROL_BY_ID,
+  CANCEL_EDIT_POS_BY_ID,
 } from "../graphql";
 
 // types
@@ -216,6 +220,24 @@ export const controlAgent = {
       console.error(error);
     }
   },
+  requestEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: REQUEST_EDIT_CONTROL_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.RequestEditControl.ok;
+  },
+  cancelEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: CANCEL_EDIT_CONTROL_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.CancelEditControl.ok;
+  },
 };
 
 /**
@@ -386,6 +408,24 @@ export const posAgent = {
     } catch (error) {
       console.error(error);
     }
+  },
+  requestEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: REQUEST_EDIT_POS_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.RequestEditPosition.ok;
+  },
+  cancelEditPermission: async (_frameID) => {
+    const response = await client.mutate({
+      mutation: CANCEL_EDIT_POS_BY_ID,
+      variables: {
+        frameId: _frameID,
+      },
+    });
+    return response.data.CancelEditPosition.ok;
   },
 };
 
