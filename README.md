@@ -72,6 +72,7 @@ After starting all services, one can add 2021's control and position data into m
 ```bash
 cd utils
 yarn
+export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
 node initDB.js ${filePath}  
 // node initDB.js ../others/dance_json/export.json
 ```
