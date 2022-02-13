@@ -19,6 +19,7 @@ const getDataHandler = async (state: State) => {
   const [posMap, posRecord] = await getPos();
 
   if (state.editor === CONTROL_EDITOR) {
+    console.log("dd")
     return {
       map: controlMap,
       record: controlRecord,
@@ -33,7 +34,7 @@ const getDataHandler = async (state: State) => {
       map: posMap,
       record: posRecord,
       index: state.currentPosIndex,
-      frameId: controlRecord[state.currentPosIndex],
+      frameId: posRecord[state.currentPosIndex],
       frame: state.currentPos,
       agent: posAgent,
     };
