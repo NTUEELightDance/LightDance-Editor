@@ -166,7 +166,6 @@ export class EditControlMapResolver {
           controlData.map(async (partData: any) => {
             // for the part of a certain dancer, create a new control of the part with designated value
             const value = await examineType(partData, ctx);
-            console.log(value);
             let newControl = await new ctx.db.Control({
               frame: newControlFrame,
               value,
