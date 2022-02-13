@@ -26,11 +26,10 @@ export default function EditorSelector() {
   return (
     <Stack direction="row" alignItems="center" spacing={2}>
       <Switch
-        defaultChecked
         onChange={handleSwitchEditor}
         disableRipple={false}
         checked={editor === CONTROL_EDITOR}
-      />{" "}
+      />
       {editor}
     </Stack>
   );

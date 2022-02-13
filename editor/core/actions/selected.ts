@@ -1,6 +1,7 @@
 import { registerActions } from "../registerActions";
 // types
 import { State, SelectedType, PartPayloadType } from "../models";
+import _ from "lodash";
 
 const actions = registerActions({
   /**
@@ -27,12 +28,13 @@ const actions = registerActions({
   /**
    * Set selected dancer
    * @param {State} state
-   * @param {PartPayloadType[]} payload - array of dancer's name
+   * @param {PartPayloadType} payload
    */
-  setSelectedParts: (state: State, payload: PartPayloadType[]) => {
-    const parts = payload;
-    parts.forEach(({ dancer, parts }) => {
-      state.selected[dancer].parts = parts as string[];
+  setSelectedParts: (state: State, payload: PartPayloadType) => {
+    Object.keys(state.selected).forEach((dancer) => {
+      state.selected[dancer].parts = payload.hasOwnProperty(dancer)
+        ? payload[dancer]
+        : [];
     });
   },
 
@@ -49,9 +51,12 @@ const actions = registerActions({
   /**
    * toggle one in selected array
    * @param {State} state
-   * @param {PartPayloadType} payload
+   * @param {{ dancer: string; part: string }} payload
    */
-  toggleSelectedPart: (state: State, payload: PartPayloadType) => {
+  toggleSelectedPart: (
+    state: State,
+    payload: { dancer: string; part: string }
+  ) => {
     const { dancer, part } = payload;
     const index = state.selected[dancer].parts.indexOf(part as string);
     if (index !== -1) {

@@ -1,32 +1,101 @@
-import { useState } from "react";
-import { Box, Button } from "@mui/material";
+import { useEffect, useState } from "react";
+
 import TreeView from "@mui/lab/TreeView";
-import { ExpandMore, ChevronRight } from "@mui/icons-material";
-import { getItem } from "../../core/utils/localStorage";
+import { Box, Button } from "@mui/material";
+import {
+  ExpandMore as ExpandMoreIcon,
+  ChevronRight as ChevronRightIcon,
+} from "@mui/icons-material";
 import DancerTreeItem from "./DancerTreeItem";
 
+import { getItem } from "../../core/utils/localStorage";
+
+import { setSelectedDancers, setSelectedParts } from "../../core/actions";
+import { PartPayloadType } from "../../core/models";
+import { reactiveState } from "../../core/state";
+import { useReactiveVar } from "@apollo/client";
+
 const controlMap = JSON.parse(getItem("controlMap") as string);
-const dancers = Object.entries((Object.values(controlMap)[0] as any)?.status);
-const dancerNames = Object.keys((Object.values(controlMap)[0] as any)?.status);
+const dancers = (() => {
+  const status = (Object.values(controlMap)[0] as any)?.status;
+  const dancers: { [index: string]: string[] } = {};
+  Object.keys(status).forEach((dancerName) => {
+    dancers[dancerName] = Object.keys(status[dancerName]);
+  });
+  return dancers;
+})();
+const dancerNames = Object.keys(dancers);
 
 const DancerTree = () => {
   const [expanded, setExpanded] = useState<string[]>([]);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const selected = useReactiveVar(reactiveState.selected);
 
   const handleToggle = (event: React.SyntheticEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
   };
 
   const handleSelect = (event: React.SyntheticEvent, nodeIds: string[]) => {
-    setSelected(nodeIds);
+    const newSelectedDancers: Set<string> = new Set();
+    let newSelectedParts: PartPayloadType = {};
+
+    nodeIds.forEach((nodeId) => {
+      const nodeIdArray = nodeId.split("%");
+      if (nodeIdArray.length === 1) {
+        newSelectedDancers.add(nodeIdArray[0]);
+      } else {
+        if (!newSelectedParts.hasOwnProperty(nodeIdArray[0])) {
+          newSelectedParts[nodeIdArray[0]] = [];
+        }
+        newSelectedParts[nodeIdArray[0]].push(nodeIdArray[1]);
+      }
+    });
+
+    // broadcast mode
+    if (
+      newSelectedDancers.size > 0 &&
+      Object.keys(newSelectedParts).length > 0
+    ) {
+      const broadcastedPartsSet: Set<string> = new Set();
+      Object.entries(newSelectedParts).forEach(([dancer, parts]) => {
+        newSelectedDancers.add(dancer);
+        parts.forEach((part) => broadcastedPartsSet.add(part));
+      });
+      newSelectedDancers.forEach((dancerName) => {
+        dancers[dancerName].forEach((part) => {
+          if (broadcastedPartsSet.has(part)) {
+            if (!newSelectedParts.hasOwnProperty(dancerName)) {
+              newSelectedParts[dancerName] = [];
+            }
+            newSelectedParts[dancerName].push(part);
+          }
+        });
+      });
+    }
+
+    setSelectedDancers({ payload: [...newSelectedDancers] });
+    setSelectedParts({ payload: newSelectedParts });
   };
+
+  useEffect(() => {
+    const newNodeIds: string[] = [];
+    Object.entries(selected).forEach(
+      ([name, { selected: dancerSelected, parts }]) => {
+        dancerSelected && newNodeIds.push(name);
+        parts.forEach((part) => newNodeIds.push(`${name}%${part}`));
+      }
+    );
+    setSelectedNodes(newNodeIds);
+  }, [selected]);
 
   const handleExpandClick = () => {
     setExpanded((oldExpanded) => (oldExpanded.length === 0 ? dancerNames : []));
   };
 
   const handleSelectClick = () => {
-    setSelected((oldSelected) => (oldSelected.length === 0 ? dancerNames : []));
+    setSelectedNodes((oldSelected) =>
+      oldSelected.length === 0 ? dancerNames : []
+    );
   };
 
   return (
@@ -36,24 +105,28 @@ const DancerTree = () => {
           {expanded.length === 0 ? "Expand all" : "Collapse all"}
         </Button>
         <Button onClick={handleSelectClick}>
-          {selected.length === 0 ? "Select all" : "Unselect all"}
+          {selectedNodes.length === 0 ? "Select all" : "Unselect all"}
         </Button>
       </Box>
       <TreeView
         aria-label="controlled"
-        defaultCollapseIcon={<ExpandMore />}
-        defaultExpandIcon={<ChevronRight />}
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
         expanded={expanded}
-        selected={selected}
+        selected={selectedNodes}
         onNodeToggle={handleToggle}
         onNodeSelect={handleSelect}
         multiSelect
       >
-        {dancers.map(([name, parts]: [string, any]) => {
+        {Object.entries(dancers).map(([name, parts]: [string, any]) => {
           return (
-            <DancerTreeItem label={name} nodeId={name}>
-              {Object.keys(parts).map((part: string) => (
-                <DancerTreeItem label={part} nodeId={`${name}_${part}`} />
+            <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
+              {parts.map((part: string) => (
+                <DancerTreeItem
+                  key={`PART_${name}_${part}`}
+                  label={part}
+                  nodeId={`${name}%${part}`}
+                />
               ))}
             </DancerTreeItem>
           );
