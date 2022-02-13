@@ -4,7 +4,10 @@ import { BlackPart, ELPart, LEDPart } from "./Parts";
 import { IDLE } from "../../../constants";
 // states and actions
 import { reactiveState } from "../../../core/state";
-import { setCurrentPosByName, toggleSelected } from "../../../core/actions";
+import {
+  setCurrentPosByName,
+  toggleSelectedDancer,
+} from "../../../core/actions";
 // store
 import store from "../../../store";
 
@@ -89,7 +92,7 @@ class Dancer {
       .on("pointerupoutside", this.onDragEnd)
       .on("pointermove", this.onDragMove)
       .on("click", () => {
-        toggleSelected({ payload: this.name });
+        toggleSelectedDancer({ payload: this.name });
       });
   }
 

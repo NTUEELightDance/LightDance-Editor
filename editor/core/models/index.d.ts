@@ -1,5 +1,14 @@
 import { ReactiveVar } from "@apollo/client";
-import { CONTROL_EDITOR, POS_EDITOR, IDLE, EDITING, ADDING } from "constants";
+import {
+  CONTROL_EDITOR,
+  POS_EDITOR,
+  IDLE,
+  EDITING,
+  ADDING,
+  DANCER,
+  PART,
+  POSITION,
+} from "constants";
 import { number, string } from "prop-types";
 
 /**
@@ -97,11 +106,31 @@ export interface EditingDataType {
 }
 
 /**
+ * selected dancer and parts
+ */
+export type SelectedType = {
+  [index: string]: {
+    selected: boolean;
+    parts: string[];
+  };
+};
+
+export type PartPayloadType = {
+  dancer: string;
+  part?: string;
+  parts?: string[];
+};
+
+/**
+ * selection mode
+ */
+export type SelectionModeType = DANCER | PART | POSITION;
+
+/**
  * Mutable State
  */
 export interface State {
   isPlaying: boolean; // isPlaying
-  selected: string[]; // array of selected dancer's name
 
   currentTime: number; // current time
   currentControlIndex: number; // current index in controlRecord
@@ -115,6 +144,10 @@ export interface State {
   editor: EditorType; // editor, should be CONTROL_EDITOR or POS_EDITOR
   editingData: EditingDataType; // store the editingData's start time id and index
 
+  selected: SelectedType; // array of selected dancer's name
+
+  selectionMode: SelectionModeType; // selection mode used by simulator and dancer tree
+
   effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
   effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
 }
@@ -124,7 +157,6 @@ export interface State {
  */
 export interface ReactiveState {
   isPlaying: ReactiveVar<boolean>; // isPlaying
-  selected: ReactiveVar<string[]>; // array of selected dancer's name
 
   currentTime: ReactiveVar<number>; // current time
   currentControlIndex: ReactiveVar<number>; // current index in controlRecord
@@ -137,6 +169,10 @@ export interface ReactiveState {
   editMode: ReactiveVar<EditModeType>;
   editor: ReactiveVar<EditorType>;
   editingData: ReactiveVar<EditingDataType>;
+
+  selected: ReactiveVar<SelectedType>; // array of selected dancer's name
+
+  selectionMode: ReactiveVar<SelectionModeType>; // selection mode used by simulator and dancer tree
 
   effectRecordMap: ReactiveVar<EffectRecordMapType>; // map of all effects and corresponding record ID array
   effectStatusMap: ReactiveVar<EffectStatusMapType>; // map of effect record ID and its status

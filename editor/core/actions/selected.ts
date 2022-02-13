@@ -1,15 +1,39 @@
 import { registerActions } from "../registerActions";
 // types
-import { State } from "../models";
+import { State, SelectedType, PartPayloadType } from "../models";
 
 const actions = registerActions({
   /**
-   * Set selected array
+   * Set the 'selected' object
+   * @param {State} state
+   * @param {SelectedType} payload - object containing dancer names as keys selected parts as values
+   */
+  setSelected: (state: State, payload: SelectedType) => {
+    state.selected = payload;
+  },
+
+  /**
+   * Set selected dancer
    * @param {State} state
    * @param {string[]} payload - array of dancer's name
    */
-  setSelected: (state: State, payload: string[]) => {
-    state.selected = payload;
+  setSelectedDancers: (state: State, payload: string[]) => {
+    const dancers = payload;
+    Object.keys(state.selected).forEach((dancer) => {
+      state.selected[dancer].selected = dancers.includes(dancer);
+    });
+  },
+
+  /**
+   * Set selected dancer
+   * @param {State} state
+   * @param {PartPayloadType[]} payload - array of dancer's name
+   */
+  setSelectedParts: (state: State, payload: PartPayloadType[]) => {
+    const parts = payload;
+    parts.forEach(({ dancer, parts }) => {
+      state.selected[dancer].parts = parts as string[];
+    });
   },
 
   /**
@@ -17,13 +41,44 @@ const actions = registerActions({
    * @param {State} state
    * @param {string} payload - one of dancer's name
    */
-  toggleSelected: (state: State, payload: string) => {
-    const name = payload;
-    if (state.selected.includes(name)) {
-      // delete the name
-      state.selected = state.selected.filter((n) => n !== name);
-    } else state.selected.push(name);
+  toggleSelectedDancer: (state: State, payload: string) => {
+    const dancer = payload;
+    state.selected[dancer].selected = !state.selected[dancer].selected;
+  },
+
+  /**
+   * toggle one in selected array
+   * @param {State} state
+   * @param {PartPayloadType} payload
+   */
+  toggleSelectedPart: (state: State, payload: PartPayloadType) => {
+    const { dancer, part } = payload;
+    const index = state.selected[dancer].parts.indexOf(part as string);
+    if (index !== -1) {
+      state.selected[dancer].parts.splice(index, 1);
+    } else {
+      state.selected[dancer].parts.push(part as string);
+    }
+  },
+
+  /**
+   * toggle one in selected array
+   * @param {State} state
+   * @param {null} payload
+   */
+  clearSelected: (state: State, payload: null) => {
+    Object.keys(state.selected).forEach((name) => {
+      state.selected[name].selected = false;
+      state.selected[name].parts = [];
+    });
   },
 });
 
-export const { setSelected, toggleSelected } = actions;
+export const {
+  setSelected,
+  setSelectedDancers,
+  setSelectedParts,
+  toggleSelectedDancer,
+  toggleSelectedPart,
+  clearSelected,
+} = actions;

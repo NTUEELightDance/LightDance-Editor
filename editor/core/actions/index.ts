@@ -7,3 +7,4 @@ export * from "./mode";
 export * from "./currentFade";
 export * from "./shiftFrameTime";
 export * from "./edit";
+export * from "./selectionMode";
