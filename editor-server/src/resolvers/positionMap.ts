@@ -161,14 +161,16 @@ export class EditPosMapResolver {
             name: dancerName,
           }).populate("positionData");
 
-          await Promise.all(dancer.positionData.map(async (position: any) => {
-            if (position.frame.toString() === _id.toString()) {
-              await ctx.db.Position.updateOne(
-                { _id: position._id },
-                { x: positionData.x, y: positionData.y, z: positionData.z }
-              );
-            }
-          }))
+          await Promise.all(
+            dancer.positionData.map(async (position: any) => {
+              if (position.frame.toString() === _id.toString()) {
+                await ctx.db.Position.updateOne(
+                  { _id: position._id },
+                  { x: positionData.x, y: positionData.y, z: positionData.z }
+                );
+              }
+            })
+          );
         })
       );
 

@@ -8,7 +8,7 @@ export class PositionMapPayload {
   mutation: PositionMapMutation;
 
   @Field((type) => PosDataScalar, { nullable: true })
-  frame?: any[];
+  frame?: any;
 
   @Field()
   frameID: string;

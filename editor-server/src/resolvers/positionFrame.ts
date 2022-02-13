@@ -84,7 +84,7 @@ export class PositionFrameResolver {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: newPositionFrame.id,
-      frame: [{ _id: newPositionFrame._id, id: newPositionFrame.id }],
+      frame: { _id: newPositionFrame._id, id: newPositionFrame.id },
     };
     await publishPositionMap(mapPayload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({
@@ -133,15 +133,15 @@ export class PositionFrameResolver {
       { id: input.frameID },
       { editing: null }
     );
-    const positionFrame = await ctx.db.PositionFrame.findOne(
-      { id: input.frameID }
-    );
+    const positionFrame = await ctx.db.PositionFrame.findOne({
+      id: input.frameID,
+    });
     await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
       mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
       frameID: positionFrame.id,
-      frame: [{ _id: positionFrame._id, id: positionFrame.id }],
+      frame: { _id: positionFrame._id, id: positionFrame.id },
     };
     await publishPositionMap(payload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({
