@@ -41,5 +41,4 @@ const client = new ApolloClient({
   cache: new InMemoryCache().restore({}),
   connectToDevTools: true,
 });
-
 export default client;
