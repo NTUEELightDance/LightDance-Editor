@@ -3,6 +3,8 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import { setContext } from "@apollo/client/link/context";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { nanoid } from "nanoid";
+import Subscriptions from "./subscription";
+
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
 });
@@ -41,4 +43,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache().restore({}),
   connectToDevTools: true,
 });
+
+Subscriptions(client, _userID);
+
 export default client;

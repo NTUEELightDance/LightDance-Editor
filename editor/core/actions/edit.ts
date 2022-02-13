@@ -94,7 +94,7 @@ const actions = registerActions({
   save: async (state: State, payload: boolean) => {
     const { frameId, frame, agent, fade } = await getDataHandler(state);
     const requestTimeChange = payload;
-    agent.saveFrame(frameId, frame, state.currentTime, requestTimeChange, fade);
+    await agent.saveFrame(frameId, frame, state.currentTime, requestTimeChange, fade);
   },
 
   /**
@@ -113,7 +113,7 @@ const actions = registerActions({
    */
   add: async (state: State) => {
     const { agent, frame, fade, index } = await getDataHandler(state);
-    agent.addFrame(frame, state.currentTime, index, fade);
+    await agent.addFrame(frame, state.currentTime, index, fade);
   },
 
   /**
@@ -121,7 +121,7 @@ const actions = registerActions({
    */
   deleteCurrent: async (state: State) => {
     const { frameId, agent } = await getDataHandler(state);
-    agent.deleteFrame(frameId);
+    await agent.deleteFrame(frameId);
   },
 });
 
