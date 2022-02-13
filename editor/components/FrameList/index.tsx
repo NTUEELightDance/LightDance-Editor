@@ -1,9 +1,6 @@
-import { useState } from "react";
 import Scrollbars from "react-custom-scrollbars";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
-import Switch from "@mui/material/Switch";
-import Stack from "@mui/material/Stack";
 import List from "@mui/material/List";
 // components
 import FrameItem from "./FrameItem";
@@ -11,7 +8,7 @@ import FrameItem from "./FrameItem";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 // constants
-import { CONTROL_EDITOR, POS_EDITOR } from "constants";
+import { CONTROL_EDITOR } from "constants";
 // hooks
 import useControlFrameList from "./useControlFrameList";
 import usePosFrameList from "./usePosFrameList";
