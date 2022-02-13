@@ -133,9 +133,9 @@ export class PositionFrameResolver {
       { id: input.frameID },
       { editing: null }
     );
-    const positionFrame = await ctx.db.PositionFrame.findOne(
-      { id: input.frameID }
-    );
+    const positionFrame = await ctx.db.PositionFrame.findOne({
+      id: input.frameID,
+    });
     await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
       mutation: PositionMapMutation.CREATED,

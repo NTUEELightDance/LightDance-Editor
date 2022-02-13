@@ -163,24 +163,32 @@ export class EditControlMapResolver {
         controlData.map(async (dancerParts: any) => {
           // data for one of the dancers
           const { dancerName, controlData } = dancerParts;
-          await Promise.all(controlData.map(async (partData: any) => {
-            // for the part of a certain dancer, create a new control of the part with designated value
-            const value = await examineType(partData, ctx);
-            let newControl = await new ctx.db.Control({
-              frame: newControlFrame,
-              value,
-              id: generateID(),
-            });
-            await ctx.db.Part.findOneAndUpdate(
-              { name: partData.partName },
-              {
-                $push: {
-                  controlData: newControl,
-                },
-              }
-            );
-            await newControl.save();
-          }))
+          await Promise.all(
+            controlData.map(async (partData: any) => {
+              const dancer = await ctx.db.Dancer.findOne({
+                name: dancerName,
+              }).populate({
+                path: "parts",
+                match: { name: partData.partName },
+              });
+              // for the part of a certain dancer, create a new control of the part with designated value
+              const value = await examineType(partData, ctx);
+              let newControl = new ctx.db.Control({
+                frame: newControlFrame,
+                value,
+                id: generateID(),
+              });
+              await ctx.db.Part.findOneAndUpdate(
+                { id: dancer.parts[0].id },
+                {
+                  $push: {
+                    controlData: newControl,
+                  },
+                }
+              );
+              await newControl.save();
+            })
+          );
         })
       );
 
