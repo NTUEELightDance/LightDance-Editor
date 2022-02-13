@@ -1,10 +1,13 @@
 import { gql } from "@apollo/client";
 
 export const GET_DANCERS = gql`
-  query dancers {
+  query Dancer {
     dancer {
       name
-      id
+      parts {
+        name
+        type
+      }
     }
   }
 `;
