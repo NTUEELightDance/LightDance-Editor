@@ -11,7 +11,7 @@ import Button from "@material-ui/core/Button";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "../../core/state";
 // actions
-import { setSelected, toggleSelected } from "../../core/actions";
+import { setSelectedDancers, toggleSelectedDancer } from "../../core/actions";
 import { selectLoad } from "../../slices/loadSlice";
 
 export default function SelectDancer() {
@@ -21,13 +21,13 @@ export default function SelectDancer() {
 
   // selected
   const handleToggleSelected = (name: string) => {
-    toggleSelected({ payload: name });
+    toggleSelectedDancer({ payload: name });
   };
   const handleSelectAll = () => {
-    setSelected({ payload: dancerNames });
+    setSelectedDancers({ payload: dancerNames });
   };
   const handleCancelSelect = () => {
-    setSelected({ payload: [] });
+    setSelectedDancers({ payload: [] });
   };
 
   // keyDown to select (0 ~ 9)
@@ -54,7 +54,7 @@ export default function SelectDancer() {
               <Checkbox
                 color="primary"
                 onChange={() => handleToggleSelected(name)}
-                checked={selected.includes(name)}
+                checked={selected[name].selected}
               />
             }
             label={name}

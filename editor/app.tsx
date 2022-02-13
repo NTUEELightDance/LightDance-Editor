@@ -13,7 +13,7 @@ import Loading from "components/Loading";
 // hooks
 import useControl from "hooks/useControl";
 import usePos from "hooks/usePos";
-import { setCurrentPos, setCurrentStatus } from "core/actions";
+import { setCurrentPos, setCurrentStatus, setSelected } from "core/actions";
 
 import "./app.css";
 import Layout from "containers/Layout";
@@ -44,6 +44,7 @@ const theme = createTheme({
 const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
+  const { dancerNames } = useSelector(selectLoad);
 
   const {
     loading: controlLoading,
@@ -76,6 +77,16 @@ const App = () => {
       setCurrentPos({ payload: posMap[posRecord[0]].pos });
     }
   }, [posLoading, posError]);
+
+  useEffect(() => {
+    if (dancerNames) {
+      const selected: any = {};
+      dancerNames.forEach(
+        (dancer) => (selected[dancer] = { selected: false, parts: [] })
+      );
+      setSelected({ payload: selected });
+    }
+  }, [dancerNames]);
 
   return (
     <div>

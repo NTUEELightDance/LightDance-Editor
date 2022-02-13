@@ -95,6 +95,24 @@ export interface EditingDataType {
   frameId: string;
   index: number;
 }
+
+/**
+ * selected dancer and parts
+ */
+export type SelectedType = {
+  [index: string]: {
+    selected: boolean;
+    parts: string[];
+  };
+};
+
+export type PartPayloadType = {
+  dancer: string;
+  part?: string;
+  parts?: string[];
+};
+
+/**
  * selection mode
  */
 export type SelectionModeType = "DANCER" | "PART" | "POSITION";
@@ -104,7 +122,6 @@ export type SelectionModeType = "DANCER" | "PART" | "POSITION";
  */
 export interface State {
   isPlaying: boolean; // isPlaying
-  selected: string[]; // array of selected dancer's name
 
   currentTime: number; // current time
   currentControlIndex: number; // current index in controlRecord
@@ -117,7 +134,9 @@ export interface State {
   editMode: EditModeType; // IDLE | EDITING | ADDING
   editor: EditorType; // editor, should be CONTROL_EDITOR or POS_EDITOR
   editingData: EditingDataType; // store the editingData's start time id and index
-  
+
+  selected: SelectedType; // array of selected dancer's name
+
   selectionMode: SelectionModeType; // selection mode used by simulator and dancer tree
 
   effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
@@ -129,7 +148,6 @@ export interface State {
  */
 export interface ReactiveState {
   isPlaying: ReactiveVar<boolean>; // isPlaying
-  selected: ReactiveVar<string[]>; // array of selected dancer's name
 
   currentTime: ReactiveVar<number>; // current time
   currentControlIndex: ReactiveVar<number>; // current index in controlRecord
@@ -143,9 +161,10 @@ export interface ReactiveState {
   editor: ReactiveVar<EditorType>;
   editingData: ReactiveVar<EditingDataType>;
 
-  currentPos: ReactiveVar<DancerCoordinates>; // currnet dancers' position
-  mode: ReactiveVar<number>; // 0: nothing, 1: edit, 2: add
+  selected: ReactiveVar<SelectedType>; // array of selected dancer's name
+
   selectionMode: ReactiveVar<SelectionModeType>; // selection mode used by simulator and dancer tree
+
   effectRecordMap: ReactiveVar<EffectRecordMapType>; // map of all effects and corresponding record ID array
   effectStatusMap: ReactiveVar<EffectStatusMapType>; // map of effect record ID and its status
 }
