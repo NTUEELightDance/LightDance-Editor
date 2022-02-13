@@ -219,6 +219,7 @@ export const controlAgent = {
     } catch (error) {
       console.error(error);
     }
+  },
   requestEditPermission: async (_frameID) => {
     const response = await client.mutate({
       mutation: REQUEST_EDIT_CONTROL_BY_ID,
@@ -407,6 +408,7 @@ export const posAgent = {
     } catch (error) {
       console.error(error);
     }
+  },
   requestEditPermission: async (_frameID) => {
     const response = await client.mutate({
       mutation: REQUEST_EDIT_POS_BY_ID,
