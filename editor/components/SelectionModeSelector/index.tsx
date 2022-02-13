@@ -9,7 +9,6 @@ import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
 
 import { reactiveState } from "../../core/state";
 import { setSelectionMode } from "../../core/actions";
-import { SelectionModeType } from "../../core/models";
 import { useReactiveVar } from "@apollo/client";
 
 import { DANCER, PART, POSITION } from "../../constants";
