@@ -8,25 +8,28 @@ import {
 } from "@mui/icons-material";
 import DancerTreeItem from "./DancerTreeItem";
 
-import { getItem } from "../../core/utils/localStorage";
-
 import { setSelectedDancers, setSelectedParts } from "../../core/actions";
 import { PartPayloadType } from "../../core/models";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
-const controlMap = JSON.parse(getItem("controlMap") as string);
-const dancers = (() => {
-  const status = (Object.values(controlMap)[0] as any)?.status;
-  const dancers: { [index: string]: string[] } = {};
-  Object.keys(status).forEach((dancerName) => {
-    dancers[dancerName] = Object.keys(status[dancerName]);
-  });
-  return dancers;
-})();
-const dancerNames = Object.keys(dancers);
+import { useSelector } from "react-redux";
+import { selectLoad } from "slices/loadSlice";
 
 const DancerTree = () => {
+  const { dancers: unProcessedDancers, dancerNames } = useSelector(selectLoad);
+  const dancers = (() => {
+    const ret: { [index: string]: string[] } = {};
+    Object.keys(unProcessedDancers).forEach((dancerName) => {
+      ret[dancerName] = [];
+      Object.values(unProcessedDancers[dancerName]).forEach((value) => {
+        ret[dancerName] = [...ret[dancerName], ...Object.keys(value)];
+      });
+    });
+    console.log(ret);
+    return ret;
+  })();
+
   const [expanded, setExpanded] = useState<string[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const selected = useReactiveVar(reactiveState.selected);
