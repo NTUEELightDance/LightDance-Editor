@@ -13,22 +13,10 @@ import { PartPayloadType } from "../../core/models";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import { useSelector } from "react-redux";
-import { selectLoad } from "slices/loadSlice";
+import useDancer from "hooks/useDancer";
 
 const DancerTree = () => {
-  const { dancers: unProcessedDancers, dancerNames } = useSelector(selectLoad);
-  const dancers = (() => {
-    const ret: { [index: string]: string[] } = {};
-    Object.keys(unProcessedDancers).forEach((dancerName) => {
-      ret[dancerName] = [];
-      Object.values(unProcessedDancers[dancerName]).forEach((value) => {
-        ret[dancerName] = [...ret[dancerName], ...Object.keys(value)];
-      });
-    });
-    console.log(ret);
-    return ret;
-  })();
+  const { dancers, dancerNames } = useDancer();
 
   const [expanded, setExpanded] = useState<string[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
@@ -129,6 +117,11 @@ const DancerTree = () => {
                   key={`PART_${name}_${part}`}
                   label={part}
                   nodeId={`${name}%${part}`}
+                  sx={{
+                    "p.MuiTreeItem-label": {
+                      fontSize: "0.9rem",
+                    },
+                  }}
                 />
               ))}
             </DancerTreeItem>

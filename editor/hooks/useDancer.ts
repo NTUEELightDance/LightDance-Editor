@@ -5,6 +5,8 @@ import { GET_DANCERS } from "../graphql";
 // constants
 import { useEffect } from "react";
 
+import _ from "lodash";
+
 interface DancerParts {
   name: string;
   parts: Part[];
@@ -38,21 +40,20 @@ export default function useDancer() {
 
   useEffect(() => {
     if (dancer) {
-      console.log(dancer);
       const tmpDancerNames: string[] = [];
       const tmpDancers: DancersType = {};
       const tmpPartTypeMap: PartTypeMapType = {};
-      (dancer.dancer as DancerParts[]).forEach(
-        ({ name: dancerName, parts }) => {
-          tmpDancerNames.push(dancerName);
-          tmpDancers[dancerName] = [];
-          parts.forEach(({ name: partName, type: partType }) => {
-            tmpDancers[dancerName].push(partName);
-            tmpPartTypeMap[partName] = partType;
-          });
-        }
+      const sortedDancers: DancerParts[] = _.sortBy(dancer.dancer, (dancer) =>
+        Number(dancer.name.split("_")[0])
       );
-      console.log(tmpDancerNames, tmpDancers, tmpPartTypeMap);
+      sortedDancers.forEach(({ name: dancerName, parts }) => {
+        tmpDancerNames.push(dancerName);
+        tmpDancers[dancerName] = [];
+        parts.forEach(({ name: partName, type: partType }) => {
+          tmpDancers[dancerName].push(partName);
+          tmpPartTypeMap[partName] = partType;
+        });
+      });
       setDancerNames(tmpDancerNames);
       setDancers(tmpDancers);
       setPartTypeMap(tmpPartTypeMap);

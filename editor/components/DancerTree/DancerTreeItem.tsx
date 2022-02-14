@@ -1,10 +1,13 @@
 import React from "react";
-import { Typography } from "@mui/material";
+
+import { Typography, Box } from "@mui/material";
 import TreeItem, {
   TreeItemContentProps,
   useTreeItem,
   TreeItemProps,
 } from "@mui/lab/TreeItem";
+import { blue } from "@mui/material/colors";
+
 import clsx from "clsx";
 
 const DancerTreeItemContent = React.forwardRef(function CustomContent(
@@ -50,9 +53,8 @@ const DancerTreeItemContent = React.forwardRef(function CustomContent(
   ) => {
     handleSelection(event);
   };
-
   return (
-    <div
+    <Box
       className={clsx(className, classes.root, {
         [classes.expanded]: expanded,
         [classes.selected]: selected,
@@ -61,6 +63,13 @@ const DancerTreeItemContent = React.forwardRef(function CustomContent(
       })}
       onMouseDown={handleMouseDown}
       ref={ref as React.Ref<HTMLDivElement>}
+      sx={{
+        ":hover": {
+          p: {
+            color: blue[100],
+          },
+        },
+      }}
     >
       <div onClick={handleExpansionClick} className={classes.iconContainer}>
         {icon}
@@ -72,7 +81,7 @@ const DancerTreeItemContent = React.forwardRef(function CustomContent(
       >
         {label}
       </Typography>
-    </div>
+    </Box>
   );
 });
 
