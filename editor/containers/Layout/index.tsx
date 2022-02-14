@@ -16,7 +16,7 @@ import FrameList from "../../components/FrameList";
 import CommandCenter from "../../components/CommandCenter";
 import ThreeSimulator from "../../components/ThreeSimulator";
 import File from "components/Settings/File";
-import DancerList from "components/DancerList";
+import DancerTree from "components/DancerTree";
 import LightProps from "components/LightProps";
 
 import { Box } from "@mui/material";
@@ -39,7 +39,7 @@ const Layout = () => {
   const ThreeSimulatorNode = useMemo<JSX.Element>(() => <ThreeSimulator />, []);
   const LightEditorNode = useMemo<JSX.Element>(() => <LightEditor />, []);
   const FrameListNode = useMemo<JSX.Element>(() => <FrameList />, []);
-  const DancerListNode = useMemo<JSX.Element>(() => <DancerList />, []);
+  const DancerTreeNode = useMemo<JSX.Element>(() => <DancerTree />, []);
   const LightPropsNode = useMemo<JSX.Element>(() => <LightProps />, []);
   const LightPresetsNode = useMemo<JSX.Element>(() => <LightPresets />, []);
   const PosPresetsNode = useMemo<JSX.Element>(() => <PosPresets />, []);
@@ -77,8 +77,8 @@ const Layout = () => {
         return LightEditorNode;
       case "FrameList":
         return FrameListNode;
-      case "DancerList":
-        return DancerListNode;
+      case "DancerTree":
+        return DancerTreeNode;
       case "LightProps":
         return LightPropsNode;
       case "LightPresets":

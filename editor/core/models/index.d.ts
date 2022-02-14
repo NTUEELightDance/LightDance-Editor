@@ -115,11 +115,7 @@ export type SelectedType = {
   };
 };
 
-export type PartPayloadType = {
-  dancer: string;
-  part?: string;
-  parts?: string[];
-};
+export type PartPayloadType = { [index: string]: string[] };
 
 /**
  * selection mode
