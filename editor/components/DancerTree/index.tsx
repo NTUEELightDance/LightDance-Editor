@@ -8,8 +8,13 @@ import {
 } from "@mui/icons-material";
 import DancerTreeItem from "./DancerTreeItem";
 
-import { setSelectedDancers, setSelectedParts } from "../../core/actions";
-import { PartPayloadType } from "../../core/models";
+import {
+  setSelectedDancers,
+  setSelectedParts,
+  setSelectionMode,
+} from "../../core/actions";
+import { PartPayloadType, SelectionModeType } from "../../core/models";
+import { DANCER, PART, POSITION } from "../../constants";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
@@ -17,10 +22,11 @@ import useDancer from "hooks/useDancer";
 
 const DancerTree = () => {
   const { dancers, dancerNames } = useDancer();
+  const selected = useReactiveVar(reactiveState.selected);
+  const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const [expanded, setExpanded] = useState<string[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
-  const selected = useReactiveVar(reactiveState.selected);
 
   const handleToggle = (event: React.SyntheticEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
@@ -29,6 +35,7 @@ const DancerTree = () => {
   const handleSelect = (event: React.SyntheticEvent, nodeIds: string[]) => {
     const newSelectedDancers: Set<string> = new Set();
     let newSelectedParts: PartPayloadType = {};
+    let newSelectionMode: SelectionModeType | null = null;
 
     nodeIds.forEach((nodeId) => {
       const nodeIdArray = nodeId.split("%");
@@ -42,11 +49,14 @@ const DancerTree = () => {
       }
     });
 
-    // broadcast mode
+    if (newSelectedDancers.size > 0) newSelectionMode = DANCER;
+    if (Object.keys(newSelectedParts).length > 0) newSelectionMode = PART;
+
     if (
       newSelectedDancers.size > 0 &&
       Object.keys(newSelectedParts).length > 0
     ) {
+      // broadcast mode
       const broadcastedPartsSet: Set<string> = new Set();
       // get all part names and dancer names to be broadcasted
       Object.entries(newSelectedParts).forEach(([dancer, parts]) => {
@@ -69,6 +79,9 @@ const DancerTree = () => {
 
     setSelectedDancers({ payload: [...newSelectedDancers] });
     setSelectedParts({ payload: newSelectedParts });
+
+    if (selectionMode !== POSITION)
+      setSelectionMode({ payload: newSelectionMode });
   };
 
   // update selected nodes based on the global selected state
@@ -81,6 +94,7 @@ const DancerTree = () => {
       }
     );
     setSelectedNodes(newNodeIds);
+    console.log(selected);
   }, [selected]);
 
   // handle expand/collapse all
