@@ -114,8 +114,8 @@
                 "children": [
                   {
                     "type": "tab",
-                    "name": "DancerList",
-                    "component": "DancerList",
+                    "name": "Dancer Tree",
+                    "component": "DancerTree",
                     "enableClose": false
                   }
                 ]
