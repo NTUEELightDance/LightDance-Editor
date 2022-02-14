@@ -37,7 +37,7 @@ class Controls {
       this.camera,
       this.renderer.domElement
     );
-    this.dragControls.enabled = false;
+    // this.dragControls.enabled = false;
     this.dragControls.addEventListener("dragend", this.dragEnd.bind(this));
   }
 
@@ -51,7 +51,6 @@ class Controls {
       this.scene
     );
     this.selectControls = selectControls;
-    this.activate();
   }
 
   activate() {
@@ -68,7 +67,6 @@ class Controls {
       // this.dragControls.enabled = true;
       this.dragControls.enabled = !this.dragControls.enabled;
       this.selectControls.enabled = !this.dragControls.enabled;
-      console.log(this.dragControls.enabled);
     }
   }
 
