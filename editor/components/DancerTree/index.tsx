@@ -48,10 +48,13 @@ const DancerTree = () => {
       Object.keys(newSelectedParts).length > 0
     ) {
       const broadcastedPartsSet: Set<string> = new Set();
+      // get all part names and dancer names to be broadcasted
       Object.entries(newSelectedParts).forEach(([dancer, parts]) => {
         newSelectedDancers.add(dancer);
         parts.forEach((part) => broadcastedPartsSet.add(part));
       });
+      // iterate through new selected dancers,
+      // if the dancer has a part in broadcastedPartsSet, select it
       newSelectedDancers.forEach((dancerName) => {
         dancers[dancerName].forEach((part) => {
           if (broadcastedPartsSet.has(part)) {
@@ -68,6 +71,7 @@ const DancerTree = () => {
     setSelectedParts({ payload: newSelectedParts });
   };
 
+  // update selected nodes based on the global selected state
   useEffect(() => {
     const newNodeIds: string[] = [];
     Object.entries(selected).forEach(
@@ -79,10 +83,12 @@ const DancerTree = () => {
     setSelectedNodes(newNodeIds);
   }, [selected]);
 
+  // handle expand/collapse all
   const handleExpandClick = () => {
     setExpanded((oldExpanded) => (oldExpanded.length === 0 ? dancerNames : []));
   };
 
+  // handle select/unselect all
   const handleSelectClick = () => {
     setSelectedNodes((oldSelected) =>
       oldSelected.length === 0 ? dancerNames : []
