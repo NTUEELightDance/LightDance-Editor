@@ -7,14 +7,17 @@ const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
 });
 
+const _userID = nanoid();
 const wsLink = new WebSocketLink({
   uri: "ws://localhost:4000/graphql",
   options: {
     reconnect: true,
+    connectionParams: {
+      userID: _userID
+    }
   },
 });
 //randomly generate a unique ID
-const _userID = nanoid();
 const authLink = setContext((_, { headers }) => {
   return {
     headers: {

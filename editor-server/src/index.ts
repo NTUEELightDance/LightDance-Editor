@@ -43,9 +43,9 @@ const { SECRET_KEY } = process.env;
     webSocket: any
   ) => {
     try {
-      const { name, userID } = connectionParams;
-      if (!userID || !name) throw new Error("UserID and name must be filled.");
-      const user = await db.User.findOne({ name, userID });
+      const { userID } = connectionParams;
+      if (!userID ) throw new Error("UserID and name must be filled.");
+      const user = await db.User.findOne({ userID });
       if (user) {
         return { db, userID };
       } else {
