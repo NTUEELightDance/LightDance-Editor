@@ -43,13 +43,14 @@ const { SECRET_KEY } = process.env;
     webSocket: any
   ) => {
     try {
-      const { userID } = connectionParams;
+      const { userID, name } = connectionParams;
       if (!userID ) throw new Error("UserID and name must be filled.");
       const user = await db.User.findOne({ userID });
       if (user) {
         return { db, userID };
       } else {
-        throw new Error("User not found.");
+        await new db.User({ name, userID }).save();
+        return { db, userID };
       }
     } catch (e) {}
   };
@@ -61,7 +62,7 @@ const { SECRET_KEY } = process.env;
       console.log(userID);
       await db.ControlFrame.updateMany({ editing: userID }, { editing: null });
       await db.PositionFrame.updateMany({ editing: userID }, { editing: null });
-      await db.User.deleteOne({ userID });
+      await db.User.deleteMany({ userID });
     }
   };
 

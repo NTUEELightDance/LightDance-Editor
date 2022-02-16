@@ -13,7 +13,8 @@ const wsLink = new WebSocketLink({
   options: {
     reconnect: true,
     connectionParams: {
-      userID: _userID
+      userID: _userID,
+      name: "editor"
     }
   },
 });
