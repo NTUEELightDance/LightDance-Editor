@@ -13,6 +13,26 @@ import { DancersType, PartTypeMapType, DancerParts } from "core/models";
 
 import _ from "lodash";
 
+interface DancerParts {
+  name: string;
+  parts: Part[];
+}
+
+interface Part {
+  name: string;
+  type: PartType;
+}
+
+export type PartType = "LED" | "FIBER" | "El";
+
+interface DancersType {
+  [key: string]: string[]; // dancerName: partNames
+}
+
+interface PartTypeMapType {
+  [key: string]: PartType;
+}
+
 export default function useDancer() {
   // query controlMap
   const { loading, error, data: dancer } = useQuery(GET_DANCERS);
