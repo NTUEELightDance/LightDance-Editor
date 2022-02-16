@@ -4,6 +4,7 @@ import { SelectControls } from "./SelectControls";
 
 import { setCurrentPos } from "../../../core/actions/currentPos";
 
+import { DANCER, PART, POSITION } from "constants";
 class Controls {
   constructor(renderer, scene, camera, dancers) {
     this.renderer = renderer;
@@ -24,6 +25,7 @@ class Controls {
       2.533987823530335,
       -0.07978443261089622
     );
+    orbitControls.zoomSpeed = 0.5;
 
     orbitControls.update();
 
@@ -37,7 +39,7 @@ class Controls {
       this.camera,
       this.renderer.domElement
     );
-    // this.dragControls.enabled = false;
+    this.dragControls.enabled = false;
     this.dragControls.addEventListener("dragend", this.dragEnd.bind(this));
   }
 
@@ -53,12 +55,28 @@ class Controls {
     this.selectControls = selectControls;
   }
 
-  activate() {
+  activate(selectionMode) {
     addEventListener("keydown", this.onKeyDown.bind(this));
+    switch (selectionMode) {
+      case DANCER:
+        this.selectControls.activate(DANCER);
+        break;
+      case PART:
+        this.selectControls.activate(PART);
+        break;
+      case POSITION:
+        this.selectControls.activate(DANCER);
+        this.dragControls.enabled = true;
+        this.dragControls.activate();
+        break;
+    }
   }
 
   deactivate() {
     removeEventListener("keydown", this.onKeyDown.bind(this));
+    this.dragControls.deactivate();
+    this.dragControls.enabled = false;
+    this.selectControls.deactivate();
   }
 
   onKeyDown(event) {

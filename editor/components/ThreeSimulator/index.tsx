@@ -4,11 +4,13 @@ import { useEffect, useRef, useLayoutEffect } from "react";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
+import { useResizeDetector } from "react-resize-detector";
+
 import { threeController } from "./ThreeController";
 import SelectionModeSelector from "components/SelectionModeSelector";
 
 // constants
-import { IDLE, DANCER, PART, POSITION } from "constants";
+import { IDLE } from "constants";
 
 /**
  * This is Display component
@@ -17,12 +19,22 @@ import { IDLE, DANCER, PART, POSITION } from "constants";
  */
 export default function ThreeSimulator() {
   const canvasRef = useRef();
-  const containerRef = useRef();
+  const {
+    ref: containerRef,
+    width: containerWidth,
+    height: containerHeight,
+  } = useResizeDetector({
+    onResize: (width, height) => {
+      if (threeController && threeController.isInitialized())
+        threeController.resize(width, height);
+    },
+  });
+
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
-  const currentPos = useReactiveVar(reactiveState.currentPos);
-  const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const editMode = useReactiveVar(reactiveState.editMode);
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
+
+  const selected = useReactiveVar(reactiveState.selected);
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -30,37 +42,30 @@ export default function ThreeSimulator() {
     threeController.init(canvas, container);
   }, []);
 
-  // useEffect(() => {
-  //   if (isPlaying) {
-  //     threeController.play();
-  //   } else {
-  //     threeController.stop();
-  //   }
-  // }, [isPlaying]);
+  useEffect(() => {
+    if (isPlaying) {
+      threeController.play();
+    } else {
+      threeController.stop();
+    }
+  }, [isPlaying]);
 
   useEffect(() => {
-    if (threeController && threeController.initialized()) {
-      // threeController.dragControlInit();
+    if (threeController && threeController.isInitialized()) {
+      threeController.updateSelected(selected);
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    if (threeController && threeController.isInitialized()) {
       if (!threeController.controls.dragControls) {
         threeController.controls.initDragControls();
         threeController.controls.initDanceSelector();
       }
 
-      threeController.controls.dragControls.deactivate();
-      threeController.controls.selectControls.deactivate();
       threeController.controls.deactivate();
       if (editMode !== IDLE) {
-        threeController.controls.activate();
-        console.log(selectionMode);
-
-        switch (selectionMode) {
-          case DANCER:
-            threeController.controls.selectControls.activate();
-          case PART:
-            threeController.controls.selectControls.activate();
-          case POSITION:
-            threeController.controls.dragControls.activate();
-        }
+        threeController.controls.activate(selectionMode);
       }
     }
   }, [editMode, selectionMode]);

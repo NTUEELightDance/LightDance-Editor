@@ -14,19 +14,15 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 
 // redux actions and store
 import store from "../../store";
+
 // components
 import { Dancer } from "./ThreeComponents";
 // states
 import { state } from "core/state";
 
 import Controls from "./Controls";
-// controls to control the scene
 
-import {
-  updateFrameByTimeMap,
-  interpolationPos,
-  fadeStatus,
-} from "../../core/utils/math";
+// controls to control the scene
 
 const fov = 45;
 const aspect = window.innerWidth / window.innerHeight;
@@ -58,12 +54,12 @@ class ThreeController {
   isPlaying: boolean;
   //? seems always undefined, not sure why its here
   animateID: any;
+  initialized: boolean;
 
   constructor() {
     // Basic attributes for three.js
     this.renderer = null;
     this.camera = null;
-    this.orbitControls = null;
     this.scene = null;
     this.composer = null;
     this.clock = null;
@@ -81,6 +77,7 @@ class ThreeController {
 
     // record the return id of requestAnimationFrame
     this.animateID = null;
+    this.initialized = false;
   }
 
   /**
@@ -90,6 +87,11 @@ class ThreeController {
     // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
     this.container = container;
+
+    // Set canvas size
+    const { width, height } = container.getBoundingClientRect();
+    this.width = width;
+    this.height = height;
 
     THREE.Cache.enabled = true;
 
@@ -216,8 +218,18 @@ class ThreeController {
   }
 
   // Return true if all the dancer is successfully initialized
-  initialized() {
-    return Object.values(this.dancers).every((dancer) => dancer.initialized);
+  isInitialized() {
+    if (!this.initialized)
+      this.initialized =
+        Object.values(this.dancers).every((dancer) => dancer.initialized) &&
+        Object.values(this.dancers).length !== 0;
+    return this.initialized;
+  }
+
+  resize(width, height) {
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height);
   }
 
   // Monitor fps, memory and delay
@@ -263,6 +275,16 @@ class ThreeController {
     });
   }
 
+  updateSelected(selected) {
+    if (Object.entries(selected).length === 0)
+      throw new Error(
+        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
+      );
+    Object.entries(selected).forEach(([key, value]) => {
+      this.dancers[key].updateSelected(value.selected);
+    });
+  }
+
   updateDancersStatus(currentStatus) {
     if (Object.entries(currentStatus).length === 0)
       throw new Error(
@@ -287,7 +309,7 @@ class ThreeController {
   animate() {
     this.renderer.render(this.scene, this.camera);
 
-    if (this.initialized()) {
+    if (this.isInitialized()) {
       Object.values(this.dancers).forEach((dancer) => {
         const { nameTag } = dancer;
         nameTag.lookAt(this.camera.position);
@@ -308,13 +330,11 @@ class ThreeController {
   }
 
   play() {
-    // this.animateID = this.animate();
-    this.isPlaying = true;
+    this.animateID = this.animate();
   }
 
   stop() {
-    this.isPlaying = false;
-    // cancelAnimationFrame(this.animateID);
+    cancelAnimationFrame(this.animateID);
   }
 
   // render current scene and dancers

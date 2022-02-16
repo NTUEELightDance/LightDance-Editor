@@ -57,7 +57,6 @@ class Dancer {
     this.model.children.forEach(
       (child) => (partMapping[child.name] = child.name)
     );
-    console.log(JSON.stringify(partMapping));
 
     this.model.traverse((part) => {
       const { name, type } = part;
@@ -93,18 +92,21 @@ class Dancer {
     this.setStatus(this.initStatus);
     this.setPos(this.initPos);
 
-    if (this.name.includes("sw")) this.model.visible = false;
+    if (this.name.includes("sw")) {
+      this.model.visible = false;
+      this.model.scale.set(0.0001, 0.0001, 0.0001);
+    }
     this.initialized = true;
   }
 
   // Create nameTag given font
   initNameTag(font) {
-    const color = 0x006699;
+    const color = 0xffffff;
 
     const matLite = new THREE.MeshBasicMaterial({
       color: color,
       transparent: true,
-      opacity: 0.4,
+      opacity: 0.9,
       side: THREE.DoubleSide,
     });
 
@@ -123,14 +125,14 @@ class Dancer {
     this.nameTag = text;
   }
 
-  select() {
-    this.selected = true;
-    this.nameTag.material.color.setRGB(1, 1, 1);
-  }
-
-  unselect() {
-    this.selected = false;
-    this.nameTag.material.color.setRGB(0, 0.4, 0.6);
+  updateSelected(selected) {
+    if (selected) {
+      this.selected = true;
+      this.nameTag.material.color.setRGB(0, 0.4, 0.6);
+    } else {
+      this.selected = false;
+      this.nameTag.material.color.setRGB(1, 1, 1);
+    }
   }
 
   // Update the model's positon and status

@@ -1,4 +1,6 @@
 import { EventDispatcher, Raycaster, Vector2, Group } from "three";
+import { setSelectedDancers, setSelectedParts } from "../../../core/actions";
+import { DANCER, PART } from "constants";
 
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
@@ -11,6 +13,7 @@ class SelectControls extends EventDispatcher {
     _domElement.style.touchAction = "none"; // disable touch scroll
 
     let _selected = null;
+    let _mode = DANCER;
 
     const _intersections = [];
 
@@ -20,8 +23,9 @@ class SelectControls extends EventDispatcher {
 
     const scope = this;
 
-    function activate() {
+    function activate(mode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
+      _mode = mode;
     }
 
     function deactivate() {
@@ -60,12 +64,21 @@ class SelectControls extends EventDispatcher {
       draggableObjects.length = 0;
 
       if (_intersections.length > 0) {
-        const object = _intersections[0].object.parent;
+        let object;
+        switch (_mode) {
+          case DANCER:
+            object = _intersections[0].object.parent;
+            break;
+          case PART:
+            object = _intersections[0].object;
+            console.log(object);
+            return;
+        }
 
         // Multi Selection Mode
         if (event.ctrlKey || event.metaKey) {
           // Toggle Selection
-          if (_group.children.includes(object) === true) {
+          if (_group.children.includes(object)) {
             removeFromGroup(object);
           } else {
             addToGroup(object);
@@ -73,8 +86,10 @@ class SelectControls extends EventDispatcher {
         }
         // Single Selection Mode
         else {
-          clearGroup();
-          addToGroup(object);
+          if (!_group.children.includes(object)) {
+            clearGroup();
+            addToGroup(object);
+          }
         }
       } else {
         clearGroup();
@@ -88,26 +103,24 @@ class SelectControls extends EventDispatcher {
         _dragControls.transformGroup = false;
         draggableObjects.push(..._objects);
       }
+
+      setSelectedDancers({
+        payload: _group.children.map((child) => child.name),
+      });
     }
 
     function clearGroup() {
       while (_group.children.length) {
         const object = _group.children[0];
-        const { name } = object;
-        _dancers[name].unselect();
         _scene.attach(object);
       }
     }
 
     function addToGroup(object) {
-      const { name } = object;
-      _dancers[name].select();
       _group.attach(object);
     }
 
-    function removeFromGroup() {
-      const { name } = object;
-      _dancers[name].unselect();
+    function removeFromGroup(object) {
       _scene.attach(object);
     }
 
@@ -118,7 +131,7 @@ class SelectControls extends EventDispatcher {
       _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
-    activate();
+    activate(_mode);
 
     // API
 
