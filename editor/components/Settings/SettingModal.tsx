@@ -28,7 +28,6 @@ export const SettingModal = ({
             sx={{
               width: "100%",
               height: "100%",
-              backgroundColor: "#AAAAAA",
               p: "5% 8%",
             }}
           >

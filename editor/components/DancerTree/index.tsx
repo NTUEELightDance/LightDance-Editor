@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import TreeView from "@mui/lab/TreeView";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Paper } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
   ChevronRight as ChevronRightIcon,
@@ -110,7 +110,7 @@ const DancerTree = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", backgroundColor: "#151515", px: "5%" }}>
+    <Paper sx={{ width: "100%", px: "5%" }}>
       <Box sx={{ p: 1 }}>
         <Button onClick={handleExpandClick}>
           {expanded.length === 0 ? "Expand all" : "Collapse all"}
@@ -148,7 +148,7 @@ const DancerTree = () => {
           );
         })}
       </TreeView>
-    </Box>
+    </Paper>
   );
 };
 

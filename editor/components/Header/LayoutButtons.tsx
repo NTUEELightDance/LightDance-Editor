@@ -9,14 +9,14 @@ export const LayoutButtons = ({}) => {
     <Box sx={{ display: "flex", gap: "1vw" }}>
       <Button
         variant={mode === "editor" ? "contained" : "text"}
-        sx={{ color: "white", display: "block" }}
+        sx={{ display: "block" }}
         onClick={() => setMode("editor")}
       >
         editor
       </Button>
       <Button
         variant={mode === "command" ? "contained" : "text"}
-        sx={{ color: "white", display: "block" }}
+        sx={{ display: "block" }}
         onClick={() => setMode("command")}
       >
         command center
