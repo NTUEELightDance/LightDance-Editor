@@ -37,7 +37,8 @@ export default function useEditHandler() {
 
   // Cancel the edit, exist editing mode
   const handleCancel = async () => {
-    await cancelEditing();
+    await cancelEditing({});
+    console.log(`Cancelling edit mode, ${reactiveState.currentTime()}`);
     // reset the frame
     await setCurrentTime({ payload: reactiveState.currentTime() });
   };

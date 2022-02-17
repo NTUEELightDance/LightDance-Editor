@@ -101,7 +101,7 @@
       },
       {
         "type": "row",
-        "weight": 25,
+        "weight": 20,
         "children": [
           {
             "type": "row",

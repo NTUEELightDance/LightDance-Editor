@@ -65,25 +65,29 @@ function actionCreator(action: Action) {
     const options = { ...defaultOptions, ...payloadOptions?.options };
     console.debug("payload", payloadOptions?.payload);
     console.debug("options:", options);
+    console.debug("state", JSON.parse(JSON.stringify(state)));
     if (options.rerender) {
       // request rerender
       // TODO: detect which variable changes
       syncReactiveState(options.states);
     }
+
     // TODO: these are hard coded
     // 3rd-party rerender
     if (options.refreshWavesurfer) {
       console.debug("refreshWavesurfer");
       waveSurferAppInstance.seekTo(state.currentTime);
     }
-    if (options.refreshPixiSimulator) {
+    if (options.refreshThreeSimulator && threeController.isInitialized()) {
+      console.debug("refreshThreeSimulator");
+      threeController.updateDancersPos(state.currentPos);
+      threeController.updateDancersStatus(state.currentStatus);
+      threeController.render();
+    }
+    if (options.refreshPixiSimulator && controller.isInitialized()) {
       console.debug("refreshPixiSimulator");
       controller.updateDancersPos(state.currentPos);
       controller.updateDancersStatus(state.currentStatus);
-    }
-    if (options.refreshThreeSimulator) {
-      console.debug("refreshThreeSimulator");
-      // TODO: Refresh three siimulator
     }
   };
 }

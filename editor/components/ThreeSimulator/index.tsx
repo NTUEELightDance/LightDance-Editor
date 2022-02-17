@@ -1,13 +1,16 @@
-import { useState, useEffect, useRef } from "react";
-// redux
-import { useSelector } from "react-redux";
+import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
+import { useResizeDetector } from "react-resize-detector";
+
 import { threeController } from "./ThreeController";
 import SelectionModeSelector from "components/SelectionModeSelector";
+
+// constants
+import { IDLE } from "constants";
 
 /**
  * This is Display component
@@ -16,33 +19,52 @@ import SelectionModeSelector from "components/SelectionModeSelector";
  */
 export default function ThreeSimulator() {
   const canvasRef = useRef();
-  const containerRef = useRef();
-  const isPlaying = useReactiveVar(reactiveState.isPlaying);
-  const currentPos = useReactiveVar(reactiveState.currentPos);
-  const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const { ref: containerRef } = useResizeDetector({
+    onResize: (width, height) => {
+      if (threeController && threeController.isInitialized())
+        threeController.resize(width, height);
+    },
+  });
 
-  useEffect(() => {
+  const isPlaying = useReactiveVar(reactiveState.isPlaying);
+  const editMode = useReactiveVar(reactiveState.editMode);
+  const selectionMode = useReactiveVar(reactiveState.selectionMode);
+
+  const selected = useReactiveVar(reactiveState.selected);
+
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     threeController.init(canvas, container);
   }, []);
 
   useEffect(() => {
-    threeController.fetch();
-    threeController.isPlaying = isPlaying;
+    if (isPlaying) {
+      threeController.play();
+    } else {
+      threeController.stop();
+    }
   }, [isPlaying]);
 
   useEffect(() => {
-    if (threeController.initialized()) {
-      threeController.state = {
-        ...threeController.state,
-        currentStatus,
-        currentPos,
-      };
-      threeController.updateDancers();
-      threeController.render();
+    if (threeController && threeController.isInitialized()) {
+      threeController.updateSelected(selected);
     }
-  }, [currentStatus]);
+  }, [selected]);
+
+  useEffect(() => {
+    if (threeController && threeController.isInitialized()) {
+      if (!threeController.controls.dragControls) {
+        threeController.controls.initDragControls();
+        threeController.controls.initDanceSelector();
+      }
+
+      threeController.controls.deactivate();
+      if (editMode !== IDLE) {
+        threeController.controls.activate(selectionMode);
+      }
+    }
+  }, [editMode, selectionMode]);
 
   return (
     <div

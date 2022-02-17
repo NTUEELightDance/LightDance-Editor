@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 // three.js
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
@@ -10,21 +9,18 @@ import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
 
 //? gui is working but does not come with a type even after installing @types/three
-import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
-// three gui
 
 // redux actions and store
 import store from "../../store";
-// components
-import ThreeDancer from "./ThreeComponents/Dancer";
-// states
-import { reactiveState } from "core/state";
 
-import {
-  updateFrameByTimeMap,
-  interpolationPos,
-  fadeStatus,
-} from "../../core/utils/math";
+// components
+import { Dancer } from "./ThreeComponents";
+// states
+import { state } from "core/state";
+
+import Controls from "./Controls";
+
+// controls to control the scene
 
 const fov = 45;
 const aspect = window.innerWidth / window.innerHeight;
@@ -41,7 +37,6 @@ class ThreeController {
 
   renderer: THREE.WebGLRenderer | null;
   camera: THREE.PerspectiveCamera | null;
-  controls: OrbitControls | null;
   // THREE.Object3D<THREE.Event>
   scene: THREE.Scene | null;
   composer: EffectComposer | null;
@@ -57,19 +52,19 @@ class ThreeController {
   isPlaying: boolean;
   //? seems always undefined, not sure why its here
   animateID: any;
+  initialized: boolean;
 
   constructor() {
     // Basic attributes for three.js
     this.renderer = null;
     this.camera = null;
-    this.controls = null;
     this.scene = null;
     this.composer = null;
     this.clock = null;
 
     // Configuration of the scene
-    this.height = 500;
-    this.width = 1500;
+    this.height = 600;
+    this.width = 1200;
 
     // Dancer
     this.dancers = {};
@@ -80,6 +75,7 @@ class ThreeController {
 
     // record the return id of requestAnimationFrame
     this.animateID = null;
+    this.initialized = false;
   }
 
   /**
@@ -89,6 +85,11 @@ class ThreeController {
     // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
     this.container = container;
+
+    // Set canvas size
+    const { width, height } = container.getBoundingClientRect();
+    this.width = width;
+    this.height = height;
 
     THREE.Cache.enabled = true;
 
@@ -111,7 +112,52 @@ class ThreeController {
     this.renderer = renderer;
 
     // Add a camera to view the scene, all the parameters are customizable
+    this.initCamera();
+
+    // Add a background scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    this.scene = scene;
+
+    // Add a dim light to identity each dancers
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    directionalLight.position.set(-1, 1, 1);
+    scene.add(directionalLight);
+
+    // Postprocessing for antialiasing effect
+    this.initPostprocessing();
+
+    // Set the clock for animation
+    this.clock = new THREE.Clock();
+
+    // Append the canvas to given ref
+    this.canvas.appendChild(renderer.domElement);
+
+    // Initialization of all dancers with currentPos
+    this.initDancers();
+
+    // Add a orbit control to view the scene from different perspectives and scales
+    this.controls = new Controls(
+      this.renderer,
+      this.scene,
+      this.camera,
+      this.dancers
+    );
+
+    // Initialization of grid helper on the floor
+    this.initGridHelper();
+
+    // Start rendering
+    this.animateID = this.animate();
+    this.renderer.render(this.scene, this.camera);
+
+    // Monitor perfomance and delay
+    this.monitor();
+  }
+
+  initCamera() {
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
     camera.position.set(
       -0.27423481610277156,
       3.9713106563331033,
@@ -131,84 +177,54 @@ class ThreeController {
     camera.aspect = this.width / this.height;
     camera.updateProjectionMatrix();
     this.camera = camera;
+  }
 
-    // Add a orbit control to view the scene from different perspectives and scales
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enablePan = true;
-    controls.enableZoom = true;
-    // controls.screenSpacePanning = true;
-    controls.target.set(
-      -0.7125719340319995,
-      2.533987823530335,
-      -0.07978443261089622
-    );
-    //? there is no such property on the controller
-    // controls.position0.set(
-    //   -4.4559744063642555,
-    //   2.128295812145451,
-    //   16.22834309576409
-    // );
-    controls.update();
-    this.controls = controls;
-
-    // Add a background scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x00000);
-
-    // Add a dim light to identity each dancers
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(-1, 1, 1);
-    scene.add(directionalLight);
-
-    this.scene = scene;
-
+  initPostprocessing() {
     // Postprocessing for antialiasing effect
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
+    const composer = new EffectComposer(this.renderer);
+    composer.addPass(new RenderPass(this.scene, this.camera));
 
     const pass = new SMAAPass(
-      window.innerWidth * renderer.getPixelRatio(),
-      window.innerHeight * renderer.getPixelRatio()
+      window.innerWidth * this.renderer.getPixelRatio(),
+      window.innerHeight * this.renderer.getPixelRatio()
     );
     composer.addPass(pass);
     this.composer = composer;
+  }
 
-    // Set the clock for animation
-    this.clock = new THREE.Clock();
+  initDancers() {
+    const { dancerNames } = store.getState().load;
+    const { currentStatus, currentPos } = state;
 
-    // Append the canvas to given ref
-    this.canvas.appendChild(renderer.domElement);
-
-    // Initialization of all dancers with currentPos
-    const currentPos = reactiveState.currentPos();
-
-    Object.entries(currentPos).forEach(([name, position], i) => {
-      if (!name.includes("sw")) {
-        const newDancer = new ThreeDancer(this.scene, name);
-        const newPos = {
-          x: position.x / 35,
-          y: 0,
-          z: position.z / 35,
-        };
-        newDancer.addModel2Scene(newPos);
-        this.dancers[name] = newDancer;
-      }
+    dancerNames.forEach((name) => {
+      const newDancer = new Dancer(
+        this.scene,
+        name,
+        "/asset/models/yellow_clean.glb"
+      );
+      newDancer.addModel2Scene(currentStatus[name], currentPos[name]);
+      this.dancers[name] = newDancer;
     });
+  }
 
-    // add gui to adjust parameters
-    // this.gui();
-
-    // start rendering
-    this.animateID = this.animate((clockDelta) => {});
-    this.renderer.render(this.scene, this.camera);
-
-    // monitor perfomance and delay
-    this.monitor();
+  initGridHelper() {
+    const helper = new THREE.GridHelper(30, 10);
+    this.scene.add(helper);
   }
 
   // Return true if all the dancer is successfully initialized
-  initialized() {
-    return Object.values(this.dancers).every((dancer) => dancer.initialized);
+  isInitialized() {
+    if (!this.initialized)
+      this.initialized =
+        Object.values(this.dancers).every((dancer) => dancer.initialized) &&
+        Object.values(this.dancers).length !== 0;
+    return this.initialized;
+  }
+
+  resize(width, height) {
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height);
   }
 
   // Monitor fps, memory and delay
@@ -223,108 +239,85 @@ class ThreeController {
     });
   }
 
-  // gui to change paramters including color, positon, controlls
-  gui() {
-    this.params = {
-      color: 0x000000,
-    };
-
-    const gui = new GUI();
-    gui.addColor(this.params, "color").onChange((value) => {
-      this.scene.background.set(value);
-    });
-  }
-
   // calculate and set next frame status according to time and call updateDancers
   update(clockDelta) {
-    // calculate simluation time + waveSurferTime to find the latset frame
-    const time = this.waveSuferTime + performance.now() - this.startTime;
-    const { state } = this;
-
-    // set timeData.controlFrame and currentStatus
-    const newControlFrame = updateFrameByTimeMap(
-      state.controlRecord,
-      state.controlMap,
-      state.timeData.controlFrame,
-      time
-    );
-
-    state.timeData.controlFrame = newControlFrame;
-
-    // status fade
-    if (newControlFrame === state.controlRecord.length - 1) {
-      // Can't fade
-      state.currentStatus =
-        state.controlMap[state.controlRecord[newControlFrame]].status;
-    } else {
-      // do fade
-      state.currentStatus = fadeStatus(
-        time,
-        state.controlMap[state.controlRecord[newControlFrame]],
-        state.controlMap[state.controlRecord[newControlFrame + 1]]
-      );
-    }
-
-    // set timeData.posFrame and currentPos
-    const newPosFrame = updateFrameByTimeMap(
-      state.posRecord,
-      state.posMap,
-      state.timeData.posFrame,
-      time
-    );
-    state.timeData.posFrame = newPosFrame;
-    // position interpolation
-    if (newPosFrame === state.posRecord.length - 1) {
-      // can't interpolation
-      state.currentPos = state.posRecord[newPosFrame].pos;
-    } else {
-      // do interpolation
-      state.currentPos = interpolationPos(
-        time,
-        state.posMap[state.posRecord[newPosFrame]],
-        state.posMap[state.posRecord[newPosFrame + 1]]
-      );
-    }
-
-    // set currentFade
-    state.currentFade =
-      state.controlMap[state.controlRecord[newControlFrame]].fade;
-
-    // update threeDancers staus and position
-    this.updateDancers();
+    this.updateDancersStatus(state.currentStatus);
+    this.updateDancersPos(state.currentPos);
   }
 
   // call each dancers's update
   updateDancers() {
     const { state } = this;
     Object.values(this.dancers).forEach((dancer) => {
-      dancer.update(
-        state.currentPos[dancer.name],
-        state.currentStatus[dancer.name]
+      const newPos = {
+        x: state.currentPos[dancer.name].x / 30,
+        y: 0,
+        z: state.currentPos[dancer.name].z / 30,
+      };
+      dancer.update(newPos, state.currentStatus[dancer.name]);
+    });
+  }
+
+  updateSelected(selected) {
+    if (Object.entries(selected).length === 0)
+      throw new Error(
+        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
+    Object.entries(selected).forEach(([key, value]) => {
+      this.dancers[key].updateSelected(value.selected);
+    });
+  }
+
+  updateDancersStatus(currentStatus) {
+    if (Object.entries(currentStatus).length === 0)
+      throw new Error(
+        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
+      );
+    Object.entries(currentStatus).forEach(([key, value]) => {
+      this.dancers[key].setStatus(value);
+    });
+  }
+
+  updateDancersPos(currentPos) {
+    if (Object.entries(currentPos).length === 0)
+      throw new Error(
+        `[Error] updateDancersPos, invalid parameter(currentPos)`
+      );
+    Object.entries(currentPos).forEach(([key, value]) => {
+      this.dancers[key].setPos(value);
     });
   }
 
   // a recursive function to render each new frame
-  animate(animation) {
+  animate() {
     this.renderer.render(this.scene, this.camera);
 
-    if (this.isPlaying) {
+    if (this.isInitialized()) {
+      Object.values(this.dancers).forEach((dancer) => {
+        const { nameTag } = dancer;
+        nameTag.lookAt(this.camera.position);
+      });
       this.update(this.clock?.getDelta());
-    } else {
-      cancelAnimationFrame(this.animateID);
     }
-    requestAnimationFrame(() => this.animate(animation));
+
+    requestAnimationFrame(() => this.animate());
   }
 
   // fetch controlRecord, controlMap, posRecord, and set Start time
   fetch() {
-    const { timeData, controlRecord, controlMap, posRecord } =
+    const { timeData, controlRecord, controlMap, posRecord, posMap } =
       store.getState().global;
-    this.startTime = performance.now();
     this.waveSuferTime = timeData.time;
-    this.state = { controlRecord, controlMap, posRecord };
+    this.state = { controlRecord, controlMap, posRecord, posMap };
     this.state.timeData = { ...timeData };
+  }
+
+  play() {
+    this.animateID = this.animate();
+  }
+
+  stop() {
+    cancelAnimationFrame(this.animateID);
   }
 
   // render current scene and dancers

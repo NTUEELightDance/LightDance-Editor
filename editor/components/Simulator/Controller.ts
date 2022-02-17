@@ -16,10 +16,13 @@ class Controller {
   dancers: { [name: string]: Dancer };
   pixiApp: PIXI.Application | null;
   mainContainer: PIXI.Container | null;
+  initialized: boolean;
+
   constructor() {
     this.dancers = {};
     this.pixiApp = null;
     this.mainContainer = null;
+    this.initialized = false;
   }
 
   /**
@@ -47,6 +50,14 @@ class Controller {
         this.mainContainer
       );
     });
+    this.initialized = true;
+  }
+
+  /**
+   * return the initialized status
+   */
+  isInitialized(): boolean {
+    return this.initialized;
   }
 
   /**
