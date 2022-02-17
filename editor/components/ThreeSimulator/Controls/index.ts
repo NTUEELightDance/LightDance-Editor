@@ -2,9 +2,14 @@ import { OrbitControls } from "./OrbitControls";
 import { DragControls } from "./DragControls";
 import { SelectControls } from "./SelectControls";
 
+import { SelectionBox } from "./SelectionBox";
+import { SelectionHelper } from "./SelectionHelper";
+
 import { setCurrentPos } from "../../../core/actions/currentPos";
 
+import styles from "./controls.module.css";
 import { DANCER, PART, POSITION } from "constants";
+
 class Controls {
   constructor(renderer, scene, camera, dancers) {
     this.renderer = renderer;
@@ -13,6 +18,7 @@ class Controls {
     this.domElement = renderer.domElement;
     this.dancers = dancers;
     this.initOrbitControls();
+    // this.initBoxSelectControls();
   }
 
   initOrbitControls() {
@@ -30,6 +36,55 @@ class Controls {
     orbitControls.update();
 
     this.orbitControls = orbitControls;
+  }
+
+  initBoxSelectControls() {
+    const selectionBox = new SelectionBox(this.camera, this.scene);
+    const helper = new SelectionHelper(
+      selectionBox,
+      this.renderer,
+      styles.selectBox
+    );
+
+    this.domElement.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      const rect = this.domElement.getBoundingClientRect();
+      selectionBox.startPoint.set(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+        0.5
+      );
+    });
+
+    this.domElement.addEventListener("pointermove", (event) => {
+      if (event.button !== 0) return;
+      if (helper.isDown) {
+        const rect = this.domElement.getBoundingClientRect();
+        selectionBox.endPoint.set(
+          ((event.clientX - rect.left) / rect.width) * 2 - 1,
+          (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+          0.5
+        );
+
+        const allSelected = selectionBox.select();
+        console.log(
+          allSelected.map((obj) => ({ [obj.parent.name]: obj.name }))
+        );
+      }
+    });
+
+    this.domElement.addEventListener("pointerup", (event) => {
+      if (event.button !== 0) return;
+      const rect = this.domElement.getBoundingClientRect();
+      selectionBox.endPoint.set(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+        0.5
+      );
+
+      const allSelected = selectionBox.select();
+      console.log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
+    });
   }
 
   initDragControls() {

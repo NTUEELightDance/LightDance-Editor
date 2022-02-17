@@ -19,11 +19,7 @@ import { IDLE } from "constants";
  */
 export default function ThreeSimulator() {
   const canvasRef = useRef();
-  const {
-    ref: containerRef,
-    width: containerWidth,
-    height: containerHeight,
-  } = useResizeDetector({
+  const { ref: containerRef } = useResizeDetector({
     onResize: (width, height) => {
       if (threeController && threeController.isInitialized())
         threeController.resize(width, height);

@@ -9,8 +9,6 @@ import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
 
 //? gui is working but does not come with a type even after installing @types/three
-import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
-// three gui
 
 // redux actions and store
 import store from "../../store";
@@ -149,9 +147,6 @@ class ThreeController {
     // Initialization of grid helper on the floor
     this.initGridHelper();
 
-    // Add gui to adjust parameters
-    // this.gui();
-
     // Start rendering
     this.animateID = this.animate();
     this.renderer.render(this.scene, this.camera);
@@ -241,18 +236,6 @@ class ThreeController {
     requestAnimationFrame(function loop() {
       statsPanel.update();
       requestAnimationFrame(loop);
-    });
-  }
-
-  // gui to change paramters including color, positon, controlls
-  gui() {
-    this.params = {
-      color: 0x000000,
-    };
-
-    const gui = new GUI();
-    gui.addColor(this.params, "color").onChange((value) => {
-      this.scene.background.set(value);
     });
   }
 
