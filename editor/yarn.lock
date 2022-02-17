@@ -1176,7 +1176,7 @@
 
 "@types/three@^0.137.0":
   version "0.137.0"
-  resolved "https://registry.npmjs.org/@types/three/-/three-0.137.0.tgz"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.137.0.tgz#6047e0658262b4de7c464a40288f9071ddd9a6d5"
   integrity sha512-Xc5EAlfYmgrCLI/VlSVqiRJAtzhWF0Rw2jSq48nqJy+Hcb5sfDOXyfZn1+RNcHyi9l8CeCAXCZygO8IyeOJVEA==
 
 "@types/wavesurfer.js@^6.0.0":

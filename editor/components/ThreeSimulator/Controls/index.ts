@@ -7,11 +7,24 @@ import { SelectionHelper } from "./SelectionHelper";
 
 import { setCurrentPos } from "../../../core/actions/currentPos";
 
+import { Dancer } from "../ThreeComponents";
+
 import styles from "./controls.module.css";
 import { DANCER, PART, POSITION } from "constants";
 
 class Controls {
-  constructor(renderer, scene, camera, dancers) {
+  renderer: THREE.Renderer;
+  scene: THREE.Scene;
+  camera: THREE.Camera;
+  domElement: HTMLElement;
+  dancers: Dancer[];
+
+  constructor(
+    renderer: THREE.Renderer,
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+    dancers: Dancer
+  ) {
     this.renderer = renderer;
     this.scene = scene;
     this.camera = camera;
