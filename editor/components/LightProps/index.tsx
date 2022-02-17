@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import _ from "lodash";
 
@@ -111,18 +111,52 @@ const LightProps = () => {
     <Tab label={partType} value={partType} key={`property_tab_${partType}`} />
   ));
 
+  const Panels = useMemo<JSX.Element[]>(
+    () =>
+      Object.entries(displayParts).map(([partType, parts]) => (
+        <PropertyPanel partType={partType as PartType} parts={parts} />
+      )),
+    [displayParts]
+  );
+
   return (
-    <Paper sx={{ width: "100%", minHeight: "100%" }}>
+    <Paper sx={{ width: "100%", minHeight: "100%", position: "relative" }}>
       <TabContext value={currentTab as PartType}>
         {/* only show tabs when there are more than one tab */}
         {Tabs.length > 1 && (
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <TabList onChange={handleChangeTab}>{Tabs}</TabList>
+          <Box
+            sx={{
+              borderBottom: 1,
+              borderColor: "divider",
+              px: "1em",
+              position: "fixed",
+              width: "100%",
+              backgroundColor: "#1e1e1e",
+              zIndex: 8080,
+            }}
+          >
+            <TabList
+              onChange={handleChangeTab}
+              sx={{
+                minHeight: "2em",
+                "button.MuiTab-root.MuiButtonBase-root": {
+                  padding: "0.5em 0.5em",
+                  minWidth: "4em",
+                  minHeight: "2em",
+                },
+              }}
+            >
+              {Tabs}
+            </TabList>
           </Box>
         )}
-        {Object.entries(displayParts).map(([partType, parts]) => (
-          <PropertyPanel partType={partType as PartType} parts={parts} />
-        ))}
+        <Box
+          sx={{
+            pt: "1em",
+          }}
+        >
+          {Panels}
+        </Box>
       </TabContext>
     </Paper>
   );

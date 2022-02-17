@@ -1,20 +1,7 @@
-import { useRef, useState, useEffect } from "react";
-import { useSelect, SelectOption } from "@mui/base";
 import { styled } from "@mui/system";
+import { grey } from "@mui/material/colors";
 
-const grey = {
-  100: "#E7EBF0",
-  200: "#E0E3E7",
-  300: "#CDD2D7",
-  400: "#B2BAC2",
-  500: "#A0AAB4",
-  600: "#6F7E8C",
-  700: "#3E5060",
-  800: "#2D3843",
-  900: "#1A2027",
-};
-
-const Root = styled("div")`
+export const Root = styled("div")`
   font-family: IBM Plex Sans, sans-serif;
   font-size: 0.875rem;
   position: relative;
@@ -23,20 +10,20 @@ const Root = styled("div")`
   color: #000;
 `;
 
-const Toggle = styled("div")(
+export const Toggle = styled("div")(
   ({ theme }) => `
   font-family: IBM Plex Sans, sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   box-sizing: border-box;
-  min-height: calc(1.5em + 22px);
-  width: 7vw;
+  min-height: 2em;
+  width: 5vw;
   background: var(--color, ${
     theme.palette.mode === "dark" ? grey[900] : "#fff"
   });
   border: 1px solid ${theme.palette.mode === "dark" ? grey[800] : grey[300]};
   border-radius: 0.75em;
-  margin: 0.5em;
-  padding: 10px;
+  margin: 0.2em;
+  padding: 5px;
   text-align: left;
   line-height: 1.5;
   color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
@@ -52,10 +39,10 @@ const Toggle = styled("div")(
   `
 );
 
-const Listbox = styled("ul")(
+export const Listbox = styled("ul")(
   ({ theme }) => `
   font-family: IBM Plex Sans, sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   box-sizing: border-box;
   padding: 5px;
   margin: 5px 0 0 0;
@@ -97,56 +84,3 @@ const Listbox = styled("ul")(
   }
   `
 );
-
-const CustomSelect = ({
-  options,
-  placeholder,
-  onChange,
-}: {
-  options: SelectOption<string>[];
-  placeholder?: string;
-  onChange: (value: any) => void;
-}) => {
-  const listboxRef = useRef<HTMLUListElement>(null);
-  const [listboxVisible, setListboxVisible] = useState(false);
-
-  const { getButtonProps, getListboxProps, getOptionProps, value } = useSelect({
-    listboxRef,
-    options,
-  });
-
-  useEffect(() => {
-    onChange(value);
-  }, [value]);
-
-  useEffect(() => {
-    if (listboxVisible) {
-      listboxRef.current?.focus();
-    }
-  }, [listboxVisible]);
-
-  return (
-    <Root
-      onMouseOver={() => setListboxVisible(true)}
-      onMouseOut={() => setListboxVisible(false)}
-      onFocus={() => setListboxVisible(true)}
-      onBlur={() => setListboxVisible(false)}
-    >
-      <Toggle {...getButtonProps()} style={{ "--color": value } as any}>
-        {value ?? <span className="placeholder">{placeholder ?? " "}</span>}
-      </Toggle>
-      <Listbox
-        {...getListboxProps()}
-        className={listboxVisible ? "" : "hidden"}
-      >
-        {options.map((option) => (
-          <li key={option.value} {...getOptionProps(option)}>
-            {option.label}
-          </li>
-        ))}
-      </Listbox>
-    </Root>
-  );
-};
-
-export default CustomSelect;

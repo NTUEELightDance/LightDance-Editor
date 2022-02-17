@@ -39,6 +39,7 @@ export const GET_POS_RECORD = gql`
     positionFrameIDs
   }
 `;
+
 export const GET_COLOR_MAP = gql`
   query ColorMap {
     colorMap {
