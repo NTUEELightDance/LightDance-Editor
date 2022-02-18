@@ -1,27 +1,15 @@
 import { useState } from "react";
 
-import {
-  Box,
-  Paper,
-  Typography,
-  ListItemButton,
-  Collapse,
-} from "@mui/material";
+import { Box, Typography, ListItemButton, Collapse, Grid } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import OFcontrolsContent from "./OFcontrolsContent";
+import IntensityControl from "../IntensityControl";
 
-const OFcontrols = ({ part }: { part: string }) => {
+const LEDcontrols = ({ part }: { part: string }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [intensity, setIntensity] = useState<number>(0);
 
-  const [color, setColor] = useState<string>("transparent");
-
   const handleExpand = () => {
     setOpen(!open);
-  };
-
-  const handleColorChange = (color: string) => {
-    setColor(color);
   };
 
   const valueLabelFormat = (value: number) => {
@@ -42,15 +30,6 @@ const OFcontrols = ({ part }: { part: string }) => {
           <Box sx={{ width: "10vw" }}>
             <Typography>{part}</Typography>
           </Box>
-          <Paper
-            sx={{
-              backgroundColor: color,
-              display: "inline-block",
-              width: "1.5em",
-              height: "1.5em",
-              mx: "2em",
-            }}
-          />
           <Box sx={{ width: "3vw" }}>
             <Typography>{valueLabelFormat(intensity)}</Typography>
           </Box>
@@ -59,15 +38,19 @@ const OFcontrols = ({ part }: { part: string }) => {
       </ListItemButton>
 
       <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
-        <OFcontrolsContent
-          handleColorChange={handleColorChange}
-          intensity={intensity}
-          setIntensity={setIntensity}
-          oneLine
-        />
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          sx={{
+            justifyContent: "space-between",
+            px: "5em",
+          }}
+        >
+          <IntensityControl intensity={intensity} setIntensity={setIntensity} />
+        </Grid>
       </Collapse>
     </>
   );
 };
-
-export default OFcontrols;
+export default LEDcontrols;

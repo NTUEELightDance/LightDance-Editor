@@ -4,6 +4,7 @@ import { TabPanel } from "@mui/lab";
 import OFcontrols from "../OFcontrols";
 
 import { PartType } from "../../../hooks/useDancer";
+import LEDcontrols from "../LEDcontrols";
 
 const PropertyPanel = ({
   partType,
@@ -24,7 +25,7 @@ const PropertyPanel = ({
         <List dense>
           {parts.map((part) =>
             partType === "LED" ? (
-              <ListItemText primary={part} key={part} />
+              <LEDcontrols part={part} />
             ) : (
               <OFcontrols part={part} key={part} />
             )

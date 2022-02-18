@@ -1,6 +1,7 @@
-import { Box, Paper, Tab } from "@mui/material";
+import { Paper } from "@mui/material";
 
-import { OFcontrolsContent } from "./OFcontrols";
+import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
+import IntensityControl from "./IntensityControl";
 
 import useDancer, { PartType } from "../../hooks/useDancer";
 
@@ -49,7 +50,7 @@ const PartMode = () => {
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }}>
       {partType === "LED" ? (
-        <></>
+        <IntensityControl intensity={intensity} setIntensity={setIntensity} />
       ) : (
         <OFcontrolsContent
           intensity={intensity}
