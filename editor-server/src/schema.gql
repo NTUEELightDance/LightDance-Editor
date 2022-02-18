@@ -3,6 +3,11 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+input addColorInput {
+  color: String!
+  colorCode: String!
+}
+
 input AddDancerInput {
   name: String!
 }
@@ -11,6 +16,12 @@ input AddPartInput {
   dancerName: String!
   name: String!
   type: String!
+}
+
+type Color {
+  color: String!
+  colorCode: String!
+  id: ID!
 }
 
 input ColorInput {
@@ -22,7 +33,9 @@ type ColorMap {
   colorMap: ColorMapCustomScalar!
 }
 
-"""Color map scalar type"""
+"""
+Color map scalar type
+"""
 scalar ColorMapCustomScalar
 
 type ColorPayload {
@@ -58,7 +71,9 @@ type ControlFrame {
   start: Float!
 }
 
-"""Mongo object id scalar type"""
+"""
+Mongo object id scalar type
+"""
 scalar ControlMapMutationObjectId
 
 type ControlMapPayload {
@@ -75,7 +90,9 @@ type ControlRecordPayload {
   mutation: String!
 }
 
-"""The basic control types"""
+"""
+The basic control types
+"""
 enum ControlType {
   EL
   FIBER
@@ -125,6 +142,12 @@ input DeletePartInput {
 
 input DeletePositionFrameInput {
   frameID: String!
+}
+
+input editColorInput {
+  color: String!
+  colorCode: String!
+  id: String!
 }
 
 input EditControlFrameInput {
@@ -178,22 +201,31 @@ type Map {
   frames: MapQueryObjectId!
 }
 
-"""Mongo object id scalar type"""
+"""
+Mongo object id scalar type
+"""
 scalar MapQueryObjectId
 
 type Mutation {
+  addColor(color: addColorInput!): Color!
   addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
   CancelEditControl(FrameID: String!): RequestEditResponse!
   CancelEditPosition(FrameID: String!): RequestEditResponse!
+  deleteColor(colorID: String!): Color!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
+  editColor(color: editColorInput!): Color!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(controlData: [EditControlInput!]!, fade: Boolean = false, start: Float!): ControlData!
+  editControlMap(
+    controlData: [EditControlInput!]!
+    fade: Boolean = false
+    start: Float!
+  ): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
@@ -252,7 +284,9 @@ type PositionRecordPayload {
   mutation: String!
 }
 
-"""Mongo object id scalar type"""
+"""
+Mongo object id scalar type
+"""
 scalar PosMapMutationObjectId
 
 type Query {
@@ -262,6 +296,7 @@ type Query {
   controlFrameIDs: [ID!]!
   ControlMap: Map!
   dancer: [Dancer!]!
+  getColors: [Color!]!
   positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
   PosMap: Map!
