@@ -1,7 +1,7 @@
 import { Box, List, ListItemText } from "@mui/material";
 import { TabPanel } from "@mui/lab";
 
-import OFcontrols from "./OFcontrols";
+import OFcontrols from "../OFcontrols";
 
 import { PartType } from "../../../hooks/useDancer";
 
