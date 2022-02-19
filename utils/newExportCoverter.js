@@ -188,6 +188,23 @@ const old_pos = [
 ];
 
 const pos = {};
+const center = { x: 0, y: 0, z: 0 };
+
+DANCER.forEach((dancer, i) => {
+  const { name } = dancer;
+  pos[name] = {
+    x: old_pos[i].x / 30,
+    y: 0,
+    z: old_pos[i].z / 30,
+  };
+  center.x += old_pos[i].x / 30;
+  center.y += 0;
+  center.z += old_pos[i].z / 30;
+});
+
+center.x /= 11;
+center.y /= 11;
+center.z /= 11;
 
 DANCER.forEach((dancer, i) => {
   const { parts, name } = dancer;
@@ -210,11 +227,13 @@ DANCER.forEach((dancer, i) => {
     }
   });
   pos[name] = {
-    x: old_pos[i].x / 30,
+    x: old_pos[i].x / 30 - center.x,
     y: 0,
-    z: old_pos[i].z / 30,
+    z: old_pos[i].z / 30 - center.z,
   };
 });
+
+console.log(center);
 
 const CONTROL = {
   "01HvN": {

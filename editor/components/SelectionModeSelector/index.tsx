@@ -53,15 +53,19 @@ const SelectionModeSelector = () => {
       direction="down"
     >
       {Object.entries(icons).map(([mode, icon]) => {
-        // Disable tools by its editor
-        if (editor === POS_EDITOR && mode !== POSITION) return <></>;
-        if (editor === CONTROL_EDITOR && mode === POSITION) return <></>;
+        // Disable tools by its mode
+        const disabled =
+          (editor === POS_EDITOR && mode !== POSITION) ||
+          (editor === CONTROL_EDITOR && mode === POSITION);
+
         return (
           <SpeedDialAction
             key={mode}
             icon={icon}
             tooltipTitle={mode}
             onClick={() => setSelectionMode({ payload: mode })}
+            // @ts-ignore: Unreachable code error
+            disabled={disabled}
           />
         );
       })}

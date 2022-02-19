@@ -4,14 +4,14 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
-
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 // postprocessing for three.js
+
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
+// three gui
 
 import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
-
-// redux actions and store
-import store from "../../store";
 
 // components
 import { Dancer } from "./ThreeComponents";
@@ -102,6 +102,8 @@ class ThreeController {
 
     renderer.setSize(this.width, this.height);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.toneMappingExposure = Math.pow(1.2521, 4.0);
     renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer = renderer;
 
@@ -129,6 +131,7 @@ class ThreeController {
 
     // Initialization of all dancers with currentPos
     this.initDancers();
+    this.initCenterMarker();
 
     // Initialization of grid helper on the floor
     this.initGridHelper();
@@ -171,8 +174,12 @@ class ThreeController {
   }
 
   initPostprocessing() {
-    // Postprocessing for antialiasing effect
     const composer = new EffectComposer(this.renderer);
+
+    const renderPass = new RenderPass(this.scene, this.camera);
+    composer.addPass(renderPass);
+
+    // Postprocessing for antialiasing effect
     composer.addPass(new RenderPass(this.scene, this.camera));
 
     const pass = new SMAAPass(
@@ -180,6 +187,26 @@ class ThreeController {
       this.height * this.renderer.getPixelRatio()
     );
     composer.addPass(pass);
+
+    const params = {
+      exposure: 1,
+      bloomStrength: 1.5,
+      bloomThreshold: 0,
+      bloomRadius: 0,
+    };
+
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(this.width, this.height),
+      1.5,
+      0.4,
+      0.85
+    );
+
+    bloomPass.threshold = 0.521;
+    bloomPass.strength = 0.75;
+    bloomPass.radius = 1;
+
+    composer.addPass(bloomPass);
 
     const outline = new OutlinePass(
       new THREE.Vector2(this.width, this.height),
@@ -248,6 +275,16 @@ class ThreeController {
     );
   }
 
+  initCenterMarker() {
+    const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const cube = new THREE.Mesh(geometry, material);
+
+    cube.position.setZ(12.5);
+    console.log(cube);
+
+    this.scene.add(cube);
+  }
   // Return true if all the dancer is successfully initialized
   isInitialized() {
     if (!this.initialized)
@@ -355,15 +392,6 @@ class ThreeController {
     this.composer?.render();
 
     requestAnimationFrame(() => this.animate());
-  }
-
-  // fetch controlRecord, controlMap, posRecord, and set Start time
-  fetch() {
-    const { timeData, controlRecord, controlMap, posRecord, posMap } =
-      store.getState().global;
-    this.waveSuferTime = timeData.time;
-    this.state = { controlRecord, controlMap, posRecord, posMap };
-    this.state.timeData = { ...timeData };
   }
 
   play() {

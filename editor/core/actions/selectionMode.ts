@@ -25,7 +25,6 @@ const actions = registerActions({
    */
   setSelectionModeByEditor: (state: State, payload: EditorType) => {
     const editor = payload;
-    console.log(editor);
     switch (editor) {
       case CONTROL_EDITOR:
         state.selectionMode = POSITION;
