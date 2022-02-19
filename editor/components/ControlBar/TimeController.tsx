@@ -17,6 +17,11 @@ import {
   setCurrentPosIndex,
 } from "../../core/actions";
 
+// hotkeys
+import { useHotkeys } from "react-hotkeys-hook";
+// constants
+import { CONTROL_EDITOR } from "constants";
+
 /**
  * Time Data Controller (time, controlFrame, posFrame)
  */
@@ -37,6 +42,26 @@ export default function TimeController() {
 
   const handleChangeControlFrame = handleChange(setCurrentControlIndex);
   const handleChangePosFrame = handleChange(setCurrentPosIndex);
+
+  const editor = useReactiveVar(reactiveState.editor);
+  useHotkeys(
+    "right",
+    () => {
+      if (editor === CONTROL_EDITOR)
+        handleChangeControlFrame(currentControlIndex + 1);
+      else handleChangePosFrame(currentPosIndex + 1);
+    },
+    [editor, currentControlIndex, currentPosIndex]
+  );
+  useHotkeys(
+    "left",
+    () => {
+      if (editor === CONTROL_EDITOR)
+        handleChangeControlFrame(currentControlIndex - 1);
+      else handleChangePosFrame(currentPosIndex - 1);
+    },
+    [editor, currentControlIndex, currentPosIndex]
+  );
 
   return (
     <Stack direction="row" justifyContent="center" alignItems="center">

@@ -46,14 +46,14 @@ const Wavesurfer = ({ cleanMode = false }) => {
     if (editor === CONTROL_EDITOR)
       if (!controlLoading && controlMap && showMarkers)
         waveSurferApp.updateMarkers(controlMap);
-  }, [editor, controlRecord]);
+  }, [editor, controlRecord, controlMap]);
 
   // update Pos Markers
   useEffect(() => {
     if (editor === POS_EDITOR)
       if (!posLoading && posMap && showMarkers)
         waveSurferApp.updateMarkers(posMap);
-  }, [editor, posRecord]);
+  }, [editor, posRecord, posMap]);
 
   // update Markers when markers switched on
   useEffect(() => {

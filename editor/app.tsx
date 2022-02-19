@@ -13,7 +13,8 @@ import { useSelector, useDispatch } from "react-redux";
 // actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
 // components
-import Header from "components/Header";
+import Header from "./components/Header";
+import Clipboard from "components/Clipboard";
 import Loading from "components/Loading";
 // hooks
 import useControl from "hooks/useControl";
@@ -107,6 +108,7 @@ const App = () => {
       <ObsoleteThemeProvider theme={obsoleteTheme}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <Clipboard />
           {init && !controlLoading && !posLoading ? (
             <div
               style={{
