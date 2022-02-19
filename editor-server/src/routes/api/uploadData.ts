@@ -10,7 +10,7 @@ const uploadData = async (req: any, res: any) => {
     // read request
     const { data } = req.files;
     const dataObj = JSON.parse(data.data.toString("ascii"));
-    const { position, control, dancer } = dataObj;
+    const { position, control, dancer, color } = dataObj;
 
     // save dancer & part data temporarily before executing .save()
     const allDancer: LooseObject = {};
@@ -22,6 +22,17 @@ const uploadData = async (req: any, res: any) => {
     await db.ControlFrame.deleteMany();
     await db.Position.deleteMany();
     await db.PositionFrame.deleteMany();
+    await db.Color.deleteMany();
+
+    // create client object
+    await Promise.all(
+      Object.keys(color).map(async (colorKey: string) => {
+        await new db.Color({
+          color: colorKey,
+          colorCode: color[colorKey],
+        }).save();
+      })
+    );
 
     // create dancer & part mongoose object
     await Promise.all(

@@ -13,6 +13,8 @@ import Loading from "components/Loading";
 // hooks
 import useControl from "hooks/useControl";
 import usePos from "hooks/usePos";
+import useDancer from "hooks/useDancer";
+// states and actions
 import { setCurrentPos, setCurrentStatus, setSelected } from "core/actions";
 
 import "./app.css";
@@ -44,7 +46,12 @@ const theme = createTheme({
 const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
-  const { dancerNames } = useSelector(selectLoad);
+
+  const {
+    loading: dancerLoading,
+    error: dancerError,
+    dancerNames,
+  } = useDancer();
 
   const {
     loading: controlLoading,
@@ -92,7 +99,7 @@ const App = () => {
     <div>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {init && !controlLoading && !posLoading ? (
+        {init && !controlLoading && !posLoading && !dancerLoading ? (
           <div
             style={{
               display: "flex",

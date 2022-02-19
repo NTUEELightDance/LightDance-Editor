@@ -15,6 +15,9 @@ import {
   EditModeType,
   EditorType,
   SelectionModeType,
+  SelectedType,
+  DancersType,
+  PartTypeMapType,
 } from "../models";
 
 /**
@@ -22,7 +25,7 @@ import {
  */
 const _state: State = {
   isPlaying: false,
-  selected: [],
+  selected: {},
 
   currentTime: 0,
   currentControlIndex: 0,
@@ -44,6 +47,10 @@ const _state: State = {
 
   effectRecordMap: {}, // map of all effects and corresponding record ID array
   effectStatusMap: {},
+
+  dancers: {},
+  dancerNames: [],
+  partTypeMap: {},
 };
 
 // The diffSet will save changed attributes in state
@@ -60,7 +67,7 @@ export const state = onChange(
  */
 export const reactiveState: ReactiveState = {
   isPlaying: makeVar<boolean>(false),
-  selected: makeVar<string[]>([]),
+  selected: makeVar<SelectedType>({}),
   currentTime: makeVar<number>(0),
   currentControlIndex: makeVar<number>(0),
   currentPosIndex: makeVar<number>(0),
@@ -80,6 +87,10 @@ export const reactiveState: ReactiveState = {
 
   effectRecordMap: makeVar<EffectRecordMapType>({}), // map of all effects and corresponding record ID array
   effectStatusMap: makeVar<EffectStatusMapType>({}),
+
+  dancers: makeVar<DancersType>({}),
+  dancerNames: makeVar<string[]>([]),
+  partTypeMap: makeVar<PartTypeMapType>({}),
 };
 
 /**

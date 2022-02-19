@@ -46,7 +46,14 @@ const exportData = async (req: any, res: any) => {
       path: "parts",
       select: "name type -_id",
     });
-    const data = { position, control, dancer };
+
+    const colorData = await db.Color.find({}, "color colorCode -_id");
+    const color: LooseObject = {};
+    colorData.map((colorObj: any) => {
+      color[colorObj.color] = colorObj.colorCode;
+    });
+
+    const data = { position, control, dancer, color };
     res.header("Content-Type", "application/json");
     res.send(JSON.stringify(data));
   } catch (err) {

@@ -8,3 +8,4 @@ export * from "./currentFade";
 export * from "./shiftFrameTime";
 export * from "./edit";
 export * from "./selectionMode";
+export * from "./dancers";

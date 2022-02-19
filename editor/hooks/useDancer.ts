@@ -4,39 +4,21 @@ import { useQuery } from "@apollo/client";
 import { GET_DANCERS } from "../graphql";
 // constants
 import { useEffect } from "react";
+// states and actions
+import { reactiveState } from "core/state";
+import { setDancerNames, setDancers, setPartTypeMap } from "core/actions";
+import { useReactiveVar } from "@apollo/client";
+// models
+import { DancersType, PartTypeMapType, DancerParts } from "core/models";
 
 import _ from "lodash";
-
-interface DancerParts {
-  name: string;
-  parts: Part[];
-}
-
-interface Part {
-  name: string;
-  type: PartType;
-}
-
-type PartType = "LED" | "FIBER" | "El";
-
-interface DancersType {
-  [key: string]: string[]; // dancerName: partNames
-}
-
-interface PartTypeMapType {
-  [key: string]: PartType;
-}
 
 export default function useDancer() {
   // query controlMap
   const { loading, error, data: dancer } = useQuery(GET_DANCERS);
-  const [dancerNames, setDancerNames] = useState<string[]>([]);
-  const [dancers, setDancers] = useState<DancersType>({});
-  const [partTypeMap, setPartTypeMap] = useState<PartTypeMapType>({});
-
-  const getPartType = (partName: string) => {
-    return partTypeMap[partName];
-  };
+  const dancerNames = useReactiveVar(reactiveState.dancerNames);
+  const dancers = useReactiveVar(reactiveState.dancers);
+  const partTypeMap = useReactiveVar(reactiveState.partTypeMap);
 
   useEffect(() => {
     if (dancer) {
@@ -54,9 +36,9 @@ export default function useDancer() {
           tmpPartTypeMap[partName] = partType;
         });
       });
-      setDancerNames(tmpDancerNames);
-      setDancers(tmpDancers);
-      setPartTypeMap(tmpPartTypeMap);
+      setDancerNames({ payload: tmpDancerNames });
+      setDancers({ payload: tmpDancers });
+      setPartTypeMap({ payload: tmpPartTypeMap });
     }
   }, [dancer]);
 
@@ -66,6 +48,5 @@ export default function useDancer() {
     dancerNames,
     dancers,
     partTypeMap,
-    getPartType,
   };
 }

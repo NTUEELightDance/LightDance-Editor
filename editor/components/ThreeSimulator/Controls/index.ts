@@ -44,7 +44,7 @@ class Controls {
       2.533987823530335,
       -0.07978443261089622
     );
-    orbitControls.zoomSpeed = 0.5;
+    orbitControls.zoomSpeed = 0.3;
 
     orbitControls.update();
 
