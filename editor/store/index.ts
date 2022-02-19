@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import globalReducer from "../slices/globalSlice";
 import loadReducer from "../slices/loadSlice";
 import CommandReducer from "../slices/commandSlice";
+
 const store = configureStore({
   reducer: {
     global: globalReducer,
