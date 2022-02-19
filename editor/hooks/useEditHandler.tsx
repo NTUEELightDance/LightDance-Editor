@@ -46,6 +46,7 @@ export default function useEditHandler() {
   // Add a frame, use currentPos as default
   const handleAdd = async () => {
     await add();
+    await setCurrentTime({ payload: reactiveState.currentTime() });
   };
 
   // Delete the current record

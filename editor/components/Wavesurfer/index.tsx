@@ -1,6 +1,5 @@
 import { useEffect, useContext, useLayoutEffect } from "react";
 import { useResizeDetector } from "react-resize-detector";
-
 // mui
 import Stack from "@mui/material/Stack";
 // components
@@ -10,7 +9,13 @@ import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
 // types
 import { wavesurferContext } from "types/components/wavesurfer";
 // hooks
-import useControl from "../../hooks/useControl";
+import useControl from "hooks/useControl";
+import usePos from "hooks/usePos";
+// actions and states
+import { reactiveState } from "core/state";
+import { useReactiveVar } from "@apollo/client";
+// constants
+import { CONTROL_EDITOR, POS_EDITOR } from "constants";
 
 /**
  *
@@ -32,17 +37,34 @@ const Wavesurfer = ({ cleanMode = false }) => {
     initWaveSurferApp();
   }, []);
 
-  const { loading, error, controlMap, controlRecord } = useControl();
+  const { loading: controlLoading, controlMap, controlRecord } = useControl();
+  const { loading: posLoading, posMap, posRecord } = usePos();
 
+  const editor = useReactiveVar(reactiveState.editor);
   // update Markers
   useEffect(() => {
-    if (!loading && controlMap && showMarkers)
-      waveSurferApp.updateMarkers(controlMap);
-  }, [controlRecord]);
+    if (editor === CONTROL_EDITOR)
+      if (!controlLoading && controlMap && showMarkers)
+        waveSurferApp.updateMarkers(controlMap);
+  }, [editor, controlRecord]);
+
+  // update Pos Markers
+  useEffect(() => {
+    if (editor === POS_EDITOR)
+      if (!posLoading && posMap && showMarkers)
+        waveSurferApp.updateMarkers(posMap);
+  }, [editor, posRecord]);
 
   // update Markers when markers switched on
   useEffect(() => {
-    if (loading || !controlMap || !waveSurferApp) return;
+    if (
+      controlLoading ||
+      posLoading ||
+      !controlMap ||
+      !posMap ||
+      !waveSurferApp
+    )
+      return;
     waveSurferApp.toggleMarkers(showMarkers);
   }, [showMarkers]);
 

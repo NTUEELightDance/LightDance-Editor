@@ -4,6 +4,8 @@ import {
   MarkersPluginParams,
 } from "../../../types/components/wavesurfer";
 
+import { waveSurferAppInstance } from "../WaveSurferApp";
+
 const DEFAULT_FILL_COLOR = "#D8D8D8";
 const DEFAULT_HOVER_COLOR = "#888888";
 const DEFAULT_POSITION = "bottom";
@@ -249,6 +251,7 @@ export default class MarkersPlugin {
         return;
       }
       this.wavesurfer.setCurrentTime(marker.time);
+      waveSurferAppInstance.setTime(marker.time * 1000); // set outer instance time for state updating
       this.wavesurfer.fireEvent("marker-click", marker, e);
     });
 
