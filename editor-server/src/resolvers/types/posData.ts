@@ -2,6 +2,7 @@ import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
+import { create } from "ts-node";
 
 interface LooseObject {
   [key: string]: any;
@@ -18,23 +19,47 @@ export const PosDataScalar = new GraphQLScalarType({
   description: "Mongo object id scalar type",
   async serialize(data: any): Promise<any> {
     // check the type of received value
-    const { _id, id } = data;
-    const result: LooseObject = {};
-    const allDancers = await db.Dancer.find().populate("positionData");
-    // const frameID = new ObjectId(id)
-    const { start, editing } = await db.PositionFrame.findById(_id);
-    const pos: LooseObject = {};
-    await Promise.all(
-      allDancers.map(async (dancer: any) => {
-        const { name, positionData } = dancer;
-        const wanted = positionData.find(
-          (data: any) => data.frame.toString() === _id.toString()
-        );
-        pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
-      })
-    );
-    result[id] = { start, editing, pos };
-    return result; // value sent to the client
+    const { _id, id, deleteList, createList } = data;
+    if(id && _id){
+      const result: LooseObject = {};
+      const allDancers = await db.Dancer.find().populate("positionData");
+      // const frameID = new ObjectId(id)
+      const { start, editing } = await db.PositionFrame.findById(_id);
+      const pos: LooseObject = {};
+      await Promise.all(
+        allDancers.map(async (dancer: any) => {
+          const { name, positionData } = dancer;
+          const wanted = positionData.find(
+            (data: any) => data.frame.toString() === _id.toString()
+          );
+          pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
+        })
+      );
+      result[id] = { start, editing, pos };
+      return result; // value sent to the client
+    }else{
+      const createFrames: LooseObject = {};
+      await Promise.all(
+        createList.map(async(frame: any)=> {
+          const {id, _id} = frame;
+          const allDancers = await db.Dancer.find().populate("positionData");
+          // const frameID = new ObjectId(id)
+          const { start, editing } = await db.PositionFrame.findById(_id);
+          const pos: LooseObject = {};
+          await Promise.all(
+            allDancers.map(async (dancer: any) => {
+              const { name, positionData } = dancer;
+              const wanted = positionData.find(
+                (data: any) => data.frame.toString() === _id.toString()
+              );
+              pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
+            })
+          )
+          createFrames[id] = { start, editing, pos };
+        })
+      )
+      return {createFrames, deleteFrames: deleteList}
+    }
   },
   parseValue(value: unknown): any {
     // check the type of received value

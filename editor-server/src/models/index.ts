@@ -6,6 +6,7 @@ import ControlFrame from "./ControlFrame";
 import Part from "./Part";
 import Position from "./Position";
 import PositionFrame from "./PositionFrame";
+import EffectList from "./EffectList";
 
 export default {
   User,
@@ -16,4 +17,5 @@ export default {
   Part,
   Position,
   PositionFrame,
+  EffectList,
 };

@@ -24,6 +24,7 @@ import {
   PositionRecordPayload,
   PositionRecordMutation,
 } from "./subscriptions/positionRecord";
+import redis from "../redis"
 
 @Resolver((of) => PositionFrame)
 export class PositionFrameResolver {
@@ -191,13 +192,14 @@ export class PositionFrameResolver {
         );
       })
     );
-
+    
     await ctx.db.Position.deleteMany({ frame: _id });
     const mapPayload: PositionMapPayload = {
       mutation: PositionMapMutation.DELETED,
       editBy: ctx.userID,
       frameID: frameID,
     };
+    redis.del(frameID);
     await publishPositionMap(mapPayload);
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.DELETED,
