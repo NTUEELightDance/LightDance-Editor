@@ -123,6 +123,39 @@ export type PartPayloadType = { [index: string]: string[] };
 export type SelectionModeType = DANCER | PART | POSITION;
 
 /**
+ * Dancer name with its parts
+ */
+interface DancerParts {
+  name: string;
+  parts: Part[];
+}
+
+/**
+ * Part, includes its name and type
+ */
+interface Part {
+  name: string;
+  type: PartType;
+}
+
+/**
+ * PartTypeMap
+ */
+export interface PartTypeMapType {
+  [key: string]: PartType;
+}
+
+// PartType
+type PartType = "LED" | "FIBER" | "El";
+
+/**
+ * DancerType
+ */
+export interface DancersType {
+  [key: string]: string[]; // dancerName: partNames
+}
+
+/**
  * Mutable State
  */
 export interface State {
@@ -146,6 +179,10 @@ export interface State {
 
   effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
   effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
+
+  dancers: DancersType;
+  dancerNames: string[];
+  partTypeMap: PartTypeMapType;
 }
 
 /**
@@ -172,4 +209,8 @@ export interface ReactiveState {
 
   effectRecordMap: ReactiveVar<EffectRecordMapType>; // map of all effects and corresponding record ID array
   effectStatusMap: ReactiveVar<EffectStatusMapType>; // map of effect record ID and its status
+
+  dancers: ReactiveVar<DancersType>;
+  dancerNames: ReactiveVar<string[]>;
+  partTypeMap: ReactiveVar<PartTypeMapType>;
 }

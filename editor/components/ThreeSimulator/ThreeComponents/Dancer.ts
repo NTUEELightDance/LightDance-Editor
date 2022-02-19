@@ -2,13 +2,16 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
-import MAPPING from "./mapping";
+import { state } from "core/state";
+
+import { FIBER, EL, LED } from "constants";
+
+// import ALL_MAPPING from "./mapping";
 
 class Dancer {
   scene: THREE.Scene;
   name: string;
   modelSrc: string;
-
   initialized: boolean;
 
   constructor(scene: THREE.Scene, name: string, modelSrc: string) {
@@ -18,19 +21,19 @@ class Dancer {
     this.model = null;
     this.skeleton = null;
     this.mixer = null;
-    this.OFParts = {};
-    this.initialized = false;
-    this.color = {
-      r: 1,
-      g: 1,
-      b: 0.17821459099650383,
+    this.parts = {
+      [EL]: {},
+      [LED]: {},
+      [FIBER]: {},
     };
+    this.initialized = false;
   }
 
   // Load model with given URL and capture all the meshes for light status
   addModel2Scene(currentStatus, currentPos) {
     this.initStatus = currentStatus;
     this.initPos = currentPos;
+
     // Use GLTF loader to load target model from URL
     const modelLoader = new GLTFLoader();
     modelLoader.load(this.modelSrc, this.initModel.bind(this));
@@ -58,25 +61,42 @@ class Dancer {
       (child) => (partMapping[child.name] = child.name)
     );
 
+    // Preprocess Parts on body
     this.model.traverse((part) => {
       const { name, type } = part;
-      // clone a new material to prevent shared material
+
+      // Deal with mesh only
       if (type === "Mesh") {
+        // console.log(this.modelSrc, part.material.emissive);
+        // Clone a new material to prevent shared material
         part.material = part.material.clone();
+
+        // Set all material color to black and emissiveIntensity to 0.0
         part.material.color.setHex(0x000000);
         part.material.emissiveIntensity = 0.0;
-        if (!name.includes("LED") && !(name === "human")) {
-          // part.material.color.setHex(0x000000);
-          // part.material.emissiveIntensity = 0.0;
-          this.OFParts[name] = part;
+
+        // Deal with human body mesh
+        if (name === "Human") {
+          part.material.emissive.setHex(0x000000);
+        }
+        // Deal with different type of meshPart
+        else {
+          const partType = state.partTypeMap[name];
+          switch (partType) {
+            case EL:
+              this.parts[EL][name] = part;
+              break;
+            case LED:
+              this.parts[LED][name] = part;
+              part.visible = false;
+              break;
+            case FIBER:
+              this.parts[FIBER][name] = part;
+              break;
+          }
         }
       }
     });
-
-    const human = this.model.getObjectByName("human");
-    human.material.color.setHex(0x000000);
-    human.material.emissive.setHex(0x000000);
-    human.material.emissiveIntensity = 0.0;
 
     // this.skeleton = new THREE.SkeletonHelper(this.model);
     // this.skeleton.visible = false;
@@ -92,10 +112,6 @@ class Dancer {
     this.setStatus(this.initStatus);
     this.setPos(this.initPos);
 
-    if (this.name.includes("sw")) {
-      this.model.visible = false;
-      this.model.scale.set(0.0001, 0.0001, 0.0001);
-    }
     this.initialized = true;
   }
 
@@ -148,22 +164,39 @@ class Dancer {
 
   // Update the model's status
   setStatus(currentStatus) {
-    Object.entries(this.OFParts).forEach(([name, e]) => {
-      let intensity = 0.0;
-      Object.values(MAPPING).forEach((MAP) => {
-        if (currentStatus[MAP[name]]) {
-          intensity += currentStatus[MAP[name]];
-          if (intensity == 1) this.color = MAP.color;
-        }
-      });
-      e.material.emissive.setRGB(this.color.r, this.color.g, this.color.b);
-      e.material.emissiveIntensity = intensity;
+    this.setFIBERStatus(currentStatus);
+    this.setELStatus(currentStatus);
+    this.setLEDStatus(currentStatus);
+  }
+
+  setFIBERStatus(currentStatus) {
+    const COLOR = {
+      black: "#000000",
+      red: "#FF04FF",
+      blue: "#05FFFF",
+      yellow: "#FFFF2d",
+    };
+
+    Object.entries(this.parts[FIBER]).forEach(([name, part]) => {
+      const { color, alpha } = currentStatus[name];
+      part.material.emissiveIntensity = alpha;
+      part.material.emissive.setHex(
+        parseInt(COLOR[color].replace(/^#/, ""), 16)
+      );
     });
+  }
+
+  setELStatus(currentStatus) {
+    return;
+  }
+
+  setLEDStatus(currentStatus) {
+    return;
   }
 
   // Update the model's color
   updateColor(color) {
-    Object.values(this.OFParts).forEach(([name, e]) => {
+    Object.values(this.FIBERParts).forEach(([name, e]) => {
       e.material.color.setHex(color);
     });
   }

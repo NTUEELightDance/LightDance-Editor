@@ -8,8 +8,6 @@ import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
 import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
 
-//? gui is working but does not come with a type even after installing @types/three
-
 // redux actions and store
 import store from "../../store";
 
@@ -19,13 +17,7 @@ import { Dancer } from "./ThreeComponents";
 import { state } from "core/state";
 
 import Controls from "./Controls";
-
 // controls to control the scene
-
-const fov = 45;
-const aspect = window.innerWidth / window.innerHeight;
-const near = 0.2;
-const far = 100;
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -156,6 +148,11 @@ class ThreeController {
   }
 
   initCamera() {
+    const fov = 45;
+    const aspect = this.width / this.height;
+    const near = 0.2;
+    const far = 100;
+
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     camera.position.set(
@@ -193,15 +190,20 @@ class ThreeController {
   }
 
   initDancers() {
-    const { dancerNames } = store.getState().load;
-    const { currentStatus, currentPos } = state;
+    const { dancerNames, currentStatus, currentPos } = state;
 
     dancerNames.forEach((name) => {
-      const newDancer = new Dancer(
-        this.scene,
-        name,
-        "/asset/models/yellow_clean.glb"
-      );
+      let url;
+      const index = Number(name.split("_")[0]);
+      if (index <= 5 && index >= 0) {
+        url = "/asset/models/yellow.glb";
+      } else if (index >= 6 && index <= 10) {
+        url = "/asset/models/blue.glb";
+      } else if (index === 11) {
+        url = "/asset/models/red.glb";
+      }
+
+      const newDancer = new Dancer(this.scene, name, url);
       newDancer.addModel2Scene(currentStatus[name], currentPos[name]);
       this.dancers[name] = newDancer;
     });
@@ -293,11 +295,11 @@ class ThreeController {
     this.renderer.render(this.scene, this.camera);
 
     if (this.isInitialized()) {
+      this.update(this.clock?.getDelta());
       Object.values(this.dancers).forEach((dancer) => {
         const { nameTag } = dancer;
         nameTag.lookAt(this.camera.position);
       });
-      this.update(this.clock?.getDelta());
     }
 
     requestAnimationFrame(() => this.animate());

@@ -73,7 +73,6 @@ const actions = registerActions({
 
     // set currentFade
     state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
-    console.log("update Current");
   },
 
   /**
