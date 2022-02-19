@@ -10,7 +10,6 @@ const ColorSchema = new Schema({
     type: String,
     required: [true, "color code field is required."],
   },
-  id: { type: String, required: [true, "id is needed"] },
 });
 
 const Color = mongoose.model("Color", ColorSchema);
