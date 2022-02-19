@@ -12,21 +12,21 @@ import {
   Coordinates,
 } from "../models";
 
-export function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
+function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
   return (
     (object as LED)["src"] !== undefined &&
     (object as LED)["alpha"] !== undefined
   );
 }
 
-export function CheckTypeOfFiber(object: LED | Fiber | El): object is Fiber {
+function CheckTypeOfFiber(object: LED | Fiber | El): object is Fiber {
   return (
     (object as Fiber)["color"] !== undefined &&
     (object as Fiber)["alpha"] !== undefined
   );
 }
 
-export function CheckTypeOfEl(object: LED | Fiber | El): object is El {
+function CheckTypeOfEl(object: LED | Fiber | El): object is El {
   return typeof (object as El) === "number";
 }
 
