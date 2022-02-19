@@ -108,6 +108,7 @@ const App = () => {
       <ObsoleteThemeProvider theme={obsoleteTheme}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <Clipboard />
           {init && !controlLoading && !posLoading ? (
             <div
               style={{

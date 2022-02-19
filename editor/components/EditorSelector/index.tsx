@@ -7,6 +7,7 @@ import { reactiveState } from "core/state";
 import { setEditor } from "core/actions";
 // contants
 import { CONTROL_EDITOR, POS_EDITOR, IDLE } from "constants";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export default function EditorSelector() {
   const editor = useReactiveVar(reactiveState.editor);
@@ -22,6 +23,14 @@ export default function EditorSelector() {
       payload: editor === CONTROL_EDITOR ? POS_EDITOR : CONTROL_EDITOR,
     });
   };
+
+  useHotkeys(
+    "p",
+    () => {
+      handleSwitchEditor();
+    },
+    [editor]
+  );
 
   return (
     <Stack direction="row" alignItems="center" spacing={2}>

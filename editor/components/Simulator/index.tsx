@@ -1,15 +1,10 @@
 import React, { useLayoutEffect, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
 
 // states and actions
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
-import { setSelectedDancers, toggleSelectedDancer } from "../../core/actions";
-import { selectLoad } from "../../slices/loadSlice";
 // controller instance
 import controller from "./Controller";
-// hotkeys
-import { useHotkeys } from "react-hotkeys-hook";
 
 /**
  * This is Display component
@@ -33,18 +28,8 @@ const Simulator: React.FC = ({}) => {
     }
   }, [isPlaying]);
 
-  // hotkeys
-  const hotKeyRef = useHotkeys("ctrl+a, cmd+a", (e) => {
-    e.preventDefault();
-    console.log("press ctrl + a on simulator");
-    const { dancerNames } = useSelector(selectLoad);
-    setSelectedDancers({ payload: dancerNames });
-  });
-
   return (
     <div
-      ref={hotKeyRef}
-      tabIndex={-1}
       style={{
         height: "100%",
         width: "100%",

@@ -1,6 +1,8 @@
+import { useState } from "react";
 // mui
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import LoadingButton from "@mui/lab/LoadingButton";
 // actions
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
@@ -8,12 +10,15 @@ import { reactiveState } from "core/state";
 import { IDLE, EDITING } from "constants";
 // hooks
 import useEditHandler from "hooks/useEditHandler";
+import { useHotkeys } from "react-hotkeys-hook";
 
 /**
  * TODO: Need beautify, and maybe the buttons may not be here in the future
  */
 export default function EditButtons() {
   const mode = useReactiveVar(reactiveState.editMode);
+
+  const [loading, setLoading] = useState(false);
 
   const {
     handleStartEditing,
@@ -23,13 +28,45 @@ export default function EditButtons() {
     handleDelete,
   } = useEditHandler();
 
+  useHotkeys("e", () => {
+    handleStartEditing();
+  });
+  useHotkeys("a", () => {
+    handleClickAdd();
+  });
+  useHotkeys("del", () => {
+    handleClickDelete();
+  });
+  useHotkeys("esc", () => {
+    handleCancel();
+  });
+  useHotkeys("ctrl+s, cmd+s", () => {
+    handleSave();
+  });
+
+  const handleClickSave = async () => {
+    setLoading(true);
+    await handleSave();
+    setLoading(false);
+  };
+  const handleClickAdd = async () => {
+    setLoading(true);
+    await handleAdd();
+    setLoading(false);
+  };
+  const handleClickDelete = async () => {
+    setLoading(true);
+    await handleDelete();
+    setLoading(false);
+  };
+
   function SaveButton() {
     return (
       <Button
         variant="outlined"
         size="small"
         color="primary"
-        onClick={handleSave}
+        onClick={handleClickSave}
       >
         SAVE
       </Button>
@@ -55,7 +92,7 @@ export default function EditButtons() {
         variant="outlined"
         size="small"
         color="error"
-        onClick={handleDelete}
+        onClick={handleClickDelete}
       >
         DEL
       </Button>
@@ -81,10 +118,30 @@ export default function EditButtons() {
         variant="outlined"
         size="small"
         color="primary"
-        onClick={handleAdd}
+        onClick={handleClickAdd}
       >
         ADD
       </Button>
+    );
+  }
+
+  function LoadingBtn() {
+    return (
+      <LoadingButton
+        loading
+        variant="outlined"
+        size="small"
+        sx={{
+          "&.MuiLoadingButton-loading": {
+            border: "0.5px solid rgba(255, 255, 255, 0.4)",
+          },
+          "&.MuiLoadingButton-loading>.MuiLoadingButton-loadingIndicator": {
+            color: "rgba(255, 255, 255, 0.4)",
+          },
+        }}
+      >
+        load
+      </LoadingButton>
     );
   }
 
@@ -95,18 +152,24 @@ export default function EditButtons() {
         display: "flex",
       }}
     >
-      {mode === IDLE ? (
-        <>
-          <AddButton />
-          <EditButton />
-        </>
+      {loading ? (
+        <LoadingBtn />
       ) : (
         <>
-          <SaveButton />
-          <CancelButton />
+          {mode === IDLE ? (
+            <>
+              <AddButton />
+              <EditButton />
+            </>
+          ) : (
+            <>
+              <SaveButton />
+              <CancelButton />
+            </>
+          )}
+          {mode === IDLE && <DeleteButton />}
         </>
       )}
-      {mode === IDLE && <DeleteButton />}
     </Box>
   );
 }

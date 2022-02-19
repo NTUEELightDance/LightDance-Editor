@@ -14,14 +14,6 @@ import { DANCER } from "constants";
 // hotkeys
 import { useHotkeys } from "react-hotkeys-hook";
 
-import {
-  CheckTypeOfEl,
-  CheckTypeOfFiber,
-  CheckTypeOfLED,
-} from "core/utils/math";
-import { LED, El, Fiber } from "types/globalSlice";
-import Dancer from "components/Simulator/Dancer";
-
 /**
  * Clipboard component for copy/paste
  */
@@ -29,20 +21,22 @@ export default function Clipboard() {
   const copiedStatus = useRef(makeVar({}));
 
   useHotkeys("ctrl+c, cmd+c", () => {
-    setMessage("Copied to the Clipboard!");
-    setOpen(true);
-
-    const selected = Object.keys(reactiveState.selected());
+    const selected = Object.keys(reactiveState.selected()).find(
+      (name) => reactiveState.selected()[name].selected
+    );
     const currentStatus = reactiveState.currentStatus();
-
-    console.log("copied", currentStatus[selected[0]]);
-    copiedStatus.current(currentStatus[selected[0]]);
+    if (selected) {
+      setMessage("Copied to the Clipboard!");
+      setOpen(true);
+      copiedStatus.current(currentStatus[selected]);
+    }
   });
 
   useHotkeys("ctrl+v, cmd+v", () => {
     // paste to the dancer
-    console.log("Paste", copiedStatus.current());
-    const selected = Object.keys(reactiveState.selected());
+    const selected = Object.keys(reactiveState.selected()).filter(
+      (name) => reactiveState.selected()[name].selected
+    );
     const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
     if (selectionMode === DANCER) {
@@ -60,45 +54,6 @@ export default function Clipboard() {
       });
     }
   });
-
-  // useHotkeys("ctrl+b, cmd+b", () => {
-  //   // paste only light part
-  //   console.log("Paste", copiedStatus.current());
-  //   const selected = reactiveState.selected();
-  //   const currentStatus = reactiveState.currentStatus();
-  //   Object.keys(copiedStatus.current()).forEach((part) => {
-  //     if (Object.keys(currentStatus[selected[0]]).includes(part))
-  //       editCurrentStatus({
-  //         payload: {
-  //           dancerName: selected[0],
-  //           partName: part,
-  //           value: copiedStatus.current()[part],
-  //         },
-  //       });
-  //   });
-  // });
-
-  // function changeLightPart(
-  //   formerPart: LED | El | Fiber,
-  //   latterPart: LED | El | Fiber
-  // ): LED | El | Fiber {
-  //   if (CheckTypeOfLED(formerPart) && CheckTypeOfLED(latterPart)) {
-  //     return formerPart.alpha > latterPart.alpha ? formerPart : latterPart;
-  //   } else if (CheckTypeOfEl(formerPart) && CheckTypeOfEl(latterPart)) {
-  //     //if (typeof preVal === "number" && typeof nextVal === "number") {
-  //     return formerPart > latterPart ? formerPart : latterPart;
-
-  //     //}
-  //   }
-  //   // fiber Parts
-  //   else if (CheckTypeOfFiber(formerPart) && CheckTypeOfFiber(latterPart)) {
-  //     return formerPart.alpha > latterPart.alpha ? formerPart : latterPart;
-  //   } else {
-  //     throw new Error(
-  //       `[Error] pasteLights, invalid parts ${formerPart}, ${latterPart}`
-  //     );
-  //   }
-  // }
 
   // snackbar logic
   const [open, setOpen] = useState(false);
