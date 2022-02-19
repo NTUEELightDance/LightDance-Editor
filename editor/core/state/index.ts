@@ -18,6 +18,7 @@ import {
   SelectedType,
   DancersType,
   PartTypeMapType,
+  ColorMapType,
 } from "../models";
 
 /**
@@ -51,6 +52,7 @@ const _state: State = {
   dancers: {},
   dancerNames: [],
   partTypeMap: {},
+  colorMap: {},
 };
 
 // The diffSet will save changed attributes in state
@@ -91,6 +93,7 @@ export const reactiveState: ReactiveState = {
   dancers: makeVar<DancersType>({}),
   dancerNames: makeVar<string[]>([]),
   partTypeMap: makeVar<PartTypeMapType>({}),
+  colorMap: makeVar<ColorMapType>({}),
 };
 
 /**

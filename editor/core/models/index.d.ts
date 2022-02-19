@@ -154,6 +154,12 @@ type PartType = "LED" | "FIBER" | "El";
 export interface DancersType {
   [key: string]: string[]; // dancerName: partNames
 }
+ * ColorMa
+ */
+
+export type ColorMapType = {
+  [key: string]: string;
+};
 
 /**
  * Mutable State
@@ -183,6 +189,7 @@ export interface State {
   dancers: DancersType;
   dancerNames: string[];
   partTypeMap: PartTypeMapType;
+  colorMap: ColorMapType;
 }
 
 /**
@@ -213,4 +220,5 @@ export interface ReactiveState {
   dancers: ReactiveVar<DancersType>;
   dancerNames: ReactiveVar<string[]>;
   partTypeMap: ReactiveVar<PartTypeMapType>;
+  colorMap: ReactiveVar<ColorMapType>;
 }

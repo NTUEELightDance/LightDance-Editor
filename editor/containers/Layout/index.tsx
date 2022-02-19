@@ -18,6 +18,7 @@ import ThreeSimulator from "../../components/ThreeSimulator";
 import File from "components/Settings/File";
 import DancerTree from "components/DancerTree";
 import LightProps from "components/LightProps";
+import ColorPalette from "components/ColorPalette";
 
 import { Box } from "@mui/material";
 
@@ -45,6 +46,8 @@ const Layout = () => {
   const PosPresetsNode = useMemo<JSX.Element>(() => <PosPresets />, []);
   const EffectListNode = useMemo<JSX.Element>(() => <EffectList />, []);
   const WavesurferNode = useMemo<JSX.Element>(() => <Wavesurfer />, []);
+  const ColorPaletteNode = useMemo<JSX.Element>(() => <ColorPalette />, []);
+
   const WaveSuferCleanNode = useMemo<JSX.Element>(
     () => <Wavesurfer cleanMode />,
     []
@@ -67,6 +70,8 @@ const Layout = () => {
   const factory = (node: TabNode) => {
     const component = node.getComponent();
     switch (component) {
+      case "ColorPallete":
+        return ColorPaletteNode;
       case "CommandCenter":
         return CommandCenterNode;
       case "Simulator":

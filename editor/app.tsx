@@ -1,8 +1,13 @@
 import { hot } from "react-hot-loader/root";
 import { useEffect } from "react";
 // mui
-import { createTheme, ThemeProvider } from "@material-ui/core/styles";
+import {
+  createTheme as obsoleteCreateTheme,
+  ThemeProvider as ObsoleteThemeProvider,
+} from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
+// new mui
+import { createTheme, ThemeProvider } from "@mui/material";
 // redux
 import { useSelector, useDispatch } from "react-redux";
 // actions
@@ -20,7 +25,7 @@ import { setCurrentPos, setCurrentStatus, setSelected } from "core/actions";
 import "./app.css";
 import Layout from "containers/Layout";
 
-const theme = createTheme({
+const obsoleteTheme = obsoleteCreateTheme({
   palette: {
     type: "dark",
     primary: {
@@ -38,6 +43,8 @@ const theme = createTheme({
     fontSize: 12,
   },
 });
+
+const theme = createTheme({ palette: { mode: "dark" } });
 
 /**
  * Component for the main
@@ -97,25 +104,27 @@ const App = () => {
 
   return (
     <div>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {init && !controlLoading && !posLoading && !dancerLoading ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              height: "100vh",
-            }}
-          >
-            <Header />
-            <div style={{ flexGrow: 1, position: "relative" }}>
-              <Layout />
+      <ObsoleteThemeProvider theme={obsoleteTheme}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {init && !controlLoading && !posLoading ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100vh",
+              }}
+            >
+              <Header />
+              <div style={{ flexGrow: 1, position: "relative" }}>
+                <Layout />
+              </div>
             </div>
-          </div>
-        ) : (
-          <Loading />
-        )}
-      </ThemeProvider>
+          ) : (
+            <Loading />
+          )}
+        </ThemeProvider>
+      </ObsoleteThemeProvider>
     </div>
   );
 };

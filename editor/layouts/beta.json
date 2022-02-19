@@ -38,6 +38,12 @@
           "name": "Effect",
           "component": "EffectList",
           "enableClose": false
+        },
+        {
+          "type": "tab",
+          "name": "ColorPallete",
+          "component": "ColorPallete",
+          "enableClose": false
         }
       ]
     }
