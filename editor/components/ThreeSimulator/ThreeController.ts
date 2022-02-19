@@ -198,9 +198,9 @@ class ThreeController {
       if (index <= 5 && index >= 0) {
         url = "/asset/models/yellow.glb";
       } else if (index >= 6 && index <= 10) {
-        url = "/asset/models/blue.glb";
+        url = "/asset/models/cyan.glb";
       } else if (index === 11) {
-        url = "/asset/models/red.glb";
+        url = "/asset/models/magenta.glb";
       }
 
       const newDancer = new Dancer(this.scene, name, url);
