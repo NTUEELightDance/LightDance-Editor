@@ -101,3 +101,11 @@ export const CANCEL_EDIT_POS_BY_ID = gql`
     }
   }
 `;
+export const ADD_COLOR = gql`
+  mutation Mutation($color: addColorInput!) {
+    addColor(color: $color) {
+      color
+      colorCode
+    }
+  }
+`;
