@@ -13,6 +13,7 @@ import { useReactiveVar } from "@apollo/client";
 
 const DancerMode = () => {
   const selected = useReactiveVar(reactiveState.selected);
+  const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const { dancers, getPartType } = useDancer();
 
   // states for display
@@ -21,6 +22,8 @@ const DancerMode = () => {
   }>({});
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
   const [currentTab, setCurrentTab] = useState<PartType | null>("FIBER");
+
+  // states for current status mutation
   const [currentDancers, setCurrentDancers] = useState<string[]>([]);
 
   // update parts
@@ -35,16 +38,17 @@ const DancerMode = () => {
       }
     );
 
+    setCurrentDancers(selectedDancers);
     updateDisplayPart(selectedDancers);
   }, [selected]);
 
   const updateDisplayPart = (selectedDancers: string[]) => {
+    if (selectedDancers.length === 0) return;
+
     // get all intersected parts
-    let tempParts: string[] = [];
+    let tempParts: string[] = dancers[selectedDancers[0]];
     selectedDancers.forEach((dancerName) => {
-      const parts = dancers[dancerName];
-      if (tempParts.length === 0) tempParts = parts;
-      tempParts = _.intersection(tempParts, parts);
+      tempParts = _.intersection(tempParts, dancers[dancerName]);
     });
 
     // construct new displayPart
@@ -57,6 +61,7 @@ const DancerMode = () => {
       (newDisplayPart[getPartType(part)] as string[]).push(part);
     });
 
+    // update current tab
     if (!Object.keys(newDisplayPart).includes(currentTab as PartType)) {
       const newTab = Object.keys(newDisplayPart)[0] as PartType;
       newTab && setCurrentTab(newTab);
@@ -83,7 +88,15 @@ const DancerMode = () => {
   const Panels = useMemo<JSX.Element[]>(
     () =>
       Object.entries(displayParts).map(([partType, parts]) => {
-        return <PropertyPanel partType={partType as PartType} parts={parts} />;
+        return (
+          <PropertyPanel
+            partType={partType as PartType}
+            parts={parts}
+            currentDancers={currentDancers}
+            currentStatus={currentStatus}
+            key={partType as PartType}
+          />
+        );
       }),
     [displayParts]
   );

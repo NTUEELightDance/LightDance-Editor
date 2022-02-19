@@ -1,10 +1,14 @@
-import { Paper } from "@mui/material";
+import { Paper, Grid } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 import IntensityControl from "./IntensityControl";
 
 import useDancer, { PartType } from "../../hooks/useDancer";
 
+import {
+  editCurrentStatusFiber,
+  editCurrentStatusLED,
+} from "../../core/actions";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
@@ -21,6 +25,7 @@ const PartMode = () => {
   const [intensity, setIntensity] = useState<number>(0);
   const [color, setColor] = useState<string>();
 
+  // init states
   useEffect(() => {
     const newSelectedParts: PartPayloadType = {};
     const tempSelectedParts: string[] = [];
@@ -38,10 +43,40 @@ const PartMode = () => {
     if (
       tempSelectedParts.every((part) => getPartType(part) === assertPartType)
     ) {
-      setPartType(assertPartType);
       setSelectedParts(newSelectedParts);
+      setPartType(assertPartType);
     }
   }, [selected]);
+
+  useEffect(
+    () => () => {
+      Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+        parts.forEach((partName) => {
+          switch (partType) {
+            case "LED":
+              editCurrentStatusLED({
+                payload: {
+                  dancerName,
+                  partName,
+                  value: { src: "", alpha: intensity },
+                },
+              });
+              break;
+            case "FIBER":
+              editCurrentStatusFiber({
+                payload: {
+                  dancerName,
+                  partName,
+                  value: { color, alpha: intensity },
+                },
+              });
+              break;
+          }
+        });
+      });
+    },
+    [intensity, color]
+  );
 
   const handleColorChange = (color: string) => {
     setColor(color);
@@ -50,7 +85,17 @@ const PartMode = () => {
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }}>
       {partType === "LED" ? (
-        <IntensityControl intensity={intensity} setIntensity={setIntensity} />
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          sx={{
+            justifyContent: "space-between",
+            px: "5em",
+          }}
+        >
+          <IntensityControl intensity={intensity} setIntensity={setIntensity} />
+        </Grid>
       ) : (
         <OFcontrolsContent
           intensity={intensity}

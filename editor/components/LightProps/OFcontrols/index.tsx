@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Box,
@@ -10,11 +10,33 @@ import {
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import OFcontrolsContent from "./OFcontrolsContent";
 
-const OFcontrols = ({ part }: { part: string }) => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [intensity, setIntensity] = useState<number>(0);
+import { editCurrentStatusFiber } from "../../../core/actions";
+import { Fiber } from "../../../core/models";
 
-  const [color, setColor] = useState<string>("transparent");
+const OFcontrols = ({
+  part,
+  currentDancers,
+  displayValue,
+}: {
+  part: string;
+  currentDancers: string[];
+  displayValue: Fiber;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [intensity, setIntensity] = useState<number>(displayValue.alpha);
+  const [color, setColor] = useState<string>(displayValue.color);
+
+  useEffect(() => {
+    currentDancers.forEach((dancerName) => {
+      editCurrentStatusFiber({
+        payload: {
+          dancerName,
+          partName: part,
+          value: { color, alpha: intensity },
+        },
+      });
+    });
+  }, [color, intensity]);
 
   const handleExpand = () => {
     setOpen(!open);

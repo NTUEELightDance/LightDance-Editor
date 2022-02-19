@@ -130,6 +130,7 @@ const DancerTree = () => {
         multiSelect
       >
         {Object.entries(dancers).map(([name, parts]: [string, any]) => {
+          parts = parts.sort();
           return (
             <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
               {parts.map((part: string) => (
