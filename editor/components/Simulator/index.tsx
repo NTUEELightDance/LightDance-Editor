@@ -1,5 +1,4 @@
 import React, { useLayoutEffect, useEffect } from "react";
-
 // states and actions
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
