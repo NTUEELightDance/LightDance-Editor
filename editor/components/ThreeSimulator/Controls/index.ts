@@ -169,9 +169,9 @@ class Controls {
       const { position } = dancer.model;
 
       currentPos[name] = {
-        x: position.x * 30,
-        y: position.z * 30,
-        z: position.z * 30,
+        x: position.x,
+        y: position.y,
+        z: position.z,
       };
 
       if (selected.includes(name)) {

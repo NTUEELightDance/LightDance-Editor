@@ -286,9 +286,9 @@ class ThreeController {
     const { state } = this;
     Object.values(this.dancers).forEach((dancer) => {
       const newPos = {
-        x: state.currentPos[dancer.name].x / 30,
-        y: 0,
-        z: state.currentPos[dancer.name].z / 30,
+        x: state.currentPos[dancer.name].x,
+        y: state.currentPos[dancer.name].y,
+        z: state.currentPos[dancer.name].z,
       };
       dancer.update(newPos, state.currentStatus[dancer.name]);
     });

@@ -161,7 +161,7 @@ class Dancer {
 
   // Update the model's positon
   setPos(currentPos) {
-    this.model.position.set(currentPos.x / 30, 0, currentPos.z / 30);
+    this.model.position.set(currentPos.x, currentPos.y, currentPos.z);
   }
 
   // Update the model's status

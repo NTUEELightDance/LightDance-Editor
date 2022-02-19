@@ -209,7 +209,11 @@ DANCER.forEach((dancer, i) => {
       default:
     }
   });
-  pos[name] = old_pos[i];
+  pos[name] = {
+    x: old_pos[i].x / 30,
+    y: 0,
+    z: old_pos[i].z / 30,
+  };
 });
 
 const CONTROL = {
