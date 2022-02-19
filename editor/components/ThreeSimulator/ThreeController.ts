@@ -285,9 +285,13 @@ class ThreeController {
       throw new Error(
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
+    const selectedDancers = {};
     Object.entries(selected).forEach(([key, value]) => {
       this.dancers[key].updateSelected(value.selected);
+      selectedDancers[key] = value.selected;
     });
+
+    this.controls.selectControls.updateSelected(selectedDancers);
   }
 
   updateDancersStatus(currentStatus) {

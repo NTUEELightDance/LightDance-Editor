@@ -130,13 +130,10 @@ class Controls {
     addEventListener("keydown", this.onKeyDown.bind(this));
     switch (selectionMode) {
       case DANCER:
-        this.selectControls.activate(DANCER);
         break;
       case PART:
-        this.selectControls.activate(PART);
         break;
       case POSITION:
-        this.selectControls.activate(DANCER);
         this.dragControls.enabled = true;
         this.dragControls.activate();
         break;
@@ -147,7 +144,6 @@ class Controls {
     removeEventListener("keydown", this.onKeyDown.bind(this));
     this.dragControls.deactivate();
     this.dragControls.enabled = false;
-    this.selectControls.deactivate();
   }
 
   onKeyDown(event) {
