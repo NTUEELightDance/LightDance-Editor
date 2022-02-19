@@ -94,7 +94,6 @@ class ColorResolver {
       const newColor = new ctx.db.Color({
         color: colorInput.color,
         colorCode: colorInput.colorCode,
-        id: generateID(),
       });
       await newColor.save();
       const payload: ColorPayload = {
@@ -119,29 +118,37 @@ class ColorResolver {
     @Ctx() ctx: any
   ) {
     // check if color name and color code exists
-    const existedColor = await ctx.db.Color.findOne({
-      id: colorInput.id,
+    const existedOriginalColorName = await ctx.db.Color.findOne({
+      color: colorInput.original_color,
     });
-    const existedColorName = await ctx.db.Color.findOne({
-      color: colorInput.color,
-      id: { $ne: colorInput.id },
-    });
-    const existedColorCode = await ctx.db.Color.findOne({
-      colorCode: colorInput.colorCode,
-      id: { $ne: colorInput.id },
-    });
+    let existedNewColorName = null;
+    if (colorInput.original_color !== colorInput.new_color) {
+      existedNewColorName = await ctx.db.Color.findOne({
+        color: colorInput.new_color,
+      });
+    }
+
+    let existedColorCode = null;
+    if (
+      existedOriginalColorName &&
+      colorInput.colorCode !== existedOriginalColorName.colorCode
+    ) {
+      existedColorCode = await ctx.db.Color.findOne({
+        colorCode: colorInput.colorCode,
+      });
+    }
 
     // if exist -> edit
-    if (existedColor && !existedColorCode && !existedColorName) {
-      const { id, color, colorCode } = colorInput;
+    if (existedOriginalColorName && !existedColorCode && !existedNewColorName) {
+      const { original_color, colorCode, new_color } = colorInput;
       const newColor = await ctx.db.Color.findOneAndUpdate(
-        { id },
-        { color, colorCode },
+        { color: original_color },
+        { color: new_color, colorCode },
         { new: true }
       );
       const payload: ColorPayload = {
         mutation: colorMutation.UPDATED,
-        color: colorInput.color,
+        color: colorInput.new_color,
         colorCode: colorInput.colorCode,
         editBy: ctx.userID,
       };
@@ -149,7 +156,7 @@ class ColorResolver {
       return newColor;
     }
     // if doesn't exist -> throw error
-    else if (!existedColor) {
+    else if (!existedOriginalColorName) {
       throw new Error("color doesn't exist");
     } else {
       throw new Error("color name/code already exists");
@@ -159,17 +166,17 @@ class ColorResolver {
   @Mutation((returns) => Color)
   async deleteColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
-    @Arg("colorID") colorID: string,
+    @Arg("color") color: string,
     @Ctx() ctx: any
   ) {
     // check if color name and color code exists
     const existedColor = await ctx.db.Color.findOne({
-      id: colorID,
+      color,
     });
 
     // if exist -> edit
     if (existedColor) {
-      const deletedColor = await ctx.db.Color.findOneAndDelete({ id: colorID });
+      const deletedColor = await ctx.db.Color.findOneAndDelete({ color });
       const payload: ColorPayload = {
         mutation: colorMutation.DELETED,
         color: deletedColor.color,

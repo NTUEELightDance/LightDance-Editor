@@ -7,7 +7,4 @@ export class Color {
 
   @Field((type) => String)
   colorCode: string;
-
-  @Field((type) => ID)
-  id: string;
 }

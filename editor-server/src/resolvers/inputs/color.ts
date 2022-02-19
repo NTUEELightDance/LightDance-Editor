@@ -21,11 +21,11 @@ export class addColorInput {
 @InputType()
 export class editColorInput {
   @Field()
-  color: string;
+  original_color: string;
 
   @Field()
   colorCode: string;
 
   @Field()
-  id: string;
+  new_color: string;
 }

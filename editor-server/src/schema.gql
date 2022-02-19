@@ -21,7 +21,6 @@ input AddPartInput {
 type Color {
   color: String!
   colorCode: String!
-  id: ID!
 }
 
 input ColorInput {
@@ -145,9 +144,9 @@ input DeletePositionFrameInput {
 }
 
 input editColorInput {
-  color: String!
   colorCode: String!
-  id: String!
+  new_color: String!
+  original_color: String!
 }
 
 input EditControlFrameInput {
@@ -214,7 +213,7 @@ type Mutation {
   addPositionFrame(start: Float!): PositionFrame!
   CancelEditControl(FrameID: String!): RequestEditResponse!
   CancelEditPosition(FrameID: String!): RequestEditResponse!
-  deleteColor(colorID: String!): Color!
+  deleteColor(color: String!): Color!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deletePart(part: DeletePartInput!): PartResponse!
