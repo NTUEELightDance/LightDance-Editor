@@ -64,16 +64,7 @@ class SelectControls extends EventDispatcher {
       draggableObjects.length = 0;
 
       if (_intersections.length > 0) {
-        let object;
-        switch (_mode) {
-          case DANCER:
-            object = _intersections[0].object.parent;
-            break;
-          case PART:
-            object = _intersections[0].object;
-            console.log(object);
-            return;
-        }
+        const object = _intersections[0].object.parent;
 
         // Multi Selection Mode
         if (event.ctrlKey || event.metaKey) {
@@ -94,14 +85,12 @@ class SelectControls extends EventDispatcher {
       } else {
         clearGroup();
       }
+      console.log(_group.children.map((object) => object.name));
 
       if (_group.children.length) {
         _dragControls.transformGroup = true;
         draggableObjects.push(_group);
         _selected = _group.children.map((child) => child.name);
-      } else {
-        _dragControls.transformGroup = false;
-        draggableObjects.push(..._objects);
       }
 
       setSelectedDancers({

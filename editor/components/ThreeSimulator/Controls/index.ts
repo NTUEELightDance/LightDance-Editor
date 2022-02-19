@@ -30,7 +30,11 @@ class Controls {
     this.camera = camera;
     this.domElement = renderer.domElement;
     this.dancers = dancers;
+    this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
+
     this.initOrbitControls();
+    this.initDragControls();
+    this.initDanceSelector();
     // this.initBoxSelectControls();
   }
 
@@ -101,7 +105,6 @@ class Controls {
   }
 
   initDragControls() {
-    this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
     this.dragControls = new DragControls(
       [...this.objects],
       this.camera,

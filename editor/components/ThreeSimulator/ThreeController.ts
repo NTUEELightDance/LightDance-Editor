@@ -3,6 +3,8 @@ import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
+
 // postprocessing for three.js
 
 import Stats from "three/examples/jsm/libs/stats.module";
@@ -128,14 +130,6 @@ class ThreeController {
     // Initialization of all dancers with currentPos
     this.initDancers();
 
-    // Add a orbit control to view the scene from different perspectives and scales
-    this.controls = new Controls(
-      this.renderer,
-      this.scene,
-      this.camera,
-      this.dancers
-    );
-
     // Initialization of grid helper on the floor
     this.initGridHelper();
 
@@ -186,10 +180,20 @@ class ThreeController {
       window.innerHeight * this.renderer.getPixelRatio()
     );
     composer.addPass(pass);
+
+    const outline = new OutlinePass(
+      new THREE.Vector2(this.width, this.height),
+      this.scene,
+      this.camera
+    );
+    composer.addPass(outline);
+
     this.composer = composer;
   }
 
   initDancers() {
+    this.initLoadManager();
+
     const { dancerNames, currentStatus, currentPos } = state;
 
     dancerNames.forEach((name) => {
@@ -203,7 +207,7 @@ class ThreeController {
         url = "/asset/models/magenta.glb";
       }
 
-      const newDancer = new Dancer(this.scene, name, url);
+      const newDancer = new Dancer(this.scene, name, url, this.manager);
       newDancer.addModel2Scene(currentStatus[name], currentPos[name]);
       this.dancers[name] = newDancer;
     });
@@ -212,6 +216,22 @@ class ThreeController {
   initGridHelper() {
     const helper = new THREE.GridHelper(30, 10);
     this.scene.add(helper);
+  }
+
+  initLoadManager() {
+    const manager = new THREE.LoadingManager();
+    manager.onLoad = this.initControls.bind(this);
+    this.manager = manager;
+  }
+
+  initControls() {
+    // Add a orbit control to view the scene from different perspectives and scales
+    this.controls = new Controls(
+      this.renderer,
+      this.scene,
+      this.camera,
+      this.dancers
+    );
   }
 
   // Return true if all the dancer is successfully initialized

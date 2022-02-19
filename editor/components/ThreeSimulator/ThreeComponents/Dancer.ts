@@ -14,7 +14,7 @@ class Dancer {
   modelSrc: string;
   initialized: boolean;
 
-  constructor(scene: THREE.Scene, name: string, modelSrc: string) {
+  constructor(scene: THREE.Scene, name: string, modelSrc: string, manager) {
     this.scene = scene;
     this.name = name;
     this.modelSrc = modelSrc;
@@ -27,6 +27,7 @@ class Dancer {
       [FIBER]: {},
     };
     this.initialized = false;
+    this.manager = manager;
   }
 
   // Load model with given URL and capture all the meshes for light status
@@ -35,7 +36,7 @@ class Dancer {
     this.initPos = currentPos;
 
     // Use GLTF loader to load target model from URL
-    const modelLoader = new GLTFLoader();
+    const modelLoader = new GLTFLoader(this.manager);
     modelLoader.load(this.modelSrc, this.initModel.bind(this));
 
     // Use fontLoader to load font and create nameTag
