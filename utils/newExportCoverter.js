@@ -80,7 +80,7 @@ const RED_DANCER = [
   { name: "Glove_L", type: "FIBER" },
   { name: "Glove_R", type: "FIBER" },
   { name: "Boot_L", type: "FIBER" },
-  { name: "Rune", type: "LED" },
+  { name: "Rune_LED", type: "LED" },
   { name: "Rune_L_LED", type: "LED" },
   { name: "Rune_R_LED", type: "LED" },
   { name: "Shoe_R_LED", type: "LED" },

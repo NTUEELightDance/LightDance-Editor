@@ -138,6 +138,7 @@ class Dancer {
     // make shape ( N.B. edge view not visible )
     const text = new THREE.Mesh(geometry, matLite);
     text.position.setY(8);
+    text.name = "nameTag";
 
     this.nameTag = text;
   }

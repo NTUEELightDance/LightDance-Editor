@@ -176,8 +176,8 @@ class ThreeController {
     composer.addPass(new RenderPass(this.scene, this.camera));
 
     const pass = new SMAAPass(
-      window.innerWidth * this.renderer.getPixelRatio(),
-      window.innerHeight * this.renderer.getPixelRatio()
+      this.width * this.renderer.getPixelRatio(),
+      this.height * this.renderer.getPixelRatio()
     );
     composer.addPass(pass);
 
@@ -188,6 +188,20 @@ class ThreeController {
     );
     composer.addPass(outline);
 
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load("/asset/textures/tri_pattern.jpg", (texture) => {
+      outline.patternTexture = texture;
+      // outline.usePatternTexture = true;
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+    });
+
+    outline.edgeStrength = 2.0;
+    outline.edgeThickness = 1.0;
+    outline.visibleEdgeColor.set(0xffffff);
+    outline.hiddenEdgeColor.set(0xffffff);
+
+    this.outline = outline;
     this.composer = composer;
   }
 
@@ -285,13 +299,26 @@ class ThreeController {
       throw new Error(
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
+
     const selectedDancers = {};
+    const selectedParts = [];
+
     Object.entries(selected).forEach(([key, value]) => {
       this.dancers[key].updateSelected(value.selected);
       selectedDancers[key] = value.selected;
+
+      selectedParts.push(
+        ...this.dancers[key].model.children.filter(
+          (part) =>
+            part.name !== "nameTag" &&
+            ((part.name === "Human" && value.selected) ||
+              value.parts.includes(part.name))
+        )
+      );
     });
 
     this.controls.selectControls.updateSelected(selectedDancers);
+    this.outline.selectedObjects = selectedParts;
   }
 
   updateDancersStatus(currentStatus) {
@@ -325,6 +352,7 @@ class ThreeController {
         nameTag.lookAt(this.camera.position);
       });
     }
+    this.composer?.render();
 
     requestAnimationFrame(() => this.animate());
   }

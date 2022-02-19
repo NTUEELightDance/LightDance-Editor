@@ -54,11 +54,6 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     if (threeController && threeController.isInitialized()) {
-      // if (!threeController.controls.dragControls) {
-      //   threeController.controls.initDragControls();
-      //   threeController.controls.initDanceSelector();
-      // }
-
       threeController.controls.deactivate();
       if (editMode !== IDLE) {
         threeController.controls.activate(selectionMode);

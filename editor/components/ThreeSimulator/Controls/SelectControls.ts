@@ -1,5 +1,5 @@
 import { EventDispatcher, Raycaster, Vector2, Group } from "three";
-import { setSelectedDancers, setSelectedParts } from "../../../core/actions";
+import { setSelectedDancers, clearSelected } from "../../../core/actions";
 import { DANCER, PART } from "constants";
 
 const _raycaster = new Raycaster();
@@ -81,6 +81,7 @@ class SelectControls extends EventDispatcher {
         }
       } else {
         _clearGroup();
+        clearSelected();
       }
 
       _updateDragGroup();
