@@ -21,13 +21,6 @@ input AddPartInput {
 type Color {
   color: String!
   colorCode: String!
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  id: ID!
->>>>>>> b8d9620 (EDITOR-#107 add color apis)
-=======
->>>>>>> 22d3f3f (EDITOR-#107 improve color apis)
 }
 
 input ColorInput {
