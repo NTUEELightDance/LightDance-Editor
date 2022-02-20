@@ -23,18 +23,6 @@
       "children": [
         {
           "type": "tab",
-          "name": "LightPresets",
-          "component": "LightPresets",
-          "enableClose": false
-        },
-        {
-          "type": "tab",
-          "name": "PosPresets",
-          "component": "PosPresets",
-          "enableClose": false
-        },
-        {
-          "type": "tab",
           "name": "Effect",
           "component": "EffectList",
           "enableClose": false
@@ -43,6 +31,18 @@
           "type": "tab",
           "name": "ColorPallete",
           "component": "ColorPallete",
+          "enableClose": false
+        }
+      ]
+    },
+    {
+      "type": "border",
+      "location": "right",
+      "children": [
+        {
+          "type": "tab",
+          "name": "FrameList",
+          "component": "FrameList",
           "enableClose": false
         }
       ]
@@ -137,18 +137,6 @@
                 "type": "tab",
                 "name": "properties",
                 "component": "LightProps",
-                "enableClose": false
-              },
-              {
-                "type": "tab",
-                "name": "LightEditor",
-                "component": "LightEditor",
-                "enableClose": false
-              },
-              {
-                "type": "tab",
-                "name": "FrameList",
-                "component": "FrameList",
                 "enableClose": false
               }
             ]

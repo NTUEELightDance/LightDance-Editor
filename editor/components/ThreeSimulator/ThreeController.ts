@@ -115,8 +115,8 @@ class ThreeController {
     scene.background = new THREE.Color(0x000000);
     this.scene = scene;
 
-    // // Add a dim light to identity each dancers
-    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    // Add a dim light to identity each dancers
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
     // directionalLight.position.set(-1, 1, 1);
     // scene.add(directionalLight);
 

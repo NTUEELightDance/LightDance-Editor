@@ -3,7 +3,7 @@ import { registerActions } from "../registerActions";
 // utils
 import { getControl, setItem } from "../utils";
 // types
-import { State, ControlMapStatus, LED } from "../models";
+import { State, ControlMapStatus, LED, Fiber } from "../models";
 
 const actions = registerActions({
   /**
@@ -38,6 +38,38 @@ const actions = registerActions({
   },
 
   /**
+   * Edit current Status
+   * @param {State} state
+   * @param {{ dancerName, partName, value }} payload - set EL part
+   */
+  editCurrentStatusFiber: (
+    state: State,
+    payload: {
+      dancerName: string;
+      partName: string;
+      value: Fiber;
+    }
+  ) => {
+    const {
+      dancerName,
+      partName,
+      value: { color, alpha },
+    } = payload;
+    try {
+      if (color && color !== "")
+        (state.currentStatus[dancerName][partName] as Fiber).color = color;
+      if (typeof alpha === "number")
+        (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
+    } catch (err) {
+      state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
+      if (color && color !== "")
+        (state.currentStatus[dancerName][partName] as Fiber).color = color;
+      if (typeof alpha === "number")
+        (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
+    }
+  },
+
+  /**
    * Edit current Status (LED)
    * @param {State} state
    * @param {object} payload
@@ -48,7 +80,7 @@ const actions = registerActions({
     payload: {
       dancerName: string;
       partName: string;
-      value: { src: string; alpha: number };
+      value: LED;
     }
   ) => {
     const {
@@ -101,6 +133,7 @@ const actions = registerActions({
 export const {
   setCurrentStatus,
   editCurrentStatus,
+  editCurrentStatusFiber,
   editCurrentStatusLED,
   saveCurrentStatus,
   deleteCurrentStatus,

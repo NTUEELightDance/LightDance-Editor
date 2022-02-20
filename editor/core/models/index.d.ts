@@ -154,9 +154,10 @@ type PartType = "LED" | "FIBER" | "El";
 export interface DancersType {
   [key: string]: string[]; // dancerName: partNames
 }
- * ColorMa
- */
 
+/**
+ * ColorMap
+ */
 export type ColorMapType = {
   [key: string]: string;
 };

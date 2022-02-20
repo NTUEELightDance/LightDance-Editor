@@ -56,6 +56,7 @@ export default function useColorMap() {
     [addColorError, editColorError, delColorError].forEach((error) =>
       console.error(error)
     );
+
   return {
     loading:
       colorLoading || addColorLoading || editColorLoading || delColorLoading,
