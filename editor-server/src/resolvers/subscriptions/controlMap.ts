@@ -10,7 +10,7 @@ export class ControlMapPayload {
   @Field((type) => ControlDataScalar, { nullable: true })
   frame?: any;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   frameID?: string;
 
   @Field()
@@ -21,5 +21,5 @@ export enum ControlMapMutation {
   UPDATED = "UPDATED",
   CREATED = "CREATED",
   DELETED = "DELETED",
-  MIXED = "MIXED"
+  MIXED = "MIXED",
 }

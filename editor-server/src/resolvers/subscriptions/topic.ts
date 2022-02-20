@@ -5,5 +5,5 @@ export enum Topic {
   PositionRecord = "POSITION_RECORD",
   PositionMap = "POSITION_MAP",
   Dancer = "DANCER",
-  EffectList = "EffectList"
+  EffectList = "EffectList",
 }

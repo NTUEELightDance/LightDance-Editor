@@ -5,7 +5,7 @@ export class ControlRecordPayload {
   @Field()
   mutation: ControlRecordMutation;
 
-  @Field((type) => ID, {nullable: true})
+  @Field((type) => ID, { nullable: true })
   frameID?: string;
 
   @Field()
@@ -14,10 +14,10 @@ export class ControlRecordPayload {
   @Field((type) => Int)
   index: number;
 
-  @Field((type) => [String], {nullable: true})
+  @Field((type) => [String], { nullable: true })
   addID?: string[];
 
-  @Field((type) => [String], {nullable: true})
+  @Field((type) => [String], { nullable: true })
   deleteID?: string[];
 }
 
@@ -25,5 +25,5 @@ export enum ControlRecordMutation {
   CREATED = "CREATED",
   UPDATED = "UPDATED",
   DELETED = "DELETED",
-  MIXED = "MIXED"
+  MIXED = "MIXED",
 }

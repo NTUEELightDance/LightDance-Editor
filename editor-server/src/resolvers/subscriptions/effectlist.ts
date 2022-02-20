@@ -12,7 +12,7 @@ export class EffectListPayload {
   @Field()
   editBy: string;
 
-  @Field((type) => EffectList, {nullable: true})
+  @Field((type) => EffectList, { nullable: true })
   effectListData?: any;
 }
 

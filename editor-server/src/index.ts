@@ -44,7 +44,7 @@ const { SECRET_KEY } = process.env;
   ) => {
     try {
       const { userID, name } = connectionParams;
-      if (!userID ) throw new Error("UserID and name must be filled.");
+      if (!userID) throw new Error("UserID and name must be filled.");
       const user = await db.User.findOne({ userID });
       if (user) {
         return { db, userID };

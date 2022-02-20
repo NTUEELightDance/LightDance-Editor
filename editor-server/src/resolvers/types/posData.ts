@@ -20,7 +20,7 @@ export const PosDataScalar = new GraphQLScalarType({
   async serialize(data: any): Promise<any> {
     // check the type of received value
     const { _id, id, deleteList, createList } = data;
-    if(id && _id){
+    if (id && _id) {
       const result: LooseObject = {};
       const allDancers = await db.Dancer.find().populate("positionData");
       // const frameID = new ObjectId(id)
@@ -37,18 +37,18 @@ export const PosDataScalar = new GraphQLScalarType({
       );
       result[id] = { start, editing, pos };
       return result; // value sent to the client
-    }else{
+    } else {
       const createFrames: LooseObject = {};
       await Promise.all(
-        createList.map(async(id: any)=> {
+        createList.map(async (id: any) => {
           const cache = await redis.get(id);
-            if (cache) {
-              const cacheObj = JSON.parse(cache);
-              createFrames[id] = cacheObj;
-            }
+          if (cache) {
+            const cacheObj = JSON.parse(cache);
+            createFrames[id] = cacheObj;
+          }
         })
-      )
-      return {createFrames, deleteFrames: deleteList};
+      );
+      return { createFrames, deleteFrames: deleteList };
     }
   },
   parseValue(value: unknown): any {

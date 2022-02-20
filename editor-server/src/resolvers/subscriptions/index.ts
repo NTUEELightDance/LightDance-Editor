@@ -1,8 +1,4 @@
-import {
-  Resolver,
-  Root,
-  Subscription,
-} from "type-graphql";
+import { Resolver, Root, Subscription } from "type-graphql";
 
 import { Topic } from "./topic";
 import { ControlRecordPayload } from "./controlRecord";
@@ -69,8 +65,8 @@ class SubscriptionResolver {
     topics: Topic.EffectList,
   })
   effectListSubscription(
-    @Root() effectListPayload: EffectListPayload 
-  ): EffectListPayload{
+    @Root() effectListPayload: EffectListPayload
+  ): EffectListPayload {
     return effectListPayload;
   }
 }

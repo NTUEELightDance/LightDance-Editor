@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID, Float } from "type-graphql";
-import { GraphQLScalarType} from "graphql";
+import { GraphQLScalarType } from "graphql";
 import { ObjectId } from "mongodb";
 
 @ObjectType()
@@ -16,7 +16,7 @@ export class EffectList {
   @Field((type) => ID)
   id: string;
 
-  @Field((type)=> EffectListScalar)
+  @Field((type) => EffectListScalar)
   data: ObjectId;
 }
 
@@ -24,9 +24,8 @@ export const EffectListScalar = new GraphQLScalarType({
   name: "EffectListObjectId",
   description: "Mongo object id scalar type",
   serialize(data: any): Promise<any> {
-    // check the type of received value   
+    // check the type of received value
     return data; // value sent to the client
-    
   },
   parseValue(value: unknown): any {
     // check the type of received value
@@ -39,4 +38,3 @@ export const EffectListScalar = new GraphQLScalarType({
     return ast.value; // value from the client query
   },
 });
-
