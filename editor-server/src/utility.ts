@@ -7,12 +7,6 @@ interface LooseObject {
   [key: string]: any;
 }
 
-let unique = 0;
-const idList =
-  "0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-";
-const idListLength = idList.length;
-const idLength = 5;
-
 const initData = async () => {
   await model.User.deleteMany();
 };
