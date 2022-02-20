@@ -2,13 +2,10 @@ import { registerActions } from "../registerActions";
 // types
 import { State, EditModeType, EditorType, EditingDataType } from "../models";
 // constants
-import { CONTROL_EDITOR, EDITING, IDLE } from "constants";
+import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "constants";
 import { getControl, getPos } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
-// other actions
-import { setCurrentTime } from "./timeData";
-import { is } from "immer/dist/internal";
 
 /**
  * This is a helper function for getting data from pos and map
@@ -61,6 +58,22 @@ const actions = registerActions({
   },
 
   /**
+   * Set current editor, should be CONTROL_EDITOR or POS_EDITOR
+   * @param state
+   * @param payload
+   */
+  toggleEditor: (state: State) => {
+    switch (state.editor) {
+      case CONTROL_EDITOR:
+        state.editor = POS_EDITOR;
+        break;
+      case POS_EDITOR:
+        state.editor = CONTROL_EDITOR;
+        break;
+    }
+  },
+
+  /**
    * Set current editing data, including the index, start and id
    * @param state
    * @param payload
@@ -94,7 +107,13 @@ const actions = registerActions({
   save: async (state: State, payload: boolean) => {
     const { frameId, frame, agent, fade } = await getDataHandler(state);
     const requestTimeChange = payload;
-    await agent.saveFrame(frameId, frame, state.currentTime, requestTimeChange, fade);
+    await agent.saveFrame(
+      frameId,
+      frame,
+      state.currentTime,
+      requestTimeChange,
+      fade
+    );
   },
 
   /**
@@ -128,6 +147,7 @@ const actions = registerActions({
 export const {
   setEditMode,
   setEditor,
+  toggleEditor,
   setEditingData,
   startEditing,
   save,

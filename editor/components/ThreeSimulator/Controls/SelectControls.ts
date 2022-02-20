@@ -1,5 +1,5 @@
 import { EventDispatcher, Raycaster, Vector2, Group } from "three";
-import { setSelectedDancers, setSelectedParts } from "../../../core/actions";
+import { setSelectedDancers, clearSelected } from "../../../core/actions";
 import { DANCER, PART } from "constants";
 
 const _raycaster = new Raycaster();
@@ -60,68 +60,71 @@ class SelectControls extends EventDispatcher {
       _raycaster.setFromCamera(_pointer, _camera);
       _raycaster.intersectObjects(_objects, true, _intersections);
 
-      const draggableObjects = _dragControls.getObjects();
-      draggableObjects.length = 0;
-
       if (_intersections.length > 0) {
-        let object;
-        switch (_mode) {
-          case DANCER:
-            object = _intersections[0].object.parent;
-            break;
-          case PART:
-            object = _intersections[0].object;
-            console.log(object);
-            return;
-        }
+        const object = _intersections[0].object.parent;
 
         // Multi Selection Mode
         if (event.ctrlKey || event.metaKey) {
           // Toggle Selection
           if (_group.children.includes(object)) {
-            removeFromGroup(object);
+            _removeFromGroup(object);
           } else {
-            addToGroup(object);
+            _addToGroup(object);
           }
         }
         // Single Selection Mode
         else {
           if (!_group.children.includes(object)) {
-            clearGroup();
-            addToGroup(object);
+            _clearGroup();
+            _addToGroup(object);
           }
         }
       } else {
-        clearGroup();
+        _clearGroup();
+        clearSelected();
       }
 
-      if (_group.children.length) {
-        _dragControls.transformGroup = true;
-        draggableObjects.push(_group);
-        _selected = _group.children.map((child) => child.name);
-      } else {
-        _dragControls.transformGroup = false;
-        draggableObjects.push(..._objects);
-      }
+      _updateDragGroup();
 
       setSelectedDancers({
         payload: _group.children.map((child) => child.name),
       });
     }
 
-    function clearGroup() {
+    function _clearGroup() {
       while (_group.children.length) {
         const object = _group.children[0];
         _scene.attach(object);
       }
     }
 
-    function addToGroup(object) {
+    function _addToGroup(object) {
       _group.attach(object);
     }
 
-    function removeFromGroup(object) {
+    function _removeFromGroup(object) {
       _scene.attach(object);
+    }
+
+    function _updateDragGroup() {
+      const draggableObjects = _dragControls.getObjects();
+      draggableObjects.length = 0;
+      if (_group.children.length) {
+        _dragControls.transformGroup = true;
+        draggableObjects.push(_group);
+        _selected = _group.children.map((child) => child.name);
+      }
+    }
+
+    function updateSelected(selectedDancers) {
+      Object.entries(selectedDancers).forEach(([dancerName, selected]) => {
+        if (selected) {
+          _group.attach(_dancers[dancerName].model);
+        } else {
+          _scene.attach(_dancers[dancerName].model);
+        }
+      });
+      _updateDragGroup();
     }
 
     function updatePointer(event) {
@@ -144,6 +147,7 @@ class SelectControls extends EventDispatcher {
     this.getObjects = getObjects;
     this.getGroup = getGroup;
     this.getRaycaster = getRaycaster;
+    this.updateSelected = updateSelected;
   }
 }
 

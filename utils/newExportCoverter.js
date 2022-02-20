@@ -46,6 +46,10 @@ const YELLOW_DANCER = [
   { name: "Arm_L", type: "FIBER" },
   { name: "Ear_L", type: "FIBER" },
   { name: "Shoulder_L", type: "FIBER" },
+  { name: "Glove_L", type: "FIBER" },
+  { name: "Glove_R", type: "FIBER" },
+  { name: "Glove_L_LED", type: "LED" },
+  { name: "Glove_R_LED", type: "LED" },
   { name: "Visor_LED", type: "LED" },
   { name: "CollarBone_R_LED", type: "LED" },
   { name: "CollarBone_L_LED", type: "LED" },
@@ -61,6 +65,8 @@ const RED_DANCER = [
   { name: "Capacitor_1", type: "FIBER" },
   { name: "Capacitor_2", type: "FIBER" },
   { name: "Surcoat", type: "FIBER" },
+  { name: "Surcoat_L", type: "FIBER" },
+  { name: "Surcoat_R", type: "FIBER" },
   { name: "Wrist_R", type: "FIBER" },
   { name: "Tie", type: "FIBER" },
   { name: "Boot_R", type: "FIBER" },
@@ -68,13 +74,15 @@ const RED_DANCER = [
   { name: "Eyes", type: "FIBER" },
   { name: "Chest", type: "FIBER" },
   { name: "Collar", type: "FIBER" },
-  { name: "Rune", type: "FIBER" },
-  { name: "Rune_R", type: "FIBER" },
   { name: "Arm_R", type: "FIBER" },
   { name: "Arm_L", type: "FIBER" },
   { name: "Wrist_L", type: "FIBER" },
+  { name: "Glove_L", type: "FIBER" },
+  { name: "Glove_R", type: "FIBER" },
   { name: "Boot_L", type: "FIBER" },
-  { name: "Rune_L", type: "FIBER" },
+  { name: "Rune_LED", type: "LED" },
+  { name: "Rune_L_LED", type: "LED" },
+  { name: "Rune_R_LED", type: "LED" },
   { name: "Shoe_R_LED", type: "LED" },
   { name: "Shoe_L_LED", type: "LED" },
   { name: "Chest_LED", type: "LED" },
@@ -96,6 +104,12 @@ const BLUE_DANCER = [
   { name: "Helmet", type: "FIBER" },
   { name: "Calf_L", type: "FIBER" },
   { name: "Arm_L", type: "FIBER" },
+  { name: "Glove_L", type: "FIBER" },
+  { name: "Glove_R", type: "FIBER" },
+  { name: "Shoe_L", type: "FIBER" },
+  { name: "Shoe_R", type: "FIBER" },
+  { name: "Glove_L_LED", type: "LED" },
+  { name: "Glove_R_LED", type: "LED" },
   { name: "Shoe_R_LED", type: "LED" },
   { name: "Hand_R_LED", type: "LED" },
   { name: "Hand_L_LED", type: "LED" },
@@ -174,6 +188,23 @@ const old_pos = [
 ];
 
 const pos = {};
+const center = { x: 0, y: 0, z: 0 };
+
+DANCER.forEach((dancer, i) => {
+  const { name } = dancer;
+  pos[name] = {
+    x: old_pos[i].x / 30,
+    y: 0,
+    z: old_pos[i].z / 30,
+  };
+  center.x += old_pos[i].x / 30;
+  center.y += 0;
+  center.z += old_pos[i].z / 30;
+});
+
+center.x /= 11;
+center.y /= 11;
+center.z /= 11;
 
 DANCER.forEach((dancer, i) => {
   const { parts, name } = dancer;
@@ -195,8 +226,14 @@ DANCER.forEach((dancer, i) => {
       default:
     }
   });
-  pos[name] = old_pos[i];
+  pos[name] = {
+    x: old_pos[i].x / 30 - center.x,
+    y: 0,
+    z: old_pos[i].z / 30 - center.z,
+  };
 });
+
+console.log(center);
 
 const CONTROL = {
   "01HvN": {

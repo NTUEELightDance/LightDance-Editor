@@ -3,13 +3,15 @@ import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 // postprocessing for three.js
+
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
+// three gui
 
 import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
-
-// redux actions and store
-import store from "../../store";
 
 // components
 import { Dancer } from "./ThreeComponents";
@@ -100,7 +102,9 @@ class ThreeController {
 
     renderer.setSize(this.width, this.height);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputEncoding = THREE.sRGBEncoding;
+
     this.renderer = renderer;
 
     // Add a camera to view the scene, all the parameters are customizable
@@ -111,10 +115,10 @@ class ThreeController {
     scene.background = new THREE.Color(0x000000);
     this.scene = scene;
 
-    // Add a dim light to identity each dancers
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
-    directionalLight.position.set(-1, 1, 1);
-    scene.add(directionalLight);
+    // // Add a dim light to identity each dancers
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    // directionalLight.position.set(-1, 1, 1);
+    // scene.add(directionalLight);
 
     // Postprocessing for antialiasing effect
     this.initPostprocessing();
@@ -127,14 +131,7 @@ class ThreeController {
 
     // Initialization of all dancers with currentPos
     this.initDancers();
-
-    // Add a orbit control to view the scene from different perspectives and scales
-    this.controls = new Controls(
-      this.renderer,
-      this.scene,
-      this.camera,
-      this.dancers
-    );
+    this.initCenterMarker();
 
     // Initialization of grid helper on the floor
     this.initGridHelper();
@@ -151,7 +148,7 @@ class ThreeController {
     const fov = 45;
     const aspect = this.width / this.height;
     const near = 0.2;
-    const far = 100;
+    const far = 300;
 
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
@@ -177,19 +174,63 @@ class ThreeController {
   }
 
   initPostprocessing() {
-    // Postprocessing for antialiasing effect
     const composer = new EffectComposer(this.renderer);
+
+    const renderPass = new RenderPass(this.scene, this.camera);
+    composer.addPass(renderPass);
+
+    // Postprocessing for antialiasing effect
     composer.addPass(new RenderPass(this.scene, this.camera));
 
     const pass = new SMAAPass(
-      window.innerWidth * this.renderer.getPixelRatio(),
-      window.innerHeight * this.renderer.getPixelRatio()
+      this.width * this.renderer.getPixelRatio(),
+      this.height * this.renderer.getPixelRatio()
     );
     composer.addPass(pass);
+
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(
+        this.width * this.renderer.getPixelRatio(),
+        this.height * this.renderer.getPixelRatio()
+      ),
+      2,
+      0.4,
+      0.85
+    );
+
+    bloomPass.threshold = 0.521;
+    bloomPass.strength = 0.75;
+    bloomPass.radius = 1;
+
+    composer.addPass(bloomPass);
+
+    const outline = new OutlinePass(
+      new THREE.Vector2(this.width, this.height),
+      this.scene,
+      this.camera
+    );
+    composer.addPass(outline);
+
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load("/asset/textures/tri_pattern.jpg", (texture) => {
+      outline.patternTexture = texture;
+      // outline.usePatternTexture = true;
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+    });
+
+    outline.edgeStrength = 2.0;
+    outline.edgeThickness = 1.0;
+    outline.visibleEdgeColor.set(0xffffff);
+    outline.hiddenEdgeColor.set(0xffffff);
+
+    this.outline = outline;
     this.composer = composer;
   }
 
   initDancers() {
+    this.initLoadManager();
+
     const { dancerNames, currentStatus, currentPos } = state;
 
     dancerNames.forEach((name) => {
@@ -198,12 +239,12 @@ class ThreeController {
       if (index <= 5 && index >= 0) {
         url = "/asset/models/yellow.glb";
       } else if (index >= 6 && index <= 10) {
-        url = "/asset/models/blue.glb";
+        url = "/asset/models/cyan.glb";
       } else if (index === 11) {
-        url = "/asset/models/red.glb";
+        url = "/asset/models/magenta.glb";
       }
 
-      const newDancer = new Dancer(this.scene, name, url);
+      const newDancer = new Dancer(this.scene, name, url, this.manager);
       newDancer.addModel2Scene(currentStatus[name], currentPos[name]);
       this.dancers[name] = newDancer;
     });
@@ -214,6 +255,32 @@ class ThreeController {
     this.scene.add(helper);
   }
 
+  initLoadManager() {
+    const manager = new THREE.LoadingManager();
+    manager.onLoad = this.initControls.bind(this);
+    this.manager = manager;
+  }
+
+  initControls() {
+    // Add a orbit control to view the scene from different perspectives and scales
+    this.controls = new Controls(
+      this.renderer,
+      this.scene,
+      this.camera,
+      this.dancers
+    );
+  }
+
+  initCenterMarker() {
+    const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const cube = new THREE.Mesh(geometry, material);
+
+    cube.position.setZ(12.5);
+    console.log(cube);
+
+    this.scene.add(cube);
+  }
   // Return true if all the dancer is successfully initialized
   isInitialized() {
     if (!this.initialized)
@@ -252,9 +319,9 @@ class ThreeController {
     const { state } = this;
     Object.values(this.dancers).forEach((dancer) => {
       const newPos = {
-        x: state.currentPos[dancer.name].x / 30,
-        y: 0,
-        z: state.currentPos[dancer.name].z / 30,
+        x: state.currentPos[dancer.name].x,
+        y: state.currentPos[dancer.name].y,
+        z: state.currentPos[dancer.name].z,
       };
       dancer.update(newPos, state.currentStatus[dancer.name]);
     });
@@ -265,9 +332,26 @@ class ThreeController {
       throw new Error(
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
+
+    const selectedDancers = {};
+    const selectedParts = [];
+
     Object.entries(selected).forEach(([key, value]) => {
       this.dancers[key].updateSelected(value.selected);
+      selectedDancers[key] = value.selected;
+
+      selectedParts.push(
+        ...this.dancers[key].model.children.filter(
+          (part) =>
+            part.name !== "nameTag" &&
+            ((part.name === "Human" && value.selected) ||
+              value.parts.includes(part.name))
+        )
+      );
     });
+
+    this.controls.selectControls.updateSelected(selectedDancers);
+    this.outline.selectedObjects = selectedParts;
   }
 
   updateDancersStatus(currentStatus) {
@@ -301,17 +385,9 @@ class ThreeController {
         nameTag.lookAt(this.camera.position);
       });
     }
+    this.composer?.render();
 
     requestAnimationFrame(() => this.animate());
-  }
-
-  // fetch controlRecord, controlMap, posRecord, and set Start time
-  fetch() {
-    const { timeData, controlRecord, controlMap, posRecord, posMap } =
-      store.getState().global;
-    this.waveSuferTime = timeData.time;
-    this.state = { controlRecord, controlMap, posRecord, posMap };
-    this.state.timeData = { ...timeData };
   }
 
   play() {

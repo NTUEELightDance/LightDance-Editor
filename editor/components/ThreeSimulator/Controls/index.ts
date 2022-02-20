@@ -30,7 +30,11 @@ class Controls {
     this.camera = camera;
     this.domElement = renderer.domElement;
     this.dancers = dancers;
+    this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
+
     this.initOrbitControls();
+    this.initDragControls();
+    this.initDanceSelector();
     // this.initBoxSelectControls();
   }
 
@@ -101,7 +105,6 @@ class Controls {
   }
 
   initDragControls() {
-    this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
     this.dragControls = new DragControls(
       [...this.objects],
       this.camera,
@@ -127,13 +130,10 @@ class Controls {
     addEventListener("keydown", this.onKeyDown.bind(this));
     switch (selectionMode) {
       case DANCER:
-        this.selectControls.activate(DANCER);
         break;
       case PART:
-        this.selectControls.activate(PART);
         break;
       case POSITION:
-        this.selectControls.activate(DANCER);
         this.dragControls.enabled = true;
         this.dragControls.activate();
         break;
@@ -144,7 +144,6 @@ class Controls {
     removeEventListener("keydown", this.onKeyDown.bind(this));
     this.dragControls.deactivate();
     this.dragControls.enabled = false;
-    this.selectControls.deactivate();
   }
 
   onKeyDown(event) {
@@ -170,9 +169,9 @@ class Controls {
       const { position } = dancer.model;
 
       currentPos[name] = {
-        x: position.x * 30,
-        y: position.z * 30,
-        z: position.z * 30,
+        x: position.x,
+        y: position.y,
+        z: position.z,
       };
 
       if (selected.includes(name)) {

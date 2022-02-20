@@ -14,7 +14,7 @@ class Dancer {
   modelSrc: string;
   initialized: boolean;
 
-  constructor(scene: THREE.Scene, name: string, modelSrc: string) {
+  constructor(scene: THREE.Scene, name: string, modelSrc: string, manager) {
     this.scene = scene;
     this.name = name;
     this.modelSrc = modelSrc;
@@ -27,6 +27,7 @@ class Dancer {
       [FIBER]: {},
     };
     this.initialized = false;
+    this.manager = manager;
   }
 
   // Load model with given URL and capture all the meshes for light status
@@ -35,7 +36,7 @@ class Dancer {
     this.initPos = currentPos;
 
     // Use GLTF loader to load target model from URL
-    const modelLoader = new GLTFLoader();
+    const modelLoader = new GLTFLoader(this.manager);
     modelLoader.load(this.modelSrc, this.initModel.bind(this));
 
     // Use fontLoader to load font and create nameTag
@@ -137,6 +138,7 @@ class Dancer {
     // make shape ( N.B. edge view not visible )
     const text = new THREE.Mesh(geometry, matLite);
     text.position.setY(8);
+    text.name = "nameTag";
 
     this.nameTag = text;
   }
@@ -159,7 +161,7 @@ class Dancer {
 
   // Update the model's positon
   setPos(currentPos) {
-    this.model.position.set(currentPos.x / 30, 0, currentPos.z / 30);
+    this.model.position.set(currentPos.x, currentPos.y, currentPos.z);
   }
 
   // Update the model's status
