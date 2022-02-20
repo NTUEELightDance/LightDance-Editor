@@ -15,6 +15,9 @@ services:
       - /app/editor-server/node_modules
       - /app/controller-server/node_modules
       - /app/file-server/node_modules
+    environment:
+      - MONGO_HOST=mongodb
+      - REDIS_HOST=redisdb
   mongodb:
     image: mongo
     ports:

@@ -1,12 +1,13 @@
 import * as redis from "redis";
-import model from "./models";
+import "dotenv-defaults/config";
 
-const redisPort: any = 6379;
-const client = redis.createClient(redisPort);
+const { REDIS_HOST, REDIS_PORT } = process.env;
 
-interface LooseObject {
-  [key: string]: any;
-}
+console.log(REDIS_HOST, REDIS_PORT);
+
+const client = redis.createClient({
+  url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
+});
 
 client.connect().then(() => {
   console.log("redis connected");

@@ -17,6 +17,17 @@ const defineConfig: UserConfigFn = ({ command, mode }) => {
         "/data": "http://localhost:8081",
         // controller-server port at 8082
         "/api/controller": "http://localhost:8082",
+        "/graphql-backend": {
+          target: "http://localhost:4000",
+          rewrite: (path) => path.replace(/^\/graphql-backend/, "graphql"),
+        },
+        "/graphql-backend-websocket": {
+          target: "ws://localhost:4000",
+          ws: true,
+          rewrite: (path) => {
+            return path.replace(/^\/graphql-backend-websocket/, "graphql");
+          },
+        },
       },
     },
     plugins: [

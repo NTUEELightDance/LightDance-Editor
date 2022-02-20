@@ -6,18 +6,18 @@ import { nanoid } from "nanoid";
 import Subscriptions from "./subscription";
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:4000/graphql",
+  uri: `${location.origin}/graphql-backend`,
 });
 
 const _userID = nanoid();
 const wsLink = new WebSocketLink({
-  uri: "ws://localhost:4000/graphql",
+  uri: `${location.origin}/graphql-backend-websocket`.replace("http", "ws"),
   options: {
     reconnect: true,
     connectionParams: {
       userID: _userID,
-      name: "editor"
-    }
+      name: "editor",
+    },
   },
 });
 //randomly generate a unique ID
