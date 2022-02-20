@@ -48,10 +48,7 @@ export const PosDataScalar = new GraphQLScalarType({
             }
         })
       )
-      const deleteFrames = deleteList.map((data: any)=>{
-        return data.id
-      })
-      return {createFrames, deleteFrames};
+      return {createFrames, deleteFrames: deleteList};
     }
   },
   parseValue(value: unknown): any {
