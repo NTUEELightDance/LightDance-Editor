@@ -108,15 +108,30 @@ const DancerTree = () => {
   };
 
   return (
-    <Paper sx={{ width: "100%", px: "5%", minHeight: "100%" }}>
-      <Box sx={{ p: 1 }}>
-        <Button onClick={handleExpandClick}>
+    <Paper
+      sx={{ width: "100%", px: "5%", minHeight: "100%", position: "relative" }}
+      square
+    >
+      <Paper
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "1em",
+          position: "sticky",
+          top: 0,
+          width: "100%",
+          p: "0.5em 0.5em",
+          mb: "1em",
+          zIndex: 8080,
+        }}
+      >
+        <Button onClick={handleExpandClick} sx={{ width: "12em" }}>
           {expanded.length === 0 ? "Expand all" : "Collapse all"}
         </Button>
-        <Button onClick={handleSelectClick}>
+        <Button onClick={handleSelectClick} sx={{ width: "12em" }}>
           {selectedNodes.length === 0 ? "Select all" : "Unselect all"}
         </Button>
-      </Box>
+      </Paper>
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}

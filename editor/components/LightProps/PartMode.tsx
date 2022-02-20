@@ -98,7 +98,7 @@ const PartMode = () => {
   };
 
   return (
-    <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }}>
+    <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
       {partType === "LED" ? (
         <Grid
           container

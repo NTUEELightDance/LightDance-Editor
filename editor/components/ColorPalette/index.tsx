@@ -7,6 +7,7 @@ import {
   ListItem,
   Typography,
   Box,
+  Stack,
   IconButton,
 } from "@mui/material";
 
@@ -41,76 +42,75 @@ export default function ColorPalette() {
     <>
       <Paper
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "begin",
           width: "100%",
           minHeight: "100%",
         }}
       >
-        <Paper
-          sx={{
-            width: "100%",
-            position: "relative",
-          }}
-        >
-          <Box
+        <Stack justifyContent="begin">
+          <Paper
             sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-              px: "1em",
               width: "100%",
-              position: "sticky",
-              zIndex: 8080,
+              position: "relative",
             }}
           >
-            <IconButton onClick={() => setAddDialogOpen(true)}>
-              <AddIcon />
-            </IconButton>
-          </Box>
-        </Paper>
+            <Box
+              sx={{
+                borderBottom: 1,
+                borderColor: "divider",
+                px: "1em",
+                width: "100%",
+                position: "sticky",
+                zIndex: 8080,
+              }}
+            >
+              <IconButton onClick={() => setAddDialogOpen(true)}>
+                <AddIcon />
+              </IconButton>
+            </Box>
+          </Paper>
 
-        <List sx={{ minWidth: "100%" }}>
-          {Object.entries(colorMap).map(([colorName, colorCode]) => (
-            <ListItem key={`${colorName}_${colorCode}`}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "90%",
-                  mx: "auto",
-                }}
-              >
-                <Box sx={{ width: "7em" }}>
-                  <Typography>{colorName}</Typography>
-                </Box>
-                <Paper
+          <List sx={{ minWidth: "100%" }}>
+            {Object.entries(colorMap).map(([colorName, colorCode]) => (
+              <ListItem key={`${colorName}_${colorCode}`}>
+                <Box
                   sx={{
-                    backgroundColor: colorCode,
                     display: "flex",
-                    width: "8em",
-                    mx: "1em",
-                    p: "0.5em",
-                    height: "2.5em",
-                    justifyContent: "center",
-                    fontSize: "1em",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "90%",
+                    mx: "auto",
                   }}
                 >
-                  {colorCode}
-                </Paper>
-                <Box sx={{ width: "8em" }}>
-                  <IconButton onClick={handleEditClick(colorName)}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton onClick={() => handleDeleteColor(colorName)}>
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
+                  <Box sx={{ width: "7em" }}>
+                    <Typography>{colorName}</Typography>
+                  </Box>
+                  <Paper
+                    sx={{
+                      backgroundColor: colorCode,
+                      display: "flex",
+                      width: "8em",
+                      mx: "1em",
+                      p: "0.5em",
+                      height: "2.5em",
+                      justifyContent: "center",
+                      fontSize: "1em",
+                    }}
+                  >
+                    {colorCode}
+                  </Paper>
+                  <Box sx={{ width: "8em" }}>
+                    <IconButton onClick={handleEditClick(colorName)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton onClick={() => handleDeleteColor(colorName)}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
                 </Box>
-              </Box>
-            </ListItem>
-          ))}
-        </List>
+              </ListItem>
+            ))}
+          </List>
+        </Stack>
       </Paper>
 
       <ColorDialog

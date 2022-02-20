@@ -110,6 +110,7 @@ const DancerMode = () => {
           minHeight: "100%",
           position: "relative",
         }}
+        square
       >
         {/* only show tabs when there are more than one tab */}
         {Tabs.length > 0 && (
