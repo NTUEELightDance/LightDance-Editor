@@ -102,9 +102,9 @@ class ThreeController {
 
     renderer.setSize(this.width, this.height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.toneMapping = THREE.ReinhardToneMapping;
-    renderer.toneMappingExposure = Math.pow(1.2521, 4.0);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputEncoding = THREE.sRGBEncoding;
+
     this.renderer = renderer;
 
     // Add a camera to view the scene, all the parameters are customizable
@@ -115,10 +115,10 @@ class ThreeController {
     scene.background = new THREE.Color(0x000000);
     this.scene = scene;
 
-    // Add a dim light to identity each dancers
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
-    directionalLight.position.set(-1, 1, 1);
-    scene.add(directionalLight);
+    // // Add a dim light to identity each dancers
+    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    // directionalLight.position.set(-1, 1, 1);
+    // scene.add(directionalLight);
 
     // Postprocessing for antialiasing effect
     this.initPostprocessing();
@@ -148,7 +148,7 @@ class ThreeController {
     const fov = 45;
     const aspect = this.width / this.height;
     const near = 0.2;
-    const far = 100;
+    const far = 300;
 
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
@@ -188,16 +188,12 @@ class ThreeController {
     );
     composer.addPass(pass);
 
-    const params = {
-      exposure: 1,
-      bloomStrength: 1.5,
-      bloomThreshold: 0,
-      bloomRadius: 0,
-    };
-
     const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(this.width, this.height),
-      1.5,
+      new THREE.Vector2(
+        this.width * this.renderer.getPixelRatio(),
+        this.height * this.renderer.getPixelRatio()
+      ),
+      2,
       0.4,
       0.85
     );
@@ -245,7 +241,7 @@ class ThreeController {
       } else if (index >= 6 && index <= 10) {
         url = "/asset/models/cyan.glb";
       } else if (index === 11) {
-        url = "/asset/models/magenta.glb";
+        url = "/asset/models/magenta_compressed.glb";
       }
 
       const newDancer = new Dancer(this.scene, name, url, this.manager);
