@@ -87,11 +87,11 @@ const actions = registerActions({
    */
   startEditing: async (state: State) => {
     const { map, index, frameId, agent } = await getDataHandler(state);
-    // state.editingData = {
-    //   start: map[frameId].start,
-    //   frameId,
-    //   index,
-    // };
+    state.editingData = {
+      start: map[frameId].start,
+      frameId,
+      index,
+    };
     const isPermitted = await agent.requestEditPermission(frameId);
     if (!isPermitted) {
       alert("Permission denied");
