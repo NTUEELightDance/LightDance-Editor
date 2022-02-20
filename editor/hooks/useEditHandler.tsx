@@ -38,21 +38,21 @@ export default function useEditHandler() {
   // Cancel the edit, exist editing mode
   const handleCancel = async () => {
     await cancelEditing({});
-    console.log(`Cancelling edit mode, ${reactiveState.currentTime()}`);
     // reset the frame
-    await setCurrentTime({ payload: reactiveState.currentTime() });
+    await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
   };
 
   // Add a frame, use currentPos as default
   const handleAdd = async () => {
     await add();
-    await setCurrentTime({ payload: reactiveState.currentTime() });
+    await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
   };
 
   // Delete the current record
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm("Are you sure you want to delete the frame?")) {
-      deleteCurrent();
+      await deleteCurrent();
+      await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
     }
   };
 

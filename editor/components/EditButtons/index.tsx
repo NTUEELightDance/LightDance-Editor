@@ -40,9 +40,15 @@ export default function EditButtons() {
   useHotkeys("esc", () => {
     handleCancel();
   });
-  useHotkeys("ctrl+s, cmd+s", () => {
-    handleSave();
-  });
+  useHotkeys(
+    "ctrl+s, cmd+s",
+    (e) => {
+      e.preventDefault();
+      // Save can only be triggered in EDITING mode
+      if (mode === EDITING) handleClickSave();
+    },
+    [mode]
+  );
 
   const handleClickSave = async () => {
     setLoading(true);
