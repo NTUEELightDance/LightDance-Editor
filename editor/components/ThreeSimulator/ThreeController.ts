@@ -10,6 +10,8 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // three gui
 
+import { GridHelper } from "./Helper/GridHelper";
+
 import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
 
@@ -19,6 +21,7 @@ import { Dancer } from "./ThreeComponents";
 import { state } from "core/state";
 
 import Controls from "./Controls";
+
 // controls to control the scene
 
 /**
@@ -116,9 +119,9 @@ class ThreeController {
     this.scene = scene;
 
     // Add a dim light to identity each dancers
-    // const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    // directionalLight.position.set(-1, 1, 1);
-    // scene.add(directionalLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(0, 10, 0);
+    scene.add(directionalLight);
 
     // Postprocessing for antialiasing effect
     this.initPostprocessing();
@@ -153,9 +156,9 @@ class ThreeController {
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     camera.position.set(
-      -0.27423481610277156,
-      3.9713106563331033,
-      17.22495526821853
+      -0.12537511037946858,
+      4.4594268691037255,
+      23.101661470178215
     );
     camera.quaternion.set(
       0.9990621561475012,
@@ -204,27 +207,41 @@ class ThreeController {
 
     composer.addPass(bloomPass);
 
-    const outline = new OutlinePass(
+    const selectedOutline = new OutlinePass(
       new THREE.Vector2(this.width, this.height),
       this.scene,
       this.camera
     );
-    composer.addPass(outline);
+    composer.addPass(selectedOutline);
+
+    selectedOutline.edgeStrength = 2.0;
+    selectedOutline.edgeThickness = 1.0;
+    selectedOutline.visibleEdgeColor.set(0xffffff);
+    selectedOutline.hiddenEdgeColor.set(0x222222);
+
+    const hoveredOutline = new OutlinePass(
+      new THREE.Vector2(this.width, this.height),
+      this.scene,
+      this.camera
+    );
 
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load("/asset/textures/tri_pattern.jpg", (texture) => {
-      outline.patternTexture = texture;
-      // outline.usePatternTexture = true;
+      selectedOutline.patternTexture = texture;
+      hoveredOutline.patternTexture = texture;
+
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
     });
 
-    outline.edgeStrength = 2.0;
-    outline.edgeThickness = 1.0;
-    outline.visibleEdgeColor.set(0xffffff);
-    outline.hiddenEdgeColor.set(0xffffff);
+    hoveredOutline.edgeStrength = 2.0;
+    hoveredOutline.edgeThickness = 1.0;
+    hoveredOutline.visibleEdgeColor.set(0xffff00);
 
-    this.outline = outline;
+    composer.addPass(hoveredOutline);
+
+    this.selectedOutline = selectedOutline;
+    this.hoveredOutline = hoveredOutline;
     this.composer = composer;
   }
 
@@ -237,11 +254,14 @@ class ThreeController {
       let url;
       const index = Number(name.split("_")[0]);
       if (index <= 5 && index >= 0) {
-        url = "/asset/models/yellow.glb";
+        url = "/asset/models/yellow.draco.glb";
+        // url = "/asset/models/yellow.glb";
       } else if (index >= 6 && index <= 10) {
-        url = "/asset/models/cyan.glb";
+        url = "/asset/models/cyan.draco.glb";
+        // url = "/asset/models/cyan.glb";
       } else if (index === 11) {
-        url = "/asset/models/magenta.glb";
+        url = "/asset/models/magenta.draco.glb";
+        // url = "/asset/models/magenta.glb";
       }
 
       const newDancer = new Dancer(this.scene, name, url, this.manager);
@@ -251,7 +271,7 @@ class ThreeController {
   }
 
   initGridHelper() {
-    const helper = new THREE.GridHelper(30, 10);
+    const helper = new GridHelper(60, 20);
     this.scene.add(helper);
   }
 
@@ -269,18 +289,20 @@ class ThreeController {
       this.camera,
       this.dancers
     );
+    this.controls.selectControls.setSelectedOutline(this.selectedOutline);
   }
 
+  // Add a center marker in the middle
   initCenterMarker() {
     const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
-    const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
     const cube = new THREE.Mesh(geometry, material);
 
     cube.position.setZ(12.5);
-    console.log(cube);
 
     this.scene.add(cube);
   }
+
   // Return true if all the dancer is successfully initialized
   isInitialized() {
     if (!this.initialized)
@@ -332,26 +354,8 @@ class ThreeController {
       throw new Error(
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
-
-    const selectedDancers = {};
-    const selectedParts = [];
-
-    Object.entries(selected).forEach(([key, value]) => {
-      this.dancers[key].updateSelected(value.selected);
-      selectedDancers[key] = value.selected;
-
-      selectedParts.push(
-        ...this.dancers[key].model.children.filter(
-          (part) =>
-            part.name !== "nameTag" &&
-            ((part.name === "Human" && value.selected) ||
-              value.parts.includes(part.name))
-        )
-      );
-    });
-
-    this.controls.selectControls.updateSelected(selectedDancers);
-    this.outline.selectedObjects = selectedParts;
+    this.controls.selectControls.updateSelected(selected);
+    // this.selectedOutline.selectedObjects = selectedParts;
   }
 
   updateDancersStatus(currentStatus) {
