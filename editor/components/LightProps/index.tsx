@@ -1,8 +1,10 @@
+import { Paper } from "@mui/material";
+import DancerMode from "./DancerMode";
+import PartMode from "./PartMode";
+
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 import { DANCER, PART } from "constants";
-import DancerMode from "./DancerMode";
-import PartMode from "./PartMode";
 
 const LightProps = () => {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
@@ -13,7 +15,7 @@ const LightProps = () => {
       ) : selectionMode === PART ? (
         <PartMode />
       ) : (
-        <></>
+        <Paper sx={{ width: "100%", height: "100%" }} square />
       )}
     </>
   );

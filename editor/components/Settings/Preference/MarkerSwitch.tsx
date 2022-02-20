@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
-import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
+import { useContext } from "react";
+import { WaveSurferAppContext } from "../../../contexts/WavesurferContext";
 import { Switch } from "@material-ui/core";
-import { FormControlLabel } from "@material-ui/core";
+import { FormControlLabel } from "@mui/material";
 import { wavesurferContext } from "types/components/wavesurfer";
 
 export default function MarkerSwitch() {

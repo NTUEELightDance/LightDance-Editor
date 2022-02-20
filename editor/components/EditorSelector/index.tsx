@@ -1,6 +1,7 @@
 // mui
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
 // actions and states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
@@ -19,12 +20,12 @@ export default function EditorSelector() {
       alert("Please SAVE or CANCEL first!");
       return;
     }
-    toggleEditor();
+    toggleEditor({ payload: null });
     setSelectionModeByEditor({ payload: editor });
   };
 
   useHotkeys(
-    "p",
+    "v",
     () => {
       handleSwitchEditor();
     },
@@ -38,7 +39,9 @@ export default function EditorSelector() {
         disableRipple={false}
         checked={editor === CONTROL_EDITOR}
       />
-      {editor}
+      <Box sx={{ width: "10em", display: "flex", justifyContent: "center" }}>
+        {editor}
+      </Box>
     </Stack>
   );
 }

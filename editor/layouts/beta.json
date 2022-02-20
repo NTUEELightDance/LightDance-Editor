@@ -1,6 +1,6 @@
 {
   "global": {
-    "borderSize": 400,
+    "borderSize": 300,
     "splitterSize": 4,
     "enableRenderOnDemand": true
   },
@@ -61,15 +61,9 @@
             "children": [
               {
                 "type": "tabset",
-                "selected": 1,
+                "selected": 0,
                 "enableMaximize": true,
                 "children": [
-                  {
-                    "type": "tab",
-                    "name": "Simulator",
-                    "component": "Simulator",
-                    "enableClose": false
-                  },
                   {
                     "type": "tab",
                     "name": "Three Simulator",

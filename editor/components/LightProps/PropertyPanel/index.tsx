@@ -25,6 +25,7 @@ const PropertyPanel = ({
       sx={{
         ".MuiTabPanel-root": {
           px: "5%",
+          py: 0,
         },
       }}
     >

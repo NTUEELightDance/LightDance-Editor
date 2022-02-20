@@ -108,17 +108,31 @@ const DancerTree = () => {
   };
 
   return (
-    <Paper sx={{ width: "100%", px: "5%", minHeight: "100%" }}>
-      <Box sx={{ p: 1 }}>
-        <Button onClick={handleExpandClick}>
+    <Paper
+      sx={{ width: "100%", px: "5%", minHeight: "100%", position: "relative" }}
+      square
+    >
+      <Paper
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "1em",
+          position: "sticky",
+          top: 0,
+          width: "100%",
+          p: "0.5em 0.5em",
+          mb: "1em",
+          zIndex: 8080,
+        }}
+      >
+        <Button onClick={handleExpandClick} sx={{ width: "12em" }}>
           {expanded.length === 0 ? "Expand all" : "Collapse all"}
         </Button>
-        <Button onClick={handleSelectClick}>
+        <Button onClick={handleSelectClick} sx={{ width: "12em" }}>
           {selectedNodes.length === 0 ? "Select all" : "Unselect all"}
         </Button>
-      </Box>
+      </Paper>
       <TreeView
-        aria-label="controlled"
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
         expanded={expanded}
@@ -128,7 +142,19 @@ const DancerTree = () => {
         multiSelect
       >
         {Object.entries(dancers).map(([name, parts]: [string, any]) => {
-          parts = parts.sort();
+          const sortFunction = (a: string, b: string) => {
+            const aList: string[] = a.split("_");
+            const bList: string[] = b.split("_");
+            if (
+              aList[aList.length - 1] === bList[aList.length - 1] &&
+              aList[aList.length - 1] === "LED"
+            )
+              return a < b ? -1 : a > b ? 1 : 0;
+            if (aList[aList.length - 1] === "LED") return 1;
+            if (bList[bList.length - 1] === "LED") return -1;
+            return a < b ? -1 : a > b ? 1 : 0;
+          };
+          parts = parts.sort(sortFunction);
           return (
             <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
               {parts.map((part: string) => (

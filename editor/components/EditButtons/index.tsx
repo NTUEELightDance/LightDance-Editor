@@ -156,6 +156,7 @@ export default function EditButtons() {
       sx={{
         alignItems: "center",
         display: "flex",
+        gap: "1em"
       }}
     >
       {loading ? (

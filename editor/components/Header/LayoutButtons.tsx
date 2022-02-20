@@ -11,6 +11,7 @@ export const LayoutButtons = ({}) => {
         variant={mode === "editor" ? "contained" : "text"}
         sx={{ display: "block" }}
         onClick={() => setMode("editor")}
+        size="small"
       >
         editor
       </Button>
@@ -18,6 +19,7 @@ export const LayoutButtons = ({}) => {
         variant={mode === "command" ? "contained" : "text"}
         sx={{ display: "block" }}
         onClick={() => setMode("command")}
+        size="small"
       >
         command center
       </Button>
