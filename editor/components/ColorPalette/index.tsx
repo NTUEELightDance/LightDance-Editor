@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useImmer } from "use-immer";
 
 import {
   Paper,
@@ -22,19 +23,18 @@ export default function ColorPalette() {
     useColorMap();
 
   const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
-  const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
+
+  const temp: { [key: string]: boolean } = {};
+  Object.keys(colorMap).forEach((colorName) => (temp[colorName] = false));
+  const [editDialogOpen, setEditDialogOpen] =
+    useImmer<{ [key: string]: boolean }>(temp);
+
   const [edittedColor, setEdittedColor] = useState<string>("");
 
   const handleEditClick = (color: string) => () => {
-    setEdittedColor(color);
-    setEditDialogOpen(true);
-  };
-
-  const handleEditColorWrapper = (
-    newColorName: string,
-    newColorCode: string
-  ) => {
-    handleEditColor(edittedColor, newColorName, newColorCode);
+    setEditDialogOpen((editDialogOpen) => {
+      editDialogOpen[color] = true;
+    });
   };
 
   return (
@@ -42,18 +42,25 @@ export default function ColorPalette() {
       <Paper
         sx={{
           display: "flex",
-          justifyContent: "center",
+          flexDirection: "column",
+          justifyContent: "begin",
           width: "100%",
           minHeight: "100%",
         }}
       >
-        <Paper sx={{ width: "100%" }}>
+        <Paper
+          sx={{
+            width: "100%",
+            position: "relative",
+          }}
+        >
           <Box
             sx={{
               borderBottom: 1,
               borderColor: "divider",
               px: "1em",
-              position: "fixed",
+              width: "100%",
+              position: "sticky",
               zIndex: 8080,
             }}
           >
@@ -63,7 +70,7 @@ export default function ColorPalette() {
           </Box>
         </Paper>
 
-        <List sx={{ minWidth: "100%", mt: "2em" }}>
+        <List sx={{ minWidth: "100%" }}>
           {Object.entries(colorMap).map(([colorName, colorCode]) => (
             <ListItem key={`${colorName}_${colorCode}`}>
               <Box
@@ -71,29 +78,33 @@ export default function ColorPalette() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  width: "80%",
+                  width: "90%",
                   mx: "auto",
                 }}
               >
-                <Box sx={{ width: "8em" }}>
+                <Box sx={{ width: "7em" }}>
                   <Typography>{colorName}</Typography>
                 </Box>
                 <Paper
                   sx={{
                     backgroundColor: colorCode,
-                    display: "inline-block",
-                    mx: "2em",
+                    display: "flex",
+                    width: "8em",
+                    mx: "1em",
                     p: "0.5em",
+                    height: "2.5em",
+                    justifyContent: "center",
+                    fontSize: "1em",
                   }}
                 >
-                  <Typography>{colorCode}</Typography>
+                  {colorCode}
                 </Paper>
                 <Box sx={{ width: "8em" }}>
                   <IconButton onClick={handleEditClick(colorName)}>
-                    <EditIcon />
+                    <EditIcon fontSize="small" />
                   </IconButton>
                   <IconButton onClick={() => handleDeleteColor(colorName)}>
-                    <DeleteIcon />
+                    <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
               </Box>
@@ -101,18 +112,31 @@ export default function ColorPalette() {
           ))}
         </List>
       </Paper>
+
       <ColorDialog
         type="add"
         open={addDialogOpen}
         handleClose={() => setAddDialogOpen(false)}
         handleMutateColor={handleAddColor}
       />
-      <ColorDialog
-        type="edit"
-        open={editDialogOpen}
-        handleClose={() => setEditDialogOpen(false)}
-        handleMutateColor={handleEditColorWrapper}
-      />
+
+      {Object.entries(colorMap).map(([colorName, colorCode]) => (
+        <ColorDialog
+          type="edit"
+          open={editDialogOpen[colorName]}
+          handleClose={() =>
+            setEditDialogOpen((editDialogOpen) => {
+              editDialogOpen[colorName] = false;
+            })
+          }
+          handleMutateColor={(newColorName, newColorCode) =>
+            handleEditColor(colorName, newColorName, newColorCode)
+          }
+          defaultColorName={colorName}
+          defaultColorCode={colorCode}
+          key={`${colorName}_${colorCode}`}
+        />
+      ))}
     </>
   );
 }

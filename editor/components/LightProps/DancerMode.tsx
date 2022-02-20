@@ -103,20 +103,26 @@ const DancerMode = () => {
   );
 
   return (
-    <Paper sx={{ width: "100%", minHeight: "100%", position: "relative" }}>
-      <TabContext value={currentTab as PartType}>
+    <TabContext value={currentTab as PartType}>
+      <Paper
+        sx={{
+          width: "100%",
+          minHeight: "100%",
+          position: "relative",
+        }}
+      >
         {/* only show tabs when there are more than one tab */}
         {Tabs.length > 0 && (
-          <Box
+          <Paper
             sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-              px: "1em",
-              position: "fixed",
+              position: "sticky",
+              top: 0,
               width: "100%",
-              backgroundColor: "#202020",
+              height: "3em",
+              px: "1em",
               zIndex: 8080,
             }}
+            square
           >
             <TabList
               onChange={handleChangeTab}
@@ -131,17 +137,11 @@ const DancerMode = () => {
             >
               {Tabs}
             </TabList>
-          </Box>
+          </Paper>
         )}
-        <Box
-          sx={{
-            pt: "1em",
-          }}
-        >
-          {Panels}
-        </Box>
-      </TabContext>
-    </Paper>
+        <Box>{Panels}</Box>
+      </Paper>
+    </TabContext>
   );
 };
 

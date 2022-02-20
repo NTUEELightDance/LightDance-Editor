@@ -118,7 +118,6 @@ const DancerTree = () => {
         </Button>
       </Box>
       <TreeView
-        aria-label="controlled"
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
         expanded={expanded}

@@ -111,23 +111,8 @@ const actions = registerActions({
     setItem("controlRecord", JSON.stringify(controlRecord));
     setItem("controlMap", JSON.stringify(controlMap));
     console.log("Control Saved to Local Storage...");
-  },
+  }
 
-  /**
-   * Save currentStatus, according to controlFrame and mode
-   * @param {State} state
-   */
-  saveCurrentStatus: (state: State) => {
-    // TODO: call mutation
-  },
-
-  /**
-   * Delete currentStatus, according to controlFrame
-   * @param {State} state
-   */
-  deleteCurrentStatus: (state: State) => {
-    // TODO: call mutation
-  },
 });
 
 export const {
@@ -135,7 +120,5 @@ export const {
   editCurrentStatus,
   editCurrentStatusFiber,
   editCurrentStatusLED,
-  saveCurrentStatus,
-  deleteCurrentStatus,
   saveToLocal,
 } = actions;
