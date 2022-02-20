@@ -25,11 +25,14 @@ class SelectControls extends EventDispatcher {
 
     function activate(mode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
+      _domElement.addEventListener("pointermove", onPointerMove);
+
       _mode = mode;
     }
 
     function deactivate() {
       _domElement.removeEventListener("pointerdown", onPointerDown);
+      _domElement.removeEventListener("pointermove", onPointerMove);
 
       _domElement.style.cursor = "";
     }
@@ -91,6 +94,33 @@ class SelectControls extends EventDispatcher {
       });
     }
 
+    let _hover = null;
+    function onPointerMove(event) {
+      updatePointer(event);
+      _intersections.length = 0;
+
+      _raycaster.setFromCamera(_pointer, _camera);
+      _raycaster.intersectObjects(_objects, true, _intersections);
+
+      if (_intersections.length > 0) {
+        const { name } = _intersections[0].object.parent;
+        if (_hover && _hover !== name) _unhoverByName(_hover);
+        _hover = name;
+        _hoverByName(_hover);
+      } else if (_hover) {
+        _unhoverByName(_hover);
+        _hover = null;
+      }
+    }
+
+    function _hoverByName(name) {
+      _dancers[name].hover();
+    }
+
+    function _unhoverByName(name) {
+      _dancers[name].unhover();
+    }
+
     function _clearGroup() {
       while (_group.children.length) {
         const object = _group.children[0];
@@ -116,15 +146,33 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function updateSelected(selectedDancers) {
-      Object.entries(selectedDancers).forEach(([dancerName, selected]) => {
-        if (selected) {
-          _group.attach(_dancers[dancerName].model);
+    function updateSelected(selected) {
+      const selectedObjects = [];
+      Object.entries(selected).forEach(([name, value]) => {
+        _dancers[name].updateSelected(value.selected);
+        const dancer = _dancers[name];
+
+        if (value.selected) {
+          _group.attach(dancer.model);
         } else {
-          _scene.attach(_dancers[dancerName].model);
+          _scene.attach(dancer.model);
         }
+
+        selectedObjects.push(
+          ..._dancers[name].model.children.filter(
+            (part) =>
+              part.name !== "nameTag" &&
+              ((part.name === "Human" && value.selected) ||
+                value.parts.includes(part.name))
+          )
+        );
       });
+
       _updateDragGroup();
+
+      if (scope.selectedOutline) {
+        scope.selectedOutline.selectedObjects = selectedObjects;
+      }
     }
 
     function updatePointer(event) {
@@ -132,6 +180,10 @@ class SelectControls extends EventDispatcher {
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    function setSelectedOutline(selectedOutline) {
+      this.selectedOutline = selectedOutline;
     }
 
     activate(_mode);
@@ -147,6 +199,7 @@ class SelectControls extends EventDispatcher {
     this.getObjects = getObjects;
     this.getGroup = getGroup;
     this.getRaycaster = getRaycaster;
+    this.setSelectedOutline = setSelectedOutline;
     this.updateSelected = updateSelected;
   }
 }

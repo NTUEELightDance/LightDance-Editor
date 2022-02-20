@@ -48,6 +48,11 @@ class Controls {
       2.533987823530335,
       -0.07978443261089622
     );
+    orbitControls.position0.set(
+      -0.27423481610277156,
+      3.9713106563331033,
+      17.22495526821853
+    );
     orbitControls.zoomSpeed = 0.3;
 
     orbitControls.update();
@@ -128,6 +133,7 @@ class Controls {
 
   activate(selectionMode) {
     addEventListener("keydown", this.onKeyDown.bind(this));
+
     switch (selectionMode) {
       case DANCER:
         break;
@@ -170,7 +176,7 @@ class Controls {
 
       currentPos[name] = {
         x: position.x,
-        y: position.y,
+        y: Math.max(position.y, 0),
         z: position.z,
       };
 

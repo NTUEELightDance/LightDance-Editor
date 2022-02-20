@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
 import { state } from "core/state";
@@ -37,6 +38,15 @@ class Dancer {
 
     // Use GLTF loader to load target model from URL
     const modelLoader = new GLTFLoader(this.manager);
+
+    //  Use DRACOLoader if available
+    if (this.modelSrc.includes("draco")) {
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath("/asset/libs/draco/");
+      dracoLoader.preload();
+      modelLoader.setDRACOLoader(dracoLoader);
+    }
+
     modelLoader.load(this.modelSrc, this.initModel.bind(this));
 
     // Use fontLoader to load font and create nameTag
@@ -172,11 +182,9 @@ class Dancer {
   }
 
   setFIBERStatus(currentStatus) {
-    
-
     Object.entries(this.parts[FIBER]).forEach(([name, part]) => {
       const { color, alpha } = currentStatus[name];
-      part.material.emissiveIntensity = alpha/15;
+      part.material.emissiveIntensity = alpha / 15;
       part.material.emissive.setHex(
         parseInt(state.colorMap[color].replace(/^#/, ""), 16)
       );
@@ -196,6 +204,14 @@ class Dancer {
     Object.values(this.FIBERParts).forEach(([name, e]) => {
       e.material.color.setHex(color);
     });
+  }
+
+  hover() {
+    this.model.getObjectByName("Human").material.color.setHex(0x232323);
+  }
+
+  unhover() {
+    this.model.getObjectByName("Human").material.color.setHex(0x000000);
   }
 }
 
