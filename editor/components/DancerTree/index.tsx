@@ -93,7 +93,6 @@ const DancerTree = () => {
       }
     );
     setSelectedNodes(newNodeIds);
-    console.log(selected);
   }, [selected]);
 
   // handle expand/collapse all
