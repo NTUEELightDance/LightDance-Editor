@@ -127,7 +127,19 @@ const DancerTree = () => {
         multiSelect
       >
         {Object.entries(dancers).map(([name, parts]: [string, any]) => {
-          parts = parts.sort();
+          const sortFunction = (a: string, b: string) => {
+            const aList: string[] = a.split("_");
+            const bList: string[] = b.split("_");
+            if (
+              aList[aList.length - 1] === bList[aList.length - 1] &&
+              aList[aList.length - 1] === "LED"
+            )
+              return a < b ? -1 : a > b ? 1 : 0;
+            if (aList[aList.length - 1] === "LED") return 1;
+            if (bList[bList.length - 1] === "LED") return -1;
+            return a < b ? -1 : a > b ? 1 : 0;
+          };
+          parts = parts.sort(sortFunction);
           return (
             <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
               {parts.map((part: string) => (
