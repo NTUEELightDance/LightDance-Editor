@@ -5,16 +5,17 @@ WORKDIR /app
 
 RUN yarn add ts-node -g
 
-# install node_modules in the container
 COPY ["editor-server/package.json", "editor-server/yarn.lock", "./"]
 
+# install node_modules in the container
 RUN yarn
 
-# copy everything to /app
+# copy things in editor-server to /app
 COPY ./editor-server .
 
 EXPOSE 4000
 
+# Set the environment variables
 ENV MONGO_HOST=mongodb
 ENV REDIS_HOST=redisdb
 

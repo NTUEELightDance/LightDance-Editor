@@ -5,12 +5,12 @@ WORKDIR /app
 
 RUN npm install serve -g
 
-# install node_modules in the container
 COPY ["editor/package.json", "editor/yarn.lock", "./"]
 
+# install node_modules in the container
 RUN yarn
 
-# copy everything to /app
+# copy things in editor to /app
 COPY ./editor .
 
 EXPOSE 8080
