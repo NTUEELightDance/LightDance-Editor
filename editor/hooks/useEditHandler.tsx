@@ -9,7 +9,8 @@ import {
   deleteCurrent,
   setCurrentTime,
 } from "core/actions";
-
+//constants
+import { CONTROL_EDITOR, POS_EDITOR } from "constants";
 export default function useEditHandler() {
   // Enter editing mode (request edit)
   const handleStartEditing = async () => {
@@ -50,6 +51,16 @@ export default function useEditHandler() {
 
   // Delete the current record
   const handleDelete = async () => {
+    const controlFrameIndex = reactiveState.currentControlIndex();
+    const posFrameIndex = reactiveState.currentPosIndex();
+    const editor = reactiveState.editor();
+    if (
+      (editor === CONTROL_EDITOR && controlFrameIndex === 0) ||
+      (editor === POS_EDITOR && posFrameIndex === 0)
+    ) {
+      alert("Cannot delete initial frame");
+      return;
+    }
     if (confirm("Are you sure you want to delete the frame?")) {
       await deleteCurrent();
       await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
