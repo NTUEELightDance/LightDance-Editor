@@ -1,6 +1,7 @@
 import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
+import { nanoid } from "nanoid";
 
 interface LooseObject {
   [key: string]: any;
@@ -171,13 +172,7 @@ const updateRedisPosition = async (id: string) => {
 };
 
 const generateID = () => {
-  let num = unique;
-  unique += 1;
-  let id = "";
-  for (let i = 0; i < idLength; i++) {
-    id = idList.charAt(num % idListLength) + id;
-    num = Math.round(num / idListLength);
-  }
+  const id = nanoid(10); //=> "V1StGXR8_Z5jdHi6B-myT"
   return id;
 };
 
