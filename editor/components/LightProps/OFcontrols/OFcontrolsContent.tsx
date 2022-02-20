@@ -1,16 +1,20 @@
-import { Box, Grid, Typography, Slider, Input } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import ColorSelector from "../ColorSelector";
 import IntensityControl from "../IntensityControl";
 
 const OFcontrolsContent = ({
   handleColorChange,
+  handleIntensityChange,
   intensity,
   setIntensity,
+  currentColorName,
   oneLine = false,
 }: {
   handleColorChange: (color: string) => void;
   intensity: number;
-  setIntensity: (intensity: number) => void;
+  handleIntensityChange?: (intensity: number) => void;
+  setIntensity?: (intensity: number) => void;
+  currentColorName: string;
   oneLine?: boolean;
 }) => {
   return (
@@ -30,10 +34,19 @@ const OFcontrolsContent = ({
           </Grid>
         )}
         <Grid item>
-          <ColorSelector placeholder="none" onChange={handleColorChange} />
+          <ColorSelector
+            placeholder="none"
+            onChange={handleColorChange}
+            currentColorName={currentColorName}
+          />
         </Grid>
         {oneLine && (
-          <IntensityControl intensity={intensity} setIntensity={setIntensity} />
+          <IntensityControl
+            intensity={intensity}
+            setIntensity={
+              handleIntensityChange ? handleIntensityChange : setIntensity
+            }
+          />
         )}
       </Grid>
       {oneLine || (
@@ -49,12 +62,12 @@ const OFcontrolsContent = ({
           <Grid item>
             <Typography>intensity</Typography>
           </Grid>
-          {
-            <IntensityControl
-              intensity={intensity}
-              setIntensity={setIntensity}
-            />
-          }
+          <IntensityControl
+            intensity={intensity}
+            setIntensity={
+              handleIntensityChange ? handleIntensityChange : setIntensity
+            }
+          />
         </Grid>
       )}
     </Box>

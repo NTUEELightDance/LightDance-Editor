@@ -1,22 +1,22 @@
 import { useRef, useState, useEffect } from "react";
 import { useSelect } from "@mui/base";
 import { Paper, Box } from "@mui/material";
+import { Root, Toggle, Listbox } from "./CustomComponents";
 
 import useColorMap from "../../../hooks/useColorMap";
-
-import { Root, Toggle, Listbox } from "./CustomComponents";
 
 const CustomSelect = ({
   placeholder,
   onChange,
+  currentColorName,
 }: {
   placeholder?: string;
   onChange: (value: any) => void;
+  currentColorName: string;
 }) => {
   const listboxRef = useRef<HTMLUListElement>(null);
   const [listboxVisible, setListboxVisible] = useState(false);
-  const { colorMap, addColor } = useColorMap();
-  const [colorNameState, setColorNameState] = useState<string>("");
+  const { colorMap } = useColorMap();
 
   const options: { label: string; value: string }[] = [];
   Object.keys(colorMap).forEach((colorName) => {
@@ -32,11 +32,11 @@ const CustomSelect = ({
   } = useSelect({
     listboxRef,
     options,
+    defaultValue: currentColorName,
   });
 
   useEffect(() => {
-    setColorNameState(colorName as string);
-    onChange(colorMap[colorName as string]);
+    onChange(colorName);
   }, [colorName]);
 
   useEffect(() => {
@@ -52,9 +52,9 @@ const CustomSelect = ({
     >
       <Toggle
         {...getButtonProps()}
-        style={{ "--color": colorMap[colorNameState] } as any}
+        style={{ "--color": colorMap[currentColorName] } as any}
       >
-        {colorNameState ?? (
+        {currentColorName ?? (
           <span className="placeholder">{placeholder ?? " "}</span>
         )}
       </Toggle>

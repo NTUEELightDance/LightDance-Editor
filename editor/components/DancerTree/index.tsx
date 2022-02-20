@@ -18,10 +18,9 @@ import { DANCER, PART, POSITION } from "../../constants";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import useDancer from "hooks/useDancer";
-
 const DancerTree = () => {
-  const { dancers, dancerNames } = useDancer();
+  const dancers = useReactiveVar(reactiveState.dancers);
+  const dancerNames = useReactiveVar(reactiveState.dancerNames);
   const selected = useReactiveVar(reactiveState.selected);
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
@@ -110,7 +109,7 @@ const DancerTree = () => {
   };
 
   return (
-    <Paper sx={{ width: "100%", px: "5%" }}>
+    <Paper sx={{ width: "100%", px: "5%", minHeight: "100%" }}>
       <Box sx={{ p: 1 }}>
         <Button onClick={handleExpandClick}>
           {expanded.length === 0 ? "Expand all" : "Collapse all"}

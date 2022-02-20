@@ -58,7 +58,17 @@ const LEDcontrols = ({
       </ListItemButton>
 
       <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
-        <IntensityControl intensity={intensity} setIntensity={setIntensity} />
+        <Grid
+          container
+          spacing={2}
+          alignItems="center"
+          sx={{
+            justifyContent: "space-between",
+            px: "5em",
+          }}
+        >
+          <IntensityControl intensity={intensity} setIntensity={setIntensity} />
+        </Grid>
       </Collapse>
     </>
   );

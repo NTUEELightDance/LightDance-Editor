@@ -13,6 +13,8 @@ import OFcontrolsContent from "./OFcontrolsContent";
 import { editCurrentStatusFiber } from "../../../core/actions";
 import { Fiber } from "../../../core/models";
 
+import useColorMap from "hooks/useColorMap";
+
 const OFcontrols = ({
   part,
   currentDancers,
@@ -24,26 +26,34 @@ const OFcontrols = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [intensity, setIntensity] = useState<number>(displayValue.alpha);
-  const [color, setColor] = useState<string>(displayValue.color);
+  const [colorName, setColorName] = useState<string>(displayValue.color);
 
-  useEffect(() => {
+  const { colorMap } = useColorMap();
+
+  const updateCurrentStatus = (color: string, alpha: number) => {
     currentDancers.forEach((dancerName) => {
       editCurrentStatusFiber({
         payload: {
           dancerName,
           partName: part,
-          value: { color, alpha: intensity },
+          value: { color, alpha },
         },
       });
     });
-  }, [color, intensity]);
+  };
+
+  const handleColorChange = (_colorName: string) => {
+    updateCurrentStatus(_colorName, intensity);
+    setColorName(_colorName);
+  };
+
+  const handleIntensityChange = (_intensity: number) => {
+    updateCurrentStatus(colorName, _intensity);
+    setIntensity(_intensity);
+  };
 
   const handleExpand = () => {
     setOpen(!open);
-  };
-
-  const handleColorChange = (color: string) => {
-    setColor(color);
   };
 
   const valueLabelFormat = (value: number) => {
@@ -66,7 +76,7 @@ const OFcontrols = ({
           </Box>
           <Paper
             sx={{
-              backgroundColor: color,
+              backgroundColor: colorMap[colorName],
               display: "inline-block",
               width: "1.5em",
               height: "1.5em",
@@ -83,8 +93,10 @@ const OFcontrols = ({
       <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
         <OFcontrolsContent
           handleColorChange={handleColorChange}
+          handleIntensityChange={handleIntensityChange}
           intensity={intensity}
           setIntensity={setIntensity}
+          currentColorName={colorName}
           oneLine
         />
       </Collapse>

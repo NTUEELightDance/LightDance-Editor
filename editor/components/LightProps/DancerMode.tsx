@@ -6,15 +6,16 @@ import { Box, Paper, Tab } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import PropertyPanel from "./PropertyPanel";
 
-import useDancer, { PartType } from "../../hooks/useDancer";
-
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
+
+import { getPartType } from "../../core/utils";
+import { PartType } from "../../core/models";
 
 const DancerMode = () => {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
-  const { dancers, getPartType } = useDancer();
+  const dancers = useReactiveVar(reactiveState.dancers);
 
   // states for display
   const [displayParts, setDisplayParts] = useState<{
@@ -28,7 +29,7 @@ const DancerMode = () => {
 
   // update parts
   useEffect(() => {
-    if (!dancers || !getPartType || !selected) return;
+    if (!dancers || !selected) return;
 
     const selectedDancers: string[] = [];
 
@@ -91,7 +92,7 @@ const DancerMode = () => {
         return (
           <PropertyPanel
             partType={partType as PartType}
-            parts={parts}
+            parts={parts as string[]}
             currentDancers={currentDancers}
             currentStatus={currentStatus}
             key={partType as PartType}

@@ -20,6 +20,7 @@ import Loading from "components/Loading";
 import useControl from "hooks/useControl";
 import usePos from "hooks/usePos";
 import useDancer from "hooks/useDancer";
+import useColorMap from 'hooks/useColorMap'
 // states and actions
 import { setCurrentPos, setCurrentStatus, setSelected } from "core/actions";
 
@@ -68,6 +69,10 @@ const App = () => {
     controlRecord,
   } = useControl();
   const { loading: posLoading, error: posError, posMap, posRecord } = usePos();
+
+  const { loading: colorLoading, error: colorError } = useColorMap();
+  
+  const loading = dancerLoading || controlLoading || posLoading || colorLoading;
 
   useEffect(() => {
     if (!init) {

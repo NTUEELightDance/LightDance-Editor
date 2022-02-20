@@ -3,7 +3,7 @@ import { TabPanel } from "@mui/lab";
 
 import OFcontrols from "../OFcontrols";
 
-import { PartType } from "../../../hooks/useDancer";
+import { PartType } from "../../../core/models";
 import LEDcontrols from "../LEDcontrols";
 
 import { ControlMapStatus, LED, Fiber } from "../../../core/models";
@@ -19,6 +19,7 @@ const PropertyPanel = ({
   currentDancers: string[];
   currentStatus: ControlMapStatus;
 }) => {
+  parts = parts.sort();
   return (
     <Box
       sx={{
