@@ -241,7 +241,7 @@ class ThreeController {
       } else if (index >= 6 && index <= 10) {
         url = "/asset/models/cyan.glb";
       } else if (index === 11) {
-        url = "/asset/models/magenta_compressed.glb";
+        url = "/asset/models/magenta.glb";
       }
 
       const newDancer = new Dancer(this.scene, name, url, this.manager);
