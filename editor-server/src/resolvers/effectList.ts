@@ -12,6 +12,24 @@ import {EffectList} from "./types/effectList";
 import redis from "../redis";
 import {EffectListResponse} from "./response/effectListResponse";
 import {generateID, updateRedisControl, updateRedisPosition} from "../utility"
+import { Topic } from "./subscriptions/topic"
+import {EffectListPayload, EffectListMutation} from "./subscriptions/effectlist"
+import {
+  ControlRecordPayload,
+  ControlRecordMutation,
+} from "./subscriptions/controlRecord";
+import {
+  ControlMapPayload,
+  ControlMapMutation,
+} from "./subscriptions/controlMap";
+import {
+  PositionMapPayload,
+  PositionMapMutation,
+} from "./subscriptions/positionMap";
+import {
+  PositionRecordPayload,
+  PositionRecordMutation,
+} from "./subscriptions/positionRecord";
 
 interface LooseObject {
   [key: string]: any;
@@ -31,6 +49,7 @@ export class EffectListResolver {
 
   @Mutation((returns)=>EffectList)
   async addEffectList(
+    @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Arg("end", { nullable: false }) end: number,
     @Arg("description", { nullable: true }) description: string,
@@ -67,20 +86,41 @@ export class EffectListResolver {
       })
     )
     const effectList = await ctx.db.EffectList({start, end, description, controlFrames, positionFrames}).save();
-    return {start, end, description, id: effectList._id, data: {control: controlFrames, position: positionFrames}};
+    const result = {start, end, description, id: effectList._id, data: {control: controlFrames, position: positionFrames}}
+    const payload: EffectListPayload = {
+      mutation: EffectListMutation.CREATED,
+      editBy: ctx.userID,
+      effectListID: effectList._id,
+      effectListData: result,
+    };
+    await publish(payload);
+    return result;
   }
 
   @Mutation((returns)=>EffectListResponse)
   async deleteEffectList(
+    @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
     @Arg("id",(type)=> ID, { nullable: false }) id: string,
     @Ctx() ctx: any
   ){
     await ctx.db.EffectList.deleteOne({_id: id});
+    const payload: EffectListPayload = {
+      mutation: EffectListMutation.DELETED,
+      editBy: ctx.userID,
+      effectListID: id
+    };
+    await publish(payload);
     return { ok: true, msg: `Delete effect id: ${id}` }
   }
 
   @Mutation((returns)=> EffectListResponse)
   async applyEffectList(
+    @PubSub(Topic.ControlRecord)
+    publishControlRecord: Publisher<ControlRecordPayload>,
+    @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
+    @PubSub(Topic.PositionRecord)
+    publishPositionRecord: Publisher<PositionRecordPayload>,
+    @PubSub(Topic.PositionMap) publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("id",(type)=> ID, { nullable: false }) id: string,
     @Arg("start", { nullable: false }) start: number,
     @Arg("clear", { nullable: false }) clear: boolean,
@@ -90,10 +130,12 @@ export class EffectListResolver {
     const end = start - effectList.start + effectList.end;
 
     // check editing in target area
-    const checkControlEditing = await ctx.db.ControlFrame.findOne({start: {$lte: end, $gte: start}, editing: {$nin: [null, ""]}})
-    if(checkControlEditing) return { ok: false, msg: `User ${checkControlEditing.editing} is editing frame ${checkControlEditing.id}` }
-    const checkPositionEditing = await ctx.db.PositionFrame.findOne({start: {$lte: end, $gte: start}, editing: {$nin: [null, ""]}})
-    if(checkPositionEditing) return { ok: false, msg: `User ${checkPositionEditing.editing} is editing frame ${checkPositionEditing.id}` }
+    if(clear){
+      const checkControlEditing = await ctx.db.ControlFrame.findOne({start: {$lte: end, $gte: start}, editing: {$nin: [null, ""]}})
+      if(checkControlEditing) return { ok: false, msg: `User ${checkControlEditing.editing} is editing frame ${checkControlEditing.id}` }
+      const checkPositionEditing = await ctx.db.PositionFrame.findOne({start: {$lte: end, $gte: start}, editing: {$nin: [null, ""]}})
+      if(checkPositionEditing) return { ok: false, msg: `User ${checkPositionEditing.editing} is editing frame ${checkPositionEditing.id}` }
+    }
     
     // check overlapping
     let checkOverLap = false;
@@ -117,10 +159,10 @@ export class EffectListResolver {
 
     
     // clear
+    const deleteControlFrame = await ctx.db.ControlFrame.find({start: {$lte: end, $gte: start}});
+    const deletePositionFrame = await ctx.db.PositionFrame.find({start: {$lte: end, $gte: start}});
     if(clear){
       const parts = await ctx.db.Part.find().populate("controlData");
-      const deleteControlFrame = await ctx.db.ControlFrame.find({start: {$lte: end, $gte: start}});
-      const deletePositionFrame = await ctx.db.PositionFrame.find({start: {$lte: end, $gte: start}});
       await ctx.db.ControlFrame.deleteMany({start: {$lte: end, $gte: start}});
       await ctx.db.PositionFrame.deleteMany({start: {$lte: end, $gte: start}});
       await Promise.all(
@@ -191,9 +233,8 @@ export class EffectListResolver {
           id: generateID(),
         })
           .save()
-          .then((value:any) => value._id);
         
-        newControlFrameIDs.push(frame);
+        newControlFrameIDs.push(frame.id);
         await Promise.all(
           Object.keys(status).map(async (dancer: string) => {
             await Promise.all(
@@ -203,7 +244,7 @@ export class EffectListResolver {
                 if (type == "EL") {
                   value = { value };
                 }
-                const controlID = await new ctx.db.Control({ frame, value })
+                const controlID = await new ctx.db.Control({ frame: frame._id, value })
                   .save()
                   .then((value: any) => value._id);
                 partUpdate[id].push(controlID)
@@ -254,14 +295,79 @@ export class EffectListResolver {
     // update redis
     await Promise.all(
       newControlFrameIDs.map(async(id: any)=> {
-        updateRedisControl(id);
+        await updateRedisControl(id);
       })
     )
     await Promise.all(
       newPositionFrameIDs.map(async(id: any)=> {
-        updateRedisPosition(id);
+        await updateRedisPosition(id);
       })
     )
+
+    const deleteControlList = deleteControlFrame.map((data: any)=>{
+      return data.id
+    })
+    const deletePositionList = deletePositionFrame.map((data: any)=>{
+      return data.id
+    })
+
+    // subscription control
+    const controlMapPayload: ControlMapPayload = {
+      mutation: ControlMapMutation.MIXED,
+      editBy: ctx.userID,
+      frame: { createList: newControlFrameIDs, deleteList: deleteControlList},
+    };
+    await publishControlMap(controlMapPayload);
+
+    const newControlFrame = await ctx.db.ControlFrame.find({start: {$gte: start}}).sort({
+      start: 1,
+    }).limit(1);
+    const allControlFrames = await ctx.db.ControlFrame.find().sort({
+      start: 1,
+    });
+    let index = -1;
+    await allControlFrames.map((frame: any, idx: number) => {
+      if (frame.id === newControlFrame[0].id) {
+        index = idx;
+      }
+    });
+    const controlRecordPayload: ControlRecordPayload = {
+      mutation: ControlRecordMutation.MIXED,
+      editBy: ctx.userID,
+      addID: newControlFrameIDs,
+      deleteID: deleteControlList,
+      index,
+    };
+    await publishControlRecord(controlRecordPayload);
+
+    // subscription position
+    const positionMapPayload: PositionMapPayload = {
+      mutation: PositionMapMutation.MIXED,
+      editBy: ctx.userID,
+      frame: { createList: newPositionFrameIDs, deleteList: deletePositionList},
+    };
+    await publishPositionMap(positionMapPayload);
+
+    const newPositionFrame = await ctx.db.PositionFrame.find({start: {$gte: start}}).sort({
+      start: 1,
+    }).limit(1);
+    const allPositionFrames = await ctx.db.PositionFrame.find().sort({
+      start: 1,
+    });
+    index = -1;
+    await allPositionFrames.map((frame: any, idx: number) => {
+      if (frame.id === newPositionFrame[0].id) {
+        index = idx;
+      }
+    });
+    const positionRecordPayload: PositionRecordPayload = {
+      mutation: PositionRecordMutation.MIXED,
+      editBy: ctx.userID,
+      addID: newPositionFrameIDs,
+      deleteID: deletePositionList,
+      index,
+    };
+    await publishPositionRecord(positionRecordPayload);
 
     return { ok: true, msg: `Apply effect id: ${id}` }
   }

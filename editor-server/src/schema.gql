@@ -79,8 +79,10 @@ type ControlMapPayload {
 }
 
 type ControlRecordPayload {
+  addID: [String!]
+  deleteID: [String!]
   editBy: String!
-  frameID: ID!
+  frameID: ID
   index: Int!
   mutation: String!
 }
@@ -187,6 +189,13 @@ type EffectList {
 """Mongo object id scalar type"""
 scalar EffectListObjectId
 
+type EffectListPayload {
+  editBy: String!
+  effectListData: EffectList
+  effectListID: ID!
+  mutation: String!
+}
+
 type EffectListResponse {
   msg: String
   ok: Boolean!
@@ -284,8 +293,10 @@ type PositionMapPayload {
 }
 
 type PositionRecordPayload {
+  addID: [String!]
+  deleteID: [String!]
   editBy: String!
-  frameID: ID!
+  frameID: ID
   index: Int!
   mutation: String!
 }
@@ -317,6 +328,7 @@ type Subscription {
   controlMapSubscription: ControlMapPayload!
   controlRecordSubscription: ControlRecordPayload!
   DancerSubscription: DancerPayload!
+  effectListSubscription: EffectListPayload!
   positionMapSubscription: PositionMapPayload!
   positionRecordSubscription: PositionRecordPayload!
 }

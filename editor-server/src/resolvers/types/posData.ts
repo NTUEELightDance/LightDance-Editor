@@ -2,7 +2,7 @@ import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
-import { create } from "ts-node";
+import redis from "../../redis";
 
 interface LooseObject {
   [key: string]: any;
@@ -40,25 +40,18 @@ export const PosDataScalar = new GraphQLScalarType({
     }else{
       const createFrames: LooseObject = {};
       await Promise.all(
-        createList.map(async(frame: any)=> {
-          const {id, _id} = frame;
-          const allDancers = await db.Dancer.find().populate("positionData");
-          // const frameID = new ObjectId(id)
-          const { start, editing } = await db.PositionFrame.findById(_id);
-          const pos: LooseObject = {};
-          await Promise.all(
-            allDancers.map(async (dancer: any) => {
-              const { name, positionData } = dancer;
-              const wanted = positionData.find(
-                (data: any) => data.frame.toString() === _id.toString()
-              );
-              pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
-            })
-          )
-          createFrames[id] = { start, editing, pos };
+        createList.map(async(id: any)=> {
+          const cache = await redis.get(id);
+            if (cache) {
+              const cacheObj = JSON.parse(cache);
+              createFrames[id] = cacheObj;
+            }
         })
       )
-      return {createFrames, deleteFrames: deleteList}
+      const deleteFrames = deleteList.map((data: any)=>{
+        return data.id
+      })
+      return {createFrames, deleteFrames};
     }
   },
   parseValue(value: unknown): any {

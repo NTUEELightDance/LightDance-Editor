@@ -1,15 +1,6 @@
 import {
   Resolver,
-  Query,
-  FieldResolver,
-  Arg,
-  Ctx,
   Root,
-  Mutation,
-  Int,
-  ResolverInterface,
-  Publisher,
-  PubSub,
   Subscription,
 } from "type-graphql";
 
@@ -20,6 +11,7 @@ import { PositionRecordPayload } from "./positionRecord";
 import { PositionMapPayload } from "./positionMap";
 import { DancerPayload } from "./dancer";
 import { ColorPayload } from "./color";
+import { EffectListPayload } from "./effectlist";
 
 @Resolver()
 class SubscriptionResolver {
@@ -71,6 +63,15 @@ class SubscriptionResolver {
     @Root() positionMapPayload: PositionMapPayload
   ): PositionMapPayload {
     return positionMapPayload;
+  }
+
+  @Subscription({
+    topics: Topic.EffectList,
+  })
+  effectListSubscription(
+    @Root() effectListPayload: EffectListPayload 
+  ): EffectListPayload{
+    return effectListPayload;
   }
 }
 
