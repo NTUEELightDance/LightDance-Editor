@@ -7,14 +7,14 @@ import store from "../store";
 export const WebSocketContext = createContext(null);
 
 export default function WebSocket({ children }) {
-  const [webSocket, setWebSocket] = useState(1);
+  const [webSocket, setWebSocket] = useState(null);
 
-  useEffect(async () => {
-    const editorSocket = new EditorSocketAPI();
-    await store.dispatch(fetchBoardConfig());
-    editorSocket.init();
-    setWebSocket(editorSocket);
-  }, []);
+  // useEffect(async () => {
+  //   const editorSocket = new EditorSocketAPI();
+  //   await store.dispatch(fetchBoardConfig());
+  //   editorSocket.init();
+  //   setWebSocket(editorSocket);
+  // }, []);
 
   return (
     <WebSocketContext.Provider value={webSocket}>

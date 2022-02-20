@@ -21,7 +21,7 @@ import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 // contants
-import COMMANDS from "../../../editor-common/constants";
+import { COMMANDS } from "constants";
 // contexts
 import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
 

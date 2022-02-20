@@ -73,6 +73,30 @@ After starting all services, one can add 2021's control and position data into m
 cd utils
 yarn
 export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
-node initDB.js ${filePath}  
+node initDB.js ${filePath}
+// node initDB.js ../others/dance_json/export.json
+```
+
+## Production
+
+Run services `nginx`, `editor`, `editor-server`, `file-server`, `redisdb`, `mongodb`.
+
+```bash
+docker-compose -f prod.docker-compose.yml up -d
+```
+
+Editor will run on `http://localhost:8080`.
+
+Editor-server will run on `http://localhost:4000`.
+
+### Initialize Database
+
+After starting all services, one can add 2021's control and position data into mongoDB.
+
+```bash
+cd utils
+yarn
+export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
+node initDB.js ${filePath}
 // node initDB.js ../others/dance_json/export.json
 ```
