@@ -10,8 +10,8 @@ import {
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import OFcontrolsContent from "./OFcontrolsContent";
 
-import { editCurrentStatusFiber } from "../../../core/actions";
-import { Fiber } from "../../../core/models";
+import { editCurrentStatusDelta } from "../../../core/actions";
+import { Fiber, CurrentStatusDelta } from "../../../core/models";
 
 import useColorMap from "hooks/useColorMap";
 
@@ -31,15 +31,14 @@ const OFcontrols = ({
   const { colorMap } = useColorMap();
 
   const updateCurrentStatus = (color: string, alpha: number) => {
+    const currentStatusDelta: CurrentStatusDelta = {};
+
     currentDancers.forEach((dancerName) => {
-      editCurrentStatusFiber({
-        payload: {
-          dancerName,
-          partName: part,
-          value: { color, alpha },
-        },
-      });
+      if (!currentStatusDelta[dancerName]) currentStatusDelta[dancerName] = {};
+      currentStatusDelta[dancerName][part] = { color, alpha };
     });
+
+    editCurrentStatusDelta({ payload: currentStatusDelta });
   };
 
   const handleColorChange = (_colorName: string) => {

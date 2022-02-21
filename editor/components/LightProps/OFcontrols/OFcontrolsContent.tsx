@@ -44,7 +44,9 @@ const OFcontrolsContent = ({
           <IntensityControl
             intensity={intensity}
             setIntensity={
-              handleIntensityChange ? handleIntensityChange : setIntensity
+              (handleIntensityChange
+                ? handleIntensityChange
+                : setIntensity) as (intensity: number) => void
             }
           />
         )}
@@ -65,7 +67,9 @@ const OFcontrolsContent = ({
           <IntensityControl
             intensity={intensity}
             setIntensity={
-              handleIntensityChange ? handleIntensityChange : setIntensity
+              (handleIntensityChange
+                ? handleIntensityChange
+                : setIntensity) as (intensity: number) => void
             }
           />
         </Grid>

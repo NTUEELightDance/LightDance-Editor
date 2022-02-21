@@ -5,11 +5,8 @@ import { Paper, Grid } from "@mui/material";
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 import IntensityControl from "./IntensityControl";
 
-import {
-  editCurrentStatusFiber,
-  editCurrentStatusLED,
-} from "../../core/actions";
-import { Fiber, SelectedType } from "../../core/models";
+import { editCurrentStatusDelta } from "../../core/actions";
+import { Fiber, SelectedType, CurrentStatusDelta } from "../../core/models";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
@@ -67,29 +64,28 @@ const PartMode = () => {
 
   // mutate globnal state
   useEffect(() => {
+    const currentStatusDelta: CurrentStatusDelta = {};
     Object.entries(selectedParts).forEach(([dancerName, parts]) => {
       parts.forEach((partName) => {
+        if (!currentStatusDelta[dancerName])
+          currentStatusDelta[dancerName] = {};
+
         switch (partType) {
           case "LED":
-            editCurrentStatusLED({
-              payload: {
-                dancerName,
-                partName,
-                value: { src: "", alpha: intensity },
-              },
-            });
+            currentStatusDelta[dancerName][partName] = {
+              src: "",
+              alpha: intensity,
+            };
             break;
           case "FIBER":
-            editCurrentStatusFiber({
-              payload: {
-                dancerName,
-                partName,
-                value: { color: currentColorName, alpha: intensity },
-              },
-            });
+            currentStatusDelta[dancerName][partName] = {
+              color: currentColorName,
+              alpha: intensity,
+            };
             break;
         }
       });
+      editCurrentStatusDelta({ payload: currentStatusDelta });
     });
   }, [intensity, currentColorName]);
 

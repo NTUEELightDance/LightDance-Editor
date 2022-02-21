@@ -3,7 +3,14 @@ import { registerActions } from "../registerActions";
 // utils
 import { getControl, setItem } from "../utils";
 // types
-import { State, ControlMapStatus, LED, Fiber } from "../models";
+import {
+  State,
+  ControlMapStatus,
+  LED,
+  Fiber,
+  El,
+  CurrentStatusDelta,
+} from "../models";
 
 const actions = registerActions({
   /**
@@ -25,20 +32,17 @@ const actions = registerActions({
     payload: {
       dancerName: string;
       partName: string;
-      value: number;
+      value: El;
     }
   ) => {
     const { dancerName, partName, value } = payload;
-    try {
-      state.currentStatus[dancerName][partName] = value;
-    } catch (err) {
-      state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-      state.currentStatus[dancerName][partName] = value;
-    }
+
+    state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
+    state.currentStatus[dancerName][partName] = value;
   },
 
   /**
-   * Edit current Status
+   * Edit current Status EL
    * @param {State} state
    * @param {{ dancerName, partName, value }} payload - set EL part
    */
@@ -55,18 +59,12 @@ const actions = registerActions({
       partName,
       value: { color, alpha },
     } = payload;
-    try {
-      if (color && color !== "")
-        (state.currentStatus[dancerName][partName] as Fiber).color = color;
-      if (typeof alpha === "number")
-        (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
-    } catch (err) {
-      state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-      if (color && color !== "")
-        (state.currentStatus[dancerName][partName] as Fiber).color = color;
-      if (typeof alpha === "number")
-        (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
-    }
+
+    state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
+    if (color && color !== "")
+      (state.currentStatus[dancerName][partName] as Fiber).color = color;
+    if (typeof alpha === "number")
+      (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
   },
 
   /**
@@ -88,18 +86,12 @@ const actions = registerActions({
       partName,
       value: { src, alpha },
     } = payload;
-    try {
-      if (src && src !== "")
-        (state.currentStatus[dancerName][partName] as LED).src = src;
-      if (typeof alpha === "number")
-        (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
-    } catch (err) {
-      state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-      if (src && src !== "")
-        (state.currentStatus[dancerName][partName] as LED).src = src;
-      if (typeof alpha === "number")
-        (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
-    }
+
+    state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
+    if (src && src !== "")
+      (state.currentStatus[dancerName][partName] as LED).src = src;
+    if (typeof alpha === "number")
+      (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
   },
 
   /**
@@ -111,8 +103,18 @@ const actions = registerActions({
     setItem("controlRecord", JSON.stringify(controlRecord));
     setItem("controlMap", JSON.stringify(controlMap));
     console.log("Control Saved to Local Storage...");
-  }
+  },
 
+  editCurrentStatusDelta: (state: State, payload: CurrentStatusDelta) => {
+    // make a new clone since the data may be readOnly (calculate from cache)
+    state.currentStatus = cloneDeep(state.currentStatus);
+
+    Object.entries(payload).forEach(([dancerName, parts]) => {
+      Object.entries(parts).forEach(([partName, value]) => {
+        state.currentStatus[dancerName][partName] = value;
+      });
+    });
+  },
 });
 
 export const {
@@ -120,5 +122,6 @@ export const {
   editCurrentStatus,
   editCurrentStatusFiber,
   editCurrentStatusLED,
+  editCurrentStatusDelta,
   saveToLocal,
 } = actions;
