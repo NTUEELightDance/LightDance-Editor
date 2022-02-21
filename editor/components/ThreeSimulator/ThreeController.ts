@@ -394,14 +394,6 @@ class ThreeController {
     requestAnimationFrame(() => this.animate());
   }
 
-  play() {
-    this.animateID = this.animate();
-  }
-
-  stop() {
-    cancelAnimationFrame(this.animateID);
-  }
-
   // render current scene and dancers
   render() {
     this.renderer?.render(this.scene, this.camera);
