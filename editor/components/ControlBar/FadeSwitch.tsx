@@ -5,9 +5,9 @@ import { setCurrentFade } from "../../core/actions";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
-export const FadeSwitch = () => {
+const FadeSwitch = () => {
   const currentFade = useReactiveVar(reactiveState.currentFade);
-  
+
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean
@@ -23,3 +23,5 @@ export const FadeSwitch = () => {
     />
   );
 };
+
+export default FadeSwitch;

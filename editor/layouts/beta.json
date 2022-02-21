@@ -29,8 +29,8 @@
         },
         {
           "type": "tab",
-          "name": "ColorPallete",
-          "component": "ColorPallete",
+          "name": "ColorPalette",
+          "component": "ColorPalette",
           "enableClose": false
         }
       ]

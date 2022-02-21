@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import TreeView from "@mui/lab/TreeView";
-import { Box, Button, Paper } from "@mui/material";
+import { ClickAwayListener, Button, Paper } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
   ChevronRight as ChevronRightIcon,
@@ -107,6 +107,10 @@ const DancerTree = () => {
     );
   };
 
+  const handleClickAway = () => {
+    setSelectedNodes([]);
+  };
+
   return (
     <Paper
       sx={{ width: "100%", px: "5%", minHeight: "100%", position: "relative" }}
@@ -132,47 +136,49 @@ const DancerTree = () => {
           {selectedNodes.length === 0 ? "Select all" : "Unselect all"}
         </Button>
       </Paper>
-      <TreeView
-        defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultExpandIcon={<ChevronRightIcon />}
-        expanded={expanded}
-        selected={selectedNodes}
-        onNodeToggle={handleToggle}
-        onNodeSelect={handleSelect}
-        multiSelect
-      >
-        {Object.entries(dancers).map(([name, parts]: [string, any]) => {
-          const sortFunction = (a: string, b: string) => {
-            const aList: string[] = a.split("_");
-            const bList: string[] = b.split("_");
-            if (
-              aList[aList.length - 1] === bList[aList.length - 1] &&
-              aList[aList.length - 1] === "LED"
-            )
+      <ClickAwayListener onClickAway={handleClickAway}>
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+          expanded={expanded}
+          selected={selectedNodes}
+          onNodeToggle={handleToggle}
+          onNodeSelect={handleSelect}
+          multiSelect
+        >
+          {Object.entries(dancers).map(([name, parts]: [string, any]) => {
+            const sortFunction = (a: string, b: string) => {
+              const aList: string[] = a.split("_");
+              const bList: string[] = b.split("_");
+              if (
+                aList[aList.length - 1] === bList[aList.length - 1] &&
+                aList[aList.length - 1] === "LED"
+              )
+                return a < b ? -1 : a > b ? 1 : 0;
+              if (aList[aList.length - 1] === "LED") return 1;
+              if (bList[bList.length - 1] === "LED") return -1;
               return a < b ? -1 : a > b ? 1 : 0;
-            if (aList[aList.length - 1] === "LED") return 1;
-            if (bList[bList.length - 1] === "LED") return -1;
-            return a < b ? -1 : a > b ? 1 : 0;
-          };
-          parts = parts.sort(sortFunction);
-          return (
-            <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
-              {parts.map((part: string) => (
-                <DancerTreeItem
-                  key={`PART_${name}_${part}`}
-                  label={part}
-                  nodeId={`${name}%${part}`}
-                  sx={{
-                    "p.MuiTreeItem-label": {
-                      fontSize: "0.9rem",
-                    },
-                  }}
-                />
-              ))}
-            </DancerTreeItem>
-          );
-        })}
-      </TreeView>
+            };
+            parts = parts.sort(sortFunction);
+            return (
+              <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
+                {parts.map((part: string) => (
+                  <DancerTreeItem
+                    key={`PART_${name}_${part}`}
+                    label={part}
+                    nodeId={`${name}%${part}`}
+                    sx={{
+                      "p.MuiTreeItem-label": {
+                        fontSize: "0.9rem",
+                      },
+                    }}
+                  />
+                ))}
+              </DancerTreeItem>
+            );
+          })}
+        </TreeView>
+      </ClickAwayListener>
     </Paper>
   );
 };
