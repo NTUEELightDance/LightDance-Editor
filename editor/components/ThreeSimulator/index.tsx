@@ -39,14 +39,6 @@ export default function ThreeSimulator() {
   }, []);
 
   useEffect(() => {
-    if (isPlaying) {
-      threeController.play();
-    } else {
-      threeController.stop();
-    }
-  }, [isPlaying]);
-
-  useEffect(() => {
     if (threeController && threeController.isInitialized()) {
       threeController.updateSelected(selected);
     }
