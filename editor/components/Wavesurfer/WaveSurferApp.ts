@@ -20,7 +20,6 @@ import { throttle } from "throttle-debounce";
  */
 class WaveSurferApp {
   waveSurfer: any;
-  from: string;
   ready: boolean;
 
   constructor() {
@@ -284,6 +283,10 @@ class WaveSurferApp {
 
   resize() {
     window.dispatchEvent(new Event("resize"));
+  }
+
+  setVolume(volume: number) {
+    this.waveSurfer?.setVolume(volume < 0 ? 0 : volume > 1 ? 1 : volume);
   }
 }
 

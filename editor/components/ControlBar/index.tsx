@@ -1,7 +1,8 @@
 import PlayBackController from "./PlayBackController";
 import TimeController from "./TimeController";
 import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
-import { FadeSwitch } from "./FadeSwitch";
+import VolumeSlider from "./VolumeSlider";
+import FadeSwitch from "./FadeSwitch";
 
 const ControlBar = ({ wavesurfer }: { wavesurfer: WaveSurferApp }) => {
   return (
@@ -9,6 +10,7 @@ const ControlBar = ({ wavesurfer }: { wavesurfer: WaveSurferApp }) => {
       <PlayBackController wavesurfer={wavesurfer} />
       <TimeController />
       <FadeSwitch />
+      <VolumeSlider wavesurfer={wavesurfer} />
     </>
   );
 };

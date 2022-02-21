@@ -1,3 +1,4 @@
+// @ts-ignore
 import styles from "./styles.module.css";
 import { Box } from "@mui/material";
 

@@ -70,7 +70,7 @@ const Layout = () => {
   const factory = (node: TabNode) => {
     const component = node.getComponent();
     switch (component) {
-      case "ColorPallete":
+      case "ColorPalette":
         return ColorPaletteNode;
       case "CommandCenter":
         return CommandCenterNode;

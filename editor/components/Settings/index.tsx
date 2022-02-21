@@ -44,7 +44,7 @@ export const Settings = ({
       </IconButton>
       <Menu
         id="menu-appbar"
-        sx={{ transform: "translate(-30px, 45px)" }}
+        sx={{ transform: "translate(-30px, 45px)", zIndex: "80800" }}
         anchorOrigin={{
           vertical: "top",
           horizontal: "right",

@@ -9,7 +9,9 @@ import {
   Box,
   Stack,
   IconButton,
+  Collapse,
 } from "@mui/material";
+import { TransitionGroup } from "react-transition-group";
 
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -70,45 +72,51 @@ export default function ColorPalette() {
           </Paper>
 
           <List sx={{ minWidth: "100%" }}>
-            {Object.entries(colorMap).map(([colorName, colorCode]) => (
-              <ListItem key={`${colorName}_${colorCode}`}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "90%",
-                    mx: "auto",
-                  }}
-                >
-                  <Box sx={{ width: "7em" }}>
-                    <Typography>{colorName}</Typography>
-                  </Box>
-                  <Paper
-                    sx={{
-                      backgroundColor: colorCode,
-                      display: "flex",
-                      width: "8em",
-                      mx: "1em",
-                      p: "0.5em",
-                      height: "2.5em",
-                      justifyContent: "center",
-                      fontSize: "1em",
-                    }}
-                  >
-                    {colorCode}
-                  </Paper>
-                  <Box sx={{ width: "8em" }}>
-                    <IconButton onClick={handleEditClick(colorName)}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton onClick={() => handleDeleteColor(colorName)}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </ListItem>
-            ))}
+            <TransitionGroup>
+              {Object.entries(colorMap).map(([colorName, colorCode]) => (
+                <Collapse key={`${colorName}_${colorCode}`}>
+                  <ListItem>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "90%",
+                        mx: "auto",
+                      }}
+                    >
+                      <Box sx={{ width: "7em" }}>
+                        <Typography>{colorName}</Typography>
+                      </Box>
+                      <Paper
+                        sx={{
+                          backgroundColor: colorCode,
+                          display: "flex",
+                          width: "8em",
+                          mx: "1em",
+                          p: "0.5em",
+                          height: "2.5em",
+                          justifyContent: "center",
+                          fontSize: "1em",
+                        }}
+                      >
+                        {colorCode}
+                      </Paper>
+                      <Box sx={{ width: "8em" }}>
+                        <IconButton onClick={handleEditClick(colorName)}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => handleDeleteColor(colorName)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  </ListItem>
+                </Collapse>
+              ))}
+            </TransitionGroup>
           </List>
         </Stack>
       </Paper>
