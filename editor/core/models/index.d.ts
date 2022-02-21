@@ -46,6 +46,14 @@ export interface LED {
   alpha: number;
 }
 
+export type CurrentStatusDelta = {
+  // dancer name
+  [key: string]: {
+    // part name
+    [key: string]: El | LED | Fiber;
+  };
+};
+
 /**
  * PosRecord and PosMap
  */

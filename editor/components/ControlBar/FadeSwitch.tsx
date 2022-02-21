@@ -7,8 +7,6 @@ import { useReactiveVar } from "@apollo/client";
 
 export const FadeSwitch = () => {
   const currentFade = useReactiveVar(reactiveState.currentFade);
-
-  console.log(currentFade);
   
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
