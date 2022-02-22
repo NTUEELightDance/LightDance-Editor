@@ -1,14 +1,11 @@
 import * as THREE from "three";
 // three.js
+
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass";
+import { SSAARenderPass } from "three/examples/jsm/postprocessing/SSAARenderPass.js";
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 // postprocessing for three.js
-
-import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
-// three gui
 
 import { GridHelper } from "./Helper/GridHelper";
 
@@ -92,19 +89,15 @@ class ThreeController {
 
     // Set best configuration for different monitor devices
     const pixelRatio = window.devicePixelRatio;
-    let AA = true;
-    if (pixelRatio > 1) {
-      AA = false;
-    }
 
     // Initilization of 3D renderer
     const renderer = new THREE.WebGLRenderer({
-      antialias: AA,
+      antialias: false,
       powerPreference: "high-performance",
     });
 
     renderer.setSize(this.width, this.height);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(pixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputEncoding = THREE.sRGBEncoding;
 
@@ -177,19 +170,33 @@ class ThreeController {
   }
 
   initPostprocessing() {
-    const composer = new EffectComposer(this.renderer);
-
-    const renderPass = new RenderPass(this.scene, this.camera);
-    composer.addPass(renderPass);
-
-    // Postprocessing for antialiasing effect
-    composer.addPass(new RenderPass(this.scene, this.camera));
-
-    const pass = new SMAAPass(
-      this.width * this.renderer.getPixelRatio(),
-      this.height * this.renderer.getPixelRatio()
+    const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
+    const renderTarget = new THREE.WebGLMultisampleRenderTarget(
+      size.width,
+      size.height
     );
-    composer.addPass(pass);
+
+    const composer = new EffectComposer(this.renderer, renderTarget);
+
+    // const renderPass = new RenderPass(this.scene, this.camera);
+    // composer.addPass(renderPass);
+
+    const ssaaRenderPass = new SSAARenderPass(
+      this.scene,
+      this.camera,
+      0x000000,
+      0
+    );
+    ssaaRenderPass.sampleLevel = 1;
+    ssaaRenderPass.unbiased = true;
+    ssaaRenderPass.renderToScreen = true;
+    composer.addPass(ssaaRenderPass);
+
+    // const pass = new SMAAPass(
+    //   this.width * this.renderer.getPixelRatio(),
+    //   this.height * this.renderer.getPixelRatio()
+    // );
+    // composer.addPass(pass);
 
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(
@@ -225,20 +232,22 @@ class ThreeController {
       this.camera
     );
 
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.load("/asset/textures/tri_pattern.jpg", (texture) => {
-      selectedOutline.patternTexture = texture;
-      hoveredOutline.patternTexture = texture;
-
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-    });
+    // const textureLoader = new THREE.TextureLoader();
+    // textureLoader.load("/asset/textures/tri_pattern.jpg", (texture) => {
+    //   selectedOutline.patternTexture = texture;
+    //   hoveredOutline.patternTexture = texture;
+    //   texture.wrapS = THREE.RepeatWrapping;
+    //   texture.wrapT = THREE.RepeatWrapping;
+    // });
 
     hoveredOutline.edgeStrength = 2.0;
     hoveredOutline.edgeThickness = 1.0;
     hoveredOutline.visibleEdgeColor.set(0xffff00);
 
     composer.addPass(hoveredOutline);
+
+    // const copyPass = new ShaderPass(CopyShader);
+    // composer.addPass(copyPass);
 
     this.selectedOutline = selectedOutline;
     this.hoveredOutline = hoveredOutline;
@@ -298,7 +307,8 @@ class ThreeController {
     const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
     const cube = new THREE.Mesh(geometry, material);
 
-    cube.position.setZ(12.5);
+    cube.matrix.setPosition(0, 0, 12.5);
+    cube.matrixAutoUpdate = false;
 
     this.scene.add(cube);
   }
@@ -315,6 +325,8 @@ class ThreeController {
   resize(width, height) {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
+
+    this.composer.setSize(width, height);
     this.renderer.setSize(width, height);
   }
 
@@ -380,8 +392,6 @@ class ThreeController {
 
   // a recursive function to render each new frame
   animate() {
-    this.renderer.render(this.scene, this.camera);
-
     if (this.isInitialized()) {
       this.update(this.clock?.getDelta());
       Object.values(this.dancers).forEach((dancer) => {
@@ -389,6 +399,7 @@ class ThreeController {
         nameTag.lookAt(this.camera.position);
       });
     }
+    // this.renderer.render(this.scene, this.camera);
     this.composer?.render();
 
     requestAnimationFrame(() => this.animate());
