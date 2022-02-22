@@ -115,6 +115,7 @@ class Dancer {
     this.model.scale.set(1.3, 1.3, 1.3);
 
     this.scene.attach(this.model);
+    this.model.matrixAutoUpdate = false;
     // this.scene.add(this.skeleton);
 
     // attach nameTag to the model
@@ -171,7 +172,12 @@ class Dancer {
 
   // Update the model's positon
   setPos(currentPos) {
-    this.model.position.set(currentPos.x, currentPos.y, currentPos.z);
+    const newPos = new THREE.Vector3(currentPos.x, currentPos.y, currentPos.z);
+    const oldPos = new THREE.Vector3().setFromMatrixPosition(this.model.matrix);
+
+    if (!newPos.equals(oldPos)) {
+      this.model.matrix.setPosition(currentPos.x, currentPos.y, currentPos.z);
+    }
   }
 
   // Update the model's status

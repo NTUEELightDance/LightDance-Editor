@@ -2,6 +2,8 @@ import { EventDispatcher, Raycaster, Vector2, Group } from "three";
 import { setSelectedDancers, clearSelected } from "../../../core/actions";
 import { DANCER, PART } from "constants";
 
+import { throttle } from "throttle-debounce";
+
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
 const _group = new Group();
@@ -25,14 +27,20 @@ class SelectControls extends EventDispatcher {
 
     function activate(mode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
-      _domElement.addEventListener("pointermove", onPointerMove);
+      _domElement.addEventListener(
+        "pointermove",
+        throttle(1000 / 30, onPointerMove)
+      );
 
       _mode = mode;
     }
 
     function deactivate() {
       _domElement.removeEventListener("pointerdown", onPointerDown);
-      _domElement.removeEventListener("pointermove", onPointerMove);
+      _domElement.removeEventListener(
+        "pointermove",
+        throttle(1000 / 30, onPointerMove)
+      );
 
       _domElement.style.cursor = "";
     }
@@ -95,6 +103,7 @@ class SelectControls extends EventDispatcher {
     }
 
     let _hover = null;
+
     function onPointerMove(event) {
       updatePointer(event);
       _intersections.length = 0;
