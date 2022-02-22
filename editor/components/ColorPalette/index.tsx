@@ -4,8 +4,6 @@ import { useImmer } from "use-immer";
 import {
   Paper,
   List,
-  ListItem,
-  Typography,
   Box,
   Stack,
   IconButton,
@@ -14,12 +12,11 @@ import {
 import { TransitionGroup } from "react-transition-group";
 
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 
 import useColorMap from "../../hooks/useColorMap";
 
 import ColorDialog from "./ColorDialog";
+import ColorListItem from "./ColorListItem";
 
 export default function ColorPalette() {
   const { colorMap, handleAddColor, handleEditColor, handleDeleteColor } =
@@ -92,46 +89,13 @@ export default function ColorPalette() {
                 .sort(colorMapSorter)
                 .map(([colorName, colorCode]) => (
                   <Collapse key={`${colorName}_${colorCode}`}>
-                    <ListItem>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          width: "90%",
-                          mx: "auto",
-                        }}
-                      >
-                        <Box sx={{ width: "7em" }}>
-                          <Typography>{colorName}</Typography>
-                        </Box>
-                        <Paper
-                          sx={{
-                            backgroundColor: colorCode,
-                            display: "flex",
-                            width: "8em",
-                            mx: "1em",
-                            p: "0.5em",
-                            height: "2.5em",
-                            justifyContent: "center",
-                            fontSize: "1em",
-                          }}
-                        >
-                          {colorCode}
-                        </Paper>
-                        <Box sx={{ width: "8em" }}>
-                          <IconButton onClick={handleEditClick(colorName)}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => handleDeleteColor(colorName)}
-                            disabled={protectedColors.includes(colorName)}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </ListItem>
+                    <ColorListItem
+                      colorName={colorName}
+                      colorCode={colorCode}
+                      handleEditClick={handleEditClick}
+                      handleDeleteColor={handleDeleteColor}
+                      protect={protectedColors.includes(colorName)}
+                    />
                   </Collapse>
                 ))}
             </TransitionGroup>
