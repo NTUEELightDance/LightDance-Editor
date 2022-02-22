@@ -32,12 +32,27 @@ export default function ColorPalette() {
   const [editDialogOpen, setEditDialogOpen] =
     useImmer<{ [key: string]: boolean }>(temp);
 
-  const [edittedColor, setEdittedColor] = useState<string>("");
-
   const handleEditClick = (color: string) => () => {
     setEditDialogOpen((editDialogOpen) => {
       editDialogOpen[color] = true;
     });
+  };
+
+  const protectedColors = ["blue", "red", "yellow"];
+  const colorMapSorter = (
+    [colorNameA, colorCodeA]: [colorNameA: string, colorCodeA: string],
+    [colorNameB, colorCodeB]: [colorNameB: string, colorCodeB: string]
+  ) => {
+    if (
+      protectedColors.includes(colorNameA) &&
+      protectedColors.includes(colorNameB)
+    )
+      return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
+
+    if (protectedColors.includes(colorNameA)) return -1;
+    if (protectedColors.includes(colorNameB)) return 1;
+
+    return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
   };
 
   return (
@@ -73,49 +88,52 @@ export default function ColorPalette() {
 
           <List sx={{ minWidth: "100%" }}>
             <TransitionGroup>
-              {Object.entries(colorMap).map(([colorName, colorCode]) => (
-                <Collapse key={`${colorName}_${colorCode}`}>
-                  <ListItem>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        width: "90%",
-                        mx: "auto",
-                      }}
-                    >
-                      <Box sx={{ width: "7em" }}>
-                        <Typography>{colorName}</Typography>
-                      </Box>
-                      <Paper
+              {Object.entries(colorMap)
+                .sort(colorMapSorter)
+                .map(([colorName, colorCode]) => (
+                  <Collapse key={`${colorName}_${colorCode}`}>
+                    <ListItem>
+                      <Box
                         sx={{
-                          backgroundColor: colorCode,
                           display: "flex",
-                          width: "8em",
-                          mx: "1em",
-                          p: "0.5em",
-                          height: "2.5em",
-                          justifyContent: "center",
-                          fontSize: "1em",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          width: "90%",
+                          mx: "auto",
                         }}
                       >
-                        {colorCode}
-                      </Paper>
-                      <Box sx={{ width: "8em" }}>
-                        <IconButton onClick={handleEditClick(colorName)}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => handleDeleteColor(colorName)}
+                        <Box sx={{ width: "7em" }}>
+                          <Typography>{colorName}</Typography>
+                        </Box>
+                        <Paper
+                          sx={{
+                            backgroundColor: colorCode,
+                            display: "flex",
+                            width: "8em",
+                            mx: "1em",
+                            p: "0.5em",
+                            height: "2.5em",
+                            justifyContent: "center",
+                            fontSize: "1em",
+                          }}
                         >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                          {colorCode}
+                        </Paper>
+                        <Box sx={{ width: "8em" }}>
+                          <IconButton onClick={handleEditClick(colorName)}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => handleDeleteColor(colorName)}
+                            disabled={protectedColors.includes(colorName)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
                       </Box>
-                    </Box>
-                  </ListItem>
-                </Collapse>
-              ))}
+                    </ListItem>
+                  </Collapse>
+                ))}
             </TransitionGroup>
           </List>
         </Stack>
@@ -142,6 +160,7 @@ export default function ColorPalette() {
           }
           defaultColorName={colorName}
           defaultColorCode={colorCode}
+          disableNameChange={protectedColors.includes(colorName)}
           key={`${colorName}_${colorCode}`}
         />
       ))}

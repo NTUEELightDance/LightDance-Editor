@@ -19,6 +19,7 @@ const ColorDialog = ({
   handleMutateColor,
   defaultColorName,
   defaultColorCode,
+  disableNameChange,
 }: {
   type: "add" | "edit";
   open: boolean;
@@ -26,6 +27,7 @@ const ColorDialog = ({
   handleMutateColor: (colorName: string, colorCode: string) => void;
   defaultColorName?: string;
   defaultColorCode?: string;
+  disableNameChange?: boolean;
 }) => {
   const [newColorName, setNewColorName] = useState<string>(
     defaultColorName ? defaultColorName : ""
@@ -63,6 +65,7 @@ const ColorDialog = ({
             variant="filled"
             value={newColorName}
             onChange={handleInputChange(setNewColorName)}
+            disabled={disableNameChange}
           />
           <TextField
             margin="dense"
