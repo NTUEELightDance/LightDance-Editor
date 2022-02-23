@@ -14,6 +14,7 @@ import { State } from "../models";
 const actions = registerActions({
   /**
    * calculate the currentStatus, currentPos according to the time
+   * It will do fade or position interpolation
    * @param {State} statue
    * @param {object} payload
    */
@@ -77,6 +78,7 @@ const actions = registerActions({
 
   /**
    * set currentControlIndex by controlIndex, also set currentStatus
+   * call setCurrentTime to calculate new status and pos, including fade and interpolation
    * @param {State} state
    * @param {object} payload
    */
@@ -94,7 +96,8 @@ const actions = registerActions({
   },
 
   /**
-   * set currentPosIndex by posIndex, also set currentPos
+   * set currentPosIndex by posIndex
+   * call setCurrentTime to calculate new status and pos, including fade and interpolation
    * @param {State} state
    * @param {object} payload
    */
