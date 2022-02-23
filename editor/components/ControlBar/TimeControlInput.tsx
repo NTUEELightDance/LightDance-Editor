@@ -20,7 +20,9 @@ const TimeControlInput = ({
       inputProps={{
         min: 0,
       }}
-      onChange={(e) => handleChange(parseInt(e.target.value, 10))}
+      onChange={(e) =>
+        handleChange(isNaN(Number(e.target.value)) ? 0 : Number(e.target.value))
+      }
     />
   );
 };

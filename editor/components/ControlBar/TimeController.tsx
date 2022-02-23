@@ -32,9 +32,7 @@ export default function TimeController() {
 
   const handleChange = (setValue: (arg0: any) => void) => {
     return async (value: number) => {
-      await setValue({
-        payload: parseInt(value, 10),
-      });
+      await setValue({ payload: value });
     };
   };
 
@@ -64,54 +62,44 @@ export default function TimeController() {
   );
 
   return (
-    <Stack direction="row" justifyContent="center" alignItems="center">
-      <Typography
-        variant="body1"
-        color="initial"
-        style={{ marginRight: "1em" }}
-      >
-        time:
-      </Typography>
-      <TimeControlInput
-        value={currentTime}
-        placeholder="time"
-        handleChange={handleChangeTime}
-      />
+    <Stack
+      direction="row"
+      justifyContent="center"
+      alignItems="center"
+      gap="1vw"
+    >
+      <Stack direction="row" alignItems="center" gap="1em">
+        <Typography variant="body1" color="initial">
+          time:
+        </Typography>
+        <TimeControlInput
+          value={currentTime}
+          placeholder="time"
+          handleChange={handleChangeTime}
+        />
+      </Stack>
 
-      <Typography variant="body1" color="initial" style={{ marginLeft: "1em" }}>
-        control frame:
-      </Typography>
-      <IconButton
-        onClick={() => handleChangeControlFrame(currentControlIndex - 1)}
-      >
-        <ChevronLeftIcon />
-      </IconButton>
-      <TimeControlInput
-        value={currentControlIndex}
-        placeholder="status index"
-        handleChange={handleChangeControlFrame}
-      />
-      <IconButton
-        onClick={() => handleChangeControlFrame(currentControlIndex + 1)}
-      >
-        <ChevronRightIcon />
-      </IconButton>
+      <Stack direction="row" alignItems="center" gap="1em">
+        <Typography variant="body1" color="initial">
+          control frame:
+        </Typography>
+        <TimeControlInput
+          value={currentControlIndex}
+          placeholder="status index"
+          handleChange={handleChangeControlFrame}
+        />
+      </Stack>
 
-      <Typography variant="body1" color="initial">
-        position frame:
-      </Typography>
-      <IconButton onClick={() => handleChangePosFrame(currentPosIndex - 1)}>
-        <ChevronLeftIcon />
-      </IconButton>
-
-      <TimeControlInput
-        value={currentPosIndex}
-        placeholder="position index"
-        handleChange={handleChangePosFrame}
-      />
-      <IconButton onClick={() => handleChangePosFrame(currentPosIndex + 1)}>
-        <ChevronRightIcon />
-      </IconButton>
+      <Stack direction="row" alignItems="center" gap="1em">
+        <Typography variant="body1" color="initial">
+          position frame:
+        </Typography>
+        <TimeControlInput
+          value={currentPosIndex}
+          placeholder="position index"
+          handleChange={handleChangePosFrame}
+        />
+      </Stack>
     </Stack>
   );
 }
