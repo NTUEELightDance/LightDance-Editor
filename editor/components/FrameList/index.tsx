@@ -1,4 +1,3 @@
-import Scrollbars from "react-custom-scrollbars";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@mui/material/List";
@@ -37,20 +36,11 @@ export default function FrameList() {
   // styles
   const classes = useStyles();
 
-  // scroll bar config
-  const renderThumb = ({ style, ...props }) => {
-    const thumbStyle = {
-      borderRadius: 6,
-      backgroundColor: "rgba(192,192,200, 0.5)",
-    };
-    return <div style={{ ...style, ...thumbStyle }} {...props} />;
-  };
 
   if (loading) return "loading...";
   return (
     <div className={classes.root}>
       <div className={classes.grow}>
-        <Scrollbars renderThumbVertical={renderThumb}>
           <List component="nav">
             {record.map((id: string, idx: number) => (
               <FrameItem
@@ -62,7 +52,6 @@ export default function FrameList() {
               />
             ))}
           </List>
-        </Scrollbars>
       </div>
     </div>
   );
