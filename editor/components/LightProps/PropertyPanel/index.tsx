@@ -13,11 +13,13 @@ const PropertyPanel = ({
   parts,
   currentDancers,
   currentStatus,
+  colorMap,
 }: {
   partType: PartType;
   parts: string[];
   currentDancers: string[];
   currentStatus: ControlMapStatus;
+  colorMap: { [key: string]: string };
 }) => {
   parts = parts.sort();
   return (
@@ -45,6 +47,7 @@ const PropertyPanel = ({
                 currentDancers={currentDancers}
                 displayValue={currentStatus[currentDancers[0]][part] as Fiber}
                 key={`${currentDancers[0]}_${part}`}
+                colorMap={colorMap}
               />
             )
           )}
