@@ -14,6 +14,7 @@ import { State } from "../models";
 const actions = registerActions({
   /**
    * calculate the currentStatus, currentPos according to the time
+   * It will do fade or position interpolation
    * @param {State} statue
    * @param {object} payload
    */
@@ -77,12 +78,12 @@ const actions = registerActions({
 
   /**
    * set currentControlIndex by controlIndex, also set currentStatus
+   * call setCurrentTime to calculate new status and pos, including fade and interpolation
    * @param {State} state
    * @param {object} payload
    */
   setCurrentControlIndex: async (state: State, payload: number) => {
     const [controlMap, controlRecord] = await getControl();
-    const [posMap, posRecord] = await getPos();
     let controlIndex = payload;
     if (isNaN(controlIndex)) {
       throw new Error(
@@ -90,29 +91,17 @@ const actions = registerActions({
       );
     }
     controlIndex = clamp(controlIndex, 0, controlRecord.length - 1);
-    state.currentControlIndex = controlIndex;
-    state.currentTime = controlMap[controlRecord[controlIndex]].start;
-    state.currentStatus = controlMap[controlRecord[controlIndex]].status;
-    // set posIndex and currentPos as well (by time)
-    const newPosIndex = updateFrameByTimeMap(
-      posRecord,
-      posMap,
-      state.currentPosIndex,
-      controlMap[controlRecord[controlIndex]].start
-    );
-    state.currentPosIndex = newPosIndex;
-    state.currentPos = posMap[posRecord[newPosIndex]].pos;
-    // set currentFade
-    state.currentFade = controlMap[controlRecord[controlIndex]].fade;
+    const newTime = controlMap[controlRecord[controlIndex]].start;
+    setCurrentTime({ payload: newTime });
   },
 
   /**
-   * set currentPosIndex by posIndex, also set currentPos
+   * set currentPosIndex by posIndex
+   * call setCurrentTime to calculate new status and pos, including fade and interpolation
    * @param {State} state
    * @param {object} payload
    */
   setCurrentPosIndex: async (state: State, payload: number) => {
-    const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
     let posIndex = payload;
     if (isNaN(posIndex)) {
@@ -121,20 +110,8 @@ const actions = registerActions({
       );
     }
     posIndex = clamp(posIndex, 0, posRecord.length - 1);
-    state.currentPosIndex = posIndex;
-    state.currentTime = posMap[posRecord[posIndex]].start;
-    state.currentPos = posMap[posRecord[posIndex]].pos;
-    // set controlIndex and currentStatus as well (by time)
-    const newControlIndex = updateFrameByTimeMap(
-      controlRecord,
-      controlMap,
-      state.currentControlIndex,
-      posMap[posRecord[posIndex]].start
-    );
-    state.currentControlIndex = newControlIndex;
-    state.currentStatus = controlMap[controlRecord[newControlIndex]].status;
-    // set currentFade
-    state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
+    const newTime = posMap[posRecord[posIndex]].start;
+    setCurrentTime({ payload: newTime });
   },
 });
 
