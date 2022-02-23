@@ -39,8 +39,8 @@ export default function VolumeSlider({
   );
 
   return (
-    <Box sx={{ width: 200 }}>
-      <Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">
+    <Box width="15em" sx={{ fontSize: "0.8em" }}>
+      <Stack spacing={2} direction="row" alignItems="center">
         <IconButton onClick={handleMute}>{VolumeIcon} </IconButton>
         <Slider
           onChange={handleChange}
