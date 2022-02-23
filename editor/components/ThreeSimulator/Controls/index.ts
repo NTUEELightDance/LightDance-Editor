@@ -153,12 +153,7 @@ class Controls {
   }
 
   onKeyDown(event) {
-    // press v to enable moving
-    if (event.keyCode === 86) {
-      // this.dragControls.enabled = true;
-      this.dragControls.enabled = !this.dragControls.enabled;
-      this.selectControls.enabled = !this.dragControls.enabled;
-    }
+    return;
   }
 
   dragEnd() {
