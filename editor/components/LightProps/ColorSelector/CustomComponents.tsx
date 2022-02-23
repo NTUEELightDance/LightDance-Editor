@@ -30,7 +30,7 @@ export const Toggle = styled("div")(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: default;
+  cursor: pointer;
   transition: background-color 0.2s ease;
 
   & .placeholder {
@@ -49,7 +49,7 @@ export const Listbox = styled("ul")(
   list-style: none;
   position: absolute;
   height: auto;
-  transition: opacity 0.1s ease;
+  transition: opacity 0.1s ease-in-out;
   width: 100%;
   box-shadow: ${
     theme.palette.mode === "dark"
@@ -63,11 +63,12 @@ export const Listbox = styled("ul")(
   overflow: auto;
   z-index: 1;
   outline: 0px;
+  cursor: pointer;
 
   &.hidden {
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.4s 0.3s ease, visibility 0.4s 0.3s step-end;
+    transition: opacity 0.4s 0.1s ease, visibility 0.4s 0.1s step-end;
   }
 
   & > li {
