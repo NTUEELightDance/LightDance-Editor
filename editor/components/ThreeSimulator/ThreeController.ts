@@ -2,9 +2,9 @@ import * as THREE from "three";
 // three.js
 
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { SSAARenderPass } from "three/examples/jsm/postprocessing/SSAARenderPass.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass.js";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+
 // postprocessing for three.js
 
 import { GridHelper } from "./Helper/GridHelper";
@@ -178,41 +178,9 @@ class ThreeController {
 
     const composer = new EffectComposer(this.renderer, renderTarget);
 
-    // const renderPass = new RenderPass(this.scene, this.camera);
-    // composer.addPass(renderPass);
-
-    const ssaaRenderPass = new SSAARenderPass(
-      this.scene,
-      this.camera,
-      0x000000,
-      0
-    );
-    ssaaRenderPass.sampleLevel = 1;
-    ssaaRenderPass.unbiased = true;
-    ssaaRenderPass.renderToScreen = true;
-    composer.addPass(ssaaRenderPass);
-
-    // const pass = new SMAAPass(
-    //   this.width * this.renderer.getPixelRatio(),
-    //   this.height * this.renderer.getPixelRatio()
-    // );
-    // composer.addPass(pass);
-
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(
-        this.width * this.renderer.getPixelRatio(),
-        this.height * this.renderer.getPixelRatio()
-      ),
-      2,
-      0.4,
-      0.85
-    );
-
-    bloomPass.threshold = 0.521;
-    bloomPass.strength = 0.75;
-    bloomPass.radius = 1;
-
-    composer.addPass(bloomPass);
+    // default render pass for post processing
+    const renderPass = new RenderPass(this.scene, this.camera);
+    composer.addPass(renderPass);
 
     const selectedOutline = new OutlinePass(
       new THREE.Vector2(this.width, this.height),
@@ -231,14 +199,6 @@ class ThreeController {
       this.scene,
       this.camera
     );
-
-    // const textureLoader = new THREE.TextureLoader();
-    // textureLoader.load("/asset/textures/tri_pattern.jpg", (texture) => {
-    //   selectedOutline.patternTexture = texture;
-    //   hoveredOutline.patternTexture = texture;
-    //   texture.wrapS = THREE.RepeatWrapping;
-    //   texture.wrapT = THREE.RepeatWrapping;
-    // });
 
     hoveredOutline.edgeStrength = 2.0;
     hoveredOutline.edgeThickness = 1.0;
@@ -281,6 +241,7 @@ class ThreeController {
 
   initGridHelper() {
     const helper = new GridHelper(60, 20);
+    helper.matrixAutoUpdate = false;
     this.scene.add(helper);
   }
 
@@ -328,6 +289,7 @@ class ThreeController {
 
     this.composer.setSize(width, height);
     this.renderer.setSize(width, height);
+    this.composer?.setPixelRatio(window.devicePixelRatio);
   }
 
   // Monitor fps, memory and delay
@@ -367,7 +329,6 @@ class ThreeController {
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
     this.controls.selectControls.updateSelected(selected);
-    // this.selectedOutline.selectedObjects = selectedParts;
   }
 
   updateDancersStatus(currentStatus) {
@@ -399,15 +360,14 @@ class ThreeController {
         nameTag.lookAt(this.camera.position);
       });
     }
-    // this.renderer.render(this.scene, this.camera);
-    this.composer?.render();
 
+    this.composer?.render();
     requestAnimationFrame(() => this.animate());
   }
 
   // render current scene and dancers
   render() {
-    this.renderer?.render(this.scene, this.camera);
+    this.composer?.render(this.scene, this.camera);
   }
 }
 
