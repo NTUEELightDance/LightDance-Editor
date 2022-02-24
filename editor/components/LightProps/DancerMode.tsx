@@ -6,16 +6,19 @@ import { Box, Paper, Tab } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import PropertyPanel from "./PropertyPanel";
 
-import { reactiveState } from "../../core/state";
+import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import { getPartType } from "../../core/utils";
-import { PartType } from "../../core/models";
+import { getPartType } from "core/utils";
+import { PartType } from "core/models";
+import useColorMap from "hooks/useColorMap";
 
 const DancerMode = () => {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const dancers = useReactiveVar(reactiveState.dancers);
+
+  const { colorMap } = useColorMap();
 
   // states for display
   const [displayParts, setDisplayParts] = useState<{
@@ -95,6 +98,7 @@ const DancerMode = () => {
             parts={parts as string[]}
             currentDancers={currentDancers}
             currentStatus={currentStatus}
+            colorMap={colorMap}
             key={partType as PartType}
           />
         );

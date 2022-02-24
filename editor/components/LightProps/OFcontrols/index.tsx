@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import {
   Box,
@@ -10,25 +10,23 @@ import {
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import OFcontrolsContent from "./OFcontrolsContent";
 
-import { editCurrentStatusDelta } from "../../../core/actions";
-import { Fiber, CurrentStatusDelta } from "../../../core/models";
-
-import useColorMap from "hooks/useColorMap";
+import { editCurrentStatusDelta } from "core/actions";
+import { Fiber, CurrentStatusDelta } from "core/models";
 
 const OFcontrols = ({
   part,
   currentDancers,
   displayValue,
+  colorMap,
 }: {
   part: string;
   currentDancers: string[];
   displayValue: Fiber;
+  colorMap: { [key: string]: string };
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [intensity, setIntensity] = useState<number>(displayValue.alpha);
   const [colorName, setColorName] = useState<string>(displayValue.color);
-
-  const { colorMap } = useColorMap();
 
   const updateCurrentStatus = (color: string, alpha: number) => {
     const currentStatusDelta: CurrentStatusDelta = {};

@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useSelect } from "@mui/base";
-import { Paper, Box } from "@mui/material";
+import { Paper, Box, ClickAwayListener } from "@mui/material";
 import { Root, Toggle, Listbox } from "./CustomComponents";
 
 import useColorMap from "../../../hooks/useColorMap";
@@ -44,47 +44,44 @@ const CustomSelect = ({
   }, [listboxVisible]);
 
   return (
-    <Root
-      onMouseOver={() => setListboxVisible(true)}
-      onMouseOut={() => setListboxVisible(false)}
-      onFocus={() => setListboxVisible(true)}
-      onBlur={() => setListboxVisible(false)}
-    >
-      <Toggle
-        {...getButtonProps()}
-        style={{ "--color": colorMap[currentColorName] } as any}
-      >
-        {currentColorName ?? (
-          <span className="placeholder">{placeholder ?? " "}</span>
-        )}
-      </Toggle>
-      <Listbox
-        {...getListboxProps()}
-        className={listboxVisible ? "" : "hidden"}
-      >
-        {options.map((option) => (
-          <li key={option.label} {...getOptionProps(option)}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              {option.label}
-              <Paper
+    <ClickAwayListener onClickAway={() => setListboxVisible(false)}>
+      <Root onClick={() => setListboxVisible(!listboxVisible)}>
+        <Toggle
+          {...getButtonProps()}
+          style={{ "--color": colorMap[currentColorName] } as any}
+        >
+          {currentColorName ?? (
+            <span className="placeholder">{placeholder ?? " "}</span>
+          )}
+        </Toggle>
+        <Listbox
+          {...getListboxProps()}
+          className={listboxVisible ? "" : "hidden"}
+        >
+          {options.map((option) => (
+            <li key={option.label} {...getOptionProps(option)}>
+              <Box
                 sx={{
-                  backgroundColor: colorMap[option.label],
-                  display: "inline-block",
-                  width: "1em",
-                  height: "1em",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
-              />
-            </Box>
-          </li>
-        ))}
-      </Listbox>
-    </Root>
+              >
+                {option.label}
+                <Paper
+                  sx={{
+                    backgroundColor: colorMap[option.label],
+                    display: "inline-block",
+                    width: "1em",
+                    height: "1em",
+                  }}
+                />
+              </Box>
+            </li>
+          ))}
+        </Listbox>
+      </Root>
+    </ClickAwayListener>
   );
 };
 
