@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useImmer } from "use-immer";
 // mui
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -18,7 +19,11 @@ import { useHotkeys } from "react-hotkeys-hook";
 export default function EditButtons() {
   const mode = useReactiveVar(reactiveState.editMode);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useImmer({
+    save: false,
+    add: false,
+    delete: false,
+  });
 
   const {
     handleStartEditing,
@@ -51,19 +56,31 @@ export default function EditButtons() {
   );
 
   const handleClickSave = async () => {
-    setLoading(true);
+    setLoading((loading) => {
+      loading.save = true;
+    });
     await handleSave();
-    setLoading(false);
+    setLoading((loading) => {
+      loading.save = false;
+    });
   };
   const handleClickAdd = async () => {
-    setLoading(true);
+    setLoading((loading) => {
+      loading.add = true;
+    });
     await handleAdd();
-    setLoading(false);
+    setLoading((loading) => {
+      loading.add = false;
+    });
   };
   const handleClickDelete = async () => {
-    setLoading(true);
+    setLoading((loading) => {
+      loading.delete = true;
+    });
     await handleDelete();
-    setLoading(false);
+    setLoading((loading) => {
+      loading.delete = false;
+    });
   };
 
   function SaveButton() {
@@ -156,25 +173,19 @@ export default function EditButtons() {
       sx={{
         alignItems: "center",
         display: "flex",
-        gap: "1em"
+        gap: "1em",
       }}
     >
-      {loading ? (
-        <LoadingBtn />
+      {mode === IDLE ? (
+        <>
+          {loading.add ? <LoadingBtn /> : <AddButton />}
+          <EditButton />
+          {loading.delete ? <LoadingBtn /> : <DeleteButton />}
+        </>
       ) : (
         <>
-          {mode === IDLE ? (
-            <>
-              <AddButton />
-              <EditButton />
-            </>
-          ) : (
-            <>
-              <SaveButton />
-              <CancelButton />
-            </>
-          )}
-          {mode === IDLE && <DeleteButton />}
+          {loading.save ? <LoadingBtn /> : <SaveButton />}
+          <CancelButton />
         </>
       )}
     </Box>
