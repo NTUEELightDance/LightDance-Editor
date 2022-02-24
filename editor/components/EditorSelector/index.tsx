@@ -29,7 +29,7 @@ export default function EditorSelector() {
     () => {
       handleSwitchEditor();
     },
-    [editor]
+    [editor, editMode]
   );
 
   return (
@@ -38,6 +38,7 @@ export default function EditorSelector() {
         onChange={handleSwitchEditor}
         disableRipple={false}
         checked={editor === CONTROL_EDITOR}
+        disabled={editMode !== IDLE}
       />
       <Box sx={{ width: "10em", display: "flex", justifyContent: "center" }}>
         {editor}
