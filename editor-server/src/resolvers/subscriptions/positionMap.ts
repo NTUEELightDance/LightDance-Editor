@@ -10,8 +10,8 @@ export class PositionMapPayload {
   @Field((type) => PosDataScalar, { nullable: true })
   frame?: any;
 
-  @Field()
-  frameID: string;
+  @Field({ nullable: true })
+  frameID?: string;
 
   @Field()
   editBy: string;
@@ -21,4 +21,5 @@ export enum PositionMapMutation {
   UPDATED = "UPDATED",
   CREATED = "CREATED",
   DELETED = "DELETED",
+  MIXED = "MIXED",
 }

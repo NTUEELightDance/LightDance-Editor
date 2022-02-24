@@ -10,6 +10,7 @@ import { RequestEditResolver } from "./requestEdit";
 import { ControlResolver } from "./control";
 import { PositionResolver } from "./position";
 import { PosMapResolver, EditPosMapResolver } from "./positionMap";
+import { EffectListResolver } from "./effectList";
 
 export const resolvers = [
   ColorResolver,
@@ -25,4 +26,5 @@ export const resolvers = [
   PosMapResolver,
   EditControlMapResolver,
   EditPosMapResolver,
+  EffectListResolver,
 ] as const;

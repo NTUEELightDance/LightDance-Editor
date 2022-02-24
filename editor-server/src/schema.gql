@@ -74,13 +74,15 @@ scalar ControlMapMutationObjectId
 type ControlMapPayload {
   editBy: String!
   frame: ControlMapMutationObjectId
-  frameID: String!
+  frameID: String
   mutation: String!
 }
 
 type ControlRecordPayload {
+  addID: [String!]
+  deleteID: [String!]
   editBy: String!
-  frameID: ID!
+  frameID: ID
   index: Int!
   mutation: String!
 }
@@ -176,6 +178,29 @@ input EditPositionInput {
   positionData: PositionDataInput!
 }
 
+type EffectList {
+  data: EffectListObjectId!
+  description: String
+  end: Float!
+  id: ID!
+  start: Float!
+}
+
+"""Mongo object id scalar type"""
+scalar EffectListObjectId
+
+type EffectListPayload {
+  editBy: String!
+  effectListData: EffectList
+  effectListID: ID!
+  mutation: String!
+}
+
+type EffectListResponse {
+  msg: String
+  ok: Boolean!
+}
+
 type EL {
   value: Int!
 }
@@ -201,13 +226,16 @@ type Mutation {
   addColor(color: addColorInput!): Color!
   addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
+  addEffectList(description: String, end: Float!, start: Float!): EffectList!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
+  applyEffectList(clear: Boolean!, id: ID!, start: Float!): EffectListResponse!
   CancelEditControl(FrameID: String!): RequestEditResponse!
   CancelEditPosition(FrameID: String!): RequestEditResponse!
   deleteColor(color: String!): Color!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
+  deleteEffectList(id: ID!): EffectListResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editColor(color: editColorInput!): Color!
@@ -260,13 +288,15 @@ type PositionFrame {
 type PositionMapPayload {
   editBy: String!
   frame: PosMapMutationObjectId
-  frameID: String!
+  frameID: String
   mutation: String!
 }
 
 type PositionRecordPayload {
+  addID: [String!]
+  deleteID: [String!]
   editBy: String!
-  frameID: ID!
+  frameID: ID
   index: Int!
   mutation: String!
 }
@@ -281,6 +311,7 @@ type Query {
   controlFrameIDs: [ID!]!
   ControlMap: Map!
   dancer: [Dancer!]!
+  effectList: [EffectList!]!
   getColors: [Color!]!
   positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
@@ -297,6 +328,7 @@ type Subscription {
   controlMapSubscription: ControlMapPayload!
   controlRecordSubscription: ControlRecordPayload!
   DancerSubscription: DancerPayload!
+  effectListSubscription: EffectListPayload!
   positionMapSubscription: PositionMapPayload!
   positionRecordSubscription: PositionRecordPayload!
 }
