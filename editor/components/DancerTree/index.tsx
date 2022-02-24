@@ -7,6 +7,7 @@ import {
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 import DancerTreeItem from "./DancerTreeItem";
+import DancerTreeContent from "./DancerTreeContent";
 
 import {
   setSelectedDancers,
@@ -116,63 +117,28 @@ const DancerTree = () => {
         sx={{
           display: "flex",
           flexDirection: "row",
-          gap: "1em",
+          gap: "0.3em",
           position: "sticky",
-          top: 0,
-          width: "100%",
-          p: "0.5em 0.5em",
+          top: "0.5em",
           mb: "1em",
+          p: "0.3em",
+          width: "100%",
           zIndex: 8080,
         }}
       >
-        <Button onClick={handleExpandClick} sx={{ width: "12em" }}>
+        <Button onClick={handleExpandClick} fullWidth>
           {expanded.length === 0 ? "Expand all" : "Collapse all"}
         </Button>
-        <Button onClick={handleSelectClick} sx={{ width: "12em" }}>
+        <Button onClick={handleSelectClick} fullWidth>
           {selectedNodes.length === 0 ? "Select all" : "Unselect all"}
         </Button>
       </Paper>
-      <TreeView
-        defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultExpandIcon={<ChevronRightIcon />}
-        expanded={expanded}
-        selected={selectedNodes}
-        onNodeToggle={handleToggle}
-        onNodeSelect={handleSelect}
-        multiSelect
-      >
-        {Object.entries(dancers).map(([name, parts]: [string, any]) => {
-          const sortFunction = (a: string, b: string) => {
-            const aList: string[] = a.split("_");
-            const bList: string[] = b.split("_");
-            if (
-              aList[aList.length - 1] === bList[aList.length - 1] &&
-              aList[aList.length - 1] === "LED"
-            )
-              return a < b ? -1 : a > b ? 1 : 0;
-            if (aList[aList.length - 1] === "LED") return 1;
-            if (bList[bList.length - 1] === "LED") return -1;
-            return a < b ? -1 : a > b ? 1 : 0;
-          };
-          parts = parts.sort(sortFunction);
-          return (
-            <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
-              {parts.map((part: string) => (
-                <DancerTreeItem
-                  key={`PART_${name}_${part}`}
-                  label={part}
-                  nodeId={`${name}%${part}`}
-                  sx={{
-                    "p.MuiTreeItem-label": {
-                      fontSize: "0.9rem",
-                    },
-                  }}
-                />
-              ))}
-            </DancerTreeItem>
-          );
-        })}
-      </TreeView>
+      <DancerTreeContent
+        dancers={dancers}
+        dancerNames={dancerNames}
+        selectedNodes={selectedNodes}
+        setSelectedNodes={setSelectedNodes}
+      />
     </Paper>
   );
 };
