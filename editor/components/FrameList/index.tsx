@@ -1,3 +1,4 @@
+import React from "react";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@mui/material/List";
@@ -36,22 +37,24 @@ export default function FrameList() {
   // styles
   const classes = useStyles();
 
-
   if (loading) return "loading...";
   return (
     <div className={classes.root}>
       <div className={classes.grow}>
-          <List component="nav">
-            {record.map((id: string, idx: number) => (
-              <FrameItem
-                key={id}
-                idx={idx}
-                start={map[record[idx]].start}
-                selected={currentIndex === idx}
-                handleSelectItem={handleSelectItem}
-              />
-            ))}
-          </List>
+        <List component="nav">
+          {record.map((id: string, idx: number) => (
+            <React.Fragment key={id}>
+              {map[record[idx]] && (
+                <FrameItem
+                  idx={idx}
+                  start={map[record[idx]].start}
+                  selected={currentIndex === idx}
+                  handleSelectItem={handleSelectItem}
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </List>
       </div>
     </div>
   );
