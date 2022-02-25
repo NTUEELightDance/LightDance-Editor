@@ -748,7 +748,7 @@ class OrbitControls extends EventDispatcher {
     }
 
     function onMouseDown(event) {
-      if (event.button === 1) {
+      if (event.button === 1 || event.button === 2) {
         if (event.shiftKey) {
           if (scope.enablePan === false) return;
           handleMouseDownPan(event);
