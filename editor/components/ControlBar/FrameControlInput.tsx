@@ -4,7 +4,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
 } from "@mui/icons-material";
 
-const TimeControlInput = ({
+const FrameContorlInput = ({
   label,
   value,
   handleChange,
@@ -20,7 +20,7 @@ const TimeControlInput = ({
       <Typography variant="body1">{label}:</Typography>
       <Stack direction="row" alignItems="center" gap="2px">
         <IconButton onClick={() => handleChange(value - 1)}>
-          <ChevronLeftIcon />
+          <ChevronLeftIcon sx={{ fontSize: "0.7em" }} />
         </IconButton>
         <TextField
           style={{ width: "6em" }}
@@ -38,11 +38,11 @@ const TimeControlInput = ({
           }
         />
         <IconButton onClick={() => handleChange(value + 1)}>
-          <ChevronRightIcon />
+          <ChevronRightIcon sx={{ fontSize: "0.7em" }} />
         </IconButton>
       </Stack>
     </Stack>
   );
 };
 
-export default TimeControlInput;
+export default FrameContorlInput;
