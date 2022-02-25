@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 
-import TreeView from "@mui/lab/TreeView";
 import { Button, Paper } from "@mui/material";
-import {
-  ExpandMore as ExpandMoreIcon,
-  ChevronRight as ChevronRightIcon,
-} from "@mui/icons-material";
-import DancerTreeItem from "./DancerTreeItem";
+
 import DancerTreeContent from "./DancerTreeContent";
 
 import {

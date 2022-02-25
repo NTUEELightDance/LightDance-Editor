@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 
 import _ from "lodash";
 
+import { Add as AddIcon } from "@mui/icons-material";
+
 import { Box, Paper, Tab } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import PropertyPanel from "./PropertyPanel";
@@ -12,6 +14,7 @@ import { useReactiveVar } from "@apollo/client";
 import { getPartType } from "core/utils";
 import { PartType } from "core/models";
 import useColorMap from "hooks/useColorMap";
+import PartGroupPanel from "./PartGroupPanel";
 
 const DancerMode = () => {
   const selected = useReactiveVar(reactiveState.selected);
@@ -85,9 +88,15 @@ const DancerMode = () => {
     setCurrentTab(newTab);
   };
 
-  const Tabs = Object.keys(displayParts).map((partType) => (
+  const TypeTabs = Object.keys(displayParts).map((partType) => (
     <Tab label={partType} value={partType} key={`property_tab_${partType}`} />
   ));
+  const GroupTabs: JSX.Element[] = [];
+  const Tabs = [
+    ...TypeTabs,
+    ...GroupTabs,
+    <Tab label={<AddIcon />} value="part_group" key="new_part_group" />,
+  ];
 
   const Panels = useMemo<JSX.Element[]>(
     () =>
