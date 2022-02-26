@@ -381,7 +381,7 @@ export class EffectListResolver {
     const controlMapPayload: ControlMapPayload = {
       mutation: ControlMapMutation.MIXED,
       editBy: ctx.userID,
-      frame: { createList: newControlFrameIDs, deleteList: deleteControlList },
+      frame: { createList: newControlFrameIDs, deleteList: deleteControlList, updateList: [] },
     };
     await publishControlMap(controlMapPayload);
 
@@ -417,6 +417,7 @@ export class EffectListResolver {
       frame: {
         createList: newPositionFrameIDs,
         deleteList: deletePositionList,
+        updateList: []
       },
     };
     await publishPositionMap(positionMapPayload);

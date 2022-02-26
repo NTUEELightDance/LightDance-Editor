@@ -18,6 +18,9 @@ export class ControlRecordPayload {
   addID?: string[];
 
   @Field((type) => [String], { nullable: true })
+  updateID?: string[];
+
+  @Field((type) => [String], { nullable: true })
   deleteID?: string[];
 }
 
