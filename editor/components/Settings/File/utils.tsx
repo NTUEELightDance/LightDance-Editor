@@ -8,9 +8,13 @@ import dayjs from "dayjs";
 // import fetchTexture for img download
 import { fetchTexture } from "../../../api";
 
+//
+import useDancer from "../../../hooks/useDancer";
+
 // import store
 import store from "../../../store";
 
+//read .json from e.target.files
 export const uploadJson = (files) => {
   return new Promise((resolve, reject) => {
     const file = files[0];
@@ -24,7 +28,31 @@ export const uploadJson = (files) => {
 };
 
 // start order strictly increasing && dancer parts exists in store.load.dancers.dancer0
+const getValidatorSchema = (dancer) => {};
+export const checkExportJson = (exportJson) => {
+  const controlMap = exportJson.control;
+  const dancers = exportJson.dancer;
+  // const isMatch = Object.values(exportJson.control).every((frame, frameIdx) => {
+  //   return Object.entries(frame.status).every(([dancerName, dancerParts]) => {
+  //     const dancerStatus = dancers.find(
+  //       (dancerStatus) => dancerStatus.name === dancerName
+  //     );
+  //     let dancerPartsList = [];
+  //     dancerStatus.parts.every((part) => dancerPartsList.push(part.name));
+  //     console.log(dancerPartsList);
 
+  //     Object.keys(dancerParts).every((dancerpart) => {
+  //       console.log(dancerpart);
+  //       const isInclude = dancerPartsList.includes(dancerpart);
+
+  //       console.log("is include?", isInclude);
+  //       return isInclude;
+  //     });
+  //   });
+  // });
+
+  console.log("math?", isMatch);
+};
 export const checkControlJson = (controlRecord, controlMap) => {
   const mapIsValid = Object.values(controlMap).every((frame, frameIdx) => {
     if (typeof frame.start !== "number") {
@@ -209,18 +237,14 @@ const downloadJson = (exportObj, exportName) => {
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
 };
+export const downloadExportJson = async () => {};
+export const uploadExportJson = async () => {};
 
 export const downloadControlJson = async (controlRecord, controlMap) => {
   const now = dayjs().format("YYYYMMDD_HHmm");
   downloadJson(controlRecord, `controlRecord_${now}`);
   downloadJson(controlMap, `controlMap_${now}`);
 };
-
-export const downloadPos = async (position) => {
-  const now = dayjs().format("YYYYMMDD_HHmm");
-  downloadJson(position, `position_${now}`);
-};
-
 export const downloadEverything = async (
   controlRecord,
   controlMap,

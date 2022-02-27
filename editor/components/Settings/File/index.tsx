@@ -14,7 +14,6 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-
 // write record
 import { selectGlobal } from "../../../slices/globalSlice";
 // select
@@ -25,14 +24,13 @@ import { setItem, getItem } from "../../../core/utils";
 import { uploadImages, requestDownload } from "../../../api";
 // utils
 import {
-  downloadEverything,
-  checkControlJson,
-  checkPosJson,
   uploadJson,
-  downloadControlJson,
-  downloadPos,
+  downloadExportJson,
+  uploadExportJson,
+  checkExportJson,
 } from "./utils";
 import { UploadDownload } from "./UploadDownload";
+import { files } from "jszip";
 
 /**
  * Upload and download files
@@ -53,28 +51,14 @@ import { UploadDownload } from "./UploadDownload";
 export default function File() {
   // upload to server
   const { texture } = useSelector(selectLoad);
-  const { posRecord, controlRecord, controlMap } = useSelector(selectGlobal);
   const [toServer, setToServer] = useState(false);
-  const [controlRecordFile, setControlRecordFile] = useState(null);
-  const [controlMapFile, setControlMap] = useState(null);
-  const [posRecordFile, setPosRecordFile] = useState(null);
-  const [posMapFile, setPosMapFile] = useState(null);
+  const [exportFile, setExportFile] = useState(null);
   const [selectedImages, setSelectedImages] = useState(null);
   const [path, setPath] = useState("");
 
   const imagePrefix = Object.values(texture.LEDPARTS)[0].prefix;
-
-  const handlePosRecordInput = (e) => {
-    setPosRecordFile(e.target.files);
-  };
-  const handlePosMapInput = (e) => {
-    setPosMapFile(e.target.files);
-  };
-  const handleControlInput = (e) => {
-    setControlRecordFile(e.target.files);
-  };
-  const handleControlMapInput = (e) => {
-    setControlMap(e.target.files);
+  const handleExportFileInput = (e) => {
+    setExportFile(e.target.files);
   };
 
   const handleImagesInput = (e) => {
@@ -84,7 +68,17 @@ export default function File() {
   const handlePathChange = (e) => {
     setPath(e.target.value);
   };
-
+  const handleExportFileUpload = async () => {
+    if (!exportFile) {
+      alert("Missing export.json");
+      return;
+    }
+    const exportJson = await uploadJson(exportFile);
+    checkExportJson(exportJson);
+  };
+  const handleExportFileDownload = async () => {
+    // downloadExportJson()
+  };
   const handleControlUpload = async () => {
     if (!controlRecordFile || !controlMapFile) {
       alert("Both controlRecord and controlMap files are required");
@@ -106,24 +100,6 @@ export default function File() {
       }
     } else alert(errorMessage);
   };
-
-  const handlePosUpload = async () => {
-    if (!posRecordFile || !posMapFile) {
-      alert("Both posRecord and posMap files are required");
-      return;
-    }
-    const posRecord = await uploadJson(posRecordFile);
-    const posMap = await uploadJson(posMapFile);
-    const { checkPass, errorMessage } = checkPosJson(posRecord, posMap);
-    if (checkPass) {
-      if (
-        window.confirm("Check Pass! Are you sure to upload new Position file?")
-      ) {
-        setItem("posRecord", JSON.stringify(posRecord));
-        setItem("posMap", JSON.stringify(posMap));
-      }
-    } else alert(errorMessage);
-  };
   const handleImagesUpload = async () => {
     if (selectedImages && path) {
       uploadImages(selectedImages, path, imagePrefix);
@@ -131,19 +107,6 @@ export default function File() {
       // setPath("");
     }
   };
-
-  const handleDownloadControl = () => {
-    downloadControlJson(controlRecord, controlMap);
-  };
-
-  const handleDownloadPos = () => {
-    downloadPos(posRecord);
-  };
-
-  const handleDownloadEverything = () => {
-    downloadEverything(controlRecord, controlMap, posRecord);
-  };
-
   const handleSwitchServer = () => setToServer(!toServer);
   // TODO: make upload and download functional
   return (
@@ -159,63 +122,24 @@ export default function File() {
         label="Upload to Server (Don't open this when testing)"
       />
 
-      <Typography variant="h6">Upload control.json</Typography>
+      <Typography variant="h6">Upload export.json</Typography>
 
       <ItemWrapper>
         <div>
-          <label htmlFor="control">controlRecord: </label>
+          <label htmlFor="export">export.json: </label>
           <input
-            id="control"
-            name="control"
+            id="export"
+            name="exportFile"
             type="file"
             accept=".json"
-            onChange={handleControlInput}
-          />
-        </div>
-        <div>
-          <label htmlFor="controlMap">controlMap: </label>
-          <input
-            id="controlMap"
-            name="controlMap"
-            type="file"
-            accept=".json"
-            onChange={handleControlMapInput}
+            onChange={handleExportFileInput}
           />
         </div>
       </ItemWrapper>
 
       <UploadDownload
-        handleUpload={handleControlUpload}
-        handleDownload={handleDownloadControl}
-      />
-
-      <Typography variant="h6">Upload position.json</Typography>
-      <ItemWrapper>
-        <div>
-          <label htmlFor="posRecord">posRecord: </label>
-          <input
-            id="posRecord"
-            name="posRecord"
-            type="file"
-            accept=".json"
-            onChange={handlePosRecordInput}
-          />
-        </div>
-        <div>
-          <label htmlFor="controlMap">posMap: </label>
-          <input
-            id="posMap"
-            name="posMap"
-            type="file"
-            accept=".json"
-            onChange={handlePosMapInput}
-          />
-        </div>
-      </ItemWrapper>
-
-      <UploadDownload
-        handleUpload={handlePosUpload}
-        handleDownload={handleDownloadPos}
+        handleUpload={handleExportFileUpload}
+        handleDownload={handleExportFileDownload}
       />
 
       <Typography variant="h6">
@@ -262,16 +186,6 @@ export default function File() {
       </Box>
 
       <Divider />
-
-      <Box sx={{ display: "flex", justifyContent: "center", px: "30%" }}>
-        <Button
-          variant="outlined"
-          onClick={handleDownloadEverything}
-          size="medium"
-        >
-          Download All
-        </Button>
-      </Box>
     </Stack>
   );
 }
