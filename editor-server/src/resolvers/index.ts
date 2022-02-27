@@ -28,5 +28,5 @@ export const resolvers = [
   EditControlMapResolver,
   EditPosMapResolver,
   EffectListResolver,
-  ShiftResolver
+  ShiftResolver,
 ] as const;
