@@ -291,6 +291,7 @@ export class ShiftResolver {
       const controlRecordPayload: ControlRecordPayload = {
         mutation: ControlRecordMutation.MIXED,
         editBy: ctx.userID,
+        addID: [],
         updateID: updateControlIDs,
         deleteID: deleteControlList,
         index,
@@ -350,6 +351,7 @@ export class ShiftResolver {
       const positionRecordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.MIXED,
         editBy: ctx.userID,
+        addID: [],
         updateID: updatePositionIDs,
         deleteID: deletePositionList,
         index,
