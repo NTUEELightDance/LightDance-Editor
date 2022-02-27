@@ -180,13 +180,12 @@ export class ControlFrameResolver {
     @Ctx() ctx: any
   ) {
     const { frameID } = input;
-    const frameToDelete = await ctx.db.ControlFrame.findOneAndDelete({
-      id: frameID,
-    });
+    const frameToDelete = await ctx.db.ControlFrame.findOne({ id: frameID });
     if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
       throw new Error("The frame is now editing by other user.");
     }
     const _id = frameToDelete._id;
+    await ctx.db.ControlFrame.deleteOne({ id: frameID });
     const parts = await ctx.db.Part.find().populate("controlData");
 
     await Promise.all(

@@ -192,7 +192,9 @@ type EffectList {
   start: Float!
 }
 
-"""Mongo object id scalar type"""
+"""
+Mongo object id scalar type
+"""
 scalar EffectListObjectId
 
 type EffectListPayload {
