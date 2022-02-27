@@ -8,13 +8,19 @@ import dayjs from "dayjs";
 // import fetchTexture for img download
 import { fetchTexture } from "../../../api";
 
-//
-import useDancer from "../../../hooks/useDancer";
+//import Schema
+import {
+  controlValidatorSchema,
+  posValidatorSchema,
+  colorValidatorSchema,
+} from "./validatorShema";
+
+//import validator
+import Ajv from "ajv";
 
 // import store
 import store from "../../../store";
 
-//read .json from e.target.files
 export const uploadJson = (files) => {
   return new Promise((resolve, reject) => {
     const file = files[0];
@@ -26,177 +32,63 @@ export const uploadJson = (files) => {
     reader.readAsText(file);
   });
 };
-
 // start order strictly increasing && dancer parts exists in store.load.dancers.dancer0
-const getValidatorSchema = (dancer) => {};
 export const checkExportJson = (exportJson) => {
-  const controlMap = exportJson.control;
-  const dancers = exportJson.dancer;
-  // const isMatch = Object.values(exportJson.control).every((frame, frameIdx) => {
-  //   return Object.entries(frame.status).every(([dancerName, dancerParts]) => {
-  //     const dancerStatus = dancers.find(
-  //       (dancerStatus) => dancerStatus.name === dancerName
-  //     );
-  //     let dancerPartsList = [];
-  //     dancerStatus.parts.every((part) => dancerPartsList.push(part.name));
-  //     console.log(dancerPartsList);
-
-  //     Object.keys(dancerParts).every((dancerpart) => {
-  //       console.log(dancerpart);
-  //       const isInclude = dancerPartsList.includes(dancerpart);
-
-  //       console.log("is include?", isInclude);
-  //       return isInclude;
-  //     });
-  //   });
-  // });
-
-  console.log("math?", isMatch);
+  const valid =
+    checkControlJson(exportJson) &&
+    checkPosJson(exportJson) &&
+    checkColorJson(exportJson);
+  if (valid) alert("Check Passed");
+  return valid;
 };
-export const checkControlJson = (controlRecord, controlMap) => {
-  const mapIsValid = Object.values(controlMap).every((frame, frameIdx) => {
-    if (typeof frame.start !== "number") {
-      console.error(`[Error] "start" is not a number in frame ${frameIdx}`);
-      return false;
-    }
-    if (typeof frame.fade !== "boolean") {
-      console.error(`[Error] "fade" is not a boolean in frame ${frameIdx}`);
-      return false;
-    }
-    if (!("status" in frame)) {
-      console.error(`[Error] "status" is undefined in frame ${frameIdx}`);
-      return false;
-    }
-    return Object.entries(frame.status).every(([dancerName, dancerStatus]) => {
-      const partList = Object.keys(dancerStatus);
-      const elParts = Object.keys(
-        store.getState().load.dancers[dancerName]["ELPARTS"]
-      );
-      const ledParts = Object.keys(
-        store.getState().load.dancers[dancerName]["LEDPARTS"]
-      );
 
-      return partList.every((part) => {
-        // check EL Parts
-        if (elParts.includes(part)) {
-          // check elParts
-          if (typeof dancerStatus[part] !== "number") {
-            console.error(
-              `[Error] frame ${frameIdx}, ${dancerName}'s ${part} is not a number`
-            );
-            return false;
-          }
-          return true;
-        }
-        if (ledParts.includes(part)) {
-          // check ledparts
-          const { src, alpha } = dancerStatus[part];
-          if (typeof src !== "string" || src.length === 0) {
-            console.error(
-              `[Error] frame ${frameIdx}, ${dancerName}'s ${part}'s src is invalid`
-            );
-            return false;
-          }
-          if (typeof alpha !== "number") {
-            console.error(
-              `[Error] frame ${frameIdx}, ${dancerName}'s ${part}'s alpha is not a number`
-            );
-            return false;
-          }
-          return true;
-        }
-        console.error(
-          `[Error]  frame ${frameIdx}, ${dancerName}'s ${part} should not exist`
-        );
-        return false;
-      });
-    });
-  });
-  const recordIsValid =
-    Array.isArray(controlRecord) &&
-    controlRecord.length !== 0 &&
-    controlRecord.every((id, index) => {
-      if (index === controlRecord.length - 1) return true;
-      const nextId = controlRecord[index + 1];
-      if (controlMap[id].start > controlMap[nextId].start) return false;
-      return true;
-    });
+const checkControlJson = (exportJson) => {
+  const Schemas = controlValidatorSchema(exportJson.dancer);
+  const controlIsValid = Object.values(exportJson.control).every((frame) => {
+    return Object.entries(frame.status).every(([dancerName, dancerParts]) => {
+      const ajv = new Ajv();
+      const validate = ajv.compile(Schemas[dancerName]);
 
-  const idListofMap = Object.keys(controlMap);
-  const isMatched =
-    controlRecord.length === idListofMap.length &&
-    controlRecord.every((id) => {
-      if (!idListofMap.includes(id)) return false;
-      return true;
-    });
-  const checkPass = mapIsValid && recordIsValid && isMatched;
-  let errorMessage;
-  if (!mapIsValid) {
-    errorMessage = "controlMap.json format wrong, please check console";
-  } else if (!recordIsValid) {
-    errorMessage = "controlRecord.json format wrong";
-  } else if (!isMatched) {
-    errorMessage = "controlMap and controlRecord are not matched";
-  }
-
-  return { checkPass, errorMessage };
-};
-export const checkPosJson = (posRecord, posMap) => {
-  const mapIsValid = Object.values(posMap).every((frame, frameIdx) => {
-    if (!("start" in frame)) {
-      console.error(`[Error] "start" is undefined in frame ${frameIdx}`);
-      return false;
-    }
-    if (!("pos" in frame)) {
-      console.error(`[Error] "pos" is undefined in frame ${frameIdx}`);
-      return false;
-    }
-    return Object.entries(frame.pos).every(([dancerName, { x, y, z }]) => {
-      if (
-        typeof x !== "number" ||
-        typeof y !== "number" ||
-        typeof z !== "number"
-      ) {
-        console.error(
-          `[Error] x, y, z not number in frame ${frameIdx} and dancer ${dancerName}`
-        );
-        return false;
+      const valid = validate(dancerParts);
+      if (!valid) {
+        const { keyword, instancePath, message } = validate.errors[0];
+        alert(`${keyword} Error: ${instancePath} ${message}`);
       }
-      return true;
+      return valid;
     });
   });
 
-  const recordIsValid =
-    Array.isArray(posRecord) &&
-    posRecord.length !== 0 &&
-    posRecord.every((id, index) => {
-      if (index === posRecord.length - 1) return true;
-      const nextId = posRecord[index + 1];
-      if (posMap[id].start > posMap[nextId].start) return false;
-      return true;
+  return controlIsValid;
+};
+const checkPosJson = (exportJson) => {
+  const Schema = posValidatorSchema();
+  const posIsValid = Object.values(exportJson.position).every((frame) => {
+    return Object.entries(frame.pos).every(([dancerName, dancerPos]) => {
+      const ajv = new Ajv();
+      const validate = ajv.compile(Schema);
+
+      const valid = validate(dancerPos);
+      if (!valid) {
+        const { keyword, instancePath, message } = validate.errors[0];
+        alert(`${keyword} Error: ${instancePath} ${message}`);
+      }
+      return valid;
     });
-
-  const idListofMap = Object.keys(posMap);
-  const isMatched =
-    posRecord.length === idListofMap.length &&
-    posRecord.every((id) => {
-      if (!idListofMap.includes(id)) return false;
-      return true;
-    });
-
-  const checkPass = mapIsValid && recordIsValid && isMatched;
-  let errorMessage;
-  if (!mapIsValid) {
-    errorMessage = "controlMap.json format wrong, please check console";
-  } else if (!recordIsValid) {
-    errorMessage = "controlRecord.json format wrong";
-  } else if (!isMatched) {
-    errorMessage = "controlMap and controlRecord are not matched";
-  }
-
-  return { checkPass, errorMessage };
+  });
+  return posIsValid;
 };
 
+const checkColorJson = (exportJson) => {
+  const Schema = colorValidatorSchema(exportJson.color);
+  const ajv = new Ajv();
+  const validate = ajv.compile(Schema);
+  const valid = validate(exportJson.color);
+  if (!valid) {
+    const { keyword, instancePath, message } = validate.errors[0];
+    alert(`${keyword} Error: ${instancePath} ${message}`);
+  }
+  return valid;
+};
 const createFolder = (currentFolder, remainPath) => {
   if (remainPath.length && !(remainPath[0] in currentFolder.files)) {
     const newFolder = currentFolder.folder(remainPath[0]);
