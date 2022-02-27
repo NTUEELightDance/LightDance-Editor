@@ -248,7 +248,7 @@ type Mutation {
   editPosMap(positionData: [EditPositionInput!]!, start: Float!): Map!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
-  shift(end: Float!, move: Float!, start: Float!): ShiftResponse!
+  shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
   updateColor(color: ColorInput!): String!
 }
 
