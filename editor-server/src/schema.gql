@@ -85,6 +85,7 @@ type ControlRecordPayload {
   frameID: ID
   index: Int!
   mutation: String!
+  updateID: [String!]
 }
 
 """The basic control types"""
@@ -247,6 +248,7 @@ type Mutation {
   editPosMap(positionData: [EditPositionInput!]!, start: Float!): Map!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
+  shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
   updateColor(color: ColorInput!): String!
 }
 
@@ -299,6 +301,7 @@ type PositionRecordPayload {
   frameID: ID
   index: Int!
   mutation: String!
+  updateID: [String!]
 }
 
 """Mongo object id scalar type"""
@@ -320,6 +323,11 @@ type Query {
 
 type RequestEditResponse {
   editing: String
+  ok: Boolean!
+}
+
+type ShiftResponse {
+  msg: String
   ok: Boolean!
 }
 

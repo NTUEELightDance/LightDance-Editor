@@ -19,7 +19,7 @@ export const PosDataScalar = new GraphQLScalarType({
   description: "Mongo object id scalar type",
   async serialize(data: any): Promise<any> {
     // check the type of received value
-    const { _id, id, deleteList, createList } = data;
+    const { _id, id, deleteList, createList, updateList } = data;
     if (id && _id) {
       const result: LooseObject = {};
       const allDancers = await db.Dancer.find().populate("positionData");
@@ -48,7 +48,17 @@ export const PosDataScalar = new GraphQLScalarType({
           }
         })
       );
-      return { createFrames, deleteFrames: deleteList };
+      const updateFrames: LooseObject = {};
+      await Promise.all(
+        updateList.map(async (id: any) => {
+          const cache = await redis.get(id);
+          if (cache) {
+            const cacheObj = JSON.parse(cache);
+            updateFrames[id] = cacheObj;
+          }
+        })
+      );
+      return { createFrames, deleteFrames: deleteList, updateFrames };
     }
   },
   parseValue(value: unknown): any {

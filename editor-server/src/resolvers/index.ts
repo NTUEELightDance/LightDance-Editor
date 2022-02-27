@@ -11,6 +11,7 @@ import { ControlResolver } from "./control";
 import { PositionResolver } from "./position";
 import { PosMapResolver, EditPosMapResolver } from "./positionMap";
 import { EffectListResolver } from "./effectList";
+import { ShiftResolver } from "./shift";
 
 export const resolvers = [
   ColorResolver,
@@ -27,4 +28,5 @@ export const resolvers = [
   EditControlMapResolver,
   EditPosMapResolver,
   EffectListResolver,
+  ShiftResolver,
 ] as const;
