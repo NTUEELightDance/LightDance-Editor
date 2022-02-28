@@ -12,6 +12,13 @@ input AddDancerInput {
   name: String!
 }
 
+input AddLEDInput {
+  effectName: String!
+  effects: [LEDEffectInput!]!
+  partName: String!
+  repeat: Int!
+}
+
 input AddPartInput {
   dancerName: String!
   name: String!
@@ -131,6 +138,16 @@ input deleteDancerInput {
   id: ID!
 }
 
+type DeleteLEDEffectResponse {
+  msg: String
+  ok: Boolean!
+}
+
+input DeleteLEDInput {
+  effectName: String!
+  partName: String!
+}
+
 input DeletePartInput {
   dancerName: String!
   id: ID!
@@ -216,6 +233,34 @@ type LED {
   src: String!
 }
 
+input LEDEffectInput {
+  effect: [String!]!
+  fade: Boolean!
+  start: Float!
+}
+
+type LEDEffectResponse {
+  effectName: String!
+  effects: [LEDEffects!]!
+  msg: String
+  ok: Boolean!
+  partName: String!
+  repeat: Int!
+}
+
+type LEDEffects {
+  effect: [String!]!
+  fade: Boolean!
+  start: Float!
+}
+
+type LEDMap {
+  LEDMap: LEDMapCustomScalar!
+}
+
+"""LED map scalar type"""
+scalar LEDMapCustomScalar
+
 type Map {
   frames: MapQueryObjectId!
 }
@@ -228,6 +273,7 @@ type Mutation {
   addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addEffectList(description: String, end: Float!, start: Float!): EffectList!
+  addLED(input: AddLEDInput!): LEDEffectResponse!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
   applyEffectList(clear: Boolean!, id: ID!, start: Float!): EffectListResponse!
@@ -237,6 +283,7 @@ type Mutation {
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deleteEffectList(id: ID!): EffectListResponse!
+  deleteLED(input: DeleteLEDInput!): DeleteLEDEffectResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editColor(color: editColorInput!): Color!
@@ -316,6 +363,7 @@ type Query {
   dancer: [Dancer!]!
   effectList: [EffectList!]!
   getColors: [Color!]!
+  LEDMap: LEDMap!
   positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
   PosMap: Map!

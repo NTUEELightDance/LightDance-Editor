@@ -75,6 +75,8 @@ yarn
 export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
 node initDB.js ${filePath}
 // node initDB.js ../others/dance_json/export.json
+node initLED.js ${filePath}
+// node initLED.js ../others/dance_json/test_exportLED.json
 ```
 
 ## Production
@@ -99,4 +101,6 @@ yarn
 export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
 node initDB.js ${filePath}
 // node initDB.js ../others/dance_json/export.json
+node initLED.js ${filePath}
+// node initLED.js ../others/dance_json/test_exportLED.json
 ```
