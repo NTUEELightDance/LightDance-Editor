@@ -74,31 +74,11 @@ export default function File() {
       return;
     }
     const exportJson = await uploadJson(exportFile);
-    checkExportJson(exportJson);
+    if (!checkExportJson(exportJson)) return;
+    uploadExportJson(exportJson);
   };
   const handleExportFileDownload = async () => {
     // downloadExportJson()
-  };
-  const handleControlUpload = async () => {
-    if (!controlRecordFile || !controlMapFile) {
-      alert("Both controlRecord and controlMap files are required");
-      return;
-    }
-    const controlRecord = await uploadJson(controlRecordFile);
-    const controlMap = await uploadJson(controlMapFile);
-    //Todo: check controlMap and controlRecord are matched
-    const { checkPass, errorMessage } = checkControlJson(
-      controlRecord,
-      controlMap
-    );
-    if (checkPass) {
-      if (
-        window.confirm("Check Pass! Are you sure to upload new Control file ?")
-      ) {
-        setItem("controlRecord", JSON.stringify(controlRecord));
-        setItem("controlMap", JSON.stringify(controlMap));
-      }
-    } else alert(errorMessage);
   };
   const handleImagesUpload = async () => {
     if (selectedImages && path) {

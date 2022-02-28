@@ -4,7 +4,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import JSZipUtils from "jszip-utils";
 import dayjs from "dayjs";
-
+import axios from "axios";
 // import fetchTexture for img download
 import { fetchTexture } from "../../../api";
 
@@ -20,6 +20,9 @@ import Ajv from "ajv";
 
 // import store
 import store from "../../../store";
+
+//import apis
+import { uploadeExportDataApi } from "../../../api";
 
 export const uploadJson = (files) => {
   return new Promise((resolve, reject) => {
@@ -38,7 +41,7 @@ export const checkExportJson = (exportJson) => {
     checkControlJson(exportJson) &&
     checkPosJson(exportJson) &&
     checkColorJson(exportJson);
-  if (valid) alert("Check Passed");
+  if (valid) alert("Check Passed. Ready to upload.");
   return valid;
 };
 
@@ -130,49 +133,52 @@ const downloadJson = (exportObj, exportName) => {
   downloadAnchorNode.remove();
 };
 export const downloadExportJson = async () => {};
-export const uploadExportJson = async () => {};
+export const uploadExportJson = async (exportJson) => {
+  await uploadeExportDataApi(exportJson);
+};
 
 export const downloadControlJson = async (controlRecord, controlMap) => {
   const now = dayjs().format("YYYYMMDD_HHmm");
   downloadJson(controlRecord, `controlRecord_${now}`);
   downloadJson(controlMap, `controlMap_${now}`);
 };
-export const downloadEverything = async (
-  controlRecord,
-  controlMap,
-  position
-) => {
-  const texture = await fetchTexture();
-  const zip = new JSZip();
 
-  zip.file("controlRecord.json", JSON.stringify(controlRecord));
-  zip.file("controlMap.json", JSON.stringify(controlMap));
-  zip.file("position.json", JSON.stringify(position));
-  zip.file("texture.json", JSON.stringify(texture));
+// export const downloadEverything = async (
+//   controlRecord,
+//   controlMap,
+//   position
+// ) => {
+//   const texture = await fetchTexture();
+//   const zip = new JSZip();
 
-  Object.keys(texture).forEach((partType) => {
-    // here, the image is fetched from the server, only to be zippeds
-    Object.values(texture[partType]).forEach((partData) => {
-      const { prefix, name, postfix } = partData;
-      const folderToStore = createFolder(zip, prefix.split("/").slice(1));
-      if (typeof name === "string") {
-        const href = `${prefix}${name}${postfix}`;
-        folderToStore.file(`${name}${postfix}`, urlToPromise(href), {
-          binary: true,
-        });
-      } else {
-        name.forEach((partName) => {
-          const href = `${prefix}${partName}${postfix}`;
-          folderToStore.file(`${partName}${postfix}`, urlToPromise(href), {
-            binary: true,
-          });
-        });
-      }
-    });
-  });
-  const now = dayjs().format("YYYYMMDD_HHmm");
-  zip.generateAsync({ type: "blob" }).then((content) => {
-    // see FileSaver.js
-    saveAs(content, `light_dance_${now}.zip`);
-  });
-};
+//   zip.file("controlRecord.json", JSON.stringify(controlRecord));
+//   zip.file("controlMap.json", JSON.stringify(controlMap));
+//   zip.file("position.json", JSON.stringify(position));
+//   zip.file("texture.json", JSON.stringify(texture));
+
+//   Object.keys(texture).forEach((partType) => {
+//     // here, the image is fetched from the server, only to be zippeds
+//     Object.values(texture[partType]).forEach((partData) => {
+//       const { prefix, name, postfix } = partData;
+//       const folderToStore = createFolder(zip, prefix.split("/").slice(1));
+//       if (typeof name === "string") {
+//         const href = `${prefix}${name}${postfix}`;
+//         folderToStore.file(`${name}${postfix}`, urlToPromise(href), {
+//           binary: true,
+//         });
+//       } else {
+//         name.forEach((partName) => {
+//           const href = `${prefix}${partName}${postfix}`;
+//           folderToStore.file(`${partName}${postfix}`, urlToPromise(href), {
+//             binary: true,
+//           });
+//         });
+//       }
+//     });
+//   });
+//   const now = dayjs().format("YYYYMMDD_HHmm");
+//   zip.generateAsync({ type: "blob" }).then((content) => {
+//     // see FileSaver.js
+//     saveAs(content, `light_dance_${now}.zip`);
+//   });
+// };
