@@ -3,7 +3,7 @@ import express from "express";
 import exportData from "./api/exportData";
 import uploadData from "./api/uploadData";
 import exportLED from "./api/exportLED";
-import uploadLED from "./api/uplodaLED";
+import uploadLED from "./api/uploadLED";
 
 const router = express.Router();
 
