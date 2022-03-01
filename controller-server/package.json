@@ -5,6 +5,7 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
+    "@types/websocket": "^1.0.5",
     "body-parser": "^1.19.1",
     "express": "^4.17.2",
     "ws": "^8.4.2"
