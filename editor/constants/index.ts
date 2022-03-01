@@ -27,7 +27,6 @@ const KICK = "kick";
 const SHUTDOWN = "shutdown";
 const REBOOT = "reboot";
 const TERMINATE = "terminate";
-
 export const COMMANDS = {
   SYNC,
   UPLOAD_LED,

@@ -21,6 +21,9 @@ import {
   GET_DANCERS,
 } from "../graphql";
 
+//axios for api
+import axios from "./axios";
+
 // types
 import { ControlMapStatus, DancerCoordinates } from "../core/models";
 
@@ -456,6 +459,19 @@ export const uploadJson = (file, type) => {
   }
 };
 
+export const uploadeExportDataApi = async (uploadFile) => {
+  const formData = new FormData();
+  formData.append("data", uploadFile);
+  const response = await axios.post("/uploadData", formData);
+  if (response.request.statusText === "OK")
+    alert("Upload Success.Please refresh.");
+  else alert("Upload Failed.");
+};
+export const downloadExportDataApi = async () => {
+  const response = await axios.get("/exportData.json");
+  if (response.request.statusText === "OK") return response.data;
+  else alert("Download Failed.");
+};
 export const uploadImages = (files, path, imagePrefix) => {
   const formData = new FormData();
   files.forEach((file, i) => {

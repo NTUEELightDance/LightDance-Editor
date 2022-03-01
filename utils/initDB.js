@@ -15,7 +15,7 @@ async function main() {
   const file = fs.createReadStream(filePath);
   const formData = new FormData();
   formData.append("data", fs.createReadStream(filePath));
-  var options = {
+  const options = {
     headers: Object.assign(
       { "Content-Type": "multipart/form-data" },
       formData.getHeaders()
