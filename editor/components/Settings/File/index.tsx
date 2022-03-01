@@ -23,12 +23,7 @@ import { setItem, getItem } from "../../../core/utils";
 // api
 import { uploadImages, requestDownload } from "../../../api";
 // utils
-import {
-  uploadJson,
-  downloadExportJson,
-  uploadExportJson,
-  checkExportJson,
-} from "./utils";
+import { downloadExportJson, uploadExportJson, checkExportJson } from "./utils";
 import { UploadDownload } from "./UploadDownload";
 import { files } from "jszip";
 
@@ -73,12 +68,11 @@ export default function File() {
       alert("Missing export.json");
       return;
     }
-    const exportJson = await uploadJson(exportFile);
-    if (!checkExportJson(exportJson)) return;
-    uploadExportJson(exportJson);
+    if (!(await checkExportJson(exportFile))) return;
+    uploadExportJson(exportFile);
   };
   const handleExportFileDownload = async () => {
-    // downloadExportJson()
+    await downloadExportJson();
   };
   const handleImagesUpload = async () => {
     if (selectedImages && path) {

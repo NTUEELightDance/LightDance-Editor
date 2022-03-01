@@ -9,6 +9,7 @@ const uploadData = async (req: any, res: any) => {
   try {
     // read request
     const { data } = req.files;
+    console.log("req:", req);
     const dataObj = JSON.parse(data.data.toString("ascii"));
     const { position, control, dancer, color } = dataObj;
 
@@ -134,6 +135,7 @@ const uploadData = async (req: any, res: any) => {
     await initRedisControl();
     res.status(200).end();
   } catch (err) {
+    console.log(err);
     res.status(400).send({ err });
   }
 };

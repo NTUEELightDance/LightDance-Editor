@@ -4,7 +4,6 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import JSZipUtils from "jszip-utils";
 import dayjs from "dayjs";
-import axios from "axios";
 // import fetchTexture for img download
 import { fetchTexture } from "../../../api";
 
@@ -22,9 +21,9 @@ import Ajv from "ajv";
 import store from "../../../store";
 
 //import apis
-import { uploadeExportDataApi } from "../../../api";
+import { uploadeExportDataApi, downloadExportDataApi } from "../../../api";
 
-export const uploadJson = (files) => {
+const uploadJson = (files) => {
   return new Promise((resolve, reject) => {
     const file = files[0];
     const reader = new FileReader();
@@ -36,7 +35,8 @@ export const uploadJson = (files) => {
   });
 };
 // start order strictly increasing && dancer parts exists in store.load.dancers.dancer0
-export const checkExportJson = (exportJson) => {
+export const checkExportJson = async (exportFile) => {
+  const exportJson = await uploadJson(exportFile);
   const valid =
     checkControlJson(exportJson) &&
     checkPosJson(exportJson) &&
@@ -132,9 +132,14 @@ const downloadJson = (exportObj, exportName) => {
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
 };
-export const downloadExportJson = async () => {};
-export const uploadExportJson = async (exportJson) => {
-  await uploadeExportDataApi(exportJson);
+export const downloadExportJson = async () => {
+  const now = dayjs().format("YYYYMMDD_HHmm");
+
+  const exportJson = await downloadExportDataApi();
+  downloadJson(exportJson, `export_${now}`);
+};
+export const uploadExportJson = async (exportFile) => {
+  await uploadeExportDataApi(exportFile[0]); //take File out of Filelist
 };
 
 export const downloadControlJson = async (controlRecord, controlMap) => {
