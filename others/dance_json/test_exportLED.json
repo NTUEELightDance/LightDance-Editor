@@ -1,0 +1,74 @@
+{
+  "Shoe_R_LED": {
+    "all_white": {
+      "repeat": 0,
+      "effects": [
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621cf7c2a6f5ba5672c5d96a",
+          "start": 0,
+          "fade": true
+        },
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621cf7c2a6f5ba5672c5d96b",
+          "start": 100,
+          "fade": false
+        }
+      ]
+    },
+    "spread": {
+      "repeat": 1,
+      "effects": [
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621cf7d1a6f5ba5672c5d97f",
+          "start": 200,
+          "fade": true
+        },
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621cf7d1a6f5ba5672c5d980",
+          "start": 300,
+          "fade": false
+        }
+      ]
+    }
+  },
+  "Shoe_L_LED": {
+    "spread": {
+      "repeat": 0,
+      "effects": [
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621ced29ac3d5f415d63d1c8",
+          "start": 200,
+          "fade": true
+        },
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621ced29ac3d5f415d63d1c9",
+          "start": 300,
+          "fade": false
+        }
+      ]
+    },
+    "all_white": {
+      "repeat": 0,
+      "effects": [
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621cf7bca6f5ba5672c5d95e",
+          "start": 0,
+          "fade": true
+        },
+        {
+          "effect": ["0xffffff", "0xffffff"],
+          "_id": "621cf7bca6f5ba5672c5d95f",
+          "start": 100,
+          "fade": false
+        }
+      ]
+    }
+  }
+}

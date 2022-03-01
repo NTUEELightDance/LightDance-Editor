@@ -7,6 +7,7 @@ import Part from "./Part";
 import Position from "./Position";
 import PositionFrame from "./PositionFrame";
 import EffectList from "./EffectList";
+import LED from "./LED";
 
 export default {
   User,
@@ -18,4 +19,5 @@ export default {
   Position,
   PositionFrame,
   EffectList,
+  LED,
 };
