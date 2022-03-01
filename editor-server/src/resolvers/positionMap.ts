@@ -104,7 +104,7 @@ export class EditPosMapResolver {
         mutation: PositionMapMutation.CREATED,
         editBy: ctx.userID,
         frameID: newPositionFrame.id,
-        frame: [{ _id: newPositionFrame._id, id: newPositionFrame.id }],
+        frame: { _id: newPositionFrame._id, id: newPositionFrame.id },
       };
       await publish(mapPayload);
 
@@ -183,7 +183,7 @@ export class EditPosMapResolver {
         mutation: PositionMapMutation.UPDATED,
         editBy: ctx.userID,
         frameID,
-        frame: [{ _id, id: frameID }],
+        frame: { _id, id: frameID },
       };
       await publish(payload);
       return { frames: [{ _id, id: frameID }] };
