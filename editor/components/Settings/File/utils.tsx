@@ -49,9 +49,9 @@ const checkControlJson = (exportJson) => {
   const Schemas = controlValidatorSchema(exportJson.dancer);
   const controlIsValid = Object.values(exportJson.control).every((frame) => {
     return Object.entries(frame.status).every(([dancerName, dancerParts]) => {
+      //validate format and content
       const ajv = new Ajv();
       const validate = ajv.compile(Schemas[dancerName]);
-
       const valid = validate(dancerParts);
       if (!valid) {
         const { keyword, instancePath, message } = validate.errors[0];
@@ -69,7 +69,6 @@ const checkPosJson = (exportJson) => {
     return Object.entries(frame.pos).every(([dancerName, dancerPos]) => {
       const ajv = new Ajv();
       const validate = ajv.compile(Schema);
-
       const valid = validate(dancerPos);
       if (!valid) {
         const { keyword, instancePath, message } = validate.errors[0];
@@ -85,12 +84,12 @@ const checkColorJson = (exportJson) => {
   const Schema = colorValidatorSchema(exportJson.color);
   const ajv = new Ajv();
   const validate = ajv.compile(Schema);
-  const valid = validate(exportJson.color);
-  if (!valid) {
+  const colorIsValid = validate(exportJson.color);
+  if (!colorIsValid) {
     const { keyword, instancePath, message } = validate.errors[0];
     alert(`${keyword} Error: ${instancePath} ${message}`);
   }
-  return valid;
+  return colorIsValid;
 };
 const createFolder = (currentFolder, remainPath) => {
   if (remainPath.length && !(remainPath[0] in currentFolder.files)) {
