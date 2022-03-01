@@ -1,5 +1,5 @@
-interface LightStatusType {}
-interface PlayTimeType {
+export interface LightStatusType {}
+export interface PlayTimeType {
     startTime: number;
     delay: number;
     sysTime: number;
@@ -7,8 +7,8 @@ interface PlayTimeType {
 // type controlJson = ?;
 // type LedType = ?;
 // Above type are for payload definition
-type PayloadType = number | string | LightStatusType | PlayTimeType;
-interface RpiSocketMes {
+export type PayloadType = number | string | LightStatusType | PlayTimeType;
+export interface SocketMes {
     command: string;
     payload?: PayloadType;
 }

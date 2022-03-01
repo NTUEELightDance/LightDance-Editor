@@ -1,5 +1,6 @@
 import COMMANDS from "../constants";
 import led from "../../files/data/led.json";
+import { LightStatusType, PlayTimeType, SocketMes } from "./index";
 
 class DancerSocket {
     ws;
@@ -53,7 +54,7 @@ class DancerSocket {
             // this.dancerAgent.deleteDancerClient(this.dancerName);
         };
     };
-    sendDataToRpiSocket = (data: RpiSocketMes) => {
+    sendDataToRpiSocket = (data: SocketMes) => {
         if (this.ws) this.ws.send(JSON.stringify(data));
     };
     getClientIp = () => {
