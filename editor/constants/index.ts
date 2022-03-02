@@ -12,6 +12,8 @@ export const POSITION = "POSITION_MODE";
 export const LED = "LED";
 export const EL = "EL";
 export const FIBER = "FIBER";
+// local storage keys
+export const GROUP = "PART_GROUP";
 
 // COMMANDS
 const SYNC = "sync";

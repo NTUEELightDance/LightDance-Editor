@@ -171,6 +171,13 @@ export type ColorMapType = {
 };
 
 /**
+ * PartGroup
+ */
+export type PartGroupType = {
+  [groupName: string]: string[];
+};
+
+/**
  * Mutable State
  */
 export interface State {
@@ -199,6 +206,8 @@ export interface State {
   dancerNames: string[];
   partTypeMap: PartTypeMapType;
   colorMap: ColorMapType;
+
+  partGroups: PartGroupType;
 }
 
 /**
@@ -230,4 +239,6 @@ export interface ReactiveState {
   dancerNames: ReactiveVar<string[]>;
   partTypeMap: ReactiveVar<PartTypeMapType>;
   colorMap: ReactiveVar<ColorMapType>;
+
+  partGroups: ReactiveVar<PartGroupType>;
 }

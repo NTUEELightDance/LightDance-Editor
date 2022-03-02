@@ -20,7 +20,8 @@ import Loading from "components/Loading";
 import useControl from "hooks/useControl";
 import usePos from "hooks/usePos";
 import useDancer from "hooks/useDancer";
-import useColorMap from 'hooks/useColorMap'
+import useColorMap from "hooks/useColorMap";
+import usePartGroups from "hooks/usePartGroups";
 // states and actions
 import { setCurrentPos, setCurrentStatus, setSelected } from "core/actions";
 
@@ -68,10 +69,13 @@ const App = () => {
     controlMap,
     controlRecord,
   } = useControl();
+
   const { loading: posLoading, error: posError, posMap, posRecord } = usePos();
 
   const { loading: colorLoading, error: colorError } = useColorMap();
-  
+
+  const { initPartGroups } = usePartGroups();
+
   const loading = dancerLoading || controlLoading || posLoading || colorLoading;
 
   useEffect(() => {
@@ -107,6 +111,10 @@ const App = () => {
       setSelected({ payload: selected });
     }
   }, [dancerNames]);
+
+  useEffect(() => {
+    initPartGroups();
+  }, []);
 
   return (
     <div>

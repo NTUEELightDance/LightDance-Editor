@@ -10,3 +10,4 @@ export * from "./edit";
 export * from "./selectionMode";
 export * from "./dancers";
 export * from "./colorMap";
+export * from "./partGroups";

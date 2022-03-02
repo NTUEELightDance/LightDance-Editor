@@ -14,12 +14,13 @@ import { useReactiveVar } from "@apollo/client";
 import { getPartType } from "core/utils";
 import { PartType } from "core/models";
 import useColorMap from "hooks/useColorMap";
-import PartGroupPanel from "./PartGroupPanel";
+import NewPartGroupPanel from "./NewPartGroupPanel";
 
 const DancerMode = () => {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const dancers = useReactiveVar(reactiveState.dancers);
+  const partGroups = useReactiveVar(reactiveState.partGroups);
 
   const { colorMap } = useColorMap();
 
@@ -91,19 +92,27 @@ const DancerMode = () => {
   const TypeTabs = Object.keys(displayParts).map((partType) => (
     <Tab label={partType} value={partType} key={`property_tab_${partType}`} />
   ));
-  const GroupTabs: JSX.Element[] = [];
-  const Tabs = [
-    ...TypeTabs,
-    ...GroupTabs,
-    <Tab label={<AddIcon />} value="part_group" key="new_part_group" />,
-  ];
+  const GroupTabs = Object.keys(partGroups).map((groupName) => (
+    <Tab
+      label={groupName}
+      value={`GROUP_${groupName}`}
+      key={`group_tab_${groupName}`}
+    />
+  ));
+  const Tabs = [...TypeTabs, ...GroupTabs];
+  if (Object.keys(displayParts).length > 0) {
+    Tabs.push(
+      <Tab label={<AddIcon />} value="part_group" key="new_part_group" />
+    );
+  }
 
-  const Panels = useMemo<JSX.Element[]>(
+  const TypePanels = useMemo<JSX.Element[]>(
     () =>
       Object.entries(displayParts).map(([partType, parts]) => {
         return (
           <PropertyPanel
             partType={partType as PartType}
+            value={partType}
             parts={parts as string[]}
             currentDancers={currentDancers}
             currentStatus={currentStatus}
@@ -114,6 +123,30 @@ const DancerMode = () => {
       }),
     [displayParts]
   );
+  const GroupPanels = useMemo<JSX.Element[]>(
+    () =>
+      Object.entries(partGroups)
+        .filter(() => {}) // to decide wether we should show this group panel
+        .map(([groupName, parts]) => {
+          return (
+            <PropertyPanel
+              partType={getPartType(parts[0])}
+              value={`GROUP_${groupName}`}
+              parts={parts as string[]}
+              currentDancers={currentDancers}
+              currentStatus={currentStatus}
+              colorMap={colorMap}
+              key={groupName}
+            />
+          );
+        }),
+    [displayParts]
+  );
+  const Panels = [
+    ...TypePanels,
+    ...GroupPanels,
+    <NewPartGroupPanel displayParts={displayParts} key="NEW_PART_GROUP" />,
+  ];
 
   return (
     <TabContext value={currentTab as PartType}>
