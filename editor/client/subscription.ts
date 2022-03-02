@@ -5,6 +5,7 @@ import {
   SUB_CONTROL_MAP,
 } from "../graphql";
 import lodash from "lodash";
+import { produce } from "immer";
 
 const subPosRecord = (client, userID: string) => {
   client
@@ -49,39 +50,51 @@ const subPosMap = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        const { createFrames, deleteFrames, updateFrames } =
-          data.data.positionMapSubscription.frame;
+        const { mutation, frameID, frame } = data.data.positionMapSubscription;
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
             PosMap(posMap) {
-              if (createFrames) {
-                posMap = {
+              // old format
+              if (mutation === ("CREATED" || "UPDATED")) {
+                return {
                   ...posMap,
                   frames: {
+                    ...posMap.frames,
+                    [frameID]: {
+                      ...frame[frameID],
+                    },
+                  },
+                };
+              } else if (mutation === "DELETED") {
+                return {
+                  ...posMap,
+                  frames: lodash.omit(posMap.frames, frameID),
+                };
+              }
+              // new format
+              const { createFrames, deleteFrames, updateFrames } =
+                data.data.positionMapSubscription.frame;
+              const newPosMap = produce(posMap, (posMapDraft) => {
+                if (createFrames) {
+                  posMapDraft.frames = {
                     ...posMap.frames,
                     ...createFrames,
-                  },
-                };
-              }
-              if (deleteFrames) {
-                deleteFrames.map((id: string) => {
-                  posMap = {
-                    ...posMap,
-                    frames: lodash.omit(posMap.frames, id),
                   };
-                });
-              }
-              if (updateFrames) {
-                posMap = {
-                  ...posMap,
-                  frames: {
+                }
+                if (deleteFrames) {
+                  deleteFrames.map((id: string) => {
+                    delete posMapDraft.frames[id];
+                  });
+                }
+                if (updateFrames) {
+                  posMapDraft.frames = {
                     ...posMap.frames,
                     ...updateFrames,
-                  },
-                };
-              }
-              return posMap;
+                  };
+                }
+              });
+              return newPosMap;
             },
           },
         });
@@ -135,39 +148,51 @@ const subControlMap = (client) => {
     })
     .subscribe({
       next(data) {
-        const { createFrames, deleteFrames, updateFrames } =
-          data.data.controlMapSubscription.frame;
+        const { mutation, frameID, frame } = data.data.controlMapSubscription;
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
             ControlMap(controlMap) {
-              if (createFrames) {
-                controlMap = {
+              // old format
+              if (mutation === ("CREATED" || "UPDATED")) {
+                return {
                   ...controlMap,
                   frames: {
+                    ...controlMap.frames,
+                    [frameID]: {
+                      ...frame[frameID],
+                    },
+                  },
+                };
+              } else if (mutation === "DELETED") {
+                return {
+                  ...controlMap,
+                  frames: lodash.omit(controlMap.frames, frameID),
+                };
+              }
+              // new format
+              const { createFrames, deleteFrames, updateFrames } =
+                data.data.controlMapSubscription.frame;
+              const newControlMap = produce(controlMap, (controlMapDraft) => {
+                if (createFrames) {
+                  controlMapDraft.frames = {
                     ...controlMap.frames,
                     ...createFrames,
-                  },
-                };
-              }
-              if (deleteFrames) {
-                deleteFrames.map((id: string) => {
-                  controlMap = {
-                    ...controlMap,
-                    frames: lodash.omit(controlMap.frames, id),
                   };
-                });
-              }
-              if (updateFrames) {
-                controlMap = {
-                  ...controlMap,
-                  frames: {
+                }
+                if (deleteFrames) {
+                  deleteFrames.map((id: string) => {
+                    delete controlMapDraft.frames[id];
+                  });
+                }
+                if (updateFrames) {
+                  controlMapDraft.frames = {
                     ...controlMap.frames,
                     ...updateFrames,
-                  },
-                };
-              }
-              return controlMap;
+                  };
+                }
+              });
+              return newControlMap;
             },
           },
         });
