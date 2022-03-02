@@ -13,14 +13,8 @@ import {
   ControlRecordPayload,
   ControlRecordMutation,
 } from "./subscriptions/controlRecord";
-import {
-  ControlMapPayload,
-  ControlMapMutation,
-} from "./subscriptions/controlMap";
-import {
-  PositionMapPayload,
-  PositionMapMutation,
-} from "./subscriptions/positionMap";
+import { ControlMapPayload } from "./subscriptions/controlMap";
+import { PositionMapPayload } from "./subscriptions/positionMap";
 import {
   PositionRecordPayload,
   PositionRecordMutation,
@@ -269,7 +263,6 @@ export class ShiftResolver {
 
       // subscription
       const controlMapPayload: ControlMapPayload = {
-        mutation: ControlMapMutation.MIXED,
         editBy: ctx.userID,
         frame: {
           createList: [],
@@ -289,7 +282,7 @@ export class ShiftResolver {
         }
       });
       const controlRecordPayload: ControlRecordPayload = {
-        mutation: ControlRecordMutation.MIXED,
+        mutation: ControlRecordMutation.UPDATED_DELETED,
         editBy: ctx.userID,
         addID: [],
         updateID: updateControlIDs,
@@ -328,7 +321,6 @@ export class ShiftResolver {
 
       // subscription
       const positionMapPayload: PositionMapPayload = {
-        mutation: PositionMapMutation.MIXED,
         editBy: ctx.userID,
         frame: {
           createList: [],
@@ -349,7 +341,7 @@ export class ShiftResolver {
         }
       });
       const positionRecordPayload: PositionRecordPayload = {
-        mutation: PositionRecordMutation.MIXED,
+        mutation: PositionRecordMutation.UPDATED_DELETED,
         editBy: ctx.userID,
         addID: [],
         updateID: updatePositionIDs,

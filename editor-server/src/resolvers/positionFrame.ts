@@ -16,10 +16,7 @@ import {
   DeletePositionFrameInput,
 } from "./inputs/positionFrame";
 import { Topic } from "./subscriptions/topic";
-import {
-  PositionMapPayload,
-  PositionMapMutation,
-} from "./subscriptions/positionMap";
+import { PositionMapPayload } from "./subscriptions/positionMap";
 import {
   PositionRecordPayload,
   PositionRecordMutation,
@@ -82,10 +79,12 @@ export class PositionFrameResolver {
     );
     await updateRedisPosition(newPositionFrame.id);
     const mapPayload: PositionMapPayload = {
-      mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
-      frameID: newPositionFrame.id,
-      frame: { _id: newPositionFrame._id, id: newPositionFrame.id },
+      frame: {
+        createList: [newPositionFrame.id],
+        deleteList: [],
+        updateList: [],
+      },
     };
     await publishPositionMap(mapPayload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({
@@ -100,7 +99,9 @@ export class PositionFrameResolver {
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.CREATED,
       editBy: ctx.userID,
-      frameID: newPositionFrame.id,
+      addID: [newPositionFrame.id],
+      updateID: [],
+      deleteID: [],
       index,
     };
     await publishPositionRecord(recordPayload);
@@ -139,10 +140,12 @@ export class PositionFrameResolver {
     });
     await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
-      mutation: PositionMapMutation.CREATED,
       editBy: ctx.userID,
-      frameID: positionFrame.id,
-      frame: { _id: positionFrame._id, id: positionFrame.id },
+      frame: {
+        createList: [],
+        deleteList: [],
+        updateList: [positionFrame.id],
+      },
     };
     await publishPositionMap(payload);
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({
@@ -157,7 +160,9 @@ export class PositionFrameResolver {
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.UPDATED,
       editBy: ctx.userID,
-      frameID: positionFrame.id,
+      addID: [],
+      updateID: [positionFrame.id],
+      deleteID: [],
       index,
     };
     await publishPositionRecord(recordPayload);
@@ -195,15 +200,20 @@ export class PositionFrameResolver {
 
     await ctx.db.Position.deleteMany({ frame: _id });
     const mapPayload: PositionMapPayload = {
-      mutation: PositionMapMutation.DELETED,
       editBy: ctx.userID,
-      frameID: frameID,
+      frame: {
+        createList: [],
+        deleteList: [frameID],
+        updateList: [],
+      },
     };
     redis.del(frameID);
     await publishPositionMap(mapPayload);
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.DELETED,
-      frameID: frameID,
+      addID: [],
+      updateID: [],
+      deleteID: [frameID],
       editBy: ctx.userID,
       index: -1,
     };

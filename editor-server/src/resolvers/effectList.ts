@@ -25,14 +25,8 @@ import {
   ControlRecordPayload,
   ControlRecordMutation,
 } from "./subscriptions/controlRecord";
-import {
-  ControlMapPayload,
-  ControlMapMutation,
-} from "./subscriptions/controlMap";
-import {
-  PositionMapPayload,
-  PositionMapMutation,
-} from "./subscriptions/positionMap";
+import { ControlMapPayload } from "./subscriptions/controlMap";
+import { PositionMapPayload } from "./subscriptions/positionMap";
 import {
   PositionRecordPayload,
   PositionRecordMutation,
@@ -379,7 +373,6 @@ export class EffectListResolver {
 
     // subscription control
     const controlMapPayload: ControlMapPayload = {
-      mutation: ControlMapMutation.MIXED,
       editBy: ctx.userID,
       frame: {
         createList: newControlFrameIDs,
@@ -406,17 +399,17 @@ export class EffectListResolver {
       }
     });
     const controlRecordPayload: ControlRecordPayload = {
-      mutation: ControlRecordMutation.MIXED,
+      mutation: ControlRecordMutation.CREATED_DELETED,
       editBy: ctx.userID,
       addID: newControlFrameIDs,
       deleteID: deleteControlList,
+      updateID: [],
       index,
     };
     await publishControlRecord(controlRecordPayload);
 
     // subscription position
     const positionMapPayload: PositionMapPayload = {
-      mutation: PositionMapMutation.MIXED,
       editBy: ctx.userID,
       frame: {
         createList: newPositionFrameIDs,
@@ -443,10 +436,11 @@ export class EffectListResolver {
       }
     });
     const positionRecordPayload: PositionRecordPayload = {
-      mutation: PositionRecordMutation.MIXED,
+      mutation: PositionRecordMutation.CREATED_DELETED,
       editBy: ctx.userID,
       addID: newPositionFrameIDs,
       deleteID: deletePositionList,
+      updateID: [],
       index,
     };
     await publishPositionRecord(positionRecordPayload);

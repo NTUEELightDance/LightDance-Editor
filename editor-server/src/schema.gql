@@ -80,19 +80,16 @@ scalar ControlMapMutationObjectId
 
 type ControlMapPayload {
   editBy: String!
-  frame: ControlMapMutationObjectId
-  frameID: String
-  mutation: String!
+  frame: ControlMapMutationObjectId!
 }
 
 type ControlRecordPayload {
-  addID: [String!]
-  deleteID: [String!]
+  addID: [String!]!
+  deleteID: [String!]!
   editBy: String!
-  frameID: ID
   index: Int!
   mutation: String!
-  updateID: [String!]
+  updateID: [String!]!
 }
 
 """The basic control types"""
@@ -336,19 +333,16 @@ type PositionFrame {
 
 type PositionMapPayload {
   editBy: String!
-  frame: PosMapMutationObjectId
-  frameID: String
-  mutation: String!
+  frame: PosMapMutationObjectId!
 }
 
 type PositionRecordPayload {
-  addID: [String!]
-  deleteID: [String!]
+  addID: [String!]!
+  deleteID: [String!]!
   editBy: String!
-  frameID: ID
   index: Int!
   mutation: String!
-  updateID: [String!]
+  updateID: [String!]!
 }
 
 """Mongo object id scalar type"""

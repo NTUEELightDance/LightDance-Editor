@@ -15,7 +15,11 @@ const exportLED = async (req: any, res: any) => {
         const allEffect = await db.LED.find({ partName });
         allEffect.map((effect: any) => {
           const { effectName, repeat, effects } = effect;
-          part[effectName] = { repeat, effects };
+          const newEffects = effects.map((effectData: any) => {
+            const { effect, start, fade } = effectData;
+            return { effect, start, fade };
+          });
+          part[effectName] = { repeat, effects: newEffects };
         });
         result[partName] = part;
       })

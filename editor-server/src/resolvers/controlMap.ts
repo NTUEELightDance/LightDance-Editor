@@ -11,10 +11,7 @@ import { Map } from "./types/map";
 import { ControlData } from "./types/controlData";
 import { EditControlInput } from "./inputs/control";
 import { Topic } from "./subscriptions/topic";
-import {
-  ControlMapPayload,
-  ControlMapMutation,
-} from "./subscriptions/controlMap";
+import { ControlMapPayload } from "./subscriptions/controlMap";
 import { updateRedisControl, generateID } from "../utility";
 import {
   ControlRecordPayload,
@@ -138,10 +135,12 @@ export class EditControlMapResolver {
       );
       await updateRedisControl(frameID);
       const payload: ControlMapPayload = {
-        mutation: ControlMapMutation.UPDATED,
         editBy: ctx.userID,
-        frameID,
-        frame: { _id, id: frameID },
+        frame: {
+          createList: [],
+          deleteList: [],
+          updateList: [frameID],
+        },
       };
       await publish(payload);
       return { frame: { _id, id: frameID } };
@@ -191,10 +190,12 @@ export class EditControlMapResolver {
 
       await updateRedisControl(newControlFrame.id);
       const mapPayload: ControlMapPayload = {
-        mutation: ControlMapMutation.CREATED,
         editBy: ctx.userID,
-        frameID: newControlFrame.id,
-        frame: { _id: newControlFrame._id, id: newControlFrame.id },
+        frame: {
+          createList: [newControlFrame.id],
+          deleteList: [],
+          updateList: [],
+        },
       };
       await publish(mapPayload);
       const allControlFrames = await ctx.db.ControlFrame.find().sort({
@@ -209,7 +210,9 @@ export class EditControlMapResolver {
       const recordPayload: ControlRecordPayload = {
         mutation: ControlRecordMutation.CREATED,
         editBy: ctx.userID,
-        frameID: newControlFrame.id,
+        addID: [newControlFrame.id],
+        updateID: [],
+        deleteID: [],
         index,
       };
       await publishControlRecord(recordPayload);
