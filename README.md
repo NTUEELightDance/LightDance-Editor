@@ -81,6 +81,12 @@ node initLED.js ${filePath}
 
 ## Production
 
+Create the `eeinfo` network
+
+```bash
+docker network create eeinfo
+```
+
 Run services `nginx`, `editor`, `editor-server`, `file-server`, `redisdb`, `mongodb`.
 
 ```bash
