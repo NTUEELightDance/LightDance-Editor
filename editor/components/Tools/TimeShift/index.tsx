@@ -9,6 +9,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import { SelectChangeEvent } from "@mui/material";
 // states and actions
 import { shiftFrameTime } from "core/actions";
 //types
@@ -32,7 +33,9 @@ export default function TimeShift({
   const { posRecord } = usePos();
   // type
   const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
-  const handleChangeType = (frameType: TimeShiftTool) => setType(frameType);
+  const handleChangeType = (
+    event: SelectChangeEvent<"control" | "position" | "both">
+  ) => setType(event.target.value as TimeShiftTool);
 
   // frame index
   const [startTime, setStartTime] = useState(0);
@@ -71,7 +74,7 @@ export default function TimeShift({
     handleClose();
   };
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} disableEnforceFocus>
       <DialogTitle> Time Shift Tool</DialogTitle>
       <DialogContent>
         <form onSubmit={submitTimeShift}>
@@ -83,12 +86,7 @@ export default function TimeShift({
             }}
           >
             <FormControl fullWidth size="small">
-              <Select
-                value={type}
-                onChange={(e) =>
-                  handleChangeType(e.target.value as TimeShiftTool)
-                }
-              >
+              <Select value={type} onChange={handleChangeType}>
                 <MenuItem value={CONTROL}>Control</MenuItem>
                 <MenuItem value={POSITION}>Position</MenuItem>
                 <MenuItem value={BOTH}>Both</MenuItem>
