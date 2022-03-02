@@ -1,5 +1,5 @@
-import downloadControlJson from "../downloadControl.js";
-import COMMANDS from "../constants/index.js";
+import downloadControlJson from "../downloadControl";
+import COMMANDS from "../constants/";
 
 class EditorSocket {
   constructor(ws, editorName, editorAgent, dancerAgent) {

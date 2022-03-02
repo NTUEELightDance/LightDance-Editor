@@ -1,4 +1,4 @@
-export interface LightStatusType {}
+export interface LightStatusType { }
 export interface PlayTimeType {
     startTime: number;
     delay: number;
@@ -12,3 +12,5 @@ export interface SocketMes {
     command: string;
     payload?: PayloadType;
 }
+
+export { LightStatusType, PlayTimeType, PayloadType, RpiSocketMes }

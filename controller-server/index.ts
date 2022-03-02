@@ -7,22 +7,25 @@ import http from "http";
 import bodyParser from "body-parser";
 import { WebSocketServer } from "ws";
 
-import DancerSocket from "./websocket/dancerSocket";
+import DancerSocket from "./test_websocket/dancerSocket";
 import EditorSocket from "./websocket/editorSocket";
 
 import NtpServer from "./ntp/index";
 
 import { createRequire } from "module";
-import COMMANDS from "./constants/index.js";
-import { TargetClientList } from "./type/index";
-const require = createRequire(import.meta.url);
-const board_config = require("../files/data/board_config.json");
+import COMMANDS from "./constants/index";
+import { TargetClientList, Dic } from "./type/index";
+// const require = createRequire(import.meta.url);
+// const board_config = require("../files/data/board_config.json");
+import * as board_config_data from "../files/data/board_config.json"
+const board_config = board_config_data as Dic
+// const board_config: any = []
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-const ntpServer = new NtpServer(); // ntp server for sync time
+// const ntpServer = new NtpServer(); // ntp server for sync time
 
 const dancerClients: TargetClientList = {};
 const editorClients: TargetClientList = {};

@@ -1,9 +1,10 @@
 import COMMANDS from "../constants";
 import led from "../../files/data/led.json";
-import { LightStatusType, PlayTimeType, SocketMes } from "./index";
+import WebSocket from 'ws';
+import { LightStatusType, PlayTimeType, RpiSocketMes } from "./index"
 
 class DancerSocket {
-    ws;
+    ws: any;
     clientIp: string;
     dancerName: string;
     dancerAgent: object; // TODO: Change to dancerAgent Interface
@@ -12,7 +13,7 @@ class DancerSocket {
     };
     constructor(ws: WebSocket, dancerName: string, dancerAgent: object) {
         this.ws = null;
-        this.clientIp = null;
+        this.clientIp = "";
         this.dancerName = dancerName;
         this.dancerAgent = dancerAgent;
         this.init(ws);

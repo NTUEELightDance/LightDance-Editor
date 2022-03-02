@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "license": "MIT",
+  "types": "index.d.ts",
   "dependencies": {
     "@types/websocket": "^1.0.5",
     "body-parser": "^1.19.1",
