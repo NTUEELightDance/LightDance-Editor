@@ -49,33 +49,42 @@ const subPosMap = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        const { editBy, mutation, frameID, frame } =
-          data.data.positionMapSubscription;
-        if (userID !== editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              PosMap(posMap) {
-                if (mutation === ("CREATED" || "UPDATED")) {
-                  return {
+        const { createFrames, deleteFrames, updateFrames } =
+          data.data.positionMapSubscription.frame;
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            PosMap(posMap) {
+              if (createFrames) {
+                posMap = {
+                  ...posMap,
+                  frames: {
+                    ...posMap.frames,
+                    ...createFrames,
+                  },
+                };
+              }
+              if (deleteFrames) {
+                deleteFrames.map((id: string) => {
+                  posMap = {
                     ...posMap,
-                    frames: {
-                      ...posMap.frames,
-                      [frameID]: {
-                        ...frame[frameID],
-                      },
-                    },
+                    frames: lodash.omit(posMap.frames, id),
                   };
-                } else if (mutation === "DELETED") {
-                  return {
-                    ...posMap,
-                    frames: lodash.omit(posMap.frames, frameID),
-                  };
-                }
-              },
+                });
+              }
+              if (updateFrames) {
+                posMap = {
+                  ...posMap,
+                  frames: {
+                    ...posMap.frames,
+                    ...updateFrames,
+                  },
+                };
+              }
+              return posMap;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
