@@ -1,1 +1,1 @@
-export type TimeShiftTool = "control" | "position";
+export type TimeShiftTool = "control" | "position" | "both";

@@ -125,3 +125,24 @@ export const DELETE_COLOR = gql`
     }
   }
 `;
+
+export const SHIFT_TIME = gql`
+  mutation Shift(
+    $shiftPosition: Boolean!
+    $shiftControl: Boolean!
+    $move: Float!
+    $end: Float!
+    $start: Float!
+  ) {
+    shift(
+      shiftPosition: $shiftPosition
+      shiftControl: $shiftControl
+      move: $move
+      end: $end
+      start: $start
+    ) {
+      ok
+      msg
+    }
+  }
+`;

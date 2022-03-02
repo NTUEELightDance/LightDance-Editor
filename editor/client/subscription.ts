@@ -13,29 +13,22 @@ const subPosRecord = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.positionRecordSubscription.editBy) {
+        const { editBy, mutation, index, frameID } =
+          data.data.positionRecordSubscription;
+        if (userID !== editBy) {
           client.cache.modify({
             id: "ROOT_QUERY",
             fields: {
               positionFrameIDs(positionFrameIDs: Array<string>) {
-                if (
-                  data.data.positionRecordSubscription.mutation === "CREATED"
-                ) {
+                if (mutation === "CREATED") {
                   return [
-                    ...positionFrameIDs.slice(
-                      0,
-                      data.data.positionRecordSubscription.index
-                    ),
-                    data.data.positionRecordSubscription.frameID,
-                    ...positionFrameIDs.slice(
-                      data.data.positionRecordSubscription.index
-                    ),
+                    ...positionFrameIDs.slice(0, index),
+                    frameID,
+                    ...positionFrameIDs.slice(index),
                   ];
-                } else if (
-                  data.data.positionRecordSubscription.mutation === "DELETED"
-                ) {
+                } else if (mutation === "DELETED") {
                   return positionFrameIDs.filter((e: string) => {
-                    return e !== data.data.positionRecordSubscription.frameID;
+                    return e !== frameID;
                   });
                 }
               },
@@ -56,35 +49,27 @@ const subPosMap = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.positionMapSubscription.editBy) {
+        const { editBy, mutation, frameID, frame } =
+          data.data.positionMapSubscription;
+        if (userID !== editBy) {
           client.cache.modify({
             id: "ROOT_QUERY",
             fields: {
               PosMap(posMap) {
-                if (
-                  data.data.positionMapSubscription.mutation ===
-                  ("CREATED" || "UPDATED")
-                ) {
+                if (mutation === ("CREATED" || "UPDATED")) {
                   return {
                     ...posMap,
                     frames: {
                       ...posMap.frames,
-                      [data.data.positionMapSubscription.frameID]: {
-                        ...data.data.positionMapSubscription.frame[
-                          data.data.positionMapSubscription.frameID
-                        ],
+                      [frameID]: {
+                        ...frame[frameID],
                       },
                     },
                   };
-                } else if (
-                  data.data.positionMapSubscription.mutation === "DELETED"
-                ) {
+                } else if (mutation === "DELETED") {
                   return {
                     ...posMap,
-                    frames: lodash.omit(
-                      posMap.frames,
-                      data.data.positionMapSubscription.frameID
-                    ),
+                    frames: lodash.omit(posMap.frames, frameID),
                   };
                 }
               },
@@ -105,29 +90,22 @@ const subControlRecord = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.controlRecordSubscription.editBy) {
+        const { editBy, mutation, index, frameID } =
+          data.data.controlRecordSubscription;
+        if (userID !== editBy) {
           client.cache.modify({
             id: "ROOT_QUERY",
             fields: {
               controlFrameIDs(controlFrameIDs: Array<string>) {
-                if (
-                  data.data.controlRecordSubscription.mutation === "CREATED"
-                ) {
+                if (mutation === "CREATED") {
                   return [
-                    ...controlFrameIDs.slice(
-                      0,
-                      data.data.controlRecordSubscription.index
-                    ),
-                    data.data.controlRecordSubscription.frameID,
-                    ...controlFrameIDs.slice(
-                      data.data.controlRecordSubscription.index
-                    ),
+                    ...controlFrameIDs.slice(0, index),
+                    frameID,
+                    ...controlFrameIDs.slice(index),
                   ];
-                } else if (
-                  data.data.controlRecordSubscription.mutation === "DELETED"
-                ) {
+                } else if (mutation === "DELETED") {
                   return controlFrameIDs.filter((e: string) => {
-                    return e !== data.data.controlRecordSubscription.frameID;
+                    return e !== frameID;
                   });
                 }
               },
@@ -141,48 +119,49 @@ const subControlRecord = (client, userID: string) => {
     });
 };
 
-const subControlMap = (client, userID: string) => {
+const subControlMap = (client) => {
   client
     .subscribe({
       query: SUB_CONTROL_MAP,
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.controlMapSubscription.editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              ControlMap(controlMap) {
-                if (
-                  data.data.controlMapSubscription.mutation ===
-                  ("CREATED" || "UPDATED")
-                ) {
-                  return {
+        const { createFrames, deleteFrames, updateFrames } =
+          data.data.controlMapSubscription.frame;
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            ControlMap(controlMap) {
+              if (createFrames) {
+                controlMap = {
+                  ...controlMap,
+                  frames: {
+                    ...controlMap.frames,
+                    ...createFrames,
+                  },
+                };
+              }
+              if (deleteFrames) {
+                deleteFrames.map((id: string) => {
+                  controlMap = {
                     ...controlMap,
-                    frames: {
-                      ...controlMap.frames,
-                      [data.data.controlMapSubscription.frameID]: {
-                        ...data.data.controlMapSubscription.frame[
-                          data.data.controlMapSubscription.frameID
-                        ],
-                      },
-                    },
+                    frames: lodash.omit(controlMap.frames, id),
                   };
-                } else if (
-                  data.data.controlMapSubscription.mutation === "DELETED"
-                ) {
-                  return {
-                    ...controlMap,
-                    frames: lodash.omit(
-                      controlMap.frames,
-                      data.data.controlMapSubscription.frameID
-                    ),
-                  };
-                }
-              },
+                });
+              }
+              if (updateFrames) {
+                controlMap = {
+                  ...controlMap,
+                  frames: {
+                    ...controlMap.frames,
+                    ...updateFrames,
+                  },
+                };
+              }
+              return controlMap;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
@@ -194,7 +173,7 @@ const Subscriptions = (client, userID: string) => {
   subPosRecord(client, userID);
   subPosMap(client, userID);
   subControlRecord(client, userID);
-  subControlMap(client, userID);
+  subControlMap(client);
 };
 
 export default Subscriptions;

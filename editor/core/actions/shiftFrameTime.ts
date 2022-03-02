@@ -3,6 +3,9 @@ import { registerActions } from "../registerActions";
 import { getControl, getPos } from "core/utils";
 // types
 import { State } from "../models";
+import client from "../../client";
+// gql
+import { SHIFT_TIME } from "../../graphql";
 
 const actions = registerActions({
   /**
@@ -14,13 +17,26 @@ const actions = registerActions({
     state: State,
     payload: {
       type: string;
-      startFrame: number;
-      endFrame: number;
+      startTime: number;
+      endTime: number;
       shiftTime: number;
     }
   ) => {
-    const { type, startFrame, endFrame, shiftTime } = payload;
-    // TODO: call mutation api
+    const { type, startTime, endTime, shiftTime } = payload;
+    try {
+      await client.mutate({
+        mutation: SHIFT_TIME,
+        variables: {
+          shiftPosition: type === "position" || "both" ? true : false,
+          shiftControl: type === "control" || "both" ? true : false,
+          move: shiftTime,
+          end: endTime,
+          start: startTime,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   },
 });
 
