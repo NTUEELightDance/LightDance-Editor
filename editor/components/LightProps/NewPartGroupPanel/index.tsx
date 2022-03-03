@@ -14,7 +14,7 @@ import {
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 
-import { notification } from "core/utils";
+import { notification, getPartType } from "core/utils";
 import { addNewGroup } from "core/actions";
 
 const NewPartGroupPanel = ({
@@ -25,7 +25,7 @@ const NewPartGroupPanel = ({
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
 
-  const [newGroupName, setNewGroupName] = useState<string>("New Group");
+  const [newGroupName, setNewGroupName] = useState<string>("");
 
   const handleInputChange: ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
@@ -57,13 +57,23 @@ const NewPartGroupPanel = ({
       notification.error("Group member is empty");
       return;
     }
-    
+
     try {
       addNewGroup({
         payload: { groupName: newGroupName, content: selectedNodes },
       });
     } catch {
       notification.error("Group name already existed");
+    }
+
+    const assertPartType = getPartType(selectedNodes[0]);
+    for (const nodeId in selectedNodes) {
+      if (getPartType(nodeId) !== assertPartType) {
+        notification.error(
+          "Invalid group: the group contains more than one type of part"
+        );
+        return;
+      }
     }
 
     handleCancel();
