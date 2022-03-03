@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Stack, Grid, Typography } from "@mui/material";
 import ColorSelector from "../ColorSelector";
 import IntensityControl from "../IntensityControl";
 
@@ -18,7 +18,7 @@ const OFcontrolsContent = ({
   oneLine?: boolean;
 }) => {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: "1.5vh" }}>
+    <Stack gap="1.5vh">
       <Grid
         container
         spacing={2}
@@ -74,7 +74,7 @@ const OFcontrolsContent = ({
           />
         </Grid>
       )}
-    </Box>
+    </Stack>
   );
 };
 

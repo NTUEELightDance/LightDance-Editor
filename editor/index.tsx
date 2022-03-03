@@ -11,6 +11,8 @@ import LayoutContextProvider from "./contexts/LayoutContext";
 
 import App from "./app";
 
+import "./index.css"
+
 import { ApolloProvider } from "@apollo/client";
 
 const Index = () => (

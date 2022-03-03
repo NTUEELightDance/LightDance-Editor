@@ -13,16 +13,18 @@ import { PartPayloadType, DancersType } from "core/models";
 const DancerTreeContent = ({
   dancers,
   dancerNames,
+  expanded,
+  setExpanded,
   selectedNodes,
   setSelectedNodes,
 }: {
   dancers: DancersType;
   dancerNames: string[];
+  expanded: string[];
+  setExpanded: React.Dispatch<React.SetStateAction<string[]>>;
   selectedNodes: string[];
   setSelectedNodes: React.Dispatch<React.SetStateAction<string[]>>;
 }) => {
-  const [expanded, setExpanded] = useState<string[]>([]);
-
   const handleToggle = (event: React.SyntheticEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
   };

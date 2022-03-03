@@ -1,8 +1,14 @@
 import { registerActions } from "../registerActions";
 
-import { State, PartPayloadType } from "../models";
+import {
+  State,
+  PartPayloadType,
+  DeleteGroupError,
+  AddNewGroupError,
+  EditGroupError,
+} from "../models";
 
-import { asyncSetItem } from "core/utils";
+import { asyncSetItem } from "../utils";
 import { GROUP } from "constants";
 
 const actions = registerActions({
@@ -14,10 +20,9 @@ const actions = registerActions({
     state: State,
     payload: { groupName: string; content: string[] }
   ) => {
+    if (payload.groupName.length === 0) throw "EMPTY" as AddNewGroupError;
     if (state.partGroups.hasOwnProperty(payload.groupName))
-      return Error(
-        `Add new group failed, group name: ${payload.groupName} already exists`
-      );
+      throw "EXISTED" as AddNewGroupError;
 
     state.partGroups[payload.groupName] = payload.content;
 
@@ -26,9 +31,7 @@ const actions = registerActions({
 
   removeGroup: async (state: State, payload: string) => {
     if (!state.partGroups.hasOwnProperty(payload))
-      return Error(
-        `Delete group failed, group name: ${payload} does not exist`
-      );
+      throw "DNE" as AddNewGroupError;
 
     delete state.partGroups[payload];
 
@@ -40,9 +43,7 @@ const actions = registerActions({
     payload: { groupName: string; content: string[] }
   ) => {
     if (!state.partGroups.hasOwnProperty(payload.groupName))
-      return Error(
-        `Edit group failed, group name: ${payload.groupName} does not exist`
-      );
+      throw "DNE" as EditGroupError;
 
     state.partGroups[payload.groupName] = payload.content;
 

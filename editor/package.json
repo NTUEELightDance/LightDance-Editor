@@ -48,6 +48,8 @@
     "react-transition-group": "^4.4.2",
     "redux": "^4.0.5",
     "subscriptions-transport-ws": "^0.11.0",
+    "sweetalert2": "^11.4.4",
+    "sweetalert2-react-content": "^4.2.0",
     "three": "^0.137.4",
     "throttle-debounce": "^3.0.1",
     "use-deep-compare-effect": "^1.8.1",

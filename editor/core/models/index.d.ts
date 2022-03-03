@@ -178,6 +178,15 @@ export type PartGroupType = {
 };
 
 /**
+ * group errors
+ */
+export type AddNewGroupError = "EMPTY" | "EXISTED";
+
+export type DeleteGroupError = "DNE";
+
+export type EditGroupError = "DNE";
+
+/**
  * Mutable State
  */
 export interface State {

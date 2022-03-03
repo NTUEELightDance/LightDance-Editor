@@ -14,9 +14,7 @@ import {
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 
-import { reactiveState } from "core/state";
-import { useReactiveVar } from "@apollo/client";
-import { PartGroupType } from "core/models";
+import { notification } from "core/utils";
 import { addNewGroup } from "core/actions";
 
 const NewPartGroupPanel = ({
@@ -27,7 +25,7 @@ const NewPartGroupPanel = ({
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
 
-  const [newGroupName, setNewGroupName] = useState<string>("");
+  const [newGroupName, setNewGroupName] = useState<string>("New Group");
 
   const handleInputChange: ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
@@ -50,12 +48,26 @@ const NewPartGroupPanel = ({
 
   const handleConfirm = () => {
     const invalidGroupNames = ["LED", "FIBER", "El", ""];
-    if (invalidGroupNames.includes(newGroupName) || selectedNodes.length === 0)
+    if (invalidGroupNames.includes(newGroupName)) {
+      notification.error("Invalid group name");
       return;
+    }
 
-    addNewGroup({
-      payload: { groupName: newGroupName, content: selectedNodes },
-    });
+    if (selectedNodes.length === 0) {
+      notification.error("Group member is empty");
+      return;
+    }
+    
+    try {
+      addNewGroup({
+        payload: { groupName: newGroupName, content: selectedNodes },
+      });
+    } catch {
+      notification.error("Group name already existed");
+    }
+
+    handleCancel();
+    notification.success(`Successfully added group: ${newGroupName}`);
   };
 
   return (
@@ -76,7 +88,6 @@ const NewPartGroupPanel = ({
                   margin="dense"
                   label="Group Name"
                   variant="filled"
-                  defaultValue="New Group"
                   value={newGroupName}
                   onChange={handleInputChange}
                   size="small"

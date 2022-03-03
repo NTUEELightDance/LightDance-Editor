@@ -35,25 +35,24 @@ const PropertyPanel = ({
     >
       <TabPanel value={value} key={`property_tabpanel_${partType}`}>
         <List dense>
-          {parts
-            .map((part) =>
-              partType === "LED" ? (
-                <LEDcontrols
-                  part={part}
-                  currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as LED}
-                  key={`${currentDancers[0]}_${part}`}
-                />
-              ) : (
-                <OFcontrols
-                  part={part}
-                  currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as Fiber}
-                  key={`${currentDancers[0]}_${part}`}
-                  colorMap={colorMap}
-                />
-              )
-            )}
+          {parts.map((part) =>
+            partType === "LED" ? (
+              <LEDcontrols
+                part={part}
+                currentDancers={currentDancers}
+                displayValue={currentStatus[currentDancers[0]][part] as LED}
+                key={`${currentDancers[0]}_${part}`}
+              />
+            ) : (
+              <OFcontrols
+                part={part}
+                currentDancers={currentDancers}
+                displayValue={currentStatus[currentDancers[0]][part] as Fiber}
+                key={`${currentDancers[0]}_${part}`}
+                colorMap={colorMap}
+              />
+            )
+          )}
         </List>
       </TabPanel>
     </Box>

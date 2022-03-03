@@ -6,11 +6,7 @@ import { Stack, TextField, Typography, Popper, Paper } from "@mui/material";
 // reactive state
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "../../core/state";
-import {
-  setCurrentTime,
-  setCurrentControlIndex,
-  setCurrentPosIndex,
-} from "../../core/actions";
+import { setCurrentTime } from "../../core/actions";
 
 const TimeControlInput = () => {
   const currentTime = useReactiveVar(reactiveState.currentTime);
@@ -98,12 +94,16 @@ const TimeControlInput = () => {
   };
   // convert millis seconds to displayed time string
   const formatDisplayedTime = (time: number) => {
-    const millis = String(time % 1000).padStart(3, "0");
+    time = Math.floor(time);
+    const millis = String(time % 1000)
+      .split(".")[0]
+      .padStart(3, "0");
     time = Math.floor(time / 1000);
-    const secs = String(time % 60).padStart(2, "0");
+    const secs = String(time % 60)
+      .split(".")[0]
+      .padStart(2, "0");
     time = Math.floor(time / 60);
-    const mins = String(time % 60);
-
+    const mins = String(time % 60).split(".")[0];
     return `${mins}:${secs}:${millis}`;
   };
 

@@ -4,80 +4,18 @@ import { Button, Paper } from "@mui/material";
 
 import DancerTreeContent from "./DancerTreeContent";
 
-import {
-  setSelectedDancers,
-  setSelectedParts,
-  setSelectionMode,
-} from "../../core/actions";
-import { PartPayloadType, SelectionModeType } from "../../core/models";
-import { DANCER, PART, POSITION } from "../../constants";
-import { reactiveState } from "../../core/state";
+import { setSelectionMode } from "core/actions";
+
+import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 const DancerTree = () => {
   const dancers = useReactiveVar(reactiveState.dancers);
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
   const selected = useReactiveVar(reactiveState.selected);
-  const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const [expanded, setExpanded] = useState<string[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
-
-  const handleToggle = (event: React.SyntheticEvent, nodeIds: string[]) => {
-    setExpanded(nodeIds);
-  };
-
-  const handleSelect = (event: React.SyntheticEvent, nodeIds: string[]) => {
-    const newSelectedDancers: Set<string> = new Set();
-    let newSelectedParts: PartPayloadType = {};
-    let newSelectionMode: SelectionModeType | null = null;
-
-    nodeIds.forEach((nodeId) => {
-      const nodeIdArray = nodeId.split("%");
-      if (nodeIdArray.length === 1) {
-        newSelectedDancers.add(nodeIdArray[0]);
-      } else {
-        if (!newSelectedParts.hasOwnProperty(nodeIdArray[0])) {
-          newSelectedParts[nodeIdArray[0]] = [];
-        }
-        newSelectedParts[nodeIdArray[0]].push(nodeIdArray[1]);
-      }
-    });
-
-    if (newSelectedDancers.size > 0) newSelectionMode = DANCER;
-    if (Object.keys(newSelectedParts).length > 0) newSelectionMode = PART;
-
-    if (
-      newSelectedDancers.size > 0 &&
-      Object.keys(newSelectedParts).length > 0
-    ) {
-      // broadcast mode
-      const broadcastedPartsSet: Set<string> = new Set();
-      // get all part names and dancer names to be broadcasted
-      Object.entries(newSelectedParts).forEach(([dancer, parts]) => {
-        newSelectedDancers.add(dancer);
-        parts.forEach((part) => broadcastedPartsSet.add(part));
-      });
-      // iterate through new selected dancers,
-      // if the dancer has a part in broadcastedPartsSet, select it
-      newSelectedDancers.forEach((dancerName) => {
-        dancers[dancerName].forEach((part) => {
-          if (broadcastedPartsSet.has(part)) {
-            if (!newSelectedParts.hasOwnProperty(dancerName)) {
-              newSelectedParts[dancerName] = [];
-            }
-            newSelectedParts[dancerName].push(part);
-          }
-        });
-      });
-    }
-
-    setSelectedDancers({ payload: [...newSelectedDancers] });
-    setSelectedParts({ payload: newSelectedParts });
-
-    if (selectionMode !== POSITION)
-      setSelectionMode({ payload: newSelectionMode });
-  };
 
   // update selected nodes based on the global selected state
   useEffect(() => {
@@ -118,7 +56,7 @@ const DancerTree = () => {
           mb: "1em",
           p: "0.3em",
           width: "100%",
-          zIndex: 8080,
+          zIndex: 80,
         }}
       >
         <Button onClick={handleExpandClick} fullWidth>
@@ -131,6 +69,8 @@ const DancerTree = () => {
       <DancerTreeContent
         dancers={dancers}
         dancerNames={dancerNames}
+        expanded={expanded}
+        setExpanded={setExpanded}
         selectedNodes={selectedNodes}
         setSelectedNodes={setSelectedNodes}
       />
