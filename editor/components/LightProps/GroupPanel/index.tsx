@@ -2,13 +2,24 @@ import { Box, List, IconButton, Stack, Button } from "@mui/material";
 import { TabPanel } from "@mui/lab";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
+// import EditIcon from "@mui/icons-material/Edit";
 
 import LEDcontrols from "../LEDcontrols";
 import OFcontrols from "../OFcontrols";
 
-import { ControlMapStatus, LED, Fiber, PartType } from "core/models";
-import { removeGroup, editGroup } from "core/actions";
+import {
+  ControlMapStatus,
+  LED,
+  Fiber,
+  PartType,
+  PartPayloadType,
+} from "core/models";
+import { removeGroup, setSelectedParts, setSelectionMode } from "core/actions";
+
+import { reactiveState } from "core/state";
+import { useReactiveVar } from "@apollo/client";
+
+import { PART } from "constants";
 
 const GroupPanel = ({
   partType,
@@ -25,6 +36,8 @@ const GroupPanel = ({
   currentStatus: ControlMapStatus;
   colorMap: { [key: string]: string };
 }) => {
+  const dancers = useReactiveVar(reactiveState.dancers);
+
   parts = parts.sort();
 
   const handleDelete = () => {
@@ -34,34 +47,43 @@ const GroupPanel = ({
   // TODO handle edit
   // const handleEdit = () => {  };
 
-  const handleSelectAll = () => {};
+  const handleSelectAll = () => {
+    const newSelectedParts: PartPayloadType = {};
+    currentDancers.forEach((dancerName) => {
+      newSelectedParts[dancerName] = parts.filter((part) =>
+        dancers[dancerName].includes(part)
+      );
+    });
+    setSelectedParts({ payload: newSelectedParts });
+    setSelectionMode({ payload: PART });
+  };
 
-  const Items = parts.map((part) => {
+  const Items: JSX.Element[] = [];
+  for (const part of parts) {
     let displayValue: LED | Fiber | number | undefined = undefined;
     for (let dancer of currentDancers) {
       displayValue = currentStatus[dancer]?.[part];
-      if (displayValue) break;
     }
-
-    if (!displayValue) return <></>;
-    else
-      return partType === "LED" ? (
-        <LEDcontrols
-          part={part}
-          currentDancers={currentDancers}
-          displayValue={displayValue as LED}
-          key={`${currentDancers[0]}_${part}_LED`}
-        />
-      ) : (
-        <OFcontrols
-          part={part}
-          currentDancers={currentDancers}
-          displayValue={displayValue as Fiber}
-          key={`${currentDancers[0]}_${part}_OF`}
-          colorMap={colorMap}
-        />
+    if (displayValue)
+      Items.push(
+        partType === "LED" ? (
+          <LEDcontrols
+            part={part}
+            currentDancers={currentDancers}
+            displayValue={displayValue as LED}
+            key={`${currentDancers[0]}_${part}_LED`}
+          />
+        ) : (
+          <OFcontrols
+            part={part}
+            currentDancers={currentDancers}
+            displayValue={displayValue as Fiber}
+            key={`${currentDancers[0]}_${part}_OF`}
+            colorMap={colorMap}
+          />
+        )
       );
-  });
+  }
 
   return (
     <Box
@@ -75,19 +97,17 @@ const GroupPanel = ({
       }}
     >
       <TabPanel value={`GROUP_${groupName}`}>
-        <Button onClick={handleSelectAll}>Select all</Button>
-        <List dense>{Items}</List>
         <Stack
-          position="absolute"
-          bottom="0.5em"
           direction="row"
           gap="0.5em"
-          justifyContent="start"
-          width="7em"
+          justifyContent="space-between"
+          my="0.5em"
         >
+          <Button onClick={handleSelectAll}>Select all</Button>
           <IconButton children={<DeleteIcon />} onClick={handleDelete} />
           {/* <IconButton children={<EditIcon />} onClick={handleEdit} /> */}
         </Stack>
+        <List dense>{Items}</List>
       </TabPanel>
     </Box>
   );

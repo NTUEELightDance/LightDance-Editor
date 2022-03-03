@@ -20,7 +20,7 @@ const notify = (type: MessageType) => (content: string) => {
     toast: true,
     position: "top",
     showConfirmButton: false,
-    timer: 300000,
+    timer: 4000,
     background: "transparent",
   });
 };
