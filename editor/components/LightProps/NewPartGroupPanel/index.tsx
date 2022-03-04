@@ -15,12 +15,19 @@ import {
 } from "@mui/icons-material";
 
 import { notification, getPartType } from "core/utils";
-import { addNewGroup } from "core/actions";
 
 const NewPartGroupPanel = ({
   displayParts,
+  addNewGroup,
 }: {
   displayParts: { [key: string]: string[] };
+  addNewGroup: ({
+    groupName,
+    content,
+  }: {
+    groupName: string;
+    content: string[];
+  }) => Promise<void>;
 }) => {
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
@@ -46,38 +53,38 @@ const NewPartGroupPanel = ({
     setSelectedNodes([]);
   };
 
-  const handleConfirm = () => {
-    const invalidGroupNames = ["LED", "FIBER", "El", ""];
-    if (invalidGroupNames.includes(newGroupName)) {
-      notification.error("Invalid group name");
-      return;
-    }
-
-    if (selectedNodes.length === 0) {
-      notification.error("Group member is empty");
-      return;
-    }
-
-    try {
-      addNewGroup({
-        payload: { groupName: newGroupName, content: selectedNodes },
-      });
-    } catch {
-      notification.error("Group name already existed");
-    }
-
+  const handleConfirm = async () => {
     const assertPartType = getPartType(selectedNodes[0]);
-    for (const nodeId in selectedNodes) {
+    for (const nodeId of selectedNodes) {
       if (getPartType(nodeId) !== assertPartType) {
         notification.error(
-          "Invalid group: the group contains more than one type of part"
+          `Invalid group: the group contains more than one type of part, at ${nodeId}`
         );
+        console.log(selectedNodes);
         return;
       }
     }
 
-    handleCancel();
-    notification.success(`Successfully added group: ${newGroupName}`);
+    try {
+      await addNewGroup({
+        groupName: newGroupName,
+        content: selectedNodes,
+      });
+      handleCancel();
+      notification.success(`Successfully added group: ${newGroupName}`);
+    } catch (err) {
+      switch (err) {
+        case "EXISTED":
+          notification.error("Group name already existed");
+          break;
+        case "INVALID":
+          notification.error("Invalid group name");
+          break;
+        case "EMPTY":
+          notification.error("Group member is empty");
+          break;
+      }
+    }
   };
 
   return (

@@ -55,7 +55,6 @@ const _state: State = {
   partTypeMap: {},
   colorMap: {},
 
-  partGroups: {},
 };
 
 // The diffSet will save changed attributes in state
@@ -97,8 +96,6 @@ export const reactiveState: ReactiveState = {
   dancerNames: makeVar<string[]>([]),
   partTypeMap: makeVar<PartTypeMapType>({}),
   colorMap: makeVar<ColorMapType>({}),
-
-  partGroups: makeVar<PartGroupType>({}),
 };
 
 /**

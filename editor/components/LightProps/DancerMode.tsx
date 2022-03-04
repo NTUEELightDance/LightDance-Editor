@@ -4,7 +4,7 @@ import _ from "lodash";
 
 import { Add as AddIcon } from "@mui/icons-material";
 
-import { Box, Paper, Tab } from "@mui/material";
+import { Paper, Tab } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import PropertyPanel from "./PropertyPanel";
 import GroupPanel from "./GroupPanel";
@@ -14,16 +14,18 @@ import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "core/utils";
-import { PartType } from "core/models";
+import { PartType, PartGroupType } from "core/models";
+
 import useColorMap from "hooks/useColorMap";
+import usePartGroups from "hooks/usePartGroups";
 
 const DancerMode = () => {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const dancers = useReactiveVar(reactiveState.dancers);
-  const partGroups = useReactiveVar(reactiveState.partGroups);
 
   const { colorMap } = useColorMap();
+  const { partGroups, addNewGroup, deleteGroup, editGroup } = usePartGroups();
 
   // states for display
   const [displayParts, setDisplayParts] = useState<{
@@ -166,13 +168,18 @@ const DancerMode = () => {
               currentStatus={currentStatus}
               colorMap={colorMap}
               key={groupName}
+              deleteGroup={deleteGroup}
             />
           );
         }),
     ];
     if (Object.keys(displayParts).length > 0) {
       ret.push(
-        <NewPartGroupPanel displayParts={displayParts} key="NEW_PART_GROUP" />
+        <NewPartGroupPanel
+          displayParts={displayParts}
+          key="NEW_PART_GROUP"
+          addNewGroup={addNewGroup}
+        />
       );
     }
     return ret;

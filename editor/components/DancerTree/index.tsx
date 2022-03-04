@@ -12,10 +12,10 @@ import {
   setSelectedDancers,
   setSelectedParts,
   setSelectionMode,
-} from "../../core/actions";
-import { PartPayloadType, SelectionModeType } from "../../core/models";
-import { DANCER, PART, POSITION } from "../../constants";
-import { reactiveState } from "../../core/state";
+} from "core/actions";
+import { PartPayloadType, SelectionModeType } from "core/models";
+import { DANCER, PART, POSITION } from "constants";
+import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 const DancerTree = () => {

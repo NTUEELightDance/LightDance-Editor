@@ -180,7 +180,7 @@ export type PartGroupType = {
 /**
  * group errors
  */
-export type AddNewGroupError = "EMPTY" | "EXISTED";
+export type AddNewGroupError = "EMPTY" | "EXISTED" | "INVALID" | "TYPE";
 
 export type DeleteGroupError = "DNE";
 
@@ -215,8 +215,6 @@ export interface State {
   dancerNames: string[];
   partTypeMap: PartTypeMapType;
   colorMap: ColorMapType;
-
-  partGroups: PartGroupType;
 }
 
 /**

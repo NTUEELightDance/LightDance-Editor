@@ -14,7 +14,7 @@ import {
   PartType,
   PartPayloadType,
 } from "core/models";
-import { removeGroup, setSelectedParts, setSelectionMode } from "core/actions";
+import { setSelectedParts, setSelectionMode } from "core/actions";
 
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
@@ -28,6 +28,7 @@ const GroupPanel = ({
   currentDancers,
   currentStatus,
   colorMap,
+  deleteGroup,
 }: {
   partType: PartType;
   groupName: string;
@@ -35,14 +36,13 @@ const GroupPanel = ({
   currentDancers: string[];
   currentStatus: ControlMapStatus;
   colorMap: { [key: string]: string };
+  deleteGroup: (groupName: string) => Promise<void>;
 }) => {
   const dancers = useReactiveVar(reactiveState.dancers);
 
-  parts = parts.sort();
+  const sortedParts = [...parts].sort();
 
-  const handleDelete = () => {
-    removeGroup({ payload: groupName });
-  };
+  const handleDelete = () => deleteGroup(groupName);
 
   // TODO handle edit
   // const handleEdit = () => {  };
@@ -50,7 +50,7 @@ const GroupPanel = ({
   const handleSelectAll = () => {
     const newSelectedParts: PartPayloadType = {};
     currentDancers.forEach((dancerName) => {
-      newSelectedParts[dancerName] = parts.filter((part) =>
+      newSelectedParts[dancerName] = sortedParts.filter((part) =>
         dancers[dancerName].includes(part)
       );
     });
@@ -59,7 +59,7 @@ const GroupPanel = ({
   };
 
   const Items: JSX.Element[] = [];
-  for (const part of parts) {
+  for (const part of sortedParts) {
     let displayValue: LED | Fiber | number | undefined = undefined;
     for (let dancer of currentDancers) {
       displayValue = currentStatus[dancer]?.[part];
