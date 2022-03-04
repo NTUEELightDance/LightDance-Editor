@@ -107,7 +107,9 @@ const DancerTree = () => {
     );
   };
 
-  const nodeSortFunction = (a: string, b: string) => {
+  // to be passed to parts.sort
+  // sorts the parts by type (fiber, LED), then by name (in alphabetical order)
+  const partSortFunction = (a: string, b: string) => {
     const aList: string[] = a.split("_");
     const bList: string[] = b.split("_");
     if (
@@ -156,7 +158,7 @@ const DancerTree = () => {
       >
         {Object.entries(dancers).map(([name, parts]: [string, any]) => (
           <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
-            {parts.sort(nodeSortFunction).map((part: string) => (
+            {parts.sort(partSortFunction).map((part: string) => (
               <DancerTreeItem
                 key={`PART_${name}_${part}`}
                 label={part}

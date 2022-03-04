@@ -13,8 +13,10 @@ export const Notification = ({
   content: string;
 }) => <Alert severity={type}>{content}</Alert>;
 
+// get swal notification manager with react integration
 const MySwal = withReactContent(Swal);
 const notify = (type: MessageType) => (content: string) => {
+  // mount the node passed to html to the dom with some animation
   MySwal.fire({
     html: <Notification type={type} content={content} />,
     toast: true,

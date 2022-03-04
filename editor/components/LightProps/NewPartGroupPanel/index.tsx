@@ -58,9 +58,8 @@ const NewPartGroupPanel = ({
     for (const nodeId of selectedNodes) {
       if (getPartType(nodeId) !== assertPartType) {
         notification.error(
-          `Invalid group: the group contains more than one type of part, at ${nodeId}`
+          "Invalid group: the group contains more than one type of part"
         );
-        console.log(selectedNodes);
         return;
       }
     }

@@ -14,7 +14,7 @@ import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "core/utils";
-import { PartType, PartGroupType } from "core/models";
+import { PartType } from "core/models";
 
 import useColorMap from "hooks/useColorMap";
 import usePartGroups from "hooks/usePartGroups";
@@ -92,12 +92,16 @@ const DancerMode = () => {
     setCurrentTab(newTab);
   };
 
+  // to be passed to [groups].filter
+  // decide wether we should show this group panel/tab
+  // show if any of the seleted dancers has a part that's in the group
   const groupFilter = ([groupName, parts]: [
     groupName: string,
     parts: string[]
   ]) => {
     const displayPartsSet: Set<string> = new Set();
 
+    // put all names of displayed parts in a set for fast .has
     Object.values(displayParts).forEach((displayPartsContent) => {
       displayPartsContent.forEach((part) => displayPartsSet.add(part));
     });
@@ -121,7 +125,7 @@ const DancerMode = () => {
       )),
       // group tabs
       ...Object.entries(partGroups)
-        .filter(groupFilter) // to decide wether we should show this group panel
+        .filter(groupFilter)
         .map(([groupName, parts]) => (
           <Tab
             label={groupName}
@@ -157,7 +161,7 @@ const DancerMode = () => {
       }),
       // group panels
       ...Object.entries(partGroups)
-        .filter(groupFilter) // to decide wether we should show this group panel
+        .filter(groupFilter)
         .map(([groupName, parts]) => {
           return (
             <GroupPanel

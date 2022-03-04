@@ -3,13 +3,16 @@ import { useImmer } from "use-immer";
 
 import { asyncSetItem, asyncGetItem } from "core/utils/";
 import {
-  PartGroupType,
   DeleteGroupError,
   AddNewGroupError,
   EditGroupError,
 } from "core/models";
 
 import { GROUP } from "constants";
+
+export type PartGroupType = {
+  [groupName: string]: string[];
+};
 
 export default function usePartGroups() {
   const [partGroups, setPartGroups] = useImmer<PartGroupType>({});

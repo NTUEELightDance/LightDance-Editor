@@ -15,6 +15,7 @@ import {
   PartPayloadType,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
+import { notification } from "core/utils";
 
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
@@ -42,7 +43,14 @@ const GroupPanel = ({
 
   const sortedParts = [...parts].sort();
 
-  const handleDelete = () => deleteGroup(groupName);
+  const handleDelete = async () => {
+    try {
+      await deleteGroup(groupName);
+      notification.success("Succesfully deleted group: " + groupName);
+    } catch {
+      notification.error(`"${groupName}" is not a group name`);
+    }
+  };
 
   // TODO handle edit
   // const handleEdit = () => {  };

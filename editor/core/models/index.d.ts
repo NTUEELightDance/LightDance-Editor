@@ -171,13 +171,6 @@ export type ColorMapType = {
 };
 
 /**
- * PartGroup
- */
-export type PartGroupType = {
-  [groupName: string]: string[];
-};
-
-/**
  * group errors
  */
 export type AddNewGroupError = "EMPTY" | "EXISTED" | "INVALID" | "TYPE";
@@ -246,6 +239,4 @@ export interface ReactiveState {
   dancerNames: ReactiveVar<string[]>;
   partTypeMap: ReactiveVar<PartTypeMapType>;
   colorMap: ReactiveVar<ColorMapType>;
-
-  partGroups: ReactiveVar<PartGroupType>;
 }
