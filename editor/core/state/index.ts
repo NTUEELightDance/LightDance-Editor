@@ -19,7 +19,6 @@ import {
   DancersType,
   PartTypeMapType,
   ColorMapType,
-  PartGroupType,
 } from "../models";
 
 /**
