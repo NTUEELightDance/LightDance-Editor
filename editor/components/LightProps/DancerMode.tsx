@@ -2,16 +2,22 @@ import { useEffect, useState, useMemo } from "react";
 
 import _ from "lodash";
 
-import { Box, Paper, Tab } from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
+
+import { Paper, Tab } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import PropertyPanel from "./PropertyPanel";
+import GroupPanel from "./GroupPanel";
+import NewPartGroupPanel from "./NewPartGroupPanel";
 
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "core/utils";
 import { PartType } from "core/models";
+
 import useColorMap from "hooks/useColorMap";
+import usePartGroups from "hooks/usePartGroups";
 
 const DancerMode = () => {
   const selected = useReactiveVar(reactiveState.selected);
@@ -19,6 +25,7 @@ const DancerMode = () => {
   const dancers = useReactiveVar(reactiveState.dancers);
 
   const { colorMap } = useColorMap();
+  const { partGroups, addNewGroup, deleteGroup, editGroup } = usePartGroups();
 
   // states for display
   const [displayParts, setDisplayParts] = useState<{
@@ -85,16 +92,65 @@ const DancerMode = () => {
     setCurrentTab(newTab);
   };
 
-  const Tabs = Object.keys(displayParts).map((partType) => (
-    <Tab label={partType} value={partType} key={`property_tab_${partType}`} />
-  ));
+  // to be passed to [groups].filter
+  // decide wether we should show this group panel/tab
+  // show if any of the seleted dancers has a part that's in the group
+  const groupFilter = ([groupName, parts]: [
+    groupName: string,
+    parts: string[]
+  ]) => {
+    const displayPartsSet: Set<string> = new Set();
 
-  const Panels = useMemo<JSX.Element[]>(
-    () =>
-      Object.entries(displayParts).map(([partType, parts]) => {
+    // put all names of displayed parts in a set for fast .has
+    Object.values(displayParts).forEach((displayPartsContent) => {
+      displayPartsContent.forEach((part) => displayPartsSet.add(part));
+    });
+
+    for (const part of parts) {
+      if (displayPartsSet.has(part)) return true;
+    }
+
+    return false;
+  };
+
+  const Tabs = useMemo<JSX.Element[]>(() => {
+    const ret = [
+      // type tabs
+      ...Object.keys(displayParts).map((partType) => (
+        <Tab
+          label={partType}
+          value={partType}
+          key={`property_tab_${partType}`}
+        />
+      )),
+      // group tabs
+      ...Object.entries(partGroups)
+        .filter(groupFilter)
+        .map(([groupName, parts]) => (
+          <Tab
+            label={groupName}
+            value={`GROUP_${groupName}`}
+            key={`group_tab_${groupName}`}
+          />
+        )),
+    ];
+
+    if (Object.keys(displayParts).length > 0) {
+      ret.push(
+        <Tab label={<AddIcon />} value="part_group" key="new_part_group" />
+      );
+    }
+    return ret;
+  }, [displayParts, partGroups]);
+
+  const Panels = useMemo<JSX.Element[]>(() => {
+    const ret = [
+      // type panels
+      ...Object.entries(displayParts).map(([partType, parts]) => {
         return (
           <PropertyPanel
             partType={partType as PartType}
+            value={partType}
             parts={parts as string[]}
             currentDancers={currentDancers}
             currentStatus={currentStatus}
@@ -103,8 +159,35 @@ const DancerMode = () => {
           />
         );
       }),
-    [displayParts]
-  );
+      // group panels
+      ...Object.entries(partGroups)
+        .filter(groupFilter)
+        .map(([groupName, parts]) => {
+          return (
+            <GroupPanel
+              partType={getPartType(parts[0])}
+              groupName={groupName}
+              parts={parts as string[]}
+              currentDancers={currentDancers}
+              currentStatus={currentStatus}
+              colorMap={colorMap}
+              key={groupName}
+              deleteGroup={deleteGroup}
+            />
+          );
+        }),
+    ];
+    if (Object.keys(displayParts).length > 0) {
+      ret.push(
+        <NewPartGroupPanel
+          displayParts={displayParts}
+          key="NEW_PART_GROUP"
+          addNewGroup={addNewGroup}
+        />
+      );
+    }
+    return ret;
+  }, [displayParts, partGroups]);
 
   return (
     <TabContext value={currentTab as PartType}>
@@ -144,7 +227,7 @@ const DancerMode = () => {
             </TabList>
           </Paper>
         )}
-        <Box>{Panels}</Box>
+        {Panels}
       </Paper>
     </TabContext>
   );

@@ -39,9 +39,7 @@ type ColorMap {
   colorMap: ColorMapCustomScalar!
 }
 
-"""
-Color map scalar type
-"""
+"""Color map scalar type"""
 scalar ColorMapCustomScalar
 
 type ColorPayload {
@@ -77,9 +75,7 @@ type ControlFrame {
   start: Float!
 }
 
-"""
-Mongo object id scalar type
-"""
+"""Mongo object id scalar type"""
 scalar ControlMapMutationObjectId
 
 type ControlMapPayload {
@@ -99,9 +95,7 @@ type ControlRecordPayload {
   updateID: [String!]
 }
 
-"""
-The basic control types
-"""
+"""The basic control types"""
 enum ControlType {
   EL
   FIBER
@@ -210,9 +204,7 @@ type EffectList {
   start: Float!
 }
 
-"""
-Mongo object id scalar type
-"""
+"""Mongo object id scalar type"""
 scalar EffectListObjectId
 
 type EffectListPayload {
@@ -273,9 +265,7 @@ type Map {
   frames: MapQueryObjectId!
 }
 
-"""
-Mongo object id scalar type
-"""
+"""Mongo object id scalar type"""
 scalar MapQueryObjectId
 
 type Mutation {
@@ -298,11 +288,7 @@ type Mutation {
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editColor(color: editColorInput!): Color!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(
-    controlData: [EditControlInput!]!
-    fade: Boolean = false
-    start: Float!
-  ): ControlData!
+  editControlMap(controlData: [EditControlInput!]!, fade: Boolean = false, start: Float!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
@@ -365,9 +351,7 @@ type PositionRecordPayload {
   updateID: [String!]
 }
 
-"""
-Mongo object id scalar type
-"""
+"""Mongo object id scalar type"""
 scalar PosMapMutationObjectId
 
 type Query {

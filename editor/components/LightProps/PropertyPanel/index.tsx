@@ -10,12 +10,14 @@ import { ControlMapStatus, LED, Fiber } from "../../../core/models";
 
 const PropertyPanel = ({
   partType,
+  value,
   parts,
   currentDancers,
   currentStatus,
   colorMap,
 }: {
   partType: PartType;
+  value: string;
   parts: string[];
   currentDancers: string[];
   currentStatus: ControlMapStatus;
@@ -31,7 +33,7 @@ const PropertyPanel = ({
         },
       }}
     >
-      <TabPanel value={partType} key={`property_tabpanel_${partType}`}>
+      <TabPanel value={value} key={`property_tabpanel_${partType}`}>
         <List dense>
           {parts.map((part) =>
             partType === "LED" ? (

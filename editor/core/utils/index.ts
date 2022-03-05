@@ -1,6 +1,8 @@
 import { controlAgent, posAgent } from "../../api";
 import { reactiveState } from "core/state";
 
+import { notification as _Notification } from "./Notification";
+
 export async function getPos() {
   return await Promise.all([posAgent.getPosMap(), posAgent.getPosRecord()]);
 }
@@ -20,6 +22,8 @@ export function getPartType(partName: string) {
   const partTypeMap = reactiveState.partTypeMap();
   return partTypeMap[partName];
 }
+
+export const notification = _Notification;
 
 export * from "./math";
 export * from "./localStorage";

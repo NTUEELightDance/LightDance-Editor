@@ -12,10 +12,10 @@ import {
   setSelectedDancers,
   setSelectedParts,
   setSelectionMode,
-} from "../../core/actions";
-import { PartPayloadType, SelectionModeType } from "../../core/models";
-import { DANCER, PART, POSITION } from "../../constants";
-import { reactiveState } from "../../core/state";
+} from "core/actions";
+import { PartPayloadType, SelectionModeType } from "core/models";
+import { DANCER, PART, POSITION } from "constants";
+import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 const DancerTree = () => {
@@ -107,6 +107,21 @@ const DancerTree = () => {
     );
   };
 
+  // to be passed to parts.sort
+  // sorts the parts by type (fiber, LED), then by name (in alphabetical order)
+  const partSortFunction = (a: string, b: string) => {
+    const aList: string[] = a.split("_");
+    const bList: string[] = b.split("_");
+    if (
+      aList[aList.length - 1] === bList[aList.length - 1] &&
+      aList[aList.length - 1] === "LED"
+    )
+      return a < b ? -1 : a > b ? 1 : 0;
+    if (aList[aList.length - 1] === "LED") return 1;
+    if (bList[bList.length - 1] === "LED") return -1;
+    return a < b ? -1 : a > b ? 1 : 0;
+  };
+
   return (
     <Paper
       sx={{ width: "100%", px: "5%", minHeight: "100%", position: "relative" }}
@@ -116,7 +131,7 @@ const DancerTree = () => {
         sx={{
           display: "flex",
           flexDirection: "row",
-          gap: "1em",
+          gap: "0.5em",
           position: "sticky",
           top: 0,
           width: "100%",
@@ -125,10 +140,10 @@ const DancerTree = () => {
           zIndex: 8080,
         }}
       >
-        <Button onClick={handleExpandClick} sx={{ width: "12em" }}>
+        <Button onClick={handleExpandClick} fullWidth>
           {expanded.length === 0 ? "Expand all" : "Collapse all"}
         </Button>
-        <Button onClick={handleSelectClick} sx={{ width: "12em" }}>
+        <Button onClick={handleSelectClick} fullWidth>
           {selectedNodes.length === 0 ? "Select all" : "Unselect all"}
         </Button>
       </Paper>
@@ -141,37 +156,22 @@ const DancerTree = () => {
         onNodeSelect={handleSelect}
         multiSelect
       >
-        {Object.entries(dancers).map(([name, parts]: [string, any]) => {
-          const sortFunction = (a: string, b: string) => {
-            const aList: string[] = a.split("_");
-            const bList: string[] = b.split("_");
-            if (
-              aList[aList.length - 1] === bList[aList.length - 1] &&
-              aList[aList.length - 1] === "LED"
-            )
-              return a < b ? -1 : a > b ? 1 : 0;
-            if (aList[aList.length - 1] === "LED") return 1;
-            if (bList[bList.length - 1] === "LED") return -1;
-            return a < b ? -1 : a > b ? 1 : 0;
-          };
-          parts = parts.sort(sortFunction);
-          return (
-            <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
-              {parts.map((part: string) => (
-                <DancerTreeItem
-                  key={`PART_${name}_${part}`}
-                  label={part}
-                  nodeId={`${name}%${part}`}
-                  sx={{
-                    "p.MuiTreeItem-label": {
-                      fontSize: "0.9rem",
-                    },
-                  }}
-                />
-              ))}
-            </DancerTreeItem>
-          );
-        })}
+        {Object.entries(dancers).map(([name, parts]: [string, any]) => (
+          <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
+            {parts.sort(partSortFunction).map((part: string) => (
+              <DancerTreeItem
+                key={`PART_${name}_${part}`}
+                label={part}
+                nodeId={`${name}%${part}`}
+                sx={{
+                  "p.MuiTreeItem-label": {
+                    fontSize: "0.9rem",
+                  },
+                }}
+              />
+            ))}
+          </DancerTreeItem>
+        ))}
       </TreeView>
     </Paper>
   );

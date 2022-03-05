@@ -7,7 +7,6 @@ import {
   POS_EDITOR,
   POSITION,
   DANCER,
-  CONTROL_EDITOR,
 } from "constants";
 
 const actions = registerActions({

@@ -171,6 +171,15 @@ export type ColorMapType = {
 };
 
 /**
+ * group errors
+ */
+export type AddNewGroupError = "EMPTY" | "EXISTED" | "INVALID" | "TYPE";
+
+export type DeleteGroupError = "DNE";
+
+export type EditGroupError = "DNE";
+
+/**
  * Mutable State
  */
 export interface State {

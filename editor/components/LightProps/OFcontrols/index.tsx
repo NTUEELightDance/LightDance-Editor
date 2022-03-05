@@ -87,7 +87,7 @@ const OFcontrols = ({
         </Box>
       </ListItemButton>
 
-      <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
+      <Collapse in={open} mountOnEnter unmountOnExit>
         <OFcontrolsContent
           handleColorChange={handleColorChange}
           handleIntensityChange={handleIntensityChange}
