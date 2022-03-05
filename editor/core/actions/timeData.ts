@@ -47,7 +47,8 @@ const actions = registerActions({
       state.currentStatus = fadeStatus(
         time,
         controlMap[controlRecord[newControlIndex]],
-        controlMap[controlRecord[newControlIndex + 1]]
+        controlMap[controlRecord[newControlIndex + 1]],
+        state.colorMap
       );
     }
 

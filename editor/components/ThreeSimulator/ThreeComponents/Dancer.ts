@@ -190,11 +190,17 @@ class Dancer {
 
   setFIBERStatus(currentStatus) {
     Object.entries(this.parts[FIBER]).forEach(([name, part]) => {
-      const { color, alpha } = currentStatus[name];
+      const { color, alpha, colorCode } = currentStatus[name];
       part.material.emissiveIntensity = alpha / 15;
-      part.material.emissive.setHex(
-        parseInt(state.colorMap[color].replace(/^#/, ""), 16)
-      );
+      if (colorCode) {
+        part.material.emissive.copy(colorCode);
+        // console.log("Using colorCode");
+      } else {
+        part.material.emissive.setHex(
+          parseInt(state.colorMap[color].replace(/^#/, ""), 16)
+        );
+        // console.log("Using color");
+      }
     });
   }
 

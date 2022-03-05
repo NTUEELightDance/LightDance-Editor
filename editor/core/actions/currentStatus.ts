@@ -12,6 +12,8 @@ import {
   CurrentStatusDelta,
 } from "../models";
 
+import { Color } from "three";
+
 const actions = registerActions({
   /**
    * Set currentStatus
@@ -61,8 +63,11 @@ const actions = registerActions({
     } = payload;
 
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    if (color && color !== "")
+    if (color && color !== "") {
       (state.currentStatus[dancerName][partName] as Fiber).color = color;
+      (state.currentStatus[dancerName][partName] as Fiber).colorCode =
+        new Color(state.colorMap[color]);
+    }
     if (typeof alpha === "number")
       (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
   },
