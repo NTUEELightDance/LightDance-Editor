@@ -1,6 +1,5 @@
 import db from "../../models";
 import { stringify } from "csv-stringify/sync";
-import { promisify } from "util";
 
 interface LooseObject {
   [key: string]: any;
@@ -9,14 +8,17 @@ interface LooseObject {
 const exportLogger = async (req: any, res: any) => {
   try {
     const loggers = await db.Logger.find().sort({ time: -1 });
-    const rows = [["Time", "FieldName", "User", "Status", "Variable Values"]];
+    const rows = [
+      ["Time", "FieldName", "User", "Status", "ID", "Variable Values"],
+    ];
     loggers.forEach((logger: any) => {
-      const { time, fieldName, user, status, variableValues } = logger;
+      const { time, fieldName, user, status, variableValues, _id } = logger;
       rows.push([
         time.toLocaleString(),
         fieldName,
         user,
         status,
+        _id,
         JSON.stringify(variableValues),
       ]);
     });
