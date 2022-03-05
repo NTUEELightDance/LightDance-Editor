@@ -73,8 +73,6 @@ export class EditControlMapResolver {
         await Promise.all(
           controlData.map(async (partData: any) => {
             const part = await ctx.db.Part.findOne({ name: partData.partName });
-            console.log(part);
-
             if (!part) {
               throw new Error("Part not found");
             }
@@ -104,7 +102,6 @@ export class EditControlMapResolver {
           await Promise.all(
             controlData.map(async (data: any) => {
               const { partName, ELValue, color, src, alpha } = data;
-              console.log(ELValue);
               const wanted = dancer.parts.find(
                 (part: any) => part.name === partName
               );

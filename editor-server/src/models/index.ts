@@ -8,6 +8,7 @@ import Position from "./Position";
 import PositionFrame from "./PositionFrame";
 import EffectList from "./EffectList";
 import LED from "./LED";
+import Logger from "./Logger";
 
 export default {
   User,
@@ -20,4 +21,5 @@ export default {
   PositionFrame,
   EffectList,
   LED,
+  Logger,
 };

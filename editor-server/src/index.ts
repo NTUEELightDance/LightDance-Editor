@@ -15,6 +15,7 @@ import { resolvers } from "./resolvers";
 import db from "./models";
 import mongo from "./mongo";
 import apiRoute from "./routes";
+import { AccessMiddleware } from "./middlewares/accessLogger";
 
 const port = process.env.PORT || 4000;
 const { SECRET_KEY } = process.env;
@@ -35,6 +36,7 @@ const { SECRET_KEY } = process.env;
     resolvers,
     // automatically create `schema.gql` file with schema definition in current folder
     emitSchemaFile: path.resolve(__dirname, "schema.gql"),
+    globalMiddlewares: [AccessMiddleware],
     pubSub: pubsub,
   });
 
@@ -59,7 +61,6 @@ const { SECRET_KEY } = process.env;
     const initialContext = await context.initPromise;
     if (initialContext) {
       const { userID } = initialContext;
-      console.log(userID);
       await db.ControlFrame.updateMany({ editing: userID }, { editing: null });
       await db.PositionFrame.updateMany({ editing: userID }, { editing: null });
       await db.User.deleteMany({ userID });

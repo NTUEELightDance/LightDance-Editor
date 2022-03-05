@@ -6,10 +6,11 @@ interface LooseObject {
 
 const exportLED = async (req: any, res: any) => {
   try {
-    const allPart = await db.LED.find().distinct("partName");
+    const allPart = await db.Part.find({ type: "LED" });
     const result: LooseObject = {};
     await Promise.all(
-      allPart.map(async (partName: string) => {
+      allPart.map(async (partObj: any) => {
+        const partName = partObj.name;
         const part: LooseObject = {};
         const allEffect = await db.LED.find({ partName });
         allEffect.map((effect: any) => {

@@ -33,7 +33,6 @@ export class PartResolver {
       const duplicatePartName = existDancer.parts.filter(
         (part: Part) => part.name === newPartData.name
       );
-      console.log(duplicatePartName);
       if (duplicatePartName.length === 0) {
         let newPart = new ctx.db.Part({
           name: newPartData.name,
@@ -185,14 +184,12 @@ export class PartResolver {
   async controlData(@Root() part: any, @Ctx() ctx: any) {
     const result = await Promise.all(
       part.controlData.map(async (ref: string) => {
-        console.log(ref);
         const data = await ctx.db.Control.findOne({ _id: ref }).populate(
           "frame"
         );
         return data;
       })
     ).then((result) => {
-      console.log(result);
       return result;
     });
     // return data
