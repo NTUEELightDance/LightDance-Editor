@@ -1,4 +1,4 @@
-import dgram from "dgram"
+import dgram from "dgram";
 class NtpServer {
   constructor() {
     this.server = dgram.createSocket("udp4");

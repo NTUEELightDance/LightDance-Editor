@@ -1,10 +1,12 @@
-import COMMANDS from "../constants/index.js";
+import downloadControlJson from "../downloadControl";
+import COMMANDS from "../constants/";
 
 class EditorSocket {
-  constructor(ws, editorName, editorAgent) {
+  constructor(ws, editorName, editorAgent, dancerAgent) {
     this.ws = null;
     this.editorName = editorName;
     this.editorAgent = editorAgent;
+    this.dancerAgent = dancerAgent;
     this.init(ws);
     this.handleDisconnect();
 
@@ -31,6 +33,17 @@ class EditorSocket {
       //     return;
       //   }
       // }
+      // after getting boardInfo, editor can make commands with apis
+      if (task === "editorCommand") {
+        let { command, args, selectedDancers } = payload;
+        if (command === COMMANDS.UPLOAD_CONTROL) {
+          downloadControlJson().then((result) => (args = result));
+        }
+        selectedDancers.forEach((dancerName) => {
+          this.dancerAgent.getDancerClients[dancerName].methods[command](args);
+        });
+        this.ws.send(command);
+      }
 
       this.editorAgent.socketReceiveData(this.editorName, {
         task: task,
