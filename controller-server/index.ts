@@ -8,32 +8,31 @@ import bodyParser from "body-parser";
 import { WebSocketServer } from "ws";
 
 import DancerSocket from "./test_websocket/dancerSocket";
-import EditorSocket from "./websocket/editorSocket";
-
+// import ControlPanelSocket from "./websocket/controlPanelSocket";
+import ControlPanelSocket from "./test_websocket/controlPanelSocket";
+import { Dic, dancerClientDic, controlPanelClientDic } from "./types";
 import NtpServer from "./ntp/index";
 
 import { createRequire } from "module";
 import COMMANDS from "./constants/index";
-import { TargetClientList, Dic } from "./type/index";
 // const require = createRequire(import.meta.url);
 // const board_config = require("../files/data/board_config.json");
 import * as board_config_data from "../files/data/board_config.json"
 const board_config = board_config_data as Dic
-// const board_config: any = []
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-// const ntpServer = new NtpServer(); // ntp server for sync time
+const ntpServer = new NtpServer(); // ntp server for sync time
 
-const dancerClients: TargetClientList = {};
-const editorClients: TargetClientList = {};
+const dancerClients: dancerClientDic = {}
+const controlPanelClients: controlPanelClientDic = {};
 
 /**
  * handle all message received from webSocket, and emit to other sockets
- * Ex. message from RPi's webSocket => emit message to editor's websocket
- * Ex. message from Editor's webSocket => emit to RPi (performance) or emit to other editor (multi editing)
+ * Ex. message from RPi's webSocket => emit message to controlPanel's websocket
+ * Ex. message from ControlPanel's webSocket => emit to RPi (performance) or emit to other controlPanel (multi editing)
  * @param {string} from - from who
  * @param {{ type, task, payload }} msg
  */
@@ -41,18 +40,20 @@ const socketReceiveData = (from: string, msg: any) => {  // msg type need to be 
   const { type, task, payload } = msg;
   switch (type) {
     case "dancer": {
-      Object.values(editorClients).forEach((editor: any) => { // editor is of type editor socket
-        editor.sendDataToClientEditor([
-          task,
-          {
-            from,
-            response: payload,
-          },
-        ]);
+      Object.values(controlPanelClients).forEach((controlPanel: ControlPanelSocket) => {
+        //   TODO: modify the argument data format to meet the data type SocketMes
+
+        //   controlPanel.sendDataToClientControlPanel([
+        //     task,
+        //     {
+        //       from,
+        //       response: payload,
+        //     },
+        //   ]);
       });
       break;
     }
-    case "Editor": {
+    case "controlPanel": {
       break;
     }
     default:
@@ -60,7 +61,7 @@ const socketReceiveData = (from: string, msg: any) => {  // msg type need to be 
   }
 
   console.log("dancerClients: ", Object.keys(dancerClients));
-  console.log("editorClients: ", Object.keys(editorClients));
+  console.log("controlPanelClients: ", Object.keys(controlPanelClients));
 };
 
 // DancerClientsAgent: to handle add or delete someone in dancerClients
@@ -76,13 +77,13 @@ const DancerClientsAgent = {
   },
   socketReceiveData,
 };
-// EditorClientsAgent: to handle add or delete someone in editorClients
-const EditorClientsAgent = {
-  addEditorClient: (editorName: string, editorSocket: any) => { // editorSocket is of type EditorSocket
-    editorClients[editorName] = editorSocket;
+// ControlPanelClientsAgent: to handle add or delete someone in controlPanelClients
+const ControlPanelClientsAgent = {
+  addControlPanelClient: (controlPanelName: string, controlPanelSocket: ControlPanelSocket) => {
+    controlPanelClients[controlPanelName] = controlPanelSocket;
   },
-  deleteEditorClient: (editorName: string) => {
-    delete editorClients[editorName];
+  deleteControlPanelClient: (controlPanelName: string) => {
+    delete controlPanelClients[controlPanelName];
   },
   socketReceiveData,
 };
@@ -94,8 +95,8 @@ wss.on("connection", (ws) => {
     const [task, payload] = JSON.parse(msg.data);
     console.log("Client response: ", task, "\nPayload: ", payload);
 
-    // We defined that the first task for clients (dancer and editor) will be boardInfo
-    // This can then let us split the logic between dancerClients and editorClients
+    // We defined that the first task for clients (dancer and controlPanel) will be boardInfo
+    // This can then let us split the logic between dancerClients and controlPanelClients
     if (task === "boardInfo") {
       const { type } = payload;
       const hostName = payload.name;
@@ -111,8 +112,8 @@ wss.on("connection", (ws) => {
           );
           dancerSocket.handleMessage();
 
-          Object.values(editorClients).forEach((editor) => {
-            const ws = editor.ws;
+          Object.values(controlPanelClients).forEach((controlPanel) => {
+            const ws = controlPanel.ws;
             // render dancer's info at frontend
             ws.send(JSON.stringify(["getIp", { dancerClients }]));
           });
@@ -122,17 +123,17 @@ wss.on("connection", (ws) => {
             `'dancer' type board connected, but not found hostname in board_config`
           );
         }
-      } else if (type === "editor") {
-        const editorName = hostName; // send from editorSocketAPI
+      } else if (type === "controlPanel") {
+        const controlPanelName = hostName; // send from controlPanelSocketAPI
 
-        const editorSocket = new EditorSocket(
+        const controlPanelSocket = new ControlPanelSocket(
           ws,
-          editorName,
-          EditorClientsAgent,
+          controlPanelName,
+          ControlPanelClientsAgent,
           DancerClientsAgent
         );
 
-        editorSocket.handleMessage();
+        controlPanelSocket.handleMessage();
 
         ws.send(JSON.stringify(["getIp", { dancerClients }])); // render dancer's info at frontend
       } else {
@@ -145,23 +146,6 @@ wss.on("connection", (ws) => {
 app.set("wss", wss);
 
 app.use(bodyParser.json({ limit: "20mb" }));
-
-// router api for rpi and dancers
-app.post("/api/controller/:command", (req, res) => {
-  const { command } = req.params;
-  const { selectedDancers, args } = req.body;
-
-  selectedDancers.forEach((dancerName: string) => {
-    dancerClients[dancerName].methods[command](args);
-  });
-
-  // // for editor play, pause stop
-  // Object.values(editorClients).map(
-  //   (ec) => ec.methods[command] && ec.methods[command](args)
-  // );
-
-  res.status(200).send(command);
-});
 
 const port = process.env.PORT || 8082;
 

@@ -1,17 +1,17 @@
 import COMMANDS from "../constants";
 import led from "../../files/data/led.json";
 import WebSocket from 'ws';
-import { LightStatusType, PlayTimeType, RpiSocketMes } from "./index"
+import { Dic, LightStatusType, PlayTimeType, SocketMes } from "../types"
 
 class DancerSocket {
     ws: any;
     clientIp: string;
     dancerName: string;
-    dancerAgent: object; // TODO: Change to dancerAgent Interface
+    dancerAgent: Dic; // TODO: Change to dancerAgent Interface
     methods: {
         [index: string]: Function;
     };
-    constructor(ws: WebSocket, dancerName: string, dancerAgent: object) {
+    constructor(ws: WebSocket, dancerName: string, dancerAgent: Dic) {
         this.ws = null;
         this.clientIp = "";
         this.dancerName = dancerName;
@@ -39,7 +39,7 @@ class DancerSocket {
 
     init = (ws: WebSocket) => {
         this.ws = ws;
-        // this.dancerAgent.addDancerClient(this.dancerName, this);
+        this.dancerAgent.addDancerClient(this.dancerName, this);
     };
     handleMessage = () => {
         this.ws.onmessage = (message: any) => {
