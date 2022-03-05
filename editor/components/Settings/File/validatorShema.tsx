@@ -25,6 +25,30 @@ const COORDINATEType = {
     z: { type: "number" },
   },
 };
+const EFFECTSTATUSType = {
+  type: "object",
+  properties: {
+    effect: {
+      type: "array",
+      items: { type: "string" },
+    },
+    _id: { type: "string" },
+    start: { type: "number" },
+    fade: { type: "boolean" },
+  },
+  required: ["effect", "_id", "start", "fade"],
+};
+const LEDEFFECTType = {
+  type: "object",
+  properties: {
+    repeat: { type: "number" },
+    effects: {
+      type: "array",
+      items: EFFECTSTATUSType,
+    },
+  },
+  required: ["repeat", "effects"],
+};
 export const controlValidatorSchema = (dancer) => {
   let Schemas = {};
   dancer.forEach((dancer) => {
@@ -63,5 +87,9 @@ export const colorValidatorSchema = (colorMap) => {
     Schema.properties[color] = { type: "string" };
     Schema.required.push(color);
   });
+  return Schema;
+};
+export const ledValidatorSchema = () => {
+  const Schema = LEDEFFECTType;
   return Schema;
 };

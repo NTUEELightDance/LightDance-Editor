@@ -472,6 +472,19 @@ export const downloadExportDataApi = async () => {
   if (response.request.statusText === "OK") return response.data;
   else alert("Download Failed.");
 };
+export const uploadLedDataApi = async (ledFile) => {
+  const formData = new FormData();
+  formData.append("data", ledFile);
+  const response = await axios.post("/uploadLED", formData);
+  if (response.request.statusText === "OK")
+    alert("Upload Success.Please refresh.");
+  else alert("Upload Failed.");
+};
+export const downloadLedDataApi = async () => {
+  const response = await axios.get("/exportLED.json");
+  if (response.request.statusText === "OK") return response.data;
+  else alert("Download Failed.");
+};
 export const uploadImages = (files, path, imagePrefix) => {
   const formData = new FormData();
   files.forEach((file, i) => {

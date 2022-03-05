@@ -23,7 +23,14 @@ import { setItem, getItem } from "../../../core/utils";
 // api
 import { uploadImages, requestDownload } from "../../../api";
 // utils
-import { downloadExportJson, uploadExportJson, checkExportJson } from "./utils";
+import {
+  downloadExportJson,
+  uploadExportJson,
+  checkExportJson,
+  checkLedJson,
+  downloadLedJson,
+  uploadLedJson,
+} from "./utils";
 import { UploadDownload } from "./UploadDownload";
 import { files } from "jszip";
 
@@ -48,6 +55,7 @@ export default function File() {
   const { texture } = useSelector(selectLoad);
   const [toServer, setToServer] = useState(false);
   const [exportFile, setExportFile] = useState(null);
+  const [ledFile, setledFile] = useState(null);
   const [selectedImages, setSelectedImages] = useState(null);
   const [path, setPath] = useState("");
 
@@ -55,11 +63,12 @@ export default function File() {
   const handleExportFileInput = (e) => {
     setExportFile(e.target.files);
   };
-
+  const handleLedFileInput = (e) => {
+    setledFile(e.target.files);
+  };
   const handleImagesInput = (e) => {
     setSelectedImages(e.target.files);
   };
-
   const handlePathChange = (e) => {
     setPath(e.target.value);
   };
@@ -73,6 +82,17 @@ export default function File() {
   };
   const handleExportFileDownload = async () => {
     await downloadExportJson();
+  };
+  const handleLedFileUpload = async () => {
+    if (!ledFile) {
+      alert("Missing LED.json");
+      return;
+    }
+    if (!(await checkLedJson(ledFile))) return;
+    uploadLedJson(ledFile);
+  };
+  const handleLedFileDownload = async () => {
+    await downloadLedJson();
   };
   const handleImagesUpload = async () => {
     if (selectedImages && path) {
@@ -115,7 +135,25 @@ export default function File() {
         handleUpload={handleExportFileUpload}
         handleDownload={handleExportFileDownload}
       />
+      <Typography variant="h6">Upload LED.json</Typography>
 
+      <ItemWrapper>
+        <div>
+          <label htmlFor="export">LED.json: </label>
+          <input
+            id="LED"
+            name="LEDfile"
+            type="file"
+            accept=".json"
+            onChange={handleLedFileInput}
+          />
+        </div>
+      </ItemWrapper>
+
+      <UploadDownload
+        handleUpload={handleLedFileUpload}
+        handleDownload={handleLedFileDownload}
+      />
       <Typography variant="h6">
         Upload [name].png <strong>(should select part)</strong>
       </Typography>

@@ -12,6 +12,7 @@ import {
   controlValidatorSchema,
   posValidatorSchema,
   colorValidatorSchema,
+  ledValidatorSchema,
 } from "./validatorShema";
 
 //import validator
@@ -21,7 +22,12 @@ import Ajv from "ajv";
 import store from "../../../store";
 
 //import apis
-import { uploadeExportDataApi, downloadExportDataApi } from "../../../api";
+import {
+  uploadeExportDataApi,
+  uploadLedDataApi,
+  downloadExportDataApi,
+  downloadLedDataApi,
+} from "../../../api";
 
 const uploadJson = (files) => {
   return new Promise((resolve, reject) => {
@@ -91,6 +97,23 @@ const checkColorJson = (exportJson) => {
   }
   return colorIsValid;
 };
+export const checkLedJson = async (ledFile) => {
+  const ledJson = await uploadJson(ledFile); //read file into json format
+  const effectSchema = ledValidatorSchema();
+  const ajv = new Ajv();
+  const validate = ajv.compile(effectSchema);
+  const ledIsValid = Object.values(ledJson).every((ledPartName) => {
+    return Object.entries(ledPartName).every(([effectName, effect]) => {
+      const valid = validate(effect);
+      if (!valid) {
+        const { keyword, instancePath, message } = validate.errors[0];
+        alert(`${keyword} Error: ${effectName}${instancePath} ${message}`);
+      }
+      return valid;
+    });
+  });
+  return ledIsValid;
+};
 const createFolder = (currentFolder, remainPath) => {
   if (remainPath.length && !(remainPath[0] in currentFolder.files)) {
     const newFolder = currentFolder.folder(remainPath[0]);
@@ -133,20 +156,20 @@ const downloadJson = (exportObj, exportName) => {
 };
 export const downloadExportJson = async () => {
   const now = dayjs().format("YYYYMMDD_HHmm");
-
   const exportJson = await downloadExportDataApi();
   downloadJson(exportJson, `export_${now}`);
 };
 export const uploadExportJson = async (exportFile) => {
   await uploadeExportDataApi(exportFile[0]); //take File out of Filelist
 };
-
-export const downloadControlJson = async (controlRecord, controlMap) => {
+export const downloadLedJson = async () => {
   const now = dayjs().format("YYYYMMDD_HHmm");
-  downloadJson(controlRecord, `controlRecord_${now}`);
-  downloadJson(controlMap, `controlMap_${now}`);
+  const LedJson = await downloadLedDataApi();
+  downloadJson(LedJson, `LED_${now}`);
 };
-
+export const uploadLedJson = async (ledFile) => {
+  await uploadLedDataApi(ledFile[0]);
+};
 // export const downloadEverything = async (
 //   controlRecord,
 //   controlMap,
