@@ -29,6 +29,10 @@ const LoggerSchema = new Schema({
     type: {},
     require: false,
   },
+  result: {
+    type: {},
+    require: false,
+  },
 });
 
 // Creating a table within database with the defined schema

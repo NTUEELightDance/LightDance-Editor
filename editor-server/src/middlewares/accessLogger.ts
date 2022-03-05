@@ -7,15 +7,14 @@ export const AccessMiddleware: MiddlewareFn<any> = async (
   const { fieldName, parentType, variableValues } = info;
   try {
     if (info.parentType.name === "Mutation") {
-      const start = Date.now();
-      await next();
-      const resolveTime = Date.now() - start;
+      const result = await next();
       await new context.db.Logger({
         user: context.userID,
         variableValues,
         type: parentType,
         fieldName,
         status: "Success",
+        result,
       }).save();
     } else {
       await next();
