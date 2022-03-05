@@ -1,7 +1,3 @@
-/* eslint-disable camelcase */
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-console */
-/* eslint-disable global-require */
 import express from "express";
 import http from "http";
 import bodyParser from "body-parser";
@@ -17,8 +13,8 @@ import { createRequire } from "module";
 import COMMANDS from "./constants/index";
 // const require = createRequire(import.meta.url);
 // const board_config = require("../files/data/board_config.json");
-import * as board_config_data from "../files/data/board_config.json"
-const board_config = board_config_data as Dic
+import * as board_config_data from "../files/data/board_config.json";
+const board_config = board_config_data as Dic;
 
 const app = express();
 const server = http.createServer(app);
@@ -26,7 +22,7 @@ const wss = new WebSocketServer({ server });
 
 const ntpServer = new NtpServer(); // ntp server for sync time
 
-const dancerClients: dancerClientDic = {}
+const dancerClients: dancerClientDic = {};
 const controlPanelClients: controlPanelClientDic = {};
 
 /**
@@ -36,21 +32,23 @@ const controlPanelClients: controlPanelClientDic = {};
  * @param {string} from - from who
  * @param {{ type, task, payload }} msg
  */
-const socketReceiveData = (from: string, msg: any) => {  // msg type need to be specified later 
+const socketReceiveData = (from: string, msg: any) => {
+  // msg type need to be specified later
   const { type, task, payload } = msg;
   switch (type) {
     case "dancer": {
-      Object.values(controlPanelClients).forEach((controlPanel: ControlPanelSocket) => {
-        //   TODO: modify the argument data format to meet the data type SocketMes
-
-        //   controlPanel.sendDataToClientControlPanel([
-        //     task,
-        //     {
-        //       from,
-        //       response: payload,
-        //     },
-        //   ]);
-      });
+      Object.values(controlPanelClients).forEach(
+        (controlPanel: ControlPanelSocket) => {
+          //   TODO: modify the argument data format to meet the data type SocketMes
+          //   controlPanel.sendDataToClientControlPanel([
+          //     task,
+          //     {
+          //       from,
+          //       response: payload,
+          //     },
+          //   ]);
+        }
+      );
       break;
     }
     case "controlPanel": {
@@ -66,7 +64,8 @@ const socketReceiveData = (from: string, msg: any) => {  // msg type need to be 
 
 // DancerClientsAgent: to handle add or delete someone in dancerClients
 const DancerClientsAgent = {
-  addDancerClient: (dancerName: string, dancerSocket: any) => { // dancerSocket is of type DancerSocket
+  addDancerClient: (dancerName: string, dancerSocket: any) => {
+    // dancerSocket is of type DancerSocket
     dancerClients[dancerName] = dancerSocket;
   },
   deleteDancerClient: (dancerName: string) => {
@@ -79,7 +78,10 @@ const DancerClientsAgent = {
 };
 // ControlPanelClientsAgent: to handle add or delete someone in controlPanelClients
 const ControlPanelClientsAgent = {
-  addControlPanelClient: (controlPanelName: string, controlPanelSocket: ControlPanelSocket) => {
+  addControlPanelClient: (
+    controlPanelName: string,
+    controlPanelSocket: ControlPanelSocket
+  ) => {
     controlPanelClients[controlPanelName] = controlPanelSocket;
   },
   deleteControlPanelClient: (controlPanelName: string) => {
@@ -88,10 +90,10 @@ const ControlPanelClientsAgent = {
   socketReceiveData,
 };
 
-
 // websocket
 wss.on("connection", (ws) => {
-  ws.onmessage = (msg: any) => { // need to consider further type assignment
+  ws.onmessage = (msg: any) => {
+    // need to consider further type assignment
     const [task, payload] = JSON.parse(msg.data);
     console.log("Client response: ", task, "\nPayload: ", payload);
 
