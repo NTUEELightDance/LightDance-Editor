@@ -22,10 +22,8 @@ export const ColorMapScalar = new GraphQLScalarType({
     const result: LooseObject = {};
     value.map((data: any) => {
       const { color, colorCode } = data;
-      console.log(data);
       result[color] = colorCode;
     });
-    console.log(result);
     return result;
   },
   parseValue(value: unknown): any {

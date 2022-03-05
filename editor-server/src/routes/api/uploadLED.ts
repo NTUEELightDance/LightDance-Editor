@@ -15,6 +15,14 @@ const uploadLED = async (req: any, res: any) => {
       await db.LED.deleteMany();
       console.log("LED db is cleared.");
     }
+    await Promise.all(
+      Object.keys(allPart).map(async (partName: string) => {
+        const part = await db.Part.findOne({ name: partName, type: "LED" });
+        if (!part) {
+          throw new Error(`Part ${partName} not found!`);
+        }
+      })
+    );
 
     await Promise.all(
       Object.keys(allPart).map(async (partName: string) => {

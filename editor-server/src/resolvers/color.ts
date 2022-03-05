@@ -18,16 +18,13 @@ import { generateID } from "../utility";
 class ColorResolver {
   @Query((returns) => String)
   async color(@Arg("color") color: string, @Ctx() ctx: any) {
-    console.log(color);
     let { colorCode } = await ctx.db.Color.findOne({ color });
-    console.log(colorCode);
     return colorCode;
   }
 
   @Query((returns) => ColorMap)
   async colorMap(@Ctx() ctx: any) {
     const colors = await ctx.db.Color.find();
-    console.log(colors);
     return { colorMap: colors };
   }
 

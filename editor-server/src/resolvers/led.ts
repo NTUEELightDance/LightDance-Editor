@@ -18,13 +18,27 @@ import {
 export class LEDResolver {
   @Query((returns) => LEDMap)
   async LEDMap(@Ctx() ctx: any) {
-    const allPart = await ctx.db.LED.find().distinct("partName");
+    const allPart = await ctx.db.Part.find({ type: "LED" });
     return { LEDMap: allPart };
   }
 
   @Mutation((returns) => LEDEffectResponse)
   async addLED(@Arg("input") input: AddLEDInput, @Ctx() ctx: any) {
     const { partName, effectName, repeat, effects } = input;
+
+    // check part validity
+    const part = ctx.db.Part.findOne({ name: partName, type: "LED" });
+    if (!part) {
+      return Object.assign(
+        {
+          partName,
+          effectName: ",",
+          repeat: -1,
+          effects: [],
+        },
+        { ok: false, msg: "effectName exist." }
+      );
+    }
 
     // check overlapped
     const exist = await ctx.db.LED.findOne({ partName, effectName });

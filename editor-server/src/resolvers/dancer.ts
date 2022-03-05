@@ -74,7 +74,6 @@ export class DancerResolver {
       // save dancer
       return Object.assign(dancerData, { ok: true });
     }
-    console.log(existDancer);
     return Object.assign(existDancer, { ok: false, msg: "dancer exists" });
   }
 
@@ -90,7 +89,6 @@ export class DancerResolver {
       { name },
       { new: true }
     ).populate("parts");
-    console.log(newDancer);
     if (newDancer) {
       await initRedisControl();
       await initRedisPosition();
@@ -120,7 +118,6 @@ export class DancerResolver {
       await Promise.all(
         dancer.parts.map(async (ref: string) => {
           const part = await ctx.db.Part.findOne({ _id: ref });
-          console.log(part);
           await Promise.all(
             part.controlData.map(async (ref: string) => {
               await ctx.db.Control.deleteOne({ _id: ref });

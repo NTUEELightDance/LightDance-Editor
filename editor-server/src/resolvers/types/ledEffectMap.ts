@@ -20,7 +20,8 @@ export const LEDMapScalar = new GraphQLScalarType({
     // check the type of received value
     const result: LooseObject = {};
     await Promise.all(
-      allPart.map(async (partName: string) => {
+      allPart.map(async (partObj: any) => {
+        const partName = partObj.name;
         const part: LooseObject = {};
         const allEffect = await db.LED.find({ partName });
         allEffect.map((effect: any) => {

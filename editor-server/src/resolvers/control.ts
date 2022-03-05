@@ -5,7 +5,6 @@ import { Control } from "./types/control";
 export class ControlResolver {
   @FieldResolver()
   async frame(@Root() control: any, @Ctx() ctx: any) {
-    console.log(control.frame);
     let data = await ctx.db.ControlFrame.findOne({ _id: control.frame });
     return data;
   }
