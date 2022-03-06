@@ -23,6 +23,15 @@ class LEDEffects {
   @Field()
   fade: boolean;
 
-  @Field((type) => [String])
-  effect: string[];
+  @Field((type) => [Effect])
+  effect: Effect[];
+}
+
+@ObjectType()
+class Effect {
+  @Field()
+  colorCode: string;
+
+  @Field((type) => Float)
+  alpha: number;
 }

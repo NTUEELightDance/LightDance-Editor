@@ -26,8 +26,14 @@ const LEDSchema = new Schema({
       },
       effect: [
         {
-          type: String,
-          required: [true, "effect in effects is required"],
+          colorCode: {
+            type: String,
+            required: [true, "colorCode in effects is required"],
+          },
+          alpha: {
+            type: Number,
+            required: [true, "alpha in effects is required"],
+          }
         },
       ],
     },

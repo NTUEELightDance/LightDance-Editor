@@ -32,6 +32,15 @@ export class LEDEffectInput {
   @Field()
   fade: boolean;
 
-  @Field((type) => [String])
-  effect: string[];
+  @Field((type) => [EffectInput])
+  effect: EffectInput[];
+}
+
+@InputType()
+class EffectInput {
+  @Field()
+  colorCode: string;
+
+  @Field((type) => Float)
+  alpha: number;
 }
