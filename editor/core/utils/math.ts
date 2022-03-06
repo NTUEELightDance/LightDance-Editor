@@ -14,7 +14,10 @@ import {
   CurrentLedEffect,
   LedMap,
   LedEffectFrame,
+  ColorCode,
 } from "../models";
+
+import { cloneDeep } from "lodash";
 
 import { Color } from "three";
 
@@ -211,23 +214,30 @@ export function fadeStatus(
       // fiber Parts
       else if (CheckTypeOfFiber(preVal) && CheckTypeOfFiber(nextVal)) {
         // Compute fade color with previous color and next color
-        const preColor = new Color().setHex(
-          parseInt(colorMap[preVal.color].replace(/^#/, ""), 16)
+        const newColorHex = fadeColor(
+          colorMap[preVal.color],
+          colorMap[nextVal.color],
+          time,
+          preTime,
+          nextTime
         );
-        const nextColor = new Color().setHex(
-          parseInt(colorMap[nextVal.color].replace(/^#/, ""), 16)
+        const newColor = new Color().setHex(
+          parseInt(newColorHex.replace(/^#/, ""), 16)
         );
-        preColor.lerp(nextColor, (time - preTime) / (nextTime - preTime));
+        // Compute new alpha
+        const newAlpha = fadeAlpha(
+          preVal.alpha,
+          nextVal.alpha,
+          time,
+          preTime,
+          nextTime
+        );
 
         // assign colorCode(fade Color) if fade and between two frames
         newStatus[dancer][part] = {
-          alpha: Round1(
-            ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
-              (nextTime - preTime) +
-              preVal.alpha
-          ),
+          alpha: newAlpha,
           color: preVal.color,
-          colorCode: preColor,
+          colorCode: newColor,
         };
       } else {
         throw new Error(
@@ -237,6 +247,51 @@ export function fadeStatus(
     });
   });
   return newStatus;
+}
+
+/**
+ * Color Fade
+ * @param preHex #ffffff
+ * @param nextHex #ffffff
+ * @param time
+ * @param preTime
+ * @param nextTime
+ * @returns
+ */
+function fadeColor(
+  preHex: ColorCode,
+  nextHex: ColorCode,
+  time: number,
+  preTime: number,
+  nextTime: number
+) {
+  // Compute fade color with previous color and next color
+  const preColor = new Color().setHex(parseInt(preHex.replace(/^#/, ""), 16));
+  const nextColor = new Color().setHex(parseInt(nextHex.replace(/^#/, ""), 16));
+  preColor.lerp(nextColor, (time - preTime) / (nextTime - preTime));
+  return `#${preColor.getHexString()}`;
+}
+
+/**
+ * alpha fade
+ * @param preAlpha
+ * @param nextAlpha
+ * @param time
+ * @param preTime
+ * @param nextTime
+ * @returns
+ */
+function fadeAlpha(
+  preAlpha: number,
+  nextAlpha: number,
+  time: number,
+  preTime: number,
+  nextTime: number
+) {
+  return Round1(
+    ((nextAlpha - preAlpha) * (time - preTime)) / (nextTime - preTime) +
+      preAlpha
+  );
 }
 
 /**
@@ -275,7 +330,7 @@ export function updateLedEffect(
       // goal: calculate the right newLedEffect[dancerName][partName]'s index
       // first check if only need to get to the next frame
       let newIndex;
-      // case 1: index is in the right place (after reset)
+      // case 1: index is in the right place (after reset or not time to get to the next one)
       if (
         effects[index + 1] &&
         offset >= effects[index].start &&
@@ -298,13 +353,43 @@ export function updateLedEffect(
       }
 
       newLedEffect[dancerName][partName].index = newIndex;
+
       // goal: calculate the right newLedEffect[dancerName][partName]'s effect
-      // do fade or just do clone
-      const { effect, fade } = effects[newIndex];
-      let newEffect = effect;
-      if (fade) {
-        // TODO do fade
-        newEffect = [];
+      const { start: currStart, effect: currEffect, fade } = effects[newIndex];
+      // do fade or not
+      let newEffect = currEffect;
+      if (fade && effects[newIndex + 1]) {
+        // if newEffect is the reference of the ledMap -> make a new effect for not modifying the ledMap
+        if (newEffect === currEffect) newEffect = cloneDeep(currEffect);
+        // do fade
+        const { start: nextStart, effect: nextEffect } = effects[newIndex + 1];
+        newEffect.forEach((s, idx) => {
+          const { colorCode: currColorCode, alpha: currAlpha } = JSON.parse(s);
+          const { colorCode: nextColorCode, alpha: nextAlpha } = JSON.parse(
+            nextEffect[idx]
+          );
+
+          const newColor = fadeColor(
+            currColorCode,
+            nextColorCode,
+            offset,
+            currStart,
+            nextStart
+          );
+
+          const newAlpha = fadeAlpha(
+            currAlpha,
+            nextAlpha,
+            offset,
+            currStart,
+            nextStart
+          );
+
+          newEffect[idx] = JSON.stringify({
+            colorCode: newColor,
+            alpha: newAlpha,
+          });
+        });
       }
       newLedEffect[dancerName][partName].effect = newEffect;
     });
@@ -315,6 +400,7 @@ export function updateLedEffect(
 
 /**
  * Reset all the index in the ledEffect to zero
+ * Reselt the effect to empty
  * @param {CurrentLedEffect} ledEffect
  */
 function resetLedEffect(ledEffect: CurrentLedEffect) {
