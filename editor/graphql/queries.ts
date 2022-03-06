@@ -47,3 +47,11 @@ export const GET_COLOR_MAP = gql`
     }
   }
 `;
+
+export const GET_LED_MAP = gql`
+  query LEDMap {
+    LEDMap {
+      LEDMap
+    }
+  }
+`;

@@ -8,8 +8,6 @@ import {
   State,
   ReactiveState,
   ControlMapStatus,
-  EffectRecordMapType,
-  EffectStatusMapType,
   DancerCoordinates,
   EditingDataType,
   EditModeType,
@@ -19,6 +17,8 @@ import {
   DancersType,
   PartTypeMapType,
   ColorMapType,
+  DancerName,
+  CurrentLedEffect,
 } from "../models";
 
 /**
@@ -35,6 +35,7 @@ const _state: State = {
   currentStatus: {},
   currentFade: false,
   currentPos: {},
+  currentLedEffect: {},
 
   editMode: IDLE,
   editor: CONTROL_EDITOR,
@@ -45,9 +46,6 @@ const _state: State = {
   },
 
   selectionMode: "DANCER",
-
-  effectRecordMap: {}, // map of all effects and corresponding record ID array
-  effectStatusMap: {},
 
   dancers: {},
   dancerNames: [],
@@ -78,6 +76,7 @@ export const reactiveState: ReactiveState = {
   currentStatus: makeVar<ControlMapStatus>({}),
   currentPos: makeVar<DancerCoordinates>({}),
   currentFade: makeVar<boolean>(false),
+  currentLedEffect: makeVar<CurrentLedEffect>({}),
 
   editMode: makeVar<EditModeType>(IDLE),
   editor: makeVar<EditorType>(CONTROL_EDITOR),
@@ -88,11 +87,8 @@ export const reactiveState: ReactiveState = {
   }),
   selectionMode: makeVar<SelectionModeType>(DANCER),
 
-  effectRecordMap: makeVar<EffectRecordMapType>({}), // map of all effects and corresponding record ID array
-  effectStatusMap: makeVar<EffectStatusMapType>({}),
-
   dancers: makeVar<DancersType>({}),
-  dancerNames: makeVar<string[]>([]),
+  dancerNames: makeVar<DancerName[]>([]),
   partTypeMap: makeVar<PartTypeMapType>({}),
   colorMap: makeVar<ColorMapType>({}),
 };

@@ -11,6 +11,9 @@ import {
   PosMapElement,
   Coordinates,
   ColorMapType,
+  CurrentLedEffect,
+  LedMap,
+  LedEffectFrame,
 } from "../models";
 
 import { Color } from "three";
@@ -67,7 +70,7 @@ export function updateFrameByTimeMap(
     throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(time)`);
   // Check if need to do binarysearch
   if (
-    map[frame + 2] &&
+    map[record[frame + 2]] &&
     time >= map[record[frame + 1]].start &&
     time <= map[record[frame + 2]].start
   ) {
@@ -234,4 +237,118 @@ export function fadeStatus(
     });
   });
   return newStatus;
+}
+
+/**
+ *
+ * @param lastControlIndex
+ * @param newControlIndex
+ * @param currentLedEffectIndexMap
+ * @param time
+ * @returns
+ */
+export function updateLedEffect(
+  lastControlIndex: number,
+  newControlIndex: number,
+  currentLedEffect: CurrentLedEffect,
+  controlRecord: ControlRecordType,
+  controlMap: ControlMapType,
+  ledMap: LedMap,
+  time: number
+) {
+  const newLedEffect = currentLedEffect;
+
+  // jump to another controlIndex -> first reset the ledEffect
+  if (lastControlIndex !== newControlIndex) resetLedEffect(newLedEffect);
+
+  // now at the right controlIndex, check the sub index of ledEffect
+  Object.keys(newLedEffect).forEach((dancerName) => {
+    Object.keys(newLedEffect[dancerName]).forEach((partName) => {
+      const { index } = newLedEffect[dancerName][partName];
+
+      const { start, status } = controlMap[controlRecord[newControlIndex]];
+      const { src } = status[dancerName][partName] as LED;
+      const { repeat, effects } = ledMap[partName][src]; // repeat WON'T BE FUNCIONAL IN THIS VERSION, NEED RETHINKING OF DATA FORMAT
+
+      const offset = time - start; // get the offset of time (since the led effect begins from 0)
+
+      // goal: calculate the right newLedEffect[dancerName][partName]'s index
+      // first check if only need to get to the next frame
+      let newIndex;
+      // case 1: index is in the right place (after reset)
+      if (
+        effects[index + 1] &&
+        offset >= effects[index].start &&
+        offset <= effects[index + 1].start
+      ) {
+        newIndex = index;
+      }
+      // case 2: index should bethe next one (playing)
+      else if (
+        effects[index + 2] &&
+        offset >= effects[index + 1].start &&
+        offset <= effects[index + 2].start
+      ) {
+        newIndex = index + 1;
+      }
+      // case 3: neither 1 nor 2, should calculate the new index (set to a random time)
+      else {
+        // should calculate the new index
+        newIndex = binarySearchLedEffectFrame(effects, offset);
+      }
+
+      newLedEffect[dancerName][partName].index = newIndex;
+      // goal: calculate the right newLedEffect[dancerName][partName]'s effect
+      // do fade or just do clone
+      const { effect, fade } = effects[newIndex];
+      let newEffect = effect;
+      if (fade) {
+        // TODO do fade
+        newEffect = [];
+      }
+      newLedEffect[dancerName][partName].effect = newEffect;
+    });
+  });
+
+  return newLedEffect;
+}
+
+/**
+ * Reset all the index in the ledEffect to zero
+ * @param {CurrentLedEffect} ledEffect
+ */
+function resetLedEffect(ledEffect: CurrentLedEffect) {
+  Object.keys(ledEffect).forEach((dancerName) => {
+    Object.keys(ledEffect[dancerName]).forEach((partName) => {
+      ledEffect[dancerName][partName].index = 0;
+      ledEffect[dancerName][partName].effect = [];
+    });
+  });
+}
+
+/**
+ * binarySearch based on controlRecord and controlMap (array of object with start), return the index
+ * @param {object} data - target control (array of status)
+ * @param {number} time - target time
+ */
+export function binarySearchLedEffectFrame(
+  frames: LedEffectFrame[],
+  offset: number
+) {
+  if (!Array.isArray(frames))
+    throw new Error(
+      `[Error] binarySearchLedFrame, invalid parameter(controlRecord)`
+    );
+
+  if (typeof offset !== "number")
+    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
+  let l = 0;
+  let r = frames.length - 1;
+  let m = Math.floor((l + r + 1) / 2);
+  while (l < r) {
+    if (frames[m].start <= offset) l = m;
+    else r = m - 1;
+    m = Math.floor((l + r + 1) / 2);
+  }
+  return m;
 }

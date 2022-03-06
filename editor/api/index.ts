@@ -2,6 +2,8 @@ import store from "../store";
 import client from "../client";
 import lodash from "lodash";
 
+export * from "./LedAgent";
+
 // gql
 import {
   GET_CONTROL_MAP,

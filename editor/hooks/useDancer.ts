@@ -15,13 +15,16 @@ import _ from "lodash";
 
 export default function useDancer() {
   // query controlMap
-  const { loading, error, data: dancer } = useQuery(GET_DANCERS);
+  const { loading: dancerLoading, error, data: dancer } = useQuery(GET_DANCERS);
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
   const dancers = useReactiveVar(reactiveState.dancers);
   const partTypeMap = useReactiveVar(reactiveState.partTypeMap);
 
+  // loading will be set after loading the dancer info to the state registry
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    if (dancer) {
+    if (!dancerLoading && dancer) {
       const tmpDancerNames: string[] = [];
       const tmpDancers: DancersType = {};
       const tmpPartTypeMap: PartTypeMapType = {};
@@ -39,8 +42,9 @@ export default function useDancer() {
       setDancerNames({ payload: tmpDancerNames });
       setDancers({ payload: tmpDancers });
       setPartTypeMap({ payload: tmpPartTypeMap });
+      setLoading(false);
     }
-  }, [dancer]);
+  }, [dancerLoading, dancer]);
 
   return {
     loading,

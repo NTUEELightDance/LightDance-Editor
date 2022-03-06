@@ -3,13 +3,15 @@ import { registerActions } from "../registerActions";
 import {
   getControl,
   getPos,
+  getLedMap,
   clamp,
   updateFrameByTimeMap,
   interpolationPos,
   fadeStatus,
+  updateLedEffect,
 } from "../utils";
 // types
-import { State } from "../models";
+import { State, CurrentLedEffect } from "../models";
 
 const actions = registerActions({
   /**
@@ -21,6 +23,7 @@ const actions = registerActions({
   setCurrentTime: async (state: State, payload: number) => {
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
+    const ledMap = await getLedMap();
 
     let time = payload;
     if (isNaN(time)) {
@@ -37,6 +40,8 @@ const actions = registerActions({
       state.currentControlIndex,
       time
     );
+
+    const lastControlIndex = state.currentControlIndex;
     state.currentControlIndex = newControlIndex;
     // status fade
     if (newControlIndex === controlRecord.length - 1) {
@@ -51,6 +56,17 @@ const actions = registerActions({
         state.colorMap
       );
     }
+
+    // update currentLedEffectIndexMap
+    state.currentLedEffect = updateLedEffect(
+      lastControlIndex,
+      newControlIndex,
+      state.currentLedEffect,
+      controlRecord,
+      controlMap,
+      ledMap,
+      time
+    );
 
     // set currentPosIndex
     const newPosIndex = updateFrameByTimeMap(
@@ -114,7 +130,32 @@ const actions = registerActions({
     const newTime = posMap[posRecord[posIndex]].start;
     setCurrentTime({ payload: newTime });
   },
+
+  /**
+   * initialize the currentLedEffectIndexMap
+   * @param {State} state
+   */
+  initCurrentLedEffect: (state: State) => {
+    const { dancers, partTypeMap } = state;
+    const tmp: CurrentLedEffect = {};
+    Object.entries(dancers).map(([dancerName, parts]) => {
+      tmp[dancerName] = {};
+      parts.forEach((part) => {
+        if (partTypeMap[part] === "LED") {
+          tmp[dancerName][part] = {
+            effect: [],
+            index: 0,
+          };
+        }
+      });
+    });
+    state.currentLedEffect = tmp;
+  },
 });
 
-export const { setCurrentTime, setCurrentControlIndex, setCurrentPosIndex } =
-  actions;
+export const {
+  setCurrentTime,
+  setCurrentControlIndex,
+  setCurrentPosIndex,
+  initCurrentLedEffect,
+} = actions;
