@@ -192,14 +192,14 @@ class Dancer {
     Object.entries(this.parts[FIBER]).forEach(([name, part]) => {
       const { color, alpha, colorCode } = currentStatus[name];
       part.material.emissiveIntensity = alpha / 15;
+
+      // if colorCode exist use colorCode instead
       if (colorCode) {
         part.material.emissive.copy(colorCode);
-        // console.log("Using colorCode");
       } else {
         part.material.emissive.setHex(
           parseInt(state.colorMap[color].replace(/^#/, ""), 16)
         );
-        // console.log("Using color");
       }
     });
   }

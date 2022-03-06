@@ -1,5 +1,9 @@
 import _ from "lodash";
 
+/**
+ * deleteColorCode return status without colorCode
+ * @param {object} status - target status
+ */
 export function deleteColorCode(status) {
   const pureStatus = _.cloneDeep(status);
 
