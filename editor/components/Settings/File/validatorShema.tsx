@@ -1,4 +1,4 @@
-const FIBERType = {
+const FiberSchema = {
   type: "object",
   required: ["color", "alpha"],
   properties: {
@@ -7,7 +7,7 @@ const FIBERType = {
   },
 };
 
-const LEDType = {
+const LedSchema = {
   type: "object",
   required: ["src", "alpha"],
   properties: {
@@ -16,7 +16,7 @@ const LEDType = {
   },
 };
 
-const COORDINATEType = {
+const CoordinateSchema = {
   type: "object",
   required: ["x", "y", "z"],
   properties: {
@@ -25,7 +25,7 @@ const COORDINATEType = {
     z: { type: "number" },
   },
 };
-const EFFECTSTATUSType = {
+const EffectStatusSchema = {
   type: "object",
   properties: {
     effect: {
@@ -38,13 +38,13 @@ const EFFECTSTATUSType = {
   },
   required: ["effect", "_id", "start", "fade"],
 };
-const LEDEFFECTType = {
+const LedEffectSchema = {
   type: "object",
   properties: {
     repeat: { type: "number" },
     effects: {
       type: "array",
-      items: EFFECTSTATUSType,
+      items: EffectStatusSchema,
     },
   },
   required: ["repeat", "effects"],
@@ -60,10 +60,10 @@ export const controlValidatorSchema = (dancer) => {
       let partType;
       switch (partInfo.type) {
         case "LED":
-          partType = LEDType;
+          partType = LedSchema;
           break;
         case "FIBER":
-          partType = FIBERType;
+          partType = FiberSchema;
           break;
       }
       dancerSchema.properties[partInfo.name] = partType;
@@ -74,7 +74,7 @@ export const controlValidatorSchema = (dancer) => {
 };
 
 export const posValidatorSchema = () => {
-  const Schema = COORDINATEType;
+  const Schema = CoordinateSchema;
   return Schema;
 };
 export const colorValidatorSchema = (colorMap) => {
@@ -90,6 +90,6 @@ export const colorValidatorSchema = (colorMap) => {
   return Schema;
 };
 export const ledValidatorSchema = () => {
-  const Schema = LEDEFFECTType;
+  const Schema = LedEffectSchema;
   return Schema;
 };
