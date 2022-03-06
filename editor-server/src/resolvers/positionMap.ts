@@ -95,6 +95,7 @@ export class EditPosMapResolver {
           );
         })
       );
+      await updateRedisPosition(newPositionFrame.id);
       await newPositionFrame.save();
       // subscription
       const mapPayload: PositionMapPayload = {
@@ -116,7 +117,6 @@ export class EditPosMapResolver {
           index = idx;
         }
       });
-      await updateRedisPosition(newPositionFrame.id);
 
       const recordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.CREATED,
