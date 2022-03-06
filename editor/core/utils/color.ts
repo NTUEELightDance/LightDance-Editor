@@ -14,6 +14,8 @@ export function deleteColorCode(status) {
       if (part["colorCode"]) delete pureStatus[name][partName]["colorCode"];
     });
   });
+
+  return pureStatus;
 }
 
 /**

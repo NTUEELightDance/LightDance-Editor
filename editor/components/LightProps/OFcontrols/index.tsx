@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Box,
@@ -16,7 +16,7 @@ import { Fiber, CurrentStatusDelta } from "core/models";
 const OFcontrols = ({
   part,
   currentDancers,
-  displayValue,
+  displayValue: { color, alpha },
   colorMap,
 }: {
   part: string;
@@ -25,8 +25,6 @@ const OFcontrols = ({
   colorMap: { [key: string]: string };
 }) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [intensity, setIntensity] = useState<number>(displayValue.alpha);
-  const [colorName, setColorName] = useState<string>(displayValue.color);
 
   const updateCurrentStatus = (color: string, alpha: number) => {
     const currentStatusDelta: CurrentStatusDelta = {};
@@ -40,13 +38,11 @@ const OFcontrols = ({
   };
 
   const handleColorChange = (_colorName: string) => {
-    updateCurrentStatus(_colorName, intensity);
-    setColorName(_colorName);
+    updateCurrentStatus(_colorName, alpha);
   };
 
   const handleIntensityChange = (_intensity: number) => {
-    updateCurrentStatus(colorName, _intensity);
-    setIntensity(_intensity);
+    updateCurrentStatus(color, _intensity);
   };
 
   const handleExpand = () => {
@@ -73,7 +69,7 @@ const OFcontrols = ({
           </Box>
           <Paper
             sx={{
-              backgroundColor: colorMap[colorName],
+              backgroundColor: colorMap[color],
               display: "inline-block",
               width: "1.5em",
               height: "1.5em",
@@ -81,7 +77,7 @@ const OFcontrols = ({
             }}
           />
           <Box sx={{ width: "3vw" }}>
-            <Typography>{valueLabelFormat(intensity)}</Typography>
+            <Typography>{valueLabelFormat(alpha)}</Typography>
           </Box>
           <div>{open ? <ExpandLess /> : <ExpandMore />}</div>
         </Box>
@@ -91,9 +87,8 @@ const OFcontrols = ({
         <OFcontrolsContent
           handleColorChange={handleColorChange}
           handleIntensityChange={handleIntensityChange}
-          intensity={intensity}
-          setIntensity={setIntensity}
-          currentColorName={colorName}
+          intensity={alpha}
+          currentColorName={color}
           oneLine
         />
       </Collapse>

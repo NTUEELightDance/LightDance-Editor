@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-
+// components
 import { Box, Typography, ListItemButton, Collapse, Grid } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import IntensityControl from "../IntensityControl";
-
+import LEDcontrolsContents from "./LEDcontrolsContent";
+// core
 import { LED } from "../../../core/models";
 import { editCurrentStatusLED } from "../../../core/actions";
 
@@ -16,17 +16,36 @@ const LEDcontrols = ({
   currentDancers: string[];
   displayValue: LED;
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [intensity, setIntensity] = useState<number>(displayValue.alpha);
+  // Call core actions to update currentStatus
+  const updateCurrentStatus = ({
+    src,
+    alpha,
+  }: {
+    src?: string;
+    alpha?: number;
+  }) => {
+    if (!src && !alpha) return;
+    const payload = currentDancers.map((dancerName) => ({
+      dancerName,
+      partName: part,
+      value: {
+        ...(src && { src }),
+        ...(alpha && { alpha }),
+      },
+    }));
+    editCurrentStatusLED({ payload });
+  };
 
-  // mutate global state
-  useEffect(() => {
-    currentDancers.forEach((dancerName) => {
-      editCurrentStatusLED({
-        payload: { dancerName, partName: part, value: intensity },
-      });
-    });
-  }, [intensity]);
+  const handleSrcChange = (src: string) => {
+    updateCurrentStatus({ src });
+  };
+
+  const handleIntensityChange = (alpha: number) => {
+    updateCurrentStatus({ alpha });
+  };
+
+  // UI
+  const [open, setOpen] = useState<boolean>(false);
 
   const handleExpand = () => {
     setOpen(!open);
@@ -58,17 +77,13 @@ const LEDcontrols = ({
       </ListItemButton>
 
       <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
-        <Grid
-          container
-          spacing={2}
-          alignItems="center"
-          sx={{
-            justifyContent: "space-between",
-            px: "5em",
-          }}
-        >
-          <IntensityControl intensity={intensity} setIntensity={setIntensity} />
-        </Grid>
+        <LEDcontrolsContents
+          part={part}
+          intensity={displayValue.alpha}
+          src={displayValue.src}
+          handleIntensityChange={handleIntensityChange}
+          handleSrcChange={handleSrcChange}
+        />
       </Collapse>
     </>
   );

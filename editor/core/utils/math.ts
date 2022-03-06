@@ -323,6 +323,8 @@ export function updateLedEffect(
 
       const { start, status } = controlMap[controlRecord[newControlIndex]];
       const { src } = status[dancerName][partName] as LED;
+
+      if (!src || !ledMap[partName][src]) return;
       const { repeat, effects } = ledMap[partName][src]; // repeat WON'T BE FUNCIONAL IN THIS VERSION, NEED RETHINKING OF DATA FORMAT
 
       const offset = time - start; // get the offset of time (since the led effect begins from 0)
