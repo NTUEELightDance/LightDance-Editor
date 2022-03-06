@@ -22,7 +22,12 @@ import usePos from "hooks/usePos";
 import useDancer from "hooks/useDancer";
 import useColorMap from "hooks/useColorMap";
 // states and actions
-import { setCurrentPos, setCurrentStatus, setSelected } from "core/actions";
+import {
+  setCurrentPos,
+  setCurrentStatus,
+  setSelected,
+  setCurrentTime,
+} from "core/actions";
 
 import "./app.css";
 import Layout from "containers/Layout";
@@ -86,6 +91,7 @@ const App = () => {
       if (controlError) console.error(controlError);
       // init the currentStatus
       // TODO: check record size and auto generate currentStatus if empty
+      // setCurrentTime({ payload: 0 });
       setCurrentStatus({ payload: controlMap[controlRecord[0]].status });
     }
   }, [controlLoading, controlError]);

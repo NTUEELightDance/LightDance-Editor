@@ -27,3 +27,4 @@ export const notification = _Notification;
 
 export * from "./math";
 export * from "./localStorage";
+export * from "./color";

@@ -3,9 +3,11 @@ import { registerActions } from "../registerActions";
 import { State, EditModeType, EditorType, EditingDataType } from "../models";
 // constants
 import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "constants";
-import { getControl, getPos } from "../utils";
+import { getControl, getPos, deleteColorCode } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
+
+import _ from "lodash";
 
 /**
  * This is a helper function for getting data from pos and map
@@ -16,13 +18,15 @@ const getDataHandler = async (state: State) => {
   const [controlMap, controlRecord] = await getControl();
   const [posMap, posRecord] = await getPos();
 
+  const pureStatus = deleteColorCode(state.currentStatus);
+
   if (state.editor === CONTROL_EDITOR) {
     return {
       map: controlMap,
       record: controlRecord,
       index: state.currentControlIndex,
       frameId: controlRecord[state.currentControlIndex],
-      frame: state.currentStatus,
+      frame: pureStatus,
       agent: controlAgent,
       fade: state.currentFade,
     };

@@ -10,7 +10,10 @@ import {
   PosMapType,
   PosMapElement,
   Coordinates,
+  ColorMapType,
 } from "../models";
+
+import { Color } from "three";
 
 function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
   return (
@@ -155,7 +158,8 @@ function Round1(number: number) {
 export function fadeStatus(
   time: number,
   preFrame: ControlMapElement,
-  nextFrame: ControlMapElement
+  nextFrame: ControlMapElement,
+  colorMap: ColorMapType
 ) {
   const { start: preTime, fade, status: preStatus } = preFrame;
   const { start: nextTime, status: nextStatus } = nextFrame;
@@ -203,6 +207,16 @@ export function fadeStatus(
       }
       // fiber Parts
       else if (CheckTypeOfFiber(preVal) && CheckTypeOfFiber(nextVal)) {
+        // Compute fade color with previous color and next color
+        const preColor = new Color().setHex(
+          parseInt(colorMap[preVal.color].replace(/^#/, ""), 16)
+        );
+        const nextColor = new Color().setHex(
+          parseInt(colorMap[nextVal.color].replace(/^#/, ""), 16)
+        );
+        preColor.lerp(nextColor, (time - preTime) / (nextTime - preTime));
+
+        // assign colorCode(fade Color) if fade and between two frames
         newStatus[dancer][part] = {
           alpha: Round1(
             ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
@@ -210,6 +224,7 @@ export function fadeStatus(
               preVal.alpha
           ),
           color: preVal.color,
+          colorCode: preColor,
         };
       } else {
         throw new Error(
