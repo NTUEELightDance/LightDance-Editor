@@ -5,28 +5,26 @@ export class PositionRecordPayload {
   @Field()
   mutation: PositionRecordMutation;
 
-  @Field((type) => ID, { nullable: true })
-  frameID?: string;
-
   @Field()
   editBy: string;
 
   @Field((type) => Int)
-  index?: number;
+  index: number;
 
-  @Field((type) => [String], { nullable: true })
-  addID?: string[];
+  @Field((type) => [String])
+  addID: string[];
 
-  @Field((type) => [String], { nullable: true })
-  updateID?: string[];
+  @Field((type) => [String])
+  updateID: string[];
 
-  @Field((type) => [String], { nullable: true })
-  deleteID?: string[];
+  @Field((type) => [String])
+  deleteID: string[];
 }
 
 export enum PositionRecordMutation {
+  CREATED_DELETED = "CREATED_DELETED",
+  UPDATED_DELETED = "UPDATED_DELETED",
   CREATED = "CREATED",
   UPDATED = "UPDATED",
   DELETED = "DELETED",
-  MIXED = "MIXED",
 }

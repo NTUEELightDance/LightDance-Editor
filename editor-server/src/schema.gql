@@ -80,19 +80,16 @@ scalar ControlMapMutationObjectId
 
 type ControlMapPayload {
   editBy: String!
-  frame: ControlMapMutationObjectId
-  frameID: String
-  mutation: String!
+  frame: ControlMapMutationObjectId!
 }
 
 type ControlRecordPayload {
-  addID: [String!]
-  deleteID: [String!]
+  addID: [String!]!
+  deleteID: [String!]!
   editBy: String!
-  frameID: ID
   index: Int!
   mutation: String!
-  updateID: [String!]
+  updateID: [String!]!
 }
 
 """The basic control types"""
@@ -196,6 +193,16 @@ input EditPositionInput {
   positionData: PositionDataInput!
 }
 
+type Effect {
+  alpha: Float!
+  colorCode: String!
+}
+
+input EffectInput {
+  alpha: Float!
+  colorCode: String!
+}
+
 type EffectList {
   data: EffectListObjectId!
   description: String
@@ -234,7 +241,7 @@ type LED {
 }
 
 input LEDEffectInput {
-  effect: [String!]!
+  effect: [EffectInput!]!
   fade: Boolean!
   start: Float!
 }
@@ -249,7 +256,7 @@ type LEDEffectResponse {
 }
 
 type LEDEffects {
-  effect: [String!]!
+  effect: [Effect!]!
   fade: Boolean!
   start: Float!
 }
@@ -336,19 +343,16 @@ type PositionFrame {
 
 type PositionMapPayload {
   editBy: String!
-  frame: PosMapMutationObjectId
-  frameID: String
-  mutation: String!
+  frame: PosMapMutationObjectId!
 }
 
 type PositionRecordPayload {
-  addID: [String!]
-  deleteID: [String!]
+  addID: [String!]!
+  deleteID: [String!]!
   editBy: String!
-  frameID: ID
   index: Int!
   mutation: String!
-  updateID: [String!]
+  updateID: [String!]!
 }
 
 """Mongo object id scalar type"""

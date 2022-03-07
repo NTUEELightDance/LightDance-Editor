@@ -12,10 +12,7 @@ import { Map } from "./types/map";
 import { EditPositionInput } from "./inputs/position";
 import { Topic } from "./subscriptions/topic";
 import { generateID } from "../utility";
-import {
-  PositionMapPayload,
-  PositionMapMutation,
-} from "./subscriptions/positionMap";
+import { PositionMapPayload } from "./subscriptions/positionMap";
 import { updateRedisPosition } from "../utility";
 import {
   PositionRecordPayload,
@@ -98,13 +95,16 @@ export class EditPosMapResolver {
           );
         })
       );
+      await updateRedisPosition(newPositionFrame.id);
       await newPositionFrame.save();
       // subscription
       const mapPayload: PositionMapPayload = {
-        mutation: PositionMapMutation.CREATED,
         editBy: ctx.userID,
-        frameID: newPositionFrame.id,
-        frame: { _id: newPositionFrame._id, id: newPositionFrame.id },
+        frame: {
+          createList: [newPositionFrame.id],
+          deleteList: [],
+          updateList: [],
+        },
       };
       await publish(mapPayload);
 
@@ -117,12 +117,13 @@ export class EditPosMapResolver {
           index = idx;
         }
       });
-      await updateRedisPosition(newPositionFrame.id);
 
       const recordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.CREATED,
         editBy: ctx.userID,
-        frameID: newPositionFrame.id,
+        addID: [newPositionFrame.id],
+        updateID: [],
+        deleteID: [],
         index,
       };
       await publishPositionRecord(recordPayload);
@@ -180,10 +181,12 @@ export class EditPosMapResolver {
       await updateRedisPosition(frameID);
       // subscription
       const payload: PositionMapPayload = {
-        mutation: PositionMapMutation.UPDATED,
         editBy: ctx.userID,
-        frameID,
-        frame: { _id, id: frameID },
+        frame: {
+          createList: [],
+          deleteList: [],
+          updateList: [frameID],
+        },
       };
       await publish(payload);
       return { frames: [{ _id, id: frameID }] };

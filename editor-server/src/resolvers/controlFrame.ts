@@ -20,10 +20,7 @@ import { Part } from "./types/part";
 import { generateID, updateRedisControl } from "../utility";
 import { ControlDefault } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
-import {
-  ControlMapPayload,
-  ControlMapMutation,
-} from "./subscriptions/controlMap";
+import { ControlMapPayload } from "./subscriptions/controlMap";
 import {
   ControlRecordMutation,
   ControlRecordPayload,
@@ -88,10 +85,12 @@ export class ControlFrameResolver {
     );
     await updateRedisControl(newControlFrame.id);
     const mapPayload: ControlMapPayload = {
-      mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
-      frameID: newControlFrame.id,
-      frame: { _id: newControlFrame._id, id: newControlFrame.id },
+      frame: {
+        createList: [newControlFrame.id],
+        deleteList: [],
+        updateList: [],
+      },
     };
     await publishControlMap(mapPayload);
     const allControlFrames = await ctx.db.ControlFrame.find().sort({
@@ -106,7 +105,9 @@ export class ControlFrameResolver {
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.CREATED,
       editBy: ctx.userID,
-      frameID: newControlFrame.id,
+      addID: [newControlFrame.id],
+      updateID: [],
+      deleteID: [],
       index,
     };
     await publishControlRecord(recordPayload);
@@ -146,10 +147,12 @@ export class ControlFrameResolver {
     });
     await updateRedisControl(controlFrame.id);
     const payload: ControlMapPayload = {
-      mutation: ControlMapMutation.CREATED,
       editBy: ctx.userID,
-      frameID: controlFrame.id,
-      frame: { _id: controlFrame._id, id: controlFrame.id },
+      frame: {
+        createList: [],
+        deleteList: [],
+        updateList: [controlFrame.id],
+      },
     };
     await publishControlMap(payload);
     const allControlFrames = await ctx.db.ControlFrame.find().sort({
@@ -164,7 +167,9 @@ export class ControlFrameResolver {
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.UPDATED,
       editBy: ctx.userID,
-      frameID: controlFrame.id,
+      addID: [],
+      updateID: [controlFrame.id],
+      deleteID: [],
       index,
     };
     await publishControlRecord(recordPayload);
@@ -202,14 +207,19 @@ export class ControlFrameResolver {
     await ctx.db.Control.deleteMany({ frame: _id });
     await redis.del(frameID);
     const mapPayload: ControlMapPayload = {
-      mutation: ControlMapMutation.DELETED,
       editBy: ctx.userID,
-      frameID: frameID,
+      frame: {
+        createList: [],
+        deleteList: [frameID],
+        updateList: [],
+      },
     };
     await publishControlMap(mapPayload);
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.DELETED,
-      frameID: frameID,
+      addID: [],
+      updateID: [],
+      deleteID: [frameID],
       editBy: ctx.userID,
       index: -1,
     };

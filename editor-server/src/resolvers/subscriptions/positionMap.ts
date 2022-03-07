@@ -4,22 +4,9 @@ import { PosData, PosDataScalar } from "../types/posData";
 
 @ObjectType()
 export class PositionMapPayload {
-  @Field()
-  mutation: PositionMapMutation;
-
-  @Field((type) => PosDataScalar, { nullable: true })
-  frame?: any;
-
-  @Field({ nullable: true })
-  frameID?: string;
+  @Field((type) => PosDataScalar)
+  frame: any;
 
   @Field()
   editBy: string;
-}
-
-export enum PositionMapMutation {
-  UPDATED = "UPDATED",
-  CREATED = "CREATED",
-  DELETED = "DELETED",
-  MIXED = "MIXED",
 }
