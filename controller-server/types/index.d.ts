@@ -1,24 +1,7 @@
 import ControlPanelSocket from "./controlPanelSocket";
 import DancerSocket from "./dancerSocket";
 import { DancerName } from "./dancer"
-
-// Command Type
-enum CommandType {
-  SYNC = "sync",
-  UPLOAD_LED = "uploadLed",
-  UPLOAD_CONTROL = "uploadControl",
-  LOAD = "load",
-  PLAY = "play",
-  PAUSE = "pause",
-  STOP = "stop",
-  LIGTHCURRENTSTATUS = "lightCurrentStatus",
-  KICK = "kick",
-  SHUTDOWN = "shutdown",
-  REBOOT = "reboot",
-  BOARDINFO = "boardinfo",
-  INIT = "init",
-  TEST = "test"
-}
+import { CommandType } from "../constants/index"
 
 // General payload type
 // request only
@@ -37,10 +20,10 @@ interface LedType {
 }
 // response only
 enum ClientType {
-  CONTROLPANEL = "controlpanel",
-  RPI = "rpi"
+  CONTROLPANEL = "controlPanel",
+  RPI = "RPi"
 }
-interface BoardInfoType {
+interface InfoType {
   type: ClientType,
   name: string,
   ip?: string  // only needed when type is RPI
@@ -55,7 +38,7 @@ interface SyncType {
 interface MesC2S {
   command: CommandType,
   selectedDancers: [DancerName],
-  payload: PlayTimeType | LightStatusType | ControlType | LedType
+  payload: PlayTimeType | LightStatusType | InfoType  // Control panel frontend info
 }
 // Server to Control Panel
 interface MesS2C {
@@ -63,7 +46,7 @@ interface MesS2C {
   payload: {
     from: DancerName,
     success: boolean,
-    info: string | BoardInfoType | SyncType
+    info: string | InfoType | SyncType  // RPi info
   }
 }
 // Server to RPi
@@ -76,7 +59,7 @@ interface MesR2S {
   command: CommandType,
   payload: {
     success: boolean,
-    info: string | BoardInfoType | SyncType
+    info: string | InfoType | SyncType  // RPi info
   }
 }
 
@@ -106,7 +89,7 @@ export {
   ControlType,
   LedType,
   ClientType,
-  BoardInfoType,
+  InfoType,
   SyncType,
   MesC2S,
   MesS2C,
