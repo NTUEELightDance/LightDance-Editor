@@ -75,7 +75,7 @@ const actions = registerActions({
   /**
    * Edit current Status (LED)
    * @param {State} state
-   * @param {object} payload
+   * @param {object[]} payload
    */
 
   editCurrentStatusLED: (
@@ -84,19 +84,16 @@ const actions = registerActions({
       dancerName: string;
       partName: string;
       value: LED;
-    }
+    }[]
   ) => {
-    const {
-      dancerName,
-      partName,
-      value: { src, alpha },
-    } = payload;
-
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    if (src && src !== "")
-      (state.currentStatus[dancerName][partName] as LED).src = src;
-    if (typeof alpha === "number")
-      (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
+
+    payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
+      if (src && src !== "")
+        (state.currentStatus[dancerName][partName] as LED).src = src;
+      if (typeof alpha === "number")
+        (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
+    });
   },
 
   /**

@@ -1,4 +1,4 @@
-import { controlAgent, posAgent } from "../../api";
+import { controlAgent, posAgent, ledAgent } from "../../api";
 import { reactiveState } from "core/state";
 
 import { notification as _Notification } from "./Notification";
@@ -12,6 +12,10 @@ export async function getControl() {
     controlAgent.getControlMap(),
     controlAgent.getControlRecord(),
   ]);
+}
+
+export async function getLedMap() {
+  return await ledAgent.getLedMap();
 }
 
 /**

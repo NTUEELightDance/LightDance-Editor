@@ -187,7 +187,7 @@ const DancerMode = () => {
       );
     }
     return ret;
-  }, [displayParts, partGroups]);
+  }, [displayParts, partGroups, currentDancers, currentStatus, colorMap]);
 
   return (
     <TabContext value={currentTab as PartType}>

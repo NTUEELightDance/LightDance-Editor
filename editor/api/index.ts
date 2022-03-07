@@ -2,6 +2,8 @@ import store from "../store";
 import client from "../client";
 import lodash from "lodash";
 
+export * from "./LedAgent";
+
 // gql
 import {
   GET_CONTROL_MAP,
@@ -122,18 +124,21 @@ export const controlAgent = {
         variables: {
           start: frameTime,
           fade: fade,
-          controlData: Object.keys(frame).map((key) => {
+          controlData: Object.keys(frame).map((dancerName) => {
             return {
-              dancerName: key,
-              controlData: Object.keys(frame[key]).map((k) => {
-                if (typeof (frame as ControlMapStatus)[key][k] === "number")
+              dancerName: dancerName,
+              controlData: Object.keys(frame[dancerName]).map((partName) => {
+                if (
+                  typeof (frame as ControlMapStatus)[dancerName][partName] ===
+                  "number"
+                )
                   return {
-                    partName: k,
-                    ELValue: (frame as ControlMapStatus)[key][k],
+                    partName,
+                    ELValue: (frame as ControlMapStatus)[dancerName][partName],
                   };
                 return {
-                  partName: k,
-                  ...((frame as ControlMapStatus)[key][k] as Object),
+                  partName,
+                  ...(frame as ControlMapStatus)[dancerName][partName],
                 };
               }),
             };

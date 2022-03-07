@@ -11,13 +11,19 @@ import {
 } from "constants";
 import { number, string } from "prop-types";
 
+export type id = string;
+export type DancerName = string;
+export type PartName = string;
+export type ColorName = string;
+export type ColorCode = string;
+
 /**
  * ControlRecord and ControlMap
  */
-export type ControlRecordType = string[]; // array of all IDs , each correspondsto diff status
+export type ControlRecordType = id[]; // array of all IDs , each correspondsto diff status
 
 export interface ControlMapType {
-  [index: string]: ControlMapElement;
+  [index: id]: ControlMapElement;
 }
 
 export interface ControlMapElement {
@@ -27,11 +33,11 @@ export interface ControlMapElement {
 }
 
 export interface ControlMapStatus {
-  [index: string]: DancerStatus; //dancerNames :  dancerStatus
+  [index: DancerName]: DancerStatus; //DancerNames :  dancerStatus
 }
 
 interface DancerStatus {
-  [index: string]: Fiber | El | LED; //partNames: partStatus
+  [index: PartName]: Fiber | El | LED; //PartNames: partStatus
 }
 
 export interface Fiber {
@@ -48,20 +54,20 @@ export interface LED {
 
 export type CurrentStatusDelta = {
   // dancer name
-  [key: string]: {
+  [key: DancerName]: {
     // part name
-    [key: string]: El | LED | Fiber;
+    [key: PartName]: El | LED | Fiber;
   };
 };
 
 /**
  * PosRecord and PosMap
  */
-export type PosRecordType = string[]; // array of all IDs , each correspondsto diff status
+export type PosRecordType = id[]; // array of all IDs , each correspondsto diff status
 
 export interface PosMapType {
   //IDs: {start, pos}
-  [index: string]: PosMapElement;
+  [index: id]: PosMapElement;
 }
 
 export interface PosMapElement {
@@ -71,35 +77,13 @@ export interface PosMapElement {
 
 export interface DancerCoordinates {
   // dancer: coordinates
-  [index: string]: Coordinates;
+  [index: DancerName]: Coordinates;
 }
 
 export interface Coordinates {
   x: number;
   y: number;
   z: number;
-}
-
-/**
- * EffectRecordMap and EffectStatusMap
- */
-export interface EffectRecordMapType {
-  [index: string]: EffectRecordType; // effectName: effectRecord
-}
-export type EffectRecordType = string[];
-
-export interface EffectStatusMapType {
-  [index: string]: EffectStatusMapElementType;
-}
-
-interface EffectStatusMapElementType {
-  start: number;
-  status: EffectStatusType;
-  fade: boolean; // if this frame fades to the next
-}
-
-export interface EffectStatusType {
-  [index: string]: DancerStatus; //dancerNames :  dancerStatus
 }
 
 /**
@@ -134,7 +118,7 @@ export type SelectionModeType = DANCER | PART | POSITION;
  * Dancer name with its parts
  */
 interface DancerParts {
-  name: string;
+  name: DancerName;
   parts: Part[];
 }
 
@@ -142,7 +126,7 @@ interface DancerParts {
  * Part, includes its name and type
  */
 interface Part {
-  name: string;
+  name: PartName;
   type: PartType;
 }
 
@@ -160,14 +144,54 @@ type PartType = "LED" | "FIBER" | "El";
  * DancerType
  */
 export interface DancersType {
-  [key: string]: string[]; // dancerName: partNames
+  [key: DancerName]: PartName[]; // DancerName: PartNames
 }
 
 /**
  * ColorMap
  */
 export type ColorMapType = {
-  [key: string]: string;
+  [key: ColorName]: ColorCode;
+};
+
+/**
+ * CurrentLedEffect
+ * Save the ledEffect index and the effect
+ */
+export type CurrentLedEffect = {
+  [key: DancerName]: {
+    [key: PartName]: {
+      index: number;
+      effect: {
+        colorCode: ColorCode;
+        alpha: number;
+      }[]; // this is to handle faded effect, so we will clone the effect from ledMap
+    };
+  };
+};
+
+/**
+ * Led Effect Map
+ */
+export type LedMap = {
+  [key: PartName]: {
+    [key: LedEffectName]: LedEffect;
+  };
+};
+
+type LedEffectName = string;
+
+type LedEffect = {
+  repeat: number; // 0 for continously repeat // THIS WON'T BE FUNCIONAL IN THIS VERSION
+  effects: LedEffectFrame[];
+};
+export type LedEffectFrame = {
+  start: number;
+  fade: boolean;
+  effect: {
+    colorCode: ColorCode;
+    alpha: number;
+  }[]; // ColorCode array for led strips
 };
 
 /**
@@ -192,6 +216,7 @@ export interface State {
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: DancerCoordinates; // current dancers' position
+  currentLedEffect: CurrentLedEffect;
 
   editMode: EditModeType; // IDLE | EDITING | ADDING
   editor: EditorType; // editor, should be CONTROL_EDITOR or POS_EDITOR
@@ -201,11 +226,8 @@ export interface State {
 
   selectionMode: SelectionModeType; // selection mode used by simulator and dancer tree
 
-  effectRecordMap: EffectRecordMapType; // map of all effects and corresponding record ID array
-  effectStatusMap: EffectStatusMapType; // map of effect record ID and its status
-
   dancers: DancersType;
-  dancerNames: string[];
+  dancerNames: DancerName[];
   partTypeMap: PartTypeMapType;
   colorMap: ColorMapType;
 }
@@ -223,6 +245,7 @@ export interface ReactiveState {
   currentFade: ReactiveVar<boolean>; // current control Frame will fade to next
   currentStatus: ReactiveVar<ControlMapStatus>; // current dancers' status
   currentPos: ReactiveVar<DancerCoordinates>; // current dancers' position
+  currentLedEffect: ReactiveVar<CurrentLedEffect>;
 
   editMode: ReactiveVar<EditModeType>;
   editor: ReactiveVar<EditorType>;
@@ -232,11 +255,8 @@ export interface ReactiveState {
 
   selectionMode: ReactiveVar<SelectionModeType>; // selection mode used by simulator and dancer tree
 
-  effectRecordMap: ReactiveVar<EffectRecordMapType>; // map of all effects and corresponding record ID array
-  effectStatusMap: ReactiveVar<EffectStatusMapType>; // map of effect record ID and its status
-
   dancers: ReactiveVar<DancersType>;
-  dancerNames: ReactiveVar<string[]>;
+  dancerNames: ReactiveVar<DancerName[]>;
   partTypeMap: ReactiveVar<PartTypeMapType>;
   colorMap: ReactiveVar<ColorMapType>;
 }

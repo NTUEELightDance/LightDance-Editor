@@ -26,7 +26,7 @@ import {
   setCurrentPos,
   setCurrentStatus,
   setSelected,
-  setCurrentTime,
+  initCurrentLedEffect,
 } from "core/actions";
 
 import "./app.css";
@@ -114,6 +114,14 @@ const App = () => {
       setSelected({ payload: selected });
     }
   }, [dancerLoading, dancerNames]);
+
+  // initLedEffectIndexMap need dancer's data
+  // so wait until the dancerLoading is false
+  useEffect(() => {
+    if (!dancerLoading) {
+      initCurrentLedEffect();
+    }
+  }, [dancerLoading]);
 
   return (
     <div>
