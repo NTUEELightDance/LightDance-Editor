@@ -22,7 +22,7 @@ const exportLED = async (req: any, res: any) => {
             const newEffect = effect.map((effectData: any) => {
               const { colorCode, alpha } = effectData;
               return { alpha, colorCode };
-            })
+            });
             return { effect: newEffect, start, fade };
           });
           part[effectName] = { repeat, effects: newEffects };

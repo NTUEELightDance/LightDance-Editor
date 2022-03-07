@@ -33,7 +33,7 @@ const LEDSchema = new Schema({
           alpha: {
             type: Number,
             required: [true, "alpha in effects is required"],
-          }
+          },
         },
       ],
     },
