@@ -162,7 +162,10 @@ export type CurrentLedEffect = {
   [key: DancerName]: {
     [key: PartName]: {
       index: number;
-      effect: ColorCode[]; // this is to handle faded effect, so we will clone the effect from ledMap
+      effect: {
+        colorCode: ColorCode;
+        alpha: number;
+      }[]; // this is to handle faded effect, so we will clone the effect from ledMap
     };
   };
 };
@@ -185,7 +188,10 @@ type LedEffect = {
 export type LedEffectFrame = {
   start: number;
   fade: boolean;
-  effect: ColorCode[]; // ColorCode array for led strips
+  effect: {
+    colorCode: ColorCode;
+    alpha: number;
+  }[]; // ColorCode array for led strips
 };
 
 /**

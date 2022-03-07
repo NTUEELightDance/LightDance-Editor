@@ -365,11 +365,15 @@ export function updateLedEffect(
         if (newEffect === currEffect) newEffect = cloneDeep(currEffect);
         // do fade
         const { start: nextStart, effect: nextEffect } = effects[newIndex + 1];
-        newEffect.forEach((s, idx) => {
-          const { colorCode: currColorCode, alpha: currAlpha } = JSON.parse(s);
-          const { colorCode: nextColorCode, alpha: nextAlpha } = JSON.parse(
-            nextEffect[idx]
-          );
+
+        if (nextEffect.length !== newEffect.length) {
+          throw `[Error] ${dancerName}/${partName}/${src} effect length not the same (start: ${currStart})`;
+        }
+
+        newEffect.forEach((_, idx) => {
+          const { colorCode: currColorCode, alpha: currAlpha } = newEffect[idx];
+          const { colorCode: nextColorCode, alpha: nextAlpha } =
+            nextEffect[idx];
 
           const newColor = fadeColor(
             currColorCode,
@@ -387,10 +391,10 @@ export function updateLedEffect(
             nextStart
           );
 
-          newEffect[idx] = JSON.stringify({
+          newEffect[idx] = {
             colorCode: newColor,
             alpha: newAlpha,
-          });
+          };
         });
       }
       newLedEffect[dancerName][partName].effect = newEffect;
