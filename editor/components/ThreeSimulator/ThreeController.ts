@@ -223,6 +223,7 @@ class ThreeController {
     const { dancerMap } = store.getState().load;
 
     dancerNames.forEach((name) => {
+      console.log(name);
       const { url } = dancerMap[name];
       const newDancer = new Dancer(this.scene, name, url, this.manager);
       newDancer.addModel2Scene(currentStatus[name], currentPos[name]);

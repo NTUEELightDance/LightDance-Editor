@@ -64,37 +64,67 @@ const BLUE_DANCER = [
   { name: "Shoulder_R_LED", type: "LED" },
 ];
 
-const DANCER = [
-  {
-    num: 36,
-    parts: [],
-    name: "Visor_LED",
-  },
-];
+const DANCER = [];
+const pos = {};
+
+YELLOW_DANCER.forEach((e) => {
+  const { name } = e;
+  const newName = `Y_${name}`;
+  DANCER.push({ num: 36, parts: [], name: newName });
+  pos[newName] = { x: -5, y: 0, z: 0 };
+});
+
+BLUE_DANCER.forEach((e) => {
+  const { name } = e;
+  const newName = `B_${name}`;
+  DANCER.push({ num: 36, parts: [], name: newName });
+  pos[newName] = { x: 0, y: 0, z: 0 };
+});
+
+RED_DANCER.forEach((e) => {
+  const { name } = e;
+  const newName = `R_${name}`;
+  DANCER.push({ num: 36, parts: [], name: newName });
+  pos[newName] = { x: 5, y: 0, z: 0 };
+});
+
+// const DANCER = [
+//   {
+//     num: 36,
+//     parts: [],
+//     name: "Visor_LED",
+//   },
+// ];
 
 const status = {};
 
-const pos = { Visor_LED: { x: 0, y: 0, z: 0 } };
+// const pos = { Visor_LED: { x: 0, y: 0, z: 0 } };
+const urlMapping = {};
 
 DANCER.forEach((dancer, i) => {
   const { parts, name, num } = dancer;
   status[name] = {};
+
+  urlMapping[name] = { url: "/asset/models/yellow_visor_led.draco.glb" };
   for (let i = 0; i < num; i++) {
     parts.push({
       name: `${name}${String(i).padStart(3, "0")}`,
       type: "FIBER",
     });
   }
+
   parts.forEach((part) => {
     switch (part.type) {
       case "FIBER":
         status[name][part.name] = { color: "yellow", alpha: 1 };
+        break;
       default:
         console.log("Not Fiber!!!");
     }
   });
   delete dancer["num"];
 });
+console.log(urlMapping);
 
 const CONTROL = {
   "01HvN": {

@@ -133,6 +133,7 @@ class Dancer {
     text.position.set(0, 8, 0);
 
     text.name = "nameTag";
+    text.visible = false;
 
     this.nameTag = text;
   }

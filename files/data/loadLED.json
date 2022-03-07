@@ -36,8 +36,33 @@
   },
   "Texture": "/data/texture.json",
   "DancerMap": {
-    "Visor_LED": {
-      "url": "/asset/models/yellow_visor_led.draco.glb"
-    }
+    "Y_Glove_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Glove_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Visor_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_CollarBone_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_CollarBone_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Shoe_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Shoe_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Shoulder_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Shoulder_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Hand_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "Y_Hand_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Glove_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Glove_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Shoe_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Hand_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Hand_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Shoe_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Shoulder_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "B_Shoulder_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Rune_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Rune_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Rune_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Shoe_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Shoe_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Chest_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Wrist_R_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Wrist_L_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" },
+    "R_Eyes_LED": { "url": "/asset/models/yellow_visor_led.draco.glb" }
   }
 }
