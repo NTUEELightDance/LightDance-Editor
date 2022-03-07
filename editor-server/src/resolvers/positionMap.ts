@@ -95,8 +95,8 @@ export class EditPosMapResolver {
           );
         })
       );
-      await updateRedisPosition(newPositionFrame.id);
       await newPositionFrame.save();
+      await updateRedisPosition(newPositionFrame.id);
       // subscription
       const mapPayload: PositionMapPayload = {
         editBy: ctx.userID,
