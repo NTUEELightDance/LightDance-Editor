@@ -191,7 +191,7 @@ class Dancer {
   }
 
   unhover() {
-    this.model.getObjectByName("Human").material.color.setHex(0x000000);
+    this.model.getObjectByName("Human").material.color.setHex(0x131313);
   }
 }
 

@@ -19,6 +19,8 @@ import { state } from "core/state";
 
 import Controls from "./Controls";
 
+import store from "../../store";
+
 // controls to control the scene
 
 /**
@@ -113,7 +115,7 @@ class ThreeController {
 
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(0, 10, 0);
+    directionalLight.position.set(0, 10, 10);
     scene.add(directionalLight);
 
     // Postprocessing for antialiasing effect
@@ -218,21 +220,10 @@ class ThreeController {
     this.initLoadManager();
 
     const { dancerNames, currentStatus, currentPos } = state;
+    const { dancerMap } = store.getState().load;
 
     dancerNames.forEach((name) => {
-      let url;
-      const index = Number(name.split("_")[0]);
-      if (index <= 5 && index >= 0) {
-        url = "/asset/models/yellow_with_visor_led.draco.glb";
-        // url = "/asset/models/yellow.glb";
-      } else if (index >= 6 && index <= 10) {
-        url = "/asset/models/cyan.draco.glb";
-        // url = "/asset/models/cyan.glb";
-      } else if (index === 11) {
-        url = "/asset/models/magenta.draco.glb";
-        // url = "/asset/models/magenta.glb";
-      }
-
+      const { url } = dancerMap[name];
       const newDancer = new Dancer(this.scene, name, url, this.manager);
       newDancer.addModel2Scene(currentStatus[name], currentPos[name]);
       this.dancers[name] = newDancer;
