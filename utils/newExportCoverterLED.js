@@ -28,40 +28,40 @@ try {
 const { position, control, dancer } = JSON.parse(raw);
 
 const YELLOW_DANCER = [
-  { name: "Glove_L_LED", type: "LED" },
-  { name: "Glove_R_LED", type: "LED" },
   { name: "Visor_LED", type: "LED" },
-  { name: "CollarBone_R_LED", type: "LED" },
-  { name: "CollarBone_L_LED", type: "LED" },
-  { name: "Shoe_R_LED", type: "LED" },
-  { name: "Shoe_L_LED", type: "LED" },
-  { name: "Shoulder_R_LED", type: "LED" },
-  { name: "Shoulder_L_LED", type: "LED" },
-  { name: "Hand_R_LED", type: "LED" },
-  { name: "Hand_L_LED", type: "LED" },
+  // { name: "Glove_L_LED", type: "LED" },
+  // { name: "Glove_R_LED", type: "LED" },
+  // { name: "CollarBone_R_LED", type: "LED" },
+  // { name: "CollarBone_L_LED", type: "LED" },
+  // { name: "Shoe_R_LED", type: "LED" },
+  // { name: "Shoe_L_LED", type: "LED" },
+  // { name: "Shoulder_R_LED", type: "LED" },
+  // { name: "Shoulder_L_LED", type: "LED" },
+  // { name: "Hand_R_LED", type: "LED" },
+  // { name: "Hand_L_LED", type: "LED" },
 ];
 
 const RED_DANCER = [
-  { name: "Rune_LED", type: "LED" },
-  { name: "Rune_L_LED", type: "LED" },
-  { name: "Rune_R_LED", type: "LED" },
-  { name: "Shoe_R_LED", type: "LED" },
-  { name: "Shoe_L_LED", type: "LED" },
-  { name: "Chest_LED", type: "LED" },
-  { name: "Wrist_R_LED", type: "LED" },
-  { name: "Wrist_L_LED", type: "LED" },
-  { name: "Eyes_LED", type: "LED" },
+  // { name: "Rune_LED", type: "LED" },
+  // { name: "Rune_L_LED", type: "LED" },
+  // { name: "Rune_R_LED", type: "LED" },
+  // { name: "Shoe_R_LED", type: "LED" },
+  // { name: "Shoe_L_LED", type: "LED" },
+  // { name: "Chest_LED", type: "LED" },
+  // { name: "Wrist_R_LED", type: "LED" },
+  // { name: "Wrist_L_LED", type: "LED" },
+  // { name: "Eyes_LED", type: "LED" },
 ];
 
 const BLUE_DANCER = [
-  { name: "Glove_L_LED", type: "LED" },
-  { name: "Glove_R_LED", type: "LED" },
-  { name: "Shoe_R_LED", type: "LED" },
-  { name: "Hand_R_LED", type: "LED" },
-  { name: "Hand_L_LED", type: "LED" },
-  { name: "Shoe_L_LED", type: "LED" },
-  { name: "Shoulder_L_LED", type: "LED" },
-  { name: "Shoulder_R_LED", type: "LED" },
+  // { name: "Glove_L_LED", type: "LED" },
+  // { name: "Glove_R_LED", type: "LED" },
+  // { name: "Shoe_R_LED", type: "LED" },
+  // { name: "Hand_R_LED", type: "LED" },
+  // { name: "Hand_L_LED", type: "LED" },
+  // { name: "Shoe_L_LED", type: "LED" },
+  // { name: "Shoulder_L_LED", type: "LED" },
+  // { name: "Shoulder_R_LED", type: "LED" },
 ];
 
 const DANCER = [];
@@ -116,7 +116,7 @@ DANCER.forEach((dancer, i) => {
   parts.forEach((part) => {
     switch (part.type) {
       case "FIBER":
-        status[name][part.name] = { color: "yellow", alpha: 1 };
+        status[name][part.name] = { color: "yellow", alpha: 0 };
         break;
       default:
         console.log("Not Fiber!!!");
