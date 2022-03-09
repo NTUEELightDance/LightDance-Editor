@@ -1,4 +1,5 @@
 import { MiddlewareFn } from "type-graphql";
+import model from "../models";
 
 export const AccessMiddleware: MiddlewareFn<any> = async (
   { info, context },
@@ -20,7 +21,7 @@ export const AccessMiddleware: MiddlewareFn<any> = async (
       await next();
     }
   } catch (errorMessage) {
-    await new context.db.Logger({
+    await new model.Logger({
       user: context.userID,
       variableValues,
       type: parentType,

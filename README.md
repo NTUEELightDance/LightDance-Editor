@@ -110,3 +110,10 @@ node initDB.js ${filePath}
 node initLED.js ${filePath}
 // node initLED.js ../others/dance_json/test_exportLED.json
 ```
+
+### Initialize User
+```
+cd editor-server
+npx ts-node ./src/initUser.ts ${filePath}
+// npx ts-node ./src/initUser.ts ./src/data/users.json
+```

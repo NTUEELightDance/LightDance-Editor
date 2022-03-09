@@ -1,7 +1,10 @@
-import model from "./models";
+import bcrypt from "bcrypt"
 import "dotenv-defaults/config";
-import redis from "./redis";
 import { nanoid } from "nanoid";
+
+import redis from "./redis";
+import model from "./models";
+import userData from "./data/users.json"
 
 interface LooseObject {
   [key: string]: any;
@@ -9,6 +12,15 @@ interface LooseObject {
 
 const initData = async () => {
   await model.User.deleteMany();
+  const saltRounds = 10;
+  await Promise.all(
+      userData.map(async(data: any)=> {
+          const {userID, name, password} = data;
+          const newPassword = await bcrypt.hash(password, saltRounds)
+          const user = new model.User({userID, password: newPassword, name})
+          await user.save()
+      })
+  )
 };
 
 const initRedisControl = async () => {

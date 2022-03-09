@@ -6,6 +6,7 @@ import exportLED from "./api/exportLED";
 import uploadLED from "./api/uploadLED";
 import exportLogger from "./api/exportLogger";
 import getLogger from "./api/getLogger";
+import getToken from "./api/getToken";
 
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.get("/exportLED.json", exportLED);
 router.post("/uploadLED", uploadLED);
 router.get("/exportLogger.csv", exportLogger);
 router.get("/logger", getLogger);
+router.post("/login", getToken);
 
 export default router;

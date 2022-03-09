@@ -10,6 +10,7 @@ import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import fileUpload from "express-fileupload";
+import jwt from "jsonwebtoken"
 
 import { resolvers } from "./resolvers";
 import db from "./models";
@@ -17,8 +18,16 @@ import mongo from "./mongo";
 import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
 
+interface JwtPayload{
+  userID: string
+}
+
 const port = process.env.PORT || 4000;
 const { SECRET_KEY } = process.env;
+let secretKey: string
+if (SECRET_KEY){
+  secretKey = SECRET_KEY
+}
 
 (async function () {
   const app = express();
@@ -45,14 +54,16 @@ const { SECRET_KEY } = process.env;
     webSocket: any
   ) => {
     try {
-      const { userID, name } = connectionParams;
-      if (!userID) throw new Error("UserID and name must be filled.");
+      const token = connectionParams.Authorization || '';
+      const splitToken = token.split(' ')[1]
+      if (!splitToken) throw new Error("Token not found")
+      const result = jwt.verify(splitToken, secretKey) as JwtPayload
+      const {userID} = result
       const user = await db.User.findOne({ userID });
       if (user) {
         return { db, userID };
       } else {
-        await new db.User({ name, userID }).save();
-        return { db, userID };
+        throw new Error("User not found")
       }
     } catch (e) {}
   };
@@ -63,7 +74,6 @@ const { SECRET_KEY } = process.env;
       const { userID } = initialContext;
       await db.ControlFrame.updateMany({ editing: userID }, { editing: null });
       await db.PositionFrame.updateMany({ editing: userID }, { editing: null });
-      await db.User.deleteMany({ userID });
     }
   };
 
@@ -82,18 +92,19 @@ const { SECRET_KEY } = process.env;
     schema,
     context: async ({ req }) => {
       try {
-        const { name, userid } = req.headers;
-        if (!userid || !name)
-          throw new Error("UserID and name must be filled.");
-        const user = await db.User.findOne({ name, userID: userid });
-        if (!user) {
-          const newUser = await new db.User({ name, userID: userid }).save();
-        }
+        const token = req.headers.authorization || '';
+        const splitToken = token.split(' ')[1]
+        if (!splitToken) throw new Error("Token not found")
+        const result = jwt.verify(splitToken, secretKey) as JwtPayload
+        const {userID} = result
 
-        return { db, userID: userid };
-      } catch (e) {
-        console.log(e);
-      }
+        const user = await db.User.findOne({ userID });
+        if (user) {
+          return { db, userID };
+        } else {
+          throw new Error("User not found")
+        }
+      } catch (e) {}
     },
     plugins: [
       {
