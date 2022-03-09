@@ -2,6 +2,7 @@ import { WebSocket } from "ws";
 import { CommandType } from "../constants";
 import { PlayTimeType, MesC2S, MesS2C } from "../types";
 import { ClientAgent } from "../clientAgent";
+import { v4 as uuidv4 } from "uuid";
 
 export class ControlPanelSocket {
   ws: any;
@@ -10,13 +11,9 @@ export class ControlPanelSocket {
   methods: {
     [index: string]: Function;
   };
-  constructor(
-    ws: WebSocket,
-    controlPanelName: string,
-    clientAgent: ClientAgent
-  ) {
+  constructor(ws: WebSocket, clientAgent: ClientAgent) {
     this.ws = null;
-    this.controlPanelName = controlPanelName;
+    this.controlPanelName = uuidv4();
     this.clientAgent = clientAgent;
 
     this.init(ws);
@@ -58,9 +55,7 @@ export class ControlPanelSocket {
       // this.controlPanelAgent.deleteClient(this.controlPanelName);
     };
   };
-  getClientIp = () => {
-    return;
-  };
+
   sendDataToClientControlPanel = (data: MesS2C) => {
     if (this.ws) this.ws.send(JSON.stringify(data));
   };

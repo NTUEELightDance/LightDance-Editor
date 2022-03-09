@@ -7,19 +7,27 @@ import downloadControlJson from "../downloadControl";
 
 class DancerSocket {
   ws: any;
-  clientIp: string;
+  clientIP: string;
   dancerName: string;
   clientAgent: ClientAgent;
+  hostName: string;
   methods: {
     [index: string]: Function;
   };
-  constructor(ws: WebSocket, dancerName: string, clientAgent: ClientAgent) {
+  constructor(
+    ws: WebSocket,
+    dancerName: string = "",
+    hostName: string = "",
+    clientAgent: ClientAgent,
+    ip: string = ""
+  ) {
     this.ws = null;
-    this.clientIp = "";
+    this.clientIP = "";
     this.clientAgent = clientAgent;
     this.dancerName = dancerName;
+    this.hostName = hostName;
     this.init(ws);
-    this.getClientIp();
+    this.clientIP = ip;
     this.handleMessage();
 
     this.methods = {
@@ -61,13 +69,13 @@ class DancerSocket {
   sendDataToRpiSocket = (data: MesS2R) => {
     if (this.ws) this.ws.send(JSON.stringify(data));
   };
-  getClientIp = () => {
-    if (this.ws) {
-      console.log(`${this.dancerName} Ip: ${this.ws._socket.remoteAddress}`);
-      this.clientIp = this.ws._socket.remoteAddress;
-      return this.clientIp;
-    }
-  };
+  // getClientIp = () => {
+  //   if (this.ws) {
+  //     console.log(`${this.dancerName} Ip: ${this.ws._socket.remoteAddress}`);
+  //     this.clientIp = this.ws._socket.remoteAddress;
+  //     return this.clientIp;
+  //   }
+  // };
   // Below are functions for manager to use
   sync = () => {
     console.log(CommandType.SYNC);

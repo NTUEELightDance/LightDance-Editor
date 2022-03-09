@@ -12,9 +12,7 @@ import NtpServer from "./ntp/index";
 import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 // const board_config = require("../files/data/board_config.json");
-import * as board_config_data from "../files/data/board_config.json";
 import { ClientAgent } from "./clientAgent";
-const board_config = board_config_data as Dic;
 import { CommandType } from "./constants";
 import { client } from "websocket";
 
@@ -37,79 +35,73 @@ wss.on("connection", (ws) => {
     // We defined that the first task for clients (dancer and editor) will be boardInfo
     // This can then let us split the logic between dancerClients and editorClients
     if (command === CommandType.BOARDINFO) {
-      const { type, name: hostName } = payload as InfoType;
       // check type : rpi or controlpanel
 
+      const { type } = payload as InfoType;
       // rpi
       switch (type) {
         case ClientType.RPI: {
           // check if `dancer` type's hostname is in board_config.json
-          if (hostName in board_config) {
-            const { dancerName } = board_config[hostName];
-
-            // socket connection established
-            const dancerSocket = new DancerSocket(ws, dancerName, clientAgent);
-            dancerSocket.handleMessage();
-
-            // response
-            Object.values(clientAgent.controlPanelClients.getClients()).forEach(
-              (controlPanel) => {
-                const ws = controlPanel.ws;
-                // render dancer's info at frontend
-                const dancerIPs = clientAgent.dancerClients.getClientsIP();
-                const name = JSON.stringify(Object.keys(dancerIPs));
-                const ip = JSON.stringify(Object.values(dancerIPs));
-                const res: MesS2C = {
-                  command: CommandType.BOARDINFO,
-                  payload: {
-                    success: true,
-                    info: {
-                      type: ClientType.RPI,
-                      name,
-                      ip,
-                    },
-                  },
-                };
-                ws.send(JSON.stringify(res));
-              }
-            );
-          } else {
-            // `dancer` type's hostName is not in board_config
-            console.error(
-              `'dancer' type board connected, but not found hostname in board_config`
-            );
-          }
-          break;
-        }
-
-        // controlpanel
-        case ClientType.CONTROLPANEL: {
-          const controlPanelName = hostName; // send from controlPanelSocketAPI
+          const { dancerName, hostName, ip } = payload as InfoType;
 
           // socket connection established
-          const controlPanelSocket = new ControlPanelSocket(
+          const dancerSocket = new DancerSocket(
             ws,
-            controlPanelName,
-            clientAgent
+            dancerName,
+            hostName,
+            clientAgent,
+            ip
           );
-          controlPanelSocket.handleMessage();
+          dancerSocket.handleMessage();
 
           // response
           Object.values(clientAgent.controlPanelClients.getClients()).forEach(
             (controlPanel) => {
               const ws = controlPanel.ws;
               // render dancer's info at frontend
-              const dancerIPs = clientAgent.dancerClients.getClientsIP();
-              const name = JSON.stringify(Object.keys(dancerIPs));
-              const ip = JSON.stringify(Object.values(dancerIPs));
+              const dancerInfo = clientAgent.dancerClients.getClientsInfo();
+
               const res: MesS2C = {
                 command: CommandType.BOARDINFO,
                 payload: {
                   success: true,
                   info: {
                     type: ClientType.RPI,
-                    name,
-                    ip,
+                    dancerName: dancerInfo["dancerName"],
+                    hostName: dancerInfo["hostName"],
+                    ip: dancerInfo["ip"],
+                  },
+                },
+              };
+              ws.send(JSON.stringify(res));
+            }
+          );
+
+          break;
+        }
+
+        // controlpanel
+        case ClientType.CONTROLPANEL: {
+          // socket connection established
+          const controlPanelSocket = new ControlPanelSocket(ws, clientAgent);
+          controlPanelSocket.handleMessage();
+          console.log(clientAgent.controlPanelClients.getClients());
+          // response
+          Object.values(clientAgent.controlPanelClients.getClients()).forEach(
+            (controlPanel) => {
+              const ws = controlPanel.ws;
+              // render dancer's info at frontend
+              const dancerInfo = clientAgent.dancerClients.getClientsInfo();
+
+              const res: MesS2C = {
+                command: CommandType.BOARDINFO,
+                payload: {
+                  success: true,
+                  info: {
+                    type: ClientType.RPI,
+                    dancerName: dancerInfo["dancerName"],
+                    hostName: dancerInfo["hostName"],
+                    ip: dancerInfo["ip"],
                   },
                 },
               };

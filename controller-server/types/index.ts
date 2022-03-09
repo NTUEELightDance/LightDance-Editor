@@ -25,8 +25,9 @@ enum ClientType {
 }
 interface InfoType {
   type: ClientType;
-  name: string;
+  dancerName?: string;
   ip?: string; // only needed when type is RPI
+  hostName?: string;
 }
 interface SyncType {
   delay: TimeType; // ms

@@ -17,14 +17,17 @@ class ClientList {
   getClients = () => {
     return this.clientList;
   };
-  getClientsIP = () => {
-    const clientsIP: Dic = {};
-    Object.keys(this.clientList).forEach((name) => {
-      const ip = this.clientList[name].getClientIp();
-      clientsIP[name] = ip;
+
+  // only for dancer
+  getClientsInfo = () => {
+    const clientsInfo: Dic = { ip: [], dancerName: [], hostName: [] };
+    const dancerList = this.clientList as dancerClientDic;
+    Object.keys(dancerList).forEach((name) => {
+      clientsInfo["ip"].push(dancerList[name].clientIP);
+      clientsInfo["dancerName"].push(name);
+      clientsInfo["hostName"].push(dancerList[name].hostName);
     });
-    console.log("ips: ", clientsIP);
-    return clientsIP;
+    return clientsInfo;
   };
 }
 
