@@ -6,15 +6,17 @@ import { WebSocketServer } from "ws";
 import DancerSocket from "./test_websocket/dancerSocket";
 // import ControlPanelSocket from "./websocket/controlPanelSocket";
 import ControlPanelSocket from "./test_websocket/controlPanelSocket";
-import { Dic, dancerClientDic, controlPanelClientDic } from "./types";
+import { Dic, ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
 import NtpServer from "./ntp/index";
 
 import { createRequire } from "module";
-import COMMANDS from "./constants/index";
 // const require = createRequire(import.meta.url);
 // const board_config = require("../files/data/board_config.json");
 import * as board_config_data from "../files/data/board_config.json";
+import { ClientAgent } from "./clientAgent";
 const board_config = board_config_data as Dic;
+import { CommandType } from "./constants";
+console.log(board_config)
 
 const app = express();
 const server = http.createServer(app);
@@ -22,124 +24,111 @@ const wss = new WebSocketServer({ server });
 
 const ntpServer = new NtpServer(); // ntp server for sync time
 
-const dancerClients: dancerClientDic = {};
-const controlPanelClients: controlPanelClientDic = {};
-
-/**
- * handle all message received from webSocket, and emit to other sockets
- * Ex. message from RPi's webSocket => emit message to controlPanel's websocket
- * Ex. message from ControlPanel's webSocket => emit to RPi (performance) or emit to other controlPanel (multi editing)
- * @param {string} from - from who
- * @param {{ type, task, payload }} msg
- */
-const socketReceiveData = (from: string, msg: any) => {
-  // msg type need to be specified later
-  const { type, task, payload } = msg;
-  switch (type) {
-    case "dancer": {
-      Object.values(controlPanelClients).forEach(
-        (controlPanel: ControlPanelSocket) => {
-          //   TODO: modify the argument data format to meet the data type SocketMes
-          //   controlPanel.sendDataToClientControlPanel([
-          //     task,
-          //     {
-          //       from,
-          //       response: payload,
-          //     },
-          //   ]);
-        }
-      );
-      break;
-    }
-    case "controlPanel": {
-      break;
-    }
-    default:
-      break;
-  }
-
-  console.log("dancerClients: ", Object.keys(dancerClients));
-  console.log("controlPanelClients: ", Object.keys(controlPanelClients));
-};
-
-// DancerClientsAgent: to handle add or delete someone in dancerClients
-const DancerClientsAgent = {
-  addDancerClient: (dancerName: string, dancerSocket: any) => {
-    // dancerSocket is of type DancerSocket
-    dancerClients[dancerName] = dancerSocket;
-  },
-  deleteDancerClient: (dancerName: string) => {
-    delete dancerClients[dancerName];
-  },
-  getDancerClients: () => {
-    return dancerClients;
-  },
-  socketReceiveData,
-};
-// ControlPanelClientsAgent: to handle add or delete someone in controlPanelClients
-const ControlPanelClientsAgent = {
-  addControlPanelClient: (
-    controlPanelName: string,
-    controlPanelSocket: ControlPanelSocket
-  ) => {
-    controlPanelClients[controlPanelName] = controlPanelSocket;
-  },
-  deleteControlPanelClient: (controlPanelName: string) => {
-    delete controlPanelClients[controlPanelName];
-  },
-  socketReceiveData,
-};
+const clientAgent = new ClientAgent();
 
 // websocket
 wss.on("connection", (ws) => {
   ws.onmessage = (msg: any) => {
     // need to consider further type assignment
-    const [task, payload] = JSON.parse(msg.data);
-    console.log("Client response: ", task, "\nPayload: ", payload);
+    const parsedData: MesC2S = JSON.parse(msg.data);
+    const { command, payload } = parsedData;
+    console.log("Client response: ", command, "\nPayload: ", payload);
 
-    // We defined that the first task for clients (dancer and controlPanel) will be boardInfo
-    // This can then let us split the logic between dancerClients and controlPanelClients
-    if (task === "boardInfo") {
-      const { type } = payload;
-      const hostName = payload.name;
-      if (type === "dancer") {
-        // check if `dancer` type's hostname is in board_config.json
-        if (hostName in board_config) {
-          const { dancerName } = board_config[hostName];
-          // ask about dancerClient
-          const dancerSocket = new DancerSocket(
-            ws,
-            dancerName,
-            DancerClientsAgent
-          );
-          dancerSocket.handleMessage();
+    // We defined that the first task for clients (dancer and editor) will be boardInfo
+    // This can then let us split the logic between dancerClients and editorClients
+    if (command === CommandType.BOARDINFO) {
+      const { type, name: hostName } = payload as InfoType;
+      // check type : rpi or controlpanel
 
-          Object.values(controlPanelClients).forEach((controlPanel) => {
-            const ws = controlPanel.ws;
-            // render dancer's info at frontend
-            ws.send(JSON.stringify(["getIp", { dancerClients }]));
-          });
-        } else {
-          // `dancer` type's hostName is not in board_config
-          console.error(
-            `'dancer' type board connected, but not found hostname in board_config`
-          );
+      // rpi
+      switch (type) {
+        case ClientType.RPI: {
+          // check if `dancer` type's hostname is in board_config.json
+          if (hostName in board_config) {
+            const { dancerName } = board_config[hostName];
+
+            // socket connection established
+            const dancerSocket = new DancerSocket(ws, dancerName, clientAgent);
+            dancerSocket.handleMessage();
+
+            // response
+            Object.values(clientAgent.controlPanelClients.getClients()).forEach(
+              (controlPanel) => {
+                const ws = controlPanel.ws;
+                // render dancer's info at frontend
+                const res: MesS2C = {
+                  command: CommandType.BOARDINFO,
+                  payload: {
+                    success: true,
+                    info: {
+                      type: ClientType.RPI,
+                      name: JSON.stringify(
+                        Object.keys(clientAgent.dancerClients.getClientsIP())
+                      ),
+                      ip: JSON.stringify(
+                        Object.values(
+                          clientAgent.dancerClients.getClientsIP()
+                        )
+                      ),
+                    },
+                  },
+                };
+                ws.send(JSON.stringify(res));
+              }
+            );
+          } else {
+            // `dancer` type's hostName is not in board_config
+            console.error(
+              `'dancer' type board connected, but not found hostname in board_config`
+            );
+          }
+          break;
         }
-      } else if (type === "controlPanel") {
-        const controlPanelName = hostName; // send from controlPanelSocketAPI
 
-        const controlPanelSocket = new ControlPanelSocket(
-          ws,
-          controlPanelName,
-          ControlPanelClientsAgent,
-          DancerClientsAgent
-        );
+        // controlpanel
+        case ClientType.CONTROLPANEL: {
+          const controlPanelName = hostName; // send from controlPanelSocketAPI
 
-        controlPanelSocket.handleMessage();
+          // socket connection established
+          const controlPanelSocket = new ControlPanelSocket(
+            ws,
+            controlPanelName,
+            clientAgent
+          );
+          controlPanelSocket.handleMessage();
 
-        ws.send(JSON.stringify(["getIp", { dancerClients }])); // render dancer's info at frontend
-      } else {
-        console.error(`Invalid type ${type} on connection`);
+          // response
+          Object.values(clientAgent.controlPanelClients.getClients()).forEach(
+            (controlPanel) => {
+              const ws = controlPanel.ws;
+              // render dancer's info at frontend
+              const res: MesS2C = {
+                command: CommandType.BOARDINFO,
+                payload: {
+                  success: true,
+                  info: {
+                    type: ClientType.RPI,
+                    name: JSON.stringify(
+                      Object.keys(clientAgent.dancerClients.getClientsIP())
+                    ), // is this ok ?
+                    ip: JSON.stringify(
+                      Object.values(
+                        clientAgent.dancerClients.getClientsIP()
+                      )
+                    ),
+                  },
+                },
+              };
+              ws.send(JSON.stringify(res));
+            }
+          );
+          break;
+        }
+
+        // error
+        default: {
+          console.error(`Invalid type ${type} on connection`);
+        }
       }
     }
   };

@@ -3,8 +3,5 @@ enum DancerName {
   "wish",
   "daniel",
 }
-  
-export {
-  DancerName
-}
-  
+
+export { DancerName };
