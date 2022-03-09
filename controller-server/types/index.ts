@@ -38,7 +38,7 @@ interface SyncType {
 interface MesC2S {
   command: CommandType;
   selectedDancers: [DancerName];
-  payload: PlayTimeType | LightStatusType | InfoType; // Control panel frontend info
+  payload: string | PlayTimeType | LightStatusType | InfoType; // Control panel frontend info
 }
 // Server to Control Panel
 interface MesS2C {
@@ -52,7 +52,7 @@ interface MesS2C {
 // Server to RPi
 interface MesS2R {
   command: CommandType;
-  payload?: PlayTimeType | LightStatusType | ControlType | LedType;
+  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType;
 }
 // RPi to Server
 interface MesR2S {

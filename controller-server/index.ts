@@ -16,6 +16,7 @@ import * as board_config_data from "../files/data/board_config.json";
 import { ClientAgent } from "./clientAgent";
 const board_config = board_config_data as Dic;
 import { CommandType } from "./constants";
+import { client } from "websocket";
 console.log(board_config);
 
 const app = express();
@@ -56,18 +57,17 @@ wss.on("connection", (ws) => {
               (controlPanel) => {
                 const ws = controlPanel.ws;
                 // render dancer's info at frontend
+                const dancerIPs = clientAgent.dancerClients.getClientsIP();
+                const name = JSON.stringify(Object.keys(dancerIPs));
+                const ip = JSON.stringify(Object.values(dancerIPs));
                 const res: MesS2C = {
                   command: CommandType.BOARDINFO,
                   payload: {
                     success: true,
                     info: {
                       type: ClientType.RPI,
-                      name: JSON.stringify(
-                        Object.keys(clientAgent.dancerClients.getClientsIP())
-                      ),
-                      ip: JSON.stringify(
-                        Object.values(clientAgent.dancerClients.getClientsIP())
-                      ),
+                      name,
+                      ip,
                     },
                   },
                 };
@@ -100,18 +100,17 @@ wss.on("connection", (ws) => {
             (controlPanel) => {
               const ws = controlPanel.ws;
               // render dancer's info at frontend
+              const dancerIPs = clientAgent.dancerClients.getClientsIP();
+              const name = JSON.stringify(Object.keys(dancerIPs));
+              const ip = JSON.stringify(Object.values(dancerIPs));
               const res: MesS2C = {
                 command: CommandType.BOARDINFO,
                 payload: {
                   success: true,
                   info: {
                     type: ClientType.RPI,
-                    name: JSON.stringify(
-                      Object.keys(clientAgent.dancerClients.getClientsIP())
-                    ), // is this ok ?
-                    ip: JSON.stringify(
-                      Object.values(clientAgent.dancerClients.getClientsIP())
-                    ),
+                    name,
+                    ip,
                   },
                 },
               };
