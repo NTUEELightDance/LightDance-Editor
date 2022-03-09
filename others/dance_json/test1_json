@@ -1,0 +1,165 @@
+{
+  "input": {
+    "partName": "Visor_LED",
+    "effectName": "spread2",
+    "repeat": 0,
+    "effects": [
+      {
+        "start": 0,
+        "fade": true,
+        "effect": [
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          }
+        ]
+      },
+      {
+        "start": 100,
+        "fade": true,
+        "effect": [
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          }
+        ]
+      },
+      {
+        "start": 200,
+        "fade": true,
+        "effect": [
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          }
+        ]
+      },
+      {
+        "start": 300,
+        "fade": true,
+        "effect": [
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          }
+        ]
+      },
+      {
+        "start": 400,
+        "fade": true,
+        "effect": [
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 0
+          }
+        ]
+      },
+      {
+        "start": 500,
+        "fade": true,
+        "effect": [
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          },
+          {
+            "colorCode": "#ffffff",
+            "alpha": 10
+          }
+        ]
+      }
+    ]
+  }
+}

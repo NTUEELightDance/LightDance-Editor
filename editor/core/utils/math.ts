@@ -325,7 +325,7 @@ export function updateLedEffect(
       const { index } = newLedEffect[dancerName][partName];
 
       const { start, status } = controlMap[controlRecord[newControlIndex]];
-      const { src } = status[dancerName][partName] as LED;
+      const { src, alpha: effectAlpha } = status[dancerName][partName] as LED;
 
       if (!src || !ledMap[partName][src]) return;
       const { repeat, effects } = ledMap[partName][src]; // repeat WON'T BE FUNCIONAL IN THIS VERSION, NEED RETHINKING OF DATA FORMAT

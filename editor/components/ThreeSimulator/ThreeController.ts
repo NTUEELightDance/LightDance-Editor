@@ -223,7 +223,7 @@ class ThreeController {
       let url;
       const index = Number(name.split("_")[0]);
       if (index <= 5 && index >= 0) {
-        url = "/asset/models/yellow.draco.glb";
+        url = "/asset/models/yellow_with_visor_led.draco.glb";
         // url = "/asset/models/yellow.glb";
       } else if (index >= 6 && index <= 10) {
         url = "/asset/models/cyan.draco.glb";
@@ -304,25 +304,6 @@ class ThreeController {
     });
   }
 
-  // calculate and set next frame status according to time and call updateDancers
-  update(clockDelta) {
-    this.updateDancersStatus(state.currentStatus);
-    this.updateDancersPos(state.currentPos);
-  }
-
-  // call each dancers's update
-  updateDancers() {
-    const { state } = this;
-    Object.values(this.dancers).forEach((dancer) => {
-      const newPos = {
-        x: state.currentPos[dancer.name].x,
-        y: state.currentPos[dancer.name].y,
-        z: state.currentPos[dancer.name].z,
-      };
-      dancer.update(newPos, state.currentStatus[dancer.name]);
-    });
-  }
-
   updateSelected(selected) {
     if (Object.entries(selected).length === 0)
       throw new Error(
@@ -331,13 +312,31 @@ class ThreeController {
     this.controls.selectControls.updateSelected(selected);
   }
 
+  // calculate and set next frame status according to time and call updateDancers
+  update(clockDelta) {
+    this.updateDancersStatus(state.currentStatus);
+    this.updateDancerLED(state.currentLedEffect);
+
+    this.updateDancersPos(state.currentPos);
+  }
+
   updateDancersStatus(currentStatus) {
     if (Object.entries(currentStatus).length === 0)
       throw new Error(
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
-    Object.entries(currentStatus).forEach(([key, value]) => {
-      this.dancers[key].setStatus(value);
+    Object.entries(currentStatus).forEach(([dancerName, status]) => {
+      this.dancers[dancerName].setFiberStatus(status);
+    });
+  }
+
+  updateDancerLED(currentLedEffect) {
+    if (Object.entries(currentLedEffect).length === 0)
+      throw new Error(
+        `[Error] updateDancersLED, invalid parameter(currentLedEffect)`
+      );
+    Object.entries(currentLedEffect).forEach(([dancerName, status]) => {
+      this.dancers[dancerName].setLEDStatus(status);
     });
   }
 
