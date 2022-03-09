@@ -6,15 +6,12 @@ import { WebSocketServer } from "ws";
 import DancerSocket from "./test_websocket/dancerSocket";
 // import ControlPanelSocket from "./websocket/controlPanelSocket";
 import ControlPanelSocket from "./test_websocket/controlPanelSocket";
-import { Dic, ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
+import { ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
 import NtpServer from "./ntp/index";
 
-import { createRequire } from "module";
-// const require = createRequire(import.meta.url);
-// const board_config = require("../files/data/board_config.json");
+
 import { ClientAgent } from "./clientAgent";
 import { CommandType } from "./constants";
-import { client } from "websocket";
 
 const app = express();
 const server = http.createServer(app);
