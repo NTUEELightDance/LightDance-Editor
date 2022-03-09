@@ -35,7 +35,7 @@ export class ControlPanelSocket {
   handleMessage = () => {
     this.ws.onmessage = (message: any) => {
       const parsedData: MesC2S = JSON.parse(message.data);
-      console.log(parsedData)
+      console.log(parsedData);
       const { command, selectedDancers, payload } = parsedData;
       console.log(
         `${this.controlPanelName} response : ${command}\nPayload: ${payload}`
@@ -60,7 +60,7 @@ export class ControlPanelSocket {
     };
   };
   getClientIp = () => {
-    return
+    return;
   };
   sendDataToClientControlPanel = (data: MesS2C) => {
     if (this.ws) this.ws.send(JSON.stringify(data));

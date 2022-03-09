@@ -65,7 +65,7 @@ class DancerSocket {
     if (this.ws) {
       console.log(`${this.dancerName} Ip: ${this.ws._socket.remoteAddress}`);
       this.clientIp = this.ws._socket.remoteAddress;
-      return this.clientIp
+      return this.clientIp;
     }
   };
   // Below are functions for manager to use
@@ -103,7 +103,7 @@ class DancerSocket {
 
   uploadControl = async () => {
     const controlJSON = await downloadControlJson();
-    console.log(controlJSON)
+    console.log(controlJSON);
     // TODO: controlJSON parse
 
     this.sendDataToRpiSocket({

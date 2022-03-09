@@ -16,7 +16,7 @@ import * as board_config_data from "../files/data/board_config.json";
 import { ClientAgent } from "./clientAgent";
 const board_config = board_config_data as Dic;
 import { CommandType } from "./constants";
-console.log(board_config)
+console.log(board_config);
 
 const app = express();
 const server = http.createServer(app);
@@ -66,9 +66,7 @@ wss.on("connection", (ws) => {
                         Object.keys(clientAgent.dancerClients.getClientsIP())
                       ),
                       ip: JSON.stringify(
-                        Object.values(
-                          clientAgent.dancerClients.getClientsIP()
-                        )
+                        Object.values(clientAgent.dancerClients.getClientsIP())
                       ),
                     },
                   },
@@ -112,9 +110,7 @@ wss.on("connection", (ws) => {
                       Object.keys(clientAgent.dancerClients.getClientsIP())
                     ), // is this ok ?
                     ip: JSON.stringify(
-                      Object.values(
-                        clientAgent.dancerClients.getClientsIP()
-                      )
+                      Object.values(clientAgent.dancerClients.getClientsIP())
                     ),
                   },
                 },
