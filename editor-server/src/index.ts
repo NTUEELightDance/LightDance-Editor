@@ -10,7 +10,7 @@ import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import fileUpload from "express-fileupload";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
 import { resolvers } from "./resolvers";
 import db from "./models";
@@ -18,15 +18,15 @@ import mongo from "./mongo";
 import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
 
-interface JwtPayload{
-  userID: string
+interface JwtPayload {
+  userID: string;
 }
 
 const port = process.env.PORT || 4000;
 const { SECRET_KEY } = process.env;
-let secretKey: string
-if (SECRET_KEY){
-  secretKey = SECRET_KEY
+let secretKey: string;
+if (SECRET_KEY) {
+  secretKey = SECRET_KEY;
 }
 
 (async function () {
@@ -54,16 +54,16 @@ if (SECRET_KEY){
     webSocket: any
   ) => {
     try {
-      const token = connectionParams.Authorization || '';
-      const splitToken = token.split(' ')[1]
-      if (!splitToken) throw new Error("Token not found")
-      const result = jwt.verify(splitToken, secretKey) as JwtPayload
-      const {userID} = result
+      const token = connectionParams.Authorization || "";
+      const splitToken = token.split(" ")[1];
+      if (!splitToken) throw new Error("Token not found");
+      const result = jwt.verify(splitToken, secretKey) as JwtPayload;
+      const { userID } = result;
       const user = await db.User.findOne({ userID });
       if (user) {
         return { db, userID };
       } else {
-        throw new Error("User not found")
+        throw new Error("User not found");
       }
     } catch (e) {}
   };
@@ -92,17 +92,17 @@ if (SECRET_KEY){
     schema,
     context: async ({ req }) => {
       try {
-        const token = req.headers.authorization || '';
-        const splitToken = token.split(' ')[1]
-        if (!splitToken) throw new Error("Token not found")
-        const result = jwt.verify(splitToken, secretKey) as JwtPayload
-        const {userID} = result
+        const token = req.headers.authorization || "";
+        const splitToken = token.split(" ")[1];
+        if (!splitToken) throw new Error("Token not found");
+        const result = jwt.verify(splitToken, secretKey) as JwtPayload;
+        const { userID } = result;
 
         const user = await db.User.findOne({ userID });
         if (user) {
           return { db, userID };
         } else {
-          throw new Error("User not found")
+          throw new Error("User not found");
         }
       } catch (e) {}
     },
