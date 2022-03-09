@@ -4,9 +4,9 @@ import { Zoom } from "@mui/material";
 import styles from "./styles.module.css";
 
 import { EDITING } from "constants";
-import { EditModeType } from "core/models";
+import { EditMode } from "core/models";
 
-const EditorIndicator = ({ editMode }: { editMode: EditModeType }) => {
+const EditorIndicator = ({ editMode }: { editMode: EditMode }) => {
   return (
     <Zoom in={editMode === EDITING}>
       <div

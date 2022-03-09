@@ -9,14 +9,14 @@ import {
   ReactiveState,
   ControlMapStatus,
   DancerCoordinates,
-  EditingDataType,
-  EditModeType,
-  EditorType,
-  SelectionModeType,
-  SelectedType,
-  DancersType,
-  PartTypeMapType,
-  ColorMapType,
+  EditingData,
+  EditMode,
+  Editor,
+  SelectionMode,
+  Selected,
+  Dancers,
+  PartTypeMap,
+  ColorMap,
   DancerName,
   CurrentLedEffect,
 } from "../models";
@@ -51,7 +51,6 @@ const _state: State = {
   dancerNames: [],
   partTypeMap: {},
   colorMap: {},
-
 };
 
 // The diffSet will save changed attributes in state
@@ -68,7 +67,7 @@ export const state = onChange(
  */
 export const reactiveState: ReactiveState = {
   isPlaying: makeVar<boolean>(false),
-  selected: makeVar<SelectedType>({}),
+  selected: makeVar<Selected>({}),
   currentTime: makeVar<number>(0),
   currentControlIndex: makeVar<number>(0),
   currentPosIndex: makeVar<number>(0),
@@ -78,19 +77,19 @@ export const reactiveState: ReactiveState = {
   currentFade: makeVar<boolean>(false),
   currentLedEffect: makeVar<CurrentLedEffect>({}),
 
-  editMode: makeVar<EditModeType>(IDLE),
-  editor: makeVar<EditorType>(CONTROL_EDITOR),
-  editingData: makeVar<EditingDataType>({
+  editMode: makeVar<EditMode>(IDLE),
+  editor: makeVar<Editor>(CONTROL_EDITOR),
+  editingData: makeVar<EditingData>({
     frameId: "",
     start: 0,
     index: 0,
   }),
-  selectionMode: makeVar<SelectionModeType>(DANCER),
+  selectionMode: makeVar<SelectionMode>(DANCER),
 
-  dancers: makeVar<DancersType>({}),
+  dancers: makeVar<Dancers>({}),
   dancerNames: makeVar<DancerName[]>([]),
-  partTypeMap: makeVar<PartTypeMapType>({}),
-  colorMap: makeVar<ColorMapType>({}),
+  partTypeMap: makeVar<PartTypeMap>({}),
+  colorMap: makeVar<ColorMap>({}),
 };
 
 /**

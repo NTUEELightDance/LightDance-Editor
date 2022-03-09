@@ -3,12 +3,7 @@ import { TabPanel } from "@mui/lab";
 
 import OFcontrols from "../OFcontrols";
 
-import {
-  DancerName,
-  PartName,
-  PartType,
-  ColorMapType,
-} from "../../../core/models";
+import { DancerName, PartName, PartType, ColorMap } from "../../../core/models";
 import LEDcontrols from "../LEDcontrols";
 
 import { ControlMapStatus, LED, Fiber } from "../../../core/models";
@@ -26,7 +21,7 @@ const PropertyPanel = ({
   parts: PartName[];
   currentDancers: DancerName[];
   currentStatus: ControlMapStatus;
-  colorMap: ColorMapType;
+  colorMap: ColorMap;
 }) => {
   const _parts = [...parts].sort();
 

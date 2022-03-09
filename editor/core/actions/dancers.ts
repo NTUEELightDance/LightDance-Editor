@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, DancersType, PartTypeMapType } from "../models";
+import { State, Dancers, PartTypeMap } from "../models";
 
 const actions = registerActions({
   /**
@@ -12,13 +12,13 @@ const actions = registerActions({
   /**
    * Set dancers
    */
-  setDancers(state: State, payload: DancersType) {
+  setDancers(state: State, payload: Dancers) {
     state.dancers = payload;
   },
   /**
    * Set partTypeMap
    */
-  setPartTypeMap(state: State, payload: PartTypeMapType) {
+  setPartTypeMap(state: State, payload: PartTypeMap) {
     state.partTypeMap = payload;
   },
 });

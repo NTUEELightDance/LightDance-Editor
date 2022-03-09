@@ -1,16 +1,16 @@
 import {
   ControlMapElement,
-  ControlMapType,
-  ControlRecordType,
+  ControlMap,
+  ControlRecord,
   ControlMapStatus,
   LED,
   Fiber,
   El,
-  PosRecordType,
-  PosMapType,
+  PosRecord,
+  PosMap,
   PosMapElement,
   Coordinates,
-  ColorMapType,
+  ColorMap,
   CurrentLedEffect,
   LedMap,
   LedEffectFrame,
@@ -58,8 +58,8 @@ export function clamp(val: number, mi: number, ma: number) {
  * @param {number} time - timestamp
  */
 export function updateFrameByTimeMap(
-  record: ControlRecordType | PosRecordType,
-  map: ControlMapType | PosMapType,
+  record: ControlRecord | PosRecord,
+  map: ControlMap | PosMap,
   frame: number,
   time: number
 ) {
@@ -88,8 +88,8 @@ export function updateFrameByTimeMap(
  * @param {number} time - target time
  */
 export function binarySearchFrameMap(
-  record: ControlRecordType | PosRecordType,
-  map: ControlMapType | PosMapType,
+  record: ControlRecord | PosRecord,
+  map: ControlMap | PosMap,
   time: number
 ) {
   if (!Array.isArray(record))
@@ -165,7 +165,7 @@ export function fadeStatus(
   time: number,
   preFrame: ControlMapElement,
   nextFrame: ControlMapElement,
-  colorMap: ColorMapType
+  colorMap: ColorMap
 ) {
   const { start: preTime, fade, status: preStatus } = preFrame;
   const { start: nextTime, status: nextStatus } = nextFrame;
@@ -309,8 +309,8 @@ export function updateLedEffect(
   lastControlIndex: number,
   newControlIndex: number,
   currentLedEffect: CurrentLedEffect,
-  controlRecord: ControlRecordType,
-  controlMap: ControlMapType,
+  controlRecord: ControlRecord,
+  controlMap: ControlMap,
   ledMap: LedMap,
   time: number
 ) {

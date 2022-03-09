@@ -1,15 +1,15 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, SelectedType, PartPayloadType } from "../models";
+import { State, Selected, PartPayload } from "../models";
 import _ from "lodash";
 
 const actions = registerActions({
   /**
    * Set the 'selected' object
    * @param {State} state
-   * @param {SelectedType} payload - object containing dancer names as keys selected parts as values
+   * @param {Selected} payload - object containing dancer names as keys selected parts as values
    */
-  setSelected: (state: State, payload: SelectedType) => {
+  setSelected: (state: State, payload: Selected) => {
     state.selected = payload;
   },
 
@@ -28,9 +28,9 @@ const actions = registerActions({
   /**
    * Set selected dancer
    * @param {State} state
-   * @param {PartPayloadType} payload
+   * @param {PartPayload} payload
    */
-  setSelectedParts: (state: State, payload: PartPayloadType) => {
+  setSelectedParts: (state: State, payload: PartPayload) => {
     Object.keys(state.selected).forEach((dancer) => {
       state.selected[dancer].parts = payload.hasOwnProperty(dancer)
         ? payload[dancer]
