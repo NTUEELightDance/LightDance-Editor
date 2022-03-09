@@ -1,59 +1,47 @@
 import { WebSocket } from "ws";
-import COMMANDS from "../constants";
-import { PlayTimeType, SocketMes, Dic } from "../types";
-import downloadControlJson from "../downloadControl";
+import { CommandType } from "../constants";
+import { PlayTimeType, MesC2S, MesS2C } from "../types";
+import { ClientAgent } from "../clientAgent";
+import { v4 as uuidv4 } from "uuid";
 
-class ControlPanelSocket {
+export class ControlPanelSocket {
   ws: any;
   controlPanelName: string;
-  controlPanelAgent: Dic;
-  dancerAgent: Dic;
+  clientAgent: ClientAgent;
   methods: {
     [index: string]: Function;
   };
-  constructor(
-    ws: WebSocket,
-    controlPanelName: string,
-    controlPanelAgent: Dic,
-    dancerAgent: Dic
-  ) {
+  constructor(ws: WebSocket, clientAgent: ClientAgent) {
     this.ws = null;
-    this.controlPanelName = controlPanelName;
-    this.controlPanelAgent = controlPanelAgent;
-    this.dancerAgent = dancerAgent;
+    this.controlPanelName = uuidv4();
+    this.clientAgent = clientAgent;
+
     this.init(ws);
 
     this.methods = {
-      [COMMANDS.PAUSE]: this.pause,
-      [COMMANDS.PLAY]: this.play,
-      [COMMANDS.STOP]: this.stop,
+      [CommandType.PAUSE]: this.pause,
+      [CommandType.PLAY]: this.play,
+      [CommandType.STOP]: this.stop,
     };
   }
 
   init = (ws: WebSocket) => {
     this.ws = ws;
-    this.controlPanelAgent.addControlPanelClient(this.controlPanelName, this);
+    this.clientAgent.controlPanelClients.addClient(this.controlPanelName, this);
   };
   handleMessage = () => {
     this.ws.onmessage = (message: any) => {
-      const { task, payload } = JSON.parse(message.data);
+      const parsedData: MesC2S = JSON.parse(message.data);
+      const { command, selectedDancers, payload } = parsedData;
       console.log(
-        `${this.controlPanelName} response : ${task}\nPayload: ${payload}`
+        `${this.controlPanelName} response : ${command}\nPayload: ${payload}`
       );
 
-      // after getting boardInfo, editor can make commands with apis
-      if (task === "controlPanelCommand") {
-        let { command, args, selectedDancers } = payload;
-        if (command === COMMANDS.UPLOAD_CONTROL) {
-          downloadControlJson().then((result) => (args = result));
-        }
-        const dancers = this.dancerAgent.getDancerClients();
-        console.log(dancers);
-        selectedDancers.forEach((dancerName: string) => {
-          dancers[dancerName].methods[command](args);
-        });
-        this.ws.send(command);
-      }
+      const dancers = this.clientAgent.dancerClients.getClients();
+      selectedDancers.forEach((dancerName) => {
+        dancers[dancerName].methods[command](payload);
+      });
+      this.ws.send(command);
 
       // this.controlPanelAgent.socketReceiveData(this.controlPanelName, {
       //     task: task,
@@ -67,8 +55,9 @@ class ControlPanelSocket {
       // this.controlPanelAgent.deleteClient(this.controlPanelName);
     };
   };
-  sendDataToClientControlPanel = (data: SocketMes) => {
-    if (this.ws) this.ws.send(JSON.stringify);
+
+  sendDataToClientControlPanel = (data: MesS2C) => {
+    if (this.ws) this.ws.send(JSON.stringify(data));
   };
   play = (time: PlayTimeType = { startTime: 0, delay: 0, sysTime: 0 }) => {
     // TODO

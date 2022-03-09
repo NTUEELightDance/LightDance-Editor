@@ -13,7 +13,7 @@ enum CommandType {
   REBOOT = "reboot",
   BOARDINFO = "boardInfo",
   INIT = "init",
-  TEST = "test"
+  TEST = "test",
 }
 
 export { CommandType };
