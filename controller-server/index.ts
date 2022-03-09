@@ -17,7 +17,6 @@ import { ClientAgent } from "./clientAgent";
 const board_config = board_config_data as Dic;
 import { CommandType } from "./constants";
 import { client } from "websocket";
-console.log(board_config);
 
 const app = express();
 const server = http.createServer(app);
