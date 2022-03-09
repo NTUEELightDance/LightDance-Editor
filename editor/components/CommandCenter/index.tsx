@@ -17,6 +17,8 @@ import commandApi from "./agent";
 // redux selector and actions
 import { selectGlobal } from "../../slices/globalSlice";
 import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
+//hooks
+import useWebsocket from "../../hooks/useWebsocket";
 // states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
@@ -55,13 +57,12 @@ export default function CommandCenter() {
   const classes = useStyles();
 
   // redux
-  const { controlRecord } = useSelector(selectGlobal);
+  // const { controlRecord } = useSelector(selectGlobal);
 
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const time = useReactiveVar(reactiveState.currentTime);
 
-  const { dancerStatus } = useSelector(selectCommand);
-
+  const { dancerStatus } = useWebsocket();
   const dispatch = useDispatch();
   // delay
   const [delay, setDelay] = useState(0);
@@ -97,15 +98,15 @@ export default function CommandCenter() {
     );
     const de = delay !== "" ? parseInt(delay, 10) : 0;
     const sysTime = de + Date.now();
-    const dataToServer = {
-      selectedDancers,
-      startTime: time,
-      delay: de, // fill the number with variable
-      sysTime,
-      controlJson: controlRecord, // fill
-      lightCurrentStatus: currentStatus,
-    };
-    commandApi[command](dataToServer);
+    // const dataToServer = {
+    //   selectedDancers,
+    //   startTime: time,
+    //   delay: de, // fill the number with variable
+    //   sysTime,
+    //   controlJson: controlRecord, // fill
+    //   lightCurrentStatus: currentStatus,
+    // };
+    // commandApi[command](dataToServer);
 
     // play or pause or stop
     if (command === COMMANDS.PLAY) {
@@ -161,7 +162,6 @@ export default function CommandCenter() {
             {Object.entries(dancerStatus).map(
               ([dancerName, { hostname, ip, OK, msg, isConnected }]) => {
                 const isItemSelected = selectedDancers.includes(dancerName);
-
                 return (
                   <TableRow
                     key={dancerName}
