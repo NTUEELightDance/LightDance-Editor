@@ -27,13 +27,13 @@ const PAUSE = "pause";
 const STOP = "stop";
 const LIGTHCURRENTSTATUS = "lightCurrentStatus";
 const KICK = "kick";
-const SHUTDOWN = "shutdown";
+const SHUTDOWN = "shutDown";
 const REBOOT = "reboot";
-const BOARDINFO = "boardinfo";
+const BOARDINFO = "boardInfo";
 const INIT = "init";
 const TEST = "test";
 export const WEBSOCKETCLIENT = {
-  CONTROLPANEL: "controlpanel",
+  CONTROLPANEL: "controlPanel",
   RPI: "rpi",
 };
 export const COMMANDS = {

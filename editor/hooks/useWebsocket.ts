@@ -14,6 +14,7 @@ export default function useWebsocketState() {
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const time = useReactiveVar(reactiveState.currentTime);
   const [dancerStatus, setDancerStatus] = useImmer({});
+  const [delay, setDelay] = useImmer(0);
   const ws = useRef(null);
   const initWebSocket = () => {
     ws.current = new WebSocket(url);
@@ -35,6 +36,7 @@ export default function useWebsocketState() {
       };
 
       ws.current.onmessage = (msg) => {
+        console.log(msg);
         const data = JSON.parse(msg.data);
         console.log(`Data from server :`, data);
         handleMessage(data);
@@ -64,6 +66,15 @@ export default function useWebsocketState() {
     switch (
       command //handle command that needs payload
     ) {
+      case COMMANDS.UPLOAD_LED:
+        MesC2S.payload = {};
+        break;
+      case COMMANDS.UPLOAD_CONTROL:
+        MesC2S.payload = {};
+        break;
+      case COMMANDS.TEST:
+        MesC2S.payload = {};
+        break;
       case COMMANDS.PLAY:
         const de = delay !== "" ? parseInt(delay, 10) : 0;
         const sysTime = de + Date.now();
@@ -80,37 +91,34 @@ export default function useWebsocketState() {
     ws.current.send(JSON.stringify(MesC2S));
   };
   const handleMessage = (data) => {
-    const [task, payload] = data;
-    console.log("receive mes from ws", data);
-    switch (task) {
-      case "getIp": {
-        const { dancerClients } = payload;
-        // console.log(dancerClients);
+    const { command, payload } = data;
+    const { success, info, from } = payload;
+    switch (command) {
+      case COMMANDS.BOARDINFO: {
+        const { dancerName, ip, hostName } = info;
+        console.log("");
+        if (!success) {
+          console.error("websocket response error");
+          break;
+        }
         setDancerStatus((draft) => {
-          Object.keys(dancerClients).forEach((dancerName) => {
-            draft[dancerName] = {
-              ...draft[dancerName],
+          Object.keys(dancerName).forEach((Name, index) => {
+            draft[Name] = {
               OK: true,
               isConnected: true,
               msg: "Connect Success",
-              ip: dancerClients[dancerName].clientIp,
+              ip: ip[index],
+              hostname: hostName[index],
             };
           });
         });
         break;
       }
-      case "disconnect": {
-        const {
-          from,
-          response: { OK, msg },
-        } = payload;
+      case COMMANDS.SYNC: {
+        const { delay, offset } = info;
+        setDelay(delay);
         setDancerStatus((draft) => {
-          draft[from] = {
-            ...draft[dancerName],
-            OK,
-            msg,
-            isConnected: false,
-          };
+          draft[from].msg = offset;
         });
         break;
       }
@@ -182,17 +190,6 @@ export default function useWebsocketState() {
       //   break;
       // }
       default:
-        const {
-          from,
-          response: { OK, msg },
-        } = payload;
-        setDancerStatus((draft) => {
-          draft[from] = {
-            ...draft[from],
-            OK,
-            msg,
-          };
-        });
         break;
     }
   };
@@ -212,8 +209,8 @@ export default function useWebsocketState() {
     setDancerStatus(initDancerStatus);
   }, []);
   return {
+    delay,
     dancerStatus,
-    setDancerStatus,
     sendCommand,
   };
 }

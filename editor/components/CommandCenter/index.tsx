@@ -49,9 +49,7 @@ export default function CommandCenter() {
   // styles
   const classes = useStyles();
   // hook
-  const { dancerStatus, sendCommand, setDancerStatus } = useWebsocket();
-  // delay
-  const [delay, setDelay] = useState(0);
+  const { dancerStatus, delay, sendCommand } = useWebsocket();
   const [selectedDancers, setSelectedDancers] = useImmer([]); // array of dancerName that is selected
 
   const handleToggleDancer = (dancerName) => {
