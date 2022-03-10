@@ -117,7 +117,7 @@ export class EditControlMapResolver {
                   value.value = ELValue;
                 }
               } else if (type === "LED") {
-                if (src) {
+                if (src || src === "") {
                   value.src = src;
                 }
                 if (alpha || alpha === 0) {
