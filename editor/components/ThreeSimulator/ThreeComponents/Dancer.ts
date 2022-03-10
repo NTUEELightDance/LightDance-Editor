@@ -75,7 +75,6 @@ class Dancer {
     );
 
     const partNames = state.dancers[this.name];
-    console.log(this.model);
 
     partNames.forEach((partName) => {
       const partType = state.partTypeMap[partName];
