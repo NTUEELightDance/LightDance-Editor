@@ -7,6 +7,8 @@ import { state } from "core/state";
 
 import { FIBER, EL, LED } from "constants";
 
+import { LEDPart, FiberPart } from "./Part";
+
 // import ALL_MAPPING from "./mapping";
 
 class Dancer {
@@ -72,40 +74,20 @@ class Dancer {
       (child) => (partMapping[child.name] = child.name)
     );
 
-    // Preprocess Parts on body
-    this.model.traverse((part) => {
-      const { name, type } = part;
+    const partNames = state.dancers[this.name];
 
-      // Deal with mesh only
-      if (type === "Mesh") {
-        // console.log(this.modelSrc, part.material.emissive);
-        // Clone a new material to prevent shared material
-        part.material = part.material.clone();
-
-        // Set all material color to black and emissiveIntensity to 0.0
-        part.material.color.setHex(0x000000);
-        part.material.emissiveIntensity = 0.0;
-
-        // Deal with human body mesh
-        if (name === "Human") {
-          part.material.emissive.setHex(0x000000);
-        }
-        // Deal with different type of meshPart
-        else {
-          const partType = state.partTypeMap[name];
-          switch (partType) {
-            case EL:
-              this.parts[EL][name] = part;
-              break;
-            case LED:
-              this.parts[LED][name] = part;
-              part.visible = false;
-              break;
-            case FIBER:
-              this.parts[FIBER][name] = part;
-              break;
-          }
-        }
+    partNames.forEach((partName) => {
+      const partType = state.partTypeMap[partName];
+      switch (partType) {
+        case EL:
+          // this.parts[EL][partName] = new ELPart(partName, model);
+          break;
+        case LED:
+          this.parts[LED][partName] = new LEDPart(partName, this.model);
+          break;
+        case FIBER:
+          this.parts[FIBER][partName] = new FiberPart(partName, this.model);
+          break;
       }
     });
 
@@ -121,7 +103,7 @@ class Dancer {
     // attach nameTag to the model
     this.model.attach(this.nameTag);
 
-    this.setStatus(this.initStatus);
+    this.setFiberStatus(this.initStatus);
     this.setPos(this.initPos);
 
     this.initialized = true;
@@ -165,11 +147,11 @@ class Dancer {
     }
   }
 
-  // Update the model's positon and status
-  update(currentPos, currentStatus) {
-    this.setPos(currentPos);
-    this.setStatus(currentStatus);
-  }
+  // // Update the model's positon and status
+  // update(currentPos, currentStatus) {
+  //   this.setPos(currentPos);
+  //   this.setStatus(currentStatus);
+  // }
 
   // Update the model's positon
   setPos(currentPos) {
@@ -181,26 +163,9 @@ class Dancer {
     }
   }
 
-  // Update the model's status
-  setStatus(currentStatus) {
-    this.setFIBERStatus(currentStatus);
-    this.setELStatus(currentStatus);
-    this.setLEDStatus(currentStatus);
-  }
-
-  setFIBERStatus(currentStatus) {
-    Object.entries(this.parts[FIBER]).forEach(([name, part]) => {
-      const { color, alpha, colorCode } = currentStatus[name];
-      part.material.emissiveIntensity = alpha / 15;
-
-      // if colorCode exist use colorCode instead
-      if (colorCode) {
-        part.material.emissive.copy(colorCode);
-      } else {
-        part.material.emissive.setHex(
-          parseInt(state.colorMap[color].replace(/^#/, ""), 16)
-        );
-      }
+  setFiberStatus(currentStatus) {
+    Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
+      part.setStatus(currentStatus[partName]);
     });
   }
 
@@ -208,8 +173,10 @@ class Dancer {
     return;
   }
 
-  setLEDStatus(currentStatus) {
-    return;
+  setLEDStatus(currentLedEffect) {
+    Object.entries(this.parts[LED]).forEach(([partName, part]) => {
+      part.setStatus(currentLedEffect[partName]);
+    });
   }
 
   // Update the model's color
