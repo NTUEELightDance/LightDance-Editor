@@ -24,13 +24,15 @@ const LEDcontrols = ({
     src?: string;
     alpha?: number;
   }) => {
-    if (!src && !alpha) return;
+    // src can be emtpy string, alpha can be zero
+    // so check for undefined only
+    if (src === undefined && alpha === undefined) return;
     const payload = currentDancers.map((dancerName) => ({
       dancerName,
       partName: part,
       value: {
-        ...(src && { src }),
-        ...(alpha && { alpha }),
+        ...(src !== undefined && { src }),
+        ...(alpha !== undefined && { alpha }),
       },
     }));
     editCurrentStatusLED({ payload });

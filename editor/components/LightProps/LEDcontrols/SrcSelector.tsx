@@ -5,6 +5,9 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
+// no-effect
+import { NO_EFFECT } from "constants";
+
 /**
  * Led Src Selector
  * Select the effectName to be the src
@@ -21,13 +24,25 @@ function SrcSelector({
   const handleChange = (e: SelectChangeEvent) => {
     handleSrcChange(e.target.value);
   };
+
+  // handle no effect option and the display
+  const options = [NO_EFFECT, ...effectNames];
+  const optionDisplay = (val: string) =>
+    val === NO_EFFECT ? "no-effect" : val;
+
   return (
     <FormControl sx={{ width: "5.5vw", padding: 0 }} size="small">
-      <InputLabel>src</InputLabel>
-      <Select value={src} label="src" onChange={handleChange}>
-        {effectNames.map((effectName) => (
-          <MenuItem key={effectName} value={effectName}>
-            {effectName}
+      <InputLabel shrink>src</InputLabel>
+      <Select
+        value={src}
+        label="src"
+        onChange={handleChange}
+        displayEmpty
+        renderValue={optionDisplay}
+      >
+        {options.map((effectName) => (
+          <MenuItem key={effectName} value={effectName} dense>
+            {optionDisplay(effectName)}
           </MenuItem>
         ))}
       </Select>

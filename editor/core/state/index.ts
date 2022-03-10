@@ -19,6 +19,7 @@ import {
   ColorMap,
   DancerName,
   CurrentLedEffect,
+  LedEffectRecord,
 } from "../models";
 
 /**
@@ -35,6 +36,8 @@ const _state: State = {
   currentStatus: {},
   currentFade: false,
   currentPos: {},
+
+  ledEffectRecord: {},
   currentLedEffect: {},
 
   editMode: IDLE,
@@ -75,6 +78,8 @@ export const reactiveState: ReactiveState = {
   currentStatus: makeVar<ControlMapStatus>({}),
   currentPos: makeVar<DancerCoordinates>({}),
   currentFade: makeVar<boolean>(false),
+
+  ledEffectRecord: makeVar<LedEffectRecord>({}),
   currentLedEffect: makeVar<CurrentLedEffect>({}),
 
   editMode: makeVar<EditMode>(IDLE),

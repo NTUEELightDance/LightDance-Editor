@@ -34,11 +34,11 @@ export interface ControlMapElement {
 }
 
 export interface ControlMapStatus {
-  [index: DancerName]: DancerStatus; //DancerNames :  dancerStatus
+  [key: DancerName]: DancerStatus; //DancerNames :  dancerStatus
 }
 
-interface DancerStatus {
-  [index: PartName]: Fiber | El | LED; //PartNames: partStatus
+export interface DancerStatus {
+  [key: PartName]: Fiber | El | LED; //PartNames: partStatus
 }
 
 export interface Fiber {
@@ -166,11 +166,13 @@ export type LedMap = {
 
 /**
  * LedEffectRecord
- * Save dancer LED part's appearing record index
+ * Save dancer LED part's appearing record id
+ * Generated from controlMap and controlRecord, but stripped out the `no-effect` source
+ *
  */
 type LedEffectRecord = {
   [key: DancerName]: {
-    [key: PartName]: number[];
+    [key: PartName]: id[];
   };
 };
 
@@ -228,6 +230,8 @@ export interface State {
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: DancerCoordinates; // current dancers' position
+
+  ledEffectRecord: LedEffectRecord;
   currentLedEffect: CurrentLedEffect;
 
   editMode: EditMode; // IDLE | EDITING | ADDING
@@ -257,6 +261,8 @@ export interface ReactiveState {
   currentFade: ReactiveVar<boolean>; // current control Frame will fade to next
   currentStatus: ReactiveVar<ControlMapStatus>; // current dancers' status
   currentPos: ReactiveVar<DancerCoordinates>; // current dancers' position
+
+  ledEffectRecord: ReactiveVar<LedEffectRecord>;
   currentLedEffect: ReactiveVar<CurrentLedEffect>;
 
   editMode: ReactiveVar<EditMode>;
