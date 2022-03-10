@@ -53,6 +53,16 @@ export function updateLedEffect(
       // get src from controlMap and recordId
       const { start: currentStart, status: currentStatus } =
         controlMap[recordId];
+
+      // we have assumed the lowest recordIndex is zero, but it may has no effect at the beginning
+      // but it will render the first effect
+      // the case will be like the time now is before the frame start (currentStart)
+      if (time < currentStart) {
+        // reset the effect
+        currentLedEffect[dancerName][partName].effect = [];
+        return;
+      }
+
       const { src } = currentStatus[dancerName][partName] as LED;
       if (!src || !ledMap[partName][src]) {
         throw `[Invalid src] ${dancerName} ${partName} ${recordId}`;
