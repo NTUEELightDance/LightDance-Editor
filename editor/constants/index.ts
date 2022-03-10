@@ -21,7 +21,6 @@ export const NO_EFFECT = "";
 const SYNC = "sync";
 const UPLOAD_LED = "uploadLed";
 const UPLOAD_CONTROL = "uploadControl";
-const START = "start";
 const LOAD = "load";
 const PLAY = "play";
 const PAUSE = "pause";
@@ -30,19 +29,26 @@ const LIGTHCURRENTSTATUS = "lightCurrentStatus";
 const KICK = "kick";
 const SHUTDOWN = "shutdown";
 const REBOOT = "reboot";
-const TERMINATE = "terminate";
+const BOARDINFO = "boardinfo";
+const INIT = "init";
+const TEST = "test";
+export const WEBSOCKETCLIENT = {
+  CONTROLPANEL: "controlpanel",
+  RPI: "rpi",
+};
 export const COMMANDS = {
   SYNC,
-  UPLOAD_LED,
-  UPLOAD_CONTROL,
-  START,
+  UPLOAD_LED, // need payload
+  UPLOAD_CONTROL, // need payload
   LOAD,
-  PLAY,
+  PLAY, // need payload
   PAUSE,
   STOP,
-  LIGTHCURRENTSTATUS,
+  LIGTHCURRENTSTATUS, // need payload
   KICK,
   SHUTDOWN,
   REBOOT,
-  TERMINATE,
+  BOARDINFO, // need payload
+  INIT,
+  TEST, // need payload
 };

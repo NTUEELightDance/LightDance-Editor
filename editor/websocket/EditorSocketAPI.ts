@@ -7,7 +7,10 @@ import {
   updateDancerStatus,
 } from "../slices/commandSlice";
 import store from "../store";
-
+//hooks
+// import useWebsocket from "../hooks/useWebsocket";
+import { COMMANDS, WEBSOCKETCLIENT } from "../constants";
+// const { setDancerStatus } = useWebsocket();
 class EditorSocketAPI {
   constructor() {
     this.ws = null;
@@ -15,14 +18,10 @@ class EditorSocketAPI {
       "http",
       "ws"
     );
-    this.sendDataToServer = (data) => {
-      this.ws.send(JSON.stringify(data));
-    };
+    // this.sendDataToServer = (data) => {
+    //   this.ws.send(JSON.stringify(data));
+    // };
   }
-
-  // async fetch() {
-  //   await store.dispatch(fetchBoardConfig());
-  // }
 
   init() {
     this.ws = new WebSocket(this.url);
@@ -35,13 +34,10 @@ class EditorSocketAPI {
     this.ws.onopen = async () => {
       console.log("Websocket for Editor Connected");
 
-      this.sendDataToServer([
-        "boardInfo",
-        {
-          type: "editor",
-          name: location.hostname, // get hostname or something else
-        },
-      ]);
+      this.sendDataToServer({
+        command: COMMANDS.BOARDINFO,
+        payload: { type: WEBSOCKETCLIENT.CONTROLPANEL },
+      });
 
       this.ws.onerror = (err) => {
         console.log(`Editor's Websocket error : ${err.message} `);
@@ -59,9 +55,9 @@ class EditorSocketAPI {
     };
   }
 
-  // sendDataToServer(data) {
-  //   this.ws.send(JSON.stringify(data));
-  // }
+  sendDataToServer(data) {
+    this.ws.send(JSON.stringify(data));
+  }
 
   handleMessage(data) {
     const [task, payload] = data;
@@ -72,19 +68,30 @@ class EditorSocketAPI {
 
         console.log(dancerClients);
 
-        Object.keys(dancerClients).forEach((dancerName) => {
-          store.dispatch(
-            updateDancerStatus({
-              dancerName,
-              newStatus: {
-                OK: true,
-                isConnected: true,
-                msg: "Connect Success",
-                ip: dancerClients[dancerName].clientIp,
-              },
-            })
-          );
+        setDancerStatus((draft) => {
+          Object.keys(dancerClients).forEach((dancerName) => {
+            const newStatus = {
+              OK: true,
+              isConnected: true,
+              msg: "Connect Success",
+              ip: dancerClients[dancerName].clientIp,
+            };
+            draft[dancerName] = newStatus;
+          });
         });
+        // Object.keys(dancerClients).forEach((dancerName) => {
+        //   store.dispatch(
+        //     updateDancerStatus({
+        //       dancerName,
+        //       newStatus: {
+        //         OK: true,
+        //         isConnected: true,
+        //         msg: "Connect Success",
+        //         ip: dancerClients[dancerName].clientIp,
+        //       },
+        //     })
+        //   );
+        // });
         break;
       }
       case "disconnect": {

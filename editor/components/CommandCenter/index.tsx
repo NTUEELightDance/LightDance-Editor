@@ -1,5 +1,4 @@
 import { useState, useContext } from "react";
-import { useSelector, useDispatch } from "react-redux";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -13,12 +12,10 @@ import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
 import { useImmer } from "use-immer";
-//hooks
+
+// hooks
 import useWebsocket from "../../hooks/useWebsocket";
-// states
-import { useReactiveVar } from "@apollo/client";
-import { reactiveState } from "core/state";
-// contants
+// constants
 import { COMMANDS } from "constants";
 // contexts
 import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
@@ -51,12 +48,8 @@ const useStyles = makeStyles((theme) => ({
 export default function CommandCenter() {
   // styles
   const classes = useStyles();
-
   // hook
-  const { dancerStatus, clearDancerStatusMsg, commandSocket } = useWebsocket();
-
-  const currentStatus = useReactiveVar(reactiveState.currentStatus);
-  const time = useReactiveVar(reactiveState.currentTime);
+  const { dancerStatus, sendCommand, setDancerStatus } = useWebsocket();
   // delay
   const [delay, setDelay] = useState(0);
   const [selectedDancers, setSelectedDancers] = useImmer([]); // array of dancerName that is selected
@@ -87,16 +80,15 @@ export default function CommandCenter() {
 
   // click btn, will call api to server
   const handleClickBtn = (command) => {
-    clearDancerStatusMsg({ selectedDancers });
-    // const de = delay !== "" ? parseInt(delay, 10) : 0;
-    // const sysTime = de + Date.now();
-    const MesC2S = {
-      command: "1212121221232",
+    const payload = {
+      command,
       selectedDancers,
-      payload: "this is test",
+      delay,
     };
-    commandSocket(MesC2S);
-    // commandApi[command](dataToServer);
+    // setDancerStatus((draft) => {
+    //   draft["1_chi"].OK = true;
+    // });
+    sendCommand(payload);
 
     // play or pause or stop
     if (command === COMMANDS.PLAY) {

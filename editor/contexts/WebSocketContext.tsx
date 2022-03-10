@@ -6,7 +6,7 @@ export const WebSocketContext = createContext(null);
 export default function WebSocket({ children }) {
   const [webSocket, setWebSocket] = useState(null);
 
-  useEffect(async () => {
+  useEffect(() => {
     const editorSocket = new EditorSocketAPI();
     editorSocket.init();
     setWebSocket(editorSocket);
