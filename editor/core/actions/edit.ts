@@ -109,7 +109,9 @@ const actions = registerActions({
    * @param payload: a boolean, indicating whether to edit the start time or not
    */
   save: async (state: State, payload: boolean) => {
-    const { frameId, frame, agent, fade } = await getDataHandler(state);
+    const { frame, agent, fade } = await getDataHandler(state);
+    // save the frameId which request for editing
+    const frameId = state.editingData.frameId;
     const requestTimeChange = payload;
     await agent.saveFrame(
       frameId,

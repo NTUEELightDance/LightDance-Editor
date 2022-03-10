@@ -12,6 +12,8 @@ import {
 } from "../utils";
 // types
 import { State } from "../models";
+// constants
+import { IDLE } from "constants";
 
 const actions = registerActions({
   /**
@@ -32,6 +34,9 @@ const actions = registerActions({
     time = Math.max(time, 0);
 
     state.currentTime = time;
+
+    // only set the time if not IDLE
+    if (state.editMode !== IDLE) return;
 
     // set currentControlIndex
     const newControlIndex = updateFrameByTimeMap(
