@@ -74,7 +74,7 @@ export function updateLedEffect(
       let offset = time - currentStart; // get the offset of time (since the led effect begins from 0)
       // if repeat, it the offset will % the last effect time
       if (repeat && effects.length) {
-        offset = repeat % effects[effects.length - 1].start;
+        offset = offset % effects[effects.length - 1].start;
       }
 
       // if change to another recordIndex, need to reset the effectIndex and effect first
