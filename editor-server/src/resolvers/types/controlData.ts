@@ -19,28 +19,38 @@ export const ControlDataScalar = new GraphQLScalarType({
   description: "Mongo object id scalar type",
   async serialize(data: any): Promise<any> {
     // check the type of received value
-    let { deleteList, createList, updateList } = data;
-    const createFrames: LooseObject = {};
-    await Promise.all(
-      createList.map(async (id: any) => {
-        const cache = await redis.get(id);
-        if (cache) {
-          const cacheObj = JSON.parse(cache);
-          createFrames[id] = cacheObj;
-        }
-      })
-    );
-    const updateFrames: LooseObject = {};
-    await Promise.all(
-      updateList.map(async (id: any) => {
-        const cache = await redis.get(id);
-        if (cache) {
-          const cacheObj = JSON.parse(cache);
-          updateFrames[id] = cacheObj;
-        }
-      })
-    );
-    return { createFrames, deleteFrames: deleteList, updateFrames }; // value sent to the client
+    let { id, _id, deleteList, createList, updateList } = data;
+    if(id && _id){
+      const result: LooseObject = {};
+      const cache = await redis.get(id);
+      if (cache) {
+        const cacheObj = JSON.parse(cache);
+        result[id] = cacheObj;
+      }
+      return result;
+    }else{
+      const createFrames: LooseObject = {};
+      await Promise.all(
+        createList.map(async (id: any) => {
+          const cache = await redis.get(id);
+          if (cache) {
+            const cacheObj = JSON.parse(cache);
+            createFrames[id] = cacheObj;
+          }
+        })
+      );
+      const updateFrames: LooseObject = {};
+      await Promise.all(
+        updateList.map(async (id: any) => {
+          const cache = await redis.get(id);
+          if (cache) {
+            const cacheObj = JSON.parse(cache);
+            updateFrames[id] = cacheObj;
+          }
+        })
+      );
+      return { createFrames, deleteFrames: deleteList, updateFrames }; // value sent to the client
+    }
   },
   parseValue(value: unknown): any {
     // check the type of received value
