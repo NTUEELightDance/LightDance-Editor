@@ -166,6 +166,21 @@ export type LedMap = {
   };
 };
 
+type LedEffectName = string;
+
+type LedEffect = {
+  repeat: number; // 0 for continously repeat // THIS WON'T BE FUNCIONAL IN THIS VERSION
+  effects: LedEffectFrame[];
+};
+export type LedEffectFrame = {
+  start: number;
+  fade: boolean;
+  effect: {
+    colorCode: ColorCode;
+    alpha: number;
+  }[]; // ColorCode array for led strips
+};
+
 /**
  * LedEffectRecord
  * Save dancer LED part's appearing record id
@@ -198,21 +213,6 @@ export type CurrentLedEffect = {
       }[]; // this is to handle faded effect, so we will clone the effect from ledMap
     };
   };
-};
-
-type LedEffectName = string;
-
-type LedEffect = {
-  repeat: number; // 0 for continously repeat // THIS WON'T BE FUNCIONAL IN THIS VERSION
-  effects: LedEffectFrame[];
-};
-export type LedEffectFrame = {
-  start: number;
-  fade: boolean;
-  effect: {
-    colorCode: ColorCode;
-    alpha: number;
-  }[]; // ColorCode array for led strips
 };
 
 /**

@@ -47,3 +47,16 @@ export function Rgb2ColorCode(rgb: number[]) {
   const [r, g, b] = rgb;
   return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
 }
+
+/**
+ * Convert colorCode to integer
+ * @param colorCode #ffffff
+ * @returns 16777215
+ */
+export function colorCode2int(colorCode: string) {
+  const [r, g, b] = colorCode2Rgb(colorCode);
+  let rgb = r;
+  rgb = (rgb << 8) + g;
+  rgb = (rgb << 8) + b;
+  return rgb;
+}
