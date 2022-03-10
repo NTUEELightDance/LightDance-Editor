@@ -174,19 +174,24 @@ export type LedMap = {
  */
 type LedEffectRecord = {
   [key: DancerName]: {
-    [key: PartName]: id[];
+    [key: PartName]: LedRecord;
   };
 };
 
+export type LedRecord = id[];
+
 /**
  * CurrentLedEffect
- * Save the ledEffect index and the effect
+ * Save the ledEffect index (in ledEffectRecord) and the effect
  * Get data from LedEffectRecord and LedMap
+ * recordIndex indicates the place in LedEffectRecord
+ * effectIndex indicates the place in the effect
  */
 export type CurrentLedEffect = {
   [key: DancerName]: {
     [key: PartName]: {
-      index: number;
+      recordIndex: number;
+      effectIndex: number;
       effect: {
         colorCode: ColorCode;
         alpha: number;

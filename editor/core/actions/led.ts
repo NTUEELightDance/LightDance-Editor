@@ -27,7 +27,8 @@ const actions = registerActions({
         if (partTypeMap[part] === LED_TYPE) {
           tmp[dancerName][part] = {
             effect: [],
-            index: 0,
+            effectIndex: 0,
+            recordIndex: 0,
           };
         }
       });

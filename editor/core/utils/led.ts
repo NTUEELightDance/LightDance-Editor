@@ -2,98 +2,123 @@ import { fadeAlpha, fadeColor } from "./fade";
 
 import {
   ControlMap,
-  ControlRecord,
   LED,
   CurrentLedEffect,
   LedMap,
   LedEffectFrame,
+  LedEffectRecord,
 } from "../models";
 
 import { cloneDeep } from "lodash";
+import { updateFrameByTimeMap } from "./frame";
 
 /**
  * Update the currentLedEffect
- * @param lastControlIndex
- * @param newControlIndex
- * @param currentLedEffect
- * @param controlRecord
+ * according to ControlMap, LedEffectRecord, CurrentLedEffect, LedMap, time
  * @param controlMap
+ * @param ledEffectRecord
+ * @param currentLedEffect
  * @param ledMap
  * @param time
  * @returns
  */
 export function updateLedEffect(
-  lastControlIndex: number,
-  newControlIndex: number,
-  currentLedEffect: CurrentLedEffect,
-  controlRecord: ControlRecord,
   controlMap: ControlMap,
+  ledEffectRecord: LedEffectRecord,
+  currentLedEffect: CurrentLedEffect,
   ledMap: LedMap,
   time: number
 ) {
-  const newLedEffect = currentLedEffect;
+  Object.keys(currentLedEffect).forEach((dancerName) => {
+    Object.keys(currentLedEffect[dancerName]).forEach((partName) => {
+      if (ledEffectRecord[dancerName][partName].length === 0) {
+        // there is nothing to do with empty record, which every src is no_effect
+        return;
+      }
 
-  // jump to another controlIndex -> first reset the ledEffect
-  if (lastControlIndex !== newControlIndex) resetLedEffect(newLedEffect);
+      const lastRecordIndex =
+        currentLedEffect[dancerName][partName].recordIndex;
 
-  // now at the right controlIndex, check the sub index of ledEffect
-  Object.keys(newLedEffect).forEach((dancerName) => {
-    Object.keys(newLedEffect[dancerName]).forEach((partName) => {
-      const { index } = newLedEffect[dancerName][partName];
+      // calculate the right place of record index in ledEffectRecord
+      const recordIndex = updateFrameByTimeMap(
+        ledEffectRecord[dancerName][partName],
+        controlMap,
+        currentLedEffect[dancerName][partName].recordIndex,
+        time
+      );
+      currentLedEffect[dancerName][partName].recordIndex = recordIndex;
 
-      const { start, status } = controlMap[controlRecord[newControlIndex]];
-      const { src } = status[dancerName][partName] as LED;
+      const recordId = ledEffectRecord[dancerName][partName][recordIndex];
 
-      if (!src || !ledMap[partName][src]) return;
-      const { repeat, effects } = ledMap[partName][src]; // repeat WON'T BE FUNCIONAL IN THIS VERSION, NEED RETHINKING OF DATA FORMAT
+      // get src from controlMap and recordId
+      const { start: currentStart, status: currentStatus } =
+        controlMap[recordId];
+      const { src } = currentStatus[dancerName][partName] as LED;
+      if (!src || !ledMap[partName][src]) {
+        throw `[Invalid src] ${dancerName} ${partName} ${recordId}`;
+      }
 
-      const offset = time - start; // get the offset of time (since the led effect begins from 0)
+      // get repeat, effects from ledMap and src
+      const { repeat, effects } = ledMap[partName][src];
 
-      // Goal: calculate the right newLedEffect[dancerName][partName]'s index
-      let newIndex;
+      let offset = time - currentStart; // get the offset of time (since the led effect begins from 0)
+      // if repeat, it the offset will % the last effect time
+      if (repeat && effects.length) {
+        offset = repeat % effects[effects.length - 1].start;
+      }
+
+      // if change to another recordIndex, need to reset the effectIndex and effect first
+      if (lastRecordIndex !== recordIndex) {
+        currentLedEffect[dancerName][partName].effectIndex = 0;
+        currentLedEffect[dancerName][partName].effect = [];
+      }
+
+      // Goal: calculate the right newLedEffect[dancerName][partName]'s effectIndex
+      let { effectIndex } = currentLedEffect[dancerName][partName];
+      let newEffectIndex;
       // Case 1: index is already in the right place (after resetting or not being the time to switch to the next one)
       if (
-        effects[index + 1] &&
-        offset >= effects[index].start &&
-        offset <= effects[index + 1].start
+        effects[effectIndex + 1] &&
+        offset >= effects[effectIndex].start &&
+        offset <= effects[effectIndex + 1].start
       ) {
-        newIndex = index;
+        newEffectIndex = effectIndex;
       }
       // Case 2: index should bethe next one (when playing)
       else if (
-        effects[index + 2] &&
-        offset >= effects[index + 1].start &&
-        offset <= effects[index + 2].start
+        effects[effectIndex + 2] &&
+        offset >= effects[effectIndex + 1].start &&
+        offset <= effects[effectIndex + 2].start
       ) {
-        newIndex = index + 1;
+        newEffectIndex = effectIndex + 1;
       }
       // Case 3: neither 1 nor 2, should calculate the new index (when setting to a random time)
       else {
-        newIndex = binarySearchLedEffectFrame(effects, offset);
+        newEffectIndex = binarySearchLedEffectFrame(effects, offset);
       }
+      currentLedEffect[dancerName][partName].effectIndex = newEffectIndex;
 
-      newLedEffect[dancerName][partName].index = newIndex;
-
-      // Goal: calculate the right newLedEffect[dancerName][partName]'s effect
-      let { start: currStart, effect: currEffect, fade } = effects[newIndex];
-
+      // Goal: calculate the right currentLedEffect[dancerName][partName]'s effect
+      let {
+        start: currStart,
+        effect: currEffect,
+        fade,
+      } = effects[newEffectIndex];
       // Do fade or not
-      if (fade && effects[newIndex + 1]) {
+      if (fade && effects[newEffectIndex + 1]) {
         // currEffect may be the reference of the ledMap -> make a new clone for not modifying the ledMap
         currEffect = cloneDeep(currEffect);
         // do fade
-        const { start: nextStart, effect: nextEffect } = effects[newIndex + 1];
-
+        const { start: nextStart, effect: nextEffect } =
+          effects[newEffectIndex + 1];
         if (nextEffect.length !== currEffect.length) {
-          throw `[Error] ${dancerName}/${partName}/${src} effect length not the same (start: ${currStart})`;
+          throw `[Error] ${dancerName} ${partName} ${src} effect length not the same (start: ${currStart})`;
         }
-
         currEffect.forEach((_, idx) => {
           const { colorCode: currColorCode, alpha: currAlpha } =
             currEffect[idx];
           const { colorCode: nextColorCode, alpha: nextAlpha } =
             nextEffect[idx];
-
           const newColor = fadeColor(
             currColorCode,
             nextColorCode,
@@ -101,7 +126,6 @@ export function updateLedEffect(
             currStart,
             nextStart
           );
-
           const newAlpha = fadeAlpha(
             currAlpha,
             nextAlpha,
@@ -109,32 +133,16 @@ export function updateLedEffect(
             currStart,
             nextStart
           );
-
           currEffect[idx] = {
             colorCode: newColor,
             alpha: newAlpha,
           };
         });
       }
-      newLedEffect[dancerName][partName].effect = currEffect;
+      currentLedEffect[dancerName][partName].effect = currEffect;
     });
   });
-
-  return newLedEffect;
-}
-
-/**
- * Reset all the index in the ledEffect to zero
- * Reselt the effect to empty
- * @param {CurrentLedEffect} ledEffect
- */
-function resetLedEffect(ledEffect: CurrentLedEffect) {
-  Object.keys(ledEffect).forEach((dancerName) => {
-    Object.keys(ledEffect[dancerName]).forEach((partName) => {
-      ledEffect[dancerName][partName].index = 0;
-      ledEffect[dancerName][partName].effect = [];
-    });
-  });
+  return currentLedEffect;
 }
 
 /**

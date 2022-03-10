@@ -6,6 +6,7 @@ import {
   PosMapElement,
   Coordinates,
   DancerCoordinates,
+  LedRecord,
 } from "../models";
 
 /**
@@ -16,7 +17,7 @@ import {
  * @param {number} time - timestamp
  */
 export function updateFrameByTimeMap(
-  record: ControlRecord | PosRecord,
+  record: ControlRecord | PosRecord | LedRecord,
   map: ControlMap | PosMap,
   frame: number,
   time: number

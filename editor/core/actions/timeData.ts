@@ -41,7 +41,6 @@ const actions = registerActions({
       time
     );
 
-    const lastControlIndex = state.currentControlIndex;
     state.currentControlIndex = newControlIndex;
     // status fade
     if (newControlIndex === controlRecord.length - 1) {
@@ -56,17 +55,6 @@ const actions = registerActions({
         state.colorMap
       );
     }
-
-    // update currentLedEffectIndexMap
-    state.currentLedEffect = updateLedEffect(
-      lastControlIndex,
-      newControlIndex,
-      state.currentLedEffect,
-      controlRecord,
-      controlMap,
-      ledMap,
-      time
-    );
 
     // set currentPosIndex
     const newPosIndex = updateFrameByTimeMap(
@@ -91,6 +79,15 @@ const actions = registerActions({
 
     // set currentFade
     state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
+
+    // update currentLedEffectIndexMap
+    state.currentLedEffect = updateLedEffect(
+      controlMap,
+      state.ledEffectRecord,
+      state.currentLedEffect,
+      ledMap,
+      time
+    );
   },
 
   /**
