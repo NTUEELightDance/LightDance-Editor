@@ -11,7 +11,7 @@ import {
 } from "../models";
 // utils
 import { getControl } from "../utils";
-import { LED as LED_CONST, NO_EFFECT } from "constants";
+import { LED as LED_TYPE, NO_EFFECT } from "constants";
 
 const actions = registerActions({
   /**
@@ -24,7 +24,7 @@ const actions = registerActions({
     Object.entries(dancers).map(([dancerName, parts]) => {
       tmp[dancerName] = {};
       parts.forEach((part) => {
-        if (partTypeMap[part] === LED_CONST) {
+        if (partTypeMap[part] === LED_TYPE) {
           tmp[dancerName][part] = {
             effect: [],
             index: 0,
@@ -37,8 +37,8 @@ const actions = registerActions({
 
   /**
    * Generate LedEffectRecord
-   * According to controlMap and controlRecord
-   * stripped out no-effect source
+   * According to dancers, controlMap and controlRecord
+   * stripped out NO_EFFECT source
    * @param state
    */
   generateLedEffectRecord: async (state: State) => {
@@ -51,20 +51,20 @@ const actions = registerActions({
     Object.entries(dancers).map(([dancerName, parts]) => {
       ledEffectRecord[dancerName] = {};
       parts.forEach((partName) => {
-        if (partTypeMap[partName] === LED_CONST) {
+        if (partTypeMap[partName] === LED_TYPE) {
           ledEffectRecord[dancerName][partName] = [];
         }
       });
     });
 
-    // go through control record, add the index if the led source is "no-effect"
+    // go through control record, add the index if the led source is NOT NO_EFFECT
     controlRecord.forEach((id: string) => {
       const status: ControlMapStatus = controlMap[id].status;
       Object.entries(status).forEach(
         ([dancerName, dancerStatus]: [DancerName, DancerStatus]) => {
           Object.entries(dancerStatus).forEach(([partName, part]) => {
             if (
-              partTypeMap[partName] === LED_CONST &&
+              partTypeMap[partName] === LED_TYPE &&
               (part as LED).src !== NO_EFFECT
             ) {
               ledEffectRecord[dancerName][partName].push(id);

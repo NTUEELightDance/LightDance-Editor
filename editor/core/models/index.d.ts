@@ -9,6 +9,7 @@ import {
   PART,
   POSITION,
 } from "constants";
+import { Color } from "three";
 import { number, string } from "prop-types";
 
 export type id = string;
@@ -43,7 +44,8 @@ export interface DancerStatus {
 
 export interface Fiber {
   color: string;
-  alpha: number; //brightness
+  alpha: number; // brightness
+  colorCode?: Color; // this is a three type Color, for doing color fade
 }
 
 export type El = number;
