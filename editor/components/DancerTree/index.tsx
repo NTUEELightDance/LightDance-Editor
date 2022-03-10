@@ -13,7 +13,7 @@ import {
   setSelectedParts,
   setSelectionMode,
 } from "core/actions";
-import { PartPayloadType, SelectionModeType } from "core/models";
+import { PartPayload, SelectionMode } from "core/models";
 import { DANCER, PART, POSITION } from "constants";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
@@ -33,8 +33,8 @@ const DancerTree = () => {
 
   const handleSelect = (event: React.SyntheticEvent, nodeIds: string[]) => {
     const newSelectedDancers: Set<string> = new Set();
-    let newSelectedParts: PartPayloadType = {};
-    let newSelectionMode: SelectionModeType | null = null;
+    let newSelectedParts: PartPayload = {};
+    let newSelectionMode: SelectionMode | null = null;
 
     nodeIds.forEach((nodeId) => {
       const nodeIdArray = nodeId.split("%");

@@ -9,7 +9,7 @@ import { reactiveState } from "core/state";
 import { setDancerNames, setDancers, setPartTypeMap } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 // models
-import { DancersType, PartTypeMapType, DancerParts } from "core/models";
+import { Dancers, PartTypeMap, DancerParts } from "core/models";
 
 import _ from "lodash";
 
@@ -26,8 +26,8 @@ export default function useDancer() {
   useEffect(() => {
     if (!dancerLoading && dancer) {
       const tmpDancerNames: string[] = [];
-      const tmpDancers: DancersType = {};
-      const tmpPartTypeMap: PartTypeMapType = {};
+      const tmpDancers: Dancers = {};
+      const tmpPartTypeMap: PartTypeMap = {};
       const sortedDancers: DancerParts[] = _.sortBy(dancer.dancer, (dancer) =>
         Number(dancer.name.split("_")[0])
       );

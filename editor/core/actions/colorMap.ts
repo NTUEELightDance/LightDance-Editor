@@ -1,14 +1,14 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, ColorMapType } from "../models";
+import { State, ColorMap } from "../models";
 
 const actions = registerActions({
   /**
    * ColorMap
    * @param {State} state
-   * @param {ColorMapType} payload
+   * @param {ColorMap} payload
    */
-  setColorMap: (state: State, payload: ColorMapType) => {
+  setColorMap: (state: State, payload: ColorMap) => {
     state.colorMap = payload;
   },
 });

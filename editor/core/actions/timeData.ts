@@ -11,7 +11,7 @@ import {
   updateLedEffect,
 } from "../utils";
 // types
-import { State, CurrentLedEffect } from "../models";
+import { State } from "../models";
 
 const actions = registerActions({
   /**
@@ -41,7 +41,6 @@ const actions = registerActions({
       time
     );
 
-    const lastControlIndex = state.currentControlIndex;
     state.currentControlIndex = newControlIndex;
     // status fade
     if (newControlIndex === controlRecord.length - 1) {
@@ -56,17 +55,6 @@ const actions = registerActions({
         state.colorMap
       );
     }
-
-    // update currentLedEffectIndexMap
-    state.currentLedEffect = updateLedEffect(
-      lastControlIndex,
-      newControlIndex,
-      state.currentLedEffect,
-      controlRecord,
-      controlMap,
-      ledMap,
-      time
-    );
 
     // set currentPosIndex
     const newPosIndex = updateFrameByTimeMap(
@@ -91,6 +79,15 @@ const actions = registerActions({
 
     // set currentFade
     state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
+
+    // update currentLedEffectIndexMap
+    state.currentLedEffect = updateLedEffect(
+      controlMap,
+      state.ledEffectRecord,
+      state.currentLedEffect,
+      ledMap,
+      time
+    );
   },
 
   /**
@@ -130,32 +127,7 @@ const actions = registerActions({
     const newTime = posMap[posRecord[posIndex]].start;
     setCurrentTime({ payload: newTime });
   },
-
-  /**
-   * initialize the currentLedEffectIndexMap
-   * @param {State} state
-   */
-  initCurrentLedEffect: (state: State) => {
-    const { dancers, partTypeMap } = state;
-    const tmp: CurrentLedEffect = {};
-    Object.entries(dancers).map(([dancerName, parts]) => {
-      tmp[dancerName] = {};
-      parts.forEach((part) => {
-        if (partTypeMap[part] === "LED") {
-          tmp[dancerName][part] = {
-            effect: [],
-            index: 0,
-          };
-        }
-      });
-    });
-    state.currentLedEffect = tmp;
-  },
 });
 
-export const {
-  setCurrentTime,
-  setCurrentControlIndex,
-  setCurrentPosIndex,
-  initCurrentLedEffect,
-} = actions;
+export const { setCurrentTime, setCurrentControlIndex, setCurrentPosIndex } =
+  actions;

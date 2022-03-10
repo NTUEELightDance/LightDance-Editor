@@ -12,7 +12,7 @@ import {
   LED,
   Fiber,
   PartType,
-  PartPayloadType,
+  PartPayload,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 import { notification } from "core/utils";
@@ -56,7 +56,7 @@ const GroupPanel = ({
   // const handleEdit = () => {  };
 
   const handleSelectAll = () => {
-    const newSelectedParts: PartPayloadType = {};
+    const newSelectedParts: PartPayload = {};
     currentDancers.forEach((dancerName) => {
       newSelectedParts[dancerName] = sortedParts.filter((part) =>
         dancers[dancerName].includes(part)

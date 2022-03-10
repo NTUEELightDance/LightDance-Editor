@@ -6,15 +6,20 @@ import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 import IntensityControl from "./IntensityControl";
 
 import { editCurrentStatusDelta } from "../../core/actions";
-import { Fiber, SelectedType, CurrentStatusDelta } from "../../core/models";
+import {
+  Fiber,
+  Selected,
+  CurrentStatusDelta,
+  PartPayload,
+  PartType,
+} from "../../core/models";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "../../core/utils";
-import { PartPayloadType, PartType } from "core/models";
 
-const getSelectedPartsAndTypes = (selected: SelectedType) => {
-  const newSelectedParts: PartPayloadType = {};
+const getSelectedPartsAndTypes = (selected: Selected) => {
+  const newSelectedParts: PartPayload = {};
   const tempSelectedParts: string[] = [];
   Object.entries(selected).forEach(
     ([dancerName, { selected: dancerSelected, parts }]) => {
@@ -38,8 +43,8 @@ const PartMode = () => {
 
   const [defaultSelectedParts, defaultPartType] =
     getSelectedPartsAndTypes(selected);
-  const [selectedParts, setSelectedParts] = useState<PartPayloadType>(
-    defaultSelectedParts as PartPayloadType
+  const [selectedParts, setSelectedParts] = useState<PartPayload>(
+    defaultSelectedParts as PartPayload
   );
   const [partType, setPartType] = useState<PartType | null>(
     defaultPartType as PartType
@@ -51,12 +56,12 @@ const PartMode = () => {
   // update local state
   useEffect(() => {
     const [newSelectedParts, newPartType] = getSelectedPartsAndTypes(selected);
-    setSelectedParts(newSelectedParts as PartPayloadType);
+    setSelectedParts(newSelectedParts as PartPayload);
     setPartType(newPartType as PartType);
 
     if (newPartType === "LED" || !newPartType) return;
     const [dancerName, parts] = Object.entries(
-      newSelectedParts as PartPayloadType
+      newSelectedParts as PartPayload
     )[0];
     setCurrentColorName((currentStatus[dancerName][parts[0]] as Fiber).color);
     setIntensity((currentStatus[dancerName][parts[0]] as Fiber).alpha);

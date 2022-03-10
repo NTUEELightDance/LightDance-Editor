@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, EditModeType, EditorType, EditingDataType } from "../models";
+import { State, EditMode, Editor, EditingData } from "../models";
 // constants
 import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "constants";
 import { getControl, getPos, deleteColorCode } from "../utils";
@@ -48,7 +48,7 @@ const actions = registerActions({
    * @param state
    * @param payload
    */
-  setEditMode: (state: State, payload: EditModeType) => {
+  setEditMode: (state: State, payload: EditMode) => {
     state.editMode = payload;
   },
 
@@ -57,7 +57,7 @@ const actions = registerActions({
    * @param state
    * @param payload
    */
-  setEditor: (state: State, payload: EditorType) => {
+  setEditor: (state: State, payload: Editor) => {
     state.editor = payload;
   },
 
@@ -82,7 +82,7 @@ const actions = registerActions({
    * @param state
    * @param payload
    */
-  setEditingData: (state: State, payload: EditingDataType) => {
+  setEditingData: (state: State, payload: EditingData) => {
     state.editingData = { ...payload };
   },
 

@@ -27,6 +27,7 @@ import {
   setCurrentStatus,
   setSelected,
   initCurrentLedEffect,
+  generateLedEffectRecord,
 } from "core/actions";
 
 import "./app.css";
@@ -120,6 +121,7 @@ const App = () => {
   useEffect(() => {
     if (!dancerLoading) {
       initCurrentLedEffect();
+      generateLedEffectRecord();
     }
   }, [dancerLoading]);
 

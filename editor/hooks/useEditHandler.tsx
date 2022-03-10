@@ -8,6 +8,7 @@ import {
   add,
   deleteCurrent,
   setCurrentTime,
+  generateLedEffectRecord,
 } from "core/actions";
 //constants
 import { CONTROL_EDITOR, POS_EDITOR } from "constants";
@@ -34,6 +35,9 @@ export default function useEditHandler() {
     }
     await save({ payload: requestTimeChange });
     await cancelEditing();
+
+    // regenerate ledeffect after saving
+    generateLedEffectRecord();
   };
 
   // Cancel the edit, exist editing mode

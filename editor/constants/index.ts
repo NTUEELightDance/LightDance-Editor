@@ -14,6 +14,8 @@ export const EL = "EL";
 export const FIBER = "FIBER";
 // local storage keys
 export const GROUP = "PART_GROUP";
+// a no-effect source for led to do nothing
+export const NO_EFFECT = "";
 
 // COMMANDS
 const SYNC = "sync";

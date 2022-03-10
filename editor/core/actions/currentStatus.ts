@@ -89,7 +89,7 @@ const actions = registerActions({
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
 
     payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
-      if (src && src !== "")
+      if (typeof src === "string")
         (state.currentStatus[dancerName][partName] as LED).src = src;
       if (typeof alpha === "number")
         (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
