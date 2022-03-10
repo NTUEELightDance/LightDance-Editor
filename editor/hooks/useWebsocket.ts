@@ -6,10 +6,9 @@ import { useImmer } from "use-immer";
 
 export default function useWebsocketState() {
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
-  const { webSocket } = useContext(WebSocketContext);
+  const { ws, sendDataToServer } = useContext(WebSocketContext);
   const [dancerStatus, setDancerStatus] = useImmer({});
   useEffect(() => {
-    // setDancerStatus()
     const initDancerStatus = {};
     dancerNames.forEach((dancerName) => {
       const initStatus = {
@@ -23,17 +22,21 @@ export default function useWebsocketState() {
     });
     setDancerStatus(initDancerStatus);
   }, []);
-  const clearDancerStatusMsg = async (payload) => {
-    //payload : array of dancerNames
-    // const { dancerNames } = payload;
-    // setDancerStatus((prevStatus) => {
-    //   dancerNames.forEach((name) => {
-    //     prevStatus.name.msg = "";
-    //   });
-    // });
+  const clearDancerStatusMsg = (payload) => {
+    // payload : {array of dancerNames}
+    const { selectedDancers } = payload;
+    setDancerStatus((draft) => {
+      selectedDancers.forEach((dancer) => {
+        draft[dancer].msg = "";
+      });
+    });
+  };
+  const commandSocket = async (MesC2S) => {
+    sendDataToServer(MesC2S);
   };
   return {
     dancerStatus,
     clearDancerStatusMsg,
+    commandSocket,
   };
 }

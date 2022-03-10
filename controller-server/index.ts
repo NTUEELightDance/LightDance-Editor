@@ -9,7 +9,6 @@ import ControlPanelSocket from "./websocket/controlPanelSocket";
 import { ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
 import NtpServer from "./ntp/index";
 
-
 import { ClientAgent } from "./clientAgent";
 import { CommandType } from "./constants";
 
@@ -23,6 +22,7 @@ const clientAgent = new ClientAgent();
 
 // websocket
 wss.on("connection", (ws) => {
+  console.log("someone connected", ws);
   ws.onmessage = (msg: any) => {
     // need to consider further type assignment
     const parsedData: MesC2S = JSON.parse(msg.data);

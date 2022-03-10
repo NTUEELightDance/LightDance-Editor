@@ -11,7 +11,13 @@ import store from "../store";
 class EditorSocketAPI {
   constructor() {
     this.ws = null;
-    this.url = `ws://${window.location.host}`;
+    this.url = `${location.origin}/controller-server-websocket`.replace(
+      "http",
+      "ws"
+    );
+    this.sendDataToServer = (data) => {
+      this.ws.send(JSON.stringify(data));
+    };
   }
 
   // async fetch() {
@@ -53,9 +59,9 @@ class EditorSocketAPI {
     };
   }
 
-  sendDataToServer(data) {
-    this.ws.send(JSON.stringify(data));
-  }
+  // sendDataToServer(data) {
+  //   this.ws.send(JSON.stringify(data));
+  // }
 
   handleMessage(data) {
     const [task, payload] = data;

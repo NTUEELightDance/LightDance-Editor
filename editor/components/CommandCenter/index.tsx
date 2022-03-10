@@ -12,11 +12,7 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-// command api
-import commandApi from "./agent";
-// redux selector and actions
-import { selectGlobal } from "../../slices/globalSlice";
-import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
+import { useImmer } from "use-immer";
 //hooks
 import useWebsocket from "../../hooks/useWebsocket";
 // states
@@ -56,27 +52,27 @@ export default function CommandCenter() {
   // styles
   const classes = useStyles();
 
-  // redux
-  // const { controlRecord } = useSelector(selectGlobal);
+  // hook
+  const { dancerStatus, clearDancerStatusMsg, commandSocket } = useWebsocket();
 
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const time = useReactiveVar(reactiveState.currentTime);
-
-  const { dancerStatus } = useWebsocket();
-  const dispatch = useDispatch();
   // delay
   const [delay, setDelay] = useState(0);
+  const [selectedDancers, setSelectedDancers] = useImmer([]); // array of dancerName that is selected
 
-  const [selectedDancers, setSelectedDancers] = useState([]); // array of dancerName that is selected
   const handleToggleDancer = (dancerName) => {
-    if (selectedDancers.includes(dancerName)) {
-      // remove from array
-      setSelectedDancers(selectedDancers.filter((name) => name !== dancerName));
-    } else setSelectedDancers([...selectedDancers, dancerName]); // add to array
+    setSelectedDancers((draft) => {
+      const index = draft.indexOf(dancerName);
+      if (index !== -1) draft.splice(index, 1);
+      //index == -1 -> not in the array
+      else draft.push(dancerName);
+    });
   };
   const handleAllDancer = () => {
     if (selectedDancers.length) {
-      setSelectedDancers([]); // clear all
+      // clear all
+      setSelectedDancers([]);
     } else {
       // select all
       setSelectedDancers(Object.keys(dancerStatus));
@@ -91,21 +87,15 @@ export default function CommandCenter() {
 
   // click btn, will call api to server
   const handleClickBtn = (command) => {
-    dispatch(
-      clearDancerStatusMsg({
-        dancerNames: selectedDancers,
-      })
-    );
-    const de = delay !== "" ? parseInt(delay, 10) : 0;
-    const sysTime = de + Date.now();
-    // const dataToServer = {
-    //   selectedDancers,
-    //   startTime: time,
-    //   delay: de, // fill the number with variable
-    //   sysTime,
-    //   controlJson: controlRecord, // fill
-    //   lightCurrentStatus: currentStatus,
-    // };
+    clearDancerStatusMsg({ selectedDancers });
+    // const de = delay !== "" ? parseInt(delay, 10) : 0;
+    // const sysTime = de + Date.now();
+    const MesC2S = {
+      command: "1212121221232",
+      selectedDancers,
+      payload: "this is test",
+    };
+    commandSocket(MesC2S);
     // commandApi[command](dataToServer);
 
     // play or pause or stop
