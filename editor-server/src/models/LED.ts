@@ -8,7 +8,7 @@ const LEDSchema = new Schema({
   },
   effectName: {
     type: String,
-    required: [true, "effectName field is required."],
+    default: "",
   },
   repeat: {
     type: Number,

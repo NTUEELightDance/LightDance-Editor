@@ -24,7 +24,11 @@ export class LEDResolver {
 
   @Mutation((returns) => LEDEffectResponse)
   async addLED(@Arg("input") input: AddLEDInput, @Ctx() ctx: any) {
-    const { partName, effectName, repeat, effects } = input;
+    const { partName, repeat, effects } = input;
+    let {effectName} = input;
+    if (!effectName) {
+      effectName = "";
+    }
 
     // check part validity
     const part = ctx.db.Part.findOne({ name: partName, type: "LED" });
@@ -32,11 +36,11 @@ export class LEDResolver {
       return Object.assign(
         {
           partName,
-          effectName: ",",
+          effectName: "",
           repeat: -1,
           effects: [],
         },
-        { ok: false, msg: "effectName exist." }
+        { ok: false, msg: "part not found." }
       );
     }
 
@@ -52,7 +56,10 @@ export class LEDResolver {
 
   @Mutation((returns) => DeleteLEDEffectResponse)
   async deleteLED(@Arg("input") input: DeleteLEDInput, @Ctx() ctx: any) {
-    const { partName, effectName } = input;
+    let { partName, effectName } = input;
+    if (!effectName) {
+      effectName = "";
+    }
 
     // check exist
     const exist = await ctx.db.LED.findOne({ partName, effectName });

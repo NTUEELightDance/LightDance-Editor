@@ -5,8 +5,8 @@ export class LEDEffect {
   @Field((type) => String)
   partName: string;
 
-  @Field((type) => String)
-  effectName: string;
+  @Field((type) => String, {nullable: true})
+  effectName?: string;
 
   @Field((type) => Int)
   repeat: number;

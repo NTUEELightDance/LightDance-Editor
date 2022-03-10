@@ -13,7 +13,7 @@ input AddDancerInput {
 }
 
 input AddLEDInput {
-  effectName: String!
+  effectName: String
   effects: [LEDEffectInput!]!
   partName: String!
   repeat: Int!
@@ -141,7 +141,7 @@ type DeleteLEDEffectResponse {
 }
 
 input DeleteLEDInput {
-  effectName: String!
+  effectName: String
   partName: String!
 }
 
@@ -247,7 +247,7 @@ input LEDEffectInput {
 }
 
 type LEDEffectResponse {
-  effectName: String!
+  effectName: String
   effects: [LEDEffects!]!
   msg: String
   ok: Boolean!
