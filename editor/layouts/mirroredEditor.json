@@ -1,19 +1,25 @@
 {
   "global": {
-    "borderSize": 400,
+    "borderSize": 300,
     "splitterSize": 4,
     "enableRenderOnDemand": true
   },
   "borders": [
     {
       "type": "border",
-      "location": "bottom",
+      "location": "left",
       "children": [
         {
           "type": "tab",
-          "enableClose": false,
-          "name": "CommandCenter",
-          "component": "CommandCenter"
+          "name": "Effect",
+          "component": "EffectList",
+          "enableClose": false
+        },
+        {
+          "type": "tab",
+          "name": "ColorPalette",
+          "component": "ColorPalette",
+          "enableClose": false
         }
       ]
     },
@@ -23,20 +29,8 @@
       "children": [
         {
           "type": "tab",
-          "name": "LightPresets",
-          "component": "LightPresets",
-          "enableClose": false
-        },
-        {
-          "type": "tab",
-          "name": "PosPresets",
-          "component": "PosPresets",
-          "enableClose": false
-        },
-        {
-          "type": "tab",
-          "name": "Effect",
-          "component": "EffectList",
+          "name": "FrameList",
+          "component": "FrameList",
           "enableClose": false
         }
       ]
@@ -46,27 +40,46 @@
     "type": "row",
     "children": [
       {
-        "type": "tabset",
-        "weight": 25,
-        "selected": 0,
-        "enableMaximize": false,
+        "type": "row",
+        "weight": 20,
         "children": [
           {
-            "type": "tab",
-            "name": "LightEditor",
-            "component": "LightEditor",
-            "enableClose": false
+            "type": "row",
+            "children": [
+              {
+                "type": "tabset",
+                "weight": 25,
+                "selected": 0,
+                "enableMaximize": false,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "Dancer Tree",
+                    "component": "DancerTree",
+                    "enableClose": false
+                  }
+                ]
+              }
+            ]
           },
           {
-            "type": "tab",
-            "name": "FrameList",
-            "component": "FrameList",
-            "enableClose": false
+            "type": "tabset",
+            "selected": 0,
+            "enableMaximize": false,
+            "children": [
+              {
+                "type": "tab",
+                "name": "properties",
+                "component": "LightProps",
+                "enableClose": false
+              }
+            ]
           }
         ]
       },
       {
         "type": "row",
+        "weight": 75,
         "children": [
           {
             "type": "row",
@@ -77,12 +90,6 @@
                 "selected": 0,
                 "enableMaximize": true,
                 "children": [
-                  {
-                    "type": "tab",
-                    "name": "Simulator",
-                    "component": "Simulator",
-                    "enableClose": false
-                  },
                   {
                     "type": "tab",
                     "name": "Three Simulator",
