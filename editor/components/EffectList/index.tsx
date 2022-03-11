@@ -25,6 +25,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Paper,
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -73,7 +74,7 @@ export default function EffectList() {
   };
 
   return (
-    <div>
+    <Paper sx={{ minHeight: "100%" }}>
       <List>
         {Object.entries(effectRecordMap).map(([key, value]) => (
           <>
@@ -184,6 +185,6 @@ export default function EffectList() {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Paper>
   );
 }
