@@ -3,7 +3,10 @@ import { Box, Button } from "@mui/material";
 import { layoutContext } from "types/layout";
 import { LayoutContext } from "contexts/LayoutContext";
 export const LayoutButtons = ({}) => {
-  const { mode, setMode } = useContext(LayoutContext) as layoutContext;
+  const {
+    preferences: { mode },
+    setMode,
+  } = useContext(LayoutContext) as layoutContext;
 
   return (
     <Box sx={{ display: "flex", gap: "1vw" }}>

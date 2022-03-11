@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Paper, Grid } from "@mui/material";
+import { Paper } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
-import IntensityControl from "./IntensityControl";
 
 import { editCurrentStatusDelta } from "../../core/actions";
 import {
@@ -11,7 +10,7 @@ import {
   Selected,
   CurrentStatusDelta,
   PartPayload,
-  Part,
+  PartType,
 } from "core/models";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";

@@ -37,7 +37,7 @@ export default function FrameList() {
   // styles
   const classes = useStyles();
 
-  if (loading) return "loading...";
+  if (loading) return <>loading...</>;
   return (
     <div className={classes.root}>
       <div className={classes.grow}>

@@ -1,13 +1,23 @@
 import { IJsonModel } from "flexlayout-react";
+import { Updater } from "use-immer";
 
 export interface layoutContext {
-  mode: layoutMode;
-  setMode: (mode: layoutMode) => void;
-  preferedEditor: editorPreference;
-  setPreferedEditor: (preference: editorPreference) => void;
-  showSimulator: boolean;
-  setShowSimulator: (showSimulator: boolean) => void;
+  preferences: layoutPreference;
+  setPreferences: Updater<layoutPreference>;
+  setMode: SinglePreferenceSetter<layoutMode>;
+  setEditor: SinglePreferenceSetter<editorPreference>;
 }
+
+export type layoutPreference = {
+  mode: layoutMode;
+  editor: editorPreference;
+};
+
+export type SinglePreferenceSetter<T> = (value: T) => void;
+
+export type layoutPreferenceKeys = "mode" | "editor";
+
+export type layoutPreferenceValues = layoutMode | editorPreference;
 
 export type layoutMode = "editor" | "command";
 

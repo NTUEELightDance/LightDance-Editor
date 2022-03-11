@@ -33,7 +33,9 @@ import {
 } from "layouts";
 
 const Layout = () => {
-  const { preferedEditor, mode } = useContext(LayoutContext) as layoutContext;
+  const {
+    preferences: { editor, mode },
+  } = useContext(LayoutContext) as layoutContext;
 
   const CommandCenterNode = useMemo<JSX.Element>(() => <CommandCenter />, []);
   const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
@@ -105,11 +107,11 @@ const Layout = () => {
 
   const EditorNode = useMemo(() => {
     const configFile =
-      preferedEditor === "mirrored"
+      editor === "mirrored"
         ? mirroredEditorConfig
-        : preferedEditor === "legacy"
+        : editor === "legacy"
         ? legacyEditorConfig
-        : preferedEditor === "beta"
+        : editor === "beta"
         ? betaConfig
         : defaultEditorConfig;
     return (
@@ -119,7 +121,7 @@ const Layout = () => {
         font={{ size: "12px" }}
       />
     );
-  }, [preferedEditor]);
+  }, [editor]);
 
   const CommandNode = useMemo(() => {
     return (

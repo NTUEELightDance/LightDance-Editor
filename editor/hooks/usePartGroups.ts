@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useImmer } from "use-immer";
 
-import { asyncSetItem, asyncGetItem } from "core/utils/";
+import { asyncSetItem, asyncGetItem } from "core/utils";
 import {
   DeleteGroupError,
   AddNewGroupError,
