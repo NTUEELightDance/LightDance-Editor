@@ -46,6 +46,31 @@ export const posAgent = {
             };
           }),
         },
+        update: (cache, { data: { editPosMap } }) => {
+          cache.modify({
+            id: "ROOT_QUERY",
+            fields: {
+              positionFrameIDs(positionFrameIDs) {
+                return [
+                  ...positionFrameIDs.slice(0, frameIndex + 1),
+                  Object.keys(editPosMap.frames)[0],
+                  ...positionFrameIDs.slice(frameIndex + 1),
+                ];
+              },
+              PosMap(posMap) {
+                return {
+                  ...posMap,
+                  frames: {
+                    ...posMap.frames,
+                    [Object.keys(editPosMap.frames)[0]]: {
+                      ...editPosMap.frames[Object.keys(editPosMap.frames)[0]],
+                    },
+                  },
+                };
+              },
+            },
+          });
+        },
       });
     } catch (error) {
       console.error(error);
@@ -72,6 +97,24 @@ export const posAgent = {
             };
           }),
         },
+        update: (cache, { data: { editPosMap } }) => {
+          cache.modify({
+            id: "ROOT_QUERY",
+            fields: {
+              PosMap(posMap) {
+                return {
+                  ...posMap,
+                  frames: {
+                    ...posMap.frames,
+                    [Object.keys(editPosMap.frames)[0]]: {
+                      ...editPosMap.frames[Object.keys(editPosMap.frames)[0]],
+                    },
+                  },
+                };
+              },
+            },
+          });
+        },
       });
     } catch (error) {
       console.error(error);
@@ -86,6 +129,25 @@ export const posAgent = {
             start: currentTime,
           },
         },
+        update: (cache, { data: { editPositionFrame } }) => {
+          cache.modify({
+            id: "ROOT_QUERY",
+            fields: {
+              PosMap(posMap) {
+                return {
+                  ...posMap,
+                  frames: {
+                    ...posMap.frames,
+                    [editPositionFrame.id]: {
+                      ...posMap.frames[editPositionFrame.id],
+                      start: editPositionFrame.start,
+                    },
+                  },
+                };
+              },
+            },
+          });
+        },
       });
     } catch (error) {
       console.error(error);
@@ -99,6 +161,24 @@ export const posAgent = {
           input: {
             frameID: frameId,
           },
+        },
+        update: (cache, { data: { deletePositionFrame } }) => {
+          cache.modify({
+            id: "ROOT_QUERY",
+            fields: {
+              positionFrameIDs(positionFrameIDs) {
+                return positionFrameIDs.filter(
+                  (e: String) => e !== deletePositionFrame.id
+                );
+              },
+              PosMap(posMap) {
+                return {
+                  ...posMap,
+                  frames: lodash.omit(posMap.frames, deletePositionFrame.id),
+                };
+              },
+            },
+          });
         },
       });
     } catch (error) {
