@@ -158,7 +158,7 @@ export type ColorMap = {
 };
 
 /**
- * Led Effect Map
+ * Led Effect Map, get from backend
  */
 export type LedMap = {
   [key: PartName]: {

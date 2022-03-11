@@ -25,7 +25,7 @@ export function deleteColorCode(status) {
  */
 export function colorCode2Rgb(colorCode: string) {
   const m = colorCode.replace(/^#/, "");
-  if (colorCode.length !== 6) {
+  if (m.length !== 6) {
     throw `[Error] Invalid paramter at function colorCode2Rgb ${colorCode}`;
   }
   return [
