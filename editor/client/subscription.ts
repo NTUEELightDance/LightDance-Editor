@@ -14,28 +14,32 @@ const subPosRecord = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        const { editBy, mutation, index, frameID } =
-          data.data.positionRecordSubscription;
-        if (userID !== editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              positionFrameIDs(positionFrameIDs: Array<string>) {
-                if (mutation === "CREATED") {
-                  return [
-                    ...positionFrameIDs.slice(0, index),
-                    frameID,
-                    ...positionFrameIDs.slice(index),
-                  ];
-                } else if (mutation === "DELETED") {
-                  return positionFrameIDs.filter((e: string) => {
-                    return e !== frameID;
-                  });
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            positionFrameIDs(positionFrameIDs: Array<string>) {
+              const { index, addID, updateID, deleteID } =
+                data.data.controlRecordSubscription;
+              const newPosRecord = produce(
+                positionFrameIDs,
+                (posRecordDraft) => {
+                  if (addID) {
+                    posRecordDraft.splice(index, 0, ...addID);
+                  }
+                  if (updateID) {
+                  }
+                  if (deleteID) {
+                    deleteID.map((id: string) => {
+                      const deleteIndex = posRecordDraft.indexOf(id);
+                      posRecordDraft.splice(deleteIndex, 1);
+                    });
+                  }
                 }
-              },
+              );
+              return newPosRecord;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
@@ -50,29 +54,10 @@ const subPosMap = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        const { mutation, frameID, frame } = data.data.positionMapSubscription;
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
             PosMap(posMap) {
-              // old format
-              if (mutation === ("CREATED" || "UPDATED")) {
-                return {
-                  ...posMap,
-                  frames: {
-                    ...posMap.frames,
-                    [frameID]: {
-                      ...frame[frameID],
-                    },
-                  },
-                };
-              } else if (mutation === "DELETED") {
-                return {
-                  ...posMap,
-                  frames: lodash.omit(posMap.frames, frameID),
-                };
-              }
-              // new format
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.positionMapSubscription.frame;
               const newPosMap = produce(posMap, (posMapDraft) => {
@@ -112,28 +97,32 @@ const subControlRecord = (client, userID: string) => {
     })
     .subscribe({
       next(data) {
-        const { editBy, mutation, index, frameID } =
-          data.data.controlRecordSubscription;
-        if (userID !== editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              controlFrameIDs(controlFrameIDs: Array<string>) {
-                if (mutation === "CREATED") {
-                  return [
-                    ...controlFrameIDs.slice(0, index),
-                    frameID,
-                    ...controlFrameIDs.slice(index),
-                  ];
-                } else if (mutation === "DELETED") {
-                  return controlFrameIDs.filter((e: string) => {
-                    return e !== frameID;
-                  });
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            controlFrameIDs(controlFrameIDs: Array<string>) {
+              const { index, addID, updateID, deleteID } =
+                data.data.controlRecordSubscription;
+              const newControlRecord = produce(
+                controlFrameIDs,
+                (controlRecordDraft) => {
+                  if (addID) {
+                    controlRecordDraft.splice(index, 0, ...addID);
+                  }
+                  if (updateID) {
+                  }
+                  if (deleteID) {
+                    deleteID.map((id: string) => {
+                      const deleteIndex = controlRecordDraft.indexOf(id);
+                      controlRecordDraft.splice(deleteIndex, 1);
+                    });
+                  }
                 }
-              },
+              );
+              return newControlRecord;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
@@ -148,29 +137,10 @@ const subControlMap = (client) => {
     })
     .subscribe({
       next(data) {
-        const { mutation, frameID, frame } = data.data.controlMapSubscription;
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
             ControlMap(controlMap) {
-              // old format
-              if (mutation === ("CREATED" || "UPDATED")) {
-                return {
-                  ...controlMap,
-                  frames: {
-                    ...controlMap.frames,
-                    [frameID]: {
-                      ...frame[frameID],
-                    },
-                  },
-                };
-              } else if (mutation === "DELETED") {
-                return {
-                  ...controlMap,
-                  frames: lodash.omit(controlMap.frames, frameID),
-                };
-              }
-              // new format
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.controlMapSubscription.frame;
               const newControlMap = produce(controlMap, (controlMapDraft) => {
