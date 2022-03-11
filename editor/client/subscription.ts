@@ -5,6 +5,7 @@ import {
   SUB_CONTROL_MAP,
 } from "../graphql";
 import { produce } from "immer";
+import { cloneDeep } from "lodash";
 
 const subPosRecord = (client) => {
   client
@@ -19,26 +20,23 @@ const subPosRecord = (client) => {
             positionFrameIDs(positionFrameIDs: Array<string>) {
               const { index, addID, updateID, deleteID } =
                 data.data.positionRecordSubscription;
-              const newPosRecord = produce(
-                positionFrameIDs,
-                (posRecordDraft) => {
-                  if (addID.length) {
-                    posRecordDraft.splice(index, 0, ...addID);
-                  }
-                  if (updateID.length) {
-                    let length = updateID.length;
-                    const updateIndex = posRecordDraft.indexOf(updateID[0]);
-                    posRecordDraft.splice(updateIndex, length);
-                    posRecordDraft.splice(index, 0, ...updateID);
-                  }
-                  if (deleteID.length) {
-                    deleteID.map((id: string) => {
-                      const deleteIndex = posRecordDraft.indexOf(id);
-                      posRecordDraft.splice(deleteIndex, 1);
-                    });
-                  }
-                }
-              );
+              const newPosRecord = [...positionFrameIDs];
+
+              if (addID.length) {
+                newPosRecord.splice(index, 0, ...addID);
+              }
+              if (updateID.length) {
+                let length = updateID.length;
+                const updateIndex = newPosRecord.indexOf(updateID[0]);
+                newPosRecord.splice(updateIndex, length);
+                newPosRecord.splice(index, 0, ...updateID);
+              }
+              if (deleteID.length) {
+                deleteID.map((id: string) => {
+                  const deleteIndex = newPosRecord.indexOf(id);
+                  newPosRecord.splice(deleteIndex, 1);
+                });
+              }
               return newPosRecord;
             },
           },
@@ -63,25 +61,25 @@ const subPosMap = (client) => {
             PosMap(posMap) {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.positionMapSubscription.frame;
-              const newPosMap = produce(posMap, (posMapDraft) => {
-                if (Object.keys(createFrames).length) {
-                  posMapDraft.frames = {
-                    ...posMapDraft.frames,
-                    ...createFrames,
-                  };
-                }
-                if (deleteFrames.length) {
-                  deleteFrames.map((id: string) => {
-                    delete posMapDraft.frames[id];
-                  });
-                }
-                if (Object.keys(updateFrames).length) {
-                  posMapDraft.frames = {
-                    ...posMapDraft.frames,
-                    ...updateFrames,
-                  };
-                }
-              });
+              const newPosMap = cloneDeep(posMap);
+
+              if (Object.keys(createFrames).length) {
+                newPosMap.frames = {
+                  ...newPosMap.frames,
+                  ...createFrames,
+                };
+              }
+              if (deleteFrames.length) {
+                deleteFrames.map((id: string) => {
+                  delete newPosMap.frames[id];
+                });
+              }
+              if (Object.keys(updateFrames).length) {
+                newPosMap.frames = {
+                  ...newPosMap.frames,
+                  ...updateFrames,
+                };
+              }
               return newPosMap;
             },
           },
@@ -106,26 +104,22 @@ const subControlRecord = (client) => {
             controlFrameIDs(controlFrameIDs: Array<string>) {
               const { index, addID, updateID, deleteID } =
                 data.data.controlRecordSubscription;
-              const newControlRecord = produce(
-                controlFrameIDs,
-                (controlRecordDraft) => {
-                  if (addID.length) {
-                    controlRecordDraft.splice(index, 0, ...addID);
-                  }
-                  if (updateID.length) {
-                    let length = updateID.length;
-                    const updateIndex = controlRecordDraft.indexOf(updateID[0]);
-                    controlRecordDraft.splice(updateIndex, length);
-                    controlRecordDraft.splice(index, 0, ...updateID);
-                  }
-                  if (deleteID.length) {
-                    deleteID.map((id: string) => {
-                      const deleteIndex = controlRecordDraft.indexOf(id);
-                      controlRecordDraft.splice(deleteIndex, 1);
-                    });
-                  }
-                }
-              );
+              const newControlRecord = [...controlFrameIDs];
+              if (addID.length) {
+                newControlRecord.splice(index, 0, ...addID);
+              }
+              if (updateID.length) {
+                let length = updateID.length;
+                const updateIndex = newControlRecord.indexOf(updateID[0]);
+                newControlRecord.splice(updateIndex, length);
+                newControlRecord.splice(index, 0, ...updateID);
+              }
+              if (deleteID.length) {
+                deleteID.map((id: string) => {
+                  const deleteIndex = newControlRecord.indexOf(id);
+                  newControlRecord.splice(deleteIndex, 1);
+                });
+              }
               return newControlRecord;
             },
           },
@@ -150,25 +144,24 @@ const subControlMap = (client) => {
             ControlMap(controlMap) {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.controlMapSubscription.frame;
-              const newControlMap = produce(controlMap, (controlMapDraft) => {
-                if (Object.keys(createFrames).length) {
-                  controlMapDraft.frames = {
-                    ...controlMapDraft.frames,
-                    ...createFrames,
-                  };
-                }
-                if (deleteFrames.length) {
-                  deleteFrames.map((id: string) => {
-                    delete controlMapDraft.frames[id];
-                  });
-                }
-                if (Object.keys(updateFrames).length) {
-                  controlMapDraft.frames = {
-                    ...controlMapDraft.frames,
-                    ...updateFrames,
-                  };
-                }
-              });
+              const newControlMap = cloneDeep(controlMap);
+              if (Object.keys(createFrames).length) {
+                newControlMap.frames = {
+                  ...newControlMap.frames,
+                  ...createFrames,
+                };
+              }
+              if (deleteFrames.length) {
+                deleteFrames.map((id: string) => {
+                  delete newControlMap.frames[id];
+                });
+              }
+              if (Object.keys(updateFrames).length) {
+                newControlMap.frames = {
+                  ...newControlMap.frames,
+                  ...updateFrames,
+                };
+              }
               return newControlMap;
             },
           },
