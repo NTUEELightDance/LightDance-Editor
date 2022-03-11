@@ -169,9 +169,10 @@ export type LedMap = {
 type LedEffectName = string;
 
 type LedEffect = {
-  repeat: number; // 0 for continously repeat // THIS WON'T BE FUNCIONAL IN THIS VERSION
+  repeat: number; // repeat counts, 0 for continuously repeat
   effects: LedEffectFrame[];
 };
+
 export type LedEffectFrame = {
   start: number;
   fade: boolean;
