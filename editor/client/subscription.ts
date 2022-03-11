@@ -4,10 +4,9 @@ import {
   SUB_CONTROL_RECORD,
   SUB_CONTROL_MAP,
 } from "../graphql";
-import lodash from "lodash";
 import { produce } from "immer";
 
-const subPosRecord = (client, userID: string) => {
+const subPosRecord = (client) => {
   client
     .subscribe({
       query: SUB_POS_RECORD,
@@ -19,16 +18,20 @@ const subPosRecord = (client, userID: string) => {
           fields: {
             positionFrameIDs(positionFrameIDs: Array<string>) {
               const { index, addID, updateID, deleteID } =
-                data.data.controlRecordSubscription;
+                data.data.positionRecordSubscription;
               const newPosRecord = produce(
                 positionFrameIDs,
                 (posRecordDraft) => {
-                  if (addID) {
+                  if (addID.length) {
                     posRecordDraft.splice(index, 0, ...addID);
                   }
-                  if (updateID) {
+                  if (updateID.length) {
+                    let length = updateID.length;
+                    const updateIndex = posRecordDraft.indexOf(updateID[0]);
+                    posRecordDraft.splice(updateIndex, length);
+                    posRecordDraft.splice(index, 0, ...updateID);
                   }
-                  if (deleteID) {
+                  if (deleteID.length) {
                     deleteID.map((id: string) => {
                       const deleteIndex = posRecordDraft.indexOf(id);
                       posRecordDraft.splice(deleteIndex, 1);
@@ -47,7 +50,7 @@ const subPosRecord = (client, userID: string) => {
     });
 };
 
-const subPosMap = (client, userID: string) => {
+const subPosMap = (client) => {
   client
     .subscribe({
       query: SUB_POS_MAP,
@@ -61,20 +64,20 @@ const subPosMap = (client, userID: string) => {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.positionMapSubscription.frame;
               const newPosMap = produce(posMap, (posMapDraft) => {
-                if (createFrames) {
+                if (Object.keys(createFrames).length) {
                   posMapDraft.frames = {
-                    ...posMap.frames,
+                    ...posMapDraft.frames,
                     ...createFrames,
                   };
                 }
-                if (deleteFrames) {
+                if (deleteFrames.length) {
                   deleteFrames.map((id: string) => {
                     delete posMapDraft.frames[id];
                   });
                 }
-                if (updateFrames) {
+                if (Object.keys(updateFrames).length) {
                   posMapDraft.frames = {
-                    ...posMap.frames,
+                    ...posMapDraft.frames,
                     ...updateFrames,
                   };
                 }
@@ -90,7 +93,7 @@ const subPosMap = (client, userID: string) => {
     });
 };
 
-const subControlRecord = (client, userID: string) => {
+const subControlRecord = (client) => {
   client
     .subscribe({
       query: SUB_CONTROL_RECORD,
@@ -106,12 +109,16 @@ const subControlRecord = (client, userID: string) => {
               const newControlRecord = produce(
                 controlFrameIDs,
                 (controlRecordDraft) => {
-                  if (addID) {
+                  if (addID.length) {
                     controlRecordDraft.splice(index, 0, ...addID);
                   }
-                  if (updateID) {
+                  if (updateID.length) {
+                    let length = updateID.length;
+                    const updateIndex = controlRecordDraft.indexOf(updateID[0]);
+                    controlRecordDraft.splice(updateIndex, length);
+                    controlRecordDraft.splice(index, 0, ...updateID);
                   }
-                  if (deleteID) {
+                  if (deleteID.length) {
                     deleteID.map((id: string) => {
                       const deleteIndex = controlRecordDraft.indexOf(id);
                       controlRecordDraft.splice(deleteIndex, 1);
@@ -144,20 +151,20 @@ const subControlMap = (client) => {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.controlMapSubscription.frame;
               const newControlMap = produce(controlMap, (controlMapDraft) => {
-                if (createFrames) {
+                if (Object.keys(createFrames).length) {
                   controlMapDraft.frames = {
-                    ...controlMap.frames,
+                    ...controlMapDraft.frames,
                     ...createFrames,
                   };
                 }
-                if (deleteFrames) {
+                if (deleteFrames.length) {
                   deleteFrames.map((id: string) => {
                     delete controlMapDraft.frames[id];
                   });
                 }
-                if (updateFrames) {
+                if (Object.keys(updateFrames).length) {
                   controlMapDraft.frames = {
-                    ...controlMap.frames,
+                    ...controlMapDraft.frames,
                     ...updateFrames,
                   };
                 }
@@ -173,10 +180,10 @@ const subControlMap = (client) => {
     });
 };
 
-const Subscriptions = (client, userID: string) => {
-  subPosRecord(client, userID);
-  subPosMap(client, userID);
-  subControlRecord(client, userID);
+const Subscriptions = (client) => {
+  subPosRecord(client);
+  subPosMap(client);
+  subControlRecord(client);
   subControlMap(client);
 };
 

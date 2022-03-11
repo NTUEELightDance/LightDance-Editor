@@ -56,33 +56,6 @@ export const controlAgent = {
             };
           }),
         },
-        update: (cache, { data: { editControlMap } }) => {
-          cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              controlFrameIDs(controlFrameIDs) {
-                return [
-                  ...controlFrameIDs.slice(0, frameIndex + 1),
-                  Object.keys(editControlMap.frame)[0],
-                  ...controlFrameIDs.slice(frameIndex + 1),
-                ];
-              },
-              ControlMap(controlMap) {
-                return {
-                  ...controlMap,
-                  frames: {
-                    ...controlMap.frames,
-                    [Object.keys(editControlMap.frame)[0]]: {
-                      ...editControlMap.frame[
-                        Object.keys(editControlMap.frame)[0]
-                      ],
-                    },
-                  },
-                };
-              },
-            },
-          });
-        },
       });
     } catch (error) {
       console.error(error);
@@ -123,26 +96,6 @@ export const controlAgent = {
             };
           }),
         },
-        update: (cache, { data: { editControlMap } }) => {
-          cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              ControlMap(controlMap) {
-                return {
-                  ...controlMap,
-                  frames: {
-                    ...controlMap.frames,
-                    [Object.keys(editControlMap.frame)[0]]: {
-                      ...editControlMap.frame[
-                        Object.keys(editControlMap.frame)[0]
-                      ],
-                    },
-                  },
-                };
-              },
-            },
-          });
-        },
       });
     } catch (error) {
       console.error(error);
@@ -158,26 +111,6 @@ export const controlAgent = {
             fade: fade,
           },
         },
-        update: (cache, { data: { editControlFrame } }) => {
-          cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              ControlMap(controlMap) {
-                return {
-                  ...controlMap,
-                  frames: {
-                    ...controlMap.frames,
-                    [editControlFrame.id]: {
-                      ...controlMap.frames[editControlFrame.id],
-                      start: editControlFrame.start,
-                      fade: editControlFrame.fade,
-                    },
-                  },
-                };
-              },
-            },
-          });
-        },
       });
     } catch (error) {
       console.error(error);
@@ -191,24 +124,6 @@ export const controlAgent = {
           input: {
             frameID: frameId,
           },
-        },
-        update: (cache, { data: { deleteControlFrame } }) => {
-          cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              controlFrameIDs(controlFrameIDs) {
-                return controlFrameIDs.filter(
-                  (e: String) => e !== deleteControlFrame.id
-                );
-              },
-              ControlMap(controlMap) {
-                return {
-                  ...controlMap,
-                  frames: lodash.omit(controlMap.frames, deleteControlFrame.id),
-                };
-              },
-            },
-          });
         },
       });
     } catch (error) {

@@ -48,6 +48,6 @@ const client = new ApolloClient({
   connectToDevTools: true,
 });
 
-Subscriptions(client, _userID);
+Subscriptions(client);
 
 export default client;
