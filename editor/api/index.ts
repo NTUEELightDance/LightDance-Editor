@@ -6,7 +6,7 @@ import axios from "./axios";
 export * from "./controlAgent";
 export * from "./positionAgent";
 export * from "./dancerAgent";
-export * from "./LedAgent";
+export * from "./ledAgent";
 
 export const uploadJson = (file, type) => {
   const formData = new FormData();
