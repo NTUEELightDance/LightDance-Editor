@@ -65,7 +65,8 @@ export default function TimeShift({
       window.alert("Invalid, startTime should <= endTime");
       return;
     }
-    window.alert("Warning! This action may delete some important data.");
+    if (!window.confirm("Warning! This action may delete some important data."))
+      return;
     await shiftFrameTime({ payload: { type, startTime, endTime, shiftTime } });
     setStartTime(0);
     setEndTime(0);
