@@ -3,9 +3,9 @@ import store from "../store";
 //axios for api
 import axios from "./axios";
 
-export * from "./ControlAgent";
-export * from "./PositionAgent";
-export * from "./DancerAgent";
+export * from "./controlAgent";
+export * from "./positionAgent";
+export * from "./dancerAgent";
 export * from "./LedAgent";
 
 export const uploadJson = (file, type) => {
