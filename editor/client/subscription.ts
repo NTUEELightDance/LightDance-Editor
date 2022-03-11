@@ -4,44 +4,45 @@ import {
   SUB_CONTROL_RECORD,
   SUB_CONTROL_MAP,
 } from "../graphql";
-import lodash from "lodash";
+import { produce } from "immer";
 
-const subPosRecord = (client, userID: string) => {
+const subPosRecord = (client) => {
   client
     .subscribe({
       query: SUB_POS_RECORD,
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.positionRecordSubscription.editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              positionFrameIDs(positionFrameIDs: Array<string>) {
-                if (
-                  data.data.positionRecordSubscription.mutation === "CREATED"
-                ) {
-                  return [
-                    ...positionFrameIDs.slice(
-                      0,
-                      data.data.positionRecordSubscription.index
-                    ),
-                    data.data.positionRecordSubscription.frameID,
-                    ...positionFrameIDs.slice(
-                      data.data.positionRecordSubscription.index
-                    ),
-                  ];
-                } else if (
-                  data.data.positionRecordSubscription.mutation === "DELETED"
-                ) {
-                  return positionFrameIDs.filter((e: string) => {
-                    return e !== data.data.positionRecordSubscription.frameID;
-                  });
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            positionFrameIDs(positionFrameIDs: Array<string>) {
+              const { index, addID, updateID, deleteID } =
+                data.data.positionRecordSubscription;
+              const newPosRecord = produce(
+                positionFrameIDs,
+                (posRecordDraft) => {
+                  if (addID.length) {
+                    posRecordDraft.splice(index, 0, ...addID);
+                  }
+                  if (updateID.length) {
+                    let length = updateID.length;
+                    const updateIndex = posRecordDraft.indexOf(updateID[0]);
+                    posRecordDraft.splice(updateIndex, length);
+                    posRecordDraft.splice(index, 0, ...updateID);
+                  }
+                  if (deleteID.length) {
+                    deleteID.map((id: string) => {
+                      const deleteIndex = posRecordDraft.indexOf(id);
+                      posRecordDraft.splice(deleteIndex, 1);
+                    });
+                  }
                 }
-              },
+              );
+              return newPosRecord;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
@@ -49,48 +50,42 @@ const subPosRecord = (client, userID: string) => {
     });
 };
 
-const subPosMap = (client, userID: string) => {
+const subPosMap = (client) => {
   client
     .subscribe({
       query: SUB_POS_MAP,
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.positionMapSubscription.editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              PosMap(posMap) {
-                if (
-                  data.data.positionMapSubscription.mutation ===
-                  ("CREATED" || "UPDATED")
-                ) {
-                  return {
-                    ...posMap,
-                    frames: {
-                      ...posMap.frames,
-                      [data.data.positionMapSubscription.frameID]: {
-                        ...data.data.positionMapSubscription.frame[
-                          data.data.positionMapSubscription.frameID
-                        ],
-                      },
-                    },
-                  };
-                } else if (
-                  data.data.positionMapSubscription.mutation === "DELETED"
-                ) {
-                  return {
-                    ...posMap,
-                    frames: lodash.omit(
-                      posMap.frames,
-                      data.data.positionMapSubscription.frameID
-                    ),
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            PosMap(posMap) {
+              const { createFrames, deleteFrames, updateFrames } =
+                data.data.positionMapSubscription.frame;
+              const newPosMap = produce(posMap, (posMapDraft) => {
+                if (Object.keys(createFrames).length) {
+                  posMapDraft.frames = {
+                    ...posMapDraft.frames,
+                    ...createFrames,
                   };
                 }
-              },
+                if (deleteFrames.length) {
+                  deleteFrames.map((id: string) => {
+                    delete posMapDraft.frames[id];
+                  });
+                }
+                if (Object.keys(updateFrames).length) {
+                  posMapDraft.frames = {
+                    ...posMapDraft.frames,
+                    ...updateFrames,
+                  };
+                }
+              });
+              return newPosMap;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
@@ -98,42 +93,43 @@ const subPosMap = (client, userID: string) => {
     });
 };
 
-const subControlRecord = (client, userID: string) => {
+const subControlRecord = (client) => {
   client
     .subscribe({
       query: SUB_CONTROL_RECORD,
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.controlRecordSubscription.editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              controlFrameIDs(controlFrameIDs: Array<string>) {
-                if (
-                  data.data.controlRecordSubscription.mutation === "CREATED"
-                ) {
-                  return [
-                    ...controlFrameIDs.slice(
-                      0,
-                      data.data.controlRecordSubscription.index
-                    ),
-                    data.data.controlRecordSubscription.frameID,
-                    ...controlFrameIDs.slice(
-                      data.data.controlRecordSubscription.index
-                    ),
-                  ];
-                } else if (
-                  data.data.controlRecordSubscription.mutation === "DELETED"
-                ) {
-                  return controlFrameIDs.filter((e: string) => {
-                    return e !== data.data.controlRecordSubscription.frameID;
-                  });
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            controlFrameIDs(controlFrameIDs: Array<string>) {
+              const { index, addID, updateID, deleteID } =
+                data.data.controlRecordSubscription;
+              const newControlRecord = produce(
+                controlFrameIDs,
+                (controlRecordDraft) => {
+                  if (addID.length) {
+                    controlRecordDraft.splice(index, 0, ...addID);
+                  }
+                  if (updateID.length) {
+                    let length = updateID.length;
+                    const updateIndex = controlRecordDraft.indexOf(updateID[0]);
+                    controlRecordDraft.splice(updateIndex, length);
+                    controlRecordDraft.splice(index, 0, ...updateID);
+                  }
+                  if (deleteID.length) {
+                    deleteID.map((id: string) => {
+                      const deleteIndex = controlRecordDraft.indexOf(id);
+                      controlRecordDraft.splice(deleteIndex, 1);
+                    });
+                  }
                 }
-              },
+              );
+              return newControlRecord;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
@@ -141,48 +137,42 @@ const subControlRecord = (client, userID: string) => {
     });
 };
 
-const subControlMap = (client, userID: string) => {
+const subControlMap = (client) => {
   client
     .subscribe({
       query: SUB_CONTROL_MAP,
     })
     .subscribe({
       next(data) {
-        if (userID !== data.data.controlMapSubscription.editBy) {
-          client.cache.modify({
-            id: "ROOT_QUERY",
-            fields: {
-              ControlMap(controlMap) {
-                if (
-                  data.data.controlMapSubscription.mutation ===
-                  ("CREATED" || "UPDATED")
-                ) {
-                  return {
-                    ...controlMap,
-                    frames: {
-                      ...controlMap.frames,
-                      [data.data.controlMapSubscription.frameID]: {
-                        ...data.data.controlMapSubscription.frame[
-                          data.data.controlMapSubscription.frameID
-                        ],
-                      },
-                    },
-                  };
-                } else if (
-                  data.data.controlMapSubscription.mutation === "DELETED"
-                ) {
-                  return {
-                    ...controlMap,
-                    frames: lodash.omit(
-                      controlMap.frames,
-                      data.data.controlMapSubscription.frameID
-                    ),
+        client.cache.modify({
+          id: "ROOT_QUERY",
+          fields: {
+            ControlMap(controlMap) {
+              const { createFrames, deleteFrames, updateFrames } =
+                data.data.controlMapSubscription.frame;
+              const newControlMap = produce(controlMap, (controlMapDraft) => {
+                if (Object.keys(createFrames).length) {
+                  controlMapDraft.frames = {
+                    ...controlMapDraft.frames,
+                    ...createFrames,
                   };
                 }
-              },
+                if (deleteFrames.length) {
+                  deleteFrames.map((id: string) => {
+                    delete controlMapDraft.frames[id];
+                  });
+                }
+                if (Object.keys(updateFrames).length) {
+                  controlMapDraft.frames = {
+                    ...controlMapDraft.frames,
+                    ...updateFrames,
+                  };
+                }
+              });
+              return newControlMap;
             },
-          });
-        }
+          },
+        });
       },
       error(err) {
         console.error("SubscriptionError", err);
@@ -190,11 +180,11 @@ const subControlMap = (client, userID: string) => {
     });
 };
 
-const Subscriptions = (client, userID: string) => {
-  subPosRecord(client, userID);
-  subPosMap(client, userID);
-  subControlRecord(client, userID);
-  subControlMap(client, userID);
+const Subscriptions = (client) => {
+  subPosRecord(client);
+  subPosMap(client);
+  subControlRecord(client);
+  subControlMap(client);
 };
 
 export default Subscriptions;

@@ -5,6 +5,11 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import TextField from "@material-ui/core/TextField";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import { SelectChangeEvent } from "@mui/material";
 // states and actions
 import { shiftFrameTime } from "core/actions";
 //types
@@ -15,6 +20,7 @@ import usePos from "hooks/usePos";
 
 const CONTROL = "control";
 const POSITION = "position";
+const BOTH = "both";
 
 export default function TimeShift({
   open,
@@ -27,15 +33,17 @@ export default function TimeShift({
   const { posRecord } = usePos();
   // type
   const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
-  const handleChangeType = () => setType(type === CONTROL ? POSITION : CONTROL);
+  const handleChangeType = (
+    event: SelectChangeEvent<"control" | "position" | "both">
+  ) => setType(event.target.value as TimeShiftTool);
 
   // frame index
-  const [startFrame, setStartFrame] = useState(0);
-  const [endFrame, setEndFrame] = useState(0);
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
   const handleChangeStartFrame = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setStartFrame(e.target.valueAsNumber);
+    setStartTime(e.target.valueAsNumber);
   const handleChangeEndFrame = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setEndFrame(e.target.valueAsNumber);
+    setEndTime(e.target.valueAsNumber);
 
   // time
   const [shiftTime, setShiftTime] = useState(0);
@@ -43,26 +51,31 @@ export default function TimeShift({
     setShiftTime(e.target.valueAsNumber);
 
   // submit
-  const submitTimeShift = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const submitTimeShift = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const record = type === CONTROL ? controlRecord : posRecord;
-    if (startFrame < 0 || startFrame >= record.length) {
-      window.alert("Invalid start frame");
+    if (startTime < 0) {
+      window.alert("Invalid Start Time");
       return;
     }
-    if (endFrame < 0 || endFrame >= record.length) {
-      window.alert("Invalid end frame");
+    if (endTime < 0) {
+      window.alert("Invalid End Time");
       return;
     }
-    if (startFrame > endFrame) {
-      window.alert("Invalid, startFrame should <= endFrame");
+    if (startTime > endTime) {
+      window.alert("Invalid, startTime should <= endTime");
       return;
     }
-    shiftFrameTime({ payload: { type, startFrame, endFrame, shiftTime } });
+    if (!window.confirm("Warning! This action may delete some important data."))
+      return;
+    await shiftFrameTime({ payload: { type, startTime, endTime, shiftTime } });
+    setStartTime(0);
+    setEndTime(0);
+    setShiftTime(0);
+    setType(CONTROL);
     handleClose();
   };
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} disableEnforceFocus>
       <DialogTitle> Time Shift Tool</DialogTitle>
       <DialogContent>
         <form onSubmit={submitTimeShift}>
@@ -73,22 +86,26 @@ export default function TimeShift({
               alignItems: "center",
             }}
           >
-            <Button onClick={handleChangeType} size="small" variant="outlined">
-              {type}
-            </Button>
+            <FormControl fullWidth size="small">
+              <Select value={type} onChange={handleChangeType}>
+                <MenuItem value={CONTROL}>Control</MenuItem>
+                <MenuItem value={POSITION}>Position</MenuItem>
+                <MenuItem value={BOTH}>Both</MenuItem>
+              </Select>
+            </FormControl>
             <br />
             <TextField
               type="number"
-              label="startFrame"
+              label="Start Time(ms)"
               onChange={handleChangeStartFrame}
-              value={startFrame}
+              value={startTime}
             />
             <br />
             <TextField
               type="number"
-              label="endFrame"
+              label="End Time(ms)"
               onChange={handleChangeEndFrame}
-              value={endFrame}
+              value={endTime}
             />
             <br />
             <TextField
