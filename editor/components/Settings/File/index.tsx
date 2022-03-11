@@ -104,101 +104,109 @@ export default function File() {
   const handleSwitchServer = () => setToServer(!toServer);
   // TODO: make upload and download functional
   return (
-    <Stack spacing={3}>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={toServer}
-            onChange={handleSwitchServer}
-            name="switchServer"
-          />
-        }
-        label="Upload to Server (Don't open this when testing)"
-      />
-
-      <Typography variant="h6">Upload export.json</Typography>
-
-      <ItemWrapper>
-        <div>
-          <label htmlFor="export">export.json: </label>
-          <input
-            id="export"
-            name="exportFile"
-            type="file"
-            accept=".json"
-            onChange={handleExportFileInput}
-          />
-        </div>
-      </ItemWrapper>
-
-      <UploadDownload
-        handleUpload={handleExportFileUpload}
-        handleDownload={handleExportFileDownload}
-      />
-      <Typography variant="h6">Upload LED.json</Typography>
-
-      <ItemWrapper>
-        <div>
-          <label htmlFor="export">LED.json: </label>
-          <input
-            id="LED"
-            name="LEDfile"
-            type="file"
-            accept=".json"
-            onChange={handleLedFileInput}
-          />
-        </div>
-      </ItemWrapper>
-
-      <UploadDownload
-        handleUpload={handleLedFileUpload}
-        handleDownload={handleLedFileDownload}
-      />
-      <Typography variant="h6">
-        Upload [name].png <strong>(should select part)</strong>
-      </Typography>
-      <ItemWrapper>
-        <input
-          id="images"
-          name="images"
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleImagesInput}
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        p: "5% 8%",
+      }}
+    >
+      <Stack spacing={3}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={toServer}
+              onChange={handleSwitchServer}
+              name="switchServer"
+            />
+          }
+          label="Upload to Server (Don't open this when testing)"
         />
-      </ItemWrapper>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "1vw",
-        }}
-      >
-        <FormControl sx={{ width: "18em" }} focused>
-          <InputLabel id="part-select-label">Part to upload</InputLabel>
-          <Select
-            labelId="part-select-label"
-            value={path}
-            label="Part to upload"
-            onChange={handlePathChange}
-          >
-            {Object.keys(texture.LEDPARTS).map((name) => (
-              <MenuItem key={name} value={name}>
-                <Typography>{name}</Typography>
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Typography variant="h6">Upload export.json</Typography>
 
-        <Button variant="outlined" size="small" onClick={handleImagesUpload}>
-          Upload
-        </Button>
-      </Box>
+        <ItemWrapper>
+          <div>
+            <label htmlFor="export">export.json: </label>
+            <input
+              id="export"
+              name="exportFile"
+              type="file"
+              accept=".json"
+              onChange={handleExportFileInput}
+            />
+          </div>
+        </ItemWrapper>
 
-      <Divider />
-    </Stack>
+        <UploadDownload
+          handleUpload={handleExportFileUpload}
+          handleDownload={handleExportFileDownload}
+        />
+        <Typography variant="h6">Upload LED.json</Typography>
+
+        <ItemWrapper>
+          <div>
+            <label htmlFor="export">LED.json: </label>
+            <input
+              id="LED"
+              name="LEDfile"
+              type="file"
+              accept=".json"
+              onChange={handleLedFileInput}
+            />
+          </div>
+        </ItemWrapper>
+
+        <UploadDownload
+          handleUpload={handleLedFileUpload}
+          handleDownload={handleLedFileDownload}
+        />
+        <Typography variant="h6">
+          Upload [name].png <strong>(should select part)</strong>
+        </Typography>
+        <ItemWrapper>
+          <input
+            id="images"
+            name="images"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImagesInput}
+          />
+        </ItemWrapper>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "1vw",
+          }}
+        >
+          <FormControl sx={{ width: "18em" }} focused>
+            <InputLabel id="part-select-label">Part to upload</InputLabel>
+            <Select
+              labelId="part-select-label"
+              value={path}
+              label="Part to upload"
+              onChange={handlePathChange}
+            >
+              {Object.keys(texture.LEDPARTS).map((name) => (
+                <MenuItem key={name} value={name}>
+                  <Typography>{name}</Typography>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Button variant="outlined" size="small" onClick={handleImagesUpload}>
+            Upload
+          </Button>
+        </Box>
+
+        <Divider />
+      </Stack>
+    </Box>
   );
 }
 

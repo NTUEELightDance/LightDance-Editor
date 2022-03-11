@@ -1,7 +1,6 @@
-import React from "react";
 // mui
-import { makeStyles } from "@material-ui/core/styles";
 import List from "@mui/material/List";
+import Paper from "@mui/material/Paper";
 // components
 import FrameItem from "./FrameItem";
 // states and actions
@@ -13,19 +12,6 @@ import { CONTROL_EDITOR } from "constants";
 import useControlFrameList from "./useControlFrameList";
 import usePosFrameList from "./usePosFrameList";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    padding: theme.spacing(1),
-  },
-
-  grow: {
-    flexGrow: 1,
-  },
-}));
-
 export default function FrameList() {
   const editor = useReactiveVar(reactiveState.editor);
   // get data and handler from different mode
@@ -34,28 +20,24 @@ export default function FrameList() {
   const { loading, map, record, currentIndex, handleSelectItem } =
     editor === CONTROL_EDITOR ? controlFrameList : posFrameList;
 
-  // styles
-  const classes = useStyles();
-
   if (loading) return <>loading...</>;
+
   return (
-    <div className={classes.root}>
-      <div className={classes.grow}>
-        <List component="nav">
-          {record.map((id: string, idx: number) => (
-            <React.Fragment key={id}>
-              {map[record[idx]] && (
-                <FrameItem
-                  idx={idx}
-                  start={map[record[idx]].start}
-                  selected={currentIndex === idx}
-                  handleSelectItem={handleSelectItem}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </List>
-      </div>
-    </div>
+    <Paper sx={{ minHeight: "100%" }} square>
+      <List component="nav">
+        {record.map(
+          (id: string, idx: number) =>
+            map[record[idx]] && (
+              <FrameItem
+                key={id}
+                idx={idx}
+                start={map[record[idx]].start}
+                selected={currentIndex === idx}
+                handleSelectItem={handleSelectItem}
+              />
+            )
+        )}
+      </List>
+    </Paper>
   );
 }

@@ -32,7 +32,7 @@ export default function Header() {
               style={{ height: "100%" }}
             />
           </Box>
-          <LayoutButtons />
+          {/* <LayoutButtons /> */}
           <Box
             sx={{
               display: "flex",

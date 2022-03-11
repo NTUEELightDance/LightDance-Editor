@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 // mui
-import ListItem from "@material-ui/core/ListItem";
-import Typography from "@material-ui/core/Typography";
+import ListItem from "@mui/material/ListItem";
+import Typography from "@mui/material/Typography";
 
 export default function FrameItem({
   idx,
@@ -34,7 +34,7 @@ export default function FrameItem({
         button
         onClick={() => handleSelectItem(idx)}
       >
-        <Typography variant="body1" color="initial">
+        <Typography variant="body1">
           [{idx}] time: {start}
         </Typography>
       </ListItem>
