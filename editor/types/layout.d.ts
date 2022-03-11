@@ -21,4 +21,4 @@ export type layoutPreferenceValues = layoutMode | editorPreference;
 
 export type layoutMode = "editor" | "command";
 
-export type editorPreference = "default" | "legacy" | "mirrored" | "beta";
+export type editorPreference = "default" | "mirrored";

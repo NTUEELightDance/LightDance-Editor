@@ -16,7 +16,7 @@ export const LayoutContext = createContext<layoutContext | null>(null);
 
 const LayoutContextProvider = ({ children }: { children: JSX.Element }) => {
   const [preferences, setPreferences] = useImmer<layoutPreference>({
-    editor: "beta",
+    editor: "default",
     mode: "editor",
   });
 
