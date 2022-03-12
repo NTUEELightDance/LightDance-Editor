@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEventHandler } from "react";
+import React, { useState, useEffect, ChangeEventHandler, useRef } from "react";
 
 import {
   Dialog,
@@ -54,22 +54,38 @@ const ColorDialog = ({
     handleClose();
   };
 
+  // for auto navigation on Enter
+  const colorInputRef = useRef<HTMLInputElement>();
+  const handleNameEnter: React.KeyboardEventHandler = (e) => {
+    console.log(e.key);
+    if (e.key === "Enter") {
+      console.log(colorInputRef.current);
+      e.preventDefault();
+      colorInputRef?.current && colorInputRef.current.focus();
+    }
+  };
+  const handleColorEnter: React.KeyboardEventHandler = (e) => {
+    console.log(e.key);
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={!!open} onClose={handleClose}>
       <DialogTitle>{type === "add" ? "New Color" : "Edit Color"}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: "1em" }}>
           {disableNameChange ? (
             <Tooltip title="this is a reserved color">
-              <span>
-                <TextField
-                  margin="dense"
-                  label="Color Name"
-                  variant="filled"
-                  value={newColorName}
-                  disabled
-                />
-              </span>
+              <TextField
+                margin="dense"
+                label="Color Name"
+                variant="filled"
+                value={newColorName}
+                disabled
+              />
             </Tooltip>
           ) : (
             <TextField
@@ -80,6 +96,7 @@ const ColorDialog = ({
               value={newColorName}
               onChange={handleInputChange(setNewColorName)}
               disabled={disableNameChange}
+              onKeyDown={handleNameEnter}
             />
           )}
           <TextField
@@ -88,6 +105,8 @@ const ColorDialog = ({
             variant="filled"
             value={newColorCode}
             onChange={handleInputChange(setNewColorCode)}
+            inputRef={colorInputRef as React.RefObject<HTMLInputElement>}
+            onKeyDown={handleColorEnter}
           />
           <HexColorPicker color={newColorCode} onChange={setNewColorCode} />
         </Box>
