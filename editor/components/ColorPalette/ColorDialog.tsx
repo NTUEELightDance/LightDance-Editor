@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 
 import { HexColorPicker } from "react-colorful";
+import { notification } from "core/utils";
 
 const ColorDialog = ({
   type,
@@ -57,15 +58,12 @@ const ColorDialog = ({
   // for auto navigation on Enter
   const colorInputRef = useRef<HTMLInputElement>();
   const handleNameEnter: React.KeyboardEventHandler = (e) => {
-    console.log(e.key);
     if (e.key === "Enter") {
-      console.log(colorInputRef.current);
       e.preventDefault();
       colorInputRef?.current && colorInputRef.current.focus();
     }
   };
   const handleColorEnter: React.KeyboardEventHandler = (e) => {
-    console.log(e.key);
     if (e.key === "Enter") {
       e.preventDefault();
       handleSubmit();
