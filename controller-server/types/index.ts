@@ -1,5 +1,5 @@
-import ControlPanelSocket from "../test_websocket/controlPanelSocket";
-import DancerSocket from "../test_websocket/dancerSocket";
+import ControlPanelSocket from "../websocket/controlPanelSocket";
+import DancerSocket from "../websocket/dancerSocket";
 import { CommandType } from "../constants/index";
 
 // General payload type

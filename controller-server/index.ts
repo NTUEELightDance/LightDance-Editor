@@ -3,9 +3,9 @@ import http from "http";
 import bodyParser from "body-parser";
 import { WebSocketServer } from "ws";
 
-import DancerSocket from "./test_websocket/dancerSocket";
+import DancerSocket from "./websocket/dancerSocket";
 // import ControlPanelSocket from "./websocket/controlPanelSocket";
-import ControlPanelSocket from "./test_websocket/controlPanelSocket";
+import ControlPanelSocket from "./websocket/controlPanelSocket";
 import { ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
 import NtpServer from "./ntp/index";
 
