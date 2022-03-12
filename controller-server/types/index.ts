@@ -45,7 +45,7 @@ interface MesC2S {
 interface MesS2C {
   command: CommandType;
   payload: {
-    from?: DancerName;
+    from?: string; // DancerName type
     success: boolean;
     info: string | InfoType | SyncType; // RPi info
   };

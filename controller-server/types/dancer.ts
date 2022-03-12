@@ -1,7 +1,7 @@
 enum DancerName {
-  "yutoby",
-  "wish",
-  "daniel",
+  Yutoby = "yutoby",
+  Wish = "wish",
+  Daniel = "daniel",
 }
 
 export { DancerName };

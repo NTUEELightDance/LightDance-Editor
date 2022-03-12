@@ -1,4 +1,11 @@
-import { controlPanelClientDic, dancerClientDic, Dic } from "./types";
+import {
+  ClientType,
+  controlPanelClientDic,
+  dancerClientDic,
+  Dic,
+  MesS2C,
+  MesS2R,
+} from "./types";
 import { ControlPanelSocket } from "./test_websocket/controlPanelSocket";
 
 class ClientList {
@@ -47,39 +54,39 @@ export class ClientAgent {
    * @param {string} from - from who
    * @param {{ type, task, payload }} msg
    */
-  socketReceiveData = (from: string, msg: any) => {
+  socketReceiveData = (
+    from: string,
+    msg: MesS2C | MesS2R,
+    clientType: ClientType
+  ) => {
     // msg type need to be specified later
-    const { type, task, payload } = msg;
-    switch (type) {
-      case "dancer": {
+    switch (clientType) {
+      case ClientType.RPI: {
         Object.values(this.controlPanelClients.getClients()).forEach(
           (controlPanel: ControlPanelSocket) => {
             //   TODO: modify the argument data format to meet the data type SocketMes
-            //   controlPanel.sendDataToClientControlPanel([
-            //     task,
-            //     {
-            //       from,
-            //       response: payload,
-            //     },
-            //   ]);
+            controlPanel.sendDataToClientControlPanel(msg as MesS2C);
           }
+        );
+        console.log(
+          "[Emit Message] To controlPanelClients: ",
+          Object.keys(this.controlPanelClients.getClients()),
+          "\n[Emit Message] msg: ",
+          msg,
+          "\n"
         );
         break;
       }
       case "controlPanel": {
+        console.log(
+          "[Emit Message] To dancerClients: ",
+          Object.keys(this.dancerClients.getClients()),
+          "\n"
+        );
         break;
       }
       default:
         break;
     }
-
-    console.log(
-      "dancerClients: ",
-      Object.keys(this.dancerClients.getClients())
-    );
-    console.log(
-      "controlPanelClients: ",
-      Object.keys(this.controlPanelClients.getClients())
-    );
   };
 }

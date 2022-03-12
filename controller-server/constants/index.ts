@@ -14,6 +14,7 @@ enum CommandType {
   BOARDINFO = "boardInfo",
   INIT = "init",
   TEST = "test",
+  DISCONNECT = "disconnect",
 }
 
 export { CommandType };

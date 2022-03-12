@@ -1,9 +1,18 @@
 import { CommandType } from "../constants";
 import led from "../../files/data/led.json";
 import WebSocket from "ws";
-import { Dic, LightStatusType, MesR2S, MesS2R, PlayTimeType } from "../types";
+import {
+  ClientType,
+  Dic,
+  LightStatusType,
+  MesR2S,
+  MesS2C,
+  MesS2R,
+  PlayTimeType,
+} from "../types";
 import { ClientAgent } from "../clientAgent";
 import downloadControlJson from "../downloadControl";
+import { DancerName } from "../types/dancer";
 
 class DancerSocket {
   ws: any;
@@ -28,7 +37,6 @@ class DancerSocket {
     this.hostName = hostName;
     this.init(ws);
     this.clientIP = ip;
-    this.handleMessage();
 
     this.methods = {
       [CommandType.SYNC]: this.sync,
@@ -48,22 +56,52 @@ class DancerSocket {
   init = (ws: WebSocket) => {
     this.ws = ws;
     this.clientAgent.dancerClients.addClient(this.dancerName, this);
+    this.handleDisconnect();
+
+    console.log("[Connect] DancerSocket established! id: ", this.dancerName);
+    console.log(
+      "[Connect] Current connected dancers: ",
+      Object.keys(this.clientAgent.dancerClients.getClients()),
+      "\n"
+    );
   };
   handleMessage = () => {
     this.ws.onmessage = (message: any) => {
-      const parsedData: MesR2S = JSON.parse(message.data);
+      let parsedData: MesR2S = JSON.parse(message.data);
       const { command, payload } = parsedData;
       console.log(
-        `${this.dancerName} response: ${command}\nPayload: ${payload}`
+        `[Message] ${this.dancerName} response: ${command} \n[Message] Payload: ${payload}\n`
       );
-      // this.dancerAgent.socketRecieveData(this.dancerName, {});
+
+      // to emit message to control panel, we add from in payload
+      const mesToControlPanel: MesS2C = {
+        ...parsedData,
+        payload: { from: this.dancerName, ...parsedData["payload"] },
+      };
+      this.clientAgent.socketReceiveData(
+        this.dancerName,
+        mesToControlPanel,
+        ClientType.RPI
+      );
     };
   };
   handleDisconnect = () => {
     this.ws.onclose = (message: any) => {
-      console.log(`${this.dancerName} disconnected!`);
-      // this.dancerAgent.socketReceiveData(this.dancerName, {});
-      // this.dancerAgent.deleteDancerClient(this.dancerName);
+      console.log(`[Disconnect] dancer ${this.dancerName} disconnect!\n`);
+      const disconnectResponse: MesS2C = {
+        command: CommandType.DISCONNECT,
+        payload: {
+          from: this.dancerName,
+          success: true,
+          info: "dancer disconnect",
+        },
+      };
+      this.clientAgent.socketReceiveData(
+        this.dancerName,
+        disconnectResponse,
+        ClientType.RPI
+      );
+      this.clientAgent.dancerClients.deleteClient(this.dancerName);
     };
   };
   sendDataToRpiSocket = (data: MesS2R) => {
@@ -78,7 +116,6 @@ class DancerSocket {
   // };
   // Below are functions for manager to use
   sync = () => {
-    console.log(CommandType.SYNC);
     this.sendDataToRpiSocket({ command: CommandType.SYNC });
   };
   kick = () => {
