@@ -1,23 +1,83 @@
-import { Alert } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Alert, Button, Fade } from "@mui/material";
 
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
 import withReactContent from "sweetalert2-react-content";
 
+// @ts-ignore
+import styles from "./notification.module.css";
+
 type MessageType = "info" | "success" | "error" | "warning";
 
-export const Notification = ({
+const Notification = ({
   type = "info",
   content,
 }: {
   type: MessageType;
   content: string;
-}) => <Alert severity={type}>{content}</Alert>;
+}) => {
+  return (
+    <Alert severity={type} variant="filled">
+      {content}
+    </Alert>
+  );
+};
+
+const Confirmation = ({
+  type = "info",
+  content,
+}: {
+  type: MessageType;
+  content: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    setOpen(true);
+    return;
+  }, []);
+
+  const handleConfirm = () => {
+    ConfirmationSwal.clickConfirm();
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+    ConfirmationSwal.clickCancel();
+    setOpen(false);
+  };
+
+  return (
+    <Fade in={open}>
+      <Alert
+        severity={type}
+        variant="filled"
+        action={
+          <>
+            <Button color="inherit" size="small" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              color="inherit"
+              size="small"
+              onClick={handleConfirm}
+              autoFocus={true}
+            >
+              Confirm
+            </Button>
+          </>
+        }
+      >
+        {content}
+      </Alert>
+    </Fade>
+  );
+};
 
 // get swal notification manager with react integration
-const MySwal = withReactContent(Swal);
+const NotificationSwal = withReactContent(Swal);
 const notify = (type: MessageType) => (content: string) => {
   // mount the node passed to html to the dom with some animation
-  MySwal.fire({
+  NotificationSwal.fire({
     html: <Notification type={type} content={content} />,
     toast: true,
     position: "top",
@@ -27,9 +87,37 @@ const notify = (type: MessageType) => (content: string) => {
   });
 };
 
+// get swal notification manager with react integration
+const ConfirmationSwal = withReactContent(Swal);
+const confirm = (type: MessageType) => async (content: string) => {
+  // mount the node passed to html to the dom with some animation
+  const { isConfirmed } = await ConfirmationSwal.fire({
+    html: <Confirmation type={type} content={content} />,
+    position: "top",
+    background: "transparent",
+    // we have to set showConfirmButton to true to get Enter confirm working
+    showConfirmButton: true,
+    // we are make the button invisible, but still displaying
+    confirmButtonText: "",
+    buttonsStyling: false,
+    customClass: {
+      confirmButton: styles.invisible,
+    },
+  });
+  
+  return isConfirmed;
+};
+
 export const notification = {
   info: notify("info"),
   success: notify("success"),
   error: notify("error"),
   warning: notify("warning"),
+};
+
+export const confirmation = {
+  info: confirm("info"),
+  success: confirm("success"),
+  error: confirm("error"),
+  warning: confirm("warning"),
 };

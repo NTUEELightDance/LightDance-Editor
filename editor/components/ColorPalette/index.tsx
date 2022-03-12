@@ -74,7 +74,7 @@ export default function ColorPalette() {
                 px: "1em",
                 width: "100%",
                 position: "sticky",
-                zIndex: 8080,
+                zIndex: 808,
               }}
             >
               <IconButton onClick={() => setAddDialogOpen(true)}>
