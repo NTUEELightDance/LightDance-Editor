@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Button, Fade } from "@mui/material";
 
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
@@ -31,21 +31,28 @@ const Confirmation = ({
   type: MessageType;
   content: string;
 }) => {
+  // for the fade component to programatically close the modal
   const [open, setOpen] = useState(true);
 
   const handleConfirm = () => {
+    // virtualy click Swal's confirm button to trigger its confirm event to get the return value
     ConfirmationSwal.clickConfirm();
     setOpen(false);
   };
-
   const handleCancel = () => {
     ConfirmationSwal.clickCancel();
     setOpen(false);
   };
 
+  // the keyboard event is sometimes kidnapped by other components for an unknown reason
+  // thus we use useHotKeys to gaurantee we can trigger the event
   useHotkeys("enter", (e) => {
     e.preventDefault();
-    ConfirmationSwal.clickConfirm();
+    handleConfirm();
+  });
+  useHotkeys("esc", (e) => {
+    e.preventDefault();
+    handleCancel();
   });
 
   return (
@@ -58,11 +65,7 @@ const Confirmation = ({
             <Button color="inherit" size="small" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button
-              color="inherit"
-              size="small"
-              onClick={handleConfirm}
-            >
+            <Button color="inherit" size="small" onClick={handleConfirm}>
               Confirm
             </Button>
           </>
@@ -95,15 +98,8 @@ const confirm = (type: MessageType) => async (content: string) => {
   const { isConfirmed } = await ConfirmationSwal.fire({
     html: <Confirmation type={type} content={content} />,
     position: "top",
+    showConfirmButton: false,
     background: "transparent",
-    // we have to set showConfirmButton to true to get Enter confirm working
-    showConfirmButton: true,
-    // we are make the button invisible, but still displaying
-    confirmButtonText: "",
-    buttonsStyling: false,
-    customClass: {
-      confirmButton: styles.invisible,
-    },
   });
 
   return isConfirmed;
