@@ -154,6 +154,7 @@ export default function CommandCenter() {
                   >
                     <TableCell padding="checkbox">
                       <Checkbox checked={isItemSelected} />
+                      {/* <Checkbox checked={isItemSelected} disable = !isConnected/> */}
                     </TableCell>
                     <TableCell className={classes.mediumCell}>
                       {dancerName}

@@ -4,7 +4,6 @@ import { COMMANDS, WEBSOCKETCLIENT } from "constants";
 // states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
-import { breadcrumbsClasses } from "@mui/material";
 const BOARDINFO = "boardInfo";
 const url = `${location.origin}/controller-server-websocket`.replace(
   "http",
@@ -13,6 +12,7 @@ const url = `${location.origin}/controller-server-websocket`.replace(
 export default function useWebsocketState() {
   //states
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
+  // dancerNames has to be dynamic
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const time = useReactiveVar(reactiveState.currentTime);
   const [dancerStatus, setDancerStatus] = useImmer({});
@@ -40,7 +40,6 @@ export default function useWebsocketState() {
       };
 
       ws.current.onmessage = (msg) => {
-        console.log(msg);
         const data = JSON.parse(msg.data);
         console.log(`Data from server :`, data);
         handleMessage(data);
@@ -99,6 +98,7 @@ export default function useWebsocketState() {
       default:
         break;
     }
+    console.log(MesC2S);
     sendDataToServer(MesC2S);
   };
   const handleMessage = (data) => {

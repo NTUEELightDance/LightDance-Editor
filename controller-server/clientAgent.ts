@@ -6,7 +6,7 @@ import {
   MesS2C,
   MesS2R,
 } from "./types";
-import { ControlPanelSocket } from "./websocket/controlPanelSocket";
+import ControlPanelSocket from "./websocket/controlPanelSocket";
 
 class ClientList {
   clientList: dancerClientDic | controlPanelClientDic;

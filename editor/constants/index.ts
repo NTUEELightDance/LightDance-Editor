@@ -47,6 +47,5 @@ export const COMMANDS = {
   KICK,
   SHUTDOWN,
   REBOOT,
-  INIT,
   TEST, // need payload
 };
