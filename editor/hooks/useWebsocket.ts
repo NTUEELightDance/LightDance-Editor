@@ -4,6 +4,8 @@ import { COMMANDS, WEBSOCKETCLIENT } from "constants";
 // states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
+import { breadcrumbsClasses } from "@mui/material";
+const BOARDINFO = "boardInfo";
 const url = `${location.origin}/controller-server-websocket`.replace(
   "http",
   "ws"
@@ -15,6 +17,8 @@ export default function useWebsocketState() {
   const time = useReactiveVar(reactiveState.currentTime);
   const [dancerStatus, setDancerStatus] = useImmer({});
   const [delay, setDelay] = useImmer(0);
+  const [lastCommand, setlastCommand] = useImmer("");
+  const [lastSelectedDancer, setlastSelectedDancer] = useImmer([]);
   const ws = useRef(null);
   const initWebSocket = () => {
     ws.current = new WebSocket(url);
@@ -27,7 +31,7 @@ export default function useWebsocketState() {
     ws.current.onopen = async () => {
       console.log("Websocket for Editor Connected");
       sendDataToServer({
-        command: COMMANDS.BOARDINFO,
+        command: BOARDINFO,
         payload: { type: WEBSOCKETCLIENT.CONTROLPANEL },
       });
 
@@ -50,18 +54,23 @@ export default function useWebsocketState() {
   const sendDataToServer = (data) => {
     ws.current.send(JSON.stringify(data));
   };
-  const clearDancerStatusMsg = (payload) => {
+  const setDancerMsg = (payload) => {
     // payload : {array of dancerNames}
-    const selectedDancers = payload;
+    const { dancer, msg, Ok } = payload;
     setDancerStatus((draft) => {
-      selectedDancers.forEach((dancer) => {
-        draft[dancer].msg = "";
-      });
+      draft[dancer] = {
+        ...draft[dancer],
+        msg,
+        Ok,
+      };
     });
   };
   const sendCommand = async (panelPayload) => {
     const { command, selectedDancers, delay } = panelPayload;
-    clearDancerStatusMsg(selectedDancers);
+    selectedDancers.forEach((dancer) => {
+      setDancerMsg({ dancer, msg: "...", Ok: false });
+    });
+    setlastCommand(command);
     let MesC2S = { command, selectedDancers, payload: "" };
     switch (
       command //handle command that needs payload
@@ -87,23 +96,20 @@ export default function useWebsocketState() {
       case COMMANDS.LIGTHCURRENTSTATUS:
         MesC2S.payload = {};
         break;
+      default:
+        break;
     }
-    ws.current.send(JSON.stringify(MesC2S));
+    sendDataToServer(MesC2S);
   };
   const handleMessage = (data) => {
     const { command, payload } = data;
     const { success, info, from } = payload;
     switch (command) {
-      case COMMANDS.BOARDINFO: {
+      case BOARDINFO: {
         const { dancerName, ip, hostName } = info;
-        console.log("");
-        if (!success) {
-          console.error("websocket response error");
-          break;
-        }
         setDancerStatus((draft) => {
-          Object.keys(dancerName).forEach((Name, index) => {
-            draft[Name] = {
+          Object.keys(dancerName).forEach((name, index) => {
+            draft[name] = {
               OK: true,
               isConnected: true,
               msg: "Connect Success",
@@ -116,80 +122,19 @@ export default function useWebsocketState() {
       }
       case COMMANDS.SYNC: {
         const { delay, offset } = info;
-        setDelay(delay);
-        setDancerStatus((draft) => {
-          draft[from].msg = offset;
+        setDancerMsg({
+          dancer: from,
+          msg: `offset:${offset} , delay:${delay}`,
+          Ok: success,
         });
         break;
       }
-      // case "play": {
-      //   const {
-      //     from,
-      //     response: { OK, msg },
-      //   } = payload;
-      //   if (from === location.hostname) {
-      //     const { sysTime } = msg;
-      //     const realDelay = Math.max(sysTime - Date.now(), 0);
-      //     console.log(`play control editor, ${sysTime}, delay:${realDelay}`);
-      //     // store.dispatch(startPlay(msg));
-      //     setTimeout(() => this.waveSurferApp.playPause(), realDelay);
-      //   } else {
-      //     store.dispatch(
-      //       updateDancerStatus({
-      //         dancerName: from,
-      //         newStatus: {
-      //           OK,
-      //           msg,
-      //         },
-      //       })
-      //     );
-      //   }
-      //   break;
-      // }
-      // case "pause": {
-      //   const {
-      //     from,
-      //     response: { OK, msg },
-      //   } = payload;
-      //   if (from === location.hostname) {
-      //     console.log("pause control editor");
-      //     // store.dispatch(setPlay(false));
-      //   } else {
-      //     store.dispatch(
-      //       updateDancerStatus({
-      //         dancerName: from,
-      //         newStatus: {
-      //           OK,
-      //           msg,
-      //         },
-      //       })
-      //     );
-      //   }
-      //   break;
-      // }
-      // case "stop": {
-      //   const {
-      //     from,
-      //     response: { OK, msg },
-      //   } = payload;
-      //   if (from === location.hostname) {
-      //     console.log("stop control editor");
-      //     // store.dispatch(setStop(true));
-      //     this.waveSurferApp.stop();
-      //   } else {
-      //     store.dispatch(
-      //       updateDancerStatus({
-      //         dancerName: from,
-      //         newStatus: {
-      //           OK,
-      //           msg,
-      //         },
-      //       })
-      //     );
-      //   }
-      //   break;
-      // }
       default:
+        setDancerMsg({
+          Ok: success,
+          msg: info,
+          dancer: from,
+        });
         break;
     }
   };
@@ -200,7 +145,7 @@ export default function useWebsocketState() {
       const initStatus = {
         hostname: "-",
         ip: "-",
-        OK: false,
+        Ok: false,
         msg: "",
         isConnected: false,
       };
@@ -212,5 +157,6 @@ export default function useWebsocketState() {
     delay,
     dancerStatus,
     sendCommand,
+    setDelay,
   };
 }

@@ -29,7 +29,6 @@ const LIGTHCURRENTSTATUS = "lightCurrentStatus";
 const KICK = "kick";
 const SHUTDOWN = "shutDown";
 const REBOOT = "reboot";
-const BOARDINFO = "boardInfo";
 const INIT = "init";
 const TEST = "test";
 export const WEBSOCKETCLIENT = {
@@ -48,7 +47,6 @@ export const COMMANDS = {
   KICK,
   SHUTDOWN,
   REBOOT,
-  BOARDINFO, // need payload
   INIT,
   TEST, // need payload
 };

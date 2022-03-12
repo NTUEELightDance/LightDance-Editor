@@ -49,7 +49,7 @@ export default function CommandCenter() {
   // styles
   const classes = useStyles();
   // hook
-  const { dancerStatus, delay, sendCommand } = useWebsocket();
+  const { dancerStatus, delay, sendCommand, setDelay } = useWebsocket();
   const [selectedDancers, setSelectedDancers] = useImmer([]); // array of dancerName that is selected
 
   const handleToggleDancer = (dancerName) => {
@@ -60,8 +60,10 @@ export default function CommandCenter() {
       else draft.push(dancerName);
     });
   };
+  const allChecked = () =>
+    selectedDancers.length === Object.keys(dancerStatus).length;
   const handleAllDancer = () => {
-    if (selectedDancers.length) {
+    if (allChecked()) {
       // clear all
       setSelectedDancers([]);
     } else {
@@ -83,9 +85,6 @@ export default function CommandCenter() {
       selectedDancers,
       delay,
     };
-    // setDancerStatus((draft) => {
-    //   draft["1_chi"].OK = true;
-    // });
     sendCommand(payload);
 
     // play or pause or stop
@@ -107,7 +106,7 @@ export default function CommandCenter() {
         className={classes.root}
         label="delay(ms)"
         onChange={(e) => {
-          setDelay(e.target.value);
+          setDelay(parseInt(e.target.value));
         }}
       />
 
@@ -129,7 +128,10 @@ export default function CommandCenter() {
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
-                <Checkbox onChange={handleAllDancer} />
+                <Checkbox
+                  onChange={(e) => handleAllDancer(e)}
+                  checked={allChecked()}
+                />
               </TableCell>
               <TableCell className={classes.mediumCell}>DancerName</TableCell>
               <TableCell className={classes.mediumCell}>HostName</TableCell>
@@ -140,7 +142,7 @@ export default function CommandCenter() {
           </TableHead>
           <TableBody>
             {Object.entries(dancerStatus).map(
-              ([dancerName, { hostname, ip, OK, msg, isConnected }]) => {
+              ([dancerName, { hostname, ip, Ok, msg, isConnected }]) => {
                 const isItemSelected = selectedDancers.includes(dancerName);
                 return (
                   <TableRow
@@ -168,7 +170,7 @@ export default function CommandCenter() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <p style={{ color: OK ? "green" : "red" }}>{msg}</p>
+                      <p style={{ color: Ok ? "green" : "red" }}>{msg}</p>
                     </TableCell>
                   </TableRow>
                 );
