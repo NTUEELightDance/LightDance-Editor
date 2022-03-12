@@ -17,7 +17,7 @@ import { shiftFrameTime } from "core/actions";
 //types
 import { TimeShiftTool } from "types/components/tools";
 //utils
-import { notification } from "core/utils";
+import { notification, confirmation } from "core/utils";
 
 const CONTROL = "control";
 const POSITION = "position";
@@ -59,7 +59,9 @@ export default function TimeShift({
       notification.error("Invalid, startTime should be smaller than endTime");
       return;
     }
-    if (!window.confirm("Warning! This action may delete some important data."))
+    if (
+      !confirmation.warning("Warning! This action may delete some important data.")
+    )
       return;
     await shiftFrameTime({ payload: { type, startTime, endTime, shiftTime } });
     setStartTime(0);

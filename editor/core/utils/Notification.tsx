@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { Alert, Button, Fade } from "@mui/material";
 
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
@@ -6,6 +6,7 @@ import withReactContent from "sweetalert2-react-content";
 
 // @ts-ignore
 import styles from "./notification.module.css";
+import { useHotkeys } from "react-hotkeys-hook";
 
 type MessageType = "info" | "success" | "error" | "warning";
 
@@ -30,11 +31,7 @@ const Confirmation = ({
   type: MessageType;
   content: string;
 }) => {
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    setOpen(true);
-    return;
-  }, []);
+  const [open, setOpen] = useState(true);
 
   const handleConfirm = () => {
     ConfirmationSwal.clickConfirm();
@@ -45,6 +42,11 @@ const Confirmation = ({
     ConfirmationSwal.clickCancel();
     setOpen(false);
   };
+
+  useHotkeys("enter", (e) => {
+    e.preventDefault();
+    ConfirmationSwal.clickConfirm();
+  });
 
   return (
     <Fade in={open}>
@@ -60,7 +62,6 @@ const Confirmation = ({
               color="inherit"
               size="small"
               onClick={handleConfirm}
-              autoFocus={true}
             >
               Confirm
             </Button>
@@ -104,7 +105,7 @@ const confirm = (type: MessageType) => async (content: string) => {
       confirmButton: styles.invisible,
     },
   });
-  
+
   return isConfirmed;
 };
 
