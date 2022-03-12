@@ -1,12 +1,11 @@
 import ControlPanelSocket from "../test_websocket/controlPanelSocket";
 import DancerSocket from "../test_websocket/dancerSocket";
-import { DancerName } from "./dancer";
 import { CommandType } from "../constants/index";
 
 // General payload type
 // request only
 type TimeType = number;
-interface LightStatusType {}
+interface LightStatusType { }
 interface PlayTimeType {
   startTime: TimeType; // ms
   delay: TimeType; // ms
@@ -38,7 +37,7 @@ interface SyncType {
 // Control Panel to Server
 interface MesC2S {
   command: CommandType;
-  selectedDancers: [DancerName];
+  selectedDancers: [string];
   payload: string | PlayTimeType | LightStatusType | InfoType; // Control panel frontend info
 }
 // Server to Control Panel

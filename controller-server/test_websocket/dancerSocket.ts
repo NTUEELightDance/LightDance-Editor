@@ -12,7 +12,6 @@ import {
 } from "../types";
 import { ClientAgent } from "../clientAgent";
 import downloadControlJson from "../downloadControl";
-import { DancerName } from "../types/dancer";
 
 class DancerSocket {
   ws: any;
