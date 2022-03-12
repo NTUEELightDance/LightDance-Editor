@@ -48,7 +48,9 @@ export class PositionFrameResolver {
   ) {
     const check = await ctx.db.PositionFrame.findOne({ start });
     if (check) {
-      throw new Error("Start Time overlapped!");
+      throw new Error(
+        `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
+      );
     }
     const newPositionFrame = await new ctx.db.PositionFrame({
       start: start,
@@ -122,13 +124,15 @@ export class PositionFrameResolver {
       const check = await ctx.db.PositionFrame.findOne({ start: input.start });
       if (check) {
         if (check.id !== input.frameID) {
-          throw new Error("Start Time overlapped!");
+          throw new Error(
+            `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
+          );
         }
       }
     }
     let frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.frameID });
     if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
-      throw new Error("The frame is now editing by other user.");
+      throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
     await ctx.db.PositionFrame.updateOne({ id: input.frameID }, input);
     await ctx.db.PositionFrame.updateOne(
@@ -181,7 +185,7 @@ export class PositionFrameResolver {
     const { frameID } = input;
     let frameToDelete = await ctx.db.PositionFrame.findOne({ id: frameID });
     if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
-      throw new Error("The frame is now editing by other user.");
+      throw new Error(`The frame is now editing by ${frameToDelete.editing}.`);
     }
     const _id = frameToDelete._id;
     await ctx.db.PositionFrame.deleteOne({ id: frameID });

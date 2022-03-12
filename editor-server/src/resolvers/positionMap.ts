@@ -58,14 +58,18 @@ export class EditPosMapResolver {
       // check payload
       const dancers = await ctx.db.Dancer.find();
       if (positionData.length !== dancers.length) {
-        throw new Error("Not all dancer in payload");
+        throw new Error(
+          `Not all dancers in payload. Missing number: ${
+            dancers.length - positionData.length
+          }`
+        );
       }
       await Promise.all(
         positionData.map(async (data: any) => {
           const { dancerName, positionData } = data;
           const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
           if (!dancer) {
-            throw new Error("Dancer not found");
+            throw new Error(`Dancer ${dancerName} not found`);
           }
         })
       );
@@ -136,20 +140,24 @@ export class EditPosMapResolver {
     else {
       const { editing, _id, id: frameID } = positionFrame;
       if (editing !== ctx.userID) {
-        throw new Error("The frame is now editing by other user.");
+        throw new Error(`The frame is now editing by ${editing}.`);
       }
 
       // check payload
       const dancers = await ctx.db.Dancer.find();
       if (positionData.length !== dancers.length) {
-        throw new Error("Not all dancer in payload");
+        throw new Error(
+          `Not all dancers in payload. Missing number: ${
+            dancers.length - positionData.length
+          }`
+        );
       }
       await Promise.all(
         positionData.map(async (data: any) => {
           const { dancerName } = data;
           const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
           if (!dancer) {
-            throw new Error("Dancer not found");
+            throw new Error(`Dancer ${dancerName} not found`);
           }
         })
       );

@@ -104,7 +104,9 @@ class ColorResolver {
     }
     // if exist
     else {
-      throw new Error("color name/code existed");
+      throw new Error(
+        `color name: ${colorInput.color}/code: ${colorInput.colorCode} existed`
+      );
     }
   }
 
@@ -154,9 +156,11 @@ class ColorResolver {
     }
     // if doesn't exist -> throw error
     else if (!existedOriginalColorName) {
-      throw new Error("color doesn't exist");
+      throw new Error(`color ${colorInput.original_color} doesn't exist`);
     } else {
-      throw new Error("color name/code already exists");
+      throw new Error(
+        `color name: ${colorInput.new_color}/code: ${colorInput.colorCode} existed`
+      );
     }
   }
 
@@ -185,7 +189,7 @@ class ColorResolver {
     }
     // if doesn't exist -> throw error
     else {
-      throw new Error("color name/code doesn't existed");
+      throw new Error(`color ${color} doesn't existed`);
     }
   }
 }

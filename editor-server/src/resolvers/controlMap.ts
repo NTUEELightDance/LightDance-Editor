@@ -55,23 +55,31 @@ export class EditControlMapResolver {
     // check payload
     const dancers = await ctx.db.Dancer.find();
     if (controlData.length !== dancers.length) {
-      throw new Error("Not all dancers in payload");
+      throw new Error(
+        `Not all dancers in payload. Missing number: ${
+          dancers.length - controlData.length
+        }`
+      );
     }
     await Promise.all(
       controlData.map(async (data: any) => {
         const { dancerName, controlData } = data;
         const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
         if (!dancer) {
-          throw new Error("Dancer not found");
+          throw new Error(`Dancer ${dancerName} not found`);
         }
         if (dancer.parts.length !== controlData.length) {
-          throw new Error("Not all parts in payload");
+          throw new Error(
+            `Not all parts in payload. Missing number: ${
+              dancer.parts.length - controlData.length
+            }`
+          );
         }
         await Promise.all(
           controlData.map(async (partData: any) => {
             const part = await ctx.db.Part.findOne({ name: partData.partName });
             if (!part) {
-              throw new Error("Part not found");
+              throw new Error(`Part ${partData.partName} not found`);
             }
           })
         );
@@ -82,7 +90,7 @@ export class EditControlMapResolver {
     if (controlFrame) {
       const { editing, _id, id: frameID } = controlFrame;
       if (editing !== ctx.userID) {
-        throw new Error("The frame is now editing by other user.");
+        throw new Error(`The frame is now editing by ${editing}.`);
       }
       await Promise.all(
         controlData.map(async (data: any) => {

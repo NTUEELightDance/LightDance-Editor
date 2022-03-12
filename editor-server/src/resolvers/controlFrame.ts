@@ -56,7 +56,9 @@ export class ControlFrameResolver {
   ) {
     const check = await ctx.db.ControlFrame.findOne({ start });
     if (check) {
-      throw new Error("Start Time overlapped!");
+      throw new Error(
+        `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
+      );
     }
     const newControlFrame = await new ctx.db.ControlFrame({
       start: start,
@@ -128,13 +130,15 @@ export class ControlFrameResolver {
       const check = await ctx.db.ControlFrame.findOne({ start: input.start });
       if (check) {
         if (check.id !== input.frameID) {
-          throw new Error("Start Time overlapped!");
+          throw new Error(
+            `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
+          );
         }
       }
     }
     let frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
     if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
-      throw new Error("The frame is now editing by other user.");
+      throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
     await ctx.db.ControlFrame.updateOne({ id: input.frameID }, input);
     await ctx.db.ControlFrame.updateOne(
@@ -187,7 +191,7 @@ export class ControlFrameResolver {
     const { frameID } = input;
     const frameToDelete = await ctx.db.ControlFrame.findOne({ id: frameID });
     if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
-      throw new Error("The frame is now editing by other user.");
+      throw new Error(`The frame is now editing by ${frameToDelete.editing}.`);
     }
     const _id = frameToDelete._id;
     await ctx.db.ControlFrame.deleteOne({ id: frameID });

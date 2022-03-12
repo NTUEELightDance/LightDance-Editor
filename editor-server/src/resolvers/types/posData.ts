@@ -20,7 +20,7 @@ export const PosDataScalar = new GraphQLScalarType({
   async serialize(data: any): Promise<any> {
     // check the type of received value
     let { id, _id, deleteList, createList, updateList } = data;
-    if(id && _id){
+    if (id && _id) {
       const result: LooseObject = {};
       const cache = await redis.get(id);
       if (cache) {
@@ -28,7 +28,7 @@ export const PosDataScalar = new GraphQLScalarType({
         result[id] = cacheObj;
       }
       return result;
-    }else{
+    } else {
       const createFrames: LooseObject = {};
       await Promise.all(
         createList.map(async (id: any) => {
