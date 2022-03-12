@@ -144,3 +144,5 @@ utils/door_led/
 !.yarn/versions
 
 mongodbData
+
+editor-server/src/data/private

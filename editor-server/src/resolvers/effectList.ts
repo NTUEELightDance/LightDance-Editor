@@ -382,26 +382,27 @@ export class EffectListResolver {
     };
     await publishControlMap(controlMapPayload);
 
-    const newControlFrame = await ctx.db.ControlFrame.find({
-      start: { $gte: start },
-    })
-      .sort({
-        start: 1,
-      })
-      .limit(1);
+    const newControlFrames = await ctx.db.ControlFrame.find({
+      start: { $gte: start, $lte: end },
+    }).sort({
+      start: 1,
+    });
     const allControlFrames = await ctx.db.ControlFrame.find().sort({
       start: 1,
     });
     let index = -1;
     await allControlFrames.map((frame: any, idx: number) => {
-      if (frame.id === newControlFrame[0].id) {
+      if (frame.id === newControlFrames[0].id) {
         index = idx;
       }
+    });
+    const controlRecordIDs = newControlFrames.map((frame: any) => {
+      return frame.id;
     });
     const controlRecordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.CREATED_DELETED,
       editBy: ctx.userID,
-      addID: newControlFrameIDs,
+      addID: controlRecordIDs,
       deleteID: deleteControlList,
       updateID: [],
       index,
@@ -419,26 +420,27 @@ export class EffectListResolver {
     };
     await publishPositionMap(positionMapPayload);
 
-    const newPositionFrame = await ctx.db.PositionFrame.find({
-      start: { $gte: start },
-    })
-      .sort({
-        start: 1,
-      })
-      .limit(1);
+    const newPositionFrames = await ctx.db.PositionFrame.find({
+      start: { $gte: start, $lte: end },
+    }).sort({
+      start: 1,
+    });
     const allPositionFrames = await ctx.db.PositionFrame.find().sort({
       start: 1,
     });
     index = -1;
     await allPositionFrames.map((frame: any, idx: number) => {
-      if (frame.id === newPositionFrame[0].id) {
+      if (frame.id === newPositionFrames[0].id) {
         index = idx;
       }
+    });
+    const positionRecordIDs = newPositionFrames.map((frame: any) => {
+      return frame.id;
     });
     const positionRecordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.CREATED_DELETED,
       editBy: ctx.userID,
-      addID: newPositionFrameIDs,
+      addID: positionRecordIDs,
       deleteID: deletePositionList,
       updateID: [],
       index,
