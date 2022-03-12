@@ -137,7 +137,7 @@ const DancerTree = () => {
           width: "100%",
           p: "0.5em 0.5em",
           mb: "1em",
-          zIndex: 8080,
+          zIndex: 808,
         }}
       >
         <Button onClick={handleExpandClick} fullWidth>

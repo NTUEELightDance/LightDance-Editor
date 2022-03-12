@@ -1,19 +1,16 @@
-import { useEffect, useState, useRef } from "react";
-// mui
-import { Stack, TextField, Typography, Popper, Paper } from "@mui/material";
-// type
+import React, {
+  useState,
+  useRef,
+  ChangeEventHandler,
+  KeyboardEventHandler,
+} from "react";
 
-// reactive state
-import { useReactiveVar } from "@apollo/client";
-import { reactiveState } from "core/state";
-import { setCurrentTime } from "core/actions";
-
-const TimeControlInput = () => {
-  const currentTime = useReactiveVar(reactiveState.currentTime);
-
+const useTimeFormat = ([externalTimeValue, setExternalTimeValue]: [
+  number,
+  React.Dispatch<React.SetStateAction<number>>
+]) => {
   const [displayedTime, setDisplayedTime] = useState<string>("00:00:000");
   const [timeError, setTimeError] = useState<boolean>(false);
-  const timeInputRef = useRef<HTMLDivElement>(null);
 
   // validate current display time and set time error
   const validateTime = (timeString: string) => {
@@ -81,13 +78,18 @@ const TimeControlInput = () => {
         validateTime(newDisplayedTime);
     }
   };
-  // convert displayed time string to millis seconds, then set current time
-  const updateCurrentTime = (timeString: string) => {
-    if (!validateTime(timeString)) return;
+  // convert displayed time string to milli seconds
+  const toMillis = (timeString: string) => {
+    if (!validateTime(timeString)) {
+      throw "invalid time";
+    }
     const [mins, secs, millis] = timeString.split(":").map(Number);
-    const newTime = (mins * 60 + secs) * 1000 + millis;
+    const newTime: number = Math.floor(mins * 60 + secs) * 1000 + millis;
+    return newTime;
+  };
+  const updateCurrentTime = (newTime: number) => {
     try {
-      setCurrentTime({ payload: newTime });
+      setExternalTimeValue(newTime);
     } catch {
       setTimeError(true);
     }
@@ -112,43 +114,39 @@ const TimeControlInput = () => {
     const newDisplayedTime = displayedTime + ":".repeat(3 - newTimeList.length);
 
     if (!validateTime(newDisplayedTime)) return;
-    updateCurrentTime(newDisplayedTime);
-    setDisplayedTime(formatDisplayedTime(currentTime));
+    try {
+      const newTime = toMillis(newDisplayedTime);
+      updateCurrentTime(newTime);
+      setDisplayedTime(formatDisplayedTime(newTime));
+    } catch {
+      setTimeError(true);
+    }
   };
 
-  // update displayed time when current time is changed else where
-  useEffect(() => {
-    setDisplayedTime(formatDisplayedTime(currentTime));
-    setTimeError(false);
-  }, [currentTime]);
-  return (
-    <Stack direction="row" alignItems="center" gap="1em">
-      <Typography variant="body1">time:</Typography>
-      <TextField
-        error={timeError}
-        style={{ width: "9em" }}
-        size="small"
-        variant="outlined"
-        value={displayedTime}
-        inputProps={{ min: 0 }}
-        ref={timeInputRef}
-        onChange={(e) => updateDisplayedTime(e.target.value)}
-        onBlur={handleSetTime}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") handleSetTime();
-        }}
-      />
-      {timeError && (
-        <Popper open={timeError} anchorEl={timeInputRef.current}>
-          <Paper>
-            <Typography sx={{ p: "0.5em 1em" }}>
-              this is an invalid time
-            </Typography>
-          </Paper>
-        </Popper>
-      )}
-    </Stack>
-  );
+  const textFieldProps = {
+    error: timeError,
+    style: { width: "9em" },
+    value: displayedTime,
+    inputProps: { min: 0 },
+    onChange: ((e) => {
+      updateDisplayedTime(e.target.value);
+    }) as ChangeEventHandler<HTMLInputElement>,
+    onBlur: () => {
+      console.log("blur");
+      handleSetTime();
+    },
+    onKeyDown: ((e) => {
+      if (e.key === "Enter") {
+        console.log("enter");
+        handleSetTime();
+      }
+    }) as KeyboardEventHandler,
+  };
+
+  return {
+    textFieldProps,
+    formatDisplayedTime,
+  };
 };
 
-export default TimeControlInput;
+export default useTimeFormat;
