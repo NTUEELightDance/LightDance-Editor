@@ -12,7 +12,6 @@ enum CommandType {
   SHUTDOWN = "shutDown",
   REBOOT = "reboot",
   BOARDINFO = "boardInfo",
-  INIT = "init",
   TEST = "test",
   DISCONNECT = "disconnect",
 }

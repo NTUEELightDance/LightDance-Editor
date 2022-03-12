@@ -144,8 +144,8 @@ class DancerSocket {
     this.sendDataToRpiSocket({ command: CommandType.STOP });
   };
 
-  uploadControl = async () => {
-    // TODO: controlJSON parse
+  uploadControl = () => {
+    // TODO: controlJSON from controlPanel to RPi
 
     this.sendDataToRpiSocket({
       command: CommandType.UPLOAD_CONTROL /* payload: ControlType*/,
