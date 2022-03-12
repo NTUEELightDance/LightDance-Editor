@@ -64,12 +64,6 @@ export class ControlPanelSocket {
           this.ws.send(JSON.stringify(res));
         }
       });
-
-      // this.controlPanelAgent.socketReceiveData(this.controlPanelName, {
-      //     task: task,
-      //     payload: payload,
-      //     type: "editor",
-      // });
     };
   };
   handleDisconnect = () => {

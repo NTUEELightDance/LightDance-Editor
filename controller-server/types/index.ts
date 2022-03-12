@@ -5,7 +5,7 @@ import { CommandType } from "../constants/index";
 // General payload type
 // request only
 type TimeType = number;
-interface LightStatusType { }
+interface LightStatusType { } // TODO: specify LightCurrentStatus
 interface PlayTimeType {
   startTime: TimeType; // ms
   delay: TimeType; // ms
