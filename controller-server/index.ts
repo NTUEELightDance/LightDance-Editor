@@ -9,7 +9,6 @@ import ControlPanelSocket from "./test_websocket/controlPanelSocket";
 import { ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
 import NtpServer from "./ntp/index";
 
-
 import { ClientAgent } from "./clientAgent";
 import { CommandType } from "./constants";
 
@@ -27,7 +26,13 @@ wss.on("connection", (ws) => {
     // need to consider further type assignment
     const parsedData: MesC2S = JSON.parse(msg.data);
     const { command, payload } = parsedData;
-    console.log("Client response: ", command, "\nPayload: ", payload);
+    console.log(
+      "[Message] Client response: ",
+      command,
+      "\n[Message] Payload: ",
+      payload,
+      "\n"
+    );
 
     // We defined that the first task for clients (dancer and editor) will be boardInfo
     // This can then let us split the logic between dancerClients and editorClients
@@ -82,7 +87,6 @@ wss.on("connection", (ws) => {
           // socket connection established
           const controlPanelSocket = new ControlPanelSocket(ws, clientAgent);
           controlPanelSocket.handleMessage();
-          console.log(clientAgent.controlPanelClients.getClients());
           // response
           Object.values(clientAgent.controlPanelClients.getClients()).forEach(
             (controlPanel) => {
@@ -111,6 +115,14 @@ wss.on("connection", (ws) => {
         // error
         default: {
           console.error(`Invalid type ${type} on connection`);
+          const res: MesS2C = {
+            command: CommandType.BOARDINFO,
+            payload: {
+              success: false,
+              info: "invalid type",
+            },
+          };
+          ws.send(JSON.stringify(res));
         }
       }
     }
