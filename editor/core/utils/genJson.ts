@@ -1,4 +1,4 @@
-import { FIBER, NO_EFFECT } from "constants";
+import { FIBER } from "constants";
 import {
   ColorMap,
   ControlMap,
@@ -14,6 +14,10 @@ import {
 } from "core/models";
 import { isEqual } from "lodash";
 import { colorCode2int } from "./color";
+// state
+import { state } from "../state";
+//
+import { getControl, getLedMap } from "./index";
 
 /**
  * Dancer to ControlOF Json file for RPi
@@ -55,13 +59,10 @@ interface Bulb {
 /**
  * Generate ControlOF with format that RPi needs (turn into dancer base)
  */
-export function generateControlOF(
-  controlRecord: ControlRecord,
-  controlMap: ControlMap,
-  dancers: Dancers,
-  partTypeMap: PartTypeMap,
-  colorMap: ColorMap
-) {
+export async function generateControlOF() {
+  const [controlMap, controlRecord] = await getControl();
+  const { dancers, partTypeMap, colorMap } = state;
+
   const dancerControlOF: DancerControlOF = {};
   Object.keys(dancers).forEach((dancerName) => {
     dancerControlOF[dancerName] = [];
@@ -117,11 +118,11 @@ export function generateControlOF(
 /**
  * Generate ControlLed with format that RPi needs (turn into dancer base)
  */
-export function generateControlLed(
-  controlMap: ControlMap,
-  ledEffectRecord: LedEffectRecord,
-  ledMap: LedMap
-) {
+export async function generateControlLed() {
+  const [controlMap] = await getControl();
+  const ledMap = await getLedMap();
+  const { ledEffectRecord } = state;
+
   const dancerControlLed: DancerControlLed = {};
   Object.entries(ledEffectRecord).forEach(([dancerName, parts]) => {
     const partEffect: PartEffect = {};
