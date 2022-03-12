@@ -3,11 +3,12 @@ import http from "http";
 import bodyParser from "body-parser";
 import { WebSocketServer } from "ws";
 
-import DancerSocket from "./test_websocket/dancerSocket";
+import DancerSocket from "./websocket/dancerSocket";
 // import ControlPanelSocket from "./websocket/controlPanelSocket";
-import ControlPanelSocket from "./test_websocket/controlPanelSocket";
+import ControlPanelSocket from "./websocket/controlPanelSocket";
 import { ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
 import NtpServer from "./ntp/index";
+
 
 import { ClientAgent } from "./clientAgent";
 import { CommandType } from "./constants";
@@ -26,13 +27,7 @@ wss.on("connection", (ws) => {
     // need to consider further type assignment
     const parsedData: MesC2S = JSON.parse(msg.data);
     const { command, payload } = parsedData;
-    console.log(
-      "[Message] Client response: ",
-      command,
-      "\n[Message] Payload: ",
-      payload,
-      "\n"
-    );
+    console.log("[Message] Client response: ", command, "\n[Message] Payload: ", payload, '\n');
 
     // We defined that the first task for clients (dancer and editor) will be boardInfo
     // This can then let us split the logic between dancerClients and editorClients
@@ -119,10 +114,10 @@ wss.on("connection", (ws) => {
             command: CommandType.BOARDINFO,
             payload: {
               success: false,
-              info: "invalid type",
-            },
-          };
-          ws.send(JSON.stringify(res));
+              info: "invalid type"
+            }
+          }
+          ws.send(JSON.stringify(res))
         }
       }
     }

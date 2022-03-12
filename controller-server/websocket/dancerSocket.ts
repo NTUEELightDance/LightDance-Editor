@@ -11,7 +11,6 @@ import {
   PlayTimeType,
 } from "../types";
 import { ClientAgent } from "../clientAgent";
-import downloadControlJson from "../downloadControl";
 
 class DancerSocket {
   ws: any;
@@ -145,10 +144,8 @@ class DancerSocket {
     this.sendDataToRpiSocket({ command: CommandType.STOP });
   };
 
-  uploadControl = async () => {
-    const controlJSON = await downloadControlJson();
-    console.log(controlJSON);
-    // TODO: controlJSON parse
+  uploadControl = () => {
+    // TODO: controlJSON from controlPanel to RPi
 
     this.sendDataToRpiSocket({
       command: CommandType.UPLOAD_CONTROL /* payload: ControlType*/,
