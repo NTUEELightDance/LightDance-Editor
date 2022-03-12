@@ -72,9 +72,16 @@ export function updateLedEffect(
       const { repeat, effects } = ledMap[partName][src];
 
       let offset = time - currentStart; // get the offset of time (since the led effect begins from 0)
-      // if repeat, it the offset will % the last effect time
-      if (repeat && effects.length) {
-        offset = offset % effects[effects.length - 1].start;
+      // calculate the offset with repeat
+      // ** Repeat don't work on last effect's start being zero (Only one effect frame) **
+      if (effects.length && effects[effects.length - 1].start > 0) {
+        const duration = effects[effects.length - 1].start;
+        const repeatedTimes = Math.floor(offset / duration);
+        if (repeat === 0 || repeatedTimes < repeat) {
+          // continously repeat on repeat being zero
+          // else run repeat times
+          offset = offset % duration;
+        }
       }
 
       // if change to another recordIndex, need to reset the effectIndex and effect first

@@ -44,3 +44,4 @@ export * from "./color";
 export * from "./fade";
 export * from "./frame";
 export * from "./led";
+export * from "./genJson";
