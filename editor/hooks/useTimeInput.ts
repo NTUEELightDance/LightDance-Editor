@@ -1,11 +1,13 @@
 import React, {
   useState,
-  useRef,
   ChangeEventHandler,
   KeyboardEventHandler,
+  useEffect,
 } from "react";
 
-const useTimeFormat = ([externalTimeValue, setExternalTimeValue]: [
+import { formatDisplayedTime } from "core/utils";
+
+const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
   number,
   React.Dispatch<React.SetStateAction<number>>
 ]) => {
@@ -94,20 +96,6 @@ const useTimeFormat = ([externalTimeValue, setExternalTimeValue]: [
       setTimeError(true);
     }
   };
-  // convert millis seconds to displayed time string
-  const formatDisplayedTime = (time: number) => {
-    time = Math.floor(time);
-    const millis = String(time % 1000)
-      .split(".")[0]
-      .padStart(3, "0");
-    time = Math.floor(time / 1000);
-    const secs = String(time % 60)
-      .split(".")[0]
-      .padStart(2, "0");
-    time = Math.floor(time / 60);
-    const mins = String(time % 60).split(".")[0];
-    return `${mins}:${secs}:${millis}`;
-  };
 
   const handleSetTime = () => {
     const newTimeList = displayedTime.split(":");
@@ -143,10 +131,13 @@ const useTimeFormat = ([externalTimeValue, setExternalTimeValue]: [
     }) as KeyboardEventHandler,
   };
 
+  useEffect(() => {
+    setDisplayedTime(formatDisplayedTime(externalTimeValue));
+  }, []);
+
   return {
     textFieldProps,
-    formatDisplayedTime,
   };
 };
 
-export default useTimeFormat;
+export default useTimeInput;

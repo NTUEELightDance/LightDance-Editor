@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { TextField } from "@mui/material";
 
-import useTimeFormat from "hooks/useTimeFormat";
+import useTimeInput from "hooks/useTimeInput";
 
 const TimeShiftTextField = ({
   label,
@@ -13,7 +13,7 @@ const TimeShiftTextField = ({
   time: number;
   setTime: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const { textFieldProps } = useTimeFormat([time, setTime]);
+  const { textFieldProps } = useTimeInput([time, setTime]);
 
   return (
     <TextField
