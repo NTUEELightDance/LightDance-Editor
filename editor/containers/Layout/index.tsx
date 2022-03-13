@@ -1,6 +1,5 @@
-import { useMemo, useContext } from "react";
+import { useMemo } from "react";
 import FlexLayout, { TabNode, IJsonModel } from "flexlayout-react";
-import { layoutContext } from "types/layout";
 
 // config
 import "flexlayout-react/style/dark.css";
@@ -20,14 +19,14 @@ import DancerTree from "components/DancerTree";
 import LightProps from "components/LightProps";
 import ColorPalette from "components/ColorPalette";
 
-import { LayoutContext } from "contexts/LayoutContext";
+import { useLayout } from "contexts/LayoutContext";
 
 import configFiles from "layouts";
 
 const Layout = () => {
   const {
     preferences: { editor, mode },
-  } = useContext(LayoutContext) as layoutContext;
+  } = useLayout();
 
   const CommandCenterNode = useMemo<JSX.Element>(() => <CommandCenter />, []);
   const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
@@ -42,11 +41,6 @@ const Layout = () => {
   const WavesurferNode = useMemo<JSX.Element>(() => <Wavesurfer />, []);
   const ColorPaletteNode = useMemo<JSX.Element>(() => <ColorPalette />, []);
   const FileNode = useMemo<JSX.Element>(() => <File />, []);
-
-  const WaveSuferCleanNode = useMemo<JSX.Element>(
-    () => <Wavesurfer cleanMode />,
-    []
-  );
 
   const factory = (node: TabNode) => {
     const component = node.getComponent();
@@ -75,8 +69,6 @@ const Layout = () => {
         return EffectListNode;
       case "Wavesurfer":
         return WavesurferNode;
-      case "WavesurferClean":
-        return WaveSuferCleanNode;
       case "File":
         return FileNode;
       default:

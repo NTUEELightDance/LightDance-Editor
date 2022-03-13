@@ -22,7 +22,7 @@ import { CONTROL_EDITOR, POS_EDITOR } from "constants";
  * This is the Wave component
  * @component
  */
-const Wavesurfer = ({ cleanMode = false }) => {
+const Wavesurfer = ({ commandMode = false }) => {
   const { waveSurferApp, initWaveSurferApp, showMarkers } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;
@@ -70,16 +70,14 @@ const Wavesurfer = ({ cleanMode = false }) => {
 
   return (
     <div ref={resizeDetectorRef}>
-      {cleanMode || (
-        <Stack
-          direction="row"
-          justifyContent="space-evenly"
-          alignItems="center"
-          spacing={1}
-        >
-          <ControlBar wavesurfer={waveSurferApp} />
-        </Stack>
-      )}
+      <Stack
+        direction="row"
+        justifyContent="space-evenly"
+        alignItems="center"
+        spacing={1}
+      >
+        <ControlBar wavesurfer={waveSurferApp} />
+      </Stack>
       <div id="waveform" />
     </div>
   );
