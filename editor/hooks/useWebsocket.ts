@@ -4,22 +4,35 @@ import { COMMANDS, WEBSOCKETCLIENT } from "constants";
 // states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
+//Api
+import { generateControlOF, generateControlLed } from "../core/utils/genJson";
+//Types
+import {
+  SyncType,
+  MesS2CType,
+  MesC2SType,
+  BoardInfoType,
+  setMessageType,
+  dancerStatusType,
+  panelPayloadType,
+} from "types/hooks/webSocket";
 const BOARDINFO = "boardInfo";
+const DISCONNECT = "disconnect";
 const url = `${location.origin}/controller-server-websocket`.replace(
   "http",
   "ws"
 );
+// const url = "ws://192.168.10.12:8082";
 export default function useWebsocketState() {
   //states
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
-  // dancerNames has to be dynamic
-  const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const time = useReactiveVar(reactiveState.currentTime);
   const [dancerStatus, setDancerStatus] = useImmer({});
   const [delay, setDelay] = useImmer(0);
-  const [lastCommand, setlastCommand] = useImmer("");
-  const [lastSelectedDancer, setlastSelectedDancer] = useImmer([]);
-  const ws = useRef(null);
+  const ws = useRef<WebSocket | null>(null);
+  const sendDataToServer = (data) => {
+    (ws.current as WebSocket).send(JSON.stringify(data));
+  };
   const initWebSocket = () => {
     ws.current = new WebSocket(url);
     if (ws.current.readyState !== WebSocket.CONNECTING) {
@@ -35,56 +48,53 @@ export default function useWebsocketState() {
         payload: { type: WEBSOCKETCLIENT.CONTROLPANEL },
       });
 
-      ws.current.onerror = (err) => {
-        console.log(`Editor's Websocket error : ${err.message} `);
+      (ws.current as WebSocket).onerror = (err) => {
+        console.log(`Editor's Websocket error : ${err} `);
       };
 
-      ws.current.onmessage = (msg) => {
+      (ws.current as WebSocket).onmessage = (msg) => {
         const data = JSON.parse(msg.data);
-        console.log(`Data from server :`, data);
         handleMessage(data);
       };
 
-      ws.current.onclose = (e) => {
+      (ws.current as WebSocket).onclose = (e) => {
         console.log(`Websocket for Editor closed`);
       };
     };
   };
-  const sendDataToServer = (data) => {
-    ws.current.send(JSON.stringify(data));
-  };
-  const setDancerMsg = (payload) => {
+
+  const setDancerMsg = (payload: setMessageType) => {
     // payload : {array of dancerNames}
-    const { dancer, msg, Ok } = payload;
+    const { dancer, msg, Ok = true, isConnected = true } = payload;
     setDancerStatus((draft) => {
       draft[dancer] = {
         ...draft[dancer],
         msg,
         Ok,
+        isConnected,
       };
     });
   };
-  const sendCommand = async (panelPayload) => {
+  const sendCommand = async (panelPayload: panelPayloadType) => {
     const { command, selectedDancers, delay } = panelPayload;
     selectedDancers.forEach((dancer) => {
-      setDancerMsg({ dancer, msg: "...", Ok: false });
+      setDancerMsg({ dancer, msg: "......", Ok: false });
     });
-    setlastCommand(command);
-    let MesC2S = { command, selectedDancers, payload: "" };
+    let MesC2S: MesC2SType = { command, selectedDancers, payload: "" };
     switch (
       command //handle command that needs payload
     ) {
       case COMMANDS.UPLOAD_LED:
-        MesC2S.payload = {};
+        MesC2S.payload = await generateControlLed();
         break;
-      case COMMANDS.UPLOAD_CONTROL:
-        MesC2S.payload = {};
+      case COMMANDS.UPLOAD_OF:
+        MesC2S.payload = await generateControlOF();
         break;
       case COMMANDS.TEST:
         MesC2S.payload = {};
         break;
       case COMMANDS.PLAY:
-        const de = delay !== "" ? parseInt(delay, 10) : 0;
+        const de = delay !== "" ? parseInt(delay as string, 10) : 0;
         const sysTime = de + Date.now();
         MesC2S.payload = {
           startTime: time,
@@ -98,19 +108,18 @@ export default function useWebsocketState() {
       default:
         break;
     }
-    console.log(MesC2S);
     sendDataToServer(MesC2S);
   };
-  const handleMessage = (data) => {
+  const handleMessage = (data: MesS2CType) => {
     const { command, payload } = data;
     const { success, info, from } = payload;
     switch (command) {
       case BOARDINFO: {
-        const { dancerName, ip, hostName } = info;
+        const { dancerName, ip, hostName } = info as BoardInfoType;
         setDancerStatus((draft) => {
-          Object.keys(dancerName).forEach((name, index) => {
+          dancerName.map((name: string, index: number) => {
             draft[name] = {
-              OK: true,
+              Ok: true,
               isConnected: true,
               msg: "Connect Success",
               ip: ip[index],
@@ -121,7 +130,7 @@ export default function useWebsocketState() {
         break;
       }
       case COMMANDS.SYNC: {
-        const { delay, offset } = info;
+        const { delay, offset } = info as SyncType;
         setDancerMsg({
           dancer: from,
           msg: `offset:${offset} , delay:${delay}`,
@@ -129,17 +138,26 @@ export default function useWebsocketState() {
         });
         break;
       }
+      case DISCONNECT: {
+        setDancerMsg({
+          isConnected: false,
+          Ok: success,
+          msg: info as string,
+          dancer: from,
+        });
+        break;
+      }
       default:
         setDancerMsg({
           Ok: success,
-          msg: info,
+          msg: info as string,
           dancer: from,
         });
         break;
     }
   };
   useEffect(() => {
-    const initDancerStatus = {};
+    const initDancerStatus: dancerStatusType = {};
     initWebSocket();
     dancerNames.forEach((dancerName) => {
       const initStatus = {
