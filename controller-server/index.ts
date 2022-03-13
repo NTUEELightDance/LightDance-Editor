@@ -43,7 +43,7 @@ wss.on("connection", (ws) => {
       switch (type) {
         case ClientType.RPI: {
           // check if `dancer` type's hostname is in board_config.json
-          const { dancerName, hostName, ip } = payload as InfoType;
+          const { dancerName, hostName, ip } = (<MesR2S>parsedData).payload.info as InfoType;
 
           // socket connection established
           const dancerSocket = new DancerSocket(
