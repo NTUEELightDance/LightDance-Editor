@@ -6,34 +6,28 @@ import { layoutContext } from "types/layout";
 import "flexlayout-react/style/dark.css";
 import "./layout.css";
 // components
-import Simulator from "../../components/Simulator";
-import Wavesurfer from "../../components/Wavesurfer";
-import LightPresets from "../../components/Presets/LightPresets";
-import PosPresets from "../../components/Presets/PosPresets";
-import EffectList from "../../components/EffectList";
-import LightEditor from "../../components/LightEditor";
-import FrameList from "../../components/FrameList";
-import CommandCenter from "../../components/CommandCenter";
-import ThreeSimulator from "../../components/ThreeSimulator";
+import Simulator from "components/Simulator";
+import Wavesurfer from "components/Wavesurfer";
+import LightPresets from "components/Presets/LightPresets";
+import PosPresets from "components/Presets/PosPresets";
+import EffectList from "components/EffectList";
+import LightEditor from "components/LightEditor";
+import FrameList from "components/FrameList";
+import CommandCenter from "components/CommandCenter";
+import ThreeSimulator from "components/ThreeSimulator";
 import File from "components/Settings/File";
 import DancerTree from "components/DancerTree";
 import LightProps from "components/LightProps";
 import ColorPalette from "components/ColorPalette";
 
-import { Box } from "@mui/material";
-
 import { LayoutContext } from "contexts/LayoutContext";
 
-import {
-  betaConfig,
-  defaultEditorConfig,
-  mirroredEditorConfig,
-  legacyEditorConfig,
-  commandCenterConfig,
-} from "layouts";
+import configFiles from "layouts";
 
 const Layout = () => {
-  const { preferedEditor, mode } = useContext(LayoutContext) as layoutContext;
+  const {
+    preferences: { editor, mode },
+  } = useContext(LayoutContext) as layoutContext;
 
   const CommandCenterNode = useMemo<JSX.Element>(() => <CommandCenter />, []);
   const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
@@ -47,23 +41,10 @@ const Layout = () => {
   const EffectListNode = useMemo<JSX.Element>(() => <EffectList />, []);
   const WavesurferNode = useMemo<JSX.Element>(() => <Wavesurfer />, []);
   const ColorPaletteNode = useMemo<JSX.Element>(() => <ColorPalette />, []);
+  const FileNode = useMemo<JSX.Element>(() => <File />, []);
 
   const WaveSuferCleanNode = useMemo<JSX.Element>(
     () => <Wavesurfer cleanMode />,
-    []
-  );
-  const FileNode = useMemo<JSX.Element>(
-    () => (
-      <Box
-        sx={{
-          width: "100%",
-          height: "100%",
-          p: "5% 8%",
-        }}
-      >
-        <File />
-      </Box>
-    ),
     []
   );
 
@@ -104,36 +85,26 @@ const Layout = () => {
   };
 
   const EditorNode = useMemo(() => {
-    const configFile =
-      preferedEditor === "mirrored"
-        ? mirroredEditorConfig
-        : preferedEditor === "legacy"
-        ? legacyEditorConfig
-        : preferedEditor === "beta"
-        ? betaConfig
-        : defaultEditorConfig;
     return (
       <FlexLayout.Layout
-        model={FlexLayout.Model.fromJson(configFile as IJsonModel)}
+        model={FlexLayout.Model.fromJson(configFiles[editor] as IJsonModel)}
         factory={factory}
         font={{ size: "12px" }}
       />
     );
-  }, [preferedEditor]);
+  }, [editor]);
 
   const CommandNode = useMemo(() => {
     return (
       <FlexLayout.Layout
-        model={FlexLayout.Model.fromJson(commandCenterConfig as IJsonModel)}
+        model={FlexLayout.Model.fromJson(configFiles["command"] as IJsonModel)}
         factory={factory}
         font={{ size: "12px" }}
       />
     );
   }, []);
 
-  const LayoutNode = mode === "editor" ? EditorNode : CommandNode;
-
-  return <>{LayoutNode}</>;
+  return <>{mode === "editor" ? EditorNode : CommandNode}</>;
 };
 
 export default Layout;

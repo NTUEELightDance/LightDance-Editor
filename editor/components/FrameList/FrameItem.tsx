@@ -1,7 +1,9 @@
 import { useRef, useEffect } from "react";
 // mui
-import ListItem from "@material-ui/core/ListItem";
-import Typography from "@material-ui/core/Typography";
+import ListItem from "@mui/material/ListItem";
+import Typography from "@mui/material/Typography";
+
+import { formatDisplayedTime } from "core/utils";
 
 export default function FrameItem({
   idx,
@@ -19,7 +21,6 @@ export default function FrameItem({
   useEffect(() => {
     if (selected) {
       ref?.current?.scrollIntoView({
-        // behavior: "smooth",
         block: "center",
         inline: "nearest",
       });
@@ -29,13 +30,12 @@ export default function FrameItem({
   return (
     <div ref={ref}>
       <ListItem
-        // eslint-disable-next-line react/no-array-index-key
         selected={selected}
         button
         onClick={() => handleSelectItem(idx)}
       >
-        <Typography variant="body1" color="initial">
-          [{idx}] time: {start}
+        <Typography variant="body1">
+          [{idx}] time: {formatDisplayedTime(start)}
         </Typography>
       </ListItem>
     </div>

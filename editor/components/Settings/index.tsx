@@ -39,7 +39,7 @@ export const Settings = ({
 
   return (
     <>
-      <IconButton sx={{ p: 0 }} onClick={() => setShowSettings(!showSettings)}>
+      <IconButton onClick={() => setShowSettings(!showSettings)}>
         <SettingsIcon sx={{ color: "white" }} />
       </IconButton>
       <Menu

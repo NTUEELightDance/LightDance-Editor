@@ -39,7 +39,7 @@ export default function Tools() {
         keepMounted
         open={Boolean(anchorEl)}
         onClose={handleClose}
-        sx={{ zIndex: 80800 }}
+        sx={{ zIndex: 808 }}
       >
         <MenuItem onClick={handleOpenTimeShift}>TimeShift</MenuItem>
         <MenuItem onClick={handleClose}>Merge</MenuItem>

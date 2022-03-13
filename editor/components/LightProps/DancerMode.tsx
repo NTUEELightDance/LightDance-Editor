@@ -208,7 +208,7 @@ const DancerMode = () => {
               width: "100%",
               height: "3em",
               px: "1em",
-              zIndex: 8080,
+              zIndex: 808,
             }}
             square
           >

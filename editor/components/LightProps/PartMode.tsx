@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Paper, Grid } from "@mui/material";
+import { Paper } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
-import IntensityControl from "./IntensityControl";
 
 import { editCurrentStatusDelta } from "../../core/actions";
 import {
@@ -12,11 +11,14 @@ import {
   CurrentStatusDelta,
   PartPayload,
   PartType,
-} from "../../core/models";
+} from "core/models";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "../../core/utils";
+import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
+
+import _ from "lodash";
 
 const getSelectedPartsAndTypes = (selected: Selected) => {
   const newSelectedParts: PartPayload = {};
@@ -52,6 +54,7 @@ const PartMode = () => {
 
   const [currentColorName, setCurrentColorName] = useState<string>("");
   const [intensity, setIntensity] = useState<number>(0);
+  const [LEDsrc, setLEDsrc] = useState<string>("");
 
   // update local state
   useEffect(() => {
@@ -98,20 +101,19 @@ const PartMode = () => {
     setCurrentColorName(color);
   };
 
+  // partNames for led  controls
+  const partNames = _.uniq(Object.values(selectedParts).flat());
+
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
       {partType === "LED" ? (
-        <Grid
-          container
-          spacing={2}
-          alignItems="center"
-          sx={{
-            justifyContent: "space-between",
-            px: "5em",
-          }}
-        >
-          <IntensityControl intensity={intensity} setIntensity={setIntensity} />
-        </Grid>
+        <LEDcontrolsContent
+          parts={partNames}
+          intensity={intensity}
+          src={LEDsrc}
+          handleIntensityChange={setIntensity}
+          handleSrcChange={setLEDsrc}
+        />
       ) : partType === "FIBER" ? (
         <OFcontrolsContent
           intensity={intensity}

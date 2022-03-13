@@ -9,6 +9,8 @@ import { controlAgent, posAgent } from "api";
 
 import _ from "lodash";
 
+import { notification } from "core/utils";
+
 /**
  * This is a helper function for getting data from pos and map
  * @param state
@@ -98,7 +100,7 @@ const actions = registerActions({
     };
     const isPermitted = await agent.requestEditPermission(frameId);
     if (!isPermitted) {
-      alert("Permission denied");
+      notification.error("Permission denied");
       return;
     }
     state.editMode = EDITING;
@@ -130,7 +132,7 @@ const actions = registerActions({
     const isCancelled = await agent.cancelEditPermission(frameId);
     if (isCancelled) {
       state.editMode = IDLE;
-    } else alert("Cancel Permission Error");
+    } else notification.error("Cancel Permission Error");
   },
 
   /**

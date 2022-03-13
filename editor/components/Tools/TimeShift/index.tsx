@@ -1,22 +1,23 @@
 import React, { useState } from "react";
-// material ui
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import TextField from "@material-ui/core/TextField";
-import InputLabel from "@mui/material/InputLabel";
+// mui
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import Stack from "@mui/material/Stack";
 import { SelectChangeEvent } from "@mui/material";
+//components
+import TimeShiftTextField from "./TimeShiftTextField";
 // states and actions
 import { shiftFrameTime } from "core/actions";
 //types
 import { TimeShiftTool } from "types/components/tools";
-// hooks
-import useControl from "hooks/useControl";
-import usePos from "hooks/usePos";
+//utils
+import { notification, confirmation } from "core/utils";
 
 const CONTROL = "control";
 const POSITION = "position";
@@ -29,8 +30,6 @@ export default function TimeShift({
   open: boolean;
   handleClose: () => void;
 }) {
-  const { controlRecord } = useControl();
-  const { posRecord } = usePos();
   // type
   const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
   const handleChangeType = (
@@ -40,10 +39,6 @@ export default function TimeShift({
   // frame index
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
-  const handleChangeStartFrame = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setStartTime(e.target.valueAsNumber);
-  const handleChangeEndFrame = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setEndTime(e.target.valueAsNumber);
 
   // time
   const [shiftTime, setShiftTime] = useState(0);
@@ -51,23 +46,35 @@ export default function TimeShift({
     setShiftTime(e.target.valueAsNumber);
 
   // submit
-  const submitTimeShift = async (e: React.ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitTimeShift = async () => {
     if (startTime < 0) {
-      window.alert("Invalid Start Time");
+      notification.error("Invalid Start Time");
       return;
     }
     if (endTime < 0) {
-      window.alert("Invalid End Time");
+      notification.error("Invalid End Time");
       return;
     }
     if (startTime > endTime) {
-      window.alert("Invalid, startTime should <= endTime");
+      notification.error("Invalid, startTime should be smaller than endTime");
       return;
     }
-    if (!window.confirm("Warning! This action may delete some important data."))
+    if (
+      !(await confirmation.warning(
+        "Warning! This action may delete some important data."
+      ))
+    )
       return;
-    await shiftFrameTime({ payload: { type, startTime, endTime, shiftTime } });
+
+    try {
+      await shiftFrameTime({
+        payload: { type, startTime, endTime, shiftTime },
+      });
+      notification.success("Time shift successful!");
+    } catch (error) {
+      notification.error((error as Error).message);
+      console.error(error);
+    }
     setStartTime(0);
     setEndTime(0);
     setShiftTime(0);
@@ -76,48 +83,39 @@ export default function TimeShift({
   };
   return (
     <Dialog open={open} onClose={handleClose} disableEnforceFocus>
-      <DialogTitle> Time Shift Tool</DialogTitle>
-      <DialogContent>
-        <form onSubmit={submitTimeShift}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <FormControl fullWidth size="small">
-              <Select value={type} onChange={handleChangeType}>
-                <MenuItem value={CONTROL}>Control</MenuItem>
-                <MenuItem value={POSITION}>Position</MenuItem>
-                <MenuItem value={BOTH}>Both</MenuItem>
-              </Select>
-            </FormControl>
-            <br />
-            <TextField
-              type="number"
-              label="Start Time(ms)"
-              onChange={handleChangeStartFrame}
-              value={startTime}
-            />
-            <br />
-            <TextField
-              type="number"
-              label="End Time(ms)"
-              onChange={handleChangeEndFrame}
-              value={endTime}
-            />
-            <br />
-            <TextField
-              type="number"
-              label="shiftTime (ms)"
-              onChange={handleChangeShiftTime}
-              value={shiftTime}
-            />
-            <br />
-            <Button type="submit">OK</Button>
-          </div>
-        </form>
+      <DialogTitle>Time Shift Tool</DialogTitle>
+      <DialogContent sx={{ width: "20em" }}>
+        <Stack alignItems="center" gap="1.5em">
+          <FormControl size="small" sx={{ width: "9em" }}>
+            <Select value={type} onChange={handleChangeType}>
+              <MenuItem value={CONTROL}>Control</MenuItem>
+              <MenuItem value={POSITION}>Position</MenuItem>
+              <MenuItem value={BOTH}>Both</MenuItem>
+            </Select>
+          </FormControl>
+          <TimeShiftTextField
+            label="Start Time"
+            time={startTime}
+            setTime={setStartTime}
+            autoFocus
+          />
+          <TimeShiftTextField
+            label="End Time"
+            time={endTime}
+            setTime={setEndTime}
+          />
+          <TextField
+            type="number"
+            label="Shift time (ms)"
+            size="small"
+            value={shiftTime}
+            onChange={handleChangeShiftTime}
+            sx={{ width: "9em" }}
+          />
+          <Button sx={{ width: "5em" }} onClick={submitTimeShift}>
+            OK
+          </Button>
+        </Stack>
       </DialogContent>
     </Dialog>
   );

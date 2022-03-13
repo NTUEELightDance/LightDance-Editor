@@ -13,7 +13,7 @@ import { TransitionGroup } from "react-transition-group";
 
 import AddIcon from "@mui/icons-material/Add";
 
-import useColorMap from "../../hooks/useColorMap";
+import useColorMap from "hooks/useColorMap";
 
 import ColorDialog from "./ColorDialog";
 import ColorListItem from "./ColorListItem";
@@ -74,7 +74,7 @@ export default function ColorPalette() {
                 px: "1em",
                 width: "100%",
                 position: "sticky",
-                zIndex: 8080,
+                zIndex: 808,
               }}
             >
               <IconButton onClick={() => setAddDialogOpen(true)}>

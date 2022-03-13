@@ -59,6 +59,7 @@ export const controlAgent = {
       });
     } catch (error) {
       console.error(error);
+      throw error
     }
   },
   saveFrame: async (
@@ -99,6 +100,7 @@ export const controlAgent = {
       });
     } catch (error) {
       console.error(error);
+      throw error;
     }
     if (!requestTimeChange) return;
     try {
@@ -114,6 +116,7 @@ export const controlAgent = {
       });
     } catch (error) {
       console.error(error);
+      throw error;
     }
   },
   deleteFrame: async (frameId: String) => {
@@ -128,6 +131,7 @@ export const controlAgent = {
       });
     } catch (error) {
       console.error(error);
+      throw error;
     }
   },
   requestEditPermission: async (_frameID) => {

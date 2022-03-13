@@ -4,8 +4,8 @@ import { Box, Typography, ListItemButton, Collapse, Grid } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
-import { LED } from "../../../core/models";
-import { editCurrentStatusLED } from "../../../core/actions";
+import { LED } from "core/models";
+import { editCurrentStatusLED } from "core/actions";
 
 const LEDcontrols = ({
   part,
@@ -80,11 +80,12 @@ const LEDcontrols = ({
 
       <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
         <LEDcontrolsContents
-          part={part}
+          parts={[part]}
           intensity={displayValue.alpha}
           src={displayValue.src}
           handleIntensityChange={handleIntensityChange}
           handleSrcChange={handleSrcChange}
+          oneLine
         />
       </Collapse>
     </>

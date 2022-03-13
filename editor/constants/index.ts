@@ -13,7 +13,8 @@ export const LED = "LED";
 export const EL = "EL";
 export const FIBER = "FIBER";
 // local storage keys
-export const GROUP = "PART_GROUP";
+export const GROUP = "local_storage_key_GROUP";
+export const PREFERENCES = "local_storage_key_PREFERENCES";
 // a no-effect source for led to do nothing
 export const NO_EFFECT = "";
 

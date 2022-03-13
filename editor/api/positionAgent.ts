@@ -49,6 +49,7 @@ export const posAgent = {
       });
     } catch (error) {
       console.error(error);
+      throw error;
     }
   },
   saveFrame: async (
@@ -75,6 +76,7 @@ export const posAgent = {
       });
     } catch (error) {
       console.error(error);
+      throw error;
     }
     if (!requestTimeChange) return;
     try {
@@ -89,6 +91,7 @@ export const posAgent = {
       });
     } catch (error) {
       console.error(error);
+      throw error;
     }
   },
   deleteFrame: async (frameId: String) => {

@@ -3,11 +3,14 @@ import store from "../store";
 //axios for api
 import axios from "./axios";
 
+import { notification } from "core/utils";
+
 export * from "./controlAgent";
 export * from "./positionAgent";
 export * from "./dancerAgent";
 export * from "./ledAgent";
 
+// TODO add type
 export const uploadJson = (file, type) => {
   const formData = new FormData();
 
@@ -32,26 +35,26 @@ export const uploadeExportDataApi = async (uploadFile) => {
   formData.append("data", uploadFile);
   const response = await axios.post("/uploadData", formData);
   if (response.request.statusText === "OK")
-    alert("Upload Success.Please refresh.");
-  else alert("Upload Failed.");
+    notification.success("Upload Success. Please refresh.");
+  else notification.error("Upload Failed.");
 };
 export const downloadExportDataApi = async () => {
   const response = await axios.get("/exportData.json");
   if (response.request.statusText === "OK") return response.data;
-  else alert("Download Failed.");
+  else notification.error("Download Failed.");
 };
 export const uploadLedDataApi = async (ledFile) => {
   const formData = new FormData();
   formData.append("data", ledFile);
   const response = await axios.post("/uploadLED", formData);
   if (response.request.statusText === "OK")
-    alert("Upload Success.Please refresh.");
-  else alert("Upload Failed.");
+    notification.success("Upload Success. Please refresh.");
+  else notification.error("Upload Failed.");
 };
 export const downloadLedDataApi = async () => {
   const response = await axios.get("/exportLED.json");
   if (response.request.statusText === "OK") return response.data;
-  else alert("Download Failed.");
+  else notification.error("Download Failed.");
 };
 export const uploadImages = (files, path, imagePrefix) => {
   const formData = new FormData();

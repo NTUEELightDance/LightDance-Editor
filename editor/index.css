@@ -1,3 +1,8 @@
 .swal2-container {
   width: auto !important;
+  z-index: 1500
+}
+
+.swal2-popup {
+  width: auto !important;
 }

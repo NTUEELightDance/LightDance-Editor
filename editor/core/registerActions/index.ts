@@ -8,7 +8,7 @@ import { threeController } from "../../components/ThreeSimulator/ThreeController
  * A mapping of actionName to the wrapped action.
  */
 interface WrappedActionRegistry {
-  [key: string]: (payloadOptions?: PayloadOptions) => void;
+  [key: string]: (payloadOptions?: PayloadOptions) => Promise<void>;
 }
 
 /**

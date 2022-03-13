@@ -1,8 +1,6 @@
 import { controlAgent, posAgent, ledAgent } from "../../api";
 import { reactiveState } from "core/state";
 
-import { notification as _Notification } from "./Notification";
-
 /**
  * Get [posMap, posRecord] from posAgent
  */
@@ -36,8 +34,7 @@ export function getPartType(partName: string) {
   return partTypeMap[partName];
 }
 
-export const notification = _Notification;
-
+export * from "./Notification";
 export * from "./math";
 export * from "./localStorage";
 export * from "./color";
@@ -45,3 +42,4 @@ export * from "./fade";
 export * from "./frame";
 export * from "./led";
 export * from "./genJson";
+export * from "./timeFormat"

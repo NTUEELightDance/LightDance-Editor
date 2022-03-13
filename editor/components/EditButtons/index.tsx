@@ -13,9 +13,6 @@ import { IDLE, EDITING } from "constants";
 import useEditHandler from "hooks/useEditHandler";
 import { useHotkeys } from "react-hotkeys-hook";
 
-/**
- * TODO: Need beautify, and maybe the buttons may not be here in the future
- */
 export default function EditButtons() {
   const mode = useReactiveVar(reactiveState.editMode);
 
