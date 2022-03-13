@@ -68,7 +68,7 @@ class DancerSocket {
       let parsedData: MesR2S = JSON.parse(message.data);
       const { command, payload } = parsedData;
       console.log(
-        `[Message] ${this.dancerName} response: ${command} \n[Message] Payload: ${payload}\n`
+        `[Message] ${this.dancerName} response: ${command} \n[Message] Payload: `, payload, '\n'
       );
 
       // to emit message to control panel, we add from in payload

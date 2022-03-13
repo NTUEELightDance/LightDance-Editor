@@ -45,7 +45,7 @@ class ControlPanelSocket {
       const parsedData: MesC2S = JSON.parse(message.data);
       const { command, selectedDancers, payload } = parsedData;
       console.log(
-        `[Message] From ${this.controlPanelName} receive command: ${command}\n[Message] Payload: ${payload}\n`
+        `[Message] From ${this.controlPanelName} receive command: ${command}\n[Message] Payload: `, payload, '\n'
       );
 
       const dancers = this.clientAgent.dancerClients.getClients();
