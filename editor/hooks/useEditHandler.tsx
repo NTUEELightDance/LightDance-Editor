@@ -13,7 +13,7 @@ import {
 //constants
 import { CONTROL_EDITOR, POS_EDITOR } from "constants";
 
-import { notification, confirmation } from "core/utils";
+import { notification, confirmation, formatDisplayedTime } from "core/utils";
 
 export default function useEditHandler() {
   // Enter editing mode (request edit)
@@ -36,8 +36,14 @@ export default function useEditHandler() {
         requestTimeChange = true;
       }
     }
-    await save({ payload: requestTimeChange });
-    await cancelEditing();
+    try {
+      await save({ payload: requestTimeChange });
+      notification.success("Save frame completed!");
+    } catch (error) {
+      notification.error((error as Error).message);
+    }
+
+    cancelEditing();
 
     // regenerate ledeffect after saving
     generateLedEffectRecord();
@@ -52,8 +58,17 @@ export default function useEditHandler() {
 
   // Add a frame, use currentPos as default
   const handleAdd = async () => {
-    await add();
-    await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
+    try {
+      await add();
+      setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
+      notification.success(
+        `Successfully added a frame at ${formatDisplayedTime(
+          reactiveState.currentTime()
+        )}`
+      );
+    } catch (error) {
+      notification.error((error as Error).message);
+    }
   };
 
   // Delete the current record
@@ -65,12 +80,19 @@ export default function useEditHandler() {
       (editor === CONTROL_EDITOR && controlFrameIndex === 0) ||
       (editor === POS_EDITOR && posFrameIndex === 0)
     ) {
-      notification.warning("Cannot delete initial frame");
+      notification.error("Cannot delete initial frame");
       return;
     }
-    if (await confirmation.info("Are you sure you want to delete the frame?")) {
+    if (
+      await confirmation.warning("Are you sure you want to delete the frame?")
+    ) {
       await deleteCurrent();
-      await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
+      setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
+      notification.success(
+        `Successfully deleted the frame at ${formatDisplayedTime(
+          reactiveState.currentTime()
+        )}`
+      );
     }
   };
 
