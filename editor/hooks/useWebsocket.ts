@@ -18,11 +18,11 @@ import {
 } from "types/hooks/webSocket";
 const BOARDINFO = "boardInfo";
 const DISCONNECT = "disconnect";
-// const url = `${location.origin}/controller-server-websocket`.replace(
-//   "http",
-//   "ws"
-// );
-const url = "ws://192.168.10.12:8082";
+const url = `${location.origin}/controller-server-websocket`.replace(
+  "http",
+  "ws"
+);
+// const url = "ws://192.168.10.12:8082";
 export default function useWebsocketState() {
   //states
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
