@@ -18,9 +18,6 @@ import {
 //import validator
 import Ajv from "ajv";
 
-// import store
-import store from "../../../store";
-
 //import apis
 import {
   uploadeExportDataApi,
@@ -28,6 +25,8 @@ import {
   downloadExportDataApi,
   downloadLedDataApi,
 } from "../../../api";
+
+import { notification } from "core/utils";
 
 const uploadJson = (files) => {
   return new Promise((resolve, reject) => {
@@ -47,7 +46,7 @@ export const checkExportJson = async (exportFile) => {
     checkControlJson(exportJson) &&
     checkPosJson(exportJson) &&
     checkColorJson(exportJson);
-  if (valid) alert("Check Passed. Ready to upload.");
+  if (valid) notification.success("Check Passed. Ready to upload.");
   return valid;
 };
 
@@ -61,7 +60,7 @@ const checkControlJson = (exportJson) => {
       const valid = validate(dancerParts);
       if (!valid) {
         const { keyword, instancePath, message } = validate.errors[0];
-        alert(`${keyword} Error: ${instancePath} ${message}`);
+        notification.error(`${keyword} Error: ${instancePath} ${message}`);
       }
       return valid;
     });
@@ -78,7 +77,7 @@ const checkPosJson = (exportJson) => {
       const valid = validate(dancerPos);
       if (!valid) {
         const { keyword, instancePath, message } = validate.errors[0];
-        alert(`${keyword} Error: ${instancePath} ${message}`);
+        notification.error(`${keyword} Error: ${instancePath} ${message}`);
       }
       return valid;
     });
@@ -93,7 +92,7 @@ const checkColorJson = (exportJson) => {
   const colorIsValid = validate(exportJson.color);
   if (!colorIsValid) {
     const { keyword, instancePath, message } = validate.errors[0];
-    alert(`${keyword} Error: ${instancePath} ${message}`);
+    notification.error(`${keyword} Error: ${instancePath} ${message}`);
   }
   return colorIsValid;
 };
@@ -107,7 +106,9 @@ export const checkLedJson = async (ledFile) => {
       const valid = validate(effect);
       if (!valid) {
         const { keyword, instancePath, message } = validate.errors[0];
-        alert(`${keyword} Error: ${effectName}${instancePath} ${message}`);
+        notification.error(
+          `${keyword} Error: ${effectName}${instancePath} ${message}`
+        );
       }
       return valid;
     });

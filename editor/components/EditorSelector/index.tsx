@@ -10,6 +10,8 @@ import { toggleEditor, setSelectionModeByEditor } from "core/actions";
 import { CONTROL_EDITOR, IDLE } from "constants";
 import { useHotkeys } from "react-hotkeys-hook";
 
+import { notification } from "core/utils";
+
 export default function EditorSelector() {
   const editor = useReactiveVar(reactiveState.editor);
   const editMode = useReactiveVar(reactiveState.editMode);
@@ -17,7 +19,7 @@ export default function EditorSelector() {
   const handleSwitchEditor = () => {
     // TODO: handle if editMode is in editing or adding mode, should tell user to save first
     if (editMode !== IDLE) {
-      alert("Please SAVE or CANCEL first!");
+      notification.warning("Please SAVE or CANCEL first!");
       return;
     }
     toggleEditor({ payload: null });

@@ -33,7 +33,7 @@ import {
 } from "./utils";
 import { UploadDownload } from "./UploadDownload";
 import { files } from "jszip";
-
+import { notification } from "core/utils";
 /**
  * Upload and download files
  * upload:
@@ -74,7 +74,7 @@ export default function File() {
   };
   const handleExportFileUpload = async () => {
     if (!exportFile) {
-      alert("Missing export.json");
+      notification.error("Missing export.json");
       return;
     }
     if (!(await checkExportJson(exportFile))) return;
@@ -85,7 +85,7 @@ export default function File() {
   };
   const handleLedFileUpload = async () => {
     if (!ledFile) {
-      alert("Missing LED.json");
+      notification.error("Missing LED.json");
       return;
     }
     if (!(await checkLedJson(ledFile))) return;
