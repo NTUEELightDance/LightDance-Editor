@@ -1,7 +1,8 @@
 import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
-import { reactiveState } from "../../core/state";
+import { state, reactiveState } from "core/state";
+import { setCurrentPosToGround } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 import { useResizeDetector } from "react-resize-detector";
@@ -9,8 +10,11 @@ import { useResizeDetector } from "react-resize-detector";
 import { threeController } from "./ThreeController";
 import SelectionModeSelector from "components/SelectionModeSelector";
 
+// hotkeys
+import { useHotkeys } from "react-hotkeys-hook";
+
 // constants
-import { IDLE } from "constants";
+import { IDLE, POSITION } from "constants";
 
 /**
  * This is Display component
@@ -26,7 +30,6 @@ export default function ThreeSimulator() {
     },
   });
 
-  const isPlaying = useReactiveVar(reactiveState.isPlaying);
   const editMode = useReactiveVar(reactiveState.editMode);
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
@@ -52,6 +55,15 @@ export default function ThreeSimulator() {
       }
     }
   }, [editMode, selectionMode]);
+
+  useHotkeys("g", () => {
+    if (
+      reactiveState.editMode() !== IDLE &&
+      reactiveState.selectionMode() === POSITION
+    ) {
+      setCurrentPosToGround();
+    }
+  });
 
   return (
     <div

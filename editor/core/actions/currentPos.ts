@@ -27,12 +27,9 @@ const actions = registerActions({
       throw new Error(
         `[Error] setCurrentPos, invalid parameter(x, y, z) ${x}, ${y}, ${z}`
       );
-    try {
-      state.currentPos[name] = { x, y, z };
-    } catch (err) {
-      state.currentPos = cloneDeep(state.currentPos);
-      state.currentPos[name] = { x, y, z };
-    }
+
+    state.currentPos = cloneDeep(state.currentPos);
+    state.currentPos[name] = { x, y, z };
   },
 
   /**
@@ -42,6 +39,16 @@ const actions = registerActions({
    */
   setCurrentPos: (state: State, payload: DancerCoordinates) => {
     state.currentPos = payload;
+  },
+
+  /**
+   * set current pos to ground
+   * @param {State} state
+   */
+  setCurrentPosToGround: (state: State) => {
+    Object.keys(state.currentPos).forEach((dancerName) => {
+      state.currentPos[dancerName].y = 0;
+    });
   },
 
   /**
@@ -64,6 +71,7 @@ const actions = registerActions({
 export const {
   setCurrentPosByName,
   setCurrentPos,
+  setCurrentPosToGround,
   saveCurrentPos,
   deleteCurrentPos,
 } = actions;

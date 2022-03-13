@@ -5,7 +5,7 @@ import { SelectControls } from "./SelectControls";
 import { SelectionBox } from "./SelectionBox";
 import { SelectionHelper } from "./SelectionHelper";
 
-import { setCurrentPos } from "../../../core/actions/currentPos";
+import { setCurrentPos } from "core/actions/currentPos";
 
 import { Dancer } from "../ThreeComponents";
 
@@ -132,8 +132,6 @@ class Controls {
   }
 
   activate(selectionMode) {
-    addEventListener("keydown", this.onKeyDown.bind(this));
-
     switch (selectionMode) {
       case DANCER:
         break;
@@ -147,13 +145,8 @@ class Controls {
   }
 
   deactivate() {
-    removeEventListener("keydown", this.onKeyDown.bind(this));
     this.dragControls.deactivate();
     this.dragControls.enabled = false;
-  }
-
-  onKeyDown(event) {
-    return;
   }
 
   dragEnd() {
@@ -167,7 +160,7 @@ class Controls {
 
     const currentPos = {};
     Object.entries(this.dancers).forEach(([name, dancer], i) => {
-      const { position } = dancer.model;
+      const position = dancer.model.matrix.getPosition();
 
       currentPos[name] = {
         x: position.x,
