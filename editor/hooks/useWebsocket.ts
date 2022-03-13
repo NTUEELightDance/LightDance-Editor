@@ -63,7 +63,6 @@ export default function useWebsocketState() {
     };
   };
 
-  // const setDancerMsg = (payload: setMessageType = {dancer: true,msg: "",Ok: true,isConnected:""}}) => {
   const setDancerMsg = (payload: setMessageType) => {
     // payload : {array of dancerNames}
     const { dancer, msg, Ok = true, isConnected = true } = payload;
