@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useQuery, useMutation, useReactiveVar } from "@apollo/client";
 // states and actions
 import { reactiveState } from "core/state";
@@ -18,6 +17,7 @@ export default function useColorMap() {
       setColorMap({ payload: data.colorMap?.colorMap || {} });
     },
   });
+
   const [
     addColor,
     { data: addColorData, loading: addColorLoading, error: addColorError },
@@ -33,28 +33,32 @@ export default function useColorMap() {
     { data: delColorData, loading: delColorLoading, error: delColorError },
   ] = useMutation(DELETE_COLOR);
 
-  const handleAddColor = async (color: string, colorCode: string) =>
+  const handleAddColor = async (color: string, colorCode: string) => {
     await addColor({
       variables: { color: { color, colorCode } },
       refetchQueries: [GET_COLOR_MAP],
     });
+  };
   const handleEditColor = async (
     original_color: string,
     new_color: string,
     colorCode: string
-  ) =>
+  ) => {
     await editColor({
       variables: { color: { original_color, new_color, colorCode } },
       refetchQueries: [GET_COLOR_MAP],
     });
-  const handleDeleteColor = async (color: string) =>
+  };
+  const handleDeleteColor = async (color: string) => {
     await deleteColor({
       variables: { color },
       refetchQueries: [GET_COLOR_MAP],
     });
+  };
+  
   if (addColorError || editColorError || delColorError)
-    [addColorError, editColorError, delColorError].forEach((error) =>
-      console.error(error)
+    [addColorError, editColorError, delColorError].forEach(
+      (error) => error && console.error(error)
     );
 
   return {

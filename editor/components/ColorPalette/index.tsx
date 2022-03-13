@@ -13,7 +13,7 @@ import { TransitionGroup } from "react-transition-group";
 
 import AddIcon from "@mui/icons-material/Add";
 
-import useColorMap from "../../hooks/useColorMap";
+import useColorMap from "hooks/useColorMap";
 
 import ColorDialog from "./ColorDialog";
 import ColorListItem from "./ColorListItem";
