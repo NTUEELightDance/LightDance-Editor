@@ -21,7 +21,7 @@ export const NO_EFFECT = "";
 // COMMANDS
 const SYNC = "sync";
 const UPLOAD_LED = "uploadLed";
-const UPLOAD_CONTROL = "uploadControl";
+const UPLOAD_OF = "uploadOf";
 const LOAD = "load";
 const PLAY = "play";
 const PAUSE = "pause";
@@ -39,7 +39,7 @@ export const WEBSOCKETCLIENT = {
 export const COMMANDS = {
   SYNC,
   UPLOAD_LED, // need payload
-  UPLOAD_CONTROL, // need payload
+  UPLOAD_OF, // need payload
   LOAD,
   PLAY, // need payload
   PAUSE,
