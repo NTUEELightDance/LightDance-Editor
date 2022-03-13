@@ -90,7 +90,7 @@ class DancerSocket {
         command: CommandType.DISCONNECT,
         payload: {
           from: this.dancerName,
-          success: true,
+          success: false,
           info: "dancer disconnect",
         },
       };

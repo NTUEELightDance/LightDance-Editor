@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { useQuery } from "@apollo/client";
 // gql
 import { GET_DANCERS } from "../graphql";
 // constants
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 // states and actions
 import { reactiveState } from "core/state";
 import { setDancerNames, setDancers, setPartTypeMap } from "core/actions";

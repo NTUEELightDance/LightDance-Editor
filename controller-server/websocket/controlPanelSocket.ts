@@ -4,7 +4,7 @@ import { PlayTimeType, MesC2S, MesS2C } from "../types";
 import { ClientAgent } from "../clientAgent";
 import { v4 as uuidv4 } from "uuid";
 
-export class ControlPanelSocket {
+class ControlPanelSocket {
   ws: any;
   controlPanelName: string;
   clientAgent: ClientAgent;

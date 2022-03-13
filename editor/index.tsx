@@ -4,28 +4,24 @@ import store from "./store";
 // apollo
 import client from "./client";
 
-// test for websocket
-import WebSocketContext from "./contexts/WebSocketContext";
 import WaveSurferAppContext from "./contexts/WavesurferContext";
 import LayoutContextProvider from "./contexts/LayoutContext";
 
 import App from "./app";
 
-import "./index.css"
+import "./index.css";
 
 import { ApolloProvider } from "@apollo/client";
 
 const Index = () => (
   <ApolloProvider client={client}>
-    <WebSocketContext>
-      <WaveSurferAppContext>
-        <Provider store={store}>
-          <LayoutContextProvider>
-            <App />
-          </LayoutContextProvider>
-        </Provider>
-      </WaveSurferAppContext>
-    </WebSocketContext>
+    <WaveSurferAppContext>
+      <Provider store={store}>
+        <LayoutContextProvider>
+          <App />
+        </LayoutContextProvider>
+      </Provider>
+    </WaveSurferAppContext>
   </ApolloProvider>
 );
 

@@ -1,5 +1,4 @@
 import { useState, useContext } from "react";
-import { useSelector, useDispatch } from "react-redux";
 // mui
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
@@ -12,15 +11,11 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
-// command api
-import commandApi from "./agent";
-// redux selector and actions
-import { selectGlobal } from "../../slices/globalSlice";
-import { selectCommand, clearDancerStatusMsg } from "../../slices/commandSlice";
-// states
-import { useReactiveVar } from "@apollo/client";
-import { reactiveState } from "core/state";
-// contants
+import { useImmer } from "use-immer";
+
+// hooks
+import useWebsocket from "../../hooks/useWebsocket";
+// constants
 import { COMMANDS } from "constants";
 // contexts
 import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
@@ -53,29 +48,24 @@ const useStyles = makeStyles((theme) => ({
 export default function CommandCenter() {
   // styles
   const classes = useStyles();
+  // hook
+  const { dancerStatus, delay, sendCommand, setDelay } = useWebsocket();
+  const [selectedDancers, setSelectedDancers] = useImmer([]); // array of dancerName that is selected
 
-  // redux
-  const { controlRecord } = useSelector(selectGlobal);
-
-  const currentStatus = useReactiveVar(reactiveState.currentStatus);
-  const time = useReactiveVar(reactiveState.currentTime);
-
-  const { dancerStatus } = useSelector(selectCommand);
-
-  const dispatch = useDispatch();
-  // delay
-  const [delay, setDelay] = useState(0);
-
-  const [selectedDancers, setSelectedDancers] = useState([]); // array of dancerName that is selected
   const handleToggleDancer = (dancerName) => {
-    if (selectedDancers.includes(dancerName)) {
-      // remove from array
-      setSelectedDancers(selectedDancers.filter((name) => name !== dancerName));
-    } else setSelectedDancers([...selectedDancers, dancerName]); // add to array
+    setSelectedDancers((draft) => {
+      const index = draft.indexOf(dancerName);
+      if (index !== -1) draft.splice(index, 1);
+      //index == -1 -> not in the array
+      else draft.push(dancerName);
+    });
   };
+  const allChecked = () =>
+    selectedDancers.length === Object.keys(dancerStatus).length;
   const handleAllDancer = () => {
-    if (selectedDancers.length) {
-      setSelectedDancers([]); // clear all
+    if (allChecked()) {
+      // clear all
+      setSelectedDancers([]);
     } else {
       // select all
       setSelectedDancers(Object.keys(dancerStatus));
@@ -90,22 +80,12 @@ export default function CommandCenter() {
 
   // click btn, will call api to server
   const handleClickBtn = (command) => {
-    dispatch(
-      clearDancerStatusMsg({
-        dancerNames: selectedDancers,
-      })
-    );
-    const de = delay !== "" ? parseInt(delay, 10) : 0;
-    const sysTime = de + Date.now();
-    const dataToServer = {
+    const payload = {
+      command,
       selectedDancers,
-      startTime: time,
-      delay: de, // fill the number with variable
-      sysTime,
-      controlJson: controlRecord, // fill
-      lightCurrentStatus: currentStatus,
+      delay,
     };
-    commandApi[command](dataToServer);
+    sendCommand(payload);
 
     // play or pause or stop
     if (command === COMMANDS.PLAY) {
@@ -126,7 +106,7 @@ export default function CommandCenter() {
         className={classes.root}
         label="delay(ms)"
         onChange={(e) => {
-          setDelay(e.target.value);
+          setDelay(parseInt(e.target.value));
         }}
       />
 
@@ -148,7 +128,10 @@ export default function CommandCenter() {
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
-                <Checkbox onChange={handleAllDancer} />
+                <Checkbox
+                  onChange={(e) => handleAllDancer(e)}
+                  checked={allChecked()}
+                />
               </TableCell>
               <TableCell className={classes.mediumCell}>DancerName</TableCell>
               <TableCell className={classes.mediumCell}>HostName</TableCell>
@@ -159,9 +142,8 @@ export default function CommandCenter() {
           </TableHead>
           <TableBody>
             {Object.entries(dancerStatus).map(
-              ([dancerName, { hostname, ip, OK, msg, isConnected }]) => {
+              ([dancerName, { hostname, ip, Ok, msg, isConnected }]) => {
                 const isItemSelected = selectedDancers.includes(dancerName);
-
                 return (
                   <TableRow
                     key={dancerName}
@@ -172,6 +154,7 @@ export default function CommandCenter() {
                   >
                     <TableCell padding="checkbox">
                       <Checkbox checked={isItemSelected} />
+                      {/* <Checkbox checked={isItemSelected} disable = !isConnected/> */}
                     </TableCell>
                     <TableCell className={classes.mediumCell}>
                       {dancerName}
@@ -188,7 +171,7 @@ export default function CommandCenter() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <p style={{ color: OK ? "green" : "red" }}>{msg}</p>
+                      <p style={{ color: Ok ? "green" : "red" }}>{msg}</p>
                     </TableCell>
                   </TableRow>
                 );
