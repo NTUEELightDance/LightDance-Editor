@@ -6,7 +6,7 @@ import { WebSocketServer } from "ws";
 import DancerSocket from "./websocket/dancerSocket";
 // import ControlPanelSocket from "./websocket/controlPanelSocket";
 import ControlPanelSocket from "./websocket/controlPanelSocket";
-import { ClientType, MesC2S, MesS2C, InfoType } from "./types/index";
+import { ClientType, MesC2S, MesS2C, InfoType, MesR2S } from "./types/index";
 import NtpServer from "./ntp/index";
 
 import { ClientAgent } from "./clientAgent";
@@ -22,19 +22,23 @@ const clientAgent = new ClientAgent();
 
 // websocket
 wss.on("connection", (ws) => {
-  console.log("someone connected", ws);
   ws.onmessage = (msg: any) => {
     // need to consider further type assignment
-    const parsedData: MesC2S = JSON.parse(msg.data);
+    const parsedData: MesC2S | MesR2S = JSON.parse(msg.data);
     const { command, payload } = parsedData;
+    let type = null
     console.log("[Message] Client response: ", command, "\n[Message] Payload: ", payload, '\n');
 
     // We defined that the first task for clients (dancer and editor) will be boardInfo
     // This can then let us split the logic between dancerClients and editorClients
     if (command === CommandType.BOARDINFO) {
       // check type : rpi or controlpanel
-
-      const { type } = payload as InfoType;
+      if ((<InfoType>payload).type) {
+        type = (<InfoType>payload).type
+      }
+      else if ((<MesR2S>parsedData).payload.info) {
+        type = (<InfoType>((<MesR2S>parsedData).payload.info)).type
+      }
       // rpi
       switch (type) {
         case ClientType.RPI: {
@@ -109,7 +113,7 @@ wss.on("connection", (ws) => {
 
         // error
         default: {
-          console.error(`Invalid type ${type} on connection`);
+          console.error(`Invalid type `, type, ` on connection`);
           const res: MesS2C = {
             command: CommandType.BOARDINFO,
             payload: {
