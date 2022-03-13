@@ -27,8 +27,8 @@ const actions = registerActions({
       await client.mutate({
         mutation: SHIFT_TIME,
         variables: {
-          shiftPosition: type === ("position" || "both") ? true : false,
-          shiftControl: type === ("control" || "both") ? true : false,
+          shiftPosition: type === "position" || type === "both" ? true : false,
+          shiftControl: type === "control" || type === "both" ? true : false,
           move: shiftTime,
           end: endTime,
           start: startTime,
