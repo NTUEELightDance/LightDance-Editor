@@ -48,7 +48,6 @@ const Confirmation = ({
   // thus we use useHotKeys to gaurantee we can trigger the event
   useHotkeys("enter", (e) => {
     e.preventDefault();
-    console.log("enter");
     handleConfirm();
   });
   useHotkeys("esc", (e) => {
@@ -123,6 +122,8 @@ export const notification = {
   warning: notify("warning"),
 };
 
+// please note that confirmation is an async function,
+// as opposse to normal window.confirm, which is not
 export const confirmation = {
   info: confirm("info"),
   success: confirm("success"),

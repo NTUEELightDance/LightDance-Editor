@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEventHandler, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import {
   Dialog,
@@ -43,14 +43,14 @@ const ColorDialog = ({
     if (!defaultColorCode) setNewColorCode("#FFFFFF");
   }, [open]);
 
-  const handleNameChange: ChangeEventHandler<
+  const handleNameChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
     setNewColorName(e.target.value);
     colorNameError && setColorNameError(false);
   };
 
-  const handleColorChange: ChangeEventHandler<
+  const handleColorChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
     setNewColorCode(e.target.value);
@@ -63,6 +63,7 @@ const ColorDialog = ({
       handleClose();
     } catch (error) {
       notification.error((error as Error).message);
+      console.error(error);
       setColorNameError(true);
     }
   };

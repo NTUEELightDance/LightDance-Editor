@@ -73,6 +73,7 @@ export default function TimeShift({
       notification.success("Time shift successful!");
     } catch (error) {
       notification.error((error as Error).message);
+      console.error(error);
     }
     setStartTime(0);
     setEndTime(0);
@@ -105,7 +106,7 @@ export default function TimeShift({
           />
           <TextField
             type="number"
-            label="shiftTime (ms)"
+            label="Shift time (ms)"
             size="small"
             value={shiftTime}
             onChange={handleChangeShiftTime}

@@ -51,6 +51,7 @@ export default function useColorMap() {
       notification.success(`Successfuly added color: ${color}`);
     } catch (error) {
       notification.error((error as Error).message);
+      console.error(error);
     }
   };
   const handleEditColor = async (
@@ -70,6 +71,7 @@ export default function useColorMap() {
       notification.success(`Successfuly editted color: ${original_color}`);
     } catch (error) {
       notification.error((error as Error).message);
+      console.error(error);
     }
   };
   const handleDeleteColor = async (color: string) => {
@@ -81,6 +83,7 @@ export default function useColorMap() {
       notification.success(`Successfuly deleted color: ${color}`);
     } catch (error) {
       notification.error((error as Error).message);
+      console.error(error);
     }
   };
 

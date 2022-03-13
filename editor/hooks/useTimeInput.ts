@@ -1,15 +1,12 @@
-import React, {
-  useState,
-  ChangeEventHandler,
-  KeyboardEventHandler,
-  useEffect,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
+
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { formatDisplayedTime } from "core/utils";
 
 const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
   number,
-  React.Dispatch<React.SetStateAction<number>>
+  React.Dispatch<React.SetStateAction<number>> | ((newTime: number) => void)
 ]) => {
   const [displayedTime, setDisplayedTime] = useState<string>("00:00:000");
   const [timeError, setTimeError] = useState<boolean>(false);
@@ -30,7 +27,7 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
     setTimeError(false);
     return true;
   };
-  // update displayed time and pprovide user friendly corrections
+  // update displayed time and provide user friendly corrections
   const updateDisplayedTime = (newDisplayedTime: string) => {
     const timeList = newDisplayedTime.split(":").map(Number);
     for (const time of timeList) {
@@ -83,7 +80,7 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
   // convert displayed time string to milli seconds
   const toMillis = (timeString: string) => {
     if (!validateTime(timeString)) {
-      throw "invalid time";
+      throw new Error("invalid time");
     }
     const [mins, secs, millis] = timeString.split(":").map(Number);
     const newTime: number = Math.floor(mins * 60 + secs) * 1000 + millis;
@@ -106,10 +103,22 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
       const newTime = toMillis(newDisplayedTime);
       updateCurrentTime(newTime);
       setDisplayedTime(formatDisplayedTime(newTime));
+      timeInputRef.current?.blur();
     } catch {
       setTimeError(true);
     }
   };
+
+  const handleArrowKeys = (key: "up" | "down", shiftKey?: boolean) => {
+    const displayedTimeValue = toMillis(displayedTime);
+    const delta = shiftKey ? 10 : 1;
+    if (key === "up")
+      updateDisplayedTime(formatDisplayedTime(displayedTimeValue + delta));
+    else if (key === "down")
+      updateDisplayedTime(formatDisplayedTime(displayedTimeValue - delta));
+  };
+
+  const timeInputRef = useRef<HTMLInputElement>();
 
   const textFieldProps = {
     error: timeError,
@@ -118,23 +127,31 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
     inputProps: { min: 0 },
     onChange: ((e) => {
       updateDisplayedTime(e.target.value);
-    }) as ChangeEventHandler<HTMLInputElement>,
+    }) as React.ChangeEventHandler<HTMLInputElement>,
     onBlur: () => {
       handleSetTime();
     },
     onKeyDown: ((e) => {
-      if (e.key === "Enter") {
-        handleSetTime();
-      }
-    }) as KeyboardEventHandler,
+      const capturedKeys = ["Enter", "ArrowUp", "ArrowDown"];
+      if (capturedKeys.includes(e.key)) e.preventDefault();
+
+      if (e.key === "Enter") handleSetTime();
+      if (e.key === "ArrowUp") handleArrowKeys("up", e.shiftKey);
+      if (e.key === "ArrowDown") handleArrowKeys("down", e.shiftKey);
+    }) as React.KeyboardEventHandler,
+    inputRef: timeInputRef as React.RefObject<HTMLInputElement>,
   };
 
+  // update displayed time when current time is changed else where
   useEffect(() => {
     setDisplayedTime(formatDisplayedTime(externalTimeValue));
-  }, []);
+    setTimeError(false);
+  }, [externalTimeValue]);
 
   return {
     textFieldProps,
+    timeError,
+    timeInputRef,
   };
 };
 

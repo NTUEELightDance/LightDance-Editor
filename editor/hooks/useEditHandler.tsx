@@ -41,6 +41,7 @@ export default function useEditHandler() {
       notification.success("Save frame completed!");
     } catch (error) {
       notification.error((error as Error).message);
+      console.error(error);
     }
 
     cancelEditing();
@@ -68,6 +69,7 @@ export default function useEditHandler() {
       );
     } catch (error) {
       notification.error((error as Error).message);
+      console.error(error);
     }
   };
 
