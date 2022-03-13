@@ -3,7 +3,9 @@ import led from "../../files/data/led.json";
 import WebSocket from "ws";
 import {
   ClientType,
+  ControlType,
   Dic,
+  LedType,
   LightStatusType,
   MesR2S,
   MesS2C,
@@ -144,15 +146,17 @@ class DancerSocket {
     this.sendDataToRpiSocket({ command: CommandType.STOP });
   };
 
-  uploadControl = () => {
-    // TODO: controlJSON from controlPanel to RPi
-
+  uploadControl = (data: ControlType) => {
     this.sendDataToRpiSocket({
       command: CommandType.UPLOAD_CONTROL /* payload: ControlType*/,
+      payload: data[this.dancerName]
     });
   };
-  uploadLED = () => {
-    // TODO
+  uploadLED = (data: LedType) => {
+    this.sendDataToRpiSocket({
+      command: CommandType.UPLOAD_LED /* payload: ControlType*/,
+      payload: data[this.dancerName]
+    });
   };
 }
 
