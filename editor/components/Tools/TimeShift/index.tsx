@@ -65,7 +65,15 @@ export default function TimeShift({
       ))
     )
       return;
-    await shiftFrameTime({ payload: { type, startTime, endTime, shiftTime } });
+
+    try {
+      await shiftFrameTime({
+        payload: { type, startTime, endTime, shiftTime },
+      });
+      notification.success("Time shift successful!");
+    } catch (error) {
+      notification.error((error as Error).message);
+    }
     setStartTime(0);
     setEndTime(0);
     setShiftTime(0);

@@ -5,6 +5,7 @@ import { setColorMap } from "core/actions";
 
 // gql
 import { GET_COLOR_MAP, ADD_COLOR, EDIT_COLOR, DELETE_COLOR } from "../graphql";
+import { notification } from "core/utils";
 
 export default function useColorMap() {
   const colorMap = useReactiveVar(reactiveState.colorMap);
@@ -34,28 +35,43 @@ export default function useColorMap() {
   ] = useMutation(DELETE_COLOR);
 
   const handleAddColor = async (color: string, colorCode: string) => {
-    await addColor({
-      variables: { color: { color, colorCode } },
-      refetchQueries: [GET_COLOR_MAP],
-    });
+    try {
+      await addColor({
+        variables: { color: { color, colorCode } },
+        refetchQueries: [GET_COLOR_MAP],
+      });
+      notification.success(`Successfuly added color: ${color}!`);
+    } catch (error) {
+      notification.error((error as Error).message);
+    }
   };
   const handleEditColor = async (
     original_color: string,
     new_color: string,
     colorCode: string
   ) => {
-    await editColor({
-      variables: { color: { original_color, new_color, colorCode } },
-      refetchQueries: [GET_COLOR_MAP],
-    });
+    try {
+      await editColor({
+        variables: { color: { original_color, new_color, colorCode } },
+        refetchQueries: [GET_COLOR_MAP],
+      });
+      notification.success(`Successfuly editted color: ${original_color}!`);
+    } catch (error) {
+      notification.error((error as Error).message);
+    }
   };
   const handleDeleteColor = async (color: string) => {
-    await deleteColor({
-      variables: { color },
-      refetchQueries: [GET_COLOR_MAP],
-    });
+    try {
+      await deleteColor({
+        variables: { color },
+        refetchQueries: [GET_COLOR_MAP],
+      });
+      notification.success(`Successfuly deleted color: ${color}!`);
+    } catch (error) {
+      notification.error((error as Error).message);
+    }
   };
-  
+
   if (addColorError || editColorError || delColorError)
     [addColorError, editColorError, delColorError].forEach(
       (error) => error && console.error(error)
