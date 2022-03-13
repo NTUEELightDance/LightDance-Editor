@@ -9,6 +9,10 @@ import { notification } from "core/utils";
 
 export default function useColorMap() {
   const colorMap = useReactiveVar(reactiveState.colorMap);
+
+  const validateColorCode = (colorCode: string) =>
+    /^#[0-9a-f]{6}/i.test(colorCode);
+
   const {
     data: colorMapData,
     loading: colorLoading,
@@ -35,12 +39,16 @@ export default function useColorMap() {
   ] = useMutation(DELETE_COLOR);
 
   const handleAddColor = async (color: string, colorCode: string) => {
+    if (!validateColorCode(colorCode)) {
+      notification.error(`Invalid color code: ${colorCode}`);
+      return;
+    }
     try {
       await addColor({
         variables: { color: { color, colorCode } },
         refetchQueries: [GET_COLOR_MAP],
       });
-      notification.success(`Successfuly added color: ${color}!`);
+      notification.success(`Successfuly added color: ${color}`);
     } catch (error) {
       notification.error((error as Error).message);
     }
@@ -50,12 +58,16 @@ export default function useColorMap() {
     new_color: string,
     colorCode: string
   ) => {
+    if (!validateColorCode(colorCode)) {
+      notification.error(`Invalid color code: ${colorCode}`);
+      return;
+    }
     try {
       await editColor({
         variables: { color: { original_color, new_color, colorCode } },
         refetchQueries: [GET_COLOR_MAP],
       });
-      notification.success(`Successfuly editted color: ${original_color}!`);
+      notification.success(`Successfuly editted color: ${original_color}`);
     } catch (error) {
       notification.error((error as Error).message);
     }
@@ -66,7 +78,7 @@ export default function useColorMap() {
         variables: { color },
         refetchQueries: [GET_COLOR_MAP],
       });
-      notification.success(`Successfuly deleted color: ${color}!`);
+      notification.success(`Successfuly deleted color: ${color}`);
     } catch (error) {
       notification.error((error as Error).message);
     }
