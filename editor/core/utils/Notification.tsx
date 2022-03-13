@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Alert, Button, Fade } from "@mui/material";
 
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
@@ -48,12 +48,18 @@ const Confirmation = ({
   // thus we use useHotKeys to gaurantee we can trigger the event
   useHotkeys("enter", (e) => {
     e.preventDefault();
+    console.log("enter");
     handleConfirm();
   });
   useHotkeys("esc", (e) => {
     e.preventDefault();
     handleCancel();
   });
+  // force focus on the confirm button
+  useLayoutEffect(() => {
+    const confirmButton = document.getElementById("confirm-confirm-button");
+    confirmButton && confirmButton.focus();
+  }, []);
 
   return (
     <Fade in={open}>
@@ -65,7 +71,12 @@ const Confirmation = ({
             <Button color="inherit" size="small" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button color="inherit" size="small" onClick={handleConfirm}>
+            <Button
+              color="inherit"
+              size="small"
+              onClick={handleConfirm}
+              id="confirm-confirm-button"
+            >
               Confirm
             </Button>
           </>
