@@ -22,8 +22,8 @@ const { SECRET_KEY } = process.env;
 
 (async function () {
   const app = express();
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.json({ limit: "20mb" }));
+  app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
   app.use(fileUpload());
   app.use("/api", apiRoute);
 
