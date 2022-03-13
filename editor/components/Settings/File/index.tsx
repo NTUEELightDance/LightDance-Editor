@@ -126,53 +126,65 @@ export default function File() {
         <Typography variant="h6">Upload export.json</Typography>
 
         <ItemWrapper>
-          <div>
-            <label htmlFor="export">export.json: </label>
+          <label htmlFor="export">
             <input
               id="export"
               name="exportFile"
               type="file"
               accept=".json"
               onChange={handleExportFileInput}
+              style={{ display: "none" }}
             />
-          </div>
+            <Button variant="contained" component="span">
+              choose file
+            </Button>
+          </label>
+          <UploadDownload
+            handleUpload={handleExportFileUpload}
+            handleDownload={handleExportFileDownload}
+          />
         </ItemWrapper>
 
-        <UploadDownload
-          handleUpload={handleExportFileUpload}
-          handleDownload={handleExportFileDownload}
-        />
         <Typography variant="h6">Upload LED.json</Typography>
 
         <ItemWrapper>
-          <div>
-            <label htmlFor="export">LED.json: </label>
+          <label htmlFor="export">
             <input
               id="LED"
               name="LEDfile"
               type="file"
               accept=".json"
               onChange={handleLedFileInput}
+              style={{ display: "none" }}
             />
-          </div>
+            <Button variant="contained" component="span">
+              choose file
+            </Button>
+          </label>
+          <UploadDownload
+            handleUpload={handleLedFileUpload}
+            handleDownload={handleLedFileDownload}
+          />
         </ItemWrapper>
 
-        <UploadDownload
-          handleUpload={handleLedFileUpload}
-          handleDownload={handleLedFileDownload}
-        />
         <Typography variant="h6">
           Upload [name].png <strong>(should select part)</strong>
         </Typography>
         <ItemWrapper>
-          <input
-            id="images"
-            name="images"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImagesInput}
-          />
+          <label htmlFor="export">
+            <input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImagesInput}
+              style={{ display: "none" }}
+            />
+            <Button variant="contained" component="span">
+              choose file
+            </Button>
+          </label>
         </ItemWrapper>
 
         <Box
@@ -219,11 +231,10 @@ const ItemWrapper = ({
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
         justifyContent: "center",
         alignItems: "end",
-        pr: "30%",
-        gap: "1vh",
+        gap: "4em",
       }}
     >
       {children}
