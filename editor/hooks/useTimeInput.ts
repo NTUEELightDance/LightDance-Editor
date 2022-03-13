@@ -120,12 +120,10 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
       updateDisplayedTime(e.target.value);
     }) as ChangeEventHandler<HTMLInputElement>,
     onBlur: () => {
-      console.log("blur");
       handleSetTime();
     },
     onKeyDown: ((e) => {
       if (e.key === "Enter") {
-        console.log("enter");
         handleSetTime();
       }
     }) as KeyboardEventHandler,

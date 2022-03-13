@@ -12,6 +12,9 @@ import {
 } from "core/actions";
 //constants
 import { CONTROL_EDITOR, POS_EDITOR } from "constants";
+
+import { confirmation } from "core/utils";
+
 export default function useEditHandler() {
   // Enter editing mode (request edit)
   const handleStartEditing = async () => {
@@ -26,7 +29,7 @@ export default function useEditHandler() {
     let requestTimeChange = false;
     if (editingData.start !== currentTime) {
       if (
-        confirm(
+        await confirmation.info(
           `You have modify the time, do you want to change the time from ${editingData.start} to ${currentTime}?`
         )
       ) {

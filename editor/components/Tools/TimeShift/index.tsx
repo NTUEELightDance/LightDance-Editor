@@ -60,7 +60,9 @@ export default function TimeShift({
       return;
     }
     if (
-      !confirmation.warning("Warning! This action may delete some important data.")
+      !(await confirmation.warning(
+        "Warning! This action may delete some important data."
+      ))
     )
       return;
     await shiftFrameTime({ payload: { type, startTime, endTime, shiftTime } });
@@ -86,6 +88,7 @@ export default function TimeShift({
             label="Start Time"
             time={startTime}
             setTime={setStartTime}
+            autoFocus
           />
           <TimeShiftTextField
             label="End Time"

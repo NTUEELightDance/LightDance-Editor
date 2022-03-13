@@ -8,10 +8,12 @@ const TimeShiftTextField = ({
   label,
   time,
   setTime,
+  autoFocus,
 }: {
   label: string;
   time: number;
   setTime: React.Dispatch<React.SetStateAction<number>>;
+  autoFocus?: boolean;
 }) => {
   const { textFieldProps } = useTimeInput([time, setTime]);
 
@@ -21,6 +23,7 @@ const TimeShiftTextField = ({
       sx={{ width: "10em" }}
       label={label}
       size="small"
+      autoFocus={autoFocus}
     />
   );
 };
