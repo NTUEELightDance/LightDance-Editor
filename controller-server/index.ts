@@ -32,15 +32,18 @@ wss.on("connection", (ws) => {
     // We defined that the first task for clients (dancer and editor) will be boardInfo
     // This can then let us split the logic between dancerClients and editorClients
     if (command === CommandType.BOARDINFO) {
-      // check type : rpi or controlpanel
+
+      // fetch type, so ugly
       if ((<InfoType>payload).type) {
         type = (<InfoType>payload).type
       }
       else if ((<MesR2S>parsedData).payload.info) {
         type = (<InfoType>((<MesR2S>parsedData).payload.info)).type
       }
-      // rpi
+
+      // check type : rpi or controlpanel
       switch (type) {
+        // rpi
         case ClientType.RPI: {
           // check if `dancer` type's hostname is in board_config.json
           const { dancerName, hostName, ip } = (<MesR2S>parsedData).payload.info as InfoType;

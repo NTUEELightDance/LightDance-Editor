@@ -11,12 +11,12 @@ interface PlayTimeType {
   delay: TimeType; // ms
   sysTime: TimeType; // ms
 }
-interface ControlType {
-  // TODO
+interface Dic {
+  [key: string]: any;
 }
-interface LedType {
-  // TODO
-}
+
+type ControlType = Dic
+type LedType = Dic
 // response only
 enum ClientType {
   CONTROLPANEL = "controlPanel",
@@ -69,9 +69,6 @@ interface dancerClientDic {
 }
 interface controlPanelClientDic {
   [key: string]: ControlPanelSocket;
-}
-interface Dic {
-  [key: string]: any;
 }
 
 export {
