@@ -48,7 +48,7 @@ class DancerSocket {
       [CommandType.REBOOT]: this.reboot,
       [CommandType.SHUTDOWN]: this.shutDown,
       [CommandType.STOP]: this.stop,
-      [CommandType.UPLOAD_CONTROL]: this.uploadControl,
+      [CommandType.UPLOAD_OF]: this.uploadOf,
       [CommandType.UPLOAD_LED]: this.uploadLED,
     };
   }
@@ -146,9 +146,9 @@ class DancerSocket {
     this.sendDataToRpiSocket({ command: CommandType.STOP });
   };
 
-  uploadControl = (data: ControlType) => {
+  uploadOf = (data: ControlType) => {
     this.sendDataToRpiSocket({
-      command: CommandType.UPLOAD_CONTROL /* payload: ControlType*/,
+      command: CommandType.UPLOAD_OF /* payload: ControlType*/,
       payload: data[this.dancerName]
     });
   };

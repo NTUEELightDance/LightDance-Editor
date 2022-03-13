@@ -2,7 +2,7 @@
 enum CommandType {
   SYNC = "sync",
   UPLOAD_LED = "uploadLed",
-  UPLOAD_CONTROL = "uploadControl",
+  UPLOAD_OF = "uploadOf",
   LOAD = "load",
   PLAY = "play",
   PAUSE = "pause",
