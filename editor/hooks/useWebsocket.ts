@@ -27,12 +27,13 @@ export default function useWebsocketState() {
   //states
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
   const time = useReactiveVar(reactiveState.currentTime);
-  const [dancerStatus, setDancerStatus] = useImmer({});
+  const [dancerStatus, setDancerStatus] = useImmer<dancerStatusType>({});
   const [delay, setDelay] = useImmer(0);
   const ws = useRef<WebSocket | null>(null);
-  const sendDataToServer = (data) => {
+  const sendDataToServer = (data: any) => {
     (ws.current as WebSocket).send(JSON.stringify(data));
   };
+  
   const initWebSocket = () => {
     ws.current = new WebSocket(url);
     if (ws.current.readyState !== WebSocket.CONNECTING) {
@@ -75,6 +76,7 @@ export default function useWebsocketState() {
       };
     });
   };
+
   const sendCommand = async (panelPayload: panelPayloadType) => {
     const { command, selectedDancers, delay } = panelPayload;
     selectedDancers.forEach((dancer) => {
@@ -94,8 +96,7 @@ export default function useWebsocketState() {
         MesC2S.payload = {};
         break;
       case COMMANDS.PLAY:
-        const de = delay !== "" ? parseInt(delay as string, 10) : 0;
-        const sysTime = de + Date.now();
+        const sysTime = delay + Date.now();
         MesC2S.payload = {
           startTime: time,
           delay,
@@ -110,6 +111,7 @@ export default function useWebsocketState() {
     }
     sendDataToServer(MesC2S);
   };
+
   const handleMessage = (data: MesS2CType) => {
     const { command, payload } = data;
     const { success, info, from } = payload;
@@ -156,6 +158,7 @@ export default function useWebsocketState() {
         break;
     }
   };
+  
   useEffect(() => {
     const initDancerStatus: dancerStatusType = {};
     initWebSocket();
@@ -171,6 +174,7 @@ export default function useWebsocketState() {
     });
     setDancerStatus(initDancerStatus);
   }, []);
+
   return {
     delay,
     dancerStatus,
