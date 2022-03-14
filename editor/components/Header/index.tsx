@@ -13,12 +13,18 @@ import StateIndicator from "./StateIndicator";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
+import { useLayout } from "contexts/LayoutContext";
+
 /**
  * Top Bar, include title, timeController, upload/download btn
  */
 export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const editMode = useReactiveVar(reactiveState.editMode);
+
+  const {
+    preferences: { mode: layoutMode },
+  } = useLayout();
 
   return (
     <Stack direction="column">
@@ -41,9 +47,13 @@ export default function Header() {
               gap: "1vw",
             }}
           >
-            <EditButtons />
-            <EditorSelector />
-            <Tools />
+            {layoutMode === "editor" && (
+              <>
+                <EditButtons />
+                <EditorSelector />
+                <Tools />
+              </>
+            )}
             <Settings
               showSettings={showSettings}
               setShowSettings={setShowSettings}

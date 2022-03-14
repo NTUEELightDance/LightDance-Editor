@@ -72,7 +72,9 @@ const OFcontrols = ({
               backgroundColor: colorMap[color],
               display: "inline-block",
               width: "1.5em",
+              minWidth: "1.5em",
               height: "1.5em",
+              minHeight: "1.5em",
               mx: "2em",
             }}
           />

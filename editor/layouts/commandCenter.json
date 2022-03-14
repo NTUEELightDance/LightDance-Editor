@@ -4,6 +4,20 @@
     "splitterSize": 4,
     "enableRenderOnDemand": true
   },
+  "borders": [
+    {
+      "type": "border",
+      "location": "right",
+      "children": [
+        {
+          "type": "tab",
+          "name": "FrameList",
+          "component": "FrameList",
+          "enableClose": false
+        }
+      ]
+    }
+  ],
   "layout": {
     "type": "row",
     "children": [
@@ -35,12 +49,6 @@
                 "children": [
                   {
                     "type": "tab",
-                    "name": "Simulator",
-                    "component": "Simulator",
-                    "enableClose": false
-                  },
-                  {
-                    "type": "tab",
                     "name": "Three Simulator",
                     "component": "ThreeSimulator",
                     "enableClose": false
@@ -51,7 +59,7 @@
           },
           {
             "type": "row",
-            "weight": 18,
+            "weight": 25,
             "children": [
               {
                 "type": "tabset",
@@ -65,7 +73,7 @@
                   {
                     "type": "tab",
                     "name": "Wavesurfer",
-                    "component": "WavesurferClean",
+                    "component": "Wavesurfer",
                     "enableClose": false
                   }
                 ]

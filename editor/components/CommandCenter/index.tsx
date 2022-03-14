@@ -1,58 +1,23 @@
-import { useState, useContext } from "react";
 // mui
-import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import Checkbox from "@material-ui/core/Checkbox";
-import TextField from "@material-ui/core/TextField";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
 import { useImmer } from "use-immer";
 
-// hooks
-import useWebsocket from "../../hooks/useWebsocket";
-// constants
-import { COMMANDS } from "constants";
-// contexts
-import { WaveSurferAppContext } from "../../contexts/WavesurferContext";
+import CommandCenterTable from "./CommandCenterTable";
+import CommandControls from "./CommandControls";
 
-const useStyles = makeStyles((theme) => ({
-  commands: {
-    display: "inline-block",
-    padding: theme.spacing(0.5),
-  },
-  btns: {
-    textTransform: "none",
-  },
-  root: {
-    display: "inline-block",
-    padding: theme.spacing(0.5),
-    width: "100px",
-  },
-  mediumCell: {
-    width: "160px",
-    textAlign: "center",
-  },
-  table: {
-    backgroundColor: "black",
-  },
-}));
+// hooks
+import useWebsocket from "hooks/useWebsocket";
 
 /**
  * CommandCenter
  */
 export default function CommandCenter() {
-  // styles
-  const classes = useStyles();
   // hook
-  const { dancerStatus, delay, sendCommand, setDelay } = useWebsocket();
-  const [selectedDancers, setSelectedDancers] = useImmer([]); // array of dancerName that is selected
+  const { dancerStatus } = useWebsocket();
+  const [selectedDancers, setSelectedDancers] = useImmer<string[]>([]); // array of dancerName that is selected
 
-  const handleToggleDancer = (dancerName) => {
+  const handleToggleDancer = (dancerName: string) => {
     setSelectedDancers((draft) => {
       const index = draft.indexOf(dancerName);
       if (index !== -1) draft.splice(index, 1);
@@ -72,114 +37,21 @@ export default function CommandCenter() {
     }
   };
 
-  // wavesurfer for play pause
-  const { waveSurferApp } = useContext(WaveSurferAppContext);
-  const handlePlay = () => waveSurferApp.play();
-  const handlePause = () => waveSurferApp.pause();
-  const handleStop = () => waveSurferApp.stop();
-
-  // click btn, will call api to server
-  const handleClickBtn = (command) => {
-    const payload = {
-      command,
-      selectedDancers,
-      delay,
-    };
-    sendCommand(payload);
-
-    // play or pause or stop
-    if (command === COMMANDS.PLAY) {
-      console.log(`Start to play at delay ${delay}`);
-      setTimeout(() => handlePlay(), delay);
-    } else if (command === COMMANDS.PAUSE) {
-      handlePause();
-    } else if (command === COMMANDS.STOP) {
-      handleStop();
-    }
-  };
-
   return (
-    <div style={{ padding: "16px" }}>
-      <TextField
-        size="small"
-        type="number"
-        className={classes.root}
-        label="delay(ms)"
-        onChange={(e) => {
-          setDelay(parseInt(e.target.value));
-        }}
-      />
+    <Paper sx={{ p: "2em", minHeight: "100%" }}>
+      <Stack gap="2em">
+        <CommandControls selectedDancers={selectedDancers} />
 
-      {Object.values(COMMANDS).map((command) => {
-        return (
-          <div className={classes.commands} key={command}>
-            <Button
-              className={classes.btns}
-              variant="outlined"
-              onClick={(e) => handleClickBtn(command)}
-            >
-              {command}
-            </Button>
-          </div>
-        );
-      })}
-      <TableContainer component={Paper}>
-        <Table className={classes.table} size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  onChange={(e) => handleAllDancer(e)}
-                  checked={allChecked()}
-                />
-              </TableCell>
-              <TableCell className={classes.mediumCell}>DancerName</TableCell>
-              <TableCell className={classes.mediumCell}>HostName</TableCell>
-              <TableCell className={classes.mediumCell}>IP</TableCell>
-              <TableCell className={classes.mediumCell}>Status</TableCell>
-              <TableCell>Message</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.entries(dancerStatus).map(
-              ([dancerName, { hostname, ip, Ok, msg, isConnected }]) => {
-                const isItemSelected = selectedDancers.includes(dancerName);
-                return (
-                  <TableRow
-                    key={dancerName}
-                    hover
-                    onClick={() => handleToggleDancer(dancerName)}
-                    role="checkbox"
-                    selected={isItemSelected}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox checked={isItemSelected} />
-                      {/* <Checkbox checked={isItemSelected} disable = !isConnected/> */}
-                    </TableCell>
-                    <TableCell className={classes.mediumCell}>
-                      {dancerName}
-                    </TableCell>
-                    <TableCell className={classes.mediumCell}>
-                      {hostname}
-                    </TableCell>
-                    <TableCell className={classes.mediumCell}>{ip}</TableCell>
-                    <TableCell className={classes.mediumCell}>
-                      {isConnected ? (
-                        <span style={{ color: "green" }}>Connected</span>
-                      ) : (
-                        <span style={{ color: "red" }}>Disconnected</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <p style={{ color: Ok ? "green" : "red" }}>{msg}</p>
-                    </TableCell>
-                  </TableRow>
-                );
-              }
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </div>
+        <CommandCenterTable
+          {...{
+            handleAllDancer,
+            allChecked,
+            dancerStatus,
+            selectedDancers,
+            handleToggleDancer,
+          }}
+        />
+      </Stack>
+    </Paper>
   );
 }

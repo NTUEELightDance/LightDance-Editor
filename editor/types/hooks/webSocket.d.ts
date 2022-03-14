@@ -15,9 +15,9 @@ interface SyncType {
 }
 type LightStatusType = any;
 interface BoardInfoType {
-  dancerName: [string]; //array of dancerNames
-  ip: [string]; //array of ips
-  hostName: [string]; //array of hostNames
+  dancerName: string[]; //array of dancerNames
+  ip: string[]; //array of ips
+  hostName: string[]; //array of hostNames
 }
 interface MesS2CType {
   command: string; // ex. COMMANDS.START
@@ -29,7 +29,7 @@ interface MesS2CType {
 }
 interface MesC2SType {
   command: string; // ex. COMMANDS.START
-  selectedDancers: [string]; // if no dancer -> []
+  selectedDancers: string[]; // if no dancer -> []
   payload: string | PlayTimeType | LightStatusType | InfoType; //correspond to command
 }
 interface setMessageType {
@@ -50,8 +50,8 @@ interface dancerStatusType {
 }
 interface panelPayloadType {
   command: string;
-  selectedDancers: [string];
-  delay?: string;
+  selectedDancers: string[];
+  delay: number;
 }
 export {
   SyncType,

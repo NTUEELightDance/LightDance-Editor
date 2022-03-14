@@ -1,12 +1,12 @@
-import { useContext } from "react";
 import { Box, Button } from "@mui/material";
-import { layoutContext } from "types/layout";
-import { LayoutContext } from "contexts/LayoutContext";
+
+import { useLayout } from "contexts/LayoutContext";
+
 export const LayoutButtons = ({}) => {
   const {
     preferences: { mode },
     setMode,
-  } = useContext(LayoutContext) as layoutContext;
+  } = useLayout();
 
   return (
     <Box sx={{ display: "flex", gap: "1vw" }}>
