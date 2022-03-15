@@ -70,7 +70,10 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
         break;
       case 3:
         // do nothing
-        setDisplayedTime(newDisplayedTime.substring(0, 8));
+        setDisplayedTime(
+          // 7 = 2':'s + 2 (seconds) + 3 (milliseconds)
+          newDisplayedTime.substring(0, timeStrList[0].length + 7)
+        );
         break;
       default:
         setDisplayedTime(newDisplayedTime);
