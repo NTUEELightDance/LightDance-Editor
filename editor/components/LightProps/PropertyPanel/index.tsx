@@ -1,12 +1,23 @@
-import { Box, List } from "@mui/material";
+import { Box, List, Stack, Button } from "@mui/material";
 import { TabPanel } from "@mui/lab";
 
 import OFcontrols from "../OFcontrols";
 
-import { DancerName, PartName, PartType, ColorMap } from "../../../core/models";
+import {
+  DancerName,
+  PartName,
+  PartType,
+  ColorMap,
+  ControlMapStatus,
+  LED,
+  Fiber,
+  PartPayload,
+} from "core/models";
+import { setSelectedParts, setSelectionMode } from "core/actions";
+
 import LEDcontrols from "../LEDcontrols";
 
-import { ControlMapStatus, LED, Fiber } from "../../../core/models";
+import { PART } from "constants";
 
 const PropertyPanel = ({
   partType,
@@ -23,7 +34,25 @@ const PropertyPanel = ({
   currentStatus: ControlMapStatus;
   colorMap: ColorMap;
 }) => {
-  const _parts = [...parts].sort();
+  const sortedParts = [...parts].sort();
+
+  const handleRandom = () => {
+    const newSelectedParts: PartPayload = {};
+    const randomParts: PartName[] = [];
+    const randomCount = Math.floor(
+      (Math.random() * 0.4 + 0.3) * sortedParts.length
+    );
+    for (let i = 0; i < randomCount; i++) {
+      randomParts.push(
+        sortedParts[Math.floor(Math.random() * sortedParts.length)]
+      );
+    }
+    currentDancers.forEach((dancerName) => {
+      newSelectedParts[dancerName] = randomParts;
+    });
+    setSelectedParts({ payload: newSelectedParts });
+    setSelectionMode({ payload: PART });
+  };
 
   return (
     <Box
@@ -35,9 +64,12 @@ const PropertyPanel = ({
       }}
     >
       <TabPanel value={value} key={`property_tabpanel_${partType}`}>
+        <Stack direction="row" justifyContent="space-between" mt="1em">
+          <Button onClick={handleRandom}>Random</Button>
+        </Stack>
         {currentDancers.length !== 0 && (
           <List dense>
-            {_parts.map((part) =>
+            {sortedParts.map((part) =>
               partType === "LED" ? (
                 <LEDcontrols
                   part={part}
