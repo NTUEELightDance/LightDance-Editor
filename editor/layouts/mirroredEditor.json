@@ -7,7 +7,7 @@
   "borders": [
     {
       "type": "border",
-      "location": "left",
+      "location": "right",
       "children": [
         {
           "type": "tab",
@@ -19,6 +19,18 @@
           "type": "tab",
           "name": "ColorPalette",
           "component": "ColorPalette",
+          "enableClose": false
+        },
+        {
+          "type": "tab",
+          "name": "LightPresets",
+          "component": "LightPresets",
+          "enableClose": false
+        },
+        {
+          "type": "tab",
+          "name": "PosPresets",
+          "component": "PosPresets",
           "enableClose": false
         }
       ]
