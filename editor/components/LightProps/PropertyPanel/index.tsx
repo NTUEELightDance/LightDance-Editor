@@ -40,7 +40,7 @@ const PropertyPanel = ({
     const newSelectedParts: PartPayload = {};
     const randomParts: PartName[] = [];
     const randomCount = Math.floor(
-      Math.random() * sortedParts.length * 0.4 + sortedParts.length * 0.3
+      (Math.random() * 0.4 + 0.3) * sortedParts.length
     );
     for (let i = 0; i < randomCount; i++) {
       randomParts.push(
@@ -64,11 +64,7 @@ const PropertyPanel = ({
       }}
     >
       <TabPanel value={value} key={`property_tabpanel_${partType}`}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          mt="1em"
-        >
+        <Stack direction="row" justifyContent="space-between" mt="1em">
           <Button onClick={handleRandom}>Random</Button>
         </Stack>
         {currentDancers.length !== 0 && (
