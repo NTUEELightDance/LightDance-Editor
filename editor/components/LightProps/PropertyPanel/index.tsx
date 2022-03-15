@@ -66,9 +66,8 @@ const PropertyPanel = ({
       <TabPanel value={value} key={`property_tabpanel_${partType}`}>
         <Stack
           direction="row"
-          gap="0.5em"
           justifyContent="space-between"
-          my="0.5em"
+          mt="1em"
         >
           <Button onClick={handleRandom}>Random</Button>
         </Stack>
