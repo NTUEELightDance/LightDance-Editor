@@ -9,7 +9,7 @@ import { controlAgent, posAgent } from "api";
 
 import _ from "lodash";
 
-import { notification } from "core/utils";
+import { notification, updateFrameByTimeMap } from "core/utils";
 
 /**
  * This is a helper function for getting data from pos and map
@@ -23,21 +23,33 @@ const getDataHandler = async (state: State) => {
   const pureStatus = deleteColorCode(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
+    const frameIndex = updateFrameByTimeMap(
+      controlRecord,
+      controlMap,
+      state.currentControlIndex,
+      state.currentTime
+    );
     return {
       map: controlMap,
       record: controlRecord,
-      index: state.currentControlIndex,
-      frameId: controlRecord[state.currentControlIndex],
+      index: frameIndex,
+      frameId: controlRecord[frameIndex],
       frame: pureStatus,
       agent: controlAgent,
       fade: state.currentFade,
     };
   } else {
+    const frameIndex = updateFrameByTimeMap(
+      posRecord,
+      posMap,
+      state.currentPosIndex,
+      state.currentTime
+    );
     return {
       map: posMap,
       record: posRecord,
-      index: state.currentPosIndex,
-      frameId: posRecord[state.currentPosIndex],
+      index: frameIndex,
+      frameId: posRecord[frameIndex],
       frame: state.currentPos,
       agent: posAgent,
     };
