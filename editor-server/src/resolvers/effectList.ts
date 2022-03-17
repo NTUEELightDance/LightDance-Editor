@@ -42,8 +42,10 @@ export class EffectListResolver {
   async effectList(@Ctx() ctx: any) {
     const effectLists = await ctx.db.EffectList.find();
     const result = effectLists.map((effectList: any) => {
-      const { start, end, _id, description, controlFrames, positionFrames } =
+      let { start, end, _id, description, controlFrames, positionFrames } =
         effectList;
+      if (!controlFrames) controlFrames = {};
+      if (!positionFrames) positionFrames = {};
       return {
         start,
         end,
