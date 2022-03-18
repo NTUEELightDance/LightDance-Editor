@@ -6,6 +6,7 @@ import { useReactiveVar } from "@apollo/client";
 
 import useControl from "hooks/useControl";
 import useEffectList from "hooks/useEffectList";
+import useTimeInput from "hooks/useTimeInput";
 
 // mui materials
 import {
@@ -22,6 +23,8 @@ import {
     List,
     ListItem,
     ListItemText,
+    Paper,
+    Popper,
     Snackbar,
     Stack,
     TextField,
@@ -32,13 +35,33 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function EffectList() {
-    const { controlRecord } = useControl();
     const { effectList } = useEffectList();
     const currentTime = useReactiveVar(reactiveState.currentTime);
 
     const [newEffectName, setNewEffectName] = useState<string>("");
-    const [newEffectFrom, setNewEffectFrom] = useState<string>("");
-    const [newEffectTo, setNewEffectTo] = useState<string>("");
+    const [newEffectFrom, setNewEffectFrom] = useState<number>(0);
+    const [newEffectTo, setNewEffectTo] = useState<number>(0);
+    const {
+        textFieldProps: fromTextFieldProps,
+        timeError: fromTimeError,
+        timeInputRef: fromTimeInputRef,
+    } = useTimeInput([
+        newEffectFrom,
+        (newTime: number) => {
+            setNewEffectFrom(newTime);
+        },
+    ]);
+    const {
+        textFieldProps: toTextFieldProps,
+        timeError: toTimeError,
+        timeInputRef: toTimeInputRef,
+    } = useTimeInput([
+        newEffectTo,
+        (newTime: number) => {
+            setNewEffectTo(newTime);
+        },
+    ]);
+
     const [effectSelectedID, setEffectSelectedID] = useState<string>("");
     const [effectSelectedName, setEffectSelectedName] = useState<string>("");
     const [collidedFrame, setCollidedFrame] = useState<number[]>([]);
@@ -95,17 +118,13 @@ export default function EffectList() {
         addEffect({
             payload: {
                 effectName: newEffectName,
-                startIndex: parseInt(newEffectFrom),
-                endIndex: parseInt(newEffectTo) + 1,
+                startTime: newEffectFrom ? newEffectFrom : 0,
+                endTime: newEffectTo ? newEffectTo : 0,
             },
         });
         handleCloseAdd();
         // setPreviewOpened(true);
     };
-
-    useEffect(() => {
-        console.log(effectList);
-    }, [effectList]);
 
     return (
         <div>
@@ -231,11 +250,9 @@ export default function EffectList() {
                         fullWidth
                         variant="standard"
                         value={newEffectName}
-                        // helperText={Object.keys(effectRecordMap).includes(newEffectName) ? "Effect name existed" : ""}
-                        // error={Object.keys(effectRecordMap).includes(newEffectName)}
                         onChange={(e) => setNewEffectName(e.target.value)}
                     />
-                    <TextField
+                    {/* <TextField
                         autoFocus
                         type="number"
                         margin="normal"
@@ -259,8 +276,9 @@ export default function EffectList() {
                             parseInt(newEffectTo) < parseInt(newEffectFrom)
                         }
                         onChange={(e) => setNewEffectFrom(e.target.value)}
-                    />
-                    <TextField
+                    /> */}
+
+                    {/* <TextField
                         type="number"
                         margin="normal"
                         id="name"
@@ -282,22 +300,42 @@ export default function EffectList() {
                             parseInt(newEffectTo) < parseInt(newEffectFrom)
                         }
                         onChange={(e) => setNewEffectTo(e.target.value)}
+                    /> */}
+                    <TextField
+                        margin="normal"
+                        id="name"
+                        label="From Time:"
+                        {...fromTextFieldProps}
+                        sx={{ width: "20em", marginRight: 2 }}
+                        variant="outlined"
+                        error={fromTimeError}
+                        required
                     />
+                    <TextField
+                        margin="normal"
+                        id="name"
+                        label="To Time:"
+                        {...toTextFieldProps}
+                        sx={{ width: "20em", marginRight: 2 }}
+                        variant="outlined"
+                        error={toTimeError || newEffectTo < newEffectFrom}
+                        required
+                        helperText={newEffectTo < newEffectFrom ? "Cannot be smaller than from" : ""}
+                    />
+                    {(toTimeError || fromTimeError) && (
+                        <Popper
+                            open={toTimeError || fromTimeError}
+                            anchorEl={toTimeError ? toTimeInputRef.current : fromTimeInputRef.current}
+                        >
+                            <Paper>
+                                <Typography sx={{ p: "0.5em 1em" }}>this is an invalid time</Typography>
+                            </Paper>
+                        </Popper>
+                    )}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAdd}>Cancel</Button>
-                    <Button
-                        onClick={handleAddEffect}
-                        disabled={
-                            // Object.keys(effectRecordMap).includes(newEffectName) ||
-                            !newEffectName ||
-                            !newEffectTo ||
-                            !newEffectFrom ||
-                            parseInt(newEffectFrom) >= controlRecord.length ||
-                            parseInt(newEffectTo) >= controlRecord.length ||
-                            parseInt(newEffectTo) < parseInt(newEffectFrom)
-                        }
-                    >
+                    <Button onClick={handleAddEffect} disabled={!newEffectName || newEffectTo < newEffectFrom}>
                         Add
                     </Button>
                 </DialogActions>

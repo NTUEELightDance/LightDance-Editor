@@ -7,13 +7,11 @@ const actions = registerActions({
     /**
      * add effect to record map and status map, the effect doesn't contain frame of endIndex
      * @param {State} state
-     * @param {effectName: string; startIndex: number; endIndex: number} payload
+     * @param {effectName: string; startTime: number; endTime: number} payload
      */
-    addEffect: async (state: State, payload: { effectName: string; startIndex: number; endIndex: number }) => {
-        // todo: mutation API
-        const { effectName, startIndex, endIndex } = payload;
-        console.log({ effectName, startIndex, endIndex });
-        await effectListAgent.addEffectList(effectName, startIndex, endIndex);
+    addEffect: async (state: State, payload: { effectName: string; startTime: number; endTime: number }) => {
+        const { effectName, startTime, endTime } = payload;
+        await effectListAgent.addEffectList(effectName, startTime, endTime);
     },
 
     /**
@@ -22,7 +20,6 @@ const actions = registerActions({
      * @param {string} payload
      */
     deleteEffect: async (state: State, payload: string) => {
-        // todo: mutation API
         await effectListAgent.deleteEffectList(payload);
     },
 
@@ -32,7 +29,6 @@ const actions = registerActions({
      * @param {string} payload
      */
     applyEffect: async (state: State, payload: { clear: boolean; start: number; applyId: string }) => {
-        // todo: mutation API
         const { clear, start, applyId } = payload;
         await effectListAgent.applyEffectList(clear, start, applyId);
     },

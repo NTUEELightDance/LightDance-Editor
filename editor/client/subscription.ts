@@ -177,9 +177,7 @@ const subEffectList = (client) => {
                             if (data.data.effectListSubscription.mutation === "CREATED") {
                                 return [...effectList, data.data.effectListSubscription.effectListData];
                             } else if (data.data.effectListSubscription.mutation === "DELETED") {
-                                return effectList.filter(
-                                    (e) => e.id !== data.data.effectListSubscription.effectListData.id
-                                );
+                                return effectList.filter((e) => e.id !== data.data.effectListSubscription.effectListID);
                             }
                         },
                     },
