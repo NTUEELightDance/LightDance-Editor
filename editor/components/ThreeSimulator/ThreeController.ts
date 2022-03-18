@@ -12,13 +12,13 @@ import { GridHelper } from "./Helper/GridHelper";
 import Stats from "three/examples/jsm/libs/stats.module";
 // performance monitor
 
-// components
 import { Dancer } from "./ThreeComponents";
-// states
+// components
+
 import { state } from "core/state";
+// states
 
 import Controls from "./Controls";
-
 // controls to control the scene
 
 /**
@@ -114,6 +114,7 @@ class ThreeController {
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(0, 10, 0);
+    this.light = directionalLight;
     scene.add(directionalLight);
 
     // Postprocessing for antialiasing effect
@@ -240,9 +241,10 @@ class ThreeController {
   }
 
   initGridHelper() {
-    const helper = new GridHelper(60, 20);
-    helper.matrixAutoUpdate = false;
-    this.scene.add(helper);
+    const gridHelper = new GridHelper(60, 20);
+    gridHelper.matrixAutoUpdate = false;
+    this.gridHelper = gridHelper;
+    this.scene.add(gridHelper);
   }
 
   initLoadManager() {

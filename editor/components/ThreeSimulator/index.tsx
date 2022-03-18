@@ -1,17 +1,18 @@
 import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
-import { state, reactiveState } from "core/state";
+import { reactiveState } from "core/state";
 import { setCurrentPosToGround } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
+
+// hotkeys
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { useResizeDetector } from "react-resize-detector";
 
 import { threeController } from "./ThreeController";
-import SelectionModeSelector from "components/SelectionModeSelector";
 
-// hotkeys
-import { useHotkeys } from "react-hotkeys-hook";
+import SelectionModeSelector from "components/SelectionModeSelector";
 
 // constants
 import { IDLE, POSITION } from "constants";
