@@ -170,6 +170,7 @@ const subEffectList = (client) => {
         })
         .subscribe({
             next(data) {
+                console.log(data);
                 client.cache.modify({
                     id: "ROOT_QUERY",
                     fields: {

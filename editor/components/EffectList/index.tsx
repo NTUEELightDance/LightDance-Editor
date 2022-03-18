@@ -130,8 +130,8 @@ export default function EffectList() {
         <div>
             <List>
                 {effectList?.map((effect) => (
-                    <>
-                        <React.Fragment key={effect?.description}>
+                    <React.Fragment key={effect?.id}>
+                        <React.Fragment>
                             <ListItem
                                 secondaryAction={
                                     <Stack direction="row" spacing={0.5}>
@@ -180,7 +180,7 @@ export default function EffectList() {
                             </ListItem>
                         </React.Fragment>
                         <Divider component="li" sx={{ backgroundColor: "rgba(255, 255, 255, 0.16)" }} />
-                    </>
+                    </React.Fragment>
                 ))}
                 <Grid
                     container
