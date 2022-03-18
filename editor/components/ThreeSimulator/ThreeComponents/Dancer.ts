@@ -16,11 +16,19 @@ class Dancer {
   name: string;
   modelSrc: string;
   initialized: boolean;
+  manager: THREE.LoadingManager;
 
-  constructor(scene: THREE.Scene, name: string, modelSrc: string, manager) {
+  constructor(
+    scene: THREE.Scene,
+    name: string,
+    modelSrc: string,
+    manager: THREE.LoadingManager
+  ) {
     this.scene = scene;
     this.name = name;
     this.modelSrc = modelSrc;
+    this.manager = manager;
+
     this.model = null;
     this.skeleton = null;
     this.mixer = null;
@@ -30,7 +38,6 @@ class Dancer {
       [FIBER]: {},
     };
     this.initialized = false;
-    this.manager = manager;
   }
 
   // Load model with given URL and capture all the meshes for light status
@@ -67,8 +74,10 @@ class Dancer {
   // 5. Set the position of the model to given position
   // 6. Signal this dancer is successfully initialized.
   initModel(gltf) {
+    const { name } = this;
     this.model = gltf.scene;
-    this.model.name = this.name;
+    this.model.name = name;
+
     const partMapping = {};
     this.model.children.forEach(
       (child) => (partMapping[child.name] = child.name)

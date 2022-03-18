@@ -22,6 +22,14 @@ export default class LEDPart extends Part {
         mesh.material.emissiveIntensity = 0;
         this.meshes.push(mesh);
       }
+    } else {
+      const mesh = this.model.getObjectByName(this.name);
+      if (mesh) {
+        mesh.material = mesh.material.clone();
+        mesh.material.color.setHex(0);
+        mesh.material.emissiveIntensity = 0;
+        this.meshes.push(mesh);
+      }
     }
   }
 

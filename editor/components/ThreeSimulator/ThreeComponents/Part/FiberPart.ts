@@ -1,7 +1,7 @@
 import Part from "./Part";
 import { state } from "core/state";
 
-export default class OFPart extends Part {
+export default class FIBERPart extends Part {
   constructor(name, model) {
     super(name, model);
     this.mesh = model.getObjectByName(name);
@@ -16,12 +16,17 @@ export default class OFPart extends Part {
     this.mesh.material.emissiveIntensity = alpha / 15;
 
     // if colorCode exist use colorCode instead
+
     if (colorCode) {
       this.mesh.material.emissive.copy(colorCode);
     } else {
-      this.mesh.material.emissive.setHex(
-        parseInt(state.colorMap[color].replace(/^#/, ""), 16)
-      );
+      if (!state.colorMap[color]) {
+        console.error(`Color Not Found: ${color}`);
+        this.mesh.material.emissive.setHex(0x000000);
+      } else
+        this.mesh.material.emissive.setHex(
+          parseInt(state.colorMap[color].replace(/^#/, ""), 16)
+        );
     }
   }
 }
