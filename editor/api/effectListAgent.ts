@@ -41,6 +41,7 @@ export const effectListAgent = {
     },
     applyEffectList: async (clear: boolean, start: number, applyId: string) => {
         try {
+            // console.log(clear, start, applyId);
             const response = await client.mutate({
                 mutation: APPLY_EFFECT_LIST,
                 variables: {
@@ -49,6 +50,7 @@ export const effectListAgent = {
                     applyEffectListId: applyId,
                 },
             });
+            console.log(response);
             if (response.data.applyEffectList.ok) alert(`[SUCCESS] ${response.data.applyEffectList.msg}`);
             else alert(`[FAILED] ${response.data.applyEffectList.msg}`);
         } catch (error) {

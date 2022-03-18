@@ -1,27 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-
-import { selectLoad } from "slices/loadSlice";
-import {
-    addEffect,
-    applyEffect,
-    deleteEffect,
-    getEffectList,
-    setCurrentTime,
-    setEffectRecordMap,
-    setEffectStatusMap,
-} from "core/actions";
+import React, { useEffect, useState } from "react";
+import { addEffect, applyEffect, deleteEffect } from "core/actions";
 import { confirmation } from "core/utils";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import useControl from "hooks/useControl";
-
-// import Preview from "./Preview";
+import useEffectList from "hooks/useEffectList";
 
 // mui materials
 import {
-    Box,
     Button,
     Dialog,
     DialogActions,
@@ -38,26 +25,22 @@ import {
     Snackbar,
     Stack,
     TextField,
-    ToggleButton,
-    ToggleButtonGroup,
     Tooltip,
     Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { ADD_EFFECT_LIST } from "graphql";
 
 export default function EffectList() {
-    const { controlMap, controlRecord } = useControl();
+    const { controlRecord } = useControl();
+    const { effectList } = useEffectList();
     const currentTime = useReactiveVar(reactiveState.currentTime);
-    const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
-    const effectList = useReactiveVar(reactiveState.effectList);
 
     const [newEffectName, setNewEffectName] = useState<string>("");
     const [newEffectFrom, setNewEffectFrom] = useState<string>("");
     const [newEffectTo, setNewEffectTo] = useState<string>("");
-    const [applyEffectClear, setApplyEffectClear] = useState<boolean>(true);
-    const [effectSelected, setEffectSelected] = useState<string>("");
+    const [effectSelectedID, setEffectSelectedID] = useState<string>("");
+    const [effectSelectedName, setEffectSelectedName] = useState<string>("");
     const [collidedFrame, setCollidedFrame] = useState<number[]>([]);
     const [applyOpened, setApplyOpened] = useState<boolean>(false); // open apply effect dialog
     const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
@@ -65,40 +48,38 @@ export default function EffectList() {
     const [previewOpened, setPreviewOpened] = useState<boolean>(false);
     const [previewing, setPreviewing] = useState<boolean>(false);
 
-    const handleOpenApply = (key: string) => {
-        setEffectSelected(key);
+    const handleOpenApply = (id: string, name: string) => {
+        setEffectSelectedID(id);
+        setEffectSelectedName(name);
         setApplyOpened(true);
     };
-
     const handleCloseApply = () => {
         setApplyOpened(false);
-        setEffectSelected("");
+        setEffectSelectedID("");
+        setEffectSelectedName("");
         setCollidedFrame([]);
     };
     const handleApplyEffect = async () => {
         const clear = await confirmation.warning("Are you sure to clear all collided frames?");
-        const effect = effectList.filter((e) => e.description === effectSelected)[0];
         applyEffect({
-            payload: { clear: clear, start: currentControlIndex, applyId: effect.id },
+            payload: { clear: clear, start: currentTime, applyId: effectSelectedID },
         });
         handleCloseApply();
-        getEffectList();
     };
 
-    const handleOpenDelete = (key: string) => {
-        setEffectSelected(key);
+    const handleOpenDelete = (id: string, name: string) => {
+        setEffectSelectedID(id);
+        setEffectSelectedName(name);
         setDeleteOpened(true);
     };
-
     const handleCloseDelete = () => {
         setDeleteOpened(false);
-        setEffectSelected("");
+        setEffectSelectedID("");
+        setEffectSelectedName("");
     };
-
     const handleDeleteEffect = () => {
-        deleteEffect({ payload: effectSelected });
+        deleteEffect({ payload: effectSelectedID });
         handleCloseDelete();
-        getEffectList();
     };
 
     const handleOpenAdd = () => {
@@ -107,11 +88,9 @@ export default function EffectList() {
         setNewEffectFrom("");
         setNewEffectTo("");
     };
-
     const handleCloseAdd = () => {
         setAddOpened(false);
     };
-
     const handleAddEffect = async () => {
         addEffect({
             payload: {
@@ -122,12 +101,11 @@ export default function EffectList() {
         });
         handleCloseAdd();
         // setPreviewOpened(true);
-        getEffectList();
     };
 
     useEffect(() => {
-        getEffectList();
-    }, []);
+        console.log(effectList);
+    }, [effectList]);
 
     return (
         <div>
@@ -143,7 +121,7 @@ export default function EffectList() {
                                                 edge="end"
                                                 aria-label="apply"
                                                 size="large"
-                                                onClick={() => handleOpenApply(effect?.description)}
+                                                onClick={() => handleOpenApply(effect?.id, effect?.description)}
                                             >
                                                 <AddIcon fontSize="inherit" sx={{ color: "white" }} />
                                             </IconButton>
@@ -153,7 +131,7 @@ export default function EffectList() {
                                                 edge="end"
                                                 aria-label="delete"
                                                 size="large"
-                                                onClick={() => handleOpenDelete(effect?.description)}
+                                                onClick={() => handleOpenDelete(effect?.id, effect?.description)}
                                             >
                                                 <DeleteIcon fontSize="inherit" sx={{ color: "white" }} />
                                             </IconButton>
@@ -170,11 +148,12 @@ export default function EffectList() {
                                     secondary={
                                         <>
                                             <Typography sx={{ fontSize: "10px", color: "white" }}>
-                                                ControlFrame Length:{" "}
-                                                {/* {effect ? Object.keys(effect.data.control).length : 0} */}
+                                                - ControlFrame Length:{" "}
+                                                {effect.data.control ? Object.keys(effect.data.control).length : 0}
                                             </Typography>
                                             <Typography sx={{ fontSize: "10px", color: "white" }}>
-                                                {/* PosFrame Length: {effect ? Object.keys(effect.data.position).length : 0} */}
+                                                - PosFrame Length:{" "}
+                                                {effect.data.position ? Object.keys(effect.data.position).length : 0}
                                             </Typography>
                                         </>
                                     }
@@ -203,25 +182,6 @@ export default function EffectList() {
                 <DialogTitle>Apply Effect to Current Record</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {/* <TextField
-                            select
-                            fullWidth
-                            margin="normal"
-                            label="Clear"
-                            value={applyEffectClear ? "Yes" : "No"}
-                            onChange={(e) => setApplyEffectClear(e.target.value === "Yes" ? true : false)}
-                            SelectProps={{
-                                native: true,
-                            }}
-                            helperText="Please select to clear the collided frames after apply effect or not."
-                        >
-                            <option key="Yes" value="Yes">
-                                Yes
-                            </option>
-                            <option key="No" value="No">
-                                No
-                            </option>
-                        </TextField> */}
                         {/* This will insert {effectRecordMap[effectSelected] ? effectRecordMap[effectSelected].length : 0}{" "}
                         frame(s) to current time spot.{" "} */}
                         {collidedFrame.length ? (
@@ -235,7 +195,7 @@ export default function EffectList() {
                             ""
                         )}
                         <br />
-                        Are you sure to apply effect "{effectSelected}" to current record?
+                        Are you sure to apply effect "{effectSelectedName}" to current record?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -249,7 +209,7 @@ export default function EffectList() {
                 <DialogTitle>Delete Effect From Effect List</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure to delete effect "{effectSelected}" from the effect list?
+                        Are you sure to delete effect "{effectSelectedName}" from the effect list?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

@@ -4,11 +4,6 @@ import { State } from "../models";
 import { effectListAgent } from "api";
 
 const actions = registerActions({
-    getEffectList: async (state: State) => {
-        const data = await effectListAgent.getEffectList();
-        console.log(data);
-        state.effectList = data;
-    },
     /**
      * add effect to record map and status map, the effect doesn't contain frame of endIndex
      * @param {State} state
@@ -43,4 +38,4 @@ const actions = registerActions({
     },
 });
 
-export const { getEffectList, setEffectRecordMap, setEffectStatusMap, addEffect, deleteEffect, applyEffect } = actions;
+export const { addEffect, deleteEffect, applyEffect } = actions;
