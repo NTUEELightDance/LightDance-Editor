@@ -81,7 +81,7 @@ const PropertyPanel = ({
     >
       <TabPanel value={value}>
         <Stack direction="row" gap="0.5em" justifyContent="start" my="0.5em">
-          {partType === "LED" && (
+          {partType === "FIBER" && (
             <Button onClick={handleSelectAll}>Select All</Button>
           )}
           <Button onClick={handleRandom}>Random</Button>

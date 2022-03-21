@@ -13,7 +13,7 @@ import type {
   Fiber,
   PartType,
   PartPayload,
-  DancerName,
+  PartName,
   Dancers,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
@@ -52,6 +52,24 @@ const GroupPanel = ({
 
   // TODO handle edit
   // const handleEdit = () => {  };
+
+  const handleRandom = () => {
+    const newSelectedParts: PartPayload = {};
+    const randomParts: PartName[] = [];
+    const randomCount = Math.floor(
+      (Math.random() * 0.4 + 0.3) * sortedParts.length
+    );
+    for (let i = 0; i < randomCount; i++) {
+      randomParts.push(
+        sortedParts[Math.floor(Math.random() * sortedParts.length)]
+      );
+    }
+    currentDancers.forEach((dancerName) => {
+      newSelectedParts[dancerName] = randomParts;
+    });
+    setSelectedParts({ payload: newSelectedParts });
+    setSelectionMode({ payload: PART });
+  };
 
   const handleSelectAll = () => {
     const newSelectedParts: PartPayload = {};
@@ -103,14 +121,17 @@ const GroupPanel = ({
       }}
     >
       <TabPanel value={`GROUP_${groupName}`}>
-        <Stack
-          direction="row"
-          gap="0.5em"
-          justifyContent="space-between"
-          my="0.5em"
-        >
-          <Button onClick={handleSelectAll}>Select all</Button>
-          <IconButton children={<DeleteIcon />} onClick={handleDelete} />
+        <Stack direction="row" justifyContent="space-between" my="0.5em">
+          <Stack direction="row" gap="0.5em" justifyContent="start">
+            {partType === "FIBER" && (
+              <Button onClick={handleSelectAll}>Select All</Button>
+            )}
+            <Button onClick={handleRandom}>Random</Button>
+          </Stack>
+          <IconButton
+            children={<DeleteIcon fontSize="small" />}
+            onClick={handleDelete}
+          />
           {/* <IconButton children={<EditIcon />} onClick={handleEdit} /> */}
         </Stack>
         <List dense>{Items}</List>
