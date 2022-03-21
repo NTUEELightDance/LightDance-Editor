@@ -38,7 +38,7 @@ const getSelectedPartsAndType = (selected: Selected) => {
   const assertPartType = getPartType(tempSelectedParts[0]);
   if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
     return [newSelectedParts, assertPartType];
-  } else return [{}, null];
+  } else return [newSelectedParts, null];
 };
 
 const PartMode = () => {
@@ -124,12 +124,14 @@ const PartMode = () => {
           currentColorName={currentColorName}
         />
       ) : (
-        <Box sx={{ px: "3em" }}>
-          <Typography color={grey[600]}>
-            You've selected parts of different types, please select parts with
-            the same type.
-          </Typography>
-        </Box>
+        Object.keys(selectedParts).length > 0 && (
+          <Box sx={{ px: "3em" }}>
+            <Typography color={grey[600]}>
+              You've selected parts of different types, please select parts with
+              the same type.
+            </Typography>
+          </Box>
+        )
       )}
     </Paper>
   );
