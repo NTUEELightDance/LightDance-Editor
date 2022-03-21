@@ -4,7 +4,9 @@ import { Paper, Typography, Box } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 
-import { editCurrentStatusDelta } from "../../core/actions";
+import { grey } from "@mui/material/colors";
+
+import { editCurrentStatusDelta } from "core/actions";
 import type {
   Fiber,
   Selected,
@@ -12,10 +14,10 @@ import type {
   PartPayload,
   PartType,
 } from "core/models";
-import { reactiveState } from "../../core/state";
+import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import { getPartType } from "../../core/utils";
+import { getPartType } from "core/utils";
 import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 
 import _ from "lodash";
@@ -123,7 +125,10 @@ const PartMode = () => {
         />
       ) : (
         <Box sx={{ px: "3em" }}>
-          <Typography></Typography>
+          <Typography color={grey[600]}>
+            You've selected parts of different types, please select parts with
+            the same type.
+          </Typography>
         </Box>
       )}
     </Paper>
