@@ -1,14 +1,5 @@
 import { ReactiveVar } from "@apollo/client";
-import {
-  CONTROL_EDITOR,
-  POS_EDITOR,
-  IDLE,
-  EDITING,
-  ADDING,
-  DANCER,
-  PART,
-  POSITION,
-} from "constants";
+import { CONTROL_EDITOR, POS_EDITOR, IDLE, EDITING, ADDING, DANCER, PART, POSITION } from "constants";
 import { Color } from "three";
 import { number, string } from "prop-types";
 
@@ -25,42 +16,42 @@ export type ColorCode = string;
 export type ControlRecord = id[]; // array of all IDs , each correspondsto diff status
 
 export interface ControlMap {
-  [index: id]: ControlMapElement;
+    [index: id]: ControlMapElement;
 }
 
 export interface ControlMapElement {
-  start: number; //frame's start time
-  status: ControlMapStatus;
-  fade: boolean; // if this frame fades to the next
+    start: number; //frame's start time
+    status: ControlMapStatus;
+    fade: boolean; // if this frame fades to the next
 }
 
 export interface ControlMapStatus {
-  [key: DancerName]: DancerStatus; //DancerNames :  dancerStatus
+    [key: DancerName]: DancerStatus; //DancerNames :  dancerStatus
 }
 
 export interface DancerStatus {
-  [key: PartName]: Fiber | El | LED; //PartNames: partStatus
+    [key: PartName]: Fiber | El | LED; //PartNames: partStatus
 }
 
 export interface Fiber {
-  color: string;
-  alpha: number; // brightness
-  colorCode?: Color; // this is a three type Color, for doing color fade
+    color: string;
+    alpha: number; // brightness
+    colorCode?: Color; // this is a three type Color, for doing color fade
 }
 
 export type El = number;
 
 export interface LED {
-  src: string;
-  alpha: number;
+    src: string;
+    alpha: number;
 }
 
 export type CurrentStatusDelta = {
-  // dancer name
-  [key: DancerName]: {
-    // part name
-    [key: PartName]: El | LED | Fiber;
-  };
+    // dancer name
+    [key: DancerName]: {
+        // part name
+        [key: PartName]: El | LED | Fiber;
+    };
 };
 
 /**
@@ -69,24 +60,24 @@ export type CurrentStatusDelta = {
 export type PosRecord = id[]; // array of all IDs , each correspondsto diff status
 
 export interface PosMap {
-  //IDs: {start, pos}
-  [index: id]: PosMapElement;
+    //IDs: {start, pos}
+    [index: id]: PosMapElement;
 }
 
 export interface PosMapElement {
-  start: number;
-  pos: DancerCoordinates;
+    start: number;
+    pos: DancerCoordinates;
 }
 
 export interface DancerCoordinates {
-  // dancer: coordinates
-  [index: DancerName]: Coordinates;
+    // dancer: coordinates
+    [index: DancerName]: Coordinates;
 }
 
 export interface Coordinates {
-  x: number;
-  y: number;
-  z: number;
+    x: number;
+    y: number;
+    z: number;
 }
 
 /**
@@ -95,19 +86,19 @@ export interface Coordinates {
 export type EditMode = IDLE | EDITING | ADDING;
 export type Editor = CONTROL_EDITOR | POS_EDITOR;
 export interface EditingData {
-  start: number;
-  frameId: string;
-  index: number;
+    start: number;
+    frameId: string;
+    index: number;
 }
 
 /**
  * selected dancer and parts
  */
 export type Selected = {
-  [index: string]: {
-    selected: boolean;
-    parts: string[];
-  };
+    [index: string]: {
+        selected: boolean;
+        parts: string[];
+    };
 };
 
 export type PartPayload = { [index: string]: string[] };
@@ -121,23 +112,23 @@ export type SelectionMode = DANCER | PART | POSITION;
  * Dancer name with its parts
  */
 interface DancerParts {
-  name: DancerName;
-  parts: Part[];
+    name: DancerName;
+    parts: Part[];
 }
 
 /**
  * Part, includes its name and type
  */
 interface Part {
-  name: PartName;
-  type: PartType;
+    name: PartName;
+    type: PartType;
 }
 
 /**
  * PartTypeMap
  */
 export interface PartTypeMap {
-  [key: string]: PartType;
+    [key: string]: PartType;
 }
 
 // PartType
@@ -147,39 +138,39 @@ type PartType = "LED" | "FIBER" | "El";
  * DancerType
  */
 export interface Dancers {
-  [key: DancerName]: PartName[]; // DancerName: PartNames
+    [key: DancerName]: PartName[]; // DancerName: PartNames
 }
 
 /**
  * ColorMap
  */
 export type ColorMap = {
-  [key: ColorName]: ColorCode;
+    [key: ColorName]: ColorCode;
 };
 
 /**
  * Led Effect Map, get from backend
  */
 export type LedMap = {
-  [key: PartName]: {
-    [key: LedEffectName]: LedEffect;
-  };
+    [key: PartName]: {
+        [key: LedEffectName]: LedEffect;
+    };
 };
 
 type LedEffectName = string;
 
 type LedEffect = {
-  repeat: number; // repeat counts, 0 for continuously repeat
-  effects: LedEffectFrame[];
+    repeat: number; // repeat counts, 0 for continuously repeat
+    effects: LedEffectFrame[];
 };
 
 export type LedEffectFrame = {
-  start: number;
-  fade: boolean;
-  effect: {
-    colorCode: ColorCode;
-    alpha: number;
-  }[]; // ColorCode array for led strips
+    start: number;
+    fade: boolean;
+    effect: {
+        colorCode: ColorCode;
+        alpha: number;
+    }[]; // ColorCode array for led strips
 };
 
 /**
@@ -189,9 +180,9 @@ export type LedEffectFrame = {
  *
  */
 type LedEffectRecord = {
-  [key: DancerName]: {
-    [key: PartName]: LedRecord;
-  };
+    [key: DancerName]: {
+        [key: PartName]: LedRecord;
+    };
 };
 
 export type LedRecord = id[];
@@ -204,18 +195,31 @@ export type LedRecord = id[];
  * effectIndex indicates the place in the effect
  */
 export type CurrentLedEffect = {
-  [key: DancerName]: {
-    [key: PartName]: {
-      recordIndex: number;
-      effectIndex: number;
-      effect: {
-        colorCode: ColorCode;
-        alpha: number;
-      }[]; // this is to handle faded effect, so we will clone the effect from ledMap
+    [key: DancerName]: {
+        [key: PartName]: {
+            recordIndex: number;
+            effectIndex: number;
+            effect: {
+                colorCode: ColorCode;
+                alpha: number;
+            }[]; // this is to handle faded effect, so we will clone the effect from ledMap
+        };
     };
-  };
 };
 
+export type EffectListType = {
+    start: number;
+    end: number;
+    description: string;
+    data: {
+        control: {
+            [key: string]: ControlMapElement;
+        };
+        position: {
+            [key: string]: PosMapElement;
+        };
+    };
+}[];
 /**
  * group errors
  */
@@ -229,60 +233,64 @@ export type EditGroupError = "DNE";
  * Mutable State
  */
 export interface State {
-  isPlaying: boolean; // isPlaying
+    isPlaying: boolean; // isPlaying
 
-  currentTime: number; // current time
-  currentControlIndex: number; // current index in controlRecord
-  currentPosIndex: number; // current index in posRecord
+    currentTime: number; // current time
+    currentControlIndex: number; // current index in controlRecord
+    currentPosIndex: number; // current index in posRecord
 
-  currentFade: boolean; // current control Frame will fade to next
-  currentStatus: ControlMapStatus; // current dancers' status
-  currentPos: DancerCoordinates; // current dancers' position
+    currentFade: boolean; // current control Frame will fade to next
+    currentStatus: ControlMapStatus; // current dancers' status
+    currentPos: DancerCoordinates; // current dancers' position
 
-  ledEffectRecord: LedEffectRecord;
-  currentLedEffect: CurrentLedEffect;
+    ledEffectRecord: LedEffectRecord;
+    currentLedEffect: CurrentLedEffect;
 
-  editMode: EditMode; // IDLE | EDITING | ADDING
-  editor: Editor; // editor, should be CONTROL_EDITOR or POS_EDITOR
-  editingData: EditingData; // store the editingData's start time id and index
+    editMode: EditMode; // IDLE | EDITING | ADDING
+    editor: Editor; // editor, should be CONTROL_EDITOR or POS_EDITOR
+    editingData: EditingData; // store the editingData's start time id and index
 
-  selected: Selected; // array of selected dancer's name
+    selected: Selected; // array of selected dancer's name
 
-  selectionMode: SelectionMode; // selection mode used by simulator and dancer tree
+    selectionMode: SelectionMode; // selection mode used by simulator and dancer tree
 
-  dancers: Dancers;
-  dancerNames: DancerName[];
-  partTypeMap: PartTypeMap;
-  colorMap: ColorMap;
+    dancers: Dancers;
+    dancerNames: DancerName[];
+    partTypeMap: PartTypeMap;
+    colorMap: ColorMap;
+
+    effectList: EffectListType;
 }
 
 /**
  * Reactive State, can trigger react component
  */
 export interface ReactiveState {
-  isPlaying: ReactiveVar<boolean>; // isPlaying
+    isPlaying: ReactiveVar<boolean>; // isPlaying
 
-  currentTime: ReactiveVar<number>; // current time
-  currentControlIndex: ReactiveVar<number>; // current index in controlRecord
-  currentPosIndex: ReactiveVar<number>; // current index in posRecord
+    currentTime: ReactiveVar<number>; // current time
+    currentControlIndex: ReactiveVar<number>; // current index in controlRecord
+    currentPosIndex: ReactiveVar<number>; // current index in posRecord
 
-  currentFade: ReactiveVar<boolean>; // current control Frame will fade to next
-  currentStatus: ReactiveVar<ControlMapStatus>; // current dancers' status
-  currentPos: ReactiveVar<DancerCoordinates>; // current dancers' position
+    currentFade: ReactiveVar<boolean>; // current control Frame will fade to next
+    currentStatus: ReactiveVar<ControlMapStatus>; // current dancers' status
+    currentPos: ReactiveVar<DancerCoordinates>; // current dancers' position
 
-  ledEffectRecord: ReactiveVar<LedEffectRecord>;
-  currentLedEffect: ReactiveVar<CurrentLedEffect>;
+    ledEffectRecord: ReactiveVar<LedEffectRecord>;
+    currentLedEffect: ReactiveVar<CurrentLedEffect>;
 
-  editMode: ReactiveVar<EditMode>;
-  editor: ReactiveVar<Editor>;
-  editingData: ReactiveVar<EditingData>;
+    editMode: ReactiveVar<EditMode>;
+    editor: ReactiveVar<Editor>;
+    editingData: ReactiveVar<EditingData>;
 
-  selected: ReactiveVar<Selected>; // array of selected dancer's name
+    selected: ReactiveVar<Selected>; // array of selected dancer's name
 
-  selectionMode: ReactiveVar<SelectionMode>; // selection mode used by simulator and dancer tree
+    selectionMode: ReactiveVar<SelectionMode>; // selection mode used by simulator and dancer tree
 
-  dancers: ReactiveVar<Dancers>;
-  dancerNames: ReactiveVar<DancerName[]>;
-  partTypeMap: ReactiveVar<PartTypeMap>;
-  colorMap: ReactiveVar<ColorMap>;
+    dancers: ReactiveVar<Dancers>;
+    dancerNames: ReactiveVar<DancerName[]>;
+    partTypeMap: ReactiveVar<PartTypeMap>;
+    colorMap: ReactiveVar<ColorMap>;
+
+    effectList: ReactiveVar<EffectListType>;
 }
