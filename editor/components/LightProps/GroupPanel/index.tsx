@@ -7,24 +7,23 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import LEDcontrols from "../LEDcontrols";
 import OFcontrols from "../OFcontrols";
 
-import {
+import type {
   ControlMapStatus,
   LED,
   Fiber,
   PartType,
   PartPayload,
+  DancerName,
+  Dancers,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 import { notification } from "core/utils";
-
-import { reactiveState } from "core/state";
-import { useReactiveVar } from "@apollo/client";
-
 import { PART } from "constants";
 
 const GroupPanel = ({
   partType,
   groupName,
+  dancers,
   parts,
   currentDancers,
   currentStatus,
@@ -33,14 +32,13 @@ const GroupPanel = ({
 }: {
   partType: PartType;
   groupName: string;
+  dancers: Dancers;
   parts: string[];
   currentDancers: string[];
   currentStatus: ControlMapStatus;
   colorMap: { [key: string]: string };
   deleteGroup: (groupName: string) => Promise<void>;
 }) => {
-  const dancers = useReactiveVar(reactiveState.dancers);
-
   const sortedParts = [...parts].sort();
 
   const handleDelete = async () => {

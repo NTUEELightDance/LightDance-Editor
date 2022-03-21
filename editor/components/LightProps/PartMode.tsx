@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { Paper } from "@mui/material";
+import { Paper, Typography, Box } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 
 import { editCurrentStatusDelta } from "../../core/actions";
-import {
+import type {
   Fiber,
   Selected,
   CurrentStatusDelta,
@@ -20,7 +20,7 @@ import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 
 import _ from "lodash";
 
-const getSelectedPartsAndTypes = (selected: Selected) => {
+const getSelectedPartsAndType = (selected: Selected) => {
   const newSelectedParts: PartPayload = {};
   const tempSelectedParts: string[] = [];
   Object.entries(selected).forEach(
@@ -44,7 +44,7 @@ const PartMode = () => {
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
 
   const [defaultSelectedParts, defaultPartType] =
-    getSelectedPartsAndTypes(selected);
+    getSelectedPartsAndType(selected);
   const [selectedParts, setSelectedParts] = useState<PartPayload>(
     defaultSelectedParts as PartPayload
   );
@@ -58,7 +58,7 @@ const PartMode = () => {
 
   // update local state
   useEffect(() => {
-    const [newSelectedParts, newPartType] = getSelectedPartsAndTypes(selected);
+    const [newSelectedParts, newPartType] = getSelectedPartsAndType(selected);
     setSelectedParts(newSelectedParts as PartPayload);
     setPartType(newPartType as PartType);
 
@@ -122,7 +122,9 @@ const PartMode = () => {
           currentColorName={currentColorName}
         />
       ) : (
-        <></>
+        <Box sx={{ px: "3em" }}>
+          <Typography></Typography>
+        </Box>
       )}
     </Paper>
   );

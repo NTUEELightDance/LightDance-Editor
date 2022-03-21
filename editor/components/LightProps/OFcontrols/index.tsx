@@ -11,7 +11,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import OFcontrolsContent from "./OFcontrolsContent";
 
 import { editCurrentStatusDelta } from "core/actions";
-import { Fiber, CurrentStatusDelta } from "core/models";
+import type { Fiber, CurrentStatusDelta } from "core/models";
 
 const OFcontrols = ({
   part,

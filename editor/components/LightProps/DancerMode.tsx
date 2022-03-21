@@ -14,7 +14,7 @@ import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "core/utils";
-import { PartType } from "core/models";
+import type { PartType } from "core/models";
 
 import useColorMap from "hooks/useColorMap";
 import usePartGroups from "hooks/usePartGroups";
@@ -151,6 +151,7 @@ const DancerMode = () => {
           <PropertyPanel
             partType={partType as PartType}
             value={partType}
+            dancers={dancers}
             parts={parts as string[]}
             currentDancers={currentDancers}
             currentStatus={currentStatus}
@@ -167,6 +168,7 @@ const DancerMode = () => {
             <GroupPanel
               partType={getPartType(parts[0])}
               groupName={groupName}
+              dancers={dancers}
               parts={parts as string[]}
               currentDancers={currentDancers}
               currentStatus={currentStatus}
