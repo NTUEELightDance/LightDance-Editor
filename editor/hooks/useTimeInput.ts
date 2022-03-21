@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { useHotkeys } from "react-hotkeys-hook";
-
 import { formatDisplayedTime } from "core/utils";
 
 const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
@@ -86,7 +84,7 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
       throw new Error("invalid time");
     }
     const [mins, secs, millis] = timeString.split(":").map(Number);
-    const newTime: number = Math.floor(mins * 60 + secs) * 1000 + millis;
+    const newTime: number = Math.round(mins * 60 + secs) * 1000 + millis;
     return newTime;
   };
   const updateCurrentTime = (newTime: number) => {
