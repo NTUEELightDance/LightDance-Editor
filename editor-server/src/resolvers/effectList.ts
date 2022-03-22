@@ -393,11 +393,13 @@ export class EffectListResolver {
       start: 1,
     });
     let index = -1;
-    await allControlFrames.map((frame: any, idx: number) => {
-      if (frame.id === newControlFrames[0].id) {
-        index = idx;
-      }
-    });
+    if (newControlFrames[0]) {
+      await allControlFrames.map((frame: any, idx: number) => {
+        if (frame.id === newControlFrames[0].id) {
+          index = idx;
+        }
+      });
+    }
     const controlRecordIDs = newControlFrames.map((frame: any) => {
       return frame.id;
     });
@@ -431,11 +433,13 @@ export class EffectListResolver {
       start: 1,
     });
     index = -1;
-    await allPositionFrames.map((frame: any, idx: number) => {
-      if (frame.id === newPositionFrames[0].id) {
-        index = idx;
-      }
-    });
+    if (newPositionFrames[0]) {
+      await allPositionFrames.map((frame: any, idx: number) => {
+        if (frame.id === newPositionFrames[0].id) {
+          index = idx;
+        }
+      });
+    }
     const positionRecordIDs = newPositionFrames.map((frame: any) => {
       return frame.id;
     });
