@@ -3,7 +3,8 @@ import { TabPanel } from "@mui/lab";
 
 import OFcontrols from "../OFcontrols";
 
-import {
+import type {
+  Dancers,
   DancerName,
   PartName,
   PartType,
@@ -22,6 +23,7 @@ import { PART } from "constants";
 const PropertyPanel = ({
   partType,
   value,
+  dancers,
   parts,
   currentDancers,
   currentStatus,
@@ -29,12 +31,24 @@ const PropertyPanel = ({
 }: {
   partType: PartType;
   value: string;
+  dancers: Dancers;
   parts: PartName[];
   currentDancers: DancerName[];
   currentStatus: ControlMapStatus;
   colorMap: ColorMap;
 }) => {
   const sortedParts = [...parts].sort();
+
+  const handleSelectAll = () => {
+    const newSelectedParts: PartPayload = {};
+    currentDancers.forEach((dancerName) => {
+      newSelectedParts[dancerName] = sortedParts.filter((part) =>
+        dancers[dancerName].includes(part)
+      );
+    });
+    setSelectedParts({ payload: newSelectedParts });
+    setSelectionMode({ payload: PART });
+  };
 
   const handleRandom = () => {
     const newSelectedParts: PartPayload = {};
@@ -58,15 +72,22 @@ const PropertyPanel = ({
     <Box
       sx={{
         ".MuiTabPanel-root": {
+          height: "100%",
+          width: "100%",
           px: "5%",
           py: 0,
         },
       }}
     >
-      <TabPanel value={value} key={`property_tabpanel_${partType}`}>
-        <Stack direction="row" justifyContent="space-between" mt="1em">
-          <Button onClick={handleRandom}>Random</Button>
-        </Stack>
+      <TabPanel value={value}>
+        {sortedParts.length > 0 && (
+          <Stack direction="row" gap="0.5em" justifyContent="start" my="0.5em">
+            {partType === "FIBER" && (
+              <Button onClick={handleSelectAll}>Select All</Button>
+            )}
+            <Button onClick={handleRandom}>Random</Button>
+          </Stack>
+        )}
         {currentDancers.length !== 0 && (
           <List dense>
             {sortedParts.map((part) =>

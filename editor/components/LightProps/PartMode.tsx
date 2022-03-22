@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
 
-import { Paper } from "@mui/material";
+import { Paper, Typography, Box } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 
-import { editCurrentStatusDelta } from "../../core/actions";
-import {
+import { grey } from "@mui/material/colors";
+
+import { editCurrentStatusDelta } from "core/actions";
+import type {
   Fiber,
   Selected,
   CurrentStatusDelta,
   PartPayload,
   PartType,
 } from "core/models";
-import { reactiveState } from "../../core/state";
+import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import { getPartType } from "../../core/utils";
+import { getPartType } from "core/utils";
 import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 
 import _ from "lodash";
 
-const getSelectedPartsAndTypes = (selected: Selected) => {
+const getSelectedPartsAndType = (selected: Selected) => {
   const newSelectedParts: PartPayload = {};
   const tempSelectedParts: string[] = [];
   Object.entries(selected).forEach(
@@ -36,7 +38,7 @@ const getSelectedPartsAndTypes = (selected: Selected) => {
   const assertPartType = getPartType(tempSelectedParts[0]);
   if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
     return [newSelectedParts, assertPartType];
-  } else return [{}, null];
+  } else return [newSelectedParts, null];
 };
 
 const PartMode = () => {
@@ -44,7 +46,7 @@ const PartMode = () => {
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
 
   const [defaultSelectedParts, defaultPartType] =
-    getSelectedPartsAndTypes(selected);
+    getSelectedPartsAndType(selected);
   const [selectedParts, setSelectedParts] = useState<PartPayload>(
     defaultSelectedParts as PartPayload
   );
@@ -58,7 +60,7 @@ const PartMode = () => {
 
   // update local state
   useEffect(() => {
-    const [newSelectedParts, newPartType] = getSelectedPartsAndTypes(selected);
+    const [newSelectedParts, newPartType] = getSelectedPartsAndType(selected);
     setSelectedParts(newSelectedParts as PartPayload);
     setPartType(newPartType as PartType);
 
@@ -122,7 +124,14 @@ const PartMode = () => {
           currentColorName={currentColorName}
         />
       ) : (
-        <></>
+        Object.keys(selectedParts).length > 0 && (
+          <Box sx={{ px: "3em" }}>
+            <Typography color={grey[600]}>
+              You've selected parts of different types, please select parts with
+              the same type.
+            </Typography>
+          </Box>
+        )
       )}
     </Paper>
   );

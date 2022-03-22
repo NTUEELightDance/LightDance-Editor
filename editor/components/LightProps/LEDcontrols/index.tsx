@@ -4,7 +4,7 @@ import { Box, Typography, ListItemButton, Collapse, Grid } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
-import { LED } from "core/models";
+import type { LED } from "core/models";
 import { editCurrentStatusLED } from "core/actions";
 
 const LEDcontrols = ({
