@@ -49,6 +49,13 @@ type ColorPayload {
   mutation: String!
 }
 
+type ColorResponse {
+  color: String!
+  colorCode: String!
+  msg: String
+  ok: Boolean
+}
+
 type Control {
   frame: ControlFrame!
   status: ControlDevice!
@@ -286,7 +293,7 @@ type Mutation {
   applyEffectList(clear: Boolean!, id: ID!, start: Float!): EffectListResponse!
   CancelEditControl(FrameID: String!): RequestEditResponse!
   CancelEditPosition(FrameID: String!): RequestEditResponse!
-  deleteColor(color: String!): Color!
+  deleteColor(color: String!): ColorResponse!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deleteEffectList(id: ID!): EffectListResponse!
