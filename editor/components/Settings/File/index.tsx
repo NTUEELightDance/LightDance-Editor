@@ -148,7 +148,7 @@ export default function File() {
         <Typography variant="h6">Upload LED.json</Typography>
 
         <ItemWrapper>
-          <label htmlFor="export">
+          <label htmlFor="LED">
             <input
               id="LED"
               name="LEDfile"
