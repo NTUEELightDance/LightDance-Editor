@@ -62,6 +62,29 @@ export class LEDResolver {
         msg: `Effect ${effectName} on part ${partName} not found`,
       };
 
+    const checkControl = await ctx.db.Control.find({ "value.src": effectName });
+    if (checkControl) {
+      const allControlFrame = await ctx.db.ControlFrame.find({}, "_id").sort({
+        start: 1,
+      });
+      const allControlFrameID = allControlFrame.map((Obj: any) =>
+        String(Obj._id)
+      );
+      const ids: any[] = [];
+      checkControl.map((controlObj: any) => {
+        const frame = String(controlObj.frame);
+        const id = allControlFrameID.indexOf(frame);
+        if (ids.indexOf(id) === -1) {
+          ids.push(id);
+        }
+      });
+      ids.sort((a, b) => a - b);
+      return {
+        ok: false,
+        msg: `effect ${effectName} is used in ${ids}`,
+      };
+    }
+
     await ctx.db.LED.deleteOne({ effectName, partName });
     return { ok: true };
   }

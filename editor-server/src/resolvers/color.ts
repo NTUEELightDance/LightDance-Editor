@@ -13,6 +13,7 @@ import { ColorPayload, colorMutation } from "./subscriptions/color";
 import { ColorMap } from "./types/colorMap";
 import { Color } from "./types/color";
 import { generateID } from "../utility";
+import { ColorResponse } from "./response/colorResponse";
 
 @Resolver()
 class ColorResolver {
@@ -164,7 +165,7 @@ class ColorResolver {
     }
   }
 
-  @Mutation((returns) => Color)
+  @Mutation((returns) => ColorResponse)
   async deleteColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
     @Arg("color") color: string,
@@ -174,6 +175,31 @@ class ColorResolver {
     const existedColor = await ctx.db.Color.findOne({
       color,
     });
+
+    const checkControl = await ctx.db.Control.find({ "value.color": color });
+    if (checkControl) {
+      const allControlFrame = await ctx.db.ControlFrame.find({}, "_id").sort({
+        start: 1,
+      });
+      const allControlFrameID = allControlFrame.map((Obj: any) =>
+        String(Obj._id)
+      );
+      const ids: any[] = [];
+      checkControl.map((controlObj: any) => {
+        const frame = String(controlObj.frame);
+        const id = allControlFrameID.indexOf(frame);
+        if (ids.indexOf(id) === -1) {
+          ids.push(id);
+        }
+      });
+      ids.sort((a, b) => a - b);
+      return {
+        color: color,
+        colorCode: existedColor.colorCode,
+        ok: false,
+        msg: `color ${color} is used in ${ids}`,
+      };
+    }
 
     // if exist -> edit
     if (existedColor) {
@@ -185,11 +211,14 @@ class ColorResolver {
         editBy: ctx.userID,
       };
       await publish(payload);
-      return deletedColor;
+      return Object.assign(deletedColor, { ok: true });
     }
     // if doesn't exist -> throw error
     else {
-      throw new Error(`color ${color} doesn't existed`);
+      return Object.assign(
+        { color, colorCode: "" },
+        { ok: false, msg: `color ${color} doesn't existed` }
+      );
     }
   }
 }
