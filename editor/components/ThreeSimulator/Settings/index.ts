@@ -26,7 +26,6 @@ class Settings {
 
     this.initGUI();
     this.panel.close();
-    console.log(this.panel);
   }
 
   initGUI() {
