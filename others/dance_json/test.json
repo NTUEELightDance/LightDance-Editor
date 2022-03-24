@@ -1,0 +1,2861 @@
+{
+  "position": {
+    "0006T": {
+      "start": 0,
+      "pos": {
+        "1_chi": {
+          "x": -8.87272764263731,
+          "y": 0,
+          "z": -0.7151517463452883
+        },
+        "2_meow": {
+          "x": -4.0060609759706445,
+          "y": 0,
+          "z": -0.604040296149976
+        },
+        "3_yeee": {
+          "x": 0.12727235736268905,
+          "y": 0,
+          "z": 2.707071154045337
+        },
+        "4_breaKing": {
+          "x": 1.371717140891335,
+          "y": 0,
+          "z": -0.7151517463452883
+        },
+        "5_itzyboo": {
+          "x": -11.206060975970644,
+          "y": 0,
+          "z": 2.862626370516691
+        },
+        "6_yu": {
+          "x": -5.161616192441999,
+          "y": 0,
+          "z": 2.8848482536547118
+        },
+        "7_wang": {
+          "x": 5.727272357362689,
+          "y": 0,
+          "z": 2.9737378207120035
+        },
+        "8_hao": {
+          "x": 5.016161924419981,
+          "y": 0,
+          "z": -3.604040296149976
+        },
+        "9_monkey": {
+          "x": 5.460605690696022,
+          "y": 0,
+          "z": -3.7595960212476323
+        },
+        "10_dontstop": {
+          "x": 5.771718158143939,
+          "y": 0,
+          "z": -3.181818413011956
+        },
+        "11_wish": {
+          "x": 5.771718158143939,
+          "y": 0,
+          "z": 1.151514920321378
+        }
+      }
+    }
+  },
+  "control": {
+    "01HvN": {
+      "fade": false,
+      "start": 0,
+      "status": {
+        "1_chi": {
+          "Calf_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "CollarBone": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Chest": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Ear": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Calf_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "CollarBone_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "2_meow": {
+          "Calf_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "CollarBone": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Chest": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Ear": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Calf_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "CollarBone_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "3_yeee": {
+          "Calf_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "CollarBone": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Chest": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Ear": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Calf_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "CollarBone_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "4_breaKing": {
+          "Calf_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "CollarBone": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Chest": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Ear": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Calf_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "CollarBone_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "5_itzyboo": {
+          "Calf_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_R_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_R": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "CollarBone": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Chest": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Ear": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Calf_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Thigh_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_U": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "LymphaticDuct_L_D": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Waist_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Arm_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Shoulder_L": {
+            "color": "yellow",
+            "alpha": 1
+          },
+          "Visor_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "CollarBone_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "6_yu": {
+          "Eyes_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Calf_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_3": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "7_wang": {
+          "Eyes_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Calf_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_3": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "8_hao": {
+          "Eyes_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Calf_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_3": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "9_monkey": {
+          "Eyes_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Calf_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_3": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "10_dontstop": {
+          "Eyes_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Calf_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Thigh_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_R_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Cuirass_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoulder_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Plackart_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Belt_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Helmet_3": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Calf_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_1": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Arm_L_2": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Glove_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_L": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R": {
+            "color": "blue",
+            "alpha": 1
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Hand_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoulder_R_LED": {
+            "src": "",
+            "alpha": 0
+          }
+        },
+        "11_wish": {
+          "Shoulder_R": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Shoulder_L": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Arm_R": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Arm_L": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Cape_L": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Cape_R": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Tie": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Rune": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Shoe_L_U": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Shoe_L_M": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Shoe_L_D": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Shoe_R_U": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Shoe_R_M": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Shoe_R_D": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Eyes_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "CollarBone_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Wrist_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Wrist_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_L_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Shoe_R_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Cape_LED": {
+            "src": "",
+            "alpha": 0
+          },
+          "Stomach_L": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Stomach_R": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Mask_1": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Mask_2": {
+            "color": "red",
+            "alpha": 0
+          },
+          "Chest": {
+            "color": "red",
+            "alpha": 0
+          },
+          "CollarBone_1": {
+            "color": "red",
+            "alpha": 0
+          },
+          "CollarBone_2": {
+            "color": "red",
+            "alpha": 0
+          }
+        }
+      }
+    }
+  },
+  "dancer": [
+    {
+      "parts": [
+        {
+          "name": "Visor",
+          "type": "FIBER"
+        },
+        {
+          "name": "Chest",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Visor_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Ear",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone_LED",
+          "type": "LED"
+        },
+        {
+          "name": "LymphaticDuct_R_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_R_D",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_D",
+          "type": "FIBER"
+        }
+      ],
+      "name": "1_chi"
+    },
+    {
+      "parts": [
+        {
+          "name": "Visor",
+          "type": "FIBER"
+        },
+        {
+          "name": "Chest",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Visor_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Ear",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone_LED",
+          "type": "LED"
+        },
+        {
+          "name": "LymphaticDuct_R_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_R_D",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_D",
+          "type": "FIBER"
+        }
+      ],
+      "name": "2_meow"
+    },
+    {
+      "parts": [
+        {
+          "name": "Visor",
+          "type": "FIBER"
+        },
+        {
+          "name": "Chest",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Visor_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Ear",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone_LED",
+          "type": "LED"
+        },
+        {
+          "name": "LymphaticDuct_R_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_R_D",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_D",
+          "type": "FIBER"
+        }
+      ],
+      "name": "3_yeee"
+    },
+    {
+      "parts": [
+        {
+          "name": "Visor",
+          "type": "FIBER"
+        },
+        {
+          "name": "Chest",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Visor_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Ear",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone_LED",
+          "type": "LED"
+        },
+        {
+          "name": "LymphaticDuct_R_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_R_D",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_D",
+          "type": "FIBER"
+        }
+      ],
+      "name": "4_breaKing"
+    },
+    {
+      "parts": [
+        {
+          "name": "Visor",
+          "type": "FIBER"
+        },
+        {
+          "name": "Chest",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Waist_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Visor_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Ear",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone_LED",
+          "type": "LED"
+        },
+        {
+          "name": "LymphaticDuct_R_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_R_D",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "LymphaticDuct_L_D",
+          "type": "FIBER"
+        }
+      ],
+      "name": "5_itzyboo"
+    },
+    {
+      "parts": [
+        {
+          "name": "Glove_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Glove_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Helmet_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_3",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Eyes_LED",
+          "type": "LED"
+        }
+      ],
+      "name": "6_yu"
+    },
+    {
+      "parts": [
+        {
+          "name": "Glove_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Glove_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Helmet_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_3",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Eyes_LED",
+          "type": "LED"
+        }
+      ],
+      "name": "7_wang"
+    },
+    {
+      "parts": [
+        {
+          "name": "Glove_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Glove_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Helmet_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_3",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Eyes_LED",
+          "type": "LED"
+        }
+      ],
+      "name": "8_hao"
+    },
+    {
+      "parts": [
+        {
+          "name": "Glove_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Glove_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Helmet_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_3",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Eyes_LED",
+          "type": "LED"
+        }
+      ],
+      "name": "9_monkey"
+    },
+    {
+      "parts": [
+        {
+          "name": "Glove_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Glove_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoulder_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Hand_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Helmet_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Helmet_3",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Plackart_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cuirass_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Belt_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Thigh_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_L_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Calf_R_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Eyes_LED",
+          "type": "LED"
+        }
+      ],
+      "name": "10_dontstop"
+    },
+    {
+      "parts": [
+        {
+          "name": "Shoulder_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoulder_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Arm_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cape_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Cape_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Tie",
+          "type": "FIBER"
+        },
+        {
+          "name": "Rune",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L_M",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_L_D",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R_U",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R_M",
+          "type": "FIBER"
+        },
+        {
+          "name": "Shoe_R_D",
+          "type": "FIBER"
+        },
+        {
+          "name": "Eyes_LED",
+          "type": "LED"
+        },
+        {
+          "name": "CollarBone_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Wrist_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Wrist_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_L_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Shoe_R_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Cape_LED",
+          "type": "LED"
+        },
+        {
+          "name": "Stomach_L",
+          "type": "FIBER"
+        },
+        {
+          "name": "Stomach_R",
+          "type": "FIBER"
+        },
+        {
+          "name": "Mask_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "Mask_2",
+          "type": "FIBER"
+        },
+        {
+          "name": "Chest",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone_1",
+          "type": "FIBER"
+        },
+        {
+          "name": "CollarBone_2",
+          "type": "FIBER"
+        }
+      ],
+      "name": "11_wish"
+    }
+  ],
+  "color": {
+    "black": "#000000",
+    "red": "#FF04FF",
+    "blue": "#05FFFF",
+    "yellow": "#FFFF2d"
+  }
+}
