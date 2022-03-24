@@ -13,23 +13,17 @@ export default class LEDPart extends Part {
   }
 
   getMeshes() {
-    if (this.name === "Visor_LED") {
-      for (let i = 0; i < 36; i++) {
-        const name = `${this.name}_${String(i).padStart(3, "0")}`;
-        const mesh = this.model.getObjectByName(name);
-        mesh.material = mesh.material.clone();
-        mesh.material.color.setHex(0);
-        mesh.material.emissiveIntensity = 0;
-        this.meshes.push(mesh);
-      }
-    } else {
-      const mesh = this.model.getObjectByName(this.name);
-      if (mesh) {
-        mesh.material = mesh.material.clone();
-        mesh.material.color.setHex(0);
-        mesh.material.emissiveIntensity = 0;
-        this.meshes.push(mesh);
-      }
+    let i = 0;
+    while (true) {
+      const name = `${this.name}${String(i).padStart(3, "0")}`;
+      const mesh = this.model.getObjectByName(name);
+      if (!mesh) break;
+      // mesh.visible = false;
+      mesh.material = mesh.material.clone();
+      mesh.material.color.setHex(0);
+      mesh.material.emissiveIntensity = 0;
+      this.meshes.push(mesh);
+      i += 1;
     }
   }
 

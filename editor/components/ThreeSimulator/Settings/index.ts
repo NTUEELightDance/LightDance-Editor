@@ -8,13 +8,13 @@ class Settings {
     this.threeController = threeController;
     this.panel = new GUI();
 
-    console.log(this.panel.domElement);
-
     this.settings = {
       Visibility: {
         LED: false,
         FIBER: true,
         "Grid Helper": true,
+        Center: true,
+        "Name Tag": true,
       },
       Light: {
         intensity: 1.0,
@@ -25,6 +25,8 @@ class Settings {
     };
 
     this.initGUI();
+    this.panel.close();
+    console.log(this.panel);
   }
 
   initGUI() {
@@ -62,6 +64,20 @@ class Settings {
         const { gridHelper } = threeController;
         gridHelper.visible = value;
       });
+
+    folder1.add(settings["Visibility"], "Center").onChange((value: any) => {
+      settings["Visibility"]["Center"] = value;
+      const { scene } = threeController;
+      scene.getObjectByName("Center").visible = value;
+    });
+
+    folder1.add(settings["Visibility"], "Name Tag").onChange((value: any) => {
+      settings["Visibility"]["Name Tag"] = value;
+      const { dancers } = threeController;
+      Object.values(dancers).forEach((dancer) => {
+        dancer.nameTag.visible = value;
+      });
+    });
 
     folder2
       .add(settings["Light"], "intensity", 0.0, 10.0, 0.5)

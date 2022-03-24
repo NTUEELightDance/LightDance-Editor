@@ -124,10 +124,6 @@ const RED_DANCER = [
 ];
 
 const CYAN_DANCER = [
-  { name: "Glove_L", type: "FIBER" },
-  { name: "Glove_R", type: "FIBER" },
-  { name: "Shoe_L", type: "FIBER" },
-  { name: "Shoe_R", type: "FIBER" },
   { name: "Shoulder_L_LED", type: "LED" },
   { name: "Shoulder_R_LED", type: "LED" },
   { name: "Shoe_R_LED", type: "LED" },
@@ -236,6 +232,12 @@ const partmaps = {
 
     Calf_L: ["Calf_L_1", "Calf_L_2"],
     Calf_R: ["Calf_R_1", "Calf_R_2"],
+
+    Shoe_R: null,
+    Shoe_L: null,
+
+    Glove_R: null,
+    Glove_L: null,
 
     Glove_R_LED: null,
     Glove_L_LED: null,

@@ -33,6 +33,7 @@ const initialState: LoadState = {
   texture: {} as TextureType,
   dancers: {},
   dancerNames: [],
+  dancerMap: {},
 };
 export const loadSlice = createSlice({
   name: "load",
@@ -80,6 +81,9 @@ export const loadSlice = createSlice({
     setDancerNames: (state, action: PayloadAction<string[]>) => {
       state.dancerNames = action.payload;
     },
+    setDancerMap: (state, action) => {
+      state.dancerMap = action.payload;
+    },
   },
 });
 
@@ -98,6 +102,7 @@ const {
   setTexture,
   setDancers,
   setDancerNames,
+  setDancerMap,
 } = loadSlice.actions;
 
 export const selectLoad = (state: RootState) => state.load;
@@ -120,6 +125,7 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
     PosPresets,
     Dancers,
     Texture,
+    DancerMap,
   } = load;
   // set load
   dispatch(setLoad(load));
@@ -164,6 +170,7 @@ export const fetchLoad = () => async (dispatch: AppDispatch) => {
   // set Textures
   const texture = await fetchJson(Texture);
   dispatch(setTexture(texture));
+  dispatch(setDancerMap(DancerMap));
   // finish, set Init
   dispatch(setInit());
 };

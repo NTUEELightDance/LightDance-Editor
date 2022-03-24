@@ -15,11 +15,15 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { Dancer } from "./ThreeComponents";
 // components
 
+import Controls from "./Controls";
+// controls to control the scene
+
+import Settings from "./Settings";
+
 import { state } from "core/state";
 // states
 
-import Controls from "./Controls";
-// controls to control the scene
+import store from "../../store";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -219,21 +223,10 @@ class ThreeController {
     this.initLoadManager();
 
     const { dancerNames, currentStatus, currentPos } = state;
+    const { dancerMap } = store.getState().load;
 
     dancerNames.forEach((name) => {
-      let url;
-      const index = Number(name.split("_")[0]);
-      if (index <= 5 && index >= 0) {
-        url = "/asset/models/yellow_with_visor_led.draco.glb";
-        // url = "/asset/models/yellow.glb";
-      } else if (index >= 6 && index <= 10) {
-        url = "/asset/models/cyan.draco.glb";
-        // url = "/asset/models/cyan.glb";
-      } else if (index === 11) {
-        url = "/asset/models/magenta.draco.glb";
-        // url = "/asset/models/magenta.glb";
-      }
-
+      const { url } = dancerMap[name];
       const newDancer = new Dancer(this.scene, name, url, this.manager);
       newDancer.addModel2Scene(currentStatus[name], currentPos[name]);
       this.dancers[name] = newDancer;
@@ -272,6 +265,7 @@ class ThreeController {
 
     cube.matrix.setPosition(0, 0, 12.5);
     cube.matrixAutoUpdate = false;
+    cube.name = "Center";
 
     this.scene.add(cube);
   }
@@ -375,3 +369,5 @@ class ThreeController {
 export default ThreeController;
 
 export const threeController = new ThreeController();
+
+const settings = new Settings(threeController);
