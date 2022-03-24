@@ -10,7 +10,7 @@ class Settings {
 
     this.settings = {
       Visibility: {
-        LED: false,
+        LED: true,
         FIBER: true,
         "Grid Helper": true,
         Center: true,
