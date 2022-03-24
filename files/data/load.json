@@ -67,72 +67,7 @@
       "url": "/asset/models/cyan.draco.glb"
     },
     "11_wish": {
-      "url": "/asset/models/magenta.draco.glb",
-      "PartChannelMap": {
-        "OFPARTS": {
-          "Mask_1": 10,
-          "Mask_2": 11,
-
-          "CollarBone_1": 9,
-          "CollarBone_2": 12,
-
-          "Shoulder_L": 8,
-          "Shoulder_R": 13,
-
-          "Chest": 7,
-
-          "Stomach_L": 4,
-          "Stomach_R": 16,
-
-          "Arm_L": 2,
-          "Arm_R": 18,
-
-          "Tie": 3,
-
-          "Rune": 1,
-
-          "Cape_L": 19,
-          "Cape_R": 26,
-
-          "Shoe_L_U": 21,
-          "Shoe_L_M": 20,
-          "Shoe_L_D": 22,
-
-          "Shoe_R_U": 23,
-          "Shoe_R_M": 24,
-          "Shoe_R_D": 25
-        },
-        "LEDPARTS": {
-          "Eyes_LED": {
-            "id": 0,
-            "len": 4
-          },
-          "CollarBone_LED": {
-            "id": 1,
-            "len": 24
-          },
-          "Wrist_L_LED": {
-            "id": 2,
-            "len": 12
-          },
-          "Wrist_R_LED": {
-            "id": 3,
-            "len": 12
-          },
-          "Cape_LED": {
-            "id": 4,
-            "len": 170
-          },
-          "Shoe_L_LED": {
-            "id": 5,
-            "len": 74
-          },
-          "Shoe_R_LED": {
-            "id": 6,
-            "len": 74
-          }
-        }
-      }
+      "url": "/asset/models/magenta.draco.glb"
     }
   }
 }
