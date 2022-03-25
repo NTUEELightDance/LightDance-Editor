@@ -20,6 +20,8 @@ import { WaveSurferAppContext } from "contexts/WavesurferContext";
 
 import { wavesurferContext } from "types/components/wavesurfer";
 
+import { notification } from "core/utils";
+
 export default function CommandControls({
   selectedDancers,
 }: {
@@ -29,6 +31,8 @@ export default function CommandControls({
   const { delay, sendCommand, setDelay } = useWebsocket();
 
   const [showDropDown, setShowDropDown] = useState(false);
+
+  const [delayPlayTimeout, setDelayPlayTimeout] = useState<number | null>(null);
 
   // wavesurfer for play pause
   const { waveSurferApp } = useContext(
@@ -45,16 +49,26 @@ export default function CommandControls({
       selectedDancers,
       delay,
     };
-    sendCommand(payload);
+    try {
+      sendCommand(payload);
+      let notificationContent = `command successfully sent: ${command}`;
 
-    // play or pause or stop
-    if (command === COMMANDS.PLAY) {
-      console.log(`Start to play at delay ${delay}`);
-      setTimeout(() => handlePlay(), delay);
-    } else if (command === COMMANDS.PAUSE) {
-      handlePause();
-    } else if (command === COMMANDS.STOP) {
-      handleStop();
+      // play or pause or stop
+      if (command === COMMANDS.PLAY) {
+        const timeout = setTimeout(() => handlePlay(), delay);
+        setDelayPlayTimeout(timeout);
+        notificationContent += `.\nLight dance will play after ${(
+          delay / 1000
+        ).toFixed(1)} seconds`;
+      } else if (command === COMMANDS.PAUSE) {
+        handlePause();
+      } else if (command === COMMANDS.STOP) {
+        delayPlayTimeout && clearTimeout(delayPlayTimeout);
+        handleStop();
+      }
+      notification.success(notificationContent);
+    } catch (error) {
+      notification.error((error as Error).message);
     }
   };
 
