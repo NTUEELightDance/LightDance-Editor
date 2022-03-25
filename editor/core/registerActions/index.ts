@@ -63,9 +63,9 @@ function actionCreator(action: Action) {
   return async (payloadOptions?: PayloadOptions) => {
     await action(state, payloadOptions?.payload);
     const options = { ...defaultOptions, ...payloadOptions?.options };
-    console.debug("payload", payloadOptions?.payload);
-    console.debug("options:", options);
-    console.debug("state", JSON.parse(JSON.stringify(state)));
+    // console.debug("payload", payloadOptions?.payload);
+    // console.debug("options:", options);
+    // console.debug("state", JSON.parse(JSON.stringify(state)));
     if (options.rerender) {
       // request rerender
       // TODO: detect which variable changes

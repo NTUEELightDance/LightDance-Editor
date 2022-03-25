@@ -31,6 +31,7 @@ export default function ThreeSimulator() {
     },
   });
 
+  const isPlaying = useReactiveVar(reactiveState.isPlaying);
   const editMode = useReactiveVar(reactiveState.editMode);
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
@@ -56,6 +57,10 @@ export default function ThreeSimulator() {
       }
     }
   }, [editMode, selectionMode]);
+
+  useEffect(() => {
+    threeController.setIsPlaying(isPlaying);
+  }, [isPlaying]);
 
   useHotkeys("g", () => {
     if (
