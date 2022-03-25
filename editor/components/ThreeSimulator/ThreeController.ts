@@ -39,6 +39,7 @@ class ThreeController {
   scene: THREE.Scene | null;
   composer: EffectComposer | null;
   clock: THREE.Clock | null;
+  settings: Settings | null;
 
   height: number;
   width: number;
@@ -59,6 +60,7 @@ class ThreeController {
     this.scene = null;
     this.composer = null;
     this.clock = null;
+    this.settings = null;
 
     // Configuration of the scene
     this.height = 600;
@@ -80,6 +82,7 @@ class ThreeController {
    * Initiate localStorage, threeApp, dancers
    */
   init(canvas: HTMLElement, container: HTMLElement) {
+    this.settings = new Settings(this);
     // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
     this.container = container;
@@ -321,6 +324,7 @@ class ThreeController {
       throw new Error(
         `[Error] updateDancersStatus, invalid parameter(currentStatus)`
       );
+    if (!this.settings.settings.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setFiberStatus(status);
     });
@@ -331,6 +335,7 @@ class ThreeController {
       throw new Error(
         `[Error] updateDancersLED, invalid parameter(currentLedEffect)`
       );
+    if (!this.settings.settings.Visibility.LED) return;
     Object.entries(currentLedEffect).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setLEDStatus(status);
     });
@@ -360,14 +365,19 @@ class ThreeController {
     requestAnimationFrame(() => this.animate());
   }
 
+  // change isPlaying status
+
+  setIsPlaying(isPlaying: boolean) {
+    this.isPlaying = isPlaying;
+  }
+
   // render current scene and dancers
   render() {
-    this.composer?.render(this.scene, this.camera);
+    if (!this.isPlaying) this.composer?.render(this.scene, this.camera);
+    else this.renderer?.render(this.scene, this.camera);
   }
 }
 
 export default ThreeController;
 
 export const threeController = new ThreeController();
-
-const settings = new Settings(threeController);

@@ -6,7 +6,7 @@ const defaultDisplay = {
 };
 
 export default class LEDPart extends Part {
-  constructor(name, model) {
+  constructor(name: string, model: THREE.Object3D) {
     super(name, model);
     this.meshes = [];
     this.getMeshes();
@@ -18,8 +18,8 @@ export default class LEDPart extends Part {
       const name = `${this.name}${String(i).padStart(3, "0")}`;
       const mesh = this.model.getObjectByName(name);
       if (!mesh) break;
-      // mesh.visible = false;
       mesh.material = mesh.material.clone();
+      mesh.visible = false;
       mesh.material.color.setHex(0);
       mesh.material.emissiveIntensity = 0;
       this.meshes.push(mesh);
@@ -27,9 +27,17 @@ export default class LEDPart extends Part {
     }
   }
 
+  setVisibility(visible: boolean) {
+    this.visible = visible;
+    this.meshes.forEach((mesh: THREE.Mesh) => {
+      mesh.visible = visible;
+    });
+  }
+
   setStatus(status) {
+    if (!this.visible) return;
     const { effect } = status;
-    this.meshes.forEach((mesh, i) => {
+    this.meshes.forEach((mesh: THREE.Mesh, i) => {
       const display = effect[i] || defaultDisplay;
       const { colorCode, alpha } = display;
 

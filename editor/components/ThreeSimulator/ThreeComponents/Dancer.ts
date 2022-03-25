@@ -18,6 +18,9 @@ class Dancer {
   initialized: boolean;
   manager: THREE.LoadingManager;
 
+  model: THREE.Object3D | null;
+  skeleton: THREE.Skeleton | null;
+
   constructor(
     scene: THREE.Scene,
     name: string,
@@ -31,7 +34,6 @@ class Dancer {
 
     this.model = null;
     this.skeleton = null;
-    this.mixer = null;
     this.parts = {
       [EL]: {},
       [LED]: {},
@@ -155,12 +157,6 @@ class Dancer {
       this.nameTag.material.color.setRGB(1, 1, 1);
     }
   }
-
-  // // Update the model's positon and status
-  // update(currentPos, currentStatus) {
-  //   this.setPos(currentPos);
-  //   this.setStatus(currentStatus);
-  // }
 
   // Update the model's positon
   setPos(currentPos) {

@@ -1,16 +1,18 @@
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // GUI to control behavior of three simulator
 
+import ThreeController from "../ThreeController";
 import { LED, FIBER } from "constants";
 
 class Settings {
-  constructor(threeController) {
+  threeController: ThreeController;
+  constructor(threeController: ThreeController) {
     this.threeController = threeController;
     this.panel = new GUI();
 
     this.settings = {
       Visibility: {
-        LED: true,
+        LED: false,
         FIBER: true,
         "Grid Helper": true,
         Center: true,
@@ -39,9 +41,7 @@ class Settings {
       const { dancers } = threeController;
       Object.values(dancers).forEach((dancer) => {
         Object.values(dancer.parts[LED]).forEach((part) => {
-          part.meshes.forEach((mesh) => {
-            mesh.visible = value;
-          });
+          part.setVisibility(value);
         });
       });
     });
@@ -51,7 +51,7 @@ class Settings {
       const { dancers } = threeController;
       Object.values(dancers).forEach((dancer) => {
         Object.values(dancer.parts[FIBER]).forEach((part) => {
-          part.mesh.visible = value;
+          part.setVisibility(value);
         });
       });
     });
