@@ -8,6 +8,7 @@ class Settings {
   threeController: ThreeController;
   constructor(threeController: ThreeController) {
     this.threeController = threeController;
+    this.threeController.settings = this;
     this.panel = new GUI();
 
     this.settings = {
