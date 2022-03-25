@@ -22,11 +22,10 @@ const url = `${location.origin}/controller-server-websocket`.replace(
   "http",
   "ws"
 );
-// const url = "ws://192.168.10.12:8082";
+
 export default function useWebsocketState() {
   //states
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
-  // const time = useReactiveVar(reactiveState.currentTime);
   const [dancerStatus, setDancerStatus] = useImmer<dancerStatusType>({});
   const [delay, setDelay] = useImmer(0);
   const ws = useRef<WebSocket | null>(null);
