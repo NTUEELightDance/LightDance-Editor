@@ -26,14 +26,14 @@ const url = `${location.origin}/controller-server-websocket`.replace(
 export default function useWebsocketState() {
   //states
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
-  const time = useReactiveVar(reactiveState.currentTime);
+  // const time = useReactiveVar(reactiveState.currentTime);
   const [dancerStatus, setDancerStatus] = useImmer<dancerStatusType>({});
   const [delay, setDelay] = useImmer(0);
   const ws = useRef<WebSocket | null>(null);
   const sendDataToServer = (data: any) => {
     (ws.current as WebSocket).send(JSON.stringify(data));
   };
-  
+
   const initWebSocket = () => {
     ws.current = new WebSocket(url);
     if (ws.current.readyState !== WebSocket.CONNECTING) {
@@ -98,7 +98,8 @@ export default function useWebsocketState() {
       case COMMANDS.PLAY:
         const sysTime = delay + Date.now();
         MesC2S.payload = {
-          startTime: time,
+          // not using 'useReactiveVar' to prevent unecessary re-render
+          startTime: reactiveState.currentTime(),
           delay,
           sysTime,
         };
@@ -158,7 +159,7 @@ export default function useWebsocketState() {
         break;
     }
   };
-  
+
   useEffect(() => {
     const initDancerStatus: dancerStatusType = {};
     initWebSocket();
