@@ -37,6 +37,7 @@ const RED = "red";
 const BLUE = "blue";
 const GREEN = "green";
 
+const NTHU_PLAY = "NTHU Play";
 export const WEBSOCKETCLIENT = {
   CONTROLPANEL: "controlPanel",
   RPI: "rpi",
@@ -57,4 +58,5 @@ export const COMMANDS = {
   RED,
   BLUE,
   GREEN,
+  NTHU_PLAY,
 };

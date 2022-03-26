@@ -79,6 +79,7 @@ export default function CommandControls({
   ];
 
   const ButtonGroup2 = [
+    { command: COMMANDS.NTHU_PLAY },
     { command: COMMANDS.PLAY },
     { command: COMMANDS.PAUSE },
     { command: COMMANDS.STOP },
