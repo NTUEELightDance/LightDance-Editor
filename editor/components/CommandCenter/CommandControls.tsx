@@ -95,6 +95,12 @@ export default function CommandControls({
     { command: COMMANDS.REBOOT },
   ];
 
+  const ButtonGroup5 = [
+    { command: COMMANDS.RED },
+    { command: COMMANDS.BLUE },
+    { command: COMMANDS.GREEN },
+  ];
+
   return (
     <Box>
       <Stack direction="column" gap="1em">
@@ -166,8 +172,18 @@ export default function CommandControls({
                 />
               ))}
             </ButtonGroup>
+          </Stack>
+          <Stack direction="row" gap="1em" mt={2}>
             <ButtonGroup variant="outlined">
               {ButtonGroup4.map(({ command }) => (
+                <DefaultCommandButton
+                  command={command}
+                  handleClick={() => handleClickBtn(command)}
+                />
+              ))}
+            </ButtonGroup>
+            <ButtonGroup variant="outlined">
+              {ButtonGroup5.map(({ command }) => (
                 <DefaultCommandButton
                   command={command}
                   handleClick={() => handleClickBtn(command)}

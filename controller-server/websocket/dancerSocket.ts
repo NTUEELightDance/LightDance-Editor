@@ -50,6 +50,9 @@ class DancerSocket {
       [CommandType.STOP]: this.stop,
       [CommandType.UPLOAD_OF]: this.uploadOf,
       [CommandType.UPLOAD_LED]: this.uploadLED,
+      [CommandType.RED]: this.red,
+      [CommandType.BLUE]: this.blue,
+      [CommandType.GREEN]: this.green,
     };
   }
 
@@ -70,7 +73,9 @@ class DancerSocket {
       let parsedData: MesR2S = JSON.parse(message.data);
       const { command, payload } = parsedData;
       console.log(
-        `[Message] ${this.dancerName} response: ${command} \n[Message] Payload: `, payload, '\n'
+        `[Message] ${this.dancerName} response: ${command} \n[Message] Payload: `,
+        payload,
+        "\n"
       );
 
       // to emit message to control panel, we add from in payload
@@ -149,14 +154,23 @@ class DancerSocket {
   uploadOf = (data: ControlType) => {
     this.sendDataToRpiSocket({
       command: CommandType.UPLOAD_OF /* payload: ControlType*/,
-      payload: data[this.dancerName]
+      payload: data[this.dancerName],
     });
   };
   uploadLED = (data: LedType) => {
     this.sendDataToRpiSocket({
       command: CommandType.UPLOAD_LED /* payload: ControlType*/,
-      payload: data[this.dancerName]
+      payload: data[this.dancerName],
     });
+  };
+  red = () => {
+    this.sendDataToRpiSocket({ command: CommandType.RED });
+  };
+  blue = () => {
+    this.sendDataToRpiSocket({ command: CommandType.BLUE });
+  };
+  green = () => {
+    this.sendDataToRpiSocket({ command: CommandType.GREEN });
   };
 }
 
