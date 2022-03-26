@@ -59,13 +59,14 @@ const defaultOptions = {
  * @param action functions with two parameters, state and payload
  * @returns a function with two parameters, payload and options
  */
-function actionCreator(action: Action) {
+function actionCreator(action: Action, actionName: string) {
   return async (payloadOptions?: PayloadOptions) => {
     await action(state, payloadOptions?.payload);
     const options = { ...defaultOptions, ...payloadOptions?.options };
-    // console.debug("payload", payloadOptions?.payload);
-    // console.debug("options:", options);
-    // console.debug("state", JSON.parse(JSON.stringify(state)));
+    console.debug("actionName: ", actionName);
+    console.debug("payload", payloadOptions?.payload);
+    console.debug("options:", options);
+    console.debug("state", JSON.parse(JSON.stringify(state)));
     if (options.rerender) {
       // request rerender
       // TODO: detect which variable changes
@@ -104,7 +105,10 @@ export function registerActions(actions: { [key: string]: Action }) {
     if (actionName in wrappedActionRegistry) {
       throw new Error("The action has been registered !");
     }
-    wrappedActionRegistry[actionName] = actionCreator(actions[actionName]);
+    wrappedActionRegistry[actionName] = actionCreator(
+      actions[actionName],
+      actionName
+    );
   });
   console.debug(wrappedActionRegistry);
   return wrappedActionRegistry;

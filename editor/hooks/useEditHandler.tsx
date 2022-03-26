@@ -9,13 +9,18 @@ import {
   deleteCurrent,
   setCurrentTime,
   generateLedEffectRecord,
+  cancelEditMode,
 } from "core/actions";
 //constants
-import { CONTROL_EDITOR, POS_EDITOR } from "constants";
+import { CONTROL_EDITOR, IDLE, POS_EDITOR } from "constants";
 
 import { notification, confirmation, formatDisplayedTime } from "core/utils";
 
 export default function useEditHandler() {
+  const resetTime = async () => {
+    await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
+  };
+
   // Enter editing mode (request edit)
   const handleStartEditing = async () => {
     await startEditing();
@@ -43,8 +48,8 @@ export default function useEditHandler() {
       notification.error((error as Error).message);
       console.error(error);
     }
-
-    cancelEditing();
+    // get to editMode
+    cancelEditMode();
 
     // regenerate ledeffect after saving
     generateLedEffectRecord();
@@ -52,16 +57,16 @@ export default function useEditHandler() {
 
   // Cancel the edit, exist editing mode
   const handleCancel = async () => {
-    await cancelEditing({});
+    await cancelEditing();
     // reset the frame
-    await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
+    await resetTime();
   };
 
   // Add a frame, use currentPos as default
   const handleAdd = async () => {
     try {
       await add();
-      setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
+      await resetTime();
       notification.success(
         `Successfully added a frame at ${formatDisplayedTime(
           reactiveState.currentTime()

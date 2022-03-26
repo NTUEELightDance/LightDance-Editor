@@ -34,6 +34,7 @@ export const controlAgent = {
     fade?: boolean
   ) => {
     try {
+      // can't use optimisticResponse and predict QQ
       await client.mutate({
         mutation: ADD_OR_EDIT_CONTROL_FRAME,
         variables: {
@@ -59,7 +60,7 @@ export const controlAgent = {
       });
     } catch (error) {
       console.error(error);
-      throw error
+      throw error;
     }
   },
   saveFrame: async (
@@ -72,7 +73,27 @@ export const controlAgent = {
     const controlMap = await controlAgent.getControlMap();
     const frameTime = controlMap[frameId].start;
     try {
-      await client.mutate({
+      // this is to predict the frontend result and faster the performance
+      // don't use optimisticResponse because we use subscription to do the updation
+      client.cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          ControlMap(controlMap) {
+            return {
+              frames: {
+                ...controlMap.frames,
+                [frameId]: {
+                  start: requestTimeChange ? currentTime : frameTime,
+                  fade,
+                  status: frame,
+                },
+              },
+            };
+          },
+        },
+      });
+      // don't use await for optimisticResponse
+      client.mutate({
         mutation: ADD_OR_EDIT_CONTROL_FRAME,
         variables: {
           start: frameTime,
@@ -91,7 +112,9 @@ export const controlAgent = {
                   };
                 return {
                   partName,
-                  ...(frame as ControlMapStatus)[dancerName][partName] as Object,
+                  ...((frame as ControlMapStatus)[dancerName][
+                    partName
+                  ] as Object),
                 };
               }),
             };
@@ -102,26 +125,40 @@ export const controlAgent = {
       console.error(error);
       throw error;
     }
+
     if (!requestTimeChange) return;
-    try {
-      await client.mutate({
-        mutation: EDIT_CONTROL_RECORD_BY_ID,
-        variables: {
-          input: {
-            frameID: frameId,
-            start: currentTime,
-            fade: fade,
-          },
+    // update controlRecord by subscription (to maintain the order)
+    // may have a wrong order but will be fixed while the subscription be triggered
+    client.mutate({
+      mutation: EDIT_CONTROL_RECORD_BY_ID,
+      variables: {
+        input: {
+          frameID: frameId,
+          start: currentTime,
+          fade: fade,
         },
-      });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+      },
+    });
   },
   deleteFrame: async (frameId: String) => {
     try {
-      await client.mutate({
+      client.cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          controlFrameIDs(controlFrameIDs) {
+            return controlFrameIDs.filter((id: String) => id !== frameId);
+          },
+          ControlMap(controlMap) {
+            return {
+              ...controlMap,
+              frames: lodash.omit(controlMap.frames, [frameId]),
+            };
+          },
+        },
+      });
+
+      // don't use await for optimisticResponse
+      client.mutate({
         mutation: DELETE_CONTROL_FRAME_BY_ID,
         variables: {
           input: {

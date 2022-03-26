@@ -62,7 +62,25 @@ export const posAgent = {
     const posMap = await posAgent.getPosMap();
     const frameTime = posMap[frameId].start;
     try {
-      await client.mutate({
+      client.cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          PosMap(posMap) {
+            return {
+              frames: {
+                ...posMap.frames,
+                [frameId]: {
+                  start: requestTimeChange ? currentTime : frameTime,
+                  fade,
+                  pos: frame,
+                },
+              },
+            };
+          },
+        },
+      });
+      // don't use await for optimisticResponse
+      client.mutate({
         mutation: ADD_OR_EDIT_POS_FRAME,
         variables: {
           start: frameTime,
@@ -80,7 +98,7 @@ export const posAgent = {
     }
     if (!requestTimeChange) return;
     try {
-      await client.mutate({
+      client.mutate({
         mutation: EDIT_POS_FRAME_TIME,
         variables: {
           input: {
@@ -96,7 +114,22 @@ export const posAgent = {
   },
   deleteFrame: async (frameId: String) => {
     try {
-      await client.mutate({
+      client.cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          positionFrameIDs(positionFrameIDs) {
+            return positionFrameIDs.filter((id: String) => id !== frameId);
+          },
+          PosMap(posMap) {
+            return {
+              ...posMap,
+              frames: lodash.omit(posMap.frames, [frameId]),
+            };
+          },
+        },
+      });
+      // don't use await for optimisticResponse
+      client.mutate({
         mutation: DELETE_POS_FRAME,
         variables: {
           input: {
