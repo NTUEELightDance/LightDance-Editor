@@ -90,8 +90,8 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // init the currentStatus
-        // TODO: check record size and auto generate currentStatus if empty
+        // init the currentPos
+        // TODO: check record size and auto generate currentPos if empty
         const [posMap, posRecord] = await getPos();
         setCurrentPos({ payload: posMap[posRecord[0]].pos });
         setPosLoading(false);
