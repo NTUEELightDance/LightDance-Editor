@@ -1,5 +1,5 @@
 import { hot } from "react-hot-loader/root";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 // mui
 import {
   createTheme as obsoleteCreateTheme,
@@ -32,6 +32,7 @@ import {
 
 import "./app.css";
 import Layout from "containers/Layout";
+import { getControl, getPos } from "core/utils";
 
 const obsoleteTheme = obsoleteCreateTheme({
   palette: {
@@ -62,49 +63,50 @@ const App = () => {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
 
-  const {
-    loading: dancerLoading,
-    error: dancerError,
-    dancerNames,
-  } = useDancer();
-
-  const {
-    loading: controlLoading,
-    error: controlError,
-    controlMap,
-    controlRecord,
-  } = useControl();
-
-  const { loading: posLoading, error: posError, posMap, posRecord } = usePos();
-
-  const { loading: colorLoading, error: colorError } = useColorMap();
-
-  const loading = dancerLoading || controlLoading || posLoading || colorLoading;
-
   useEffect(() => {
     if (!init) {
       dispatch(fetchLoad());
     }
   }, [init]);
 
+  const [controlLoading, setControlLoading] = useState<boolean>(true);
   useEffect(() => {
-    if (!controlLoading) {
-      if (controlError) console.error(controlError);
-      // init the currentStatus
-      // TODO: check record size and auto generate currentStatus if empty
-      // setCurrentTime({ payload: 0 });
-      setCurrentStatus({ payload: controlMap[controlRecord[0]].status });
-    }
-  }, [controlLoading, controlError]);
+    const fetchData = async () => {
+      try {
+        // init the currentStatus
+        // TODO: check record size and auto generate currentStatus if empty
+        const [controlMap, controlRecord] = await getControl();
+        setCurrentStatus({ payload: controlMap[controlRecord[0]].status });
+        setControlLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const [posLoading, setPosLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!posLoading) {
-      if (posError) console.error(posError);
-      // init the currentPos
-      // TODO: check record size and auto generate currentPos if empty
-      setCurrentPos({ payload: posMap[posRecord[0]].pos });
-    }
-  }, [posLoading, posError]);
+    const fetchData = async () => {
+      try {
+        // init the currentPos
+        // TODO: check record size and auto generate currentPos if empty
+        const [posMap, posRecord] = await getPos();
+        setCurrentPos({ payload: posMap[posRecord[0]].pos });
+        setPosLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const {
+    loading: dancerLoading,
+    error: dancerError,
+    dancerNames,
+  } = useDancer();
 
   useEffect(() => {
     if (!dancerLoading) {
@@ -124,6 +126,8 @@ const App = () => {
       generateLedEffectRecord();
     }
   }, [dancerLoading]);
+
+  const { loading: colorLoading, error: colorError } = useColorMap();
 
   return (
     <div>

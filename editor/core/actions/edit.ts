@@ -23,6 +23,7 @@ const getDataHandler = async (state: State) => {
   const pureStatus = deleteColorCode(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
+    // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       controlRecord,
       controlMap,
@@ -39,6 +40,7 @@ const getDataHandler = async (state: State) => {
       fade: state.currentFade,
     };
   } else {
+    // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       posRecord,
       posMap,
@@ -143,7 +145,7 @@ const actions = registerActions({
     const { frameId, agent } = await getDataHandler(state);
     const isCancelled = await agent.cancelEditPermission(frameId);
     if (isCancelled) {
-      state.editMode = IDLE;
+      cancelEditMode();
     } else notification.error("Cancel Permission Error");
   },
 
@@ -162,6 +164,10 @@ const actions = registerActions({
     const { frameId, agent } = await getDataHandler(state);
     await agent.deleteFrame(frameId);
   },
+
+  cancelEditMode: (state: State) => {
+    state.editMode = IDLE;
+  },
 });
 
 export const {
@@ -174,4 +180,5 @@ export const {
   cancelEditing,
   add,
   deleteCurrent,
+  cancelEditMode,
 } = actions;
