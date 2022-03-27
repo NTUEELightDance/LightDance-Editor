@@ -32,6 +32,11 @@ const SHUTDOWN = "shutDown";
 const REBOOT = "reboot";
 const INIT = "init";
 const TEST = "test";
+
+const RED = "red";
+const BLUE = "blue";
+const GREEN = "green";
+
 export const WEBSOCKETCLIENT = {
   CONTROLPANEL: "controlPanel",
   RPI: "rpi",
@@ -49,4 +54,7 @@ export const COMMANDS = {
   SHUTDOWN,
   REBOOT,
   TEST, // need payload
+  RED,
+  BLUE,
+  GREEN,
 };
