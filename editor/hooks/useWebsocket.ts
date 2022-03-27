@@ -16,6 +16,9 @@ import {
   dancerStatusType,
   panelPayloadType,
 } from "types/hooks/webSocket";
+
+import { notification } from "core/utils";
+
 const BOARDINFO = "boardInfo";
 const DISCONNECT = "disconnect";
 const url = `${location.origin}/controller-server-websocket`.replace(
@@ -106,10 +109,26 @@ export default function useWebsocketState() {
       case COMMANDS.LIGTHCURRENTSTATUS:
         MesC2S.payload = {};
         break;
+      case COMMANDS.NTHU_PLAY:
+        await handleNTHUPlay(Date.now() + delay);
+        return;
       default:
         break;
     }
     sendDataToServer(MesC2S);
+  };
+
+  const handleNTHUPlay = async (sysTime: number) => {
+    const requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+    console.log(Date.now());
+
+    fetch(`/api/nthu_play?sys_time=${sysTime}`, requestOptions)
+      .then((response) => response.text())
+      .then((result) => notification.success(result))
+      .catch((error) => notification.error(error));
   };
 
   const handleMessage = (data: MesS2CType) => {

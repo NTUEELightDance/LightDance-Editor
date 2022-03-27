@@ -65,6 +65,12 @@ export default function CommandControls({
       } else if (command === COMMANDS.STOP) {
         delayPlayTimeout && clearTimeout(delayPlayTimeout);
         handleStop();
+      } else if (command === COMMANDS.NTHU_PLAY) {
+        const timeout = setTimeout(() => handlePlay(), delay);
+        setDelayPlayTimeout(timeout);
+        notificationContent += `.\nLight dance will play after ${(
+          delay / 1000
+        ).toFixed(1)} seconds`;
       }
       notification.success(notificationContent);
     } catch (error) {
