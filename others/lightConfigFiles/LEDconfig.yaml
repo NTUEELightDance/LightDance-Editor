@@ -1,0 +1,34 @@
+intervals:
+  - - 0
+    - 600_000
+
+bindings:
+  yellow:
+    # Arm_L: Hand_L_LED
+    # Arm_R: Hand_R_LED
+    # Calf_L: Shoe_L_LED
+    # Calf_R: Shoe_R_LED
+    Hand_L_LED: Arm_L
+    Hand_R_LED: Arm_R
+    Shoe_L_LED: Calf_L
+    Shoe_R_LED: Calf_R
+
+  cyan:
+    # Calf_L_1: Shoe_L_LED
+    # Calf_R_1: Shoe_R_LED
+    # Arm_L_1: Hand_L_LED
+    # Arm_R_1: Hand_R_LED
+    Shoe_L_LED: Calf_L_1
+    Shoe_R_LED: Calf_R_1
+    Hand_L_LED: Arm_L_1
+    Hand_R_LED: Arm_R_1
+
+  magenta:
+    # Shoe_L_D: Shoe_L_LED
+    # Shoe_R_D: Shoe_R_LED
+    # Arm_L: Wrist_L_LED
+    # Arm_R: Wrist_R_LED
+    Shoe_L_LED: Shoe_L_D
+    Shoe_R_LED: Shoe_R_D
+    Wrist_L_LED: Arm_L
+    Wrist_R_LED: Arm_R

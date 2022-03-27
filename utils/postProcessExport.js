@@ -90,8 +90,15 @@ Object.entries(originalControl).forEach(([frameKey, value]) => {
       if (
         newStatus[dancerName][partName].color &&
         !(newStatus[dancerName][partName].color in COLOR)
-      )
+      ) {
         newStatus[dancerName][partName].color = "black";
+      }
+
+      if (
+        newStatus[dancerName][partName].alpha &&
+        newStatus[dancerName][partName].alpha <= 1
+      )
+        newStatus[dancerName][partName].alpha = 0;
     });
   });
 
