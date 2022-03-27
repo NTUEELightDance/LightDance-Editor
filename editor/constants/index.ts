@@ -36,6 +36,8 @@ const TEST = "test";
 const RED = "red";
 const BLUE = "blue";
 const GREEN = "green";
+const DARKALL = "darkall";
+const STMINIT = "stmInit";
 
 const NTHU_PLAY = "NTHU Play";
 export const WEBSOCKETCLIENT = {
@@ -59,4 +61,6 @@ export const COMMANDS = {
   BLUE,
   GREEN,
   NTHU_PLAY,
+  DARKALL,
+  STMINIT,
 };

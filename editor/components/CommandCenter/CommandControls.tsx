@@ -106,6 +106,7 @@ export default function CommandControls({
     { command: COMMANDS.RED },
     { command: COMMANDS.BLUE },
     { command: COMMANDS.GREEN },
+    { command: COMMANDS.DARKALL },
   ];
 
   return (
@@ -119,6 +120,13 @@ export default function CommandControls({
               onClick={() => handleClickBtn(COMMANDS.SYNC)}
             >
               sync
+            </Button>
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => handleClickBtn(COMMANDS.STMINIT)}
+            >
+              stmInit
             </Button>
 
             <TextField
@@ -164,6 +172,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup1.map(({ command, label }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   label={label}
                   handleClick={() => handleClickBtn(command)}
@@ -173,6 +182,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup3.map(({ command, label }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   label={label}
                   handleClick={() => handleClickBtn(command)}
@@ -184,6 +194,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup4.map(({ command }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   handleClick={() => handleClickBtn(command)}
                 />
@@ -192,6 +203,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup5.map(({ command }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   handleClick={() => handleClickBtn(command)}
                 />

@@ -53,6 +53,8 @@ class DancerSocket {
       [CommandType.RED]: this.red,
       [CommandType.BLUE]: this.blue,
       [CommandType.GREEN]: this.green,
+      [CommandType.STMINIT]: this.stmInit,
+      [CommandType.DARKALL]: this.darkAll,
     };
   }
 
@@ -171,6 +173,12 @@ class DancerSocket {
   };
   green = () => {
     this.sendDataToRpiSocket({ command: CommandType.GREEN });
+  };
+  stmInit = () => {
+    this.sendDataToRpiSocket({ command: CommandType.STMINIT});
+  };
+  darkAll = () => {
+    this.sendDataToRpiSocket({ command: CommandType.DARKALL });
   };
 }
 
