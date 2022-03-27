@@ -17,6 +17,9 @@ const defineConfig: UserConfigFn = ({ command, mode }) => {
         "/data": "http://localhost:8081",
         // controller-server port at 8082
         "/api/controller-server": "http://localhost:8082",
+        "/api/nthu_play": {
+          target: "http://localhost:5000",
+        },
         "/controller-server-websocket": {
           target: "ws://localhost:8082",
           rewrite: (path) => path.replace(/^\/controller-server-websocket/, ""),
