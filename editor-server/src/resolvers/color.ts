@@ -177,7 +177,7 @@ class ColorResolver {
     });
 
     const checkControl = await ctx.db.Control.find({ "value.color": color });
-    if (checkControl) {
+    if (checkControl.length != 0) {
       const allControlFrame = await ctx.db.ControlFrame.find({}, "_id").sort({
         start: 1,
       });

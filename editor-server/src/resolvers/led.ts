@@ -63,7 +63,7 @@ export class LEDResolver {
       };
 
     const checkControl = await ctx.db.Control.find({ "value.src": effectName });
-    if (checkControl) {
+    if (checkControl.length != 0) {
       const allControlFrame = await ctx.db.ControlFrame.find({}, "_id").sort({
         start: 1,
       });
