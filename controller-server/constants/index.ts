@@ -18,7 +18,8 @@ enum CommandType {
   BLUE = "blue",
   GREEN = "green",
   STMINIT = "stmInit",
-  DARKALL = "darkall"
+  DARKALL = "darkall",
+  RESTARTCONTROLLER = "restartController",
 }
 
 export { CommandType };

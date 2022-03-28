@@ -90,10 +90,9 @@ export default function CommandControls({
     { command: COMMANDS.PAUSE },
     { command: COMMANDS.STOP },
   ];
-
   const ButtonGroup3 = [
-    { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
-    { command: COMMANDS.TEST },
+    { command: COMMANDS.RESTARTCONTROLLER },
+    { command: COMMANDS.STMINIT },
   ];
 
   const ButtonGroup4 = [
@@ -109,6 +108,11 @@ export default function CommandControls({
     { command: COMMANDS.DARKALL },
   ];
 
+  const ButtonGroup6 = [
+    { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
+    { command: COMMANDS.TEST },
+  ];
+
   return (
     <Box>
       <Stack direction="column" gap="1em">
@@ -120,13 +124,6 @@ export default function CommandControls({
               onClick={() => handleClickBtn(COMMANDS.SYNC)}
             >
               sync
-            </Button>
-            <Button
-              size="small"
-              variant="contained"
-              onClick={() => handleClickBtn(COMMANDS.STMINIT)}
-            >
-              stmInit
             </Button>
 
             <TextField

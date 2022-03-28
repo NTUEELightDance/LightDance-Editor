@@ -38,6 +38,7 @@ const BLUE = "blue";
 const GREEN = "green";
 const DARKALL = "darkall";
 const STMINIT = "stmInit";
+const RESTARTCONTROLLER = "restartController";
 
 const NTHU_PLAY = "NTHU Play";
 export const WEBSOCKETCLIENT = {
@@ -63,4 +64,5 @@ export const COMMANDS = {
   NTHU_PLAY,
   DARKALL,
   STMINIT,
+  RESTARTCONTROLLER,
 };

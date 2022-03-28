@@ -55,6 +55,7 @@ class DancerSocket {
       [CommandType.GREEN]: this.green,
       [CommandType.STMINIT]: this.stmInit,
       [CommandType.DARKALL]: this.darkAll,
+      [CommandType.RESTARTCONTROLLER]: this.restartController,
     };
   }
 
@@ -179,6 +180,9 @@ class DancerSocket {
   };
   darkAll = () => {
     this.sendDataToRpiSocket({ command: CommandType.DARKALL });
+  };
+  restartController = () => {
+    this.sendDataToRpiSocket({ command: CommandType.RESTARTCONTROLLER });
   };
 }
 
