@@ -20,6 +20,9 @@ const defineConfig: UserConfigFn = ({ command, mode }) => {
         "/api/nthu_play": {
           target: "http://localhost:5000",
         },
+        "/api/nthu_stop": {
+          target: "http://localhost:5000",
+        },
         "/controller-server-websocket": {
           target: "ws://localhost:8082",
           rewrite: (path) => path.replace(/^\/controller-server-websocket/, ""),

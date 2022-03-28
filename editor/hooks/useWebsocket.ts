@@ -112,6 +112,9 @@ export default function useWebsocketState() {
       case COMMANDS.NTHU_PLAY:
         await handleNTHUPlay(Date.now() + delay);
         return;
+      case COMMANDS.NTHU_STOP:
+        await handleNTHUStop();
+        return;
       default:
         break;
     }
@@ -126,6 +129,19 @@ export default function useWebsocketState() {
     console.log(Date.now());
 
     fetch(`/api/nthu_play?sys_time=${sysTime}`, requestOptions)
+      .then((response) => response.text())
+      .then((result) => notification.success(result))
+      .catch((error) => notification.error(error));
+  };
+
+  const handleNTHUStop = async () => {
+    const requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+    console.log(Date.now());
+
+    fetch(`/api/nthu_stop`, requestOptions)
       .then((response) => response.text())
       .then((result) => notification.success(result))
       .catch((error) => notification.error(error));
