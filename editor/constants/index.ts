@@ -41,6 +41,7 @@ const STMINIT = "stmInit";
 const RESTARTCONTROLLER = "restartController";
 
 const NTHU_PLAY = "NTHU Play";
+const NTHU_STOP = "NTHU Stop";
 export const WEBSOCKETCLIENT = {
   CONTROLPANEL: "controlPanel",
   RPI: "rpi",
@@ -65,4 +66,5 @@ export const COMMANDS = {
   DARKALL,
   STMINIT,
   RESTARTCONTROLLER,
+  NTHU_STOP,
 };

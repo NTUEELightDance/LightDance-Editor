@@ -71,6 +71,9 @@ export default function CommandControls({
         notificationContent += `.\nLight dance will play after ${(
           delay / 1000
         ).toFixed(1)} seconds`;
+      } else if (command === COMMANDS.NTHU_STOP) {
+        delayPlayTimeout && clearTimeout(delayPlayTimeout);
+        handleStop();
       }
       notification.success(notificationContent);
     } catch (error) {
@@ -86,6 +89,7 @@ export default function CommandControls({
 
   const ButtonGroup2 = [
     { command: COMMANDS.NTHU_PLAY },
+    { command: COMMANDS.NTHU_STOP },
     { command: COMMANDS.PLAY },
     { command: COMMANDS.PAUSE },
     { command: COMMANDS.STOP },
