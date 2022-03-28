@@ -90,10 +90,9 @@ export default function CommandControls({
     { command: COMMANDS.PAUSE },
     { command: COMMANDS.STOP },
   ];
-
   const ButtonGroup3 = [
-    { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
-    { command: COMMANDS.TEST },
+    { command: COMMANDS.RESTARTCONTROLLER },
+    { command: COMMANDS.STMINIT },
   ];
 
   const ButtonGroup4 = [
@@ -106,6 +105,12 @@ export default function CommandControls({
     { command: COMMANDS.RED },
     { command: COMMANDS.BLUE },
     { command: COMMANDS.GREEN },
+    { command: COMMANDS.DARKALL },
+  ];
+
+  const ButtonGroup6 = [
+    { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
+    { command: COMMANDS.TEST },
   ];
 
   return (
@@ -164,6 +169,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup1.map(({ command, label }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   label={label}
                   handleClick={() => handleClickBtn(command)}
@@ -173,6 +179,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup3.map(({ command, label }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   label={label}
                   handleClick={() => handleClickBtn(command)}
@@ -184,6 +191,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup4.map(({ command }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   handleClick={() => handleClickBtn(command)}
                 />
@@ -192,6 +200,7 @@ export default function CommandControls({
             <ButtonGroup variant="outlined">
               {ButtonGroup5.map(({ command }) => (
                 <DefaultCommandButton
+                  key={command}
                   command={command}
                   handleClick={() => handleClickBtn(command)}
                 />
