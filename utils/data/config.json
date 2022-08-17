@@ -1,0 +1,39 @@
+{
+  "OFPARTS": {
+    "Calf_R": 0,
+    "Thigh_R": 1,
+    "LymphaticDuct_R": 2,
+    "Waist_R": 25,
+    "Arm_R": 5,
+    "Shoulder_R": 6,
+    "CollarBone_R": 7,
+    "Chest": 17,
+    "Visor": 19,
+    "Ear_R": 21,
+    "Calf_L": 23,
+    "Thigh_L": 9,
+    "LymphaticDuct_L": 13,
+    "Waist_L": 14,
+    "CollarBone_L": 3,
+    "Arm_L": 20,
+    "Ear_L": 4,
+    "Shoulder_L": 11,
+    "Glove_L": 18,
+    "Glove_R": 12
+  },
+
+  "LEDPARTS": {
+    "Glove_L_LED": {
+      "id": 0,
+      "len": 56
+    },
+    "Glove_R_LED": {
+      "id": 1,
+      "len": 20
+    },
+    "Visor_LED": {
+      "id": 2,
+      "len": 18
+    }
+  }
+}
