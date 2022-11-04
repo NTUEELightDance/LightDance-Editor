@@ -4,7 +4,7 @@ import store from "../../store";
 // components
 import Dancer from "./Dancer";
 // math
-import { ControlMapStatus, DancerCoordinates } from "../../types/globalSlice";
+import { ControlMapStatus, DancerCoordinates } from "../../core/models";
 // states
 import { state } from "core/state";
 

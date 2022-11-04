@@ -132,6 +132,8 @@ export async function generateControlLed() {
       recordIds.forEach((recordId, recordIndex) => {
         const { start: baseStart, status } = controlMap[recordId];
         const src = (status[dancerName][partName] as LED).src;
+
+        if (!ledMap[partName][src]) return;
         let { repeat, effects } = ledMap[partName][src];
 
         if (effects.length === 0) {

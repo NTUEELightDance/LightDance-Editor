@@ -9,6 +9,8 @@ const filePath = process.argv[2];
 
 const instance = axios.create({
   baseURL: `http://localhost:4000/`,
+  maxContentLength: Infinity,
+    maxBodyLength: Infinity,
 });
 
 async function main() {

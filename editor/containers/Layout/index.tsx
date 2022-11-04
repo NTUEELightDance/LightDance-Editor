@@ -10,7 +10,6 @@ import Wavesurfer from "components/Wavesurfer";
 import LightPresets from "components/Presets/LightPresets";
 import PosPresets from "components/Presets/PosPresets";
 import EffectList from "components/EffectList";
-import LightEditor from "components/LightEditor";
 import FrameList from "components/FrameList";
 import CommandCenter from "components/CommandCenter";
 import ThreeSimulator from "components/ThreeSimulator";
@@ -31,7 +30,6 @@ const Layout = () => {
   const CommandCenterNode = useMemo<JSX.Element>(() => <CommandCenter />, []);
   const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
   const ThreeSimulatorNode = useMemo<JSX.Element>(() => <ThreeSimulator />, []);
-  const LightEditorNode = useMemo<JSX.Element>(() => <LightEditor />, []);
   const FrameListNode = useMemo<JSX.Element>(() => <FrameList />, []);
   const DancerTreeNode = useMemo<JSX.Element>(() => <DancerTree />, []);
   const LightPropsNode = useMemo<JSX.Element>(() => <LightProps />, []);
@@ -53,8 +51,6 @@ const Layout = () => {
         return SimulatorNode;
       case "ThreeSimulator":
         return ThreeSimulatorNode;
-      case "LightEditor":
-        return LightEditorNode;
       case "FrameList":
         return FrameListNode;
       case "DancerTree":

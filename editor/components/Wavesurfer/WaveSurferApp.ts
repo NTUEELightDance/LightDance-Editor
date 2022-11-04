@@ -12,7 +12,7 @@ import { fadeStatus, getItem } from "../../core/utils";
 
 import { LocalRegion, Region } from "../../types/components/wavesurfer";
 // types
-import { ControlMapElement } from "../../types/globalSlice";
+import { ControlMapElement } from "../../core/models";
 
 import { throttle } from "throttle-debounce";
 /**
