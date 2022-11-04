@@ -5,7 +5,6 @@ import FlexLayout, { TabNode, IJsonModel } from "flexlayout-react";
 import "flexlayout-react/style/dark.css";
 import "./layout.css";
 // components
-import Simulator from "components/Simulator";
 import Wavesurfer from "components/Wavesurfer";
 import LightPresets from "components/Presets/LightPresets";
 import PosPresets from "components/Presets/PosPresets";
@@ -28,7 +27,6 @@ const Layout = () => {
   } = useLayout();
 
   const CommandCenterNode = useMemo<JSX.Element>(() => <CommandCenter />, []);
-  const SimulatorNode = useMemo<JSX.Element>(() => <Simulator />, []);
   const ThreeSimulatorNode = useMemo<JSX.Element>(() => <ThreeSimulator />, []);
   const FrameListNode = useMemo<JSX.Element>(() => <FrameList />, []);
   const DancerTreeNode = useMemo<JSX.Element>(() => <DancerTree />, []);
@@ -47,8 +45,6 @@ const Layout = () => {
         return ColorPaletteNode;
       case "CommandCenter":
         return CommandCenterNode;
-      case "Simulator":
-        return SimulatorNode;
       case "ThreeSimulator":
         return ThreeSimulatorNode;
       case "FrameList":

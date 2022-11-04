@@ -275,7 +275,6 @@ class WaveSurferApp {
       options: {
         states: ["currentTime"], // only update timeData, don't update reactiveState for performance
         refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
-        refreshPixiSimulator: false, // they will get their own start playing
         refreshThreeSimulator: false, // they will get their own start playing
       },
     });
