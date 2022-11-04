@@ -10,10 +10,10 @@
 </p>
 
 <p align="center">
-  An Editor for editing and simulating light dance show
+  An online editor to design, simulate and control the lights
 </p>
 <div align="center" >
-    <img src="https://user-images.githubusercontent.com/17617373/126040650-b25e5a8f-5b40-4636-93b9-4a79e690e816.gif" width="100%">
+    <img src="https://user-images.githubusercontent.com/17617373/199907047-a87e1cea-4ff4-45c9-9f41-e05d28a47473.gif" width="100%">
 </div>
 
 ## Architecture
