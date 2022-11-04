@@ -1,0 +1,40 @@
+{
+  "Music": "/music/2022.mp3",
+  "LightPresets": "/data/default_lightPresets.json",
+  "PosPresets": "/data/default_posPresets.json",
+  "DancerMap": {
+    "1_chi": {
+      "url": "/asset/models/yellow.draco.glb"
+    },
+    "2_meow": {
+      "url": "/asset/models/yellow.draco.glb"
+    },
+    "3_yeee": {
+      "url": "/asset/models/yellow.draco.glb"
+    },
+    "4_breaKing": {
+      "url": "/asset/models/yellow.draco.glb"
+    },
+    "5_itzyboo": {
+      "url": "/asset/models/yellow.draco.glb"
+    },
+    "6_yu": {
+      "url": "/asset/models/cyan.draco.glb"
+    },
+    "7_wang": {
+      "url": "/asset/models/cyan.draco.glb"
+    },
+    "8_hao": {
+      "url": "/asset/models/cyan.draco.glb"
+    },
+    "9_monkey": {
+      "url": "/asset/models/cyan.draco.glb"
+    },
+    "10_dontstop": {
+      "url": "/asset/models/cyan.draco.glb"
+    },
+    "11_wish": {
+      "url": "/asset/models/magenta.draco.glb"
+    }
+  }
+}

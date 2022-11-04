@@ -1,0 +1,13 @@
+{
+  "Music": "/music/hands_clap.mp3",
+  "LightPresets": "/data/default_lightPresets.json",
+  "PosPresets": "/data/default_posPresets.json",
+  "DancerMap": {
+    "1_henning": {
+      "url": "/asset/models/yellow.draco.glb"
+    },
+    "2_hans": {
+      "url": "/asset/models/yellow.draco.glb"
+    }
+  }
+}
