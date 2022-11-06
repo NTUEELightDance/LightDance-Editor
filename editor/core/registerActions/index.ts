@@ -2,7 +2,6 @@ import { state, syncReactiveState } from "../state";
 import { State } from "../models";
 // observers
 import { waveSurferAppInstance } from "../../components/Wavesurfer/WaveSurferApp";
-import controller from "../../components/Simulator/Controller";
 import { threeController } from "../../components/ThreeSimulator/ThreeController";
 /**
  * A mapping of actionName to the wrapped action.
@@ -29,7 +28,6 @@ interface Options {
   states?: string[]; // rerender according the states. If rerender but emtpy states, we will rerender the changed states automatically
 
   refreshWavesurfer?: boolean;
-  refreshPixiSimulator?: boolean;
   refreshThreeSimulator?: boolean;
 }
 
@@ -50,7 +48,6 @@ const defaultOptions = {
   states: [],
 
   refreshWavesurfer: true,
-  refreshPixiSimulator: true,
   refreshThreeSimulator: true,
 };
 
@@ -84,11 +81,6 @@ function actionCreator(action: Action, actionName: string) {
       threeController.updateDancersPos(state.currentPos);
       threeController.updateDancersStatus(state.currentStatus);
       threeController.render();
-    }
-    if (options.refreshPixiSimulator && controller.isInitialized()) {
-      console.debug("refreshPixiSimulator");
-      controller.updateDancersPos(state.currentPos);
-      controller.updateDancersStatus(state.currentStatus);
     }
   };
 }

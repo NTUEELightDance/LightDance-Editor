@@ -1,6 +1,8 @@
 version: "3.3"
 services:
-  all:
+  lightdance-editor-dev:
+    image: lightdance-editor-dev
+    container_name: lightdance-editor-dev
     build:
       context: .
       dockerfile: dev.Dockerfile

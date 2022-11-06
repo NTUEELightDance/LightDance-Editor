@@ -13,6 +13,7 @@ EXPOSE 8080
 EXPOSE 8081
 EXPOSE 8082
 EXPOSE 4000
+ENV NODE_OPTIONS='--max-old-space-size=8192'
 
 CMD ["yarn", "dev"]
 

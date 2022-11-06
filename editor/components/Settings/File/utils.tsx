@@ -1,11 +1,5 @@
 /* eslint-disable no-console */
-// for zip
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
-import JSZipUtils from "jszip-utils";
 import dayjs from "dayjs";
-// import fetchTexture for img download
-import { fetchTexture } from "../../../api";
 
 //import Schema
 import {
@@ -115,35 +109,8 @@ export const checkLedJson = async (ledFile) => {
   });
   return ledIsValid;
 };
-const createFolder = (currentFolder, remainPath) => {
-  if (remainPath.length && !(remainPath[0] in currentFolder.files)) {
-    const newFolder = currentFolder.folder(remainPath[0]);
-    return createFolder(newFolder, remainPath.slice(1));
-  }
-  return currentFolder;
-};
 
-const urlToPromise = (url) =>
-  new Promise(function (resolve, reject) {
-    JSZipUtils.getBinaryContent(url, function (err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  });
-
-// * |- asset/
-//  *      |- BlackPart
-//  *      |- LED
-//  *      |- Part
-//  * |- controlRecord.json
-//  * |- position.json
-//  * |- texture.json
-
-// TODEL: make this a util
-// eslint-disable-next-line class-methods-use-this
+// eslint-disable-next-line
 const downloadJson = (exportObj, exportName) => {
   const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(
     JSON.stringify(exportObj)
@@ -160,6 +127,7 @@ export const downloadExportJson = async () => {
   const exportJson = await downloadExportDataApi();
   downloadJson(exportJson, `export_${now}`);
 };
+// eslint-disable-next-line
 export const uploadExportJson = async (exportFile) => {
   await uploadeExportDataApi(exportFile[0]); //take File out of Filelist
 };
@@ -168,45 +136,7 @@ export const downloadLedJson = async () => {
   const LedJson = await downloadLedDataApi();
   downloadJson(LedJson, `LED_${now}`);
 };
+// eslint-disable-next-line
 export const uploadLedJson = async (ledFile) => {
   await uploadLedDataApi(ledFile[0]);
 };
-// export const downloadEverything = async (
-//   controlRecord,
-//   controlMap,
-//   position
-// ) => {
-//   const texture = await fetchTexture();
-//   const zip = new JSZip();
-
-//   zip.file("controlRecord.json", JSON.stringify(controlRecord));
-//   zip.file("controlMap.json", JSON.stringify(controlMap));
-//   zip.file("position.json", JSON.stringify(position));
-//   zip.file("texture.json", JSON.stringify(texture));
-
-//   Object.keys(texture).forEach((partType) => {
-//     // here, the image is fetched from the server, only to be zippeds
-//     Object.values(texture[partType]).forEach((partData) => {
-//       const { prefix, name, postfix } = partData;
-//       const folderToStore = createFolder(zip, prefix.split("/").slice(1));
-//       if (typeof name === "string") {
-//         const href = `${prefix}${name}${postfix}`;
-//         folderToStore.file(`${name}${postfix}`, urlToPromise(href), {
-//           binary: true,
-//         });
-//       } else {
-//         name.forEach((partName) => {
-//           const href = `${prefix}${partName}${postfix}`;
-//           folderToStore.file(`${partName}${postfix}`, urlToPromise(href), {
-//             binary: true,
-//           });
-//         });
-//       }
-//     });
-//   });
-//   const now = dayjs().format("YYYYMMDD_HHmm");
-//   zip.generateAsync({ type: "blob" }).then((content) => {
-//     // see FileSaver.js
-//     saveAs(content, `light_dance_${now}.zip`);
-//   });
-// };

@@ -221,7 +221,7 @@
     "@babel/plugin-syntax-jsx" "^7.16.7"
     "@babel/types" "^7.16.7"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.17.0", "@babel/runtime@^7.17.2", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.17.0", "@babel/runtime@^7.17.2", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.17.2"
   resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.17.2.tgz"
   integrity sha512-hzeyJyMA1YGdJTuWU0e/j4wKXrU4OMFvY2MSlaI9B7VQb0r5cxTE3EAIS2Q7Tn2RIcDkRvTA/v2JsAEhxe99uw==
@@ -743,318 +743,6 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
-"@pixi/accessibility@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/accessibility/-/accessibility-5.3.11.tgz"
-  integrity sha512-/oSizd8/g6KUCeAlknMLJ9CRxBt+vWs6e2DrOctMoRupEHcmhICCjIyAp5GF6RZy9T9gNHDOU5p7vo7qEyVxgQ==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/app@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/app/-/app-5.3.11.tgz"
-  integrity sha512-ZWrOjGvVl+lK5OJQT3OqSnSRtU2XgQSe/ULg2uGsSWUqMkJews33JIGOjvk4tIsjm4ekSKiPZRMdYFHzPfgEJg==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-
-"@pixi/constants@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/constants/-/constants-5.3.11.tgz"
-  integrity sha512-KwutCRu8dRYn3956ygPJlvglHjJM99OS2Qhp4QYG8a4BsPcwfpInsHUtGHngtsTZbnx32pxCd3pg9nPiV8EuVA==
-
-"@pixi/core@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/core/-/core-5.3.11.tgz"
-  integrity sha512-U71OiC3rNt45/h8kaLGAQL4XsNh/ISoZtxVQNbtKTXlgjEAy1Q01Ht80yl0UJdiVxYQFlanCS/IG4++OkygioA==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/runner" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/ticker" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/display@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/display/-/display-5.3.11.tgz"
-  integrity sha512-rxUyB+RMJ7esEa11HdvzsularDGkYlRqpUn1ju9ZsRuB/Qo9JiVolywvWGSWxN/WnDGfrU2GjDpq9id10nwiag==
-  dependencies:
-    "@pixi/math" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/extract@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/extract/-/extract-5.3.11.tgz"
-  integrity sha512-YeBrpIO3E5HUgcdKEldCUqwwDNHm5OBe98YFcdLr5Z0+dQaHnxp9Dm4n75/NojoGb5guYdrV00x+gU2UPHsVdw==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/filter-alpha@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/filter-alpha/-/filter-alpha-5.3.11.tgz"
-  integrity sha512-HC4PbiEqDWSi3A715av7knFqD3knSXRxPJKG9mWat2CU9eCizSw+JxXp/okMU/fL4ewooiqQWVU2l1wXOHhVFw==
-  dependencies:
-    "@pixi/core" "5.3.11"
-
-"@pixi/filter-blur@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/filter-blur/-/filter-blur-5.3.11.tgz"
-  integrity sha512-iW5cOMEcDiJidOV95bUfhxdcvwM9JzCoWAd+92gAie8L+ElRSHpu1jxXbKHjo/QczQV1LulOlheyDaJNpaBCDg==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/settings" "5.3.11"
-
-"@pixi/filter-color-matrix@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/filter-color-matrix/-/filter-color-matrix-5.3.11.tgz"
-  integrity sha512-u9NT4+N1I3XV9ygwsmF8/jIwCLqNCLeFOdM4f73kbw/UmakZZ6i6xjjJMc5YFUpC25qDr1TFlqgdGGGHAPl4ug==
-  dependencies:
-    "@pixi/core" "5.3.11"
-
-"@pixi/filter-displacement@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/filter-displacement/-/filter-displacement-5.3.11.tgz"
-  integrity sha512-CTIy7C/L9I1X3VNx4nMzQbMFvznsGk2viQh0dSo8r5NLgmaAdxhkGI0KUpNjLBz30278tzFfNuRe59K1y1kHuw==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/math" "5.3.11"
-
-"@pixi/filter-fxaa@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/filter-fxaa/-/filter-fxaa-5.3.11.tgz"
-  integrity sha512-0ahjui5385e1vRvd7zCc0n5W8ULtNI1uVbDJHP9ueeiF25TKC0GqtZzntNwrQPoU46q8zXdnIGjzMpikbbAasg==
-  dependencies:
-    "@pixi/core" "5.3.11"
-
-"@pixi/filter-noise@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/filter-noise/-/filter-noise-5.3.11.tgz"
-  integrity sha512-98WC9Nd5u2F03Ned9T3vnbmO/YF1jLSioZ623z9wjqpd5DosZgRtYTSGxjVcXTSfpviIuiJpkyF+X097pbVprg==
-  dependencies:
-    "@pixi/core" "5.3.11"
-
-"@pixi/graphics@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/graphics/-/graphics-5.3.11.tgz"
-  integrity sha512-HLu53LV6mRlY0uFSIM2OrCuL7xqXzeJs5d2QfmUJfKJVVZ9sbHDS+6/N/f0tXzvkRPYhSKXvcNPsNn4HmlIE9w==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/sprite" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/interaction@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/interaction/-/interaction-5.3.11.tgz"
-  integrity sha512-n2K99CYyBcrf8NPxpzmZ5IlJ9TEplsSZfJ/uzMNOEnTObKl4wAhxs51Nb58raH3Ouzwu14YHOpqYrBTEoT1yPA==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/ticker" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/loaders@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/loaders/-/loaders-5.3.11.tgz"
-  integrity sha512-1HAeb/NFXyhNhZWAbVkngsTPBGpjZEPhQflBTrKycRaub7XDSZ8F0fwPltpKKVRWNDT+HBgU/zDNE2fpjzqfYg==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/utils" "5.3.11"
-    resource-loader "^3.0.1"
-
-"@pixi/math@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/math/-/math-5.3.11.tgz"
-  integrity sha512-GAupgFWVuOKxh8A322x8IctNgKi0/pLTJAXxmsLxcUw5PIQGgDw894HvzUriI+C0fsa9cEZHUbOCfyBKPQDLzw==
-
-"@pixi/mesh-extras@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/mesh-extras/-/mesh-extras-5.3.11.tgz"
-  integrity sha512-1GTCMMUW1xv/72x26cxRysblBXW0wU77TNgqtSIMZ1M6JbleObChklWTvwi9MzQO2vQ3S6Hvcsa5m5EiM2hSPQ==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/core" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/mesh" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/mesh@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/mesh/-/mesh-5.3.11.tgz"
-  integrity sha512-KWKKksEr0YuUX1uz1FmpIa/Y37b/0pvFUS+87LoyYq0mRtGbKsTY5i3lBPG/taHwN7a2DQAX3JZpw6yhGKoGpA==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/mixin-cache-as-bitmap@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/mixin-cache-as-bitmap/-/mixin-cache-as-bitmap-5.3.11.tgz"
-  integrity sha512-uQUxatGTTD5zfQ0pWdjibVjT+xEEZJ/xZDZtm/GxC7HSHd4jgoJBcTXWVhbhzwpLPVTnD8+sMnRrGlhoKcpTpQ==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/sprite" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/mixin-get-child-by-name@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/mixin-get-child-by-name/-/mixin-get-child-by-name-5.3.11.tgz"
-  integrity sha512-fWFVxWtMYcwJttrgDNmZ4CJrx316p8ToNliC2ILmJZW77me7I4GzJ57gSHQU1xFwdHoOYRC4fnlrZoK5qJ9lDw==
-  dependencies:
-    "@pixi/display" "5.3.11"
-
-"@pixi/mixin-get-global-position@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/mixin-get-global-position/-/mixin-get-global-position-5.3.11.tgz"
-  integrity sha512-wrS9i+UUodLM5XL2N0Y+XSKiqLRdJV3ltFUWG6+jPT5yoP0HsKtx3sFAzX526RwIYwRzRusbc/quxHfRA4tvgg==
-  dependencies:
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-
-"@pixi/particles@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/particles/-/particles-5.3.11.tgz"
-  integrity sha512-+mkt/inWXtRrxQc07RZ29uNIDWV1oMsrRBVBIvHgpR92Kn8EjIDRgoSXNu0jiZ18gRKKCBhwsS4dCXGsZRQ/sA==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/polyfill@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/polyfill/-/polyfill-5.3.11.tgz"
-  integrity sha512-yQOngcnn+2/L7n6L/g45hCnIDLWdnWmmcCY3UKJrOgbNX+JtLru1RR8AGLifkdsa0R5u48x584YQGqkTAChWVA==
-  dependencies:
-    es6-promise-polyfill "^1.2.0"
-    object-assign "^4.1.1"
-
-"@pixi/prepare@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/prepare/-/prepare-5.3.11.tgz"
-  integrity sha512-TvjGeg7xPKjv5NxbM5NXReno9yxUCw/N0HtDEtEFRVeBLN3u0Q/dZsXxL6gIvkHoS09NFW+7AwsYQLZrVbppjA==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/graphics" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/text" "5.3.11"
-    "@pixi/ticker" "5.3.11"
-
-"@pixi/runner@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/runner/-/runner-5.3.11.tgz"
-  integrity sha512-Mtb0rnSG+6KOIbr/48AtrILr8PZQepYwqYixVEXM6UHl+7+Z5NIx9fOByiicdjEKJvHIAYveu8yp2/L1vkF+qw==
-
-"@pixi/settings@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/settings/-/settings-5.3.11.tgz"
-  integrity sha512-ny/rjSmP+64WqxwmoY17KsFplxpuWbiMQ5SNAgkpi36z6k+utIGT05nIIhyMx3AAGSY+6dRbKmLeKyqCj8q4zw==
-  dependencies:
-    ismobilejs "^1.1.0"
-
-"@pixi/sprite-animated@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/sprite-animated/-/sprite-animated-5.3.11.tgz"
-  integrity sha512-xU1b6H8nJ1l05h7cBGw2DGo4QdLj7xootstZUx2BrTVX5ZENn5mjAGVD0uRpk8yt7Q6Bj7M+PS7ktzAgBW/hmQ==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/sprite" "5.3.11"
-    "@pixi/ticker" "5.3.11"
-
-"@pixi/sprite-tiling@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/sprite-tiling/-/sprite-tiling-5.3.11.tgz"
-  integrity sha512-KUiWsIumjrnp9QKGMe1BqtrV9Hxm91KoaiOlCBk/gw8753iKvuMmH+/Z0RnzeZylJ1sJsdonTWy/IaLi1jnd0g==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/sprite" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/sprite@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/sprite/-/sprite-5.3.11.tgz"
-  integrity sha512-RM6Sp8kqzsBdX/hDAO25HZywe9VU4uhOronUOQ5Ve0zRe+trdBWQYfi7+5kAcvzqkp25Izc0C+e+4YCqe5OaHQ==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/spritesheet@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/spritesheet/-/spritesheet-5.3.11.tgz"
-  integrity sha512-Y9Wiwcz/YOuS1v73Ij9KWQakYBzZfldEy3H8T4GPLK+S19/sypntdkNtRZbmR2wWfhJ4axYEB2/Df86aOAU2qA==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/loaders" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/text-bitmap@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/text-bitmap/-/text-bitmap-5.3.11.tgz"
-  integrity sha512-Bjc/G4VHaPXc9HJsvyYOm5cNTHdqmX6AgzBAlCfltuMAlnveUgUPuX8D/MJHRRnoVSDHSmCBtnJgTc0y/nIeCw==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/loaders" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/mesh" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/text" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/text@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/text/-/text-5.3.11.tgz"
-  integrity sha512-PmWvJv0wiKyyz3fahnxM19+m8IbF2vpDKIImqb5472WyxRGzKyVBW90xrADf5202tdKMk4b8hqvpof2XULr5PA==
-  dependencies:
-    "@pixi/core" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/sprite" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-"@pixi/ticker@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/ticker/-/ticker-5.3.11.tgz"
-  integrity sha512-J1CChbSo1SQib1zL5f+FcFJZ6wN7LnWpztJVpKKYy3ZM/v4HSh48UnrGDKn5SLwSq4K7BxvZduwMQ8m4Paz1gQ==
-  dependencies:
-    "@pixi/settings" "5.3.11"
-
-"@pixi/utils@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/@pixi/utils/-/utils-5.3.11.tgz"
-  integrity sha512-25ZSCTrfV8da28IzvLnTK0BGWB4dHpq5P9IEgFymJvVLK7sAyT+RPz18ewRbBHgALHsszDpfC+qrHp3i+VZP0Q==
-  dependencies:
-    "@pixi/constants" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    earcut "^2.1.5"
-    eventemitter3 "^3.1.0"
-    url "^0.11.0"
-
 "@popperjs/core@^2.11.3", "@popperjs/core@^2.4.4":
   version "2.11.4"
   resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.11.4.tgz"
@@ -1530,11 +1218,6 @@ core-js@^3.19.1, core-js@^3.20.3:
   resolved "https://registry.npmjs.org/core-js/-/core-js-3.20.3.tgz"
   integrity sha512-vVl8j8ph6tRS3B8qir40H7yw7voy17xL0piAjlbBUsH7WIfzoedL/ZOr1OV9FyZQLWXsayOJyV4tnRyXR85/ag==
 
-core-util-is@~1.0.0:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.3.tgz"
-  integrity sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==
-
 cosmiconfig@^6.0.0:
   version "6.0.0"
   resolved "https://registry.npmjs.org/cosmiconfig/-/cosmiconfig-6.0.0.tgz"
@@ -1641,11 +1324,6 @@ deprecation@^2.0.0, deprecation@^2.3.1:
   resolved "https://registry.npmjs.org/deprecation/-/deprecation-2.3.1.tgz"
   integrity sha512-xmHIy4F3scKVwMsQ4WnVaS8bHOx0DmVwRywosKhaILI0ywMDWPtBSku2HNxRvF7jtwDRsoEwYQSfbxj8b7RlJQ==
 
-dequal@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/dequal/-/dequal-2.0.2.tgz"
-  integrity sha512-q9K8BlJVxK7hQYqa6XISGmBZbtQQWVXSrRrWreHC94rMt1QL/Impruc+7p2CYSYuVIUr+YCt6hjrs1kkdJRTug==
-
 dom-helpers@^5.0.1:
   version "5.2.1"
   resolved "https://registry.npmjs.org/dom-helpers/-/dom-helpers-5.2.1.tgz"
@@ -1676,11 +1354,6 @@ duplexer3@^0.1.4:
   resolved "https://registry.npmjs.org/duplexer3/-/duplexer3-0.1.4.tgz"
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
-earcut@^2.1.5:
-  version "2.2.3"
-  resolved "https://registry.npmjs.org/earcut/-/earcut-2.2.3.tgz"
-  integrity sha512-iRDI1QeCQIhMCZk48DRDMVgQSSBDmbzzNhnxIo+pwx3swkfjMh6vh0nWLq1NdvGHLKH6wIrAM3vQWeTj6qeoug==
-
 electron-to-chromium@^1.4.17:
   version "1.4.49"
   resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.49.tgz"
@@ -1709,11 +1382,6 @@ error-ex@^1.3.1:
   integrity sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==
   dependencies:
     is-arrayish "^0.2.1"
-
-es6-promise-polyfill@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/es6-promise-polyfill/-/es6-promise-polyfill-1.2.0.tgz"
-  integrity sha1-84kl8jyz4+jObNqP93T867sJDN4=
 
 esbuild-android-arm64@0.13.15:
   version "0.13.15"
@@ -2059,11 +1727,6 @@ ignore-by-default@^1.0.1:
   resolved "https://registry.npmjs.org/ignore-by-default/-/ignore-by-default-1.0.1.tgz"
   integrity sha1-SMptcvbGo68Aqa1K5odr44ieKwk=
 
-immediate@~3.0.5:
-  version "3.0.6"
-  resolved "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz"
-  integrity sha1-nbHb0Pr43m++D13V5Wu2BigN5ps=
-
 immer@^9.0.12, immer@^9.0.7:
   version "9.0.12"
   resolved "https://registry.npmjs.org/immer/-/immer-9.0.12.tgz"
@@ -2086,11 +1749,6 @@ imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz"
   integrity sha1-khi5srkoojixPcT7a21XbyMUU+o=
-
-inherits@~2.0.3:
-  version "2.0.4"
-  resolved "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz"
-  integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
 ini@2.0.0:
   version "2.0.0"
@@ -2192,16 +1850,6 @@ is-yarn-global@^0.3.0:
   version "0.3.0"
   resolved "https://registry.npmjs.org/is-yarn-global/-/is-yarn-global-0.3.0.tgz"
   integrity sha512-VjSeb/lHmkoyd8ryPVIKvOCn4D1koMqY+vqyjjUfc3xyKtP4dYOxM44sZrnqQSzSds3xyOrUTLTC9LVCVgLngw==
-
-isarray@~1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz"
-  integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
-
-ismobilejs@^1.1.0:
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/ismobilejs/-/ismobilejs-1.1.1.tgz"
-  integrity sha512-VaFW53yt8QO61k2WJui0dHf4SlL8lxBofUuUmwBo0ljPk0Drz2TiuDW4jo3wDcv41qy/SxrJ+VAzJ/qYqsmzRw==
 
 iterall@^1.2.1:
   version "1.3.0"
@@ -2322,21 +1970,6 @@ jss@10.9.0, jss@^10.5.1:
     is-in-browser "^1.1.3"
     tiny-warning "^1.0.2"
 
-jszip-utils@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/jszip-utils/-/jszip-utils-0.1.0.tgz"
-  integrity sha512-tBNe0o3HAf8vo0BrOYnLPnXNo5A3KsRMnkBFYjh20Y3GPYGfgyoclEMgvVchx0nnL+mherPi74yLPIusHUQpZg==
-
-jszip@^3.6.0:
-  version "3.7.1"
-  resolved "https://registry.npmjs.org/jszip/-/jszip-3.7.1.tgz"
-  integrity sha512-ghL0tz1XG9ZEmRMcEN2vt7xabrDdqHHeykgARpmZ0BiIctWxM47Vt63ZO2dnp4QYt/xJVLLy5Zv1l/xRdh2byg==
-  dependencies:
-    lie "~3.3.0"
-    pako "~1.0.2"
-    readable-stream "~2.3.6"
-    set-immediate-shim "~1.0.1"
-
 keyv@^3.0.0:
   version "3.1.0"
   resolved "https://registry.npmjs.org/keyv/-/keyv-3.1.0.tgz"
@@ -2350,13 +1983,6 @@ latest-version@^5.1.0:
   integrity sha512-weT+r0kTkRQdCdYCNtkMwWXQTMEswKrFBkm4ckQOMVhhqhIMI1UT2hMj+1iigIhgSZm5gTmrRXBNoGUgaTY1xA==
   dependencies:
     package-json "^6.3.0"
-
-lie@~3.3.0:
-  version "3.3.0"
-  resolved "https://registry.npmjs.org/lie/-/lie-3.3.0.tgz"
-  integrity sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==
-  dependencies:
-    immediate "~3.0.5"
 
 lines-and-columns@^1.1.6:
   version "1.2.4"
@@ -2435,11 +2061,6 @@ min-document@^2.19.0:
   integrity sha1-e9KC4/WELtKVu3SM3Z8f+iyCRoU=
   dependencies:
     dom-walk "^0.1.0"
-
-mini-signals@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/mini-signals/-/mini-signals-1.2.0.tgz"
-  integrity sha1-RbCAE8X65RokqhqTXNMXye1yHXQ=
 
 minimatch@^3.0.4:
   version "3.0.4"
@@ -2553,11 +2174,6 @@ package-json@^6.3.0:
     registry-url "^5.0.0"
     semver "^6.2.0"
 
-pako@~1.0.2:
-  version "1.0.11"
-  resolved "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz"
-  integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
-
 parent-module@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/parent-module/-/parent-module-1.0.1.tgz"
@@ -2574,11 +2190,6 @@ parse-json@^5.0.0:
     error-ex "^1.3.1"
     json-parse-even-better-errors "^2.3.0"
     lines-and-columns "^1.1.6"
-
-parse-uri@^1.0.0:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/parse-uri/-/parse-uri-1.0.3.tgz"
-  integrity sha512-upMnGxNcm+45So85HoguwZTVZI9u11i36DdxJfGF2HYWS2eh3TIx7+/tTi7qrEq15qzGkVhsKjesau+kCk48pA==
 
 path-parse@^1.0.7:
   version "1.0.7"
@@ -2599,51 +2210,6 @@ picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.2:
   version "2.3.1"
   resolved "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
-
-pixi.js@^5.3.3:
-  version "5.3.11"
-  resolved "https://registry.npmjs.org/pixi.js/-/pixi.js-5.3.11.tgz"
-  integrity sha512-/9td6IHDQqG0Po5lyQ5aKDzrnEVD1SvGourI4Nqp0mvNI0Cbm74tMHLjk1V5foqGPAS9pochENr6Y3ft/2cDiQ==
-  dependencies:
-    "@pixi/accessibility" "5.3.11"
-    "@pixi/app" "5.3.11"
-    "@pixi/constants" "5.3.11"
-    "@pixi/core" "5.3.11"
-    "@pixi/display" "5.3.11"
-    "@pixi/extract" "5.3.11"
-    "@pixi/filter-alpha" "5.3.11"
-    "@pixi/filter-blur" "5.3.11"
-    "@pixi/filter-color-matrix" "5.3.11"
-    "@pixi/filter-displacement" "5.3.11"
-    "@pixi/filter-fxaa" "5.3.11"
-    "@pixi/filter-noise" "5.3.11"
-    "@pixi/graphics" "5.3.11"
-    "@pixi/interaction" "5.3.11"
-    "@pixi/loaders" "5.3.11"
-    "@pixi/math" "5.3.11"
-    "@pixi/mesh" "5.3.11"
-    "@pixi/mesh-extras" "5.3.11"
-    "@pixi/mixin-cache-as-bitmap" "5.3.11"
-    "@pixi/mixin-get-child-by-name" "5.3.11"
-    "@pixi/mixin-get-global-position" "5.3.11"
-    "@pixi/particles" "5.3.11"
-    "@pixi/polyfill" "5.3.11"
-    "@pixi/prepare" "5.3.11"
-    "@pixi/runner" "5.3.11"
-    "@pixi/settings" "5.3.11"
-    "@pixi/sprite" "5.3.11"
-    "@pixi/sprite-animated" "5.3.11"
-    "@pixi/sprite-tiling" "5.3.11"
-    "@pixi/spritesheet" "5.3.11"
-    "@pixi/text" "5.3.11"
-    "@pixi/text-bitmap" "5.3.11"
-    "@pixi/ticker" "5.3.11"
-    "@pixi/utils" "5.3.11"
-
-pngjs@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.npmjs.org/pngjs/-/pngjs-6.0.0.tgz"
-  integrity sha512-TRzzuFRRmEoSW/p1KVAmiOgPco2Irlah+bGFCeNfJXxxYGwSw7YwAOAcd7X28K/m5bjBWKsC29KyoMfHbypayg==
 
 popper.js@1.16.1-lts:
   version "1.16.1-lts"
@@ -2710,11 +2276,6 @@ prettier@^2.2.1:
   resolved "https://registry.npmjs.org/prettier/-/prettier-2.5.1.tgz"
   integrity sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==
 
-process-nextick-args@~2.0.0:
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz"
-  integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
-
 process@^0.11.10:
   version "0.11.10"
   resolved "https://registry.npmjs.org/process/-/process-0.11.10.tgz"
@@ -2742,11 +2303,6 @@ pump@^3.0.0:
     end-of-stream "^1.1.0"
     once "^1.3.1"
 
-punycode@1.3.2:
-  version "1.3.2"
-  resolved "https://registry.npmjs.org/punycode/-/punycode-1.3.2.tgz"
-  integrity sha1-llOgNvt8HuQjQvIyXM7v6jkmxI0=
-
 punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.npmjs.org/punycode/-/punycode-2.1.1.tgz"
@@ -2758,11 +2314,6 @@ pupa@^2.1.1:
   integrity sha512-l1jNAspIBSFqbT+y+5FosojNpVpF94nlI+wDUpqP9enwOTfHx9f0gh5nB96vl+6yTpsJsypeNrwfzPrKuHB41A==
   dependencies:
     escape-goat "^2.0.0"
-
-querystring@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.npmjs.org/querystring/-/querystring-0.2.0.tgz"
-  integrity sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
 
 rc@^1.2.8:
   version "1.2.8"
@@ -2888,19 +2439,6 @@ react@^17.0.1:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
-readable-stream@~2.3.6:
-  version "2.3.7"
-  resolved "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.7.tgz"
-  integrity sha512-Ebho8K4jIbHAxnuxi7o42OrZgF/ZTNcsZj6nRKyUmkhLFq8CHItp/fy6hQZuZmP/n3yZ9VBUbp4zz/mX8hmYPw==
-  dependencies:
-    core-util-is "~1.0.0"
-    inherits "~2.0.3"
-    isarray "~1.0.0"
-    process-nextick-args "~2.0.0"
-    safe-buffer "~5.1.1"
-    string_decoder "~1.1.1"
-    util-deprecate "~1.0.1"
-
 readdirp@~3.6.0:
   version "3.6.0"
   resolved "https://registry.npmjs.org/readdirp/-/readdirp-3.6.0.tgz"
@@ -2980,14 +2518,6 @@ resolve@^1.12.0, resolve@^1.20.0:
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
 
-resource-loader@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/resource-loader/-/resource-loader-3.0.1.tgz"
-  integrity sha512-fBuCRbEHdLCI1eglzQhUv9Rrdcmqkydr1r6uHE2cYHvRBrcLXeSmbE/qI/urFt8rPr/IGxir3BUwM5kUK8XoyA==
-  dependencies:
-    mini-signals "^1.2.0"
-    parse-uri "^1.0.0"
-
 responselike@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/responselike/-/responselike-1.0.2.tgz"
@@ -3007,7 +2537,7 @@ rollup@^2.59.0:
   optionalDependencies:
     fsevents "~2.3.2"
 
-safe-buffer@~5.1.0, safe-buffer@~5.1.1:
+safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz"
   integrity sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==
@@ -3053,11 +2583,6 @@ semver@^7.3.4, semver@^7.3.5:
   dependencies:
     lru-cache "^6.0.0"
 
-set-immediate-shim@~1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/set-immediate-shim/-/set-immediate-shim-1.0.1.tgz"
-  integrity sha1-SysbJ+uAip+NzEgaWOXlb1mfP2E=
-
 shallowequal@^1.1.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/shallowequal/-/shallowequal-1.1.0.tgz"
@@ -3101,13 +2626,6 @@ string-width@^4.0.0, string-width@^4.1.0, string-width@^4.2.2:
     emoji-regex "^8.0.0"
     is-fullwidth-code-point "^3.0.0"
     strip-ansi "^6.0.1"
-
-string_decoder@~1.1.1:
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz"
-  integrity sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==
-  dependencies:
-    safe-buffer "~5.1.0"
 
 strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
@@ -3328,28 +2846,12 @@ url-parse-lax@^3.0.0:
   dependencies:
     prepend-http "^2.0.0"
 
-url@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.npmjs.org/url/-/url-0.11.0.tgz"
-  integrity sha1-ODjpfPxgUh63PFJajlW/3Z4uKPE=
-  dependencies:
-    punycode "1.3.2"
-    querystring "0.2.0"
-
-use-deep-compare-effect@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.npmjs.org/use-deep-compare-effect/-/use-deep-compare-effect-1.8.1.tgz"
-  integrity sha512-kbeNVZ9Zkc0RFGpfMN3MNfaKNvcLNyxOAAd9O4CBZ+kCBXXscn9s/4I+8ytUER4RDpEYs5+O6Rs4PqiZ+rHr5Q==
-  dependencies:
-    "@babel/runtime" "^7.12.5"
-    dequal "^2.0.2"
-
 use-immer@^0.6.0:
   version "0.6.0"
   resolved "https://registry.npmjs.org/use-immer/-/use-immer-0.6.0.tgz"
   integrity sha512-dFGRfvWCqPDTOt/S431ETYTg6+uxbpb7A1pptufwXVzGJY3RlXr38+3wyLNpc6SbbmAKjWl6+EP6uW74fkEsXQ==
 
-util-deprecate@^1.0.2, util-deprecate@~1.0.1:
+util-deprecate@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   integrity sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=

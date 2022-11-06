@@ -10,10 +10,10 @@
 </p>
 
 <p align="center">
-  An Editor for editing and simulating light dance show
+  An online editor to design, simulate and control the lights
 </p>
 <div align="center" >
-    <img src="https://user-images.githubusercontent.com/17617373/126040650-b25e5a8f-5b40-4636-93b9-4a79e690e816.gif" width="100%">
+    <img src="https://user-images.githubusercontent.com/17617373/199907047-a87e1cea-4ff4-45c9-9f41-e05d28a47473.gif" width="100%">
 </div>
 
 ## Architecture
@@ -65,20 +65,6 @@ You need to have MongoDB running on `mongodb://localhost:27017`
 docker-compose -f dev.docker-compose.yml up -d mongodb redisdb
 ```
 
-### Initialize Database
-
-After starting all services, one can add 2021's control and position data into mongoDB.
-
-```bash
-cd utils
-yarn
-export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
-node initDB.js ${filePath}
-// node initDB.js ../others/dance_json/export.json
-node initLED.js ${filePath}
-// node initLED.js ../others/dance_json/test_exportLED.json
-```
-
 ## Production
 
 Create the `eeinfo` network
@@ -90,7 +76,7 @@ docker network create eeinfo
 Run services `nginx`, `editor`, `editor-server`, `file-server`, `redisdb`, `mongodb`.
 
 ```bash
-docker-compose -f prod.docker-compose.yml up -d
+docker-compose -f prod-support/prod.docker-compose.yml up -d
 ```
 
 Editor will run on `http://localhost:8080`.
@@ -99,14 +85,13 @@ Editor-server will run on `http://localhost:4000`.
 
 ### Initialize Database
 
-After starting all services, one can add 2021's control and position data into mongoDB.
+After starting all services, one must initialize the database.
 
 ```bash
-cd utils
-yarn
+cd utils && yarn
 export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
 node initDB.js ${filePath}
-// node initDB.js ../others/dance_json/export.json
+// node initDB.js ../others/2022_ee_night/exportData.json
 node initLED.js ${filePath}
-// node initLED.js ../others/dance_json/test_exportLED.json
+// node initLED.js ../others/2022_ee_night/exportLED.json
 ```

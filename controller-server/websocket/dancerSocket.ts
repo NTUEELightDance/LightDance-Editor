@@ -1,5 +1,4 @@
 import { CommandType } from "../constants";
-import led from "../../files/data/led.json";
 import WebSocket from "ws";
 import {
   ClientType,
@@ -176,7 +175,7 @@ class DancerSocket {
     this.sendDataToRpiSocket({ command: CommandType.GREEN });
   };
   stmInit = () => {
-    this.sendDataToRpiSocket({ command: CommandType.STMINIT});
+    this.sendDataToRpiSocket({ command: CommandType.STMINIT });
   };
   darkAll = () => {
     this.sendDataToRpiSocket({ command: CommandType.DARKALL });

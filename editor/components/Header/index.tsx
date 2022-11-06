@@ -33,7 +33,7 @@ export default function Header() {
         <Toolbar style={{ minHeight: "6vh", width: "100%" }}>
           <Box sx={{ height: "6vh", p: "1vh 1vw", mr: "3vw" }}>
             <img
-              src="/asset/Header/LDlogoWhite.png"
+              src="LDlogoWhite.png"
               alt="NTUEE Light Dance logo"
               style={{ height: "100%" }}
             />

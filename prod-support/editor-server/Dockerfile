@@ -18,6 +18,7 @@ EXPOSE 4000
 # Set the environment variables
 ENV MONGO_HOST=mongodb
 ENV REDIS_HOST=redisdb
+ENV NODE_OPTIONS='--max-old-space-size=8192'
 
 # serve the port
 CMD ["yarn", "deploy"]

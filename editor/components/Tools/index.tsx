@@ -41,7 +41,6 @@ export default function Tools() {
         onClose={handleClose}
       >
         <MenuItem onClick={handleOpenTimeShift}>TimeShift</MenuItem>
-        <MenuItem onClick={handleClose}>Merge</MenuItem>
       </Menu>
       <TimeShift open={openTimeShift} handleClose={handleCloseTimeShift} />
     </>
