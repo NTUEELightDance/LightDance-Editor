@@ -32,6 +32,6 @@
   },
   "scripts": {
     "start": "nodemon src/index.ts",
-    "deploy": "ts-node src/index.ts"
+    "deploy": "NODE_ENV=production ts-node src/index.ts"
   }
 }
