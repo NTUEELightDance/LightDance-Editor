@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
-import { COMMANDS, WEBSOCKETCLIENT } from "constants";
+import { COMMANDS, WEBSOCKETCLIENT } from "@/constants";
 // states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
@@ -18,6 +18,8 @@ import {
 } from "types/hooks/webSocket";
 
 import { notification } from "core/utils";
+
+import { log } from "core/utils";
 
 const BOARDINFO = "boardInfo";
 const DISCONNECT = "disconnect";
@@ -45,14 +47,14 @@ export default function useWebsocketState() {
       return;
     }
     ws.current.onopen = async () => {
-      console.log("Websocket for Editor Connected");
+      log("Websocket for Editor Connected");
       sendDataToServer({
         command: BOARDINFO,
         payload: { type: WEBSOCKETCLIENT.CONTROLPANEL },
       });
 
       (ws.current as WebSocket).onerror = (err) => {
-        console.log(`Editor's Websocket error : ${err} `);
+        log(`Editor's Websocket error : ${err} `);
       };
 
       (ws.current as WebSocket).onmessage = (msg) => {
@@ -61,7 +63,7 @@ export default function useWebsocketState() {
       };
 
       (ws.current as WebSocket).onclose = (e) => {
-        console.log(`Websocket for Editor closed`);
+        log(`Websocket for Editor closed`);
       };
     };
   };
@@ -126,7 +128,7 @@ export default function useWebsocketState() {
       method: "GET",
       redirect: "follow",
     };
-    console.log(Date.now());
+    log(Date.now());
 
     fetch(`/api/nthu_play?sys_time=${sysTime}`, requestOptions)
       .then((response) => response.text())
@@ -139,7 +141,7 @@ export default function useWebsocketState() {
       method: "GET",
       redirect: "follow",
     };
-    console.log(Date.now());
+    log(Date.now());
 
     fetch(`/api/nthu_stop`, requestOptions)
       .then((response) => response.text())

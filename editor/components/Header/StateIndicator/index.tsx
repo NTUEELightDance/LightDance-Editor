@@ -3,7 +3,7 @@ import { Zoom } from "@mui/material";
 // @ts-ignore
 import styles from "./styles.module.css";
 
-import { EDITING } from "constants";
+import { EDITING } from "@/constants";
 import { EditMode } from "core/models";
 
 const EditorIndicator = ({ editMode }: { editMode: EditMode }) => {

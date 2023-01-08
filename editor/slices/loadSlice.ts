@@ -7,6 +7,8 @@ import {
 } from "../components/Presets/presets";
 import { RootState, AppDispatch } from "../store/index";
 
+import { log } from "core/utils";
+
 const initialState: LoadState = {
   init: false,
   music: "",
@@ -57,7 +59,7 @@ const fetchJson = (path: string) => {
 
 export const fetchLoad = () => async (dispatch: AppDispatch) => {
   const load = await fetchJson("/data/load.json");
-  console.log("load", load);
+  log("load", load);
   const { Music, LightPresets, PosPresets, DancerMap } = load;
   // set load
   dispatch(setLoad(load));

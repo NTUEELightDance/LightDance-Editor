@@ -8,7 +8,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 // constants
-import { IDLE, EDITING } from "constants";
+import { IDLE, EDITING } from "@/constants";
 // hooks
 import useEditHandler from "hooks/useEditHandler";
 import { useHotkeys } from "react-hotkeys-hook";

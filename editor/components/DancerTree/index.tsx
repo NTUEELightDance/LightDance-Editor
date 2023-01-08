@@ -14,7 +14,7 @@ import {
   setSelectionMode,
 } from "core/actions";
 import { PartPayload, SelectionMode } from "core/models";
-import { DANCER, PART, POSITION } from "constants";
+import { DANCER, PART, POSITION } from "@/constants";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 

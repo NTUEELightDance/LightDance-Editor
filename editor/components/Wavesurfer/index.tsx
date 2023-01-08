@@ -15,7 +15,7 @@ import usePos from "hooks/usePos";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 // constants
-import { CONTROL_EDITOR, POS_EDITOR } from "constants";
+import { CONTROL_EDITOR, POS_EDITOR } from "@/constants";
 
 /**
  *

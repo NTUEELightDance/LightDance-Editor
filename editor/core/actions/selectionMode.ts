@@ -2,7 +2,7 @@ import { registerActions } from "../registerActions";
 
 import { State, Selected, Editor } from "../models";
 
-import { CONTROL_EDITOR, POS_EDITOR, POSITION, DANCER } from "constants";
+import { CONTROL_EDITOR, POS_EDITOR, POSITION, DANCER } from "@/constants";
 
 const actions = registerActions({
   /**

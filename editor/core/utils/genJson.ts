@@ -1,4 +1,4 @@
-import { FIBER } from "constants";
+import { FIBER } from "@/constants";
 import {
   ColorMap,
   ControlMap,

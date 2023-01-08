@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "./store";
 // apollo
@@ -25,4 +25,5 @@ const Index = () => (
   </ApolloProvider>
 );
 
-ReactDOM.render(<Index />, document.getElementById("app"));
+const root = ReactDOM.createRoot(document.getElementById("app")!);
+root.render(<Index />);

@@ -14,7 +14,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // hooks
 import useWebsocket from "hooks/useWebsocket";
 // constants
-import { COMMANDS } from "constants";
+import { COMMANDS } from "@/constants";
 // contexts
 import { WaveSurferAppContext } from "contexts/WavesurferContext";
 

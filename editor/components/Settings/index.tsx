@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 
-import { Typography, Box, IconButton, Menu, MenuItem } from "@mui/material";
+import { Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import File from "./File";
 import Preference from "./Preference";
@@ -15,6 +15,7 @@ export const Settings = ({
 }) => {
   const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
+  const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const settings = [
     {
@@ -39,11 +40,13 @@ export const Settings = ({
 
   return (
     <>
-      <IconButton onClick={() => setShowSettings(!showSettings)}>
+      <IconButton
+        onClick={() => setShowSettings(!showSettings)}
+        ref={menuAnchor}
+      >
         <SettingsIcon sx={{ color: "white" }} />
       </IconButton>
       <Menu
-        id="menu-appbar"
         sx={{ transform: "translate(-30px, 45px)" }}
         anchorOrigin={{
           vertical: "top",
@@ -54,6 +57,7 @@ export const Settings = ({
           vertical: "top",
           horizontal: "right",
         }}
+        anchorEl={menuAnchor.current}
         open={showSettings}
         onClose={() => setShowSettings(false)}
       >

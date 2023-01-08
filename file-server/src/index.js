@@ -1,7 +1,9 @@
-const express = require("express");
 const path = require("path");
+const compression = require("compression");
+const express = require("express");
 
 const app = express();
+app.use(compression());
 
 const assetPath = path.resolve(__dirname, "..", "..", "files", "asset");
 app.use("/asset", express.static(assetPath));

@@ -2,7 +2,7 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // GUI to control behavior of three simulator
 
 import ThreeController from "../ThreeController";
-import { LED, FIBER } from "constants";
+import { LED, FIBER } from "@/constants";
 
 class Settings {
   threeController: ThreeController;

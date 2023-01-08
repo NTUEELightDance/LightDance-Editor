@@ -4,6 +4,7 @@ import "dotenv-defaults/config";
 import http from "http";
 import bodyParser from "body-parser";
 import { ApolloServer } from "apollo-server-express";
+import { ApolloServerPluginLandingPageDisabled } from "apollo-server-core";
 import { execute, subscribe } from "graphql";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { PubSub } from "graphql-subscriptions";
@@ -105,6 +106,9 @@ const { SECRET_KEY } = process.env;
           };
         },
       },
+      ...(process.env.NODE_ENV === "production"
+        ? [ApolloServerPluginLandingPageDisabled()]
+        : []),
     ],
   });
 

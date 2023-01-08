@@ -10,7 +10,9 @@ import { setCurrentPos } from "core/actions/currentPos";
 import { Dancer } from "../ThreeComponents";
 
 import styles from "./controls.module.css";
-import { DANCER, PART, POSITION } from "constants";
+import { DANCER, PART, POSITION } from "@/constants";
+
+import { log } from "core/utils";
 
 class Controls {
   renderer: THREE.Renderer;
@@ -89,7 +91,7 @@ class Controls {
         );
 
         const allSelected = selectionBox.select();
-        console.log(
+        log(
           allSelected.map((obj) => ({ [obj.parent.name]: obj.name }))
         );
       }
@@ -105,7 +107,7 @@ class Controls {
       );
 
       const allSelected = selectionBox.select();
-      console.log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
+      log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
     });
   }
 

@@ -5,7 +5,8 @@ import {
   SUB_CONTROL_MAP,
   SUB_EFFECT_LIST,
 } from "../graphql";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash/cloneDeep";
+import { log } from "core/utils";
 
 const subPosRecord = (client) => {
   client
@@ -179,7 +180,7 @@ const subEffectList = (client) => {
     })
     .subscribe({
       next(data) {
-        console.log(data);
+        log(data);
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {

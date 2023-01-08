@@ -14,6 +14,8 @@ import {
 
 import { Color } from "three";
 
+import { log } from "core/utils";
+
 const actions = registerActions({
   /**
    * Set currentStatus
@@ -104,7 +106,7 @@ const actions = registerActions({
     const [controlRecord, controlMap] = await getControl();
     setItem("controlRecord", JSON.stringify(controlRecord));
     setItem("controlMap", JSON.stringify(controlMap));
-    console.log("Control Saved to Local Storage...");
+    log("Control Saved to Local Storage...");
   },
 
   editCurrentStatusDelta: (state: State, payload: CurrentStatusDelta) => {

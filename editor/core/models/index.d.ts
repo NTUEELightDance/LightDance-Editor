@@ -1,5 +1,5 @@
 import { ReactiveVar } from "@apollo/client";
-import { CONTROL_EDITOR, POS_EDITOR, IDLE, EDITING, ADDING, DANCER, PART, POSITION } from "constants";
+import { CONTROL_EDITOR, POS_EDITOR, IDLE, EDITING, ADDING, DANCER, PART, POSITION } from "@/constants";
 import { Color } from "three";
 
 export type id = string;

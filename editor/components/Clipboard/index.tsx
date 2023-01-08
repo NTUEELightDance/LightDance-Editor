@@ -9,7 +9,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { reactiveState } from "core/state";
 import { editCurrentStatus } from "core/actions";
 import { makeVar } from "@apollo/client";
-import { DANCER } from "constants";
+import { DANCER } from "@/constants";
 
 // hotkeys
 import { useHotkeys } from "react-hotkeys-hook";

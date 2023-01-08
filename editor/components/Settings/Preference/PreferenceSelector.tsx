@@ -29,7 +29,7 @@ export const PreferenceSelector = ({
       <Typography>{label}</Typography>
       <Select value={value} onChange={onChange} size="small">
         {Options.map((preference) => (
-          <MenuItem value={preference}>
+          <MenuItem value={preference} key={preference}>
             <Typography textAlign="center">{preference}</Typography>
           </MenuItem>
         ))}

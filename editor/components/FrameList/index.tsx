@@ -7,7 +7,7 @@ import FrameItem from "./FrameItem";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 // constants
-import { CONTROL_EDITOR } from "constants";
+import { CONTROL_EDITOR } from "@/constants";
 // hooks
 import useControlFrameList from "./useControlFrameList";
 import usePosFrameList from "./usePosFrameList";
