@@ -1,37 +1,23 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 // mui
-import { makeStyles } from "@material-ui/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import TextField from "@material-ui/core/TextField";
-import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 // types
 import {
   PresetsListType,
   LightPresetsElement,
   PosPresetsElement,
 } from "./presets";
-
-const useStyles = makeStyles({
-  flex: {
-    display: "flex",
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  btn: {
-    padding: 0,
-  },
-});
 
 function InstanceOfLightPresetsElement(
   preset: any
@@ -52,8 +38,6 @@ export default function PresetsList({
   handleDeletePresets,
   handleSetCurrent,
 }: PresetsListType) {
-  const classes = useStyles();
-
   // dialog
   const [open, setOpen] = useState(false);
   const [nameVal, setNameVal] = useState("");
@@ -90,23 +74,23 @@ export default function PresetsList({
           (preset: LightPresetsElement | PosPresetsElement, i: number) => (
             <ListItem
               key={`${i}_preset`}
-              className={classes.flex}
+              sx={{ display: "flex" }}
               onDoubleClick={() => handleApplyPreset(preset)}
             >
-              <div className={classes.grow}>
+              <div style={{ flexGrow: 1 }}>
                 <Typography variant="body1">
                   [{i}] {preset.name}
                 </Typography>
               </div>
               <div>
                 <IconButton
-                  className={classes.btn}
+                  sx={{ p: 0 }}
                   onClick={() => openDialog(preset.name, i)}
                 >
                   <EditIcon />
                 </IconButton>
                 <IconButton onClick={() => handleDeletePresets(i)}>
-                  <DeleteIcon className={classes.btn} />
+                  <DeleteIcon />
                 </IconButton>
               </div>
             </ListItem>
@@ -127,7 +111,3 @@ export default function PresetsList({
     </div>
   );
 }
-
-PresetsList.propTypes = {
-  presets: PropTypes.array.isRequired,
-};

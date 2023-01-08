@@ -7,7 +7,7 @@ import client from "./client";
 import WaveSurferAppContext from "./contexts/WavesurferContext";
 import LayoutContextProvider from "./contexts/LayoutContext";
 
-import App from "./app";
+import App from "./App";
 
 import "./index.css";
 

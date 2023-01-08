@@ -21,6 +21,7 @@ import {
     CurrentLedEffect,
     LedEffectRecord,
     EffectListType,
+    StateKey,
 } from "../models";
 
 /**
@@ -108,7 +109,7 @@ export function syncReactiveState(states: string[]) {
         diffSet.forEach((key) => {
             if (key in state && key in reactiveState) {
                 console.debug("update reactiveState", key);
-                reactiveState[key](cloneDeep(state[key]));
+                reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
             } else {
                 console.error(`[syncReactiveState] Cannot find the key ${key}`);
             }
@@ -118,7 +119,7 @@ export function syncReactiveState(states: string[]) {
         states.forEach((key) => {
             if (key in reactiveState && key in state) {
                 console.debug("update reactiveState", key);
-                reactiveState[key](cloneDeep(state[key]));
+                reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
             } else {
                 console.error(`[syncReactiveState] Cannot find the key ${key} in state.`);
             }

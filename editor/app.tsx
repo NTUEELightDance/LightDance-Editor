@@ -1,13 +1,7 @@
-import { hot } from "react-hot-loader/root";
 import { useState, useEffect } from "react";
-// mui
-import {
-  createTheme as obsoleteCreateTheme,
-  ThemeProvider as ObsoleteThemeProvider,
-} from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
+
 // new mui
-import { createTheme, ThemeProvider } from "@mui/material";
+import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 // redux
 import { useSelector, useDispatch } from "react-redux";
 // actions
@@ -33,25 +27,6 @@ import {
 import "./app.css";
 import Layout from "containers/Layout";
 import { getControl, getPos } from "core/utils";
-
-const obsoleteTheme = obsoleteCreateTheme({
-  palette: {
-    type: "dark",
-    primary: {
-      main: "#94BBFF",
-      dark: "#94BBFF",
-    },
-    background: {
-      paper: "#292929",
-      default: "#121212",
-    },
-  },
-  typography: {
-    // In Chinese and Japanese the characters are usually larger,
-    // so a smaller fontsize may be appropriate.
-    fontSize: 12,
-  },
-});
 
 const theme = createTheme({ palette: { mode: "dark" } });
 
@@ -130,8 +105,6 @@ const App = () => {
   const { loading: colorLoading, error: colorError } = useColorMap();
 
   return (
-    <div>
-      <ObsoleteThemeProvider theme={obsoleteTheme}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Clipboard />
@@ -152,9 +125,7 @@ const App = () => {
             <Loading />
           )}
         </ThemeProvider>
-      </ObsoleteThemeProvider>
-    </div>
   );
 };
 
-export default hot(App);
+export default App;

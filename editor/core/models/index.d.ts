@@ -1,7 +1,6 @@
 import { ReactiveVar } from "@apollo/client";
 import { CONTROL_EDITOR, POS_EDITOR, IDLE, EDITING, ADDING, DANCER, PART, POSITION } from "constants";
 import { Color } from "three";
-import { number, string } from "prop-types";
 
 export type id = string;
 export type index = number;
@@ -262,10 +261,12 @@ export interface State {
     effectList: EffectListType;
 }
 
+export type StateKey = keyof State;
+
 /**
  * Reactive State, can trigger react component
  */
-export interface ReactiveState {
+export interface ReactiveState extends Record<StateKey, any>{
     isPlaying: ReactiveVar<boolean>; // isPlaying
 
     currentTime: ReactiveVar<number>; // current time
