@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 // mui
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import TextField from "@material-ui/core/TextField";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Input from "@mui/material/Input";
 // states and actions
 import { setCurrentStatus } from "core/actions";
 // hooks
@@ -88,10 +88,10 @@ export default function LightPresets() {
         />
       </div>
       <div>
-        <Dialog fullWidth maxWidth="md" open={open} onClose={closeDialog}>
+        <Dialog maxWidth="md" open={open} onClose={closeDialog}>
           <DialogTitle>Preset name</DialogTitle>
           <DialogContent>
-            <TextField fullWidth value={nameVal} onChange={handleChangeName} />
+            <Input value={nameVal} onChange={handleChangeName} />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => handleAddPresets(nameVal)}>OK</Button>
