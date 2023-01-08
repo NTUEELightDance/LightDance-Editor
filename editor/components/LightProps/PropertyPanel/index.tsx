@@ -18,7 +18,7 @@ import { setSelectedParts, setSelectionMode } from "core/actions";
 
 import LEDcontrols from "../LEDcontrols";
 
-import { PART } from "constants";
+import { PART } from "@/constants";
 
 const PropertyPanel = ({
   partType,

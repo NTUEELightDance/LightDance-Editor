@@ -1,7 +1,9 @@
 import { makeVar } from "@apollo/client";
 import { cloneDeep } from "lodash";
 import onChange from "on-change";
-import { IDLE, CONTROL_EDITOR, DANCER } from "constants";
+import { IDLE, CONTROL_EDITOR, DANCER } from "@/constants";
+
+import { debug } from "core/utils";
 
 // types
 import {
@@ -65,6 +67,14 @@ export const state = onChange(_state, (path: string, value, previousValue, apply
     diffSet.add(path.split(".")[0]);
 });
 
+state.toString = () => {
+    if(process.env.NODE_ENV !== "production") {
+        return JSON.parse(JSON.stringify(state));
+    } else {
+        return "Don't print state in production mode";
+    }
+}
+
 /**
  * Reactive State, can trigger react component rerender
  */
@@ -108,7 +118,7 @@ export function syncReactiveState(states: string[]) {
         // only update states in diffSet
         diffSet.forEach((key) => {
             if (key in state && key in reactiveState) {
-                console.debug("update reactiveState", key);
+                debug("update reactiveState", key);
                 reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
             } else {
                 console.error(`[syncReactiveState] Cannot find the key ${key}`);
@@ -118,7 +128,7 @@ export function syncReactiveState(states: string[]) {
     } else {
         states.forEach((key) => {
             if (key in reactiveState && key in state) {
-                console.debug("update reactiveState", key);
+                debug("update reactiveState", key);
                 reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
             } else {
                 console.error(`[syncReactiveState] Cannot find the key ${key} in state.`);

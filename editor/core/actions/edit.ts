@@ -2,7 +2,7 @@ import { registerActions } from "../registerActions";
 // types
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
-import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "constants";
+import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "@/constants";
 import { getControl, getPos, deleteColorCode } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";

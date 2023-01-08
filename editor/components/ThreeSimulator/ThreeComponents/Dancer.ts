@@ -5,7 +5,7 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
 import { state } from "core/state";
 
-import { FIBER, EL, LED } from "constants";
+import { FIBER, EL, LED } from "@/constants";
 
 import { LEDPart, FiberPart } from "./Part";
 

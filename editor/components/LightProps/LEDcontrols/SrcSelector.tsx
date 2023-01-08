@@ -6,7 +6,7 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 // no-effect
-import { NO_EFFECT } from "constants";
+import { NO_EFFECT } from "@/constants";
 
 /**
  * Led Src Selector

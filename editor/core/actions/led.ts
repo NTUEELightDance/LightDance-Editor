@@ -11,7 +11,7 @@ import {
 } from "../models";
 // utils
 import { getControl } from "../utils";
-import { LED as LED_TYPE, NO_EFFECT } from "constants";
+import { LED as LED_TYPE, NO_EFFECT } from "@/constants";
 
 const actions = registerActions({
   /**

@@ -40,3 +40,4 @@ export * from "./frame";
 export * from "./led";
 export * from "./genJson";
 export * from "./timeFormat"
+export * from "./log"

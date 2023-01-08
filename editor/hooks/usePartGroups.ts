@@ -8,7 +8,7 @@ import {
   EditGroupError,
 } from "core/models";
 
-import { GROUP } from "constants";
+import { GROUP } from "@/constants";
 
 export type PartGroupType = {
   [groupName: string]: string[];

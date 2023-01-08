@@ -12,7 +12,7 @@ import { setCurrentControlIndex, setCurrentPosIndex } from "../../core/actions";
 // hotkeys
 import { useHotkeys } from "react-hotkeys-hook";
 // constants
-import { CONTROL_EDITOR } from "constants";
+import { CONTROL_EDITOR } from "@/constants";
 
 /**
  * Time Data Controller (time, controlFrame, posFrame)

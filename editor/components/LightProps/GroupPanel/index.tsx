@@ -18,7 +18,7 @@ import type {
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 import { notification } from "core/utils";
-import { PART } from "constants";
+import { PART } from "@/constants";
 
 const GroupPanel = ({
   partType,

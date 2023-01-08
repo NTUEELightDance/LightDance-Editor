@@ -42,10 +42,12 @@ const splitLink = split(
   httpLink
 );
 
+// don't connect to devtools in production
+const connectToDevTools = process.env.NODE_ENV !== "production";
 const client = new ApolloClient({
   link: authLink.concat(splitLink),
   cache: new InMemoryCache().restore({}),
-  connectToDevTools: true,
+  connectToDevTools,
 });
 
 Subscriptions(client);

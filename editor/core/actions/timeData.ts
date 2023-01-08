@@ -13,7 +13,7 @@ import {
 // types
 import { State } from "../models";
 // constants
-import { IDLE } from "constants";
+import { IDLE } from "@/constants";
 
 const actions = registerActions({
   /**

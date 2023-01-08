@@ -3,6 +3,9 @@ import { State } from "../models";
 // observers
 import { waveSurferAppInstance } from "../../components/Wavesurfer/WaveSurferApp";
 import { threeController } from "../../components/ThreeSimulator/ThreeController";
+
+import { debug } from "core/utils";
+
 /**
  * A mapping of actionName to the wrapped action.
  */
@@ -60,10 +63,10 @@ function actionCreator(action: Action, actionName: string) {
   return async (payloadOptions?: PayloadOptions) => {
     await action(state, payloadOptions?.payload);
     const options = { ...defaultOptions, ...payloadOptions?.options };
-    console.debug("actionName: ", actionName);
-    console.debug("payload", payloadOptions?.payload);
-    console.debug("options:", options);
-    console.debug("state", JSON.parse(JSON.stringify(state)));
+    debug("actionName: ", actionName);
+    debug("payload", payloadOptions?.payload);
+    debug("options:", options);
+    debug("state", state.toString());
     if (options.rerender) {
       // request rerender
       // TODO: detect which variable changes
@@ -73,11 +76,11 @@ function actionCreator(action: Action, actionName: string) {
     // TODO: these are hard coded
     // 3rd-party rerender
     if (options.refreshWavesurfer) {
-      console.debug("refreshWavesurfer");
+      debug("refreshWavesurfer");
       waveSurferAppInstance.seekTo(state.currentTime);
     }
     if (options.refreshThreeSimulator && threeController.isInitialized()) {
-      console.debug("refreshThreeSimulator");
+      debug("refreshThreeSimulator");
       threeController.updateDancersPos(state.currentPos);
       threeController.updateDancersStatus(state.currentStatus);
       threeController.render();
@@ -102,6 +105,6 @@ export function registerActions(actions: { [key: string]: Action }) {
       actionName
     );
   });
-  console.debug(wrappedActionRegistry);
+  debug(wrappedActionRegistry);
   return wrappedActionRegistry;
 }

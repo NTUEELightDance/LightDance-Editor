@@ -51,10 +51,12 @@ services:
   redisdb:
     image: redis
     container_name: lightdance-redisdb
+    volumes:
+      - ../redisData:/data
     networks:
       - lightdance-editor
 
 networks:
   lightdance-editor:
-    external:
-      name: eeinfo
+    external: true
+    name: eeinfo

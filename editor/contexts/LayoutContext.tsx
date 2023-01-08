@@ -10,7 +10,7 @@ import {
 
 import { asyncSetItem, asyncGetItem } from "core/utils";
 
-import { PREFERENCES } from "constants";
+import { PREFERENCES } from "@/constants";
 
 const LayoutContext = createContext<layoutContext | null>(null);
 

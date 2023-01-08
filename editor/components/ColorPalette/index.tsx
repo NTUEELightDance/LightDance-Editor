@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useImmer } from "use-immer";
 
-import {
-  Paper,
-  List,
-  Box,
-  Stack,
-  IconButton,
-  Collapse,
-} from "@mui/material";
+import Paper from "@mui/material/Paper";
+import List from "@mui/material/List";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import IconButton from "@mui/material/IconButton";
+import Collapse from "@mui/material/Collapse";
 import { TransitionGroup } from "react-transition-group";
 
 import AddIcon from "@mui/icons-material/Add";

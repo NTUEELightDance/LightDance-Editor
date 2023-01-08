@@ -15,7 +15,7 @@ import { threeController } from "./ThreeController";
 import SelectionModeSelector from "components/SelectionModeSelector";
 
 // constants
-import { IDLE, POSITION } from "constants";
+import { IDLE, POSITION } from "@/constants";
 
 /**
  * This is Display component

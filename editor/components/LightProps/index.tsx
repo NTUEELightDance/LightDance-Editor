@@ -4,7 +4,7 @@ import PartMode from "./PartMode";
 
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
-import { DANCER, PART } from "constants";
+import { DANCER, PART } from "@/constants";
 
 const LightProps = () => {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);

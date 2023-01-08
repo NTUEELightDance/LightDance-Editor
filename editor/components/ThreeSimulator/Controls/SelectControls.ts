@@ -1,6 +1,6 @@
 import { EventDispatcher, Raycaster, Vector2, Group } from "three";
 import { setSelectedDancers, clearSelected } from "../../../core/actions";
-import { DANCER, PART } from "constants";
+import { DANCER, PART } from "@/constants";
 
 import { throttle } from "throttle-debounce";
 
