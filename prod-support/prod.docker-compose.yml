@@ -11,6 +11,11 @@ services:
       - "8080:80"
     networks:
       - lightdance-editor
+    depends_on:
+      - editor
+      - editor-server
+      - file-server
+
   editor:
     image: lightdance-editor
     container_name: lightdance-editor
@@ -21,6 +26,10 @@ services:
       - "8080"
     networks:
       - lightdance-editor
+    depends_on:
+      - editor-server
+      - file-server
+
   editor-server:
     image: lightdance-editor-server
     container_name: lightdance-editor-server
@@ -31,6 +40,10 @@ services:
       - "4000:4000"
     networks:
       - lightdance-editor
+    depends_on:
+      - mongodb
+      - redisdb
+
   file-server:
     image: lightdance-file-server
     container_name: lightdance-file-server
@@ -41,6 +54,7 @@ services:
       - ../files:/app/files
     networks:
       - lightdance-editor
+
   mongodb:
     image: mongo
     container_name: lightdance-mongodb
@@ -48,6 +62,7 @@ services:
       - ../mongodbData:/data/db
     networks:
       - lightdance-editor
+
   redisdb:
     image: redis
     container_name: lightdance-redisdb
