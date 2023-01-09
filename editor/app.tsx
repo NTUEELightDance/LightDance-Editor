@@ -7,14 +7,9 @@ import { useSelector, useDispatch } from "react-redux";
 // actions
 import { selectLoad, fetchLoad } from "./slices/loadSlice";
 // components
-import Header from "./components/Header";
-import Clipboard from "components/Clipboard";
 import Loading from "components/Loading";
 // hooks
-import useControl from "hooks/useControl";
-import usePos from "hooks/usePos";
 import useDancer from "hooks/useDancer";
-import useColorMap from "hooks/useColorMap";
 // states and actions
 import {
   setCurrentPos,
@@ -24,9 +19,9 @@ import {
   generateLedEffectRecord,
 } from "core/actions";
 
-import "./app.css";
-import Layout from "containers/Layout";
 import { getControl, getPos } from "core/utils";
+
+import Router from "@/routes";
 
 const theme = createTheme({ palette: { mode: "dark" } });
 
@@ -61,7 +56,6 @@ const App = () => {
   }, []);
 
   const [posLoading, setPosLoading] = useState<boolean>(true);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -79,7 +73,6 @@ const App = () => {
 
   const {
     loading: dancerLoading,
-    error: dancerError,
     dancerNames,
   } = useDancer();
 
@@ -102,29 +95,15 @@ const App = () => {
     }
   }, [dancerLoading]);
 
-  const { loading: colorLoading, error: colorError } = useColorMap();
-
   return (
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Clipboard />
-          {init && !controlLoading && !posLoading ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                height: "100vh",
-              }}
-            >
-              <Header />
-              <div style={{ flexGrow: 1, position: "relative" }}>
-                <Layout />
-              </div>
-            </div>
-          ) : (
-            <Loading />
-          )}
-        </ThemeProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {init && !controlLoading && !posLoading ? (
+        <Router />
+      ) : (
+        <Loading />
+      )}
+    </ThemeProvider>
   );
 };
 

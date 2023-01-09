@@ -15,28 +15,31 @@ export const SettingModal = ({
       <Grow in={open}>
         <Box
           sx={{
-            display: "flex",
+            position: "relative",
             width: "30vw",
             minWidth: "600px",
             mx: "auto",
             mt: "8vh",
-            justifyContent: "center",
-            alignItems: "center",
           }}
         >
+          <IconButton
+            onClick={onClose}
+            sx={{
+              position: "absolute",
+              top: "0.5rem",
+              left: "0.5rem",
+            }}
+          >
+            <CloseRoundedIcon />
+          </IconButton>
           <Paper
             sx={{
               width: "100%",
               height: "100%",
-              p: "5% 8%",
+              p: "3rem",
+              pb: "2rem",
             }}
           >
-            <IconButton
-              style={{ transform: "translate(-20px, -10px)" }}
-              onClick={onClose}
-            >
-              <CloseRoundedIcon />
-            </IconButton>
             {children}
           </Paper>
         </Box>

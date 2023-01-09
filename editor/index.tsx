@@ -5,7 +5,6 @@ import store from "./store";
 import client from "./client";
 
 import WaveSurferAppContext from "./contexts/WavesurferContext";
-import LayoutContextProvider from "./contexts/LayoutContext";
 
 import App from "./App";
 
@@ -17,9 +16,7 @@ const Index = () => (
   <ApolloProvider client={client}>
     <WaveSurferAppContext>
       <Provider store={store}>
-        <LayoutContextProvider>
-          <App />
-        </LayoutContextProvider>
+        <App />
       </Provider>
     </WaveSurferAppContext>
   </ApolloProvider>

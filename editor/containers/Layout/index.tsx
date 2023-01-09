@@ -1,6 +1,6 @@
 import type { TabNode, IJsonModel } from "flexlayout-react";
 
-import { useMemo, lazy, Suspense, LazyExoticComponent } from "react";
+import { lazy, Suspense, useMemo, LazyExoticComponent } from "react";
 
 import {
   Layout as FlexLayout,
@@ -12,8 +12,6 @@ import "./layout.css";
 
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-
-import { useLayout } from "contexts/LayoutContext";
 
 import configFiles from "layouts";
 
@@ -66,28 +64,23 @@ const factory = (node: TabNode) => {
         </Box>
       }
     >
-      {Component ? <Component/> : null}
+      {Component ? <Component /> : null}
     </Suspense>
   );
 };
 
-const Layout = () => {
-  const {
-    preferences: { editor, mode },
-  } = useLayout();
+export interface LayoutProps {
+  mode: keyof typeof configFiles;
+}
 
+function Layout({ mode }: LayoutProps) {
   const layoutModel = useMemo(
-    () =>
-      FlexLayoutModel.fromJson(
-        (mode == "editor"
-          ? configFiles[editor]
-          : configFiles["command"]) as IJsonModel
-      ),
-    [editor, mode]
+    () => FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel),
+    [mode]
   );
 
   // @ts-ignore
   return <FlexLayout model={layoutModel} factory={factory} />;
-};
+}
 
 export default Layout;
