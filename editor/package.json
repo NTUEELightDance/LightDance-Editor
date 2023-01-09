@@ -34,6 +34,7 @@
     "react-hotkeys-hook": "^3.4.4",
     "react-redux": "^7.2.2",
     "react-resize-detector": "^7.0.0",
+    "react-router-dom": "^6.6.1",
     "react-transition-group": "^4.4.5",
     "redux": "^4.0.5",
     "subscriptions-transport-ws": "^0.11.0",

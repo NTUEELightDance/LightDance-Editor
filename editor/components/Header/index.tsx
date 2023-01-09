@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { AppBar, Toolbar, Box, Stack } from "@mui/material";
 
-import { LayoutButtons } from "./LayoutButtons";
 import { Settings } from "../Settings";
 import Tools from "components/Tools";
 
@@ -12,8 +11,7 @@ import StateIndicator from "./StateIndicator";
 
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
-
-import { useLayout } from "contexts/LayoutContext";
+import useMode from "@/hooks/useMode";
 
 /**
  * Top Bar, include title, timeController, upload/download btn
@@ -21,10 +19,7 @@ import { useLayout } from "contexts/LayoutContext";
 export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const editMode = useReactiveVar(reactiveState.editMode);
-
-  const {
-    preferences: { mode: layoutMode },
-  } = useLayout();
+  const mode = useMode();
 
   return (
     <Stack direction="column">
@@ -38,7 +33,6 @@ export default function Header() {
               style={{ height: "100%" }}
             />
           </Box>
-          {/* <LayoutButtons /> */}
           <Box
             sx={{
               display: "flex",
@@ -47,7 +41,7 @@ export default function Header() {
               gap: "1vw",
             }}
           >
-            {layoutMode === "editor" && (
+            {mode === "editor" && (
               <>
                 <EditButtons />
                 <EditorSelector />

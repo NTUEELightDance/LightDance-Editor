@@ -6,13 +6,11 @@ import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
 import VolumeSlider from "./VolumeSlider";
 import ScaleSlider from "./ScaleSlider";
 import FadeSwitch from "./FadeSwitch";
-
-import { useLayout } from "contexts/LayoutContext";
+import useMode from "@/hooks/useMode";
 
 const ControlBar = ({ wavesurfer }: { wavesurfer: WaveSurferApp }) => {
-  const {
-    preferences: { mode },
-  } = useLayout();
+  const mode = useMode();
+  
   return (
     <>
       <PlayBackController wavesurfer={wavesurfer} />
