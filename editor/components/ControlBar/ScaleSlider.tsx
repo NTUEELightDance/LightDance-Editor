@@ -13,7 +13,7 @@ export default function ScaleSlider({
   const [scale, setScale] = useState<number>(0);
 
   const handleChange = (event: Event, newScale: number | number[]) => {
-    // only zoom whem scale really be changed
+    // only zoom when scale really be changed
     if ((newScale as number) !== scale) {
       wavesurfer?.zoom(newScale as number);
     }

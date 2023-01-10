@@ -135,14 +135,14 @@ class Controls {
 
   activate(selectionMode) {
     switch (selectionMode) {
-      case DANCER:
-        break;
-      case PART:
-        break;
-      case POSITION:
-        this.dragControls.enabled = true;
-        this.dragControls.activate();
-        break;
+    case DANCER:
+      break;
+    case PART:
+      break;
+    case POSITION:
+      this.dragControls.enabled = true;
+      this.dragControls.activate();
+      break;
     }
   }
 

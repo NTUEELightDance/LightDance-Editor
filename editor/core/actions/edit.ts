@@ -84,12 +84,12 @@ const actions = registerActions({
    */
   toggleEditor: (state: State) => {
     switch (state.editor) {
-      case CONTROL_EDITOR:
-        state.editor = POS_EDITOR;
-        break;
-      case POS_EDITOR:
-        state.editor = CONTROL_EDITOR;
-        break;
+    case CONTROL_EDITOR:
+      state.editor = POS_EDITOR;
+      break;
+    case POS_EDITOR:
+      state.editor = CONTROL_EDITOR;
+      break;
     }
   },
 

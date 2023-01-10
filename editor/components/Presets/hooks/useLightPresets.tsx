@@ -29,7 +29,7 @@ export default function useLightPresets() {
       draft[idx].name = name;
     });
   };
-  /**
+    /**
    * addLightPresets
    */
   const addLightPresets = (name: string) => {
@@ -37,7 +37,7 @@ export default function useLightPresets() {
       draft.push({ name, status: reactiveState.currentStatus() });
     });
   };
-  /**
+    /**
    * deleteLightPresets
    */
   const deleteLightPresets = (idx: number) => {
@@ -45,7 +45,7 @@ export default function useLightPresets() {
       draft.splice(idx, 1);
     });
   };
-  /**
+    /**
    * save lightPresets to localStorage
    */
   const saveToLocal = () => {

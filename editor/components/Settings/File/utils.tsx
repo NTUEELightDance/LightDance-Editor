@@ -14,7 +14,7 @@ import Ajv from "ajv";
 
 //import apis
 import {
-  uploadeExportDataApi,
+  uploadExportDataApi,
   uploadLedDataApi,
   downloadExportDataApi,
   downloadLedDataApi,
@@ -129,7 +129,7 @@ export const downloadExportJson = async () => {
 };
 // eslint-disable-next-line
 export const uploadExportJson = async (exportFile) => {
-  await uploadeExportDataApi(exportFile[0]); //take File out of Filelist
+  await uploadExportDataApi(exportFile[0]); //take File out of Filelist
 };
 export const downloadLedJson = async () => {
   const now = dayjs().format("YYYYMMDD_HHmm");

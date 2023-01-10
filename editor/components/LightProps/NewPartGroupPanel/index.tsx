@@ -73,15 +73,15 @@ const NewPartGroupPanel = ({
       notification.success(`Successfully added group: ${newGroupName}`);
     } catch (err) {
       switch (err) {
-        case "EXISTED":
-          notification.error("Group name already existed");
-          break;
-        case "INVALID":
-          notification.error("Invalid group name");
-          break;
-        case "EMPTY":
-          notification.error("Group member is empty");
-          break;
+      case "EXISTED":
+        notification.error("Group name already existed");
+        break;
+      case "INVALID":
+        notification.error("Invalid group name");
+        break;
+      case "EMPTY":
+        notification.error("Group member is empty");
+        break;
       }
     }
   };

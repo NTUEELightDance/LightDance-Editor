@@ -23,7 +23,7 @@ export default function usePosPresets() {
       draft[idx].name = name;
     });
   };
-  /**
+    /**
    * addPosPresets
    */
   const addPosPresets = (name: string) => {
@@ -31,7 +31,7 @@ export default function usePosPresets() {
       draft.push({ name, pos: reactiveState.currentPos() });
     });
   };
-  /**
+    /**
    * deletePosPresets
    */
   const deletePosPresets = (idx: number) => {
@@ -39,7 +39,7 @@ export default function usePosPresets() {
       draft.splice(idx, 1);
     });
   };
-  /**
+    /**
    * save posPresets to localStorage
    */
   const saveToLocal = () => {

@@ -125,7 +125,7 @@ export default class MarkersPlugin {
   }
 
   add(params: MarkerParams): Marker {
-    let marker = {
+    const marker = {
       time: params.time,
       label: params.label,
       color: params.color || DEFAULT_FILL_COLOR,
@@ -143,7 +143,7 @@ export default class MarkersPlugin {
   }
 
   remove(index: number): void {
-    let marker = this.markers[index];
+    const marker = this.markers[index];
     if (!marker) {
       return;
     }
@@ -181,7 +181,7 @@ export default class MarkersPlugin {
   }
 
   _createMarkerElement(marker: Marker, markerElement: any): HTMLElement {
-    let label = marker.label;
+    const label = marker.label;
 
     const el = document.createElement("marker");
     el.className = "wavesurfer-marker";
@@ -265,7 +265,7 @@ export default class MarkersPlugin {
 
   _updateMarkerPositions(): void {
     for (let i = 0; i < this.markers.length; i++) {
-      let marker = this.markers[i];
+      const marker = this.markers[i];
       this._updateMarkerPosition(marker);
     }
   }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // components
-import { Box, Typography, ListItemButton, Collapse, Grid } from "@mui/material";
+import { Box, Typography, ListItemButton, Collapse } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
@@ -24,7 +24,7 @@ const LEDcontrols = ({
     src?: string;
     alpha?: number;
   }) => {
-    // src can be emtpy string, alpha can be zero
+    // src can be empty string, alpha can be zero
     // so check for undefined only
     if (src === undefined && alpha === undefined) return;
     const payload = currentDancers.map((dancerName) => ({

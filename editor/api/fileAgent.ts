@@ -1,7 +1,7 @@
 import axios from "./axios";
 import { notification } from "core/utils";
 
-export const uploadeExportDataApi = async (uploadFile) => {
+export const uploadExportDataApi = async (uploadFile) => {
   const formData = new FormData();
   formData.append("data", uploadFile);
   const response = await axios.post("/uploadData", formData);

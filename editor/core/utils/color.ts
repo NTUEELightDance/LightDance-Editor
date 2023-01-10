@@ -42,7 +42,7 @@ export function colorCode2Rgb(colorCode: string) {
  */
 export function Rgb2ColorCode(rgb: number[]) {
   if (rgb.length !== 3) {
-    throw `[Error] Invalid parameter at function Rgb2ColorCode`;
+    throw "[Error] Invalid parameter at function Rgb2ColorCode";
   }
   const [r, g, b] = rgb;
   return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;

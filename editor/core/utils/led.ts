@@ -91,7 +91,7 @@ export function updateLedEffect(
       }
 
       // Goal: calculate the right newLedEffect[dancerName][partName]'s effectIndex
-      let { effectIndex } = currentLedEffect[dancerName][partName];
+      const { effectIndex } = currentLedEffect[dancerName][partName];
       let newEffectIndex;
       // Case 1: index is already in the right place (after resetting or not being the time to switch to the next one)
       if (
@@ -173,11 +173,11 @@ export function binarySearchLedEffectFrame(
 ) {
   if (!Array.isArray(frames))
     throw new Error(
-      `[Error] binarySearchLedFrame, invalid parameter(controlRecord)`
+      "[Error] binarySearchLedFrame, invalid parameter(controlRecord)"
     );
 
   if (typeof offset !== "number")
-    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
+    throw new Error("[Error] binarySearchFrame, invalid parameter(time)");
   let l = 0;
   let r = frames.length - 1;
   let m = Math.floor((l + r + 1) / 2);

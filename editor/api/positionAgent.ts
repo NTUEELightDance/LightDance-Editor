@@ -112,13 +112,13 @@ export const posAgent = {
       throw error;
     }
   },
-  deleteFrame: async (frameId: String) => {
+  deleteFrame: async (frameId: string) => {
     try {
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
           positionFrameIDs(positionFrameIDs) {
-            return positionFrameIDs.filter((id: String) => id !== frameId);
+            return positionFrameIDs.filter((id: string) => id !== frameId);
           },
           PosMap(posMap) {
             return {
@@ -141,7 +141,7 @@ export const posAgent = {
       console.error(error);
     }
   },
-  requestEditPermission: async (_frameID) => {
+  requestEditPermission: async (_frameID: string) => {
     const response = await client.mutate({
       mutation: REQUEST_EDIT_POS_BY_ID,
       variables: {
@@ -150,7 +150,7 @@ export const posAgent = {
     });
     return response.data.RequestEditPosition.ok;
   },
-  cancelEditPermission: async (_frameID) => {
+  cancelEditPermission: async (_frameID: string) => {
     const response = await client.mutate({
       mutation: CANCEL_EDIT_POS_BY_ID,
       variables: {

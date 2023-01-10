@@ -4,7 +4,7 @@ import legacy from "@vitejs/plugin-legacy";
 import tsconfigPaths from "vite-tsconfig-paths";
 import mkcert from "vite-plugin-mkcert";
 
-const defineConfig: UserConfigFn = ({ command, mode }) => {
+const defineConfig: UserConfigFn = () => {
   const config: UserConfig = {
     server: {
       host: true,

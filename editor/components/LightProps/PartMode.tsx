@@ -26,7 +26,7 @@ const getSelectedPartsAndType = (selected: Selected) => {
   const newSelectedParts: PartPayload = {};
   const tempSelectedParts: string[] = [];
   Object.entries(selected).forEach(
-    ([dancerName, { selected: dancerSelected, parts }]) => {
+    ([dancerName, { parts }]) => {
       if (parts.length > 0) {
         newSelectedParts[dancerName] = parts;
         parts.forEach((part) => {
@@ -81,18 +81,18 @@ const PartMode = () => {
           currentStatusDelta[dancerName] = {};
 
         switch (partType) {
-          case "LED":
-            currentStatusDelta[dancerName][partName] = {
-              src: "",
-              alpha: intensity,
-            };
-            break;
-          case "FIBER":
-            currentStatusDelta[dancerName][partName] = {
-              color: currentColorName,
-              alpha: intensity,
-            };
-            break;
+        case "LED":
+          currentStatusDelta[dancerName][partName] = {
+            src: "",
+            alpha: intensity,
+          };
+          break;
+        case "FIBER":
+          currentStatusDelta[dancerName][partName] = {
+            color: currentColorName,
+            alpha: intensity,
+          };
+          break;
         }
       });
       editCurrentStatusDelta({ payload: currentStatusDelta });

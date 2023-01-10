@@ -33,7 +33,7 @@ const DancerTree = () => {
 
   const handleSelect = (event: React.SyntheticEvent, nodeIds: string[]) => {
     const newSelectedDancers: Set<string> = new Set();
-    let newSelectedParts: PartPayload = {};
+    const newSelectedParts: PartPayload = {};
     let newSelectionMode: SelectionMode | null = null;
 
     nodeIds.forEach((nodeId) => {

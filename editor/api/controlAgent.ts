@@ -16,7 +16,7 @@ import {
 import { ControlMapStatus, DancerCoordinates } from "../core/models";
 
 /**
- * controlAgent: reponsible for controlMap and controlRecord
+ * controlAgent: responsible for controlMap and controlRecord
  */
 export const controlAgent = {
   getControlMap: async () => {
@@ -140,13 +140,13 @@ export const controlAgent = {
       },
     });
   },
-  deleteFrame: async (frameId: String) => {
+  deleteFrame: async (frameId: string) => {
     try {
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
           controlFrameIDs(controlFrameIDs) {
-            return controlFrameIDs.filter((id: String) => id !== frameId);
+            return controlFrameIDs.filter((id: string) => id !== frameId);
           },
           ControlMap(controlMap) {
             return {
@@ -171,7 +171,7 @@ export const controlAgent = {
       throw error;
     }
   },
-  requestEditPermission: async (_frameID) => {
+  requestEditPermission: async (_frameID: string) => {
     const response = await client.mutate({
       mutation: REQUEST_EDIT_CONTROL_BY_ID,
       variables: {
@@ -180,7 +180,7 @@ export const controlAgent = {
     });
     return response.data.RequestEditControl.ok;
   },
-  cancelEditPermission: async (_frameID) => {
+  cancelEditPermission: async (_frameID: string) => {
     const response = await client.mutate({
       mutation: CANCEL_EDIT_CONTROL_BY_ID,
       variables: {

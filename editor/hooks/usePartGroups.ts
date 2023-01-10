@@ -3,7 +3,6 @@ import { useImmer } from "use-immer";
 
 import { asyncSetItem, asyncGetItem } from "core/utils";
 import {
-  DeleteGroupError,
   AddNewGroupError,
   EditGroupError,
 } from "core/models";
@@ -32,7 +31,7 @@ export default function usePartGroups() {
   }) => {
     if (content.length === 0) throw "EMPTY" as AddNewGroupError;
     
-    if (partGroups.hasOwnProperty(groupName))
+    if (partGroups[groupName])
       throw "EXISTED" as AddNewGroupError;
     
     const invalidGroupNames = ["LED", "FIBER", "El", ""];
@@ -46,7 +45,7 @@ export default function usePartGroups() {
   };
 
   const deleteGroup = async (payload: string) => {
-    if (!partGroups.hasOwnProperty(payload)) throw "DNE" as AddNewGroupError;
+    if (!partGroups[payload]) throw "DNE" as AddNewGroupError;
 
     setPartGroups((partGroups) => {
       delete partGroups[payload];
@@ -60,7 +59,7 @@ export default function usePartGroups() {
     groupName: string;
     content: string[];
   }) => {
-    if (!partGroups.hasOwnProperty(groupName)) throw "DNE" as EditGroupError;
+    if (!partGroups[groupName]) throw "DNE" as EditGroupError;
 
     setPartGroups((partGroups) => {
       partGroups[groupName] = content;

@@ -306,7 +306,7 @@ class ThreeController {
   updateSelected(selected) {
     if (Object.entries(selected).length === 0)
       throw new Error(
-        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
+        "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
     this.controls.selectControls.updateSelected(selected);
   }
@@ -322,7 +322,7 @@ class ThreeController {
   updateDancersStatus(currentStatus) {
     if (Object.entries(currentStatus).length === 0)
       throw new Error(
-        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
+        "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
     if (!this.settings.settings.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
@@ -333,7 +333,7 @@ class ThreeController {
   updateDancerLED(currentLedEffect) {
     if (Object.entries(currentLedEffect).length === 0)
       throw new Error(
-        `[Error] updateDancersLED, invalid parameter(currentLedEffect)`
+        "[Error] updateDancersLED, invalid parameter(currentLedEffect)"
       );
     if (!this.settings.settings.Visibility.LED) return;
     Object.entries(currentLedEffect).forEach(([dancerName, status]) => {
@@ -344,7 +344,7 @@ class ThreeController {
   updateDancersPos(currentPos) {
     if (Object.entries(currentPos).length === 0)
       throw new Error(
-        `[Error] updateDancersPos, invalid parameter(currentPos)`
+        "[Error] updateDancersPos, invalid parameter(currentPos)"
       );
     Object.entries(currentPos).forEach(([key, value]) => {
       this.dancers[key].setPos(value);

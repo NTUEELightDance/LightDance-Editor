@@ -23,14 +23,14 @@ export function updateFrameByTimeMap(
   time: number
 ) {
   if (!Array.isArray(record))
-    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(record)`);
+    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(record)");
   if (typeof map !== "object")
-    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(map)`);
+    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(map)");
   if (typeof frame !== "number")
-    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(frame)`);
+    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(frame)");
   if (typeof time !== "number")
-    throw new Error(`[Error] updateFrameByTimeMap, invalid parameter(time)`);
-  // Check if need to do binarysearch
+    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(time)");
+    // Check if need to do binarysearch
   if (
     map[record[frame + 2]] &&
     time >= map[record[frame + 1]].start &&
@@ -53,14 +53,14 @@ export function binarySearchFrameMap(
 ) {
   if (!Array.isArray(record))
     throw new Error(
-      `[Error] updateFrameByTimeMap, invalid parameter(controlRecord)`
+      "[Error] updateFrameByTimeMap, invalid parameter(controlRecord)"
     );
   if (typeof map !== "object")
     throw new Error(
-      `[Error] updateFrameByTimeMap, invalid parameter(controlMap)`
+      "[Error] updateFrameByTimeMap, invalid parameter(controlMap)"
     );
   if (typeof time !== "number")
-    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
+    throw new Error("[Error] binarySearchFrame, invalid parameter(time)");
   let l = 0;
   let r = record.length - 1;
   let m = Math.floor((l + r + 1) / 2);

@@ -90,15 +90,15 @@ class Dancer {
     partNames.forEach((partName) => {
       const partType = state.partTypeMap[partName];
       switch (partType) {
-        case EL:
-          // this.parts[EL][partName] = new ELPart(partName, model);
-          break;
-        case LED:
-          this.parts[LED][partName] = new LEDPart(partName, this.model);
-          break;
-        case FIBER:
-          this.parts[FIBER][partName] = new FiberPart(partName, this.model);
-          break;
+      case EL:
+        // this.parts[EL][partName] = new ELPart(partName, model);
+        break;
+      case LED:
+        this.parts[LED][partName] = new LEDPart(partName, this.model);
+        break;
+      case FIBER:
+        this.parts[FIBER][partName] = new FiberPart(partName, this.model);
+        break;
       }
     });
 

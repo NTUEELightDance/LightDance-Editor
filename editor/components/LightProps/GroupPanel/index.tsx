@@ -85,7 +85,7 @@ const GroupPanel = ({
   const Items: JSX.Element[] = [];
   for (const part of sortedParts) {
     let displayValue: LED | Fiber | number | undefined = undefined;
-    for (let dancer of currentDancers) {
+    for (const dancer of currentDancers) {
       displayValue = currentStatus[dancer]?.[part];
     }
     if (displayValue)

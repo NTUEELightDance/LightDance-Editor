@@ -50,21 +50,21 @@ const LedEffectSchema = {
   required: ["repeat", "effects"],
 };
 export const controlValidatorSchema = (dancer) => {
-  let Schemas = {};
+  const Schemas = {};
   dancer.forEach((dancer) => {
-    let dancerSchema = {
+    const dancerSchema = {
       type: "object",
       properties: {},
     };
     dancer.parts.forEach((partInfo) => {
       let partType;
       switch (partInfo.type) {
-        case "LED":
-          partType = LedSchema;
-          break;
-        case "FIBER":
-          partType = FiberSchema;
-          break;
+      case "LED":
+        partType = LedSchema;
+        break;
+      case "FIBER":
+        partType = FiberSchema;
+        break;
       }
       dancerSchema.properties[partInfo.name] = partType;
     });
@@ -78,7 +78,7 @@ export const posValidatorSchema = () => {
   return Schema;
 };
 export const colorValidatorSchema = (colorMap) => {
-  let Schema = {
+  const Schema = {
     type: "object",
     properties: {},
     required: [],

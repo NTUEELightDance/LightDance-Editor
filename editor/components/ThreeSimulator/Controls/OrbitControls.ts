@@ -25,11 +25,11 @@ class OrbitControls extends EventDispatcher {
 
     if (domElement === undefined)
       console.warn(
-        'THREE.OrbitControls: The second parameter "domElement" is now mandatory.'
+        "THREE.OrbitControls: The second parameter \"domElement\" is now mandatory."
       );
     if (domElement === document)
       console.error(
-        'THREE.OrbitControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.'
+        "THREE.OrbitControls: \"document\" should not be used as the target \"domElement\". Please use \"renderer.domElement\" instead."
       );
 
     this.object = object;
@@ -548,25 +548,25 @@ class OrbitControls extends EventDispatcher {
       let needsUpdate = false;
 
       switch (event.code) {
-        case scope.keys.UP:
-          pan(0, scope.keyPanSpeed);
-          needsUpdate = true;
-          break;
+      case scope.keys.UP:
+        pan(0, scope.keyPanSpeed);
+        needsUpdate = true;
+        break;
 
-        case scope.keys.BOTTOM:
-          pan(0, -scope.keyPanSpeed);
-          needsUpdate = true;
-          break;
+      case scope.keys.BOTTOM:
+        pan(0, -scope.keyPanSpeed);
+        needsUpdate = true;
+        break;
 
-        case scope.keys.LEFT:
-          pan(scope.keyPanSpeed, 0);
-          needsUpdate = true;
-          break;
+      case scope.keys.LEFT:
+        pan(scope.keyPanSpeed, 0);
+        needsUpdate = true;
+        break;
 
-        case scope.keys.RIGHT:
-          pan(-scope.keyPanSpeed, 0);
-          needsUpdate = true;
-          break;
+      case scope.keys.RIGHT:
+        pan(-scope.keyPanSpeed, 0);
+        needsUpdate = true;
+        break;
       }
 
       if (needsUpdate) {
@@ -769,26 +769,26 @@ class OrbitControls extends EventDispatcher {
       if (scope.enabled === false) return;
 
       switch (state) {
-        case STATE.ROTATE:
-          if (scope.enableRotate === false) return;
+      case STATE.ROTATE:
+        if (scope.enableRotate === false) return;
 
-          handleMouseMoveRotate(event);
+        handleMouseMoveRotate(event);
 
-          break;
+        break;
 
-        case STATE.DOLLY:
-          if (scope.enableZoom === false) return;
+      case STATE.DOLLY:
+        if (scope.enableZoom === false) return;
 
-          handleMouseMoveDolly(event);
+        handleMouseMoveDolly(event);
 
-          break;
+        break;
 
-        case STATE.PAN:
-          if (scope.enablePan === false) return;
+      case STATE.PAN:
+        if (scope.enablePan === false) return;
 
-          handleMouseMovePan(event);
+        handleMouseMovePan(event);
 
-          break;
+        break;
       }
     }
 
@@ -819,62 +819,62 @@ class OrbitControls extends EventDispatcher {
       trackPointer(event);
 
       switch (pointers.length) {
-        case 1:
-          switch (scope.touches.ONE) {
-            case TOUCH.ROTATE:
-              if (scope.enableRotate === false) return;
+      case 1:
+        switch (scope.touches.ONE) {
+        case TOUCH.ROTATE:
+          if (scope.enableRotate === false) return;
 
-              handleTouchStartRotate();
+          handleTouchStartRotate();
 
-              state = STATE.TOUCH_ROTATE;
-
-              break;
-
-            case TOUCH.PAN:
-              if (scope.enablePan === false) return;
-
-              handleTouchStartPan();
-
-              state = STATE.TOUCH_PAN;
-
-              break;
-
-            default:
-              state = STATE.NONE;
-          }
+          state = STATE.TOUCH_ROTATE;
 
           break;
 
-        case 2:
-          switch (scope.touches.TWO) {
-            case TOUCH.DOLLY_PAN:
-              if (scope.enableZoom === false && scope.enablePan === false)
-                return;
+        case TOUCH.PAN:
+          if (scope.enablePan === false) return;
 
-              handleTouchStartDollyPan();
+          handleTouchStartPan();
 
-              state = STATE.TOUCH_DOLLY_PAN;
-
-              break;
-
-            case TOUCH.DOLLY_ROTATE:
-              if (scope.enableZoom === false && scope.enableRotate === false)
-                return;
-
-              handleTouchStartDollyRotate();
-
-              state = STATE.TOUCH_DOLLY_ROTATE;
-
-              break;
-
-            default:
-              state = STATE.NONE;
-          }
+          state = STATE.TOUCH_PAN;
 
           break;
 
         default:
           state = STATE.NONE;
+        }
+
+        break;
+
+      case 2:
+        switch (scope.touches.TWO) {
+        case TOUCH.DOLLY_PAN:
+          if (scope.enableZoom === false && scope.enablePan === false)
+            return;
+
+          handleTouchStartDollyPan();
+
+          state = STATE.TOUCH_DOLLY_PAN;
+
+          break;
+
+        case TOUCH.DOLLY_ROTATE:
+          if (scope.enableZoom === false && scope.enableRotate === false)
+            return;
+
+          handleTouchStartDollyRotate();
+
+          state = STATE.TOUCH_DOLLY_ROTATE;
+
+          break;
+
+        default:
+          state = STATE.NONE;
+        }
+
+        break;
+
+      default:
+        state = STATE.NONE;
       }
 
       if (state !== STATE.NONE) {
@@ -886,45 +886,45 @@ class OrbitControls extends EventDispatcher {
       trackPointer(event);
 
       switch (state) {
-        case STATE.TOUCH_ROTATE:
-          if (scope.enableRotate === false) return;
+      case STATE.TOUCH_ROTATE:
+        if (scope.enableRotate === false) return;
 
-          handleTouchMoveRotate(event);
+        handleTouchMoveRotate(event);
 
-          scope.update();
+        scope.update();
 
-          break;
+        break;
 
-        case STATE.TOUCH_PAN:
-          if (scope.enablePan === false) return;
+      case STATE.TOUCH_PAN:
+        if (scope.enablePan === false) return;
 
-          handleTouchMovePan(event);
+        handleTouchMovePan(event);
 
-          scope.update();
+        scope.update();
 
-          break;
+        break;
 
-        case STATE.TOUCH_DOLLY_PAN:
-          if (scope.enableZoom === false && scope.enablePan === false) return;
+      case STATE.TOUCH_DOLLY_PAN:
+        if (scope.enableZoom === false && scope.enablePan === false) return;
 
-          handleTouchMoveDollyPan(event);
+        handleTouchMoveDollyPan(event);
 
-          scope.update();
+        scope.update();
 
-          break;
+        break;
 
-        case STATE.TOUCH_DOLLY_ROTATE:
-          if (scope.enableZoom === false && scope.enableRotate === false)
-            return;
+      case STATE.TOUCH_DOLLY_ROTATE:
+        if (scope.enableZoom === false && scope.enableRotate === false)
+          return;
 
-          handleTouchMoveDollyRotate(event);
+        handleTouchMoveDollyRotate(event);
 
-          scope.update();
+        scope.update();
 
-          break;
+        break;
 
-        default:
-          state = STATE.NONE;
+      default:
+        state = STATE.NONE;
       }
     }
 

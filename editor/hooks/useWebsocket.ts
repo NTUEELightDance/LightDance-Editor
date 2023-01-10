@@ -63,7 +63,7 @@ export default function useWebsocketState() {
       };
 
       (ws.current as WebSocket).onclose = (e) => {
-        log(`Websocket for Editor closed`);
+        log("Websocket for Editor closed");
       };
     };
   };
@@ -86,39 +86,39 @@ export default function useWebsocketState() {
     selectedDancers.forEach((dancer) => {
       setDancerMsg({ dancer, msg: "......", Ok: false });
     });
-    let MesC2S: MesC2SType = { command, selectedDancers, payload: "" };
+    const MesC2S: MesC2SType = { command, selectedDancers, payload: "" };
     switch (
       command //handle command that needs payload
     ) {
-      case COMMANDS.UPLOAD_LED:
-        MesC2S.payload = await generateControlLed();
-        break;
-      case COMMANDS.UPLOAD_OF:
-        MesC2S.payload = await generateControlOF();
-        break;
-      case COMMANDS.TEST:
-        MesC2S.payload = {};
-        break;
-      case COMMANDS.PLAY:
-        const sysTime = delay + Date.now();
-        MesC2S.payload = {
-          // not using 'useReactiveVar' to prevent unecessary re-render
-          startTime: reactiveState.currentTime(),
-          delay,
-          sysTime,
-        };
-        break;
-      case COMMANDS.LIGTHCURRENTSTATUS:
-        MesC2S.payload = {};
-        break;
-      case COMMANDS.NTHU_PLAY:
-        await handleNTHUPlay(Date.now() + delay);
-        return;
-      case COMMANDS.NTHU_STOP:
-        await handleNTHUStop();
-        return;
-      default:
-        break;
+    case COMMANDS.UPLOAD_LED:
+      MesC2S.payload = await generateControlLed();
+      break;
+    case COMMANDS.UPLOAD_OF:
+      MesC2S.payload = await generateControlOF();
+      break;
+    case COMMANDS.TEST:
+      MesC2S.payload = {};
+      break;
+    case COMMANDS.PLAY:
+      const sysTime = delay + Date.now();
+      MesC2S.payload = {
+        // not using 'useReactiveVar' to prevent unecessary re-render
+        startTime: reactiveState.currentTime(),
+        delay,
+        sysTime,
+      };
+      break;
+    case COMMANDS.LIGTHCURRENTSTATUS:
+      MesC2S.payload = {};
+      break;
+    case COMMANDS.NTHU_PLAY:
+      await handleNTHUPlay(Date.now() + delay);
+      return;
+    case COMMANDS.NTHU_STOP:
+      await handleNTHUStop();
+      return;
+    default:
+      break;
     }
     sendDataToServer(MesC2S);
   };
@@ -143,7 +143,7 @@ export default function useWebsocketState() {
     };
     log(Date.now());
 
-    fetch(`/api/nthu_stop`, requestOptions)
+    fetch("/api/nthu_stop", requestOptions)
       .then((response) => response.text())
       .then((result) => notification.success(result))
       .catch((error) => notification.error(error));
@@ -153,46 +153,46 @@ export default function useWebsocketState() {
     const { command, payload } = data;
     const { success, info, from } = payload;
     switch (command) {
-      case BOARDINFO: {
-        const { dancerName, ip, hostName } = info as BoardInfoType;
-        setDancerStatus((draft) => {
-          dancerName.map((name: string, index: number) => {
-            draft[name] = {
-              Ok: true,
-              isConnected: true,
-              msg: "Connect Success",
-              ip: ip[index],
-              hostname: hostName[index],
-            };
-          });
+    case BOARDINFO: {
+      const { dancerName, ip, hostName } = info as BoardInfoType;
+      setDancerStatus((draft) => {
+        dancerName.map((name: string, index: number) => {
+          draft[name] = {
+            Ok: true,
+            isConnected: true,
+            msg: "Connect Success",
+            ip: ip[index],
+            hostname: hostName[index],
+          };
         });
-        break;
-      }
-      case COMMANDS.SYNC: {
-        const { delay, offset } = info as SyncType;
-        setDancerMsg({
-          dancer: from,
-          msg: `offset:${offset} , delay:${delay}`,
-          Ok: success,
-        });
-        break;
-      }
-      case DISCONNECT: {
-        setDancerMsg({
-          isConnected: false,
-          Ok: success,
-          msg: info as string,
-          dancer: from,
-        });
-        break;
-      }
-      default:
-        setDancerMsg({
-          Ok: success,
-          msg: info as string,
-          dancer: from,
-        });
-        break;
+      });
+      break;
+    }
+    case COMMANDS.SYNC: {
+      const { delay, offset } = info as SyncType;
+      setDancerMsg({
+        dancer: from,
+        msg: `offset:${offset} , delay:${delay}`,
+        Ok: success,
+      });
+      break;
+    }
+    case DISCONNECT: {
+      setDancerMsg({
+        isConnected: false,
+        Ok: success,
+        msg: info as string,
+        dancer: from,
+      });
+      break;
+    }
+    default:
+      setDancerMsg({
+        Ok: success,
+        msg: info as string,
+        dancer: from,
+      });
+      break;
     }
   };
 

@@ -27,7 +27,7 @@ const subPosRecord = (client) => {
                 newPosRecord.splice(index, 0, ...addID);
               }
               if (updateID.length) {
-                let length = updateID.length;
+                const length = updateID.length;
                 const updateIndex = newPosRecord.indexOf(updateID[0]);
                 newPosRecord.splice(updateIndex, length);
                 newPosRecord.splice(index, 0, ...updateID);
@@ -110,7 +110,7 @@ const subControlRecord = (client) => {
                 newControlRecord.splice(index, 0, ...addID);
               }
               if (updateID.length) {
-                let length = updateID.length;
+                const length = updateID.length;
                 const updateIndex = newControlRecord.indexOf(updateID[0]);
                 newControlRecord.splice(updateIndex, length);
                 newControlRecord.splice(index, 0, ...updateID);

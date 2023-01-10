@@ -1,4 +1,3 @@
-import { IJsonModel } from "flexlayout-react";
 import { Updater } from "use-immer";
 
 export interface layoutContext {
