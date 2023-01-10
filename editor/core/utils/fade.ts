@@ -5,30 +5,30 @@ import {
   Fiber,
   El,
   ColorMap,
-  ColorCode,
+  ColorCode
 } from "../models";
 
 import { Color } from "three";
 
-function Round1(number: number) {
+function Round1 (number: number) {
   return Math.round(number * 10) / 10;
 }
 
-function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
+function CheckTypeOfLED (object: LED | Fiber | El): object is LED {
   return (
-    (object as LED)["src"] !== undefined &&
-    (object as LED)["alpha"] !== undefined
+    (object as LED).src !== undefined &&
+    (object as LED).alpha !== undefined
   );
 }
 
-function CheckTypeOfFiber(object: LED | Fiber | El): object is Fiber {
+function CheckTypeOfFiber (object: LED | Fiber | El): object is Fiber {
   return (
-    (object as Fiber)["color"] !== undefined &&
-    (object as Fiber)["alpha"] !== undefined
+    (object as Fiber).color !== undefined &&
+    (object as Fiber).alpha !== undefined
   );
 }
 
-function CheckTypeOfEl(object: LED | Fiber | El): object is El {
+function CheckTypeOfEl (object: LED | Fiber | El): object is El {
   return typeof (object as El) === "number";
 }
 
@@ -38,7 +38,7 @@ function CheckTypeOfEl(object: LED | Fiber | El): object is El {
  * @param {*} preStatus - previous frame, controlRecord[controlIndex]
  * @param {*} nextStatus - next frame, controlRecord[controlIndex + 1]
  */
-export function fadeStatus(
+export function fadeStatus (
   time: number,
   preFrame: ControlMapElement,
   nextFrame: ControlMapElement,
@@ -65,18 +65,18 @@ export function fadeStatus(
               (nextTime - preTime) +
               preVal.alpha
           ),
-          src: preVal.src,
+          src: preVal.src
         };
       }
 
       // El Parts
       else if (CheckTypeOfEl(preVal) && CheckTypeOfEl(nextVal)) {
-        //if (typeof preVal === "number" && typeof nextVal === "number") {
+        // if (typeof preVal === "number" && typeof nextVal === "number") {
         newStatus[dancer][part] = Round1(
           ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
             preVal
         );
-        //}
+        // }
       }
       // fiber Parts
       else if (CheckTypeOfFiber(preVal) && CheckTypeOfFiber(nextVal)) {
@@ -104,7 +104,7 @@ export function fadeStatus(
         newStatus[dancer][part] = {
           alpha: newAlpha,
           color: preVal.color,
-          colorCode: newColor,
+          colorCode: newColor
         };
       } else {
         throw new Error(
@@ -125,7 +125,7 @@ export function fadeStatus(
  * @param nextTime
  * @returns
  */
-export function fadeColor(
+export function fadeColor (
   preHex: ColorCode,
   nextHex: ColorCode,
   time: number,
@@ -148,7 +148,7 @@ export function fadeColor(
  * @param nextTime
  * @returns
  */
-export function fadeAlpha(
+export function fadeAlpha (
   preAlpha: number,
   nextAlpha: number,
   time: number,

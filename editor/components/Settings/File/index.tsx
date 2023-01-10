@@ -4,7 +4,7 @@ import {
   Stack,
   Box,
   Button,
-  Typography,
+  Typography
 } from "@mui/material";
 // utils
 import {
@@ -13,12 +13,12 @@ import {
   checkExportJson,
   checkLedJson,
   downloadLedJson,
-  uploadLedJson,
+  uploadLedJson
 } from "./utils";
 import { UploadDownload } from "./UploadDownload";
 import { notification } from "core/utils";
 
-export default function File() {
+export default function File () {
   // upload to server
   const [exportFile, setExportFile] = useState(null);
   const [ledFile, setledFile] = useState(null);
@@ -56,7 +56,7 @@ export default function File() {
       sx={{
         width: "100%",
         height: "100%",
-        p: "5% 8%",
+        p: "5% 8%"
       }}
     >
       <Stack spacing={3}>
@@ -105,11 +105,11 @@ export default function File() {
   );
 }
 
-const ItemWrapper = ({
-  children,
+function ItemWrapper({
+  children
 }: {
-  children: JSX.Element | JSX.Element[];
-}) => {
+  children: JSX.Element | JSX.Element[]
+}) {
   return (
     <Box
       sx={{
@@ -117,10 +117,10 @@ const ItemWrapper = ({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "end",
-        gap: "4em",
+        gap: "4em"
       }}
     >
       {children}
     </Box>
   );
-};
+}

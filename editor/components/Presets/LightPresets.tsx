@@ -24,7 +24,7 @@ import { ControlMapStatus } from "core/models";
  * This is Presets component, list of status
  * @component
  */
-export default function LightPresets() {
+export default function LightPresets () {
   // presets intialize
   // get loadedPresets or storagePresets
   const { lightPresets: loadedLightPresets } = useSelector(selectLoad);
@@ -34,7 +34,7 @@ export default function LightPresets() {
     setLightPresets,
     addLightPresets,
     editLightPresetsName,
-    deleteLightPresets,
+    deleteLightPresets
   } = useLightPresets();
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function LightPresets() {
   // dialog
   const [open, setOpen] = useState(false);
   const [nameVal, setNameVal] = useState("");
-  const openDialog = () => setOpen(true);
+  const openDialog = () => { setOpen(true); };
   const closeDialog = () => {
     setOpen(false);
     setNameVal("");
@@ -94,7 +94,7 @@ export default function LightPresets() {
             <Input value={nameVal} onChange={handleChangeName} />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => handleAddPresets(nameVal)}>OK</Button>
+            <Button onClick={() => { handleAddPresets(nameVal); }}>OK</Button>
           </DialogActions>
         </Dialog>
       </div>

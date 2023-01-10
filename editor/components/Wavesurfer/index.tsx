@@ -22,7 +22,7 @@ import { CONTROL_EDITOR, POS_EDITOR } from "@/constants";
  * This is the Wave component
  * @component
  */
-const Wavesurfer = ({ commandMode = false }) => {
+function Wavesurfer({ commandMode = false }) {
   const { waveSurferApp, initWaveSurferApp, showMarkers } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;
@@ -30,7 +30,7 @@ const Wavesurfer = ({ commandMode = false }) => {
   const { ref: resizeDetectorRef } = useResizeDetector({
     onResize: (width, height) => {
       waveSurferApp.resize();
-    },
+    }
   });
 
   useLayoutEffect(() => {
@@ -43,16 +43,16 @@ const Wavesurfer = ({ commandMode = false }) => {
   const editor = useReactiveVar(reactiveState.editor);
   // update Markers
   useEffect(() => {
-    if (editor === CONTROL_EDITOR)
-      if (!controlLoading && controlMap && showMarkers)
-        waveSurferApp.updateMarkers(controlMap);
+    if (editor === CONTROL_EDITOR) {
+      if (!controlLoading && controlMap && showMarkers) { waveSurferApp.updateMarkers(controlMap); }
+    }
   }, [editor, controlRecord, controlMap]);
 
   // update Pos Markers
   useEffect(() => {
-    if (editor === POS_EDITOR)
-      if (!posLoading && posMap && showMarkers)
-        waveSurferApp.updateMarkers(posMap);
+    if (editor === POS_EDITOR) {
+      if (!posLoading && posMap && showMarkers) { waveSurferApp.updateMarkers(posMap); }
+    }
   }, [editor, posRecord, posMap]);
 
   // update Markers when markers switched on
@@ -63,8 +63,7 @@ const Wavesurfer = ({ commandMode = false }) => {
       !controlMap ||
       !posMap ||
       !waveSurferApp
-    )
-      return;
+    ) { return; }
     waveSurferApp.toggleMarkers(showMarkers);
   }, [showMarkers]);
 
@@ -81,6 +80,6 @@ const Wavesurfer = ({ commandMode = false }) => {
       <div id="waveform" />
     </div>
   );
-};
+}
 
 export default Wavesurfer;

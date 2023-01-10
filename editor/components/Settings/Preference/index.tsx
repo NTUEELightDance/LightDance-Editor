@@ -5,7 +5,7 @@ import { layoutMode } from "types/layout";
 import MarkerSwitch from "./MarkerSwitch";
 import { PreferenceSelector } from "./PreferenceSelector";
 
-const Preference = () => {
+function Preference() {
   const [mode, setMode] = useState<layoutMode>("editor");
 
   return (
@@ -21,6 +21,6 @@ const Preference = () => {
       <MarkerSwitch />
     </Box>
   );
-};
+}
 
 export default Preference;

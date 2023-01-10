@@ -16,10 +16,10 @@ const actions = registerActions({
   shiftFrameTime: async (
     state: State,
     payload: {
-      type: string;
-      startTime: number;
-      endTime: number;
-      shiftTime: number;
+      type: string
+      startTime: number
+      endTime: number
+      shiftTime: number
     }
   ) => {
     const { type, startTime, endTime, shiftTime } = payload;
@@ -27,17 +27,17 @@ const actions = registerActions({
       await client.mutate({
         mutation: SHIFT_TIME,
         variables: {
-          shiftPosition: type === "position" || type === "both" ? true : false,
-          shiftControl: type === "control" || type === "both" ? true : false,
+          shiftPosition: !!(type === "position" || type === "both"),
+          shiftControl: !!(type === "control" || type === "both"),
           move: shiftTime,
           end: endTime,
-          start: startTime,
-        },
+          start: startTime
+        }
       });
     } catch (error) {
       console.error(error);
     }
-  },
+  }
 });
 
 export const { shiftFrameTime } = actions;

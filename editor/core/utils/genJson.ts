@@ -10,7 +10,7 @@ import {
   PartName,
   PartTypeMap,
   LedMap,
-  LedEffectRecord,
+  LedEffectRecord
 } from "core/models";
 import { isEqual } from "lodash";
 import { colorCode2int } from "./color";
@@ -22,44 +22,36 @@ import { getControl, getLedMap } from "./index";
 /**
  * Dancer to ControlOF Json file for RPi
  */
-interface DancerControlOF {
-  [key: DancerName]: ControlOF[];
-}
+type DancerControlOF = Record<DancerName, ControlOF[]>
 
 interface ControlOF {
-  start: number;
-  fade: boolean;
-  status: {
-    [key: PartName]: Bulb; // OF has only one colorCode and alpha
-  };
+  start: number
+  fade: boolean
+  status: Record<PartName, Bulb>
 }
 
 /**
  * Dancer to ControlLed Json file for RPi
  */
-interface DancerControlLed {
-  [key: DancerName]: PartEffect;
-}
+type DancerControlLed = Record<DancerName, PartEffect>
 
-interface PartEffect {
-  [key: PartName]: Effect[];
-}
+type PartEffect = Record<PartName, Effect[]>
 
 interface Effect {
-  start: number;
-  fade: boolean;
-  status: Bulb[];
+  start: number
+  fade: boolean
+  status: Bulb[]
 }
 
 interface Bulb {
-  colorCode: number;
-  alpha: number;
+  colorCode: number
+  alpha: number
 }
 
 /**
  * Generate ControlOF with format that RPi needs (turn into dancer base)
  */
-export async function generateControlOF() {
+export async function generateControlOF () {
   const [controlMap, controlRecord] = await getControl();
   const { dancers, partTypeMap, colorMap } = state;
 
@@ -72,22 +64,20 @@ export async function generateControlOF() {
   controlRecord.forEach((id) => {
     const { start, status, fade } = controlMap[id];
     Object.keys(status).forEach((dancerName) => {
-      const newStatus: {
-        [key: PartName]: Bulb;
-      } = {};
+      const newStatus: Record<PartName, Bulb> = {};
       Object.keys(status[dancerName]).forEach((partName) => {
         if (partTypeMap[partName] === FIBER) {
           const fiber = status[dancerName][partName] as Fiber;
           newStatus[partName] = {
             colorCode: colorCode2int(colorMap[fiber.color]),
-            alpha: fiber.alpha,
+            alpha: fiber.alpha
           };
         }
       });
       dancerControlOF[dancerName].push({
         start,
         fade,
-        status: newStatus,
+        status: newStatus
       });
     });
   });
@@ -118,7 +108,7 @@ export async function generateControlOF() {
 /**
  * Generate ControlLed with format that RPi needs (turn into dancer base)
  */
-export async function generateControlLed() {
+export async function generateControlLed () {
   const [controlMap] = await getControl();
   const ledMap = await getLedMap();
   const { ledEffectRecord } = state;
@@ -165,9 +155,9 @@ export async function generateControlLed() {
           nextStart = Infinity;
         }
 
-        let effectIndex = 0,
-          effectStart = 0,
-          totalRepeated = 0;
+        let effectIndex = 0;
+        let effectStart = 0;
+        let totalRepeated = 0;
 
         const duration = effects[effects.length - 1].start;
 
@@ -179,8 +169,8 @@ export async function generateControlLed() {
             fade,
             status: effect.map(({ colorCode, alpha }) => ({
               colorCode: colorCode2int(colorCode),
-              alpha,
-            })),
+              alpha
+            }))
           });
           if (effects.length === 1) break;
           ++effectIndex;

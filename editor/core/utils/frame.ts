@@ -6,7 +6,7 @@ import {
   PosMapElement,
   Coordinates,
   DancerCoordinates,
-  LedRecord,
+  LedRecord
 } from "../models";
 
 /**
@@ -16,21 +16,17 @@ import {
  * @param {number} frame - frame idx
  * @param {number} time - timestamp
  */
-export function updateFrameByTimeMap(
+export function updateFrameByTimeMap (
   record: ControlRecord | PosRecord | LedRecord,
   map: ControlMap | PosMap,
   frame: number,
   time: number
 ) {
-  if (!Array.isArray(record))
-    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(record)");
-  if (typeof map !== "object")
-    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(map)");
-  if (typeof frame !== "number")
-    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(frame)");
-  if (typeof time !== "number")
-    throw new Error("[Error] updateFrameByTimeMap, invalid parameter(time)");
-    // Check if need to do binarysearch
+  if (!Array.isArray(record)) { throw new Error("[Error] updateFrameByTimeMap, invalid parameter(record)"); }
+  if (typeof map !== "object") { throw new Error("[Error] updateFrameByTimeMap, invalid parameter(map)"); }
+  if (typeof frame !== "number") { throw new Error("[Error] updateFrameByTimeMap, invalid parameter(frame)"); }
+  if (typeof time !== "number") { throw new Error("[Error] updateFrameByTimeMap, invalid parameter(time)"); }
+  // Check if need to do binarysearch
   if (
     map[record[frame + 2]] &&
     time >= map[record[frame + 1]].start &&
@@ -46,21 +42,22 @@ export function updateFrameByTimeMap(
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchFrameMap(
+export function binarySearchFrameMap (
   record: ControlRecord | PosRecord,
   map: ControlMap | PosMap,
   time: number
 ) {
-  if (!Array.isArray(record))
+  if (!Array.isArray(record)) {
     throw new Error(
       "[Error] updateFrameByTimeMap, invalid parameter(controlRecord)"
     );
-  if (typeof map !== "object")
+  }
+  if (typeof map !== "object") {
     throw new Error(
       "[Error] updateFrameByTimeMap, invalid parameter(controlMap)"
     );
-  if (typeof time !== "number")
-    throw new Error("[Error] binarySearchFrame, invalid parameter(time)");
+  }
+  if (typeof time !== "number") { throw new Error("[Error] binarySearchFrame, invalid parameter(time)"); }
   let l = 0;
   let r = record.length - 1;
   let m = Math.floor((l + r + 1) / 2);
@@ -78,21 +75,23 @@ export function binarySearchFrameMap(
  * @param {*} preFrame - the position frame data (posRecord[posIndex])
  * @param {*} nextFrame - the next position frame data (posRecord[posIndex + 1])
  */
-export function interpolationPos(
+export function interpolationPos (
   time: number,
   preFrame: PosMapElement,
   nextFrame: PosMapElement
 ) {
   const { start: preTime, pos: prePos } = preFrame;
   const { start: nextTime, pos: nextPos } = nextFrame;
-  if (preTime === undefined || prePos === undefined)
+  if (preTime === undefined || prePos === undefined) {
     throw new Error(
       `[Error] interplolationPos, invalid prePosFrame ${preTime}, ${prePos}`
     );
-  if (nextTime === undefined || nextPos === undefined)
+  }
+  if (nextTime === undefined || nextPos === undefined) {
     throw new Error(
       `[Error] interplolationPos, invalid nextPosFrame ${nextTime}, ${nextPos}`
     );
+  }
 
   const newPos: DancerCoordinates = {};
   Object.keys(prePos).forEach((dancer) => {

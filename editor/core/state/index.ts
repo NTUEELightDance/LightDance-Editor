@@ -23,7 +23,7 @@ import {
   CurrentLedEffect,
   LedEffectRecord,
   EffectListType,
-  StateKey,
+  StateKey
 } from "../models";
 
 /**
@@ -49,7 +49,7 @@ const _state: State = {
   editingData: {
     frameId: "",
     start: 0,
-    index: 0,
+    index: 0
   },
 
   selectionMode: "DANCER",
@@ -58,7 +58,7 @@ const _state: State = {
   dancerNames: [],
   partTypeMap: {},
   colorMap: {},
-  effectList: [],
+  effectList: []
 };
 
 // The diffSet will save changed attributes in state
@@ -68,7 +68,7 @@ export const state = onChange(_state, (path: string, value, previousValue, apply
 });
 
 state.toString = () => {
-  if(process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production") {
     return JSON.parse(JSON.stringify(state));
   } else {
     return "Don't print state in production mode";
@@ -97,7 +97,7 @@ export const reactiveState: ReactiveState = {
   editingData: makeVar<EditingData>({
     frameId: "",
     start: 0,
-    index: 0,
+    index: 0
   }),
   selectionMode: makeVar<SelectionMode>(DANCER),
 
@@ -106,14 +106,14 @@ export const reactiveState: ReactiveState = {
   partTypeMap: makeVar<PartTypeMap>({}),
   colorMap: makeVar<ColorMap>({}),
 
-  effectList: makeVar<EffectListType>([]),
+  effectList: makeVar<EffectListType>([])
 };
 
 /**
  * copy state to reactiveState, which will trigger rerender in react components.
  * If states array is empty, we will automatically replace the changed states.
  */
-export function syncReactiveState(states: string[]) {
+export function syncReactiveState (states: string[]) {
   if (states.length === 0) {
     // only update states in diffSet
     diffSet.forEach((key) => {

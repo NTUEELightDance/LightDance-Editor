@@ -32,7 +32,7 @@ export class PositionFrameResolver {
 
   @Query((returns) => [ID])
   async positionFrameIDs(@Ctx() ctx: any) {
-    let frames = await ctx.db.PositionFrame.find().sort({ start: 1 });
+    const frames = await ctx.db.PositionFrame.find().sort({ start: 1 });
     const id = frames.map((frame: PositionFrame) => frame.id);
     return id;
   }
@@ -40,9 +40,9 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async addPositionFrame(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Ctx() ctx: any
   ) {
@@ -57,10 +57,10 @@ export class PositionFrameResolver {
       fade: false,
       id: generateID(),
     }).save();
-    let allDancers = await ctx.db.Dancer.find();
+    const allDancers = await ctx.db.Dancer.find();
     await Promise.all(
       allDancers.map(async (dancer: Dancer) => {
-        let newPosition = new ctx.db.Position({
+        const newPosition = new ctx.db.Position({
           frame: newPositionFrame,
           x: 0,
           y: 0,
@@ -113,9 +113,9 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async editPositionFrame(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: EditPositionFrameInput,
     @Ctx() ctx: any
   ) {
@@ -130,7 +130,7 @@ export class PositionFrameResolver {
         }
       }
     }
-    let frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.frameID });
+    const frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.frameID });
     if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
       throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
@@ -176,14 +176,14 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async deletePositionFrame(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: DeletePositionFrameInput,
     @Ctx() ctx: any
   ) {
     const { frameID } = input;
-    let frameToDelete = await ctx.db.PositionFrame.findOne({ id: frameID });
+    const frameToDelete = await ctx.db.PositionFrame.findOne({ id: frameID });
     if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
       throw new Error(`The frame is now editing by ${frameToDelete.editing}.`);
     }

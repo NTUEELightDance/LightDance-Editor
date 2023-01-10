@@ -3,8 +3,8 @@ import { Field, ObjectType, Int, Float } from "type-graphql";
 @ObjectType()
 export class RequestEditResponse {
   @Field((type) => String, { nullable: true })
-  editing: string;
+    editing: string;
 
   @Field((type) => Boolean)
-  ok: boolean;
+    ok: boolean;
 }

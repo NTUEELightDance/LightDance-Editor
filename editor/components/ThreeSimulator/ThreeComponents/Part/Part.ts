@@ -5,17 +5,17 @@ export default class Part {
   name: string;
   model: THREE.Object3D;
   visible: boolean;
-  constructor(name: string, model: THREE.Object3D) {
+  constructor (name: string, model: THREE.Object3D) {
     this.name = name;
     this.model = model;
     this.visible = true;
   }
 
-  setVisibility(visible: boolean) {
+  setVisibility (visible: boolean) {
     // set visibility
   }
 
-  setStatus(status) {
+  setStatus (status) {
     // set status
   }
 }

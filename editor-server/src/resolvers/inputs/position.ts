@@ -3,20 +3,20 @@ import { InputType, Field, ObjectType, ID } from "type-graphql";
 @InputType()
 export class EditPositionInput {
   @Field()
-  dancerName: string;
+    dancerName: string;
 
   @Field((type) => PositionDataInput)
-  positionData: any;
+    positionData: any;
 }
 
 @InputType()
 class PositionDataInput {
   @Field()
-  x: number;
+    x: number;
 
   @Field()
-  y: number;
+    y: number;
 
   @Field()
-  z: number;
+    z: number;
 }

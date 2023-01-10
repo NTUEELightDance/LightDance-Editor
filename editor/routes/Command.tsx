@@ -1,7 +1,7 @@
 import Header from "components/Header";
 import Layout from "containers/Layout";
 
-export default function Command() {
+export default function Command () {
   return (
     <>
       <Header />

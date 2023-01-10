@@ -1,35 +1,35 @@
 /* eslint-disable no-console */
 import dayjs from "dayjs";
 
-//import Schema
+// import Schema
 import {
   controlValidatorSchema,
   posValidatorSchema,
   colorValidatorSchema,
-  ledValidatorSchema,
+  ledValidatorSchema
 } from "./validatorShema";
 
-//import validator
+// import validator
 import Ajv from "ajv";
 
-//import apis
+// import apis
 import {
   uploadExportDataApi,
   uploadLedDataApi,
   downloadExportDataApi,
-  downloadLedDataApi,
+  downloadLedDataApi
 } from "../../../api";
 
 import { notification } from "core/utils";
 
-const uploadJson = (files) => {
-  return new Promise((resolve, reject) => {
+const uploadJson = async (files) => {
+  return await new Promise((resolve, reject) => {
     const file = files[0];
     const reader = new FileReader();
     reader.onload = (res) => {
       resolve(JSON.parse(res.target.result));
     };
-    reader.onerror = (err) => reject(err);
+    reader.onerror = (err) => { reject(err); };
     reader.readAsText(file);
   });
 };
@@ -48,7 +48,7 @@ const checkControlJson = (exportJson) => {
   const Schemas = controlValidatorSchema(exportJson.dancer);
   const controlIsValid = Object.values(exportJson.control).every((frame) => {
     return Object.entries(frame.status).every(([dancerName, dancerParts]) => {
-      //validate format and content
+      // validate format and content
       const ajv = new Ajv();
       const validate = ajv.compile(Schemas[dancerName]);
       const valid = validate(dancerParts);
@@ -91,7 +91,7 @@ const checkColorJson = (exportJson) => {
   return colorIsValid;
 };
 export const checkLedJson = async (ledFile) => {
-  const ledJson = await uploadJson(ledFile); //read file into json format
+  const ledJson = await uploadJson(ledFile); // read file into json format
   const effectSchema = ledValidatorSchema();
   const ajv = new Ajv();
   const validate = ajv.compile(effectSchema);
@@ -129,7 +129,7 @@ export const downloadExportJson = async () => {
 };
 // eslint-disable-next-line
 export const uploadExportJson = async (exportFile) => {
-  await uploadExportDataApi(exportFile[0]); //take File out of Filelist
+  await uploadExportDataApi(exportFile[0]); // take File out of Filelist
 };
 export const downloadLedJson = async () => {
   const now = dayjs().format("YYYYMMDD_HHmm");

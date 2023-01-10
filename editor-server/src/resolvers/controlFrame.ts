@@ -36,7 +36,7 @@ export class ControlFrameResolver {
 
   @Query((returns) => [ID])
   async controlFrameIDs(@Ctx() ctx: any) {
-    let frames = await ctx.db.ControlFrame.find().sort({ start: 1 });
+    const frames = await ctx.db.ControlFrame.find().sort({ start: 1 });
     const id = frames.map((frame: ControlFrame) => frame.id);
     return id;
   }
@@ -48,7 +48,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async addControlFrame(
     @PubSub(Topic.ControlRecord)
-    publishControlRecord: Publisher<ControlRecordPayload>,
+      publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
@@ -65,10 +65,10 @@ export class ControlFrameResolver {
       fade: fade,
       id: generateID(),
     }).save();
-    let allParts = await ctx.db.Part.find();
+    const allParts = await ctx.db.Part.find();
     await Promise.all(
       allParts.map(async (part: Part) => {
-        let newControl = await new ctx.db.Control({
+        const newControl = await new ctx.db.Control({
           frame: newControlFrame,
           value: ControlDefault[part.type],
           id: generateID(),
@@ -120,7 +120,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async editControlFrame(
     @PubSub(Topic.ControlRecord)
-    publishControlRecord: Publisher<ControlRecordPayload>,
+      publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: EditControlFrameInput,
     @Ctx() ctx: any
@@ -136,7 +136,7 @@ export class ControlFrameResolver {
         }
       }
     }
-    let frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
+    const frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
     if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
       throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
@@ -183,7 +183,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async deleteControlFrame(
     @PubSub(Topic.ControlRecord)
-    publishControlRecord: Publisher<ControlRecordPayload>,
+      publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: DeleteControlFrameInput,
     @Ctx() ctx: any

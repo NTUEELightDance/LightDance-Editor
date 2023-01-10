@@ -5,9 +5,7 @@ export const uploadExportDataApi = async (uploadFile) => {
   const formData = new FormData();
   formData.append("data", uploadFile);
   const response = await axios.post("/uploadData", formData);
-  if (response.request.statusText === "OK")
-    notification.success("Upload Success. Please refresh.");
-  else notification.error("Upload Failed.");
+  if (response.request.statusText === "OK") { notification.success("Upload Success. Please refresh."); } else notification.error("Upload Failed.");
 };
 
 export const downloadExportDataApi = async () => {
@@ -20,9 +18,7 @@ export const uploadLedDataApi = async (ledFile) => {
   const formData = new FormData();
   formData.append("data", ledFile);
   const response = await axios.post("/uploadLED", formData);
-  if (response.request.statusText === "OK")
-    notification.success("Upload Success. Please refresh.");
-  else notification.error("Upload Failed.");
+  if (response.request.statusText === "OK") { notification.success("Upload Success. Please refresh."); } else notification.error("Upload Failed.");
 };
 
 export const downloadLedDataApi = async () => {

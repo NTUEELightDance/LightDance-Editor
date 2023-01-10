@@ -10,7 +10,7 @@ import { setItem } from "core/utils";
 /**
  * LightPresets logic
  */
-export default function useLightPresets() {
+export default function useLightPresets () {
   const [lightPresets, setLightPresets] = useImmer<LightPresetsType>([]);
   useEffect(() => {
     saveToLocal();
@@ -20,10 +20,10 @@ export default function useLightPresets() {
    */
   const editLightPresetsName = ({
     name,
-    idx,
+    idx
   }: {
-    name: string;
-    idx: number;
+    name: string
+    idx: number
   }) => {
     setLightPresets((draft) => {
       draft[idx].name = name;
@@ -57,6 +57,6 @@ export default function useLightPresets() {
     setLightPresets,
     editLightPresetsName,
     addLightPresets,
-    deleteLightPresets,
+    deleteLightPresets
   };
 }

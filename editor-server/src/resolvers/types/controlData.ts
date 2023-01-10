@@ -11,7 +11,7 @@ interface LooseObject {
 @ObjectType()
 export class ControlData {
   @Field((type) => ControlDataScalar)
-  frame: ObjectId;
+    frame: ObjectId;
 }
 
 export const ControlDataScalar = new GraphQLScalarType({
@@ -19,7 +19,7 @@ export const ControlDataScalar = new GraphQLScalarType({
   description: "Mongo object id scalar type",
   async serialize(data: any): Promise<any> {
     // check the type of received value
-    let { id, _id, deleteList, createList, updateList } = data;
+    const { id, _id, deleteList, createList, updateList } = data;
     if (id && _id) {
       const result: LooseObject = {};
       const cache = await redis.get(id);

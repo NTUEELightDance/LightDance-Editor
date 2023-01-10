@@ -1,8 +1,8 @@
-// @ts-ignore
+// @ts-expect-error
 import styles from "./styles.module.css";
 import { Box } from "@mui/material";
 
-const Loading = () => {
+function Loading() {
   return (
     <Box
       sx={{
@@ -10,7 +10,7 @@ const Loading = () => {
         width: "100vw",
         height: "100vh",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
       }}
     >
       <div
@@ -22,6 +22,6 @@ const Loading = () => {
       </div>
     </Box>
   );
-};
+}
 
 export default Loading;

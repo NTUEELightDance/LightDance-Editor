@@ -16,7 +16,7 @@ import {
   setCurrentStatus,
   setSelected,
   initCurrentLedEffect,
-  generateLedEffectRecord,
+  generateLedEffectRecord
 } from "core/actions";
 
 import { getControl, getPos } from "core/utils";
@@ -29,7 +29,7 @@ const theme = createTheme({ palette: { mode: "dark" } });
  * Component for the main
  * @component
  */
-const App = () => {
+function App() {
   const { init } = useSelector(selectLoad);
   const dispatch = useDispatch();
 
@@ -73,7 +73,7 @@ const App = () => {
 
   const {
     loading: dancerLoading,
-    dancerNames,
+    dancerNames
   } = useDancer();
 
   useEffect(() => {
@@ -98,13 +98,15 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {init && !controlLoading && !posLoading ? (
-        <Router />
-      ) : (
-        <Loading />
-      )}
+      {init && !controlLoading && !posLoading
+        ? (
+          <Router />
+        )
+        : (
+          <Loading />
+        )}
     </ThemeProvider>
   );
-};
+}
 
 export default App;

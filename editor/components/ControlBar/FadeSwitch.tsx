@@ -5,7 +5,7 @@ import { setCurrentFade } from "../../core/actions";
 import { reactiveState } from "../../core/state";
 import { useReactiveVar } from "@apollo/client";
 
-const FadeSwitch = () => {
+function FadeSwitch() {
   const currentFade = useReactiveVar(reactiveState.currentFade);
 
   const handleChange = (
@@ -22,6 +22,6 @@ const FadeSwitch = () => {
       labelPlacement="start"
     />
   );
-};
+}
 
 export default FadeSwitch;

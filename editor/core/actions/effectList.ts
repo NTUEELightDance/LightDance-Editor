@@ -9,7 +9,7 @@ const actions = registerActions({
      * @param {State} state
      * @param {effectName: string; startTime: number; endTime: number} payload
      */
-  addEffect: async (state: State, payload: { effectName: string; startTime: number; endTime: number }) => {
+  addEffect: async (state: State, payload: { effectName: string, startTime: number, endTime: number }) => {
     const { effectName, startTime, endTime } = payload;
     await effectListAgent.addEffectList(effectName, startTime, endTime);
   },
@@ -28,10 +28,10 @@ const actions = registerActions({
      * @param {State} state
      * @param {string} payload
      */
-  applyEffect: async (state: State, payload: { clear: boolean; start: number; applyId: string }) => {
+  applyEffect: async (state: State, payload: { clear: boolean, start: number, applyId: string }) => {
     const { clear, start, applyId } = payload;
     await effectListAgent.applyEffectList(clear, start, applyId);
-  },
+  }
 });
 
 export const { addEffect, deleteEffect, applyEffect } = actions;

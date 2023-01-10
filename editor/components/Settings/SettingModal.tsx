@@ -1,15 +1,15 @@
 import { Modal, Box, Paper, IconButton, Grow } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
-export const SettingModal = ({
+export function SettingModal({
   children,
   open,
-  onClose,
+  onClose
 }: {
-  children: JSX.Element | JSX.Element[];
-  open: boolean;
-  onClose: () => void;
-}) => {
+  children: JSX.Element | JSX.Element[]
+  open: boolean
+  onClose: () => void
+}) {
   return (
     <Modal open={open} onClose={onClose} closeAfterTransition>
       <Grow in={open}>
@@ -19,7 +19,7 @@ export const SettingModal = ({
             width: "30vw",
             minWidth: "600px",
             mx: "auto",
-            mt: "8vh",
+            mt: "8vh"
           }}
         >
           <IconButton
@@ -27,7 +27,7 @@ export const SettingModal = ({
             sx={{
               position: "absolute",
               top: "0.5rem",
-              left: "0.5rem",
+              left: "0.5rem"
             }}
           >
             <CloseRoundedIcon />
@@ -37,7 +37,7 @@ export const SettingModal = ({
               width: "100%",
               height: "100%",
               p: "3rem",
-              pb: "2rem",
+              pb: "2rem"
             }}
           >
             {children}
@@ -46,4 +46,4 @@ export const SettingModal = ({
       </Grow>
     </Modal>
   );
-};
+}

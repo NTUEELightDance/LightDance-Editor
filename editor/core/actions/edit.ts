@@ -37,7 +37,7 @@ const getDataHandler = async (state: State) => {
       frameId: controlRecord[frameIndex],
       frame: pureStatus,
       agent: controlAgent,
-      fade: state.currentFade,
+      fade: state.currentFade
     };
   } else {
     // get the right frameIndex due to the multiple editing issue
@@ -53,7 +53,7 @@ const getDataHandler = async (state: State) => {
       index: frameIndex,
       frameId: posRecord[frameIndex],
       frame: state.currentPos,
-      agent: posAgent,
+      agent: posAgent
     };
   }
 };
@@ -110,7 +110,7 @@ const actions = registerActions({
     state.editingData = {
       start: map[frameId].start,
       frameId,
-      index,
+      index
     };
     const isPermitted = await agent.requestEditPermission(frameId);
     if (!isPermitted) {
@@ -167,7 +167,7 @@ const actions = registerActions({
 
   cancelEditMode: (state: State) => {
     state.editMode = IDLE;
-  },
+  }
 });
 
 export const {
@@ -180,5 +180,5 @@ export const {
   cancelEditing,
   add,
   deleteCurrent,
-  cancelEditMode,
+  cancelEditMode
 } = actions;

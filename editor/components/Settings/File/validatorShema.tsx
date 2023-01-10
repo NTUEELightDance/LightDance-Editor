@@ -3,8 +3,8 @@ const FiberSchema = {
   required: ["color", "alpha"],
   properties: {
     color: { type: "string" },
-    alpha: { type: "number" },
-  },
+    alpha: { type: "number" }
+  }
 };
 
 const LedSchema = {
@@ -12,8 +12,8 @@ const LedSchema = {
   required: ["src", "alpha"],
   properties: {
     src: { type: "string" },
-    alpha: { type: "number" },
-  },
+    alpha: { type: "number" }
+  }
 };
 
 const CoordinateSchema = {
@@ -22,21 +22,21 @@ const CoordinateSchema = {
   properties: {
     x: { type: "number" },
     y: { type: "number" },
-    z: { type: "number" },
-  },
+    z: { type: "number" }
+  }
 };
 const EffectStatusSchema = {
   type: "object",
   properties: {
     effect: {
       type: "array",
-      items: { type: "string" },
+      items: { type: "string" }
     },
     _id: { type: "string" },
     start: { type: "number" },
-    fade: { type: "boolean" },
+    fade: { type: "boolean" }
   },
-  required: ["effect", "_id", "start", "fade"],
+  required: ["effect", "_id", "start", "fade"]
 };
 const LedEffectSchema = {
   type: "object",
@@ -44,17 +44,17 @@ const LedEffectSchema = {
     repeat: { type: "number" },
     effects: {
       type: "array",
-      items: EffectStatusSchema,
-    },
+      items: EffectStatusSchema
+    }
   },
-  required: ["repeat", "effects"],
+  required: ["repeat", "effects"]
 };
 export const controlValidatorSchema = (dancer) => {
   const Schemas = {};
   dancer.forEach((dancer) => {
     const dancerSchema = {
       type: "object",
-      properties: {},
+      properties: {}
     };
     dancer.parts.forEach((partInfo) => {
       let partType;
@@ -81,7 +81,7 @@ export const colorValidatorSchema = (colorMap) => {
   const Schema = {
     type: "object",
     properties: {},
-    required: [],
+    required: []
   };
   Object.keys(colorMap).forEach((color) => {
     Schema.properties[color] = { type: "string" };

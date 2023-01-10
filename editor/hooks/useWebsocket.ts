@@ -4,9 +4,9 @@ import { COMMANDS, WEBSOCKETCLIENT } from "@/constants";
 // states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
-//Api
+// Api
 import { generateControlOF, generateControlLed } from "../core/utils/genJson";
-//Types
+// Types
 import {
   SyncType,
   MesS2CType,
@@ -14,12 +14,10 @@ import {
   BoardInfoType,
   setMessageType,
   dancerStatusType,
-  panelPayloadType,
+  panelPayloadType
 } from "types/hooks/webSocket";
 
-import { notification } from "core/utils";
-
-import { log } from "core/utils";
+import { notification, log } from "core/utils";
 
 const BOARDINFO = "boardInfo";
 const DISCONNECT = "disconnect";
@@ -28,8 +26,8 @@ const url = `${location.origin}/controller-server-websocket`.replace(
   "ws"
 );
 
-export default function useWebsocketState() {
-  //states
+export default function useWebsocketState () {
+  // states
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
   const [dancerStatus, setDancerStatus] = useImmer<dancerStatusType>({});
   const [delay, setDelay] = useImmer(0);
@@ -50,7 +48,7 @@ export default function useWebsocketState() {
       log("Websocket for Editor Connected");
       sendDataToServer({
         command: BOARDINFO,
-        payload: { type: WEBSOCKETCLIENT.CONTROLPANEL },
+        payload: { type: WEBSOCKETCLIENT.CONTROLPANEL }
       });
 
       (ws.current as WebSocket).onerror = (err) => {
@@ -76,7 +74,7 @@ export default function useWebsocketState() {
         ...draft[dancer],
         msg,
         Ok,
-        isConnected,
+        isConnected
       };
     });
   };
@@ -88,7 +86,7 @@ export default function useWebsocketState() {
     });
     const MesC2S: MesC2SType = { command, selectedDancers, payload: "" };
     switch (
-      command //handle command that needs payload
+      command // handle command that needs payload
     ) {
     case COMMANDS.UPLOAD_LED:
       MesC2S.payload = await generateControlLed();
@@ -105,7 +103,7 @@ export default function useWebsocketState() {
         // not using 'useReactiveVar' to prevent unecessary re-render
         startTime: reactiveState.currentTime(),
         delay,
-        sysTime,
+        sysTime
       };
       break;
     case COMMANDS.LIGTHCURRENTSTATUS:
@@ -126,27 +124,27 @@ export default function useWebsocketState() {
   const handleNTHUPlay = async (sysTime: number) => {
     const requestOptions = {
       method: "GET",
-      redirect: "follow",
+      redirect: "follow"
     };
     log(Date.now());
 
     fetch(`/api/nthu_play?sys_time=${sysTime}`, requestOptions)
-      .then((response) => response.text())
-      .then((result) => notification.success(result))
-      .catch((error) => notification.error(error));
+      .then(async (response) => await response.text())
+      .then((result) => { notification.success(result); })
+      .catch((error) => { notification.error(error); });
   };
 
   const handleNTHUStop = async () => {
     const requestOptions = {
       method: "GET",
-      redirect: "follow",
+      redirect: "follow"
     };
     log(Date.now());
 
     fetch("/api/nthu_stop", requestOptions)
-      .then((response) => response.text())
-      .then((result) => notification.success(result))
-      .catch((error) => notification.error(error));
+      .then(async (response) => await response.text())
+      .then((result) => { notification.success(result); })
+      .catch((error) => { notification.error(error); });
   };
 
   const handleMessage = (data: MesS2CType) => {
@@ -162,7 +160,7 @@ export default function useWebsocketState() {
             isConnected: true,
             msg: "Connect Success",
             ip: ip[index],
-            hostname: hostName[index],
+            hostname: hostName[index]
           };
         });
       });
@@ -173,7 +171,7 @@ export default function useWebsocketState() {
       setDancerMsg({
         dancer: from,
         msg: `offset:${offset} , delay:${delay}`,
-        Ok: success,
+        Ok: success
       });
       break;
     }
@@ -182,7 +180,7 @@ export default function useWebsocketState() {
         isConnected: false,
         Ok: success,
         msg: info as string,
-        dancer: from,
+        dancer: from
       });
       break;
     }
@@ -190,7 +188,7 @@ export default function useWebsocketState() {
       setDancerMsg({
         Ok: success,
         msg: info as string,
-        dancer: from,
+        dancer: from
       });
       break;
     }
@@ -205,7 +203,7 @@ export default function useWebsocketState() {
         ip: "-",
         Ok: false,
         msg: "",
-        isConnected: false,
+        isConnected: false
       };
       initDancerStatus[dancerName] = initStatus;
     });
@@ -216,6 +214,6 @@ export default function useWebsocketState() {
     delay,
     dancerStatus,
     sendCommand,
-    setDelay,
+    setDelay
   };
 }

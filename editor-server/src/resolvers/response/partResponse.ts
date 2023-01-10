@@ -4,8 +4,8 @@ import { Part } from "../types/part";
 @ObjectType()
 export class PartResponse extends Part {
   @Field((type) => Boolean)
-  ok: boolean;
+    ok: boolean;
 
   @Field((type) => String, { nullable: true })
-  msg: string;
+    msg: string;
 }

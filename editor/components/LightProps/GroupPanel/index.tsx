@@ -14,13 +14,13 @@ import type {
   PartType,
   PartPayload,
   PartName,
-  Dancers,
+  Dancers
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 import { notification } from "core/utils";
 import { PART } from "@/constants";
 
-const GroupPanel = ({
+function GroupPanel({
   partType,
   groupName,
   dancers,
@@ -28,17 +28,17 @@ const GroupPanel = ({
   currentDancers,
   currentStatus,
   colorMap,
-  deleteGroup,
+  deleteGroup
 }: {
-  partType: PartType;
-  groupName: string;
-  dancers: Dancers;
-  parts: string[];
-  currentDancers: string[];
-  currentStatus: ControlMapStatus;
-  colorMap: { [key: string]: string };
-  deleteGroup: (groupName: string) => Promise<void>;
-}) => {
+  partType: PartType
+  groupName: string
+  dancers: Dancers
+  parts: string[]
+  currentDancers: string[]
+  currentStatus: ControlMapStatus
+  colorMap: Record<string, string>
+  deleteGroup: (groupName: string) => Promise<void>
+}) {
   const sortedParts = [...parts].sort();
 
   const handleDelete = async () => {
@@ -84,29 +84,32 @@ const GroupPanel = ({
 
   const Items: JSX.Element[] = [];
   for (const part of sortedParts) {
-    let displayValue: LED | Fiber | number | undefined = undefined;
+    let displayValue: LED | Fiber | number | undefined;
     for (const dancer of currentDancers) {
       displayValue = currentStatus[dancer]?.[part];
     }
-    if (displayValue)
+    if (displayValue) {
       Items.push(
-        partType === "LED" ? (
-          <LEDcontrols
-            part={part}
-            currentDancers={currentDancers}
-            displayValue={displayValue as LED}
-            key={`${currentDancers[0]}_${part}_LED`}
-          />
-        ) : (
-          <OFcontrols
-            part={part}
-            currentDancers={currentDancers}
-            displayValue={displayValue as Fiber}
-            key={`${currentDancers[0]}_${part}_OF`}
-            colorMap={colorMap}
-          />
-        )
+        partType === "LED"
+          ? (
+            <LEDcontrols
+              part={part}
+              currentDancers={currentDancers}
+              displayValue={displayValue as LED}
+              key={`${currentDancers[0]}_${part}_LED`}
+            />
+          )
+          : (
+            <OFcontrols
+              part={part}
+              currentDancers={currentDancers}
+              displayValue={displayValue as Fiber}
+              key={`${currentDancers[0]}_${part}_OF`}
+              colorMap={colorMap}
+            />
+          )
       );
+    }
   }
 
   return (
@@ -116,8 +119,8 @@ const GroupPanel = ({
           height: "100%",
           width: "100%",
           px: "5%",
-          py: 0,
-        },
+          py: 0
+        }
       }}
     >
       <TabPanel value={`GROUP_${groupName}`}>
@@ -138,6 +141,6 @@ const GroupPanel = ({
       </TabPanel>
     </Box>
   );
-};
+}
 
 export default GroupPanel;

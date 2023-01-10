@@ -8,13 +8,13 @@ import { setCurrentTime } from "core/actions";
 
 import useTimeInput from "hooks/useTimeInput";
 
-const TimeControlInput = () => {
+function TimeControlInput() {
   const currentTime = useReactiveVar(reactiveState.currentTime);
   const { textFieldProps, timeError, timeInputRef } = useTimeInput([
     currentTime,
     (newTime: number) => {
       setCurrentTime({ payload: newTime });
-    },
+    }
   ]);
 
   return (
@@ -38,6 +38,6 @@ const TimeControlInput = () => {
       )}
     </Stack>
   );
-};
+}
 
 export default TimeControlInput;

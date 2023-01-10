@@ -21,7 +21,7 @@ class Controls {
   domElement: HTMLElement;
   dancers: Dancer[];
 
-  constructor(
+  constructor (
     renderer: THREE.Renderer,
     scene: THREE.Scene,
     camera: THREE.Camera,
@@ -40,7 +40,7 @@ class Controls {
     // this.initBoxSelectControls();
   }
 
-  initOrbitControls() {
+  initOrbitControls () {
     const orbitControls = new OrbitControls(this.camera, this.domElement);
     orbitControls.enablePan = true;
     orbitControls.enableZoom = true;
@@ -62,7 +62,7 @@ class Controls {
     this.orbitControls = orbitControls;
   }
 
-  initBoxSelectControls() {
+  initBoxSelectControls () {
     const selectionBox = new SelectionBox(this.camera, this.scene);
     const helper = new SelectionHelper(
       selectionBox,
@@ -111,7 +111,7 @@ class Controls {
     });
   }
 
-  initDragControls() {
+  initDragControls () {
     this.dragControls = new DragControls(
       [...this.objects],
       this.camera,
@@ -121,7 +121,7 @@ class Controls {
     this.dragControls.addEventListener("dragend", this.dragEnd.bind(this));
   }
 
-  initDanceSelector() {
+  initDanceSelector () {
     const selectControls = new SelectControls(
       [...this.objects],
       this.camera,
@@ -133,7 +133,7 @@ class Controls {
     this.selectControls = selectControls;
   }
 
-  activate(selectionMode) {
+  activate (selectionMode) {
     switch (selectionMode) {
     case DANCER:
       break;
@@ -146,12 +146,12 @@ class Controls {
     }
   }
 
-  deactivate() {
+  deactivate () {
     this.dragControls.deactivate();
     this.dragControls.enabled = false;
   }
 
-  dragEnd() {
+  dragEnd () {
     const selected = [];
     const _group = this.selectControls.getGroup();
     while (_group.children.length) {
@@ -167,7 +167,7 @@ class Controls {
       currentPos[name] = {
         x: position.x,
         y: Math.max(position.y, 0),
-        z: position.z,
+        z: position.z
       };
 
       if (selected.includes(name)) {

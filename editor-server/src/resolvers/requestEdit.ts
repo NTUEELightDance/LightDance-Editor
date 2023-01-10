@@ -11,7 +11,7 @@ import { RequestEditResponse } from "./response/requestEditResponse";
 @Resolver()
 export class RequestEditResolver {
   @Mutation((returns) => RequestEditResponse)
-  async RequestEditControl(@Arg("FrameID") frameID: String, @Ctx() ctx: any) {
+  async RequestEditControl(@Arg("FrameID") frameID: string, @Ctx() ctx: any) {
     const controlFrame = await ctx.db.ControlFrame.findOne({ id: frameID });
     if (!controlFrame.editing) {
       await ctx.db.ControlFrame.findOneAndUpdate(
@@ -32,7 +32,7 @@ export class RequestEditResolver {
   }
 
   @Mutation((returns) => RequestEditResponse)
-  async RequestEditPosition(@Arg("FrameID") frameID: String, @Ctx() ctx: any) {
+  async RequestEditPosition(@Arg("FrameID") frameID: string, @Ctx() ctx: any) {
     const positionFrame = await ctx.db.PositionFrame.findOne({ id: frameID });
     if (!positionFrame.editing) {
       await ctx.db.PositionFrame.findOneAndUpdate(
@@ -53,7 +53,7 @@ export class RequestEditResolver {
   }
 
   @Mutation((returns) => RequestEditResponse)
-  async CancelEditPosition(@Arg("FrameID") frameID: String, @Ctx() ctx: any) {
+  async CancelEditPosition(@Arg("FrameID") frameID: string, @Ctx() ctx: any) {
     const positionFrame = await ctx.db.PositionFrame.findOneAndUpdate(
       { id: frameID },
       { editing: null }
@@ -62,7 +62,7 @@ export class RequestEditResolver {
   }
 
   @Mutation((returns) => RequestEditResponse)
-  async CancelEditControl(@Arg("FrameID") frameID: String, @Ctx() ctx: any) {
+  async CancelEditControl(@Arg("FrameID") frameID: string, @Ctx() ctx: any) {
     const controlFrame = await ctx.db.ControlFrame.findOneAndUpdate(
       { id: frameID },
       { editing: null }

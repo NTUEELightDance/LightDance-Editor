@@ -9,7 +9,7 @@ import {
   EDIT_CONTROL_RECORD_BY_ID,
   DELETE_CONTROL_FRAME_BY_ID,
   REQUEST_EDIT_CONTROL_BY_ID,
-  CANCEL_EDIT_CONTROL_BY_ID,
+  CANCEL_EDIT_CONTROL_BY_ID
 } from "../graphql";
 
 // types
@@ -39,24 +39,25 @@ export const controlAgent = {
         mutation: ADD_OR_EDIT_CONTROL_FRAME,
         variables: {
           start: currentTime,
-          fade: fade,
+          fade,
           controlData: Object.keys(frame).map((key) => {
             return {
               dancerName: key,
               controlData: Object.keys(frame[key]).map((k) => {
-                if (typeof (frame as ControlMapStatus)[key][k] === "number")
+                if (typeof (frame as ControlMapStatus)[key][k] === "number") {
                   return {
                     partName: k,
-                    ELValue: (frame as ControlMapStatus)[key][k],
+                    ELValue: (frame as ControlMapStatus)[key][k]
                   };
+                }
                 return {
                   partName: k,
-                  ...((frame as ControlMapStatus)[key][k] as Object),
+                  ...((frame as ControlMapStatus)[key][k] as Object)
                 };
-              }),
+              })
             };
-          }),
-        },
+          })
+        }
       });
     } catch (error) {
       console.error(error);
@@ -78,48 +79,49 @@ export const controlAgent = {
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
-          ControlMap(controlMap) {
+          ControlMap (controlMap) {
             return {
               frames: {
                 ...controlMap.frames,
                 [frameId]: {
                   start: requestTimeChange ? currentTime : frameTime,
                   fade,
-                  status: frame,
-                },
-              },
+                  status: frame
+                }
+              }
             };
-          },
-        },
+          }
+        }
       });
       // don't use await for optimisticResponse
       client.mutate({
         mutation: ADD_OR_EDIT_CONTROL_FRAME,
         variables: {
           start: frameTime,
-          fade: fade,
+          fade,
           controlData: Object.keys(frame).map((dancerName) => {
             return {
-              dancerName: dancerName,
+              dancerName,
               controlData: Object.keys(frame[dancerName]).map((partName) => {
                 if (
                   typeof (frame as ControlMapStatus)[dancerName][partName] ===
                   "number"
-                )
+                ) {
                   return {
                     partName,
-                    ELValue: (frame as ControlMapStatus)[dancerName][partName],
+                    ELValue: (frame as ControlMapStatus)[dancerName][partName]
                   };
+                }
                 return {
                   partName,
                   ...((frame as ControlMapStatus)[dancerName][
                     partName
-                  ] as Object),
+                  ] as Object)
                 };
-              }),
+              })
             };
-          }),
-        },
+          })
+        }
       });
     } catch (error) {
       console.error(error);
@@ -135,9 +137,9 @@ export const controlAgent = {
         input: {
           frameID: frameId,
           start: currentTime,
-          fade: fade,
-        },
-      },
+          fade
+        }
+      }
     });
   },
   deleteFrame: async (frameId: string) => {
@@ -145,16 +147,16 @@ export const controlAgent = {
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
-          controlFrameIDs(controlFrameIDs) {
+          controlFrameIDs (controlFrameIDs) {
             return controlFrameIDs.filter((id: string) => id !== frameId);
           },
-          ControlMap(controlMap) {
+          ControlMap (controlMap) {
             return {
               ...controlMap,
-              frames: lodash.omit(controlMap.frames, [frameId]),
+              frames: lodash.omit(controlMap.frames, [frameId])
             };
-          },
-        },
+          }
+        }
       });
 
       // don't use await for optimisticResponse
@@ -162,9 +164,9 @@ export const controlAgent = {
         mutation: DELETE_CONTROL_FRAME_BY_ID,
         variables: {
           input: {
-            frameID: frameId,
-          },
-        },
+            frameID: frameId
+          }
+        }
       });
     } catch (error) {
       console.error(error);
@@ -175,8 +177,8 @@ export const controlAgent = {
     const response = await client.mutate({
       mutation: REQUEST_EDIT_CONTROL_BY_ID,
       variables: {
-        frameId: _frameID,
-      },
+        frameId: _frameID
+      }
     });
     return response.data.RequestEditControl.ok;
   },
@@ -184,9 +186,9 @@ export const controlAgent = {
     const response = await client.mutate({
       mutation: CANCEL_EDIT_CONTROL_BY_ID,
       variables: {
-        frameId: _frameID,
-      },
+        frameId: _frameID
+      }
     });
     return response.data.CancelEditControl.ok;
-  },
+  }
 };

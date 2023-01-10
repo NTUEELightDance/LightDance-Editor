@@ -18,50 +18,50 @@ const defineConfig: UserConfigFn = () => {
         // controller-server port at 8082
         "/api/controller-server": "http://localhost:8082",
         "/api/nthu_play": {
-          target: "http://localhost:5000",
+          target: "http://localhost:5000"
         },
         "/api/nthu_stop": {
-          target: "http://localhost:5000",
+          target: "http://localhost:5000"
         },
         "/controller-server-websocket": {
           target: "ws://localhost:8082",
-          rewrite: (path) => path.replace(/^\/controller-server-websocket/, ""),
+          rewrite: (path) => path.replace(/^\/controller-server-websocket/, "")
         },
         "/api/editor-server": {
           target: "http://localhost:4000",
-          rewrite: (path) => path.replace(/^\/api\/editor-server/, "api"),
+          rewrite: (path) => path.replace(/^\/api\/editor-server/, "api")
         },
         "/graphql-backend": {
           target: "http://localhost:4000",
-          rewrite: (path) => path.replace(/^\/graphql-backend/, "graphql"),
+          rewrite: (path) => path.replace(/^\/graphql-backend/, "graphql")
         },
         "/graphql-backend-websocket": {
           target: "ws://localhost:4000",
           ws: true,
           rewrite: (path) => {
             return path.replace(/^\/graphql-backend-websocket/, "graphql");
-          },
-        },
-      },
+          }
+        }
+      }
     },
     plugins: [
       react(),
       tsconfigPaths(),
       legacy(),
       mkcert({
-        source: "coding",
-      }),
+        source: "coding"
+      })
     ],
     build: {
       rollupOptions: {
         output: {
           manualChunks: {
             react: ["react"],
-            "react-dom": ["react-dom"],
-          },
-        },
-      },
-    },
+            "react-dom": ["react-dom"]
+          }
+        }
+      }
+    }
   };
   return config;
 };

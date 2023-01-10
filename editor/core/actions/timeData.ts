@@ -8,7 +8,7 @@ import {
   updateFrameByTimeMap,
   interpolationPos,
   fadeStatus,
-  updateLedEffect,
+  updateLedEffect
 } from "../utils";
 // types
 import { State } from "../models";
@@ -131,7 +131,7 @@ const actions = registerActions({
     posIndex = clamp(posIndex, 0, posRecord.length - 1);
     const newTime = posMap[posRecord[posIndex]].start;
     setCurrentTime({ payload: newTime });
-  },
+  }
 });
 
 export const { setCurrentTime, setCurrentControlIndex, setCurrentPosIndex } =

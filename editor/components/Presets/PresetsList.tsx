@@ -16,15 +16,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {
   PresetsListType,
   LightPresetsElement,
-  PosPresetsElement,
+  PosPresetsElement
 } from "./presets";
 
-function InstanceOfLightPresetsElement(
+function InstanceOfLightPresetsElement (
   preset: any
 ): preset is LightPresetsElement {
   return "status" in preset;
 }
-function InstanceOfPosPresetsElement(preset: any): preset is PosPresetsElement {
+function InstanceOfPosPresetsElement (preset: any): preset is PosPresetsElement {
   return "pos" in preset;
 }
 
@@ -32,11 +32,11 @@ function InstanceOfPosPresetsElement(preset: any): preset is PosPresetsElement {
  * This is Presets List
  * @component
  */
-export default function PresetsList({
+export default function PresetsList ({
   presets,
   handleEditPresets,
   handleDeletePresets,
-  handleSetCurrent,
+  handleSetCurrent
 }: PresetsListType) {
   // dialog
   const [open, setOpen] = useState(false);
@@ -75,7 +75,7 @@ export default function PresetsList({
             <ListItem
               key={`${i}_preset`}
               sx={{ display: "flex" }}
-              onDoubleClick={() => handleApplyPreset(preset)}
+              onDoubleClick={() => { handleApplyPreset(preset); }}
             >
               <div style={{ flexGrow: 1 }}>
                 <Typography variant="body1">
@@ -85,11 +85,11 @@ export default function PresetsList({
               <div>
                 <IconButton
                   sx={{ p: 0 }}
-                  onClick={() => openDialog(preset.name, i)}
+                  onClick={() => { openDialog(preset.name, i); }}
                 >
                   <EditIcon />
                 </IconButton>
-                <IconButton onClick={() => handleDeletePresets(i)}>
+                <IconButton onClick={() => { handleDeletePresets(i); }}>
                   <DeleteIcon />
                 </IconButton>
               </div>
@@ -102,7 +102,7 @@ export default function PresetsList({
             <TextField fullWidth value={nameVal} onChange={handleChangeName} />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => handleEditPresets(nameVal, presetId)}>
+            <Button onClick={() => { handleEditPresets(nameVal, presetId); }}>
               OK
             </Button>
           </DialogActions>

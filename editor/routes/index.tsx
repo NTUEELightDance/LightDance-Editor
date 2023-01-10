@@ -8,10 +8,10 @@ import PageWrapper from "@/containers/PageWrapper";
 import Loading from "@/components/Loading";
 import NotFound from "./NotFound";
 
-const Command = lazy(() => import("./Command"));
-const Editor = lazy(() => import("./Editor"));
+const Command = lazy(async () => await import("./Command"));
+const Editor = lazy(async () => await import("./Editor"));
 
-export default function RootRouter() {
+export default function RootRouter () {
   return (
     <PageWrapper>
       <CssBaseline />

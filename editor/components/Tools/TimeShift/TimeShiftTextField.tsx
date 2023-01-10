@@ -4,17 +4,17 @@ import { TextField } from "@mui/material";
 
 import useTimeInput from "hooks/useTimeInput";
 
-const TimeShiftTextField = ({
+function TimeShiftTextField({
   label,
   time,
   setTime,
-  autoFocus,
+  autoFocus
 }: {
-  label: string;
-  time: number;
-  setTime: React.Dispatch<React.SetStateAction<number>>;
-  autoFocus?: boolean;
-}) => {
+  label: string
+  time: number
+  setTime: React.Dispatch<React.SetStateAction<number>>
+  autoFocus?: boolean
+}) {
   const { textFieldProps } = useTimeInput([time, setTime]);
 
   return (
@@ -26,6 +26,6 @@ const TimeShiftTextField = ({
       autoFocus={autoFocus}
     />
   );
-};
+}
 
 export default TimeShiftTextField;

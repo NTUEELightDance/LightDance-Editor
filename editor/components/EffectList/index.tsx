@@ -29,12 +29,12 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Typography,
+  Typography
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function EffectList() {
+export default function EffectList () {
   const { effectList } = useEffectList();
   const currentTime = useReactiveVar(reactiveState.currentTime);
 
@@ -44,22 +44,22 @@ export default function EffectList() {
   const {
     textFieldProps: fromTextFieldProps,
     timeError: fromTimeError,
-    timeInputRef: fromTimeInputRef,
+    timeInputRef: fromTimeInputRef
   } = useTimeInput([
     newEffectFrom,
     (newTime: number) => {
       setNewEffectFrom(newTime);
-    },
+    }
   ]);
   const {
     textFieldProps: toTextFieldProps,
     timeError: toTimeError,
-    timeInputRef: toTimeInputRef,
+    timeInputRef: toTimeInputRef
   } = useTimeInput([
     newEffectTo,
     (newTime: number) => {
       setNewEffectTo(newTime);
-    },
+    }
   ]);
 
   const [effectSelectedID, setEffectSelectedID] = useState<string>("");
@@ -85,7 +85,7 @@ export default function EffectList() {
   const handleApplyEffect = async () => {
     const clear = await confirmation.warning("Are you sure to clear all collided frames?");
     applyEffect({
-      payload: { clear: clear, start: currentTime, applyId: effectSelectedID },
+      payload: { clear, start: currentTime, applyId: effectSelectedID }
     });
     handleCloseApply();
   };
@@ -118,9 +118,9 @@ export default function EffectList() {
     addEffect({
       payload: {
         effectName: newEffectName,
-        startTime: newEffectFrom ? newEffectFrom : 0,
-        endTime: newEffectTo ? newEffectTo : 0,
-      },
+        startTime: newEffectFrom || 0,
+        endTime: newEffectTo || 0
+      }
     });
     handleCloseAdd();
     // setPreviewOpened(true);
@@ -140,7 +140,7 @@ export default function EffectList() {
                         edge="end"
                         aria-label="apply"
                         size="large"
-                        onClick={() => handleOpenApply(effect?.id, effect?.description)}
+                        onClick={() => { handleOpenApply(effect?.id, effect?.description); }}
                       >
                         <AddIcon fontSize="inherit" sx={{ color: "white" }} />
                       </IconButton>
@@ -150,7 +150,7 @@ export default function EffectList() {
                         edge="end"
                         aria-label="delete"
                         size="large"
-                        onClick={() => handleOpenDelete(effect?.id, effect?.description)}
+                        onClick={() => { handleOpenDelete(effect?.id, effect?.description); }}
                       >
                         <DeleteIcon fontSize="inherit" sx={{ color: "white" }} />
                       </IconButton>
@@ -189,7 +189,7 @@ export default function EffectList() {
             width: "100%",
             minHeight: "80px",
             justifyContent: "center",
-            alignItems: "center",
+            alignItems: "center"
           }}
         >
           <Button variant="outlined" startIcon={<AddIcon />} onClick={handleOpenAdd}>
@@ -203,16 +203,18 @@ export default function EffectList() {
           <DialogContentText>
             {/* This will insert {effectRecordMap[effectSelected] ? effectRecordMap[effectSelected].length : 0}{" "}
                         frame(s) to current time spot.{" "} */}
-            {collidedFrame.length ? (
-              <span>
+            {(collidedFrame.length > 0)
+              ? (
+                <span>
                                 The following frame(s) will be collided:
-                {collidedFrame?.map((frame) => (
-                  <span style={{ color: "#ba000d" }}> {frame}</span>
-                ))}
-              </span>
-            ) : (
-              ""
-            )}
+                  {collidedFrame?.map((frame) => (
+                    <span style={{ color: "#ba000d" }}> {frame}</span>
+                  ))}
+                </span>
+              )
+              : (
+                ""
+              )}
             <br />
                         Are you sure to apply effect "{effectSelectedName}" to current record?
           </DialogContentText>
@@ -250,7 +252,7 @@ export default function EffectList() {
             fullWidth
             variant="standard"
             value={newEffectName}
-            onChange={(e) => setNewEffectName(e.target.value)}
+            onChange={(e) => { setNewEffectName(e.target.value); }}
           />
           {/* <TextField
                         autoFocus
@@ -344,8 +346,8 @@ export default function EffectList() {
         <DialogTitle>Preview Effect</DialogTitle>
         <DialogContent></DialogContent>
         <DialogActions>
-          <Button onClick={() => setPreviewOpened(false)}>Cancel</Button>
-          <Button autoFocus onClick={() => setPreviewOpened(false)}>
+          <Button onClick={() => { setPreviewOpened(false); }}>Cancel</Button>
+          <Button autoFocus onClick={() => { setPreviewOpened(false); }}>
                         Add
           </Button>
         </DialogActions>

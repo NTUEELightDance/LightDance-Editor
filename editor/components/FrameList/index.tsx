@@ -12,7 +12,7 @@ import { CONTROL_EDITOR } from "@/constants";
 import useControlFrameList from "./useControlFrameList";
 import usePosFrameList from "./usePosFrameList";
 
-export default function FrameList() {
+export default function FrameList () {
   const editor = useReactiveVar(reactiveState.editor);
   // get data and handler from different mode
   const controlFrameList = useControlFrameList();

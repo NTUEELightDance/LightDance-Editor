@@ -4,13 +4,13 @@ import { Typography, Box } from "@mui/material";
 import TreeItem, {
   TreeItemContentProps,
   useTreeItem,
-  TreeItemProps,
+  TreeItemProps
 } from "@mui/lab/TreeItem";
 import { blue } from "@mui/material/colors";
 
 import clsx from "clsx";
 
-const DancerTreeItemContent = React.forwardRef(function CustomContent(
+const DancerTreeItemContent = React.forwardRef(function CustomContent (
   props: TreeItemContentProps,
   ref
 ) {
@@ -21,7 +21,7 @@ const DancerTreeItemContent = React.forwardRef(function CustomContent(
     nodeId,
     icon: iconProp,
     expansionIcon,
-    displayIcon,
+    displayIcon
   } = props;
 
   const {
@@ -31,7 +31,7 @@ const DancerTreeItemContent = React.forwardRef(function CustomContent(
     focused,
     handleExpansion,
     handleSelection,
-    preventSelection,
+    preventSelection
   } = useTreeItem(nodeId);
 
   const icon = iconProp || expansionIcon || displayIcon;
@@ -59,16 +59,16 @@ const DancerTreeItemContent = React.forwardRef(function CustomContent(
         [classes.expanded]: expanded,
         [classes.selected]: selected,
         [classes.focused]: focused,
-        [classes.disabled]: disabled,
+        [classes.disabled]: disabled
       })}
       onMouseDown={handleMouseDown}
       ref={ref as React.Ref<HTMLDivElement>}
       sx={{
         ":hover": {
           p: {
-            color: blue[100],
-          },
-        },
+            color: blue[100]
+          }
+        }
       }}
     >
       <div onClick={handleExpansionClick} className={classes.iconContainer}>
@@ -85,8 +85,8 @@ const DancerTreeItemContent = React.forwardRef(function CustomContent(
   );
 });
 
-const DancerTreeItem = (props: TreeItemProps) => (
-  <TreeItem ContentComponent={DancerTreeItemContent} {...props} />
-);
+function DancerTreeItem(props: TreeItemProps) {
+  return <TreeItem ContentComponent={DancerTreeItemContent} {...props} />;
+}
 
 export default DancerTreeItem;

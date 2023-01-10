@@ -6,7 +6,7 @@ const near = 0.2;
 const far = 100;
 
 class Camera {
-  constructor(width, height) {
+  constructor (width, height) {
     this.width = width;
     this.height = height;
 

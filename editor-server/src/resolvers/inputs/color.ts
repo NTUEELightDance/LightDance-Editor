@@ -3,29 +3,29 @@ import { InputType, Field } from "type-graphql";
 @InputType()
 export class ColorInput {
   @Field()
-  color: string;
+    color: string;
 
   @Field()
-  colorCode: string;
+    colorCode: string;
 }
 
 @InputType()
 export class addColorInput {
   @Field()
-  color: string;
+    color: string;
 
   @Field()
-  colorCode: string;
+    colorCode: string;
 }
 
 @InputType()
 export class editColorInput {
   @Field()
-  original_color: string;
+    original_color: string;
 
   @Field()
-  colorCode: string;
+    colorCode: string;
 
   @Field()
-  new_color: string;
+    new_color: string;
 }

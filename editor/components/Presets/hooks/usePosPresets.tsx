@@ -10,7 +10,7 @@ import { setItem } from "core/utils";
 /**
  * PosPresets logic
  */
-export default function usePosPresets() {
+export default function usePosPresets () {
   const [posPresets, setPosPresets] = useImmer<PosPresetsType>([]);
   useEffect(() => {
     saveToLocal();
@@ -18,7 +18,7 @@ export default function usePosPresets() {
   /**
    * edit a posPreset's name
    */
-  const editPosPresetsName = ({ name, idx }: { name: string; idx: number }) => {
+  const editPosPresetsName = ({ name, idx }: { name: string, idx: number }) => {
     setPosPresets((draft) => {
       draft[idx].name = name;
     });
@@ -51,6 +51,6 @@ export default function usePosPresets() {
     setPosPresets,
     editPosPresetsName,
     addPosPresets,
-    deletePosPresets,
+    deletePosPresets
   };
 }

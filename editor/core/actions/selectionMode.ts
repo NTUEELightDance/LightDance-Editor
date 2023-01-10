@@ -29,7 +29,7 @@ const actions = registerActions({
     default:
       state.selectionMode = DANCER;
     }
-  },
+  }
 });
 
 export const { setSelectionMode, setSelectionModeByEditor } = actions;

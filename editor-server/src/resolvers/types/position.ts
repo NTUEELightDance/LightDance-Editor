@@ -4,14 +4,14 @@ import { PositionFrame } from "./positionFrame";
 @ObjectType()
 export class Position {
   @Field((type) => PositionFrame)
-  frame: PositionFrame;
+    frame: PositionFrame;
 
   @Field((type) => Float)
-  x: number;
+    x: number;
 
   @Field((type) => Float)
-  y: number;
+    y: number;
 
   @Field((type) => Float)
-  z: number;
+    z: number;
 }

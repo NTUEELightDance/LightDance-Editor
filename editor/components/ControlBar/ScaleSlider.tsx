@@ -5,10 +5,10 @@ import { ZoomIn } from "@mui/icons-material";
 
 import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
 
-export default function ScaleSlider({
-  wavesurfer,
+export default function ScaleSlider ({
+  wavesurfer
 }: {
-  wavesurfer: WaveSurferApp;
+  wavesurfer: WaveSurferApp
 }) {
   const [scale, setScale] = useState<number>(0);
 

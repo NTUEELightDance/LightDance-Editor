@@ -140,12 +140,12 @@ export class EffectListResolver {
   @Mutation((returns) => EffectListResponse)
   async applyEffectList(
     @PubSub(Topic.ControlRecord)
-    publishControlRecord: Publisher<ControlRecordPayload>,
+      publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("id", (type) => ID, { nullable: false }) id: string,
     @Arg("start", { nullable: false }) start: number,
     @Arg("clear", { nullable: false }) clear: boolean,
@@ -202,7 +202,7 @@ export class EffectListResolver {
         )
       );
     }
-    if (checkOverLap) return { ok: false, msg: `Some frame is overlap` };
+    if (checkOverLap) return { ok: false, msg: "Some frame is overlap" };
 
     // clear
     const deleteControlFrame = await ctx.db.ControlFrame.find({

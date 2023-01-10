@@ -11,10 +11,10 @@ export const effectListAgent = {
       await client.mutate({
         mutation: ADD_EFFECT_LIST,
         variables: {
-          end: end,
-          start: start,
-          description: name,
-        },
+          end,
+          start,
+          description: name
+        }
       });
     } catch (error) {
       console.error(error);
@@ -25,8 +25,8 @@ export const effectListAgent = {
       const response = await client.mutate({
         mutation: DELETE_EFFECT_LIST,
         variables: {
-          deleteEffectListId: deleteId,
-        },
+          deleteEffectListId: deleteId
+        }
       });
       if (response.data.deleteEffectList.ok) alert(`[SUCCESS] Delete effect: ${deleteId}`);
       else alert(`[FAILED] Delete: effect: ${deleteId}`);
@@ -39,15 +39,15 @@ export const effectListAgent = {
       const response = await client.mutate({
         mutation: APPLY_EFFECT_LIST,
         variables: {
-          clear: clear,
-          start: start,
-          applyEffectListId: applyId,
-        },
+          clear,
+          start,
+          applyEffectListId: applyId
+        }
       });
       if (response.data.applyEffectList.ok) alert(`[SUCCESS] ${response.data.applyEffectList.msg}`);
       else alert(`[FAILED] ${response.data.applyEffectList.msg}`);
     } catch (error) {
       console.error(error);
     }
-  },
+  }
 };

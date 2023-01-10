@@ -17,7 +17,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 /**
  * Clipboard component for copy/paste
  */
-export default function Clipboard() {
+export default function Clipboard () {
   const copiedStatus = useRef(makeVar({}));
 
   useHotkeys("ctrl+c, cmd+c", () => {
@@ -42,14 +42,15 @@ export default function Clipboard() {
     if (selectionMode === DANCER) {
       selected.forEach((dancer) => {
         Object.keys(copiedStatus.current()).forEach((part) => {
-          if (Object.keys(currentStatus[dancer]).includes(part))
+          if (Object.keys(currentStatus[dancer]).includes(part)) {
             editCurrentStatus({
               payload: {
                 dancerName: dancer,
                 partName: part,
-                value: copiedStatus.current()[part],
-              },
+                value: copiedStatus.current()[part]
+              }
             });
+          }
         });
       });
     }

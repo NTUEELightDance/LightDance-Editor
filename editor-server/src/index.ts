@@ -32,7 +32,7 @@ const { SECRET_KEY } = process.env;
 
   const httpServer = http.createServer(app);
   // const schema = makeExecutableSchema({ typeDefs, resolvers })
-  var pubsub = new PubSub();
+  const pubsub = new PubSub();
   const schema = await buildSchema({
     resolvers,
     // automatically create `schema.gql` file with schema definition in current folder

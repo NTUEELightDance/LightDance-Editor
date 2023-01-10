@@ -12,7 +12,7 @@ import useWebsocket from "hooks/useWebsocket";
 /**
  * CommandCenter
  */
-export default function CommandCenter() {
+export default function CommandCenter () {
   // hook
   const { dancerStatus } = useWebsocket();
   const [selectedDancers, setSelectedDancers] = useImmer<string[]>([]); // array of dancerName that is selected
@@ -21,7 +21,7 @@ export default function CommandCenter() {
     setSelectedDancers((draft) => {
       const index = draft.indexOf(dancerName);
       if (index !== -1) draft.splice(index, 1);
-      //index == -1 -> not in the array
+      // index == -1 -> not in the array
       else draft.push(dancerName);
     });
   };
@@ -48,7 +48,7 @@ export default function CommandCenter() {
             allChecked,
             dancerStatus,
             selectedDancers,
-            handleToggleDancer,
+            handleToggleDancer
           }}
         />
       </Stack>

@@ -4,7 +4,7 @@ import Switch from "@mui/material/Switch";
 import { FormControlLabel } from "@mui/material";
 import { wavesurferContext } from "types/components/wavesurfer";
 
-export default function MarkerSwitch() {
+export default function MarkerSwitch () {
   const { showMarkers, toggleMarkers } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;

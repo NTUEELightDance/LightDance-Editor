@@ -3,7 +3,7 @@ import {
   SUB_POS_MAP,
   SUB_CONTROL_RECORD,
   SUB_CONTROL_MAP,
-  SUB_EFFECT_LIST,
+  SUB_EFFECT_LIST
 } from "../graphql";
 import cloneDeep from "lodash/cloneDeep";
 import { log } from "core/utils";
@@ -11,14 +11,14 @@ import { log } from "core/utils";
 const subPosRecord = (client) => {
   client
     .subscribe({
-      query: SUB_POS_RECORD,
+      query: SUB_POS_RECORD
     })
     .subscribe({
-      next(data) {
+      next (data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            positionFrameIDs(positionFrameIDs: Array<string>) {
+            positionFrameIDs (positionFrameIDs: string[]) {
               const { index, addID, updateID, deleteID } =
                 data.data.positionRecordSubscription;
               const newPosRecord = [...positionFrameIDs];
@@ -39,35 +39,35 @@ const subPosRecord = (client) => {
                 });
               }
               return newPosRecord;
-            },
-          },
+            }
+          }
         });
       },
-      error(err) {
+      error (err) {
         console.error("SubscriptionError", err);
-      },
+      }
     });
 };
 
 const subPosMap = (client) => {
   client
     .subscribe({
-      query: SUB_POS_MAP,
+      query: SUB_POS_MAP
     })
     .subscribe({
-      next(data) {
+      next (data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            PosMap(posMap) {
+            PosMap (posMap) {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.positionMapSubscription.frame;
               const newPosMap = cloneDeep(posMap);
 
-              if (Object.keys(createFrames).length) {
+              if (Object.keys(createFrames).length > 0) {
                 newPosMap.frames = {
                   ...newPosMap.frames,
-                  ...createFrames,
+                  ...createFrames
                 };
               }
               if (deleteFrames.length) {
@@ -75,34 +75,34 @@ const subPosMap = (client) => {
                   delete newPosMap.frames[id];
                 });
               }
-              if (Object.keys(updateFrames).length) {
+              if (Object.keys(updateFrames).length > 0) {
                 newPosMap.frames = {
                   ...newPosMap.frames,
-                  ...updateFrames,
+                  ...updateFrames
                 };
               }
               return newPosMap;
-            },
-          },
+            }
+          }
         });
       },
-      error(err) {
+      error (err) {
         console.error("SubscriptionError", err);
-      },
+      }
     });
 };
 
 const subControlRecord = (client) => {
   client
     .subscribe({
-      query: SUB_CONTROL_RECORD,
+      query: SUB_CONTROL_RECORD
     })
     .subscribe({
-      next(data) {
+      next (data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            controlFrameIDs(controlFrameIDs: Array<string>) {
+            controlFrameIDs (controlFrameIDs: string[]) {
               const { index, addID, updateID, deleteID } =
                 data.data.controlRecordSubscription;
               const newControlRecord = [...controlFrameIDs];
@@ -122,34 +122,34 @@ const subControlRecord = (client) => {
                 });
               }
               return newControlRecord;
-            },
-          },
+            }
+          }
         });
       },
-      error(err) {
+      error (err) {
         console.error("SubscriptionError", err);
-      },
+      }
     });
 };
 
 const subControlMap = (client) => {
   client
     .subscribe({
-      query: SUB_CONTROL_MAP,
+      query: SUB_CONTROL_MAP
     })
     .subscribe({
-      next(data) {
+      next (data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            ControlMap(controlMap) {
+            ControlMap (controlMap) {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.controlMapSubscription.frame;
               const newControlMap = cloneDeep(controlMap);
-              if (Object.keys(createFrames).length) {
+              if (Object.keys(createFrames).length > 0) {
                 newControlMap.frames = {
                   ...newControlMap.frames,
-                  ...createFrames,
+                  ...createFrames
                 };
               }
               if (deleteFrames.length) {
@@ -157,38 +157,38 @@ const subControlMap = (client) => {
                   delete newControlMap.frames[id];
                 });
               }
-              if (Object.keys(updateFrames).length) {
+              if (Object.keys(updateFrames).length > 0) {
                 newControlMap.frames = {
                   ...newControlMap.frames,
-                  ...updateFrames,
+                  ...updateFrames
                 };
               }
               return newControlMap;
-            },
-          },
+            }
+          }
         });
       },
-      error(err) {
+      error (err) {
         console.error("SubscriptionError", err);
-      },
+      }
     });
 };
 const subEffectList = (client) => {
   client
     .subscribe({
-      query: SUB_EFFECT_LIST,
+      query: SUB_EFFECT_LIST
     })
     .subscribe({
-      next(data) {
+      next (data) {
         log(data);
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            effectList(effectList) {
+            effectList (effectList) {
               if (data.data.effectListSubscription.mutation === "CREATED") {
                 return [
                   ...effectList,
-                  data.data.effectListSubscription.effectListData,
+                  data.data.effectListSubscription.effectListData
                 ];
               } else if (
                 data.data.effectListSubscription.mutation === "DELETED"
@@ -197,13 +197,13 @@ const subEffectList = (client) => {
                   (e) => e.id !== data.data.effectListSubscription.effectListID
                 );
               }
-            },
-          },
+            }
+          }
         });
       },
-      error(err) {
+      error (err) {
         console.error("SubscriptionError", err);
-      },
+      }
     });
 };
 

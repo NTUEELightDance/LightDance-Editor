@@ -2,21 +2,21 @@ import { Stack, Grid, Typography } from "@mui/material";
 import ColorSelector from "../ColorSelector";
 import IntensityControl from "../IntensityControl";
 
-const OFcontrolsContent = ({
+function OFcontrolsContent({
   handleColorChange,
   handleIntensityChange,
   intensity,
   setIntensity,
   currentColorName,
-  oneLine = false,
+  oneLine = false
 }: {
-  handleColorChange: (color: string) => void;
-  intensity: number;
-  handleIntensityChange?: (intensity: number) => void;
-  setIntensity?: (intensity: number) => void;
-  currentColorName: string;
-  oneLine?: boolean;
-}) => {
+  handleColorChange: (color: string) => void
+  intensity: number
+  handleIntensityChange?: (intensity: number) => void
+  setIntensity?: (intensity: number) => void
+  currentColorName: string
+  oneLine?: boolean
+}) {
   return (
     <Stack gap="1.5vh">
       <Grid
@@ -25,7 +25,7 @@ const OFcontrolsContent = ({
         alignItems="center"
         sx={{
           justifyContent: "space-between",
-          px: "3em",
+          px: "3em"
         }}
       >
         {oneLine || (
@@ -44,7 +44,7 @@ const OFcontrolsContent = ({
           <IntensityControl
             intensity={intensity}
             setIntensity={
-              (handleIntensityChange
+              ((handleIntensityChange != null)
                 ? handleIntensityChange
                 : setIntensity) as (intensity: number) => void
             }
@@ -58,7 +58,7 @@ const OFcontrolsContent = ({
           alignItems="center"
           sx={{
             justifyContent: "space-between",
-            px: "3em",
+            px: "3em"
           }}
         >
           <Grid item>
@@ -67,7 +67,7 @@ const OFcontrolsContent = ({
           <IntensityControl
             intensity={intensity}
             setIntensity={
-              (handleIntensityChange
+              ((handleIntensityChange != null)
                 ? handleIntensityChange
                 : setIntensity) as (intensity: number) => void
             }
@@ -76,6 +76,6 @@ const OFcontrolsContent = ({
       )}
     </Stack>
   );
-};
+}
 
 export default OFcontrolsContent;

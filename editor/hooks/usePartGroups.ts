@@ -4,16 +4,14 @@ import { useImmer } from "use-immer";
 import { asyncSetItem, asyncGetItem } from "core/utils";
 import {
   AddNewGroupError,
-  EditGroupError,
+  EditGroupError
 } from "core/models";
 
 import { GROUP } from "@/constants";
 
-export type PartGroupType = {
-  [groupName: string]: string[];
-};
+export type PartGroupType = Record<string, string[]>
 
-export default function usePartGroups() {
+export default function usePartGroups () {
   const [partGroups, setPartGroups] = useImmer<PartGroupType>({});
 
   const initPartGroups = async () => {
@@ -24,16 +22,15 @@ export default function usePartGroups() {
 
   const addNewGroup = async ({
     groupName,
-    content,
+    content
   }: {
-    groupName: string;
-    content: string[];
+    groupName: string
+    content: string[]
   }) => {
     if (content.length === 0) throw "EMPTY" as AddNewGroupError;
-    
-    if (partGroups[groupName])
-      throw "EXISTED" as AddNewGroupError;
-    
+
+    if (partGroups[groupName]) { throw "EXISTED" as AddNewGroupError; }
+
     const invalidGroupNames = ["LED", "FIBER", "El", ""];
     if (invalidGroupNames.includes(groupName)) {
       throw "INVALID" as AddNewGroupError;
@@ -54,10 +51,10 @@ export default function usePartGroups() {
 
   const editGroup = async ({
     groupName,
-    content,
+    content
   }: {
-    groupName: string;
-    content: string[];
+    groupName: string
+    content: string[]
   }) => {
     if (!partGroups[groupName]) throw "DNE" as EditGroupError;
 

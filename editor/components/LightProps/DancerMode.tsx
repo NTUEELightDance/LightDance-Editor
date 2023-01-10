@@ -19,7 +19,7 @@ import type { PartType } from "core/models";
 import useColorMap from "hooks/useColorMap";
 import usePartGroups from "hooks/usePartGroups";
 
-const DancerMode = () => {
+function DancerMode() {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -31,7 +31,7 @@ const DancerMode = () => {
   const [displayParts, setDisplayParts] = useState<{
     [key in PartType]?: string[];
   }>({});
-  const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [currentTab, setCurrentTab] = useState<PartType | null>("FIBER");
 
   // states for current status mutation
@@ -66,8 +66,7 @@ const DancerMode = () => {
     const newDisplayPart: { [key in PartType]?: string[] } = {};
 
     tempParts.forEach((part) => {
-      if (!newDisplayPart[getPartType(part)])
-        newDisplayPart[getPartType(part)] = [];
+      if (newDisplayPart[getPartType(part)] == null) { newDisplayPart[getPartType(part)] = []; }
 
       (newDisplayPart[getPartType(part)] as string[]).push(part);
     });
@@ -132,7 +131,7 @@ const DancerMode = () => {
             value={`GROUP_${groupName}`}
             key={`group_tab_${groupName}`}
           />
-        )),
+        ))
     ];
 
     if (Object.keys(displayParts).length > 0) {
@@ -152,7 +151,7 @@ const DancerMode = () => {
             partType={partType as PartType}
             value={partType}
             dancers={dancers}
-            parts={parts as string[]}
+            parts={parts }
             currentDancers={currentDancers}
             currentStatus={currentStatus}
             colorMap={colorMap}
@@ -169,7 +168,7 @@ const DancerMode = () => {
               partType={getPartType(parts[0])}
               groupName={groupName}
               dancers={dancers}
-              parts={parts as string[]}
+              parts={parts }
               currentDancers={currentDancers}
               currentStatus={currentStatus}
               colorMap={colorMap}
@@ -177,7 +176,7 @@ const DancerMode = () => {
               deleteGroup={deleteGroup}
             />
           );
-        }),
+        })
     ];
     if (Object.keys(displayParts).length > 0) {
       ret.push(
@@ -197,7 +196,7 @@ const DancerMode = () => {
         sx={{
           width: "100%",
           minHeight: "100%",
-          position: "relative",
+          position: "relative"
         }}
         square
       >
@@ -210,7 +209,7 @@ const DancerMode = () => {
               width: "100%",
               height: "3em",
               px: "1em",
-              zIndex: 808,
+              zIndex: 808
             }}
             square
           >
@@ -221,8 +220,8 @@ const DancerMode = () => {
                 "button.MuiTab-root.MuiButtonBase-root": {
                   padding: "0.5em 0.5em",
                   minWidth: "4em",
-                  minHeight: "2em",
-                },
+                  minHeight: "2em"
+                }
               }}
             >
               {Tabs}
@@ -233,6 +232,6 @@ const DancerMode = () => {
       </Paper>
     </TabContext>
   );
-};
+}
 
 export default DancerMode;

@@ -8,9 +8,9 @@ import ScaleSlider from "./ScaleSlider";
 import FadeSwitch from "./FadeSwitch";
 import useMode from "@/hooks/useMode";
 
-const ControlBar = ({ wavesurfer }: { wavesurfer: WaveSurferApp }) => {
+function ControlBar({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
   const mode = useMode();
-  
+
   return (
     <>
       <PlayBackController wavesurfer={wavesurfer} />
@@ -20,6 +20,6 @@ const ControlBar = ({ wavesurfer }: { wavesurfer: WaveSurferApp }) => {
       <ScaleSlider wavesurfer={wavesurfer} />
     </>
   );
-};
+}
 
 export default ControlBar;

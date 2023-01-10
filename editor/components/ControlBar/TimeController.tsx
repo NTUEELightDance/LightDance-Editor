@@ -17,12 +17,12 @@ import { CONTROL_EDITOR } from "@/constants";
 /**
  * Time Data Controller (time, controlFrame, posFrame)
  */
-export default function TimeController() {
+export default function TimeController () {
   const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
   const currentPosIndex = useReactiveVar(reactiveState.currentPosIndex);
 
   const handleChange = (setValue: (arg0: any) => void) => {
-    return (value: number) => setValue({ payload: value });
+    return (value: number) => { setValue({ payload: value }); };
   };
   const handleChangeControlFrame = handleChange(setCurrentControlIndex);
   const handleChangePosFrame = handleChange(setCurrentPosIndex);
@@ -31,18 +31,14 @@ export default function TimeController() {
   useHotkeys(
     "right, w",
     () => {
-      if (editor === CONTROL_EDITOR)
-        handleChangeControlFrame(currentControlIndex + 1);
-      else handleChangePosFrame(currentPosIndex + 1);
+      if (editor === CONTROL_EDITOR) { handleChangeControlFrame(currentControlIndex + 1); } else handleChangePosFrame(currentPosIndex + 1);
     },
     [editor, currentControlIndex, currentPosIndex]
   );
   useHotkeys(
     "left, q",
     () => {
-      if (editor === CONTROL_EDITOR)
-        handleChangeControlFrame(currentControlIndex - 1);
-      else handleChangePosFrame(currentPosIndex - 1);
+      if (editor === CONTROL_EDITOR) { handleChangeControlFrame(currentControlIndex - 1); } else handleChangePosFrame(currentPosIndex - 1);
     },
     [editor, currentControlIndex, currentPosIndex]
   );

@@ -26,7 +26,7 @@ interface LooseObject {
 export class ControlMapResolver {
   @Query((returns) => Map)
   async ControlMap(@Ctx() ctx: any) {
-    let frames = await ctx.db.ControlFrame.find();
+    const frames = await ctx.db.ControlFrame.find();
     const id = frames.map((frame: any) => {
       return { id: frame.id, _id: frame._id };
     });
@@ -39,10 +39,10 @@ export class EditControlMapResolver {
   @Mutation((returns) => ControlData)
   async editControlMap(
     @PubSub(Topic.ControlRecord)
-    publishControlRecord: Publisher<ControlRecordPayload>,
+      publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
     @Arg("controlData", (type) => [EditControlInput])
-    controlData: EditControlInput[],
+      controlData: EditControlInput[],
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
     @Arg("start") startTime: number,
     @Ctx() ctx: any
@@ -177,7 +177,7 @@ export class EditControlMapResolver {
               });
               // for the part of a certain dancer, create a new control of the part with designated value
               const value = await examineType(partData, ctx);
-              let newControl = new ctx.db.Control({
+              const newControl = new ctx.db.Control({
                 frame: newControlFrame,
                 value,
                 id: generateID(),
