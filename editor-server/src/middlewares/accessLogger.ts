@@ -1,6 +1,7 @@
 import { MiddlewareFn } from "type-graphql";
+import { TContext } from "../types/global";
 
-export const AccessMiddleware: MiddlewareFn<any> = async (
+export const AccessMiddleware: MiddlewareFn<TContext> = async (
   { info, context },
   next
 ) => {

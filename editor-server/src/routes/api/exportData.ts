@@ -1,17 +1,16 @@
+import {Request, Response} from "express";
+
 import db from "../../models";
 import redis from "../../redis";
+import { IColor, IControlFrame, IPositionFrame, LooseObject, TExportData } from "../../types/global";
 
-interface LooseObject {
-  [key: string]: any;
-}
-
-const exportData = async (req: any, res: any) => {
+const exportData = async (req: Request, res: Response) => {
   try {
     // grab control data from redis
     const controlFrames = await db.ControlFrame.find();
     const control: LooseObject = {};
     await Promise.all(
-      controlFrames.map(async (frame: any) => {
+      controlFrames.map(async (frame: IControlFrame) => {
         const { id } = frame;
         const cache = await redis.get(id);
         if (cache) {
@@ -28,7 +27,7 @@ const exportData = async (req: any, res: any) => {
     const positionFrames = await db.PositionFrame.find();
     const position: LooseObject = {};
     await Promise.all(
-      positionFrames.map(async (frame: any) => {
+      positionFrames.map(async (frame: IPositionFrame) => {
         const { id } = frame;
         const cache = await redis.get(id);
         if (cache) {
@@ -49,11 +48,11 @@ const exportData = async (req: any, res: any) => {
 
     const colorData = await db.Color.find({}, "color colorCode -_id");
     const color: LooseObject = {};
-    colorData.map((colorObj: any) => {
+    colorData.map((colorObj: IColor) => {
       color[colorObj.color] = colorObj.colorCode;
     });
 
-    const data = { position, control, dancer, color };
+    const data: TExportData = { position, control, dancer, color };
     res.header("Content-Type", "application/json");
     res.send(JSON.stringify(data));
   } catch (err) {

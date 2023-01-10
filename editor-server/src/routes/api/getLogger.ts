@@ -1,6 +1,8 @@
+import {Request, Response} from "express";
+
 import db from "../../models";
 
-const getLogger = async (req: any, res: any) => {
+const getLogger = async (req: Request, res: Response) => {
   try {
     const { id } = req.query;
     const result = await db.Logger.findById(id);

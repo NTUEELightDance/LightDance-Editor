@@ -1,24 +1,24 @@
-import db from "../../models";
+import {Request, Response} from "express";
 import { stringify } from "csv-stringify/sync";
 
-interface LooseObject {
-  [key: string]: any;
-}
+import db from "../../models";
+import { ILogger, LooseObject } from "../../types/global";
 
-const exportLogger = async (req: any, res: any) => {
+const exportLogger = async (req: Request, res: Response) => {
   try {
     const loggers = await db.Logger.find().sort({ time: -1 });
     const rows = [
       ["Time", "FieldName", "User", "Status", "ID", "Variable Values"],
     ];
-    loggers.forEach((logger: any) => {
-      const { time, fieldName, user, status, variableValues, _id } = logger;
+    loggers.forEach((logger: ILogger) => {
+      const { time, fieldName, user, status, variableValues } = logger;
+      const _id = logger._id!;
       rows.push([
         time.toLocaleString(),
         fieldName,
         user,
         status,
-        _id,
+        _id.toString(),
         JSON.stringify(variableValues),
       ]);
     });

@@ -1,14 +1,14 @@
+import {Request, Response} from "express";
+
 import db from "../../models";
 import { generateID, initRedisControl, initRedisPosition } from "../../utility";
 
-interface LooseObject {
-  [key: string]: any;
-}
+import { IDancer, IPart, LooseObject } from "../../types/global";
 
-const uploadData = async (req: any, res: any) => {
+const uploadData = async (req: Request, res: Response) => {
   try {
     // read request
-    const { data } = req.files;
+    const data = Array.isArray(req.files!.data) ? req.files!.data[0] : req.files!.data;
     const dataObj = JSON.parse(data.data.toString("ascii"));
     const { position, control, dancer, color } = dataObj;
 
@@ -36,11 +36,11 @@ const uploadData = async (req: any, res: any) => {
 
     // create dancer & part mongoose object
     await Promise.all(
-      dancer.map(async (dancerObj: any) => {
+      dancer.map(async (dancerObj: IDancer) => {
         const { parts, name } = dancerObj;
         const allPart: LooseObject = {};
         const partIDs = await Promise.all(
-          parts.map(async (partObj: any) => {
+          parts.map(async (partObj: IPart) => {
             const { name, type } = partObj;
             const part = new db.Part({
               name,

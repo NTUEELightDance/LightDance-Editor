@@ -1,25 +1,24 @@
+import {Request, Response} from "express";
+
 import db from "../../models";
+import { ILED, ILEDEffects, ILEDEffectsEffect, IPart, LooseObject } from "../../types/global";
 
-interface LooseObject {
-  [key: string]: any;
-}
-
-const exportLED = async (req: any, res: any) => {
+const exportLED = async (req: Request, res: Response) => {
   try {
     const allPart = await db.Part.find({ type: "LED" });
     const result: LooseObject = {};
     await Promise.all(
-      allPart.map(async (partObj: any) => {
+      allPart.map(async (partObj: IPart) => {
         const partName = partObj.name;
         const part: LooseObject = {};
         const allEffect = await db.LED.find({ partName });
-        allEffect.map((effect: any) => {
+        allEffect.map((effect: ILED) => {
           const { effectName, repeat, effects } = effect;
           // remove effects' _id
-          const newEffects = effects.map((effectsData: any) => {
+          const newEffects = effects.map((effectsData: ILEDEffects) => {
             const { effect, start, fade } = effectsData;
             // remove effect's _id
-            const newEffect = effect.map((effectData: any) => {
+            const newEffect = effect.map((effectData: ILEDEffectsEffect) => {
               const { colorCode, alpha } = effectData;
               return { alpha, colorCode };
             });

@@ -12,7 +12,17 @@
     "dev:editor-server": "cd ./editor-server && yarn start",
     "dev:controller-server": "cd ./controller-server && yarn start",
     "dev:file-server": "cd ./file-server && yarn start",
-    "dev": "run-p dev:*"
+    "dev": "run-p dev:*",
+    "install-pnpm:editor": "pnpm install --dir ./editor",
+    "install-pnpm:editor-server": "pnpm install --dir ./editor-server",
+    "install-pnpm:controller-server": "pnpm install --dir ./controller-server",
+    "install-pnpm:file-server": "pnpm install --dir ./file-server",
+    "install-pnpm:all": "(pnpm install); (pnpm install-pnpm:editor); (pnpm install-pnpm:editor-server); (pnpm install-pnpm:controller-server); (pnpm install-pnpm:file-server)",
+    "dev-pnpm:editor": "cd ./editor && pnpm start",
+    "dev-pnpm:editor-server": "cd ./editor-server && pnpm start",
+    "dev-pnpm:controller-server": "cd ./controller-server && pnpm start",
+    "dev-pnpm:file-server": "cd ./file-server && pnpm start",
+    "dev-pnpm": "run-p dev:*"
   },
   "browserslist": {
     "production": [
