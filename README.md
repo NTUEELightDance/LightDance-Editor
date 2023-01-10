@@ -1,3 +1,6 @@
+<!-- markdownlint-disable MD041 -->
+
+<!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="https://avatars.githubusercontent.com/u/74459161?s=400&u=8e4ea6d7a17fad2a655fe5308e3f30a63779085d&v=4" alt="Logo" width="80" height="80">
 </p>
@@ -22,7 +25,7 @@
 
 ### Services
 
-```
+```text
 http://localhost:8080 - editor
 http://localhost:4000 - editor-server
 http://localhost:8081 - file-server
@@ -31,38 +34,50 @@ http://localhost:8082 - controller-server
 
 ## Development
 
-### Docker
-
-You can use Docker to install and start all the services. You can see the editor on `http://localhost:8080`.
-
-```bash
-docker-compose -f dev.docker-compose.yml up -d
-```
-
 ### Local
 
 #### Install the dependencies
 
-This will install all the dependencies in the subfolders.
+This will install all dependencies for the app.
 
 ```bash
 yarn install:all
 ```
 
-#### Run the services
+#### Start database
 
-This will run all the services parallelly. You can see the editor on `http://localhost:8080`.
+You need to have mongodb and redis running for the backend to work.
+
+```bash
+docker-compose -f dev.docker-compose.yml up -d mongodb redisdb
+```
+
+#### Run all services
+
+There are several services in this app. You need to start all of them manually. Run these commands in different terminals, in that order:
+
+```bash
+yarn dev:file-server
+yarn dev:editor-server
+yarn dev:editor
+```
+
+#### Run all services in parallel
+
+This command runs all services in parallel. You can see the editor on `http://localhost:8080`. This is useful for demo, yet not recommended in development.
 
 ```bash
 yarn dev
 ```
 
-**For development for editor-server**
+#### Initialize Database
 
-You need to have MongoDB running on `mongodb://localhost:27017`
+If you are running this for the first time, you need to initialize the database for things to work.
 
 ```bash
-docker-compose -f dev.docker-compose.yml up -d mongodb redisdb
+cd utils && yarn
+node initDB.js out/exportData.json
+node initLED.js out/exportLED.json
 ```
 
 ## Production

@@ -6,7 +6,7 @@ import client from "./client";
 
 import WaveSurferAppContext from "./contexts/WavesurferContext";
 
-import App from "./App";
+import App from "./app";
 
 import "./index.css";
 
