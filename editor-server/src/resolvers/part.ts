@@ -34,15 +34,15 @@ export class PartResolver {
         (part: Part) => part.name === newPartData.name
       );
       if (duplicatePartName.length === 0) {
-        let newPart = new ctx.db.Part({
+        const newPart = new ctx.db.Part({
           name: newPartData.name,
           type: newPartData.type,
           value: ControlDefault[newPartData.type],
           id: generateID(),
         });
-        let allControlFrames = await ctx.db.ControlFrame.find();
+        const allControlFrames = await ctx.db.ControlFrame.find();
         allControlFrames.map(async (controlframe: any) => {
-          let newControl = new ctx.db.Control({
+          const newControl = new ctx.db.Control({
             frame: controlframe._id,
             value: ControlDefault[newPartData.type],
           });

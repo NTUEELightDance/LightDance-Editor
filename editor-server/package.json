@@ -22,7 +22,6 @@
     "nanoid": "^3.3.1",
     "node-cron": "^3.0.0",
     "nodemon": "^2.0.15",
-    "prettier": "^2.5.1",
     "redis": "^4.0.3",
     "reflect-metadata": "^0.1.13",
     "subscriptions-transport-ws": "^0.11.0",
@@ -32,6 +31,12 @@
   },
   "scripts": {
     "start": "nodemon src/index.ts",
-    "deploy": "NODE_ENV=production ts-node src/index.ts"
+    "deploy": "NODE_ENV=production ts-node src/index.ts",
+    "lint": "yarn eslint --fix ."
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
+    "eslint": "^8.31.0"
   }
 }

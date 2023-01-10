@@ -11,11 +11,11 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
-const PlayBackController = ({ wavesurfer }: { wavesurfer: WaveSurferApp }) => {
+function PlayBackController({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
   // event
-  const handlePlayPause = () => wavesurfer.playPause();
-  const handleStop = () => wavesurfer.stop();
-  const handlePlayLoop = () => wavesurfer.playLoop();
+  const handlePlayPause = () => { wavesurfer.playPause(); };
+  const handleStop = () => { wavesurfer.stop(); };
+  const handlePlayLoop = () => { wavesurfer.playLoop(); };
 
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
 
@@ -42,6 +42,6 @@ const PlayBackController = ({ wavesurfer }: { wavesurfer: WaveSurferApp }) => {
       </IconButton>
     </Box>
   );
-};
+}
 
 export default PlayBackController;

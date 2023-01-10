@@ -12,15 +12,15 @@ import "./index.css";
 
 import { ApolloProvider } from "@apollo/client";
 
-const Index = () => (
-  <ApolloProvider client={client}>
+function Index() {
+  return <ApolloProvider client={client}>
     <WaveSurferAppContext>
       <Provider store={store}>
         <App />
       </Provider>
     </WaveSurferAppContext>
-  </ApolloProvider>
-);
+  </ApolloProvider>;
+}
 
-const root = ReactDOM.createRoot(document.getElementById("app")!);
+const root = ReactDOM.createRoot(document.getElementById("app") as HTMLElement);
 root.render(<Index />);

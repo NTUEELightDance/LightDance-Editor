@@ -21,7 +21,7 @@ class Dancer {
   model: THREE.Object3D | null;
   skeleton: THREE.Skeleton | null;
 
-  constructor(
+  constructor (
     scene: THREE.Scene,
     name: string,
     modelSrc: string,
@@ -37,13 +37,13 @@ class Dancer {
     this.parts = {
       [EL]: {},
       [LED]: {},
-      [FIBER]: {},
+      [FIBER]: {}
     };
     this.initialized = false;
   }
 
   // Load model with given URL and capture all the meshes for light status
-  addModel2Scene(currentStatus, currentPos) {
+  addModel2Scene (currentStatus, currentPos) {
     this.initStatus = currentStatus;
     this.initPos = currentPos;
 
@@ -75,7 +75,7 @@ class Dancer {
   // 4. Set alpha(emissiveIntensity) of selected meshes to 0.
   // 5. Set the position of the model to given position
   // 6. Signal this dancer is successfully initialized.
-  initModel(gltf) {
+  initModel (gltf) {
     const { name } = this;
     this.model = gltf.scene;
     this.model.name = name;
@@ -90,15 +90,15 @@ class Dancer {
     partNames.forEach((partName) => {
       const partType = state.partTypeMap[partName];
       switch (partType) {
-        case EL:
-          // this.parts[EL][partName] = new ELPart(partName, model);
-          break;
-        case LED:
-          this.parts[LED][partName] = new LEDPart(partName, this.model);
-          break;
-        case FIBER:
-          this.parts[FIBER][partName] = new FiberPart(partName, this.model);
-          break;
+      case EL:
+        // this.parts[EL][partName] = new ELPart(partName, model);
+        break;
+      case LED:
+        this.parts[LED][partName] = new LEDPart(partName, this.model);
+        break;
+      case FIBER:
+        this.parts[FIBER][partName] = new FiberPart(partName, this.model);
+        break;
       }
     });
 
@@ -121,14 +121,14 @@ class Dancer {
   }
 
   // Create nameTag given font
-  initNameTag(font) {
+  initNameTag (font) {
     const color = 0xffffff;
 
     const matLite = new THREE.MeshBasicMaterial({
-      color: color,
+      color,
       transparent: true,
       opacity: 0.9,
-      side: THREE.DoubleSide,
+      side: THREE.DoubleSide
     });
 
     const message = this.name;
@@ -148,7 +148,7 @@ class Dancer {
     this.nameTag = text;
   }
 
-  updateSelected(selected) {
+  updateSelected (selected) {
     if (selected) {
       this.selected = true;
       this.nameTag.material.color.setRGB(0, 0.4, 0.6);
@@ -159,7 +159,7 @@ class Dancer {
   }
 
   // Update the model's positon
-  setPos(currentPos) {
+  setPos (currentPos) {
     const newPos = new THREE.Vector3(currentPos.x, currentPos.y, currentPos.z);
     const oldPos = new THREE.Vector3().setFromMatrixPosition(this.model.matrix);
 
@@ -168,34 +168,34 @@ class Dancer {
     }
   }
 
-  setFiberStatus(currentStatus) {
+  setFiberStatus (currentStatus) {
     Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
       part.setStatus(currentStatus[partName]);
     });
   }
 
-  setELStatus(currentStatus) {
-    return;
+  setELStatus (currentStatus) {
+
   }
 
-  setLEDStatus(currentLedEffect) {
+  setLEDStatus (currentLedEffect) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {
       part.setStatus(currentLedEffect[partName]);
     });
   }
 
   // Update the model's color
-  updateColor(color) {
+  updateColor (color) {
     Object.values(this.FIBERParts).forEach(([name, e]) => {
       e.material.color.setHex(color);
     });
   }
 
-  hover() {
+  hover () {
     this.model.getObjectByName("Human").material.color.setHex(0x232323);
   }
 
-  unhover() {
+  unhover () {
     this.model.getObjectByName("Human").material.color.setHex(0x000000);
   }
 }

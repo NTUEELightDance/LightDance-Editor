@@ -1,30 +1,30 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // components
-import { Box, Typography, ListItemButton, Collapse, Grid } from "@mui/material";
+import { Box, Typography, ListItemButton, Collapse } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
 import type { LED } from "core/models";
 import { editCurrentStatusLED } from "core/actions";
 
-const LEDcontrols = ({
+function LEDcontrols({
   part,
   currentDancers,
-  displayValue,
+  displayValue
 }: {
-  part: string;
-  currentDancers: string[];
-  displayValue: LED;
-}) => {
+  part: string
+  currentDancers: string[]
+  displayValue: LED
+}) {
   // Call core actions to update currentStatus
   const updateCurrentStatus = ({
     src,
-    alpha,
+    alpha
   }: {
-    src?: string;
-    alpha?: number;
+    src?: string
+    alpha?: number
   }) => {
-    // src can be emtpy string, alpha can be zero
+    // src can be empty string, alpha can be zero
     // so check for undefined only
     if (src === undefined && alpha === undefined) return;
     const payload = currentDancers.map((dancerName) => ({
@@ -32,8 +32,8 @@ const LEDcontrols = ({
       partName: part,
       value: {
         ...(src !== undefined && { src }),
-        ...(alpha !== undefined && { alpha }),
-      },
+        ...(alpha !== undefined && { alpha })
+      }
     }));
     editCurrentStatusLED({ payload });
   };
@@ -65,7 +65,7 @@ const LEDcontrols = ({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            width: "100%",
+            width: "100%"
           }}
         >
           <Box sx={{ width: "10vw" }}>
@@ -90,5 +90,5 @@ const LEDcontrols = ({
       </Collapse>
     </>
   );
-};
+}
 export default LEDcontrols;

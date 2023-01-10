@@ -10,7 +10,7 @@ interface LooseObject {
 @ObjectType()
 export class LEDMap {
   @Field((type) => LEDMapScalar)
-  LEDMap: Object[];
+    LEDMap: Object[];
 }
 
 export const LEDMapScalar = new GraphQLScalarType({

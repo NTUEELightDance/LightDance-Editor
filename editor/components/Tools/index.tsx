@@ -5,7 +5,7 @@ import { Button, Menu, MenuItem } from "@mui/material";
 // components
 import TimeShift from "./TimeShift";
 
-export default function Tools() {
+export default function Tools () {
   // open or close menu
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {

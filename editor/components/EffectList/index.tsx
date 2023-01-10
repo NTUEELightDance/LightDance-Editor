@@ -10,249 +10,251 @@ import useTimeInput from "hooks/useTimeInput";
 
 // mui materials
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Divider,
-    Grid,
-    IconButton,
-    InputAdornment,
-    List,
-    ListItem,
-    ListItemText,
-    Paper,
-    Popper,
-    Snackbar,
-    Stack,
-    TextField,
-    Tooltip,
-    Typography,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Popper,
+  Snackbar,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function EffectList() {
-    const { effectList } = useEffectList();
-    const currentTime = useReactiveVar(reactiveState.currentTime);
+export default function EffectList () {
+  const { effectList } = useEffectList();
+  const currentTime = useReactiveVar(reactiveState.currentTime);
 
-    const [newEffectName, setNewEffectName] = useState<string>("");
-    const [newEffectFrom, setNewEffectFrom] = useState<number>(0);
-    const [newEffectTo, setNewEffectTo] = useState<number>(0);
-    const {
-        textFieldProps: fromTextFieldProps,
-        timeError: fromTimeError,
-        timeInputRef: fromTimeInputRef,
-    } = useTimeInput([
-        newEffectFrom,
-        (newTime: number) => {
-            setNewEffectFrom(newTime);
-        },
-    ]);
-    const {
-        textFieldProps: toTextFieldProps,
-        timeError: toTimeError,
-        timeInputRef: toTimeInputRef,
-    } = useTimeInput([
-        newEffectTo,
-        (newTime: number) => {
-            setNewEffectTo(newTime);
-        },
-    ]);
+  const [newEffectName, setNewEffectName] = useState<string>("");
+  const [newEffectFrom, setNewEffectFrom] = useState<number>(0);
+  const [newEffectTo, setNewEffectTo] = useState<number>(0);
+  const {
+    textFieldProps: fromTextFieldProps,
+    timeError: fromTimeError,
+    timeInputRef: fromTimeInputRef
+  } = useTimeInput([
+    newEffectFrom,
+    (newTime: number) => {
+      setNewEffectFrom(newTime);
+    }
+  ]);
+  const {
+    textFieldProps: toTextFieldProps,
+    timeError: toTimeError,
+    timeInputRef: toTimeInputRef
+  } = useTimeInput([
+    newEffectTo,
+    (newTime: number) => {
+      setNewEffectTo(newTime);
+    }
+  ]);
 
-    const [effectSelectedID, setEffectSelectedID] = useState<string>("");
-    const [effectSelectedName, setEffectSelectedName] = useState<string>("");
-    const [collidedFrame, setCollidedFrame] = useState<number[]>([]);
-    const [applyOpened, setApplyOpened] = useState<boolean>(false); // open apply effect dialog
-    const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
-    const [addOpened, setAddOpened] = useState<boolean>(false); // open add effect dialog
-    const [previewOpened, setPreviewOpened] = useState<boolean>(false);
-    const [previewing, setPreviewing] = useState<boolean>(false);
+  const [effectSelectedID, setEffectSelectedID] = useState<string>("");
+  const [effectSelectedName, setEffectSelectedName] = useState<string>("");
+  const [collidedFrame, setCollidedFrame] = useState<number[]>([]);
+  const [applyOpened, setApplyOpened] = useState<boolean>(false); // open apply effect dialog
+  const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
+  const [addOpened, setAddOpened] = useState<boolean>(false); // open add effect dialog
+  const [previewOpened, setPreviewOpened] = useState<boolean>(false);
+  const [previewing, setPreviewing] = useState<boolean>(false);
 
-    const handleOpenApply = (id: string, name: string) => {
-        setEffectSelectedID(id);
-        setEffectSelectedName(name);
-        setApplyOpened(true);
-    };
-    const handleCloseApply = () => {
-        setApplyOpened(false);
-        setEffectSelectedID("");
-        setEffectSelectedName("");
-        setCollidedFrame([]);
-    };
-    const handleApplyEffect = async () => {
-        const clear = await confirmation.warning("Are you sure to clear all collided frames?");
-        applyEffect({
-            payload: { clear: clear, start: currentTime, applyId: effectSelectedID },
-        });
-        handleCloseApply();
-    };
+  const handleOpenApply = (id: string, name: string) => {
+    setEffectSelectedID(id);
+    setEffectSelectedName(name);
+    setApplyOpened(true);
+  };
+  const handleCloseApply = () => {
+    setApplyOpened(false);
+    setEffectSelectedID("");
+    setEffectSelectedName("");
+    setCollidedFrame([]);
+  };
+  const handleApplyEffect = async () => {
+    const clear = await confirmation.warning("Are you sure to clear all collided frames?");
+    applyEffect({
+      payload: { clear, start: currentTime, applyId: effectSelectedID }
+    });
+    handleCloseApply();
+  };
 
-    const handleOpenDelete = (id: string, name: string) => {
-        setEffectSelectedID(id);
-        setEffectSelectedName(name);
-        setDeleteOpened(true);
-    };
-    const handleCloseDelete = () => {
-        setDeleteOpened(false);
-        setEffectSelectedID("");
-        setEffectSelectedName("");
-    };
-    const handleDeleteEffect = () => {
-        deleteEffect({ payload: effectSelectedID });
-        handleCloseDelete();
-    };
+  const handleOpenDelete = (id: string, name: string) => {
+    setEffectSelectedID(id);
+    setEffectSelectedName(name);
+    setDeleteOpened(true);
+  };
+  const handleCloseDelete = () => {
+    setDeleteOpened(false);
+    setEffectSelectedID("");
+    setEffectSelectedName("");
+  };
+  const handleDeleteEffect = () => {
+    deleteEffect({ payload: effectSelectedID });
+    handleCloseDelete();
+  };
 
-    const handleOpenAdd = () => {
-        setAddOpened(true);
-        setNewEffectName("");
-        setNewEffectFrom("");
-        setNewEffectTo("");
-    };
-    const handleCloseAdd = () => {
-        setAddOpened(false);
-    };
-    const handleAddEffect = async () => {
-        addEffect({
-            payload: {
-                effectName: newEffectName,
-                startTime: newEffectFrom ? newEffectFrom : 0,
-                endTime: newEffectTo ? newEffectTo : 0,
-            },
-        });
-        handleCloseAdd();
-        // setPreviewOpened(true);
-    };
+  const handleOpenAdd = () => {
+    setAddOpened(true);
+    setNewEffectName("");
+    setNewEffectFrom(0);
+    setNewEffectTo(0);
+  };
+  const handleCloseAdd = () => {
+    setAddOpened(false);
+  };
+  const handleAddEffect = async () => {
+    addEffect({
+      payload: {
+        effectName: newEffectName,
+        startTime: newEffectFrom || 0,
+        endTime: newEffectTo || 0
+      }
+    });
+    handleCloseAdd();
+    // setPreviewOpened(true);
+  };
 
-    return (
-        <div>
-            <List>
-                {effectList?.map((effect) => (
-                    <React.Fragment key={effect?.id}>
-                        <React.Fragment>
-                            <ListItem
-                                secondaryAction={
-                                    <Stack direction="row" spacing={0.5}>
-                                        <Tooltip title="Apply Effect" arrow placement="top">
-                                            <IconButton
-                                                edge="end"
-                                                aria-label="apply"
-                                                size="large"
-                                                onClick={() => handleOpenApply(effect?.id, effect?.description)}
-                                            >
-                                                <AddIcon fontSize="inherit" sx={{ color: "white" }} />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title="Delete Effect" arrow placement="top">
-                                            <IconButton
-                                                edge="end"
-                                                aria-label="delete"
-                                                size="large"
-                                                onClick={() => handleOpenDelete(effect?.id, effect?.description)}
-                                            >
-                                                <DeleteIcon fontSize="inherit" sx={{ color: "white" }} />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Stack>
-                                }
-                            >
-                                <ListItemText
-                                    primary={
-                                        <Typography sx={{ fontSize: "20px", color: "white" }}>
-                                            {effect.description}
-                                        </Typography>
-                                    }
-                                    secondary={
-                                        <>
-                                            <Typography sx={{ fontSize: "10px", color: "white" }}>
+  return (
+    <div>
+      <List>
+        {effectList?.map((effect) => (
+          <React.Fragment key={effect?.id}>
+            <React.Fragment>
+              <ListItem
+                secondaryAction={
+                  <Stack direction="row" spacing={0.5}>
+                    <Tooltip title="Apply Effect" arrow placement="top">
+                      <IconButton
+                        edge="end"
+                        aria-label="apply"
+                        size="large"
+                        onClick={() => { handleOpenApply(effect?.id, effect?.description); }}
+                      >
+                        <AddIcon fontSize="inherit" sx={{ color: "white" }} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete Effect" arrow placement="top">
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        size="large"
+                        onClick={() => { handleOpenDelete(effect?.id, effect?.description); }}
+                      >
+                        <DeleteIcon fontSize="inherit" sx={{ color: "white" }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                }
+              >
+                <ListItemText
+                  primary={
+                    <Typography sx={{ fontSize: "20px", color: "white" }}>
+                      {effect.description}
+                    </Typography>
+                  }
+                  secondary={
+                    <>
+                      <Typography sx={{ fontSize: "10px", color: "white" }}>
                                                 - ControlFrame Length:{" "}
-                                                {effect.data.control ? Object.keys(effect.data.control).length : 0}
-                                            </Typography>
-                                            <Typography sx={{ fontSize: "10px", color: "white" }}>
+                        {effect.data.control ? Object.keys(effect.data.control).length : 0}
+                      </Typography>
+                      <Typography sx={{ fontSize: "10px", color: "white" }}>
                                                 - PosFrame Length:{" "}
-                                                {effect.data.position ? Object.keys(effect.data.position).length : 0}
-                                            </Typography>
-                                        </>
-                                    }
-                                />
-                            </ListItem>
-                        </React.Fragment>
-                        <Divider component="li" sx={{ backgroundColor: "rgba(255, 255, 255, 0.16)" }} />
-                    </React.Fragment>
-                ))}
-                <Grid
-                    container
-                    justifyContent="center"
-                    sx={{
-                        width: "100%",
-                        minHeight: "80px",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    <Button variant="outlined" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+                        {effect.data.position ? Object.keys(effect.data.position).length : 0}
+                      </Typography>
+                    </>
+                  }
+                />
+              </ListItem>
+            </React.Fragment>
+            <Divider component="li" sx={{ backgroundColor: "rgba(255, 255, 255, 0.16)" }} />
+          </React.Fragment>
+        ))}
+        <Grid
+          container
+          justifyContent="center"
+          sx={{
+            width: "100%",
+            minHeight: "80px",
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+        >
+          <Button variant="outlined" startIcon={<AddIcon />} onClick={handleOpenAdd}>
                         Custom
-                    </Button>
-                </Grid>
-            </List>
-            <Dialog open={applyOpened}>
-                <DialogTitle>Apply Effect to Current Record</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        {/* This will insert {effectRecordMap[effectSelected] ? effectRecordMap[effectSelected].length : 0}{" "}
+          </Button>
+        </Grid>
+      </List>
+      <Dialog open={applyOpened}>
+        <DialogTitle>Apply Effect to Current Record</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {/* This will insert {effectRecordMap[effectSelected] ? effectRecordMap[effectSelected].length : 0}{" "}
                         frame(s) to current time spot.{" "} */}
-                        {collidedFrame.length ? (
-                            <span>
+            {(collidedFrame.length > 0)
+              ? (
+                <span>
                                 The following frame(s) will be collided:
-                                {collidedFrame?.map((frame) => (
-                                    <span style={{ color: "#ba000d" }}> {frame}</span>
-                                ))}
-                            </span>
-                        ) : (
-                            ""
-                        )}
-                        <br />
+                  {collidedFrame?.map((frame) => (
+                    <span style={{ color: "#ba000d" }}> {frame}</span>
+                  ))}
+                </span>
+              )
+              : (
+                ""
+              )}
+            <br />
                         Are you sure to apply effect "{effectSelectedName}" to current record?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseApply}>Cancel</Button>
-                    <Button autoFocus onClick={handleApplyEffect}>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseApply}>Cancel</Button>
+          <Button autoFocus onClick={handleApplyEffect}>
                         Apply
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={deleteOpened}>
-                <DialogTitle>Delete Effect From Effect List</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={deleteOpened}>
+        <DialogTitle>Delete Effect From Effect List</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
                         Are you sure to delete effect "{effectSelectedName}" from the effect list?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDelete}>Cancel</Button>
-                    <Button autoFocus onClick={handleDeleteEffect}>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDelete}>Cancel</Button>
+          <Button autoFocus onClick={handleDeleteEffect}>
                         Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={addOpened} fullWidth maxWidth="xs">
-                <DialogTitle>Add New Effect</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        label="New Effect Name"
-                        required
-                        fullWidth
-                        variant="standard"
-                        value={newEffectName}
-                        onChange={(e) => setNewEffectName(e.target.value)}
-                    />
-                    {/* <TextField
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={addOpened} fullWidth maxWidth="xs">
+        <DialogTitle>Add New Effect</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="New Effect Name"
+            required
+            fullWidth
+            variant="standard"
+            value={newEffectName}
+            onChange={(e) => { setNewEffectName(e.target.value); }}
+          />
+          {/* <TextField
                         autoFocus
                         type="number"
                         margin="normal"
@@ -278,7 +280,7 @@ export default function EffectList() {
                         onChange={(e) => setNewEffectFrom(e.target.value)}
                     /> */}
 
-                    {/* <TextField
+          {/* <TextField
                         type="number"
                         margin="normal"
                         id="name"
@@ -301,61 +303,61 @@ export default function EffectList() {
                         }
                         onChange={(e) => setNewEffectTo(e.target.value)}
                     /> */}
-                    <TextField
-                        margin="normal"
-                        id="name"
-                        label="From Time:"
-                        {...fromTextFieldProps}
-                        sx={{ width: "20em", marginRight: 2 }}
-                        variant="outlined"
-                        error={fromTimeError}
-                        required
-                    />
-                    <TextField
-                        margin="normal"
-                        id="name"
-                        label="To Time:"
-                        {...toTextFieldProps}
-                        sx={{ width: "20em", marginRight: 2 }}
-                        variant="outlined"
-                        error={toTimeError || newEffectTo < newEffectFrom}
-                        required
-                        helperText={newEffectTo < newEffectFrom ? "Cannot be smaller than from" : ""}
-                    />
-                    {(toTimeError || fromTimeError) && (
-                        <Popper
-                            open={toTimeError || fromTimeError}
-                            anchorEl={toTimeError ? toTimeInputRef.current : fromTimeInputRef.current}
-                        >
-                            <Paper>
-                                <Typography sx={{ p: "0.5em 1em" }}>this is an invalid time</Typography>
-                            </Paper>
-                        </Popper>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseAdd}>Cancel</Button>
-                    <Button onClick={handleAddEffect} disabled={!newEffectName || newEffectTo < newEffectFrom}>
+          <TextField
+            margin="normal"
+            id="name"
+            label="From Time:"
+            {...fromTextFieldProps}
+            sx={{ width: "20em", marginRight: 2 }}
+            variant="outlined"
+            error={fromTimeError}
+            required
+          />
+          <TextField
+            margin="normal"
+            id="name"
+            label="To Time:"
+            {...toTextFieldProps}
+            sx={{ width: "20em", marginRight: 2 }}
+            variant="outlined"
+            error={toTimeError || newEffectTo < newEffectFrom}
+            required
+            helperText={newEffectTo < newEffectFrom ? "Cannot be smaller than from" : ""}
+          />
+          {(toTimeError || fromTimeError) && (
+            <Popper
+              open={toTimeError || fromTimeError}
+              anchorEl={toTimeError ? toTimeInputRef.current : fromTimeInputRef.current}
+            >
+              <Paper>
+                <Typography sx={{ p: "0.5em 1em" }}>this is an invalid time</Typography>
+              </Paper>
+            </Popper>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAdd}>Cancel</Button>
+          <Button onClick={handleAddEffect} disabled={!newEffectName || newEffectTo < newEffectFrom}>
                         Add
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={previewOpened} fullWidth maxWidth="md">
-                <DialogTitle>Preview Effect</DialogTitle>
-                <DialogContent></DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setPreviewOpened(false)}>Cancel</Button>
-                    <Button autoFocus onClick={() => setPreviewOpened(false)}>
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={previewOpened} fullWidth maxWidth="md">
+        <DialogTitle>Preview Effect</DialogTitle>
+        <DialogContent></DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setPreviewOpened(false); }}>Cancel</Button>
+          <Button autoFocus onClick={() => { setPreviewOpened(false); }}>
                         Add
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            <Snackbar
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                open={previewing}
-                message="[ADD EFFECT] Previewing your new effect..."
-                key="preview snackbar"
-            />
-        </div>
-    );
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={previewing}
+        message="[ADD EFFECT] Previewing your new effect..."
+        key="preview snackbar"
+      />
+    </div>
+  );
 }

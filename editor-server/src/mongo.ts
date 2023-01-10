@@ -21,7 +21,7 @@ export default () => {
     initData();
     cron.schedule("0 0 */1 * *", async () => {
       try {
-        let targetTime = new Date();
+        const targetTime = new Date();
         targetTime.setDate(targetTime.getDate() - 7);
         await model.Logger.deleteMany({ time: { $lt: targetTime } });
       } catch (e) {

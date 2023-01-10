@@ -4,16 +4,16 @@ import { EffectList } from "../types/effectList";
 @ObjectType()
 export class EffectListPayload {
   @Field()
-  mutation: EffectListMutation;
+    mutation: EffectListMutation;
 
   @Field((type) => ID)
-  effectListID: string;
+    effectListID: string;
 
   @Field()
-  editBy: string;
+    editBy: string;
 
   @Field((type) => EffectList, { nullable: true })
-  effectListData?: any;
+    effectListData?: any;
 }
 
 export enum EffectListMutation {

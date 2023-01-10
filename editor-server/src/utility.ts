@@ -12,7 +12,7 @@ const initData = async () => {
 };
 
 const initRedisControl = async () => {
-  let frames = await model.ControlFrame.find();
+  const frames = await model.ControlFrame.find();
   const result: LooseObject = {};
   const value = frames.map((frame: any) => {
     return { id: frame.id, _id: frame._id };
@@ -71,7 +71,7 @@ const initRedisControl = async () => {
 };
 
 const initRedisPosition = async () => {
-  let frames = await model.PositionFrame.find();
+  const frames = await model.PositionFrame.find();
   const result: LooseObject = {};
   const value = frames.map((frame: any) => {
     return { id: frame.id, _id: frame._id };

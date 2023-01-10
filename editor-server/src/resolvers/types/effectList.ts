@@ -5,19 +5,19 @@ import { ObjectId } from "mongodb";
 @ObjectType()
 export class EffectList {
   @Field((type) => Float)
-  start: number;
+    start: number;
 
   @Field((type) => Float)
-  end: number;
+    end: number;
 
   @Field({ nullable: true })
-  description: string;
+    description: string;
 
   @Field((type) => ID)
-  id: string;
+    id: string;
 
   @Field((type) => EffectListScalar)
-  data: ObjectId;
+    data: ObjectId;
 }
 
 export const EffectListScalar = new GraphQLScalarType({

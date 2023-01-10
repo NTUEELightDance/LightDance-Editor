@@ -32,12 +32,12 @@ export class ShiftResolver {
   @Mutation((returns) => ShiftResponse)
   async shift(
     @PubSub(Topic.ControlRecord)
-    publishControlRecord: Publisher<ControlRecordPayload>,
+      publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Arg("end", { nullable: false }) end: number,
     @Arg("move", { nullable: false }) move: number,
@@ -49,7 +49,7 @@ export class ShiftResolver {
     if (start + move < 0) {
       return {
         ok: false,
-        msg: `Negative start is not legal`,
+        msg: "Negative start is not legal",
       };
     }
 
@@ -57,7 +57,7 @@ export class ShiftResolver {
     if (start >= end) {
       return {
         ok: false,
-        msg: `start must smaller than end`,
+        msg: "start must smaller than end",
       };
     }
 
@@ -351,6 +351,6 @@ export class ShiftResolver {
       await publishPositionRecord(positionRecordPayload);
     }
 
-    return { ok: true, msg: `Done` };
+    return { ok: true, msg: "Done" };
   }
 }

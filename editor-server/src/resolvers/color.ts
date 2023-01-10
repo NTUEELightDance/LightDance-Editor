@@ -19,7 +19,7 @@ import { ColorResponse } from "./response/colorResponse";
 class ColorResolver {
   @Query((returns) => String)
   async color(@Arg("color") color: string, @Ctx() ctx: any) {
-    let { colorCode } = await ctx.db.Color.findOne({ color });
+    const { colorCode } = await ctx.db.Color.findOne({ color });
     return colorCode;
   }
 
@@ -41,11 +41,11 @@ class ColorResolver {
     @Arg("color") colorInput: ColorInput,
     @Ctx() ctx: any
   ) {
-    let existedColorCode = await ctx.db.Color.findOne({
+    const existedColorCode = await ctx.db.Color.findOne({
       color: colorInput.color,
     });
     if (!existedColorCode) {
-      let newColor = new ctx.db.Color({
+      const newColor = new ctx.db.Color({
         color: colorInput.color,
         colorCode: colorInput.colorCode,
       });

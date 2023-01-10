@@ -12,7 +12,7 @@ import type {
   ControlMapStatus,
   LED,
   Fiber,
-  PartPayload,
+  PartPayload
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 
@@ -20,23 +20,23 @@ import LEDcontrols from "../LEDcontrols";
 
 import { PART } from "@/constants";
 
-const PropertyPanel = ({
+function PropertyPanel({
   partType,
   value,
   dancers,
   parts,
   currentDancers,
   currentStatus,
-  colorMap,
+  colorMap
 }: {
-  partType: PartType;
-  value: string;
-  dancers: Dancers;
-  parts: PartName[];
-  currentDancers: DancerName[];
-  currentStatus: ControlMapStatus;
-  colorMap: ColorMap;
-}) => {
+  partType: PartType
+  value: string
+  dancers: Dancers
+  parts: PartName[]
+  currentDancers: DancerName[]
+  currentStatus: ControlMapStatus
+  colorMap: ColorMap
+}) {
   const sortedParts = [...parts].sort();
 
   const handleSelectAll = () => {
@@ -75,8 +75,8 @@ const PropertyPanel = ({
           height: "100%",
           width: "100%",
           px: "5%",
-          py: 0,
-        },
+          py: 0
+        }
       }}
     >
       <TabPanel value={value}>
@@ -91,28 +91,30 @@ const PropertyPanel = ({
         {currentDancers.length !== 0 && (
           <List dense>
             {sortedParts.map((part) =>
-              partType === "LED" ? (
-                <LEDcontrols
-                  part={part}
-                  currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as LED}
-                  key={`${currentDancers[0]}_${part}`}
-                />
-              ) : (
-                <OFcontrols
-                  part={part}
-                  currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as Fiber}
-                  key={`${currentDancers[0]}_${part}`}
-                  colorMap={colorMap}
-                />
-              )
+              partType === "LED"
+                ? (
+                  <LEDcontrols
+                    part={part}
+                    currentDancers={currentDancers}
+                    displayValue={currentStatus[currentDancers[0]][part] as LED}
+                    key={`${currentDancers[0]}_${part}`}
+                  />
+                )
+                : (
+                  <OFcontrols
+                    part={part}
+                    currentDancers={currentDancers}
+                    displayValue={currentStatus[currentDancers[0]][part] as Fiber}
+                    key={`${currentDancers[0]}_${part}`}
+                    colorMap={colorMap}
+                  />
+                )
             )}
           </List>
         )}
       </TabPanel>
     </Box>
   );
-};
+}
 
 export default PropertyPanel;

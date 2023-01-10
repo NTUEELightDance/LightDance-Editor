@@ -3,7 +3,7 @@ import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShirt,
-  faArrowsUpDownLeftRight,
+  faArrowsUpDownLeftRight
 } from "@fortawesome/free-solid-svg-icons";
 import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
 
@@ -16,14 +16,14 @@ import {
   CONTROL_EDITOR,
   DANCER,
   PART,
-  POSITION,
+  POSITION
 } from "../../constants";
 
-const SelectionModeSelector = () => {
+function SelectionModeSelector() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
   const editor = useReactiveVar(reactiveState.editor);
 
-  const icons: { [index: string]: JSX.Element } = {
+  const icons: Record<string, JSX.Element> = {
     [DANCER]: <DancerIcon />,
     [PART]: (
     // to center the icon
@@ -36,7 +36,7 @@ const SelectionModeSelector = () => {
       <div className="MuiSpeedDial-actionsClosed">
         <FontAwesomeIcon icon={faArrowsUpDownLeftRight} />
       </div>
-    ),
+    )
   };
 
   return (
@@ -63,14 +63,14 @@ const SelectionModeSelector = () => {
             key={mode}
             icon={icon}
             tooltipTitle={mode}
-            onClick={() => setSelectionMode({ payload: mode })}
-            // @ts-ignore: Unreachable code error
+            onClick={async () => { await setSelectionMode({ payload: mode }); }}
+            // @ts-expect-error: Unreachable code error
             disabled={disabled}
           />
         );
       })}
     </SpeedDial>
   );
-};
+}
 
 export default SelectionModeSelector;

@@ -22,10 +22,10 @@ export default function ColorPalette() {
 
   const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
 
-  const temp: { [key: string]: boolean } = {};
+  const temp: Record<string, boolean> = {};
   Object.keys(colorMap).forEach((colorName) => (temp[colorName] = false));
   const [editDialogOpen, setEditDialogOpen] =
-    useImmer<{ [key: string]: boolean }>(temp);
+    useImmer<Record<string, boolean>>(temp);
 
   const handleEditClick = (color: string) => () => {
     setEditDialogOpen((editDialogOpen) => {
@@ -41,8 +41,9 @@ export default function ColorPalette() {
     if (
       protectedColors.includes(colorNameA) &&
       protectedColors.includes(colorNameB)
-    )
+    ) {
       return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
+    }
 
     if (protectedColors.includes(colorNameA)) return -1;
     if (protectedColors.includes(colorNameB)) return 1;
@@ -75,7 +76,11 @@ export default function ColorPalette() {
                 zIndex: 808,
               }}
             >
-              <IconButton onClick={() => setAddDialogOpen(true)}>
+              <IconButton
+                onClick={() => {
+                  setAddDialogOpen(true);
+                }}
+              >
                 <AddIcon />
               </IconButton>
             </Box>
@@ -104,7 +109,9 @@ export default function ColorPalette() {
       <ColorDialog
         type="add"
         open={addDialogOpen}
-        handleClose={() => setAddDialogOpen(false)}
+        handleClose={() => {
+          setAddDialogOpen(false);
+        }}
         handleMutateColor={handleAddColor}
       />
 
@@ -112,14 +119,14 @@ export default function ColorPalette() {
         <ColorDialog
           type="edit"
           open={editDialogOpen[colorName]}
-          handleClose={() =>
+          handleClose={() => {
             setEditDialogOpen((editDialogOpen) => {
               editDialogOpen[colorName] = false;
-            })
-          }
-          handleMutateColor={(newColorName, newColorCode) =>
-            handleEditColor(colorName, newColorName, newColorCode)
-          }
+            });
+          }}
+          handleMutateColor={async (newColorName, newColorCode) => {
+            await handleEditColor(colorName, newColorName, newColorCode);
+          }}
           defaultColorName={colorName}
           defaultColorCode={colorCode}
           disableNameChange={protectedColors.includes(colorName)}

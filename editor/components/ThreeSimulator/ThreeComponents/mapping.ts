@@ -26,8 +26,8 @@ const RED_MAPPING = {
     color: {
       r: 0.019768331199884415,
       g: 1,
-      b: 1,
-    },
+      b: 1
+    }
   },
   MAPG: {
     Mask: "G_MASK",
@@ -56,8 +56,8 @@ const RED_MAPPING = {
     color: {
       r: 1,
       g: 1,
-      b: 0.17821459472179413,
-    },
+      b: 0.17821459472179413
+    }
   },
   MAPS: {
     Mask: "S_HAT",
@@ -86,9 +86,9 @@ const RED_MAPPING = {
     color: {
       r: 1,
       g: 0.017767056822776794,
-      b: 1,
-    },
-  },
+      b: 1
+    }
+  }
 };
 
 const YELLOW_MAPPING = {
@@ -123,8 +123,8 @@ const YELLOW_MAPPING = {
     color: {
       r: 1,
       g: 1,
-      b: 0.17821459472179413,
-    },
+      b: 0.17821459472179413
+    }
   },
   MAPB: {
     Visor: "B_MASK",
@@ -157,8 +157,8 @@ const YELLOW_MAPPING = {
     color: {
       r: 0.019768331199884415,
       g: 1,
-      b: 1,
-    },
+      b: 1
+    }
   },
   MAPS: {
     Visor: "S_GLASSES",
@@ -191,9 +191,9 @@ const YELLOW_MAPPING = {
     color: {
       r: 1,
       g: 0.017767056822776794,
-      b: 1,
-    },
-  },
+      b: 1
+    }
+  }
 };
 
 const BLUE_MAPPING = {};
@@ -226,14 +226,14 @@ const OLD_PART_NAMES = {
     S_R_PANT: {},
     S_L_PANT: {},
     S_R_SHOE: {},
-    S_L_SHOE: {},
-  },
+    S_L_SHOE: {}
+  }
 };
 
 const ALL_MAPPING = {
   YELLOW_MAPPING,
   RED_MAPPING,
-  BLUE_MAPPING,
+  BLUE_MAPPING
 };
 
 export default ALL_MAPPING;

@@ -18,8 +18,8 @@ export const Toggle = styled("div")(
   min-height: 2em;
   width: 5vw;
   background: var(--color, ${
-    theme.palette.mode === "dark" ? grey[900] : "#fff"
-  });
+  theme.palette.mode === "dark" ? grey[900] : "#fff"
+});
   border: 1px solid ${theme.palette.mode === "dark" ? grey[800] : grey[300]};
   border-radius: 0.75em;
   margin: 0.2em;
@@ -52,10 +52,10 @@ export const Listbox = styled("ul")(
   transition: opacity 0.1s ease-in-out;
   width: 100%;
   box-shadow: ${
-    theme.palette.mode === "dark"
-      ? `0 5px 13px -3px rgba(0,0,0,0.4)`
-      : `0 5px 13px -3px ${grey[200]}`
-  };
+  theme.palette.mode === "dark"
+    ? "0 5px 13px -3px rgba(0,0,0,0.4)"
+    : `0 5px 13px -3px ${grey[200]}`
+};
   background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
   border: 1px solid ${theme.palette.mode === "dark" ? grey[800] : grey[300]};
   border-radius: 0.75em;

@@ -6,7 +6,7 @@ import {
   CurrentLedEffect,
   LedMap,
   LedEffectFrame,
-  LedEffectRecord,
+  LedEffectRecord
 } from "../models";
 
 import { cloneDeep } from "lodash";
@@ -22,7 +22,7 @@ import { updateFrameByTimeMap } from "./frame";
  * @param time
  * @returns
  */
-export function updateLedEffect(
+export function updateLedEffect (
   controlMap: ControlMap,
   ledEffectRecord: LedEffectRecord,
   currentLedEffect: CurrentLedEffect,
@@ -74,7 +74,7 @@ export function updateLedEffect(
       let offset = time - currentStart; // get the offset of time (since the led effect begins from 0)
       // calculate the offset with repeat
       // ** Repeat don't work on last effect's start being zero (Only one effect frame) **
-      if (effects.length && effects[effects.length - 1].start > 0) {
+      if ((effects.length > 0) && effects[effects.length - 1].start > 0) {
         const duration = effects[effects.length - 1].start;
         const repeatedTimes = Math.floor(offset / duration);
         if (repeat === 0 || repeatedTimes < repeat) {
@@ -91,7 +91,7 @@ export function updateLedEffect(
       }
 
       // Goal: calculate the right newLedEffect[dancerName][partName]'s effectIndex
-      let { effectIndex } = currentLedEffect[dancerName][partName];
+      const { effectIndex } = currentLedEffect[dancerName][partName];
       let newEffectIndex;
       // Case 1: index is already in the right place (after resetting or not being the time to switch to the next one)
       if (
@@ -119,7 +119,7 @@ export function updateLedEffect(
       let {
         start: currStart,
         effect: currEffect,
-        fade,
+        fade
       } = effects[newEffectIndex];
       // Do fade or not
       if (fade && effects[newEffectIndex + 1]) {
@@ -152,7 +152,7 @@ export function updateLedEffect(
           );
           currEffect[idx] = {
             colorCode: newColor,
-            alpha: newAlpha,
+            alpha: newAlpha
           };
         });
       }
@@ -167,17 +167,17 @@ export function updateLedEffect(
  * @param {object} data - target control (array of status)
  * @param {number} time - target time
  */
-export function binarySearchLedEffectFrame(
+export function binarySearchLedEffectFrame (
   frames: LedEffectFrame[],
   offset: number
 ) {
-  if (!Array.isArray(frames))
+  if (!Array.isArray(frames)) {
     throw new Error(
-      `[Error] binarySearchLedFrame, invalid parameter(controlRecord)`
+      "[Error] binarySearchLedFrame, invalid parameter(controlRecord)"
     );
+  }
 
-  if (typeof offset !== "number")
-    throw new Error(`[Error] binarySearchFrame, invalid parameter(time)`);
+  if (typeof offset !== "number") { throw new Error("[Error] binarySearchFrame, invalid parameter(time)"); }
   let l = 0;
   let r = frames.length - 1;
   let m = Math.floor((l + r + 1) / 2);

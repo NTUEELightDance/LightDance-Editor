@@ -44,16 +44,16 @@ class ThreeController {
   height: number;
   width: number;
 
-  dancers: { [index: string]: ThreeDancer };
+  dancers: Record<string, ThreeDancer>;
 
-  //TODO use global state type
+  // TODO use global state type
   state: any;
   isPlaying: boolean;
-  //? seems always undefined, not sure why its here
+  // ? seems always undefined, not sure why its here
   animateID: any;
   initialized: boolean;
 
-  constructor() {
+  constructor () {
     // Basic attributes for three.js
     this.renderer = null;
     this.camera = null;
@@ -81,7 +81,7 @@ class ThreeController {
   /**
    * Initiate localStorage, threeApp, dancers
    */
-  init(canvas: HTMLElement, container: HTMLElement) {
+  init (canvas: HTMLElement, container: HTMLElement) {
     this.settings = new Settings(this);
     // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
@@ -100,7 +100,7 @@ class ThreeController {
     // Initilization of 3D renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
-      powerPreference: "high-performance",
+      powerPreference: "high-performance"
     });
 
     renderer.setSize(this.width, this.height);
@@ -148,7 +148,7 @@ class ThreeController {
     this.monitor();
   }
 
-  initCamera() {
+  initCamera () {
     const fov = 45;
     const aspect = this.width / this.height;
     const near = 0.2;
@@ -177,7 +177,7 @@ class ThreeController {
     this.camera = camera;
   }
 
-  initPostprocessing() {
+  initPostprocessing () {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
     const renderTarget = new THREE.WebGLMultisampleRenderTarget(
       size.width,
@@ -222,7 +222,7 @@ class ThreeController {
     this.composer = composer;
   }
 
-  initDancers() {
+  initDancers () {
     this.initLoadManager();
 
     const { dancerNames, currentStatus, currentPos } = state;
@@ -236,20 +236,20 @@ class ThreeController {
     });
   }
 
-  initGridHelper() {
+  initGridHelper () {
     const gridHelper = new GridHelper(60, 20);
     gridHelper.matrixAutoUpdate = false;
     this.gridHelper = gridHelper;
     this.scene.add(gridHelper);
   }
 
-  initLoadManager() {
+  initLoadManager () {
     const manager = new THREE.LoadingManager();
     manager.onLoad = this.initControls.bind(this);
     this.manager = manager;
   }
 
-  initControls() {
+  initControls () {
     // Add a orbit control to view the scene from different perspectives and scales
     this.controls = new Controls(
       this.renderer,
@@ -261,7 +261,7 @@ class ThreeController {
   }
 
   // Add a center marker in the middle
-  initCenterMarker() {
+  initCenterMarker () {
     const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
     const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
     const cube = new THREE.Mesh(geometry, material);
@@ -274,15 +274,16 @@ class ThreeController {
   }
 
   // Return true if all the dancer is successfully initialized
-  isInitialized() {
-    if (!this.initialized)
+  isInitialized () {
+    if (!this.initialized) {
       this.initialized =
         Object.values(this.dancers).every((dancer) => dancer.initialized) &&
         Object.values(this.dancers).length !== 0;
+    }
     return this.initialized;
   }
 
-  resize(width, height) {
+  resize (width, height) {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
@@ -292,67 +293,71 @@ class ThreeController {
   }
 
   // Monitor fps, memory and delay
-  monitor() {
+  monitor () {
     const statsPanel = Stats();
     statsPanel.domElement.style.position = "absolute";
     this.container.appendChild(statsPanel.domElement);
 
-    requestAnimationFrame(function loop() {
+    requestAnimationFrame(function loop () {
       statsPanel.update();
       requestAnimationFrame(loop);
     });
   }
 
-  updateSelected(selected) {
-    if (Object.entries(selected).length === 0)
+  updateSelected (selected) {
+    if (Object.entries(selected).length === 0) {
       throw new Error(
-        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
+        "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
+    }
     this.controls.selectControls.updateSelected(selected);
   }
 
   // calculate and set next frame status according to time and call updateDancers
-  update(clockDelta) {
+  update (clockDelta) {
     this.updateDancersStatus(state.currentStatus);
     this.updateDancerLED(state.currentLedEffect);
 
     this.updateDancersPos(state.currentPos);
   }
 
-  updateDancersStatus(currentStatus) {
-    if (Object.entries(currentStatus).length === 0)
+  updateDancersStatus (currentStatus) {
+    if (Object.entries(currentStatus).length === 0) {
       throw new Error(
-        `[Error] updateDancersStatus, invalid parameter(currentStatus)`
+        "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
+    }
     if (!this.settings.settings.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setFiberStatus(status);
     });
   }
 
-  updateDancerLED(currentLedEffect) {
-    if (Object.entries(currentLedEffect).length === 0)
+  updateDancerLED (currentLedEffect) {
+    if (Object.entries(currentLedEffect).length === 0) {
       throw new Error(
-        `[Error] updateDancersLED, invalid parameter(currentLedEffect)`
+        "[Error] updateDancersLED, invalid parameter(currentLedEffect)"
       );
+    }
     if (!this.settings.settings.Visibility.LED) return;
     Object.entries(currentLedEffect).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setLEDStatus(status);
     });
   }
 
-  updateDancersPos(currentPos) {
-    if (Object.entries(currentPos).length === 0)
+  updateDancersPos (currentPos) {
+    if (Object.entries(currentPos).length === 0) {
       throw new Error(
-        `[Error] updateDancersPos, invalid parameter(currentPos)`
+        "[Error] updateDancersPos, invalid parameter(currentPos)"
       );
+    }
     Object.entries(currentPos).forEach(([key, value]) => {
       this.dancers[key].setPos(value);
     });
   }
 
   // a recursive function to render each new frame
-  animate() {
+  animate () {
     if (this.isInitialized()) {
       this.update(this.clock?.getDelta());
       Object.values(this.dancers).forEach((dancer) => {
@@ -362,17 +367,17 @@ class ThreeController {
     }
 
     this.composer?.render();
-    requestAnimationFrame(() => this.animate());
+    requestAnimationFrame(() => { this.animate(); });
   }
 
   // change isPlaying status
 
-  setIsPlaying(isPlaying: boolean) {
+  setIsPlaying (isPlaying: boolean) {
     this.isPlaying = isPlaying;
   }
 
   // render current scene and dancers
-  render() {
+  render () {
     if (!this.isPlaying) this.composer?.render(this.scene, this.camera);
     else this.renderer?.render(this.scene, this.camera);
   }

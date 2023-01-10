@@ -10,7 +10,7 @@ interface LooseObject {
 @ObjectType()
 export class Map {
   @Field((type) => MapScalar)
-  frames: ObjectId[];
+    frames: ObjectId[];
 }
 
 export const MapScalar = new GraphQLScalarType({

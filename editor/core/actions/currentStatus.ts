@@ -9,7 +9,7 @@ import {
   LED,
   Fiber,
   El,
-  CurrentStatusDelta,
+  CurrentStatusDelta
 } from "../models";
 
 import { Color } from "three";
@@ -34,9 +34,9 @@ const actions = registerActions({
   editCurrentStatus: (
     state: State,
     payload: {
-      dancerName: string;
-      partName: string;
-      value: El;
+      dancerName: string
+      partName: string
+      value: El
     }
   ) => {
     const { dancerName, partName, value } = payload;
@@ -53,15 +53,15 @@ const actions = registerActions({
   editCurrentStatusFiber: (
     state: State,
     payload: {
-      dancerName: string;
-      partName: string;
-      value: Fiber;
+      dancerName: string
+      partName: string
+      value: Fiber
     }
   ) => {
     const {
       dancerName,
       partName,
-      value: { color, alpha },
+      value: { color, alpha }
     } = payload;
 
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
@@ -70,8 +70,7 @@ const actions = registerActions({
       (state.currentStatus[dancerName][partName] as Fiber).colorCode =
         new Color(state.colorMap[color]);
     }
-    if (typeof alpha === "number")
-      (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
+    if (typeof alpha === "number") { (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha; }
   },
 
   /**
@@ -82,19 +81,17 @@ const actions = registerActions({
 
   editCurrentStatusLED: (
     state: State,
-    payload: {
-      dancerName: string;
-      partName: string;
-      value: LED;
-    }[]
+    payload: Array<{
+      dancerName: string
+      partName: string
+      value: LED
+    }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
 
     payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
-      if (typeof src === "string")
-        (state.currentStatus[dancerName][partName] as LED).src = src;
-      if (typeof alpha === "number")
-        (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
+      if (typeof src === "string") { (state.currentStatus[dancerName][partName] as LED).src = src; }
+      if (typeof alpha === "number") { (state.currentStatus[dancerName][partName] as LED).alpha = alpha; }
     });
   },
 
@@ -118,7 +115,7 @@ const actions = registerActions({
         state.currentStatus[dancerName][partName] = value;
       });
     });
-  },
+  }
 });
 
 export const {
@@ -127,5 +124,5 @@ export const {
   editCurrentStatusFiber,
   editCurrentStatusLED,
   editCurrentStatusDelta,
-  saveToLocal,
+  saveToLocal
 } = actions;

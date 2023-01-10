@@ -9,14 +9,14 @@ import {
   deleteCurrent,
   setCurrentTime,
   generateLedEffectRecord,
-  cancelEditMode,
+  cancelEditMode
 } from "core/actions";
-//constants
+// constants
 import { CONTROL_EDITOR, IDLE, POS_EDITOR } from "@/constants";
 
 import { notification, confirmation, formatDisplayedTime } from "core/utils";
 
-export default function useEditHandler() {
+export default function useEditHandler () {
   const resetTime = async () => {
     await setCurrentTime({ payload: reactiveState.currentTime() }); // reset the timeData
   };
@@ -108,6 +108,6 @@ export default function useEditHandler() {
     handleSave,
     handleCancel,
     handleAdd,
-    handleDelete,
+    handleDelete
   };
 }

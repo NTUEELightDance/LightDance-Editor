@@ -5,8 +5,8 @@ import { ControlDevice } from "./controlDevice";
 @ObjectType()
 export class Control {
   @Field((type) => ControlFrame)
-  frame: ControlFrame;
+    frame: ControlFrame;
 
   @Field((type) => ControlDevice)
-  status: any;
+    status: any;
 }

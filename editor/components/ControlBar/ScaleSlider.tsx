@@ -5,15 +5,15 @@ import { ZoomIn } from "@mui/icons-material";
 
 import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
 
-export default function ScaleSlider({
-  wavesurfer,
+export default function ScaleSlider ({
+  wavesurfer
 }: {
-  wavesurfer: WaveSurferApp;
+  wavesurfer: WaveSurferApp
 }) {
   const [scale, setScale] = useState<number>(0);
 
   const handleChange = (event: Event, newScale: number | number[]) => {
-    // only zoom whem scale really be changed
+    // only zoom when scale really be changed
     if ((newScale as number) !== scale) {
       wavesurfer?.zoom(newScale as number);
     }

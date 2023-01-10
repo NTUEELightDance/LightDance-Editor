@@ -26,8 +26,8 @@ wss.on("connection", (ws) => {
     // need to consider further type assignment
     const parsedData: MesC2S | MesR2S = JSON.parse(msg.data);
     const { command, payload } = parsedData;
-    let type = null
-    console.log("[Message] Client response: ", command, "\n[Message] Payload: ", payload, '\n');
+    let type = null;
+    console.log("[Message] Client response: ", command, "\n[Message] Payload: ", payload, "\n");
 
     // We defined that the first task for clients (dancer and editor) will be boardInfo
     // This can then let us split the logic between dancerClients and editorClients
@@ -35,97 +35,97 @@ wss.on("connection", (ws) => {
 
       // fetch type, so ugly
       if ((<InfoType>payload).type) {
-        type = (<InfoType>payload).type
+        type = (<InfoType>payload).type;
       }
       else if ((<MesR2S>parsedData).payload.info) {
-        type = (<InfoType>((<MesR2S>parsedData).payload.info)).type
+        type = (<InfoType>((<MesR2S>parsedData).payload.info)).type;
       }
 
       // check type : rpi or controlpanel
       switch (type) {
-        // rpi
-        case ClientType.RPI: {
-          // check if `dancer` type's hostname is in board_config.json
-          const { dancerName, hostName, ip } = (<MesR2S>parsedData).payload.info as InfoType;
+      // rpi
+      case ClientType.RPI: {
+        // check if `dancer` type's hostname is in board_config.json
+        const { dancerName, hostName, ip } = (<MesR2S>parsedData).payload.info as InfoType;
 
-          // socket connection established
-          const dancerSocket = new DancerSocket(
-            ws,
-            dancerName,
-            hostName,
-            clientAgent,
-            ip
-          );
-          dancerSocket.handleMessage();
+        // socket connection established
+        const dancerSocket = new DancerSocket(
+          ws,
+          dancerName,
+          hostName,
+          clientAgent,
+          ip
+        );
+        dancerSocket.handleMessage();
 
-          // response
-          Object.values(clientAgent.controlPanelClients.getClients()).forEach(
-            (controlPanel) => {
-              const ws = controlPanel.ws;
-              // render dancer's info at frontend
-              const dancerInfo = clientAgent.dancerClients.getClientsInfo();
+        // response
+        Object.values(clientAgent.controlPanelClients.getClients()).forEach(
+          (controlPanel) => {
+            const ws = controlPanel.ws;
+            // render dancer's info at frontend
+            const dancerInfo = clientAgent.dancerClients.getClientsInfo();
 
-              const res: MesS2C = {
-                command: CommandType.BOARDINFO,
-                payload: {
-                  success: true,
-                  info: {
-                    type: ClientType.RPI,
-                    dancerName: dancerInfo["dancerName"],
-                    hostName: dancerInfo["hostName"],
-                    ip: dancerInfo["ip"],
-                  },
+            const res: MesS2C = {
+              command: CommandType.BOARDINFO,
+              payload: {
+                success: true,
+                info: {
+                  type: ClientType.RPI,
+                  dancerName: dancerInfo["dancerName"],
+                  hostName: dancerInfo["hostName"],
+                  ip: dancerInfo["ip"],
                 },
-              };
-              ws.send(JSON.stringify(res));
-            }
-          );
-
-          break;
-        }
-
-        // controlpanel
-        case ClientType.CONTROLPANEL: {
-          // socket connection established
-          const controlPanelSocket = new ControlPanelSocket(ws, clientAgent);
-          controlPanelSocket.handleMessage();
-          // response
-          Object.values(clientAgent.controlPanelClients.getClients()).forEach(
-            (controlPanel) => {
-              const ws = controlPanel.ws;
-              // render dancer's info at frontend
-              const dancerInfo = clientAgent.dancerClients.getClientsInfo();
-
-              const res: MesS2C = {
-                command: CommandType.BOARDINFO,
-                payload: {
-                  success: true,
-                  info: {
-                    type: ClientType.RPI,
-                    dancerName: dancerInfo["dancerName"],
-                    hostName: dancerInfo["hostName"],
-                    ip: dancerInfo["ip"],
-                  },
-                },
-              };
-              ws.send(JSON.stringify(res));
-            }
-          );
-          break;
-        }
-
-        // error
-        default: {
-          console.error(`Invalid type `, type, ` on connection`);
-          const res: MesS2C = {
-            command: CommandType.BOARDINFO,
-            payload: {
-              success: false,
-              info: "invalid type"
-            }
+              },
+            };
+            ws.send(JSON.stringify(res));
           }
-          ws.send(JSON.stringify(res))
-        }
+        );
+
+        break;
+      }
+
+      // controlpanel
+      case ClientType.CONTROLPANEL: {
+        // socket connection established
+        const controlPanelSocket = new ControlPanelSocket(ws, clientAgent);
+        controlPanelSocket.handleMessage();
+        // response
+        Object.values(clientAgent.controlPanelClients.getClients()).forEach(
+          (controlPanel) => {
+            const ws = controlPanel.ws;
+            // render dancer's info at frontend
+            const dancerInfo = clientAgent.dancerClients.getClientsInfo();
+
+            const res: MesS2C = {
+              command: CommandType.BOARDINFO,
+              payload: {
+                success: true,
+                info: {
+                  type: ClientType.RPI,
+                  dancerName: dancerInfo["dancerName"],
+                  hostName: dancerInfo["hostName"],
+                  ip: dancerInfo["ip"],
+                },
+              },
+            };
+            ws.send(JSON.stringify(res));
+          }
+        );
+        break;
+      }
+
+      // error
+      default: {
+        console.error("Invalid type ", type, " on connection");
+        const res: MesS2C = {
+          command: CommandType.BOARDINFO,
+          payload: {
+            success: false,
+            info: "invalid type"
+          }
+        };
+        ws.send(JSON.stringify(res));
+      }
       }
     }
   };

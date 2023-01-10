@@ -4,25 +4,25 @@ import {
   Typography,
   Box,
   IconButton,
-  Tooltip,
+  Tooltip
 } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
-const ColorListItem = ({
+function ColorListItem({
   colorName,
   colorCode,
   handleEditClick,
   handleDeleteColor,
-  protect = false,
+  protect = false
 }: {
-  colorName: string;
-  colorCode: string;
-  handleEditClick: (color: string) => () => void;
-  handleDeleteColor: (color: string) => void;
-  protect?: boolean;
-}) => {
+  colorName: string
+  colorCode: string
+  handleEditClick: (color: string) => () => void
+  handleDeleteColor: (color: string) => void
+  protect?: boolean
+}) {
   return (
     <ListItem>
       <Box
@@ -31,7 +31,7 @@ const ColorListItem = ({
           justifyContent: "space-between",
           alignItems: "center",
           width: "90%",
-          mx: "auto",
+          mx: "auto"
         }}
       >
         <Box sx={{ width: "7em" }}>
@@ -46,7 +46,7 @@ const ColorListItem = ({
             p: "0.5em",
             height: "2.5em",
             justifyContent: "center",
-            fontSize: "1em",
+            fontSize: "1em"
           }}
         >
           {colorCode}
@@ -55,23 +55,25 @@ const ColorListItem = ({
           <IconButton onClick={handleEditClick(colorName)}>
             <EditIcon fontSize="small" />
           </IconButton>
-          {protect ? (
-            <Tooltip title="this is a reserved color">
-              <span>
-                <IconButton disabled>
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </span>
-            </Tooltip>
-          ) : (
-            <IconButton onClick={() => handleDeleteColor(colorName)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          )}
+          {protect
+            ? (
+              <Tooltip title="this is a reserved color">
+                <span>
+                  <IconButton disabled>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )
+            : (
+              <IconButton onClick={() => { handleDeleteColor(colorName); }}>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            )}
         </Box>
       </Box>
     </ListItem>
   );
-};
+}
 
 export default ColorListItem;

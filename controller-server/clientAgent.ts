@@ -61,32 +61,32 @@ export class ClientAgent {
   ) => {
     // msg type need to be specified later
     switch (clientType) {
-      case ClientType.RPI: {
-        Object.values(this.controlPanelClients.getClients()).forEach(
-          (controlPanel: ControlPanelSocket) => {
-            //   TODO: modify the argument data format to meet the data type SocketMes
-            controlPanel.sendDataToClientControlPanel(msg as MesS2C);
-          }
-        );
-        console.log(
-          "[Emit Message] To controlPanelClients: ",
-          Object.keys(this.controlPanelClients.getClients()),
-          "\n[Emit Message] msg: ",
-          msg,
-          "\n"
-        );
-        break;
-      }
-      case "controlPanel": {
-        console.log(
-          "[Emit Message] To dancerClients: ",
-          Object.keys(this.dancerClients.getClients()),
-          "\n"
-        );
-        break;
-      }
-      default:
-        break;
+    case ClientType.RPI: {
+      Object.values(this.controlPanelClients.getClients()).forEach(
+        (controlPanel: ControlPanelSocket) => {
+          //   TODO: modify the argument data format to meet the data type SocketMes
+          controlPanel.sendDataToClientControlPanel(msg as MesS2C);
+        }
+      );
+      console.log(
+        "[Emit Message] To controlPanelClients: ",
+        Object.keys(this.controlPanelClients.getClients()),
+        "\n[Emit Message] msg: ",
+        msg,
+        "\n"
+      );
+      break;
+    }
+    case "controlPanel": {
+      console.log(
+        "[Emit Message] To dancerClients: ",
+        Object.keys(this.dancerClients.getClients()),
+        "\n"
+      );
+      break;
+    }
+    default:
+      break;
     }
   };
 }

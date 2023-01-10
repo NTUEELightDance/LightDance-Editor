@@ -1,6 +1,6 @@
 import { useState, createContext, useRef } from "react";
 import WaveSurferApp, {
-  waveSurferAppInstance,
+  waveSurferAppInstance
 } from "components/Wavesurfer/WaveSurferApp";
 import { wavesurferContext } from "types/components/wavesurfer";
 
@@ -8,7 +8,7 @@ export const WaveSurferAppContext = createContext<wavesurferContext | null>(
   null
 );
 
-export default function WaveSurfer({ children }: { children: JSX.Element }) {
+export default function WaveSurfer ({ children }: { children: JSX.Element }) {
   const waveSurferApp = useRef<WaveSurferApp>(waveSurferAppInstance);
   const [showMarkers, setShowMarkers] = useState(true);
   const toggleMarkers = () => {
@@ -24,7 +24,7 @@ export default function WaveSurfer({ children }: { children: JSX.Element }) {
         waveSurferApp: waveSurferApp.current,
         showMarkers,
         initWaveSurferApp,
-        toggleMarkers,
+        toggleMarkers
       }}
     >
       {children}

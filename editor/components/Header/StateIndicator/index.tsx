@@ -1,12 +1,12 @@
 import { Zoom } from "@mui/material";
 
-// @ts-ignore
+// @ts-expect-error
 import styles from "./styles.module.css";
 
 import { EDITING } from "@/constants";
 import { EditMode } from "core/models";
 
-const EditorIndicator = ({ editMode }: { editMode: EditMode }) => {
+function EditorIndicator({ editMode }: { editMode: EditMode }) {
   return (
     <Zoom in={editMode === EDITING}>
       <div
@@ -14,14 +14,14 @@ const EditorIndicator = ({ editMode }: { editMode: EditMode }) => {
           width: "100vw",
           height: "0.8vh",
           overflow: "hidden",
-          backgroundColor: "rgba(122, 247, 132, 0.3)",
+          backgroundColor: "rgba(122, 247, 132, 0.3)"
         }}
       >
         <div className={styles.animatedCircle} style={circleStyles(0)} />
       </div>
     </Zoom>
   );
-};
+}
 
 const circleStyles = (size: number) =>
   ({
@@ -32,7 +32,7 @@ const circleStyles = (size: number) =>
     width: `${size}vw`,
     transform: `translate(-${size / 2}vw, -${size / 2}vw)`,
     backgroundColor: "rgba(188, 237, 243, 0.3)",
-    borderRadius: "50%",
+    borderRadius: "50%"
   } as React.CSSProperties);
 
 export default EditorIndicator;

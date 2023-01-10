@@ -5,8 +5,8 @@ import { ControlDataScalar } from "../types/controlData";
 @ObjectType()
 export class ControlMapPayload {
   @Field((type) => ControlDataScalar)
-  frame: any;
+    frame: any;
 
   @Field()
-  editBy: string;
+    editBy: string;
 }

@@ -3,27 +3,27 @@ import {
   MenuItem,
   Typography,
   Box,
-  SelectChangeEvent,
+  SelectChangeEvent
 } from "@mui/material";
 
-export const PreferenceSelector = ({
+export function PreferenceSelector({
   label,
   value,
   Options,
-  onChange,
+  onChange
 }: {
-  label: string;
-  value: string;
-  Options: string[];
-  onChange: (e: SelectChangeEvent) => void;
-}) => {
+  label: string
+  value: string
+  Options: string[]
+  onChange: (e: SelectChangeEvent) => void
+}) {
   return (
     <Box
       sx={{
         display: "flex",
         width: "100%",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "space-between"
       }}
     >
       <Typography>{label}</Typography>
@@ -36,4 +36,4 @@ export const PreferenceSelector = ({
       </Select>
     </Box>
   );
-};
+}

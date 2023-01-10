@@ -6,17 +6,17 @@ import { LEDEffect } from "../types/ledEffect";
 @ObjectType()
 export class LEDEffectResponse extends LEDEffect {
   @Field((type) => Boolean)
-  ok: boolean;
+    ok: boolean;
 
   @Field((type) => String, { nullable: true })
-  msg: string;
+    msg: string;
 }
 
 @ObjectType()
 export class DeleteLEDEffectResponse {
   @Field((type) => Boolean)
-  ok: boolean;
+    ok: boolean;
 
   @Field((type) => String, { nullable: true })
-  msg: string;
+    msg: string;
 }

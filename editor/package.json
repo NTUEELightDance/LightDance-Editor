@@ -50,7 +50,7 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "npx prettier --write ."
+    "lint": "yarn eslint --fix ."
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",
@@ -62,9 +62,18 @@
     "@types/three": "^0.137.0",
     "@types/throttle-debounce": "^5.0.0",
     "@types/wavesurfer.js": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.1",
     "@vitejs/plugin-legacy": "^1.6.4",
     "@vitejs/plugin-react": "^1.1.4",
-    "prettier": "^2.2.1",
+    "eslint": "^8.0.1",
+    "eslint-config-standard-with-typescript": "^26.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "typescript": "*",
     "vite": "^2.7.13",
     "vite-plugin-mkcert": "^1.5.2",
     "vite-tsconfig-paths": "^3.3.17"

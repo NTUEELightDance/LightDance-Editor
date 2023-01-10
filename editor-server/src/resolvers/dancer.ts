@@ -24,7 +24,7 @@ import { initRedisControl, initRedisPosition } from "../utility";
 export class DancerResolver {
   @Query((returns) => [Dancer])
   async dancer(@Ctx() ctx: any) {
-    let dancers = await ctx.db.Dancer.find()
+    const dancers = await ctx.db.Dancer.find()
       .populate("parts")
       .populate("positionData");
     return dancers;
@@ -42,7 +42,7 @@ export class DancerResolver {
       .populate("positionData")
       .populate("parts");
     if (!existDancer) {
-      let newDancer = new ctx.db.Dancer({
+      const newDancer = new ctx.db.Dancer({
         name: newDancerData.name,
         parts: [],
         positionData: [],
@@ -50,9 +50,9 @@ export class DancerResolver {
       });
 
       // for each position frame, add empty position data to the dancer
-      let allPositionFrames = await ctx.db.PositionFrame.find();
+      const allPositionFrames = await ctx.db.PositionFrame.find();
       allPositionFrames.map(async (positionframe: any) => {
-        let newPosition = new ctx.db.Position({
+        const newPosition = new ctx.db.Position({
           frame: positionframe._id,
           x: 0,
           y: 0,

@@ -55,14 +55,14 @@ const actions = registerActions({
    */
   toggleSelectedPart: (
     state: State,
-    payload: { dancer: string; part: string }
+    payload: { dancer: string, part: string }
   ) => {
     const { dancer, part } = payload;
-    const index = state.selected[dancer].parts.indexOf(part as string);
+    const index = state.selected[dancer].parts.indexOf(part);
     if (index !== -1) {
       state.selected[dancer].parts.splice(index, 1);
     } else {
-      state.selected[dancer].parts.push(part as string);
+      state.selected[dancer].parts.push(part);
     }
   },
 
@@ -76,7 +76,7 @@ const actions = registerActions({
       state.selected[name].selected = false;
       state.selected[name].parts = [];
     });
-  },
+  }
 });
 
 export const {
@@ -85,5 +85,5 @@ export const {
   setSelectedParts,
   toggleSelectedDancer,
   toggleSelectedPart,
-  clearSelected,
+  clearSelected
 } = actions;

@@ -23,7 +23,7 @@ import {
 export class PosMapResolver {
   @Query((returns) => Map)
   async PosMap(@Ctx() ctx: any) {
-    let frames = await ctx.db.PositionFrame.find();
+    const frames = await ctx.db.PositionFrame.find();
     const id = frames.map((frame: any) => {
       return { id: frame.id, _id: frame._id };
     });
@@ -36,10 +36,10 @@ export class EditPosMapResolver {
   @Mutation((returns) => Map)
   async editPosMap(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap) publish: Publisher<PositionMapPayload>,
     @Arg("positionData", (type) => [EditPositionInput])
-    positionData: EditPositionInput[],
+      positionData: EditPositionInput[],
     @Arg("start") startTime: number,
     @Ctx() ctx: any
   ) {
@@ -79,7 +79,7 @@ export class EditPosMapResolver {
         positionData.map(async (data: any) => {
           const { dancerName, positionData } = data;
           // create new position for every dancer
-          let newPosition = new ctx.db.Position({
+          const newPosition = new ctx.db.Position({
             frame: newPositionFrame,
             x: positionData.x,
             y: positionData.y,

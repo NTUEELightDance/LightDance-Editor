@@ -24,10 +24,10 @@ class DancerSocket {
   };
   constructor(
     ws: WebSocket,
-    dancerName: string = "",
-    hostName: string = "",
+    dancerName = "",
+    hostName = "",
     clientAgent: ClientAgent,
-    ip: string = ""
+    ip = ""
   ) {
     this.ws = null;
     this.clientIP = "";
@@ -72,7 +72,7 @@ class DancerSocket {
   };
   handleMessage = () => {
     this.ws.onmessage = (message: any) => {
-      let parsedData: MesR2S = JSON.parse(message.data);
+      const parsedData: MesR2S = JSON.parse(message.data);
       const { command, payload } = parsedData;
       console.log(
         `[Message] ${this.dancerName} response: ${command} \n[Message] Payload: `,

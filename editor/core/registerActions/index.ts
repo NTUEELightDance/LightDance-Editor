@@ -9,29 +9,27 @@ import { debug } from "core/utils";
 /**
  * A mapping of actionName to the wrapped action.
  */
-interface WrappedActionRegistry {
-  [key: string]: (payloadOptions?: PayloadOptions) => Promise<void>;
-}
+type WrappedActionRegistry = Record<string, (payloadOptions?: PayloadOptions) => Promise<void>>
 
 /**
  * PayloadOptions
  */
 interface PayloadOptions {
-  payload?: Payload;
-  options?: Options;
+  payload?: Payload
+  options?: Options
 }
 
-type Payload = any;
+type Payload = any
 
 /**
  * Options for determining whether to rerender or simulate after completing the action.
  */
 interface Options {
-  rerender?: boolean; // to rerender React components
-  states?: string[]; // rerender according the states. If rerender but emtpy states, we will rerender the changed states automatically
+  rerender?: boolean // to rerender React components
+  states?: string[] // rerender according the states. If rerender but emtpy states, we will rerender the changed states automatically
 
-  refreshWavesurfer?: boolean;
-  refreshThreeSimulator?: boolean;
+  refreshWavesurfer?: boolean
+  refreshThreeSimulator?: boolean
 }
 
 /**
@@ -39,9 +37,7 @@ interface Options {
  * An action will manipulate the states.
  * The action will be wrapped by actionCreator and saved in wrappedActionRegistry.
  */
-interface Action {
-  (state: State, payload: Payload): void;
-}
+type Action = (state: State, payload: Payload) => void
 
 /**
  * Default options for the action
@@ -51,7 +47,7 @@ const defaultOptions = {
   states: [],
 
   refreshWavesurfer: true,
-  refreshThreeSimulator: true,
+  refreshThreeSimulator: true
 };
 
 /**
@@ -59,7 +55,7 @@ const defaultOptions = {
  * @param action functions with two parameters, state and payload
  * @returns a function with two parameters, payload and options
  */
-function actionCreator(action: Action, actionName: string) {
+function actionCreator (action: Action, actionName: string) {
   return async (payloadOptions?: PayloadOptions) => {
     await action(state, payloadOptions?.payload);
     const options = { ...defaultOptions, ...payloadOptions?.options };
@@ -93,7 +89,7 @@ function actionCreator(action: Action, actionName: string) {
  * @param actions
  * @returns
  */
-export function registerActions(actions: { [key: string]: Action }) {
+export function registerActions (actions: Record<string, Action>) {
   // Registry that stores all the actions.
   const wrappedActionRegistry: WrappedActionRegistry = {};
   Object.keys(actions).forEach((actionName: string) => {

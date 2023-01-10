@@ -10,31 +10,31 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import { SelectChangeEvent } from "@mui/material";
-//components
+// components
 import TimeShiftTextField from "./TimeShiftTextField";
 // states and actions
 import { shiftFrameTime } from "core/actions";
-//types
+// types
 import { TimeShiftTool } from "types/components/tools";
-//utils
+// utils
 import { notification, confirmation } from "core/utils";
 
 const CONTROL = "control";
 const POSITION = "position";
 const BOTH = "both";
 
-export default function TimeShift({
+export default function TimeShift ({
   open,
-  handleClose,
+  handleClose
 }: {
-  open: boolean;
-  handleClose: () => void;
+  open: boolean
+  handleClose: () => void
 }) {
   // type
   const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
   const handleChangeType = (
     event: SelectChangeEvent<"control" | "position" | "both">
-  ) => setType(event.target.value as TimeShiftTool);
+  ) => { setType(event.target.value as TimeShiftTool); };
 
   // frame index
   const [startTime, setStartTime] = useState(0);
@@ -42,8 +42,7 @@ export default function TimeShift({
 
   // time
   const [shiftTime, setShiftTime] = useState(0);
-  const handleChangeShiftTime = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setShiftTime(e.target.valueAsNumber);
+  const handleChangeShiftTime = (e: React.ChangeEvent<HTMLInputElement>) => { setShiftTime(e.target.valueAsNumber); };
 
   // submit
   const submitTimeShift = async () => {
@@ -63,12 +62,11 @@ export default function TimeShift({
       !(await confirmation.warning(
         "Warning! This action may delete some important data."
       ))
-    )
-      return;
+    ) { return; }
 
     try {
       await shiftFrameTime({
-        payload: { type, startTime, endTime, shiftTime },
+        payload: { type, startTime, endTime, shiftTime }
       });
       notification.success("Time shift successful!");
     } catch (error) {
