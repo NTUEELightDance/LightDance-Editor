@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { IPosition } from "../types/global";
 
 const Schema = mongoose.Schema;
 
 // Creating a schema, sort of like working with an ORM
-const PositionSchema = new Schema({
+const PositionSchema = new Schema<IPosition>({
   frame: {
     type: mongoose.Types.ObjectId,
     ref: "PositionFrame",
@@ -15,7 +16,7 @@ const PositionSchema = new Schema({
 });
 
 // Creating a table within database with the defined schema
-const Position = mongoose.model("Position", PositionSchema);
+const Position = mongoose.model<IPosition>("Position", PositionSchema);
 
 // Exporting table for querying and mutating
 

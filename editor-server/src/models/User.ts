@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { IUser } from "../types/global";
 
 const Schema = mongoose.Schema;
-const userSchema = new Schema({
+const userSchema = new Schema<IUser>({
   userID: {
     type: String,
     required: [true, "userID field is required."],
@@ -13,5 +14,5 @@ const userSchema = new Schema({
   },
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model<IUser>("User", userSchema);
 export default User;

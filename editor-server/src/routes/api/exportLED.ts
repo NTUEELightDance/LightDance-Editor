@@ -1,16 +1,16 @@
 import {Request, Response} from "express";
 
 import db from "../../models";
-import { ILED, ILEDEffects, ILEDEffectsEffect, IPart, LooseObject } from "../../types/global";
+import { ILED, ILEDEffects, ILEDEffectsEffect, IPart, TExportLED, TExportLEDPart } from "../../types/global";
 
 const exportLED = async (req: Request, res: Response) => {
   try {
     const allPart = await db.Part.find({ type: "LED" });
-    const result: LooseObject = {};
+    const result: TExportLED = {};
     await Promise.all(
       allPart.map(async (partObj: IPart) => {
         const partName = partObj.name;
-        const part: LooseObject = {};
+        const part: TExportLEDPart = {};
         const allEffect = await db.LED.find({ partName });
         allEffect.map((effect: ILED) => {
           const { effectName, repeat, effects } = effect;

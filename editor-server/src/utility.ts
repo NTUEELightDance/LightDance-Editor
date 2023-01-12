@@ -5,7 +5,7 @@ import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
 
-import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition } from "./types/global";
+import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition, TRedisStore, TRedisPos } from "./types/global";
 
 const initData = async () => {
   await model.User.deleteMany();
@@ -15,7 +15,7 @@ const initRedisControl = async () => {
   const frames = await model.ControlFrame.find();
   const result: LooseObject = {};
   const value = frames.map((frame: IControlFrame) => {
-    return { id: frame.id, _id: frame._id };
+    return { id: frame.id, _id: frame._id! };
   });
   const allDancers = await model.Dancer.find().populate({
     path: "parts",
@@ -27,7 +27,11 @@ const initRedisControl = async () => {
     value.map(async (data: {id: string, _id: ObjectId}) => {
       const { _id, id } = data;
       // const frameID = new ObjectId(id)
-      const { fade, start, editing } = await model.ControlFrame.findById(_id);
+      const controlFrame = await model.ControlFrame.findById(_id);
+      if(!controlFrame){
+        return;
+      }
+      const { fade, start, editing } = controlFrame;
       const status: LooseObject = {};
       await Promise.all(
         allDancers.map(async (dancer: IDancer) => {
@@ -74,15 +78,19 @@ const initRedisPosition = async () => {
   const frames = await model.PositionFrame.find();
   const result: LooseObject = {};
   const value = frames.map((frame: IPositionFrame) => {
-    return { id: frame.id, _id: frame._id };
+    return { id: frame.id, _id: frame._id! };
   });
   const allDancers = await model.Dancer.find().populate("positionData");
   await Promise.all(
     value.map(async (data: {id: string, _id: ObjectId}) => {
       const { _id, id } = data;
       // const frameID = new ObjectId(id)
-      const { start, editing } = await model.PositionFrame.findById(_id);
-      const pos: LooseObject = {};
+      const positionFrame = await model.PositionFrame.findById(_id);
+      if(!positionFrame){
+        return;
+      }
+      const { start, editing } = positionFrame;
+      const pos: TRedisPos = {};
       await Promise.all(
         allDancers.map(async (dancer: IDancer) => {
           const { name, positionData } = dancer;
@@ -103,9 +111,13 @@ const initRedisPosition = async () => {
 };
 
 const updateRedisControl = async (id: string) => {
-  const { fade, start, editing, _id } = await model.ControlFrame.findOne({
+  const controlFrame = await model.ControlFrame.findOne({
     id,
   });
+  if (!controlFrame){
+    return;
+  }
+  const { fade, start, editing, _id } = controlFrame;
   const allDancers = await model.Dancer.find().populate({
     path: "parts",
     populate: {
@@ -149,9 +161,13 @@ const updateRedisControl = async (id: string) => {
 };
 
 const updateRedisPosition = async (id: string) => {
-  const { start, editing, _id } = await model.PositionFrame.findOne({ id });
+  const positionFrame = await model.PositionFrame.findOne({ id });
+  if (!positionFrame){
+    return;
+  }
+  const { start, editing, _id } = positionFrame;
   const allDancers = await model.Dancer.find().populate("positionData");
-  const pos: LooseObject = {};
+  const pos: TRedisPos = {};
   await Promise.all(
     allDancers.map(async (dancer: IDancer) => {
       const { name, positionData } = dancer;

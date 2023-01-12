@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { IPart } from "../types/global";
 
 const Schema = mongoose.Schema;
 
 // Creating a schema, sort of like working with an ORM
-const PartSchema = new Schema({
+const PartSchema = new Schema<IPart>({
   name: {
     type: String,
     required: [true, "Name is required."],
@@ -17,7 +18,7 @@ const PartSchema = new Schema({
 });
 
 // Creating a table within database with the defined schema
-const Part = mongoose.model("Part", PartSchema);
+const Part = mongoose.model<IPart>("Part", PartSchema);
 
 // Exporting table for querying and mutating
 

@@ -1,5 +1,4 @@
 import { Model, ObjectId, Document, PopulatedDoc } from "mongoose";
-import { ControlFrame } from "../resolvers/types/controlFrame";
 
 export interface ConnectionParam{
     userID: string;
@@ -109,9 +108,96 @@ export interface ILogger {
 
 // export data
 export type TExportData = {
-  position: any;
-  control: any;
-  dancer: any;
-  color: any;
+  position: TPositionData;
+  control: TControlData;
+  dancer: TDancerData[];
+  color: TColorData;
+}
+export type TPositionData = {
+  [key: string]: {
+    start: number;
+    pos: {
+      [key: string]: {
+        x: number;
+        y: number;
+        z: number;
+      }
+    }
+  }
+};
+export type TControlData = {
+  [key: string]: {
+    fade: boolean;
+    start: number;
+    status: {
+      [key: string]: {
+        [key: string]: TELControl | TLEDControl | TFiberControl
+      }
+    }
+  }
+};
+export type TELControl = {
+  value: number;
+}
+export type TLEDControl = {
+  src: string;
+  alpha: number;
+}
+export type TFiberControl = {
+  color: string;
+  alpha: number;
+}
+export type TDancerData = {
+  parts: TPartData[];
+  name: string;
+}
+export type TPartData = {
+  name: string;
+  type: "EL" | "LED" | "FIBER";
+}
+export type TColorData = {
+  [key: string]: string;
+}
+export type TExportLED = {
+  [key: string]: TExportLEDPart;
+}
+export type TExportLEDPart = {
+  [key: string]: {
+    repeat: number;
+    effects: TExportLEDEffects[];
+  }
+}
+export type TExportLEDEffects = {
+  effect: TExportLEDEffectsEffect[];
+  start: number;
+  fade: boolean;
+}
+export type TExportLEDEffectsEffect = {
+  alpha: number;
+  colorCode: string;
 }
 
+// export type TControlMap = {
+//   frames: {
+//     [key: string]: {
+//       fade: boolean;
+//       start: number;
+//       status: {
+//         [key: string]: {
+//           [key: string]: number;
+//         }
+//       }
+//     }
+//   }
+// }
+
+export type TRedisStore = {
+  [key: string]: string;
+}
+export type TRedisPos = {
+  [key: string]: {
+    x: number;
+    y: number;
+    z: number;
+  }
+}

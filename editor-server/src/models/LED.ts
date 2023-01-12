@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { ILED } from "../types/global";
 
 const Schema = mongoose.Schema;
-const LEDSchema = new Schema({
+const LEDSchema = new Schema<ILED>({
   partName: {
     type: String,
     required: [true, "partName field is required."],
@@ -40,5 +41,5 @@ const LEDSchema = new Schema({
   ],
 });
 
-const LED = mongoose.model("LED", LEDSchema);
+const LED = mongoose.model<ILED>("LED", LEDSchema);
 export default LED;

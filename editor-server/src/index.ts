@@ -88,10 +88,11 @@ const { SECRET_KEY } = process.env;
         const { name, userid } = req.headers;
         if (!userid || !name)
           throw new Error("UserID and name must be filled.");
-        const userID: string = userid === 'string'? userid : userid[0];
-        const user = await db.User.findOne({ name, userID: userID });
+        const userID: string = (typeof(userid) === 'string') ? userid : userid[0];
+        const userName: string = (typeof(name) === 'string') ? name: name[0];
+        const user = await db.User.findOne({ name: userName, userID: userID });
         if (!user) {
-          const newUser = await new db.User({ name, userID: userid }).save();
+          const newUser = await new db.User({ name: userName, userID: userid }).save();
         }
         const result: TContext = { db, userID };
         return result;

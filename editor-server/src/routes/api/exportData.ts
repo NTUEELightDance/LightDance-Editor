@@ -2,13 +2,13 @@ import {Request, Response} from "express";
 
 import db from "../../models";
 import redis from "../../redis";
-import { IColor, IControlFrame, IPositionFrame, LooseObject, TExportData } from "../../types/global";
+import { IColor, IControlFrame, IPositionFrame, TColorData, TControlData, TDancerData, TExportData, TPositionData } from "../../types/global";
 
 const exportData = async (req: Request, res: Response) => {
   try {
     // grab control data from redis
     const controlFrames = await db.ControlFrame.find();
-    const control: LooseObject = {};
+    const control: TControlData = {};
     await Promise.all(
       controlFrames.map(async (frame: IControlFrame) => {
         const { id } = frame;
@@ -25,7 +25,7 @@ const exportData = async (req: Request, res: Response) => {
 
     // grab position data from redis
     const positionFrames = await db.PositionFrame.find();
-    const position: LooseObject = {};
+    const position: TPositionData = {};
     await Promise.all(
       positionFrames.map(async (frame: IPositionFrame) => {
         const { id } = frame;
@@ -41,13 +41,13 @@ const exportData = async (req: Request, res: Response) => {
     );
 
     // grab dancer data from db
-    const dancer = await db.Dancer.find({}, "name parts -_id").populate({
+    const dancer: TDancerData[] = await db.Dancer.find({}, "name parts -_id").populate({
       path: "parts",
       select: "name type -_id",
     });
 
     const colorData = await db.Color.find({}, "color colorCode -_id");
-    const color: LooseObject = {};
+    const color: TColorData = {};
     colorData.map((colorObj: IColor) => {
       color[colorObj.color] = colorObj.colorCode;
     });
