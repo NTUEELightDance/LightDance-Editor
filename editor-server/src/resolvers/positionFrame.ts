@@ -8,6 +8,7 @@ import {
   PubSub,
   Publisher,
 } from "type-graphql";
+
 import { PositionFrame } from "./types/positionFrame";
 import { Dancer } from "./types/dancer";
 import { generateID, updateRedisPosition } from "../utility";
@@ -22,16 +23,17 @@ import {
   PositionRecordMutation,
 } from "./subscriptions/positionRecord";
 import redis from "../redis";
+import { IDancer, IPosition, IPositionFrame, TContext } from "../types/global";
 
 @Resolver((of) => PositionFrame)
 export class PositionFrameResolver {
   @Query((returns) => PositionFrame)
-  async positionFrame(@Arg("start") start: number, @Ctx() ctx: any) {
+  async positionFrame(@Arg("start") start: number, @Ctx() ctx: TContext) {
     return await ctx.db.PositionFrame.findOne({ start: start });
   }
 
   @Query((returns) => [ID])
-  async positionFrameIDs(@Ctx() ctx: any) {
+  async positionFrameIDs(@Ctx() ctx: TContext) {
     const frames = await ctx.db.PositionFrame.find().sort({ start: 1 });
     const id = frames.map((frame: PositionFrame) => frame.id);
     return id;
@@ -44,7 +46,7 @@ export class PositionFrameResolver {
     @PubSub(Topic.PositionMap)
       publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("start", { nullable: false }) start: number,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const check = await ctx.db.PositionFrame.findOne({ start });
     if (check) {
@@ -89,11 +91,11 @@ export class PositionFrameResolver {
       },
     };
     await publishPositionMap(mapPayload);
-    const allPositionFrames = await ctx.db.PositionFrame.find().sort({
+    const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
       start: 1,
     });
     let index = -1;
-    await allPositionFrames.map((frame: any, idx: number) => {
+    await allPositionFrames.map((frame, idx: number) => {
       if (frame.id === newPositionFrame.id) {
         index = idx;
       }
@@ -117,7 +119,7 @@ export class PositionFrameResolver {
     @PubSub(Topic.PositionMap)
       publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: EditPositionFrameInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { start } = input;
     if (start) {
@@ -152,11 +154,11 @@ export class PositionFrameResolver {
       },
     };
     await publishPositionMap(payload);
-    const allPositionFrames = await ctx.db.PositionFrame.find().sort({
+    const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
       start: 1,
     });
     let index = -1;
-    await allPositionFrames.map((frame: any, idx: number) => {
+    await allPositionFrames.map((frame, idx: number) => {
       if (frame.id === positionFrame.id) {
         index = idx;
       }
@@ -180,7 +182,7 @@ export class PositionFrameResolver {
     @PubSub(Topic.PositionMap)
       publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: DeletePositionFrameInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { frameID } = input;
     const frameToDelete = await ctx.db.PositionFrame.findOne({ id: frameID });
@@ -189,11 +191,11 @@ export class PositionFrameResolver {
     }
     const _id = frameToDelete._id;
     await ctx.db.PositionFrame.deleteOne({ id: frameID });
-    const dancers = await ctx.db.Dancer.find().populate("positionData");
+    const dancers: IDancer[] = await ctx.db.Dancer.find().populate("positionData");
     Promise.all(
-      dancers.map(async (dancer: any) => {
+      dancers.map(async (dancer) => {
         const positionToDelete = dancer.positionData.find(
-          (position: any) => position.frame.toString() === _id.toString()
+          (position: IPosition) => position.frame.toString() === _id.toString()
         );
         await ctx.db.Dancer.updateOne(
           { id: dancer.id },

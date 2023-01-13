@@ -1,16 +1,7 @@
 import { InputType, Field, ObjectType, ID } from "type-graphql";
 
 @InputType()
-export class EditControlInput {
-  @Field()
-    dancerName: string;
-
-  @Field((type) => [ControlDataInput])
-    controlData: any;
-}
-
-@InputType()
-class ControlDataInput {
+export class ControlDataInput {
   @Field()
     partName: string;
 
@@ -26,3 +17,13 @@ class ControlDataInput {
   @Field({ nullable: true })
     ELValue: number;
 }
+
+@InputType()
+export class EditControlInput {
+  @Field()
+    dancerName: string;
+
+  @Field((type) => [ControlDataInput])
+    controlData: ControlDataInput[];
+}
+

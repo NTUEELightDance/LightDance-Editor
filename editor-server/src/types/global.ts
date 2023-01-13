@@ -189,20 +189,6 @@ export type TExportLEDEffectsEffect = {
   colorCode: string;
 }
 
-// export type TControlMap = {
-//   frames: {
-//     [key: string]: {
-//       fade: boolean;
-//       start: number;
-//       status: {
-//         [key: string]: {
-//           [key: string]: number;
-//         }
-//       }
-//     }
-//   }
-// }
-
 export type TRedisStore = {
   [key: string]: string;
 }

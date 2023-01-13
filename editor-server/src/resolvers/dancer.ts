@@ -7,23 +7,24 @@ import {
   Publisher,
   Arg,
 } from "type-graphql";
+
 import { Dancer } from "./types/dancer";
 import {
   AddDancerInput,
   editDancerInput,
   deleteDancerInput,
 } from "./inputs/dancer";
-import { PositionFrame } from "./types/positionFrame";
 import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { generateID } from "../utility";
 import { DancerResponse } from "./response/dancerResponse";
 import { initRedisControl, initRedisPosition } from "../utility";
+import { TContext } from "../types/global";
 
 @Resolver((of) => Dancer)
 export class DancerResolver {
   @Query((returns) => [Dancer])
-  async dancer(@Ctx() ctx: any) {
+  async dancer(@Ctx() ctx: TContext) {
     const dancers = await ctx.db.Dancer.find()
       .populate("parts")
       .populate("positionData");
@@ -34,7 +35,7 @@ export class DancerResolver {
   async addDancer(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("dancer") newDancerData: AddDancerInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const existDancer = await ctx.db.Dancer.findOne({
       name: newDancerData.name,
@@ -81,7 +82,7 @@ export class DancerResolver {
   async editDancer(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("dancer") newDancerData: editDancerInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { id, name } = newDancerData;
     const newDancer = await ctx.db.Dancer.findOneAndUpdate(
@@ -110,7 +111,7 @@ export class DancerResolver {
   async deleteDancer(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("dancer") newDancerData: deleteDancerInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { id } = newDancerData;
     const dancer = await ctx.db.Dancer.findOne({ id });

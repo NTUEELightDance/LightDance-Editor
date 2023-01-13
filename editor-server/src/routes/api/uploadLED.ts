@@ -2,8 +2,6 @@ import {Request, Response} from "express";
 
 import db from "../../models";
 
-import { LooseObject } from "../../types/global";
-
 const uploadLED = async (req: Request, res: Response) => {
   try {
     // read request

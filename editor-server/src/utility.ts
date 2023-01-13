@@ -5,7 +5,7 @@ import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
 
-import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition, TRedisPos, TRedisControls, TRedisControlStatus, TRedisControl } from "./types/global";
+import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition, TRedisPos, TRedisControlStatus, TRedisControl } from "./types/global";
 
 const initData = async () => {
   await model.User.deleteMany();

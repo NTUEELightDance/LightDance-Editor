@@ -8,6 +8,7 @@ import {
   Arg,
   ID,
 } from "type-graphql";
+
 import { EffectList } from "./types/effectList";
 import redis from "../redis";
 import { EffectListResponse } from "./response/effectListResponse";
@@ -31,7 +32,7 @@ import {
   PositionRecordPayload,
   PositionRecordMutation,
 } from "./subscriptions/positionRecord";
-import { IControl, IControlFrame, IDancer, IEffectList, IPart, IPosition, IPositionFrame, TRedisControl, TRedisControls, TRedisPosition, TRedisPositions } from "../types/global";
+import { IControl, IControlFrame, IDancer, IEffectList, IPart, IPosition, IPositionFrame, TContext, TRedisControl, TRedisControls, TRedisPosition, TRedisPositions } from "../types/global";
 
 type AllDancer = {
   [key: string]: {
@@ -52,9 +53,9 @@ type PartUpdate = {
 @Resolver((of) => EffectList)
 export class EffectListResolver {
   @Query((returns) => [EffectList])
-  async effectList(@Ctx() ctx: any) {
-    const effectLists = await ctx.db.EffectList.find();
-    const result = effectLists.map((effectList: any) => {
+  async effectList(@Ctx() ctx: TContext) {
+    const effectLists: IEffectList[] = await ctx.db.EffectList.find();
+    const result = effectLists.map((effectList) => {
       let { start, end, _id, description, controlFrames, positionFrames } =
         effectList;
       if (!controlFrames) controlFrames = {};
@@ -76,13 +77,13 @@ export class EffectListResolver {
     @Arg("start", { nullable: false }) start: number,
     @Arg("end", { nullable: false }) end: number,
     @Arg("description", { nullable: true }) description: string,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
-    const controlFrameIDs = await ctx.db.ControlFrame.find(
+    const controlFrameIDs: IControlFrame[] = await ctx.db.ControlFrame.find(
       { start: { $lte: end, $gte: start } },
       "id"
     );
-    const positionFrameIDs = await ctx.db.PositionFrame.find(
+    const positionFrameIDs: IPositionFrame[] = await ctx.db.PositionFrame.find(
       { start: { $lte: end, $gte: start } },
       "id"
     );
@@ -114,7 +115,7 @@ export class EffectListResolver {
         }
       })
     );
-    const effectList = await ctx.db
+    const effectList = await new ctx.db
       .EffectList({ start, end, description, controlFrames, positionFrames })
       .save();
     const result = {
@@ -138,7 +139,7 @@ export class EffectListResolver {
   async deleteEffectList(
     @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
     @Arg("id", (type) => ID, { nullable: false }) id: string,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     await ctx.db.EffectList.deleteOne({ _id: id });
     const payload: EffectListPayload = {
@@ -162,7 +163,7 @@ export class EffectListResolver {
     @Arg("id", (type) => ID, { nullable: false }) id: string,
     @Arg("start", { nullable: false }) start: number,
     @Arg("clear", { nullable: false }) clear: boolean,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const effectList: IEffectList = await ctx.db.EffectList.findById(id);
     const end = start - effectList.start + effectList.end;

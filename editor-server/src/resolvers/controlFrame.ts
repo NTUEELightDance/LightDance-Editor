@@ -2,15 +2,13 @@ import {
   Resolver,
   Query,
   Mutation,
-  FieldResolver,
   Ctx,
   Arg,
-  Root,
-  Float,
   PubSub,
   Publisher,
   ID,
 } from "type-graphql";
+
 import { ControlFrame } from "./types/controlFrame";
 import {
   EditControlFrameInput,
@@ -26,24 +24,21 @@ import {
   ControlRecordPayload,
 } from "./subscriptions/controlRecord";
 import redis from "../redis";
+import { IControl, IControlFrame, IPart, TContext } from "../types/global";
 
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
   @Query((returns) => ControlFrame)
-  async controlFrame(@Arg("frameID") frameID: string, @Ctx() ctx: any) {
+  async controlFrame(@Arg("frameID") frameID: string, @Ctx() ctx: TContext) {
     return await ctx.db.ControlFrame.findOne({ id: frameID });
   }
 
   @Query((returns) => [ID])
-  async controlFrameIDs(@Ctx() ctx: any) {
+  async controlFrameIDs(@Ctx() ctx: TContext) {
     const frames = await ctx.db.ControlFrame.find().sort({ start: 1 });
     const id = frames.map((frame: ControlFrame) => frame.id);
     return id;
   }
-  // @FieldResolver()
-  // async id(@Root() controlframe: any, @Ctx() ctx: any) {
-  //     return controlframe._id
-  // }
 
   @Mutation((returns) => ControlFrame)
   async addControlFrame(
@@ -52,7 +47,7 @@ export class ControlFrameResolver {
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const check = await ctx.db.ControlFrame.findOne({ start });
     if (check) {
@@ -95,11 +90,11 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(mapPayload);
-    const allControlFrames = await ctx.db.ControlFrame.find().sort({
+    const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
       start: 1,
     });
     let index = -1;
-    await allControlFrames.map((frame: any, idx: number) => {
+    await allControlFrames.map((frame, idx: number) => {
       if (frame.id === newControlFrame.id) {
         index = idx;
       }
@@ -123,7 +118,7 @@ export class ControlFrameResolver {
       publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: EditControlFrameInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { start } = input;
     if (start) {
@@ -159,11 +154,11 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(payload);
-    const allControlFrames = await ctx.db.ControlFrame.find().sort({
+    const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
       start: 1,
     });
     let index = -1;
-    await allControlFrames.map((frame: any, idx: number) => {
+    await allControlFrames.map((frame, idx: number) => {
       if (frame.id === controlFrame.id) {
         index = idx;
       }
@@ -186,7 +181,7 @@ export class ControlFrameResolver {
       publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: DeleteControlFrameInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { frameID } = input;
     const frameToDelete = await ctx.db.ControlFrame.findOne({ id: frameID });
@@ -195,12 +190,12 @@ export class ControlFrameResolver {
     }
     const _id = frameToDelete._id;
     await ctx.db.ControlFrame.deleteOne({ id: frameID });
-    const parts = await ctx.db.Part.find().populate("controlData");
+    const parts: IPart[] = await ctx.db.Part.find().populate("controlData");
 
     await Promise.all(
-      parts.map(async (part: any) => {
+      parts.map(async (part) => {
         const controlToDelete = part.controlData.find(
-          (control: any) => control.frame.toString() === _id.toString()
+          (control: IControl) => control.frame.toString() === _id.toString()
         );
         await ctx.db.Part.updateOne(
           { id: part.id },

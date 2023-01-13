@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import { stringify } from "csv-stringify/sync";
 
 import db from "../../models";
-import { ILogger, LooseObject } from "../../types/global";
+import { ILogger } from "../../types/global";
 
 const exportLogger = async (req: Request, res: Response) => {
   try {

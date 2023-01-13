@@ -1,6 +1,5 @@
 import {
   Resolver,
-  Query,
   Mutation,
   FieldResolver,
   Ctx,
@@ -9,6 +8,7 @@ import {
   PubSub,
   Publisher,
 } from "type-graphql";
+
 import { Part } from "./types/part";
 import { AddPartInput, EditPartInput, DeletePartInput } from "./inputs/part";
 import { ControlDefault } from "./types/controlType";
@@ -16,7 +16,7 @@ import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { PartResponse } from "./response/partResponse";
 import { generateID, initRedisControl, initRedisPosition } from "../utility";
-import Dancer from "../models/Dancer";
+import { IControl, IControlFrame, IDancer, IPart, TContext } from "../types/global";
 
 @Resolver((of) => Part)
 export class PartResolver {
@@ -24,7 +24,7 @@ export class PartResolver {
   async addPart(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("part") newPartData: AddPartInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const existDancer = await ctx.db.Dancer.findOne({
       name: newPartData.dancerName,
@@ -40,8 +40,8 @@ export class PartResolver {
           value: ControlDefault[newPartData.type],
           id: generateID(),
         });
-        const allControlFrames = await ctx.db.ControlFrame.find();
-        allControlFrames.map(async (controlframe: any) => {
+        const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find();
+        allControlFrames.map(async (controlframe) => {
           const newControl = new ctx.db.Control({
             frame: controlframe._id,
             value: ControlDefault[newPartData.type],
@@ -93,7 +93,7 @@ export class PartResolver {
   async editPart(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("part") newPartData: EditPartInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { id, name, type, dancerName } = newPartData;
     const edit_part = await ctx.db.Part.findOne({ id });
@@ -138,7 +138,7 @@ export class PartResolver {
   async deletePart(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
     @Arg("part") newPartData: DeletePartInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const { id, dancerName } = newPartData;
     const part = await ctx.db.Part.findOne({ id });
@@ -150,7 +150,7 @@ export class PartResolver {
         })
       );
       await ctx.db.Part.deleteOne({ id });
-      const dancer = ctx.db.Dancer.findOne({ name: dancerName });
+      const dancer: IDancer = await ctx.db.Dancer.findOne({ name: dancerName });
       if (dancer) {
         await ctx.db.Dancer.updateOne(
           { name: dancerName },
@@ -181,17 +181,15 @@ export class PartResolver {
   }
 
   @FieldResolver()
-  async controlData(@Root() part: any, @Ctx() ctx: any) {
+  async controlData(@Root() part: IPart, @Ctx() ctx: TContext) {
     const result = await Promise.all(
       part.controlData.map(async (ref: string) => {
-        const data = await ctx.db.Control.findOne({ _id: ref }).populate(
+        const data: IControl = await ctx.db.Control.findOne({ _id: ref }).populate(
           "frame"
         );
         return data;
       })
-    ).then((result) => {
-      return result;
-    });
+    )
     // return data
 
     return result;

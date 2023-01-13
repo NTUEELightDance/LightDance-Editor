@@ -1,13 +1,12 @@
 import {
   Resolver,
   Ctx,
-  Query,
   Mutation,
   PubSub,
   Publisher,
   Arg,
-  ID,
 } from "type-graphql";
+
 import redis from "../redis";
 import {
   ControlRecordPayload,
@@ -22,10 +21,7 @@ import {
 import { updateRedisControl, updateRedisPosition } from "../utility";
 import { Topic } from "./subscriptions/topic";
 import { ShiftResponse } from "./response/shiftResponse";
-
-interface LooseObject {
-  [key: string]: any;
-}
+import { IControl, IControlFrame, IDancer, IPart, IPosition, IPositionFrame, TContext } from "../types/global";
 
 @Resolver()
 export class ShiftResolver {
@@ -43,7 +39,7 @@ export class ShiftResolver {
     @Arg("move", { nullable: false }) move: number,
     @Arg("shiftControl", { nullable: false }) shiftControl: boolean,
     @Arg("shiftPosition", { nullable: false }) shiftPosition: boolean,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     // check negetive
     if (start + move < 0) {
@@ -112,8 +108,8 @@ export class ShiftResolver {
     }
 
     // clear
-    let deleteControlFrame = [];
-    let deletePositionFrame = [];
+    let deleteControlFrame: IControlFrame[] = [];
+    let deletePositionFrame: IPositionFrame[] = [];
     if (move > 0) {
       if (start + move > end) {
         // clear region: [ start + move, end + move]
@@ -193,14 +189,14 @@ export class ShiftResolver {
     }
 
     // updating part's controlData
-    const parts = await ctx.db.Part.find().populate("controlData");
+    const parts: IPart[] = await ctx.db.Part.find().populate("controlData");
     await Promise.all(
-      deleteControlFrame.map(async (data: any) => {
+      deleteControlFrame.map(async (data) => {
         const { _id, id } = data;
         await Promise.all(
-          parts.map(async (part: any) => {
+          parts.map(async (part) => {
             const controlToDelete = part.controlData.find(
-              (control: any) => control.frame.toString() === _id.toString()
+              (control: IControl) => control.frame.toString() === _id!.toString()
             );
             await ctx.db.Part.updateOne(
               { id: part.id },
@@ -215,13 +211,13 @@ export class ShiftResolver {
 
     // updating dancer's positionData
     await Promise.all(
-      deletePositionFrame.map(async (data: any) => {
+      deletePositionFrame.map(async (data) => {
         const { id, _id } = data;
-        const dancers = await ctx.db.Dancer.find().populate("positionData");
+        const dancers: IDancer[] = await ctx.db.Dancer.find().populate("positionData");
         Promise.all(
-          dancers.map(async (dancer: any) => {
+          dancers.map(async (dancer) => {
             const positionToDelete = dancer.positionData.find(
-              (position: any) => position.frame.toString() === _id.toString()
+              (position: IPosition) => position.frame.toString() === _id!.toString()
             );
             await ctx.db.Dancer.updateOne(
               { id: dancer.id },
@@ -238,14 +234,14 @@ export class ShiftResolver {
     // control
     if (shiftControl) {
       // find source data
-      const updateControlFrames = await ctx.db.ControlFrame.find({
+      const updateControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find({
         start: { $lte: end, $gte: start },
       }).sort({
         start: 1,
       });
       // update redis
       const updateControlIDs: string[] = await Promise.all(
-        updateControlFrames.map(async (obj: any) => {
+        updateControlFrames.map(async (obj) => {
           const { id } = obj;
           await ctx.db.ControlFrame.updateOne(
             { id },
@@ -257,7 +253,7 @@ export class ShiftResolver {
       );
 
       // get id list of deleteControl
-      const deleteControlList = deleteControlFrame.map((data: any) => {
+      const deleteControlList = deleteControlFrame.map((data) => {
         return data.id;
       });
 
@@ -272,11 +268,11 @@ export class ShiftResolver {
       };
       await publishControlMap(controlMapPayload);
 
-      const allControlFrames = await ctx.db.ControlFrame.find().sort({
+      const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
         start: 1,
       });
       let index = -1;
-      await allControlFrames.map((frame: any, idx: number) => {
+      await allControlFrames.map((frame, idx: number) => {
         if (frame.id === updateControlIDs[0]) {
           index = idx;
         }
@@ -295,7 +291,7 @@ export class ShiftResolver {
     // position
     if (shiftPosition) {
       // find source data
-      const updatePositionFrames = await ctx.db.PositionFrame.find({
+      const updatePositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find({
         start: { $lte: end, $gte: start },
       }).sort({
         start: 1,
@@ -303,7 +299,7 @@ export class ShiftResolver {
 
       // update redis
       const updatePositionIDs: string[] = await Promise.all(
-        updatePositionFrames.map(async (obj: any) => {
+        updatePositionFrames.map(async (obj) => {
           const { id } = obj;
           await ctx.db.PositionFrame.updateOne(
             { id },
@@ -315,7 +311,7 @@ export class ShiftResolver {
       );
 
       // get id list of deletePosition
-      const deletePositionList = deletePositionFrame.map((data: any) => {
+      const deletePositionList = deletePositionFrame.map((data) => {
         return data.id;
       });
 
@@ -331,11 +327,11 @@ export class ShiftResolver {
       await publishPositionMap(positionMapPayload);
 
       let index = -1;
-      const allPositionFrames = await ctx.db.PositionFrame.find().sort({
+      const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
         start: 1,
       });
       index = -1;
-      await allPositionFrames.map((frame: any, idx: number) => {
+      await allPositionFrames.map((frame, idx: number) => {
         if (frame.id === updatePositionIDs[0]) {
           index = idx;
         }
