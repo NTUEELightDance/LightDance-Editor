@@ -7,12 +7,12 @@ import {
   Publisher,
   PubSub,
 } from "type-graphql";
+
 import { ColorInput, addColorInput, editColorInput } from "./inputs/color";
 import { Topic } from "./subscriptions/topic";
 import { ColorPayload, colorMutation } from "./subscriptions/color";
 import { ColorMap } from "./types/colorMap";
 import { Color } from "./types/color";
-import { generateID } from "../utility";
 import { ColorResponse } from "./response/colorResponse";
 
 @Resolver()

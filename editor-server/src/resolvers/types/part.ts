@@ -1,4 +1,5 @@
-import { Field, ObjectType, ID, Float } from "type-graphql";
+import { Field, ObjectType, ID } from "type-graphql";
+
 import { Control } from "./control";
 import { ControlType } from "./controlType";
 

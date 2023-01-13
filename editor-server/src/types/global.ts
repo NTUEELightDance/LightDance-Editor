@@ -48,8 +48,20 @@ export interface IPart {
 }
 export interface IControl {
   frame: PopulatedDoc<IControlFrame & Document>;
-  value: LooseObject;
+  value: IControlValue;
   _id?: ObjectId;
+}
+export type IControlValue = IELControlValue | ILEDControlValue | IFiberControlValue;
+interface IELControlValue {
+  value: number;
+}
+interface ILEDControlValue {
+  src: string;
+  alpha: number;
+}
+interface IFiberControlValue {
+  color: string;
+  alpha: number;
 }
 export interface IPosition {
   frame: PopulatedDoc<IPositionFrame & Document>;
@@ -73,8 +85,8 @@ export interface IEffectList {
   start: number;
   end: number;
   description: string;
-  controlFrames: LooseObject;
-  positionFrames: LooseObject;
+  controlFrames: TRedisControls;
+  positionFrames: TRedisPositions;
   colorCode: string;
   _id?: ObjectId;
 }
@@ -194,10 +206,36 @@ export type TExportLEDEffectsEffect = {
 export type TRedisStore = {
   [key: string]: string;
 }
+export type TRedisControls = {
+  [key: string]: TRedisControl;
+}
+export type TRedisControl = {
+  fade: boolean;
+  start: number;
+  editing: string | undefined;
+  status: TRedisControlStatus
+}
+export type TRedisControlStatus = {
+  [key: string]: {
+    [key: string]: any;
+  }
+}
+export type TRedisPositions = {
+  [key: string]: TRedisPosition;
+}
+export type TRedisPosition = {
+  start: number;
+  editing: string | undefined;
+  pos: TRedisPos;
+}
 export type TRedisPos = {
   [key: string]: {
     x: number;
     y: number;
     z: number;
   }
+}
+
+export type TColorMap = {
+  [key: string]: string;
 }

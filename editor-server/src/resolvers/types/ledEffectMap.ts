@@ -2,35 +2,42 @@ import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
 import db from "../../models";
+import { ILED, ILEDEffects, ILEDEffectsEffect, IPart } from "../../types/global";
 
-interface LooseObject {
-  [key: string]: any;
+interface IPartEffect {
+  [key: string]: {
+    repeat: number;
+    effects: ILEDEffects[];
+  }
+}
+interface IEffect {
+  [key: string]: IPartEffect;
 }
 
 @ObjectType()
 export class LEDMap {
   @Field((type) => LEDMapScalar)
-    LEDMap: Object[];
+    LEDMap: IPart[];
 }
 
 export const LEDMapScalar = new GraphQLScalarType({
   name: "LEDMapCustomScalar",
   description: "LED map scalar type",
-  async serialize(allPart: any) {
+  async serialize(allPart: IPart[]) {
     // check the type of received value
-    const result: LooseObject = {};
+    const result: IEffect = {};
     await Promise.all(
-      allPart.map(async (partObj: any) => {
+      allPart.map(async (partObj) => {
         const partName = partObj.name;
-        const part: LooseObject = {};
-        const allEffect = await db.LED.find({ partName });
-        allEffect.map((effect: any) => {
+        const part: IPartEffect = {};
+        const allEffect: ILED[] = await db.LED.find({ partName });
+        allEffect.map((effect) => {
           const { effectName, repeat, effects } = effect;
           // remove effects' _id
-          const newEffects = effects.map((effectsData: any) => {
+          const newEffects: ILEDEffects[] = effects.map((effectsData) => {
             const { effect, start, fade } = effectsData;
             // remove effect's _id
-            const newEffect = effect.map((effectData: any) => {
+            const newEffect: ILEDEffectsEffect[] = effect.map((effectData) => {
               const { colorCode, alpha } = effectData;
               return { alpha, colorCode };
             });

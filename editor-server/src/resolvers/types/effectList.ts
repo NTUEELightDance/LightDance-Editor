@@ -1,6 +1,12 @@
 import { Field, ObjectType, ID, Float } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
-import { ObjectId } from "mongodb";
+
+import { TRedisControls, TRedisPositions } from "../../types/global";
+
+type EffectListData = {
+  control: TRedisControls;
+  position: TRedisPositions;
+}
 
 @ObjectType()
 export class EffectList {
@@ -17,13 +23,13 @@ export class EffectList {
     id: string;
 
   @Field((type) => EffectListScalar)
-    data: ObjectId;
+    data: EffectListData;
 }
 
 export const EffectListScalar = new GraphQLScalarType({
   name: "EffectListObjectId",
   description: "Mongo object id scalar type",
-  serialize(data: any): Promise<any> {
+  serialize(data: EffectListData) {
     // check the type of received value
     return data; // value sent to the client
   },

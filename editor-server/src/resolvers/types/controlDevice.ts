@@ -1,4 +1,4 @@
-import { Field, ObjectType, Int, Float, ID, InputType } from "type-graphql";
+import { Field, ObjectType, Int, Float, InputType } from "type-graphql";
 import { createUnionType } from "type-graphql";
 
 export const ControlDevice = createUnionType({

@@ -5,7 +5,7 @@ import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
 
-import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition, TRedisStore, TRedisPos } from "./types/global";
+import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition, TRedisPos, TRedisControls, TRedisControlStatus, TRedisControl } from "./types/global";
 
 const initData = async () => {
   await model.User.deleteMany();
@@ -32,7 +32,7 @@ const initRedisControl = async () => {
         return;
       }
       const { fade, start, editing } = controlFrame;
-      const status: LooseObject = {};
+      const status: TRedisControlStatus = {};
       await Promise.all(
         allDancers.map(async (dancer: IDancer) => {
           const { name, parts } = dancer;
@@ -64,7 +64,7 @@ const initRedisControl = async () => {
           status[name] = partData;
         })
       );
-      const resultObj = { fade, start, editing, status };
+      const resultObj: TRedisControl = { fade, start, editing, status };
       result[id] = JSON.stringify(resultObj);
     })
   );
@@ -126,7 +126,7 @@ const updateRedisControl = async (id: string) => {
     },
   });
   // const frameID = new ObjectId(id)
-  const status: LooseObject = {};
+  const status: TRedisControlStatus = {};
   await Promise.all(
     allDancers.map(async (dancer: IDancer) => {
       const { name, parts } = dancer;
