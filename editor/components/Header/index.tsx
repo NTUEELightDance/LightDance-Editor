@@ -12,7 +12,8 @@ import StateIndicator from "./StateIndicator";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 import useMode from "@/hooks/useMode";
-
+import { useNavigate, useLocation } from "react-router-dom";
+import Button from "@mui/material/Button";
 /**
  * Top Bar, include title, timeController, upload/download btn
  */
@@ -20,7 +21,8 @@ export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const editMode = useReactiveVar(reactiveState.editMode);
   const mode = useMode();
-
+  const navigate = useNavigate();
+  const location = useLocation();
   return (
     <Stack direction="column">
       <StateIndicator editMode={editMode} />
@@ -33,6 +35,7 @@ export default function Header() {
               style={{ height: "100%" }}
             />
           </Box>
+          <Button variant="outlined" onClick={() => {navigate(location.pathname === "/" ? "/command" : "/"); window.location.reload();}}>{location.pathname === "/" ? "command" : "editor"}</Button>
           <Box
             sx={{
               display: "flex",
