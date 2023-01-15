@@ -7,30 +7,31 @@ import {
   Publisher,
   PubSub,
 } from "type-graphql";
+
 import { ColorInput, addColorInput, editColorInput } from "./inputs/color";
 import { Topic } from "./subscriptions/topic";
 import { ColorPayload, colorMutation } from "./subscriptions/color";
 import { ColorMap } from "./types/colorMap";
 import { Color } from "./types/color";
-import { generateID } from "../utility";
 import { ColorResponse } from "./response/colorResponse";
+import { IControl, IControlFrame, TContext } from "../types/global";
 
 @Resolver()
 class ColorResolver {
   @Query((returns) => String)
-  async color(@Arg("color") color: string, @Ctx() ctx: any) {
+  async color(@Arg("color") color: string, @Ctx() ctx: TContext) {
     const { colorCode } = await ctx.db.Color.findOne({ color });
     return colorCode;
   }
 
   @Query((returns) => ColorMap)
-  async colorMap(@Ctx() ctx: any) {
+  async colorMap(@Ctx() ctx: TContext) {
     const colors = await ctx.db.Color.find();
     return { colorMap: colors };
   }
 
   @Query((returns) => [Color])
-  async getColors(@Ctx() ctx: any) {
+  async getColors(@Ctx() ctx: TContext) {
     const colors = await ctx.db.Color.find();
     return colors;
   }
@@ -39,7 +40,7 @@ class ColorResolver {
   async updateColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
     @Arg("color") colorInput: ColorInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     const existedColorCode = await ctx.db.Color.findOne({
       color: colorInput.color,
@@ -77,7 +78,7 @@ class ColorResolver {
   async addColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
     @Arg("color") colorInput: addColorInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     // check if color name and color code exists
     const existedColorName = await ctx.db.Color.findOne({
@@ -115,7 +116,7 @@ class ColorResolver {
   async editColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
     @Arg("color") colorInput: editColorInput,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     // check if color name and color code exists
     const existedOriginalColorName = await ctx.db.Color.findOne({
@@ -169,23 +170,23 @@ class ColorResolver {
   async deleteColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
     @Arg("color") color: string,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     // check if color name and color code exists
     const existedColor = await ctx.db.Color.findOne({
       color,
     });
 
-    const checkControl = await ctx.db.Control.find({ "value.color": color });
+    const checkControl: IControl[] = await ctx.db.Control.find({ "value.color": color });
     if (checkControl.length != 0) {
-      const allControlFrame = await ctx.db.ControlFrame.find({}, "_id").sort({
+      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find({}, "_id").sort({
         start: 1,
       });
-      const allControlFrameID = allControlFrame.map((Obj: any) =>
+      const allControlFrameID = allControlFrame.map((Obj) =>
         String(Obj._id)
       );
-      const ids: any[] = [];
-      checkControl.map((controlObj: any) => {
+      const ids: number[] = [];
+      checkControl.map((controlObj) => {
         const frame = String(controlObj.frame);
         const id = allControlFrameID.indexOf(frame);
         if (ids.indexOf(id) === -1) {

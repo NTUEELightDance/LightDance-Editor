@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { IColor } from "../types/global";
 
 const Schema = mongoose.Schema;
-const ColorSchema = new Schema({
+const ColorSchema = new Schema<IColor>({
   color: {
     type: String,
     required: [true, "color field is required."],
@@ -12,5 +13,5 @@ const ColorSchema = new Schema({
   },
 });
 
-const Color = mongoose.model("Color", ColorSchema);
+const Color = mongoose.model<IColor>("Color", ColorSchema);
 export default Color;

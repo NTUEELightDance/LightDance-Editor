@@ -1,29 +1,35 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
-import redis from "../../redis";
 
-interface LooseObject {
-  [key: string]: any;
+import redis from "../../redis";
+import { TRedisControl, TRedisPosition } from "../../types/global";
+
+interface MapID {
+  id: string;
+  _id: ObjectId;
+}
+interface MapData {
+  [key: string]: TRedisControl | TRedisPosition;
 }
 
 @ObjectType()
 export class Map {
   @Field((type) => MapScalar)
-    frames: ObjectId[];
+    frames: MapID[];
 }
 
 export const MapScalar = new GraphQLScalarType({
   name: "MapQueryObjectId",
   description: "Mongo object id scalar type",
-  async serialize(value: any): Promise<any> {
-    const result: LooseObject = {};
+  async serialize(value: MapID[]): Promise<MapData> {
+    const result: MapData = {};
     await Promise.all(
-      value.map(async (data: any) => {
+      value.map(async (data) => {
         const { id } = data;
         const cache = await redis.get(id);
         if (cache) {
-          const cacheObj = JSON.parse(cache);
+          const cacheObj: TRedisControl | TRedisPosition = JSON.parse(cache);
           result[id] = cacheObj;
         }
       })

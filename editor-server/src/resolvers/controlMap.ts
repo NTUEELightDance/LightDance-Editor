@@ -7,9 +7,10 @@ import {
   Publisher,
   Arg,
 } from "type-graphql";
+
 import { Map } from "./types/map";
 import { ControlData } from "./types/controlData";
-import { EditControlInput } from "./inputs/control";
+import { ControlDataInput, EditControlInput } from "./inputs/control";
 import { Topic } from "./subscriptions/topic";
 import { ControlMapPayload } from "./subscriptions/controlMap";
 import { updateRedisControl, generateID } from "../utility";
@@ -17,17 +18,14 @@ import {
   ControlRecordPayload,
   ControlRecordMutation,
 } from "./subscriptions/controlRecord";
-
-interface LooseObject {
-  [key: string]: any;
-}
+import { IControlFrame, IDancer, IPart, TContext } from "../types/global";
 
 @Resolver((of) => Map)
 export class ControlMapResolver {
   @Query((returns) => Map)
-  async ControlMap(@Ctx() ctx: any) {
-    const frames = await ctx.db.ControlFrame.find();
-    const id = frames.map((frame: any) => {
+  async ControlMap(@Ctx() ctx: TContext) {
+    const frames:IControlFrame[] = await ctx.db.ControlFrame.find();
+    const id = frames.map((frame) => {
       return { id: frame.id, _id: frame._id };
     });
     return { frames: id };
@@ -45,7 +43,7 @@ export class EditControlMapResolver {
       controlData: EditControlInput[],
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
     @Arg("start") startTime: number,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     // find control frame
     const controlFrame = await ctx.db.ControlFrame.findOne({
@@ -62,21 +60,22 @@ export class EditControlMapResolver {
       );
     }
     await Promise.all(
-      controlData.map(async (data: any) => {
-        const { dancerName, controlData } = data;
+      controlData.map(async (data) => {
+        const dancerName = data.dancerName;
+        const dancerControlData = data.controlData;
         const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
         if (!dancer) {
           throw new Error(`Dancer ${dancerName} not found`);
         }
-        if (dancer.parts.length !== controlData.length) {
+        if (dancer.parts.length !== dancerControlData.length) {
           throw new Error(
             `Not all parts in payload. Missing number: ${
-              dancer.parts.length - controlData.length
+              dancer.parts.length - dancerControlData.length
             }`
           );
         }
         await Promise.all(
-          controlData.map(async (partData: any) => {
+          dancerControlData.map(async (partData) => {
             const part = await ctx.db.Part.findOne({ name: partData.partName });
             if (!part) {
               throw new Error(`Part ${partData.partName} not found`);
@@ -93,9 +92,10 @@ export class EditControlMapResolver {
         throw new Error(`The frame is now editing by ${editing}.`);
       }
       await Promise.all(
-        controlData.map(async (data: any) => {
-          const { dancerName, controlData } = data;
-          const dancer = await ctx.db.Dancer.findOne({
+        controlData.map(async (data) => {
+          const dancerName = data.dancerName;
+          const dancerControlData = data.controlData;
+          const dancer: IDancer = await ctx.db.Dancer.findOne({
             name: dancerName,
           }).populate({
             path: "parts",
@@ -105,14 +105,14 @@ export class EditControlMapResolver {
             },
           });
           await Promise.all(
-            controlData.map(async (data: any) => {
+            dancerControlData.map(async (data) => {
               const { partName, ELValue, color, src, alpha } = data;
-              const wanted = dancer.parts.find(
-                (part: any) => part.name === partName
+              const wanted: IPart = dancer.parts.find(
+                (part: IPart) => part.name === partName
               );
               if (!wanted) throw new Error(`part ${partName} not found`);
-              const { controlData, type } = wanted;
-              const { value, _id } = controlData[0];
+              const type = wanted.type;
+              const {value, _id} = wanted.controlData[0];
               if (type === "FIBER") {
                 if (color) {
                   value.color = color;
@@ -164,12 +164,13 @@ export class EditControlMapResolver {
       }).save();
 
       await Promise.all(
-        controlData.map(async (dancerParts: any) => {
+        controlData.map(async (dancerParts) => {
           // data for one of the dancers
-          const { dancerName, controlData } = dancerParts;
+          const dancerName = dancerParts.dancerName;
+          const dancerControlData = dancerParts.controlData;
           await Promise.all(
-            controlData.map(async (partData: any) => {
-              const dancer = await ctx.db.Dancer.findOne({
+            dancerControlData.map(async (partData) => {
+              const dancer: IDancer = await ctx.db.Dancer.findOne({
                 name: dancerName,
               }).populate({
                 path: "parts",
@@ -206,11 +207,11 @@ export class EditControlMapResolver {
         },
       };
       await publish(mapPayload);
-      const allControlFrames = await ctx.db.ControlFrame.find().sort({
+      const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
         start: 1,
       });
       let index = -1;
-      await allControlFrames.map((frame: any, idx: number) => {
+      allControlFrames.map((frame, idx: number) => {
         if (frame.id === newControlFrame.id) {
           index = idx;
         }
@@ -229,7 +230,7 @@ export class EditControlMapResolver {
   }
 }
 
-async function examineType(partData: any, ctx: any) {
+async function examineType(partData: ControlDataInput, ctx: TContext) {
   const { partName, ELValue, color, src, alpha } = partData;
   const { type } = await ctx.db.Part.findOne({ name: partName });
   if (type === "FIBER") {

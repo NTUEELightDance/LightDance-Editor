@@ -6,7 +6,7 @@ import bodyParser from "body-parser";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageDisabled } from "apollo-server-core";
 import { execute, subscribe } from "graphql";
-import { SubscriptionServer } from "subscriptions-transport-ws";
+import { SubscriptionServer, ConnectionContext } from "subscriptions-transport-ws";
 import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
@@ -17,6 +17,7 @@ import db from "./models";
 import mongo from "./mongo";
 import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
+import { ConnectionParam, TContext } from "./types/global";
 
 const port = process.env.PORT || 4000;
 const { SECRET_KEY } = process.env;
@@ -42,8 +43,8 @@ const { SECRET_KEY } = process.env;
   });
 
   const subscriptionBuildOptions = async (
-    connectionParams: any,
-    webSocket: any
+    connectionParams: ConnectionParam,
+    webSocket: WebSocket
   ) => {
     try {
       const { userID, name } = connectionParams;
@@ -58,12 +59,12 @@ const { SECRET_KEY } = process.env;
     } catch (e) {}
   };
 
-  const subscriptionDestroyOptions = async (webSocket: any, context: any) => {
+  const subscriptionDestroyOptions = async (webSocket: WebSocket, context: ConnectionContext) => {
     const initialContext = await context.initPromise;
     if (initialContext) {
       const { userID } = initialContext;
-      await db.ControlFrame.updateMany({ editing: userID }, { editing: null });
-      await db.PositionFrame.updateMany({ editing: userID }, { editing: null });
+      await db.ControlFrame.updateMany({ editing: userID }, { editing: undefined });
+      await db.PositionFrame.updateMany({ editing: userID }, { editing: undefined });
       await db.User.deleteMany({ userID });
     }
   };
@@ -83,15 +84,18 @@ const { SECRET_KEY } = process.env;
     schema,
     context: async ({ req }) => {
       try {
+        // make sure that we know who are accessing backend
         const { name, userid } = req.headers;
         if (!userid || !name)
           throw new Error("UserID and name must be filled.");
-        const user = await db.User.findOne({ name, userID: userid });
+        const userID: string = (typeof(userid) === 'string') ? userid : userid[0];
+        const userName: string = (typeof(name) === 'string') ? name: name[0];
+        const user = await db.User.findOne({ name: userName, userID: userID });
         if (!user) {
-          const newUser = await new db.User({ name, userID: userid }).save();
+          const newUser = await new db.User({ name: userName, userID: userid }).save();
         }
-
-        return { db, userID: userid };
+        const result: TContext = { db, userID };
+        return result;
       } catch (e) {
         console.log(e);
       }

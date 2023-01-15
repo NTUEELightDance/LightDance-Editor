@@ -7,6 +7,7 @@ import {
   PubSub,
   Publisher,
 } from "type-graphql";
+
 import { PosData } from "./types/posData";
 import { Map } from "./types/map";
 import { EditPositionInput } from "./inputs/position";
@@ -18,13 +19,14 @@ import {
   PositionRecordPayload,
   PositionRecordMutation,
 } from "./subscriptions/positionRecord";
+import { IDancer, IPosition, IPositionFrame, TContext } from "../types/global";
 
 @Resolver((of) => Map)
 export class PosMapResolver {
   @Query((returns) => Map)
-  async PosMap(@Ctx() ctx: any) {
-    const frames = await ctx.db.PositionFrame.find();
-    const id = frames.map((frame: any) => {
+  async PosMap(@Ctx() ctx: TContext) {
+    const frames: IPositionFrame[] = await ctx.db.PositionFrame.find();
+    const id = frames.map((frame) => {
       return { id: frame.id, _id: frame._id };
     });
     return { frames: id };
@@ -41,7 +43,7 @@ export class EditPosMapResolver {
     @Arg("positionData", (type) => [EditPositionInput])
       positionData: EditPositionInput[],
     @Arg("start") startTime: number,
-    @Ctx() ctx: any
+    @Ctx() ctx: TContext
   ) {
     // find a position frame
     const positionFrame = await ctx.db.PositionFrame.findOne({
@@ -65,8 +67,8 @@ export class EditPosMapResolver {
         );
       }
       await Promise.all(
-        positionData.map(async (data: any) => {
-          const { dancerName, positionData } = data;
+        positionData.map(async (data) => {
+          const { dancerName } = data;
           const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
           if (!dancer) {
             throw new Error(`Dancer ${dancerName} not found`);
@@ -76,14 +78,15 @@ export class EditPosMapResolver {
 
       // add new positions
       await Promise.all(
-        positionData.map(async (data: any) => {
-          const { dancerName, positionData } = data;
+        positionData.map(async (data) => {
+          const dancerName = data.dancerName;
+          const dancerPositionData = data.positionData;
           // create new position for every dancer
           const newPosition = new ctx.db.Position({
             frame: newPositionFrame,
-            x: positionData.x,
-            y: positionData.y,
-            z: positionData.z,
+            x: dancerPositionData.x,
+            y: dancerPositionData.y,
+            z: dancerPositionData.z,
             id: generateID(),
           });
           await newPosition.save();
@@ -112,11 +115,11 @@ export class EditPosMapResolver {
       };
       await publish(mapPayload);
 
-      const allPositionFrames = await ctx.db.PositionFrame.find().sort({
+      const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
         start: 1,
       });
       let index = -1;
-      await allPositionFrames.map((frame: any, idx: number) => {
+      allPositionFrames.map((frame, idx: number) => {
         if (frame.id === newPositionFrame.id) {
           index = idx;
         }
@@ -153,7 +156,7 @@ export class EditPosMapResolver {
         );
       }
       await Promise.all(
-        positionData.map(async (data: any) => {
+        positionData.map(async (data) => {
           const { dancerName } = data;
           const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
           if (!dancer) {
@@ -164,18 +167,19 @@ export class EditPosMapResolver {
 
       // updata positions
       await Promise.all(
-        positionData.map(async (data: any) => {
-          const { dancerName, positionData } = data;
-          const dancer = await ctx.db.Dancer.findOne({
+        positionData.map(async (data) => {
+          const dancerName = data.dancerName;
+          const dancerPositionData = data.positionData;
+          const dancer: IDancer = await ctx.db.Dancer.findOne({
             name: dancerName,
           }).populate("positionData");
 
           await Promise.all(
-            dancer.positionData.map(async (position: any) => {
+            dancer.positionData.map(async (position: IPosition) => {
               if (position.frame.toString() === _id.toString()) {
                 await ctx.db.Position.updateOne(
                   { _id: position._id },
-                  { x: positionData.x, y: positionData.y, z: positionData.z }
+                  { x: dancerPositionData.x, y: dancerPositionData.y, z: dancerPositionData.z }
                 );
               }
             })

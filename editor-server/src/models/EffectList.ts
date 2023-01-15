@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { IEffectList } from "../types/global";
 
 const Schema = mongoose.Schema;
 
 // Creating a schema, sort of like working with an ORM
-const EffectListSchema = new Schema(
+const EffectListSchema = new Schema<IEffectList>(
   {
     start: { type: Number, required: [true, "start field is required."] },
     end: { type: Number, required: [true, "start field is required."] },
@@ -15,7 +16,7 @@ const EffectListSchema = new Schema(
 );
 
 // Creating a table within database with the defined schema
-const EffectList = mongoose.model("EffectList", EffectListSchema);
+const EffectList = mongoose.model<IEffectList>("EffectList", EffectListSchema);
 
 // Exporting table for querying and mutating
 

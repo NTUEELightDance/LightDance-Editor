@@ -1,4 +1,4 @@
-import { Field, ObjectType, Int, Float } from "type-graphql";
+import { Field, ObjectType, Float } from "type-graphql";
 import { PositionFrame } from "./positionFrame";
 
 @ObjectType()

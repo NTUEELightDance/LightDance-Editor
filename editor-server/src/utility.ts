@@ -1,11 +1,11 @@
+import { nanoid } from "nanoid";
+import { ObjectId } from "mongoose";
+
 import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
-import { nanoid } from "nanoid";
 
-interface LooseObject {
-  [key: string]: any;
-}
+import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition, TRedisPos, TRedisControlStatus, TRedisControl } from "./types/global";
 
 const initData = async () => {
   await model.User.deleteMany();
@@ -14,8 +14,8 @@ const initData = async () => {
 const initRedisControl = async () => {
   const frames = await model.ControlFrame.find();
   const result: LooseObject = {};
-  const value = frames.map((frame: any) => {
-    return { id: frame.id, _id: frame._id };
+  const value = frames.map((frame: IControlFrame) => {
+    return { id: frame.id, _id: frame._id! };
   });
   const allDancers = await model.Dancer.find().populate({
     path: "parts",
@@ -24,20 +24,24 @@ const initRedisControl = async () => {
     },
   });
   await Promise.all(
-    value.map(async (data: any) => {
+    value.map(async (data: {id: string, _id: ObjectId}) => {
       const { _id, id } = data;
       // const frameID = new ObjectId(id)
-      const { fade, start, editing } = await model.ControlFrame.findById(_id);
-      const status: LooseObject = {};
+      const controlFrame = await model.ControlFrame.findById(_id);
+      if(!controlFrame){
+        return;
+      }
+      const { fade, start, editing } = controlFrame;
+      const status: TRedisControlStatus = {};
       await Promise.all(
-        allDancers.map(async (dancer: any) => {
+        allDancers.map(async (dancer: IDancer) => {
           const { name, parts } = dancer;
           const partData: LooseObject = {};
           await Promise.all(
-            parts.map(async (part: any) => {
+            parts.map(async (part: IPart) => {
               const { name, type, controlData } = part;
               const wanted = controlData.find(
-                (data: any) => data.frame.toString() === _id.toString()
+                (data: IControl) => data.frame.toString() === _id.toString()
               );
               if (!wanted) throw new Error(`ControlData ${_id} not found`);
               const { value } = wanted;
@@ -60,7 +64,7 @@ const initRedisControl = async () => {
           status[name] = partData;
         })
       );
-      const resultObj = { fade, start, editing, status };
+      const resultObj: TRedisControl = { fade, start, editing, status };
       result[id] = JSON.stringify(resultObj);
     })
   );
@@ -73,21 +77,25 @@ const initRedisControl = async () => {
 const initRedisPosition = async () => {
   const frames = await model.PositionFrame.find();
   const result: LooseObject = {};
-  const value = frames.map((frame: any) => {
-    return { id: frame.id, _id: frame._id };
+  const value = frames.map((frame: IPositionFrame) => {
+    return { id: frame.id, _id: frame._id! };
   });
   const allDancers = await model.Dancer.find().populate("positionData");
   await Promise.all(
-    value.map(async (data: any) => {
+    value.map(async (data: {id: string, _id: ObjectId}) => {
       const { _id, id } = data;
       // const frameID = new ObjectId(id)
-      const { start, editing } = await model.PositionFrame.findById(_id);
-      const pos: LooseObject = {};
+      const positionFrame = await model.PositionFrame.findById(_id);
+      if(!positionFrame){
+        return;
+      }
+      const { start, editing } = positionFrame;
+      const pos: TRedisPos = {};
       await Promise.all(
-        allDancers.map(async (dancer: any) => {
+        allDancers.map(async (dancer: IDancer) => {
           const { name, positionData } = dancer;
           const wanted = positionData.find(
-            (data: any) => data.frame.toString() === _id.toString()
+            (data: IPosition) => data.frame.toString() === _id.toString()
           );
           pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
         })
@@ -103,9 +111,13 @@ const initRedisPosition = async () => {
 };
 
 const updateRedisControl = async (id: string) => {
-  const { fade, start, editing, _id } = await model.ControlFrame.findOne({
+  const controlFrame = await model.ControlFrame.findOne({
     id,
   });
+  if (!controlFrame){
+    return;
+  }
+  const { fade, start, editing, _id } = controlFrame;
   const allDancers = await model.Dancer.find().populate({
     path: "parts",
     populate: {
@@ -114,13 +126,13 @@ const updateRedisControl = async (id: string) => {
     },
   });
   // const frameID = new ObjectId(id)
-  const status: LooseObject = {};
+  const status: TRedisControlStatus = {};
   await Promise.all(
-    allDancers.map(async (dancer: any) => {
+    allDancers.map(async (dancer: IDancer) => {
       const { name, parts } = dancer;
       const partData: LooseObject = {};
       await Promise.all(
-        parts.map(async (part: any) => {
+        parts.map(async (part: IPart) => {
           const { name, type, controlData } = part;
           const wanted = controlData[0];
           if (!wanted) throw new Error(`ControlData ${_id} not found`);
@@ -149,14 +161,18 @@ const updateRedisControl = async (id: string) => {
 };
 
 const updateRedisPosition = async (id: string) => {
-  const { start, editing, _id } = await model.PositionFrame.findOne({ id });
+  const positionFrame = await model.PositionFrame.findOne({ id });
+  if (!positionFrame){
+    return;
+  }
+  const { start, editing, _id } = positionFrame;
   const allDancers = await model.Dancer.find().populate("positionData");
-  const pos: LooseObject = {};
+  const pos: TRedisPos = {};
   await Promise.all(
-    allDancers.map(async (dancer: any) => {
+    allDancers.map(async (dancer: IDancer) => {
       const { name, positionData } = dancer;
       const wanted = positionData.find(
-        (data: any) => data.frame.toString() === _id.toString()
+        (data: IPosition) => data.frame.toString() === _id.toString()
       );
       pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
     })

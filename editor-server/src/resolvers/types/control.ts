@@ -1,6 +1,8 @@
-import { Field, ObjectType, Int, Float } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
+
 import { ControlFrame } from "./controlFrame";
 import { ControlDevice } from "./controlDevice";
+import { IControlValue } from "../../types/global";
 
 @ObjectType()
 export class Control {
@@ -8,5 +10,7 @@ export class Control {
     frame: ControlFrame;
 
   @Field((type) => ControlDevice)
-    status: any;
+    status: IControlValue;
+
+    value: IControlValue;
 }

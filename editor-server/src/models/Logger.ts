@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { ILogger } from "../types/global";
 
 const Schema = mongoose.Schema;
 
 // Creating a schema, sort of like working with an ORM
-const LoggerSchema = new Schema({
+const LoggerSchema = new Schema<ILogger>({
   user: {
     type: String,
     required: [true, "User field is required"],
@@ -36,7 +37,7 @@ const LoggerSchema = new Schema({
 });
 
 // Creating a table within database with the defined schema
-const Logger = mongoose.model("Logger", LoggerSchema);
+const Logger = mongoose.model<ILogger>("Logger", LoggerSchema);
 
 // Exporting table for querying and mutating
 

@@ -1,19 +1,29 @@
+import {Request, Response} from "express";
+import { Document } from "mongoose";
+
 import db from "../../models";
 import { generateID, initRedisControl, initRedisPosition } from "../../utility";
+import { IDancer, IPart, TDancerData, TExportData, TPartData } from "../../types/global";
 
-interface LooseObject {
-  [key: string]: any;
+type DancerTmpData = {
+  [key: string]: {
+    dancer: IDancer & Document;
+    parts: PartTmpData;
+  }
+}
+type PartTmpData = {
+  [key: string]: IPart & Document;
 }
 
-const uploadData = async (req: any, res: any) => {
+const uploadData = async (req: Request, res: Response) => {
   try {
     // read request
-    const { data } = req.files;
-    const dataObj = JSON.parse(data.data.toString("ascii"));
+    const data = Array.isArray(req.files!.data) ? req.files!.data[0] : req.files!.data;
+    const dataObj: TExportData = JSON.parse(data.data.toString("ascii"));
     const { position, control, dancer, color } = dataObj;
 
     // save dancer & part data temporarily before executing .save()
-    const allDancer: LooseObject = {};
+    const allDancer: DancerTmpData = {};
 
     // clear DB
     await db.Dancer.deleteMany();
@@ -36,13 +46,13 @@ const uploadData = async (req: any, res: any) => {
 
     // create dancer & part mongoose object
     await Promise.all(
-      dancer.map(async (dancerObj: any) => {
+      dancer.map(async (dancerObj: TDancerData) => {
         const { parts, name } = dancerObj;
-        const allPart: LooseObject = {};
+        const allPart: PartTmpData = {};
         const partIDs = await Promise.all(
-          parts.map(async (partObj: any) => {
+          parts.map(async (partObj: TPartData) => {
             const { name, type } = partObj;
-            const part = new db.Part({
+            const part: IPart & Document = new db.Part({
               name,
               type,
               id: generateID(),
@@ -88,7 +98,7 @@ const uploadData = async (req: any, res: any) => {
 
     // deal with control data
     await Promise.all(
-      Object.values(control).map(async (frameObj: any) => {
+      Object.values(control).map(async (frameObj) => {
         const { fade, start, status } = frameObj;
         const frame = await new db.ControlFrame({
           fade,
@@ -103,12 +113,16 @@ const uploadData = async (req: any, res: any) => {
               Object.keys(status[dancer]).map(async (part: string) => {
                 let value = status[dancer][part];
                 if (allDancer[dancer].parts[part].type == "EL") {
-                  value = { value };
-                }
-                const controlID = await new db.Control({ frame, value })
+                  const controlID = await new db.Control({ frame, value: { value } })
                   .save()
                   .then((value) => value._id);
-                allDancer[dancer].parts[part].controlData.push(controlID);
+                  allDancer[dancer].parts[part].controlData.push(controlID);
+                }else{
+                  const controlID = await new db.Control({ frame, value })
+                    .save()
+                    .then((value) => value._id);
+                  allDancer[dancer].parts[part].controlData.push(controlID);
+                }
               })
             );
           })
@@ -118,11 +132,11 @@ const uploadData = async (req: any, res: any) => {
 
     // execute .save() on dancer & part
     await Promise.all(
-      Object.values(allDancer).map(async (dancerObj: any) => {
+      Object.values(allDancer).map(async (dancerObj) => {
         const { dancer, parts } = dancerObj;
         await dancer.save();
         await Promise.all(
-          Object.values(parts).map(async (part: any) => {
+          Object.values(parts).map(async (part) => {
             await part.save();
           })
         );

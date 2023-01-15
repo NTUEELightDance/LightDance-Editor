@@ -1,12 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
-import { GraphQLScalarType, Kind } from "graphql";
-import { ObjectId } from "mongodb";
-import db from "../../models";
-import redis from "../../redis";
+import { GraphQLScalarType } from "graphql";
 
-interface LooseObject {
-  [key: string]: any;
-}
+import { IColor, TColorMap } from "../../types/global";
 
 @ObjectType()
 export class ColorMap {
@@ -17,10 +12,10 @@ export class ColorMap {
 export const ColorMapScalar = new GraphQLScalarType({
   name: "ColorMapCustomScalar",
   description: "Color map scalar type",
-  async serialize(value: any) {
+  async serialize(value: IColor[]) {
     // check the type of received value
-    const result: LooseObject = {};
-    value.map((data: any) => {
+    const result: TColorMap = {};
+    value.map((data) => {
       const { color, colorCode } = data;
       result[color] = colorCode;
     });

@@ -1,50 +1,65 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
 import { ObjectId } from "mongodb";
-import db from "../../models";
-import redis from "../../redis";
 
-interface LooseObject {
-  [key: string]: any;
+import redis from "../../redis";
+import { TRedisControl, TRedisControls } from "../../types/global";
+
+type TControlIDList = {
+  createList: string[];
+  deleteList: string[];
+  updateList: string[];
 }
+type TControlID = {
+  id: string;
+  _id: ObjectId;
+}
+type TControlDataFrame = TControlIDList | TControlID;
+
+type TControlDataScalar = {
+  createFrames: TRedisControls;
+  updateFrames: TRedisControls;
+  deleteFrames: string[];
+} | TRedisControls
 
 @ObjectType()
 export class ControlData {
   @Field((type) => ControlDataScalar)
-    frame: ObjectId;
+    frame: TControlDataFrame;
 }
 
 export const ControlDataScalar = new GraphQLScalarType({
   name: "ControlMapMutationObjectId",
   description: "Mongo object id scalar type",
-  async serialize(data: any): Promise<any> {
+  async serialize(data: TControlDataFrame): Promise<TControlDataScalar> {
     // check the type of received value
-    const { id, _id, deleteList, createList, updateList } = data;
-    if (id && _id) {
-      const result: LooseObject = {};
+    if ("id" in data && "_id" in data) {
+      const {id, _id} = data;
+      const result: TRedisControls = {};
       const cache = await redis.get(id);
       if (cache) {
-        const cacheObj = JSON.parse(cache);
+        const cacheObj: TRedisControl = JSON.parse(cache);
         result[id] = cacheObj;
       }
       return result;
     } else {
-      const createFrames: LooseObject = {};
+      const { deleteList, createList, updateList } = data;
+      const createFrames: TRedisControls = {};
       await Promise.all(
-        createList.map(async (id: any) => {
+        createList.map(async (id) => {
           const cache = await redis.get(id);
           if (cache) {
-            const cacheObj = JSON.parse(cache);
+            const cacheObj: TRedisControl = JSON.parse(cache);
             createFrames[id] = cacheObj;
           }
         })
       );
-      const updateFrames: LooseObject = {};
+      const updateFrames: TRedisControls = {};
       await Promise.all(
-        updateList.map(async (id: any) => {
+        updateList.map(async (id) => {
           const cache = await redis.get(id);
           if (cache) {
-            const cacheObj = JSON.parse(cache);
+            const cacheObj: TRedisControl = JSON.parse(cache);
             updateFrames[id] = cacheObj;
           }
         })
