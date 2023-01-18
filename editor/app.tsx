@@ -37,7 +37,7 @@ function App() {
     if (!init) {
       dispatch(fetchLoad());
     }
-  }, [init]);
+  }, [dispatch, init]);
 
   const [controlLoading, setControlLoading] = useState<boolean>(true);
   useEffect(() => {
@@ -78,7 +78,7 @@ function App() {
 
   useEffect(() => {
     if (!dancerLoading) {
-      const selected: any = {};
+      const selected: {[name:string]: {selected:boolean, parts: string[]}} = {};
       dancerNames.forEach(
         (dancer) => (selected[dancer] = { selected: false, parts: [] })
       );
