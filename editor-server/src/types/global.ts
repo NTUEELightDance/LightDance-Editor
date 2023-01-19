@@ -1,4 +1,5 @@
 import { Model, ObjectId, Document, PopulatedDoc } from "mongoose";
+import { PrismaClient } from "@prisma/client";
 
 export interface ConnectionParam{
     userID: string;
@@ -12,6 +13,7 @@ export type DBModels = {
 export type TContext = {
     db: DBModels;
     userID: string;
+    prisma: PrismaClient;
 }
 
 export interface LooseObject {
@@ -114,7 +116,7 @@ export interface ILogger {
   time: Date;
   status: string;
   errorMessage?: LooseObject;
-  result?: LooseObject; 
+  result?: LooseObject;
   _id?: ObjectId;
 }
 

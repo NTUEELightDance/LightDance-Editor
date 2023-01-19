@@ -3,11 +3,6 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
-input addColorInput {
-  color: String!
-  colorCode: String!
-}
-
 input AddDancerInput {
   name: String!
 }
@@ -30,7 +25,7 @@ type Color {
   colorCode: String!
 }
 
-input ColorInput {
+input ColorCreateInput {
   color: String!
   colorCode: String!
 }
@@ -42,11 +37,17 @@ type ColorMap {
 """Color map scalar type"""
 scalar ColorMapCustomScalar
 
+input ColorOrderByWithRelationInput {
+  color: SortOrder
+  colorCode: SortOrder
+}
+
 type ColorPayload {
   color: String!
   colorCode: String
   editBy: String!
   mutation: String!
+  renameColor: String
 }
 
 type ColorResponse {
@@ -54,6 +55,23 @@ type ColorResponse {
   colorCode: String!
   msg: String
   ok: Boolean
+}
+
+enum ColorScalarFieldEnum {
+  color
+  colorCode
+}
+
+input ColorWhereInput {
+  AND: [ColorWhereInput!]
+  color: StringFilter
+  colorCode: StringFilter
+  NOT: [ColorWhereInput!]
+  OR: [ColorWhereInput!]
+}
+
+input ColorWhereUniqueInput {
+  color: String
 }
 
 type Control {
@@ -159,12 +177,6 @@ input DeletePartInput {
 
 input DeletePositionFrameInput {
   frameID: String!
-}
-
-input editColorInput {
-  colorCode: String!
-  new_color: String!
-  original_color: String!
 }
 
 input EditControlFrameInput {
@@ -283,7 +295,7 @@ type Map {
 scalar MapQueryObjectId
 
 type Mutation {
-  addColor(color: addColorInput!): Color!
+  addColor(color: ColorCreateInput!): Color!
   addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addEffectList(description: String, end: Float!, start: Float!): EffectList!
@@ -300,17 +312,31 @@ type Mutation {
   deleteLED(input: DeleteLEDInput!): DeleteLEDEffectResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
-  editColor(color: editColorInput!): Color!
+  editColorCodeByColor(color: String!, colorCode: String!): Color!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editControlMap(controlData: [EditControlInput!]!, fade: Boolean = false, start: Float!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   editPosMap(positionData: [EditPositionInput!]!, start: Float!): Map!
+  renameColor(newColor: String!, originalColor: String!): String!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
   shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
-  updateColor(color: ColorInput!): String!
+}
+
+input NestedStringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  not: NestedStringFilter
+  notIn: [String!]
+  startsWith: String
 }
 
 type Part {
@@ -366,18 +392,23 @@ type PositionRecordPayload {
 scalar PosMapMutationObjectId
 
 type Query {
-  color(color: String!): String!
+  color(where: ColorWhereUniqueInput!): Color
   colorMap: ColorMap!
+  colors(cursor: ColorWhereUniqueInput, distinct: [ColorScalarFieldEnum!], orderBy: [ColorOrderByWithRelationInput!], skip: Int, take: Int, where: ColorWhereInput): [Color!]!
   controlFrame(frameID: String!): ControlFrame!
   controlFrameIDs: [ID!]!
   ControlMap: Map!
   dancer: [Dancer!]!
   effectList: [EffectList!]!
-  getColors: [Color!]!
   LEDMap: LEDMap!
   positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
   PosMap: Map!
+}
+
+enum QueryMode {
+  default
+  insensitive
 }
 
 type RequestEditResponse {
@@ -388,6 +419,26 @@ type RequestEditResponse {
 type ShiftResponse {
   msg: String
   ok: Boolean!
+}
+
+enum SortOrder {
+  asc
+  desc
+}
+
+input StringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  mode: QueryMode
+  not: NestedStringFilter
+  notIn: [String!]
+  startsWith: String
 }
 
 type Subscription {
