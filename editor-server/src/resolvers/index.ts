@@ -13,8 +13,15 @@ import { EffectListResolver } from "./effectList";
 import { ShiftResolver } from "./shift";
 import { LEDResolver } from "./led";
 
+import { FindManyColorResolver, FindUniqueColorResolver } from "../../prisma/generated/type-graphql";
+
 export const resolvers = [
+  // Color related
   ColorResolver,
+  FindManyColorResolver,
+  FindUniqueColorResolver,
+
+
   DancerResolver,
   PartResolver,
   ControlResolver,
@@ -29,5 +36,5 @@ export const resolvers = [
   EditPosMapResolver,
   EffectListResolver,
   ShiftResolver,
-  LEDResolver,
+  LEDResolver
 ] as const;

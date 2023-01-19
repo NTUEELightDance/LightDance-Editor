@@ -1,18 +1,19 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
 
-import { IColor, TColorMap } from "../../types/global";
+import { TColorMap } from "../../types/global";
+import { Color } from "../../../prisma/generated/type-graphql";
 
 @ObjectType()
 export class ColorMap {
   @Field((type) => ColorMapScalar)
-    colorMap: Object[];
+    colorMap: Color[];
 }
 
 export const ColorMapScalar = new GraphQLScalarType({
   name: "ColorMapCustomScalar",
   description: "Color map scalar type",
-  async serialize(value: IColor[]) {
+  async serialize(value: Color[]) {
     // check the type of received value
     const result: TColorMap = {};
     value.map((data) => {

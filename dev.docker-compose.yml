@@ -32,3 +32,27 @@ services:
       - "6379:6379"
     volumes:
       - ./redisData:/data
+  postgresqldb:
+    image: postgres
+    # restart: always
+    environment:
+      POSTGRES_DB: lightdance
+      POSTGRES_USER: lightdance-user
+      POSTGRES_PASSWORD: NTUEELightdance
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - ./pg/pg-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  pg-admin:
+    image: dpage/pgadmin4
+    # restart: always
+    depends_on:
+      - postgresqldb
+    ports:
+      - "5555:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: NTUEELightdance
+    volumes:
+      - ./pg/pgadmin-data:/var/lib/pgadmin

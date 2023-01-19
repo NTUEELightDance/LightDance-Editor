@@ -11,6 +11,7 @@ import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import fileUpload from "express-fileupload";
+import { PrismaClient } from "@prisma/client";
 
 import { resolvers } from "./resolvers";
 import db from "./models";
@@ -29,6 +30,7 @@ const { SECRET_KEY } = process.env;
   app.use(fileUpload());
   app.use("/api", apiRoute);
 
+  const prisma = new PrismaClient();
   mongo();
 
   const httpServer = http.createServer(app);
@@ -51,12 +53,12 @@ const { SECRET_KEY } = process.env;
       if (!userID) throw new Error("UserID and name must be filled.");
       const user = await db.User.findOne({ userID });
       if (user) {
-        return { db, userID };
+        return { db, userID, prisma };
       } else {
         await new db.User({ name, userID }).save();
-        return { db, userID };
+        return { db, userID, prisma };
       }
-    } catch (e) {}
+    } catch (e) {console.log(e);}
   };
 
   const subscriptionDestroyOptions = async (webSocket: WebSocket, context: ConnectionContext) => {
@@ -88,13 +90,13 @@ const { SECRET_KEY } = process.env;
         const { name, userid } = req.headers;
         if (!userid || !name)
           throw new Error("UserID and name must be filled.");
-        const userID: string = (typeof(userid) === 'string') ? userid : userid[0];
-        const userName: string = (typeof(name) === 'string') ? name: name[0];
+        const userID: string = (typeof(userid) === "string") ? userid : userid[0];
+        const userName: string = (typeof(name) === "string") ? name: name[0];
         const user = await db.User.findOne({ name: userName, userID: userID });
         if (!user) {
           const newUser = await new db.User({ name: userName, userID: userid }).save();
         }
-        const result: TContext = { db, userID };
+        const result: TContext = { db, userID, prisma };
         return result;
       } catch (e) {
         console.log(e);
