@@ -6,7 +6,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 
-export function PreferenceSelector({
+export function LayoutSelector({
   label,
   value,
   Options,
