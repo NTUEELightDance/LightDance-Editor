@@ -129,10 +129,9 @@ function GroupPanel({
             )}
             <Button onClick={handleRandom}>Random</Button>
           </Stack>
-          <IconButton
-            children={<DeleteIcon fontSize="small" />}
-            onClick={handleDelete}
-          />
+          <IconButton onClick={handleDelete}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
           {/* <IconButton children={<EditIcon />} onClick={handleEdit} /> */}
         </Stack>
         <List dense>{Items}</List>

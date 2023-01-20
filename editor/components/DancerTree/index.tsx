@@ -41,7 +41,7 @@ function DancerTree() {
       if (nodeIdArray.length === 1) {
         newSelectedDancers.add(nodeIdArray[0]);
       } else {
-        if (!newSelectedParts.hasOwnProperty(nodeIdArray[0])) {
+        if (!Object.prototype.hasOwnProperty.call(newSelectedParts, nodeIdArray[0])) {
           newSelectedParts[nodeIdArray[0]] = [];
         }
         newSelectedParts[nodeIdArray[0]].push(nodeIdArray[1]);
@@ -67,7 +67,7 @@ function DancerTree() {
       newSelectedDancers.forEach((dancerName) => {
         dancers[dancerName].forEach((part) => {
           if (broadcastedPartsSet.has(part)) {
-            if (!newSelectedParts.hasOwnProperty(dancerName)) {
+            if (!Object.prototype.hasOwnProperty.call(newSelectedParts, dancerName)) {
               newSelectedParts[dancerName] = [];
             }
             newSelectedParts[dancerName].push(part);

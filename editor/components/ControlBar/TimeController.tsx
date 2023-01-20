@@ -1,4 +1,3 @@
-import { useEffect, useState, useRef } from "react";
 // mui
 import { Stack } from "@mui/material";
 import FrameControlInput from "./FrameControlInput";

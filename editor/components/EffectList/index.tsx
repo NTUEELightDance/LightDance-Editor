@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { addEffect, applyEffect, deleteEffect } from "core/actions";
 import { confirmation } from "core/utils";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import useControl from "hooks/useControl";
 import useEffectList from "hooks/useEffectList";
 import useTimeInput from "hooks/useTimeInput";
 
@@ -19,7 +18,7 @@ import {
   Divider,
   Grid,
   IconButton,
-  InputAdornment,
+  //InputAdornment,
   List,
   ListItem,
   ListItemText,
