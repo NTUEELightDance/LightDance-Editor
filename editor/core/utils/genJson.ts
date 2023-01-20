@@ -10,7 +10,7 @@ import {
   PartName,
   PartTypeMap,
   LedMap,
-  LedEffectRecord
+  LedEffectRecord,
 } from "core/models";
 import { isEqual } from "lodash";
 import { colorCode2int } from "./color";
@@ -22,36 +22,36 @@ import { getControl, getLedMap } from "./index";
 /**
  * Dancer to ControlOF Json file for RPi
  */
-type DancerControlOF = Record<DancerName, ControlOF[]>
+type DancerControlOF = Record<DancerName, ControlOF[]>;
 
 interface ControlOF {
-  start: number
-  fade: boolean
-  status: Record<PartName, Bulb>
+  start: number;
+  fade: boolean;
+  status: Record<PartName, Bulb>;
 }
 
 /**
  * Dancer to ControlLed Json file for RPi
  */
-type DancerControlLed = Record<DancerName, PartEffect>
+type DancerControlLed = Record<DancerName, PartEffect>;
 
-type PartEffect = Record<PartName, Effect[]>
+type PartEffect = Record<PartName, Effect[]>;
 
 interface Effect {
-  start: number
-  fade: boolean
-  status: Bulb[]
+  start: number;
+  fade: boolean;
+  status: Bulb[];
 }
 
 interface Bulb {
-  colorCode: number
-  alpha: number
+  colorCode: number;
+  alpha: number;
 }
 
 /**
  * Generate ControlOF with format that RPi needs (turn into dancer base)
  */
-export async function generateControlOF () {
+export async function generateControlOF() {
   const [controlMap, controlRecord] = await getControl();
   const { dancers, partTypeMap, colorMap } = state;
 
@@ -70,14 +70,14 @@ export async function generateControlOF () {
           const fiber = status[dancerName][partName] as Fiber;
           newStatus[partName] = {
             colorCode: colorCode2int(colorMap[fiber.color]),
-            alpha: fiber.alpha
+            alpha: fiber.alpha,
           };
         }
       });
       dancerControlOF[dancerName].push({
         start,
         fade,
-        status: newStatus
+        status: newStatus,
       });
     });
   });
@@ -108,7 +108,7 @@ export async function generateControlOF () {
 /**
  * Generate ControlLed with format that RPi needs (turn into dancer base)
  */
-export async function generateControlLed () {
+export async function generateControlLed() {
   const [controlMap] = await getControl();
   const ledMap = await getLedMap();
   const { ledEffectRecord } = state;
@@ -169,8 +169,8 @@ export async function generateControlLed () {
             fade,
             status: effect.map(({ colorCode, alpha }) => ({
               colorCode: colorCode2int(colorCode),
-              alpha
-            }))
+              alpha,
+            })),
           });
           if (effects.length === 1) break;
           ++effectIndex;

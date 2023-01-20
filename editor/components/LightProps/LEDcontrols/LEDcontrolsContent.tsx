@@ -12,14 +12,14 @@ function LEDcontrolsContent({
   src,
   handleIntensityChange,
   handleSrcChange,
-  oneLine
+  oneLine,
 }: {
-  parts: string[]
-  intensity: number
-  src: string
-  handleIntensityChange: (intensity: number) => void
-  handleSrcChange: (src: string) => void
-  oneLine?: boolean
+  parts: string[];
+  intensity: number;
+  src: string;
+  handleIntensityChange: (intensity: number) => void;
+  handleSrcChange: (src: string) => void;
+  oneLine?: boolean;
 }) {
   const { loading, ledMap } = useLedMap();
   let effectNames =
@@ -39,7 +39,7 @@ function LEDcontrolsContent({
         alignItems="center"
         sx={{
           justifyContent: "space-between",
-          px: "3em"
+          px: "3em",
         }}
       >
         {oneLine || (
@@ -68,7 +68,7 @@ function LEDcontrolsContent({
           alignItems="center"
           sx={{
             justifyContent: "space-between",
-            px: "3em"
+            px: "3em",
           }}
         >
           <Grid item>

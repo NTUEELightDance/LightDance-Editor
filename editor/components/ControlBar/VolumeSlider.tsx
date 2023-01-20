@@ -5,15 +5,15 @@ import {
   VolumeMute,
   VolumeDown,
   VolumeUp,
-  VolumeOff
+  VolumeOff,
 } from "@mui/icons-material";
 
 import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
 
-export default function VolumeSlider ({
-  wavesurfer
+export default function VolumeSlider({
+  wavesurfer,
 }: {
-  wavesurfer: WaveSurferApp
+  wavesurfer: WaveSurferApp;
 }) {
   const [volume, setVolume] = useState<number>(0.5);
   const [mute, setMute] = useState<boolean>(false);
@@ -28,21 +28,15 @@ export default function VolumeSlider ({
     setMute(!mute);
   };
 
-  const VolumeIcon = mute
-    ? (
-      <VolumeOff />
-    )
-    : volume > 0.7
-      ? (
-        <VolumeUp />
-      )
-      : volume > 0.3
-        ? (
-          <VolumeDown />
-        )
-        : (
-          <VolumeMute />
-        );
+  const VolumeIcon = mute ? (
+    <VolumeOff />
+  ) : volume > 0.7 ? (
+    <VolumeUp />
+  ) : volume > 0.3 ? (
+    <VolumeDown />
+  ) : (
+    <VolumeMute />
+  );
 
   return (
     <Box width="15em" sx={{ fontSize: "0.8em" }}>

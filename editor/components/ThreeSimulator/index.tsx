@@ -22,12 +22,14 @@ import { IDLE, POSITION } from "@/constants";
  *
  * @component
  */
-export default function ThreeSimulator () {
+export default function ThreeSimulator() {
   const canvasRef = useRef();
   const { ref: containerRef } = useResizeDetector({
     onResize: (width, height) => {
-      if (threeController && threeController.isInitialized()) { threeController.resize(width, height); }
-    }
+      if (threeController && threeController.isInitialized()) {
+        threeController.resize(width, height);
+      }
+    },
   });
 
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
@@ -77,7 +79,7 @@ export default function ThreeSimulator () {
         width: "100%",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
       }}
       ref={containerRef}
     >

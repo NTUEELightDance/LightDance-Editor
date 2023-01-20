@@ -24,7 +24,7 @@ const actions = registerActions({
    */
   saveCurrentFade: (state: State) => {
     // TODO: call mutation api
-  }
+  },
 });
 
 export const { setCurrentFade, saveCurrentFade } = actions;

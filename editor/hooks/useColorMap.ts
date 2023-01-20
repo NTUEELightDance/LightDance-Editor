@@ -7,7 +7,7 @@ import { setColorMap } from "core/actions";
 import { GET_COLOR_MAP, ADD_COLOR, EDIT_COLOR, DELETE_COLOR } from "../graphql";
 import { notification } from "core/utils";
 
-export default function useColorMap () {
+export default function useColorMap() {
   const colorMap = useReactiveVar(reactiveState.colorMap);
 
   const validateColorCode = (colorCode: string) =>
@@ -16,26 +16,26 @@ export default function useColorMap () {
   const {
     data: colorMapData,
     loading: colorLoading,
-    error: colorError
+    error: colorError,
   } = useQuery(GET_COLOR_MAP, {
     onCompleted: (data) => {
       setColorMap({ payload: data.colorMap?.colorMap || {} });
-    }
+    },
   });
 
   const [
     addColor,
-    { data: addColorData, loading: addColorLoading, error: addColorError }
+    { data: addColorData, loading: addColorLoading, error: addColorError },
   ] = useMutation(ADD_COLOR);
 
   const [
     editColor,
-    { data: editColorData, loading: editColorLoading, error: editColorError }
+    { data: editColorData, loading: editColorLoading, error: editColorError },
   ] = useMutation(EDIT_COLOR);
 
   const [
     deleteColor,
-    { data: delColorData, loading: delColorLoading, error: delColorError }
+    { data: delColorData, loading: delColorLoading, error: delColorError },
   ] = useMutation(DELETE_COLOR);
 
   const handleAddColor = async (color: string, colorCode: string) => {
@@ -46,7 +46,7 @@ export default function useColorMap () {
     try {
       await addColor({
         variables: { color: { color, colorCode } },
-        refetchQueries: [GET_COLOR_MAP]
+        refetchQueries: [GET_COLOR_MAP],
       });
       notification.success(`Successfuly added color: ${color}`);
     } catch (error) {
@@ -66,7 +66,7 @@ export default function useColorMap () {
     try {
       await editColor({
         variables: { color: { original_color, new_color, colorCode } },
-        refetchQueries: [GET_COLOR_MAP]
+        refetchQueries: [GET_COLOR_MAP],
       });
       notification.success(`Successfuly editted color: ${original_color}`);
     } catch (error) {
@@ -78,7 +78,7 @@ export default function useColorMap () {
     try {
       await deleteColor({
         variables: { color },
-        refetchQueries: [GET_COLOR_MAP]
+        refetchQueries: [GET_COLOR_MAP],
       });
       notification.success(`Successfuly deleted color: ${color}`);
     } catch (error) {
@@ -87,19 +87,27 @@ export default function useColorMap () {
     }
   };
 
-  if ((addColorError != null) || (editColorError != null) || (delColorError != null)) {
-    [addColorError, editColorError, delColorError].forEach(
-      (error) => { (error != null) && console.error(error); }
-    );
+  if (
+    addColorError != null ||
+    editColorError != null ||
+    delColorError != null
+  ) {
+    [addColorError, editColorError, delColorError].forEach((error) => {
+      error != null && console.error(error);
+    });
   }
 
   return {
     loading:
       colorLoading || addColorLoading || editColorLoading || delColorLoading,
-    error: (colorError != null) || (addColorError != null) || (editColorError != null) || delColorError,
+    error:
+      colorError != null ||
+      addColorError != null ||
+      editColorError != null ||
+      delColorError,
     colorMap,
     handleAddColor,
     handleEditColor,
-    handleDeleteColor
+    handleDeleteColor,
   };
 }

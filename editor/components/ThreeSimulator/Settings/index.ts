@@ -6,7 +6,7 @@ import { LED, FIBER } from "@/constants";
 
 class Settings {
   threeController: ThreeController;
-  constructor (threeController: ThreeController) {
+  constructor(threeController: ThreeController) {
     this.threeController = threeController;
     this.panel = new GUI();
 
@@ -16,21 +16,21 @@ class Settings {
         FIBER: true,
         "Grid Helper": true,
         Center: true,
-        "Name Tag": true
+        "Name Tag": true,
       },
       Light: {
         intensity: 1.0,
         x: 0.0,
         y: 0.0,
-        z: 0.0
-      }
+        z: 0.0,
+      },
     };
 
     this.initGUI();
     this.panel.close();
   }
 
-  initGUI () {
+  initGUI() {
     // gui to change paramters including color, positon, controlls
     const { panel, settings, threeController } = this;
     const folder1 = panel.addFolder("Visibility");
@@ -56,13 +56,11 @@ class Settings {
       });
     });
 
-    folder1
-      .add(settings.Visibility, "Grid Helper")
-      .onChange((value: any) => {
-        settings.Visibility["Grid Helper"] = value;
-        const { gridHelper } = threeController;
-        gridHelper.visible = value;
-      });
+    folder1.add(settings.Visibility, "Grid Helper").onChange((value: any) => {
+      settings.Visibility["Grid Helper"] = value;
+      const { gridHelper } = threeController;
+      gridHelper.visible = value;
+    });
 
     folder1.add(settings.Visibility, "Center").onChange((value: any) => {
       settings.Visibility.Center = value;

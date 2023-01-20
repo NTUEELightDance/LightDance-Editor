@@ -13,13 +13,13 @@ import { IDLE, EDITING } from "@/constants";
 import useEditHandler from "hooks/useEditHandler";
 import { useHotkeys } from "react-hotkeys-hook";
 
-export default function EditButtons () {
+export default function EditButtons() {
   const mode = useReactiveVar(reactiveState.editMode);
 
   const [loading, setLoading] = useImmer({
     save: false,
     add: false,
-    delete: false
+    delete: false,
   });
 
   const {
@@ -27,7 +27,7 @@ export default function EditButtons () {
     handleSave,
     handleCancel,
     handleAdd,
-    handleDelete
+    handleDelete,
   } = useEditHandler();
 
   useHotkeys("e", () => {
@@ -153,11 +153,11 @@ export default function EditButtons () {
         size="small"
         sx={{
           "&.MuiLoadingButton-loading": {
-            border: "0.5px solid rgba(255, 255, 255, 0.4)"
+            border: "0.5px solid rgba(255, 255, 255, 0.4)",
           },
           "&.MuiLoadingButton-loading>.MuiLoadingButton-loadingIndicator": {
-            color: "rgba(255, 255, 255, 0.4)"
-          }
+            color: "rgba(255, 255, 255, 0.4)",
+          },
         }}
       >
         load
@@ -170,23 +170,21 @@ export default function EditButtons () {
       sx={{
         alignItems: "center",
         display: "flex",
-        gap: "1em"
+        gap: "1em",
       }}
     >
-      {mode === IDLE
-        ? (
-          <>
-            {loading.add ? <LoadingBtn /> : <AddButton />}
-            <EditButton />
-            {loading.delete ? <LoadingBtn /> : <DeleteButton />}
-          </>
-        )
-        : (
-          <>
-            {loading.save ? <LoadingBtn /> : <SaveButton />}
-            <CancelButton />
-          </>
-        )}
+      {mode === IDLE ? (
+        <>
+          {loading.add ? <LoadingBtn /> : <AddButton />}
+          <EditButton />
+          {loading.delete ? <LoadingBtn /> : <DeleteButton />}
+        </>
+      ) : (
+        <>
+          {loading.save ? <LoadingBtn /> : <SaveButton />}
+          <CancelButton />
+        </>
+      )}
     </Box>
   );
 }

@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { LoadState, LoadType } from "../types/loadSlice";
 import {
   LightPresetsType,
-  PosPresetsType
+  PosPresetsType,
 } from "../components/Presets/presets";
 import { RootState, AppDispatch } from "../store/index";
 
@@ -15,7 +15,7 @@ const initialState: LoadState = {
   load: {} as LoadType,
   lightPresets: [],
   posPresets: [],
-  dancerMap: {}
+  dancerMap: {},
 };
 export const loadSlice = createSlice({
   name: "load",
@@ -38,8 +38,8 @@ export const loadSlice = createSlice({
     },
     setDancerMap: (state, action) => {
       state.dancerMap = action.payload;
-    }
-  }
+    },
+  },
 });
 
 const {
@@ -48,7 +48,7 @@ const {
   setMusic,
   setLightPresets,
   setPosPresets,
-  setDancerMap
+  setDancerMap,
 } = loadSlice.actions;
 
 export const selectLoad = (state: RootState) => state.load;

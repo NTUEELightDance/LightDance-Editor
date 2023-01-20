@@ -43,7 +43,9 @@ const useThree = () => {
   const animate = (animation) => {
     animation(clock.getDelta());
     renderer.render(scene, camera);
-    requestAnimationFrame(() => { animate(animation); });
+    requestAnimationFrame(() => {
+      animate(animation);
+    });
   };
 
   const addObject = (object) => scene.add(object);

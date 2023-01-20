@@ -29,28 +29,34 @@ export default function LogIn() {
     const account = formData.get("account") as string;
     const password = formData.get("password") as string;
     // const remember = formData.get("remember") === "on";
-    authenticate({payload: {account, password}});
+    authenticate({ payload: { account, password } });
   };
 
   return (
-    <Box sx={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      mt: "8rem",
-    }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        mt: "8rem",
+      }}
+    >
       <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
         <LockOutlinedIcon />
       </Avatar>
       <Typography component="h1" variant="h5">
         Log in
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        width: "30rem",
-      }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "30rem",
+        }}
+      >
         <TextField
           margin="normal"
           required

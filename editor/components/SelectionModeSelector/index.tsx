@@ -1,14 +1,10 @@
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faShirt,
-  faArrowsUpDownLeftRight
-} from "@fortawesome/free-solid-svg-icons";
+import { FaTshirt, FaArrowsAlt } from "react-icons/fa";
 import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
 
-import { reactiveState } from "../../core/state";
-import { setSelectionMode } from "../../core/actions";
+import { reactiveState } from "@/core/state";
+import { setSelectionMode } from "@/core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 import {
@@ -16,8 +12,8 @@ import {
   CONTROL_EDITOR,
   DANCER,
   PART,
-  POSITION
-} from "../../constants";
+  POSITION,
+} from "@/constants";
 
 function SelectionModeSelector() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
@@ -25,18 +21,8 @@ function SelectionModeSelector() {
 
   const icons: Record<string, JSX.Element> = {
     [DANCER]: <DancerIcon />,
-    [PART]: (
-    // to center the icon
-      <div className="MuiSpeedDial-actionsClosed">
-        <FontAwesomeIcon icon={faShirt} />
-      </div>
-    ),
-    [POSITION]: (
-    // to center the icon
-      <div className="MuiSpeedDial-actionsClosed">
-        <FontAwesomeIcon icon={faArrowsUpDownLeftRight} />
-      </div>
-    )
+    [PART]: <FaTshirt />,
+    [POSITION]: <FaArrowsAlt />,
   };
 
   return (
@@ -63,7 +49,9 @@ function SelectionModeSelector() {
             key={mode}
             icon={icon}
             tooltipTitle={mode}
-            onClick={async () => { await setSelectionMode({ payload: mode }); }}
+            onClick={async () => {
+              await setSelectionMode({ payload: mode });
+            }}
             // @ts-expect-error: Unreachable code error
             disabled={disabled}
           />

@@ -23,18 +23,20 @@ const CONTROL = "control";
 const POSITION = "position";
 const BOTH = "both";
 
-export default function TimeShift ({
+export default function TimeShift({
   open,
-  handleClose
+  handleClose,
 }: {
-  open: boolean
-  handleClose: () => void
+  open: boolean;
+  handleClose: () => void;
 }) {
   // type
   const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
   const handleChangeType = (
     event: SelectChangeEvent<"control" | "position" | "both">
-  ) => { setType(event.target.value as TimeShiftTool); };
+  ) => {
+    setType(event.target.value as TimeShiftTool);
+  };
 
   // frame index
   const [startTime, setStartTime] = useState(0);
@@ -42,7 +44,9 @@ export default function TimeShift ({
 
   // time
   const [shiftTime, setShiftTime] = useState(0);
-  const handleChangeShiftTime = (e: React.ChangeEvent<HTMLInputElement>) => { setShiftTime(e.target.valueAsNumber); };
+  const handleChangeShiftTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShiftTime(e.target.valueAsNumber);
+  };
 
   // submit
   const submitTimeShift = async () => {
@@ -62,11 +66,13 @@ export default function TimeShift ({
       !(await confirmation.warning(
         "Warning! This action may delete some important data."
       ))
-    ) { return; }
+    ) {
+      return;
+    }
 
     try {
       await shiftFrameTime({
-        payload: { type, startTime, endTime, shiftTime }
+        payload: { type, startTime, endTime, shiftTime },
       });
       notification.success("Time shift successful!");
     } catch (error) {

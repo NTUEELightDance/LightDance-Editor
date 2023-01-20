@@ -6,21 +6,21 @@ const actions = registerActions({
   /**
    * Set dancer names
    */
-  setDancerNames (state: State, payload: string[]) {
+  setDancerNames(state: State, payload: string[]) {
     state.dancerNames = payload;
   },
   /**
    * Set dancers
    */
-  setDancers (state: State, payload: Dancers) {
+  setDancers(state: State, payload: Dancers) {
     state.dancers = payload;
   },
   /**
    * Set partTypeMap
    */
-  setPartTypeMap (state: State, payload: PartTypeMap) {
+  setPartTypeMap(state: State, payload: PartTypeMap) {
     state.partTypeMap = payload;
-  }
+  },
 });
 
 export const { setDancerNames, setDancers, setPartTypeMap } = actions;

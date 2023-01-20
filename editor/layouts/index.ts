@@ -3,5 +3,5 @@ import commandCenterConfig from "./commandCenter.json";
 
 export default {
   editor: defaultEditorConfig,
-  command: commandCenterConfig
+  command: commandCenterConfig,
 };

@@ -12,10 +12,10 @@ const actions = registerActions({
   setCurrentPosByName: (
     state: State,
     payload: {
-      name: string
-      x: number
-      y: number
-      z: number
+      name: string;
+      x: number;
+      y: number;
+      z: number;
     }
   ) => {
     const { name, x, y, z } = payload;
@@ -24,7 +24,11 @@ const actions = registerActions({
         `[Error] setCurrentPos, invalid parameter(name), ${name}`
       );
     }
-    if (typeof x !== "number" || typeof y !== "number" || typeof z !== "number") {
+    if (
+      typeof x !== "number" ||
+      typeof y !== "number" ||
+      typeof z !== "number"
+    ) {
       throw new Error(
         `[Error] setCurrentPos, invalid parameter(x, y, z) ${x}, ${y}, ${z}`
       );
@@ -67,7 +71,7 @@ const actions = registerActions({
    */
   deleteCurrentPos: (state: State) => {
     // TODO: call mutation API
-  }
+  },
 });
 
 export const {
@@ -75,5 +79,5 @@ export const {
   setCurrentPos,
   setCurrentPosToGround,
   saveCurrentPos,
-  deleteCurrentPos
+  deleteCurrentPos,
 } = actions;

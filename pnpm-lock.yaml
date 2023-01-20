@@ -2,12 +2,14 @@ lockfileVersion: 5.4
 
 specifiers:
   '@mui/base': 5.0.0-alpha.114
+  eslint-config-prettier: ^8.6.0
   npm-run-all: ^4.1.5
 
 dependencies:
   '@mui/base': 5.0.0-alpha.114
 
 devDependencies:
+  eslint-config-prettier: 8.6.0
   npm-run-all: 4.1.5
 
 packages:
@@ -244,6 +246,13 @@ packages:
   /escape-string-regexp/1.0.5:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
     engines: {node: '>=0.8.0'}
+    dev: true
+
+  /eslint-config-prettier/8.6.0:
+    resolution: {integrity: sha512-bAF0eLpLVqP5oEVUFKpMA+NnRFICwn9X8B5jrR9FcqnYBuPbqWEjTEspPWMj5ye6czoSLDweCzSo3Ko7gGrZaA==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
     dev: true
 
   /for-each/0.3.3:

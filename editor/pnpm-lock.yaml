@@ -4,11 +4,6 @@ specifiers:
   '@apollo/client': ^3.5.8
   '@emotion/react': ^11.7.1
   '@emotion/styled': ^11.6.0
-  '@fortawesome/fontawesome-free': ^6.0.0
-  '@fortawesome/fontawesome-svg-core': ^1.3.0
-  '@fortawesome/free-regular-svg-icons': ^6.0.0
-  '@fortawesome/free-solid-svg-icons': ^6.0.0
-  '@fortawesome/react-fontawesome': ^0.1.17
   '@mui/icons-material': ^5.4.1
   '@mui/lab': ^5.0.0-alpha.68
   '@mui/material': ^5.3.1
@@ -18,7 +13,6 @@ specifiers:
   '@types/node': ^18.11.18
   '@types/react': ^18.0.26
   '@types/react-dom': ^18.0.10
-  '@types/react-fontawesome': ^1.6.5
   '@types/react-redux': ^7.1.25
   '@types/react-transition-group': ^4.4.5
   '@types/three': ^0.137.0
@@ -37,6 +31,7 @@ specifiers:
   eslint-config-standard-with-typescript: ^26.0.0
   eslint-plugin-import: ^2.25.2
   eslint-plugin-n: ^15.0.0
+  eslint-plugin-prettier: ^4.2.1
   eslint-plugin-promise: ^6.0.0
   eslint-plugin-react: ^7.31.11
   eslint-plugin-react-hooks: ^4.6.0
@@ -47,10 +42,12 @@ specifiers:
   lodash: ^4.17.21
   nanoid: ^3.1.30
   on-change: ^4.0.0
+  prettier: ^2.8.3
   react: ^18.2.0
   react-colorful: ^5.5.1
   react-dom: ^18.2.0
   react-hotkeys-hook: ^3.4.4
+  react-icons: ^4.7.1
   react-redux: ^7.2.2
   react-resize-detector: ^7.0.0
   react-router-dom: ^6.6.1
@@ -73,11 +70,6 @@ dependencies:
   '@apollo/client': 3.7.3_efwr3sconazsrhnfs52mihpuue
   '@emotion/react': 11.10.5_kzbn2opkn2327fwg5yzwzya5o4
   '@emotion/styled': 11.10.5_qvatmowesywn4ye42qoh247szu
-  '@fortawesome/fontawesome-free': 6.2.1
-  '@fortawesome/fontawesome-svg-core': 1.3.0
-  '@fortawesome/free-regular-svg-icons': 6.2.1
-  '@fortawesome/free-solid-svg-icons': 6.2.1
-  '@fortawesome/react-fontawesome': 0.1.19_hnzlnfu63dgotcnge75zyepb2y
   '@mui/icons-material': 5.11.0_6zueiyxsk3wwk7ardr4xipkxnu
   '@mui/lab': 5.0.0-alpha.115_hjvzipabzikmspdw5vrjiezodi
   '@mui/material': 5.11.4_lskpmcsdi7ipu6qpuapyu56ihm
@@ -99,6 +91,7 @@ dependencies:
   react-colorful: 5.6.1_biqbaboplfbrettd7655fr4n2y
   react-dom: 18.2.0_react@18.2.0
   react-hotkeys-hook: 3.4.7_biqbaboplfbrettd7655fr4n2y
+  react-icons: 4.7.1_react@18.2.0
   react-redux: 7.2.9_biqbaboplfbrettd7655fr4n2y
   react-resize-detector: 7.1.2_biqbaboplfbrettd7655fr4n2y
   react-router-dom: 6.6.2_biqbaboplfbrettd7655fr4n2y
@@ -118,7 +111,6 @@ devDependencies:
   '@types/node': 18.11.18
   '@types/react': 18.0.26
   '@types/react-dom': 18.0.10
-  '@types/react-fontawesome': 1.6.5
   '@types/react-redux': 7.1.25
   '@types/react-transition-group': 4.4.5
   '@types/three': 0.137.0
@@ -132,9 +124,11 @@ devDependencies:
   eslint-config-standard-with-typescript: 26.0.0_ueqzd4a4aaqcnhterfnur4s5iy
   eslint-plugin-import: 2.27.5_2l6piu6guil2f63lj3qmhzbnn4
   eslint-plugin-n: 15.6.1_eslint@8.32.0
+  eslint-plugin-prettier: 4.2.1_3vccgihvamfrdnqonsut5ihh4a
   eslint-plugin-promise: 6.1.1_eslint@8.32.0
   eslint-plugin-react: 7.32.1_eslint@8.32.0
   eslint-plugin-react-hooks: 4.6.0_eslint@8.32.0
+  prettier: 2.8.3
   typescript: 4.9.4
   vite: 2.9.15
   vite-plugin-mkcert: 1.10.1_vite@2.9.15
@@ -614,61 +608,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /@fortawesome/fontawesome-common-types/0.3.0:
-    resolution: {integrity: sha512-CA3MAZBTxVsF6SkfkHXDerkhcQs0QPofy43eFdbWJJkZiq3SfiaH1msOkac59rQaqto5EqWnASboY1dBuKen5w==}
-    engines: {node: '>=6'}
-    deprecated: Please upgrade to 6.1.0. https://fontawesome.com/docs/changelog/
-    requiresBuild: true
-    dev: false
-
-  /@fortawesome/fontawesome-common-types/6.2.1:
-    resolution: {integrity: sha512-Sz07mnQrTekFWLz5BMjOzHl/+NooTdW8F8kDQxjWwbpOJcnoSg4vUDng8d/WR1wOxM0O+CY9Zw0nR054riNYtQ==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dev: false
-
-  /@fortawesome/fontawesome-free/6.2.1:
-    resolution: {integrity: sha512-viouXhegu/TjkvYQoiRZK3aax69dGXxgEjpvZW81wIJdxm5Fnvp3VVIP4VHKqX4SvFw6qpmkILkD4RJWAdrt7A==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dev: false
-
-  /@fortawesome/fontawesome-svg-core/1.3.0:
-    resolution: {integrity: sha512-UIL6crBWhjTNQcONt96ExjUnKt1D68foe3xjEensLDclqQ6YagwCRYVQdrp/hW0ALRp/5Fv/VKw+MqTUWYYvPg==}
-    engines: {node: '>=6'}
-    deprecated: Please upgrade to 6.1.0. https://fontawesome.com/docs/changelog/
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 0.3.0
-    dev: false
-
-  /@fortawesome/free-regular-svg-icons/6.2.1:
-    resolution: {integrity: sha512-wiqcNDNom75x+pe88FclpKz7aOSqS2lOivZeicMV5KRwOAeypxEYWAK/0v+7r+LrEY30+qzh8r2XDaEHvoLsMA==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.2.1
-    dev: false
-
-  /@fortawesome/free-solid-svg-icons/6.2.1:
-    resolution: {integrity: sha512-oKuqrP5jbfEPJWTij4sM+/RvgX+RMFwx3QZCZcK9PrBDgxC35zuc7AOFsyMjMd/PIFPeB2JxyqDr5zs/DZFPPw==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.2.1
-    dev: false
-
-  /@fortawesome/react-fontawesome/0.1.19_hnzlnfu63dgotcnge75zyepb2y:
-    resolution: {integrity: sha512-Hyb+lB8T18cvLNX0S3llz7PcSOAJMLwiVKBuuzwM/nI5uoBw+gQjnf9il0fR1C3DKOI5Kc79pkJ4/xB0Uw9aFQ==}
-    peerDependencies:
-      '@fortawesome/fontawesome-svg-core': ~1 || ~6
-      react: '>=16.x'
-    dependencies:
-      '@fortawesome/fontawesome-svg-core': 1.3.0
-      prop-types: 15.8.1
-      react: 18.2.0
-    dev: false
 
   /@graphql-typed-document-node/core/3.1.1_graphql@16.6.0:
     resolution: {integrity: sha512-NQ17ii0rK1b34VZonlmT2QMJFI70m0TRwbknO/ihlbatXyaktDhN/98vBiUU6kNBPljqGqyIrl2T4nY2RpFANg==}
@@ -1153,12 +1092,6 @@ packages:
 
   /@types/react-dom/18.0.10:
     resolution: {integrity: sha512-E42GW/JA4Qv15wQdqJq8DL4JhNpB3prJgjgapN3qJT9K2zO5IIAQh4VXvCEDupoqAwnz0cY4RlXeC/ajX5SFHg==}
-    dependencies:
-      '@types/react': 18.0.26
-    dev: true
-
-  /@types/react-fontawesome/1.6.5:
-    resolution: {integrity: sha512-O75ViR81klU7TfVt4TAdEOWzzEf58RM8PVQHUmKsHjhDt/WLMcb+h/k5XxHUv9iYAKI5u81IoMJ20wC+QLe3Dw==}
     dependencies:
       '@types/react': 18.0.26
     dev: true
@@ -2169,6 +2102,22 @@ packages:
       semver: 7.3.8
     dev: true
 
+  /eslint-plugin-prettier/4.2.1_3vccgihvamfrdnqonsut5ihh4a:
+    resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      eslint: '>=7.28.0'
+      eslint-config-prettier: '*'
+      prettier: '>=2.0.0'
+    peerDependenciesMeta:
+      eslint-config-prettier:
+        optional: true
+    dependencies:
+      eslint: 8.32.0
+      prettier: 2.8.3
+      prettier-linter-helpers: 1.0.0
+    dev: true
+
   /eslint-plugin-promise/6.1.1_eslint@8.32.0:
     resolution: {integrity: sha512-tjqWDwVZQo7UIPMeDReOpUgHCmCiH+ePnVT+5zVapL0uuHnegBUs2smM13CzOs2Xb5+MHMRFTs9v24yjba4Oig==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -2355,6 +2304,10 @@ packages:
 
   /fast-deep-equal/3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+
+  /fast-diff/1.2.0:
+    resolution: {integrity: sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w==}
+    dev: true
 
   /fast-glob/3.2.12:
     resolution: {integrity: sha512-DVj4CQIYYow0BlaelwK1pHl5n5cRSJfM60UA0zK891sVInoPri2Ekj7+e1CT3/3qxXenpI+nBBmQAcJPJgaj4w==}
@@ -3168,6 +3121,19 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
+  /prettier-linter-helpers/1.0.0:
+    resolution: {integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      fast-diff: 1.2.0
+    dev: true
+
+  /prettier/2.8.3:
+    resolution: {integrity: sha512-tJ/oJ4amDihPoufT5sM0Z1SKEuKay8LfVAMlbbhnnkvt6BUserZylqo2PN+p9KeljLr0OHa2rXHU1T8reeoTrw==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
   /prop-types/15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
     dependencies:
@@ -3212,6 +3178,14 @@ packages:
       hotkeys-js: 3.9.4
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /react-icons/4.7.1_react@18.2.0:
+    resolution: {integrity: sha512-yHd3oKGMgm7zxo3EA7H2n7vxSoiGmHk5t6Ou4bXsfcgWyhfDKMpyKfhHR6Bjnn63c+YXBLBPUql9H4wPJM6sXw==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-is/16.13.1:

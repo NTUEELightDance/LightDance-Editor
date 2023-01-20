@@ -66,7 +66,9 @@ function DancerMode() {
     const newDisplayPart: { [key in PartType]?: string[] } = {};
 
     tempParts.forEach((part) => {
-      if (newDisplayPart[getPartType(part)] == null) { newDisplayPart[getPartType(part)] = []; }
+      if (newDisplayPart[getPartType(part)] == null) {
+        newDisplayPart[getPartType(part)] = [];
+      }
 
       (newDisplayPart[getPartType(part)] as string[]).push(part);
     });
@@ -131,7 +133,7 @@ function DancerMode() {
             value={`GROUP_${groupName}`}
             key={`group_tab_${groupName}`}
           />
-        ))
+        )),
     ];
 
     if (Object.keys(displayParts).length > 0) {
@@ -151,7 +153,7 @@ function DancerMode() {
             partType={partType as PartType}
             value={partType}
             dancers={dancers}
-            parts={parts }
+            parts={parts}
             currentDancers={currentDancers}
             currentStatus={currentStatus}
             colorMap={colorMap}
@@ -168,7 +170,7 @@ function DancerMode() {
               partType={getPartType(parts[0])}
               groupName={groupName}
               dancers={dancers}
-              parts={parts }
+              parts={parts}
               currentDancers={currentDancers}
               currentStatus={currentStatus}
               colorMap={colorMap}
@@ -176,7 +178,7 @@ function DancerMode() {
               deleteGroup={deleteGroup}
             />
           );
-        })
+        }),
     ];
     if (Object.keys(displayParts).length > 0) {
       ret.push(
@@ -196,7 +198,7 @@ function DancerMode() {
         sx={{
           width: "100%",
           minHeight: "100%",
-          position: "relative"
+          position: "relative",
         }}
         square
       >
@@ -209,7 +211,7 @@ function DancerMode() {
               width: "100%",
               height: "3em",
               px: "1em",
-              zIndex: 808
+              zIndex: 808,
             }}
             square
           >
@@ -220,8 +222,8 @@ function DancerMode() {
                 "button.MuiTab-root.MuiButtonBase-root": {
                   padding: "0.5em 0.5em",
                   minWidth: "4em",
-                  minHeight: "2em"
-                }
+                  minHeight: "2em",
+                },
               }}
             >
               {Tabs}

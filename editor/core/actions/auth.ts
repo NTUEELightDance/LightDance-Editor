@@ -8,7 +8,10 @@ export type AuthenticatePayload = {
 };
 
 const actions = registerActions({
-  authenticate: async (state: State, {account, password}: AuthenticatePayload) => {
+  authenticate: async (
+    state: State,
+    { account, password }: AuthenticatePayload
+  ) => {
     console.log({
       account,
       password,

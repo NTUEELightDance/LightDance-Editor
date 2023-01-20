@@ -6,7 +6,7 @@ import {
   controlValidatorSchema,
   posValidatorSchema,
   colorValidatorSchema,
-  ledValidatorSchema
+  ledValidatorSchema,
 } from "./validatorShema";
 
 // import validator
@@ -17,7 +17,7 @@ import {
   uploadExportDataApi,
   uploadLedDataApi,
   downloadExportDataApi,
-  downloadLedDataApi
+  downloadLedDataApi,
 } from "../../../api";
 
 import { notification } from "core/utils";
@@ -29,7 +29,9 @@ const uploadJson = async (files) => {
     reader.onload = (res) => {
       resolve(JSON.parse(res.target.result));
     };
-    reader.onerror = (err) => { reject(err); };
+    reader.onerror = (err) => {
+      reject(err);
+    };
     reader.readAsText(file);
   });
 };

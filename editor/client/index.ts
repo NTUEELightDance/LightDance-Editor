@@ -6,7 +6,7 @@ import { nanoid } from "nanoid";
 import Subscriptions from "./subscription";
 
 const httpLink = new HttpLink({
-  uri: `${location.origin}/graphql-backend`
+  uri: `${location.origin}/graphql-backend`,
 });
 
 const _userID = nanoid();
@@ -16,17 +16,17 @@ const wsLink = new WebSocketLink({
     reconnect: true,
     connectionParams: {
       userID: _userID,
-      name: "editor"
-    }
-  }
+      name: "editor",
+    },
+  },
 });
 // randomly generate a unique ID
 const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       userID: _userID,
-      name: "editor"
-    }
+      name: "editor",
+    },
   };
 });
 
@@ -47,7 +47,7 @@ const connectToDevTools = process.env.NODE_ENV !== "production";
 const client = new ApolloClient({
   link: authLink.concat(splitLink),
   cache: new InMemoryCache().restore({}),
-  connectToDevTools
+  connectToDevTools,
 });
 
 Subscriptions(client);

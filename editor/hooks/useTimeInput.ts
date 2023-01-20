@@ -25,7 +25,7 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
     setTimeError(false);
     return true;
   };
-    // update displayed time and provide user friendly corrections
+  // update displayed time and provide user friendly corrections
   const updateDisplayedTime = (newDisplayedTime: string) => {
     const timeList = newDisplayedTime.split(":").map(Number);
     for (const time of timeList) {
@@ -38,50 +38,52 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
     const timeStrList = newDisplayedTime.split(":");
     const newTimeStrList = newDisplayedTime.split(":");
     switch (timeList.length) {
-    case 1:
-      if (newDisplayedTime.length > 0) { newTimeStrList[0] = newDisplayedTime.substring(0, 1); }
-      if (newDisplayedTime.length > 1) {
-        newTimeStrList[1] = newDisplayedTime.substring(
-          1,
-          Math.min(3, newDisplayedTime.length)
+      case 1:
+        if (newDisplayedTime.length > 0) {
+          newTimeStrList[0] = newDisplayedTime.substring(0, 1);
+        }
+        if (newDisplayedTime.length > 1) {
+          newTimeStrList[1] = newDisplayedTime.substring(
+            1,
+            Math.min(3, newDisplayedTime.length)
+          );
+        }
+        if (newDisplayedTime.length > 3) {
+          newTimeStrList[2] = newDisplayedTime.substring(
+            3,
+            Math.min(6, newDisplayedTime.length)
+          );
+        }
+        setDisplayedTime(newTimeStrList.join(":"));
+        break;
+      case 2:
+        if (timeStrList[1].length > 0) {
+          newTimeStrList[1] = timeStrList[1].substring(
+            0,
+            Math.min(2, timeStrList[1].length)
+          );
+        }
+        if (timeStrList[1].length > 2) {
+          newTimeStrList[2] = timeStrList[1].substring(
+            2,
+            Math.min(5, timeStrList[1].length)
+          );
+        }
+        setDisplayedTime(newTimeStrList.join(":"));
+        break;
+      case 3:
+        // do nothing
+        setDisplayedTime(
+          // 7 = 2':'s + 2 (seconds) + 3 (milliseconds)
+          newDisplayedTime.substring(0, timeStrList[0].length + 7)
         );
-      }
-      if (newDisplayedTime.length > 3) {
-        newTimeStrList[2] = newDisplayedTime.substring(
-          3,
-          Math.min(6, newDisplayedTime.length)
-        );
-      }
-      setDisplayedTime(newTimeStrList.join(":"));
-      break;
-    case 2:
-      if (timeStrList[1].length > 0) {
-        newTimeStrList[1] = timeStrList[1].substring(
-          0,
-          Math.min(2, timeStrList[1].length)
-        );
-      }
-      if (timeStrList[1].length > 2) {
-        newTimeStrList[2] = timeStrList[1].substring(
-          2,
-          Math.min(5, timeStrList[1].length)
-        );
-      }
-      setDisplayedTime(newTimeStrList.join(":"));
-      break;
-    case 3:
-      // do nothing
-      setDisplayedTime(
-        // 7 = 2':'s + 2 (seconds) + 3 (milliseconds)
-        newDisplayedTime.substring(0, timeStrList[0].length + 7)
-      );
-      break;
-    default:
-      setDisplayedTime(newDisplayedTime);
-      validateTime(newDisplayedTime);
+        break;
+      default:
+        setDisplayedTime(newDisplayedTime);
+        validateTime(newDisplayedTime);
     }
   };
-    // convert displayed time string to milli seconds
+  // convert displayed time string to milli seconds
   const toMillis = (timeString: string) => {
     if (!validateTime(timeString)) {
       throw new Error("invalid time");
@@ -116,7 +118,11 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
   const handleArrowKeys = (key: "up" | "down", shiftKey?: boolean) => {
     const displayedTimeValue = toMillis(displayedTime);
     const delta = shiftKey ? 10 : 1;
-    if (key === "up") { updateDisplayedTime(formatDisplayedTime(displayedTimeValue + delta)); } else if (key === "down") { updateDisplayedTime(formatDisplayedTime(displayedTimeValue - delta)); }
+    if (key === "up") {
+      updateDisplayedTime(formatDisplayedTime(displayedTimeValue + delta));
+    } else if (key === "down") {
+      updateDisplayedTime(formatDisplayedTime(displayedTimeValue - delta));
+    }
   };
 
   const timeInputRef = useRef<HTMLInputElement>();
@@ -140,7 +146,7 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
       if (e.key === "ArrowUp") handleArrowKeys("up", e.shiftKey);
       if (e.key === "ArrowDown") handleArrowKeys("down", e.shiftKey);
     }) as React.KeyboardEventHandler,
-    inputRef: timeInputRef as React.RefObject<HTMLInputElement>
+    inputRef: timeInputRef as React.RefObject<HTMLInputElement>,
   };
 
   // update displayed time when current time is changed else where
@@ -152,7 +158,7 @@ const useTimeInput = ([externalTimeValue, setExternalTimeValue]: [
   return {
     textFieldProps,
     timeError,
-    timeInputRef
+    timeInputRef,
   };
 };
 

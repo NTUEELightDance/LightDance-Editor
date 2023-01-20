@@ -8,10 +8,10 @@ import { SettingModal } from "./SettingModal";
 
 export function Settings({
   showSettings,
-  setShowSettings
+  setShowSettings,
 }: {
-  showSettings: boolean
-  setShowSettings: (showSettings: boolean) => void
+  showSettings: boolean;
+  setShowSettings: (showSettings: boolean) => void;
 }) {
   const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
@@ -22,14 +22,14 @@ export function Settings({
       label: "files",
       modalOpen: fileModalOpen,
       setModalOpen: setFileModalOpen,
-      modalChildren: <File />
+      modalChildren: <File />,
     },
     {
       label: "preferences",
       modalOpen: prefModalOpen,
       setModalOpen: setPrefModalOpen,
-      modalChildren: <Preference />
-    }
+      modalChildren: <Preference />,
+    },
   ];
 
   const handleMenuItemClick =
@@ -41,7 +41,9 @@ export function Settings({
   return (
     <>
       <IconButton
-        onClick={() => { setShowSettings(!showSettings); }}
+        onClick={() => {
+          setShowSettings(!showSettings);
+        }}
         ref={menuAnchor}
       >
         <SettingsIcon sx={{ color: "white" }} />
@@ -50,16 +52,18 @@ export function Settings({
         sx={{ transform: "translate(-30px, 45px)" }}
         anchorOrigin={{
           vertical: "top",
-          horizontal: "right"
+          horizontal: "right",
         }}
         keepMounted
         transformOrigin={{
           vertical: "top",
-          horizontal: "right"
+          horizontal: "right",
         }}
         anchorEl={menuAnchor.current}
         open={showSettings}
-        onClose={() => { setShowSettings(false); }}
+        onClose={() => {
+          setShowSettings(false);
+        }}
       >
         {settings.map(({ label, setModalOpen }) => (
           <MenuItem
@@ -75,7 +79,9 @@ export function Settings({
         <SettingModal
           key={`${label}_modal`}
           open={modalOpen}
-          onClose={() => { setModalOpen(false); }}
+          onClose={() => {
+            setModalOpen(false);
+          }}
         >
           {modalChildren}
         </SettingModal>

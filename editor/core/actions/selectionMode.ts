@@ -20,16 +20,16 @@ const actions = registerActions({
   setSelectionModeByEditor: (state: State, payload: Editor) => {
     const editor = payload;
     switch (editor) {
-    case CONTROL_EDITOR:
-      state.selectionMode = POSITION;
-      break;
-    case POS_EDITOR:
-      state.selectionMode = DANCER;
-      break;
-    default:
-      state.selectionMode = DANCER;
+      case CONTROL_EDITOR:
+        state.selectionMode = POSITION;
+        break;
+      case POS_EDITOR:
+        state.selectionMode = DANCER;
+        break;
+      default:
+        state.selectionMode = DANCER;
     }
-  }
+  },
 });
 
 export const { setSelectionMode, setSelectionModeByEditor } = actions;

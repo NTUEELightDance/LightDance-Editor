@@ -12,7 +12,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import { notification } from "core/utils";
 
-export default function EditorSelector () {
+export default function EditorSelector() {
   const editor = useReactiveVar(reactiveState.editor);
   const editMode = useReactiveVar(reactiveState.editMode);
 

@@ -13,13 +13,15 @@ import "./index.css";
 import { ApolloProvider } from "@apollo/client";
 
 function Index() {
-  return <ApolloProvider client={client}>
-    <WaveSurferAppContext>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </WaveSurferAppContext>
-  </ApolloProvider>;
+  return (
+    <ApolloProvider client={client}>
+      <WaveSurferAppContext>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </WaveSurferAppContext>
+    </ApolloProvider>
+  );
 }
 
 const root = ReactDOM.createRoot(document.getElementById("app") as HTMLElement);

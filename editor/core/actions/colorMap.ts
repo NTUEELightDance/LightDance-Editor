@@ -10,7 +10,7 @@ const actions = registerActions({
    */
   setColorMap: (state: State, payload: ColorMap) => {
     state.colorMap = payload;
-  }
+  },
 });
 
 export const { setColorMap } = actions;

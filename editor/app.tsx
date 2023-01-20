@@ -16,7 +16,7 @@ import {
   setCurrentStatus,
   setSelected,
   initCurrentLedEffect,
-  generateLedEffectRecord
+  generateLedEffectRecord,
 } from "core/actions";
 
 import { getControl, getPos } from "core/utils";
@@ -71,10 +71,7 @@ function App() {
     fetchData();
   }, []);
 
-  const {
-    loading: dancerLoading,
-    dancerNames
-  } = useDancer();
+  const { loading: dancerLoading, dancerNames } = useDancer();
 
   useEffect(() => {
     if (!dancerLoading) {
@@ -98,13 +95,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {init && !controlLoading && !posLoading
-        ? (
-          <Router />
-        )
-        : (
-          <Loading />
-        )}
+      {init && !controlLoading && !posLoading ? <Router /> : <Loading />}
     </ThemeProvider>
   );
 }

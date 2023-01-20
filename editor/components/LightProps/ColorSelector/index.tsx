@@ -8,17 +8,17 @@ import useColorMap from "../../../hooks/useColorMap";
 function CustomSelect({
   placeholder,
   onChange,
-  currentColorName
+  currentColorName,
 }: {
-  placeholder?: string
-  onChange: (value: any) => void
-  currentColorName: string
+  placeholder?: string;
+  onChange: (value: any) => void;
+  currentColorName: string;
 }) {
   const listboxRef = useRef<HTMLUListElement>(null);
   const [listboxVisible, setListboxVisible] = useState(false);
   const { colorMap } = useColorMap();
 
-  const options: Array<{ label: string, value: string }> = [];
+  const options: Array<{ label: string; value: string }> = [];
   Object.keys(colorMap).forEach((colorName) => {
     options.push({ label: colorName, value: colorName });
   });
@@ -28,11 +28,11 @@ function CustomSelect({
     getButtonProps,
     getListboxProps,
     getOptionProps,
-    value: colorName
+    value: colorName,
   } = useSelect({
     listboxRef,
     options,
-    defaultValue: currentColorName
+    defaultValue: currentColorName,
   });
 
   useEffect(() => {
@@ -44,8 +44,16 @@ function CustomSelect({
   }, [listboxVisible]);
 
   return (
-    <ClickAwayListener onClickAway={() => { setListboxVisible(false); }}>
-      <Root onClick={() => { setListboxVisible(!listboxVisible); }}>
+    <ClickAwayListener
+      onClickAway={() => {
+        setListboxVisible(false);
+      }}
+    >
+      <Root
+        onClick={() => {
+          setListboxVisible(!listboxVisible);
+        }}
+      >
         <Toggle
           {...getButtonProps()}
           style={{ "--color": colorMap[currentColorName] } as any}
@@ -64,7 +72,7 @@ function CustomSelect({
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center"
+                  alignItems: "center",
                 }}
               >
                 {option.label}
@@ -73,7 +81,7 @@ function CustomSelect({
                     backgroundColor: colorMap[option.label],
                     display: "inline-block",
                     width: "1em",
-                    height: "1em"
+                    height: "1em",
                   }}
                 />
               </Box>
