@@ -4,8 +4,6 @@ import { Alert, Button, Fade } from "@mui/material";
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
 import withReactContent from "sweetalert2-react-content";
 
-// @ts-expect-error
-import styles from "./notification.module.css";
 import { useHotkeys } from "react-hotkeys-hook";
 
 type MessageType = "info" | "success" | "error" | "warning"
@@ -45,7 +43,7 @@ function Confirmation({
   };
 
   // the keyboard event is sometimes kidnapped by other components for an unknown reason
-  // thus we use useHotKeys to gaurantee we can trigger the event
+  // thus we use useHotKeys to guarantee we can trigger the event
   useHotkeys("enter", (e) => {
     e.preventDefault();
     handleConfirm();
