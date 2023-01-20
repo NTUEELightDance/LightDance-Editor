@@ -1,6 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
-import { ObjectId } from "mongodb";
+import { ObjectId } from "mongoose";
 
 import redis from "../../redis";
 import { TRedisControl, TRedisPosition } from "../../types/global";

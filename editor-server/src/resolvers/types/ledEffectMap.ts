@@ -1,6 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
-import { ObjectId } from "mongodb";
 import db from "../../models";
 import { ILED, ILEDEffects, ILEDEffectsEffect, IPart } from "../../types/global";
 

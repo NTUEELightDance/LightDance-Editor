@@ -114,7 +114,7 @@ export interface ILogger {
   time: Date;
   status: string;
   errorMessage?: LooseObject;
-  result?: LooseObject; 
+  result?: LooseObject;
   _id?: ObjectId;
 }
 

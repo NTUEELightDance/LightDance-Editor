@@ -12,5 +12,5 @@ export class Control {
   @Field((type) => ControlDevice)
     status: IControlValue;
 
-    value: IControlValue;
+  value: IControlValue;
 }

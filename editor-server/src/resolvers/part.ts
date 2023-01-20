@@ -189,7 +189,7 @@ export class PartResolver {
         );
         return data;
       })
-    )
+    );
     // return data
 
     return result;

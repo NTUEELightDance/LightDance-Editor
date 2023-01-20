@@ -111,11 +111,11 @@ const uploadData = async (req: Request, res: Response) => {
           Object.keys(status).map(async (dancer: string) => {
             await Promise.all(
               Object.keys(status[dancer]).map(async (part: string) => {
-                let value = status[dancer][part];
+                const value = status[dancer][part];
                 if (allDancer[dancer].parts[part].type == "EL") {
                   const controlID = await new db.Control({ frame, value: { value } })
-                  .save()
-                  .then((value) => value._id);
+                    .save()
+                    .then((value) => value._id);
                   allDancer[dancer].parts[part].controlData.push(controlID);
                 }else{
                   const controlID = await new db.Control({ frame, value })
