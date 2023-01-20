@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-
+import React from "react";
 import { useLocation, Navigate } from "react-router-dom";
+import { useReactiveVar } from "@apollo/client";
 
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -11,21 +11,46 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 
-export default function SignIn() {
+import { reactiveState } from "@/core/state";
+import { authenticate } from "@/core/actions";
+
+export default function LogIn() {
+  const isLoggedIn = useReactiveVar(reactiveState.isLoggedIn);
+  const location = useLocation();
+
+  if (isLoggedIn) {
+    const { from } = location.state as { from: { pathname: string } };
+    return <Navigate to={from?.pathname || "/"} />;
+  }
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const formData = new FormData(event.currentTarget);
+    const account = formData.get("account") as string;
+    const password = formData.get("password") as string;
+    // const remember = formData.get("remember") === "on";
+    authenticate({payload: {account, password}});
   };
 
   return (
-    <Box className="flex flex-col items-center">
+    <Box sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      mt: "8rem",
+    }}>
       <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
         <LockOutlinedIcon />
       </Avatar>
       <Typography component="h1" variant="h5">
-        Sign in
+        Log in
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+      <Box component="form" onSubmit={handleSubmit} sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        width: "30rem",
+      }}>
         <TextField
           margin="normal"
           required
@@ -46,10 +71,6 @@ export default function SignIn() {
           id="password"
           autoComplete="current-password"
         />
-        <FormControlLabel
-          control={<Checkbox value="remember" color="primary" />}
-          label="Remember me"
-        />
         <Button
           type="submit"
           fullWidth
@@ -58,6 +79,10 @@ export default function SignIn() {
         >
           Log In
         </Button>
+        <FormControlLabel
+          control={<Checkbox name="remember" color="primary" />}
+          label="Remember me"
+        />
       </Box>
     </Box>
   );
