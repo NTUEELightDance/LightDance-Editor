@@ -21,7 +21,7 @@ import {
 
 import { getControl, getPos } from "core/utils";
 
-import Router from "@/routes";
+import Router from "@/pages";
 
 const theme = createTheme({ palette: { mode: "dark" } });
 
