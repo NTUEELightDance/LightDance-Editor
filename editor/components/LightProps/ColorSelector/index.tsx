@@ -3,7 +3,7 @@ import { useSelect } from "@mui/base";
 import { Paper, Box, ClickAwayListener } from "@mui/material";
 import { Root, Toggle, Listbox } from "./CustomComponents";
 
-import useColorMap from "../../../hooks/useColorMap";
+import useColorMap from "@/hooks/useColorMap";
 
 function CustomSelect({
   placeholder,
@@ -11,7 +11,7 @@ function CustomSelect({
   currentColorName,
 }: {
   placeholder?: string;
-  onChange: (value: any) => void;
+  onChange: (value: string) => void;
   currentColorName: string;
 }) {
   const listboxRef = useRef<HTMLUListElement>(null);
@@ -32,12 +32,12 @@ function CustomSelect({
   } = useSelect({
     listboxRef,
     options,
-    defaultValue: currentColorName,
+    value: currentColorName,
   });
 
   useEffect(() => {
     onChange(colorName);
-  }, [colorName]);
+  }, [colorName, onChange]);
 
   useEffect(() => {
     if (listboxVisible) listboxRef.current?.focus();
@@ -56,7 +56,7 @@ function CustomSelect({
       >
         <Toggle
           {...getButtonProps()}
-          style={{ "--color": colorMap[currentColorName] } as any}
+          style={{ "--color": colorMap[currentColorName] }}
         >
           {currentColorName ?? (
             <span className="placeholder">{placeholder ?? " "}</span>

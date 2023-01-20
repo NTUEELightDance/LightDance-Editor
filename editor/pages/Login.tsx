@@ -56,6 +56,7 @@ export default function LogIn() {
           alignItems: "center",
           width: "30rem",
         }}
+        noValidate
       >
         <TextField
           margin="normal"
