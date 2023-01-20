@@ -27,6 +27,7 @@
     "react-colorful": "^5.5.1",
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^3.4.4",
+    "react-icons": "^4.7.1",
     "react-redux": "^7.2.2",
     "react-resize-detector": "^7.0.0",
     "react-router-dom": "^6.6.1",
