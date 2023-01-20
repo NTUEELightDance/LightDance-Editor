@@ -3,8 +3,11 @@ import express from "express";
 import "dotenv-defaults/config";
 import http from "http";
 import bodyParser from "body-parser";
-import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginLandingPageDisabled } from "apollo-server-core";
+import WebSocket from "ws";
+
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+
 import { execute, subscribe } from "graphql";
 import { SubscriptionServer, ConnectionContext } from "subscriptions-transport-ws";
 import { PubSub } from "graphql-subscriptions";
@@ -20,7 +23,7 @@ import { AccessMiddleware } from "./middlewares/accessLogger";
 import { ConnectionParam, TContext } from "./types/global";
 
 const port = process.env.PORT || 4000;
-const { SECRET_KEY } = process.env;
+// const { SECRET_KEY } = process.env;
 
 (async function () {
   const app = express();
@@ -44,7 +47,6 @@ const { SECRET_KEY } = process.env;
 
   const subscriptionBuildOptions = async (
     connectionParams: ConnectionParam,
-    webSocket: WebSocket
   ) => {
     try {
       const { userID, name } = connectionParams;
@@ -56,7 +58,9 @@ const { SECRET_KEY } = process.env;
         await new db.User({ name, userID }).save();
         return { db, userID };
       }
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const subscriptionDestroyOptions = async (webSocket: WebSocket, context: ConnectionContext) => {
@@ -82,24 +86,6 @@ const { SECRET_KEY } = process.env;
 
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
-      try {
-        // make sure that we know who are accessing backend
-        const { name, userid } = req.headers;
-        if (!userid || !name)
-          throw new Error("UserID and name must be filled.");
-        const userID: string = (typeof(userid) === 'string') ? userid : userid[0];
-        const userName: string = (typeof(name) === 'string') ? name: name[0];
-        const user = await db.User.findOne({ name: userName, userID: userID });
-        if (!user) {
-          const newUser = await new db.User({ name: userName, userID: userid }).save();
-        }
-        const result: TContext = { db, userID };
-        return result;
-      } catch (e) {
-        console.log(e);
-      }
-    },
     plugins: [
       {
         async serverWillStart() {
@@ -110,17 +96,27 @@ const { SECRET_KEY } = process.env;
           };
         },
       },
-      ...(process.env.NODE_ENV === "production"
-        ? [ApolloServerPluginLandingPageDisabled()]
-        : []),
     ],
   });
 
   await server.start();
-  server.applyMiddleware({ app });
 
-  httpServer.listen(port, () => {
-    console.log(`🚀 Server Ready at ${port}! 🚀`);
-    console.log(`Graphql Port at ${port}${server.graphqlPath}`);
-  });
+  app.use("/graphql", expressMiddleware(server, {
+    context: async ({ req }) => {
+      // make sure that we know who are accessing backend
+      const { name, userid } = req.headers;
+      if (!userid || !name)
+        throw new Error("UserID and name must be filled.");
+      const userID: string = (typeof(userid) === "string") ? userid : userid[0];
+      const userName: string = (typeof(name) === "string") ? name: name[0];
+      const user = await db.User.findOne({ name: userName, userID: userID });
+      if (!user) {
+        await new db.User({ name: userName, userID: userid }).save();
+      }
+      const result: TContext = { db, userID };
+      return result;
+    },
+  }));
+
+  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
 })();
