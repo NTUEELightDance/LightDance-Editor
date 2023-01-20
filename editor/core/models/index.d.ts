@@ -190,6 +190,8 @@ export type EditGroupError = "DNE"
  * Mutable State
  */
 export interface State {
+  isLoggedIn: boolean
+
   isPlaying: boolean // isPlaying
 
   currentTime: number // current time
@@ -224,7 +226,9 @@ export type StateKey = keyof State
 /**
  * Reactive State, can trigger react component
  */
-export interface ReactiveState extends Record<StateKey, any> {
+export interface ReactiveState extends Record<StateKey, ReactiveVar> {
+  isLoggedIn: ReactiveVar<boolean>
+
   isPlaying: ReactiveVar<boolean> // isPlaying
 
   currentTime: ReactiveVar<number> // current time

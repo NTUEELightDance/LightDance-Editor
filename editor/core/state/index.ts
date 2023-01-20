@@ -30,6 +30,8 @@ import {
  * Mutable State
  */
 const _state: State = {
+  isLoggedIn: false,
+
   isPlaying: false,
   selected: {},
 
@@ -79,6 +81,8 @@ state.toString = () => {
  * Reactive State, can trigger react component rerender
  */
 export const reactiveState: ReactiveState = {
+  isLoggedIn: makeVar<boolean>(false),
+
   isPlaying: makeVar<boolean>(false),
   selected: makeVar<Selected>({}),
   currentTime: makeVar<number>(0),
