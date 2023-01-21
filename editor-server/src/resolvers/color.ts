@@ -31,6 +31,14 @@ class ColorResolver {
     @Arg("colorCode") colorCode: string,
     @Ctx() ctx: TContext
   ) {
+    // Check color Code Exist
+    const checkColor = await ctx.prisma.color.findFirst({
+      where: {colorCode: colorCode}
+    });
+    if (checkColor){
+      throw new Error(`ColorCode ${colorCode} exist on color ${checkColor.color}`);
+    }
+
     const existedColor = await ctx.prisma.color.findFirst({where: {color}});
     const colorData = await ctx.prisma.color.upsert({create: {color, colorCode}, update: {colorCode}, where: {color}});
     if (!existedColor) {

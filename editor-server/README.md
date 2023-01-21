@@ -2,7 +2,7 @@
 1. Make sure postgresql is running
 ```sh
 cd ./Lightdance-Editor
-docker-compose -f dev.docker-compose.yml up -d postgresql mongodb redisdb
+docker-compose -f dev.docker-compose.yml up -d postgresqldb mongodb redisdb
 ```
 
 2. Update prisma schema
