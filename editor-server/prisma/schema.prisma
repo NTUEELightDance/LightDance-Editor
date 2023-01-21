@@ -16,6 +16,146 @@ generator typegraphql {
 }
 
 model Color {
-  color     String @id
-  colorCode String 
+  color                     String                  @id
+  colorCode                 String                  @unique
+}
+
+model LEDEffect {
+  id                        Int                     @id @default(autoincrement())
+  name                      String
+  partName                  String
+  repeat                    Int
+  frames                    LEDFrame[] 
+
+  @@unique([name, partName])
+}
+
+model LEDFrame {
+  LEDEffectId               Int
+  start                     Int
+  fade                      Boolean
+  LEDs                      Json[]
+
+  // relation => not in db
+  LEDEffect                 LEDEffect               @relation(fields: [LEDEffectId], references: [id])
+
+  @@id([LEDEffectId, start])
+}
+
+model User {
+  id                        Int                     @id @default(autoincrement())
+  name                      String                  @unique
+  password                  String
+
+  // relation => not in db
+  editingPositionFrameId    EditingPositionFrame?
+  editingControlFrameId     EditingControlFrame?
+}
+
+model EditingPositionFrame {
+  userId                    Int                     @id 
+  frameId                   Int?                    @unique
+
+  // relation => not in db
+  user                      User                    @relation(fields: [userId], references: [id])
+  editingFrame              PositionFrame?          @relation(fields: [frameId], references: [id])
+}
+
+model EditingControlFrame {
+  userId                    Int                     @id 
+  frameId                   Int?                    @unique
+
+  // relation => not in db
+  user                      User                    @relation(fields: [userId], references: [id])
+  editingFrame              ControlFrame?           @relation(fields: [frameId], references: [id])
+}
+
+model Dancer {
+  id                        Int                     @id @default(autoincrement())
+  name                      String  
+
+  // relation => not in db
+  parts                     Part[]
+  positionData              PositionData[]
+}
+
+enum PartType {
+  LED
+  FIBER
+}
+
+model Part {
+  id                        Int                     @id @default(autoincrement())
+  dancerId                  Int
+  name                      String
+  type                      PartType
+
+  // relation => not in db
+  dancer                    Dancer                  @relation(fields: [dancerId], references: [id])
+  controlData               ControlData[]
+}
+
+model PositionData {
+  dancerId                  Int
+  frameId                   Int
+  x                         Float
+  y                         Float
+  z                         Float
+
+  // relation => not in db
+  dancer                    Dancer                  @relation(fields: [dancerId], references: [id])
+  frame                     PositionFrame           @relation(fields: [frameId], references: [id])
+
+  @@id([dancerId, frameId])
+}
+
+model PositionFrame {
+  id                        Int                     @id @default(autoincrement())
+  start                     Int                     @unique
+
+  // relation => not in db
+  editing                   EditingPositionFrame?             
+  positionDatas             PositionData[]
+}
+
+model ControlData {
+  partId                    Int
+  frameId                   Int
+  value                     Json
+
+  // relation => not in db
+  part                      Part                   @relation(fields: [partId], references: [id])
+  frame                     ControlFrame           @relation(fields: [frameId], references: [id])
+
+  @@id([partId, frameId])
+}
+
+model ControlFrame {
+  id                        Int                     @id @default(autoincrement())
+  start                     Int                     @unique
+  fade                      Boolean
+
+  // relation => not in db
+  editing                   EditingControlFrame?             
+  controlDatas              ControlData[]
+}
+
+model EffectList {
+  id                        Int                     @id @default(autoincrement())
+  start                     Int
+  end                       Int
+  description               String
+  controlFrames             Json[]
+  positionFrames            Json[]
+}
+
+model Logger {
+  id                        Int                     @id @default(autoincrement())
+  user                      String
+  variableValue             Json?
+  fieldName                 String
+  time                      DateTime                @default(now())
+  status                    String
+  errorMessage              Json?
+  result                    Json?
 }

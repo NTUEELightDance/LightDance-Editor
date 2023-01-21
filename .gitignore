@@ -145,5 +145,6 @@ utils/door_led/
 
 mongodbData
 redisData
+pg
 
 editor-server/src/data/private

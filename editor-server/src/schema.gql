@@ -72,6 +72,7 @@ input ColorWhereInput {
 
 input ColorWhereUniqueInput {
   color: String
+  colorCode: String
 }
 
 type Control {
