@@ -10,14 +10,14 @@ function Preference() {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "1em" }}>
-      <PreferenceSelector
+      {/* <PreferenceSelector
         label="mode"
         value={mode}
         Options={["editor", "command"]}
         onChange={(e) => {
           setMode(e.target.value as layoutMode);
         }}
-      />
+      /> */}
       <MarkerSwitch />
     </Box>
   );
