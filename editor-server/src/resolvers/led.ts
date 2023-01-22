@@ -1,10 +1,4 @@
-import {
-  Resolver,
-  Query,
-  Arg,
-  Ctx,
-  Mutation,
-} from "type-graphql";
+import { Resolver, Query, Arg, Ctx, Mutation } from "type-graphql";
 
 import { LEDMap } from "./types/ledEffectMap";
 import { AddLEDInput, DeleteLEDInput } from "./inputs/led";
@@ -62,14 +56,17 @@ export class LEDResolver {
         msg: `Effect ${effectName} on part ${partName} not found`,
       };
 
-    const checkControl: IControl[] = await ctx.db.Control.find({ "value.src": effectName });
+    const checkControl: IControl[] = await ctx.db.Control.find({
+      "value.src": effectName,
+    });
     if (checkControl.length != 0) {
-      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find({}, "_id").sort({
+      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find(
+        {},
+        "_id"
+      ).sort({
         start: 1,
       });
-      const allControlFrameID = allControlFrame.map((Obj) =>
-        String(Obj._id)
-      );
+      const allControlFrameID = allControlFrame.map((Obj) => String(Obj._id));
       const ids: number[] = [];
       checkControl.map((controlObj) => {
         const frame = String(controlObj.frame);

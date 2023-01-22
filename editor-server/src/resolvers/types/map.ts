@@ -16,7 +16,7 @@ interface MapData {
 @ObjectType()
 export class Map {
   @Field((type) => MapScalar)
-    frames: MapID[];
+  frames: MapID[];
 }
 
 export const MapScalar = new GraphQLScalarType({

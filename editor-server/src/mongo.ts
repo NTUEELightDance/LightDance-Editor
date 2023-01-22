@@ -11,8 +11,9 @@ export default () => {
     .connect(`mongodb://${MONGO_HOST}/${MONGO_DBNAME}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useFindAndModify: false,
     })
-    .then((res) => {
+    .then(() => {
       console.log("mongo db connection created");
     });
   const db = mongoose.connection;

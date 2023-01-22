@@ -43,7 +43,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async addControlFrame(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
@@ -90,9 +90,10 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(mapPayload);
-    const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-      start: 1,
-    });
+    const allControlFrames: IControlFrame[] =
+      await ctx.db.ControlFrame.find().sort({
+        start: 1,
+      });
     let index = -1;
     await allControlFrames.map((frame, idx: number) => {
       if (frame.id === newControlFrame.id) {
@@ -115,7 +116,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async editControlFrame(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: EditControlFrameInput,
     @Ctx() ctx: TContext
@@ -131,7 +132,9 @@ export class ControlFrameResolver {
         }
       }
     }
-    const frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
+    const frameToEdit = await ctx.db.ControlFrame.findOne({
+      id: input.frameID,
+    });
     if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
       throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
@@ -154,9 +157,10 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(payload);
-    const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-      start: 1,
-    });
+    const allControlFrames: IControlFrame[] =
+      await ctx.db.ControlFrame.find().sort({
+        start: 1,
+      });
     let index = -1;
     await allControlFrames.map((frame, idx: number) => {
       if (frame.id === controlFrame.id) {
@@ -178,7 +182,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async deleteControlFrame(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: DeleteControlFrameInput,
     @Ctx() ctx: TContext

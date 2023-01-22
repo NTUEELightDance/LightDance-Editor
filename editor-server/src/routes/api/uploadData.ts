@@ -1,24 +1,32 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import { Document } from "mongoose";
 
 import db from "../../models";
 import { generateID, initRedisControl, initRedisPosition } from "../../utility";
-import { IDancer, IPart, TDancerData, TExportData, TPartData } from "../../types/global";
+import {
+  IDancer,
+  IPart,
+  TDancerData,
+  TExportData,
+  TPartData,
+} from "../../types/global";
 
 type DancerTmpData = {
   [key: string]: {
     dancer: IDancer & Document;
     parts: PartTmpData;
-  }
-}
+  };
+};
 type PartTmpData = {
   [key: string]: IPart & Document;
-}
+};
 
 const uploadData = async (req: Request, res: Response) => {
   try {
     // read request
-    const data = Array.isArray(req.files!.data) ? req.files!.data[0] : req.files!.data;
+    const data = Array.isArray(req.files!.data)
+      ? req.files!.data[0]
+      : req.files!.data;
     const dataObj: TExportData = JSON.parse(data.data.toString("ascii"));
     const { position, control, dancer, color } = dataObj;
 
@@ -113,11 +121,14 @@ const uploadData = async (req: Request, res: Response) => {
               Object.keys(status[dancer]).map(async (part: string) => {
                 const value = status[dancer][part];
                 if (allDancer[dancer].parts[part].type == "EL") {
-                  const controlID = await new db.Control({ frame, value: { value } })
+                  const controlID = await new db.Control({
+                    frame,
+                    value: { value },
+                  })
                     .save()
                     .then((value) => value._id);
                   allDancer[dancer].parts[part].controlData.push(controlID);
-                }else{
+                } else {
                   const controlID = await new db.Control({ frame, value })
                     .save()
                     .then((value) => value._id);

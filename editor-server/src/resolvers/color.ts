@@ -177,14 +177,17 @@ class ColorResolver {
       color,
     });
 
-    const checkControl: IControl[] = await ctx.db.Control.find({ "value.color": color });
+    const checkControl: IControl[] = await ctx.db.Control.find({
+      "value.color": color,
+    });
     if (checkControl.length != 0) {
-      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find({}, "_id").sort({
+      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find(
+        {},
+        "_id"
+      ).sort({
         start: 1,
       });
-      const allControlFrameID = allControlFrame.map((Obj) =>
-        String(Obj._id)
-      );
+      const allControlFrameID = allControlFrame.map((Obj) => String(Obj._id));
       const ids: number[] = [];
       checkControl.map((controlObj) => {
         const frame = String(controlObj.frame);

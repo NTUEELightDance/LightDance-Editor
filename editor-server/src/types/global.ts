@@ -1,18 +1,18 @@
 import { Model, ObjectId, Document, PopulatedDoc } from "mongoose";
 
-export interface ConnectionParam{
-    userID: string;
-    name: string;
+export interface ConnectionParam {
+  userID: string;
+  name: string;
 }
 
 export type DBModels = {
-    [key: string]: Model<any>;
-}
+  [key: string]: Model<any>;
+};
 
 export type TContext = {
-    db: DBModels;
-    userID: string;
-}
+  db: DBModels;
+  userID: string;
+};
 
 export interface LooseObject {
   [key: string]: any;
@@ -51,7 +51,10 @@ export interface IControl {
   value: IControlValue;
   _id?: ObjectId;
 }
-export type IControlValue = IELControlValue | ILEDControlValue | IFiberControlValue;
+export type IControlValue =
+  | IELControlValue
+  | ILEDControlValue
+  | IFiberControlValue;
 interface IELControlValue {
   value: number;
 }
@@ -90,7 +93,7 @@ export interface IEffectList {
   colorCode: string;
   _id?: ObjectId;
 }
-export interface ILEDEffectsEffect{
+export interface ILEDEffectsEffect {
   colorCode: string;
   alpha: number;
 }
@@ -124,7 +127,7 @@ export type TExportData = {
   control: TControlData;
   dancer: TDancerData[];
   color: TColorData;
-}
+};
 export type TPositionData = {
   [key: string]: {
     start: number;
@@ -133,9 +136,9 @@ export type TPositionData = {
         x: number;
         y: number;
         z: number;
-      }
-    }
-  }
+      };
+    };
+  };
 };
 export type TControlData = {
   [key: string]: {
@@ -143,85 +146,85 @@ export type TControlData = {
     start: number;
     status: {
       [key: string]: {
-        [key: string]: TELControl | TLEDControl | TFiberControl
-      }
-    }
-  }
+        [key: string]: TELControl | TLEDControl | TFiberControl;
+      };
+    };
+  };
 };
 export type TELControl = {
   value: number;
-}
+};
 export type TLEDControl = {
   src: string;
   alpha: number;
-}
+};
 export type TFiberControl = {
   color: string;
   alpha: number;
-}
+};
 export type TDancerData = {
   parts: TPartData[];
   name: string;
-}
+};
 export type TPartData = {
   name: string;
   type: "EL" | "LED" | "FIBER";
-}
+};
 export type TColorData = {
   [key: string]: string;
-}
+};
 export type TExportLED = {
   [key: string]: TExportLEDPart;
-}
+};
 export type TExportLEDPart = {
   [key: string]: {
     repeat: number;
     effects: TExportLEDEffects[];
-  }
-}
+  };
+};
 export type TExportLEDEffects = {
   effect: TExportLEDEffectsEffect[];
   start: number;
   fade: boolean;
-}
+};
 export type TExportLEDEffectsEffect = {
   alpha: number;
   colorCode: string;
-}
+};
 
 export type TRedisStore = {
   [key: string]: string;
-}
+};
 export type TRedisControls = {
   [key: string]: TRedisControl;
-}
+};
 export type TRedisControl = {
   fade: boolean;
   start: number;
   editing: string | undefined;
-  status: TRedisControlStatus
-}
+  status: TRedisControlStatus;
+};
 export type TRedisControlStatus = {
   [key: string]: {
     [key: string]: any;
-  }
-}
+  };
+};
 export type TRedisPositions = {
   [key: string]: TRedisPosition;
-}
+};
 export type TRedisPosition = {
   start: number;
   editing: string | undefined;
   pos: TRedisPos;
-}
+};
 export type TRedisPos = {
   [key: string]: {
     x: number;
     y: number;
     z: number;
-  }
-}
+  };
+};
 
 export type TColorMap = {
   [key: string]: string;
-}
+};

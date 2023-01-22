@@ -16,7 +16,13 @@ import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { PartResponse } from "./response/partResponse";
 import { generateID, initRedisControl, initRedisPosition } from "../utility";
-import { IControl, IControlFrame, IDancer, IPart, TContext } from "../types/global";
+import {
+  IControl,
+  IControlFrame,
+  IDancer,
+  IPart,
+  TContext,
+} from "../types/global";
 
 @Resolver((of) => Part)
 export class PartResolver {
@@ -40,7 +46,8 @@ export class PartResolver {
           value: ControlDefault[newPartData.type],
           id: generateID(),
         });
-        const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find();
+        const allControlFrames: IControlFrame[] =
+          await ctx.db.ControlFrame.find();
         allControlFrames.map(async (controlframe) => {
           const newControl = new ctx.db.Control({
             frame: controlframe._id,
@@ -184,9 +191,9 @@ export class PartResolver {
   async controlData(@Root() part: IPart, @Ctx() ctx: TContext) {
     const result = await Promise.all(
       part.controlData.map(async (ref: string) => {
-        const data: IControl = await ctx.db.Control.findOne({ _id: ref }).populate(
-          "frame"
-        );
+        const data: IControl = await ctx.db.Control.findOne({
+          _id: ref,
+        }).populate("frame");
         return data;
       })
     );

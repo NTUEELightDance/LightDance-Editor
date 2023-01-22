@@ -24,7 +24,7 @@ import { IControlFrame, IDancer, IPart, TContext } from "../types/global";
 export class ControlMapResolver {
   @Query((returns) => Map)
   async ControlMap(@Ctx() ctx: TContext) {
-    const frames:IControlFrame[] = await ctx.db.ControlFrame.find();
+    const frames: IControlFrame[] = await ctx.db.ControlFrame.find();
     const id = frames.map((frame) => {
       return { id: frame.id, _id: frame._id };
     });
@@ -37,10 +37,10 @@ export class EditControlMapResolver {
   @Mutation((returns) => ControlData)
   async editControlMap(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
     @Arg("controlData", (type) => [EditControlInput])
-      controlData: EditControlInput[],
+    controlData: EditControlInput[],
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
     @Arg("start") startTime: number,
     @Ctx() ctx: TContext
@@ -112,7 +112,7 @@ export class EditControlMapResolver {
               );
               if (!wanted) throw new Error(`part ${partName} not found`);
               const type = wanted.type;
-              const {value, _id} = wanted.controlData[0];
+              const { value, _id } = wanted.controlData[0];
               if (type === "FIBER") {
                 if (color) {
                   value.color = color;
@@ -207,9 +207,10 @@ export class EditControlMapResolver {
         },
       };
       await publish(mapPayload);
-      const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-        start: 1,
-      });
+      const allControlFrames: IControlFrame[] =
+        await ctx.db.ControlFrame.find().sort({
+          start: 1,
+        });
       let index = -1;
       allControlFrames.map((frame, idx: number) => {
         if (frame.id === newControlFrame.id) {

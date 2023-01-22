@@ -1,3 +1,5 @@
+import type { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+
 import {
   SUB_POS_RECORD,
   SUB_POS_MAP,
@@ -8,7 +10,7 @@ import {
 import cloneDeep from "lodash/cloneDeep";
 import { log } from "core/utils";
 
-const subPosRecord = (client) => {
+const subPosRecord = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
       query: SUB_POS_RECORD,
@@ -44,12 +46,12 @@ const subPosRecord = (client) => {
         });
       },
       error(err) {
-        console.error("SubscriptionError", err);
+        throw new Error("SubscriptionError", err);
       },
     });
 };
 
-const subPosMap = (client) => {
+const subPosMap = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
       query: SUB_POS_MAP,
@@ -87,12 +89,12 @@ const subPosMap = (client) => {
         });
       },
       error(err) {
-        console.error("SubscriptionError", err);
+        throw new Error("SubscriptionError", err);
       },
     });
 };
 
-const subControlRecord = (client) => {
+const subControlRecord = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
       query: SUB_CONTROL_RECORD,
@@ -127,12 +129,12 @@ const subControlRecord = (client) => {
         });
       },
       error(err) {
-        console.error("SubscriptionError", err);
+        throw new Error("SubscriptionError", err);
       },
     });
 };
 
-const subControlMap = (client) => {
+const subControlMap = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
       query: SUB_CONTROL_MAP,
@@ -169,11 +171,11 @@ const subControlMap = (client) => {
         });
       },
       error(err) {
-        console.error("SubscriptionError", err);
+        throw new Error("SubscriptionError", err);
       },
     });
 };
-const subEffectList = (client) => {
+const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
       query: SUB_EFFECT_LIST,
@@ -184,16 +186,16 @@ const subEffectList = (client) => {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            effectList(effectList) {
+            effectList(_effectList) {
               if (data.data.effectListSubscription.mutation === "CREATED") {
                 return [
-                  ...effectList,
+                  ..._effectList,
                   data.data.effectListSubscription.effectListData,
                 ];
               } else if (
                 data.data.effectListSubscription.mutation === "DELETED"
               ) {
-                return effectList.filter(
+                return _effectList.filter(
                   (e) => e.id !== data.data.effectListSubscription.effectListID
                 );
               }
@@ -202,12 +204,12 @@ const subEffectList = (client) => {
         });
       },
       error(err) {
-        console.error("SubscriptionError", err);
+        throw new Error("SubscriptionError", err);
       },
     });
 };
 
-const Subscriptions = (client) => {
+const Subscriptions = (client: ApolloClient<NormalizedCacheObject>) => {
   subPosRecord(client);
   subPosMap(client);
   subControlRecord(client);

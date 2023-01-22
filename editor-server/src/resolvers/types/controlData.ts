@@ -9,23 +9,25 @@ type TControlIDList = {
   createList: string[];
   deleteList: string[];
   updateList: string[];
-}
+};
 type TControlID = {
   id: string;
   _id: ObjectId;
-}
+};
 type TControlDataFrame = TControlIDList | TControlID;
 
-type TControlDataScalar = {
-  createFrames: TRedisControls;
-  updateFrames: TRedisControls;
-  deleteFrames: string[];
-} | TRedisControls
+type TControlDataScalar =
+  | {
+      createFrames: TRedisControls;
+      updateFrames: TRedisControls;
+      deleteFrames: string[];
+    }
+  | TRedisControls;
 
 @ObjectType()
 export class ControlData {
   @Field((type) => ControlDataScalar)
-    frame: TControlDataFrame;
+  frame: TControlDataFrame;
 }
 
 export const ControlDataScalar = new GraphQLScalarType({
@@ -34,7 +36,7 @@ export const ControlDataScalar = new GraphQLScalarType({
   async serialize(data: TControlDataFrame): Promise<TControlDataScalar> {
     // check the type of received value
     if ("id" in data && "_id" in data) {
-      const {id, _id} = data;
+      const { id, _id } = data;
       const result: TRedisControls = {};
       const cache = await redis.get(id);
       if (cache) {
