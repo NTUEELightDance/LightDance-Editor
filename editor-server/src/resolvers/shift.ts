@@ -1,11 +1,4 @@
-import {
-  Resolver,
-  Ctx,
-  Mutation,
-  PubSub,
-  Publisher,
-  Arg,
-} from "type-graphql";
+import { Resolver, Ctx, Mutation, PubSub, Publisher, Arg } from "type-graphql";
 
 import redis from "../redis";
 import {
@@ -21,19 +14,27 @@ import {
 import { updateRedisControl, updateRedisPosition } from "../utility";
 import { Topic } from "./subscriptions/topic";
 import { ShiftResponse } from "./response/shiftResponse";
-import { IControl, IControlFrame, IDancer, IPart, IPosition, IPositionFrame, TContext } from "../types/global";
+import {
+  IControl,
+  IControlFrame,
+  IDancer,
+  IPart,
+  IPosition,
+  IPositionFrame,
+  TContext,
+} from "../types/global";
 
 @Resolver()
 export class ShiftResolver {
   @Mutation((returns) => ShiftResponse)
   async shift(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @PubSub(Topic.PositionRecord)
-      publishPositionRecord: Publisher<PositionRecordPayload>,
+    publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-      publishPositionMap: Publisher<PositionMapPayload>,
+    publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Arg("end", { nullable: false }) end: number,
     @Arg("move", { nullable: false }) move: number,
@@ -196,7 +197,8 @@ export class ShiftResolver {
         await Promise.all(
           parts.map(async (part) => {
             const controlToDelete = part.controlData.find(
-              (control: IControl) => control.frame.toString() === _id!.toString()
+              (control: IControl) =>
+                control.frame.toString() === _id!.toString()
             );
             await ctx.db.Part.updateOne(
               { id: part.id },
@@ -213,11 +215,14 @@ export class ShiftResolver {
     await Promise.all(
       deletePositionFrame.map(async (data) => {
         const { id, _id } = data;
-        const dancers: IDancer[] = await ctx.db.Dancer.find().populate("positionData");
+        const dancers: IDancer[] = await ctx.db.Dancer.find().populate(
+          "positionData"
+        );
         Promise.all(
           dancers.map(async (dancer) => {
             const positionToDelete = dancer.positionData.find(
-              (position: IPosition) => position.frame.toString() === _id!.toString()
+              (position: IPosition) =>
+                position.frame.toString() === _id!.toString()
             );
             await ctx.db.Dancer.updateOne(
               { id: dancer.id },
@@ -234,11 +239,12 @@ export class ShiftResolver {
     // control
     if (shiftControl) {
       // find source data
-      const updateControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find({
-        start: { $lte: end, $gte: start },
-      }).sort({
-        start: 1,
-      });
+      const updateControlFrames: IControlFrame[] =
+        await ctx.db.ControlFrame.find({
+          start: { $lte: end, $gte: start },
+        }).sort({
+          start: 1,
+        });
       // update redis
       const updateControlIDs: string[] = await Promise.all(
         updateControlFrames.map(async (obj) => {
@@ -259,7 +265,7 @@ export class ShiftResolver {
 
       // subscription
       const controlMapPayload: ControlMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [],
           deleteList: deleteControlList,
@@ -268,9 +274,10 @@ export class ShiftResolver {
       };
       await publishControlMap(controlMapPayload);
 
-      const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-        start: 1,
-      });
+      const allControlFrames: IControlFrame[] =
+        await ctx.db.ControlFrame.find().sort({
+          start: 1,
+        });
       let index = -1;
       await allControlFrames.map((frame, idx: number) => {
         if (frame.id === updateControlIDs[0]) {
@@ -279,7 +286,7 @@ export class ShiftResolver {
       });
       const controlRecordPayload: ControlRecordPayload = {
         mutation: ControlRecordMutation.UPDATED_DELETED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         addID: [],
         updateID: updateControlIDs,
         deleteID: deleteControlList,
@@ -291,11 +298,12 @@ export class ShiftResolver {
     // position
     if (shiftPosition) {
       // find source data
-      const updatePositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find({
-        start: { $lte: end, $gte: start },
-      }).sort({
-        start: 1,
-      });
+      const updatePositionFrames: IPositionFrame[] =
+        await ctx.db.PositionFrame.find({
+          start: { $lte: end, $gte: start },
+        }).sort({
+          start: 1,
+        });
 
       // update redis
       const updatePositionIDs: string[] = await Promise.all(
@@ -317,7 +325,7 @@ export class ShiftResolver {
 
       // subscription
       const positionMapPayload: PositionMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [],
           deleteList: deletePositionList,
@@ -327,9 +335,10 @@ export class ShiftResolver {
       await publishPositionMap(positionMapPayload);
 
       let index = -1;
-      const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
-        start: 1,
-      });
+      const allPositionFrames: IPositionFrame[] =
+        await ctx.db.PositionFrame.find().sort({
+          start: 1,
+        });
       index = -1;
       await allPositionFrames.map((frame, idx: number) => {
         if (frame.id === updatePositionIDs[0]) {
@@ -338,7 +347,7 @@ export class ShiftResolver {
       });
       const positionRecordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.UPDATED_DELETED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         addID: [],
         updateID: updatePositionIDs,
         deleteID: deletePositionList,

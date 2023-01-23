@@ -1,4 +1,3 @@
-import store from "../store";
 import client from "../client";
 import lodash from "lodash";
 
@@ -10,7 +9,7 @@ import {
   EDIT_POS_FRAME_TIME,
   DELETE_POS_FRAME,
   REQUEST_EDIT_POS_BY_ID,
-  CANCEL_EDIT_POS_BY_ID
+  CANCEL_EDIT_POS_BY_ID,
 } from "../graphql";
 
 // types
@@ -42,10 +41,10 @@ export const posAgent = {
           positionData: Object.keys(frame).map((key) => {
             return {
               dancerName: key,
-              positionData: JSON.parse(JSON.stringify(frame[key]))
+              positionData: JSON.parse(JSON.stringify(frame[key])),
             };
-          })
-        }
+          }),
+        },
       });
     } catch (error) {
       console.error(error);
@@ -65,19 +64,19 @@ export const posAgent = {
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
-          PosMap (posMap) {
+          PosMap(posMap) {
             return {
               frames: {
                 ...posMap.frames,
                 [frameId]: {
                   start: requestTimeChange ? currentTime : frameTime,
                   fade,
-                  pos: frame
-                }
-              }
+                  pos: frame,
+                },
+              },
             };
-          }
-        }
+          },
+        },
       });
       // don't use await for optimisticResponse
       client.mutate({
@@ -87,10 +86,10 @@ export const posAgent = {
           positionData: Object.keys(frame).map((key) => {
             return {
               dancerName: key,
-              positionData: JSON.parse(JSON.stringify(frame[key]))
+              positionData: JSON.parse(JSON.stringify(frame[key])),
             };
-          })
-        }
+          }),
+        },
       });
     } catch (error) {
       console.error(error);
@@ -103,9 +102,9 @@ export const posAgent = {
         variables: {
           input: {
             frameID: frameId,
-            start: currentTime
-          }
-        }
+            start: currentTime,
+          },
+        },
       });
     } catch (error) {
       console.error(error);
@@ -117,25 +116,25 @@ export const posAgent = {
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
-          positionFrameIDs (positionFrameIDs) {
+          positionFrameIDs(positionFrameIDs) {
             return positionFrameIDs.filter((id: string) => id !== frameId);
           },
-          PosMap (posMap) {
+          PosMap(posMap) {
             return {
               ...posMap,
-              frames: lodash.omit(posMap.frames, [frameId])
+              frames: lodash.omit(posMap.frames, [frameId]),
             };
-          }
-        }
+          },
+        },
       });
       // don't use await for optimisticResponse
       client.mutate({
         mutation: DELETE_POS_FRAME,
         variables: {
           input: {
-            frameID: frameId
-          }
-        }
+            frameID: frameId,
+          },
+        },
       });
     } catch (error) {
       console.error(error);
@@ -145,8 +144,8 @@ export const posAgent = {
     const response = await client.mutate({
       mutation: REQUEST_EDIT_POS_BY_ID,
       variables: {
-        frameId: _frameID
-      }
+        frameId: _frameID,
+      },
     });
     return response.data.RequestEditPosition.ok;
   },
@@ -154,9 +153,9 @@ export const posAgent = {
     const response = await client.mutate({
       mutation: CANCEL_EDIT_POS_BY_ID,
       variables: {
-        frameId: _frameID
-      }
+        frameId: _frameID,
+      },
     });
     return response.data.CancelEditPosition.ok;
-  }
+  },
 };

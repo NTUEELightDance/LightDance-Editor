@@ -6,12 +6,14 @@ import File from "./File";
 import Preference from "./Preference";
 import { SettingModal } from "./SettingModal";
 
+import { logout } from "@/core/actions";
+
 export function Settings({
   showSettings,
-  setShowSettings
+  setShowSettings,
 }: {
-  showSettings: boolean
-  setShowSettings: (showSettings: boolean) => void
+  showSettings: boolean;
+  setShowSettings: (showSettings: boolean) => void;
 }) {
   const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
@@ -21,27 +23,41 @@ export function Settings({
     {
       label: "files",
       modalOpen: fileModalOpen,
-      setModalOpen: setFileModalOpen,
-      modalChildren: <File />
+      handleClick: () => {
+        setFileModalOpen(true);
+        setShowSettings(false);
+      },
+      handleClose: () => {
+        setFileModalOpen(false);
+      },
+      modalChildren: <File />,
     },
     {
       label: "preferences",
       modalOpen: prefModalOpen,
-      setModalOpen: setPrefModalOpen,
-      modalChildren: <Preference />
-    }
+      handleClick: () => {
+        setPrefModalOpen(true);
+        setShowSettings(false);
+      },
+      handleClose: () => {
+        setPrefModalOpen(false);
+      },
+      modalChildren: <Preference />,
+    },
+    {
+      label: "logout",
+      handleClick: () => {
+        logout();
+      },
+    },
   ];
-
-  const handleMenuItemClick =
-    (setModalOpen: (showModal: boolean) => void) => () => {
-      setModalOpen(true);
-      setShowSettings(false);
-    };
 
   return (
     <>
       <IconButton
-        onClick={() => { setShowSettings(!showSettings); }}
+        onClick={() => {
+          setShowSettings(!showSettings);
+        }}
         ref={menuAnchor}
       >
         <SettingsIcon sx={{ color: "white" }} />
@@ -50,36 +66,37 @@ export function Settings({
         sx={{ transform: "translate(-30px, 45px)" }}
         anchorOrigin={{
           vertical: "top",
-          horizontal: "right"
+          horizontal: "right",
         }}
         keepMounted
         transformOrigin={{
           vertical: "top",
-          horizontal: "right"
+          horizontal: "right",
         }}
         anchorEl={menuAnchor.current}
         open={showSettings}
-        onClose={() => { setShowSettings(false); }}
+        onClose={() => {
+          setShowSettings(false);
+        }}
       >
-        {settings.map(({ label, setModalOpen }) => (
-          <MenuItem
-            key={`${label}_label`}
-            onClick={handleMenuItemClick(setModalOpen)}
-          >
+        {settings.map(({ label, handleClick }) => (
+          <MenuItem key={`${label}_label`} onClick={handleClick}>
             <Typography textAlign="center">{label}</Typography>
           </MenuItem>
         ))}
       </Menu>
 
-      {settings.map(({ label, modalOpen, setModalOpen, modalChildren }) => (
-        <SettingModal
-          key={`${label}_modal`}
-          open={modalOpen}
-          onClose={() => { setModalOpen(false); }}
-        >
-          {modalChildren}
-        </SettingModal>
-      ))}
+      {settings
+        .filter((e) => e.modalChildren)
+        .map(({ label, modalOpen, handleClose, modalChildren }) => (
+          <SettingModal
+            key={`${label}_modal`}
+            open={modalOpen ?? false}
+            onClose={handleClose ?? (() => null)}
+          >
+            {modalChildren ?? <></>}
+          </SettingModal>
+        ))}
     </>
   );
 }

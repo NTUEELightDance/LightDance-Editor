@@ -55,7 +55,7 @@ class ColorResolver {
         mutation: colorMutation.CREATED,
         color: colorInput.color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
     } else {
@@ -67,7 +67,7 @@ class ColorResolver {
         mutation: colorMutation.UPDATED,
         color: colorInput.color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
     }
@@ -99,7 +99,7 @@ class ColorResolver {
         mutation: colorMutation.CREATED,
         color: colorInput.color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
       return newColor;
@@ -151,7 +151,7 @@ class ColorResolver {
         mutation: colorMutation.UPDATED,
         color: colorInput.new_color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
       return newColor;
@@ -177,14 +177,17 @@ class ColorResolver {
       color,
     });
 
-    const checkControl: IControl[] = await ctx.db.Control.find({ "value.color": color });
+    const checkControl: IControl[] = await ctx.db.Control.find({
+      "value.color": color,
+    });
     if (checkControl.length != 0) {
-      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find({}, "_id").sort({
+      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find(
+        {},
+        "_id"
+      ).sort({
         start: 1,
       });
-      const allControlFrameID = allControlFrame.map((Obj) =>
-        String(Obj._id)
-      );
+      const allControlFrameID = allControlFrame.map((Obj) => String(Obj._id));
       const ids: number[] = [];
       checkControl.map((controlObj) => {
         const frame = String(controlObj.frame);
@@ -209,7 +212,7 @@ class ColorResolver {
         mutation: colorMutation.DELETED,
         color: deletedColor.color,
         colorCode: deletedColor.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
       return Object.assign(deletedColor, { ok: true });

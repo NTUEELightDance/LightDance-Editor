@@ -2,7 +2,7 @@ import Clipboard from "components/Clipboard";
 import Header from "components/Header";
 import Layout from "containers/Layout";
 
-export default function Editor () {
+export default function Editor() {
   return (
     <>
       <Clipboard />
@@ -10,7 +10,7 @@ export default function Editor () {
         style={{
           display: "flex",
           flexDirection: "column",
-          height: "100vh"
+          height: "100vh",
         }}
       >
         <Header />

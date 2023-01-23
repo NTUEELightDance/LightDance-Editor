@@ -3,14 +3,14 @@ import { Field, ObjectType, ID, Float } from "type-graphql";
 @ObjectType()
 export class ControlFrame {
   @Field((type) => Float)
-    start: number;
+  start: number;
 
   @Field((type) => Boolean)
-    fade: boolean;
+  fade: boolean;
 
   @Field({ nullable: true })
-    editing: string;
+  editing: string;
 
   @Field((type) => ID)
-    id: string;
+  id: string;
 }

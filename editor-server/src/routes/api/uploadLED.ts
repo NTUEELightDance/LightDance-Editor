@@ -1,11 +1,13 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 import db from "../../models";
 
 const uploadLED = async (req: Request, res: Response) => {
   try {
     // read request
-    const data = Array.isArray(req.files!.data) ? req.files!.data[0] : req.files!.data;
+    const data = Array.isArray(req.files!.data)
+      ? req.files!.data[0]
+      : req.files!.data;
     const { clear } = req.body;
     const allPart = JSON.parse(data.data.toString("ascii"));
 

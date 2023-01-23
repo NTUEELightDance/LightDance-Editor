@@ -24,7 +24,7 @@ import { IControlFrame, IDancer, IPart, TContext } from "../types/global";
 export class ControlMapResolver {
   @Query((returns) => Map)
   async ControlMap(@Ctx() ctx: TContext) {
-    const frames:IControlFrame[] = await ctx.db.ControlFrame.find();
+    const frames: IControlFrame[] = await ctx.db.ControlFrame.find();
     const id = frames.map((frame) => {
       return { id: frame.id, _id: frame._id };
     });
@@ -37,10 +37,10 @@ export class EditControlMapResolver {
   @Mutation((returns) => ControlData)
   async editControlMap(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
     @Arg("controlData", (type) => [EditControlInput])
-      controlData: EditControlInput[],
+    controlData: EditControlInput[],
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
     @Arg("start") startTime: number,
     @Ctx() ctx: TContext
@@ -88,7 +88,7 @@ export class EditControlMapResolver {
     // if control frame already exists -> edit
     if (controlFrame) {
       const { editing, _id, id: frameID } = controlFrame;
-      if (editing !== ctx.userID) {
+      if (editing !== ctx.username) {
         throw new Error(`The frame is now editing by ${editing}.`);
       }
       await Promise.all(
@@ -112,7 +112,7 @@ export class EditControlMapResolver {
               );
               if (!wanted) throw new Error(`part ${partName} not found`);
               const type = wanted.type;
-              const {value, _id} = wanted.controlData[0];
+              const { value, _id } = wanted.controlData[0];
               if (type === "FIBER") {
                 if (color) {
                   value.color = color;
@@ -143,7 +143,7 @@ export class EditControlMapResolver {
       );
       await updateRedisControl(frameID);
       const payload: ControlMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [],
           deleteList: [],
@@ -199,7 +199,7 @@ export class EditControlMapResolver {
 
       await updateRedisControl(newControlFrame.id);
       const mapPayload: ControlMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [newControlFrame.id],
           deleteList: [],
@@ -207,9 +207,10 @@ export class EditControlMapResolver {
         },
       };
       await publish(mapPayload);
-      const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-        start: 1,
-      });
+      const allControlFrames: IControlFrame[] =
+        await ctx.db.ControlFrame.find().sort({
+          start: 1,
+        });
       let index = -1;
       allControlFrames.map((frame, idx: number) => {
         if (frame.id === newControlFrame.id) {
@@ -218,7 +219,7 @@ export class EditControlMapResolver {
       });
       const recordPayload: ControlRecordPayload = {
         mutation: ControlRecordMutation.CREATED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         addID: [newControlFrame.id],
         updateID: [],
         deleteID: [],

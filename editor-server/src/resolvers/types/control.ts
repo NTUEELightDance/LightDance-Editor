@@ -7,10 +7,10 @@ import { IControlValue } from "../../types/global";
 @ObjectType()
 export class Control {
   @Field((type) => ControlFrame)
-    frame: ControlFrame;
+  frame: ControlFrame;
 
   @Field((type) => ControlDevice)
-    status: IControlValue;
+  status: IControlValue;
 
-    value: IControlValue;
+  value: IControlValue;
 }

@@ -1,8 +1,17 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 import db from "../../models";
 import redis from "../../redis";
-import { IColor, IControlFrame, IPositionFrame, TColorData, TControlData, TDancerData, TExportData, TPositionData } from "../../types/global";
+import {
+  IColor,
+  IControlFrame,
+  IPositionFrame,
+  TColorData,
+  TControlData,
+  TDancerData,
+  TExportData,
+  TPositionData,
+} from "../../types/global";
 
 const exportData = async (req: Request, res: Response) => {
   try {
@@ -41,7 +50,10 @@ const exportData = async (req: Request, res: Response) => {
     );
 
     // grab dancer data from db
-    const dancer: TDancerData[] = await db.Dancer.find({}, "name parts -_id").populate({
+    const dancer: TDancerData[] = await db.Dancer.find(
+      {},
+      "name parts -_id"
+    ).populate({
       path: "parts",
       select: "name type -_id",
     });

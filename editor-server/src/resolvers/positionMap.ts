@@ -38,10 +38,10 @@ export class EditPosMapResolver {
   @Mutation((returns) => Map)
   async editPosMap(
     @PubSub(Topic.PositionRecord)
-      publishPositionRecord: Publisher<PositionRecordPayload>,
+    publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap) publish: Publisher<PositionMapPayload>,
     @Arg("positionData", (type) => [EditPositionInput])
-      positionData: EditPositionInput[],
+    positionData: EditPositionInput[],
     @Arg("start") startTime: number,
     @Ctx() ctx: TContext
   ) {
@@ -106,7 +106,7 @@ export class EditPosMapResolver {
       await updateRedisPosition(newPositionFrame.id);
       // subscription
       const mapPayload: PositionMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [newPositionFrame.id],
           deleteList: [],
@@ -115,9 +115,10 @@ export class EditPosMapResolver {
       };
       await publish(mapPayload);
 
-      const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
-        start: 1,
-      });
+      const allPositionFrames: IPositionFrame[] =
+        await ctx.db.PositionFrame.find().sort({
+          start: 1,
+        });
       let index = -1;
       allPositionFrames.map((frame, idx: number) => {
         if (frame.id === newPositionFrame.id) {
@@ -127,7 +128,7 @@ export class EditPosMapResolver {
 
       const recordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.CREATED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         addID: [newPositionFrame.id],
         updateID: [],
         deleteID: [],
@@ -142,7 +143,7 @@ export class EditPosMapResolver {
     // if position frame found
     else {
       const { editing, _id, id: frameID } = positionFrame;
-      if (editing !== ctx.userID) {
+      if (editing !== ctx.username) {
         throw new Error(`The frame is now editing by ${editing}.`);
       }
 
@@ -179,7 +180,11 @@ export class EditPosMapResolver {
               if (position.frame.toString() === _id.toString()) {
                 await ctx.db.Position.updateOne(
                   { _id: position._id },
-                  { x: dancerPositionData.x, y: dancerPositionData.y, z: dancerPositionData.z }
+                  {
+                    x: dancerPositionData.x,
+                    y: dancerPositionData.y,
+                    z: dancerPositionData.z,
+                  }
                 );
               }
             })
@@ -193,7 +198,7 @@ export class EditPosMapResolver {
       await updateRedisPosition(frameID);
       // subscription
       const payload: PositionMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [],
           deleteList: [],

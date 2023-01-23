@@ -6,5 +6,5 @@ export const ledAgent = {
   getLedMap: async () => {
     const ledMapData = await client.query({ query: GET_LED_MAP });
     return ledMapData.data.LEDMap.LEDMap;
-  }
+  },
 };

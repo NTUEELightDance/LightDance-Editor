@@ -16,7 +16,7 @@ import useMode from "@/hooks/useMode";
 /**
  * Top Bar, include title, timeController, upload/download btn
  */
-export default function Header () {
+export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const editMode = useReactiveVar(reactiveState.editMode);
   const mode = useMode();
@@ -38,7 +38,7 @@ export default function Header () {
               display: "flex",
               position: "absolute",
               right: "2vw",
-              gap: "1vw"
+              gap: "1vw",
             }}
           >
             {mode === "editor" && (

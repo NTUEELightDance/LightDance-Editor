@@ -1,6 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
-import { ObjectId } from "mongodb";
 
 import redis from "../../redis";
 import { TRedisPosition, TRedisPositions } from "../../types/global";
@@ -9,17 +8,19 @@ type TPositionDataFrame = {
   createList: string[];
   deleteList: string[];
   updateList: string[];
-}
-type TPositionDataScalar = {
-  createFrames: TRedisPositions;
-  updateFrames: TRedisPositions;
-  deleteFrames: string[];
-} | TRedisPositions
+};
+type TPositionDataScalar =
+  | {
+      createFrames: TRedisPositions;
+      updateFrames: TRedisPositions;
+      deleteFrames: string[];
+    }
+  | TRedisPositions;
 
 @ObjectType()
 export class PosData {
   @Field((type) => PosDataScalar)
-    frame: TPositionDataFrame;
+  frame: TPositionDataFrame;
 }
 
 export const PosDataScalar = new GraphQLScalarType({

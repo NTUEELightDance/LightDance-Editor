@@ -6,7 +6,7 @@ import { IColor, TColorMap } from "../../types/global";
 @ObjectType()
 export class ColorMap {
   @Field((type) => ColorMapScalar)
-    colorMap: Object[];
+  colorMap: Object[];
 }
 
 export const ColorMapScalar = new GraphQLScalarType({

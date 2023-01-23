@@ -8,14 +8,14 @@ function OFcontrolsContent({
   intensity,
   setIntensity,
   currentColorName,
-  oneLine = false
+  oneLine = false,
 }: {
-  handleColorChange: (color: string) => void
-  intensity: number
-  handleIntensityChange?: (intensity: number) => void
-  setIntensity?: (intensity: number) => void
-  currentColorName: string
-  oneLine?: boolean
+  handleColorChange: (color: string) => void;
+  intensity: number;
+  handleIntensityChange?: (intensity: number) => void;
+  setIntensity?: (intensity: number) => void;
+  currentColorName: string;
+  oneLine?: boolean;
 }) {
   return (
     <Stack gap="1.5vh">
@@ -25,7 +25,7 @@ function OFcontrolsContent({
         alignItems="center"
         sx={{
           justifyContent: "space-between",
-          px: "3em"
+          px: "3em",
         }}
       >
         {oneLine || (
@@ -44,7 +44,7 @@ function OFcontrolsContent({
           <IntensityControl
             intensity={intensity}
             setIntensity={
-              ((handleIntensityChange != null)
+              (handleIntensityChange != null
                 ? handleIntensityChange
                 : setIntensity) as (intensity: number) => void
             }
@@ -58,7 +58,7 @@ function OFcontrolsContent({
           alignItems="center"
           sx={{
             justifyContent: "space-between",
-            px: "3em"
+            px: "3em",
           }}
         >
           <Grid item>
@@ -67,7 +67,7 @@ function OFcontrolsContent({
           <IntensityControl
             intensity={intensity}
             setIntensity={
-              ((handleIntensityChange != null)
+              (handleIntensityChange != null
                 ? handleIntensityChange
                 : setIntensity) as (intensity: number) => void
             }

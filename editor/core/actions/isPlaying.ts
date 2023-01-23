@@ -10,7 +10,7 @@ const actions = registerActions({
    */
   setIsPlaying: (state: State, payload: boolean) => {
     state.isPlaying = payload;
-  }
+  },
 });
 
 export const { setIsPlaying } = actions;

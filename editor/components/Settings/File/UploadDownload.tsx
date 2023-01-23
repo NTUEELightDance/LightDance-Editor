@@ -2,10 +2,10 @@ import { Box, Button } from "@mui/material";
 
 export function UploadDownload({
   handleUpload,
-  handleDownload
+  handleDownload,
 }: {
-  handleUpload: () => Promise<void>
-  handleDownload: () => void
+  handleUpload: () => Promise<void>;
+  handleDownload: () => void;
 }) {
   return (
     <Box
@@ -13,7 +13,7 @@ export function UploadDownload({
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        gap: "1vw"
+        gap: "1vw",
       }}
     >
       <Button variant="outlined" size="small" onClick={handleUpload}>

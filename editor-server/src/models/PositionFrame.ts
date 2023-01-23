@@ -11,7 +11,10 @@ const PositionFrameSchema = new Schema<IPositionFrame>({
 });
 
 // Creating a table within database with the defined schema
-const PositionFrame = mongoose.model<IPositionFrame>("PositionFrame", PositionFrameSchema);
+const PositionFrame = mongoose.model<IPositionFrame>(
+  "PositionFrame",
+  PositionFrameSchema
+);
 
 // Exporting table for querying and mutating
 

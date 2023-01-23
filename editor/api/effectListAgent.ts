@@ -1,4 +1,9 @@
-import { ADD_EFFECT_LIST, APPLY_EFFECT_LIST, DELETE_EFFECT_LIST, GET_EFFECT_LIST } from "graphql";
+import {
+  ADD_EFFECT_LIST,
+  APPLY_EFFECT_LIST,
+  DELETE_EFFECT_LIST,
+  GET_EFFECT_LIST,
+} from "graphql";
 import client from "../client";
 
 export const effectListAgent = {
@@ -13,8 +18,8 @@ export const effectListAgent = {
         variables: {
           end,
           start,
-          description: name
-        }
+          description: name,
+        },
       });
     } catch (error) {
       console.error(error);
@@ -25,10 +30,11 @@ export const effectListAgent = {
       const response = await client.mutate({
         mutation: DELETE_EFFECT_LIST,
         variables: {
-          deleteEffectListId: deleteId
-        }
+          deleteEffectListId: deleteId,
+        },
       });
-      if (response.data.deleteEffectList.ok) alert(`[SUCCESS] Delete effect: ${deleteId}`);
+      if (response.data.deleteEffectList.ok)
+        alert(`[SUCCESS] Delete effect: ${deleteId}`);
       else alert(`[FAILED] Delete: effect: ${deleteId}`);
     } catch (error) {
       console.error(error);
@@ -41,13 +47,14 @@ export const effectListAgent = {
         variables: {
           clear,
           start,
-          applyEffectListId: applyId
-        }
+          applyEffectListId: applyId,
+        },
       });
-      if (response.data.applyEffectList.ok) alert(`[SUCCESS] ${response.data.applyEffectList.msg}`);
+      if (response.data.applyEffectList.ok)
+        alert(`[SUCCESS] ${response.data.applyEffectList.msg}`);
       else alert(`[FAILED] ${response.data.applyEffectList.msg}`);
     } catch (error) {
       console.error(error);
     }
-  }
+  },
 };

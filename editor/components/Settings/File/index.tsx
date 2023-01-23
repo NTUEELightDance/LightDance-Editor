@@ -1,11 +1,6 @@
 import { useState } from "react";
 // mui
-import {
-  Stack,
-  Box,
-  Button,
-  Typography
-} from "@mui/material";
+import { Stack, Box, Button, Typography } from "@mui/material";
 // utils
 import {
   downloadExportJson,
@@ -13,12 +8,12 @@ import {
   checkExportJson,
   checkLedJson,
   downloadLedJson,
-  uploadLedJson
+  uploadLedJson,
 } from "./utils";
 import { UploadDownload } from "./UploadDownload";
 import { notification } from "core/utils";
 
-export default function File () {
+export default function File() {
   // upload to server
   const [exportFile, setExportFile] = useState(null);
   const [ledFile, setledFile] = useState(null);
@@ -56,7 +51,7 @@ export default function File () {
       sx={{
         width: "100%",
         height: "100%",
-        p: "5% 8%"
+        p: "5% 8%",
       }}
     >
       <Stack spacing={3}>
@@ -105,11 +100,7 @@ export default function File () {
   );
 }
 
-function ItemWrapper({
-  children
-}: {
-  children: JSX.Element | JSX.Element[]
-}) {
+function ItemWrapper({ children }: { children: JSX.Element | JSX.Element[] }) {
   return (
     <Box
       sx={{
@@ -117,7 +108,7 @@ function ItemWrapper({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "end",
-        gap: "4em"
+        gap: "4em",
       }}
     >
       {children}

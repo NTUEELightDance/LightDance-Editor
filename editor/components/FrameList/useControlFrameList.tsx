@@ -6,7 +6,7 @@ import { reactiveState } from "core/state";
 // hooks
 import useControl from "hooks/useControl";
 
-export default function useControlFrameList () {
+export default function useControlFrameList() {
   const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
 
   const { loading: controlLoading, controlMap, controlRecord } = useControl();
@@ -14,7 +14,7 @@ export default function useControlFrameList () {
   // select
   const handleSelectItem = (index: number) => {
     setCurrentControlIndex({
-      payload: index
+      payload: index,
     });
   };
 
@@ -24,6 +24,6 @@ export default function useControlFrameList () {
     record: controlRecord,
     currentIndex: currentControlIndex,
 
-    handleSelectItem
+    handleSelectItem,
   };
 }

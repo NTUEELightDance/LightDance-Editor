@@ -6,28 +6,28 @@ import {
   TextField,
   Typography,
   Button,
-  FormControl
+  FormControl,
 } from "@mui/material";
 import { TabPanel, TreeView, TreeItem } from "@mui/lab";
 import {
   ExpandMore as ExpandMoreIcon,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
 
 import { notification, getPartType } from "core/utils";
 
 function NewPartGroupPanel({
   displayParts,
-  addNewGroup
+  addNewGroup,
 }: {
-  displayParts: Record<string, string[]>
+  displayParts: Record<string, string[]>;
   addNewGroup: ({
     groupName,
-    content
+    content,
   }: {
-    groupName: string
-    content: string[]
-  }) => Promise<void>
+    groupName: string;
+    content: string[];
+  }) => Promise<void>;
 }) {
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string[]>([]);
@@ -35,8 +35,10 @@ function NewPartGroupPanel({
   const [newGroupName, setNewGroupName] = useState<string>("");
 
   const handleInputChange: ChangeEventHandler<
-  HTMLInputElement | HTMLTextAreaElement
-  > = (e) => { setNewGroupName(e.target.value); };
+    HTMLInputElement | HTMLTextAreaElement
+  > = (e) => {
+    setNewGroupName(e.target.value);
+  };
 
   const handleToggle = (event: React.SyntheticEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
@@ -67,21 +69,21 @@ function NewPartGroupPanel({
     try {
       await addNewGroup({
         groupName: newGroupName,
-        content: selectedNodes
+        content: selectedNodes,
       });
       handleCancel();
       notification.success(`Successfully added group: ${newGroupName}`);
     } catch (err) {
       switch (err) {
-      case "EXISTED":
-        notification.error("Group name already existed");
-        break;
-      case "INVALID":
-        notification.error("Invalid group name");
-        break;
-      case "EMPTY":
-        notification.error("Group member is empty");
-        break;
+        case "EXISTED":
+          notification.error("Group name already existed");
+          break;
+        case "INVALID":
+          notification.error("Invalid group name");
+          break;
+        case "EMPTY":
+          notification.error("Group member is empty");
+          break;
       }
     }
   };
@@ -90,8 +92,8 @@ function NewPartGroupPanel({
     <Box
       sx={{
         ".MuiTabPanel-root": {
-          py: "1em"
-        }
+          py: "1em",
+        },
       }}
     >
       <TabPanel value="part_group">

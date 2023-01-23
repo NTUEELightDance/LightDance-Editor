@@ -10,17 +10,13 @@ function LightProps() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
   return (
     <>
-      {selectionMode === DANCER
-        ? (
-          <DancerMode />
-        )
-        : selectionMode === PART
-          ? (
-            <PartMode />
-          )
-          : (
-            <Paper sx={{ width: "100%", height: "100%" }} square />
-          )}
+      {selectionMode === DANCER ? (
+        <DancerMode />
+      ) : selectionMode === PART ? (
+        <PartMode />
+      ) : (
+        <Paper sx={{ width: "100%", height: "100%" }} square />
+      )}
     </>
   );
 }

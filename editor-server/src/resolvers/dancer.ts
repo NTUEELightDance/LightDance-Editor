@@ -67,7 +67,7 @@ export class DancerResolver {
       const dancerData = await newDancer.save();
       const payload: DancerPayload = {
         mutation: dancerMutation.CREATED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         dancerData,
       };
       await publish(payload);
@@ -95,7 +95,7 @@ export class DancerResolver {
       await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         dancerData: newDancer,
       };
       await publish(payload);
@@ -132,7 +132,7 @@ export class DancerResolver {
       await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.DELETED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
       return Object.assign(dancer, { ok: true });

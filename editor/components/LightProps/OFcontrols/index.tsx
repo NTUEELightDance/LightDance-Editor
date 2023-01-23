@@ -5,7 +5,7 @@ import {
   Paper,
   Typography,
   ListItemButton,
-  Collapse
+  Collapse,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import OFcontrolsContent from "./OFcontrolsContent";
@@ -17,12 +17,12 @@ function OFcontrols({
   part,
   currentDancers,
   displayValue: { color, alpha },
-  colorMap
+  colorMap,
 }: {
-  part: string
-  currentDancers: string[]
-  displayValue: Fiber
-  colorMap: Record<string, string>
+  part: string;
+  currentDancers: string[];
+  displayValue: Fiber;
+  colorMap: Record<string, string>;
 }) {
   const [open, setOpen] = useState<boolean>(false);
 
@@ -61,7 +61,7 @@ function OFcontrols({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            width: "100%"
+            width: "100%",
           }}
         >
           <Box sx={{ width: "10vw" }}>
@@ -75,7 +75,7 @@ function OFcontrols({
               minWidth: "1.5em",
               height: "1.5em",
               minHeight: "1.5em",
-              mx: "2em"
+              mx: "2em",
             }}
           />
           <Box sx={{ width: "3vw" }}>

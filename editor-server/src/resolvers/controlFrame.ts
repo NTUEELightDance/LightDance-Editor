@@ -43,7 +43,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async addControlFrame(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
@@ -82,7 +82,7 @@ export class ControlFrameResolver {
     );
     await updateRedisControl(newControlFrame.id);
     const mapPayload: ControlMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.username,
       frame: {
         createList: [newControlFrame.id],
         deleteList: [],
@@ -90,9 +90,10 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(mapPayload);
-    const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-      start: 1,
-    });
+    const allControlFrames: IControlFrame[] =
+      await ctx.db.ControlFrame.find().sort({
+        start: 1,
+      });
     let index = -1;
     await allControlFrames.map((frame, idx: number) => {
       if (frame.id === newControlFrame.id) {
@@ -101,7 +102,7 @@ export class ControlFrameResolver {
     });
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.CREATED,
-      editBy: ctx.userID,
+      editBy: ctx.username,
       addID: [newControlFrame.id],
       updateID: [],
       deleteID: [],
@@ -115,7 +116,7 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async editControlFrame(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: EditControlFrameInput,
     @Ctx() ctx: TContext
@@ -131,8 +132,10 @@ export class ControlFrameResolver {
         }
       }
     }
-    const frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
-    if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
+    const frameToEdit = await ctx.db.ControlFrame.findOne({
+      id: input.frameID,
+    });
+    if (frameToEdit.editing && frameToEdit.editing !== ctx.username) {
       throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
     await ctx.db.ControlFrame.updateOne({ id: input.frameID }, input);
@@ -146,7 +149,7 @@ export class ControlFrameResolver {
     });
     await updateRedisControl(controlFrame.id);
     const payload: ControlMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.username,
       frame: {
         createList: [],
         deleteList: [],
@@ -154,9 +157,10 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(payload);
-    const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-      start: 1,
-    });
+    const allControlFrames: IControlFrame[] =
+      await ctx.db.ControlFrame.find().sort({
+        start: 1,
+      });
     let index = -1;
     await allControlFrames.map((frame, idx: number) => {
       if (frame.id === controlFrame.id) {
@@ -165,7 +169,7 @@ export class ControlFrameResolver {
     });
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.UPDATED,
-      editBy: ctx.userID,
+      editBy: ctx.username,
       addID: [],
       updateID: [controlFrame.id],
       deleteID: [],
@@ -178,14 +182,14 @@ export class ControlFrameResolver {
   @Mutation((returns) => ControlFrame)
   async deleteControlFrame(
     @PubSub(Topic.ControlRecord)
-      publishControlRecord: Publisher<ControlRecordPayload>,
+    publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("input") input: DeleteControlFrameInput,
     @Ctx() ctx: TContext
   ) {
     const { frameID } = input;
     const frameToDelete = await ctx.db.ControlFrame.findOne({ id: frameID });
-    if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
+    if (frameToDelete.editing && frameToDelete.editing !== ctx.username) {
       throw new Error(`The frame is now editing by ${frameToDelete.editing}.`);
     }
     const _id = frameToDelete._id;
@@ -206,7 +210,7 @@ export class ControlFrameResolver {
     await ctx.db.Control.deleteMany({ frame: _id });
     await redis.del(frameID);
     const mapPayload: ControlMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.username,
       frame: {
         createList: [],
         deleteList: [frameID],
@@ -219,7 +223,7 @@ export class ControlFrameResolver {
       addID: [],
       updateID: [],
       deleteID: [frameID],
-      editBy: ctx.userID,
+      editBy: ctx.username,
       index: -1,
     };
     await publishControlRecord(recordPayload);

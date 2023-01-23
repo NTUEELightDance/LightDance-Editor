@@ -1,24 +1,26 @@
+import type { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+
 import {
   SUB_POS_RECORD,
   SUB_POS_MAP,
   SUB_CONTROL_RECORD,
   SUB_CONTROL_MAP,
-  SUB_EFFECT_LIST
+  SUB_EFFECT_LIST,
 } from "../graphql";
 import cloneDeep from "lodash/cloneDeep";
 import { log } from "core/utils";
 
-const subPosRecord = (client) => {
+const subPosRecord = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
-      query: SUB_POS_RECORD
+      query: SUB_POS_RECORD,
     })
     .subscribe({
-      next (data) {
+      next(data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            positionFrameIDs (positionFrameIDs: string[]) {
+            positionFrameIDs(positionFrameIDs: string[]) {
               const { index, addID, updateID, deleteID } =
                 data.data.positionRecordSubscription;
               const newPosRecord = [...positionFrameIDs];
@@ -39,27 +41,27 @@ const subPosRecord = (client) => {
                 });
               }
               return newPosRecord;
-            }
-          }
+            },
+          },
         });
       },
-      error (err) {
-        console.error("SubscriptionError", err);
-      }
+      error(err) {
+        throw new Error("SubscriptionError", err);
+      },
     });
 };
 
-const subPosMap = (client) => {
+const subPosMap = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
-      query: SUB_POS_MAP
+      query: SUB_POS_MAP,
     })
     .subscribe({
-      next (data) {
+      next(data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            PosMap (posMap) {
+            PosMap(posMap) {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.positionMapSubscription.frame;
               const newPosMap = cloneDeep(posMap);
@@ -67,7 +69,7 @@ const subPosMap = (client) => {
               if (Object.keys(createFrames).length > 0) {
                 newPosMap.frames = {
                   ...newPosMap.frames,
-                  ...createFrames
+                  ...createFrames,
                 };
               }
               if (deleteFrames.length) {
@@ -78,31 +80,31 @@ const subPosMap = (client) => {
               if (Object.keys(updateFrames).length > 0) {
                 newPosMap.frames = {
                   ...newPosMap.frames,
-                  ...updateFrames
+                  ...updateFrames,
                 };
               }
               return newPosMap;
-            }
-          }
+            },
+          },
         });
       },
-      error (err) {
-        console.error("SubscriptionError", err);
-      }
+      error(err) {
+        throw new Error("SubscriptionError", err);
+      },
     });
 };
 
-const subControlRecord = (client) => {
+const subControlRecord = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
-      query: SUB_CONTROL_RECORD
+      query: SUB_CONTROL_RECORD,
     })
     .subscribe({
-      next (data) {
+      next(data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            controlFrameIDs (controlFrameIDs: string[]) {
+            controlFrameIDs(controlFrameIDs: string[]) {
               const { index, addID, updateID, deleteID } =
                 data.data.controlRecordSubscription;
               const newControlRecord = [...controlFrameIDs];
@@ -122,34 +124,34 @@ const subControlRecord = (client) => {
                 });
               }
               return newControlRecord;
-            }
-          }
+            },
+          },
         });
       },
-      error (err) {
-        console.error("SubscriptionError", err);
-      }
+      error(err) {
+        throw new Error("SubscriptionError", err);
+      },
     });
 };
 
-const subControlMap = (client) => {
+const subControlMap = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
-      query: SUB_CONTROL_MAP
+      query: SUB_CONTROL_MAP,
     })
     .subscribe({
-      next (data) {
+      next(data) {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            ControlMap (controlMap) {
+            ControlMap(controlMap) {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.controlMapSubscription.frame;
               const newControlMap = cloneDeep(controlMap);
               if (Object.keys(createFrames).length > 0) {
                 newControlMap.frames = {
                   ...newControlMap.frames,
-                  ...createFrames
+                  ...createFrames,
                 };
               }
               if (deleteFrames.length) {
@@ -160,54 +162,55 @@ const subControlMap = (client) => {
               if (Object.keys(updateFrames).length > 0) {
                 newControlMap.frames = {
                   ...newControlMap.frames,
-                  ...updateFrames
+                  ...updateFrames,
                 };
               }
               return newControlMap;
-            }
-          }
+            },
+          },
         });
       },
-      error (err) {
-        console.error("SubscriptionError", err);
-      }
+      error(err) {
+        throw new Error("SubscriptionError", err);
+      },
     });
 };
-const subEffectList = (client) => {
+const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
-      query: SUB_EFFECT_LIST
+      query: SUB_EFFECT_LIST,
     })
     .subscribe({
-      next (data) {
+      next(data) {
         log(data);
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            effectList (effectList) {
+            effectList(_effectList) {
               if (data.data.effectListSubscription.mutation === "CREATED") {
                 return [
-                  ...effectList,
-                  data.data.effectListSubscription.effectListData
+                  ..._effectList,
+                  data.data.effectListSubscription.effectListData,
                 ];
               } else if (
                 data.data.effectListSubscription.mutation === "DELETED"
               ) {
-                return effectList.filter(
-                  (e) => e.id !== data.data.effectListSubscription.effectListID
+                return _effectList.filter(
+                  (e: any) =>
+                    e.id !== data.data.effectListSubscription.effectListID
                 );
               }
-            }
-          }
+            },
+          },
         });
       },
-      error (err) {
-        console.error("SubscriptionError", err);
-      }
+      error(err) {
+        throw new Error("SubscriptionError", err);
+      },
     });
 };
 
-const Subscriptions = (client) => {
+const Subscriptions = (client: ApolloClient<NormalizedCacheObject>) => {
   subPosRecord(client);
   subPosMap(client);
   subControlRecord(client);

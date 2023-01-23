@@ -5,14 +5,14 @@ import { Position } from "./position";
 @ObjectType()
 export class Dancer {
   @Field((type) => String)
-    name: string;
+  name: string;
 
   @Field((type) => [Part])
-    parts: Part[];
+  parts: Part[];
 
   @Field((type) => [Position])
-    positionData: Position[];
+  positionData: Position[];
 
   @Field((type) => ID)
-    id: string;
+  id: string;
 }

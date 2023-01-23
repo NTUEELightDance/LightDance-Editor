@@ -30,7 +30,7 @@ function Wavesurfer({ commandMode = false }) {
   const { ref: resizeDetectorRef } = useResizeDetector({
     onResize: (width, height) => {
       waveSurferApp.resize();
-    }
+    },
   });
 
   useLayoutEffect(() => {
@@ -44,14 +44,18 @@ function Wavesurfer({ commandMode = false }) {
   // update Markers
   useEffect(() => {
     if (editor === CONTROL_EDITOR) {
-      if (!controlLoading && controlMap && showMarkers) { waveSurferApp.updateMarkers(controlMap); }
+      if (!controlLoading && controlMap && showMarkers) {
+        waveSurferApp.updateMarkers(controlMap);
+      }
     }
   }, [editor, controlRecord, controlMap]);
 
   // update Pos Markers
   useEffect(() => {
     if (editor === POS_EDITOR) {
-      if (!posLoading && posMap && showMarkers) { waveSurferApp.updateMarkers(posMap); }
+      if (!posLoading && posMap && showMarkers) {
+        waveSurferApp.updateMarkers(posMap);
+      }
     }
   }, [editor, posRecord, posMap]);
 
@@ -63,7 +67,9 @@ function Wavesurfer({ commandMode = false }) {
       !controlMap ||
       !posMap ||
       !waveSurferApp
-    ) { return; }
+    ) {
+      return;
+    }
     waveSurferApp.toggleMarkers(showMarkers);
   }, [showMarkers]);
 

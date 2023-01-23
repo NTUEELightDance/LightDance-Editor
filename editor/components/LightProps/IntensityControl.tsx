@@ -3,10 +3,10 @@ import { Flare } from "@mui/icons-material";
 
 function IntensityControl({
   intensity,
-  setIntensity
+  setIntensity,
 }: {
-  intensity: number
-  setIntensity: (intensity: number) => void
+  intensity: number;
+  setIntensity: (intensity: number) => void;
 }) {
   const handleSliderChange = (
     event: Event,
@@ -28,12 +28,14 @@ function IntensityControl({
     return value === 15 ? "flash" : value;
   };
 
-  const sliderMarks: Array<{ value: number, label: string | JSX.Element | null }> =
-    [];
+  const sliderMarks: Array<{
+    value: number;
+    label: string | JSX.Element | null;
+  }> = [];
   for (let i = 0; i <= 10; i++) {
     sliderMarks.push({
       value: i,
-      label: i === 0 || i === 10 ? String(i) : null
+      label: i === 0 || i === 10 ? String(i) : null,
     });
   }
   sliderMarks.push({ value: 15, label: <Flare sx={{ fontSize: "1.25em" }} /> });
@@ -53,16 +55,16 @@ function IntensityControl({
           sx={{
             width: "10em",
             position: "relative",
-            top: "0.5em"
+            top: "0.5em",
           }}
           componentsProps={
             {
               thumb: {
                 sx: {
                   width: "1.25em",
-                  height: "1.25em"
-                }
-              }
+                  height: "1.25em",
+                },
+              },
             } as any
           }
         />
@@ -76,7 +78,7 @@ function IntensityControl({
             step: 1,
             min: 0,
             max: 15,
-            type: "number"
+            type: "number",
           }}
           sx={{ width: "3em" }}
         />

@@ -1,7 +1,7 @@
 import { Vector2 } from "three";
 
 class SelectionHelper {
-  constructor (selectionBox, renderer, cssClassName) {
+  constructor(selectionBox, renderer, cssClassName) {
     this.element = document.createElement("div");
     this.element.classList.add(cssClassName);
     this.element.style.pointerEvents = "none";
@@ -43,7 +43,7 @@ class SelectionHelper {
     this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
   }
 
-  dispose () {
+  dispose() {
     this.renderer.domElement.removeEventListener(
       "pointerdown",
       this.onPointerDown
@@ -55,7 +55,7 @@ class SelectionHelper {
     this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
   }
 
-  onSelectStart (event) {
+  onSelectStart(event) {
     this.renderer.domElement.parentElement.appendChild(this.element);
 
     this.element.style.left = event.clientX + "px";
@@ -67,7 +67,7 @@ class SelectionHelper {
     this.startPoint.y = event.clientY;
   }
 
-  onSelectMove (event) {
+  onSelectMove(event) {
     this.pointBottomRight.x = Math.max(this.startPoint.x, event.clientX);
     this.pointBottomRight.y = Math.max(this.startPoint.y, event.clientY);
     this.pointTopLeft.x = Math.min(this.startPoint.x, event.clientX);
@@ -81,7 +81,7 @@ class SelectionHelper {
       this.pointBottomRight.y - this.pointTopLeft.y + "px";
   }
 
-  onSelectOver () {
+  onSelectOver() {
     this.element.parentElement.removeChild(this.element);
   }
 }

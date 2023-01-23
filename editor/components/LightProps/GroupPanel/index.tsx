@@ -14,7 +14,7 @@ import type {
   PartType,
   PartPayload,
   PartName,
-  Dancers
+  Dancers,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 import { notification } from "core/utils";
@@ -28,16 +28,16 @@ function GroupPanel({
   currentDancers,
   currentStatus,
   colorMap,
-  deleteGroup
+  deleteGroup,
 }: {
-  partType: PartType
-  groupName: string
-  dancers: Dancers
-  parts: string[]
-  currentDancers: string[]
-  currentStatus: ControlMapStatus
-  colorMap: Record<string, string>
-  deleteGroup: (groupName: string) => Promise<void>
+  partType: PartType;
+  groupName: string;
+  dancers: Dancers;
+  parts: string[];
+  currentDancers: string[];
+  currentStatus: ControlMapStatus;
+  colorMap: Record<string, string>;
+  deleteGroup: (groupName: string) => Promise<void>;
 }) {
   const sortedParts = [...parts].sort();
 
@@ -90,24 +90,22 @@ function GroupPanel({
     }
     if (displayValue) {
       Items.push(
-        partType === "LED"
-          ? (
-            <LEDcontrols
-              part={part}
-              currentDancers={currentDancers}
-              displayValue={displayValue as LED}
-              key={`${currentDancers[0]}_${part}_LED`}
-            />
-          )
-          : (
-            <OFcontrols
-              part={part}
-              currentDancers={currentDancers}
-              displayValue={displayValue as Fiber}
-              key={`${currentDancers[0]}_${part}_OF`}
-              colorMap={colorMap}
-            />
-          )
+        partType === "LED" ? (
+          <LEDcontrols
+            part={part}
+            currentDancers={currentDancers}
+            displayValue={displayValue as LED}
+            key={`${currentDancers[0]}_${part}_LED`}
+          />
+        ) : (
+          <OFcontrols
+            part={part}
+            currentDancers={currentDancers}
+            displayValue={displayValue as Fiber}
+            key={`${currentDancers[0]}_${part}_OF`}
+            colorMap={colorMap}
+          />
+        )
       );
     }
   }
@@ -119,8 +117,8 @@ function GroupPanel({
           height: "100%",
           width: "100%",
           px: "5%",
-          py: 0
-        }
+          py: 0,
+        },
       }}
     >
       <TabPanel value={`GROUP_${groupName}`}>

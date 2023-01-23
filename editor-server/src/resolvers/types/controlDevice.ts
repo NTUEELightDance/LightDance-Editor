@@ -22,25 +22,25 @@ export const ControlDevice = createUnionType({
 @InputType("FIBERInput")
 export class FIBER {
   @Field((type) => String)
-    color: string;
+  color: string;
 
   @Field((type) => Float)
-    alpha: number;
+  alpha: number;
 }
 
 @ObjectType()
 @InputType("ELInput")
 class EL {
   @Field((type) => Int)
-    value: number;
+  value: number;
 }
 
 @ObjectType()
 @InputType("LEDInput")
 class LED {
   @Field((type) => String)
-    src: string;
+  src: string;
 
   @Field((type) => Float)
-    alpha: number;
+  alpha: number;
 }

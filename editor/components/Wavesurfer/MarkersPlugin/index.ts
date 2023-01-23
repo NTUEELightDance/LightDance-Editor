@@ -1,7 +1,7 @@
 import {
   Marker,
   MarkerParams,
-  MarkersPluginParams
+  MarkersPluginParams,
 } from "../../../types/components/wavesurfer";
 
 import { waveSurferAppInstance } from "../WaveSurferApp";
@@ -29,30 +29,30 @@ export default class MarkersPlugin {
   onMouseMove?: (e: MouseEvent) => void;
   onMouseUp?: (e: MouseEvent) => void;
 
-  static create (params: MarkersPluginParams): any {
+  static create(params: MarkersPluginParams): any {
     return {
       name: "markers",
       deferInit: false,
       params,
       staticProps: {
-        addMarker (options: MarkerParams) {
+        addMarker(options: MarkerParams) {
           if (!this.initialisedPluginList.markers) {
             this.initPlugin("markers");
           }
           return this.markers.add(options);
         },
-        clearMarkers () {
+        clearMarkers() {
           this.markers && this.markers.clear();
         },
-        toggleMarkers (showMarkers: boolean) {
+        toggleMarkers(showMarkers: boolean) {
           this.markers && this.markers.toggle(showMarkers);
-        }
+        },
       } as any,
-      instance: MarkersPlugin
+      instance: MarkersPlugin,
     };
   }
 
-  constructor (params: MarkersPluginParams, ws: any) {
+  constructor(params: MarkersPluginParams, ws: any) {
     this.params = params;
     this.wavesurfer = ws;
     this.util = ws.util;
@@ -80,10 +80,14 @@ export default class MarkersPlugin {
         return;
       }
 
-      this.onMouseMove = (e) => { this._onMouseMove(e); };
+      this.onMouseMove = (e) => {
+        this._onMouseMove(e);
+      };
       window.addEventListener("mousemove", this.onMouseMove);
 
-      this.onMouseUp = (e) => { this._onMouseUp(e); };
+      this.onMouseUp = (e) => {
+        this._onMouseUp(e);
+      };
       window.addEventListener("mouseup", this.onMouseUp);
     };
 
@@ -94,7 +98,7 @@ export default class MarkersPlugin {
     };
   }
 
-  init (): void {
+  init(): void {
     // Check if ws is ready
     if (this.wavesurfer.isReady) {
       this._onBackendCreated();
@@ -105,7 +109,7 @@ export default class MarkersPlugin {
     }
   }
 
-  destroy (): void {
+  destroy(): void {
     this.wavesurfer.un("ready", this._onReady);
     this.wavesurfer.un("backend-created", this._onBackendCreated);
 
@@ -124,13 +128,13 @@ export default class MarkersPlugin {
     this.clear();
   }
 
-  add (params: MarkerParams): Marker {
+  add(params: MarkerParams): Marker {
     const marker = {
       time: params.time,
       label: params.label,
       color: params.color || DEFAULT_FILL_COLOR,
       position: params.position || DEFAULT_POSITION,
-      draggable: !!params.draggable
+      draggable: !!params.draggable,
     } as Marker;
 
     marker.el = this._createMarkerElement(marker, params.markerElement);
@@ -142,7 +146,7 @@ export default class MarkersPlugin {
     return marker;
   }
 
-  remove (index: number): void {
+  remove(index: number): void {
     const marker = this.markers[index];
     if (!marker) {
       return;
@@ -152,7 +156,7 @@ export default class MarkersPlugin {
     this.markers.splice(index, 1);
   }
 
-  _createPointerSVG (color: string, position: "top" | "bottom"): SVGElement {
+  _createPointerSVG(color: string, position: "top" | "bottom"): SVGElement {
     const svgNS = "http://www.w3.org/2000/svg";
 
     const el = document.createElementNS(svgNS, "svg");
@@ -175,12 +179,12 @@ export default class MarkersPlugin {
       height: this.markerHeight + "px",
       "min-width": this.markerWidth + "px",
       "margin-right": "5px",
-      "z-index": 4
+      "z-index": 4,
     });
     return el;
   }
 
-  _createMarkerElement (marker: Marker, markerElement: any): HTMLElement {
+  _createMarkerElement(marker: Marker, markerElement: any): HTMLElement {
     const label = marker.label;
 
     const el = document.createElement("marker");
@@ -191,7 +195,7 @@ export default class MarkersPlugin {
       height: "100%",
       display: "flex",
       overflow: "hidden",
-      "flex-direction": marker.position == "top" ? "column-reverse" : "column"
+      "flex-direction": marker.position == "top" ? "column-reverse" : "column",
     });
 
     el.onmouseover = (e) => {
@@ -212,7 +216,7 @@ export default class MarkersPlugin {
       "margin-left": marker.offset + "px",
       background: "black",
       width: this.markerLineWidth + "px",
-      opacity: 0.1
+      opacity: 0.1,
     });
     el.appendChild(line);
 
@@ -229,7 +233,7 @@ export default class MarkersPlugin {
       labelEl.innerText = label;
       this.style(labelEl, {
         "font-family": "monospace",
-        "font-size": "90%"
+        "font-size": "90%",
       });
       labelDiv.appendChild(labelEl);
     }
@@ -237,7 +241,7 @@ export default class MarkersPlugin {
     this.style(labelDiv, {
       display: "flex",
       "align-items": "center",
-      cursor: "pointer"
+      cursor: "pointer",
     });
 
     el.appendChild(labelDiv);
@@ -263,14 +267,14 @@ export default class MarkersPlugin {
     return el;
   }
 
-  _updateMarkerPositions (): void {
+  _updateMarkerPositions(): void {
     for (let i = 0; i < this.markers.length; i++) {
       const marker = this.markers[i];
       this._updateMarkerPosition(marker);
     }
   }
 
-  _updateMarkerPosition (params: Marker): void {
+  _updateMarkerPosition(params: Marker): void {
     const duration = this.wavesurfer.getDuration();
     const elementWidth =
       this.wavesurfer.drawer.width / this.wavesurfer.params.pixelRatio;
@@ -279,11 +283,11 @@ export default class MarkersPlugin {
     const leftPx = elementWidth * positionPct - (params.offset as number);
     this.style(params.el, {
       left: leftPx + "px",
-      "max-width": elementWidth - leftPx + "px"
+      "max-width": elementWidth - leftPx + "px",
     });
   }
 
-  _onMouseMove (event: MouseEvent): void {
+  _onMouseMove(event: MouseEvent): void {
     if (!this.selectedMarker) {
       return;
     }
@@ -296,7 +300,7 @@ export default class MarkersPlugin {
     this._updateMarkerPositions();
   }
 
-  _onMouseUp (event: MouseEvent): void {
+  _onMouseUp(event: MouseEvent): void {
     if (this.selectedMarker) {
       setTimeout(() => {
         this.selectedMarker = false;
@@ -316,19 +320,19 @@ export default class MarkersPlugin {
     this.wavesurfer.fireEvent("marker-drop", this.selectedMarker, event);
   }
 
-  toggle (showMarkers: boolean): void {
+  toggle(showMarkers: boolean): void {
     if (this.showMarkers == showMarkers) return;
 
     this.showMarkers = showMarkers;
     this.markers.forEach((marker) => {
       this.style(marker.el, {
-        display: this.showMarkers ? "flex" : "none"
+        display: this.showMarkers ? "flex" : "none",
       });
     });
     this._updateMarkerPositions();
   }
 
-  clear (): void {
+  clear(): void {
     while (this.markers.length > 0) {
       this.remove(0);
     }

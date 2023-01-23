@@ -1,7 +1,14 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 
 import db from "../../models";
-import { ILED, ILEDEffects, ILEDEffectsEffect, IPart, TExportLED, TExportLEDPart } from "../../types/global";
+import {
+  ILED,
+  ILEDEffects,
+  ILEDEffectsEffect,
+  IPart,
+  TExportLED,
+  TExportLEDPart,
+} from "../../types/global";
 
 const exportLED = async (req: Request, res: Response) => {
   try {

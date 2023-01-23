@@ -7,7 +7,7 @@ import {
   TextField,
   Stack,
   Collapse,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -22,10 +22,10 @@ import { wavesurferContext } from "types/components/wavesurfer";
 
 import { notification } from "core/utils";
 
-export default function CommandControls ({
-  selectedDancers
+export default function CommandControls({
+  selectedDancers,
 }: {
-  selectedDancers: string[]
+  selectedDancers: string[];
 }) {
   // hook
   const { delay, sendCommand, setDelay } = useWebsocket();
@@ -47,7 +47,7 @@ export default function CommandControls ({
     const payload = {
       command,
       selectedDancers,
-      delay
+      delay,
     };
     try {
       sendCommand(payload);
@@ -84,7 +84,7 @@ export default function CommandControls ({
   const ButtonGroup1 = [
     { command: COMMANDS.UPLOAD_LED, label: "upload LED" },
     { command: COMMANDS.UPLOAD_OF, label: "upload OF" },
-    { command: COMMANDS.LOAD }
+    { command: COMMANDS.LOAD },
   ];
 
   const ButtonGroup2 = [
@@ -92,29 +92,29 @@ export default function CommandControls ({
     { command: COMMANDS.NTHU_STOP },
     { command: COMMANDS.PLAY },
     { command: COMMANDS.PAUSE },
-    { command: COMMANDS.STOP }
+    { command: COMMANDS.STOP },
   ];
   const ButtonGroup3 = [
     { command: COMMANDS.RESTARTCONTROLLER },
-    { command: COMMANDS.STMINIT }
+    { command: COMMANDS.STMINIT },
   ];
 
   const ButtonGroup4 = [
     { command: COMMANDS.KICK },
     { command: COMMANDS.SHUTDOWN },
-    { command: COMMANDS.REBOOT }
+    { command: COMMANDS.REBOOT },
   ];
 
   const ButtonGroup5 = [
     { command: COMMANDS.RED },
     { command: COMMANDS.BLUE },
     { command: COMMANDS.GREEN },
-    { command: COMMANDS.DARKALL }
+    { command: COMMANDS.DARKALL },
   ];
 
   const ButtonGroup6 = [
     { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
-    { command: COMMANDS.TEST }
+    { command: COMMANDS.TEST },
   ];
 
   return (
@@ -125,7 +125,9 @@ export default function CommandControls ({
             <Button
               size="small"
               variant="contained"
-              onClick={() => { handleClickBtn(COMMANDS.SYNC); }}
+              onClick={() => {
+                handleClickBtn(COMMANDS.SYNC);
+              }}
             >
               sync
             </Button>
@@ -143,14 +145,18 @@ export default function CommandControls ({
               {ButtonGroup2.map(({ command }) => (
                 <DefaultCommandButton
                   command={command}
-                  handleClick={() => { handleClickBtn(command); }}
+                  handleClick={() => {
+                    handleClickBtn(command);
+                  }}
                 />
               ))}
             </ButtonGroup>
           </Stack>
 
           <IconButton
-            onClick={() => { setShowDropDown((showDropDown) => !showDropDown); }}
+            onClick={() => {
+              setShowDropDown((showDropDown) => !showDropDown);
+            }}
           >
             <ExpandMoreIcon
               sx={{
@@ -158,12 +164,12 @@ export default function CommandControls ({
                 "animation-fill-mode": "forwards",
                 "@keyframes spinDown": {
                   "0%": { transform: "rotate(0deg)" },
-                  "100%": { transform: "rotate(180deg)" }
+                  "100%": { transform: "rotate(180deg)" },
                 },
                 "@keyframes spinUp": {
                   "0%": { transform: "rotate(180deg)" },
-                  "100%": { transform: "rotate(0deg)" }
-                }
+                  "100%": { transform: "rotate(0deg)" },
+                },
               }}
             />
           </IconButton>
@@ -176,7 +182,9 @@ export default function CommandControls ({
                   key={command}
                   command={command}
                   label={label}
-                  handleClick={() => { handleClickBtn(command); }}
+                  handleClick={() => {
+                    handleClickBtn(command);
+                  }}
                 />
               ))}
             </ButtonGroup>
@@ -186,7 +194,9 @@ export default function CommandControls ({
                   key={command}
                   command={command}
                   label={label}
-                  handleClick={() => { handleClickBtn(command); }}
+                  handleClick={() => {
+                    handleClickBtn(command);
+                  }}
                 />
               ))}
             </ButtonGroup>
@@ -197,7 +207,9 @@ export default function CommandControls ({
                 <DefaultCommandButton
                   key={command}
                   command={command}
-                  handleClick={() => { handleClickBtn(command); }}
+                  handleClick={() => {
+                    handleClickBtn(command);
+                  }}
                 />
               ))}
             </ButtonGroup>
@@ -206,7 +218,9 @@ export default function CommandControls ({
                 <DefaultCommandButton
                   key={command}
                   command={command}
-                  handleClick={() => { handleClickBtn(command); }}
+                  handleClick={() => {
+                    handleClickBtn(command);
+                  }}
                 />
               ))}
             </ButtonGroup>
@@ -220,11 +234,11 @@ export default function CommandControls ({
 function DefaultCommandButton({
   command,
   handleClick,
-  label
+  label,
 }: {
-  command: string
-  handleClick: () => void
-  label?: string
+  command: string;
+  handleClick: () => void;
+  label?: string;
 }) {
   return (
     <Button size="small" onClick={handleClick} key={command}>

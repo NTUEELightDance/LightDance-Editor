@@ -1,4 +1,10 @@
-import { Resolver, FieldResolver, Root, Ctx, ResolverInterface } from "type-graphql";
+import {
+  Resolver,
+  FieldResolver,
+  Root,
+  Ctx,
+  ResolverInterface,
+} from "type-graphql";
 
 import { IControl, TContext } from "../types/global";
 import { Control } from "./types/control";

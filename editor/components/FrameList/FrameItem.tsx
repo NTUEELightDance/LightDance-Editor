@@ -5,16 +5,16 @@ import Typography from "@mui/material/Typography";
 
 import { formatDisplayedTime } from "core/utils";
 
-export default function FrameItem ({
+export default function FrameItem({
   idx,
   start,
   selected,
-  handleSelectItem
+  handleSelectItem,
 }: {
-  idx: number
-  start: number
-  selected: boolean
-  handleSelectItem: (idx: number) => void
+  idx: number;
+  start: number;
+  selected: boolean;
+  handleSelectItem: (idx: number) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -22,7 +22,7 @@ export default function FrameItem ({
     if (selected) {
       ref?.current?.scrollIntoView({
         block: "center",
-        inline: "nearest"
+        inline: "nearest",
       });
     }
   }, [selected]);
@@ -32,7 +32,9 @@ export default function FrameItem ({
       <ListItem
         selected={selected}
         button
-        onClick={() => { handleSelectItem(idx); }}
+        onClick={() => {
+          handleSelectItem(idx);
+        }}
       >
         <Typography variant="body1">
           [{idx}] time: {formatDisplayedTime(start)}

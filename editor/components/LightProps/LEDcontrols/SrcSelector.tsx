@@ -15,11 +15,11 @@ import { NO_EFFECT } from "@/constants";
 function SrcSelector({
   src,
   effectNames,
-  handleSrcChange
+  handleSrcChange,
 }: {
-  src: string
-  effectNames: string[]
-  handleSrcChange: (src: string) => void
+  src: string;
+  effectNames: string[];
+  handleSrcChange: (src: string) => void;
 }) {
   const handleChange = (e: SelectChangeEvent) => {
     handleSrcChange(e.target.value);
