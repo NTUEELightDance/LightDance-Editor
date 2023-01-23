@@ -22,7 +22,10 @@
     "dev-pnpm:editor-server": "cd ./editor-server && pnpm start",
     "dev-pnpm:controller-server": "cd ./controller-server && pnpm start",
     "dev-pnpm:file-server": "cd ./file-server && pnpm start",
-    "dev-pnpm": "run-p dev-pnpm:*"
+    "dev-pnpm": "run-p dev-pnpm:*",
+    "lint:editor": "cd ./editor && pnpm lint",
+    "lint:editor-server": "cd ./editor-server && pnpm lint",
+    "lint:all": "run-p lint:*"
   },
   "browserslist": {
     "production": [
