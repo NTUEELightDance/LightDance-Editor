@@ -57,7 +57,7 @@ const fetchJson = async (path: string) => {
   return await fetch(path).then(async (data) => await data.json());
 };
 
-export const fetchLoad = () => async (dispatch: AppDispatch) => {
+export const fetchLoad = async (dispatch: AppDispatch) => {
   const load = await fetchJson("/data/load.json");
   log("load", load);
   const { Music, LightPresets, PosPresets, DancerMap } = load;

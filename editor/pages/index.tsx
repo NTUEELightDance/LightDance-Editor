@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import CssBaseline from "@mui/material/CssBaseline";
+import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
 import PageWrapper from "@/containers/PageWrapper";
 
@@ -10,46 +10,68 @@ import RequireAuth from "@/components/RequireAuth";
 import Login from "./Login";
 import NotFound from "./NotFound";
 
+const theme = createTheme({ palette: { mode: "dark" } });
+
+const EditorWrapper = lazy(async () => await import("./App"));
 const Command = lazy(async () => await import("./Command"));
 const Editor = lazy(async () => await import("./Editor"));
 
 export default function RootRouter() {
   return (
-    <PageWrapper>
-      <CssBaseline />
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
+    <ThemeProvider theme={theme}>
+      <PageWrapper>
+        <CssBaseline />
+        <BrowserRouter>
+          <Routes>
+            <Route
+              index
+              element={
+                <Navigate to="/editor" replace={true} state={{ from: "/" }} />
+              }
+            />
+            <Route
+              path="editor"
+              element={
+                <RequireAuth>
+                  <Suspense fallback={<Loading />}>
+                    <EditorWrapper />
+                  </Suspense>
+                </RequireAuth>
+              }
+            >
+              <Route
+                index
+                element={
+                  <RequireAuth>
+                    <Suspense fallback={<Loading />}>
+                      <Editor />
+                    </Suspense>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="command"
+                element={
+                  <RequireAuth>
+                    <Suspense fallback={<Loading />}>
+                      <Command />
+                    </Suspense>
+                  </RequireAuth>
+                }
+              />
+            </Route>
+            <Route
+              path="login"
+              element={
                 <Suspense fallback={<Loading />}>
-                  <Editor />
+                  <Login />
                 </Suspense>
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/command"
-            element={
-              <RequireAuth>
-                <Suspense fallback={<Loading />}>
-                  <Command />
-                </Suspense>
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <Suspense fallback={<Loading />}>
-                <Login />
-              </Suspense>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </PageWrapper>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </PageWrapper>
+    </ThemeProvider>
   );
 }

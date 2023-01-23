@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 
-// new mui
-import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 // redux
 import { useSelector, useDispatch } from "react-redux";
 // actions
-import { selectLoad, fetchLoad } from "./slices/loadSlice";
+import { selectLoad, fetchLoad } from "@/slices/loadSlice";
 // components
 import Loading from "components/Loading";
 // hooks
@@ -21,10 +20,6 @@ import {
 
 import { getControl, getPos } from "core/utils";
 
-import Router from "@/pages";
-
-const theme = createTheme({ palette: { mode: "dark" } });
-
 /**
  * Component for the main
  * @component
@@ -35,9 +30,9 @@ function App() {
 
   useEffect(() => {
     if (!init) {
-      dispatch(fetchLoad());
+      fetchLoad(dispatch);
     }
-  }, [init]);
+  }, [init, dispatch]);
 
   const [controlLoading, setControlLoading] = useState<boolean>(true);
   useEffect(() => {
@@ -92,12 +87,7 @@ function App() {
     }
   }, [dancerLoading]);
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {init && !controlLoading && !posLoading ? <Router /> : <Loading />}
-    </ThemeProvider>
-  );
+  return init && !controlLoading && !posLoading ? <Outlet /> : <Loading />;
 }
 
 export default App;

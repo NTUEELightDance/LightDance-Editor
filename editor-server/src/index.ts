@@ -69,8 +69,8 @@ const port = process.env.PORT || 4000;
       },
       onConnect: async (ctx) => {
         const token = ctx.connectionParams?.token;
+        console.log("connect", token);
         const { success, user } = await verifyToken(token);
-        console.log("connect", token, success, user?.username);
         if (success) {
           ctx.extra.username = user.username;
         }
@@ -95,10 +95,13 @@ const port = process.env.PORT || 4000;
   const server = new ApolloServer({
     schema,
     context: async ({ req }) => {
+      console.log("context", req.cookies.token);
       const token = req.cookies.token;
       const { success, user } = await verifyToken(token);
       if (success) {
         return { username: user.username, db };
+      } else {
+        throw new Error("Unauthorized");
       }
     },
     plugins: [

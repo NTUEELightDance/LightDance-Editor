@@ -6,7 +6,7 @@ import client from "./client";
 
 import WaveSurferAppContext from "./contexts/WavesurferContext";
 
-import App from "./app";
+import Router from "./pages";
 
 import "./index.css";
 
@@ -17,7 +17,7 @@ function Index() {
     <ApolloProvider client={client}>
       <WaveSurferAppContext>
         <Provider store={store}>
-          <App />
+          <Router />
         </Provider>
       </WaveSurferAppContext>
     </ApolloProvider>

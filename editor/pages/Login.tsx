@@ -12,7 +12,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 
 import { reactiveState } from "@/core/state";
-import { authenticate, checkToken } from "@/core/actions";
+import { login, checkToken } from "@/core/actions";
 
 export default function LogIn() {
   const isLoggedIn = useReactiveVar(reactiveState.isLoggedIn);
@@ -23,7 +23,7 @@ export default function LogIn() {
   }, []);
 
   if (isLoggedIn) {
-    const { from } = location.state as { from: { pathname: string } };
+    const from = location.state?.from;
     return <Navigate to={from?.pathname || "/"} />;
   }
 
@@ -33,7 +33,7 @@ export default function LogIn() {
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
     // const remember = formData.get("remember") === "on";
-    authenticate({ payload: { username, password } });
+    login({ payload: { username, password } });
   };
 
   return (

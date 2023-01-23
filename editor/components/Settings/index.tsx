@@ -6,6 +6,8 @@ import File from "./File";
 import Preference from "./Preference";
 import { SettingModal } from "./SettingModal";
 
+import { logout } from "@/core/actions";
+
 export function Settings({
   showSettings,
   setShowSettings,
@@ -21,22 +23,34 @@ export function Settings({
     {
       label: "files",
       modalOpen: fileModalOpen,
-      setModalOpen: setFileModalOpen,
+      handleClick: () => {
+        setFileModalOpen(true);
+        setShowSettings(false);
+      },
+      handleClose: () => {
+        setFileModalOpen(false);
+      },
       modalChildren: <File />,
     },
     {
       label: "preferences",
       modalOpen: prefModalOpen,
-      setModalOpen: setPrefModalOpen,
+      handleClick: () => {
+        setPrefModalOpen(true);
+        setShowSettings(false);
+      },
+      handleClose: () => {
+        setPrefModalOpen(false);
+      },
       modalChildren: <Preference />,
     },
+    {
+      label: "logout",
+      handleClick: () => {
+        logout();
+      },
+    },
   ];
-
-  const handleMenuItemClick =
-    (setModalOpen: (showModal: boolean) => void) => () => {
-      setModalOpen(true);
-      setShowSettings(false);
-    };
 
   return (
     <>
@@ -65,27 +79,24 @@ export function Settings({
           setShowSettings(false);
         }}
       >
-        {settings.map(({ label, setModalOpen }) => (
-          <MenuItem
-            key={`${label}_label`}
-            onClick={handleMenuItemClick(setModalOpen)}
-          >
+        {settings.map(({ label, handleClick }) => (
+          <MenuItem key={`${label}_label`} onClick={handleClick}>
             <Typography textAlign="center">{label}</Typography>
           </MenuItem>
         ))}
       </Menu>
 
-      {settings.map(({ label, modalOpen, setModalOpen, modalChildren }) => (
-        <SettingModal
-          key={`${label}_modal`}
-          open={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-          }}
-        >
-          {modalChildren}
-        </SettingModal>
-      ))}
+      {settings
+        .filter((e) => e.modalChildren)
+        .map(({ label, modalOpen, handleClose, modalChildren }) => (
+          <SettingModal
+            key={`${label}_modal`}
+            open={modalOpen ?? false}
+            onClose={handleClose ?? (() => null)}
+          >
+            {modalChildren ?? <></>}
+          </SettingModal>
+        ))}
     </>
   );
 }

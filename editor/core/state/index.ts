@@ -31,6 +31,7 @@ import {
  */
 const _state: State = {
   isLoggedIn: false,
+  token: "",
 
   isPlaying: false,
   selected: {},
@@ -85,6 +86,7 @@ state.toString = () => {
  */
 export const reactiveState: ReactiveState = {
   isLoggedIn: makeVar<boolean>(false),
+  token: makeVar<string>(""),
 
   isPlaying: makeVar<boolean>(false),
   selected: makeVar<Selected>({}),
