@@ -22,6 +22,11 @@ module.exports = {
     "react/react-in-jsx-scope": "off",
     "react/no-unescaped-entities": "off",
     "react/function-component-definition": ["error"],
-    "no-console": "warn",
+    "no-console": ["warn", { allow: ["warn", "error"] }],
+  },
+  settings: {
+    react: {
+      version: "detect",
+    },
   },
 };
