@@ -18,8 +18,18 @@ import {
   TRedisControl,
 } from "./types/global";
 
+import { createUser } from "./models/User";
+import { IUser } from "./types/global";
+
 const initData = async () => {
-  await model.User.deleteMany();
+  const adminUsername = process.env.ADMIN_USERNAME ?? "admin";
+  const adminPassword = process.env.ADMIN_PASSWORD ?? "admin";
+  // create if not exist
+  const admin = await model.User.findOne({ username: adminUsername });
+
+  if (!admin) {
+    createUser(adminUsername, adminPassword);
+  }
 };
 
 const initRedisControl = async () => {
@@ -200,6 +210,23 @@ const generateID = () => {
 initRedisControl();
 initRedisPosition();
 
+const verifyToken = async (
+  token: string | undefined
+): Promise<{ success: false; user: null } | { success: true; user: IUser }> => {
+  if (!token) {
+    return { success: false, user: null };
+  }
+  const id = await redis.get(token);
+  if (!id) {
+    return { success: false, user: null };
+  }
+  const user = await model.User.findById(id);
+  if (!user) {
+    return { success: false, user: null };
+  }
+  return { success: true, user };
+};
+
 export {
   initData,
   generateID,
@@ -207,4 +234,5 @@ export {
   updateRedisPosition,
   initRedisControl,
   initRedisPosition,
+  verifyToken,
 };

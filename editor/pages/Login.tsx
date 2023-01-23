@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import { useReactiveVar } from "@apollo/client";
 
@@ -12,11 +12,15 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 
 import { reactiveState } from "@/core/state";
-import { authenticate } from "@/core/actions";
+import { authenticate, checkToken } from "@/core/actions";
 
 export default function LogIn() {
   const isLoggedIn = useReactiveVar(reactiveState.isLoggedIn);
   const location = useLocation();
+
+  useEffect(() => {
+    checkToken();
+  }, []);
 
   if (isLoggedIn) {
     const { from } = location.state as { from: { pathname: string } };
@@ -26,10 +30,10 @@ export default function LogIn() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const account = formData.get("account") as string;
+    const username = formData.get("username") as string;
     const password = formData.get("password") as string;
     // const remember = formData.get("remember") === "on";
-    authenticate({ payload: { account, password } });
+    authenticate({ payload: { username, password } });
   };
 
   return (
@@ -63,9 +67,9 @@ export default function LogIn() {
           required
           fullWidth
           id="account"
-          label="Account"
-          name="account"
-          autoComplete="account"
+          label="Username"
+          name="username"
+          autoComplete="username"
           autoFocus
         />
         <TextField

@@ -12,7 +12,7 @@ const actions = registerActions({
     const fade = payload;
     if (typeof fade !== "boolean") {
       throw new Error(
-        `[Error] setCurrentFade, invalid paramter(fade), ${fade}`
+        `[Error] setCurrentFade, invalid parameter(fade), ${fade}`
       );
     }
     state.currentFade = fade;

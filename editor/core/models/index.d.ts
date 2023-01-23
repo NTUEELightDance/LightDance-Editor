@@ -212,6 +212,7 @@ export type EditGroupError = "DNE";
  */
 export interface State {
   isLoggedIn: boolean;
+  token: string;
 
   isPlaying: boolean; // isPlaying
 
@@ -249,6 +250,7 @@ export type StateKey = keyof State;
  */
 export interface ReactiveState extends Record<StateKey, ReactiveVar> {
   isLoggedIn: ReactiveVar<boolean>;
+  token: ReactiveVar<string>;
 
   isPlaying: ReactiveVar<boolean>; // isPlaying
 

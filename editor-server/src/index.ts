@@ -3,11 +3,12 @@ import express from "express";
 import "dotenv-defaults/config";
 import http from "http";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 
-import { ApolloServer } from "@apollo/server";
-import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServer } from "apollo-server-express";
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 
 import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
@@ -19,7 +20,9 @@ import db from "./models";
 import mongo from "./mongo";
 import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
-import { TContext, ConnectionParam } from "./types/global";
+import { verifyToken } from "./utility";
+
+import { ConnectionParam } from "./types/global";
 
 const port = process.env.PORT || 4000;
 // const { SECRET_KEY } = process.env;
@@ -29,48 +32,21 @@ const port = process.env.PORT || 4000;
   app.use(bodyParser.json({ limit: "20mb" }));
   app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
   app.use(fileUpload());
+  app.use(cookieParser());
   app.use("/api", apiRoute);
 
   mongo();
 
   const httpServer = http.createServer(app);
-  // const schema = makeExecutableSchema({ typeDefs, resolvers })
+
   const pubsub = new PubSub();
   const schema = await buildSchema({
     resolvers,
     // automatically create `schema.gql` file with schema definition in current folder
-    emitSchemaFile: path.resolve(__dirname, "schema.gql"),
+    emitSchemaFile: path.resolve("schema.gql"),
     globalMiddlewares: [AccessMiddleware],
     pubSub: pubsub,
   });
-
-  // const subscriptionBuildOptions = async (
-  //   connectionParams: ConnectionParam,
-  // ) => {
-  //   try {
-  //     const { userID, name } = connectionParams;
-  //     if (!userID) throw new Error("UserID and name must be filled.");
-  //     const user = await db.User.findOne({ userID });
-  //     if (user) {
-  //       return { db, userID };
-  //     } else {
-  //       await new db.User({ name, userID }).save();
-  //       return { db, userID };
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
-  // const subscriptionDestroyOptions = async (webSocket: WebSocket, context: ConnectionContext) => {
-  //   const initialContext = await context.initPromise;
-  //   if (initialContext) {
-  //     const { userID } = initialContext;
-  //     await db.ControlFrame.updateMany({ editing: userID }, { editing: undefined });
-  //     await db.PositionFrame.updateMany({ editing: userID }, { editing: undefined });
-  //     await db.User.deleteMany({ userID });
-  //   }
-  // };
 
   // Creating the WebSocket subscription server
   const wsServer = new WebSocketServer({
@@ -83,37 +59,50 @@ const port = process.env.PORT || 4000;
 
   // Passing in an instance of a GraphQLSchema and
   // telling the WebSocketServer to start listening
-  const serverCleanup = useServer(
+  const serverCleanup = useServer<ConnectionParam, { username: string }>(
     {
       schema,
       context: async (ctx) => {
-        console.log({ ctx });
-        return ctx.connectionParams;
+        const token = ctx.connectionParams?.token;
+        const { success, user } = await verifyToken(token);
+        if (success) return { username: user.username, db };
       },
       onConnect: async (ctx) => {
-        console.log({ ctx });
+        const token = ctx.connectionParams?.token;
+        const { success, user } = await verifyToken(token);
+        console.log("connect", token, success, user?.username);
+        if (success) {
+          ctx.extra.username = user.username;
+        }
+        return success;
       },
       onDisconnect: async (ctx) => {
-        console.log({ ctx });
+        const username = ctx.extra.username;
+        console.log("disconnect", username);
+        await db.ControlFrame.updateMany(
+          { editing: username },
+          { editing: undefined }
+        );
+        await db.PositionFrame.updateMany(
+          { editing: username },
+          { editing: undefined }
+        );
       },
     },
     wsServer
   );
 
-  // const subscriptionServer = SubscriptionServer.create(
-  //   {
-  //     schema,
-  //     execute,
-  //     subscribe,
-  //     onConnect: subscriptionBuildOptions,
-  //     onDisconnect: subscriptionDestroyOptions,
-  //   },
-  //   { server: httpServer, path: "/graphql" }
-  // );
-
   const server = new ApolloServer({
     schema,
+    context: async ({ req }) => {
+      const token = req.cookies.token;
+      const { success, user } = await verifyToken(token);
+      if (success) {
+        return { username: user.username, db };
+      }
+    },
     plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
       {
         async serverWillStart() {
           return {
@@ -127,25 +116,7 @@ const port = process.env.PORT || 4000;
   });
 
   await server.start();
-
-  app.use(
-    "/graphql",
-    expressMiddleware(server, {
-      context: async ({ req }) => {
-        // make sure that we know who are accessing backend
-        const { name, userid } = req.headers;
-        if (!userid || !name)
-          throw new Error("UserID and name must be filled.");
-        const userID: string = typeof userid === "string" ? userid : userid[0];
-        const userName: string = typeof name === "string" ? name : name[0];
-        const user = await db.User.findOne({ name: userName, userID: userID });
-        if (!user) {
-          await new db.User({ name: userName, userID: userid }).save();
-        }
-        return { db, userID };
-      },
-    })
-  );
+  server.applyMiddleware({ app });
 
   await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
 })();

@@ -106,7 +106,7 @@ export class EditPosMapResolver {
       await updateRedisPosition(newPositionFrame.id);
       // subscription
       const mapPayload: PositionMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [newPositionFrame.id],
           deleteList: [],
@@ -128,7 +128,7 @@ export class EditPosMapResolver {
 
       const recordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.CREATED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         addID: [newPositionFrame.id],
         updateID: [],
         deleteID: [],
@@ -143,7 +143,7 @@ export class EditPosMapResolver {
     // if position frame found
     else {
       const { editing, _id, id: frameID } = positionFrame;
-      if (editing !== ctx.userID) {
+      if (editing !== ctx.username) {
         throw new Error(`The frame is now editing by ${editing}.`);
       }
 
@@ -198,7 +198,7 @@ export class EditPosMapResolver {
       await updateRedisPosition(frameID);
       // subscription
       const payload: PositionMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [],
           deleteList: [],

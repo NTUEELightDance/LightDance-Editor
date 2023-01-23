@@ -2,22 +2,27 @@ import type { State } from "../models";
 
 import { registerActions } from "../registerActions";
 
+import { loginAgent } from "@/api";
+
 export type AuthenticatePayload = {
-  account: string;
+  username: string;
   password: string;
 };
 
 const actions = registerActions({
   authenticate: async (
     state: State,
-    { account, password }: AuthenticatePayload
+    { username, password }: AuthenticatePayload
   ) => {
-    console.log({
-      account,
-      password,
-    });
-    state.isLoggedIn = true;
+    const { success, token } = await loginAgent.login(username, password);
+    state.token = token;
+    state.isLoggedIn = success;
+  },
+  checkToken: async (state: State) => {
+    const { success, token } = await loginAgent.checkToken();
+    state.token = token;
+    state.isLoggedIn = success;
   },
 });
 
-export const { authenticate } = actions;
+export const { authenticate, checkToken } = actions;

@@ -265,7 +265,7 @@ export class ShiftResolver {
 
       // subscription
       const controlMapPayload: ControlMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [],
           deleteList: deleteControlList,
@@ -286,7 +286,7 @@ export class ShiftResolver {
       });
       const controlRecordPayload: ControlRecordPayload = {
         mutation: ControlRecordMutation.UPDATED_DELETED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         addID: [],
         updateID: updateControlIDs,
         deleteID: deleteControlList,
@@ -325,7 +325,7 @@ export class ShiftResolver {
 
       // subscription
       const positionMapPayload: PositionMapPayload = {
-        editBy: ctx.userID,
+        editBy: ctx.username,
         frame: {
           createList: [],
           deleteList: deletePositionList,
@@ -347,7 +347,7 @@ export class ShiftResolver {
       });
       const positionRecordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.UPDATED_DELETED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         addID: [],
         updateID: updatePositionIDs,
         deleteID: deletePositionList,

@@ -144,7 +144,7 @@ export class EffectListResolver {
     };
     const payload: EffectListPayload = {
       mutation: EffectListMutation.CREATED,
-      editBy: ctx.userID,
+      editBy: ctx.username,
       effectListID: effectList._id,
       effectListData: result,
     };
@@ -161,7 +161,7 @@ export class EffectListResolver {
     await ctx.db.EffectList.deleteOne({ _id: id });
     const payload: EffectListPayload = {
       mutation: EffectListMutation.DELETED,
-      editBy: ctx.userID,
+      editBy: ctx.username,
       effectListID: id,
     };
     await publish(payload);
@@ -409,7 +409,7 @@ export class EffectListResolver {
 
     // subscription control
     const controlMapPayload: ControlMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.username,
       frame: {
         createList: newControlFrameIDs,
         deleteList: deleteControlList,
@@ -440,7 +440,7 @@ export class EffectListResolver {
     });
     const controlRecordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.CREATED_DELETED,
-      editBy: ctx.userID,
+      editBy: ctx.username,
       addID: controlRecordIDs,
       deleteID: deleteControlList,
       updateID: [],
@@ -450,7 +450,7 @@ export class EffectListResolver {
 
     // subscription position
     const positionMapPayload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.username,
       frame: {
         createList: newPositionFrameIDs,
         deleteList: deletePositionList,
@@ -483,7 +483,7 @@ export class EffectListResolver {
     });
     const positionRecordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.CREATED_DELETED,
-      editBy: ctx.userID,
+      editBy: ctx.username,
       addID: positionRecordIDs,
       deleteID: deletePositionList,
       updateID: [],

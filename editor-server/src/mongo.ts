@@ -11,7 +11,7 @@ export default () => {
     .connect(`mongodb://${MONGO_HOST}/${MONGO_DBNAME}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useFindAndModify: false,
+      useFindAndModify: true,
     })
     .then(() => {
       console.log("mongo db connection created");

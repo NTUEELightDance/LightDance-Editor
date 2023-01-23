@@ -70,7 +70,7 @@ export class PartResolver {
         await initRedisPosition();
         const payload: DancerPayload = {
           mutation: dancerMutation.UPDATED,
-          editBy: ctx.userID,
+          editBy: ctx.username,
           dancerData,
         };
         await publish(payload);
@@ -125,7 +125,7 @@ export class PartResolver {
       await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         dancerData,
       };
       await publish(payload);
@@ -171,7 +171,7 @@ export class PartResolver {
       await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
+        editBy: ctx.username,
         dancerData,
       };
       await publish(payload);

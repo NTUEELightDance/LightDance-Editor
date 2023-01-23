@@ -196,7 +196,8 @@ const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
                 data.data.effectListSubscription.mutation === "DELETED"
               ) {
                 return _effectList.filter(
-                  (e) => e.id !== data.data.effectListSubscription.effectListID
+                  (e: any) =>
+                    e.id !== data.data.effectListSubscription.effectListID
                 );
               }
             },

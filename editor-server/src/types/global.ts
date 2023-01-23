@@ -1,9 +1,8 @@
 import { Model, ObjectId, Document, PopulatedDoc } from "mongoose";
 
-export interface ConnectionParam {
-  userID: string;
-  name: string;
-}
+export type ConnectionParam = {
+  token: string;
+};
 
 export type DBModels = {
   [key: string]: Model<any>;
@@ -11,7 +10,7 @@ export type DBModels = {
 
 export type TContext = {
   db: DBModels;
-  userID: string;
+  username: string;
 };
 
 export interface LooseObject {
@@ -74,8 +73,10 @@ export interface IPosition {
   _id?: ObjectId;
 }
 export interface IUser {
-  userID: string;
-  name: string;
+  username: string;
+  password: string;
+  generateToken: () => string;
+  comparePassword: (password: string) => Promise<boolean>;
   _id?: ObjectId;
 }
 export interface IColor {

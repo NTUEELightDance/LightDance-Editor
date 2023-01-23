@@ -55,7 +55,7 @@ class ColorResolver {
         mutation: colorMutation.CREATED,
         color: colorInput.color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
     } else {
@@ -67,7 +67,7 @@ class ColorResolver {
         mutation: colorMutation.UPDATED,
         color: colorInput.color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
     }
@@ -99,7 +99,7 @@ class ColorResolver {
         mutation: colorMutation.CREATED,
         color: colorInput.color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
       return newColor;
@@ -151,7 +151,7 @@ class ColorResolver {
         mutation: colorMutation.UPDATED,
         color: colorInput.new_color,
         colorCode: colorInput.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
       return newColor;
@@ -212,7 +212,7 @@ class ColorResolver {
         mutation: colorMutation.DELETED,
         color: deletedColor.color,
         colorCode: deletedColor.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.username,
       };
       await publish(payload);
       return Object.assign(deletedColor, { ok: true });

@@ -10,7 +10,7 @@ export const AccessMiddleware: MiddlewareFn<TContext> = async (
     if (info.parentType.name === "Mutation") {
       const result = await next();
       await new context.db.Logger({
-        user: context.userID,
+        user: context.username,
         variableValues,
         type: parentType,
         fieldName,
@@ -22,7 +22,7 @@ export const AccessMiddleware: MiddlewareFn<TContext> = async (
     }
   } catch (errorMessage) {
     await new context.db.Logger({
-      user: context.userID,
+      user: context.username,
       variableValues,
       type: parentType,
       fieldName,
