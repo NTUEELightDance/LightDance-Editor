@@ -8,7 +8,10 @@ import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 
 import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+import {
+  ApolloServerPluginDrainHttpServer,
+  ApolloServerPluginLandingPageDisabled,
+} from "apollo-server-core";
 
 import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
@@ -115,7 +118,11 @@ const port = process.env.PORT || 4000;
           };
         },
       },
+      ...(process.env.NODE_ENV === "production"
+        ? [ApolloServerPluginLandingPageDisabled()]
+        : []),
     ],
+    cache: "bounded",
   });
 
   await server.start();
