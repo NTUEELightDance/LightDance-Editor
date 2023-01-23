@@ -5,11 +5,11 @@ A few sentences describing the overall goals of the pull request's commits.
 
 ### What type of PR is it?
 
-[Bug Fix | Improvement | Feature | Documentation | Hot Fix | Refactoring]
+[Bug Fix | Improvement | Feature | Documentation | Hot Fix | Refactoring | Chore]
 
 ### Todos
 
-* [ ] - Task
+* [ ] Task
 
 ### What is the Github issue?
 <!--
