@@ -1,0 +1,13 @@
+name: eslint no fail
+run-name: ${{ github.actor }} is enforcing coding style
+on: [push, pull_request]
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install modules
+        run: pnpm run install-pnpm:all
+      - name: Run ESLint for all packages
+        run: pnpm run lint:all
+        continue-on-error: true
