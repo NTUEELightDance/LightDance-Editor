@@ -20,16 +20,19 @@ const login = async (req: Request, res: Response) => {
         await redis.del(oldToken);
       }
 
+      const expirationTimeSeconds =
+        60 * 60 * parseInt(process.env.EXPIRATION_TIME_HOURS ?? "24", 10);
+
       // store new token
       const token = user.generateToken();
       await redis.set(token, user._id.toString());
       await redis.set(user._id.toString(), token);
-      await redis.expire(token, 60 * 60 * 24 * 7);
-      await redis.expire(user._id.toString(), 60 * 60 * 24 * 7);
+      await redis.expire(token, expirationTimeSeconds);
+      await redis.expire(user._id.toString(), expirationTimeSeconds);
 
       // send token to client
       res.cookie("token", token, {
-        maxAge: 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * expirationTimeSeconds,
         httpOnly: true,
       });
       res.status(200).send({ token });
