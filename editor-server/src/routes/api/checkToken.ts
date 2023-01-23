@@ -14,13 +14,13 @@ const checkToken = async (req: Request, res: Response) => {
       // send back user data
       const user = await db.User.findById(id);
       if (user) {
-        res.send({ success: true, token });
+        res.send({ token });
       } else {
-        res.status(404).send({ success: false, err: "User not found." });
+        res.status(404).send({ err: "User not found." });
       }
     }
   } else {
-    res.status(401).send({ success: false, err: "Unauthorized." });
+    res.status(401).send({ err: "Unauthorized." });
   }
 };
 

@@ -1,26 +1,57 @@
+import { isAxiosError } from "axios";
+
 import axios from "./axios";
+import { notification } from "core/utils";
 
 export const authAgent = {
   login: async (username: string, password: string) => {
-    const res = await axios.post("/login", { username, password });
-    return {
-      token: res.data.token,
-      success: res.status === 200,
-    };
+    try {
+      const res = await axios.post("/login", { username, password });
+      notification.success("Login success");
+      return {
+        token: res.data.token,
+        success: true,
+      };
+    } catch (error) {
+      if (isAxiosError(error)) {
+        notification.error(error.response?.data?.err);
+      }
+
+      return {
+        success: false,
+      };
+    }
   },
   logout: async () => {
-    const res = await axios.post("/logout");
-    return {
-      success: res.status === 200,
-    };
+    try {
+      await axios.post("/logout");
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      if (isAxiosError(error)) {
+        notification.error(error.response?.data?.err);
+      }
+
+      return {
+        success: false,
+      };
+    }
   },
   // check token in cookie
   checkToken: async () => {
-    const res = await axios.get("/checkToken");
+    try {
+      const res = await axios.get("/checkToken");
 
-    return {
-      token: res.data.token,
-      success: res.status === 200,
-    };
+      return {
+        token: res.data.token,
+        success: res.status === 200,
+      };
+    } catch (error) {
+      return {
+        success: false,
+      };
+    }
   },
 };
