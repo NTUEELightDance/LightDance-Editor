@@ -35,7 +35,15 @@ export default function Header() {
               style={{ height: "100%" }}
             />
           </Box>
-          <Button variant="outlined" onClick={() => {navigate(location.pathname === "/" ? "/command" : "/"); window.location.reload();}}>{location.pathname === "/" ? "command" : "editor"}</Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              navigate(location.pathname === "/" ? "/command" : "/");
+              window.location.reload();
+            }}
+          >
+            {location.pathname === "/" ? "command" : "editor"}
+          </Button>
           <Box
             sx={{
               display: "flex",
