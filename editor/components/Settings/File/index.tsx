@@ -15,13 +15,13 @@ import { notification } from "core/utils";
 
 export default function File() {
   // upload to server
-  const [exportFile, setExportFile] = useState(null);
-  const [ledFile, setledFile] = useState(null);
+  const [exportFile, setExportFile] = useState<FileList | null>(null);
+  const [ledFile, setledFile] = useState<FileList | null>(null);
 
-  const handleExportFileInput = (e) => {
+  const handleExportFileInput = (e : React.ChangeEvent<HTMLInputElement>) => {
     setExportFile(e.target.files);
   };
-  const handleLedFileInput = (e) => {
+  const handleLedFileInput = (e : React.ChangeEvent<HTMLInputElement>) => {
     setledFile(e.target.files);
   };
   const handleExportFileUpload = async () => {
