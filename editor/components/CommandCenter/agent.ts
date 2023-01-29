@@ -12,14 +12,6 @@ export default Object.values(COMMANDS).reduce((acc, command) => {
         });
       };
       break;
-    case COMMANDS.UPLOAD_CONTROL:
-      callback = ({ controlJson, selectedDancers }) => {
-        axios.post(`/api/controller/${command}`, {
-          args: { controlJson },
-          selectedDancers,
-        });
-      };
-      break;
     case COMMANDS.UPLOAD_LED:
       callback = ({ selectedDancers }) => {
         axios.post(`/api/controller/${command}`, { args: {}, selectedDancers });

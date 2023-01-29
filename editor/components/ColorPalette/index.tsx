@@ -35,8 +35,8 @@ export default function ColorPalette() {
 
   const protectedColors = ["blue", "red", "yellow"];
   const colorMapSorter = (
-    [colorNameA, colorCodeA]: [colorNameA: string, colorCodeA: string],
-    [colorNameB, colorCodeB]: [colorNameB: string, colorCodeB: string]
+    [colorNameA]: [colorNameA: string, colorCodeA: string],
+    [colorNameB]: [colorNameB: string, colorCodeB: string]
   ) => {
     if (
       protectedColors.includes(colorNameA) &&

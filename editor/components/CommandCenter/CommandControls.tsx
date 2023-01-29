@@ -32,7 +32,7 @@ export default function CommandControls({
 
   const [showDropDown, setShowDropDown] = useState(false);
 
-  const [delayPlayTimeout, setDelayPlayTimeout] = useState<number | null>(null);
+  const [delayPlayTimeout, setDelayPlayTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // wavesurfer for play pause
   const { waveSurferApp } = useContext(
@@ -189,11 +189,10 @@ export default function CommandControls({
               ))}
             </ButtonGroup>
             <ButtonGroup variant="outlined">
-              {ButtonGroup3.map(({ command, label }) => (
+              {ButtonGroup3.map(({ command }) => (
                 <DefaultCommandButton
                   key={command}
                   command={command}
-                  label={label}
                   handleClick={() => {
                     handleClickBtn(command);
                   }}

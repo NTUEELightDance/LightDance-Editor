@@ -6,6 +6,10 @@ const near = 0.2;
 const far = 100;
 
 class Camera {
+  width : number;
+  height : number;
+  camera : THREE.PerspectiveCamera;
+
   constructor(width, height) {
     this.width = width;
     this.height = height;

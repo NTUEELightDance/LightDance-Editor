@@ -226,7 +226,7 @@ export default function EffectList() {
               <span>
                 The following frame(s) will be collided:
                 {collidedFrame?.map((frame) => (
-                  <span style={{ color: "#ba000d" }}> {frame}</span>
+                  <span style={{ color: "#ba000d" }} key = {frame}> {frame}</span>
                 ))}
               </span>
             ) : (

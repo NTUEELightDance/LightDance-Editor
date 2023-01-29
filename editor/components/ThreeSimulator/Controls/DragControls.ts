@@ -17,6 +17,14 @@ const _worldPosition = new Vector3();
 const _inverseMatrix = new Matrix4();
 
 class DragControls extends EventDispatcher {
+  enabled : boolean;
+  transformGroup : boolean;
+  activate :
+  deactivate :
+  dispose :
+  getObjects :
+  getRaycaster :
+
   constructor(_objects, _camera, _domElement) {
     super();
 
