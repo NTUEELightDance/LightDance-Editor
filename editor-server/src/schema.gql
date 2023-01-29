@@ -126,10 +126,14 @@ enum ControlType {
 }
 
 type Dancer {
-  id: ID!
+  _count: DancerCount
+  id: Int!
   name: String!
-  parts: [Part!]!
-  positionData: [Position!]!
+}
+
+type DancerCount {
+  parts: Int!
+  positionData: Int!
 }
 
 enum dancerMutation {

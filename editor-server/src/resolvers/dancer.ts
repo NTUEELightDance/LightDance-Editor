@@ -8,7 +8,7 @@ import {
   Arg,
 } from "type-graphql";
 
-import { Dancer } from "./types/dancer";
+import { Dancer } from "../../prisma/generated/type-graphql";
 import {
   AddDancerInput,
   editDancerInput,
@@ -25,9 +25,11 @@ import { TContext } from "../types/global";
 export class DancerResolver {
   @Query((returns) => [Dancer])
   async dancer(@Ctx() ctx: TContext) {
-    const dancers = await ctx.db.Dancer.find()
-      .populate("parts")
-      .populate("positionData");
+    // const dancers = await ctx.db.Dancer.find()
+    //   .populate("parts")
+    //   .populate("positionData");
+    // return dancers;
+    const dancers = await ctx.prisma.dancer.findMany({});
     return dancers;
   }
 
@@ -37,34 +39,54 @@ export class DancerResolver {
     @Arg("dancer") newDancerData: AddDancerInput,
     @Ctx() ctx: TContext
   ) {
-    const existDancer = await ctx.db.Dancer.findOne({
-      name: newDancerData.name,
-    })
-      .populate("positionData")
-      .populate("parts");
+    // const existDancer = await ctx.db.Dancer.findOne({
+    //   name: newDancerData.name,
+    // })
+    //   .populate("positionData")
+    //   .populate("parts");
+    const existDancer = await ctx.prisma.dancer.findFirst({
+      where: { name: newDancerData.name },
+    });
     if (!existDancer) {
-      const newDancer = new ctx.db.Dancer({
-        name: newDancerData.name,
-        parts: [],
-        positionData: [],
-        id: generateID(),
+      // const newDancer = new ctx.db.Dancer({
+      //   name: newDancerData.name,
+      //   parts: [],
+      //   positionData: [],
+      //   id: generateID(),
+      // });
+      const allPositionFrames = await ctx.prisma.positionFrame.findMany();
+      const newDancer = await ctx.prisma.dancer.create({
+        data: {
+          name: newDancerData.name,
+          positionData: {
+            create: allPositionFrames.map((positionframe) => ({
+              frameId: positionframe.id,
+              x: 0,
+              y: 0,
+              z: 0,
+            })),
+          }
+        }
       });
 
       // for each position frame, add empty position data to the dancer
-      const allPositionFrames = await ctx.db.PositionFrame.find();
-      allPositionFrames.map(async (positionframe: any) => {
-        const newPosition = new ctx.db.Position({
-          frame: positionframe._id,
-          x: 0,
-          y: 0,
-          z: 0,
-        });
-        newDancer.positionData.push(newPosition);
-        await newPosition.save();
-      });
+      // const allPositionFrames = await ctx.db.PositionFrame.find();
+      // allPositionFrames.map(async (positionframe: any) => {
+      //   const newPosition = new ctx.db.Position({
+      //     frame: positionframe._id,
+      //     x: 0,
+      //     y: 0,
+      //     z: 0,
+      //   });
+      //   newDancer.positionData.push(newPosition);
+      //   await newPosition.save();
+      // });
       await initRedisControl();
       await initRedisPosition();
-      const dancerData = await newDancer.save();
+      // const dancerData = await newDancer.save();
+      const dancerData = await ctx.prisma.dancer.findFirst({
+        where: { id: newDancer.id },
+      });
       const payload: DancerPayload = {
         mutation: dancerMutation.CREATED,
         editBy: ctx.userID,
@@ -73,7 +95,8 @@ export class DancerResolver {
       await publish(payload);
 
       // save dancer
-      return Object.assign(dancerData, { ok: true });
+      // return Object.assign(dancerData, { ok: true });
+      return Object.assign({}, dancerData, { ok: true });
     }
     return Object.assign(existDancer, { ok: false, msg: "dancer exists" });
   }
