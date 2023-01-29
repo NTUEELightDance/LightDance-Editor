@@ -11,9 +11,9 @@ export type DBModels = {
 }
 
 export type TContext = {
-  db: DBModels
-  userID: string
-  prisma: PrismaClient
+    db: DBModels;
+    userID: number;
+    prisma: PrismaClient;
 }
 
 export interface LooseObject {

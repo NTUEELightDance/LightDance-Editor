@@ -1,6 +1,8 @@
 import client from "../client";
 import lodash from "lodash";
 
+import { isAxiosError } from "axios";
+
 // gql
 import {
   GET_CONTROL_MAP,

@@ -48,12 +48,6 @@ export class DancerResolver {
       where: { name: newDancerData.name },
     });
     if (!existDancer) {
-      // const newDancer = new ctx.db.Dancer({
-      //   name: newDancerData.name,
-      //   parts: [],
-      //   positionData: [],
-      //   id: generateID(),
-      // });
       const allPositionFrames = await ctx.prisma.positionFrame.findMany();
       const newDancer = await ctx.prisma.dancer.create({
         data: {
@@ -68,8 +62,14 @@ export class DancerResolver {
           }
         }
       });
+      // const newDancer = new ctx.db.Dancer({
+      //   name: newDancerData.name,
+      //   parts: [],
+      //   positionData: [],
+      //   id: generateID(),
+      // });
 
-      // for each position frame, add empty position data to the dancer
+      // // for each position frame, add empty position data to the dancer
       // const allPositionFrames = await ctx.db.PositionFrame.find();
       // allPositionFrames.map(async (positionframe: any) => {
       //   const newPosition = new ctx.db.Position({

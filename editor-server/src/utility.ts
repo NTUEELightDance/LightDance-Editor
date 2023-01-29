@@ -1,7 +1,8 @@
 import { nanoid } from "nanoid";
 import { ObjectId } from "mongoose";
 
-import model from "./models";
+// import model from "./models";
+import { PrismaClient } from "@prisma/client";
 import "dotenv-defaults/config";
 import redis from "./redis";
 import prisma from "./prisma";
@@ -22,13 +23,14 @@ import {
   TPositionPos,
 } from "./types/global";
 
+const prisma = new PrismaClient();
+
 const initData = async () => {
   await prisma.user.deleteMany();
 };
 
 const initRedisControl = async () => {
   const frames = await prisma.controlFrame.findMany();
-
   const result: LooseObject = {};
 
   // IControlFrame

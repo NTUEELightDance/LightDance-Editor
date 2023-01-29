@@ -7,7 +7,7 @@ export class DancerPayload {
     mutation: dancerMutation;
 
   @Field()
-    editBy: string;
+    editBy: number;
 
   @Field((type) => Dancer, { nullable: true })
     dancerData?: Dancer | null;
