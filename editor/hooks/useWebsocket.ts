@@ -60,7 +60,7 @@ export default function useWebsocketState() {
         handleMessage(data);
       };
 
-      (ws.current as WebSocket).onclose = (e) => {
+      (ws.current as WebSocket).onclose = () => {
         log("Websocket for Editor closed");
       };
     };

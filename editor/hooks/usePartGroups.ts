@@ -11,11 +11,6 @@ export type PartGroupType = Record<string, string[]>;
 export default function usePartGroups() {
   const [partGroups, setPartGroups] = useImmer<PartGroupType>({});
 
-  const initPartGroups = async () => {
-    const storageString = await asyncGetItem(GROUP);
-    if (storageString === null) asyncSetItem(GROUP, "{}");
-    else setPartGroups(JSON.parse(storageString));
-  };
 
   const addNewGroup = async ({
     groupName,
@@ -63,8 +58,13 @@ export default function usePartGroups() {
   };
 
   useEffect(() => {
+    const initPartGroups = async () => {
+      const storageString = await asyncGetItem(GROUP);
+      if (storageString === null) asyncSetItem(GROUP, "{}");
+      else setPartGroups(JSON.parse(storageString));
+    };
     initPartGroups();
-  }, []);
+  }, [setPartGroups]);
 
   useEffect(() => {
     asyncSetItem(GROUP, JSON.stringify(partGroups));

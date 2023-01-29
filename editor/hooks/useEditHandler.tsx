@@ -12,7 +12,7 @@ import {
   cancelEditMode,
 } from "core/actions";
 // constants
-import { CONTROL_EDITOR, IDLE, POS_EDITOR } from "@/constants";
+import { CONTROL_EDITOR, POS_EDITOR } from "@/constants";
 
 import { notification, confirmation, formatDisplayedTime } from "core/utils";
 
