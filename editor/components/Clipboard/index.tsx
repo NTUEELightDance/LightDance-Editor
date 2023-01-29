@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import type { ReactiveVar } from "@apollo/client";
+import type { DancerStatus } from "core/models/index.d.ts";
 
 // mui
 import Snackbar from "@mui/material/Snackbar";
@@ -60,7 +61,10 @@ export default function Clipboard() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleClose = (event : React.FormEvent<HTMLButtonElement>, reason : string) => {
+  const handleClose = (
+    event: React.FormEvent<HTMLButtonElement>,
+    reason: string
+  ) => {
     if (reason === "clickaway") {
       return;
     }
