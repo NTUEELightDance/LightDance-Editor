@@ -18,10 +18,10 @@ export default function File() {
   const [exportFile, setExportFile] = useState<FileList | null>(null);
   const [ledFile, setledFile] = useState<FileList | null>(null);
 
-  const handleExportFileInput = (e : React.ChangeEvent<HTMLInputElement>) => {
+  const handleExportFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setExportFile(e.target.files);
   };
-  const handleLedFileInput = (e : React.ChangeEvent<HTMLInputElement>) => {
+  const handleLedFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setledFile(e.target.files);
   };
   const handleExportFileUpload = async () => {

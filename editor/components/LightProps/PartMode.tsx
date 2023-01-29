@@ -96,7 +96,7 @@ function PartMode() {
       });
       editCurrentStatusDelta({ payload: currentStatusDelta });
     });
-  }, [intensity, currentColorName]);
+  }, [intensity, currentColorName, partType, selectedParts]);
 
   const handleColorChange = (color: string) => {
     setCurrentColorName(color);
