@@ -68,7 +68,7 @@ export default function EffectList() {
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
   const [addOpened, setAddOpened] = useState<boolean>(false); // open add effect dialog
   const [previewOpened, setPreviewOpened] = useState<boolean>(false);
-  const [previewing, setPreviewing] = useState<boolean>(false);
+  const [previewing] = useState<boolean>(false);
 
   const handleOpenApply = (id: string, name: string) => {
     setEffectSelectedID(id);
@@ -226,7 +226,9 @@ export default function EffectList() {
               <span>
                 The following frame(s) will be collided:
                 {collidedFrame?.map((frame) => (
-                  <span style={{ color: "#ba000d" }} key = {frame}> {frame}</span>
+                  <span style={{ color: "#ba000d" }} key={frame}>
+                    {frame}
+                  </span>
                 ))}
               </span>
             ) : (

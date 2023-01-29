@@ -31,7 +31,9 @@ export default function FrameItem({
     <div ref={ref}>
       <ListItemButton
         selected={selected}
-        onClick={() => { handleSelectItem(idx); }}
+        onClick={() => {
+          handleSelectItem(idx);
+        }}
       >
         <Typography variant="body1">
           [{idx}] time: {formatDisplayedTime(start)}

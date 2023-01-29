@@ -32,7 +32,8 @@ export default function CommandControls({
 
   const [showDropDown, setShowDropDown] = useState(false);
 
-  const [delayPlayTimeout, setDelayPlayTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [delayPlayTimeout, setDelayPlayTimeout] =
+    useState<NodeJS.Timeout | null>(null);
 
   // wavesurfer for play pause
   const { waveSurferApp } = useContext(
@@ -112,10 +113,10 @@ export default function CommandControls({
     { command: COMMANDS.DARKALL },
   ];
 
-  const ButtonGroup6 = [
-    { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
-    { command: COMMANDS.TEST },
-  ];
+  // const ButtonGroup6 = [
+  //   { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
+  //   { command: COMMANDS.TEST },
+  // ];
 
   return (
     <Box>
@@ -145,6 +146,7 @@ export default function CommandControls({
               {ButtonGroup2.map(({ command }) => (
                 <DefaultCommandButton
                   command={command}
+                  key={command}
                   handleClick={() => {
                     handleClickBtn(command);
                   }}
