@@ -9,6 +9,6 @@
   },
   "scripts": {
     "start": "node src/index.js",
-    "deploy": "node src/index.js"
+    "prod": "node src/index.js"
   }
 }
