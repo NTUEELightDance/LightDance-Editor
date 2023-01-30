@@ -202,9 +202,9 @@ export type TRedisControls = {
   [key: string]: TRedisControl
 }
 export type TRedisControl = {
-  fade: boolean
-  start: number
-  editing: string | undefined
+  fade: boolean;
+  start: number;
+  editing: number | undefined;
   status: TRedisControlStatus
 }
 export type TRedisControlTest = {

@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 import { ObjectId } from "mongoose";
 
 // import model from "./models";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import "dotenv-defaults/config";
 import redis from "./redis";
 import prisma from "./prisma";
