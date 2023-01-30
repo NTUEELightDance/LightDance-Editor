@@ -1,5 +1,4 @@
 <!-- markdownlint-disable MD041 -->
-
 <!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="https://avatars.githubusercontent.com/u/74459161?s=400&u=8e4ea6d7a17fad2a655fe5308e3f30a63779085d&v=4" alt="Logo" width="80" height="80">
@@ -41,7 +40,7 @@ http://localhost:8082 - controller-server
 This will install all dependencies for the app.
 
 ```bash
-yarn install:all
+pnpm install-pnpm:all
 ```
 
 #### Start database
@@ -49,7 +48,7 @@ yarn install:all
 You need to have mongodb and redis running for the backend to work.
 
 ```bash
-docker-compose -f dev.docker-compose.yml up -d mongodb redisdb
+docker compose -f dev.docker-compose.yml up -d mongodb redisdb
 ```
 
 #### Run all services
@@ -57,9 +56,9 @@ docker-compose -f dev.docker-compose.yml up -d mongodb redisdb
 There are several services in this app. You need to start all of them manually. Run these commands in different terminals, in that order:
 
 ```bash
-yarn dev:file-server
-yarn dev:editor-server
-yarn dev:editor
+pnpm dev:file-server
+pnpm dev:editor-server
+pnpm dev:editor
 ```
 
 #### Run all services in parallel
@@ -67,46 +66,40 @@ yarn dev:editor
 This command runs all services in parallel. You can see the editor on `http://localhost:8080`. This is useful for demo, yet not recommended in development.
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
-#### Initialize Database
+#### Initialize Database: Development
 
 If you are running this for the first time, you need to initialize the database for things to work.
 
 ```bash
-cd utils && yarn
+cd utils
+pnpm install
 node initDB.js out/exportData.json
 node initLED.js out/exportLED.json
 ```
 
 ## Production
 
-Create the `eeinfo` network
+Start all services
 
 ```bash
-docker network create eeinfo
-```
-
-Run services `nginx`, `editor`, `editor-server`, `file-server`, `redisdb`, `mongodb`.
-
-```bash
-docker-compose -f prod-support/prod.docker-compose.yml up -d
+docker compose -f prod-support/prod.docker-compose.yml up -d
 ```
 
 Editor will run on `http://localhost:8080`.
 
 Editor-server will run on `http://localhost:4000`.
 
-### Initialize Database
+### Initialize Database: Production
 
 After starting all services, one must initialize the database.
 
 ```bash
-cd utils && yarn
-export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
-node initDB.js ${filePath}
-// node initDB.js ../others/2022_ee_night/exportData.json
-node initLED.js ${filePath}
-// node initLED.js ../others/2022_ee_night/exportLED.json
+export NODE_OPTIONS="--max-old-space-size=8192"
+cd utils
+pnpm install
+node initDB.js out/exportData.json
+node initLED.js out/exportLED.json
 ```
