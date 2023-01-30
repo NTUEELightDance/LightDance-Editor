@@ -1,21 +1,18 @@
-FROM node:16-buster
+FROM node:18-buster
 
-# setup working directory
 WORKDIR /app
 
 RUN npm install serve -g
+RUN corepack enable
 
-COPY ["editor/package.json", "editor/yarn.lock", "./"]
+COPY ["editor/package.json", "editor/pnpm-lock.yaml", "./"]
 
-# install node_modules in the container
-RUN yarn
+RUN pnpm install
 
-# copy things in editor to /app
 COPY ./editor .
 
 EXPOSE 8080
 
-RUN yarn build
+RUN pnpm build
 
-# serve the port
 CMD ["serve", "-s", "dist", "-l", "8080"]
