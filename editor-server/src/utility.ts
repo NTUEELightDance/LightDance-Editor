@@ -273,8 +273,14 @@ const updateRedisPosition = async (id: string) => {
     })
     .map((dancer) => {
       const { name, positionData } = dancer;
+<<<<<<< HEAD
       const wanted: any = positionData.find(
         (data) => data.frameId === parseInt(frameID)
+=======
+      if(!positionData) throw new Error("positionData not found");
+      const wanted = positionData.find(
+        (data: PositionData) => data.frameId === frameId
+>>>>>>> finish controlFrame
       );
       pos.push([wanted.x, wanted.y, wanted.z]);
     });
@@ -288,8 +294,9 @@ const updateRedisPosition = async (id: string) => {
 };
 
 const generateID = () => {
-  const id = nanoid(10); //=> "V1StGXR8_Z5jdHi6B-myT"
-  return id;
+  // const id = nanoid(10); //=> "V1StGXR8_Z5jdHi6B-myT"
+  // return id;
+  return Math.floor(Math.random() * 1000000000);
 };
 
 initRedisControl();

@@ -192,7 +192,7 @@ export class EditControlMapResolver {
         },
       };
       await publish(payload);
-      return { frame: { _id, id: frameID } };
+      return { frame: { id: frameID } };
     }
 
     // control frame not found -> add
