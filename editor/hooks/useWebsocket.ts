@@ -10,7 +10,7 @@ import { generateControlOF, generateControlLed } from "../core/utils/genJson";
 import {
   SyncType,
   MesS2CType,
-  MesC2SType,
+  MesC2SType,                                    
   BoardInfoType,
   setMessageType,
   dancerStatusType,
