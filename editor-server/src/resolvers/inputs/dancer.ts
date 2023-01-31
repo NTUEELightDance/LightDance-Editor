@@ -24,11 +24,11 @@ export class editDancerInput {
     name: string;
 
   @Field((type) => ID)
-    id: string;
+    id: number;
 }
 
 @InputType()
 export class deleteDancerInput {
   @Field((type) => ID)
-    id: string;
+    id: number;
 }

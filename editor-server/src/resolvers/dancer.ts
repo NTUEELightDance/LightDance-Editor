@@ -8,7 +8,7 @@ import {
   Arg,
 } from "type-graphql";
 
-import { Dancer } from "../../prisma/generated/type-graphql";
+import { Dancer, PositionData } from "../../prisma/generated/type-graphql";
 import {
   AddDancerInput,
   editDancerInput,
@@ -39,22 +39,24 @@ export class DancerResolver {
     @Arg("dancer") newDancerData: AddDancerInput,
     @Ctx() ctx: TContext
   ) {
+    const existDancer = await ctx.prisma.dancer.findFirst({
     // const existDancer = await ctx.db.Dancer.findOne({
     //   name: newDancerData.name,
     // })
     //   .populate("positionData")
     //   .populate("parts");
-    const existDancer = await ctx.prisma.dancer.findFirst({
       where: { name: newDancerData.name },
     });
     if (!existDancer) {
-      const allPositionFrames = await ctx.prisma.positionFrame.findMany();
+      const allPositionFramesIds = await ctx.prisma.positionFrame.findMany({
+        select: { id: true }
+      });
       const newDancer = await ctx.prisma.dancer.create({
         data: {
           name: newDancerData.name,
           positionData: {
-            create: allPositionFrames.map((positionframe) => ({
-              frameId: positionframe.id,
+            create: allPositionFramesIds.map(({ id: frameId }) => ({
+              frameId,
               x: 0,
               y: 0,
               z: 0,
@@ -84,19 +86,16 @@ export class DancerResolver {
       await initRedisControl();
       await initRedisPosition();
       // const dancerData = await newDancer.save();
-      const dancerData = await ctx.prisma.dancer.findFirst({
-        where: { id: newDancer.id },
-      });
       const payload: DancerPayload = {
         mutation: dancerMutation.CREATED,
         editBy: ctx.userID,
-        dancerData,
+        dancerData: newDancer,
       };
       await publish(payload);
 
       // save dancer
       // return Object.assign(dancerData, { ok: true });
-      return Object.assign({}, dancerData, { ok: true });
+      return Object.assign({}, newDancer, { ok: true });
     }
     return Object.assign(existDancer, { ok: false, msg: "dancer exists" });
   }
@@ -108,11 +107,16 @@ export class DancerResolver {
     @Ctx() ctx: TContext
   ) {
     const { id, name } = newDancerData;
-    const newDancer = await ctx.db.Dancer.findOneAndUpdate(
-      { id },
-      { name },
-      { new: true }
-    ).populate("parts");
+    // const newDancer = await ctx.db.Dancer.findOneAndUpdate(
+    //   { id },
+    //   { name },
+    //   { new: true }
+    // ).populate("parts");
+    const newDancer = await ctx.prisma.dancer.update({
+      where: { id },
+      data: { name },
+      include: { parts: true },
+    });
     if (newDancer) {
       await initRedisControl();
       await initRedisPosition();
@@ -133,24 +137,41 @@ export class DancerResolver {
   @Mutation((returns) => DancerResponse)
   async deleteDancer(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
-    @Arg("dancer") newDancerData: deleteDancerInput,
+    @Arg("dancer") delDancerData: deleteDancerInput,
     @Ctx() ctx: TContext
   ) {
-    const { id } = newDancerData;
-    const dancer = await ctx.db.Dancer.findOne({ id });
+    const { id } = delDancerData;
+    // const dancer = await ctx.db.Dancer.findOne({ id });
+    const dancer = await ctx.prisma.dancer.findFirst({
+      where: { id },
+      include: { parts: {
+        include: { controlData: true }
+      } },
+    });
     if (dancer) {
       await Promise.all(
-        dancer.parts.map(async (ref: string) => {
-          const part = await ctx.db.Part.findOne({ _id: ref });
+        // dancer.parts.map(async (ref: string) => {
+        //   const part = await ctx.db.Part.findOne({ _id: ref });
+        //   await Promise.all(
+        //     part.controlData.map(async (ref: string) => {
+        //       await ctx.db.Control.deleteOne({ _id: ref });
+        //     })
+        //   );
+        //   await ctx.db.Part.deleteOne({ _id: ref });
+        // })
+        dancer.parts.map(async ({ id: partId, controlData }) => {
           await Promise.all(
-            part.controlData.map(async (ref: string) => {
-              await ctx.db.Control.deleteOne({ _id: ref });
+            controlData.map(async ({ frameId }) => {
+              await ctx.prisma.controlData.delete({ where: {
+                partId_frameId: { partId, frameId }
+              }});
             })
           );
-          await ctx.db.Part.deleteOne({ _id: ref });
+          await ctx.prisma.part.delete({ where: { id: partId }});
         })
       );
-      await ctx.db.Dancer.deleteOne({ id });
+      // await ctx.db.Dancer.deleteOne({ id });
+      await ctx.prisma.dancer.delete({ where: { id }});
       await initRedisControl();
       await initRedisPosition();
       const payload: DancerPayload = {
