@@ -20,13 +20,12 @@ export default function TimeController() {
   const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
   const currentPosIndex = useReactiveVar(reactiveState.currentPosIndex);
 
-  const handleChange = (setValue: (arg0: any) => void) => {
-    return (value: number) => {
-      setValue({ payload: value });
-    };
+  const handleChangeControlFrame = (value: number) => {
+    setCurrentControlIndex({ payload: value });
   };
-  const handleChangeControlFrame = handleChange(setCurrentControlIndex);
-  const handleChangePosFrame = handleChange(setCurrentPosIndex);
+  const handleChangePosFrame = (value: number) => {
+    setCurrentPosIndex({ payload: value });
+  };
 
   const editor = useReactiveVar(reactiveState.editor);
   useHotkeys(
