@@ -8,5 +8,5 @@ export class PositionMapPayload {
     frame: any;
 
   @Field()
-    editBy: string;
+    editBy: number;
 }

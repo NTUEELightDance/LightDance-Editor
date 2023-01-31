@@ -112,7 +112,7 @@ export class EditControlMapResolver {
     if (controlFrame) {
       // const { editing, _id, id: frameID } = controlFrame;
       const { editing, id: frameID } = controlFrame;
-      if (editing?.userId !== ctx.userID) {
+      if (editing?.userId !== Number(ctx.userID)) {
         throw new Error(`The frame is now editing by ${editing}.`);
       }
       await Promise.all(
@@ -219,7 +219,7 @@ export class EditControlMapResolver {
       });
       await updateRedisControl(frameID);
       const payload: ControlMapPayload = {
-        editBy: ctx.userID,
+        editBy: Number(ctx.userID),
         frame: {
           createList: [],
           deleteList: [],
@@ -305,7 +305,7 @@ export class EditControlMapResolver {
 
       await updateRedisControl(newControlFrame.id);
       const mapPayload: ControlMapPayload = {
-        editBy: ctx.userID,
+        editBy: Number(ctx.userID),
         frame: {
           createList: [newControlFrame.id],
           deleteList: [],
@@ -327,7 +327,7 @@ export class EditControlMapResolver {
       });
       const recordPayload: ControlRecordPayload = {
         mutation: ControlRecordMutation.CREATED,
-        editBy: ctx.userID,
+        editBy: Number(ctx.userID),
         addID: [newControlFrame.id],
         updateID: [],
         deleteID: [],

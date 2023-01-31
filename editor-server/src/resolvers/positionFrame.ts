@@ -83,7 +83,7 @@ export class PositionFrameResolver {
     );
     await updateRedisPosition(newPositionFrame.id);
     const mapPayload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: Number(ctx.userID),
       frame: {
         createList: [newPositionFrame.id],
         deleteList: [],
@@ -102,7 +102,7 @@ export class PositionFrameResolver {
     });
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.CREATED,
-      editBy: ctx.userID,
+      editBy: Number(ctx.userID),
       addID: [newPositionFrame.id],
       updateID: [],
       deleteID: [],
@@ -133,7 +133,7 @@ export class PositionFrameResolver {
       }
     }
     const frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.frameID });
-    if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
+    if (frameToEdit.editing && frameToEdit.editing !== Number(ctx.userID)) {
       throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
     await ctx.db.PositionFrame.updateOne({ id: input.frameID }, input);
@@ -146,7 +146,7 @@ export class PositionFrameResolver {
     });
     await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: Number(ctx.userID),
       frame: {
         createList: [],
         deleteList: [],
@@ -165,7 +165,7 @@ export class PositionFrameResolver {
     });
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.UPDATED,
-      editBy: ctx.userID,
+      editBy: Number(ctx.userID),
       addID: [],
       updateID: [positionFrame.id],
       deleteID: [],
@@ -186,7 +186,7 @@ export class PositionFrameResolver {
   ) {
     const { frameID } = input;
     const frameToDelete = await ctx.db.PositionFrame.findOne({ id: frameID });
-    if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
+    if (frameToDelete.editing && frameToDelete.editing !== Number(ctx.userID)) {
       throw new Error(`The frame is now editing by ${frameToDelete.editing}.`);
     }
     const _id = frameToDelete._id;
@@ -206,21 +206,21 @@ export class PositionFrameResolver {
 
     await ctx.db.Position.deleteMany({ frame: _id });
     const mapPayload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: Number(ctx.userID),
       frame: {
         createList: [],
         deleteList: [frameID],
         updateList: [],
       },
     };
-    redis.del(frameID);
+    redis.del(`positionframe-${frameID}`);
     await publishPositionMap(mapPayload);
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.DELETED,
       addID: [],
       updateID: [],
       deleteID: [frameID],
-      editBy: ctx.userID,
+      editBy: Number(ctx.userID),
       index: -1,
     };
     await publishPositionRecord(recordPayload);

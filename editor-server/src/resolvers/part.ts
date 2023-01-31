@@ -63,7 +63,7 @@ export class PartResolver {
         await initRedisPosition();
         const payload: DancerPayload = {
           mutation: dancerMutation.UPDATED,
-          editBy: ctx.userID,
+          editBy: Number(ctx.userID),
           dancerData,
         };
         await publish(payload);
@@ -118,7 +118,7 @@ export class PartResolver {
       await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
+        editBy: Number(ctx.userID),
         dancerData,
       };
       await publish(payload);
@@ -164,7 +164,7 @@ export class PartResolver {
       await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
+        editBy: Number(ctx.userID),
         dancerData,
       };
       await publish(payload);
@@ -189,7 +189,7 @@ export class PartResolver {
         );
         return data;
       })
-    )
+    );
     // return data
 
     return result;
@@ -263,7 +263,6 @@ export class PartResolver {
 //             },
 //           },
 //         });
-        
 //         const result = newPart;
 //         const dancerData = await ctx.prisma.dancer.findFirst({
 //           where: { name: newPartData.dancerName },
@@ -313,7 +312,7 @@ export class PartResolver {
 //       if (edit_part.type !== type) {
 //         edit_part.controlData.map(async (id) => { // id is what?
 //           const data = await ctx.prisma.controlData.update({
-//             where: { partId_frameId: { partId: edit_part.id, frameId:id.frameId } }, 
+//             where: { partId_frameId: { partId: edit_part.id, frameId:id.frameId } },
 //             data: { value: ControlDefault[type] },
 //         });
 //       });
@@ -368,7 +367,7 @@ export class PartResolver {
 //         where: { name: dancerName },
 //         include: { parts: true },
 //       });
-//       if(dancer) { 
+//       if(dancer) {
 //         await ctx.prisma.dancer.update({
 //           where: { id: dancer.id },
 //           data: {
