@@ -239,8 +239,6 @@ import {
   Publisher,
 } from "type-graphql";
 
-// import { PositionFrame } from "./types/positionFrame";
-// import { Dancer } from "./types/dancer";
 import { PositionFrame, Dancer } from "../../prisma/generated/type-graphql";
 import { updateRedisPosition } from "../utility";
 import {

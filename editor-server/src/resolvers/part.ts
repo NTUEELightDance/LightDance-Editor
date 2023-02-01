@@ -206,8 +206,6 @@ import {
   PubSub,
   Publisher,
 } from "type-graphql";
-
-// import { Part } from "./types/part";
 import { AddPartInput, EditPartInput, DeletePartInput } from "./inputs/part";
 import { ControlDefault } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";

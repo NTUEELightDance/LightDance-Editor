@@ -6,14 +6,27 @@ import { ControlFrameResolver } from "./controlFrame";
 // import { PositionFrameResolver } from "./positionFrame";
 import { ControlMapResolver, EditControlMapResolver } from "./controlMap";
 import { RequestEditResolver } from "./requestEdit";
-import { ControlResolver } from "./control";
 // import { PositionResolver } from "./position";
 // import { PosMapResolver, EditPosMapResolver } from "./positionMap";
 // import { EffectListResolver } from "./effectList";
 // import { ShiftResolver } from "./shift";
 // import { LEDResolver } from "./led";
 
-import { FindManyColorResolver, FindUniqueColorResolver } from "../../prisma/generated/type-graphql";
+import { FindManyColorResolver,
+  FindUniqueColorResolver ,
+  ControlDataRelationsResolver,
+  ControlFrameRelationsResolver,
+  DancerRelationsResolver ,
+  EditingControlFrameRelationsResolver ,
+  EditingPositionFrameRelationsResolver ,
+  LEDEffectRelationsResolver ,
+  LEDFrameRelationsResolver ,
+  PartRelationsResolver ,
+  PositionDataRelationsResolver ,
+  PositionFrameRelationsResolver ,
+  UserRelationsResolver
+} from "../../prisma/generated/type-graphql";
+
 
 export const resolvers = [
   // Color related
@@ -24,7 +37,6 @@ export const resolvers = [
 
   DancerResolver,
   PartResolver,
-  ControlResolver,
   // PositionResolver,
   // SubscriptionResolver,
   // ControlFrameResolver,
@@ -37,4 +49,16 @@ export const resolvers = [
   // EffectListResolver,
   // ShiftResolver,
   // LEDResolver
+
+  ControlDataRelationsResolver,
+  ControlFrameRelationsResolver,
+  DancerRelationsResolver ,
+  EditingControlFrameRelationsResolver ,
+  EditingPositionFrameRelationsResolver ,
+  LEDEffectRelationsResolver ,
+  LEDFrameRelationsResolver ,
+  PartRelationsResolver ,
+  PositionDataRelationsResolver ,
+  PositionFrameRelationsResolver ,
+  UserRelationsResolver
 ] as const;

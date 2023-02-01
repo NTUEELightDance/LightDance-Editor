@@ -8,7 +8,7 @@ import {
   Arg,
 } from "type-graphql";
 
-import { Dancer, PositionData, relationResolvers } from "../../prisma/generated/type-graphql";
+import { Dancer, PositionData } from "../../prisma/generated/type-graphql";
 import {
   AddDancerInput,
   editDancerInput,

@@ -9,7 +9,7 @@ import {
   ID,
 } from "type-graphql";
 
-import { EffectList } from "./types/effectList";
+import { EffectList } from "../../prisma/generated/type-graphql";
 import redis from "../redis";
 import { EffectListResponse } from "./response/effectListResponse";
 import {

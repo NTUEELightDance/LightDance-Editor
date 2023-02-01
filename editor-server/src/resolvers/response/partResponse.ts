@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
-import { Part } from "../types/part";
+import { Part } from "../../../prisma/generated/type-graphql";
 
 @ObjectType()
 export class PartResponse extends Part {

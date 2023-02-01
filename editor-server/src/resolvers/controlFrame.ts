@@ -9,12 +9,10 @@ import {
   ID,
 } from "type-graphql";
 
-// import { ControlFrame } from "./types/controlFrame";
 import {
   EditControlFrameInput,
   DeleteControlFrameInput,
 } from "./inputs/controlFrame";
-// import { Part } from "./types/part";
 import { ControlFrame, Part } from "../../prisma/generated/type-graphql";
 import { generateID, updateRedisControl } from "../utility";
 import { ControlDefault } from "./types/controlType";
