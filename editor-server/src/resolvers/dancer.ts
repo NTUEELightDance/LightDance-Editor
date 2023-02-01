@@ -8,7 +8,7 @@ import {
   Arg,
 } from "type-graphql";
 
-import { Dancer, PositionData } from "../../prisma/generated/type-graphql";
+import { Dancer, PositionData, relationResolvers } from "../../prisma/generated/type-graphql";
 import {
   AddDancerInput,
   editDancerInput,
@@ -29,7 +29,10 @@ export class DancerResolver {
     //   .populate("parts")
     //   .populate("positionData");
     // return dancers;
-    const dancers = await ctx.prisma.dancer.findMany({});
+    const dancers = await ctx.prisma.dancer.findMany({
+      include: { parts: true, positionData: true }
+    });
+    console.log("dancers: ",dancers);
     return dancers;
   }
 
