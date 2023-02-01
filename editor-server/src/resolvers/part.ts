@@ -262,7 +262,6 @@ export class PartResolver {
             },
           },
         });
-        const result = newPart;
         await initRedisControl();
         await initRedisPosition();
         const payload: DancerPayload = {
@@ -271,24 +270,16 @@ export class PartResolver {
         };
         await publish(payload);
 
-        return Object.assign(result, { ok: true });
+        return {partData: newPart, ok: true, msg:"successfully add part"};
       }
       return {
-        name: "",
-        type: null,
-        id: "",
         ok: false,
         msg: "duplicate part",
-        controlData: [],
       };
     }
     return {
-      name: "",
-      type: null,
-      id: "",
       ok: false,
       msg: "no dancer",
-      controlData: [],
     };
   }
 
@@ -298,15 +289,15 @@ export class PartResolver {
     @Arg("part") newPartData: EditPartInput,
     @Ctx() ctx: TContext
   ) {
-    const { id, name, type, dancerName } = newPartData;
+    const { id, name, type } = newPartData;
     const edit_part = await ctx.prisma.part.findFirst({
-      where: { id:id },
+      where: { id },
       include: { controlData: true },
     });
     if (edit_part) {
       if (edit_part.type !== type) {
         edit_part.controlData.map(async (id) => { // id is what?
-          const data = await ctx.prisma.controlData.update({
+          await ctx.prisma.controlData.update({
             where: { partId_frameId: { partId: edit_part.id, frameId:id.frameId } },
             data: { value: ControlDefault[type] },
           });
@@ -316,11 +307,6 @@ export class PartResolver {
           data: { name: name, type: type },
         });
 
-        const dancerData = await ctx.prisma.dancer.findFirst({
-          where: { name: dancerName },
-          include: { parts: true },
-        });
-
         await initRedisControl();
         await initRedisPosition();
         const payload: DancerPayload = {
@@ -328,17 +314,17 @@ export class PartResolver {
           editBy: Number(ctx.userID),
         };
         await publish(payload);
-        return Object.assign(result, { ok: true });
+        return { partData: result, ok: true, msg: "successfully edit part"};
       }
       return {
-        name: "",
-        type: null,
-        id: "",
         ok: false,
-        msg: "no part found",
-        controlData: [],
+        msg: "part type no change",
       };
     }
+    return {
+      ok: false,
+      msg: "no part found",
+    };
   }
 
   @Mutation((returns) => PartResponse)
@@ -348,34 +334,28 @@ export class PartResolver {
     @Ctx() ctx: TContext
   ) {
     const { id, dancerName } = newPartData;
-    // const part = await ctx.db.Part.findOne({ id });
     const part = await ctx.prisma.part.findFirst({
-      where: { id: id },
+      where: { id },
       include: { controlData: true },
     });
     if (part) {
-      await ctx.prisma.controlData.deleteMany({
-        where: { partId: part.id },
-      });
-      await ctx.db.Part.deleteOne({ id });
       const dancer = await ctx.prisma.dancer.findFirst({
         where: { name: dancerName },
         include: { parts: true },
       });
-      if(dancer) {
+      if(dancer&&part.dancerId===dancer.id) {
+        await ctx.prisma.controlData.deleteMany({
+          where: { partId: id },
+        });
         await ctx.prisma.dancer.update({
           where: { id: dancer.id },
           data: {
             parts: {
-              disconnect: {
+              delete: {
                 id: part.id,
               },
             },
           },
-        });
-        const dancerData = await ctx.prisma.dancer.findFirst({
-          where: { name: dancerName },
-          include: { parts: true },
         });
         await initRedisControl();
         await initRedisPosition();
@@ -384,15 +364,16 @@ export class PartResolver {
           editBy: Number(ctx.userID),
         };
         await publish(payload);
-        return Object.assign(part, { ok: true });
+        return {ok: true, msg: "successfully delete part"};
       }
       return {
-        name: "",
-        type: null,
-        id: "",
+        ok: false,
+        msg: "no dancer found",
+      };
+    }else{
+      return {
         ok: false,
         msg: "no part found",
-        controlData: [],
       };
     }
   }

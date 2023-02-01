@@ -187,7 +187,11 @@ export class ControlFrameResolver {
     // await ctx.db.ControlFrame.updateOne({ id: input.frameID }, input);
     const controlFrame = await ctx.prisma.controlFrame.update({
       where: { id: input.frameID },
-      data: { ...input, editing: undefined },
+      data: {
+        editing: undefined,
+        start: input.start===undefined? frameToEdit.start: input.start,
+        fade: input.fade===undefined? frameToEdit.fade: input.fade
+      },
     });
     // await ctx.db.ControlFrame.updateOne(
     //   { id: input.frameID },

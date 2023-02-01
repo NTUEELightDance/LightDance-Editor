@@ -54,6 +54,14 @@ type ControlData {
   value: JSON!
 }
 
+input ControlDataInput {
+  alpha: Float
+  color: String
+  ELValue: Float
+  partName: String!
+  src: String
+}
+
 input ControlDataListRelationFilter {
   every: ControlDataWhereInput
   none: ControlDataWhereInput
@@ -161,13 +169,9 @@ input DancerRelationFilter {
 }
 
 type DancerResponse {
-  _count: DancerCount
-  id: Int!
+  dancerData: Dancer
   msg: String
-  name: String!
   ok: Boolean!
-  parts(cursor: PartWhereUniqueInput, distinct: [PartScalarFieldEnum!], orderBy: [PartOrderByWithRelationInput!], skip: Int, take: Int, where: PartWhereInput): [Part!]!
-  positionData(cursor: PositionDataWhereUniqueInput, distinct: [PositionDataScalarFieldEnum!], orderBy: [PositionDataOrderByWithRelationInput!], skip: Int, take: Int, where: PositionDataWhereInput): [PositionData!]!
 }
 
 input DancerWhereInput {
@@ -180,6 +184,10 @@ input DancerWhereInput {
   positionData: PositionDataListRelationFilter
 }
 
+input DeleteControlFrameInput {
+  frameID: Float!
+}
+
 input deleteDancerInput {
   id: Float!
 }
@@ -187,6 +195,21 @@ input deleteDancerInput {
 input DeletePartInput {
   dancerName: String!
   id: Float!
+}
+
+input DeletePositionFrameInput {
+  frameID: Float!
+}
+
+input EditControlFrameInput {
+  fade: Boolean
+  frameID: Float!
+  start: Float
+}
+
+input EditControlInput {
+  controlData: [ControlDataInput!]!
+  dancerName: String!
 }
 
 input editDancerInput {
@@ -259,6 +282,16 @@ input EditPartInput {
   type: String!
 }
 
+input EditPositionFrameInput {
+  frameID: Float!
+  start: Float!
+}
+
+input EditPositionInput {
+  dancerName: String!
+  positionData: PositionDataInput!
+}
+
 input EnumPartTypeFilter {
   equals: PartType
   in: [PartType!]
@@ -328,14 +361,22 @@ type Map {
 scalar MapQueryObjectId
 
 type Mutation {
+  addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addPart(part: AddPartInput!): PartResponse!
+  addPositionFrame(start: Float!): PositionFrame!
   CancelEditControl(FrameID: String!): RequestEditResponse!
   CancelEditPosition(FrameID: String!): RequestEditResponse!
+  deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deletePart(part: DeletePartInput!): PartResponse!
+  deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
+  editControlFrame(input: EditControlFrameInput!): ControlFrame!
+  editControlMap(controlData: [EditControlInput!]!, fade: Boolean = false, start: Float!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
+  editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
+  editPosMap(positionData: [EditPositionInput!]!, start: Float!): Map!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
 }
@@ -438,15 +479,9 @@ input PartRelationFilter {
 }
 
 type PartResponse {
-  _count: PartCount
-  controlData(cursor: ControlDataWhereUniqueInput, distinct: [ControlDataScalarFieldEnum!], orderBy: [ControlDataOrderByWithRelationInput!], skip: Int, take: Int, where: ControlDataWhereInput): [ControlData!]!
-  dancer: Dancer!
-  dancerId: Int!
-  id: Int!
   msg: String
-  name: String!
   ok: Boolean!
-  type: PartType!
+  partData: Part
 }
 
 enum PartScalarFieldEnum {
@@ -490,6 +525,12 @@ type PositionData {
 input PositionDataDancerIdFrameIdCompoundUniqueInput {
   dancerId: Int!
   frameId: Int!
+}
+
+input PositionDataInput {
+  x: Float!
+  y: Float!
+  z: Float!
 }
 
 input PositionDataListRelationFilter {
@@ -574,8 +615,14 @@ input PositionFrameWhereInput {
 type Query {
   color(where: ColorWhereUniqueInput!): Color
   colors(cursor: ColorWhereUniqueInput, distinct: [ColorScalarFieldEnum!], orderBy: [ColorOrderByWithRelationInput!], skip: Int, take: Int, where: ColorWhereInput): [Color!]!
+  controlFrame(frameID: Float!): ControlFrame!
+  controlFrameIDs: [ID!]!
   ControlMap: Map!
-  dancer: [Dancer!]!
+  dancer(dancerName: String!): Dancer!
+  dancers: [Dancer!]!
+  positionFrame(start: Float!): PositionFrame!
+  positionFrameIDs: [ID!]!
+  PosMap: Map!
 }
 
 enum QueryMode {

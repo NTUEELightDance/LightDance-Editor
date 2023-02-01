@@ -24,7 +24,7 @@ import { TContext } from "../types/global";
 @Resolver((of) => Dancer)
 export class DancerResolver {
   @Query((returns) => [Dancer])
-  async dancer(@Ctx() ctx: TContext) {
+  async dancers(@Ctx() ctx: TContext) {
     // const dancers = await ctx.db.Dancer.find()
     //   .populate("parts")
     //   .populate("positionData");
@@ -32,8 +32,19 @@ export class DancerResolver {
     const dancers = await ctx.prisma.dancer.findMany({
       include: { parts: true, positionData: true }
     });
-    console.log("dancers: ",dancers);
     return dancers;
+  }
+
+  @Query((returns) => Dancer)
+  async dancer(
+    @Arg("dancerName") dancerName: string,
+    @Ctx() ctx: TContext
+  ) {
+    const dancer = await ctx.prisma.dancer.findFirst({
+      where: { name: dancerName },
+      include: { parts: true, positionData: true }
+    });
+    return dancer;
   }
 
   @Mutation((returns) => DancerResponse)
@@ -98,9 +109,9 @@ export class DancerResolver {
 
       // save dancer
       // return Object.assign(dancerData, { ok: true });
-      return Object.assign({}, newDancer, { ok: true });
+      return {dancerData:newDancer,  ok: true, msg: "dancer created" };
     }
-    return Object.assign(existDancer, { ok: false, msg: "dancer exists" });
+    return {dancerData: existDancer, ok: false, msg: "dancer exists" };
   }
 
   @Mutation((returns) => DancerResponse)
@@ -129,12 +140,9 @@ export class DancerResolver {
         dancerData: newDancer,
       };
       await publish(payload);
-      return Object.assign(newDancer, { ok: true });
+      return {dancerData: newDancer, ok: true, msg: "dancer updated" };
     }
-    return Object.assign(
-      { name: "", parts: [], positionData: [], id: "" },
-      { ok: false, msg: "dancer doesn't exist" }
-    );
+    return { ok: false, msg: "dancer not found" };
   }
 
   @Mutation((returns) => DancerResponse)
@@ -182,11 +190,8 @@ export class DancerResolver {
         editBy: Number(ctx.userID),
       };
       await publish(payload);
-      return Object.assign(dancer, { ok: true });
+      return { ok: true, msg: "dancer deleted" };
     }
-    return Object.assign(
-      { name: "", parts: [], positionData: [], id: "" },
-      { ok: false, msg: "dancer doesn't exist" }
-    );
+    return { ok: false, msg: "dancer not found" };
   }
 }
