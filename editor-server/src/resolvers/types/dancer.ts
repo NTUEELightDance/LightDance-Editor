@@ -13,6 +13,6 @@ export class Dancer {
   @Field((type) => [Position])
     positionData: Position[];
 
-  @Field((type) => ID)
-    id: string;
+  @Field((type) => Number)
+    id: number;
 }

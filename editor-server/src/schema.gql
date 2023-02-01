@@ -57,7 +57,6 @@ type ControlFrame {
 
 """The basic control types"""
 enum ControlType {
-  EL
   FIBER
   LED
 }
@@ -74,7 +73,7 @@ type DancerCount {
 }
 
 type DancerResponse {
-  id: ID!
+  id: Float!
   msg: String
   name: String!
   ok: Boolean!
@@ -83,22 +82,22 @@ type DancerResponse {
 }
 
 input deleteDancerInput {
-  id: ID!
+  id: Float!
 }
 
 input DeletePartInput {
   dancerName: String!
-  id: ID!
+  id: Float!
 }
 
 input editDancerInput {
-  id: ID!
+  id: Float!
   name: String!
 }
 
 input EditPartInput {
   dancerName: String!
-  id: ID!
+  id: Float!
   name: String!
   type: String!
 }

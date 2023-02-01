@@ -15,8 +15,8 @@ export class AddPartInput {
 
 @InputType()
 export class EditPartInput {
-  @Field((type) => ID)
-    id: string;
+  @Field((type) => Number)
+    id: number;
 
   @Field()
     name: string;
@@ -30,8 +30,8 @@ export class EditPartInput {
 
 @InputType()
 export class DeletePartInput {
-  @Field((type) => ID)
-    id: string;
+  @Field((type) => Number)
+    id: number;
 
   @Field()
     dancerName: string;

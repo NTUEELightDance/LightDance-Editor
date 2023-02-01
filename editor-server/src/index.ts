@@ -45,7 +45,6 @@ const { SECRET_KEY } = process.env
     globalMiddlewares: [AccessMiddleware],
     pubSub: pubsub,
   });
-
   const subscriptionBuildOptions = async (
     connectionParams: ConnectionParam,
     webSocket: any

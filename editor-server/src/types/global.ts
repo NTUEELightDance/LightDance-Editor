@@ -42,17 +42,11 @@ export interface IDancer {
   _id?: ObjectId
 }
 export interface IPart {
-  name: string
-  type: string
-  controlData: PopulatedDoc<IControl & Document>[]
-  id: string
-  _id?: ObjectId
-}
-export interface IPartNew {
-  name: string
-  type: string
-  controlData: IControl[]
-  id: string
+  name: string;
+  type: string;
+  controlData: PopulatedDoc<IControl & Document>[];
+  id: number;
+  _id?: ObjectId;
 }
 export interface IControl {
   frame: PopulatedDoc<IControlFrame & Document>

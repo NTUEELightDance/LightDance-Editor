@@ -1,4 +1,4 @@
-import { InputType, Field, ObjectType, ID } from "type-graphql";
+import { InputType, Field, ObjectType, ID, Int } from "type-graphql";
 import { Part } from "../types/part";
 import { ControlType } from "../types/controlType";
 import { Control } from "../types/control";
@@ -23,12 +23,12 @@ export class editDancerInput {
   @Field()
     name: string;
 
-  @Field((type) => ID)
+  @Field((type) => Number)
     id: number;
 }
 
 @InputType()
 export class deleteDancerInput {
-  @Field((type) => ID)
+  @Field((type) => Number)
     id: number;
 }
