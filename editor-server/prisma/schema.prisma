@@ -17,7 +17,7 @@ generator typegraphql {
 
 model Color {
   color                     String                  @id
-  colorCode                 String                  @unique
+  colorCode                 String                  
 }
 
 model LEDEffect {
@@ -111,7 +111,7 @@ model PositionData {
 
 model PositionFrame {
   id                        Int                     @id @default(autoincrement())
-  start                     Int                     @unique
+  start                     Int                     
 
   // relation => not in db
   editing                   EditingPositionFrame?             
@@ -132,7 +132,7 @@ model ControlData {
 
 model ControlFrame {
   id                        Int                     @id @default(autoincrement())
-  start                     Int                     @unique
+  start                     Int                     
   fade                      Boolean
 
   // relation => not in db
