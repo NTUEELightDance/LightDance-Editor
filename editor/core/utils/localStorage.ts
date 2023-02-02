@@ -10,14 +10,14 @@ export function getItem(key: string) {
   return storage.getItem(key);
 }
 
-export async function asyncSetItem(key: string, value: any) {
-  await new Promise<void>((resolve, reject) => {
+export async function asyncSetItem (key: string, value: any) {
+  await new Promise<void>((resolve) => {
     resolve(storage.setItem(key, value));
   });
 }
 
-export async function asyncGetItem(key: string) {
-  return await new Promise<string | null>((resolve, reject) => {
+export async function asyncGetItem (key: string) {
+  return await new Promise<string | null>((resolve) => {
     resolve(storage.getItem(key));
   });
 }

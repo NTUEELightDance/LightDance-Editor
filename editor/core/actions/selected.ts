@@ -1,7 +1,7 @@
 import { registerActions } from "../registerActions";
 // types
 import { State, Selected, PartPayload } from "../models";
-import _ from "lodash";
+
 
 const actions = registerActions({
   /**
@@ -32,7 +32,7 @@ const actions = registerActions({
    */
   setSelectedParts: (state: State, payload: PartPayload) => {
     Object.keys(state.selected).forEach((dancer) => {
-      state.selected[dancer].parts = payload.hasOwnProperty(dancer)
+      state.selected[dancer].parts = Object.prototype.hasOwnProperty.call(payload, dancer)
         ? payload[dancer]
         : [];
     });
@@ -71,7 +71,7 @@ const actions = registerActions({
    * @param {State} state
    * @param {null} payload
    */
-  clearSelected: (state: State, payload: null) => {
+  clearSelected: (state: State) => {
     Object.keys(state.selected).forEach((name) => {
       state.selected[name].selected = false;
       state.selected[name].parts = [];

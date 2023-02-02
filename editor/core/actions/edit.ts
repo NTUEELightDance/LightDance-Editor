@@ -7,8 +7,6 @@ import { getControl, getPos, deleteColorCode } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
 
-import _ from "lodash";
-
 import { notification, updateFrameByTimeMap } from "core/utils";
 
 /**

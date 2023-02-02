@@ -60,7 +60,7 @@ export default function useWebsocketState() {
         handleMessage(data);
       };
 
-      (ws.current as WebSocket).onclose = (e) => {
+      (ws.current as WebSocket).onclose = () => {
         log("Websocket for Editor closed");
       };
     };
@@ -125,7 +125,7 @@ export default function useWebsocketState() {
     const requestOptions = {
       method: "GET",
       redirect: "follow",
-    };
+    } as RequestInit;
     log(Date.now());
 
     fetch(`/api/nthu_play?sys_time=${sysTime}`, requestOptions)
@@ -142,7 +142,7 @@ export default function useWebsocketState() {
     const requestOptions = {
       method: "GET",
       redirect: "follow",
-    };
+    } as RequestInit;
     log(Date.now());
 
     fetch("/api/nthu_stop", requestOptions)

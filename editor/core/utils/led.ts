@@ -117,9 +117,11 @@ export function updateLedEffect(
 
       // Goal: calculate the right currentLedEffect[dancerName][partName]'s effect
       let {
+        effect: currEffect
+      } = effects[newEffectIndex];
+      const {
         start: currStart,
-        effect: currEffect,
-        fade,
+        fade
       } = effects[newEffectIndex];
       // Do fade or not
       if (fade && effects[newEffectIndex + 1]) {

@@ -1,12 +1,12 @@
 import { isAxiosError } from "axios";
 
-import axios from "./axios";
-import { notification } from "core/utils";
+import instance from "./axios";
+import { notification } from "../core/utils";
 
 export const authAgent = {
   login: async (username: string, password: string) => {
     try {
-      const res = await axios.post("/login", { username, password });
+      const res = await instance.post("/login", { username, password });
       notification.success("Login success");
       return {
         token: res.data.token,
@@ -24,7 +24,7 @@ export const authAgent = {
   },
   logout: async () => {
     try {
-      await axios.post("/logout");
+      await instance.post("/logout");
 
       return {
         success: true,
@@ -42,7 +42,7 @@ export const authAgent = {
   // check token in cookie
   checkToken: async () => {
     try {
-      const res = await axios.get("/checkToken");
+      const res = await instance.get("/checkToken");
 
       return {
         token: res.data.token,

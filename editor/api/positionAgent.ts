@@ -29,9 +29,7 @@ export const posAgent = {
   },
   addFrame: async (
     frame: DancerCoordinates | ControlMapStatus,
-    currentTime: number,
-    frameIndex: number,
-    fade?: boolean
+    currentTime: number
   ) => {
     try {
       await client.mutate({

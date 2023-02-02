@@ -1,16 +1,9 @@
 import { FIBER } from "@/constants";
 import {
-  ColorMap,
-  ControlMap,
-  ControlRecord,
   DancerName,
-  Dancers,
   Fiber,
   LED,
   PartName,
-  PartTypeMap,
-  LedMap,
-  LedEffectRecord,
 } from "core/models";
 import { isEqual } from "lodash";
 import { colorCode2int } from "./color";
@@ -124,7 +117,8 @@ export async function generateControlLed() {
         const src = (status[dancerName][partName] as LED).src;
 
         if (!ledMap[partName][src]) return;
-        let { repeat, effects } = ledMap[partName][src];
+        let { repeat } = ledMap[partName][src];
+        const {  effects } = ledMap[partName][src];
 
         if (effects.length === 0) {
           console.error(

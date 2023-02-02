@@ -14,7 +14,6 @@ export default function useColorMap() {
     /^#[0-9a-f]{6}/i.test(colorCode);
 
   const {
-    data: colorMapData,
     loading: colorLoading,
     error: colorError,
   } = useQuery(GET_COLOR_MAP, {
@@ -25,17 +24,17 @@ export default function useColorMap() {
 
   const [
     addColor,
-    { data: addColorData, loading: addColorLoading, error: addColorError },
+    { loading: addColorLoading, error: addColorError }
   ] = useMutation(ADD_COLOR);
 
   const [
     editColor,
-    { data: editColorData, loading: editColorLoading, error: editColorError },
+    { loading: editColorLoading, error: editColorError }
   ] = useMutation(EDIT_COLOR);
 
   const [
     deleteColor,
-    { data: delColorData, loading: delColorLoading, error: delColorError },
+    { loading: delColorLoading, error: delColorError }
   ] = useMutation(DELETE_COLOR);
 
   const handleAddColor = async (color: string, colorCode: string) => {

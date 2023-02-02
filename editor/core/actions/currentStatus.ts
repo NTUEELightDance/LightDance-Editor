@@ -105,7 +105,7 @@ const actions = registerActions({
    * This is for saving controlRecord and controlMap to localStorage.
    * @param state
    */
-  saveToLocal: async (state: State) => {
+  saveToLocal: async () => {
     const [controlRecord, controlMap] = await getControl();
     setItem("controlRecord", JSON.stringify(controlRecord));
     setItem("controlMap", JSON.stringify(controlMap));

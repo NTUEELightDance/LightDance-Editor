@@ -66,12 +66,9 @@ const _state: State = {
 
 // The diffSet will save changed attributes in state
 const diffSet = new Set<string>();
-export const state = onChange(
-  _state,
-  (path: string, value, previousValue, applyData) => {
-    diffSet.add(path.split(".")[0]);
-  }
-);
+export const state = onChange(_state, (path: string) => {
+  diffSet.add(path.split(".")[0]);
+});
 
 state.toString = () => {
   if (process.env.NODE_ENV !== "production") {

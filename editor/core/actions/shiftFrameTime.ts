@@ -1,6 +1,4 @@
 import { registerActions } from "../registerActions";
-// utils
-import { getControl, getPos } from "core/utils";
 // types
 import { State } from "../models";
 import client from "../../client";
