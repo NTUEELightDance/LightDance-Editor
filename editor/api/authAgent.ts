@@ -1,4 +1,4 @@
-import axios from "axios";
+import { isAxiosError } from "axios";
 
 import instance from "./axios";
 import { notification } from "../core/utils";
@@ -13,7 +13,7 @@ export const authAgent = {
         success: true,
       };
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         notification.error(error.response?.data?.err);
       }
 
@@ -30,7 +30,7 @@ export const authAgent = {
         success: true,
       };
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         notification.error(error.response?.data?.err);
       }
 
