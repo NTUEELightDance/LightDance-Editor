@@ -10,7 +10,7 @@ class Camera {
   height: number;
   camera: THREE.PerspectiveCamera;
 
-  constructor(width, height) {
+  constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
 

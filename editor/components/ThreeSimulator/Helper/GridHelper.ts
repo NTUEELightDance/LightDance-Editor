@@ -5,9 +5,14 @@ import { BufferGeometry } from "three/src/core/BufferGeometry.js";
 import { Color } from "three/src/math/Color.js";
 
 class GridHelper extends LineSegments {
-  constructor(size = 10, divisions = 10, color1 = 0x444444, color2 = 0x888888) {
-    color1 = new Color(color1);
-    color2 = new Color(color2);
+  constructor(
+    size = 10,
+    divisions = 10,
+    _color1 = 0x444444, //
+    _color2 = 0x888888  //
+  ) {
+    const color1 = new Color(_color1);
+    const color2 = new Color(_color2);
 
     const center = divisions / 2;
     const step = size / divisions;
