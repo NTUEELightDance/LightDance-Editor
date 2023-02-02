@@ -43,7 +43,7 @@ export default function PosPresets() {
     } else {
       setPosPresets(loadedPosPresets);
     }
-  }, []);
+  }, [loadedPosPresets, setPosPresets]);
 
   // dialog
   const [open, setOpen] = useState(false);

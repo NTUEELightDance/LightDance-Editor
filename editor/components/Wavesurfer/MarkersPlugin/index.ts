@@ -260,7 +260,7 @@ export default class MarkersPlugin {
     });
 
     if (marker.draggable) {
-      labelDiv.addEventListener("mousedown", (e) => {
+      labelDiv.addEventListener("mousedown", () => {
         this.selectedMarker = marker;
       });
     }

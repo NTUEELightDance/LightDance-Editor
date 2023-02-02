@@ -43,7 +43,7 @@ export default function LightPresets() {
     } else {
       setLightPresets(loadedLightPresets);
     }
-  }, []);
+  }, [loadedLightPresets, setLightPresets]);
 
   // dialog
   const [open, setOpen] = useState(false);

@@ -13,6 +13,13 @@ import { setItem } from "core/utils";
 export default function usePosPresets() {
   const [posPresets, setPosPresets] = useImmer<PosPresetsType>([]);
   useEffect(() => {
+    /**
+     * save posPresets to localStorage
+     */
+    const saveToLocal = () => {
+      setItem("posPresets", JSON.stringify(posPresets));
+    };
+
     saveToLocal();
   }, [posPresets]);
   /**
@@ -38,12 +45,6 @@ export default function usePosPresets() {
     setPosPresets((draft) => {
       draft.splice(idx, 1);
     });
-  };
-  /**
-   * save posPresets to localStorage
-   */
-  const saveToLocal = () => {
-    setItem("posPresets", JSON.stringify(posPresets));
   };
 
   return {
