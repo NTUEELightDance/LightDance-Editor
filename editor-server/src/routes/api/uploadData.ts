@@ -124,7 +124,7 @@ const uploadData = async (req: Request, res: Response) => {
     // deal with control data
     const sortedDancer = Object.keys(allDancer).sort();
     // console.log(sortedDancer)
-    console.dir(allDancer, { depth: null });
+    // console.dir(allDancer, { depth: null });
     await Promise.all(
       Object.values(control).map(async (frameObj: any) => {
         const { fade, start, status } = frameObj;
@@ -160,7 +160,7 @@ const uploadData = async (req: Request, res: Response) => {
       })
     ).catch((e) => console.log(e));
 
-    console.log("data updated successfully");
+    console.log("Data uploaded successfully!!");
 
     // update redis
     await initRedisPosition();
