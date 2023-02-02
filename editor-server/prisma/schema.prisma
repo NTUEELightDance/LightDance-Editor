@@ -111,7 +111,7 @@ model PositionData {
 
 model PositionFrame {
   id                        Int                     @id @default(autoincrement())
-  start                     Int                     
+  start                     Int                     @unique
 
   // relation => not in db
   editing                   EditingPositionFrame?             
@@ -132,7 +132,7 @@ model ControlData {
 
 model ControlFrame {
   id                        Int                     @id @default(autoincrement())
-  start                     Int                     
+  start                     Int                     @unique
   fade                      Boolean
 
   // relation => not in db

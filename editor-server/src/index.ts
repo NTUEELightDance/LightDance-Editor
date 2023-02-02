@@ -14,7 +14,7 @@ import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import fileUpload from "express-fileupload";
-import Prisma from "./prisma";
+import prisma from "./prisma";
 
 import { resolvers } from "./resolvers";
 import db from "./models";
@@ -33,7 +33,6 @@ const { SECRET_KEY } = process.env
   app.use(fileUpload());
   app.use("/api", apiRoute);
 
-  const prisma = Prisma;
   mongo();
 
   const httpServer = http.createServer(app);
