@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 // mui
-import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
 import Typography from "@mui/material/Typography";
 
 import { formatDisplayedTime } from "core/utils";
@@ -29,9 +29,8 @@ export default function FrameItem({
 
   return (
     <div ref={ref}>
-      <ListItem
+      <ListItemButton
         selected={selected}
-        button
         onClick={() => {
           handleSelectItem(idx);
         }}
@@ -39,7 +38,7 @@ export default function FrameItem({
         <Typography variant="body1">
           [{idx}] time: {formatDisplayedTime(start)}
         </Typography>
-      </ListItem>
+      </ListItemButton>
     </div>
   );
 }

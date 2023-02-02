@@ -41,7 +41,7 @@ function ColorDialog({
   useEffect(() => {
     if (!defaultColorName) setNewColorName("");
     if (!defaultColorCode) setNewColorCode("#FFFFFF");
-  }, [open]);
+  }, [defaultColorName, defaultColorCode, open]);
 
   const handleNameChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement

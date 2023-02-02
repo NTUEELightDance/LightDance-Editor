@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import type { ReactiveVar } from "@apollo/client";
+import type { DancerStatus } from "core/models/index.d.ts";
 
 // mui
 import Snackbar from "@mui/material/Snackbar";
@@ -18,7 +19,7 @@ import { useHotkeys } from "react-hotkeys-hook";
  * Clipboard component for copy/paste
  */
 export default function Clipboard() {
-  const copiedStatus = useRef(makeVar({}));
+  const copiedStatus = useRef<ReactiveVar<DancerStatus>>(makeVar({}));
 
   useHotkeys("ctrl+c, cmd+c", () => {
     const selected = Object.keys(reactiveState.selected()).find(
@@ -60,7 +61,10 @@ export default function Clipboard() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleClose = (event, reason) => {
+  const handleClose = (
+    event: React.FormEvent<HTMLButtonElement>,
+    reason: string
+  ) => {
     if (reason === "clickaway") {
       return;
     }

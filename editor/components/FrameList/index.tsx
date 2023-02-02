@@ -24,7 +24,7 @@ export default function FrameList() {
 
   return (
     <Paper sx={{ minHeight: "100%" }} square>
-      <List component="nav">
+      <List component="nav" disablePadding>
         {record.map(
           (id: string, idx: number) =>
             map[record[idx]] && (

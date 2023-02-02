@@ -1,4 +1,4 @@
-// @ts-expect-error
+// @ts-expect-error (for importing css file)
 import styles from "./styles.module.css";
 import { Box } from "@mui/material";
 

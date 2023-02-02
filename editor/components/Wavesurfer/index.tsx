@@ -28,14 +28,14 @@ function Wavesurfer({ commandMode = false }) {
   ) as wavesurferContext;
 
   const { ref: resizeDetectorRef } = useResizeDetector({
-    onResize: (width, height) => {
+    onResize: () => {
       waveSurferApp.resize();
     },
   });
 
   useLayoutEffect(() => {
     initWaveSurferApp();
-  }, []);
+  }, [initWaveSurferApp]);
 
   const { loading: controlLoading, controlMap, controlRecord } = useControl();
   const { loading: posLoading, posMap, posRecord } = usePos();
@@ -48,7 +48,14 @@ function Wavesurfer({ commandMode = false }) {
         waveSurferApp.updateMarkers(controlMap);
       }
     }
-  }, [editor, controlRecord, controlMap]);
+  }, [
+    editor,
+    controlRecord,
+    controlMap,
+    controlLoading,
+    showMarkers,
+    waveSurferApp,
+  ]);
 
   // update Pos Markers
   useEffect(() => {
@@ -57,7 +64,7 @@ function Wavesurfer({ commandMode = false }) {
         waveSurferApp.updateMarkers(posMap);
       }
     }
-  }, [editor, posRecord, posMap]);
+  }, [editor, posRecord, posMap, posLoading, showMarkers, waveSurferApp]);
 
   // update Markers when markers switched on
   useEffect(() => {
@@ -71,7 +78,14 @@ function Wavesurfer({ commandMode = false }) {
       return;
     }
     waveSurferApp.toggleMarkers(showMarkers);
-  }, [showMarkers]);
+  }, [
+    controlLoading,
+    controlMap,
+    posLoading,
+    posMap,
+    showMarkers,
+    waveSurferApp,
+  ]);
 
   return (
     <div ref={resizeDetectorRef}>

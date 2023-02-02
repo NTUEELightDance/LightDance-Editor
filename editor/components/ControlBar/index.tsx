@@ -1,5 +1,3 @@
-import { useContext } from "react";
-
 import PlayBackController from "./PlayBackController";
 import TimeController from "./TimeController";
 import WaveSurferApp from "../Wavesurfer/WaveSurferApp";

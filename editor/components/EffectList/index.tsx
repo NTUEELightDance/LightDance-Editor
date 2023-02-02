@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { addEffect, applyEffect, deleteEffect } from "core/actions";
 import { confirmation } from "core/utils";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
-import useControl from "hooks/useControl";
 import useEffectList from "hooks/useEffectList";
 import useTimeInput from "hooks/useTimeInput";
 
@@ -19,7 +18,7 @@ import {
   Divider,
   Grid,
   IconButton,
-  InputAdornment,
+  //InputAdornment,
   List,
   ListItem,
   ListItemText,
@@ -69,7 +68,7 @@ export default function EffectList() {
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
   const [addOpened, setAddOpened] = useState<boolean>(false); // open add effect dialog
   const [previewOpened, setPreviewOpened] = useState<boolean>(false);
-  const [previewing, setPreviewing] = useState<boolean>(false);
+  const [previewing] = useState<boolean>(false);
 
   const handleOpenApply = (id: string, name: string) => {
     setEffectSelectedID(id);
@@ -227,7 +226,9 @@ export default function EffectList() {
               <span>
                 The following frame(s) will be collided:
                 {collidedFrame?.map((frame) => (
-                  <span style={{ color: "#ba000d" }}> {frame}</span>
+                  <span style={{ color: "#ba000d" }} key={frame}>
+                    {frame}
+                  </span>
                 ))}
               </span>
             ) : (

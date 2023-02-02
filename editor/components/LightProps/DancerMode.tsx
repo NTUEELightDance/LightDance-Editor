@@ -25,13 +25,13 @@ function DancerMode() {
   const dancers = useReactiveVar(reactiveState.dancers);
 
   const { colorMap } = useColorMap();
-  const { partGroups, addNewGroup, deleteGroup, editGroup } = usePartGroups();
+  const { partGroups, addNewGroup, deleteGroup } = usePartGroups();
 
   // states for display
   const [displayParts, setDisplayParts] = useState<{
     [key in PartType]?: string[];
   }>({});
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  //const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [currentTab, setCurrentTab] = useState<PartType | null>("FIBER");
 
   // states for current status mutation
@@ -82,12 +82,12 @@ function DancerMode() {
     setDisplayParts(newDisplayPart);
   };
 
-  const toggleExpand = (part: string) => () => {
-    setExpanded((expanded) => {
-      expanded[part] = expanded[part];
-      return expanded;
-    });
-  };
+  // const toggleExpand = (part: string) => () => {
+  //   setExpanded((expanded) => {
+  //     expanded[part] = expanded[part];
+  //     return expanded;
+  //   });
+  // };
 
   const handleChangeTab = (event: React.SyntheticEvent, newTab: PartType) => {
     setCurrentTab(newTab);

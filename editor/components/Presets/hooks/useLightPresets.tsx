@@ -13,6 +13,13 @@ import { setItem } from "core/utils";
 export default function useLightPresets() {
   const [lightPresets, setLightPresets] = useImmer<LightPresetsType>([]);
   useEffect(() => {
+    /**
+     * save lightPresets to localStorage
+     */
+    const saveToLocal = () => {
+      setItem("lightPresets", JSON.stringify(lightPresets));
+    };
+
     saveToLocal();
   }, [lightPresets]);
   /**
@@ -44,12 +51,6 @@ export default function useLightPresets() {
     setLightPresets((draft) => {
       draft.splice(idx, 1);
     });
-  };
-  /**
-   * save lightPresets to localStorage
-   */
-  const saveToLocal = () => {
-    setItem("lightPresets", JSON.stringify(lightPresets));
   };
 
   return {
