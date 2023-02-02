@@ -130,7 +130,7 @@ export default function EffectList() {
   return (
     <div>
       <List>
-        {effectList?.map((effect: ) => (
+        {effectList?.map((effect) => (
           <React.Fragment key={effect?.id}>
             <React.Fragment>
               <ListItem
