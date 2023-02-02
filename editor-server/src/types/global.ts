@@ -12,7 +12,7 @@ export type DBModels = {
 
 export type TContext = {
     db: DBModels;
-    userID: string;
+    userID: number;
     prisma: PrismaClient;
 }
 

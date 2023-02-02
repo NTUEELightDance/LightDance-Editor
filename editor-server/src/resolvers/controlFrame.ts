@@ -80,11 +80,6 @@ export class ControlFrameResolver {
     const allParts = await ctx.prisma.part.findMany();
     await Promise.all(
       allParts.map(async (part: Part) => {
-        // const newControl = await new ctx.db.Control({
-        //   frame: newControlFrame,
-        //   value: ControlDefault[part.type],
-        //   id: generateID(),
-        // });
         await ctx.prisma.controlData.create({
           data: {
             frameId: newControlFrame.id,
@@ -92,29 +87,19 @@ export class ControlFrameResolver {
             value: ControlDefault[part.type],
           }
         });
-        // await newControl.save();
-        // await ctx.db.Part.findOneAndUpdate(
-        //   { id: part.id },
-        //   {
-        //     name: part.name,
-        //     type: part.type,
-        //     controlData: part.controlData.concat([newControl]),
-        //     id: part.id,
+        // await ctx.prisma.part.update({
+        //   where: { id: part.id },
+        //   data: {
+        //     controlData: {
+        //       connect: {
+        //         partId_frameId: {
+        //           partId: part.id,
+        //           frameId: newControlFrame.id,
+        //         }
+        //       }
+        //     },
         //   }
-        // );
-        await ctx.prisma.part.update({
-          where: { id: part.id },
-          data: {
-            controlData: {
-              connect: {
-                partId_frameId: {
-                  partId: part.id,
-                  frameId: newControlFrame.id,
-                }
-              }
-            },
-          }
-        });
+        // });
       })
     );
     await updateRedisControl(newControlFrame.id);
@@ -176,23 +161,37 @@ export class ControlFrameResolver {
       }
     }
     // const frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
-    const frameToEdit = await ctx.prisma.controlFrame.findFirst({
-      where: { id: input.frameID },
-      include: { editing: true }
+    const frameToEdit = await ctx.prisma.editingControlFrame.findFirst({
+      where: { frameId: input.frameID },
     });
-    if (!frameToEdit) throw new Error("Frame not found!");
-    if (frameToEdit.editing && frameToEdit.editing.userId !== Number(ctx.userID)) {
-      throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
+    if (
+      frameToEdit &&
+      frameToEdit.userId &&
+      frameToEdit.userId !== ctx.userID
+    ) {
+      throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
     }
     // await ctx.db.ControlFrame.updateOne({ id: input.frameID }, input);
-    const controlFrame = await ctx.prisma.controlFrame.update({
+    const controlFrame = await ctx.prisma.controlFrame.findFirst({
+      where: { id: input.frameID },
+    });
+    if(!controlFrame) throw new Error("Control Frame not found");
+
+    await ctx.prisma.controlFrame.update({
       where: { id: input.frameID },
       data: {
-        editing: undefined,
-        start: input.start===undefined? frameToEdit.start: input.start,
-        fade: input.fade===undefined? frameToEdit.fade: input.fade
+        start: input.start===undefined ? controlFrame.start: input.start,
+        fade: input.fade===undefined ? controlFrame.fade: input.fade
       },
     });
+    // const controlFrame = await ctx.prisma.controlFrame.update({
+    //   where: { id: input.frameID },
+    //   data: {
+    //     editing: undefined,
+    //     start: input.start===undefined? frameToEdit?.start: input.start,
+    //     fade: input.fade===undefined? frameToEdit?.fade: input.fade
+    //   },
+    // });
     // await ctx.db.ControlFrame.updateOne(
     //   { id: input.frameID },
     //   { editing: null }
@@ -201,7 +200,9 @@ export class ControlFrameResolver {
     // const controlFrame = await ctx.db.ControlFrame.findOne({
     //   id: input.frameID,
     // });
+    
     await updateRedisControl(controlFrame.id);
+  
     const payload: ControlMapPayload = {
       editBy: Number(ctx.userID),
       frame: {
@@ -245,14 +246,17 @@ export class ControlFrameResolver {
   ) {
     const { frameID } = input;
     // const frameToDelete = await ctx.db.ControlFrame.findOne({ id: frameID });
-    const frameToDelete = await ctx.prisma.controlFrame.findFirst({
-      where: { id: frameID },
-      include: { editing: true }
+    const frameToDelete = await ctx.prisma.editingControlFrame.findFirst({
+      where: { frameId: frameID },
     });
-    if (!frameToDelete) throw new Error("Frame not found!");
-    if (frameToDelete.editing && frameToDelete.editing.userId !== Number(ctx.userID)) {
-      throw new Error(`The frame is now editing by ${frameToDelete.editing}.`);
+    if (
+      frameToDelete &&
+      frameToDelete.userId &&
+      frameToDelete.userId !== ctx.userID
+    ) {
+      throw new Error(`The frame is now editing by ${frameToDelete.userId}.`);
     }
+
     // await ctx.db.ControlFrame.deleteOne({ id: frameID });
     await ctx.prisma.controlFrame.delete({ where: { id: frameID } });
     // const parts: IPart[] = await ctx.db.Part.find().populate("controlData");

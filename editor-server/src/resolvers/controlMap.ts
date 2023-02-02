@@ -10,7 +10,7 @@ import {
 import { Prisma } from "@prisma/client";
 import { Map } from "./types/map";
 // import { ControlData } from "./types/controlData";
-import { ControlData, Part, PartMinAggregate } from "../../prisma/generated/type-graphql";
+import { ControlData, EditingControlFrame, Part, PartMinAggregate } from "../../prisma/generated/type-graphql";
 import { ControlDataInput, EditControlInput } from "./inputs/control";
 import { Topic } from "./subscriptions/topic";
 import { ControlMapPayload } from "./subscriptions/controlMap";
@@ -19,8 +19,7 @@ import {
   ControlRecordPayload,
   ControlRecordMutation,
 } from "./subscriptions/controlRecord";
-import { IControlFrame, IDancer, IPart, TContext } from "../types/global";
-import { JsonObjectExpression } from "typescript";
+import { TContext } from "../types/global";
 
 @Resolver((of) => Map)
 export class ControlMapResolver {
@@ -101,20 +100,26 @@ export class EditControlMapResolver {
     );
 
     // find control frame
-    // const controlFrame = await ctx.db.ControlFrame.findOne({
-    //   start: startTime,
-    // });
     const controlFrame = await ctx.prisma.controlFrame.findFirst({
       where: { start: startTime },
-      include: { editing: true }
     });
-    // if control frame already exists -> edit
-    if (controlFrame) {
-      // const { editing, _id, id: frameID } = controlFrame;
-      const { editing, id: frameID } = controlFrame;
-      if (editing?.userId !== Number(ctx.userID)) {
-        throw new Error(`The frame is now editing by ${editing}.`);
+    if(!controlFrame) throw new Error(`Control frame not found`);
+    const frameToEdit = await ctx.prisma.editingControlFrame.findFirst({
+      where: { frameId: controlFrame.id },
+    });
+    if (
+      frameToEdit &&
+      frameToEdit.userId &&
+      frameToEdit.userId !== ctx.userID
+      ) {
+        throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
       }
+    if(!frameToEdit) throw new Error(`Control frame not found`);
+    if(!frameToEdit.frameId) throw new Error(`Control frame has no frameId`);
+    // if control frame already exists -> edit
+    if (frameToEdit) {
+      // const { editing, _id, id: frameID } = controlFrame;
+      const { frameId: frameID } = frameToEdit;
       await Promise.all(
         controlData.map(async (data)=>{
           const { dancerName, controlData: dancerControlData} = data;
@@ -147,75 +152,9 @@ export class EditControlMapResolver {
           );
         })
       );
-      // await Promise.all(
-      // controlData.map(async (data) => {
-      //   const { dancerName, controlData: dancerControlData} = data;
-      //   // const dancer: IDancer = await ctx.db.Dancer.findOne({
-      //   //   name: dancerName,
-      //   // }).populate({
-      //   //   path: "parts",
-      //   //   populate: {
-      //   //     path: "controlData",
-      //   //     match: { frame: _id },
-      //   //   },
-      //   // });
-      //   const dancer = dancers.find(
-      //     ({ name })=> dancerName===name
-      //   );
-      //   await Promise.all(
-      //     dancerControlData.map(async (data) => {
-      //       const { partName, ELValue, color, src, alpha } = data;
-      //       // const wanted: IPart = dancer.parts.find(
-      //       //   (part: IPart) => part.name === partName
-      //       // );
-      //       const wanted = dancer?.parts.find(
-      //         ({ name })=> partName===name
-      //       );
-      //       if (!wanted) throw new Error(`part ${partName} not found`);
-      //       const type = wanted.type;
-      //       // const {value, _id} = wanted.controlData[0];
-      //       let { value } = wanted.controlData[0];
-      //       if(value===null || typeof value !== "object") throw new Error("value not found");
-      //       value= {...value, alpha};
-      //       if (type === "FIBER") {
-      //         if (color && typeof value==="object") {
-      //           // value.color = color;
-      //           value = {...value, color};
-      //         }
-      //         // if (alpha || alpha === 0) {
-      //         //   // value.alpha = alpha;
-      //         // }
-      //       // } else if (type === "EL") {
-      //       //   if (ELValue || ELValue === 0) {
-      //       //     value.value = ELValue;
-      //       //   }
-      //       } else if (type === "LED") {
-      //         if ((src || src === "")&& typeof value==="object") {
-      //           // value.src = src;
-      //           value ={...value, src};
-      //         }
-      //         // if (alpha || alpha === 0) {
-      //         //   value.alpha = alpha;
-      //         // }
-      //       }
-      //       // await ctx.db.Control.updateOne({ _id }, { value });
-      //       await ctx.prisma.controlData.update({
-      //         where: { partId_frameId: { partId: wanted.id, frameId: frameID}},
-      //         data: {
-      //           value: value as Prisma.JsonObject
-      //         }
-      //       });
-      //     })
-      //   );
-      // })
-      // );
-      // await ctx.db.ControlFrame.updateOne(
-      //   { start: startTime },
-      //   { editing: null, fade }
-      // );
-      await ctx.prisma.controlFrame.update({
-        where: { start: startTime },
-        data: { editing: undefined, fade }
+      await ctx.prisma.editingControlFrame.update({
+        where: { userId: ctx.userID },
+        data: { frameId: null }
       });
       await updateRedisControl(frameID);
       const payload: ControlMapPayload = {

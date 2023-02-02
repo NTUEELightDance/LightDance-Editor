@@ -30,7 +30,6 @@ const initData = async () => {
 };
 
 const initRedisControl = async () => {
-  const frames = await prisma.controlFrame.findMany();
   const result: LooseObject = {};
 
   // IControlFrame
@@ -116,7 +115,6 @@ const initRedisControl = async () => {
 };
 
 const initRedisPosition = async () => {
-  const frames = await prisma.positionFrame.findMany();
   const result: LooseObject = {};
 
   // IPositionFrame
@@ -273,14 +271,8 @@ const updateRedisPosition = async (id: string) => {
     })
     .map((dancer) => {
       const { name, positionData } = dancer;
-<<<<<<< HEAD
       const wanted: any = positionData.find(
         (data) => data.frameId === parseInt(frameID)
-=======
-      if(!positionData) throw new Error("positionData not found");
-      const wanted = positionData.find(
-        (data: PositionData) => data.frameId === frameId
->>>>>>> finish controlFrame
       );
       pos.push([wanted.x, wanted.y, wanted.z]);
     });
