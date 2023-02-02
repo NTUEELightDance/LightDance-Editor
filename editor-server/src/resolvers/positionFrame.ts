@@ -9,7 +9,7 @@ import {
   Publisher,
 } from "type-graphql";
 
-import { PositionFrame, PositionData, Dancer } from "../../prisma/generated/type-graphql";
+import { PositionFrame, Dancer } from "../../prisma/generated/type-graphql";
 import { updateRedisPosition } from "../utility";
 import {
   EditPositionFrameInput,
@@ -53,7 +53,7 @@ export class PositionFrameResolver {
       where: { start },
     });
     console.log(check);
-    
+
     if (check) {
       throw new Error(
         `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
@@ -66,7 +66,7 @@ export class PositionFrameResolver {
     });
     const allDancers: Dancer[] = await ctx.prisma.dancer.findMany();
     console.log(allDancers);
-    
+
     await Promise.all(
       allDancers.map(async (dancer: Dancer) => {
         await ctx.prisma.positionData.create({
@@ -78,20 +78,6 @@ export class PositionFrameResolver {
             z: 0,
           },
         });
-        // if (!dancer.positionData) {
-        //   dancer.positionData = [];
-        // }
-        // const updatedPositionData = [...dancer.positionData, newPositionData];
-        // console.log(updatedPositionData);
-        // await ctx.prisma.dancer.update({
-        //   where: { id: dancer.id },
-        //   include: { positionData: true },
-        //   data: {
-        //     positionData: {
-        //       create: updatedPositionData,
-        //     },
-        //   },
-        // });
       })
     );
     await updateRedisPosition(newPositionFrame.id);
@@ -271,6 +257,6 @@ export class PositionFrameResolver {
       index: -1,
     };
     await publishPositionRecord(recordPayload);
-    // return frameToDelete;
+    return frameToDelete;
   }
 }

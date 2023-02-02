@@ -14,7 +14,7 @@ import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { PartResponse } from "./response/partResponse";
 import { initRedisControl, initRedisPosition } from "../utility";
-import { IControl, IControlFrame, IDancer, IPart, TContext } from "../types/global";
+import { TContext } from "../types/global";
 import { ControlData, ControlFrame, Part } from "../../prisma/generated/type-graphql";
 
 @Resolver((of) => Part)

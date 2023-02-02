@@ -38,10 +38,10 @@ export class EditPosMapResolver {
   @Mutation((returns) => Map)
   async editPosMap(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap) publish: Publisher<PositionMapPayload>,
     @Arg("positionData", (type) => [EditPositionInput])
-    positionData: EditPositionInput[],
+      positionData: EditPositionInput[],
     @Arg("start") startTime: number,
     @Ctx() ctx: TContext
   ) {

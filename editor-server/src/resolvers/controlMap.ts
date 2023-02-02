@@ -9,12 +9,11 @@ import {
 } from "type-graphql";
 import { Prisma } from "@prisma/client";
 import { Map } from "./types/map";
-// import { ControlData } from "./types/controlData";
-import { ControlData, EditingControlFrame, Part, PartMinAggregate } from "../../prisma/generated/type-graphql";
+import { ControlData,  Part } from "../../prisma/generated/type-graphql";
 import { ControlDataInput, EditControlInput } from "./inputs/control";
 import { Topic } from "./subscriptions/topic";
 import { ControlMapPayload } from "./subscriptions/controlMap";
-import { updateRedisControl, generateID } from "../utility";
+import { updateRedisControl } from "../utility";
 import {
   ControlRecordPayload,
   ControlRecordMutation,
@@ -25,14 +24,9 @@ import { TContext } from "../types/global";
 export class ControlMapResolver {
   @Query((returns) => Map)
   async ControlMap(@Ctx() ctx: TContext) {
-    // const frames:IControlFrame[] = await ctx.db.ControlFrame.find();
     const frames = await ctx.prisma.controlFrame.findMany({
       select: { id:true }
     });
-    // const id = frames.map((frame) => {
-      // return { id: frame.id, _id: frame._id };
-    // });
-    // return { frames: id };
     return { frames };
   }
 }
@@ -51,7 +45,6 @@ export class EditControlMapResolver {
     @Ctx() ctx: TContext
   ) {
     // check payload
-    // const dancers = await ctx.db.Dancer.find();
     const dancers = await ctx.prisma.dancer.findMany({
       include: {
         parts: {
@@ -72,7 +65,6 @@ export class EditControlMapResolver {
     await Promise.all(
       controlData.map(async (data) => {
         const { dancerName, controlData: dancerControlData} = data;
-        // const dancer = await ctx.db.Dancer.findOne({ name: dancerName });
         const dancer = dancers.find(
           ({ name })=> dancerName===name
         );
@@ -86,7 +78,6 @@ export class EditControlMapResolver {
         }
         await Promise.all(
           dancerControlData.map(async (partData) => {
-            // const part = await ctx.db.Part.findOne({ name: partData.partName });
             const part = await ctx.prisma.part.findFirst({
               where: { name: partData.partName },
             });
@@ -103,7 +94,7 @@ export class EditControlMapResolver {
     const controlFrame = await ctx.prisma.controlFrame.findFirst({
       where: { start: startTime },
     });
-    if(!controlFrame) throw new Error(`Control frame not found`);
+    if(!controlFrame) throw new Error("Control frame not found");
     const frameToEdit = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: controlFrame.id },
     });
@@ -111,14 +102,13 @@ export class EditControlMapResolver {
       frameToEdit &&
       frameToEdit.userId &&
       frameToEdit.userId !== ctx.userID
-      ) {
-        throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
-      }
-    if(!frameToEdit) throw new Error(`Control frame not found`);
-    if(!frameToEdit.frameId) throw new Error(`Control frame has no frameId`);
+    ) {
+      throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
+    }
+    if(!frameToEdit) throw new Error("Control frame not found");
+    if(!frameToEdit.frameId) throw new Error("Control frame has no frameId");
     // if control frame already exists -> edit
     if (frameToEdit) {
-      // const { editing, _id, id: frameID } = controlFrame;
       const { frameId: frameID } = frameToEdit;
       await Promise.all(
         controlData.map(async (data)=>{
@@ -172,11 +162,6 @@ export class EditControlMapResolver {
     // control frame not found -> add
     else {
       // add control frame
-      // const newControlFrame = await new ctx.db.ControlFrame({
-      //   start: startTime,
-      //   fade: fade,
-      //   id: generateID(),
-      // }).save();
       const newControlFrame = await ctx.prisma.controlFrame.create({
         data: {
           start: startTime,
@@ -190,12 +175,6 @@ export class EditControlMapResolver {
           const { dancerName, controlData: dancerControlData } = dancerParts;
           await Promise.all(
             dancerControlData.map(async (partData) => {
-              // const dancer: IDancer = await ctx.db.Dancer.findOne({
-              //   name: dancerName,
-              // }).populate({
-              //   path: "parts",
-              //   match: { name: partData.partName },
-              // });
               // for the part of a certain dancer, create a new control of the part with designated value
               const value = await examineType(partData, ctx);
               const dancer = await ctx.prisma.dancer.findFirst({
@@ -212,19 +191,6 @@ export class EditControlMapResolver {
                   value
                 }
               });
-              // const newControl = new ctx.db.Control({
-              //   frame: newControlFrame,
-              //   value,
-              //   id: generateID(),
-              // });
-              // await ctx.db.Part.findOneAndUpdate(
-              //   { id: dancer.parts[0].id },
-              //   {
-              //     $push: {
-              //       controlData: newControl,
-              //     },
-              //   }
-              // );
               await ctx.prisma.part.update({
                 where: { id: part.id },
                 data: {
@@ -236,7 +202,6 @@ export class EditControlMapResolver {
                   }
                 }
               });
-              // await newControl.save();
             })
           );
         })
@@ -252,9 +217,6 @@ export class EditControlMapResolver {
         },
       };
       await publish(mapPayload);
-      // const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-      //   start: 1,
-      // });
       const allControlFrames = await ctx.prisma.controlFrame.findMany({
         orderBy: { start: "asc" }
       });
@@ -280,7 +242,6 @@ export class EditControlMapResolver {
 
 async function examineType(partData: ControlDataInput, ctx: TContext) {
   const { partName, ELValue, color, src, alpha } = partData;
-  // const { type } = await ctx.db.Part.findOne({ name: partName });
   const part = await ctx.prisma.part.findFirst({
     where: { name: partName },
   });

@@ -8,7 +8,7 @@ import {
   Arg,
 } from "type-graphql";
 
-import { Dancer, PositionData } from "../../prisma/generated/type-graphql";
+import { Dancer } from "../../prisma/generated/type-graphql";
 import {
   AddDancerInput,
   editDancerInput,
@@ -16,7 +16,6 @@ import {
 } from "./inputs/dancer";
 import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
-import { generateID } from "../utility";
 import { DancerResponse } from "./response/dancerResponse";
 import { initRedisControl, initRedisPosition } from "../utility";
 import { TContext } from "../types/global";
@@ -25,10 +24,6 @@ import { TContext } from "../types/global";
 export class DancerResolver {
   @Query((returns) => [Dancer])
   async dancers(@Ctx() ctx: TContext) {
-    // const dancers = await ctx.db.Dancer.find()
-    //   .populate("parts")
-    //   .populate("positionData");
-    // return dancers;
     const dancers = await ctx.prisma.dancer.findMany({
       include: { parts: true, positionData: true }
     });
@@ -54,11 +49,6 @@ export class DancerResolver {
     @Ctx() ctx: TContext
   ) {
     const existDancer = await ctx.prisma.dancer.findFirst({
-    // const existDancer = await ctx.db.Dancer.findOne({
-    //   name: newDancerData.name,
-    // })
-    //   .populate("positionData")
-    //   .populate("parts");
       where: { name: newDancerData.name },
     });
     if (!existDancer) {
@@ -78,28 +68,8 @@ export class DancerResolver {
           }
         }
       });
-      // const newDancer = new ctx.db.Dancer({
-      //   name: newDancerData.name,
-      //   parts: [],
-      //   positionData: [],
-      //   id: generateID(),
-      // });
-
-      // // for each position frame, add empty position data to the dancer
-      // const allPositionFrames = await ctx.db.PositionFrame.find();
-      // allPositionFrames.map(async (positionframe: any) => {
-      //   const newPosition = new ctx.db.Position({
-      //     frame: positionframe._id,
-      //     x: 0,
-      //     y: 0,
-      //     z: 0,
-      //   });
-      //   newDancer.positionData.push(newPosition);
-      //   await newPosition.save();
-      // });
       await initRedisControl();
       await initRedisPosition();
-      // const dancerData = await newDancer.save();
       const payload: DancerPayload = {
         mutation: dancerMutation.CREATED,
         editBy: Number(ctx.userID),
@@ -108,7 +78,6 @@ export class DancerResolver {
       await publish(payload);
 
       // save dancer
-      // return Object.assign(dancerData, { ok: true });
       return {dancerData:newDancer,  ok: true, msg: "dancer created" };
     }
     return {dancerData: existDancer, ok: false, msg: "dancer exists" };
@@ -121,11 +90,6 @@ export class DancerResolver {
     @Ctx() ctx: TContext
   ) {
     const { id, name } = newDancerData;
-    // const newDancer = await ctx.db.Dancer.findOneAndUpdate(
-    //   { id },
-    //   { name },
-    //   { new: true }
-    // ).populate("parts");
     const newDancer = await ctx.prisma.dancer.update({
       where: { id },
       data: { name },
@@ -152,7 +116,6 @@ export class DancerResolver {
     @Ctx() ctx: TContext
   ) {
     const { id } = delDancerData;
-    // const dancer = await ctx.db.Dancer.findOne({ id });
     const dancer = await ctx.prisma.dancer.findFirst({
       where: { id },
       include: { parts: {
@@ -161,15 +124,6 @@ export class DancerResolver {
     });
     if (dancer) {
       await Promise.all(
-        // dancer.parts.map(async (ref: string) => {
-        //   const part = await ctx.db.Part.findOne({ _id: ref });
-        //   await Promise.all(
-        //     part.controlData.map(async (ref: string) => {
-        //       await ctx.db.Control.deleteOne({ _id: ref });
-        //     })
-        //   );
-        //   await ctx.db.Part.deleteOne({ _id: ref });
-        // })
         dancer.parts.map(async ({ id: partId, controlData }) => {
           await Promise.all(
             controlData.map(async ({ frameId }) => {
@@ -181,7 +135,6 @@ export class DancerResolver {
           await ctx.prisma.part.delete({ where: { id: partId }});
         })
       );
-      // await ctx.db.Dancer.deleteOne({ id });
       await ctx.prisma.dancer.delete({ where: { id }});
       await initRedisControl();
       await initRedisPosition();

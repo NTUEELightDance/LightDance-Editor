@@ -1,4 +1,4 @@
-import { Resolver, FieldResolver, Root, Ctx, Query } from "type-graphql";
+import { Resolver, FieldResolver, Root, Ctx } from "type-graphql";
 import { IPosition, TContext } from "../types/global";
 import { PositionData } from "../../prisma/generated/type-graphql";
 

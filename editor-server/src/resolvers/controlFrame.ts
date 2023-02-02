@@ -14,7 +14,7 @@ import {
   DeleteControlFrameInput,
 } from "./inputs/controlFrame";
 import { ControlFrame, Part } from "../../prisma/generated/type-graphql";
-import { generateID, updateRedisControl } from "../utility";
+import { updateRedisControl } from "../utility";
 import { ControlDefault } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
 import { ControlMapPayload } from "./subscriptions/controlMap";
@@ -24,14 +24,10 @@ import {
 } from "./subscriptions/controlRecord";
 import redis from "../redis";
 import { TContext } from "../types/global";
-import { ControlData } from "@prisma/client";
-import { disconnect } from "process";
-
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
   @Query((returns) => ControlFrame)
   async controlFrame(@Arg("frameID") frameID: number, @Ctx() ctx: TContext) {
-    // return await ctx.db.ControlFrame.findOne({ id: frameID });
     return await ctx.prisma.controlFrame.findFirst({
       where: { id: frameID },
     });
@@ -39,7 +35,6 @@ export class ControlFrameResolver {
 
   @Query((returns) => [ID])
   async controlFrameIDs(@Ctx() ctx: TContext) {
-    // const frames = await ctx.db.ControlFrame.find().sort({ start: 1 });
     const frames = await ctx.prisma.controlFrame.findMany({
       orderBy: { start: "asc" },
     });
@@ -56,7 +51,6 @@ export class ControlFrameResolver {
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
     @Ctx() ctx: TContext
   ) {
-    // const check = await ctx.db.ControlFrame.findOne({ start });
     const check = await ctx.prisma.controlFrame.findFirst({
       where: { start },
     });
@@ -65,18 +59,12 @@ export class ControlFrameResolver {
         `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
       );
     }
-    // const newControlFrame = await new ctx.db.ControlFrame({
-    //   start: start,
-    //   fade: fade,
-    //   id: generateID(),
-    // }).save();
     const newControlFrame = await ctx.prisma.controlFrame.create({
       data: {
         start,
         fade
       }
     });
-    // const allParts = await ctx.db.Part.find();
     const allParts = await ctx.prisma.part.findMany();
     await Promise.all(
       allParts.map(async (part: Part) => {
@@ -87,19 +75,6 @@ export class ControlFrameResolver {
             value: ControlDefault[part.type],
           }
         });
-        // await ctx.prisma.part.update({
-        //   where: { id: part.id },
-        //   data: {
-        //     controlData: {
-        //       connect: {
-        //         partId_frameId: {
-        //           partId: part.id,
-        //           frameId: newControlFrame.id,
-        //         }
-        //       }
-        //     },
-        //   }
-        // });
       })
     );
     await updateRedisControl(newControlFrame.id);
@@ -112,9 +87,6 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(mapPayload);
-    // const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-    //   start: 1,
-    // });
     const allControlFrames: ControlFrame[] = await ctx.prisma.controlFrame.findMany({
       orderBy: { start: "asc" },
     });
@@ -148,7 +120,6 @@ export class ControlFrameResolver {
   ) {
     const { start } = input;
     if (start) {
-      // const check = await ctx.db.ControlFrame.findOne({ start: input.start });
       const check = await ctx.prisma.controlFrame.findFirst({
         where: { start: input.start },
       });
@@ -160,7 +131,6 @@ export class ControlFrameResolver {
         }
       }
     }
-    // const frameToEdit = await ctx.db.ControlFrame.findOne({ id: input.frameID });
     const frameToEdit = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: input.frameID },
     });
@@ -171,7 +141,6 @@ export class ControlFrameResolver {
     ) {
       throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
     }
-    // await ctx.db.ControlFrame.updateOne({ id: input.frameID }, input);
     const controlFrame = await ctx.prisma.controlFrame.findFirst({
       where: { id: input.frameID },
     });
@@ -184,25 +153,9 @@ export class ControlFrameResolver {
         fade: input.fade===undefined ? controlFrame.fade: input.fade
       },
     });
-    // const controlFrame = await ctx.prisma.controlFrame.update({
-    //   where: { id: input.frameID },
-    //   data: {
-    //     editing: undefined,
-    //     start: input.start===undefined? frameToEdit?.start: input.start,
-    //     fade: input.fade===undefined? frameToEdit?.fade: input.fade
-    //   },
-    // });
-    // await ctx.db.ControlFrame.updateOne(
-    //   { id: input.frameID },
-    //   { editing: null }
-    // );
 
-    // const controlFrame = await ctx.db.ControlFrame.findOne({
-    //   id: input.frameID,
-    // });
-    
     await updateRedisControl(controlFrame.id);
-  
+
     const payload: ControlMapPayload = {
       editBy: Number(ctx.userID),
       frame: {
