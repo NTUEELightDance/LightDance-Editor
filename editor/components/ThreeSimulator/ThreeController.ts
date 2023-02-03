@@ -327,7 +327,7 @@ class ThreeController {
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
     }
-    if (!this.settings.settings.Visibility.FIBER) return;
+    if (!this.settings.config.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setFiberStatus(status);
     });
@@ -339,7 +339,7 @@ class ThreeController {
         "[Error] updateDancersLED, invalid parameter(currentLedEffect)"
       );
     }
-    if (!this.settings.settings.Visibility.LED) return;
+    if (!this.settings.config.Visibility.LED) return;
     Object.entries(currentLedEffect).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setLEDStatus(status);
     });

@@ -5,8 +5,8 @@ import { BufferGeometry } from "three/src/core/BufferGeometry.js";
 import { Color } from "three/src/math/Color.js";
 
 class GridHelper extends LineSegments {
-  constructor(size = 10, divisions = 10) {
-    const centralColor = new Color(0x444444);
+  constructor(size = 60, divisions = 20) {
+    const centralColor = new Color(0xff7575);
     const gridColor = new Color(0x888888);
 
     const center = divisions / 2;
@@ -16,16 +16,18 @@ class GridHelper extends LineSegments {
     const vertices = [];
     const colors: number[] = [];
 
-    for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) {
-      if (i % 2 === 0) vertices.push(-halfSize, 0, k / 2, halfSize, 0, k / 2);
+    for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) { 
+      if (i % 2 === 0)  vertices.push(-halfSize, 0, k / 2, halfSize, 0, k / 2);
       vertices.push(k, 0, -halfSize / 2, k, 0, halfSize / 2);
 
-      const color = i === center ? centralColor : gridColor;
+      const color = (i === center) ? centralColor : gridColor;
 
-      color.toArray(colors, j);
-      j += 3;
-      color.toArray(colors, j);
-      j += 3;
+      if (i % 2 === 0){
+        color.toArray(colors, j);
+        j += 3;
+        color.toArray(colors, j);
+        j += 3;
+      }
       color.toArray(colors, j);
       j += 3;
       color.toArray(colors, j);

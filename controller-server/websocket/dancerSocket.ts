@@ -59,7 +59,7 @@ class DancerSocket {
   }
 
   init = (ws: WebSocket) => {
-    this.ws = ws;
+    ws = ws;
     this.clientAgent.dancerClients.addClient(this.dancerName, this);
     this.handleDisconnect();
 
