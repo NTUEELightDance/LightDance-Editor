@@ -9,7 +9,7 @@ import {
 } from "type-graphql";
 
 import { PosData } from "./types/posData";
-import { Map } from "./types/map";
+import { PositionMap } from "./types/map";
 import { EditPositionInput } from "./inputs/position";
 import { Topic } from "./subscriptions/topic";
 import { PositionMapPayload } from "./subscriptions/positionMap";
@@ -21,21 +21,20 @@ import {
 import { TContext } from "../types/global";
 import { Dancer, PositionFrame } from "../../prisma/generated/type-graphql";
 
-@Resolver((of) => Map)
+@Resolver((of) => PositionMap)
 export class PosMapResolver {
-  @Query((returns) => Map)
+  @Query((returns) => PositionMap)
   async PosMap(@Ctx() ctx: TContext) {
-    const frames: PositionFrame[] = await ctx.prisma.positionFrame.findMany();
-    const id = frames.map((frame) => {
-      return { id: frame.id };
+    const frames = await ctx.prisma.positionFrame.findMany({
+      select: {id: true }
     });
-    return { frames: id };
+    return { frames };
   }
 }
 
 @Resolver((of) => PosData)
 export class EditPosMapResolver {
-  @Mutation((returns) => Map)
+  @Mutation((returns) => PositionMap)
   async editPosMap(
     @PubSub(Topic.PositionRecord)
       publishPositionRecord: Publisher<PositionRecordPayload>,

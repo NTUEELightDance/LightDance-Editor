@@ -96,8 +96,6 @@ export class DancerResolver {
       include: { parts: true },
     });
     if (newDancer) {
-      await initRedisControl();
-      await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
         editBy: Number(ctx.userID),
@@ -118,23 +116,27 @@ export class DancerResolver {
     const { id } = delDancerData;
     const dancer = await ctx.prisma.dancer.findFirst({
       where: { id },
-      include: { parts: {
-        include: { controlData: true }
-      } },
+      // include: { parts: {
+      //   include: { controlData: true }
+      // } },
     });
     if (dancer) {
-      await Promise.all(
-        dancer.parts.map(async ({ id: partId, controlData }) => {
-          await Promise.all(
-            controlData.map(async ({ frameId }) => {
-              await ctx.prisma.controlData.delete({ where: {
-                partId_frameId: { partId, frameId }
-              }});
-            })
-          );
-          await ctx.prisma.part.delete({ where: { id: partId }});
-        })
-      );
+      // await Promise.all(
+      //   dancer.parts.map(async ({ id: partId, controlData, name }) => {
+      //     await Promise.all(
+      //       controlData.map(async ({ frameId }) => {
+      //         await ctx.prisma.controlData.delete({ where: {
+      //           partId_frameId: { partId, frameId }
+      //         }});
+      //       })
+      //     );
+      //     console.log("deleting part ",name);
+      //     await ctx.prisma.part.delete({ where: { id: partId }});
+      //   })
+      // );
+      await ctx.prisma.part.deleteMany({
+        where: { dancerId: id }
+      });
       await ctx.prisma.dancer.delete({ where: { id }});
       await initRedisControl();
       await initRedisPosition();

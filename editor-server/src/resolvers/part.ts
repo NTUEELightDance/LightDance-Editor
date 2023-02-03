@@ -109,9 +109,6 @@ export class PartResolver {
           where: { id: id },
           data: { name: name, type: type },
         });
-
-        await initRedisControl();
-        await initRedisPosition();
         const payload: DancerPayload = {
           mutation: dancerMutation.UPDATED,
           editBy: Number(ctx.userID),

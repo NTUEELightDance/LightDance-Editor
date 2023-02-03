@@ -8,7 +8,7 @@ import {
   Arg,
 } from "type-graphql";
 import { Prisma } from "@prisma/client";
-import { Map } from "./types/map";
+import { ControlMap } from "./types/map";
 import { ControlData,  Part } from "../../prisma/generated/type-graphql";
 import { ControlDataInput, EditControlInput } from "./inputs/control";
 import { Topic } from "./subscriptions/topic";
@@ -20,9 +20,9 @@ import {
 } from "./subscriptions/controlRecord";
 import { TContext } from "../types/global";
 
-@Resolver((of) => Map)
+@Resolver((of) => ControlMap)
 export class ControlMapResolver {
-  @Query((returns) => Map)
+  @Query((returns) => ControlMap)
   async ControlMap(@Ctx() ctx: TContext) {
     const frames = await ctx.prisma.controlFrame.findMany({
       select: { id:true }
@@ -59,9 +59,6 @@ export class EditControlMapResolver {
         }`
       );
     }
-
-    const targetParts: { part: Part, corresDancerName: string}[] = [];
-
     await Promise.all(
       controlData.map(async (data) => {
         const { dancerName, controlData: dancerControlData} = data;
@@ -80,11 +77,12 @@ export class EditControlMapResolver {
           dancerControlData.map(async (partData) => {
             const part = await ctx.prisma.part.findFirst({
               where: { name: partData.partName },
+              include: { controlData: true }
             });
             if (!part) {
               throw new Error(`Part ${partData.partName} not found`);
             }
-            targetParts.push({ part, corresDancerName: dancerName });
+            if (!part.controlData) throw new Error(`part controlData ${part.controlData} not found`);
           })
         );
       })
@@ -98,14 +96,8 @@ export class EditControlMapResolver {
     const frameToEdit = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: controlFrame.id },
     });
-    if (
-      frameToEdit &&
-      frameToEdit.userId &&
-      frameToEdit.userId !== ctx.userID
-    ) {
-      throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
-    }
     if(!frameToEdit) throw new Error("Control frame not found");
+    if (frameToEdit.userId !== ctx.userID) throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
     if(!frameToEdit.frameId) throw new Error("Control frame has no frameId");
     // if control frame already exists -> edit
     if (frameToEdit) {
@@ -113,15 +105,20 @@ export class EditControlMapResolver {
       await Promise.all(
         controlData.map(async (data)=>{
           const { dancerName, controlData: dancerControlData} = data;
+          const wantedDancer = dancers.find(
+            ({ name })=> dancerName===name
+          );
           await Promise.all(
             dancerControlData.map(async (data)=>{
               const { partName, color, src, alpha } = data;
-              const wanted = targetParts.find(
-                ({ corresDancerName })=> dancerName===corresDancerName
-              )?.part;
-              if (!wanted || !wanted.controlData) throw new Error(`part ${partName} or controlData ${wanted?.controlData} not found`);
-              const type = wanted.type;
-              const value = wanted.controlData[0].value as Prisma.JsonObject;
+              const wanted = await ctx.prisma.part.findFirst({
+                where: { dancerId: wantedDancer?.id, name: partName },
+                include: { controlData: true }
+              });
+              if (!wanted) throw new Error(`Part ${partName} not found`);
+              if (!wanted.controlData) throw new Error(`wanted part controlData ${wanted.controlData} not found`);
+              const type = wanted?.type;
+              const value = wanted?.controlData[0].value as Prisma.JsonObject;
               value.alpha=alpha;
               if (type === "FIBER") {
                 if (color) {
@@ -177,9 +174,10 @@ export class EditControlMapResolver {
             dancerControlData.map(async (partData) => {
               // for the part of a certain dancer, create a new control of the part with designated value
               const value = await examineType(partData, ctx);
-              const dancer = await ctx.prisma.dancer.findFirst({
-                where: { name: dancerName }
-              });
+              const dancer = dancers.find(
+                ({ name })=> dancerName===name
+              );
+              if(!dancer) throw new Error("dancer name not found");
               const part = await ctx.prisma.part.findFirst({
                 where: { name: partData.partName, dancerId: dancer?.id },
               });
@@ -254,10 +252,6 @@ async function examineType(partData: ControlDataInput, ctx: TContext) {
     };
   } else if(type === "LED") {
     return { src, alpha };
-  } else if (type === "EL") {
-    return {
-      value: ELValue,
-    };
   }else {
     return { color, alpha, src, value:ELValue};
   }

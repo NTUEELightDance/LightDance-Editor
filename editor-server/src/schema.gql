@@ -143,6 +143,13 @@ input ControlFrameWhereInput {
   start: IntFilter
 }
 
+type ControlMap {
+  frameIds: ControlMapQueryObjectId!
+}
+
+"""Mongo object id scalar type"""
+scalar ControlMapQueryObjectId
+
 type Dancer {
   _count: DancerCount
   id: Int!
@@ -353,13 +360,6 @@ input JsonFilter {
   string_starts_with: String
 }
 
-type Map {
-  frames: MapQueryObjectId!
-}
-
-"""Mongo object id scalar type"""
-scalar MapQueryObjectId
-
 type Mutation {
   addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
@@ -376,7 +376,7 @@ type Mutation {
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
-  editPosMap(positionData: [EditPositionInput!]!, start: Float!): Map!
+  editPosMap(positionData: [EditPositionInput!]!, start: Float!): PositionMap!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
 }
@@ -612,17 +612,24 @@ input PositionFrameWhereInput {
   start: IntFilter
 }
 
+type PositionMap {
+  frameIds: PositionMapQueryObjectId!
+}
+
+"""Mongo object id scalar type"""
+scalar PositionMapQueryObjectId
+
 type Query {
   color(where: ColorWhereUniqueInput!): Color
   colors(cursor: ColorWhereUniqueInput, distinct: [ColorScalarFieldEnum!], orderBy: [ColorOrderByWithRelationInput!], skip: Int, take: Int, where: ColorWhereInput): [Color!]!
   controlFrame(frameID: Float!): ControlFrame!
   controlFrameIDs: [ID!]!
-  ControlMap: Map!
+  ControlMap: ControlMap!
   dancer(dancerName: String!): Dancer!
   dancers: [Dancer!]!
   positionFrame(start: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
-  PosMap: Map!
+  PosMap: PositionMap!
 }
 
 enum QueryMode {

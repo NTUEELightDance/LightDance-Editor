@@ -128,12 +128,11 @@ export class PositionFrameResolver {
       const check = await ctx.prisma.positionFrame.findFirst({
         where: { start },
       });
-      if (check) {
-        if (check.id !== input.frameID) {
-          throw new Error(
-            `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
-          );
-        }
+      if(!check) throw new Error(`no frame start at ${start}`);
+      if (check.id !== input.frameID) {
+        throw new Error(
+          `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
+        );
       }
     }
     const frameToEdit = await ctx.prisma.editingPositionFrame.findFirst({

@@ -134,8 +134,8 @@ export class ControlFrameResolver {
     const frameToEdit = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: input.frameID },
     });
+    if(!frameToEdit) throw new Error("editingControlframe id not found");
     if (
-      frameToEdit &&
       frameToEdit.userId &&
       frameToEdit.userId !== ctx.userID
     ) {
@@ -165,9 +165,6 @@ export class ControlFrameResolver {
       },
     };
     await publishControlMap(payload);
-    // const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find().sort({
-    //   start: 1,
-    // });
     const allControlFrames: ControlFrame[] = await ctx.prisma.controlFrame.findMany({
       orderBy: { start: "asc" },
     });
@@ -198,34 +195,18 @@ export class ControlFrameResolver {
     @Ctx() ctx: TContext
   ) {
     const { frameID } = input;
-    // const frameToDelete = await ctx.db.ControlFrame.findOne({ id: frameID });
+    if(!frameID) throw new Error("Please give frame id");
     const frameToDelete = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: frameID },
     });
+    if(!frameToDelete) throw new Error("frame to delete not found");
     if (
-      frameToDelete &&
       frameToDelete.userId &&
       frameToDelete.userId !== ctx.userID
     ) {
       throw new Error(`The frame is now editing by ${frameToDelete.userId}.`);
     }
-
-    // await ctx.db.ControlFrame.deleteOne({ id: frameID });
     await ctx.prisma.controlFrame.delete({ where: { id: frameID } });
-    // const parts: IPart[] = await ctx.db.Part.find().populate("controlData");
-    // await Promise.all(
-    //   parts.map(async (part) => {
-    //     if(!part.controlData) throw new Error("Control data not found!");
-    //     const controlToDelete = part.controlData.find(
-    //       (control: ControlData) => control.frameId === frameID
-    //     );
-    //     if (!controlToDelete) throw new Error("Deleted Control data not found!");
-    //     await ctx.db.Part.updateOne(
-    //       { id: part.id },
-    //       { $pull: { controlData: controlToDelete._id } }
-    //     );
-    //   })
-    // );
     const parts = await ctx.prisma.part.findMany({
       where: {
         controlData: {
@@ -252,7 +233,6 @@ export class ControlFrameResolver {
         });
       })
     );
-    // await ctx.db.Control.deleteMany({ frame: _id });
     await redis.del(`controlframe-${frameID}`);
     const mapPayload: ControlMapPayload = {
       editBy: Number(ctx.userID),
