@@ -26,6 +26,7 @@ const initData = async () => {
 
 const initRedisControl = async () => {
   const frames = await model.ControlFrame.find();
+
   const result: LooseObject = {};
   const value = frames.map((frame: IControlFrame) => {
     return { id: frame.id, _id: frame._id! };

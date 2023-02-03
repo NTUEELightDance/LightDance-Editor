@@ -10,6 +10,7 @@ import {
   TLEDControl,
   TFiberControl,
   TExportLEDFrame,
+  TExportLEDFrameLED,
 } from "../../types/global";
 
 type DancerTmpData = {
@@ -89,12 +90,74 @@ const uploadData = async (req: Request, res: Response) => {
         return partObj;
       });
     });
+
+    // check LED data shape
+    Object.keys(ledEffects).map(async (partName: string) => {
+      const effectData = ledEffects[partName];
+      Object.keys(effectData).map(async (effectName: string) => {
+        const { repeat, frames } = effectData[effectName];
+        frames.map(async (frame: TExportLEDFrame) => {
+          const { LEDs, start, fade } = frame;
+          // console.log(LEDs, start, fade)
+          // const newLEDs = LEDs.map((LED: number[]) => {
+          //   return { r: LED[0], g: LED[1], b: LED[2], a: LED[3] }
+          // })
+          LEDs.map((LED: TExportLEDFrameLED) => {
+            const [r, g, b, a] = LED;
+          });
+        });
+      });
+    });
+
     // check LED part is used by any dancer
     Object.keys(ledEffects).map((partName: string) => {
       if (!allLEDPartNames.has(partName)) {
-        throw new Error(`LED part '${partName}' is not used by any dancer!!`);
+        console.log(`LED part '${partName}' is not used by any dancer!!`);
       }
     });
+
+    // check every position frame has the same number of real dancers
+    Object.values(position).map(async (frameObj: PosFrameTmpData) => {
+      const { start, pos } = frameObj;
+      if (Object.keys(pos).length !== Object.keys(allPartsList).length) {
+        throw new Error(
+          `POSITIONFRAME_DATA_ERROR: Position frame starting at ${start}ms has invalid number of dancers. Found ${
+            Object.keys(pos).length
+          }, Expected ${Object.keys(allPartsList).length}`
+        );
+      }
+      Object.keys(pos).map(async (dancer: string) => {
+        const { x, y, z } = pos[dancer];
+      });
+    });
+
+    // check every dancer in every control frame has the same number of real parts
+    Object.values(control).map(async (frameObj: CtrlFrameTmpData) => {
+      const { fade, start, status } = frameObj;
+      if (status.length !== Object.keys(allPartsList).length) {
+        throw new Error(
+          `CTRLFRAME_DATA_ERROR: Control frame starting at ${start}ms has invalid number of dancers. Found ${
+            status.length
+          }, Expected ${Object.keys(allPartsList).length}`
+        );
+      }
+      for (let i = 0; i < status.length; i++) {
+        if (
+          status[i].length !==
+          Object.values(allPartsList[Object.keys(allPartsList)[i]]).length
+        ) {
+          throw new Error(
+            `CTRLFRAME_DATA_ERROR: Control Frame starting at ${start}ms, dancer '${
+              Object.keys(allPartsList)[i]
+            }' has invalid number of parts. Found ${
+              status[i].length
+            }, Expected ${Object.values(allPartsList).length}`
+          );
+        }
+      }
+    });
+
+    // validate status data & fiber color
     const sortedDancerTmp = Object.keys(allPartsList).sort();
     Object.values(control).map((frameObj: CtrlFrameTmpData) => {
       const { fade, start, status } = frameObj;
@@ -103,14 +166,45 @@ const uploadData = async (req: Request, res: Response) => {
         for (let j = 0; j < status[i].length; j++) {
           const tmpPart = allPartsList[sortedDancerTmp[i]][j];
           if (tmpPart.type === "FIBER") {
-            if (!allFiberColors.has(status[i][j][0])) {
-              throw new Error(`Fiber color '${status[i][j][0]}' not found!!`);
+            if (status[i][j][0] && typeof status[i][j][0] !== "string") {
+              throw new Error(
+                `CTRLFRAME_DATA_ERROR: Invalid Fiber color type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+              );
+            }
+            if (status[i][j][0] && !allFiberColors.has(status[i][j][0])) {
+              throw new Error(
+                `CTRLFRAME_DATA_ERROR: Fiber color '${status[i][j][0]}' not found!!`
+              );
+            }
+            if (status[i][j][1] && typeof status[i][j][1] !== "number") {
+              throw new Error(
+                `CTRLFRAME_DATA_ERROR: Invalid Fiber alpha type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+              );
+            }
+          } else if (tmpPart.type === "LED") {
+            if (status[i][j][0] && typeof status[i][j][0] !== "string") {
+              throw new Error(
+                `CTRLFRAME_DATA_ERROR: Invalid LED src type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+              );
+            }
+            if (status[i][j][1] && typeof status[i][j][1] !== "number") {
+              throw new Error(
+                `CTRLFRAME_DATA_ERROR: Invalid LED alpha type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+              );
+            }
+          } else {
+            // EL
+            if (status[i][j][0] && typeof status[i][j][0] !== "number") {
+              throw new Error(
+                `CTRLFRAME_DATA_ERROR: Invalid EL value type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+              );
             }
           }
         }
       }
     });
-    console.log("Data valid!!");
+
+    // console.log("Data valid!!")
 
     // create client object
 
@@ -212,20 +306,18 @@ const uploadData = async (req: Request, res: Response) => {
             start: start,
           },
         });
-        await Promise.all(
-          Object.keys(pos).map(async (dancer: string) => {
-            const { x, y, z } = pos[dancer];
-            const positionData = await prisma.positionData.create({
-              data: {
-                x: x,
-                y: y,
-                z: z,
-                dancer: { connect: { id: allDancer[dancer].id } },
-                frame: { connect: { id: positionFrame.id } },
-              },
-            });
-          })
-        ).catch((e) => console.log(e));
+        Object.keys(pos).map(async (dancer: string) => {
+          const { x, y, z } = pos[dancer];
+          const positionData = await prisma.positionData.create({
+            data: {
+              x: x,
+              y: y,
+              z: z,
+              dancer: { connect: { id: allDancer[dancer].id } },
+              frame: { connect: { id: positionFrame.id } },
+            },
+          });
+        });
       })
     ).catch((e) => {
       console.log(e);
@@ -252,9 +344,6 @@ const uploadData = async (req: Request, res: Response) => {
               ];
             let controlDataJson: any = {};
             if (tmpPart.type === "FIBER") {
-              if (!allFiberColors.has(status[i][j][0])) {
-                throw new Error(`Fiber color '${status[i][j][0]}' not found!!`);
-              }
               controlDataJson = {
                 color: status[i][j][0],
                 alpha: status[i][j][1],

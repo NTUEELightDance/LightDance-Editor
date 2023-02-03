@@ -150,6 +150,12 @@ export type TPositionData = {
     }
   }
 }
+export type TPositionDataTest = {
+  [key: string]: {
+    start: number
+    pos: [x: number, y: number, z: number][]
+  }
+}
 export type TControlData = {
   [key: string]: {
     fade: boolean
