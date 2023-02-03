@@ -4,11 +4,24 @@ import { ObjectId } from "mongoose";
 import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
+import prisma from "./prisma";
 
-import { LooseObject, IControlFrame, IDancer, IPart, IControl, IPositionFrame, IPosition, TRedisPos, TRedisControlStatus, TRedisControl } from "./types/global";
+import {
+  LooseObject,
+  IControlFrame,
+  IDancer,
+  IPart,
+  IControl,
+  IPositionFrame,
+  IPosition,
+  TRedisPos,
+  TRedisControlStatus,
+  TRedisControl,
+} from "./types/global";
 
 const initData = async () => {
-  await model.User.deleteMany();
+  // await model.User.deleteMany();
+  await prisma.user.deleteMany();
 };
 
 const initRedisControl = async () => {
@@ -24,11 +37,11 @@ const initRedisControl = async () => {
     },
   });
   await Promise.all(
-    value.map(async (data: {id: string, _id: ObjectId}) => {
+    value.map(async (data: { id: string; _id: ObjectId }) => {
       const { _id, id } = data;
       // const frameID = new ObjectId(id)
       const controlFrame = await model.ControlFrame.findById(_id);
-      if(!controlFrame){
+      if (!controlFrame) {
         return;
       }
       const { fade, start, editing } = controlFrame;
@@ -82,11 +95,11 @@ const initRedisPosition = async () => {
   });
   const allDancers = await model.Dancer.find().populate("positionData");
   await Promise.all(
-    value.map(async (data: {id: string, _id: ObjectId}) => {
+    value.map(async (data: { id: string; _id: ObjectId }) => {
       const { _id, id } = data;
       // const frameID = new ObjectId(id)
       const positionFrame = await model.PositionFrame.findById(_id);
-      if(!positionFrame){
+      if (!positionFrame) {
         return;
       }
       const { start, editing } = positionFrame;
@@ -114,7 +127,7 @@ const updateRedisControl = async (id: string) => {
   const controlFrame = await model.ControlFrame.findOne({
     id,
   });
-  if (!controlFrame){
+  if (!controlFrame) {
     return;
   }
   const { fade, start, editing, _id } = controlFrame;
@@ -162,7 +175,7 @@ const updateRedisControl = async (id: string) => {
 
 const updateRedisPosition = async (id: string) => {
   const positionFrame = await model.PositionFrame.findOne({ id });
-  if (!positionFrame){
+  if (!positionFrame) {
     return;
   }
   const { start, editing, _id } = positionFrame;

@@ -136,6 +136,7 @@ export type TExportData = {
   // control: TControlDataTest
   dancer: TDancerData[]
   color: TColorData
+  ledEffects: TExportLED
 }
 export type TPositionData = {
   [key: string]: {
@@ -153,12 +154,7 @@ export type TControlData = {
   [key: string]: {
     fade: boolean
     start: number
-    status: // (TELControl | TLEDControl | TFiberControl)[][][]
-    {
-      [key: string]: {
-        [key: string]: TELControl | TLEDControl | TFiberControl
-      }
-    }
+    status: (TELControl | TLEDControl | TFiberControl)[][]
   }
 }
 export type TControlDataTest = {
@@ -169,17 +165,10 @@ export type TControlDataTest = {
   }
 }
 
-export type TELControl = {
-  value: number
-}
-export type TLEDControl = {
-  src: string
-  alpha: number
-}
-export type TFiberControl = {
-  color: string
-  alpha: number
-}
+export type TELControl = [value: number]
+export type TLEDControl = [src: string, alpha: number]
+export type TFiberControl = [color: string, alpha: number]
+
 export type TDancerData = {
   parts: TPartData[]
   positionData: TPositionData[]
@@ -200,19 +189,16 @@ export type TExportLEDPart = {
   [key: string]: {
     repeat: number
     // effects: TExportLEDEffects[]
-    frames: TExportLEDEffects[]
+    frames: TExportLEDFrame[]
   }
 }
-export type TExportLEDEffects = {
+export type TExportLEDFrame = {
   // effect: TExportLEDEffectsEffect[]
-  LEDs: number[][]
+  LEDs: TExportLEDFrameLED[]
   start: number
   fade: boolean
 }
-export type TExportLEDEffectsEffect = {
-  alpha: number
-  colorCode: string
-}
+export type TExportLEDFrameLED = [r: number, g: number, b: number, a: number]
 
 export type TRedisStore = {
   [key: string]: string

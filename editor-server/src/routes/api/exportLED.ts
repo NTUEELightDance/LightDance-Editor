@@ -7,6 +7,7 @@ import {
   ILEDEffectsEffect,
   IPart,
   TExportLED,
+  TExportLEDFrameLED,
   TExportLEDPart,
 } from "../../types/global";
 
@@ -34,7 +35,8 @@ const exportLED = async (req: Request, res: Response) => {
               // console.log(newColor, alpha)
               console.log(r, g, b, alpha);
               // return { alpha, colorCode }
-              return [r, g, b, alpha];
+              const newLED: TExportLEDFrameLED = [r, g, b, alpha];
+              return newLED;
             });
             // return { effect: newEffect, start, fade }
             return { LEDs: newEffect, start, fade };
