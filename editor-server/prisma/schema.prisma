@@ -27,6 +27,7 @@ model LEDEffect {
   repeat   Int
   frames   LEDFrame[]
 
+
   @@unique([name, partName])
 }
 
