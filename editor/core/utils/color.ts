@@ -4,7 +4,7 @@ import _ from "lodash";
  * deleteColorCode return status without colorCode
  * @param {object} status - target status
  */
-export function deleteColorCode(status) {
+export function deleteColorCode (status) {
   const pureStatus = _.cloneDeep(status);
 
   Object.keys(status).forEach((name) => {
@@ -23,7 +23,7 @@ export function deleteColorCode(status) {
  * @param colorCode #ffffff
  * @returns [r, g, b]
  */
-export function colorCode2Rgb(colorCode: string) {
+export function colorCode2Rgb (colorCode: string) {
   const m = colorCode.replace(/^#/, "");
   if (m.length !== 6) {
     throw `[Error] Invalid paramter at function colorCode2Rgb ${colorCode}`;
@@ -31,7 +31,7 @@ export function colorCode2Rgb(colorCode: string) {
   return [
     parseInt(m.substr(0, 2), 16),
     parseInt(m.substr(2, 2), 16),
-    parseInt(m.substr(4, 2), 16),
+    parseInt(m.substr(4, 2), 16)
   ];
 }
 
@@ -40,7 +40,7 @@ export function colorCode2Rgb(colorCode: string) {
  * @param rgb [r, g, b]
  * @returns ColorCode
  */
-export function Rgb2ColorCode(rgb: number[]) {
+export function Rgb2ColorCode (rgb: number[]) {
   if (rgb.length !== 3) {
     throw "[Error] Invalid parameter at function Rgb2ColorCode";
   }
@@ -53,7 +53,7 @@ export function Rgb2ColorCode(rgb: number[]) {
  * @param colorCode #ffffff
  * @returns 16777215
  */
-export function colorCode2int(colorCode: string) {
+export function colorCode2int (colorCode: string) {
   const [r, g, b] = colorCode2Rgb(colorCode);
   let rgb = r;
   rgb = (rgb << 8) + g;

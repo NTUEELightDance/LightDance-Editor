@@ -6,14 +6,14 @@ import { ControlType } from "./controlType";
 @ObjectType()
 export class Part {
   @Field((type) => String)
-  name: string;
+    name: string;
 
   @Field((type) => ControlType, { nullable: true })
-  type: ControlType;
+    type: ControlType;
 
   @Field((type) => [Control])
-  controlData: Control[];
+    controlData: Control[];
 
   @Field((type) => ID)
-  id: string;
+    id: string;
 }

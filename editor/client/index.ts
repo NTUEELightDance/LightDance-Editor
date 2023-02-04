@@ -1,22 +1,33 @@
 import { ApolloClient, InMemoryCache, HttpLink, split } from "@apollo/client";
+import { WebSocketLink } from "@apollo/client/link/ws";
+import { setContext } from "@apollo/client/link/context";
 import { getMainDefinition } from "@apollo/client/utilities";
-import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
-import { createClient } from "graphql-ws";
-
+import { nanoid } from "nanoid";
 import Subscriptions from "./subscription";
-import { state } from "@/core/state";
-
-const wsLink = new GraphQLWsLink(
-  createClient({
-    url: `${location.origin}/graphql-backend-websocket`.replace("http", "ws"),
-    connectionParams: async () => {
-      return { token: state.token };
-    },
-  })
-);
 
 const httpLink = new HttpLink({
-  uri: `${location.origin}/graphql-backend`,
+  uri: `${location.origin}/graphql-backend`
+});
+
+const _userID = nanoid();
+const wsLink = new WebSocketLink({
+  uri: `${location.origin}/graphql-backend-websocket`.replace("http", "ws"),
+  options: {
+    reconnect: true,
+    connectionParams: {
+      userID: _userID,
+      name: "editor"
+    }
+  }
+});
+// randomly generate a unique ID
+const authLink = setContext((_, { headers }) => {
+  return {
+    headers: {
+      userID: _userID,
+      name: "editor"
+    }
+  };
 });
 
 const splitLink = split(
@@ -31,10 +42,12 @@ const splitLink = split(
   httpLink
 );
 
+// don't connect to devtools in production
+const connectToDevTools = process.env.NODE_ENV !== "production";
 const client = new ApolloClient({
-  link: splitLink,
+  link: authLink.concat(splitLink),
   cache: new InMemoryCache().restore({}),
-  connectToDevTools: process.env.NODE_ENV !== "production",
+  connectToDevTools
 });
 
 Subscriptions(client);

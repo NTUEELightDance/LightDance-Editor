@@ -8,7 +8,7 @@ import {
   TextField,
   Button,
   Box,
-  Tooltip,
+  Tooltip
 } from "@mui/material";
 
 import { HexColorPicker } from "react-colorful";
@@ -21,15 +21,15 @@ function ColorDialog({
   handleMutateColor,
   defaultColorName,
   defaultColorCode,
-  disableNameChange,
+  disableNameChange
 }: {
-  type: "add" | "edit";
-  open: boolean;
-  handleClose: () => void;
-  handleMutateColor: (colorName: string, colorCode: string) => Promise<void>;
-  defaultColorName?: string;
-  defaultColorCode?: string;
-  disableNameChange?: boolean;
+  type: "add" | "edit"
+  open: boolean
+  handleClose: () => void
+  handleMutateColor: (colorName: string, colorCode: string) => Promise<void>
+  defaultColorName?: string
+  defaultColorCode?: string
+  disableNameChange?: boolean
 }) {
   const [newColorName, setNewColorName] = useState<string>(
     defaultColorName || ""
@@ -44,14 +44,14 @@ function ColorDialog({
   }, [open]);
 
   const handleNameChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLTextAreaElement
+  HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
     setNewColorName(e.target.value);
     colorNameError && setColorNameError(false);
   };
 
   const handleColorChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLTextAreaElement
+  HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
     setNewColorCode(e.target.value);
   };
@@ -72,8 +72,8 @@ function ColorDialog({
   const colorInputRef = useRef<HTMLInputElement>();
   const handleNameEnter: React.KeyboardEventHandler = (e) => {
     if (e.key === "Enter") {
-      e.preventDefault();
-      colorInputRef?.current != null && colorInputRef.current.focus();
+      e.preventDefault()
+      ;((colorInputRef?.current) != null) && colorInputRef.current.focus();
     }
   };
   const handleColorEnter: React.KeyboardEventHandler = (e) => {
@@ -92,32 +92,34 @@ function ColorDialog({
             display: "flex",
             flexDirection: "column",
             gap: "1em",
-            alignItems: "center",
+            alignItems: "center"
           }}
         >
-          {disableNameChange ? (
-            <Tooltip title="this is a reserved color">
+          {disableNameChange
+            ? (
+              <Tooltip title="this is a reserved color">
+                <TextField
+                  margin="dense"
+                  label="Color Name"
+                  variant="filled"
+                  value={newColorName}
+                  disabled
+                />
+              </Tooltip>
+            )
+            : (
               <TextField
+                autoFocus
                 margin="dense"
                 label="Color Name"
                 variant="filled"
                 value={newColorName}
-                disabled
+                error={colorNameError}
+                onChange={handleNameChange}
+                disabled={disableNameChange}
+                onKeyDown={handleNameEnter}
               />
-            </Tooltip>
-          ) : (
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Color Name"
-              variant="filled"
-              value={newColorName}
-              error={colorNameError}
-              onChange={handleNameChange}
-              disabled={disableNameChange}
-              onKeyDown={handleNameEnter}
-            />
-          )}
+            )}
           <TextField
             margin="dense"
             label="Color Code"

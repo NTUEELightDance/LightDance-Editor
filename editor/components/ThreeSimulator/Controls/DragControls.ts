@@ -4,7 +4,7 @@ import {
   Plane,
   Raycaster,
   Vector2,
-  Vector3,
+  Vector3
 } from "three";
 
 const _plane = new Plane();
@@ -17,7 +17,7 @@ const _worldPosition = new Vector3();
 const _inverseMatrix = new Matrix4();
 
 class DragControls extends EventDispatcher {
-  constructor(_objects, _camera, _domElement) {
+  constructor (_objects, _camera, _domElement) {
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
@@ -31,14 +31,14 @@ class DragControls extends EventDispatcher {
 
     const scope = this;
 
-    function activate() {
+    function activate () {
       _domElement.addEventListener("pointermove", onPointerMove);
       _domElement.addEventListener("pointerdown", onPointerDown);
       _domElement.addEventListener("pointerup", onPointerCancel);
       _domElement.addEventListener("pointerleave", onPointerCancel);
     }
 
-    function deactivate() {
+    function deactivate () {
       _domElement.removeEventListener("pointermove", onPointerMove);
       _domElement.removeEventListener("pointerdown", onPointerDown);
       _domElement.removeEventListener("pointerup", onPointerCancel);
@@ -47,19 +47,19 @@ class DragControls extends EventDispatcher {
       _domElement.style.cursor = "";
     }
 
-    function dispose() {
+    function dispose () {
       deactivate();
     }
 
-    function getObjects() {
+    function getObjects () {
       return _objects;
     }
 
-    function getRaycaster() {
+    function getRaycaster () {
       return _raycaster;
     }
 
-    function onPointerMove(event) {
+    function onPointerMove (event) {
       if (scope.enabled === false) return;
 
       updatePointer(event);
@@ -118,7 +118,7 @@ class DragControls extends EventDispatcher {
       }
     }
 
-    function onPointerDown(event) {
+    function onPointerDown (event) {
       if (event.button !== 0 || scope.enabled === false) return;
 
       updatePointer(event);
@@ -152,7 +152,7 @@ class DragControls extends EventDispatcher {
       }
     }
 
-    function onPointerCancel() {
+    function onPointerCancel () {
       if (scope.enabled === false) return;
 
       if (_selected) {
@@ -164,7 +164,7 @@ class DragControls extends EventDispatcher {
       _domElement.style.cursor = _hovered ? "pointer" : "auto";
     }
 
-    function updatePointer(event) {
+    function updatePointer (event) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;

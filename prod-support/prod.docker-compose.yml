@@ -73,3 +73,5 @@ services:
 
 networks:
   lightdance-editor:
+    external: true
+    name: eeinfo

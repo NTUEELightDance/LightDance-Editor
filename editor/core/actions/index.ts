@@ -1,4 +1,3 @@
-export * from "./auth";
 export * from "./timeData";
 export * from "./isPlaying";
 export * from "./selected";

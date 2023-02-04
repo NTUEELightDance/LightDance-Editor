@@ -4,16 +4,18 @@ import { Alert, Button, Fade } from "@mui/material";
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
 import withReactContent from "sweetalert2-react-content";
 
+// @ts-expect-error
+import styles from "./notification.module.css";
 import { useHotkeys } from "react-hotkeys-hook";
 
-type MessageType = "info" | "success" | "error" | "warning";
+type MessageType = "info" | "success" | "error" | "warning"
 
 function Notification({
   type = "info",
-  content,
+  content
 }: {
-  type: MessageType;
-  content: string;
+  type: MessageType
+  content: string
 }) {
   return (
     <Alert severity={type} variant="filled">
@@ -24,10 +26,10 @@ function Notification({
 
 function Confirmation({
   type = "info",
-  content,
+  content
 }: {
-  type: MessageType;
-  content: string;
+  type: MessageType
+  content: string
 }) {
   // for the fade component to programatically close the modal
   const [open, setOpen] = useState(true);
@@ -43,7 +45,7 @@ function Confirmation({
   };
 
   // the keyboard event is sometimes kidnapped by other components for an unknown reason
-  // thus we use useHotKeys to guarantee we can trigger the event
+  // thus we use useHotKeys to gaurantee we can trigger the event
   useHotkeys("enter", (e) => {
     e.preventDefault();
     handleConfirm();
@@ -55,7 +57,7 @@ function Confirmation({
   // force focus on the confirm button
   useLayoutEffect(() => {
     const confirmButton = document.getElementById("confirm-confirm-button");
-    confirmButton != null && confirmButton.focus();
+    (confirmButton != null) && confirmButton.focus();
   }, []);
 
   return (
@@ -95,7 +97,7 @@ const notify = (type: MessageType) => (content: string) => {
     position: "top",
     showConfirmButton: false,
     timer: 4000,
-    background: "transparent",
+    background: "transparent"
   });
 };
 
@@ -107,7 +109,7 @@ const confirm = (type: MessageType) => async (content: string) => {
     html: <Confirmation type={type} content={content} />,
     position: "top",
     showConfirmButton: false,
-    background: "transparent",
+    background: "transparent"
   });
 
   return isConfirmed;
@@ -117,7 +119,7 @@ export const notification = {
   info: notify("info"),
   success: notify("success"),
   error: notify("error"),
-  warning: notify("warning"),
+  warning: notify("warning")
 };
 
 // please note that confirmation is an async function,
@@ -126,5 +128,5 @@ export const confirmation = {
   info: confirm("info"),
   success: confirm("success"),
   error: confirm("error"),
-  warning: confirm("warning"),
+  warning: confirm("warning")
 };

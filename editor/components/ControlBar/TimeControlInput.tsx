@@ -14,7 +14,7 @@ function TimeControlInput() {
     currentTime,
     (newTime: number) => {
       setCurrentTime({ payload: newTime });
-    },
+    }
   ]);
 
   return (

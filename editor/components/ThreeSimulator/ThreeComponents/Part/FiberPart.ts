@@ -3,7 +3,7 @@ import { state } from "core/state";
 
 export default class FIBERPart extends Part {
   mesh: THREE.Mesh;
-  constructor(name: string, model: THREE.Object3D) {
+  constructor (name: string, model: THREE.Object3D) {
     super(name, model);
     this.mesh = model.getObjectByName(name);
     this.mesh.material = this.mesh.material.clone();
@@ -11,12 +11,12 @@ export default class FIBERPart extends Part {
     this.mesh.material.emissiveIntensity = 0;
   }
 
-  setVisibility(visible: boolean) {
+  setVisibility (visible: boolean) {
     this.visible = visible;
     this.mesh.visible = visible;
   }
 
-  setStatus(status) {
+  setStatus (status) {
     if (!this.visible) return;
 
     const { colorCode, color, alpha } = status;

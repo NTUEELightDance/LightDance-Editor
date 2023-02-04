@@ -3,22 +3,22 @@ import { useSelect } from "@mui/base";
 import { Paper, Box, ClickAwayListener } from "@mui/material";
 import { Root, Toggle, Listbox } from "./CustomComponents";
 
-import useColorMap from "@/hooks/useColorMap";
+import useColorMap from "../../../hooks/useColorMap";
 
 function CustomSelect({
   placeholder,
   onChange,
-  currentColorName,
+  currentColorName
 }: {
-  placeholder?: string;
-  onChange: (value: string) => void;
-  currentColorName: string;
+  placeholder?: string
+  onChange: (value: any) => void
+  currentColorName: string
 }) {
   const listboxRef = useRef<HTMLUListElement>(null);
   const [listboxVisible, setListboxVisible] = useState(false);
   const { colorMap } = useColorMap();
 
-  const options: Array<{ label: string; value: string }> = [];
+  const options: Array<{ label: string, value: string }> = [];
   Object.keys(colorMap).forEach((colorName) => {
     options.push({ label: colorName, value: colorName });
   });
@@ -28,35 +28,27 @@ function CustomSelect({
     getButtonProps,
     getListboxProps,
     getOptionProps,
-    value: colorName,
+    value: colorName
   } = useSelect({
     listboxRef,
     options,
-    value: currentColorName,
+    defaultValue: currentColorName
   });
 
   useEffect(() => {
     onChange(colorName);
-  }, [colorName, onChange]);
+  }, [colorName]);
 
   useEffect(() => {
     if (listboxVisible) listboxRef.current?.focus();
   }, [listboxVisible]);
 
   return (
-    <ClickAwayListener
-      onClickAway={() => {
-        setListboxVisible(false);
-      }}
-    >
-      <Root
-        onClick={() => {
-          setListboxVisible(!listboxVisible);
-        }}
-      >
+    <ClickAwayListener onClickAway={() => { setListboxVisible(false); }}>
+      <Root onClick={() => { setListboxVisible(!listboxVisible); }}>
         <Toggle
           {...getButtonProps()}
-          style={{ "--color": colorMap[currentColorName] }}
+          style={{ "--color": colorMap[currentColorName] } as any}
         >
           {currentColorName ?? (
             <span className="placeholder">{placeholder ?? " "}</span>
@@ -72,7 +64,7 @@ function CustomSelect({
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  alignItems: "center"
                 }}
               >
                 {option.label}
@@ -81,7 +73,7 @@ function CustomSelect({
                     backgroundColor: colorMap[option.label],
                     display: "inline-block",
                     width: "1em",
-                    height: "1em",
+                    height: "1em"
                   }}
                 />
               </Box>

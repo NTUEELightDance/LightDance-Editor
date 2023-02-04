@@ -12,7 +12,7 @@ const actions = registerActions({
     const fade = payload;
     if (typeof fade !== "boolean") {
       throw new Error(
-        `[Error] setCurrentFade, invalid parameter(fade), ${fade}`
+        `[Error] setCurrentFade, invalid paramter(fade), ${fade}`
       );
     }
     state.currentFade = fade;
@@ -24,7 +24,7 @@ const actions = registerActions({
    */
   saveCurrentFade: (state: State) => {
     // TODO: call mutation api
-  },
+  }
 });
 
 export const { setCurrentFade, saveCurrentFade } = actions;

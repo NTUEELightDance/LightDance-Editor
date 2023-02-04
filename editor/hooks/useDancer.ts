@@ -11,7 +11,7 @@ import { Dancers, PartTypeMap, DancerParts } from "core/models";
 
 import _ from "lodash";
 
-export default function useDancer() {
+export default function useDancer () {
   // query controlMap
   const { loading: dancerLoading, error, data: dancer } = useQuery(GET_DANCERS);
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
@@ -49,6 +49,6 @@ export default function useDancer() {
     error,
     dancerNames,
     dancers,
-    partTypeMap,
+    partTypeMap
   };
 }

@@ -12,7 +12,7 @@ import type {
   Selected,
   CurrentStatusDelta,
   PartPayload,
-  PartType,
+  PartType
 } from "core/models";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
@@ -25,14 +25,16 @@ import _ from "lodash";
 const getSelectedPartsAndType = (selected: Selected) => {
   const newSelectedParts: PartPayload = {};
   const tempSelectedParts: string[] = [];
-  Object.entries(selected).forEach(([dancerName, { parts }]) => {
-    if (parts.length > 0) {
-      newSelectedParts[dancerName] = parts;
-      parts.forEach((part) => {
-        tempSelectedParts.push(part);
-      });
+  Object.entries(selected).forEach(
+    ([dancerName, { parts }]) => {
+      if (parts.length > 0) {
+        newSelectedParts[dancerName] = parts;
+        parts.forEach((part) => {
+          tempSelectedParts.push(part);
+        });
+      }
     }
-  });
+  );
   const assertPartType = getPartType(tempSelectedParts[0]);
   if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
     return [newSelectedParts, assertPartType];
@@ -75,23 +77,21 @@ function PartMode() {
     const currentStatusDelta: CurrentStatusDelta = {};
     Object.entries(selectedParts).forEach(([dancerName, parts]) => {
       parts.forEach((partName) => {
-        if (!currentStatusDelta[dancerName]) {
-          currentStatusDelta[dancerName] = {};
-        }
+        if (!currentStatusDelta[dancerName]) { currentStatusDelta[dancerName] = {}; }
 
         switch (partType) {
-          case "LED":
-            currentStatusDelta[dancerName][partName] = {
-              src: "",
-              alpha: intensity,
-            };
-            break;
-          case "FIBER":
-            currentStatusDelta[dancerName][partName] = {
-              color: currentColorName,
-              alpha: intensity,
-            };
-            break;
+        case "LED":
+          currentStatusDelta[dancerName][partName] = {
+            src: "",
+            alpha: intensity
+          };
+          break;
+        case "FIBER":
+          currentStatusDelta[dancerName][partName] = {
+            color: currentColorName,
+            alpha: intensity
+          };
+          break;
         }
       });
       editCurrentStatusDelta({ payload: currentStatusDelta });
@@ -107,31 +107,35 @@ function PartMode() {
 
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
-      {partType === "LED" ? (
-        <LEDcontrolsContent
-          parts={partNames}
-          intensity={intensity}
-          src={LEDsrc}
-          handleIntensityChange={setIntensity}
-          handleSrcChange={setLEDsrc}
-        />
-      ) : partType === "FIBER" ? (
-        <OFcontrolsContent
-          intensity={intensity}
-          setIntensity={setIntensity}
-          handleColorChange={handleColorChange}
-          currentColorName={currentColorName}
-        />
-      ) : (
-        Object.keys(selectedParts).length > 0 && (
-          <Box sx={{ px: "3em" }}>
-            <Typography color={grey[600]}>
+      {partType === "LED"
+        ? (
+          <LEDcontrolsContent
+            parts={partNames}
+            intensity={intensity}
+            src={LEDsrc}
+            handleIntensityChange={setIntensity}
+            handleSrcChange={setLEDsrc}
+          />
+        )
+        : partType === "FIBER"
+          ? (
+            <OFcontrolsContent
+              intensity={intensity}
+              setIntensity={setIntensity}
+              handleColorChange={handleColorChange}
+              currentColorName={currentColorName}
+            />
+          )
+          : (
+            Object.keys(selectedParts).length > 0 && (
+              <Box sx={{ px: "3em" }}>
+                <Typography color={grey[600]}>
               You've selected parts of different types, please select parts with
               the same type.
-            </Typography>
-          </Box>
-        )
-      )}
+                </Typography>
+              </Box>
+            )
+          )}
     </Paper>
   );
 }

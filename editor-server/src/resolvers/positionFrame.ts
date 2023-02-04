@@ -42,9 +42,9 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async addPositionFrame(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Ctx() ctx: TContext
   ) {
@@ -83,7 +83,7 @@ export class PositionFrameResolver {
     );
     await updateRedisPosition(newPositionFrame.id);
     const mapPayload: PositionMapPayload = {
-      editBy: ctx.username,
+      editBy: ctx.userID,
       frame: {
         createList: [newPositionFrame.id],
         deleteList: [],
@@ -91,10 +91,9 @@ export class PositionFrameResolver {
       },
     };
     await publishPositionMap(mapPayload);
-    const allPositionFrames: IPositionFrame[] =
-      await ctx.db.PositionFrame.find().sort({
-        start: 1,
-      });
+    const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
+      start: 1,
+    });
     let index = -1;
     await allPositionFrames.map((frame, idx: number) => {
       if (frame.id === newPositionFrame.id) {
@@ -103,7 +102,7 @@ export class PositionFrameResolver {
     });
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.CREATED,
-      editBy: ctx.username,
+      editBy: ctx.userID,
       addID: [newPositionFrame.id],
       updateID: [],
       deleteID: [],
@@ -116,9 +115,9 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async editPositionFrame(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: EditPositionFrameInput,
     @Ctx() ctx: TContext
   ) {
@@ -133,10 +132,8 @@ export class PositionFrameResolver {
         }
       }
     }
-    const frameToEdit = await ctx.db.PositionFrame.findOne({
-      id: input.frameID,
-    });
-    if (frameToEdit.editing && frameToEdit.editing !== ctx.username) {
+    const frameToEdit = await ctx.db.PositionFrame.findOne({ id: input.frameID });
+    if (frameToEdit.editing && frameToEdit.editing !== ctx.userID) {
       throw new Error(`The frame is now editing by ${frameToEdit.editing}.`);
     }
     await ctx.db.PositionFrame.updateOne({ id: input.frameID }, input);
@@ -149,7 +146,7 @@ export class PositionFrameResolver {
     });
     await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
-      editBy: ctx.username,
+      editBy: ctx.userID,
       frame: {
         createList: [],
         deleteList: [],
@@ -157,10 +154,9 @@ export class PositionFrameResolver {
       },
     };
     await publishPositionMap(payload);
-    const allPositionFrames: IPositionFrame[] =
-      await ctx.db.PositionFrame.find().sort({
-        start: 1,
-      });
+    const allPositionFrames: IPositionFrame[] = await ctx.db.PositionFrame.find().sort({
+      start: 1,
+    });
     let index = -1;
     await allPositionFrames.map((frame, idx: number) => {
       if (frame.id === positionFrame.id) {
@@ -169,7 +165,7 @@ export class PositionFrameResolver {
     });
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.UPDATED,
-      editBy: ctx.username,
+      editBy: ctx.userID,
       addID: [],
       updateID: [positionFrame.id],
       deleteID: [],
@@ -182,22 +178,20 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async deletePositionFrame(
     @PubSub(Topic.PositionRecord)
-    publishPositionRecord: Publisher<PositionRecordPayload>,
+      publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-    publishPositionMap: Publisher<PositionMapPayload>,
+      publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: DeletePositionFrameInput,
     @Ctx() ctx: TContext
   ) {
     const { frameID } = input;
     const frameToDelete = await ctx.db.PositionFrame.findOne({ id: frameID });
-    if (frameToDelete.editing && frameToDelete.editing !== ctx.username) {
+    if (frameToDelete.editing && frameToDelete.editing !== ctx.userID) {
       throw new Error(`The frame is now editing by ${frameToDelete.editing}.`);
     }
     const _id = frameToDelete._id;
     await ctx.db.PositionFrame.deleteOne({ id: frameID });
-    const dancers: IDancer[] = await ctx.db.Dancer.find().populate(
-      "positionData"
-    );
+    const dancers: IDancer[] = await ctx.db.Dancer.find().populate("positionData");
     Promise.all(
       dancers.map(async (dancer) => {
         const positionToDelete = dancer.positionData.find(
@@ -212,7 +206,7 @@ export class PositionFrameResolver {
 
     await ctx.db.Position.deleteMany({ frame: _id });
     const mapPayload: PositionMapPayload = {
-      editBy: ctx.username,
+      editBy: ctx.userID,
       frame: {
         createList: [],
         deleteList: [frameID],
@@ -226,7 +220,7 @@ export class PositionFrameResolver {
       addID: [],
       updateID: [],
       deleteID: [frameID],
-      editBy: ctx.username,
+      editBy: ctx.userID,
       index: -1,
     };
     await publishPositionRecord(recordPayload);

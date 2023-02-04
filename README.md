@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD041 -->
+
 <!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="https://avatars.githubusercontent.com/u/74459161?s=400&u=8e4ea6d7a17fad2a655fe5308e3f30a63779085d&v=4" alt="Logo" width="80" height="80">
@@ -40,7 +41,7 @@ http://localhost:8082 - controller-server
 This will install all dependencies for the app.
 
 ```bash
-pnpm install-pnpm:all
+yarn install:all
 ```
 
 #### Start database
@@ -48,7 +49,7 @@ pnpm install-pnpm:all
 You need to have mongodb and redis running for the backend to work.
 
 ```bash
-docker compose -f dev.docker-compose.yml up -d mongodb redisdb
+docker-compose -f dev.docker-compose.yml up -d mongodb redisdb
 ```
 
 #### Run all services
@@ -56,9 +57,9 @@ docker compose -f dev.docker-compose.yml up -d mongodb redisdb
 There are several services in this app. You need to start all of them manually. Run these commands in different terminals, in that order:
 
 ```bash
-pnpm dev:file-server
-pnpm dev:editor-server
-pnpm dev:editor
+yarn dev:file-server
+yarn dev:editor-server
+yarn dev:editor
 ```
 
 #### Run all services in parallel
@@ -66,40 +67,46 @@ pnpm dev:editor
 This command runs all services in parallel. You can see the editor on `http://localhost:8080`. This is useful for demo, yet not recommended in development.
 
 ```bash
-pnpm dev
+yarn dev
 ```
 
-#### Initialize Database: Development
+#### Initialize Database
 
 If you are running this for the first time, you need to initialize the database for things to work.
 
 ```bash
-cd utils
-pnpm install
+cd utils && yarn
 node initDB.js out/exportData.json
 node initLED.js out/exportLED.json
 ```
 
 ## Production
 
-Start all services
+Create the `eeinfo` network
 
 ```bash
-docker compose -f prod-support/prod.docker-compose.yml up -d
+docker network create eeinfo
+```
+
+Run services `nginx`, `editor`, `editor-server`, `file-server`, `redisdb`, `mongodb`.
+
+```bash
+docker-compose -f prod-support/prod.docker-compose.yml up -d
 ```
 
 Editor will run on `http://localhost:8080`.
 
 Editor-server will run on `http://localhost:4000`.
 
-### Initialize Database: Production
+### Initialize Database
 
 After starting all services, one must initialize the database.
 
 ```bash
-export NODE_OPTIONS="--max-old-space-size=8192"
-cd utils
-pnpm install
-node initDB.js out/exportData.json
-node initLED.js out/exportLED.json
+cd utils && yarn
+export NODE_OPTIONS="--max-old-space-size=8192" // Incase heap out of memory
+node initDB.js ${filePath}
+// node initDB.js ../others/2022_ee_night/exportData.json
+node initLED.js ${filePath}
+// node initLED.js ../others/2022_ee_night/exportLED.json
 ```

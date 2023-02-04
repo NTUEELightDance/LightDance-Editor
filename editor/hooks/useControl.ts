@@ -3,12 +3,12 @@ import { useQuery } from "@apollo/client";
 // gql
 import { GET_CONTROL_MAP, GET_CONTROL_RECORD } from "../graphql";
 
-export default function useControl() {
+export default function useControl () {
   // query controlMap
   const {
     loading: controlMapLoading,
     error: controlMapError,
-    data: controlMapData,
+    data: controlMapData
   } = useQuery(GET_CONTROL_MAP);
   const controlMap = controlMapData?.ControlMap?.frames;
 
@@ -16,14 +16,14 @@ export default function useControl() {
   const {
     loading: controlRecordLoading,
     error: controlRecordError,
-    data: controlRecordData,
+    data: controlRecordData
   } = useQuery(GET_CONTROL_RECORD);
   const controlRecord = controlRecordData?.controlFrameIDs;
 
   return {
     loading: controlMapLoading || controlRecordLoading,
-    error: controlMapError != null || controlRecordError,
+    error: (controlMapError != null) || controlRecordError,
     controlMap,
-    controlRecord,
+    controlRecord
   };
 }

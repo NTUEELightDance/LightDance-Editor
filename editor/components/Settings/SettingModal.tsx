@@ -4,11 +4,11 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 export function SettingModal({
   children,
   open,
-  onClose,
+  onClose
 }: {
-  children: JSX.Element | JSX.Element[];
-  open: boolean;
-  onClose: () => void;
+  children: JSX.Element | JSX.Element[]
+  open: boolean
+  onClose: () => void
 }) {
   return (
     <Modal open={open} onClose={onClose} closeAfterTransition>
@@ -19,7 +19,7 @@ export function SettingModal({
             width: "30vw",
             minWidth: "600px",
             mx: "auto",
-            mt: "8vh",
+            mt: "8vh"
           }}
         >
           <IconButton
@@ -27,7 +27,7 @@ export function SettingModal({
             sx={{
               position: "absolute",
               top: "0.5rem",
-              left: "0.5rem",
+              left: "0.5rem"
             }}
           >
             <CloseRoundedIcon />
@@ -37,7 +37,7 @@ export function SettingModal({
               width: "100%",
               height: "100%",
               p: "3rem",
-              pb: "2rem",
+              pb: "2rem"
             }}
           >
             {children}

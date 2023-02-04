@@ -13,13 +13,13 @@ function CommandCenterTable({
   allChecked,
   dancerStatus,
   selectedDancers,
-  handleToggleDancer,
+  handleToggleDancer
 }: {
-  handleAllDancer: () => void;
-  allChecked: () => boolean;
-  dancerStatus: dancerStatusType;
-  selectedDancers: string[];
-  handleToggleDancer: (dancerName: string) => void;
+  handleAllDancer: () => void
+  allChecked: () => boolean
+  dancerStatus: dancerStatusType
+  selectedDancers: string[]
+  handleToggleDancer: (dancerName: string) => void
 }) {
   return (
     <TableContainer>
@@ -44,9 +44,7 @@ function CommandCenterTable({
                 <TableRow
                   key={dancerName}
                   hover
-                  onClick={() => {
-                    handleToggleDancer(dancerName);
-                  }}
+                  onClick={() => { handleToggleDancer(dancerName); }}
                   role="checkbox"
                   selected={isItemSelected}
                 >
@@ -58,11 +56,13 @@ function CommandCenterTable({
                   <TableCell>{hostname}</TableCell>
                   <TableCell>{ip}</TableCell>
                   <TableCell>
-                    {isConnected ? (
-                      <span style={{ color: "green" }}>Connected</span>
-                    ) : (
-                      <span style={{ color: "red" }}>Disconnected</span>
-                    )}
+                    {isConnected
+                      ? (
+                        <span style={{ color: "green" }}>Connected</span>
+                      )
+                      : (
+                        <span style={{ color: "red" }}>Disconnected</span>
+                      )}
                   </TableCell>
                   <TableCell>
                     <p style={{ color: Ok ? "green" : "red" }}>{msg}</p>

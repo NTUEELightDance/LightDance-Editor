@@ -8,7 +8,7 @@ function NotFound() {
         width: "100%",
         height: "100%",
         display: "grid",
-        placeItems: "center",
+        placeItems: "center"
       }}
     >
       <CircledXIcon />

@@ -4,14 +4,14 @@ import TreeView from "@mui/lab/TreeView";
 import { Button, Paper } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
-  ChevronRight as ChevronRightIcon,
+  ChevronRight as ChevronRightIcon
 } from "@mui/icons-material";
 import DancerTreeItem from "./DancerTreeItem";
 
 import {
   setSelectedDancers,
   setSelectedParts,
-  setSelectionMode,
+  setSelectionMode
 } from "core/actions";
 import { PartPayload, SelectionMode } from "core/models";
 import { DANCER, PART, POSITION } from "@/constants";
@@ -79,9 +79,7 @@ function DancerTree() {
     setSelectedDancers({ payload: [...newSelectedDancers] });
     setSelectedParts({ payload: newSelectedParts });
 
-    if (selectionMode !== POSITION) {
-      setSelectionMode({ payload: newSelectionMode });
-    }
+    if (selectionMode !== POSITION) { setSelectionMode({ payload: newSelectionMode }); }
   };
 
   // update selected nodes based on the global selected state
@@ -116,9 +114,7 @@ function DancerTree() {
     if (
       aList[aList.length - 1] === bList[aList.length - 1] &&
       aList[aList.length - 1] === "LED"
-    ) {
-      return a < b ? -1 : a > b ? 1 : 0;
-    }
+    ) { return a < b ? -1 : a > b ? 1 : 0; }
     if (aList[aList.length - 1] === "LED") return 1;
     if (bList[bList.length - 1] === "LED") return -1;
     return a < b ? -1 : a > b ? 1 : 0;
@@ -139,7 +135,7 @@ function DancerTree() {
           width: "100%",
           p: "0.5em 0.5em",
           mb: "1em",
-          zIndex: 808,
+          zIndex: 808
         }}
       >
         <Button onClick={handleExpandClick} fullWidth>
@@ -167,8 +163,8 @@ function DancerTree() {
                 nodeId={`${name}%${part}`}
                 sx={{
                   "p.MuiTreeItem-label": {
-                    fontSize: "0.9rem",
-                  },
+                    fontSize: "0.9rem"
+                  }
                 }}
               />
             ))}

@@ -4,14 +4,14 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
-export default function NotFound() {
+export default function NotFound () {
   return (
     <Paper
       square
       sx={{
         flexGrow: 1,
         display: "grid",
-        placeItems: "center",
+        placeItems: "center"
       }}
     >
       <Box
@@ -19,7 +19,7 @@ export default function NotFound() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "4em",
+          gap: "4em"
         }}
       >
         <Typography variant="h1" align="center">
@@ -28,7 +28,7 @@ export default function NotFound() {
         <Link
           to="/"
           style={{
-            textDecoration: "none",
+            textDecoration: "none"
           }}
         >
           <Typography
@@ -39,8 +39,8 @@ export default function NotFound() {
               color: "text.secondary",
               textDecoration: "underline",
               ":hover": {
-                color: "text.primary",
-              },
+                color: "text.primary"
+              }
             }}
           >
             Go Back to Editor

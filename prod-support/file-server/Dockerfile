@@ -1,18 +1,22 @@
-FROM node:18-buster
+FROM node:16-buster
 
+# setup working directory
 WORKDIR /app
 
-RUN corepack enable
-
-# LightDance-Editor/files will be mapped to /app/files
 RUN mkdir file-server
-COPY ["file-server/package.json", "file-server/pnpm-lock.yaml", "./file-server/"]
 
-WORKDIR /app/file-server
-RUN pnpm install
+COPY ["file-server/package.json", "file-server/yarn.lock", "file-server/"]
 
-COPY ./file-server .
+# install node_modules in the container
+RUN yarn install --cwd ./file-server
+
+# copy file-server to /app/file-server
+COPY ./file-server ./file-server
 
 EXPOSE 8081
 
-CMD ["pnpm", "prod"]
+# change the workdir
+WORKDIR /app/file-server
+
+# serve the port
+CMD ["yarn", "deploy"]

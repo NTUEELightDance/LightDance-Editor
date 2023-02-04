@@ -23,16 +23,13 @@ import {
   CurrentLedEffect,
   LedEffectRecord,
   EffectListType,
-  StateKey,
+  StateKey
 } from "../models";
 
 /**
  * Mutable State
  */
 const _state: State = {
-  isLoggedIn: false,
-  token: "",
-
   isPlaying: false,
   selected: {},
 
@@ -52,7 +49,7 @@ const _state: State = {
   editingData: {
     frameId: "",
     start: 0,
-    index: 0,
+    index: 0
   },
 
   selectionMode: "DANCER",
@@ -61,17 +58,14 @@ const _state: State = {
   dancerNames: [],
   partTypeMap: {},
   colorMap: {},
-  effectList: [],
+  effectList: []
 };
 
 // The diffSet will save changed attributes in state
 const diffSet = new Set<string>();
-export const state = onChange(
-  _state,
-  (path: string, value, previousValue, applyData) => {
-    diffSet.add(path.split(".")[0]);
-  }
-);
+export const state = onChange(_state, (path: string, value, previousValue, applyData) => {
+  diffSet.add(path.split(".")[0]);
+});
 
 state.toString = () => {
   if (process.env.NODE_ENV !== "production") {
@@ -85,9 +79,6 @@ state.toString = () => {
  * Reactive State, can trigger react component rerender
  */
 export const reactiveState: ReactiveState = {
-  isLoggedIn: makeVar<boolean>(false),
-  token: makeVar<string>(""),
-
   isPlaying: makeVar<boolean>(false),
   selected: makeVar<Selected>({}),
   currentTime: makeVar<number>(0),
@@ -106,7 +97,7 @@ export const reactiveState: ReactiveState = {
   editingData: makeVar<EditingData>({
     frameId: "",
     start: 0,
-    index: 0,
+    index: 0
   }),
   selectionMode: makeVar<SelectionMode>(DANCER),
 
@@ -115,14 +106,14 @@ export const reactiveState: ReactiveState = {
   partTypeMap: makeVar<PartTypeMap>({}),
   colorMap: makeVar<ColorMap>({}),
 
-  effectList: makeVar<EffectListType>([]),
+  effectList: makeVar<EffectListType>([])
 };
 
 /**
  * copy state to reactiveState, which will trigger rerender in react components.
  * If states array is empty, we will automatically replace the changed states.
  */
-export function syncReactiveState(states: string[]) {
+export function syncReactiveState (states: string[]) {
   if (states.length === 0) {
     // only update states in diffSet
     diffSet.forEach((key) => {
@@ -140,9 +131,7 @@ export function syncReactiveState(states: string[]) {
         debug("update reactiveState", key);
         reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
       } else {
-        console.error(
-          `[syncReactiveState] Cannot find the key ${key} in state.`
-        );
+        console.error(`[syncReactiveState] Cannot find the key ${key} in state.`);
       }
     });
   }

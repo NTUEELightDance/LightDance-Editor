@@ -4,13 +4,13 @@ import { Dancer } from "../types/dancer";
 @ObjectType()
 export class DancerPayload {
   @Field((type) => dancerMutation)
-  mutation: dancerMutation;
+    mutation: dancerMutation;
 
   @Field()
-  editBy: string;
+    editBy: string;
 
   @Field((type) => Dancer, { nullable: true })
-  dancerData?: Dancer;
+    dancerData?: Dancer;
 }
 
 export enum dancerMutation {

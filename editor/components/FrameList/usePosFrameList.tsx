@@ -6,7 +6,7 @@ import { reactiveState } from "core/state";
 // hooks
 import usePos from "hooks/usePos";
 
-export default function usePosFrameList() {
+export default function usePosFrameList () {
   const currentPosIndex = useReactiveVar(reactiveState.currentPosIndex);
 
   const { loading: posLoading, posMap, posRecord } = usePos();
@@ -14,7 +14,7 @@ export default function usePosFrameList() {
   // select
   const handleSelectItem = (index: number) => {
     setCurrentPosIndex({
-      payload: index,
+      payload: index
     });
   };
 
@@ -24,6 +24,6 @@ export default function usePosFrameList() {
     record: posRecord,
     currentIndex: currentPosIndex,
 
-    handleSelectItem,
+    handleSelectItem
   };
 }

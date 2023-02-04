@@ -22,7 +22,7 @@ class WaveSurferApp {
   waveSurfer: any;
   ready: boolean;
 
-  constructor() {
+  constructor () {
     this.waveSurfer = null;
     this.ready = false;
   }
@@ -31,7 +31,7 @@ class WaveSurferApp {
    * Initiate waveSurfer with CursorPlugin, TimelinePlugin
    * @function
    */
-  init() {
+  init () {
     // create
     this.waveSurfer = WaveSurfer.create({
       container: "#waveform",
@@ -48,15 +48,15 @@ class WaveSurferApp {
             "background-color": "#000",
             color: "#fff",
             padding: "2px",
-            "font-size": "10px",
+            "font-size": "10px"
           },
-          hideOnBlur: true,
+          hideOnBlur: true
         }),
         regions.create({
-          regionsMinLength: 0,
+          regionsMinLength: 0
         }),
-        MarkersPlugin.create({}),
-      ],
+        MarkersPlugin.create({})
+      ]
     });
 
     // load music
@@ -66,9 +66,7 @@ class WaveSurferApp {
     this.waveSurfer.on("ready", () => {
       this.ready = true;
       const region = JSON.parse(getItem("region") || "");
-      region.map((r: LocalRegion) => {
-        this.addRegion(r.Start, r.End);
-      });
+      region.map((r: LocalRegion) => { this.addRegion(r.Start, r.End); });
     });
 
     // Listener for seek event
@@ -85,7 +83,7 @@ class WaveSurferApp {
     );
   }
 
-  getCurrentTime() {
+  getCurrentTime () {
     return Math.round(this.waveSurfer.getCurrentTime() * 1000);
   }
 
@@ -93,7 +91,7 @@ class WaveSurferApp {
    * Play or Pause the music
    * @function
    */
-  playPause() {
+  playPause () {
     this.waveSurfer.playPause();
     // Update waveSurfer time to global state
     this.setIsPlaying();
@@ -104,7 +102,7 @@ class WaveSurferApp {
    * Play the music
    * @function
    */
-  play() {
+  play () {
     this.waveSurfer.play();
     this.setIsPlaying();
   }
@@ -113,7 +111,7 @@ class WaveSurferApp {
    * Pause the music
    * @function
    */
-  pause() {
+  pause () {
     this.waveSurfer.pause();
     this.setIsPlaying();
   }
@@ -122,20 +120,16 @@ class WaveSurferApp {
    * Play the region repeatly
    * @function
    */
-  playLoop() {
+  playLoop () {
     const Regions = Object.values(this.waveSurfer.regions.list);
     let Region = null;
     const setRegion = (r: Region) => {
       if (
         this.waveSurfer.getCurrentTime() <= (r.end || 0) &&
         this.waveSurfer.getCurrentTime() >= (r.start || 0)
-      ) {
-        Region = r;
-      }
+      ) { Region = r; }
     };
-    (Regions as Region[]).map((r) => {
-      setRegion(r);
-    });
+    (Regions as Region[]).map((r) => { setRegion(r); });
 
     if (Region) (Region as any).playLoop();
   }
@@ -144,7 +138,7 @@ class WaveSurferApp {
    * Stop the music
    * @function
    */
-  stop() {
+  stop () {
     this.waveSurfer.stop();
     this.setIsPlaying();
     this.seekTo(this.getCurrentTime());
@@ -155,7 +149,7 @@ class WaveSurferApp {
    * Seek to time
    * @param {number} time
    */
-  seekTo(time: number) {
+  seekTo (time: number) {
     if (!this.ready) return;
     const duration = this.waveSurfer.getDuration();
     this.waveSurfer.seekTo(time / 1000 / duration);
@@ -166,7 +160,7 @@ class WaveSurferApp {
    * origin wavesurfer.on("seek", callback) will dispatch time again
    * @function
    */
-  addClickEvent() {
+  addClickEvent () {
     document
       .getElementById("waveform")
       ?.addEventListener("click", (e: MouseEvent) => {
@@ -187,12 +181,12 @@ class WaveSurferApp {
       });
   }
 
-  addRegion(start: number, end: number) {
+  addRegion (start: number, end: number) {
     this.waveSurfer.addRegion({
       start: start / 1000,
       end: end / 1000,
       loop: false,
-      color: "hsla(400, 100%, 30%, 0.5)",
+      color: "hsla(400, 100%, 30%, 0.5)"
     });
   }
 
@@ -201,12 +195,12 @@ class WaveSurferApp {
    * @param { number } time  - time where marker created
    * @param { number } index - marker's label
    */
-  addMarkers(start: number, index: number) {
+  addMarkers (start: number, index: number) {
     this.waveSurfer.addMarker({
       time: start,
       color: "#8AE5C8",
       position: "top",
-      draggable: false,
+      draggable: false
     });
   }
 
@@ -214,7 +208,7 @@ class WaveSurferApp {
    * create markers according to all dancer's status
    * @param { Object<{}> } controlMap - object of all dancer's status
    */
-  updateMarkers(controlMap: ControlMapElement) {
+  updateMarkers (controlMap: ControlMapElement) {
     this.waveSurfer.clearMarkers();
     Object.values(controlMap).map((e, index) => {
       this.addMarkers(e.start / 1000, index);
@@ -225,15 +219,15 @@ class WaveSurferApp {
    * clear all markers
    * @function
    */
-  clearMarker() {
+  clearMarker () {
     this.waveSurfer.clearMarkers();
   }
 
-  toggleMarkers(showMarkers: boolean) {
+  toggleMarkers (showMarkers: boolean) {
     this.waveSurfer.toggleMarkers(showMarkers);
   }
 
-  zoom(newValue: number) {
+  zoom (newValue: number) {
     this.waveSurfer.zoom(
       (newValue *
         (window.screen.availWidth - this.waveSurfer.params.minPxPerSec)) /
@@ -241,12 +235,12 @@ class WaveSurferApp {
     );
   }
 
-  clickLast(last: number) {
+  clickLast (last: number) {
     this.waveSurfer.setCurrentTime(last);
     this.setTime(this.getCurrentTime());
   }
 
-  clickNext(next: number) {
+  clickNext (next: number) {
     this.waveSurfer.setCurrentTime(next);
     this.setTime(this.getCurrentTime());
   }
@@ -254,43 +248,43 @@ class WaveSurferApp {
   /**
    * set the global state
    */
-  setIsPlaying() {
+  setIsPlaying () {
     setIsPlaying({
-      payload: this.waveSurfer.isPlaying(),
+      payload: this.waveSurfer.isPlaying()
     });
   }
 
   /**
    * set the global state
    */
-  setTime(time: number) {
+  setTime (time: number) {
     setCurrentTime({
       payload: time,
       options: {
-        refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
-      },
+        refreshWavesurfer: false // event from wavesurfer don't need to refresh itself
+      }
     });
   }
 
   /**
    * set the time when playing
    */
-  setTimeWhenPlaying(time: number) {
+  setTimeWhenPlaying (time: number) {
     setCurrentTime({
       payload: time,
       options: {
         states: ["currentTime"], // only update timeData, don't update reactiveState for performance
         refreshWavesurfer: false, // event from wavesurfer don't need to refresh itself
-        refreshThreeSimulator: false, // they will get their own start playing
-      },
+        refreshThreeSimulator: false // they will get their own start playing
+      }
     });
   }
 
-  resize() {
+  resize () {
     window.dispatchEvent(new Event("resize"));
   }
 
-  setVolume(volume: number) {
+  setVolume (volume: number) {
     this.waveSurfer?.setVolume(volume < 0 ? 0 : volume > 1 ? 1 : volume);
   }
 }

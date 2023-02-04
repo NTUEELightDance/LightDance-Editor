@@ -29,12 +29,12 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Typography,
+  Typography
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function EffectList() {
+export default function EffectList () {
   const { effectList } = useEffectList();
   const currentTime = useReactiveVar(reactiveState.currentTime);
 
@@ -44,22 +44,22 @@ export default function EffectList() {
   const {
     textFieldProps: fromTextFieldProps,
     timeError: fromTimeError,
-    timeInputRef: fromTimeInputRef,
+    timeInputRef: fromTimeInputRef
   } = useTimeInput([
     newEffectFrom,
     (newTime: number) => {
       setNewEffectFrom(newTime);
-    },
+    }
   ]);
   const {
     textFieldProps: toTextFieldProps,
     timeError: toTimeError,
-    timeInputRef: toTimeInputRef,
+    timeInputRef: toTimeInputRef
   } = useTimeInput([
     newEffectTo,
     (newTime: number) => {
       setNewEffectTo(newTime);
-    },
+    }
   ]);
 
   const [effectSelectedID, setEffectSelectedID] = useState<string>("");
@@ -83,11 +83,9 @@ export default function EffectList() {
     setCollidedFrame([]);
   };
   const handleApplyEffect = async () => {
-    const clear = await confirmation.warning(
-      "Are you sure to clear all collided frames?"
-    );
+    const clear = await confirmation.warning("Are you sure to clear all collided frames?");
     applyEffect({
-      payload: { clear, start: currentTime, applyId: effectSelectedID },
+      payload: { clear, start: currentTime, applyId: effectSelectedID }
     });
     handleCloseApply();
   };
@@ -121,8 +119,8 @@ export default function EffectList() {
       payload: {
         effectName: newEffectName,
         startTime: newEffectFrom || 0,
-        endTime: newEffectTo || 0,
-      },
+        endTime: newEffectTo || 0
+      }
     });
     handleCloseAdd();
     // setPreviewOpened(true);
@@ -142,9 +140,7 @@ export default function EffectList() {
                         edge="end"
                         aria-label="apply"
                         size="large"
-                        onClick={() => {
-                          handleOpenApply(effect?.id, effect?.description);
-                        }}
+                        onClick={() => { handleOpenApply(effect?.id, effect?.description); }}
                       >
                         <AddIcon fontSize="inherit" sx={{ color: "white" }} />
                       </IconButton>
@@ -154,14 +150,9 @@ export default function EffectList() {
                         edge="end"
                         aria-label="delete"
                         size="large"
-                        onClick={() => {
-                          handleOpenDelete(effect?.id, effect?.description);
-                        }}
+                        onClick={() => { handleOpenDelete(effect?.id, effect?.description); }}
                       >
-                        <DeleteIcon
-                          fontSize="inherit"
-                          sx={{ color: "white" }}
-                        />
+                        <DeleteIcon fontSize="inherit" sx={{ color: "white" }} />
                       </IconButton>
                     </Tooltip>
                   </Stack>
@@ -176,26 +167,19 @@ export default function EffectList() {
                   secondary={
                     <>
                       <Typography sx={{ fontSize: "10px", color: "white" }}>
-                        - ControlFrame Length:{" "}
-                        {effect.data.control
-                          ? Object.keys(effect.data.control).length
-                          : 0}
+                                                - ControlFrame Length:{" "}
+                        {effect.data.control ? Object.keys(effect.data.control).length : 0}
                       </Typography>
                       <Typography sx={{ fontSize: "10px", color: "white" }}>
-                        - PosFrame Length:{" "}
-                        {effect.data.position
-                          ? Object.keys(effect.data.position).length
-                          : 0}
+                                                - PosFrame Length:{" "}
+                        {effect.data.position ? Object.keys(effect.data.position).length : 0}
                       </Typography>
                     </>
                   }
                 />
               </ListItem>
             </React.Fragment>
-            <Divider
-              component="li"
-              sx={{ backgroundColor: "rgba(255, 255, 255, 0.16)" }}
-            />
+            <Divider component="li" sx={{ backgroundColor: "rgba(255, 255, 255, 0.16)" }} />
           </React.Fragment>
         ))}
         <Grid
@@ -205,15 +189,11 @@ export default function EffectList() {
             width: "100%",
             minHeight: "80px",
             justifyContent: "center",
-            alignItems: "center",
+            alignItems: "center"
           }}
         >
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAdd}
-          >
-            Custom
+          <Button variant="outlined" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+                        Custom
           </Button>
         </Grid>
       </List>
@@ -223,25 +203,26 @@ export default function EffectList() {
           <DialogContentText>
             {/* This will insert {effectRecordMap[effectSelected] ? effectRecordMap[effectSelected].length : 0}{" "}
                         frame(s) to current time spot.{" "} */}
-            {collidedFrame.length > 0 ? (
-              <span>
-                The following frame(s) will be collided:
-                {collidedFrame?.map((frame) => (
-                  <span style={{ color: "#ba000d" }}> {frame}</span>
-                ))}
-              </span>
-            ) : (
-              ""
-            )}
+            {(collidedFrame.length > 0)
+              ? (
+                <span>
+                                The following frame(s) will be collided:
+                  {collidedFrame?.map((frame) => (
+                    <span style={{ color: "#ba000d" }}> {frame}</span>
+                  ))}
+                </span>
+              )
+              : (
+                ""
+              )}
             <br />
-            Are you sure to apply effect "{effectSelectedName}" to current
-            record?
+                        Are you sure to apply effect "{effectSelectedName}" to current record?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseApply}>Cancel</Button>
           <Button autoFocus onClick={handleApplyEffect}>
-            Apply
+                        Apply
           </Button>
         </DialogActions>
       </Dialog>
@@ -249,14 +230,13 @@ export default function EffectList() {
         <DialogTitle>Delete Effect From Effect List</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure to delete effect "{effectSelectedName}" from the effect
-            list?
+                        Are you sure to delete effect "{effectSelectedName}" from the effect list?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDelete}>Cancel</Button>
           <Button autoFocus onClick={handleDeleteEffect}>
-            Delete
+                        Delete
           </Button>
         </DialogActions>
       </Dialog>
@@ -272,9 +252,7 @@ export default function EffectList() {
             fullWidth
             variant="standard"
             value={newEffectName}
-            onChange={(e) => {
-              setNewEffectName(e.target.value);
-            }}
+            onChange={(e) => { setNewEffectName(e.target.value); }}
           />
           {/* <TextField
                         autoFocus
@@ -344,32 +322,23 @@ export default function EffectList() {
             variant="outlined"
             error={toTimeError || newEffectTo < newEffectFrom}
             required
-            helperText={
-              newEffectTo < newEffectFrom ? "Cannot be smaller than from" : ""
-            }
+            helperText={newEffectTo < newEffectFrom ? "Cannot be smaller than from" : ""}
           />
           {(toTimeError || fromTimeError) && (
             <Popper
               open={toTimeError || fromTimeError}
-              anchorEl={
-                toTimeError ? toTimeInputRef.current : fromTimeInputRef.current
-              }
+              anchorEl={toTimeError ? toTimeInputRef.current : fromTimeInputRef.current}
             >
               <Paper>
-                <Typography sx={{ p: "0.5em 1em" }}>
-                  this is an invalid time
-                </Typography>
+                <Typography sx={{ p: "0.5em 1em" }}>this is an invalid time</Typography>
               </Paper>
             </Popper>
           )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAdd}>Cancel</Button>
-          <Button
-            onClick={handleAddEffect}
-            disabled={!newEffectName || newEffectTo < newEffectFrom}
-          >
-            Add
+          <Button onClick={handleAddEffect} disabled={!newEffectName || newEffectTo < newEffectFrom}>
+                        Add
           </Button>
         </DialogActions>
       </Dialog>
@@ -377,20 +346,9 @@ export default function EffectList() {
         <DialogTitle>Preview Effect</DialogTitle>
         <DialogContent></DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => {
-              setPreviewOpened(false);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            autoFocus
-            onClick={() => {
-              setPreviewOpened(false);
-            }}
-          >
-            Add
+          <Button onClick={() => { setPreviewOpened(false); }}>Cancel</Button>
+          <Button autoFocus onClick={() => { setPreviewOpened(false); }}>
+                        Add
           </Button>
         </DialogActions>
       </Dialog>

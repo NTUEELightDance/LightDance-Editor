@@ -24,7 +24,7 @@ import { DancerCoordinates } from "core/models";
  * This is Presets component, list of pos
  * @component
  */
-export default function PosPresets() {
+export default function PosPresets () {
   // presets intialize
   // get loadedPresets or storagePresets
   const { posPresets: loadedPosPresets } = useSelector(selectLoad);
@@ -34,7 +34,7 @@ export default function PosPresets() {
     setPosPresets,
     addPosPresets,
     editPosPresetsName,
-    deletePosPresets,
+    deletePosPresets
   } = usePosPresets();
 
   useEffect(() => {
@@ -48,16 +48,12 @@ export default function PosPresets() {
   // dialog
   const [open, setOpen] = useState(false);
   const [nameVal, setNameVal] = useState("");
-  const openDialog = () => {
-    setOpen(true);
-  };
+  const openDialog = () => { setOpen(true); };
   const closeDialog = () => {
     setOpen(false);
     setNameVal("");
   };
-  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNameVal(e.target.value);
-  };
+  const handleChangeName = (e: React.ChangeEvent<HTMLTextAreaElement>) => { setNameVal(e.target.value); };
 
   // dispatch
   const handleAddPresets = (name: string) => {
@@ -96,13 +92,7 @@ export default function PosPresets() {
             <Input fullWidth value={nameVal} onChange={handleChangeName} />
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={() => {
-                handleAddPresets(nameVal);
-              }}
-            >
-              OK
-            </Button>
+            <Button onClick={() => { handleAddPresets(nameVal); }}>OK</Button>
           </DialogActions>
         </Dialog>
       </div>

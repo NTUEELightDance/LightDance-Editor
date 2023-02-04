@@ -13,15 +13,9 @@ import { useReactiveVar } from "@apollo/client";
 
 function PlayBackController({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
   // event
-  const handlePlayPause = () => {
-    wavesurfer.playPause();
-  };
-  const handleStop = () => {
-    wavesurfer.stop();
-  };
-  const handlePlayLoop = () => {
-    wavesurfer.playLoop();
-  };
+  const handlePlayPause = () => { wavesurfer.playPause(); };
+  const handleStop = () => { wavesurfer.stop(); };
+  const handlePlayLoop = () => { wavesurfer.playLoop(); };
 
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
 

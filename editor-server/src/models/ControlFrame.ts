@@ -12,10 +12,7 @@ const ControlFrameSchema = new Schema<IControlFrame>({
 });
 
 // Creating a table within database with the defined schema
-const ControlFrame = mongoose.model<IControlFrame>(
-  "ControlFrame",
-  ControlFrameSchema
-);
+const ControlFrame = mongoose.model<IControlFrame>("ControlFrame", ControlFrameSchema);
 
 // Exporting table for querying and mutating
 

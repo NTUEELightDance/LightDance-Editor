@@ -1,6 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
-import { ObjectId } from "mongoose";
+import { ObjectId } from "mongodb";
 
 import redis from "../../redis";
 import { TRedisControl, TRedisPosition } from "../../types/global";
@@ -16,7 +16,7 @@ interface MapData {
 @ObjectType()
 export class Map {
   @Field((type) => MapScalar)
-  frames: MapID[];
+    frames: MapID[];
 }
 
 export const MapScalar = new GraphQLScalarType({

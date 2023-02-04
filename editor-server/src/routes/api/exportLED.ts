@@ -27,11 +27,20 @@ const exportLED = async (req: Request, res: Response) => {
             // remove effect's _id
             const newEffect = effect.map((effectData: ILEDEffectsEffect) => {
               const { colorCode, alpha } = effectData;
-              return { alpha, colorCode };
+              const newColor = parseInt(colorCode.replace("#", "0x"), 16);
+              const r = (newColor >> 8) & 255;
+              const g = (newColor >> 4) & 255;
+              const b = newColor & 255;
+              // console.log(newColor, alpha)
+              console.log(r, g, b, alpha);
+              // return { alpha, colorCode }
+              return [r, g, b, alpha];
             });
-            return { effect: newEffect, start, fade };
+            // return { effect: newEffect, start, fade }
+            return { LEDs: newEffect, start, fade };
           });
-          part[effectName] = { repeat, effects: newEffects };
+          // part[effectName] = { repeat, effects: newEffects }
+          part[effectName] = { repeat, frames: newEffects };
         });
         result[partName] = part;
       })

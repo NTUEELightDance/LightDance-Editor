@@ -7,7 +7,7 @@ import {
   LedEffectRecord,
   DancerName,
   DancerStatus,
-  LED,
+  LED
 } from "../models";
 // utils
 import { getControl } from "../utils";
@@ -28,7 +28,7 @@ const actions = registerActions({
           tmp[dancerName][part] = {
             effect: [],
             effectIndex: 0,
-            recordIndex: 0,
+            recordIndex: 0
           };
         }
       });
@@ -76,7 +76,7 @@ const actions = registerActions({
     });
 
     state.ledEffectRecord = ledEffectRecord;
-  },
+  }
 });
 
 export const { initCurrentLedEffect, generateLedEffectRecord } = actions;

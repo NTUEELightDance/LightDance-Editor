@@ -29,7 +29,7 @@ const _quaternion = new Quaternion();
 const _scale = new Vector3();
 
 class SelectionBox {
-  constructor(camera, scene, deep = Number.MAX_VALUE) {
+  constructor (camera, scene, deep = Number.MAX_VALUE) {
     this.camera = camera;
     this.scene = scene;
     this.startPoint = new Vector3();
@@ -39,7 +39,7 @@ class SelectionBox {
     this.deep = deep;
   }
 
-  select(startPoint, endPoint) {
+  select (startPoint, endPoint) {
     this.startPoint = startPoint || this.startPoint;
     this.endPoint = endPoint || this.endPoint;
     this.collection = [];
@@ -50,7 +50,7 @@ class SelectionBox {
     return this.collection;
   }
 
-  updateFrustum(startPoint, endPoint) {
+  updateFrustum (startPoint, endPoint) {
     startPoint = startPoint || this.startPoint;
     endPoint = endPoint || this.endPoint;
 
@@ -176,7 +176,7 @@ class SelectionBox {
     }
   }
 
-  searchChildInFrustum(frustum, object) {
+  searchChildInFrustum (frustum, object) {
     if (object.isMesh || object.isLine || object.isPoints) {
       if (object.isInstancedMesh) {
         this.instances[object.uuid] = [];
@@ -191,9 +191,7 @@ class SelectionBox {
           }
         }
       } else {
-        if (object.geometry.boundingSphere === null) {
-          object.geometry.computeBoundingSphere();
-        }
+        if (object.geometry.boundingSphere === null) { object.geometry.computeBoundingSphere(); }
 
         _center.copy(object.geometry.boundingSphere.center);
 

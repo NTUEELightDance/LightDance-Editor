@@ -1,5 +1,5 @@
 interface Window {
-  webkitAudioContext: typeof AudioContext;
+  webkitAudioContext: typeof AudioContext
 }
 
 // allow import .json files

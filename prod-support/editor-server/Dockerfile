@@ -1,19 +1,24 @@
-FROM node:18-buster
+FROM node:16-buster
 
+# setup working directory
 WORKDIR /app
 
-RUN corepack enable
+RUN yarn add ts-node -g
 
-COPY ["editor-server/package.json", "editor-server/pnpm-lock.yaml", "./"]
+COPY ["editor-server/package.json", "editor-server/yarn.lock", "./"]
 
-RUN pnpm install
+# install node_modules in the container
+RUN yarn
 
+# copy things in editor-server to /app
 COPY ./editor-server .
 
 EXPOSE 4000
 
+# Set the environment variables
 ENV MONGO_HOST=mongodb
 ENV REDIS_HOST=redisdb
 ENV NODE_OPTIONS='--max-old-space-size=8192'
 
-CMD ["pnpm", "prod"]
+# serve the port
+CMD ["yarn", "deploy"]

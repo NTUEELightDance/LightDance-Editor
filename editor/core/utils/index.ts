@@ -4,24 +4,21 @@ import { reactiveState } from "core/state";
 /**
  * Get [posMap, posRecord] from posAgent
  */
-export async function getPos() {
+export async function getPos () {
   return await Promise.all([posAgent.getPosMap(), posAgent.getPosRecord()]);
 }
 
 /**
  * Get [controlMap, controlRecord] from controlAgent
  */
-export async function getControl() {
-  return await Promise.all([
-    controlAgent.getControlMap(),
-    controlAgent.getControlRecord(),
-  ]);
+export async function getControl () {
+  return await Promise.all([controlAgent.getControlMap(), controlAgent.getControlRecord()]);
 }
 
 /**
  * Get ledMap from ledAgent
  */
-export async function getLedMap() {
+export async function getLedMap () {
   return await ledAgent.getLedMap();
 }
 
@@ -29,7 +26,7 @@ export async function getLedMap() {
  * Get part's type from its name
  * should return
  */
-export function getPartType(partName: string) {
+export function getPartType (partName: string) {
   const partTypeMap = reactiveState.partTypeMap();
   return partTypeMap[partName];
 }
