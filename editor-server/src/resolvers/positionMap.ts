@@ -76,7 +76,7 @@ export class EditPosMapResolver {
         });
       })
     );
-    await updateRedisPosition(frameToEdit.id);
+    await updateRedisPosition(`POSFRAME_${frameToEdit.id}`);
     await ctx.prisma.editingPositionFrame.update({
       where: { userId: ctx.userID },
       data: { frameId: null },

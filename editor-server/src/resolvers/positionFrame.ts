@@ -81,7 +81,7 @@ export class PositionFrameResolver {
         });
       })
     );
-    await updateRedisPosition(newPositionFrame.id);
+    await updateRedisPosition(`POSFRAME_${newPositionFrame.id}`);
     const mapPayload: PositionMapPayload = {
       editBy: ctx.userID,
       frame: {
@@ -160,7 +160,7 @@ export class PositionFrameResolver {
       where: { userId: ctx.userID },
       data: { frameId: null },
     });
-    await updateRedisPosition(positionFrame.id);
+    await updateRedisPosition(`POSFRAME_${positionFrame.id}`);
     const payload: PositionMapPayload = {
       editBy: ctx.userID,
       frame: {

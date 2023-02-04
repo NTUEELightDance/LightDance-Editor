@@ -79,7 +79,7 @@ export class ControlFrameResolver {
         });
       })
     );
-    await updateRedisControl(newControlFrame.id);
+    await updateRedisControl(`CTRLFRAMW_${newControlFrame.id}`);
     const mapPayload: ControlMapPayload = {
       editBy: Number(ctx.userID),
       frame: {
@@ -157,7 +157,7 @@ export class ControlFrameResolver {
       },
     });
 
-    await updateRedisControl(controlFrame.id);
+    await updateRedisControl(`CTRLFRAME_${controlFrame.id}`);
 
     const payload: ControlMapPayload = {
       editBy: Number(ctx.userID),
