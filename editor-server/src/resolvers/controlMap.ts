@@ -19,10 +19,10 @@ import { TContext } from "../types/global";
 export class ControlMapResolver {
   @Query((returns) => ControlMap)
   async ControlMap(@Ctx() ctx: TContext) {
-    const frames = await ctx.prisma.controlFrame.findMany({
+    const frameIds = await ctx.prisma.controlFrame.findMany({
       select: { id:true }
     });
-    return { frames };
+    return { frameIds };
   }
 }
 
@@ -53,8 +53,10 @@ export class EditControlMapResolver {
     const editing = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: frameToEdit.id },
     });
-    if(!editing) throw new Error("Editing Control frame not found");
-    if (editing.userId !== ctx.userID) throw new Error(`The frame is now editing by ${editing.userId}.`);
+    if (editing &&
+        editing.userId &&
+        editing.userId !== ctx.userID
+    ) throw new Error(`The frame is now editing by ${editing.userId}.`);
     if (controlData.length !== dancers.length) {
       throw new Error(
         `Not all dancers in payload. Missing number: ${

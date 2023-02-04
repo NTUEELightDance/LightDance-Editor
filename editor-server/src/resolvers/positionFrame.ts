@@ -27,9 +27,11 @@ import { TContext } from "../types/global";
 @Resolver((of) => PositionFrame)
 export class PositionFrameResolver {
   @Query((returns) => PositionFrame)
-  async positionFrame(@Arg("start") start: number, @Ctx() ctx: TContext) {
-    const frame = await ctx.prisma.positionFrame.findFirst({ where: { start } });
-    if(!frame) throw new Error(`frame start from ${start} not found`);
+  async positionFrame(@Arg("frameID") frameID: number, @Ctx() ctx: TContext) {
+    const frame = await ctx.prisma.positionFrame.findFirst({
+      where: { id: frameID },
+    });
+    if(!frame) throw new Error(`frame id ${frameID} not found`);
     return frame;
   }
 
@@ -142,7 +144,14 @@ export class PositionFrameResolver {
     ) {
       throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
     }
-    const positionFrame = await ctx.prisma.positionFrame.update({
+    const positionFrame = await ctx.prisma.positionFrame.findFirst({
+      where: { id: input.frameID },
+      include: { positionDatas: {
+        include: { dancer: true, frame: true },
+      } },
+    });
+    if(!positionFrame) throw new Error(`positionFrame id ${input.frameID} not found`);
+    const updatePositionFrame = await ctx.prisma.positionFrame.update({
       where: { id: input.frameID },
       data: { id: input.frameID, start: input.start },
     });
@@ -180,7 +189,7 @@ export class PositionFrameResolver {
       index,
     };
     await publishPositionRecord(recordPayload);
-    return positionFrame;
+    return updatePositionFrame;
   }
 
   @Mutation((returns) => PositionFrame)
@@ -204,7 +213,12 @@ export class PositionFrameResolver {
       throw new Error(`The frame is now editing by ${frameToDelete.userId}.`);
     }
     const deletedFrame = await ctx.prisma.positionFrame.findFirst({
-      where: { id: frameID }
+      where: { id: frameID },
+      include: {
+        positionDatas: {
+          include: { dancer: true, frame: true },
+        }
+      }
     });
     if(!deletedFrame) throw new Error("frame id not found");
     await ctx.prisma.positionFrame.delete({ where: { id: frameID } });
@@ -253,6 +267,6 @@ export class PositionFrameResolver {
       index: -1,
     };
     await publishPositionRecord(recordPayload);
-    return frameToDelete;
+    return deletedFrame;
   }
 }

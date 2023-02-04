@@ -4,28 +4,27 @@ import { GraphQLScalarType } from "graphql";
 import redis from "../../redis";
 import { TRedisControl, TRedisPosition } from "../../types/global";
 
-interface MapData {
-  [key: string]: TRedisControl | TRedisPosition;
+interface MapID {
+  id: number;
 }
-
 
 @ObjectType()
 export class ControlMap {
   @Field((type) => ControlMapScalar)
-    frameIds: string[];
+    frameIds: MapID[];
 }
 
 @ObjectType()
 export class PositionMap {
   @Field((type) => PositionMapScalar)
-    frameIds: string[];
+    frameIds: MapID[];
 }
 
 export const ControlMapScalar = new GraphQLScalarType({
   name: "ControlMapQueryObjectId",
   description: "Mongo object id scalar type",
-  async serialize(value: string[]): Promise<MapData> {
-    const result: MapData = {};
+  async serialize(value: string[]): Promise<{ [key: string]: TRedisControl }> {
+    const result: { [key: string]: TRedisControl } = {};
     await Promise.all(
       value.map(async (frameId) => {
         const cache = await redis.get(`CTRLFRAME_${frameId}`);
@@ -51,8 +50,8 @@ export const ControlMapScalar = new GraphQLScalarType({
 export const PositionMapScalar = new GraphQLScalarType({
   name: "PositionMapQueryObjectId",
   description: "Mongo object id scalar type",
-  async serialize(value: string[]): Promise<MapData> {
-    const result: MapData = {};
+  async serialize(value: string[]): Promise<{ [key: string]: TRedisPosition }> {
+    const result: { [key: string]: TRedisPosition } = {};
     await Promise.all(
       value.map(async (frameId) => {
         const cache = await redis.get(`POSFRAME_${frameId}`);

@@ -116,6 +116,7 @@ export class DancerResolver {
     const { id } = delDancerData;
     const dancer = await ctx.prisma.dancer.findFirst({
       where: { id },
+      include: { parts: true, positionData: true }
     });
     if(!dancer) return { ok: false, msg: "dancer not found" };
     await ctx.prisma.dancer.delete({ where: { id }});

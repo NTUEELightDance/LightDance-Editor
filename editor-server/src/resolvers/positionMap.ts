@@ -19,10 +19,11 @@ import { TContext } from "../types/global";
 export class PosMapResolver {
   @Query((returns) => PositionMap)
   async PosMap(@Ctx() ctx: TContext) {
-    const frames = await ctx.prisma.positionFrame.findMany({
+    const frameIds = await ctx.prisma.positionFrame.findMany({
       select: {id: true }
     });
-    return { frames };
+    console.log("frameIds: ", frameIds);
+    return { frameIds };
   }
 }
 
@@ -45,8 +46,8 @@ export class EditPosMapResolver {
     const editing = await ctx.prisma.editingPositionFrame.findFirst({
       where: { frameId: frameToEdit.id },
     });
-    if(!editing) throw new Error(`editing frame id ${frameToEdit.id} not found`);
     if (
+      editing &&
       editing.userId &&
       editing.userId !== ctx.userID
     ) throw new Error(`The frame is now editing by ${editing.userId}.`);

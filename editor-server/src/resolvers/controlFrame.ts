@@ -134,8 +134,8 @@ export class ControlFrameResolver {
     const frameToEdit = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: input.frameID },
     });
-    if(!frameToEdit) throw new Error("editingControlframe id not found");
     if (
+      frameToEdit &&
       frameToEdit.userId &&
       frameToEdit.userId !== ctx.userID
     ) {
@@ -143,10 +143,13 @@ export class ControlFrameResolver {
     }
     const controlFrame = await ctx.prisma.controlFrame.findFirst({
       where: { id: input.frameID },
+      include: { controlDatas: {
+        include: { part: true, frame: true }
+      }},
     });
     if(!controlFrame) throw new Error("Control Frame not found");
 
-    await ctx.prisma.controlFrame.update({
+    const updateControlFrame = await ctx.prisma.controlFrame.update({
       where: { id: input.frameID },
       data: {
         start: input.start===undefined ? controlFrame.start: input.start,
@@ -183,7 +186,7 @@ export class ControlFrameResolver {
       index,
     };
     await publishControlRecord(recordPayload);
-    return controlFrame;
+    return updateControlFrame;
   }
 
   @Mutation((returns) => ControlFrame)
@@ -199,15 +202,18 @@ export class ControlFrameResolver {
     const frameToDelete = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: frameID },
     });
-    if(!frameToDelete) throw new Error("editingControlFrame not found");
     if (
+      frameToDelete &&
       frameToDelete.userId &&
       frameToDelete.userId !== ctx.userID
     ) {
       throw new Error(`The frame is now editing by ${frameToDelete.userId}.`);
     }
     const deletedFrame = await ctx.prisma.controlFrame.findFirst({
-      where: { id: frameID}
+      where: { id: frameID},
+      include: { controlDatas: {
+        include: { part: true, frame: true }
+      }}
     });
     if(!deletedFrame) throw new Error("frame id not found");
     await ctx.prisma.controlFrame.delete({ where: { id: frameID } });
@@ -256,6 +262,6 @@ export class ControlFrameResolver {
       index: -1,
     };
     await publishControlRecord(recordPayload);
-    return frameToDelete;
+    return deletedFrame;
   }
 }
