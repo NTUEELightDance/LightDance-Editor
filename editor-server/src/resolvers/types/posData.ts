@@ -21,7 +21,7 @@ export const PosDataScalar = new GraphQLScalarType({
     const { id, _id, deleteList, createList, updateList } = data;
     if (id && _id) {
       const result: LooseObject = {};
-      const cache = await redis.get(`positionframe-${id}`);
+      const cache = await redis.get(`POSFRAME_${id}`);
       if (cache) {
         const cacheObj = JSON.parse(cache);
         result[id] = cacheObj;
@@ -41,7 +41,7 @@ export const PosDataScalar = new GraphQLScalarType({
       const updateFrames: LooseObject = {};
       await Promise.all(
         updateList.map(async (id: any) => {
-          const cache = await redis.get(`positionframe-${id}`);
+          const cache = await redis.get(`POSFRAME_${id}`);
           if (cache) {
             const cacheObj = JSON.parse(cache);
             updateFrames[id] = cacheObj;

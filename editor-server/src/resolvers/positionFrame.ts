@@ -242,7 +242,7 @@ export class PositionFrameResolver {
         updateList: [],
       },
     };
-    redis.del(`positionframe-${frameID}`);
+    redis.del(`POSFRAME_${frameID}`);
     await publishPositionMap(mapPayload);
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.DELETED,

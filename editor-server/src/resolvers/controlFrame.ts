@@ -237,7 +237,7 @@ export class ControlFrameResolver {
     //     });
     //   })
     // );
-    await redis.del(`controlframe-${frameID}`);
+    await redis.del(`CTRLFRAME_${frameID}`);
     const mapPayload: ControlMapPayload = {
       editBy: Number(ctx.userID),
       frame: {

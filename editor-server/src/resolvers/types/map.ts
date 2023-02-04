@@ -28,7 +28,7 @@ export const ControlMapScalar = new GraphQLScalarType({
     const result: MapData = {};
     await Promise.all(
       value.map(async (frameId) => {
-        const cache = await redis.get(`controlframe-${frameId}`);
+        const cache = await redis.get(`CTRLFRAME_${frameId}`);
         if (cache) {
           const cacheObj: TRedisControl = JSON.parse(cache);
           result[frameId] = cacheObj;
@@ -55,7 +55,7 @@ export const PositionMapScalar = new GraphQLScalarType({
     const result: MapData = {};
     await Promise.all(
       value.map(async (frameId) => {
-        const cache = await redis.get(`positionframe-${frameId}`);
+        const cache = await redis.get(`POSFRAME_${frameId}`);
         if (cache) {
           const cacheObj: TRedisPosition = JSON.parse(cache);
           result[frameId] = cacheObj;
