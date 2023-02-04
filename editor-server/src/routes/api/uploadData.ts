@@ -223,9 +223,6 @@ const uploadData = async (req: Request, res: Response) => {
     // create LED data
     await Promise.all(
       Object.keys(ledEffects).map(async (partName: string) => {
-        // if (!allLEDPartNames.has(partName)) {
-        //   throw new Error(`LED part '${partName}' is not used by any dancer!!`)
-        // }
         const effectData = ledEffects[partName];
         Object.keys(effectData).map(async (effectName: string) => {
           const { repeat, frames } = effectData[effectName];
@@ -274,19 +271,24 @@ const uploadData = async (req: Request, res: Response) => {
           return partObj.name;
         });
         // console.log(allPartsList)
-        parts.map(async (partObj: TPartData) => {
+
+        // sync parts
+        for (let i = 0; i < parts.length; i++) {
+          const partObj: TPartData = parts[i];
+
           const { name, type } = partObj;
           const newPart = await prisma.part.create({
             data: {
               name: name,
               type: type,
+              order: i,
               dancer: {
                 connect: { id: newDancer.id },
               },
             },
           });
           allParts[name] = { id: newPart.id, type: type };
-        });
+        }
         allDancer[name] = {
           id: newDancer.id,
           parts: allParts,
@@ -324,9 +326,9 @@ const uploadData = async (req: Request, res: Response) => {
     });
 
     // deal with control data
-    const sortedDancer = Object.keys(allDancer).sort();
     // console.log(sortedDancer)
     // console.dir(allDancer, { depth: null });
+    const sortedDancer = Object.keys(allDancer).sort();
     await Promise.all(
       Object.values(control).map(async (frameObj: CtrlFrameTmpData) => {
         const { fade, start, status } = frameObj;
@@ -336,6 +338,7 @@ const uploadData = async (req: Request, res: Response) => {
             fade: fade,
           },
         });
+        // sync parts
         for (let i = 0; i < status.length; i++) {
           for (let j = 0; j < status[i].length; j++) {
             const tmpPart =

@@ -17,6 +17,8 @@ import {
   TRedisPos,
   TRedisControlStatus,
   TRedisControl,
+  TRedisControlTest,
+  TRedisPositionTest,
 } from "./types/global";
 
 const initData = async () => {
@@ -62,15 +64,20 @@ const initRedisControl = async () => {
         return;
       }
       const { fade, start, editing } = controlFrame;
-      const status: TRedisControlStatus = {};
-      await Promise.all(
-        // dancer: IDancer
-        allDancers.map(async (dancer) => {
+      const status: any[][][] = [];
+
+      // dancer: IDancer
+      allDancers
+        .sort((a, b) => {
+          return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
+        })
+        .map((dancer) => {
           const { name, parts } = dancer;
-          const partData: LooseObject = {};
-          await Promise.all(
-            // IPart
-            parts.map(async (part) => {
+          const partData: any[][] = [];
+          // IPart
+          parts
+            .sort((a, b) => (a.order < b.order ? -1 : 1))
+            .map((part) => {
               const { name, type, controlData } = part;
               // search for frameID
               const wanted = controlData.find(
@@ -79,14 +86,18 @@ const initRedisControl = async () => {
               );
               if (!wanted) throw new Error(`ControlData ${frameID} not found`);
 
-              const { value } = wanted;
-              partData[name] = value;
-            })
-          );
-          status[name] = partData;
-        })
-      );
-      const resultObj: TRedisControl = {
+              const value: any = wanted.value;
+              if (type === "FIBER") {
+                partData.push([value.color, value.alpha]);
+              } else if (type === "LED") {
+                partData.push([value.src, value.alpha]);
+              } else {
+                partData.push([value.value]);
+              }
+            });
+          status.push(partData);
+        });
+      const resultObj: TRedisControlTest = {
         fade,
         start,
         editing: editing?.user.name,
@@ -135,19 +146,26 @@ const initRedisPosition = async () => {
         return;
       }
       const { start, editing } = positionFrame;
-      const pos: TRedisPos = {};
-      await Promise.all(
-        // IDancer
-        allDancers.map(async (dancer) => {
+      const pos: any[][] = [];
+      // IDancer
+      allDancers
+        .sort((a, b) => {
+          return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
+        })
+        .map(async (dancer) => {
           const { name, positionData } = dancer;
           const wanted: any = positionData.find(
             (data) => data.frameId === parseInt(frameID)
           );
-          pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
+          pos.push([wanted.x, wanted.y, wanted.z]);
+          // pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z }
           // pos[name] = wanted
-        })
-      );
-      const resultObj = { start, editing, pos };
+        });
+      const resultObj: TRedisPositionTest = {
+        start,
+        editing: editing?.user.name,
+        pos,
+      };
       result[id] = JSON.stringify(resultObj);
     })
   );
@@ -159,73 +177,113 @@ const initRedisPosition = async () => {
 };
 
 const updateRedisControl = async (id: string) => {
-  const controlFrame = await model.ControlFrame.findOne({
-    id,
+  // id format: 'CTRLFRAME_${frameID}'
+  const [_, frameID] = id.split("_");
+  const controlFrame = await prisma.controlFrame.findUnique({
+    where: {
+      id: parseInt(frameID),
+    },
+    include: {
+      editing: {
+        include: {
+          user: true,
+        },
+      },
+    },
   });
   if (!controlFrame) {
     return;
   }
-  const { fade, start, editing, _id } = controlFrame;
-  const allDancers = await model.Dancer.find().populate({
-    path: "parts",
-    populate: {
-      path: "controlData",
-      match: { frame: _id },
+  const allDancers = await prisma.dancer.findMany({
+    include: {
+      parts: {
+        include: {
+          controlData: true,
+        },
+      },
     },
   });
-  // const frameID = new ObjectId(id)
-  const status: TRedisControlStatus = {};
-  await Promise.all(
-    allDancers.map(async (dancer: IDancer) => {
-      const { name, parts } = dancer;
-      const partData: LooseObject = {};
-      await Promise.all(
-        parts.map(async (part: IPart) => {
-          const { name, type, controlData } = part;
-          const wanted = controlData[0];
-          if (!wanted) throw new Error(`ControlData ${_id} not found`);
-          const { value } = wanted;
-          if (type === "LED") {
-            partData[name] = value;
-          } else if (type === "FIBER") {
-            partData[name] = value;
-            // const color = await model.Color.findOne({
-            //   color: partData[name].color,
-            // });
-            // if (color) {
-            //   const { colorCode } = color;
-            //   partData[name].color = colorCode;
-            // }
-          } else {
-            partData[name] = value.value;
-          }
-        })
-      );
-      status[name] = partData;
-    })
-  );
-  const cacheObj = { fade, start, editing, status };
+  const { fade, start, editing } = controlFrame;
+
+  const status: any[][][] = [];
+  allDancers.map((dancer) => {
+    const { name, parts } = dancer;
+    const partData: any[][] = [];
+    parts
+      .sort((a, b) => (a.order < b.order ? -1 : 1))
+      .map((part) => {
+        const { name, type, controlData } = part;
+        const wanted = controlData.find(
+          // IControl
+          (data) => data.frameId === parseInt(frameID)
+        );
+        if (!wanted) throw new Error(`ControlData ${frameID} not found`);
+        const value: any = wanted.value;
+
+        if (type === "FIBER") {
+          partData.push([value.color, value.alpha]);
+        } else if (type === "LED") {
+          partData.push([value.src, value.alpha]);
+        } else {
+          partData.push([value.value]);
+        }
+      });
+
+    status.push(partData);
+  });
+
+  const cacheObj: TRedisControlTest = {
+    fade,
+    start,
+    editing: editing?.user.name,
+    status,
+  };
   await redis.set(id, JSON.stringify(cacheObj));
 };
 
 const updateRedisPosition = async (id: string) => {
-  const positionFrame = await model.PositionFrame.findOne({ id });
+  // id format: 'POSFRAME_${frameID}'
+  const [_, frameID] = id.split("_");
+  const positionFrame = await prisma.positionFrame.findUnique({
+    where: {
+      id: parseInt(frameID),
+    },
+    include: {
+      editing: {
+        include: {
+          user: true,
+        },
+      },
+    },
+  });
   if (!positionFrame) {
     return;
   }
-  const { start, editing, _id } = positionFrame;
-  const allDancers = await model.Dancer.find().populate("positionData");
-  const pos: TRedisPos = {};
-  await Promise.all(
-    allDancers.map(async (dancer: IDancer) => {
-      const { name, positionData } = dancer;
-      const wanted = positionData.find(
-        (data: IPosition) => data.frame.toString() === _id.toString()
-      );
-      pos[name] = { x: wanted.x, y: wanted.y, z: wanted.z };
+  // const allDancers = await model.Dancer.find().populate("positionData")
+  const allDancers = await prisma.dancer.findMany({
+    include: {
+      positionData: true,
+    },
+  });
+  const { start, editing } = positionFrame;
+  const pos: any[][] = [];
+  allDancers
+    .sort((a, b) => {
+      return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
     })
-  );
-  const cacheObj = { start, editing, pos };
+    .map((dancer) => {
+      const { name, positionData } = dancer;
+      const wanted: any = positionData.find(
+        (data) => data.frameId === parseInt(frameID)
+      );
+      pos.push([wanted.x, wanted.y, wanted.z]);
+    });
+
+  const cacheObj: TRedisPositionTest = {
+    start,
+    editing: editing?.user.name,
+    pos,
+  };
   await redis.set(id, JSON.stringify(cacheObj));
 };
 

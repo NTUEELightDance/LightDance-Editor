@@ -218,6 +218,12 @@ export type TRedisControl = {
   editing: string | undefined
   status: TRedisControlStatus
 }
+export type TRedisControlTest = {
+  fade: boolean
+  start: number
+  editing: string | undefined
+  status: any[][][]
+}
 export type TRedisControlStatus = {
   [key: string]: {
     [key: string]: any
@@ -230,6 +236,11 @@ export type TRedisPosition = {
   start: number
   editing: string | undefined
   pos: TRedisPos
+}
+export type TRedisPositionTest = {
+  start: number
+  editing: string | undefined
+  pos: any[][]
 }
 export type TRedisPos = {
   [key: string]: {

@@ -89,6 +89,7 @@ model Part {
   dancerId                  Int
   name                      String
   type                      PartType
+  order                     Int
 
   // relation => not in db
   dancer                    Dancer                  @relation(fields: [dancerId], references: [id])
