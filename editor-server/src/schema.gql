@@ -600,7 +600,7 @@ type Query {
   ControlMap: ControlMap!
   dancer(dancerName: String!): Dancer!
   dancers: [Dancer!]!
-  positionFrame(start: Float!): PositionFrame!
+  positionFrame(frameID: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
   PosMap: PositionMap!
 }
