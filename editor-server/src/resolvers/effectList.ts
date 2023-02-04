@@ -35,6 +35,7 @@ import {
 import { IControl, IControlFrame, IDancer, IEffectList, IPart, IPosition, IPositionFrame, TContext, TRedisControl, TRedisControls, TRedisPosition, TRedisPositions } from "../types/global";
 import { EffectListData, EffectListDataCreateInput } from "../../prisma/generated/type-graphql";
 import { JSONObject } from "graphql-scalars/typings/mocks";
+import { ControlData } from "./types/controlData";
 
 type AllDancer = {
   [key: string]: {
@@ -95,7 +96,6 @@ export class EffectListResolver {
     const positionFrameIDs = positionFrames.map((positionFrame) => 
       String(positionFrame.id)
     )
-
     /*
     const redisControlFrames: TRedisControls = {};
     await Promise.all(
@@ -126,7 +126,6 @@ export class EffectListResolver {
       })
     );
     */
-
     const effectList = await ctx.prisma
     .effectListData.create({data: {start: start, end: end, description: description, controlFrames: controlFrames, positionFrames: positionFrames}});
     const result = {
@@ -321,29 +320,19 @@ export class EffectListResolver {
             const frame = await ctx.prisma.controlFrame.create({data: {start: new_start, fade: data[1]}});
 
             newControlFrameIDs.push(String(frame.id));
-            /*
+
+            const allControlData = await ctx.prisma.controlData.findMany({where: {frameId: data[0]}});            
             await Promise.all(
-              Object.keys(status).map(async (dancer: string) => {
-                await Promise.all(
-                  Object.keys(status[dancer]).map(async (part: string) => {
-                    const { id, type } = allDancer[dancer].part[part];
-                    let value = status[dancer][part];
-                    if (type == "EL") {
-                      value = { value };
-                    }
-                    const controlID = await ctx.prisma.controlData
-                    .create({data: {partId: Number(id), frameId: frame.id, value: value}})
-                      .then((value) => value.frameId);
-                    partUpdate[id].push(String(controlID));
-                  })
-                );
+              allControlData.map(async(ControlData) => {
+                if(ControlData.value !== null){
+                  await ctx.prisma.controlData.create({data: {partId: ControlData.partId, frameId: frame.id, value: ControlData.value}})
+                }
               })
-            );
-            */
+            )
           }
         })
       );
-
+      
       /*
       await Promise.all(
         Object.keys(partUpdate).map(async (partID) => {
@@ -357,23 +346,20 @@ export class EffectListResolver {
           if(frameObj !== null){
             const data = Object.values(frameObj);
             const new_start = data[1] - effectList.start + start;
-            const positionFrame = await ctx.prisma.positionFrame.create({data: {start: new_start}});
+            const frame = await ctx.prisma.positionFrame.create({data: {start: new_start}});
 
-            newPositionFrameIDs.push(String(positionFrame.id));
-            /*
-            const frame = positionFrame.id;
+            newPositionFrameIDs.push(String(frame.id));
+
+            const allPositionData = await ctx.prisma.positionData.findMany({where: {frameId: data[0]}});
             await Promise.all(
-              Object.keys(pos).map(async (dancer: string) => {
-                const { id, x, y, z } = pos[dancer];
-                const positionData = await ctx.prisma.positionData.create({data: {dancerId: Number(id), frameId: frame, x: x, y: y, z: z}});
-                allDancer[dancer].positionData.push(String(positionData.frameId));
+              allPositionData.map(async(PositionData) => {
+                await ctx.prisma.positionData.create({data: {dancerId: PositionData.dancerId, frameId: frame.id, x: PositionData.x, y: PositionData.y, z: PositionData.z}});
               })
-            );
-            */
+            )
           }
         })
       );
-      
+
       /*
       await Promise.all(
         Object.keys(allDancer).map(async (dancerName: string) => {
