@@ -281,7 +281,6 @@ const uploadData = async (req: Request, res: Response) => {
             data: {
               name: name,
               type: type,
-              order: i,
               dancer: {
                 connect: { id: newDancer.id },
               },

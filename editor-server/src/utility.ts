@@ -76,26 +76,25 @@ const initRedisControl = async () => {
           const { name, parts } = dancer;
           const partData: TPartControl[] = [];
           // IPart
-          parts
-            .sort((a, b) => (a.order < b.order ? -1 : 1))
-            .map((part) => {
-              const { name, type, controlData } = part;
-              // search for frameID
-              const wanted = controlData.find(
-                // IControl
-                (data) => data.frameId === parseInt(frameID)
-              );
-              if (!wanted) throw new Error(`ControlData ${frameID} not found`);
+          parts.map((part) => {
+            const { name, type, controlData } = part;
+            // console.log(frameID, part.id)
+            // search for frameID
+            const wanted = controlData.find(
+              // IControl
+              (data) => data.frameId === parseInt(frameID)
+            );
+            if (!wanted) throw new Error(`ControlData ${frameID} not found`);
 
-              const value: any = wanted.value;
-              if (type === "FIBER") {
-                partData.push([value.color, value.alpha]);
-              } else if (type === "LED") {
-                partData.push([value.src, value.alpha]);
-              } else {
-                partData.push([value.value]);
-              }
-            });
+            const value: any = wanted.value;
+            if (type === "FIBER") {
+              partData.push([value.color, value.alpha]);
+            } else if (type === "LED") {
+              partData.push([value.src, value.alpha]);
+            } else {
+              partData.push([value.value]);
+            }
+          });
           status.push(partData);
         });
       const resultObj: TRedisControlTest = {
@@ -210,25 +209,23 @@ const updateRedisControl = async (id: string) => {
   allDancers.map((dancer) => {
     const { name, parts } = dancer;
     const partData: TPartControl[] = [];
-    parts
-      .sort((a, b) => (a.order < b.order ? -1 : 1))
-      .map((part) => {
-        const { name, type, controlData } = part;
-        const wanted = controlData.find(
-          // IControl
-          (data) => data.frameId === parseInt(frameID)
-        );
-        if (!wanted) throw new Error(`ControlData ${frameID} not found`);
-        const value: any = wanted.value;
+    parts.map((part) => {
+      const { name, type, controlData } = part;
+      const wanted = controlData.find(
+        // IControl
+        (data) => data.frameId === parseInt(frameID)
+      );
+      if (!wanted) throw new Error(`ControlData ${frameID} not found`);
+      const value: any = wanted.value;
 
-        if (type === "FIBER") {
-          partData.push([value.color, value.alpha]);
-        } else if (type === "LED") {
-          partData.push([value.src, value.alpha]);
-        } else {
-          partData.push([value.value]);
-        }
-      });
+      if (type === "FIBER") {
+        partData.push([value.color, value.alpha]);
+      } else if (type === "LED") {
+        partData.push([value.src, value.alpha]);
+      } else {
+        partData.push([value.value]);
+      }
+    });
 
     status.push(partData);
   });
