@@ -1,4 +1,7 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { nanoid } from "nanoid";
+import { ObjectId } from "mongoose";
+
+import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
 import prisma from "./prisma";
@@ -19,13 +22,13 @@ import {
   TPositionPos,
 } from "./types/global";
 
-const prisma = new PrismaClient();
-
 const initData = async () => {
   await prisma.user.deleteMany();
 };
 
 const initRedisControl = async () => {
+  const frames = await prisma.controlFrame.findMany();
+
   const result: LooseObject = {};
 
   // IControlFrame
@@ -111,6 +114,7 @@ const initRedisControl = async () => {
 };
 
 const initRedisPosition = async () => {
+  const frames = await prisma.positionFrame.findMany();
   const result: LooseObject = {};
 
   // IPositionFrame
@@ -282,9 +286,8 @@ const updateRedisPosition = async (id: string) => {
 };
 
 const generateID = () => {
-  // const id = nanoid(10); //=> "V1StGXR8_Z5jdHi6B-myT"
-  // return id;
-  return Math.floor(Math.random() * 1000000000);
+  const id = nanoid(10); //=> "V1StGXR8_Z5jdHi6B-myT"
+  return id;
 };
 
 initRedisControl();
