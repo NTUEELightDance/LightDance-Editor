@@ -9,7 +9,7 @@ import {
   Publisher,
 } from "type-graphql";
 import { AddPartInput, EditPartInput, DeletePartInput } from "./inputs/part";
-import { ControlDefault } from "./types/controlType";
+import { ControlDefault, ControlType } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { PartResponse } from "./response/partResponse";
@@ -25,16 +25,17 @@ export class PartResolver {
     @Arg("part") newPartData: AddPartInput,
     @Ctx() ctx: TContext
   ) {
+    if(!Object.values(ControlType).includes(newPartData.type)) throw new Error("type is invalid");
     const existDancer = await ctx.prisma.dancer.findFirst({
       where: { name: newPartData.dancerName },
       include: { parts: true },
     });
 
     if (existDancer) {
-      const duplicatePartName = await existDancer.parts.filter(
+      const duplicatePartName = existDancer.parts.find(
         (part: Part) => part.name === newPartData.name
       );
-      if (duplicatePartName.length === 0) {
+      if (!duplicatePartName) {
         const newPart = await ctx.prisma.part.create({
           data: {
             dancerId: existDancer.id,
@@ -44,6 +45,7 @@ export class PartResolver {
         });
 
         const allControlFrames: ControlFrame[] = await ctx.prisma.controlFrame.findMany();
+        // for each position frame, add empty position data to the dancer
         await ctx.prisma.controlData.createMany({
           data: allControlFrames.map(controlFrame=>(
             {
@@ -53,8 +55,7 @@ export class PartResolver {
             }
           ))
         });
-        // for each position frame, add empty position data to the dancer
-        await ctx.prisma.dancer.update({
+        const dancerData = await ctx.prisma.dancer.update({
           where: { id: existDancer.id },
           data: {
             parts: {
@@ -69,6 +70,7 @@ export class PartResolver {
         const payload: DancerPayload = {
           mutation: dancerMutation.UPDATED,
           editBy: Number(ctx.userID),
+          dancerData
         };
         await publish(payload);
 
@@ -92,34 +94,33 @@ export class PartResolver {
     @Ctx() ctx: TContext
   ) {
     const { id, name, type } = newPartData;
+    if(!Object.values(ControlType).includes(type)) throw new Error("type is invalid");
     const edit_part = await ctx.prisma.part.findFirst({
       where: { id },
       include: { controlData: true },
     });
     if (edit_part) {
       if (edit_part.type !== type) {
-        edit_part.controlData.map(async (id) => { // id is what?
-          await ctx.prisma.controlData.update({
-            where: { partId_frameId: { partId: edit_part.id, frameId:id.frameId } },
-            data: { value: ControlDefault[type] },
-          });
-          console.log(`id: ${id}`);
+        await ctx.prisma.controlData.updateMany({
+          where: { partId: id },
+          data: { value: ControlDefault[type] },
         });
-        const result = await ctx.prisma.part.update({
-          where: { id: id },
-          data: { name: name, type: type },
-        });
-        const payload: DancerPayload = {
-          mutation: dancerMutation.UPDATED,
-          editBy: Number(ctx.userID),
-        };
-        await publish(payload);
-        return { partData: result, ok: true, msg: "successfully edit part"};
       }
-      return {
-        ok: false,
-        msg: "part type no change",
+      const result = await ctx.prisma.part.update({
+        where: { id: id },
+        data: { name: name, type: type },
+      });
+      const dancerData = await ctx.prisma.dancer.findFirst({
+        where: { id: result.dancerId },
+        include: { parts: true }
+      });
+      const payload: DancerPayload = {
+        mutation: dancerMutation.UPDATED,
+        editBy: Number(ctx.userID),
+        dancerData
       };
+      await publish(payload);
+      return { partData: result, ok: true, msg: "successfully edit part"};
     }
     return {
       ok: false,
@@ -130,52 +131,30 @@ export class PartResolver {
   @Mutation((returns) => PartResponse)
   async deletePart(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
-    @Arg("part") newPartData: DeletePartInput,
+    @Arg("part") delPartData: DeletePartInput,
     @Ctx() ctx: TContext
   ) {
-    const { id, dancerName } = newPartData;
+    const { id } = delPartData;
     const part = await ctx.prisma.part.findFirst({
       where: { id },
-      include: { controlData: true },
     });
-    if (part) {
-      const dancer = await ctx.prisma.dancer.findFirst({
-        where: { name: dancerName },
-        include: { parts: true },
-      });
-      if(dancer&&part.dancerId===dancer.id) {
-        await ctx.prisma.controlData.deleteMany({
-          where: { partId: id },
-        });
-        await ctx.prisma.dancer.update({
-          where: { id: dancer.id },
-          data: {
-            parts: {
-              delete: {
-                id: part.id,
-              },
-            },
-          },
-        });
-        await initRedisControl();
-        await initRedisPosition();
-        const payload: DancerPayload = {
-          mutation: dancerMutation.UPDATED,
-          editBy: Number(ctx.userID),
-        };
-        await publish(payload);
-        return {ok: true, msg: "successfully delete part"};
-      }
-      return {
-        ok: false,
-        msg: "no dancer found",
-      };
-    }else{
-      return {
-        ok: false,
-        msg: "no part found",
-      };
-    }
+    if(!part) return { ok: false, msg: "no part found" };
+    const deletedPart = await ctx.prisma.part.delete({
+      where: { id }
+    });
+    const dancerData = await ctx.prisma.dancer.findFirst({
+      where: { id: deletedPart.dancerId },
+      include: { parts: true }
+    });
+    await initRedisControl();
+    await initRedisPosition();
+    const payload: DancerPayload = {
+      mutation: dancerMutation.UPDATED,
+      editBy: Number(ctx.userID),
+      dancerData
+    };
+    await publish(payload);
+    return {ok: true, msg: "successfully delete part"};
   }
 
   @FieldResolver((returns)=>[ControlData])

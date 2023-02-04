@@ -15,9 +15,6 @@ export const ControlDefault = {
     color: "red",
     alpha: 0,
   },
-  EL: {
-    value: 0,
-  },
   LED: {
     src: "",
     alpha: 0,

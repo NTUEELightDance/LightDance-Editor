@@ -91,7 +91,7 @@ model Part {
   type                      PartType
 
   // relation => not in db
-  dancer                    Dancer                  @relation(fields: [dancerId], references: [id])
+  dancer                    Dancer                  @relation(fields: [dancerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   controlData               ControlData[]
 }
 
@@ -103,8 +103,8 @@ model PositionData {
   z                         Float
 
   // relation => not in db
-  dancer                    Dancer                  @relation(fields: [dancerId], references: [id])
-  frame                     PositionFrame           @relation(fields: [frameId], references: [id])
+  dancer                    Dancer                  @relation(fields: [dancerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  frame                     PositionFrame           @relation(fields: [frameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([dancerId, frameId])
 }
@@ -124,8 +124,8 @@ model ControlData {
   value                     Json
 
   // relation => not in db
-  part                      Part                   @relation(fields: [partId], references: [id])
-  frame                     ControlFrame           @relation(fields: [frameId], references: [id])
+  part                      Part                   @relation(fields: [partId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  frame                     ControlFrame           @relation(fields: [frameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([partId, frameId])
 }

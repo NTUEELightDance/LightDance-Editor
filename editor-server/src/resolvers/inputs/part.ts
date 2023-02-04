@@ -23,16 +23,10 @@ export class EditPartInput {
 
   @Field()
     type: ControlType;
-
-  @Field()
-    dancerName: string;
 }
 
 @InputType()
 export class DeletePartInput {
   @Field((type) => Number)
     id: number;
-
-  @Field()
-    dancerName: string;
 }

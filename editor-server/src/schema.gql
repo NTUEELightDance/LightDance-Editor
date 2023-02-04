@@ -43,7 +43,6 @@ input ColorWhereInput {
 
 input ColorWhereUniqueInput {
   color: String
-  colorCode: String
 }
 
 type ControlData {
@@ -52,14 +51,6 @@ type ControlData {
   part: Part!
   partId: Int!
   value: JSON!
-}
-
-input ControlDataInput {
-  alpha: Float
-  color: String
-  ELValue: Float
-  partName: String!
-  src: String
 }
 
 input ControlDataListRelationFilter {
@@ -200,7 +191,6 @@ input deleteDancerInput {
 }
 
 input DeletePartInput {
-  dancerName: String!
   id: Float!
 }
 
@@ -212,11 +202,6 @@ input EditControlFrameInput {
   fade: Boolean
   frameID: Float!
   start: Float
-}
-
-input EditControlInput {
-  controlData: [ControlDataInput!]!
-  dancerName: String!
 }
 
 input editDancerInput {
@@ -283,7 +268,6 @@ input EditingPositionFrameWhereInput {
 }
 
 input EditPartInput {
-  dancerName: String!
   id: Float!
   name: String!
   type: String!
@@ -292,11 +276,6 @@ input EditPartInput {
 input EditPositionFrameInput {
   frameID: Float!
   start: Float!
-}
-
-input EditPositionInput {
-  dancerName: String!
-  positionData: PositionDataInput!
 }
 
 input EnumPartTypeFilter {
@@ -372,11 +351,11 @@ type Mutation {
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(controlData: [EditControlInput!]!, fade: Boolean = false, start: Float!): ControlData!
+  editControlMap(controlData: [[[String!]!]!]!, fade: Boolean = false, start: Float!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
-  editPosMap(positionData: [EditPositionInput!]!, start: Float!): PositionMap!
+  editPosMap(pos: [[Float!]!]!, start: Float!): PositionMap!
   RequestEditControl(FrameID: String!): RequestEditResponse!
   RequestEditPosition(FrameID: String!): RequestEditResponse!
 }
@@ -525,12 +504,6 @@ type PositionData {
 input PositionDataDancerIdFrameIdCompoundUniqueInput {
   dancerId: Int!
   frameId: Int!
-}
-
-input PositionDataInput {
-  x: Float!
-  y: Float!
-  z: Float!
 }
 
 input PositionDataListRelationFilter {

@@ -39,6 +39,7 @@ export class DancerResolver {
       where: { name: dancerName },
       include: { parts: true, positionData: true }
     });
+    if(!dancer) throw new Error("dancer not found");
     return dancer;
   }
 
@@ -93,7 +94,6 @@ export class DancerResolver {
     const newDancer = await ctx.prisma.dancer.update({
       where: { id },
       data: { name },
-      include: { parts: true },
     });
     if (newDancer) {
       const payload: DancerPayload = {
@@ -116,37 +116,16 @@ export class DancerResolver {
     const { id } = delDancerData;
     const dancer = await ctx.prisma.dancer.findFirst({
       where: { id },
-      // include: { parts: {
-      //   include: { controlData: true }
-      // } },
     });
-    if (dancer) {
-      // await Promise.all(
-      //   dancer.parts.map(async ({ id: partId, controlData, name }) => {
-      //     await Promise.all(
-      //       controlData.map(async ({ frameId }) => {
-      //         await ctx.prisma.controlData.delete({ where: {
-      //           partId_frameId: { partId, frameId }
-      //         }});
-      //       })
-      //     );
-      //     console.log("deleting part ",name);
-      //     await ctx.prisma.part.delete({ where: { id: partId }});
-      //   })
-      // );
-      await ctx.prisma.part.deleteMany({
-        where: { dancerId: id }
-      });
-      await ctx.prisma.dancer.delete({ where: { id }});
-      await initRedisControl();
-      await initRedisPosition();
-      const payload: DancerPayload = {
-        mutation: dancerMutation.DELETED,
-        editBy: Number(ctx.userID),
-      };
-      await publish(payload);
-      return { ok: true, msg: "dancer deleted" };
-    }
-    return { ok: false, msg: "dancer not found" };
+    if(!dancer) return { ok: false, msg: "dancer not found" };
+    await ctx.prisma.dancer.delete({ where: { id }});
+    await initRedisControl();
+    await initRedisPosition();
+    const payload: DancerPayload = {
+      mutation: dancerMutation.DELETED,
+      editBy: Number(ctx.userID),
+    };
+    await publish(payload);
+    return { ok: true, msg: "dancer deleted" };
   }
 }
