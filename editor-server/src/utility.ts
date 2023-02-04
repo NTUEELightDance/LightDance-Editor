@@ -15,10 +15,11 @@ import {
   IPositionFrame,
   IPosition,
   TRedisPos,
-  TRedisControlStatus,
+  TPartControl,
   TRedisControl,
   TRedisControlTest,
   TRedisPositionTest,
+  TPositionPos,
 } from "./types/global";
 
 const initData = async () => {
@@ -64,7 +65,7 @@ const initRedisControl = async () => {
         return;
       }
       const { fade, start, editing } = controlFrame;
-      const status: any[][][] = [];
+      const status: TPartControl[][] = [];
 
       // dancer: IDancer
       allDancers
@@ -73,7 +74,7 @@ const initRedisControl = async () => {
         })
         .map((dancer) => {
           const { name, parts } = dancer;
-          const partData: any[][] = [];
+          const partData: TPartControl[] = [];
           // IPart
           parts
             .sort((a, b) => (a.order < b.order ? -1 : 1))
@@ -146,7 +147,7 @@ const initRedisPosition = async () => {
         return;
       }
       const { start, editing } = positionFrame;
-      const pos: any[][] = [];
+      const pos: TPositionPos[] = [];
       // IDancer
       allDancers
         .sort((a, b) => {
@@ -205,10 +206,10 @@ const updateRedisControl = async (id: string) => {
   });
   const { fade, start, editing } = controlFrame;
 
-  const status: any[][][] = [];
+  const status: TPartControl[][] = [];
   allDancers.map((dancer) => {
     const { name, parts } = dancer;
-    const partData: any[][] = [];
+    const partData: TPartControl[] = [];
     parts
       .sort((a, b) => (a.order < b.order ? -1 : 1))
       .map((part) => {
@@ -266,7 +267,7 @@ const updateRedisPosition = async (id: string) => {
     },
   });
   const { start, editing } = positionFrame;
-  const pos: any[][] = [];
+  const pos: TPositionPos[] = [];
   allDancers
     .sort((a, b) => {
       return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;

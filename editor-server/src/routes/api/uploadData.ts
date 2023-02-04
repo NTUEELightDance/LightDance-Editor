@@ -11,6 +11,7 @@ import {
   TFiberControl,
   TExportLEDFrame,
   TExportLEDFrameLED,
+  TPositionPos,
 } from "../../types/global";
 
 type DancerTmpData = {
@@ -33,13 +34,7 @@ type CtrlFrameTmpData = {
 }
 type PosFrameTmpData = {
   start: number
-  pos: {
-    [key: string]: {
-      x: number
-      y: number
-      z: number
-    }
-  }
+  pos: TPositionPos[]
 }
 type PartsListTmpData = {
   // key: dancer name
@@ -53,7 +48,7 @@ const uploadData = async (req: Request, res: Response) => {
       ? req.files!.data[0]
       : req.files!.data;
     const dataObj: TExportData = JSON.parse(data.data.toString("ascii"));
-    const { position, control, dancer, color, ledEffects } = dataObj;
+    const { position, control, dancer, color, LEDEffects } = dataObj;
 
     // save dancer data temporarily (including part data)
     const allDancer: DancerTmpData = {};
@@ -62,17 +57,6 @@ const uploadData = async (req: Request, res: Response) => {
     // set of fiberColors & LEDPartNames
     const allFiberColors = new Set<string | number>();
     const allLEDPartNames = new Set<string>();
-
-    // clear DB
-    await prisma.color.deleteMany();
-    await prisma.positionData.deleteMany();
-    await prisma.controlData.deleteMany();
-    await prisma.part.deleteMany();
-    await prisma.dancer.deleteMany();
-    await prisma.positionFrame.deleteMany();
-    await prisma.controlFrame.deleteMany();
-    await prisma.lEDFrame.deleteMany();
-    await prisma.lEDEffect.deleteMany();
 
     // check all data are valid
 
@@ -92,8 +76,8 @@ const uploadData = async (req: Request, res: Response) => {
     });
 
     // check LED data shape
-    Object.keys(ledEffects).map(async (partName: string) => {
-      const effectData = ledEffects[partName];
+    Object.keys(LEDEffects).map(async (partName: string) => {
+      const effectData = LEDEffects[partName];
       Object.keys(effectData).map(async (effectName: string) => {
         const { repeat, frames } = effectData[effectName];
         frames.map(async (frame: TExportLEDFrame) => {
@@ -110,7 +94,7 @@ const uploadData = async (req: Request, res: Response) => {
     });
 
     // check LED part is used by any dancer
-    Object.keys(ledEffects).map((partName: string) => {
+    Object.keys(LEDEffects).map((partName: string) => {
       if (!allLEDPartNames.has(partName)) {
         console.log(`LED part '${partName}' is not used by any dancer!!`);
       }
@@ -119,15 +103,20 @@ const uploadData = async (req: Request, res: Response) => {
     // check every position frame has the same number of real dancers
     Object.values(position).map(async (frameObj: PosFrameTmpData) => {
       const { start, pos } = frameObj;
-      if (Object.keys(pos).length !== Object.keys(allPartsList).length) {
+      if (pos.length !== Object.keys(allPartsList).length) {
         throw new Error(
           `POSITIONFRAME_DATA_ERROR: Position frame starting at ${start}ms has invalid number of dancers. Found ${
-            Object.keys(pos).length
+            pos.length
           }, Expected ${Object.keys(allPartsList).length}`
         );
       }
-      Object.keys(pos).map(async (dancer: string) => {
-        const { x, y, z } = pos[dancer];
+      pos.map(async (dancerPos) => {
+        if (dancerPos.length !== 3) {
+          throw new Error(
+            `POSITIONFRAME_DATA_ERROR: Position frame  starting at ${start}ms`
+          );
+        }
+        const [x, y, z] = dancerPos;
       });
     });
 
@@ -206,6 +195,17 @@ const uploadData = async (req: Request, res: Response) => {
 
     // console.log("Data valid!!")
 
+    // clear DB
+    await prisma.color.deleteMany();
+    await prisma.positionData.deleteMany();
+    await prisma.controlData.deleteMany();
+    await prisma.part.deleteMany();
+    await prisma.dancer.deleteMany();
+    await prisma.positionFrame.deleteMany();
+    await prisma.controlFrame.deleteMany();
+    await prisma.lEDFrame.deleteMany();
+    await prisma.lEDEffect.deleteMany();
+
     // create client object
 
     // create fiber color
@@ -222,8 +222,8 @@ const uploadData = async (req: Request, res: Response) => {
 
     // create LED data
     await Promise.all(
-      Object.keys(ledEffects).map(async (partName: string) => {
-        const effectData = ledEffects[partName];
+      Object.keys(LEDEffects).map(async (partName: string) => {
+        const effectData = LEDEffects[partName];
         Object.keys(effectData).map(async (effectName: string) => {
           const { repeat, frames } = effectData[effectName];
           const newLEDEffect = await prisma.lEDEffect.create({
@@ -299,6 +299,8 @@ const uploadData = async (req: Request, res: Response) => {
       console.log(e);
     });
 
+    const sortedDancer = Object.keys(allDancer).sort();
+
     // deal with position data
     await Promise.all(
       Object.values(position).map(async (frameObj: PosFrameTmpData) => {
@@ -308,18 +310,19 @@ const uploadData = async (req: Request, res: Response) => {
             start: start,
           },
         });
-        Object.keys(pos).map(async (dancer: string) => {
-          const { x, y, z } = pos[dancer];
+        // sync pos
+        for (let i = 0; i < pos.length; i++) {
+          const [x, y, z] = pos[i];
           const positionData = await prisma.positionData.create({
             data: {
               x: x,
               y: y,
               z: z,
-              dancer: { connect: { id: allDancer[dancer].id } },
+              dancer: { connect: { id: allDancer[sortedDancer[i]].id } },
               frame: { connect: { id: positionFrame.id } },
             },
           });
-        });
+        }
       })
     ).catch((e) => {
       console.log(e);
@@ -328,7 +331,6 @@ const uploadData = async (req: Request, res: Response) => {
     // deal with control data
     // console.log(sortedDancer)
     // console.dir(allDancer, { depth: null });
-    const sortedDancer = Object.keys(allDancer).sort();
     await Promise.all(
       Object.values(control).map(async (frameObj: CtrlFrameTmpData) => {
         const { fade, start, status } = frameObj;

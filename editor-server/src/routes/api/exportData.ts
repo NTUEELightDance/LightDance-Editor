@@ -1,107 +1,156 @@
 import { Request, Response } from "express";
 
-import db from "../../models";
 import redis from "../../redis";
+import prisma from "../../prisma";
 import {
   IColor,
   IControlFrame,
   IPositionFrame,
   TColorData,
   TControlData,
-  TControlDataTest,
   TDancerData,
   TExportData,
   TPositionData,
+  TPositionDataTest,
+  TRedisControlTest,
+  TRedisPositionTest,
+  TExportLED,
+  TExportLEDPart,
+  TExportLEDFrame,
 } from "../../types/global";
 
 const exportData = async (req: Request, res: Response) => {
   try {
+    // grab color data
+    const colorData = await prisma.color.findMany();
+    const color: TColorData = {};
+    // IColor
+    colorData.map((colorObj) => {
+      color[colorObj.color] = colorObj.colorCode;
+    });
+    // console.log(color)
+
+    // grab dancer data
+    const dancerData = await prisma.dancer.findMany({
+      include: {
+        parts: {
+          select: {
+            name: true,
+            type: true,
+          },
+        },
+      },
+    });
+    const dancer: TDancerData[] = [];
+    dancerData
+      .sort((a, b) => (a.name < b.name ? -1 : 1))
+      .map((dancerObj) => {
+        dancer.push({ name: dancerObj.name, parts: dancerObj.parts });
+      });
+    // console.dir(dancer, { depth: null })
+
     // grab control data from redis
-    const controlFrames = await db.ControlFrame.find();
-    // const control: TControlData = {}
-    const control: TControlDataTest = {};
+    const controlFrames = await prisma.controlFrame.findMany();
+    const control: TControlData = {};
     await Promise.all(
-      controlFrames.map(async (frame: IControlFrame) => {
-        const { id } = frame;
+      controlFrames.map(async (frame) => {
+        // id format in redis
+        const id = `CTRLFRAME_${frame.id}`;
         const cache = await redis.get(id);
         if (cache) {
-          const cacheObj = JSON.parse(cache);
+          const cacheObj: TRedisControlTest = JSON.parse(cache);
           delete cacheObj.editing;
           // console.log(cacheObj, id)
           // control[id] = cacheObj
 
-          const ControlStatus: any[][][] = [];
           const { fade, start, status } = cacheObj;
-          // console.log(fade, start, status)
-
-          const sorted_dancers = Object.keys(status).sort();
-          // console.log(sorted_dancers)
-          sorted_dancers.map((dancer) => {
-            // console.log(status[dancer])
-            const parts: any[][] = [];
-            Object.keys(status[dancer]).map((part) => {
-              const elements: any[] = [];
-              Object.keys(status[dancer][part]).map((element) => {
-                elements.push(status[dancer][part][element]);
-              });
-              parts.push(elements);
-            });
-            ControlStatus.push(parts);
-          });
-          // console.log(ControlStatus)
           const newCacheObj = {
             fade,
             start: Math.floor(start),
-            status: ControlStatus,
+            // status: ControlStatus,
+            status,
           };
           // console.log(newCacheObj)
 
-          control[id] = newCacheObj;
+          // id(string) or frame.id(number)
+          control[frame.id] = newCacheObj;
         } else {
           throw new Error(`Frame ${id} not found in redis.`);
         }
       })
     );
+    // console.dir(control, { depth: null })
 
     // grab position data from redis
-    const positionFrames = await db.PositionFrame.find();
+    const positionFrames = await prisma.positionFrame.findMany();
     const position: TPositionData = {};
     await Promise.all(
-      positionFrames.map(async (frame: IPositionFrame) => {
-        const { id } = frame;
+      positionFrames.map(async (frame) => {
+        // id format in redis
+        const id = `POSFRAME_${frame.id}`;
         const cache = await redis.get(id);
         if (cache) {
-          const cacheObj = JSON.parse(cache);
+          const cacheObj: TRedisPositionTest = JSON.parse(cache);
           delete cacheObj.editing;
-          position[id] = cacheObj;
+          position[frame.id] = cacheObj;
         } else {
           throw new Error(`Frame ${id} not found in redis.`);
         }
       })
     );
+    // console.dir(position, { depth: null })
 
-    // grab dancer data from db
-    const dancer: TDancerData[] = await db.Dancer.find(
-      {},
-      "name parts -_id"
-    ).populate({
-      path: "parts",
-      select: "name type -_id",
+    // grab LEDEffect data
+    const LEDParts = await prisma.part.findMany({
+      where: {
+        type: "LED",
+      },
     });
+    const LEDPartsName = LEDParts.map((LEDPart) => LEDPart.name).filter(
+      (name, idx, a) => a.indexOf(name) === idx
+    );
 
-    const colorData = await db.Color.find({}, "color colorCode -_id");
-    const color: TColorData = {};
-    colorData.map((colorObj: IColor) => {
-      color[colorObj.color] = colorObj.colorCode;
-    });
+    const LEDEffects: TExportLED = {};
+    await Promise.all(
+      LEDPartsName.map(async (partName) => {
+        const LEDPart: TExportLEDPart = {};
+        const LEDPartEffects = await prisma.lEDEffect.findMany({
+          where: {
+            partName: partName,
+          },
+          include: {
+            frames: true,
+          },
+        });
+        // console.dir(LEDPartEffects, { depth: null })
+        LEDPartEffects.map((LEDPartEffect) => {
+          const { name, repeat, frames } = LEDPartEffect;
+          const LEDFrames = frames.map((LEDFrame) => {
+            const { LEDs, start, fade } = LEDFrame;
+            const LEDFrameData: TExportLEDFrame = {
+              LEDs: JSON.parse(JSON.stringify(LEDs)),
+              start,
+              fade,
+            };
+            return LEDFrameData;
+          });
+          // part[effectName] = { repeat, effects: newEffects }
+          LEDPart[name] = { repeat, frames: LEDFrames };
+        });
+        LEDEffects[partName] = LEDPart;
+      })
+    );
+    console.dir(LEDEffects, { depth: null });
 
-    const data: {
-      position: TPositionData
-      // control: TControlData
-      control: TControlDataTest
-      dancer: TDancerData[]
-      color: TColorData
-    } = { position, control, dancer, color };
+    const data: TExportData =
+      // {
+      //   position: TPositionData
+      //   control: TControlData
+      //   dancer: TDancerData[]
+      //   color: TColorData
+      //   LEDEffects: TExportLED
+      // }
+      { position, control, dancer, color, LEDEffects };
     // console.log(data)
     res.header("Content-Type", "application/json");
     res.send(JSON.stringify(data));

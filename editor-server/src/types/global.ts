@@ -136,26 +136,21 @@ export type TExportData = {
   // control: TControlDataTest
   dancer: TDancerData[]
   color: TColorData
-  ledEffects: TExportLED
+  LEDEffects: TExportLED
 }
 export type TPositionData = {
   [key: string]: {
     start: number
-    pos: {
-      [key: string]: {
-        x: number
-        y: number
-        z: number
-      }
-    }
+    pos: TPositionPos[]
   }
 }
 export type TPositionDataTest = {
   [key: string]: {
     start: number
-    pos: [x: number, y: number, z: number][]
+    pos: TPositionPos[]
   }
 }
+export type TPositionPos = [x: number, y: number, z: number]
 export type TControlData = {
   [key: string]: {
     fade: boolean
@@ -163,21 +158,15 @@ export type TControlData = {
     status: (TELControl | TLEDControl | TFiberControl)[][]
   }
 }
-export type TControlDataTest = {
-  [key: string]: {
-    fade: boolean
-    start: number
-    status: (TELControl | TLEDControl | TFiberControl)[][][]
-  }
-}
 
 export type TELControl = [value: number]
 export type TLEDControl = [src: string, alpha: number]
 export type TFiberControl = [color: string, alpha: number]
+export type TPartControl = TELControl | TLEDControl | TFiberControl
 
 export type TDancerData = {
   parts: TPartData[]
-  positionData: TPositionData[]
+  positionData?: TPositionData[]
   name: string
 }
 export type TPartData = {
@@ -222,7 +211,7 @@ export type TRedisControlTest = {
   fade: boolean
   start: number
   editing: string | undefined
-  status: any[][][]
+  status: TPartControl[][]
 }
 export type TRedisControlStatus = {
   [key: string]: {
@@ -240,7 +229,7 @@ export type TRedisPosition = {
 export type TRedisPositionTest = {
   start: number
   editing: string | undefined
-  pos: any[][]
+  pos: TPositionPos[]
 }
 export type TRedisPos = {
   [key: string]: {
