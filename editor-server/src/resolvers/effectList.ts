@@ -96,7 +96,7 @@ export class EffectListResolver {
     const positionFrameIDs = positionFrames.map((positionFrame) => 
       String(positionFrame.id)
     )
-    /*
+    
     const redisControlFrames: TRedisControls = {};
     await Promise.all(
       controlFrameIDs.map(async (controlFrameID: string) => {
@@ -125,7 +125,7 @@ export class EffectListResolver {
         }
       })
     );
-    */
+
     const effectList = await ctx.prisma
     .effectListData.create({data: {start: start, end: end, description: description, controlFrames: controlFrames, positionFrames: positionFrames}});
     const result = {
