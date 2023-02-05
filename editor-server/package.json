@@ -37,7 +37,7 @@
   "scripts": {
     "start": "nodemon src/index.ts",
     "deploy": "NODE_ENV=production ts-node src/index.ts",
-    "lint": "yarn eslint --fix ."
+    "lint": "yarn eslint --fix . --ignore-path .gitignore"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.48.1",
