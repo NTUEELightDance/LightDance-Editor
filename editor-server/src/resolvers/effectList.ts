@@ -68,7 +68,8 @@ export class EffectListResolver {
         start,
         end,
         description,
-        data: { control: controlFrames, position: positionFrames },
+        controlFrames: controlFrames, 
+        positionFrames: positionFrames
       };
     });
     return result;
