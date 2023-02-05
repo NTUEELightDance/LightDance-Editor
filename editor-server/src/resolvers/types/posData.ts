@@ -1,54 +1,55 @@
 import { Field, ObjectType } from "type-graphql";
-import { GraphQLScalarType, Kind } from "graphql";
+import { GraphQLScalarType } from "graphql";
 import { ObjectId } from "mongodb";
-
 import redis from "../../redis";
-import { TRedisPosition, TRedisPositions } from "../../types/global";
 
-type TPositionDataFrame = {
-  createList: string[];
-  deleteList: string[];
-  updateList: string[];
+interface LooseObject {
+  [key: string]: any;
 }
-type TPositionDataScalar = {
-  createFrames: TRedisPositions;
-  updateFrames: TRedisPositions;
-  deleteFrames: string[];
-} | TRedisPositions
 
 @ObjectType()
 export class PosData {
   @Field((type) => PosDataScalar)
-    frame: TPositionDataFrame;
+    frame: ObjectId;
 }
 
 export const PosDataScalar = new GraphQLScalarType({
   name: "PosMapMutationObjectId",
   description: "Mongo object id scalar type",
-  async serialize(data: TPositionDataFrame): Promise<TPositionDataScalar> {
+  async serialize(data: any): Promise<any> {
     // check the type of received value
-    const { deleteList, createList, updateList } = data;
-    const createFrames: TRedisPositions = {};
-    await Promise.all(
-      createList.map(async (id) => {
-        const cache = await redis.get(id);
-        if (cache) {
-          const cacheObj: TRedisPosition = JSON.parse(cache);
-          createFrames[id] = cacheObj;
-        }
-      })
-    );
-    const updateFrames: TRedisPositions = {};
-    await Promise.all(
-      updateList.map(async (id) => {
-        const cache = await redis.get(id);
-        if (cache) {
-          const cacheObj: TRedisPosition = JSON.parse(cache);
-          updateFrames[id] = cacheObj;
-        }
-      })
-    );
-    return { createFrames, deleteFrames: deleteList, updateFrames };
+    const { id, _id, deleteList, createList, updateList } = data;
+    if (id && _id) {
+      const result: LooseObject = {};
+      const cache = await redis.get(`POSFRAME_${id}`);
+      if (cache) {
+        const cacheObj = JSON.parse(cache);
+        result[id] = cacheObj;
+      }
+      return result;
+    } else {
+      const createFrames: LooseObject = {};
+      await Promise.all(
+        createList.map(async (id: any) => {
+          const cache = await redis.get(id);
+          if (cache) {
+            const cacheObj = JSON.parse(cache);
+            createFrames[id] = cacheObj;
+          }
+        })
+      );
+      const updateFrames: LooseObject = {};
+      await Promise.all(
+        updateList.map(async (id: any) => {
+          const cache = await redis.get(`POSFRAME_${id}`);
+          if (cache) {
+            const cacheObj = JSON.parse(cache);
+            updateFrames[id] = cacheObj;
+          }
+        })
+      );
+      return { createFrames, deleteFrames: deleteList, updateFrames };
+    }
   },
   parseValue(value: unknown): any {
     // check the type of received value

@@ -4,7 +4,7 @@ import { IUser } from "../types/global";
 const Schema = mongoose.Schema;
 const userSchema = new Schema<IUser>({
   userID: {
-    type: String,
+    type: Number,
     required: [true, "userID field is required."],
     // unique: true
   },

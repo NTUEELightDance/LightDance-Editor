@@ -45,7 +45,6 @@ const { SECRET_KEY } = process.env
     globalMiddlewares: [AccessMiddleware],
     pubSub: pubsub,
   });
-
   const subscriptionBuildOptions = async (
     connectionParams: ConnectionParam,
     webSocket: any
@@ -101,10 +100,11 @@ const { SECRET_KEY } = process.env
       try {
         // make sure that we know who are accessing backend
         const { name, userid } = req.headers;
-        if (!userid || !name) throw new Error("UserID and name must be filled.");
-        const userID: string = typeof userid === "string" ? userid : userid[0];
-        const userName: string = typeof name === "string" ? name : name[0];
-        const user = await db.User.findOne({ name: userName, userID: userID });
+        if (!userid || !name)
+          throw new Error("UserID and name must be filled.");
+        const userID: number = (typeof(userid) === "number") ? userid : 0;
+        const userName: string = (typeof(name) === "string") ? name: name[0];
+        const user = await db.User.findOne({ name: userName });
         if (!user) {
           const newUser = await new db.User({
             name: userName,

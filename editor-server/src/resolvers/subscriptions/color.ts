@@ -6,7 +6,7 @@ export class ColorPayload {
     mutation: colorMutation;
 
   @Field()
-    editBy: string;
+    editBy: number;
 
   @Field()
     color: string;

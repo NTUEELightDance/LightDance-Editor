@@ -8,6 +8,7 @@ export const AccessMiddleware: MiddlewareFn<TContext> = async (
   const { fieldName, parentType, variableValues } = info;
   try {
     if (info.parentType.name === "Mutation") {
+      console.log("Mutation", fieldName, variableValues)
       const result = await next();
       await new context.db.Logger({
         user: context.userID,

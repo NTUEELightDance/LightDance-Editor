@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID, Int } from "type-graphql";
-import { EffectList } from "../types/effectList";
+import { EffectList } from "../../../prisma/generated/type-graphql";
 
 @ObjectType()
 export class EffectListPayload {
