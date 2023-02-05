@@ -11,7 +11,7 @@ docker-compose -f dev.docker-compose.yml up -d postgresqldb mongodb redisdb
 3. Migrate prisma
 ```sh
 cd ./Lightdance-Editor/editor-server
-cp .env.defaults .env
+cp .env.default .env
 npx prisma migrate dev --name init
 ```
 

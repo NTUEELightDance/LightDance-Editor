@@ -1,6 +1,6 @@
 import { DancerResolver } from "./dancer";
-// import ColorResolver from "./color";
-// import SubscriptionResolver from "./subscriptions";
+import ColorResolver from "./color";
+import SubscriptionResolver from "./subscriptions";
 import { PartResolver } from "./part";
 import { ControlFrameResolver } from "./controlFrame";
 import { PositionFrameResolver } from "./positionFrame";
@@ -8,9 +8,9 @@ import { ControlMapResolver, EditControlMapResolver } from "./controlMap";
 import { RequestEditResolver } from "./requestEdit";
 import { PositionResolver } from "./position";
 import { PosMapResolver, EditPosMapResolver } from "./positionMap";
-// import { EffectListResolver } from "./effectList";
-// import { ShiftResolver } from "./shift";
-// import { LEDResolver } from "./led";
+import { EffectListResolver } from "./effectList";
+import { ShiftResolver } from "./shift";
+import { LEDResolver } from "./led";
 
 import { FindManyColorResolver,
   FindUniqueColorResolver,
@@ -30,7 +30,7 @@ import { FindManyColorResolver,
 
 export const resolvers = [
   // Color related
-  // ColorResolver,
+  ColorResolver,
   FindManyColorResolver,
   FindUniqueColorResolver,
 
@@ -38,7 +38,7 @@ export const resolvers = [
   DancerResolver,
   PartResolver,
   PositionResolver,
-  // SubscriptionResolver,
+  SubscriptionResolver,
   ControlFrameResolver,
   PositionFrameResolver,
   ControlMapResolver,
@@ -46,9 +46,9 @@ export const resolvers = [
   PosMapResolver,
   EditControlMapResolver,
   EditPosMapResolver,
-  // EffectListResolver,
-  // ShiftResolver,
-  // LEDResolver,
+  EffectListResolver,
+  ShiftResolver,
+  LEDResolver,
 
   ControlDataRelationsResolver,
   ControlFrameRelationsResolver,

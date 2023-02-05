@@ -22,7 +22,6 @@ export class PosMapResolver {
     const frameIds = await ctx.prisma.positionFrame.findMany({
       select: {id: true }
     });
-    console.log("frameIds: ", frameIds);
     return { frameIds };
   }
 }
