@@ -45,6 +45,7 @@ const { SECRET_KEY } = process.env
     globalMiddlewares: [AccessMiddleware],
     pubSub: pubsub,
   });
+
   const subscriptionBuildOptions = async (
     connectionParams: ConnectionParam,
     webSocket: any
@@ -99,20 +100,25 @@ const { SECRET_KEY } = process.env
     context: async ({ req }) => {
       try {
         // make sure that we know who are accessing backend
-        const { name, userid } = req.headers;
-        if (!userid || !name)
-          throw new Error("UserID and name must be filled.");
-        const userID: number = (typeof(userid) === "number") ? userid : 0;
+        const { name, password } = req.headers;
+        if (!name || !password)
+          throw new Error("password and name must be filled.");
+        let userID;
         const userName: string = (typeof(name) === "string") ? name: name[0];
-        const user = await db.User.findOne({ name: userName });
+        const userPassword: string = (typeof(password) === "string") ? password : password[0];
+        const user = await prisma.user.findFirst({where: {name: userName}});
         if (!user) {
-          const newUser = await new db.User({
-            name: userName,
-            userID: userid,
-          }).save();
+          const newUser = await prisma.user.create({data: {name: userName, password: userPassword}});
+          const createEditingControl = await prisma.editingControlFrame.create({data: {userId: newUser.id, frameId: null}});
+          const createEditingPosition = await prisma.editingPositionFrame.create({data: {userId: newUser.id, frameId: null}});
+          userID = newUser.id;
         }
-        const result: TContext = { db, userID, prisma };
+        else{
+          userID = user.id;
+        }
+        const result: TContext = { db, userID, userPassword, prisma };
         return result;
+
       } catch (e) {
         console.log(e);
       }

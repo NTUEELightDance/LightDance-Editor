@@ -103,7 +103,7 @@ export class EditControlMapResolver {
     });
     await updateRedisControl(`CTRLFRAME_${frameToEdit.id}`);
     const payload: ControlMapPayload = {
-      editBy: Number(ctx.userID),
+      editBy: ctx.userID,
       frame: {
         createList: [],
         deleteList: [],

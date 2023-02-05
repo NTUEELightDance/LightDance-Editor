@@ -79,9 +79,9 @@ export class ControlFrameResolver {
         });
       })
     );
-    await updateRedisControl(`CTRLFRAMW_${newControlFrame.id}`);
+    await updateRedisControl(`CTRLFRAME_${newControlFrame.id}`);
     const mapPayload: ControlMapPayload = {
-      editBy: Number(ctx.userID),
+      editBy: ctx.userID,
       frame: {
         createList: [newControlFrame.id],
         deleteList: [],
@@ -101,7 +101,7 @@ export class ControlFrameResolver {
     });
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.CREATED,
-      editBy: Number(ctx.userID),
+      editBy: ctx.userID,
       addID: [newControlFrame.id],
       updateID: [],
       deleteID: [],
@@ -160,7 +160,7 @@ export class ControlFrameResolver {
     await updateRedisControl(`CTRLFRAME_${controlFrame.id}`);
 
     const payload: ControlMapPayload = {
-      editBy: Number(ctx.userID),
+      editBy: ctx.userID,
       frame: {
         createList: [],
         deleteList: [],
@@ -179,7 +179,7 @@ export class ControlFrameResolver {
     });
     const recordPayload: ControlRecordPayload = {
       mutation: ControlRecordMutation.UPDATED,
-      editBy: Number(ctx.userID),
+      editBy: ctx.userID,
       addID: [],
       updateID: [controlFrame.id],
       deleteID: [],
@@ -245,7 +245,7 @@ export class ControlFrameResolver {
     // );
     await redis.del(`CTRLFRAME_${frameID}`);
     const mapPayload: ControlMapPayload = {
-      editBy: Number(ctx.userID),
+      editBy: ctx.userID,
       frame: {
         createList: [],
         deleteList: [frameID],
@@ -258,7 +258,7 @@ export class ControlFrameResolver {
       addID: [],
       updateID: [],
       deleteID: [frameID],
-      editBy: Number(ctx.userID),
+      editBy: ctx.userID,
       index: -1,
     };
     await publishControlRecord(recordPayload);

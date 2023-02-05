@@ -139,28 +139,25 @@ class ColorResolver {
     try {
       // check if color name and color code exists
       const existedColor = await ctx.prisma.color.findUniqueOrThrow({
-        where: {color}
+        where: {color: color}
       });
 
       // TODO: Apply Prisma
       // check whether color is using in Control
-      const checkControl: IControl[] = await ctx.db.Control.find({ "value.color": color });
+      const checkControl = await ctx.prisma.controlData.findMany({where: {value: {path: ['color'], equals: color}}});
       if (checkControl.length != 0) {
-        const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find({}, "_id").sort({
-          start: 1,
-        });
-        const allControlFrameID = allControlFrame.map((Obj) =>
-          String(Obj._id)
-        );
-        const ids: number[] = [];
-        checkControl.map((controlObj) => {
-          const frame = String(controlObj.frame);
-          const id = allControlFrameID.indexOf(frame);
-          if (ids.indexOf(id) === -1) {
-            ids.push(id);
+        let checkControlFrames: number[] = checkControl.map((control) => 
+          control.frameId
+        )
+        checkControlFrames = checkControlFrames.sort(function(a,b){return a-b});
+        let frame = 0;
+        let ids: number[] = []
+        checkControlFrames.map((controlFrame) => {
+          if(controlFrame !== frame){
+            ids.push(controlFrame)
+            frame = controlFrame
           }
-        });
-        ids.sort((a, b) => a - b);
+        })
         return {
           color: color,
           colorCode: existedColor.colorCode,
@@ -171,7 +168,7 @@ class ColorResolver {
       // TODO END
 
       // Delete Color
-      await ctx.prisma.color.delete({where: {color}});
+      const deleteColor = await ctx.prisma.color.delete({where: {color: color}});
       const payload: ColorPayload = {
         mutation: colorMutation.DELETED,
         color: color,
