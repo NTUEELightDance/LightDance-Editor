@@ -11,62 +11,43 @@ import { RequestEditResponse } from "./response/requestEditResponse";
 @Resolver()
 export class RequestEditResolver {
   @Mutation((returns) => RequestEditResponse)
-  async RequestEditControl(@Arg("FrameID") frameID: string, @Ctx() ctx: TContext) {
-    const controlFrame = await ctx.db.ControlFrame.findOne({ id: frameID });
-    if (!controlFrame.editing) {
-      await ctx.db.ControlFrame.findOneAndUpdate(
-        { editing: ctx.userID },
-        { editing: null }
-      );
-      await ctx.db.ControlFrame.findOneAndUpdate(
-        { id: frameID },
-        { editing: ctx.userID }
-      );
+  async RequestEditControl(@Arg("FrameID") frameID: number, @Ctx() ctx: TContext) {
+    const checkEditingControlFrame = await ctx.prisma.editingControlFrame.findFirst({where: {frameId: frameID}});
+    if (checkEditingControlFrame === null) {
+      const updateEditing = await ctx.prisma.editingControlFrame.updateMany({where: {userId: ctx.userID}, data: {frameId: frameID}});
       return { editing: ctx.userID, ok: true };
     } else {
-      if (controlFrame.editing !== ctx.userID) {
-        return { editing: controlFrame.editing, ok: false };
+      if (checkEditingControlFrame.userId !== ctx.userID) {
+        return { editing: checkEditingControlFrame.userId, ok: false };
       }
-      return { editing: controlFrame.editing, ok: true };
+      return { editing: checkEditingControlFrame.userId, ok: true };
     }
   }
 
   @Mutation((returns) => RequestEditResponse)
-  async RequestEditPosition(@Arg("FrameID") frameID: string, @Ctx() ctx: TContext) {
-    const positionFrame = await ctx.db.PositionFrame.findOne({ id: frameID });
-    if (!positionFrame.editing) {
-      await ctx.db.PositionFrame.findOneAndUpdate(
-        { editing: ctx.userID },
-        { editing: null }
-      );
-      await ctx.db.PositionFrame.findOneAndUpdate(
-        { id: frameID },
-        { editing: ctx.userID }
-      );
+  async RequestEditPosition(@Arg("FrameID") frameID: number, @Ctx() ctx: TContext) {
+    const checkEditingPositionFrame = await ctx.prisma.editingPositionFrame.findFirst({where: {frameId: frameID}});
+    if (checkEditingPositionFrame === null) {
+      const updateEditing = await ctx.prisma.editingPositionFrame.updateMany({where: {userId: ctx.userID}, data: {frameId: frameID}});
       return { editing: ctx.userID, ok: true };
     } else {
-      if (positionFrame.editing !== ctx.userID) {
-        return { editing: positionFrame.editing, ok: false };
+      if (checkEditingPositionFrame.userId !== ctx.userID) {
+        return { editing: checkEditingPositionFrame.userId, ok: false };
       }
-      return { editing: positionFrame.editing, ok: true };
+      return { editing: checkEditingPositionFrame.userId, ok: true };
     }
   }
 
   @Mutation((returns) => RequestEditResponse)
-  async CancelEditPosition(@Arg("FrameID") frameID: string, @Ctx() ctx: TContext) {
-    const positionFrame = await ctx.db.PositionFrame.findOneAndUpdate(
-      { id: frameID },
-      { editing: null }
-    );
+  async CancelEditPosition(@Arg("FrameID") frameID: number, @Ctx() ctx: TContext) {
+    const positionFrame = await ctx.prisma.editingPositionFrame.updateMany({where: {frameId: frameID}, data: {frameId: null}});
     return { editing: null, ok: true };
   }
 
   @Mutation((returns) => RequestEditResponse)
-  async CancelEditControl(@Arg("FrameID") frameID: string, @Ctx() ctx: TContext) {
-    const controlFrame = await ctx.db.ControlFrame.findOneAndUpdate(
-      { id: frameID },
-      { editing: null }
-    );
+  async CancelEditControl(@Arg("FrameID") frameID: number, @Ctx() ctx: TContext) {
+    const controlFrame = await ctx.prisma.editingControlFrame.updateMany({where: {frameId: frameID}, data: {frameId: null}});
     return { editing: null, ok: true };
   }
 }
+

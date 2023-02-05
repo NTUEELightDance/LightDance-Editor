@@ -23,9 +23,36 @@ type Color {
   colorCode: String!
 }
 
+input ColorCreateInput {
+  color: String!
+  colorCode: String!
+}
+
+type ColorMap {
+  colorMap: ColorMapCustomScalar!
+}
+
+"""Color map scalar type"""
+scalar ColorMapCustomScalar
+
 input ColorOrderByWithRelationInput {
   color: SortOrder
   colorCode: SortOrder
+}
+
+type ColorPayload {
+  color: String!
+  colorCode: String
+  editBy: Float!
+  mutation: String!
+  renameColor: String
+}
+
+type ColorResponse {
+  color: String!
+  colorCode: String!
+  msg: String
+  ok: Boolean
 }
 
 enum ColorScalarFieldEnum {
@@ -139,7 +166,24 @@ type ControlMap {
 }
 
 """Mongo object id scalar type"""
+scalar ControlMapMutationObjectId
+
+type ControlMapPayload {
+  editBy: Float!
+  frame: ControlMapMutationObjectId!
+}
+
+"""Mongo object id scalar type"""
 scalar ControlMapQueryObjectId
+
+type ControlRecordPayload {
+  addID: [String!]!
+  deleteID: [String!]!
+  editBy: Float!
+  index: Int!
+  mutation: String!
+  updateID: [String!]!
+}
 
 type Dancer {
   _count: DancerCount
@@ -154,11 +198,23 @@ type DancerCount {
   positionData: Int!
 }
 
+enum dancerMutation {
+  CREATED
+  DELETED
+  UPDATED
+}
+
 input DancerOrderByWithRelationInput {
   id: SortOrder
   name: SortOrder
   parts: PartOrderByRelationAggregateInput
   positionData: PositionDataOrderByRelationAggregateInput
+}
+
+type DancerPayload {
+  dancerData: Dancer
+  editBy: Float!
+  mutation: dancerMutation!
 }
 
 input DancerRelationFilter {
@@ -188,6 +244,16 @@ input DeleteControlFrameInput {
 
 input deleteDancerInput {
   id: Float!
+}
+
+type DeleteLEDEffectResponse {
+  msg: String
+  ok: Boolean!
+}
+
+input DeleteLEDInput {
+  effectName: String!
+  partName: String!
 }
 
 input DeletePartInput {
@@ -278,6 +344,32 @@ input EditPositionFrameInput {
   start: Float!
 }
 
+type Effect {
+  alpha: Float!
+  colorCode: String!
+}
+
+type EffectListData {
+  controlFrames: [JSON!]!
+  description: String!
+  end: Int!
+  id: Int!
+  positionFrames: [JSON!]!
+  start: Int!
+}
+
+type EffectListPayload {
+  editBy: Float!
+  effectListData: EffectListData
+  effectListID: ID!
+  mutation: String!
+}
+
+type EffectListResponse {
+  msg: String
+  ok: Boolean!
+}
+
 input EnumPartTypeFilter {
   equals: PartType
   in: [PartType!]
@@ -339,25 +431,106 @@ input JsonFilter {
   string_starts_with: String
 }
 
+input LEDEffectCreateInput {
+  frames: LEDFrameCreateNestedManyWithoutLEDEffectInput
+  name: String!
+  partName: String!
+  repeat: Int!
+}
+
+type LEDEffectResponse {
+  effectName: String!
+  effects: [LEDEffects!]!
+  msg: String
+  ok: Boolean!
+  partName: String!
+  repeat: Int!
+}
+
+type LEDEffects {
+  effect: [Effect!]!
+  fade: Boolean!
+  start: Float!
+}
+
+input LEDFrameCreateLEDsInput {
+  set: [JSON!]!
+}
+
+input LEDFrameCreateManyLEDEffectInput {
+  fade: Boolean!
+  LEDs: LEDFrameCreateLEDsInput
+  start: Int!
+}
+
+input LEDFrameCreateManyLEDEffectInputEnvelope {
+  data: [LEDFrameCreateManyLEDEffectInput!]!
+  skipDuplicates: Boolean
+}
+
+input LEDFrameCreateNestedManyWithoutLEDEffectInput {
+  connect: [LEDFrameWhereUniqueInput!]
+  connectOrCreate: [LEDFrameCreateOrConnectWithoutLEDEffectInput!]
+  create: [LEDFrameCreateWithoutLEDEffectInput!]
+  createMany: LEDFrameCreateManyLEDEffectInputEnvelope
+}
+
+input LEDFrameCreateOrConnectWithoutLEDEffectInput {
+  create: LEDFrameCreateWithoutLEDEffectInput!
+  where: LEDFrameWhereUniqueInput!
+}
+
+input LEDFrameCreateWithoutLEDEffectInput {
+  fade: Boolean!
+  LEDs: LEDFrameCreateLEDsInput
+  start: Int!
+}
+
+input LEDFrameLEDEffectIdStartCompoundUniqueInput {
+  LEDEffectId: Int!
+  start: Int!
+}
+
+input LEDFrameWhereUniqueInput {
+  LEDEffectId_start: LEDFrameLEDEffectIdStartCompoundUniqueInput
+}
+
+type LEDMap {
+  LEDMap: LEDMapCustomScalar!
+}
+
+"""LED map scalar type"""
+scalar LEDMapCustomScalar
+
 type Mutation {
+  addColor(color: ColorCreateInput!): Color!
   addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
+  addEffectList(description: String, end: Float!, start: Float!): EffectListData!
+  addLED(input: LEDEffectCreateInput!): LEDEffectResponse!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
-  CancelEditControl(FrameID: String!): RequestEditResponse!
-  CancelEditPosition(FrameID: String!): RequestEditResponse!
+  applyEffectList(clear: Boolean!, id: Float!, start: Float!): EffectListResponse!
+  CancelEditControl(FrameID: Float!): RequestEditResponse!
+  CancelEditPosition(FrameID: Float!): RequestEditResponse!
+  deleteColor(color: String!): ColorResponse!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
+  deleteEffectList(id: Float!): EffectListResponse!
+  deleteLED(input: DeleteLEDInput!): DeleteLEDEffectResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
+  editColorCodeByColor(color: String!, colorCode: String!): Color!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editControlMap(controlData: [[[String!]!]!]!, fade: Boolean = false, start: Float!): ControlData!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   editPosMap(pos: [[Float!]!]!, start: Float!): PositionMap!
-  RequestEditControl(FrameID: String!): RequestEditResponse!
-  RequestEditPosition(FrameID: String!): RequestEditResponse!
+  renameColor(newColor: String!, originalColor: String!): String!
+  RequestEditControl(FrameID: Float!): RequestEditResponse!
+  RequestEditPosition(FrameID: Float!): RequestEditResponse!
+  shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
 }
 
 input NestedBoolFilter {
@@ -589,17 +762,37 @@ type PositionMap {
   frameIds: PositionMapQueryObjectId!
 }
 
+type PositionMapPayload {
+  editBy: Float!
+  frame: PosMapMutationObjectId!
+}
+
 """Mongo object id scalar type"""
 scalar PositionMapQueryObjectId
 
+type PositionRecordPayload {
+  addID: [String!]!
+  deleteID: [String!]!
+  editBy: Float!
+  index: Int!
+  mutation: String!
+  updateID: [String!]!
+}
+
+"""Mongo object id scalar type"""
+scalar PosMapMutationObjectId
+
 type Query {
   color(where: ColorWhereUniqueInput!): Color
+  colorMap: ColorMap!
   colors(cursor: ColorWhereUniqueInput, distinct: [ColorScalarFieldEnum!], orderBy: [ColorOrderByWithRelationInput!], skip: Int, take: Int, where: ColorWhereInput): [Color!]!
   controlFrame(frameID: Float!): ControlFrame!
   controlFrameIDs: [ID!]!
   ControlMap: ControlMap!
   dancer(dancerName: String!): Dancer!
   dancers: [Dancer!]!
+  effectList: [EffectListData!]!
+  LEDMap: LEDMap!
   positionFrame(frameID: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
   PosMap: PositionMap!
@@ -612,6 +805,11 @@ enum QueryMode {
 
 type RequestEditResponse {
   editing: String
+  ok: Boolean!
+}
+
+type ShiftResponse {
+  msg: String
   ok: Boolean!
 }
 
@@ -633,6 +831,16 @@ input StringFilter {
   not: NestedStringFilter
   notIn: [String!]
   startsWith: String
+}
+
+type Subscription {
+  colorSubscription: ColorPayload!
+  controlMapSubscription: ControlMapPayload!
+  controlRecordSubscription: ControlRecordPayload!
+  DancerSubscription: DancerPayload!
+  effectListSubscription: EffectListPayload!
+  positionMapSubscription: PositionMapPayload!
+  positionRecordSubscription: PositionRecordPayload!
 }
 
 type User {
