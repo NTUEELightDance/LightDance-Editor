@@ -189,7 +189,7 @@ export class ShiftResolver {
                 }
               })
             );
-            await redis.del(String(id));
+            await redis.del(`CTRLFRAME_${id}`);
           })
       );
     }
@@ -211,7 +211,7 @@ export class ShiftResolver {
               }
             })
           );
-          redis.del(String(id));
+          redis.del(`POSFRAME_${id}`);
         })
       );
     }
@@ -223,22 +223,22 @@ export class ShiftResolver {
       let updateControlFrames = await ctx.prisma.controlFrame.findMany({where: {start: {lte: end, gte: start}}});
       updateControlFrames = updateControlFrames.sort();
       // update redis
-      const updateControlIDs: string[] = await Promise.all(
+      const updateControlIDs: number[] = await Promise.all(
         updateControlFrames.map(async (obj) => {
           const { id } = obj;
           const findControlFrame = await ctx.prisma.controlFrame.findFirst({where: {id: id}});
           if(findControlFrame !== null){
             await ctx.prisma.controlFrame.update({where: {id: id}, data: {start: findControlFrame.start+move}});
           }
-          await updateRedisControl(String(id));
-          return String(id);
+          await updateRedisControl(`CTRLFRAME_${id}`);
+          return id;
         })
       );
 
       // get id list of deleteControl
       if(deleteControlFrame !== undefined){
         const deleteControlList = deleteControlFrame.map((data) => {
-          return String(data.id);
+          return data.id;
         });
 
         // subscription
@@ -256,7 +256,7 @@ export class ShiftResolver {
         allControlFrames = allControlFrames.sort();
         let index = -1;
         await allControlFrames.map((frame, idx: number) => {
-          if (frame.id === Number(updateControlIDs[0])) {
+          if (frame.id === updateControlIDs[0]) {
             index = idx;
           }
         });
@@ -278,22 +278,22 @@ export class ShiftResolver {
       let updatePositionFrames = await ctx.prisma.positionFrame.findMany({where: {start: {lte: end, gte: start}}});
       updatePositionFrames = updatePositionFrames.sort();
       // update redis
-      const updatePositionIDs: string[] = await Promise.all(
+      const updatePositionIDs: number[] = await Promise.all(
         updatePositionFrames.map(async (obj) => {
           const { id } = obj;
           const findPositionFrame = await ctx.prisma.positionFrame.findFirst({where: {id: id}});
           if(findPositionFrame !== null){
             await ctx.prisma.positionFrame.update({where: {id: id}, data: {start: findPositionFrame.start+move}});
           }
-          await updateRedisPosition(String(id));
-          return String(id);
+          await updateRedisPosition(`POSFRAME_${id}`);
+          return id;
         })
       );
 
       // get id list of deletePosition
       if(deletePositionFrame !== undefined){
         const deletePositionList = deletePositionFrame.map((data) => {
-          return String(data.id);
+          return data.id;
         });
 
         // subscription
@@ -311,7 +311,7 @@ export class ShiftResolver {
         allPositionFrames = allPositionFrames.sort();
         let index = -1;
         await allPositionFrames.map((frame, idx: number) => {
-          if (frame.id === Number(updatePositionIDs[0])) {
+          if (frame.id === updatePositionIDs[0]) {
             index = idx;
           }
         });

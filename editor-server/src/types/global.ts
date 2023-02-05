@@ -12,7 +12,7 @@ export type DBModels = {
 
 export type TContext = {
   db: DBModels
-  userID: string
+  userID: number
   userPassword: string
   prisma: PrismaClient
 }
@@ -43,17 +43,11 @@ export interface IDancer {
   _id?: ObjectId
 }
 export interface IPart {
-  name: string
-  type: string
-  controlData: PopulatedDoc<IControl & Document>[]
-  id: string
-  _id?: ObjectId
-}
-export interface IPartNew {
-  name: string
-  type: string
-  controlData: IControl[]
-  id: string
+  name: string;
+  type: string;
+  controlData: PopulatedDoc<IControl & Document>[];
+  id: number;
+  _id?: ObjectId;
 }
 export interface IControl {
   frame: PopulatedDoc<IControlFrame & Document>
@@ -203,9 +197,9 @@ export type TRedisControls = {
   [key: string]: TRedisControl
 }
 export type TRedisControl = {
-  fade: boolean
-  start: number
-  editing: string | undefined
+  fade: boolean;
+  start: number;
+  editing: number | undefined;
   status: TRedisControlStatus
 }
 export type TRedisControlTest = {

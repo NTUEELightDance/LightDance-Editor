@@ -103,7 +103,7 @@ const { SECRET_KEY } = process.env
         const { name, password } = req.headers;
         if (!name || !password)
           throw new Error("password and name must be filled.");
-        let userID = '';
+        let userID;
         const userName: string = (typeof(name) === "string") ? name: name[0];
         const userPassword: string = (typeof(password) === "string") ? password : password[0];
         const user = await prisma.user.findFirst({where: {name: userName}});
@@ -111,10 +111,10 @@ const { SECRET_KEY } = process.env
           const newUser = await prisma.user.create({data: {name: userName, password: userPassword}});
           const createEditingControl = await prisma.editingControlFrame.create({data: {userId: newUser.id, frameId: null}});
           const createEditingPosition = await prisma.editingPositionFrame.create({data: {userId: newUser.id, frameId: null}});
-          userID = String(newUser.id);
+          userID = newUser.id;
         }
         else{
-          userID = String(user.id);
+          userID = user.id;
         }
         const result: TContext = { db, userID, userPassword, prisma };
         return result;

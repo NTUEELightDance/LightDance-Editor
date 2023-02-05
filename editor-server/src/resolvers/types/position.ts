@@ -1,5 +1,6 @@
+
 import { Field, ObjectType, Float } from "type-graphql";
-import { PositionFrame } from "./positionFrame";
+import { PositionFrame } from "../../../prisma/generated/type-graphql";
 
 @ObjectType()
 export class Position {

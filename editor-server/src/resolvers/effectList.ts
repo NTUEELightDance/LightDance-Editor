@@ -87,21 +87,21 @@ export class EffectListResolver {
       throw new Error("no control frames");
     }
     const controlFrameIDs = controlFrames.map((controlFrame) => 
-      String(controlFrame.id)
+      controlFrame.id
     )
     const positionFrames = await ctx.prisma.positionFrame.findMany({where: {start: {lte: end, gte: start}}});
     if(positionFrames.length === 0){
       throw new Error("no position frames");
     }
     const positionFrameIDs = positionFrames.map((positionFrame) => 
-      String(positionFrame.id)
+      positionFrame.id
     )
     
     const redisControlFrames: TRedisControls = {};
     await Promise.all(
-      controlFrameIDs.map(async (controlFrameID: string) => {
+      controlFrameIDs.map(async (controlFrameID: number) => {
         const id = controlFrameID;
-        const cache = await redis.get(id);
+        const cache = await redis.get(`CTRLFRAME_${id}`);
         if (cache) {
           const cacheObj: TRedisControl = JSON.parse(cache);
           delete cacheObj.editing;
@@ -113,9 +113,9 @@ export class EffectListResolver {
     );
     const redisPositionFrames: TRedisPositions = {};
     await Promise.all(
-      positionFrameIDs.map(async (positionFrameID: string) => {
+      positionFrameIDs.map(async (positionFrameID: number) => {
         const id = positionFrameID;
-        const cache = await redis.get(id);
+        const cache = await redis.get(`POSFRAME_${id}`);
         if (cache) {
           const cacheObj: TRedisPosition = JSON.parse(cache);
           delete cacheObj.editing;
@@ -129,7 +129,7 @@ export class EffectListResolver {
     const effectList = await ctx.prisma
     .effectListData.create({data: {start: start, end: end, description: description, controlFrames: controlFrames, positionFrames: positionFrames}});
     const result = {
-      id: String(effectList.id),
+      id: effectList.id,
       start,
       end,
       description,
@@ -139,7 +139,7 @@ export class EffectListResolver {
     const payload: EffectListPayload = {
       mutation: EffectListMutation.CREATED,
       editBy: ctx.userID,
-      effectListID: String(effectList.id),
+      effectListID: effectList.id,
       effectListData: result,
     };
     await publish(payload);
@@ -149,10 +149,10 @@ export class EffectListResolver {
   @Mutation((returns) => EffectListResponse)
   async deleteEffectList(
     @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
-    @Arg("id", (type) => ID, { nullable: false }) id: string,
+    @Arg("id") id: number,
     @Ctx() ctx: TContext
   ) {
-    const deleteEffectList = await ctx.prisma.effectListData.deleteMany({where: {id: Number(id)}});
+    const deleteEffectList = await ctx.prisma.effectListData.deleteMany({where: {id: id}});
     const payload: EffectListPayload = {
       mutation: EffectListMutation.DELETED,
       editBy: ctx.userID,
@@ -171,12 +171,12 @@ export class EffectListResolver {
       publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
       publishPositionMap: Publisher<PositionMapPayload>,
-    @Arg("id", (type) => ID, { nullable: false }) id: string,
+    @Arg("id") id: number,
     @Arg("start", { nullable: false }) start: number,
     @Arg("clear", { nullable: false }) clear: boolean,
     @Ctx() ctx: TContext
   ) {
-    const effectList = await ctx.prisma.effectListData.findFirst({where: {id: Number(id)}});
+    const effectList = await ctx.prisma.effectListData.findFirst({where: {id: id}});
     if(effectList === null){
       throw new Error("no effect list");
     }
@@ -266,7 +266,7 @@ export class EffectListResolver {
                     }
                   })
                 );
-                await redis.del(String(id));
+                await redis.del(`CTRLFRAME_${id}`);
               })
           );
         }
@@ -286,7 +286,7 @@ export class EffectListResolver {
                   }
                 })
               );
-              redis.del(String(id));
+              redis.del(`POSFRAME_${id}`);
             })
           );
         }
@@ -310,8 +310,8 @@ export class EffectListResolver {
       });
 
       // add
-      const newControlFrameIDs: string[] = [];
-      const newPositionFrameIDs: string[] = [];
+      const newControlFrameIDs: number[] = [];
+      const newPositionFrameIDs: number[] = [];
       await Promise.all(
         Object.values(effectList.controlFrames).map(async (frameObj) => {
           if(frameObj !== null){
@@ -319,7 +319,7 @@ export class EffectListResolver {
             const new_start = data[2] - effectList.start + start;
             const frame = await ctx.prisma.controlFrame.create({data: {start: new_start, fade: data[1]}});
 
-            newControlFrameIDs.push(String(frame.id));
+            newControlFrameIDs.push(frame.id);
 
             const allControlData = await ctx.prisma.controlData.findMany({where: {frameId: data[0]}});            
             await Promise.all(
@@ -348,7 +348,7 @@ export class EffectListResolver {
             const new_start = data[1] - effectList.start + start;
             const frame = await ctx.prisma.positionFrame.create({data: {start: new_start}});
 
-            newPositionFrameIDs.push(String(frame.id));
+            newPositionFrameIDs.push(frame.id);
 
             const allPositionData = await ctx.prisma.positionData.findMany({where: {frameId: data[0]}});
             await Promise.all(
@@ -374,20 +374,20 @@ export class EffectListResolver {
       // update redis
       await Promise.all(
         newControlFrameIDs.map(async (id) => {
-          await updateRedisControl(id);
+          await updateRedisControl(`CTRLFRAME_${id}`);
         })
       );
       await Promise.all(
         newPositionFrameIDs.map(async (id) => {
-          await updateRedisPosition(id);
+          await updateRedisPosition(`POSFRAME_${id}`);
         })
       );
 
       const deleteControlList = deleteControlFrame.map((data) => {
-        return String(data.id);
+        return data.id;
       });
       const deletePositionList = deletePositionFrame.map((data) => {
-        return String(data.id);
+        return data.id;
       });
 
       // subscription control
@@ -414,7 +414,7 @@ export class EffectListResolver {
         });
       }
       const controlRecordIDs = newControlFrames.map((frame) => {
-        return String(frame.id);
+        return frame.id;
       });
       const controlRecordPayload: ControlRecordPayload = {
         mutation: ControlRecordMutation.CREATED_DELETED,
@@ -450,7 +450,7 @@ export class EffectListResolver {
         });
       }
       const positionRecordIDs = newPositionFrames.map((frame) => {
-        return String(frame.id);
+        return frame.id;
       });
       const positionRecordPayload: PositionRecordPayload = {
         mutation: PositionRecordMutation.CREATED_DELETED,

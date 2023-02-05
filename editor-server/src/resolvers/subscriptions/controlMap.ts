@@ -8,5 +8,5 @@ export class ControlMapPayload {
     frame: any;
 
   @Field()
-    editBy: string;
+    editBy: number;
 }

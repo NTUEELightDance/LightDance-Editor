@@ -8,15 +8,14 @@ import {
   PubSub,
   Publisher,
 } from "type-graphql";
-
-import { Part } from "./types/part";
 import { AddPartInput, EditPartInput, DeletePartInput } from "./inputs/part";
-import { ControlDefault } from "./types/controlType";
+import { ControlDefault, ControlType } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
 import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { PartResponse } from "./response/partResponse";
-import { generateID, initRedisControl, initRedisPosition } from "../utility";
-import { IControl, IControlFrame, IDancer, IPart, TContext } from "../types/global";
+import { initRedisControl, initRedisPosition } from "../utility";
+import { TContext } from "../types/global";
+import { ControlData, ControlFrame, Part } from "../../prisma/generated/type-graphql";
 
 @Resolver((of) => Part)
 export class PartResolver {
@@ -26,66 +25,65 @@ export class PartResolver {
     @Arg("part") newPartData: AddPartInput,
     @Ctx() ctx: TContext
   ) {
-    const existDancer = await ctx.db.Dancer.findOne({
-      name: newPartData.dancerName,
-    }).populate("parts");
+    if(!Object.values(ControlType).includes(newPartData.type)) throw new Error("type is invalid");
+    const existDancer = await ctx.prisma.dancer.findFirst({
+      where: { name: newPartData.dancerName },
+      include: { parts: true },
+    });
+
     if (existDancer) {
-      const duplicatePartName = existDancer.parts.filter(
+      const duplicatePartName = existDancer.parts.find(
         (part: Part) => part.name === newPartData.name
       );
-      if (duplicatePartName.length === 0) {
-        const newPart = new ctx.db.Part({
-          name: newPartData.name,
-          type: newPartData.type,
-          value: ControlDefault[newPartData.type],
-          id: generateID(),
-        });
-        const allControlFrames: IControlFrame[] = await ctx.db.ControlFrame.find();
-        allControlFrames.map(async (controlframe) => {
-          const newControl = new ctx.db.Control({
-            frame: controlframe._id,
-            value: ControlDefault[newPartData.type],
-          });
-          newPart.controlData.push(newControl._id);
-          await newControl.save();
+      if (!duplicatePartName) {
+        const newPart = await ctx.prisma.part.create({
+          data: {
+            dancerId: existDancer.id,
+            name: newPartData.name,
+            type: newPartData.type,
+          },
         });
 
+        const allControlFrames: ControlFrame[] = await ctx.prisma.controlFrame.findMany();
         // for each position frame, add empty position data to the dancer
-        const dancer = await ctx.db.Dancer.update(
-          { name: newPartData.dancerName },
-          { $push: { parts: newPart._id } }
-        );
-        const result = await newPart.save();
-        const dancerData = await ctx.db.Dancer.findOne({
-          name: newPartData.dancerName,
-        }).populate("parts");
+        await ctx.prisma.controlData.createMany({
+          data: allControlFrames.map(controlFrame=>(
+            {
+              partId: newPart.id,
+              frameId: controlFrame.id,
+              value: ControlDefault[newPartData.type],
+            }
+          ))
+        });
+        const dancerData = await ctx.prisma.dancer.update({
+          where: { id: existDancer.id },
+          data: {
+            parts: {
+              connect: {
+                id: newPart.id,
+              },
+            },
+          },
+        });
         await initRedisControl();
         await initRedisPosition();
         const payload: DancerPayload = {
           mutation: dancerMutation.UPDATED,
           editBy: ctx.userID,
-          dancerData,
+          dancerData
         };
         await publish(payload);
 
-        return Object.assign(result, { ok: true });
+        return {partData: newPart, ok: true, msg:"successfully add part"};
       }
       return {
-        name: "",
-        type: null,
-        id: "",
         ok: false,
         msg: "duplicate part",
-        controlData: [],
       };
     }
     return {
-      name: "",
-      type: null,
-      id: "",
       ok: false,
       msg: "no dancer",
-      controlData: [],
     };
   }
 
@@ -95,103 +93,77 @@ export class PartResolver {
     @Arg("part") newPartData: EditPartInput,
     @Ctx() ctx: TContext
   ) {
-    const { id, name, type, dancerName } = newPartData;
-    const edit_part = await ctx.db.Part.findOne({ id });
+    const { id, name, type } = newPartData;
+    if(!Object.values(ControlType).includes(type)) throw new Error("type is invalid");
+    const edit_part = await ctx.prisma.part.findFirst({
+      where: { id },
+      include: { controlData: true },
+    });
     if (edit_part) {
       if (edit_part.type !== type) {
-        edit_part.controlData.map(async (id: string) => {
-          const data = await ctx.db.Control.findOneAndUpdate(
-            { _id: id },
-            { value: ControlDefault[type] }
-          );
+        await ctx.prisma.controlData.updateMany({
+          where: { partId: id },
+          data: { value: ControlDefault[type] },
         });
       }
-      const result = await ctx.db.Part.findOneAndUpdate(
-        { id },
-        { name, type },
-        { new: true }
-      );
-      const dancerData = await ctx.db.Dancer.findOne({
-        name: dancerName,
-      }).populate("parts");
-      await initRedisControl();
-      await initRedisPosition();
+      const result = await ctx.prisma.part.update({
+        where: { id: id },
+        data: { name: name, type: type },
+      });
+      const dancerData = await ctx.prisma.dancer.findFirst({
+        where: { id: result.dancerId },
+        include: { parts: true }
+      });
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
         editBy: ctx.userID,
-        dancerData,
+        dancerData
       };
       await publish(payload);
-      return Object.assign(result, { ok: true });
+      return { partData: result, ok: true, msg: "successfully edit part"};
     }
     return {
-      name: "",
-      type: null,
-      id: "",
       ok: false,
       msg: "no part found",
-      controlData: [],
     };
   }
 
   @Mutation((returns) => PartResponse)
   async deletePart(
     @PubSub(Topic.Dancer) publish: Publisher<DancerPayload>,
-    @Arg("part") newPartData: DeletePartInput,
+    @Arg("part") delPartData: DeletePartInput,
     @Ctx() ctx: TContext
   ) {
-    const { id, dancerName } = newPartData;
-    const part = await ctx.db.Part.findOne({ id });
-    if (part) {
-      const part_id = part._id;
-      await Promise.all(
-        part.controlData.map(async (ref: string) => {
-          await ctx.db.Control.deleteOne({ _id: ref });
-        })
-      );
-      await ctx.db.Part.deleteOne({ id });
-      const dancer: IDancer = await ctx.db.Dancer.findOne({ name: dancerName });
-      if (dancer) {
-        await ctx.db.Dancer.updateOne(
-          { name: dancerName },
-          { $pullAll: { parts: [{ _id: part_id }] } }
-        );
-      }
-      const dancerData = await ctx.db.Dancer.findOne({
-        name: dancerName,
-      }).populate("parts");
-      await initRedisControl();
-      await initRedisPosition();
-      const payload: DancerPayload = {
-        mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
-        dancerData,
-      };
-      await publish(payload);
-      return Object.assign(part, { ok: true });
-    }
-    return {
-      name: "",
-      type: null,
-      id: "",
-      ok: false,
-      msg: "no part found",
-      controlData: [],
+    const { id } = delPartData;
+    const part = await ctx.prisma.part.findFirst({
+      where: { id },
+    });
+    if(!part) return { ok: false, msg: "no part found" };
+    const deletedPart = await ctx.prisma.part.delete({
+      where: { id }
+    });
+    const dancerData = await ctx.prisma.dancer.findFirst({
+      where: { id: deletedPart.dancerId },
+      include: { parts: true }
+    });
+    await initRedisControl();
+    await initRedisPosition();
+    const payload: DancerPayload = {
+      mutation: dancerMutation.UPDATED,
+      editBy: ctx.userID,
+      dancerData
     };
+    await publish(payload);
+    return {ok: true, msg: "successfully delete part"};
   }
 
-  @FieldResolver()
-  async controlData(@Root() part: IPart, @Ctx() ctx: TContext) {
-    const result = await Promise.all(
-      part.controlData.map(async (ref: string) => {
-        const data: IControl = await ctx.db.Control.findOne({ _id: ref }).populate(
-          "frame"
-        );
-        return data;
-      })
-    )
+  @FieldResolver((returns)=>[ControlData])
+  async controlData(@Root() part: Part, @Ctx() ctx: TContext) {
+    const result = await ctx.prisma.controlData.findMany({
+      where: { partId: part.id },
+      include: { frame: true },
+    });
     // return data
-
     return result;
   }
 }
