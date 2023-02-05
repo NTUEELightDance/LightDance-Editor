@@ -13,6 +13,8 @@ import {
   TExportLEDFrameLED,
   TPositionPos,
 } from "../../types/global";
+import { isArray } from "class-validator";
+import { Prisma } from "@prisma/client";
 
 type DancerTmpData = {
   [key: string]: {
@@ -56,144 +58,190 @@ const uploadData = async (req: Request, res: Response) => {
 
     // set of fiberColors & LEDPartNames
     const allFiberColors = new Set<string | number>();
-    const allLEDPartNames = new Set<string>();
+
+    const error: string[] = [];
 
     // check all data are valid
+    // check main type
+    if (!isArray(dancer)) error.push("DANCER_DATA_ERROR: Dancer has incorrect type. Expected type array.");
+    if (typeof position !== "object") error.push("POSITIONFRAME_DATA_ERROR: Position has incorrect type. Expected type object.");
+    if (typeof control !== "object") error.push("CTRLFRAME_DATA_ERROR: Control has incorrect type. Expected type object.");
+    if (typeof color !== "object") error.push("COLOR_DATA_ERROR: Color has incorrect type. Expected type object.");
+    if (typeof LEDEffects !== "object") error.push("LEDEFFECT_DATA_ERROR: LEDEffect has incorrect type. Expected type object.");
+    if (error.length > 0) {
+      res.status(400).send({ error: error });
+      return;
+    }
 
-    // add fiber color list
-    Object.keys(color).map((colorKey: string) => {
+    // check color data type & add fiber color list
+    Object.keys(color).forEach((colorKey: string) => {
       allFiberColors.add(colorKey);
+      if (typeof color[colorKey] !== "string") error.push(`COLOR_DATA_ERROR: Color ${colorKey}'s value type is ${typeof color[colorKey]}, while string expected.`);
     });
-    // add LED part list
-    dancer.map((dancerObj: TDancerData) => {
+
+    // check dancer data type
+    dancer.forEach((dancerObj: TDancerData, dancerIdx) => {
       const { parts, name } = dancerObj;
-      // console.log(allPartsList)
-      allPartsList[name] = parts.map((partObj: TPartData) => {
+      if (typeof name !== "string") error.push(`DANCER_DATA_ERROR: Dancer idx ${dancerIdx} has incorrect "name" type. Expected type string, but received ${typeof name}.`);
+      if (!isArray(parts)) {
+        error.push(`DANCER_DATA_ERROR: Dancer idx ${dancerIdx} has incorrect "parts" type. Expected type array`);
+        return;
+      }
+      allPartsList[name] = parts.map((partObj: TPartData, partIdx) => {
         const { name, type } = partObj;
-        if (type === "LED") allLEDPartNames.add(name);
+        if (typeof name !== "string") error.push(`DANCER_DATA_ERROR: Dancer idx ${dancerIdx}, part idx ${partIdx} has incorrect "name" type. Expected type string, but received ${typeof name}.`);
+        if (typeof type !== "string") error.push(`DANCER_DATA_ERROR: Dancer idx ${dancerIdx}, part idx ${partIdx} has incorrect "type" type. Expected type string, but received ${typeof type}.`);
         return partObj;
       });
     });
 
-    // check LED data shape
-    Object.keys(LEDEffects).map(async (partName: string) => {
+    // check LEDEffect data type
+    Object.keys(LEDEffects).forEach((partName: string) => {
       const effectData = LEDEffects[partName];
-      Object.keys(effectData).map(async (effectName: string) => {
-        const { repeat, frames } = effectData[effectName];
-        frames.map(async (frame: TExportLEDFrame) => {
+      Object.keys(effectData).forEach((effectName: string) => {
+        const { frames, repeat } = effectData[effectName];
+        if (typeof repeat !== "number") error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName} has incorrect "repeat" type. Expected type number, but received ${typeof repeat}`);
+        if (!isArray(frames)) {
+          error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName} has incorrect "frames" type. Expected type array`);
+          return;
+        }
+        frames.forEach((frame: TExportLEDFrame, frameIdx) => {
           const { LEDs, start, fade } = frame;
-          // console.log(LEDs, start, fade)
-          // const newLEDs = LEDs.map((LED: number[]) => {
-          //   return { r: LED[0], g: LED[1], b: LED[2], a: LED[3] }
-          // })
-          LEDs.map((LED: TExportLEDFrameLED) => {
-            const [r, g, b, a] = LED;
+          if (typeof start !== "number") error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx} has incorrect "start" type. Expected type number, but received ${typeof start}`);
+          if (typeof fade !== "boolean") error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx} has incorrect "fade type. Expected type boolean, but received ${typeof fade}`);
+          if (!isArray(LEDs)) {
+            error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx} has incorrect "LEDs" type. Expected type array`);
+            return;
+          }
+          LEDs.forEach((LED: TExportLEDFrameLED, LEDIdx) => {
+            if (!isArray(LED)) {
+              error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx}, LEDs idx ${LEDIdx} has incorrect type. Expected type array`);
+              return;
+            }
+            if (LED.length !== 4) {
+              error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx}, LEDs idx ${LEDIdx} has incorrect shape. Expected 4 number, but received ${LED.length}.`);
+              return;
+            }
+            if (typeof LED[0] !== "number" ||
+              typeof LED[1] !== "number" ||
+              typeof LED[2] !== "number" ||
+              typeof LED[3] !== "number"
+            ) {
+              error.push(`LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx}, LEDs idx ${LEDIdx} has incorrect type. Expected 4 number`);
+            }
           });
         });
       });
     });
-
-    // check LED part is used by any dancer
-    Object.keys(LEDEffects).map((partName: string) => {
-      if (!allLEDPartNames.has(partName)) {
-        console.log(`LED part '${partName}' is not used by any dancer!!`);
-      }
-    });
+    if (error.length > 0) {
+      res.status(400).send({ error: error });
+      return;
+    }
 
     // check every position frame has the same number of real dancers
-    Object.values(position).map(async (frameObj: PosFrameTmpData) => {
+    Object.keys(position).forEach((frameId: string) => {
+      const frameObj: PosFrameTmpData = position[frameId];
       const { start, pos } = frameObj;
-      if (pos.length !== Object.keys(allPartsList).length) {
-        throw new Error(
-          `POSITIONFRAME_DATA_ERROR: Position frame starting at ${start}ms has invalid number of dancers. Found ${
-            pos.length
-          }, Expected ${Object.keys(allPartsList).length}`
-        );
+      if (typeof start !== "number") error.push(`POSITIONFRAME_DATA_ERROR: Position frameID ${frameId} has incorrect "start" type. Expected type number, but received ${typeof start}`);
+      if (!isArray(pos)) {
+        error.push(`POSITIONFRAME_DATA_ERROR: Position frameID ${frameId} has incorrect "pos" type. Expected type array`);
+        return;
       }
-      pos.map(async (dancerPos) => {
-        if (dancerPos.length !== 3) {
-          throw new Error(
-            `POSITIONFRAME_DATA_ERROR: Position frame  starting at ${start}ms`
-          );
+      if (pos.length !== Object.keys(allPartsList).length) error.push(`POSITIONFRAME_DATA_ERROR: Position frameID ${frameId} has invalid number of dancers. Found ${pos.length}, Expected ${Object.keys(allPartsList).length}`);
+      pos.forEach((dancerPos, posIdx) => {
+        if (!isArray(dancerPos)) {
+          error.push(`POSITIONFRAME_DATA_ERROR: Position frameID ${frameId}, pos idx ${posIdx} has incorrect type. Expected type array`);
+          return;
         }
-        const [x, y, z] = dancerPos;
+        if (dancerPos.length !== 3) {
+          error.push(`POSITIONFRAME_DATA_ERROR: Position frameID ${frameId}, pos idx ${posIdx} has incorrect shape. Expected 3 numbers, but received ${dancerPos.length}.`);
+          return;
+        }
+        if (typeof dancerPos[0] !== "number" ||
+          typeof dancerPos[1] !== "number" ||
+          typeof dancerPos[2] !== "number"
+        ) {
+          error.push(`POSITIONFRAME_DATA_ERROR: Position frameID ${frameId}, pos idx ${posIdx} has incorrect type. Expected 3 numbers`);
+        }
       });
     });
 
     // check every dancer in every control frame has the same number of real parts
-    Object.values(control).map(async (frameObj: CtrlFrameTmpData) => {
+    Object.keys(control).map((frameId: string) => {
+      const frameObj: CtrlFrameTmpData = control[frameId];
       const { fade, start, status } = frameObj;
-      if (status.length !== Object.keys(allPartsList).length) {
-        throw new Error(
-          `CTRLFRAME_DATA_ERROR: Control frame starting at ${start}ms has invalid number of dancers. Found ${
-            status.length
-          }, Expected ${Object.keys(allPartsList).length}`
-        );
+      if (typeof start !== "number") error.push(`CTRLFRAME_DATA_ERROR: Control frameID ${frameId} has incorrect "start" type. Expected type number, but received ${typeof start}`);
+      if (typeof fade !== "boolean") error.push(`CTRLFRAME_DATA_ERROR: Control frameID ${frameId} has incorrect "fade" type. Expected type boolean, but received ${typeof fade}`);
+      if (!isArray(status)) {
+        error.push(`CTRLFRAME_DATA_ERROR: Control frameID ${frameId} has incorrect "status" type. Expected type array`);
+        return;
       }
-      for (let i = 0; i < status.length; i++) {
-        if (
-          status[i].length !==
-          Object.values(allPartsList[Object.keys(allPartsList)[i]]).length
-        ) {
-          throw new Error(
-            `CTRLFRAME_DATA_ERROR: Control Frame starting at ${start}ms, dancer '${
-              Object.keys(allPartsList)[i]
-            }' has invalid number of parts. Found ${
-              status[i].length
+      if (status.length !== Object.keys(allPartsList).length) error.push(`CTRLFRAME_DATA_ERROR: Control frame starting at ${start}ms has invalid number of dancers. Found ${status.length}, Expected ${Object.keys(allPartsList).length}`);
+      status.forEach((dancerStatus: (TELControl | TLEDControl | TFiberControl)[], dancerIdx) => {
+        if (!isArray(dancerStatus)) {
+          error.push(`CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx} has incorrect type. Expected type array`);
+          return;
+        }
+        if (dancerStatus.length !== Object.values(allPartsList[Object.keys(allPartsList)[dancerIdx]]).length) {
+          error.push(
+            `CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx} has invalid number of parts. Found ${
+              dancerStatus.length
             }, Expected ${Object.values(allPartsList).length}`
           );
+          return;
         }
-      }
-    });
 
-    // validate status data & fiber color
-    const sortedDancerTmp = Object.keys(allPartsList).sort();
-    Object.values(control).map((frameObj: CtrlFrameTmpData) => {
-      const { fade, start, status } = frameObj;
-
-      for (let i = 0; i < status.length; i++) {
-        for (let j = 0; j < status[i].length; j++) {
-          const tmpPart = allPartsList[sortedDancerTmp[i]][j];
+        // validate status data & fiber color
+        dancerStatus.forEach((partStatus: TELControl | TLEDControl | TFiberControl, partIdx)=>{
+          const tmpPart = dancer[dancerIdx].parts[partIdx];
+          if (!isArray(partStatus)) {
+            error.push(`CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx}, part Idx ${partIdx} has incorrect type. Expected type array`);
+            return;
+          }
+          if (partStatus.length != 2) {
+            error.push(`CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx}, part Idx ${partIdx} has incorrect length. Expected 2, nut received ${partStatus.length}`);
+            return;
+          }
           if (tmpPart.type === "FIBER") {
-            if (status[i][j][0] && typeof status[i][j][0] !== "string") {
-              throw new Error(
-                `CTRLFRAME_DATA_ERROR: Invalid Fiber color type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+            if (typeof partStatus[0] !== "string") {
+              error.push(
+                `CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx}, part idx ${partIdx} has invalid Fiber color type!! Expected string, but received ${typeof partStatus[0]}`
               );
             }
-            if (status[i][j][0] && !allFiberColors.has(status[i][j][0])) {
-              throw new Error(
-                `CTRLFRAME_DATA_ERROR: Fiber color '${status[i][j][0]}' not found!!`
+            if (partStatus && !allFiberColors.has(partStatus[0])) {
+              error.push(
+                `CTRLFRAME_DATA_ERROR: Fiber color '${partStatus[0]}' not found!!`
               );
             }
-            if (status[i][j][1] && typeof status[i][j][1] !== "number") {
-              throw new Error(
-                `CTRLFRAME_DATA_ERROR: Invalid Fiber alpha type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+            if (typeof partStatus[1] !== "number") {
+              error.push(
+                `CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx}, part idx ${partIdx} has invalid Fiber alpha type!! Expected number, but received ${typeof partStatus[1]}`
               );
             }
           } else if (tmpPart.type === "LED") {
-            if (status[i][j][0] && typeof status[i][j][0] !== "string") {
-              throw new Error(
-                `CTRLFRAME_DATA_ERROR: Invalid LED src type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+            if (typeof partStatus[0] !== "string") {
+              error.push(
+                `CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx}, part idx ${partIdx} has invalid LED src type!! Expected string, but received ${typeof partStatus[0]}`
               );
             }
-            if (status[i][j][1] && typeof status[i][j][1] !== "number") {
-              throw new Error(
-                `CTRLFRAME_DATA_ERROR: Invalid LED alpha type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+            if (partStatus[0] && !Object.keys(LEDEffects[tmpPart.name]).includes(partStatus[0])) {
+              error.push(
+                `CTRLFRAME_DATA_ERROR: LED src '${partStatus[0]}' not found!!`
               );
             }
-          } else {
-            // EL
-            if (status[i][j][0] && typeof status[i][j][0] !== "number") {
-              throw new Error(
-                `CTRLFRAME_DATA_ERROR: Invalid EL value type!! (at: Control Frame starting at ${start}ms, dancer '${sortedDancerTmp[i]}, part '${tmpPart.name}')`
+            if (typeof partStatus[1] !== "number") {
+              error.push(
+                `CTRLFRAME_DATA_ERROR:Control frameID ${frameId}, status idx ${dancerIdx}, part idx ${partIdx} has invalid LED alpha type!! Expected number, but received ${typeof partStatus[1]}`
               );
             }
           }
-        }
-      }
+        });
+      });
     });
-
-    // console.log("Data valid!!")
+    if (error.length > 0) {
+      res.status(400).send({ error: error });
+      return;
+    }
 
     // clear DB
     await prisma.color.deleteMany();
@@ -205,8 +253,6 @@ const uploadData = async (req: Request, res: Response) => {
     await prisma.controlFrame.deleteMany();
     await prisma.lEDFrame.deleteMany();
     await prisma.lEDEffect.deleteMany();
-
-    // create client object
 
     // create fiber color
     await Promise.all(
@@ -224,34 +270,34 @@ const uploadData = async (req: Request, res: Response) => {
     await Promise.all(
       Object.keys(LEDEffects).map(async (partName: string) => {
         const effectData = LEDEffects[partName];
-        Object.keys(effectData).map(async (effectName: string) => {
-          const { repeat, frames } = effectData[effectName];
-          const newLEDEffect = await prisma.lEDEffect.create({
-            data: {
-              name: effectName,
-              partName: partName,
-              repeat: repeat,
-            },
-          });
-          frames.map(async (frame: TExportLEDFrame) => {
-            const { LEDs, start, fade } = frame;
-            // console.log(LEDs, start, fade)
-            // const newLEDs = LEDs.map((LED: number[]) => {
-            //   return { r: LED[0], g: LED[1], b: LED[2], a: LED[3] }
-            // })
-            await prisma.lEDFrame.create({
+        await Promise.all(
+          Object.keys(effectData).map(async (effectName: string) => {
+            const { repeat, frames } = effectData[effectName];
+            const newLEDEffect = await prisma.lEDEffect.create({
               data: {
-                start: start,
-                fade: fade,
-                // LEDs: newLEDs,
-                LEDs: LEDs,
-                LEDEffect: {
-                  connect: { id: newLEDEffect.id },
-                },
+                name: effectName,
+                partName: partName,
+                repeat: repeat,
               },
             });
-          });
-        });
+            await Promise.all(
+              frames.map(async (frame: TExportLEDFrame) => {
+                const { LEDs, start, fade } = frame;
+                await prisma.lEDFrame.create({
+                  data: {
+                    start: start,
+                    fade: fade,
+                    // LEDs: newLEDs,
+                    LEDs: LEDs,
+                    LEDEffect: {
+                      connect: { id: newLEDEffect.id },
+                    },
+                  },
+                });
+              })
+            );
+          })
+        );
       })
     ).catch((e) => console.log(e));
 
@@ -264,30 +310,30 @@ const uploadData = async (req: Request, res: Response) => {
             name: name,
           },
         });
-        // console.log(newDancer)
         const allParts: PartTmpData = {};
+
         // create unique partsList for every dancer
         const allPartsList = parts.map((partObj: TPartData) => {
           return partObj.name;
         });
-        // console.log(allPartsList)
 
         // sync parts
-        for (let i = 0; i < parts.length; i++) {
-          const partObj: TPartData = parts[i];
-
-          const { name, type } = partObj;
-          const newPart = await prisma.part.create({
-            data: {
-              name: name,
-              type: type,
-              dancer: {
-                connect: { id: newDancer.id },
+        await Promise.all(
+          parts.map(async(partObj: TPartData) => {
+            const { name, type } = partObj;
+            const newPart = await prisma.part.create({
+              data: {
+                name: name,
+                type: type,
+                dancer: {
+                  connect: { id: newDancer.id },
+                },
               },
-            },
-          });
-          allParts[name] = { id: newPart.id, type: type };
-        }
+            });
+            allParts[name] = { id: newPart.id, type: type };
+          })
+        );
+
         allDancer[name] = {
           id: newDancer.id,
           parts: allParts,
@@ -297,8 +343,6 @@ const uploadData = async (req: Request, res: Response) => {
     ).catch((e) => {
       console.log(e);
     });
-
-    const sortedDancer = Object.keys(allDancer).sort();
 
     // deal with position data
     await Promise.all(
@@ -310,26 +354,25 @@ const uploadData = async (req: Request, res: Response) => {
           },
         });
         // sync pos
-        for (let i = 0; i < pos.length; i++) {
-          const [x, y, z] = pos[i];
-          const positionData = await prisma.positionData.create({
-            data: {
-              x: x,
-              y: y,
-              z: z,
-              dancer: { connect: { id: allDancer[sortedDancer[i]].id } },
-              frame: { connect: { id: positionFrame.id } },
-            },
-          });
-        }
+        await Promise.all(
+          pos.map(async ([x, y, z], dancerIdx) => {
+            await prisma.positionData.create({
+              data: {
+                x: x,
+                y: y,
+                z: z,
+                dancer: { connect: { id: allDancer[dancer[dancerIdx].name].id } },
+                frame: { connect: { id: positionFrame.id } },
+              },
+            });
+          })
+        );
       })
     ).catch((e) => {
       console.log(e);
     });
 
     // deal with control data
-    // console.log(sortedDancer)
-    // console.dir(allDancer, { depth: null });
     await Promise.all(
       Object.values(control).map(async (frameObj: CtrlFrameTmpData) => {
         const { fade, start, status } = frameObj;
@@ -340,43 +383,46 @@ const uploadData = async (req: Request, res: Response) => {
           },
         });
         // sync parts
-        for (let i = 0; i < status.length; i++) {
-          for (let j = 0; j < status[i].length; j++) {
-            const tmpPart =
-              allDancer[sortedDancer[i]].parts[
-                allDancer[sortedDancer[i]].partsList[j]
-              ];
-            let controlDataJson: any = {};
-            if (tmpPart.type === "FIBER") {
-              controlDataJson = {
-                color: status[i][j][0],
-                alpha: status[i][j][1],
-              };
-            } else if (tmpPart.type === "LED") {
-              controlDataJson = {
-                src: status[i][j][0],
-                alpha: status[i][j][1],
-              };
-            } else {
-              controlDataJson = {
-                value: status[i][j][0],
-              };
-            }
-            const controlData = await prisma.controlData.create({
-              data: {
-                value: controlDataJson,
-                part: {
-                  connect: {
-                    id: tmpPart.id,
+        await Promise.all(
+          status.map(async(dancerStatus, dancerIdx)=> {
+            const realDancer = dancer[dancerIdx];
+            await Promise.all(
+              dancerStatus.map(async(partStatus, partIdx)=> {
+                const realPart = realDancer.parts[partIdx];
+                const tmpPart = allDancer[realDancer.name].parts[realPart.name];
+                let controlDataJson: Prisma.JsonValue = {};
+                if (tmpPart.type === "FIBER") {
+                  controlDataJson = {
+                    color: partStatus[0],
+                    alpha: partStatus[1],
+                  };
+                } else if (tmpPart.type === "LED") {
+                  controlDataJson = {
+                    src: partStatus[0],
+                    alpha: partStatus[1],
+                  };
+                } else {
+                  controlDataJson = {
+                    value: partStatus[0],
+                  };
+                }
+                await prisma.controlData.create({
+                  data: {
+                    value: controlDataJson,
+                    part: {
+                      connect: {
+                        id: tmpPart.id,
+                      },
+                    },
+                    frame: {
+                      connect: { id: controlFrame.id },
+                    },
                   },
-                },
-                frame: {
-                  connect: { id: controlFrame.id },
-                },
-              },
-            });
-          }
-        }
+                });
+              })
+            );
+          })
+        );
       })
     ).catch((e) => console.log(e));
 
