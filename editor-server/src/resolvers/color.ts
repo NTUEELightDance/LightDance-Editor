@@ -144,20 +144,20 @@ class ColorResolver {
 
       // TODO: Apply Prisma
       // check whether color is using in Control
-      const checkControl = await ctx.prisma.controlData.findMany({where: {value: {path: ['color'], equals: color}}});
+      const checkControl = await ctx.prisma.controlData.findMany({where: {value: {path: ["color"], equals: color}}});
       if (checkControl.length != 0) {
-        let checkControlFrames: number[] = checkControl.map((control) => 
+        let checkControlFrames: number[] = checkControl.map((control) =>
           control.frameId
-        )
-        checkControlFrames = checkControlFrames.sort(function(a,b){return a-b});
+        );
+        checkControlFrames = checkControlFrames.sort(function(a,b){return a-b;});
         let frame = 0;
-        let ids: number[] = []
+        const ids: number[] = [];
         checkControlFrames.map((controlFrame) => {
           if(controlFrame !== frame){
-            ids.push(controlFrame)
-            frame = controlFrame
+            ids.push(controlFrame);
+            frame = controlFrame;
           }
-        })
+        });
         return {
           color: color,
           colorCode: existedColor.colorCode,

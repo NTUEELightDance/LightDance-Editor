@@ -57,20 +57,20 @@ export class LEDResolver {
         msg: `Effect ${effectName} on part ${partName} not found`,
       };
 
-    const checkControl = await ctx.prisma.controlData.findMany({where: {value: {path: ['src'], equals: effectName}}});
+    const checkControl = await ctx.prisma.controlData.findMany({where: {value: {path: ["src"], equals: effectName}}});
     if (checkControl.length != 0) {
-      let checkControlFrames: number[] = checkControl.map((control) => 
+      let checkControlFrames: number[] = checkControl.map((control) =>
         control.frameId
-      )
-      checkControlFrames = checkControlFrames.sort(function(a,b){return a-b});
+      );
+      checkControlFrames = checkControlFrames.sort(function(a,b){return a-b;});
       let frame = 0;
-      let ids: number[] = []
+      const ids: number[] = [];
       checkControlFrames.map((controlFrame) => {
         if(controlFrame !== frame){
-          ids.push(controlFrame)
-          frame = controlFrame
+          ids.push(controlFrame);
+          frame = controlFrame;
         }
-      })
+      });
       return {
         ok: false,
         msg: `effect ${effectName} is used in ${ids}`,

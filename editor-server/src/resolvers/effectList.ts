@@ -68,7 +68,7 @@ export class EffectListResolver {
         start,
         end,
         description,
-        controlFrames: controlFrames, 
+        controlFrames: controlFrames,
         positionFrames: positionFrames
       };
     });
@@ -87,17 +87,17 @@ export class EffectListResolver {
     if(controlFrames.length === 0){
       throw new Error("no control frames");
     }
-    const controlFrameIDs = controlFrames.map((controlFrame) => 
+    const controlFrameIDs = controlFrames.map((controlFrame) =>
       controlFrame.id
-    )
+    );
     const positionFrames = await ctx.prisma.positionFrame.findMany({where: {start: {lte: end, gte: start}}});
     if(positionFrames.length === 0){
       throw new Error("no position frames");
     }
-    const positionFrameIDs = positionFrames.map((positionFrame) => 
+    const positionFrameIDs = positionFrames.map((positionFrame) =>
       positionFrame.id
-    )
-    
+    );
+
     const redisControlFrames: TRedisControls = {};
     await Promise.all(
       controlFrameIDs.map(async (controlFrameID: number) => {
@@ -128,7 +128,7 @@ export class EffectListResolver {
     );
 
     const effectList = await ctx.prisma
-    .effectListData.create({data: {start: start, end: end, description: description, controlFrames: controlFrames, positionFrames: positionFrames}});
+      .effectListData.create({data: {start: start, end: end, description: description, controlFrames: controlFrames, positionFrames: positionFrames}});
     const result = {
       id: effectList.id,
       start,
@@ -199,7 +199,7 @@ export class EffectListResolver {
               msg: `User ${checkControlEditing.userId} is editing frame ${checkControlEditing.frameId}`,
             };
         }
-        
+
         const findPositionFrame = await ctx.prisma.positionFrame.findFirst({where: {start: {lte: end, gte: start}}});
         if(findPositionFrame === null){
           throw new Error("position frame doesn't exist");
@@ -233,7 +233,7 @@ export class EffectListResolver {
         await Promise.all(
           Object.values(effectList.positionFrames).map(
             async (positionObject) => {
-              if(positionObject !== null){ 
+              if(positionObject !== null){
                 const data = Object.values(positionObject);
                 const new_start = data[1] - effectList.start + start;
                 const checkPositionOverlap = await ctx.prisma.positionFrame.findFirst({where: {start: new_start}});
@@ -250,25 +250,25 @@ export class EffectListResolver {
       const deletePositionFrame = await ctx.prisma.positionFrame.findMany({where: {start: {lte: end, gte: start}}});
       if (clear) {
         const parts = await ctx.prisma.part.findMany();
-        await ctx.prisma.controlFrame.deleteMany({where: {start: {lte: end, gte: start}}})
+        await ctx.prisma.controlFrame.deleteMany({where: {start: {lte: end, gte: start}}});
         await ctx.prisma.positionFrame.deleteMany({where: {start: {lte: end, gte: start}}});
         if(deleteControlFrame !== undefined){
           await Promise.all(
-              deleteControlFrame.map(async (data) => {
-                const { id } = data;
-                const deleteControlData = await ctx.prisma.controlData.findMany({where: {frameId: id}});
-                await Promise.all(
-                  parts.map(async (part) => {
-                    const controlToDelete = deleteControlData.find(
-                      (control) => control.partId === part.id
-                    );
-                    if(controlToDelete !== undefined){
-                      await ctx.prisma.controlData.deleteMany({where: {partId: controlToDelete.partId, frameId: controlToDelete.frameId}});
-                    }
-                  })
-                );
-                await redis.del(`CTRLFRAME_${id}`);
-              })
+            deleteControlFrame.map(async (data) => {
+              const { id } = data;
+              const deleteControlData = await ctx.prisma.controlData.findMany({where: {frameId: id}});
+              await Promise.all(
+                parts.map(async (part) => {
+                  const controlToDelete = deleteControlData.find(
+                    (control) => control.partId === part.id
+                  );
+                  if(controlToDelete !== undefined){
+                    await ctx.prisma.controlData.deleteMany({where: {partId: controlToDelete.partId, frameId: controlToDelete.frameId}});
+                  }
+                })
+              );
+              await redis.del(`CTRLFRAME_${id}`);
+            })
           );
         }
         if(deletePositionFrame !== undefined){
@@ -322,18 +322,18 @@ export class EffectListResolver {
 
             newControlFrameIDs.push(frame.id);
 
-            const allControlData = await ctx.prisma.controlData.findMany({where: {frameId: data[0]}});            
+            const allControlData = await ctx.prisma.controlData.findMany({where: {frameId: data[0]}});
             await Promise.all(
               allControlData.map(async(ControlData) => {
                 if(ControlData.value !== null){
-                  await ctx.prisma.controlData.create({data: {partId: ControlData.partId, frameId: frame.id, value: ControlData.value}})
+                  await ctx.prisma.controlData.create({data: {partId: ControlData.partId, frameId: frame.id, value: ControlData.value}});
                 }
               })
-            )
+            );
           }
         })
       );
-      
+
       /*
       await Promise.all(
         Object.keys(partUpdate).map(async (partID) => {
@@ -356,7 +356,7 @@ export class EffectListResolver {
               allPositionData.map(async(PositionData) => {
                 await ctx.prisma.positionData.create({data: {dancerId: PositionData.dancerId, frameId: frame.id, x: PositionData.x, y: PositionData.y, z: PositionData.z}});
               })
-            )
+            );
           }
         })
       );

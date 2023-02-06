@@ -176,21 +176,21 @@ export class ShiftResolver {
     const parts = await ctx.prisma.part.findMany();
     if(deleteControlFrame !== undefined){
       await Promise.all(
-          deleteControlFrame.map(async (data) => {
-            const { id } = data;
-            const deleteControlData = await ctx.prisma.controlData.findMany({where: {frameId: id}});
-            await Promise.all(
-              parts.map(async (part) => {
-                const controlToDelete = deleteControlData.find(
-                  (control) => control.partId === part.id
-                );
-                if(controlToDelete !== undefined){
-                  await ctx.prisma.controlData.deleteMany({where: {partId: controlToDelete.partId, frameId: controlToDelete.frameId}});
-                }
-              })
-            );
-            await redis.del(`CTRLFRAME_${id}`);
-          })
+        deleteControlFrame.map(async (data) => {
+          const { id } = data;
+          const deleteControlData = await ctx.prisma.controlData.findMany({where: {frameId: id}});
+          await Promise.all(
+            parts.map(async (part) => {
+              const controlToDelete = deleteControlData.find(
+                (control) => control.partId === part.id
+              );
+              if(controlToDelete !== undefined){
+                await ctx.prisma.controlData.deleteMany({where: {partId: controlToDelete.partId, frameId: controlToDelete.frameId}});
+              }
+            })
+          );
+          await redis.del(`CTRLFRAME_${id}`);
+        })
       );
     }
 
