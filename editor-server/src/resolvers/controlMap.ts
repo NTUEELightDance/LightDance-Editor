@@ -22,7 +22,8 @@ export class ControlMapResolver {
     const frameIds = await ctx.prisma.controlFrame.findMany({
       select: { id:true }
     });
-    return { frameIds };
+
+    return { frameIds: frameIds.map((frame) => frame.id) };
   }
 }
 
