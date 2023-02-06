@@ -68,3 +68,10 @@ export const COMMANDS = {
   RESTARTCONTROLLER,
   NTHU_STOP,
 };
+
+export const ROUTES = {
+  ROOT: "/",
+  EDITOR: "/editor",
+  COMMAND_CENTER: "/editor/command",
+  LOGIN: "/login",
+};

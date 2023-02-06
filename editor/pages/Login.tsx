@@ -14,6 +14,8 @@ import Typography from "@mui/material/Typography";
 import { reactiveState } from "@/core/state";
 import { login, checkToken } from "@/core/actions";
 
+import { ROUTES } from "@/constants";
+
 export default function LogIn() {
   const isLoggedIn = useReactiveVar(reactiveState.isLoggedIn);
   const location = useLocation();
@@ -24,7 +26,7 @@ export default function LogIn() {
 
   if (isLoggedIn) {
     const from = location.state?.from;
-    return <Navigate to={from?.pathname || "/"} />;
+    return <Navigate to={from?.pathname || ROUTES.ROOT} />;
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

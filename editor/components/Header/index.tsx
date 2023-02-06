@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { AppBar, Toolbar, Box, Stack } from "@mui/material";
+
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Toolbar from "@mui/material/Toolbar";
+import Stack from "@mui/material/Stack";
 
 import { Settings } from "../Settings";
 import Tools from "components/Tools";
@@ -11,18 +16,14 @@ import StateIndicator from "./StateIndicator";
 
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
-import useMode from "@/hooks/useMode";
-import { useNavigate, useLocation } from "react-router-dom";
-import Button from "@mui/material/Button";
-/**
- * Top Bar, include title, timeController, upload/download btn
- */
+
+import useRoute from "@/hooks/useRoute";
+
 export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const editMode = useReactiveVar(reactiveState.editMode);
-  const mode = useMode();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { page, navigate } = useRoute();
+
   return (
     <Stack direction="column">
       <StateIndicator editMode={editMode} />
@@ -38,13 +39,17 @@ export default function Header() {
           <Button
             variant="outlined"
             onClick={() => {
-              navigate(
-                location.pathname === "/editor" ? "/editor/command" : "/editor"
-              );
+              if (page === "EDITOR") {
+                navigate.toCommandCenter();
+              } else if (page === "COMMAND_CENTER") {
+                navigate.toEditor();
+              } else {
+                navigate.toLogin();
+              }
               window.location.reload();
             }}
           >
-            {location.pathname === "/editor" ? "command" : "editor"}
+            {page == "EDITOR" ? "command" : "editor"}
           </Button>
           <Box
             sx={{
@@ -54,7 +59,7 @@ export default function Header() {
               gap: "1vw",
             }}
           >
-            {mode === "editor" && (
+            {page === "EDITOR" && (
               <>
                 <EditButtons />
                 <EditorSelector />
