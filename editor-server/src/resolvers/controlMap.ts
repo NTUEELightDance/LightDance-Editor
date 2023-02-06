@@ -14,6 +14,7 @@ import { Topic } from "./subscriptions/topic";
 import { ControlMapPayload } from "./subscriptions/controlMap";
 import { updateRedisControl } from "../utility";
 import { TContext } from "../types/global";
+import { EditControlMapInput } from "./inputs/map";
 
 @Resolver((of) => ControlMap)
 export class ControlMapResolver {
@@ -29,16 +30,13 @@ export class ControlMapResolver {
 
 @Resolver((of) => ControlData)
 export class EditControlMapResolver {
-  @Mutation((returns) => ControlData)
+  @Mutation((returns) => ControlMap)
   async editControlMap(
-    @PubSub(Topic.ControlRecord)
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
-    @Arg("controlData", (type) => [[[String, Number]]])
-      controlData: [string,number][][],
-    @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
-    @Arg("start") startTime: number,
+    @Arg("input") input: EditControlMapInput,
     @Ctx() ctx: TContext
   ) {
+    const { startTime, fade, controlData } = input;
     // check payload
     const frameToEdit = await ctx.prisma.controlFrame.findFirst({
       where: { start: startTime }
@@ -82,7 +80,7 @@ export class EditControlMapResolver {
             );
             if(!partControl) throw new Error(`part id ${part.id} has no controlData in frame id ${frameToEdit.id}`);
             const value = partControl.value as Prisma.JsonObject;
-            value.alpha=data[1];
+            value.alpha=Number(data[1]);
             if(type==="FIBER") value.color=data[0];
             else value.src=data[0];
             await ctx.prisma.controlData.update({
@@ -98,6 +96,12 @@ export class EditControlMapResolver {
         );
       })
     );
+    if(fade!==frameToEdit.fade) {
+      await ctx.prisma.controlFrame.update({
+        where: { id: frameToEdit.id },
+        data: { fade }
+      });
+    }
     await ctx.prisma.editingControlFrame.update({
       where: { userId: ctx.userID },
       data: { frameId: null }
@@ -112,6 +116,10 @@ export class EditControlMapResolver {
       },
     };
     await publish(payload);
-    return { frame: { id: frameToEdit.id } };
+    const frameIds = await ctx.prisma.controlFrame.findMany({
+      select: { id:true }
+    });
+
+    return { frameIds: frameIds.map((frame) => frame.id) };
   }
 }

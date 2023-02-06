@@ -270,6 +270,12 @@ input EditControlFrameInput {
   start: Float
 }
 
+input EditControlMapInput {
+  controlData: [[[String!]!]!]!
+  fade: Boolean
+  startTime: Float!
+}
+
 input editDancerInput {
   id: Float!
   name: String!
@@ -522,7 +528,7 @@ type Mutation {
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editColorCodeByColor(color: String!, colorCode: String!): Color!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(controlData: [[[String!]!]!]!, fade: Boolean = false, start: Float!): ControlData!
+  editControlMap(input: EditControlMapInput!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!

@@ -68,7 +68,7 @@ export class PartResolver {
         await initRedisControl();
         await initRedisPosition();
         const payload: DancerPayload = {
-          mutation: dancerMutation.UPDATED,
+          mutation: dancerMutation.CREATED,
           editBy: ctx.userID,
           dancerData
         };
@@ -149,7 +149,7 @@ export class PartResolver {
     await initRedisControl();
     await initRedisPosition();
     const payload: DancerPayload = {
-      mutation: dancerMutation.UPDATED,
+      mutation: dancerMutation.DELETED,
       editBy: ctx.userID,
       dancerData
     };

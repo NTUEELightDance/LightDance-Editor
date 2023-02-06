@@ -267,6 +267,6 @@ export class PositionFrameResolver {
       index: -1,
     };
     await publishPositionRecord(recordPayload);
-    return deletedFrame;
+    // return deletedFrame;
   }
 }
