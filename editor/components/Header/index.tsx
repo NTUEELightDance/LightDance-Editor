@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { AppBar, Toolbar, Box, Stack } from "@mui/material";
+
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Toolbar from "@mui/material/Toolbar";
+import Stack from "@mui/material/Stack";
 
 import { Settings } from "../Settings";
 import Tools from "components/Tools";
@@ -11,15 +16,13 @@ import StateIndicator from "./StateIndicator";
 
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
-import useMode from "@/hooks/useMode";
 
-/**
- * Top Bar, include title, timeController, upload/download btn
- */
+import useRoute from "@/hooks/useRoute";
+
 export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const editMode = useReactiveVar(reactiveState.editMode);
-  const mode = useMode();
+  const { page, navigate } = useRoute();
 
   return (
     <Stack direction="column">
@@ -28,11 +31,26 @@ export default function Header() {
         <Toolbar style={{ minHeight: "6vh", width: "100%" }}>
           <Box sx={{ height: "6vh", p: "1vh 1vw", mr: "3vw" }}>
             <img
-              src="LDlogoWhite.png"
+              src="/LDlogoWhite.png"
               alt="NTUEE Light Dance logo"
               style={{ height: "100%" }}
             />
           </Box>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              if (page === "EDITOR") {
+                navigate.toCommandCenter();
+              } else if (page === "COMMAND_CENTER") {
+                navigate.toEditor();
+              } else {
+                navigate.toLogin();
+              }
+              window.location.reload();
+            }}
+          >
+            {page == "EDITOR" ? "command" : "editor"}
+          </Button>
           <Box
             sx={{
               display: "flex",
@@ -41,7 +59,7 @@ export default function Header() {
               gap: "1vw",
             }}
           >
-            {mode === "editor" && (
+            {page === "EDITOR" && (
               <>
                 <EditButtons />
                 <EditorSelector />

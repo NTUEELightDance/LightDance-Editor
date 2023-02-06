@@ -4,16 +4,17 @@ import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
 import VolumeSlider from "./VolumeSlider";
 import ScaleSlider from "./ScaleSlider";
 import FadeSwitch from "./FadeSwitch";
-import useMode from "@/hooks/useMode";
+
+import useRoute from "@/hooks/useRoute";
 
 function ControlBar({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
-  const mode = useMode();
+  const { page } = useRoute();
 
   return (
     <>
       <PlayBackController wavesurfer={wavesurfer} />
       <TimeController />
-      {mode === "editor" && <FadeSwitch />}
+      {page === "EDITOR" && <FadeSwitch />}
       <VolumeSlider wavesurfer={wavesurfer} />
       <ScaleSlider wavesurfer={wavesurfer} />
     </>

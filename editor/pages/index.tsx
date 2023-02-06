@@ -10,6 +10,8 @@ import RequireAuth from "@/components/RequireAuth";
 import Login from "./Login";
 import NotFound from "./NotFound";
 
+import { ROUTES } from "@/constants";
+
 const theme = createTheme({ palette: { mode: "dark" } });
 
 const EditorWrapper = lazy(async () => await import("./App"));
@@ -26,11 +28,15 @@ export default function RootRouter() {
             <Route
               index
               element={
-                <Navigate to="/editor" replace={true} state={{ from: "/" }} />
+                <Navigate
+                  to={ROUTES.EDITOR}
+                  replace={true}
+                  state={{ from: ROUTES.ROOT }}
+                />
               }
             />
             <Route
-              path="editor"
+              path={ROUTES.EDITOR}
               element={
                 <RequireAuth>
                   <Suspense fallback={<Loading />}>
@@ -50,7 +56,7 @@ export default function RootRouter() {
                 }
               />
               <Route
-                path="command"
+                path={ROUTES.COMMAND_CENTER}
                 element={
                   <RequireAuth>
                     <Suspense fallback={<Loading />}>
@@ -61,7 +67,7 @@ export default function RootRouter() {
               />
             </Route>
             <Route
-              path="login"
+              path={ROUTES.LOGIN}
               element={
                 <Suspense fallback={<Loading />}>
                   <Login />
