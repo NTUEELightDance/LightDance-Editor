@@ -38,11 +38,11 @@ export default function Header() {
           <Button
             variant="outlined"
             onClick={() => {
-              navigate(location.pathname === "/" ? "/command" : "/");
+              navigate(location.pathname === "/editor" ? "/editor/command" : "/editor");
               window.location.reload();
             }}
           >
-            {location.pathname === "/" ? "command" : "editor"}
+            {location.pathname === "/editor" ? "command" : "editor"}
           </Button>
           <Box
             sx={{
