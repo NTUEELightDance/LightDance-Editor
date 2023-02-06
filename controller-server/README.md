@@ -31,7 +31,7 @@ yarn test-control
 It is recommended that you setup the test RPi client before running the test Control Panel Client
 
 ## Command list
-```
+```typescript
     const SYNC = "sync";
     const UPLOAD_LED = "uploadLed";
     const UPLOAD_OF = "uploadOf";
@@ -69,7 +69,7 @@ Modify the command and payload under testControlPanel1.js to test each command.
 [Note] The command BOARDINFO is the initializing command and must be sent as the first command.
 
 ## Payload type explanation
-```
+```typescript
 // Payload for Play command
 interface PlayTimeType {
   startTime: number,  // ms
