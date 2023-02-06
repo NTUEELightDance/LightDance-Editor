@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import { stringify } from "csv-stringify/sync";
 
 import db from "../../models";

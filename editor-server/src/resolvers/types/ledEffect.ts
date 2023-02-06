@@ -3,35 +3,35 @@ import { Field, ObjectType, Float, Int } from "type-graphql";
 @ObjectType()
 export class LEDEffect {
   @Field((type) => String)
-  partName: string;
+    partName: string;
 
   @Field((type) => String)
-  effectName: string;
+    effectName: string;
 
   @Field((type) => Int)
-  repeat: number;
+    repeat: number;
 
   @Field((type) => [LEDEffects])
-  effects: LEDEffects[];
+    effects: LEDEffects[];
 }
 
 @ObjectType()
 class LEDEffects {
   @Field((type) => Float)
-  start: number;
+    start: number;
 
   @Field()
-  fade: boolean;
+    fade: boolean;
 
   @Field((type) => [Effect])
-  effect: Effect[];
+    effect: Effect[];
 }
 
 @ObjectType()
 class Effect {
   @Field()
-  colorCode: string;
+    colorCode: string;
 
   @Field((type) => Float)
-  alpha: number;
+    alpha: number;
 }

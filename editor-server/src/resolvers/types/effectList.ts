@@ -6,24 +6,24 @@ import { TRedisControls, TRedisPositions } from "../../types/global";
 type EffectListData = {
   control: TRedisControls;
   position: TRedisPositions;
-};
+}
 
 @ObjectType()
 export class EffectList {
   @Field((type) => Float)
-  start: number;
+    start: number;
 
   @Field((type) => Float)
-  end: number;
+    end: number;
 
   @Field({ nullable: true })
-  description: string;
+    description: string;
 
   @Field((type) => ID)
-  id: string;
+    id: string;
 
   @Field((type) => EffectListScalar)
-  data: EffectListData;
+    data: EffectListData;
 }
 
 export const EffectListScalar = new GraphQLScalarType({

@@ -1,19 +1,20 @@
+
 import { ObjectType, Field, ID, Int } from "type-graphql";
-import { EffectList } from "../types/effectList";
+import { EffectListData } from "../../../prisma/generated/type-graphql";
 
 @ObjectType()
 export class EffectListPayload {
   @Field()
-  mutation: EffectListMutation;
+    mutation: EffectListMutation;
 
   @Field((type) => ID)
-  effectListID: string;
+    effectListID: number;
 
   @Field()
-  editBy: string;
+    editBy: number;
 
-  @Field((type) => EffectList, { nullable: true })
-  effectListData?: any;
+  @Field((type) => EffectListData, { nullable: true })
+    effectListData?: any;
 }
 
 export enum EffectListMutation {

@@ -1,11 +1,13 @@
 import { Field, ObjectType } from "type-graphql";
-import { Part } from "../types/part";
+import { Part } from "../../../prisma/generated/type-graphql";
 
 @ObjectType()
-export class PartResponse extends Part {
+export class PartResponse {
   @Field((type) => Boolean)
-  ok: boolean;
+    ok: boolean;
 
   @Field((type) => String, { nullable: true })
-  msg: string;
+    msg: string;
+  @Field((type) => Part, { nullable: true })
+    partData?: Part;
 }
