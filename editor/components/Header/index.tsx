@@ -30,7 +30,7 @@ export default function Header() {
         <Toolbar style={{ minHeight: "6vh", width: "100%" }}>
           <Box sx={{ height: "6vh", p: "1vh 1vw", mr: "3vw" }}>
             <img
-              src="LDlogoWhite.png"
+              src="/LDlogoWhite.png"
               alt="NTUEE Light Dance logo"
               style={{ height: "100%" }}
             />
@@ -38,7 +38,9 @@ export default function Header() {
           <Button
             variant="outlined"
             onClick={() => {
-              navigate(location.pathname === "/editor" ? "/editor/command" : "/editor");
+              navigate(
+                location.pathname === "/editor" ? "/editor/command" : "/editor"
+              );
               window.location.reload();
             }}
           >
