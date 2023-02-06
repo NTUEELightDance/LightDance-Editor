@@ -4,7 +4,6 @@ import {
   POS_EDITOR,
   IDLE,
   EDITING,
-  ADDING,
   DANCER,
   PART,
   POSITION,
@@ -33,15 +32,13 @@ export interface ControlMapElement {
 
 export type ControlMapStatus = Record<DancerName, DancerStatus>;
 
-export type DancerStatus = Record<PartName, Fiber | El | LED>;
+export type DancerStatus = Record<PartName, Fiber | LED>;
 
 export interface Fiber {
   color: string;
   alpha: number; // brightness
   colorCode?: Color; // this is a three type Color, for doing color fade
 }
-
-export type El = number;
 
 export interface LED {
   src: string;
@@ -50,7 +47,7 @@ export interface LED {
 
 export type CurrentStatusDelta = Record<
   DancerName,
-  Record<PartName, El | LED | Fiber>
+  Record<PartName, LED | Fiber>
 >;
 
 /**
@@ -76,8 +73,8 @@ export interface Coordinates {
 /**
  * Editing
  */
-export type EditMode = IDLE | EDITING | ADDING;
-export type Editor = CONTROL_EDITOR | POS_EDITOR;
+export type EditMode = typeof IDLE | typeof EDITING;
+export type Editor = typeof CONTROL_EDITOR | typeof POS_EDITOR;
 export interface EditingData {
   start: number;
   frameId: string;
@@ -100,23 +97,7 @@ export type PartPayload = Record<string, string[]>;
 /**
  * selection mode
  */
-export type SelectionMode = DANCER | PART | POSITION;
-
-/**
- * Dancer name with its parts
- */
-interface DancerParts {
-  name: DancerName;
-  parts: Part[];
-}
-
-/**
- * Part, includes its name and type
- */
-interface Part {
-  name: PartName;
-  type: PartType;
-}
+export type SelectionMode = typeof DANCER | typeof PART | typeof POSITION;
 
 /**
  * PartTypeMap
@@ -243,40 +224,6 @@ export interface State {
   effectList: EffectListType;
 }
 
-export type StateKey = keyof State;
-
-/**
- * Reactive State, can trigger react component
- */
-export interface ReactiveState extends Record<StateKey, ReactiveVar> {
-  isLoggedIn: ReactiveVar<boolean>;
-  token: ReactiveVar<string>;
-
-  isPlaying: ReactiveVar<boolean>; // isPlaying
-
-  currentTime: ReactiveVar<number>; // current time
-  currentControlIndex: ReactiveVar<number>; // current index in controlRecord
-  currentPosIndex: ReactiveVar<number>; // current index in posRecord
-
-  currentFade: ReactiveVar<boolean>; // current control Frame will fade to next
-  currentStatus: ReactiveVar<ControlMapStatus>; // current dancers' status
-  currentPos: ReactiveVar<DancerCoordinates>; // current dancers' position
-
-  ledEffectRecord: ReactiveVar<LedEffectRecord>;
-  currentLedEffect: ReactiveVar<CurrentLedEffect>;
-
-  editMode: ReactiveVar<EditMode>;
-  editor: ReactiveVar<Editor>;
-  editingData: ReactiveVar<EditingData>;
-
-  selected: ReactiveVar<Selected>; // array of selected dancer's name
-
-  selectionMode: ReactiveVar<SelectionMode>; // selection mode used by simulator and dancer tree
-
-  dancers: ReactiveVar<Dancers>;
-  dancerNames: ReactiveVar<DancerName[]>;
-  partTypeMap: ReactiveVar<PartTypeMap>;
-  colorMap: ReactiveVar<ColorMap>;
-
-  effectList: ReactiveVar<EffectListType>;
-}
+export type ReactiveState = {
+  [key in keyof State]: ReactiveVar<State[key]>;
+};
