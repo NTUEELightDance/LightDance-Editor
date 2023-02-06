@@ -25,21 +25,9 @@ model LEDEffect {
   name     String
   partName String
   repeat   Int
-  frames   LEDFrame[]
+  frames   Json[]
 
   @@unique([name, partName])
-}
-
-model LEDFrame {
-  LEDEffectId Int
-  start       Int
-  fade        Boolean
-  LEDs        Json[]
-
-  // relation => not in db
-  LEDEffect LEDEffect @relation(fields: [LEDEffectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@id([LEDEffectId, start])
 }
 
 model User {

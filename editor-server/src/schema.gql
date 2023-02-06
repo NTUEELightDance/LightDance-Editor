@@ -388,6 +388,14 @@ input FloatFilter {
   notIn: [Float!]
 }
 
+input IntFieldUpdateOperationsInput {
+  decrement: Int
+  divide: Int
+  increment: Int
+  multiply: Int
+  set: Int
+}
+
 input IntFilter {
   equals: Int
   gt: Int
@@ -431,11 +439,28 @@ input JsonFilter {
   string_starts_with: String
 }
 
-input LEDEffectCreateInput {
-  frames: LEDFrameCreateNestedManyWithoutLEDEffectInput
+type LEDEffect {
+  frames: [JSON!]!
+  id: Int!
   name: String!
   partName: String!
   repeat: Int!
+}
+
+input LEDEffectCreateframesInput {
+  set: [JSON!]!
+}
+
+input LEDEffectCreateInput {
+  frames: LEDEffectCreateframesInput
+  name: String!
+  partName: String!
+  repeat: Int!
+}
+
+input LEDEffectNamePartNameCompoundUniqueInput {
+  name: String!
+  partName: String!
 }
 
 type LEDEffectResponse {
@@ -453,46 +478,21 @@ type LEDEffects {
   start: Float!
 }
 
-input LEDFrameCreateLEDsInput {
-  set: [JSON!]!
+input LEDEffectUpdateframesInput {
+  push: [JSON!]
+  set: [JSON!]
 }
 
-input LEDFrameCreateManyLEDEffectInput {
-  fade: Boolean!
-  LEDs: LEDFrameCreateLEDsInput
-  start: Int!
+input LEDEffectUpdateInput {
+  frames: LEDEffectUpdateframesInput
+  name: StringFieldUpdateOperationsInput
+  partName: StringFieldUpdateOperationsInput
+  repeat: IntFieldUpdateOperationsInput
 }
 
-input LEDFrameCreateManyLEDEffectInputEnvelope {
-  data: [LEDFrameCreateManyLEDEffectInput!]!
-  skipDuplicates: Boolean
-}
-
-input LEDFrameCreateNestedManyWithoutLEDEffectInput {
-  connect: [LEDFrameWhereUniqueInput!]
-  connectOrCreate: [LEDFrameCreateOrConnectWithoutLEDEffectInput!]
-  create: [LEDFrameCreateWithoutLEDEffectInput!]
-  createMany: LEDFrameCreateManyLEDEffectInputEnvelope
-}
-
-input LEDFrameCreateOrConnectWithoutLEDEffectInput {
-  create: LEDFrameCreateWithoutLEDEffectInput!
-  where: LEDFrameWhereUniqueInput!
-}
-
-input LEDFrameCreateWithoutLEDEffectInput {
-  fade: Boolean!
-  LEDs: LEDFrameCreateLEDsInput
-  start: Int!
-}
-
-input LEDFrameLEDEffectIdStartCompoundUniqueInput {
-  LEDEffectId: Int!
-  start: Int!
-}
-
-input LEDFrameWhereUniqueInput {
-  LEDEffectId_start: LEDFrameLEDEffectIdStartCompoundUniqueInput
+input LEDEffectWhereUniqueInput {
+  id: Int
+  name_partName: LEDEffectNamePartNameCompoundUniqueInput
 }
 
 type LEDMap {
@@ -531,6 +531,7 @@ type Mutation {
   RequestEditControl(FrameID: Float!): RequestEditResponse!
   RequestEditPosition(FrameID: Float!): RequestEditResponse!
   shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
+  updateOneLEDEffect(data: LEDEffectUpdateInput!, where: LEDEffectWhereUniqueInput!): LEDEffect
 }
 
 input NestedBoolFilter {
@@ -816,6 +817,10 @@ type ShiftResponse {
 enum SortOrder {
   asc
   desc
+}
+
+input StringFieldUpdateOperationsInput {
+  set: String
 }
 
 input StringFilter {

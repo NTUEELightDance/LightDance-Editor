@@ -251,7 +251,6 @@ const uploadData = async (req: Request, res: Response) => {
     await prisma.dancer.deleteMany();
     await prisma.positionFrame.deleteMany();
     await prisma.controlFrame.deleteMany();
-    await prisma.lEDFrame.deleteMany();
     await prisma.lEDEffect.deleteMany();
 
     // create fiber color
@@ -272,30 +271,17 @@ const uploadData = async (req: Request, res: Response) => {
         const effectData = LEDEffects[partName];
         await Promise.all(
           Object.keys(effectData).map(async (effectName: string) => {
-            const { repeat, frames } = effectData[effectName];
+            const frames = effectData[effectName].frames as Prisma.JsonObject[];
+            const { repeat } = effectData[effectName];
             const newLEDEffect = await prisma.lEDEffect.create({
               data: {
                 name: effectName,
                 partName: partName,
                 repeat: repeat,
+                frames: frames
               },
             });
-            await Promise.all(
-              frames.map(async (frame: TExportLEDFrame) => {
-                const { LEDs, start, fade } = frame;
-                await prisma.lEDFrame.create({
-                  data: {
-                    start: start,
-                    fade: fade,
-                    // LEDs: newLEDs,
-                    LEDs: LEDs,
-                    LEDEffect: {
-                      connect: { id: newLEDEffect.id },
-                    },
-                  },
-                });
-              })
-            );
+
           })
         );
       })
