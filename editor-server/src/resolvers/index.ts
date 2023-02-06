@@ -19,12 +19,11 @@ import { FindManyColorResolver,
   DancerRelationsResolver ,
   EditingControlFrameRelationsResolver ,
   EditingPositionFrameRelationsResolver ,
-  LEDEffectRelationsResolver ,
-  LEDFrameRelationsResolver ,
   PartRelationsResolver ,
   PositionDataRelationsResolver ,
   PositionFrameRelationsResolver ,
-  UserRelationsResolver
+  UserRelationsResolver,
+  UpdateOneLEDEffectResolver
 } from "../../prisma/generated/type-graphql";
 
 
@@ -33,7 +32,6 @@ export const resolvers = [
   ColorResolver,
   FindManyColorResolver,
   FindUniqueColorResolver,
-
 
   DancerResolver,
   PartResolver,
@@ -49,14 +47,13 @@ export const resolvers = [
   EffectListResolver,
   ShiftResolver,
   LEDResolver,
+  UpdateOneLEDEffectResolver,
 
   ControlDataRelationsResolver,
   ControlFrameRelationsResolver,
   DancerRelationsResolver ,
   EditingControlFrameRelationsResolver ,
   EditingPositionFrameRelationsResolver ,
-  LEDEffectRelationsResolver ,
-  LEDFrameRelationsResolver ,
   PartRelationsResolver ,
   PositionDataRelationsResolver ,
   PositionFrameRelationsResolver ,

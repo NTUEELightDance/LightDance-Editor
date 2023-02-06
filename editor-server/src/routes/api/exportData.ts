@@ -18,6 +18,7 @@ import {
   TExportLEDPart,
   TExportLEDFrame,
 } from "../../types/global";
+import { Prisma } from "@prisma/client";
 
 const exportData = async (req: Request, res: Response) => {
   try {
@@ -117,15 +118,12 @@ const exportData = async (req: Request, res: Response) => {
         const LEDPartEffects = await prisma.lEDEffect.findMany({
           where: {
             partName: partName,
-          },
-          include: {
-            frames: true,
-          },
+          }
         });
         // console.dir(LEDPartEffects, { depth: null })
         LEDPartEffects.map((LEDPartEffect) => {
           const { name, repeat, frames } = LEDPartEffect;
-          const LEDFrames = frames.map((LEDFrame) => {
+          const LEDFrames = frames.map((LEDFrame: any) => {
             const { LEDs, start, fade } = LEDFrame;
             const LEDFrameData: TExportLEDFrame = {
               LEDs: JSON.parse(JSON.stringify(LEDs)),
