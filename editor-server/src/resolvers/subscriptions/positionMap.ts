@@ -1,5 +1,4 @@
 import { ObjectType, Field, ID } from "type-graphql";
-import { ObjectId } from "mongodb";
 import { PosData, PosDataScalar } from "../types/posData";
 
 @ObjectType()

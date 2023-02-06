@@ -1,6 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
-import { ObjectId } from "mongodb";
 
 import redis from "../../redis";
 import { TRedisControl, TRedisControls } from "../../types/global";
@@ -10,11 +9,16 @@ type TControlIDList = {
   deleteList: string[];
   updateList: string[];
 }
+
 type TControlID = {
   id: string;
-  _id: ObjectId;
 }
+
 type TControlDataFrame = TControlIDList | TControlID;
+
+function isControlIDList(data: TControlDataFrame): data is TControlIDList {
+  return "createList" in data;
+}
 
 type TControlDataScalar = {
   createFrames: TRedisControls;
@@ -32,17 +36,7 @@ export const ControlDataScalar = new GraphQLScalarType({
   name: "ControlMapMutationObjectId",
   description: "Mongo object id scalar type",
   async serialize(data: TControlDataFrame): Promise<TControlDataScalar> {
-    // check the type of received value
-    if ("id" in data && "_id" in data) {
-      const {id, _id} = data;
-      const result: TRedisControls = {};
-      const cache = await redis.get(id);
-      if (cache) {
-        const cacheObj: TRedisControl = JSON.parse(cache);
-        result[id] = cacheObj;
-      }
-      return result;
-    } else {
+    if (isControlIDList(data)) {
       const { deleteList, createList, updateList } = data;
       const createFrames: TRedisControls = {};
       await Promise.all(
@@ -65,6 +59,15 @@ export const ControlDataScalar = new GraphQLScalarType({
         })
       );
       return { createFrames, deleteFrames: deleteList, updateFrames }; // value sent to the client
+    } else {
+      const {id } = data;
+      const result: TRedisControls = {};
+      const cache = await redis.get(id);
+      if (cache) {
+        const cacheObj: TRedisControl = JSON.parse(cache);
+        result[id] = cacheObj;
+      }
+      return result;
     }
   },
   parseValue(value: unknown): any {

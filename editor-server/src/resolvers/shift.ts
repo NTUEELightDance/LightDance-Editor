@@ -21,7 +21,7 @@ import {
 import { updateRedisControl, updateRedisPosition } from "../utility";
 import { Topic } from "./subscriptions/topic";
 import { ShiftResponse } from "./response/shiftResponse";
-import { IControl, IControlFrame, IDancer, IPart, IPosition, IPositionFrame, TContext } from "../types/global";
+import { TContext } from "../types/global";
 
 @Resolver()
 export class ShiftResolver {

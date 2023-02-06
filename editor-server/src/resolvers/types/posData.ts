@@ -1,6 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
-import { ObjectId } from "mongodb";
 import redis from "../../redis";
 
 interface LooseObject {
@@ -10,7 +9,7 @@ interface LooseObject {
 @ObjectType()
 export class PosData {
   @Field((type) => PosDataScalar)
-    frame: ObjectId;
+    frame: number;
 }
 
 export const PosDataScalar = new GraphQLScalarType({

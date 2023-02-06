@@ -1,4 +1,3 @@
-import { Model, ObjectId, Document, PopulatedDoc } from "mongoose";
 import { PrismaClient } from "@prisma/client";
 
 export interface ConnectionParam {
@@ -6,12 +5,7 @@ export interface ConnectionParam {
   name: string
 }
 
-export type DBModels = {
-  [key: string]: Model<any>
-}
-
 export type TContext = {
-  db: DBModels
   userID: number
   userPassword: string
   prisma: PrismaClient
@@ -20,44 +14,23 @@ export type TContext = {
 export interface LooseObject {
   [key: string]: any
 }
-
-// data type
-export interface IControlFrame {
-  fade: boolean
-  start: number
-  editing?: string
-  id: string
-  _id?: ObjectId
-}
-export interface IPositionFrame {
-  start: number
-  editing?: string
-  id: string
-  _id?: ObjectId
-}
-export interface IDancer {
-  name: string
-  parts: PopulatedDoc<IPart & Document>[]
-  positionData: PopulatedDoc<IPosition & Document>[]
-  id: string
-  _id?: ObjectId
-}
 export interface IPart {
   name: string;
   type: string;
-  controlData: PopulatedDoc<IControl & Document>[];
+  controlData: IControl[];
   id: number;
-  _id?: ObjectId;
 }
+
 export interface IControl {
-  frame: PopulatedDoc<IControlFrame & Document>
-  value: IControlValue
-  _id?: ObjectId
+  frame: IControlFrame;
+  value: IControlValue;
 }
+
 export type IControlValue =
   | IELControlValue
   | ILEDControlValue
   | IFiberControlValue
+
 interface IELControlValue {
   value: number
 }
@@ -69,33 +42,14 @@ interface IFiberControlValue {
   color: string
   alpha: number
 }
-export interface IPosition {
-  frame: PopulatedDoc<IPositionFrame & Document>
-  x?: number
-  y?: number
-  z?: number
-  _id?: ObjectId
-}
-export interface IUser {
-  userID: string
-  name: string
-  _id?: ObjectId
-}
-export interface IColor {
-  color: string
-  colorCode: string
-  _id?: ObjectId
-}
-export interface IEffectList {
-  color: string
+
+export interface IControlFrame {
+  fade: boolean
   start: number
-  end: number
-  description: string
-  controlFrames: TRedisControls
-  positionFrames: TRedisPositions
-  colorCode: string
-  _id?: ObjectId
+  editing?: string
+  id: string
 }
+
 export interface ILEDEffectsEffect {
   colorCode: string
   alpha: number
@@ -105,23 +59,12 @@ export interface ILEDEffects {
   fade: boolean
   effect: ILEDEffectsEffect[]
 }
+
 export interface ILED {
   partName: string
   effectName: string
   repeat: number
   effects: ILEDEffects[]
-  _id?: ObjectId
-}
-export interface ILogger {
-  user: string
-  variableValues: LooseObject
-  type: string
-  fieldName: string
-  time: Date
-  status: string
-  errorMessage?: LooseObject
-  result?: LooseObject
-  _id?: ObjectId
 }
 
 // export data

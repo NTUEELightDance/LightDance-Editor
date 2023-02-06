@@ -1,10 +1,13 @@
-// todo
-// extend dancer, {ok, msg}
 import { Field, ObjectType } from "type-graphql";
-import { Color } from "../types/color";
 
 @ObjectType()
-export class ColorResponse extends Color {
+export class ColorResponse {
+@Field((type) => String)
+  color: string;
+
+  @Field((type) => String)
+    colorCode: string;
+
   @Field((type) => Boolean, { nullable: true })
     ok: boolean;
 

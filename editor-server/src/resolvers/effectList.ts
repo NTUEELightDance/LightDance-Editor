@@ -6,14 +6,12 @@ import {
   PubSub,
   Publisher,
   Arg,
-  ID,
 } from "type-graphql";
 
 // import { EffectList } from "./types/effectList";
 import redis from "../redis";
 import { EffectListResponse } from "./response/effectListResponse";
 import {
-  generateID,
   updateRedisControl,
   updateRedisPosition,
 } from "../utility";
@@ -32,10 +30,8 @@ import {
   PositionRecordPayload,
   PositionRecordMutation,
 } from "./subscriptions/positionRecord";
-import { IControl, IControlFrame, IDancer, IEffectList, IPart, IPosition, IPositionFrame, TContext, TRedisControl, TRedisControls, TRedisPosition, TRedisPositions } from "../types/global";
-import { EffectListData, EffectListDataCreateInput } from "../../prisma/generated/type-graphql";
-import { JSONObject } from "graphql-scalars/typings/mocks";
-import { ControlData } from "./types/controlData";
+import { TContext, TRedisControl, TRedisControls, TRedisPosition, TRedisPositions } from "../types/global";
+import { EffectListData } from "../../prisma/generated/type-graphql";
 
 type AllDancer = {
   [key: string]: {
@@ -59,8 +55,9 @@ export class EffectListResolver {
   async effectList(@Ctx() ctx: TContext) {
     const effectLists = await ctx.prisma.effectListData.findMany();
     const result = effectLists.map((effectList) => {
-      let { id, start, end, description, controlFrames, positionFrames } =
+      const { id, start, end, description } =
         effectList;
+      let {controlFrames, positionFrames } = effectList;
       if (!controlFrames) controlFrames = [];
       if (!positionFrames) positionFrames = [];
       return {

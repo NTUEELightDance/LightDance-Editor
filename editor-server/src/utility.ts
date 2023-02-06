@@ -1,19 +1,11 @@
 import { nanoid } from "nanoid";
-import { ObjectId } from "mongoose";
 
-import model from "./models";
 import "dotenv-defaults/config";
 import redis from "./redis";
 import prisma from "./prisma";
 
 import {
   LooseObject,
-  IControlFrame,
-  IDancer,
-  IPart,
-  IControl,
-  IPositionFrame,
-  IPosition,
   TRedisPos,
   TPartControl,
   TRedisControl,

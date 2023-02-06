@@ -6,7 +6,6 @@ import { ControlFrameResolver } from "./controlFrame";
 import { PositionFrameResolver } from "./positionFrame";
 import { ControlMapResolver, EditControlMapResolver } from "./controlMap";
 import { RequestEditResolver } from "./requestEdit";
-import { PositionResolver } from "./position";
 import { PosMapResolver, EditPosMapResolver } from "./positionMap";
 import { EffectListResolver } from "./effectList";
 import { ShiftResolver } from "./shift";
@@ -35,7 +34,6 @@ export const resolvers = [
 
   DancerResolver,
   PartResolver,
-  PositionResolver,
   SubscriptionResolver,
   ControlFrameResolver,
   PositionFrameResolver,

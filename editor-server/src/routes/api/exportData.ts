@@ -3,22 +3,17 @@ import { Request, Response } from "express";
 import redis from "../../redis";
 import prisma from "../../prisma";
 import {
-  IColor,
-  IControlFrame,
-  IPositionFrame,
   TColorData,
   TControlData,
   TDancerData,
   TExportData,
   TPositionData,
-  TPositionDataTest,
   TRedisControlTest,
   TRedisPositionTest,
   TExportLED,
   TExportLEDPart,
   TExportLEDFrame,
 } from "../../types/global";
-import { Prisma } from "@prisma/client";
 
 const exportData = async (req: Request, res: Response) => {
   try {

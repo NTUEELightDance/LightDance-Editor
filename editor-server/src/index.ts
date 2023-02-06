@@ -17,23 +17,18 @@ import fileUpload from "express-fileupload";
 import prisma from "./prisma";
 
 import { resolvers } from "./resolvers";
-import db from "./models";
-import mongo from "./mongo";
 import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
 import { ConnectionParam, TContext } from "./types/global";
 
 const port = process.env.PORT || 4000;
-const { SECRET_KEY } = process.env
 
-;(async function () {
+(async function () {
   const app = express();
   app.use(bodyParser.json({ limit: "20mb" }));
   app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
   app.use(fileUpload());
   app.use("/api", apiRoute);
-
-  mongo();
 
   const httpServer = http.createServer(app);
   // const schema = makeExecutableSchema({ typeDefs, resolvers })
@@ -46,82 +41,19 @@ const { SECRET_KEY } = process.env
     pubSub: pubsub,
   });
 
-  const subscriptionBuildOptions = async (
-    connectionParams: ConnectionParam,
-    webSocket: any
-  ) => {
-    try {
-      const { userID, name } = connectionParams;
-      if (!userID) throw new Error("UserID and name must be filled.");
-      const user = await db.User.findOne({ userID });
-      if (user) {
-        return { db, userID, prisma };
-      } else {
-        await new db.User({ name, userID }).save();
-        return { db, userID, prisma };
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const subscriptionDestroyOptions = async (
-    webSocket: any,
-    context: ConnectionContext
-  ) => {
-    const initialContext = await context.initPromise;
-    if (initialContext) {
-      const { userID } = initialContext;
-      await db.ControlFrame.updateMany(
-        { editing: userID },
-        { editing: undefined }
-      );
-      await db.PositionFrame.updateMany(
-        { editing: userID },
-        { editing: undefined }
-      );
-      await db.User.deleteMany({ userID });
-    }
-  };
-
   const subscriptionServer = SubscriptionServer.create(
     {
       schema,
       execute,
       subscribe,
-      onConnect: subscriptionBuildOptions,
-      onDisconnect: subscriptionDestroyOptions,
     },
     { server: httpServer, path: "/graphql" }
   );
 
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
-      try {
-        // make sure that we know who are accessing backend
-        const { name, password } = req.headers;
-        if (!name || !password)
-          throw new Error("password and name must be filled.");
-        let userID;
-        const userName: string = (typeof(name) === "string") ? name: name[0];
-        const userPassword: string = (typeof(password) === "string") ? password : password[0];
-        const user = await prisma.user.findFirst({where: {name: userName}});
-        if (!user) {
-          const newUser = await prisma.user.create({data: {name: userName, password: userPassword}});
-          const createEditingControl = await prisma.editingControlFrame.create({data: {userId: newUser.id, frameId: null}});
-          const createEditingPosition = await prisma.editingPositionFrame.create({data: {userId: newUser.id, frameId: null}});
-          userID = newUser.id;
-        }
-        else{
-          userID = user.id;
-        }
-        const result: TContext = { db, userID, userPassword, prisma };
-        return result;
-
-      } catch (e) {
-        console.log(e);
-      }
+    context: async () => {
+      return {userID: 1, prisma, userPassword: "admin"} as TContext;
     },
     plugins: [
       {

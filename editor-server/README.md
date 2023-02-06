@@ -4,7 +4,7 @@
 
 ```sh
 cd ./Lightdance-Editor
-docker-compose -f dev.docker-compose.yml up -d postgresqldb mongodb redisdb
+docker compose -f dev.docker-compose.yml up -d postgresqldb mongodb redisdb
 ```
 
 2. Update prisma schema
