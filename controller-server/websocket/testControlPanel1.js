@@ -18,7 +18,7 @@ socket.addEventListener("open", (evnt)  => {
             "start": 0, // ms
             "fade": true,
             "status": {
-                  "Calf_R": [255, 255, 255, 10], // r, g, b, a
+              "Calf_R": [255, 255, 255, 10], // r, g, b, a
               "Thigh_R": [255, 255, 255, 10],
               "LymphaticDuct_R": [255, 255, 255, 10],
               "Waist_R": [255, 255, 255, 10],
