@@ -159,7 +159,7 @@ class DancerSocket {
       payload: data[this.dancerName],
     });
   };
-  uploadLED = (data: LedType) => {
+  uploadLED = (data: ControlType) => {
     this.sendDataToRpiSocket({
       command: CommandType.UPLOAD_LED /* payload: ControlType*/,
       payload: data[this.dancerName],
