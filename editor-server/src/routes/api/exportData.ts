@@ -140,7 +140,7 @@ const exportData = async (req: Request, res: Response) => {
         LEDEffects[partName] = LEDPart;
       })
     );
-    console.dir(LEDEffects, { depth: null });
+    // console.dir(LEDEffects, { depth: null });
 
     const data: TExportData =
       // {

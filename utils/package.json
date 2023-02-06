@@ -12,5 +12,13 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "yargs": "^17.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.33.0"
+  },
+  "scripts": {
+    "initDB": "node initDB.js ./out/exportData.json",
+    "save": "node saveData.js ./out/exportData.json",
+    "lint": "yarn eslint --fix ."
   }
 }

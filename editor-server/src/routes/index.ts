@@ -7,7 +7,7 @@ import getLogger from "./api/getLogger";
 
 const router = express.Router();
 
-router.get("/exportData.json", exportData);
+router.get("/exportData", exportData);
 router.post("/uploadData", uploadData);
 router.get("/exportLogger.csv", exportLogger);
 router.get("/logger", getLogger);
