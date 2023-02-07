@@ -20,7 +20,7 @@ export type ColorCode = string;
 /**
  * ControlRecord and ControlMap
  */
-export type ControlRecord = id[]; // array of all IDs , each correspondsto diff status
+export type ControlRecord = id[]; // array of all IDs , each corresponds to diff status
 
 export type ControlMap = Record<id, ControlMapElement>;
 
@@ -32,23 +32,71 @@ export interface ControlMapElement {
 
 export type ControlMapStatus = Record<DancerName, DancerStatus>;
 
-export type DancerStatus = Record<PartName, Fiber | LED>;
+export function isControlMapStatus(
+  status: ControlMapStatus | PosMapStatus
+): status is ControlMapStatus {
+  const values = Object.values(status);
+  return isDancerStatus(values[0]) || values.length === 0;
+}
 
-export interface Fiber {
+export type DancerStatus = Record<PartName, PartData>;
+
+export function isDancerStatus(status: unknown): status is DancerStatus {
+  if (typeof status !== "object" || status === null) return false;
+  const values = Object.values(status);
+  return isPartData(values[0]) || values.length === 0;
+}
+
+export type PartData = LEDData | FiberData | ELData;
+
+export function isPartData(partData: PartData): partData is PartData {
+  return isFiberData(partData) || isLEDData(partData) || isELData(partData);
+}
+
+export interface FiberData {
   color: string;
   alpha: number; // brightness
   colorCode?: Color; // this is a three type Color, for doing color fade
 }
 
-export interface LED {
+export function isFiberData(partData: PartData): partData is FiberData {
+  return (
+    typeof (partData as FiberData)?.color === "string" &&
+    typeof (partData as FiberData)?.alpha === "number"
+  );
+}
+
+export interface LEDData {
   src: string;
   alpha: number;
 }
 
-export type CurrentStatusDelta = Record<
-  DancerName,
-  Record<PartName, LED | Fiber>
->;
+export function isLEDData(partData: PartData): partData is LEDData {
+  return (
+    typeof (partData as LEDData)?.src === "string" &&
+    typeof (partData as LEDData)?.alpha === "number"
+  );
+}
+
+export type ELData = number;
+
+export function isELData(partData: PartData): partData is ELData {
+  return typeof partData === "number";
+}
+
+export type CurrentStatusDelta = Record<DancerName, Record<PartName, PartData>>;
+
+export type ControlMapPayload = {
+  [frameId: id]: {
+    fade: boolean;
+    start: number;
+    status: Array<DancerStatusPayload>;
+  };
+};
+
+export type DancerStatusPayload = Array<FiberDataPayload>;
+
+export type FiberDataPayload = [ColorName, number];
 
 /**
  * PosRecord and PosMap
@@ -59,15 +107,31 @@ export type PosMap = Record<id, PosMapElement>;
 
 export interface PosMapElement {
   start: number;
-  pos: DancerCoordinates;
+  pos: PosMapStatus;
 }
 
-export type DancerCoordinates = Record<DancerName, Coordinates>;
+export type PosMapStatus = Record<DancerName, Coordinates>;
 
+export function isPosMapStatus(
+  status: ControlMapStatus | PosMapStatus
+): status is PosMapStatus {
+  const values = Object.values(status);
+  return isCoordinates(values[0]) || values.length === 0;
+}
 export interface Coordinates {
   x: number;
   y: number;
   z: number;
+}
+
+export function isCoordinates(
+  coordinates: unknown
+): coordinates is Coordinates {
+  return (
+    typeof (coordinates as Coordinates)?.x === "number" &&
+    typeof (coordinates as Coordinates)?.y === "number" &&
+    typeof (coordinates as Coordinates)?.z === "number"
+  );
 }
 
 /**
@@ -112,6 +176,14 @@ type PartType = "LED" | "FIBER" | "El";
  */
 export type Dancers = Record<DancerName, PartName[]>;
 
+export type DancersPayload = Array<{
+  name: DancerName;
+  parts: Array<{
+    name: PartName;
+    type: PartType;
+  }>;
+}>;
+
 /**
  * ColorMap
  */
@@ -144,7 +216,7 @@ export interface LedEffectFrame {
  * Generated from controlMap and controlRecord, but stripped out the `no-effect` source
  *
  */
-type LedEffectRecord = Record<DancerName, Record<PartName, LedRecord>>;
+export type LedEffectRecord = Record<DancerName, Record<PartName, LedRecord>>;
 
 export type LedRecord = id[];
 
@@ -203,7 +275,7 @@ export interface State {
 
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
-  currentPos: DancerCoordinates; // current dancers' position
+  currentPos: PosMapStatus; // current dancers' position
 
   ledEffectRecord: LedEffectRecord;
   currentLedEffect: CurrentLedEffect;

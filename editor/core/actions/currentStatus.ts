@@ -6,9 +6,9 @@ import { getControl, setItem } from "../utils";
 import {
   State,
   ControlMapStatus,
-  LED,
-  Fiber,
-  El,
+  LEDData,
+  FiberData,
+  ELData,
   CurrentStatusDelta,
 } from "../models";
 
@@ -36,7 +36,7 @@ const actions = registerActions({
     payload: {
       dancerName: string;
       partName: string;
-      value: El;
+      value: ELData;
     }
   ) => {
     const { dancerName, partName, value } = payload;
@@ -55,7 +55,7 @@ const actions = registerActions({
     payload: {
       dancerName: string;
       partName: string;
-      value: Fiber;
+      value: FiberData;
     }
   ) => {
     const {
@@ -66,12 +66,12 @@ const actions = registerActions({
 
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
     if (color && color !== "") {
-      (state.currentStatus[dancerName][partName] as Fiber).color = color;
-      (state.currentStatus[dancerName][partName] as Fiber).colorCode =
+      (state.currentStatus[dancerName][partName] as FiberData).color = color;
+      (state.currentStatus[dancerName][partName] as FiberData).colorCode =
         new Color(state.colorMap[color]);
     }
     if (typeof alpha === "number") {
-      (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
+      (state.currentStatus[dancerName][partName] as FiberData).alpha = alpha;
     }
   },
 
@@ -86,17 +86,17 @@ const actions = registerActions({
     payload: Array<{
       dancerName: string;
       partName: string;
-      value: LED;
+      value: LEDData;
     }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
 
     payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
       if (typeof src === "string") {
-        (state.currentStatus[dancerName][partName] as LED).src = src;
+        (state.currentStatus[dancerName][partName] as LEDData).src = src;
       }
       if (typeof alpha === "number") {
-        (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
+        (state.currentStatus[dancerName][partName] as LEDData).alpha = alpha;
       }
     });
   },

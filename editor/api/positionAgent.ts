@@ -13,7 +13,7 @@ import {
 } from "../graphql";
 
 // types
-import { ControlMapStatus, DancerCoordinates } from "../core/models";
+import { ControlMapStatus, PosMapStatus } from "../core/models";
 
 /**
  * posAgent: responsible for posMap and posRecord
@@ -28,7 +28,7 @@ export const posAgent = {
     return posRecordData.data.positionFrameIDs;
   },
   addFrame: async (
-    frame: DancerCoordinates | ControlMapStatus,
+    frame: PosMapStatus | ControlMapStatus,
     currentTime: number
   ) => {
     try {
@@ -51,7 +51,7 @@ export const posAgent = {
   },
   saveFrame: async (
     frameId: string,
-    frame: DancerCoordinates | ControlMapStatus,
+    frame: PosMapStatus | ControlMapStatus,
     currentTime: number,
     requestTimeChange: boolean,
     fade?: boolean

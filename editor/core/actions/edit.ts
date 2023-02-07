@@ -15,12 +15,10 @@ import { notification, updateFrameByTimeMap } from "core/utils";
  * @returns { map, record, index, frameId, frame, agent, fade? }
  */
 const getDataHandler = async (state: State) => {
-  const [controlMap, controlRecord] = await getControl();
-  const [posMap, posRecord] = await getPos();
-
   const pureStatus = deleteColorCode(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
+    const [controlMap, controlRecord] = await getControl();
     // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       controlRecord,
@@ -38,6 +36,7 @@ const getDataHandler = async (state: State) => {
       fade: state.currentFade,
     };
   } else {
+    const [posMap, posRecord] = await getPos();
     // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       posRecord,

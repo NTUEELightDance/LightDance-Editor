@@ -18,7 +18,7 @@ import { getItem } from "core/utils";
 // components
 import PresetsList from "./PresetsList";
 // types
-import { DancerCoordinates } from "core/models";
+import { PosMapStatus } from "core/models";
 
 /**
  * This is Presets component, list of pos
@@ -71,7 +71,7 @@ export default function PosPresets() {
   const handleDeletePresets = (idx: number) => {
     deletePosPresets(idx);
   };
-  const handleSetCurrentPos = (pos: DancerCoordinates) => {
+  const handleSetCurrentPos = (pos: PosMapStatus) => {
     setCurrentPos({ payload: pos });
   };
 

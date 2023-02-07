@@ -7,13 +7,17 @@ import { useState, useEffect } from "react";
 import { reactiveState } from "core/state";
 import { setDancerNames, setDancers, setPartTypeMap } from "core/actions";
 // models
-import { Dancers, PartTypeMap, DancerParts } from "core/models";
+import { Dancers, PartTypeMap } from "core/models";
 
 import _ from "lodash";
 
 export default function useDancer() {
   // query controlMap
-  const { loading: dancerLoading, error, data: dancer } = useQuery(GET_DANCERS);
+  const {
+    loading: dancerLoading,
+    error,
+    data: dancerData,
+  } = useQuery(GET_DANCERS);
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
   const dancers = useReactiveVar(reactiveState.dancers);
   const partTypeMap = useReactiveVar(reactiveState.partTypeMap);
@@ -22,11 +26,11 @@ export default function useDancer() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!dancerLoading && dancer) {
+    if (!dancerLoading && dancerData) {
       const tmpDancerNames: string[] = [];
       const tmpDancers: Dancers = {};
       const tmpPartTypeMap: PartTypeMap = {};
-      const sortedDancers: DancerParts[] = _.sortBy(dancer.dancer, (dancer) =>
+      const sortedDancers = _.sortBy(dancerData.dancer, (dancer) =>
         Number(dancer.name.split("_")[0])
       );
       sortedDancers.forEach(({ name: dancerName, parts }) => {
@@ -42,11 +46,9 @@ export default function useDancer() {
       setPartTypeMap({ payload: tmpPartTypeMap });
       setLoading(false);
     }
-  }, [dancerLoading, dancer]);
+  }, [dancerLoading, dancerData]);
 
   return {
-    loading,
-    error,
     dancerNames,
     dancers,
     partTypeMap,

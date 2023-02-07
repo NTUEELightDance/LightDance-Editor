@@ -8,7 +8,7 @@ import { grey } from "@mui/material/colors";
 
 import { editCurrentStatusDelta } from "core/actions";
 import type {
-  Fiber,
+  FiberData,
   Selected,
   CurrentStatusDelta,
   PartPayload,
@@ -66,8 +66,8 @@ function PartMode() {
     const [dancerName, parts] = Object.entries(
       newSelectedParts as PartPayload
     )[0];
-    setCurrentColorName((currentStatus[dancerName][parts[0]] as Fiber).color);
-    setIntensity((currentStatus[dancerName][parts[0]] as Fiber).alpha);
+    setCurrentColorName((currentStatus[dancerName][parts[0]] as FiberData).color);
+    setIntensity((currentStatus[dancerName][parts[0]] as FiberData).alpha);
   }, [currentStatus, selected]);
 
   // mutate globnal state

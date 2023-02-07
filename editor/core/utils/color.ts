@@ -1,17 +1,19 @@
+import { ControlMapStatus, isFiberData } from "../models";
+
 import _ from "lodash";
 
 /**
  * deleteColorCode return status without colorCode
  * @param {object} status - target status
  */
-export function deleteColorCode(status) {
+export function deleteColorCode(status: ControlMapStatus) {
   const pureStatus = _.cloneDeep(status);
 
-  Object.keys(status).forEach((name) => {
-    const dancer = status[name];
-    Object.keys(dancer).forEach((partName) => {
-      const part = dancer[partName];
-      if (part.colorCode) delete pureStatus[name][partName].colorCode;
+  Object.values(pureStatus).forEach((dancer) => {
+    Object.values(dancer).forEach((part) => {
+      if (isFiberData(part)) {
+        delete part.colorCode;
+      }
     });
   });
 

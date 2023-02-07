@@ -1,8 +1,8 @@
 import {
   ControlMapElement,
   ControlMapStatus,
-  LED,
-  Fiber,
+  LEDData,
+  FiberData,
   El,
   ColorMap,
   ColorCode,
@@ -14,20 +14,20 @@ function Round1(number: number) {
   return Math.round(number * 10) / 10;
 }
 
-function CheckTypeOfLED(object: LED | Fiber | El): object is LED {
+function CheckTypeOfLED(object: LEDData | FiberData | El): object is LEDData {
   return (
-    (object as LED).src !== undefined && (object as LED).alpha !== undefined
+    (object as LEDData).src !== undefined && (object as LEDData).alpha !== undefined
   );
 }
 
-function CheckTypeOfFiber(object: LED | Fiber | El): object is Fiber {
+function CheckTypeOfFiber(object: LEDData | FiberData | El): object is FiberData {
   return (
-    (object as Fiber).color !== undefined &&
-    (object as Fiber).alpha !== undefined
+    (object as FiberData).color !== undefined &&
+    (object as FiberData).alpha !== undefined
   );
 }
 
-function CheckTypeOfEl(object: LED | Fiber | El): object is El {
+function CheckTypeOfEl(object: LEDData | FiberData | El): object is El {
   return typeof (object as El) === "number";
 }
 

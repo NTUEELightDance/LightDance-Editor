@@ -10,8 +10,8 @@ import type {
   PartType,
   ColorMap,
   ControlMapStatus,
-  LED,
-  Fiber,
+  LEDData,
+  FiberData,
   PartPayload,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
@@ -95,14 +95,14 @@ function PropertyPanel({
                 <LEDcontrols
                   part={part}
                   currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as LED}
+                  displayValue={currentStatus[currentDancers[0]][part] as LEDData}
                   key={`${currentDancers[0]}_${part}`}
                 />
               ) : (
                 <OFcontrols
                   part={part}
                   currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as Fiber}
+                  displayValue={currentStatus[currentDancers[0]][part] as FiberData}
                   key={`${currentDancers[0]}_${part}`}
                   colorMap={colorMap}
                 />

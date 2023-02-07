@@ -5,7 +5,7 @@ import {
   PosMap,
   PosMapElement,
   Coordinates,
-  DancerCoordinates,
+  PosMapStatus,
   LedRecord,
 } from "../models";
 
@@ -103,7 +103,7 @@ export function interpolationPos(
     );
   }
 
-  const newPos: DancerCoordinates = {};
+  const newPos: PosMapStatus = {};
   Object.keys(prePos).forEach((dancer) => {
     const dancerPrePos: Coordinates = prePos[dancer];
     const dancerNextPos: Coordinates = nextPos[dancer];

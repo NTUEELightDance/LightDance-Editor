@@ -1,7 +1,7 @@
 import { cloneDeep } from "lodash";
 import { registerActions } from "../registerActions";
 // types
-import { State, DancerCoordinates } from "../models";
+import { State, PosMapStatus } from "../models";
 
 const actions = registerActions({
   /**
@@ -43,7 +43,7 @@ const actions = registerActions({
    * @param {State} state
    * @param {*} payload - new pos
    */
-  setCurrentPos: (state: State, payload: DancerCoordinates) => {
+  setCurrentPos: (state: State, payload: PosMapStatus) => {
     state.currentPos = payload;
   },
 

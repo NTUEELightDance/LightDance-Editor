@@ -13,50 +13,84 @@ import {
 } from "../graphql";
 
 // types
-import { ControlMapStatus, DancerCoordinates } from "../core/models";
+import {
+  ControlMapStatus,
+  PosMapStatus,
+  isELData,
+  isLEDData,
+  ControlMap,
+  ControlRecord,
+  isControlMapStatus,
+  ControlMapPayload,
+} from "@/core/models";
 
 /**
  * controlAgent: responsible for controlMap and controlRecord
  */
 export const controlAgent = {
   getControlMap: async () => {
-    const controlMapData = await client.query({ query: GET_CONTROL_MAP });
-    return controlMapData.data.ControlMap.frames;
+    const { data: controlMapData } = await client.query({
+      query: GET_CONTROL_MAP,
+    });
+
+    const frames = controlMapData.ControlMap.frameIds as ControlMapPayload;
+    console.log("frames", frames);
+
+    return {} as ControlMap;
   },
+
   getControlRecord: async () => {
     const controlRecordData = await client.query({ query: GET_CONTROL_RECORD });
-    return controlRecordData.data.controlFrameIDs;
+    return controlRecordData.data.controlFrameIDs as ControlRecord;
   },
+
   addFrame: async (
-    frame: DancerCoordinates | ControlMapStatus,
+    frame: ControlMapStatus | PosMapStatus,
     currentTime: number,
     frameIndex: number,
     fade?: boolean
   ) => {
+    if (!isControlMapStatus(frame)) {
+      return;
+    }
+
     try {
-      // can't use optimisticResponse and predict QQ
+      const controlData = Object.entries(frame).map(
+        ([dancerName, dancerData]) => ({
+          dancerName,
+          controlData: Object.entries(dancerData).map(
+            ([partName, partData]) => {
+              if (isELData(partData)) {
+                return {
+                  partName,
+                  ELValue: partData,
+                };
+              } else if (isLEDData(partData)) {
+                const { alpha, src } = partData;
+                return {
+                  partName,
+                  alpha,
+                  src,
+                };
+              } else {
+                const { alpha, color } = partData;
+                return {
+                  partName,
+                  alpha,
+                  color,
+                };
+              }
+            }
+          ),
+        })
+      );
+
       await client.mutate({
         mutation: ADD_OR_EDIT_CONTROL_FRAME,
         variables: {
           start: currentTime,
           fade,
-          controlData: Object.keys(frame).map((key) => {
-            return {
-              dancerName: key,
-              controlData: Object.keys(frame[key]).map((k) => {
-                if (typeof (frame as ControlMapStatus)[key][k] === "number") {
-                  return {
-                    partName: k,
-                    ELValue: (frame as ControlMapStatus)[key][k],
-                  };
-                }
-                return {
-                  partName: k,
-                  ...((frame as ControlMapStatus)[key][k] as Object),
-                };
-              }),
-            };
-          }),
+          controlData,
         },
       });
     } catch (error) {
@@ -66,16 +100,20 @@ export const controlAgent = {
   },
   saveFrame: async (
     frameId: string,
-    frame: DancerCoordinates | ControlMapStatus,
+    frame: ControlMapStatus | PosMapStatus,
     currentTime: number,
     requestTimeChange: boolean,
     fade?: boolean
   ) => {
+    if (!isControlMapStatus(frame)) {
+      return;
+    }
+
     const controlMap = await controlAgent.getControlMap();
     const frameTime = controlMap[frameId].start;
     try {
       // this is to predict the frontend result and faster the performance
-      // don't use optimisticResponse because we use subscription to do the updation
+      // don't use optimisticResponse because we use subscription to do the updating
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
@@ -93,34 +131,43 @@ export const controlAgent = {
           },
         },
       });
-      // don't use await for optimisticResponse
-      client.mutate({
-        mutation: ADD_OR_EDIT_CONTROL_FRAME,
-        variables: {
-          start: frameTime,
-          fade,
-          controlData: Object.keys(frame).map((dancerName) => {
-            return {
-              dancerName,
-              controlData: Object.keys(frame[dancerName]).map((partName) => {
-                if (
-                  typeof (frame as ControlMapStatus)[dancerName][partName] ===
-                  "number"
-                ) {
-                  return {
-                    partName,
-                    ELValue: (frame as ControlMapStatus)[dancerName][partName],
-                  };
-                }
+
+      const controlData = Object.entries(frame).map(
+        ([dancerName, dancerData]) => ({
+          dancerName,
+          controlData: Object.entries(dancerData).map(
+            ([partName, partData]) => {
+              if (isELData(partData)) {
                 return {
                   partName,
-                  ...((frame as ControlMapStatus)[dancerName][
-                    partName
-                  ] as Object),
+                  ELValue: partData,
                 };
-              }),
-            };
-          }),
+              } else if (isLEDData(partData)) {
+                const { alpha, src } = partData;
+                return {
+                  partName,
+                  alpha,
+                  src,
+                };
+              } else {
+                const { alpha, color } = partData;
+                return {
+                  partName,
+                  alpha,
+                  color,
+                };
+              }
+            }
+          ),
+        })
+      );
+
+      await client.mutate({
+        mutation: ADD_OR_EDIT_CONTROL_FRAME,
+        variables: {
+          start: currentTime,
+          fade,
+          controlData,
         },
       });
     } catch (error) {

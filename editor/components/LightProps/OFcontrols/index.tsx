@@ -11,7 +11,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import OFcontrolsContent from "./OFcontrolsContent";
 
 import { editCurrentStatusDelta } from "core/actions";
-import type { Fiber, CurrentStatusDelta } from "core/models";
+import type { FiberData, CurrentStatusDelta } from "core/models";
 
 function OFcontrols({
   part,
@@ -21,7 +21,7 @@ function OFcontrols({
 }: {
   part: string;
   currentDancers: string[];
-  displayValue: Fiber;
+  displayValue: FiberData;
   colorMap: Record<string, string>;
 }) {
   const [open, setOpen] = useState<boolean>(false);

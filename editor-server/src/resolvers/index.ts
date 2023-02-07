@@ -49,7 +49,7 @@ export const resolvers = [
 
   ControlDataRelationsResolver,
   ControlFrameRelationsResolver,
-  DancerRelationsResolver ,
+  DancerRelationsResolver,
   EditingControlFrameRelationsResolver ,
   EditingPositionFrameRelationsResolver ,
   PartRelationsResolver ,

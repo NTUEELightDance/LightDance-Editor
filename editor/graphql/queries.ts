@@ -1,10 +1,10 @@
 import { gql } from "@apollo/client";
 
 export const GET_DANCERS = gql`
-  query Dancer {
-    dancer {
+  query Dancers($orderBy: [PartOrderByWithRelationInput!]) {
+    dancers {
       name
-      parts {
+      parts(orderBy: $orderBy) {
         name
         type
       }
@@ -15,7 +15,7 @@ export const GET_DANCERS = gql`
 export const GET_CONTROL_MAP = gql`
   query controlMap {
     ControlMap {
-      frames
+      frameIds
     }
   }
 `;

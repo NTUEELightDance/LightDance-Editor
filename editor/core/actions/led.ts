@@ -7,7 +7,7 @@ import {
   LedEffectRecord,
   DancerName,
   DancerStatus,
-  LED,
+  LEDData,
 } from "../models";
 // utils
 import { getControl } from "../utils";
@@ -66,7 +66,7 @@ const actions = registerActions({
           Object.entries(dancerStatus).forEach(([partName, part]) => {
             if (
               partTypeMap[partName] === LED_TYPE &&
-              (part as LED).src !== NO_EFFECT
+              (part as LEDData).src !== NO_EFFECT
             ) {
               ledEffectRecord[dancerName][partName].push(id);
             }

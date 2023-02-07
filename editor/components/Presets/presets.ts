@@ -1,4 +1,8 @@
-import { ControlMapStatus, DancerCoordinates } from "core/types";
+import {
+  ControlMapStatus,
+  PosMapStatus,
+  PosMapElement,
+} from "@/core/models";
 
 /**
  * LightPresets type
@@ -15,7 +19,7 @@ export interface LightPresetsElement {
 export type PosPresetsType = PosPresetsElement[];
 export interface PosPresetsElement {
   name: string;
-  pos: DancerCoordinates;
+  pos: PosMapStatus;
 }
 
 /**

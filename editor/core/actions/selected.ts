@@ -2,7 +2,6 @@ import { registerActions } from "../registerActions";
 // types
 import { State, Selected, PartPayload } from "../models";
 
-
 const actions = registerActions({
   /**
    * Set the 'selected' object
@@ -32,7 +31,10 @@ const actions = registerActions({
    */
   setSelectedParts: (state: State, payload: PartPayload) => {
     Object.keys(state.selected).forEach((dancer) => {
-      state.selected[dancer].parts = Object.prototype.hasOwnProperty.call(payload, dancer)
+      state.selected[dancer].parts = Object.prototype.hasOwnProperty.call(
+        payload,
+        dancer
+      )
         ? payload[dancer]
         : [];
     });

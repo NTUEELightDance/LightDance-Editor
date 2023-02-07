@@ -1,8 +1,8 @@
 import { FIBER } from "@/constants";
 import {
   DancerName,
-  Fiber,
-  LED,
+  FiberData,
+  LEDData,
   PartName,
 } from "core/models";
 import { isEqual } from "lodash";
@@ -60,7 +60,7 @@ export async function generateControlOF() {
       const newStatus: Record<PartName, Bulb> = {};
       Object.keys(status[dancerName]).forEach((partName) => {
         if (partTypeMap[partName] === FIBER) {
-          const fiber = status[dancerName][partName] as Fiber;
+          const fiber = status[dancerName][partName] as FiberData;
           newStatus[partName] = {
             colorCode: colorCode2int(colorMap[fiber.color]),
             alpha: fiber.alpha,
@@ -114,7 +114,7 @@ export async function generateControlLed() {
       const newEffects: Effect[] = [];
       recordIds.forEach((recordId, recordIndex) => {
         const { start: baseStart, status } = controlMap[recordId];
-        const src = (status[dancerName][partName] as LED).src;
+        const src = (status[dancerName][partName] as LEDData).src;
 
         if (!ledMap[partName][src]) return;
         let { repeat } = ledMap[partName][src];

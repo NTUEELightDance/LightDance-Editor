@@ -2,7 +2,7 @@ import { fadeAlpha, fadeColor } from "./fade";
 
 import {
   ControlMap,
-  LED,
+  LEDData,
   CurrentLedEffect,
   LedMap,
   LedEffectFrame,
@@ -63,7 +63,7 @@ export function updateLedEffect(
         return;
       }
 
-      const { src } = currentStatus[dancerName][partName] as LED;
+      const { src } = currentStatus[dancerName][partName] as LEDData;
       if (!src || !ledMap[partName][src]) {
         throw `[Invalid src] ${dancerName} ${partName} ${recordId}`;
       }

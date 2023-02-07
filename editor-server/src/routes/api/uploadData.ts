@@ -273,7 +273,7 @@ const uploadData = async (req: Request, res: Response) => {
           Object.keys(effectData).map(async (effectName: string) => {
             const frames = effectData[effectName].frames as Prisma.JsonObject[];
             const { repeat } = effectData[effectName];
-            const newLEDEffect = await prisma.lEDEffect.create({
+            await prisma.lEDEffect.create({
               data: {
                 name: effectName,
                 partName: partName,
@@ -289,11 +289,12 @@ const uploadData = async (req: Request, res: Response) => {
 
     // create dancer & part object
     await Promise.all(
-      dancer.map(async (dancerObj: TDancerData) => {
+      dancer.map(async (dancerObj: TDancerData, dancerIdx) => {
         const { parts, name } = dancerObj;
         const newDancer = await prisma.dancer.create({
           data: {
             name: name,
+            id: dancerIdx,
           },
         });
         const allParts: PartTmpData = {};

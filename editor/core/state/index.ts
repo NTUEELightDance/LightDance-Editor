@@ -10,7 +10,7 @@ import {
   State,
   ReactiveState,
   ControlMapStatus,
-  DancerCoordinates,
+  PosMapStatus,
   EditingData,
   EditMode,
   Editor,
@@ -92,7 +92,7 @@ export const reactiveState: ReactiveState = {
   currentPosIndex: makeVar<number>(0),
 
   currentStatus: makeVar<ControlMapStatus>({}),
-  currentPos: makeVar<DancerCoordinates>({}),
+  currentPos: makeVar<PosMapStatus>({}),
   currentFade: makeVar<boolean>(false),
 
   ledEffectRecord: makeVar<LedEffectRecord>({}),
