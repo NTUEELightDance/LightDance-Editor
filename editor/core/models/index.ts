@@ -180,7 +180,7 @@ export type SelectionMode = typeof DANCER | typeof PART | typeof POSITION;
 export type PartTypeMap = Record<string, PartType>;
 
 // PartType
-type PartType = "LED" | "FIBER" | "El";
+export type PartType = "LED" | "FIBER" | "El";
 
 /**
  * DancerType
@@ -281,6 +281,9 @@ export interface State {
   token: string;
 
   isPlaying: boolean; // isPlaying
+
+  controlMap: ControlMap;
+  posMap: PosMap;
 
   currentTime: number; // current time
   currentControlIndex: number; // current index in controlRecord

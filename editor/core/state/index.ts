@@ -1,31 +1,12 @@
 import { makeVar } from "@apollo/client";
 import { cloneDeep } from "lodash";
 import onChange from "on-change";
-import { IDLE, CONTROL_EDITOR, DANCER } from "@/constants";
+import { IDLE, CONTROL_EDITOR } from "@/constants";
 
 import { debug } from "core/utils";
 
 // types
-import type {
-  State,
-  ReactiveState,
-  ControlMapStatus,
-  PosMapStatus,
-  EditingData,
-  EditMode,
-  Editor,
-  SelectionMode,
-  Selected,
-  Dancers,
-  PartTypeMap,
-  ColorMap,
-  DancerName,
-  DancersArray,
-  CurrentLedEffect,
-  LedEffectRecord,
-  EffectListType,
-  StateKey,
-} from "../models";
+import type { State, ReactiveState, StateKey } from "../models";
 
 /**
  * Mutable State
@@ -35,7 +16,9 @@ const _state: State = {
   token: "",
 
   isPlaying: false,
-  selected: {},
+
+  controlMap: {},
+  posMap: {},
 
   currentTime: 0,
   currentControlIndex: 0,
@@ -56,6 +39,7 @@ const _state: State = {
     index: 0,
   },
 
+  selected: {},
   selectionMode: "DANCER_MODE",
 
   dancers: {},
@@ -83,40 +67,13 @@ state.toString = () => {
 /**
  * Reactive State, can trigger react component rerender
  */
-export const reactiveState: ReactiveState = {
-  isLoggedIn: makeVar<boolean>(false),
-  token: makeVar<string>(""),
-
-  isPlaying: makeVar<boolean>(false),
-  selected: makeVar<Selected>({}),
-  currentTime: makeVar<number>(0),
-  currentControlIndex: makeVar<number>(0),
-  currentPosIndex: makeVar<number>(0),
-
-  currentStatus: makeVar<ControlMapStatus>({}),
-  currentPos: makeVar<PosMapStatus>({}),
-  currentFade: makeVar<boolean>(false),
-
-  ledEffectRecord: makeVar<LedEffectRecord>({}),
-  currentLedEffect: makeVar<CurrentLedEffect>({}),
-
-  editMode: makeVar<EditMode>(IDLE),
-  editor: makeVar<Editor>(CONTROL_EDITOR),
-  editingData: makeVar<EditingData>({
-    frameId: "",
-    start: 0,
-    index: 0,
-  }),
-  selectionMode: makeVar<SelectionMode>(DANCER),
-
-  dancers: makeVar<Dancers>({}),
-  dancersArray: makeVar<DancersArray>([]),
-  dancerNames: makeVar<DancerName[]>([]),
-  partTypeMap: makeVar<PartTypeMap>({}),
-  colorMap: makeVar<ColorMap>({}),
-
-  effectList: makeVar<EffectListType>([]),
-};
+export const reactiveState: ReactiveState = Object.entries(state).reduce(
+  (acc, [key, value]) => {
+    acc[key as StateKey] = makeVar(value);
+    return acc;
+  },
+  {} as ReactiveState
+);
 
 /**
  * copy state to reactiveState, which will trigger rerender in react components.

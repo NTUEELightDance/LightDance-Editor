@@ -41,18 +41,8 @@ function App() {
     })();
   }, [dispatch]);
 
-  // useEffect(() => {
-  //   if (!dancerLoading) {
-  //     const selected: Selected = {};
-  //     dancerNames.forEach(
-  //       (dancer) => (selected[dancer] = { selected: false, parts: [] })
-  //     );
-  //     setSelected({ payload: selected });
-  //   }
-  // }, [dancerLoading, dancerNames]);
-
-  // // initLedEffectIndexMap need dancer's data
-  // // so wait until the dancerLoading is false
+  // initLedEffectIndexMap need dancer's data
+  // so wait until the dancerLoading is false
   // useEffect(() => {
   //   if (!dancerLoading) {
   //     initCurrentLedEffect();
