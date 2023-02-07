@@ -29,7 +29,7 @@ export const GET_CONTROL_RECORD = gql`
 export const GET_POS_MAP = gql`
   query posMap {
     PosMap {
-      frames
+      frameIds
     }
   }
 `;

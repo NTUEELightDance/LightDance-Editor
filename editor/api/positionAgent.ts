@@ -10,22 +10,29 @@ import {
   DELETE_POS_FRAME,
   REQUEST_EDIT_POS_BY_ID,
   CANCEL_EDIT_POS_BY_ID,
-} from "../graphql";
+} from "@/graphql";
 
 // types
-import { ControlMapStatus, PosMapStatus } from "../core/models";
+import type {
+  ControlMapStatus,
+  PosMapPayload,
+  PosMapStatus,
+  PosRecord,
+} from "@/core/models";
 
 /**
  * posAgent: responsible for posMap and posRecord
  */
 export const posAgent = {
   getPosMap: async () => {
-    const posMapData = await client.query({ query: GET_POS_MAP });
-    return posMapData.data.PosMap.frames;
+    const { data: posMapData } = await client.query({ query: GET_POS_MAP });
+    return posMapData.PosMap.frameIds as PosMapPayload;
   },
   getPosRecord: async () => {
-    const posRecordData = await client.query({ query: GET_POS_RECORD });
-    return posRecordData.data.positionFrameIDs;
+    const { data: posRecordData } = await client.query({
+      query: GET_POS_RECORD,
+    });
+    return posRecordData.positionFrameIDs as PosRecord;
   },
   addFrame: async (
     frame: PosMapStatus | ControlMapStatus,

@@ -6,7 +6,7 @@ import { IDLE, CONTROL_EDITOR, DANCER } from "@/constants";
 import { debug } from "core/utils";
 
 // types
-import {
+import type {
   State,
   ReactiveState,
   ControlMapStatus,
@@ -20,6 +20,7 @@ import {
   PartTypeMap,
   ColorMap,
   DancerName,
+  DancersArray,
   CurrentLedEffect,
   LedEffectRecord,
   EffectListType,
@@ -55,9 +56,10 @@ const _state: State = {
     index: 0,
   },
 
-  selectionMode: "DANCER",
+  selectionMode: "DANCER_MODE",
 
   dancers: {},
+  dancersArray: [],
   dancerNames: [],
   partTypeMap: {},
   colorMap: {},
@@ -108,6 +110,7 @@ export const reactiveState: ReactiveState = {
   selectionMode: makeVar<SelectionMode>(DANCER),
 
   dancers: makeVar<Dancers>({}),
+  dancersArray: makeVar<DancersArray>([]),
   dancerNames: makeVar<DancerName[]>([]),
   partTypeMap: makeVar<PartTypeMap>({}),
   colorMap: makeVar<ColorMap>({}),
@@ -125,7 +128,9 @@ export function syncReactiveState(states: string[]) {
     diffSet.forEach((key) => {
       if (key in state && key in reactiveState) {
         debug("update reactiveState", key);
-        reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
+        const newValue = cloneDeep(state[key as StateKey]);
+        // @ts-expect-error newValue's type is guaranteed to be the same as state[key]
+        reactiveState[key as StateKey](newValue);
       } else {
         console.error(`[syncReactiveState] Cannot find the key ${key}`);
       }
@@ -135,7 +140,9 @@ export function syncReactiveState(states: string[]) {
     states.forEach((key) => {
       if (key in reactiveState && key in state) {
         debug("update reactiveState", key);
-        reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
+        const newValue = cloneDeep(state[key as StateKey]);
+        // @ts-expect-error newValue's type is guaranteed to be the same as state[key]
+        reactiveState[key as StateKey](newValue);
       } else {
         console.error(
           `[syncReactiveState] Cannot find the key ${key} in state.`

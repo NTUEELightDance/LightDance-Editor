@@ -18,7 +18,6 @@ import {
   PosMapStatus,
   isELData,
   isLEDData,
-  ControlMap,
   ControlRecord,
   isControlMapStatus,
   ControlMapPayload,
@@ -33,15 +32,14 @@ export const controlAgent = {
       query: GET_CONTROL_MAP,
     });
 
-    const frames = controlMapData.ControlMap.frameIds as ControlMapPayload;
-    console.log("frames", frames);
-
-    return {} as ControlMap;
+    return controlMapData.ControlMap.frameIds as ControlMapPayload;
   },
 
   getControlRecord: async () => {
-    const controlRecordData = await client.query({ query: GET_CONTROL_RECORD });
-    return controlRecordData.data.controlFrameIDs as ControlRecord;
+    const { data: controlRecordData } = await client.query({
+      query: GET_CONTROL_RECORD,
+    });
+    return controlRecordData.controlFrameIDs as ControlRecord;
   },
 
   addFrame: async (

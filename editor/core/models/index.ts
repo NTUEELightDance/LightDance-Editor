@@ -94,9 +94,11 @@ export type ControlMapPayload = {
   };
 };
 
-export type DancerStatusPayload = Array<FiberDataPayload>;
+export type DancerStatusPayload = Array<FiberDataPayload | LEDDataPayload>;
 
 export type FiberDataPayload = [ColorName, number];
+
+export type LEDDataPayload = [string, number];
 
 /**
  * PosRecord and PosMap
@@ -133,6 +135,15 @@ export function isCoordinates(
     typeof (coordinates as Coordinates)?.z === "number"
   );
 }
+
+export type PosMapPayload = {
+  [frameId: id]: {
+    start: number;
+    pos: Array<CoordinatesPayload>;
+  };
+};
+
+export type CoordinatesPayload = [number, number, number];
 
 /**
  * Editing
@@ -176,7 +187,9 @@ type PartType = "LED" | "FIBER" | "El";
  */
 export type Dancers = Record<DancerName, PartName[]>;
 
-export type DancersPayload = Array<{
+export type DancersPayload = DancersArray;
+
+export type DancersArray = Array<{
   name: DancerName;
   parts: Array<{
     name: PartName;
@@ -289,6 +302,7 @@ export interface State {
   selectionMode: SelectionMode; // selection mode used by simulator and dancer tree
 
   dancers: Dancers;
+  dancersArray: DancersArray;
   dancerNames: DancerName[];
   partTypeMap: PartTypeMap;
   colorMap: ColorMap;
@@ -296,6 +310,8 @@ export interface State {
   effectList: EffectListType;
 }
 
+export type StateKey = keyof State;
+
 export type ReactiveState = {
-  [key in keyof State]: ReactiveVar<State[key]>;
+  [key in StateKey]: ReactiveVar<State[key]>;
 };

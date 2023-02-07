@@ -15,6 +15,8 @@ import {
   initCurrentLedEffect,
   generateLedEffectRecord,
   initDancers,
+  initCurrentStatus,
+  initCurrentPos,
 } from "core/actions";
 
 import { getControl, getPos } from "@/core/utils";
@@ -33,41 +35,11 @@ function App() {
     (async () => {
       await fetchLoad(dispatch);
       await initDancers();
+      await initCurrentStatus();
+      await initCurrentPos();
       setReady(true);
     })();
   }, [dispatch]);
-
-  const [controlLoading, setControlLoading] = useState<boolean>(true);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // init the currentStatus
-        // TODO: check record size and auto generate currentStatus if empty
-        const [controlMap, controlRecord] = await getControl();
-        setCurrentStatus({ payload: controlMap[controlRecord[0]].status });
-        setControlLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  // const [posLoading, setPosLoading] = useState<boolean>(true);
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       // init the currentPos
-  //       // TODO: check record size and auto generate currentPos if empty
-  //       const [posMap, posRecord] = await getPos();
-  //       setCurrentPos({ payload: posMap[posRecord[0]].pos });
-  //       setPosLoading(false);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
 
   // useEffect(() => {
   //   if (!dancerLoading) {
