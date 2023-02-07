@@ -21,7 +21,7 @@ export class ControlMapResolver {
   @Query((returns) => ControlMap)
   async ControlMap(@Ctx() ctx: TContext) {
     const frameIds = await ctx.prisma.controlFrame.findMany({
-      select: { id:true }
+      select: { id: true }
     });
 
     return { frameIds: frameIds.map((frame) => frame.id) };
