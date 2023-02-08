@@ -6,6 +6,8 @@ import type {
   PartTypeMap,
   DancerName,
   Selected,
+  DancerPartIndexMap,
+  PartName,
 } from "../models";
 
 import { dancerAgent } from "@/api";
@@ -34,6 +36,19 @@ const actions = registerActions({
       });
     });
 
+    const dancerPartIndexMap: DancerPartIndexMap = {};
+    dancersData.forEach((dancer, index) => {
+      const parts: Record<PartName, number> = {};
+      dancer.parts.forEach((part, partIndex) => {
+        parts[part.name] = partIndex;
+      });
+
+      dancerPartIndexMap[dancer.name] = {
+        index,
+        parts,
+      };
+    });
+
     const selected = dancerNames.reduce(
       (acc, dancerName) => ({
         ...acc,
@@ -48,7 +63,10 @@ const actions = registerActions({
     state.dancerNames = dancerNames;
     state.dancers = dancers;
     state.partTypeMap = partTypeMap;
+
     state.dancersArray = dancersData;
+    state.dancerPartIndexMap = dancerPartIndexMap;
+
     state.selected = selected;
   },
 

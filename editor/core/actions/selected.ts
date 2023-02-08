@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, Selected, PartPayload } from "../models";
+import { State, Selected, SelectedPartPayload } from "../models";
 
 const actions = registerActions({
   /**
@@ -27,9 +27,9 @@ const actions = registerActions({
   /**
    * Set selected dancer
    * @param {State} state
-   * @param {PartPayload} payload
+   * @param {SelectedPartPayload} payload
    */
-  setSelectedParts: (state: State, payload: PartPayload) => {
+  setSelectedParts: (state: State, payload: SelectedPartPayload) => {
     Object.keys(state.selected).forEach((dancer) => {
       state.selected[dancer].parts = Object.prototype.hasOwnProperty.call(
         payload,

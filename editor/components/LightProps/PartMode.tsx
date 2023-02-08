@@ -11,7 +11,7 @@ import type {
   FiberData,
   Selected,
   CurrentStatusDelta,
-  PartPayload,
+  SelectedPartPayload,
   PartType,
 } from "core/models";
 import { reactiveState } from "core/state";
@@ -24,8 +24,8 @@ import _ from "lodash";
 
 function getSelectedPartsAndType(
   selected: Selected
-): [PartPayload, PartType | null] {
-  const newSelectedParts: PartPayload = {};
+): [SelectedPartPayload, PartType | null] {
+  const newSelectedParts: SelectedPartPayload = {};
   const tempSelectedParts: string[] = [];
   Object.entries(selected).forEach(([dancerName, { parts }]) => {
     if (parts.length > 0) {

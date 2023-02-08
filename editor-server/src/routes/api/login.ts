@@ -6,6 +6,7 @@ import { generateCsrfToken, comparePassword } from "../../authentication";
 
 const login = async (req: Request, res: Response) => {
   if (process.env.NODE_ENV === "development") {
+    res.cookie("token", "testToken");
     res.send({ token: "testToken" });
     return;
   }

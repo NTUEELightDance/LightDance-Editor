@@ -12,7 +12,7 @@ import type {
   LEDData,
   FiberData,
   PartType,
-  PartPayload,
+  SelectedPartPayload,
   PartName,
   Dancers,
 } from "core/models";
@@ -54,7 +54,7 @@ function GroupPanel({
   // const handleEdit = () => {  };
 
   const handleRandom = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     const randomParts: PartName[] = [];
     const randomCount = Math.floor(
       (Math.random() * 0.4 + 0.3) * sortedParts.length
@@ -72,7 +72,7 @@ function GroupPanel({
   };
 
   const handleSelectAll = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     currentDancers.forEach((dancerName) => {
       newSelectedParts[dancerName] = sortedParts.filter((part) =>
         dancers[dancerName].includes(part)

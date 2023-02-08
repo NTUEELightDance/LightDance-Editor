@@ -152,8 +152,8 @@ const actions = registerActions({
    * Add a frame to currentTime, use current frame (status or pos) as default
    */
   add: async (state: State) => {
-    const { agent, frame, fade, index } = await getDataHandler(state);
-    await agent.addFrame(frame, state.currentTime, index, fade);
+    const { agent, frame, fade } = await getDataHandler(state);
+    await agent.addFrame(frame, state.currentTime, fade);
   },
 
   /**

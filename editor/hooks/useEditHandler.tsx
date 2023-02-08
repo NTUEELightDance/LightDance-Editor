@@ -51,7 +51,7 @@ export default function useEditHandler() {
     // get to editMode
     cancelEditMode();
 
-    // regenerate ledeffect after saving
+    // regenerate led effect after saving
     generateLedEffectRecord();
   };
 
@@ -66,12 +66,12 @@ export default function useEditHandler() {
   const handleAdd = async () => {
     try {
       await add();
-      await resetTime();
       notification.success(
         `Successfully added a frame at ${formatDisplayedTime(
           reactiveState.currentTime()
         )}`
       );
+      await resetTime();
     } catch (error) {
       notification.error((error as Error).message);
       console.error(error);

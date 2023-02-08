@@ -12,7 +12,7 @@ import type {
   ControlMapStatus,
   LEDData,
   FiberData,
-  PartPayload,
+  SelectedPartPayload,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 
@@ -40,7 +40,7 @@ function PropertyPanel({
   const sortedParts = [...parts].sort();
 
   const handleSelectAll = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     currentDancers.forEach((dancerName) => {
       newSelectedParts[dancerName] = sortedParts.filter((part) =>
         dancers[dancerName].includes(part)
@@ -51,7 +51,7 @@ function PropertyPanel({
   };
 
   const handleRandom = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     const randomParts: PartName[] = [];
     const randomCount = Math.floor(
       (Math.random() * 0.4 + 0.3) * sortedParts.length

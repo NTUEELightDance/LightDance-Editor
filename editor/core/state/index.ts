@@ -33,6 +33,7 @@ const _state: State = {
 
   editMode: IDLE,
   editor: CONTROL_EDITOR,
+  selectionMode: "DANCER_MODE",
   editingData: {
     frameId: "",
     start: 0,
@@ -40,14 +41,15 @@ const _state: State = {
   },
 
   selected: {},
-  selectionMode: "DANCER_MODE",
 
   dancers: {},
-  dancersArray: [],
   dancerNames: [],
   partTypeMap: {},
   colorMap: {},
   effectList: [],
+
+  dancersArray: [],
+  dancerPartIndexMap: {},
 };
 
 // The diffSet will save changed attributes in state

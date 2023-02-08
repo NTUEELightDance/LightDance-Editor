@@ -1,23 +1,27 @@
-import type {
+import {
   ControlMap,
   PosMap,
-  ControlMapPayload,
+  ControlMapQueryPayload,
   PosMapPayload,
   DancerStatus,
-  DancerStatusPayload,
+  DancerStatusQueryPayload,
   ControlMapStatus,
-  FiberDataPayload,
-  LEDDataPayload,
+  FiberDataQueryPayload,
+  LEDDataQueryPayload,
   PartType,
   PartData,
   CoordinatesPayload,
   PosMapStatus,
   Coordinates,
+  isFiberData,
+  isLEDData,
+  ControlMapStatusMutationPayload,
+  DancerStatusMutationPayload,
 } from "@/core/models";
 
 import { state } from "@/core/state";
 
-export function toControlMap(payload: ControlMapPayload): ControlMap {
+export function toControlMap(payload: ControlMapQueryPayload): ControlMap {
   const controlMap: ControlMap = {};
   for (const frameId in payload) {
     const { fade, start, status } = payload[frameId];
@@ -30,7 +34,7 @@ export function toControlMap(payload: ControlMapPayload): ControlMap {
   return controlMap;
 }
 
-function toDancerStatus(payload: DancerStatusPayload[]): ControlMapStatus {
+function toDancerStatus(payload: DancerStatusQueryPayload[]): ControlMapStatus {
   const status: ControlMapStatus = {};
 
   payload.forEach((dancerStatusPayload, dancerIndex) => {
@@ -52,7 +56,7 @@ function toDancerStatus(payload: DancerStatusPayload[]): ControlMapStatus {
 
 function toPartData(
   partType: PartType,
-  payload: FiberDataPayload | LEDDataPayload
+  payload: FiberDataQueryPayload | LEDDataQueryPayload
 ): PartData {
   if (partType === "LED") {
     const [src, alpha] = payload;
@@ -98,4 +102,53 @@ function toCoordinates(payload: CoordinatesPayload): Coordinates {
     y: payload[1],
     z: payload[2],
   };
+}
+
+function getDancerIndex(dancerName: string): number {
+  return state.dancerPartIndexMap[dancerName].index;
+}
+
+function getPartIndex(dancerName: string, partName: string): number {
+  return state.dancerPartIndexMap[dancerName].parts[partName];
+}
+
+export function toControlMapStatusMutationPayload(
+  status: ControlMapStatus
+): ControlMapStatusMutationPayload {
+  const payload: ControlMapStatusMutationPayload = [];
+  for (const dancerName in status) {
+    const dancerStatusPayload: DancerStatusMutationPayload = [];
+    const dancerStatus = status[dancerName];
+    for (const partName in dancerStatus) {
+      const partData = dancerStatus[partName];
+      dancerStatusPayload[getPartIndex(dancerName, partName)] =
+        toPartDataMutationPayload(partData);
+    }
+    payload[getDancerIndex(dancerName)] = dancerStatusPayload;
+  }
+  return payload;
+}
+
+function toPartDataMutationPayload(partData: PartData): [string, string] {
+  if (isFiberData(partData)) {
+    return [partData.color, partData.alpha.toString()];
+  } else if (isLEDData(partData)) {
+    return [partData.src, partData.alpha.toString()];
+  }
+  throw new Error("Invalid part data");
+}
+
+export function toPosMapStatusPayload(pos: PosMapStatus): CoordinatesPayload[] {
+  const payload: CoordinatesPayload[] = [];
+  for (const dancerName in pos) {
+    const coordinates = pos[dancerName];
+    payload[getDancerIndex(dancerName)] = toCoordinatesPayload(coordinates);
+  }
+  return payload;
+}
+
+export function toCoordinatesPayload(
+  coordinates: Coordinates
+): CoordinatesPayload {
+  return [coordinates.x, coordinates.y, coordinates.z];
 }

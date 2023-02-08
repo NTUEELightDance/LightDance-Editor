@@ -8,6 +8,11 @@ const checkToken = async (req: Request, res: Response) => {
   const { token } = req.cookies;
   console.log("checkToken", token);
 
+  if (process.env.NODE_ENV === "development") {
+    res.send({ token });
+    return;
+  }
+
   if (token) {
     // check if sessionid is valid
     const id = parseInt((await redis.get(token)) ?? "0");

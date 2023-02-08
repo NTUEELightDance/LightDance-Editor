@@ -86,24 +86,30 @@ export function isELData(partData: PartData): partData is ELData {
 
 export type CurrentStatusDelta = Record<DancerName, Record<PartName, PartData>>;
 
-export type ControlMapPayload = {
+export type ControlMapQueryPayload = {
   [frameId: id]: {
     fade: boolean;
     start: number;
-    status: Array<DancerStatusPayload>;
+    status: DancerStatusQueryPayload[];
   };
 };
 
-export type DancerStatusPayload = Array<FiberDataPayload | LEDDataPayload>;
+export type DancerStatusQueryPayload = Array<
+  FiberDataQueryPayload | LEDDataQueryPayload
+>;
 
-export type FiberDataPayload = [ColorName, number];
+export type FiberDataQueryPayload = [ColorName, number];
 
-export type LEDDataPayload = [string, number];
+export type LEDDataQueryPayload = [string, number];
+
+export type ControlMapStatusMutationPayload = DancerStatusMutationPayload[];
+
+export type DancerStatusMutationPayload = [string, string][];
 
 /**
  * PosRecord and PosMap
  */
-export type PosRecord = id[]; // array of all IDs , each correspondsto diff status
+export type PosRecord = id[]; // array of all IDs , each corresponds diff status
 
 export type PosMap = Record<id, PosMapElement>;
 
@@ -139,7 +145,7 @@ export function isCoordinates(
 export type PosMapPayload = {
   [frameId: id]: {
     start: number;
-    pos: Array<CoordinatesPayload>;
+    pos: CoordinatesPayload[];
   };
 };
 
@@ -167,7 +173,7 @@ export type Selected = Record<
   }
 >;
 
-export type PartPayload = Record<string, string[]>;
+export type SelectedPartPayload = Record<string, string[]>;
 
 /**
  * selection mode
@@ -188,14 +194,6 @@ export type PartType = "LED" | "FIBER" | "El";
 export type Dancers = Record<DancerName, PartName[]>;
 
 export type DancersPayload = DancersArray;
-
-export type DancersArray = Array<{
-  name: DancerName;
-  parts: Array<{
-    name: PartName;
-    type: PartType;
-  }>;
-}>;
 
 /**
  * ColorMap
@@ -273,6 +271,23 @@ export type DeleteGroupError = "DNE";
 
 export type EditGroupError = "DNE";
 
+// conversion helpers
+export type DancersArray = Array<{
+  name: DancerName;
+  parts: Array<{
+    name: PartName;
+    type: PartType;
+  }>;
+}>;
+
+export type DancerPartIndexMap = Record<
+  DancerName,
+  {
+    index: number;
+    parts: Record<PartName, number>;
+  }
+>;
+
 /**
  * Mutable State
  */
@@ -298,19 +313,20 @@ export interface State {
 
   editMode: EditMode; // IDLE | EDITING | ADDING
   editor: Editor; // editor, should be CONTROL_EDITOR or POS_EDITOR
+  selectionMode: SelectionMode; // selection mode used by simulator and dancer tree
   editingData: EditingData; // store the editingData's start time id and index
 
   selected: Selected; // array of selected dancer's name
 
-  selectionMode: SelectionMode; // selection mode used by simulator and dancer tree
-
   dancers: Dancers;
-  dancersArray: DancersArray;
   dancerNames: DancerName[];
   partTypeMap: PartTypeMap;
   colorMap: ColorMap;
-
   effectList: EffectListType;
+
+  // for converting
+  dancersArray: DancersArray;
+  dancerPartIndexMap: DancerPartIndexMap;
 }
 
 export type StateKey = keyof State;
