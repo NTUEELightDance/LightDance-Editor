@@ -5,7 +5,7 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
 import { state } from "core/state";
 
-import { FIBER, EL, LED } from "@/constants";
+import { FIBER, LED } from "@/constants";
 
 import { LEDPart, FiberPart } from "./Part";
 
@@ -14,29 +14,33 @@ import { LEDPart, FiberPart } from "./Part";
 class Dancer {
   scene: THREE.Scene;
   name: string;
+  nameTag: THREE.Mesh;
   modelSrc: string;
   initialized: boolean;
   manager: THREE.LoadingManager;
 
-  model: THREE.Object3D | null;
+  model: THREE.Object3D;
   skeleton: THREE.Skeleton | null;
+  parts: {
+    [LED]: Record<string, LEDPart>;
+    [FIBER]: Record<string, FiberPart>;
+  }
 
   constructor(
     scene: THREE.Scene,
     name: string,
     modelSrc: string,
     manager: THREE.LoadingManager,
-    //parts: ???
   ) {
     this.scene = scene;
     this.name = name;
+    this.nameTag = null;
     this.modelSrc = modelSrc;
     this.manager = manager;
 
     this.model = null;
     this.skeleton = null;
     this.parts = {
-      [EL]: {},
       [LED]: {},
       [FIBER]: {},
     };
@@ -91,9 +95,6 @@ class Dancer {
     partNames.forEach((partName) => {
       const partType = state.partTypeMap[partName];
       switch (partType) {
-        case EL:
-          // this.parts[EL][partName] = new ELPart(partName, model);
-          break;
         case LED:
           this.parts[LED][partName] = new LEDPart(partName, this.model);
           break;
@@ -149,17 +150,15 @@ class Dancer {
     this.nameTag = text;
   }
 
-  updateSelected(selected) {
+  updateSelected(selected: boolean) {
     if (selected) {
-      this.selected = true;
       this.nameTag.material.color.setRGB(0, 0.4, 0.6);
     } else {
-      this.selected = false;
       this.nameTag.material.color.setRGB(1, 1, 1);
     }
   }
 
-  // Update the model's positon
+  // Update the model's position
   setPos(currentPos) {
     const newPos = new THREE.Vector3(currentPos.x, currentPos.y, currentPos.z);
     const oldPos = new THREE.Vector3().setFromMatrixPosition(this.model.matrix);
@@ -174,8 +173,6 @@ class Dancer {
       part.setStatus(currentStatus[partName]);
     });
   }
-
-  setELStatus(currentStatus) {}
 
   setLEDStatus(currentLedEffect) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {

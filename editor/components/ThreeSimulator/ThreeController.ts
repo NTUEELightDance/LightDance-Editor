@@ -24,6 +24,8 @@ import { state } from "core/state";
 // states
 
 import store from "../../store";
+import { dir } from "console";
+import { ControlMapStatus, CurrentLedEffect, DancerCoordinates, Selected } from "@/core/models";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -33,18 +35,25 @@ class ThreeController {
   canvas: HTMLElement;
   container: HTMLElement;
 
-  renderer: THREE.WebGLRenderer | null;
-  camera: THREE.PerspectiveCamera | null;
+  renderer: THREE.WebGLRenderer;
+  camera: THREE.PerspectiveCamera;
   // THREE.Object3D<THREE.Event>
-  scene: THREE.Scene | null;
-  composer: EffectComposer | null;
-  clock: THREE.Clock | null;
-  settings: Settings | null;
+  scene: THREE.Scene;
+  composer: EffectComposer;
+  clock: THREE.Clock;
+  settings: Settings;
 
   height: number;
   width: number;
 
-  dancers: Record<string, ThreeDancer>;
+  dancers: Record<string, Dancer>;
+  gridHelper: GridHelper;
+  light: THREE.DirectionalLight;
+  
+  selectedOutline: OutlinePass;
+  hoveredOutline: OutlinePass;
+  manager: THREE.LoadingManager;
+  controls: Controls;
 
   // TODO use global state type
   state: any;
@@ -59,8 +68,10 @@ class ThreeController {
     this.camera = null;
     this.scene = null;
     this.composer = null;
-    this.clock = null;
-    this.settings = null;
+    this.clock = new THREE.Clock();
+    this.settings = new Settings(this);
+    this.light = null;
+    this.gridHelper = null;
 
     // Configuration of the scene
     this.height = 600;
@@ -76,13 +87,17 @@ class ThreeController {
     // record the return id of requestAnimationFrame
     this.animateID = null;
     this.initialized = false;
+
+    this.selectedOutline = null;
+    this.hoveredOutline = null;
+    this.manager = null;
+    this.controls = null;
   }
 
   /**
    * Initiate localStorage, threeApp, dancers
    */
   init(canvas: HTMLElement, container: HTMLElement) {
-    this.settings = new Settings(this);
     // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
     this.container = container;
@@ -93,11 +108,63 @@ class ThreeController {
     this.height = height;
 
     THREE.Cache.enabled = true;
+    
+    // Initialization of 3D renderer
+    //this.renderer = this.generateRenderer();
 
     // Set best configuration for different monitor devices
     const pixelRatio = window.devicePixelRatio;
 
-    // Initilization of 3D renderer
+    const renderer = new THREE.WebGLRenderer({
+      antialias: false,
+      powerPreference: "high-performance",
+    });
+
+    renderer.setSize(this.width, this.height);
+    renderer.setPixelRatio(pixelRatio);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer = renderer;
+
+    // Add a camera to view the scene, all the parameters are customizable
+    this.camera = this.generateCamera();
+
+    // Add a background scene
+    this.scene = this.generateScene();
+
+    // Add a dim light to identity each dancers
+    this.light = this.generateLight()
+    this.scene.add(this.light);
+
+    // Postprocessing for anti-aliasing effect
+    this.initPostprocessing();
+
+    // Set the clock for animation
+    
+    // Append the canvas to given ref
+    this.canvas.appendChild(renderer.domElement);
+
+    // Initialization of all dancers with currentPos
+    this.initDancers();
+    this.initCenterMarker();
+
+    // Initialization of grid helper on the floor
+    this.gridHelper = this.generateGridHelper()
+    this.scene.add(this.gridHelper);
+
+    // Start rendering
+    this.animateID = this.animate();
+    this.renderer.render(this.scene, this.camera);
+
+    // Monitor performance and delay
+    this.monitor();
+  }
+
+  generateRenderer(){
+    // Set best configuration for different monitor devices
+    const pixelRatio = window.devicePixelRatio;
+
+    // Initialization of 3D renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
       powerPreference: "high-performance",
@@ -108,47 +175,24 @@ class ThreeController {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputEncoding = THREE.sRGBEncoding;
 
-    this.renderer = renderer;
+    return renderer;
+  }
 
-    // Add a camera to view the scene, all the parameters are customizable
-    this.initCamera();
-
+  generateScene(){
     // Add a background scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
-    this.scene = scene;
-
+    return scene;
+  }
+  
+  generateLight(){
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(0, 10, 0);
-    this.light = directionalLight;
-    scene.add(directionalLight);
-
-    // Postprocessing for antialiasing effect
-    this.initPostprocessing();
-
-    // Set the clock for animation
-    this.clock = new THREE.Clock();
-
-    // Append the canvas to given ref
-    this.canvas.appendChild(renderer.domElement);
-
-    // Initialization of all dancers with currentPos
-    this.initDancers();
-    this.initCenterMarker();
-
-    // Initialization of grid helper on the floor
-    this.initGridHelper();
-
-    // Start rendering
-    this.animateID = this.animate();
-    this.renderer.render(this.scene, this.camera);
-
-    // Monitor perfomance and delay
-    this.monitor();
+    return directionalLight;
   }
 
-  initCamera() {
+  generateCamera() {
     const fov = 45;
     const aspect = this.width / this.height;
     const near = 0.2;
@@ -174,7 +218,7 @@ class ThreeController {
     );
     camera.aspect = this.width / this.height;
     camera.updateProjectionMatrix();
-    this.camera = camera;
+    return camera;
   }
 
   initPostprocessing() {
@@ -236,11 +280,10 @@ class ThreeController {
     });
   }
 
-  initGridHelper() {
+  generateGridHelper() {
     const gridHelper = new GridHelper(60, 20);
     gridHelper.matrixAutoUpdate = false;
-    this.gridHelper = gridHelper;
-    this.scene.add(gridHelper);
+    return gridHelper;
   }
 
   initLoadManager() {
@@ -283,7 +326,7 @@ class ThreeController {
     return this.initialized;
   }
 
-  resize(width, height) {
+  resize(width: number, height: number) {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
@@ -304,7 +347,7 @@ class ThreeController {
     });
   }
 
-  updateSelected(selected) {
+  updateSelected(selected: Selected) {
     if (Object.entries(selected).length === 0) {
       throw new Error(
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
@@ -314,14 +357,14 @@ class ThreeController {
   }
 
   // calculate and set next frame status according to time and call updateDancers
-  update(clockDelta) {
+  update() {
     this.updateDancersStatus(state.currentStatus);
     // this.updateDancerLED(state.currentLedEffect);
 
     this.updateDancersPos(state.currentPos);
   }
 
-  updateDancersStatus(currentStatus) {
+  updateDancersStatus(currentStatus: ControlMapStatus) {
     if (Object.entries(currentStatus).length === 0) {
       throw new Error(
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
@@ -333,7 +376,7 @@ class ThreeController {
     });
   }
 
-  updateDancerLED(currentLedEffect) {
+  updateDancerLED(currentLedEffect: CurrentLedEffect) {
     if (Object.entries(currentLedEffect).length === 0) {
       throw new Error(
         "[Error] updateDancersLED, invalid parameter(currentLedEffect)"
@@ -345,7 +388,7 @@ class ThreeController {
     });
   }
 
-  updateDancersPos(currentPos) {
+  updateDancersPos(currentPos: DancerCoordinates) {
     if (Object.entries(currentPos).length === 0) {
       throw new Error(
         "[Error] updateDancersPos, invalid parameter(currentPos)"
@@ -359,7 +402,7 @@ class ThreeController {
   // a recursive function to render each new frame
   animate() {
     if (this.isInitialized()) {
-      this.update(this.clock?.getDelta());
+      this.update();
       Object.values(this.dancers).forEach((dancer) => {
         const { nameTag } = dancer;
         nameTag.lookAt(this.camera.position);
@@ -380,7 +423,7 @@ class ThreeController {
 
   // render current scene and dancers
   render() {
-    if (!this.isPlaying) this.composer?.render(this.scene, this.camera);
+    if (!this.isPlaying) this.composer.render(this.scene, this.camera);
     else this.renderer?.render(this.scene, this.camera);
   }
 }

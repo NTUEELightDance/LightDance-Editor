@@ -1,3 +1,4 @@
+// @ts-expect-error
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 // GUI to control behavior of three simulator
 
@@ -83,7 +84,7 @@ class Settings {
     visibilityFolder.add(config.Visibility, "Center").onChange((value: any) => {
       config.Visibility.Center = value;
       const { scene } = threeController;
-      scene.getObjectByName("Center").visible = value;
+      (scene.getObjectByName("Center") as THREE.Mesh).visible = value;
     });
 
     visibilityFolder.add(config.Visibility, "Name Tag").onChange((value: any) => {

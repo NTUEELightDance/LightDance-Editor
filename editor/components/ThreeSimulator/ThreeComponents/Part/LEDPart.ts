@@ -1,11 +1,17 @@
+import { Mesh } from "three";
 import Part from "./Part";
-
+import { LEDStatus } from "./Part";
+import { LedEffect } from "@/core/models";
 const defaultDisplay = {
   colorCode: "#000000",
   alpha: 0,
 };
+interface MeshType extends THREE.Mesh {
+  material: THREE.MeshStandardMaterial;
+}
 
 export default class LEDPart extends Part {
+  meshes: MeshType[];
   constructor(name: string, model: THREE.Object3D) {
     super(name, model);
     this.meshes = [];
@@ -16,7 +22,7 @@ export default class LEDPart extends Part {
     let i = 0;
     while (true) {
       const name = `${this.name}${String(i).padStart(3, "0")}`;
-      const mesh = this.model.getObjectByName(name);
+      const mesh = this.model.getObjectByName(name) as MeshType;
       if (mesh == null) break;
       mesh.material = mesh.material.clone();
       mesh.visible = false;
@@ -34,7 +40,7 @@ export default class LEDPart extends Part {
     });
   }
 
-  setStatus(status) {
+  setStatus(status: LEDStatus) {
     if (!this.visible) return;
     const { effect } = status;
     this.meshes.forEach((mesh: THREE.Mesh, i) => {
