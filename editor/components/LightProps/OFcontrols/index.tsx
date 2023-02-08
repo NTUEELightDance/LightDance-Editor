@@ -85,7 +85,7 @@ function OFcontrols({
         </Box>
       </ListItemButton>
 
-      <Collapse in={open}>
+      <Collapse in={open} unmountOnExit>
         <OFcontrolsContent
           handleColorChange={handleColorChange}
           handleIntensityChange={handleIntensityChange}

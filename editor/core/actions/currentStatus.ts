@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { registerActions } from "../registerActions";
 // utils
 import { getControl, setItem } from "../utils";
@@ -114,13 +114,23 @@ const actions = registerActions({
 
   editCurrentStatusDelta: (state: State, payload: CurrentStatusDelta) => {
     // make a new clone since the data may be readOnly (calculate from cache)
-    state.currentStatus = cloneDeep(state.currentStatus);
+    const newCurrentStatus = cloneDeep(state.currentStatus);
+    let hasChange = false;
 
+    // only update if there really is a difference
     Object.entries(payload).forEach(([dancerName, parts]) => {
-      Object.entries(parts).forEach(([partName, value]) => {
-        state.currentStatus[dancerName][partName] = value;
+      Object.entries(parts).forEach(([partName, newValue]) => {
+        const oldValue = newCurrentStatus[dancerName][partName];
+        if (!isEqual(oldValue, newValue)) {
+          hasChange = true;
+          newCurrentStatus[dancerName][partName] = newValue;
+        }
       });
     });
+
+    if (hasChange) {
+      state.currentStatus = newCurrentStatus;
+    }
   },
 });
 

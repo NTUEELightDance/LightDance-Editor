@@ -93,6 +93,7 @@ function DancerMode() {
   // decide wether we should show this group panel/tab
   // show if any of the sleeted dancers has a part that's in the group
   const groupFilter = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([groupName, parts]: [groupName: string, parts: string[]]) => {
       const displayPartsSet: Set<string> = new Set();
 
@@ -123,7 +124,7 @@ function DancerMode() {
       // group tabs
       ...Object.entries(partGroups)
         .filter(groupFilter)
-        .map(([groupName, parts]) => (
+        .map(([groupName]) => (
           <Tab
             label={groupName}
             value={`GROUP_${groupName}`}
@@ -153,7 +154,7 @@ function DancerMode() {
             currentDancers={currentDancers}
             currentStatus={currentStatus}
             colorMap={colorMap}
-            key={partType as PartType}
+            key={partType}
           />
         );
       }),

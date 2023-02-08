@@ -95,14 +95,18 @@ function PropertyPanel({
                 <LEDcontrols
                   part={part}
                   currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as LEDData}
+                  displayValue={
+                    currentStatus[currentDancers[0]][part] as LEDData
+                  }
                   key={`${currentDancers[0]}_${part}`}
                 />
               ) : (
                 <OFcontrols
                   part={part}
                   currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as FiberData}
+                  displayValue={
+                    currentStatus[currentDancers[0]][part] as FiberData
+                  }
                   key={`${currentDancers[0]}_${part}`}
                   colorMap={colorMap}
                 />

@@ -67,6 +67,8 @@ function PartMode() {
 
   // mutate global state
   useEffect(() => {
+    // don't sync on first render
+    if (currentColorName === "" && LEDsrc === "" && intensity === 0) return;
     const currentStatusDelta: CurrentStatusDelta = {};
     Object.entries(selectedParts).forEach(([dancerName, parts]) => {
       parts.forEach((partName) => {
