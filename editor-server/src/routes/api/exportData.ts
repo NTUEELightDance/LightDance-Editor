@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 
-import redis from "../../redis";
 import prisma from "../../prisma";
 import {
   TColorData,
@@ -8,12 +7,11 @@ import {
   TDancerData,
   TExportData,
   TPositionData,
-  TRedisControlTest,
-  TRedisPositionTest,
   TExportLED,
   TExportLEDPart,
   TExportLEDFrame,
 } from "../../types/global";
+import { getRedisControl, getRedisPosition } from "../../utility";
 
 const exportData = async (req: Request, res: Response) => {
   try {
@@ -50,29 +48,18 @@ const exportData = async (req: Request, res: Response) => {
     const control: TControlData = {};
     await Promise.all(
       controlFrames.map(async (frame) => {
-        // id format in redis
-        const id = `CTRLFRAME_${frame.id}`;
-        const cache = await redis.get(id);
-        if (cache) {
-          const cacheObj: TRedisControlTest = JSON.parse(cache);
-          delete cacheObj.editing;
-          // console.log(cacheObj, id)
-          // control[id] = cacheObj
+        const { fade, start, status } = await getRedisControl(frame.id);
 
-          const { fade, start, status } = cacheObj;
-          const newCacheObj = {
-            fade,
-            start: Math.floor(start),
-            // status: ControlStatus,
-            status,
-          };
-          // console.log(newCacheObj)
+        const newCacheObj = {
+          fade,
+          start: Math.floor(start),
+          // status: ControlStatus,
+          status,
+        };
+        // console.log(newCacheObj)
 
-          // id(string) or frame.id(number)
-          control[frame.id] = newCacheObj;
-        } else {
-          throw new Error(`Frame ${id} not found in redis.`);
-        }
+        // id(string) or frame.id(number)
+        control[frame.id] = newCacheObj;
       })
     );
     // console.dir(control, { depth: null })
@@ -83,15 +70,7 @@ const exportData = async (req: Request, res: Response) => {
     await Promise.all(
       positionFrames.map(async (frame) => {
         // id format in redis
-        const id = `POSFRAME_${frame.id}`;
-        const cache = await redis.get(id);
-        if (cache) {
-          const cacheObj: TRedisPositionTest = JSON.parse(cache);
-          delete cacheObj.editing;
-          position[frame.id] = cacheObj;
-        } else {
-          throw new Error(`Frame ${id} not found in redis.`);
-        }
+        position[frame.id] = await getRedisPosition(frame.id);
       })
     );
     // console.dir(position, { depth: null })

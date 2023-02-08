@@ -10,7 +10,7 @@ import {
 } from "type-graphql";
 
 import { PositionFrame, Dancer } from "../../prisma/generated/type-graphql";
-import { updateRedisPosition } from "../utility";
+import { deleteRedisPosition, updateRedisPosition } from "../utility";
 import {
   EditPositionFrameInput,
   DeletePositionFrameInput,
@@ -81,7 +81,7 @@ export class PositionFrameResolver {
         });
       })
     );
-    await updateRedisPosition(`POSFRAME_${newPositionFrame.id}`);
+    await updateRedisPosition(newPositionFrame.id);
     const mapPayload: PositionMapPayload = {
       editBy: ctx.userID,
       frame: {
@@ -160,7 +160,7 @@ export class PositionFrameResolver {
       where: { userId: ctx.userID },
       data: { frameId: null },
     });
-    await updateRedisPosition(`POSFRAME_${positionFrame.id}`);
+    await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
       editBy: ctx.userID,
       frame: {
@@ -256,7 +256,7 @@ export class PositionFrameResolver {
         updateList: [],
       },
     };
-    redis.del(`POSFRAME_${frameID}`);
+    await deleteRedisPosition(frameID);
     await publishPositionMap(mapPayload);
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.DELETED,

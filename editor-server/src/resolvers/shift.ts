@@ -7,7 +7,6 @@ import {
   Arg,
 } from "type-graphql";
 
-import redis from "../redis";
 import {
   ControlRecordPayload,
   ControlRecordMutation,
@@ -18,7 +17,7 @@ import {
   PositionRecordPayload,
   PositionRecordMutation,
 } from "./subscriptions/positionRecord";
-import { updateRedisControl, updateRedisPosition } from "../utility";
+import { deleteRedisControl, deleteRedisPosition, updateRedisControl, updateRedisPosition } from "../utility";
 import { Topic } from "./subscriptions/topic";
 import { ShiftResponse } from "./response/shiftResponse";
 import { TContext } from "../types/global";
@@ -189,7 +188,7 @@ export class ShiftResolver {
               }
             })
           );
-          await redis.del(`CTRLFRAME_${id}`);
+          await deleteRedisControl(id);
         })
       );
     }
@@ -211,7 +210,7 @@ export class ShiftResolver {
               }
             })
           );
-          redis.del(`POSFRAME_${id}`);
+          await deleteRedisPosition(id);
         })
       );
     }
@@ -230,7 +229,7 @@ export class ShiftResolver {
           if(findControlFrame !== null){
             await ctx.prisma.controlFrame.update({where: {id: id}, data: {start: findControlFrame.start+move}});
           }
-          await updateRedisControl(`CTRLFRAME_${id}`);
+          await updateRedisControl(id);
           return id;
         })
       );
@@ -285,7 +284,7 @@ export class ShiftResolver {
           if(findPositionFrame !== null){
             await ctx.prisma.positionFrame.update({where: {id: id}, data: {start: findPositionFrame.start+move}});
           }
-          await updateRedisPosition(`POSFRAME_${id}`);
+          await updateRedisPosition(id);
           return id;
         })
       );

@@ -139,13 +139,13 @@ export type TRedisStore = {
 export type TRedisControls = {
   [key: string]: TRedisControl
 }
+// export type TRedisControl = {
+//   fade: boolean;
+//   start: number;
+//   editing: number | undefined;
+//   status: TRedisControlStatus
+// }
 export type TRedisControl = {
-  fade: boolean;
-  start: number;
-  editing: number | undefined;
-  status: TRedisControlStatus
-}
-export type TRedisControlTest = {
   fade: boolean
   start: number
   editing: string | undefined
@@ -159,12 +159,12 @@ export type TRedisControlStatus = {
 export type TRedisPositions = {
   [key: string]: TRedisPosition
 }
+// export type TRedisPosition = {
+//   start: number
+//   editing: string | undefined
+//   pos: TRedisPos
+// }
 export type TRedisPosition = {
-  start: number
-  editing: string | undefined
-  pos: TRedisPos
-}
-export type TRedisPositionTest = {
   start: number
   editing: string | undefined
   pos: TPositionPos[]

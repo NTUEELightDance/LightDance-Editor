@@ -1,8 +1,8 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
 
-import redis from "../../redis";
 import { TRedisControl, TRedisPosition } from "../../types/global";
+import { getRedisControl, getRedisPosition } from "../../utility";
 
 interface MapID {
   id: number;
@@ -27,11 +27,7 @@ export const ControlMapScalar = new GraphQLScalarType({
     const result: { [key: string]: TRedisControl } = {};
     await Promise.all(
       value.map(async (frameId) => {
-        const cache = await redis.get(`CTRLFRAME_${frameId}`);
-        if (cache) {
-          const cacheObj: TRedisControl = JSON.parse(cache);
-          result[frameId] = cacheObj;
-        }
+        result[frameId] = await getRedisControl(parseInt(frameId));
       })
     );
     return result;
@@ -54,11 +50,7 @@ export const PositionMapScalar = new GraphQLScalarType({
     const result: { [key: string]: TRedisPosition } = {};
     await Promise.all(
       value.map(async (frameId) => {
-        const cache = await redis.get(`POSFRAME_${frameId}`);
-        if (cache) {
-          const cacheObj: TRedisPosition = JSON.parse(cache);
-          result[frameId] = cacheObj;
-        }
+        result[frameId] = await getRedisPosition(parseInt(frameId));
       })
     );
     return result;

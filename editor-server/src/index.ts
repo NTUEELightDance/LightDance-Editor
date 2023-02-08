@@ -52,8 +52,25 @@ const port = process.env.PORT || 4000;
 
   const server = new ApolloServer({
     schema,
-    context: async () => {
-      return {userID: 1, prisma, userPassword: "admin"} as TContext;
+    context: async ({ req }) => {
+      // make sure that we know who are accessing backend
+      const { name, password } = req.headers;
+      if (!name || !password)
+        throw new Error("password and name must be filled.");
+      let userID;
+      const userName: string = (typeof(name) === "string") ? name: name[0];
+      const userPassword: string = (typeof(password) === "string") ? password : password[0];
+      const user = await prisma.user.findFirst({where: {name: userName}});
+      if (!user) {
+        const newUser = await prisma.user.create({data: {name: userName, password: userPassword}});
+        await prisma.editingControlFrame.create({data: {userId: newUser.id, frameId: null}});
+        await prisma.editingPositionFrame.create({data: {userId: newUser.id, frameId: null}});
+        userID = newUser.id;
+      }
+      else{
+        userID = user.id;
+      }
+      return {userID: userID, prisma, userPassword: "admin"} as TContext;
     },
     plugins: [
       {

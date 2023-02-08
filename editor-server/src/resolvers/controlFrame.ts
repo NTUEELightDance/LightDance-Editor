@@ -14,7 +14,7 @@ import {
   DeleteControlFrameInput,
 } from "./inputs/controlFrame";
 import { ControlFrame, Part } from "../../prisma/generated/type-graphql";
-import { updateRedisControl } from "../utility";
+import { deleteRedisControl, updateRedisControl } from "../utility";
 import { ControlDefault } from "./types/controlType";
 import { Topic } from "./subscriptions/topic";
 import { ControlMapPayload } from "./subscriptions/controlMap";
@@ -22,7 +22,6 @@ import {
   ControlRecordMutation,
   ControlRecordPayload,
 } from "./subscriptions/controlRecord";
-import redis from "../redis";
 import { TContext } from "../types/global";
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
@@ -79,7 +78,7 @@ export class ControlFrameResolver {
         });
       })
     );
-    await updateRedisControl(`CTRLFRAME_${newControlFrame.id}`);
+    await updateRedisControl(newControlFrame.id);
     const mapPayload: ControlMapPayload = {
       editBy: ctx.userID,
       frame: {
@@ -157,7 +156,7 @@ export class ControlFrameResolver {
       },
     });
 
-    await updateRedisControl(`CTRLFRAME_${controlFrame.id}`);
+    await updateRedisControl(controlFrame.id);
 
     const payload: ControlMapPayload = {
       editBy: ctx.userID,
@@ -217,33 +216,7 @@ export class ControlFrameResolver {
     });
     if(!deletedFrame) throw new Error("frame id not found");
     await ctx.prisma.controlFrame.delete({ where: { id: frameID } });
-    // const parts = await ctx.prisma.part.findMany({
-    //   where: {
-    //     controlData: {
-    //       some: {
-    //         frameId: frameID
-    //       }
-    //     }
-    //   },
-    //   include: { controlData: true }
-    // });
-    // await Promise.all(
-    //   parts.map(async (part)=>{
-    //     if(!part.controlData) throw new Error("Control data not found!");
-    //     await ctx.prisma.part.update({
-    //       where: { id: part.id },
-    //       data: {
-    //         controlData: {
-    //           delete: [{partId_frameId:{
-    //             partId: part.id,
-    //             frameId: frameID
-    //           }}]
-    //         }
-    //       }
-    //     });
-    //   })
-    // );
-    await redis.del(`CTRLFRAME_${frameID}`);
+    await deleteRedisControl(frameID);
     const mapPayload: ControlMapPayload = {
       editBy: ctx.userID,
       frame: {

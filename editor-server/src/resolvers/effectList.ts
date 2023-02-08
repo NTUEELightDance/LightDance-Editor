@@ -8,10 +8,12 @@ import {
   Arg,
 } from "type-graphql";
 
-// import { EffectList } from "./types/effectList";
-import redis from "../redis";
 import { EffectListResponse } from "./response/effectListResponse";
 import {
+  deleteRedisControl,
+  deleteRedisPosition,
+  getRedisControl,
+  getRedisPosition,
   updateRedisControl,
   updateRedisPosition,
 } from "../utility";
@@ -99,28 +101,14 @@ export class EffectListResolver {
     await Promise.all(
       controlFrameIDs.map(async (controlFrameID: number) => {
         const id = controlFrameID;
-        const cache = await redis.get(`CTRLFRAME_${id}`);
-        if (cache) {
-          const cacheObj: TRedisControl = JSON.parse(cache);
-          delete cacheObj.editing;
-          redisControlFrames[id] = cacheObj;
-        } else {
-          throw new Error(`Frame ${id} not found in redis.`);
-        }
+        redisControlFrames[id] = await getRedisControl(id);
       })
     );
     const redisPositionFrames: TRedisPositions = {};
     await Promise.all(
       positionFrameIDs.map(async (positionFrameID: number) => {
         const id = positionFrameID;
-        const cache = await redis.get(`POSFRAME_${id}`);
-        if (cache) {
-          const cacheObj: TRedisPosition = JSON.parse(cache);
-          delete cacheObj.editing;
-          redisPositionFrames[id] = cacheObj;
-        } else {
-          throw new Error(`Frame ${id} not found in redis.`);
-        }
+        redisPositionFrames[id] = await getRedisPosition(id);
       })
     );
 
@@ -264,7 +252,7 @@ export class EffectListResolver {
                   }
                 })
               );
-              await redis.del(`CTRLFRAME_${id}`);
+              await deleteRedisControl(id);
             })
           );
         }
@@ -284,7 +272,7 @@ export class EffectListResolver {
                   }
                 })
               );
-              redis.del(`POSFRAME_${id}`);
+              await deleteRedisPosition(id);
             })
           );
         }
@@ -372,12 +360,12 @@ export class EffectListResolver {
       // update redis
       await Promise.all(
         newControlFrameIDs.map(async (id) => {
-          await updateRedisControl(`CTRLFRAME_${id}`);
+          await updateRedisControl(id);
         })
       );
       await Promise.all(
         newPositionFrameIDs.map(async (id) => {
-          await updateRedisPosition(`POSFRAME_${id}`);
+          await updateRedisPosition(id);
         })
       );
 
