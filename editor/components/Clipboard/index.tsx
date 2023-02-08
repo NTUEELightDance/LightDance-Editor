@@ -1,14 +1,14 @@
 import { useState, useRef } from "react";
 import type { ReactiveVar } from "@apollo/client";
-import type { DancerStatus } from "core/models/index.d.ts";
+import { type DancerStatus, isFiberData, isLEDData } from "core/models";
 
 // mui
 import Snackbar from "@mui/material/Snackbar";
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 // states and actions
-import { reactiveState } from "core/state";
-import { editCurrentStatus } from "core/actions";
+import { reactiveState } from "@/core/state";
+import { editCurrentStatusFiber, editCurrentStatusLED } from "@/core/actions";
 import { makeVar } from "@apollo/client";
 import { DANCER } from "@/constants";
 
@@ -44,13 +44,24 @@ export default function Clipboard() {
       selected.forEach((dancer) => {
         Object.keys(copiedStatus.current()).forEach((part) => {
           if (Object.keys(currentStatus[dancer]).includes(part)) {
-            editCurrentStatus({
-              payload: {
-                dancerName: dancer,
-                partName: part,
-                value: copiedStatus.current()[part],
-              },
-            });
+            const value = copiedStatus.current()[part];
+            if (isFiberData(value)) {
+              editCurrentStatusFiber({
+                payload: {
+                  dancerName: dancer,
+                  partName: part,
+                  value,
+                },
+              });
+            } else if (isLEDData(value)) {
+              editCurrentStatusLED({
+                payload: {
+                  dancerName: dancer,
+                  partName: part,
+                  value,
+                },
+              });
+            }
           }
         });
       });
@@ -61,22 +72,12 @@ export default function Clipboard() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleClose = (
-    event: React.FormEvent<HTMLButtonElement>,
-    reason: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
+  const handleClose = () => {
     setOpen(false);
   };
+
   const action = (
-    <IconButton
-      size="small"
-      aria-label="close"
-      color="inherit"
-      onClick={handleClose}
-    >
+    <IconButton size="small" aria-label="close" onClick={handleClose}>
       <CloseIcon fontSize="small" />
     </IconButton>
   );

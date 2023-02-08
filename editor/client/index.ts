@@ -43,7 +43,7 @@ const client = new ApolloClient({
           frameIds: {
             merge(existing, incoming) {
               const controlMap = toControlMap(incoming);
-              setControlMap(controlMap);
+              setControlMap({ payload: controlMap });
               return incoming;
             },
           },
@@ -54,7 +54,7 @@ const client = new ApolloClient({
           frameIds: {
             merge(existing, incoming) {
               const posMap = toPosMap(incoming);
-              setPosMap(posMap);
+              setPosMap({ payload: posMap });
               return incoming;
             },
           },

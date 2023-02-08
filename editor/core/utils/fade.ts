@@ -1,9 +1,9 @@
-import {
+import type {
   ControlMapElement,
   ControlMapStatus,
   LEDData,
   FiberData,
-  El,
+  ELData,
   ColorMap,
   ColorCode,
 } from "../models";
@@ -14,21 +14,26 @@ function Round1(number: number) {
   return Math.round(number * 10) / 10;
 }
 
-function CheckTypeOfLED(object: LEDData | FiberData | El): object is LEDData {
+function CheckTypeOfLED(
+  object: LEDData | FiberData | ELData
+): object is LEDData {
   return (
-    (object as LEDData).src !== undefined && (object as LEDData).alpha !== undefined
+    (object as LEDData).src !== undefined &&
+    (object as LEDData).alpha !== undefined
   );
 }
 
-function CheckTypeOfFiber(object: LEDData | FiberData | El): object is FiberData {
+function CheckTypeOfFiber(
+  object: LEDData | FiberData | ELData
+): object is FiberData {
   return (
     (object as FiberData).color !== undefined &&
     (object as FiberData).alpha !== undefined
   );
 }
 
-function CheckTypeOfEl(object: LEDData | FiberData | El): object is El {
-  return typeof (object as El) === "number";
+function CheckTypeOfEl(object: LEDData | FiberData | ELData): object is ELData {
+  return typeof (object as ELData) === "number";
 }
 
 /**

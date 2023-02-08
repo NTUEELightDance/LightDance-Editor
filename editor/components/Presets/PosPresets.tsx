@@ -83,6 +83,7 @@ export default function PosPresets() {
           Add
         </Button>
         <PresetsList
+          variant="pos"
           presets={posPresets}
           handleEditPresets={handleEditPresets}
           handleDeletePresets={handleDeletePresets}

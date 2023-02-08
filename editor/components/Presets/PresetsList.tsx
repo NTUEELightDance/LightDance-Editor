@@ -14,18 +14,32 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 // types
 import {
-  PresetsListType,
   LightPresetsElement,
   PosPresetsElement,
+  isLightPresetsElement,
+  isPosPresetsElement,
+  LightPresetsType,
+  PosPresetsType,
 } from "./presets";
 
-function InstanceOfLightPresetsElement(
-  preset: any
-): preset is LightPresetsElement {
-  return "status" in preset;
+import { ControlMapStatus, PosMapStatus } from "core/models";
+
+export type PresetsListProps = LightPresetsListProps | PosPresetsListProps;
+
+interface LightPresetsListProps {
+  variant: "light";
+  presets: LightPresetsType;
+  handleEditPresets: (name: string, idx: number) => void;
+  handleDeletePresets: (idx: number) => void;
+  handleSetCurrent: (status: ControlMapStatus) => void;
 }
-function InstanceOfPosPresetsElement(preset: any): preset is PosPresetsElement {
-  return "pos" in preset;
+
+interface PosPresetsListProps {
+  variant: "pos";
+  presets: PosPresetsType;
+  handleEditPresets: (name: string, idx: number) => void;
+  handleDeletePresets: (idx: number) => void;
+  handleSetCurrent: (pos: PosMapStatus) => void;
 }
 
 /**
@@ -33,11 +47,12 @@ function InstanceOfPosPresetsElement(preset: any): preset is PosPresetsElement {
  * @component
  */
 export default function PresetsList({
+  variant,
   presets,
   handleEditPresets,
   handleDeletePresets,
   handleSetCurrent,
-}: PresetsListType) {
+}: PresetsListProps) {
   // dialog
   const [open, setOpen] = useState(false);
   const [nameVal, setNameVal] = useState("");
@@ -58,9 +73,9 @@ export default function PresetsList({
   const handleApplyPreset = (
     preset: LightPresetsElement | PosPresetsElement
   ) => {
-    if (InstanceOfLightPresetsElement(preset)) {
+    if (variant === "light" && isLightPresetsElement(preset)) {
       handleSetCurrent(preset.status);
-    } else if (InstanceOfPosPresetsElement(preset)) {
+    } else if (variant === "pos" && isPosPresetsElement(preset)) {
       handleSetCurrent(preset.pos);
     } else {
       console.error("Not a valid lightPreset or posPreset.");

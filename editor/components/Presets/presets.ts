@@ -1,8 +1,6 @@
-import {
-  ControlMapStatus,
-  PosMapStatus,
-  PosMapElement,
-} from "@/core/models";
+import type { ControlMapStatus, PosMapStatus } from "@/core/models";
+
+import { isControlMapStatus, isPosMapStatus } from "@/core/models";
 
 /**
  * LightPresets type
@@ -11,6 +9,15 @@ export type LightPresetsType = LightPresetsElement[];
 export interface LightPresetsElement {
   name: string; // ID named by user
   status: ControlMapStatus;
+}
+
+export function isLightPresetsElement(
+  element: LightPresetsElement | PosPresetsElement
+): element is LightPresetsElement {
+  return (
+    typeof (element as LightPresetsElement).name === "string" &&
+    isControlMapStatus((element as LightPresetsElement).status)
+  );
 }
 
 /**
@@ -22,14 +29,11 @@ export interface PosPresetsElement {
   pos: PosMapStatus;
 }
 
-/**
- * PresetsList type
- */
-export interface PresetsListType {
-  presets: LightPresetsType | PosPresetsType;
-  handleEditPresets: (name: string, idx: number) => void;
-  handleDeletePresets: (idx: number) => void;
-  handleSetCurrent:
-    | ((status: ControlMapStatus) => void)
-    | ((pos: PosMapElement) => void);
+export function isPosPresetsElement(
+  element: LightPresetsElement | PosPresetsElement
+): element is PosPresetsElement {
+  return (
+    typeof (element as PosPresetsElement).name === "string" &&
+    isPosMapStatus((element as PosPresetsElement).pos)
+  );
 }

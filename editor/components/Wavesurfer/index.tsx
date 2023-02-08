@@ -22,7 +22,7 @@ import { CONTROL_EDITOR, POS_EDITOR } from "@/constants";
  * This is the Wave component
  * @component
  */
-function Wavesurfer({ commandMode = false }) {
+function Wavesurfer() {
   const { waveSurferApp, initWaveSurferApp, showMarkers } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;
@@ -43,6 +43,7 @@ function Wavesurfer({ commandMode = false }) {
   const editor = useReactiveVar(reactiveState.editor);
   // update Markers
   useEffect(() => {
+    console.log("control", controlMap);
     if (editor === CONTROL_EDITOR) {
       if (!controlLoading && controlMap && showMarkers) {
         waveSurferApp.updateMarkers(controlMap);

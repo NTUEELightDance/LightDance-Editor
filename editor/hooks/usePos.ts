@@ -2,15 +2,11 @@ import { useQuery } from "@apollo/client";
 
 // gql
 import { GET_POS_MAP, GET_POS_RECORD } from "../graphql";
+import { state } from "@/core/state";
 
 export default function usePos() {
   // query posMap
-  const {
-    loading: posMapLoading,
-    error: posMapError,
-    data: posMapData,
-  } = useQuery(GET_POS_MAP);
-  const posMap = posMapData?.PosMap?.frames;
+  const { loading: posMapLoading, error: posMapError } = useQuery(GET_POS_MAP);
 
   // query posRecord
   const {
@@ -23,7 +19,7 @@ export default function usePos() {
   return {
     loading: posMapLoading || posRecordLoading,
     error: posMapError != null || posRecordError,
-    posMap,
+    posMap: state.posMap,
     posRecord,
   };
 }

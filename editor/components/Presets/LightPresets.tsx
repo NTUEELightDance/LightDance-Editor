@@ -25,7 +25,7 @@ import { ControlMapStatus } from "core/models";
  * @component
  */
 export default function LightPresets() {
-  // presets intialize
+  // presets initialize
   // get loadedPresets or storagePresets
   const { lightPresets: loadedLightPresets } = useSelector(selectLoad);
 
@@ -83,6 +83,7 @@ export default function LightPresets() {
           Add
         </Button>
         <PresetsList
+          variant="light"
           presets={lightPresets}
           handleEditPresets={handleEditPresets}
           handleDeletePresets={handleDeletePresets}

@@ -8,7 +8,6 @@ import {
   ControlMapStatus,
   LEDData,
   FiberData,
-  ELData,
   CurrentStatusDelta,
 } from "../models";
 
@@ -24,25 +23,6 @@ const actions = registerActions({
    */
   setCurrentStatus: (state: State, payload: ControlMapStatus) => {
     state.currentStatus = payload;
-  },
-
-  /**
-   * Edit current Status
-   * @param {State} state
-   * @param {{ dancerName, partName, value }} payload - set EL part
-   */
-  editCurrentStatus: (
-    state: State,
-    payload: {
-      dancerName: string;
-      partName: string;
-      value: ELData;
-    }
-  ) => {
-    const { dancerName, partName, value } = payload;
-
-    state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    state.currentStatus[dancerName][partName] = value;
   },
 
   /**
@@ -136,7 +116,6 @@ const actions = registerActions({
 
 export const {
   setCurrentStatus,
-  editCurrentStatus,
   editCurrentStatusFiber,
   editCurrentStatusLED,
   editCurrentStatusDelta,
