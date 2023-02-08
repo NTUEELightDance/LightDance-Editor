@@ -42,11 +42,14 @@ class Dancer {
   initStatus: DancerStatus;
   initPos: Coordinates;
 
+  initStatus: DancerStatus;
+  initPos: Coordinates;
+
   constructor(
     scene: THREE.Scene,
     name: string,
     modelSrc: string,
-    manager: THREE.LoadingManager,
+    manager: THREE.LoadingManager
   ) {
     this.scene = scene;
     this.name = name;

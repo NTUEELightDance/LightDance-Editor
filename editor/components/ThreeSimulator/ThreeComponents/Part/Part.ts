@@ -13,8 +13,8 @@ export type LEDStatus = {
   effect: Array<{
     colorCode: string;
     alpha: number;
-  }>; 
-}
+  }>;
+};
 // this is a base class for dancer parts
 export default class Part {
   name: string;
