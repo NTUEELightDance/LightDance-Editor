@@ -1,10 +1,9 @@
-import { Color } from "three";
 import Part from "./Part";
 import { FiberStatus } from "./Part";
 import { state } from "core/state";
 
 interface MeshType extends THREE.Mesh {
-   material: THREE.MeshStandardMaterial;
+  material: THREE.MeshStandardMaterial;
 }
 
 export default class FIBERPart extends Part {
@@ -21,7 +20,7 @@ export default class FIBERPart extends Part {
     this.visible = visible;
     this.mesh.visible = visible;
   }
-  
+
   setStatus(status: FiberStatus) {
     if (!this.visible) return;
 

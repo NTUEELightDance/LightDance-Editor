@@ -1,7 +1,5 @@
-import { Mesh } from "three";
 import Part from "./Part";
 import { LEDStatus } from "./Part";
-import { LedEffect } from "@/core/models";
 const defaultDisplay = {
   colorCode: "#000000",
   alpha: 0,

@@ -24,8 +24,12 @@ import { state } from "core/state";
 // states
 
 import store from "../../store";
-import { dir } from "console";
-import { ControlMapStatus, CurrentLedEffect, DancerCoordinates, Selected } from "@/core/models";
+import {
+  ControlMapStatus,
+  CurrentLedEffect,
+  DancerCoordinates,
+  Selected,
+} from "@/core/models";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -49,7 +53,7 @@ class ThreeController {
   dancers: Record<string, Dancer>;
   gridHelper: GridHelper;
   light: THREE.DirectionalLight;
-  
+
   selectedOutline: OutlinePass;
   hoveredOutline: OutlinePass;
   manager: THREE.LoadingManager;
@@ -108,7 +112,7 @@ class ThreeController {
     this.height = height;
 
     THREE.Cache.enabled = true;
-    
+
     // Initialization of 3D renderer
     //this.renderer = this.generateRenderer();
 
@@ -133,14 +137,14 @@ class ThreeController {
     this.scene = this.generateScene();
 
     // Add a dim light to identity each dancers
-    this.light = this.generateLight()
+    this.light = this.generateLight();
     this.scene.add(this.light);
 
     // Postprocessing for anti-aliasing effect
     this.initPostprocessing();
 
     // Set the clock for animation
-    
+
     // Append the canvas to given ref
     this.canvas.appendChild(renderer.domElement);
 
@@ -149,7 +153,7 @@ class ThreeController {
     this.initCenterMarker();
 
     // Initialization of grid helper on the floor
-    this.gridHelper = this.generateGridHelper()
+    this.gridHelper = this.generateGridHelper();
     this.scene.add(this.gridHelper);
 
     // Start rendering
@@ -160,7 +164,7 @@ class ThreeController {
     this.monitor();
   }
 
-  generateRenderer(){
+  generateRenderer() {
     // Set best configuration for different monitor devices
     const pixelRatio = window.devicePixelRatio;
 
@@ -178,14 +182,14 @@ class ThreeController {
     return renderer;
   }
 
-  generateScene(){
+  generateScene() {
     // Add a background scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
     return scene;
   }
-  
-  generateLight(){
+
+  generateLight() {
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(0, 10, 0);

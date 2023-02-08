@@ -16,13 +16,13 @@ class GridHelper extends LineSegments {
     const vertices = [];
     const colors: number[] = [];
 
-    for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) { 
-      if (i % 2 === 0)  vertices.push(-halfSize, 0, k / 2, halfSize, 0, k / 2);
+    for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) {
+      if (i % 2 === 0) vertices.push(-halfSize, 0, k / 2, halfSize, 0, k / 2);
       vertices.push(k, 0, -halfSize / 2, k, 0, halfSize / 2);
 
-      const color = (i === center) ? centralColor : gridColor;
+      const color = i === center ? centralColor : gridColor;
 
-      if (i % 2 === 0){
+      if (i % 2 === 0) {
         color.toArray(colors, j);
         j += 3;
         color.toArray(colors, j);

@@ -8,13 +8,25 @@ import { state } from "core/state";
 import { FIBER, LED } from "@/constants";
 
 import { LEDPart, FiberPart } from "./Part";
+import { Coordinates, DancerStatus } from "@/core/models";
 
 // import ALL_MAPPING from "./mapping";
+interface MeshType extends THREE.Mesh {
+  material: THREE.MeshStandardMaterial;
+}
+type LedEffectStatus = Record<
+  string,
+  {
+    recordIndex: number;
+    effectIndex: number;
+    effect: { colorCode: string; alpha: number }[];
+  }
+>;
 
 class Dancer {
   scene: THREE.Scene;
   name: string;
-  nameTag: THREE.Mesh;
+  nameTag: MeshType;
   modelSrc: string;
   initialized: boolean;
   manager: THREE.LoadingManager;
@@ -26,11 +38,14 @@ class Dancer {
     [FIBER]: Record<string, FiberPart>;
   }
 
+  initStatus: DancerStatus;
+  initPos: Coordinates;
+
   constructor(
     scene: THREE.Scene,
     name: string,
     modelSrc: string,
-    manager: THREE.LoadingManager,
+    manager: THREE.LoadingManager
   ) {
     this.scene = scene;
     this.name = name;
@@ -44,11 +59,13 @@ class Dancer {
       [LED]: {},
       [FIBER]: {},
     };
+    this.initStatus = null;
+    this.initPos = null;
     this.initialized = false;
   }
 
   // Load model with given URL and capture all the meshes for light status
-  addModel2Scene(currentStatus, currentPos) {
+  addModel2Scene(currentStatus: DancerStatus, currentPos: Coordinates) {
     this.initStatus = currentStatus;
     this.initPos = currentPos;
 
@@ -73,7 +90,7 @@ class Dancer {
     );
   }
 
-  // Intilization procedures after the model is successfully loaded.
+  // Initialization procedures after the model is successfully loaded.
   // 1. Add model to the scene.
   // 2. Select desired part of mesh to display light status.
   // 3. Set color of selected meshes to black and set their emissive color.
@@ -85,11 +102,11 @@ class Dancer {
     this.model = gltf.scene;
     this.model.name = name;
 
-    const partMapping = {};
+    const partMapping: Record<string, string> = {};
     this.model.children.forEach(
-      (child) => (partMapping[child.name] = child.name)
+      (child) =>
+        (partMapping[child.name as keyof typeof partMapping] = child.name)
     );
-
     const partNames = state.dancers[this.name];
 
     partNames.forEach((partName) => {
@@ -159,7 +176,7 @@ class Dancer {
   }
 
   // Update the model's position
-  setPos(currentPos) {
+  setPos(currentPos: Coordinates) {
     const newPos = new THREE.Vector3(currentPos.x, currentPos.y, currentPos.z);
     const oldPos = new THREE.Vector3().setFromMatrixPosition(this.model.matrix);
 
@@ -168,31 +185,35 @@ class Dancer {
     }
   }
 
-  setFiberStatus(currentStatus) {
+  setFiberStatus(currentStatus: DancerStatus) {
     Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
       part.setStatus(currentStatus[partName]);
     });
   }
 
-  setLEDStatus(currentLedEffect) {
+  setLEDStatus(currentLedEffect: LedEffectStatus) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {
       part.setStatus(currentLedEffect[partName]);
     });
   }
 
   // Update the model's color
-  updateColor(color) {
-    Object.values(this.FIBERParts).forEach(([name, e]) => {
-      e.material.color.setHex(color);
-    });
-  }
+  // updateColor(color) {
+  //   Object.values(this.FIBERParts).forEach(([name, e]) => {
+  //     e.material.color.setHex(color);
+  //   });
+  // }
 
   hover() {
-    this.model.getObjectByName("Human").material.color.setHex(0x232323);
+    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
+      0x232323
+    );
   }
 
   unhover() {
-    this.model.getObjectByName("Human").material.color.setHex(0x000000);
+    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
+      0x000000
+    );
   }
 }
 
