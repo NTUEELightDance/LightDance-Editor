@@ -11,20 +11,20 @@ import { EffectListResolver } from "./effectList";
 import { ShiftResolver } from "./shift";
 import { LEDResolver } from "./led";
 
-import { FindManyColorResolver,
+import {
+  FindManyColorResolver,
   FindUniqueColorResolver,
   ControlDataRelationsResolver,
   ControlFrameRelationsResolver,
   DancerRelationsResolver,
-  EditingControlFrameRelationsResolver ,
-  EditingPositionFrameRelationsResolver ,
-  PartRelationsResolver ,
-  PositionDataRelationsResolver ,
-  PositionFrameRelationsResolver ,
+  EditingControlFrameRelationsResolver,
+  EditingPositionFrameRelationsResolver,
+  PartRelationsResolver,
+  PositionDataRelationsResolver,
+  PositionFrameRelationsResolver,
   UserRelationsResolver,
-  UpdateOneLEDEffectResolver
+  UpdateOneLEDEffectResolver,
 } from "../../prisma/generated/type-graphql";
-
 
 export const resolvers = [
   // Color related
@@ -50,10 +50,10 @@ export const resolvers = [
   ControlDataRelationsResolver,
   ControlFrameRelationsResolver,
   DancerRelationsResolver,
-  EditingControlFrameRelationsResolver ,
-  EditingPositionFrameRelationsResolver ,
-  PartRelationsResolver ,
-  PositionDataRelationsResolver ,
-  PositionFrameRelationsResolver ,
-  UserRelationsResolver
+  EditingControlFrameRelationsResolver,
+  EditingPositionFrameRelationsResolver,
+  PartRelationsResolver,
+  PositionDataRelationsResolver,
+  PositionFrameRelationsResolver,
+  UserRelationsResolver,
 ] as const;

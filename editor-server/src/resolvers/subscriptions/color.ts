@@ -3,19 +3,19 @@ import { ObjectType, Field, ID } from "type-graphql";
 @ObjectType()
 export class ColorPayload {
   @Field()
-    mutation: colorMutation;
+  mutation: colorMutation;
 
   @Field()
-    editBy: number;
+  editBy: number;
 
   @Field()
-    color: string;
+  color: string;
 
   @Field({ nullable: true })
-    colorCode?: string;
+  colorCode?: string;
 
   @Field({ nullable: true })
-    renameColor?: string;
+  renameColor?: string;
 }
 
 export enum colorMutation {

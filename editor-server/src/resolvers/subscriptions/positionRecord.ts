@@ -3,22 +3,22 @@ import { ObjectType, Field, ID, Int } from "type-graphql";
 @ObjectType()
 export class PositionRecordPayload {
   @Field()
-    mutation: PositionRecordMutation;
+  mutation: PositionRecordMutation;
 
   @Field()
-    editBy: number;
+  editBy: number;
 
   @Field((type) => Int)
-    index: number;
+  index: number;
 
   @Field((type) => [String])
-    addID: number[];
+  addID: number[];
 
   @Field((type) => [String])
-    updateID: number[];
+  updateID: number[];
 
   @Field((type) => [String])
-    deleteID: number[];
+  deleteID: number[];
 }
 
 export enum PositionRecordMutation {

@@ -11,13 +11,13 @@ interface MapID {
 @ObjectType()
 export class ControlMap {
   @Field((type) => ControlMapScalar)
-    frameIds: MapID[];
+  frameIds: MapID[];
 }
 
 @ObjectType()
 export class PositionMap {
   @Field((type) => PositionMapScalar)
-    frameIds: MapID[];
+  frameIds: MapID[];
 }
 
 export const ControlMapScalar = new GraphQLScalarType({

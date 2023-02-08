@@ -15,7 +15,11 @@ import { DancerPayload, dancerMutation } from "./subscriptions/dancer";
 import { PartResponse } from "./response/partResponse";
 import { initRedisControl, initRedisPosition } from "../utility";
 import { TContext } from "../types/global";
-import { ControlData, ControlFrame, Part } from "../../prisma/generated/type-graphql";
+import {
+  ControlData,
+  ControlFrame,
+  Part,
+} from "../../prisma/generated/type-graphql";
 
 @Resolver((of) => Part)
 export class PartResolver {
@@ -25,7 +29,8 @@ export class PartResolver {
     @Arg("part") newPartData: AddPartInput,
     @Ctx() ctx: TContext
   ) {
-    if(!Object.values(ControlType).includes(newPartData.type)) throw new Error("type is invalid");
+    if (!Object.values(ControlType).includes(newPartData.type))
+      throw new Error("type is invalid");
     const existDancer = await ctx.prisma.dancer.findFirst({
       where: { name: newPartData.dancerName },
       include: { parts: true },
@@ -44,16 +49,15 @@ export class PartResolver {
           },
         });
 
-        const allControlFrames: ControlFrame[] = await ctx.prisma.controlFrame.findMany();
+        const allControlFrames: ControlFrame[] =
+          await ctx.prisma.controlFrame.findMany();
         // for each position frame, add empty position data to the dancer
         await ctx.prisma.controlData.createMany({
-          data: allControlFrames.map(controlFrame=>(
-            {
-              partId: newPart.id,
-              frameId: controlFrame.id,
-              value: ControlDefault[newPartData.type],
-            }
-          ))
+          data: allControlFrames.map((controlFrame) => ({
+            partId: newPart.id,
+            frameId: controlFrame.id,
+            value: ControlDefault[newPartData.type],
+          })),
         });
         const dancerData = await ctx.prisma.dancer.update({
           where: { id: existDancer.id },
@@ -69,12 +73,12 @@ export class PartResolver {
         await initRedisPosition();
         const payload: DancerPayload = {
           mutation: dancerMutation.CREATED,
-          editBy: ctx.userID,
-          dancerData
+          editBy: ctx.userId,
+          dancerData,
         };
         await publish(payload);
 
-        return {partData: newPart, ok: true, msg:"successfully add part"};
+        return { partData: newPart, ok: true, msg: "successfully add part" };
       }
       return {
         ok: false,
@@ -94,7 +98,8 @@ export class PartResolver {
     @Ctx() ctx: TContext
   ) {
     const { id, name, type } = newPartData;
-    if(!Object.values(ControlType).includes(type)) throw new Error("type is invalid");
+    if (!Object.values(ControlType).includes(type))
+      throw new Error("type is invalid");
     const edit_part = await ctx.prisma.part.findFirst({
       where: { id },
       include: { controlData: true },
@@ -112,15 +117,15 @@ export class PartResolver {
       });
       const dancerData = await ctx.prisma.dancer.findFirst({
         where: { id: result.dancerId },
-        include: { parts: true }
+        include: { parts: true },
       });
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
-        dancerData
+        editBy: ctx.userId,
+        dancerData,
       };
       await publish(payload);
-      return { partData: result, ok: true, msg: "successfully edit part"};
+      return { partData: result, ok: true, msg: "successfully edit part" };
     }
     return {
       ok: false,
@@ -138,26 +143,26 @@ export class PartResolver {
     const part = await ctx.prisma.part.findFirst({
       where: { id },
     });
-    if(!part) return { ok: false, msg: "no part found" };
+    if (!part) return { ok: false, msg: "no part found" };
     const deletedPart = await ctx.prisma.part.delete({
-      where: { id }
+      where: { id },
     });
     const dancerData = await ctx.prisma.dancer.findFirst({
       where: { id: deletedPart.dancerId },
-      include: { parts: true }
+      include: { parts: true },
     });
     await initRedisControl();
     await initRedisPosition();
     const payload: DancerPayload = {
       mutation: dancerMutation.DELETED,
-      editBy: ctx.userID,
-      dancerData
+      editBy: ctx.userId,
+      dancerData,
     };
     await publish(payload);
-    return {ok: true, msg: "successfully delete part"};
+    return { ok: true, msg: "successfully delete part" };
   }
 
-  @FieldResolver((returns)=>[ControlData])
+  @FieldResolver((returns) => [ControlData])
   async controlData(@Root() part: Part, @Ctx() ctx: TContext) {
     const result = await ctx.prisma.controlData.findMany({
       where: { partId: part.id },

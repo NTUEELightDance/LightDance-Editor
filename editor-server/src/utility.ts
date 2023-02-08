@@ -39,18 +39,18 @@ const initRedisControl = async () => {
         include: {
           controlData: true,
         },
-        orderBy: { id: "asc" }
+        orderBy: { id: "asc" },
       },
     },
-    orderBy: { id: "asc" }
+    orderBy: { id: "asc" },
   });
 
-  frames.map(({id, start, fade, editing}) =>{
+  frames.map(({ id, start, fade, editing }) => {
     const redisKey = REDIS_CTRL_PREFIX + id;
 
-    const status: TPartControl[][] = allDancers.map(dancer => {
+    const status: TPartControl[][] = allDancers.map((dancer) => {
       const { parts } = dancer;
-      return parts.map(part => {
+      return parts.map((part) => {
         const { type, controlData } = part;
         // console.log(frameID, part.id)
         // search for frameID
@@ -98,7 +98,7 @@ const initRedisPosition = async () => {
         },
       },
     },
-    orderBy: { id: "asc" }
+    orderBy: { id: "asc" },
   });
   const result: LooseObject = {};
 
@@ -112,14 +112,12 @@ const initRedisPosition = async () => {
     },
   });
 
-  frames.map(({id, start, editing}) => {
+  frames.map(({ id, start, editing }) => {
     const redisKey = `POSFRAME_${id}`;
 
     const pos: TPositionPos[] = allDancers.map((dancer) => {
       const { positionData } = dancer;
-      const wanted: any = positionData.find(
-        (data) => data.frameId === id
-      );
+      const wanted: any = positionData.find((data) => data.frameId === id);
       return [wanted.x, wanted.y, wanted.z];
     });
 
@@ -141,7 +139,7 @@ const initRedisPosition = async () => {
 const updateRedisControl = async (id: number) => {
   const controlFrame = await prisma.controlFrame.findUnique({
     where: {
-      id
+      id,
     },
     include: {
       editing: {
@@ -203,7 +201,7 @@ const updateRedisPosition = async (id: number) => {
   // id format: 'POSFRAME_${frameID}'
   const positionFrame = await prisma.positionFrame.findUnique({
     where: {
-      id
+      id,
     },
     include: {
       editing: {
@@ -230,9 +228,7 @@ const updateRedisPosition = async (id: number) => {
     })
     .map((dancer) => {
       const { name, positionData } = dancer;
-      const wanted: any = positionData.find(
-        (data) => data.frameId === id
-      );
+      const wanted: any = positionData.find((data) => data.frameId === id);
       pos.push([wanted.x, wanted.y, wanted.z]);
     });
 
@@ -292,5 +288,5 @@ export {
   getRedisControl,
   getRedisPosition,
   deleteRedisControl,
-  deleteRedisPosition
+  deleteRedisPosition,
 };

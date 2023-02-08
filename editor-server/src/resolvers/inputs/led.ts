@@ -3,44 +3,44 @@ import { InputType, Field, Float, Int } from "type-graphql";
 @InputType()
 export class AddLEDInput {
   @Field((type) => String)
-    partName: string;
+  partName: string;
 
   @Field((type) => String)
-    effectName: string;
+  effectName: string;
 
   @Field((type) => Int)
-    repeat: number;
+  repeat: number;
 
   @Field((type) => [LEDEffectInput])
-    effects: LEDEffectInput[];
+  effects: LEDEffectInput[];
 }
 
 @InputType()
 export class DeleteLEDInput {
   @Field((type) => String)
-    partName: string;
+  partName: string;
 
   @Field((type) => String)
-    effectName: string;
+  effectName: string;
 }
 
 @InputType()
 export class LEDEffectInput {
   @Field((type) => Float)
-    start: number;
+  start: number;
 
   @Field()
-    fade: boolean;
+  fade: boolean;
 
   @Field((type) => [EffectInput])
-    effect: EffectInput[];
+  effect: EffectInput[];
 }
 
 @InputType()
 class EffectInput {
   @Field()
-    colorCode: string;
+  colorCode: string;
 
   @Field((type) => Float)
-    alpha: number;
+  alpha: number;
 }

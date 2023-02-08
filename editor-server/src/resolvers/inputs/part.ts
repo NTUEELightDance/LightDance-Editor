@@ -4,29 +4,29 @@ import { ControlType } from "../types/controlType";
 @InputType()
 export class AddPartInput {
   @Field()
-    name: string;
+  name: string;
 
   @Field()
-    type: ControlType;
+  type: ControlType;
 
   @Field()
-    dancerName: string;
+  dancerName: string;
 }
 
 @InputType()
 export class EditPartInput {
   @Field((type) => Number)
-    id: number;
+  id: number;
 
   @Field()
-    name: string;
+  name: string;
 
   @Field()
-    type: ControlType;
+  type: ControlType;
 }
 
 @InputType()
 export class DeletePartInput {
   @Field((type) => Number)
-    id: number;
+  id: number;
 }

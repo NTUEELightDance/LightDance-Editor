@@ -32,15 +32,12 @@ export class DancerResolver {
   }
 
   @Query((returns) => Dancer)
-  async dancer(
-    @Arg("dancerName") dancerName: string,
-    @Ctx() ctx: TContext
-  ) {
+  async dancer(@Arg("dancerName") dancerName: string, @Ctx() ctx: TContext) {
     const dancer = await ctx.prisma.dancer.findFirst({
       where: { name: dancerName },
-      include: { parts: true, positionData: true }
+      include: { parts: true, positionData: true },
     });
-    if(!dancer) throw new Error("dancer not found");
+    if (!dancer) throw new Error("dancer not found");
     return dancer;
   }
 
@@ -55,7 +52,7 @@ export class DancerResolver {
     });
     if (!existDancer) {
       const allPositionFramesIds = await ctx.prisma.positionFrame.findMany({
-        select: { id: true }
+        select: { id: true },
       });
       const newDancer = await ctx.prisma.dancer.create({
         data: {
@@ -67,22 +64,22 @@ export class DancerResolver {
               y: 0,
               z: 0,
             })),
-          }
-        }
+          },
+        },
       });
       await initRedisControl();
       await initRedisPosition();
       const payload: DancerPayload = {
         mutation: dancerMutation.CREATED,
-        editBy: ctx.userID,
+        editBy: ctx.userId,
         dancerData: newDancer,
       };
       await publish(payload);
 
       // save dancer
-      return {dancerData:newDancer,  ok: true, msg: "dancer created" };
+      return { dancerData: newDancer, ok: true, msg: "dancer created" };
     }
-    return {dancerData: existDancer, ok: false, msg: "dancer exists" };
+    return { dancerData: existDancer, ok: false, msg: "dancer exists" };
   }
 
   @Mutation((returns) => DancerResponse)
@@ -99,11 +96,11 @@ export class DancerResolver {
     if (newDancer) {
       const payload: DancerPayload = {
         mutation: dancerMutation.UPDATED,
-        editBy: ctx.userID,
+        editBy: ctx.userId,
         dancerData: newDancer,
       };
       await publish(payload);
-      return {dancerData: newDancer, ok: true, msg: "dancer updated" };
+      return { dancerData: newDancer, ok: true, msg: "dancer updated" };
     }
     return { ok: false, msg: "dancer not found" };
   }
@@ -117,15 +114,15 @@ export class DancerResolver {
     const { id } = delDancerData;
     const dancer = await ctx.prisma.dancer.findFirst({
       where: { id },
-      include: { parts: true, positionData: true }
+      include: { parts: true, positionData: true },
     });
-    if(!dancer) return { ok: false, msg: "dancer not found" };
-    await ctx.prisma.dancer.delete({ where: { id }});
+    if (!dancer) return { ok: false, msg: "dancer not found" };
+    await ctx.prisma.dancer.delete({ where: { id } });
     await initRedisControl();
     await initRedisPosition();
     const payload: DancerPayload = {
       mutation: dancerMutation.DELETED,
-      editBy: ctx.userID,
+      editBy: ctx.userId,
     };
     await publish(payload);
     return { ok: true, msg: "dancer deleted" };

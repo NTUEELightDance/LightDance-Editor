@@ -10,7 +10,7 @@ interface LooseObject {
 @ObjectType()
 export class PosData {
   @Field((type) => PosDataScalar)
-    frame: number;
+  frame: number;
 }
 
 export const PosDataScalar = new GraphQLScalarType({

@@ -4,10 +4,10 @@ import { Part } from "../../../prisma/generated/type-graphql";
 @ObjectType()
 export class PartResponse {
   @Field((type) => Boolean)
-    ok: boolean;
+  ok: boolean;
 
   @Field((type) => String, { nullable: true })
-    msg: string;
+  msg: string;
   @Field((type) => Part, { nullable: true })
-    partData?: Part;
+  partData?: Part;
 }

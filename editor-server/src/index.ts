@@ -3,23 +3,27 @@ import express from "express";
 import "dotenv-defaults/config";
 import http from "http";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
+
 import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginLandingPageDisabled } from "apollo-server-core";
-import { execute, subscribe } from "graphql";
 import {
-  SubscriptionServer,
-  ConnectionContext,
-} from "subscriptions-transport-ws";
+  ApolloServerPluginLandingPageDisabled,
+  ApolloServerPluginDrainHttpServer,
+} from "apollo-server-core";
+
 import { PubSub } from "graphql-subscriptions";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import fileUpload from "express-fileupload";
-import prisma from "./prisma";
 
+import prisma from "./prisma";
 import { resolvers } from "./resolvers";
 import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
 import { ConnectionParam, TContext } from "./types/global";
+import { verifyToken } from "./authentication";
 
 const port = process.env.PORT || 4000;
 
@@ -28,6 +32,7 @@ const port = process.env.PORT || 4000;
   app.use(bodyParser.json({ limit: "20mb" }));
   app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
   app.use(fileUpload());
+  app.use(cookieParser());
   app.use("/api", apiRoute);
 
   const httpServer = http.createServer(app);
@@ -41,26 +46,108 @@ const port = process.env.PORT || 4000;
     pubSub: pubsub,
   });
 
-  const subscriptionServer = SubscriptionServer.create(
+  // Creating the WebSocket subscription server
+  const wsServer = new WebSocketServer({
+    // This is the `httpServer` returned by createServer(app);
+    server: httpServer,
+    // Pass a different path here if your ApolloServer serves at
+    // a different path.
+    path: "/graphql",
+  });
+
+  const serverCleanup = useServer<
+    ConnectionParam,
+    { username: string; userId: number }
+  >(
     {
       schema,
-      execute,
-      subscribe,
+      context: async (ctx): Promise<TContext> => {
+        if (process.env.NODE_ENV === "development") {
+          const testUser = await prisma.user.findFirst();
+          if (testUser === null) throw new Error("No test user found");
+          return {
+            userId: testUser.id,
+            username: testUser.name,
+            prisma,
+          };
+        }
+        const token = ctx.connectionParams?.token;
+        const { success, user } = await verifyToken(token);
+        if (success) {
+          return { userId: user.id, username: user.name, prisma };
+        } else {
+          throw new Error("Invalid token");
+        }
+      },
+      onConnect: async (ctx) => {
+        if (process.env.NODE_ENV === "development") {
+          const testUser = await prisma.user.findFirst();
+          if (testUser === null) throw new Error("No test user found");
+          ctx.extra.username = testUser.name;
+          ctx.extra.userId = testUser.id;
+          return true;
+        }
+        const token = ctx.connectionParams?.token;
+        console.log("connect", token);
+        const { success, user } = await verifyToken(token);
+        if (success) {
+          ctx.extra.username = user.name;
+          ctx.extra.userId = user.id;
+        }
+        return success;
+      },
+      onDisconnect: async (ctx) => {
+        const { username, userId } = ctx.extra;
+        console.log("disconnect", username);
+        prisma.editingControlFrame.update({
+          where: {
+            userId,
+          },
+          data: {
+            frameId: null,
+          },
+        });
+        prisma.editingPositionFrame.update({
+          where: {
+            userId,
+          },
+          data: {
+            frameId: null,
+          },
+        });
+      },
     },
-    { server: httpServer, path: "/graphql" }
+    wsServer
   );
 
   const server = new ApolloServer({
     schema,
-    context: async () => {
-      return {userID: 1, prisma, userPassword: "admin"} as TContext;
+    context: async ({ req }): Promise<TContext> => {
+      if (process.env.NODE_ENV === "development") {
+        const testUser = await prisma.user.findFirst();
+        if (testUser === null) throw new Error("No test user found");
+        return {
+          prisma,
+          userId: testUser.id,
+          username: testUser.name,
+        };
+      }
+      console.log("context", req.cookies.token);
+      const token = req.cookies.token;
+      const { success, user } = await verifyToken(token);
+      if (success) {
+        return { prisma, userId: user.id, username: user.name };
+      } else {
+        throw new Error("Unauthorized");
+      }
     },
     plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
       {
         async serverWillStart() {
           return {
             async drainServer() {
-              subscriptionServer.close();
+              serverCleanup.dispose();
             },
           };
         },
@@ -69,12 +156,13 @@ const port = process.env.PORT || 4000;
         ? [ApolloServerPluginLandingPageDisabled()]
         : []),
     ],
+    cache: "bounded",
   });
 
   await server.start();
   server.applyMiddleware({ app });
-
-  httpServer.listen(port, () => {
+  await new Promise<void>((resolve) => {
+    httpServer.listen({ port }, resolve);
     console.log(`🚀 Server Ready at ${port}! 🚀`);
     console.log(`Graphql Port at ${port}${server.graphqlPath}`);
   });

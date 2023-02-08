@@ -8,10 +8,8 @@ import type {
   Selected,
 } from "../models";
 
-import { dancerAgent, controlAgent, posAgent } from "@/api";
-import { toControlMap, toPosMap } from "../utils/convert";
+import { dancerAgent } from "@/api";
 import { getControl, getPos } from "../utils";
-import client from "@/client";
 
 const actions = registerActions({
   initDancers: async (state: State) => {

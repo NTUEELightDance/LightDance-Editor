@@ -8,11 +8,11 @@ type TControlIDList = {
   createList: string[];
   deleteList: string[];
   updateList: string[];
-}
+};
 
 type TControlID = {
   id: string;
-}
+};
 
 type TControlDataFrame = TControlIDList | TControlID;
 
@@ -20,16 +20,18 @@ function isControlIDList(data: TControlDataFrame): data is TControlIDList {
   return "createList" in data;
 }
 
-type TControlDataScalar = {
-  createFrames: TRedisControls;
-  updateFrames: TRedisControls;
-  deleteFrames: string[];
-} | TRedisControls
+type TControlDataScalar =
+  | {
+      createFrames: TRedisControls;
+      updateFrames: TRedisControls;
+      deleteFrames: string[];
+    }
+  | TRedisControls;
 
 @ObjectType()
 export class ControlData {
   @Field((type) => ControlDataScalar)
-    frame: TControlDataFrame;
+  frame: TControlDataFrame;
 }
 
 export const ControlDataScalar = new GraphQLScalarType({
@@ -60,7 +62,7 @@ export const ControlDataScalar = new GraphQLScalarType({
       );
       return { createFrames, deleteFrames: deleteList, updateFrames }; // value sent to the client
     } else {
-      const {id } = data;
+      const { id } = data;
       const result: TRedisControls = {};
       const cache = await redis.get(id);
       if (cache) {

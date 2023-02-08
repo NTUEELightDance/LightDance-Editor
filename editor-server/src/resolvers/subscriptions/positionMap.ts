@@ -4,8 +4,8 @@ import { PosData, PosDataScalar } from "../types/posData";
 @ObjectType()
 export class PositionMapPayload {
   @Field((type) => PosDataScalar)
-    frame: any;
+  frame: any;
 
   @Field()
-    editBy: number;
+  editBy: number;
 }

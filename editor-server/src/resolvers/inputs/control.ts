@@ -3,26 +3,26 @@ import { InputType, Field, ObjectType, ID } from "type-graphql";
 @InputType()
 export class ControlDataInput {
   @Field()
-    partName: string;
+  partName: string;
 
   @Field({ nullable: true })
-    color: string;
+  color: string;
 
   @Field({ nullable: true })
-    alpha: number;
+  alpha: number;
 
   @Field({ nullable: true })
-    src: string;
+  src: string;
 
   @Field({ nullable: true })
-    ELValue: number;
+  ELValue: number;
 }
 
 @InputType()
 export class EditControlInput {
   @Field()
-    dancerName: string;
+  dancerName: string;
 
   @Field((type) => [ControlDataInput])
-    controlData: ControlDataInput[];
+  controlData: ControlDataInput[];
 }

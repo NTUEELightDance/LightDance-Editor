@@ -92,7 +92,7 @@ const exportData = async (req: Request, res: Response) => {
         const LEDPartEffects = await prisma.lEDEffect.findMany({
           where: {
             partName: partName,
-          }
+          },
         });
         // console.dir(LEDPartEffects, { depth: null })
         LEDPartEffects.map((LEDPartEffect) => {

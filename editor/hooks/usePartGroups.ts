@@ -11,7 +11,6 @@ export type PartGroupType = Record<string, string[]>;
 export default function usePartGroups() {
   const [partGroups, setPartGroups] = useImmer<PartGroupType>({});
 
-
   const addNewGroup = async ({
     groupName,
     content,

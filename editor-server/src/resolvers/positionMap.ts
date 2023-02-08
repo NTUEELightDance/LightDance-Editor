@@ -20,9 +20,9 @@ export class PosMapResolver {
   @Query((returns) => PositionMap)
   async PosMap(@Ctx() ctx: TContext) {
     const frameIds = await ctx.prisma.positionFrame.findMany({
-      select: {id: true }
+      select: { id: true },
     });
-    return { frameIds: frameIds.map((frame)=>frame.id) };
+    return { frameIds: frameIds.map((frame) => frame.id) };
   }
 }
 
@@ -32,57 +32,57 @@ export class EditPosMapResolver {
   async editPosMap(
     @PubSub(Topic.PositionMap) publish: Publisher<PositionMapPayload>,
     @Arg("pos", (type) => [[Number]])
-      positionData: number[][],
+    positionData: number[][],
     @Arg("start") startTime: number,
     @Ctx() ctx: TContext
   ) {
-
     //check payload correctness
     const frameToEdit = await ctx.prisma.positionFrame.findFirst({
-      where: { start: startTime}
+      where: { start: startTime },
     });
-    if(!frameToEdit) throw new Error(`frame start from ${startTime} not found`);
+    if (!frameToEdit)
+      throw new Error(`frame start from ${startTime} not found`);
     const editing = await ctx.prisma.editingPositionFrame.findFirst({
       where: { frameId: frameToEdit.id },
     });
-    if (
-      editing &&
-      editing.userId &&
-      editing.userId !== ctx.userID
-    ) throw new Error(`The frame is now editing by ${editing.userId}.`);
+    if (editing && editing.userId && editing.userId !== ctx.userId)
+      throw new Error(`The frame is now editing by ${editing.userId}.`);
     const dancers = await ctx.prisma.dancer.findMany({
-      orderBy: { id: "asc" }
+      orderBy: { id: "asc" },
     });
-    if(positionData.length!==dancers.length) throw new Error(
-      `Not all dancers in payload. Missing number: ${
-        dancers.length - positionData.length
-      }`
-    );
+    if (positionData.length !== dancers.length)
+      throw new Error(
+        `Not all dancers in payload. Missing number: ${
+          dancers.length - positionData.length
+        }`
+      );
     //update position data
     await Promise.all(
-      positionData.map(async (coor,ind)=>{
+      positionData.map(async (coor, ind) => {
         const dancer = dancers[ind];
         await ctx.prisma.positionData.update({
-          where: { dancerId_frameId: {
-            dancerId: dancer.id,
-            frameId: frameToEdit.id
-          }},
+          where: {
+            dancerId_frameId: {
+              dancerId: dancer.id,
+              frameId: frameToEdit.id,
+            },
+          },
           data: {
             x: coor[0],
             y: coor[1],
             z: coor[2],
-          }
+          },
         });
       })
     );
     await updateRedisPosition(frameToEdit.id);
     await ctx.prisma.editingPositionFrame.update({
-      where: { userId: ctx.userID },
+      where: { userId: ctx.userId },
       data: { frameId: null },
     });
     // subscription
     const payload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.userId,
       frame: {
         createList: [],
         deleteList: [],
@@ -91,8 +91,8 @@ export class EditPosMapResolver {
     };
     await publish(payload);
     const frameIds = await ctx.prisma.positionFrame.findMany({
-      select: {id: true }
+      select: { id: true },
     });
-    return { frameIds: frameIds.map((frame)=>frame.id) };
+    return { frameIds: frameIds.map((frame) => frame.id) };
   }
 }

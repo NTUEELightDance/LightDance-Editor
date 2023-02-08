@@ -1,12 +1,17 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
-import { ILED, ILEDEffects, ILEDEffectsEffect, IPart } from "../../types/global";
+import {
+  ILED,
+  ILEDEffects,
+  ILEDEffectsEffect,
+  IPart,
+} from "../../types/global";
 
 interface IPartEffect {
   [key: string]: {
     repeat: number;
     effects: ILEDEffects[];
-  }
+  };
 }
 interface IEffect {
   [key: string]: IPartEffect;
@@ -15,7 +20,7 @@ interface IEffect {
 @ObjectType()
 export class LEDMap {
   @Field((type) => LEDMapScalar)
-    LEDMap: IPart[];
+  LEDMap: IPart[];
 }
 
 export const LEDMapScalar = new GraphQLScalarType({

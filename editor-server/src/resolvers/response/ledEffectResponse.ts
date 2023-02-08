@@ -5,50 +5,50 @@ import { Field, ObjectType, Int, Float } from "type-graphql";
 @ObjectType()
 export class LEDEffectResponse {
   @Field((type) => String)
-    partName: string;
+  partName: string;
 
   @Field((type) => String)
-    effectName: string;
+  effectName: string;
 
   @Field((type) => Int)
-    repeat: number;
+  repeat: number;
 
   @Field((type) => [LEDEffects])
-    effects: LEDEffects[];
+  effects: LEDEffects[];
 
   @Field((type) => Boolean)
-    ok: boolean;
+  ok: boolean;
 
   @Field((type) => String, { nullable: true })
-    msg: string;
+  msg: string;
 }
 
 @ObjectType()
 class LEDEffects {
   @Field((type) => Float)
-    start: number;
+  start: number;
 
   @Field()
-    fade: boolean;
+  fade: boolean;
 
   @Field((type) => [Effect])
-    effect: Effect[];
+  effect: Effect[];
 }
 
 @ObjectType()
 class Effect {
   @Field()
-    colorCode: string;
+  colorCode: string;
 
   @Field((type) => Float)
-    alpha: number;
+  alpha: number;
 }
 
 @ObjectType()
 export class DeleteLEDEffectResponse {
   @Field((type) => Boolean)
-    ok: boolean;
+  ok: boolean;
 
   @Field((type) => String, { nullable: true })
-    msg: string;
+  msg: string;
 }

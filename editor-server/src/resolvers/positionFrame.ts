@@ -31,7 +31,7 @@ export class PositionFrameResolver {
     const frame = await ctx.prisma.positionFrame.findFirst({
       where: { id: frameID },
     });
-    if(!frame) throw new Error(`frame id ${frameID} not found`);
+    if (!frame) throw new Error(`frame id ${frameID} not found`);
     return frame;
   }
 
@@ -47,9 +47,9 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async addPositionFrame(
     @PubSub(Topic.PositionRecord)
-      publishPositionRecord: Publisher<PositionRecordPayload>,
+    publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-      publishPositionMap: Publisher<PositionMapPayload>,
+    publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("start", { nullable: false }) start: number,
     @Ctx() ctx: TContext
   ) {
@@ -83,7 +83,7 @@ export class PositionFrameResolver {
     );
     await updateRedisPosition(newPositionFrame.id);
     const mapPayload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.userId,
       frame: {
         createList: [newPositionFrame.id],
         deleteList: [],
@@ -91,7 +91,7 @@ export class PositionFrameResolver {
       },
     };
     await publishPositionMap(mapPayload);
-    const allPositionFrames: PositionFrame[]=
+    const allPositionFrames: PositionFrame[] =
       await ctx.prisma.positionFrame.findMany({
         orderBy: { start: "asc" },
       });
@@ -104,7 +104,7 @@ export class PositionFrameResolver {
     });
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.CREATED,
-      editBy: ctx.userID,
+      editBy: ctx.userId,
       addID: [newPositionFrame.id],
       updateID: [],
       deleteID: [],
@@ -117,14 +117,14 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async editPositionFrame(
     @PubSub(Topic.PositionRecord)
-      publishPositionRecord: Publisher<PositionRecordPayload>,
+    publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-      publishPositionMap: Publisher<PositionMapPayload>,
+    publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: EditPositionFrameInput,
     @Ctx() ctx: TContext
   ) {
     const { start } = input;
-    if (typeof start==="number") {
+    if (typeof start === "number") {
       const check = await ctx.prisma.positionFrame.findFirst({
         where: { start },
       });
@@ -140,29 +140,32 @@ export class PositionFrameResolver {
     if (
       frameToEdit &&
       frameToEdit.userId &&
-      frameToEdit.userId !== ctx.userID
+      frameToEdit.userId !== ctx.userId
     ) {
       throw new Error(`The frame is now editing by ${frameToEdit.userId}.`);
     }
     const positionFrame = await ctx.prisma.positionFrame.findFirst({
       where: { id: input.frameID },
-      include: { positionDatas: {
-        include: { dancer: true, frame: true },
-      } },
+      include: {
+        positionDatas: {
+          include: { dancer: true, frame: true },
+        },
+      },
     });
-    if(!positionFrame) throw new Error(`positionFrame id ${input.frameID} not found`);
+    if (!positionFrame)
+      throw new Error(`positionFrame id ${input.frameID} not found`);
     const updatePositionFrame = await ctx.prisma.positionFrame.update({
       where: { id: input.frameID },
       data: { id: input.frameID, start: input.start },
     });
-    if(!positionFrame) throw new Error("frame id not found");
+    if (!positionFrame) throw new Error("frame id not found");
     await ctx.prisma.editingPositionFrame.update({
-      where: { userId: ctx.userID },
+      where: { userId: ctx.userId },
       data: { frameId: null },
     });
     await updateRedisPosition(positionFrame.id);
     const payload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.userId,
       frame: {
         createList: [],
         deleteList: [],
@@ -182,7 +185,7 @@ export class PositionFrameResolver {
     });
     const recordPayload: PositionRecordPayload = {
       mutation: PositionRecordMutation.UPDATED,
-      editBy: ctx.userID,
+      editBy: ctx.userId,
       addID: [],
       updateID: [positionFrame.id],
       deleteID: [],
@@ -195,9 +198,9 @@ export class PositionFrameResolver {
   @Mutation((returns) => PositionFrame)
   async deletePositionFrame(
     @PubSub(Topic.PositionRecord)
-      publishPositionRecord: Publisher<PositionRecordPayload>,
+    publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
-      publishPositionMap: Publisher<PositionMapPayload>,
+    publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("input") input: DeletePositionFrameInput,
     @Ctx() ctx: TContext
   ) {
@@ -208,7 +211,7 @@ export class PositionFrameResolver {
     if (
       frameToDelete &&
       frameToDelete.userId &&
-      frameToDelete.userId !== ctx.userID
+      frameToDelete.userId !== ctx.userId
     ) {
       throw new Error(`The frame is now editing by ${frameToDelete.userId}.`);
     }
@@ -217,13 +220,13 @@ export class PositionFrameResolver {
       include: {
         positionDatas: {
           include: { dancer: true, frame: true },
-        }
-      }
+        },
+      },
     });
-    if(!deletedFrame) throw new Error("frame id not found");
+    if (!deletedFrame) throw new Error("frame id not found");
     await ctx.prisma.positionFrame.delete({ where: { id: frameID } });
     await ctx.prisma.editingPositionFrame.update({
-      where: { userId: ctx.userID },
+      where: { userId: ctx.userId },
       data: { frameId: null },
     });
     // const dancers: Dancer[] = await ctx.prisma.dancer.findMany({
@@ -249,7 +252,7 @@ export class PositionFrameResolver {
 
     // await ctx.prisma.positionData.deleteMany({ where: { frameId: frameID } });
     const mapPayload: PositionMapPayload = {
-      editBy: ctx.userID,
+      editBy: ctx.userId,
       frame: {
         createList: [],
         deleteList: [frameID],
@@ -263,7 +266,7 @@ export class PositionFrameResolver {
       addID: [],
       updateID: [],
       deleteID: [frameID],
-      editBy: ctx.userID,
+      editBy: ctx.userId,
       index: -1,
     };
     await publishPositionRecord(recordPayload);

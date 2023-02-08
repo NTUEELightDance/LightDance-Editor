@@ -7,7 +7,7 @@ import { Color } from "../../../prisma/generated/type-graphql";
 @ObjectType()
 export class ColorMap {
   @Field((type) => ColorMapScalar)
-    colorMap: Color[];
+  colorMap: Color[];
 }
 
 export const ColorMapScalar = new GraphQLScalarType({

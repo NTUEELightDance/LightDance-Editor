@@ -6,10 +6,10 @@ import { Dancer } from "../../../prisma/generated/type-graphql";
 @ObjectType()
 export class DancerResponse {
   @Field((type) => Boolean)
-    ok: boolean;
+  ok: boolean;
 
   @Field((type) => String, { nullable: true })
-    msg: string;
+  msg: string;
   @Field((type) => Dancer, { nullable: true })
-    dancerData?: Dancer;
+  dancerData?: Dancer;
 }

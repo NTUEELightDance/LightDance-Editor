@@ -14,20 +14,20 @@ import { ControlType } from "../types/controlType";
 @InputType()
 export class AddDancerInput {
   @Field()
-    name: string;
+  name: string;
 }
 
 @InputType()
 export class editDancerInput {
   @Field()
-    name: string;
+  name: string;
 
   @Field((type) => Number)
-    id: number;
+  id: number;
 }
 
 @InputType()
 export class deleteDancerInput {
   @Field((type) => Number)
-    id: number;
+  id: number;
 }

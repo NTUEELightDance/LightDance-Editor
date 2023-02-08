@@ -13,11 +13,10 @@ import { ColorPayload, colorMutation } from "./subscriptions/color";
 import { ColorMap } from "./types/colorMap";
 import { ColorResponse } from "./response/colorResponse";
 import { IControl, IControlFrame, TContext } from "../types/global";
-import { Color, ColorCreateInput} from "../../prisma/generated/type-graphql";
+import { Color, ColorCreateInput } from "../../prisma/generated/type-graphql";
 
 @Resolver()
 class ColorResolver {
-
   @Query(() => ColorMap)
   async colorMap(@Ctx() ctx: TContext) {
     const colors = await ctx.prisma.color.findMany();
@@ -33,20 +32,26 @@ class ColorResolver {
   ) {
     // Check color Code Exist
     const checkColor = await ctx.prisma.color.findFirst({
-      where: {colorCode: colorCode}
+      where: { colorCode: colorCode },
     });
-    if (checkColor){
-      throw new Error(`ColorCode ${colorCode} exist on color ${checkColor.color}`);
+    if (checkColor) {
+      throw new Error(
+        `ColorCode ${colorCode} exist on color ${checkColor.color}`
+      );
     }
 
-    const existedColor = await ctx.prisma.color.findFirst({where: {color}});
-    const colorData = await ctx.prisma.color.upsert({create: {color, colorCode}, update: {colorCode}, where: {color}});
+    const existedColor = await ctx.prisma.color.findFirst({ where: { color } });
+    const colorData = await ctx.prisma.color.upsert({
+      create: { color, colorCode },
+      update: { colorCode },
+      where: { color },
+    });
     if (!existedColor) {
       const payload: ColorPayload = {
         mutation: colorMutation.CREATED,
         color: color,
         colorCode: colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.userId,
       };
       await publish(payload);
     } else {
@@ -54,30 +59,32 @@ class ColorResolver {
         mutation: colorMutation.UPDATED,
         color: color,
         colorCode: colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.userId,
       };
       await publish(payload);
     }
     return colorData;
   }
 
-  @Mutation(()=> Color)
+  @Mutation(() => Color)
   async addColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
     @Arg("color") colorInput: ColorCreateInput,
     @Ctx() ctx: TContext
-  ){
+  ) {
     // Check color Code Exist
     const checkColor = await ctx.prisma.color.findFirst({
-      where: {colorCode: colorInput.colorCode}
+      where: { colorCode: colorInput.colorCode },
     });
-    if (checkColor){
-      throw new Error(`ColorCode ${colorInput.colorCode} exist on color ${checkColor.color}`);
+    if (checkColor) {
+      throw new Error(
+        `ColorCode ${colorInput.colorCode} exist on color ${checkColor.color}`
+      );
     }
 
     // Create new Color, if "color" duplicate => create() will throw error
     const color = await ctx.prisma.color.create({
-      data: colorInput
+      data: colorInput,
     });
 
     // publish
@@ -85,7 +92,7 @@ class ColorResolver {
       mutation: colorMutation.CREATED,
       color: colorInput.color,
       colorCode: colorInput.colorCode,
-      editBy: ctx.userID,
+      editBy: ctx.userId,
     };
     await publish(payload);
 
@@ -101,9 +108,9 @@ class ColorResolver {
   ) {
     // check if new color name exists, if true => throw error
     const existedNewColor = await ctx.prisma.color.findUnique({
-      where: {color: newColor}
+      where: { color: newColor },
     });
-    if (existedNewColor){
+    if (existedNewColor) {
       throw new Error(
         `color name: ${newColor}/code: ${existedNewColor.colorCode} existed`
       );
@@ -111,11 +118,12 @@ class ColorResolver {
 
     // check if old color name exists, if not => throw error
     await ctx.prisma.color.findUniqueOrThrow({
-      where: {color: originalColor}
+      where: { color: originalColor },
     });
 
     await ctx.prisma.color.update({
-      where: {color: originalColor}, data: {color: newColor}
+      where: { color: originalColor },
+      data: { color: newColor },
     });
 
     // publish
@@ -123,7 +131,7 @@ class ColorResolver {
       mutation: colorMutation.RENAMED,
       color: originalColor,
       renameColor: newColor,
-      editBy: ctx.userID,
+      editBy: ctx.userId,
     };
     await publish(payload);
 
@@ -139,21 +147,25 @@ class ColorResolver {
     try {
       // check if color name and color code exists
       const existedColor = await ctx.prisma.color.findUniqueOrThrow({
-        where: {color: color}
+        where: { color: color },
       });
 
       // TODO: Apply Prisma
       // check whether color is using in Control
-      const checkControl = await ctx.prisma.controlData.findMany({where: {value: {path: ["color"], equals: color}}});
+      const checkControl = await ctx.prisma.controlData.findMany({
+        where: { value: { path: ["color"], equals: color } },
+      });
       if (checkControl.length != 0) {
-        let checkControlFrames: number[] = checkControl.map((control) =>
-          control.frameId
+        let checkControlFrames: number[] = checkControl.map(
+          (control) => control.frameId
         );
-        checkControlFrames = checkControlFrames.sort(function(a,b){return a-b;});
+        checkControlFrames = checkControlFrames.sort(function (a, b) {
+          return a - b;
+        });
         let frame = 0;
         const ids: number[] = [];
         checkControlFrames.map((controlFrame) => {
-          if(controlFrame !== frame){
+          if (controlFrame !== frame) {
             ids.push(controlFrame);
             frame = controlFrame;
           }
@@ -168,12 +180,14 @@ class ColorResolver {
       // TODO END
 
       // Delete Color
-      const deleteColor = await ctx.prisma.color.delete({where: {color: color}});
+      const deleteColor = await ctx.prisma.color.delete({
+        where: { color: color },
+      });
       const payload: ColorPayload = {
         mutation: colorMutation.DELETED,
         color: color,
         colorCode: existedColor.colorCode,
-        editBy: ctx.userID,
+        editBy: ctx.userId,
       };
       await publish(payload);
       return Object.assign(existedColor, { ok: true });
