@@ -47,7 +47,6 @@ class Dancer {
     name: string,
     modelSrc: string,
     manager: THREE.LoadingManager,
-    //parts: ???
   ) {
     this.scene = scene;
     this.name = name;

@@ -115,6 +115,9 @@ class ThreeController {
 
     THREE.Cache.enabled = true;
 
+    // Initialization of 3D renderer
+    //this.renderer = this.generateRenderer();
+
     // Postprocessing for anti-aliasing effect
     this.composer = this.generateComposer();
 
