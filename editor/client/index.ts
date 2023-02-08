@@ -49,7 +49,7 @@ const client = new ApolloClient({
           },
         },
       },
-      PosMap: {
+      PositionMap: {
         fields: {
           frameIds: {
             merge(existing, incoming) {

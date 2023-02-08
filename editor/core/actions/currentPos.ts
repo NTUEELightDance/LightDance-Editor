@@ -56,28 +56,7 @@ const actions = registerActions({
       state.currentPos[dancerName].y = 0;
     });
   },
-
-  /**
-   * Save currentPos to posRecord
-   * @param {State} state
-   */
-  saveCurrentPos: (state: State) => {
-    // TODO: call mutation API
-  },
-
-  /**
-   * Delete current pos
-   * @param {State} state
-   */
-  deleteCurrentPos: (state: State) => {
-    // TODO: call mutation API
-  },
 });
 
-export const {
-  setCurrentPosByName,
-  setCurrentPos,
-  setCurrentPosToGround,
-  saveCurrentPos,
-  deleteCurrentPos,
-} = actions;
+export const { setCurrentPosByName, setCurrentPos, setCurrentPosToGround } =
+  actions;

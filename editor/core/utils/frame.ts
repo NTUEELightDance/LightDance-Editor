@@ -34,7 +34,7 @@ export function updateFrameByTimeMap(
   if (typeof time !== "number") {
     throw new Error("[Error] updateFrameByTimeMap, invalid parameter(time)");
   }
-  // Check if need to do binarysearch
+  // Check if need to do binary search
   if (
     map[record[frame + 2]] &&
     time >= map[record[frame + 1]].start &&

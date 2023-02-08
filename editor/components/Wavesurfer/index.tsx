@@ -43,7 +43,6 @@ function Wavesurfer() {
   const editor = useReactiveVar(reactiveState.editor);
   // update Markers
   useEffect(() => {
-    console.log("control", controlMap);
     if (editor === CONTROL_EDITOR) {
       if (!controlLoading && controlMap && showMarkers) {
         waveSurferApp.updateMarkers(controlMap);

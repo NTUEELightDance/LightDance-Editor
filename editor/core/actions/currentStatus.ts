@@ -1,7 +1,7 @@
 import { cloneDeep, isEqual } from "lodash";
 import { registerActions } from "../registerActions";
 // utils
-import { getControl, setItem } from "../utils";
+import { getControlPayload, setItem } from "../utils";
 // types
 import {
   State,
@@ -86,7 +86,7 @@ const actions = registerActions({
    * @param state
    */
   saveToLocal: async () => {
-    const [controlRecord, controlMap] = await getControl();
+    const [controlRecord, controlMap] = await getControlPayload();
     setItem("controlRecord", JSON.stringify(controlRecord));
     setItem("controlMap", JSON.stringify(controlMap));
     log("Control Saved to Local Storage...");

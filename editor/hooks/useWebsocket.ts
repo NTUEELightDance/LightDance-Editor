@@ -84,6 +84,7 @@ export default function useWebsocketState() {
     selectedDancers.forEach((dancer) => {
       setDancerMsg({ dancer, msg: "......", Ok: false });
     });
+    const sysTime = delay + Date.now();
     const MesC2S: MesC2SType = { command, selectedDancers, payload: "" };
     switch (
       command // handle command that needs payload
@@ -98,7 +99,6 @@ export default function useWebsocketState() {
         MesC2S.payload = {};
         break;
       case COMMANDS.PLAY:
-        const sysTime = delay + Date.now();
         MesC2S.payload = {
           // not using 'useReactiveVar' to prevent unecessary re-render
           startTime: reactiveState.currentTime(),

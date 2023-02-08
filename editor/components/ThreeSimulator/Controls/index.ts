@@ -13,6 +13,7 @@ import styles from "./controls.module.css";
 import { DANCER, PART, POSITION } from "@/constants";
 
 import { log } from "core/utils";
+import { PosMapStatus } from "@/core/models";
 
 class Controls {
   renderer: THREE.Renderer;
@@ -150,7 +151,7 @@ class Controls {
   }
 
   dragEnd() {
-    const selected = [];
+    const selected: string[] = [];
     const _group = this.selectControls.getGroup();
     while (_group.children.length) {
       selected.push(_group.children[0].name);
@@ -158,9 +159,9 @@ class Controls {
     }
     _group.position.set(0, 0, 0);
 
-    const currentPos = {};
-    Object.entries(this.dancers).forEach(([name, dancer], i) => {
-      const position = dancer.model.matrix.getPosition();
+    const currentPos: PosMapStatus = {};
+    Object.entries(this.dancers).forEach(([name, dancer]) => {
+      const position = dancer.model!.matrix.getPosition();
 
       currentPos[name] = {
         x: position.x,

@@ -9,19 +9,12 @@ import { fetchLoad } from "@/slices/loadSlice";
 import Loading from "@/components/Loading";
 // states and actions
 import {
-  setCurrentPos,
-  setCurrentStatus,
-  setSelected,
-  initCurrentLedEffect,
-  generateLedEffectRecord,
+  // initCurrentLedEffect,
+  // generateLedEffectRecord,
   initDancers,
   initCurrentStatus,
   initCurrentPos,
 } from "core/actions";
-
-import { getControl, getPos } from "@/core/utils";
-
-import { Selected } from "@/core/models";
 
 /**
  * Component for the main
@@ -41,6 +34,7 @@ function App() {
     })();
   }, [dispatch]);
 
+  // TODO: init led effect and current led effect
   // initLedEffectIndexMap need dancer's data
   // so wait until the dancerLoading is false
   // useEffect(() => {

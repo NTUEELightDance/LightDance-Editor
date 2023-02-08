@@ -27,7 +27,7 @@ import {
  * controlAgent: responsible for controlMap and controlRecord
  */
 export const controlAgent = {
-  getControlMap: async () => {
+  getControlMapPayload: async () => {
     const { data: controlMapData } = await client.query({
       query: GET_CONTROL_MAP,
     });
@@ -107,7 +107,7 @@ export const controlAgent = {
       return;
     }
 
-    const controlMap = await controlAgent.getControlMap();
+    const controlMap = await controlAgent.getControlMapPayload();
     const frameTime = controlMap[frameId].start;
     try {
       // this is to predict the frontend result and faster the performance

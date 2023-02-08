@@ -3,7 +3,7 @@ import { registerActions } from "../registerActions";
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
 import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "@/constants";
-import { getControl, getPos, deleteColorCode } from "../utils";
+import { getControlPayload, getPosPayload, deleteColorCode } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
 
@@ -18,7 +18,8 @@ const getDataHandler = async (state: State) => {
   const pureStatus = deleteColorCode(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
-    const [controlMap, controlRecord] = await getControl();
+    const [controlMapPayload, controlRecord] = await getControlPayload();
+    const controlMap = state.controlMap;
     // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       controlRecord,
@@ -27,7 +28,7 @@ const getDataHandler = async (state: State) => {
       state.currentTime
     );
     return {
-      map: controlMap,
+      map: controlMapPayload,
       record: controlRecord,
       index: frameIndex,
       frameId: controlRecord[frameIndex],
@@ -36,7 +37,8 @@ const getDataHandler = async (state: State) => {
       fade: state.currentFade,
     };
   } else {
-    const [posMap, posRecord] = await getPos();
+    const [posMapPayload, posRecord] = await getPosPayload();
+    const posMap = state.posMap;
     // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       posRecord,
@@ -45,7 +47,7 @@ const getDataHandler = async (state: State) => {
       state.currentTime
     );
     return {
-      map: posMap,
+      map: posMapPayload,
       record: posRecord,
       index: frameIndex,
       frameId: posRecord[frameIndex],

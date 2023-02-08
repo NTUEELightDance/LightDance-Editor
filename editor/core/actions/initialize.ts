@@ -10,6 +10,8 @@ import type {
 
 import { dancerAgent, controlAgent, posAgent } from "@/api";
 import { toControlMap, toPosMap } from "../utils/convert";
+import { getControl, getPos } from "../utils";
+import client from "@/client";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
@@ -54,22 +56,14 @@ const actions = registerActions({
 
   // depends on initDancers
   initCurrentStatus: async (state: State) => {
-    const controlMapPayload = await controlAgent.getControlMap();
-
-    const controlMap = toControlMap(controlMapPayload);
-
-    const controlRecord = await controlAgent.getControlRecord();
+    const [controlMap, controlRecord] = await getControl();
 
     state.currentStatus = controlMap[controlRecord[0]].status;
   },
 
   // depends on initDancers
   initCurrentPos: async (state: State) => {
-    const posMapPayload = await posAgent.getPosMap();
-
-    const posMap = toPosMap(posMapPayload);
-    const posRecord = await posAgent.getPosRecord();
-
+    const [posMap, posRecord] = await getPos();
     state.currentPos = posMap[posRecord[0]].pos;
   },
 });

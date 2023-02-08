@@ -24,7 +24,7 @@ import type {
  * posAgent: responsible for posMap and posRecord
  */
 export const posAgent = {
-  getPosMap: async () => {
+  getPosMapPayload: async () => {
     const { data: posMapData } = await client.query({ query: GET_POS_MAP });
     return posMapData.PosMap.frameIds as PosMapPayload;
   },
@@ -63,7 +63,7 @@ export const posAgent = {
     requestTimeChange: boolean,
     fade?: boolean
   ) => {
-    const posMap = await posAgent.getPosMap();
+    const posMap = await posAgent.getPosMapPayload();
     const frameTime = posMap[frameId].start;
     try {
       client.cache.modify({
