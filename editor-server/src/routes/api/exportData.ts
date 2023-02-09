@@ -32,15 +32,21 @@ const exportData = async (req: Request, res: Response) => {
             name: true,
             type: true,
           },
+          orderBy: {
+            id: "asc",
+          },
         },
       },
+      orderBy: {
+        id: "asc",
+      },
     });
-    const dancer: TDancerData[] = [];
-    dancerData
-      .sort((a, b) => (a.name < b.name ? -1 : 1))
-      .map((dancerObj) => {
-        dancer.push({ name: dancerObj.name, parts: dancerObj.parts });
-      });
+
+    const dancer: TDancerData[] = dancerData.map((dancerObj) => ({
+      name: dancerObj.name,
+      parts: dancerObj.parts,
+    }));
+
     // console.dir(dancer, { depth: null })
 
     // grab control data from redis
