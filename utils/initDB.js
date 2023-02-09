@@ -9,6 +9,7 @@ const filePath = process.argv[2];
 
 const instance = axios.create({
   baseURL: "http://localhost:4000/",
+  // baseURL: "http://localhost:8080/",
   maxContentLength: Infinity,
   maxBodyLength: Infinity,
 });
@@ -25,6 +26,7 @@ async function main() {
   };
   const response = await instance
     .post("/api/uploadData", formData, options)
+    // .post("/api/editor-server/uploadData", formData, options)
     .catch(function (error) {
       if (error.response) {
         // Request made and server responded
