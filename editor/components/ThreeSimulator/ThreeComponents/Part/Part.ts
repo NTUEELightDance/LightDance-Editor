@@ -1,20 +1,7 @@
 import THREE from "three";
 import { Color } from "three";
+import { Fiber, LedEffectFrame } from "core/models";
 
-export type FiberStatus = {
-  color: string;
-  alpha: number;
-  colorCode: Color;
-};
-
-export type LEDStatus = {
-  recordIndex: number;
-  effectIndex: number;
-  effect: Array<{
-    colorCode: string;
-    alpha: number;
-  }>;
-};
 // this is a base class for dancer parts
 export default class Part {
   name: string;
@@ -30,7 +17,7 @@ export default class Part {
     // set visibility
   }
 
-  setStatus(status: FiberStatus | LEDStatus) {
+  setStatus(status: Fiber | LedEffectFrame) {
     // set status
   }
 }

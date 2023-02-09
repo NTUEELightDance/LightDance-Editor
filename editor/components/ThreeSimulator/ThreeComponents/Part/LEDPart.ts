@@ -1,5 +1,5 @@
+import { LedEffectFrame } from "@/core/models";
 import Part from "./Part";
-import { LEDStatus } from "./Part";
 const defaultDisplay = {
   colorCode: "#000000",
   alpha: 0,
@@ -18,7 +18,7 @@ export default class LEDPart extends Part {
 
   getMeshes() {
     let i = 0;
-    while (true) {
+    while ( true ) {
       const name = `${this.name}${String(i).padStart(3, "0")}`;
       const mesh = this.model.getObjectByName(name) as MeshType;
       if (mesh == null) break;
@@ -38,7 +38,7 @@ export default class LEDPart extends Part {
     });
   }
 
-  setStatus(status: LEDStatus) {
+  setStatus(status: LedEffectFrame) {
     if (!this.visible) return;
     const { effect } = status;
     this.meshes.forEach((mesh: THREE.Mesh, i) => {

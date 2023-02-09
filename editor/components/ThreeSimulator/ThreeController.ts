@@ -36,8 +36,8 @@ import {
  * @constructor
  */
 class ThreeController {
-  canvas: HTMLElement;
-  container: HTMLElement;
+  canvas?: HTMLElement;
+  container?: HTMLElement;
 
   renderer: THREE.WebGLRenderer;
   camera: THREE.PerspectiveCamera;
@@ -67,19 +67,22 @@ class ThreeController {
   initialized: boolean;
 
   constructor() {
+    // Configuration of the scene
+    this.height = 100;
+    this.width = 200;
+
     // Basic attributes for three.js
-    this.renderer = null;
-    this.camera = null;
-    this.scene = null;
-    this.composer = null;
+    this.renderer = this.generateRenderer();
+    this.camera = this.generateCamera();
+    this.scene = this.generateScene();
+    this.selectedOutline = this.generateSelectedOutline();
+    this.hoveredOutline = this.generateHoverOutline();
+    this.composer = this.generateComposer();
     this.clock = new THREE.Clock();
     this.settings = new Settings(this);
-    this.light = null;
-    this.gridHelper = null;
-
-    // Configuration of the scene
-    this.height = 600;
-    this.width = 1200;
+    this.light = this.generateLight();
+    this.gridHelper = this.generateGridHelper();
+    this.initCenterMarker();
 
     // Dancer
     this.dancers = {};
@@ -92,8 +95,6 @@ class ThreeController {
     this.animateID = null;
     this.initialized = false;
 
-    this.selectedOutline = null;
-    this.hoveredOutline = null;
     this.manager = null;
     this.controls = null;
   }
@@ -110,51 +111,30 @@ class ThreeController {
     const { width, height } = container.getBoundingClientRect();
     this.width = width;
     this.height = height;
+    this.renderer.setSize(this.width, this.height);
 
     THREE.Cache.enabled = true;
 
     // Initialization of 3D renderer
-    //this.renderer = this.generateRenderer();
-
-    // Set best configuration for different monitor devices
-    const pixelRatio = window.devicePixelRatio;
-
-    const renderer = new THREE.WebGLRenderer({
-      antialias: false,
-      powerPreference: "high-performance",
-    });
-
-    renderer.setSize(this.width, this.height);
-    renderer.setPixelRatio(pixelRatio);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    this.renderer = renderer;
 
     // Add a camera to view the scene, all the parameters are customizable
-    this.camera = this.generateCamera();
 
     // Add a background scene
-    this.scene = this.generateScene();
 
     // Add a dim light to identity each dancers
-    this.light = this.generateLight();
-    this.scene.add(this.light);
 
     // Postprocessing for anti-aliasing effect
-    this.initPostprocessing();
+    this.composer = this.generateComposer();
 
     // Set the clock for animation
 
     // Append the canvas to given ref
-    this.canvas.appendChild(renderer.domElement);
+    this.canvas.appendChild(this.renderer.domElement);
 
     // Initialization of all dancers with currentPos
     this.initDancers();
-    this.initCenterMarker();
 
     // Initialization of grid helper on the floor
-    this.gridHelper = this.generateGridHelper();
-    this.scene.add(this.gridHelper);
 
     // Start rendering
     this.animateID = this.animate();
@@ -174,7 +154,6 @@ class ThreeController {
       powerPreference: "high-performance",
     });
 
-    renderer.setSize(this.width, this.height);
     renderer.setPixelRatio(pixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputEncoding = THREE.sRGBEncoding;
@@ -193,6 +172,7 @@ class ThreeController {
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(0, 10, 0);
+    this.scene.add(directionalLight);
     return directionalLight;
   }
 
@@ -225,7 +205,34 @@ class ThreeController {
     return camera;
   }
 
-  initPostprocessing() {
+  generateSelectedOutline() {
+    const selectedOutline = new OutlinePass(
+      new THREE.Vector2(this.width, this.height),
+      this.scene,
+      this.camera
+    );
+
+    selectedOutline.edgeStrength = 2.0;
+    selectedOutline.edgeThickness = 1.0;
+    selectedOutline.visibleEdgeColor.set(0xffffff);
+    selectedOutline.hiddenEdgeColor.set(0x222222);
+
+    return selectedOutline;
+  }
+  generateHoverOutline() {
+    const hoveredOutline = new OutlinePass(
+      new THREE.Vector2(this.width, this.height),
+      this.scene,
+      this.camera
+    );
+
+    hoveredOutline.edgeStrength = 2.0;
+    hoveredOutline.edgeThickness = 1.0;
+    hoveredOutline.visibleEdgeColor.set(0xffff00);
+
+    return hoveredOutline;
+  }
+  generateComposer() {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
     const renderTarget = new THREE.WebGLMultisampleRenderTarget(
       size.width,
@@ -237,37 +244,10 @@ class ThreeController {
     // default render pass for post processing
     const renderPass = new RenderPass(this.scene, this.camera);
     composer.addPass(renderPass);
+    composer.addPass(this.selectedOutline);
+    composer.addPass(this.hoveredOutline);
 
-    const selectedOutline = new OutlinePass(
-      new THREE.Vector2(this.width, this.height),
-      this.scene,
-      this.camera
-    );
-    composer.addPass(selectedOutline);
-
-    selectedOutline.edgeStrength = 2.0;
-    selectedOutline.edgeThickness = 1.0;
-    selectedOutline.visibleEdgeColor.set(0xffffff);
-    selectedOutline.hiddenEdgeColor.set(0x222222);
-
-    const hoveredOutline = new OutlinePass(
-      new THREE.Vector2(this.width, this.height),
-      this.scene,
-      this.camera
-    );
-
-    hoveredOutline.edgeStrength = 2.0;
-    hoveredOutline.edgeThickness = 1.0;
-    hoveredOutline.visibleEdgeColor.set(0xffff00);
-
-    composer.addPass(hoveredOutline);
-
-    // const copyPass = new ShaderPass(CopyShader);
-    // composer.addPass(copyPass);
-
-    this.selectedOutline = selectedOutline;
-    this.hoveredOutline = hoveredOutline;
-    this.composer = composer;
+    return composer;
   }
 
   initDancers() {
@@ -287,7 +267,21 @@ class ThreeController {
   generateGridHelper() {
     const gridHelper = new GridHelper(60, 20);
     gridHelper.matrixAutoUpdate = false;
+    this.scene.add(gridHelper);
     return gridHelper;
+  }
+
+  // Add a center marker in the middle
+  initCenterMarker() {
+    const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
+    const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
+    const cube = new THREE.Mesh(geometry, material);
+
+    cube.matrix.setPosition(0, 0, 12.5);
+    cube.matrixAutoUpdate = false;
+    cube.name = "Center";
+
+    this.scene.add(cube);
   }
 
   initLoadManager() {
@@ -305,19 +299,6 @@ class ThreeController {
       this.dancers
     );
     this.controls.selectControls.setSelectedOutline(this.selectedOutline);
-  }
-
-  // Add a center marker in the middle
-  initCenterMarker() {
-    const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
-    const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
-    const cube = new THREE.Mesh(geometry, material);
-
-    cube.matrix.setPosition(0, 0, 12.5);
-    cube.matrixAutoUpdate = false;
-    cube.name = "Center";
-
-    this.scene.add(cube);
   }
 
   // Return true if all the dancer is successfully initialized
@@ -343,7 +324,7 @@ class ThreeController {
   monitor() {
     const statsPanel = Stats();
     statsPanel.domElement.style.position = "absolute";
-    this.container.appendChild(statsPanel.domElement);
+    this.container?.appendChild(statsPanel.domElement);
 
     requestAnimationFrame(function loop() {
       statsPanel.update();

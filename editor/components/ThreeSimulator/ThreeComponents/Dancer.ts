@@ -1,5 +1,6 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Font } from "three/examples/jsm/loaders/FontLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
@@ -8,20 +9,14 @@ import { state } from "core/state";
 import { FIBER, LED } from "@/constants";
 
 import { LEDPart, FiberPart } from "./Part";
-import { Coordinates, DancerStatus } from "@/core/models";
+import { Coordinates, FiberStatus, LEDStatus } from "@/core/models";
+import { Group } from "three";
 
 // import ALL_MAPPING from "./mapping";
 interface MeshType extends THREE.Mesh {
-  material: THREE.MeshStandardMaterial;
+  //material: THREE.MeshStandardMaterial;
+  material: THREE.MeshBasicMaterial;
 }
-type LedEffectStatus = Record<
-  string,
-  {
-    recordIndex: number;
-    effectIndex: number;
-    effect: { colorCode: string; alpha: number }[];
-  }
->;
 
 class Dancer {
   scene: THREE.Scene;
@@ -36,9 +31,9 @@ class Dancer {
   parts: {
     [LED]: Record<string, LEDPart>;
     [FIBER]: Record<string, FiberPart>;
-  }
+  };
 
-  initStatus: DancerStatus;
+  initStatus: FiberStatus;
   initPos: Coordinates;
 
   constructor(
@@ -49,23 +44,23 @@ class Dancer {
   ) {
     this.scene = scene;
     this.name = name;
-    this.nameTag = null;
+    this.nameTag = new THREE.Mesh();
     this.modelSrc = modelSrc;
     this.manager = manager;
 
-    this.model = null;
+    this.model = new Group();
     this.skeleton = null;
     this.parts = {
       [LED]: {},
       [FIBER]: {},
     };
-    this.initStatus = null;
-    this.initPos = null;
+    this.initStatus = {};
+    this.initPos = { x: 0, y: 0, z: 0 };
     this.initialized = false;
   }
 
   // Load model with given URL and capture all the meshes for light status
-  addModel2Scene(currentStatus: DancerStatus, currentPos: Coordinates) {
+  addModel2Scene(currentStatus: FiberStatus, currentPos: Coordinates) {
     this.initStatus = currentStatus;
     this.initPos = currentPos;
 
@@ -97,7 +92,7 @@ class Dancer {
   // 4. Set alpha(emissiveIntensity) of selected meshes to 0.
   // 5. Set the position of the model to given position
   // 6. Signal this dancer is successfully initialized.
-  initModel(gltf) {
+  initModel(gltf: GLTF) {
     const { name } = this;
     this.model = gltf.scene;
     this.model.name = name;
@@ -140,7 +135,7 @@ class Dancer {
   }
 
   // Create nameTag given font
-  initNameTag(font) {
+  initNameTag(font: Font) {
     const color = 0xffffff;
 
     const matLite = new THREE.MeshBasicMaterial({
@@ -154,8 +149,9 @@ class Dancer {
     const shapes = font.generateShapes(message, 0.3);
     const geometry = new THREE.ShapeGeometry(shapes);
     geometry.computeBoundingBox();
-    const xMid =
-      -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+    const xMid = geometry.boundingBox
+      ? -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x)
+      : 0;
     geometry.translate(xMid, 0, 0);
 
     // make shape ( N.B. edge view not visible )
@@ -185,13 +181,13 @@ class Dancer {
     }
   }
 
-  setFiberStatus(currentStatus: DancerStatus) {
+  setFiberStatus(currentStatus: FiberStatus) {
     Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
       part.setStatus(currentStatus[partName]);
     });
   }
 
-  setLEDStatus(currentLedEffect: LedEffectStatus) {
+  setLEDStatus(currentLedEffect: LEDStatus) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {
       part.setStatus(currentLedEffect[partName]);
     });
