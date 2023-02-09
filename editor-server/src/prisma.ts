@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-const HASH_ROUNDS = parseInt(process.env.HASH_ROUNDS ?? "10");
+const HASH_ROUNDS = 10;
 
 export const createUser = async (
   username: string,
