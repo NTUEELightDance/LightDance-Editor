@@ -106,26 +106,27 @@ export const CANCEL_EDIT_POS_BY_ID = gql`
 `;
 
 export const ADD_COLOR = gql`
-  mutation Mutation($color: addColorInput!) {
+  mutation AddColor($color: ColorCreateInput!) {
     addColor(color: $color) {
       color
       colorCode
     }
   }
 `;
+
 export const EDIT_COLOR = gql`
-  mutation Mutation($color: editColorInput!) {
-    editColor(color: $color) {
+  mutation EditColorCodeByColor($colorCode: String!, $color: String!) {
+    editColorCodeByColor(colorCode: $colorCode, color: $color) {
       color
       colorCode
     }
   }
 `;
+
 export const DELETE_COLOR = gql`
   mutation DeleteColor($color: String!) {
     deleteColor(color: $color) {
-      color
-      colorCode
+      ok
     }
   }
 `;

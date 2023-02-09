@@ -12,6 +12,7 @@ import type {
 
 import { dancerAgent } from "@/api";
 import { getControl, getPos } from "../utils";
+import { colorAgent } from "@/api/colorAgent";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
@@ -80,8 +81,16 @@ const actions = registerActions({
   // depends on initDancers
   initCurrentPos: async (state: State) => {
     const [posMap, posRecord] = await getPos();
+
     state.currentPos = posMap[posRecord[0]].pos;
+  },
+
+  initColorMap: async (state: State) => {
+    const colorMap = await colorAgent.getColorMap();
+
+    state.colorMap = colorMap;
   },
 });
 
-export const { initDancers, initCurrentStatus, initCurrentPos } = actions;
+export const { initDancers, initCurrentStatus, initCurrentPos, initColorMap } =
+  actions;

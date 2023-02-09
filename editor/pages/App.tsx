@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState, useEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 // redux
@@ -14,6 +14,7 @@ import {
   initDancers,
   initCurrentStatus,
   initCurrentPos,
+  initColorMap,
 } from "core/actions";
 
 /**
@@ -26,10 +27,31 @@ function App() {
 
   useLayoutEffect(() => {
     (async () => {
-      await fetchLoad(dispatch);
-      await initDancers();
-      await initCurrentStatus();
-      await initCurrentPos();
+      const firstBatchResult = await Promise.allSettled([
+        fetchLoad(dispatch),
+        initDancers(),
+        initColorMap(),
+      ]);
+
+      firstBatchResult.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error(result.reason);
+          throw result.reason;
+        }
+      });
+
+      const secondBatchResult = await Promise.allSettled([
+        initCurrentStatus(),
+        initCurrentPos(),
+      ]);
+
+      secondBatchResult.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error(result.reason);
+          throw result.reason;
+        }
+      });
+
       setReady(true);
     })();
   }, [dispatch]);

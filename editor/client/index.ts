@@ -5,7 +5,7 @@ import { createClient } from "graphql-ws";
 
 import Subscriptions from "./subscription";
 import { state } from "@/core/state";
-import { setControlMap } from "@/core/actions";
+import { setColorMap, setControlMap } from "@/core/actions";
 import { toControlMap, toPosMap } from "@/core/utils/convert";
 import { setPosMap } from "@/core/actions/posMap";
 
@@ -56,6 +56,17 @@ const client = new ApolloClient({
               const posMap = toPosMap(incoming);
               setPosMap({ payload: posMap });
               return incoming;
+            },
+          },
+        },
+      },
+      ColorMap: {
+        fields: {
+          colorMap: {
+            merge(existing, incoming) {
+              const colorMap = incoming;
+              setColorMap({ payload: colorMap });
+              return colorMap;
             },
           },
         },

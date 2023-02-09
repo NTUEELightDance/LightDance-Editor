@@ -15,7 +15,12 @@ export type index = number;
 export type DancerName = string;
 export type PartName = string;
 export type ColorName = string;
-export type ColorCode = string;
+export type ColorCode = string & { __colorCode: never };
+
+export function isColorCode(colorCode: unknown): colorCode is ColorCode {
+  if (typeof colorCode !== "string") return false;
+  return /^#[0-9a-f]{6}/i.test(colorCode);
+}
 
 /**
  * ControlRecord and ControlMap
@@ -199,6 +204,10 @@ export type DancersPayload = DancersArray;
  * ColorMap
  */
 export type ColorMap = Record<ColorName, ColorCode>;
+
+export function isColorMap(colorMap: unknown): colorMap is ColorMap {
+  return Object.values(colorMap as ColorMap).every(isColorCode);
+}
 
 /**
  * Led Effect Map, get from backend

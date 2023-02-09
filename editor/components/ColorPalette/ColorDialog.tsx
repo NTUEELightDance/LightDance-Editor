@@ -8,40 +8,49 @@ import {
   TextField,
   Button,
   Box,
-  Tooltip,
+  Typography,
 } from "@mui/material";
 
 import { HexColorPicker } from "react-colorful";
 import { notification } from "core/utils";
 
-function ColorDialog({
-  type,
-  open,
-  handleClose,
-  handleMutateColor,
-  defaultColorName,
-  defaultColorCode,
-  disableNameChange,
-}: {
-  type: "add" | "edit";
+export interface AddColorDialogProps {
+  variant: "add";
   open: boolean;
   handleClose: () => void;
-  handleMutateColor: (colorName: string, colorCode: string) => Promise<void>;
-  defaultColorName?: string;
-  defaultColorCode?: string;
-  disableNameChange?: boolean;
-}) {
-  const [newColorName, setNewColorName] = useState<string>(
-    defaultColorName || ""
-  );
+  handleUpdateColor: (colorName: string, colorCode: string) => Promise<void>;
+  colorName?: never;
+  currentColorCode?: never;
+}
+
+export interface EditColorDialogProps {
+  variant: "edit";
+  open: boolean;
+  handleClose: () => void;
+  handleUpdateColor: (colorCode: string) => Promise<void>;
+  colorName: string;
+  currentColorCode: string;
+}
+
+export type ColorDialogProps = AddColorDialogProps | EditColorDialogProps;
+
+function ColorDialog({
+  variant,
+  open,
+  handleClose,
+  handleUpdateColor,
+  colorName,
+  currentColorCode,
+}: ColorDialogProps) {
+  const [newColorName, setNewColorName] = useState<string>("");
   const [newColorCode, setNewColorCode] = useState<string>(
-    defaultColorCode || "#FFFFFF"
+    currentColorCode ?? "#FFFFFF"
   );
 
   useEffect(() => {
-    if (!defaultColorName) setNewColorName("");
-    if (!defaultColorCode) setNewColorCode("#FFFFFF");
-  }, [defaultColorName, defaultColorCode, open]);
+    if (!colorName) setNewColorName("");
+    if (!currentColorCode) setNewColorCode("#FFFFFF");
+  }, [colorName, currentColorCode, open]);
 
   const handleNameChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
@@ -59,7 +68,15 @@ function ColorDialog({
   const [colorNameError, setColorNameError] = useState(false);
   const handleSubmit = async () => {
     try {
-      await handleMutateColor(newColorName, newColorCode);
+      if (variant === "add") {
+        if (!newColorName) {
+          setColorNameError(true);
+          return;
+        }
+        await handleUpdateColor(newColorName, newColorCode);
+      } else {
+        await handleUpdateColor(newColorCode);
+      }
       handleClose();
     } catch (error) {
       notification.error((error as Error).message);
@@ -85,7 +102,18 @@ function ColorDialog({
 
   return (
     <Dialog open={!!open} onClose={handleClose}>
-      <DialogTitle>{type === "add" ? "New Color" : "Edit Color"}</DialogTitle>
+      <DialogTitle>
+        {variant === "add" ? (
+          <Typography>New Color</Typography>
+        ) : (
+          <Typography>
+            {"Editing Color: "}
+            <Typography component="span" variant="h6">
+              {colorName}
+            </Typography>
+          </Typography>
+        )}
+      </DialogTitle>
       <DialogContent>
         <Box
           sx={{
@@ -95,17 +123,7 @@ function ColorDialog({
             alignItems: "center",
           }}
         >
-          {disableNameChange ? (
-            <Tooltip title="this is a reserved color">
-              <TextField
-                margin="dense"
-                label="Color Name"
-                variant="filled"
-                value={newColorName}
-                disabled
-              />
-            </Tooltip>
-          ) : (
+          {variant === "add" && (
             <TextField
               autoFocus
               margin="dense"
@@ -114,7 +132,6 @@ function ColorDialog({
               value={newColorName}
               error={colorNameError}
               onChange={handleNameChange}
-              disabled={disableNameChange}
               onKeyDown={handleNameEnter}
             />
           )}

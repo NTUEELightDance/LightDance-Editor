@@ -1,75 +1,47 @@
-import { useQuery, useMutation, useReactiveVar } from "@apollo/client";
-// states and actions
-import { reactiveState } from "core/state";
-import { setColorMap } from "core/actions";
+import { useReactiveVar } from "@apollo/client";
 
-// gql
-import { GET_COLOR_MAP, ADD_COLOR, EDIT_COLOR, DELETE_COLOR } from "../graphql";
-import { notification } from "core/utils";
+import { reactiveState } from "@/core/state";
+import { notification } from "@/core/utils";
+
+import { colorAgent } from "@/api";
+
+import { isColorCode } from "@/core/models";
 
 export default function useColorMap() {
   const colorMap = useReactiveVar(reactiveState.colorMap);
 
-  const validateColorCode = (colorCode: string) =>
-    /^#[0-9a-f]{6}/i.test(colorCode);
-
-  const { loading: colorLoading, error: colorError } = useQuery(GET_COLOR_MAP, {
-    onCompleted: (data) => {
-      setColorMap({ payload: data.colorMap?.colorMap || {} });
-    },
-  });
-
-  const [addColor, { loading: addColorLoading, error: addColorError }] =
-    useMutation(ADD_COLOR);
-
-  const [editColor, { loading: editColorLoading, error: editColorError }] =
-    useMutation(EDIT_COLOR);
-
-  const [deleteColor, { loading: delColorLoading, error: delColorError }] =
-    useMutation(DELETE_COLOR);
-
   const handleAddColor = async (color: string, colorCode: string) => {
-    if (!validateColorCode(colorCode)) {
+    if (!isColorCode(colorCode)) {
       notification.error(`Invalid color code: ${colorCode}`);
       return;
     }
     try {
-      await addColor({
-        variables: { color: { color, colorCode } },
-        refetchQueries: [GET_COLOR_MAP],
-      });
+      await colorAgent.addColor(color, colorCode);
       notification.success(`Successfully added color: ${color}`);
     } catch (error) {
       notification.error((error as Error).message);
       console.error(error);
     }
   };
-  const handleEditColor = async (
-    original_color: string,
-    new_color: string,
-    colorCode: string
-  ) => {
-    if (!validateColorCode(colorCode)) {
+
+  const handleEditColorCode = async (color: string, colorCode: string) => {
+    if (!isColorCode(colorCode)) {
       notification.error(`Invalid color code: ${colorCode}`);
       return;
     }
+
     try {
-      await editColor({
-        variables: { color: { original_color, new_color, colorCode } },
-        refetchQueries: [GET_COLOR_MAP],
-      });
-      notification.success(`Successfully edited color: ${original_color}`);
+      await colorAgent.editColorCode(color, colorCode);
+      notification.success(`Successfully edited color: ${color}`);
     } catch (error) {
       notification.error((error as Error).message);
       console.error(error);
     }
   };
+
   const handleDeleteColor = async (color: string) => {
     try {
-      await deleteColor({
-        variables: { color },
-        refetchQueries: [GET_COLOR_MAP],
-      });
+      await colorAgent.deleteColor(color);
       notification.success(`Successfully deleted color: ${color}`);
     } catch (error) {
       notification.error((error as Error).message);
@@ -77,27 +49,10 @@ export default function useColorMap() {
     }
   };
 
-  if (
-    addColorError != null ||
-    editColorError != null ||
-    delColorError != null
-  ) {
-    [addColorError, editColorError, delColorError].forEach((error) => {
-      error != null && console.error(error);
-    });
-  }
-
   return {
-    loading:
-      colorLoading || addColorLoading || editColorLoading || delColorLoading,
-    error:
-      colorError != null ||
-      addColorError != null ||
-      editColorError != null ||
-      delColorError,
     colorMap,
     handleAddColor,
-    handleEditColor,
+    handleEditColor: handleEditColorCode,
     handleDeleteColor,
   };
 }
