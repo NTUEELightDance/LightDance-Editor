@@ -33,10 +33,10 @@ const actions = registerActions({
    */
   applyEffect: async (
     state: State,
-    payload: { clear: boolean; start: number; applyId: string }
+    payload: { start: number; applyId: string }
   ) => {
-    const { clear, start, applyId } = payload;
-    await effectListAgent.applyEffectList(clear, start, applyId);
+    const { start, applyId } = payload;
+    await effectListAgent.applyEffectList(start, applyId);
   },
 });
 

@@ -4,7 +4,6 @@ import {
   ADD_EFFECT_LIST,
   APPLY_EFFECT_LIST,
   DELETE_EFFECT_LIST,
-  GET_COLOR_MAP,
   GET_CONTROL_MAP,
   GET_CONTROL_RECORD,
 } from "@/graphql";
@@ -50,12 +49,11 @@ export const effectListAgent = {
     }
   },
 
-  applyEffectList: async (clear: boolean, start: number, applyId: string) => {
+  applyEffectList: async (start: number, applyId: string) => {
     try {
       const response = await client.mutate({
         mutation: APPLY_EFFECT_LIST,
         variables: {
-          clear,
           start,
           applyEffectListId: parseInt(applyId),
         },

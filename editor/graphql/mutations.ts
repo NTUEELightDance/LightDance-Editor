@@ -140,14 +140,10 @@ export const ADD_EFFECT_LIST = gql`
 `;
 
 export const APPLY_EFFECT_LIST = gql`
-  mutation ApplyEffectList(
-    $clear: Boolean!
-    $start: Float!
-    $applyEffectListId: Float!
-  ) {
+  mutation ApplyEffectList($start: Float!, $applyEffectListId: Float!) {
     applyEffectList(start: $start, id: $applyEffectListId) {
-      ok
       msg
+      ok
     }
   }
 `;

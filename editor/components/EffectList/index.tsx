@@ -82,13 +82,18 @@ export default function EffectList() {
     setEffectSelectedName("");
     setCollidedFrame([]);
   };
+
   const handleApplyEffect = async () => {
-    const clear = await confirmation.warning(
-      "Are you sure to clear all collided frames?"
+    const ok = await confirmation.warning(
+      `This will clear all frames from ${currentTime} to the end of the effect. Are you sure?`
     );
-    applyEffect({
-      payload: { clear, start: currentTime, applyId: effectSelectedID },
-    });
+
+    if (ok) {
+      applyEffect({
+        payload: { start: currentTime, applyId: effectSelectedID },
+      });
+    }
+
     handleCloseApply();
   };
 
