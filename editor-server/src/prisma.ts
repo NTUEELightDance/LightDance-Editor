@@ -9,6 +9,16 @@ export const createUser = async (
   username: string,
   password: string
 ): Promise<void> => {
+  // if the user already exists, throw an error
+  const user = await prisma.user.findUnique({
+    where: {
+      name: username,
+    },
+  });
+  if (user) {
+    throw new Error(`User "${username}" already exists.`);
+  }
+
   const hash = await bcrypt.hash(password, HASH_ROUNDS);
   await prisma.user.create({
     data: {
@@ -28,12 +38,20 @@ export const createUser = async (
   });
 };
 
-export const initUsers = async () => {
-  console.log("init users");
-  await prisma.user.deleteMany();
-  await createUser("admin", "admin");
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME!;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD!;
+
+const createAdmin = async () => {
+  // delete the admin user if it exists
+  await prisma.user.deleteMany({
+    where: {
+      name: ADMIN_USERNAME,
+    },
+  });
+  await createUser(ADMIN_USERNAME, ADMIN_PASSWORD);
+  console.log("Successfully created admin user.");
 };
 
-initUsers();
+createAdmin();
 
 export default prisma;

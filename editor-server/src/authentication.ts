@@ -37,6 +37,21 @@ export const verifyToken = async (
   return { success: true, user };
 };
 
+export const verifyAdminToken = async (
+  token: string | undefined
+): CheckTokenResult => {
+  const result = await verifyToken(token);
+  if (!result.success) {
+    return result;
+  }
+
+  if (result.user.name !== process.env.ADMIN_USERNAME) {
+    return { success: false, user: null };
+  }
+
+  return result;
+};
+
 // generate a csrf token for user
 export const generateCsrfToken = () => uuidv4();
 

@@ -7,6 +7,7 @@ import getLogger from "./api/getLogger";
 import login from "./api/login";
 import logout from "./api/logout";
 import checkToken from "./api/checkToken";
+import createUser from "./api/createUser";
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.get("/logger", getLogger);
 router.post("/login", login);
 router.post("/logout", logout);
 router.get("/checkToken", checkToken);
+router.post("/createUser", createUser);
 
 export default router;
