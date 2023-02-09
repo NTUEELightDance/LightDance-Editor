@@ -1,19 +1,17 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import type { ReactiveVar } from "@apollo/client";
-import { type DancerStatus, isFiberData, isLEDData } from "core/models";
 
-// mui
-import Snackbar from "@mui/material/Snackbar";
-import { IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-// states and actions
+import { useHotkeys } from "react-hotkeys-hook";
+import { makeVar } from "@apollo/client";
+
+import type { DancerStatus } from "@/core/models";
+import { isFiberData, isLEDData } from "@/core/models";
+
 import { reactiveState } from "@/core/state";
 import { editCurrentStatusFiber, editCurrentStatusLED } from "@/core/actions";
-import { makeVar } from "@apollo/client";
 import { DANCER } from "@/constants";
 
-// hotkeys
-import { useHotkeys } from "react-hotkeys-hook";
+import { notification } from "@/core/utils";
 
 /**
  * Clipboard component for copy/paste
@@ -21,20 +19,18 @@ import { useHotkeys } from "react-hotkeys-hook";
 export default function Clipboard() {
   const copiedStatus = useRef<ReactiveVar<DancerStatus>>(makeVar({}));
 
-  useHotkeys("ctrl+c, cmd+c", () => {
+  useHotkeys("ctrl+c, meta+c", () => {
     const selected = Object.keys(reactiveState.selected()).find(
       (name) => reactiveState.selected()[name].selected
     );
     const currentStatus = reactiveState.currentStatus();
     if (selected) {
-      setMessage("Copied to the Clipboard!");
-      setOpen(true);
+      notification.success(`Copied ${selected}'s state to clipboard!`);
       copiedStatus.current(currentStatus[selected]);
     }
   });
 
-  useHotkeys("ctrl+v, cmd+v", () => {
-    // paste to the dancer
+  useHotkeys("ctrl+v, meta+v", () => {
     const selected = Object.keys(reactiveState.selected()).filter(
       (name) => reactiveState.selected()[name].selected
     );
@@ -65,32 +61,10 @@ export default function Clipboard() {
           }
         });
       });
+
+      notification.success(`Pasted to dancers: ${selected.join(", ")}`);
     }
   });
 
-  // snackbar logic
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const action = (
-    <IconButton size="small" aria-label="close" onClick={handleClose}>
-      <CloseIcon fontSize="small" />
-    </IconButton>
-  );
-
-  return (
-    <div>
-      <Snackbar
-        open={open}
-        autoHideDuration={2000}
-        onClose={handleClose}
-        message={message}
-        action={action}
-      />
-    </div>
-  );
+  return <></>;
 }
