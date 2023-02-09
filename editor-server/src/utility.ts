@@ -1,6 +1,5 @@
 import { nanoid } from "nanoid";
 
-import "dotenv-defaults/config";
 import redis from "./redis";
 import prisma from "./prisma";
 

@@ -3,7 +3,6 @@ version: "3.4"
 services:
   nginx:
     image: lightdance-nginx
-    container_name: lightdance-nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -18,7 +17,6 @@ services:
 
   editor:
     image: lightdance-editor
-    container_name: lightdance-editor
     build:
       context: ..
       dockerfile: ./prod-support/editor/Dockerfile
@@ -41,12 +39,11 @@ services:
     networks:
       - lightdance-editor
     depends_on:
-      - mongodb
+      - postgresql
       - redisdb
 
   file-server:
     image: lightdance-file-server
-    container_name: lightdance-file-server
     build:
       context: ..
       dockerfile: ./prod-support/file-server/Dockerfile
@@ -55,21 +52,32 @@ services:
     networks:
       - lightdance-editor
 
-  mongodb:
-    image: mongo
-    container_name: lightdance-mongodb
+  postgresql:
+    image: postgres
+    environment:
+      POSTGRES_DB: lightdance
+      POSTGRES_USER: lightdance-user
+      POSTGRES_PASSWORD: NTUEELightdance
+      PGDATA: /var/lib/postgresql/data
     volumes:
-      - ../mongodbData:/data/db
+      - pg-data:/var/lib/postgresql/data
     networks:
       - lightdance-editor
+    expose:
+      - 5432
 
   redisdb:
     image: redis
-    container_name: lightdance-redisdb
     volumes:
-      - ../redisData:/data
+      - redis-data:/data
     networks:
       - lightdance-editor
 
 networks:
   lightdance-editor:
+    external: true
+    name: eeinfo
+
+volumes:
+  pg-data:
+  redis-data:

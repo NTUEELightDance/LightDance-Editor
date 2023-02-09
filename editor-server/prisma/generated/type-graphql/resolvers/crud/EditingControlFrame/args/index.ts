@@ -1,0 +1,14 @@
+export { AggregateEditingControlFrameArgs } from "./AggregateEditingControlFrameArgs";
+export { CreateManyEditingControlFrameArgs } from "./CreateManyEditingControlFrameArgs";
+export { CreateOneEditingControlFrameArgs } from "./CreateOneEditingControlFrameArgs";
+export { DeleteManyEditingControlFrameArgs } from "./DeleteManyEditingControlFrameArgs";
+export { DeleteOneEditingControlFrameArgs } from "./DeleteOneEditingControlFrameArgs";
+export { FindFirstEditingControlFrameArgs } from "./FindFirstEditingControlFrameArgs";
+export { FindFirstEditingControlFrameOrThrowArgs } from "./FindFirstEditingControlFrameOrThrowArgs";
+export { FindManyEditingControlFrameArgs } from "./FindManyEditingControlFrameArgs";
+export { FindUniqueEditingControlFrameArgs } from "./FindUniqueEditingControlFrameArgs";
+export { FindUniqueEditingControlFrameOrThrowArgs } from "./FindUniqueEditingControlFrameOrThrowArgs";
+export { GroupByEditingControlFrameArgs } from "./GroupByEditingControlFrameArgs";
+export { UpdateManyEditingControlFrameArgs } from "./UpdateManyEditingControlFrameArgs";
+export { UpdateOneEditingControlFrameArgs } from "./UpdateOneEditingControlFrameArgs";
+export { UpsertOneEditingControlFrameArgs } from "./UpsertOneEditingControlFrameArgs";

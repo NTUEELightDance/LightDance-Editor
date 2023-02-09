@@ -1,15 +1,14 @@
-## Prisma Usage
+# Prisma Usage
 
-1. Make sure postgresql is running
+1. Make sure postgresql is running: m
 
-```sh
-cd ./Lightdance-Editor
-docker compose -f dev.docker-compose.yml up -d postgresqldb mongodb redisdb
-```
+  ```sh
+  cd ./Lightdance-Editor
+  docker compose -f dev.docker-compose.yml up -d postgresql redisdb
+  ```
 
 2. Update prisma schema
-
-- Modify `./Lightdance-Editor/editor-server/prisma/schema.prisma`
+Modify `./Lightdance-Editor/editor-server/prisma/schema.prisma`
 
 3. Migrate prisma
 
@@ -21,12 +20,6 @@ npx prisma migrate dev --name init
 
 4. Run editor-server
 
-```
-yarn dev:editor-server
-```
-
-or
-
-```
+```sh
 pnpm dev-pnpm:editor-server
 ```

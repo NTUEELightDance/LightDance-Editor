@@ -1,0 +1,14 @@
+export { AggregateDancerArgs } from "./AggregateDancerArgs";
+export { CreateManyDancerArgs } from "./CreateManyDancerArgs";
+export { CreateOneDancerArgs } from "./CreateOneDancerArgs";
+export { DeleteManyDancerArgs } from "./DeleteManyDancerArgs";
+export { DeleteOneDancerArgs } from "./DeleteOneDancerArgs";
+export { FindFirstDancerArgs } from "./FindFirstDancerArgs";
+export { FindFirstDancerOrThrowArgs } from "./FindFirstDancerOrThrowArgs";
+export { FindManyDancerArgs } from "./FindManyDancerArgs";
+export { FindUniqueDancerArgs } from "./FindUniqueDancerArgs";
+export { FindUniqueDancerOrThrowArgs } from "./FindUniqueDancerOrThrowArgs";
+export { GroupByDancerArgs } from "./GroupByDancerArgs";
+export { UpdateManyDancerArgs } from "./UpdateManyDancerArgs";
+export { UpdateOneDancerArgs } from "./UpdateOneDancerArgs";
+export { UpsertOneDancerArgs } from "./UpsertOneDancerArgs";

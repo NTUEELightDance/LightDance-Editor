@@ -1,5 +1,4 @@
 import * as redis from "redis";
-import "dotenv-defaults/config";
 
 const { REDIS_HOST, REDIS_PORT } = process.env;
 
