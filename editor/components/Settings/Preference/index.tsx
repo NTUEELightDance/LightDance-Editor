@@ -10,7 +10,7 @@ import useLayout from "hooks/useLayout";
 
 function Preference() {
   const [mode, setMode] = useState<layoutMode>("editor");
-  const {layout, setLayout} = useLayout();
+  const { layout, setLayout } = useLayout();
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "1em" }}>
