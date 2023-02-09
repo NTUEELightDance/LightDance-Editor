@@ -309,7 +309,7 @@ export class EffectListResolver {
                     const partIdx = newAllDancer[dancerIdx].parts?.findIndex(
                       (part) => part.id === partId
                     );
-                    if (partIdx === -1 || !partIdx) return;
+                    if (partIdx === -1) return;
 
                     const value: Prisma.JsonObject = {};
                     value.alpha = Number(status[dancerIndex][partIndex][1]);
