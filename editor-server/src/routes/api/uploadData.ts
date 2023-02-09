@@ -353,6 +353,7 @@ const uploadData = async (req: Request, res: Response) => {
     await prisma.positionFrame.deleteMany();
     await prisma.controlFrame.deleteMany();
     await prisma.lEDEffect.deleteMany();
+    await prisma.effectListData.deleteMany();
 
     // create fiber color
     await Promise.all(

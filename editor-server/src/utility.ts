@@ -158,8 +158,10 @@ const updateRedisControl = async (id: number) => {
         include: {
           controlData: true,
         },
+        orderBy: { id: "asc" },
       },
     },
+    orderBy: { id: "asc" },
   });
   const { fade, start, editing } = controlFrame;
 
@@ -219,6 +221,7 @@ const updateRedisPosition = async (id: number) => {
     include: {
       positionData: true,
     },
+    orderBy: { id: "asc" },
   });
   const { start, editing } = positionFrame;
   const pos: TPositionPos[] = [];
