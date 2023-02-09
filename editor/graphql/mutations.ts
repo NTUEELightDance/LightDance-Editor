@@ -132,13 +132,9 @@ export const DELETE_COLOR = gql`
 `;
 
 export const ADD_EFFECT_LIST = gql`
-  mutation AddEffecctList($end: Float!, $start: Float!, $description: String) {
+  mutation AddEffectList($end: Float!, $start: Float!, $description: String) {
     addEffectList(end: $end, start: $start, description: $description) {
-      start
-      end
-      description
       id
-      data
     }
   }
 `;
@@ -147,7 +143,7 @@ export const APPLY_EFFECT_LIST = gql`
   mutation ApplyEffectList(
     $clear: Boolean!
     $start: Float!
-    $applyEffectListId: ID!
+    $applyEffectListId: Float!
   ) {
     applyEffectList(clear: $clear, start: $start, id: $applyEffectListId) {
       ok
@@ -157,7 +153,7 @@ export const APPLY_EFFECT_LIST = gql`
 `;
 
 export const DELETE_EFFECT_LIST = gql`
-  mutation DeleteEffectList($deleteEffectListId: ID!) {
+  mutation DeleteEffectList($deleteEffectListId: Float!) {
     deleteEffectList(id: $deleteEffectListId) {
       ok
       msg

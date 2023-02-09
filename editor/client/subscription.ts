@@ -8,7 +8,6 @@ import {
   SUB_EFFECT_LIST,
 } from "../graphql";
 import cloneDeep from "lodash/cloneDeep";
-import { log } from "core/utils";
 
 const subPosRecord = (client: ApolloClient<NormalizedCacheObject>) => {
   client
@@ -175,6 +174,7 @@ const subControlMap = (client: ApolloClient<NormalizedCacheObject>) => {
       },
     });
 };
+
 const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
   client
     .subscribe({
@@ -182,7 +182,6 @@ const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
     })
     .subscribe({
       next(data) {
-        log(data);
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
@@ -197,7 +196,8 @@ const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
               ) {
                 return _effectList.filter(
                   (e: any) =>
-                    e.id !== data.data.effectListSubscription.effectListID
+                    e.id.toString() !==
+                    data.data.effectListSubscription.effectListID
                 );
               }
             },

@@ -1,45 +1,55 @@
+import client from "../client";
+
 import {
   ADD_EFFECT_LIST,
   APPLY_EFFECT_LIST,
   DELETE_EFFECT_LIST,
-  GET_EFFECT_LIST,
-} from "graphql";
-import client from "../client";
+  GET_COLOR_MAP,
+  GET_CONTROL_MAP,
+  GET_CONTROL_RECORD,
+} from "@/graphql";
+
+import { notification } from "@/core/utils";
 
 export const effectListAgent = {
-  getEffectList: async () => {
-    const effectListData = await client.query({ query: GET_EFFECT_LIST });
-    return effectListData.data.effectList;
-  },
   addEffectList: async (name: string, start: number, end: number) => {
     try {
       await client.mutate({
         mutation: ADD_EFFECT_LIST,
         variables: {
-          end,
-          start,
           description: name,
+          start,
+          end,
         },
       });
+
+      notification.success("Effect List Added");
     } catch (error) {
       console.error(error);
+      notification.error("Effect List Add Failed");
     }
   },
+
   deleteEffectList: async (deleteId: string) => {
     try {
       const response = await client.mutate({
         mutation: DELETE_EFFECT_LIST,
         variables: {
-          deleteEffectListId: deleteId,
+          deleteEffectListId: parseInt(deleteId),
         },
       });
-      if (response.data.deleteEffectList.ok)
-        alert(`[SUCCESS] Delete effect: ${deleteId}`);
-      else alert(`[FAILED] Delete: effect: ${deleteId}`);
+
+      if (response.data.deleteEffectList.ok) {
+        notification.success("Effect List Deleted");
+      } else {
+        notification.error("Effect List Delete Failed");
+      }
     } catch (error) {
       console.error(error);
+      notification.error("Effect List Delete Failed");
     }
   },
+
   applyEffectList: async (clear: boolean, start: number, applyId: string) => {
     try {
       const response = await client.mutate({
@@ -47,14 +57,25 @@ export const effectListAgent = {
         variables: {
           clear,
           start,
-          applyEffectListId: applyId,
+          applyEffectListId: parseInt(applyId),
         },
+        refetchQueries: [
+          {
+            query: GET_CONTROL_RECORD,
+          },
+          {
+            query: GET_CONTROL_MAP,
+          },
+        ],
       });
-      if (response.data.applyEffectList.ok)
-        alert(`[SUCCESS] ${response.data.applyEffectList.msg}`);
-      else alert(`[FAILED] ${response.data.applyEffectList.msg}`);
+      if (response.data.applyEffectList.ok) {
+        notification.success("Effect List Applied");
+      } else {
+        notification.error("Effect List Apply Failed");
+      }
     } catch (error) {
       console.error(error);
+      notification.error("Effect List Apply Failed");
     }
   },
 };

@@ -266,10 +266,16 @@ export type EffectListType = Array<{
   start: number;
   end: number;
   description: string;
-  data: {
-    control: Record<string, ControlMapElement>;
-    position: Record<string, PosMapElement>;
-  };
+  id: number;
+  controlFrames: Array<{
+    id: number;
+    fade: boolean;
+    start: number;
+  }>;
+  positionFrames: Array<{
+    id: number;
+    start: number;
+  }>;
 }>;
 /**
  * group errors

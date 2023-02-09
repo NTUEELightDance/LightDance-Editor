@@ -75,6 +75,7 @@ export default function EffectList() {
     setEffectSelectedName(name);
     setApplyOpened(true);
   };
+
   const handleCloseApply = () => {
     setApplyOpened(false);
     setEffectSelectedID("");
@@ -130,8 +131,8 @@ export default function EffectList() {
   return (
     <div>
       <List>
-        {effectList?.map((effect) => (
-          <React.Fragment key={effect?.id}>
+        {effectList.map((effect) => (
+          <React.Fragment key={effect.id}>
             <React.Fragment>
               <ListItem
                 secondaryAction={
@@ -142,7 +143,10 @@ export default function EffectList() {
                         aria-label="apply"
                         size="large"
                         onClick={() => {
-                          handleOpenApply(effect?.id, effect?.description);
+                          handleOpenApply(
+                            effect.id.toString(),
+                            effect.description
+                          );
                         }}
                       >
                         <AddIcon fontSize="inherit" sx={{ color: "white" }} />
@@ -154,7 +158,10 @@ export default function EffectList() {
                         aria-label="delete"
                         size="large"
                         onClick={() => {
-                          handleOpenDelete(effect?.id, effect?.description);
+                          handleOpenDelete(
+                            effect.id.toString(),
+                            effect.description
+                          );
                         }}
                       >
                         <DeleteIcon
@@ -174,16 +181,23 @@ export default function EffectList() {
                   }
                   secondary={
                     <>
-                      <Typography sx={{ fontSize: "10px", color: "white" }}>
-                        - ControlFrame Length:{" "}
-                        {effect.data.control
-                          ? Object.keys(effect.data.control).length
+                      <Typography
+                        component="span"
+                        sx={{ fontSize: "10px", color: "white" }}
+                      >
+                        {"- ControlFrame Length: "}
+                        {effect.controlFrames
+                          ? Object.keys(effect.controlFrames).length
                           : 0}
                       </Typography>
-                      <Typography sx={{ fontSize: "10px", color: "white" }}>
-                        - PosFrame Length:{" "}
-                        {effect.data.position
-                          ? Object.keys(effect.data.position).length
+                      <br />
+                      <Typography
+                        component="span"
+                        sx={{ fontSize: "10px", color: "white" }}
+                      >
+                        {"- PosFrame Length: "}
+                        {effect.positionFrames
+                          ? Object.keys(effect.positionFrames).length
                           : 0}
                       </Typography>
                     </>

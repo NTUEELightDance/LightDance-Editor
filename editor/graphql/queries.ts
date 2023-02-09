@@ -63,7 +63,8 @@ export const GET_EFFECT_LIST = gql`
       end
       description
       id
-      data
+      controlFrames
+      positionFrames
     }
   }
 `;
