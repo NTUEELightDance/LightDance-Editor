@@ -114,7 +114,7 @@ export type DancerStatusMutationPayload = [string, string][];
 /**
  * PosRecord and PosMap
  */
-export type PosRecord = id[]; // array of all IDs , each corresponds diff status
+export type PosRecord = id[]; // array of all IDs , each corresponds to diff status
 
 export type PosMap = Record<id, PosMapElement>;
 
