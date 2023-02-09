@@ -145,7 +145,7 @@ export const APPLY_EFFECT_LIST = gql`
     $start: Float!
     $applyEffectListId: Float!
   ) {
-    applyEffectList(clear: $clear, start: $start, id: $applyEffectListId) {
+    applyEffectList(start: $start, id: $applyEffectListId) {
       ok
       msg
     }

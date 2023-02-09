@@ -357,7 +357,8 @@ type Effect {
 
 type EffectListData {
   controlFrames: [JSON!]!
-  description: String!
+  dancerData: [JSON!]!
+  description: String
   end: Int!
   id: Int!
   positionFrames: [JSON!]!
@@ -516,7 +517,7 @@ type Mutation {
   addLED(input: LEDEffectCreateInput!): LEDEffectResponse!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
-  applyEffectList(clear: Boolean!, id: Float!, start: Float!): EffectListResponse!
+  applyEffectList(id: Float!, start: Float!): EffectListResponse!
   CancelEditControl(FrameID: Float!): RequestEditResponse!
   CancelEditPosition(FrameID: Float!): RequestEditResponse!
   deleteColor(color: String!): ColorResponse!

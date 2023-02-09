@@ -132,7 +132,8 @@ model EffectListData {
   id             Int    @id @default(autoincrement())
   start          Int
   end            Int
-  description    String
+  description    String?
+  dancerData     Json[]
   controlFrames  Json[]
   positionFrames Json[]
 }

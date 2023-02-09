@@ -7,6 +7,7 @@ import {
   Publisher,
   Arg,
 } from "type-graphql";
+import { Prisma } from "@prisma/client";
 
 import { EffectListResponse } from "./response/effectListResponse";
 import {
@@ -39,29 +40,21 @@ import {
   TRedisPosition,
   TRedisPositions,
 } from "../types/global";
-import { EffectListData } from "../../prisma/generated/type-graphql";
+import {
+  ControlFrame,
+  PositionFrame,
+  EffectListData,
+  Dancer,
+  Part,
+} from "../../prisma/generated/type-graphql";
+import { ControlDefault } from "./types/controlType";
 
-type AllDancer = {
-  [key: string]: {
-    part: AllPart;
-    positionData: any[];
-  };
-};
-type AllPart = {
-  [key: string]: {
-    type: string;
-    id: string;
-  };
-};
-type PartUpdate = {
-  [key: string]: any[];
-};
-
-@Resolver((of) => EffectListData)
+@Resolver(() => EffectListData)
 export class EffectListResolver {
-  @Query((returns) => [EffectListData])
+  @Query(() => [EffectListData])
   async effectList(@Ctx() ctx: TContext) {
-    const effectLists = await ctx.prisma.effectListData.findMany();
+    const effectLists: EffectListData[] =
+      await ctx.prisma.effectListData.findMany();
     const result = effectLists.map((effectList) => {
       const { id, start, end, description } = effectList;
       let { controlFrames, positionFrames } = effectList;
@@ -79,7 +72,7 @@ export class EffectListResolver {
     return result;
   }
 
-  @Mutation((returns) => EffectListData)
+  @Mutation(() => EffectListData)
   async addEffectList(
     @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
     @Arg("start", { nullable: false }) start: number,
@@ -87,18 +80,23 @@ export class EffectListResolver {
     @Arg("description", { nullable: true }) description: string,
     @Ctx() ctx: TContext
   ) {
-    const controlFrames = await ctx.prisma.controlFrame.findMany({
-      where: { start: { lte: end, gte: start } },
-    });
+    // get controlFrame & positionFrame id
+    const controlFrames: ControlFrame[] =
+      await ctx.prisma.controlFrame.findMany({
+        where: { start: { lte: end, gte: start } },
+        orderBy: { start: "asc" },
+      });
     if (controlFrames.length === 0) {
       throw new Error("no control frames");
     }
     const controlFrameIDs = controlFrames.map(
       (controlFrame) => controlFrame.id
     );
-    const positionFrames = await ctx.prisma.positionFrame.findMany({
-      where: { start: { lte: end, gte: start } },
-    });
+    const positionFrames: PositionFrame[] =
+      await ctx.prisma.positionFrame.findMany({
+        where: { start: { lte: end, gte: start } },
+        orderBy: { start: "asc" },
+      });
     if (positionFrames.length === 0) {
       throw new Error("no position frames");
     }
@@ -106,28 +104,39 @@ export class EffectListResolver {
       (positionFrame) => positionFrame.id
     );
 
-    const redisControlFrames: TRedisControls = {};
-    await Promise.all(
+    // get controlFrame & positionFrame data from Redis
+    const redisControlFrames = await Promise.all(
       controlFrameIDs.map(async (controlFrameID: number) => {
         const id = controlFrameID;
-        redisControlFrames[id] = await getRedisControl(id);
+        return await getRedisControl(id);
       })
     );
-    const redisPositionFrames: TRedisPositions = {};
-    await Promise.all(
+    const redisPositionFrames = await Promise.all(
       positionFrameIDs.map(async (positionFrameID: number) => {
         const id = positionFrameID;
-        redisPositionFrames[id] = await getRedisPosition(id);
+        return await getRedisPosition(id);
       })
     );
 
+    // get dancers & parts data
+    const dancerData = await ctx.prisma.dancer.findMany({
+      include: {
+        parts: {
+          orderBy: { id: "asc" },
+        },
+      },
+      orderBy: { id: "asc" },
+    });
+
+    // create effectList
     const effectList = await ctx.prisma.effectListData.create({
       data: {
         start: start,
         end: end,
-        description: description,
-        controlFrames: controlFrames,
-        positionFrames: positionFrames,
+        description: description ? description : null,
+        dancerData,
+        controlFrames: redisControlFrames,
+        positionFrames: redisPositionFrames,
       },
     });
     const result = {
@@ -135,8 +144,8 @@ export class EffectListResolver {
       start,
       end,
       description,
-      controlFrames: controlFrames,
-      positionFrames: positionFrames,
+      controlFrames: redisControlFrames,
+      positionFrames: redisPositionFrames,
     };
     const payload: EffectListPayload = {
       mutation: EffectListMutation.CREATED,
@@ -148,13 +157,13 @@ export class EffectListResolver {
     return result;
   }
 
-  @Mutation((returns) => EffectListResponse)
+  @Mutation(() => EffectListResponse)
   async deleteEffectList(
     @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
     @Arg("id") id: number,
     @Ctx() ctx: TContext
   ) {
-    const deleteEffectList = await ctx.prisma.effectListData.deleteMany({
+    await ctx.prisma.effectListData.deleteMany({
       where: { id: id },
     });
     const payload: EffectListPayload = {
@@ -166,7 +175,7 @@ export class EffectListResolver {
     return { ok: true, msg: `Delete effect id: ${id}` };
   }
 
-  @Mutation((returns) => EffectListResponse)
+  @Mutation(() => EffectListResponse)
   async applyEffectList(
     @PubSub(Topic.ControlRecord)
     publishControlRecord: Publisher<ControlRecordPayload>,
@@ -177,359 +186,301 @@ export class EffectListResolver {
     publishPositionMap: Publisher<PositionMapPayload>,
     @Arg("id") id: number,
     @Arg("start", { nullable: false }) start: number,
-    @Arg("clear", { nullable: false }) clear: boolean,
     @Ctx() ctx: TContext
   ) {
-    const effectList = await ctx.prisma.effectListData.findFirst({
-      where: { id: id },
-    });
-    if (effectList === null) {
-      throw new Error("no effect list");
-    } else {
-      const end = start - effectList.start + effectList.end;
-
-      // check editing in target area
-      if (clear) {
-        const findControlFrame = await ctx.prisma.controlFrame.findFirst({
-          where: { start: { lte: end, gte: start } },
-        });
-        if (findControlFrame === null) {
-          throw new Error("control frame doesn't exist");
-        } else {
-          const findControlFrameID = findControlFrame.id;
-          const checkControlEditing =
-            await ctx.prisma.editingControlFrame.findFirst({
-              where: { frameId: findControlFrameID },
-            });
-          if (checkControlEditing)
-            return {
-              ok: false,
-              msg: `User ${checkControlEditing.userId} is editing frame ${checkControlEditing.frameId}`,
-            };
-        }
-
-        const findPositionFrame = await ctx.prisma.positionFrame.findFirst({
-          where: { start: { lte: end, gte: start } },
-        });
-        if (findPositionFrame === null) {
-          throw new Error("position frame doesn't exist");
-        } else {
-          const findPositionFrameID = findPositionFrame.id;
-          const checkPositionEditing =
-            await ctx.prisma.editingPositionFrame.findFirst({
-              where: { frameId: findPositionFrameID },
-            });
-          if (checkPositionEditing)
-            return {
-              ok: false,
-              msg: `User ${checkPositionEditing.userId} is editing frame ${checkPositionEditing.frameId}`,
-            };
-        }
-      }
-
-      // check overlapping
-      let checkOverLap = false;
-      if (!clear) {
-        await Promise.all(
-          Object.values(effectList.controlFrames).map(async (controlObject) => {
-            if (controlObject !== null) {
-              const data = Object.values(controlObject);
-              const new_start = data[2] - effectList.start + start;
-              const checkControlOverlap =
-                await ctx.prisma.controlFrame.findFirst({
-                  where: { start: new_start },
-                });
-              if (checkControlOverlap) checkOverLap = true;
-            }
-          })
-        );
-        await Promise.all(
-          Object.values(effectList.positionFrames).map(
-            async (positionObject) => {
-              if (positionObject !== null) {
-                const data = Object.values(positionObject);
-                const new_start = data[1] - effectList.start + start;
-                const checkPositionOverlap =
-                  await ctx.prisma.positionFrame.findFirst({
-                    where: { start: new_start },
-                  });
-                if (checkPositionOverlap) checkOverLap = true;
-              }
-            }
-          )
-        );
-      }
-      if (checkOverLap) return { ok: false, msg: "Some frame is overlap" };
-
-      // clear
-      const deleteControlFrame = await ctx.prisma.controlFrame.findMany({
-        where: { start: { lte: end, gte: start } },
+    const effectList: EffectListData =
+      await ctx.prisma.effectListData.findUniqueOrThrow({
+        where: { id: id },
       });
-      const deletePositionFrame = await ctx.prisma.positionFrame.findMany({
-        where: { start: { lte: end, gte: start } },
+    const end = start - effectList.start + effectList.end;
+
+    // check editing in target area
+    // control
+    const findEditingControlFrame =
+      await ctx.prisma.editingControlFrame.findFirst({
+        where: { editingFrame: { start: { lte: end, gte: start } } },
       });
-      if (clear) {
-        const parts = await ctx.prisma.part.findMany();
-        await ctx.prisma.controlFrame.deleteMany({
-          where: { start: { lte: end, gte: start } },
-        });
-        await ctx.prisma.positionFrame.deleteMany({
-          where: { start: { lte: end, gte: start } },
-        });
-        if (deleteControlFrame !== undefined) {
-          await Promise.all(
-            deleteControlFrame.map(async (data) => {
-              const { id } = data;
-              const deleteControlData = await ctx.prisma.controlData.findMany({
-                where: { frameId: id },
-              });
-              await Promise.all(
-                parts.map(async (part) => {
-                  const controlToDelete = deleteControlData.find(
-                    (control) => control.partId === part.id
-                  );
-                  if (controlToDelete !== undefined) {
-                    await ctx.prisma.controlData.deleteMany({
-                      where: {
-                        partId: controlToDelete.partId,
-                        frameId: controlToDelete.frameId,
-                      },
-                    });
-                  }
-                })
-              );
-              await deleteRedisControl(id);
-            })
-          );
-        }
-        if (deletePositionFrame !== undefined) {
-          await Promise.all(
-            deletePositionFrame.map(async (data) => {
-              const { id } = data;
-              const dancers = await ctx.prisma.dancer.findMany();
-              const deletePositionData = await ctx.prisma.positionData.findMany(
-                { where: { frameId: id } }
-              );
-              Promise.all(
-                dancers.map(async (dancer) => {
-                  const positionToDelete = deletePositionData.find(
-                    (position) => position.dancerId === dancer.id
-                  );
-                  if (positionToDelete !== undefined) {
-                    await ctx.prisma.positionData.deleteMany({
-                      where: {
-                        dancerId: positionToDelete.dancerId,
-                        frameId: positionToDelete.frameId,
-                      },
-                    });
-                  }
-                })
-              );
-              await deleteRedisPosition(id);
-            })
-          );
-        }
-      }
-
-      const dancer = await ctx.prisma.dancer.findMany();
-      const allDancer: AllDancer = {};
-      const partUpdate: PartUpdate = {};
-      dancer.map(async (dancerObj) => {
-        const { id, name } = dancerObj;
-        const parts = await ctx.prisma.part.findMany({
-          where: { dancerId: id },
-        });
-        const positionData = await ctx.prisma.positionData.findMany({
-          where: { dancerId: id },
-        });
-        const allPart: AllPart = {};
-        parts.map(async (partObj) => {
-          const { id, name, type } = partObj;
-          const controlData = await ctx.prisma.controlData.findMany({
-            where: { partId: id },
-          });
-          allPart[name] = { type, id: String(id) };
-          partUpdate[String(id)] = controlData;
-        });
-        allDancer[name] = { part: allPart, positionData };
-      });
-
-      // add
-      const newControlFrameIDs: number[] = [];
-      const newPositionFrameIDs: number[] = [];
-      await Promise.all(
-        Object.values(effectList.controlFrames).map(async (frameObj) => {
-          if (frameObj !== null) {
-            const data = Object.values(frameObj);
-            const new_start = data[2] - effectList.start + start;
-            const frame = await ctx.prisma.controlFrame.create({
-              data: { start: new_start, fade: data[1] },
-            });
-
-            newControlFrameIDs.push(frame.id);
-
-            const allControlData = await ctx.prisma.controlData.findMany({
-              where: { frameId: data[0] },
-            });
-            await Promise.all(
-              allControlData.map(async (ControlData) => {
-                if (ControlData.value !== null) {
-                  await ctx.prisma.controlData.create({
-                    data: {
-                      partId: ControlData.partId,
-                      frameId: frame.id,
-                      value: ControlData.value,
-                    },
-                  });
-                }
-              })
-            );
-          }
-        })
-      );
-
-      /*
-      await Promise.all(
-        Object.keys(partUpdate).map(async (partID) => {
-          await ctx.prisma.controlData.updateMany({where: {partId: Number(partID)}, data: {value: partUpdate[partID]}});
-        })
-      );
-      */
-
-      await Promise.all(
-        Object.values(effectList.positionFrames).map(async (frameObj) => {
-          if (frameObj !== null) {
-            const data = Object.values(frameObj);
-            const new_start = data[1] - effectList.start + start;
-            const frame = await ctx.prisma.positionFrame.create({
-              data: { start: new_start },
-            });
-
-            newPositionFrameIDs.push(frame.id);
-
-            const allPositionData = await ctx.prisma.positionData.findMany({
-              where: { frameId: data[0] },
-            });
-            await Promise.all(
-              allPositionData.map(async (PositionData) => {
-                await ctx.prisma.positionData.create({
-                  data: {
-                    dancerId: PositionData.dancerId,
-                    frameId: frame.id,
-                    x: PositionData.x,
-                    y: PositionData.y,
-                    z: PositionData.z,
-                  },
-                });
-              })
-            );
-          }
-        })
-      );
-
-      /*
-      await Promise.all(
-        Object.keys(allDancer).map(async (dancerName: string) => {
-          await ctx.db.Dancer.findOneAndUpdate(
-            { name: dancerName },
-            { positionData: allDancer[dancerName].positionData }
-          );
-        })
-      );
-      */
-
-      // update redis
-      await Promise.all(
-        newControlFrameIDs.map(async (id) => {
-          await updateRedisControl(id);
-        })
-      );
-      await Promise.all(
-        newPositionFrameIDs.map(async (id) => {
-          await updateRedisPosition(id);
-        })
-      );
-
-      const deleteControlList = deleteControlFrame.map((data) => {
-        return data.id;
-      });
-      const deletePositionList = deletePositionFrame.map((data) => {
-        return data.id;
-      });
-
-      // subscription control
-      const controlMapPayload: ControlMapPayload = {
-        editBy: ctx.userId,
-        frame: {
-          createList: newControlFrameIDs,
-          deleteList: deleteControlList,
-          updateList: [],
-        },
+    if (findEditingControlFrame) {
+      return {
+        ok: false,
+        msg: `User ${findEditingControlFrame.userId} is editing frame ${findEditingControlFrame.frameId}`,
       };
-      await publishControlMap(controlMapPayload);
-
-      let newControlFrames = await ctx.prisma.controlFrame.findMany();
-      newControlFrames = newControlFrames.sort();
-      let allControlFrames = await ctx.prisma.controlFrame.findMany();
-      allControlFrames = allControlFrames.sort();
-      let index = -1;
-      if (newControlFrames[0]) {
-        allControlFrames.map((frame, idx: number) => {
-          if (frame.id === newControlFrames[0].id) {
-            index = idx;
-          }
-        });
-      }
-      const controlRecordIDs = newControlFrames.map((frame) => {
-        return frame.id;
-      });
-      const controlRecordPayload: ControlRecordPayload = {
-        mutation: ControlRecordMutation.CREATED_DELETED,
-        editBy: ctx.userId,
-        addID: controlRecordIDs,
-        deleteID: deleteControlList,
-        updateID: [],
-        index,
-      };
-      await publishControlRecord(controlRecordPayload);
-
-      // subscription position
-      const positionMapPayload: PositionMapPayload = {
-        editBy: ctx.userId,
-        frame: {
-          createList: newPositionFrameIDs,
-          deleteList: deletePositionList,
-          updateList: [],
-        },
-      };
-      await publishPositionMap(positionMapPayload);
-
-      let newPositionFrames = await ctx.prisma.positionFrame.findMany();
-      newPositionFrames = newPositionFrames.sort();
-      let allPositionFrames = await ctx.prisma.positionFrame.findMany();
-      allPositionFrames = allPositionFrames.sort();
-      index = -1;
-      if (newPositionFrames[0]) {
-        allPositionFrames.map((frame, idx: number) => {
-          if (frame.id === newPositionFrames[0].id) {
-            index = idx;
-          }
-        });
-      }
-      const positionRecordIDs = newPositionFrames.map((frame) => {
-        return frame.id;
-      });
-      const positionRecordPayload: PositionRecordPayload = {
-        mutation: PositionRecordMutation.CREATED_DELETED,
-        editBy: ctx.userId,
-        addID: positionRecordIDs,
-        deleteID: deletePositionList,
-        updateID: [],
-        index,
-      };
-      await publishPositionRecord(positionRecordPayload);
-
-      return { ok: true, msg: `Apply effect id: ${id}` };
     }
+    // position
+    const findEditingPositionFrame =
+      await ctx.prisma.editingPositionFrame.findFirst({
+        where: { editingFrame: { start: { lte: end, gte: start } } },
+      });
+    if (findEditingPositionFrame) {
+      return {
+        ok: false,
+        msg: `User ${findEditingPositionFrame.userId} is editing frame ${findEditingPositionFrame.frameId}`,
+      };
+    }
+
+    // clear original data
+    const deleteControlFrame: ControlFrame[] =
+      await ctx.prisma.controlFrame.findMany({
+        where: { start: { lte: end, gte: start } },
+      });
+    const deletePositionFrame: PositionFrame[] =
+      await ctx.prisma.positionFrame.findMany({
+        where: { start: { lte: end, gte: start } },
+      });
+    await ctx.prisma.controlFrame.deleteMany({
+      where: { start: { lte: end, gte: start } },
+    });
+    await ctx.prisma.positionFrame.deleteMany({
+      where: { start: { lte: end, gte: start } },
+    });
+    await Promise.all(
+      deleteControlFrame.map(async (data) => {
+        const { id } = data;
+        await deleteRedisControl(id);
+      })
+    );
+    await Promise.all(
+      deletePositionFrame.map(async (data) => {
+        const { id } = data;
+        await deleteRedisPosition(id);
+      })
+    );
+    const deleteControlList = deleteControlFrame.map((data) => {
+      return data.id;
+    });
+    const deletePositionList = deletePositionFrame.map((data) => {
+      return data.id;
+    });
+
+    // TODO: preprocess data
+    const oldAllDancer = effectList.dancerData as any[];
+    const newAllDancer: Dancer[] = await ctx.prisma.dancer.findMany({
+      include: {
+        parts: {
+          orderBy: { id: "asc" },
+        },
+      },
+      orderBy: { id: "asc" },
+    });
+
+    // add
+    const allPart: Part[] = await ctx.prisma.part.findMany();
+    const newControlFrameIDs = await Promise.all(
+      Object.values(effectList.controlFrames).map(async (frameObj: any) => {
+        if (frameObj !== null) {
+          const frameStart = frameObj.start;
+          const { fade, status } = frameObj;
+          const new_start = frameStart - effectList.start + start;
+          const frame: ControlFrame = await ctx.prisma.controlFrame.create({
+            data: { start: new_start, fade },
+          });
+
+          // create empty Control Data
+          await Promise.all(
+            allPart.map(async (part) => {
+              const { id, type } = part;
+              await ctx.prisma.controlData.create({
+                data: {
+                  partId: id,
+                  frameId: frame.id,
+                  value: ControlDefault[type],
+                },
+              });
+            })
+          );
+          // assign value into control Data
+          await Promise.all(
+            oldAllDancer.map(async (oldDancer, dancerIndex) => {
+              const dancerId = oldDancer?.id;
+
+              // check dancer in new dancer
+              const dancerIdx = newAllDancer.findIndex(
+                (dancer) => dancer.id === dancerId
+              );
+              if (dancerIdx === -1) return;
+
+              await Promise.all(
+                oldDancer.parts?.map(
+                  async (oldPart: Part, partIndex: number) => {
+                    const partId = oldPart.id;
+                    const type = oldPart.type;
+
+                    // check part in new dancer
+                    const partIdx = newAllDancer[dancerIdx].parts?.findIndex(
+                      (part) => part.id === partId
+                    );
+                    if (partIdx === -1 || !partIdx) return;
+
+                    const value: Prisma.JsonObject = {};
+                    value.alpha = Number(status[dancerIndex][partIndex][1]);
+                    if (type === "FIBER")
+                      value.color = status[dancerIndex][partIndex][0];
+                    else value.src = status[dancerIndex][partIndex][0];
+                    // const value = status[dancerIdx][partIdx];
+                    await ctx.prisma.controlData.update({
+                      where: {
+                        partId_frameId: {
+                          partId: partId,
+                          frameId: frame.id,
+                        },
+                      },
+                      data: {
+                        value,
+                      },
+                    });
+                  }
+                )
+              );
+            })
+          );
+          return frame.id;
+        }
+        return -1;
+      })
+    );
+    const allDancer: Dancer[] = await ctx.prisma.dancer.findMany();
+    const newPositionFrameIDs = await Promise.all(
+      Object.values(effectList.positionFrames).map(async (frameObj: any) => {
+        if (frameObj !== null) {
+          const frameStart = frameObj.start;
+          const { pos } = frameObj;
+          const new_start = frameStart - effectList.start + start;
+          const frame: PositionFrame = await ctx.prisma.positionFrame.create({
+            data: { start: new_start },
+          });
+
+          // create empty Position Data
+          await Promise.all(
+            allDancer.map(async (dancer) => {
+              const { id } = dancer;
+              await ctx.prisma.positionData.create({
+                data: {
+                  dancerId: id,
+                  frameId: frame.id,
+                  x: 0.0,
+                  y: 0.0,
+                  z: 0.0,
+                },
+              });
+            })
+          );
+          // assign value into position Data
+          await Promise.all(
+            oldAllDancer.map(async (oldDancer, dancerIndex) => {
+              const dancerId = oldDancer?.id;
+
+              // check dancer in new dancer
+              const dancerIdx = newAllDancer.findIndex(
+                (dancer) => dancer.id === dancerId
+              );
+              if (dancerIdx === -1) return;
+
+              const value = pos[dancerIndex];
+              await ctx.prisma.positionData.update({
+                where: {
+                  dancerId_frameId: {
+                    dancerId: dancerId,
+                    frameId: frame.id,
+                  },
+                },
+                data: {
+                  x: value[0],
+                  y: value[1],
+                  z: value[2],
+                },
+              });
+            })
+          );
+          return frame.id;
+        }
+        return -1;
+      })
+    );
+
+    // update redis
+    await Promise.all(
+      newControlFrameIDs.map(async (id) => {
+        await updateRedisControl(id);
+      })
+    );
+    await Promise.all(
+      newPositionFrameIDs.map(async (id) => {
+        await updateRedisPosition(id);
+      })
+    );
+
+    // subscription control
+    const controlMapPayload: ControlMapPayload = {
+      editBy: ctx.userId,
+      frame: {
+        createList: newControlFrameIDs,
+        deleteList: deleteControlList,
+        updateList: [],
+      },
+    };
+    await publishControlMap(controlMapPayload);
+
+    let newControlFrames = await ctx.prisma.controlFrame.findMany();
+    newControlFrames = newControlFrames.sort();
+    let allControlFrames = await ctx.prisma.controlFrame.findMany();
+    allControlFrames = allControlFrames.sort();
+    let index = -1;
+    if (newControlFrames[0]) {
+      allControlFrames.map((frame, idx: number) => {
+        if (frame.id === newControlFrames[0].id) {
+          index = idx;
+        }
+      });
+    }
+    const controlRecordIDs = newControlFrames.map((frame) => {
+      return frame.id;
+    });
+    const controlRecordPayload: ControlRecordPayload = {
+      mutation: ControlRecordMutation.CREATED_DELETED,
+      editBy: ctx.userId,
+      addID: controlRecordIDs,
+      deleteID: deleteControlList,
+      updateID: [],
+      index,
+    };
+    await publishControlRecord(controlRecordPayload);
+
+    // subscription position
+    const positionMapPayload: PositionMapPayload = {
+      editBy: ctx.userId,
+      frame: {
+        createList: newPositionFrameIDs,
+        deleteList: deletePositionList,
+        updateList: [],
+      },
+    };
+    await publishPositionMap(positionMapPayload);
+
+    let newPositionFrames = await ctx.prisma.positionFrame.findMany();
+    newPositionFrames = newPositionFrames.sort();
+    let allPositionFrames = await ctx.prisma.positionFrame.findMany();
+    allPositionFrames = allPositionFrames.sort();
+    index = -1;
+    if (newPositionFrames[0]) {
+      allPositionFrames.map((frame, idx: number) => {
+        if (frame.id === newPositionFrames[0].id) {
+          index = idx;
+        }
+      });
+    }
+    const positionRecordIDs = newPositionFrames.map((frame) => {
+      return frame.id;
+    });
+    const positionRecordPayload: PositionRecordPayload = {
+      mutation: PositionRecordMutation.CREATED_DELETED,
+      editBy: ctx.userId,
+      addID: positionRecordIDs,
+      deleteID: deletePositionList,
+      updateID: [],
+      index,
+    };
+    await publishPositionRecord(positionRecordPayload);
+
+    return { ok: true, msg: `Apply effect id: ${id}` };
   }
 }
