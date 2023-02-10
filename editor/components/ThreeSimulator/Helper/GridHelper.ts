@@ -33,7 +33,7 @@ class GridHelper extends LineSegments {
     let center = horDiv / 2;
     let xPos = -horLen / 2;
     for (let i = 0; i <= horDiv; i++, xPos += intervals) {
-      vertices.push(xPos, 0, -verLen / 2, xPos, 0, verLen / 2);
+      vertices.push(xPos, 0, -verLen / 2, xPos, 0, verLen / 2); // two endpoints of the line (x1, y1, z1, x2, y2, z2)
       if (i === center) this.colorsAppend(centralColor);
       else this.colorsAppend(gridColor);
     }
