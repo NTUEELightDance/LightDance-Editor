@@ -35,12 +35,13 @@ export function updateFrameByTimeMap(
     throw new Error("[Error] updateFrameByTimeMap, invalid parameter(time)");
   }
 
+  // log arg
+  console.log("updateFrameByTimeMap", record, map, controlIndex, time);
   console.log(
-    "frames",
+    "updateFrameByTimeMap",
     map[record[controlIndex + 1]],
     map[record[controlIndex + 2]]
   );
-
   // Check if need to do binary search
   if (
     map[record[controlIndex + 2]] &&

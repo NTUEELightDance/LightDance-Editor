@@ -62,10 +62,10 @@ enum ColorScalarFieldEnum {
 
 input ColorWhereInput {
   AND: [ColorWhereInput!]
-  color: StringFilter
-  colorCode: StringFilter
   NOT: [ColorWhereInput!]
   OR: [ColorWhereInput!]
+  color: StringFilter
+  colorCode: StringFilter
 }
 
 input ColorWhereUniqueInput {
@@ -111,10 +111,10 @@ enum ControlDataScalarFieldEnum {
 
 input ControlDataWhereInput {
   AND: [ControlDataWhereInput!]
-  frame: ControlFrameRelationFilter
-  frameId: IntFilter
   NOT: [ControlDataWhereInput!]
   OR: [ControlDataWhereInput!]
+  frame: ControlFrameRelationFilter
+  frameId: IntFilter
   part: PartRelationFilter
   partId: IntFilter
   value: JsonFilter
@@ -152,12 +152,12 @@ input ControlFrameRelationFilter {
 
 input ControlFrameWhereInput {
   AND: [ControlFrameWhereInput!]
+  NOT: [ControlFrameWhereInput!]
+  OR: [ControlFrameWhereInput!]
   controlDatas: ControlDataListRelationFilter
   editing: EditingControlFrameRelationFilter
   fade: BoolFilter
   id: IntFilter
-  NOT: [ControlFrameWhereInput!]
-  OR: [ControlFrameWhereInput!]
   start: IntFilter
 }
 
@@ -198,12 +198,6 @@ type DancerCount {
   positionData: Int!
 }
 
-enum dancerMutation {
-  CREATED
-  DELETED
-  UPDATED
-}
-
 input DancerOrderByWithRelationInput {
   id: SortOrder
   name: SortOrder
@@ -230,20 +224,16 @@ type DancerResponse {
 
 input DancerWhereInput {
   AND: [DancerWhereInput!]
-  id: IntFilter
-  name: StringFilter
   NOT: [DancerWhereInput!]
   OR: [DancerWhereInput!]
+  id: IntFilter
+  name: StringFilter
   parts: PartListRelationFilter
   positionData: PositionDataListRelationFilter
 }
 
 input DeleteControlFrameInput {
   frameID: Float!
-}
-
-input deleteDancerInput {
-  id: Float!
 }
 
 type DeleteLEDEffectResponse {
@@ -276,9 +266,15 @@ input EditControlMapInput {
   startTime: Float!
 }
 
-input editDancerInput {
+input EditPartInput {
   id: Float!
   name: String!
+  type: String!
+}
+
+input EditPositionFrameInput {
+  frameID: Float!
+  start: Float!
 }
 
 type EditingControlFrame {
@@ -302,10 +298,10 @@ input EditingControlFrameRelationFilter {
 
 input EditingControlFrameWhereInput {
   AND: [EditingControlFrameWhereInput!]
-  editingFrame: ControlFrameRelationFilter
-  frameId: IntNullableFilter
   NOT: [EditingControlFrameWhereInput!]
   OR: [EditingControlFrameWhereInput!]
+  editingFrame: ControlFrameRelationFilter
+  frameId: IntNullableFilter
   user: UserRelationFilter
   userId: IntFilter
 }
@@ -331,23 +327,12 @@ input EditingPositionFrameRelationFilter {
 
 input EditingPositionFrameWhereInput {
   AND: [EditingPositionFrameWhereInput!]
-  editingFrame: PositionFrameRelationFilter
-  frameId: IntNullableFilter
   NOT: [EditingPositionFrameWhereInput!]
   OR: [EditingPositionFrameWhereInput!]
+  editingFrame: PositionFrameRelationFilter
+  frameId: IntNullableFilter
   user: UserRelationFilter
   userId: IntFilter
-}
-
-input EditPartInput {
-  id: Float!
-  name: String!
-  type: String!
-}
-
-input EditPositionFrameInput {
-  frameID: Float!
-  start: Float!
 }
 
 type Effect {
@@ -454,15 +439,15 @@ type LEDEffect {
   repeat: Int!
 }
 
-input LEDEffectCreateframesInput {
-  set: [JSON!]!
-}
-
 input LEDEffectCreateInput {
   frames: LEDEffectCreateframesInput
   name: String!
   partName: String!
   repeat: Int!
+}
+
+input LEDEffectCreateframesInput {
+  set: [JSON!]!
 }
 
 input LEDEffectNamePartNameCompoundUniqueInput {
@@ -479,17 +464,6 @@ type LEDEffectResponse {
   repeat: Int!
 }
 
-type LEDEffects {
-  effect: [Effect!]!
-  fade: Boolean!
-  start: Float!
-}
-
-input LEDEffectUpdateframesInput {
-  push: [JSON!]
-  set: [JSON!]
-}
-
 input LEDEffectUpdateInput {
   frames: LEDEffectUpdateframesInput
   name: StringFieldUpdateOperationsInput
@@ -497,9 +471,20 @@ input LEDEffectUpdateInput {
   repeat: IntFieldUpdateOperationsInput
 }
 
+input LEDEffectUpdateframesInput {
+  push: [JSON!]
+  set: [JSON!]
+}
+
 input LEDEffectWhereUniqueInput {
   id: Int
   name_partName: LEDEffectNamePartNameCompoundUniqueInput
+}
+
+type LEDEffects {
+  effect: [Effect!]!
+  fade: Boolean!
+  start: Float!
 }
 
 type LEDMap {
@@ -510,6 +495,10 @@ type LEDMap {
 scalar LEDMapCustomScalar
 
 type Mutation {
+  CancelEditControl(FrameID: Float!): RequestEditResponse!
+  CancelEditPosition(FrameID: Float!): RequestEditResponse!
+  RequestEditControl(FrameID: Float!): RequestEditResponse!
+  RequestEditPosition(FrameID: Float!): RequestEditResponse!
   addColor(color: ColorCreateInput!): Color!
   addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
@@ -518,8 +507,6 @@ type Mutation {
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(start: Float!): PositionFrame!
   applyEffectList(id: Float!, start: Float!): EffectListResponse!
-  CancelEditControl(FrameID: Float!): RequestEditResponse!
-  CancelEditPosition(FrameID: Float!): RequestEditResponse!
   deleteColor(color: String!): ColorResponse!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
@@ -532,11 +519,9 @@ type Mutation {
   editControlMap(input: EditControlMapInput!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
-  editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   editPosMap(pos: [[Float!]!]!, start: Float!): PositionMap!
+  editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   renameColor(newColor: String!, originalColor: String!): String!
-  RequestEditControl(FrameID: Float!): RequestEditResponse!
-  RequestEditPosition(FrameID: Float!): RequestEditResponse!
   shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
   updateOneLEDEffect(data: LEDEffectUpdateInput!, where: LEDEffectWhereUniqueInput!): LEDEffect
 }
@@ -658,19 +643,22 @@ enum PartType {
 
 input PartWhereInput {
   AND: [PartWhereInput!]
+  NOT: [PartWhereInput!]
+  OR: [PartWhereInput!]
   controlData: ControlDataListRelationFilter
   dancer: DancerRelationFilter
   dancerId: IntFilter
   id: IntFilter
   name: StringFilter
-  NOT: [PartWhereInput!]
-  OR: [PartWhereInput!]
   type: EnumPartTypeFilter
 }
 
 input PartWhereUniqueInput {
   id: Int
 }
+
+"""Mongo object id scalar type"""
+scalar PosMapMutationObjectId
 
 type PositionData {
   dancer: Dancer!
@@ -717,12 +705,12 @@ enum PositionDataScalarFieldEnum {
 
 input PositionDataWhereInput {
   AND: [PositionDataWhereInput!]
+  NOT: [PositionDataWhereInput!]
+  OR: [PositionDataWhereInput!]
   dancer: DancerRelationFilter
   dancerId: IntFilter
   frame: PositionFrameRelationFilter
   frameId: IntFilter
-  NOT: [PositionDataWhereInput!]
-  OR: [PositionDataWhereInput!]
   x: FloatFilter
   y: FloatFilter
   z: FloatFilter
@@ -758,10 +746,10 @@ input PositionFrameRelationFilter {
 
 input PositionFrameWhereInput {
   AND: [PositionFrameWhereInput!]
-  editing: EditingPositionFrameRelationFilter
-  id: IntFilter
   NOT: [PositionFrameWhereInput!]
   OR: [PositionFrameWhereInput!]
+  editing: EditingPositionFrameRelationFilter
+  id: IntFilter
   positionDatas: PositionDataListRelationFilter
   start: IntFilter
 }
@@ -787,23 +775,20 @@ type PositionRecordPayload {
   updateID: [String!]!
 }
 
-"""Mongo object id scalar type"""
-scalar PosMapMutationObjectId
-
 type Query {
+  ControlMap: ControlMap!
+  LEDMap: LEDMap!
+  PosMap: PositionMap!
   color(where: ColorWhereUniqueInput!): Color
   colorMap: ColorMap!
   colors(cursor: ColorWhereUniqueInput, distinct: [ColorScalarFieldEnum!], orderBy: [ColorOrderByWithRelationInput!], skip: Int, take: Int, where: ColorWhereInput): [Color!]!
   controlFrame(frameID: Float!): ControlFrame!
   controlFrameIDs: [ID!]!
-  ControlMap: ControlMap!
   dancer(dancerName: String!): Dancer!
   dancers: [Dancer!]!
   effectList: [EffectListData!]!
-  LEDMap: LEDMap!
   positionFrame(frameID: Float!): PositionFrame!
   positionFrameIDs: [ID!]!
-  PosMap: PositionMap!
 }
 
 enum QueryMode {
@@ -846,10 +831,10 @@ input StringFilter {
 }
 
 type Subscription {
+  DancerSubscription: DancerPayload!
   colorSubscription: ColorPayload!
   controlMapSubscription: ControlMapPayload!
   controlRecordSubscription: ControlRecordPayload!
-  DancerSubscription: DancerPayload!
   effectListSubscription: EffectListPayload!
   positionMapSubscription: PositionMapPayload!
   positionRecordSubscription: PositionRecordPayload!
@@ -878,11 +863,26 @@ input UserRelationFilter {
 
 input UserWhereInput {
   AND: [UserWhereInput!]
+  NOT: [UserWhereInput!]
+  OR: [UserWhereInput!]
   editingControlFrameId: EditingControlFrameRelationFilter
   editingPositionFrameId: EditingPositionFrameRelationFilter
   id: IntFilter
   name: StringFilter
-  NOT: [UserWhereInput!]
-  OR: [UserWhereInput!]
   password: StringFilter
+}
+
+enum dancerMutation {
+  CREATED
+  DELETED
+  UPDATED
+}
+
+input deleteDancerInput {
+  id: Float!
+}
+
+input editDancerInput {
+  id: Float!
+  name: String!
 }
