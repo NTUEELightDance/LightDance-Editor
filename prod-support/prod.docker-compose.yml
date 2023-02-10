@@ -3,6 +3,7 @@ version: "3.4"
 services:
   nginx:
     image: lightdance-nginx
+    container_name: lightdance-nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -17,6 +18,7 @@ services:
 
   editor:
     image: lightdance-editor
+    container_name: lightdance-editor
     build:
       context: ..
       dockerfile: ./prod-support/editor/Dockerfile
@@ -44,6 +46,7 @@ services:
 
   file-server:
     image: lightdance-file-server
+    container_name: lightdance-file-server
     build:
       context: ..
       dockerfile: ./prod-support/file-server/Dockerfile
@@ -54,6 +57,7 @@ services:
 
   postgresql:
     image: postgres
+    container_name: lightdance-postgresql
     environment:
       POSTGRES_DB: lightdance
       POSTGRES_USER: lightdance-user
@@ -67,6 +71,7 @@ services:
       - 5432
 
   redisdb:
+    container_name: lightdance-redisdb
     image: redis
     volumes:
       - redis-data:/data
