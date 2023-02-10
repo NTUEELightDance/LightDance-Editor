@@ -4,6 +4,7 @@ services:
   nginx:
     image: lightdance-nginx
     container_name: lightdance-nginx
+    hostname: lightdance-nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile
