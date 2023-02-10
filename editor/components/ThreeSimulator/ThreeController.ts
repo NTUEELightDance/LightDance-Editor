@@ -260,7 +260,7 @@ class ThreeController {
   }
 
   generateGridHelper() {
-    const gridHelper = new GridHelper(60, 20);
+    const gridHelper = new GridHelper(60, 30, 20, 10); // (horizontalLength, verticalLength, horizontalDivisions, verticalDivisions)
     gridHelper.matrixAutoUpdate = false;
     this.scene.add(gridHelper);
     return gridHelper;
