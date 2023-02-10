@@ -63,7 +63,6 @@ class ThreeController {
   state: any;
   isPlaying: boolean;
   // ? seems always undefined, not sure why its here
-  animateID: any;
   initialized: boolean;
 
   constructor() {
@@ -83,6 +82,8 @@ class ThreeController {
     this.light = this.generateLight();
     this.gridHelper = this.generateGridHelper();
     this.initCenterMarker();
+    this.manager = this.generateLoadManager();
+    this.controls = null;
 
     // Dancer
     this.dancers = {};
@@ -92,11 +93,7 @@ class ThreeController {
     this.isPlaying = false;
 
     // record the return id of requestAnimationFrame
-    this.animateID = null;
     this.initialized = false;
-
-    this.manager = null;
-    this.controls = null;
   }
 
   /**
@@ -137,7 +134,7 @@ class ThreeController {
     // Initialization of grid helper on the floor
 
     // Start rendering
-    this.animateID = this.animate();
+    this.animate();
     this.renderer.render(this.scene, this.camera);
 
     // Monitor performance and delay
@@ -251,8 +248,6 @@ class ThreeController {
   }
 
   initDancers() {
-    this.initLoadManager();
-
     const { dancerNames, currentStatus, currentPos } = state;
     const { dancerMap } = store.getState().load;
 
@@ -284,10 +279,10 @@ class ThreeController {
     this.scene.add(cube);
   }
 
-  initLoadManager() {
+  generateLoadManager() {
     const manager = new THREE.LoadingManager();
     manager.onLoad = this.initControls.bind(this);
-    this.manager = manager;
+    return manager;
   }
 
   initControls() {
@@ -408,7 +403,7 @@ class ThreeController {
 
   // render current scene and dancers
   render() {
-    if (!this.isPlaying) this.composer.render(this.scene, this.camera);
+    if (!this.isPlaying) this.composer.renderer.render(this.scene, this.camera);
     else this.renderer?.render(this.scene, this.camera);
   }
 }
