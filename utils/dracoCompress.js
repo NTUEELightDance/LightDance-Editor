@@ -38,12 +38,12 @@ async function compress(input, output) {
 const inputs = process.argv.slice(2);
 
 // filter out files that ends with .glb but not .draco.glb
-const dracoFiles = inputs.filter(
+const glbFiles = inputs.filter(
   (file) => file.endsWith(".glb") && !file.endsWith(".draco.glb")
 );
 
 // compress all the files with output file name ending with .draco.glb
-dracoFiles.forEach((file) => {
+glbFiles.forEach((file) => {
   const output = file.replace(".glb", ".draco.glb");
   compress(file, output);
 });

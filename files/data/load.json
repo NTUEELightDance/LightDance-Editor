@@ -3,11 +3,56 @@
   "LightPresets": "/data/default_lightPresets.json",
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
-    "1_henning": {
-      "url": "/asset/models/yellow.draco.glb"
+    "1_hank": {
+      "url": "/asset/models/eggsy.draco.glb"
     },
-    "2_hans": {
-      "url": "/asset/models/yellow.draco.glb"
+    "2_henning": {
+      "url": "/asset/models/agent.draco.glb"
+    },
+    "3_hans": {
+      "url": "/asset/models/agent.draco.glb"
+    },
+    "4_rayh": {
+      "url": "/asset/models/agent.draco.glb"
+    },
+    "5_justin": {
+      "url": "/asset/models/agent.draco.glb"
+    },
+    "6_stantheman": {
+      "url": "/asset/models/reaper.draco.glb"
+    },
+    "7_ken": {
+      "url": "/asset/models/assassin.draco.glb"
+    },
+    "8_samuel": {
+      "url": "/asset/models/assassin.draco.glb"
+    },
+    "9_alice": {
+      "url": "/asset/models/assassin.draco.glb"
+    },
+    "10_ttk": {
+      "url": "/asset/models/assassin.draco.glb"
+    },
+    "11_cabinet_ken": {
+      "url": "/asset/models/11_cabinet_ken.draco.glb"
+    },
+    "12_cabinet_ttk": {
+      "url": "/asset/models/12_cabinet_ttk.draco.glb"
+    },
+    "13_cabinet_samuel": {
+      "url": "/asset/models/13_cabinet_samuel.draco.glb"
+    },
+    "14_counter_left": {
+      "url": "/asset/models/counter_1.draco.glb"
+    },
+    "15_counter_right": {
+      "url": "/asset/models/counter_2.draco.glb"
+    },
+    "16_scythe": {
+      "url": "/asset/models/scythe.draco.glb"
+    },
+    "17_signboard": {
+      "url": "/asset/models/signboard.draco.glb"
     }
   }
 }
