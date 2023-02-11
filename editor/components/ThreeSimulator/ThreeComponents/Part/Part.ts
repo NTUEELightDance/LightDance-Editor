@@ -1,5 +1,4 @@
 import THREE from "three";
-import { Color } from "three";
 import { Fiber, LedEffectFrame } from "core/models";
 
 // this is a base class for dancer parts
