@@ -49,6 +49,7 @@ export default class LEDPart extends Part {
   createLEDs() {
     const LEDpositions = [];
     for (let i = 1; ; i++) {
+      // while(true) will cause Unexpected constant condition
       const name = `${this.name}${String(i).padStart(3, "0")}`;
       const mesh = this.model.getObjectByName(name);
       if (mesh == null) break;
