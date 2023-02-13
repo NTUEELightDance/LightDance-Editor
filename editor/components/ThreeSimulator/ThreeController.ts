@@ -115,26 +115,14 @@ class ThreeController {
 
     THREE.Cache.enabled = true;
 
-    // Initialization of 3D renderer
-
-    // Add a camera to view the scene, all the parameters are customizable
-
-    // Add a background scene
-
-    // Add a dim light to identity each dancers
-
     // Postprocessing for anti-aliasing effect
     this.composer = this.generateComposer();
-
-    // Set the clock for animation
 
     // Append the canvas to given ref
     this.canvas.appendChild(this.renderer.domElement);
 
-    // Initialization of all dancers with currentPos
+    // Initialization of all dancers withcurrentPos
     this.initDancers();
-
-    // Initialization of grid helper on the floor
 
     // Start rendering
     this.animate();
@@ -355,6 +343,7 @@ class ThreeController {
     }
     if (!this.settings.config.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
+      // Type Filter
       this.dancers[dancerName].setFiberStatus(status);
     });
   }
