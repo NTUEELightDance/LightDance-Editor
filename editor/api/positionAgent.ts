@@ -39,16 +39,9 @@ export const posAgent = {
     return posRecordData.positionFrameIDs as PosRecord;
   },
 
-  addFrame: async (
-    frame: PosMapStatus | ControlMapStatus,
-    currentTime: number
-  ) => {
-    if (!isPosMapStatus(frame)) {
-      return;
-    }
-
+  addFrame: async (currentTime: number) => {
     try {
-      await client.mutate({
+      const { data: response } = await client.mutate({
         mutation: ADD_POS_FRAME,
         variables: {
           start: currentTime,
@@ -57,21 +50,13 @@ export const posAgent = {
           {
             query: GET_POS_RECORD,
           },
-        ],
-      });
-
-      await client.mutate({
-        mutation: EDIT_POS_FRAME,
-        variables: {
-          start: currentTime,
-          pos: toPosMapStatusPayload(frame),
-        },
-        refetchQueries: [
           {
             query: GET_POS_MAP,
           },
         ],
       });
+
+      return response.addPositionFrame.id.toString() as string;
     } catch (error) {
       console.error(error);
       throw error;
@@ -114,7 +99,7 @@ export const posAgent = {
       client.mutate({
         mutation: EDIT_POS_FRAME,
         variables: {
-          start: currentTime,
+          frameId: parseInt(frameId),
           pos: toPosMapStatusPayload(frame),
         },
         refetchQueries: [

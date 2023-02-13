@@ -27,11 +27,7 @@ export const PosDataScalar = new GraphQLScalarType({
       const createFrames: LooseObject = {};
       await Promise.all(
         createList.map(async (id: any) => {
-          const cache = await redis.get(id);
-          if (cache) {
-            const cacheObj = JSON.parse(cache);
-            createFrames[id] = cacheObj;
-          }
+          createFrames[id] = await getRedisPosition(id);
         })
       );
       const updateFrames: LooseObject = {};

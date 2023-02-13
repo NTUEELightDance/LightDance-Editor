@@ -263,7 +263,7 @@ input EditControlFrameInput {
 input EditControlMapInput {
   controlData: [[[String!]!]!]!
   fade: Boolean
-  startTime: Float!
+  frameId: Int!
 }
 
 input EditPartInput {
@@ -275,6 +275,11 @@ input EditPartInput {
 input EditPositionFrameInput {
   frameID: Float!
   start: Float!
+}
+
+input EditPositionMapInput {
+  frameId: Int!
+  positionData: [[Float!]!]!
 }
 
 type EditingControlFrame {
@@ -519,7 +524,7 @@ type Mutation {
   editControlMap(input: EditControlMapInput!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editPart(part: EditPartInput!): PartResponse!
-  editPosMap(pos: [[Float!]!]!, start: Float!): PositionMap!
+  editPosMap(input: EditPositionMapInput!): PositionMap!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   renameColor(newColor: String!, originalColor: String!): String!
   shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
@@ -776,9 +781,9 @@ type PositionRecordPayload {
 }
 
 type Query {
-  ControlMap: ControlMap!
+  ControlMap(select: queryMapInput): ControlMap!
   LEDMap: LEDMap!
-  PosMap: PositionMap!
+  PosMap(select: queryMapInput): PositionMap!
   color(where: ColorWhereUniqueInput!): Color
   colorMap: ColorMap!
   colors(cursor: ColorWhereUniqueInput, distinct: [ColorScalarFieldEnum!], orderBy: [ColorOrderByWithRelationInput!], skip: Int, take: Int, where: ColorWhereInput): [Color!]!
@@ -885,4 +890,8 @@ input deleteDancerInput {
 input editDancerInput {
   id: Float!
   name: String!
+}
+
+input queryMapInput {
+  frameIds: [Int!]!
 }

@@ -14,15 +14,22 @@ import { Topic } from "./subscriptions/topic";
 import { PositionMapPayload } from "./subscriptions/positionMap";
 import { updateRedisPosition } from "../utility";
 import { TContext } from "../types/global";
+import { EditPositionMapInput, queryMapInput } from "./inputs/map";
 
 @Resolver((of) => PositionMap)
 export class PosMapResolver {
   @Query((returns) => PositionMap)
-  async PosMap(@Ctx() ctx: TContext) {
-    const frameIds = await ctx.prisma.positionFrame.findMany({
-      select: { id: true },
-    });
-    return { frameIds: frameIds.map((frame) => frame.id) };
+  async PosMap(
+    @Ctx() ctx: TContext,
+    @Arg("select", { nullable: true }) select: queryMapInput
+  ) {
+    if (!select) {
+      const allFrameIds = await ctx.prisma.positionFrame.findMany({
+        select: { id: true },
+      });
+      return { frameIds: allFrameIds.map((frame) => frame.id) };
+    }
+    return { frameIds: select.frameIds };
   }
 }
 
@@ -31,17 +38,15 @@ export class EditPosMapResolver {
   @Mutation((returns) => PositionMap)
   async editPosMap(
     @PubSub(Topic.PositionMap) publish: Publisher<PositionMapPayload>,
-    @Arg("pos", (type) => [[Number]])
-    positionData: number[][],
-    @Arg("start") startTime: number,
+    @Arg("input") input: EditPositionMapInput,
     @Ctx() ctx: TContext
   ) {
+    const { positionData, frameId } = input;
     //check payload correctness
-    const frameToEdit = await ctx.prisma.positionFrame.findFirst({
-      where: { start: startTime },
+    const frameToEdit = await ctx.prisma.positionFrame.findUniqueOrThrow({
+      where: { id: frameId },
     });
-    if (!frameToEdit)
-      throw new Error(`frame start from ${startTime} not found`);
+
     const editing = await ctx.prisma.editingPositionFrame.findFirst({
       where: { frameId: frameToEdit.id },
     });
@@ -75,11 +80,12 @@ export class EditPosMapResolver {
         });
       })
     );
-    await updateRedisPosition(frameToEdit.id);
     await ctx.prisma.editingPositionFrame.update({
       where: { userId: ctx.userId },
       data: { frameId: null },
     });
+
+    await updateRedisPosition(frameToEdit.id);
     // subscription
     const payload: PositionMapPayload = {
       editBy: ctx.userId,

@@ -9,6 +9,7 @@ import {
   REQUEST_EDIT_CONTROL_BY_ID,
   CANCEL_EDIT_CONTROL_BY_ID,
   ADD_CONTROL_FRAME,
+  SELECT_CONTROL_FRAMES,
 } from "@/graphql";
 
 import type {
@@ -33,6 +34,19 @@ export const controlAgent = {
     return controlMapData.ControlMap.frameIds as ControlMapQueryPayload;
   },
 
+  selectControlFrames: async (frameIds: number[]) => {
+    const { data: controlFramesData } = await client.query({
+      query: SELECT_CONTROL_FRAMES,
+      variables: {
+        select: {
+          frameIds,
+        },
+      },
+    });
+
+    return controlFramesData.ControlMap.frameIds as ControlMapQueryPayload;
+  },
+
   getControlRecord: async () => {
     const { data: controlRecordData } = await client.query({
       query: GET_CONTROL_RECORD,
@@ -40,44 +54,26 @@ export const controlAgent = {
     return controlRecordData.controlFrameIDs as ControlRecord;
   },
 
-  addFrame: async (
-    frame: ControlMapStatus | PosMapStatus,
-    currentTime: number,
-    fade?: boolean
-  ) => {
-    if (!isControlMapStatus(frame)) {
-      return;
-    }
-
+  // create a new empty frame
+  addFrame: async (currentTime: number, fade?: boolean) => {
     try {
-      await client.mutate({
+      const { data: response } = await client.mutate({
         mutation: ADD_CONTROL_FRAME,
         variables: {
           start: currentTime,
-          fade: fade ?? false,
+          ...(fade !== undefined && { fade }),
         },
         refetchQueries: [
           {
             query: GET_CONTROL_RECORD,
           },
-        ],
-      });
-
-      await client.mutate({
-        mutation: EDIT_CONTROL_FRAME,
-        variables: {
-          input: {
-            startTime: currentTime,
-            controlData: toControlMapStatusMutationPayload(frame),
-            fade,
-          },
-        },
-        refetchQueries: [
           {
             query: GET_CONTROL_MAP,
           },
         ],
       });
+
+      return response.addControlFrame.id.toString() as string;
     } catch (error) {
       console.error(error);
       throw error;
@@ -122,7 +118,7 @@ export const controlAgent = {
         mutation: EDIT_CONTROL_FRAME,
         variables: {
           input: {
-            startTime: currentTime,
+            frameId: parseInt(frameId),
             controlData: toControlMapStatusMutationPayload(frame),
             ...(fade !== undefined && { fade }),
           },

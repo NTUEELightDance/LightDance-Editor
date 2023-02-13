@@ -1,5 +1,5 @@
 // states and actions
-import { reactiveState } from "core/state";
+import { reactiveState } from "@/core/state";
 
 import {
   startEditing,
@@ -10,11 +10,11 @@ import {
   setCurrentTime,
   generateLedEffectRecord,
   cancelEditMode,
-} from "core/actions";
+} from "@/core/actions";
 // constants
 import { CONTROL_EDITOR, POS_EDITOR } from "@/constants";
 
-import { notification, confirmation, formatDisplayedTime } from "core/utils";
+import { notification, confirmation, formatDisplayedTime } from "@/core/utils";
 
 export default function useEditHandler() {
   const resetTime = async () => {

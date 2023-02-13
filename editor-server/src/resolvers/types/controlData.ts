@@ -3,15 +3,16 @@ import { GraphQLScalarType, Kind } from "graphql";
 
 import redis from "../../redis";
 import { TRedisControl, TRedisControls } from "../../types/global";
+import { getRedisControl } from "../../utility";
 
 type TControlIDList = {
-  createList: string[];
-  deleteList: string[];
-  updateList: string[];
+  createList: number[];
+  deleteList: number[];
+  updateList: number[];
 };
 
 type TControlID = {
-  id: string;
+  id: number;
 };
 
 type TControlDataFrame = TControlIDList | TControlID;
@@ -24,7 +25,7 @@ type TControlDataScalar =
   | {
       createFrames: TRedisControls;
       updateFrames: TRedisControls;
-      deleteFrames: string[];
+      deleteFrames: number[];
     }
   | TRedisControls;
 
@@ -43,32 +44,20 @@ export const ControlDataScalar = new GraphQLScalarType({
       const createFrames: TRedisControls = {};
       await Promise.all(
         createList.map(async (id) => {
-          const cache = await redis.get(id);
-          if (cache) {
-            const cacheObj: TRedisControl = JSON.parse(cache);
-            createFrames[id] = cacheObj;
-          }
+          createFrames[id] = await getRedisControl(id);
         })
       );
       const updateFrames: TRedisControls = {};
       await Promise.all(
         updateList.map(async (id) => {
-          const cache = await redis.get(id);
-          if (cache) {
-            const cacheObj: TRedisControl = JSON.parse(cache);
-            updateFrames[id] = cacheObj;
-          }
+          updateFrames[id] = await getRedisControl(id);
         })
       );
       return { createFrames, deleteFrames: deleteList, updateFrames }; // value sent to the client
     } else {
       const { id } = data;
       const result: TRedisControls = {};
-      const cache = await redis.get(id);
-      if (cache) {
-        const cacheObj: TRedisControl = JSON.parse(cache);
-        result[id] = cacheObj;
-      }
+      result[id] = await getRedisControl(id);
       return result;
     }
   },

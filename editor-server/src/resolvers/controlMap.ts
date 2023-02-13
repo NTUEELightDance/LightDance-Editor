@@ -14,17 +14,22 @@ import { Topic } from "./subscriptions/topic";
 import { ControlMapPayload } from "./subscriptions/controlMap";
 import { updateRedisControl } from "../utility";
 import { TContext } from "../types/global";
-import { EditControlMapInput } from "./inputs/map";
+import { EditControlMapInput, queryMapInput } from "./inputs/map";
 
 @Resolver((of) => ControlMap)
 export class ControlMapResolver {
   @Query((returns) => ControlMap)
-  async ControlMap(@Ctx() ctx: TContext) {
-    const frameIds = await ctx.prisma.controlFrame.findMany({
-      select: { id: true },
-    });
-
-    return { frameIds: frameIds.map((frame) => frame.id) };
+  async ControlMap(
+    @Ctx() ctx: TContext,
+    @Arg("select", { nullable: true }) select: queryMapInput
+  ) {
+    if (!select) {
+      const allFrameIds = await ctx.prisma.controlFrame.findMany({
+        select: { id: true },
+      });
+      return { frameIds: allFrameIds.map((frame) => frame.id) };
+    }
+    return { frameIds: select.frameIds };
   }
 }
 
@@ -36,19 +41,20 @@ export class EditControlMapResolver {
     @Arg("input") input: EditControlMapInput,
     @Ctx() ctx: TContext
   ) {
-    const { startTime, fade, controlData } = input;
+    const { fade, controlData, frameId } = input;
     // check payload
-    const frameToEdit = await ctx.prisma.controlFrame.findFirst({
-      where: { start: startTime },
+    const frameToEdit = await ctx.prisma.controlFrame.findUniqueOrThrow({
+      where: { id: frameId },
     });
-    if (!frameToEdit)
-      throw new Error(`frame start from ${startTime} not found`);
+
     const dancers = await ctx.prisma.dancer.findMany({
       include: {
         parts: {
           include: { controlData: true },
+          orderBy: { id: "asc" },
         },
       },
+      orderBy: { id: "asc" },
     });
     const editing = await ctx.prisma.editingControlFrame.findFirst({
       where: { frameId: frameToEdit.id },
@@ -66,10 +72,7 @@ export class EditControlMapResolver {
     await Promise.all(
       controlData.map(async (datas, ind) => {
         const dancer = dancers[ind];
-        const parts = await ctx.prisma.part.findMany({
-          where: { dancerId: dancer.id },
-          include: { controlData: true },
-        });
+        const parts = dancer.parts;
         await Promise.all(
           datas.map(async (data, index) => {
             const part = parts[index];
@@ -110,7 +113,9 @@ export class EditControlMapResolver {
       where: { userId: ctx.userId },
       data: { frameId: null },
     });
+
     await updateRedisControl(frameToEdit.id);
+
     const payload: ControlMapPayload = {
       editBy: ctx.userId,
       frame: {

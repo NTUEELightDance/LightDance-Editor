@@ -1,12 +1,25 @@
-import { type } from "os";
-import { InputType, Field } from "type-graphql";
+import { InputType, Field, Int, Float } from "type-graphql";
+
+@InputType()
+export class queryMapInput {
+  @Field(() => [Int])
+  frameIds: number[];
+}
 
 @InputType()
 export class EditControlMapInput {
-  @Field()
-  startTime: number;
+  @Field(() => Int)
+  frameId: number;
   @Field({ nullable: true })
   fade?: boolean;
-  @Field((type) => [[[String]]])
+  @Field(() => [[[String]]])
   controlData: string[][][];
+}
+
+@InputType()
+export class EditPositionMapInput {
+  @Field(() => Int)
+  frameId: number;
+  @Field(() => [[Float]])
+  positionData: number[][];
 }

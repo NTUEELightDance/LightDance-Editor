@@ -20,6 +20,14 @@ export const GET_CONTROL_MAP = gql`
   }
 `;
 
+export const SELECT_CONTROL_FRAMES = gql`
+  query ControlMap($select: queryMapInput) {
+    ControlMap(select: $select) {
+      frameIds
+    }
+  }
+`;
+
 export const GET_CONTROL_RECORD = gql`
   query controlRecord {
     controlFrameIDs
@@ -29,6 +37,14 @@ export const GET_CONTROL_RECORD = gql`
 export const GET_POS_MAP = gql`
   query posMap {
     PosMap {
+      frameIds
+    }
+  }
+`;
+
+export const SELECT_POS_FRAMES = gql`
+  query PositionFrame($select: queryMapInput) {
+    PosMap(select: $select) {
       frameIds
     }
   }

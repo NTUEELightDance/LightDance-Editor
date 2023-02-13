@@ -66,8 +66,8 @@ const subPosMap = (client: ApolloClient<NormalizedCacheObject>) => {
               const newPosMap = cloneDeep(posMap);
 
               if (Object.keys(createFrames).length > 0) {
-                newPosMap.frames = {
-                  ...newPosMap.frames,
+                newPosMap.frameIds = {
+                  ...newPosMap.frameIds,
                   ...createFrames,
                 };
               }
@@ -106,21 +106,20 @@ const subControlRecord = (client: ApolloClient<NormalizedCacheObject>) => {
             controlFrameIDs(controlFrameIDs: string[]) {
               const { index, addID, updateID, deleteID } =
                 data.data.controlRecordSubscription;
-              const newControlRecord = [...controlFrameIDs];
-              if (addID.length) {
+              let newControlRecord = [...controlFrameIDs];
+              if (addID.length > 0) {
                 newControlRecord.splice(index, 0, ...addID);
               }
-              if (updateID.length) {
+              if (updateID.length > 0) {
                 const length = updateID.length;
                 const updateIndex = newControlRecord.indexOf(updateID[0]);
                 newControlRecord.splice(updateIndex, length);
                 newControlRecord.splice(index, 0, ...updateID);
               }
-              if (deleteID.length) {
-                deleteID.map((id: string) => {
-                  const deleteIndex = newControlRecord.indexOf(id);
-                  newControlRecord.splice(deleteIndex, 1);
-                });
+              if (deleteID.length > 0) {
+                newControlRecord = newControlRecord.filter(
+                  (id: string) => !deleteID.includes(id)
+                );
               }
               return newControlRecord;
             },
@@ -147,23 +146,17 @@ const subControlMap = (client: ApolloClient<NormalizedCacheObject>) => {
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.controlMapSubscription.frame;
               const newControlMap = cloneDeep(controlMap);
-              if (Object.keys(createFrames).length > 0) {
-                newControlMap.frames = {
-                  ...newControlMap.frames,
-                  ...createFrames,
-                };
-              }
-              if (deleteFrames.length) {
-                deleteFrames.map((id: string) => {
-                  delete newControlMap.frames[id];
-                });
-              }
-              if (Object.keys(updateFrames).length > 0) {
-                newControlMap.frames = {
-                  ...newControlMap.frames,
-                  ...updateFrames,
-                };
-              }
+              newControlMap.frameIds = {
+                ...newControlMap.frameIds,
+                ...createFrames,
+              };
+              deleteFrames.map((id: string) => {
+                delete newControlMap.frameIds[id];
+              });
+              newControlMap.frameIds = {
+                ...newControlMap.frameIds,
+                ...updateFrames,
+              };
               return newControlMap;
             },
           },

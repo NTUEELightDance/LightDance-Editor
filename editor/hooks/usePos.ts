@@ -1,12 +1,13 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useReactiveVar } from "@apollo/client";
 
 // gql
 import { GET_POS_MAP, GET_POS_RECORD } from "../graphql";
-import { state } from "@/core/state";
+import { reactiveState } from "@/core/state";
 
 export default function usePos() {
   // query posMap
   const { loading: posMapLoading, error: posMapError } = useQuery(GET_POS_MAP);
+  const posMap = useReactiveVar(reactiveState.posMap);
 
   // query posRecord
   const {
@@ -19,7 +20,7 @@ export default function usePos() {
   return {
     loading: posMapLoading || posRecordLoading,
     error: posMapError != null || posRecordError,
-    posMap: state.posMap,
+    posMap,
     posRecord,
   };
 }
