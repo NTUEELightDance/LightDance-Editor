@@ -57,6 +57,7 @@ const _state: State = {
 
   dancersArray: [],
   dancerPartIndexMap: {},
+  lasso: false,
 };
 
 // The diffSet will save changed attributes in state

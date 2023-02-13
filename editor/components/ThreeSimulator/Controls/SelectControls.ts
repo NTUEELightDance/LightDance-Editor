@@ -1,7 +1,20 @@
-import { EventDispatcher, Raycaster, Vector2, Group } from "three";
-import { setSelectedDancers, clearSelected } from "../../../core/actions";
+import {
+  EventDispatcher,
+  Raycaster,
+  Vector2,
+  Group,
+  cloneUniformsGroups,
+  WebGLRenderer,
+  PCFShadowMap,
+} from "three";
+import {
+  setSelectedDancers,
+  clearSelected,
+  getLasso,
+} from "../../../core/actions";
 import { DANCER, PART } from "@/constants";
-
+import { SelectionBox } from "./SelectionBox";
+import { SelectionHelper } from "./SelectionHelper";
 import { throttle } from "throttle-debounce";
 
 const _raycaster = new Raycaster();
@@ -18,10 +31,21 @@ class SelectControls extends EventDispatcher {
     let _mode = DANCER;
 
     const _intersections = [];
-
+    const _intersectionsPartsBuffer = [];
+    let _intersectionsParts = [];
     _scene.add(_group);
 
-    //
+    const renderer = new WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = PCFShadowMap;
+
+    const selectionBox = new SelectionBox(_camera, _scene);
+    const helper = new SelectionHelper(renderer, "selectBox");
+    const startX = 0;
+    const startY = 0;
 
     const scope = this;
 
@@ -61,15 +85,50 @@ class SelectControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerDown(event) {
+    async function onPointerDown(event) {
+      //在three js的場景中按下滑鼠就會觸發
+      //FIXME: getLasso gets undefined
+      const lasso = await getLasso();
+      console.log(scope);
+      if (lasso) {
+        console.log("in the lasso mode");
+        return;
+      }
+
+      console.log("event", event);
+      if (event.button === 2) {
+        scope.enabled = !scope.enabled;
+
+        if (scope.blocking === true) {
+          scope.blocking = false;
+        }
+        return;
+      }
+      if (scope.enabled === false) {
+        scope.blocking = true;
+        //TODO: selection box implement
+        const rect = _domElement.getBoundingClientRect();
+        console.log(selectionBox.startPoint);
+        selectionBox.startPoint.set(
+          ((event.clientX - rect.left) / rect.width) * 2 - 1,
+          (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+          0.5
+        );
+        //TODO: finish
+        return;
+      }
       if (event.button !== 0 || scope.enabled === false) return;
 
       updatePointer(event);
 
       _intersections.length = 0;
-
+      console.log("_objects = ", _objects[0]);
       _raycaster.setFromCamera(_pointer, _camera);
+      console.log("_raycaster", _raycaster.camera);
       _raycaster.intersectObjects(_objects, true, _intersections);
+      //objects: objects to check
+      //true: recursive or not
+      //intersections: the variable of the result
 
       if (_intersections.length > 0) {
         const object = _intersections[0].object.parent;
@@ -104,7 +163,77 @@ class SelectControls extends EventDispatcher {
 
     let _hover = null;
 
+    const findUuid = (arr, uuid): boolean => {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].object.uuid === uuid) {
+          return true;
+        }
+      }
+      return false;
+    };
     function onPointerMove(event) {
+      //滑鼠移動就會執行
+      if (scope.blocking === true) {
+        updatePointer(event);
+        _raycaster.setFromCamera(_pointer, _camera);
+        //TODO: selection box implement
+        if (true) {
+          console.log("selection collection", selectionBox.collection);
+          //FIXME: Uncaught TypeError: Cannot read properties of undefined (reading 'set')
+          // for (let i = 0; i < selectionBox.collection.length; i++) {
+          //   selectionBox.collection[i].material.emissive.set(0x000000);
+          // }
+          const rect = _domElement.getBoundingClientRect();
+          selectionBox.endPoint.set(
+            ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+            0.5
+          );
+
+          const allSelected = selectionBox.select();
+
+          for (let i = 0; i < allSelected.length; i++) {
+            /**
+             *this.meshes[i].material.emissive.setHex(
+              parseInt(colorCode.replace(/^#/, ""), 16));
+             */
+            //FIXME: color cannot change when selected
+            const selectedDisplay = {
+              colorCode: "#FF0000",
+              alpha: 255,
+            };
+            const display = selectedDisplay;
+            const { colorCode, alpha } = display;
+            allSelected[i].material.emissive.setHex(
+              parseInt(colorCode.replace(/^#/, ""), 16)
+            );
+            allSelected[i].material.emissiveIntensity = alpha / 15;
+          }
+          // console.log("selection collection", selection.collection);
+        }
+
+        //TODO: finish
+        let allParts = [];
+        _objects.forEach((e, i) => {
+          allParts = [...allParts, ...e.children];
+        });
+        _raycaster.intersectObjects(allParts, true, _intersectionsPartsBuffer);
+        _intersectionsPartsBuffer.forEach((e, i) => {
+          if (!_intersectionsParts.includes(e)) {
+            if (
+              !findUuid(_intersectionsParts, e.object.uuid) &&
+              e.object.name.includes("LED")
+            ) {
+              console.log("add a new object", e.object.uuid);
+              e.object.material.color.r = 1;
+              _intersectionsParts = [..._intersectionsParts, e];
+            }
+          }
+        });
+        // console.log("_intersectionsParts", _intersectionsParts);
+        return;
+      }
+      // console.log("onPointerMove");
       updatePointer(event);
       _intersections.length = 0;
 
@@ -123,10 +252,12 @@ class SelectControls extends EventDispatcher {
     }
 
     function _hoverByName(name) {
+      //滑鼠在人身上就會執行
       _dancers[name].hover();
     }
 
     function _unhoverByName(name) {
+      //滑鼠從人身上移開才會執行
       _dancers[name].unhover();
     }
 
@@ -156,6 +287,7 @@ class SelectControls extends EventDispatcher {
     }
 
     function updateSelected(selected) {
+      //用滑鼠點選人的時候會執行
       const selectedObjects = [];
       Object.entries(selected).forEach(([name, value]) => {
         _dancers[name].updateSelected(value.selected);
@@ -201,7 +333,7 @@ class SelectControls extends EventDispatcher {
 
     this.enabled = true;
     this.enableMultiSelection = false;
-
+    this.blocking = false;
     this.activate = activate;
     this.deactivate = deactivate;
     this.dispose = dispose;

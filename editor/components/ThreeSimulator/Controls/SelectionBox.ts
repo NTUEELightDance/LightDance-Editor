@@ -191,9 +191,8 @@ class SelectionBox {
           }
         }
       } else {
-        if (object.geometry.boundingSphere === null) {
+        if (object.geometry.boundingSphere === null)
           object.geometry.computeBoundingSphere();
-        }
 
         _center.copy(object.geometry.boundingSphere.center);
 

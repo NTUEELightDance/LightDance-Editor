@@ -1,8 +1,8 @@
 import { LEDPartData } from "@/core/models";
 import Part from "./Part";
 const defaultDisplay = {
-  colorCode: "#000000",
-  alpha: 0,
+  colorCode: "#FFFFFF",
+  alpha: 255,
 };
 interface MeshType extends THREE.Mesh {
   material: THREE.MeshStandardMaterial;
@@ -14,6 +14,7 @@ export default class LEDPart extends Part {
     super(name, model);
     this.meshes = [];
     this.getMeshes();
+    // console.log("selected", this.selected);
   }
 
   getMeshes() {
