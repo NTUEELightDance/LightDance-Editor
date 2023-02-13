@@ -31,8 +31,8 @@ const _state: State = {
   ledEffectRecord: {},
   currentLedEffect: {},
 
-  editMode: IDLE,
-  editor: CONTROL_EDITOR,
+  editMode: "IDLE",
+  editor: "CONTROL_EDITOR",
   selectionMode: "DANCER_MODE",
   editingData: {
     frameId: "",
@@ -41,6 +41,7 @@ const _state: State = {
   },
 
   selected: {},
+  selectedLEDs: [],
 
   dancers: {},
   dancerNames: [],

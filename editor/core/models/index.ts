@@ -1,19 +1,19 @@
 import { ReactiveVar } from "@apollo/client";
-import {
-  CONTROL_EDITOR,
-  POS_EDITOR,
-  IDLE,
-  EDITING,
-  DANCER,
-  PART,
-  POSITION,
-} from "@/constants";
 import { Color } from "three";
 
 export type id = string;
 export type index = number;
 export type DancerName = string;
 export type PartName = string;
+export type LEDPartName = string & { __ledPartName: never };
+
+export function isLEDPartName(partName: unknown): partName is LEDPartName {
+  return typeof partName === "string" && partName.startsWith("_LED");
+}
+
+export type LEDBulbName = string;
+// TODO add LEDBulbName validation
+
 export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
 
@@ -159,8 +159,8 @@ export type CoordinatesPayload = [number, number, number];
 /**
  * Editing
  */
-export type EditMode = typeof IDLE | typeof EDITING;
-export type Editor = typeof CONTROL_EDITOR | typeof POS_EDITOR;
+export type EditMode = "IDLE" | "EDITING";
+export type Editor = "CONTROL_EDITOR" | "POS_EDITOR" | "LED_EDITOR";
 export interface EditingData {
   start: number;
   frameId: string;
@@ -183,7 +183,11 @@ export type SelectedPartPayload = Record<string, string[]>;
 /**
  * selection mode
  */
-export type SelectionMode = typeof DANCER | typeof PART | typeof POSITION;
+export type SelectionMode =
+  | "DANCER_MODE"
+  | "PART_MODE"
+  | "POSITION_MODE"
+  | "LED_MODE";
 
 /**
  * PartTypeMap
@@ -326,12 +330,14 @@ export interface State {
   ledEffectRecord: LedEffectRecord;
   currentLedEffect: CurrentLedEffect;
 
-  editMode: EditMode; // IDLE | EDITING | ADDING
-  editor: Editor; // editor, should be CONTROL_EDITOR or POS_EDITOR
-  selectionMode: SelectionMode; // selection mode used by simulator and dancer tree
+  editMode: EditMode;
+  editor: Editor;
+  selectionMode: SelectionMode;
   editingData: EditingData; // store the editingData's start time id and index
 
   selected: Selected; // array of selected dancer's name
+  selectedLEDs: LEDBulbName[]; // array of selected LED's name, used in LED editor
+  currentLEDPart: LEDPartName; // the LED part whose effect is being edited
 
   dancers: Dancers;
   dancerNames: DancerName[];
