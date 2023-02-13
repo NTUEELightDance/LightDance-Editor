@@ -8,11 +8,7 @@ function IntensityControl({
   intensity: number;
   setIntensity: (intensity: number) => void;
 }) {
-  const handleSliderChange = (
-    event: Event,
-    newValue: number | number[],
-    activeThumb: number
-  ) => {
+  const handleSliderChange = (event: Event, newValue: number | number[]) => {
     setIntensity(newValue as number);
   };
 
@@ -57,16 +53,15 @@ function IntensityControl({
             position: "relative",
             top: "0.5em",
           }}
-          componentsProps={
-            {
-              thumb: {
-                sx: {
-                  width: "1.25em",
-                  height: "1.25em",
-                },
+          componentsProps={{
+            thumb: {
+              // @ts-expect-error thumb can take sx
+              sx: {
+                width: "1.25em",
+                height: "1.25em",
               },
-            } as any
-          }
+            },
+          }}
         />
       </Grid>
       <Grid item>

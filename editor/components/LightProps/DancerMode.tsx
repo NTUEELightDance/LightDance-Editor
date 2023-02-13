@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 
 import _ from "lodash";
 
@@ -37,6 +37,38 @@ function DancerMode() {
   // states for current status mutation
   const [currentDancers, setCurrentDancers] = useState<string[]>([]);
 
+  const updateDisplayPart = useCallback(
+    (selectedDancers: string[]) => {
+      if (selectedDancers.length === 0) return;
+
+      // get all intersected parts
+      let tempParts: string[] = dancers[selectedDancers[0]];
+      selectedDancers.forEach((dancerName) => {
+        tempParts = _.intersection(tempParts, dancers[dancerName]);
+      });
+
+      // construct new displayPart
+      const newDisplayPart: { [key in PartType]?: string[] } = {};
+
+      tempParts.forEach((part) => {
+        if (newDisplayPart[getPartType(part)] == null) {
+          newDisplayPart[getPartType(part)] = [];
+        }
+
+        (newDisplayPart[getPartType(part)] as string[]).push(part);
+      });
+
+      // update current tab
+      if (!Object.keys(newDisplayPart).includes(currentTab as PartType)) {
+        const newTab = Object.keys(newDisplayPart)[0] as PartType;
+        newTab && setCurrentTab(newTab);
+      }
+
+      setDisplayParts(newDisplayPart);
+    },
+    [currentTab, dancers]
+  );
+
   // update parts
   useEffect(() => {
     if (!dancers || !selected) return;
@@ -44,50 +76,14 @@ function DancerMode() {
     const selectedDancers: string[] = [];
 
     Object.entries(selected).forEach(
-      ([dancerName, { selected: dancerSelected, parts }]) => {
+      ([dancerName, { selected: dancerSelected }]) => {
         if (dancerSelected) selectedDancers.push(dancerName);
       }
     );
 
     setCurrentDancers(selectedDancers);
     updateDisplayPart(selectedDancers);
-  }, [selected]);
-
-  const updateDisplayPart = (selectedDancers: string[]) => {
-    if (selectedDancers.length === 0) return;
-
-    // get all intersected parts
-    let tempParts: string[] = dancers[selectedDancers[0]];
-    selectedDancers.forEach((dancerName) => {
-      tempParts = _.intersection(tempParts, dancers[dancerName]);
-    });
-
-    // construct new displayPart
-    const newDisplayPart: { [key in PartType]?: string[] } = {};
-
-    tempParts.forEach((part) => {
-      if (newDisplayPart[getPartType(part)] == null) {
-        newDisplayPart[getPartType(part)] = [];
-      }
-
-      (newDisplayPart[getPartType(part)] as string[]).push(part);
-    });
-
-    // update current tab
-    if (!Object.keys(newDisplayPart).includes(currentTab as PartType)) {
-      const newTab = Object.keys(newDisplayPart)[0] as PartType;
-      newTab && setCurrentTab(newTab);
-    }
-
-    setDisplayParts(newDisplayPart);
-  };
-
-  // const toggleExpand = (part: string) => () => {
-  //   setExpanded((expanded) => {
-  //     expanded[part] = expanded[part];
-  //     return expanded;
-  //   });
-  // };
+  }, [dancers, selected, updateDisplayPart]);
 
   const handleChangeTab = (event: React.SyntheticEvent, newTab: PartType) => {
     setCurrentTab(newTab);
@@ -95,24 +91,25 @@ function DancerMode() {
 
   // to be passed to [groups].filter
   // decide wether we should show this group panel/tab
-  // show if any of the seleted dancers has a part that's in the group
-  const groupFilter = ([groupName, parts]: [
-    groupName: string,
-    parts: string[]
-  ]) => {
-    const displayPartsSet: Set<string> = new Set();
+  // show if any of the sleeted dancers has a part that's in the group
+  const groupFilter = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ([groupName, parts]: [groupName: string, parts: string[]]) => {
+      const displayPartsSet: Set<string> = new Set();
 
-    // put all names of displayed parts in a set for fast .has
-    Object.values(displayParts).forEach((displayPartsContent) => {
-      displayPartsContent.forEach((part) => displayPartsSet.add(part));
-    });
+      // put all names of displayed parts in a set for fast .has
+      Object.values(displayParts).forEach((displayPartsContent) => {
+        displayPartsContent.forEach((part) => displayPartsSet.add(part));
+      });
 
-    for (const part of parts) {
-      if (displayPartsSet.has(part)) return true;
-    }
+      for (const part of parts) {
+        if (displayPartsSet.has(part)) return true;
+      }
 
-    return false;
-  };
+      return false;
+    },
+    [displayParts]
+  );
 
   const Tabs = useMemo<JSX.Element[]>(() => {
     const ret = [
@@ -127,7 +124,7 @@ function DancerMode() {
       // group tabs
       ...Object.entries(partGroups)
         .filter(groupFilter)
-        .map(([groupName, parts]) => (
+        .map(([groupName]) => (
           <Tab
             label={groupName}
             value={`GROUP_${groupName}`}
@@ -142,7 +139,7 @@ function DancerMode() {
       );
     }
     return ret;
-  }, [displayParts, partGroups]);
+  }, [displayParts, groupFilter, partGroups]);
 
   const Panels = useMemo<JSX.Element[]>(() => {
     const ret = [
@@ -157,7 +154,7 @@ function DancerMode() {
             currentDancers={currentDancers}
             currentStatus={currentStatus}
             colorMap={colorMap}
-            key={partType as PartType}
+            key={partType}
           />
         );
       }),
@@ -190,7 +187,17 @@ function DancerMode() {
       );
     }
     return ret;
-  }, [displayParts, partGroups, currentDancers, currentStatus, colorMap]);
+  }, [
+    displayParts,
+    partGroups,
+    groupFilter,
+    dancers,
+    currentDancers,
+    currentStatus,
+    colorMap,
+    deleteGroup,
+    addNewGroup,
+  ]);
 
   return (
     <TabContext value={currentTab as PartType}>

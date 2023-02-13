@@ -22,6 +22,7 @@ interface PayloadOptions {
   options?: Options;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Payload = any;
 
 /**

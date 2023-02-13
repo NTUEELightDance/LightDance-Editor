@@ -3,17 +3,17 @@
 ## Installation
 
 ```bash
-yarn install
+pnpm install
 ```
 
 ## Development
 
 ```bash
-yarn start
+pnpm start
 ```
 
 ## Production
 
 ```bash
-yarn build
+pnpm build
 ```

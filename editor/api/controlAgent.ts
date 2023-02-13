@@ -1,194 +1,183 @@
-import client from "../client";
-import lodash from "lodash";
+import client from "@/client";
 
-// gql
 import {
   GET_CONTROL_MAP,
   GET_CONTROL_RECORD,
-  ADD_OR_EDIT_CONTROL_FRAME,
-  EDIT_CONTROL_RECORD_BY_ID,
+  EDIT_CONTROL_FRAME,
+  EDIT_CONTROL_FRAME_TIME,
   DELETE_CONTROL_FRAME_BY_ID,
   REQUEST_EDIT_CONTROL_BY_ID,
   CANCEL_EDIT_CONTROL_BY_ID,
-} from "../graphql";
+  ADD_CONTROL_FRAME,
+  SELECT_CONTROL_FRAMES,
+} from "@/graphql";
 
-// types
-import { ControlMapStatus, DancerCoordinates } from "../core/models";
+import type {
+  ControlMapStatus,
+  PosMapStatus,
+  ControlRecord,
+  ControlMapQueryPayload,
+} from "@/core/models";
+import { isControlMapStatus } from "@/core/models";
+
+import { toControlMapStatusMutationPayload } from "@/core/utils/convert";
 
 /**
  * controlAgent: responsible for controlMap and controlRecord
  */
 export const controlAgent = {
-  getControlMap: async () => {
-    const controlMapData = await client.query({ query: GET_CONTROL_MAP });
-    return controlMapData.data.ControlMap.frames;
+  getControlMapPayload: async () => {
+    const { data: controlMapData } = await client.query({
+      query: GET_CONTROL_MAP,
+    });
+
+    return controlMapData.ControlMap.frameIds as ControlMapQueryPayload;
   },
+
+  selectControlFrames: async (frameIds: number[]) => {
+    const { data: controlFramesData } = await client.query({
+      query: SELECT_CONTROL_FRAMES,
+      variables: {
+        select: {
+          frameIds,
+        },
+      },
+    });
+
+    return controlFramesData.ControlMap.frameIds as ControlMapQueryPayload;
+  },
+
   getControlRecord: async () => {
-    const controlRecordData = await client.query({ query: GET_CONTROL_RECORD });
-    return controlRecordData.data.controlFrameIDs;
+    const { data: controlRecordData } = await client.query({
+      query: GET_CONTROL_RECORD,
+    });
+    return controlRecordData.controlFrameIDs as ControlRecord;
   },
-  addFrame: async (
-    frame: DancerCoordinates | ControlMapStatus,
-    currentTime: number,
-    frameIndex: number,
-    fade?: boolean
-  ) => {
+
+  // create a new empty frame
+  addFrame: async (currentTime: number, fade?: boolean) => {
     try {
-      // can't use optimisticResponse and predict QQ
-      await client.mutate({
-        mutation: ADD_OR_EDIT_CONTROL_FRAME,
+      const { data: response } = await client.mutate({
+        mutation: ADD_CONTROL_FRAME,
         variables: {
           start: currentTime,
-          fade,
-          controlData: Object.keys(frame).map((key) => {
-            return {
-              dancerName: key,
-              controlData: Object.keys(frame[key]).map((k) => {
-                if (typeof (frame as ControlMapStatus)[key][k] === "number") {
-                  return {
-                    partName: k,
-                    ELValue: (frame as ControlMapStatus)[key][k],
-                  };
-                }
-                return {
-                  partName: k,
-                  ...((frame as ControlMapStatus)[key][k] as Object),
-                };
-              }),
-            };
-          }),
+          ...(fade !== undefined && { fade }),
         },
+        refetchQueries: [
+          {
+            query: GET_CONTROL_RECORD,
+          },
+          {
+            query: GET_CONTROL_MAP,
+          },
+        ],
       });
+
+      return response.addControlFrame.id.toString() as string;
     } catch (error) {
       console.error(error);
       throw error;
     }
   },
+
   saveFrame: async (
     frameId: string,
-    frame: DancerCoordinates | ControlMapStatus,
+    frame: ControlMapStatus | PosMapStatus,
     currentTime: number,
     requestTimeChange: boolean,
     fade?: boolean
   ) => {
-    const controlMap = await controlAgent.getControlMap();
-    const frameTime = controlMap[frameId].start;
+    if (!isControlMapStatus(frame)) {
+      return;
+    }
+
+    if (requestTimeChange) {
+      try {
+        await client.mutate({
+          mutation: EDIT_CONTROL_FRAME_TIME,
+          variables: {
+            input: {
+              frameID: parseInt(frameId),
+              start: currentTime,
+            },
+          },
+          refetchQueries: [
+            {
+              query: GET_CONTROL_RECORD,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    }
+
     try {
-      // this is to predict the frontend result and faster the performance
-      // don't use optimisticResponse because we use subscription to do the updation
-      client.cache.modify({
-        id: "ROOT_QUERY",
-        fields: {
-          ControlMap(controlMap) {
-            return {
-              frames: {
-                ...controlMap.frames,
-                [frameId]: {
-                  start: requestTimeChange ? currentTime : frameTime,
-                  fade,
-                  status: frame,
-                },
-              },
-            };
+      client.mutate({
+        mutation: EDIT_CONTROL_FRAME,
+        variables: {
+          input: {
+            frameId: parseInt(frameId),
+            controlData: toControlMapStatusMutationPayload(frame),
+            ...(fade !== undefined && { fade }),
           },
         },
-      });
-      // don't use await for optimisticResponse
-      client.mutate({
-        mutation: ADD_OR_EDIT_CONTROL_FRAME,
-        variables: {
-          start: frameTime,
-          fade,
-          controlData: Object.keys(frame).map((dancerName) => {
-            return {
-              dancerName,
-              controlData: Object.keys(frame[dancerName]).map((partName) => {
-                if (
-                  typeof (frame as ControlMapStatus)[dancerName][partName] ===
-                  "number"
-                ) {
-                  return {
-                    partName,
-                    ELValue: (frame as ControlMapStatus)[dancerName][partName],
-                  };
-                }
-                return {
-                  partName,
-                  ...((frame as ControlMapStatus)[dancerName][
-                    partName
-                  ] as Object),
-                };
-              }),
-            };
-          }),
-        },
+        refetchQueries: [
+          {
+            query: GET_CONTROL_MAP,
+          },
+        ],
       });
     } catch (error) {
       console.error(error);
       throw error;
     }
-
-    if (!requestTimeChange) return;
-    // update controlRecord by subscription (to maintain the order)
-    // may have a wrong order but will be fixed while the subscription be triggered
-    client.mutate({
-      mutation: EDIT_CONTROL_RECORD_BY_ID,
-      variables: {
-        input: {
-          frameID: frameId,
-          start: currentTime,
-          fade,
-        },
-      },
-    });
   },
+
   deleteFrame: async (frameId: string) => {
     try {
-      client.cache.modify({
-        id: "ROOT_QUERY",
-        fields: {
-          controlFrameIDs(controlFrameIDs) {
-            return controlFrameIDs.filter((id: string) => id !== frameId);
-          },
-          ControlMap(controlMap) {
-            return {
-              ...controlMap,
-              frames: lodash.omit(controlMap.frames, [frameId]),
-            };
-          },
-        },
-      });
-
-      // don't use await for optimisticResponse
       client.mutate({
         mutation: DELETE_CONTROL_FRAME_BY_ID,
         variables: {
           input: {
-            frameID: frameId,
+            frameID: parseInt(frameId),
           },
         },
+        refetchQueries: [
+          {
+            query: GET_CONTROL_RECORD,
+          },
+          {
+            query: GET_CONTROL_MAP,
+          },
+        ],
       });
     } catch (error) {
       console.error(error);
       throw error;
     }
   },
-  requestEditPermission: async (_frameID: string) => {
-    const response = await client.mutate({
+
+  requestEditPermission: async (frameId: string) => {
+    const { data: response } = await client.mutate({
       mutation: REQUEST_EDIT_CONTROL_BY_ID,
       variables: {
-        frameId: _frameID,
+        frameId: parseInt(frameId),
       },
     });
-    return response.data.RequestEditControl.ok;
+
+    return response.RequestEditControl.ok;
   },
-  cancelEditPermission: async (_frameID: string) => {
-    const response = await client.mutate({
+
+  cancelEditPermission: async (frameId: string) => {
+    const { data: response } = await client.mutate({
       mutation: CANCEL_EDIT_CONTROL_BY_ID,
       variables: {
-        frameId: _frameID,
+        frameId: parseInt(frameId),
       },
     });
-    return response.data.CancelEditControl.ok;
+
+    return response.CancelEditControl.ok;
   },
 };

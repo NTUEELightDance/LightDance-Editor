@@ -23,6 +23,7 @@ module.exports = {
     "react/no-unescaped-entities": "off",
     "react/function-component-definition": ["error"],
     "no-console": ["warn", { allow: ["warn", "error"] }],
+    "@typescript-eslint/no-non-null-assertion": "off",
   },
   settings: {
     react: {

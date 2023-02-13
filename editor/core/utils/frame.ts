@@ -5,7 +5,7 @@ import {
   PosMap,
   PosMapElement,
   Coordinates,
-  DancerCoordinates,
+  PosMapStatus,
   LedRecord,
 } from "../models";
 
@@ -13,13 +13,13 @@ import {
  * Update Frame Index By Time With controlRecord/posRecord and controlMap/posMap
  * @param {array} record - controlRecord or posRecord
  * @param {object} map - controlMap or posMap
- * @param {number} frame - frame idx
+ * @param {number} controlIndex - frame idx
  * @param {number} time - timestamp
  */
 export function updateFrameByTimeMap(
   record: ControlRecord | PosRecord | LedRecord,
   map: ControlMap | PosMap,
-  frame: number,
+  controlIndex: number,
   time: number
 ) {
   if (!Array.isArray(record)) {
@@ -28,19 +28,20 @@ export function updateFrameByTimeMap(
   if (typeof map !== "object") {
     throw new Error("[Error] updateFrameByTimeMap, invalid parameter(map)");
   }
-  if (typeof frame !== "number") {
+  if (typeof controlIndex !== "number") {
     throw new Error("[Error] updateFrameByTimeMap, invalid parameter(frame)");
   }
   if (typeof time !== "number") {
     throw new Error("[Error] updateFrameByTimeMap, invalid parameter(time)");
   }
-  // Check if need to do binarysearch
+
+  // Check if need to do binary search
   if (
-    map[record[frame + 2]] &&
-    time >= map[record[frame + 1]].start &&
-    time <= map[record[frame + 2]].start
+    map[record[controlIndex + 2]] &&
+    time >= map[record[controlIndex + 1]].start &&
+    time <= map[record[controlIndex + 2]].start
   ) {
-    return frame + 1;
+    return controlIndex + 1;
   }
   return binarySearchFrameMap(record, map, time);
 }
@@ -103,7 +104,7 @@ export function interpolationPos(
     );
   }
 
-  const newPos: DancerCoordinates = {};
+  const newPos: PosMapStatus = {};
   Object.keys(prePos).forEach((dancer) => {
     const dancerPrePos: Coordinates = prePos[dancer];
     const dancerNextPos: Coordinates = nextPos[dancer];

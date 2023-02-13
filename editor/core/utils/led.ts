@@ -1,8 +1,9 @@
+// TODO: fix updateLedEffect
 import { fadeAlpha, fadeColor } from "./fade";
 
 import {
   ControlMap,
-  LED,
+  LEDData,
   CurrentLedEffect,
   LedMap,
   LedEffectFrame,
@@ -63,7 +64,7 @@ export function updateLedEffect(
         return;
       }
 
-      const { src } = currentStatus[dancerName][partName] as LED;
+      const { src } = currentStatus[dancerName][partName] as LEDData;
       if (!src || !ledMap[partName][src]) {
         throw `[Invalid src] ${dancerName} ${partName} ${recordId}`;
       }
@@ -116,13 +117,8 @@ export function updateLedEffect(
       currentLedEffect[dancerName][partName].effectIndex = newEffectIndex;
 
       // Goal: calculate the right currentLedEffect[dancerName][partName]'s effect
-      let {
-        effect: currEffect
-      } = effects[newEffectIndex];
-      const {
-        start: currStart,
-        fade
-      } = effects[newEffectIndex];
+      let { effect: currEffect } = effects[newEffectIndex];
+      const { start: currStart, fade } = effects[newEffectIndex];
       // Do fade or not
       if (fade && effects[newEffectIndex + 1]) {
         // currEffect may be the reference of the ledMap -> make a new clone for not modifying the ledMap

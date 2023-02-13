@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 
-import { State, Selected, Editor } from "../models";
+import { State, SelectionMode, Editor } from "../models";
 
 import { CONTROL_EDITOR, POS_EDITOR, POSITION, DANCER } from "@/constants";
 
@@ -9,7 +9,7 @@ const actions = registerActions({
    * @param {State} state
    * @param {Selected} payload
    */
-  setSelectionMode: (state: State, payload: Selected) => {
+  setSelectionMode: (state: State, payload: SelectionMode) => {
     state.selectionMode = payload;
   },
 

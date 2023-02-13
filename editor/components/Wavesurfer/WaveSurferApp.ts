@@ -8,7 +8,7 @@ import store from "../../store";
 import { setCurrentTime, setIsPlaying } from "../../core/actions";
 
 // constant
-import { fadeStatus, getItem } from "../../core/utils";
+import { getItem } from "../../core/utils";
 
 import { LocalRegion, Region } from "../../types/components/wavesurfer";
 // types
@@ -19,10 +19,11 @@ import { throttle } from "throttle-debounce";
  * control 3rd party package, WaveSurfer
  */
 class WaveSurferApp {
-  waveSurfer: any;
+  waveSurfer: WaveSurfer;
   ready: boolean;
 
   constructor() {
+    // @ts-expect-error waveSurfer is not initialized yet
     this.waveSurfer = null;
     this.ready = false;
   }

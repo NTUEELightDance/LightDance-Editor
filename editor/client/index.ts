@@ -5,6 +5,9 @@ import { createClient } from "graphql-ws";
 
 import Subscriptions from "./subscription";
 import { state } from "@/core/state";
+import { setColorMap, setControlMap } from "@/core/actions";
+import { toControlMap, toPosMap } from "@/core/utils/convert";
+import { setPosMap } from "@/core/actions/posMap";
 
 const wsLink = new GraphQLWsLink(
   createClient({
@@ -33,7 +36,43 @@ const splitLink = split(
 
 const client = new ApolloClient({
   link: splitLink,
-  cache: new InMemoryCache().restore({}),
+  cache: new InMemoryCache({
+    typePolicies: {
+      ControlMap: {
+        fields: {
+          frameIds: {
+            merge(existing, incoming) {
+              const controlMap = toControlMap(incoming);
+              setControlMap({ payload: controlMap });
+              return incoming;
+            },
+          },
+        },
+      },
+      PositionMap: {
+        fields: {
+          frameIds: {
+            merge(existing, incoming) {
+              const posMap = toPosMap(incoming);
+              setPosMap({ payload: posMap });
+              return incoming;
+            },
+          },
+        },
+      },
+      ColorMap: {
+        fields: {
+          colorMap: {
+            merge(existing, incoming) {
+              const colorMap = incoming;
+              setColorMap({ payload: colorMap });
+              return colorMap;
+            },
+          },
+        },
+      },
+    },
+  }),
   connectToDevTools: process.env.NODE_ENV !== "production",
 });
 

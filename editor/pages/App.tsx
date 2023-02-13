@@ -1,93 +1,72 @@
-import { useState, useEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 // actions
-import { selectLoad, fetchLoad } from "@/slices/loadSlice";
+import { fetchLoad } from "@/slices/loadSlice";
 // components
-import Loading from "components/Loading";
-// hooks
-import useDancer from "hooks/useDancer";
+import Loading from "@/components/Loading";
 // states and actions
 import {
-  setCurrentPos,
-  setCurrentStatus,
-  setSelected,
-  initCurrentLedEffect,
-  generateLedEffectRecord,
+  // initCurrentLedEffect,
+  // generateLedEffectRecord,
+  initDancers,
+  initCurrentStatus,
+  initCurrentPos,
+  initColorMap,
 } from "core/actions";
-
-import { getControl, getPos } from "core/utils";
 
 /**
  * Component for the main
  * @component
  */
 function App() {
-  const { init } = useSelector(selectLoad);
+  const [ready, setReady] = useState(false);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (!init) {
-      fetchLoad(dispatch);
-    }
-  }, [init, dispatch]);
+  useLayoutEffect(() => {
+    (async () => {
+      const firstBatchResult = await Promise.allSettled([
+        fetchLoad(dispatch),
+        initDancers(),
+        initColorMap(),
+      ]);
 
-  const [controlLoading, setControlLoading] = useState<boolean>(true);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // init the currentStatus
-        // TODO: check record size and auto generate currentStatus if empty
-        const [controlMap, controlRecord] = await getControl();
-        setCurrentStatus({ payload: controlMap[controlRecord[0]].status });
-        setControlLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
+      firstBatchResult.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error(result.reason);
+          throw result.reason;
+        }
+      });
 
-  const [posLoading, setPosLoading] = useState<boolean>(true);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // init the currentPos
-        // TODO: check record size and auto generate currentPos if empty
-        const [posMap, posRecord] = await getPos();
-        setCurrentPos({ payload: posMap[posRecord[0]].pos });
-        setPosLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
+      const secondBatchResult = await Promise.allSettled([
+        initCurrentStatus(),
+        initCurrentPos(),
+      ]);
 
-  const { loading: dancerLoading, dancerNames } = useDancer();
+      secondBatchResult.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error(result.reason);
+          throw result.reason;
+        }
+      });
 
-  useEffect(() => {
-    if (!dancerLoading) {
-      const selected: any = {};
-      dancerNames.forEach(
-        (dancer) => (selected[dancer] = { selected: false, parts: [] })
-      );
-      setSelected({ payload: selected });
-    }
-  }, [dancerLoading, dancerNames]);
+      setReady(true);
+    })();
+  }, [dispatch]);
 
+  // TODO: init led effect and current led effect
   // initLedEffectIndexMap need dancer's data
   // so wait until the dancerLoading is false
-  useEffect(() => {
-    if (!dancerLoading) {
-      initCurrentLedEffect();
-      generateLedEffectRecord();
-    }
-  }, [dancerLoading]);
+  // useEffect(() => {
+  //   if (!dancerLoading) {
+  //     initCurrentLedEffect();
+  //     generateLedEffectRecord();
+  //   }
+  // }, [dancerLoading]);
 
-  return init && !controlLoading && !posLoading ? <Outlet /> : <Loading />;
+  return ready ? <Outlet /> : <Loading />;
 }
 
 export default App;

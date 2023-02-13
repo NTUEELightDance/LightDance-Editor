@@ -1,10 +1,10 @@
 import { gql } from "@apollo/client";
 
 export const GET_DANCERS = gql`
-  query Dancer {
-    dancer {
+  query Dancers($orderBy: [PartOrderByWithRelationInput!]) {
+    dancers {
       name
-      parts {
+      parts(orderBy: $orderBy) {
         name
         type
       }
@@ -15,7 +15,15 @@ export const GET_DANCERS = gql`
 export const GET_CONTROL_MAP = gql`
   query controlMap {
     ControlMap {
-      frames
+      frameIds
+    }
+  }
+`;
+
+export const SELECT_CONTROL_FRAMES = gql`
+  query ControlMap($select: queryMapInput) {
+    ControlMap(select: $select) {
+      frameIds
     }
   }
 `;
@@ -29,7 +37,15 @@ export const GET_CONTROL_RECORD = gql`
 export const GET_POS_MAP = gql`
   query posMap {
     PosMap {
-      frames
+      frameIds
+    }
+  }
+`;
+
+export const SELECT_POS_FRAMES = gql`
+  query PositionFrame($select: queryMapInput) {
+    PosMap(select: $select) {
+      frameIds
     }
   }
 `;
@@ -63,7 +79,8 @@ export const GET_EFFECT_LIST = gql`
       end
       description
       id
-      data
+      controlFrames
+      positionFrames
     }
   }
 `;

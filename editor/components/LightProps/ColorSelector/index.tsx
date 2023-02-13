@@ -1,12 +1,12 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useSelect } from "@mui/base";
-import { Paper, Box, ClickAwayListener } from "@mui/material";
+import { Paper, ClickAwayListener } from "@mui/material";
 import { Root, Toggle, Listbox } from "./CustomComponents";
 
 import useColorMap from "@/hooks/useColorMap";
 
 function CustomSelect({
-  placeholder,
+  placeholder = "",
   onChange,
   currentColorName,
 }: {
@@ -18,10 +18,14 @@ function CustomSelect({
   const [listboxVisible, setListboxVisible] = useState(false);
   const { colorMap } = useColorMap();
 
-  const options: Array<{ label: string; value: string }> = [];
-  Object.keys(colorMap).forEach((colorName) => {
-    options.push({ label: colorName, value: colorName });
-  });
+  const options = useMemo(
+    () =>
+      Object.keys(colorMap).map((colorName) => ({
+        label: colorName,
+        value: colorName,
+      })),
+    [colorMap]
+  );
 
   // use color name as state
   const {
@@ -33,11 +37,14 @@ function CustomSelect({
     listboxRef,
     options,
     value: currentColorName,
+    onChange: (event) => {
+      if (event === null) return;
+      const target = event.target as HTMLElement;
+      const colorName = (target.dataset.option ??
+        target.parentElement!.dataset.option) as string;
+      onChange(colorName);
+    },
   });
-
-  useEffect(() => {
-    onChange(colorName);
-  }, [colorName, onChange]);
 
   useEffect(() => {
     if (listboxVisible) listboxRef.current?.focus();
@@ -56,26 +63,27 @@ function CustomSelect({
       >
         <Toggle
           {...getButtonProps()}
-          style={{ "--color": colorMap[currentColorName] }}
+          // @ts-expect-error we need to set this style variable to change the color
+          style={{ ...(colorName ? { "--color": colorMap[colorName] } : {}) }}
         >
-          {currentColorName ?? (
-            <span className="placeholder">{placeholder ?? " "}</span>
-          )}
+          {currentColorName ?? placeholder}
         </Toggle>
         <Listbox
           {...getListboxProps()}
           className={listboxVisible ? "" : "hidden"}
         >
           {options.map((option) => (
-            <li key={option.label} {...getOptionProps(option)}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                {option.label}
+            <li
+              key={option.label}
+              {...getOptionProps(option)}
+              data-option={option.value}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span>
                 <Paper
                   sx={{
                     backgroundColor: colorMap[option.label],
@@ -84,7 +92,8 @@ function CustomSelect({
                     height: "1em",
                   }}
                 />
-              </Box>
+              </span>
+              <span style={{ marginLeft: "0.25rem" }}>{option.label}</span>
             </li>
           ))}
         </Listbox>

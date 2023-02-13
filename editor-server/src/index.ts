@@ -1,6 +1,6 @@
 import path from "path";
 import express from "express";
-import "dotenv-defaults/config";
+
 import http from "http";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -9,8 +9,8 @@ import { useServer } from "graphql-ws/lib/use/ws";
 
 import { ApolloServer } from "apollo-server-express";
 import {
-  ApolloServerPluginDrainHttpServer,
   ApolloServerPluginLandingPageDisabled,
+  ApolloServerPluginDrainHttpServer,
 } from "apollo-server-core";
 
 import { PubSub } from "graphql-subscriptions";
@@ -18,17 +18,14 @@ import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import fileUpload from "express-fileupload";
 
+import prisma from "./prisma";
 import { resolvers } from "./resolvers";
-import db from "./models";
-import mongo from "./mongo";
 import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
-import { verifyToken } from "./utility";
-
-import { ConnectionParam } from "./types/global";
+import { ConnectionParam, TContext } from "./types/global";
+import { verifyToken } from "./authentication";
 
 const port = process.env.PORT || 4000;
-// const { SECRET_KEY } = process.env;
 
 (async function () {
   const app = express();
@@ -38,15 +35,13 @@ const port = process.env.PORT || 4000;
   app.use(cookieParser());
   app.use("/api", apiRoute);
 
-  mongo();
-
   const httpServer = http.createServer(app);
-
+  // const schema = makeExecutableSchema({ typeDefs, resolvers })
   const pubsub = new PubSub();
   const schema = await buildSchema({
     resolvers,
     // automatically create `schema.gql` file with schema definition in current folder
-    emitSchemaFile: path.resolve("schema.gql"),
+    emitSchemaFile: path.resolve(__dirname, "schema.gql"),
     globalMiddlewares: [AccessMiddleware],
     pubSub: pubsub,
   });
@@ -60,36 +55,66 @@ const port = process.env.PORT || 4000;
     path: "/graphql",
   });
 
-  // Passing in an instance of a GraphQLSchema and
-  // telling the WebSocketServer to start listening
-  const serverCleanup = useServer<ConnectionParam, { username: string }>(
+  const serverCleanup = useServer<
+    ConnectionParam,
+    { username: string; userId: number }
+  >(
     {
       schema,
-      context: async (ctx) => {
+      context: async (ctx): Promise<TContext> => {
+        if (process.env.NODE_ENV === "development") {
+          const testUser = await prisma.user.findFirst();
+          if (testUser === null) throw new Error("No test user found");
+          return {
+            userId: testUser.id,
+            username: testUser.name,
+            prisma,
+          };
+        }
         const token = ctx.connectionParams?.token;
         const { success, user } = await verifyToken(token);
-        if (success) return { username: user.username, db };
+        if (success) {
+          return { userId: user.id, username: user.name, prisma };
+        } else {
+          throw new Error("Invalid token");
+        }
       },
       onConnect: async (ctx) => {
+        if (process.env.NODE_ENV === "development") {
+          const testUser = await prisma.user.findFirst();
+          if (testUser === null) throw new Error("No test user found");
+          ctx.extra.username = testUser.name;
+          ctx.extra.userId = testUser.id;
+          return true;
+        }
         const token = ctx.connectionParams?.token;
         console.log("connect", token);
         const { success, user } = await verifyToken(token);
         if (success) {
-          ctx.extra.username = user.username;
+          ctx.extra.username = user.name;
+          ctx.extra.userId = user.id;
         }
         return success;
       },
       onDisconnect: async (ctx) => {
-        const username = ctx.extra.username;
+        const { username, userId } = ctx.extra;
         console.log("disconnect", username);
-        await db.ControlFrame.updateMany(
-          { editing: username },
-          { editing: undefined }
-        );
-        await db.PositionFrame.updateMany(
-          { editing: username },
-          { editing: undefined }
-        );
+        prisma.editingControlFrame.update({
+          where: {
+            userId,
+          },
+          data: {
+            frameId: null,
+          },
+        });
+        prisma.editingPositionFrame.update({
+          where: {
+            userId,
+          },
+          data: {
+            frameId: null,
+          },
+        });
       },
     },
     wsServer
@@ -97,12 +122,21 @@ const port = process.env.PORT || 4000;
 
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
+    context: async ({ req }): Promise<TContext> => {
+      if (process.env.NODE_ENV === "development") {
+        const testUser = await prisma.user.findFirst();
+        if (testUser === null) throw new Error("No test user found");
+        return {
+          prisma,
+          userId: testUser.id,
+          username: testUser.name,
+        };
+      }
       console.log("context", req.cookies.token);
       const token = req.cookies.token;
       const { success, user } = await verifyToken(token);
       if (success) {
-        return { username: user.username, db };
+        return { prisma, userId: user.id, username: user.name };
       } else {
         throw new Error("Unauthorized");
       }
@@ -127,6 +161,9 @@ const port = process.env.PORT || 4000;
 
   await server.start();
   server.applyMiddleware({ app });
-
-  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
+  await new Promise<void>((resolve) => {
+    httpServer.listen({ port }, resolve);
+    console.log(`🚀 Server Ready at ${port}! 🚀`);
+    console.log(`Graphql Port at ${port}${server.graphqlPath}`);
+  });
 })();

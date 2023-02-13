@@ -7,41 +7,44 @@ import {
   DeleteLEDEffectResponse,
 } from "./response/ledEffectResponse";
 import { IControl, IControlFrame, TContext } from "../types/global";
+import {
+  LEDEffect,
+  LEDEffectCreateInput,
+} from "../../prisma/generated/type-graphql";
 
 @Resolver()
 export class LEDResolver {
   @Query((returns) => LEDMap)
   async LEDMap(@Ctx() ctx: TContext) {
-    const allPart = await ctx.db.Part.find({ type: "LED" });
+    const allPart = await ctx.prisma.part.findMany({ where: { type: "LED" } });
     return { LEDMap: allPart };
   }
 
   @Mutation((returns) => LEDEffectResponse)
-  async addLED(@Arg("input") input: AddLEDInput, @Ctx() ctx: TContext) {
-    const { partName, effectName, repeat, effects } = input;
+  async addLED(
+    @Arg("input") input: LEDEffectCreateInput,
+    @Ctx() ctx: TContext
+  ) {
+    const { name, partName, repeat, frames } = input;
 
     // check part validity
-    const part = ctx.db.Part.findOne({ name: partName, type: "LED" });
-    if (!part) {
-      return Object.assign(
-        {
-          partName,
-          effectName: ",",
-          repeat: -1,
-          effects: [],
-        },
-        { ok: false, msg: "effectName exist." }
-      );
+    const part = await ctx.prisma.part.findMany({
+      where: { name: partName, type: "LED" },
+    });
+    if (part.length === 0) {
+      return Object.assign({ ok: false, msg: "no corresponding part." });
     }
 
     // check overlapped
-    const exist = await ctx.db.LED.findOne({ partName, effectName });
-    if (exist)
-      return Object.assign(exist, { ok: false, msg: "effectName exist." });
+    const exist = await ctx.prisma.lEDEffect.findMany({
+      where: { name: name, partName: partName },
+    });
+    if (exist.length !== 0)
+      return Object.assign({ ok: false, msg: "effectName exist." });
 
-    await new ctx.db.LED(input).save();
+    const newLED = await ctx.prisma.lEDEffect.create({ data: input });
 
-    return Object.assign(input, { ok: true });
+    return Object.assign({ ok: true });
   }
 
   @Mutation((returns) => DeleteLEDEffectResponse)
@@ -49,40 +52,42 @@ export class LEDResolver {
     const { partName, effectName } = input;
 
     // check exist
-    const exist = await ctx.db.LED.findOne({ partName, effectName });
+    const exist = await ctx.prisma.lEDEffect.findFirst({
+      where: { name: effectName, partName: partName },
+    });
     if (!exist)
       return {
         ok: false,
         msg: `Effect ${effectName} on part ${partName} not found`,
       };
 
-    const checkControl: IControl[] = await ctx.db.Control.find({
-      "value.src": effectName,
+    const checkControl = await ctx.prisma.controlData.findMany({
+      where: { value: { path: ["src"], equals: effectName } },
     });
     if (checkControl.length != 0) {
-      const allControlFrame: IControlFrame[] = await ctx.db.ControlFrame.find(
-        {},
-        "_id"
-      ).sort({
-        start: 1,
+      let checkControlFrames: number[] = checkControl.map(
+        (control) => control.frameId
+      );
+      checkControlFrames = checkControlFrames.sort(function (a, b) {
+        return a - b;
       });
-      const allControlFrameID = allControlFrame.map((Obj) => String(Obj._id));
+      let frame = 0;
       const ids: number[] = [];
-      checkControl.map((controlObj) => {
-        const frame = String(controlObj.frame);
-        const id = allControlFrameID.indexOf(frame);
-        if (ids.indexOf(id) === -1) {
-          ids.push(id);
+      checkControlFrames.map((controlFrame) => {
+        if (controlFrame !== frame) {
+          ids.push(controlFrame);
+          frame = controlFrame;
         }
       });
-      ids.sort((a, b) => a - b);
       return {
         ok: false,
         msg: `effect ${effectName} is used in ${ids}`,
       };
     }
 
-    await ctx.db.LED.deleteOne({ effectName, partName });
+    await ctx.prisma.lEDEffect.deleteMany({
+      where: { name: effectName, partName: partName },
+    });
     return { ok: true };
   }
 }

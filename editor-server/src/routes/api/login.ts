@@ -1,21 +1,32 @@
 import type { Request, Response } from "express";
 
-import db from "../../models";
 import redis from "../../redis";
+import prisma from "../../prisma";
+import { generateCsrfToken, comparePassword } from "../../authentication";
 
 const login = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  if (process.env.NODE_ENV === "development") {
+    res.cookie("token", "testToken");
+    res.send({ token: "testToken" });
+    return;
+  }
 
-  if (!username || !password) {
+  const { username, password } = req.body;
+  if (typeof username !== "string" || typeof password !== "string") {
     res.status(400).send({ err: "Username and password are required." });
     return;
   }
 
-  const user = await db.User.findOne({ username });
+  const user = await prisma.user.findUnique({
+    where: {
+      name: username,
+    },
+  });
+
   if (user) {
-    if (await user.comparePassword(password)) {
+    if (await comparePassword(password, user.password)) {
       // remove old token
-      const oldToken = await redis.get(user._id.toString());
+      const oldToken = await redis.get(user.id.toString());
       if (oldToken) {
         await redis.del(oldToken);
       }
@@ -24,11 +35,11 @@ const login = async (req: Request, res: Response) => {
         60 * 60 * parseInt(process.env.EXPIRATION_TIME_HOURS ?? "24", 10);
 
       // store new token
-      const token = user.generateToken();
-      await redis.set(token, user._id.toString());
-      await redis.set(user._id.toString(), token);
+      const token = generateCsrfToken();
+      await redis.set(token, user.id.toString());
+      await redis.set(user.id.toString(), token);
       await redis.expire(token, expirationTimeSeconds);
-      await redis.expire(user._id.toString(), expirationTimeSeconds);
+      await redis.expire(user.id.toString(), expirationTimeSeconds);
 
       // send token to client
       res.cookie("token", token, {

@@ -1,26 +1,31 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType, Kind } from "graphql";
-import { ObjectId } from "mongoose";
 
 import redis from "../../redis";
 import { TRedisControl, TRedisControls } from "../../types/global";
+import { getRedisControl } from "../../utility";
 
 type TControlIDList = {
-  createList: string[];
-  deleteList: string[];
-  updateList: string[];
+  createList: number[];
+  deleteList: number[];
+  updateList: number[];
 };
+
 type TControlID = {
-  id: string;
-  _id: ObjectId;
+  id: number;
 };
+
 type TControlDataFrame = TControlIDList | TControlID;
+
+function isControlIDList(data: TControlDataFrame): data is TControlIDList {
+  return "createList" in data;
+}
 
 type TControlDataScalar =
   | {
       createFrames: TRedisControls;
       updateFrames: TRedisControls;
-      deleteFrames: string[];
+      deleteFrames: number[];
     }
   | TRedisControls;
 
@@ -34,39 +39,26 @@ export const ControlDataScalar = new GraphQLScalarType({
   name: "ControlMapMutationObjectId",
   description: "Mongo object id scalar type",
   async serialize(data: TControlDataFrame): Promise<TControlDataScalar> {
-    // check the type of received value
-    if ("id" in data && "_id" in data) {
-      const { id, _id } = data;
-      const result: TRedisControls = {};
-      const cache = await redis.get(id);
-      if (cache) {
-        const cacheObj: TRedisControl = JSON.parse(cache);
-        result[id] = cacheObj;
-      }
-      return result;
-    } else {
+    if (isControlIDList(data)) {
       const { deleteList, createList, updateList } = data;
       const createFrames: TRedisControls = {};
       await Promise.all(
         createList.map(async (id) => {
-          const cache = await redis.get(id);
-          if (cache) {
-            const cacheObj: TRedisControl = JSON.parse(cache);
-            createFrames[id] = cacheObj;
-          }
+          createFrames[id] = await getRedisControl(id);
         })
       );
       const updateFrames: TRedisControls = {};
       await Promise.all(
         updateList.map(async (id) => {
-          const cache = await redis.get(id);
-          if (cache) {
-            const cacheObj: TRedisControl = JSON.parse(cache);
-            updateFrames[id] = cacheObj;
-          }
+          updateFrames[id] = await getRedisControl(id);
         })
       );
       return { createFrames, deleteFrames: deleteList, updateFrames }; // value sent to the client
+    } else {
+      const { id } = data;
+      const result: TRedisControls = {};
+      result[id] = await getRedisControl(id);
+      return result;
     }
   },
   parseValue(value: unknown): any {

@@ -1,30 +1,12 @@
 import { makeVar } from "@apollo/client";
 import { cloneDeep } from "lodash";
 import onChange from "on-change";
-import { IDLE, CONTROL_EDITOR, DANCER } from "@/constants";
+import { IDLE, CONTROL_EDITOR } from "@/constants";
 
 import { debug } from "core/utils";
 
 // types
-import {
-  State,
-  ReactiveState,
-  ControlMapStatus,
-  DancerCoordinates,
-  EditingData,
-  EditMode,
-  Editor,
-  SelectionMode,
-  Selected,
-  Dancers,
-  PartTypeMap,
-  ColorMap,
-  DancerName,
-  CurrentLedEffect,
-  LedEffectRecord,
-  EffectListType,
-  StateKey,
-} from "../models";
+import type { State, ReactiveState, StateKey } from "../models";
 
 /**
  * Mutable State
@@ -34,7 +16,9 @@ const _state: State = {
   token: "",
 
   isPlaying: false,
-  selected: {},
+
+  controlMap: {},
+  posMap: {},
 
   currentTime: 0,
   currentControlIndex: 0,
@@ -49,19 +33,23 @@ const _state: State = {
 
   editMode: IDLE,
   editor: CONTROL_EDITOR,
+  selectionMode: "DANCER_MODE",
   editingData: {
     frameId: "",
     start: 0,
     index: 0,
   },
 
-  selectionMode: "DANCER",
+  selected: {},
 
   dancers: {},
   dancerNames: [],
   partTypeMap: {},
   colorMap: {},
   effectList: [],
+
+  dancersArray: [],
+  dancerPartIndexMap: {},
 };
 
 // The diffSet will save changed attributes in state
@@ -81,39 +69,13 @@ state.toString = () => {
 /**
  * Reactive State, can trigger react component rerender
  */
-export const reactiveState: ReactiveState = {
-  isLoggedIn: makeVar<boolean>(false),
-  token: makeVar<string>(""),
-
-  isPlaying: makeVar<boolean>(false),
-  selected: makeVar<Selected>({}),
-  currentTime: makeVar<number>(0),
-  currentControlIndex: makeVar<number>(0),
-  currentPosIndex: makeVar<number>(0),
-
-  currentStatus: makeVar<ControlMapStatus>({}),
-  currentPos: makeVar<DancerCoordinates>({}),
-  currentFade: makeVar<boolean>(false),
-
-  ledEffectRecord: makeVar<LedEffectRecord>({}),
-  currentLedEffect: makeVar<CurrentLedEffect>({}),
-
-  editMode: makeVar<EditMode>(IDLE),
-  editor: makeVar<Editor>(CONTROL_EDITOR),
-  editingData: makeVar<EditingData>({
-    frameId: "",
-    start: 0,
-    index: 0,
-  }),
-  selectionMode: makeVar<SelectionMode>(DANCER),
-
-  dancers: makeVar<Dancers>({}),
-  dancerNames: makeVar<DancerName[]>([]),
-  partTypeMap: makeVar<PartTypeMap>({}),
-  colorMap: makeVar<ColorMap>({}),
-
-  effectList: makeVar<EffectListType>([]),
-};
+export const reactiveState: ReactiveState = Object.entries(state).reduce(
+  (acc, [key, value]) => {
+    acc[key as StateKey] = makeVar(value);
+    return acc;
+  },
+  {} as ReactiveState
+);
 
 /**
  * copy state to reactiveState, which will trigger rerender in react components.
@@ -125,7 +87,9 @@ export function syncReactiveState(states: string[]) {
     diffSet.forEach((key) => {
       if (key in state && key in reactiveState) {
         debug("update reactiveState", key);
-        reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
+        const newValue = cloneDeep(state[key as StateKey]);
+        // @ts-expect-error newValue's type is guaranteed to be the same as state[key]
+        reactiveState[key as StateKey](newValue);
       } else {
         console.error(`[syncReactiveState] Cannot find the key ${key}`);
       }
@@ -135,7 +99,9 @@ export function syncReactiveState(states: string[]) {
     states.forEach((key) => {
       if (key in reactiveState && key in state) {
         debug("update reactiveState", key);
-        reactiveState[key as StateKey](cloneDeep(state[key as StateKey]));
+        const newValue = cloneDeep(state[key as StateKey]);
+        // @ts-expect-error newValue's type is guaranteed to be the same as state[key]
+        reactiveState[key as StateKey](newValue);
       } else {
         console.error(
           `[syncReactiveState] Cannot find the key ${key} in state.`

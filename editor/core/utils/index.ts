@@ -1,21 +1,40 @@
-import { controlAgent, posAgent, ledAgent } from "../../api";
-import { reactiveState } from "core/state";
+import { controlAgent, posAgent, ledAgent } from "@/api";
+import { reactiveState, state } from "@/core/state";
 
 /**
  * Get [posMap, posRecord] from posAgent
  */
-export async function getPos() {
-  return await Promise.all([posAgent.getPosMap(), posAgent.getPosRecord()]);
+export async function getPosPayload() {
+  return await Promise.all([
+    posAgent.getPosMapPayload(),
+    posAgent.getPosRecord(),
+  ]);
 }
 
 /**
  * Get [controlMap, controlRecord] from controlAgent
  */
-export async function getControl() {
+export async function getControlPayload() {
   return await Promise.all([
-    controlAgent.getControlMap(),
+    controlAgent.getControlMapPayload(),
     controlAgent.getControlRecord(),
   ]);
+}
+
+export async function getControl() {
+  await controlAgent.getControlMapPayload();
+  // the controlMap is updated in the above line by merge function in cache
+  const controlMap = state.controlMap;
+  const controlRecord = await controlAgent.getControlRecord();
+  return [controlMap, controlRecord] as const;
+}
+
+export async function getPos() {
+  await posAgent.getPosMapPayload();
+  // the posMap is updated in the above line by merge function in cache
+  const posMap = state.posMap;
+  const posRecord = await posAgent.getPosRecord();
+  return [posMap, posRecord] as const;
 }
 
 /**

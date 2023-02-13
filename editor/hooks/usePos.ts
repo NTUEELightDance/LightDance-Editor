@@ -1,16 +1,13 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useReactiveVar } from "@apollo/client";
 
 // gql
 import { GET_POS_MAP, GET_POS_RECORD } from "../graphql";
+import { reactiveState } from "@/core/state";
 
 export default function usePos() {
   // query posMap
-  const {
-    loading: posMapLoading,
-    error: posMapError,
-    data: posMapData,
-  } = useQuery(GET_POS_MAP);
-  const posMap = posMapData?.PosMap?.frames;
+  const { loading: posMapLoading, error: posMapError } = useQuery(GET_POS_MAP);
+  const posMap = useReactiveVar(reactiveState.posMap);
 
   // query posRecord
   const {

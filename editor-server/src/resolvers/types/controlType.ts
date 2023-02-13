@@ -2,7 +2,6 @@ import { registerEnumType } from "type-graphql";
 
 export enum ControlType {
   FIBER = "FIBER",
-  EL = "EL",
   LED = "LED",
 }
 
@@ -13,11 +12,8 @@ registerEnumType(ControlType, {
 
 export const ControlDefault = {
   FIBER: {
-    color: "red",
+    color: "black",
     alpha: 0,
-  },
-  EL: {
-    value: 0,
   },
   LED: {
     src: "",

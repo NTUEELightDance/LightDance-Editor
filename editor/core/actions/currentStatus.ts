@@ -1,14 +1,13 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { registerActions } from "../registerActions";
 // utils
-import { getControl, setItem } from "../utils";
+import { getControlPayload, setItem } from "../utils";
 // types
 import {
   State,
   ControlMapStatus,
-  LED,
-  Fiber,
-  El,
+  LEDData,
+  FiberData,
   CurrentStatusDelta,
 } from "../models";
 
@@ -27,25 +26,6 @@ const actions = registerActions({
   },
 
   /**
-   * Edit current Status
-   * @param {State} state
-   * @param {{ dancerName, partName, value }} payload - set EL part
-   */
-  editCurrentStatus: (
-    state: State,
-    payload: {
-      dancerName: string;
-      partName: string;
-      value: El;
-    }
-  ) => {
-    const { dancerName, partName, value } = payload;
-
-    state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    state.currentStatus[dancerName][partName] = value;
-  },
-
-  /**
    * Edit current Status EL
    * @param {State} state
    * @param {{ dancerName, partName, value }} payload - set EL part
@@ -55,7 +35,7 @@ const actions = registerActions({
     payload: {
       dancerName: string;
       partName: string;
-      value: Fiber;
+      value: FiberData;
     }
   ) => {
     const {
@@ -66,12 +46,12 @@ const actions = registerActions({
 
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
     if (color && color !== "") {
-      (state.currentStatus[dancerName][partName] as Fiber).color = color;
-      (state.currentStatus[dancerName][partName] as Fiber).colorCode =
+      (state.currentStatus[dancerName][partName] as FiberData).color = color;
+      (state.currentStatus[dancerName][partName] as FiberData).colorCode =
         new Color(state.colorMap[color]);
     }
     if (typeof alpha === "number") {
-      (state.currentStatus[dancerName][partName] as Fiber).alpha = alpha;
+      (state.currentStatus[dancerName][partName] as FiberData).alpha = alpha;
     }
   },
 
@@ -86,17 +66,17 @@ const actions = registerActions({
     payload: Array<{
       dancerName: string;
       partName: string;
-      value: LED;
+      value: LEDData;
     }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
 
     payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
       if (typeof src === "string") {
-        (state.currentStatus[dancerName][partName] as LED).src = src;
+        (state.currentStatus[dancerName][partName] as LEDData).src = src;
       }
       if (typeof alpha === "number") {
-        (state.currentStatus[dancerName][partName] as LED).alpha = alpha;
+        (state.currentStatus[dancerName][partName] as LEDData).alpha = alpha;
       }
     });
   },
@@ -106,7 +86,7 @@ const actions = registerActions({
    * @param state
    */
   saveToLocal: async () => {
-    const [controlRecord, controlMap] = await getControl();
+    const [controlRecord, controlMap] = await getControlPayload();
     setItem("controlRecord", JSON.stringify(controlRecord));
     setItem("controlMap", JSON.stringify(controlMap));
     log("Control Saved to Local Storage...");
@@ -114,19 +94,28 @@ const actions = registerActions({
 
   editCurrentStatusDelta: (state: State, payload: CurrentStatusDelta) => {
     // make a new clone since the data may be readOnly (calculate from cache)
-    state.currentStatus = cloneDeep(state.currentStatus);
+    const newCurrentStatus = cloneDeep(state.currentStatus);
+    let hasChange = false;
 
+    // only update if there really is a difference
     Object.entries(payload).forEach(([dancerName, parts]) => {
-      Object.entries(parts).forEach(([partName, value]) => {
-        state.currentStatus[dancerName][partName] = value;
+      Object.entries(parts).forEach(([partName, newValue]) => {
+        const oldValue = newCurrentStatus[dancerName][partName];
+        if (!isEqual(oldValue, newValue)) {
+          hasChange = true;
+          newCurrentStatus[dancerName][partName] = newValue;
+        }
       });
     });
+
+    if (hasChange) {
+      state.currentStatus = newCurrentStatus;
+    }
   },
 });
 
 export const {
   setCurrentStatus,
-  editCurrentStatus,
   editCurrentStatusFiber,
   editCurrentStatusLED,
   editCurrentStatusDelta,

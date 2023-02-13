@@ -1,6 +1,8 @@
 import { registerActions } from "../registerActions";
 // utils
 import {
+  getControlPayload,
+  getPosPayload,
   getControl,
   getPos,
   getLedMap,
@@ -102,7 +104,7 @@ const actions = registerActions({
    * @param {object} payload
    */
   setCurrentControlIndex: async (state: State, payload: number) => {
-    const [controlMap, controlRecord] = await getControl();
+    const [controlMap, controlRecord] = await getControlPayload();
     let controlIndex = payload;
     if (isNaN(controlIndex)) {
       throw new Error(
@@ -121,7 +123,7 @@ const actions = registerActions({
    * @param {object} payload
    */
   setCurrentPosIndex: async (state: State, payload: number) => {
-    const [posMap, posRecord] = await getPos();
+    const [posMap, posRecord] = await getPosPayload();
     let posIndex = payload;
     if (isNaN(posIndex)) {
       throw new Error(

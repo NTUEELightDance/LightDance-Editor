@@ -4,7 +4,7 @@ import { Box, Typography, ListItemButton, Collapse } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
-import type { LED } from "core/models";
+import type { LEDData } from "core/models";
 import { editCurrentStatusLED } from "core/actions";
 
 function LEDcontrols({
@@ -14,7 +14,7 @@ function LEDcontrols({
 }: {
   part: string;
   currentDancers: string[];
-  displayValue: LED;
+  displayValue: LEDData;
 }) {
   // Call core actions to update currentStatus
   const updateCurrentStatus = ({

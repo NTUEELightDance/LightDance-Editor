@@ -22,7 +22,7 @@ import { CONTROL_EDITOR, POS_EDITOR } from "@/constants";
  * This is the Wave component
  * @component
  */
-function Wavesurfer({ commandMode = false }) {
+function Wavesurfer() {
   const { waveSurferApp, initWaveSurferApp, showMarkers } = useContext(
     WaveSurferAppContext
   ) as wavesurferContext;

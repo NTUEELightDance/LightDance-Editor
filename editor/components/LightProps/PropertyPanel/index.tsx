@@ -10,9 +10,9 @@ import type {
   PartType,
   ColorMap,
   ControlMapStatus,
-  LED,
-  Fiber,
-  PartPayload,
+  LEDData,
+  FiberData,
+  SelectedPartPayload,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 
@@ -40,7 +40,7 @@ function PropertyPanel({
   const sortedParts = [...parts].sort();
 
   const handleSelectAll = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     currentDancers.forEach((dancerName) => {
       newSelectedParts[dancerName] = sortedParts.filter((part) =>
         dancers[dancerName].includes(part)
@@ -51,7 +51,7 @@ function PropertyPanel({
   };
 
   const handleRandom = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     const randomParts: PartName[] = [];
     const randomCount = Math.floor(
       (Math.random() * 0.4 + 0.3) * sortedParts.length
@@ -95,14 +95,18 @@ function PropertyPanel({
                 <LEDcontrols
                   part={part}
                   currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as LED}
+                  displayValue={
+                    currentStatus[currentDancers[0]][part] as LEDData
+                  }
                   key={`${currentDancers[0]}_${part}`}
                 />
               ) : (
                 <OFcontrols
                   part={part}
                   currentDancers={currentDancers}
-                  displayValue={currentStatus[currentDancers[0]][part] as Fiber}
+                  displayValue={
+                    currentStatus[currentDancers[0]][part] as FiberData
+                  }
                   key={`${currentDancers[0]}_${part}`}
                   colorMap={colorMap}
                 />

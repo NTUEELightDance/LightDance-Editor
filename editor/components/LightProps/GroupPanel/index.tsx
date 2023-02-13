@@ -9,10 +9,10 @@ import OFcontrols from "../OFcontrols";
 
 import type {
   ControlMapStatus,
-  LED,
-  Fiber,
+  LEDData,
+  FiberData,
   PartType,
-  PartPayload,
+  SelectedPartPayload,
   PartName,
   Dancers,
 } from "core/models";
@@ -54,7 +54,7 @@ function GroupPanel({
   // const handleEdit = () => {  };
 
   const handleRandom = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     const randomParts: PartName[] = [];
     const randomCount = Math.floor(
       (Math.random() * 0.4 + 0.3) * sortedParts.length
@@ -72,7 +72,7 @@ function GroupPanel({
   };
 
   const handleSelectAll = () => {
-    const newSelectedParts: PartPayload = {};
+    const newSelectedParts: SelectedPartPayload = {};
     currentDancers.forEach((dancerName) => {
       newSelectedParts[dancerName] = sortedParts.filter((part) =>
         dancers[dancerName].includes(part)
@@ -84,7 +84,7 @@ function GroupPanel({
 
   const Items: JSX.Element[] = [];
   for (const part of sortedParts) {
-    let displayValue: LED | Fiber | number | undefined;
+    let displayValue: LEDData | FiberData | number | undefined;
     for (const dancer of currentDancers) {
       displayValue = currentStatus[dancer]?.[part];
     }
@@ -94,14 +94,14 @@ function GroupPanel({
           <LEDcontrols
             part={part}
             currentDancers={currentDancers}
-            displayValue={displayValue as LED}
+            displayValue={displayValue as LEDData}
             key={`${currentDancers[0]}_${part}_LED`}
           />
         ) : (
           <OFcontrols
             part={part}
             currentDancers={currentDancers}
-            displayValue={displayValue as Fiber}
+            displayValue={displayValue as FiberData}
             key={`${currentDancers[0]}_${part}_OF`}
             colorMap={colorMap}
           />

@@ -75,19 +75,25 @@ export default function EffectList() {
     setEffectSelectedName(name);
     setApplyOpened(true);
   };
+
   const handleCloseApply = () => {
     setApplyOpened(false);
     setEffectSelectedID("");
     setEffectSelectedName("");
     setCollidedFrame([]);
   };
+
   const handleApplyEffect = async () => {
-    const clear = await confirmation.warning(
-      "Are you sure to clear all collided frames?"
+    const ok = await confirmation.warning(
+      `This will clear all frames from ${currentTime} to the end of the effect. Are you sure?`
     );
-    applyEffect({
-      payload: { clear, start: currentTime, applyId: effectSelectedID },
-    });
+
+    if (ok) {
+      applyEffect({
+        payload: { start: currentTime, applyId: effectSelectedID },
+      });
+    }
+
     handleCloseApply();
   };
 
@@ -130,8 +136,8 @@ export default function EffectList() {
   return (
     <div>
       <List>
-        {effectList?.map((effect) => (
-          <React.Fragment key={effect?.id}>
+        {effectList.map((effect) => (
+          <React.Fragment key={effect.id}>
             <React.Fragment>
               <ListItem
                 secondaryAction={
@@ -142,7 +148,10 @@ export default function EffectList() {
                         aria-label="apply"
                         size="large"
                         onClick={() => {
-                          handleOpenApply(effect?.id, effect?.description);
+                          handleOpenApply(
+                            effect.id.toString(),
+                            effect.description
+                          );
                         }}
                       >
                         <AddIcon fontSize="inherit" sx={{ color: "white" }} />
@@ -154,7 +163,10 @@ export default function EffectList() {
                         aria-label="delete"
                         size="large"
                         onClick={() => {
-                          handleOpenDelete(effect?.id, effect?.description);
+                          handleOpenDelete(
+                            effect.id.toString(),
+                            effect.description
+                          );
                         }}
                       >
                         <DeleteIcon
@@ -174,16 +186,23 @@ export default function EffectList() {
                   }
                   secondary={
                     <>
-                      <Typography sx={{ fontSize: "10px", color: "white" }}>
-                        - ControlFrame Length:{" "}
-                        {effect.data.control
-                          ? Object.keys(effect.data.control).length
+                      <Typography
+                        component="span"
+                        sx={{ fontSize: "10px", color: "white" }}
+                      >
+                        {"- ControlFrame Length: "}
+                        {effect.controlFrames
+                          ? Object.keys(effect.controlFrames).length
                           : 0}
                       </Typography>
-                      <Typography sx={{ fontSize: "10px", color: "white" }}>
-                        - PosFrame Length:{" "}
-                        {effect.data.position
-                          ? Object.keys(effect.data.position).length
+                      <br />
+                      <Typography
+                        component="span"
+                        sx={{ fontSize: "10px", color: "white" }}
+                      >
+                        {"- PosFrame Length: "}
+                        {effect.positionFrames
+                          ? Object.keys(effect.positionFrames).length
                           : 0}
                       </Typography>
                     </>

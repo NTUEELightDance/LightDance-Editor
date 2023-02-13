@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Paper, Typography, Box } from "@mui/material";
 
@@ -8,10 +8,10 @@ import { grey } from "@mui/material/colors";
 
 import { editCurrentStatusDelta } from "core/actions";
 import type {
-  Fiber,
+  FiberData,
   Selected,
   CurrentStatusDelta,
-  PartPayload,
+  SelectedPartPayload,
   PartType,
 } from "core/models";
 import { reactiveState } from "core/state";
@@ -22,8 +22,10 @@ import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 
 import _ from "lodash";
 
-const getSelectedPartsAndType = (selected: Selected) => {
-  const newSelectedParts: PartPayload = {};
+function getSelectedPartsAndType(
+  selected: Selected
+): [SelectedPartPayload, PartType | null] {
+  const newSelectedParts: SelectedPartPayload = {};
   const tempSelectedParts: string[] = [];
   Object.entries(selected).forEach(([dancerName, { parts }]) => {
     if (parts.length > 0) {
@@ -37,19 +39,15 @@ const getSelectedPartsAndType = (selected: Selected) => {
   if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
     return [newSelectedParts, assertPartType];
   } else return [newSelectedParts, null];
-};
+}
 
 function PartMode() {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
 
-  const [defaultSelectedParts, defaultPartType] =
-    getSelectedPartsAndType(selected);
-  const [selectedParts, setSelectedParts] = useState<PartPayload>(
-    defaultSelectedParts as PartPayload
-  );
-  const [partType, setPartType] = useState<PartType | null>(
-    defaultPartType as PartType
+  const [selectedParts, partType] = useMemo(
+    () => getSelectedPartsAndType(selected),
+    [selected]
   );
 
   const [currentColorName, setCurrentColorName] = useState<string>("");
@@ -58,31 +56,30 @@ function PartMode() {
 
   // update local state
   useEffect(() => {
-    const [newSelectedParts, newPartType] = getSelectedPartsAndType(selected);
-    setSelectedParts(newSelectedParts as PartPayload);
-    setPartType(newPartType as PartType);
+    // cannot sync if partType is null or LED
+    if (partType === "LED" || partType === null) return;
+    const [dancerName, parts] = Object.entries(selectedParts)[0];
+    setCurrentColorName(
+      (currentStatus[dancerName][parts[0]] as FiberData).color
+    );
+    setIntensity((currentStatus[dancerName][parts[0]] as FiberData).alpha);
+  }, [currentStatus, partType, selectedParts]);
 
-    if (newPartType === "LED" || !newPartType) return;
-    const [dancerName, parts] = Object.entries(
-      newSelectedParts as PartPayload
-    )[0];
-    setCurrentColorName((currentStatus[dancerName][parts[0]] as Fiber).color);
-    setIntensity((currentStatus[dancerName][parts[0]] as Fiber).alpha);
-  }, [currentStatus, selected]);
-
-  // mutate globnal state
+  // mutate global state
   useEffect(() => {
+    // don't sync on first render
+    if (currentColorName === "" && LEDsrc === "" && intensity === 0) return;
     const currentStatusDelta: CurrentStatusDelta = {};
     Object.entries(selectedParts).forEach(([dancerName, parts]) => {
       parts.forEach((partName) => {
-        if (!currentStatusDelta[dancerName]) {
-          currentStatusDelta[dancerName] = {};
-        }
+        currentStatusDelta[dancerName] ||= {};
 
         switch (partType) {
+          case null:
+            break;
           case "LED":
             currentStatusDelta[dancerName][partName] = {
-              src: "",
+              src: LEDsrc,
               alpha: intensity,
             };
             break;
@@ -96,7 +93,7 @@ function PartMode() {
       });
       editCurrentStatusDelta({ payload: currentStatusDelta });
     });
-  }, [intensity, currentColorName, partType, selectedParts]);
+  }, [intensity, currentColorName, partType, selectedParts, LEDsrc]);
 
   const handleColorChange = (color: string) => {
     setCurrentColorName(color);

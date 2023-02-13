@@ -1,16 +1,13 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useReactiveVar } from "@apollo/client";
 
 // gql
 import { GET_CONTROL_MAP, GET_CONTROL_RECORD } from "../graphql";
+import { reactiveState } from "@/core/state";
 
 export default function useControl() {
   // query controlMap
-  const {
-    loading: controlMapLoading,
-    error: controlMapError,
-    data: controlMapData,
-  } = useQuery(GET_CONTROL_MAP);
-  const controlMap = controlMapData?.ControlMap?.frames;
+  const { loading: controlMapLoading, error: controlMapError } =
+    useQuery(GET_CONTROL_MAP);
 
   // query controlRecord
   const {
@@ -19,6 +16,8 @@ export default function useControl() {
     data: controlRecordData,
   } = useQuery(GET_CONTROL_RECORD);
   const controlRecord = controlRecordData?.controlFrameIDs;
+
+  const controlMap = useReactiveVar(reactiveState.controlMap);
 
   return {
     loading: controlMapLoading || controlRecordLoading,

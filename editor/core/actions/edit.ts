@@ -3,7 +3,7 @@ import { registerActions } from "../registerActions";
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
 import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "@/constants";
-import { getControl, getPos, deleteColorCode } from "../utils";
+import { getControlPayload, getPosPayload, deleteColorCode } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
 
@@ -15,12 +15,11 @@ import { notification, updateFrameByTimeMap } from "core/utils";
  * @returns { map, record, index, frameId, frame, agent, fade? }
  */
 const getDataHandler = async (state: State) => {
-  const [controlMap, controlRecord] = await getControl();
-  const [posMap, posRecord] = await getPos();
-
   const pureStatus = deleteColorCode(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
+    const [controlMapPayload, controlRecord] = await getControlPayload();
+    const controlMap = state.controlMap;
     // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       controlRecord,
@@ -29,7 +28,7 @@ const getDataHandler = async (state: State) => {
       state.currentTime
     );
     return {
-      map: controlMap,
+      map: controlMapPayload,
       record: controlRecord,
       index: frameIndex,
       frameId: controlRecord[frameIndex],
@@ -38,6 +37,8 @@ const getDataHandler = async (state: State) => {
       fade: state.currentFade,
     };
   } else {
+    const [posMapPayload, posRecord] = await getPosPayload();
+    const posMap = state.posMap;
     // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(
       posRecord,
@@ -46,7 +47,7 @@ const getDataHandler = async (state: State) => {
       state.currentTime
     );
     return {
-      map: posMap,
+      map: posMapPayload,
       record: posRecord,
       index: frameIndex,
       frameId: posRecord[frameIndex],
@@ -151,8 +152,17 @@ const actions = registerActions({
    * Add a frame to currentTime, use current frame (status or pos) as default
    */
   add: async (state: State) => {
-    const { agent, frame, fade, index } = await getDataHandler(state);
-    await agent.addFrame(frame, state.currentTime, index, fade);
+    const { agent, frame, fade } = await getDataHandler(state);
+    // create an empty frame
+    const frameId = await agent.addFrame(state.currentTime, fade);
+    // request edit permission
+    const isPermitted = await agent.requestEditPermission(frameId.toString());
+    if (!isPermitted) {
+      notification.error("Permission denied");
+      return;
+    }
+    // save the frame
+    await agent.saveFrame(frameId, frame, state.currentTime, false, fade);
   },
 
   /**

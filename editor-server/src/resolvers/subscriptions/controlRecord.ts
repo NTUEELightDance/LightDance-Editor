@@ -6,19 +6,19 @@ export class ControlRecordPayload {
   mutation: ControlRecordMutation;
 
   @Field()
-  editBy: string;
+  editBy: number;
 
   @Field((type) => Int)
   index: number;
 
   @Field((type) => [String])
-  addID: string[];
+  addID: number[];
 
   @Field((type) => [String])
-  updateID: string[];
+  updateID: number[];
 
   @Field((type) => [String])
-  deleteID: string[];
+  deleteID: number[];
 }
 
 export enum ControlRecordMutation {

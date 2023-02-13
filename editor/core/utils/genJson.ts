@@ -1,16 +1,12 @@
+// TODO update protocol for generated JSON
 import { FIBER } from "@/constants";
-import {
-  DancerName,
-  Fiber,
-  LED,
-  PartName,
-} from "core/models";
+import { DancerName, FiberData, LEDData, PartName } from "@/core/models";
 import { isEqual } from "lodash";
 import { colorCode2int } from "./color";
 // state
 import { state } from "../state";
 //
-import { getControl, getLedMap } from "./index";
+import { getControlPayload, getLedMap } from "./index";
 
 /**
  * Dancer to ControlOF Json file for RPi
@@ -45,7 +41,7 @@ interface Bulb {
  * Generate ControlOF with format that RPi needs (turn into dancer base)
  */
 export async function generateControlOF() {
-  const [controlMap, controlRecord] = await getControl();
+  const [controlMap, controlRecord] = await getControlPayload();
   const { dancers, partTypeMap, colorMap } = state;
 
   const dancerControlOF: DancerControlOF = {};
@@ -60,7 +56,7 @@ export async function generateControlOF() {
       const newStatus: Record<PartName, Bulb> = {};
       Object.keys(status[dancerName]).forEach((partName) => {
         if (partTypeMap[partName] === FIBER) {
-          const fiber = status[dancerName][partName] as Fiber;
+          const fiber = status[dancerName][partName] as FiberData;
           newStatus[partName] = {
             colorCode: colorCode2int(colorMap[fiber.color]),
             alpha: fiber.alpha,
@@ -102,7 +98,7 @@ export async function generateControlOF() {
  * Generate ControlLed with format that RPi needs (turn into dancer base)
  */
 export async function generateControlLed() {
-  const [controlMap] = await getControl();
+  const [controlMap] = await getControlPayload();
   const ledMap = await getLedMap();
   const { ledEffectRecord } = state;
 
@@ -114,11 +110,11 @@ export async function generateControlLed() {
       const newEffects: Effect[] = [];
       recordIds.forEach((recordId, recordIndex) => {
         const { start: baseStart, status } = controlMap[recordId];
-        const src = (status[dancerName][partName] as LED).src;
+        const src = (status[dancerName][partName] as LEDData).src;
 
         if (!ledMap[partName][src]) return;
         let { repeat } = ledMap[partName][src];
-        const {  effects } = ledMap[partName][src];
+        const { effects } = ledMap[partName][src];
 
         if (effects.length === 0) {
           console.error(

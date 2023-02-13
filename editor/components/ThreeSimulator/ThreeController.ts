@@ -316,7 +316,7 @@ class ThreeController {
   // calculate and set next frame status according to time and call updateDancers
   update(clockDelta) {
     this.updateDancersStatus(state.currentStatus);
-    this.updateDancerLED(state.currentLedEffect);
+    // this.updateDancerLED(state.currentLedEffect);
 
     this.updateDancersPos(state.currentPos);
   }
