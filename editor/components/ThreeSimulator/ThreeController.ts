@@ -124,7 +124,7 @@ class ThreeController {
     // Append the canvas to given ref
     this.canvas.appendChild(this.renderer.domElement);
 
-    // Initialization of all dancers with currentPos
+    // Initialization of all dancers withcurrentPos
     this.initDancers();
 
     // Start rendering
@@ -346,6 +346,7 @@ class ThreeController {
     }
     if (!this.settings.config.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
+      // Type Filter
       this.dancers[dancerName].setFiberStatus(status);
     });
   }
