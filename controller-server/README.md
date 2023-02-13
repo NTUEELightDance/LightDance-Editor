@@ -7,5 +7,5 @@ Responsible for communicating to the remote hardware.
 Run on `http://localhost:8082` as default.
 
 ```
-yarn start
+pnpm start
 ```

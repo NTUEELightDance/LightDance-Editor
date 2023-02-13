@@ -22,6 +22,6 @@
   "scripts": {
     "initDB": "node initDB.js ./out/exportData.json",
     "save": "node saveData.js ./out/exportData.json",
-    "lint": "yarn eslint --fix ."
+    "lint": "eslint --fix ."
   }
 }

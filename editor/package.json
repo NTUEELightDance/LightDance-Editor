@@ -49,7 +49,7 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "yarn eslint --fix ."
+    "lint": "eslint --fix ."
   },
   "devDependencies": {
     "@types/lodash": "^4.14.191",
