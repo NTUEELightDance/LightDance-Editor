@@ -12,10 +12,12 @@ export default class Part {
     this.visible = true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setVisibility(visible: boolean) {
     // set visibility
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setStatus(status: Fiber | LedEffectFrame) {
     // set status
   }

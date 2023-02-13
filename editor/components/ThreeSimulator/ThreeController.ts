@@ -81,12 +81,15 @@ class ThreeController {
     this.settings = new Settings(this);
     this.light = this.generateLight();
     this.gridHelper = this.generateGridHelper();
-    this.initCenterMarker();
+    this.generateCenterMarker();
     this.manager = this.generateLoadManager();
-    this.controls = null;
-
-    // Dancer
     this.dancers = {};
+    this.controls = new Controls(
+      this.renderer,
+      this.scene,
+      this.camera,
+      this.dancers
+    );
 
     // Data and status for playback
     this.state = {};
@@ -267,7 +270,7 @@ class ThreeController {
   }
 
   // Add a center marker in the middle
-  initCenterMarker() {
+  generateCenterMarker() {
     const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
     const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
     const cube = new THREE.Mesh(geometry, material);
