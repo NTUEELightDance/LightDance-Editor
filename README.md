@@ -43,9 +43,13 @@ This will install all dependencies for the app.
 pnpm install:all
 ```
 
-#### Configure environment variables
+#### Initialize Prisma
 
 If you are running this for the first time, you need follow the instructions in [editor-server/README.md](editor-server/README.md) to initialize prisma.
+
+```sh
+echo "I know you only want to copy and paste commands, but please read the instructions in editor-server/README.md"
+```
 
 #### Start database
 

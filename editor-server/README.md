@@ -20,42 +20,28 @@ If you are running this for the first time, you will need to follow the steps be
 
 When you change the prisma schema, you need to regenerate the prisma client code and migrate the database.
 
-```sh
-pnpm migrate
-```
-
 ### 1. Spin up database
 
 ```sh
 # Lightdance-Editor
-docker compose -f dev.docker-compose.yml up -d postgresql redisdb
+docker compose -f dev.docker-compose.yml up
 ```
 
-### 2. Update prisma schema
-
-Modify `editor-server/prisma/schema.prisma`
-
-### 3. Migrate prisma
-
-```sh
-# Lightdance-Editor/editor-server
-npx prisma migrate dev --name init
-```
-
-or
+### 2. Migrate prisma
 
 ```sh
 # Lightdance-Editor/editor-server
 pnpm migrate
 ```
 
-### 4. Run editor-server
+### 3. Run editor-server
 
 ```sh
-pnpm dev-pnpm:editor-server
+# Lightdance-Editor
+pnpm dev:editor-server
 ```
 
-### 5. Initialize database
+### 4. Initialize database
 
 ```sh
 # Lightdance-Editor/utils
