@@ -1,21 +1,21 @@
 {
-  "name": "2021-lightdance-editor",
-  "version": "0.1.0",
+  "name": "ntuee-lightdance-editor",
+  "version": "3.0.0-beta1",
   "private": true,
   "scripts": {
     "install:editor": "pnpm install --dir ./editor",
-    "install:editor-server": "pnpm install --dir ./editor-server",
+    "install:editor-server": "pnpm install --dir ./editor-server; pnpm --dir editor-server generate",
     "install:controller-server": "pnpm install --dir ./controller-server",
     "install:file-server": "pnpm install --dir ./file-server",
-    "install:all": "(pnpm install); (pnpm install:editor); (pnpm install:editor-server); (pnpm install:controller-server); (pnpm install:file-server)",
-    "dev:editor": "cd ./editor && pnpm start",
-    "dev:editor-server": "cd ./editor-server && pnpm start",
-    "dev:controller-server": "cd ./controller-server && pnpm start",
-    "dev:file-server": "cd ./file-server && pnpm start",
+    "install:all": "pnpm install; run-p install:editor install:editor-server install:controller-server install:file-server",
+    "dev:editor": "pnpm --dir editor start",
+    "dev:editor-server": "pnpm --dir editor-server start",
+    "dev:controller-server": "pnpm --dir controller-server start",
+    "dev:file-server": "pnpm --dir file-server start",
     "dev": "run-p dev:*",
-    "lint:editor": "cd ./editor && pnpm lint",
-    "lint:editor-server": "cd ./editor-server && pnpm lint",
-    "lint:all": "run-p lint:*"
+    "lint:editor": "pnpm --dir editor lint",
+    "lint:editor-server": "pnpm --dir editor-server lint",
+    "lint": "pnpm lint:editor && pnpm lint:editor-server"
   },
   "browserslist": {
     "production": [

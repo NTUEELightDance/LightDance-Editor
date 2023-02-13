@@ -1,5 +1,5 @@
 name: eslint no fail
-run-name: ${{ github.actor }} is enforcing coding style
+run-name: eslint no fail ${{ github.event.pull_request.branches[0].name }}
 on: [push, pull_request]
 jobs:
   eslint:
@@ -8,8 +8,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: enable pnpm
         run: corepack enable
-      - name: Install modules
-        run: pnpm run install-pnpm:all
-      - name: Run ESLint for all packages
-        run: pnpm run lint:all
+      - name: Install modules in editor and editor-server
+        run: pnpm --dir editor install; pnpm --dir editor-server install
+      - name: Run ESLint for editor and editor-server
+        run: pnpm lint
         continue-on-error: true

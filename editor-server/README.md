@@ -3,6 +3,7 @@
 ## First install
 
 You need to first generate prisma client code from you schema.prisma file after you install the package:
+This will be done automatically when you run `pnpm install:all` or `pnpm install:editor-server` in the project's root directory.
 
 ```sh
 npx prisma generate
