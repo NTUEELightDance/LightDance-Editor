@@ -39,33 +39,43 @@ http://localhost:8082 - controller-server
 
 This will install all dependencies for the app.
 
-```bash
-pnpm install-pnpm:all
+```sh
+pnpm install:all
 ```
+
+#### Configure environment variables
+
+If you are running this for the first time, you need follow the instructions in [editor-server/README.md](editor-server/README.md) to initialize prisma.
 
 #### Start database
 
-You need to have mongodb and redis running for the backend to work.
+You need to have postgresql and redis running for the backend to work.
 
-```bash
-docker compose -f dev.docker-compose.yml up -d mongodb redisdb
+```sh
+docker compose -f dev.docker-compose.yml up -d
 ```
 
 #### Run all services
 
-There are several services in this app. You need to start all of them manually. Run these commands in different terminals, in that order:
+There are the services you'll need to run if you are developing editor-server. You need to start all of them manually. Run these commands in different terminals respectively, in the order shown below:
 
-```bash
+```sh
 pnpm dev:file-server
 pnpm dev:editor-server
 pnpm dev:editor
+```
+
+If you are developing the command center, you may also need to run:
+
+```sh
+pnpm dev:controller-server
 ```
 
 #### Run all services in parallel
 
 This command runs all services in parallel. You can see the editor on `http://localhost:8080`. This is useful for demo, yet not recommended in development.
 
-```bash
+```sh
 pnpm dev
 ```
 
@@ -73,18 +83,17 @@ pnpm dev
 
 If you are running this for the first time, you need to initialize the database for things to work.
 
-```bash
-cd utils
+```sh
+# Lightdance-Editor/utils
 pnpm install
-node initDB.js out/exportData.json
-node initLED.js out/exportLED.json
+node initDB.js jsons/exportDataEmpty.json
 ```
 
 ## Production
 
 Start all services
 
-```bash
+```sh
 docker compose -f prod-support/prod.docker-compose.yml up -d
 ```
 
@@ -96,10 +105,9 @@ Editor-server will run on `http://localhost:4000`.
 
 After starting all services, one must initialize the database.
 
-```bash
+```sh
+# Lightdance-Editor/utils
 export NODE_OPTIONS="--max-old-space-size=8192"
-cd utils
 pnpm install
-node initDB.js out/exportData.json
-node initLED.js out/exportLED.json
+node initDB.js jsons/exportDataEmpty.json
 ```
