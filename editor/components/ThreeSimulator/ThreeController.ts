@@ -65,6 +65,8 @@ class ThreeController {
   // ? seems always undefined, not sure why its here
   initialized: boolean;
 
+  lasso: boolean;
+
   constructor() {
     // Configuration of the scene
     this.height = 100;
@@ -97,6 +99,8 @@ class ThreeController {
 
     // record the return id of requestAnimationFrame
     this.initialized = false;
+
+    this.lasso = false;
   }
 
   /**
@@ -323,7 +327,16 @@ class ThreeController {
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
     }
+    console.log("updateSelected");
     this.controls.selectControls.updateSelected(selected);
+  }
+
+  setLasso(lasso: boolean) {
+    this.lasso = lasso;
+    if (this.controls !== undefined) {
+      this.controls.selectControls.setLasso(lasso);
+      console.log(this.dancers);
+    }
   }
 
   // calculate and set next frame status according to time and call updateDancers

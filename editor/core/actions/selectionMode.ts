@@ -38,15 +38,6 @@ const actions = registerActions({
     state.lasso = !state.lasso;
     console.log(state.lasso);
   },
-
-  //FIXME: This function is now not able to return anything
-  /**
-   * @param {State} state
-   */
-  getLasso: (state: State): boolean => {
-    console.log("getLasso : lasso=", state.lasso);
-    return state.lasso;
-  },
 });
 
 export const {

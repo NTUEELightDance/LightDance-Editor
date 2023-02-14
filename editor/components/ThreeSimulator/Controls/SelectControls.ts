@@ -10,7 +10,7 @@ import {
 import {
   setSelectedDancers,
   clearSelected,
-  getLasso,
+  setSelectedLEDs,
 } from "../../../core/actions";
 import { DANCER, PART } from "@/constants";
 import { SelectionBox } from "./SelectionBox";
@@ -44,18 +44,15 @@ class SelectControls extends EventDispatcher {
 
     const selectionBox = new SelectionBox(_camera, _scene);
     const helper = new SelectionHelper(renderer, "selectBox");
-    const startX = 0;
-    const startY = 0;
 
     const scope = this;
-
     function activate(mode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
       _domElement.addEventListener(
         "pointermove",
         throttle(1000 / 30, onPointerMove)
       );
-
+      _domElement.addEventListener("pointerup", onPointerUp);
       _mode = mode;
     }
 
@@ -65,7 +62,7 @@ class SelectControls extends EventDispatcher {
         "pointermove",
         throttle(1000 / 30, onPointerMove)
       );
-
+      _domElement.removeEventListener("pointerup", onPointerUp);
       _domElement.style.cursor = "";
     }
 
@@ -85,30 +82,15 @@ class SelectControls extends EventDispatcher {
       return _raycaster;
     }
 
-    async function onPointerDown(event) {
+    function onPointerDown(event) {
       //在three js的場景中按下滑鼠就會觸發
-      //FIXME: getLasso gets undefined
-      const lasso = await getLasso();
-      console.log(scope);
-      if (lasso) {
+
+      console.log(scope.lasso);
+      if (scope.lasso) {
         console.log("in the lasso mode");
-        return;
-      }
-
-      console.log("event", event);
-      if (event.button === 2) {
-        scope.enabled = !scope.enabled;
-
-        if (scope.blocking === true) {
-          scope.blocking = false;
-        }
-        return;
-      }
-      if (scope.enabled === false) {
-        scope.blocking = true;
         //TODO: selection box implement
+        scope.onLasso = true;
         const rect = _domElement.getBoundingClientRect();
-        console.log(selectionBox.startPoint);
         selectionBox.startPoint.set(
           ((event.clientX - rect.left) / rect.width) * 2 - 1,
           (-(event.clientY - rect.top) / rect.height) * 2 + 1,
@@ -117,14 +99,13 @@ class SelectControls extends EventDispatcher {
         //TODO: finish
         return;
       }
+
       if (event.button !== 0 || scope.enabled === false) return;
 
       updatePointer(event);
 
       _intersections.length = 0;
-      console.log("_objects = ", _objects[0]);
       _raycaster.setFromCamera(_pointer, _camera);
-      console.log("_raycaster", _raycaster.camera);
       _raycaster.intersectObjects(_objects, true, _intersections);
       //objects: objects to check
       //true: recursive or not
@@ -173,12 +154,12 @@ class SelectControls extends EventDispatcher {
     };
     function onPointerMove(event) {
       //滑鼠移動就會執行
-      if (scope.blocking === true) {
+      if (scope.onLasso && scope.lasso) {
         updatePointer(event);
         _raycaster.setFromCamera(_pointer, _camera);
         //TODO: selection box implement
         if (true) {
-          console.log("selection collection", selectionBox.collection);
+          // console.log("selection collection", selectionBox.collection);
           //FIXME: Uncaught TypeError: Cannot read properties of undefined (reading 'set')
           // for (let i = 0; i < selectionBox.collection.length; i++) {
           //   selectionBox.collection[i].material.emissive.set(0x000000);
@@ -198,16 +179,16 @@ class SelectControls extends EventDispatcher {
               parseInt(colorCode.replace(/^#/, ""), 16));
              */
             //FIXME: color cannot change when selected
-            const selectedDisplay = {
-              colorCode: "#FF0000",
-              alpha: 255,
-            };
-            const display = selectedDisplay;
-            const { colorCode, alpha } = display;
-            allSelected[i].material.emissive.setHex(
-              parseInt(colorCode.replace(/^#/, ""), 16)
-            );
-            allSelected[i].material.emissiveIntensity = alpha / 15;
+            // const selectedDisplay = {
+            //   colorCode: "#FF0000",
+            //   alpha: 255,
+            // };
+            // const display = selectedDisplay;
+            // const { colorCode, alpha } = display;
+            // allSelected[i].material.emissive.setHex(
+            //   parseInt(colorCode.replace(/^#/, ""), 16)
+            // );
+            // allSelected[i].material.emissiveIntensity = alpha / 15;
           }
           // console.log("selection collection", selection.collection);
         }
@@ -248,6 +229,28 @@ class SelectControls extends EventDispatcher {
       } else if (_hover) {
         _unhoverByName(_hover);
         _hover = null;
+      }
+    }
+
+    function onPointerUp(event) {
+      if (scope.onLasso === true) {
+        scope.onLasso = false;
+        console.log("onPointerUp, selectedLED", selectionBox.collection);
+        type selectedLED = {
+          name: string;
+          dancerName: string;
+        };
+        const selectedLED_payload: selectedLED[] = [];
+        if (selectionBox.collection.length > 0) {
+          selectionBox.collection.forEach((parts, index) => {
+            const name = parts.name;
+            if (name.includes("LED")) {
+              const dancerName = parts.parent.name;
+              selectedLED_payload.push({ name, dancerName });
+            }
+          });
+          setSelectedLEDs({ payload: selectedLED_payload });
+        }
       }
     }
 
@@ -327,6 +330,11 @@ class SelectControls extends EventDispatcher {
       this.selectedOutline = selectedOutline;
     }
 
+    function setLasso(lasso) {
+      console.log("setLasso = setLasso(" + lasso + ")");
+      this.lasso = lasso;
+    }
+
     activate(_mode);
 
     // API
@@ -334,6 +342,8 @@ class SelectControls extends EventDispatcher {
     this.enabled = true;
     this.enableMultiSelection = false;
     this.blocking = false;
+    this.lasso = false;
+    this.onLasso = false;
     this.activate = activate;
     this.deactivate = deactivate;
     this.dispose = dispose;
@@ -342,6 +352,7 @@ class SelectControls extends EventDispatcher {
     this.getRaycaster = getRaycaster;
     this.setSelectedOutline = setSelectedOutline;
     this.updateSelected = updateSelected;
+    this.setLasso = setLasso;
   }
 }
 

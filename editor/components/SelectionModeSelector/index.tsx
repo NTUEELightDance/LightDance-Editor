@@ -4,7 +4,7 @@ import { FaTshirt, FaArrowsAlt } from "react-icons/fa";
 import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
 
 import { reactiveState } from "@/core/state";
-import { setSelectionMode, setLasso } from "@/core/actions";
+import { setSelectionMode } from "@/core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 import {
@@ -29,14 +29,6 @@ function SelectionModeSelector() {
 
   return (
     <div>
-      {/* <button
-        style={{ position: "absolute", top: "16px", right: "100px" }}
-        onClick={async () => {
-          await setLasso();
-        }}
-      >
-        lasso
-      </button> */}
       <LassoButton />
       <SpeedDial
         ariaLabel="set selection mode"

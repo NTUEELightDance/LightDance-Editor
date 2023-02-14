@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, Selected, SelectedPartPayload } from "../models";
+import { State, Selected, SelectedPartPayload, PartPayload } from "../models";
 
 const actions = registerActions({
   /**
@@ -18,10 +18,19 @@ const actions = registerActions({
    * @param {string[]} payload - array of dancer's name
    */
   setSelectedDancers: (state: State, payload: string[]) => {
+    console.log("setSelectedDancers, payload: ", state);
     const dancers = payload;
     Object.keys(state.selected).forEach((dancer) => {
       state.selected[dancer].selected = dancers.includes(dancer);
     });
+  },
+
+  setSelectedLEDs: (
+    state: State,
+    payload: { name: string; dancerName: string }[]
+  ) => {
+    console.log("setSelectedLEDs payload", payload);
+    state.selectedLED = payload;
   },
 
   /**
@@ -88,4 +97,5 @@ export const {
   toggleSelectedDancer,
   toggleSelectedPart,
   clearSelected,
+  setSelectedLEDs,
 } = actions;

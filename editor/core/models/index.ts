@@ -316,6 +316,10 @@ export type DancerPartIndexMap = Record<
     parts: Record<PartName, number>;
   }
 >;
+export type SelectedLED = {
+  name: string;
+  dancerName: string;
+};
 
 /**
  * Mutable State
@@ -364,6 +368,9 @@ export interface State {
   // for converting
   dancersArray: DancersArray;
   dancerPartIndexMap: DancerPartIndexMap;
+  lasso: boolean;
+
+  selectedLED: SelectedLED[];
 }
 
 export type StateKey = keyof State;
