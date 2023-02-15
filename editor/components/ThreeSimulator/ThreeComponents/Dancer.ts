@@ -9,7 +9,13 @@ import { state } from "core/state";
 import { FIBER, LED } from "@/constants";
 
 import { LEDPart, FiberPart } from "./Part";
-import { Coordinates, FiberStatus, LEDStatus } from "@/core/models";
+import {
+  Coordinates,
+  DancerStatus,
+  FiberData,
+  ThreeSimulatorLEDStatus,
+  isFiberData,
+} from "@/core/models";
 import { Group } from "three";
 
 // import ALL_MAPPING from "./mapping";
@@ -33,7 +39,7 @@ class Dancer {
     [FIBER]: Record<string, FiberPart>;
   };
 
-  initStatus: FiberStatus;
+  initStatus: DancerStatus;
   initPos: Coordinates;
 
   constructor(
@@ -60,7 +66,7 @@ class Dancer {
   }
 
   // Load model with given URL and capture all the meshes for light status
-  addModel2Scene(currentStatus: FiberStatus, currentPos: Coordinates) {
+  addModel2Scene(currentStatus: DancerStatus, currentPos: Coordinates) {
     this.initStatus = currentStatus;
     this.initPos = currentPos;
 
@@ -181,13 +187,15 @@ class Dancer {
     }
   }
 
-  setFiberStatus(currentStatus: FiberStatus) {
+  setFiberStatus(currentStatus: DancerStatus) {
     Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
-      part.setStatus(currentStatus[partName]);
+      //type of part is FiberData
+      if (!isFiberData(currentStatus[partName])) return;
+      part.setStatus(currentStatus[partName] as FiberData);
     });
   }
 
-  setLEDStatus(currentLedEffect: LEDStatus) {
+  setLEDStatus(currentLedEffect: ThreeSimulatorLEDStatus) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {
       part.setStatus(currentLedEffect[partName]);
     });

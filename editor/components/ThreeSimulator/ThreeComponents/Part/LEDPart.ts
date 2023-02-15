@@ -1,4 +1,4 @@
-import { LedEffectFrame } from "@/core/models";
+import { ThreeSimulatorLEDPart } from "@/core/models";
 import Part from "./Part";
 const defaultDisplay = {
   colorCode: "#000000",
@@ -39,7 +39,7 @@ export default class LEDPart extends Part {
     });
   }
 
-  setStatus(status: LedEffectFrame) {
+  setStatus(status: ThreeSimulatorLEDPart) {
     if (!this.visible) return;
     const { effect } = status;
     this.meshes.forEach((mesh: THREE.Mesh, i) => {

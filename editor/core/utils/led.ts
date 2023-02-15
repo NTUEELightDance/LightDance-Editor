@@ -4,7 +4,7 @@ import { fadeAlpha, fadeColor } from "./fade";
 import {
   ControlMap,
   LEDData,
-  CurrentLedEffect,
+  ThreeSimulatorCurrentLedEffect,
   LedMap,
   LedEffectFrame,
   LedEffectRecord,
@@ -26,7 +26,7 @@ import { updateFrameByTimeMap } from "./frame";
 export function updateLedEffect(
   controlMap: ControlMap,
   ledEffectRecord: LedEffectRecord,
-  currentLedEffect: CurrentLedEffect,
+  currentLedEffect: ThreeSimulatorCurrentLedEffect,
   ledMap: LedMap,
   time: number
 ) {

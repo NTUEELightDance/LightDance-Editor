@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import type { ReactiveVar } from "@apollo/client";
-import type { DancerStatus } from "core/models/index.d.ts";
 
 import { useHotkeys } from "react-hotkeys-hook";
 import { makeVar } from "@apollo/client";

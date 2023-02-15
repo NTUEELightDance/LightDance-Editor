@@ -89,7 +89,7 @@ export function isELData(partData: PartData): partData is ELData {
   return typeof partData === "number";
 }
 
-export type CurrentStatusDelta = Record<DancerName, Record<PartName, PartData>>;
+export type CurrentStatusDelta = Record<DancerName, DancerStatus>;
 
 export type ControlMapQueryPayload = {
   [frameId: id]: {
@@ -251,20 +251,21 @@ export type LedRecord = id[];
  * recordIndex indicates the place in LedEffectRecord
  * effectIndex indicates the place in the effect
  */
-export type CurrentLedEffect = Record<
+export type ThreeSimulatorCurrentLedEffect = Record<
   DancerName,
-  Record<
-    PartName,
-    {
-      recordIndex: number;
-      effectIndex: number;
-      effect: Array<{
-        colorCode: ColorCode;
-        alpha: number;
-      }>; // this is to handle faded effect, so we will clone the effect from ledMap
-    }
-  >
+  ThreeSimulatorLEDStatus
 >;
+
+export type ThreeSimulatorLEDStatus = Record<PartName, ThreeSimulatorLEDPart>;
+
+export type ThreeSimulatorLEDPart = {
+  recordIndex: number;
+  effectIndex: number;
+  effect: Array<{
+    colorCode: ColorCode;
+    alpha: number;
+  }>; // this is to handle faded effect, so we will clone the effect from ledMap
+};
 
 export type EffectListType = Array<{
   start: number;
@@ -328,7 +329,7 @@ export interface State {
   currentPos: PosMapStatus; // current dancers' position
 
   ledEffectRecord: LedEffectRecord;
-  currentLedEffect: CurrentLedEffect;
+  currentLedEffect: ThreeSimulatorCurrentLedEffect;
 
   editMode: EditMode;
   editor: Editor;

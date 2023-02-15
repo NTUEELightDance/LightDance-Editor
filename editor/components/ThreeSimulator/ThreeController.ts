@@ -26,9 +26,10 @@ import { state } from "core/state";
 import store from "../../store";
 import {
   ControlMapStatus,
-  CurrentLedEffect,
-  DancerCoordinates,
+  ThreeSimulatorCurrentLedEffect,
+  PosMapStatus,
   Selected,
+  State,
 } from "@/core/models";
 
 /**
@@ -60,7 +61,7 @@ class ThreeController {
   controls: Controls;
 
   // TODO use global state type
-  state: any;
+  state: null | State;
   isPlaying: boolean;
   // ? seems always undefined, not sure why its here
   initialized: boolean;
@@ -92,7 +93,7 @@ class ThreeController {
     );
 
     // Data and status for playback
-    this.state = {};
+    this.state = null;
     this.isPlaying = false;
 
     // record the return id of requestAnimationFrame
@@ -121,7 +122,7 @@ class ThreeController {
     // Append the canvas to given ref
     this.canvas.appendChild(this.renderer.domElement);
 
-    // Initialization of all dancers withcurrentPos
+    // Initialization of all dancers with currentPos
     this.initDancers();
 
     // Start rendering
@@ -241,7 +242,6 @@ class ThreeController {
   initDancers() {
     const { dancerNames, currentStatus, currentPos } = state;
     const { dancerMap } = store.getState().load;
-
     dancerNames.forEach((name) => {
       const { url } = dancerMap[name];
       const newDancer = new Dancer(this.scene, name, url, this.manager);
@@ -343,12 +343,11 @@ class ThreeController {
     }
     if (!this.settings.config.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
-      // Type Filter
       this.dancers[dancerName].setFiberStatus(status);
     });
   }
 
-  updateDancerLED(currentLedEffect: CurrentLedEffect) {
+  updateDancerLED(currentLedEffect: ThreeSimulatorCurrentLedEffect) {
     if (Object.entries(currentLedEffect).length === 0) {
       throw new Error(
         "[Error] updateDancersLED, invalid parameter(currentLedEffect)"
@@ -360,7 +359,7 @@ class ThreeController {
     });
   }
 
-  updateDancersPos(currentPos: DancerCoordinates) {
+  updateDancersPos(currentPos: PosMapStatus) {
     if (Object.entries(currentPos).length === 0) {
       throw new Error(
         "[Error] updateDancersPos, invalid parameter(currentPos)"
@@ -381,7 +380,7 @@ class ThreeController {
       });
     }
 
-    this.composer?.render();
+    this.composer.render();
     requestAnimationFrame(() => {
       this.animate();
     });

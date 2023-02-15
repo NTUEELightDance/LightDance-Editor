@@ -1,5 +1,5 @@
 import THREE from "three";
-import { Fiber, LedEffectFrame } from "core/models";
+import { FiberData, ThreeSimulatorLEDPart } from "core/models";
 
 // this is a base class for dancer parts
 export default class Part {
@@ -18,7 +18,7 @@ export default class Part {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setStatus(status: Fiber | LedEffectFrame) {
+  setStatus(status: FiberData | ThreeSimulatorLEDPart) {
     // set status
   }
 }

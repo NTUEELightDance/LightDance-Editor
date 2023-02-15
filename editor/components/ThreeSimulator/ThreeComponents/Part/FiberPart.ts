@@ -1,4 +1,4 @@
-import { Fiber } from "@/core/models";
+import { FiberData } from "@/core/models";
 import Part from "./Part";
 import { state } from "core/state";
 
@@ -11,7 +11,11 @@ export default class FIBERPart extends Part {
   constructor(name: string, model: THREE.Object3D) {
     super(name, model);
     this.mesh = model.getObjectByName(name) as MeshType;
-    this.mesh.material = this.mesh.material.clone();
+    this.mesh.material = this.mesh.material.clone(); ////error
+    console.log(this);
+    console.log(this.mesh);
+    console.log(this.mesh.material);
+    console.log(this.mesh.material.clone());
     this.mesh.material.color.setHex(0);
     this.mesh.material.emissiveIntensity = 0;
   }
@@ -21,7 +25,7 @@ export default class FIBERPart extends Part {
     this.mesh.visible = visible;
   }
 
-  setStatus(status: Fiber) {
+  setStatus(status: FiberData) {
     if (!this.visible) return;
 
     const { colorCode, color, alpha } = status;
