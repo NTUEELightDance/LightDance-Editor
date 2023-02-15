@@ -1,7 +1,8 @@
 import { cloneDeep } from "lodash";
 import { registerActions } from "../registerActions";
 // types
-import { State, PosMapStatus } from "../models";
+import type { State, PosMapStatus } from "../models";
+import { getPos, interpolatePos } from "../utils";
 
 const actions = registerActions({
   /**
@@ -56,7 +57,30 @@ const actions = registerActions({
       state.currentPos[dancerName].y = 0;
     });
   },
+
+  syncCurrentPosWithPosMap: async (state: State) => {
+    const [posMap, posRecord] = await getPos();
+
+    const posIndex = state.currentPosIndex;
+    const time = state.currentTime;
+    // position interpolation
+    if (posIndex === posRecord.length - 1) {
+      // can't interpolation
+      state.currentPos = posMap[posRecord[posIndex]].pos;
+    } else {
+      // do interpolation
+      state.currentPos = interpolatePos(
+        time,
+        posMap[posRecord[posIndex]],
+        posMap[posRecord[posIndex + 1]]
+      );
+    }
+  },
 });
 
-export const { setCurrentPosByName, setCurrentPos, setCurrentPosToGround } =
-  actions;
+export const {
+  setCurrentPosByName,
+  setCurrentPos,
+  setCurrentPosToGround,
+  syncCurrentPosWithPosMap,
+} = actions;

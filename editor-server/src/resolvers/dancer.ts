@@ -25,6 +25,11 @@ export class DancerResolver {
   @Query((returns) => [Dancer])
   async dancers(@Ctx() ctx: TContext) {
     const dancers = await ctx.prisma.dancer.findMany({
+      include: {
+        parts: {
+          orderBy: { id: "asc" },
+        },
+      },
       orderBy: { id: "asc" },
     });
 

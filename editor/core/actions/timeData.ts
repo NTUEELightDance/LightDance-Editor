@@ -8,14 +8,14 @@ import {
   getLedMap,
   clamp,
   updateFrameByTimeMap,
-  interpolationPos,
-  fadeStatus,
   updateLedEffect,
 } from "../utils";
 // types
-import { State } from "../models";
+import type { State } from "../models";
 // constants
 import { IDLE } from "@/constants";
+import { syncCurrentStatusWithControlMap } from "./currentStatus";
+import { syncCurrentPosWithPosMap } from "./currentPos";
 
 const actions = registerActions({
   /**
@@ -47,21 +47,13 @@ const actions = registerActions({
       state.currentControlIndex,
       time
     );
-
     state.currentControlIndex = newControlIndex;
-    // status fade
-    if (newControlIndex === controlRecord.length - 1) {
-      // Can't fade
-      state.currentStatus = controlMap[controlRecord[newControlIndex]].status;
-    } else {
-      // do fade
-      state.currentStatus = fadeStatus(
-        time,
-        controlMap[controlRecord[newControlIndex]],
-        controlMap[controlRecord[newControlIndex + 1]],
-        state.colorMap
-      );
-    }
+    syncCurrentStatusWithControlMap({
+      options: { refreshThreeSimulator: false, refreshWavesurfer: false },
+    });
+
+    // set currentFade
+    state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
 
     // set currentPosIndex
     const newPosIndex = updateFrameByTimeMap(
@@ -71,21 +63,12 @@ const actions = registerActions({
       time
     );
     state.currentPosIndex = newPosIndex;
-    // position interpolation
-    if (newPosIndex === posRecord.length - 1) {
-      // can't interpolation
-      state.currentPos = posMap[posRecord[newPosIndex]].pos;
-    } else {
-      // do interpolation
-      state.currentPos = interpolationPos(
-        time,
-        posMap[posRecord[newPosIndex]],
-        posMap[posRecord[newPosIndex + 1]]
-      );
-    }
-
-    // set currentFade
-    state.currentFade = controlMap[controlRecord[newControlIndex]].fade;
+    syncCurrentPosWithPosMap({
+      options: {
+        refreshThreeSimulator: false,
+        refreshWavesurfer: false,
+      },
+    });
 
     // update currentLedEffectIndexMap
     state.currentLedEffect = updateLedEffect(

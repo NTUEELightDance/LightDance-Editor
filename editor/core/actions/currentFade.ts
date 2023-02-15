@@ -17,14 +17,6 @@ const actions = registerActions({
     }
     state.currentFade = fade;
   },
-
-  /**
-   * Save currentFade to controlRecord
-   * @param {State} state
-   */
-  saveCurrentFade: (state: State) => {
-    // TODO: call mutation api
-  },
 });
 
 export const { setCurrentFade, saveCurrentFade } = actions;

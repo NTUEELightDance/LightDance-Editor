@@ -66,7 +66,14 @@ export class PositionFrameResolver {
         start,
       },
     });
-    const allDancers: Dancer[] = await ctx.prisma.dancer.findMany();
+    const allDancers: Dancer[] = await ctx.prisma.dancer.findMany({
+      include: {
+        parts: {
+          orderBy: { id: "asc" },
+        },
+      },
+      orderBy: { id: "asc" },
+    });
 
     await Promise.all(
       allDancers.map(async (dancer: Dancer) => {
@@ -148,7 +155,10 @@ export class PositionFrameResolver {
       where: { id: input.frameID },
       include: {
         positionDatas: {
-          include: { dancer: true, frame: true },
+          include: {
+            dancer: true,
+            frame: true,
+          },
         },
       },
     });
@@ -270,6 +280,6 @@ export class PositionFrameResolver {
       index: -1,
     };
     await publishPositionRecord(recordPayload);
-    // return deletedFrame;
+    return deletedFrame;
   }
 }

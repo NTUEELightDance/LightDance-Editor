@@ -1,7 +1,6 @@
 import { makeVar } from "@apollo/client";
 import { cloneDeep } from "lodash";
 import onChange from "on-change";
-import { IDLE, CONTROL_EDITOR } from "@/constants";
 
 import { debug } from "core/utils";
 
@@ -42,6 +41,8 @@ const _state: State = {
 
   selected: {},
   selectedLEDs: [],
+  // @ts-expect-error it's difficult to provide a default value for this
+  currentLEDPart: "",
 
   dancers: {},
   dancerNames: [],

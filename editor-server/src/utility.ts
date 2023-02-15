@@ -109,6 +109,7 @@ const initRedisPosition = async () => {
     include: {
       positionData: true,
     },
+    orderBy: { id: "asc" },
   });
 
   frames.map(({ id, start, editing }) => {
@@ -215,7 +216,6 @@ const updateRedisPosition = async (id: number) => {
   if (!positionFrame) {
     return;
   }
-  // const allDancers = await model.Dancer.find().populate("positionData")
   const allDancers = await prisma.dancer.findMany({
     include: {
       positionData: true,
@@ -224,15 +224,11 @@ const updateRedisPosition = async (id: number) => {
   });
   const { start, editing } = positionFrame;
   const pos: TPositionPos[] = [];
-  allDancers
-    .sort((a, b) => {
-      return a.name === b.name ? 0 : a.name < b.name ? -1 : 1;
-    })
-    .map((dancer) => {
-      const { name, positionData } = dancer;
-      const wanted: any = positionData.find((data) => data.frameId === id);
-      pos.push([wanted.x, wanted.y, wanted.z]);
-    });
+  allDancers.map((dancer) => {
+    const { positionData } = dancer;
+    const wanted: any = positionData.find((data) => data.frameId === id);
+    pos.push([wanted.x, wanted.y, wanted.z]);
+  });
 
   const cacheObj: TRedisPosition = {
     start,

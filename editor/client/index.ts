@@ -41,9 +41,15 @@ const client = new ApolloClient({
       ControlMap: {
         fields: {
           frameIds: {
-            merge(existing, incoming) {
+            async merge(existing, incoming) {
               const controlMap = toControlMap(incoming);
-              setControlMap({ payload: controlMap });
+              await setControlMap({
+                payload: controlMap,
+                options: {
+                  refreshThreeSimulator: false,
+                  refreshWavesurfer: false,
+                },
+              });
               return incoming;
             },
           },
@@ -52,9 +58,15 @@ const client = new ApolloClient({
       PositionMap: {
         fields: {
           frameIds: {
-            merge(existing, incoming) {
+            async merge(existing, incoming) {
               const posMap = toPosMap(incoming);
-              setPosMap({ payload: posMap });
+              await setPosMap({
+                payload: posMap,
+                options: {
+                  refreshThreeSimulator: false,
+                  refreshWavesurfer: false,
+                },
+              });
               return incoming;
             },
           },

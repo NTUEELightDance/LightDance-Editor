@@ -44,8 +44,8 @@ export const ADD_POS_FRAME = gql`
 `;
 
 export const EDIT_POS_FRAME = gql`
-  mutation EditPosMap($start: Float!, $pos: [[Float!]!]!) {
-    editPosMap(start: $start, pos: $pos) {
+  mutation EditPosMap($input: EditPositionMapInput!) {
+    editPosMap(input: $input) {
       frameIds
     }
   }
@@ -61,7 +61,7 @@ export const EDIT_POS_FRAME_TIME = gql`
 `;
 
 export const DELETE_POS_FRAME = gql`
-  mutation EditPosMap($input: DeletePositionFrameInput!) {
+  mutation DeletePositionFrame($input: DeletePositionFrameInput!) {
     deletePositionFrame(input: $input) {
       start
       id

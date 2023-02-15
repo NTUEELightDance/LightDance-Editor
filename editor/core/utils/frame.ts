@@ -86,7 +86,7 @@ export function binarySearchFrameMap(
  * @param {*} preFrame - the position frame data (posRecord[posIndex])
  * @param {*} nextFrame - the next position frame data (posRecord[posIndex + 1])
  */
-export function interpolationPos(
+export function interpolatePos(
   time: number,
   preFrame: PosMapElement,
   nextFrame: PosMapElement

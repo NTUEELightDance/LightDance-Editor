@@ -251,7 +251,14 @@ export class ShiftResolver {
       await Promise.all(
         deletePositionFrame.map(async (data) => {
           const { id } = data;
-          const dancers = await ctx.prisma.dancer.findMany();
+          const dancers = await ctx.prisma.dancer.findMany({
+            include: {
+              parts: {
+                orderBy: { id: "asc" },
+              },
+            },
+            orderBy: { id: "asc" },
+          });
           const deletePositionData = await ctx.prisma.positionData.findMany({
             where: { frameId: id },
           });

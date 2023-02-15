@@ -96,11 +96,13 @@ export const posAgent = {
     }
 
     try {
-      client.mutate({
+      await client.mutate({
         mutation: EDIT_POS_FRAME,
         variables: {
-          frameId: parseInt(frameId),
-          pos: toPosMapStatusPayload(frame),
+          input: {
+            frameId: parseInt(frameId),
+            positionData: toPosMapStatusPayload(frame),
+          },
         },
         refetchQueries: [
           {

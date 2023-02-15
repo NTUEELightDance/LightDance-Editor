@@ -61,27 +61,21 @@ const subPosMap = (client: ApolloClient<NormalizedCacheObject>) => {
           id: "ROOT_QUERY",
           fields: {
             PosMap(posMap) {
+
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.positionMapSubscription.frame;
               const newPosMap = cloneDeep(posMap);
-
-              if (Object.keys(createFrames).length > 0) {
-                newPosMap.frameIds = {
-                  ...newPosMap.frameIds,
-                  ...createFrames,
-                };
-              }
-              if (deleteFrames.length) {
-                deleteFrames.map((id: string) => {
-                  delete newPosMap.frames[id];
-                });
-              }
-              if (Object.keys(updateFrames).length > 0) {
-                newPosMap.frames = {
-                  ...newPosMap.frames,
-                  ...updateFrames,
-                };
-              }
+              newPosMap.frameIds = {
+                ...newPosMap.frameIds,
+                ...createFrames,
+              };
+              deleteFrames.forEach((id: string) => {
+                delete newPosMap.frameIds[id];
+              });
+              newPosMap.frameIds = {
+                ...newPosMap.frameIds,
+                ...updateFrames,
+              };
               return newPosMap;
             },
           },

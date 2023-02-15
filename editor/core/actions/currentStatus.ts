@@ -1,7 +1,7 @@
 import { cloneDeep, isEqual } from "lodash";
 import { registerActions } from "../registerActions";
 // utils
-import { getControlPayload, setItem } from "../utils";
+import { getControl, fadeStatus } from "../utils";
 // types
 import {
   State,
@@ -12,8 +12,6 @@ import {
 } from "../models";
 
 import { Color } from "three";
-
-import { log } from "core/utils";
 
 const actions = registerActions({
   /**
@@ -81,17 +79,6 @@ const actions = registerActions({
     });
   },
 
-  /**
-   * This is for saving controlRecord and controlMap to localStorage.
-   * @param state
-   */
-  saveToLocal: async () => {
-    const [controlRecord, controlMap] = await getControlPayload();
-    setItem("controlRecord", JSON.stringify(controlRecord));
-    setItem("controlMap", JSON.stringify(controlMap));
-    log("Control Saved to Local Storage...");
-  },
-
   editCurrentStatusDelta: (state: State, payload: CurrentStatusDelta) => {
     // make a new clone since the data may be readOnly (calculate from cache)
     const newCurrentStatus = cloneDeep(state.currentStatus);
@@ -112,6 +99,26 @@ const actions = registerActions({
       state.currentStatus = newCurrentStatus;
     }
   },
+
+  syncCurrentStatusWithControlMap: async (state: State) => {
+    const [controlMap, controlRecord] = await getControl();
+
+    const controlIndex = state.currentControlIndex;
+    const time = state.currentTime;
+    // status fade
+    if (controlIndex === controlRecord.length - 1) {
+      // Can't fade
+      state.currentStatus = controlMap[controlRecord[controlIndex]].status;
+    } else {
+      // do fade
+      state.currentStatus = fadeStatus(
+        time,
+        controlMap[controlRecord[controlIndex]],
+        controlMap[controlRecord[controlIndex + 1]],
+        state.colorMap
+      );
+    }
+  },
 });
 
 export const {
@@ -119,5 +126,5 @@ export const {
   editCurrentStatusFiber,
   editCurrentStatusLED,
   editCurrentStatusDelta,
-  saveToLocal,
+  syncCurrentStatusWithControlMap,
 } = actions;

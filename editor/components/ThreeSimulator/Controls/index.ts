@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 import { OrbitControls } from "./OrbitControls";
 import { DragControls } from "./DragControls";
 import { SelectControls } from "./SelectControls";
@@ -161,7 +163,7 @@ class Controls {
 
     const currentPos: PosMapStatus = {};
     Object.entries(this.dancers).forEach(([name, dancer]) => {
-      const position = dancer.model!.matrix.getPosition();
+      const position = dancer.model!.getWorldPosition(new THREE.Vector3());
 
       currentPos[name] = {
         x: position.x,

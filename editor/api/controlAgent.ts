@@ -114,7 +114,7 @@ export const controlAgent = {
     }
 
     try {
-      client.mutate({
+      await client.mutate({
         mutation: EDIT_CONTROL_FRAME,
         variables: {
           input: {

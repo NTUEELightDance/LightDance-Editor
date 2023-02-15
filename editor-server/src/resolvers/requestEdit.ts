@@ -46,7 +46,7 @@ export class RequestEditResolver {
     });
     if (!existFrame) throw new Error(`frame id ${frameID} not found`);
     if (checkEditingPositionFrame === null) {
-      const updateEditing = await ctx.prisma.editingPositionFrame.update({
+      await ctx.prisma.editingPositionFrame.update({
         where: { userId: ctx.userId },
         data: { frameId: frameID },
       });

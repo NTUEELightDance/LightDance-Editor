@@ -338,7 +338,14 @@ export class EffectListResolver {
         return -1;
       })
     );
-    const allDancer: Dancer[] = await ctx.prisma.dancer.findMany();
+    const allDancer: Dancer[] = await ctx.prisma.dancer.findMany({
+      include: {
+        parts: {
+          orderBy: { id: "asc" },
+        },
+      },
+      orderBy: { id: "asc" },
+    });
     const newPositionFrameIDs = await Promise.all(
       Object.values(effectList.positionFrames).map(async (frameObj: any) => {
         if (frameObj !== null) {

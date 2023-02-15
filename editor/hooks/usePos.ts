@@ -7,7 +7,6 @@ import { reactiveState } from "@/core/state";
 export default function usePos() {
   // query posMap
   const { loading: posMapLoading, error: posMapError } = useQuery(GET_POS_MAP);
-  const posMap = useReactiveVar(reactiveState.posMap);
 
   // query posRecord
   const {
@@ -16,6 +15,8 @@ export default function usePos() {
     data: posRecordData,
   } = useQuery(GET_POS_RECORD);
   const posRecord = posRecordData?.positionFrameIDs;
+
+  const posMap = useReactiveVar(reactiveState.posMap);
 
   return {
     loading: posMapLoading || posRecordLoading,
