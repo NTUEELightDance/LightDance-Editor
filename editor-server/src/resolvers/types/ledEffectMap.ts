@@ -1,17 +1,11 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
-import {
-  ILED,
-  ILEDEffects,
-  ILEDEffectsEffect,
-  IPart,
-} from "../../types/global";
+import prisma from "../../prisma";
+import { ILED, ILEDEffects, ILEDEffectsEffect, IPart } from "../../types/global";
+import { LEDEffect } from "../../../prisma/generated/type-graphql";
 
 interface IPartEffect {
-  [key: string]: {
-    repeat: number;
-    effects: ILEDEffects[];
-  };
+  [key: string]: LEDEffect; 
 }
 interface IEffect {
   [key: string]: IPartEffect;
@@ -20,40 +14,28 @@ interface IEffect {
 @ObjectType()
 export class LEDMap {
   @Field((type) => LEDMapScalar)
-  LEDMap: IPart[];
+    LEDMap: IPart[];
 }
 
 export const LEDMapScalar = new GraphQLScalarType({
   name: "LEDMapCustomScalar",
   description: "LED map scalar type",
   async serialize(allPart: IPart[]) {
-    // TODO: fix this piece of shit
     // check the type of received value
-    // const result: IEffect = {};
-    // await Promise.all(
-    //   allPart.map(async (partObj) => {
-    //     const partName = partObj.name;
-    //     const part: IPartEffect = {};
-    //     const allEffect: ILED[] = await db.LED.find({ partName });
-    //     allEffect.map((effect) => {
-    //       const { effectName, repeat, effects } = effect;
-    //       // remove effects' _id
-    //       const newEffects: ILEDEffects[] = effects.map((effectsData) => {
-    //         const { effect, start, fade } = effectsData;
-    //         // remove effect's _id
-    //         const newEffect: ILEDEffectsEffect[] = effect.map((effectData) => {
-    //           const { colorCode, alpha } = effectData;
-    //           return { alpha, colorCode };
-    //         });
-    //         return { effect: newEffect, start, fade };
-    //       });
-    //       part[effectName] = { repeat, effects: newEffects };
-    //     });
-    //     result[partName] = part;
-    //   })
-    // );
-    // return result;
-    return {};
+    const result: IEffect = {};
+    await Promise.all(
+      allPart.map(async (partObj) => {
+        const partName = partObj.name;
+        const part: IPartEffect = {};
+        const allEffect = await prisma.lEDEffect.findMany({where: {partName: partName}});
+        allEffect.map((effect) => {
+          const { id, name, partName, repeat, frames } = effect;
+          part[name] = effect;
+        })
+        result[partName] = part;
+      })
+    );
+    return result;
   },
   parseValue(value: unknown): any {
     // check the type of received value
@@ -65,4 +47,4 @@ export const LEDMapScalar = new GraphQLScalarType({
 
     return ast.value; // value from the client query
   },
-});
+})
