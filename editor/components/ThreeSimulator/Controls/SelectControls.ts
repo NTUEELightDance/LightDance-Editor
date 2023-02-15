@@ -85,9 +85,7 @@ class SelectControls extends EventDispatcher {
     function onPointerDown(event) {
       //在three js的場景中按下滑鼠就會觸發
 
-      console.log(scope.lasso);
       if (scope.lasso) {
-        console.log("in the lasso mode");
         //TODO: selection box implement
         scope.onLasso = true;
         const rect = _domElement.getBoundingClientRect();

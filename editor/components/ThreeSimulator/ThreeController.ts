@@ -226,10 +226,14 @@ class ThreeController {
   }
   generateComposer() {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-    const renderTarget = new THREE.WebGLMultisampleRenderTarget(
-      size.width,
-      size.height
-    );
+    const renderTarget = new THREE.WebGLRenderTarget(size.width, size.height, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      // 启用4倍多重采样
+      samples: 4,
+    });
 
     const composer = new EffectComposer(this.renderer, renderTarget);
 

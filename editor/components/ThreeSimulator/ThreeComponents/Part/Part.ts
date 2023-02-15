@@ -12,7 +12,6 @@ export default class Part {
     this.model = model;
     this.visible = true;
     this.selected = false;
-    console.log("class part is constructed", this.model);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
