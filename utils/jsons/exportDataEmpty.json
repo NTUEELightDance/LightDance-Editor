@@ -134,10 +134,6 @@
         {
           "name": "zipper_inner_right",
           "type": "FIBER"
-        },
-        {
-          "name": "eggsy",
-          "type": "FIBER"
         }
       ]
     },
@@ -198,10 +194,6 @@
         },
         {
           "name": "hem",
-          "type": "FIBER"
-        },
-        {
-          "name": "agent",
           "type": "FIBER"
         },
         {
@@ -302,10 +294,6 @@
           "type": "FIBER"
         },
         {
-          "name": "agent",
-          "type": "FIBER"
-        },
-        {
           "name": "collar_right",
           "type": "FIBER"
         },
@@ -403,10 +391,6 @@
           "type": "FIBER"
         },
         {
-          "name": "agent",
-          "type": "FIBER"
-        },
-        {
           "name": "collar_right",
           "type": "FIBER"
         },
@@ -501,10 +485,6 @@
         },
         {
           "name": "hem",
-          "type": "FIBER"
-        },
-        {
-          "name": "agent",
           "type": "FIBER"
         },
         {
@@ -663,20 +643,12 @@
         {
           "name": "cape_right",
           "type": "FIBER"
-        },
-        {
-          "name": "reaper",
-          "type": "FIBER"
         }
       ]
     },
     {
       "name": "7_ken",
       "parts": [
-        {
-          "name": "assassin",
-          "type": "FIBER"
-        },
         {
           "name": "tadpole_left",
           "type": "FIBER"
@@ -779,10 +751,6 @@
       "name": "8_samuel",
       "parts": [
         {
-          "name": "assassin",
-          "type": "FIBER"
-        },
-        {
           "name": "tadpole_left",
           "type": "FIBER"
         },
@@ -884,10 +852,6 @@
       "name": "9_alice",
       "parts": [
         {
-          "name": "assassin",
-          "type": "FIBER"
-        },
-        {
           "name": "tadpole_left",
           "type": "FIBER"
         },
@@ -988,10 +952,6 @@
     {
       "name": "10_ttk",
       "parts": [
-        {
-          "name": "assassin",
-          "type": "FIBER"
-        },
         {
           "name": "tadpole_left",
           "type": "FIBER"
@@ -1118,70 +1078,6 @@
           "type": "FIBER"
         },
         {
-          "name": "pistol_grip_4",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_grip_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_grip_2",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_grip_1",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_4",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_2",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_1",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_handle_4",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_handle_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_handle_2",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_handle_1",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_blade_4",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_blade_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_blade_2",
-          "type": "FIBER"
-        },
-        {
-          "name": "knife_blade_1",
-          "type": "FIBER"
-        },
-        {
           "name": "column_4_top",
           "type": "FIBER"
         },
@@ -1195,10 +1091,6 @@
         },
         {
           "name": "column_1_top",
-          "type": "FIBER"
-        },
-        {
-          "name": "cabinet_1",
           "type": "FIBER"
         },
         {
@@ -1251,14 +1143,6 @@
           "type": "FIBER"
         },
         {
-          "name": "column_1_top",
-          "type": "FIBER"
-        },
-        {
-          "name": "cabinet_2",
-          "type": "FIBER"
-        },
-        {
           "name": "back_row",
           "type": "FIBER"
         },
@@ -1267,7 +1151,7 @@
           "type": "FIBER"
         },
         {
-          "name": "sniper_rifle_scope_1",
+          "name": "sniper_rifle_left_1",
           "type": "FIBER"
         },
         {
@@ -1275,15 +1159,7 @@
           "type": "FIBER"
         },
         {
-          "name": "sniper_rifle_bottom_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "sniper_rifle_scope_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "sniper_rifle_top_3",
+          "name": "sniper_rifle_right_1",
           "type": "FIBER"
         },
         {
@@ -1291,7 +1167,7 @@
           "type": "FIBER"
         },
         {
-          "name": "sniper_rifle_scope_2",
+          "name": "sniper_rifle_left_2",
           "type": "FIBER"
         },
         {
@@ -1299,15 +1175,23 @@
           "type": "FIBER"
         },
         {
-          "name": "column_1_bottom",
+          "name": "sniper_rifle_right_2",
           "type": "FIBER"
         },
         {
-          "name": "column_4_top",
+          "name": "sniper_rifle_bottom_3",
           "type": "FIBER"
         },
         {
-          "name": "column_4_bottom",
+          "name": "sniper_rifle_left_3",
+          "type": "FIBER"
+        },
+        {
+          "name": "sniper_rifle_top_3",
+          "type": "FIBER"
+        },
+        {
+          "name": "sniper_rifle_right_3",
           "type": "FIBER"
         }
       ]
@@ -1316,43 +1200,7 @@
       "name": "13_cabinet_samuel",
       "parts": [
         {
-          "name": "cabinet_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_grip_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_3",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_grip_4",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_4",
-          "type": "FIBER"
-        },
-        {
           "name": "back_row",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_grip_1",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_1",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_grip_2",
-          "type": "FIBER"
-        },
-        {
-          "name": "pistol_barrel_2",
           "type": "FIBER"
         },
         {
@@ -1408,10 +1256,6 @@
     {
       "name": "14_counter_left",
       "parts": [
-        {
-          "name": "counter1",
-          "type": "FIBER"
-        },
         {
           "name": "chair_c_5",
           "type": "FIBER"
@@ -1526,10 +1370,6 @@
       "name": "15_counter_right",
       "parts": [
         {
-          "name": "counter_2",
-          "type": "FIBER"
-        },
-        {
           "name": "chair_a_5",
           "type": "FIBER"
         },
@@ -1641,20 +1481,11 @@
     },
     {
       "name": "16_scythe",
-      "parts": [
-        {
-          "name": "scythe",
-          "type": "FIBER"
-        }
-      ]
+      "parts": []
     },
     {
       "name": "17_signboard",
       "parts": [
-        {
-          "name": "signboard",
-          "type": "FIBER"
-        },
         {
           "name": "circle_1",
           "type": "FIBER"
@@ -1863,6 +1694,496 @@
           [
             "black",
             0
+          ]
+        ],
+        [
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ]
+        ],
+        [
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ]
+        ],
+        [
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ]
+        ],
+        [
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ]
+        ],
+        [
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
+          ],
+          [
+            "black",
+            0
           ],
           [
             "black",
@@ -2313,93 +2634,9 @@
           [
             "black",
             0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
           ]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
           [
             "black",
             0
@@ -2537,571 +2774,9 @@
           [
             "black",
             0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
           ]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
-        ],
-        [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
-        ],
-        [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
-        ],
-        [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
-        ],
-        [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
-        ],
-        [
-          [
-            "black",
-            0
-          ],
           [
             "black",
             0
@@ -3319,23 +2994,10 @@
           [
             "black",
             0
-          ],
-          [
-            "black",
-            0
           ]
         ],
+        [],
         [
-          [
-            "black",
-            0
-          ]
-        ],
-        [
-          [
-            "black",
-            0
-          ],
           [
             "black",
             0
