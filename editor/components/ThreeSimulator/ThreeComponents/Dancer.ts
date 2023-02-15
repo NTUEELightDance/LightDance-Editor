@@ -66,7 +66,7 @@ class Dancer {
   }
 
   // Load model with given URL and capture all the meshes for light status
-  addModel2Scene(currentStatus: FiberStatus, currentPos: Coordinates) {
+  addModel2Scene(currentStatus: DancerStatus, currentPos: Coordinates) {
     this.initStatus = currentStatus;
     this.initPos = currentPos;
 
@@ -191,7 +191,7 @@ class Dancer {
     }
   }
 
-  setFiberStatus(currentStatus: FiberStatus) {
+  setFiberStatus(currentStatus: DancerStatus) {
     Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
       //type of part is FiberData
       if (!isFiberData(currentStatus[partName])) return;

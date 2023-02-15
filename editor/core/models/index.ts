@@ -277,6 +277,17 @@ export type LEDBulbData = {
   alpha: number;
 };
 
+export type ThreeSimulatorLEDStatus = Record<PartName, ThreeSimulatorLEDPart>;
+
+export type ThreeSimulatorLEDPart = {
+  recordIndex: number;
+  effectIndex: number;
+  effect: Array<{
+    colorCode: ColorCode;
+    alpha: number;
+  }>; // this is to handle faded effect, so we will clone the effect from ledMap
+};
+
 export type EffectListType = Array<{
   start: number;
   end: number;
