@@ -14,6 +14,7 @@ import {
 
 import { Color } from "three";
 import { syncCurrentLEDStatus } from "./led";
+import { log } from "core/utils";
 
 const actions = registerActions({
   /**
@@ -22,6 +23,7 @@ const actions = registerActions({
    * @param {ControlMapStatus} payload - status
    */
   setCurrentStatus: (state: State, payload: ControlMapStatus) => {
+    log(payload);
     state.currentStatus = payload;
   },
 
@@ -104,6 +106,7 @@ const actions = registerActions({
 
     if (hasChange) {
       state.currentStatus = newCurrentStatus;
+      setStatusStack();
     }
 
     if (hasLEDChange) {
@@ -130,6 +133,11 @@ const actions = registerActions({
       );
     }
   },
+
+  setStatusStack: (state: State) => {
+    state.statusStack.push(cloneDeep(state.currentStatus));
+    log("statusStack: ", state.statusStack);
+  },
 });
 
 export const {
@@ -138,4 +146,5 @@ export const {
   editCurrentStatusLED,
   editCurrentStatusDelta,
   syncCurrentStatusWithControlMap,
+  setStatusStack,
 } = actions;

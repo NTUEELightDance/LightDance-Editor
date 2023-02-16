@@ -19,6 +19,8 @@ import type { PartType } from "core/models";
 import useColorMap from "hooks/useColorMap";
 import usePartGroups from "hooks/usePartGroups";
 
+import { log } from "core/utils";
+
 function DancerMode() {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
@@ -26,7 +28,6 @@ function DancerMode() {
 
   const { colorMap } = useColorMap();
   const { partGroups, addNewGroup, deleteGroup } = usePartGroups();
-
   // states for display
   const [displayParts, setDisplayParts] = useState<{
     [key in PartType]?: string[];

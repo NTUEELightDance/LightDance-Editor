@@ -339,6 +339,7 @@ export interface State {
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: PosMapStatus; // current dancers' position
+  statusStack: ControlMapStatus[]; // current control Frame
 
   ledEffectRecord: LEDEffectRecord;
   currentLEDStatus: CurrentLEDStatus;
