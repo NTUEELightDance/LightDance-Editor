@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 import { Paper, Typography, Box } from "@mui/material";
 
@@ -6,14 +6,14 @@ import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 
 import { grey } from "@mui/material/colors";
 
-import { editCurrentStatusDelta } from "core/actions";
+import { editCurrentStatusDelta } from "@/core/actions";
 import type {
   FiberData,
   Selected,
   CurrentStatusDelta,
   SelectedPartPayload,
   PartType,
-} from "core/models";
+} from "@/core/models";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
@@ -41,6 +41,46 @@ function getSelectedPartsAndType(
   } else return [newSelectedParts, null];
 }
 
+function calculateCurrentStatusDeltaLED(
+  selectedParts: SelectedPartPayload,
+  LEDsrc: string,
+  intensity: number
+) {
+  const currentStatusDelta: CurrentStatusDelta = {};
+  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+    parts.forEach((partName) => {
+      currentStatusDelta[dancerName] ||= {};
+
+      currentStatusDelta[dancerName][partName] = {
+        src: LEDsrc,
+        alpha: intensity,
+      };
+    });
+  });
+
+  return currentStatusDelta;
+}
+
+function calculateCurrentStatusDeltaFiber(
+  selectedParts: SelectedPartPayload,
+  colorName: string,
+  intensity: number
+) {
+  const currentStatusDelta: CurrentStatusDelta = {};
+  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+    parts.forEach((partName) => {
+      currentStatusDelta[dancerName] ||= {};
+
+      currentStatusDelta[dancerName][partName] = {
+        color: colorName,
+        alpha: intensity,
+      };
+    });
+  });
+
+  return currentStatusDelta;
+}
+
 function PartMode() {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
@@ -50,50 +90,58 @@ function PartMode() {
     [selected]
   );
 
-  const [currentColorName, setCurrentColorName] = useState<string>("");
-  const [intensity, setIntensity] = useState<number>(0);
-  const [LEDsrc, setLEDsrc] = useState<string>("");
+  const [currentColorName, setCurrentColorName] = useState<string | null>(null);
+  const [intensity, setIntensity] = useState<number | null>(null);
+  const [LEDsrc, setLEDsrc] = useState<string | null>(null);
 
   // update local state
   useEffect(() => {
     // cannot sync if partType is null or LED
     if (partType === "LED" || partType === null) return;
-    const [dancerName, parts] = Object.entries(selectedParts)[0];
-    setCurrentColorName(
-      (currentStatus[dancerName][parts[0]] as FiberData).color
-    );
-    setIntensity((currentStatus[dancerName][parts[0]] as FiberData).alpha);
+    const [dancerName, parts] = Object.entries(selectedParts)[0] ?? [
+      null,
+      null,
+    ];
+    // don't render controls if no part is selected
+    if (dancerName == null || parts == null) {
+      setCurrentColorName(null);
+      setIntensity(null);
+    } else {
+      setCurrentColorName(
+        (currentStatus[dancerName][parts[0]] as FiberData).color
+      );
+      setIntensity((currentStatus[dancerName][parts[0]] as FiberData).alpha);
+    }
   }, [currentStatus, partType, selectedParts]);
 
   // mutate global state
   useEffect(() => {
-    // don't sync on first render
-    if (currentColorName === "" && LEDsrc === "" && intensity === 0) return;
-    const currentStatusDelta: CurrentStatusDelta = {};
-    Object.entries(selectedParts).forEach(([dancerName, parts]) => {
-      parts.forEach((partName) => {
-        currentStatusDelta[dancerName] ||= {};
-
-        switch (partType) {
-          case null:
-            break;
-          case "LED":
-            currentStatusDelta[dancerName][partName] = {
-              src: LEDsrc,
-              alpha: intensity,
-            };
-            break;
-          case "FIBER":
-            currentStatusDelta[dancerName][partName] = {
-              color: currentColorName,
-              alpha: intensity,
-            };
-            break;
-        }
-      });
+    // don't sync when there is no part selected
+    if (
+      partType === "FIBER" &&
+      currentColorName !== null &&
+      intensity !== null
+    ) {
+      const currentStatusDelta = calculateCurrentStatusDeltaFiber(
+        selectedParts,
+        currentColorName,
+        intensity
+      );
       editCurrentStatusDelta({ payload: currentStatusDelta });
-    });
-  }, [intensity, currentColorName, partType, selectedParts, LEDsrc]);
+    }
+  }, [currentColorName, intensity, partType, selectedParts]);
+
+  useEffect(() => {
+    // don't sync when there is no part selected
+    if (partType === "LED" && LEDsrc !== null && intensity !== null) {
+      const currentStatusDelta = calculateCurrentStatusDeltaLED(
+        selectedParts,
+        LEDsrc,
+        intensity
+      );
+      editCurrentStatusDelta({ payload: currentStatusDelta });
+    }
+  }, [LEDsrc, intensity, partType, selectedParts]);
 
   const handleColorChange = (color: string) => {
     setCurrentColorName(color);
@@ -104,7 +152,7 @@ function PartMode() {
 
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
-      {partType === "LED" ? (
+      {partType === "LED" && LEDsrc !== null && intensity !== null ? (
         <LEDcontrolsContent
           parts={partNames}
           intensity={intensity}
@@ -112,7 +160,9 @@ function PartMode() {
           handleIntensityChange={setIntensity}
           handleSrcChange={setLEDsrc}
         />
-      ) : partType === "FIBER" ? (
+      ) : partType === "FIBER" &&
+        currentColorName !== null &&
+        intensity !== null ? (
         <OFcontrolsContent
           intensity={intensity}
           setIntensity={setIntensity}
