@@ -19,7 +19,7 @@ export type ColorCode = string & { __colorCode: never };
 
 export function isColorCode(colorCode: unknown): colorCode is ColorCode {
   if (typeof colorCode !== "string") return false;
-  return /^#[0-9a-f]{6}/i.test(colorCode);
+  return /^#[0-9a-fA-F]{6}$/i.test(colorCode);
 }
 
 /**
