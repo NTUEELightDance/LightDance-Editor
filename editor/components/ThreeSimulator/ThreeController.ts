@@ -24,57 +24,79 @@ import { state } from "core/state";
 // states
 
 import store from "../../store";
+import {
+  ControlMapStatus,
+  CurrentLEDStatus,
+  PosMapStatus,
+  Selected,
+  State,
+} from "@/core/models";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
  * @constructor
  */
 class ThreeController {
-  canvas: HTMLElement;
-  container: HTMLElement;
+  canvas?: HTMLElement;
+  container?: HTMLElement;
 
-  renderer: THREE.WebGLRenderer | null;
-  camera: THREE.PerspectiveCamera | null;
+  renderer: THREE.WebGLRenderer;
+  camera: THREE.PerspectiveCamera;
   // THREE.Object3D<THREE.Event>
-  scene: THREE.Scene | null;
-  composer: EffectComposer | null;
-  clock: THREE.Clock | null;
-  settings: Settings | null;
+  scene: THREE.Scene;
+  composer: EffectComposer;
+  clock: THREE.Clock;
+  settings: Settings;
 
   height: number;
   width: number;
 
-  dancers: Record<string, ThreeDancer>;
+  dancers: Record<string, Dancer>;
+  gridHelper: GridHelper;
+  light: THREE.DirectionalLight;
+
+  selectedOutline: OutlinePass;
+  hoveredOutline: OutlinePass;
+  manager: THREE.LoadingManager;
+  controls: Controls;
 
   // TODO use global state type
-  state: any;
+  state: null | State;
   isPlaying: boolean;
   // ? seems always undefined, not sure why its here
-  animateID: any;
   initialized: boolean;
 
   constructor() {
-    // Basic attributes for three.js
-    this.renderer = null;
-    this.camera = null;
-    this.scene = null;
-    this.composer = null;
-    this.clock = null;
-    this.settings = null;
-
     // Configuration of the scene
-    this.height = 600;
-    this.width = 1200;
+    this.height = 100;
+    this.width = 200;
 
-    // Dancer
+    // Basic attributes for three.js
+    this.renderer = this.generateRenderer();
+    this.camera = this.generateCamera();
+    this.scene = this.generateScene();
+    this.selectedOutline = this.generateSelectedOutline();
+    this.hoveredOutline = this.generateHoverOutline();
+    this.composer = this.generateComposer();
+    this.clock = new THREE.Clock();
+    this.settings = new Settings(this);
+    this.light = this.generateLight();
+    this.gridHelper = this.generateGridHelper();
+    this.generateCenterMarker();
+    this.manager = this.generateLoadManager();
     this.dancers = {};
+    this.controls = new Controls(
+      this.renderer,
+      this.scene,
+      this.camera,
+      this.dancers
+    );
 
     // Data and status for playback
-    this.state = {};
+    this.state = null;
     this.isPlaying = false;
 
     // record the return id of requestAnimationFrame
-    this.animateID = null;
     this.initialized = false;
   }
 
@@ -82,7 +104,6 @@ class ThreeController {
    * Initiate localStorage, threeApp, dancers
    */
   init(canvas: HTMLElement, container: HTMLElement) {
-    this.settings = new Settings(this);
     // canvas: for 3D rendering, container: for performance monitor
     this.canvas = canvas;
     this.container = container;
@@ -91,64 +112,60 @@ class ThreeController {
     const { width, height } = container.getBoundingClientRect();
     this.width = width;
     this.height = height;
+    this.renderer.setSize(this.width, this.height);
 
     THREE.Cache.enabled = true;
 
+    // Postprocessing for anti-aliasing effect
+    this.composer = this.generateComposer();
+
+    // Append the canvas to given ref
+    this.canvas.appendChild(this.renderer.domElement);
+
+    // Initialization of all dancers with currentPos
+    this.initDancers();
+
+    // Start rendering
+    this.animate();
+    this.renderer.render(this.scene, this.camera);
+
+    // Monitor performance and delay
+    this.monitor();
+  }
+
+  generateRenderer() {
     // Set best configuration for different monitor devices
     const pixelRatio = window.devicePixelRatio;
 
-    // Initilization of 3D renderer
+    // Initialization of 3D renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
       powerPreference: "high-performance",
     });
 
-    renderer.setSize(this.width, this.height);
     renderer.setPixelRatio(pixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputEncoding = THREE.sRGBEncoding;
 
-    this.renderer = renderer;
+    return renderer;
+  }
 
-    // Add a camera to view the scene, all the parameters are customizable
-    this.initCamera();
-
+  generateScene() {
     // Add a background scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
-    this.scene = scene;
+    return scene;
+  }
 
+  generateLight() {
     // Add a dim light to identity each dancers
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(0, 10, 0);
-    this.light = directionalLight;
-    scene.add(directionalLight);
-
-    // Postprocessing for antialiasing effect
-    this.initPostprocessing();
-
-    // Set the clock for animation
-    this.clock = new THREE.Clock();
-
-    // Append the canvas to given ref
-    this.canvas.appendChild(renderer.domElement);
-
-    // Initialization of all dancers with currentPos
-    this.initDancers();
-    this.initCenterMarker();
-
-    // Initialization of grid helper on the floor
-    this.initGridHelper();
-
-    // Start rendering
-    this.animateID = this.animate();
-    this.renderer.render(this.scene, this.camera);
-
-    // Monitor perfomance and delay
-    this.monitor();
+    this.scene.add(directionalLight);
+    return directionalLight;
   }
 
-  initCamera() {
+  generateCamera() {
     const fov = 45;
     const aspect = this.width / this.height;
     const near = 0.2;
@@ -174,10 +191,37 @@ class ThreeController {
     );
     camera.aspect = this.width / this.height;
     camera.updateProjectionMatrix();
-    this.camera = camera;
+    return camera;
   }
 
-  initPostprocessing() {
+  generateSelectedOutline() {
+    const selectedOutline = new OutlinePass(
+      new THREE.Vector2(this.width, this.height),
+      this.scene,
+      this.camera
+    );
+
+    selectedOutline.edgeStrength = 2.0;
+    selectedOutline.edgeThickness = 1.0;
+    selectedOutline.visibleEdgeColor.set(0xffffff);
+    selectedOutline.hiddenEdgeColor.set(0x222222);
+
+    return selectedOutline;
+  }
+  generateHoverOutline() {
+    const hoveredOutline = new OutlinePass(
+      new THREE.Vector2(this.width, this.height),
+      this.scene,
+      this.camera
+    );
+
+    hoveredOutline.edgeStrength = 2.0;
+    hoveredOutline.edgeThickness = 1.0;
+    hoveredOutline.visibleEdgeColor.set(0xffff00);
+
+    return hoveredOutline;
+  }
+  generateComposer() {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
     const renderTarget = new THREE.WebGLMultisampleRenderTarget(
       size.width,
@@ -189,45 +233,15 @@ class ThreeController {
     // default render pass for post processing
     const renderPass = new RenderPass(this.scene, this.camera);
     composer.addPass(renderPass);
+    composer.addPass(this.selectedOutline);
+    composer.addPass(this.hoveredOutline);
 
-    const selectedOutline = new OutlinePass(
-      new THREE.Vector2(this.width, this.height),
-      this.scene,
-      this.camera
-    );
-    composer.addPass(selectedOutline);
-
-    selectedOutline.edgeStrength = 2.0;
-    selectedOutline.edgeThickness = 1.0;
-    selectedOutline.visibleEdgeColor.set(0xffffff);
-    selectedOutline.hiddenEdgeColor.set(0x222222);
-
-    const hoveredOutline = new OutlinePass(
-      new THREE.Vector2(this.width, this.height),
-      this.scene,
-      this.camera
-    );
-
-    hoveredOutline.edgeStrength = 2.0;
-    hoveredOutline.edgeThickness = 1.0;
-    hoveredOutline.visibleEdgeColor.set(0xffff00);
-
-    composer.addPass(hoveredOutline);
-
-    // const copyPass = new ShaderPass(CopyShader);
-    // composer.addPass(copyPass);
-
-    this.selectedOutline = selectedOutline;
-    this.hoveredOutline = hoveredOutline;
-    this.composer = composer;
+    return composer;
   }
 
   initDancers() {
-    this.initLoadManager();
-
     const { dancerNames, currentStatus, currentPos } = state;
     const { dancerMap } = store.getState().load;
-
     dancerNames.forEach((name) => {
       const { url } = dancerMap[name];
       const newDancer = new Dancer(this.scene, name, url, this.manager);
@@ -236,17 +250,30 @@ class ThreeController {
     });
   }
 
-  initGridHelper() {
-    const gridHelper = new GridHelper(60, 20);
+  generateGridHelper() {
+    const gridHelper = new GridHelper(60, 30, 20, 10); // (horizontalLength, verticalLength, horizontalDivisions, verticalDivisions)
     gridHelper.matrixAutoUpdate = false;
-    this.gridHelper = gridHelper;
     this.scene.add(gridHelper);
+    return gridHelper;
   }
 
-  initLoadManager() {
+  // Add a center marker in the middle
+  generateCenterMarker() {
+    const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
+    const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
+    const cube = new THREE.Mesh(geometry, material);
+
+    cube.matrix.setPosition(0, 0, 12.5);
+    cube.matrixAutoUpdate = false;
+    cube.name = "Center";
+
+    this.scene.add(cube);
+  }
+
+  generateLoadManager() {
     const manager = new THREE.LoadingManager();
     manager.onLoad = this.initControls.bind(this);
-    this.manager = manager;
+    return manager;
   }
 
   initControls() {
@@ -260,19 +287,6 @@ class ThreeController {
     this.controls.selectControls.setSelectedOutline(this.selectedOutline);
   }
 
-  // Add a center marker in the middle
-  initCenterMarker() {
-    const geometry = new THREE.BoxGeometry(0.2, 0.2, 2.5);
-    const material = new THREE.MeshBasicMaterial({ color: 0x59b6e7 });
-    const cube = new THREE.Mesh(geometry, material);
-
-    cube.matrix.setPosition(0, 0, 12.5);
-    cube.matrixAutoUpdate = false;
-    cube.name = "Center";
-
-    this.scene.add(cube);
-  }
-
   // Return true if all the dancer is successfully initialized
   isInitialized() {
     if (!this.initialized) {
@@ -283,7 +297,7 @@ class ThreeController {
     return this.initialized;
   }
 
-  resize(width, height) {
+  resize(width: number, height: number) {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
@@ -296,7 +310,7 @@ class ThreeController {
   monitor() {
     const statsPanel = Stats();
     statsPanel.domElement.style.position = "absolute";
-    this.container.appendChild(statsPanel.domElement);
+    this.container?.appendChild(statsPanel.domElement);
 
     requestAnimationFrame(function loop() {
       statsPanel.update();
@@ -304,7 +318,7 @@ class ThreeController {
     });
   }
 
-  updateSelected(selected) {
+  updateSelected(selected: Selected) {
     if (Object.entries(selected).length === 0) {
       throw new Error(
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
@@ -314,38 +328,38 @@ class ThreeController {
   }
 
   // calculate and set next frame status according to time and call updateDancers
-  update(clockDelta) {
+  update() {
     this.updateDancersStatus(state.currentStatus);
     // this.updateDancerLED(state.currentLedEffect);
 
     this.updateDancersPos(state.currentPos);
   }
 
-  updateDancersStatus(currentStatus) {
+  updateDancersStatus(currentStatus: ControlMapStatus) {
     if (Object.entries(currentStatus).length === 0) {
       throw new Error(
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
     }
-    if (!this.settings.settings.Visibility.FIBER) return;
+    if (!this.settings.config.Visibility.FIBER) return;
     Object.entries(currentStatus).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setFiberStatus(status);
     });
   }
 
-  updateDancerLED(currentLedEffect) {
+  updateDancerLED(currentLedEffect: CurrentLEDStatus) {
     if (Object.entries(currentLedEffect).length === 0) {
       throw new Error(
         "[Error] updateDancersLED, invalid parameter(currentLedEffect)"
       );
     }
-    if (!this.settings.settings.Visibility.LED) return;
+    if (!this.settings.config.Visibility.LED) return;
     Object.entries(currentLedEffect).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setLEDStatus(status);
     });
   }
 
-  updateDancersPos(currentPos) {
+  updateDancersPos(currentPos: PosMapStatus) {
     if (Object.entries(currentPos).length === 0) {
       throw new Error(
         "[Error] updateDancersPos, invalid parameter(currentPos)"
@@ -359,14 +373,14 @@ class ThreeController {
   // a recursive function to render each new frame
   animate() {
     if (this.isInitialized()) {
-      this.update(this.clock?.getDelta());
+      this.update();
       Object.values(this.dancers).forEach((dancer) => {
         const { nameTag } = dancer;
         nameTag.lookAt(this.camera.position);
       });
     }
 
-    this.composer?.render();
+    this.composer.render();
     requestAnimationFrame(() => {
       this.animate();
     });
@@ -380,7 +394,7 @@ class ThreeController {
 
   // render current scene and dancers
   render() {
-    if (!this.isPlaying) this.composer?.render(this.scene, this.camera);
+    if (!this.isPlaying) this.composer.renderer.render(this.scene, this.camera);
     else this.renderer?.render(this.scene, this.camera);
   }
 }

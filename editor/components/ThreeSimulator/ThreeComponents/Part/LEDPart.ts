@@ -1,11 +1,15 @@
+import { LEDPart } from "@/core/models";
 import Part from "./Part";
-
 const defaultDisplay = {
   colorCode: "#000000",
   alpha: 0,
 };
+interface MeshType extends THREE.Mesh {
+  material: THREE.MeshStandardMaterial;
+}
 
 export default class LEDPart extends Part {
+  meshes: MeshType[];
   constructor(name: string, model: THREE.Object3D) {
     super(name, model);
     this.meshes = [];
@@ -14,9 +18,10 @@ export default class LEDPart extends Part {
 
   getMeshes() {
     let i = 0;
-    while (true) {
+    for (; ;) {
+      // while(true) will cause Unexpected constant condition
       const name = `${this.name}${String(i).padStart(3, "0")}`;
-      const mesh = this.model.getObjectByName(name);
+      const mesh = this.model.getObjectByName(name) as MeshType;
       if (mesh == null) break;
       mesh.material = mesh.material.clone();
       mesh.visible = false;
@@ -34,7 +39,7 @@ export default class LEDPart extends Part {
     });
   }
 
-  setStatus(status) {
+  setStatus(status: LEDPart) {
     if (!this.visible) return;
     const { effect } = status;
     this.meshes.forEach((mesh: THREE.Mesh, i) => {

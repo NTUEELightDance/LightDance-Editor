@@ -1,25 +1,46 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Font } from "three/examples/jsm/loaders/FontLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
 import { state } from "core/state";
 
-import { FIBER, EL, LED } from "@/constants";
+import { FIBER, LED } from "@/constants";
 
 import { LEDPart, FiberPart } from "./Part";
+import {
+  Coordinates,
+  DancerStatus,
+  FiberData,
+  LEDPartStatus,
+  isFiberData,
+} from "@/core/models";
+import { Group } from "three";
 
 // import ALL_MAPPING from "./mapping";
+interface MeshType extends THREE.Mesh {
+  //material: THREE.MeshStandardMaterial;
+  material: THREE.MeshBasicMaterial;
+}
 
 class Dancer {
   scene: THREE.Scene;
   name: string;
+  nameTag: MeshType;
   modelSrc: string;
   initialized: boolean;
   manager: THREE.LoadingManager;
 
-  model: THREE.Object3D | null;
+  model: THREE.Object3D;
   skeleton: THREE.Skeleton | null;
+  parts: {
+    [LED]: Record<string, LEDPart>;
+    [FIBER]: Record<string, FiberPart>;
+  };
+
+  initStatus: DancerStatus;
+  initPos: Coordinates;
 
   constructor(
     scene: THREE.Scene,
@@ -29,21 +50,23 @@ class Dancer {
   ) {
     this.scene = scene;
     this.name = name;
+    this.nameTag = new THREE.Mesh();
     this.modelSrc = modelSrc;
     this.manager = manager;
 
-    this.model = null;
+    this.model = new Group();
     this.skeleton = null;
     this.parts = {
-      [EL]: {},
       [LED]: {},
       [FIBER]: {},
     };
+    this.initStatus = {};
+    this.initPos = { x: 0, y: 0, z: 0 };
     this.initialized = false;
   }
 
   // Load model with given URL and capture all the meshes for light status
-  addModel2Scene(currentStatus, currentPos) {
+  addModel2Scene(currentStatus: DancerStatus, currentPos: Coordinates) {
     this.initStatus = currentStatus;
     this.initPos = currentPos;
 
@@ -68,31 +91,28 @@ class Dancer {
     );
   }
 
-  // Intilization procedures after the model is successfully loaded.
+  // Initialization procedures after the model is successfully loaded.
   // 1. Add model to the scene.
   // 2. Select desired part of mesh to display light status.
   // 3. Set color of selected meshes to black and set their emissive color.
   // 4. Set alpha(emissiveIntensity) of selected meshes to 0.
   // 5. Set the position of the model to given position
   // 6. Signal this dancer is successfully initialized.
-  initModel(gltf) {
+  initModel(gltf: GLTF) {
     const { name } = this;
     this.model = gltf.scene;
     this.model.name = name;
 
-    const partMapping = {};
+    const partMapping: Record<string, string> = {};
     this.model.children.forEach(
-      (child) => (partMapping[child.name] = child.name)
+      (child) =>
+        (partMapping[child.name as keyof typeof partMapping] = child.name)
     );
-
     const partNames = state.dancers[this.name];
 
     partNames.forEach((partName) => {
       const partType = state.partTypeMap[partName];
       switch (partType) {
-        case EL:
-          // this.parts[EL][partName] = new ELPart(partName, model);
-          break;
         case LED:
           this.parts[LED][partName] = new LEDPart(partName, this.model);
           break;
@@ -121,7 +141,7 @@ class Dancer {
   }
 
   // Create nameTag given font
-  initNameTag(font) {
+  initNameTag(font: Font) {
     const color = 0xffffff;
 
     const matLite = new THREE.MeshBasicMaterial({
@@ -135,8 +155,9 @@ class Dancer {
     const shapes = font.generateShapes(message, 0.3);
     const geometry = new THREE.ShapeGeometry(shapes);
     geometry.computeBoundingBox();
-    const xMid =
-      -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+    const xMid = geometry.boundingBox
+      ? -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x)
+      : 0;
     geometry.translate(xMid, 0, 0);
 
     // make shape ( N.B. edge view not visible )
@@ -148,18 +169,16 @@ class Dancer {
     this.nameTag = text;
   }
 
-  updateSelected(selected) {
+  updateSelected(selected: boolean) {
     if (selected) {
-      this.selected = true;
       this.nameTag.material.color.setRGB(0, 0.4, 0.6);
     } else {
-      this.selected = false;
       this.nameTag.material.color.setRGB(1, 1, 1);
     }
   }
 
-  // Update the model's positon
-  setPos(currentPos) {
+  // Update the model's position
+  setPos(currentPos: Coordinates) {
     const newPos = new THREE.Vector3(currentPos.x, currentPos.y, currentPos.z);
     const oldPos = new THREE.Vector3().setFromMatrixPosition(this.model.matrix);
 
@@ -168,33 +187,37 @@ class Dancer {
     }
   }
 
-  setFiberStatus(currentStatus) {
+  setFiberStatus(currentStatus: DancerStatus) {
     Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
-      part.setStatus(currentStatus[partName]);
+      //type of part is FiberData
+      if (!isFiberData(currentStatus[partName])) return;
+      part.setStatus(currentStatus[partName] as FiberData);
     });
   }
 
-  setELStatus(currentStatus) {}
-
-  setLEDStatus(currentLedEffect) {
+  setLEDStatus(currentLedEffect: LEDPartStatus) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {
       part.setStatus(currentLedEffect[partName]);
     });
   }
 
   // Update the model's color
-  updateColor(color) {
-    Object.values(this.FIBERParts).forEach(([name, e]) => {
-      e.material.color.setHex(color);
-    });
-  }
+  // updateColor(color) {
+  //   Object.values(this.FIBERParts).forEach(([name, e]) => {
+  //     e.material.color.setHex(color);
+  //   });
+  // }
 
   hover() {
-    this.model.getObjectByName("Human").material.color.setHex(0x232323);
+    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
+      0x232323
+    );
   }
 
   unhover() {
-    this.model.getObjectByName("Human").material.color.setHex(0x000000);
+    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
+      0x000000
+    );
   }
 }
 

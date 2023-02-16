@@ -27,7 +27,7 @@ export default function ThreeSimulator() {
   const { ref: containerRef } = useResizeDetector({
     onResize: (width, height) => {
       if (threeController && threeController.isInitialized()) {
-        threeController.resize(width, height);
+        threeController.resize(width as number, height as number);
       }
     },
   });

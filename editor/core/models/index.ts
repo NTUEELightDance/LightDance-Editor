@@ -89,7 +89,7 @@ export function isELData(partData: PartData): partData is ELData {
   return typeof partData === "number";
 }
 
-export type CurrentStatusDelta = Record<DancerName, Record<PartName, PartData>>;
+export type CurrentStatusDelta = Record<DancerName, DancerStatus>;
 
 export type ControlMapQueryPayload = {
   [frameId: id]: {
@@ -114,7 +114,7 @@ export type DancerStatusMutationPayload = [string, string][];
 /**
  * PosRecord and PosMap
  */
-export type PosRecord = id[]; // array of all IDs , each corresponds diff status
+export type PosRecord = id[]; // array of all IDs , each corresponds to diff status
 
 export type PosMap = Record<id, PosMapElement>;
 
@@ -251,20 +251,18 @@ export type LedRecord = id[];
  * recordIndex indicates the place in LedEffectRecord
  * effectIndex indicates the place in the effect
  */
-export type CurrentLedEffect = Record<
-  DancerName,
-  Record<
-    PartName,
-    {
-      recordIndex: number;
-      effectIndex: number;
-      effect: Array<{
-        colorCode: ColorCode;
-        alpha: number;
-      }>; // this is to handle faded effect, so we will clone the effect from ledMap
-    }
-  >
->;
+export type CurrentLEDStatus = Record<DancerName, LEDPartStatus>;
+
+export type LEDPartStatus = Record<PartName, LEDPartData>;
+
+export type LEDPartData = {
+  recordIndex: number;
+  effectIndex: number;
+  effect: Array<{
+    colorCode: ColorCode;
+    alpha: number;
+  }>; // this is to handle faded effect, so we will clone the effect from ledMap
+};
 
 export type EffectListType = Array<{
   start: number;
@@ -328,7 +326,7 @@ export interface State {
   currentPos: PosMapStatus; // current dancers' position
 
   ledEffectRecord: LedEffectRecord;
-  currentLedEffect: CurrentLedEffect;
+  currentLedEffect: CurrentLEDStatus;
 
   editMode: EditMode;
   editor: Editor;

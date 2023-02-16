@@ -28,7 +28,7 @@ class Controls {
     renderer: THREE.Renderer,
     scene: THREE.Scene,
     camera: THREE.Camera,
-    dancers: Dancer
+    dancers: Record<string, Dancer>
   ) {
     this.renderer = renderer;
     this.scene = scene;
