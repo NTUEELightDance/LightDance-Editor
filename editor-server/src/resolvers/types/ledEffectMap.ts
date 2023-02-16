@@ -1,7 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
 import prisma from "../../prisma";
-import { ILED, ILEDEffects, ILEDEffectsEffect, IPart } from "../../types/global";
+import { IPart } from "../../types/global";
 import { LEDEffect } from "../../../prisma/generated/type-graphql";
 
 interface IPartEffect {
