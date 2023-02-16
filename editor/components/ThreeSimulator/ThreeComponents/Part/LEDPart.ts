@@ -1,4 +1,4 @@
-import { ThreeSimulatorLEDPart } from "@/core/models";
+import { LEDPart } from "@/core/models";
 import Part from "./Part";
 const defaultDisplay = {
   colorCode: "#000000",
@@ -18,7 +18,7 @@ export default class LEDPart extends Part {
 
   getMeshes() {
     let i = 0;
-    for (;;) {
+    for (; ;) {
       // while(true) will cause Unexpected constant condition
       const name = `${this.name}${String(i).padStart(3, "0")}`;
       const mesh = this.model.getObjectByName(name) as MeshType;
@@ -39,7 +39,7 @@ export default class LEDPart extends Part {
     });
   }
 
-  setStatus(status: ThreeSimulatorLEDPart) {
+  setStatus(status: LEDPart) {
     if (!this.visible) return;
     const { effect } = status;
     this.meshes.forEach((mesh: THREE.Mesh, i) => {

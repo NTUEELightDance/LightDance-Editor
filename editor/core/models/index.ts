@@ -251,14 +251,11 @@ export type LedRecord = id[];
  * recordIndex indicates the place in LedEffectRecord
  * effectIndex indicates the place in the effect
  */
-export type ThreeSimulatorCurrentLedEffect = Record<
-  DancerName,
-  ThreeSimulatorLEDStatus
->;
+export type CurrentLEDStatus = Record<DancerName, LEDPartStatus>;
 
-export type ThreeSimulatorLEDStatus = Record<PartName, ThreeSimulatorLEDPart>;
+export type LEDPartStatus = Record<PartName, LEDPartData>;
 
-export type ThreeSimulatorLEDPart = {
+export type LEDPartData = {
   recordIndex: number;
   effectIndex: number;
   effect: Array<{
@@ -329,7 +326,7 @@ export interface State {
   currentPos: PosMapStatus; // current dancers' position
 
   ledEffectRecord: LedEffectRecord;
-  currentLedEffect: ThreeSimulatorCurrentLedEffect;
+  currentLedEffect: CurrentLEDStatus;
 
   editMode: EditMode;
   editor: Editor;

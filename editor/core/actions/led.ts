@@ -2,7 +2,7 @@ import { registerActions } from "../registerActions";
 // types
 import {
   State,
-  ThreeSimulatorCurrentLedEffect,
+  CurrentLEDStatus,
   ControlMapStatus,
   LedEffectRecord,
   DancerName,
@@ -20,7 +20,7 @@ const actions = registerActions({
    */
   initCurrentLedEffect: (state: State) => {
     const { dancers, partTypeMap } = state;
-    const tmp: ThreeSimulatorCurrentLedEffect = {};
+    const tmp: CurrentLEDStatus = {};
     Object.entries(dancers).map(([dancerName, parts]) => {
       tmp[dancerName] = {};
       parts.forEach((part) => {

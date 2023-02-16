@@ -26,7 +26,7 @@ import { state } from "core/state";
 import store from "../../store";
 import {
   ControlMapStatus,
-  ThreeSimulatorCurrentLedEffect,
+  CurrentLEDStatus,
   PosMapStatus,
   Selected,
   State,
@@ -347,7 +347,7 @@ class ThreeController {
     });
   }
 
-  updateDancerLED(currentLedEffect: ThreeSimulatorCurrentLedEffect) {
+  updateDancerLED(currentLedEffect: CurrentLEDStatus) {
     if (Object.entries(currentLedEffect).length === 0) {
       throw new Error(
         "[Error] updateDancersLED, invalid parameter(currentLedEffect)"

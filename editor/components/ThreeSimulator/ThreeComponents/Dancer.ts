@@ -13,7 +13,7 @@ import {
   Coordinates,
   DancerStatus,
   FiberData,
-  ThreeSimulatorLEDStatus,
+  LEDPartStatus,
   isFiberData,
 } from "@/core/models";
 import { Group } from "three";
@@ -195,7 +195,7 @@ class Dancer {
     });
   }
 
-  setLEDStatus(currentLedEffect: ThreeSimulatorLEDStatus) {
+  setLEDStatus(currentLedEffect: LEDPartStatus) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {
       part.setStatus(currentLedEffect[partName]);
     });
