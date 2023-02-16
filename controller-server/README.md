@@ -14,18 +14,18 @@ pnpm start
 
 To test controller-server, run
 ```
-yarn dev:controller-server
+pnpm dev:controller-server
 ```
 under the Lightdance-Editor folder
 
 To setup a test RPi Client, run **under the controller-server folder**
 ```
-yarn test-rpi
+pnpm test-rpi
 ```
 
 To setup a test Contrtol Panel Client, run **under the controller-server folder**
 ```
-yarn test-control
+pnpm test-control
 ```
 
 It is recommended that you setup the test RPi client before running the test Control Panel Client
