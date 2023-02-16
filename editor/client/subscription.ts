@@ -61,7 +61,6 @@ const subPosMap = (client: ApolloClient<NormalizedCacheObject>) => {
           id: "ROOT_QUERY",
           fields: {
             PosMap(posMap) {
-
               const { createFrames, deleteFrames, updateFrames } =
                 data.data.positionMapSubscription.frame;
               const newPosMap = cloneDeep(posMap);

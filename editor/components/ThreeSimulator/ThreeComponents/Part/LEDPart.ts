@@ -18,7 +18,7 @@ export default class LEDPart extends Part {
 
   getMeshes() {
     let i = 0;
-    for (; ;) {
+    for (;;) {
       // while(true) will cause Unexpected constant condition
       const name = `${this.name}${String(i).padStart(3, "0")}`;
       const mesh = this.model.getObjectByName(name) as MeshType;
