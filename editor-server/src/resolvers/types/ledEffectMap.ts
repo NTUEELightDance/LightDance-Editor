@@ -2,10 +2,15 @@ import { Field, ObjectType } from "type-graphql";
 import { GraphQLScalarType } from "graphql";
 import prisma from "../../prisma";
 import { IPart } from "../../types/global";
-import { LEDEffect } from "../../../prisma/generated/type-graphql";
+import { Prisma } from "@prisma/client";
 
+interface ILEDEffect {
+  id: number;
+  repeat: number;
+  frames: Prisma.JsonValue[];
+}
 interface IPartEffect {
-  [key: string]: LEDEffect; 
+  [key: string]: ILEDEffect; 
 }
 interface IEffect {
   [key: string]: IPartEffect;
@@ -29,8 +34,10 @@ export const LEDMapScalar = new GraphQLScalarType({
         const part: IPartEffect = {};
         const allEffect = await prisma.lEDEffect.findMany({where: {partName: partName}});
         allEffect.map((effect) => {
-          const { id, name, partName, repeat, frames } = effect;
-          part[name] = effect;
+          const name = effect.name;
+          // remove name, partName from effect
+          const newEffect = { id: effect.id, repeat: effect.repeat, frames: effect.frames };
+          part[name] = newEffect;
         })
         result[partName] = part;
       })
