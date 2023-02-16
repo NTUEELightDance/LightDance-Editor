@@ -11,11 +11,7 @@ export default class FIBERPart extends Part {
   constructor(name: string, model: THREE.Object3D) {
     super(name, model);
     this.mesh = model.getObjectByName(name) as MeshType;
-    this.mesh.material = this.mesh.material.clone(); ////error
-    console.log(this);
-    console.log(this.mesh);
-    console.log(this.mesh.material);
-    console.log(this.mesh.material.clone());
+    this.mesh.material = this.mesh.material.clone();
     this.mesh.material.color.setHex(0);
     this.mesh.material.emissiveIntensity = 0;
   }
