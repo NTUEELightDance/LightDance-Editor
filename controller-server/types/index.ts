@@ -15,7 +15,18 @@ interface Dic {
   [key: string]: any;
 }
 
-type ControlType = Dic
+// Old Protocol : type ControlType = Dic
+interface SingleDancerControlType  {
+  "start": number;
+  "fade": boolean;
+  "status": {
+    [key: string]: number[];
+  }
+}
+type ControlType ={
+  [key: string]: SingleDancerControlType;
+} 
+
 type LedType = Dic
 // response only
 enum ClientType {
@@ -50,6 +61,7 @@ interface MesS2C {
   };
 }
 // Server to RPi
+// In new protocol, the type of ControlType is strictly defined
 interface MesS2R {
   command: CommandType;
   payload?: string | PlayTimeType | LightStatusType | ControlType | LedType;

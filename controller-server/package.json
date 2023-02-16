@@ -15,7 +15,9 @@
   },
   "scripts": {
     "start": "nodemon ./index.ts",
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix .",
+    "test-control": "nodemon ./websocket/testControlPanel1.js",
+    "test-rpi": "nodemon ./websocket/testRPi1.js"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
