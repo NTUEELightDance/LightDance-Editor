@@ -27,7 +27,20 @@ class Settings {
 
   constructor(threeController: ThreeController) {
     this.threeController = threeController;
-    this.panel = new GUI();
+    // this.panel = new GUI({
+    //   autoPlace: false,
+    //   container: document.getElementsByClassName("flexlayout__tabset_content"),
+    // });
+    this.panel = new GUI({
+      autoPlace: false,
+      container: threeController.container,
+    });
+
+    // Place the panel to the top-right of three simulator
+    this.panel.domElement.id = "ThreeGUIControls";
+    this.panel.domElement.style.position = "absolute";
+    this.panel.domElement.style.top = "0px";
+    this.panel.domElement.style.right = "0px";
 
     this.config = {
       Visibility: {

@@ -5,6 +5,9 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Toolbar from "@mui/material/Toolbar";
 import Stack from "@mui/material/Stack";
+import Fab from "@mui/material/Fab";
+import DvrIcon from "@mui/icons-material/Dvr";
+import EditIcon from "@mui/icons-material/Edit";
 
 import { Settings } from "../Settings";
 import Tools from "components/Tools";
@@ -29,15 +32,16 @@ export default function Header() {
       <StateIndicator editMode={editMode} />
       <AppBar position="static" color="transparent">
         <Toolbar style={{ minHeight: "6vh", width: "100%" }}>
-          <Box sx={{ height: "6vh", p: "1vh 1vw", mr: "3vw" }}>
+          <Box sx={{ height: "6vh", p: "1vh 1vw", mr: "1vw" }}>
             <img
               src="/LDlogoWhite.png"
               alt="NTUEE Light Dance logo"
               style={{ height: "100%" }}
             />
           </Box>
-          <Button
-            variant="outlined"
+          <Fab
+            variant="extended"
+            color="primary"
             onClick={() => {
               if (page === "EDITOR") {
                 navigate.toCommandCenter();
@@ -49,8 +53,16 @@ export default function Header() {
               window.location.reload();
             }}
           >
-            {page == "EDITOR" ? "command" : "editor"}
-          </Button>
+            {page == "EDITOR" ? (
+              <>
+                <DvrIcon sx={{ mr: 1 }} /> command
+              </>
+            ) : (
+              <>
+                <EditIcon sx={{ mr: 1 }} /> editor
+              </>
+            )}
+          </Fab>
           <Box
             sx={{
               display: "flex",
