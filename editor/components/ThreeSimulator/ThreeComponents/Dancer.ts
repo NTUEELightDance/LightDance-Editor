@@ -138,6 +138,9 @@ class Dancer {
     this.setPos(this.initPos);
 
     this.initialized = true;
+
+    //dancer initialization
+    this.unhover();
   }
 
   // Create nameTag given font

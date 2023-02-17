@@ -30,19 +30,6 @@ const actions = registerActions({
         state.selectionMode = DANCER;
     }
   },
-
-  /**
-   * @param {State} state
-   */
-  setLasso: (state: State) => {
-    state.lasso = !state.lasso;
-    console.log(state.lasso);
-  },
 });
 
-export const {
-  setSelectionMode,
-  setSelectionModeByEditor,
-  setLasso,
-  getLasso,
-} = actions;
+export const { setSelectionMode, setSelectionModeByEditor } = actions;

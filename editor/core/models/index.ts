@@ -179,6 +179,8 @@ export type Selected = Record<
 
 export type SelectedPartPayload = Record<DancerName, PartName[]>;
 
+export type SelectedLEDPartPayload = Record<string, Record<string, string[]>>;
+
 /**
  * selection mode
  */
@@ -368,7 +370,6 @@ export interface State {
   // for converting
   dancersArray: DancersArray;
   dancerPartIndexMap: DancerPartIndexMap;
-  lasso: boolean;
 
   selectedLED: SelectedLED[];
 }

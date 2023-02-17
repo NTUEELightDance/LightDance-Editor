@@ -1,6 +1,11 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, Selected, SelectedPartPayload, PartPayload } from "../models";
+import {
+  State,
+  Selected,
+  SelectedPartPayload,
+  SelectedLEDPartPayload,
+} from "../models";
 
 const actions = registerActions({
   /**
@@ -18,27 +23,28 @@ const actions = registerActions({
    * @param {string[]} payload - array of dancer's name
    */
   setSelectedDancers: (state: State, payload: string[]) => {
-    console.log("setSelectedDancers, payload: ", state);
     const dancers = payload;
     Object.keys(state.selected).forEach((dancer) => {
       state.selected[dancer].selected = dancers.includes(dancer);
     });
   },
 
-  setSelectedLEDs: (
-    state: State,
-    payload: { name: string; dancerName: string }[]
-  ) => {
-    console.log("setSelectedLEDs payload", payload);
-    state.selectedLED = payload;
+  /**
+   * Set selected LED parts
+   * @param {State} state
+   * @param {SelectedLEDPartPayload} payload
+   */
+  setSelectedLEDParts: (state: State, payload: SelectedLEDPartPayload) => {
+    console.log(payload);
   },
 
   /**
-   * Set selected dancer
+   * Set selected Fiber parts
    * @param {State} state
    * @param {SelectedPartPayload} payload
    */
   setSelectedParts: (state: State, payload: SelectedPartPayload) => {
+    console.log(payload);
     Object.keys(state.selected).forEach((dancer) => {
       state.selected[dancer].parts = Object.prototype.hasOwnProperty.call(
         payload,

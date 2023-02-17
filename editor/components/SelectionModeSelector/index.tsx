@@ -15,8 +15,6 @@ import {
   POSITION,
 } from "@/constants";
 
-import LassoButton from "./lasso";
-
 function SelectionModeSelector() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
   const editor = useReactiveVar(reactiveState.editor);
@@ -29,7 +27,6 @@ function SelectionModeSelector() {
 
   return (
     <div>
-      <LassoButton />
       <SpeedDial
         ariaLabel="set selection mode"
         sx={{ position: "absolute", top: "16px", right: "16px" }}

@@ -86,6 +86,8 @@ function DancerTree() {
       });
     }
 
+    // console.log(newSelectedDancers);
+    // console.log(newSelectedParts);
     setSelectedDancers({ payload: [...newSelectedDancers] });
     setSelectedParts({ payload: newSelectedParts });
 

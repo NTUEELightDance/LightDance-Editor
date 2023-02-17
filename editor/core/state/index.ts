@@ -57,7 +57,6 @@ const _state: State = {
 
   dancersArray: [],
   dancerPartIndexMap: {},
-  lasso: false,
   selectedLED: [],
 };
 

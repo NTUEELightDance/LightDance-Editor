@@ -38,8 +38,6 @@ export default function ThreeSimulator() {
 
   const selected = useReactiveVar(reactiveState.selected);
 
-  const lasso = useReactiveVar(reactiveState.lasso);
-
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -64,12 +62,6 @@ export default function ThreeSimulator() {
   useEffect(() => {
     threeController.setIsPlaying(isPlaying);
   }, [isPlaying]);
-
-  //get lasso is now valid
-  useEffect(() => {
-    console.log("lasso = ", lasso);
-    threeController.setLasso(lasso);
-  }, [lasso]);
 
   useHotkeys("g", () => {
     if (

@@ -65,8 +65,6 @@ class ThreeController {
   // ? seems always undefined, not sure why its here
   initialized: boolean;
 
-  lasso: boolean;
-
   constructor() {
     // Configuration of the scene
     this.height = 100;
@@ -99,8 +97,6 @@ class ThreeController {
 
     // record the return id of requestAnimationFrame
     this.initialized = false;
-
-    this.lasso = false;
   }
 
   /**
@@ -203,9 +199,8 @@ class ThreeController {
       this.scene,
       this.camera
     );
-
-    selectedOutline.edgeStrength = 2.0;
-    selectedOutline.edgeThickness = 1.0;
+    selectedOutline.edgeStrength = 5.0;
+    selectedOutline.edgeThickness = 0.2;
     selectedOutline.visibleEdgeColor.set(0xffffff);
     selectedOutline.hiddenEdgeColor.set(0x222222);
 
@@ -217,7 +212,6 @@ class ThreeController {
       this.scene,
       this.camera
     );
-
     hoveredOutline.edgeStrength = 2.0;
     hoveredOutline.edgeThickness = 1.0;
     hoveredOutline.visibleEdgeColor.set(0xffff00);
@@ -331,16 +325,8 @@ class ThreeController {
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
     }
-    console.log("updateSelected");
+    console.log("updateSelected", selected);
     this.controls.selectControls.updateSelected(selected);
-  }
-
-  setLasso(lasso: boolean) {
-    this.lasso = lasso;
-    if (this.controls !== undefined) {
-      this.controls.selectControls.setLasso(lasso);
-      console.log(this.dancers);
-    }
   }
 
   // calculate and set next frame status according to time and call updateDancers
