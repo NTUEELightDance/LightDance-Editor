@@ -8,6 +8,7 @@ import { PositionMapPayload } from "./positionMap";
 import { DancerPayload } from "./dancer";
 import { ColorPayload } from "./color";
 import { EffectListPayload } from "./effectlist";
+import { LEDPayload } from "./led";
 
 @Resolver()
 class SubscriptionResolver {
@@ -68,6 +69,13 @@ class SubscriptionResolver {
     @Root() effectListPayload: EffectListPayload
   ): EffectListPayload {
     return effectListPayload;
+  }
+
+  @Subscription({
+    topics: Topic.LEDRecord,
+  })
+  ledRecordSubscription(@Root() ledPayload: LEDPayload): LEDPayload {
+    return ledPayload;
   }
 }
 

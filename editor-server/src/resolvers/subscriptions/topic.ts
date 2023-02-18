@@ -6,4 +6,5 @@ export enum Topic {
   PositionMap = "POSITION_MAP",
   Dancer = "DANCER",
   EffectList = "EffectList",
+  LEDRecord = "LED_RECORD",
 }

@@ -1125,6 +1125,14 @@ type LEDMap {
 """LED map scalar type"""
 scalar LEDMapCustomScalar
 
+type LEDPayload {
+  data: LEDEffect
+  editBy: Float
+  effectName: String
+  mutation: String!
+  partName: String
+}
+
 type Mutation {
   CancelEditControl(FrameID: Int!): RequestEditResponse!
   CancelEditLEDEffect(LEDEffectID: Int!): RequestEditResponse!
@@ -1151,6 +1159,7 @@ type Mutation {
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editControlMap(input: EditControlMapInput!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
+  editLED(input: LEDEffectCreateInput!): LEDEffectResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPosMap(input: EditPositionMapInput!): PositionMap!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
@@ -1813,6 +1822,7 @@ type Subscription {
   controlMapSubscription: ControlMapPayload!
   controlRecordSubscription: ControlRecordPayload!
   effectListSubscription: EffectListPayload!
+  ledRecordSubscription: LEDPayload!
   positionMapSubscription: PositionMapPayload!
   positionRecordSubscription: PositionRecordPayload!
 }

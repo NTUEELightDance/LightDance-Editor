@@ -1,4 +1,12 @@
-import { Resolver, Query, Arg, Ctx, Mutation } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Arg,
+  Ctx,
+  Mutation,
+  PubSub,
+  Publisher,
+} from "type-graphql";
 
 import { LEDMap } from "./types/ledEffectMap";
 import { DeleteLEDInput } from "./inputs/led";
@@ -10,6 +18,8 @@ import { TContext } from "../types/global";
 import {
   LEDEffectCreateInput,
 } from "../../prisma/generated/type-graphql";
+import { Topic } from "./subscriptions/topic";
+import { LEDPayload, ledMutation } from "./subscriptions/led";
 
 @Resolver()
 export class LEDResolver {
@@ -21,6 +31,8 @@ export class LEDResolver {
 
   @Mutation((returns) => LEDEffectResponse)
   async addLED(
+    @PubSub(Topic.LEDRecord)
+    publishLEDRecord: Publisher<LEDPayload>,
     @Arg("input") input: LEDEffectCreateInput,
     @Ctx() ctx: TContext
   ) {
@@ -41,13 +53,73 @@ export class LEDResolver {
     if (exist.length !== 0)
       return Object.assign({ ok: false, msg: "effectName exist." });
 
-    const newLED = await ctx.prisma.lEDEffect.create({ data: input });
+    const newLED = await ctx.prisma.lEDEffect.create({
+      data: input,
+    });
+
+    const recordPayload: LEDPayload = {
+      mutation: ledMutation.CREATED,
+      editBy: ctx.userId,
+      partName,
+      effectName: name,
+      data: newLED,
+    };
+    await publishLEDRecord(recordPayload);
 
     return Object.assign({ ok: true });
   }
 
+  @Mutation((returns) => LEDEffectResponse)
+  async editLED(
+    @PubSub(Topic.LEDRecord)
+    publishLEDRecord: Publisher<LEDPayload>,
+    @Arg("input") input: LEDEffectCreateInput,
+    @Ctx() ctx: TContext
+  ) {
+    const { name, partName, repeat, frames } = input;
+
+    // check overlapped
+    const exist = await ctx.prisma.lEDEffect.findFirst({
+      where: { name: name, partName: partName },
+    });
+    if (!exist)
+      return Object.assign({ ok: false, msg: "effectName do not exist." });
+
+    const target = await ctx.prisma.lEDEffect.update({
+      where: {
+        name_partName: {
+          name,
+          partName,
+        },
+      },
+      data: input,
+    });
+
+    const recordPayload: LEDPayload = {
+      mutation: ledMutation.UPDATED,
+      editBy: ctx.userId,
+      partName,
+      effectName: name,
+      data: target,
+    };
+    await publishLEDRecord(recordPayload);
+
+    return Object.assign({
+      ok: true,
+      msg: "update success",
+      partName,
+      effectName: name,
+      repeat: target.repeat,
+      effects: target.frames,
+    });
+  }
+
   @Mutation((returns) => DeleteLEDEffectResponse)
-  async deleteLED(@Arg("input") input: DeleteLEDInput, @Ctx() ctx: TContext) {
+  async deleteLED(
+    @PubSub(Topic.LEDRecord) publishLEDRecord: Publisher<LEDPayload>,
+    @Arg("input") input: DeleteLEDInput,
+    @Ctx() ctx: TContext
+  ) {
     const { partName, effectName } = input;
 
     // check exist
@@ -87,6 +159,13 @@ export class LEDResolver {
     await ctx.prisma.lEDEffect.deleteMany({
       where: { name: effectName, partName: partName },
     });
+    const recordPayload: LEDPayload = {
+      mutation: ledMutation.DELETED,
+      editBy: ctx.userId,
+      partName,
+      effectName,
+    };
+    await publishLEDRecord(recordPayload);
     return { ok: true };
   }
 }
