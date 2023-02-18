@@ -24,6 +24,7 @@ import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
 import { ConnectionParam, TContext } from "./types/global";
 import { verifyToken } from "./authentication";
+import test from "node:test";
 
 const port = process.env.PORT || 4000;
 
@@ -99,7 +100,7 @@ const port = process.env.PORT || 4000;
       onDisconnect: async (ctx) => {
         const { username, userId } = ctx.extra;
         console.log("disconnect", username);
-        prisma.editingControlFrame.update({
+        await prisma.editingControlFrame.update({
           where: {
             userId,
           },
@@ -107,12 +108,20 @@ const port = process.env.PORT || 4000;
             frameId: null,
           },
         });
-        prisma.editingPositionFrame.update({
+        await prisma.editingPositionFrame.update({
           where: {
             userId,
           },
           data: {
             frameId: null,
+          },
+        });
+        await prisma.editingLEDEffect.update({
+          where: {
+            userId,
+          },
+          data: {
+            LEDEffectId: null,
           },
         });
       },
@@ -126,6 +135,31 @@ const port = process.env.PORT || 4000;
       if (process.env.NODE_ENV === "development") {
         const testUser = await prisma.user.findFirst();
         if (testUser === null) throw new Error("No test user found");
+        // initialize editing
+        const checkEditingControlExist = await prisma.editingControlFrame.findFirst({
+          where: { userId: testUser.id },
+        });
+        if (!checkEditingControlExist) {
+          await prisma.editingControlFrame.create({
+            data: { userId: testUser.id, frameId: null },
+          });
+        };
+        const checkEditingPositionExist = await prisma.editingPositionFrame.findFirst({
+          where: { userId: testUser.id },
+        });
+        if (!checkEditingPositionExist) {
+          await prisma.editingPositionFrame.create({
+            data: { userId: testUser.id, frameId: null },
+          });
+        };
+        const checkEditingLEDExist = await prisma.editingLEDEffect.findFirst({
+          where: { userId: testUser.id },
+        });
+        if (!checkEditingLEDExist) {
+          await prisma.editingLEDEffect.create({
+            data: { userId: testUser.id, LEDEffectId: null },
+          });
+        };
         return {
           prisma,
           userId: testUser.id,
@@ -136,6 +170,31 @@ const port = process.env.PORT || 4000;
       const token = req.cookies.token;
       const { success, user } = await verifyToken(token);
       if (success) {
+        // initialize editing
+        const checkEditingControlExist = await prisma.editingControlFrame.findFirst({
+          where: { userId: user.id },
+        });
+        if (!checkEditingControlExist) {
+          await prisma.editingControlFrame.create({
+            data: { userId: user.id, frameId: null },
+          });
+        };
+        const checkEditingPositionExist = await prisma.editingPositionFrame.findFirst({
+          where: { userId: user.id },
+        });
+        if (!checkEditingPositionExist) {
+          await prisma.editingPositionFrame.create({
+            data: { userId: user.id, frameId: null },
+          });
+        };
+        const checkEditingLEDExist = await prisma.editingLEDEffect.findFirst({
+          where: { userId: user.id },
+        });
+        if (!checkEditingLEDExist) {
+          await prisma.editingLEDEffect.create({
+            data: { userId: user.id, LEDEffectId: null },
+          });
+        };
         return { prisma, userId: user.id, username: user.name };
       } else {
         throw new Error("Unauthorized");

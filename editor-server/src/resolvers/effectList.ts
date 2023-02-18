@@ -6,6 +6,7 @@ import {
   PubSub,
   Publisher,
   Arg,
+  Int
 } from "type-graphql";
 import { Prisma } from "@prisma/client";
 
@@ -75,8 +76,8 @@ export class EffectListResolver {
   @Mutation(() => EffectListData)
   async addEffectList(
     @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
-    @Arg("start", { nullable: false }) start: number,
-    @Arg("end", { nullable: false }) end: number,
+    @Arg("start", (type) => Int, { nullable: false }) start: number,
+    @Arg("end", (type) => Int, { nullable: false }) end: number,
     @Arg("description", { nullable: true }) description: string,
     @Ctx() ctx: TContext
   ) {
@@ -160,7 +161,7 @@ export class EffectListResolver {
   @Mutation(() => EffectListResponse)
   async deleteEffectList(
     @PubSub(Topic.EffectList) publish: Publisher<EffectListPayload>,
-    @Arg("id") id: number,
+    @Arg("id", (type) => Int) id: number,
     @Ctx() ctx: TContext
   ) {
     await ctx.prisma.effectListData.deleteMany({
@@ -184,8 +185,8 @@ export class EffectListResolver {
     publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
     publishPositionMap: Publisher<PositionMapPayload>,
-    @Arg("id") id: number,
-    @Arg("start", { nullable: false }) start: number,
+    @Arg("id", (type) => Int) id: number,
+    @Arg("start", (type) => Int, { nullable: false }) start: number,
     @Ctx() ctx: TContext
   ) {
     const effectList: EffectListData =

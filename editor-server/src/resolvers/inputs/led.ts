@@ -26,7 +26,7 @@ export class DeleteLEDInput {
 
 @InputType()
 export class LEDEffectInput {
-  @Field((type) => Float)
+  @Field((type) => Int)
   start: number;
 
   @Field()

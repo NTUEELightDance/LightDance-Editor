@@ -1,11 +1,11 @@
-import { InputType, Field } from "type-graphql";
+import { InputType, Field, Int } from "type-graphql";
 
 @InputType()
 export class EditControlFrameInput {
-  @Field()
+  @Field((type) => Int)
   frameID: number;
 
-  @Field({ nullable: true })
+  @Field((type) => Int, { nullable: true })
   start?: number;
 
   @Field({ nullable: true })
@@ -14,6 +14,6 @@ export class EditControlFrameInput {
 
 @InputType()
 export class DeleteControlFrameInput {
-  @Field()
+  @Field((type) => Int)
   frameID: number;
 }

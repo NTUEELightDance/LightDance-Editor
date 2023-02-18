@@ -1,23 +1,23 @@
-import { ObjectType, Field, ID, Int } from "type-graphql";
+import { ObjectType, Field, Int } from "type-graphql";
 
 @ObjectType()
 export class PositionRecordPayload {
   @Field()
   mutation: PositionRecordMutation;
 
-  @Field()
+  @Field((type) => Int)
   editBy: number;
 
   @Field((type) => Int)
   index: number;
 
-  @Field((type) => [String])
+  @Field((type) => [Int])
   addID: number[];
 
-  @Field((type) => [String])
+  @Field((type) => [Int])
   updateID: number[];
 
-  @Field((type) => [String])
+  @Field((type) => [Int])
   deleteID: number[];
 }
 

@@ -1,4 +1,4 @@
-import { InputType, Field, ID } from "type-graphql";
+import { InputType, Field, Int } from "type-graphql";
 import { ControlType } from "../types/controlType";
 
 @InputType()
@@ -15,7 +15,7 @@ export class AddPartInput {
 
 @InputType()
 export class EditPartInput {
-  @Field((type) => Number)
+  @Field((type) => Int)
   id: number;
 
   @Field()
@@ -27,6 +27,6 @@ export class EditPartInput {
 
 @InputType()
 export class DeletePartInput {
-  @Field((type) => Number)
+  @Field((type) => Int)
   id: number;
 }

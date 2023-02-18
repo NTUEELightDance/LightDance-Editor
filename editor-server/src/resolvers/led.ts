@@ -1,14 +1,13 @@
 import { Resolver, Query, Arg, Ctx, Mutation } from "type-graphql";
 
 import { LEDMap } from "./types/ledEffectMap";
-import { AddLEDInput, DeleteLEDInput } from "./inputs/led";
+import { DeleteLEDInput } from "./inputs/led";
 import {
   LEDEffectResponse,
   DeleteLEDEffectResponse,
 } from "./response/ledEffectResponse";
-import { IControl, IControlFrame, TContext } from "../types/global";
+import { TContext } from "../types/global";
 import {
-  LEDEffect,
   LEDEffectCreateInput,
 } from "../../prisma/generated/type-graphql";
 

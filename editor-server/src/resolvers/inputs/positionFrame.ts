@@ -1,16 +1,16 @@
-import { InputType, Field } from "type-graphql";
+import { InputType, Field, Int } from "type-graphql";
 
 @InputType()
 export class EditPositionFrameInput {
-  @Field()
+  @Field((type) => Int)
   frameID: number;
 
-  @Field()
+  @Field((type) => Int)
   start: number;
 }
 
 @InputType()
 export class DeletePositionFrameInput {
-  @Field()
+  @Field((type) => Int)
   frameID: number;
 }

@@ -1,4 +1,4 @@
-import { Resolver, Ctx, Mutation, PubSub, Publisher, Arg } from "type-graphql";
+import { Resolver, Ctx, Mutation, PubSub, Publisher, Arg, Int } from "type-graphql";
 
 import {
   ControlRecordPayload,
@@ -31,9 +31,9 @@ export class ShiftResolver {
     publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
     publishPositionMap: Publisher<PositionMapPayload>,
-    @Arg("start", { nullable: false }) start: number,
-    @Arg("end", { nullable: false }) end: number,
-    @Arg("move", { nullable: false }) move: number,
+    @Arg("start", (type) => Int, { nullable: false }) start: number,
+    @Arg("end", (type) => Int, { nullable: false }) end: number,
+    @Arg("move", (type) => Int, { nullable: false }) move: number,
     @Arg("shiftControl", { nullable: false }) shiftControl: boolean,
     @Arg("shiftPosition", { nullable: false }) shiftPosition: boolean,
     @Ctx() ctx: TContext
