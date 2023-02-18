@@ -1,11 +1,11 @@
-import { ObjectType, Field, ID } from "type-graphql";
+import { ObjectType, Field, Int } from "type-graphql";
 
 @ObjectType()
 export class ColorPayload {
   @Field()
   mutation: colorMutation;
 
-  @Field()
+  @Field((type) => Int)
   editBy: number;
 
   @Field()

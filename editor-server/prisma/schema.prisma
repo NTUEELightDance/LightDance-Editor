@@ -21,11 +21,14 @@ model Color {
 }
 
 model LEDEffect {
-  id       Int        @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   name     String
   partName String
   repeat   Int
   frames   Json[]
+
+  // relation => not in db
+  editing EditingLEDEffect?
 
   @@unique([name, partName])
 }
@@ -38,6 +41,7 @@ model User {
   // relation => not in db
   editingPositionFrameId EditingPositionFrame?
   editingControlFrameId  EditingControlFrame?
+  editingLEDEffectId     EditingLEDEffect?
 }
 
 model EditingPositionFrame {
@@ -56,6 +60,15 @@ model EditingControlFrame {
   // relation => not in db
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   editingFrame ControlFrame? @relation(fields: [frameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model EditingLEDEffect {
+  userId      Int  @id
+  LEDEffectId Int? @unique
+
+  // relation => not in db
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editingLEDEffect LEDEffect? @relation(fields: [LEDEffectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Dancer {
@@ -129,7 +142,7 @@ model ControlFrame {
 }
 
 model EffectListData {
-  id             Int    @id @default(autoincrement())
+  id             Int     @id @default(autoincrement())
   start          Int
   end            Int
   description    String?

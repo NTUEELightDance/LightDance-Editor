@@ -25,7 +25,7 @@ export class LEDEffectResponse {
 
 @ObjectType()
 class LEDEffects {
-  @Field((type) => Float)
+  @Field((type) => Int)
   start: number;
 
   @Field()

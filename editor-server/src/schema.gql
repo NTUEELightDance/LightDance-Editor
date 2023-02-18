@@ -13,6 +13,10 @@ input AddPartInput {
   type: String!
 }
 
+input BoolFieldUpdateOperationsInput {
+  set: Boolean
+}
+
 input BoolFilter {
   equals: Boolean
   not: NestedBoolFilter
@@ -43,7 +47,7 @@ input ColorOrderByWithRelationInput {
 type ColorPayload {
   color: String!
   colorCode: String
-  editBy: Float!
+  editBy: Int!
   mutation: String!
   renameColor: String
 }
@@ -80,6 +84,60 @@ type ControlData {
   value: JSON!
 }
 
+input ControlDataCreateManyFrameInput {
+  partId: Int!
+  value: JSON!
+}
+
+input ControlDataCreateManyFrameInputEnvelope {
+  data: [ControlDataCreateManyFrameInput!]!
+  skipDuplicates: Boolean
+}
+
+input ControlDataCreateManyPartInput {
+  frameId: Int!
+  value: JSON!
+}
+
+input ControlDataCreateManyPartInputEnvelope {
+  data: [ControlDataCreateManyPartInput!]!
+  skipDuplicates: Boolean
+}
+
+input ControlDataCreateNestedManyWithoutFrameInput {
+  connect: [ControlDataWhereUniqueInput!]
+  connectOrCreate: [ControlDataCreateOrConnectWithoutFrameInput!]
+  create: [ControlDataCreateWithoutFrameInput!]
+  createMany: ControlDataCreateManyFrameInputEnvelope
+}
+
+input ControlDataCreateNestedManyWithoutPartInput {
+  connect: [ControlDataWhereUniqueInput!]
+  connectOrCreate: [ControlDataCreateOrConnectWithoutPartInput!]
+  create: [ControlDataCreateWithoutPartInput!]
+  createMany: ControlDataCreateManyPartInputEnvelope
+}
+
+input ControlDataCreateOrConnectWithoutFrameInput {
+  create: ControlDataCreateWithoutFrameInput!
+  where: ControlDataWhereUniqueInput!
+}
+
+input ControlDataCreateOrConnectWithoutPartInput {
+  create: ControlDataCreateWithoutPartInput!
+  where: ControlDataWhereUniqueInput!
+}
+
+input ControlDataCreateWithoutFrameInput {
+  part: PartCreateNestedOneWithoutControlDataInput!
+  value: JSON!
+}
+
+input ControlDataCreateWithoutPartInput {
+  frame: ControlFrameCreateNestedOneWithoutControlDatasInput!
+  value: JSON!
+}
+
 input ControlDataListRelationFilter {
   every: ControlDataWhereInput
   none: ControlDataWhereInput
@@ -107,6 +165,89 @@ enum ControlDataScalarFieldEnum {
   frameId
   partId
   value
+}
+
+input ControlDataScalarWhereInput {
+  AND: [ControlDataScalarWhereInput!]
+  NOT: [ControlDataScalarWhereInput!]
+  OR: [ControlDataScalarWhereInput!]
+  frameId: IntFilter
+  partId: IntFilter
+  value: JsonFilter
+}
+
+input ControlDataUpdateManyMutationInput {
+  value: JSON
+}
+
+input ControlDataUpdateManyWithWhereWithoutFrameInput {
+  data: ControlDataUpdateManyMutationInput!
+  where: ControlDataScalarWhereInput!
+}
+
+input ControlDataUpdateManyWithWhereWithoutPartInput {
+  data: ControlDataUpdateManyMutationInput!
+  where: ControlDataScalarWhereInput!
+}
+
+input ControlDataUpdateManyWithoutFrameNestedInput {
+  connect: [ControlDataWhereUniqueInput!]
+  connectOrCreate: [ControlDataCreateOrConnectWithoutFrameInput!]
+  create: [ControlDataCreateWithoutFrameInput!]
+  createMany: ControlDataCreateManyFrameInputEnvelope
+  delete: [ControlDataWhereUniqueInput!]
+  deleteMany: [ControlDataScalarWhereInput!]
+  disconnect: [ControlDataWhereUniqueInput!]
+  set: [ControlDataWhereUniqueInput!]
+  update: [ControlDataUpdateWithWhereUniqueWithoutFrameInput!]
+  updateMany: [ControlDataUpdateManyWithWhereWithoutFrameInput!]
+  upsert: [ControlDataUpsertWithWhereUniqueWithoutFrameInput!]
+}
+
+input ControlDataUpdateManyWithoutPartNestedInput {
+  connect: [ControlDataWhereUniqueInput!]
+  connectOrCreate: [ControlDataCreateOrConnectWithoutPartInput!]
+  create: [ControlDataCreateWithoutPartInput!]
+  createMany: ControlDataCreateManyPartInputEnvelope
+  delete: [ControlDataWhereUniqueInput!]
+  deleteMany: [ControlDataScalarWhereInput!]
+  disconnect: [ControlDataWhereUniqueInput!]
+  set: [ControlDataWhereUniqueInput!]
+  update: [ControlDataUpdateWithWhereUniqueWithoutPartInput!]
+  updateMany: [ControlDataUpdateManyWithWhereWithoutPartInput!]
+  upsert: [ControlDataUpsertWithWhereUniqueWithoutPartInput!]
+}
+
+input ControlDataUpdateWithWhereUniqueWithoutFrameInput {
+  data: ControlDataUpdateWithoutFrameInput!
+  where: ControlDataWhereUniqueInput!
+}
+
+input ControlDataUpdateWithWhereUniqueWithoutPartInput {
+  data: ControlDataUpdateWithoutPartInput!
+  where: ControlDataWhereUniqueInput!
+}
+
+input ControlDataUpdateWithoutFrameInput {
+  part: PartUpdateOneRequiredWithoutControlDataNestedInput
+  value: JSON
+}
+
+input ControlDataUpdateWithoutPartInput {
+  frame: ControlFrameUpdateOneRequiredWithoutControlDatasNestedInput
+  value: JSON
+}
+
+input ControlDataUpsertWithWhereUniqueWithoutFrameInput {
+  create: ControlDataCreateWithoutFrameInput!
+  update: ControlDataUpdateWithoutFrameInput!
+  where: ControlDataWhereUniqueInput!
+}
+
+input ControlDataUpsertWithWhereUniqueWithoutPartInput {
+  create: ControlDataCreateWithoutPartInput!
+  update: ControlDataUpdateWithoutPartInput!
+  where: ControlDataWhereUniqueInput!
 }
 
 input ControlDataWhereInput {
@@ -137,6 +278,40 @@ type ControlFrameCount {
   controlDatas: Int!
 }
 
+input ControlFrameCreateNestedOneWithoutControlDatasInput {
+  connect: ControlFrameWhereUniqueInput
+  connectOrCreate: ControlFrameCreateOrConnectWithoutControlDatasInput
+  create: ControlFrameCreateWithoutControlDatasInput
+}
+
+input ControlFrameCreateNestedOneWithoutEditingInput {
+  connect: ControlFrameWhereUniqueInput
+  connectOrCreate: ControlFrameCreateOrConnectWithoutEditingInput
+  create: ControlFrameCreateWithoutEditingInput
+}
+
+input ControlFrameCreateOrConnectWithoutControlDatasInput {
+  create: ControlFrameCreateWithoutControlDatasInput!
+  where: ControlFrameWhereUniqueInput!
+}
+
+input ControlFrameCreateOrConnectWithoutEditingInput {
+  create: ControlFrameCreateWithoutEditingInput!
+  where: ControlFrameWhereUniqueInput!
+}
+
+input ControlFrameCreateWithoutControlDatasInput {
+  editing: EditingControlFrameCreateNestedOneWithoutEditingFrameInput
+  fade: Boolean!
+  start: Int!
+}
+
+input ControlFrameCreateWithoutEditingInput {
+  controlDatas: ControlDataCreateNestedManyWithoutFrameInput
+  fade: Boolean!
+  start: Int!
+}
+
 input ControlFrameOrderByWithRelationInput {
   controlDatas: ControlDataOrderByRelationAggregateInput
   editing: EditingControlFrameOrderByWithRelationInput
@@ -150,6 +325,46 @@ input ControlFrameRelationFilter {
   isNot: ControlFrameWhereInput
 }
 
+input ControlFrameUpdateOneRequiredWithoutControlDatasNestedInput {
+  connect: ControlFrameWhereUniqueInput
+  connectOrCreate: ControlFrameCreateOrConnectWithoutControlDatasInput
+  create: ControlFrameCreateWithoutControlDatasInput
+  update: ControlFrameUpdateWithoutControlDatasInput
+  upsert: ControlFrameUpsertWithoutControlDatasInput
+}
+
+input ControlFrameUpdateOneWithoutEditingNestedInput {
+  connect: ControlFrameWhereUniqueInput
+  connectOrCreate: ControlFrameCreateOrConnectWithoutEditingInput
+  create: ControlFrameCreateWithoutEditingInput
+  delete: Boolean
+  disconnect: Boolean
+  update: ControlFrameUpdateWithoutEditingInput
+  upsert: ControlFrameUpsertWithoutEditingInput
+}
+
+input ControlFrameUpdateWithoutControlDatasInput {
+  editing: EditingControlFrameUpdateOneWithoutEditingFrameNestedInput
+  fade: BoolFieldUpdateOperationsInput
+  start: IntFieldUpdateOperationsInput
+}
+
+input ControlFrameUpdateWithoutEditingInput {
+  controlDatas: ControlDataUpdateManyWithoutFrameNestedInput
+  fade: BoolFieldUpdateOperationsInput
+  start: IntFieldUpdateOperationsInput
+}
+
+input ControlFrameUpsertWithoutControlDatasInput {
+  create: ControlFrameCreateWithoutControlDatasInput!
+  update: ControlFrameUpdateWithoutControlDatasInput!
+}
+
+input ControlFrameUpsertWithoutEditingInput {
+  create: ControlFrameCreateWithoutEditingInput!
+  update: ControlFrameUpdateWithoutEditingInput!
+}
+
 input ControlFrameWhereInput {
   AND: [ControlFrameWhereInput!]
   NOT: [ControlFrameWhereInput!]
@@ -161,6 +376,11 @@ input ControlFrameWhereInput {
   start: IntFilter
 }
 
+input ControlFrameWhereUniqueInput {
+  id: Int
+  start: Int
+}
+
 type ControlMap {
   frameIds: ControlMapQueryObjectId!
 }
@@ -169,7 +389,7 @@ type ControlMap {
 scalar ControlMapMutationObjectId
 
 type ControlMapPayload {
-  editBy: Float!
+  editBy: Int!
   frame: ControlMapMutationObjectId!
 }
 
@@ -177,12 +397,12 @@ type ControlMapPayload {
 scalar ControlMapQueryObjectId
 
 type ControlRecordPayload {
-  addID: [String!]!
-  deleteID: [String!]!
-  editBy: Float!
+  addID: [Int!]!
+  deleteID: [Int!]!
+  editBy: Int!
   index: Int!
   mutation: String!
-  updateID: [String!]!
+  updateID: [Int!]!
 }
 
 type Dancer {
@@ -198,6 +418,38 @@ type DancerCount {
   positionData: Int!
 }
 
+input DancerCreateNestedOneWithoutPartsInput {
+  connect: DancerWhereUniqueInput
+  connectOrCreate: DancerCreateOrConnectWithoutPartsInput
+  create: DancerCreateWithoutPartsInput
+}
+
+input DancerCreateNestedOneWithoutPositionDataInput {
+  connect: DancerWhereUniqueInput
+  connectOrCreate: DancerCreateOrConnectWithoutPositionDataInput
+  create: DancerCreateWithoutPositionDataInput
+}
+
+input DancerCreateOrConnectWithoutPartsInput {
+  create: DancerCreateWithoutPartsInput!
+  where: DancerWhereUniqueInput!
+}
+
+input DancerCreateOrConnectWithoutPositionDataInput {
+  create: DancerCreateWithoutPositionDataInput!
+  where: DancerWhereUniqueInput!
+}
+
+input DancerCreateWithoutPartsInput {
+  name: String!
+  positionData: PositionDataCreateNestedManyWithoutDancerInput
+}
+
+input DancerCreateWithoutPositionDataInput {
+  name: String!
+  parts: PartCreateNestedManyWithoutDancerInput
+}
+
 input DancerOrderByWithRelationInput {
   id: SortOrder
   name: SortOrder
@@ -207,7 +459,7 @@ input DancerOrderByWithRelationInput {
 
 type DancerPayload {
   dancerData: Dancer
-  editBy: Float!
+  editBy: Int!
   mutation: dancerMutation!
 }
 
@@ -222,6 +474,42 @@ type DancerResponse {
   ok: Boolean!
 }
 
+input DancerUpdateOneRequiredWithoutPartsNestedInput {
+  connect: DancerWhereUniqueInput
+  connectOrCreate: DancerCreateOrConnectWithoutPartsInput
+  create: DancerCreateWithoutPartsInput
+  update: DancerUpdateWithoutPartsInput
+  upsert: DancerUpsertWithoutPartsInput
+}
+
+input DancerUpdateOneRequiredWithoutPositionDataNestedInput {
+  connect: DancerWhereUniqueInput
+  connectOrCreate: DancerCreateOrConnectWithoutPositionDataInput
+  create: DancerCreateWithoutPositionDataInput
+  update: DancerUpdateWithoutPositionDataInput
+  upsert: DancerUpsertWithoutPositionDataInput
+}
+
+input DancerUpdateWithoutPartsInput {
+  name: StringFieldUpdateOperationsInput
+  positionData: PositionDataUpdateManyWithoutDancerNestedInput
+}
+
+input DancerUpdateWithoutPositionDataInput {
+  name: StringFieldUpdateOperationsInput
+  parts: PartUpdateManyWithoutDancerNestedInput
+}
+
+input DancerUpsertWithoutPartsInput {
+  create: DancerCreateWithoutPartsInput!
+  update: DancerUpdateWithoutPartsInput!
+}
+
+input DancerUpsertWithoutPositionDataInput {
+  create: DancerCreateWithoutPositionDataInput!
+  update: DancerUpdateWithoutPositionDataInput!
+}
+
 input DancerWhereInput {
   AND: [DancerWhereInput!]
   NOT: [DancerWhereInput!]
@@ -232,8 +520,12 @@ input DancerWhereInput {
   positionData: PositionDataListRelationFilter
 }
 
+input DancerWhereUniqueInput {
+  id: Int
+}
+
 input DeleteControlFrameInput {
-  frameID: Float!
+  frameID: Int!
 }
 
 type DeleteLEDEffectResponse {
@@ -247,17 +539,17 @@ input DeleteLEDInput {
 }
 
 input DeletePartInput {
-  id: Float!
+  id: Int!
 }
 
 input DeletePositionFrameInput {
-  frameID: Float!
+  frameID: Int!
 }
 
 input EditControlFrameInput {
   fade: Boolean
-  frameID: Float!
-  start: Float
+  frameID: Int!
+  start: Int
 }
 
 input EditControlMapInput {
@@ -267,14 +559,14 @@ input EditControlMapInput {
 }
 
 input EditPartInput {
-  id: Float!
+  id: Int!
   name: String!
   type: String!
 }
 
 input EditPositionFrameInput {
-  frameID: Float!
-  start: Float!
+  frameID: Int!
+  start: Int!
 }
 
 input EditPositionMapInput {
@@ -289,6 +581,36 @@ type EditingControlFrame {
   userId: Int!
 }
 
+input EditingControlFrameCreateNestedOneWithoutEditingFrameInput {
+  connect: EditingControlFrameWhereUniqueInput
+  connectOrCreate: EditingControlFrameCreateOrConnectWithoutEditingFrameInput
+  create: EditingControlFrameCreateWithoutEditingFrameInput
+}
+
+input EditingControlFrameCreateNestedOneWithoutUserInput {
+  connect: EditingControlFrameWhereUniqueInput
+  connectOrCreate: EditingControlFrameCreateOrConnectWithoutUserInput
+  create: EditingControlFrameCreateWithoutUserInput
+}
+
+input EditingControlFrameCreateOrConnectWithoutEditingFrameInput {
+  create: EditingControlFrameCreateWithoutEditingFrameInput!
+  where: EditingControlFrameWhereUniqueInput!
+}
+
+input EditingControlFrameCreateOrConnectWithoutUserInput {
+  create: EditingControlFrameCreateWithoutUserInput!
+  where: EditingControlFrameWhereUniqueInput!
+}
+
+input EditingControlFrameCreateWithoutEditingFrameInput {
+  user: UserCreateNestedOneWithoutEditingControlFrameIdInput!
+}
+
+input EditingControlFrameCreateWithoutUserInput {
+  editingFrame: ControlFrameCreateNestedOneWithoutEditingInput
+}
+
 input EditingControlFrameOrderByWithRelationInput {
   editingFrame: ControlFrameOrderByWithRelationInput
   frameId: SortOrder
@@ -301,6 +623,44 @@ input EditingControlFrameRelationFilter {
   isNot: EditingControlFrameWhereInput
 }
 
+input EditingControlFrameUpdateOneWithoutEditingFrameNestedInput {
+  connect: EditingControlFrameWhereUniqueInput
+  connectOrCreate: EditingControlFrameCreateOrConnectWithoutEditingFrameInput
+  create: EditingControlFrameCreateWithoutEditingFrameInput
+  delete: Boolean
+  disconnect: Boolean
+  update: EditingControlFrameUpdateWithoutEditingFrameInput
+  upsert: EditingControlFrameUpsertWithoutEditingFrameInput
+}
+
+input EditingControlFrameUpdateOneWithoutUserNestedInput {
+  connect: EditingControlFrameWhereUniqueInput
+  connectOrCreate: EditingControlFrameCreateOrConnectWithoutUserInput
+  create: EditingControlFrameCreateWithoutUserInput
+  delete: Boolean
+  disconnect: Boolean
+  update: EditingControlFrameUpdateWithoutUserInput
+  upsert: EditingControlFrameUpsertWithoutUserInput
+}
+
+input EditingControlFrameUpdateWithoutEditingFrameInput {
+  user: UserUpdateOneRequiredWithoutEditingControlFrameIdNestedInput
+}
+
+input EditingControlFrameUpdateWithoutUserInput {
+  editingFrame: ControlFrameUpdateOneWithoutEditingNestedInput
+}
+
+input EditingControlFrameUpsertWithoutEditingFrameInput {
+  create: EditingControlFrameCreateWithoutEditingFrameInput!
+  update: EditingControlFrameUpdateWithoutEditingFrameInput!
+}
+
+input EditingControlFrameUpsertWithoutUserInput {
+  create: EditingControlFrameCreateWithoutUserInput!
+  update: EditingControlFrameUpdateWithoutUserInput!
+}
+
 input EditingControlFrameWhereInput {
   AND: [EditingControlFrameWhereInput!]
   NOT: [EditingControlFrameWhereInput!]
@@ -311,11 +671,146 @@ input EditingControlFrameWhereInput {
   userId: IntFilter
 }
 
+input EditingControlFrameWhereUniqueInput {
+  frameId: Int
+  userId: Int
+}
+
+type EditingLEDEffect {
+  LEDEffectId: Int
+  userId: Int!
+}
+
+input EditingLEDEffectCreateNestedOneWithoutEditingLEDEffectInput {
+  connect: EditingLEDEffectWhereUniqueInput
+  connectOrCreate: EditingLEDEffectCreateOrConnectWithoutEditingLEDEffectInput
+  create: EditingLEDEffectCreateWithoutEditingLEDEffectInput
+}
+
+input EditingLEDEffectCreateNestedOneWithoutUserInput {
+  connect: EditingLEDEffectWhereUniqueInput
+  connectOrCreate: EditingLEDEffectCreateOrConnectWithoutUserInput
+  create: EditingLEDEffectCreateWithoutUserInput
+}
+
+input EditingLEDEffectCreateOrConnectWithoutEditingLEDEffectInput {
+  create: EditingLEDEffectCreateWithoutEditingLEDEffectInput!
+  where: EditingLEDEffectWhereUniqueInput!
+}
+
+input EditingLEDEffectCreateOrConnectWithoutUserInput {
+  create: EditingLEDEffectCreateWithoutUserInput!
+  where: EditingLEDEffectWhereUniqueInput!
+}
+
+input EditingLEDEffectCreateWithoutEditingLEDEffectInput {
+  user: UserCreateNestedOneWithoutEditingLEDEffectIdInput!
+}
+
+input EditingLEDEffectCreateWithoutUserInput {
+  editingLEDEffect: LEDEffectCreateNestedOneWithoutEditingInput
+}
+
+input EditingLEDEffectOrderByWithRelationInput {
+  LEDEffectId: SortOrder
+  editingLEDEffect: LEDEffectOrderByWithRelationInput
+  user: UserOrderByWithRelationInput
+  userId: SortOrder
+}
+
+input EditingLEDEffectRelationFilter {
+  is: EditingLEDEffectWhereInput
+  isNot: EditingLEDEffectWhereInput
+}
+
+input EditingLEDEffectUpdateOneWithoutEditingLEDEffectNestedInput {
+  connect: EditingLEDEffectWhereUniqueInput
+  connectOrCreate: EditingLEDEffectCreateOrConnectWithoutEditingLEDEffectInput
+  create: EditingLEDEffectCreateWithoutEditingLEDEffectInput
+  delete: Boolean
+  disconnect: Boolean
+  update: EditingLEDEffectUpdateWithoutEditingLEDEffectInput
+  upsert: EditingLEDEffectUpsertWithoutEditingLEDEffectInput
+}
+
+input EditingLEDEffectUpdateOneWithoutUserNestedInput {
+  connect: EditingLEDEffectWhereUniqueInput
+  connectOrCreate: EditingLEDEffectCreateOrConnectWithoutUserInput
+  create: EditingLEDEffectCreateWithoutUserInput
+  delete: Boolean
+  disconnect: Boolean
+  update: EditingLEDEffectUpdateWithoutUserInput
+  upsert: EditingLEDEffectUpsertWithoutUserInput
+}
+
+input EditingLEDEffectUpdateWithoutEditingLEDEffectInput {
+  user: UserUpdateOneRequiredWithoutEditingLEDEffectIdNestedInput
+}
+
+input EditingLEDEffectUpdateWithoutUserInput {
+  editingLEDEffect: LEDEffectUpdateOneWithoutEditingNestedInput
+}
+
+input EditingLEDEffectUpsertWithoutEditingLEDEffectInput {
+  create: EditingLEDEffectCreateWithoutEditingLEDEffectInput!
+  update: EditingLEDEffectUpdateWithoutEditingLEDEffectInput!
+}
+
+input EditingLEDEffectUpsertWithoutUserInput {
+  create: EditingLEDEffectCreateWithoutUserInput!
+  update: EditingLEDEffectUpdateWithoutUserInput!
+}
+
+input EditingLEDEffectWhereInput {
+  AND: [EditingLEDEffectWhereInput!]
+  LEDEffectId: IntNullableFilter
+  NOT: [EditingLEDEffectWhereInput!]
+  OR: [EditingLEDEffectWhereInput!]
+  editingLEDEffect: LEDEffectRelationFilter
+  user: UserRelationFilter
+  userId: IntFilter
+}
+
+input EditingLEDEffectWhereUniqueInput {
+  LEDEffectId: Int
+  userId: Int
+}
+
 type EditingPositionFrame {
   editingFrame: PositionFrame
   frameId: Int
   user: User!
   userId: Int!
+}
+
+input EditingPositionFrameCreateNestedOneWithoutEditingFrameInput {
+  connect: EditingPositionFrameWhereUniqueInput
+  connectOrCreate: EditingPositionFrameCreateOrConnectWithoutEditingFrameInput
+  create: EditingPositionFrameCreateWithoutEditingFrameInput
+}
+
+input EditingPositionFrameCreateNestedOneWithoutUserInput {
+  connect: EditingPositionFrameWhereUniqueInput
+  connectOrCreate: EditingPositionFrameCreateOrConnectWithoutUserInput
+  create: EditingPositionFrameCreateWithoutUserInput
+}
+
+input EditingPositionFrameCreateOrConnectWithoutEditingFrameInput {
+  create: EditingPositionFrameCreateWithoutEditingFrameInput!
+  where: EditingPositionFrameWhereUniqueInput!
+}
+
+input EditingPositionFrameCreateOrConnectWithoutUserInput {
+  create: EditingPositionFrameCreateWithoutUserInput!
+  where: EditingPositionFrameWhereUniqueInput!
+}
+
+input EditingPositionFrameCreateWithoutEditingFrameInput {
+  user: UserCreateNestedOneWithoutEditingPositionFrameIdInput!
+}
+
+input EditingPositionFrameCreateWithoutUserInput {
+  editingFrame: PositionFrameCreateNestedOneWithoutEditingInput
 }
 
 input EditingPositionFrameOrderByWithRelationInput {
@@ -330,6 +825,44 @@ input EditingPositionFrameRelationFilter {
   isNot: EditingPositionFrameWhereInput
 }
 
+input EditingPositionFrameUpdateOneWithoutEditingFrameNestedInput {
+  connect: EditingPositionFrameWhereUniqueInput
+  connectOrCreate: EditingPositionFrameCreateOrConnectWithoutEditingFrameInput
+  create: EditingPositionFrameCreateWithoutEditingFrameInput
+  delete: Boolean
+  disconnect: Boolean
+  update: EditingPositionFrameUpdateWithoutEditingFrameInput
+  upsert: EditingPositionFrameUpsertWithoutEditingFrameInput
+}
+
+input EditingPositionFrameUpdateOneWithoutUserNestedInput {
+  connect: EditingPositionFrameWhereUniqueInput
+  connectOrCreate: EditingPositionFrameCreateOrConnectWithoutUserInput
+  create: EditingPositionFrameCreateWithoutUserInput
+  delete: Boolean
+  disconnect: Boolean
+  update: EditingPositionFrameUpdateWithoutUserInput
+  upsert: EditingPositionFrameUpsertWithoutUserInput
+}
+
+input EditingPositionFrameUpdateWithoutEditingFrameInput {
+  user: UserUpdateOneRequiredWithoutEditingPositionFrameIdNestedInput
+}
+
+input EditingPositionFrameUpdateWithoutUserInput {
+  editingFrame: PositionFrameUpdateOneWithoutEditingNestedInput
+}
+
+input EditingPositionFrameUpsertWithoutEditingFrameInput {
+  create: EditingPositionFrameCreateWithoutEditingFrameInput!
+  update: EditingPositionFrameUpdateWithoutEditingFrameInput!
+}
+
+input EditingPositionFrameUpsertWithoutUserInput {
+  create: EditingPositionFrameCreateWithoutUserInput!
+  update: EditingPositionFrameUpdateWithoutUserInput!
+}
+
 input EditingPositionFrameWhereInput {
   AND: [EditingPositionFrameWhereInput!]
   NOT: [EditingPositionFrameWhereInput!]
@@ -338,6 +871,11 @@ input EditingPositionFrameWhereInput {
   frameId: IntNullableFilter
   user: UserRelationFilter
   userId: IntFilter
+}
+
+input EditingPositionFrameWhereUniqueInput {
+  frameId: Int
+  userId: Int
 }
 
 type Effect {
@@ -356,9 +894,9 @@ type EffectListData {
 }
 
 type EffectListPayload {
-  editBy: Float!
+  editBy: Int!
   effectListData: EffectListData
-  effectListID: ID!
+  effectListID: Int!
   mutation: String!
 }
 
@@ -367,11 +905,23 @@ type EffectListResponse {
   ok: Boolean!
 }
 
+input EnumPartTypeFieldUpdateOperationsInput {
+  set: PartType
+}
+
 input EnumPartTypeFilter {
   equals: PartType
   in: [PartType!]
   not: NestedEnumPartTypeFilter
   notIn: [PartType!]
+}
+
+input FloatFieldUpdateOperationsInput {
+  decrement: Float
+  divide: Float
+  increment: Float
+  multiply: Float
+  set: Float
 }
 
 input FloatFilter {
@@ -436,6 +986,14 @@ input JsonFilter {
   string_starts_with: String
 }
 
+input JsonNullableListFilter {
+  equals: [JSON!]
+  has: JSON
+  hasEvery: [JSON!]
+  hasSome: [JSON!]
+  isEmpty: Boolean
+}
+
 type LEDEffect {
   frames: [JSON!]!
   id: Int!
@@ -445,6 +1003,25 @@ type LEDEffect {
 }
 
 input LEDEffectCreateInput {
+  editing: EditingLEDEffectCreateNestedOneWithoutEditingLEDEffectInput
+  frames: LEDEffectCreateframesInput
+  name: String!
+  partName: String!
+  repeat: Int!
+}
+
+input LEDEffectCreateNestedOneWithoutEditingInput {
+  connect: LEDEffectWhereUniqueInput
+  connectOrCreate: LEDEffectCreateOrConnectWithoutEditingInput
+  create: LEDEffectCreateWithoutEditingInput
+}
+
+input LEDEffectCreateOrConnectWithoutEditingInput {
+  create: LEDEffectCreateWithoutEditingInput!
+  where: LEDEffectWhereUniqueInput!
+}
+
+input LEDEffectCreateWithoutEditingInput {
   frames: LEDEffectCreateframesInput
   name: String!
   partName: String!
@@ -460,6 +1037,20 @@ input LEDEffectNamePartNameCompoundUniqueInput {
   partName: String!
 }
 
+input LEDEffectOrderByWithRelationInput {
+  editing: EditingLEDEffectOrderByWithRelationInput
+  frames: SortOrder
+  id: SortOrder
+  name: SortOrder
+  partName: SortOrder
+  repeat: SortOrder
+}
+
+input LEDEffectRelationFilter {
+  is: LEDEffectWhereInput
+  isNot: LEDEffectWhereInput
+}
+
 type LEDEffectResponse {
   effectName: String!
   effects: [LEDEffects!]!
@@ -470,6 +1061,24 @@ type LEDEffectResponse {
 }
 
 input LEDEffectUpdateInput {
+  editing: EditingLEDEffectUpdateOneWithoutEditingLEDEffectNestedInput
+  frames: LEDEffectUpdateframesInput
+  name: StringFieldUpdateOperationsInput
+  partName: StringFieldUpdateOperationsInput
+  repeat: IntFieldUpdateOperationsInput
+}
+
+input LEDEffectUpdateOneWithoutEditingNestedInput {
+  connect: LEDEffectWhereUniqueInput
+  connectOrCreate: LEDEffectCreateOrConnectWithoutEditingInput
+  create: LEDEffectCreateWithoutEditingInput
+  delete: Boolean
+  disconnect: Boolean
+  update: LEDEffectUpdateWithoutEditingInput
+  upsert: LEDEffectUpsertWithoutEditingInput
+}
+
+input LEDEffectUpdateWithoutEditingInput {
   frames: LEDEffectUpdateframesInput
   name: StringFieldUpdateOperationsInput
   partName: StringFieldUpdateOperationsInput
@@ -481,6 +1090,23 @@ input LEDEffectUpdateframesInput {
   set: [JSON!]
 }
 
+input LEDEffectUpsertWithoutEditingInput {
+  create: LEDEffectCreateWithoutEditingInput!
+  update: LEDEffectUpdateWithoutEditingInput!
+}
+
+input LEDEffectWhereInput {
+  AND: [LEDEffectWhereInput!]
+  NOT: [LEDEffectWhereInput!]
+  OR: [LEDEffectWhereInput!]
+  editing: EditingLEDEffectRelationFilter
+  frames: JsonNullableListFilter
+  id: IntFilter
+  name: StringFilter
+  partName: StringFilter
+  repeat: IntFilter
+}
+
 input LEDEffectWhereUniqueInput {
   id: Int
   name_partName: LEDEffectNamePartNameCompoundUniqueInput
@@ -489,7 +1115,7 @@ input LEDEffectWhereUniqueInput {
 type LEDEffects {
   effect: [Effect!]!
   fade: Boolean!
-  start: Float!
+  start: Int!
 }
 
 type LEDMap {
@@ -500,22 +1126,24 @@ type LEDMap {
 scalar LEDMapCustomScalar
 
 type Mutation {
-  CancelEditControl(FrameID: Float!): RequestEditResponse!
-  CancelEditPosition(FrameID: Float!): RequestEditResponse!
-  RequestEditControl(FrameID: Float!): RequestEditResponse!
-  RequestEditPosition(FrameID: Float!): RequestEditResponse!
+  CancelEditControl(FrameID: Int!): RequestEditResponse!
+  CancelEditLEDEffect(LEDEffectID: Int!): RequestEditResponse!
+  CancelEditPosition(FrameID: Int!): RequestEditResponse!
+  RequestEditControl(FrameID: Int!): RequestEditResponse!
+  RequestEditLEDEffect(LEDEffectID: Int!): RequestEditResponse!
+  RequestEditPosition(FrameID: Int!): RequestEditResponse!
   addColor(color: ColorCreateInput!): Color!
-  addControlFrame(fade: Boolean = false, start: Float!): ControlFrame!
+  addControlFrame(fade: Boolean = false, start: Int!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
-  addEffectList(description: String, end: Float!, start: Float!): EffectListData!
+  addEffectList(description: String, end: Int!, start: Int!): EffectListData!
   addLED(input: LEDEffectCreateInput!): LEDEffectResponse!
   addPart(part: AddPartInput!): PartResponse!
-  addPositionFrame(start: Float!): PositionFrame!
-  applyEffectList(id: Float!, start: Float!): EffectListResponse!
+  addPositionFrame(start: Int!): PositionFrame!
+  applyEffectList(id: Int!, start: Int!): EffectListResponse!
   deleteColor(color: String!): ColorResponse!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
-  deleteEffectList(id: Float!): EffectListResponse!
+  deleteEffectList(id: Int!): EffectListResponse!
   deleteLED(input: DeleteLEDInput!): DeleteLEDEffectResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
@@ -527,7 +1155,7 @@ type Mutation {
   editPosMap(input: EditPositionMapInput!): PositionMap!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
   renameColor(newColor: String!, originalColor: String!): String!
-  shift(end: Float!, move: Float!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Float!): ShiftResponse!
+  shift(end: Int!, move: Int!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Int!): ShiftResponse!
   updateOneLEDEffect(data: LEDEffectUpdateInput!, where: LEDEffectWhereUniqueInput!): LEDEffect
 }
 
@@ -604,6 +1232,52 @@ type PartCount {
   controlData: Int!
 }
 
+input PartCreateManyDancerInput {
+  id: Int
+  name: String!
+  type: PartType!
+}
+
+input PartCreateManyDancerInputEnvelope {
+  data: [PartCreateManyDancerInput!]!
+  skipDuplicates: Boolean
+}
+
+input PartCreateNestedManyWithoutDancerInput {
+  connect: [PartWhereUniqueInput!]
+  connectOrCreate: [PartCreateOrConnectWithoutDancerInput!]
+  create: [PartCreateWithoutDancerInput!]
+  createMany: PartCreateManyDancerInputEnvelope
+}
+
+input PartCreateNestedOneWithoutControlDataInput {
+  connect: PartWhereUniqueInput
+  connectOrCreate: PartCreateOrConnectWithoutControlDataInput
+  create: PartCreateWithoutControlDataInput
+}
+
+input PartCreateOrConnectWithoutControlDataInput {
+  create: PartCreateWithoutControlDataInput!
+  where: PartWhereUniqueInput!
+}
+
+input PartCreateOrConnectWithoutDancerInput {
+  create: PartCreateWithoutDancerInput!
+  where: PartWhereUniqueInput!
+}
+
+input PartCreateWithoutControlDataInput {
+  dancer: DancerCreateNestedOneWithoutPartsInput!
+  name: String!
+  type: PartType!
+}
+
+input PartCreateWithoutDancerInput {
+  controlData: ControlDataCreateNestedManyWithoutPartInput
+  name: String!
+  type: PartType!
+}
+
 input PartListRelationFilter {
   every: PartWhereInput
   none: PartWhereInput
@@ -641,9 +1315,79 @@ enum PartScalarFieldEnum {
   type
 }
 
+input PartScalarWhereInput {
+  AND: [PartScalarWhereInput!]
+  NOT: [PartScalarWhereInput!]
+  OR: [PartScalarWhereInput!]
+  dancerId: IntFilter
+  id: IntFilter
+  name: StringFilter
+  type: EnumPartTypeFilter
+}
+
 enum PartType {
   FIBER
   LED
+}
+
+input PartUpdateManyMutationInput {
+  name: StringFieldUpdateOperationsInput
+  type: EnumPartTypeFieldUpdateOperationsInput
+}
+
+input PartUpdateManyWithWhereWithoutDancerInput {
+  data: PartUpdateManyMutationInput!
+  where: PartScalarWhereInput!
+}
+
+input PartUpdateManyWithoutDancerNestedInput {
+  connect: [PartWhereUniqueInput!]
+  connectOrCreate: [PartCreateOrConnectWithoutDancerInput!]
+  create: [PartCreateWithoutDancerInput!]
+  createMany: PartCreateManyDancerInputEnvelope
+  delete: [PartWhereUniqueInput!]
+  deleteMany: [PartScalarWhereInput!]
+  disconnect: [PartWhereUniqueInput!]
+  set: [PartWhereUniqueInput!]
+  update: [PartUpdateWithWhereUniqueWithoutDancerInput!]
+  updateMany: [PartUpdateManyWithWhereWithoutDancerInput!]
+  upsert: [PartUpsertWithWhereUniqueWithoutDancerInput!]
+}
+
+input PartUpdateOneRequiredWithoutControlDataNestedInput {
+  connect: PartWhereUniqueInput
+  connectOrCreate: PartCreateOrConnectWithoutControlDataInput
+  create: PartCreateWithoutControlDataInput
+  update: PartUpdateWithoutControlDataInput
+  upsert: PartUpsertWithoutControlDataInput
+}
+
+input PartUpdateWithWhereUniqueWithoutDancerInput {
+  data: PartUpdateWithoutDancerInput!
+  where: PartWhereUniqueInput!
+}
+
+input PartUpdateWithoutControlDataInput {
+  dancer: DancerUpdateOneRequiredWithoutPartsNestedInput
+  name: StringFieldUpdateOperationsInput
+  type: EnumPartTypeFieldUpdateOperationsInput
+}
+
+input PartUpdateWithoutDancerInput {
+  controlData: ControlDataUpdateManyWithoutPartNestedInput
+  name: StringFieldUpdateOperationsInput
+  type: EnumPartTypeFieldUpdateOperationsInput
+}
+
+input PartUpsertWithWhereUniqueWithoutDancerInput {
+  create: PartCreateWithoutDancerInput!
+  update: PartUpdateWithoutDancerInput!
+  where: PartWhereUniqueInput!
+}
+
+input PartUpsertWithoutControlDataInput {
+  create: PartCreateWithoutControlDataInput!
+  update: PartUpdateWithoutControlDataInput!
 }
 
 input PartWhereInput {
@@ -670,6 +1414,68 @@ type PositionData {
   dancerId: Int!
   frame: PositionFrame!
   frameId: Int!
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+input PositionDataCreateManyDancerInput {
+  frameId: Int!
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+input PositionDataCreateManyDancerInputEnvelope {
+  data: [PositionDataCreateManyDancerInput!]!
+  skipDuplicates: Boolean
+}
+
+input PositionDataCreateManyFrameInput {
+  dancerId: Int!
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+input PositionDataCreateManyFrameInputEnvelope {
+  data: [PositionDataCreateManyFrameInput!]!
+  skipDuplicates: Boolean
+}
+
+input PositionDataCreateNestedManyWithoutDancerInput {
+  connect: [PositionDataWhereUniqueInput!]
+  connectOrCreate: [PositionDataCreateOrConnectWithoutDancerInput!]
+  create: [PositionDataCreateWithoutDancerInput!]
+  createMany: PositionDataCreateManyDancerInputEnvelope
+}
+
+input PositionDataCreateNestedManyWithoutFrameInput {
+  connect: [PositionDataWhereUniqueInput!]
+  connectOrCreate: [PositionDataCreateOrConnectWithoutFrameInput!]
+  create: [PositionDataCreateWithoutFrameInput!]
+  createMany: PositionDataCreateManyFrameInputEnvelope
+}
+
+input PositionDataCreateOrConnectWithoutDancerInput {
+  create: PositionDataCreateWithoutDancerInput!
+  where: PositionDataWhereUniqueInput!
+}
+
+input PositionDataCreateOrConnectWithoutFrameInput {
+  create: PositionDataCreateWithoutFrameInput!
+  where: PositionDataWhereUniqueInput!
+}
+
+input PositionDataCreateWithoutDancerInput {
+  frame: PositionFrameCreateNestedOneWithoutPositionDatasInput!
+  x: Float!
+  y: Float!
+  z: Float!
+}
+
+input PositionDataCreateWithoutFrameInput {
+  dancer: DancerCreateNestedOneWithoutPositionDataInput!
   x: Float!
   y: Float!
   z: Float!
@@ -708,6 +1514,97 @@ enum PositionDataScalarFieldEnum {
   z
 }
 
+input PositionDataScalarWhereInput {
+  AND: [PositionDataScalarWhereInput!]
+  NOT: [PositionDataScalarWhereInput!]
+  OR: [PositionDataScalarWhereInput!]
+  dancerId: IntFilter
+  frameId: IntFilter
+  x: FloatFilter
+  y: FloatFilter
+  z: FloatFilter
+}
+
+input PositionDataUpdateManyMutationInput {
+  x: FloatFieldUpdateOperationsInput
+  y: FloatFieldUpdateOperationsInput
+  z: FloatFieldUpdateOperationsInput
+}
+
+input PositionDataUpdateManyWithWhereWithoutDancerInput {
+  data: PositionDataUpdateManyMutationInput!
+  where: PositionDataScalarWhereInput!
+}
+
+input PositionDataUpdateManyWithWhereWithoutFrameInput {
+  data: PositionDataUpdateManyMutationInput!
+  where: PositionDataScalarWhereInput!
+}
+
+input PositionDataUpdateManyWithoutDancerNestedInput {
+  connect: [PositionDataWhereUniqueInput!]
+  connectOrCreate: [PositionDataCreateOrConnectWithoutDancerInput!]
+  create: [PositionDataCreateWithoutDancerInput!]
+  createMany: PositionDataCreateManyDancerInputEnvelope
+  delete: [PositionDataWhereUniqueInput!]
+  deleteMany: [PositionDataScalarWhereInput!]
+  disconnect: [PositionDataWhereUniqueInput!]
+  set: [PositionDataWhereUniqueInput!]
+  update: [PositionDataUpdateWithWhereUniqueWithoutDancerInput!]
+  updateMany: [PositionDataUpdateManyWithWhereWithoutDancerInput!]
+  upsert: [PositionDataUpsertWithWhereUniqueWithoutDancerInput!]
+}
+
+input PositionDataUpdateManyWithoutFrameNestedInput {
+  connect: [PositionDataWhereUniqueInput!]
+  connectOrCreate: [PositionDataCreateOrConnectWithoutFrameInput!]
+  create: [PositionDataCreateWithoutFrameInput!]
+  createMany: PositionDataCreateManyFrameInputEnvelope
+  delete: [PositionDataWhereUniqueInput!]
+  deleteMany: [PositionDataScalarWhereInput!]
+  disconnect: [PositionDataWhereUniqueInput!]
+  set: [PositionDataWhereUniqueInput!]
+  update: [PositionDataUpdateWithWhereUniqueWithoutFrameInput!]
+  updateMany: [PositionDataUpdateManyWithWhereWithoutFrameInput!]
+  upsert: [PositionDataUpsertWithWhereUniqueWithoutFrameInput!]
+}
+
+input PositionDataUpdateWithWhereUniqueWithoutDancerInput {
+  data: PositionDataUpdateWithoutDancerInput!
+  where: PositionDataWhereUniqueInput!
+}
+
+input PositionDataUpdateWithWhereUniqueWithoutFrameInput {
+  data: PositionDataUpdateWithoutFrameInput!
+  where: PositionDataWhereUniqueInput!
+}
+
+input PositionDataUpdateWithoutDancerInput {
+  frame: PositionFrameUpdateOneRequiredWithoutPositionDatasNestedInput
+  x: FloatFieldUpdateOperationsInput
+  y: FloatFieldUpdateOperationsInput
+  z: FloatFieldUpdateOperationsInput
+}
+
+input PositionDataUpdateWithoutFrameInput {
+  dancer: DancerUpdateOneRequiredWithoutPositionDataNestedInput
+  x: FloatFieldUpdateOperationsInput
+  y: FloatFieldUpdateOperationsInput
+  z: FloatFieldUpdateOperationsInput
+}
+
+input PositionDataUpsertWithWhereUniqueWithoutDancerInput {
+  create: PositionDataCreateWithoutDancerInput!
+  update: PositionDataUpdateWithoutDancerInput!
+  where: PositionDataWhereUniqueInput!
+}
+
+input PositionDataUpsertWithWhereUniqueWithoutFrameInput {
+  create: PositionDataCreateWithoutFrameInput!
+  update: PositionDataUpdateWithoutFrameInput!
+  where: PositionDataWhereUniqueInput!
+}
+
 input PositionDataWhereInput {
   AND: [PositionDataWhereInput!]
   NOT: [PositionDataWhereInput!]
@@ -737,6 +1634,38 @@ type PositionFrameCount {
   positionDatas: Int!
 }
 
+input PositionFrameCreateNestedOneWithoutEditingInput {
+  connect: PositionFrameWhereUniqueInput
+  connectOrCreate: PositionFrameCreateOrConnectWithoutEditingInput
+  create: PositionFrameCreateWithoutEditingInput
+}
+
+input PositionFrameCreateNestedOneWithoutPositionDatasInput {
+  connect: PositionFrameWhereUniqueInput
+  connectOrCreate: PositionFrameCreateOrConnectWithoutPositionDatasInput
+  create: PositionFrameCreateWithoutPositionDatasInput
+}
+
+input PositionFrameCreateOrConnectWithoutEditingInput {
+  create: PositionFrameCreateWithoutEditingInput!
+  where: PositionFrameWhereUniqueInput!
+}
+
+input PositionFrameCreateOrConnectWithoutPositionDatasInput {
+  create: PositionFrameCreateWithoutPositionDatasInput!
+  where: PositionFrameWhereUniqueInput!
+}
+
+input PositionFrameCreateWithoutEditingInput {
+  positionDatas: PositionDataCreateNestedManyWithoutFrameInput
+  start: Int!
+}
+
+input PositionFrameCreateWithoutPositionDatasInput {
+  editing: EditingPositionFrameCreateNestedOneWithoutEditingFrameInput
+  start: Int!
+}
+
 input PositionFrameOrderByWithRelationInput {
   editing: EditingPositionFrameOrderByWithRelationInput
   id: SortOrder
@@ -749,6 +1678,44 @@ input PositionFrameRelationFilter {
   isNot: PositionFrameWhereInput
 }
 
+input PositionFrameUpdateOneRequiredWithoutPositionDatasNestedInput {
+  connect: PositionFrameWhereUniqueInput
+  connectOrCreate: PositionFrameCreateOrConnectWithoutPositionDatasInput
+  create: PositionFrameCreateWithoutPositionDatasInput
+  update: PositionFrameUpdateWithoutPositionDatasInput
+  upsert: PositionFrameUpsertWithoutPositionDatasInput
+}
+
+input PositionFrameUpdateOneWithoutEditingNestedInput {
+  connect: PositionFrameWhereUniqueInput
+  connectOrCreate: PositionFrameCreateOrConnectWithoutEditingInput
+  create: PositionFrameCreateWithoutEditingInput
+  delete: Boolean
+  disconnect: Boolean
+  update: PositionFrameUpdateWithoutEditingInput
+  upsert: PositionFrameUpsertWithoutEditingInput
+}
+
+input PositionFrameUpdateWithoutEditingInput {
+  positionDatas: PositionDataUpdateManyWithoutFrameNestedInput
+  start: IntFieldUpdateOperationsInput
+}
+
+input PositionFrameUpdateWithoutPositionDatasInput {
+  editing: EditingPositionFrameUpdateOneWithoutEditingFrameNestedInput
+  start: IntFieldUpdateOperationsInput
+}
+
+input PositionFrameUpsertWithoutEditingInput {
+  create: PositionFrameCreateWithoutEditingInput!
+  update: PositionFrameUpdateWithoutEditingInput!
+}
+
+input PositionFrameUpsertWithoutPositionDatasInput {
+  create: PositionFrameCreateWithoutPositionDatasInput!
+  update: PositionFrameUpdateWithoutPositionDatasInput!
+}
+
 input PositionFrameWhereInput {
   AND: [PositionFrameWhereInput!]
   NOT: [PositionFrameWhereInput!]
@@ -759,12 +1726,17 @@ input PositionFrameWhereInput {
   start: IntFilter
 }
 
+input PositionFrameWhereUniqueInput {
+  id: Int
+  start: Int
+}
+
 type PositionMap {
   frameIds: PositionMapQueryObjectId!
 }
 
 type PositionMapPayload {
-  editBy: Float!
+  editBy: Int!
   frame: PosMapMutationObjectId!
 }
 
@@ -772,12 +1744,12 @@ type PositionMapPayload {
 scalar PositionMapQueryObjectId
 
 type PositionRecordPayload {
-  addID: [String!]!
-  deleteID: [String!]!
-  editBy: Float!
+  addID: [Int!]!
+  deleteID: [Int!]!
+  editBy: Int!
   index: Int!
   mutation: String!
-  updateID: [String!]!
+  updateID: [Int!]!
 }
 
 type Query {
@@ -787,13 +1759,13 @@ type Query {
   color(where: ColorWhereUniqueInput!): Color
   colorMap: ColorMap!
   colors(cursor: ColorWhereUniqueInput, distinct: [ColorScalarFieldEnum!], orderBy: [ColorOrderByWithRelationInput!], skip: Int, take: Int, where: ColorWhereInput): [Color!]!
-  controlFrame(frameID: Float!): ControlFrame!
-  controlFrameIDs: [ID!]!
+  controlFrame(frameID: Int!): ControlFrame!
+  controlFrameIDs: [Int!]!
   dancer(dancerName: String!): Dancer!
   dancers: [Dancer!]!
   effectList: [EffectListData!]!
-  positionFrame(frameID: Float!): PositionFrame!
-  positionFrameIDs: [ID!]!
+  positionFrame(frameID: Int!): PositionFrame!
+  positionFrameIDs: [Int!]!
 }
 
 enum QueryMode {
@@ -802,7 +1774,7 @@ enum QueryMode {
 }
 
 type RequestEditResponse {
-  editing: String
+  editing: Int
   ok: Boolean!
 }
 
@@ -847,14 +1819,70 @@ type Subscription {
 
 type User {
   editingControlFrameId: EditingControlFrame
+  editingLEDEffectId: EditingLEDEffect
   editingPositionFrameId: EditingPositionFrame
   id: Int!
   name: String!
   password: String!
 }
 
+input UserCreateNestedOneWithoutEditingControlFrameIdInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutEditingControlFrameIdInput
+  create: UserCreateWithoutEditingControlFrameIdInput
+}
+
+input UserCreateNestedOneWithoutEditingLEDEffectIdInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutEditingLEDEffectIdInput
+  create: UserCreateWithoutEditingLEDEffectIdInput
+}
+
+input UserCreateNestedOneWithoutEditingPositionFrameIdInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutEditingPositionFrameIdInput
+  create: UserCreateWithoutEditingPositionFrameIdInput
+}
+
+input UserCreateOrConnectWithoutEditingControlFrameIdInput {
+  create: UserCreateWithoutEditingControlFrameIdInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutEditingLEDEffectIdInput {
+  create: UserCreateWithoutEditingLEDEffectIdInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateOrConnectWithoutEditingPositionFrameIdInput {
+  create: UserCreateWithoutEditingPositionFrameIdInput!
+  where: UserWhereUniqueInput!
+}
+
+input UserCreateWithoutEditingControlFrameIdInput {
+  editingLEDEffectId: EditingLEDEffectCreateNestedOneWithoutUserInput
+  editingPositionFrameId: EditingPositionFrameCreateNestedOneWithoutUserInput
+  name: String!
+  password: String!
+}
+
+input UserCreateWithoutEditingLEDEffectIdInput {
+  editingControlFrameId: EditingControlFrameCreateNestedOneWithoutUserInput
+  editingPositionFrameId: EditingPositionFrameCreateNestedOneWithoutUserInput
+  name: String!
+  password: String!
+}
+
+input UserCreateWithoutEditingPositionFrameIdInput {
+  editingControlFrameId: EditingControlFrameCreateNestedOneWithoutUserInput
+  editingLEDEffectId: EditingLEDEffectCreateNestedOneWithoutUserInput
+  name: String!
+  password: String!
+}
+
 input UserOrderByWithRelationInput {
   editingControlFrameId: EditingControlFrameOrderByWithRelationInput
+  editingLEDEffectId: EditingLEDEffectOrderByWithRelationInput
   editingPositionFrameId: EditingPositionFrameOrderByWithRelationInput
   id: SortOrder
   name: SortOrder
@@ -866,15 +1894,81 @@ input UserRelationFilter {
   isNot: UserWhereInput
 }
 
+input UserUpdateOneRequiredWithoutEditingControlFrameIdNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutEditingControlFrameIdInput
+  create: UserCreateWithoutEditingControlFrameIdInput
+  update: UserUpdateWithoutEditingControlFrameIdInput
+  upsert: UserUpsertWithoutEditingControlFrameIdInput
+}
+
+input UserUpdateOneRequiredWithoutEditingLEDEffectIdNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutEditingLEDEffectIdInput
+  create: UserCreateWithoutEditingLEDEffectIdInput
+  update: UserUpdateWithoutEditingLEDEffectIdInput
+  upsert: UserUpsertWithoutEditingLEDEffectIdInput
+}
+
+input UserUpdateOneRequiredWithoutEditingPositionFrameIdNestedInput {
+  connect: UserWhereUniqueInput
+  connectOrCreate: UserCreateOrConnectWithoutEditingPositionFrameIdInput
+  create: UserCreateWithoutEditingPositionFrameIdInput
+  update: UserUpdateWithoutEditingPositionFrameIdInput
+  upsert: UserUpsertWithoutEditingPositionFrameIdInput
+}
+
+input UserUpdateWithoutEditingControlFrameIdInput {
+  editingLEDEffectId: EditingLEDEffectUpdateOneWithoutUserNestedInput
+  editingPositionFrameId: EditingPositionFrameUpdateOneWithoutUserNestedInput
+  name: StringFieldUpdateOperationsInput
+  password: StringFieldUpdateOperationsInput
+}
+
+input UserUpdateWithoutEditingLEDEffectIdInput {
+  editingControlFrameId: EditingControlFrameUpdateOneWithoutUserNestedInput
+  editingPositionFrameId: EditingPositionFrameUpdateOneWithoutUserNestedInput
+  name: StringFieldUpdateOperationsInput
+  password: StringFieldUpdateOperationsInput
+}
+
+input UserUpdateWithoutEditingPositionFrameIdInput {
+  editingControlFrameId: EditingControlFrameUpdateOneWithoutUserNestedInput
+  editingLEDEffectId: EditingLEDEffectUpdateOneWithoutUserNestedInput
+  name: StringFieldUpdateOperationsInput
+  password: StringFieldUpdateOperationsInput
+}
+
+input UserUpsertWithoutEditingControlFrameIdInput {
+  create: UserCreateWithoutEditingControlFrameIdInput!
+  update: UserUpdateWithoutEditingControlFrameIdInput!
+}
+
+input UserUpsertWithoutEditingLEDEffectIdInput {
+  create: UserCreateWithoutEditingLEDEffectIdInput!
+  update: UserUpdateWithoutEditingLEDEffectIdInput!
+}
+
+input UserUpsertWithoutEditingPositionFrameIdInput {
+  create: UserCreateWithoutEditingPositionFrameIdInput!
+  update: UserUpdateWithoutEditingPositionFrameIdInput!
+}
+
 input UserWhereInput {
   AND: [UserWhereInput!]
   NOT: [UserWhereInput!]
   OR: [UserWhereInput!]
   editingControlFrameId: EditingControlFrameRelationFilter
+  editingLEDEffectId: EditingLEDEffectRelationFilter
   editingPositionFrameId: EditingPositionFrameRelationFilter
   id: IntFilter
   name: StringFilter
   password: StringFilter
+}
+
+input UserWhereUniqueInput {
+  id: Int
+  name: String
 }
 
 enum dancerMutation {
@@ -884,11 +1978,11 @@ enum dancerMutation {
 }
 
 input deleteDancerInput {
-  id: Float!
+  id: Int!
 }
 
 input editDancerInput {
-  id: Float!
+  id: Int!
   name: String!
 }
 

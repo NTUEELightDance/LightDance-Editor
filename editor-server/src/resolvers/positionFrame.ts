@@ -1,12 +1,12 @@
 import {
   Resolver,
-  ID,
   Ctx,
   Query,
   Arg,
   Mutation,
   PubSub,
   Publisher,
+  Int
 } from "type-graphql";
 
 import { PositionFrame, Dancer } from "../../prisma/generated/type-graphql";
@@ -27,7 +27,7 @@ import { TContext } from "../types/global";
 @Resolver((of) => PositionFrame)
 export class PositionFrameResolver {
   @Query((returns) => PositionFrame)
-  async positionFrame(@Arg("frameID") frameID: number, @Ctx() ctx: TContext) {
+  async positionFrame(@Arg("frameID", (type) => Int) frameID: number, @Ctx() ctx: TContext) {
     const frame = await ctx.prisma.positionFrame.findFirst({
       where: { id: frameID },
     });
@@ -35,7 +35,7 @@ export class PositionFrameResolver {
     return frame;
   }
 
-  @Query((returns) => [ID])
+  @Query((returns) => [Int])
   async positionFrameIDs(@Ctx() ctx: TContext) {
     const frames = await ctx.prisma.positionFrame.findMany({
       orderBy: { start: "asc" },
@@ -50,7 +50,7 @@ export class PositionFrameResolver {
     publishPositionRecord: Publisher<PositionRecordPayload>,
     @PubSub(Topic.PositionMap)
     publishPositionMap: Publisher<PositionMapPayload>,
-    @Arg("start", { nullable: false }) start: number,
+    @Arg("start", (type) => Int, { nullable: false }) start: number,
     @Ctx() ctx: TContext
   ) {
     const check = await ctx.prisma.positionFrame.findFirst({

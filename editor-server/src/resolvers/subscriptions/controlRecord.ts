@@ -5,19 +5,19 @@ export class ControlRecordPayload {
   @Field()
   mutation: ControlRecordMutation;
 
-  @Field()
+  @Field((type) => Int)
   editBy: number;
 
   @Field((type) => Int)
   index: number;
 
-  @Field((type) => [String])
+  @Field((type) => [Int])
   addID: number[];
 
-  @Field((type) => [String])
+  @Field((type) => [Int])
   updateID: number[];
 
-  @Field((type) => [String])
+  @Field((type) => [Int])
   deleteID: number[];
 }
 

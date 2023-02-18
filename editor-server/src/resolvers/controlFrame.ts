@@ -6,7 +6,7 @@ import {
   Arg,
   PubSub,
   Publisher,
-  ID,
+  Int
 } from "type-graphql";
 
 import {
@@ -26,7 +26,7 @@ import { TContext } from "../types/global";
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
   @Query((returns) => ControlFrame)
-  async controlFrame(@Arg("frameID") frameID: number, @Ctx() ctx: TContext) {
+  async controlFrame(@Arg("frameID", (type) => Int) frameID: number, @Ctx() ctx: TContext) {
     const frame = await ctx.prisma.controlFrame.findFirst({
       where: { id: frameID },
     });
@@ -34,7 +34,7 @@ export class ControlFrameResolver {
     return frame;
   }
 
-  @Query((returns) => [ID])
+  @Query((returns) => [Int])
   async controlFrameIDs(@Ctx() ctx: TContext) {
     const frames = await ctx.prisma.controlFrame.findMany({
       orderBy: { start: "asc" },
@@ -48,7 +48,7 @@ export class ControlFrameResolver {
     @PubSub(Topic.ControlRecord)
     publishControlRecord: Publisher<ControlRecordPayload>,
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
-    @Arg("start", { nullable: false }) start: number,
+    @Arg("start", (type) => Int, { nullable: false }) start: number,
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
     @Ctx() ctx: TContext
   ) {
