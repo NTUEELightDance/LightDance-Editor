@@ -6,7 +6,7 @@ import {
   Arg,
   PubSub,
   Publisher,
-  Int
+  Int,
 } from "type-graphql";
 
 import {
@@ -26,7 +26,10 @@ import { TContext } from "../types/global";
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
   @Query((returns) => ControlFrame)
-  async controlFrame(@Arg("frameID", (type) => Int) frameID: number, @Ctx() ctx: TContext) {
+  async controlFrame(
+    @Arg("frameID", (type) => Int) frameID: number,
+    @Ctx() ctx: TContext
+  ) {
     const frame = await ctx.prisma.controlFrame.findFirst({
       where: { id: frameID },
     });
@@ -121,7 +124,7 @@ export class ControlFrameResolver {
     @Ctx() ctx: TContext
   ) {
     const { start } = input;
-    if (start) {
+    if (typeof start !== "number" || start < 0) {
       const check = await ctx.prisma.controlFrame.findFirst({
         where: { start: input.start },
       });

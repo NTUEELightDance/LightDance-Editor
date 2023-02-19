@@ -84,7 +84,16 @@ export class LEDResolver {
     });
     if (!exist)
       return Object.assign({ ok: false, msg: "effectName do not exist." });
-
+    const effectToEdit = await ctx.prisma.editingLEDEffect.findFirst({
+      where: { LEDEffectId: exist.id },
+    });
+    if (
+      effectToEdit &&
+      effectToEdit.userId &&
+      effectToEdit.userId !== ctx.userId
+    ) {
+      throw new Error(`The frame is now editing by ${effectToEdit.userId}.`);
+    }
     const target = await ctx.prisma.lEDEffect.update({
       where: {
         name_partName: {
@@ -155,7 +164,16 @@ export class LEDResolver {
         msg: `effect ${effectName} is used in ${ids}`,
       };
     }
-
+    const effectToDelete = await ctx.prisma.editingLEDEffect.findFirst({
+      where: { LEDEffectId: exist.id },
+    });
+    if (
+      effectToDelete &&
+      effectToDelete.userId &&
+      effectToDelete.userId !== ctx.userId
+    ) {
+      throw new Error(`The frame is now editing by ${effectToDelete.userId}.`);
+    }
     await ctx.prisma.lEDEffect.deleteMany({
       where: { name: effectName, partName: partName },
     });
