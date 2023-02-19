@@ -11,7 +11,7 @@ import { setCurrentPos } from "core/actions/currentPos";
 
 import { Dancer } from "../ThreeComponents";
 
-import styles from "./controls.module.css";
+import "./controls.module.css";
 import { DANCER, PART, POSITION } from "@/constants";
 
 import { log } from "core/utils";
@@ -23,6 +23,10 @@ class Controls {
   camera: THREE.Camera;
   domElement: HTMLElement;
   dancers: Dancer[];
+  objects;
+  orbitControls:any;
+  dragControls:any;
+  selectControls:any;
 
   constructor(
     renderer: THREE.Renderer,
@@ -44,7 +48,7 @@ class Controls {
   }
 
   initOrbitControls() {
-    const orbitControls = new OrbitControls(this.camera, this.domElement);
+    const orbitControls:any = new OrbitControls(this.camera, this.domElement);
     orbitControls.enablePan = true;
     orbitControls.enableZoom = true;
     // orbitControls.screenSpacePanning = true;
@@ -69,8 +73,7 @@ class Controls {
     const selectionBox = new SelectionBox(this.camera, this.scene);
     const helper = new SelectionHelper(
       selectionBox,
-      this.renderer,
-      styles.selectBox
+      this.renderer
     );
 
     this.domElement.addEventListener("pointerdown", (event) => {
@@ -93,8 +96,8 @@ class Controls {
           0.5
         );
 
-        const allSelected = selectionBox.select();
-        log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
+        const allSelected = selectionBox.select(selectionBox.startPoint, selectionBox.endPoint);
+        log(allSelected.map((obj:any) => ({ [obj.parent.name]: obj.name })));
       }
     });
 
@@ -107,8 +110,8 @@ class Controls {
         0.5
       );
 
-      const allSelected = selectionBox.select();
-      log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
+      const allSelected = selectionBox.select(selectionBox.startPoint, selectionBox.endPoint);
+      log(allSelected.map((obj:any) => ({ [obj.parent.name]: obj.name })));
     });
   }
 
@@ -134,7 +137,7 @@ class Controls {
     this.selectControls = selectControls;
   }
 
-  activate(selectionMode) {
+  activate(selectionMode:any) {
     switch (selectionMode) {
       case DANCER:
         break;

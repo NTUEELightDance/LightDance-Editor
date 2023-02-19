@@ -1,4 +1,5 @@
-import { Frustum, Vector3, Matrix4, Quaternion } from "three";
+import { Frustum, Vector3, Matrix4, Quaternion, Scene, PerspectiveCamera, CameraHelper, MeshToonMaterial, Vector } from "three";
+import Camera from "../Camera";
 
 /**
  * This is a class to check whether objects are in a selection area in 3D space
@@ -29,7 +30,15 @@ const _quaternion = new Quaternion();
 const _scale = new Vector3();
 
 class SelectionBox {
-  constructor(camera, scene, deep = Number.MAX_VALUE) {
+  camera;
+  scene;
+  startPoint;
+  endPoint;
+  collection:any;
+  instances;
+  deep;
+
+  constructor(camera:any, scene:any, deep = Number.MAX_VALUE) {
     this.camera = camera;
     this.scene = scene;
     this.startPoint = new Vector3();
@@ -39,7 +48,7 @@ class SelectionBox {
     this.deep = deep;
   }
 
-  select(startPoint, endPoint) {
+  select(startPoint:any, endPoint:any) {
     this.startPoint = startPoint || this.startPoint;
     this.endPoint = endPoint || this.endPoint;
     this.collection = [];
@@ -50,7 +59,7 @@ class SelectionBox {
     return this.collection;
   }
 
-  updateFrustum(startPoint, endPoint) {
+  updateFrustum(startPoint:any, endPoint:any) {
     startPoint = startPoint || this.startPoint;
     endPoint = endPoint || this.endPoint;
 
@@ -176,7 +185,7 @@ class SelectionBox {
     }
   }
 
-  searchChildInFrustum(frustum, object) {
+  searchChildInFrustum(frustum:any, object:any) {
     if (object.isMesh || object.isLine || object.isPoints) {
       if (object.isInstancedMesh) {
         this.instances[object.uuid] = [];

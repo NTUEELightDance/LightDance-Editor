@@ -17,27 +17,19 @@ const _worldPosition = new Vector3();
 const _inverseMatrix = new Matrix4();
 
 class DragControls extends EventDispatcher {
-  // enabled : boolean;
-  // transformGroup : boolean;
-  // activate :
-  // deactivate :
-  // dispose :
-  // getObjects :
-  // getRaycaster :
-
-  constructor(_objects, _camera, _domElement) {
+  constructor(_objects:any[], _camera:any, _domElement:any) {
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
 
-    let _selected = null;
-    let _hovered = null;
+    let _selected:any = null;
+    let _hovered:any = null;
 
-    const _intersections = [];
+    const _intersections:any = [];
 
     //
 
-    const scope = this;
+    const scope:any = this;
 
     function activate() {
       _domElement.addEventListener("pointermove", onPointerMove);
@@ -67,7 +59,7 @@ class DragControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerMove(event) {
+    function onPointerMove(event:any) {
       if (scope.enabled === false) return;
 
       updatePointer(event);
@@ -126,7 +118,7 @@ class DragControls extends EventDispatcher {
       }
     }
 
-    function onPointerDown(event) {
+    function onPointerDown(event:any) {
       if (event.button !== 0 || scope.enabled === false) return;
 
       updatePointer(event);
@@ -172,7 +164,7 @@ class DragControls extends EventDispatcher {
       _domElement.style.cursor = _hovered ? "pointer" : "auto";
     }
 
-    function updatePointer(event) {
+    function updatePointer(event:any) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -183,14 +175,14 @@ class DragControls extends EventDispatcher {
 
     // API
 
-    this.enabled = true;
-    this.transformGroup = false;
+    scope.enabled = true;
+    scope.transformGroup = false;
 
-    this.activate = activate;
-    this.deactivate = deactivate;
-    this.dispose = dispose;
-    this.getObjects = getObjects;
-    this.getRaycaster = getRaycaster;
+    scope.activate = activate;
+    scope.deactivate = deactivate;
+    scope.dispose = dispose;
+    scope.getObjects = getObjects;
+    scope.getRaycaster = getRaycaster;
   }
 }
 

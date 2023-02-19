@@ -21,14 +21,25 @@ import { throttle } from "throttle-debounce";
 import type { SelectionMode } from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
-import { getDancerFromLEDpart } from "@/core/utils";
-
+import { Selected } from "@/core/models";
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
 const _group = new Group();
 
 class SelectControls extends EventDispatcher {
-  constructor(_objects, _camera, _domElement, _dragControls, _dancers, _scene) {
+  selectedOutline:any;
+  enabled:Boolean = true;
+  enableMultiSelection:any;
+  deactivate:any;
+  dispose;
+  getObjects;
+  getGroup;
+  getRaycaster;
+  setSelectedOutline;
+  updateSelected;
+  activate;
+
+  constructor(_objects:any , _camera:any , _domElement:any , _dragControls:any , _dancers:any , _scene:any ) {
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
@@ -87,7 +98,7 @@ class SelectControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerDown(event) {
+    function onPointerDown(event:any) {
       if (event.button !== 0 || scope.enabled === false) return;
 
       if (state.selectionMode !== "POSITION_MODE") {
@@ -144,7 +155,7 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    let _hover = null;
+    let _hover:any = null;
 
     function onPointerMove(event) {
       if (state.selectionMode === "POSITION_MODE") {
@@ -250,7 +261,7 @@ class SelectControls extends EventDispatcher {
       _dancers[name].hover();
     }
 
-    function _unhoverByName(name) {
+    function _unhoverByName(name:any) {
       _dancers[name].unhover();
     }
 
@@ -261,11 +272,11 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function _addToGroup(object) {
+    function _addToGroup(object:any) {
       _group.attach(object);
     }
 
-    function _removeFromGroup(object) {
+    function _removeFromGroup(object:any) {
       _scene.attach(object);
     }
 
@@ -279,8 +290,8 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function updateSelected(selected) {
-      const selectedObjects = [];
+    function updateSelected(selected: Selected) {
+      const selectedObjects:any[] = [];
       Object.entries(selected).forEach(([name, value]) => {
         _dancers[name].updateSelected(value.selected);
         const dancer = _dancers[name];
@@ -293,7 +304,7 @@ class SelectControls extends EventDispatcher {
 
         selectedObjects.push(
           ..._dancers[name].model.children.filter(
-            (part) =>
+            (part:any) =>
               part.name !== "nameTag" &&
               ((part.name === "Human" && value.selected) ||
                 value.parts.includes(part.name))
@@ -308,14 +319,14 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function updatePointer(event) {
+    function updatePointer(event:any) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
-    function setSelectedOutline(selectedOutline) {
+    function setSelectedOutline(this:any, selectedOutline:any) {
       this.selectedOutline = selectedOutline;
     }
 
