@@ -6,6 +6,7 @@ import {
   Mutation,
   PubSub,
   Publisher,
+  Float,
   Int
 } from "type-graphql";
 
@@ -281,5 +282,116 @@ export class PositionFrameResolver {
     };
     await publishPositionRecord(recordPayload);
     return deletedFrame;
+  }
+
+  // Add positionFrame with nonempty positionData
+  @Mutation((of) => PositionFrame)
+  async addPositionFrameData(
+    @PubSub(Topic.PositionRecord)
+    publishPositionRecord: Publisher<PositionRecordPayload>,
+    @PubSub(Topic.PositionMap)
+    publishPositionMap: Publisher<PositionMapPayload>,
+    @Arg("start", (type) => Int, { nullable: false }) start: number,
+    @Arg("positionData", (type) => [[Float]], { nullable: true }) positionData: number[][],
+    @Ctx() ctx: TContext
+  ) {
+    const check = await ctx.prisma.positionFrame.findFirst({
+      where: { start },
+    });
+    if (check) {
+      throw new Error(
+        `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
+      );
+    }
+    
+    const dancers = await ctx.prisma.dancer.findMany({
+      orderBy: { id: "asc" },
+    });
+    if (positionData){
+      if (positionData.length !== dancers.length) {
+        throw new Error(
+          `Not all dancers in payload. Missing number: ${
+            dancers.length - positionData.length
+          }`
+        );
+      }
+      const errors: string[] = []
+      positionData.map(async (coor, idx) => {
+        if(coor.length !== 3){
+          errors.push(`Not all coordinates in dancer #${idx} in payload. Missing number: ${
+            3 - coor.length
+          }`)
+        }
+      })
+      if(errors.length) throw new Error(errors.join('\n'))
+    }
+    const newPositionFrame = await ctx.prisma.positionFrame.create({
+      data: {
+        start,
+      },
+    });
+    if(positionData) {
+      await Promise.all(
+        positionData.map(async (coor, idx) => {
+          const dancer = dancers[idx];
+          await ctx.prisma.positionData.create({
+            data: {
+              dancerId: dancer.id,
+              frameId: newPositionFrame.id,
+              x: coor[0],
+              y: coor[1],
+              z: coor[2],
+            },
+          });
+        })
+      );
+    }
+    else{
+      await Promise.all(
+        dancers.map(async (dancer: Dancer) => {
+          await ctx.prisma.positionData.create({
+            data: {
+              dancerId: dancer.id,
+              frameId: newPositionFrame.id,
+              x: 0,
+              y: 0,
+              z: 0,
+            },
+          });
+        })
+      );
+    }
+
+    await updateRedisPosition(newPositionFrame.id);
+    const mapPayload: PositionMapPayload = {
+      editBy: ctx.userId,
+      frame: {
+        createList: [newPositionFrame.id],
+        deleteList: [],
+        updateList: [],
+      },
+    };
+    await publishPositionMap(mapPayload);
+    const allPositionFrames: PositionFrame[] =
+      await ctx.prisma.positionFrame.findMany({
+        orderBy: { start: "asc" },
+      });
+
+    let index = -1;
+    allPositionFrames.map((frame, idx: number) => {
+      if (frame.id === newPositionFrame.id) {
+        index = idx;
+      }
+    });
+    const recordPayload: PositionRecordPayload = {
+      mutation: PositionRecordMutation.CREATED,
+      editBy: ctx.userId,
+      addID: [newPositionFrame.id],
+      updateID: [],
+      deleteID: [],
+      index,
+    };
+    await publishPositionRecord(recordPayload);
+    return newPositionFrame;
   }
 }
