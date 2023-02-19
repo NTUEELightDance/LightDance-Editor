@@ -124,7 +124,7 @@ export class ControlFrameResolver {
     @Ctx() ctx: TContext
   ) {
     const { start } = input;
-    if (typeof start !== "number" || start < 0) {
+    if (typeof start === "number" && start >= 0) {
       const check = await ctx.prisma.controlFrame.findFirst({
         where: { start: input.start },
       });
