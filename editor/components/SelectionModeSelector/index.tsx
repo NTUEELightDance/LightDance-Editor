@@ -1,7 +1,8 @@
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
 
-import { FaTshirt, FaArrowsAlt, FaLightbulb } from "react-icons/fa";
+import { FaTshirt, FaLightbulb } from "react-icons/fa";
 import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
+import OpenWithRoundedIcon from "@mui/icons-material/OpenWithRounded";
 
 import { reactiveState } from "@/core/state";
 import { setSelectionMode } from "@/core/actions";
@@ -24,7 +25,7 @@ function SelectionModeSelector() {
     [DANCER]: <DancerIcon />,
     [PART]: <FaTshirt />,
     [LED_PART]: <FaLightbulb />,
-    [POSITION]: <FaArrowsAlt />,
+    [POSITION]: <OpenWithRoundedIcon />,
   };
 
   return (
