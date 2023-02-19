@@ -3,19 +3,20 @@ import { useEffect, useState } from "react";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Stack from "@mui/material/Stack";
-import Box from "@mui/material/Box";
-import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
-import OpenWithRoundedIcon from "@mui/icons-material/OpenWithRounded";
+import Typography from "@mui/material/Typography";
+import Tooltip from "@mui/material/Tooltip";
+import AutoAwesomeMotionRoundedIcon from "@mui/icons-material/AutoAwesomeMotionRounded";
+import EditLocationSharpIcon from "@mui/icons-material/EditLocationSharp";
 // actions and states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 import { initStatusStack, initPosStack } from "core/actions";
-// contents
 import {
   setSelectionModeByEditor,
   setEditor,
   toggleEditor,
 } from "core/actions";
+// contents
 import { CONTROL_EDITOR, POS_EDITOR, IDLE } from "@/constants";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -73,16 +74,25 @@ export default function EditorSelector() {
         value={EditorMode}
       >
         <ToggleButton value={CONTROL_EDITOR}>
-          <DancerIcon />
+          {/* <Tooltip title="CONTROL EDITOR"> */}
+          <Tooltip
+            title={<Typography fontSize={16}>Control Editor</Typography>}
+          >
+            <AutoAwesomeMotionRoundedIcon />
+          </Tooltip>
         </ToggleButton>
         <ToggleButton value={POS_EDITOR}>
-          <OpenWithRoundedIcon />
+          <Tooltip
+            title={<Typography fontSize={16}>Position Editor</Typography>}
+          >
+            <EditLocationSharpIcon />
+          </Tooltip>
         </ToggleButton>
       </ToggleButtonGroup>
 
-      <Box sx={{ width: "10em", display: "flex", justifyContent: "center" }}>
+      {/* <Box sx={{ width: "10em", display: "flex", justifyContent: "center" }}>
         {editor === CONTROL_EDITOR ? "CONTROL EDITOR" : "POS EDITOR"}
-      </Box>
+      </Box> */}
     </Stack>
   );
 }
