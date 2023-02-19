@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 
 import { Typography, IconButton, Menu, MenuItem } from "@mui/material";
-import SettingsIcon from "@mui/icons-material/Settings";
 import Hotkeys from "./Hotkeys";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import File from "./File";
 import Preference from "./Preference";
+import TimeShift from "../Tools/TimeShift";
 import { SettingModal } from "./SettingModal";
 
 import { logout } from "@/core/actions";
@@ -21,6 +22,8 @@ export function Settings({
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
+  const [openTimeShift, setOpenTimeShift] = useState(false);
+
   const settings = [
     {
       label: "hotkeys",
@@ -33,6 +36,18 @@ export function Settings({
         setHotkeysModalOpen(false);
       },
       modalChildren: <Hotkeys />,
+    },
+    {
+      label: "timeshift",
+      modalOpen: openTimeShift,
+      handleClick: () => {
+        setOpenTimeShift(true);
+        setShowSettings(false);
+      },
+      handleClose: () => {
+        setOpenTimeShift(false);
+      },
+      modalChildren: <TimeShift />,
     },
     {
       label: "files",
@@ -74,7 +89,7 @@ export function Settings({
         }}
         ref={menuAnchor}
       >
-        <SettingsIcon sx={{ color: "white" }} />
+        <FormatListBulletedIcon sx={{ color: "white" }} />
       </IconButton>
       <Menu
         sx={{ transform: "translate(-30px, 45px)" }}

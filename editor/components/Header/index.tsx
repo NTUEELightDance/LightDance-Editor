@@ -9,12 +9,12 @@ import Fab from "@mui/material/Fab";
 import DvrIcon from "@mui/icons-material/Dvr";
 import EditIcon from "@mui/icons-material/Edit";
 
-import { Settings } from "../Settings";
-import Tools from "components/Tools";
+import { Settings } from "./Settings";
+import Tools from "@/components/Header/Tools";
 
 // components
-import EditorSelector from "components/EditorSelector";
-import EditButtons from "components/EditButtons";
+import EditorSelector from "@/components/Header/EditorSelector";
+import EditButtons from "@/components/Header/EditButtons";
 import StateIndicator from "./StateIndicator";
 
 import { reactiveState } from "core/state";
@@ -42,6 +42,7 @@ export default function Header() {
           <Fab
             variant="extended"
             color="primary"
+            size="medium"
             onClick={() => {
               if (page === "EDITOR") {
                 navigate.toCommandCenter();

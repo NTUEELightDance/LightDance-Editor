@@ -34,7 +34,9 @@ const PosPresets = lazy(
 const EffectList = lazy(async () => await import("components/EffectList"));
 const Wavesurfer = lazy(async () => await import("components/Wavesurfer"));
 const ColorPalette = lazy(async () => await import("components/ColorPalette"));
-const File = lazy(async () => await import("components/Settings/File"));
+const File = lazy(
+  async () => await import("@/components/Header/Settings/File")
+);
 const NotFound = lazy(async () => await import("components/NotFound"));
 
 const componentMap = {
