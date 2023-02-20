@@ -4,7 +4,7 @@ import { State } from "../models";
 import { waveSurferAppInstance } from "../../components/Wavesurfer/WaveSurferApp";
 import { threeController } from "../../components/ThreeSimulator/ThreeController";
 
-import { debug } from "core/utils";
+import { debug } from "@/core/utils";
 
 /**
  * A mapping of actionName to the wrapped action.
@@ -63,10 +63,17 @@ function actionCreator(action: Action, actionName: string) {
   return async (payloadOptions?: PayloadOptions) => {
     await action(state, payloadOptions?.payload);
     const options = { ...defaultOptions, ...payloadOptions?.options };
-    debug("actionName: ", actionName);
-    debug("payload", payloadOptions?.payload);
-    debug("options:", options);
-    debug("state", state.toString());
+    debug(
+      "actionName: ",
+      actionName,
+      "\npayload",
+      payloadOptions?.payload,
+      "\noptions:",
+      options,
+      "\nstate",
+      state.toString()
+    );
+
     if (options.rerender) {
       // request rerender
       // TODO: detect which variable changes

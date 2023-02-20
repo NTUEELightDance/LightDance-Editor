@@ -9,13 +9,13 @@ import { fetchLoad } from "@/slices/loadSlice";
 import Loading from "@/components/Loading";
 // states and actions
 import {
-  // initCurrentLedEffect,
-  // generateLedEffectRecord,
+  initCurrentLedEffect,
+  generateLedEffectRecord,
   initDancers,
   initCurrentStatus,
   initCurrentPos,
   initColorMap,
-} from "core/actions";
+} from "@/core/actions";
 
 /**
  * Component for the main
@@ -43,6 +43,8 @@ function App() {
       const secondBatchResult = await Promise.allSettled([
         initCurrentStatus(),
         initCurrentPos(),
+        initCurrentLedEffect(),
+        generateLedEffectRecord(),
       ]);
 
       secondBatchResult.forEach((result) => {
@@ -55,16 +57,6 @@ function App() {
       setReady(true);
     })();
   }, [dispatch]);
-
-  // TODO: init led effect and current led effect
-  // initLedEffectIndexMap need dancer's data
-  // so wait until the dancerLoading is false
-  // useEffect(() => {
-  //   if (!dancerLoading) {
-  //     initCurrentLedEffect();
-  //     generateLedEffectRecord();
-  //   }
-  // }, [dancerLoading]);
 
   return ready ? <Outlet /> : <Loading />;
 }

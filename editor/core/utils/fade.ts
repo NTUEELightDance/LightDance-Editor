@@ -8,6 +8,8 @@ import type {
   ColorCode,
 } from "../models";
 
+import { isColorCode } from "../models";
+
 import { Color } from "three";
 
 function Round1(number: number) {
@@ -135,12 +137,16 @@ export function fadeColor(
   time: number,
   preTime: number,
   nextTime: number
-) {
+): ColorCode {
   // Compute fade color with previous color and next color
   const preColor = new Color().setHex(parseInt(preHex.replace(/^#/, ""), 16));
   const nextColor = new Color().setHex(parseInt(nextHex.replace(/^#/, ""), 16));
   preColor.lerp(nextColor, (time - preTime) / (nextTime - preTime));
-  return `#${preColor.getHexString()}`;
+  const colorCode = `#${preColor.getHexString()}`;
+  if (isColorCode(colorCode)) {
+    return colorCode;
+  }
+  throw new Error(`[Error] fadeColor, invalid colorCode ${colorCode}`);
 }
 
 /**

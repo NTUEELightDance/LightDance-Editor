@@ -1,18 +1,13 @@
-import { useQuery } from "@apollo/client";
-// types
-import { LedMap } from "core/models";
+import { useQuery, useReactiveVar } from "@apollo/client";
 
-// gql
 import { GET_LED_MAP } from "../graphql";
+import { reactiveState } from "@/core/state";
 
 export default function useLedMap() {
   // query controlMap
-  const {
-    loading: ledMapLoading,
-    error: ledMapError,
-    data: ledMapData,
-  } = useQuery(GET_LED_MAP);
-  const ledMap: LedMap = ledMapData?.LEDMap?.LEDMap;
+  const { loading: ledMapLoading, error: ledMapError } = useQuery(GET_LED_MAP);
+
+  const ledMap = useReactiveVar(reactiveState.ledMap);
 
   return {
     loading: ledMapLoading,

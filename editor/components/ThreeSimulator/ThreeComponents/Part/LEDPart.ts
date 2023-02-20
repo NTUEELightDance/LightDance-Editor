@@ -1,4 +1,4 @@
-import { LEDPart } from "@/core/models";
+import { LEDPartData } from "@/core/models";
 import Part from "./Part";
 const defaultDisplay = {
   colorCode: "#000000",
@@ -39,7 +39,7 @@ export default class LEDPart extends Part {
     });
   }
 
-  setStatus(status: LEDPart) {
+  setStatus(status: LEDPartData) {
     if (!this.visible) return;
     const { effect } = status;
     this.meshes.forEach((mesh: THREE.Mesh, i) => {

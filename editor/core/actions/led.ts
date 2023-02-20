@@ -2,38 +2,20 @@ import { registerActions } from "../registerActions";
 // types
 import {
   State,
-  CurrentLEDStatus,
   ControlMapStatus,
   LedEffectRecord,
   DancerName,
   DancerStatus,
   LEDData,
+  LEDMap,
 } from "../models";
 // utils
 import { getControl } from "../utils";
 import { LED as LED_TYPE, NO_EFFECT } from "@/constants";
 
 const actions = registerActions({
-  /**
-   * initialize the currentLedEffectIndexMap
-   * @param {State} state
-   */
-  initCurrentLedEffect: (state: State) => {
-    const { dancers, partTypeMap } = state;
-    const tmp: CurrentLEDStatus = {};
-    Object.entries(dancers).map(([dancerName, parts]) => {
-      tmp[dancerName] = {};
-      parts.forEach((part) => {
-        if (partTypeMap[part] === LED_TYPE) {
-          tmp[dancerName][part] = {
-            effect: [],
-            effectIndex: 0,
-            recordIndex: 0,
-          };
-        }
-      });
-    });
-    state.currentLedEffect = tmp;
+  setLEDMap: async (state: State, payload: LEDMap) => {
+    state.ledMap = payload;
   },
 
   /**
@@ -43,8 +25,8 @@ const actions = registerActions({
    * @param state
    */
   generateLedEffectRecord: async (state: State) => {
-    const { dancers, partTypeMap } = state;
     const [controlMap, controlRecord] = await getControl();
+    const { dancers, partTypeMap } = state;
 
     const ledEffectRecord: LedEffectRecord = {};
 
@@ -79,4 +61,4 @@ const actions = registerActions({
   },
 });
 
-export const { initCurrentLedEffect, generateLedEffectRecord } = actions;
+export const { setLEDMap, generateLedEffectRecord } = actions;

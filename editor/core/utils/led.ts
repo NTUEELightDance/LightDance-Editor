@@ -1,12 +1,11 @@
-// TODO: fix updateLedEffect
 import { fadeAlpha, fadeColor } from "./fade";
 
 import {
   ControlMap,
   LEDData,
   CurrentLEDStatus,
-  LedMap,
-  LedEffectFrame,
+  LEDMap,
+  LEDEffectFrame,
   LedEffectRecord,
 } from "../models";
 
@@ -27,7 +26,7 @@ export function updateLedEffect(
   controlMap: ControlMap,
   ledEffectRecord: LedEffectRecord,
   currentLedEffect: CurrentLEDStatus,
-  ledMap: LedMap,
+  ledMap: LEDMap,
   time: number
 ) {
   Object.keys(currentLedEffect).forEach((dancerName) => {
@@ -166,7 +165,7 @@ export function updateLedEffect(
  * @param {number} time - target time
  */
 export function binarySearchLedEffectFrame(
-  frames: LedEffectFrame[],
+  frames: LEDEffectFrame[],
   offset: number
 ) {
   if (!Array.isArray(frames)) {

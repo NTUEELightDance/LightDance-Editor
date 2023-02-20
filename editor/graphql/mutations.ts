@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const ADD_CONTROL_FRAME = gql`
-  mutation AddControlFrame($start: Float!, $fade: Boolean) {
+  mutation AddControlFrame($start: Int!, $fade: Boolean) {
     addControlFrame(start: $start, fade: $fade) {
       start
       id
@@ -35,7 +35,7 @@ export const DELETE_CONTROL_FRAME_BY_ID = gql`
 `;
 
 export const ADD_POS_FRAME = gql`
-  mutation AddPositionFrame($start: Float!) {
+  mutation AddPositionFrame($start: Int!) {
     addPositionFrame(start: $start) {
       start
       id
@@ -70,7 +70,7 @@ export const DELETE_POS_FRAME = gql`
 `;
 
 export const REQUEST_EDIT_CONTROL_BY_ID = gql`
-  mutation RequestEditControl($frameId: Float!) {
+  mutation RequestEditControl($frameId: Int!) {
     RequestEditControl(FrameID: $frameId) {
       editing
       ok
@@ -79,7 +79,7 @@ export const REQUEST_EDIT_CONTROL_BY_ID = gql`
 `;
 
 export const REQUEST_EDIT_POS_BY_ID = gql`
-  mutation RequestEditPosition($frameId: Float!) {
+  mutation RequestEditPosition($frameId: Int!) {
     RequestEditPosition(FrameID: $frameId) {
       editing
       ok
@@ -88,7 +88,7 @@ export const REQUEST_EDIT_POS_BY_ID = gql`
 `;
 
 export const CANCEL_EDIT_CONTROL_BY_ID = gql`
-  mutation CancelEditControl($frameId: Float!) {
+  mutation CancelEditControl($frameId: Int!) {
     CancelEditControl(FrameID: $frameId) {
       editing
       ok
@@ -97,7 +97,7 @@ export const CANCEL_EDIT_CONTROL_BY_ID = gql`
 `;
 
 export const CANCEL_EDIT_POS_BY_ID = gql`
-  mutation CancelEditPosition($frameId: Float!) {
+  mutation CancelEditPosition($frameId: Int!) {
     CancelEditPosition(FrameID: $frameId) {
       editing
       ok
@@ -132,7 +132,7 @@ export const DELETE_COLOR = gql`
 `;
 
 export const ADD_EFFECT_LIST = gql`
-  mutation AddEffectList($end: Float!, $start: Float!, $description: String) {
+  mutation AddEffectList($end: Int!, $start: Int!, $description: String) {
     addEffectList(end: $end, start: $start, description: $description) {
       id
     }
@@ -140,7 +140,7 @@ export const ADD_EFFECT_LIST = gql`
 `;
 
 export const APPLY_EFFECT_LIST = gql`
-  mutation ApplyEffectList($start: Float!, $applyEffectListId: Float!) {
+  mutation ApplyEffectList($start: Int!, $applyEffectListId: Int!) {
     applyEffectList(start: $start, id: $applyEffectListId) {
       msg
       ok
@@ -149,7 +149,7 @@ export const APPLY_EFFECT_LIST = gql`
 `;
 
 export const DELETE_EFFECT_LIST = gql`
-  mutation DeleteEffectList($deleteEffectListId: Float!) {
+  mutation DeleteEffectList($deleteEffectListId: Int!) {
     deleteEffectList(id: $deleteEffectListId) {
       ok
       msg
@@ -161,9 +161,9 @@ export const SHIFT_TIME = gql`
   mutation Shift(
     $shiftPosition: Boolean!
     $shiftControl: Boolean!
-    $move: Float!
-    $end: Float!
-    $start: Float!
+    $move: Int!
+    $end: Int!
+    $start: Int!
   ) {
     shift(
       shiftPosition: $shiftPosition

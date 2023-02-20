@@ -16,6 +16,8 @@ export type LEDBulbName = string;
 
 export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
+export type RGB = [number, number, number];
+export type RGBA = [number, number, number, number];
 
 export function isColorCode(colorCode: unknown): colorCode is ColorCode {
   if (typeof colorCode !== "string") return false;
@@ -216,22 +218,37 @@ export function isColorMap(colorMap: unknown): colorMap is ColorMap {
 /**
  * Led Effect Map, get from backend
  */
-export type LedMap = Record<PartName, Record<LedEffectName, LedEffect>>;
+export type LEDMap = Record<PartName, Record<LEDEffectName, LEDEffect>>;
 
-type LedEffectName = string;
+type LEDEffectName = string;
 
-interface LedEffect {
+export interface LEDEffect {
   repeat: number; // repeat counts, 0 for continuously repeat
-  effects: LedEffectFrame[];
+  effects: LEDEffectFrame[];
 }
 
-export interface LedEffectFrame {
+export interface LEDEffectFrame {
   start: number;
   fade: boolean;
   effect: Array<{
     colorCode: ColorCode;
     alpha: number;
   }>; // ColorCode array for led strips
+}
+
+export type LEDMapPayload = Record<
+  PartName,
+  Record<LEDEffectName, LEDEffectPayload>
+>;
+export interface LEDEffectPayload {
+  repeat: number; // repeat counts, 0 for continuously repeat
+  frames: LEDEffectFramePayload[];
+}
+export interface LEDEffectFramePayload {
+  start: number;
+  fade: boolean;
+  // [r, g, b, alpha(0-10)]
+  LEDs: RGBA[];
 }
 
 /**
@@ -316,6 +333,8 @@ export interface State {
 
   controlMap: ControlMap;
   posMap: PosMap;
+
+  ledMap: LEDMap; // stores led effects for each part
 
   currentTime: number; // current time
   currentControlIndex: number; // current index in controlRecord

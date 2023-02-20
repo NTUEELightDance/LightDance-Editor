@@ -5,8 +5,8 @@ import { createClient } from "graphql-ws";
 
 import Subscriptions from "./subscription";
 import { state } from "@/core/state";
-import { setColorMap, setControlMap } from "@/core/actions";
-import { toControlMap, toPosMap } from "@/core/utils/convert";
+import { setColorMap, setControlMap, setLEDMap } from "@/core/actions";
+import { toControlMap, toLEDMap, toPosMap } from "@/core/utils/convert";
 import { setPosMap } from "@/core/actions/posMap";
 
 const wsLink = new GraphQLWsLink(
@@ -42,6 +42,9 @@ const client = new ApolloClient({
         fields: {
           frameIds: {
             async merge(existing, incoming) {
+              if (incoming instanceof Promise) {
+                incoming = await incoming;
+              }
               const controlMap = toControlMap(incoming);
               await setControlMap({
                 payload: controlMap,
@@ -59,6 +62,9 @@ const client = new ApolloClient({
         fields: {
           frameIds: {
             async merge(existing, incoming) {
+              if (incoming instanceof Promise) {
+                incoming = await incoming;
+              }
               const posMap = toPosMap(incoming);
               await setPosMap({
                 payload: posMap,
@@ -75,10 +81,33 @@ const client = new ApolloClient({
       ColorMap: {
         fields: {
           colorMap: {
-            merge(existing, incoming) {
+            async merge(existing, incoming) {
+              if (incoming instanceof Promise) {
+                incoming = await incoming;
+              }
               const colorMap = incoming;
-              setColorMap({ payload: colorMap });
+              await setColorMap({ payload: colorMap });
               return colorMap;
+            },
+          },
+        },
+      },
+      LEDMap: {
+        fields: {
+          LEDMap: {
+            async merge(existing, incoming) {
+              if (incoming instanceof Promise) {
+                incoming = await incoming;
+              }
+              const ledMap = toLEDMap(incoming);
+              await setLEDMap({
+                payload: ledMap,
+                options: {
+                  refreshThreeSimulator: false,
+                  refreshWavesurfer: false,
+                },
+              });
+              return incoming;
             },
           },
         },

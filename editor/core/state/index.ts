@@ -19,6 +19,8 @@ const _state: State = {
   controlMap: {},
   posMap: {},
 
+  ledMap: {},
+
   currentTime: 0,
   currentControlIndex: 0,
   currentPosIndex: 0,

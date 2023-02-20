@@ -22,10 +22,21 @@ export async function getControlPayload() {
 }
 
 export async function getControl() {
-  await controlAgent.getControlMapPayload();
-  // the controlMap is updated in the above line by merge function in cache
+  const results = await Promise.allSettled([
+    controlAgent.getControlMapPayload(),
+    controlAgent.getControlRecord(),
+  ]);
+
+  if (results[0].status === "rejected") {
+    throw results[0].reason;
+  }
+
+  if (results[1].status === "rejected") {
+    throw results[1].reason;
+  }
+
+  const controlRecord = results[1].value;
   const controlMap = state.controlMap;
-  const controlRecord = await controlAgent.getControlRecord();
   return [controlMap, controlRecord] as const;
 }
 
@@ -41,7 +52,10 @@ export async function getPos() {
  * Get ledMap from ledAgent
  */
 export async function getLedMap() {
-  return await ledAgent.getLedMap();
+  await ledAgent.getLedMapPayload();
+  // the ledMap is updated in the above line by merge function in cache
+  const ledMap = state.ledMap;
+  return ledMap;
 }
 
 /**
