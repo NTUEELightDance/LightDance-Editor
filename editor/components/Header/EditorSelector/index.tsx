@@ -7,18 +7,14 @@ import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import AutoAwesomeMotionRoundedIcon from "@mui/icons-material/AutoAwesomeMotionRounded";
 import EditLocationSharpIcon from "@mui/icons-material/EditLocationSharp";
+import ViewCompactIcon from "@mui/icons-material/ViewCompact";
 // actions and states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 import { initStatusStack, initPosStack } from "core/actions";
-import {
-  setSelectionModeByEditor,
-  setEditor,
-  toggleEditor,
-} from "core/actions";
+import { setSelectionModeByEditor, setEditor } from "core/actions";
 // contents
-import { CONTROL_EDITOR, POS_EDITOR, IDLE } from "@/constants";
-import { useHotkeys } from "react-hotkeys-hook";
+import { CONTROL_EDITOR, POS_EDITOR, LED_EDITOR, IDLE } from "@/constants";
 
 import { notification } from "core/utils";
 
@@ -39,23 +35,27 @@ export default function EditorSelector() {
       return;
     }
     if (newEditorMode !== null) {
+      if (newEditorMode !== LED_EDITOR) {
+        setSelectionModeByEditor({ payload: editor });
+      }
       setEditorMode(newEditorMode);
       setEditor({ payload: newEditorMode });
-      setSelectionModeByEditor({ payload: editor });
     }
   };
 
-  useHotkeys(
-    "v",
-    () => {
-      setEditorMode(
-        editor === "CONTROL_EDITOR" ? "POS_EDITOR" : "CONTROL_EDITOR"
-      );
-      toggleEditor();
-      setSelectionModeByEditor({ payload: editor });
-    },
-    [editor, editMode]
-  );
+  // useHotkeys(
+  //   "v",
+  //   () => {
+  //     console.log(`editor: ${editor}`);
+  //     console.log(`EditorMode: ${EditorMode}`);
+  //     setSelectionModeByEditor({ payload: editor });
+  //     setEditorMode("POS_EDITOR");
+  //     setEditor({ payload: EditorMode });
+  //     console.log(`editor: ${editor}`);
+  //     console.log(`EditorMode: ${EditorMode}`);
+  //   },
+  //   [editor, editMode]
+  // );
 
   useEffect(() => {
     // renew statusStack and posStack
@@ -74,7 +74,6 @@ export default function EditorSelector() {
         value={EditorMode}
       >
         <ToggleButton value={CONTROL_EDITOR}>
-          {/* <Tooltip title="CONTROL EDITOR"> */}
           <Tooltip
             title={<Typography fontSize={16}>Control Editor</Typography>}
           >
@@ -88,11 +87,12 @@ export default function EditorSelector() {
             <EditLocationSharpIcon />
           </Tooltip>
         </ToggleButton>
+        <ToggleButton value={LED_EDITOR}>
+          <Tooltip title={<Typography fontSize={16}>LED Editor</Typography>}>
+            <ViewCompactIcon />
+          </Tooltip>
+        </ToggleButton>
       </ToggleButtonGroup>
-
-      {/* <Box sx={{ width: "10em", display: "flex", justifyContent: "center" }}>
-        {editor === CONTROL_EDITOR ? "CONTROL EDITOR" : "POS EDITOR"}
-      </Box> */}
     </Stack>
   );
 }

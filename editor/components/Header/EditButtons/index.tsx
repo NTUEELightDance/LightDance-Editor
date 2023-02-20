@@ -3,17 +3,17 @@ import { useImmer } from "use-immer";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import LoadingButton from "@mui/lab/LoadingButton";
-// actions
+// actions and states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
 // constants
-import { IDLE, EDITING } from "@/constants";
+import { IDLE, EDITING, LED_EDITOR } from "@/constants";
 // hooks
 import useEditHandler from "hooks/useEditHandler";
 import { useHotkeys } from "react-hotkeys-hook";
-
 export default function EditButtons() {
   const mode = useReactiveVar(reactiveState.editMode);
+  const editor = useReactiveVar(reactiveState.editor);
 
   const [loading, setLoading] = useImmer({
     save: false,
@@ -92,6 +92,19 @@ export default function EditButtons() {
     );
   }
 
+  function CancelButton() {
+    return (
+      <Button
+        variant="outlined"
+        size="small"
+        color="error"
+        onClick={handleCancel}
+      >
+        CANCEL
+      </Button>
+    );
+  }
+
   function EditButton() {
     return (
       <Button
@@ -118,19 +131,6 @@ export default function EditButtons() {
     );
   }
 
-  function CancelButton() {
-    return (
-      <Button
-        variant="outlined"
-        size="small"
-        color="error"
-        onClick={handleCancel}
-      >
-        CANCEL
-      </Button>
-    );
-  }
-
   function AddButton() {
     return (
       <Button
@@ -138,6 +138,45 @@ export default function EditButtons() {
         size="small"
         color="primary"
         onClick={handleClickAdd}
+      >
+        ADD
+      </Button>
+    );
+  }
+
+  function LEDEditButton() {
+    return (
+      <Button
+        variant="outlined"
+        size="small"
+        color="primary"
+        //onClick
+      >
+        EDIT
+      </Button>
+    );
+  }
+
+  function LEDDeleteButton() {
+    return (
+      <Button
+        variant="outlined"
+        size="small"
+        color="error"
+        //onClick
+      >
+        DEL
+      </Button>
+    );
+  }
+
+  function LEDAddButton() {
+    return (
+      <Button
+        variant="outlined"
+        size="small"
+        color="primary"
+        //onClick
       >
         ADD
       </Button>
@@ -173,11 +212,19 @@ export default function EditButtons() {
       }}
     >
       {mode === IDLE ? (
-        <>
-          {loading.add ? <LoadingBtn /> : <AddButton />}
-          <EditButton />
-          {loading.delete ? <LoadingBtn /> : <DeleteButton />}
-        </>
+        editor === LED_EDITOR ? (
+          <>
+            {loading.add ? <LoadingBtn /> : <LEDAddButton />}
+            <LEDEditButton />
+            {loading.delete ? <LoadingBtn /> : <LEDDeleteButton />}
+          </>
+        ) : (
+          <>
+            {loading.add ? <LoadingBtn /> : <AddButton />}
+            <EditButton />
+            {loading.delete ? <LoadingBtn /> : <DeleteButton />}
+          </>
+        )
       ) : (
         <>
           {loading.save ? <LoadingBtn /> : <SaveButton />}
