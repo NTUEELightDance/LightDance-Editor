@@ -29,6 +29,7 @@ const _state: State = {
   currentFade: false,
   currentPos: {},
   statusStack: [],
+  statusStackIndex: 0,
 
   ledEffectRecord: {},
   currentLEDStatus: {},

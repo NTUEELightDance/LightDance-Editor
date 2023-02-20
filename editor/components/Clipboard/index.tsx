@@ -12,7 +12,8 @@ import {
   setCurrentStatus,
   editCurrentStatusFiber,
   editCurrentStatusLED,
-  setStatusStack,
+  pushStatusStack,
+  popStatusStack,
 } from "@/core/actions";
 import { DANCER } from "@/constants";
 
@@ -43,12 +44,10 @@ export default function Clipboard() {
     );
     const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
-    let CannotPasted = false;
     if (selectionMode === DANCER) {
       selected.forEach((dancer) => {
         Object.keys(copiedStatus.current()).forEach((part) => {
-          if (CannotPasted) return;
-          else if (Object.keys(currentStatus[dancer]).includes(part)) {
+          if (Object.keys(currentStatus[dancer]).includes(part)) {
             const value = copiedStatus.current()[part];
             if (isFiberData(value)) {
               editCurrentStatusFiber({
@@ -69,37 +68,44 @@ export default function Clipboard() {
                 ],
               });
             }
-          } else {
-            notification.error(
-              `Cannot paste to ${dancer} since ${part} does not exist`
-            );
-            CannotPasted = true;
-            return;
           }
         });
       });
-      if (!CannotPasted) {
-        setStatusStack();
-        notification.success(`Pasted to dancers: ${selected.join(", ")}`);
-      }
+      pushStatusStack();
+      notification.success(`Pasted to dancers: ${selected.join(", ")}`);
     }
   });
 
   useHotkeys("ctrl+z, meta+z", () => {
     const statusStack = reactiveState.statusStack();
+    const statusStackIndex = reactiveState.statusStackIndex();
     // no more undo history
-    if (statusStack.length === 1) {
+    if (statusStackIndex === 0) {
       notification.error("No more undo history");
       return;
     }
-    statusStack.pop();
-    log(statusStack[statusStack.length - 1]);
+    popStatusStack();
     setCurrentStatus({
       payload: statusStack[statusStack.length - 1],
     });
-    reactiveState.statusStack(statusStack);
     notification.success("Undo");
-    log("Status stack", statusStack);
+    log("statusStack", statusStack);
+  });
+
+  useHotkeys("ctrl+shift+z, meta+shift+z", () => {
+    const statusStack = reactiveState.statusStack();
+    const statusStackIndex = reactiveState.statusStackIndex();
+    // no more redo history
+    if (statusStackIndex === statusStack.length - 1) {
+      notification.error("It's the latset status");
+      return;
+    }
+    setCurrentStatus({
+      payload: statusStack[statusStackIndex + 1],
+    });
+    pushStatusStack();
+    notification.success("Redo");
+    log("statusStack", statusStack);
   });
 
   useHotkeys("ctrl+x, meta+x", () => {
@@ -115,7 +121,7 @@ export default function Clipboard() {
       setCurrentStatus({
         payload: currentStatus,
       });
-      setStatusStack();
+      pushStatusStack();
       notification.success(`Cut ${selected}'s state to clipboard!`);
     }
   });

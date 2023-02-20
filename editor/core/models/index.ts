@@ -340,6 +340,7 @@ export interface State {
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: PosMapStatus; // current dancers' position
   statusStack: ControlMapStatus[]; // current control Frame
+  statusStackIndex: number; // current index in statusStack
 
   ledEffectRecord: LEDEffectRecord;
   currentLEDStatus: CurrentLEDStatus;

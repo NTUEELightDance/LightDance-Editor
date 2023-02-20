@@ -79,6 +79,7 @@ const actions = registerActions({
 
     state.currentStatus = controlMap[controlRecord[0]].status;
     state.statusStack.push(controlMap[controlRecord[0]].status);
+    state.statusStackIndex = 0;
   },
 
   // depends on initDancers

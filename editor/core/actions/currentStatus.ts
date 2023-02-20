@@ -106,7 +106,7 @@ const actions = registerActions({
 
     if (hasChange) {
       state.currentStatus = newCurrentStatus;
-      setStatusStack();
+      pushStatusStack();
     }
 
     if (hasLEDChange) {
@@ -134,8 +134,20 @@ const actions = registerActions({
     }
   },
 
-  setStatusStack: (state: State) => {
+  pushStatusStack: (state: State) => {
+    if (state.statusStack.length - 1 !== state.statusStackIndex) {
+      state.statusStack = state.statusStack.slice(
+        0,
+        state.statusStackIndex + 1
+      );
+    }
     state.statusStack.push(cloneDeep(state.currentStatus));
+    state.statusStackIndex += 1;
+    log("statusStack: ", state.statusStack);
+  },
+
+  popStatusStack: (state: State) => {
+    state.statusStackIndex -= 1;
     log("statusStack: ", state.statusStack);
   },
 });
@@ -146,5 +158,6 @@ export const {
   editCurrentStatusLED,
   editCurrentStatusDelta,
   syncCurrentStatusWithControlMap,
-  setStatusStack,
+  pushStatusStack,
+  popStatusStack,
 } = actions;

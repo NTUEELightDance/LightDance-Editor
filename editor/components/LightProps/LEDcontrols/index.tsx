@@ -5,7 +5,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
 import type { LEDData } from "core/models";
-import { editCurrentStatusLED, setStatusStack } from "core/actions";
+import { editCurrentStatusLED, pushStatusStack } from "core/actions";
 
 function LEDcontrols({
   part,
@@ -36,7 +36,7 @@ function LEDcontrols({
       },
     }));
     editCurrentStatusLED({ payload });
-    setStatusStack();
+    pushStatusStack();
   };
 
   const handleSrcChange = (src: string) => {
