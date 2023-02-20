@@ -11,9 +11,6 @@ export function isLEDPartName(partName: unknown): partName is LEDPartName {
   return typeof partName === "string" && partName.startsWith("_LED");
 }
 
-export type LEDBulbName = string;
-// TODO add LEDBulbName validation
-
 export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
 export type RGB = [number, number, number];
@@ -353,7 +350,7 @@ export interface State {
   editingData: EditingData; // store the editingData's start time id and index
 
   selected: Selected; // array of selected dancer's name
-  selectedLEDs: LEDBulbName[]; // array of selected LED's name, used in LED editor
+  selectedLEDs: number[]; // array of selected LED bulb's index
   currentLEDPart: LEDPartName; // the LED part whose effect is being edited
 
   dancers: Dancers;
