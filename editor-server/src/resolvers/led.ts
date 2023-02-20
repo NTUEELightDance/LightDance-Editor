@@ -31,8 +31,6 @@ export class LEDResolver {
 
   @Mutation((returns) => LEDEffectResponse)
   async addLED(
-    @PubSub(Topic.LEDRecord)
-    publishLEDRecord: Publisher<LEDPayload>,
     @Arg("input") input: LEDEffectCreateInput,
     @Ctx() ctx: TContext
   ) {
@@ -43,7 +41,13 @@ export class LEDResolver {
       where: { name: partName, type: "LED" },
     });
     if (part.length === 0) {
-      return Object.assign({ ok: false, msg: "no corresponding part." });
+      return Object.assign({
+        partName: partName,
+        effectName: name,
+        repeat: repeat,
+        ok: false,
+        msg: "no corresponding part.",
+      });
     }
 
     // check overlapped
@@ -51,23 +55,26 @@ export class LEDResolver {
       where: { name: name, partName: partName },
     });
     if (exist.length !== 0)
-      return Object.assign({ ok: false, msg: "effectName exist." });
+      return Object.assign({
+        partName: partName,
+        effectName: name,
+        repeat: repeat,
+        ok: false,
+        msg: "effectName exist.",
+      });
 
-    const newLED = await ctx.prisma.lEDEffect.create({
-      data: input,
-    });
+    const newLED = await ctx.prisma.lEDEffect.create({ data: input });
 
-    const recordPayload: LEDPayload = {
-      mutation: ledMutation.CREATED,
-      editBy: ctx.userId,
-      partName,
+    return Object.assign({
+      partName: partName,
       effectName: name,
-      data: newLED,
-    };
-    await publishLEDRecord(recordPayload);
-
-    return Object.assign({ ok: true });
+      repeat: repeat,
+      effect: newLED,
+      ok: true,
+      msg: "success",
+    });
   }
+
 
   @Mutation((returns) => LEDEffectResponse)
   async editLED(
