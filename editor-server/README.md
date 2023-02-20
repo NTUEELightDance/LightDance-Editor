@@ -25,7 +25,7 @@ When you change the prisma schema, you need to regenerate the prisma client code
 
 ```sh
 # Lightdance-Editor
-docker compose -f dev.docker-compose.yml up
+docker compose -f dev.docker-compose.yml up -d
 ```
 
 ### 2. Migrate prisma
@@ -49,3 +49,13 @@ pnpm dev:editor-server
 pnpm install
 node initDB.js jsons/exportDataEmpty.json
 ```
+
+## For a fresh start
+
+If you have initialized the database before, and you want to get a clean database, you should follow the steps below:
+
+1. shutdown the database with `docker compose -f dev.docker-compose.yml down`
+2. Delete the `../pg` folder
+3. Delete the `../redis` folder
+4. Delete the `prisma/migrations` folder
+5. follow the steps above to initialize the database again
