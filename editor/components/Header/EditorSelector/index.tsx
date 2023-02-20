@@ -75,6 +75,7 @@ export default function EditorSelector() {
       >
         <ToggleButton value={CONTROL_EDITOR}>
           <Tooltip
+            enterNextDelay={100}
             title={<Typography fontSize={16}>Control Editor</Typography>}
           >
             <AutoAwesomeMotionRoundedIcon />
@@ -82,13 +83,17 @@ export default function EditorSelector() {
         </ToggleButton>
         <ToggleButton value={POS_EDITOR}>
           <Tooltip
+            enterNextDelay={100}
             title={<Typography fontSize={16}>Position Editor</Typography>}
           >
             <EditLocationSharpIcon />
           </Tooltip>
         </ToggleButton>
         <ToggleButton value={LED_EDITOR}>
-          <Tooltip title={<Typography fontSize={16}>LED Editor</Typography>}>
+          <Tooltip
+            enterNextDelay={100}
+            title={<Typography fontSize={16}>LED Editor</Typography>}
+          >
             <ViewCompactIcon />
           </Tooltip>
         </ToggleButton>
