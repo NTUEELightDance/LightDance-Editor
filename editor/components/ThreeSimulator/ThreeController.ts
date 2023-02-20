@@ -60,7 +60,6 @@ class ThreeController {
   manager: THREE.LoadingManager;
   controls: Controls;
 
-  // TODO use global state type
   state: null | State;
   isPlaying: boolean;
   // ? seems always undefined, not sure why its here

@@ -134,6 +134,34 @@
         {
           "name": "zipper_inner_right",
           "type": "FIBER"
+        },
+        {
+          "name": "tie_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "oxford_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "oxford_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED"
         }
       ]
     },
@@ -231,6 +259,34 @@
         {
           "name": "arm_inner_left",
           "type": "FIBER"
+        },
+        {
+          "name": "oxford_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "oxford_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED"
+        },
+        {
+          "name": "tie_LED",
+          "type": "LED"
         }
       ]
     },
@@ -328,6 +384,34 @@
         {
           "name": "arm_inner_left",
           "type": "FIBER"
+        },
+        {
+          "name": "oxford_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "oxford_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED"
+        },
+        {
+          "name": "tie_LED",
+          "type": "LED"
         }
       ]
     },
@@ -425,6 +509,34 @@
         {
           "name": "arm_inner_left",
           "type": "FIBER"
+        },
+        {
+          "name": "oxford_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "oxford_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED"
+        },
+        {
+          "name": "tie_LED",
+          "type": "LED"
         }
       ]
     },
@@ -522,6 +634,34 @@
         {
           "name": "arm_inner_left",
           "type": "FIBER"
+        },
+        {
+          "name": "oxford_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "oxford_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED"
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED"
+        },
+        {
+          "name": "tie_LED",
+          "type": "LED"
         }
       ]
     },
@@ -1563,1509 +1703,440 @@
       "start": 0,
       "status": [
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0],
+          ["", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ],
         [],
         [
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ],
-          [
-            "black",
-            0
-          ]
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0],
+          ["black", 0]
         ]
       ]
     }
@@ -3074,96 +2145,921 @@
     "0": {
       "start": 0,
       "pos": [
-        [
-          -24,
-          0,
-          0
-        ],
-        [
-          -21,
-          0,
-          0
-        ],
-        [
-          -18,
-          0,
-          0
-        ],
-        [
-          -15,
-          0,
-          0
-        ],
-        [
-          -12,
-          0,
-          0
-        ],
-        [
-          -9,
-          0,
-          0
-        ],
-        [
-          -6,
-          0,
-          0
-        ],
-        [
-          -3,
-          0,
-          0
-        ],
-        [
-          0,
-          0,
-          0
-        ],
-        [
-          3,
-          0,
-          0
-        ],
-        [
-          6,
-          0,
-          0
-        ],
-        [
-          9,
-          0,
-          0
-        ],
-        [
-          12,
-          0,
-          0
-        ],
-        [
-          15,
-          0,
-          0
-        ],
-        [
-          18,
-          0,
-          0
-        ],
-        [
-          21,
-          0,
-          0
-        ],
-        [
-          24,
-          0,
-          0
-        ]
+        [-24, 0, 0],
+        [-21, 0, 0],
+        [-18, 0, 0],
+        [-15, 0, 0],
+        [-12, 0, 0],
+        [-9, 0, 0],
+        [-6, 0, 0],
+        [-3, 0, 0],
+        [0, 0, 0],
+        [3, 0, 0],
+        [6, 0, 0],
+        [9, 0, 0],
+        [12, 0, 0],
+        [15, 0, 0],
+        [18, 0, 0],
+        [21, 0, 0],
+        [24, 0, 0]
       ]
     }
   },
   "color": {
     "black": "#000000"
   },
-  "LEDEffects": {}
+  "LEDEffects": {
+    "tie_LED": {
+      "all_black": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]
+            ]
+          }
+        ]
+      },
+      "all_white": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10]
+            ]
+          }
+        ]
+      }
+    },
+    "glove_left_LED": {
+      "all_black": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]
+            ]
+          }
+        ]
+      },
+      "all_white": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10]
+            ]
+          }
+        ]
+      }
+    },
+    "oxford_right_LED": {
+      "all_black": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]
+            ]
+          }
+        ]
+      },
+      "all_white": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10]
+            ]
+          }
+        ]
+      }
+    },
+    "oxford_left_LED": {
+      "all_black": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]
+            ]
+          }
+        ]
+      },
+      "all_white": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10]
+            ]
+          }
+        ]
+      }
+    },
+    "glove_right_LED": {
+      "all_black": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]
+            ]
+          }
+        ]
+      },
+      "all_white": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10]
+            ]
+          }
+        ]
+      }
+    },
+    "glasses_LED": {
+      "all_black": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]
+            ]
+          }
+        ]
+      },
+      "all_white": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10],
+              [255, 255, 255, 10]
+            ]
+          }
+        ]
+      }
+    },
+    "buttons_LED": {
+      "all_black": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0]
+            ]
+          }
+        ]
+      },
+      "all_white": {
+        "repeat": 0,
+        "frames": [
+          {
+            "start": 0,
+            "fade": false,
+            "LEDs": [
+              [255, 255, 255, 10],
+              [255, 255, 255, 10]
+            ]
+          }
+        ]
+      }
+    }
+  }
 }

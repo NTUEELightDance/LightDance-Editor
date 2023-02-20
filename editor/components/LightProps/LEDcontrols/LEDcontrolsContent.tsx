@@ -42,26 +42,38 @@ function LEDcontrolsContent({
           px: "3em",
         }}
       >
-        {oneLine || (
-          <Grid item>
-            <Typography>effect</Typography>
-          </Grid>
-        )}
-        <Grid item>
-          <SrcSelector
-            src={src}
-            effectNames={effectNames}
-            handleSrcChange={handleSrcChange}
-          />
-        </Grid>
-        {oneLine && (
-          <IntensityControl
-            intensity={intensity}
-            setIntensity={handleIntensityChange}
-          />
+        {oneLine ? (
+          <>
+            <Grid item>
+              <SrcSelector
+                src={src}
+                effectNames={effectNames}
+                handleSrcChange={handleSrcChange}
+              />
+            </Grid>
+            <IntensityControl
+              intensity={intensity}
+              setIntensity={handleIntensityChange}
+            />
+          </>
+        ) : (
+          <>
+            <Grid item>
+              <Typography>effect</Typography>
+            </Grid>
+            <Grid item>
+              <SrcSelector
+                src={src}
+                effectNames={effectNames}
+                handleSrcChange={handleSrcChange}
+              />
+            </Grid>
+          </>
         )}
       </Grid>
-      {oneLine || (
+      {oneLine ? (
+        <></>
+      ) : (
         <Grid
           container
           spacing={2}

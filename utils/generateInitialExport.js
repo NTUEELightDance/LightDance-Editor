@@ -4,19 +4,20 @@ const { NodeIO } = require("@gltf-transform/core");
 
 const COLOR = "black";
 const COLOR_CODE = "#000000";
+const NO_EFFECT = "";
 
 const partNameIgnore = new Set(["Human"]);
 
 const io = new NodeIO();
 
-const extractCache = new Map();
+const modelPartNameCache = new Map();
 
-async function getParts(input) {
-  if (extractCache.has(input)) {
-    return extractCache.get(input);
+async function getParts(modelPath) {
+  if (modelPartNameCache.has(modelPath)) {
+    return modelPartNameCache.get(modelPath);
   }
 
-  const document = await io.read(input); // → Document
+  const document = await io.read(modelPath); // → Document
   const root = document.getRoot();
   const names = root
     .listNodes()
@@ -33,8 +34,44 @@ async function getParts(input) {
     type: partName.split("_").pop() === "LED" ? "LED" : "FIBER",
   }));
 
-  extractCache.set(input, parts);
+  modelPartNameCache.set(modelPath, parts);
   return parts;
+}
+
+const LEDPartLengthCache = new Map();
+
+async function countLEDPartLength(modelPath) {
+  const document = await io.read(modelPath); // → Document
+  const root = document.getRoot();
+  const LEDs = root
+    .listNodes()
+    .map((node) => node.getName())
+    .filter((name) => name.includes("_LED."));
+
+  const LEDcounter = LEDs.reduce((acc, LEDname) => {
+    const partName = LEDname.split(".")[0];
+    acc[partName] |= 0;
+    acc[partName] += 1;
+    return acc;
+  }, {});
+
+  // loop through the LEDcounter and compare the value with that in LEDPartLengthCache
+  // if the value is different, use the longer one and update the cache
+  for (const [partName, length] of Object.entries(LEDcounter)) {
+    if (LEDPartLengthCache.has(partName)) {
+      const cachedLength = LEDPartLengthCache.get(partName);
+      if (length !== cachedLength) {
+        console.warn(
+          `LED part ${partName} has different length in different models: ${cachedLength} vs ${length}`
+        );
+      }
+      if (length > cachedLength) {
+        LEDPartLengthCache.set(partName, length);
+      }
+    } else {
+      LEDPartLengthCache.set(partName, length);
+    }
+  }
 }
 
 function toGlbPath(dracoPath) {
@@ -48,7 +85,7 @@ function generateEmptyControlFrame(dancerData) {
   const status = dancerData.map(({ parts }) =>
     parts.map(({ type }) => {
       if (type === "LED") {
-        throw new Error("LED not implemented yet");
+        return [NO_EFFECT, 0];
       } else if (type === "FIBER") {
         return [COLOR, 0];
       } else {
@@ -79,6 +116,29 @@ function generateEmptyPosMap(dancerData) {
   };
 }
 
+function generateDefaultEffect(length, color) {
+  const LEDs = [];
+  for (let i = 0; i < length; i++) {
+    if (color.length !== 3 && color.length !== 4) {
+      throw new Error("color should be an array of 3 or 4 numbers");
+    }
+    if (color.length === 3) {
+      color.push(10);
+    }
+    LEDs.push(color);
+  }
+  return {
+    repeat: 0,
+    frames: [
+      {
+        start: 0,
+        fade: false,
+        LEDs,
+      },
+    ],
+  };
+}
+
 function generateEmptyLEDEffects(dancerData) {
   const LEDparts = [];
   dancerData.forEach(({ parts }) => {
@@ -89,26 +149,29 @@ function generateEmptyLEDEffects(dancerData) {
     });
   });
 
-  const effects = LEDparts.reduce(
-    (acc, partName) => ({
+  const effects = LEDparts.reduce((acc, partName) => {
+    const length = LEDPartLengthCache.get(partName);
+    return {
       ...acc,
-      [partName]: {},
-    }),
-    {}
-  );
+      [partName]: {
+        all_black: generateDefaultEffect(length, [0, 0, 0, 0]),
+        all_white: generateDefaultEffect(length, [255, 255, 255, 10]),
+      },
+    };
+  }, {});
 
   return effects;
 }
 
-const loadJsonPath = process.argv[2];
-const fileServerRoot = process.argv[3];
-
-// load the json file
-const loadJson = JSON.parse(fs.readFileSync(loadJsonPath, "utf8"));
-
-const dancerMap = loadJson["DancerMap"];
-
 (async () => {
+  const loadJsonPath = process.argv[2];
+  const fileServerRoot = process.argv[3];
+
+  // load the json file
+  const loadJson = JSON.parse(fs.readFileSync(loadJsonPath, "utf8"));
+
+  const dancerMap = loadJson["DancerMap"];
+
   // if dancerMap is not defined, throw an error
   if (!dancerMap) {
     throw new Error("DancerMap is not defined");
@@ -117,6 +180,7 @@ const dancerMap = loadJson["DancerMap"];
   const dancerData = await Promise.all(
     Object.entries(dancerMap).map(async ([dancerName, { url }]) => {
       const modelUrl = toGlbPath(path.join(fileServerRoot, url));
+      await countLEDPartLength(modelUrl);
       return {
         name: dancerName,
         parts: await getParts(modelUrl),

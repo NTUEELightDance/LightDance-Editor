@@ -28,30 +28,42 @@ function OFcontrolsContent({
           px: "3em",
         }}
       >
-        {oneLine || (
-          <Grid item>
-            <Typography>color</Typography>
-          </Grid>
-        )}
-        <Grid item>
-          <ColorSelector
-            placeholder="none"
-            onChange={handleColorChange}
-            currentColorName={currentColorName}
-          />
-        </Grid>
-        {oneLine && (
-          <IntensityControl
-            intensity={intensity}
-            setIntensity={
-              (handleIntensityChange != null
-                ? handleIntensityChange
-                : setIntensity) as (intensity: number) => void
-            }
-          />
+        {oneLine ? (
+          <>
+            <Grid item>
+              <ColorSelector
+                placeholder="none"
+                onChange={handleColorChange}
+                currentColorName={currentColorName}
+              />
+            </Grid>
+            <IntensityControl
+              intensity={intensity}
+              setIntensity={
+                (handleIntensityChange != null
+                  ? handleIntensityChange
+                  : setIntensity) as (intensity: number) => void
+              }
+            />
+          </>
+        ) : (
+          <>
+            <Grid item>
+              <Typography>color</Typography>
+            </Grid>
+            <Grid item>
+              <ColorSelector
+                placeholder="none"
+                onChange={handleColorChange}
+                currentColorName={currentColorName}
+              />
+            </Grid>
+          </>
         )}
       </Grid>
-      {oneLine || (
+      {oneLine ? (
+        <></>
+      ) : (
         <Grid
           container
           spacing={2}

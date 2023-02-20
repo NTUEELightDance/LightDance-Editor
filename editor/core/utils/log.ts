@@ -11,3 +11,9 @@ export function debug(message: unknown, ...args: unknown[]) {
     console.debug(message, ...args);
   }
 }
+
+export function table(tabularData: unknown, properties?: string[]) {
+  if (process.env.NODE_ENV !== "production") {
+    console.table(tabularData, properties);
+  }
+}

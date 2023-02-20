@@ -1,4 +1,6 @@
-import {
+import { Color } from "three";
+
+import type {
   ControlMap,
   PosMap,
   ControlMapQueryPayload,
@@ -13,11 +15,20 @@ import {
   CoordinatesPayload,
   PosMapStatus,
   Coordinates,
-  isFiberData,
-  isLEDData,
   ControlMapStatusMutationPayload,
   DancerStatusMutationPayload,
+  RGB,
+  ColorCode,
+  LEDEffectPayload,
+  LEDEffectFramePayload,
+  LEDEffectFrame,
+  RGBA,
+  LEDEffect,
+  LEDMapPayload,
+  LEDMap,
 } from "@/core/models";
+
+import { isColorCode, isFiberData, isLEDData } from "@/core/models";
 
 import { state } from "@/core/state";
 
@@ -151,4 +162,52 @@ export function toCoordinatesPayload(
   coordinates: Coordinates
 ): CoordinatesPayload {
   return [coordinates.x, coordinates.y, coordinates.z];
+}
+
+export function toLEDMap(mapPayload: LEDMapPayload): LEDMap {
+  const ledMap: LEDMap = {};
+  for (const [partName, effectPayloadMap] of Object.entries(mapPayload)) {
+    ledMap[partName] = {};
+    for (const [effectName, payload] of Object.entries(effectPayloadMap)) {
+      ledMap[partName][effectName] = toLEDEffect(payload);
+    }
+  }
+  return ledMap;
+}
+
+export function toLEDEffect(payload: LEDEffectPayload): LEDEffect {
+  const effects = payload.frames.map((framePayload) =>
+    toLEDEffectFrame(framePayload)
+  );
+  return {
+    repeat: payload.repeat,
+    effects,
+  };
+}
+
+export function toLEDEffectFrame(
+  framePayload: LEDEffectFramePayload
+): LEDEffectFrame {
+  const effect = framePayload.LEDs.map((rgba: RGBA) => {
+    const rgb = rgba.slice(0, 3) as RGB;
+    const colorCode = rgbToHex(rgb);
+    return {
+      colorCode,
+      alpha: rgba[3],
+    };
+  });
+  const frame: LEDEffectFrame = {
+    start: framePayload.start,
+    fade: framePayload.fade,
+    effect,
+  };
+  return frame;
+}
+
+export function rgbToHex(rgb: RGB): ColorCode {
+  const colorCode = "#" + new Color(rgb[0], rgb[1], rgb[2]).getHexString();
+  if (isColorCode(colorCode)) {
+    return colorCode;
+  }
+  throw new Error(`Invalid color code: ${colorCode}`);
 }

@@ -8,6 +8,7 @@ import type {
   Selected,
   DancerPartIndexMap,
   PartName,
+  CurrentLEDStatus,
 } from "../models";
 
 import { dancerAgent } from "@/api";
@@ -90,7 +91,30 @@ const actions = registerActions({
 
     state.colorMap = colorMap;
   },
+
+  initCurrentLedEffect: (state: State) => {
+    const { dancers, partTypeMap } = state;
+    const tmp: CurrentLEDStatus = {};
+    Object.entries(dancers).map(([dancerName, parts]) => {
+      tmp[dancerName] = {};
+      parts.forEach((part) => {
+        if (partTypeMap[part] === "LED") {
+          tmp[dancerName][part] = {
+            effect: [],
+            effectIndex: 0,
+            recordIndex: 0,
+          };
+        }
+      });
+    });
+    state.currentLedEffect = tmp;
+  },
 });
 
-export const { initDancers, initCurrentStatus, initCurrentPos, initColorMap } =
-  actions;
+export const {
+  initDancers,
+  initCurrentStatus,
+  initCurrentPos,
+  initColorMap,
+  initCurrentLedEffect,
+} = actions;

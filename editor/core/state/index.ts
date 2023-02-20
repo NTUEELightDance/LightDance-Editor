@@ -2,7 +2,7 @@ import { makeVar } from "@apollo/client";
 import { cloneDeep } from "lodash";
 import onChange from "on-change";
 
-import { debug } from "core/utils";
+import { debug } from "@/core/utils";
 
 // types
 import type { State, ReactiveState, StateKey } from "../models";
@@ -18,6 +18,8 @@ const _state: State = {
 
   controlMap: {},
   posMap: {},
+
+  ledMap: {},
 
   currentTime: 0,
   currentControlIndex: 0,
