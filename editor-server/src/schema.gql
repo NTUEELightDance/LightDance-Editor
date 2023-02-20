@@ -1141,14 +1141,12 @@ type Mutation {
   RequestEditLEDEffect(LEDEffectID: Int!): RequestEditResponse!
   RequestEditPosition(FrameID: Int!): RequestEditResponse!
   addColor(color: ColorCreateInput!): Color!
-  addControlFrame(fade: Boolean = false, start: Int!): ControlFrame!
-  addControlFrameData(controlData: [[[String!]!]!], fade: Boolean = false, start: Int!): ControlFrame!
+  addControlFrame(controlData: [[[String!]!]!], fade: Boolean = false, start: Int!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addEffectList(description: String, end: Int!, start: Int!): EffectListData!
   addLED(input: LEDEffectCreateInput!): LEDEffectResponse!
   addPart(part: AddPartInput!): PartResponse!
-  addPositionFrame(start: Int!): PositionFrame!
-  addPositionFrameData(positionData: [[Float!]!], start: Int!): PositionFrame!
+  addPositionFrame(positionData: [[Float!]!], start: Int!): PositionFrame!
   applyEffectList(id: Int!, start: Int!): EffectListResponse!
   deleteColor(color: String!): ColorResponse!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
