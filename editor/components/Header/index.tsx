@@ -4,9 +4,7 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Stack from "@mui/material/Stack";
-
 import { Settings } from "./Settings";
-import Tools from "@/components/Header/Tools";
 
 // components
 import EditorSelector from "@/components/Header/EditorSelector";
@@ -49,7 +47,6 @@ export default function Header() {
               <>
                 <EditButtons />
                 <EditorSelector />
-                <Tools />
               </>
             )}
             <Settings

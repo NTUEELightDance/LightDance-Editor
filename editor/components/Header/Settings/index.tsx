@@ -5,7 +5,7 @@ import Hotkeys from "./Hotkeys";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import File from "./File";
 import Preference from "./Preference";
-import TimeShift from "../Tools/TimeShift";
+import TimeShift from "./TimeShift";
 import { SettingModal } from "./SettingModal";
 
 import { logout } from "@/core/actions";
@@ -20,9 +20,8 @@ export function Settings({
   const [hotkeysModalOpen, setHotkeysModalOpen] = useState<boolean>(false);
   const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
+  const [timeShiftOpen, setTimeShiftOpen] = useState<boolean>(false);
   const menuAnchor = useRef<HTMLButtonElement>(null);
-
-  const [openTimeShift, setOpenTimeShift] = useState(false);
 
   const settings = [
     {
@@ -38,19 +37,19 @@ export function Settings({
       modalChildren: <Hotkeys />,
     },
     {
-      label: "timeshift",
-      modalOpen: openTimeShift,
+      label: "Timeshift",
+      modalOpen: timeShiftOpen,
       handleClick: () => {
-        setOpenTimeShift(true);
+        setTimeShiftOpen(true);
         setShowSettings(false);
       },
       handleClose: () => {
-        setOpenTimeShift(false);
+        setTimeShiftOpen(false);
       },
-      modalChildren: <TimeShift />,
+      modalChildren: <TimeShift setTimeShiftOpen={setTimeShiftOpen} />,
     },
     {
-      label: "files",
+      label: "Files",
       modalOpen: fileModalOpen,
       handleClick: () => {
         setFileModalOpen(true);
@@ -62,7 +61,7 @@ export function Settings({
       modalChildren: <File />,
     },
     {
-      label: "preferences",
+      label: "Preferences",
       modalOpen: prefModalOpen,
       handleClick: () => {
         setPrefModalOpen(true);
@@ -74,7 +73,7 @@ export function Settings({
       modalChildren: <Preference />,
     },
     {
-      label: "logout",
+      label: "Logout",
       handleClick: () => {
         logout();
       },
