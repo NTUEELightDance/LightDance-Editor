@@ -153,7 +153,7 @@ export class LEDResolver {
     });
     if (checkControl.length != 0) {
       let checkControlFrames: number[] = checkControl.map(
-        (control) => control.frameId
+        (control: { frameId: any; }) => control.frameId
       );
       checkControlFrames = checkControlFrames.sort(function (a, b) {
         return a - b;
