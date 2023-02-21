@@ -8,7 +8,7 @@ import {
   add,
   deleteCurrent,
   setCurrentTime,
-  generateLedEffectRecord,
+  syncLEDEffectRecord,
   cancelEditMode,
 } from "@/core/actions";
 // constants
@@ -52,7 +52,7 @@ export default function useEditHandler() {
     cancelEditMode();
 
     // regenerate led effect after saving
-    generateLedEffectRecord();
+    syncLEDEffectRecord();
   };
 
   // Cancel the edit, exist editing mode

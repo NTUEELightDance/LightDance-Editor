@@ -1,4 +1,4 @@
-import { ReactiveVar } from "@apollo/client";
+import type { ReactiveVar } from "@apollo/client";
 import { Color } from "three";
 
 export type id = string;
@@ -227,10 +227,7 @@ export interface LEDEffect {
 export interface LEDEffectFrame {
   start: number;
   fade: boolean;
-  effect: Array<{
-    colorCode: ColorCode;
-    alpha: number;
-  }>; // ColorCode array for led strips
+  effect: LEDBulbData[]; // ColorCode array for led strips
 }
 
 export type LEDMapPayload = Record<
@@ -254,10 +251,9 @@ export interface LEDEffectFramePayload {
  * Generated from controlMap and controlRecord, but stripped out the `no-effect` source
  *
  */
-export type LedEffectRecord = Record<DancerName, Record<PartName, LedRecord>>;
+export type LEDEffectRecord = Record<DancerName, Record<PartName, LEDRecord>>;
 
-export type LedRecord = id[];
-
+export type LEDRecord = id[];
 /**
  * CurrentLedEffect
  * Save the ledEffect index (in ledEffectRecord) and the effect
@@ -272,10 +268,12 @@ export type LEDPartStatus = Record<PartName, LEDPartData>;
 export type LEDPartData = {
   recordIndex: number;
   effectIndex: number;
-  effect: Array<{
-    colorCode: ColorCode;
-    alpha: number;
-  }>; // this is to handle faded effect, so we will clone the effect from ledMap
+  effect: LEDBulbData[]; // this is to handle faded effect, so we will clone the effect from ledMap
+};
+
+export type LEDBulbData = {
+  colorCode: ColorCode;
+  alpha: number;
 };
 
 export type EffectListType = Array<{
@@ -341,8 +339,8 @@ export interface State {
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: PosMapStatus; // current dancers' position
 
-  ledEffectRecord: LedEffectRecord;
-  currentLedEffect: CurrentLEDStatus;
+  ledEffectRecord: LEDEffectRecord;
+  currentLEDStatus: CurrentLEDStatus;
 
   editMode: EditMode;
   editor: Editor;
@@ -351,7 +349,11 @@ export interface State {
 
   selected: Selected; // array of selected dancer's name
   selectedLEDs: number[]; // array of selected LED bulb's index
-  currentLEDPart: LEDPartName; // the LED part whose effect is being edited
+
+  currentLEDPartName: LEDPartName | ""; // the LED part whose effect is being edited
+  currentLEDEffectName: LEDEffectName; // the LED effect name being edited
+  currentLEDEffectStart: number; // the start time on the timeline where currentLEDEffect is displayed during editing
+  currentLEDEffect: LEDEffect | null; // the LED effect being edited
 
   dancers: Dancers;
   dancerNames: DancerName[];

@@ -92,7 +92,7 @@ const actions = registerActions({
     state.colorMap = colorMap;
   },
 
-  initCurrentLedEffect: (state: State) => {
+  initCurrentLEDStatus: (state: State) => {
     const { dancers, partTypeMap } = state;
     const tmp: CurrentLEDStatus = {};
     Object.entries(dancers).map(([dancerName, parts]) => {
@@ -107,7 +107,7 @@ const actions = registerActions({
         }
       });
     });
-    state.currentLedEffect = tmp;
+    state.currentLEDStatus = tmp;
   },
 });
 
@@ -116,5 +116,5 @@ export const {
   initCurrentStatus,
   initCurrentPos,
   initColorMap,
-  initCurrentLedEffect,
+  initCurrentLEDStatus,
 } = actions;

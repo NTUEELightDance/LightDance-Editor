@@ -9,8 +9,8 @@ import { fetchLoad } from "@/slices/loadSlice";
 import Loading from "@/components/Loading";
 // states and actions
 import {
-  initCurrentLedEffect,
-  generateLedEffectRecord,
+  initCurrentLEDStatus,
+  syncLEDEffectRecord,
   initDancers,
   initCurrentStatus,
   initCurrentPos,
@@ -43,8 +43,8 @@ function App() {
       const secondBatchResult = await Promise.allSettled([
         initCurrentStatus(),
         initCurrentPos(),
-        initCurrentLedEffect(),
-        generateLedEffectRecord(),
+        initCurrentLEDStatus(),
+        syncLEDEffectRecord(),
       ]);
 
       secondBatchResult.forEach((result) => {

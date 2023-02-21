@@ -195,9 +195,9 @@ class Dancer {
     });
   }
 
-  setLEDStatus(currentLedEffect: LEDPartStatus) {
+  setLEDStatus(currentLEDStatus: LEDPartStatus) {
     Object.entries(this.parts[LED]).forEach(([partName, part]) => {
-      part.setStatus(currentLedEffect[partName]);
+      part.setStatus(currentLEDStatus[partName]);
     });
   }
 

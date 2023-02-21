@@ -1,9 +1,4 @@
-export interface LocalRegion {
-  Start: number;
-  End: number;
-  Value: number;
-  ThreashRatio: number;
-}
+import type WaveSurferApp from "@/components/Wavesurfer/WaveSurferApp";
 
 export interface Region {
   start: number;

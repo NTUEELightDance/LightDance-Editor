@@ -11,11 +11,10 @@ import { wavesurferContext } from "types/components/wavesurfer";
 // hooks
 import useControl from "hooks/useControl";
 import usePos from "hooks/usePos";
+import useLEDEditor from "@/hooks/useLEDEditor";
 // actions and states
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
-// constants
-import { CONTROL_EDITOR, POS_EDITOR } from "@/constants";
 
 /**
  *
@@ -37,15 +36,19 @@ function Wavesurfer() {
     initWaveSurferApp();
   }, [initWaveSurferApp]);
 
+  const editor = useReactiveVar(reactiveState.editor);
   const { loading: controlLoading, controlMap, controlRecord } = useControl();
   const { loading: posLoading, posMap, posRecord } = usePos();
+  const { currentLEDEffect, currentLEDEffectStart } = useLEDEditor();
 
-  const editor = useReactiveVar(reactiveState.editor);
   // update Markers
   useEffect(() => {
-    if (editor === CONTROL_EDITOR) {
+    if (editor === "CONTROL_EDITOR") {
       if (!controlLoading && controlMap && showMarkers) {
-        waveSurferApp.updateMarkers(controlMap);
+        const timestamps = Object.values(controlMap).map(
+          (frame) => frame.start
+        );
+        waveSurferApp.updateMarkers(timestamps);
       }
     }
   }, [
@@ -59,12 +62,23 @@ function Wavesurfer() {
 
   // update Pos Markers
   useEffect(() => {
-    if (editor === POS_EDITOR) {
+    if (editor === "POS_EDITOR") {
       if (!posLoading && posMap && showMarkers) {
-        waveSurferApp.updateMarkers(posMap);
+        const timestamps = Object.values(posMap).map((frame) => frame.start);
+        waveSurferApp.updateMarkers(timestamps);
       }
     }
   }, [editor, posRecord, posMap, posLoading, showMarkers, waveSurferApp]);
+
+  useEffect(() => {
+    if (editor === "LED_EDITOR") {
+      if (currentLEDEffect === null) return;
+      const timestamps = currentLEDEffect.effects.map(
+        (effect) => effect.start + currentLEDEffectStart
+      );
+      waveSurferApp.updateMarkers(timestamps);
+    }
+  }, [currentLEDEffect, currentLEDEffectStart, editor, waveSurferApp]);
 
   // update Markers when markers switched on
   useEffect(() => {
