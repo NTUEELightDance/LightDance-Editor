@@ -137,31 +137,38 @@
         },
         {
           "name": "tie_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "oxford_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "oxford_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glasses_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "buttons_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         }
       ]
     },
@@ -262,31 +269,38 @@
         },
         {
           "name": "oxford_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "oxford_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "buttons_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glasses_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "tie_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         }
       ]
     },
@@ -387,31 +401,38 @@
         },
         {
           "name": "oxford_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "oxford_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "buttons_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glasses_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "tie_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         }
       ]
     },
@@ -512,31 +533,38 @@
         },
         {
           "name": "oxford_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "oxford_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "buttons_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glasses_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "tie_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         }
       ]
     },
@@ -637,31 +665,38 @@
         },
         {
           "name": "oxford_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "oxford_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_left_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glove_right_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "buttons_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "glasses_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         },
         {
           "name": "tie_LED",
-          "type": "LED"
+          "type": "LED",
+          "length": 5
         }
       ]
     },

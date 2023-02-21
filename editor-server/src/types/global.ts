@@ -109,6 +109,7 @@ export type TDancerData = {
 export type TPartData = {
   name: string;
   type: "LED" | "FIBER";
+  length: number | null;
   // missing 'EL' in prisma schema
 };
 export type TColorData = {
