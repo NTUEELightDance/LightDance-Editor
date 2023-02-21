@@ -277,7 +277,11 @@ const uploadData = async (req: Request, res: Response) => {
             error.push(
               `CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx} has invalid number of parts. Found ${
                 dancerStatus.length
-              }, Expected ${Object.values(allPartsList).length}`
+              }, Expected ${
+                Object.values(
+                  allPartsList[Object.keys(allPartsList)[dancerIdx]]
+                ).length
+              }`
             );
             return;
           }

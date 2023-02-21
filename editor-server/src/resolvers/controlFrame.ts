@@ -8,7 +8,7 @@ import {
   Publisher,
   Int,
 } from "type-graphql";
-
+import { Prisma } from "@prisma/client";
 import {
   EditControlFrameInput,
   DeleteControlFrameInput,
@@ -23,6 +23,7 @@ import {
   ControlRecordPayload,
 } from "./subscriptions/controlRecord";
 import { TContext } from "../types/global";
+import { EditControlMapInput } from "./inputs/map";
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
   @Query((returns) => ControlFrame)
@@ -46,6 +47,7 @@ export class ControlFrameResolver {
     return id;
   }
 
+  // Add controlFrame with nonempty controlData
   @Mutation((returns) => ControlFrame)
   async addControlFrame(
     @PubSub(Topic.ControlRecord)
@@ -53,6 +55,8 @@ export class ControlFrameResolver {
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("start", (type) => Int, { nullable: false }) start: number,
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
+    @Arg("controlData", (type) => [[[String]]], { nullable: true })
+    controlData: string[][][],
     @Ctx() ctx: TContext
   ) {
     const check = await ctx.prisma.controlFrame.findFirst({
@@ -63,24 +67,122 @@ export class ControlFrameResolver {
         `Start Time ${start} overlapped! (Overlapped frameID: ${check.id})`
       );
     }
+
+    const dancers = await ctx.prisma.dancer.findMany({
+      include: {
+        parts: {
+          orderBy: { id: "asc" },
+        },
+      },
+      orderBy: { id: "asc" },
+    });
+
+    // check whether the given data are valid
+    if (controlData) {
+      if (controlData.length !== dancers.length) {
+        throw new Error(
+          `Not all dancers in payload. Missing number: ${
+            dancers.length - controlData.length
+          }`
+        );
+      }
+      const colors = await ctx.prisma.color.findMany();
+      const allFiberColors = colors.map((colorData: Prisma.JsonObject) => {
+        return colorData.color;
+      });
+      const LEDEffects = await ctx.prisma.lEDEffect.findMany();
+      const allLEDEffectsPart = LEDEffects.map(
+        (LEDEffect: Prisma.JsonObject) => {
+          return LEDEffect.partName;
+        }
+      );
+      const errors: string[] = [];
+      controlData.map(async (_data, _idx) => {
+        const dancer = dancers[_idx];
+        const parts = dancer.parts;
+        if (_data.length !== parts.length) {
+          errors.push(
+            `Not all parts in dancer #${_idx} in payload. Missing number: ${
+              parts.length - _data.length
+            }`
+          );
+          return;
+        }
+        _data.map(async (data, idx) => {
+          const part = parts[idx];
+          if (!data[0]) {
+            errors.push(
+              `Missing first argument in part #${idx} in dancer #${_idx}.`
+            );
+          }
+          if (!data[1]) {
+            errors.push(
+              `Missing second argument in part #${idx} in dancer #${_idx}.`
+            );
+          }
+          if (part.type === "FIBER") {
+            if (data[0] && !allFiberColors.includes(data[0])) {
+              errors.push(
+                `Fiber color '${data[0]}' not found!! (In part #${idx} in dancer #${_idx})`
+              );
+            }
+          } else if (part.type === "LED") {
+            if (data[0] && !allLEDEffectsPart.includes(data[0])) {
+              errors.push(
+                `LED src '${data[0]}' not found!! (In part #${idx} in dancer #${_idx})`
+              );
+            }
+          }
+        });
+      });
+      if (errors.length) throw new Error(errors.join("\n"));
+    }
+
     const newControlFrame = await ctx.prisma.controlFrame.create({
       data: {
         start,
         fade,
       },
     });
-    const allParts = await ctx.prisma.part.findMany();
-    await Promise.all(
-      allParts.map(async (part: Part) => {
-        await ctx.prisma.controlData.create({
-          data: {
-            frameId: newControlFrame.id,
-            partId: part.id,
-            value: ControlDefault[part.type],
-          },
-        });
-      })
-    );
+    if (controlData) {
+      await Promise.all(
+        controlData.map(async (_data, _idx) => {
+          const dancer = dancers[_idx];
+          const parts = dancer.parts;
+          await Promise.all(
+            _data.map(async (data, idx) => {
+              const part: Part = parts[idx];
+              const type = part.type;
+              const value: Prisma.JsonObject = {};
+              value.alpha = Number(data[1]);
+              if (type === "FIBER") value.color = data[0];
+              else value.src = data[0];
+              await ctx.prisma.controlData.create({
+                data: {
+                  partId: part.id,
+                  frameId: newControlFrame.id,
+                  value,
+                },
+              });
+            })
+          );
+        })
+      );
+    } else {
+      const allParts = await ctx.prisma.part.findMany();
+      await Promise.all(
+        allParts.map(async (part: Part) => {
+          await ctx.prisma.controlData.create({
+            data: {
+              frameId: newControlFrame.id,
+              partId: part.id,
+              value: ControlDefault[part.type],
+            },
+          });
+        })
+      );
+    }
+
     await updateRedisControl(newControlFrame.id);
     const mapPayload: ControlMapPayload = {
       editBy: ctx.userId,
