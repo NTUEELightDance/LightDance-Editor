@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { Paper, Typography, Box } from "@mui/material";
 
@@ -6,7 +6,7 @@ import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 
 import { grey } from "@mui/material/colors";
 
-import { editCurrentStatusDelta, syncLEDEffectRecord } from "@/core/actions";
+import { editCurrentStatusDelta } from "@/core/actions";
 import type {
   FiberData,
   Selected,
