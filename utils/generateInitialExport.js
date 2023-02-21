@@ -32,7 +32,7 @@ async function getParts(modelPath) {
 
   const document = await io.read(modelPath); // → Document
   const root = document.getRoot();
-  const names = root
+  const partNames = root
     .listNodes()
     .map((node) => node.getName())
     // drop after '.'
@@ -42,20 +42,11 @@ async function getParts(modelPath) {
     // remove ignored names
     .filter((name) => !partNameIgnore.has(name));
 
-  const parts = names.map((partName) => ({
+  const parts = partNames.map((partName) => ({
     name: partName,
     type: partName.split("_").pop() === "LED" ? "LED" : "FIBER",
   }));
 
-  modelPartNameCache.set(modelPath, parts);
-  return parts;
-}
-
-const LEDPartLengthCache = new Map();
-
-async function countLEDPartLength(modelPath) {
-  const document = await io.read(modelPath); // → Document
-  const root = document.getRoot();
   const LEDs = root
     .listNodes()
     .map((node) => node.getName())
@@ -68,23 +59,17 @@ async function countLEDPartLength(modelPath) {
     return acc;
   }, {});
 
-  // loop through the LEDcounter and compare the value with that in LEDPartLengthCache
-  // if the value is different, use the longer one and update the cache
-  for (const [partName, length] of Object.entries(LEDcounter)) {
-    if (LEDPartLengthCache.has(partName)) {
-      const cachedLength = LEDPartLengthCache.get(partName);
-      if (length !== cachedLength) {
-        console.warn(
-          `LED part ${partName} has different length in different models: ${cachedLength} vs ${length}`
-        );
-      }
-      if (length > cachedLength) {
-        LEDPartLengthCache.set(partName, length);
-      }
-    } else {
-      LEDPartLengthCache.set(partName, length);
+  Object.entries(LEDcounter).forEach(([partName, length]) => {
+    const part = parts.find((part) => part.name === partName);
+    if (!part) {
+      throw new Error(`part ${partName} not found`);
     }
-  }
+    part.length = length;
+  });
+
+  modelPartNameCache.set(modelPath, parts);
+
+  return parts;
 }
 
 function toGlbPath(dracoPath) {
@@ -155,23 +140,22 @@ function generateDefaultEffect(length, color) {
 function generateEmptyLEDEffects(dancerData) {
   const LEDparts = [];
   dancerData.forEach(({ parts }) => {
-    parts.forEach(({ name, type }) => {
-      if (type === "LED") {
-        LEDparts.push(name);
+    parts.forEach((part) => {
+      if (part.type === "LED") {
+        LEDparts.push(part);
       }
     });
   });
 
-  const effects = LEDparts.reduce((acc, partName) => {
-    const length = LEDPartLengthCache.get(partName);
+  const effects = LEDparts.reduce((acc, part) => {
     return {
       ...acc,
-      [partName]: {
-        [ALL_BLACK]: generateDefaultEffect(length, [0, 0, 0, 0]),
-        [ALL_WHITE]: generateDefaultEffect(length, [255, 255, 255, 10]),
-        [ALL_RED]: generateDefaultEffect(length, [255, 0, 0, 10]),
-        [ALL_GREEN]: generateDefaultEffect(length, [0, 255, 0, 10]),
-        [ALL_BLUE]: generateDefaultEffect(length, [0, 0, 255, 10]),
+      [part.name]: {
+        [ALL_BLACK]: generateDefaultEffect(part.length, [0, 0, 0, 0]),
+        [ALL_WHITE]: generateDefaultEffect(part.length, [255, 255, 255, 10]),
+        [ALL_RED]: generateDefaultEffect(part.length, [255, 0, 0, 10]),
+        [ALL_GREEN]: generateDefaultEffect(part.length, [0, 255, 0, 10]),
+        [ALL_BLUE]: generateDefaultEffect(part.length, [0, 0, 255, 10]),
       },
     };
   }, {});
@@ -196,7 +180,6 @@ function generateEmptyLEDEffects(dancerData) {
   const dancerData = await Promise.all(
     Object.entries(dancerMap).map(async ([dancerName, { url }]) => {
       const modelUrl = toGlbPath(path.join(fileServerRoot, url));
-      await countLEDPartLength(modelUrl);
       return {
         name: dancerName,
         parts: await getParts(modelUrl),
