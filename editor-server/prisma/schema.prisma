@@ -90,6 +90,7 @@ model Part {
   dancerId Int
   name     String
   type     PartType
+  length   Int?
 
   // relation => not in db
   dancer      Dancer        @relation(fields: [dancerId], references: [id], onDelete: Cascade, onUpdate: Cascade)

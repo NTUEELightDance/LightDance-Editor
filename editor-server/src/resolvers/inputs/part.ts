@@ -11,6 +11,9 @@ export class AddPartInput {
 
   @Field()
   dancerName: string;
+
+  @Field(() => Int, { nullable: true })
+  length?: number;
 }
 
 @InputType()
@@ -23,6 +26,9 @@ export class EditPartInput {
 
   @Field()
   type: ControlType;
+
+  @Field(() => Int, { nullable: true })
+  length?: number;
 }
 
 @InputType()

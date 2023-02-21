@@ -113,7 +113,7 @@ const uploadData = async (req: Request, res: Response) => {
         return;
       }
       allPartsList[name] = parts.map((partObj: TPartData, partIdx) => {
-        const { name, type } = partObj;
+        const { name, type, length } = partObj;
         if (typeof name !== "string")
           error.push(
             `DANCER_DATA_ERROR: Dancer idx ${dancerIdx}, part idx ${partIdx} has incorrect "name" type. Expected type string, but received ${typeof name}.`
@@ -121,6 +121,10 @@ const uploadData = async (req: Request, res: Response) => {
         if (typeof type !== "string")
           error.push(
             `DANCER_DATA_ERROR: Dancer idx ${dancerIdx}, part idx ${partIdx} has incorrect "type" type. Expected type string, but received ${typeof type}.`
+          );
+        if (type === "LED" && (typeof length !== "number" || length < 0))
+          error.push(
+            `DANCER_DATA_ERROR: Dancer idx ${dancerIdx}, LED part idx ${partIdx} has incorrect length data. Expected positive number, but received ${length}.`
           );
         return partObj;
       });
@@ -412,11 +416,12 @@ const uploadData = async (req: Request, res: Response) => {
         // sync parts
         await Promise.all(
           parts.map(async (partObj: TPartData) => {
-            const { name, type } = partObj;
+            const { name, type, length } = partObj;
             const newPart = await prisma.part.create({
               data: {
                 name: name,
                 type: type,
+                length: length,
                 dancer: {
                   connect: { id: newDancer.id },
                 },

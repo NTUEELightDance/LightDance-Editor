@@ -35,17 +35,28 @@ export class PartResolver {
       where: { name: newPartData.dancerName },
       include: { parts: true },
     });
+    if (
+      newPartData.type === "LED" &&
+      (typeof newPartData.length !== "number" || newPartData.length < 0)
+    ) {
+      return {
+        ok: false,
+        msg: "length of LED part must be positive number",
+      };
+    }
 
     if (existDancer) {
       const duplicatePartName = existDancer.parts.find(
         (part: Part) => part.name === newPartData.name
       );
+      const length = newPartData.type === "LED" ? newPartData.length : null;
       if (!duplicatePartName) {
         const newPart = await ctx.prisma.part.create({
           data: {
             dancerId: existDancer.id,
             name: newPartData.name,
             type: newPartData.type,
+            length: length,
           },
         });
 
@@ -104,6 +115,7 @@ export class PartResolver {
       where: { id },
       include: { controlData: true },
     });
+
     if (edit_part) {
       if (edit_part.type !== type) {
         await ctx.prisma.controlData.updateMany({
@@ -111,10 +123,20 @@ export class PartResolver {
           data: { value: ControlDefault[type] },
         });
       }
-      const result = await ctx.prisma.part.update({
-        where: { id: id },
-        data: { name: name, type: type },
-      });
+      const length = newPartData.length
+        ? newPartData.length
+        : edit_part.length || 0;
+      const result =
+        type === "LED"
+          ? await ctx.prisma.part.update({
+              where: { id: id },
+              data: { name: name, type: type, length: length },
+            })
+          : await ctx.prisma.part.update({
+              where: { id: id },
+              data: { name: name, type: type, length: null },
+            });
+
       const dancerData = await ctx.prisma.dancer.findFirst({
         where: { id: result.dancerId },
         include: { parts: true },

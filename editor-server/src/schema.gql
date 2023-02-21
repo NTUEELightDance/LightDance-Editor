@@ -9,6 +9,7 @@ input AddDancerInput {
 
 input AddPartInput {
   dancerName: String!
+  length: Int
   name: String!
   type: String!
 }
@@ -560,6 +561,7 @@ input EditControlMapInput {
 
 input EditPartInput {
   id: Int!
+  length: Int
   name: String!
   type: String!
 }
@@ -1227,12 +1229,21 @@ input NestedStringFilter {
   startsWith: String
 }
 
+input NullableIntFieldUpdateOperationsInput {
+  decrement: Int
+  divide: Int
+  increment: Int
+  multiply: Int
+  set: Int
+}
+
 type Part {
   _count: PartCount
   controlData(cursor: ControlDataWhereUniqueInput, distinct: [ControlDataScalarFieldEnum!], orderBy: [ControlDataOrderByWithRelationInput!], skip: Int, take: Int, where: ControlDataWhereInput): [ControlData!]!
   dancer: Dancer!
   dancerId: Int!
   id: Int!
+  length: Int
   name: String!
   type: PartType!
 }
@@ -1243,6 +1254,7 @@ type PartCount {
 
 input PartCreateManyDancerInput {
   id: Int
+  length: Int
   name: String!
   type: PartType!
 }
@@ -1277,12 +1289,14 @@ input PartCreateOrConnectWithoutDancerInput {
 
 input PartCreateWithoutControlDataInput {
   dancer: DancerCreateNestedOneWithoutPartsInput!
+  length: Int
   name: String!
   type: PartType!
 }
 
 input PartCreateWithoutDancerInput {
   controlData: ControlDataCreateNestedManyWithoutPartInput
+  length: Int
   name: String!
   type: PartType!
 }
@@ -1302,6 +1316,7 @@ input PartOrderByWithRelationInput {
   dancer: DancerOrderByWithRelationInput
   dancerId: SortOrder
   id: SortOrder
+  length: SortOrder
   name: SortOrder
   type: SortOrder
 }
@@ -1320,6 +1335,7 @@ type PartResponse {
 enum PartScalarFieldEnum {
   dancerId
   id
+  length
   name
   type
 }
@@ -1330,6 +1346,7 @@ input PartScalarWhereInput {
   OR: [PartScalarWhereInput!]
   dancerId: IntFilter
   id: IntFilter
+  length: IntNullableFilter
   name: StringFilter
   type: EnumPartTypeFilter
 }
@@ -1340,6 +1357,7 @@ enum PartType {
 }
 
 input PartUpdateManyMutationInput {
+  length: NullableIntFieldUpdateOperationsInput
   name: StringFieldUpdateOperationsInput
   type: EnumPartTypeFieldUpdateOperationsInput
 }
@@ -1378,12 +1396,14 @@ input PartUpdateWithWhereUniqueWithoutDancerInput {
 
 input PartUpdateWithoutControlDataInput {
   dancer: DancerUpdateOneRequiredWithoutPartsNestedInput
+  length: NullableIntFieldUpdateOperationsInput
   name: StringFieldUpdateOperationsInput
   type: EnumPartTypeFieldUpdateOperationsInput
 }
 
 input PartUpdateWithoutDancerInput {
   controlData: ControlDataUpdateManyWithoutPartNestedInput
+  length: NullableIntFieldUpdateOperationsInput
   name: StringFieldUpdateOperationsInput
   type: EnumPartTypeFieldUpdateOperationsInput
 }
@@ -1407,6 +1427,7 @@ input PartWhereInput {
   dancer: DancerRelationFilter
   dancerId: IntFilter
   id: IntFilter
+  length: IntNullableFilter
   name: StringFilter
   type: EnumPartTypeFilter
 }

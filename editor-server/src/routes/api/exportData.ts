@@ -31,6 +31,7 @@ const exportData = async (req: Request, res: Response) => {
           select: {
             name: true,
             type: true,
+            length: true,
           },
           orderBy: {
             id: "asc",
