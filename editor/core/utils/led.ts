@@ -6,47 +6,47 @@ import {
   CurrentLEDStatus,
   LEDMap,
   LEDEffectFrame,
-  LedEffectRecord,
+  LEDEffectRecord,
 } from "../models";
 
 import { cloneDeep } from "lodash";
 import { updateFrameByTimeMap } from "./frame";
 
 /**
- * Update the currentLedEffect
+ * Update the currentLEDStatus
  * according to ControlMap, LedEffectRecord, CurrentLedEffect, LedMap, time
  * @param controlMap
  * @param ledEffectRecord
- * @param currentLedEffect
+ * @param currentLEDStatus
  * @param ledMap
  * @param time
  * @returns
  */
 export function updateLedEffect(
   controlMap: ControlMap,
-  ledEffectRecord: LedEffectRecord,
-  currentLedEffect: CurrentLEDStatus,
+  ledEffectRecord: LEDEffectRecord,
+  currentLEDStatus: CurrentLEDStatus,
   ledMap: LEDMap,
   time: number
 ) {
-  Object.keys(currentLedEffect).forEach((dancerName) => {
-    Object.keys(currentLedEffect[dancerName]).forEach((partName) => {
+  Object.keys(currentLEDStatus).forEach((dancerName) => {
+    Object.keys(currentLEDStatus[dancerName]).forEach((partName) => {
       if (ledEffectRecord[dancerName][partName].length === 0) {
         // there is nothing to do with empty record, which every src is no_effect
         return;
       }
 
       const lastRecordIndex =
-        currentLedEffect[dancerName][partName].recordIndex;
+        currentLEDStatus[dancerName][partName].recordIndex;
 
       // calculate the right place of record index in ledEffectRecord
       const recordIndex = updateFrameByTimeMap(
         ledEffectRecord[dancerName][partName],
         controlMap,
-        currentLedEffect[dancerName][partName].recordIndex,
+        currentLEDStatus[dancerName][partName].recordIndex,
         time
       );
-      currentLedEffect[dancerName][partName].recordIndex = recordIndex;
+      currentLEDStatus[dancerName][partName].recordIndex = recordIndex;
 
       const recordId = ledEffectRecord[dancerName][partName][recordIndex];
 
@@ -59,7 +59,7 @@ export function updateLedEffect(
       // the case will be like the time now is before the frame start (currentStart)
       if (time < currentStart) {
         // reset the effect
-        currentLedEffect[dancerName][partName].effect = [];
+        currentLEDStatus[dancerName][partName].effect = [];
         return;
       }
 
@@ -86,12 +86,12 @@ export function updateLedEffect(
 
       // if change to another recordIndex, need to reset the effectIndex and effect first
       if (lastRecordIndex !== recordIndex) {
-        currentLedEffect[dancerName][partName].effectIndex = 0;
-        currentLedEffect[dancerName][partName].effect = [];
+        currentLEDStatus[dancerName][partName].effectIndex = 0;
+        currentLEDStatus[dancerName][partName].effect = [];
       }
 
       // Goal: calculate the right newLedEffect[dancerName][partName]'s effectIndex
-      const { effectIndex } = currentLedEffect[dancerName][partName];
+      const { effectIndex } = currentLEDStatus[dancerName][partName];
       let newEffectIndex;
       // Case 1: index is already in the right place (after resetting or not being the time to switch to the next one)
       if (
@@ -113,9 +113,9 @@ export function updateLedEffect(
       else {
         newEffectIndex = binarySearchLedEffectFrame(effects, offset);
       }
-      currentLedEffect[dancerName][partName].effectIndex = newEffectIndex;
+      currentLEDStatus[dancerName][partName].effectIndex = newEffectIndex;
 
-      // Goal: calculate the right currentLedEffect[dancerName][partName]'s effect
+      // Goal: calculate the right currentLEDStatus[dancerName][partName]'s effect
       let { effect: currEffect } = effects[newEffectIndex];
       const { start: currStart, fade } = effects[newEffectIndex];
       // Do fade or not
@@ -153,10 +153,10 @@ export function updateLedEffect(
           };
         });
       }
-      currentLedEffect[dancerName][partName].effect = currEffect;
+      currentLEDStatus[dancerName][partName].effect = currEffect;
     });
   });
-  return currentLedEffect;
+  return currentLEDStatus;
 }
 
 /**

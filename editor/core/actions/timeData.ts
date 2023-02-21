@@ -70,11 +70,10 @@ const actions = registerActions({
       },
     });
 
-    // update currentLedEffectIndexMap
-    state.currentLedEffect = updateLedEffect(
+    state.currentLEDStatus = updateLedEffect(
       controlMap,
       state.ledEffectRecord,
-      state.currentLedEffect,
+      state.currentLEDStatus,
       ledMap,
       time
     );

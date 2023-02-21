@@ -329,7 +329,7 @@ class ThreeController {
   // calculate and set next frame status according to time and call updateDancers
   update() {
     this.updateDancersStatus(state.currentStatus);
-    // this.updateDancerLED(state.currentLedEffect);
+    this.updateDancerLED(state.currentLEDStatus);
 
     this.updateDancersPos(state.currentPos);
   }
@@ -346,14 +346,14 @@ class ThreeController {
     });
   }
 
-  updateDancerLED(currentLedEffect: CurrentLEDStatus) {
-    if (Object.entries(currentLedEffect).length === 0) {
+  updateDancerLED(currentLEDStatus: CurrentLEDStatus) {
+    if (Object.entries(currentLEDStatus).length === 0) {
       throw new Error(
-        "[Error] updateDancersLED, invalid parameter(currentLedEffect)"
+        `[Error] updateDancersLED, invalid parameter(currentLEDStatus: ${currentLEDStatus})`
       );
     }
     if (!this.settings.config.Visibility.LED) return;
-    Object.entries(currentLedEffect).forEach(([dancerName, status]) => {
+    Object.entries(currentLEDStatus).forEach(([dancerName, status]) => {
       this.dancers[dancerName].setLEDStatus(status);
     });
   }

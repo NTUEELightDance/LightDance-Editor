@@ -30,7 +30,7 @@ const _state: State = {
   currentPos: {},
 
   ledEffectRecord: {},
-  currentLedEffect: {},
+  currentLEDStatus: {},
 
   editMode: "IDLE",
   editor: "CONTROL_EDITOR",
@@ -43,8 +43,11 @@ const _state: State = {
 
   selected: {},
   selectedLEDs: [],
-  // @ts-expect-error it's difficult to provide a default value for this
-  currentLEDPart: "",
+
+  currentLEDPartName: "",
+  currentLEDEffectName: "",
+  currentLEDEffect: null,
+  currentLEDEffectStart: 0,
 
   dancers: {},
   dancerNames: [],

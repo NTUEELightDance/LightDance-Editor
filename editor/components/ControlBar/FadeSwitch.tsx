@@ -1,8 +1,8 @@
 import { Switch, FormControlLabel } from "@mui/material";
 
-import { setCurrentFade } from "../../core/actions";
+import { setCurrentFade } from "@/core/actions";
 
-import { reactiveState } from "../../core/state";
+import { reactiveState } from "@/core/state";
 import { useReactiveVar } from "@apollo/client";
 
 function FadeSwitch() {

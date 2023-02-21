@@ -4,15 +4,10 @@ import regions from "wavesurfer.js/src/plugin/regions";
 import MarkersPlugin from "./MarkersPlugin";
 
 // redux
-import store from "../../store";
-import { setCurrentTime, setIsPlaying } from "../../core/actions";
+import store from "@/store";
+import { setCurrentTime, setIsPlaying } from "@/core/actions";
 
-// constant
-import { getItem } from "../../core/utils";
-
-import { LocalRegion, Region } from "../../types/components/wavesurfer";
-// types
-import { ControlMapElement } from "../../core/models";
+import { Region } from "@/types/components/wavesurfer";
 
 import { throttle } from "throttle-debounce";
 /**
@@ -63,15 +58,6 @@ class WaveSurferApp {
     // load music
     this.waveSurfer.load(store.getState().load.music);
 
-    // get ready
-    this.waveSurfer.on("ready", () => {
-      this.ready = true;
-      const region = JSON.parse(getItem("region") || "");
-      region.map((r: LocalRegion) => {
-        this.addRegion(r.Start, r.End);
-      });
-    });
-
     // Listener for seek event
     // waveSurfer.on("seek") will conflict
     this.addClickEvent();
@@ -120,7 +106,7 @@ class WaveSurferApp {
   }
 
   /**
-   * Play the region repeatly
+   * Play the region repeatedly
    * @function
    */
   playLoop() {
@@ -159,7 +145,8 @@ class WaveSurferApp {
   seekTo(time: number) {
     if (!this.ready) return;
     const duration = this.waveSurfer.getDuration();
-    this.waveSurfer.seekTo(time / 1000 / duration);
+    const target = time / 1000 / duration;
+    this.waveSurfer.seekTo(target);
   }
 
   /**
@@ -202,9 +189,9 @@ class WaveSurferApp {
    * @param { number } time  - time where marker created
    * @param { number } index - marker's label
    */
-  addMarkers(start: number, index: number) {
+  addMarker(startSecond: number) {
     this.waveSurfer.addMarker({
-      time: start,
+      time: startSecond,
       color: "#8AE5C8",
       position: "top",
       draggable: false,
@@ -215,10 +202,10 @@ class WaveSurferApp {
    * create markers according to all dancer's status
    * @param { Object<{}> } controlMap - object of all dancer's status
    */
-  updateMarkers(controlMap: ControlMapElement) {
+  updateMarkers(timestampsMilliSecond: number[]) {
     this.waveSurfer.clearMarkers();
-    Object.values(controlMap).map((e, index) => {
-      this.addMarkers(e.start / 1000, index);
+    timestampsMilliSecond.map((time) => {
+      this.addMarker(time / 1000);
     });
   }
 

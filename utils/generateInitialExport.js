@@ -2,8 +2,21 @@ const fs = require("fs");
 const path = require("path");
 const { NodeIO } = require("@gltf-transform/core");
 
-const COLOR = "black";
-const COLOR_CODE = "#000000";
+const BLACK = "black";
+const BLACK_HEX = "#000000";
+const WHITE = "white";
+const WHITE_HEX = "#ffffff";
+const RED = "red";
+const RED_HEX = "#ff0000";
+const GREEN = "green";
+const GREEN_HEX = "#00ff00";
+const BLUE = "blue";
+const BLUE_HEX = "#0000ff";
+const ALL_BLACK = "all_black";
+const ALL_WHITE = "all_white";
+const ALL_RED = "all_red";
+const ALL_GREEN = "all_green";
+const ALL_BLUE = "all_blue";
 const NO_EFFECT = "";
 
 const partNameIgnore = new Set(["Human"]);
@@ -81,13 +94,13 @@ function toGlbPath(dracoPath) {
   return dracoPath.replace(".draco.glb", ".glb");
 }
 
-function generateEmptyControlFrame(dancerData) {
+function generateEmptyControlFrame(dancerData, start, color, effect) {
   const status = dancerData.map(({ parts }) =>
     parts.map(({ type }) => {
       if (type === "LED") {
-        return [NO_EFFECT, 0];
+        return [effect, 0];
       } else if (type === "FIBER") {
-        return [COLOR, 0];
+        return [color, 0];
       } else {
         throw new Error(`unknown type: ${type}`);
       }
@@ -154,8 +167,11 @@ function generateEmptyLEDEffects(dancerData) {
     return {
       ...acc,
       [partName]: {
-        all_black: generateDefaultEffect(length, [0, 0, 0, 0]),
-        all_white: generateDefaultEffect(length, [255, 255, 255, 10]),
+        [ALL_BLACK]: generateDefaultEffect(length, [0, 0, 0, 0]),
+        [ALL_WHITE]: generateDefaultEffect(length, [255, 255, 255, 10]),
+        [ALL_RED]: generateDefaultEffect(length, [255, 0, 0, 10]),
+        [ALL_GREEN]: generateDefaultEffect(length, [0, 255, 0, 10]),
+        [ALL_BLUE]: generateDefaultEffect(length, [0, 0, 255, 10]),
       },
     };
   }, {});
@@ -194,7 +210,11 @@ function generateEmptyLEDEffects(dancerData) {
   );
 
   const controlData = {
-    0: generateEmptyControlFrame(dancerData),
+    0: generateEmptyControlFrame(dancerData, 4000, BLACK, NO_EFFECT),
+    1: generateEmptyControlFrame(dancerData, 0, WHITE, ALL_WHITE),
+    2: generateEmptyControlFrame(dancerData, 1000, RED, ALL_RED),
+    3: generateEmptyControlFrame(dancerData, 2000, GREEN, ALL_GREEN),
+    4: generateEmptyControlFrame(dancerData, 3000, BLUE, ALL_BLUE),
   };
 
   const positionData = {
@@ -202,7 +222,11 @@ function generateEmptyLEDEffects(dancerData) {
   };
 
   const colorData = {
-    [COLOR]: COLOR_CODE,
+    [BLACK]: BLACK_HEX,
+    [WHITE]: WHITE_HEX,
+    [RED]: RED_HEX,
+    [GREEN]: GREEN_HEX,
+    [BLUE]: BLUE_HEX,
   };
 
   const LEDEffectsData = generateEmptyLEDEffects(dancerData);
