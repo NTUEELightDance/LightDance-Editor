@@ -880,11 +880,6 @@ input EditingPositionFrameWhereUniqueInput {
   userId: Int
 }
 
-type Effect {
-  alpha: Float!
-  colorCode: String!
-}
-
 type EffectListData {
   controlFrames: [JSON!]!
   dancerData: [JSON!]!
@@ -1115,7 +1110,7 @@ input LEDEffectWhereUniqueInput {
 }
 
 type LEDEffects {
-  effect: [Effect!]!
+  LEDs: [[Int!]!]!
   fade: Boolean!
   start: Int!
 }

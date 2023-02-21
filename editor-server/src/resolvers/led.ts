@@ -15,9 +15,7 @@ import {
   DeleteLEDEffectResponse,
 } from "./response/ledEffectResponse";
 import { TContext } from "../types/global";
-import {
-  LEDEffectCreateInput,
-} from "../../prisma/generated/type-graphql";
+import { LEDEffectCreateInput } from "../../prisma/generated/type-graphql";
 import { Topic } from "./subscriptions/topic";
 import { LEDPayload, ledMutation } from "./subscriptions/led";
 
@@ -31,6 +29,8 @@ export class LEDResolver {
 
   @Mutation((returns) => LEDEffectResponse)
   async addLED(
+    @PubSub(Topic.LEDRecord)
+    publishLEDRecord: Publisher<LEDPayload>,
     @Arg("input") input: LEDEffectCreateInput,
     @Ctx() ctx: TContext
   ) {
@@ -63,18 +63,33 @@ export class LEDResolver {
         msg: "effectName exist.",
       });
 
-    const newLED = await ctx.prisma.lEDEffect.create({ data: input });
+    const newLED = await ctx.prisma.lEDEffect.create({
+      data: {
+        name: name,
+        partName: partName,
+        repeat: repeat,
+        frames: frames?.set,
+      },
+    });
+
+    const recordPayload: LEDPayload = {
+      mutation: ledMutation.CREATED,
+      editBy: ctx.userId,
+      partName,
+      effectName: name,
+      data: newLED,
+    };
+    await publishLEDRecord(recordPayload);
 
     return Object.assign({
       partName: partName,
       effectName: name,
       repeat: repeat,
-      effect: newLED,
+      effects: frames?.set,
       ok: true,
-      msg: "success",
+      msg: "successfully add LED effect",
     });
   }
-
 
   @Mutation((returns) => LEDEffectResponse)
   async editLED(
@@ -90,7 +105,14 @@ export class LEDResolver {
       where: { name: name, partName: partName },
     });
     if (!exist)
-      return Object.assign({ ok: false, msg: "effectName do not exist." });
+      return Object.assign({
+        partName: partName,
+        effectName: name,
+        repeat: repeat,
+        effects: frames,
+        ok: false,
+        msg: "effectName do not exist.",
+      });
     const effectToEdit = await ctx.prisma.editingLEDEffect.findFirst({
       where: { LEDEffectId: exist.id },
     });
@@ -108,7 +130,10 @@ export class LEDResolver {
           partName,
         },
       },
-      data: input,
+      data: {
+        repeat: repeat,
+        frames: frames?.set,
+      },
     });
 
     const recordPayload: LEDPayload = {
@@ -122,7 +147,7 @@ export class LEDResolver {
 
     return Object.assign({
       ok: true,
-      msg: "update success",
+      msg: "successfully edit LED effect",
       partName,
       effectName: name,
       repeat: target.repeat,
@@ -153,7 +178,7 @@ export class LEDResolver {
     });
     if (checkControl.length != 0) {
       let checkControlFrames: number[] = checkControl.map(
-        (control: { frameId: any; }) => control.frameId
+        (control) => control.frameId
       );
       checkControlFrames = checkControlFrames.sort(function (a, b) {
         return a - b;
@@ -191,6 +216,6 @@ export class LEDResolver {
       effectName,
     };
     await publishLEDRecord(recordPayload);
-    return { ok: true };
+    return { ok: true, msg: "successfully delete LED effect" };
   }
 }
