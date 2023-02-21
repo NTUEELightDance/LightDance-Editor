@@ -17,18 +17,15 @@ export default class LEDPart extends Part {
   }
 
   getMeshes() {
-    let i = 0;
-    for (;;) {
-      // while(true) will cause Unexpected constant condition
+    for (let i = 1; ; i++) {
       const name = `${this.name}${String(i).padStart(3, "0")}`;
       const mesh = this.model.getObjectByName(name) as MeshType;
       if (mesh == null) break;
       mesh.material = mesh.material.clone();
-      mesh.visible = false;
+      mesh.visible = true;
       mesh.material.color.setHex(0);
       mesh.material.emissiveIntensity = 0;
       this.meshes.push(mesh);
-      i += 1;
     }
   }
 

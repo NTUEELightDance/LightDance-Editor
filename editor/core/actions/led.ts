@@ -16,7 +16,14 @@ import type {
 import { isLEDPartName } from "../models";
 // utils
 import { getControl } from "../utils";
-import { LED as LED_TYPE, NO_EFFECT } from "@/constants";
+import { NO_EFFECT } from "@/constants";
+import { getLedMap } from "../utils";
+import { binarySearchFrameMap } from "../utils";
+import { updateLedEffect } from "../utils";
+import { ControlMap } from "../models";
+import { ControlRecord } from "../models";
+import { PartTypeMap } from "../models";
+import { Dancers } from "../models";
 
 const actions = registerActions({
   setLEDMap: async (state: State, payload: LEDMap) => {
@@ -117,22 +124,61 @@ const actions = registerActions({
    * @param state
    */
   syncLEDEffectRecord: async (state: State) => {
-    const ledEffectRecord = await generateLEDEffectRecord(state);
+    const [controlMap, controlRecord] = await getControl();
+    const { dancers, partTypeMap } = state;
+    const ledEffectRecord = await generateLEDEffectRecord(
+      controlMap,
+      controlRecord,
+      dancers,
+      partTypeMap
+    );
     state.ledEffectRecord = ledEffectRecord;
+  },
+
+  syncCurrentLEDStatus: async (state: State) => {
+    const [controlMap, controlRecord] = await getControl();
+    const ledMap = await getLedMap();
+
+    const index = binarySearchFrameMap(
+      controlRecord,
+      controlMap,
+      state.currentTime
+    );
+
+    const currentFrameId = controlRecord[index];
+
+    const pseudoControlMap: ControlMap = {
+      ...controlMap,
+      [currentFrameId]: {
+        fade: state.currentFade,
+        start: state.currentTime,
+        status: state.currentStatus,
+      },
+    };
+
+    state.currentLEDStatus = updateLedEffect(
+      pseudoControlMap,
+      state.ledEffectRecord,
+      state.currentLEDStatus,
+      ledMap,
+      state.currentTime
+    );
   },
 });
 
-async function generateLEDEffectRecord(state: State) {
-  const [controlMap, controlRecord] = await getControl();
-  const { dancers, partTypeMap } = state;
-
+async function generateLEDEffectRecord(
+  controlMap: ControlMap,
+  controlRecord: ControlRecord,
+  dancers: Dancers,
+  partTypeMap: PartTypeMap
+) {
   const ledEffectRecord: LEDEffectRecord = {};
 
   // initialize the ledEffectRecord
   Object.entries(dancers).map(([dancerName, parts]) => {
     ledEffectRecord[dancerName] = {};
     parts.forEach((partName) => {
-      if (partTypeMap[partName] === LED_TYPE) {
+      if (partTypeMap[partName] === "LED") {
         ledEffectRecord[dancerName][partName] = [];
       }
     });
@@ -145,7 +191,7 @@ async function generateLEDEffectRecord(state: State) {
       ([dancerName, dancerStatus]: [DancerName, DancerStatus]) => {
         Object.entries(dancerStatus).forEach(([partName, part]) => {
           if (
-            partTypeMap[partName] === LED_TYPE &&
+            partTypeMap[partName] === "LED" &&
             (part as LEDData).src !== NO_EFFECT
           ) {
             ledEffectRecord[dancerName][partName].push(id);
@@ -165,6 +211,7 @@ export const {
   setCurrentLEDEffectRepeat,
   setLEDMap,
   syncLEDEffectRecord,
+  syncCurrentLEDStatus,
   addFrameToCurrentLEDEffect,
   deleteFrameFromCurrentLEDEffect,
   updateFrameInCurrentLEDEffect,

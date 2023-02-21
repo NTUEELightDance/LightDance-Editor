@@ -51,11 +51,13 @@ export default function Clipboard() {
               });
             } else if (isLEDData(value)) {
               editCurrentStatusLED({
-                payload: {
-                  dancerName: dancer,
-                  partName: part,
-                  value,
-                },
+                payload: [
+                  {
+                    dancerName: dancer,
+                    partName: part,
+                    value,
+                  },
+                ],
               });
             }
           }

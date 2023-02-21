@@ -177,7 +177,7 @@ export type Selected = Record<
   }
 >;
 
-export type SelectedPartPayload = Record<string, string[]>;
+export type SelectedPartPayload = Record<DancerName, PartName[]>;
 
 /**
  * selection mode
