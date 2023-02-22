@@ -129,10 +129,11 @@ class SelectControls extends EventDispatcher {
       }
 
       _updateDragGroup();
-
-      setSelectedDancers({
-        payload: _group.children.map((child) => child.name),
-      });
+      if (state.selectionMode === "DANCER_MODE") {
+        setSelectedDancers({
+          payload: _group.children.map((child) => child.name),
+        });
+      }
     }
 
     let _hover = null;
