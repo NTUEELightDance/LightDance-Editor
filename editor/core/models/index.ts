@@ -268,6 +268,7 @@ export type LEDPartStatus = Record<PartName, LEDPartData>;
 export type LEDPartData = {
   recordIndex: number;
   effectIndex: number;
+  alpha: number;
   effect: LEDBulbData[]; // this is to handle faded effect, so we will clone the effect from ledMap
 };
 

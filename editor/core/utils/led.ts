@@ -63,7 +63,7 @@ export function updateLedEffect(
         return;
       }
 
-      const { src } = currentStatus[dancerName][partName] as LEDData;
+      const { src, alpha } = currentStatus[dancerName][partName] as LEDData;
       if (!src || !ledMap[partName][src]) {
         throw `[Invalid src] ${dancerName} ${partName} ${recordId}`;
       }
@@ -154,6 +154,7 @@ export function updateLedEffect(
         });
       }
       currentLEDStatus[dancerName][partName].effect = currEffect;
+      currentLEDStatus[dancerName][partName].alpha = alpha;
     });
   });
   return currentLEDStatus;

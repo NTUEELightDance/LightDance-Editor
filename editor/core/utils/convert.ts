@@ -204,8 +204,16 @@ export function toLEDEffectFrame(
   return frame;
 }
 
+const COLOR = new Color();
+
+export function hexToRGB(hex: string) {
+  COLOR.setHex(parseInt(hex.replace(/^#/, ""), 16));
+  return COLOR.toArray() as RGB;
+}
+
 export function rgbToHex(rgb: RGB): ColorCode {
-  const colorCode = "#" + new Color(rgb[0], rgb[1], rgb[2]).getHexString();
+  COLOR.setRGB(rgb[0], rgb[1], rgb[2]);
+  const colorCode = "#" + COLOR.getHexString();
   if (isColorCode(colorCode)) {
     return colorCode;
   }
