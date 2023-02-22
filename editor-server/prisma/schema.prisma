@@ -154,7 +154,7 @@ model EffectListData {
 
 model Logger {
   id            Int      @id @default(autoincrement())
-  user          String
+  user          Int
   variableValue Json?
   fieldName     String
   time          DateTime @default(now())
