@@ -31,7 +31,7 @@ class Settings {
 
     this.config = {
       Visibility: {
-        LED: false,
+        LED: true,
         FIBER: true,
         "Grid Helper": true,
         Center: true,

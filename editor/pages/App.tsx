@@ -10,11 +10,12 @@ import Loading from "@/components/Loading";
 // states and actions
 import {
   initCurrentLEDStatus,
-  syncLEDEffectRecord,
   initDancers,
   initCurrentStatus,
   initCurrentPos,
   initColorMap,
+  syncLEDEffectRecord,
+  syncCurrentLEDStatus,
 } from "@/core/actions";
 
 /**
@@ -48,6 +49,18 @@ function App() {
       ]);
 
       secondBatchResult.forEach((result) => {
+        if (result.status === "rejected") {
+          console.error(result.reason);
+          throw result.reason;
+        }
+      });
+
+      const thirdBatchResult = await Promise.allSettled([
+        // depends on initCurrentLEDStatus
+        syncCurrentLEDStatus(),
+      ]);
+
+      thirdBatchResult.forEach((result) => {
         if (result.status === "rejected") {
           console.error(result.reason);
           throw result.reason;

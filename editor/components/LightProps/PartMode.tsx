@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { Paper, Typography, Box } from "@mui/material";
 
@@ -13,6 +13,7 @@ import type {
   CurrentStatusDelta,
   SelectedPartPayload,
   PartType,
+  LEDData,
 } from "@/core/models";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
@@ -96,31 +97,51 @@ function PartMode() {
 
   // update local state
   useEffect(() => {
-    // cannot sync if partType is null or LED
-    if (partType === "LED" || partType === null) return;
-    const [dancerName, parts] = Object.entries(selectedParts)[0] ?? [
-      null,
-      null,
-    ];
-    // don't render controls if no part is selected
-    if (dancerName == null || parts == null) {
-      setCurrentColorName(null);
-      setIntensity(null);
-    } else {
-      setCurrentColorName(
-        (currentStatus[dancerName][parts[0]] as FiberData).color
-      );
-      setIntensity((currentStatus[dancerName][parts[0]] as FiberData).alpha);
+    if (partType === "FIBER") {
+      const [dancerName, parts] = Object.entries(selectedParts)[0] ?? [
+        null,
+        null,
+      ];
+      // don't render controls if no part is selected
+      if (dancerName == null || parts == null) {
+        setCurrentColorName(null);
+        setIntensity(null);
+      } else {
+        setCurrentColorName(
+          (currentStatus[dancerName][parts[0]] as FiberData).color
+        );
+        setIntensity((currentStatus[dancerName][parts[0]] as FiberData).alpha);
+      }
+    }
+  }, [currentStatus, partType, selectedParts]);
+
+  // initialize local state for LED
+  useEffect(() => {
+    if (partType === "LED") {
+      const [dancerName, parts] = Object.entries(selectedParts)[0] ?? [
+        null,
+        null,
+      ];
+      // don't render controls if no part is selected
+      if (dancerName == null || parts == null) {
+        setLEDsrc(null);
+        setIntensity(null);
+      } else {
+        setLEDsrc((currentStatus[dancerName][parts[0]] as LEDData).src);
+        setIntensity((currentStatus[dancerName][parts[0]] as LEDData).alpha);
+      }
     }
   }, [currentStatus, partType, selectedParts]);
 
   // mutate global state
   useEffect(() => {
+    const selectedPartsCount = Object.values(selectedParts).flat().length;
     // don't sync when there is no part selected
     if (
       partType === "FIBER" &&
       currentColorName !== null &&
-      intensity !== null
+      intensity !== null &&
+      selectedPartsCount > 1
     ) {
       const currentStatusDelta = calculateCurrentStatusDeltaFiber(
         selectedParts,

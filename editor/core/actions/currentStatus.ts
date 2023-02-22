@@ -9,9 +9,11 @@ import {
   LEDData,
   FiberData,
   CurrentStatusDelta,
+  isLEDData,
 } from "../models";
 
 import { Color } from "three";
+import { syncCurrentLEDStatus } from "./led";
 
 const actions = registerActions({
   /**
@@ -53,36 +55,38 @@ const actions = registerActions({
     }
   },
 
-  /**
-   * Edit current Status (LED)
-   * @param {State} state
-   * @param {object[]} payload
-   */
-
-  editCurrentStatusLED: (
+  // remember to call syncCurrentLEDStatus after this
+  editCurrentStatusLED: async (
     state: State,
     payload: Array<{
       dancerName: string;
       partName: string;
-      value: LEDData;
+      value: Partial<LEDData>;
     }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
 
     payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
-      if (typeof src === "string") {
-        (state.currentStatus[dancerName][partName] as LEDData).src = src;
-      }
-      if (typeof alpha === "number") {
-        (state.currentStatus[dancerName][partName] as LEDData).alpha = alpha;
+      const data = state.currentStatus[dancerName][partName];
+      if (isLEDData(data)) {
+        if (typeof src === "string") {
+          data.src = src;
+        }
+        if (typeof alpha === "number") {
+          data.alpha = alpha;
+        }
       }
     });
+
+    syncCurrentLEDStatus();
   },
 
   editCurrentStatusDelta: (state: State, payload: CurrentStatusDelta) => {
     // make a new clone since the data may be readOnly (calculate from cache)
     const newCurrentStatus = cloneDeep(state.currentStatus);
+    const partTypeMap = state.partTypeMap;
     let hasChange = false;
+    let hasLEDChange = false;
 
     // only update if there really is a difference
     Object.entries(payload).forEach(([dancerName, parts]) => {
@@ -90,6 +94,9 @@ const actions = registerActions({
         const oldValue = newCurrentStatus[dancerName][partName];
         if (!isEqual(oldValue, newValue)) {
           hasChange = true;
+          if (partTypeMap[partName] === "LED") {
+            hasLEDChange = true;
+          }
           newCurrentStatus[dancerName][partName] = newValue;
         }
       });
@@ -97,6 +104,10 @@ const actions = registerActions({
 
     if (hasChange) {
       state.currentStatus = newCurrentStatus;
+    }
+
+    if (hasLEDChange) {
+      syncCurrentLEDStatus();
     }
   },
 

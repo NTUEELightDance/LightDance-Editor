@@ -70,6 +70,8 @@ class WaveSurferApp {
         this.setTimeWhenPlaying(this.getCurrentTime());
       })
     );
+
+    this.ready = true;
   }
 
   getCurrentTime() {

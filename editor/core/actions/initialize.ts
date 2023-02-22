@@ -14,6 +14,7 @@ import type {
 import { dancerAgent } from "@/api";
 import { getControl, getPos } from "../utils";
 import { colorAgent } from "@/api/colorAgent";
+import { syncCurrentLEDStatus } from "./led";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
