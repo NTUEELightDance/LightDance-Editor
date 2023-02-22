@@ -86,7 +86,7 @@ export default function Clipboard() {
     }
     popStatusStack();
     setCurrentStatus({
-      payload: statusStack[statusStack.length - 1],
+      payload: statusStack[statusStackIndex - 1],
     });
     notification.success("Undo");
     log("statusStack", statusStack);

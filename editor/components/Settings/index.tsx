@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 
 import { Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
+import Hotkeys from "./Hotkeys";
 import File from "./File";
 import Preference from "./Preference";
 import { SettingModal } from "./SettingModal";
@@ -15,11 +16,24 @@ export function Settings({
   showSettings: boolean;
   setShowSettings: (showSettings: boolean) => void;
 }) {
+  const [hotkeysModalOpen, setHotkeysModalOpen] = useState<boolean>(false);
   const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const settings = [
+    {
+      label: "hotkeys",
+      modalOpen: hotkeysModalOpen,
+      handleClick: () => {
+        setHotkeysModalOpen(true);
+        setShowSettings(false);
+      },
+      handleClose: () => {
+        setHotkeysModalOpen(false);
+      },
+      modalChildren: <Hotkeys />,
+    },
     {
       label: "files",
       modalOpen: fileModalOpen,

@@ -10,24 +10,6 @@ import { isColorCode } from "@/core/models";
 export default function useColorMap() {
   const colorMap = useReactiveVar(reactiveState.colorMap);
 
-  const validateColorCode = (colorCode: string) =>
-    /^#[0-9a-f]{6}/i.test(colorCode);
-
-  const { loading: colorLoading, error: colorError } = useQuery(GET_COLOR_MAP, {
-    onCompleted: (data) => {
-      setColorMap({ payload: data.colorMap?.colorMap || {} });
-    },
-  });
-
-  const [addColor, { loading: addColorLoading, error: addColorError }] =
-    useMutation(ADD_COLOR);
-
-  const [editColor, { loading: editColorLoading, error: editColorError }] =
-    useMutation(EDIT_COLOR);
-
-  const [deleteColor, { loading: delColorLoading, error: delColorError }] =
-    useMutation(DELETE_COLOR);
-
   const handleAddColor = async (color: string, colorCode: string) => {
     if (!isColorCode(colorCode)) {
       notification.error(`Invalid color code: ${colorCode}`);
