@@ -83,7 +83,6 @@ class SelectControls extends EventDispatcher {
     }
 
     function onPointerDown(event) {
-      //在three js的場景中按下滑鼠就會觸發
       if (event.button !== 0 || scope.enabled === false) return;
 
       //TODO: selection box implement
@@ -139,7 +138,6 @@ class SelectControls extends EventDispatcher {
     let _hover = null;
 
     function onPointerMove(event) {
-      //滑鼠移動就會執行
       if (scope.onLasso) {
         updatePointer(event);
         _raycaster.setFromCamera(_pointer, _camera);
@@ -152,7 +150,6 @@ class SelectControls extends EventDispatcher {
         selectionBox.select();
         return;
       }
-      // console.log("onPointerMove");
       updatePointer(event);
       _intersections.length = 0;
 
@@ -173,7 +170,6 @@ class SelectControls extends EventDispatcher {
     function onPointerUp(event) {
       if (scope.onLasso === true) {
         scope.onLasso = false;
-        // console.log("onPointerUp, selectedLED", selectionBox.collection);
         type selectedLED = {
           name: string;
           dancerName: string;
@@ -185,7 +181,6 @@ class SelectControls extends EventDispatcher {
             const dancers = [];
             selectionBox.collection.forEach((part, index) => {
               const name = part.name;
-              // console.log(name);
               if (name === "Human") {
                 dancers.push(part.parent.name);
               }
@@ -212,7 +207,6 @@ class SelectControls extends EventDispatcher {
                 parts[part.parent.name]?.push(name);
               }
             });
-            console.log(parts);
             setSelectedParts({ payload: parts });
           }
 
@@ -224,19 +218,16 @@ class SelectControls extends EventDispatcher {
                 parts.push(part);
               }
             });
-            console.log("in LED mode", parts);
           }
         }
       }
     }
 
     function _hoverByName(name) {
-      //滑鼠在人身上就會執行
       _dancers[name].hover();
     }
 
     function _unhoverByName(name) {
-      //滑鼠從人身上移開才會執行
       _dancers[name].unhover();
     }
 
@@ -266,7 +257,6 @@ class SelectControls extends EventDispatcher {
     }
 
     function updateSelected(selected) {
-      //用滑鼠點選人的時候會執行
       const selectedObjects = [];
       Object.entries(selected).forEach(([name, value]) => {
         _dancers[name].updateSelected(value.selected);
@@ -303,7 +293,6 @@ class SelectControls extends EventDispatcher {
     }
 
     function setSelectedOutline(selectedOutline) {
-      console.log(selectedOutline);
       this.selectedOutline = selectedOutline;
     }
 

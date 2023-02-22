@@ -14,7 +14,6 @@ export default class LEDPart extends Part {
     super(name, model);
     this.meshes = [];
     this.getMeshes();
-    // console.log("selected", this.selected);
   }
 
   getMeshes() {

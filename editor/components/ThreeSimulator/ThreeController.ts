@@ -225,7 +225,6 @@ class ThreeController {
       magFilter: THREE.LinearFilter,
       format: THREE.RGBAFormat,
       type: THREE.FloatType,
-      // 启用4倍多重采样
       samples: 4,
     });
 

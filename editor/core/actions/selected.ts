@@ -25,7 +25,6 @@ const actions = registerActions({
   setSelectedDancers: (state: State, payload: string[]) => {
     const dancers = payload;
     Object.keys(state.selected).forEach((dancer) => {
-      console.log(state);
       state.selected[dancer].selected = dancers.includes(dancer);
     });
   },
@@ -35,9 +34,7 @@ const actions = registerActions({
    * @param {State} state
    * @param {SelectedLEDPartPayload} payload
    */
-  setSelectedLEDParts: (state: State, payload: SelectedLEDPartPayload) => {
-    console.log(payload);
-  },
+  setSelectedLEDParts: (state: State, payload: SelectedLEDPartPayload) => {},
 
   /**
    * Set selected Fiber parts
@@ -45,7 +42,6 @@ const actions = registerActions({
    * @param {SelectedPartPayload} payload
    */
   setSelectedParts: (state: State, payload: SelectedPartPayload) => {
-    console.log(payload);
     Object.keys(state.selected).forEach((dancer) => {
       state.selected[dancer].parts = Object.prototype.hasOwnProperty.call(
         payload,
