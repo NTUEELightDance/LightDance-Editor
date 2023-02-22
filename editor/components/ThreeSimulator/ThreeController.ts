@@ -325,7 +325,6 @@ class ThreeController {
         "[Error] updateDancersStatus, invalid parameter(currentStatus)"
       );
     }
-    console.log("updateSelected", selected);
     this.controls.selectControls.updateSelected(selected);
   }
 

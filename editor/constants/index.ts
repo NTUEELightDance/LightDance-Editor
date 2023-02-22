@@ -7,6 +7,7 @@ export const EDITING = "EDITING";
 // selection modes
 export const DANCER = "DANCER_MODE";
 export const PART = "PART_MODE";
+export const LED_PART = "LED_MODE";
 export const POSITION = "POSITION_MODE";
 // part type
 export const LED = "LED";

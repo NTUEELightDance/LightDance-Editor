@@ -215,6 +215,17 @@ class SelectControls extends EventDispatcher {
             console.log(parts);
             setSelectedParts({ payload: parts });
           }
+
+          //TODO: LED Part Mode
+          if (state.selectionMode === "LED_MODE") {
+            const parts = [];
+            selectionBox.collection.forEach((part, index) => {
+              if (part.name.includes("LED")) {
+                parts.push(part);
+              }
+            });
+            console.log("in LED mode", parts);
+          }
         }
       }
     }

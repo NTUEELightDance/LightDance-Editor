@@ -1,6 +1,6 @@
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
 
-import { FaTshirt, FaArrowsAlt } from "react-icons/fa";
+import { FaTshirt, FaArrowsAlt, FaLightbulb } from "react-icons/fa";
 import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
 
 import { reactiveState } from "@/core/state";
@@ -12,6 +12,7 @@ import {
   CONTROL_EDITOR,
   DANCER,
   PART,
+  LED_PART,
   POSITION,
 } from "@/constants";
 
@@ -22,6 +23,7 @@ function SelectionModeSelector() {
   const icons: Record<string, JSX.Element> = {
     [DANCER]: <DancerIcon />,
     [PART]: <FaTshirt />,
+    [LED_PART]: <FaLightbulb />,
     [POSITION]: <FaArrowsAlt />,
   };
 

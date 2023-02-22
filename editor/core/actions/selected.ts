@@ -25,6 +25,7 @@ const actions = registerActions({
   setSelectedDancers: (state: State, payload: string[]) => {
     const dancers = payload;
     Object.keys(state.selected).forEach((dancer) => {
+      console.log(state);
       state.selected[dancer].selected = dancers.includes(dancer);
     });
   },
