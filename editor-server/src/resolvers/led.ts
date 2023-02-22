@@ -15,9 +15,7 @@ import {
   DeleteLEDEffectResponse,
 } from "./response/ledEffectResponse";
 import { TContext } from "../types/global";
-import {
-  LEDEffectCreateInput,
-} from "../../prisma/generated/type-graphql";
+import { LEDEffectCreateInput } from "../../prisma/generated/type-graphql";
 import { Topic } from "./subscriptions/topic";
 import { LEDPayload, ledMutation } from "./subscriptions/led";
 
@@ -43,7 +41,13 @@ export class LEDResolver {
       where: { name: partName, type: "LED" },
     });
     if (part.length === 0) {
-      return Object.assign({ ok: false, msg: "no corresponding part." });
+      return Object.assign({
+        partName: partName,
+        effectName: name,
+        repeat: repeat,
+        ok: false,
+        msg: "no corresponding part.",
+      });
     }
 
     // check overlapped
@@ -51,10 +55,21 @@ export class LEDResolver {
       where: { name: name, partName: partName },
     });
     if (exist.length !== 0)
-      return Object.assign({ ok: false, msg: "effectName exist." });
+      return Object.assign({
+        partName: partName,
+        effectName: name,
+        repeat: repeat,
+        ok: false,
+        msg: "effectName exist.",
+      });
 
     const newLED = await ctx.prisma.lEDEffect.create({
-      data: input,
+      data: {
+        name: name,
+        partName: partName,
+        repeat: repeat,
+        frames: frames?.set,
+      },
     });
 
     const recordPayload: LEDPayload = {
@@ -66,7 +81,14 @@ export class LEDResolver {
     };
     await publishLEDRecord(recordPayload);
 
-    return Object.assign({ ok: true });
+    return Object.assign({
+      partName: partName,
+      effectName: name,
+      repeat: repeat,
+      effects: frames?.set,
+      ok: true,
+      msg: "successfully add LED effect",
+    });
   }
 
   @Mutation((returns) => LEDEffectResponse)
@@ -83,7 +105,14 @@ export class LEDResolver {
       where: { name: name, partName: partName },
     });
     if (!exist)
-      return Object.assign({ ok: false, msg: "effectName do not exist." });
+      return Object.assign({
+        partName: partName,
+        effectName: name,
+        repeat: repeat,
+        effects: frames,
+        ok: false,
+        msg: "effectName do not exist.",
+      });
     const effectToEdit = await ctx.prisma.editingLEDEffect.findFirst({
       where: { LEDEffectId: exist.id },
     });
@@ -101,7 +130,10 @@ export class LEDResolver {
           partName,
         },
       },
-      data: input,
+      data: {
+        repeat: repeat,
+        frames: frames?.set,
+      },
     });
 
     const recordPayload: LEDPayload = {
@@ -115,7 +147,7 @@ export class LEDResolver {
 
     return Object.assign({
       ok: true,
-      msg: "update success",
+      msg: "successfully edit LED effect",
       partName,
       effectName: name,
       repeat: target.repeat,
@@ -184,6 +216,6 @@ export class LEDResolver {
       effectName,
     };
     await publishLEDRecord(recordPayload);
-    return { ok: true };
+    return { ok: true, msg: "successfully delete LED effect" };
   }
 }
