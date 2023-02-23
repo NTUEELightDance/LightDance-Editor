@@ -13,8 +13,8 @@ import {
   editCurrentStatusFiber,
   editCurrentStatusLED,
   pushStatusStack,
-  MinusStatusStackIndex,
-  PlusStatusStackIndex,
+  DecrementStatusStackIndex,
+  IncrementStatusStackIndex,
   setSelectedDancers,
 } from "@/core/actions";
 import { DANCER } from "@/constants";
@@ -26,7 +26,7 @@ import { log } from "core/utils";
 /**
  * Clipboard component for copy/paste
  */
-export default function DancerStatus() {
+export default function Clipboard() {
   const copiedStatus = useRef<ReactiveVar<DancerStatus>>(makeVar({}));
 
   useHotkeys("ctrl+c, meta+c", () => {
@@ -41,11 +41,13 @@ export default function DancerStatus() {
   });
 
   useHotkeys("ctrl+v, meta+v", () => {
+    log("paste");
     const selected = Object.keys(reactiveState.selected()).filter(
       (name) => reactiveState.selected()[name].selected
     );
     const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
+    log("selectionMode", selectionMode);
     if (selectionMode === DANCER) {
       log("selected", selected);
       if (selected.length === 0) {
@@ -91,7 +93,7 @@ export default function DancerStatus() {
       notification.error("No more undo history");
       return;
     }
-    MinusStatusStackIndex();
+    DecrementStatusStackIndex();
     setCurrentStatus({
       payload: statusStack[statusStackIndex - 1],
     });
@@ -110,7 +112,7 @@ export default function DancerStatus() {
     setCurrentStatus({
       payload: statusStack[statusStackIndex + 1],
     });
-    PlusStatusStackIndex();
+    IncrementStatusStackIndex();
     notification.success("Redo");
     log("statusStack", statusStack);
   });

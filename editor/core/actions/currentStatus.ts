@@ -146,12 +146,12 @@ const actions = registerActions({
     log("statusStackIndex: ", state.statusStackIndex);
   },
 
-  MinusStatusStackIndex: (state: State) => {
+  DecrementStatusStackIndex: (state: State) => {
     state.statusStackIndex -= 1;
     log("statusStackIndex: ", state.statusStackIndex);
   },
 
-  PlusStatusStackIndex: (state: State) => {
+  IncrementStatusStackIndex: (state: State) => {
     state.statusStackIndex += 1;
     log("statusStackIndex: ", state.statusStackIndex);
   },
@@ -164,6 +164,6 @@ export const {
   editCurrentStatusDelta,
   syncCurrentStatusWithControlMap,
   pushStatusStack,
-  MinusStatusStackIndex,
-  PlusStatusStackIndex,
+  DecrementStatusStackIndex,
+  IncrementStatusStackIndex,
 } = actions;
