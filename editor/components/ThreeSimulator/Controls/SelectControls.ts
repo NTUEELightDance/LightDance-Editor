@@ -1,7 +1,22 @@
-import { EventDispatcher, Raycaster, Vector2, Group } from "three";
-import { setSelectedDancers, clearSelected } from "../../../core/actions";
+import {
+  EventDispatcher,
+  Raycaster,
+  Vector2,
+  Group,
+  cloneUniformsGroups,
+  WebGLRenderer,
+  PCFShadowMap,
+} from "three";
+import {
+  setSelectedDancers,
+  clearSelected,
+  setSelectedLEDs,
+  setSelectedParts,
+} from "../../../core/actions";
+import { state } from "core/state";
 import { DANCER, PART } from "@/constants";
-
+import { SelectionBox } from "./SelectionBox";
+import { SelectionHelper } from "./SelectionHelper";
 import { throttle } from "throttle-debounce";
 
 const _raycaster = new Raycaster();
@@ -18,20 +33,26 @@ class SelectControls extends EventDispatcher {
     let _mode = DANCER;
 
     const _intersections = [];
-
     _scene.add(_group);
 
-    //
+    const renderer = new WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = PCFShadowMap;
+
+    const selectionBox = new SelectionBox(_camera, _scene);
+    const helper = new SelectionHelper(renderer, "selectBox");
 
     const scope = this;
-
     function activate(mode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
       _domElement.addEventListener(
         "pointermove",
         throttle(1000 / 30, onPointerMove)
       );
-
+      _domElement.addEventListener("pointerup", onPointerUp);
       _mode = mode;
     }
 
@@ -41,7 +62,7 @@ class SelectControls extends EventDispatcher {
         "pointermove",
         throttle(1000 / 30, onPointerMove)
       );
-
+      _domElement.removeEventListener("pointerup", onPointerUp);
       _domElement.style.cursor = "";
     }
 
@@ -64,12 +85,23 @@ class SelectControls extends EventDispatcher {
     function onPointerDown(event) {
       if (event.button !== 0 || scope.enabled === false) return;
 
+      //TODO: selection box implement
+      scope.onLasso = true;
+      const rect = _domElement.getBoundingClientRect();
+      selectionBox.startPoint.set(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+        0.5
+      );
+
       updatePointer(event);
 
       _intersections.length = 0;
-
       _raycaster.setFromCamera(_pointer, _camera);
       _raycaster.intersectObjects(_objects, true, _intersections);
+      //objects: objects to check
+      //true: recursive or not
+      //intersections: the variable of the result
 
       if (_intersections.length > 0) {
         const object = _intersections[0].object.parent;
@@ -96,15 +128,28 @@ class SelectControls extends EventDispatcher {
       }
 
       _updateDragGroup();
-
-      setSelectedDancers({
-        payload: _group.children.map((child) => child.name),
-      });
+      if (state.selectionMode === "DANCER_MODE") {
+        setSelectedDancers({
+          payload: _group.children.map((child) => child.name),
+        });
+      }
     }
 
     let _hover = null;
 
     function onPointerMove(event) {
+      if (scope.onLasso) {
+        updatePointer(event);
+        _raycaster.setFromCamera(_pointer, _camera);
+        const rect = _domElement.getBoundingClientRect();
+        selectionBox.endPoint.set(
+          ((event.clientX - rect.left) / rect.width) * 2 - 1,
+          (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+          0.5
+        );
+        selectionBox.select();
+        return;
+      }
       updatePointer(event);
       _intersections.length = 0;
 
@@ -119,6 +164,62 @@ class SelectControls extends EventDispatcher {
       } else if (_hover) {
         _unhoverByName(_hover);
         _hover = null;
+      }
+    }
+
+    function onPointerUp(event) {
+      if (scope.onLasso === true) {
+        scope.onLasso = false;
+        type selectedLED = {
+          name: string;
+          dancerName: string;
+        };
+        const selectedLED_payload: selectedLED[] = [];
+        if (selectionBox.collection.length > 0) {
+          //TODO: Dancer Mode
+          if (state.selectionMode === "DANCER_MODE") {
+            const dancers = [];
+            selectionBox.collection.forEach((part, index) => {
+              const name = part.name;
+              if (name === "Human") {
+                dancers.push(part.parent.name);
+              }
+            });
+            setSelectedDancers({ payload: dancers });
+          }
+
+          //TODO: Fiber Part Mode
+          if (state.selectionMode === "PART_MODE") {
+            const parts = [];
+            selectionBox.collection.forEach((part, index) => {
+              const name = part.name;
+              if (
+                name !== "Human" &&
+                name !== "nameTag" &&
+                name.includes("LED") === false
+              ) {
+                if (
+                  !parts[part.parent.name] &&
+                  state.dancerNames.includes(part.parent.name)
+                ) {
+                  parts[part.parent.name] = [];
+                }
+                parts[part.parent.name]?.push(name);
+              }
+            });
+            setSelectedParts({ payload: parts });
+          }
+
+          //TODO: LED Part Mode
+          if (state.selectionMode === "LED_MODE") {
+            const parts = [];
+            selectionBox.collection.forEach((part, index) => {
+              if (part.name.includes("LED")) {
+                parts.push(part);
+              }
+            });
+          }
+        }
       }
     }
 
@@ -178,7 +279,7 @@ class SelectControls extends EventDispatcher {
       });
 
       _updateDragGroup();
-
+      //called only dancer selected
       if (scope.selectedOutline) {
         scope.selectedOutline.selectedObjects = selectedObjects;
       }
@@ -201,7 +302,8 @@ class SelectControls extends EventDispatcher {
 
     this.enabled = true;
     this.enableMultiSelection = false;
-
+    this.blocking = false;
+    this.onLasso = false;
     this.activate = activate;
     this.deactivate = deactivate;
     this.dispose = dispose;

@@ -15,7 +15,7 @@ export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
 export type RGB = [number, number, number];
 export type RGBA = [number, number, number, number];
-
+``
 export function isColorCode(colorCode: unknown): colorCode is ColorCode {
   if (typeof colorCode !== "string") return false;
   return /^#[0-9a-fA-F]{6}$/i.test(colorCode);

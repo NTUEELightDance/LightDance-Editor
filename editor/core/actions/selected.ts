@@ -1,6 +1,11 @@
 import { registerActions } from "../registerActions";
 // types
-import { State, Selected, SelectedPartPayload } from "../models";
+import {
+  State,
+  Selected,
+  SelectedPartPayload,
+  SelectedLEDPartPayload,
+} from "../models";
 
 const actions = registerActions({
   /**
@@ -25,7 +30,14 @@ const actions = registerActions({
   },
 
   /**
-   * Set selected dancer
+   * Set selected LED parts
+   * @param {State} state
+   * @param {SelectedLEDPartPayload} payload
+   */
+  setSelectedLEDParts: (state: State, payload: SelectedLEDPartPayload) => {},
+
+  /**
+   * Set selected Fiber parts
    * @param {State} state
    * @param {SelectedPartPayload} payload
    */
@@ -88,4 +100,5 @@ export const {
   toggleSelectedDancer,
   toggleSelectedPart,
   clearSelected,
+  setSelectedLEDs,
 } = actions;

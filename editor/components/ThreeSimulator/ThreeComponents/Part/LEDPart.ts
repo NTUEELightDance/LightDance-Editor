@@ -2,7 +2,7 @@ import { LEDPartData } from "@/core/models";
 import Part from "./Part";
 const defaultDisplay = {
   colorCode: "#000000",
-  alpha: 0,
+  alpha: 255,
 };
 interface MeshType extends THREE.Mesh {
   material: THREE.MeshStandardMaterial;

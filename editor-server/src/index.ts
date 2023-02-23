@@ -24,7 +24,6 @@ import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
 import { ConnectionParam, TContext } from "./types/global";
 import { verifyToken } from "./authentication";
-import test from "node:test";
 
 const port = process.env.PORT || 4000;
 
@@ -136,22 +135,24 @@ const port = process.env.PORT || 4000;
         const testUser = await prisma.user.findFirst();
         if (testUser === null) throw new Error("No test user found");
         // initialize editing
-        const checkEditingControlExist = await prisma.editingControlFrame.findFirst({
-          where: { userId: testUser.id },
-        });
+        const checkEditingControlExist =
+          await prisma.editingControlFrame.findFirst({
+            where: { userId: testUser.id },
+          });
         if (!checkEditingControlExist) {
           await prisma.editingControlFrame.create({
             data: { userId: testUser.id, frameId: null },
           });
-        };
-        const checkEditingPositionExist = await prisma.editingPositionFrame.findFirst({
-          where: { userId: testUser.id },
-        });
+        }
+        const checkEditingPositionExist =
+          await prisma.editingPositionFrame.findFirst({
+            where: { userId: testUser.id },
+          });
         if (!checkEditingPositionExist) {
           await prisma.editingPositionFrame.create({
             data: { userId: testUser.id, frameId: null },
           });
-        };
+        }
         const checkEditingLEDExist = await prisma.editingLEDEffect.findFirst({
           where: { userId: testUser.id },
         });
@@ -159,7 +160,7 @@ const port = process.env.PORT || 4000;
           await prisma.editingLEDEffect.create({
             data: { userId: testUser.id, LEDEffectId: null },
           });
-        };
+        }
         return {
           prisma,
           userId: testUser.id,
@@ -171,22 +172,24 @@ const port = process.env.PORT || 4000;
       const { success, user } = await verifyToken(token);
       if (success) {
         // initialize editing
-        const checkEditingControlExist = await prisma.editingControlFrame.findFirst({
-          where: { userId: user.id },
-        });
+        const checkEditingControlExist =
+          await prisma.editingControlFrame.findFirst({
+            where: { userId: user.id },
+          });
         if (!checkEditingControlExist) {
           await prisma.editingControlFrame.create({
             data: { userId: user.id, frameId: null },
           });
-        };
-        const checkEditingPositionExist = await prisma.editingPositionFrame.findFirst({
-          where: { userId: user.id },
-        });
+        }
+        const checkEditingPositionExist =
+          await prisma.editingPositionFrame.findFirst({
+            where: { userId: user.id },
+          });
         if (!checkEditingPositionExist) {
           await prisma.editingPositionFrame.create({
             data: { userId: user.id, frameId: null },
           });
-        };
+        }
         const checkEditingLEDExist = await prisma.editingLEDEffect.findFirst({
           where: { userId: user.id },
         });
@@ -194,7 +197,7 @@ const port = process.env.PORT || 4000;
           await prisma.editingLEDEffect.create({
             data: { userId: user.id, LEDEffectId: null },
           });
-        };
+        }
         return { prisma, userId: user.id, username: user.name };
       } else {
         throw new Error("Unauthorized");

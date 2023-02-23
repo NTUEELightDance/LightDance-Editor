@@ -199,9 +199,8 @@ class ThreeController {
       this.scene,
       this.camera
     );
-
-    selectedOutline.edgeStrength = 2.0;
-    selectedOutline.edgeThickness = 1.0;
+    selectedOutline.edgeStrength = 5.0;
+    selectedOutline.edgeThickness = 0.2;
     selectedOutline.visibleEdgeColor.set(0xffffff);
     selectedOutline.hiddenEdgeColor.set(0x222222);
 
@@ -213,7 +212,6 @@ class ThreeController {
       this.scene,
       this.camera
     );
-
     hoveredOutline.edgeStrength = 2.0;
     hoveredOutline.edgeThickness = 1.0;
     hoveredOutline.visibleEdgeColor.set(0xffff00);
@@ -222,10 +220,13 @@ class ThreeController {
   }
   generateComposer() {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
-    const renderTarget = new THREE.WebGLMultisampleRenderTarget(
-      size.width,
-      size.height
-    );
+    const renderTarget = new THREE.WebGLRenderTarget(size.width, size.height, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      samples: 4,
+    });
 
     const composer = new EffectComposer(this.renderer, renderTarget);
 
