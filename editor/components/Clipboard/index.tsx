@@ -13,7 +13,9 @@ import {
   editCurrentStatusFiber,
   editCurrentStatusLED,
   pushStatusStack,
-  popStatusStack,
+  MinusStatusStackIndex,
+  PlusStatusStackIndex,
+  setSelectedDancers,
 } from "@/core/actions";
 import { DANCER } from "@/constants";
 
@@ -24,7 +26,7 @@ import { log } from "core/utils";
 /**
  * Clipboard component for copy/paste
  */
-export default function Clipboard() {
+export default function DancerStatus() {
   const copiedStatus = useRef<ReactiveVar<DancerStatus>>(makeVar({}));
 
   useHotkeys("ctrl+c, meta+c", () => {
@@ -45,6 +47,11 @@ export default function Clipboard() {
     const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
     if (selectionMode === DANCER) {
+      log("selected", selected);
+      if (selected.length === 0) {
+        notification.error(`Please select dancers first!`);
+        return;
+      }
       selected.forEach((dancer) => {
         Object.keys(copiedStatus.current()).forEach((part) => {
           if (Object.keys(currentStatus[dancer]).includes(part)) {
@@ -84,7 +91,7 @@ export default function Clipboard() {
       notification.error("No more undo history");
       return;
     }
-    popStatusStack();
+    MinusStatusStackIndex();
     setCurrentStatus({
       payload: statusStack[statusStackIndex - 1],
     });
@@ -103,7 +110,7 @@ export default function Clipboard() {
     setCurrentStatus({
       payload: statusStack[statusStackIndex + 1],
     });
-    pushStatusStack();
+    PlusStatusStackIndex();
     notification.success("Redo");
     log("statusStack", statusStack);
   });
@@ -125,6 +132,57 @@ export default function Clipboard() {
       notification.success(`Cut ${selected}'s state to clipboard!`);
     }
   });
+
+  useHotkeys("ctrl+a, meta+a", (e) => {
+    e.preventDefault();
+    const selectionMode = reactiveState.selectionMode();
+    const dancerNames = reactiveState.dancerNames();
+    if (selectionMode === DANCER) {
+      setSelectedDancers({
+        payload: dancerNames,
+      });
+    }
+  });
+
+  useHotkeys("ctrl+shift+a, meta+shift+a", (e) => {
+    e.preventDefault();
+    const selectionMode = reactiveState.selectionMode();
+    if (selectionMode === DANCER) {
+      setSelectedDancers({
+        payload: [],
+      });
+    }
+  });
+
+  //   useHotkeys("right", () => {
+  //     const selected = Object.keys(reactiveState.selected()).find(
+  //       (name) => reactiveState.selected()[name].selected
+  //     );
+  //     if (selected) {
+  //       const dancerNames = reactiveState.dancerNames();
+  //       const index = dancerNames.indexOf(selected);
+  //       if (index !== dancerNames.length - 1) {
+  //         setSelectedDancers({
+  //           payload: [dancerNames[index + 1]],
+  //         });
+  //       }
+  //     }
+  //   });
+
+  //   useHotkeys("left", () => {
+  //     const selected = Object.keys(reactiveState.selected()).find(
+  //       (name) => reactiveState.selected()[name].selected
+  //     );
+  //     if (selected) {
+  //       const dancerNames = reactiveState.dancerNames();
+  //       const index = dancerNames.indexOf(selected);
+  //       if (index !== 0) {
+  //         setSelectedDancers({
+  //           payload: [dancerNames[index - 1]],
+  //         });
+  //       }
+  //     }
+  //   });
 
   return <></>;
 }

@@ -45,6 +45,18 @@ const HotKeyList: HotKey[] = [
     key: "ctrl/cmd+a",
   },
   {
+    label: "unselect all dancers",
+    key: "ctrl/cmd+shift+a",
+  },
+  {
+    label: "select the next dancer",
+    key: "down arrow",
+  },
+  {
+    label: "select the previous dancer",
+    key: "up arrow",
+  },
+  {
     label: "play/pause",
     key: "space",
   },

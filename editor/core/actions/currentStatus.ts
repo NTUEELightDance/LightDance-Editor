@@ -143,12 +143,17 @@ const actions = registerActions({
     }
     state.statusStack.push(cloneDeep(state.currentStatus));
     state.statusStackIndex += 1;
-    log("statusStack: ", state.statusStack);
+    log("statusStackIndex: ", state.statusStackIndex);
   },
 
-  popStatusStack: (state: State) => {
+  MinusStatusStackIndex: (state: State) => {
     state.statusStackIndex -= 1;
-    log("statusStack: ", state.statusStack);
+    log("statusStackIndex: ", state.statusStackIndex);
+  },
+
+  PlusStatusStackIndex: (state: State) => {
+    state.statusStackIndex += 1;
+    log("statusStackIndex: ", state.statusStackIndex);
   },
 });
 
@@ -159,5 +164,6 @@ export const {
   editCurrentStatusDelta,
   syncCurrentStatusWithControlMap,
   pushStatusStack,
-  popStatusStack,
+  MinusStatusStackIndex,
+  PlusStatusStackIndex,
 } = actions;
