@@ -26,8 +26,8 @@ uniform sampler2D pointTexture;
 varying vec4 vColor;
 
 void main() {
-  gl_FragColor = vColor;
-  gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+  // apply texture to make the point round
+  gl_FragColor = vColor * texture2D( pointTexture, gl_PointCoord );
 }
 `;
 
@@ -86,7 +86,10 @@ export default class LEDPart extends Part {
       },
       vertexShader,
       fragmentShader,
+      // enable alpha blending
       transparent: true,
+      // to avoid LEDs from covering each other
+      depthWrite: false,
     });
 
     this.LEDs = new THREE.Points(this.geometry, material);
