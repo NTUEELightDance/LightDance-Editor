@@ -37,7 +37,7 @@ export function Settings({
       modalChildren: <Hotkeys />,
     },
     {
-      label: "Timeshift",
+      label: "TimeShift",
       modalOpen: timeShiftOpen,
       handleClick: () => {
         setTimeShiftOpen(true);

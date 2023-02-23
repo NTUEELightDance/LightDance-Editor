@@ -16,25 +16,6 @@ import useColorMap from "hooks/useColorMap";
 import ColorDialog from "./ColorDialog";
 import ColorListItem from "./ColorListItem";
 
-const protectedColors = ["blue", "red", "yellow"];
-
-const colorMapSorter = (
-  [colorNameA]: [colorNameA: string, colorCodeA: string],
-  [colorNameB]: [colorNameB: string, colorCodeB: string]
-) => {
-  if (
-    protectedColors.includes(colorNameA) &&
-    protectedColors.includes(colorNameB)
-  ) {
-    return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
-  }
-
-  if (protectedColors.includes(colorNameA)) return -1;
-  if (protectedColors.includes(colorNameB)) return 1;
-
-  return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
-};
-
 export default function ColorPalette() {
   const { colorMap, handleAddColor, handleEditColor, handleDeleteColor } =
     useColorMap();
@@ -50,6 +31,24 @@ export default function ColorPalette() {
     setEditDialogOpen((editDialogOpen) => {
       editDialogOpen[color] = true;
     });
+  };
+
+  const protectedColors = ["blue", "red", "yellow"];
+  const colorMapSorter = (
+    [colorNameA]: [colorNameA: string, colorCodeA: string],
+    [colorNameB]: [colorNameB: string, colorCodeB: string]
+  ) => {
+    if (
+      protectedColors.includes(colorNameA) &&
+      protectedColors.includes(colorNameB)
+    ) {
+      return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
+    }
+
+    if (protectedColors.includes(colorNameA)) return -1;
+    if (protectedColors.includes(colorNameB)) return 1;
+
+    return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
   };
 
   return (
@@ -108,28 +107,29 @@ export default function ColorPalette() {
       </Paper>
 
       <ColorDialog
-        variant="add"
+        type="add"
         open={addDialogOpen}
         handleClose={() => {
           setAddDialogOpen(false);
         }}
-        handleUpdateColor={handleAddColor}
+        handleMutateColor={handleAddColor}
       />
 
       {Object.entries(colorMap).map(([colorName, colorCode]) => (
         <ColorDialog
-          variant="edit"
+          type="edit"
           open={editDialogOpen[colorName]}
           handleClose={() => {
             setEditDialogOpen((editDialogOpen) => {
               editDialogOpen[colorName] = false;
             });
           }}
-          handleUpdateColor={async (newColorCode: string) => {
-            await handleEditColor(colorName, newColorCode);
+          handleMutateColor={async (newColorName, newColorCode) => {
+            await handleEditColor(colorName, newColorName, newColorCode);
           }}
-          colorName={colorName}
-          currentColorCode={colorCode}
+          defaultColorName={colorName}
+          defaultColorCode={colorCode}
+          disableNameChange={protectedColors.includes(colorName)}
           key={`${colorName}_${colorCode}`}
         />
       ))}
