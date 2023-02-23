@@ -156,35 +156,5 @@ export default function Clipboard() {
     }
   });
 
-  //   useHotkeys("right", () => {
-  //     const selected = Object.keys(reactiveState.selected()).find(
-  //       (name) => reactiveState.selected()[name].selected
-  //     );
-  //     if (selected) {
-  //       const dancerNames = reactiveState.dancerNames();
-  //       const index = dancerNames.indexOf(selected);
-  //       if (index !== dancerNames.length - 1) {
-  //         setSelectedDancers({
-  //           payload: [dancerNames[index + 1]],
-  //         });
-  //       }
-  //     }
-  //   });
-
-  //   useHotkeys("left", () => {
-  //     const selected = Object.keys(reactiveState.selected()).find(
-  //       (name) => reactiveState.selected()[name].selected
-  //     );
-  //     if (selected) {
-  //       const dancerNames = reactiveState.dancerNames();
-  //       const index = dancerNames.indexOf(selected);
-  //       if (index !== 0) {
-  //         setSelectedDancers({
-  //           payload: [dancerNames[index - 1]],
-  //         });
-  //       }
-  //     }
-  //   });
-
   return <></>;
 }
