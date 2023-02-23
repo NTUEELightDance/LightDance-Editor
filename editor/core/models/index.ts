@@ -15,7 +15,7 @@ export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
 export type RGB = [number, number, number];
 export type RGBA = [number, number, number, number];
-
+``
 export function isColorCode(colorCode: unknown): colorCode is ColorCode {
   if (typeof colorCode !== "string") return false;
   return /^#[0-9a-fA-F]{6}$/i.test(colorCode);
@@ -179,8 +179,6 @@ export type Selected = Record<
 
 export type SelectedPartPayload = Record<DancerName, PartName[]>;
 
-export type SelectedLEDPartPayload = Record<string, Record<string, string[]>>;
-
 /**
  * selection mode
  */
@@ -318,10 +316,6 @@ export type DancerPartIndexMap = Record<
     parts: Record<PartName, number>;
   }
 >;
-export type SelectedLED = {
-  name: string;
-  dancerName: string;
-};
 
 /**
  * Mutable State
@@ -370,8 +364,6 @@ export interface State {
   // for converting
   dancersArray: DancersArray;
   dancerPartIndexMap: DancerPartIndexMap;
-
-  selectedLED: SelectedLED[];
 }
 
 export type StateKey = keyof State;
