@@ -17,7 +17,7 @@ import {
   IncrementStatusStackIndex,
   setSelectedDancers,
 } from "@/core/actions";
-import { DANCER } from "@/constants";
+import { DANCER, POSITION } from "@/constants";
 
 import { notification } from "@/core/utils";
 
@@ -46,7 +46,7 @@ export default function Clipboard() {
     );
     const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER) {
+    if (selectionMode === DANCER || selectionMode === POSITION) {
       if (selected.length === 0) {
         notification.error(`Please select dancers first!`);
         return;
@@ -119,7 +119,7 @@ export default function Clipboard() {
     );
     const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER) {
+    if (selectionMode === DANCER || selectionMode === POSITION) {
       if (selected.length === 0) {
         notification.error(`Please select dancers first!`);
         return;
@@ -164,7 +164,7 @@ export default function Clipboard() {
     e.preventDefault();
     const selectionMode = reactiveState.selectionMode();
     const dancerNames = reactiveState.dancerNames();
-    if (selectionMode === DANCER) {
+    if (selectionMode === DANCER || selectionMode === POSITION) {
       setSelectedDancers({
         payload: dancerNames,
       });
@@ -174,7 +174,7 @@ export default function Clipboard() {
   useHotkeys("ctrl+shift+a, meta+shift+a", (e) => {
     e.preventDefault();
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER) {
+    if (selectionMode === DANCER || selectionMode === POSITION) {
       setSelectedDancers({
         payload: [],
       });
