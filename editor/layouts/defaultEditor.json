@@ -17,6 +17,12 @@
         },
         {
           "type": "tab",
+          "name": "LEDEffect",
+          "component": "LEDEffectList",
+          "enableClose": false
+        },
+        {
+          "type": "tab",
           "name": "ColorPalette",
           "component": "ColorPalette",
           "enableClose": false

@@ -32,6 +32,9 @@ const PosPresets = lazy(
   async () => await import("components/Presets/PosPresets")
 );
 const EffectList = lazy(async () => await import("components/EffectList"));
+const LEDEffectList = lazy(
+  async () => await import("components/LEDEffectList")
+);
 const Wavesurfer = lazy(async () => await import("components/Wavesurfer"));
 const ColorPalette = lazy(async () => await import("components/ColorPalette"));
 const File = lazy(
@@ -50,6 +53,7 @@ const componentMap = {
   LightPresets,
   PosPresets,
   EffectList,
+  LEDEffectList,
   Wavesurfer,
   File,
 };
