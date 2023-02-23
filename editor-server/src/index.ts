@@ -24,7 +24,6 @@ import apiRoute from "./routes";
 import { AccessMiddleware } from "./middlewares/accessLogger";
 import { ConnectionParam, TContext } from "./types/global";
 import { verifyToken } from "./authentication";
-import test from "node:test";
 
 const port = process.env.PORT || 4000;
 
