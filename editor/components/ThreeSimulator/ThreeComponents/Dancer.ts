@@ -115,6 +115,7 @@ class Dancer {
       switch (partType) {
         case LED:
           this.parts[LED][partName] = new LEDPart(partName, this.model);
+          this.model.add(this.parts[LED][partName].LEDs);
           break;
         case FIBER:
           this.parts[FIBER][partName] = new FiberPart(partName, this.model);

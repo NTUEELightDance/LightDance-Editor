@@ -19,4 +19,4 @@ const actions = registerActions({
   },
 });
 
-export const { setCurrentFade, saveCurrentFade } = actions;
+export const { setCurrentFade } = actions;

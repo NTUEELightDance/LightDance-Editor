@@ -104,6 +104,7 @@ const actions = registerActions({
             effect: [],
             effectIndex: 0,
             recordIndex: 0,
+            alpha: 0,
           };
         }
       });

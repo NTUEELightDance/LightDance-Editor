@@ -24,7 +24,7 @@ import { state } from "core/state";
 // states
 
 import store from "../../store";
-import {
+import type {
   ControlMapStatus,
   CurrentLEDStatus,
   PosMapStatus,
