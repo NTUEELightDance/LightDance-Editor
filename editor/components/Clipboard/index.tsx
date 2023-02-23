@@ -130,7 +130,6 @@ export default function Clipboard() {
       setCurrentStatus({
         payload: currentStatus,
       });
-      pushStatusStack();
       notification.success(`Cut ${selected}'s state to clipboard!`);
     }
   });

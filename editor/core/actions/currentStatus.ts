@@ -25,6 +25,12 @@ const actions = registerActions({
   setCurrentStatus: (state: State, payload: ControlMapStatus) => {
     log(payload);
     state.currentStatus = payload;
+    // not call by undo or redo action so push to stack
+    if (state.statusStackIndex === state.statusStack.length - 1) {
+      log("push to stack");
+      pushStatusStack();
+    }
+    syncCurrentLEDStatus();
   },
 
   /**
@@ -141,6 +147,8 @@ const actions = registerActions({
         state.statusStackIndex + 1
       );
     }
+    if (state.statusStack[state.statusStackIndex] === state.currentStatus)
+      return;
     state.statusStack.push(cloneDeep(state.currentStatus));
     state.statusStackIndex += 1;
     log("statusStackIndex: ", state.statusStackIndex);
