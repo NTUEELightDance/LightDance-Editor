@@ -41,15 +41,12 @@ export default function Clipboard() {
   });
 
   useHotkeys("ctrl+v, meta+v", () => {
-    log("paste");
     const selected = Object.keys(reactiveState.selected()).filter(
       (name) => reactiveState.selected()[name].selected
     );
     const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
-    log("selectionMode", selectionMode);
     if (selectionMode === DANCER) {
-      log("selected", selected);
       if (selected.length === 0) {
         notification.error(`Please select dancers first!`);
         return;
@@ -98,7 +95,6 @@ export default function Clipboard() {
       payload: statusStack[statusStackIndex - 1],
     });
     notification.success("Undo");
-    log("statusStack", statusStack);
   });
 
   useHotkeys("ctrl+shift+z, meta+shift+z", () => {
@@ -118,19 +114,49 @@ export default function Clipboard() {
   });
 
   useHotkeys("ctrl+x, meta+x", () => {
-    log("cut");
-    const selected = Object.keys(reactiveState.selected()).find(
+    const selected = Object.keys(reactiveState.selected()).filter(
       (name) => reactiveState.selected()[name].selected
     );
-    if (selected) {
-      const currentStatus = reactiveState.currentStatus();
-      const statusStack = reactiveState.statusStack();
-      copiedStatus.current(currentStatus[selected]);
-      currentStatus[selected] = statusStack[0][selected];
-      setCurrentStatus({
-        payload: currentStatus,
+    const currentStatus = reactiveState.currentStatus();
+    const selectionMode = reactiveState.selectionMode();
+    if (selectionMode === DANCER) {
+      if (selected.length === 0) {
+        notification.error(`Please select dancers first!`);
+        return;
+      }
+      selected.forEach((dancer) => {
+        copiedStatus.current(currentStatus[dancer]);
+        Object.keys(currentStatus[dancer]).forEach((part) => {
+          const value = currentStatus[dancer][part];
+          if (isFiberData(value)) {
+            editCurrentStatusFiber({
+              payload: {
+                dancerName: dancer,
+                partName: part,
+                value: {
+                  color: "#000000",
+                  alpha: 0,
+                },
+              },
+            });
+          } else if (isLEDData(value)) {
+            editCurrentStatusLED({
+              payload: [
+                {
+                  dancerName: dancer,
+                  partName: part,
+                  value: {
+                    src: "no-effect",
+                    alpha: 0,
+                  },
+                },
+              ],
+            });
+          }
+        });
       });
-      notification.success(`Cut ${selected}'s state to clipboard!`);
+      pushStatusStack();
+      notification.success(`cut dancer: ${selected.join(", ")} light effect`);
     }
   });
 

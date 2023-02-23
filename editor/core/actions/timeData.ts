@@ -17,6 +17,8 @@ import { IDLE } from "@/constants";
 import { syncCurrentStatusWithControlMap } from "./currentStatus";
 import { syncCurrentPosWithPosMap } from "./currentPos";
 
+import { log } from "@/core/utils";
+
 const actions = registerActions({
   /**
    * calculate the currentStatus, currentPos according to the time
@@ -86,6 +88,7 @@ const actions = registerActions({
    * @param {object} payload
    */
   setCurrentControlIndex: async (state: State, payload: number) => {
+    log("setCurrentControlIndex", payload);
     const [controlMap, controlRecord] = await getControlPayload();
     let controlIndex = payload;
     if (isNaN(controlIndex)) {
@@ -96,6 +99,9 @@ const actions = registerActions({
     controlIndex = clamp(controlIndex, 0, controlRecord.length - 1);
     const newTime = controlMap[controlRecord[controlIndex]].start;
     setCurrentTime({ payload: newTime });
+    state.statusStack = [];
+    state.statusStackIndex = -1;
+    log("statusStackIndex", state.statusStackIndex);
   },
 
   /**

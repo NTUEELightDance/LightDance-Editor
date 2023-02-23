@@ -78,7 +78,7 @@ const actions = registerActions({
     const [controlMap, controlRecord] = await getControl();
 
     state.currentStatus = controlMap[controlRecord[0]].status;
-    state.statusStack.push(controlMap[controlRecord[0]].status);
+    state.statusStack.push(state.currentStatus);
     state.statusStackIndex = 0;
   },
 
