@@ -14,7 +14,7 @@ import {
   setSelectedParts,
 } from "../../../core/actions";
 import { state } from "core/state";
-import { DANCER, PART } from "@/constants";
+import { DANCER, PART, POSITION } from "@/constants";
 import { SelectionBox } from "./SelectionBox";
 import { SelectionHelper } from "./SelectionHelper";
 import { throttle } from "throttle-debounce";
@@ -84,15 +84,19 @@ class SelectControls extends EventDispatcher {
 
     function onPointerDown(event) {
       if (event.button !== 0 || scope.enabled === false) return;
-
+      if (state.selectionMode === "POSITION_MODE") {
+        // return;
+      }
       //TODO: selection box implement
-      scope.onLasso = true;
-      const rect = _domElement.getBoundingClientRect();
-      selectionBox.startPoint.set(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-        0.5
-      );
+      if (state.selectionMode !== "POSITION_MODE") {
+        scope.onLasso = true;
+        const rect = _domElement.getBoundingClientRect();
+        selectionBox.startPoint.set(
+          ((event.clientX - rect.left) / rect.width) * 2 - 1,
+          (-(event.clientY - rect.top) / rect.height) * 2 + 1,
+          0.5
+        );
+      }
 
       updatePointer(event);
 
@@ -128,7 +132,10 @@ class SelectControls extends EventDispatcher {
       }
 
       _updateDragGroup();
-      if (state.selectionMode === "DANCER_MODE") {
+      if (
+        state.selectionMode === "DANCER_MODE" ||
+        state.selectionMode === POSITION
+      ) {
         setSelectedDancers({
           payload: _group.children.map((child) => child.name),
         });
@@ -138,6 +145,9 @@ class SelectControls extends EventDispatcher {
     let _hover = null;
 
     function onPointerMove(event) {
+      if (state.selectionMode === "POSITION_MODE") {
+        return;
+      }
       if (scope.onLasso) {
         updatePointer(event);
         _raycaster.setFromCamera(_pointer, _camera);
