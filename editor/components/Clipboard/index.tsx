@@ -22,8 +22,6 @@ import { DANCER, POSITION, PART } from "@/constants";
 
 import { notification } from "@/core/utils";
 
-import { log } from "core/utils";
-
 /**
  * Clipboard component for copy/paste
  */
@@ -119,7 +117,6 @@ export default function Clipboard() {
         return;
       }
       IncrementStatusStackIndex();
-      log("statusStack", statusStack);
     } else if (selectionMode === POSITION) {
       const posStack = reactiveState.posStack();
       const posStackIndex = reactiveState.posStackIndex();
@@ -129,7 +126,6 @@ export default function Clipboard() {
         return;
       }
       IncrementPosStackIndex();
-      log("posStack", posStack);
     }
     notification.success("Redo");
   });

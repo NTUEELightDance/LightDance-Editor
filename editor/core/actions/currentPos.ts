@@ -3,7 +3,6 @@ import { registerActions } from "../registerActions";
 // types
 import type { State, PosMapStatus } from "../models";
 import { getPos, interpolatePos } from "../utils";
-import { log } from "@/core/utils";
 
 const actions = registerActions({
   /**
@@ -87,7 +86,6 @@ const actions = registerActions({
     if (state.posStack[state.posStackIndex] === state.currentPos) return;
     state.posStack.push(cloneDeep(state.currentPos));
     state.posStackIndex += 1;
-    log("posStackIndex: ", state.posStackIndex);
   },
 
   initPosStack: (state: State) => {
@@ -98,13 +96,11 @@ const actions = registerActions({
   IncrementPosStackIndex: (state: State) => {
     state.posStackIndex += 1;
     state.currentPos = state.posStack[state.posStackIndex];
-    log("posStackIndex: ", state.posStackIndex);
   },
 
   DecrementPosStackIndex: (state: State) => {
     state.posStackIndex -= 1;
     state.currentPos = state.posStack[state.posStackIndex];
-    log("posStackIndex: ", state.posStackIndex);
   },
 });
 

@@ -14,7 +14,6 @@ import {
 
 import { Color } from "three";
 import { syncCurrentLEDStatus } from "./led";
-import { log } from "core/utils";
 
 const actions = registerActions({
   /**
@@ -146,7 +145,6 @@ const actions = registerActions({
       return;
     state.statusStack.push(cloneDeep(state.currentStatus));
     state.statusStackIndex += 1;
-    log("statusStackIndex: ", state.statusStackIndex);
   },
 
   initStatusStack: (state: State) => {
@@ -157,13 +155,11 @@ const actions = registerActions({
   DecrementStatusStackIndex: (state: State) => {
     state.statusStackIndex -= 1;
     state.currentStatus = state.statusStack[state.statusStackIndex];
-    log("statusStackIndex: ", state.statusStackIndex);
   },
 
   IncrementStatusStackIndex: (state: State) => {
     state.statusStackIndex += 1;
     state.currentStatus = state.statusStack[state.statusStackIndex];
-    log("statusStackIndex: ", state.statusStackIndex);
   },
 });
 
