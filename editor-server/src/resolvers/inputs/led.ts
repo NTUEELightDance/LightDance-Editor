@@ -1,4 +1,5 @@
 import { InputType, Field, Float, Int } from "type-graphql";
+import { LEDEffectCreateframesInput } from "../../../prisma/generated/type-graphql";
 
 @InputType()
 export class AddLEDInput {
@@ -13,6 +14,21 @@ export class AddLEDInput {
 
   @Field((type) => [LEDEffectInput])
   effects: LEDEffectInput[];
+}
+
+@InputType()
+export class EditLEDInput {
+  @Field((type) => Int)
+  id: number;
+
+  @Field((type) => String)
+  name: string;
+
+  @Field((type) => Int)
+  repeat: number;
+
+  @Field((type) => LEDEffectCreateframesInput, { nullable: true })
+  frames?: LEDEffectCreateframesInput | undefined;
 }
 
 @InputType()

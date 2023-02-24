@@ -14,6 +14,7 @@ import {
   LEDEffectResponse,
   DeleteLEDEffectResponse,
 } from "./response/ledEffectResponse";
+import { EditLEDInput } from "./inputs/led";
 import { TContext } from "../types/global";
 import { LEDEffectCreateInput } from "../../prisma/generated/type-graphql";
 import { Topic } from "./subscriptions/topic";
@@ -95,26 +96,26 @@ export class LEDResolver {
   async editLED(
     @PubSub(Topic.LEDRecord)
     publishLEDRecord: Publisher<LEDPayload>,
-    @Arg("input") input: LEDEffectCreateInput,
+    @Arg("input") input: EditLEDInput,
     @Ctx() ctx: TContext
   ) {
-    const { name, partName, repeat, frames } = input;
+    const { id, name, repeat, frames } = input;
 
     // check overlapped
     const exist = await ctx.prisma.lEDEffect.findFirst({
-      where: { name: name, partName: partName },
+      where: { id: id },
     });
     if (!exist)
       return Object.assign({
-        partName: partName,
-        effectName: name,
+        partName: ",",
+        effectName: ",",
         repeat: repeat,
         effects: frames,
         ok: false,
         msg: "effectName do not exist.",
       });
     const effectToEdit = await ctx.prisma.editingLEDEffect.findFirst({
-      where: { LEDEffectId: exist.id },
+      where: { LEDEffectId: id },
     });
     if (
       effectToEdit &&
@@ -123,14 +124,22 @@ export class LEDResolver {
     ) {
       throw new Error(`The frame is now editing by ${effectToEdit.userId}.`);
     }
+    // check if the LED is used in ControlData
+    const checkEffectInControl = await ctx.prisma.controlData.findMany({
+      where: {
+        value: { path: ['src'], equals: exist.name }
+      }
+    });
+    if(checkEffectInControl.length !== 0) {
+      throw new Error(`LED is used in ControlData`);
+    }
     const target = await ctx.prisma.lEDEffect.update({
       where: {
-        name_partName: {
-          name,
-          partName,
-        },
+        id: id
       },
       data: {
+        // add update name
+        name: name,
         repeat: repeat,
         frames: frames?.set,
       },
@@ -139,7 +148,7 @@ export class LEDResolver {
     const recordPayload: LEDPayload = {
       mutation: ledMutation.UPDATED,
       editBy: ctx.userId,
-      partName,
+      partName: exist.partName,
       effectName: name,
       data: target,
     };
@@ -148,7 +157,7 @@ export class LEDResolver {
     return Object.assign({
       ok: true,
       msg: "successfully edit LED effect",
-      partName,
+      partName: exist.partName,
       effectName: name,
       repeat: target.repeat,
       effects: target.frames,

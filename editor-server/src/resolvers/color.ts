@@ -121,6 +121,14 @@ class ColorResolver {
       where: { color: originalColor },
     });
 
+    // check if color is used in ControlData
+    const checkColorInControl = await ctx.prisma.controlData.findMany({
+      where: { value: { path: ["color"], equals: originalColor } },
+    });
+    if(checkColorInControl.length !== 0) {
+      throw new Error(`color is used in ControlData`);
+    };
+
     await ctx.prisma.color.update({
       where: { color: originalColor },
       data: { color: newColor },
