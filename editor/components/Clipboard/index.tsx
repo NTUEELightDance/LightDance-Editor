@@ -17,16 +17,29 @@ import {
   DecrementPosStackIndex,
   IncrementPosStackIndex,
   setSelectedDancers,
+  setCurrentTime,
 } from "@/core/actions";
 import { DANCER, POSITION, PART } from "@/constants";
 
 import { notification } from "@/core/utils";
+
+import { throttle } from "lodash";
+
+const THROTTLE = 100;
 
 /**
  * Clipboard component for copy/paste
  */
 export default function Clipboard() {
   const copiedStatus = useRef<ReactiveVar<DancerStatus>>(makeVar({}));
+  const timeShift = (time: number): void => {
+    // time increase / decrease several ms
+    const currentTime = reactiveState.currentTime();
+    const newTime = Math.max(0, currentTime + time);
+    setCurrentTime({
+      payload: newTime,
+    });
+  };
 
   useHotkeys("ctrl+c, meta+c", () => {
     const selected = Object.keys(reactiveState.selected()).find(
@@ -163,7 +176,7 @@ export default function Clipboard() {
                   dancerName: dancer,
                   partName: part,
                   value: {
-                    src: "no-effect",
+                    src: "",
                     alpha: 0,
                   },
                 },
@@ -197,6 +210,36 @@ export default function Clipboard() {
       });
     }
   });
+
+  useHotkeys(
+    "left",
+    throttle(() => {
+      timeShift(-100);
+    }, THROTTLE)
+  );
+  useHotkeys(
+    "right",
+    throttle(() => {
+      // time increase 100ms
+      timeShift(100);
+    }, THROTTLE)
+  );
+
+  useHotkeys(
+    "shift+left",
+    throttle(() => {
+      // time decrease 500ms
+      timeShift(-500);
+    }, THROTTLE)
+  );
+
+  useHotkeys(
+    "shift+right",
+    throttle(() => {
+      // time increase 500ms
+      timeShift(500);
+    }, THROTTLE)
+  );
 
   return <></>;
 }

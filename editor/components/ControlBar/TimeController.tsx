@@ -31,7 +31,7 @@ export default function TimeController() {
 
   const editor = useReactiveVar(reactiveState.editor);
   useHotkeys(
-    "right, w",
+    "up, w",
     () => {
       if (editor === CONTROL_EDITOR) {
         handleChangeControlFrame(currentControlIndex + 1);
@@ -40,7 +40,7 @@ export default function TimeController() {
     [editor, currentControlIndex, currentPosIndex]
   );
   useHotkeys(
-    "left, q",
+    "down, s",
     () => {
       if (editor === CONTROL_EDITOR) {
         handleChangeControlFrame(currentControlIndex - 1);
