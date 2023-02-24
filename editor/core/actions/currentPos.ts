@@ -37,6 +37,7 @@ const actions = registerActions({
 
     state.currentPos = cloneDeep(state.currentPos);
     state.currentPos[name] = { x, y, z };
+    pushPosStack();
   },
 
   /**
@@ -46,6 +47,7 @@ const actions = registerActions({
    */
   setCurrentPos: (state: State, payload: PosMapStatus) => {
     state.currentPos = payload;
+    pushPosStack();
   },
 
   /**
@@ -76,6 +78,30 @@ const actions = registerActions({
       );
     }
   },
+
+  pushPosStack: (state: State) => {
+    if (state.posStack.length - 1 !== state.posStackIndex) {
+      state.posStack = state.posStack.slice(0, state.posStackIndex + 1);
+    }
+    if (state.posStack[state.posStackIndex] === state.currentPos) return;
+    state.posStack.push(cloneDeep(state.currentPos));
+    state.posStackIndex += 1;
+  },
+
+  initPosStack: (state: State) => {
+    state.posStack = [cloneDeep(state.currentPos)];
+    state.posStackIndex = 0;
+  },
+
+  IncrementPosStackIndex: (state: State) => {
+    state.posStackIndex += 1;
+    state.currentPos = state.posStack[state.posStackIndex];
+  },
+
+  DecrementPosStackIndex: (state: State) => {
+    state.posStackIndex -= 1;
+    state.currentPos = state.posStack[state.posStackIndex];
+  },
 });
 
 export const {
@@ -83,4 +109,8 @@ export const {
   setCurrentPos,
   setCurrentPosToGround,
   syncCurrentPosWithPosMap,
+  pushPosStack,
+  initPosStack,
+  IncrementPosStackIndex,
+  DecrementPosStackIndex,
 } = actions;

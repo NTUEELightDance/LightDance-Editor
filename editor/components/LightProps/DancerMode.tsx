@@ -26,7 +26,6 @@ function DancerMode() {
 
   const { colorMap } = useColorMap();
   const { partGroups, addNewGroup, deleteGroup } = usePartGroups();
-
   // states for display
   const [displayParts, setDisplayParts] = useState<{
     [key in PartType]?: string[];

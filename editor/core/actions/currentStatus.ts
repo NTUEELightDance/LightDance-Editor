@@ -23,6 +23,8 @@ const actions = registerActions({
    */
   setCurrentStatus: (state: State, payload: ControlMapStatus) => {
     state.currentStatus = payload;
+    pushStatusStack();
+    syncCurrentLEDStatus();
   },
 
   /**
@@ -104,6 +106,7 @@ const actions = registerActions({
 
     if (hasChange) {
       state.currentStatus = newCurrentStatus;
+      pushStatusStack();
     }
 
     if (hasLEDChange) {
@@ -130,6 +133,34 @@ const actions = registerActions({
       );
     }
   },
+
+  pushStatusStack: (state: State) => {
+    if (state.statusStack.length - 1 !== state.statusStackIndex) {
+      state.statusStack = state.statusStack.slice(
+        0,
+        state.statusStackIndex + 1
+      );
+    }
+    if (state.statusStack[state.statusStackIndex] === state.currentStatus)
+      return;
+    state.statusStack.push(cloneDeep(state.currentStatus));
+    state.statusStackIndex += 1;
+  },
+
+  initStatusStack: (state: State) => {
+    state.statusStack = [cloneDeep(state.currentStatus)];
+    state.statusStackIndex = 0;
+  },
+
+  DecrementStatusStackIndex: (state: State) => {
+    state.statusStackIndex -= 1;
+    state.currentStatus = state.statusStack[state.statusStackIndex];
+  },
+
+  IncrementStatusStackIndex: (state: State) => {
+    state.statusStackIndex += 1;
+    state.currentStatus = state.statusStack[state.statusStackIndex];
+  },
 });
 
 export const {
@@ -138,4 +169,8 @@ export const {
   editCurrentStatusLED,
   editCurrentStatusDelta,
   syncCurrentStatusWithControlMap,
+  pushStatusStack,
+  initStatusStack,
+  DecrementStatusStackIndex,
+  IncrementStatusStackIndex,
 } = actions;

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 // mui
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
@@ -5,7 +6,12 @@ import Box from "@mui/material/Box";
 // actions and states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
-import { toggleEditor, setSelectionModeByEditor } from "core/actions";
+import {
+  toggleEditor,
+  setSelectionModeByEditor,
+  initStatusStack,
+  initPosStack,
+} from "core/actions";
 // contants
 import { CONTROL_EDITOR, IDLE } from "@/constants";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -33,6 +39,12 @@ export default function EditorSelector() {
     },
     [editor, editMode]
   );
+
+  useEffect(() => {
+    // renew statusStack and posStack
+    initStatusStack();
+    initPosStack();
+  }, [editor, editMode]);
 
   return (
     <Stack direction="row" alignItems="center" spacing={2}>

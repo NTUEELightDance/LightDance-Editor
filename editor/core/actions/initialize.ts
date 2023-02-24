@@ -78,6 +78,8 @@ const actions = registerActions({
     const [controlMap, controlRecord] = await getControl();
 
     state.currentStatus = controlMap[controlRecord[0]].status;
+    state.statusStack.push(state.currentStatus);
+    state.statusStackIndex = 0;
   },
 
   // depends on initDancers
@@ -85,6 +87,8 @@ const actions = registerActions({
     const [posMap, posRecord] = await getPos();
 
     state.currentPos = posMap[posRecord[0]].pos;
+    state.posStack.push(state.currentPos);
+    state.posStackIndex = 0;
   },
 
   initColorMap: async (state: State) => {

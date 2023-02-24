@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 // mui
 import { Stack } from "@mui/material";
 import FrameControlInput from "./FrameControlInput";
@@ -7,6 +8,7 @@ import TimeControlInput from "./TimeControlInput";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "../../core/state";
 import { setCurrentControlIndex, setCurrentPosIndex } from "../../core/actions";
+import { initStatusStack, initPosStack } from "../../core/actions";
 
 // hotkeys
 import { useHotkeys } from "react-hotkeys-hook";
@@ -46,6 +48,12 @@ export default function TimeController() {
     },
     [editor, currentControlIndex, currentPosIndex]
   );
+
+  useEffect(() => {
+    // renew statusStack and posStack
+    initStatusStack();
+    initPosStack();
+  }, [currentControlIndex, currentPosIndex]);
 
   return (
     <Stack

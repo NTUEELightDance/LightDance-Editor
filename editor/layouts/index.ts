@@ -1,4 +1,4 @@
-import defaultEditorConfig from "./editor.json";
+import defaultEditorConfig from "./defaultEditor.json";
 import commandCenterConfig from "./commandCenter.json";
 
 export default {

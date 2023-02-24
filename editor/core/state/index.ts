@@ -24,10 +24,14 @@ const _state: State = {
   currentTime: 0,
   currentControlIndex: 0,
   currentPosIndex: 0,
+  posStack: [],
+  posStackIndex: 0,
 
   currentStatus: {},
   currentFade: false,
   currentPos: {},
+  statusStack: [],
+  statusStackIndex: 0,
 
   ledEffectRecord: {},
   currentLEDStatus: {},

@@ -147,8 +147,13 @@ class WaveSurferApp {
   seekTo(time: number) {
     if (!this.ready) return;
     const duration = this.waveSurfer.getDuration();
+    // if duration is nan, seek to 0
     const target = time / 1000 / duration;
-    this.waveSurfer.seekTo(target);
+    if (isNaN(target)) {
+      this.waveSurfer.seekTo(0);
+    } else {
+      this.waveSurfer.seekTo(target);
+    }
   }
 
   /**

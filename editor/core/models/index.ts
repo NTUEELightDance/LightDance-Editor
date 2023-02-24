@@ -15,7 +15,7 @@ export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
 export type RGB = [number, number, number];
 export type RGBA = [number, number, number, number];
-``
+
 export function isColorCode(colorCode: unknown): colorCode is ColorCode {
   if (typeof colorCode !== "string") return false;
   return /^#[0-9a-fA-F]{6}$/i.test(colorCode);
@@ -335,10 +335,14 @@ export interface State {
   currentTime: number; // current time
   currentControlIndex: number; // current index in controlRecord
   currentPosIndex: number; // current index in posRecord
+  posStack: PosMapStatus[]; // current pos Frame
+  posStackIndex: number; // current index in posStack
 
   currentFade: boolean; // current control Frame will fade to next
   currentStatus: ControlMapStatus; // current dancers' status
   currentPos: PosMapStatus; // current dancers' position
+  statusStack: ControlMapStatus[]; // current control Frame
+  statusStackIndex: number; // current index in statusStack
 
   ledEffectRecord: LEDEffectRecord;
   currentLEDStatus: CurrentLEDStatus;

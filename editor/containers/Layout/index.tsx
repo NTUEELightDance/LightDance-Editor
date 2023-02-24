@@ -1,6 +1,6 @@
 import type { TabNode, IJsonModel } from "flexlayout-react";
 
-import { lazy, Suspense, useMemo, LazyExoticComponent } from "react";
+import { lazy, Suspense, useMemo, LazyExoticComponent, useEffect } from "react";
 
 import {
   Layout as FlexLayout,
@@ -14,6 +14,7 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import configFiles from "layouts";
+import useLayout from "hooks/useLayout";
 
 const CommandCenter = lazy(
   async () => await import("components/CommandCenter")
@@ -34,7 +35,6 @@ const EffectList = lazy(async () => await import("components/EffectList"));
 const Wavesurfer = lazy(async () => await import("components/Wavesurfer"));
 const ColorPalette = lazy(async () => await import("components/ColorPalette"));
 const File = lazy(async () => await import("components/Settings/File"));
-
 const NotFound = lazy(async () => await import("components/NotFound"));
 
 const componentMap = {
@@ -82,13 +82,30 @@ export interface LayoutProps {
 }
 
 function Layout({ mode }: LayoutProps) {
+  const { layout } = useLayout();
+  useEffect(() => {
+    console.log("layout changed");
+  }, [layout]);
   const layoutModel = useMemo(
-    () => FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel),
-    [mode]
+    () => {
+      console.log("in");
+      if (layout === "default") return FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel);
+      else {
+        const customLayout = window.localStorage.getItem("customLayout");
+        if (customLayout) {
+          return FlexLayoutModel.fromJson(JSON.parse(customLayout) as IJsonModel);
+        }
+        // If custom layout is not found, return default layout
+        return FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel);
+      }
+    },
+    [mode, layout]
   );
-
-  // @ts-expect-error
-  return <FlexLayout model={layoutModel} factory={factory} />;
+  return <FlexLayout model={layoutModel} factory={factory} onModelChange={
+    (model) => {
+      window.localStorage.setItem("customLayout", JSON.stringify(model.toJson()));
+    }
+  } />;
 }
 
 export default Layout;

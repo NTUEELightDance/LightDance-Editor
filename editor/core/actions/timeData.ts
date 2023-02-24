@@ -48,8 +48,12 @@ const actions = registerActions({
       time
     );
     state.currentControlIndex = newControlIndex;
-    syncCurrentStatusWithControlMap({
-      options: { refreshThreeSimulator: false, refreshWavesurfer: false },
+    await syncCurrentStatusWithControlMap({
+      options: {
+        rerender: false,
+        refreshThreeSimulator: false,
+        refreshWavesurfer: false,
+      },
     });
 
     // set currentFade
@@ -63,8 +67,9 @@ const actions = registerActions({
       time
     );
     state.currentPosIndex = newPosIndex;
-    syncCurrentPosWithPosMap({
+    await syncCurrentPosWithPosMap({
       options: {
+        rerender: false,
         refreshThreeSimulator: false,
         refreshWavesurfer: false,
       },
@@ -96,6 +101,8 @@ const actions = registerActions({
     controlIndex = clamp(controlIndex, 0, controlRecord.length - 1);
     const newTime = controlMap[controlRecord[controlIndex]].start;
     setCurrentTime({ payload: newTime });
+    state.statusStack = [];
+    state.statusStackIndex = -1;
   },
 
   /**
