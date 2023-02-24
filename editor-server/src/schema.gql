@@ -559,6 +559,13 @@ input EditControlMapInput {
   frameId: Int!
 }
 
+input EditLEDInput {
+  frames: LEDEffectCreateframesInput
+  id: Int!
+  name: String!
+  repeat: Int!
+}
+
 input EditPartInput {
   id: Int!
   length: Int
@@ -1156,7 +1163,7 @@ type Mutation {
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editControlMap(input: EditControlMapInput!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
-  editLED(input: LEDEffectCreateInput!): LEDEffectResponse!
+  editLED(input: EditLEDInput!): LEDEffectResponse!
   editPart(part: EditPartInput!): PartResponse!
   editPosMap(input: EditPositionMapInput!): PositionMap!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
