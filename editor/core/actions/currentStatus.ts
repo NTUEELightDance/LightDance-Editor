@@ -150,11 +150,6 @@ const actions = registerActions({
     state.statusStackIndex = 0;
   },
 
-  initStatusStack: (state: State) => {
-    state.statusStack = [cloneDeep(state.currentStatus)];
-    state.statusStackIndex = 0;
-  },
-
   DecrementStatusStackIndex: (state: State) => {
     state.statusStackIndex -= 1;
     state.currentStatus = state.statusStack[state.statusStackIndex];
