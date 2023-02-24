@@ -9,15 +9,16 @@ import { isFiberData, isLEDData } from "@/core/models";
 
 import { reactiveState } from "@/core/state";
 import {
-  setCurrentStatus,
   editCurrentStatusFiber,
   editCurrentStatusLED,
   pushStatusStack,
   DecrementStatusStackIndex,
   IncrementStatusStackIndex,
+  DecrementPosStackIndex,
+  IncrementPosStackIndex,
   setSelectedDancers,
 } from "@/core/actions";
-import { DANCER, POSITION } from "@/constants";
+import { DANCER, POSITION, PART } from "@/constants";
 
 import { notification } from "@/core/utils";
 
@@ -33,10 +34,13 @@ export default function Clipboard() {
     const selected = Object.keys(reactiveState.selected()).find(
       (name) => reactiveState.selected()[name].selected
     );
-    const currentStatus = reactiveState.currentStatus();
-    if (selected) {
-      notification.success(`Copied ${selected}'s state to clipboard!`);
-      copiedStatus.current(currentStatus[selected]);
+    const selectionMode = reactiveState.selectionMode();
+    if (selectionMode === DANCER) {
+      const currentStatus = reactiveState.currentStatus();
+      if (selected) {
+        notification.success(`Copied ${selected}'s state to clipboard!`);
+        copiedStatus.current(currentStatus[selected]);
+      }
     }
   });
 
@@ -44,13 +48,13 @@ export default function Clipboard() {
     const selected = Object.keys(reactiveState.selected()).filter(
       (name) => reactiveState.selected()[name].selected
     );
-    const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER || selectionMode === POSITION) {
-      if (selected.length === 0) {
-        notification.error(`Please select dancers first!`);
-        return;
-      }
+    if (selected.length === 0) {
+      notification.error(`Please select dancers first!`);
+      return;
+    }
+    if (selectionMode === DANCER) {
+      const currentStatus = reactiveState.currentStatus();
       selected.forEach((dancer) => {
         Object.keys(copiedStatus.current()).forEach((part) => {
           if (Object.keys(currentStatus[dancer]).includes(part)) {
@@ -78,52 +82,69 @@ export default function Clipboard() {
         });
       });
       pushStatusStack();
-      notification.success(`Pasted to dancers: ${selected.join(", ")}`);
+      notification.success(`Pasted status to dancers: ${selected.join(", ")}`);
     }
   });
 
   useHotkeys("ctrl+z, meta+z", () => {
-    const statusStack = reactiveState.statusStack();
-    const statusStackIndex = reactiveState.statusStackIndex();
-    // no more undo history
-    if (statusStackIndex === 0) {
-      notification.error("No more undo history");
-      return;
+    const selectionMode = reactiveState.selectionMode();
+    if (selectionMode === DANCER || selectionMode === PART) {
+      const statusStackIndex = reactiveState.statusStackIndex();
+      // no more undo history
+      if (statusStackIndex === 0) {
+        notification.error("No more undo history");
+        return;
+      }
+      DecrementStatusStackIndex();
+    } else if (selectionMode === POSITION) {
+      const posStackIndex = reactiveState.posStackIndex();
+      // no more undo history
+      if (posStackIndex === 0) {
+        notification.error("No more undo history");
+        return;
+      }
+      DecrementPosStackIndex();
     }
-    DecrementStatusStackIndex();
-    setCurrentStatus({
-      payload: statusStack[statusStackIndex - 1],
-    });
     notification.success("Undo");
   });
 
   useHotkeys("ctrl+shift+z, meta+shift+z", () => {
-    const statusStack = reactiveState.statusStack();
-    const statusStackIndex = reactiveState.statusStackIndex();
-    // no more redo history
-    if (statusStackIndex === statusStack.length - 1) {
-      notification.error("It's the latset status");
-      return;
+    const selectionMode = reactiveState.selectionMode();
+    if (selectionMode === DANCER || selectionMode === PART) {
+      const statusStack = reactiveState.statusStack();
+      const statusStackIndex = reactiveState.statusStackIndex();
+      // no more redo history
+      if (statusStackIndex === statusStack.length - 1) {
+        notification.error("It's the latest status");
+        return;
+      }
+      IncrementStatusStackIndex();
+      log("statusStack", statusStack);
+    } else if (selectionMode === POSITION) {
+      const posStack = reactiveState.posStack();
+      const posStackIndex = reactiveState.posStackIndex();
+      // no more redo history
+      if (posStackIndex === posStack.length - 1) {
+        notification.error("It's the latest position");
+        return;
+      }
+      IncrementPosStackIndex();
+      log("posStack", posStack);
     }
-    setCurrentStatus({
-      payload: statusStack[statusStackIndex + 1],
-    });
-    IncrementStatusStackIndex();
     notification.success("Redo");
-    log("statusStack", statusStack);
   });
 
   useHotkeys("ctrl+x, meta+x", () => {
     const selected = Object.keys(reactiveState.selected()).filter(
       (name) => reactiveState.selected()[name].selected
     );
-    const currentStatus = reactiveState.currentStatus();
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER || selectionMode === POSITION) {
-      if (selected.length === 0) {
-        notification.error(`Please select dancers first!`);
-        return;
-      }
+    if (selected.length === 0) {
+      notification.error(`Please select dancers first!`);
+      return;
+    }
+    if (selectionMode === DANCER) {
+      const currentStatus = reactiveState.currentStatus();
       selected.forEach((dancer) => {
         copiedStatus.current(currentStatus[dancer]);
         Object.keys(currentStatus[dancer]).forEach((part) => {

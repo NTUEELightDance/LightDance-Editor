@@ -8,7 +8,7 @@ import TimeControlInput from "./TimeControlInput";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "../../core/state";
 import { setCurrentControlIndex, setCurrentPosIndex } from "../../core/actions";
-import { initStatusStack } from "../../core/actions";
+import { initStatusStack, initPosStack } from "../../core/actions";
 
 // hotkeys
 import { useHotkeys } from "react-hotkeys-hook";
@@ -50,8 +50,9 @@ export default function TimeController() {
   );
 
   useEffect(() => {
-    // renew statusStack
+    // renew statusStack and posStack
     initStatusStack();
+    initPosStack();
   }, [currentControlIndex, currentPosIndex]);
 
   return (

@@ -23,13 +23,8 @@ const actions = registerActions({
    * @param {ControlMapStatus} payload - status
    */
   setCurrentStatus: (state: State, payload: ControlMapStatus) => {
-    log(payload);
     state.currentStatus = payload;
-    // not call by undo or redo action so push to stack
-    if (state.statusStackIndex === state.statusStack.length - 1) {
-      log("push to stack");
-      pushStatusStack();
-    }
+    pushStatusStack();
     syncCurrentLEDStatus();
   },
 
@@ -161,11 +156,13 @@ const actions = registerActions({
 
   DecrementStatusStackIndex: (state: State) => {
     state.statusStackIndex -= 1;
+    state.currentStatus = state.statusStack[state.statusStackIndex];
     log("statusStackIndex: ", state.statusStackIndex);
   },
 
   IncrementStatusStackIndex: (state: State) => {
     state.statusStackIndex += 1;
+    state.currentStatus = state.statusStack[state.statusStackIndex];
     log("statusStackIndex: ", state.statusStackIndex);
   },
 });

@@ -87,6 +87,8 @@ const actions = registerActions({
     const [posMap, posRecord] = await getPos();
 
     state.currentPos = posMap[posRecord[0]].pos;
+    state.posStack.push(state.currentPos);
+    state.posStackIndex = 0;
   },
 
   initColorMap: async (state: State) => {

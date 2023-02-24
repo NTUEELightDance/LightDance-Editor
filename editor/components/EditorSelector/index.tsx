@@ -10,6 +10,7 @@ import {
   toggleEditor,
   setSelectionModeByEditor,
   initStatusStack,
+  initPosStack,
 } from "core/actions";
 // contants
 import { CONTROL_EDITOR, IDLE } from "@/constants";
@@ -40,8 +41,9 @@ export default function EditorSelector() {
   );
 
   useEffect(() => {
-    // renew statusStack
+    // renew statusStack and posStack
     initStatusStack();
+    initPosStack();
   }, [editor, editMode]);
 
   return (
