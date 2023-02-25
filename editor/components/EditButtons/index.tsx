@@ -42,7 +42,7 @@ export default function EditButtons() {
     handleCancel();
   });
   useHotkeys(
-    "ctrl+s, cmd+s",
+    "ctrl+s, meta+s",
     (e) => {
       e.preventDefault();
       // Save can only be triggered in EDITING mode

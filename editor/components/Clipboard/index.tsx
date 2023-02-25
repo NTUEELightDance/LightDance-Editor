@@ -17,8 +17,10 @@ import {
   DecrementPosStackIndex,
   IncrementPosStackIndex,
   setSelectedDancers,
+  setCurrentControlIndex,
+  setCurrentPosIndex,
 } from "@/core/actions";
-import { DANCER, POSITION, PART } from "@/constants";
+import { DANCER, POSITION, PART, CONTROL_EDITOR } from "@/constants";
 
 import { notification } from "@/core/utils";
 
@@ -163,7 +165,7 @@ export default function Clipboard() {
                   dancerName: dancer,
                   partName: part,
                   value: {
-                    src: "no-effect",
+                    src: "",
                     alpha: 0,
                   },
                 },
