@@ -29,26 +29,6 @@ export default function TimeController() {
     setCurrentPosIndex({ payload: value });
   };
 
-  const editor = useReactiveVar(reactiveState.editor);
-  useHotkeys(
-    "down",
-    () => {
-      if (editor === CONTROL_EDITOR) {
-        handleChangeControlFrame(currentControlIndex + 1);
-      } else handleChangePosFrame(currentPosIndex + 1);
-    },
-    [editor, currentControlIndex, currentPosIndex]
-  );
-  useHotkeys(
-    "up",
-    () => {
-      if (editor === CONTROL_EDITOR) {
-        handleChangeControlFrame(currentControlIndex - 1);
-      } else handleChangePosFrame(currentPosIndex - 1);
-    },
-    [editor, currentControlIndex, currentPosIndex]
-  );
-
   useEffect(() => {
     // renew statusStack and posStack
     initStatusStack();

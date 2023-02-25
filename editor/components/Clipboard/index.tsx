@@ -2,7 +2,7 @@ import { useRef } from "react";
 import type { ReactiveVar } from "@apollo/client";
 
 import { useHotkeys } from "react-hotkeys-hook";
-import { makeVar } from "@apollo/client";
+import { makeVar, useReactiveVar } from "@apollo/client";
 
 import type { DancerStatus } from "@/core/models";
 import { isFiberData, isLEDData } from "@/core/models";
@@ -18,8 +18,10 @@ import {
   IncrementPosStackIndex,
   setSelectedDancers,
   setCurrentTime,
+  setCurrentControlIndex,
+  setCurrentPosIndex,
 } from "@/core/actions";
-import { DANCER, POSITION, PART } from "@/constants";
+import { DANCER, POSITION, PART, CONTROL_EDITOR } from "@/constants";
 
 import { notification } from "@/core/utils";
 
@@ -32,6 +34,7 @@ const THROTTLE = 100;
  */
 export default function Clipboard() {
   const copiedStatus = useRef<ReactiveVar<DancerStatus>>(makeVar({}));
+
   const timeShift = (time: number): void => {
     // time increase / decrease several ms
     const currentTime = reactiveState.currentTime();
@@ -238,6 +241,39 @@ export default function Clipboard() {
     throttle(() => {
       // time increase 500ms
       timeShift(500);
+    }, THROTTLE)
+  );
+
+  useHotkeys(
+    "down",
+    throttle(() => {
+      const editor = reactiveState.editor();
+      const currentControlIndex = reactiveState.currentControlIndex();
+      const currentPosIndex = reactiveState.currentPosIndex();
+      if (editor === CONTROL_EDITOR) {
+        setCurrentControlIndex({
+          payload: currentControlIndex + 1,
+        });
+      } else
+        setCurrentPosIndex({
+          payload: currentPosIndex + 1,
+        });
+    }, THROTTLE)
+  );
+  useHotkeys(
+    "up",
+    throttle(() => {
+      const editor = reactiveState.editor();
+      const currentControlIndex = reactiveState.currentControlIndex();
+      const currentPosIndex = reactiveState.currentPosIndex();
+      if (editor === CONTROL_EDITOR) {
+        setCurrentControlIndex({
+          payload: currentControlIndex - 1,
+        });
+      } else
+        setCurrentPosIndex({
+          payload: currentPosIndex - 1,
+        });
     }, THROTTLE)
   );
 
