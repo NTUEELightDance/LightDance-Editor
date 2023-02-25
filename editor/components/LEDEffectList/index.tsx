@@ -1,17 +1,7 @@
 import React, { useState } from "react";
-import { confirmation } from "core/utils";
-import { reactiveState } from "core/state";
-import { useReactiveVar } from "@apollo/client";
-
-import useEffectList from "hooks/useEffectList";
-import useTimeInput from "hooks/useTimeInput";
 
 // mui materials
-import {
-  Button,
-  Dialog,
-  List,
-} from "@mui/material";
+import { Button, List } from "@mui/material";
 
 import LEDEffectDialog from "./LEDEffectDialog";
 
