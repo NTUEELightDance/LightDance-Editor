@@ -2,7 +2,7 @@ import { useRef } from "react";
 import type { ReactiveVar } from "@apollo/client";
 
 import { useHotkeys } from "react-hotkeys-hook";
-import { makeVar, useReactiveVar } from "@apollo/client";
+import { makeVar } from "@apollo/client";
 
 import type { DancerStatus } from "@/core/models";
 import { isFiberData, isLEDData } from "@/core/models";
@@ -17,7 +17,6 @@ import {
   DecrementPosStackIndex,
   IncrementPosStackIndex,
   setSelectedDancers,
-  setCurrentTime,
   setCurrentControlIndex,
   setCurrentPosIndex,
 } from "@/core/actions";
@@ -25,24 +24,11 @@ import { DANCER, POSITION, PART, CONTROL_EDITOR } from "@/constants";
 
 import { notification } from "@/core/utils";
 
-import { throttle } from "lodash";
-
-const THROTTLE = 100;
-
 /**
  * Clipboard component for copy/paste
  */
 export default function Clipboard() {
   const copiedStatus = useRef<ReactiveVar<DancerStatus>>(makeVar({}));
-
-  const timeShift = (time: number): void => {
-    // time increase / decrease several ms
-    const currentTime = reactiveState.currentTime();
-    const newTime = Math.max(0, currentTime + time);
-    setCurrentTime({
-      payload: newTime,
-    });
-  };
 
   useHotkeys("ctrl+c, meta+c", () => {
     const selected = Object.keys(reactiveState.selected()).find(
@@ -213,69 +199,6 @@ export default function Clipboard() {
       });
     }
   });
-
-  useHotkeys(
-    "left",
-    throttle(() => {
-      timeShift(-100);
-    }, THROTTLE)
-  );
-  useHotkeys(
-    "right",
-    throttle(() => {
-      // time increase 100ms
-      timeShift(100);
-    }, THROTTLE)
-  );
-
-  useHotkeys(
-    "shift+left",
-    throttle(() => {
-      // time decrease 500ms
-      timeShift(-500);
-    }, THROTTLE)
-  );
-
-  useHotkeys(
-    "shift+right",
-    throttle(() => {
-      // time increase 500ms
-      timeShift(500);
-    }, THROTTLE)
-  );
-
-  useHotkeys(
-    "down",
-    throttle(() => {
-      const editor = reactiveState.editor();
-      const currentControlIndex = reactiveState.currentControlIndex();
-      const currentPosIndex = reactiveState.currentPosIndex();
-      if (editor === CONTROL_EDITOR) {
-        setCurrentControlIndex({
-          payload: currentControlIndex + 1,
-        });
-      } else
-        setCurrentPosIndex({
-          payload: currentPosIndex + 1,
-        });
-    }, THROTTLE)
-  );
-  useHotkeys(
-    "up",
-    throttle(() => {
-      const editor = reactiveState.editor();
-      const currentControlIndex = reactiveState.currentControlIndex();
-      const currentPosIndex = reactiveState.currentPosIndex();
-      if (editor === CONTROL_EDITOR) {
-        setCurrentControlIndex({
-          payload: currentControlIndex - 1,
-        });
-      } else
-        setCurrentPosIndex({
-          payload: currentPosIndex - 1,
-        });
-    }, THROTTLE)
-  );
 
   return <></>;
 }
