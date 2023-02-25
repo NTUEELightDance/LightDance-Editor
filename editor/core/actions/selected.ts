@@ -6,7 +6,7 @@ import {
   SelectedPartPayload,
   SelectedLEDPartPayload,
 } from "../models";
-import { DANCER } from "@/constants";
+import { DANCER, POSITION } from "@/constants";
 
 const actions = registerActions({
   /**
@@ -91,7 +91,7 @@ const actions = registerActions({
       state.selected[name].selected = false;
       state.selected[name].parts = [];
     });
-    state.selectionMode = DANCER;
+    if (state.selectionMode !== POSITION) state.selectionMode = DANCER;
   },
 });
 
