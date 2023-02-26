@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 
 import { Typography, IconButton, Menu, MenuItem } from "@mui/material";
-import SettingsIcon from "@mui/icons-material/Settings";
 import Hotkeys from "./Hotkeys";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import File from "./File";
 import Preference from "./Preference";
+import TimeShift from "./TimeShift";
 import { SettingModal } from "./SettingModal";
 
 import { logout } from "@/core/actions";
@@ -19,11 +20,12 @@ export function Settings({
   const [hotkeysModalOpen, setHotkeysModalOpen] = useState<boolean>(false);
   const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
+  const [timeShiftOpen, setTimeShiftOpen] = useState<boolean>(false);
   const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const settings = [
     {
-      label: "hotkeys",
+      label: "Hotkeys",
       modalOpen: hotkeysModalOpen,
       handleClick: () => {
         setHotkeysModalOpen(true);
@@ -35,7 +37,19 @@ export function Settings({
       modalChildren: <Hotkeys />,
     },
     {
-      label: "files",
+      label: "TimeShift",
+      modalOpen: timeShiftOpen,
+      handleClick: () => {
+        setTimeShiftOpen(true);
+        setShowSettings(false);
+      },
+      handleClose: () => {
+        setTimeShiftOpen(false);
+      },
+      modalChildren: <TimeShift setTimeShiftOpen={setTimeShiftOpen} />,
+    },
+    {
+      label: "Files",
       modalOpen: fileModalOpen,
       handleClick: () => {
         setFileModalOpen(true);
@@ -47,7 +61,7 @@ export function Settings({
       modalChildren: <File />,
     },
     {
-      label: "preferences",
+      label: "Preferences",
       modalOpen: prefModalOpen,
       handleClick: () => {
         setPrefModalOpen(true);
@@ -59,7 +73,7 @@ export function Settings({
       modalChildren: <Preference />,
     },
     {
-      label: "logout",
+      label: "Logout",
       handleClick: () => {
         logout();
       },
@@ -74,7 +88,7 @@ export function Settings({
         }}
         ref={menuAnchor}
       >
-        <SettingsIcon sx={{ color: "white" }} />
+        <FormatListBulletedIcon sx={{ color: "white" }} />
       </IconButton>
       <Menu
         sx={{ transform: "translate(-30px, 45px)" }}

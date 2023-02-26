@@ -34,7 +34,10 @@ const PosPresets = lazy(
 const EffectList = lazy(async () => await import("components/EffectList"));
 const Wavesurfer = lazy(async () => await import("components/Wavesurfer"));
 const ColorPalette = lazy(async () => await import("components/ColorPalette"));
-const File = lazy(async () => await import("components/Settings/File"));
+const File = lazy(
+  async () => await import("@/components/Header/Settings/File")
+);
+
 const NotFound = lazy(async () => await import("components/NotFound"));
 
 const componentMap = {
@@ -86,26 +89,31 @@ function Layout({ mode }: LayoutProps) {
   useEffect(() => {
     console.log("layout changed");
   }, [layout]);
-  const layoutModel = useMemo(
-    () => {
-      console.log("in");
-      if (layout === "default") return FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel);
-      else {
-        const customLayout = window.localStorage.getItem("customLayout");
-        if (customLayout) {
-          return FlexLayoutModel.fromJson(JSON.parse(customLayout) as IJsonModel);
-        }
-        // If custom layout is not found, return default layout
-        return FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel);
+  const layoutModel = useMemo(() => {
+    console.log("in");
+    if (layout === "default")
+      return FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel);
+    else {
+      const customLayout = window.localStorage.getItem("customLayout");
+      if (customLayout) {
+        return FlexLayoutModel.fromJson(JSON.parse(customLayout) as IJsonModel);
       }
-    },
-    [mode, layout]
-  );
-  return <FlexLayout model={layoutModel} factory={factory} onModelChange={
-    (model) => {
-      window.localStorage.setItem("customLayout", JSON.stringify(model.toJson()));
+      // If custom layout is not found, return default layout
+      return FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel);
     }
-  } />;
+  }, [mode, layout]);
+  return (
+    <FlexLayout
+      model={layoutModel}
+      factory={factory}
+      onModelChange={(model) => {
+        window.localStorage.setItem(
+          "customLayout",
+          JSON.stringify(model.toJson())
+        );
+      }}
+    />
+  );
 }
 
 export default Layout;

@@ -18,7 +18,7 @@ import {
   uploadLedDataApi,
   downloadExportDataApi,
   downloadLedDataApi,
-} from "../../../api";
+} from "../../../../api";
 
 import { notification } from "core/utils";
 

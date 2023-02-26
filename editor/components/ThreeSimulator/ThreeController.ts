@@ -115,8 +115,14 @@ class ThreeController {
 
     THREE.Cache.enabled = true;
 
+    // Initialization of 3D renderer
+    //this.renderer = this.generateRenderer();
+
     // Postprocessing for anti-aliasing effect
     this.composer = this.generateComposer();
+
+    // Add Setting to container
+    this.settings = new Settings(this);
 
     // Append the canvas to given ref
     this.canvas.appendChild(this.renderer.domElement);
