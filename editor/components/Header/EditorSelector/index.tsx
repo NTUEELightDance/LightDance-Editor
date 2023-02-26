@@ -5,9 +5,9 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
-import AutoAwesomeMotionRoundedIcon from "@mui/icons-material/AutoAwesomeMotionRounded";
-import EditLocationSharpIcon from "@mui/icons-material/EditLocationSharp";
-import ViewCompactIcon from "@mui/icons-material/ViewCompact";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import OpenWithRoundedIcon from "@mui/icons-material/OpenWithRounded";
+import BlurOnIcon from "@mui/icons-material/BlurOn";
 // actions and states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
@@ -78,7 +78,7 @@ export default function EditorSelector() {
             enterNextDelay={100}
             title={<Typography fontSize={16}>Control Editor</Typography>}
           >
-            <AutoAwesomeMotionRoundedIcon />
+            <LightbulbIcon />
           </Tooltip>
         </ToggleButton>
         <ToggleButton value={POS_EDITOR}>
@@ -86,7 +86,7 @@ export default function EditorSelector() {
             enterNextDelay={100}
             title={<Typography fontSize={16}>Position Editor</Typography>}
           >
-            <EditLocationSharpIcon />
+            <OpenWithRoundedIcon />
           </Tooltip>
         </ToggleButton>
         <ToggleButton value={LED_EDITOR}>
@@ -94,7 +94,7 @@ export default function EditorSelector() {
             enterNextDelay={100}
             title={<Typography fontSize={16}>LED Editor</Typography>}
           >
-            <ViewCompactIcon />
+            <BlurOnIcon />
           </Tooltip>
         </ToggleButton>
       </ToggleButtonGroup>

@@ -25,7 +25,7 @@ export function Settings({
 
   const settings = [
     {
-      label: "hotkeys",
+      label: "Hotkeys",
       modalOpen: hotkeysModalOpen,
       handleClick: () => {
         setHotkeysModalOpen(true);

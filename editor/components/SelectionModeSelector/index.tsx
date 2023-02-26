@@ -1,8 +1,9 @@
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
 
-import { FaTshirt, FaLightbulb } from "react-icons/fa";
+import { FaTshirt } from "react-icons/fa";
 import DancerIcon from "@mui/icons-material/AccessibilityNewRounded";
 import OpenWithRoundedIcon from "@mui/icons-material/OpenWithRounded";
+import BlurOnIcon from "@mui/icons-material/BlurOn";
 
 import { reactiveState } from "@/core/state";
 import { setSelectionMode } from "@/core/actions";
@@ -24,7 +25,7 @@ function SelectionModeSelector() {
   const icons: Record<string, JSX.Element> = {
     [DANCER]: <DancerIcon />,
     [PART]: <FaTshirt />,
-    [LED_PART]: <FaLightbulb />,
+    [LED_PART]: <BlurOnIcon />,
     [POSITION]: <OpenWithRoundedIcon />,
   };
 
