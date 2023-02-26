@@ -5,6 +5,12 @@ import {
   Raycaster,
   Vector2,
   Vector3,
+<<<<<<< HEAD
+=======
+  Object3D,
+  Camera,
+  Intersection,
+>>>>>>> EDITOR-#346 fix warning of eslint in editor/components/ThreeSimulator/Controls
 } from "three";
 
 const _plane = new Plane();
@@ -17,7 +23,18 @@ const _worldPosition = new Vector3();
 const _inverseMatrix = new Matrix4();
 
 class DragControls extends EventDispatcher {
+<<<<<<< HEAD
   constructor(_objects:any[], _camera:any, _domElement:any) {
+=======
+  enabled!: boolean;
+  transformGroup!: boolean;
+  activate!: undefined;
+  deactivate!: undefined;
+  dispose!: undefined;
+  getObjects!: [];
+  getRaycaster!: Raycaster;
+  constructor(_objects: Object3D[], _camera: Camera, _domElement: HTMLElement) {
+>>>>>>> EDITOR-#346 fix warning of eslint in editor/components/ThreeSimulator/Controls
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
@@ -25,11 +42,19 @@ class DragControls extends EventDispatcher {
     let _selected:any = null;
     let _hovered:any = null;
 
+<<<<<<< HEAD
     const _intersections:any = [];
 
     //
 
     const scope:any = this;
+=======
+    const _intersections: Intersection[] = [];
+
+    //
+
+    const scope = this;
+>>>>>>> EDITOR-#346 fix warning of eslint in editor/components/ThreeSimulator/Controls
 
     function activate() {
       _domElement.addEventListener("pointermove", onPointerMove);
@@ -140,7 +165,7 @@ class DragControls extends EventDispatcher {
         );
 
         if (_raycaster.ray.intersectPlane(_plane, _intersection) != null) {
-          _inverseMatrix.copy(_selected.parent.matrixWorld).invert();
+          _inverseMatrix.copy(_selected.parent!.matrixWorld).invert();
           _offset
             .copy(_intersection)
             .sub(_worldPosition.setFromMatrixPosition(_selected.matrixWorld));

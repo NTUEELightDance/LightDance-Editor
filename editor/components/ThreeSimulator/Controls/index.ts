@@ -16,22 +16,31 @@ import { DANCER, PART, POSITION } from "@/constants";
 
 import { log } from "core/utils";
 import { PosMapStatus } from "@/core/models";
+import { reactiveState } from "@/core/state";
 
 class Controls {
-  renderer: THREE.Renderer;
+  renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
-  camera: THREE.Camera;
+  camera: THREE.PerspectiveCamera;
   domElement: HTMLElement;
+<<<<<<< HEAD
   dancers: Dancer[];
   objects;
   orbitControls:any;
   dragControls:any;
   selectControls:any;
+=======
+  dancers: Record<string, Dancer>;
+  objects: object;
+  orbitControls!: OrbitControls;
+  dragControls!: DragControls;
+  selectControls!: SelectControls;
+>>>>>>> EDITOR-#346 fix warning of eslint in editor/components/ThreeSimulator/Controls
 
   constructor(
-    renderer: THREE.Renderer,
+    renderer: THREE.WebGLRenderer,
     scene: THREE.Scene,
-    camera: THREE.Camera,
+    camera: THREE.PerspectiveCamera,
     dancers: Record<string, Dancer>
   ) {
     this.renderer = renderer;
@@ -48,7 +57,7 @@ class Controls {
   }
 
   initOrbitControls() {
-    const orbitControls:any = new OrbitControls(this.camera, this.domElement);
+    const orbitControls = new OrbitControls(this.camera, this.domElement);
     orbitControls.enablePan = true;
     orbitControls.enableZoom = true;
     // orbitControls.screenSpacePanning = true;
@@ -97,7 +106,7 @@ class Controls {
         );
 
         const allSelected = selectionBox.select(selectionBox.startPoint, selectionBox.endPoint);
-        log(allSelected.map((obj:any) => ({ [obj.parent.name]: obj.name })));
+        log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
       }
     });
 
@@ -111,7 +120,7 @@ class Controls {
       );
 
       const allSelected = selectionBox.select(selectionBox.startPoint, selectionBox.endPoint);
-      log(allSelected.map((obj:any) => ({ [obj.parent.name]: obj.name })));
+      log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
     });
   }
 
@@ -137,7 +146,7 @@ class Controls {
     this.selectControls = selectControls;
   }
 
-  activate(selectionMode:any) {
+  activate(selectionMode: ) {
     switch (selectionMode) {
       case DANCER:
         break;

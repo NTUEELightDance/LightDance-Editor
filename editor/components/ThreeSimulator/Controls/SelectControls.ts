@@ -17,11 +17,21 @@ import {
 import { state } from "@/core/state";
 import { SelectionBox } from "./SelectionBox";
 import { SelectionHelper } from "./SelectionHelper";
+import { EventDispatcher, Raycaster, Vector2, Group, Camera, Scene, Intersection, Object3D<Event>, } from "three";
+import { setSelectedDancers, clearSelected } from "../../../core/actions";
+import { DANCER, PART } from "@/constants";
+import { DragControls } from "./DragControls";
+
 import { throttle } from "throttle-debounce";
 import type { SelectionMode } from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
 import { Selected } from "@/core/models";
+<<<<<<< HEAD
+=======
+import { ReactNode } from "react";
+
+>>>>>>> EDITOR-#346 fix warning of eslint in editor/components/ThreeSimulator/Controls
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
 const _group = new Group();
@@ -39,15 +49,17 @@ class SelectControls extends EventDispatcher {
   updateSelected;
   activate;
 
-  constructor(_objects:any , _camera:any , _domElement:any , _dragControls:any , _dancers:any , _scene:any ) {
+  constructor(_objects: Object3D<Event>, _camera: Camera, _domElement: HTMLElement, _dragControls: DragControls , _dancers: Object3D, _scene: Scene) {
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
 
-    let _selected = null;
     let _mode: SelectionMode = "DANCER_MODE";
 
     const _intersections: Intersection<Object3D<Event>>[] = [];
+    let _selected: null = null;
+
+
     _scene.add(_group);
 
     const renderer = new WebGLRenderer({ antialias: true });
@@ -98,7 +110,7 @@ class SelectControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerDown(event:any) {
+    function onPointerDown(event: PointerEvent) {
       if (event.button !== 0 || scope.enabled === false) return;
 
       if (state.selectionMode !== "POSITION_MODE") {
@@ -155,7 +167,7 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    let _hover:any = null;
+    let _hover: Object3D | null= null;
 
     function onPointerMove(event) {
       if (state.selectionMode === "POSITION_MODE") {
@@ -261,7 +273,7 @@ class SelectControls extends EventDispatcher {
       _dancers[name].hover();
     }
 
-    function _unhoverByName(name:any) {
+    function _unhoverByName(name: string) {
       _dancers[name].unhover();
     }
 
@@ -272,11 +284,11 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function _addToGroup(object:any) {
+    function _addToGroup(object: Object3D) {
       _group.attach(object);
     }
 
-    function _removeFromGroup(object:any) {
+    function _removeFromGroup(object: Object3D) {
       _scene.attach(object);
     }
 
@@ -286,12 +298,12 @@ class SelectControls extends EventDispatcher {
       if (_group.children.length > 0) {
         _dragControls.transformGroup = true;
         draggableObjects.push(_group);
-        _selected = _group.children.map((child) => child.name);
+        _selected = _group.children.map((child: null|undefined) => child.name);
       }
     }
 
     function updateSelected(selected: Selected) {
-      const selectedObjects:any[] = [];
+      const selectedObjects: Intersection[] = [];
       Object.entries(selected).forEach(([name, value]) => {
         _dancers[name].updateSelected(value.selected);
         const dancer = _dancers[name];
@@ -319,7 +331,7 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function updatePointer(event:any) {
+    function updatePointer(event: PointerEvent) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;

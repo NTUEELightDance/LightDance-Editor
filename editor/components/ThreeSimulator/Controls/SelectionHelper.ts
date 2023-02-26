@@ -1,17 +1,17 @@
-import { Vector2 } from "three";
+import { Vector2, WebGLRenderer } from "three";
 
 class SelectionHelper {
-  element;
-  renderer;
-  startPoint;
-  pointTopLeft;
-  pointBottomRight;
-  isDown:Boolean;
+  element: HTMLDivElement;
+  renderer: WebGLRenderer;
+  startPoint: Vector2;
+  pointTopLeft: Vector2;
+  pointBottomRight: Vector2;
+  isDown: boolean;
   onPointerDown;
   onPointerMove;
   onPointerUp;
 
-  constructor(renderer:any , cssClassName:any ) {
+  constructor(renderer: WebGLRenderer, cssClassName: string) {
     this.element = document.createElement("div");
     this.element.classList.add(cssClassName);
     this.element.style.pointerEvents = "none";
@@ -24,18 +24,20 @@ class SelectionHelper {
 
     this.isDown = false;
 
-    this.onPointerDown = function (event) {
+    this.onPointerDown = function (this: SelectionHelper, event: PointerEvent) {
+      if (event.button !== 0) return;
       this.isDown = true;
       this.onSelectStart(event);
     }.bind(this);
 
-    this.onPointerMove = function (this: any, event:any) {
+    this.onPointerMove = function (this: SelectionHelper, event: PointerEvent) {
       if (this.isDown) {
         this.onSelectMove(event);
       }
     }.bind(this);
 
-    this.onPointerUp = function () {
+    this.onPointerUp = function (this: SelectionHelper, event: PointerEvent) {
+      if (event.button !== 0) return;
       this.isDown = false;
       this.onSelectOver();
     }.bind(this);
@@ -63,10 +65,8 @@ class SelectionHelper {
     this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
   }
 
-  onSelectStart(event) {
-    this.element.style.display = "none";
-
-    this.renderer.domElement.parentElement.appendChild(this.element);
+  onSelectStart(event: PointerEvent) {
+    this.renderer.domElement.parentElement!.appendChild(this.element);
 
     this.element.style.left = event.clientX + "px";
     this.element.style.top = event.clientY + "px";
