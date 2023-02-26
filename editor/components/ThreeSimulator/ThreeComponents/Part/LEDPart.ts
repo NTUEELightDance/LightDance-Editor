@@ -80,7 +80,7 @@ export default class LEDPart extends Part {
 
     const material = new THREE.ShaderMaterial({
       uniforms: {
-        size: { value: 1 },
+        size: { value: 10 },
         pointTexture: {
           value: new THREE.TextureLoader().load("/asset/textures/particle.png"),
         },
@@ -111,7 +111,9 @@ export default class LEDPart extends Part {
       "alpha"
     ) as THREE.BufferAttribute;
     effect.forEach((display, i) => {
-      const { colorCode, alpha } = display || defaultDisplay;
+      // console.log(display);
+      // const { colorCode, alpha } = display || defaultDisplay;
+      const { colorCode, alpha } = defaultDisplay;
       colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
       alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
     });

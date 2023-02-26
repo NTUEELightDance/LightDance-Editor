@@ -83,6 +83,7 @@ class SelectControls extends EventDispatcher {
     }
 
     function onPointerDown(event) {
+      console.log(state);
       if (event.button !== 0 || scope.enabled === false) return;
       if (state.selectionMode === "POSITION_MODE") {
         // return;
@@ -224,10 +225,22 @@ class SelectControls extends EventDispatcher {
           if (state.selectionMode === "LED_MODE") {
             const parts = [];
             selectionBox.collection.forEach((part, index) => {
-              if (part.name.includes("LED")) {
-                parts.push(part);
+              const name = part.name;
+              if (name.includes("LED")) {
+                if (
+                  !parts[part.parent.name] &&
+                  state.dancerNames.includes(part.parent.name)
+                ) {
+                  parts[part.parent.name] = [];
+                }
+                const partName = name.slice(0, -3);
+                if (!parts[part.parent.name].includes(partName)) {
+                  parts[part.parent.name]?.push(partName);
+                }
               }
             });
+            console.log(parts);
+            setSelectedParts({ payload: parts });
           }
         }
       }

@@ -86,6 +86,28 @@ function PropertyPanel({
               <Button onClick={handleSelectAll}>Select All</Button>
             )}
             <Button onClick={handleRandom}>Random</Button>
+            {/* <Button
+              onClick={() => {
+                console.log(
+                  "partType=",
+                  partType,
+                  "value=",
+                  value,
+                  "dancers=",
+                  dancers,
+                  "parts=",
+                  parts,
+                  "currentDancers=",
+                  currentDancers,
+                  "currentStatus=",
+                  currentStatus,
+                  "colorMap=",
+                  colorMap
+                );
+              }}
+            >
+              Console
+            </Button> */}
           </Stack>
         )}
         {currentDancers.length !== 0 && (

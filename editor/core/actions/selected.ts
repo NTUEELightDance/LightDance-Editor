@@ -51,6 +51,7 @@ const actions = registerActions({
         ? payload[dancer]
         : [];
     });
+    console.log("setSelectedParts", state);
   },
 
   /**
@@ -91,7 +92,7 @@ const actions = registerActions({
       state.selected[name].selected = false;
       state.selected[name].parts = [];
     });
-    if (state.selectionMode !== POSITION) state.selectionMode = DANCER;
+    // if (state.selectionMode !== POSITION) state.selectionMode = DANCER;
   },
 });
 

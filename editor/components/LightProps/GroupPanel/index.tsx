@@ -109,7 +109,6 @@ function GroupPanel({
       );
     }
   }
-
   return (
     <Box
       sx={{
