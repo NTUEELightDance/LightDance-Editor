@@ -1,11 +1,19 @@
 import { useState, useCallback, useEffect } from "react";
 import { useReactiveVar } from "@apollo/client";
-import { reactiveState } from "core/state";
 import _ from "lodash";
+
+// state
+import { reactiveState } from "core/state";
+import store from "../../store";
+
 import { getPartType } from "core/utils";
 import useTimeInput from "hooks/useTimeInput";
-import ModelButton from "./modelButton";
+
+// components
+import ModelButton from "./ModelButton";
 import LEDPartButton from "./LEDPartButton";
+
+// mui
 import {
   Dialog,
   DialogTitle,
@@ -29,45 +37,71 @@ export default function LEDEffectDialog({
   // Dancers and Parts
 
   const dancers = useReactiveVar(reactiveState.dancers);
-  const dancersNames = useReactiveVar(reactiveState.dancerNames);
   const selected = useReactiveVar(reactiveState.selected);
 
-  const [displayModels, setdisplayModels] = useState<string[]>(["A", "B", "C"]);
+  const [displayModels, setDisplayModels] = useState<string[]>(["A", "B", "C"]);
   const [displayLEDParts, setDisplayLEDParts] = useState<string[]>(["1"]);
 
-  const updateDisplayPart = useCallback(
+  // Update selected models and LED parts
+  const { dancerMap } = store.getState().load;
+
+  const updateDisplayModel = useCallback(
     (selectedDancers: string[]) => {
       if (selectedDancers.length === 0) return; ////// show all
 
+      // construct new DisplayModels
+      let newDisplayModels: string[] = [];
+
       // get all parts without repeat
-      let tempParts: string[] = dancers[selectedDancers[0]];
+
       selectedDancers.forEach((dancerName) => {
-        tempParts = _.union(tempParts, dancers[dancerName]);
-      });
-
-      // construct new displayPart
-      const newDisplayLEDParts: string[] = [];
-
-      tempParts.forEach((part) => {
-        if (getPartType(part) == "LED") {
-          newDisplayLEDParts.push(part);
-        }
+        newDisplayModels = _.union(newDisplayModels, [
+          dancerMap[dancerName]["modelName"],
+        ]);
       });
 
       /////// if newDisplayLEDParts === empty -> show all
+      setDisplayModels(newDisplayModels);
+    },
+    [dancerMap]
+  );
+
+  const updateDisplayPart = useCallback(
+    (selectedDancers: string[]) => {
+      // construct new displayPart
+      let newDisplayLEDParts: string[] = [];
+
+      // get all parts without repeat
+      selectedDancers.forEach((dancerName) => {
+        newDisplayLEDParts = _.union(
+          newDisplayLEDParts,
+          dancers[dancerName].filter((part) => {
+            return getPartType(part) === "LED";
+          })
+        );
+      });
+
+      // if newDisplayLEDParts is empty -> show all parts
+      if (newDisplayLEDParts.length === 0) {
+        Object.values(dancers).forEach((dancer) => {
+          newDisplayLEDParts = _.union(
+            newDisplayLEDParts,
+            dancer.filter((part) => {
+              return getPartType(part) === "LED";
+            })
+          );
+        });
+      }
+
       setDisplayLEDParts(newDisplayLEDParts);
     },
     [dancers]
   );
 
-  // Update selected models and parts
   useEffect(() => {
     if (!dancers || !selected) return;
 
     const selectedDancers: string[] = [];
-    console.log("dancers");
-    console.log(dancers);
-    console.log(dancersNames);
 
     Object.entries(selected).forEach(
       ([dancerName, { selected: dancerSelected }]) => {
@@ -76,7 +110,8 @@ export default function LEDEffectDialog({
     );
 
     updateDisplayPart(selectedDancers);
-  }, [dancers, selected, updateDisplayPart]);
+    updateDisplayModel(selectedDancers);
+  }, [dancers, selected, updateDisplayModel, updateDisplayPart]);
 
   // States
   const [chosenModel, setChosenModel] = useState<string>("");
@@ -109,7 +144,7 @@ export default function LEDEffectDialog({
     newChosenModel: string
   ) => {
     if (newChosenModel !== null) {
-      //setChosenModel(newChosenModel);
+      setChosenModel(newChosenModel);
     }
     return;
   };
