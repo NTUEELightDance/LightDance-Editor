@@ -77,7 +77,7 @@ class SelectionHelper {
     this.startPoint.y = event.clientY;
   }
 
-  onSelectMove(event) {
+  onSelectMove(event: PointerEvent) {
     this.element.style.display = "block";
 
     this.pointBottomRight.x = Math.max(this.startPoint.x, event.clientX);

@@ -28,6 +28,7 @@ class Controls {
   orbitControls!: OrbitControls;
   dragControls!: DragControls;
   selectControls!: SelectControls;
+  
 
   constructor(
     renderer: THREE.WebGLRenderer,

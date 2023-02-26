@@ -169,7 +169,7 @@ class SelectControls extends EventDispatcher {
 
     let _hover: Object3D | null= null;
 
-    function onPointerMove(event) {
+    function onPointerMove(event: PointerEvent) {
       if (state.selectionMode === "POSITION_MODE") {
         return;
       }
@@ -269,7 +269,7 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function _hoverByName(name) {
+    function _hoverByName(name: string) {
       _dancers[name].hover();
     }
 

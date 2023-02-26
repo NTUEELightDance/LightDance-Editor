@@ -5,6 +5,9 @@ import {
   Raycaster,
   Vector2,
   Vector3,
+  Intersection,
+  Object3D,
+  Camera,
 } from "three";
 
 const _plane = new Plane();
@@ -29,8 +32,8 @@ class DragControls extends EventDispatcher {
 
     _domElement.style.touchAction = "none"; // disable touch scroll
 
-    let _selected:any = null;
-    let _hovered:any = null;
+    let _selected: Object3D | null = null;
+    let _hovered: Object3D | null = null;
 
     const _intersections: Intersection[] = [];
 
@@ -66,7 +69,7 @@ class DragControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerMove(event:any) {
+    function onPointerMove(event: PointerEvent) {
       if (scope.enabled === false) return;
 
       updatePointer(event);
@@ -125,7 +128,7 @@ class DragControls extends EventDispatcher {
       }
     }
 
-    function onPointerDown(event:any) {
+    function onPointerDown(event: PointerEvent) {
       if (event.button !== 0 || scope.enabled === false) return;
 
       updatePointer(event);
@@ -171,7 +174,7 @@ class DragControls extends EventDispatcher {
       _domElement.style.cursor = _hovered ? "pointer" : "auto";
     }
 
-    function updatePointer(event:any) {
+    function updatePointer(event: PointerEvent) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;

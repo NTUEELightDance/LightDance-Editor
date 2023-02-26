@@ -53,7 +53,7 @@ class OrbitControls extends EventDispatcher {
   target0: Vector3;
   position0: Vector3;
   zoom0: GLfloat;
-  _domElementKeyEvents;
+  _domElementKeyEvents: null | HTMLElement | Document;
   getPolarAngle;
   getAzimuthalAngle;
   getDistance;
