@@ -23,19 +23,11 @@ class Controls {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   domElement: HTMLElement;
-<<<<<<< HEAD
-  dancers: Dancer[];
-  objects;
-  orbitControls:any;
-  dragControls:any;
-  selectControls:any;
-=======
   dancers: Record<string, Dancer>;
   objects: object;
   orbitControls!: OrbitControls;
   dragControls!: DragControls;
   selectControls!: SelectControls;
->>>>>>> EDITOR-#346 fix warning of eslint in editor/components/ThreeSimulator/Controls
 
   constructor(
     renderer: THREE.WebGLRenderer,
