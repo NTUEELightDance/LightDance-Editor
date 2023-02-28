@@ -14,6 +14,7 @@ import {
   initCurrentStatus,
   initCurrentPos,
   initColorMap,
+  initEffectList,
   syncLEDEffectRecord,
   syncCurrentLEDStatus,
 } from "@/core/actions";
@@ -32,6 +33,7 @@ function App() {
         fetchLoad(dispatch),
         initDancers(),
         initColorMap(),
+        initEffectList(),
       ]);
 
       firstBatchResult.forEach((result) => {

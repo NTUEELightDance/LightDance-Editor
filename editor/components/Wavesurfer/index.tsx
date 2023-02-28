@@ -72,7 +72,10 @@ function Wavesurfer() {
 
   useEffect(() => {
     if (editor === "LED_EDITOR") {
-      if (currentLEDEffect === null) return;
+      if (currentLEDEffect === null) {
+        waveSurferApp.clearMarker();
+        return;
+      }
       const timestamps = currentLEDEffect.effects.map(
         (effect) => effect.start + currentLEDEffectStart
       );

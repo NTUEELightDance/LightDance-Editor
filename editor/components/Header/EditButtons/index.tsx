@@ -6,6 +6,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 // actions and states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
+import { addFrameToCurrentLEDEffect } from "core/actions";
 // constants
 import { IDLE, EDITING, LED_EDITOR } from "@/constants";
 // hooks
