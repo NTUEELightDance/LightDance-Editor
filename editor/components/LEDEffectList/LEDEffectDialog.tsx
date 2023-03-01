@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useReactiveVar } from "@apollo/client";
 import _ from "lodash";
 import { setupLEDEditor } from "core/actions";
+import { setEditor } from "core/actions";
 
 // state
 import { reactiveState, state } from "core/state";
@@ -195,6 +196,7 @@ export default function LEDEffectDialog({
 
   const handleAddLEDEffect = () => {
     if (isLEDPartName(chosenLEDPart) || true) { //<unsolved> isLEDPartName(chosenLEDPart) always return false
+      setEditor({ payload: "LED_EDITOR" });
       setupLEDEditor({
         payload: {
           partName: chosenLEDPart as LEDPartName,
