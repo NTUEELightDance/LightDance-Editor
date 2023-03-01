@@ -15,7 +15,7 @@ import { initStatusStack, initPosStack } from "core/actions";
 import { setSelectionModeByEditor, setEditor } from "core/actions";
 // contents
 import { CONTROL_EDITOR, POS_EDITOR, LED_EDITOR, IDLE } from "@/constants";
-
+import LEDEffectDialog from "../../LEDEffectList/LEDEffectDialog";
 import { notification } from "core/utils";
 
 import type { Editor } from "core/models";
@@ -24,7 +24,10 @@ export default function EditorSelector() {
   const editor = useReactiveVar(reactiveState.editor);
   const editMode = useReactiveVar(reactiveState.editMode);
   const [EditorMode, setEditorMode] = useState<Editor>("CONTROL_EDITOR");
-
+  const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
+  const openDialog = () => {
+    setAddDialogOpen(true);
+  };
   const handleChangeEditor = (
     event: React.MouseEvent<HTMLElement>,
     newEditorMode: Editor
@@ -89,7 +92,7 @@ export default function EditorSelector() {
             <OpenWithRoundedIcon />
           </Tooltip>
         </ToggleButton>
-        <ToggleButton value={LED_EDITOR}>
+        <ToggleButton onClick={openDialog} value={LED_EDITOR}>
           <Tooltip
             enterNextDelay={100}
             title={<Typography fontSize={16}>LED Editor</Typography>}
@@ -98,6 +101,12 @@ export default function EditorSelector() {
           </Tooltip>
         </ToggleButton>
       </ToggleButtonGroup>
+      <LEDEffectDialog
+        addDialogOpen={addDialogOpen}
+        handleClose={() => {
+          setAddDialogOpen(false);
+        }}
+      ></LEDEffectDialog>
     </Stack>
   );
 }

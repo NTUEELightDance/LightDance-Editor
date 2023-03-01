@@ -4,7 +4,7 @@ import _ from "lodash";
 import { setupLEDEditor } from "core/actions";
 
 // state
-import { reactiveState } from "core/state";
+import { reactiveState, state } from "core/state";
 import store from "../../store";
 
 import { getPartType } from "core/utils";
@@ -15,7 +15,7 @@ import ModelButton from "./ModelButton";
 import LEDPartButton from "./LEDPartButton";
 
 // type
-
+import { isLEDPartName } from "@/core/models";
 import type { LEDPartName } from "@/core/models";
 
 // mui
@@ -39,13 +39,28 @@ export default function LEDEffectDialog({
   addDialogOpen,
   handleClose,
 }: LEDEffectDialogProps) {
-  // Dancers and Parts
+  // States
+  const [chosenModel, setChosenModel] = useState<string>("");
+  const [chosenLEDPart, setChosenLEDPart] = useState<string>("");
+  const [newLEDEffectName, setNewLEDEffectName] = useState<string>("");
+  const [newEffectFromTime, setNewEffectFromTime] = useState<number>(0);
+  const {
+    textFieldProps: fromTextFieldProps,
+    timeError: fromTimeError,
+    timeInputRef: fromTimeInputRef,
+  } = useTimeInput([
+    newEffectFromTime,
+    (newTime: number) => {
+      setNewEffectFromTime(newTime);
+    },
+  ]);
 
+  // Dancers and Parts
   const dancers = useReactiveVar(reactiveState.dancers);
   const selected = useReactiveVar(reactiveState.selected);
 
-  const [displayModels, setDisplayModels] = useState<string[]>(["A", "B", "C"]);
-  const [displayLEDParts, setDisplayLEDParts] = useState<string[]>(["1"]);
+  const [displayModels, setDisplayModels] = useState<string[]>([""]);
+  const [displayLEDParts, setDisplayLEDParts] = useState<string[]>([""]);
 
   // Update selected models and LED parts
   const { dancerMap } = store.getState().load;
@@ -73,17 +88,12 @@ export default function LEDEffectDialog({
       //   ]);
       // });
 
+      setDisplayModels(newDisplayModels);
+
       // preset chosen model to the first model among selected models
       if (selectedDancers.length !== 0) {
         setChosenModel(dancerMap[selectedDancers[0]]["modelName"]);
       }
-      //console.log(selectedDancers);
-      //console.log(dancerMap[selectedDancers[0]]);
-      // if (selectedDancers.length !== 0) {
-      //   console.log(dancerMap[selectedDancers[0]]["modelName"]);
-      // }
-
-      setDisplayModels(newDisplayModels);
     },
     [dancerMap, dancers]
   );
@@ -146,30 +156,17 @@ export default function LEDEffectDialog({
       }
     );
 
-    updateDisplayPart(chosenModel);
     updateDisplayModel(selectedDancers, setChosenModel);
   }, [dancers, selected, updateDisplayModel, updateDisplayPart]);
 
-  // States
-  const [chosenModel, setChosenModel] = useState<string>("");
-  const [chosenLEDPart, setChosenLEDPart] = useState<LEDPartName>("");
-  const [newLEDEffectName, setNewLEDEffectName] = useState<string>("");
-  const [newEffectFromTime, setNewEffectFromTime] = useState<number>(0);
-  const {
-    textFieldProps: fromTextFieldProps,
-    timeError: fromTimeError,
-    timeInputRef: fromTimeInputRef,
-  } = useTimeInput([
-    newEffectFromTime,
-    (newTime: number) => {
-      setNewEffectFromTime(newTime);
-    },
-  ]);
+  useEffect(() => {
+    updateDisplayPart(chosenModel);
+  }, [chosenModel, updateDisplayPart]);
 
   // Reset and Close
   function reset() {
     handleClose();
-    //setChosenModel("");
+    setChosenModel("");
     setChosenLEDPart("");
     setNewLEDEffectName("");
     setNewEffectFromTime(0);
@@ -197,13 +194,16 @@ export default function LEDEffectDialog({
   };
 
   const handleAddLEDEffect = () => {
-    setupLEDEditor({
-      payload: {
-        partName: chosenLEDPart,
-        effectName: newLEDEffectName,
-        start: newEffectFromTime,
-      },
-    });
+    if (isLEDPartName(chosenLEDPart) || true) { //<unsolved> isLEDPartName(chosenLEDPart) always return false
+      setupLEDEditor({
+        payload: {
+          partName: chosenLEDPart as LEDPartName,
+          effectName: newLEDEffectName,
+          start: newEffectFromTime,
+        },
+      });
+    }
+    console.log(state);
     reset();
   };
 

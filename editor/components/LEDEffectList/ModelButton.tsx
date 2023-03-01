@@ -26,12 +26,13 @@ export default function ModelButton({
         // sx={{
         //   display: "grid",
         //   gridTemplateColumns: "auto auto auto auto",
-        //   gridGap: "10px",
-        //   padding: "0px",
+        //   gridGap: "50px",
+        //   padding: "10px",
         // }}
+        //sx={{ '& .MuiToggleButton-root + .MuiToggleButton-root': { marginLeft: '8px' } }}
       >
         {displayModels.map((v) => (
-          <ToggleButton value={v} key={v}>
+          <ToggleButton value={v} key={v} sx={{ '& .MuiToggleButton-root': { borderLeft: '1px solid rgba(1, 1, 1, 0.23)' } }} style={{ marginRight: '8px' }}>
             {v}
           </ToggleButton>
         ))}
