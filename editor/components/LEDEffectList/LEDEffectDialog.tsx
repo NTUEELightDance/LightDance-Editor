@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useReactiveVar } from "@apollo/client";
 import _ from "lodash";
+import { setupLEDEditor } from "core/actions";
 
 // state
 import { reactiveState } from "core/state";
@@ -12,6 +13,10 @@ import useTimeInput from "hooks/useTimeInput";
 // components
 import ModelButton from "./ModelButton";
 import LEDPartButton from "./LEDPartButton";
+
+// type
+
+import type { LEDPartName } from "@/core/models";
 
 // mui
 import {
@@ -46,47 +51,79 @@ export default function LEDEffectDialog({
   const { dancerMap } = store.getState().load;
 
   const updateDisplayModel = useCallback(
-    (selectedDancers: string[]) => {
-      if (selectedDancers.length === 0) return; ////// show all
-
+    (
+      selectedDancers: string[],
+      setChosenModel: (modelName: string) => void
+    ) => {
       // construct new DisplayModels
       let newDisplayModels: string[] = [];
 
-      // get all parts without repeat
-
-      selectedDancers.forEach((dancerName) => {
+      // display all models
+      Object.keys(dancers).forEach((dancerName) => {
         newDisplayModels = _.union(newDisplayModels, [
           dancerMap[dancerName]["modelName"],
         ]);
       });
 
-      /////// if newDisplayLEDParts === empty -> show all
+      // display selected models without repeat
+
+      // selectedDancers.forEach((dancerName) => {
+      //   newDisplayModels = _.union(newDisplayModels, [
+      //     dancerMap[dancerName]["modelName"],
+      //   ]);
+      // });
+
+      // preset chosen model to the first model among selected models
+      if (selectedDancers.length !== 0) {
+        setChosenModel(dancerMap[selectedDancers[0]]["modelName"]);
+      }
+      //console.log(selectedDancers);
+      //console.log(dancerMap[selectedDancers[0]]);
+      // if (selectedDancers.length !== 0) {
+      //   console.log(dancerMap[selectedDancers[0]]["modelName"]);
+      // }
+
       setDisplayModels(newDisplayModels);
     },
-    [dancerMap]
+    [dancerMap, dancers]
   );
 
   const updateDisplayPart = useCallback(
-    (selectedDancers: string[]) => {
+    (chosenModel: string) => {
       // construct new displayPart
       let newDisplayLEDParts: string[] = [];
 
-      // get all parts without repeat
-      selectedDancers.forEach((dancerName) => {
-        newDisplayLEDParts = _.union(
-          newDisplayLEDParts,
-          dancers[dancerName].filter((part) => {
+      if (chosenModel) {
+        const chosenDancer = Object.entries(dancerMap).find((dancer) => {
+          return (
+            (dancer[1] as { url: string; modelName: string })["modelName"] ===
+            chosenModel
+          );
+        });
+
+        if (chosenDancer) {
+          newDisplayLEDParts = dancers[chosenDancer[0]].filter((part) => {
             return getPartType(part) === "LED";
-          })
-        );
-      });
+          });
+        }
+      }
+      // display all parts without repeat by selected dancers
+
+      // selectedDancers.forEach((dancerName) => {
+      //   newDisplayLEDParts = _.union(
+      //     newDisplayLEDParts,
+      //     dancers[dancerName].filter((part) => {
+      //       return getPartType(part) === "LED";
+      //     })
+      //   );
+      // });
 
       // if newDisplayLEDParts is empty -> show all parts
       if (newDisplayLEDParts.length === 0) {
-        Object.values(dancers).forEach((dancer) => {
+        Object.values(dancers).forEach((dancerParts) => {
           newDisplayLEDParts = _.union(
             newDisplayLEDParts,
-            dancer.filter((part) => {
+            dancerParts.filter((part) => {
               return getPartType(part) === "LED";
             })
           );
@@ -95,7 +132,7 @@ export default function LEDEffectDialog({
 
       setDisplayLEDParts(newDisplayLEDParts);
     },
-    [dancers]
+    [dancerMap, dancers]
   );
 
   useEffect(() => {
@@ -109,13 +146,13 @@ export default function LEDEffectDialog({
       }
     );
 
-    updateDisplayPart(selectedDancers);
-    updateDisplayModel(selectedDancers);
+    updateDisplayPart(chosenModel);
+    updateDisplayModel(selectedDancers, setChosenModel);
   }, [dancers, selected, updateDisplayModel, updateDisplayPart]);
 
   // States
   const [chosenModel, setChosenModel] = useState<string>("");
-  const [chosenLEDPart, setChosenLEDPart] = useState<string>("");
+  const [chosenLEDPart, setChosenLEDPart] = useState<LEDPartName>("");
   const [newLEDEffectName, setNewLEDEffectName] = useState<string>("");
   const [newEffectFromTime, setNewEffectFromTime] = useState<number>(0);
   const {
@@ -132,7 +169,7 @@ export default function LEDEffectDialog({
   // Reset and Close
   function reset() {
     handleClose();
-    setChosenModel("");
+    //setChosenModel("");
     setChosenLEDPart("");
     setNewLEDEffectName("");
     setNewEffectFromTime(0);
@@ -160,6 +197,13 @@ export default function LEDEffectDialog({
   };
 
   const handleAddLEDEffect = () => {
+    setupLEDEditor({
+      payload: {
+        partName: chosenLEDPart,
+        effectName: newLEDEffectName,
+        start: newEffectFromTime,
+      },
+    });
     reset();
   };
 
