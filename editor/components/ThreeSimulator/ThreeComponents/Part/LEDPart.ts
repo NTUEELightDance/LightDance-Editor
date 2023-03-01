@@ -80,7 +80,7 @@ export default class LEDPart extends Part {
 
     const material = new THREE.ShaderMaterial({
       uniforms: {
-        size: { value: 10 },
+        size: { value: 1 },
         pointTexture: {
           value: new THREE.TextureLoader().load("/asset/textures/particle.png"),
         },
