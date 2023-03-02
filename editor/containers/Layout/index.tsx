@@ -90,11 +90,7 @@ export interface LayoutProps {
 
 function Layout({ mode }: LayoutProps) {
   const { layout } = useLayout();
-  useEffect(() => {
-    console.log("layout changed");
-  }, [layout]);
   const layoutModel = useMemo(() => {
-    console.log("in");
     if (layout === "default")
       return FlexLayoutModel.fromJson(configFiles[mode] as IJsonModel);
     else {

@@ -47,7 +47,7 @@ const actions = registerActions({
       state.currentControlIndex,
       time
     );
-    console.log("newControlIndex", newControlIndex);
+
     state.currentControlIndex = newControlIndex;
     await syncCurrentStatusWithControlMap({
       options: {
@@ -83,7 +83,6 @@ const actions = registerActions({
       ledMap,
       time
     );
-    console.log("done");
   },
 
   /**

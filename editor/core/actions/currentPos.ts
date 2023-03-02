@@ -65,8 +65,6 @@ const actions = registerActions({
 
     const posIndex = state.currentPosIndex;
     const time = state.currentTime;
-    console.log("posIndex", posIndex);
-    console.log("time", time);
     // position interpolation
     if (posIndex === posRecord.length - 1) {
       // can't interpolation

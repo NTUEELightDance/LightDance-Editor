@@ -110,7 +110,7 @@ export default class LEDPart extends Part {
 
   setStatus(status: LEDPartData) {
     if (!this.visible) return;
-    // console.log(status);
+
     const { effect, alpha: statusAlpha } = status;
     const colorAttribute = this.geometry.getAttribute(
       "color"
@@ -124,7 +124,6 @@ export default class LEDPart extends Part {
         colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
         alphaAttribute.setX(i, alpha / 10);
       } else {
-        // console.log(display);
         const { colorCode, alpha } = display || defaultDisplay;
 
         colorAttribute.setXYZ(i, ...hexToRGB(colorCode));

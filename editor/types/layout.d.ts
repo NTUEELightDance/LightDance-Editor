@@ -20,6 +20,6 @@ export type layoutPreferenceValues = layoutMode | editorPreference;
 
 export type layoutMode = "editor" | "command";
 
-export type layoutType = "custom" | "default"
+export type layoutType = "custom" | "default";
 
-export type editorPreference = "default" | "mirrored"
+export type editorPreference = "default" | "mirrored";

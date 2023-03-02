@@ -35,7 +35,6 @@ function LEDcontrols({
         ...(alpha !== undefined && { alpha }),
       },
     }));
-    console.log(payload);
     editCurrentStatusLED({ payload });
     pushStatusStack();
   };

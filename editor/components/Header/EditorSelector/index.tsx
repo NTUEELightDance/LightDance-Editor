@@ -46,20 +46,6 @@ export default function EditorSelector() {
     }
   };
 
-  // useHotkeys(
-  //   "v",
-  //   () => {
-  //     console.log(`editor: ${editor}`);
-  //     console.log(`EditorMode: ${EditorMode}`);
-  //     setSelectionModeByEditor({ payload: editor });
-  //     setEditorMode("POS_EDITOR");
-  //     setEditor({ payload: EditorMode });
-  //     console.log(`editor: ${editor}`);
-  //     console.log(`EditorMode: ${EditorMode}`);
-  //   },
-  //   [editor, editMode]
-  // );
-
   useEffect(() => {
     // renew statusStack and posStack
     initStatusStack();
