@@ -2,7 +2,7 @@ import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
 import { reactiveState } from "core/state";
-import { setCurrentPosToGround } from "core/actions";
+import { setCurrentPosToGround, setSelectedLEDParts } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 // hotkeys
@@ -37,7 +37,8 @@ export default function ThreeSimulator() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const selected = useReactiveVar(reactiveState.selected);
-  const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
+  const selectedLEDBulbs = useReactiveVar(reactiveState.selectedLEDBulbs);
+  const selectedLEDPart = useReactiveVar(reactiveState.selectedLEDPart);
   const forceUpdateLED = useReactiveVar(reactiveState.forceUpdateLED);
 
   useLayoutEffect(() => {
@@ -66,8 +67,12 @@ export default function ThreeSimulator() {
   }, [isPlaying]);
 
   useEffect(() => {
-    threeController.updateSelectedLEDs(selectedLEDs);
-  }, [selectedLEDs, forceUpdateLED]);
+    threeController.clearSelectedLEDs();
+    if (selectedLEDBulbs.length > 0) {
+      threeController.updateSelectedLEDs(selectedLEDBulbs, selectedLEDPart);
+      threeController.zoomInSelectedLED(selectedLEDPart);
+    }
+  }, [selectedLEDBulbs, selectedLEDPart, forceUpdateLED]);
 
   useHotkeys("g", () => {
     if (

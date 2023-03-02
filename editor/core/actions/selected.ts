@@ -36,9 +36,14 @@ const actions = registerActions({
    */
   setSelectedLEDParts: (
     state: State,
-    payload: Record<string, Record<string, number[]>>
+    payload: {
+      dancer: string;
+      part: string;
+      partsIndex: number[];
+    }
   ) => {
-    state.selectedLEDs = payload;
+    state.selectedLEDBulbs = payload.partsIndex;
+    state.selectedLEDPart = { dancer: payload.dancer, part: payload.part };
     state.forceUpdateLED = !state.forceUpdateLED;
   },
 

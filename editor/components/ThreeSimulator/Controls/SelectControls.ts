@@ -218,26 +218,38 @@ class SelectControls extends EventDispatcher {
 
         //TODO: LED Part Mode
         if (state.selectionMode === "LED_MODE") {
-          const parts: Record<string, Record<string, number[]>> = {};
+          let dancerName = "";
+          let partName = "";
+          for (let i = 0; i < selectionBox.collection.length; i++) {
+            if (selectionBox.collection[i].name.includes("LED")) {
+              dancerName = selectionBox.collection[i].parent.name;
+              partName = selectionBox.collection[i].name.slice(0, -3);
+              break;
+            }
+          }
+          const partsIndex: number[] = [];
           selectionBox.collection.forEach((part, index) => {
             const name = part.name;
-            if (name.includes("LED")) {
+            if (name.includes("LED") && partName !== "" && dancerName !== "") {
               if (
-                !parts[part.parent.name] &&
-                state.dancerNames.includes(part.parent.name)
+                part.parent.name === dancerName &&
+                part.name.slice(0, -3) === partName
               ) {
-                parts[part.parent.name] = {};
+                const partNumber: string = name.slice(-3);
+                partsIndex.push(Number(partNumber));
               }
-              const partName: string = name.slice(0, -3);
-              const partNumber: string = name.slice(-3);
-              // console.log(partNumber);
-              if (!parts[part.parent.name][partName]) {
-                parts[part.parent.name][partName] = [];
-              }
-              parts[part.parent.name][partName].push(Number(partNumber));
             }
           });
-          setSelectedLEDParts({ payload: parts });
+          const payload: {
+            dancer: string;
+            part: string;
+            partsIndex: number[];
+          } = {
+            dancer: dancerName,
+            part: partName,
+            partsIndex: partsIndex,
+          };
+          setSelectedLEDParts({ payload: payload });
         }
       }
     }
