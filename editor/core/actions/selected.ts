@@ -1,12 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import {
-  State,
-  Selected,
-  SelectedPartPayload,
-  SelectedLEDPartPayload,
-} from "../models";
-import { DANCER, POSITION } from "@/constants";
+import type { State, Selected, SelectedPartPayload } from "../models";
 
 const actions = registerActions({
   /**

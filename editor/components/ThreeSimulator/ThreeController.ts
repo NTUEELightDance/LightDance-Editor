@@ -356,7 +356,7 @@ class ThreeController {
   zoomInSelectedLED(selectedLEDPart: { dancer: string; part: string }) {
     if (
       !this.dancers[selectedLEDPart.dancer].parts.LED[selectedLEDPart.part]
-        .geometry.boundingSphere.center
+        .geometry.boundingSphere?.center
     ) {
       return;
     }
