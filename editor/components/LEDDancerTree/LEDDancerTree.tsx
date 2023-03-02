@@ -100,7 +100,7 @@ function LEDDancerTree({
     setSelectedParts({ payload: newSelectedParts });
     const isPart = nodeIds[0].indexOf("%");
     if (selectionMode !== POSITION) {
-      //setSelectionMode({ payload: newSelectionMode });
+      setSelectionMode({ payload: newSelectionMode! });
     }
     if (isPart > 0) {
       const selectName = nodeIds[0].slice(0, isPart);

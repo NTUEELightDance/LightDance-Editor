@@ -6,7 +6,6 @@ import {
   ExpandMore as ExpandMoreIcon,
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
-import DancerTreeItem from "./DancerTreeItem";
 import LEDPartListItem from "./LEDPartListItem";
 import {
   setSelectedDancers,
@@ -94,7 +93,7 @@ function LEDPartList({ name, part, setAllDancerPage }: LEDPartListProps) {
     setSelectedParts({ payload: newSelectedParts });
 
     if (selectionMode !== POSITION) {
-      setSelectionMode({ payload: newSelectionMode });
+      setSelectionMode({ payload: newSelectionMode! });
     }
   };
 

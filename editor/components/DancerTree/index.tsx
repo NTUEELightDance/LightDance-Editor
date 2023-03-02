@@ -90,7 +90,7 @@ function DancerTree() {
     setSelectedParts({ payload: newSelectedParts });
 
     if (selectionMode !== POSITION) {
-      setSelectionMode({ payload: newSelectionMode });
+      setSelectionMode({ payload: newSelectionMode! });
     }
   };
 
