@@ -1,7 +1,20 @@
 // gql
 import client from "client";
-import { GET_LED_MAP, ADD_LED, EDIT_LED, DELETE_LED } from "graphql";
-import type { LEDMapPayload, PartName } from "@/core/models";
+import {
+  GET_LED_MAP,
+  ADD_LED_EFFECT,
+  EDIT_LED_EFFECT,
+  DELETE_LED_EFFECT,
+} from "graphql";
+import type {
+  LEDMapPayload,
+  PartName,
+  LEDEffectName,
+  addLEDEffectPayload,
+  saveLEDEffectInput,
+  saveLEDEffectPayload,
+} from "@/core/models";
+import { notification } from "@/core/utils";
 
 export const ledAgent = {
   getLedMapPayload: async () => {
@@ -9,12 +22,12 @@ export const ledAgent = {
     return ledMapData.data.LEDMap.LEDMap as LEDMapPayload;
   },
 
-  AddLED: async (addLEDInput) => {
+  addLEDEffect: async (addLEDEffectInput: any) => {
     try {
       const { data: response } = await client.mutate({
-        mutation: ADD_LED,
+        mutation: ADD_LED_EFFECT,
         variables: {
-          input: addLEDInput,
+          input: addLEDEffectInput,
         },
         refetchQueries: [
           {
@@ -22,20 +35,20 @@ export const ledAgent = {
           },
         ],
       });
-
-      return response.addLED.id.toString() as string;
+      notification.success("add succeeded");
+      return response.addLED as addLEDEffectPayload;
     } catch (error) {
       console.error(error);
       throw error;
     }
   },
 
-  saveLED: async (saveLEDInput) => {
+  saveLEDEffect: async (saveLEDEffectInput: saveLEDEffectInput) => {
     try {
       const { data: response } = await client.mutate({
-        mutation: EDIT_LED,
+        mutation: EDIT_LED_EFFECT,
         variables: {
-          input: saveLEDInput,
+          input: saveLEDEffectInput,
         },
         refetchQueries: [
           {
@@ -43,18 +56,18 @@ export const ledAgent = {
           },
         ],
       });
-
-      return response.editLED.id.toString() as string;
+      notification.success("edit succeeded");
+      return response.editLED as saveLEDEffectPayload;
     } catch (error) {
       console.error(error);
       throw error;
     }
   },
 
-  deleteLED: async (effectName: string, partName: PartName) => {
+  deleteLEDEffect: async (effectName: LEDEffectName, partName: PartName) => {
     try {
       const { data: response } = await client.mutate({
-        mutation: DELETE_LED,
+        mutation: DELETE_LED_EFFECT,
         variables: {
           input: {
             effectName,
@@ -67,7 +80,7 @@ export const ledAgent = {
           },
         ],
       });
-
+      notification.success("delete succeeded");
       return response.deleteLED.ok;
     } catch (error) {
       console.error(error);

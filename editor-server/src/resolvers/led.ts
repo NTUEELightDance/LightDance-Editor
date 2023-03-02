@@ -29,7 +29,7 @@ export class LEDResolver {
   }
 
   @Mutation((returns) => LEDEffectResponse)
-  async addLED(
+  async addLEDEffect(
     @PubSub(Topic.LEDRecord)
     publishLEDRecord: Publisher<LEDPayload>,
     @Arg("input") input: LEDEffectCreateInput,
@@ -93,7 +93,7 @@ export class LEDResolver {
   }
 
   @Mutation((returns) => LEDEffectResponse)
-  async editLED(
+  async editLEDEffect(
     @PubSub(Topic.LEDRecord)
     publishLEDRecord: Publisher<LEDPayload>,
     @Arg("input") input: EditLEDInput,
@@ -127,15 +127,15 @@ export class LEDResolver {
     // check if the LED is used in ControlData
     const checkEffectInControl = await ctx.prisma.controlData.findMany({
       where: {
-        value: { path: ['src'], equals: exist.name }
-      }
+        value: { path: ["src"], equals: exist.name },
+      },
     });
-    if(checkEffectInControl.length !== 0) {
+    if (checkEffectInControl.length !== 0) {
       throw new Error(`LED is used in ControlData`);
     }
     const target = await ctx.prisma.lEDEffect.update({
       where: {
-        id: id
+        id: id,
       },
       data: {
         // add update name
@@ -165,7 +165,7 @@ export class LEDResolver {
   }
 
   @Mutation((returns) => DeleteLEDEffectResponse)
-  async deleteLED(
+  async deleteLEDEffect(
     @PubSub(Topic.LEDRecord) publishLEDRecord: Publisher<LEDPayload>,
     @Arg("input") input: DeleteLEDInput,
     @Ctx() ctx: TContext

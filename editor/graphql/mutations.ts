@@ -162,26 +162,21 @@ export const DELETE_EFFECT_LIST = gql`
   }
 `;
 
-export const ADD_LED = gql`
-  mutation AddLED($input: LEDEffectCreateInput!) {
-    addLED(input: $input) {
+export const ADD_LED_EFFECT = gql`
+  mutation AddLEDEffect($input: LEDEffectCreateInput!) {
+    addLEDEffect(input: $input) {
       partName
       effectName
       repeat
-      effects {
-        start
-        fade
-        LEDs
-      }
       ok
       msg
     }
   }
 `;
 
-export const EDIT_LED = gql`
-  mutation EditLED($input: EditLEDInput!) {
-    editLED(input: $input) {
+export const EDIT_LED_EFFECT = gql`
+  mutation EditLEDEffect($input: EditLEDInput!) {
+    editLEDEffect(input: $input) {
       partName
       effectName
       repeat
@@ -196,9 +191,9 @@ export const EDIT_LED = gql`
   }
 `;
 
-export const DELETE_LED = gql`
-  mutation DeleteLED($input: DeleteLEDInput!) {
-    deleteLED(input: $input) {
+export const DELETE_LED_EFFECT = gql`
+  mutation DeleteLEDEffect($input: DeleteLEDInput!) {
+    deleteLEDEffect(input: $input) {
       ok
       msg
     }

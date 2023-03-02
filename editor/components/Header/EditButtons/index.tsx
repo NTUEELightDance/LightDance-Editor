@@ -12,6 +12,7 @@ import { IDLE, EDITING, LED_EDITOR } from "@/constants";
 // hooks
 import useEditHandler from "hooks/useEditHandler";
 import { useHotkeys } from "react-hotkeys-hook";
+import { ledAgent } from "@/api";
 export default function EditButtons() {
   const mode = useReactiveVar(reactiveState.editMode);
   const editor = useReactiveVar(reactiveState.editor);
@@ -79,6 +80,30 @@ export default function EditButtons() {
       loading.delete = false;
     });
   };
+
+  function handleClickAddTest() {
+    ledAgent.addLEDEffect({
+      editing: null,
+      frames: null,
+      name: "LED1",
+      partName: "tie_LED",
+      repeat: 0,
+    });
+  }
+
+  function handleClickSaveTest() {
+    ledAgent.saveLEDEffect({
+      frames: {
+        set: [],
+      },
+      name: "LED1",
+      id: 25,
+      repeat: 0,
+    });
+  }
+  function handleClickDeleteTest() {
+    ledAgent.deleteLEDEffect("LED1", "tie_LED");
+  }
 
   function SaveButton() {
     return (
@@ -152,6 +177,7 @@ export default function EditButtons() {
         size="small"
         color="primary"
         //onClick
+        onClick={handleClickSaveTest}
       >
         EDIT
       </Button>
@@ -164,6 +190,7 @@ export default function EditButtons() {
         variant="outlined"
         size="small"
         color="error"
+        onClick={handleClickDeleteTest}
         //onClick
       >
         DEL
@@ -177,6 +204,7 @@ export default function EditButtons() {
         variant="outlined"
         size="small"
         color="primary"
+        onClick={handleClickAddTest}
         //onClick
       >
         ADD
