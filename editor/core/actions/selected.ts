@@ -33,9 +33,14 @@ const actions = registerActions({
   /**
    * Set selected LED parts
    * @param {State} state
-   * @param {SelectedLEDPartPayload} payload
    */
-  setSelectedLEDParts: (state: State, payload: SelectedLEDPartPayload) => {},
+  setSelectedLEDParts: (
+    state: State,
+    payload: Record<string, Record<string, number[]>>
+  ) => {
+    state.selectedLEDs = payload;
+    state.forceUpdateLED = !state.forceUpdateLED;
+  },
 
   /**
    * Set selected Fiber parts
@@ -51,7 +56,6 @@ const actions = registerActions({
         ? payload[dancer]
         : [];
     });
-    console.log("setSelectedParts", state);
   },
 
   /**
@@ -103,5 +107,5 @@ export const {
   toggleSelectedDancer,
   toggleSelectedPart,
   clearSelected,
-  setSelectedLEDs,
+  setSelectedLEDParts,
 } = actions;

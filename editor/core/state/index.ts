@@ -46,7 +46,8 @@ const _state: State = {
   },
 
   selected: {},
-  selectedLEDs: [],
+  selectedLEDs: {},
+  forceUpdateLED: false,
 
   currentLEDPartName: "",
   currentLEDEffectName: "",

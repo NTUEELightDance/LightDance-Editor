@@ -67,7 +67,7 @@ const actions = registerActions({
     }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-
+    console.log(payload);
     payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
       const data = state.currentStatus[dancerName][partName];
       if (isLEDData(data)) {
@@ -89,6 +89,7 @@ const actions = registerActions({
     const partTypeMap = state.partTypeMap;
     let hasChange = false;
     let hasLEDChange = false;
+    console.log(payload);
 
     // only update if there really is a difference
     Object.entries(payload).forEach(([dancerName, parts]) => {
@@ -103,7 +104,6 @@ const actions = registerActions({
         }
       });
     });
-
     if (hasChange) {
       state.currentStatus = newCurrentStatus;
       pushStatusStack();

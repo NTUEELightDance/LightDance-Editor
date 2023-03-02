@@ -10,7 +10,7 @@ import {
 import {
   setSelectedDancers,
   clearSelected,
-  setSelectedLEDs,
+  setSelectedLEDParts,
   setSelectedParts,
 } from "../../../core/actions";
 import { state } from "core/state";
@@ -83,7 +83,6 @@ class SelectControls extends EventDispatcher {
     }
 
     function onPointerDown(event) {
-      console.log(state);
       if (event.button !== 0 || scope.enabled === false) return;
       if (state.selectionMode === "POSITION_MODE") {
         // return;
@@ -181,13 +180,8 @@ class SelectControls extends EventDispatcher {
     function onPointerUp(event) {
       if (scope.onLasso === true) {
         scope.onLasso = false;
-        type selectedLED = {
-          name: string;
-          dancerName: string;
-        };
-        const selectedLED_payload: selectedLED[] = [];
+        //TODO: Dancer Mode
         if (selectionBox.collection.length > 0) {
-          //TODO: Dancer Mode
           if (state.selectionMode === "DANCER_MODE") {
             const dancers = [];
             selectionBox.collection.forEach((part, index) => {
@@ -198,50 +192,52 @@ class SelectControls extends EventDispatcher {
             });
             setSelectedDancers({ payload: dancers });
           }
+        }
 
-          //TODO: Fiber Part Mode
-          if (state.selectionMode === "PART_MODE") {
-            const parts = [];
-            selectionBox.collection.forEach((part, index) => {
-              const name = part.name;
+        //TODO: Fiber Part Mode
+        if (state.selectionMode === "PART_MODE") {
+          const parts = [];
+          selectionBox.collection.forEach((part, index) => {
+            const name = part.name;
+            if (
+              name !== "Human" &&
+              name !== "nameTag" &&
+              name.includes("LED") === false
+            ) {
               if (
-                name !== "Human" &&
-                name !== "nameTag" &&
-                name.includes("LED") === false
+                !parts[part.parent.name] &&
+                state.dancerNames.includes(part.parent.name)
               ) {
-                if (
-                  !parts[part.parent.name] &&
-                  state.dancerNames.includes(part.parent.name)
-                ) {
-                  parts[part.parent.name] = [];
-                }
-                parts[part.parent.name]?.push(name);
+                parts[part.parent.name] = [];
               }
-            });
-            setSelectedParts({ payload: parts });
-          }
+              parts[part.parent.name]?.push(name);
+            }
+          });
+          setSelectedParts({ payload: parts });
+        }
 
-          //TODO: LED Part Mode
-          if (state.selectionMode === "LED_MODE") {
-            const parts = [];
-            selectionBox.collection.forEach((part, index) => {
-              const name = part.name;
-              if (name.includes("LED")) {
-                if (
-                  !parts[part.parent.name] &&
-                  state.dancerNames.includes(part.parent.name)
-                ) {
-                  parts[part.parent.name] = [];
-                }
-                const partName = name.slice(0, -3);
-                if (!parts[part.parent.name].includes(partName)) {
-                  parts[part.parent.name]?.push(partName);
-                }
+        //TODO: LED Part Mode
+        if (state.selectionMode === "LED_MODE") {
+          const parts: Record<string, Record<string, number[]>> = {};
+          selectionBox.collection.forEach((part, index) => {
+            const name = part.name;
+            if (name.includes("LED")) {
+              if (
+                !parts[part.parent.name] &&
+                state.dancerNames.includes(part.parent.name)
+              ) {
+                parts[part.parent.name] = {};
               }
-            });
-            console.log(parts);
-            setSelectedParts({ payload: parts });
-          }
+              const partName: string = name.slice(0, -3);
+              const partNumber: string = name.slice(-3);
+              // console.log(partNumber);
+              if (!parts[part.parent.name][partName]) {
+                parts[part.parent.name][partName] = [];
+              }
+              parts[part.parent.name][partName].push(Number(partNumber));
+            }
+          });
+          setSelectedLEDParts({ payload: parts });
         }
       }
     }

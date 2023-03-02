@@ -333,6 +333,25 @@ class ThreeController {
     this.controls.selectControls.updateSelected(selected);
   }
 
+  clearSelectedLEDs() {
+    Object.entries(this.dancers).forEach(([dancerName, dancerData]) => {
+      Object.entries(dancerData.parts.LED).forEach(([ledPart, ledData]) => {
+        ledData.selectedLEDs = [];
+      });
+    });
+  }
+
+  updateSelectedLEDs(selectedLEDs: Record<string, Record<string, number[]>>) {
+    this.clearSelectedLEDs();
+    Object.entries(selectedLEDs).forEach(([dancerName, dancerData]) => {
+      Object.entries(dancerData).forEach(([ledPart, selectedIndex]) => {
+        this.dancers[dancerName].parts.LED[ledPart].selectedLEDs =
+          selectedIndex;
+      });
+    });
+    // console.log(this.dancers);
+  }
+
   // calculate and set next frame status according to time and call updateDancers
   update() {
     this.updateDancersStatus(state.currentStatus);

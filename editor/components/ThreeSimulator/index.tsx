@@ -37,6 +37,8 @@ export default function ThreeSimulator() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const selected = useReactiveVar(reactiveState.selected);
+  const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
+  const forceUpdateLED = useReactiveVar(reactiveState.forceUpdateLED);
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -62,6 +64,10 @@ export default function ThreeSimulator() {
   useEffect(() => {
     threeController.setIsPlaying(isPlaying);
   }, [isPlaying]);
+
+  useEffect(() => {
+    threeController.updateSelectedLEDs(selectedLEDs);
+  }, [selectedLEDs, forceUpdateLED]);
 
   useHotkeys("g", () => {
     if (

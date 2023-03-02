@@ -377,7 +377,8 @@ export interface State {
   editingData: EditingData; // store the editingData's start time id and index
 
   selected: Selected; // array of selected dancer's name
-  selectedLEDs: number[]; // array of selected LED bulb's index
+  selectedLEDs: Record<string, Record<string, number[]>>; // array of selected LED bulb's index
+  forceUpdateLED: boolean;
 
   currentLEDPartName: LEDPartName | ""; // the LED part whose effect is being edited
   currentLEDEffectName: LEDEffectName; // the LED effect name being edited

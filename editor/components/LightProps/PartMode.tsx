@@ -161,6 +161,7 @@ function PartMode() {
         intensity
       );
       editCurrentStatusDelta({ payload: currentStatusDelta });
+      console.log(currentStatusDelta);
     }
   }, [LEDsrc, intensity, partType, selectedParts]);
 
