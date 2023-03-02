@@ -1,5 +1,6 @@
 import { controlAgent, posAgent, ledAgent } from "@/api";
 import { reactiveState, state } from "@/core/state";
+import { LEDPartName } from "../models";
 
 /**
  * Get [posMap, posRecord] from posAgent
@@ -65,6 +66,16 @@ export async function getLedMap() {
 export function getPartType(partName: string) {
   const partTypeMap = reactiveState.partTypeMap();
   return partTypeMap[partName];
+}
+
+// retrieve the name of the first dancer with this LED part
+export function getDancerFromLEDpart(partName: LEDPartName) {
+  const dancersArray = state.dancersArray;
+  for (const dancer of dancersArray) {
+    if (dancer.parts.some((part) => part.name === partName)) {
+      return dancer.name;
+    }
+  }
 }
 
 export * from "./Notification";
