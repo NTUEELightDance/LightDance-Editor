@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import TreeView from "@mui/lab/TreeView";
-import { Button, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
   ChevronRight as ChevronRightIcon,
@@ -18,7 +18,17 @@ import { DANCER, PART, POSITION } from "@/constants";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
-function DancerTree() {
+export interface LEDDancerTreeProps {
+  setName: React.Dispatch<React.SetStateAction<string>>;
+  setPart: React.Dispatch<React.SetStateAction<string>>;
+  setAllDancerPage: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function LEDDancerTree({
+  setName,
+  setPart,
+  setAllDancerPage,
+}: LEDDancerTreeProps) {
   const dancers = useReactiveVar(reactiveState.dancers);
   const dancerNames = useReactiveVar(reactiveState.dancerNames);
   const selected = useReactiveVar(reactiveState.selected);
@@ -88,9 +98,18 @@ function DancerTree() {
 
     setSelectedDancers({ payload: [...newSelectedDancers] });
     setSelectedParts({ payload: newSelectedParts });
-
+    const isPart = nodeIds[0].indexOf("%");
     if (selectionMode !== POSITION) {
-      setSelectionMode({ payload: newSelectionMode });
+      //setSelectionMode({ payload: newSelectionMode });
+    }
+    if (isPart > 0) {
+      const selectName = nodeIds[0].slice(0, isPart);
+      const selectPart = nodeIds[0].slice(isPart + 1);
+      setName(selectName);
+      setPart(selectPart);
+      setAllDancerPage(false);
+    } else {
+      setExpanded(nodeIds);
     }
   };
 
@@ -105,18 +124,6 @@ function DancerTree() {
     );
     setSelectedNodes(newNodeIds);
   }, [selected]);
-
-  // handle expand/collapse all
-  const handleExpandClick = () => {
-    setExpanded((oldExpanded) => (oldExpanded.length === 0 ? dancerNames : []));
-  };
-
-  // handle select/unselect all
-  const handleSelectClick = () => {
-    setSelectedNodes((oldSelected) =>
-      oldSelected.length === 0 ? dancerNames : []
-    );
-  };
 
   // to be passed to parts.sort
   // sorts the parts by type (fiber, LED), then by name (in alphabetical order)
@@ -152,12 +159,7 @@ function DancerTree() {
           zIndex: 808,
         }}
       >
-        <Button onClick={handleExpandClick} fullWidth>
-          {expanded.length === 0 ? "Expand all" : "Collapse all"}
-        </Button>
-        <Button onClick={handleSelectClick} fullWidth>
-          {selectedNodes.length === 0 ? "Select all" : "Unselect all"}
-        </Button>
+        LED
       </Paper>
       <TreeView
         defaultCollapseIcon={<ExpandMoreIcon />}
@@ -189,4 +191,4 @@ function DancerTree() {
   );
 }
 
-export default DancerTree;
+export default LEDDancerTree;
