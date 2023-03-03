@@ -54,7 +54,7 @@ async function getParts(modelPath) {
 
   const LEDcounter = LEDs.reduce((acc, LEDname) => {
     const partName = LEDname.split(".")[0];
-    acc[partName] |= 0;
+    acc[partName] ??= 0;
     acc[partName] += 1;
     return acc;
   }, {});
@@ -83,9 +83,9 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
   const status = dancerData.map(({ parts }) =>
     parts.map(({ type }) => {
       if (type === "LED") {
-        return [effect, 0];
+        return [effect, 10];
       } else if (type === "FIBER") {
-        return [color, 0];
+        return [color, 10];
       } else {
         throw new Error(`unknown type: ${type}`);
       }
@@ -94,7 +94,7 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
 
   return {
     fade: false,
-    start: 0,
+    start,
     status,
   };
 }
@@ -193,11 +193,11 @@ function generateEmptyLEDEffects(dancerData) {
   );
 
   const controlData = {
-    0: generateEmptyControlFrame(dancerData, 4000, BLACK, NO_EFFECT),
-    1: generateEmptyControlFrame(dancerData, 0, WHITE, ALL_WHITE),
-    2: generateEmptyControlFrame(dancerData, 1000, RED, ALL_RED),
-    3: generateEmptyControlFrame(dancerData, 2000, GREEN, ALL_GREEN),
-    4: generateEmptyControlFrame(dancerData, 3000, BLUE, ALL_BLUE),
+    0: generateEmptyControlFrame(dancerData, 0, BLACK, NO_EFFECT),
+    1: generateEmptyControlFrame(dancerData, 1000, WHITE, ALL_WHITE),
+    2: generateEmptyControlFrame(dancerData, 2000, RED, ALL_RED),
+    3: generateEmptyControlFrame(dancerData, 3000, GREEN, ALL_GREEN),
+    4: generateEmptyControlFrame(dancerData, 4000, BLUE, ALL_BLUE),
   };
 
   const positionData = {

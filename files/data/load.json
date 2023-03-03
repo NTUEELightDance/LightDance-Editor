@@ -44,15 +44,15 @@
       "modelName": "assassin"
     },
     "11_cabinet_ken": {
-      "url": "/asset/models/11_cabinet_ken.draco.glb",
+      "url": "/asset/models/cabinet_ken.draco.glb",
       "modelName": "cabinet_ken"
     },
     "12_cabinet_ttk": {
-      "url": "/asset/models/12_cabinet_ttk.draco.glb",
+      "url": "/asset/models/cabinet_ttk.draco.glb",
       "modelName": "cabinet_ttk"
     },
     "13_cabinet_samuel": {
-      "url": "/asset/models/13_cabinet_samuel.draco.glb",
+      "url": "/asset/models/cabinet_samuel.draco.glb",
       "modelName": "cabinet_samuel"
     },
     "14_counter_left": {
