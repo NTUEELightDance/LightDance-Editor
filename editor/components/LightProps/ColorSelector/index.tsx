@@ -5,15 +5,17 @@ import { Root, Toggle, Listbox } from "./CustomComponents";
 
 import useColorMap from "@/hooks/useColorMap";
 
+export interface CustomSelectProps {
+  placeholder?: string;
+  onChange: (value: string) => void;
+  currentColorName: string | null;
+}
+
 function CustomSelect({
   placeholder = "",
   onChange,
   currentColorName,
-}: {
-  placeholder?: string;
-  onChange: (value: string) => void;
-  currentColorName: string;
-}) {
+}: CustomSelectProps) {
   const listboxRef = useRef<HTMLUListElement>(null);
   const [listboxVisible, setListboxVisible] = useState(false);
   const { colorMap } = useColorMap();
@@ -36,7 +38,7 @@ function CustomSelect({
   } = useSelect({
     listboxRef,
     options,
-    value: currentColorName,
+    value: currentColorName ?? "",
     onChange: (event) => {
       if (event === null) return;
       const target = event.target as HTMLElement;
