@@ -43,7 +43,8 @@ export default function ThreeSimulator() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const selected = useReactiveVar(reactiveState.selected);
-  const selectedLED = useReactiveVar(reactiveState.selectedLED);
+  const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
+  // const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
 
   useLayoutEffect(() => {
@@ -73,10 +74,10 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     threeController.clearSelectedLEDs();
-    if (selectedLED.length > 0) {
-      threeController.updateSelectedLEDs(selectedLED, currentLEDPartName);
+    if (selectedLEDs.length > 0) {
+      threeController.updateSelectedLEDs(selectedLEDs, currentLEDPartName);
     }
-  }, [selectedLED]);
+  }, [selectedLEDs]);
 
   useEffect(() => {
     if (currentLEDPartName !== "") {
