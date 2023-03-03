@@ -14,14 +14,7 @@ const actions = registerActions({
     payload: { effectName: string; startTime: number; endTime: number }
   ) => {
     const { effectName, startTime, endTime } = payload;
-    const effect = await effectListAgent.addEffectList(
-      effectName,
-      startTime,
-      endTime
-    );
-    if (effect) {
-      state.effectList.push(effect);
-    }
+    await effectListAgent.addEffectList(effectName, startTime, endTime);
   },
 
   /**

@@ -2,13 +2,7 @@ import { registerActions } from "../registerActions";
 // types
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
-import {
-  CONTROL_EDITOR,
-  EDITING,
-  IDLE,
-  POS_EDITOR,
-  LED_EDITOR,
-} from "@/constants";
+import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "@/constants";
 import { getControlPayload, getPosPayload, deleteColorCode } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
@@ -22,6 +16,7 @@ import { notification, updateFrameByTimeMap } from "core/utils";
  */
 const getDataHandler = async (state: State) => {
   const pureStatus = deleteColorCode(state.currentStatus);
+
   if (state.editor === CONTROL_EDITOR) {
     const [controlMapPayload, controlRecord] = await getControlPayload();
     const controlMap = state.controlMap;
@@ -41,7 +36,7 @@ const getDataHandler = async (state: State) => {
       agent: controlAgent,
       fade: state.currentFade,
     };
-  } else if (state.editor === POS_EDITOR) {
+  } else {
     const [posMapPayload, posRecord] = await getPosPayload();
     const posMap = state.posMap;
     // get the right frameIndex due to the multiple editing issue
@@ -59,8 +54,6 @@ const getDataHandler = async (state: State) => {
       frame: state.currentPos,
       agent: posAgent,
     };
-  } else if (state.editor === LED_EDITOR) {
-    
   }
 };
 

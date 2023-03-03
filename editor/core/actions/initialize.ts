@@ -11,8 +11,10 @@ import type {
   CurrentLEDStatus,
 } from "../models";
 
+import { dancerAgent } from "@/api";
 import { getControl, getPos } from "../utils";
-import { dancerAgent, colorAgent, effectListAgent } from "@/api";
+import { colorAgent } from "@/api/colorAgent";
+import { syncCurrentLEDStatus } from "./led";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
@@ -95,11 +97,6 @@ const actions = registerActions({
     state.colorMap = colorMap;
   },
 
-  initEffectList: async (state: State) => {
-    const effectList = await effectListAgent.getEffectList();
-    state.effectList = effectList;
-  },
-
   initCurrentLEDStatus: (state: State) => {
     const { dancers, partTypeMap } = state;
     const tmp: CurrentLEDStatus = {};
@@ -125,6 +122,5 @@ export const {
   initCurrentStatus,
   initCurrentPos,
   initColorMap,
-  initEffectList,
   initCurrentLEDStatus,
 } = actions;
