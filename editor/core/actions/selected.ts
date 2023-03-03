@@ -36,9 +36,8 @@ const actions = registerActions({
       partsIndex: number[];
     }
   ) => {
-    state.selectedLEDBulbs = payload.partsIndex;
-    state.selectedLEDPart = { dancer: payload.dancer, part: payload.part };
-    state.forceUpdateLED = !state.forceUpdateLED;
+    // console.log(payload);
+    state.selectedLED = payload.partsIndex;
   },
 
   /**

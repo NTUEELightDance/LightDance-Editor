@@ -211,12 +211,16 @@ class SelectControls extends EventDispatcher {
         } else if (state.selectionMode === "LED_MODE") {
           const partName = state.currentLEDPartName;
           const dancerName = getDancerFromLEDpart(partName);
+          if (dancerName === undefined) {
+            return;
+          }
           if (partName === "") {
             return;
           }
           const partsIndex: number[] = [];
           selectionBox.collection.forEach((part, index) => {
             const name = part.name;
+            // console.log(part.parent.name, part.name);
             if (isLEDPartName(name) && partName !== "" && dancerName !== "") {
               if (
                 part.parent.name === dancerName &&
@@ -227,6 +231,7 @@ class SelectControls extends EventDispatcher {
               }
             }
           });
+
           const payload: {
             dancer: string;
             part: string;

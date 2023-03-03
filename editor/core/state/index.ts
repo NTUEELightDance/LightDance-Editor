@@ -46,9 +46,8 @@ const _state: State = {
   },
 
   selected: {},
-  selectedLEDBulbs: [],
+  selectedLED: [],
   selectedLEDPart: { dancer: "", part: "" },
-  forceUpdateLED: false,
 
   currentLEDPartName: "",
   currentLEDEffectName: "",

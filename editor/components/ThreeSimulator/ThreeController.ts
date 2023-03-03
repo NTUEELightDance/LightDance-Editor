@@ -31,6 +31,8 @@ import type {
   Selected,
   State,
 } from "@/core/models";
+import { getDancerFromLEDpart } from "@/core/utils";
+import { LEDPartName } from "@/core/models";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -341,25 +343,22 @@ class ThreeController {
     });
   }
 
-  updateSelectedLEDs(
-    selectedLEDBulbs: number[],
-    selectedLEDPart: { dancer: string; part: string }
-  ) {
+  updateSelectedLEDs(selectedLED: number[], selectedLEDPart: string) {
+    const dancerName = getDancerFromLEDpart(selectedLEDPart as LEDPartName);
+    if (dancerName === undefined) {
+      return;
+    }
+    console.log(dancerName);
     this.clearSelectedLEDs();
-    if (selectedLEDBulbs.length > 0) {
-      this.dancers[selectedLEDPart.dancer].parts.LED[
-        selectedLEDPart.part
-      ].selectedLEDs = selectedLEDBulbs;
+    if (selectedLED.length > 0) {
+      this.dancers[dancerName].parts.LED[selectedLEDPart].selectedLEDs =
+        selectedLED;
     }
   }
 
   zoomInSelectedLED(selectedLEDPart: { dancer: string; part: string }) {
-    if (
-      !this.dancers[selectedLEDPart.dancer].parts.LED[selectedLEDPart.part]
-        .geometry.boundingSphere?.center
-    ) {
-      return;
-    }
+    console.log(this.dancers);
+    console.log(selectedLEDPart.dancer);
     const pos = [];
     let posx = 0;
     let posy = 0;
@@ -378,21 +377,25 @@ class ThreeController {
     posx /= pos.length;
     posy /= pos.length;
     posz /= pos.length;
+    const addx =
+      this.dancers[selectedLEDPart.dancer].model.position.x === 0
+        ? this.dancers[selectedLEDPart.dancer].initPos.x
+        : this.dancers[selectedLEDPart.dancer].model.position.x;
+    const addy =
+      this.dancers[selectedLEDPart.dancer].model.position.y === 0
+        ? this.dancers[selectedLEDPart.dancer].initPos.y
+        : this.dancers[selectedLEDPart.dancer].model.position.y;
     if (pos.length > 0) {
       this.camera.position.set(
-        posx + LEDPart.model.position.x,
-        1.2 * posy + LEDPart.model.position.y,
+        posx + addx,
+        1.2 * posy + addy,
         posz + LEDPart.model.position.z + 5
       );
       this.camera.rotation.set(0, 0, 0);
 
-      this.camera.lookAt(
-        posx + LEDPart.model.position.x,
-        posy + LEDPart.model.position.y,
-        -30
-      );
-      this.controls.orbitControls.target.x = posx + LEDPart.model.position.x;
-      this.controls.orbitControls.target.y = posy + LEDPart.model.position.y;
+      this.camera.lookAt(posx + addx, posy + addy, -30);
+      this.controls.orbitControls.target.x = posx + addx;
+      this.controls.orbitControls.target.y = posy + addy;
       this.controls.orbitControls.target.z = -30;
     }
   }

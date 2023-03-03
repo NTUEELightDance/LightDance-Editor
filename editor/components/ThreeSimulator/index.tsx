@@ -5,7 +5,6 @@ import { reactiveState } from "core/state";
 import {
   setCurrentLEDPartName,
   setCurrentPosToGround,
-  setSelectedLEDParts,
   setModeToLEDMode,
 } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
@@ -44,9 +43,7 @@ export default function ThreeSimulator() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const selected = useReactiveVar(reactiveState.selected);
-  const selectedLEDBulbs = useReactiveVar(reactiveState.selectedLEDBulbs);
-  const selectedLEDPart = useReactiveVar(reactiveState.selectedLEDPart);
-  const forceUpdateLED = useReactiveVar(reactiveState.forceUpdateLED);
+  const selectedLED = useReactiveVar(reactiveState.selectedLED);
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
 
   useLayoutEffect(() => {
@@ -76,10 +73,10 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     threeController.clearSelectedLEDs();
-    if (selectedLEDBulbs.length > 0) {
-      threeController.updateSelectedLEDs(selectedLEDBulbs, selectedLEDPart);
+    if (selectedLED.length > 0) {
+      threeController.updateSelectedLEDs(selectedLED, currentLEDPartName);
     }
-  }, [selectedLEDBulbs, forceUpdateLED]);
+  }, [selectedLED]);
 
   useEffect(() => {
     if (currentLEDPartName !== "") {
