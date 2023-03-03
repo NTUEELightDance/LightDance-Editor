@@ -117,6 +117,10 @@ const actions = registerActions({
     state.currentLEDEffect = null;
   },
 
+  setModeToLEDMode: (state: State) => {
+    state.selectionMode = "LED_MODE";
+  },
+
   /**
    * Generate LedEffectRecord
    * According to dancers, controlMap and controlRecord
@@ -210,6 +214,7 @@ export const {
   setCurrentLEDEffect,
   setCurrentLEDEffectRepeat,
   setLEDMap,
+  setModeToLEDMode,
   syncLEDEffectRecord,
   syncCurrentLEDStatus,
   addFrameToCurrentLEDEffect,

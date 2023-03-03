@@ -21,6 +21,7 @@ import { throttle } from "throttle-debounce";
 import type { SelectionMode } from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
+import { getDancerFromLEDpart } from "@/core/utils";
 
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
@@ -182,8 +183,8 @@ class SelectControls extends EventDispatcher {
       if (scope.onLasso === true) {
         scope.onLasso = false;
 
-        if (selectionBox.collection.length > 0) {
-          if (state.selectionMode === "DANCER_MODE") {
+        if (state.selectionMode === "DANCER_MODE") {
+          if (selectionBox.collection.length > 0) {
             const dancers: string[] = [];
             selectionBox.collection.forEach((part, index) => {
               const name = part.name;
@@ -208,17 +209,11 @@ class SelectControls extends EventDispatcher {
           });
           setSelectedParts({ payload: parts });
         } else if (state.selectionMode === "LED_MODE") {
-          let dancerName = "";
-          let partName = "";
-
-          for (const part of selectionBox.collection) {
-            if (isLEDPartName(part.name)) {
-              dancerName = part.parent.name;
-              partName = part.name.slice(0, -3);
-              break;
-            }
+          const partName = state.currentLEDPartName;
+          const dancerName = getDancerFromLEDpart(partName);
+          if (partName === "") {
+            return;
           }
-
           const partsIndex: number[] = [];
           selectionBox.collection.forEach((part, index) => {
             const name = part.name;

@@ -2,7 +2,12 @@ import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
 import { reactiveState } from "core/state";
-import { setCurrentPosToGround, setSelectedLEDParts } from "core/actions";
+import {
+  setCurrentLEDPartName,
+  setCurrentPosToGround,
+  setSelectedLEDParts,
+  setModeToLEDMode,
+} from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 // hotkeys
@@ -16,6 +21,8 @@ import SelectionModeSelector from "components/SelectionModeSelector";
 
 // constants
 import { IDLE, POSITION } from "@/constants";
+
+import { getDancerFromLEDpart } from "@/core/utils";
 
 /**
  * This is Display component
@@ -40,6 +47,7 @@ export default function ThreeSimulator() {
   const selectedLEDBulbs = useReactiveVar(reactiveState.selectedLEDBulbs);
   const selectedLEDPart = useReactiveVar(reactiveState.selectedLEDPart);
   const forceUpdateLED = useReactiveVar(reactiveState.forceUpdateLED);
+  const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -70,9 +78,21 @@ export default function ThreeSimulator() {
     threeController.clearSelectedLEDs();
     if (selectedLEDBulbs.length > 0) {
       threeController.updateSelectedLEDs(selectedLEDBulbs, selectedLEDPart);
-      threeController.zoomInSelectedLED(selectedLEDPart);
     }
-  }, [selectedLEDBulbs, selectedLEDPart, forceUpdateLED]);
+  }, [selectedLEDBulbs, forceUpdateLED]);
+
+  useEffect(() => {
+    if (currentLEDPartName !== "") {
+      setModeToLEDMode();
+      const dancer = getDancerFromLEDpart(currentLEDPartName);
+      if (dancer !== undefined && dancer !== "") {
+        threeController.zoomInSelectedLED({
+          dancer: dancer,
+          part: currentLEDPartName,
+        });
+      }
+    }
+  }, [currentLEDPartName]);
 
   useHotkeys("g", () => {
     if (
