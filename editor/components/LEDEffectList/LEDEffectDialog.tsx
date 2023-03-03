@@ -229,6 +229,7 @@ export default function LEDEffectDialog({
                 onChange={(e) => {
                   setNewLEDEffectName(e.target.value);
                 }}
+                sx={{ mb: 2 }}
               />
             </Grid>
             <Grid>
