@@ -32,7 +32,16 @@ export default function ModelButton({
         //sx={{ '& .MuiToggleButton-root + .MuiToggleButton-root': { marginLeft: '8px' } }}
       >
         {displayModels.map((v) => (
-          <ToggleButton value={v} key={v} sx={{ '& .MuiToggleButton-root': { borderLeft: '1px solid rgba(1, 1, 1, 0.23)' } }} style={{ marginRight: '8px' }}>
+          <ToggleButton
+            value={v}
+            key={v}
+            sx={{
+              "& .MuiToggleButton-root": {
+                borderLeft: "1px solid rgba(1, 1, 1, 0.23)",
+              },
+            }}
+            style={{ marginRight: "8px" }}
+          >
             {v}
           </ToggleButton>
         ))}

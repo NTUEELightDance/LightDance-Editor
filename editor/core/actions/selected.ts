@@ -1,12 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import {
-  State,
-  Selected,
-  SelectedPartPayload,
-  SelectedLEDPartPayload,
-} from "../models";
-import { DANCER, POSITION } from "@/constants";
+import type { State, Selected, SelectedPartPayload } from "../models";
 
 const actions = registerActions({
   /**
@@ -33,9 +27,18 @@ const actions = registerActions({
   /**
    * Set selected LED parts
    * @param {State} state
-   * @param {SelectedLEDPartPayload} payload
    */
-  setSelectedLEDParts: (state: State, payload: SelectedLEDPartPayload) => {},
+  setSelectedLEDParts: (
+    state: State,
+    payload: {
+      dancer: string;
+      part: string;
+      partsIndex: number[];
+    }
+  ) => {
+    // console.log(payload);
+    state.selectedLEDs = payload.partsIndex;
+  },
 
   /**
    * Set selected Fiber parts
@@ -91,7 +94,7 @@ const actions = registerActions({
       state.selected[name].selected = false;
       state.selected[name].parts = [];
     });
-    if (state.selectionMode !== POSITION) state.selectionMode = DANCER;
+    // if (state.selectionMode !== POSITION) state.selectionMode = DANCER;
   },
 });
 
@@ -102,5 +105,5 @@ export const {
   toggleSelectedDancer,
   toggleSelectedPart,
   clearSelected,
-  setSelectedLEDs,
+  setSelectedLEDParts,
 } = actions;

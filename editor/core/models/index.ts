@@ -8,7 +8,7 @@ export type PartName = string;
 export type LEDPartName = string & { __ledPartName: never };
 
 export function isLEDPartName(partName: unknown): partName is LEDPartName {
-  return typeof partName === "string" && partName.startsWith("_LED");
+  return typeof partName === "string" && partName.includes("_LED");
 }
 
 export type ColorName = string;

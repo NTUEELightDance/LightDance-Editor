@@ -3,21 +3,25 @@ import {
   Raycaster,
   Vector2,
   Group,
-  cloneUniformsGroups,
   WebGLRenderer,
   PCFShadowMap,
+  type Intersection,
+  type Object3D,
 } from "three";
 import {
   setSelectedDancers,
   clearSelected,
-  setSelectedLEDs,
+  setSelectedLEDParts,
   setSelectedParts,
-} from "../../../core/actions";
-import { state } from "core/state";
-import { DANCER, PART, POSITION } from "@/constants";
+} from "@/core/actions";
+import { state } from "@/core/state";
 import { SelectionBox } from "./SelectionBox";
 import { SelectionHelper } from "./SelectionHelper";
 import { throttle } from "throttle-debounce";
+import type { SelectionMode } from "@/core/models";
+import { SelectedPartPayload } from "@/core/models";
+import { isLEDPartName } from "@/core/models";
+import { getDancerFromLEDpart } from "@/core/utils";
 
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
@@ -30,9 +34,9 @@ class SelectControls extends EventDispatcher {
     _domElement.style.touchAction = "none"; // disable touch scroll
 
     let _selected = null;
-    let _mode = DANCER;
+    let _mode: SelectionMode = "DANCER_MODE";
 
-    const _intersections = [];
+    const _intersections: Intersection<Object3D<Event>>[] = [];
     _scene.add(_group);
 
     const renderer = new WebGLRenderer({ antialias: true });
@@ -45,6 +49,7 @@ class SelectControls extends EventDispatcher {
     const selectionBox = new SelectionBox(_camera, _scene);
     const helper = new SelectionHelper(renderer, "selectBox");
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this;
     function activate(mode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
@@ -84,10 +89,7 @@ class SelectControls extends EventDispatcher {
 
     function onPointerDown(event) {
       if (event.button !== 0 || scope.enabled === false) return;
-      if (state.selectionMode === "POSITION_MODE") {
-        // return;
-      }
-      //TODO: selection box implement
+
       if (state.selectionMode !== "POSITION_MODE") {
         scope.onLasso = true;
         const rect = _domElement.getBoundingClientRect();
@@ -134,7 +136,7 @@ class SelectControls extends EventDispatcher {
       _updateDragGroup();
       if (
         state.selectionMode === "DANCER_MODE" ||
-        state.selectionMode === POSITION
+        state.selectionMode === "POSITION_MODE"
       ) {
         setSelectedDancers({
           payload: _group.children.map((child) => child.name),
@@ -180,15 +182,10 @@ class SelectControls extends EventDispatcher {
     function onPointerUp(event) {
       if (scope.onLasso === true) {
         scope.onLasso = false;
-        type selectedLED = {
-          name: string;
-          dancerName: string;
-        };
-        const selectedLED_payload: selectedLED[] = [];
-        if (selectionBox.collection.length > 0) {
-          //TODO: Dancer Mode
-          if (state.selectionMode === "DANCER_MODE") {
-            const dancers = [];
+
+        if (state.selectionMode === "DANCER_MODE") {
+          if (selectionBox.collection.length > 0) {
+            const dancers: string[] = [];
             selectionBox.collection.forEach((part, index) => {
               const name = part.name;
               if (name === "Human") {
@@ -197,38 +194,54 @@ class SelectControls extends EventDispatcher {
             });
             setSelectedDancers({ payload: dancers });
           }
-
-          //TODO: Fiber Part Mode
-          if (state.selectionMode === "PART_MODE") {
-            const parts = [];
-            selectionBox.collection.forEach((part, index) => {
-              const name = part.name;
+        } else if (state.selectionMode === "PART_MODE") {
+          const parts: SelectedPartPayload = {};
+          selectionBox.collection.forEach((part, index) => {
+            const name = part.name;
+            if (
+              name !== "Human" &&
+              name !== "nameTag" &&
+              !isLEDPartName(name)
+            ) {
+              parts[part.parent.name] ??= [];
+              parts[part.parent.name].push(name);
+            }
+          });
+          setSelectedParts({ payload: parts });
+        } else if (state.selectionMode === "LED_MODE") {
+          const partName = state.currentLEDPartName;
+          const dancerName = getDancerFromLEDpart(partName);
+          if (dancerName === undefined) {
+            return;
+          }
+          if (partName === "") {
+            return;
+          }
+          const partsIndex: number[] = [];
+          selectionBox.collection.forEach((part, index) => {
+            const name = part.name;
+            // console.log(part.parent.name, part.name);
+            if (isLEDPartName(name) && partName !== "" && dancerName !== "") {
               if (
-                name !== "Human" &&
-                name !== "nameTag" &&
-                name.includes("LED") === false
+                part.parent.name === dancerName &&
+                part.name.slice(0, -3) === partName
               ) {
-                if (
-                  !parts[part.parent.name] &&
-                  state.dancerNames.includes(part.parent.name)
-                ) {
-                  parts[part.parent.name] = [];
-                }
-                parts[part.parent.name]?.push(name);
+                const partNumber: string = name.slice(-3);
+                partsIndex.push(Number(partNumber));
               }
-            });
-            setSelectedParts({ payload: parts });
-          }
+            }
+          });
 
-          //TODO: LED Part Mode
-          if (state.selectionMode === "LED_MODE") {
-            const parts = [];
-            selectionBox.collection.forEach((part, index) => {
-              if (part.name.includes("LED")) {
-                parts.push(part);
-              }
-            });
-          }
+          const payload: {
+            dancer: string;
+            part: string;
+            partsIndex: number[];
+          } = {
+            dancer: dancerName,
+            part: partName,
+            partsIndex: partsIndex,
+          };
+          setSelectedLEDParts({ payload: payload });
         }
       }
     }

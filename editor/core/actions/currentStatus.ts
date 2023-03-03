@@ -67,7 +67,6 @@ const actions = registerActions({
     }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-
     payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
       const data = state.currentStatus[dancerName][partName];
       if (isLEDData(data)) {
@@ -103,7 +102,6 @@ const actions = registerActions({
         }
       });
     });
-
     if (hasChange) {
       state.currentStatus = newCurrentStatus;
       pushStatusStack();

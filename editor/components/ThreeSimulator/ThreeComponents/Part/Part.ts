@@ -6,12 +6,10 @@ export default class Part {
   name: string;
   model: THREE.Object3D;
   visible: boolean;
-  selected: boolean;
   constructor(name: string, model: THREE.Object3D) {
     this.name = name;
     this.model = model;
     this.visible = true;
-    this.selected = false;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -195,17 +195,17 @@ export default function LEDEffectDialog({
   };
 
   const handleAddLEDEffect = () => {
-    if (isLEDPartName(chosenLEDPart) || true) { //<unsolved> isLEDPartName(chosenLEDPart) always return false
-      setEditor({ payload: "LED_EDITOR" });
-      setupLEDEditor({
-        payload: {
-          partName: chosenLEDPart as LEDPartName,
-          effectName: newLEDEffectName,
-          start: newEffectFromTime,
-        },
-      });
+    if (!isLEDPartName(chosenLEDPart)) {
+      return;
     }
-    console.log(state);
+    setEditor({ payload: "LED_EDITOR" });
+    setupLEDEditor({
+      payload: {
+        partName: chosenLEDPart as LEDPartName,
+        effectName: newLEDEffectName,
+        start: newEffectFromTime,
+      },
+    });
     reset();
   };
 
