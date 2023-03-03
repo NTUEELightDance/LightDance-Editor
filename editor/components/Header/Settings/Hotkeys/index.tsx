@@ -93,11 +93,11 @@ const HotKeyList: HotKey[] = [
     key: "del",
   },
   {
-    label: "",
+    label: "reset current status",
     key: "esc",
   },
   {
-    label: "",
+    label: "move all dancers to the ground in position editor",
     key: "g",
   },
 ];
