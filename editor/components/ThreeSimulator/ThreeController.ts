@@ -348,7 +348,6 @@ class ThreeController {
     if (dancerName === undefined) {
       return;
     }
-    console.log(dancerName);
     this.clearSelectedLEDs();
     if (selectedLED.length > 0) {
       this.dancers[dancerName].parts.LED[selectedLEDPart].selectedLEDs =
@@ -357,8 +356,6 @@ class ThreeController {
   }
 
   zoomInSelectedLED(selectedLEDPart: { dancer: string; part: string }) {
-    console.log(this.dancers);
-    console.log(selectedLEDPart.dancer);
     const pos = [];
     let posx = 0;
     let posy = 0;
