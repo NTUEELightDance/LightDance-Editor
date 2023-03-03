@@ -217,7 +217,7 @@ export function isColorMap(colorMap: unknown): colorMap is ColorMap {
  */
 export type LEDMap = Record<PartName, Record<LEDEffectName, LEDEffect>>;
 
-type LEDEffectName = string;
+export type LEDEffectName = string;
 
 export interface LEDEffect {
   repeat: number; // repeat counts, 0 for continuously repeat
@@ -244,7 +244,6 @@ export interface LEDEffectFramePayload {
   // [r, g, b, alpha(0-10)]
   LEDs: RGBA[];
 }
-
 /**
  * LedEffectRecord
  * Save dancer LED part's appearing record id
@@ -254,6 +253,31 @@ export interface LEDEffectFramePayload {
 export type LEDEffectRecord = Record<DancerName, Record<PartName, LEDRecord>>;
 
 export type LEDRecord = id[];
+
+export type addLEDEffectPayload = {
+  partName: LEDPartName;
+  effectName: string;
+  repeat: 0 | 1;
+  ok: boolean;
+  msg: string;
+};
+
+export type saveLEDEffectInput = {
+  frames: {
+    set: JSON[];
+  };
+  id: number;
+  name: string;
+  repeat: 0 | 1;
+};
+
+export type saveLEDEffectPayload = {
+  partName: LEDPartName;
+  effectName: string;
+  repeat: 0 | 1;
+  ok: boolean;
+  msg: string;
+};
 /**
  * CurrentLedEffect
  * Save the ledEffect index (in ledEffectRecord) and the effect

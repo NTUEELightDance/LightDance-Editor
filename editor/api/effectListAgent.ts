@@ -1,5 +1,4 @@
 import client from "../client";
-
 import {
   ADD_EFFECT_LIST,
   APPLY_EFFECT_LIST,
@@ -28,7 +27,6 @@ export const effectListAgent = {
       notification.error("Effect List Add Failed");
     }
   },
-
   deleteEffectList: async (deleteId: string) => {
     try {
       const response = await client.mutate({
@@ -37,7 +35,6 @@ export const effectListAgent = {
           deleteEffectListId: parseInt(deleteId),
         },
       });
-
       if (response.data.deleteEffectList.ok) {
         notification.success("Effect List Deleted");
       } else {

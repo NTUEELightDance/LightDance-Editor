@@ -29,7 +29,7 @@ const THROTTLE = 100;
 export default function TimeController() {
   const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
   const currentPosIndex = useReactiveVar(reactiveState.currentPosIndex);
-  const editor = reactiveState.editor();
+  const editor = useReactiveVar(reactiveState.editor);
 
   const handleChangeControlFrame = (value: number) => {
     setCurrentControlIndex({ payload: value });
@@ -102,14 +102,14 @@ export default function TimeController() {
           payload: currentPosIndex - 1,
         });
     }, THROTTLE),
-    [currentControlIndex, currentPosIndex]
+    [editor, currentControlIndex, currentPosIndex]
   );
 
   useEffect(() => {
     // renew statusStack and posStack
     initStatusStack();
     initPosStack();
-  }, [currentControlIndex, currentPosIndex]);
+  }, [editor, currentControlIndex, currentPosIndex]);
 
   return (
     <Stack

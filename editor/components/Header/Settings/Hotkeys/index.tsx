@@ -1,31 +1,35 @@
-import * as React from "react";
+import React from "react";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { TableVirtuoso, TableComponents } from "react-virtuoso";
-
-interface HotKey {
-  label: string;
-  key: string;
-}
 
 interface ColumnData {
   label: string;
   width: string;
   dataKey: keyof HotKey;
 }
+interface HotKey {
+  label: string;
+  key: string;
+}
+
+const columns: readonly ColumnData[] = [
+  { label: "HOTKEYS", width: "30%", dataKey: "key" },
+  { label: "FUNCTIONS", width: "70%", dataKey: "label" },
+];
 
 const HotKeyList: HotKey[] = [
   {
-    label: "copy the selected dancer's lightProps",
+    label: "copy the selected dancer's lightProps or position",
     key: "ctrl/cmd+c",
   },
   {
-    label: "paste the lightProps to the selected dancers",
+    label: "paste the lightProps or position to the selected dancers",
     key: "ctrl/cmd+v",
   },
   {
@@ -49,11 +53,11 @@ const HotKeyList: HotKey[] = [
     key: "ctrl/cmd+shift+a",
   },
   {
-    label: "select the next dancer",
+    label: "next frame",
     key: "down arrow",
   },
   {
-    label: "select the previous dancer",
+    label: "previous frame",
     key: "up arrow",
   },
   {
@@ -61,12 +65,20 @@ const HotKeyList: HotKey[] = [
     key: "space",
   },
   {
-    label: "next frame",
-    key: "right arrow / w",
+    label: "shift 100 ms forward",
+    key: "right arrow",
   },
   {
-    label: "previous frame",
-    key: "left arrow / q",
+    label: "shift 100 ms backward",
+    key: "left arrow",
+  },
+  {
+    label: "shift 500 ms forward",
+    key: "shift+right arrow",
+  },
+  {
+    label: "shift 500 ms backward",
+    key: "shift+left arrow",
   },
   {
     label: "start editing",
@@ -81,88 +93,71 @@ const HotKeyList: HotKey[] = [
     key: "del",
   },
   {
-    label: "",
+    label: "reset current status",
     key: "esc",
   },
   {
-    label: "switch between position editor and control editor",
-    key: "v",
-  },
-  {
-    label: "",
+    label: "move all dancers to the ground in position editor",
     key: "g",
   },
 ];
 
-const columns: ColumnData[] = [
-  {
-    width: "30%",
-    label: "HOTKEYS",
-    dataKey: "key",
-  },
-  {
-    width: "70%",
-    label: "FUNCTIONS",
-    dataKey: "label",
-  },
-];
+export default function Hotkeys() {
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-const VirtuosoTableComponents: TableComponents<HotKey> = {
-  // eslint-disable-next-line react/display-name
-  Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
-    <TableContainer component={Paper} {...props} ref={ref} />
-  )),
-  Table: (props) => (
-    <Table
-      {...props}
-      sx={{ borderCollapse: "separate", tableLayout: "fixed" }}
-    />
-  ),
-  TableHead,
-  TableRow: ({ ...props }) => <TableRow {...props} />,
-  // eslint-disable-next-line react/display-name
-  TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
-    <TableBody {...props} ref={ref} />
-  )),
-};
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
 
-function fixedHeaderContent() {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
   return (
-    <TableRow>
-      {columns.map((column) => (
-        <TableCell
-          key={column.dataKey}
-          variant="head"
-          style={{ width: column.width }}
-          sx={{
-            backgroundColor: "background.paper",
-          }}
-        >
-          {column.label}
-        </TableCell>
-      ))}
-    </TableRow>
-  );
-}
-
-function rowContent(_index: number, row: HotKey) {
-  return (
-    <React.Fragment>
-      {columns.map((column) => (
-        <TableCell key={column.dataKey}>{row[column.dataKey]}</TableCell>
-      ))}
-    </React.Fragment>
-  );
-}
-
-export default function HotKeys() {
-  return (
-    <Paper style={{ height: 380, width: "100%" }}>
-      <TableVirtuoso
-        data={HotKeyList}
-        components={VirtuosoTableComponents}
-        fixedHeaderContent={fixedHeaderContent}
-        itemContent={rowContent}
+    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+      <TableContainer sx={{ minHeight: 380, maxHeight: 460, width: "100%" }}>
+        <Table stickyHeader aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell key={column.label} style={{ width: column.width }}>
+                  {column.label}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {HotKeyList.slice(
+              page * rowsPerPage,
+              page * rowsPerPage + rowsPerPage
+            ).map((hotKey) => {
+              return (
+                <TableRow hover role="checkbox" tabIndex={-1} key={hotKey.key}>
+                  {columns.map((column) => {
+                    return (
+                      <TableCell key={column.dataKey}>
+                        {hotKey[column.dataKey]}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10]}
+        component="div"
+        count={HotKeyList.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </Paper>
   );

@@ -134,7 +134,12 @@ export const DELETE_COLOR = gql`
 export const ADD_EFFECT_LIST = gql`
   mutation AddEffectList($end: Int!, $start: Int!, $description: String) {
     addEffectList(end: $end, start: $start, description: $description) {
+      controlFrames
+      positionFrames
       id
+      end
+      start
+      description
     }
   }
 `;
@@ -151,6 +156,44 @@ export const APPLY_EFFECT_LIST = gql`
 export const DELETE_EFFECT_LIST = gql`
   mutation DeleteEffectList($deleteEffectListId: Int!) {
     deleteEffectList(id: $deleteEffectListId) {
+      ok
+      msg
+    }
+  }
+`;
+
+export const ADD_LED_EFFECT = gql`
+  mutation AddLEDEffect($input: LEDEffectCreateInput!) {
+    addLEDEffect(input: $input) {
+      partName
+      effectName
+      repeat
+      ok
+      msg
+    }
+  }
+`;
+
+export const EDIT_LED_EFFECT = gql`
+  mutation EditLEDEffect($input: EditLEDInput!) {
+    editLEDEffect(input: $input) {
+      partName
+      effectName
+      repeat
+      effects {
+        LEDs
+        fade
+        start
+      }
+      ok
+      msg
+    }
+  }
+`;
+
+export const DELETE_LED_EFFECT = gql`
+  mutation DeleteLEDEffect($input: DeleteLEDInput!) {
+    deleteLEDEffect(input: $input) {
       ok
       msg
     }
