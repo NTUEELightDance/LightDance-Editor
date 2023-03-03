@@ -2,7 +2,7 @@ import { registerActions } from "../registerActions";
 
 import { State, SelectionMode, Editor } from "../models";
 
-import { CONTROL_EDITOR, LED_EDITOR, POSITION, DANCER } from "@/constants";
+import { CONTROL_EDITOR, POS_EDITOR, POSITION, DANCER } from "@/constants";
 
 const actions = registerActions({
   /**
@@ -23,8 +23,8 @@ const actions = registerActions({
       case CONTROL_EDITOR:
         state.selectionMode = POSITION;
         break;
-      case LED_EDITOR:
-        state.selectionMode = POSITION;
+      case POS_EDITOR:
+        state.selectionMode = DANCER;
         break;
       default:
         state.selectionMode = DANCER;
