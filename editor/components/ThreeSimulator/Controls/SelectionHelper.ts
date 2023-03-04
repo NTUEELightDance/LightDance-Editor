@@ -20,44 +20,6 @@ class SelectionHelper {
     this.startPoint = new Vector2();
     this.pointTopLeft = new Vector2();
     this.pointBottomRight = new Vector2();
-
-    this.onPointerDown = function (event: PointerEvent) {
-      this.isDown = true;
-      this.onSelectStart(event);
-    }.bind(this);
-
-    this.onPointerMove = function (event: PointerEvent) {
-      if (this.isDown) {
-        this.onSelectMove(event);
-      }
-    }.bind(this);
-
-    this.onPointerUp = function () {
-      this.isDown = false;
-      this.onSelectOver();
-    }.bind(this);
-
-    this.renderer.domElement.addEventListener(
-      "pointerdown",
-      this.onPointerDown
-    );
-    this.renderer.domElement.addEventListener(
-      "pointermove",
-      this.onPointerMove
-    );
-    this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
-  }
-
-  dispose() {
-    this.renderer.domElement.removeEventListener(
-      "pointerdown",
-      this.onPointerDown
-    );
-    this.renderer.domElement.removeEventListener(
-      "pointermove",
-      this.onPointerMove
-    );
-    this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
   }
 
   onSelectStart(event: PointerEvent) {

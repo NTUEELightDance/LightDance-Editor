@@ -15,7 +15,7 @@ import { PosMapStatus } from "@/core/models";
 class Controls {
   renderer: THREE.Renderer;
   scene: THREE.Scene;
-  camera: THREE.Camera;
+  camera: THREE.PerspectiveCamera;
   domElement: HTMLElement;
   dancers: Record<string, Dancer>;
   objects: THREE.Object3D[];
@@ -23,7 +23,7 @@ class Controls {
   constructor(
     renderer: THREE.Renderer,
     scene: THREE.Scene,
-    camera: THREE.Camera,
+    camera: THREE.PerspectiveCamera,
     dancers: Record<string, Dancer>
   ) {
     this.renderer = renderer;

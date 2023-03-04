@@ -163,11 +163,11 @@ class SelectControls extends EventDispatcher {
     let _hover = null;
 
     function onPointerMove(event: PointerEvent) {
+      if (!(event.buttons & 1) || scope.enabled === false) return;
       if (state.selectionMode === "POSITION_MODE") return;
 
-      scope.helper.onSelectMove(event);
-
       if (scope.onLasso) {
+        scope.helper.onSelectMove(event);
         updatePointer(event);
         _raycaster.setFromCamera(_pointer, _camera);
         const rect = _domElement.getBoundingClientRect();
@@ -198,6 +198,8 @@ class SelectControls extends EventDispatcher {
     }
 
     function onPointerUp(event: PointerEvent) {
+      // if (event.button !== 0 || scope.enabled === false) return;
+
       if (!scope.onLasso) return;
       scope.onLasso = false;
 

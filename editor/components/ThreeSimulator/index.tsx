@@ -2,11 +2,7 @@ import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
 import { reactiveState } from "core/state";
-import {
-  setCurrentLEDPartName,
-  setCurrentPosToGround,
-  setModeToLEDMode,
-} from "core/actions";
+import { setCurrentPosToGround, setModeToLEDMode } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 // hotkeys
