@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import { Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import Hotkeys from "./Hotkeys";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
-import File from "./File";
 import Preference from "./Preference";
 import TimeShift from "./TimeShift";
 import { SettingModal } from "./SettingModal";
@@ -18,7 +17,6 @@ export function Settings({
   setShowSettings: (showSettings: boolean) => void;
 }) {
   const [hotkeysModalOpen, setHotkeysModalOpen] = useState<boolean>(false);
-  const [fileModalOpen, setFileModalOpen] = useState<boolean>(false);
   const [prefModalOpen, setPrefModalOpen] = useState<boolean>(false);
   const [timeShiftOpen, setTimeShiftOpen] = useState<boolean>(false);
   const menuAnchor = useRef<HTMLButtonElement>(null);
@@ -47,18 +45,6 @@ export function Settings({
         setTimeShiftOpen(false);
       },
       modalChildren: <TimeShift setTimeShiftOpen={setTimeShiftOpen} />,
-    },
-    {
-      label: "Files",
-      modalOpen: fileModalOpen,
-      handleClick: () => {
-        setFileModalOpen(true);
-        setShowSettings(false);
-      },
-      handleClose: () => {
-        setFileModalOpen(false);
-      },
-      modalChildren: <File />,
     },
     {
       label: "Preferences",

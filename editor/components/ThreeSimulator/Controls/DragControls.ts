@@ -1,6 +1,9 @@
 import {
   EventDispatcher,
+  Intersection,
   Matrix4,
+  Object3D,
+  PerspectiveCamera,
   Plane,
   Raycaster,
   Vector2,
@@ -17,26 +20,29 @@ const _worldPosition = new Vector3();
 const _inverseMatrix = new Matrix4();
 
 class DragControls extends EventDispatcher {
-  // enabled : boolean;
-  // transformGroup : boolean;
-  // activate :
-  // deactivate :
-  // dispose :
-  // getObjects :
-  // getRaycaster :
+  enabled: boolean;
+  transformGroup: boolean;
+  activate: () => void;
+  deactivate: () => void;
+  dispose: () => void;
+  getObjects: () => Object3D[];
+  getRaycaster: () => Raycaster;
 
-  constructor(_objects, _camera, _domElement) {
+  constructor(
+    _objects: Object3D[],
+    _camera: PerspectiveCamera,
+    _domElement: HTMLCanvasElement
+  ) {
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
 
-    let _selected = null;
-    let _hovered = null;
+    let _selected: Object3D | null = null;
+    let _hovered: Object3D | null = null;
 
-    const _intersections = [];
+    const _intersections: Intersection[] = [];
 
-    //
-
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this;
 
     function activate() {
@@ -67,7 +73,7 @@ class DragControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerMove(event) {
+    function onPointerMove(event: PointerEvent) {
       if (scope.enabled === false) return;
 
       updatePointer(event);
@@ -126,7 +132,7 @@ class DragControls extends EventDispatcher {
       }
     }
 
-    function onPointerDown(event) {
+    function onPointerDown(event: PointerEvent) {
       if (event.button !== 0 || scope.enabled === false) return;
 
       updatePointer(event);
@@ -148,7 +154,7 @@ class DragControls extends EventDispatcher {
         );
 
         if (_raycaster.ray.intersectPlane(_plane, _intersection) != null) {
-          _inverseMatrix.copy(_selected.parent.matrixWorld).invert();
+          _inverseMatrix.copy(_selected.parent!.matrixWorld).invert();
           _offset
             .copy(_intersection)
             .sub(_worldPosition.setFromMatrixPosition(_selected.matrixWorld));
@@ -172,7 +178,7 @@ class DragControls extends EventDispatcher {
       _domElement.style.cursor = _hovered ? "pointer" : "auto";
     }
 
-    function updatePointer(event) {
+    function updatePointer(event: PointerEvent) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;

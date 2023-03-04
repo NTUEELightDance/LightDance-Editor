@@ -10,7 +10,7 @@ import { Dancer } from "../ThreeComponents";
 
 import { DANCER, PART, POSITION } from "@/constants";
 
-import { PosMapStatus } from "@/core/models";
+import { PosMapStatus, SelectionMode } from "@/core/models";
 
 class Controls {
   renderer: THREE.Renderer;
@@ -19,6 +19,9 @@ class Controls {
   domElement: HTMLElement;
   dancers: Record<string, Dancer>;
   objects: THREE.Object3D[];
+  orbitControls: OrbitControls;
+  dragControls: DragControls;
+  selectControls: SelectControls;
 
   constructor(
     renderer: THREE.Renderer,
@@ -33,9 +36,9 @@ class Controls {
     this.dancers = dancers;
     this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
 
-    this.initOrbitControls();
-    this.initDragControls();
-    this.initDancerSelector();
+    this.orbitControls = this.initOrbitControls();
+    this.dragControls = this.initDragControls();
+    this.selectControls = this.initSelectControls(this.dragControls);
   }
 
   initOrbitControls() {
@@ -57,33 +60,35 @@ class Controls {
 
     orbitControls.update();
 
-    this.orbitControls = orbitControls;
+    return orbitControls;
   }
 
   initDragControls() {
-    this.dragControls = new DragControls(
+    const dragControls = new DragControls(
       [...this.objects],
       this.camera,
       this.renderer.domElement
     );
-    this.dragControls.enabled = false;
-    this.dragControls.addEventListener("dragend", this.dragEnd.bind(this));
+    dragControls.enabled = false;
+    dragControls.addEventListener("dragend", this.dragEnd.bind(this));
+    return dragControls;
   }
 
-  initDancerSelector() {
+  initSelectControls(dragControls: DragControls) {
     const selectControls = new SelectControls(
       [...this.objects],
       this.camera,
       this.renderer.domElement,
-      this.dragControls,
+      dragControls,
       this.dancers,
       this.scene,
       this.renderer
     );
-    this.selectControls = selectControls;
+
+    return selectControls;
   }
 
-  activate(selectionMode) {
+  activate(selectionMode: SelectionMode) {
     switch (selectionMode) {
       case DANCER:
         break;

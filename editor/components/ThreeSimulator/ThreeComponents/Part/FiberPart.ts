@@ -33,18 +33,17 @@ export default class FIBERPart extends Part {
       this.mesh.material.emissiveIntensity = alpha / 15;
 
       // if colorCode exist use colorCode instead
-
       if (colorCode) {
         this.mesh.material.emissive.copy(colorCode);
+        return;
+      }
+
+      if (state.colorMap[color]) {
+        this.mesh.material.emissive.setHex(
+          parseInt(state.colorMap[color].replace(/^#/, ""), 16)
+        );
       } else {
-        if (!state.colorMap[color]) {
-          console.error(`Color Not Found: ${color}`);
-          this.mesh.material.emissive.setHex(0x000000);
-        } else {
-          this.mesh.material.emissive.setHex(
-            parseInt(state.colorMap[color].replace(/^#/, ""), 16)
-          );
-        }
+        throw new Error(`color ${color} not found`);
       }
     }
   }

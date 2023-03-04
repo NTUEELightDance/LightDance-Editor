@@ -29,6 +29,7 @@ import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 // @ts-expect-error no types for module css
 import styles from "./controls.module.css";
 import { type Dancer } from "../ThreeComponents";
+import { type DragControls } from "./DragControls";
 
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
@@ -54,7 +55,7 @@ class SelectControls extends EventDispatcher {
     _objects: Object3D[],
     _camera: PerspectiveCamera,
     _domElement: HTMLCanvasElement,
-    _dragControls,
+    _dragControls: DragControls,
     _dancers: Record<string, Dancer>,
     _scene: Scene,
     _renderer: Renderer

@@ -124,8 +124,9 @@ export default function ColorPalette() {
               editDialogOpen[colorName] = false;
             });
           }}
+          // TODO fix this
           handleMutateColor={async (newColorName, newColorCode) => {
-            await handleEditColor(colorName, newColorName, newColorCode);
+            await handleEditColor(colorName, newColorCode);
           }}
           defaultColorName={colorName}
           defaultColorCode={colorCode}

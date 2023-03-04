@@ -36,15 +36,11 @@ const defaultDisplay = {
   alpha: 0,
 };
 
-const selectedDisplay = {
-  colorCode: "#FFFFFF",
-  alpha: 10,
-};
-
 export default class LEDPart extends Part {
   LEDs: THREE.Points;
   geometry: THREE.BufferGeometry;
   selectedLEDs: number[];
+
   constructor(name: string, model: THREE.Object3D) {
     super(name, model);
     this.LEDs = new THREE.Points();
@@ -118,18 +114,20 @@ export default class LEDPart extends Part {
     const alphaAttribute = this.geometry.getAttribute(
       "alpha"
     ) as THREE.BufferAttribute;
+
     effect.forEach((display, i) => {
       if (this.selectedLEDs.includes(i)) {
-        const { colorCode, alpha } = display || selectedDisplay;
+        const { colorCode, alpha } = display;
         colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
-        alphaAttribute.setX(i, alpha / 10);
+        alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
       } else {
-        const { colorCode, alpha } = display || defaultDisplay;
+        const { colorCode, alpha } = display;
 
         colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
         alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
       }
     });
+
     colorAttribute.needsUpdate = true;
     alphaAttribute.needsUpdate = true;
   }
