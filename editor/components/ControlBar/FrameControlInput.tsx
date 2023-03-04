@@ -4,7 +4,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
 } from "@mui/icons-material";
 
-function FrameContorlInput({
+function FrameControlInput({
   label,
   value,
   handleChange,
@@ -53,4 +53,4 @@ function FrameContorlInput({
   );
 }
 
-export default FrameContorlInput;
+export default FrameControlInput;
