@@ -22,11 +22,11 @@ const _inverseMatrix = new Matrix4();
 class DragControls extends EventDispatcher {
   enabled!: boolean;
   transformGroup!: boolean;
-  activate!: undefined;
-  deactivate!: undefined;
-  dispose!: undefined;
-  getObjects!: [];
-  getRaycaster!: Raycaster;
+  activate!: () => void;
+  deactivate!: () => void;
+  dispose!: () => void;
+  getObjects!: () => void;
+  getRaycaster!: () => Raycaster;
   constructor(_objects: Object3D[], _camera: Camera, _domElement: HTMLElement) {
     super();
 

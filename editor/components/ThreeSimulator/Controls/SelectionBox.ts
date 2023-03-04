@@ -1,4 +1,11 @@
-import { Frustum, Vector3, Matrix4, Quaternion, Scene, PerspectiveCamera, CameraHelper, MeshToonMaterial, Vector, PerspectiveCamera, Object3D } from "three";
+import {
+  Frustum,
+  Vector3,
+  Matrix4,
+  Quaternion,
+  Scene,
+  PerspectiveCamera,
+} from "three";
 //import Camera from "../Camera";
 
 /**
@@ -16,11 +23,6 @@ const _vecTopRight = new Vector3();
 const _vecDownRight = new Vector3();
 const _vecDownLeft = new Vector3();
 
-const _vecFarTopLeft = new Vector3();
-const _vecFarTopRight = new Vector3();
-const _vecFarDownRight = new Vector3();
-const _vecFarDownLeft = new Vector3();
-
 const _vectemp1 = new Vector3();
 const _vectemp2 = new Vector3();
 const _vectemp3 = new Vector3();
@@ -34,11 +36,15 @@ class SelectionBox {
   scene: Scene;
   startPoint: Vector3;
   endPoint: Vector3;
-  collection: any[];
+  collection: [];
   instances;
   deep;
 
-  constructor(camera: PerspectiveCamera, scene: Scene, deep = Number.MAX_VALUE) {
+  constructor(
+    camera: PerspectiveCamera,
+    scene: Scene,
+    deep = Number.MAX_VALUE
+  ) {
     this.camera = camera;
     this.scene = scene;
     this.startPoint = new Vector3();
@@ -121,71 +127,12 @@ class SelectionBox {
       );
       planes[5].setFromCoplanarPoints(_vectemp3, _vectemp2, _vectemp1);
       planes[5].normal.multiplyScalar(-1);
-    } else if (this.camera.isOrthographicCamera) {
-      const left = Math.min(startPoint.x, endPoint.x);
-      const top = Math.max(startPoint.y, endPoint.y);
-      const right = Math.max(startPoint.x, endPoint.x);
-      const down = Math.min(startPoint.y, endPoint.y);
-
-      _vecTopLeft.set(left, top, -1);
-      _vecTopRight.set(right, top, -1);
-      _vecDownRight.set(right, down, -1);
-      _vecDownLeft.set(left, down, -1);
-
-      _vecFarTopLeft.set(left, top, 1);
-      _vecFarTopRight.set(right, top, 1);
-      _vecFarDownRight.set(right, down, 1);
-      _vecFarDownLeft.set(left, down, 1);
-
-      _vecTopLeft.unproject(this.camera);
-      _vecTopRight.unproject(this.camera);
-      _vecDownRight.unproject(this.camera);
-      _vecDownLeft.unproject(this.camera);
-
-      _vecFarTopLeft.unproject(this.camera);
-      _vecFarTopRight.unproject(this.camera);
-      _vecFarDownRight.unproject(this.camera);
-      _vecFarDownLeft.unproject(this.camera);
-
-      const planes = _frustum.planes;
-
-      planes[0].setFromCoplanarPoints(
-        _vecTopLeft,
-        _vecFarTopLeft,
-        _vecFarTopRight
-      );
-      planes[1].setFromCoplanarPoints(
-        _vecTopRight,
-        _vecFarTopRight,
-        _vecFarDownRight
-      );
-      planes[2].setFromCoplanarPoints(
-        _vecFarDownRight,
-        _vecFarDownLeft,
-        _vecDownLeft
-      );
-      planes[3].setFromCoplanarPoints(
-        _vecFarDownLeft,
-        _vecFarTopLeft,
-        _vecTopLeft
-      );
-      planes[4].setFromCoplanarPoints(
-        _vecTopRight,
-        _vecDownRight,
-        _vecDownLeft
-      );
-      planes[5].setFromCoplanarPoints(
-        _vecFarDownRight,
-        _vecFarTopRight,
-        _vecFarTopLeft
-      );
-      planes[5].normal.multiplyScalar(-1);
     } else {
       console.error("THREE.SelectionBox: Unsupported camera type.");
     }
   }
 
-  searchChildInFrustum(frustum: THREE.Frustum, object: THREE.) {
+  searchChildInFrustum(frustum: THREE.Frustum, object: any) {
     if (object.isMesh || object.isLine || object.isPoints) {
       if (object.isInstancedMesh) {
         this.instances[object.uuid] = [];

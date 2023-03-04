@@ -8,7 +8,6 @@ import {
   Vector2,
   Vector3,
   PerspectiveCamera,
-  OrthographicCamera,
 } from "three";
 
 // This set of controls performs orbiting, dollying (zooming), and panning.
@@ -23,8 +22,8 @@ const _startEvent = { type: "start" };
 const _endEvent = { type: "end" };
 
 class OrbitControls extends EventDispatcher {
-  object: PerspectiveCamera | OrthographicCamera;
-  domElement: HTMLElement | Document;
+  object: PerspectiveCamera;
+  domElement: HTMLElement;
   enabled: boolean;
   target: Vector3;
   minDistance: GLfloat;
@@ -53,7 +52,7 @@ class OrbitControls extends EventDispatcher {
   target0: Vector3;
   position0: Vector3;
   zoom0: GLfloat;
-  _domElementKeyEvents: null | HTMLElement | Document;
+  _domElementKeyEvents: null | HTMLElement;
   getPolarAngle;
   getAzimuthalAngle;
   getDistance;
@@ -63,17 +62,12 @@ class OrbitControls extends EventDispatcher {
   update;
   dispose;
 
-  constructor(object: PerspectiveCamera | OrthographicCamera, domElement: HTMLElement | Document) {
+  constructor(object: PerspectiveCamera, domElement: HTMLElement) {
     super();
 
     if (domElement === undefined) {
       console.warn(
         'THREE.OrbitControls: The second parameter "domElement" is now mandatory.'
-      );
-    }
-    if (domElement === document) {
-      console.error(
-        'THREE.OrbitControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.'
       );
     }
 
@@ -383,7 +377,7 @@ class OrbitControls extends EventDispatcher {
     const dollyEnd = new Vector2();
     const dollyDelta = new Vector2();
 
-    const pointers: MouseEvent[] | PointerEvent[] = [];
+    const pointers: PointerEvent[] = [];
     const pointerPositions = {};
 
     function getAutoRotationAngle() {
@@ -457,20 +451,6 @@ class OrbitControls extends EventDispatcher {
             (2 * deltaY * targetDistance) / element.clientHeight,
             scope.object.matrix
           );
-        } else if (scope.object.isOrthographicCamera) {
-          // orthographic
-          panLeft(
-            (deltaX * (scope.object.right - scope.object.left)) /
-              scope.object.zoom /
-              element.clientWidth,
-            scope.object.matrix
-          );
-          panUp(
-            (deltaY * (scope.object.top - scope.object.bottom)) /
-              scope.object.zoom /
-              element.clientHeight,
-            scope.object.matrix
-          );
         } else {
           // camera neither orthographic nor perspective
           console.warn(
@@ -484,13 +464,6 @@ class OrbitControls extends EventDispatcher {
     function dollyOut(dollyScale: number) {
       if (scope.object.isPerspectiveCamera) {
         scale /= dollyScale;
-      } else if (scope.object.isOrthographicCamera) {
-        scope.object.zoom = Math.max(
-          scope.minZoom,
-          Math.min(scope.maxZoom, scope.object.zoom * dollyScale)
-        );
-        scope.object.updateProjectionMatrix();
-        zoomChanged = true;
       } else {
         console.warn(
           "WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled."
@@ -502,13 +475,6 @@ class OrbitControls extends EventDispatcher {
     function dollyIn(dollyScale: number) {
       if (scope.object.isPerspectiveCamera) {
         scale *= dollyScale;
-      } else if (scope.object.isOrthographicCamera) {
-        scope.object.zoom = Math.max(
-          scope.minZoom,
-          Math.min(scope.maxZoom, scope.object.zoom / dollyScale)
-        );
-        scope.object.updateProjectionMatrix();
-        zoomChanged = true;
       } else {
         console.warn(
           "WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled."
@@ -523,10 +489,6 @@ class OrbitControls extends EventDispatcher {
 
     function handleMouseDownRotate(event: PointerEvent) {
       rotateStart.set(event.clientX, event.clientY);
-    }
-
-    function handleMouseDownDolly(event: PointerEvent) {
-      dollyStart.set(event.clientX, event.clientY);
     }
 
     function handleMouseDownPan(event: PointerEvent) {
@@ -892,7 +854,7 @@ class OrbitControls extends EventDispatcher {
           break;
 
         case 2:
-          switch (+scope.touches.TWO) {
+          switch (scope.touches.TWO) {
             case TOUCH.DOLLY_PAN:
               if (scope.enableZoom === false && scope.enablePan === false) {
                 return;
@@ -977,7 +939,7 @@ class OrbitControls extends EventDispatcher {
       }
     }
 
-    function onContextMenu(event: PointerEvent) {
+    function onContextMenu(event: Event) {
       if (scope.enabled === false) return;
 
       event.preventDefault();
@@ -988,7 +950,7 @@ class OrbitControls extends EventDispatcher {
     }
 
     function removePointer(event: PointerEvent) {
-      delete pointerPositions[event.pointerId as keyof number];
+      delete pointerPositions[event.pointerId];
 
       for (let i = 0; i < pointers.length; i++) {
         if (pointers[i].pointerId == event.pointerId) {

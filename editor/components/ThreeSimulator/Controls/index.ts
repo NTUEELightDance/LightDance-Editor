@@ -9,32 +9,28 @@ import { SelectionHelper } from "./SelectionHelper";
 
 import { setCurrentPos } from "core/actions/currentPos";
 
-import { Dancer } from "../ThreeComponents";
-
 import "./controls.module.css";
 import { DANCER, PART, POSITION } from "@/constants";
 
 import { log } from "core/utils";
 import { PosMapStatus } from "@/core/models";
-import { reactiveState } from "@/core/state";
 
 class Controls {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   domElement: HTMLElement;
-  dancers: Record<string, Dancer>;
+  dancers: THREE.Object3D;
   objects: object;
   orbitControls!: OrbitControls;
   dragControls!: DragControls;
   selectControls!: SelectControls;
-  
 
   constructor(
     renderer: THREE.WebGLRenderer,
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
-    dancers: Record<string, Dancer>
+    dancers: THREE.Object3D //Record<string, Dancer>
   ) {
     this.renderer = renderer;
     this.scene = scene;
@@ -73,10 +69,7 @@ class Controls {
 
   initBoxSelectControls() {
     const selectionBox = new SelectionBox(this.camera, this.scene);
-    const helper = new SelectionHelper(
-      selectionBox,
-      this.renderer
-    );
+    const helper = new SelectionHelper(selectionBox, this.renderer);
 
     this.domElement.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
@@ -98,7 +91,10 @@ class Controls {
           0.5
         );
 
-        const allSelected = selectionBox.select(selectionBox.startPoint, selectionBox.endPoint);
+        const allSelected = selectionBox.select(
+          selectionBox.startPoint,
+          selectionBox.endPoint
+        );
         log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
       }
     });
@@ -112,7 +108,10 @@ class Controls {
         0.5
       );
 
-      const allSelected = selectionBox.select(selectionBox.startPoint, selectionBox.endPoint);
+      const allSelected = selectionBox.select(
+        selectionBox.startPoint,
+        selectionBox.endPoint
+      );
       log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
     });
   }
@@ -139,7 +138,7 @@ class Controls {
     this.selectControls = selectControls;
   }
 
-  activate(selectionMode: ) {
+  activate(selectionMode: string) {
     switch (selectionMode) {
       case DANCER:
         break;

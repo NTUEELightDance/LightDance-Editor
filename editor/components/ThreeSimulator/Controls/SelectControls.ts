@@ -5,21 +5,19 @@ import {
   Group,
   WebGLRenderer,
   PCFShadowMap,
+  PerspectiveCamera,
+  Scene,
   type Intersection,
   type Object3D,
 } from "three";
 import {
   setSelectedDancers,
   clearSelected,
-  setSelectedLEDParts,
   setSelectedParts,
 } from "@/core/actions";
 import { state } from "@/core/state";
 import { SelectionBox } from "./SelectionBox";
 import { SelectionHelper } from "./SelectionHelper";
-import { EventDispatcher, Raycaster, Vector2, Group, Camera, Scene, Intersection, Object3D<Event>, } from "three";
-import { setSelectedDancers, clearSelected } from "../../../core/actions";
-import { DANCER, PART } from "@/constants";
 import { DragControls } from "./DragControls";
 
 import { throttle } from "throttle-debounce";
@@ -27,20 +25,19 @@ import type { SelectionMode } from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
 import { Selected } from "@/core/models";
-<<<<<<< HEAD
-=======
 import { ReactNode } from "react";
 
->>>>>>> EDITOR-#346 fix warning of eslint in editor/components/ThreeSimulator/Controls
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
 const _group = new Group();
 
 class SelectControls extends EventDispatcher {
-  selectedOutline:any;
-  enabled:Boolean = true;
-  enableMultiSelection:any;
-  deactivate:any;
+  selectedOutline!: boolean;
+  enabled: boolean;
+  enableMultiSelection: boolean;
+  onLasso: boolean;
+  blocking: boolean;
+  deactivate: () => void;
   dispose;
   getObjects;
   getGroup;
@@ -49,7 +46,14 @@ class SelectControls extends EventDispatcher {
   updateSelected;
   activate;
 
-  constructor(_objects: Object3D<Event>, _camera: Camera, _domElement: HTMLElement, _dragControls: DragControls , _dancers: Object3D, _scene: Scene) {
+  constructor(
+    _objects: Object3D<Event>[],
+    _camera: PerspectiveCamera,
+    _domElement: HTMLElement,
+    _dragControls: DragControls,
+    _dancers: Object3D,
+    _scene: Scene
+  ) {
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
@@ -57,8 +61,7 @@ class SelectControls extends EventDispatcher {
     let _mode: SelectionMode = "DANCER_MODE";
 
     const _intersections: Intersection<Object3D<Event>>[] = [];
-    let _selected: null = null;
-
+    let _selected = null;
 
     _scene.add(_group);
 
@@ -74,7 +77,7 @@ class SelectControls extends EventDispatcher {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this;
-    function activate(mode) {
+    function activate(mode: SelectionMode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
       _domElement.addEventListener(
         "pointermove",
@@ -167,7 +170,7 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    let _hover: Object3D | null= null;
+    let _hover: Object3D | null = null;
 
     function onPointerMove(event: PointerEvent) {
       if (state.selectionMode === "POSITION_MODE") {
@@ -202,14 +205,14 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function onPointerUp(event) {
+    function onPointerUp(event: PointerEvent) {
       if (scope.onLasso === true) {
         scope.onLasso = false;
 
         if (state.selectionMode === "DANCER_MODE") {
           if (selectionBox.collection.length > 0) {
             const dancers: string[] = [];
-            selectionBox.collection.forEach((part, index) => {
+            selectionBox.collection.forEach((part: any) => {
               const name = part.name;
               if (name === "Human") {
                 dancers.push(part.parent.name);
@@ -219,7 +222,7 @@ class SelectControls extends EventDispatcher {
           }
         } else if (state.selectionMode === "PART_MODE") {
           const parts: SelectedPartPayload = {};
-          selectionBox.collection.forEach((part, index) => {
+          selectionBox.collection.forEach((part: any) => {
             const name = part.name;
             if (
               name !== "Human" &&
@@ -241,7 +244,7 @@ class SelectControls extends EventDispatcher {
             return;
           }
           const partsIndex: number[] = [];
-          selectionBox.collection.forEach((part, index) => {
+          selectionBox.collection.forEach((part: any) => {
             const name = part.name;
             // console.log(part.parent.name, part.name);
             if (isLEDPartName(name) && partName !== "" && dancerName !== "") {
@@ -298,7 +301,9 @@ class SelectControls extends EventDispatcher {
       if (_group.children.length > 0) {
         _dragControls.transformGroup = true;
         draggableObjects.push(_group);
-        _selected = _group.children.map((child: null|undefined) => child.name);
+        _selected = _group.children.map(
+          (child: null | undefined) => child.name
+        );
       }
     }
 
@@ -316,7 +321,7 @@ class SelectControls extends EventDispatcher {
 
         selectedObjects.push(
           ..._dancers[name].model.children.filter(
-            (part:any) =>
+            (part: any) =>
               part.name !== "nameTag" &&
               ((part.name === "Human" && value.selected) ||
                 value.parts.includes(part.name))
@@ -338,7 +343,7 @@ class SelectControls extends EventDispatcher {
       _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
-    function setSelectedOutline(this:any, selectedOutline:any) {
+    function setSelectedOutline(this, selectedOutline: boolean) {
       this.selectedOutline = selectedOutline;
     }
 
