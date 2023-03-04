@@ -38,7 +38,7 @@ const actions = registerActions({
     state.currentTime = time;
 
     // only set the time if not IDLE
-    if (state.editMode !== IDLE) return;
+    if (state.editorState !== IDLE) return;
 
     // set currentControlIndex
     const newControlIndex = updateFrameByTimeMap(

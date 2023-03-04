@@ -371,7 +371,7 @@ export interface State {
   ledEffectRecord: LEDEffectRecord;
   currentLEDStatus: CurrentLEDStatus;
 
-  editMode: EditMode;
+  editorState: EditMode;
   editor: Editor;
   selectionMode: SelectionMode;
   editingData: EditingData; // store the editingData's start time id and index

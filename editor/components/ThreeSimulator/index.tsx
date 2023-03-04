@@ -22,6 +22,7 @@ import SelectionModeSelector from "components/SelectionModeSelector";
 import { IDLE, POSITION } from "@/constants";
 
 import { getDancerFromLEDpart } from "@/core/utils";
+import { isLEDPartName } from "@/core/models";
 
 /**
  * This is Display component
@@ -39,7 +40,7 @@ export default function ThreeSimulator() {
   });
 
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
-  const editMode = useReactiveVar(reactiveState.editMode);
+  const editorState = useReactiveVar(reactiveState.editorState);
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const selected = useReactiveVar(reactiveState.selected);
@@ -62,11 +63,11 @@ export default function ThreeSimulator() {
   useEffect(() => {
     if (threeController && threeController.isInitialized()) {
       threeController.controls.deactivate();
-      if (editMode !== IDLE) {
+      if (editorState !== IDLE) {
         threeController.controls.activate(selectionMode);
       }
     }
-  }, [editMode, selectionMode]);
+  }, [editorState, selectionMode]);
 
   useEffect(() => {
     threeController.setIsPlaying(isPlaying);
@@ -77,24 +78,24 @@ export default function ThreeSimulator() {
     if (selectedLEDs.length > 0) {
       threeController.updateSelectedLEDs(selectedLEDs, currentLEDPartName);
     }
-  }, [selectedLEDs]);
+  }, [currentLEDPartName, selectedLEDs]);
 
   useEffect(() => {
-    if (currentLEDPartName !== "") {
-      setModeToLEDMode();
-      const dancer = getDancerFromLEDpart(currentLEDPartName);
-      if (dancer !== undefined && dancer !== "") {
-        threeController.zoomInSelectedLED({
-          dancer: dancer,
-          part: currentLEDPartName,
-        });
-      }
+    if (!isLEDPartName(currentLEDPartName)) return;
+
+    setModeToLEDMode();
+    const dancer = getDancerFromLEDpart(currentLEDPartName);
+    if (dancer !== undefined && dancer !== "") {
+      threeController.zoomInSelectedLED({
+        dancer: dancer,
+        part: currentLEDPartName,
+      });
     }
   }, [currentLEDPartName]);
 
   useHotkeys("g", () => {
     if (
-      reactiveState.editMode() !== IDLE &&
+      reactiveState.editorState() !== IDLE &&
       reactiveState.selectionMode() === POSITION
     ) {
       setCurrentPosToGround();

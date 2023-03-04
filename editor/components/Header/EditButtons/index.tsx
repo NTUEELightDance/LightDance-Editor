@@ -14,7 +14,7 @@ import useEditHandler from "hooks/useEditHandler";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ledAgent } from "@/api";
 export default function EditButtons() {
-  const mode = useReactiveVar(reactiveState.editMode);
+  const editorState = useReactiveVar(reactiveState.editorState);
   const editor = useReactiveVar(reactiveState.editor);
 
   const [loading, setLoading] = useImmer({
@@ -48,9 +48,9 @@ export default function EditButtons() {
     (e) => {
       e.preventDefault();
       // Save can only be triggered in EDITING mode
-      if (mode === EDITING) handleClickSave();
+      if (editorState === EDITING) handleClickSave();
     },
-    [mode]
+    [editorState]
   );
 
   const handleClickSave = async () => {
@@ -240,7 +240,7 @@ export default function EditButtons() {
         gap: "1em",
       }}
     >
-      {mode === IDLE ? (
+      {editorState === IDLE ? (
         editor === LED_EDITOR ? (
           <>
             {loading.add ? <LoadingBtn /> : <LEDAddButton />}

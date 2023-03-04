@@ -36,7 +36,6 @@ const actions = registerActions({
       partsIndex: number[];
     }
   ) => {
-    // console.log(payload);
     state.selectedLEDs = payload.partsIndex;
   },
 

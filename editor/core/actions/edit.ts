@@ -64,7 +64,7 @@ const actions = registerActions({
    * @param payload
    */
   setEditMode: (state: State, payload: EditMode) => {
-    state.editMode = payload;
+    state.editorState = payload;
   },
 
   /**
@@ -116,7 +116,7 @@ const actions = registerActions({
       notification.error("Permission denied");
       return;
     }
-    state.editMode = EDITING;
+    state.editorState = EDITING;
   },
 
   /**
@@ -174,7 +174,7 @@ const actions = registerActions({
   },
 
   cancelEditMode: (state: State) => {
-    state.editMode = IDLE;
+    state.editorState = IDLE;
   },
 });
 

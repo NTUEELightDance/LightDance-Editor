@@ -36,7 +36,7 @@ const _state: State = {
   ledEffectRecord: {},
   currentLEDStatus: {},
 
-  editMode: "IDLE",
+  editorState: "IDLE",
   editor: "CONTROL_EDITOR",
   selectionMode: "DANCER_MODE",
   editingData: {

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 // mui
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Tooltip from "@mui/material/Tooltip";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
@@ -15,14 +14,14 @@ import { initStatusStack, initPosStack } from "core/actions";
 import { setSelectionModeByEditor, setEditor } from "core/actions";
 // contents
 import { CONTROL_EDITOR, POS_EDITOR, LED_EDITOR, IDLE } from "@/constants";
-import LEDEffectDialog from "../../LEDEffectList/LEDEffectDialog";
-import { notification } from "core/utils";
+import LEDEffectDialog from "@/components/LEDEffectList/LEDEffectDialog";
+import { notification } from "@/core/utils";
 
-import type { Editor } from "core/models";
+import type { Editor } from "@/core/models";
 
 export default function EditorSelector() {
   const editor = useReactiveVar(reactiveState.editor);
-  const editMode = useReactiveVar(reactiveState.editMode);
+  const editorState = useReactiveVar(reactiveState.editorState);
   const [EditorMode, setEditorMode] = useState<Editor>("CONTROL_EDITOR");
   const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
   const openDialog = () => {
@@ -33,7 +32,7 @@ export default function EditorSelector() {
     newEditorMode: Editor
   ) => {
     // TODO: handle if editMode is in editing or adding mode, should tell user to save first
-    if (editMode !== IDLE) {
+    if (editorState !== IDLE) {
       notification.warning("Please SAVE or CANCEL first!");
       return;
     }
@@ -50,16 +49,16 @@ export default function EditorSelector() {
     // renew statusStack and posStack
     initStatusStack();
     initPosStack();
-  }, [editor, editMode]);
+  }, [editor, editorState]);
 
   return (
-    <Stack direction="row" alignItems="center" spacing={2}>
+    <div>
       <ToggleButtonGroup
         color="primary"
         size="medium"
         exclusive
         onChange={handleChangeEditor}
-        disabled={editMode !== IDLE}
+        disabled={editorState !== IDLE}
         value={EditorMode}
       >
         <ToggleButton value={CONTROL_EDITOR}>
@@ -92,7 +91,7 @@ export default function EditorSelector() {
         handleClose={() => {
           setAddDialogOpen(false);
         }}
-      ></LEDEffectDialog>
-    </Stack>
+      />
+    </div>
   );
 }

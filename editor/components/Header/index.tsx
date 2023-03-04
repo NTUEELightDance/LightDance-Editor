@@ -16,31 +16,39 @@ import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import useRoute from "@/hooks/useRoute";
+import LEDEditorDisplay from "./LEDEditorDisplay";
 
 export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const editMode = useReactiveVar(reactiveState.editMode);
+  const editorState = useReactiveVar(reactiveState.editorState);
   const { page } = useRoute();
 
   return (
     <Stack direction="column">
-      <StateIndicator editMode={editMode} />
+      <StateIndicator editMode={editorState} />
       <AppBar position="static" color="transparent">
         <Toolbar style={{ minHeight: "6vh", width: "100%" }}>
-          <Box sx={{ height: "6vh", p: "1vh 1vw", mr: "1vw" }}>
-            <img
-              src="/LDlogoWhite.png"
-              alt="NTUEE Light Dance logo"
-              style={{ height: "100%" }}
-            />
-          </Box>
-          <PageSelector />
           <Box
             sx={{
               display: "flex",
-              position: "absolute",
-              right: "2vw",
-              gap: "1vw",
+              alignItems: "center",
+              gap: "2rem",
+            }}
+          >
+            <img
+              src="/LDlogoWhite.png"
+              alt="NTUEE Light Dance logo"
+              style={{ height: "2.5rem" }}
+            />
+            <PageSelector />
+            <LEDEditorDisplay />
+          </Box>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "2rem",
             }}
           >
             {page === "EDITOR" && (
