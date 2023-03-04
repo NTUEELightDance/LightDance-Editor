@@ -3,11 +3,11 @@ import {
   Raycaster,
   Vector2,
   Group,
-  WebGLRenderer,
-  PCFShadowMap,
   type Intersection,
   type Object3D,
+  type Renderer,
 } from "three";
+
 import {
   setSelectedDancers,
   clearSelected,
@@ -22,13 +22,32 @@ import type { SelectionMode } from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
 import { getDancerFromLEDpart } from "@/core/utils";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
+
+// @ts-expect-error no types for module css
+import styles from "./controls.module.css";
 
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
 const _group = new Group();
 
 class SelectControls extends EventDispatcher {
-  constructor(_objects, _camera, _domElement, _dragControls, _dancers, _scene) {
+  helper: SelectionHelper;
+  enabled: boolean;
+  enableMultiSelection: boolean;
+  onLasso: boolean;
+  blocking: boolean;
+  selectedOutline?: OutlinePass;
+
+  constructor(
+    _objects,
+    _camera,
+    _domElement,
+    _dragControls,
+    _dancers,
+    _scene,
+    _renderer: Renderer
+  ) {
     super();
 
     _domElement.style.touchAction = "none"; // disable touch scroll
@@ -39,15 +58,8 @@ class SelectControls extends EventDispatcher {
     const _intersections: Intersection<Object3D<Event>>[] = [];
     _scene.add(_group);
 
-    const renderer = new WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFShadowMap;
-
     const selectionBox = new SelectionBox(_camera, _scene);
-    const helper = new SelectionHelper(renderer, "selectBox");
+    this.helper = new SelectionHelper(_renderer, styles.selectionBox);
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this;
@@ -87,8 +99,10 @@ class SelectControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerDown(event) {
+    function onPointerDown(event: PointerEvent) {
       if (event.button !== 0 || scope.enabled === false) return;
+
+      scope.helper.onSelectStart(event);
 
       if (state.selectionMode !== "POSITION_MODE") {
         scope.onLasso = true;
@@ -98,6 +112,8 @@ class SelectControls extends EventDispatcher {
           (-(event.clientY - rect.top) / rect.height) * 2 + 1,
           0.5
         );
+        selectionBox.endPoint.copy(selectionBox.startPoint);
+        selectionBox.select();
       }
 
       updatePointer(event);
@@ -146,10 +162,11 @@ class SelectControls extends EventDispatcher {
 
     let _hover = null;
 
-    function onPointerMove(event) {
-      if (state.selectionMode === "POSITION_MODE") {
-        return;
-      }
+    function onPointerMove(event: PointerEvent) {
+      if (state.selectionMode === "POSITION_MODE") return;
+
+      scope.helper.onSelectMove(event);
+
       if (scope.onLasso) {
         updatePointer(event);
         _raycaster.setFromCamera(_pointer, _camera);
@@ -162,6 +179,7 @@ class SelectControls extends EventDispatcher {
         selectionBox.select();
         return;
       }
+
       updatePointer(event);
       _intersections.length = 0;
 
@@ -179,70 +197,67 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function onPointerUp(event) {
-      if (scope.onLasso === true) {
-        scope.onLasso = false;
+    function onPointerUp(event: PointerEvent) {
+      if (!scope.onLasso) return;
+      scope.onLasso = false;
 
-        if (state.selectionMode === "DANCER_MODE") {
-          if (selectionBox.collection.length > 0) {
-            const dancers: string[] = [];
-            selectionBox.collection.forEach((part, index) => {
-              const name = part.name;
-              if (name === "Human") {
-                dancers.push(part.parent.name);
-              }
-            });
-            setSelectedDancers({ payload: dancers });
-          }
-        } else if (state.selectionMode === "PART_MODE") {
-          const parts: SelectedPartPayload = {};
+      scope.helper.onSelectOver();
+
+      if (state.selectionMode === "DANCER_MODE") {
+        if (selectionBox.collection.length > 0) {
+          const dancers: string[] = [];
           selectionBox.collection.forEach((part, index) => {
             const name = part.name;
-            if (
-              name !== "Human" &&
-              name !== "nameTag" &&
-              !isLEDPartName(name)
-            ) {
-              parts[part.parent.name] ??= [];
-              parts[part.parent.name].push(name);
+            if (name === "Human") {
+              dancers.push(part.parent.name);
             }
           });
-          setSelectedParts({ payload: parts });
-        } else if (state.selectionMode === "LED_MODE") {
-          const partName = state.currentLEDPartName;
-          const dancerName = getDancerFromLEDpart(partName);
-          if (dancerName === undefined) {
-            return;
-          }
-          if (partName === "") {
-            return;
-          }
-          const partsIndex: number[] = [];
-          selectionBox.collection.forEach((part, index) => {
-            const name = part.name;
-            // console.log(part.parent.name, part.name);
-            if (isLEDPartName(name) && partName !== "" && dancerName !== "") {
-              if (
-                part.parent.name === dancerName &&
-                part.name.slice(0, -3) === partName
-              ) {
-                const partNumber: string = name.slice(-3);
-                partsIndex.push(Number(partNumber));
-              }
-            }
-          });
-
-          const payload: {
-            dancer: string;
-            part: string;
-            partsIndex: number[];
-          } = {
-            dancer: dancerName,
-            part: partName,
-            partsIndex: partsIndex,
-          };
-          setSelectedLEDParts({ payload: payload });
+          setSelectedDancers({ payload: dancers });
         }
+      } else if (state.selectionMode === "PART_MODE") {
+        const parts: SelectedPartPayload = {};
+        selectionBox.collection.forEach((part, index) => {
+          const name = part.name;
+          if (name !== "Human" && name !== "nameTag" && !isLEDPartName(name)) {
+            parts[part.parent.name] ??= [];
+            parts[part.parent.name].push(name);
+          }
+        });
+        setSelectedParts({ payload: parts });
+      } else if (state.selectionMode === "LED_MODE") {
+        const partName = state.currentLEDPartName;
+        const dancerName = getDancerFromLEDpart(partName);
+        if (dancerName === undefined) {
+          return;
+        }
+        if (partName === "") {
+          return;
+        }
+        const partsIndex: number[] = [];
+        selectionBox.collection.forEach((part, index) => {
+          const name = part.name;
+
+          if (isLEDPartName(name) && partName !== "" && dancerName !== "") {
+            if (
+              part.parent.name === dancerName &&
+              part.name.slice(0, -3) === partName
+            ) {
+              const partNumber: string = name.slice(-3);
+              partsIndex.push(Number(partNumber));
+            }
+          }
+        });
+
+        const payload: {
+          dancer: string;
+          part: string;
+          partsIndex: number[];
+        } = {
+          dancer: dancerName,
+          part: partName,
+          partsIndex: partsIndex,
+        };
+        setSelectedLEDParts({ payload: payload });
       }
     }
 
@@ -315,10 +330,6 @@ class SelectControls extends EventDispatcher {
       _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
-    function setSelectedOutline(selectedOutline) {
-      this.selectedOutline = selectedOutline;
-    }
-
     activate(_mode);
 
     // API
@@ -333,8 +344,11 @@ class SelectControls extends EventDispatcher {
     this.getObjects = getObjects;
     this.getGroup = getGroup;
     this.getRaycaster = getRaycaster;
-    this.setSelectedOutline = setSelectedOutline;
     this.updateSelected = updateSelected;
+  }
+
+  setSelectedOutline(selectedOutline: OutlinePass) {
+    this.selectedOutline = selectedOutline;
   }
 }
 

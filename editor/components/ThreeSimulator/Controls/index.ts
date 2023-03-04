@@ -4,17 +4,12 @@ import { OrbitControls } from "./OrbitControls";
 import { DragControls } from "./DragControls";
 import { SelectControls } from "./SelectControls";
 
-import { SelectionBox } from "./SelectionBox";
-import { SelectionHelper } from "./SelectionHelper";
-
 import { setCurrentPos } from "core/actions/currentPos";
 
 import { Dancer } from "../ThreeComponents";
 
-import styles from "./controls.module.css";
 import { DANCER, PART, POSITION } from "@/constants";
 
-import { log } from "core/utils";
 import { PosMapStatus } from "@/core/models";
 
 class Controls {
@@ -22,7 +17,8 @@ class Controls {
   scene: THREE.Scene;
   camera: THREE.Camera;
   domElement: HTMLElement;
-  dancers: Dancer[];
+  dancers: Record<string, Dancer>;
+  objects: THREE.Object3D[];
 
   constructor(
     renderer: THREE.Renderer,
@@ -39,8 +35,7 @@ class Controls {
 
     this.initOrbitControls();
     this.initDragControls();
-    this.initDanceSelector();
-    // this.initBoxSelectControls();
+    this.initDancerSelector();
   }
 
   initOrbitControls() {
@@ -65,53 +60,6 @@ class Controls {
     this.orbitControls = orbitControls;
   }
 
-  initBoxSelectControls() {
-    const selectionBox = new SelectionBox(this.camera, this.scene);
-    const helper = new SelectionHelper(
-      selectionBox,
-      this.renderer,
-      styles.selectBox
-    );
-
-    this.domElement.addEventListener("pointerdown", (event) => {
-      if (event.button !== 0) return;
-      const rect = this.domElement.getBoundingClientRect();
-      selectionBox.startPoint.set(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-        0.5
-      );
-    });
-
-    this.domElement.addEventListener("pointermove", (event) => {
-      if (event.button !== 0) return;
-      if (helper.isDown) {
-        const rect = this.domElement.getBoundingClientRect();
-        selectionBox.endPoint.set(
-          ((event.clientX - rect.left) / rect.width) * 2 - 1,
-          (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-          0.5
-        );
-
-        const allSelected = selectionBox.select();
-        log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
-      }
-    });
-
-    this.domElement.addEventListener("pointerup", (event) => {
-      if (event.button !== 0) return;
-      const rect = this.domElement.getBoundingClientRect();
-      selectionBox.endPoint.set(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-        0.5
-      );
-
-      const allSelected = selectionBox.select();
-      log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
-    });
-  }
-
   initDragControls() {
     this.dragControls = new DragControls(
       [...this.objects],
@@ -122,14 +70,15 @@ class Controls {
     this.dragControls.addEventListener("dragend", this.dragEnd.bind(this));
   }
 
-  initDanceSelector() {
+  initDancerSelector() {
     const selectControls = new SelectControls(
       [...this.objects],
       this.camera,
       this.renderer.domElement,
       this.dragControls,
       this.dancers,
-      this.scene
+      this.scene,
+      this.renderer
     );
     this.selectControls = selectControls;
   }

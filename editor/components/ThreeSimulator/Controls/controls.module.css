@@ -1,5 +1,5 @@
-.selectBox {
-  border: 1px solid #55aaff;
-  background-color: rgba(75, 160, 255, 0.3);
+.selectionBox {
+  border: 1px solid rgba(75, 160, 255, 0.5);
+  background-color: rgba(75, 160, 255, 0.05);
   position: fixed;
 }
