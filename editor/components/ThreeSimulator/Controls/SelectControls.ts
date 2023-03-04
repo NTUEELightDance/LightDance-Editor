@@ -174,10 +174,14 @@ class SelectControls extends EventDispatcher {
     let _hover: string | null = null;
 
     function onPointerMove(event: PointerEvent) {
-      if (!(event.buttons & 1) || scope.enabled === false) return;
-      if (state.selectionMode === "POSITION_MODE") return;
+      if (scope.enabled === false) return;
 
-      if (scope.onLasso) {
+      // handle lasso selection
+      if (
+        scope.onLasso &&
+        event.buttons & 1 &&
+        state.selectionMode !== "POSITION_MODE"
+      ) {
         scope.helper.onSelectMove(event);
         updatePointer(event);
         _raycaster.setFromCamera(_pointer, _camera);
@@ -189,28 +193,27 @@ class SelectControls extends EventDispatcher {
         );
         selectionBox.select();
         return;
-      }
+      } else {
+        // handle hover
+        updatePointer(event);
+        _intersections.length = 0;
 
-      updatePointer(event);
-      _intersections.length = 0;
+        _raycaster.setFromCamera(_pointer, _camera);
+        _raycaster.intersectObjects(_objects, true, _intersections);
 
-      _raycaster.setFromCamera(_pointer, _camera);
-      _raycaster.intersectObjects(_objects, true, _intersections);
-
-      if (_intersections.length > 0) {
-        const { name } = _intersections[0].object.parent!;
-        if (_hover && _hover !== name) _unhoverByName(_hover);
-        _hover = name;
-        _hoverByName(_hover);
-      } else if (_hover) {
-        _unhoverByName(_hover);
-        _hover = null;
+        if (_intersections.length > 0) {
+          const { name } = _intersections[0].object.parent!;
+          if (_hover && _hover !== name) _unhoverByName(_hover);
+          _hover = name;
+          _hoverByName(_hover);
+        } else if (_hover) {
+          _unhoverByName(_hover);
+          _hover = null;
+        }
       }
     }
 
     function onPointerUp(event: PointerEvent) {
-      // if (event.button !== 0 || scope.enabled === false) return;
-
       if (!scope.onLasso) return;
       scope.onLasso = false;
 

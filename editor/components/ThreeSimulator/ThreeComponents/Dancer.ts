@@ -205,23 +205,16 @@ class Dancer {
     });
   }
 
-  // Update the model's color
-  // updateColor(color) {
-  //   Object.values(this.FIBERParts).forEach(([name, e]) => {
-  //     e.material.color.setHex(color);
-  //   });
-  // }
-
   hover() {
-    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
-      0x232323
-    );
+    this.getHumanMesh().material.color.setHex(0xaaaaaa);
   }
 
   unhover() {
-    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
-      0x000000
-    );
+    this.getHumanMesh().material.color.setHex(0x000000);
+  }
+
+  getHumanMesh() {
+    return this.model.getObjectByName("Human") as MeshType;
   }
 }
 
