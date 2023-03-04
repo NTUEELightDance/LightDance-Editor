@@ -6,6 +6,8 @@ import {
   type Intersection,
   type Object3D,
   type Renderer,
+  type PerspectiveCamera,
+  type Scene,
 } from "three";
 
 import {
@@ -18,7 +20,7 @@ import { state } from "@/core/state";
 import { SelectionBox } from "./SelectionBox";
 import { SelectionHelper } from "./SelectionHelper";
 import { throttle } from "throttle-debounce";
-import type { SelectionMode } from "@/core/models";
+import type { Selected, SelectionMode } from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
 import { getDancerFromLEDpart } from "@/core/utils";
@@ -26,6 +28,7 @@ import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 
 // @ts-expect-error no types for module css
 import styles from "./controls.module.css";
+import { type Dancer } from "../ThreeComponents";
 
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
@@ -39,13 +42,21 @@ class SelectControls extends EventDispatcher {
   blocking: boolean;
   selectedOutline?: OutlinePass;
 
+  activate: (mode: SelectionMode) => void;
+  deactivate: () => void;
+  dispose: () => void;
+  getObjects: () => Object3D[];
+  getGroup: () => Group;
+  getRaycaster: () => Raycaster;
+  updateSelected: (selected: Selected) => void;
+
   constructor(
-    _objects,
-    _camera,
-    _domElement,
+    _objects: Object3D[],
+    _camera: PerspectiveCamera,
+    _domElement: HTMLCanvasElement,
     _dragControls,
-    _dancers,
-    _scene,
+    _dancers: Record<string, Dancer>,
+    _scene: Scene,
     _renderer: Renderer
   ) {
     super();
@@ -63,7 +74,7 @@ class SelectControls extends EventDispatcher {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this;
-    function activate(mode) {
+    function activate(mode: SelectionMode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
       _domElement.addEventListener(
         "pointermove",
@@ -131,17 +142,17 @@ class SelectControls extends EventDispatcher {
         // Multi Selection Mode
         if (event.ctrlKey || event.metaKey) {
           // Toggle Selection
-          if (_group.children.includes(object)) {
-            _removeFromGroup(object);
+          if (_group.children.includes(object!)) {
+            _removeFromGroup(object!);
           } else {
-            _addToGroup(object);
+            _addToGroup(object!);
           }
         }
         // Single Selection Mode
         else {
-          if (!_group.children.includes(object)) {
+          if (!_group.children.includes(object!)) {
             _clearGroup();
-            _addToGroup(object);
+            _addToGroup(object!);
           }
         }
       } else {
@@ -160,7 +171,7 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    let _hover = null;
+    let _hover: string | null = null;
 
     function onPointerMove(event: PointerEvent) {
       if (!(event.buttons & 1) || scope.enabled === false) return;
@@ -187,7 +198,7 @@ class SelectControls extends EventDispatcher {
       _raycaster.intersectObjects(_objects, true, _intersections);
 
       if (_intersections.length > 0) {
-        const { name } = _intersections[0].object.parent;
+        const { name } = _intersections[0].object.parent!;
         if (_hover && _hover !== name) _unhoverByName(_hover);
         _hover = name;
         _hoverByName(_hover);
@@ -263,11 +274,11 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function _hoverByName(name) {
+    function _hoverByName(name: string) {
       _dancers[name].hover();
     }
 
-    function _unhoverByName(name) {
+    function _unhoverByName(name: string) {
       _dancers[name].unhover();
     }
 
@@ -278,11 +289,11 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function _addToGroup(object) {
+    function _addToGroup(object: Object3D) {
       _group.attach(object);
     }
 
-    function _removeFromGroup(object) {
+    function _removeFromGroup(object: Object3D) {
       _scene.attach(object);
     }
 
@@ -296,8 +307,8 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function updateSelected(selected) {
-      const selectedObjects = [];
+    function updateSelected(selected: Selected) {
+      const selectedObjects: Object3D[] = [];
       Object.entries(selected).forEach(([name, value]) => {
         _dancers[name].updateSelected(value.selected);
         const dancer = _dancers[name];
@@ -325,7 +336,7 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function updatePointer(event) {
+    function updatePointer(event: PointerEvent) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;

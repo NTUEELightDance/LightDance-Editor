@@ -175,7 +175,7 @@ class Dancer {
 
   updateSelected(selected: boolean) {
     if (selected) {
-      this.nameTag.material.color.setRGB(0, 0.4, 0.6);
+      this.nameTag.material.color.setRGB(0.21, 0.64, 1);
     } else {
       this.nameTag.material.color.setRGB(1, 1, 1);
     }
