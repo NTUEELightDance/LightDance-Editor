@@ -12,7 +12,6 @@ import type {
   Selected,
   CurrentStatusDelta,
   SelectedPartPayload,
-  PartType,
   LEDData,
 } from "@/core/models";
 import { reactiveState } from "core/state";
@@ -23,9 +22,7 @@ import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 
 import _ from "lodash";
 
-function getSelectedPartsAndType(
-  selected: Selected
-): [SelectedPartPayload, PartType | null] {
+function getSelectedPartsAndType(selected: Selected) {
   const newSelectedParts: SelectedPartPayload = {};
   const tempSelectedParts: string[] = [];
   Object.entries(selected).forEach(([dancerName, { parts }]) => {
@@ -36,10 +33,13 @@ function getSelectedPartsAndType(
       });
     }
   });
+
   const assertPartType = getPartType(tempSelectedParts[0]);
   if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
-    return [newSelectedParts, assertPartType];
-  } else return [newSelectedParts, null];
+    return [newSelectedParts, assertPartType] as const;
+  } else {
+    return [newSelectedParts, null] as const;
+  }
 }
 
 function calculateCurrentStatusDeltaLED(
@@ -95,7 +95,7 @@ function PartMode() {
   const [intensity, setIntensity] = useState<number | null>(null);
   const [LEDsrc, setLEDsrc] = useState<string | null>(null);
 
-  // update local state
+  // initialize local state for fiber
   useEffect(() => {
     if (partType === "FIBER") {
       const [dancerName, parts] = Object.entries(selectedParts)[0] ?? [
@@ -106,11 +106,37 @@ function PartMode() {
       if (dancerName == null || parts == null) {
         setCurrentColorName(null);
         setIntensity(null);
+        return;
+      }
+
+      // check if all selected parts have the same color
+      const assertColorName = (currentStatus[dancerName][parts[0]] as FiberData)
+        .color;
+      if (
+        parts.every(
+          (part) =>
+            (currentStatus[dancerName][part] as FiberData).color ===
+            assertColorName
+        )
+      ) {
+        setCurrentColorName(assertColorName);
       } else {
-        setCurrentColorName(
-          (currentStatus[dancerName][parts[0]] as FiberData).color
-        );
-        setIntensity((currentStatus[dancerName][parts[0]] as FiberData).alpha);
+        setCurrentColorName(null);
+      }
+
+      // check if all selected parts have the same intensity
+      const assertIntensity = (currentStatus[dancerName][parts[0]] as FiberData)
+        .alpha;
+      if (
+        parts.every(
+          (part) =>
+            (currentStatus[dancerName][part] as FiberData).alpha ===
+            assertIntensity
+        )
+      ) {
+        setIntensity(assertIntensity);
+      } else {
+        setIntensity(null);
       }
     }
   }, [currentStatus, partType, selectedParts]);
@@ -126,9 +152,35 @@ function PartMode() {
       if (dancerName == null || parts == null) {
         setLEDsrc(null);
         setIntensity(null);
+        return;
+      }
+
+      // check if all selected parts have the same src
+      const assertSrc = (currentStatus[dancerName][parts[0]] as LEDData).src;
+      if (
+        parts.every(
+          (part) =>
+            (currentStatus[dancerName][part] as LEDData).src === assertSrc
+        )
+      ) {
+        setLEDsrc(assertSrc);
       } else {
-        setLEDsrc((currentStatus[dancerName][parts[0]] as LEDData).src);
-        setIntensity((currentStatus[dancerName][parts[0]] as LEDData).alpha);
+        setLEDsrc(null);
+      }
+
+      // check if all selected parts have the same intensity
+      const assertIntensity = (currentStatus[dancerName][parts[0]] as LEDData)
+        .alpha;
+      if (
+        parts.every(
+          (part) =>
+            (currentStatus[dancerName][part] as LEDData).alpha ===
+            assertIntensity
+        )
+      ) {
+        setIntensity(assertIntensity);
+      } else {
+        setIntensity(null);
       }
     }
   }, [currentStatus, partType, selectedParts]);
@@ -173,7 +225,7 @@ function PartMode() {
 
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
-      {partType === "LED" && LEDsrc !== null && intensity !== null ? (
+      {partType === "LED" ? (
         <LEDcontrolsContent
           parts={partNames}
           intensity={intensity}
@@ -181,14 +233,12 @@ function PartMode() {
           handleIntensityChange={setIntensity}
           handleSrcChange={setLEDsrc}
         />
-      ) : partType === "FIBER" &&
-        currentColorName !== null &&
-        intensity !== null ? (
+      ) : partType === "FIBER" ? (
         <OFcontrolsContent
           intensity={intensity}
+          currentColorName={currentColorName}
           setIntensity={setIntensity}
           handleColorChange={handleColorChange}
-          currentColorName={currentColorName}
         />
       ) : (
         Object.keys(selectedParts).length > 0 && (

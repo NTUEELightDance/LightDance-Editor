@@ -6,6 +6,15 @@ import useLedMap from "hooks/useLedMap";
 
 import _ from "lodash";
 
+export interface LEDcontrolsContentProps {
+  parts: string[];
+  intensity: number | null;
+  src: string | null;
+  handleIntensityChange: (intensity: number) => void;
+  handleSrcChange: (src: string) => void;
+  oneLine?: boolean;
+}
+
 function LEDcontrolsContent({
   parts,
   intensity,
@@ -13,14 +22,7 @@ function LEDcontrolsContent({
   handleIntensityChange,
   handleSrcChange,
   oneLine,
-}: {
-  parts: string[];
-  intensity: number;
-  src: string;
-  handleIntensityChange: (intensity: number) => void;
-  handleSrcChange: (src: string) => void;
-  oneLine?: boolean;
-}) {
+}: LEDcontrolsContentProps) {
   const { loading, ledMap } = useLedMap();
   let effectNames =
     !loading && ledMap[parts[0]] ? Object.keys(ledMap[parts[0]]) : [];

@@ -1,13 +1,13 @@
+import type { ReactNode } from "react";
 import { Grid, Slider, Input } from "@mui/material";
 import { Flare } from "@mui/icons-material";
 
-function IntensityControl({
-  intensity,
-  setIntensity,
-}: {
-  intensity: number;
+export interface IntensityControlProps {
+  intensity: number | null;
   setIntensity: (intensity: number) => void;
-}) {
+}
+
+function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     setIntensity(newValue as number);
   };
@@ -26,21 +26,21 @@ function IntensityControl({
 
   const sliderMarks: Array<{
     value: number;
-    label: string | JSX.Element | null;
-  }> = [];
-  for (let i = 0; i <= 10; i++) {
-    sliderMarks.push({
-      value: i,
-      label: i === 0 || i === 10 ? String(i) : null,
-    });
-  }
-  sliderMarks.push({ value: 15, label: <Flare sx={{ fontSize: "1.25em" }} /> });
+    label: ReactNode;
+  }> = Array.from({ length: 11 }, (_, i) => i).map((i) => ({
+    value: i,
+    label: i === 0 || i === 10 ? String(i) : null,
+  }));
+  sliderMarks.push({
+    value: 15,
+    label: <Flare sx={{ fontSize: "1.25em" }} />,
+  });
 
   return (
     <>
       <Grid item>
         <Slider
-          value={intensity}
+          value={intensity ?? 0}
           onChange={handleSliderChange}
           min={0}
           max={15}
@@ -66,7 +66,7 @@ function IntensityControl({
       </Grid>
       <Grid item>
         <Input
-          value={intensity}
+          value={intensity ?? ""}
           size="small"
           onChange={handleInputChange}
           inputProps={{

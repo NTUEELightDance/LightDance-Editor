@@ -2,6 +2,15 @@ import { Stack, Grid, Typography } from "@mui/material";
 import ColorSelector from "../ColorSelector";
 import IntensityControl from "../IntensityControl";
 
+export interface OFcontrolsContentProps {
+  handleColorChange: (color: string) => void;
+  intensity: number | null;
+  handleIntensityChange?: (intensity: number) => void;
+  setIntensity?: (intensity: number) => void;
+  currentColorName: string | null;
+  oneLine?: boolean;
+}
+
 function OFcontrolsContent({
   handleColorChange,
   handleIntensityChange,
@@ -9,14 +18,7 @@ function OFcontrolsContent({
   setIntensity,
   currentColorName,
   oneLine = false,
-}: {
-  handleColorChange: (color: string) => void;
-  intensity: number;
-  handleIntensityChange?: (intensity: number) => void;
-  setIntensity?: (intensity: number) => void;
-  currentColorName: string;
-  oneLine?: boolean;
-}) {
+}: OFcontrolsContentProps) {
   return (
     <Stack gap="1.5vh">
       <Grid

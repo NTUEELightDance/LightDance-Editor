@@ -82,9 +82,7 @@ function PropertyPanel({
       <TabPanel value={value}>
         {sortedParts.length > 0 && (
           <Stack direction="row" gap="0.5em" justifyContent="start" my="0.5em">
-            {partType === "FIBER" && (
-              <Button onClick={handleSelectAll}>Select All</Button>
-            )}
+            <Button onClick={handleSelectAll}>Select All</Button>
             <Button onClick={handleRandom}>Random</Button>
           </Stack>
         )}

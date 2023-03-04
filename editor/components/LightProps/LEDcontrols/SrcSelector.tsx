@@ -7,19 +7,17 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 // no-effect
 import { NO_EFFECT } from "@/constants";
 
+export interface SrcSelectorProps {
+  src: string | null;
+  effectNames: string[];
+  handleSrcChange: (src: string) => void;
+}
+
 /**
  * Led Src Selector
  * Select the effectName to be the src
  */
-function SrcSelector({
-  src,
-  effectNames,
-  handleSrcChange,
-}: {
-  src: string;
-  effectNames: string[];
-  handleSrcChange: (src: string) => void;
-}) {
+function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
   const handleChange = (e: SelectChangeEvent) => {
     handleSrcChange(e.target.value);
   };
@@ -33,7 +31,7 @@ function SrcSelector({
     <FormControl sx={{ width: "5.5vw", padding: 0 }} size="small">
       <InputLabel shrink>src</InputLabel>
       <Select
-        value={src}
+        value={src ?? ""}
         label="src"
         onChange={handleChange}
         displayEmpty
