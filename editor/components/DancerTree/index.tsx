@@ -12,10 +12,13 @@ import {
   setSelectedDancers,
   setSelectedParts,
   setSelectionMode,
-} from "core/actions";
-import { SelectedPartPayload, SelectionMode } from "core/models";
-import { DANCER, PART, POSITION } from "@/constants";
-import { reactiveState } from "core/state";
+} from "@/core/actions";
+import {
+  type SelectedPartPayload,
+  type SelectionMode,
+  isLEDPartName,
+} from "@/core/models";
+import { reactiveState } from "@/core/state";
 import { useReactiveVar } from "@apollo/client";
 
 function DancerTree() {
@@ -53,8 +56,12 @@ function DancerTree() {
       }
     });
 
-    if (newSelectedDancers.size > 0) newSelectionMode = DANCER;
-    if (Object.keys(newSelectedParts).length > 0) newSelectionMode = PART;
+    if (newSelectedDancers.size > 0) {
+      newSelectionMode = "DANCER_MODE";
+    }
+    if (Object.keys(newSelectedParts).length > 0) {
+      newSelectionMode = "PART_MODE";
+    }
 
     if (
       newSelectedDancers.size > 0 &&
@@ -89,8 +96,11 @@ function DancerTree() {
     setSelectedDancers({ payload: [...newSelectedDancers] });
     setSelectedParts({ payload: newSelectedParts });
 
-    if (selectionMode !== POSITION) {
-      setSelectionMode({ payload: newSelectionMode! });
+    if (selectionMode !== "POSITION_MODE") {
+      if (newSelectionMode === null) {
+        throw new Error("No selection mode");
+      }
+      setSelectionMode({ payload: newSelectionMode });
     }
   };
 
@@ -116,22 +126,6 @@ function DancerTree() {
     setSelectedNodes((oldSelected) =>
       oldSelected.length === 0 ? dancerNames : []
     );
-  };
-
-  // to be passed to parts.sort
-  // sorts the parts by type (fiber, LED), then by name (in alphabetical order)
-  const partSortFunction = (a: string, b: string) => {
-    const aList: string[] = a.split("_");
-    const bList: string[] = b.split("_");
-    if (
-      aList[aList.length - 1] === bList[aList.length - 1] &&
-      aList[aList.length - 1] === "LED"
-    ) {
-      return a < b ? -1 : a > b ? 1 : 0;
-    }
-    if (aList[aList.length - 1] === "LED") return 1;
-    if (bList[bList.length - 1] === "LED") return -1;
-    return a < b ? -1 : a > b ? 1 : 0;
   };
 
   return (
@@ -168,7 +162,7 @@ function DancerTree() {
         onNodeSelect={handleSelect}
         multiSelect
       >
-        {Object.entries(dancers).map(([name, parts]: [string, any]) => (
+        {Object.entries(dancers).map(([name, parts]) => (
           <DancerTreeItem key={`DANCER_${name}`} label={name} nodeId={name}>
             {parts.sort(partSortFunction).map((part: string) => (
               <DancerTreeItem
@@ -187,6 +181,16 @@ function DancerTree() {
       </TreeView>
     </Paper>
   );
+}
+
+// to be passed to parts.sort
+function partSortFunction(partA: string, partB: string) {
+  // if the types are the same, sort alphabetically
+  if (isLEDPartName(partA) === isLEDPartName(partB)) {
+    return partA < partB ? -1 : partA > partB ? 1 : 0;
+  }
+  // if the types are different, sort LED parts last
+  return isLEDPartName(partA) ? 1 : -1;
 }
 
 export default DancerTree;
