@@ -2,10 +2,6 @@ lockfileVersion: 5.4
 
 specifiers:
   npm-run-all: ^4.1.5
-  react-virtuoso: ^4.1.0
-
-dependencies:
-  react-virtuoso: 4.1.0
 
 devDependencies:
   npm-run-all: 4.1.5
@@ -472,14 +468,6 @@ packages:
     resolution: {integrity: sha512-C3FsVNH1udSEX48gGX1xfvwTWfsYWj5U+8/uK15BGzIGrKoUpghX8hWZwa/OFnakBiiVNmBvemTJR5mcy7iPcg==}
     engines: {node: '>=4'}
     dev: true
-
-  /react-virtuoso/4.1.0:
-    resolution: {integrity: sha512-Vcq5WXn18PvPT55kdeGQ8BN3K95XyPe7hum8zG6Tx7g1CtUYVsQKN7fouMxBSy+XymEDB5ynGy8JWhuqyLLtPw==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: '>=16 || >=17 || >= 18'
-      react-dom: '>=16 || >=17 || >= 18'
-    dev: false
 
   /read-pkg/3.0.0:
     resolution: {integrity: sha512-BLq/cCO9two+lBgiTYNqD6GdtK8s4NpaWrl6/rCO9w0TUS8oJl7cmToOZfRYllKTISY6nt1U7jQ53brmKqY6BA==}
