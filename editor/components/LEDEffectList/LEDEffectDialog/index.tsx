@@ -93,14 +93,6 @@ export default function LEDEffectDialog({
         ]);
       });
 
-      // Display selected models without repeat
-
-      // selectedDancers.forEach((dancerName) => {
-      //   newDisplayModels = _.union(newDisplayModels, [
-      //     dancerMap[dancerName]["modelName"],
-      //   ]);
-      // });
-
       setDisplayModels(newDisplayModels);
 
       // preset chosen model to the first model among selected models

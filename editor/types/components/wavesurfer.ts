@@ -1,11 +1,5 @@
 import type WaveSurferApp from "@/components/Wavesurfer/WaveSurferApp";
-
-export interface Region {
-  start: number;
-  end: number;
-  loop: boolean;
-  color: string;
-}
+import type { PluginParams } from "wavesurfer.js/types/plugin";
 
 export type FilterType = "lowpass" | "highpass" | "notch";
 
@@ -37,6 +31,6 @@ export interface Marker {
   el: HTMLElement;
 }
 
-export interface MarkersPluginParams {
+export interface MarkersPluginParams extends PluginParams {
   markers?: MarkerParams[];
 }

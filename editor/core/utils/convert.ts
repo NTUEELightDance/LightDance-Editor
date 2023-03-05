@@ -1,5 +1,7 @@
 import { Color } from "three";
 
+import memoize from "lodash/memoize";
+
 import type {
   ControlMap,
   PosMap,
@@ -206,10 +208,10 @@ export function toLEDEffectFrame(
 
 const COLOR = new Color();
 
-export function hexToRGB(hex: string) {
+export const hexToRGB = memoize((hex: string) => {
   COLOR.setHex(parseInt(hex.replace(/^#/, ""), 16));
   return COLOR.toArray() as RGB;
-}
+});
 
 export function rgbToHex(rgb: RGB): ColorCode {
   COLOR.setRGB(rgb[0], rgb[1], rgb[2]);

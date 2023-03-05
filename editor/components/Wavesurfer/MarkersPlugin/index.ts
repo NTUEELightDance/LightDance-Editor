@@ -2,15 +2,16 @@ import {
   Marker,
   MarkerParams,
   MarkersPluginParams,
-} from "../../../types/components/wavesurfer";
+} from "@/types/components/wavesurfer";
 
 import { waveSurferAppInstance } from "../WaveSurferApp";
+import type { WaveSurferPlugin } from "wavesurfer.js/types/plugin";
 
 const DEFAULT_FILL_COLOR = "#D8D8D8";
 const DEFAULT_HOVER_COLOR = "#888888";
 const DEFAULT_POSITION = "bottom";
 
-export default class MarkersPlugin {
+export default class MarkersPlugin implements WaveSurferPlugin {
   params: MarkersPluginParams;
   wavesurfer: any;
   util: any;
@@ -29,7 +30,7 @@ export default class MarkersPlugin {
   onMouseMove?: (e: MouseEvent) => void;
   onMouseUp?: (e: MouseEvent) => void;
 
-  static create(params: MarkersPluginParams): any {
+  static create(params: MarkersPluginParams) {
     return {
       name: "markers",
       deferInit: false,

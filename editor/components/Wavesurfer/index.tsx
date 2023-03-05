@@ -82,13 +82,7 @@ function Wavesurfer() {
 
   // update Markers when markers switched on
   useEffect(() => {
-    if (
-      controlLoading ||
-      posLoading ||
-      !controlMap ||
-      !posMap ||
-      !waveSurferApp
-    ) {
+    if (controlLoading || posLoading || !waveSurferApp) {
       return;
     }
     waveSurferApp.toggleMarkers(showMarkers);

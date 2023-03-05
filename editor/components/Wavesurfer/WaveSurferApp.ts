@@ -7,8 +7,6 @@ import MarkersPlugin from "./MarkersPlugin";
 import store from "@/store";
 import { setCurrentTime, setIsPlaying } from "@/core/actions";
 
-import { Region } from "@/types/components/wavesurfer";
-
 import { throttle } from "throttle-debounce";
 /**
  * control 3rd party package, WaveSurfer
@@ -112,21 +110,15 @@ class WaveSurferApp {
    * @function
    */
   playLoop() {
-    const Regions = Object.values(this.waveSurfer.regions.list);
-    let Region = null;
-    const setRegion = (r: Region) => {
-      if (
-        this.waveSurfer.getCurrentTime() <= (r.end || 0) &&
-        this.waveSurfer.getCurrentTime() >= (r.start || 0)
-      ) {
-        Region = r;
-      }
-    };
-    (Regions as Region[]).map((r) => {
-      setRegion(r);
-    });
+    const regions = Object.values(this.waveSurfer.regions.list);
 
-    if (Region) (Region as any).playLoop();
+    const region = regions.find(
+      (r) =>
+        this.waveSurfer.getCurrentTime() <= r.end &&
+        this.waveSurfer.getCurrentTime() >= r.start
+    );
+
+    if (region) region.playLoop();
   }
 
   /**

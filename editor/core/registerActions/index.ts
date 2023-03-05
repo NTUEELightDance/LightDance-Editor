@@ -83,8 +83,8 @@ function actionCreator<A extends Action>(action: Action, actionName: string) {
       payloadOptions?.payload,
       "\noptions:",
       options,
-      "\nstate",
-      state.toString()
+      "\nstate"
+      // state.toString()
     );
 
     if (options.rerender) {

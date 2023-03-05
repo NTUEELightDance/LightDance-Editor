@@ -39,9 +39,9 @@ export default function EditorSelector() {
     if (newEditorMode !== null) {
       if (newEditorMode !== LED_EDITOR) {
         setSelectionModeByEditor({ payload: editor });
+        setEditor({ payload: newEditorMode });
       }
       setEditorMode(newEditorMode);
-      setEditor({ payload: newEditorMode });
     }
   };
 
