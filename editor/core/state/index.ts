@@ -56,6 +56,7 @@ const _state: State = {
   dancers: {},
   dancerNames: [],
   partTypeMap: {},
+  LEDPartLengthMap: {},
   colorMap: {},
   effectList: [],
 

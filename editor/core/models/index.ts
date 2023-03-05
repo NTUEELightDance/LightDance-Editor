@@ -193,6 +193,8 @@ export type SelectionMode =
  */
 export type PartTypeMap = Record<string, PartType>;
 
+export type LEDPartLengthMap = Record<LEDPartName, number>;
+
 // PartType
 export type PartType = "LED" | "FIBER" | "El";
 
@@ -328,10 +330,18 @@ export type EditGroupError = "DNE";
 // conversion helpers
 export type DancersArray = Array<{
   name: DancerName;
-  parts: Array<{
-    name: PartName;
-    type: PartType;
-  }>;
+  parts: Array<
+    | {
+        name: PartName;
+        type: Exclude<PartType, "LED">;
+        length: null;
+      }
+    | {
+        name: LEDPartName;
+        type: "LED";
+        length: number;
+      }
+  >;
 }>;
 
 export type DancerPartIndexMap = Record<
@@ -387,6 +397,7 @@ export interface State {
   dancers: Dancers;
   dancerNames: DancerName[];
   partTypeMap: PartTypeMap;
+  LEDPartLengthMap: LEDPartLengthMap;
   colorMap: ColorMap;
   effectList: EffectListType;
 

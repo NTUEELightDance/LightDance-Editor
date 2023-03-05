@@ -9,12 +9,12 @@ import type {
   DancerPartIndexMap,
   PartName,
   CurrentLEDStatus,
+  LEDPartLengthMap,
 } from "../models";
 
 import { dancerAgent } from "@/api";
 import { getControl, getPos } from "../utils";
 import { colorAgent } from "@/api/colorAgent";
-import { syncCurrentLEDStatus } from "./led";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
@@ -33,9 +33,13 @@ const actions = registerActions({
     );
 
     const partTypeMap: PartTypeMap = {};
+    const LEDPartLengthMap: LEDPartLengthMap = {};
     dancersData.forEach((dancer) => {
       dancer.parts.forEach((part) => {
         partTypeMap[part.name] = part.type;
+        if (part.type === "LED") {
+          LEDPartLengthMap[part.name] = part.length;
+        }
       });
     });
 
@@ -66,6 +70,7 @@ const actions = registerActions({
     state.dancerNames = dancerNames;
     state.dancers = dancers;
     state.partTypeMap = partTypeMap;
+    state.LEDPartLengthMap = LEDPartLengthMap;
 
     state.dancersArray = dancersData;
     state.dancerPartIndexMap = dancerPartIndexMap;

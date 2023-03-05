@@ -7,6 +7,7 @@ export const GET_DANCERS = gql`
       parts(orderBy: $orderBy) {
         name
         type
+        length
       }
     }
   }

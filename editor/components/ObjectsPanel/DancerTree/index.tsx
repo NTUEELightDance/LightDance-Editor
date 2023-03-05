@@ -129,17 +129,14 @@ function DancerTree() {
   };
 
   return (
-    <Paper
-      sx={{ width: "100%", px: "5%", minHeight: "100%", position: "relative" }}
-      square
-    >
+    <>
       <Paper
         sx={{
           display: "flex",
           flexDirection: "row",
           gap: "0.5em",
           position: "sticky",
-          top: 0,
+          top: "0",
           width: "100%",
           p: "0.5em 0.5em",
           mb: "1em",
@@ -179,7 +176,7 @@ function DancerTree() {
           </DancerTreeItem>
         ))}
       </TreeView>
-    </Paper>
+    </>
   );
 }
 
