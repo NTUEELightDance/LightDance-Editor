@@ -20,8 +20,6 @@ import { useReactiveVar } from "@apollo/client";
 import { getPartType } from "core/utils";
 import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 
-import _ from "lodash";
-
 function getSelectedPartsAndType(selected: Selected) {
   const newSelectedParts: SelectedPartPayload = {};
   const tempSelectedParts: string[] = [];
@@ -221,7 +219,7 @@ function PartMode() {
   };
 
   // partNames for led  controls
-  const partNames = _.uniq(Object.values(selectedParts).flat());
+  const partNames = [...new Set(Object.values(selectedParts).flat())];
 
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>

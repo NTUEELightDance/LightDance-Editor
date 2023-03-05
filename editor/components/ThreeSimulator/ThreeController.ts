@@ -29,6 +29,7 @@ import type {
   CurrentLEDStatus,
   PosMapStatus,
   Selected,
+  SelectionMode,
   State,
 } from "@/core/models";
 import { getDancerFromLEDpart } from "@/core/utils";
@@ -57,7 +58,7 @@ class ThreeController {
   gridHelper: GridHelper;
   light: THREE.DirectionalLight;
 
-  selectedOutline: OutlinePass;
+  selectedOutlinePass: OutlinePass;
   hoveredOutline: OutlinePass;
   manager: THREE.LoadingManager;
   controls: Controls;
@@ -76,8 +77,8 @@ class ThreeController {
     this.renderer = this.generateRenderer();
     this.camera = this.generateCamera();
     this.scene = this.generateScene();
-    this.selectedOutline = this.generateSelectedOutline();
-    this.hoveredOutline = this.generateHoverOutline();
+    this.selectedOutlinePass = this.generateSelectedOutlinePass();
+    this.hoveredOutline = this.generateHoverOutlinePass();
     this.composer = this.generateComposer();
     this.clock = new THREE.Clock();
     this.settings = new Settings(this);
@@ -90,7 +91,8 @@ class ThreeController {
       this.renderer,
       this.scene,
       this.camera,
-      this.dancers
+      this.dancers,
+      this.selectedOutlinePass
     );
 
     // Data and status for playback
@@ -146,7 +148,7 @@ class ThreeController {
 
     // Initialization of 3D renderer
     const renderer = new THREE.WebGLRenderer({
-      antialias: false,
+      antialias: true,
       powerPreference: "high-performance",
     });
 
@@ -201,30 +203,30 @@ class ThreeController {
     return camera;
   }
 
-  generateSelectedOutline() {
-    const selectedOutline = new OutlinePass(
+  generateSelectedOutlinePass() {
+    const selectedOutlinePass = new OutlinePass(
       new THREE.Vector2(this.width, this.height),
       this.scene,
       this.camera
     );
-    selectedOutline.edgeStrength = 5.0;
-    selectedOutline.edgeThickness = 0.2;
-    selectedOutline.visibleEdgeColor.set(0xffffff);
-    selectedOutline.hiddenEdgeColor.set(0x222222);
+    selectedOutlinePass.edgeStrength = 3.0;
+    selectedOutlinePass.edgeThickness = 0.2;
+    selectedOutlinePass.visibleEdgeColor.set(0xffffff);
+    selectedOutlinePass.hiddenEdgeColor.set(0x222222);
 
-    return selectedOutline;
+    return selectedOutlinePass;
   }
-  generateHoverOutline() {
-    const hoveredOutline = new OutlinePass(
+  generateHoverOutlinePass() {
+    const hoveredOutlinePass = new OutlinePass(
       new THREE.Vector2(this.width, this.height),
       this.scene,
       this.camera
     );
-    hoveredOutline.edgeStrength = 2.0;
-    hoveredOutline.edgeThickness = 1.0;
-    hoveredOutline.visibleEdgeColor.set(0xffff00);
+    hoveredOutlinePass.edgeStrength = 2.0;
+    hoveredOutlinePass.edgeThickness = 1.0;
+    hoveredOutlinePass.visibleEdgeColor.set(0xffff00);
 
-    return hoveredOutline;
+    return hoveredOutlinePass;
   }
   generateComposer() {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
@@ -241,7 +243,7 @@ class ThreeController {
     // default render pass for post processing
     const renderPass = new RenderPass(this.scene, this.camera);
     composer.addPass(renderPass);
-    composer.addPass(this.selectedOutline);
+    composer.addPass(this.selectedOutlinePass);
     composer.addPass(this.hoveredOutline);
 
     return composer;
@@ -290,9 +292,9 @@ class ThreeController {
       this.renderer,
       this.scene,
       this.camera,
-      this.dancers
+      this.dancers,
+      this.selectedOutlinePass
     );
-    this.controls.selectControls.setSelectedOutline(this.selectedOutline);
   }
 
   // Return true if all the dancer is successfully initialized
@@ -326,33 +328,24 @@ class ThreeController {
     });
   }
 
-  updateSelected(selected: Selected) {
-    if (Object.entries(selected).length === 0) {
-      throw new Error(
-        "[Error] updateDancersStatus, invalid parameter(currentStatus)"
-      );
-    }
-    this.controls.selectControls.updateSelected(selected);
+  updateSelected(selected: Selected, selectionMode: SelectionMode) {
+    this.controls.selectControls.updateSelected(selected, selectionMode);
   }
 
   clearSelectedLEDs() {
-    Object.entries(this.dancers).forEach(([dancerName, dancerData]) => {
-      Object.entries(dancerData.parts.LED).forEach(([ledPart, ledData]) => {
-        ledData.selectedLEDs = [];
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        ledPart.deselect();
       });
     });
   }
 
-  updateSelectedLEDs(selectedLED: number[], selectedLEDPart: string) {
-    const dancerName = getDancerFromLEDpart(selectedLEDPart as LEDPartName);
-    if (dancerName === undefined) {
-      return;
-    }
-    this.clearSelectedLEDs();
-    if (selectedLED.length > 0) {
-      this.dancers[dancerName].parts.LED[selectedLEDPart].selectedLEDs =
-        selectedLED;
-    }
+  updateSelectedLEDs(selectedLEDs: number[], selectedLEDPart: LEDPartName) {
+    const dancerName = getDancerFromLEDpart(selectedLEDPart);
+
+    this.dancers[dancerName].parts.LED[selectedLEDPart].setSelected(
+      selectedLEDs
+    );
   }
 
   zoomInSelectedLED(selectedLEDPart: { dancer: string; part: string }) {

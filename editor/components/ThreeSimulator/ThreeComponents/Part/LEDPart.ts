@@ -8,26 +8,40 @@ const vertexShader = `
 uniform float size;
 attribute vec3 color;
 attribute float alpha;
+attribute float selected; // 0 or 1
 varying vec4 vColor;
+varying float vSelected;
 
 void main() {
-  vColor = vec4( color, alpha );
   vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
   // calculate depth
-  float distance = length( mvPosition.xyz );
-  // scale up with the distance
-  gl_PointSize = size * ( 100.0 / distance );
+  float distanceToCamera = length( mvPosition.xyz );
+
+  // scale up with the distanceToCamera
+  gl_PointSize = size * ( 100.0 / distanceToCamera );
   gl_Position = projectionMatrix * mvPosition;
+
+  vColor = vec4( color, alpha * 0.9 ); // 0.9 for the ring that indicates selected to pop
+  vSelected = selected;
 }
 `;
 
 const fragmentShader = `
-uniform sampler2D pointTexture;
 varying vec4 vColor;
+varying float vSelected;
 
 void main() {
-  // apply texture to make the point round
-  gl_FragColor = vColor * texture2D( pointTexture, gl_PointCoord );
+  // calculate distance to the center of the texture
+  float distanceToCenter = distance(gl_PointCoord, vec2(0.5, 0.5));
+
+  if (distanceToCenter > 0.5) {
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+  } else if(distanceToCenter > 0.45) {
+    // selected indicator
+    gl_FragColor = vec4(1.0, 1.0, 1.0, vSelected);
+  } else {
+    gl_FragColor = vColor;
+  }
 }
 `;
 
@@ -39,14 +53,13 @@ const defaultDisplay = {
 export default class LEDPart extends Part {
   LEDs: THREE.Points;
   geometry: THREE.BufferGeometry;
-  selectedLEDs: number[];
 
   constructor(name: string, model: THREE.Object3D) {
     super(name, model);
+
     this.LEDs = new THREE.Points();
     this.geometry = new THREE.BufferGeometry();
     this.createLEDs();
-    this.selectedLEDs = [];
   }
 
   createLEDs() {
@@ -72,21 +85,21 @@ export default class LEDPart extends Part {
       new THREE.Float32BufferAttribute(colors, 3)
     );
 
-    const alphas = [];
-    for (let i = 0; i < LEDpositions.length; i++) {
-      alphas.push(defaultDisplay.alpha / 15);
-    }
+    const alphas = Array(LEDpositions.length).fill(defaultDisplay.alpha / 15);
     this.geometry.setAttribute(
       "alpha",
       new THREE.Float32BufferAttribute(alphas, 1)
     );
 
+    const selected = Array(LEDpositions.length).fill(0);
+    this.geometry.setAttribute(
+      "selected",
+      new THREE.Float32BufferAttribute(selected, 1)
+    );
+
     const material = new THREE.ShaderMaterial({
       uniforms: {
         size: { value: 1 },
-        pointTexture: {
-          value: new THREE.TextureLoader().load("/asset/textures/particle.png"),
-        },
       },
       vertexShader,
       fragmentShader,
@@ -97,6 +110,7 @@ export default class LEDPart extends Part {
     });
 
     this.LEDs = new THREE.Points(this.geometry, material);
+    this.LEDs.name = this.name;
   }
 
   setVisibility(visible: boolean) {
@@ -116,19 +130,44 @@ export default class LEDPart extends Part {
     ) as THREE.BufferAttribute;
 
     effect.forEach((display, i) => {
-      if (this.selectedLEDs.includes(i)) {
-        const { colorCode, alpha } = display;
-        colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
-        alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
-      } else {
-        const { colorCode, alpha } = display;
-
-        colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
-        alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
-      }
+      const { colorCode, alpha } = display;
+      colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
+      alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
     });
 
     colorAttribute.needsUpdate = true;
     alphaAttribute.needsUpdate = true;
+  }
+
+  setSelected(selectedLEDs: number[]) {
+    const selectedAttribute = this.geometry.getAttribute(
+      "selected"
+    ) as THREE.BufferAttribute;
+
+    for (let i = 0; i < selectedAttribute.count; i++) {
+      selectedAttribute.setX(i, 0);
+    }
+
+    selectedLEDs.forEach((i) => {
+      selectedAttribute.setX(i, 1);
+    });
+
+    selectedAttribute.needsUpdate = true;
+  }
+
+  select() {
+    const selectedAttribute = this.geometry.getAttribute(
+      "selected"
+    ) as THREE.BufferAttribute;
+
+    for (let i = 0; i < selectedAttribute.count; i++) {
+      selectedAttribute.setX(i, 1);
+    }
+
+    selectedAttribute.needsUpdate = true;
+  }
+
+  deselect() {
+    this.setSelected([]);
   }
 }

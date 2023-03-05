@@ -52,9 +52,9 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     if (threeController && threeController.isInitialized()) {
-      threeController.updateSelected(selected);
+      threeController.updateSelected(selected, selectionMode);
     }
-  }, [selected]);
+  }, [selected, selectionMode]);
 
   useEffect(() => {
     if (threeController && threeController.isInitialized()) {
@@ -70,10 +70,9 @@ export default function ThreeSimulator() {
   }, [isPlaying]);
 
   useEffect(() => {
-    threeController.clearSelectedLEDs();
-    if (selectedLEDs.length > 0) {
-      threeController.updateSelectedLEDs(selectedLEDs, currentLEDPartName);
-    }
+    if (!isLEDPartName(currentLEDPartName)) return;
+
+    threeController.updateSelectedLEDs(selectedLEDs, currentLEDPartName);
   }, [currentLEDPartName, selectedLEDs]);
 
   useEffect(() => {

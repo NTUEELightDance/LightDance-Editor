@@ -2,7 +2,7 @@ import { FiberData } from "@/core/models";
 import Part from "./Part";
 import { state } from "core/state";
 
-interface MeshType extends THREE.Mesh {
+export interface MeshType extends THREE.Mesh {
   material: THREE.MeshStandardMaterial;
 }
 

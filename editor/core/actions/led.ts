@@ -111,8 +111,8 @@ const actions = registerActions({
   },
 
   exitLEDEditor: (state: State) => {
-    state.currentLEDEffectName = "";
-    state.currentLEDPartName = "";
+    state.currentLEDEffectName = null;
+    state.currentLEDPartName = null;
     state.currentLEDEffectStart = 0;
     state.currentLEDEffect = null;
   },

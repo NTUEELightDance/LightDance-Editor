@@ -24,19 +24,8 @@ const actions = registerActions({
     });
   },
 
-  /**
-   * Set selected LED parts
-   * @param {State} state
-   */
-  setSelectedLEDParts: (
-    state: State,
-    payload: {
-      dancer: string;
-      part: string;
-      partsIndex: number[];
-    }
-  ) => {
-    state.selectedLEDs = payload.partsIndex;
+  setSelectedLEDBulbs: (state: State, payload: number[]) => {
+    state.selectedLEDs = payload;
   },
 
   /**
@@ -104,5 +93,5 @@ export const {
   toggleSelectedDancer,
   toggleSelectedPart,
   clearSelected,
-  setSelectedLEDParts,
+  setSelectedLEDBulbs,
 } = actions;

@@ -48,9 +48,8 @@ const _state: State = {
   selected: {},
   selectedLEDs: [],
 
-  // @ts-expect-error it is difficult to provide a default value for this
-  currentLEDPartName: "",
-  currentLEDEffectName: "",
+  currentLEDPartName: null,
+  currentLEDEffectName: null,
   currentLEDEffect: null,
   currentLEDEffectStart: 0,
 

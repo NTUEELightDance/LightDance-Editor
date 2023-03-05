@@ -11,6 +11,7 @@ import { Dancer } from "../ThreeComponents";
 import { DANCER, PART, POSITION } from "@/constants";
 
 import { PosMapStatus, SelectionMode } from "@/core/models";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 
 class Controls {
   renderer: THREE.Renderer;
@@ -27,7 +28,8 @@ class Controls {
     renderer: THREE.Renderer,
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
-    dancers: Record<string, Dancer>
+    dancers: Record<string, Dancer>,
+    outlinePass: OutlinePass
   ) {
     this.renderer = renderer;
     this.scene = scene;
@@ -38,7 +40,10 @@ class Controls {
 
     this.orbitControls = this.initOrbitControls();
     this.dragControls = this.initDragControls();
-    this.selectControls = this.initSelectControls(this.dragControls);
+    this.selectControls = this.initSelectControls(
+      this.dragControls,
+      outlinePass
+    );
   }
 
   initOrbitControls() {
@@ -74,7 +79,7 @@ class Controls {
     return dragControls;
   }
 
-  initSelectControls(dragControls: DragControls) {
+  initSelectControls(dragControls: DragControls, outlinePass: OutlinePass) {
     const selectControls = new SelectControls(
       [...this.objects],
       this.camera,
@@ -82,7 +87,8 @@ class Controls {
       dragControls,
       this.dancers,
       this.scene,
-      this.renderer
+      this.renderer,
+      outlinePass
     );
 
     return selectControls;

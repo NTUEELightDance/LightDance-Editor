@@ -76,6 +76,8 @@ export function getDancerFromLEDpart(partName: LEDPartName) {
       return dancer.name;
     }
   }
+
+  throw new Error(`No dancer has LED part ${partName}`);
 }
 
 export * from "./Notification";

@@ -6,8 +6,6 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
 import { state } from "core/state";
 
-import { FIBER, LED } from "@/constants";
-
 import { LEDPart, FiberPart } from "./Part";
 import {
   Coordinates,
@@ -35,8 +33,8 @@ class Dancer {
   model: THREE.Object3D;
   skeleton: THREE.Skeleton | null;
   parts: {
-    [LED]: Record<string, LEDPart>;
-    [FIBER]: Record<string, FiberPart>;
+    LED: Record<string, LEDPart>;
+    FIBER: Record<string, FiberPart>;
   };
 
   initStatus: DancerStatus;
@@ -57,8 +55,8 @@ class Dancer {
     this.model = new Group();
     this.skeleton = null;
     this.parts = {
-      [LED]: {},
-      [FIBER]: {},
+      LED: {},
+      FIBER: {},
     };
     this.initStatus = {};
     this.initPos = { x: 0, y: 0, z: 0 };
@@ -113,12 +111,12 @@ class Dancer {
     partNames.forEach((partName) => {
       const partType = state.partTypeMap[partName];
       switch (partType) {
-        case LED:
-          this.parts[LED][partName] = new LEDPart(partName, this.model);
-          this.model.add(this.parts[LED][partName].LEDs);
+        case "LED":
+          this.parts.LED[partName] = new LEDPart(partName, this.model);
+          this.model.add(this.parts.LED[partName].LEDs);
           break;
-        case FIBER:
-          this.parts[FIBER][partName] = new FiberPart(partName, this.model);
+        case "FIBER":
+          this.parts.FIBER[partName] = new FiberPart(partName, this.model);
           break;
       }
     });
@@ -192,7 +190,7 @@ class Dancer {
   }
 
   setFiberStatus(currentStatus: DancerStatus) {
-    Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
+    Object.entries(this.parts.FIBER).forEach(([partName, part]) => {
       //type of part is FiberData
       if (!isFiberData(currentStatus[partName])) return;
       part.setStatus(currentStatus[partName] as FiberData);
@@ -200,8 +198,19 @@ class Dancer {
   }
 
   setLEDStatus(currentLEDStatus: LEDPartStatus) {
-    Object.entries(this.parts[LED]).forEach(([partName, part]) => {
+    Object.entries(this.parts.LED).forEach(([partName, part]) => {
       part.setStatus(currentLEDStatus[partName]);
+    });
+  }
+
+  setSelectedLEDParts(selectedLEDParts: Iterable<string>) {
+    const selectedLEDPartsSet = new Set(selectedLEDParts);
+    Object.entries(this.parts.LED).forEach(([partName, part]) => {
+      if (selectedLEDPartsSet.has(partName)) {
+        part.select();
+      } else {
+        part.deselect();
+      }
     });
   }
 
