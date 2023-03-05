@@ -37,7 +37,7 @@ export default function LEDEffectList() {
           <AddIcon />
         </Fab>
       </Grid>
-      <Effects></Effects>
+      <EffectList></EffectList>
 
       <LEDEffectDialog
         addDialogOpen={addDialogOpen}
