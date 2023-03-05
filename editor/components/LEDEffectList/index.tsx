@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 // mui materials
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-import NestedList from "./NestedList";
+import EffectList from "./EffectList";
 import LEDEffectDialog from "./LEDEffectDialog";
 
 export default function LEDEffectList() {
@@ -16,21 +16,28 @@ export default function LEDEffectList() {
 
   return (
     <div>
-      <NestedList></NestedList>
       <Grid
         container
         justifyContent="center"
         sx={{
           width: "100%",
           minHeight: "80px",
-          justifyContent: "center",
-          alignItems: "center",
+          //justifyContent: "center",
+          //alignItems: "center",
         }}
       >
-        <Button variant="outlined" startIcon={<AddIcon />} onClick={openDialog}>
-          LED EFFECT
-        </Button>
+        <Fab
+          onClick={openDialog}
+          style={{
+            //position: "fixed",
+            // bottom: "50%",
+            // left: "50%",
+          }}
+        >
+          <AddIcon />
+        </Fab>
       </Grid>
+      <Effects></Effects>
 
       <LEDEffectDialog
         addDialogOpen={addDialogOpen}

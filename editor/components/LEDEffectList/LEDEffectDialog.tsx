@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { useReactiveVar } from "@apollo/client";
 import _ from "lodash";
+
+// actions
 import { setupLEDEditor } from "core/actions";
 import { setEditor } from "core/actions";
 
@@ -103,12 +105,16 @@ export default function LEDEffectDialog({
       let newDisplayLEDParts: string[] = [];
 
       if (chosenModel) {
-        const chosenDancer = Object.entries(dancerMap).find((dancer) => {
-          return (
-            (dancer[1] as { url: string; modelName: string })["modelName"] ===
-            chosenModel
-          );
-        });
+        const chosenDancer = Object.entries(dancerMap).find(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ([dancerName, dancerData]) => {
+            return (
+              (dancerData as { url: string; modelName: string })[
+                "modelName"
+              ] === chosenModel
+            );
+          }
+        );
 
         if (chosenDancer) {
           newDisplayLEDParts = dancers[chosenDancer[0]].filter((part) => {
@@ -163,8 +169,6 @@ export default function LEDEffectDialog({
 
   useEffect(() => {
     updateDisplayPart(chosenModel);
-    console.log("ledMap : ")
-    console.log(ledMap);
   }, [chosenModel, updateDisplayPart]);
 
   // Reset and Close
