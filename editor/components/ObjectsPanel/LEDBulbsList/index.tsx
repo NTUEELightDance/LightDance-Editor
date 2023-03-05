@@ -16,14 +16,7 @@ function LEDBulbsList() {
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
 
   useEffect(() => {
-    selectedLEDs.forEach((led) => {
-      setSelectedNodes((prev) => {
-        if (prev.includes(led.toString())) {
-          return prev;
-        }
-        return [...prev, led.toString()];
-      });
-    });
+    setSelectedNodes(selectedLEDs.map((led) => led.toString()));
   }, [currentLEDPartName, selectedLEDs]);
 
   if (!currentLEDPartName) {
