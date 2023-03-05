@@ -1,5 +1,4 @@
-import { Typography, Grid, Button, Box } from "@mui/material";
-import { Stack } from "@mui/system";
+import { Typography, Grid, Button } from "@mui/material";
 
 interface LEDPartButtonProps {
   chosenLEDPart: string;

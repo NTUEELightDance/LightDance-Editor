@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 
 // mui materials
-import { Button, List, Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
+import NestedList from "./NestedList";
 import LEDEffectDialog from "./LEDEffectDialog";
 
 export default function LEDEffectList() {
@@ -15,7 +16,7 @@ export default function LEDEffectList() {
 
   return (
     <div>
-      <List></List>
+      <NestedList></NestedList>
       <Grid
         container
         justifyContent="center"
