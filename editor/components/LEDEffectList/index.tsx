@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // mui materials
-import { Button, Grid, Fab } from "@mui/material";
+import { Button, Grid, Paper } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 import EffectList from "./EffectList";
@@ -16,29 +16,34 @@ export default function LEDEffectList() {
 
   return (
     <div>
-      <Grid
-        container
-        justifyContent="center"
+      <Paper
         sx={{
           width: "100%",
-          minHeight: "80px",
-          //justifyContent: "center",
-          //alignItems: "center",
+          minHeight: "100%",
         }}
       >
-        <Fab
-          onClick={openDialog}
-          style={{
-            //position: "fixed",
-            // bottom: "50%",
-            // left: "50%",
+        <EffectList></EffectList>
+        <Grid
+          container
+          justifyContent="center"
+          sx={{
+            width: "100%",
+            minHeight: "80px",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          <AddIcon />
-        </Fab>
-      </Grid>
-      <EffectList></EffectList>
-
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={openDialog}
+            //sx={{ position: "absolute", top: "16px", right: "16px" }}
+          >
+            LED Effect
+          </Button>
+        </Grid>
+      </Paper>
       <LEDEffectDialog
         addDialogOpen={addDialogOpen}
         handleClose={() => {

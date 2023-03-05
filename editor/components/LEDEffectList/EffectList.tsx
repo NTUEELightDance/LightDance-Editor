@@ -122,60 +122,65 @@ export default function EffectList() {
           Object.keys(LEDEffectData).map((EffectName) => {
             const modelName = "";
             return (
-              <ListItem key={EffectName}>
-                <ListItemText
-                  primary={
-                    <Typography sx={{ fontSize: "20px", color: "white" }}>
-                      {EffectName}
-                    </Typography>
-                  }
-                  secondary={
-                    <>
-                      <Typography
-                        component="span"
-                        sx={{ fontSize: "10px", color: "white" }}
-                      >
-                        {"Model: "}
-                        {modelName}
+              <>
+                <ListItem key={EffectName}>
+                  <ListItemText
+                    primary={
+                      <Typography sx={{ fontSize: "20px", color: "white" }}>
+                        {EffectName}
                       </Typography>
-                      <br />
-                      <Typography
-                        component="span"
-                        sx={{ fontSize: "10px", color: "white" }}
+                    }
+                    secondary={
+                      <>
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "10px", color: "white" }}
+                        >
+                          {"Model: "}
+                          {modelName}
+                        </Typography>
+                        <br />
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "10px", color: "white" }}
+                        >
+                          {"Part: "}
+                          {PartName}
+                        </Typography>
+                      </>
+                    }
+                  />
+                  <ListItemSecondaryAction>
+                    <Tooltip title="Apply Effect" placement="top">
+                      <IconButton
+                        edge="end"
+                        aria-label="apply"
+                        size="large"
+                        onClick={() => {
+                          handleOpenApply(PartName, EffectName);
+                        }}
                       >
-                        {"Part: "}
-                        {PartName}
-                      </Typography>
-                    </>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <Tooltip title="Apply Effect" placement="top">
-                    <IconButton
-                      edge="end"
-                      aria-label="apply"
-                      size="large"
-                      onClick={() => {
-                        handleOpenApply(PartName, EffectName);
-                      }}
-                    >
-                      <AddIcon fontSize="inherit" sx={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete Effect" placement="top">
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      size="large"
-                      onClick={() => {
-                        handleOpenDelete(PartName, EffectName);
-                      }}
-                    >
-                      <DeleteIcon fontSize="inherit" sx={{ color: "white" }} />
-                    </IconButton>
-                  </Tooltip>
-                </ListItemSecondaryAction>
-              </ListItem>
+                        <AddIcon fontSize="inherit" sx={{ color: "white" }} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete Effect" placement="top">
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        size="large"
+                        onClick={() => {
+                          handleOpenDelete(PartName, EffectName);
+                        }}
+                      >
+                        <DeleteIcon
+                          fontSize="inherit"
+                          sx={{ color: "white" }}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              </>
             );
           })
         )}
