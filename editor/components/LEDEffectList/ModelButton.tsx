@@ -1,4 +1,5 @@
-import { Typography, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { Typography, Button } from "@mui/material";
+import Grid from "@mui/system/Unstable_Grid/Grid";
 
 interface ModelButtonProps {
   chosenModel: string;
@@ -16,8 +17,8 @@ export default function ModelButton({
 }: ModelButtonProps) {
   return (
     <>
-      <Typography>MODELS</Typography>
-      <ToggleButtonGroup
+      <Typography sx={{ mb: 1 }}>MODELS</Typography>
+      {/* <ToggleButtonGroup
         color="primary"
         size="medium"
         exclusive
@@ -45,7 +46,20 @@ export default function ModelButton({
             {v}
           </ToggleButton>
         ))}
-      </ToggleButtonGroup>
+      </ToggleButtonGroup> */}
+      <Grid container spacing={2} justifyContent="flex-start" sx={{ mb: 2 }}>
+        {displayModels.map((v) => (
+          <Grid key={v}>
+            <Button
+              variant={chosenModel === v ? "contained" : "outlined"}
+              color="primary"
+              onClick={(event) => handleChangeChosenModel(event, v)}
+            >
+              {v}
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
     </>
   );
 }

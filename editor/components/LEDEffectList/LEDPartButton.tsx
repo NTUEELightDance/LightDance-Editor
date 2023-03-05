@@ -1,4 +1,4 @@
-import { Typography, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { Typography, Grid, Button } from "@mui/material";
 
 interface LEDPartButtonProps {
   chosenLEDPart: string;
@@ -16,8 +16,8 @@ export default function LEDPartButton({
 }: LEDPartButtonProps) {
   return (
     <>
-      <Typography>PARTS</Typography>
-      <ToggleButtonGroup
+      <Typography sx={{ mb: 1 }}>PARTS</Typography>
+      {/* <ToggleButtonGroup
         color="primary"
         size="medium"
         exclusive
@@ -29,7 +29,20 @@ export default function LEDPartButton({
             {v}
           </ToggleButton>
         ))}
-      </ToggleButtonGroup>
+      </ToggleButtonGroup> */}
+      <Grid container spacing={2} justifyContent="flex-start" sx={{ mb: 2 }}>
+        {displayLEDParts.map((v) => (
+          <Grid item key={v}>
+            <Button
+              variant={chosenLEDPart === v ? "contained" : "outlined"}
+              color="primary"
+              onClick={(event) => handleChangeChosenLEDPart(event, v)}
+            >
+              {v}
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
     </>
   );
 }
