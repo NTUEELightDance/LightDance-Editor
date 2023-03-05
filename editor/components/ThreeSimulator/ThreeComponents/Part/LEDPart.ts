@@ -9,8 +9,10 @@ uniform float size;
 attribute vec3 color;
 attribute float alpha;
 attribute float selected; // 0 or 1
+attribute float focused; // all 0 or all 1
 varying vec4 vColor;
 varying float vSelected;
+varying float vFocused;
 
 void main() {
   vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
@@ -23,12 +25,14 @@ void main() {
 
   vColor = vec4( color, alpha * 0.9 ); // 0.9 for the ring that indicates selected to pop
   vSelected = selected;
+  vFocused = focused;
 }
 `;
 
 const fragmentShader = `
 varying vec4 vColor;
 varying float vSelected;
+varying float vFocused;
 
 void main() {
   // calculate distance to the center of the texture
@@ -41,6 +45,11 @@ void main() {
     gl_FragColor = vec4(1.0, 1.0, 1.0, vSelected);
   } else {
     gl_FragColor = vColor;
+
+    // if focused, and the alpha is 0, then add white color
+    if (vFocused > 0.0 && vColor.a == 0.0) {
+      gl_FragColor = mix(gl_FragColor, vec4(1.0, 1.0, 1.0, 0.2), vFocused);
+    }
   }
 }
 `;
@@ -53,25 +62,36 @@ const defaultDisplay = {
 export default class LEDPart extends Part {
   LEDs: THREE.Points;
   geometry: THREE.BufferGeometry;
+  position: THREE.Vector3;
+  isSelected: boolean;
+  isFocused: boolean;
 
   constructor(name: string, model: THREE.Object3D) {
     super(name, model);
 
     this.LEDs = new THREE.Points();
     this.geometry = new THREE.BufferGeometry();
+    this.position = new THREE.Vector3();
+    this.isSelected = false;
+    this.isFocused = false;
     this.createLEDs();
   }
 
   createLEDs() {
     const LEDpositions = [];
     for (let i = 1; ; i++) {
-      // while(true) will cause Unexpected constant condition
       const name = `${this.name}${String(i).padStart(3, "0")}`;
       const mesh = this.model.getObjectByName(name);
       if (mesh == null) break;
       mesh.visible = false;
       LEDpositions.push(mesh.position.clone());
     }
+
+    // calculate mean position
+    LEDpositions.forEach((p) => {
+      this.position.add(p);
+    });
+    this.position.divideScalar(LEDpositions.length);
 
     this.geometry = new THREE.BufferGeometry().setFromPoints(LEDpositions);
 
@@ -95,6 +115,12 @@ export default class LEDPart extends Part {
     this.geometry.setAttribute(
       "selected",
       new THREE.Float32BufferAttribute(selected, 1)
+    );
+
+    const focused = Array(LEDpositions.length).fill(0);
+    this.geometry.setAttribute(
+      "focused",
+      new THREE.Float32BufferAttribute(focused, 1)
     );
 
     const material = new THREE.ShaderMaterial({
@@ -139,7 +165,7 @@ export default class LEDPart extends Part {
     alphaAttribute.needsUpdate = true;
   }
 
-  setSelected(selectedLEDs: number[]) {
+  setSelectedLEDBulbs(selectedLEDs: number[]) {
     const selectedAttribute = this.geometry.getAttribute(
       "selected"
     ) as THREE.BufferAttribute;
@@ -156,6 +182,8 @@ export default class LEDPart extends Part {
   }
 
   select() {
+    if (this.isSelected) return;
+
     const selectedAttribute = this.geometry.getAttribute(
       "selected"
     ) as THREE.BufferAttribute;
@@ -165,9 +193,43 @@ export default class LEDPart extends Part {
     }
 
     selectedAttribute.needsUpdate = true;
+    this.isSelected = true;
   }
 
   deselect() {
-    this.setSelected([]);
+    if (!this.isSelected) return;
+
+    this.setSelectedLEDBulbs([]);
+    this.isSelected = false;
+  }
+
+  focus() {
+    if (this.isFocused) return;
+
+    const focusedAttribute = this.geometry.getAttribute(
+      "focused"
+    ) as THREE.BufferAttribute;
+
+    for (let i = 0; i < focusedAttribute.count; i++) {
+      focusedAttribute.setX(i, 1);
+    }
+
+    focusedAttribute.needsUpdate = true;
+    this.isFocused = true;
+  }
+
+  unfocus() {
+    if (!this.isFocused) return;
+
+    const focusedAttribute = this.geometry.getAttribute(
+      "focused"
+    ) as THREE.BufferAttribute;
+
+    for (let i = 0; i < focusedAttribute.count; i++) {
+      focusedAttribute.setX(i, 0);
+    }
+
+    focusedAttribute.needsUpdate = true;
+    this.isFocused = false;
   }
 }

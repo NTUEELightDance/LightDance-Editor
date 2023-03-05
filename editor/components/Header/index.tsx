@@ -16,7 +16,7 @@ import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import useRoute from "@/hooks/useRoute";
-import LEDEditorDisplay from "./LEDEditorDisplay";
+import LEDEditorDash from "./LEDEditorDash";
 
 export default function Header() {
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -41,7 +41,7 @@ export default function Header() {
               style={{ height: "2.5rem" }}
             />
             <PageSelector />
-            <LEDEditorDisplay />
+            <LEDEditorDash />
           </Box>
           <Box sx={{ flexGrow: 1 }} />
           <Box

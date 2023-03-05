@@ -2,7 +2,7 @@ import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
 import { reactiveState } from "core/state";
-import { setCurrentPosToGround, setModeToLEDMode } from "core/actions";
+import { setCurrentPosToGround } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 // hotkeys
@@ -17,8 +17,8 @@ import SelectionModeSelector from "components/SelectionModeSelector";
 // constants
 import { IDLE, POSITION } from "@/constants";
 
-import { getDancerFromLEDpart } from "@/core/utils";
 import { isLEDPartName } from "@/core/models";
+import { getDancerFromLEDpart } from "@/core/utils";
 
 /**
  * This is Display component
@@ -29,7 +29,7 @@ export default function ThreeSimulator() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { ref: containerRef } = useResizeDetector({
     onResize: (width, height) => {
-      if (threeController && threeController.isInitialized()) {
+      if (threeController.isInitialized()) {
         threeController.resize(width as number, height as number);
       }
     },
@@ -51,13 +51,13 @@ export default function ThreeSimulator() {
   }, [containerRef]);
 
   useEffect(() => {
-    if (threeController && threeController.isInitialized()) {
+    if (threeController.isInitialized()) {
       threeController.updateSelected(selected, selectionMode);
     }
   }, [selected, selectionMode]);
 
   useEffect(() => {
-    if (threeController && threeController.isInitialized()) {
+    if (threeController.isInitialized()) {
       threeController.controls.deactivate();
       if (editorState !== IDLE) {
         threeController.controls.activate(selectionMode);
@@ -77,15 +77,8 @@ export default function ThreeSimulator() {
 
   useEffect(() => {
     if (!isLEDPartName(currentLEDPartName)) return;
-
-    setModeToLEDMode();
-    const dancer = getDancerFromLEDpart(currentLEDPartName);
-    if (dancer !== undefined && dancer !== "") {
-      threeController.zoomInSelectedLED({
-        dancer: dancer,
-        part: currentLEDPartName,
-      });
-    }
+    const dancerName = getDancerFromLEDpart(currentLEDPartName);
+    threeController.focusOnLEDPart(dancerName, currentLEDPartName);
   }, [currentLEDPartName]);
 
   useHotkeys("g", () => {

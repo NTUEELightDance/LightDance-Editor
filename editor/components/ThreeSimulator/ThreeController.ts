@@ -31,9 +31,9 @@ import type {
   Selected,
   SelectionMode,
   State,
+  LEDPartName,
 } from "@/core/models";
 import { getDancerFromLEDpart } from "@/core/utils";
-import { LEDPartName } from "@/core/models";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -343,51 +343,48 @@ class ThreeController {
   updateSelectedLEDs(selectedLEDs: number[], selectedLEDPart: LEDPartName) {
     const dancerName = getDancerFromLEDpart(selectedLEDPart);
 
-    this.dancers[dancerName].parts.LED[selectedLEDPart].setSelected(
+    this.dancers[dancerName].parts.LED[selectedLEDPart].setSelectedLEDBulbs(
       selectedLEDs
     );
   }
 
-  zoomInSelectedLED(selectedLEDPart: { dancer: string; part: string }) {
-    const pos = [];
-    let posx = 0;
-    let posy = 0;
-    let posz = 0;
-    const LEDPart =
-      this.dancers[selectedLEDPart.dancer].parts.LED[selectedLEDPart.part];
-    for (let i = 0; i < LEDPart.model.children.length; i++) {
-      if (LEDPart.model.children[i].name.includes(selectedLEDPart.part)) {
-        pos.push(LEDPart.model.children[i].position);
-        posx += LEDPart.model.children[i].position.x;
-        posy += LEDPart.model.children[i].position.y;
-        posz += LEDPart.model.children[i].position.z;
-      }
-    }
+  focusOnLEDPart(dancerName: string, partName: LEDPartName) {
+    const part = this.dancers[dancerName].parts.LED[partName];
+    const posX = part.position.x;
+    const posY = part.position.y;
+    const posZ = part.position.z;
 
-    posx /= pos.length;
-    posy /= pos.length;
-    posz /= pos.length;
-    const addx =
-      this.dancers[selectedLEDPart.dancer].model.position.x === 0
-        ? this.dancers[selectedLEDPart.dancer].initPos.x
-        : this.dancers[selectedLEDPart.dancer].model.position.x;
-    const addy =
-      this.dancers[selectedLEDPart.dancer].model.position.y === 0
-        ? this.dancers[selectedLEDPart.dancer].initPos.y
-        : this.dancers[selectedLEDPart.dancer].model.position.y;
-    if (pos.length > 0) {
-      this.camera.position.set(
-        posx + addx,
-        1.2 * posy + addy,
-        posz + LEDPart.model.position.z + 5
-      );
-      this.camera.rotation.set(0, 0, 0);
+    const addX =
+      this.dancers[dancerName].model.position.x === 0
+        ? this.dancers[dancerName].initPos.x
+        : this.dancers[dancerName].model.position.x;
+    const addY =
+      this.dancers[dancerName].model.position.y === 0
+        ? this.dancers[dancerName].initPos.y
+        : this.dancers[dancerName].model.position.y;
 
-      this.camera.lookAt(posx + addx, posy + addy, -30);
-      this.controls.orbitControls.target.x = posx + addx;
-      this.controls.orbitControls.target.y = posy + addy;
-      this.controls.orbitControls.target.z = -30;
-    }
+    this.camera.position.set(
+      posX + addX,
+      1.2 * posY + addY,
+      posZ + part.model.position.z + 5
+    );
+    this.camera.rotation.set(0, 0, 0);
+
+    this.camera.lookAt(posX + addX, posY + addY, -30);
+    this.controls.orbitControls.target.x = posX + addX;
+    this.controls.orbitControls.target.y = posY + addY;
+    this.controls.orbitControls.target.z = -30;
+
+    // unfocus all LED parts except the selected one
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        if (ledPart.name === partName && dancer.name === dancerName) {
+          ledPart.focus();
+        } else {
+          ledPart.unfocus();
+        }
+      });
+    });
   }
 
   // calculate and set next frame status according to time and call updateDancers

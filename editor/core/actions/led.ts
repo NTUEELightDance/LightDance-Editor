@@ -108,6 +108,7 @@ const actions = registerActions({
       repeat: 1,
       effects: [],
     };
+    state.selectionMode = "LED_MODE";
   },
 
   exitLEDEditor: (state: State) => {
