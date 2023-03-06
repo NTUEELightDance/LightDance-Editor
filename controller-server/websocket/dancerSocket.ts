@@ -1,4 +1,4 @@
-import { CommandType } from "../constants";
+import { ActionType, CommandSubType } from "../constants";
 import WebSocket from "ws";
 import {
   ClientType,
@@ -38,23 +38,23 @@ class DancerSocket {
     this.clientIP = ip;
 
     this.methods = {
-      [CommandType.SYNC]: this.sync,
-      [CommandType.KICK]: this.kick,
-      [CommandType.LIGTHCURRENTSTATUS]: this.lightCurrentStatus,
-      [CommandType.LOAD]: this.load,
-      [CommandType.PAUSE]: this.pause,
-      [CommandType.PLAY]: this.play,
-      [CommandType.REBOOT]: this.reboot,
-      [CommandType.SHUTDOWN]: this.shutDown,
-      [CommandType.STOP]: this.stop,
-      [CommandType.UPLOAD_OF]: this.uploadOf,
-      [CommandType.UPLOAD_LED]: this.uploadLED,
-      [CommandType.RED]: this.red,
-      [CommandType.BLUE]: this.blue,
-      [CommandType.GREEN]: this.green,
-      [CommandType.STMINIT]: this.stmInit,
-      [CommandType.DARKALL]: this.darkAll,
-      [CommandType.RESTARTCONTROLLER]: this.restartController,
+      [ActionType.SYNC]: this.sync,
+      [CommandSubType.KICK]: this.kick,
+      [CommandSubType.LIGTHCURRENTSTATUS]: this.lightCurrentStatus,
+      [CommandSubType.LOAD]: this.load,
+      [CommandSubType.PAUSE]: this.pause,
+      [CommandSubType.PLAY]: this.play,
+      [CommandSubType.REBOOT]: this.reboot,
+      [CommandSubType.SHUTDOWN]: this.shutDown,
+      [CommandSubType.STOP]: this.stop,
+      [ActionType.UPLOAD_OF]: this.uploadOf,
+      [ActionType.UPLOAD_LED]: this.uploadLED,
+      [CommandSubType.RED]: this.red,
+      [CommandSubType.BLUE]: this.blue,
+      [CommandSubType.GREEN]: this.green,
+      [CommandSubType.STMINIT]: this.stmInit,
+      [CommandSubType.DARKALL]: this.darkAll,
+      [CommandSubType.RESTARTCONTROLLER]: this.restartController,
     };
   }
 
@@ -96,7 +96,7 @@ class DancerSocket {
     this.ws.onclose = (message: any) => {
       console.log(`[Disconnect] dancer ${this.dancerName} disconnect!\n`);
       const disconnectResponse: MesS2C = {
-        command: CommandType.DISCONNECT,
+        command: ActionType.DISCONNECT,
         payload: {
           from: this.dancerName,
           success: false,
@@ -123,65 +123,105 @@ class DancerSocket {
   // };
   // Below are functions for manager to use
   sync = () => {
-    this.sendDataToRpiSocket({ command: CommandType.SYNC });
+    this.sendDataToRpiSocket({ action: ActionType.SYNC });
   };
   kick = () => {
-    this.sendDataToRpiSocket({ command: CommandType.KICK });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.KICK], 
+    });
   };
   lightCurrentStatus = (lightCurrentStatus: LightStatusType) => {
     this.sendDataToRpiSocket({
-      command: CommandType.LIGTHCURRENTSTATUS /* ,payload: light object*/,
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.LIGTHCURRENTSTATUS], /* ,payload: light object*/
     });
   };
   load = () => {
-    this.sendDataToRpiSocket({ command: CommandType.LOAD });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.LOAD],
+    });
   };
   pause = () => {
-    this.sendDataToRpiSocket({ command: CommandType.PAUSE });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.PAUSE], 
+    });
   };
   play = (time: PlayTimeType = { startTime: 0, delay: 0, sysTime: 0 }) => {
-    console.log(`[Debug] play: sysTime=${time.sysTime}`);
-    this.sendDataToRpiSocket({ command: CommandType.PLAY, payload: time });
+    console.log(`[Debug] play: sysTime=${time.sysTime} startTime=${time.startTime}`);
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.PLAY, (time.startTime)] // we sent start time in milliseconds 
+    });
   };
   reboot = () => {
-    this.sendDataToRpiSocket({ command: CommandType.REBOOT });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.REBOOT],
+    });
   };
   shutDown = () => {
-    this.sendDataToRpiSocket({ command: CommandType.SHUTDOWN });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.SHUTDOWN],
+    });
   };
   stop = () => {
-    this.sendDataToRpiSocket({ command: CommandType.STOP });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.STOP]
+    });
   };
 
   uploadOf = (data: ControlType) => {
     this.sendDataToRpiSocket({
-      command: CommandType.UPLOAD_OF /* payload: ControlType*/,
+      action: ActionType.UPLOAD_OF /* payload: ControlType*/,
       payload: data[this.dancerName],
     });
   };
   uploadLED = (data: ControlType) => {
     this.sendDataToRpiSocket({
-      command: CommandType.UPLOAD_LED /* payload: ControlType*/,
+      action: ActionType.UPLOAD_LED /* payload: ControlType*/,
       payload: data[this.dancerName],
     });
   };
   red = () => {
-    this.sendDataToRpiSocket({ command: CommandType.RED });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.RED],
+    });
   };
   blue = () => {
-    this.sendDataToRpiSocket({ command: CommandType.BLUE });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.BLUE]
+    });
   };
   green = () => {
-    this.sendDataToRpiSocket({ command: CommandType.GREEN });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.GREEN]
+    });
   };
   stmInit = () => {
-    this.sendDataToRpiSocket({ command: CommandType.STMINIT });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.STMINIT]
+    });
   };
   darkAll = () => {
-    this.sendDataToRpiSocket({ command: CommandType.DARKALL });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.DARKALL]
+    });
   };
   restartController = () => {
-    this.sendDataToRpiSocket({ command: CommandType.RESTARTCONTROLLER });
+    this.sendDataToRpiSocket({ 
+      action: ActionType.COMMAND,
+      payload: [CommandSubType.RESTARTCONTROLLER]
+    });
   };
 }
 

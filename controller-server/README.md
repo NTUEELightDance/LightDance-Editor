@@ -86,7 +86,7 @@ interface InfoType {
 }
 
 // Payload for UploadLed and UploadOf Command
-[
+{"Justin": //Or any other dancer name
 	{
 	  "start": 0, // ms
 	  "fade": true,
@@ -114,5 +114,5 @@ interface InfoType {
 	  }
 	},
 	...
-]
+}
 ```

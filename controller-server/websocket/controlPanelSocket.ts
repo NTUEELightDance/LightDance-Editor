@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { CommandType } from "../constants";
+import { ActionType, CommandSubType } from "../constants";
 import { PlayTimeType, MesC2S, MesS2C } from "../types";
 import { ClientAgent } from "../clientAgent";
 import { v4 as uuidv4 } from "uuid";
@@ -19,9 +19,9 @@ class ControlPanelSocket {
     this.init(ws);
 
     this.methods = {
-      [CommandType.PAUSE]: this.pause,
-      [CommandType.PLAY]: this.play,
-      [CommandType.STOP]: this.stop,
+      [CommandSubType.PAUSE]: this.pause,
+      [CommandSubType.PLAY]: this.play,
+      [CommandSubType.STOP]: this.stop,
     };
   }
 

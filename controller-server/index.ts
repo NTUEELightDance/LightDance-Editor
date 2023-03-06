@@ -10,7 +10,7 @@ import { ClientType, MesC2S, MesS2C, InfoType, MesR2S } from "./types/index";
 import NtpServer from "./ntp/index";
 
 import { ClientAgent } from "./clientAgent";
-import { CommandType } from "./constants";
+import { ActionType } from "./constants";
 
 const app = express();
 const server = http.createServer(app);
@@ -31,7 +31,7 @@ wss.on("connection", (ws) => {
 
     // We defined that the first task for clients (dancer and editor) will be boardInfo
     // This can then let us split the logic between dancerClients and editorClients
-    if (command === CommandType.BOARDINFO) {
+    if (command === ActionType.BOARDINFO) {
 
       // fetch type, so ugly
       if ((<InfoType>payload).type) {
@@ -66,7 +66,7 @@ wss.on("connection", (ws) => {
             const dancerInfo = clientAgent.dancerClients.getClientsInfo();
 
             const res: MesS2C = {
-              command: CommandType.BOARDINFO,
+              command: ActionType.BOARDINFO,
               payload: {
                 success: true,
                 info: {
@@ -97,7 +97,7 @@ wss.on("connection", (ws) => {
             const dancerInfo = clientAgent.dancerClients.getClientsInfo();
 
             const res: MesS2C = {
-              command: CommandType.BOARDINFO,
+              command: ActionType.BOARDINFO,
               payload: {
                 success: true,
                 info: {
@@ -118,7 +118,7 @@ wss.on("connection", (ws) => {
       default: {
         console.error("Invalid type ", type, " on connection");
         const res: MesS2C = {
-          command: CommandType.BOARDINFO,
+          command: ActionType.BOARDINFO,
           payload: {
             success: false,
             info: "invalid type"

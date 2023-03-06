@@ -1,19 +1,24 @@
 // Command Type
-enum CommandType {
+enum ActionType {
   SYNC = "sync",
   UPLOAD_LED = "uploadLed",
   UPLOAD_OF = "uploadOf",
+  BOARDINFO = "boardInfo",
+  DISCONNECT = "disconnect",
+  // General Command
+  COMMAND = "command",
+}
+
+enum CommandSubType {
   LOAD = "load",
+  LIGTHCURRENTSTATUS = "lightCurrentStatus",
+  KICK = "kick",
   PLAY = "play",
   PAUSE = "pause",
   STOP = "stop",
-  LIGTHCURRENTSTATUS = "lightCurrentStatus",
-  KICK = "kick",
   SHUTDOWN = "shutDown",
   REBOOT = "reboot",
-  BOARDINFO = "boardInfo",
   TEST = "test",
-  DISCONNECT = "disconnect",
   RED = "red",
   BLUE = "blue",
   GREEN = "green",
@@ -22,4 +27,4 @@ enum CommandType {
   RESTARTCONTROLLER = "restartController",
 }
 
-export { CommandType };
+export { ActionType, CommandSubType };
