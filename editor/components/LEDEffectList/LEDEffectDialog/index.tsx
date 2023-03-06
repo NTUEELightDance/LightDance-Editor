@@ -16,7 +16,6 @@ import { reactiveState } from "core/state";
 import store from "../../../store";
 
 import { getPartType } from "core/utils";
-import useTimeInput from "hooks/useTimeInput";
 import { useReactiveVar } from "@apollo/client";
 import type { LEDMap } from "@/core/models";
 
@@ -31,7 +30,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Button,
   Grid,
   Paper,
@@ -59,14 +57,6 @@ export default function LEDEffectDialog({
 
   const [chosenModel, setChosenModel] = useState<string>("");
   const [chosenLEDPart, setChosenLEDPart] = useState<string>("");
-  const [newEffectFromTime, setNewEffectFromTime] = useState<number>(0);
-  const { textFieldProps: fromTextFieldProps, timeError: fromTimeError } =
-    useTimeInput([
-      newEffectFromTime,
-      (newTime: number) => {
-        setNewEffectFromTime(newTime);
-      },
-    ]);
 
   // Dancers and Parts
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -179,7 +169,6 @@ export default function LEDEffectDialog({
   function reset() {
     setChosenModel("");
     setChosenLEDPart("");
-    setNewEffectFromTime(0);
     setActionMode("IDLE");
     setNewEffect(null);
   }
@@ -224,7 +213,6 @@ export default function LEDEffectDialog({
       payload: {
         partName: chosenLEDPart as LEDPartName,
         effectName: newEffect.LEDEffectName,
-        start: newEffectFromTime,
       },
     });
     closeAndReset();
@@ -264,18 +252,6 @@ export default function LEDEffectDialog({
                 chosenLEDPart={chosenLEDPart}
                 handleChangeChosenLEDPart={handleChangeChosenLEDPart}
                 displayLEDParts={displayLEDParts}
-              />
-            </Grid>
-            <Grid>
-              <TextField
-                margin="normal"
-                id="name"
-                label="From Time:"
-                {...fromTextFieldProps}
-                sx={{ width: "20em", marginRight: 2 }}
-                variant="outlined"
-                error={fromTimeError}
-                required
               />
             </Grid>
           </DialogContent>

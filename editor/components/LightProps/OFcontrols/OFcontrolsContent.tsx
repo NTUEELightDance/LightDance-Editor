@@ -1,5 +1,5 @@
 import { Stack, Grid, Typography } from "@mui/material";
-import ColorSelector from "../ColorSelector";
+import ColorSelector from "./ColorSelector";
 import IntensityControl from "../IntensityControl";
 
 export interface OFcontrolsContentProps {

@@ -97,13 +97,12 @@ const actions = registerActions({
     payload: {
       partName: LEDPartName;
       effectName: string;
-      start: number;
     }
   ) => {
-    const { partName, effectName, start } = payload;
+    const { partName, effectName } = payload;
     state.currentLEDPartName = partName;
     state.currentLEDEffectName = effectName;
-    state.currentLEDEffectStart = start;
+    state.currentLEDEffectStart = state.currentTime;
     state.currentLEDEffect = {
       repeat: 1,
       effects: [],

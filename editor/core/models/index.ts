@@ -88,7 +88,10 @@ export function isELData(partData: PartData): partData is ELData {
   return typeof partData === "number";
 }
 
-export type CurrentStatusDelta = Record<DancerName, DancerStatus>;
+export type CurrentStatusDelta = Record<
+  DancerName,
+  Record<PartName, Partial<FiberData | LEDData>>
+>;
 
 export type ControlMapQueryPayload = {
   [frameId: id]: {

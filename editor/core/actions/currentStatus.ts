@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual } from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import { registerActions } from "../registerActions";
 // utils
 import { getControl, fadeStatus } from "../utils";
@@ -91,15 +91,18 @@ const actions = registerActions({
 
     // only update if there really is a difference
     Object.entries(payload).forEach(([dancerName, parts]) => {
-      Object.entries(parts).forEach(([partName, newValue]) => {
-        const oldValue = newCurrentStatus[dancerName][partName];
-        if (!isEqual(oldValue, newValue)) {
+      Object.entries(parts).forEach(([partName, partData]) => {
+        Object.entries(partData).forEach(([key, newValue]) => {
+          // @ts-expect-error the key is guaranteed to be in the type
+          const oldValue = state.currentStatus[dancerName][partName][key];
+          if (oldValue === newValue) return;
           hasChange = true;
           if (partTypeMap[partName] === "LED") {
             hasLEDChange = true;
           }
-          newCurrentStatus[dancerName][partName] = newValue;
-        }
+          // @ts-expect-error the key is guaranteed to be in the type
+          newCurrentStatus[dancerName][partName][key] = newValue;
+        });
       });
     });
     if (hasChange) {

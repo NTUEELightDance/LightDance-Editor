@@ -36,6 +36,8 @@ import styles from "./controls.module.css";
 import { type Dancer } from "../ThreeComponents";
 import { type DragControls } from "./DragControls";
 
+import _ from "lodash";
+
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
 const _group = new Group();
@@ -242,13 +244,14 @@ class SelectControls extends EventDispatcher {
         }
       } else if (state.selectionMode === "PART_MODE") {
         const parts: SelectedPartPayload = {};
-        const uniqueNames = new Set(
+        const uniqueNames = _.uniqBy(
           selectionBox.collection
             .map((part) => ({
               parentName: part.parent!.name,
-              name: part.name.replace(/\d+$/, ""),
+              name: part.name.replace(/\d{3}$/, ""),
             }))
-            .filter(({ name }) => name !== "Human" && name !== "nameTag")
+            .filter(({ name }) => name !== "Human" && name !== "nameTag"),
+          ({ parentName, name }) => `${parentName}-${name}`
         );
 
         uniqueNames.forEach(({ parentName, name }) => {
@@ -273,7 +276,7 @@ class SelectControls extends EventDispatcher {
             parentName === dancerName &&
             partName.startsWith(currentLEDPartName)
           ) {
-            const partNumber = partName.match(/\d+$/)?.[0];
+            const partNumber = partName.match(/\d{3}$/)?.[0];
 
             if (!partNumber) {
               return;
@@ -358,7 +361,7 @@ class SelectControls extends EventDispatcher {
                 selectedParts.some((partName) => part.name.startsWith(partName))
               ) {
                 // strip the trailing number
-                const partName = part.name.replace(/\d+$/, "") as LEDPartName;
+                const partName = part.name.replace(/\d{3}$/, "") as LEDPartName;
                 selectedLEDParts[dancerName].add(partName);
                 return false;
               }
