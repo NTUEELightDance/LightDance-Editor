@@ -79,6 +79,7 @@ const actions = registerActions({
       }
     });
 
+    pushStatusStack();
     syncCurrentLEDStatus();
   },
 

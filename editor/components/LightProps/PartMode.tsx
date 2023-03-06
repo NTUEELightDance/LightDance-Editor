@@ -19,88 +19,6 @@ import { getPartType } from "core/utils";
 import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 import MixedControlsContent from "./MixedControls/MixedControlsContent";
 
-function getSelectedPartsAndType(selected: Selected) {
-  const newSelectedParts: SelectedPartPayload = {};
-  const tempSelectedParts: string[] = [];
-  Object.entries(selected).forEach(([dancerName, { parts }]) => {
-    if (parts.length > 0) {
-      newSelectedParts[dancerName] = parts;
-      parts.forEach((part) => {
-        tempSelectedParts.push(part);
-      });
-    }
-  });
-
-  if (tempSelectedParts.length === 0) {
-    return [newSelectedParts, "NONE"] as const;
-  }
-
-  const assertPartType = getPartType(tempSelectedParts[0]);
-  if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
-    return [newSelectedParts, assertPartType] as const;
-  } else {
-    return [newSelectedParts, "MIXED"] as const;
-  }
-}
-
-function calculateCurrentStatusDeltaFiber(
-  selectedParts: SelectedPartPayload,
-  colorName: string,
-  intensity: number
-) {
-  const currentStatusDelta: CurrentStatusDelta = {};
-  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
-    parts.forEach((partName) => {
-      currentStatusDelta[dancerName] ??= {};
-
-      currentStatusDelta[dancerName][partName] = {
-        color: colorName,
-        alpha: intensity,
-      };
-    });
-  });
-
-  return currentStatusDelta;
-}
-
-function calculateCurrentStatusDeltaLED(
-  selectedParts: SelectedPartPayload,
-  LEDsrc: string,
-  intensity: number
-) {
-  const currentStatusDelta: CurrentStatusDelta = {};
-  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
-    parts.forEach((partName) => {
-      currentStatusDelta[dancerName] ??= {};
-
-      currentStatusDelta[dancerName][partName] = {
-        src: LEDsrc,
-        alpha: intensity,
-      };
-    });
-  });
-
-  return currentStatusDelta;
-}
-
-function calculateCurrentStatusDeltaMixed(
-  selectedParts: SelectedPartPayload,
-  intensity: number
-) {
-  const currentStatusDelta: CurrentStatusDelta = {};
-  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
-    parts.forEach((partName) => {
-      currentStatusDelta[dancerName] ??= {};
-
-      currentStatusDelta[dancerName][partName] = {
-        alpha: intensity,
-      };
-    });
-  });
-
-  return currentStatusDelta;
-}
-
 function PartMode() {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
@@ -289,10 +207,6 @@ function PartMode() {
     }
   }, [partType]);
 
-  const handleColorChange = (color: string) => {
-    setCurrentColorName(color);
-  };
-
   // partNames for led  controls
   const partNames = [...new Set(Object.values(selectedParts).flat())];
 
@@ -310,8 +224,8 @@ function PartMode() {
         <OFcontrolsContent
           intensity={intensity}
           currentColorName={currentColorName}
-          setIntensity={setIntensity}
-          handleColorChange={handleColorChange}
+          handleIntensityChange={setIntensity}
+          handleColorChange={setCurrentColorName}
         />
       ) : partType === "MIXED" && Object.keys(selectedParts).length > 0 ? (
         <MixedControlsContent
@@ -321,6 +235,88 @@ function PartMode() {
       ) : null}
     </Paper>
   );
+}
+
+function getSelectedPartsAndType(selected: Selected) {
+  const newSelectedParts: SelectedPartPayload = {};
+  const tempSelectedParts: string[] = [];
+  Object.entries(selected).forEach(([dancerName, { parts }]) => {
+    if (parts.length > 0) {
+      newSelectedParts[dancerName] = parts;
+      parts.forEach((part) => {
+        tempSelectedParts.push(part);
+      });
+    }
+  });
+
+  if (tempSelectedParts.length === 0) {
+    return [newSelectedParts, "NONE"] as const;
+  }
+
+  const assertPartType = getPartType(tempSelectedParts[0]);
+  if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
+    return [newSelectedParts, assertPartType] as const;
+  } else {
+    return [newSelectedParts, "MIXED"] as const;
+  }
+}
+
+function calculateCurrentStatusDeltaFiber(
+  selectedParts: SelectedPartPayload,
+  colorName: string,
+  intensity: number
+) {
+  const currentStatusDelta: CurrentStatusDelta = {};
+  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+    parts.forEach((partName) => {
+      currentStatusDelta[dancerName] ??= {};
+
+      currentStatusDelta[dancerName][partName] = {
+        color: colorName,
+        alpha: intensity,
+      };
+    });
+  });
+
+  return currentStatusDelta;
+}
+
+function calculateCurrentStatusDeltaLED(
+  selectedParts: SelectedPartPayload,
+  LEDsrc: string,
+  intensity: number
+) {
+  const currentStatusDelta: CurrentStatusDelta = {};
+  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+    parts.forEach((partName) => {
+      currentStatusDelta[dancerName] ??= {};
+
+      currentStatusDelta[dancerName][partName] = {
+        src: LEDsrc,
+        alpha: intensity,
+      };
+    });
+  });
+
+  return currentStatusDelta;
+}
+
+function calculateCurrentStatusDeltaMixed(
+  selectedParts: SelectedPartPayload,
+  intensity: number
+) {
+  const currentStatusDelta: CurrentStatusDelta = {};
+  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+    parts.forEach((partName) => {
+      currentStatusDelta[dancerName] ??= {};
+
+      currentStatusDelta[dancerName][partName] = {
+        alpha: intensity,
+      };
+    });
+  });
+
+  return currentStatusDelta;
 }
 
 export default PartMode;

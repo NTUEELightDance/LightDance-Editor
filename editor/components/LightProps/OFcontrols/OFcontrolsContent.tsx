@@ -5,8 +5,7 @@ import IntensityControl from "../IntensityControl";
 export interface OFcontrolsContentProps {
   handleColorChange: (color: string) => void;
   intensity: number | null;
-  handleIntensityChange?: (intensity: number) => void;
-  setIntensity?: (intensity: number) => void;
+  handleIntensityChange: (intensity: number) => void;
   currentColorName: string | null;
   oneLine?: boolean;
 }
@@ -15,7 +14,6 @@ function OFcontrolsContent({
   handleColorChange,
   handleIntensityChange,
   intensity,
-  setIntensity,
   currentColorName,
   oneLine = false,
 }: OFcontrolsContentProps) {
@@ -41,11 +39,7 @@ function OFcontrolsContent({
             </Grid>
             <IntensityControl
               intensity={intensity}
-              setIntensity={
-                (handleIntensityChange != null
-                  ? handleIntensityChange
-                  : setIntensity) as (intensity: number) => void
-              }
+              setIntensity={handleIntensityChange}
             />
           </>
         ) : (
@@ -80,11 +74,7 @@ function OFcontrolsContent({
           </Grid>
           <IntensityControl
             intensity={intensity}
-            setIntensity={
-              (handleIntensityChange != null
-                ? handleIntensityChange
-                : setIntensity) as (intensity: number) => void
-            }
+            setIntensity={handleIntensityChange}
           />
         </Grid>
       )}
