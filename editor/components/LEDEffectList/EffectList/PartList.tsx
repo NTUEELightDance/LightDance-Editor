@@ -33,7 +33,7 @@ export default function PartList({
           bgcolor: "background.paper",
           position: "relative",
           overflow: "auto",
-          maxHeight: 600,
+          maxHeight: 700,
           "& ul": { padding: 0 },
         }}
         subheader={<li />}
@@ -64,7 +64,7 @@ export default function PartList({
                           <IconButton
                             edge="end"
                             aria-label="apply"
-                            size="large"
+                            size="medium"
                             onClick={() => {
                               handleOpenApply(PartName, EffectName);
                             }}
@@ -85,7 +85,7 @@ export default function PartList({
                           <IconButton
                             edge="end"
                             aria-label="delete"
-                            size="large"
+                            size="medium"
                             onClick={() => {
                               handleOpenDelete(PartName, EffectName);
                             }}

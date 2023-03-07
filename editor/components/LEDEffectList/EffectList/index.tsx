@@ -1,6 +1,7 @@
 import { useState } from "react";
 import _ from "lodash";
 import ModelListItem from "./ModelListItem";
+
 // mui
 import {
   List,
@@ -12,27 +13,32 @@ import {
   DialogActions,
   Button,
   Grid,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-// state
+// import state and type
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 import store from "../../../store";
 import { getPartType } from "core/utils";
-import { LEDMap } from "@/core/models";
+import type { LEDMap } from "@/core/models";
 
 export default function EffectList({ openDialog }: { openDialog: () => void }) {
   const ledMap = useReactiveVar(reactiveState.ledMap);
   const { dancerMap } = store.getState().load;
   const dancers = useReactiveVar(reactiveState.dancers);
 
+  // States
   const [effectSelectedPart, setEffectSelectedPart] = useState<string>("");
   const [effectSelectedName, setEffectSelectedName] = useState<string>("");
   const [collidedFrame, setCollidedFrame] = useState<number[]>([]);
   const [applyOpened, setApplyOpened] = useState<boolean>(false); // open apply effect dialog
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
+  const [expanded, setExpanded] = useState<boolean>(false);
 
+  // Handle functions
   const handleOpenApply = (PartName: string, EffectName: string) => {
     setEffectSelectedPart(PartName);
     setEffectSelectedName(EffectName);
@@ -44,6 +50,7 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
     reset();
   };
 
+  //TODO
   const handleApplyEffect = () => {
     // const ok = await confirmation.warning(
     //   `This will clear all frames from ${currentTime} to the end of the effect. Are you sure?`
@@ -67,17 +74,25 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
     setDeleteOpened(false);
     reset();
   };
+
+  //TODO
   const handleDeleteEffect = () => {
     //deleteEffect({ payload: effectSelectedPart });
     handleCloseDelete();
   };
 
+  const handleExpanded = () => {
+    setExpanded(!expanded);
+  };
+
+  //TODO
   const reset = () => {
     // setEffectSelectedPart("");
     // setEffectSelectedName("");
     //setCollidedFrame([]);
   };
 
+  // *************************************************
   // Construct modelMap of the following format
   // {
   //   modelName: {
@@ -85,14 +100,15 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   //       LEDPart2: [LEDEffectLIst2]
   //   },
   // }
-  const modelMap = {};
+
+  const modelMap: Record<string, LEDMap> = {};
 
   let modelList: string[] = [];
   Object.keys(dancers).forEach((dancerName) => {
     modelList = _.union(modelList, [dancerMap[dancerName]["modelName"]]);
   });
 
-  modelList.forEach((modelName) => {
+  modelList.forEach((modelName: string) => {
     const dancer = Object.entries(dancerMap).find(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ([dancerName, dancerData]) => {
@@ -131,6 +147,9 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   // console.log("modelMap");
   // console.log(modelMap);
 
+  // *************************************************
+
+  // Return
   return (
     <>
       <List>
@@ -138,23 +157,30 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
           <Grid
             container
             justifyContent="center"
-            direction="column"
+            spacing={2}
             sx={{
               width: "100%",
-              minHeight: "60px",
               justifyContent: "center",
               alignItems: "center",
-              //position: "relative",
             }}
           >
-            <Button
-              variant="outlined"
-              color="primary"
-              startIcon={<AddIcon />}
-              onClick={openDialog}
-            >
-              LED Effect
-            </Button>
+            <Grid item>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={openDialog}
+              >
+                Effect
+              </Button>
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                control={<Switch onChange={handleExpanded} size="small" />}
+                label="Expand"
+                color="primary"
+              />
+            </Grid>
           </Grid>
         </ListSubheader>
         {Object.entries(modelMap).map(([modelName, modelData]) => (
@@ -164,83 +190,9 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
             key={modelName}
             handleOpenApply={handleOpenApply}
             handleOpenDelete={handleOpenDelete}
+            expanded={expanded}
           ></ModelListItem>
-          // <ListItem key={modelName}>
-          //   <ListItemText
-          //     primary={
-          //       <Typography sx={{ fontSize: "20px", color: "white" }}>
-          //         {modelName}
-          //       </Typography>
-          //     }
-          //   ></ListItemText>
-          // </ListItem>
         ))}
-        {/* {Object.entries(ledMap).map(([PartName, LEDEffectData]) =>
-          Object.keys(LEDEffectData).map((EffectName, index) => {
-            const modelName = "";
-            return (
-              <div key={index}>
-                <ListItem>
-                  <ListItemText
-                    primary={
-                      <Typography sx={{ fontSize: "20px", color: "white" }}>
-                        {EffectName}
-                      </Typography>
-                    }
-                    secondary={
-                      <>
-                        <Typography
-                          component="span"
-                          sx={{ fontSize: "10px", color: "white" }}
-                        >
-                          {"Model: "}
-                          {modelName}
-                        </Typography>
-                        <br />
-                        <Typography
-                          component="span"
-                          sx={{ fontSize: "10px", color: "white" }}
-                        >
-                          {"Part: "}
-                          {PartName}
-                        </Typography>
-                      </>
-                    }
-                  />
-                  <ListItemSecondaryAction>
-                    <Tooltip title="Apply Effect" placement="top">
-                      <IconButton
-                        edge="end"
-                        aria-label="apply"
-                        size="large"
-                        onClick={() => {
-                          handleOpenApply(PartName, EffectName);
-                        }}
-                      >
-                        <AddIcon fontSize="inherit" sx={{ color: "white" }} />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete Effect" placement="top">
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        size="large"
-                        onClick={() => {
-                          handleOpenDelete(PartName, EffectName);
-                        }}
-                      >
-                        <DeleteIcon
-                          fontSize="inherit"
-                          sx={{ color: "white" }}
-                        />
-                      </IconButton>
-                    </Tooltip>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              </div>
-            );
-          })
-        )} */}
       </List>
       <Dialog open={applyOpened} onClose={handleCloseApply}>
         <DialogTitle>Apply LED Effect to Current Record</DialogTitle>

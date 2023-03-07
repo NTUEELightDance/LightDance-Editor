@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { LEDMap } from "@/core/models";
 import PartList from "./PartList";
 
@@ -17,6 +17,7 @@ interface ModelProps {
   modelData: LEDMap;
   handleOpenApply: (PartName: string, EffectName: string) => void;
   handleOpenDelete: (PartName: string, EffectName: string) => void;
+  expanded: boolean;
 }
 
 export default function ModelListItem({
@@ -24,11 +25,17 @@ export default function ModelListItem({
   modelData,
   handleOpenApply,
   handleOpenDelete,
+  expanded,
 }: ModelProps) {
   const [ListOpen, setListOpen] = useState(false);
   const handleClick = () => {
     setListOpen(!ListOpen);
   };
+
+  useEffect(() => {
+    setListOpen(expanded);
+  }, [expanded]);
+
   return (
     <>
       <ListItemButton onClick={handleClick}>
