@@ -1,43 +1,28 @@
 import { useState } from "react";
 import _ from "lodash";
-
+import ModelListItem from "./ModelListItem";
 // mui
 import {
   List,
-  ListItem,
-  Stack,
-  ListItemText,
-  Tooltip,
-  IconButton,
-  Divider,
-  ListItemSecondaryAction,
-  ListItemButton,
-  Typography,
   ListSubheader,
-  ListItemIcon,
-  Collapse,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
   Button,
+  Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CategoryRoundedIcon from "@mui/icons-material/CategoryRounded";
-import DraftsIcon from "@mui/icons-material/Drafts";
-import SendIcon from "@mui/icons-material/Send";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import StarBorder from "@mui/icons-material/StarBorder";
 
 // state
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
-import store from "../../store";
+import store from "../../../store";
+import { getPartType } from "core/utils";
+import { LEDMap } from "@/core/models";
 
-export default function EffectList() {
+export default function EffectList({ openDialog }: { openDialog: () => void }) {
   const ledMap = useReactiveVar(reactiveState.ledMap);
   const { dancerMap } = store.getState().load;
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -93,37 +78,109 @@ export default function EffectList() {
     //setCollidedFrame([]);
   };
 
-  // let modelList: string[] = [];
-  // Object.keys(dancers).forEach((dancerName) => {
-  //   modelList = _.union(modelList, [dancerMap[dancerName]["modelName"]]);
-  // });
+  // Construct modelMap of the following format
+  // {
+  //   modelName: {
+  //       LEDPart1: [LEDEffectList],
+  //       LEDPart2: [LEDEffectLIst2]
+  //   },
+  // }
+  const modelMap = {};
+
+  let modelList: string[] = [];
+  Object.keys(dancers).forEach((dancerName) => {
+    modelList = _.union(modelList, [dancerMap[dancerName]["modelName"]]);
+  });
+
+  modelList.forEach((modelName) => {
+    const dancer = Object.entries(dancerMap).find(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ([dancerName, dancerData]) => {
+        return (
+          (dancerData as { url: string; modelName: string })["modelName"] ===
+          modelName
+        );
+      }
+    );
+
+    let LEDParts: string[] = [];
+    if (dancer) {
+      LEDParts = dancers[dancer[0]].filter((part) => {
+        return getPartType(part) === "LED";
+      });
+    }
+
+    LEDParts.forEach((LEDPart) => {
+      Object.entries(ledMap).forEach(([PartName, LEDEffectData]) => {
+        if (LEDPart === PartName) {
+          const PartData = { [PartName]: LEDEffectData };
+          modelMap[modelName] = { ...modelMap[modelName], ...PartData };
+        }
+      });
+    });
+  });
+
+  // console.log("LEDMap");
+  // console.log(ledMap);
+  // console.log("DancerMap");
+  // console.log(dancerMap);
+  // console.log("Dancers");
+  // console.log(dancers);
+  // console.log("modelList");
   // console.log(modelList);
-
-  // const getModelByPart = (PartName: string) => {
-  //   console.log(dancerMap);
-  //   console.log(dancers);
-
-  //   const modelName = Object.entries(dancerMap).find(
-  //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //     ([dancerName, dancerData]) => {
-  //       return (
-  //         (dancerData as { url: string; modelName: string })["modelName"] ===
-  //         PartName
-  //       );
-  //     }
-  //   );
-  //   return modelName;
-  // };
+  // console.log("modelMap");
+  // console.log(modelMap);
 
   return (
     <>
       <List>
-        {Object.entries(ledMap).map(([PartName, LEDEffectData]) =>
-          Object.keys(LEDEffectData).map((EffectName) => {
+        <ListSubheader>
+          <Grid
+            container
+            justifyContent="center"
+            direction="column"
+            sx={{
+              width: "100%",
+              minHeight: "60px",
+              justifyContent: "center",
+              alignItems: "center",
+              //position: "relative",
+            }}
+          >
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={openDialog}
+            >
+              LED Effect
+            </Button>
+          </Grid>
+        </ListSubheader>
+        {Object.entries(modelMap).map(([modelName, modelData]) => (
+          <ModelListItem
+            modelName={modelName}
+            modelData={modelData as LEDMap}
+            key={modelName}
+            handleOpenApply={handleOpenApply}
+            handleOpenDelete={handleOpenDelete}
+          ></ModelListItem>
+          // <ListItem key={modelName}>
+          //   <ListItemText
+          //     primary={
+          //       <Typography sx={{ fontSize: "20px", color: "white" }}>
+          //         {modelName}
+          //       </Typography>
+          //     }
+          //   ></ListItemText>
+          // </ListItem>
+        ))}
+        {/* {Object.entries(ledMap).map(([PartName, LEDEffectData]) =>
+          Object.keys(LEDEffectData).map((EffectName, index) => {
             const modelName = "";
             return (
-              <>
-                <ListItem key={EffectName}>
+              <div key={index}>
+                <ListItem>
                   <ListItemText
                     primary={
                       <Typography sx={{ fontSize: "20px", color: "white" }}>
@@ -180,10 +237,10 @@ export default function EffectList() {
                     </Tooltip>
                   </ListItemSecondaryAction>
                 </ListItem>
-              </>
+              </div>
             );
           })
-        )}
+        )} */}
       </List>
       <Dialog open={applyOpened} onClose={handleCloseApply}>
         <DialogTitle>Apply LED Effect to Current Record</DialogTitle>

@@ -8,7 +8,7 @@ import { setEditor } from "core/actions";
 
 // state
 import { reactiveState } from "core/state";
-import store from "../../store";
+import store from "../../../store";
 
 import { getPartType } from "core/utils";
 import useTimeInput from "hooks/useTimeInput";
@@ -55,7 +55,6 @@ export default function LEDEffectDialog({
       },
     ]);
 
-  const ledMap = useReactiveVar(reactiveState.ledMap);
   // Dancers and Parts
   const dancers = useReactiveVar(reactiveState.dancers);
   const selected = useReactiveVar(reactiveState.selected);

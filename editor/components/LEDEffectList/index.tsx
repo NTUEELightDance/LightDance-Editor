@@ -22,27 +22,7 @@ export default function LEDEffectList() {
           minHeight: "100%",
         }}
       >
-        <EffectList></EffectList>
-        <Grid
-          container
-          justifyContent="center"
-          sx={{
-            width: "100%",
-            minHeight: "80px",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={openDialog}
-            //sx={{ position: "absolute", top: "16px", right: "16px" }}
-          >
-            LED Effect
-          </Button>
-        </Grid>
+        <EffectList openDialog={openDialog}></EffectList>
       </Paper>
       <LEDEffectDialog
         addDialogOpen={addDialogOpen}
