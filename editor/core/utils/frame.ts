@@ -80,6 +80,25 @@ export function binarySearchFrameMap(
   return m;
 }
 
+export function binarySearchObjects<T>(
+  data: T[],
+  target: number,
+  getComparable: (val: T) => number
+) {
+  let low = 0;
+  let high = data.length - 1;
+  let center = Math.floor((low + high + 1) / 2);
+  while (low < high) {
+    if (getComparable(data[center]) <= target) {
+      low = center;
+    } else {
+      high = center - 1;
+    }
+    center = Math.floor((low + high + 1) / 2);
+  }
+  return center;
+}
+
 /**
  * Calculate Interpolation of the position, return new position
  * @param {*} time

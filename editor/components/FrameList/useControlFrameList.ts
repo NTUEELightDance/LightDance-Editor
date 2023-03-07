@@ -8,7 +8,6 @@ import useControl from "hooks/useControl";
 
 export default function useControlFrameList() {
   const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
-
   const { loading: controlLoading, controlMap, controlRecord } = useControl();
 
   // select
@@ -20,10 +19,11 @@ export default function useControlFrameList() {
 
   return {
     loading: controlLoading,
-    map: controlMap,
-    record: controlRecord,
+    frames: controlRecord.map((frameID) => ({
+      id: frameID,
+      start: controlMap[frameID].start,
+    })),
     currentIndex: currentControlIndex,
-
     handleSelectItem,
   };
 }

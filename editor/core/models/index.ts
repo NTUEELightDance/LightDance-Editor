@@ -355,7 +355,7 @@ export type DancerPartIndexMap = Record<
   }
 >;
 
-/**
+/**z
  * Mutable State
  */
 export interface State {
@@ -372,6 +372,7 @@ export interface State {
   currentTime: number; // current time
   currentControlIndex: number; // current index in controlRecord
   currentPosIndex: number; // current index in posRecord
+  currentLEDIndex: number; // current index in ledEffectRecord
   posStack: PosMapStatus[]; // current pos Frame
   posStackIndex: number; // current index in posStack
 

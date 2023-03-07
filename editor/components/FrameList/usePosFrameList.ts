@@ -20,10 +20,11 @@ export default function usePosFrameList() {
 
   return {
     loading: posLoading,
-    map: posMap,
-    record: posRecord,
+    frames: posRecord.map((frameID) => ({
+      start: posMap[frameID].start,
+      id: frameID,
+    })),
     currentIndex: currentPosIndex,
-
     handleSelectItem,
   };
 }

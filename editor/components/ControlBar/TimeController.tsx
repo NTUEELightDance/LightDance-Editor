@@ -1,23 +1,19 @@
 import { useEffect } from "react";
-// mui
-import { Stack } from "@mui/material";
 import FrameControlInput from "./FrameControlInput";
 import TimeControlInput from "./TimeControlInput";
 
-// reactive state
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "@/core/state";
 import {
   setCurrentControlIndex,
+  setCurrentLEDIndex,
   setCurrentPosIndex,
   setCurrentTime,
 } from "@/core/actions";
 import { initStatusStack, initPosStack } from "@/core/actions";
+import useRoute from "@/hooks/useRoute";
 
-// hotkeys
 import { useHotkeys } from "react-hotkeys-hook";
-// constants
-import { CONTROL_EDITOR } from "@/constants";
 
 import { throttle } from "lodash";
 
@@ -29,7 +25,9 @@ const THROTTLE = 100;
 export default function TimeController() {
   const currentControlIndex = useReactiveVar(reactiveState.currentControlIndex);
   const currentPosIndex = useReactiveVar(reactiveState.currentPosIndex);
+  const currentLEDIndex = useReactiveVar(reactiveState.currentLEDIndex);
   const editor = useReactiveVar(reactiveState.editor);
+  const { page } = useRoute();
 
   const handleChangeControlFrame = (value: number) => {
     setCurrentControlIndex({ payload: value });
@@ -39,8 +37,11 @@ export default function TimeController() {
     setCurrentPosIndex({ payload: value });
   };
 
-  const timeShift = (time: number): void => {
-    // time increase / decrease several ms
+  const handleChangeLEDFrame = (value: number) => {
+    setCurrentLEDIndex({ payload: value });
+  };
+
+  const timeShift = (time: number) => {
     const currentTime = reactiveState.currentTime();
     const newTime = Math.max(0, currentTime + time);
     setCurrentTime({
@@ -58,7 +59,6 @@ export default function TimeController() {
   useHotkeys(
     "right",
     throttle(() => {
-      // time increase 100ms
       timeShift(100);
     }, THROTTLE)
   );
@@ -66,7 +66,6 @@ export default function TimeController() {
   useHotkeys(
     "shift+left",
     throttle(() => {
-      // time decrease 500ms
       timeShift(-500);
     }, THROTTLE)
   );
@@ -74,7 +73,6 @@ export default function TimeController() {
   useHotkeys(
     "shift+right",
     throttle(() => {
-      // time increase 500ms
       timeShift(500);
     }, THROTTLE)
   );
@@ -82,60 +80,66 @@ export default function TimeController() {
   useHotkeys(
     "down",
     throttle(() => {
-      if (editor === CONTROL_EDITOR) {
+      if (editor === "CONTROL_EDITOR") {
         setCurrentControlIndex({
           payload: currentControlIndex + 1,
         });
-      } else
+      } else if (editor === "POS_EDITOR") {
         setCurrentPosIndex({
           payload: currentPosIndex + 1,
         });
+      }
     }, THROTTLE),
     [currentControlIndex, currentPosIndex]
   );
   useHotkeys(
     "up",
     throttle(() => {
-      if (editor === CONTROL_EDITOR) {
+      if (editor === "CONTROL_EDITOR") {
         setCurrentControlIndex({
           payload: currentControlIndex - 1,
         });
-      } else
+      } else if (editor === "POS_EDITOR") {
         setCurrentPosIndex({
           payload: currentPosIndex - 1,
         });
+      }
     }, THROTTLE),
     [editor, currentControlIndex, currentPosIndex]
   );
 
   useEffect(() => {
-    // renew statusStack and posStack
     initStatusStack();
     initPosStack();
   }, [editor, currentControlIndex, currentPosIndex]);
 
   return (
-    <Stack
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
-      gap="1vw"
-    >
+    <>
       <TimeControlInput />
-
-      <FrameControlInput
-        label="control frame"
-        value={currentControlIndex}
-        placeholder="status index"
-        handleChange={handleChangeControlFrame}
-      />
-
-      <FrameControlInput
-        label="position frame"
-        value={currentPosIndex}
-        placeholder="position index"
-        handleChange={handleChangePosFrame}
-      />
-    </Stack>
+      {(editor === "CONTROL_EDITOR" || page === "COMMAND_CENTER") && (
+        <FrameControlInput
+          label="control frame"
+          value={currentControlIndex}
+          placeholder="status index"
+          handleChange={handleChangeControlFrame}
+        />
+      )}
+      {(editor === "POS_EDITOR" || page === "COMMAND_CENTER") && (
+        <FrameControlInput
+          label="position frame"
+          value={currentPosIndex}
+          placeholder="position index"
+          handleChange={handleChangePosFrame}
+        />
+      )}
+      {editor === "LED_EDITOR" && page === "EDITOR" && (
+        <FrameControlInput
+          label="LED frame"
+          value={currentLEDIndex}
+          placeholder="LED index"
+          handleChange={handleChangeLEDFrame}
+        />
+      )}
+    </>
   );
 }

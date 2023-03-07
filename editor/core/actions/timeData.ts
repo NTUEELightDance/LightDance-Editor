@@ -10,7 +10,7 @@ import {
   updateFrameByTimeMap,
   updateCurrentLEDStatus,
   getDancerFromLEDpart,
-  createEmptyLEDEffectFrame,
+  binarySearchObjects,
 } from "../utils";
 // types
 import type {
@@ -141,6 +141,12 @@ const actions = registerActions({
 
       newCurrentLEDStatus[dancerName][currentLEDPartName] =
         focusedLEDStatus[dancerName][currentLEDPartName];
+
+      state.currentLEDIndex = binarySearchObjects(
+        state.currentLEDEffect.effects,
+        time,
+        (effect) => effect.start
+      );
     }
 
     state.currentLEDStatus = newCurrentLEDStatus;
@@ -183,7 +189,20 @@ const actions = registerActions({
     const newTime = posMap[posRecord[posIndex]].start;
     setCurrentTime({ payload: newTime });
   },
+
+  setCurrentLEDIndex: async (state: State, payload: number) => {
+    if (state.currentLEDEffect === null) {
+      throw new Error("currentLEDEffect is null");
+    }
+    const frames = state.currentLEDEffect.effects.map((effect) => effect.start);
+    const index = clamp(payload, 0, frames.length - 1);
+    setCurrentTime({ payload: frames[index] + state.currentLEDEffectStart });
+  },
 });
 
-export const { setCurrentTime, setCurrentControlIndex, setCurrentPosIndex } =
-  actions;
+export const {
+  setCurrentTime,
+  setCurrentControlIndex,
+  setCurrentPosIndex,
+  setCurrentLEDIndex,
+} = actions;

@@ -1,10 +1,8 @@
 import WaveSurferApp from "../Wavesurfer/WaveSurferApp";
 
-import { IconButton, Box } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
-import StopIcon from "@mui/icons-material/Stop";
-import LoopIcon from "@mui/icons-material/Loop";
 // hotkeys
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -15,12 +13,6 @@ function PlayBackController({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
   // event
   const handlePlayPause = () => {
     wavesurfer.playPause();
-  };
-  const handleStop = () => {
-    wavesurfer.stop();
-  };
-  const handlePlayLoop = () => {
-    wavesurfer.playLoop();
   };
 
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
@@ -36,17 +28,9 @@ function PlayBackController({ wavesurfer }: { wavesurfer: WaveSurferApp }) {
   );
 
   return (
-    <Box>
-      <IconButton color="default" onClick={handlePlayPause}>
-        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-      </IconButton>
-      <IconButton color="default" onClick={handleStop}>
-        <StopIcon />
-      </IconButton>
-      <IconButton color="default" onClick={handlePlayLoop}>
-        <LoopIcon />
-      </IconButton>
-    </Box>
+    <IconButton color="default" onClick={handlePlayPause}>
+      {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+    </IconButton>
   );
 }
 

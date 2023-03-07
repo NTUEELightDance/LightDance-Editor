@@ -20,10 +20,10 @@ import {
   createEmptyLEDEffectFrame,
   getControl,
   getDancerFromLEDpart,
+  updateFrameByTimeMap,
 } from "../utils";
 import { NO_EFFECT } from "@/constants";
 import { getLedMap } from "../utils";
-import { binarySearchFrameMap } from "../utils";
 import { updateCurrentLEDStatus } from "../utils";
 import { ControlMap } from "../models";
 import { ControlRecord } from "../models";
@@ -181,9 +181,10 @@ const actions = registerActions({
     const [controlMap, controlRecord] = await getControl();
     const ledMap = await getLedMap();
 
-    const index = binarySearchFrameMap(
+    const index = updateFrameByTimeMap(
       controlRecord,
       controlMap,
+      state.currentLEDIndex,
       state.currentTime
     );
 

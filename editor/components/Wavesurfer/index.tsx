@@ -2,6 +2,7 @@ import { useEffect, useContext, useLayoutEffect } from "react";
 import { useResizeDetector } from "react-resize-detector";
 // mui
 import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
 // components
 import ControlBar from "../ControlBar";
 // contexts
@@ -97,14 +98,11 @@ function Wavesurfer() {
 
   return (
     <div ref={resizeDetectorRef}>
-      <Stack
-        direction="row"
-        justifyContent="space-evenly"
-        alignItems="center"
-        spacing={1}
-      >
-        <ControlBar wavesurfer={waveSurferApp} />
-      </Stack>
+      <Box sx={{ display: "grid", placeItems: "center" }}>
+        <Stack direction="row" alignItems="center" spacing="2rem">
+          <ControlBar wavesurfer={waveSurferApp} />
+        </Stack>
+      </Box>
       <div id="waveform" />
     </div>
   );
