@@ -10,7 +10,7 @@ interface ILEDEffect {
   frames: Prisma.JsonValue[];
 }
 interface IPartEffect {
-  [key: string]: ILEDEffect; 
+  [key: string]: ILEDEffect;
 }
 interface IEffect {
   [key: string]: IPartEffect;
@@ -19,7 +19,7 @@ interface IEffect {
 @ObjectType()
 export class LEDMap {
   @Field((type) => LEDMapScalar)
-    LEDMap: IPart[];
+  LEDMap: IPart[];
 }
 
 export const LEDMapScalar = new GraphQLScalarType({
@@ -32,13 +32,19 @@ export const LEDMapScalar = new GraphQLScalarType({
       allPart.map(async (partObj) => {
         const partName = partObj.name;
         const part: IPartEffect = {};
-        const allEffect = await prisma.lEDEffect.findMany({where: {partName: partName}});
+        const allEffect = await prisma.lEDEffect.findMany({
+          where: { partName: partName },
+        });
         allEffect.map((effect) => {
           const name = effect.name;
           // remove name, partName from effect
-          const newEffect = { id: effect.id, repeat: effect.repeat, frames: effect.frames };
+          const newEffect = {
+            id: effect.id,
+            repeat: effect.repeat,
+            frames: effect.frames,
+          };
           part[name] = newEffect;
-        })
+        });
         result[partName] = part;
       })
     );
@@ -54,4 +60,4 @@ export const LEDMapScalar = new GraphQLScalarType({
 
     return ast.value; // value from the client query
   },
-})
+});
