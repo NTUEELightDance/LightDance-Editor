@@ -292,7 +292,7 @@ export type saveLEDEffectPayload = {
  */
 export type CurrentLEDStatus = Record<DancerName, LEDPartStatus>;
 
-export type LEDPartStatus = Record<PartName, LEDPartData>;
+export type LEDPartStatus = Record<LEDPartName, LEDPartData>;
 
 export type LEDPartData = {
   recordIndex: number;

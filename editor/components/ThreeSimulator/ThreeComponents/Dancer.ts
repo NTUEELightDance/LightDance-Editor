@@ -11,6 +11,7 @@ import {
   Coordinates,
   DancerStatus,
   FiberData,
+  LEDPartName,
   LEDPartStatus,
   isFiberData,
 } from "@/core/models";
@@ -199,7 +200,7 @@ class Dancer {
 
   setLEDStatus(currentLEDStatus: LEDPartStatus) {
     Object.entries(this.parts.LED).forEach(([partName, part]) => {
-      part.setStatus(currentLEDStatus[partName]);
+      part.setStatus(currentLEDStatus[partName as LEDPartName]);
     });
   }
 

@@ -1,4 +1,4 @@
-import { state, syncReactiveState } from "../state";
+import { _state, state, syncReactiveState } from "../state";
 import { State } from "../models";
 // observers
 import { waveSurferAppInstance } from "../../components/Wavesurfer/WaveSurferApp";
@@ -84,7 +84,7 @@ function actionCreator<A extends Action>(action: Action, actionName: string) {
       "\noptions:",
       options,
       "\nstate",
-      state.toString()
+      _state
     );
 
     if (options.rerender) {

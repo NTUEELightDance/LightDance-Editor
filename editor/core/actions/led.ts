@@ -12,6 +12,7 @@ import type {
   LEDEffect,
   LEDEffectFrame,
   LEDPartName,
+  LEDBulbData,
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
@@ -19,11 +20,12 @@ import { getControl } from "../utils";
 import { NO_EFFECT } from "@/constants";
 import { getLedMap } from "../utils";
 import { binarySearchFrameMap } from "../utils";
-import { updateLedEffect } from "../utils";
+import { updateCurrentLEDStatus } from "../utils";
 import { ControlMap } from "../models";
 import { ControlRecord } from "../models";
 import { PartTypeMap } from "../models";
 import { Dancers } from "../models";
+import { initCurrentLEDStatus } from "./initialize";
 
 const actions = registerActions({
   setLEDMap: async (state: State, payload: LEDMap) => {
@@ -54,6 +56,28 @@ const actions = registerActions({
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
     newCurrentLEDEffect.repeat = payload;
     state.currentLEDEffect = newCurrentLEDEffect;
+  },
+
+  editCurrentLEDStatus: (
+    state: State,
+    payload: {
+      dancerName: DancerName;
+      partName: LEDPartName;
+      LEDBulbsMap: Map<number, Partial<LEDBulbData>>;
+    }
+  ) => {
+    const { dancerName, partName, LEDBulbsMap } = payload;
+    const newCurrentLEDStatus = cloneDeep(state.currentLEDStatus);
+
+    for (const [bulbIndex, bulbData] of LEDBulbsMap.entries()) {
+      for (const [key, value] of Object.entries(bulbData)) {
+        // @ts-expect-error the key is guaranteed to be in the type
+        newCurrentLEDStatus[dancerName][partName].effect[bulbIndex][key] =
+          value;
+      }
+    }
+
+    state.currentLEDStatus = newCurrentLEDStatus;
   },
 
   addFrameToCurrentLEDEffect: (state: State, payload: LEDEffectFrame) => {
@@ -92,7 +116,7 @@ const actions = registerActions({
     state.currentLEDEffect = newCurrentLEDEffect;
   },
 
-  setupLEDEditor: (
+  setupLEDEditor: async (
     state: State,
     payload: {
       partName: LEDPartName;
@@ -103,11 +127,8 @@ const actions = registerActions({
     state.currentLEDPartName = partName;
     state.currentLEDEffectName = effectName;
     state.currentLEDEffectStart = state.currentTime;
-    state.currentLEDEffect = {
-      repeat: 1,
-      effects: [],
-    };
     state.selectionMode = "LED_MODE";
+    await initCurrentLEDStatus();
   },
 
   exitLEDEditor: (state: State) => {
@@ -115,10 +136,6 @@ const actions = registerActions({
     state.currentLEDPartName = null;
     state.currentLEDEffectStart = 0;
     state.currentLEDEffect = null;
-  },
-
-  setModeToLEDMode: (state: State) => {
-    state.selectionMode = "LED_MODE";
   },
 
   /**
@@ -160,7 +177,7 @@ const actions = registerActions({
       },
     };
 
-    state.currentLEDStatus = updateLedEffect(
+    state.currentLEDStatus = updateCurrentLEDStatus(
       pseudoControlMap,
       state.ledEffectRecord,
       state.currentLEDStatus,
@@ -213,8 +230,8 @@ export const {
   setCurrentLEDEffectName,
   setCurrentLEDEffect,
   setCurrentLEDEffectRepeat,
+  editCurrentLEDStatus,
   setLEDMap,
-  setModeToLEDMode,
   syncLEDEffectRecord,
   syncCurrentLEDStatus,
   addFrameToCurrentLEDEffect,

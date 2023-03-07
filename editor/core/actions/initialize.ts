@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import type {
+import {
   State,
   Dancers,
   PartTypeMap,
@@ -10,6 +10,8 @@ import type {
   PartName,
   CurrentLEDStatus,
   LEDPartLengthMap,
+  isLEDPartName,
+  ColorCode,
 } from "../models";
 
 import { dancerAgent } from "@/api";
@@ -103,17 +105,21 @@ const actions = registerActions({
   },
 
   initCurrentLEDStatus: (state: State) => {
-    const { dancers, partTypeMap } = state;
+    const { dancers, LEDPartLengthMap } = state;
     const tmp: CurrentLEDStatus = {};
     Object.entries(dancers).map(([dancerName, parts]) => {
       tmp[dancerName] = {};
       parts.forEach((part) => {
-        if (partTypeMap[part] === "LED") {
+        if (isLEDPartName(part)) {
+          const length = LEDPartLengthMap[part];
           tmp[dancerName][part] = {
-            effect: [],
+            effect: [...Array(length)].map(() => ({
+              colorCode: "#000000" as ColorCode,
+              alpha: 0,
+            })),
             effectIndex: 0,
             recordIndex: 0,
-            alpha: 0,
+            alpha: 10,
           };
         }
       });

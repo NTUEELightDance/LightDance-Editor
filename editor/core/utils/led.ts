@@ -7,6 +7,7 @@ import {
   LEDMap,
   LEDEffectFrame,
   LEDEffectRecord,
+  isLEDPartName,
 } from "../models";
 
 import { cloneDeep } from "lodash";
@@ -22,7 +23,7 @@ import { updateFrameByTimeMap } from "./frame";
  * @param time
  * @returns
  */
-export function updateLedEffect(
+export function updateCurrentLEDStatus(
   controlMap: ControlMap,
   ledEffectRecord: LEDEffectRecord,
   currentLEDStatus: CurrentLEDStatus,
@@ -35,6 +36,8 @@ export function updateLedEffect(
         // there is nothing to do with empty record, which every src is no_effect
         return;
       }
+
+      if (!isLEDPartName(partName)) return;
 
       const lastRecordIndex =
         currentLEDStatus[dancerName][partName].recordIndex;

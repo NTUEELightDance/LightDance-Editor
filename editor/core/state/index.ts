@@ -9,8 +9,9 @@ import type { State, ReactiveState, StateKey } from "../models";
 
 /**
  * Mutable State
+ * DO NOT mutate the state directly.
  */
-const _state: State = {
+export const _state: State = {
   isLoggedIn: false,
   token: "",
 
@@ -69,14 +70,6 @@ const diffSet = new Set<string>();
 export const state = onChange(_state, (path: string) => {
   diffSet.add(path.split(".")[0]);
 });
-
-state.toString = () => {
-  if (process.env.NODE_ENV !== "production") {
-    return JSON.parse(JSON.stringify(state));
-  } else {
-    return "Don't print state in production mode";
-  }
-};
 
 /**
  * Reactive State, can trigger react component rerender

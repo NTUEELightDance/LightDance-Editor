@@ -8,7 +8,7 @@ import {
   getLedMap,
   clamp,
   updateFrameByTimeMap,
-  updateLedEffect,
+  updateCurrentLEDStatus,
 } from "../utils";
 // types
 import type { State } from "../models";
@@ -76,7 +76,7 @@ const actions = registerActions({
       },
     });
 
-    state.currentLEDStatus = updateLedEffect(
+    state.currentLEDStatus = updateCurrentLEDStatus(
       controlMap,
       state.ledEffectRecord,
       state.currentLEDStatus,
