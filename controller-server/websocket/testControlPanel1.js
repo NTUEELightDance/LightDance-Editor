@@ -14,7 +14,7 @@ socket.addEventListener("open", (evnt)  => {
     socket.send(JSON.stringify({
         command: "uploadOf",
         selectedDancers: ["Justin"],
-        payload: [{
+        payload: {"Justin" : {
             "start": 0, // ms
             "fade": true,
             "status": {
@@ -39,27 +39,35 @@ socket.addEventListener("open", (evnt)  => {
               "Glove_L": [255, 255, 255, 10],
               "Glove_R": [255, 255, 255, 10]
             }
-          }]
+          }}
 
         // uploadLED = (data: LedType) => {
         //      this.sendDataToRpiSocket({
-        //           command: CommandType.UPLOAD_LED /* payload: ControlType*/,
+        //           command: ActionType.UPLOAD_LED /* payload: ControlType*/,
         //           payload: data[this.dancerName],
         //         });
         //     };
     }));
 
-    // socket.send(JSON.stringify({
-    //     command: "stop",
-    //     selectedDancers: ["Justin"],
+    socket.send(JSON.stringify({
+        command: "stop",
+        selectedDancers: ["Justin"],
 
-    //     // play command:
-    //     // payload: {
-    //     //     startTime: 0, delay: 0, sysTime: 0 
-    //     // }
-    // }));
-    
+        // play command:
+        // payload: {
+        //     startTime: 0, delay: 0, sysTime: 0 
+        // }
+    }));
 
+    socket.send(JSON.stringify({
+        command: "play",
+        selectedDancers: ["Justin"],
+
+        // play command:
+        payload: {
+            startTime: 20, delay: 0, sysTime: 0 
+        }
+    }));
 
 });
 

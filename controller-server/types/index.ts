@@ -1,6 +1,6 @@
 import ControlPanelSocket from "../websocket/controlPanelSocket";
 import DancerSocket from "../websocket/dancerSocket";
-import { CommandType } from "../constants/index";
+import { ActionType, CommandSubType } from "../constants/index";
 
 // General payload type
 // request only
@@ -47,13 +47,13 @@ interface SyncType {
 // Websocket message interface
 // Control Panel to Server
 interface MesC2S {
-  command: CommandType;
+  command: ActionType;
   selectedDancers: [string];
   payload: string | PlayTimeType | LightStatusType | InfoType; // Control panel frontend info
 }
 // Server to Control Panel
 interface MesS2C {
-  command: CommandType;
+  command: ActionType;
   payload: {
     from?: string; // DancerName type
     success: boolean;
@@ -63,12 +63,12 @@ interface MesS2C {
 // Server to RPi
 // In new protocol, the type of ControlType is strictly defined
 interface MesS2R {
-  command: CommandType;
-  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType;
+  action: ActionType;
+  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType | CommandSubType[];
 }
 // RPi to Server
 interface MesR2S {
-  command: CommandType;
+  command: ActionType;
   payload: {
     success: boolean;
     info: string | InfoType | SyncType; // RPi info
@@ -84,7 +84,7 @@ interface controlPanelClientDic {
 }
 
 export {
-  CommandType,
+  ActionType,
   TimeType,
   LightStatusType,
   PlayTimeType,
