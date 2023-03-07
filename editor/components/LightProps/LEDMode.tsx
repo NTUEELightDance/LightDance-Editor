@@ -22,6 +22,12 @@ function LEDMode() {
     if (currentLEDPartName == null) {
       return;
     }
+    if (selectedLEDs.length === 0) {
+      setCurrentColorName(null);
+      setIntensity(null);
+      return;
+    }
+
     const dancerName = getDancerFromLEDpart(currentLEDPartName);
 
     const partEffect = currentLEDStatus[dancerName][currentLEDPartName].effect;
