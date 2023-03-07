@@ -228,16 +228,6 @@ class WaveSurferApp {
     );
   }
 
-  clickLast(last: number) {
-    this.waveSurfer.setCurrentTime(last);
-    this.setTime(this.getCurrentTime());
-  }
-
-  clickNext(next: number) {
-    this.waveSurfer.setCurrentTime(next);
-    this.setTime(this.getCurrentTime());
-  }
-
   /**
    * set the global state
    */

@@ -16,7 +16,11 @@ import type {
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
-import { getControl } from "../utils";
+import {
+  createEmptyLEDEffectFrame,
+  getControl,
+  getDancerFromLEDpart,
+} from "../utils";
 import { NO_EFFECT } from "@/constants";
 import { getLedMap } from "../utils";
 import { binarySearchFrameMap } from "../utils";
@@ -80,12 +84,24 @@ const actions = registerActions({
     state.currentLEDStatus = newCurrentLEDStatus;
   },
 
-  addFrameToCurrentLEDEffect: (state: State, payload: LEDEffectFrame) => {
+  addFrameToCurrentLEDEffect: (state: State) => {
     if (state.currentLEDEffect === null) {
       throw new Error("No current LED effect");
     }
+    if (state.currentLEDPartName === null) {
+      throw new Error("No current LED part");
+    }
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
-    newCurrentLEDEffect.effects.push(payload);
+    const LEDPartName = state.currentLEDPartName;
+    const dancerName = getDancerFromLEDpart(LEDPartName);
+
+    const { effect } = state.currentLEDStatus[dancerName][LEDPartName];
+
+    newCurrentLEDEffect.effects.push({
+      start: state.currentTime - state.currentLEDEffectStart,
+      fade: state.currentFade,
+      effect,
+    });
     newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
     state.currentLEDEffect = newCurrentLEDEffect;
   },
@@ -128,6 +144,11 @@ const actions = registerActions({
     state.currentLEDEffectName = effectName;
     state.currentLEDEffectStart = state.currentTime;
     state.selectionMode = "LED_MODE";
+    const partLength = state.LEDPartLengthMap[partName];
+    state.currentLEDEffect = {
+      repeat: 1,
+      effects: [createEmptyLEDEffectFrame(partLength)],
+    };
     await initCurrentLEDStatus();
   },
 

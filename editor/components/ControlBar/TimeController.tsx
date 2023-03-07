@@ -6,13 +6,13 @@ import TimeControlInput from "./TimeControlInput";
 
 // reactive state
 import { useReactiveVar } from "@apollo/client";
-import { reactiveState } from "../../core/state";
+import { reactiveState } from "@/core/state";
 import {
   setCurrentControlIndex,
   setCurrentPosIndex,
   setCurrentTime,
-} from "../../core/actions";
-import { initStatusStack, initPosStack } from "../../core/actions";
+} from "@/core/actions";
+import { initStatusStack, initPosStack } from "@/core/actions";
 
 // hotkeys
 import { useHotkeys } from "react-hotkeys-hook";
@@ -34,9 +34,11 @@ export default function TimeController() {
   const handleChangeControlFrame = (value: number) => {
     setCurrentControlIndex({ payload: value });
   };
+
   const handleChangePosFrame = (value: number) => {
     setCurrentPosIndex({ payload: value });
   };
+
   const timeShift = (time: number): void => {
     // time increase / decrease several ms
     const currentTime = reactiveState.currentTime();
@@ -52,6 +54,7 @@ export default function TimeController() {
       timeShift(-100);
     }, THROTTLE)
   );
+
   useHotkeys(
     "right",
     throttle(() => {

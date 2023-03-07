@@ -8,6 +8,7 @@ import {
   LEDEffectFrame,
   LEDEffectRecord,
   isLEDPartName,
+  ColorCode,
 } from "../models";
 
 import { cloneDeep } from "lodash";
@@ -190,4 +191,15 @@ export function binarySearchLedEffectFrame(
     m = Math.floor((l + r + 1) / 2);
   }
   return m;
+}
+
+export function createEmptyLEDEffectFrame(partLength: number): LEDEffectFrame {
+  return {
+    start: 0,
+    fade: false,
+    effect: Array.from(new Array(partLength), () => ({
+      alpha: 0,
+      colorCode: "#000000" as ColorCode,
+    })),
+  };
 }

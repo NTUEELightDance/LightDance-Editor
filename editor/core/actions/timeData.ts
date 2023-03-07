@@ -9,22 +9,29 @@ import {
   clamp,
   updateFrameByTimeMap,
   updateCurrentLEDStatus,
+  getDancerFromLEDpart,
+  createEmptyLEDEffectFrame,
 } from "../utils";
 // types
-import type { State } from "../models";
+import type {
+  ControlMap,
+  CurrentLEDStatus,
+  LEDEffectRecord,
+  LEDMap,
+  State,
+} from "../models";
 // constants
 import { IDLE } from "@/constants";
 import { syncCurrentStatusWithControlMap } from "./currentStatus";
 import { syncCurrentPosWithPosMap } from "./currentPos";
 
 const actions = registerActions({
-  /**
-   * calculate the currentStatus, currentPos according to the time
-   * It will do fade or position interpolation
-   * @param {State} statue
-   * @param {object} payload
-   */
   setCurrentTime: async (state: State, payload: number) => {
+    // disable time change when editing in LED editor
+    if (state.editorState === "EDITING" && state.editor === "LED_EDITOR") {
+      throw new Error("Cannot change time when editing in LED editor");
+    }
+
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
     const ledMap = await getLedMap();
@@ -76,13 +83,67 @@ const actions = registerActions({
       },
     });
 
-    state.currentLEDStatus = updateCurrentLEDStatus(
+    const newCurrentLEDStatus = updateCurrentLEDStatus(
       controlMap,
       state.ledEffectRecord,
       state.currentLEDStatus,
       ledMap,
       time
     );
+
+    // calculate the focused LED part's status from current LED effect
+    if (state.editor === "LED_EDITOR") {
+      const currentLEDPartName = state.currentLEDPartName;
+      if (currentLEDPartName === null) return;
+      const dancerName = getDancerFromLEDpart(currentLEDPartName);
+      const currentLEDEffectName = state.currentLEDEffectName;
+      if (currentLEDEffectName === null) return;
+      if (state.currentLEDEffect === null) return;
+      const frameID = "FRAME_ID";
+      const pseudoControlMap: ControlMap = {
+        [frameID]: {
+          start: state.currentLEDEffectStart,
+          fade: false,
+          status: {
+            [dancerName]: {
+              [currentLEDPartName]: {
+                alpha: 10,
+                src: currentLEDEffectName,
+              },
+            },
+          },
+        },
+      };
+      const pseudoLEDStatus: CurrentLEDStatus = {
+        [dancerName]: {
+          [currentLEDPartName]:
+            state.currentLEDStatus[dancerName][currentLEDPartName],
+        },
+      };
+      const pseudoLEDRecord: LEDEffectRecord = {
+        [dancerName]: {
+          [currentLEDPartName]: [frameID],
+        },
+      };
+      const pseudoLEDMap: LEDMap = {
+        [currentLEDPartName]: {
+          [currentLEDEffectName]: state.currentLEDEffect,
+        },
+      };
+
+      const focusedLEDStatus = updateCurrentLEDStatus(
+        pseudoControlMap,
+        pseudoLEDRecord,
+        pseudoLEDStatus,
+        pseudoLEDMap,
+        time
+      );
+
+      newCurrentLEDStatus[dancerName][currentLEDPartName] =
+        focusedLEDStatus[dancerName][currentLEDPartName];
+    }
+
+    state.currentLEDStatus = newCurrentLEDStatus;
   },
 
   /**
