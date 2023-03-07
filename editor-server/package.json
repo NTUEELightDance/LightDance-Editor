@@ -40,7 +40,7 @@
     "migrate": "dotenv -e .env.development -- prisma migrate dev --name init",
     "start": "dotenv -e .env.development -- nodemon src/index.ts",
     "start:prod": "dotenv -e .env.production -- prisma db push && dotenv -e .env.production -- ts-node src/index.ts",
-    "lint": "eslint --fix . --ignore-path .gitignore"
+    "lint": "eslint --fix . && tsc --noEmit"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
