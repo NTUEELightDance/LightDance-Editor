@@ -111,7 +111,7 @@ class DancerSocket {
       this.clientAgent.dancerClients.deleteClient(this.dancerName);
     };
   };
-  sendDataToRpiSocket = (data: MesS2R) => {
+  sendDataToRpiSocket = (data: MesS2R | any[]) => {
     if (this.ws) this.ws.send(JSON.stringify(data));
   };
   // getClientIp = () => {

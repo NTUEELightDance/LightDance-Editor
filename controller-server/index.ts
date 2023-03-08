@@ -13,6 +13,11 @@ import { ClientAgent } from "./clientAgent";
 import { ActionType } from "./constants";
 import { MAC_LIST } from "./constants/macList";
 
+// Controller Server Database
+import { ControlJsonDB } from "./database/dancerControlJson";
+import { OfJsonDB } from "./database/dancerOF";
+import { LedJsonDB } from "./database/dancerLED";
+
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
@@ -63,6 +68,15 @@ wss.on("connection", (ws) => {
           ip
         );
         dancerSocket.handleMessage();
+
+        // Send [control.json, OF.json, LED.json] back to RPi
+        const dancerControlJson = ControlJsonDB[dancerName]
+        const dancerOfJson = OfJsonDB[dancerName]
+        const dancerLedJson = LedJsonDB[dancerName]
+        dancerSocket.sendDataToRpiSocket({
+          action: ActionType.UPLOAD,
+          payload: [dancerControlJson, dancerOfJson, dancerLedJson]
+        })
 
         // response
         Object.values(clientAgent.controlPanelClients.getClients()).forEach(

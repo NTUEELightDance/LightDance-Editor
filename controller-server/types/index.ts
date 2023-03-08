@@ -20,8 +20,8 @@ interface SingleDancerControlType  {
   "start": number;
   "fade": boolean;
   "status": {
-    [key: string]: number[];
-  }
+    [key: string]: number[] /* for Of */;
+  } | number[][] /* for LED */
 }
 type ControlType ={
   [key: string]: SingleDancerControlType;
@@ -69,7 +69,7 @@ interface MesS2C {
 // In new protocol, the type of ControlType is strictly defined
 interface MesS2R {
   action: ActionType;
-  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType | CommandSubType[];
+  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType | CommandSubType[]; 
 }
 // RPi to Server
 interface MesR2S {
@@ -94,6 +94,7 @@ export {
   TimeType,
   LightStatusType,
   PlayTimeType,
+  SingleDancerControlType,
   ControlType,
   LedType,
   ClientType,
