@@ -30,9 +30,9 @@ const clientAgent = new ClientAgent();
 wss.on("connection", (ws) => {
   ws.onmessage = (msg: any) => {
     // need to consider further type assignment
-    console.log("Receive data: ", msg.data)
+    //console.log("Receive data: ", msg.data)
     const parsedData: MesC2S | MesR2S = JSON.parse(msg.data);
-    console.log("Parsed data: ", parsedData)
+    //console.log("Parsed data: ", parsedData)
     const { command, payload } = parsedData;
     let type = null;
     console.log("[Message] Client response: ", command, "\n[Message] Payload: ", payload, "\n");

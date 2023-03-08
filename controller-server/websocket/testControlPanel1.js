@@ -13,33 +13,62 @@ socket.addEventListener("open", (evnt)  => {
 
     socket.send(JSON.stringify({
         command: "uploadOf",
-        selectedDancers: ["Justin"],
-        payload: {"Justin" : {
-            "start": 0, // ms
+        selectedDancers: ["Ray"],
+        payload: {"Ray" :  [ 
+            {
+            "start": 0,
             "fade": true,
             "status": {
-              "Calf_R": [255, 255, 255, 10], // r, g, b, a
-              "Thigh_R": [255, 255, 255, 10],
-              "LymphaticDuct_R": [255, 255, 255, 10],
-              "Waist_R": [255, 255, 255, 10],
-              "Arm_R": [255, 255, 255, 10],
-              "Shoulder_R": [255, 255, 255, 10],
-              "CollarBone_R": [255, 255, 255, 10],
-              "Chest": [255, 255, 255, 10],
-              "Visor": [255, 255, 255, 10],
-              "Ear_R": [255, 255, 255, 10],
-              "Calf_L": [255, 255, 255, 10],
-              "Thigh_L": [255, 255, 255, 10],
-              "LymphaticDuct_L": [255, 255, 255, 10],
-              "Waist_L": [255, 255, 255, 10],
-              "CollarBone_L": [255, 255, 255, 10],
-              "Arm_L": [255, 255, 255, 10],
-              "Ear_L": [255, 255, 255, 10],
-              "Shoulder_L": [255, 255, 255, 10],
-              "Glove_L": [255, 255, 255, 10],
-              "Glove_R": [255, 255, 255, 10]
+                "of1": [255, 255, 255, 10],
+                "of2": [255, 255, 255, 10],
+                "of3": [255, 255, 255, 10],
+                "of4": [255, 255, 255, 10],
+                "of5": [255, 255, 255, 10],
+                "of6": [255, 255, 255, 10],
+                "of7": [255, 255, 255, 10],
+                "of8": [255, 255, 255, 10],
+                "of9": [255, 255, 255, 10],
+                "of10": [255, 255, 255, 10],
+                "of11": [255, 255, 255, 10],
+                "of12": [255, 255, 255, 10],
+                "of13": [255, 255, 255, 10],
+                "of14": [255, 255, 255, 10],
+                "of15": [255, 255, 255, 10],
+                "of16": [255, 255, 255, 10],
+                "of17": [255, 255, 255, 10],
+                "of18": [255, 255, 255, 10],
+                "of19": [255, 255, 255, 10],
+                "of20": [255, 255, 255, 10]
             }
-          }}
+            },
+            {
+            "start": 10000,
+            "fade": true,
+            "status": {
+                "of1": [255, 255, 255, 0],
+                "of2": [255, 255, 255, 0],
+                "of3": [255, 255, 255, 0],
+                "of4": [255, 255, 255, 0],
+                "of5": [255, 255, 255, 0],
+                "of6": [255, 255, 255, 0],
+                "of7": [255, 255, 255, 0],
+                "of8": [255, 255, 255, 0],
+                "of9": [255, 255, 255, 0],
+                "of10": [255, 255, 255, 0],
+                "of11": [255, 255, 255, 0],
+                "of12": [255, 255, 255, 0],
+                "of13": [255, 255, 255, 0],
+                "of14": [255, 255, 255, 0],
+                "of15": [255, 255, 255, 0],
+                "of16": [255, 255, 255, 0],
+                "of17": [255, 255, 255, 0],
+                "of18": [255, 255, 255, 0],
+                "of19": [255, 255, 255, 0],
+                "of20": [255, 255, 255, 0]
+            }
+            }
+            ]
+        }
 
         // uploadLED = (data: LedType) => {
         //      this.sendDataToRpiSocket({
@@ -49,25 +78,122 @@ socket.addEventListener("open", (evnt)  => {
         //     };
     }));
 
-    socket.send(JSON.stringify({
-        command: "stop",
-        selectedDancers: ["Justin"],
-
-        // play command:
-        // payload: {
-        //     startTime: 0, delay: 0, sysTime: 0 
-        // }
-    }));
-
-    socket.send(JSON.stringify({
-        command: "play",
-        selectedDancers: ["Justin"],
-
-        // play command:
-        payload: {
-            startTime: 20, delay: 0, sysTime: 0 
+    const UPLOAD_LED_JSON = {
+        "Ray": {
+            "led1": [
+            {
+                "start": 150,
+                "fade": true,
+                "status": [
+                    [40, 0, 0, 10],
+                    [40, 0, 0, 10],
+                    [40, 0, 0, 10],
+                    [40, 0, 0, 10]
+                ]
+            },
+            {
+                "start": 300,
+                "fade": false,
+                "status": [
+                    [0, 40, 0, 10],
+                    [0, 40, 0, 10],
+                    [0, 40, 0, 10],
+                    [0, 40, 0, 10]
+                ]
+            }
+            ],
+            "led2": [
+            {
+                "start": 0,
+                "fade": true,
+                "status": [
+                [0, 0, 40, 10],
+                [0, 0, 40, 10],
+                [0, 0, 40, 10],
+                [0, 0, 40, 10]
+                ]
+            },
+            {
+                "start": 300,
+                "fade": false,
+                "status": [
+                [0, 0, 0, 10],
+                [0, 0, 0, 10],
+                [0, 0, 0, 10],
+                [0, 0, 0, 10]
+                ]
+            }
+            ],
+            "led3": [
+            {
+                "start": 0,
+                "fade": true,
+                "status": [
+                [40, 40, 40, 10],
+                [40, 40, 40, 10],
+                [40, 40, 40, 10],
+                [40, 40, 40, 10]
+                ]
+            },
+            {
+                "start": 60,
+                "fade": false,
+                "status": [
+                [0, 0, 0, 10],
+                [0, 0, 0, 10],
+                [0, 0, 0, 10],
+                [0, 0, 0, 10]
+                ]
+            },
+            {
+                "start": 120,
+                "fade": false,
+                "status": [
+                [40, 40, 40, 10],
+                [40, 40, 40, 10],
+                [40, 40, 40, 10],
+                [40, 40, 40, 10]
+                ]
+            },
+            {
+                "start": 180,
+                "fade": false,
+                "status": [
+                [0, 0, 0, 10],
+                [0, 0, 0, 10],
+                [0, 0, 0, 10],
+                [0, 0, 0, 10]
+                ]
+            }
+        ]
         }
-    }));
+    }
+
+    socket.send(JSON.stringify({
+        command: "uploadLed",
+        selectedDancers: ["Ray"],
+        payload: UPLOAD_LED_JSON
+    }))
+
+    // socket.send(JSON.stringify({
+    //     command: "stop",
+    //     selectedDancers: ["Ray"],
+
+    //     // play command:
+    //     // payload: {
+    //     //     startTime: 0, delay: 0, sysTime: 0 
+    //     // }
+    // }));
+
+    // socket.send(JSON.stringify({
+    //     command: "play",
+    //     selectedDancers: ["Ray"],
+
+    //     // play command:
+    //     payload: {
+    //         startTime: 20, delay: 0, sysTime: 0 
+    //     }
+    // }));
 
 });
 
