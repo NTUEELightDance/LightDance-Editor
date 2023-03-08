@@ -49,7 +49,6 @@ class ControlPanelSocket {
       );
       
       const dancers = this.clientAgent.dancerClients.getClients();
-      // console.log("[Dancers]", dancers)
       // dancers list all the dancers as a dictionary
       selectedDancers.forEach((dancerName) => {
         try {

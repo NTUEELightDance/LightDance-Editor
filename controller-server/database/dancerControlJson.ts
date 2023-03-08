@@ -57,5 +57,5 @@ const ControlJsonDB: {[key: string]: ControlJsonType} = {
     }
 }
 
-export { ControlJsonDB }
+export { ControlJsonDB, ControlJsonType }
     

@@ -1,6 +1,9 @@
 import ControlPanelSocket from "../websocket/controlPanelSocket";
 import DancerSocket from "../websocket/dancerSocket";
 import { ActionType, CommandSubType } from "../constants/index";
+import { ControlJsonType } from "../database/dancerControlJson";
+import { OfJsonType } from "../database/dancerOF";
+import { LedJsonType } from "../database/dancerLED";
 
 // General payload type
 // request only
@@ -28,11 +31,15 @@ type ControlType ={
 } 
 
 type LedType = Dic
+
 // response only
 enum ClientType {
   CONTROLPANEL = "controlPanel",
   RPI = "RPi",
 }
+
+// Upload Payload = [control.json, Of.json, Led.json]
+type UploadPayloadType = [ControlJsonType | undefined, OfJsonType | undefined, LedJsonType | undefined];
 interface InfoType {
   type: ClientType;
   macaddr?: string,
