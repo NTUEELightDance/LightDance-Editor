@@ -6,11 +6,12 @@ import { WebSocketServer } from "ws";
 import DancerSocket from "./websocket/dancerSocket";
 // import ControlPanelSocket from "./websocket/controlPanelSocket";
 import ControlPanelSocket from "./websocket/controlPanelSocket";
-import { ClientType, MesC2S, MesS2C, InfoType, MesR2S } from "./types/index";
+import { ClientType, MesC2S, MesS2C, MacAddrType, InfoType, MesR2S } from "./types/index";
 import NtpServer from "./ntp/index";
 
 import { ClientAgent } from "./clientAgent";
 import { ActionType } from "./constants";
+import { MAC_LIST } from "./constants/macList";
 
 const app = express();
 const server = http.createServer(app);
@@ -24,7 +25,9 @@ const clientAgent = new ClientAgent();
 wss.on("connection", (ws) => {
   ws.onmessage = (msg: any) => {
     // need to consider further type assignment
+    console.log("Receive data: ", msg.data)
     const parsedData: MesC2S | MesR2S = JSON.parse(msg.data);
+    console.log("Parsed data: ", parsedData)
     const { command, payload } = parsedData;
     let type = null;
     console.log("[Message] Client response: ", command, "\n[Message] Payload: ", payload, "\n");
@@ -41,13 +44,16 @@ wss.on("connection", (ws) => {
         type = (<InfoType>((<MesR2S>parsedData).payload.info)).type;
       }
 
+      console.log("[Type of Message]: ", type)
       // check type : rpi or controlpanel
       switch (type) {
       // rpi
       case ClientType.RPI: {
         // check if `dancer` type's hostname is in board_config.json
-        const { dancerName, hostName, ip } = (<MesR2S>parsedData).payload.info as InfoType;
-
+        const { macaddr } = (<MesR2S>parsedData).payload.info as MacAddrType;
+        let dancerName = MAC_LIST[macaddr][0]
+        let hostName = MAC_LIST[macaddr][1]
+        let ip = MAC_LIST[macaddr][2]
         // socket connection established
         const dancerSocket = new DancerSocket(
           ws,

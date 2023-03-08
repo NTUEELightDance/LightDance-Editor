@@ -35,9 +35,14 @@ enum ClientType {
 }
 interface InfoType {
   type: ClientType;
+  macaddr?: string,
   dancerName?: string;
   ip?: string; // only needed when type is RPI
   hostName?: string;
+}
+interface MacAddrType {
+  type: ClientType;
+  macaddr: string;
 }
 interface SyncType {
   delay: TimeType; // ms
@@ -69,9 +74,10 @@ interface MesS2R {
 // RPi to Server
 interface MesR2S {
   command: ActionType;
+  status: boolean, // added 
   payload: {
-    success: boolean;
-    info: string | InfoType | SyncType; // RPi info
+    // success: boolean;
+    info: string | InfoType | SyncType | MacAddrType; // RPi info
   };
 }
 
@@ -92,6 +98,7 @@ export {
   LedType,
   ClientType,
   InfoType,
+  MacAddrType,
   SyncType,
   MesC2S,
   MesS2C,

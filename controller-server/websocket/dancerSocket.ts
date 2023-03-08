@@ -83,7 +83,7 @@ class DancerSocket {
       // to emit message to control panel, we add from in payload
       const mesToControlPanel: MesS2C = {
         ...parsedData,
-        payload: { from: this.dancerName, ...parsedData["payload"] },
+        payload: { from: this.dancerName, success: parsedData["status"], ...parsedData["payload"] },
       };
       this.clientAgent.socketReceiveData(
         this.dancerName,
