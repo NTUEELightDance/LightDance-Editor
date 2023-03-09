@@ -6,6 +6,7 @@ import {
   Mutation,
   Publisher,
   PubSub,
+  Int,
 } from "type-graphql";
 
 import { Topic } from "./subscriptions/topic";
@@ -13,7 +14,11 @@ import { ColorPayload, colorMutation } from "./subscriptions/color";
 import { ColorMap } from "./types/colorMap";
 import { ColorResponse } from "./response/colorResponse";
 import { IControl, IControlFrame, TContext } from "../types/global";
-import { Color, ColorCreateInput } from "../../prisma/generated/type-graphql";
+import {
+  Color,
+  ColorCreateInput,
+  ColorUpdateInput,
+} from "../../prisma/generated/type-graphql";
 
 @Resolver()
 class ColorResolver {
@@ -24,45 +29,39 @@ class ColorResolver {
   }
 
   @Mutation(() => Color)
-  async editColorCodeByColor(
+  async editColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
-    @Arg("color") color: string,
-    @Arg("colorCode") colorCode: string,
+    @Arg("id", () => Int) id: number,
+    @Arg("data") data: ColorUpdateInput,
     @Ctx() ctx: TContext
   ) {
-    // Check color Code Exist
-    const checkColor = await ctx.prisma.color.findFirst({
-      where: { colorCode: colorCode },
-    });
-    if (checkColor) {
-      throw new Error(
-        `ColorCode ${colorCode} exist on color ${checkColor.color}`
-      );
+    // Check colorCode dimension
+    const { colorCode } = data;
+    if (colorCode) {
+      const { set } = colorCode;
+      if (set && set.length !== 3) {
+        throw new Error(`colorCode dimension should be 3, get ${set.length}`);
+      }
     }
 
-    const existedColor = await ctx.prisma.color.findFirst({ where: { color } });
-    const colorData = await ctx.prisma.color.upsert({
-      create: { color, colorCode },
-      update: { colorCode },
-      where: { color },
+    await ctx.prisma.color.findUniqueOrThrow({
+      where: { id },
     });
-    if (!existedColor) {
-      const payload: ColorPayload = {
-        mutation: colorMutation.CREATED,
-        color: color,
-        colorCode: colorCode,
-        editBy: ctx.userId,
-      };
-      await publish(payload);
-    } else {
-      const payload: ColorPayload = {
-        mutation: colorMutation.UPDATED,
-        color: color,
-        colorCode: colorCode,
-        editBy: ctx.userId,
-      };
-      await publish(payload);
-    }
+
+    const colorData = await ctx.prisma.color.update({
+      where: { id },
+      data: data,
+    });
+
+    const payload: ColorPayload = {
+      mutation: colorMutation.UPDATED,
+      id: id,
+      color: colorData.color,
+      colorCode: colorData.colorCode,
+      editBy: ctx.userId,
+    };
+    await publish(payload);
+
     return colorData;
   }
 
@@ -72,14 +71,13 @@ class ColorResolver {
     @Arg("color") colorInput: ColorCreateInput,
     @Ctx() ctx: TContext
   ) {
-    // Check color Code Exist
-    const checkColor = await ctx.prisma.color.findFirst({
-      where: { colorCode: colorInput.colorCode },
-    });
-    if (checkColor) {
-      throw new Error(
-        `ColorCode ${colorInput.colorCode} exist on color ${checkColor.color}`
-      );
+    // Check colorCode dimension
+    const { colorCode } = colorInput;
+    if (colorCode) {
+      const { set } = colorCode;
+      if (set.length !== 3) {
+        throw new Error(`colorCode dimension should be 3, get ${set.length}`);
+      }
     }
 
     // Create new Color, if "color" duplicate => create() will throw error
@@ -90,8 +88,9 @@ class ColorResolver {
     // publish
     const payload: ColorPayload = {
       mutation: colorMutation.CREATED,
-      color: colorInput.color,
-      colorCode: colorInput.colorCode,
+      id: color.id,
+      color: color.color,
+      colorCode: color.colorCode,
       editBy: ctx.userId,
     };
     await publish(payload);
@@ -99,71 +98,70 @@ class ColorResolver {
     return color;
   }
 
-  @Mutation(() => String)
-  async renameColor(
-    @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
-    @Arg("originalColor") originalColor: string,
-    @Arg("newColor") newColor: string,
-    @Ctx() ctx: TContext
-  ) {
-    // check if new color name exists, if true => throw error
-    const existedNewColor = await ctx.prisma.color.findUnique({
-      where: { color: newColor },
-    });
-    if (existedNewColor) {
-      throw new Error(
-        `color name: ${newColor}/code: ${existedNewColor.colorCode} existed`
-      );
-    }
+  // @Mutation(() => String)
+  // async renameColor(
+  //   @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
+  //   @Arg("originalColor") originalColor: string,
+  //   @Arg("newColor") newColor: string,
+  //   @Ctx() ctx: TContext
+  // ) {
+  //   // check if new color name exists, if true => throw error
+  //   const existedNewColor = await ctx.prisma.color.findUnique({
+  //     where: { color: newColor },
+  //   });
+  //   if (existedNewColor) {
+  //     throw new Error(
+  //       `color name: ${newColor}/code: ${existedNewColor.colorCode} existed`
+  //     );
+  //   }
 
-    // check if old color name exists, if not => throw error
-    await ctx.prisma.color.findUniqueOrThrow({
-      where: { color: originalColor },
-    });
+  //   // check if old color name exists, if not => throw error
+  //   await ctx.prisma.color.findUniqueOrThrow({
+  //     where: { color: originalColor },
+  //   });
 
-    // check if color is used in ControlData
-    const checkColorInControl = await ctx.prisma.controlData.findMany({
-      where: { value: { path: ["color"], equals: originalColor } },
-    });
-    if(checkColorInControl.length !== 0) {
-      throw new Error(`color is used in ControlData`);
-    };
+  //   // check if color is used in ControlData
+  //   const checkColorInControl = await ctx.prisma.controlData.findMany({
+  //     where: { value: { path: ["color"], equals: originalColor } },
+  //   });
+  //   if (checkColorInControl.length !== 0) {
+  //     throw new Error(`color is used in ControlData`);
+  //   }
 
-    await ctx.prisma.color.update({
-      where: { color: originalColor },
-      data: { color: newColor },
-    });
+  //   await ctx.prisma.color.update({
+  //     where: { color: originalColor },
+  //     data: { color: newColor },
+  //   });
 
-    // publish
-    const payload: ColorPayload = {
-      mutation: colorMutation.RENAMED,
-      color: originalColor,
-      renameColor: newColor,
-      editBy: ctx.userId,
-    };
-    await publish(payload);
+  //   // publish
+  //   const payload: ColorPayload = {
+  //     mutation: colorMutation.RENAMED,
+  //     color: originalColor,
+  //     renameColor: newColor,
+  //     editBy: ctx.userId,
+  //   };
+  //   await publish(payload);
 
-    return newColor;
-  }
+  //   return newColor;
+  // }
 
   @Mutation(() => ColorResponse)
   async deleteColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
-    @Arg("color") color: string,
+    @Arg("id", () => Int) id: number,
     @Ctx() ctx: TContext
   ) {
     try {
-      // check if color name and color code exists
+      // check if color id exists
       const existedColor = await ctx.prisma.color.findUniqueOrThrow({
-        where: { color: color },
+        where: { id: id },
       });
 
-      // TODO: Apply Prisma
       // check whether color is using in Control
       const checkControl = await ctx.prisma.controlData.findMany({
-        where: { value: { path: ["color"], equals: color } },
+        where: { value: { path: ["color"], equals: id } },
       });
-      if (checkControl.length != 0) {
+      if (checkControl.length !== 0) {
         let checkControlFrames: number[] = checkControl.map(
           (control) => control.frameId
         );
@@ -179,30 +177,52 @@ class ColorResolver {
           }
         });
         return {
-          color: color,
-          colorCode: existedColor.colorCode,
+          id: id,
           ok: false,
-          msg: `color ${color} is used in ${ids}`,
+          msg: `color is used in frames ${ids}`,
         };
       }
-      // TODO END
+
+      // TODO: check whether color is using in LEDEffect
+      const LEDEffects = await ctx.prisma.lEDEffect.findMany({
+        select: { frames: true, id: true },
+      });
+      const ids: number[] = [];
+      LEDEffects.map((LEDEffect) => {
+        const { frames } = LEDEffect;
+        const ledId = LEDEffect.id;
+        frames.map((frame: any) => {
+          const LEDs = frame.LEDs;
+          LEDs.map((led: any) => {
+            if (led[0].toString() === id.toString() && !ids.includes(ledId)) {
+              ids.push(ledId);
+            }
+          });
+        });
+      });
+      if (ids.length !== 0)
+        return {
+          id: id,
+          ok: false,
+          msg: `color is used in led ${ids}`,
+        };
 
       // Delete Color
       const deleteColor = await ctx.prisma.color.delete({
-        where: { color: color },
+        where: { id: id },
       });
       const payload: ColorPayload = {
         mutation: colorMutation.DELETED,
-        color: color,
-        colorCode: existedColor.colorCode,
+        id: id,
         editBy: ctx.userId,
       };
       await publish(payload);
-      return Object.assign(existedColor, { ok: true });
+      return { id: id, ok: true };
     } catch (error) {
+      console.log(error);
       return Object.assign(
-        { color, colorCode: "" },
-        { ok: false, msg: `color ${color} doesn't existed` }
+        { id: id },
+        { ok: false, msg: `color id ${id} doesn't existed` }
       );
     }
   }

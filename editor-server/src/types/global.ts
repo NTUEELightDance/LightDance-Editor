@@ -38,7 +38,7 @@ interface ILEDControlValue {
   alpha: number;
 }
 interface IFiberControlValue {
-  color: string;
+  color: number;
   alpha: number;
 }
 
@@ -113,8 +113,25 @@ export type TPartData = {
   // missing 'EL' in prisma schema
 };
 export type TColorData = {
+  [key: string]: [r: number, g: number, b: number];
+};
+export type TIdColorPair = {
   [key: string]: string;
 };
+export type TColorIdPair = {
+  [key: string]: number;
+};
+
+export type TIdLEDPair = {
+  [key: string]: string;
+};
+export type TLEDIdPair = {
+  [key: string]: number;
+};
+export type TPartLEDPair = {
+  [key: string]: TLEDIdPair;
+};
+
 export type TExportLED = {
   [key: string]: TExportLEDPart;
 };
@@ -131,7 +148,7 @@ export type TExportLEDFrame = {
   start: number;
   fade: boolean;
 };
-export type TExportLEDFrameLED = [r: number, g: number, b: number, a: number];
+export type TExportLEDFrameLED = [color: string, a: number];
 
 export type TRedisStore = {
   [key: string]: string;
@@ -178,5 +195,8 @@ export type TRedisPos = {
 };
 
 export type TColorMap = {
-  [key: string]: string;
+  [key: number]: {
+    color: string;
+    colorCode: number[];
+  };
 };

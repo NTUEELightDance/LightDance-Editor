@@ -12,8 +12,8 @@ export class EditControlMapInput {
   frameId: number;
   @Field({ nullable: true })
   fade?: boolean;
-  @Field(() => [[[String]]])
-  controlData: string[][][];
+  @Field(() => [[[Int]]])
+  controlData: number[][][];
 }
 
 @InputType()

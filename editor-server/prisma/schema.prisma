@@ -16,8 +16,9 @@ generator typegraphql {
 }
 
 model Color {
-  color     String @id
-  colorCode String
+  id        Int    @id @default(autoincrement())
+  color     String @unique
+  colorCode Int[]
 }
 
 model LEDEffect {

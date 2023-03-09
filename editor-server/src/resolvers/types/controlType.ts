@@ -12,11 +12,11 @@ registerEnumType(ControlType, {
 
 export const ControlDefault = {
   FIBER: {
-    color: "black",
+    color: -1,
     alpha: 0,
   },
   LED: {
-    src: "",
+    src: -1,
     alpha: 0,
   },
 };

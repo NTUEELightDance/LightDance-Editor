@@ -6,6 +6,7 @@ import {
   Mutation,
   PubSub,
   Publisher,
+  Int,
 } from "type-graphql";
 
 import { LEDMap } from "./types/ledEffectMap";
@@ -43,12 +44,43 @@ export class LEDResolver {
     });
     if (part.length === 0) {
       return Object.assign({
+        id: -1,
         partName: partName,
         effectName: name,
         repeat: repeat,
+        effects: [],
         ok: false,
         msg: "no corresponding part.",
       });
+    }
+
+    // check if the color in LED is valid
+    const error: string[] = [];
+    const colors = await ctx.prisma.color.findMany({ select: { id: true } });
+    const colorIds = colors.map((color) => color.id);
+    if (frames) {
+      frames.set.map((frame: any) => {
+        frame.LEDs.map((LED: number[]) => {
+          if (LED.length !== 2) {
+            error.push(`LEDs shape invalid.`);
+            return;
+          }
+          if (!colorIds.includes(LED[0])) {
+            error.push(`Color Id ${LED[0]} not found.`);
+          }
+        });
+      });
+      if (error.length !== 0) {
+        return Object.assign({
+          id: -1,
+          partName: ",",
+          effectName: ",",
+          repeat: 0,
+          effects: [],
+          ok: false,
+          msg: error.join(" | "),
+        });
+      }
     }
 
     // check overlapped
@@ -57,8 +89,10 @@ export class LEDResolver {
     });
     if (exist.length !== 0)
       return Object.assign({
+        id: -1,
         partName: partName,
         effectName: name,
+        effects: [],
         repeat: repeat,
         ok: false,
         msg: "effectName exist.",
@@ -76,6 +110,7 @@ export class LEDResolver {
     const recordPayload: LEDPayload = {
       mutation: ledMutation.CREATED,
       editBy: ctx.userId,
+      id: newLED.id,
       partName,
       effectName: name,
       data: newLED,
@@ -83,6 +118,7 @@ export class LEDResolver {
     await publishLEDRecord(recordPayload);
 
     return Object.assign({
+      id: newLED.id,
       partName: partName,
       effectName: name,
       repeat: repeat,
@@ -107,10 +143,11 @@ export class LEDResolver {
     });
     if (!exist)
       return Object.assign({
+        id: -1,
         partName: ",",
         effectName: ",",
-        repeat: repeat,
-        effects: frames,
+        repeat: 0,
+        effects: [],
         ok: false,
         msg: "effectName do not exist.",
       });
@@ -124,15 +161,36 @@ export class LEDResolver {
     ) {
       throw new Error(`The frame is now editing by ${effectToEdit.userId}.`);
     }
-    // check if the LED is used in ControlData
-    const checkEffectInControl = await ctx.prisma.controlData.findMany({
-      where: {
-        value: { path: ["src"], equals: exist.name },
-      },
-    });
-    if (checkEffectInControl.length !== 0) {
-      throw new Error(`LED is used in ControlData`);
+
+    // check if the color in LED is valid
+    const error: string[] = [];
+    const colors = await ctx.prisma.color.findMany({ select: { id: true } });
+    const colorIds = colors.map((color) => color.id);
+    if (frames) {
+      frames.set.map((frame: any) => {
+        frame.LEDs.map((LED: number[]) => {
+          if (LED.length !== 2) {
+            error.push(`LEDs shape invalid.`);
+            return;
+          }
+          if (!colorIds.includes(LED[0])) {
+            error.push(`Color Id ${LED[0]} not found.`);
+          }
+        });
+      });
+      if (error.length !== 0) {
+        return Object.assign({
+          id: -1,
+          partName: ",",
+          effectName: ",",
+          repeat: 0,
+          effects: [],
+          ok: false,
+          msg: error.join(" | "),
+        });
+      }
     }
+
     const target = await ctx.prisma.lEDEffect.update({
       where: {
         id: id,
@@ -147,6 +205,7 @@ export class LEDResolver {
 
     const recordPayload: LEDPayload = {
       mutation: ledMutation.UPDATED,
+      id: target.id,
       editBy: ctx.userId,
       partName: exist.partName,
       effectName: name,
@@ -155,6 +214,7 @@ export class LEDResolver {
     await publishLEDRecord(recordPayload);
 
     return Object.assign({
+      id: id,
       ok: true,
       msg: "successfully edit LED effect",
       partName: exist.partName,
@@ -167,23 +227,21 @@ export class LEDResolver {
   @Mutation((returns) => DeleteLEDEffectResponse)
   async deleteLEDEffect(
     @PubSub(Topic.LEDRecord) publishLEDRecord: Publisher<LEDPayload>,
-    @Arg("input") input: DeleteLEDInput,
+    @Arg("id", () => Int) id: number,
     @Ctx() ctx: TContext
   ) {
-    const { partName, effectName } = input;
-
     // check exist
-    const exist = await ctx.prisma.lEDEffect.findFirst({
-      where: { name: effectName, partName: partName },
+    const exist = await ctx.prisma.lEDEffect.findUnique({
+      where: { id },
     });
     if (!exist)
       return {
         ok: false,
-        msg: `Effect ${effectName} on part ${partName} not found`,
+        msg: `LEDEffect Id ${id} not found`,
       };
 
     const checkControl = await ctx.prisma.controlData.findMany({
-      where: { value: { path: ["src"], equals: effectName } },
+      where: { value: { path: ["src"], equals: id } },
     });
     if (checkControl.length != 0) {
       let checkControlFrames: number[] = checkControl.map(
@@ -202,7 +260,7 @@ export class LEDResolver {
       });
       return {
         ok: false,
-        msg: `effect ${effectName} is used in ${ids}`,
+        msg: `LEDeffect Id ${id} is used in frame Ids ${ids}`,
       };
     }
     const effectToDelete = await ctx.prisma.editingLEDEffect.findFirst({
@@ -213,16 +271,18 @@ export class LEDResolver {
       effectToDelete.userId &&
       effectToDelete.userId !== ctx.userId
     ) {
-      throw new Error(`The frame is now editing by ${effectToDelete.userId}.`);
+      return {
+        ok: false,
+        msg: `The frame is now editing by ${effectToDelete.userId}.`,
+      };
     }
-    await ctx.prisma.lEDEffect.deleteMany({
-      where: { name: effectName, partName: partName },
+    await ctx.prisma.lEDEffect.delete({
+      where: { id },
     });
     const recordPayload: LEDPayload = {
       mutation: ledMutation.DELETED,
       editBy: ctx.userId,
-      partName,
-      effectName,
+      id: exist.id,
     };
     await publishLEDRecord(recordPayload);
     return { ok: true, msg: "successfully delete LED effect" };

@@ -15,6 +15,7 @@ import { ControlMapPayload } from "./subscriptions/controlMap";
 import { updateRedisControl } from "../utility";
 import { TContext } from "../types/global";
 import { EditControlMapInput, queryMapInput } from "./inputs/map";
+import { isArray } from "class-validator";
 
 @Resolver((of) => ControlMap)
 export class ControlMapResolver {
@@ -69,6 +70,42 @@ export class EditControlMapResolver {
       );
     }
 
+    // check color & LED
+    const error: string[] = [];
+    const colors = await ctx.prisma.color.findMany({ select: { id: true } });
+    const colorIds = colors.map((color) => color.id);
+    const LEDs = await ctx.prisma.lEDEffect.findMany({ select: { id: true } });
+    const LEDIds = LEDs.map((led) => led.id);
+    controlData.map((datas, ind) => {
+      const dancer = dancers[ind];
+      const parts = dancer.parts;
+      datas.map((data, index) => {
+        const part = parts[index];
+        const type = part.type;
+        if (!isArray(data)) {
+          error.push(
+            `part id ${part.id} has invalid control value type in frame id ${frameToEdit.id}`
+          );
+          return;
+        }
+        if (data.length !== 2) {
+          error.push(
+            `part id ${part.id} has invalid control value dimension in frame id ${frameToEdit.id}`
+          );
+          return;
+        }
+        if (type === "FIBER" && data[0] !== -1 && !colorIds.includes(data[0]))
+          error.push(
+            `part id ${part.id} has unknown colorId ${data[0]} in frame id ${frameToEdit.id}`
+          );
+        if (type === "LED" && data[0] !== -1 && !LEDIds.includes(data[0]))
+          error.push(
+            `part id ${part.id} has unknown ledId ${data[0]} in frame id ${frameToEdit.id}`
+          );
+      });
+    });
+    if (error.length !== 0) throw new Error(error.join(" | "));
+
     await Promise.all(
       controlData.map(async (datas, ind) => {
         const dancer = dancers[ind];
@@ -86,7 +123,7 @@ export class EditControlMapResolver {
               );
             const value = partControl.value as Prisma.JsonObject;
             value.alpha = Number(data[1]);
-            if (type === "FIBER") value.color = data[0];
+            if (type === "FIBER") value.color = Number(data[0]);
             else value.src = data[0];
             await ctx.prisma.controlData.update({
               where: {
@@ -129,6 +166,6 @@ export class EditControlMapResolver {
       select: { id: true },
     });
 
-    return { frameIds: frameIds.map((frame) => frame.id) };
+    return { frameIds: [frameId] };
   }
 }

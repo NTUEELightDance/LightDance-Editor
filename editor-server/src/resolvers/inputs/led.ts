@@ -21,11 +21,11 @@ export class EditLEDInput {
   @Field((type) => Int)
   id: number;
 
-  @Field((type) => String)
-  name: string;
+  @Field((type) => String, { nullable: true })
+  name?: string;
 
-  @Field((type) => Int)
-  repeat: number;
+  @Field((type) => Int, { nullable: true })
+  repeat?: number;
 
   @Field((type) => LEDEffectCreateframesInput, { nullable: true })
   frames?: LEDEffectCreateframesInput | undefined;
