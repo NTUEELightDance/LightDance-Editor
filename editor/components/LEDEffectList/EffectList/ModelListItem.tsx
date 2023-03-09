@@ -12,10 +12,10 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 
-interface ModelProps {
+interface modelProps {
   modelName: string;
   modelData: LEDMap;
-  handleOpenApply: (PartName: string, EffectName: string) => void;
+  handleOpenEdit: (PartName: string, EffectName: string) => void;
   handleOpenDelete: (PartName: string, EffectName: string) => void;
   expanded: boolean;
 }
@@ -23,13 +23,13 @@ interface ModelProps {
 export default function ModelListItem({
   modelName,
   modelData,
-  handleOpenApply,
+  handleOpenEdit,
   handleOpenDelete,
   expanded,
-}: ModelProps) {
-  const [ListOpen, setListOpen] = useState(false);
+}: modelProps) {
+  const [listOpen, setListOpen] = useState(false);
   const handleClick = () => {
-    setListOpen(!ListOpen);
+    setListOpen(!listOpen);
   };
 
   useEffect(() => {
@@ -43,12 +43,12 @@ export default function ModelListItem({
           <EmojiPeopleIcon />
         </ListItemIcon>
         <ListItemText primary={modelName.toUpperCase()} />
-        {ListOpen ? <ExpandLess /> : <ExpandMore />}
+        {listOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
-      <Collapse in={ListOpen} timeout="auto" unmountOnExit>
+      <Collapse in={listOpen} timeout="auto" unmountOnExit>
         <PartList
           modelData={modelData}
-          handleOpenApply={handleOpenApply}
+          handleOpenEdit={handleOpenEdit}
           handleOpenDelete={handleOpenDelete}
         />
       </Collapse>

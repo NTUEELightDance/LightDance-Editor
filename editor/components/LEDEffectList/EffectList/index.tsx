@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import _ from "lodash";
 import ModelListItem from "./ModelListItem";
 
@@ -33,36 +33,35 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   // States
   const [effectSelectedPart, setEffectSelectedPart] = useState<string>("");
   const [effectSelectedName, setEffectSelectedName] = useState<string>("");
-  const [collidedFrame, setCollidedFrame] = useState<number[]>([]);
-  const [applyOpened, setApplyOpened] = useState<boolean>(false); // open apply effect dialog
+  const [editOpened, setEditOpened] = useState<boolean>(false); // open edit effect dialog
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
   const [expanded, setExpanded] = useState<boolean>(false);
 
   // Handle functions
-  const handleOpenApply = (PartName: string, EffectName: string) => {
+  const handleOpenEdit = (PartName: string, EffectName: string) => {
     setEffectSelectedPart(PartName);
     setEffectSelectedName(EffectName);
-    setApplyOpened(true);
+    setEditOpened(true);
   };
 
-  const handleCloseApply = () => {
-    setApplyOpened(false);
+  const handleCloseEdit = () => {
+    setEditOpened(false);
     reset();
   };
 
   //TODO
-  const handleApplyEffect = () => {
+  const handleEditEffect = () => {
     // const ok = await confirmation.warning(
     //   `This will clear all frames from ${currentTime} to the end of the effect. Are you sure?`
     // );
 
     // if (ok) {
-    //   applyEffect({
-    //     payload: { start: currentTime, applyId: effectSelectedID },
+    //   editEffect({
+    //     payload: { start: currentTime, editId: effectSelectedID },
     //   });
     // }
 
-    handleCloseApply();
+    handleCloseEdit();
   };
 
   const handleOpenDelete = (PartName: string, EffectName: string) => {
@@ -101,40 +100,45 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   //   },
   // }
 
-  const modelMap: Record<string, LEDMap> = {};
+  const modelMap = useMemo(() => {
+    const tempModelMap: Record<string, LEDMap> = {};
+    let modelList: string[] = [];
+    Object.keys(dancers).forEach((dancerName) => {
+      modelList = _.union(modelList, [dancerMap[dancerName]["modelName"]]);
+    });
 
-  let modelList: string[] = [];
-  Object.keys(dancers).forEach((dancerName) => {
-    modelList = _.union(modelList, [dancerMap[dancerName]["modelName"]]);
-  });
-
-  modelList.forEach((modelName: string) => {
-    const dancer = Object.entries(dancerMap).find(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      ([dancerName, dancerData]) => {
-        return (
-          (dancerData as { url: string; modelName: string })["modelName"] ===
-          modelName
-        );
-      }
-    );
-
-    let LEDParts: string[] = [];
-    if (dancer) {
-      LEDParts = dancers[dancer[0]].filter((part) => {
-        return getPartType(part) === "LED";
-      });
-    }
-
-    LEDParts.forEach((LEDPart) => {
-      Object.entries(ledMap).forEach(([PartName, LEDEffectData]) => {
-        if (LEDPart === PartName) {
-          const PartData = { [PartName]: LEDEffectData };
-          modelMap[modelName] = { ...modelMap[modelName], ...PartData };
+    modelList.forEach((modelName: string) => {
+      const dancer = Object.entries(dancerMap).find(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([dancerName, dancerData]) => {
+          return (
+            (dancerData as { url: string; modelName: string })["modelName"] ===
+            modelName
+          );
         }
+      );
+
+      let LEDParts: string[] = [];
+      if (dancer) {
+        LEDParts = dancers[dancer[0]].filter((part) => {
+          return getPartType(part) === "LED";
+        });
+      }
+
+      LEDParts.forEach((LEDPart) => {
+        Object.entries(ledMap).forEach(([PartName, LEDEffectData]) => {
+          if (LEDPart === PartName) {
+            const PartData = { [PartName]: LEDEffectData };
+            tempModelMap[modelName] = {
+              ...tempModelMap[modelName],
+              ...PartData,
+            };
+          }
+        });
       });
     });
-  });
+    return tempModelMap;
+  }, [dancers, dancerMap, ledMap]);
 
   // console.log("LEDMap");
   // console.log(ledMap);
@@ -157,9 +161,11 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
           <Grid
             container
             justifyContent="center"
-            spacing={2}
+            spacing={3}
             sx={{
-              width: "100%",
+              mb: 2,
+              pb: 1,
+              width: "110%",
               justifyContent: "center",
               alignItems: "center",
             }}
@@ -188,39 +194,23 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
             modelName={modelName}
             modelData={modelData as LEDMap}
             key={modelName}
-            handleOpenApply={handleOpenApply}
+            handleOpenEdit={handleOpenEdit}
             handleOpenDelete={handleOpenDelete}
             expanded={expanded}
           ></ModelListItem>
         ))}
       </List>
-      <Dialog open={applyOpened} onClose={handleCloseApply}>
-        <DialogTitle>Apply LED Effect to Current Record</DialogTitle>
+      <Dialog open={editOpened} onClose={handleCloseEdit}>
+        <DialogTitle>Edit LED Effect</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {/* This will insert {effectRecordMap[effectSelected] ? effectRecordMap[effectSelected].length : 0}{" "}
-                        frame(s) to current time spot.{" "} */}
-            {collidedFrame.length > 0 ? (
-              <span>
-                The following frame(s) will be collided:
-                {collidedFrame?.map((frame) => (
-                  <span style={{ color: "#ba000d" }} key={frame}>
-                    {frame}
-                  </span>
-                ))}
-              </span>
-            ) : (
-              ""
-            )}
-            <br />
-            Are you sure to apply effect "{effectSelectedName}" to current
-            record ?
+            Are you sure to edit effect "{effectSelectedName}" ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseApply}>Cancel</Button>
-          <Button autoFocus onClick={handleApplyEffect}>
-            Apply
+          <Button onClick={handleCloseEdit}>Cancel</Button>
+          <Button autoFocus onClick={handleEditEffect}>
+            Edit
           </Button>
         </DialogActions>
       </Dialog>

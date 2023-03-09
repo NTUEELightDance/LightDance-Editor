@@ -2,6 +2,11 @@ import { useState, useCallback, useEffect } from "react";
 import { useReactiveVar } from "@apollo/client";
 import _ from "lodash";
 
+// components
+import ModelButton from "./ModelButton";
+import LEDPartButton from "./LEDPartButton";
+import FreeSoloCreateOption from "./AutoComplete";
+
 // actions
 import { setupLEDEditor } from "core/actions";
 import { setEditor } from "core/actions";
@@ -12,10 +17,6 @@ import store from "../../../store";
 
 import { getPartType } from "core/utils";
 import useTimeInput from "hooks/useTimeInput";
-
-// components
-import ModelButton from "./ModelButton";
-import LEDPartButton from "./LEDPartButton";
 
 // type
 import { isLEDPartName } from "@/core/models";
@@ -80,7 +81,7 @@ export default function LEDEffectDialog({
         ]);
       });
 
-      // display selected models without repeat
+      // Display selected models without repeat
 
       // selectedDancers.forEach((dancerName) => {
       //   newDisplayModels = _.union(newDisplayModels, [
@@ -121,7 +122,7 @@ export default function LEDEffectDialog({
           });
         }
       }
-      // display all parts without repeat by selected dancers
+      // Display all parts without repeat by selected dancers
 
       // selectedDancers.forEach((dancerName) => {
       //   newDisplayLEDParts = _.union(
@@ -222,6 +223,9 @@ export default function LEDEffectDialog({
         <Dialog open={addDialogOpen} onClose={reset}>
           <DialogTitle>New LED Effect</DialogTitle>
           <DialogContent>
+            <Grid sx={{ mb: 2, mt: 2 }}>
+              <FreeSoloCreateOption />
+            </Grid>
             <Grid>
               <TextField
                 autoFocus

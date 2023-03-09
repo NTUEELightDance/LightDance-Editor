@@ -10,20 +10,20 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-interface PartProps {
+interface partProps {
   modelData: LEDMap;
-  handleOpenApply: (PartName: string, EffectName: string) => void;
-  handleOpenDelete: (PartName: string, EffectName: string) => void;
+  handleOpenEdit: (partName: string, effectName: string) => void;
+  handleOpenDelete: (partName: string, effectName: string) => void;
 }
 
 export default function PartList({
   modelData,
-  handleOpenApply,
+  handleOpenEdit,
   handleOpenDelete,
-}: PartProps) {
+}: partProps) {
   return (
     <>
       <List
@@ -38,24 +38,24 @@ export default function PartList({
         }}
         subheader={<li />}
       >
-        {Object.entries(modelData).map(([PartName, LEDEffectData]) => {
+        {Object.entries(modelData).map(([partName, LEDEffectData]) => {
           return (
-            <>
-              <ListSubheader>{PartName}</ListSubheader>
-              {Object.keys(LEDEffectData).map((EffectName, index) => {
+            <div key={partName}>
+              <ListSubheader>{partName}</ListSubheader>
+              {Object.keys(LEDEffectData).map((effectName, index) => {
                 return (
                   <div key={index}>
                     <ListItem sx={{ pl: 4 }}>
                       <ListItemText
                         primary={
                           <Typography sx={{ fontSize: "20px", color: "white" }}>
-                            {EffectName}
+                            {effectName}
                           </Typography>
                         }
                       />
                       <ListItemSecondaryAction>
                         <Tooltip
-                          title="Apply Effect"
+                          title="Edit Effect"
                           placement="top"
                           enterDelay={300}
                           enterNextDelay={300}
@@ -63,13 +63,13 @@ export default function PartList({
                         >
                           <IconButton
                             edge="end"
-                            aria-label="apply"
+                            aria-label="edit"
                             size="medium"
                             onClick={() => {
-                              handleOpenApply(PartName, EffectName);
+                              handleOpenEdit(partName, effectName);
                             }}
                           >
-                            <AddIcon
+                            <EditRoundedIcon
                               fontSize="inherit"
                               sx={{ color: "white" }}
                             />
@@ -87,7 +87,7 @@ export default function PartList({
                             aria-label="delete"
                             size="medium"
                             onClick={() => {
-                              handleOpenDelete(PartName, EffectName);
+                              handleOpenDelete(partName, effectName);
                             }}
                           >
                             <DeleteIcon
@@ -101,7 +101,7 @@ export default function PartList({
                   </div>
                 );
               })}
-            </>
+            </div>
           );
         })}
       </List>
