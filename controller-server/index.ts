@@ -6,11 +6,17 @@ import { WebSocketServer } from "ws";
 import DancerSocket from "./websocket/dancerSocket";
 // import ControlPanelSocket from "./websocket/controlPanelSocket";
 import ControlPanelSocket from "./websocket/controlPanelSocket";
-import { ClientType, MesC2S, MesS2C, InfoType, MesR2S } from "./types/index";
+import { ClientType, MesC2S, MesS2C, MacAddrType, InfoType, MesR2S } from "./types/index";
 import NtpServer from "./ntp/index";
 
 import { ClientAgent } from "./clientAgent";
 import { ActionType } from "./constants";
+import { MAC_LIST } from "./constants/macList";
+
+// Controller Server Database
+import { ControlJsonDB } from "./database/dancerControlJson";
+import { OfJsonDB } from "./database/dancerOF";
+import { LedJsonDB } from "./database/dancerLED";
 
 const app = express();
 const server = http.createServer(app);
@@ -41,13 +47,16 @@ wss.on("connection", (ws) => {
         type = (<InfoType>((<MesR2S>parsedData).payload.info)).type;
       }
 
+      console.log("[Type of Message]: ", type)
       // check type : rpi or controlpanel
       switch (type) {
       // rpi
       case ClientType.RPI: {
         // check if `dancer` type's hostname is in board_config.json
-        const { dancerName, hostName, ip } = (<MesR2S>parsedData).payload.info as InfoType;
-
+        const { macaddr } = (<MesR2S>parsedData).payload.info as MacAddrType;
+        let dancerName = MAC_LIST[macaddr][0]
+        let hostName = MAC_LIST[macaddr][1]
+        let ip = MAC_LIST[macaddr][2]
         // socket connection established
         const dancerSocket = new DancerSocket(
           ws,
@@ -57,6 +66,15 @@ wss.on("connection", (ws) => {
           ip
         );
         dancerSocket.handleMessage();
+
+        // Send [control.json, OF.json, LED.json] back to RPi
+        const dancerControlJson = ControlJsonDB[dancerName]
+        const dancerOfJson = OfJsonDB[dancerName]
+        const dancerLedJson = LedJsonDB[dancerName]
+        dancerSocket.sendDataToRpiSocket({
+          action: ActionType.UPLOAD,
+          payload: [dancerControlJson, dancerOfJson, dancerLedJson]
+        })
 
         // response
         Object.values(clientAgent.controlPanelClients.getClients()).forEach(

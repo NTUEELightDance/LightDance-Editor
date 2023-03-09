@@ -1,6 +1,9 @@
 import ControlPanelSocket from "../websocket/controlPanelSocket";
 import DancerSocket from "../websocket/dancerSocket";
 import { ActionType, CommandSubType } from "../constants/index";
+import { ControlJsonType } from "../database/dancerControlJson";
+import { OfJsonType } from "../database/dancerOF";
+import { LedJsonType } from "../database/dancerLED";
 
 // General payload type
 // request only
@@ -20,24 +23,33 @@ interface SingleDancerControlType  {
   "start": number;
   "fade": boolean;
   "status": {
-    [key: string]: number[];
-  }
+    [key: string]: number[] /* for Of */;
+  } | number[][] /* for LED */
 }
 type ControlType ={
   [key: string]: SingleDancerControlType;
 } 
 
 type LedType = Dic
+
 // response only
 enum ClientType {
   CONTROLPANEL = "controlPanel",
   RPI = "RPi",
 }
+
+// Upload Payload = [control.json, Of.json, Led.json]
+type UploadPayloadType = [ControlJsonType | undefined, OfJsonType | undefined, LedJsonType | undefined];
 interface InfoType {
   type: ClientType;
+  macaddr?: string,
   dancerName?: string;
   ip?: string; // only needed when type is RPI
   hostName?: string;
+}
+interface MacAddrType {
+  type: ClientType;
+  macaddr: string;
 }
 interface SyncType {
   delay: TimeType; // ms
@@ -64,14 +76,15 @@ interface MesS2C {
 // In new protocol, the type of ControlType is strictly defined
 interface MesS2R {
   action: ActionType;
-  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType | CommandSubType[];
+  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType | CommandSubType[]; 
 }
 // RPi to Server
 interface MesR2S {
   command: ActionType;
+  status: boolean, // added 
   payload: {
-    success: boolean;
-    info: string | InfoType | SyncType; // RPi info
+    // success: boolean;
+    info: string | InfoType | SyncType | MacAddrType; // RPi info
   };
 }
 
@@ -88,10 +101,12 @@ export {
   TimeType,
   LightStatusType,
   PlayTimeType,
+  SingleDancerControlType,
   ControlType,
   LedType,
   ClientType,
   InfoType,
+  MacAddrType,
   SyncType,
   MesC2S,
   MesS2C,

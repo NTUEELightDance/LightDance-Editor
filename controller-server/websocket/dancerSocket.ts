@@ -2,6 +2,7 @@ import { ActionType, CommandSubType } from "../constants";
 import WebSocket from "ws";
 import {
   ClientType,
+  SingleDancerControlType,
   ControlType,
   Dic,
   LedType,
@@ -12,6 +13,10 @@ import {
   PlayTimeType,
 } from "../types";
 import { ClientAgent } from "../clientAgent";
+import { OfJsonDB } from "../database/dancerOF";
+import { ControlJsonDB } from "../database/dancerControlJson";
+import { convertTypeAcquisitionFromJson } from "typescript";
+import { LedJsonDB, LedJsonType } from "../database/dancerLED";
 
 class DancerSocket {
   ws: any;
@@ -83,7 +88,7 @@ class DancerSocket {
       // to emit message to control panel, we add from in payload
       const mesToControlPanel: MesS2C = {
         ...parsedData,
-        payload: { from: this.dancerName, ...parsedData["payload"] },
+        payload: { from: this.dancerName, success: parsedData["status"], ...parsedData["payload"] },
       };
       this.clientAgent.socketReceiveData(
         this.dancerName,
@@ -111,7 +116,7 @@ class DancerSocket {
       this.clientAgent.dancerClients.deleteClient(this.dancerName);
     };
   };
-  sendDataToRpiSocket = (data: MesS2R) => {
+  sendDataToRpiSocket = (data: MesS2R | any[]) => {
     if (this.ws) this.ws.send(JSON.stringify(data));
   };
   // getClientIp = () => {
@@ -175,16 +180,20 @@ class DancerSocket {
     });
   };
 
-  uploadOf = (data: ControlType) => {
+  uploadOf = (data: {[key: string]: SingleDancerControlType[]}) => {
+    OfJsonDB[this.dancerName] = data[this.dancerName]
     this.sendDataToRpiSocket({
-      action: ActionType.UPLOAD_OF /* payload: ControlType*/,
-      payload: data[this.dancerName],
+      action: ActionType.UPLOAD /* payload: ControlType*/,
+      payload: [ControlJsonDB[this.dancerName], OfJsonDB[this.dancerName], LedJsonDB[this.dancerName]],
     });
+    // console.log("OfJsonDB")
+    // console.log(OfJsonDB)
   };
-  uploadLED = (data: ControlType) => {
+  uploadLED = (data: {[key: string]: LedJsonType}) => {
+    LedJsonDB[this.dancerName] = data[this.dancerName]
     this.sendDataToRpiSocket({
-      action: ActionType.UPLOAD_LED /* payload: ControlType*/,
-      payload: data[this.dancerName],
+      action: ActionType.UPLOAD /* payload: ControlType*/,
+      payload: [ControlJsonDB[this.dancerName], OfJsonDB[this.dancerName], LedJsonDB[this.dancerName]],
     });
   };
   red = () => {

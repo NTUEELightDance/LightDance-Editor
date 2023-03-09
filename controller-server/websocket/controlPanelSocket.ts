@@ -47,7 +47,7 @@ class ControlPanelSocket {
       console.log(
         `[Message] From ${this.controlPanelName} receive command: ${command}\n[Message] Payload: `, payload, "\n"
       );
-
+      
       const dancers = this.clientAgent.dancerClients.getClients();
       // dancers list all the dancers as a dictionary
       selectedDancers.forEach((dancerName) => {

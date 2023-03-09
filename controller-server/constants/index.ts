@@ -3,6 +3,7 @@ enum ActionType {
   SYNC = "sync",
   UPLOAD_LED = "uploadLed",
   UPLOAD_OF = "uploadOf",
+  UPLOAD = "upload",
   BOARDINFO = "boardInfo",
   DISCONNECT = "disconnect",
   // General Command
