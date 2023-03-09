@@ -24,6 +24,7 @@ import {
 } from "./subscriptions/controlRecord";
 import { TContext } from "../types/global";
 import { EditControlMapInput } from "./inputs/map";
+import { isArray } from "class-validator";
 @Resolver((of) => ControlFrame)
 export class ControlFrameResolver {
   @Query((returns) => ControlFrame)
@@ -55,8 +56,8 @@ export class ControlFrameResolver {
     @PubSub(Topic.ControlMap) publishControlMap: Publisher<ControlMapPayload>,
     @Arg("start", (type) => Int, { nullable: false }) start: number,
     @Arg("fade", { nullable: true, defaultValue: false }) fade: boolean,
-    @Arg("controlData", (type) => [[[String]]], { nullable: true })
-    controlData: string[][][],
+    @Arg("controlData", (type) => [[[Int]]], { nullable: true })
+    controlData: number[][][],
     @Ctx() ctx: TContext
   ) {
     const check = await ctx.prisma.controlFrame.findFirst({
@@ -88,12 +89,12 @@ export class ControlFrameResolver {
       }
       const colors = await ctx.prisma.color.findMany();
       const allFiberColors = colors.map((colorData: Prisma.JsonObject) => {
-        return colorData.color;
+        return colorData.id;
       });
       const LEDEffects = await ctx.prisma.lEDEffect.findMany();
       const allLEDEffectsPart = LEDEffects.map(
         (LEDEffect: Prisma.JsonObject) => {
-          return LEDEffect.partName;
+          return LEDEffect.id;
         }
       );
       const errors: string[] = [];
@@ -110,24 +111,26 @@ export class ControlFrameResolver {
         }
         _data.map(async (data, idx) => {
           const part = parts[idx];
-          if (!data[0]) {
+          if (!isArray(data)) {
             errors.push(
-              `Missing first argument in part #${idx} in dancer #${_idx}.`
+              `part id ${part.id} has invalid control value type. (In part #${idx} in dancer #${_idx})`
             );
+            return;
           }
-          if (!data[1]) {
+          if (data.length !== 2) {
             errors.push(
-              `Missing second argument in part #${idx} in dancer #${_idx}.`
+              `part id ${part.id} has invalid control value dimension. (In part #${idx} in dancer #${_idx})`
             );
+            return;
           }
           if (part.type === "FIBER") {
-            if (data[0] && !allFiberColors.includes(data[0])) {
+            if (data[0] !== -1 && !allFiberColors.includes(data[0])) {
               errors.push(
                 `Fiber color '${data[0]}' not found!! (In part #${idx} in dancer #${_idx})`
               );
             }
           } else if (part.type === "LED") {
-            if (data[0] && !allLEDEffectsPart.includes(data[0])) {
+            if (data[0] !== -1 && !allLEDEffectsPart.includes(data[0])) {
               errors.push(
                 `LED src '${data[0]}' not found!! (In part #${idx} in dancer #${_idx})`
               );

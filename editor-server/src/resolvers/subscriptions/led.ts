@@ -1,10 +1,13 @@
-import { ObjectType, Field, ID } from "type-graphql";
+import { ObjectType, Field, ID, Int } from "type-graphql";
 import { LEDEffect } from "../../../prisma/generated/type-graphql";
 
 @ObjectType()
 export class LEDPayload {
   @Field()
   mutation: ledMutation;
+
+  @Field(() => Int)
+  id: number;
 
   @Field({ nullable: true })
   editBy?: number;

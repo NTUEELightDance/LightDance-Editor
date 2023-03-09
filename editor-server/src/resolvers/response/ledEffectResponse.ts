@@ -4,6 +4,9 @@ import { Field, ObjectType, Int, Float } from "type-graphql";
 
 @ObjectType()
 export class LEDEffectResponse {
+  @Field((type) => Int)
+  id: number;
+
   @Field((type) => String)
   partName: string;
 

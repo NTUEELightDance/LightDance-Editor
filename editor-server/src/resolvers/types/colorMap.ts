@@ -17,8 +17,8 @@ export const ColorMapScalar = new GraphQLScalarType({
     // check the type of received value
     const result: TColorMap = {};
     value.map((data) => {
-      const { color, colorCode } = data;
-      result[color] = colorCode;
+      const { id, color, colorCode } = data;
+      result[id] = { colorCode, color };
     });
     return result;
   },

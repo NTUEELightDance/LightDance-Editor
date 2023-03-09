@@ -8,18 +8,17 @@ export class ColorPayload {
   @Field((type) => Int)
   editBy: number;
 
-  @Field()
-  color: string;
+  @Field((type) => Int)
+  id: number;
 
   @Field({ nullable: true })
-  colorCode?: string;
+  color?: string;
 
-  @Field({ nullable: true })
-  renameColor?: string;
+  @Field((type) => [Int], { nullable: true })
+  colorCode?: number[];
 }
 
 export enum colorMutation {
-  RENAMED = "RENAMED",
   UPDATED = "UPDATED",
   CREATED = "CREATED",
   DELETED = "DELETED",

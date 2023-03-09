@@ -3,15 +3,15 @@ const path = require("path");
 const { NodeIO } = require("@gltf-transform/core");
 
 const BLACK = "black";
-const BLACK_HEX = "#000000";
+const BLACK_RGB = [0, 0, 0];
 const WHITE = "white";
-const WHITE_HEX = "#ffffff";
+const WHITE_RGB = [255, 255, 255];
 const RED = "red";
-const RED_HEX = "#ff0000";
+const RED_RGB = [255, 0, 0];
 const GREEN = "green";
-const GREEN_HEX = "#00ff00";
+const GREEN_RGB = [0, 255, 0];
 const BLUE = "blue";
-const BLUE_HEX = "#0000ff";
+const BLUE_RGB = [0, 0, 255];
 const ALL_BLACK = "all_black";
 const ALL_WHITE = "all_white";
 const ALL_RED = "all_red";
@@ -115,16 +115,7 @@ function generateEmptyPosMap(dancerData) {
 }
 
 function generateDefaultEffect(length, color) {
-  const LEDs = [];
-  for (let i = 0; i < length; i++) {
-    if (color.length !== 3 && color.length !== 4) {
-      throw new Error("color should be an array of 3 or 4 numbers");
-    }
-    if (color.length === 3) {
-      color.push(10);
-    }
-    LEDs.push(color);
-  }
+  const LEDs = Array(length).fill(color);
   return {
     repeat: 0,
     frames: [
@@ -151,11 +142,11 @@ function generateEmptyLEDEffects(dancerData) {
     return {
       ...acc,
       [part.name]: {
-        [ALL_BLACK]: generateDefaultEffect(part.length, [0, 0, 0, 0]),
-        [ALL_WHITE]: generateDefaultEffect(part.length, [255, 255, 255, 10]),
-        [ALL_RED]: generateDefaultEffect(part.length, [255, 0, 0, 10]),
-        [ALL_GREEN]: generateDefaultEffect(part.length, [0, 255, 0, 10]),
-        [ALL_BLUE]: generateDefaultEffect(part.length, [0, 0, 255, 10]),
+        [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
+        [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
+        [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
+        [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
+        [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
       },
     };
   }, {});
@@ -205,11 +196,11 @@ function generateEmptyLEDEffects(dancerData) {
   };
 
   const colorData = {
-    [BLACK]: BLACK_HEX,
-    [WHITE]: WHITE_HEX,
-    [RED]: RED_HEX,
-    [GREEN]: GREEN_HEX,
-    [BLUE]: BLUE_HEX,
+    [BLACK]: BLACK_RGB,
+    [WHITE]: WHITE_RGB,
+    [RED]: RED_RGB,
+    [GREEN]: GREEN_RGB,
+    [BLUE]: BLUE_RGB,
   };
 
   const LEDEffectsData = generateEmptyLEDEffects(dancerData);

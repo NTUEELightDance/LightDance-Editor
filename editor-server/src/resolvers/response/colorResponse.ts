@@ -1,12 +1,9 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 
 @ObjectType()
 export class ColorResponse {
-  @Field((type) => String)
-  color: string;
-
-  @Field((type) => String)
-  colorCode: string;
+  @Field((type) => Int)
+  id: number;
 
   @Field((type) => Boolean, { nullable: true })
   ok: boolean;

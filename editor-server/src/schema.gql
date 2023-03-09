@@ -25,12 +25,17 @@ input BoolFilter {
 
 type Color {
   color: String!
-  colorCode: String!
+  colorCode: [Int!]!
+  id: Int!
 }
 
 input ColorCreateInput {
   color: String!
-  colorCode: String!
+  colorCode: ColorCreatecolorCodeInput
+}
+
+input ColorCreatecolorCodeInput {
+  set: [Int!]!
 }
 
 type ColorMap {
@@ -43,19 +48,19 @@ scalar ColorMapCustomScalar
 input ColorOrderByWithRelationInput {
   color: SortOrder
   colorCode: SortOrder
+  id: SortOrder
 }
 
 type ColorPayload {
-  color: String!
-  colorCode: String
+  color: String
+  colorCode: [Int!]
   editBy: Int!
+  id: Int!
   mutation: String!
-  renameColor: String
 }
 
 type ColorResponse {
-  color: String!
-  colorCode: String!
+  id: Int!
   msg: String
   ok: Boolean
 }
@@ -63,6 +68,17 @@ type ColorResponse {
 enum ColorScalarFieldEnum {
   color
   colorCode
+  id
+}
+
+input ColorUpdateInput {
+  color: StringFieldUpdateOperationsInput
+  colorCode: ColorUpdatecolorCodeInput
+}
+
+input ColorUpdatecolorCodeInput {
+  push: [Int!]
+  set: [Int!]
 }
 
 input ColorWhereInput {
@@ -70,11 +86,13 @@ input ColorWhereInput {
   NOT: [ColorWhereInput!]
   OR: [ColorWhereInput!]
   color: StringFilter
-  colorCode: StringFilter
+  colorCode: IntNullableListFilter
+  id: IntFilter
 }
 
 input ColorWhereUniqueInput {
   color: String
+  id: Int
 }
 
 type ControlData {
@@ -534,11 +552,6 @@ type DeleteLEDEffectResponse {
   ok: Boolean!
 }
 
-input DeleteLEDInput {
-  effectName: String!
-  partName: String!
-}
-
 input DeletePartInput {
   id: Int!
 }
@@ -554,7 +567,7 @@ input EditControlFrameInput {
 }
 
 input EditControlMapInput {
-  controlData: [[[String!]!]!]!
+  controlData: [[[Int!]!]!]!
   fade: Boolean
   frameId: Int!
 }
@@ -562,8 +575,8 @@ input EditControlMapInput {
 input EditLEDInput {
   frames: LEDEffectCreateframesInput
   id: Int!
-  name: String!
-  repeat: Int!
+  name: String
+  repeat: Int
 }
 
 input EditPartInput {
@@ -969,6 +982,14 @@ input IntNullableFilter {
   notIn: [Int!]
 }
 
+input IntNullableListFilter {
+  equals: [Int!]
+  has: Int
+  hasEvery: [Int!]
+  hasSome: [Int!]
+  isEmpty: Boolean
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -1058,6 +1079,7 @@ input LEDEffectRelationFilter {
 type LEDEffectResponse {
   effectName: String!
   effects: [LEDEffects!]!
+  id: Int!
   msg: String
   ok: Boolean!
   partName: String!
@@ -1133,6 +1155,7 @@ type LEDPayload {
   data: LEDEffect
   editBy: Float
   effectName: String
+  id: Int!
   mutation: String!
   partName: String
 }
@@ -1145,21 +1168,21 @@ type Mutation {
   RequestEditLEDEffect(LEDEffectID: Int!): RequestEditResponse!
   RequestEditPosition(FrameID: Int!): RequestEditResponse!
   addColor(color: ColorCreateInput!): Color!
-  addControlFrame(controlData: [[[String!]!]!], fade: Boolean = false, start: Int!): ControlFrame!
+  addControlFrame(controlData: [[[Int!]!]!], fade: Boolean = false, start: Int!): ControlFrame!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addEffectList(description: String, end: Int!, start: Int!): EffectListData!
   addLEDEffect(input: LEDEffectCreateInput!): LEDEffectResponse!
   addPart(part: AddPartInput!): PartResponse!
   addPositionFrame(positionData: [[Float!]!], start: Int!): PositionFrame!
   applyEffectList(id: Int!, start: Int!): EffectListResponse!
-  deleteColor(color: String!): ColorResponse!
+  deleteColor(id: Int!): ColorResponse!
   deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deleteEffectList(id: Int!): EffectListResponse!
-  deleteLEDEffect(input: DeleteLEDInput!): DeleteLEDEffectResponse!
+  deleteLEDEffect(id: Int!): DeleteLEDEffectResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
-  editColorCodeByColor(color: String!, colorCode: String!): Color!
+  editColor(data: ColorUpdateInput!, id: Int!): Color!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
   editControlMap(input: EditControlMapInput!): ControlMap!
   editDancer(dancer: editDancerInput!): DancerResponse!
@@ -1167,7 +1190,6 @@ type Mutation {
   editPart(part: EditPartInput!): PartResponse!
   editPosMap(input: EditPositionMapInput!): PositionMap!
   editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
-  renameColor(newColor: String!, originalColor: String!): String!
   shift(end: Int!, move: Int!, shiftControl: Boolean!, shiftPosition: Boolean!, start: Int!): ShiftResponse!
   updateOneLEDEffect(data: LEDEffectUpdateInput!, where: LEDEffectWhereUniqueInput!): LEDEffect
 }

@@ -12,6 +12,9 @@ import {
   TExportLEDFrame,
   TExportLEDFrameLED,
   TPositionPos,
+  TColorIdPair,
+  TLEDIdPair,
+  TPartLEDPair,
 } from "../../types/global";
 import { isArray } from "class-validator";
 import { Prisma } from "@prisma/client";
@@ -91,12 +94,29 @@ const uploadData = async (req: Request, res: Response) => {
     // check color data type & add fiber color list
     Object.keys(color).forEach((colorKey: string) => {
       allFiberColors.add(colorKey);
-      if (typeof color[colorKey] !== "string")
+      if (!isArray(color[colorKey])) {
         error.push(
           `COLOR_DATA_ERROR: Color ${colorKey}'s value type is ${typeof color[
             colorKey
-          ]}, while string expected.`
+          ]}, while array expected.`
         );
+        return;
+      }
+      if (color[colorKey].length !== 3) {
+        error.push(
+          `COLOR_DATA_ERROR: Color ${colorKey}'s value length is ${color[colorKey].length}, while 3 expected.`
+        );
+        return;
+      }
+      if (
+        typeof color[colorKey][0] !== "number" ||
+        typeof color[colorKey][1] !== "number" ||
+        typeof color[colorKey][2] !== "number"
+      ) {
+        error.push(
+          `COLOR_DATA_ERROR: Color ${colorKey}'s value type is incorrect, expected 3 number.`
+        );
+      }
     });
 
     // check dancer data type
@@ -168,20 +188,21 @@ const uploadData = async (req: Request, res: Response) => {
               );
               return;
             }
-            if (LED.length !== 4) {
+            if (LED.length !== 2) {
               error.push(
                 `LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx}, LEDs idx ${LEDIdx} has incorrect shape. Expected 4 number, but received ${LED.length}.`
               );
               return;
             }
-            if (
-              typeof LED[0] !== "number" ||
-              typeof LED[1] !== "number" ||
-              typeof LED[2] !== "number" ||
-              typeof LED[3] !== "number"
-            ) {
+            if (typeof LED[0] !== "string" || !allFiberColors.has(LED[0])) {
               error.push(
-                `LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx}, LEDs idx ${LEDIdx} has incorrect type. Expected 4 number`
+                `LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx}, LEDs idx ${LEDIdx} has unknown colorName ${LED[0]}.`
+              );
+              return;
+            }
+            if (typeof LED[1] !== "number") {
+              error.push(
+                `LEDEFFECT_DATA_ERROR: LEDEffect name ${effectName}, frames idx ${frameIdx}, LEDs idx ${LEDIdx} has incorrect data type at index 2. Expected number`
               );
             }
           });
@@ -364,26 +385,37 @@ const uploadData = async (req: Request, res: Response) => {
     await prisma.effectListData.deleteMany();
 
     // create fiber color
+
+    const colorDict: TColorIdPair = {};
     await Promise.all(
       Object.keys(color).map(async (colorKey: string) => {
-        await prisma.color.create({
+        const newColor = await prisma.color.create({
           data: {
             color: colorKey,
             colorCode: color[colorKey],
           },
         });
+        colorDict[colorKey] = newColor.id;
       })
     );
 
     // create LED data
+    const LEDDict: TPartLEDPair = {};
     await Promise.all(
       Object.keys(LEDEffects).map(async (partName: string) => {
         const effectData = LEDEffects[partName];
+        const EffectIdDict: TLEDIdPair = {};
         await Promise.all(
           Object.keys(effectData).map(async (effectName: string) => {
-            const frames = effectData[effectName].frames as Prisma.JsonObject[];
+            const frames = effectData[effectName].frames.map((frame) => {
+              const LEDs = frame.LEDs.map((led) => {
+                return [colorDict[led[0]], led[1]];
+              });
+              return { ...frame, LEDs };
+            });
+            // const frames = effectData[effectName].frames as Prisma.JsonObject[];
             const { repeat } = effectData[effectName];
-            await prisma.lEDEffect.create({
+            const led = await prisma.lEDEffect.create({
               data: {
                 name: effectName,
                 partName: partName,
@@ -391,8 +423,10 @@ const uploadData = async (req: Request, res: Response) => {
                 frames: frames,
               },
             });
+            EffectIdDict[effectName] = led.id;
           })
         );
+        LEDDict[partName] = EffectIdDict;
       })
     ).catch((e) => console.log(e));
 
@@ -491,15 +525,29 @@ const uploadData = async (req: Request, res: Response) => {
                 const tmpPart = allDancer[realDancer.name].parts[realPart.name];
                 let controlDataJson: Prisma.JsonValue = {};
                 if (tmpPart.type === "FIBER") {
-                  controlDataJson = {
-                    color: partStatus[0],
-                    alpha: partStatus[1],
-                  };
+                  if (partStatus[0] === "") {
+                    controlDataJson = {
+                      color: -1,
+                      alpha: partStatus[1],
+                    };
+                  } else {
+                    controlDataJson = {
+                      color: colorDict[partStatus[0]],
+                      alpha: partStatus[1],
+                    };
+                  }
                 } else if (tmpPart.type === "LED") {
-                  controlDataJson = {
-                    src: partStatus[0],
-                    alpha: partStatus[1],
-                  };
+                  if (partStatus[0] === "") {
+                    controlDataJson = {
+                      src: -1,
+                      alpha: partStatus[1],
+                    };
+                  } else {
+                    controlDataJson = {
+                      src: LEDDict[realPart.name][partStatus[0]],
+                      alpha: partStatus[1],
+                    };
+                  }
                 } else {
                   controlDataJson = {
                     value: partStatus[0],
