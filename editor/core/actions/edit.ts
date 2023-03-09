@@ -2,7 +2,7 @@ import { registerActions } from "../registerActions";
 // types
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
-import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "@/constants";
+import { CONTROL_EDITOR, EDITING, POS_EDITOR } from "@/constants";
 import { getControlPayload, getPosPayload, deleteColorCode } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
@@ -145,7 +145,9 @@ const actions = registerActions({
     const isCancelled = await agent.cancelEditPermission(frameId);
     if (isCancelled) {
       cancelEditMode();
-    } else notification.error("Cancel Permission Error");
+    } else {
+      notification.error("Cancel Permission Error");
+    }
   },
 
   /**
@@ -174,7 +176,7 @@ const actions = registerActions({
   },
 
   cancelEditMode: (state: State) => {
-    state.editorState = IDLE;
+    state.editorState = "IDLE";
   },
 });
 

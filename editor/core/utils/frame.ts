@@ -43,41 +43,8 @@ export function updateFrameByTimeMap(
   ) {
     return controlIndex + 1;
   }
-  return binarySearchFrameMap(record, map, time);
-}
 
-/**
- * binarySearch based on controlRecord and controlMap (array of object with start), return the index
- * @param {object} data - target control (array of status)
- * @param {number} time - target time
- */
-export function binarySearchFrameMap(
-  record: ControlRecord | PosRecord,
-  map: ControlMap | PosMap,
-  time: number
-) {
-  if (!Array.isArray(record)) {
-    throw new Error(
-      "[Error] updateFrameByTimeMap, invalid parameter(controlRecord)"
-    );
-  }
-  if (typeof map !== "object") {
-    throw new Error(
-      "[Error] updateFrameByTimeMap, invalid parameter(controlMap)"
-    );
-  }
-  if (typeof time !== "number") {
-    throw new Error("[Error] binarySearchFrame, invalid parameter(time)");
-  }
-  let l = 0;
-  let r = record.length - 1;
-  let m = Math.floor((l + r + 1) / 2);
-  while (l < r) {
-    if (map[record[m]].start <= time) l = m;
-    else r = m - 1;
-    m = Math.floor((l + r + 1) / 2);
-  }
-  return m;
+  return binarySearchObjects(record, time, (val) => map[val].start);
 }
 
 export function binarySearchObjects<T>(

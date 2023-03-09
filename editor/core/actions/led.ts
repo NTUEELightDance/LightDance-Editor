@@ -10,13 +10,13 @@ import type {
   LEDData,
   LEDMap,
   LEDEffect,
-  LEDEffectFrame,
   LEDPartName,
   LEDBulbData,
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
 import {
+  binarySearchObjects,
   createEmptyLEDEffectFrame,
   getControl,
   getDancerFromLEDpart,
@@ -30,6 +30,8 @@ import { ControlRecord } from "../models";
 import { PartTypeMap } from "../models";
 import { Dancers } from "../models";
 import { initCurrentLEDStatus } from "./initialize";
+import { cancelEditMode } from "./edit";
+import { setCurrentTime } from "./timeData";
 
 const actions = registerActions({
   setLEDMap: async (state: State, payload: LEDMap) => {
@@ -84,6 +86,19 @@ const actions = registerActions({
     state.currentLEDStatus = newCurrentLEDStatus;
   },
 
+  startEditingLED: (state: State) => {
+    const currentLEDEffect = state.currentLEDEffect;
+    if (currentLEDEffect === null) {
+      throw new Error("No current LED effect");
+    }
+
+    state.editingData = {
+      start: currentLEDEffect.effects[state.currentLEDIndex].start,
+      frameId: state.currentLEDIndex.toString(),
+      index: state.currentLEDIndex,
+    };
+  },
+
   addFrameToCurrentLEDEffect: (state: State) => {
     if (state.currentLEDEffect === null) {
       throw new Error("No current LED effect");
@@ -96,40 +111,68 @@ const actions = registerActions({
     const dancerName = getDancerFromLEDpart(LEDPartName);
 
     const { effect } = state.currentLEDStatus[dancerName][LEDPartName];
+    const start = state.currentTime - state.currentLEDEffectStart;
+    // check if there is already a frame at the same time
+    const index = binarySearchObjects(
+      newCurrentLEDEffect.effects,
+      start,
+      (effect) => effect.start
+    );
+
+    if (newCurrentLEDEffect.effects[index]?.start === start) {
+      throw new Error("There is already a frame at the same time");
+    }
 
     newCurrentLEDEffect.effects.push({
-      start: state.currentTime - state.currentLEDEffectStart,
+      start,
       fade: state.currentFade,
       effect,
     });
     newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
     state.currentLEDEffect = newCurrentLEDEffect;
-  },
 
-  updateFrameInCurrentLEDEffect: (
-    state: State,
-    payload: {
-      index: number;
-      frame: LEDEffectFrame;
-    }
-  ) => {
-    if (state.currentLEDEffect === null) {
-      throw new Error("No current LED effect");
-    }
-    const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
-    newCurrentLEDEffect.effects[payload.index] = payload.frame;
-    newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
-    state.currentLEDEffect = newCurrentLEDEffect;
+    setCurrentTime({ payload: state.currentTime });
   },
 
   // payload is the index of the frame to be deleted
-  deleteFrameFromCurrentLEDEffect: (state: State, payload: number) => {
+  deleteCurrentFrameFromCurrentLEDEffect: (state: State) => {
     if (state.currentLEDEffect === null) {
       throw new Error("No current LED effect");
     }
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
-    newCurrentLEDEffect.effects.splice(payload, 1);
+    newCurrentLEDEffect.effects.splice(state.currentLEDIndex, 1);
     state.currentLEDEffect = newCurrentLEDEffect;
+
+    setCurrentTime({ payload: state.currentTime });
+  },
+
+  // payload is whether we should modify the time of the frame
+  saveCurrentLEDEffectFrame: (state: State, payload: boolean) => {
+    if (state.currentLEDEffect === null) {
+      throw new Error("No current LED effect");
+    }
+    if (state.currentLEDPartName === null) {
+      throw new Error("No current LED part");
+    }
+    const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
+    const LEDPartName = state.currentLEDPartName;
+    const dancerName = getDancerFromLEDpart(LEDPartName);
+
+    const { effect } = state.currentLEDStatus[dancerName][LEDPartName];
+
+    const start = payload
+      ? state.currentTime - state.currentLEDEffectStart
+      : newCurrentLEDEffect.effects[state.currentLEDIndex].start;
+
+    newCurrentLEDEffect.effects[state.currentLEDIndex] = {
+      start,
+      fade: state.currentFade,
+      effect,
+    };
+    newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
+    state.currentLEDEffect = newCurrentLEDEffect;
+
+    cancelEditMode();
   },
 
   setupLEDEditor: async (
@@ -252,13 +295,14 @@ export const {
   setCurrentLEDEffectName,
   setCurrentLEDEffect,
   setCurrentLEDEffectRepeat,
+  startEditingLED,
   editCurrentLEDStatus,
   setLEDMap,
   syncLEDEffectRecord,
   syncCurrentLEDStatus,
   addFrameToCurrentLEDEffect,
-  deleteFrameFromCurrentLEDEffect,
-  updateFrameInCurrentLEDEffect,
+  deleteCurrentFrameFromCurrentLEDEffect,
+  saveCurrentLEDEffectFrame,
   setupLEDEditor,
   exitLEDEditor,
 } = actions;

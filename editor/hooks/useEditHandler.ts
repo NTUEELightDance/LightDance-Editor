@@ -31,16 +31,12 @@ export default function useEditHandler() {
     const editingData = reactiveState.editingData();
     const currentTime = reactiveState.currentTime();
 
-    let requestTimeChange = false;
-    if (editingData.start !== currentTime) {
-      if (
-        await confirmation.info(
-          `You have modify the time, do you want to change the time from ${editingData.start} to ${currentTime}?`
-        )
-      ) {
-        requestTimeChange = true;
-      }
-    }
+    const requestTimeChange =
+      editingData.start !== currentTime &&
+      (await confirmation.info(
+        `You have modify the time, do you want to change the time from ${editingData.start} to ${currentTime}?`
+      ));
+
     try {
       await save({ payload: requestTimeChange });
       notification.success("Save frame completed!");

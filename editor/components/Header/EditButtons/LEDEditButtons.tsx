@@ -11,7 +11,14 @@ import {
   SaveButton,
 } from "./Buttons";
 
-import { addFrameToCurrentLEDEffect } from "@/core/actions/led";
+import {
+  addFrameToCurrentLEDEffect,
+  deleteCurrentFrameFromCurrentLEDEffect,
+  saveCurrentLEDEffectFrame,
+  startEditingLED,
+  cancelEditMode,
+} from "@/core/actions";
+import { confirmation, notification } from "@/core/utils";
 
 function LEDEditButton() {
   const editorState = useReactiveVar(reactiveState.editorState);
@@ -23,9 +30,42 @@ function LEDEditButton() {
   };
 
   const handleAddFrame = async () => {
-    loading.add = true;
-    await addFrameToCurrentLEDEffect();
-    loading.add = false;
+    try {
+      await addFrameToCurrentLEDEffect();
+      notification.success("Frame added");
+    } catch (err) {
+      notification.error((err as Error).message);
+    }
+  };
+
+  const handleEdit = () => {
+    startEditingLED();
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteCurrentFrameFromCurrentLEDEffect();
+      notification.success("Frame deleted");
+    } catch (err) {
+      notification.error((err as Error).message);
+    }
+  };
+
+  const handleSave = async () => {
+    const currentTime = reactiveState.currentTime();
+    const editingData = reactiveState.editingData();
+
+    const requestTimeChange =
+      currentTime !== editingData.start &&
+      (await confirmation.info(
+        `You have modify the time, do you want to change the time from ${editingData.start} to ${currentTime}?`
+      ));
+
+    saveCurrentLEDEffectFrame({ payload: requestTimeChange });
+  };
+
+  const handleCancel = () => {
+    cancelEditMode();
   };
 
   return (
@@ -43,13 +83,24 @@ function LEDEditButton() {
           ) : (
             <AddButton onClick={handleAddFrame} />
           )}
-          <EditButton />
-          {loading.delete ? <LoadingButton /> : <DeleteButton />}
+
+          <EditButton onClick={handleEdit} />
+
+          {loading.delete ? (
+            <LoadingButton />
+          ) : (
+            <DeleteButton onClick={handleDelete} />
+          )}
         </>
       ) : (
         <>
-          {loading.save ? <LoadingButton /> : <SaveButton />}
-          <CancelButton />
+          {loading.save ? (
+            <LoadingButton />
+          ) : (
+            <SaveButton onClick={handleSave} />
+          )}
+
+          <CancelButton onClick={handleCancel} />
         </>
       )}
     </Box>
