@@ -11,8 +11,6 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-// hooks
-import useWebsocket from "hooks/useWebsocket";
 // constants
 import { COMMANDS } from "@/constants";
 // contexts
@@ -22,13 +20,20 @@ import { wavesurferContext } from "types/components/wavesurfer";
 
 import { notification } from "core/utils";
 
+import { panelPayloadType } from "types/hooks/webSocket";
+
 export default function CommandControls({
   selectedDancers,
+  delay,
+  sendCommand,
+  setDelay,
 }: {
   selectedDancers: string[];
+  delay: number;
+  sendCommand: (panelPayload: panelPayloadType) => Promise<void>;
+  setDelay: any;
 }) {
   // hook
-  const { delay, sendCommand, setDelay } = useWebsocket();
 
   const [showDropDown, setShowDropDown] = useState(false);
 
@@ -94,6 +99,7 @@ export default function CommandControls({
     { command: COMMANDS.PLAY },
     { command: COMMANDS.PAUSE },
     { command: COMMANDS.STOP },
+    { command: COMMANDS.TEST },
   ];
   const ButtonGroup3 = [
     { command: COMMANDS.RESTARTCONTROLLER },

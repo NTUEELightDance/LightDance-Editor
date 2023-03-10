@@ -14,23 +14,27 @@ interface SyncType {
   offset: number;
 }
 type LightStatusType = any;
-interface BoardInfoType {
+interface BoardInfoS2CType {
   dancerName: string[]; // array of dancerNames
   ip: string[]; // array of ips
   hostName: string[]; // array of hostNames
+}
+interface BoardInfoC2SType {
+  command: string;
+  payload: { type: string };
 }
 interface MesS2CType {
   command: string; // ex. COMMANDS.START
   payload: {
     from: string; // dancer name
     success: boolean;
-    info: string | InfoType | SyncType | BoardInfoType;
+    info: string | InfoType | SyncType | BoardInfoS2CType;
   };
 }
 interface MesC2SType {
   command: string; // ex. COMMANDS.START
   selectedDancers: string[]; // if no dancer -> []
-  payload: string | PlayTimeType | LightStatusType | InfoType; // correspond to command
+  payload?: string | PlayTimeType | LightStatusType | InfoType; // correspond to command
 }
 interface setMessageType {
   dancer: string;
@@ -55,7 +59,8 @@ export {
   SyncType,
   MesS2CType,
   MesC2SType,
-  BoardInfoType,
+  BoardInfoS2CType,
+  BoardInfoC2SType,
   setMessageType,
   dancerStatusType,
   panelPayloadType,

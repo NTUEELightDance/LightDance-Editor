@@ -55,13 +55,22 @@ class ControlPanelSocket {
           dancers[dancerName].methods[command](payload);
         } catch (e) {
           console.log(`[Error] From ${this.controlPanelName} error: ${e}\n`);
+          // fake response
           const res: MesS2C = {
             command,
             payload: {
-              success: false,
-              info: "error",
+              success: true,
+              info: command,
+              from: dancerName,
             },
           };
+          // const res: MesS2C = {
+          //   command,
+          //   payload: {
+          //     success: false,
+          //     info: "error",
+          //   },
+          // };
           this.ws.send(JSON.stringify(res));
         }
       });

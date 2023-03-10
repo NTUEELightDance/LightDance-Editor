@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useImmer } from "use-immer";
-import { COMMANDS, WEBSOCKETCLIENT } from "@/constants";
+import { COMMANDS } from "@/constants";
 // states
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "core/state";
@@ -11,7 +11,8 @@ import {
   SyncType,
   MesS2CType,
   MesC2SType,
-  BoardInfoType,
+  BoardInfoS2CType,
+  BoardInfoC2SType,
   setMessageType,
   dancerStatusType,
   panelPayloadType,
@@ -32,7 +33,7 @@ export default function useWebsocketState() {
   const [dancerStatus, setDancerStatus] = useImmer<dancerStatusType>({});
   const [delay, setDelay] = useImmer(0);
   const ws = useRef<WebSocket | null>(null);
-  const sendDataToServer = (data: any) => {
+  const sendDataToServer = (data: BoardInfoC2SType | MesC2SType) => {
     (ws.current as WebSocket).send(JSON.stringify(data));
   };
 
@@ -48,9 +49,8 @@ export default function useWebsocketState() {
       log("Websocket for Editor Connected");
       sendDataToServer({
         command: BOARDINFO,
-        payload: { type: WEBSOCKETCLIENT.CONTROLPANEL },
+        payload: { type: "controlPanel" },
       });
-
       (ws.current as WebSocket).onerror = (err) => {
         log(`Editor's Websocket error : ${err} `);
       };
@@ -85,7 +85,7 @@ export default function useWebsocketState() {
       setDancerMsg({ dancer, msg: "......", Ok: false });
     });
     const sysTime = delay + Date.now();
-    const MesC2S: MesC2SType = { command, selectedDancers, payload: "" };
+    const MesC2S: MesC2SType = { command, selectedDancers };
     switch (
       command // handle command that needs payload
     ) {
@@ -94,9 +94,6 @@ export default function useWebsocketState() {
         break;
       case COMMANDS.UPLOAD_OF:
         MesC2S.payload = await generateControlOF();
-        break;
-      case COMMANDS.TEST:
-        MesC2S.payload = {};
         break;
       case COMMANDS.PLAY:
         MesC2S.payload = {
@@ -160,7 +157,7 @@ export default function useWebsocketState() {
     const { success, info, from } = payload;
     switch (command) {
       case BOARDINFO: {
-        const { dancerName, ip, hostName } = info as BoardInfoType;
+        const { dancerName, ip, hostName } = info as BoardInfoS2CType;
         setDancerStatus((draft) => {
           dancerName.map((name: string, index: number) => {
             draft[name] = {
@@ -216,7 +213,8 @@ export default function useWebsocketState() {
       initDancerStatus[dancerName] = initStatus;
     });
     setDancerStatus(initDancerStatus);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dancerNames]);
 
   return {
     delay,

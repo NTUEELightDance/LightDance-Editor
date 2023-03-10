@@ -21,6 +21,7 @@ function CommandCenterTable({
   selectedDancers: string[];
   handleToggleDancer: (dancerName: string) => void;
 }) {
+  // console.log("dancerStatus", dancerStatus);
   return (
     <TableContainer>
       <Table size="small">

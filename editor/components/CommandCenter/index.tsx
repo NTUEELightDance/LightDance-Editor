@@ -14,7 +14,7 @@ import useWebsocket from "hooks/useWebsocket";
  */
 export default function CommandCenter() {
   // hook
-  const { dancerStatus } = useWebsocket();
+  const { dancerStatus, delay, sendCommand, setDelay } = useWebsocket();
   const [selectedDancers, setSelectedDancers] = useImmer<string[]>([]); // array of dancerName that is selected
 
   const handleToggleDancer = (dancerName: string) => {
@@ -40,7 +40,12 @@ export default function CommandCenter() {
   return (
     <Paper sx={{ p: "2em", minHeight: "100%" }}>
       <Stack gap="2em">
-        <CommandControls selectedDancers={selectedDancers} />
+        <CommandControls
+          selectedDancers={selectedDancers}
+          delay={delay}
+          sendCommand={sendCommand}
+          setDelay={setDelay}
+        />
 
         <CommandCenterTable
           {...{
