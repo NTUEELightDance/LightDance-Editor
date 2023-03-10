@@ -5,7 +5,7 @@ import _ from "lodash";
 // components
 import ModelButton from "./ModelButton";
 import LEDPartButton from "./LEDPartButton";
-import FreeSoloCreateOption from "./AutoComplete";
+import EffectNameTextField from "./EffectNameTextField";
 
 // actions
 import { setupLEDEditor } from "core/actions";
@@ -48,6 +48,7 @@ export default function LEDEffectDialog({
   const [chosenLEDPart, setChosenLEDPart] = useState<string>("");
   const [newLEDEffectName, setNewLEDEffectName] = useState<string>("");
   const [newEffectFromTime, setNewEffectFromTime] = useState<number>(0);
+  const [actionMode, setActionMode] = useState<string>("IDLE");
   const { textFieldProps: fromTextFieldProps, timeError: fromTimeError } =
     useTimeInput([
       newEffectFromTime,
@@ -178,6 +179,7 @@ export default function LEDEffectDialog({
     setChosenLEDPart("");
     setNewLEDEffectName("");
     setNewEffectFromTime(0);
+    setActionMode("IDLE");
   }
 
   // Handle function
@@ -216,6 +218,12 @@ export default function LEDEffectDialog({
     reset();
   };
 
+  // TODO
+  const handleEditLEDEffect = () => {
+    reset();
+    return;
+  };
+
   // Return
   return (
     <div>
@@ -224,7 +232,12 @@ export default function LEDEffectDialog({
           <DialogTitle>New LED Effect</DialogTitle>
           <DialogContent>
             <Grid sx={{ mb: 2, mt: 2 }}>
-              <FreeSoloCreateOption />
+              <EffectNameTextField
+                handleChangeChosenModel={handleChangeChosenModel}
+                handleChangeChosenLEDPart={handleChangeChosenLEDPart}
+                actionMode={actionMode}
+                setActionMode={setActionMode}
+              />
             </Grid>
             <Grid>
               <TextField
@@ -271,12 +284,21 @@ export default function LEDEffectDialog({
           </DialogContent>
           <DialogActions>
             <Button onClick={reset}>Cancel</Button>
-            <Button
-              onClick={handleAddLEDEffect}
-              disabled={!newLEDEffectName || !chosenLEDPart}
-            >
-              Add
-            </Button>
+            {actionMode === "EDIT" ? (
+              <Button
+                onClick={handleEditLEDEffect}
+                disabled={actionMode != "EDIT" || !chosenLEDPart}
+              >
+                Edit
+              </Button>
+            ) : (
+              <Button
+                onClick={handleAddLEDEffect}
+                disabled={actionMode != "ADD" || !chosenLEDPart}
+              >
+                Add
+              </Button>
+            )}
           </DialogActions>
         </Dialog>
       </Paper>
