@@ -2,17 +2,18 @@ import { instance } from  "./axios"
 
 const getDancerFiberData = async (dancerName: string) => {
     try {
-      const res = await instance.get("/getDancerFiberData", {
-        params: {dancer: dancerName}
-      });
-
+      const res = await instance.get(`/getDancerFiberData?dancer=${dancerName}`)
+      if(!res.data) console.log(`[API GET ERROR] ${dancerName} cannot be found in editor server /getDancerFiberData API`)
       return {
-        token: res.data.token,
-        success: res.status === 200,
-      };
+        success: !(!res.data),
+        data: res.data,
+      }
     } catch (error) {
       return {
         success: false,
+        message: error,
       };
     }
   }
+
+  export { getDancerFiberData }

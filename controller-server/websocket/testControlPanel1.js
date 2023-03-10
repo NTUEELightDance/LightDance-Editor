@@ -10,11 +10,15 @@ socket.addEventListener("open", (evnt)  => {
             type:  "controlPanel",
         }
     }));
+    socket.send(JSON.stringify({
+        command: "refresh",
+        selectedDancers: ["1_hank"],
+    }));
 
     socket.send(JSON.stringify({
         command: "uploadOf",
-        selectedDancers: ["Ray"],
-        payload: {"Ray" :  [ 
+        selectedDancers: ["1_hank"],
+        payload: {"1_hank" :  [ 
             {
             "start": 0,
             "fade": true,
@@ -79,7 +83,7 @@ socket.addEventListener("open", (evnt)  => {
     }));
 
     const UPLOAD_LED_JSON = {
-        "Ray": {
+        "1_hank": {
             "led1": [
             {
                 "start": 150,
@@ -171,13 +175,13 @@ socket.addEventListener("open", (evnt)  => {
 
     socket.send(JSON.stringify({
         command: "uploadLed",
-        selectedDancers: ["Ray"],
+        selectedDancers: ["1_hank"],
         payload: UPLOAD_LED_JSON
     }))
 
     // socket.send(JSON.stringify({
     //     command: "stop",
-    //     selectedDancers: ["Ray"],
+    //     selectedDancers: ["1_hank"],
 
     //     // play command:
     //     // payload: {
@@ -187,7 +191,7 @@ socket.addEventListener("open", (evnt)  => {
 
     // socket.send(JSON.stringify({
     //     command: "play",
-    //     selectedDancers: ["Ray"],
+    //     selectedDancers: ["1_hank"],
 
     //     // play command:
     //     payload: {
