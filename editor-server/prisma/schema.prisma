@@ -74,7 +74,7 @@ model EditingLEDEffect {
 
 model Dancer {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @unique
 
   // relation => not in db
   parts        Part[]

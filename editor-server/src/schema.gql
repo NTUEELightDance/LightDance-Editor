@@ -541,6 +541,7 @@ input DancerWhereInput {
 
 input DancerWhereUniqueInput {
   id: Int
+  name: String
 }
 
 input DeleteControlFrameInput {
