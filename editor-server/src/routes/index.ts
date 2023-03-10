@@ -8,6 +8,8 @@ import login from "./api/login";
 import logout from "./api/logout";
 import checkToken from "./api/checkToken";
 import createUser from "./api/createUser";
+import getDancerFiberData from "./api/getDancerFiberData";
+import getDancerLEDData from "./api/getDancerLEDData";
 
 const router = express.Router();
 
@@ -19,5 +21,7 @@ router.post("/login", login);
 router.post("/logout", logout);
 router.get("/checkToken", checkToken);
 router.post("/createUser", createUser);
+router.get("/getDancerLEDData", getDancerLEDData);
+router.get("/getDancerFiberData", getDancerFiberData);
 
 export default router;
