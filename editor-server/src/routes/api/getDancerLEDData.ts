@@ -54,7 +54,6 @@ const getDancerLEDData = async (req: Request, res: Response) => {
                 frame: {
                   select: {
                     start: true,
-                    fade: true,
                   },
                 },
               },
@@ -87,40 +86,70 @@ const getDancerLEDData = async (req: Request, res: Response) => {
         });
 
         let last = 0;
+        let originLED: TLEDData[] = [
+          {
+            LEDs: Array(length).fill([0, 0, 0, 0]),
+            fade: false,
+            start: 0,
+          },
+        ];
+        let originRepeat = false;
+        let originAlpha = 0;
 
         ret[name] = controlData?.reduce<TPartData[]>((ori, control: any) => {
           const newControl = ori;
           const { src } = control.value as {
             src: number;
           };
-          const start = control.frame?.start;
-          const frameFade = control.frame?.fade;
+          const frameAlpha = control.value.alpha;
+          const frameStart = control.frame?.start;
+
           if (src === -1) {
-            if (start > last)
-              newControl.push({
-                start: start,
-                fade: frameFade,
-                status: Array(length).fill([0, 0, 0, 0]),
-              });
             return newControl;
           }
-          const led = ledDict[src.toString()];
-          const { repeat, frames }: { repeat: number; frames: TLEDData[] } =
-            led as any;
-          frames.sort((frame1, frame2) => {
-            return frame1.start - frame2.start;
-          });
 
-          const duration = frames[frames.length - 1].start + 1;
-          Array.from(Array(repeat + 1).keys()).map((t) => {
-            frames.map((frame) => {
+          // insert data
+          if (originRepeat) {
+            const duration = originLED[originLED.length - 1].start + 1;
+            const repeatTime =
+              originLED.length === 1
+                ? 1
+                : Math.ceil((frameStart - last) / duration);
+            Array.from(Array(repeatTime).keys()).forEach((t) => {
+              originLED.forEach((frame) => {
+                const fade = frame.fade;
+                const start = frame.start;
+                const LEDs = frame.LEDs;
+                if (last + duration * t + start >= frameStart) return;
+
+                const status = LEDs.map((led) => {
+                  const color = led[0];
+                  const tmp = (led[1] * originAlpha) / 10;
+                  const alpha = tmp > 10 ? 15 : tmp;
+
+                  // Get color of LEDs
+                  const rgb = colorDict[color.toString()];
+                  if (!rgb) return [0, 0, 0, alpha];
+                  else return [...rgb, alpha];
+                });
+
+                newControl.push({
+                  start: last + duration * t + start,
+                  fade,
+                  status,
+                });
+              });
+            });
+          } else {
+            originLED.forEach((frame) => {
               const fade = frame.fade;
-              const frameStart = frame.start;
+              const start = frame.start;
               const LEDs = frame.LEDs;
+              if (last + start >= frameStart) return;
 
               const status = LEDs.map((led) => {
                 const color = led[0];
-                const alpha = led[1];
+                const alpha = led[1] * originAlpha;
 
                 // Get color of LEDs
                 const rgb = colorDict[color.toString()];
@@ -129,13 +158,26 @@ const getDancerLEDData = async (req: Request, res: Response) => {
               });
 
               newControl.push({
-                start: start + duration * t + frameStart,
+                start: last + start,
                 fade,
                 status,
               });
             });
+          }
+
+          // TODO: replace old data
+
+          const led = ledDict[src.toString()];
+          const { repeat, frames }: { repeat: number; frames: TLEDData[] } =
+            led as any;
+          frames.sort((frame1, frame2) => {
+            return frame1.start - frame2.start;
           });
-          last = start + duration * (repeat + 1);
+
+          last = frameStart;
+          originLED = frames;
+          originRepeat = repeat === 0;
+          originAlpha = frameAlpha;
 
           return newControl;
         }, partData);
