@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useReactiveVar } from "@apollo/client";
+
 import _ from "lodash";
 
 // components
@@ -15,12 +15,15 @@ import { setEditor } from "core/actions";
 import { reactiveState } from "core/state";
 import store from "../../../store";
 
-import { getPartType } from "core/utils";
+import { getLedMap, getPartType } from "core/utils";
 import useTimeInput from "hooks/useTimeInput";
+import { useReactiveVar } from "@apollo/client";
+import type { LEDMap } from "@/core/models";
 
 // type
 import { isLEDPartName } from "@/core/models";
 import type { LEDPartName } from "@/core/models";
+import type { LedEffectOptionType } from "./EffectNameTextField";
 
 // mui
 import {
@@ -43,12 +46,20 @@ export default function LEDEffectDialog({
   addDialogOpen,
   handleClose,
 }: LEDEffectDialogProps) {
+  const ledMap: LEDMap = useReactiveVar(reactiveState.ledMap);
+
   // States
+
+  // There are three different action mode depending on the new effect name:
+  // 1. "IDLE" means that the new name is empty.
+  // 2. "ADD" implies the entered name is a brand-new name and displays ADD button.
+  // 3. "EDIT" suggests that the name is match with an existing effect name, causing an EDIT button to show.
+  const [actionMode, setActionMode] = useState<string>("IDLE");
+  const [newEffect, setNewEffect] = useState<LedEffectOptionType | null>(null);
+
   const [chosenModel, setChosenModel] = useState<string>("");
   const [chosenLEDPart, setChosenLEDPart] = useState<string>("");
-  const [newLEDEffectName, setNewLEDEffectName] = useState<string>("");
   const [newEffectFromTime, setNewEffectFromTime] = useState<number>(0);
-  const [actionMode, setActionMode] = useState<string>("IDLE");
   const { textFieldProps: fromTextFieldProps, timeError: fromTimeError } =
     useTimeInput([
       newEffectFromTime,
@@ -111,7 +122,7 @@ export default function LEDEffectDialog({
           ([dancerName, dancerData]) => {
             return (
               (dancerData as { url: string; modelName: string })[
-                "modelName"
+              "modelName"
               ] === chosenModel
             );
           }
@@ -174,53 +185,63 @@ export default function LEDEffectDialog({
 
   // Reset and Close
   function reset() {
-    handleClose();
     setChosenModel("");
     setChosenLEDPart("");
-    setNewLEDEffectName("");
     setNewEffectFromTime(0);
     setActionMode("IDLE");
+    setNewEffect(null);
+  }
+  function closeAndReset() {
+    handleClose();
+    reset();
   }
 
   // Handle function
-  const handleChangeChosenModel = (
-    event: React.MouseEvent<HTMLElement>,
-    newChosenModel: string
-  ) => {
+  const handleChangeChosenModel = (newChosenModel: string) => {
     if (newChosenModel !== null) {
       setChosenModel(newChosenModel);
     }
     return;
   };
 
-  const handleChangeChosenLEDPart = (
-    event: React.MouseEvent<HTMLElement>,
-    newChosenPart: string
-  ) => {
+  const handleChangeChosenLEDPart = (newChosenPart: string) => {
+    // In the "EDIT" mode, if newly selected part doesn't have the chosen effect,
+    // than deliver a warning and reset everything.)
     if (newChosenPart !== null) {
+      if (actionMode === "EDIT" && newChosenPart) {
+        //console.log(Object.keys(ledMap[newChosenPart]));
+        const valid = Object.keys(ledMap[newChosenPart]).some((effectName) => {
+          return effectName === newEffect?.LEDEffectName;
+        });
+        if (!valid) {
+          // TODO
+          // pop up alert
+          reset();
+          return;
+        }
+      }
       setChosenLEDPart(newChosenPart);
     }
     return;
   };
 
   const handleAddLEDEffect = () => {
-    if (!isLEDPartName(chosenLEDPart)) {
-      return;
-    }
+    if (!isLEDPartName(chosenLEDPart)) return;
+    if (!newEffect) return;
     setEditor({ payload: "LED_EDITOR" });
     setupLEDEditor({
       payload: {
         partName: chosenLEDPart as LEDPartName,
-        effectName: newLEDEffectName,
+        effectName: newEffect.LEDEffectName,
         start: newEffectFromTime,
       },
     });
-    reset();
+    closeAndReset();
   };
 
   // TODO
   const handleEditLEDEffect = () => {
-    reset();
+    closeAndReset();
     return;
   };
 
@@ -228,8 +249,8 @@ export default function LEDEffectDialog({
   return (
     <div>
       <Paper>
-        <Dialog open={addDialogOpen} onClose={reset}>
-          <DialogTitle>New LED Effect</DialogTitle>
+        <Dialog open={addDialogOpen} onClose={closeAndReset}>
+          <DialogTitle>Customize LED Effect</DialogTitle>
           <DialogContent>
             <Grid sx={{ mb: 2, mt: 2 }}>
               <EffectNameTextField
@@ -237,22 +258,8 @@ export default function LEDEffectDialog({
                 handleChangeChosenLEDPart={handleChangeChosenLEDPart}
                 actionMode={actionMode}
                 setActionMode={setActionMode}
-              />
-            </Grid>
-            <Grid>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="name"
-                label="New Effect Name"
-                required
-                fullWidth
-                variant="standard"
-                value={newLEDEffectName}
-                onChange={(e) => {
-                  setNewLEDEffectName(e.target.value);
-                }}
-                sx={{ mb: 2 }}
+                newEffect={newEffect}
+                setNewEffect={setNewEffect}
               />
             </Grid>
             <Grid>
@@ -283,7 +290,7 @@ export default function LEDEffectDialog({
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button onClick={reset}>Cancel</Button>
+            <Button onClick={closeAndReset}>Cancel</Button>
             {actionMode === "EDIT" ? (
               <Button
                 onClick={handleEditLEDEffect}

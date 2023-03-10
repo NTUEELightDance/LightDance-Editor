@@ -2,10 +2,7 @@ import { Typography, Grid, Button } from "@mui/material";
 
 interface LEDPartButtonProps {
   chosenLEDPart: string;
-  handleChangeChosenLEDPart: (
-    event: React.MouseEvent<HTMLElement>,
-    newChosenLEDPart: string
-  ) => void;
+  handleChangeChosenLEDPart: (newChosenLEDPart: string) => void;
   displayLEDParts: string[];
 }
 
@@ -36,7 +33,7 @@ export default function LEDPartButton({
             <Button
               variant={chosenLEDPart === v ? "contained" : "outlined"}
               color="primary"
-              onClick={(event) => handleChangeChosenLEDPart(event, v)}
+              onClick={() => handleChangeChosenLEDPart(v)}
             >
               {v}
             </Button>

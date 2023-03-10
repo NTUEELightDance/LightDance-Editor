@@ -1,5 +1,5 @@
 // mui
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 
@@ -8,23 +8,19 @@ import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 import type { LEDMap } from "@/core/models";
 
-interface LedEffectOptionType {
+export interface LedEffectOptionType {
   inputValue?: string;
   partName: string;
   LEDEffectName: string;
 }
 
 interface TextFieldProps {
-  handleChangeChosenModel: (
-    event: React.MouseEvent<HTMLElement>,
-    newChosenModel: string
-  ) => void;
-  handleChangeChosenLEDPart: (
-    event: React.MouseEvent<HTMLElement>,
-    newChosenLEDPart: string
-  ) => void;
+  handleChangeChosenModel: (newChosenModel: string) => void;
+  handleChangeChosenLEDPart: (newChosenLEDPart: string) => void;
   actionMode: string;
   setActionMode: (action: string) => void;
+  newEffect: LedEffectOptionType | null;
+  setNewEffect: (newEffect: LedEffectOptionType | null) => void;
 }
 
 const filter = createFilterOptions<LedEffectOptionType>();
@@ -34,25 +30,35 @@ export default function EffectNameTextField({
   handleChangeChosenLEDPart,
   actionMode,
   setActionMode,
+  newEffect,
+  setNewEffect,
 }: TextFieldProps) {
-  const [value, setValue] = useState<LedEffectOptionType | null>(null);
+  //const [value, setValue] = useState<LedEffectOptionType | null>(null);
   const ledMap: LEDMap = useReactiveVar(reactiveState.ledMap);
 
-  const LedEffectOptions: LedEffectOptionType[] = [];
-  Object.entries(ledMap).forEach(([partName, LEDEffects]) => {
-    Object.keys(LEDEffects).forEach((LEDEffect) => {
-      LedEffectOptions.push({
-        partName: partName,
-        LEDEffectName: LEDEffect,
+  let LedEffectOptions: LedEffectOptionType[] = [];
+
+  LedEffectOptions = useMemo(() => {
+    const tempLedEffectOptions: LedEffectOptionType[] = [];
+    Object.entries(ledMap).forEach(([partName, LEDEffects]) => {
+      Object.keys(LEDEffects).forEach((LEDEffect) => {
+        tempLedEffectOptions.push({
+          partName: partName,
+          LEDEffectName: LEDEffect,
+        });
       });
     });
-  });
+    return tempLedEffectOptions;
+  }, [ledMap]);
 
   const handleActionMode = (newValue: string | LedEffectOptionType | null) => {
+    console.log("handle");
     let isExisting = false;
     if (!newValue) {
       isExisting = false;
       setActionMode("IDLE");
+      handleChangeChosenLEDPart("");
+      handleChangeChosenModel("");
       return;
     } else {
       if (typeof newValue === "string") {
@@ -60,35 +66,64 @@ export default function EffectNameTextField({
         isExisting = LedEffectOptions.some(
           (option) => newValue === option.LEDEffectName
         );
+        // Auto choose the corresponding part
+        if (isExisting) {
+          Object.entries(ledMap).some(([partName, LEDEffects]) => {
+            if (
+              Object.keys(LEDEffects).some((LEDEffect) => {
+                return newValue === LEDEffect;
+              })
+            ) {
+              handleChangeChosenLEDPart(partName);
+              return true;
+            } else {
+              return false;
+            }
+          });
+          // Set edit mode
+          setActionMode("EDIT");
+        } else {
+          handleChangeChosenLEDPart("");
+          // Set edit mode
+          setActionMode("ADD");
+        }
       } else {
         isExisting = LedEffectOptions.some(
           // input selected by user will bo on type "LedEffectOptionType"
           (option) => newValue.LEDEffectName === option.LEDEffectName
         );
+        // Auto choose the corresponding part
+        handleChangeChosenLEDPart(newValue.partName);
+
+        // Set edit mode
+        if (isExisting) {
+          setActionMode("EDIT");
+        } else {
+          setActionMode("ADD");
+        }
       }
     }
-    if (isExisting) setActionMode("EDIT");
-    else setActionMode("ADD");
   };
 
   return (
     <>
+      <p>{`Name : ${newEffect?.LEDEffectName}`}</p>
       <Autocomplete
-        value={value}
+        value={newEffect}
         onChange={(event, newValue) => {
           if (typeof newValue === "string") {
-            setValue({
+            setNewEffect({
               LEDEffectName: newValue,
               partName: "New Effect",
             });
           } else if (newValue && newValue.inputValue) {
             // Create a new value from the user input
-            setValue({
+            setNewEffect({
               LEDEffectName: newValue.inputValue,
               partName: "New Effect",
             });
           } else {
-            setValue(newValue);
+            setNewEffect(newValue);
           }
 
           handleActionMode(newValue);
