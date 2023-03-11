@@ -17,6 +17,8 @@ import { OfJsonDB } from "../database/dancerOF";
 import { ControlJsonDB } from "../database/dancerControlJson";
 import { convertTypeAcquisitionFromJson } from "typescript";
 import { LedJsonDB, LedJsonType } from "../database/dancerLED";
+import { getDancerFiberData } from "../api/getDancerFiberData";
+import { getDancerLEDData } from "../api/getDancerLEDData"
 
 class DancerSocket {
   ws: any;
@@ -54,6 +56,7 @@ class DancerSocket {
       [CommandSubType.STOP]: this.stop,
       [ActionType.UPLOAD_OF]: this.uploadOf,
       [ActionType.UPLOAD_LED]: this.uploadLED,
+      [ActionType.REFRESH]: this.refresh,
       [CommandSubType.RED]: this.red,
       [CommandSubType.BLUE]: this.blue,
       [CommandSubType.GREEN]: this.green,
@@ -195,6 +198,23 @@ class DancerSocket {
       action: ActionType.UPLOAD /* payload: ControlType*/,
       payload: [ControlJsonDB[this.dancerName], OfJsonDB[this.dancerName], LedJsonDB[this.dancerName]],
     });
+  };
+  
+  // Refresh command is upload command in Rpi
+  refresh = async () => { 
+    const { success: Ofsuccess, data: OfJson } = await getDancerFiberData(this.dancerName);
+    const { success: LEDsuccess, data: LEDJson } = await getDancerLEDData(this.dancerName);
+    if(Ofsuccess && LEDsuccess){
+      OfJsonDB[this.dancerName] = OfJson
+      LedJsonDB[this.dancerName] = LEDJson
+      this.sendDataToRpiSocket({
+        action: ActionType.UPLOAD /* payload: ControlType*/,
+        payload: [ControlJsonDB[this.dancerName], OfJsonDB[this.dancerName], LedJsonDB[this.dancerName]],
+      });
+    } else {
+      if(!Ofsuccess) console.log(`[Warning] ${this.dancerName} Of data is NOT UPDATED in refresh command.`)
+      if(!LEDsuccess) console.log(`[Warning] ${this.dancerName} LED data is NOT UPDATED in refresh command.`)
+    }
   };
   red = () => {
     this.sendDataToRpiSocket({ 

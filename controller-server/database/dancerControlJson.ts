@@ -16,7 +16,7 @@ interface ControlJsonType {
 // The following is only a test db, not the real version used in 2023 EE-Night
 // ControlJsonDB is fixed when controller server is running, NO client (e.g. RPi, Control Panel) would be able to modify ControlJsonDB
 const ControlJsonDB: {[key: string]: ControlJsonType} = {
-    "Ray": { // Dancer name is used as key for the dictionary
+    "1_hank": { // Dancer name is used as key for the dictionary
         "fps": 30,
         "OFPARTS": {
             "of1": 0,
