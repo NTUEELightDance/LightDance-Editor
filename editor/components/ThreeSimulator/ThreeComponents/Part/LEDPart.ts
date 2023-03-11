@@ -158,7 +158,8 @@ export default class LEDPart extends Part {
 
     effect.forEach((display, i) => {
       const { colorID, alpha } = display;
-      colorAttribute.setXYZ(i, ...(state.colorMap[colorID]?.rgb ?? [0, 0, 0]));
+      const rgb = state.colorMap[colorID].rgb;
+      colorAttribute.setXYZ(i, rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
       alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
     });
 

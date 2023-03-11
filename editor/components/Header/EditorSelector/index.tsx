@@ -22,7 +22,6 @@ import type { Editor } from "@/core/models";
 export default function EditorSelector() {
   const editor = useReactiveVar(reactiveState.editor);
   const editorState = useReactiveVar(reactiveState.editorState);
-  const [EditorMode, setEditorMode] = useState<Editor>("CONTROL_EDITOR");
   const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
   const openDialog = () => {
     setAddDialogOpen(true);
@@ -36,12 +35,9 @@ export default function EditorSelector() {
       notification.warning("Please SAVE or CANCEL first!");
       return;
     }
-    if (newEditorMode !== null) {
-      if (newEditorMode !== LED_EDITOR) {
-        setSelectionModeByEditor({ payload: editor });
-        setEditor({ payload: newEditorMode });
-      }
-      setEditorMode(newEditorMode);
+    if (newEditorMode !== LED_EDITOR) {
+      setSelectionModeByEditor({ payload: editor });
+      setEditor({ payload: newEditorMode });
     }
   };
 
@@ -59,7 +55,7 @@ export default function EditorSelector() {
         exclusive
         onChange={handleChangeEditor}
         disabled={editorState !== IDLE}
-        value={EditorMode}
+        value={editor}
       >
         <ToggleButton value={CONTROL_EDITOR}>
           <Tooltip

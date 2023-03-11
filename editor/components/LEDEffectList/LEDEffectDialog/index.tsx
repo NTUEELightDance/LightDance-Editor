@@ -13,7 +13,7 @@ import { setEditor } from "core/actions";
 
 // state
 import { reactiveState } from "core/state";
-import store from "../../../store";
+import store from "@/store";
 
 import { getPartType } from "core/utils";
 import { useReactiveVar } from "@apollo/client";
@@ -52,18 +52,18 @@ export default function LEDEffectDialog({
   // 1. "IDLE" means that the new name is empty.
   // 2. "ADD" implies the entered name is a brand-new name and displays ADD button.
   // 3. "EDIT" suggests that the name is match with an existing effect name, causing an EDIT button to show.
-  const [actionMode, setActionMode] = useState<string>("IDLE");
+  const [actionMode, setActionMode] = useState<"IDLE" | "EDIT" | "ADD">("IDLE");
   const [newEffect, setNewEffect] = useState<LedEffectOptionType | null>(null);
 
-  const [chosenModel, setChosenModel] = useState<string>("");
-  const [chosenLEDPart, setChosenLEDPart] = useState<string>("");
+  const [chosenModel, setChosenModel] = useState<string | null>(null);
+  const [chosenLEDPart, setChosenLEDPart] = useState<LEDPartName | null>(null);
 
   // Dancers and Parts
   const dancers = useReactiveVar(reactiveState.dancers);
   const selected = useReactiveVar(reactiveState.selected);
 
-  const [displayModels, setDisplayModels] = useState<string[]>([""]);
-  const [displayLEDParts, setDisplayLEDParts] = useState<string[]>([""]);
+  const [displayModels, setDisplayModels] = useState<string[]>([]);
+  const [displayLEDParts, setDisplayLEDParts] = useState<LEDPartName[]>([]);
 
   // Update selected models and LED parts
   const { dancerMap } = store.getState().load;
@@ -96,7 +96,7 @@ export default function LEDEffectDialog({
   const updateDisplayPart = useCallback(
     (chosenModel: string) => {
       // construct new displayPart
-      let newDisplayLEDParts: string[] = [];
+      let newDisplayLEDParts: LEDPartName[] = [];
 
       if (chosenModel) {
         const chosenDancer = Object.entries(dancerMap).find(
@@ -111,9 +111,9 @@ export default function LEDEffectDialog({
         );
 
         if (chosenDancer) {
-          newDisplayLEDParts = dancers[chosenDancer[0]].filter((part) => {
-            return getPartType(part) === "LED";
-          });
+          newDisplayLEDParts = dancers[chosenDancer[0]].filter((part) =>
+            isLEDPartName(part)
+          ) as LEDPartName[];
         }
       }
       // Display all parts without repeat by selected dancers
@@ -137,7 +137,7 @@ export default function LEDEffectDialog({
               dancerParts.filter((part) => {
                 return getPartType(part) === "LED";
               })
-            );
+            ) as LEDPartName[];
           }
         });
       }
@@ -162,13 +162,15 @@ export default function LEDEffectDialog({
   }, [dancers, selected, updateDisplayModel, updateDisplayPart]);
 
   useEffect(() => {
+    if (!chosenModel) return;
+
     updateDisplayPart(chosenModel);
   }, [chosenModel, updateDisplayPart]);
 
   // Reset and Close
   function reset() {
-    setChosenModel("");
-    setChosenLEDPart("");
+    setChosenModel(null);
+    setChosenLEDPart(null);
     setActionMode("IDLE");
     setNewEffect(null);
   }
@@ -186,31 +188,27 @@ export default function LEDEffectDialog({
   };
 
   const handleChangeChosenLEDPart = async (newChosenPart: string) => {
+    if (!isLEDPartName(newChosenPart)) return;
     // In the "EDIT" mode, if newly selected part doesn't have the chosen effect,
     // than deliver a warning.)
-    if (newChosenPart !== null) {
-      if (actionMode === "EDIT" && newChosenPart) {
-        const valid = Object.keys(ledMap[newChosenPart as LEDPartName]).some(
-          (effectName) => {
-            return effectName === newEffect?.LEDEffectName;
-          }
+    if (actionMode === "EDIT" && newChosenPart) {
+      const valid = Object.keys(ledMap[newChosenPart]).some((effectName) => {
+        return effectName === newEffect?.LEDEffectName;
+      });
+
+      if (!valid) {
+        notification.warning(
+          "Warning! The selected part does not have the chosen effect."
         );
-        if (!valid) {
-          notification.warning(
-            "Warning! The selected part does not have the chosen effect."
-          );
-          return;
-        }
+        return;
       }
-      setChosenLEDPart(newChosenPart);
     }
-    return;
+    setChosenLEDPart(newChosenPart);
   };
 
   const handleAddLEDEffect = () => {
     if (!isLEDPartName(chosenLEDPart)) return;
     if (!newEffect) return;
-    setEditor({ payload: "LED_EDITOR" });
     setupLEDEditor({
       payload: {
         partName: chosenLEDPart as LEDPartName,
@@ -220,10 +218,16 @@ export default function LEDEffectDialog({
     closeAndReset();
   };
 
-  // TODO
   const handleEditLEDEffect = () => {
+    if (!isLEDPartName(chosenLEDPart)) return;
+    if (!newEffect) return;
+    setupLEDEditor({
+      payload: {
+        partName: chosenLEDPart as LEDPartName,
+        effectName: newEffect.LEDEffectName,
+      },
+    });
     closeAndReset();
-    return;
   };
 
   // Return
@@ -235,6 +239,7 @@ export default function LEDEffectDialog({
           <DialogContent>
             <Grid sx={{ mb: 2, mt: 2 }}>
               <EffectNameTextField
+                chosenLEDPart={chosenLEDPart}
                 handleChangeChosenModel={handleChangeChosenModel}
                 handleChangeChosenLEDPart={handleChangeChosenLEDPart}
                 setActionMode={setActionMode}

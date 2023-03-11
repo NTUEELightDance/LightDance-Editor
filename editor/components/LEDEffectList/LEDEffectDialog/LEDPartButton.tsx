@@ -1,7 +1,8 @@
+import { LEDPartName } from "@/core/models";
 import { Typography, Grid, Button } from "@mui/material";
 
 interface LEDPartButtonProps {
-  chosenLEDPart: string;
+  chosenLEDPart: LEDPartName | null;
   handleChangeChosenLEDPart: (newChosenLEDPart: string) => void;
   displayLEDParts: string[];
 }
@@ -13,33 +14,35 @@ export default function LEDPartButton({
 }: LEDPartButtonProps) {
   return (
     <>
-      <Typography sx={{ mb: 1 }}>PARTS</Typography>
-      {/* <ToggleButtonGroup
-        color="primary"
-        size="medium"
-        exclusive
-        onChange={handleChangeChosenLEDPart}
-        value={chosenLEDPart}
-      >
-        {displayLEDParts.map((v) => (
-          <ToggleButton value={v} key={v}>
-            {v}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup> */}
-      <Grid container spacing={2} justifyContent="flex-start" sx={{ mb: 2 }}>
-        {displayLEDParts.map((v) => (
-          <Grid item key={v}>
-            <Button
-              variant={chosenLEDPart === v ? "contained" : "outlined"}
-              color="primary"
-              onClick={() => handleChangeChosenLEDPart(v)}
-            >
-              {v}
-            </Button>
+      <Typography sx={{ mb: 1 }}>Parts</Typography>
+      {displayLEDParts.length === 0 ? (
+        <Typography sx={{ mb: 1 }} color="gray">
+          Please Select a Model First
+        </Typography>
+      ) : (
+        <>
+          <Grid
+            container
+            spacing={2}
+            justifyContent="flex-start"
+            sx={{ mb: 2 }}
+          >
+            {displayLEDParts.map((partName) => (
+              <Grid item key={partName}>
+                <Button
+                  variant={
+                    chosenLEDPart === partName ? "contained" : "outlined"
+                  }
+                  color="primary"
+                  onClick={() => handleChangeChosenLEDPart(partName)}
+                >
+                  {partName}
+                </Button>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+        </>
+      )}
     </>
   );
 }

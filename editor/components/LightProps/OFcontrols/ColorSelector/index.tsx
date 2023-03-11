@@ -21,14 +21,13 @@ function CustomSelect({
   const [listboxVisible, setListboxVisible] = useState(false);
   const { colorMap } = useColorMap();
 
-  const options = useMemo(
-    () =>
-      Object.values(colorMap).map(({ name, id }) => ({
-        label: name,
-        value: id,
-      })),
-    [colorMap]
-  );
+  const options = useMemo(() => {
+    console.log("options", { colorMap });
+    return Object.values(colorMap).map(({ name, id }) => ({
+      label: name,
+      value: id,
+    }));
+  }, [colorMap]);
 
   // use color name as state
   const {
@@ -67,9 +66,11 @@ function CustomSelect({
         <Toggle
           {...getButtonProps()}
           // @ts-expect-error we need to set this style variable to change the color
-          style={{ ...(colorID ? { "--color": colorMap[colorID] } : {}) }}
+          style={{
+            ...(colorID ? { "--color": colorMap[colorID].colorCode } : {}),
+          }}
         >
-          {currentColorID ?? placeholder}
+          {colorID !== null ? colorMap[colorID].name : placeholder}
         </Toggle>
         <Listbox
           {...getListboxProps()}

@@ -89,11 +89,9 @@ function actionCreator<A extends Action>(action: Action, actionName: string) {
 
     if (options.rerender) {
       // request rerender
-      // TODO: detect which variable changes
       syncReactiveState(options.states);
     }
 
-    // TODO: these are hard coded
     // 3rd-party rerender
     if (options.refreshWavesurfer) {
       debug("refreshWavesurfer");

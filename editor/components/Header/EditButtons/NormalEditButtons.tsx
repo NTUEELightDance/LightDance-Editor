@@ -106,7 +106,7 @@ export default function NormalEditButtons() {
           ) : (
             <AddButton onClick={handleClickAdd} />
           )}
-          <EditButton />
+          <EditButton onClick={handleStartEditing} />
           {loading.delete ? (
             <LoadingButton />
           ) : (

@@ -2,7 +2,7 @@ import { Typography, Button } from "@mui/material";
 import Grid from "@mui/system/Unstable_Grid/Grid";
 
 interface ModelButtonProps {
-  chosenModel: string;
+  chosenModel: string | null;
   handleChangeChosenModel: (newChosenModel: string) => void;
   displayModels: string[];
 }
@@ -14,45 +14,16 @@ export default function ModelButton({
 }: ModelButtonProps) {
   return (
     <>
-      <Typography sx={{ mb: 1 }}>MODELS</Typography>
-      {/* <ToggleButtonGroup
-        color="primary"
-        size="medium"
-        exclusive
-        onChange={handleChangeChosenModel}
-        value={chosenModel}
-        // sx={{
-        //   display: "grid",
-        //   gridTemplateColumns: "auto auto auto auto",
-        //   gridGap: "50px",
-        //   padding: "10px",
-        // }}
-        //sx={{ '& .MuiToggleButton-root + .MuiToggleButton-root': { marginLeft: '8px' } }}
-      >
-        {displayModels.map((v) => (
-          <ToggleButton
-            value={v}
-            key={v}
-            sx={{
-              "& .MuiToggleButton-root": {
-                borderLeft: "1px solid rgba(1, 1, 1, 0.23)",
-              },
-            }}
-            style={{ marginRight: "8px" }}
-          >
-            {v}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup> */}
+      <Typography sx={{ mb: 1 }}>Models</Typography>
       <Grid container spacing={2} justifyContent="flex-start" sx={{ mb: 2 }}>
-        {displayModels.map((v) => (
-          <Grid key={v}>
+        {displayModels.map((modelName) => (
+          <Grid key={modelName}>
             <Button
-              variant={chosenModel === v ? "contained" : "outlined"}
+              variant={chosenModel === modelName ? "contained" : "outlined"}
               color="primary"
-              onClick={() => handleChangeChosenModel(v)}
+              onClick={() => handleChangeChosenModel(modelName)}
             >
-              {v}
+              {modelName}
             </Button>
           </Grid>
         ))}

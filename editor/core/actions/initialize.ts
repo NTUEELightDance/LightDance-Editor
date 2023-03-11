@@ -110,12 +110,13 @@ const actions = registerActions({
       return {
         ...acc,
         [id]: {
+          id: parseInt(id),
           name,
           colorCode: rgbToHex(rgb),
           rgb,
         },
       };
-    }, {});
+    }, {} as ColorMap);
 
     colorMap[-1] = NO_COLOR;
 

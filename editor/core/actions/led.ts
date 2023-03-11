@@ -102,6 +102,8 @@ const actions = registerActions({
       frameId: state.currentLEDIndex,
       index: state.currentLEDIndex,
     };
+
+    state.editorState = "EDITING";
   },
 
   addFrameToCurrentLEDEffect: (state: State) => {
@@ -192,6 +194,7 @@ const actions = registerActions({
     state.currentLEDEffectName = effectName;
     state.currentLEDEffectStart = state.currentTime;
     state.selectionMode = "LED_MODE";
+    state.editor = "LED_EDITOR";
     const partLength = state.LEDPartLengthMap[partName];
     state.currentLEDEffect = {
       name: effectName,

@@ -77,7 +77,6 @@ export const DELETE_CONTROL_FRAME_BY_ID = gql`
   }
 `;
 
-// TODO add
 export const ADD_POS_FRAME = gql`
   mutation AddPositionFrame($start: Int!, $positionData: [[Float!]!]) {
     addPositionFrame(start: $start, positionData: $positionData) {

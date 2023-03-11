@@ -95,14 +95,18 @@ function LEDMode() {
     });
   };
 
+  // TODO reset currentLEDStatus when esc is pressed
+
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
-      <LEDBulbsControlsContent
-        currentColorID={currentColorID}
-        handleColorChange={handleColorChange}
-        intensity={intensity}
-        handleIntensityChange={handleIntensityChange}
-      />
+      {selectedLEDs.length > 0 && (
+        <LEDBulbsControlsContent
+          currentColorID={currentColorID}
+          handleColorChange={handleColorChange}
+          intensity={intensity}
+          handleIntensityChange={handleIntensityChange}
+        />
+      )}
     </Paper>
   );
 }
