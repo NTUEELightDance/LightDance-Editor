@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-
 import _ from "lodash";
+import { notification } from "core/utils";
 
 // components
 import ModelButton from "./ModelButton";
@@ -15,7 +15,7 @@ import { setEditor } from "core/actions";
 import { reactiveState } from "core/state";
 import store from "../../../store";
 
-import { getLedMap, getPartType } from "core/utils";
+import { getPartType } from "core/utils";
 import useTimeInput from "hooks/useTimeInput";
 import { useReactiveVar } from "@apollo/client";
 import type { LEDMap } from "@/core/models";
@@ -122,7 +122,7 @@ export default function LEDEffectDialog({
           ([dancerName, dancerData]) => {
             return (
               (dancerData as { url: string; modelName: string })[
-              "modelName"
+                "modelName"
               ] === chosenModel
             );
           }
@@ -204,19 +204,18 @@ export default function LEDEffectDialog({
     return;
   };
 
-  const handleChangeChosenLEDPart = (newChosenPart: string) => {
+  const handleChangeChosenLEDPart = async (newChosenPart: string) => {
     // In the "EDIT" mode, if newly selected part doesn't have the chosen effect,
-    // than deliver a warning and reset everything.)
+    // than deliver a warning.)
     if (newChosenPart !== null) {
       if (actionMode === "EDIT" && newChosenPart) {
-        //console.log(Object.keys(ledMap[newChosenPart]));
         const valid = Object.keys(ledMap[newChosenPart]).some((effectName) => {
           return effectName === newEffect?.LEDEffectName;
         });
         if (!valid) {
-          // TODO
-          // pop up alert
-          reset();
+          notification.warning(
+            "Warning! The selected part does not have the chosen effect."
+          );
           return;
         }
       }
@@ -256,7 +255,6 @@ export default function LEDEffectDialog({
               <EffectNameTextField
                 handleChangeChosenModel={handleChangeChosenModel}
                 handleChangeChosenLEDPart={handleChangeChosenLEDPart}
-                actionMode={actionMode}
                 setActionMode={setActionMode}
                 newEffect={newEffect}
                 setNewEffect={setNewEffect}

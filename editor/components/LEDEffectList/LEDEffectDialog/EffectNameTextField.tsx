@@ -1,5 +1,5 @@
 // mui
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 
@@ -17,7 +17,6 @@ export interface LedEffectOptionType {
 interface TextFieldProps {
   handleChangeChosenModel: (newChosenModel: string) => void;
   handleChangeChosenLEDPart: (newChosenLEDPart: string) => void;
-  actionMode: string;
   setActionMode: (action: string) => void;
   newEffect: LedEffectOptionType | null;
   setNewEffect: (newEffect: LedEffectOptionType | null) => void;
@@ -28,7 +27,6 @@ const filter = createFilterOptions<LedEffectOptionType>();
 export default function EffectNameTextField({
   handleChangeChosenModel,
   handleChangeChosenLEDPart,
-  actionMode,
   setActionMode,
   newEffect,
   setNewEffect,
@@ -52,7 +50,6 @@ export default function EffectNameTextField({
   }, [ledMap]);
 
   const handleActionMode = (newValue: string | LedEffectOptionType | null) => {
-    console.log("handle");
     let isExisting = false;
     if (!newValue) {
       isExisting = false;
@@ -107,7 +104,7 @@ export default function EffectNameTextField({
 
   return (
     <>
-      <p>{`Name : ${newEffect?.LEDEffectName}`}</p>
+      {/* <p>{`Name : ${newEffect?.LEDEffectName}`}</p> */}
       <Autocomplete
         value={newEffect}
         onChange={(event, newValue) => {
