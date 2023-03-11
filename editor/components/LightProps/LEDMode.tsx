@@ -7,11 +7,11 @@ import Paper from "@mui/material/Paper";
 import LEDBulbsControlsContent from "./LEDBulbsControls/LEDBulbsControlsContent";
 import { getDancerFromLEDpart } from "@/core/utils";
 import useColorMap from "@/hooks/useColorMap";
-import { LEDBulbData } from "@/core/models";
+import { ColorID, LEDBulbData } from "@/core/models";
 import { editCurrentLEDStatus } from "@/core/actions";
 
 function LEDMode() {
-  const [currentColorName, setCurrentColorName] = useState<string | null>(null);
+  const [currentColorID, setCurrentColorID] = useState<ColorID | null>(null);
   const [intensity, setIntensity] = useState<number | null>(null);
   const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
@@ -23,7 +23,7 @@ function LEDMode() {
       return;
     }
     if (selectedLEDs.length === 0) {
-      setCurrentColorName(null);
+      setCurrentColorID(null);
       setIntensity(null);
       return;
     }
@@ -38,17 +38,11 @@ function LEDMode() {
 
     if (selectedLEDEffect.length === 0) return;
 
-    const assertColorCode = selectedLEDEffect[0].colorCode;
-    if (
-      selectedLEDEffect.every((effect) => effect.colorCode === assertColorCode)
-    ) {
-      setCurrentColorName(
-        Object.keys(colorMap).find(
-          (colorName) => colorMap[colorName] === assertColorCode
-        ) ?? null
-      );
+    const assertColorID = selectedLEDEffect[0].colorID;
+    if (selectedLEDEffect.every((effect) => effect.colorID === assertColorID)) {
+      setCurrentColorID(assertColorID);
     } else {
-      setCurrentColorName(null);
+      setCurrentColorID(null);
     }
 
     const assertAlpha = selectedLEDEffect[0].alpha;
@@ -65,13 +59,12 @@ function LEDMode() {
 
   const dancerName = getDancerFromLEDpart(currentLEDPartName);
 
-  const handleColorChange = (colorName: string) => {
-    setCurrentColorName(colorName);
-    const colorCode = colorMap[colorName];
+  const handleColorChange = (colorID: ColorID) => {
+    setCurrentColorID(colorID);
     const LEDBulbsMap = new Map<number, Partial<LEDBulbData>>();
     selectedLEDs.forEach((LEDIndex) => {
       LEDBulbsMap.set(LEDIndex, {
-        colorCode,
+        colorID,
       });
     });
 
@@ -105,7 +98,7 @@ function LEDMode() {
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
       <LEDBulbsControlsContent
-        currentColorName={currentColorName}
+        currentColorID={currentColorID}
         handleColorChange={handleColorChange}
         intensity={intensity}
         handleIntensityChange={handleIntensityChange}

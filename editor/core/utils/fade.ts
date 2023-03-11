@@ -75,15 +75,6 @@ export function fadeStatus(
         };
       }
 
-      // El Parts
-      else if (CheckTypeOfEl(preVal) && CheckTypeOfEl(nextVal)) {
-        // if (typeof preVal === "number" && typeof nextVal === "number") {
-        newStatus[dancer][part] = Round1(
-          ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
-            preVal
-        );
-        // }
-      }
       // fiber Parts
       else if (CheckTypeOfFiber(preVal) && CheckTypeOfFiber(nextVal)) {
         // Compute fade color with previous color and next color

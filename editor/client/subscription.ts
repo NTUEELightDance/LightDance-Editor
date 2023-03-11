@@ -197,11 +197,11 @@ const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
 };
 
 const Subscriptions = (client: ApolloClient<NormalizedCacheObject>) => {
-  subPosRecord(client);
-  subPosMap(client);
-  subControlRecord(client);
-  subControlMap(client);
-  subEffectList(client);
+  // subPosRecord(client);
+  // subPosMap(client);
+  // subControlRecord(client);
+  // subControlMap(client);
+  // subEffectList(client);
 };
 
 export default Subscriptions;

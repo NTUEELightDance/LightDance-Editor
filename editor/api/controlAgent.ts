@@ -9,14 +9,16 @@ import {
   REQUEST_EDIT_CONTROL_BY_ID,
   CANCEL_EDIT_CONTROL_BY_ID,
   ADD_CONTROL_FRAME,
-  SELECT_CONTROL_FRAMES,
+  AddControlFrameMutationResponseData,
+  AddControlFrameMutationVariables,
+  EditControlFrameTimeMutationResponseData,
+  EditControlFrameTimeMutationVariables,
 } from "@/graphql";
 
 import type {
   ControlMapStatus,
   PosMapStatus,
   ControlRecord,
-  ControlMapQueryPayload,
 } from "@/core/models";
 import { isControlMapStatus } from "@/core/models";
 
@@ -31,37 +33,37 @@ export const controlAgent = {
       query: GET_CONTROL_MAP,
     });
 
-    return controlMapData.ControlMap.frameIds as ControlMapQueryPayload;
-  },
-
-  selectControlFrames: async (frameIds: number[]) => {
-    const { data: controlFramesData } = await client.query({
-      query: SELECT_CONTROL_FRAMES,
-      variables: {
-        select: {
-          frameIds,
-        },
-      },
-    });
-
-    return controlFramesData.ControlMap.frameIds as ControlMapQueryPayload;
+    return controlMapData.ControlMap.frameIds;
   },
 
   getControlRecord: async () => {
     const { data: controlRecordData } = await client.query({
       query: GET_CONTROL_RECORD,
     });
+
     return controlRecordData.controlFrameIDs as ControlRecord;
   },
 
   // create a new empty frame
-  addFrame: async (currentTime: number, fade?: boolean) => {
+  addFrame: async (addFrameInput: {
+    start: number;
+    fade?: boolean;
+    controlData?: ControlMapStatus;
+  }) => {
     try {
-      const { data: response } = await client.mutate({
+      const { data: response } = await client.mutate<
+        AddControlFrameMutationResponseData,
+        AddControlFrameMutationVariables
+      >({
         mutation: ADD_CONTROL_FRAME,
         variables: {
-          start: currentTime,
-          ...(fade !== undefined && { fade }),
+          start: addFrameInput.start,
+          ...(addFrameInput.fade && { fade: addFrameInput.fade }),
+          ...(addFrameInput.controlData && {
+            controlData: toControlMapStatusMutationPayload(
+              addFrameInput.controlData
+            ),
+          }),
         },
         refetchQueries: [
           {
@@ -73,32 +75,35 @@ export const controlAgent = {
         ],
       });
 
-      return response.addControlFrame.id.toString() as string;
+      return response?.addControlFrame?.id;
     } catch (error) {
       console.error(error);
       throw error;
     }
   },
 
-  saveFrame: async (
-    frameId: string,
-    frame: ControlMapStatus | PosMapStatus,
-    currentTime: number,
-    requestTimeChange: boolean,
-    fade?: boolean
-  ) => {
-    if (!isControlMapStatus(frame)) {
+  saveFrame: async (saveFrameInput: {
+    frameId: number;
+    frame: ControlMapStatus | PosMapStatus;
+    start: number;
+    requestTimeChange: boolean;
+    fade?: boolean;
+  }) => {
+    if (!isControlMapStatus(saveFrameInput.frame)) {
       return;
     }
 
-    if (requestTimeChange) {
+    if (saveFrameInput.requestTimeChange) {
       try {
-        await client.mutate({
+        await client.mutate<
+          EditControlFrameTimeMutationResponseData,
+          EditControlFrameTimeMutationVariables
+        >({
           mutation: EDIT_CONTROL_FRAME_TIME,
           variables: {
             input: {
-              frameID: parseInt(frameId),
-              start: currentTime,
+              frameId: saveFrameInput.frameId,
+              start: saveFrameInput.start,
             },
           },
           refetchQueries: [
@@ -118,9 +123,11 @@ export const controlAgent = {
         mutation: EDIT_CONTROL_FRAME,
         variables: {
           input: {
-            frameId: parseInt(frameId),
-            controlData: toControlMapStatusMutationPayload(frame),
-            ...(fade !== undefined && { fade }),
+            frameId: saveFrameInput.frameId,
+            controlData: toControlMapStatusMutationPayload(
+              saveFrameInput.frame
+            ),
+            fade: saveFrameInput.fade,
           },
         },
         refetchQueries: [

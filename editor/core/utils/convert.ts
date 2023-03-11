@@ -24,7 +24,6 @@ import type {
   LEDEffectPayload,
   LEDEffectFramePayload,
   LEDEffectFrame,
-  RGBA,
   LEDEffect,
   LEDMapPayload,
   LEDMap,
@@ -72,15 +71,15 @@ function toPartData(
   payload: FiberDataQueryPayload | LEDDataQueryPayload
 ): PartData {
   if (partType === "LED") {
-    const [src, alpha] = payload;
+    const [effectID, alpha] = payload;
     return {
-      src,
+      effectID,
       alpha,
     };
   } else if (partType === "FIBER") {
-    const [color, alpha] = payload;
+    const [colorID, alpha] = payload;
     return {
-      color,
+      colorID,
       alpha,
     };
   } else {
@@ -142,11 +141,13 @@ export function toControlMapStatusMutationPayload(
   return payload;
 }
 
-function toPartDataMutationPayload(partData: PartData): [string, string] {
+function toPartDataMutationPayload(
+  partData: PartData
+): FiberDataQueryPayload | LEDDataQueryPayload {
   if (isFiberData(partData)) {
-    return [partData.color, partData.alpha.toString()];
+    return [partData.colorID, partData.alpha];
   } else if (isLEDData(partData)) {
-    return [partData.src, partData.alpha.toString()];
+    return [partData.effectID, partData.alpha];
   }
   throw new Error("Invalid part data");
 }
@@ -190,12 +191,10 @@ export function toLEDEffect(payload: LEDEffectPayload): LEDEffect {
 export function toLEDEffectFrame(
   framePayload: LEDEffectFramePayload
 ): LEDEffectFrame {
-  const effect = framePayload.LEDs.map((rgba: RGBA) => {
-    const rgb = rgba.slice(0, 3) as RGB;
-    const colorCode = rgbToHex(rgb);
+  const effect = framePayload.LEDs.map(([colorID, alpha]) => {
     return {
-      colorCode,
-      alpha: rgba[3],
+      colorID,
+      alpha,
     };
   });
   const frame: LEDEffectFrame = {

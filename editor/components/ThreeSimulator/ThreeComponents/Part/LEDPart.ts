@@ -3,6 +3,7 @@ import * as THREE from "three";
 import type { LEDPartData } from "@/core/models";
 import Part from "./Part";
 import { hexToRGB } from "@/core/utils/convert";
+import { state } from "@/core/state";
 
 const vertexShader = `
 uniform float size;
@@ -156,8 +157,8 @@ export default class LEDPart extends Part {
     ) as THREE.BufferAttribute;
 
     effect.forEach((display, i) => {
-      const { colorCode, alpha } = display;
-      colorAttribute.setXYZ(i, ...hexToRGB(colorCode));
+      const { colorID, alpha } = display;
+      colorAttribute.setXYZ(i, ...(state.colorMap[colorID]?.rgb ?? [0, 0, 0]));
       alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
     });
 

@@ -5,11 +5,12 @@ import IntensityControl from "../IntensityControl";
 import useLedMap from "hooks/useLedMap";
 
 import _ from "lodash";
+import { EffectID } from "@/core/models";
 
 export interface LEDcontrolsContentProps {
   parts: string[];
   intensity: number | null;
-  src: string | null;
+  effectID: EffectID | null;
   handleIntensityChange: (intensity: number) => void;
   handleSrcChange: (src: string) => void;
   oneLine?: boolean;
@@ -18,7 +19,7 @@ export interface LEDcontrolsContentProps {
 function LEDcontrolsContent({
   parts,
   intensity,
-  src,
+  effectID,
   handleIntensityChange,
   handleSrcChange,
   oneLine,
@@ -48,7 +49,7 @@ function LEDcontrolsContent({
           <>
             <Grid item>
               <SrcSelector
-                src={src}
+                effectID={effectID}
                 effectNames={effectNames}
                 handleSrcChange={handleSrcChange}
               />

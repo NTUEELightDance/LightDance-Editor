@@ -3,7 +3,7 @@ import { registerActions } from "../registerActions";
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
 import { CONTROL_EDITOR, EDITING, POS_EDITOR } from "@/constants";
-import { getControlPayload, getPosPayload, deleteColorCode } from "../utils";
+import { getControlPayload, getPosPayload, deleteRGB } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
 
@@ -15,7 +15,7 @@ import { notification, updateFrameByTimeMap } from "core/utils";
  * @returns { map, record, index, frameId, frame, agent, fade? }
  */
 const getDataHandler = async (state: State) => {
-  const pureStatus = deleteColorCode(state.currentStatus);
+  const pureStatus = deleteRGB(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
     const [controlMapPayload, controlRecord] = await getControlPayload();

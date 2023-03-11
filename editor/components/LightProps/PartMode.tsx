@@ -11,6 +11,7 @@ import {
   CurrentStatusDelta,
   SelectedPartPayload,
   LEDData,
+  ColorID,
 } from "@/core/models";
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
@@ -28,7 +29,7 @@ function PartMode() {
     [selected]
   );
 
-  const [currentColorName, setCurrentColorName] = useState<string | null>(null);
+  const [currentColorID, setCurrentColorID] = useState<ColorID | null>(null);
   const [intensity, setIntensity] = useState<number | null>(null);
   const [LEDsrc, setLEDsrc] = useState<string | null>(null);
 
@@ -40,27 +41,26 @@ function PartMode() {
       ];
       // don't render controls if no part is selected
       if (dancerName0 == null || parts0 == null) {
-        setCurrentColorName(null);
+        setCurrentColorID(null);
         setIntensity(null);
         return;
       }
 
       // check if all selected parts have the same color
-      const assertColorName = (
-        currentStatus[dancerName0][parts0[0]] as FiberData
-      ).color;
+      const assertColorID = (currentStatus[dancerName0][parts0[0]] as FiberData)
+        .colorID;
       if (
         Object.entries(selectedParts).every(([dancerName, parts]) =>
           parts.every(
             (part) =>
-              (currentStatus[dancerName][part] as FiberData).color ===
-              assertColorName
+              (currentStatus[dancerName][part] as FiberData).colorID ===
+              assertColorID
           )
         )
       ) {
-        setCurrentColorName(assertColorName);
+        setCurrentColorID(assertColorID);
       } else {
-        setCurrentColorName(null);
+        setCurrentColorID(null);
       }
 
       // check if all selected parts have the same intensity
@@ -159,19 +159,15 @@ function PartMode() {
 
   // mutate global state
   useEffect(() => {
-    if (
-      partType === "FIBER" &&
-      currentColorName !== null &&
-      intensity !== null
-    ) {
+    if (partType === "FIBER" && currentColorID !== null && intensity !== null) {
       const currentStatusDelta = calculateCurrentStatusDeltaFiber(
         selectedParts,
-        currentColorName,
+        currentColorID,
         intensity
       );
       editCurrentStatusDelta({ payload: currentStatusDelta });
     }
-  }, [currentColorName, intensity, partType, selectedParts]);
+  }, [currentColorID, intensity, partType, selectedParts]);
 
   useEffect(() => {
     if (partType === "LED" && LEDsrc !== null && intensity !== null) {
@@ -201,7 +197,7 @@ function PartMode() {
   // reset local state when partType is NONE
   useEffect(() => {
     if (partType === "NONE") {
-      setCurrentColorName(null);
+      setCurrentColorID(null);
       setLEDsrc(null);
       setIntensity(null);
     }
@@ -223,9 +219,9 @@ function PartMode() {
       ) : partType === "FIBER" ? (
         <OFcontrolsContent
           intensity={intensity}
-          currentColorName={currentColorName}
+          currentColorID={currentColorID}
           handleIntensityChange={setIntensity}
-          handleColorChange={setCurrentColorName}
+          handleColorChange={setCurrentColorID}
         />
       ) : partType === "MIXED" && Object.keys(selectedParts).length > 0 ? (
         <MixedControlsContent
@@ -263,7 +259,7 @@ function getSelectedPartsAndType(selected: Selected) {
 
 function calculateCurrentStatusDeltaFiber(
   selectedParts: SelectedPartPayload,
-  colorName: string,
+  colorID: ColorID,
   intensity: number
 ) {
   const currentStatusDelta: CurrentStatusDelta = {};
@@ -272,7 +268,7 @@ function calculateCurrentStatusDeltaFiber(
       currentStatusDelta[dancerName] ??= {};
 
       currentStatusDelta[dancerName][partName] = {
-        color: colorName,
+        colorID,
         alpha: intensity,
       };
     });

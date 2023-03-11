@@ -5,7 +5,6 @@ import { state } from "core/state";
 export interface MeshType extends THREE.Mesh {
   material: THREE.MeshStandardMaterial;
 }
-
 export default class FIBERPart extends Part {
   mesh: MeshType;
   constructor(name: string, model: THREE.Object3D) {
@@ -28,22 +27,22 @@ export default class FIBERPart extends Part {
   setStatus(status: FiberData) {
     if (!this.visible) return;
 
-    const { colorCode, color, alpha } = status;
+    const { rgb, colorID, alpha } = status;
     if (this.mesh !== undefined) {
       this.mesh.material.emissiveIntensity = alpha / 15;
 
       // if colorCode exist use colorCode instead
-      if (colorCode) {
-        this.mesh.material.emissive.copy(colorCode);
+      if (rgb) {
+        this.mesh.material.emissive.setRGB(...rgb);
         return;
       }
 
-      if (state.colorMap[color]) {
-        this.mesh.material.emissive.setHex(
-          parseInt(state.colorMap[color].replace(/^#/, ""), 16)
+      if (state.colorMap[colorID]) {
+        this.mesh.material.emissive.setRGB(
+          ...(state.colorMap[colorID]?.rgb ?? [0, 0, 0])
         );
       } else {
-        throw new Error(`color ${color} not found`);
+        throw new Error(`colorID ${colorID} not found`);
       }
     }
   }

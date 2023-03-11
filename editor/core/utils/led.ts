@@ -1,15 +1,15 @@
 import { fadeAlpha, fadeColor } from "./fade";
 
-import {
+import type {
   ControlMap,
   LEDData,
   CurrentLEDStatus,
   LEDMap,
   LEDEffectFrame,
   LEDEffectRecord,
-  isLEDPartName,
-  ColorCode,
 } from "../models";
+
+import { isLEDPartName } from "../models";
 
 import { cloneDeep } from "lodash";
 import { updateFrameByTimeMap } from "./frame";
@@ -133,13 +133,12 @@ export function updateCurrentLEDStatus(
           throw `[Error] ${dancerName} ${partName} ${src} effect length not the same (start: ${currStart})`;
         }
         currEffect.forEach((_, idx) => {
-          const { colorCode: currColorCode, alpha: currAlpha } =
-            currEffect[idx];
-          const { colorCode: nextColorCode, alpha: nextAlpha } =
-            nextEffect[idx];
+          const { colorID: currColorID, alpha: currAlpha } = currEffect[idx];
+          const { colorID: nextColorID, alpha: nextAlpha } = nextEffect[idx];
+
           const newColor = fadeColor(
-            currColorCode,
-            nextColorCode,
+            currColorID,
+            nextColorID,
             offset,
             currStart,
             nextStart
@@ -198,8 +197,8 @@ export function createEmptyLEDEffectFrame(partLength: number): LEDEffectFrame {
     start: 0,
     fade: false,
     effect: Array.from(new Array(partLength), () => ({
+      colorID: -1,
       alpha: 0,
-      colorCode: "#000000" as ColorCode,
     })),
   };
 }

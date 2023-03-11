@@ -278,7 +278,7 @@ async function generateLEDEffectRecord(
         Object.entries(dancerStatus).forEach(([partName, part]) => {
           if (
             partTypeMap[partName] === "LED" &&
-            (part as LEDData).src !== NO_EFFECT
+            (part as LEDData).effectID !== NO_EFFECT
           ) {
             ledEffectRecord[dancerName][partName].push(id);
           }

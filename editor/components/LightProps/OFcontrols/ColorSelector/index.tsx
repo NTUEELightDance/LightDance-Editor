@@ -4,17 +4,18 @@ import { Paper, ClickAwayListener } from "@mui/material";
 import { Root, Toggle, Listbox } from "./CustomComponents";
 
 import useColorMap from "@/hooks/useColorMap";
+import { ColorID } from "@/core/models";
 
 export interface CustomSelectProps {
   placeholder?: string;
-  onChange: (value: string) => void;
-  currentColorName: string | null;
+  onChange: (value: ColorID) => void;
+  currentColorID: ColorID | null;
 }
 
 function CustomSelect({
   placeholder = "",
   onChange,
-  currentColorName,
+  currentColorID,
 }: CustomSelectProps) {
   const listboxRef = useRef<HTMLUListElement>(null);
   const [listboxVisible, setListboxVisible] = useState(false);
@@ -22,9 +23,9 @@ function CustomSelect({
 
   const options = useMemo(
     () =>
-      Object.keys(colorMap).map((colorName) => ({
-        label: colorName,
-        value: colorName,
+      Object.values(colorMap).map(({ name, id }) => ({
+        label: name,
+        value: id,
       })),
     [colorMap]
   );
@@ -34,17 +35,17 @@ function CustomSelect({
     getButtonProps,
     getListboxProps,
     getOptionProps,
-    value: colorName,
+    value: colorID,
   } = useSelect({
     listboxRef,
     options,
-    value: currentColorName ?? "",
+    value: currentColorID ?? -1,
     onChange: (event) => {
       if (event === null) return;
       const target = event.target as HTMLElement;
-      const colorName = (target.dataset.option ??
-        target.parentElement!.dataset.option) as string;
-      onChange(colorName);
+      const colorID =
+        target.dataset.option ?? target.parentElement!.dataset.option ?? "-1";
+      onChange(parseInt(colorID));
     },
   });
 
@@ -66,9 +67,9 @@ function CustomSelect({
         <Toggle
           {...getButtonProps()}
           // @ts-expect-error we need to set this style variable to change the color
-          style={{ ...(colorName ? { "--color": colorMap[colorName] } : {}) }}
+          style={{ ...(colorID ? { "--color": colorMap[colorID] } : {}) }}
         >
-          {currentColorName ?? placeholder}
+          {currentColorID ?? placeholder}
         </Toggle>
         <Listbox
           {...getListboxProps()}
@@ -88,7 +89,7 @@ function CustomSelect({
               <span>
                 <Paper
                   sx={{
-                    backgroundColor: colorMap[option.label],
+                    backgroundColor: colorMap[option.value].colorCode,
                     display: "inline-block",
                     width: "1em",
                     height: "1em",

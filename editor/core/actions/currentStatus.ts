@@ -12,7 +12,6 @@ import {
   isLEDData,
 } from "../models";
 
-import { Color } from "three";
 import { syncCurrentLEDStatus } from "./led";
 
 const actions = registerActions({
@@ -43,14 +42,16 @@ const actions = registerActions({
     const {
       dancerName,
       partName,
-      value: { color, alpha },
+      value: { colorID, alpha },
     } = payload;
 
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    if (color && color !== "") {
-      (state.currentStatus[dancerName][partName] as FiberData).color = color;
-      (state.currentStatus[dancerName][partName] as FiberData).colorCode =
-        new Color(state.colorMap[color]);
+    if (colorID && colorID !== -1) {
+      (state.currentStatus[dancerName][partName] as FiberData) = {
+        colorID,
+        alpha,
+        rgb: state.colorMap[colorID].rgb,
+      };
     }
     if (typeof alpha === "number") {
       (state.currentStatus[dancerName][partName] as FiberData).alpha = alpha;

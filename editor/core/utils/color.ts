@@ -6,13 +6,13 @@ import _ from "lodash";
  * deleteColorCode return status without colorCode
  * @param {object} status - target status
  */
-export function deleteColorCode(status: ControlMapStatus) {
+export function deleteRGB(status: ControlMapStatus) {
   const pureStatus = _.cloneDeep(status);
 
   Object.values(pureStatus).forEach((dancer) => {
     Object.values(dancer).forEach((part) => {
       if (isFiberData(part)) {
-        delete part.colorCode;
+        delete part.rgb;
       }
     });
   });

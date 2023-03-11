@@ -1,4 +1,6 @@
 import client from "@/client";
+import { Color, ColorID } from "@/core/models";
+import { hexToRGB } from "@/core/utils/convert";
 
 import {
   GET_COLOR_MAP,
@@ -6,27 +8,39 @@ import {
   GET_CONTROL_MAP,
   EDIT_COLOR,
   DELETE_COLOR,
+  AddColorMutationVariables,
+  AddColorMutationResponseData,
+  EditColorMutationResponseData,
+  EditColorMutationVariables,
+  DeleteColorMutationVariables,
+  DeleteColorMutationResponseData,
+  ColorQueryResponseData,
 } from "@/graphql";
 
-import type { ColorMap } from "@/core/models";
-
 export const colorAgent = {
-  getColorMap: async (): Promise<ColorMap> => {
-    const { data: colorMapData } = await client.query({
+  getColorMap: async () => {
+    const { data } = await client.query<ColorQueryResponseData>({
       query: GET_COLOR_MAP,
     });
 
-    return colorMapData.colorMap.colorMap as ColorMap;
+    return data;
   },
 
-  addColor: async (color: string, colorCode: string) => {
+  addColor: async ({ name, colorCode }: Pick<Color, "name" | "colorCode">) => {
+    const colorRGB = hexToRGB(colorCode);
+
     try {
-      await client.mutate({
+      await client.mutate<
+        AddColorMutationResponseData,
+        AddColorMutationVariables
+      >({
         mutation: ADD_COLOR,
         variables: {
           color: {
-            color,
-            colorCode,
+            color: name,
+            colorCode: {
+              set: colorRGB,
+            },
           },
         },
         refetchQueries: [
@@ -41,13 +55,29 @@ export const colorAgent = {
     }
   },
 
-  editColorCode: async (color: string, newColorCode: string) => {
+  editColorCode: async ({
+    id,
+    name,
+    colorCode,
+  }: Pick<Color, "name" | "colorCode" | "id">) => {
+    const colorRGB = hexToRGB(colorCode);
+
     try {
-      await client.mutate({
+      await client.mutate<
+        EditColorMutationResponseData,
+        EditColorMutationVariables
+      >({
         mutation: EDIT_COLOR,
         variables: {
-          color,
-          colorCode: newColorCode,
+          data: {
+            color: {
+              set: name,
+            },
+            colorCode: {
+              set: colorRGB,
+            },
+          },
+          editColorId: id,
         },
         refetchQueries: [
           {
@@ -61,12 +91,15 @@ export const colorAgent = {
     }
   },
 
-  deleteColor: async (color: string) => {
+  deleteColor: async (colorID: ColorID) => {
     try {
-      const { data: response } = await client.mutate({
+      const { data } = await client.mutate<
+        DeleteColorMutationResponseData,
+        DeleteColorMutationVariables
+      >({
         mutation: DELETE_COLOR,
         variables: {
-          color,
+          deleteColorId: colorID,
         },
         refetchQueries: [
           {
@@ -78,7 +111,7 @@ export const colorAgent = {
         ],
       });
 
-      const ok = response.deleteColor.ok;
+      const ok = data?.deleteColor?.ok;
 
       if (!ok) {
         throw new Error("This color is being used is some control frames.");

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 
 import {
   Dialog,
@@ -8,40 +8,43 @@ import {
   TextField,
   Button,
   Box,
-  Tooltip,
 } from "@mui/material";
 
 import { HexColorPicker } from "react-colorful";
 import { notification } from "core/utils";
+import { Color, ColorCode, isColorCode } from "@/core/models";
+
+export interface NewColorDialogProps {
+  variant: "add";
+  open: boolean;
+  color?: never;
+  handleClose: () => void;
+  handleMutateColor: (
+    color: Pick<Color, "name" | "colorCode">
+  ) => Promise<void>;
+}
+
+export interface EditColorDialogProps {
+  variant: "edit";
+  open: boolean;
+  color: Color;
+  handleClose: () => void;
+  handleMutateColor: (
+    color: Pick<Color, "id" | "name" | "colorCode">
+  ) => Promise<void>;
+}
 
 function ColorDialog({
-  type,
+  variant,
   open,
+  color,
   handleClose,
   handleMutateColor,
-  defaultColorName,
-  defaultColorCode,
-  disableNameChange,
-}: {
-  type: "add" | "edit";
-  open: boolean;
-  handleClose: () => void;
-  handleMutateColor: (colorName: string, colorCode: string) => Promise<void>;
-  defaultColorName?: string;
-  defaultColorCode?: string;
-  disableNameChange?: boolean;
-}) {
-  const [newColorName, setNewColorName] = useState<string>(
-    defaultColorName || ""
+}: NewColorDialogProps | EditColorDialogProps) {
+  const [newColorName, setNewColorName] = useState<string>(color?.name || "");
+  const [newColorCode, setNewColorCode] = useState<ColorCode>(
+    color?.colorCode || ("#FFFFFF" as ColorCode)
   );
-  const [newColorCode, setNewColorCode] = useState<string>(
-    defaultColorCode || "#FFFFFF"
-  );
-
-  useEffect(() => {
-    if (!defaultColorName) setNewColorName("");
-    if (!defaultColorCode) setNewColorCode("#FFFFFF");
-  }, [defaultColorName, defaultColorCode, open]);
 
   const handleNameChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
@@ -53,13 +56,30 @@ function ColorDialog({
   const handleColorChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
+    if (!isColorCode(e.target.value)) return;
     setNewColorCode(e.target.value);
+  };
+
+  const handleColorInputChange = (colorCode: string) => {
+    if (!isColorCode(colorCode)) return;
+    setNewColorCode(colorCode);
   };
 
   const [colorNameError, setColorNameError] = useState(false);
   const handleSubmit = async () => {
     try {
-      await handleMutateColor(newColorName, newColorCode);
+      if (variant === "add") {
+        await handleMutateColor({
+          name: newColorName,
+          colorCode: newColorCode,
+        });
+      } else {
+        await handleMutateColor({
+          id: color.id,
+          name: newColorName,
+          colorCode: newColorCode,
+        });
+      }
       handleClose();
     } catch (error) {
       notification.error((error as Error).message);
@@ -85,7 +105,9 @@ function ColorDialog({
 
   return (
     <Dialog open={!!open} onClose={handleClose}>
-      <DialogTitle>{type === "add" ? "New Color" : "Edit Color"}</DialogTitle>
+      <DialogTitle>
+        {variant === "add" ? "New Color" : "Edit Color"}
+      </DialogTitle>
       <DialogContent>
         <Box
           sx={{
@@ -95,40 +117,30 @@ function ColorDialog({
             alignItems: "center",
           }}
         >
-          {disableNameChange ? (
-            <Tooltip title="this is a reserved color">
-              <TextField
-                margin="dense"
-                label="Color Name"
-                variant="filled"
-                value={newColorName}
-                disabled
-              />
-            </Tooltip>
-          ) : (
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Color Name"
-              variant="filled"
-              value={newColorName}
-              error={colorNameError}
-              onChange={handleNameChange}
-              disabled={disableNameChange}
-              onKeyDown={handleNameEnter}
-            />
-          )}
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Color Name"
+            variant="filled"
+            value={newColorName}
+            error={colorNameError}
+            onChange={handleNameChange}
+            onKeyDown={handleNameEnter}
+          />
           <TextField
             margin="dense"
             label="Color Code"
             variant="filled"
             value={newColorCode}
             onChange={handleColorChange}
-            inputRef={colorInputRef as React.RefObject<HTMLInputElement>}
+            inputRef={colorInputRef}
             onKeyDown={handleColorEnter}
           />
           <Box sx={{ mt: "1.5em" }}>
-            <HexColorPicker color={newColorCode} onChange={setNewColorCode} />
+            <HexColorPicker
+              color={newColorCode}
+              onChange={handleColorInputChange}
+            />
           </Box>
         </Box>
       </DialogContent>

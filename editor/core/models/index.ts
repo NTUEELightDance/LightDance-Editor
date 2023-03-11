@@ -1,5 +1,4 @@
 import type { ReactiveVar } from "@apollo/client";
-import { Color } from "three";
 
 export type id = string;
 export type index = number;
@@ -15,6 +14,15 @@ export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
 export type RGB = [number, number, number];
 export type RGBA = [number, number, number, number];
+export type ColorID = number;
+export type EffectID = number;
+
+export interface Color {
+  id: ColorID;
+  name: ColorName;
+  colorCode: ColorCode;
+  rgb: RGB;
+}
 
 export function isColorCode(colorCode: unknown): colorCode is ColorCode {
   if (typeof colorCode !== "string") return false;
@@ -51,41 +59,35 @@ export function isDancerStatus(status: unknown): status is DancerStatus {
   return isPartData(values[0]) || values.length === 0;
 }
 
-export type PartData = LEDData | FiberData | ELData;
+export type PartData = LEDData | FiberData;
 
 export function isPartData(partData: PartData): partData is PartData {
-  return isFiberData(partData) || isLEDData(partData) || isELData(partData);
+  return isFiberData(partData) || isLEDData(partData);
 }
 
 export interface FiberData {
-  color: string;
+  colorID: ColorID;
   alpha: number; // brightness
-  colorCode?: Color; // this is a three type Color, for doing color fade
+  rgb?: RGB; // this is for three simulator only to calculate fade
 }
 
 export function isFiberData(partData: PartData): partData is FiberData {
   return (
-    typeof (partData as FiberData)?.color === "string" &&
+    typeof (partData as FiberData)?.colorID === "number" &&
     typeof (partData as FiberData)?.alpha === "number"
   );
 }
 
 export interface LEDData {
-  src: string;
+  effectID: EffectID;
   alpha: number;
 }
 
 export function isLEDData(partData: PartData): partData is LEDData {
   return (
-    typeof (partData as LEDData)?.src === "string" &&
+    typeof (partData as LEDData)?.effectID === "number" &&
     typeof (partData as LEDData)?.alpha === "number"
   );
-}
-
-export type ELData = number;
-
-export function isELData(partData: PartData): partData is ELData {
-  return typeof partData === "number";
 }
 
 export type CurrentStatusDelta = Record<
@@ -105,13 +107,13 @@ export type DancerStatusQueryPayload = Array<
   FiberDataQueryPayload | LEDDataQueryPayload
 >;
 
-export type FiberDataQueryPayload = [ColorName, number];
+export type FiberDataQueryPayload = [ColorID, number];
 
-export type LEDDataQueryPayload = [string, number];
+export type LEDDataQueryPayload = [EffectID, number];
 
 export type ControlMapStatusMutationPayload = DancerStatusMutationPayload[];
 
-export type DancerStatusMutationPayload = [string, string][];
+export type DancerStatusMutationPayload = Array<[ColorID | EffectID, number]>;
 
 /**
  * PosRecord and PosMap
@@ -211,20 +213,23 @@ export type DancersPayload = DancersArray;
 /**
  * ColorMap
  */
-export type ColorMap = Record<ColorName, ColorCode>;
-
-export function isColorMap(colorMap: unknown): colorMap is ColorMap {
-  return Object.values(colorMap as ColorMap).every(isColorCode);
-}
+export type ColorMap = {
+  [id: ColorID]: Color;
+};
 
 /**
  * Led Effect Map, get from backend
  */
-export type LEDMap = Record<PartName, Record<LEDEffectName, LEDEffect>>;
+export type LEDMap = {
+  [LEDPartName: LEDPartName]: {
+    [effectName: string]: LEDEffect;
+  };
+};
 
 export type LEDEffectName = string;
 
 export interface LEDEffect {
+  effectID: EffectID;
   repeat: number; // repeat counts, 0 for continuously repeat
   effects: LEDEffectFrame[];
 }
@@ -235,20 +240,23 @@ export interface LEDEffectFrame {
   effect: LEDBulbData[]; // ColorCode array for led strips
 }
 
-export type LEDMapPayload = Record<
-  PartName,
-  Record<LEDEffectName, LEDEffectPayload>
->;
-export interface LEDEffectPayload {
-  repeat: number; // repeat counts, 0 for continuously repeat
+export type LEDMapPayload = {
+  [LEDPartName: LEDPartName]: {
+    [effectName: string]: LEDEffectPayload;
+  };
+};
+
+export type LEDEffectPayload = {
+  id: number;
+  repeat: number;
   frames: LEDEffectFramePayload[];
-}
-export interface LEDEffectFramePayload {
-  start: number;
+};
+
+export type LEDEffectFramePayload = {
+  LEDs: Array<[ColorID, number]>;
   fade: boolean;
-  // [r, g, b, alpha(0-10)]
-  LEDs: RGBA[];
-}
+  start: number;
+};
 /**
  * LedEffectRecord
  * Save dancer LED part's appearing record id
@@ -259,30 +267,6 @@ export type LEDEffectRecord = Record<DancerName, Record<PartName, LEDRecord>>;
 
 export type LEDRecord = id[];
 
-export type addLEDEffectPayload = {
-  partName: LEDPartName;
-  effectName: string;
-  repeat: 0 | 1;
-  ok: boolean;
-  msg: string;
-};
-
-export type saveLEDEffectInput = {
-  frames: {
-    set: JSON[];
-  };
-  id: number;
-  name: string;
-  repeat: 0 | 1;
-};
-
-export type saveLEDEffectPayload = {
-  partName: LEDPartName;
-  effectName: string;
-  repeat: 0 | 1;
-  ok: boolean;
-  msg: string;
-};
 /**
  * CurrentLedEffect
  * Save the ledEffect index (in ledEffectRecord) and the effect
@@ -302,8 +286,9 @@ export type LEDPartData = {
 };
 
 export type LEDBulbData = {
-  colorCode: ColorCode;
+  colorID: ColorID;
   alpha: number;
+  rgb?: RGB; // for calculating fade
 };
 
 export type EffectListType = Array<{

@@ -1,19 +1,20 @@
 import { Stack, Grid, Typography } from "@mui/material";
 import ColorSelector from "../OFcontrols/ColorSelector";
 import IntensityControl from "../IntensityControl";
+import { ColorID } from "@/core/models";
 
 export interface LEDBulbsControlsContentProps {
-  handleColorChange: (color: string) => void;
+  handleColorChange: (colorID: ColorID) => void;
   intensity: number | null;
   handleIntensityChange: (intensity: number) => void;
-  currentColorName: string | null;
+  currentColorID: number | null;
 }
 
 function LEDBulbsControlsContent({
   handleColorChange,
   handleIntensityChange,
   intensity,
-  currentColorName,
+  currentColorID,
 }: LEDBulbsControlsContentProps) {
   return (
     <Stack gap="1.5vh">
@@ -33,7 +34,7 @@ function LEDBulbsControlsContent({
           <ColorSelector
             placeholder="none"
             onChange={handleColorChange}
-            currentColorName={currentColorName}
+            currentColorID={currentColorID}
           />
         </Grid>
       </Grid>

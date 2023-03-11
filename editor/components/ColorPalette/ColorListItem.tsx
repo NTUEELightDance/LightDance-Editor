@@ -9,18 +9,17 @@ import {
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { Color, ColorID } from "@/core/models";
 
 function ColorListItem({
-  colorName,
-  colorCode,
+  color,
   handleEditClick,
   handleDeleteColor,
   protect = false,
 }: {
-  colorName: string;
-  colorCode: string;
-  handleEditClick: (color: string) => () => void;
-  handleDeleteColor: (color: string) => void;
+  color: Color;
+  handleEditClick: (color: ColorID) => () => void;
+  handleDeleteColor: (color: ColorID) => void;
   protect?: boolean;
 }) {
   return (
@@ -35,11 +34,11 @@ function ColorListItem({
         }}
       >
         <Box sx={{ width: "7em" }}>
-          <Typography>{colorName}</Typography>
+          <Typography>{color.name}</Typography>
         </Box>
         <Paper
           sx={{
-            backgroundColor: colorCode,
+            backgroundColor: color.colorCode,
             display: "flex",
             width: "8em",
             mx: "1em",
@@ -49,10 +48,10 @@ function ColorListItem({
             fontSize: "1em",
           }}
         >
-          {colorCode}
+          {color.colorCode}
         </Paper>
         <Box sx={{ width: "8em" }}>
-          <IconButton onClick={handleEditClick(colorName)}>
+          <IconButton onClick={handleEditClick(color.id)}>
             <EditIcon fontSize="small" />
           </IconButton>
           {protect ? (
@@ -64,11 +63,7 @@ function ColorListItem({
               </span>
             </Tooltip>
           ) : (
-            <IconButton
-              onClick={() => {
-                handleDeleteColor(colorName);
-              }}
-            >
+            <IconButton onClick={() => handleDeleteColor(color.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           )}

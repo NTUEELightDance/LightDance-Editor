@@ -11,12 +11,13 @@ import {
   CurrentLEDStatus,
   LEDPartLengthMap,
   isLEDPartName,
-  ColorCode,
+  ColorMap,
 } from "../models";
 
 import { dancerAgent } from "@/api";
 import { getControl, getPos } from "../utils";
 import { colorAgent } from "@/api/colorAgent";
+import { rgbToHex } from "../utils/convert";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
@@ -99,7 +100,21 @@ const actions = registerActions({
   },
 
   initColorMap: async (state: State) => {
-    const colorMap = await colorAgent.getColorMap();
+    const colorMapResponseData = await colorAgent.getColorMap();
+
+    const colorMap: ColorMap = Object.entries(
+      colorMapResponseData.colorMap.colorMap
+    ).reduce(
+      (acc, [id, { color: name, colorCode: rgb }]) => ({
+        ...acc,
+        [id]: {
+          name,
+          colorCode: rgbToHex(rgb),
+          rgb,
+        },
+      }),
+      {}
+    );
 
     state.colorMap = colorMap;
   },
@@ -114,7 +129,7 @@ const actions = registerActions({
           const length = LEDPartLengthMap[part];
           tmp[dancerName][part] = {
             effect: [...Array(length)].map(() => ({
-              colorCode: "#000000" as ColorCode,
+              colorID: -1,
               alpha: 0,
             })),
             effectIndex: 0,

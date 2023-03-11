@@ -6,24 +6,29 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 // no-effect
 import { NO_EFFECT } from "@/constants";
+import { EffectID } from "@/core/models";
 
 export interface SrcSelectorProps {
-  src: string | null;
+  effectID: EffectID | null;
   effectNames: string[];
-  handleSrcChange: (src: string) => void;
+  handleEffectIDChange: (effectID: EffectID) => void;
 }
 
 /**
  * Led Src Selector
  * Select the effectName to be the src
  */
-function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
+function SrcSelector({
+  effectID,
+  effectNames,
+  handleEffectIDChange,
+}: SrcSelectorProps) {
   const handleChange = (e: SelectChangeEvent) => {
-    handleSrcChange(e.target.value);
+    handleEffectIDChange(parseInt(e.target.value));
   };
 
   // handle no effect option and the display
-  const options = [NO_EFFECT, ...effectNames];
+  const options = [-1, ...effectNames];
   const optionDisplay = (val: string) =>
     val === NO_EFFECT ? "no-effect" : val;
 
@@ -31,15 +36,16 @@ function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
     <FormControl sx={{ width: "5.5vw", padding: 0 }} size="small">
       <InputLabel shrink>src</InputLabel>
       <Select
-        value={src ?? ""}
+        type="number"
+        value={effectID?.toString?.() ?? "-1"}
         label="src"
         onChange={handleChange}
         displayEmpty
         renderValue={optionDisplay}
       >
-        {options.map((effectName) => (
-          <MenuItem key={effectName} value={effectName} dense>
-            {optionDisplay(effectName)}
+        {options.map((effectID) => (
+          <MenuItem key={effectID} value={effectID} dense>
+            {optionDisplay(effectID)}
           </MenuItem>
         ))}
       </Select>
