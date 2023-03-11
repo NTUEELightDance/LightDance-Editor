@@ -3,10 +3,7 @@ import Grid from "@mui/system/Unstable_Grid/Grid";
 
 interface ModelButtonProps {
   chosenModel: string;
-  handleChangeChosenModel: (
-    event: React.MouseEvent<HTMLElement>,
-    newChosenModel: string
-  ) => void;
+  handleChangeChosenModel: (newChosenModel: string) => void;
   displayModels: string[];
 }
 
@@ -53,7 +50,7 @@ export default function ModelButton({
             <Button
               variant={chosenModel === v ? "contained" : "outlined"}
               color="primary"
-              onClick={(event) => handleChangeChosenModel(event, v)}
+              onClick={() => handleChangeChosenModel(v)}
             >
               {v}
             </Button>
