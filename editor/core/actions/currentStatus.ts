@@ -68,11 +68,11 @@ const actions = registerActions({
     }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
+    payload.forEach(({ dancerName, partName, value: { effectID, alpha } }) => {
       const data = state.currentStatus[dancerName][partName];
       if (isLEDData(data)) {
-        if (typeof src === "string") {
-          data.src = src;
+        if (typeof effectID === "number") {
+          data.effectID = effectID;
         }
         if (typeof alpha === "number") {
           data.alpha = alpha;

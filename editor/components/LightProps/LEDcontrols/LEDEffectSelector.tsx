@@ -4,38 +4,47 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
+// no-effect
+import { NO_EFFECT } from "@/constants";
+import { LEDEffectID } from "@/core/models";
+
 export interface SrcSelectorProps {
-  src: string | null;
-  effectNames: string[];
-  handleSrcChange: (src: string) => void;
+  effectID: LEDEffectID | null;
+  effectIDs: LEDEffectID[];
+  handleEffectIDChange: (effectID: LEDEffectID) => void;
 }
 
 /**
  * Led Src Selector
  * Select the effectName to be the src
  */
-function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
+function LEDEffectSelector({
+  effectID,
+  effectIDs,
+  handleEffectIDChange,
+}: SrcSelectorProps) {
   const handleChange = (e: SelectChangeEvent) => {
-    handleSrcChange(e.target.value);
+    handleEffectIDChange(parseInt(e.target.value));
   };
 
   // handle no effect option and the display
-  const options = ["", ...effectNames];
-  const optionDisplay = (val: string) => (val === "" ? "no-effect" : val);
+  const options = [NO_EFFECT, ...effectIDs];
+  const optionDisplay = (val: string) =>
+    val === NO_EFFECT.toString() ? "no-effect" : val;
 
   return (
     <FormControl sx={{ width: "5.5vw", padding: 0 }} size="small">
       <InputLabel shrink>src</InputLabel>
       <Select
-        value={src ?? ""}
+        value={effectID?.toString?.() ?? "-1"}
         label="src"
         onChange={handleChange}
         displayEmpty
         renderValue={optionDisplay}
       >
-        {options.map((effectName) => (
-          <MenuItem key={effectName} value={effectName} dense>
-            {optionDisplay(effectName)}
+        {options.map((effectID) => (
+          <MenuItem key={effectID} value={effectID} dense>
+            {optionDisplay(effectID.toString())}
           </MenuItem>
         ))}
       </Select>
@@ -43,4 +52,4 @@ function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
   );
 }
 
-export default SrcSelector;
+export default LEDEffectSelector;

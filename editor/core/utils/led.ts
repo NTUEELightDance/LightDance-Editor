@@ -4,15 +4,17 @@ import type {
   ControlMap,
   LEDData,
   CurrentLEDStatus,
-  LEDMap,
   LEDEffectFrame,
   LEDEffectRecord,
+  LEDEffectIDtable,
 } from "../models";
 
 import { isLEDPartName } from "../models";
 
 import { cloneDeep } from "lodash";
 import { updateFrameByTimeMap } from "./frame";
+
+import { state } from "../state";
 
 /**
  * Update the currentLEDStatus
@@ -28,7 +30,7 @@ export function updateCurrentLEDStatus(
   controlMap: ControlMap,
   ledEffectRecord: LEDEffectRecord,
   currentLEDStatus: CurrentLEDStatus,
-  ledMap: LEDMap,
+  LEDEffectIDtable: LEDEffectIDtable,
   time: number
 ) {
   Object.keys(currentLEDStatus).forEach((dancerName) => {
@@ -67,13 +69,15 @@ export function updateCurrentLEDStatus(
         return;
       }
 
-      const { src, alpha } = currentStatus[dancerName][partName] as LEDData;
-      if (!src || !ledMap[partName][src]) {
+      const { effectID, alpha } = currentStatus[dancerName][
+        partName
+      ] as LEDData;
+      if (!effectID || !LEDEffectIDtable[effectID]) {
         throw `[Invalid src] ${dancerName} ${partName} ${recordId}`;
       }
 
       // get repeat, effects from ledMap and src
-      const { repeat, effects } = ledMap[partName][src];
+      const { repeat, effects } = LEDEffectIDtable[effectID];
 
       let offset = time - currentStart; // get the offset of time (since the led effect begins from 0)
       // calculate the offset with repeat
@@ -130,15 +134,15 @@ export function updateCurrentLEDStatus(
         const { start: nextStart, effect: nextEffect } =
           effects[newEffectIndex + 1];
         if (nextEffect.length !== currEffect.length) {
-          throw `[Error] ${dancerName} ${partName} ${src} effect length not the same (start: ${currStart})`;
+          throw `[Error] ${dancerName} ${partName} ${effectID} effect length not the same (start: ${currStart})`;
         }
         currEffect.forEach((_, idx) => {
           const { colorID: currColorID, alpha: currAlpha } = currEffect[idx];
           const { colorID: nextColorID, alpha: nextAlpha } = nextEffect[idx];
 
-          const newColor = fadeColor(
-            currColorID,
-            nextColorID,
+          const newColorRGB = fadeColor(
+            state.colorMap[currColorID].rgb,
+            state.colorMap[nextColorID].rgb,
             offset,
             currStart,
             nextStart
@@ -151,7 +155,8 @@ export function updateCurrentLEDStatus(
             nextStart
           );
           currEffect[idx] = {
-            colorCode: newColor,
+            colorID: currColorID,
+            rgb: newColorRGB,
             alpha: newAlpha,
           };
         });

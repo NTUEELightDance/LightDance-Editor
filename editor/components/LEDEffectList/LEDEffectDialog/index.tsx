@@ -190,9 +190,11 @@ export default function LEDEffectDialog({
     // than deliver a warning.)
     if (newChosenPart !== null) {
       if (actionMode === "EDIT" && newChosenPart) {
-        const valid = Object.keys(ledMap[newChosenPart]).some((effectName) => {
-          return effectName === newEffect?.LEDEffectName;
-        });
+        const valid = Object.keys(ledMap[newChosenPart as LEDPartName]).some(
+          (effectName) => {
+            return effectName === newEffect?.LEDEffectName;
+          }
+        );
         if (!valid) {
           notification.warning(
             "Warning! The selected part does not have the chosen effect."

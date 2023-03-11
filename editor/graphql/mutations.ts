@@ -1,6 +1,6 @@
 import {
   ControlMapStatusMutationPayload,
-  EffectID,
+  LEDEffectID,
   LEDEffectFramePayload,
   LEDPartName,
 } from "@/core/models";
@@ -309,7 +309,7 @@ export interface EditLEDEffectMutationResponseData {
 
 export interface EditLEDEffectMutationVariables {
   input: {
-    id: EffectID;
+    id: LEDEffectID;
     name: string;
     repeat: number;
     frames: {
@@ -335,7 +335,7 @@ export interface DeleteLEDEffectMutationResponseData {
 }
 
 export interface DeleteLEDEffectMutationVariables {
-  deleteLedEffectId: EffectID;
+  deleteLedEffectId: LEDEffectID;
 }
 
 export const DELETE_LED_EFFECT = gql`

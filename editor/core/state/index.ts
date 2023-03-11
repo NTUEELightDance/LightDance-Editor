@@ -21,6 +21,7 @@ export const _state: State = {
   posMap: {},
 
   ledMap: {},
+  LEDEffectIDtable: {},
 
   currentTime: 0,
   currentControlIndex: 0,
@@ -42,7 +43,7 @@ export const _state: State = {
   editor: "CONTROL_EDITOR",
   selectionMode: "DANCER_MODE",
   editingData: {
-    frameId: "",
+    frameId: -1,
     start: 0,
     index: 0,
   },

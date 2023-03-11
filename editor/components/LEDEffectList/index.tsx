@@ -3,7 +3,7 @@ import { useState } from "react";
 // mui materials
 import { Paper } from "@mui/material";
 
-import EffectList from "./LEDEffectList";
+import EffectList from "./EffectList";
 import LEDEffectDialog from "./LEDEffectDialog";
 
 export default function LEDEffectList() {

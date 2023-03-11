@@ -94,7 +94,7 @@ const actions = registerActions({
 
     state.editingData = {
       start: currentLEDEffect.effects[state.currentLEDIndex].start,
-      frameId: state.currentLEDIndex.toString(),
+      frameId: state.currentLEDIndex,
       index: state.currentLEDIndex,
     };
   },
@@ -189,6 +189,8 @@ const actions = registerActions({
     state.selectionMode = "LED_MODE";
     const partLength = state.LEDPartLengthMap[partName];
     state.currentLEDEffect = {
+      name: effectName,
+      effectID: -1,
       repeat: 1,
       effects: [createEmptyLEDEffectFrame(partLength)],
     };
@@ -271,7 +273,7 @@ async function generateLEDEffectRecord(
   });
 
   // go through control record, add the index if the led source is NOT NO_EFFECT
-  controlRecord.forEach((id: string) => {
+  controlRecord.forEach((id: number) => {
     const status: ControlMapStatus = controlMap[id].status;
     Object.entries(status).forEach(
       ([dancerName, dancerStatus]: [DancerName, DancerStatus]) => {

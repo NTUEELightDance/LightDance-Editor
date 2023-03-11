@@ -27,6 +27,7 @@ import type {
   LEDEffect,
   LEDMapPayload,
   LEDMap,
+  LEDPartName,
 } from "@/core/models";
 
 import { isColorCode, isFiberData, isLEDData } from "@/core/models";
@@ -170,19 +171,28 @@ export function toCoordinatesPayload(
 export function toLEDMap(mapPayload: LEDMapPayload): LEDMap {
   const ledMap: LEDMap = {};
   for (const [partName, effectPayloadMap] of Object.entries(mapPayload)) {
-    ledMap[partName] = {};
+    ledMap[partName as LEDPartName] = {};
     for (const [effectName, payload] of Object.entries(effectPayloadMap)) {
-      ledMap[partName][effectName] = toLEDEffect(payload);
+      ledMap[partName as LEDPartName][effectName] = toLEDEffect(
+        payload,
+        effectName
+      );
     }
   }
   return ledMap;
 }
 
-export function toLEDEffect(payload: LEDEffectPayload): LEDEffect {
+export function toLEDEffect(
+  payload: LEDEffectPayload,
+  effectName: string
+): LEDEffect {
   const effects = payload.frames.map((framePayload) =>
     toLEDEffectFrame(framePayload)
   );
+
   return {
+    name: effectName,
+    effectID: payload.id,
     repeat: payload.repeat,
     effects,
   };

@@ -99,7 +99,7 @@ const actions = registerActions({
       const currentLEDEffectName = state.currentLEDEffectName;
       if (currentLEDEffectName === null) return;
       if (state.currentLEDEffect === null) return;
-      const frameID = "FRAME_ID";
+      const frameID = -1;
       const pseudoControlMap: ControlMap = {
         [frameID]: {
           start: state.currentLEDEffectStart,
@@ -108,7 +108,7 @@ const actions = registerActions({
             [dancerName]: {
               [currentLEDPartName]: {
                 alpha: 10,
-                src: currentLEDEffectName,
+                effectID: -1,
               },
             },
           },

@@ -5,15 +5,16 @@ import { Paper } from "@mui/material";
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 
 import { editCurrentStatusDelta } from "@/core/actions";
-import {
+import type {
   FiberData,
   Selected,
   CurrentStatusDelta,
   SelectedPartPayload,
   LEDData,
   ColorID,
+  LEDPartName,
 } from "@/core/models";
-import { reactiveState } from "core/state";
+import { reactiveState, state } from "@/core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "core/utils";
@@ -23,6 +24,7 @@ import MixedControlsContent from "./MixedControls/MixedControlsContent";
 function PartMode() {
   const selected = useReactiveVar(reactiveState.selected);
   const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const LEDEffectIDTable = useReactiveVar(reactiveState.LEDEffectIDtable);
 
   const [selectedParts, partType] = useMemo(
     () => getSelectedPartsAndType(selected),
@@ -31,7 +33,7 @@ function PartMode() {
 
   const [currentColorID, setCurrentColorID] = useState<ColorID | null>(null);
   const [intensity, setIntensity] = useState<number | null>(null);
-  const [LEDsrc, setLEDsrc] = useState<string | null>(null);
+  const [LEDEffectName, setLEDsrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (partType === "FIBER") {
@@ -97,13 +99,21 @@ function PartMode() {
         return;
       }
 
+      const getLEDEffectName = (effectID: number) =>
+        LEDEffectIDTable[effectID].name;
+
       // check if all selected parts have the same src
-      const assertSrc = (currentStatus[dancerName0][parts0[0]] as LEDData).src;
+      const firstEffectID = (currentStatus[dancerName0][parts0[0]] as LEDData)
+        .effectID;
+      const assertSrc = getLEDEffectName(firstEffectID);
+
       if (
         Object.entries(selectedParts).every(([dancerName, parts]) =>
           parts.every(
             (part) =>
-              (currentStatus[dancerName][part] as LEDData).src === assertSrc
+              getLEDEffectName(
+                (currentStatus[dancerName][part] as LEDData).effectID
+              ) === assertSrc
           )
         )
       ) {
@@ -129,7 +139,7 @@ function PartMode() {
         setIntensity(null);
       }
     }
-  }, [currentStatus, partType, selectedParts]);
+  }, [LEDEffectIDTable, currentStatus, partType, selectedParts]);
 
   // initialize local state for mixed
   useEffect(() => {
@@ -170,15 +180,15 @@ function PartMode() {
   }, [currentColorID, intensity, partType, selectedParts]);
 
   useEffect(() => {
-    if (partType === "LED" && LEDsrc !== null && intensity !== null) {
+    if (partType === "LED" && LEDEffectName !== null && intensity !== null) {
       const currentStatusDelta = calculateCurrentStatusDeltaLED(
         selectedParts,
-        LEDsrc,
+        LEDEffectName,
         intensity
       );
       editCurrentStatusDelta({ payload: currentStatusDelta });
     }
-  }, [LEDsrc, intensity, partType, selectedParts]);
+  }, [LEDEffectName, intensity, partType, selectedParts]);
 
   useEffect(() => {
     if (
@@ -210,9 +220,9 @@ function PartMode() {
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
       {partType === "LED" ? (
         <LEDcontrolsContent
-          parts={partNames}
+          parts={partNames as LEDPartName[]}
           intensity={intensity}
-          src={LEDsrc}
+          src={LEDEffectName}
           handleIntensityChange={setIntensity}
           handleSrcChange={setLEDsrc}
         />
@@ -279,7 +289,7 @@ function calculateCurrentStatusDeltaFiber(
 
 function calculateCurrentStatusDeltaLED(
   selectedParts: SelectedPartPayload,
-  LEDsrc: string,
+  LEDeffectName: string,
   intensity: number
 ) {
   const currentStatusDelta: CurrentStatusDelta = {};
@@ -287,8 +297,11 @@ function calculateCurrentStatusDeltaLED(
     parts.forEach((partName) => {
       currentStatusDelta[dancerName] ??= {};
 
+      const effectID =
+        state.ledMap[partName as LEDPartName][LEDeffectName].effectID;
+
       currentStatusDelta[dancerName][partName] = {
-        src: LEDsrc,
+        effectID,
         alpha: intensity,
       };
     });

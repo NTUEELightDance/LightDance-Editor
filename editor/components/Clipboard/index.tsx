@@ -153,7 +153,7 @@ export default function Clipboard() {
                 dancerName: dancer,
                 partName: part,
                 value: {
-                  color: "#000000",
+                  colorID: -1,
                   alpha: 0,
                 },
               },
@@ -165,7 +165,7 @@ export default function Clipboard() {
                   dancerName: dancer,
                   partName: part,
                   value: {
-                    src: "",
+                    effectID: -1,
                     alpha: 0,
                   },
                 },

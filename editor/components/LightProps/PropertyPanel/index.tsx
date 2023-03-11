@@ -93,7 +93,7 @@ function PropertyPanel({
                 <LEDcontrols
                   part={part}
                   currentDancers={currentDancers}
-                  displayValue={
+                  currentLEDData={
                     currentStatus[currentDancers[0]][part] as LEDData
                   }
                   key={`${currentDancers[0]}_${part}`}

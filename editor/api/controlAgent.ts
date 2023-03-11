@@ -75,7 +75,7 @@ export const controlAgent = {
         ],
       });
 
-      return response?.addControlFrame?.id;
+      return response?.addControlFrame?.id as number;
     } catch (error) {
       console.error(error);
       throw error;
@@ -142,13 +142,13 @@ export const controlAgent = {
     }
   },
 
-  deleteFrame: async (frameId: string) => {
+  deleteFrame: async (frameId: number) => {
     try {
       client.mutate({
         mutation: DELETE_CONTROL_FRAME_BY_ID,
         variables: {
           input: {
-            frameID: parseInt(frameId),
+            frameID: frameId,
           },
         },
         refetchQueries: [
@@ -166,22 +166,22 @@ export const controlAgent = {
     }
   },
 
-  requestEditPermission: async (frameId: string) => {
+  requestEditPermission: async (frameId: number) => {
     const { data: response } = await client.mutate({
       mutation: REQUEST_EDIT_CONTROL_BY_ID,
       variables: {
-        frameId: parseInt(frameId),
+        frameId: frameId,
       },
     });
 
     return response.RequestEditControl.ok;
   },
 
-  cancelEditPermission: async (frameId: string) => {
+  cancelEditPermission: async (frameId: number) => {
     const { data: response } = await client.mutate({
       mutation: CANCEL_EDIT_CONTROL_BY_ID,
       variables: {
-        frameId: parseInt(frameId),
+        frameId: frameId,
       },
     });
 

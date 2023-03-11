@@ -16,7 +16,7 @@ import {
 import type {
   LEDEffectFramePayload,
   LEDPartName,
-  EffectID,
+  LEDEffectID,
 } from "@/core/models";
 import { notification } from "@/core/utils";
 
@@ -100,7 +100,7 @@ export const ledAgent = {
     }
   },
 
-  deleteLEDEffect: async (effectID: EffectID) => {
+  deleteLEDEffect: async (effectID: LEDEffectID) => {
     try {
       const { data: response } = await client.mutate<
         DeleteLEDEffectMutationResponseData,

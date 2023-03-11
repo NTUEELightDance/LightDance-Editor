@@ -1,21 +1,24 @@
 import { useState } from "react";
+import { useReactiveVar } from "@apollo/client";
 // components
 import { Box, Typography, ListItemButton, Collapse } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
-import type { LEDData } from "core/models";
-import { editCurrentStatusLED } from "core/actions";
+import type { LEDData, LEDPartName } from "@/core/models";
+import { editCurrentStatusLED } from "@/core/actions";
+import { reactiveState } from "@/core/state";
 
 function LEDcontrols({
   part,
   currentDancers,
-  displayValue,
+  currentLEDData,
 }: {
   part: string;
   currentDancers: string[];
-  displayValue: LEDData;
+  currentLEDData: LEDData;
 }) {
+  const LEDEffectIDTable = useReactiveVar(reactiveState.LEDEffectIDtable);
   // Call core actions to update currentStatus
   const updateCurrentStatus = ({
     src,
@@ -72,7 +75,7 @@ function LEDcontrols({
             <Typography>{part}</Typography>
           </Box>
           <Box sx={{ width: "3vw" }}>
-            <Typography>{valueLabelFormat(displayValue.alpha)}</Typography>
+            <Typography>{valueLabelFormat(currentLEDData.alpha)}</Typography>
           </Box>
           <div>{open ? <ExpandLess /> : <ExpandMore />}</div>
         </Box>
@@ -80,9 +83,9 @@ function LEDcontrols({
 
       <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
         <LEDcontrolsContents
-          parts={[part]}
-          intensity={displayValue.alpha}
-          src={displayValue.src}
+          parts={[part as LEDPartName]}
+          intensity={currentLEDData.alpha}
+          src={LEDEffectIDTable[currentLEDData.effectID].name}
           handleIntensityChange={handleIntensityChange}
           handleSrcChange={handleSrcChange}
           oneLine

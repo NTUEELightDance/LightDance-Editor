@@ -95,7 +95,7 @@ function GroupPanel({
           <LEDcontrols
             part={part}
             currentDancers={currentDancers}
-            displayValue={displayValue as LEDData}
+            currentLEDData={displayValue as LEDData}
             key={`${currentDancers[0]}_${part}_LED`}
           />
         ) : (
