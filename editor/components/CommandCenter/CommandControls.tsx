@@ -11,8 +11,6 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-// hooks
-import useWebsocket from "hooks/useWebsocket";
 // constants
 import { COMMANDS } from "@/constants";
 // contexts
@@ -22,13 +20,20 @@ import { wavesurferContext } from "types/components/wavesurfer";
 
 import { notification } from "core/utils";
 
+import { panelPayloadType } from "types/hooks/webSocket";
+
 export default function CommandControls({
   selectedDancers,
+  delay,
+  sendCommand,
+  setDelay,
 }: {
   selectedDancers: string[];
+  delay: number;
+  sendCommand: (panelPayload: panelPayloadType) => Promise<void>;
+  setDelay: any;
 }) {
   // hook
-  const { delay, sendCommand, setDelay } = useWebsocket();
 
   const [showDropDown, setShowDropDown] = useState(false);
 
@@ -94,6 +99,7 @@ export default function CommandControls({
     { command: COMMANDS.PLAY },
     { command: COMMANDS.PAUSE },
     { command: COMMANDS.STOP },
+    { command: COMMANDS.TEST },
   ];
   const ButtonGroup3 = [
     { command: COMMANDS.RESTARTCONTROLLER },
@@ -163,7 +169,7 @@ export default function CommandControls({
             <ExpandMoreIcon
               sx={{
                 animation: `${showDropDown ? "spinDown" : "spinUp"} 0.5s ease`,
-                "animation-fill-mode": "forwards",
+                animationFillMode: "forwards",
                 "@keyframes spinDown": {
                   "0%": { transform: "rotate(0deg)" },
                   "100%": { transform: "rotate(180deg)" },
@@ -247,19 +253,3 @@ function DefaultCommandButton({
     </Button>
   );
 }
-
-// SYNC,
-// UPLOAD_LED, // need payload
-// UPLOAD_OF, // need payload
-// LOAD,
-
-// PLAY, // need payload
-// PAUSE,
-// STOP,
-
-// LIGTHCURRENTSTATUS, // need payload
-// TEST, // need payload
-
-// KICK,
-// SHUTDOWN,
-// REBOOT,

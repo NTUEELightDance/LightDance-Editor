@@ -14,23 +14,27 @@ interface SyncType {
   offset: number;
 }
 type LightStatusType = any;
-interface BoardInfoType {
+interface BoardInfoS2CType {
   dancerName: string[]; // array of dancerNames
   ip: string[]; // array of ips
   hostName: string[]; // array of hostNames
 }
-interface MesS2CType {
+interface BoardInfoC2SType {
+  command: string;
+  payload: { type: string };
+}
+interface ServerMessage {
   command: string; // ex. COMMANDS.START
   payload: {
     from: string; // dancer name
     success: boolean;
-    info: string | InfoType | SyncType | BoardInfoType;
+    info: string | InfoType | SyncType | BoardInfoS2CType;
   };
 }
-interface MesC2SType {
+interface ClientMessage {
   command: string; // ex. COMMANDS.START
   selectedDancers: string[]; // if no dancer -> []
-  payload: string | PlayTimeType | LightStatusType | InfoType; // correspond to command
+  payload?: string | PlayTimeType | LightStatusType | InfoType; // correspond to command
 }
 interface setMessageType {
   dancer: string;
@@ -45,7 +49,7 @@ interface statusType {
   msg: string; // response message from Rpis
   isConnected: boolean; // if Rpi is connected to server
 }
-type dancerStatusType = Record<string, statusType>;
+type DancerStatusType = Record<string, statusType>;
 interface panelPayloadType {
   command: string;
   selectedDancers: string[];
@@ -53,10 +57,11 @@ interface panelPayloadType {
 }
 export {
   SyncType,
-  MesS2CType,
-  MesC2SType,
-  BoardInfoType,
+  ServerMessage,
+  ClientMessage,
+  BoardInfoS2CType,
+  BoardInfoC2SType,
   setMessageType,
-  dancerStatusType,
+  DancerStatusType,
   panelPayloadType,
 };

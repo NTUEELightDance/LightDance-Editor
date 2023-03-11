@@ -28,6 +28,7 @@ import type {
   LEDMapPayload,
   LEDMap,
   LEDPartName,
+  LEDEffectIDtable,
 } from "@/core/models";
 
 import { isColorCode, isFiberData, isLEDData } from "@/core/models";
@@ -180,6 +181,19 @@ export function toLEDMap(mapPayload: LEDMapPayload): LEDMap {
     }
   }
   return ledMap;
+}
+
+export function toLEDEffectIDTable(
+  mapPayload: LEDMapPayload
+): LEDEffectIDtable {
+  const ledEffectIDtable: LEDEffectIDtable = {};
+  for (const effectPayloadMap of Object.values(mapPayload)) {
+    for (const [effectName, payload] of Object.entries(effectPayloadMap)) {
+      ledEffectIDtable[payload.id] = toLEDEffect(payload, effectName);
+    }
+  }
+
+  return ledEffectIDtable;
 }
 
 export function toLEDEffect(

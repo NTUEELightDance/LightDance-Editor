@@ -12,6 +12,7 @@ import type {
   LEDEffect,
   LEDPartName,
   LEDBulbData,
+  LEDEffectIDtable,
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
@@ -36,6 +37,10 @@ import { setCurrentTime } from "./timeData";
 const actions = registerActions({
   setLEDMap: async (state: State, payload: LEDMap) => {
     state.ledMap = payload;
+  },
+
+  setLEDEffectIDtable: async (state: State, payload: LEDEffectIDtable) => {
+    state.LEDEffectIDtable = payload;
   },
 
   setCurrentLEDPartName: (state: State, payload: string) => {
@@ -224,7 +229,8 @@ const actions = registerActions({
 
   syncCurrentLEDStatus: async (state: State) => {
     const [controlMap, controlRecord] = await getControl();
-    const ledMap = await getLedMap();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, ledEffectIDtable] = await getLedMap();
 
     const index = updateFrameByTimeMap(
       controlRecord,
@@ -248,7 +254,7 @@ const actions = registerActions({
       pseudoControlMap,
       state.ledEffectRecord,
       state.currentLEDStatus,
-      ledMap,
+      ledEffectIDtable,
       state.currentTime
     );
   },
@@ -293,13 +299,14 @@ async function generateLEDEffectRecord(
 }
 
 export const {
+  setLEDMap,
+  setLEDEffectIDtable,
   setCurrentLEDPartName,
   setCurrentLEDEffectName,
   setCurrentLEDEffect,
   setCurrentLEDEffectRepeat,
   startEditingLED,
   editCurrentLEDStatus,
-  setLEDMap,
   syncLEDEffectRecord,
   syncCurrentLEDStatus,
   addFrameToCurrentLEDEffect,

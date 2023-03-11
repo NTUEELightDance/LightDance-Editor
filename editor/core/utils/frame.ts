@@ -55,6 +55,7 @@ export function binarySearchObjects<T>(
   let low = 0;
   let high = data.length - 1;
   let center = Math.floor((low + high + 1) / 2);
+
   while (low < high) {
     if (getComparable(data[center]) <= target) {
       low = center;

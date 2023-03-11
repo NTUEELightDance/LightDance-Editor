@@ -1,3 +1,5 @@
+import { Color, ColorCode } from "@/core/models";
+
 // current editor
 export const CONTROL_EDITOR = "CONTROL_EDITOR";
 export const POS_EDITOR = "POS_EDITOR";
@@ -76,4 +78,11 @@ export const ROUTES = {
   EDITOR: "/editor",
   COMMAND_CENTER: "/editor/command",
   LOGIN: "/login",
+};
+
+export const NO_COLOR: Color = {
+  name: "no color",
+  colorCode: "#000000" as ColorCode,
+  id: -1,
+  rgb: [0, 0, 0],
 };

@@ -84,15 +84,7 @@ export function fadeStatus(
   return newStatus;
 }
 
-/**
- * Color Fade
- * @param preRGB #ffffff
- * @param nextRGB #ffffff
- * @param time
- * @param preTime
- * @param nextTime
- * @returns
- */
+// RGB 0-255
 export function fadeColor(
   preRGB: RGB,
   nextRGB: RGB,
@@ -101,11 +93,23 @@ export function fadeColor(
   nextTime: number
 ): RGB {
   // Compute fade color with previous color and next color
-  const preColor = new Color().setRGB(...preRGB);
-  const nextColor = new Color().setRGB(...nextRGB);
+  const preColor = new Color().setRGB(
+    preRGB[0] / 255,
+    preRGB[1] / 255,
+    preRGB[2] / 255
+  );
+  const nextColor = new Color().setRGB(
+    nextRGB[0] / 255,
+    nextRGB[1] / 255,
+    nextRGB[2] / 255
+  );
   preColor.lerp(nextColor, (time - preTime) / (nextTime - preTime));
 
-  return [preColor.r, preColor.g, preColor.b];
+  return [
+    Math.round(preColor.r * 255),
+    Math.round(preColor.g * 255),
+    Math.round(preColor.b * 255),
+  ];
 }
 
 /**

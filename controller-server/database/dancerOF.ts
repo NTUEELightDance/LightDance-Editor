@@ -1,10 +1,55 @@
-import { SingleDancerControlType, ControlType } from "../types"
+import { OFControl } from "../types";
 
-type OfJsonType = SingleDancerControlType
+// OfJsonDB can be initialized by control panel's "uploadOf" command
+const OfJsonDB: {[key: string]: OFControl} = {
+  "7_henning": [
+    {
+      "start": 0,
+      "fade": true,
+      // he has 35 ofs
+      "status": {
+        "of1": [50, 0, 0, 10],
+        "of2": [50, 0, 0, 10],
+        "of3": [50, 0, 0, 10],
+        "of4": [50, 0, 0, 10],
+        "of5": [50, 0, 0, 10],
+        "of6": [50, 0, 0, 10],
+        "of7": [50, 0, 0, 10],
+        "of8": [50, 0, 0, 10],
+        "of9": [50, 0, 0, 10],
+        "of10": [50, 0, 0, 10],
+        "of11": [50, 0, 0, 10],
+        "of12": [50, 0, 0, 10],
+        "of13": [50, 0, 0, 10],
+        "of14": [50, 0, 0, 10],
+        "of15": [50, 0, 0, 10],
+        "of16": [50, 0, 0, 10],
+        "of17": [50, 0, 0, 10],
+        "of18": [50, 0, 0, 10],
+        "of19": [50, 0, 0, 10],
+        "of20": [50, 0, 0, 10],
+        "of21": [50, 0, 0, 10],
+        "of22": [50, 0, 0, 10],
+        "of23": [50, 0, 0, 10],
+        "of24": [50, 0, 0, 10],
+        "of25": [50, 0, 0, 10],
+        "of26": [50, 0, 0, 10],
+        "of27": [50, 0, 0, 10],
+        "of28": [50, 0, 0, 10],
+        "of29": [50, 0, 0, 10],
+        "of30": [50, 0, 0, 10],
+        "of31": [50, 0, 0, 10],
+        "of32": [50, 0, 0, 10],
+        "of33": [50, 0, 0, 10],
+        "of34": [50, 0, 0, 10],
+        "of35": [50, 0, 0, 10],
 
-// OfJsonDB can be initialized by control panel's "uploadOf" command 
-let OfJsonDB: {[key: string]: OfJsonType[]} = {
-}
+      }
+    }
+  ]
+};
 
-export { OfJsonDB, OfJsonType }
-    
+export type OfJsonType = typeof OfJsonDB;
+
+export { OfJsonDB };
+

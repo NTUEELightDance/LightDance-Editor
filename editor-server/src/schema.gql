@@ -1185,7 +1185,7 @@ type Mutation {
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editColor(data: ColorUpdateInput!, id: Int!): Color!
   editControlFrame(input: EditControlFrameInput!): ControlFrame!
-  editControlMap(input: EditControlMapInput!): ControlMap!
+  editControlMap(input: EditControlMapInput!): String!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editLEDEffect(input: EditLEDInput!): LEDEffectResponse!
   editPart(part: EditPartInput!): PartResponse!

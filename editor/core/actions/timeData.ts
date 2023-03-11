@@ -17,7 +17,6 @@ import type {
   ControlMap,
   CurrentLEDStatus,
   LEDEffectRecord,
-  LEDMap,
   State,
 } from "../models";
 // constants
@@ -34,7 +33,8 @@ const actions = registerActions({
 
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
-    const ledMap = await getLedMap();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, ledEffectIDtable] = await getLedMap();
 
     let time = payload;
     if (isNaN(time)) {
@@ -87,7 +87,7 @@ const actions = registerActions({
       controlMap,
       state.ledEffectRecord,
       state.currentLEDStatus,
-      ledMap,
+      ledEffectIDtable,
       time
     );
 
@@ -99,7 +99,7 @@ const actions = registerActions({
       const currentLEDEffectName = state.currentLEDEffectName;
       if (currentLEDEffectName === null) return;
       if (state.currentLEDEffect === null) return;
-      const frameID = -1;
+      const frameID = 0;
       const pseudoControlMap: ControlMap = {
         [frameID]: {
           start: state.currentLEDEffectStart,
@@ -125,17 +125,16 @@ const actions = registerActions({
           [currentLEDPartName]: [frameID],
         },
       };
-      const pseudoLEDMap: LEDMap = {
-        [currentLEDPartName]: {
-          [currentLEDEffectName]: state.currentLEDEffect,
-        },
+
+      const pseudoEffectIDtable = {
+        [state.currentLEDEffect.effectID]: state.currentLEDEffect,
       };
 
       const focusedLEDStatus = updateCurrentLEDStatus(
         pseudoControlMap,
         pseudoLEDRecord,
         pseudoLEDStatus,
-        pseudoLEDMap,
+        pseudoEffectIDtable,
         time
       );
 

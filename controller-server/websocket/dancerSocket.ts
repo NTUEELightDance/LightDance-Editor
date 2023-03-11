@@ -18,7 +18,7 @@ import { ControlJsonDB } from "../database/dancerControlJson";
 import { convertTypeAcquisitionFromJson } from "typescript";
 import { LedJsonDB, LedJsonType } from "../database/dancerLED";
 import { getDancerFiberData } from "../api/getDancerFiberData";
-import { getDancerLEDData } from "../api/getDancerLEDData"
+import { getDancerLEDData } from "../api/getDancerLEDData";
 
 class DancerSocket {
   ws: any;
@@ -134,9 +134,9 @@ class DancerSocket {
     this.sendDataToRpiSocket({ action: ActionType.SYNC });
   };
   kick = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
-      payload: [CommandSubType.KICK], 
+      payload: [CommandSubType.KICK],
     });
   };
   lightCurrentStatus = (lightCurrentStatus: LightStatusType) => {
@@ -146,45 +146,45 @@ class DancerSocket {
     });
   };
   load = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.LOAD],
     });
   };
   pause = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
-      payload: [CommandSubType.PAUSE], 
+      payload: [CommandSubType.PAUSE],
     });
   };
   play = (time: PlayTimeType = { startTime: 0, delay: 0, sysTime: 0 }) => {
     console.log(`[Debug] play: sysTime=${time.sysTime} startTime=${time.startTime}`);
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
-      payload: [CommandSubType.PLAY, (time.startTime)] // we sent start time in milliseconds 
+      payload: ["playerctl", "play", "0"] // we sent start time in milliseconds
     });
   };
   reboot = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.REBOOT],
     });
   };
   shutDown = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.SHUTDOWN],
     });
   };
   stop = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.STOP]
     });
   };
 
   uploadOf = (data: {[key: string]: SingleDancerControlType[]}) => {
-    OfJsonDB[this.dancerName] = data[this.dancerName]
+    OfJsonDB[this.dancerName] = data[this.dancerName];
     this.sendDataToRpiSocket({
       action: ActionType.UPLOAD /* payload: ControlType*/,
       payload: [ControlJsonDB[this.dancerName], OfJsonDB[this.dancerName], LedJsonDB[this.dancerName]],
@@ -193,61 +193,61 @@ class DancerSocket {
     // console.log(OfJsonDB)
   };
   uploadLED = (data: {[key: string]: LedJsonType}) => {
-    LedJsonDB[this.dancerName] = data[this.dancerName]
+    // LedJsonDB[this.dancerName] = data[this.dancerName];
     this.sendDataToRpiSocket({
       action: ActionType.UPLOAD /* payload: ControlType*/,
       payload: [ControlJsonDB[this.dancerName], OfJsonDB[this.dancerName], LedJsonDB[this.dancerName]],
     });
   };
-  
+
   // Refresh command is upload command in Rpi
-  refresh = async () => { 
+  refresh = async () => {
     const { success: Ofsuccess, data: OfJson } = await getDancerFiberData(this.dancerName);
     const { success: LEDsuccess, data: LEDJson } = await getDancerLEDData(this.dancerName);
     if(Ofsuccess && LEDsuccess){
-      OfJsonDB[this.dancerName] = OfJson
-      LedJsonDB[this.dancerName] = LEDJson
+      OfJsonDB[this.dancerName] = OfJson;
+      LedJsonDB[this.dancerName] = LEDJson;
       this.sendDataToRpiSocket({
         action: ActionType.UPLOAD /* payload: ControlType*/,
         payload: [ControlJsonDB[this.dancerName], OfJsonDB[this.dancerName], LedJsonDB[this.dancerName]],
       });
     } else {
-      if(!Ofsuccess) console.log(`[Warning] ${this.dancerName} Of data is NOT UPDATED in refresh command.`)
-      if(!LEDsuccess) console.log(`[Warning] ${this.dancerName} LED data is NOT UPDATED in refresh command.`)
+      if(!Ofsuccess) console.log(`[Warning] ${this.dancerName} Of data is NOT UPDATED in refresh command.`);
+      if(!LEDsuccess) console.log(`[Warning] ${this.dancerName} LED data is NOT UPDATED in refresh command.`);
     }
   };
   red = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.RED],
     });
   };
   blue = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.BLUE]
     });
   };
   green = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.GREEN]
     });
   };
   stmInit = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.STMINIT]
     });
   };
   darkAll = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.DARKALL]
     });
   };
   restartController = () => {
-    this.sendDataToRpiSocket({ 
+    this.sendDataToRpiSocket({
       action: ActionType.COMMAND,
       payload: [CommandSubType.RESTARTCONTROLLER]
     });

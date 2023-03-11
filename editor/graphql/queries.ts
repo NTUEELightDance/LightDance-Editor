@@ -30,14 +30,6 @@ export const GET_CONTROL_MAP = gql`
   }
 `;
 
-export const SELECT_CONTROL_FRAMES = gql`
-  query ControlMap($select: queryMapInput) {
-    ControlMap(select: $select) {
-      frameIds
-    }
-  }
-`;
-
 export const GET_CONTROL_RECORD = gql`
   query controlRecord {
     controlFrameIDs

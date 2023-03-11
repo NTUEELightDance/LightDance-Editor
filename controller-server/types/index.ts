@@ -19,16 +19,24 @@ interface Dic {
 }
 
 // Old Protocol : type ControlType = Dic
-interface SingleDancerControlType  {
+interface OFDancerControl  {
   "start": number;
   "fade": boolean;
   "status": {
-    [key: string]: number[] /* for Of */;
-  } | number[][] /* for LED */
+    [key: string]: [number, number, number, number]; // RGBA
+  }
 }
-type ControlType ={
-  [key: string]: SingleDancerControlType;
-} 
+
+type OFControl = OFDancerControl[];
+interface LEDControl {
+  [ledName: string]: {
+    "start": number;
+    "fade": boolean;
+    "status": Array<[number, number, number, number]>, // RGBA
+  }[]
+}
+
+type ControlType = OFControl | LEDControl;
 
 type LedType = Dic
 
@@ -76,12 +84,12 @@ interface MesS2C {
 // In new protocol, the type of ControlType is strictly defined
 interface MesS2R {
   action: ActionType;
-  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType | CommandSubType[]; 
+  payload?: string | PlayTimeType | LightStatusType | ControlType | LedType | CommandSubType[];
 }
 // RPi to Server
 interface MesR2S {
   command: ActionType;
-  status: boolean, // added 
+  status: boolean, // added
   payload: {
     // success: boolean;
     info: string | InfoType | SyncType | MacAddrType; // RPi info
@@ -101,7 +109,10 @@ export {
   TimeType,
   LightStatusType,
   PlayTimeType,
-  SingleDancerControlType,
+  OFDancerControl as SingleDancerControlType,
+  OFControl,
+  LEDControl,
+  OFDancerControl,
   ControlType,
   LedType,
   ClientType,

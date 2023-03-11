@@ -85,7 +85,7 @@ class Dancer {
     // Use fontLoader to load font and create nameTag
     const fontLoader = new FontLoader();
     fontLoader.load(
-      "asset/fonts/helvetiker_regular.typeface.json",
+      "/asset/fonts/helvetiker_regular.typeface.json",
       this.initNameTag.bind(this)
     );
   }

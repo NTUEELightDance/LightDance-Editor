@@ -6,7 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
 
-import { dancerStatusType } from "types/hooks/webSocket";
+import { DancerStatusType } from "types/hooks/webSocket";
 
 function CommandCenterTable({
   handleAllDancer,
@@ -17,7 +17,7 @@ function CommandCenterTable({
 }: {
   handleAllDancer: () => void;
   allChecked: () => boolean;
-  dancerStatus: dancerStatusType;
+  dancerStatus: DancerStatusType;
   selectedDancers: string[];
   handleToggleDancer: (dancerName: string) => void;
 }) {

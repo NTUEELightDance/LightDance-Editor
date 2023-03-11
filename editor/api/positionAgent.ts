@@ -39,12 +39,20 @@ export const posAgent = {
     return posRecordData.positionFrameIDs as PosRecord;
   },
 
-  addFrame: async (addFrameInput: { start: number }) => {
+  addFrame: async (addFrameInput: {
+    start: number;
+    frame: PosMapStatus | ControlMapStatus;
+  }) => {
+    if (!isPosMapStatus(addFrameInput.frame)) {
+      return;
+    }
+
     try {
       const { data: response } = await client.mutate({
         mutation: ADD_POS_FRAME,
         variables: {
           start: addFrameInput.start,
+          positionData: toPosMapStatusPayload(addFrameInput.frame),
         },
         refetchQueries: [
           {

@@ -56,7 +56,8 @@ export async function getLedMap() {
   await ledAgent.getLedMapPayload();
   // the ledMap is updated in the above line by merge function in cache
   const ledMap = state.ledMap;
-  return ledMap;
+  const ledEffectIDtable = state.LEDEffectIDtable;
+  return [ledMap, ledEffectIDtable] as const;
 }
 
 /**

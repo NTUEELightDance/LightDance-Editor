@@ -44,12 +44,15 @@ export const controlAgent = {
     return controlRecordData.controlFrameIDs as ControlRecord;
   },
 
-  // create a new empty frame
   addFrame: async (addFrameInput: {
     start: number;
+    frame: ControlMapStatus | PosMapStatus;
     fade?: boolean;
-    controlData?: ControlMapStatus;
   }) => {
+    if (!isControlMapStatus(addFrameInput.frame)) {
+      return;
+    }
+
     try {
       const { data: response } = await client.mutate<
         AddControlFrameMutationResponseData,
@@ -58,12 +61,8 @@ export const controlAgent = {
         mutation: ADD_CONTROL_FRAME,
         variables: {
           start: addFrameInput.start,
+          controlData: toControlMapStatusMutationPayload(addFrameInput.frame),
           ...(addFrameInput.fade && { fade: addFrameInput.fade }),
-          ...(addFrameInput.controlData && {
-            controlData: toControlMapStatusMutationPayload(
-              addFrameInput.controlData
-            ),
-          }),
         },
         refetchQueries: [
           {

@@ -31,9 +31,7 @@ export const ADD_CONTROL_FRAME = gql`
 `;
 
 export interface EditControlFrameMutationResponseData {
-  editControlFrame: {
-    id: number;
-  };
+  editControlMap: string;
 }
 
 export interface EditControlFrameMutationVariables {
@@ -45,10 +43,8 @@ export interface EditControlFrameMutationVariables {
 }
 
 export const EDIT_CONTROL_FRAME = gql`
-  mutation EditControlMap($input: EditControlMapInput!) {
-    editControlMap(input: $input) {
-      frameIds
-    }
+  mutation Mutation($input: EditControlMapInput!) {
+    editControlMap(input: $input)
   }
 `;
 
@@ -81,10 +77,10 @@ export const DELETE_CONTROL_FRAME_BY_ID = gql`
   }
 `;
 
+// TODO add
 export const ADD_POS_FRAME = gql`
-  mutation AddPositionFrame($start: Int!) {
-    addPositionFrame(start: $start) {
-      start
+  mutation AddPositionFrame($start: Int!, $positionData: [[Float!]!]) {
+    addPositionFrame(start: $start, positionData: $positionData) {
       id
     }
   }
