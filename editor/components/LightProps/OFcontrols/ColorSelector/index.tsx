@@ -5,6 +5,7 @@ import { Root, Toggle, Listbox } from "./CustomComponents";
 
 import useColorMap from "@/hooks/useColorMap";
 import { ColorID } from "@/core/models";
+import { getBlackColorID } from "@/core/utils";
 
 export interface CustomSelectProps {
   placeholder?: string;
@@ -20,15 +21,14 @@ function CustomSelect({
   const listboxRef = useRef<HTMLUListElement>(null);
   const [listboxVisible, setListboxVisible] = useState(false);
   const { colorMap } = useColorMap();
+  const blackID = getBlackColorID();
 
   const options = useMemo(() => {
-    console.log("options", { colorMap });
     return Object.values(colorMap).map(({ name, id }) => ({
       label: name,
       value: id,
     }));
   }, [colorMap]);
-
   // use color name as state
   const {
     getButtonProps,
@@ -38,12 +38,14 @@ function CustomSelect({
   } = useSelect({
     listboxRef,
     options,
-    value: currentColorID ?? -1,
+    value: currentColorID ?? blackID,
     onChange: (event) => {
       if (event === null) return;
       const target = event.target as HTMLElement;
       const colorID =
-        target.dataset.option ?? target.parentElement!.dataset.option ?? "-1";
+        target.dataset.option ??
+        target.parentElement!.dataset.option ??
+        blackID.toString();
       onChange(parseInt(colorID));
     },
   });

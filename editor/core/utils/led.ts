@@ -198,8 +198,8 @@ export function binarySearchLedEffectFrame(
   return m;
 }
 
-export async function createEmptyLEDEffectFrame(partLength: number) {
-  const blackColorID = await getBlackColorID();
+export function createEmptyLEDEffectFrame(partLength: number) {
+  const blackColorID = getBlackColorID();
   return {
     start: 0,
     fade: false,

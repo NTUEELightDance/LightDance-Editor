@@ -65,7 +65,19 @@ export function colorCode2int(colorCode: string) {
   return rgb;
 }
 
-export async function getBlackColorID() {
+export function getBlackColorID() {
+  const black = Object.values(state.colorMap).find(
+    (color) => color.colorCode === "#000000"
+  );
+
+  if (!black) {
+    throw "[Error] Failed to find black color";
+  }
+
+  return black.id;
+}
+
+export async function createBlack() {
   const black = Object.values(state.colorMap).find(
     (color) => color.colorCode === "#000000"
   );

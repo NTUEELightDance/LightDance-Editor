@@ -13,11 +13,13 @@ import type {
   LEDPartName,
   LEDBulbData,
   LEDEffectIDtable,
+  CurrentLEDStatus,
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
 import {
   binarySearchObjects,
+  createBlack,
   createEmptyLEDEffectFrame,
   getControl,
   getDancerFromLEDpart,
@@ -230,13 +232,44 @@ const actions = registerActions({
     state.editorState = "EDITING";
     const partLength = state.LEDPartLengthMap[partName];
 
-    state.currentLEDEffect = {
-      name: effectName,
-      effectID: -1,
-      repeat: 1,
-      effects: [await createEmptyLEDEffectFrame(partLength)],
-    };
-    await initCurrentLEDStatus();
+    const effectID = state.ledMap[partName][effectName]?.effectID;
+
+    if (effectID === undefined) {
+      state.currentLEDEffect = {
+        name: effectName,
+        effectID: 0,
+        repeat: 1,
+        effects: [createEmptyLEDEffectFrame(partLength)],
+      };
+    } else {
+      const effect = state.LEDEffectIDtable[effectID];
+      state.currentLEDEffect = effect;
+    }
+
+    const { dancers, LEDPartLengthMap } = state;
+    const blackColorID = await createBlack();
+    const newLEDStatus: CurrentLEDStatus = {};
+    Object.entries(dancers).map(([dancerName, parts]) => {
+      newLEDStatus[dancerName] = {};
+      parts.forEach((part) => {
+        if (isLEDPartName(part)) {
+          const length = LEDPartLengthMap[part];
+          newLEDStatus[dancerName][part] = {
+            effect: [...Array(length)].map(() => ({
+              colorID: blackColorID,
+              alpha: 0,
+            })),
+            effectIndex: 0,
+            recordIndex: 0,
+            alpha: 10,
+          };
+        }
+      });
+    });
+    const dancerName = getDancerFromLEDpart(partName);
+    newLEDStatus[dancerName][partName].effect =
+      state.currentLEDEffect.effects[0].effect;
+    state.currentLEDStatus = newLEDStatus;
   },
 
   cancelEditLEDEffect: (state: State) => {
