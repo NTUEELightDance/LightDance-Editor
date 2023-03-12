@@ -155,27 +155,11 @@ const actions = registerActions({
    */
   add: async (state: State) => {
     const { agent, frame, fade } = await getDataHandler(state);
-    // create an empty frame
-    // const frameId =
     await agent.addFrame({
       start: state.currentTime,
       frame,
       fade,
     });
-    // request edit permission
-    // const isPermitted = await agent.requestEditPermission(frameId!);
-    // if (!isPermitted) {
-    //   notification.error("Permission denied");
-    //   return;
-    // }
-    // // save the frame
-    // await agent.saveFrame({
-    //   frameId,
-    //   frame,
-    //   start: state.currentTime,
-    //   requestTimeChange: false,
-    //   fade,
-    // });
   },
 
   /**

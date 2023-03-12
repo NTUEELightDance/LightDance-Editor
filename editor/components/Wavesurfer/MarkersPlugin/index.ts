@@ -1,29 +1,54 @@
-import {
-  Marker,
-  MarkerParams,
-  MarkersPluginParams,
-} from "@/types/components/wavesurfer";
+import type { PluginParams } from "wavesurfer.js/types/plugin";
+
+export type FilterType = "lowpass" | "highpass" | "notch";
+
+export interface MarkerParams<D = unknown> {
+  time: number;
+  label?: string;
+  color?: string;
+  key?: string | number;
+  position?: "top" | "bottom";
+  offset?: number;
+  draggable?: boolean;
+  markerElement?: HTMLElement;
+  data?: D;
+}
+
+export interface Marker<D = unknown> {
+  time: number;
+  label: string;
+  color: string;
+  draggable: boolean;
+  position: "top" | "bottom";
+  offset?: number;
+  el: HTMLElement;
+  data?: D;
+}
+
+export interface MarkersPluginParams extends PluginParams {
+  markers?: MarkerParams[];
+}
 
 import { waveSurferAppInstance } from "../WaveSurferApp";
 import type { WaveSurferPlugin } from "wavesurfer.js/types/plugin";
+import WaveSurfer from "wavesurfer.js";
 
 const DEFAULT_FILL_COLOR = "#D8D8D8";
-const DEFAULT_HOVER_COLOR = "#888888";
 const DEFAULT_POSITION = "bottom";
 
 export default class MarkersPlugin implements WaveSurferPlugin {
   params: MarkersPluginParams;
-  wavesurfer: any;
-  util: any;
-  style: any;
-  wrapper: any;
+  wavesurfer: WaveSurfer;
+  util: (typeof WaveSurfer)["util"];
+  style: (typeof WaveSurfer)["util"]["style"];
+  wrapper: HTMLElement | null;
   markerLineWidth: number;
   markerWidth: number;
   markerHeight: number;
   markers: Marker[];
   showMarkers: boolean;
   dragging: boolean;
-  selectedMarker?: Marker | false;
+  selectedMarker: Marker | null;
   _onResize: () => void;
   _onBackendCreated: () => void;
   _onReady: () => void;
@@ -48,12 +73,13 @@ export default class MarkersPlugin implements WaveSurferPlugin {
         toggleMarkers(showMarkers: boolean) {
           this.markers && this.markers.toggle(showMarkers);
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
       instance: MarkersPlugin,
     };
   }
 
-  constructor(params: MarkersPluginParams, ws: any) {
+  constructor(params: MarkersPluginParams, ws: WaveSurfer) {
     this.params = params;
     this.wavesurfer = ws;
     this.util = ws.util;
@@ -63,6 +89,9 @@ export default class MarkersPlugin implements WaveSurferPlugin {
     this.markerHeight = 20;
     this.showMarkers = true;
     this.dragging = false;
+    this.wrapper = null;
+    this.markers = [];
+    this.selectedMarker = null;
 
     this._onResize = ws.util.debounce(() => {
       this._updateMarkerPositions();
@@ -77,10 +106,6 @@ export default class MarkersPlugin implements WaveSurferPlugin {
       window.addEventListener("orientationchange", this._onResize, true);
       this.wavesurfer.on("zoom", this._onResize);
 
-      if (this.markers.find((marker) => marker.draggable) == null) {
-        return;
-      }
-
       this.onMouseMove = (e) => {
         this._onMouseMove(e);
       };
@@ -92,7 +117,6 @@ export default class MarkersPlugin implements WaveSurferPlugin {
       window.addEventListener("mouseup", this.onMouseUp);
     };
 
-    this.markers = [];
     this._onReady = () => {
       this.wrapper = this.wavesurfer.drawer.wrapper;
       this._updateMarkerPositions();
@@ -105,13 +129,13 @@ export default class MarkersPlugin implements WaveSurferPlugin {
       this._onBackendCreated();
       this._onReady();
     } else {
-      this.wavesurfer.once("ready", this._onReady);
       this.wavesurfer.once("backend-created", this._onBackendCreated);
+      this.wavesurfer.once("waveform-ready", this._onReady);
     }
   }
 
   destroy(): void {
-    this.wavesurfer.un("ready", this._onReady);
+    this.wavesurfer.un("waveform-ready", this._onReady);
     this.wavesurfer.un("backend-created", this._onBackendCreated);
 
     this.wavesurfer.un("zoom", this._onResize);
@@ -132,15 +156,15 @@ export default class MarkersPlugin implements WaveSurferPlugin {
   add(params: MarkerParams): Marker {
     const marker = {
       time: params.time,
-      label: params.label,
-      color: params.color || DEFAULT_FILL_COLOR,
-      position: params.position || DEFAULT_POSITION,
+      label: params.label ?? "",
+      color: params.color ?? DEFAULT_FILL_COLOR,
+      position: params.position ?? DEFAULT_POSITION,
       draggable: !!params.draggable,
+      data: params.data,
     } as Marker;
-
     marker.el = this._createMarkerElement(marker, params.markerElement);
 
-    this.wrapper.appendChild(marker.el);
+    this.wrapper!.appendChild(marker.el);
     this.markers.push(marker);
     this._updateMarkerPositions();
 
@@ -149,7 +173,7 @@ export default class MarkersPlugin implements WaveSurferPlugin {
 
   remove(index: number): void {
     const marker = this.markers[index];
-    if (!marker) {
+    if (!marker || this.wrapper == null) {
       return;
     }
 
@@ -175,6 +199,7 @@ export default class MarkersPlugin implements WaveSurferPlugin {
 
     el.appendChild(polygon);
 
+    // @ts-expect-error SVGElements also work
     this.style(el, {
       width: this.markerWidth + "px",
       height: this.markerHeight + "px",
@@ -185,7 +210,7 @@ export default class MarkersPlugin implements WaveSurferPlugin {
     return el;
   }
 
-  _createMarkerElement(marker: Marker, markerElement: any): HTMLElement {
+  _createMarkerElement(marker: Marker, markerElement?: HTMLElement) {
     const label = marker.label;
 
     const el = document.createElement("marker");
@@ -210,21 +235,22 @@ export default class MarkersPlugin implements WaveSurferPlugin {
     };
 
     const line = document.createElement("div");
-    const width = markerElement ? markerElement.width : this.markerWidth;
+    const width = this.markerWidth;
     marker.offset = (width + this.markerLineWidth) / 2;
     this.style(line, {
-      "flex-grow": 1,
+      "flex-grow": "1",
       "margin-left": marker.offset + "px",
       background: "black",
       width: this.markerLineWidth + "px",
-      opacity: 0.1,
+      opacity: "0.1",
     });
     el.appendChild(line);
 
     const labelDiv = document.createElement("div");
     const point =
-      markerElement || this._createPointerSVG(marker.color, marker.position);
+      markerElement ?? this._createPointerSVG(marker.color, marker.position);
     if (marker.draggable) {
+      // @ts-expect-error SVGElements also work
       point.draggable = false;
     }
     labelDiv.appendChild(point);
@@ -304,7 +330,7 @@ export default class MarkersPlugin implements WaveSurferPlugin {
   _onMouseUp(event: MouseEvent): void {
     if (this.selectedMarker) {
       setTimeout(() => {
-        this.selectedMarker = false;
+        this.selectedMarker = null;
         this.dragging = false;
       }, 0);
     }

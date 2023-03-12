@@ -5,12 +5,7 @@ import { createClient } from "graphql-ws";
 
 import Subscriptions from "./subscription";
 import { state } from "@/core/state";
-import {
-  setColorMap,
-  setControlMap,
-  setLEDEffectIDtable,
-  setLEDMap,
-} from "@/core/actions";
+import { setControlMap, setLEDEffectIDtable, setLEDMap } from "@/core/actions";
 import {
   toControlMap,
   toLEDEffectIDTable,
@@ -55,12 +50,6 @@ const client = new ApolloClient({
               if (incoming instanceof Promise) {
                 incoming = await incoming;
               }
-
-              console.log({
-                existing,
-                incoming,
-              });
-
               const controlMap = toControlMap(incoming);
               await setControlMap({
                 payload: controlMap,
@@ -124,6 +113,12 @@ const client = new ApolloClient({
                 },
               });
               const ledEffectIDtable = toLEDEffectIDTable(incoming);
+              ledEffectIDtable[-1] = {
+                effectID: -1,
+                name: "",
+                effects: [],
+                repeat: 0,
+              };
               await setLEDEffectIDtable({
                 payload: ledEffectIDtable,
                 options: {

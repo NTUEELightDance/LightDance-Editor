@@ -26,11 +26,6 @@ import { syncCurrentPosWithPosMap } from "./currentPos";
 
 const actions = registerActions({
   setCurrentTime: async (state: State, payload: number) => {
-    // disable time change when editing in LED editor
-    if (state.editorState === "EDITING" && state.editor === "LED_EDITOR") {
-      throw new Error("Cannot change time when editing in LED editor");
-    }
-
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

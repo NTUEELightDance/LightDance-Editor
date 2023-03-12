@@ -8,7 +8,10 @@ import LEDBulbsControlsContent from "./LEDBulbsControls/LEDBulbsControlsContent"
 import { getDancerFromLEDpart } from "@/core/utils";
 import useColorMap from "@/hooks/useColorMap";
 import { ColorID, LEDBulbData } from "@/core/models";
-import { editCurrentLEDStatus } from "@/core/actions";
+import {
+  editCurrentLEDStatus,
+  saveCurrentLEDEffectFrame,
+} from "@/core/actions";
 
 function LEDMode() {
   const [currentColorID, setCurrentColorID] = useState<ColorID | null>(null);
@@ -51,6 +54,8 @@ function LEDMode() {
     } else {
       setIntensity(null);
     }
+
+    saveCurrentLEDEffectFrame();
   }, [selectedLEDs, currentLEDPartName, currentLEDStatus, colorMap]);
 
   if (currentLEDPartName == null) {

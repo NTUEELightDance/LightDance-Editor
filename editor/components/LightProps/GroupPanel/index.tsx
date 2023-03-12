@@ -16,6 +16,7 @@ import type {
   PartName,
   Dancers,
   ColorMap,
+  LEDPartName,
 } from "@/core/models";
 import { setSelectedParts, setSelectionMode } from "@/core/actions";
 import { notification } from "@/core/utils";
@@ -93,7 +94,7 @@ function GroupPanel({
       Items.push(
         partType === "LED" ? (
           <LEDcontrols
-            part={part}
+            part={part as LEDPartName}
             currentDancers={currentDancers}
             currentLEDData={displayValue as LEDData}
             key={`${currentDancers[0]}_${part}_LED`}

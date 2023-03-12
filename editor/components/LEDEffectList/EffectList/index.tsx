@@ -12,7 +12,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
-  Grid,
+  Box,
   Switch,
   FormControlLabel,
 } from "@mui/material";
@@ -23,7 +23,8 @@ import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
 import store from "../../../store";
 import { getPartType } from "core/utils";
-import type { LEDMap } from "@/core/models";
+import type { LEDMap, LEDPartName } from "@/core/models";
+import { ledAgent } from "@/api";
 
 export default function EffectList({ openDialog }: { openDialog: () => void }) {
   const ledMap = useReactiveVar(reactiveState.ledMap);
@@ -31,16 +32,19 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   const dancers = useReactiveVar(reactiveState.dancers);
 
   // States
-  const [effectSelectedPart, setEffectSelectedPart] = useState<string>("");
-  const [effectSelectedName, setEffectSelectedName] = useState<string>("");
+  const [effectSelectedPart, setEffectSelectedPart] =
+    useState<LEDPartName | null>(null);
+  const [effectSelectedName, setEffectSelectedName] = useState<string | null>(
+    null
+  );
   const [editOpened, setEditOpened] = useState<boolean>(false); // open edit effect dialog
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
   const [expanded, setExpanded] = useState<boolean>(false);
 
   // Handle functions
-  const handleOpenEdit = (PartName: string, EffectName: string) => {
-    setEffectSelectedPart(PartName);
-    setEffectSelectedName(EffectName);
+  const handleOpenEdit = (partName: LEDPartName, effectName: string) => {
+    setEffectSelectedPart(partName);
+    setEffectSelectedName(effectName);
     setEditOpened(true);
   };
 
@@ -49,56 +53,45 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
     reset();
   };
 
-  //TODO
   const handleEditEffect = () => {
-    // const ok = await confirmation.warning(
-    //   `This will clear all frames from ${currentTime} to the end of the effect. Are you sure?`
-    // );
-
-    // if (ok) {
-    //   editEffect({
-    //     payload: { start: currentTime, editId: effectSelectedID },
-    //   });
-    // }
-
     handleCloseEdit();
   };
 
-  const handleOpenDelete = (PartName: string, EffectName: string) => {
-    setEffectSelectedPart(PartName);
-    setEffectSelectedName(EffectName);
+  const handleOpenDelete = (partName: LEDPartName, effectName: string) => {
+    setEffectSelectedPart(partName);
+    setEffectSelectedName(effectName);
     setDeleteOpened(true);
   };
+
   const handleCloseDelete = () => {
     setDeleteOpened(false);
     reset();
   };
 
-  //TODO
   const handleDeleteEffect = () => {
-    //deleteEffect({ payload: effectSelectedPart });
-    handleCloseDelete();
+    if (!effectSelectedPart || !effectSelectedName) return;
+
+    const effectID = ledMap[effectSelectedPart][effectSelectedName]?.effectID;
+
+    if (!effectID) return;
+    try {
+      ledAgent.deleteLEDEffect(effectID);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      handleCloseDelete();
+    }
   };
 
   const handleExpanded = () => {
     setExpanded(!expanded);
   };
 
-  //TODO
   const reset = () => {
     // setEffectSelectedPart("");
     // setEffectSelectedName("");
     //setCollidedFrame([]);
   };
-
-  // *************************************************
-  // Construct modelMap of the following format
-  // {
-  //   modelName: {
-  //       LEDPart1: [LEDEffectList],
-  //       LEDPart2: [LEDEffectLIst2]
-  //   },
-  // }
 
   const modelMap = useMemo(() => {
     const tempModelMap: Record<string, LEDMap> = {};
@@ -140,37 +133,20 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
     return tempModelMap;
   }, [dancers, dancerMap, ledMap]);
 
-  // console.log("LEDMap");
-  // console.log(ledMap);
-  // console.log("DancerMap");
-  // console.log(dancerMap);
-  // console.log("Dancers");
-  // console.log(dancers);
-  // console.log("modelList");
-  // console.log(modelList);
-  // console.log("modelMap");
-  // console.log(modelMap);
-
-  // *************************************************
-
   // Return
   return (
     <>
       <List>
         <ListSubheader>
-          <Grid
-            container
-            justifyContent="center"
-            spacing={3}
+          <Box
             sx={{
-              mb: 2,
-              pb: 1,
-              width: "110%",
-              justifyContent: "center",
+              display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
+              p: 1,
             }}
           >
-            <Grid item>
+            <Box>
               <Button
                 variant="outlined"
                 color="primary"
@@ -179,15 +155,15 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
               >
                 Effect
               </Button>
-            </Grid>
-            <Grid item>
+            </Box>
+            <Box>
               <FormControlLabel
                 control={<Switch onChange={handleExpanded} size="small" />}
                 label="Expand"
                 color="primary"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </ListSubheader>
         {Object.entries(modelMap).map(([modelName, modelData]) => (
           <ModelListItem
@@ -197,7 +173,7 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
             handleOpenEdit={handleOpenEdit}
             handleOpenDelete={handleOpenDelete}
             expanded={expanded}
-          ></ModelListItem>
+          />
         ))}
       </List>
       <Dialog open={editOpened} onClose={handleCloseEdit}>

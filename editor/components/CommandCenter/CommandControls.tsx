@@ -14,9 +14,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // constants
 import { COMMANDS } from "@/constants";
 // contexts
-import { WaveSurferAppContext } from "contexts/WavesurferContext";
-
-import { wavesurferContext } from "types/components/wavesurfer";
+import {
+  WaveSurferAppContext,
+  WavesurferContextType,
+} from "contexts/WavesurferContext";
 
 import { notification } from "core/utils";
 
@@ -43,7 +44,7 @@ export default function CommandControls({
   // wavesurfer for play pause
   const { waveSurferApp } = useContext(
     WaveSurferAppContext
-  ) as wavesurferContext;
+  ) as WavesurferContextType;
   const handlePlay = () => waveSurferApp.play();
   const handlePause = () => waveSurferApp.pause();
   const handleStop = () => waveSurferApp.stop();

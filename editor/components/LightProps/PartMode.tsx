@@ -298,10 +298,10 @@ function calculateCurrentStatusDeltaLED(
       currentStatusDelta[dancerName] ??= {};
 
       const effectID =
-        state.ledMap[partName as LEDPartName][LEDeffectName].effectID;
+        state.ledMap[partName as LEDPartName][LEDeffectName]?.effectID;
 
       currentStatusDelta[dancerName][partName] = {
-        effectID,
+        effectID: effectID ?? -1,
         alpha: intensity,
       };
     });

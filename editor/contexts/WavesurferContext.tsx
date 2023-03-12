@@ -2,9 +2,15 @@ import { useState, createContext, useRef } from "react";
 import WaveSurferApp, {
   waveSurferAppInstance,
 } from "components/Wavesurfer/WaveSurferApp";
-import { wavesurferContext } from "types/components/wavesurfer";
 
-export const WaveSurferAppContext = createContext<wavesurferContext | null>(
+export interface WavesurferContextType {
+  waveSurferApp: WaveSurferApp;
+  showMarkers: boolean;
+  initWaveSurferApp: () => void;
+  toggleMarkers: () => void;
+}
+
+export const WaveSurferAppContext = createContext<WavesurferContextType | null>(
   null
 );
 

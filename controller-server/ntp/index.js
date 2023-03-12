@@ -19,13 +19,13 @@ class NtpServer {
 
     this.server.on("listening", () => {
       const { port, family, address: ipaddr } = this.server.address();
-      console.log(`[Udp Server] Server is listening at port ${port}`);
-      console.log(`[Udp Server] Server ip : ${ipaddr}`);
-      console.log(`[Udp Server] Server is IP4/IP6 :  ${family}`);
+      console.log(`[UDP Server] Server is listening at port ${port}`);
+      console.log(`[UDP Server] Server ip : ${ipaddr}`);
+      console.log(`[UDP Server] Server is IP4/IP6 :  ${family}`);
     });
 
     this.server.on("close", () => {
-      console.log("[Udp Server] Socket is closed !");
+      console.log("[UDP Server] Socket is closed !");
     });
 
     this.server.bind(7122);

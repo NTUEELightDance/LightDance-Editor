@@ -12,7 +12,6 @@ import {
   LEDPartLengthMap,
   isLEDPartName,
   ColorMap,
-  ColorCode,
 } from "../models";
 
 import { dancerAgent } from "@/api";

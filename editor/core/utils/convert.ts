@@ -29,6 +29,7 @@ import type {
   LEDMap,
   LEDPartName,
   LEDEffectIDtable,
+  ColorID,
 } from "@/core/models";
 
 import { isColorCode, isFiberData, isLEDData } from "@/core/models";
@@ -227,6 +228,20 @@ export function toLEDEffectFrame(
     effect,
   };
   return frame;
+}
+
+export function toLEDEffectFramePayload(
+  frame: LEDEffectFrame
+): LEDEffectFramePayload {
+  const LEDs: [ColorID, number][] = frame.effect.map(({ colorID, alpha }) => [
+    colorID,
+    alpha,
+  ]);
+  return {
+    start: frame.start,
+    fade: frame.fade,
+    LEDs,
+  };
 }
 
 const COLOR = new Color();

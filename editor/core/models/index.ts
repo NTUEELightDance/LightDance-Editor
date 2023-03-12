@@ -78,10 +78,10 @@ export function isFiberData(partData: PartData): partData is FiberData {
   );
 }
 
-export interface LEDData {
+export type LEDData = {
   effectID: LEDEffectID;
   alpha: number;
-}
+};
 
 export function isLEDData(partData: PartData): partData is LEDData {
   return (
@@ -224,7 +224,7 @@ export type ColorMap = {
  */
 export type LEDMap = {
   [LEDPartName: LEDPartName]: {
-    [effectName: string]: LEDEffect;
+    [effectName: string]: LEDEffect | undefined;
   };
 };
 

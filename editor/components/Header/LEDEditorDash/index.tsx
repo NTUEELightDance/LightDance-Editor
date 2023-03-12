@@ -11,38 +11,39 @@ import { getDancerFromLEDpart } from "@/core/utils";
 
 function LEDEditorDash() {
   const editor = useReactiveVar(reactiveState.editor);
+  const editorState = useReactiveVar(reactiveState.editorState);
   const currentLEDEffectName = useReactiveVar(
     reactiveState.currentLEDEffectName
   );
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
 
-  if (editor !== "LED_EDITOR") {
-    return null;
-  }
-
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        gap: "1rem",
-      }}
-    >
-      <div>
-        <Typography>Current LED Part: {currentLEDPartName}</Typography>
-        <Typography>Current LED Effect: {currentLEDEffectName}</Typography>
-      </div>
-      <IconButton
-        onClick={() => {
-          if (!currentLEDPartName) return;
-
-          const dancerName = getDancerFromLEDpart(currentLEDPartName);
-          threeController.focusOnLEDPart(dancerName, currentLEDPartName);
+  if (editor === "LED_EDITOR" && editorState === "EDITING") {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          gap: "1rem",
         }}
       >
-        <EyeIcon />
-      </IconButton>
-    </Box>
-  );
+        <div>
+          <Typography>Current LED Part: {currentLEDPartName}</Typography>
+          <Typography>Current LED Effect: {currentLEDEffectName}</Typography>
+        </div>
+        <IconButton
+          onClick={() => {
+            if (!currentLEDPartName) return;
+
+            const dancerName = getDancerFromLEDpart(currentLEDPartName);
+            threeController.focusOnLEDPart(dancerName, currentLEDPartName);
+          }}
+        >
+          <EyeIcon />
+        </IconButton>
+      </Box>
+    );
+  } else {
+    return null;
+  }
 }
 
 export default LEDEditorDash;

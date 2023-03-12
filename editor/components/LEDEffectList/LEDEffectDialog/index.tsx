@@ -7,11 +7,7 @@ import ModelButton from "./ModelButton";
 import LEDPartButton from "./LEDPartButton";
 import EffectNameTextField from "./EffectNameTextField";
 
-// actions
 import { setupLEDEditor } from "core/actions";
-import { setEditor } from "core/actions";
-
-// state
 import { reactiveState } from "core/state";
 import store from "@/store";
 

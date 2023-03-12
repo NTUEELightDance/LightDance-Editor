@@ -18,7 +18,6 @@ import type {
   LEDPartName,
   LEDEffectID,
 } from "@/core/models";
-import { notification } from "@/core/utils";
 
 export const ledAgent = {
   getLedMapPayload: async () => {
@@ -56,8 +55,10 @@ export const ledAgent = {
           },
         ],
       });
-      notification.success("add succeeded");
-      return response?.addLEDEffect;
+      if (!response?.addLEDEffect?.ok) {
+        console.error(response?.addLEDEffect?.msg);
+        throw new Error("Add LED Effect Failed");
+      }
     } catch (error) {
       console.error(error);
       throw error;
@@ -92,8 +93,10 @@ export const ledAgent = {
           },
         ],
       });
-      notification.success("edit succeeded");
-      return response?.editLEDEffect;
+      if (!response?.editLEDEffect?.ok) {
+        console.error(response?.editLEDEffect?.msg);
+        throw new Error("Save LED Effect Failed");
+      }
     } catch (error) {
       console.error(error);
       throw error;
@@ -116,8 +119,10 @@ export const ledAgent = {
           },
         ],
       });
-      notification.success("delete succeeded");
-      return response?.deleteLEDEffect;
+      if (!response?.deleteLEDEffect?.ok) {
+        console.error(response?.deleteLEDEffect?.msg);
+        throw new Error("Delete LED Effect Failed");
+      }
     } catch (error) {
       console.error(error);
       throw error;

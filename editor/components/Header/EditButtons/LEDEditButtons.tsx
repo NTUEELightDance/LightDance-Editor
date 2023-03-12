@@ -1,33 +1,23 @@
+import { useState } from "react";
+
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "@/core/state";
 
 import Box from "@mui/material/Box";
-import {
-  AddButton,
-  CancelButton,
-  DeleteButton,
-  EditButton,
-  LoadingButton,
-  SaveButton,
-} from "./Buttons";
+import { AddButton, CancelButton, DeleteButton, SaveButton } from "./Buttons";
 
 import {
   addFrameToCurrentLEDEffect,
   deleteCurrentFrameFromCurrentLEDEffect,
-  saveCurrentLEDEffectFrame,
-  startEditingLED,
-  cancelEditMode,
+  cancelEditLEDEffect,
+  saveLEDEffect,
 } from "@/core/actions";
-import { confirmation, notification } from "@/core/utils";
+import { notification } from "@/core/utils";
+import { LoadingButton } from "@mui/lab";
 
 function LEDEditButton() {
   const editorState = useReactiveVar(reactiveState.editorState);
-
-  const loading = {
-    save: false,
-    add: false,
-    delete: false,
-  };
+  const [saving, setSaving] = useState(false);
 
   const handleAddFrame = async () => {
     try {
@@ -36,10 +26,6 @@ function LEDEditButton() {
     } catch (err) {
       notification.error((err as Error).message);
     }
-  };
-
-  const handleEdit = () => {
-    startEditingLED();
   };
 
   const handleDelete = async () => {
@@ -52,20 +38,19 @@ function LEDEditButton() {
   };
 
   const handleSave = async () => {
-    const currentTime = reactiveState.currentTime();
-    const editingData = reactiveState.editingData();
-
-    const requestTimeChange =
-      currentTime !== editingData.start &&
-      (await confirmation.info(
-        `You have modify the time, do you want to change the time from ${editingData.start} to ${currentTime}?`
-      ));
-
-    saveCurrentLEDEffectFrame({ payload: requestTimeChange });
+    setSaving(true);
+    try {
+      await saveLEDEffect();
+      notification.success("Saved LED effect");
+    } catch {
+      notification.error("Error saving LED effect");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    cancelEditMode();
+    cancelEditLEDEffect();
   };
 
   return (
@@ -76,32 +61,15 @@ function LEDEditButton() {
         gap: "1em",
       }}
     >
-      {editorState === "IDLE" ? (
+      {editorState === "EDITING" ? (
         <>
-          {loading.add ? (
-            <LoadingButton />
-          ) : (
-            <AddButton onClick={handleAddFrame} />
-          )}
-
-          <EditButton onClick={handleEdit} />
-
-          {loading.delete ? (
-            <LoadingButton />
-          ) : (
-            <DeleteButton onClick={handleDelete} />
-          )}
+          {saving ? <LoadingButton /> : <SaveButton onClick={handleSave} />}
+          <CancelButton onClick={handleCancel} />
+          <AddButton onClick={handleAddFrame} />
+          <DeleteButton onClick={handleDelete} />
         </>
       ) : (
-        <>
-          {loading.save ? (
-            <LoadingButton />
-          ) : (
-            <SaveButton onClick={handleSave} />
-          )}
-
-          <CancelButton onClick={handleCancel} />
-        </>
+        <></>
       )}
     </Box>
   );

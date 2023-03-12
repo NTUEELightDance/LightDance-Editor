@@ -13,6 +13,7 @@ import type {
   LEDPartName,
   LEDBulbData,
   LEDEffectIDtable,
+  LEDEffectID,
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
@@ -31,8 +32,9 @@ import { ControlRecord } from "../models";
 import { PartTypeMap } from "../models";
 import { Dancers } from "../models";
 import { initCurrentLEDStatus } from "./initialize";
-import { cancelEditMode } from "./edit";
 import { setCurrentTime } from "./timeData";
+import { ledAgent } from "@/api";
+import { toLEDEffectFramePayload } from "../utils/convert";
 
 const actions = registerActions({
   setLEDMap: async (state: State, payload: LEDMap) => {
@@ -91,21 +93,6 @@ const actions = registerActions({
     state.currentLEDStatus = newCurrentLEDStatus;
   },
 
-  startEditingLED: (state: State) => {
-    const currentLEDEffect = state.currentLEDEffect;
-    if (currentLEDEffect === null) {
-      throw new Error("No current LED effect");
-    }
-
-    state.editingData = {
-      start: currentLEDEffect.effects[state.currentLEDIndex].start,
-      frameId: state.currentLEDIndex,
-      index: state.currentLEDIndex,
-    };
-
-    state.editorState = "EDITING";
-  },
-
   addFrameToCurrentLEDEffect: (state: State) => {
     if (state.currentLEDEffect === null) {
       throw new Error("No current LED effect");
@@ -154,7 +141,7 @@ const actions = registerActions({
   },
 
   // payload is whether we should modify the time of the frame
-  saveCurrentLEDEffectFrame: (state: State, payload: boolean) => {
+  saveCurrentLEDEffectFrame: (state: State) => {
     if (state.currentLEDEffect === null) {
       throw new Error("No current LED effect");
     }
@@ -167,9 +154,7 @@ const actions = registerActions({
 
     const { effect } = state.currentLEDStatus[dancerName][LEDPartName];
 
-    const start = payload
-      ? state.currentTime - state.currentLEDEffectStart
-      : newCurrentLEDEffect.effects[state.currentLEDIndex].start;
+    const start = newCurrentLEDEffect.effects[state.currentLEDIndex].start;
 
     newCurrentLEDEffect.effects[state.currentLEDIndex] = {
       start,
@@ -178,8 +163,56 @@ const actions = registerActions({
     };
     newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
     state.currentLEDEffect = newCurrentLEDEffect;
+  },
 
-    cancelEditMode();
+  updateLEDEffectFrameTime: (
+    state: State,
+    payload: {
+      frameIndex: number;
+      time: number;
+    }
+  ) => {
+    if (state.currentLEDEffect === null) {
+      throw new Error("No current LED effect");
+    }
+    const { frameIndex, time } = payload;
+    const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
+    newCurrentLEDEffect.effects[frameIndex].start = time;
+    state.currentLEDEffect = newCurrentLEDEffect;
+  },
+
+  saveLEDEffect: async (state: State) => {
+    if (state.currentLEDEffect === null) {
+      throw new Error("No current LED effect");
+    }
+    if (state.currentLEDPartName === null) {
+      throw new Error("No current LED part");
+    }
+    if (state.currentLEDEffectName === null) {
+      throw new Error("No current LED effect name");
+    }
+
+    const frames = state.currentLEDEffect.effects.map(toLEDEffectFramePayload);
+
+    const effectID =
+      state.ledMap[state.currentLEDPartName][state.currentLEDEffectName]
+        ?.effectID;
+
+    if (effectID !== undefined) {
+      ledAgent.saveLEDEffect({
+        id: effectID,
+        frames,
+        name: state.currentLEDEffectName,
+        repeat: state.currentLEDEffect.repeat,
+      });
+    } else {
+      ledAgent.addLEDEffect({
+        frames,
+        name: state.currentLEDEffectName,
+        partName: state.currentLEDPartName,
+        repeat: state.currentLEDEffect.repeat,
+      });
+    }
   },
 
   setupLEDEditor: async (
@@ -195,7 +228,9 @@ const actions = registerActions({
     state.currentLEDEffectStart = state.currentTime;
     state.selectionMode = "LED_MODE";
     state.editor = "LED_EDITOR";
+    state.editorState = "EDITING";
     const partLength = state.LEDPartLengthMap[partName];
+
     state.currentLEDEffect = {
       name: effectName,
       effectID: -1,
@@ -205,11 +240,12 @@ const actions = registerActions({
     await initCurrentLEDStatus();
   },
 
-  exitLEDEditor: (state: State) => {
+  cancelEditLEDEffect: (state: State) => {
     state.currentLEDEffectName = null;
     state.currentLEDPartName = null;
     state.currentLEDEffectStart = 0;
     state.currentLEDEffect = null;
+    state.editorState = "IDLE";
   },
 
   /**
@@ -308,13 +344,14 @@ export const {
   setCurrentLEDEffectName,
   setCurrentLEDEffect,
   setCurrentLEDEffectRepeat,
-  startEditingLED,
   editCurrentLEDStatus,
   syncLEDEffectRecord,
   syncCurrentLEDStatus,
   addFrameToCurrentLEDEffect,
   deleteCurrentFrameFromCurrentLEDEffect,
   saveCurrentLEDEffectFrame,
+  saveLEDEffect,
+  updateLEDEffectFrameTime,
   setupLEDEditor,
-  exitLEDEditor,
+  cancelEditLEDEffect,
 } = actions;

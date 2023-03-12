@@ -14,7 +14,7 @@ function LEDcontrols({
   currentDancers,
   currentLEDData,
 }: {
-  part: string;
+  part: LEDPartName;
   currentDancers: string[];
   currentLEDData: LEDData;
 }) {
@@ -30,14 +30,28 @@ function LEDcontrols({
     // src can be empty string, alpha can be zero
     // so check for undefined only
     if (src === undefined && alpha === undefined) return;
-    const payload = currentDancers.map((dancerName) => ({
-      dancerName,
-      partName: part,
-      value: {
-        ...(src !== undefined && { src }),
-        ...(alpha !== undefined && { alpha }),
-      },
-    }));
+
+    const payload = currentDancers.map((dancerName) => {
+      if (src !== undefined) {
+        const effectID = reactiveState.ledMap()[part][src]?.effectID;
+        return {
+          dancerName,
+          partName: part,
+          value: {
+            effectID: effectID ?? -1,
+            ...(alpha !== undefined && { alpha }),
+          },
+        };
+      }
+
+      return {
+        dancerName,
+        partName: part,
+        value: {
+          alpha,
+        },
+      };
+    });
     editCurrentStatusLED({ payload });
   };
 

@@ -1,4 +1,4 @@
-import type { LEDMap } from "@/core/models";
+import type { LEDMap, LEDPartName } from "@/core/models";
 
 import {
   List,
@@ -15,8 +15,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 interface partProps {
   modelData: LEDMap;
-  handleOpenEdit: (partName: string, effectName: string) => void;
-  handleOpenDelete: (partName: string, effectName: string) => void;
+  handleOpenEdit: (partName: LEDPartName, effectName: string) => void;
+  handleOpenDelete: (partName: LEDPartName, effectName: string) => void;
 }
 
 export default function PartList({
@@ -33,7 +33,6 @@ export default function PartList({
           bgcolor: "background.paper",
           position: "relative",
           overflow: "auto",
-          maxHeight: 700,
           "& ul": { padding: 0 },
         }}
         subheader={<li />}
@@ -66,7 +65,10 @@ export default function PartList({
                             aria-label="edit"
                             size="medium"
                             onClick={() => {
-                              handleOpenEdit(partName, effectName);
+                              handleOpenEdit(
+                                partName as LEDPartName,
+                                effectName
+                              );
                             }}
                           >
                             <EditRoundedIcon
@@ -87,7 +89,10 @@ export default function PartList({
                             aria-label="delete"
                             size="medium"
                             onClick={() => {
-                              handleOpenDelete(partName, effectName);
+                              handleOpenDelete(
+                                partName as LEDPartName,
+                                effectName
+                              );
                             }}
                           >
                             <DeleteIcon
