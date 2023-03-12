@@ -51,21 +51,32 @@ function ColorListItem({
           {color.colorCode}
         </Paper>
         <Box sx={{ width: "8em" }}>
-          <IconButton onClick={handleEditClick(color.id)}>
-            <EditIcon fontSize="small" />
-          </IconButton>
           {protect ? (
-            <Tooltip title="this is a reserved color">
-              <span>
-                <IconButton disabled>
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </span>
-            </Tooltip>
+            <>
+              <Tooltip title="this is a reserved color">
+                <span>
+                  <IconButton disabled>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="this is a reserved color">
+                <span>
+                  <IconButton disabled>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </>
           ) : (
-            <IconButton onClick={() => handleDeleteColor(color.id)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
+            <>
+              <IconButton onClick={handleEditClick(color.id)}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+              <IconButton onClick={() => handleDeleteColor(color.id)}>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </>
           )}
         </Box>
       </Box>

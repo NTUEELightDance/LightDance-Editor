@@ -129,53 +129,6 @@ export default function Clipboard() {
     notification.success("Redo");
   });
 
-  useHotkeys("ctrl+x, meta+x", () => {
-    const selected = Object.keys(reactiveState.selected()).filter(
-      (name) => reactiveState.selected()[name].selected
-    );
-    const selectionMode = reactiveState.selectionMode();
-    if (selected.length === 0) {
-      notification.error(`Please select dancers first!`);
-      return;
-    }
-    if (selectionMode === "DANCER_MODE") {
-      const currentStatus = reactiveState.currentStatus();
-      selected.forEach((dancer) => {
-        copiedStatus.current(currentStatus[dancer]);
-        Object.keys(currentStatus[dancer]).forEach((part) => {
-          const value = currentStatus[dancer][part];
-          if (isFiberData(value)) {
-            editCurrentStatusFiber({
-              payload: {
-                dancerName: dancer,
-                partName: part,
-                value: {
-                  colorID: -1,
-                  alpha: 0,
-                },
-              },
-            });
-          } else if (isLEDData(value)) {
-            editCurrentStatusLED({
-              payload: [
-                {
-                  dancerName: dancer,
-                  partName: part,
-                  value: {
-                    effectID: -1,
-                    alpha: 0,
-                  },
-                },
-              ],
-            });
-          }
-        });
-      });
-      pushStatusStack();
-      notification.success(`cut dancer: ${selected.join(", ")} light effect`);
-    }
-  });
-
   useHotkeys("ctrl+a, meta+a", (e) => {
     e.preventDefault();
     const selectionMode = reactiveState.selectionMode();

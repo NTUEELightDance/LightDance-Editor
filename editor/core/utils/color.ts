@@ -1,6 +1,8 @@
-import { ControlMapStatus, isFiberData } from "../models";
+import { ColorCode, ControlMapStatus, isFiberData } from "../models";
 
 import _ from "lodash";
+import { state } from "../state";
+import { colorAgent } from "@/api";
 
 /**
  * deleteColorCode return status without colorCode
@@ -31,9 +33,9 @@ export function colorCode2Rgb(colorCode: string) {
     throw `[Error] Invalid paramter at function colorCode2Rgb ${colorCode}`;
   }
   return [
-    parseInt(m.substr(0, 2), 16),
-    parseInt(m.substr(2, 2), 16),
-    parseInt(m.substr(4, 2), 16),
+    parseInt(m.slice(0, 2), 16),
+    parseInt(m.slice(2, 4), 16),
+    parseInt(m.slice(4, 6), 16),
   ];
 }
 
@@ -42,7 +44,7 @@ export function colorCode2Rgb(colorCode: string) {
  * @param rgb [r, g, b]
  * @returns ColorCode
  */
-export function Rgb2ColorCode(rgb: number[]) {
+export function rgb2ColorCode(rgb: number[]) {
   if (rgb.length !== 3) {
     throw "[Error] Invalid parameter at function Rgb2ColorCode";
   }
@@ -61,4 +63,25 @@ export function colorCode2int(colorCode: string) {
   rgb = (rgb << 8) + g;
   rgb = (rgb << 8) + b;
   return rgb;
+}
+
+export async function getBlackColorID() {
+  const black = Object.values(state.colorMap).find(
+    (color) => color.colorCode === "#000000"
+  );
+  if (black) {
+    return black.id;
+  }
+
+  // create black color if it doesn't exist
+  const blackID = await colorAgent.addColor({
+    name: "black",
+    colorCode: "#000000" as ColorCode,
+  });
+
+  if (!blackID) {
+    throw "[Error] Failed to create black color";
+  }
+
+  return blackID;
 }

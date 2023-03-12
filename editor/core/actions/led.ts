@@ -13,7 +13,6 @@ import type {
   LEDPartName,
   LEDBulbData,
   LEDEffectIDtable,
-  LEDEffectID,
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
@@ -235,7 +234,7 @@ const actions = registerActions({
       name: effectName,
       effectID: -1,
       repeat: 1,
-      effects: [createEmptyLEDEffectFrame(partLength)],
+      effects: [await createEmptyLEDEffectFrame(partLength)],
     };
     await initCurrentLEDStatus();
   },

@@ -15,10 +15,9 @@ import {
 } from "../models";
 
 import { dancerAgent } from "@/api";
-import { getControl, getPos } from "../utils";
+import { getBlackColorID, getControl, getPos } from "../utils";
 import { colorAgent } from "@/api/colorAgent";
 import { rgbToHex } from "../utils/convert";
-import { NO_COLOR } from "@/constants";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
@@ -117,13 +116,14 @@ const actions = registerActions({
       };
     }, {} as ColorMap);
 
-    colorMap[-1] = NO_COLOR;
+    // colorMap[-1] = NO_COLOR;
 
     state.colorMap = colorMap;
   },
 
-  initCurrentLEDStatus: (state: State) => {
+  initCurrentLEDStatus: async (state: State) => {
     const { dancers, LEDPartLengthMap } = state;
+    const blackColorID = await getBlackColorID();
     const tmp: CurrentLEDStatus = {};
     Object.entries(dancers).map(([dancerName, parts]) => {
       tmp[dancerName] = {};
@@ -132,7 +132,7 @@ const actions = registerActions({
           const length = LEDPartLengthMap[part];
           tmp[dancerName][part] = {
             effect: [...Array(length)].map(() => ({
-              colorID: -1,
+              colorID: blackColorID,
               alpha: 0,
             })),
             effectIndex: 0,

@@ -15,6 +15,7 @@ import { cloneDeep } from "lodash";
 import { updateFrameByTimeMap } from "./frame";
 
 import { state } from "../state";
+import { getBlackColorID } from "./color";
 
 /**
  * Update the currentLEDStatus
@@ -197,12 +198,13 @@ export function binarySearchLedEffectFrame(
   return m;
 }
 
-export function createEmptyLEDEffectFrame(partLength: number): LEDEffectFrame {
+export async function createEmptyLEDEffectFrame(partLength: number) {
+  const blackColorID = await getBlackColorID();
   return {
     start: 0,
     fade: false,
     effect: Array.from(new Array(partLength), () => ({
-      colorID: -1,
+      colorID: blackColorID,
       alpha: 0,
     })),
   };

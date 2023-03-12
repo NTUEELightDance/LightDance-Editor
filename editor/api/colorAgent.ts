@@ -30,7 +30,7 @@ export const colorAgent = {
     const colorRGB = hexToRGB(colorCode);
 
     try {
-      await client.mutate<
+      const { data } = await client.mutate<
         AddColorMutationResponseData,
         AddColorMutationVariables
       >({
@@ -49,6 +49,8 @@ export const colorAgent = {
           },
         ],
       });
+
+      return data?.addColor.id;
     } catch (error) {
       console.error(error);
       throw error;
