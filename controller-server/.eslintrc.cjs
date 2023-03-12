@@ -4,7 +4,11 @@ module.exports = {
     browser: false,
     es2021: true,
   },
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+  ],
   overrides: [],
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -13,11 +17,6 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
-    indent: ["error", 2],
-    "linebreak-style": ["error", "unix"],
-    quotes: ["error", "double"],
-    semi: ["error", "always"],
-    "no-trailing-spaces": "error",
-    "eol-last": ["error", "always"],
+    "@typescript-eslint/no-non-null-assertion": "off",
   },
 };
