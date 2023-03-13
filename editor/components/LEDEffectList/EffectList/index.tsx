@@ -16,6 +16,7 @@ import {
   Switch,
   FormControlLabel,
   Paper,
+  TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -26,12 +27,9 @@ import store from "@/store";
 import { getPartType, notification } from "core/utils";
 import type { LEDMap, LEDPartName } from "@/core/models";
 import { ledAgent } from "@/api";
+import { renameLEDEffect, setupLEDEditor } from "@/core/actions";
 
-export default function EffectList({
-  openDialog,
-}: {
-  openDialog: (data?: { effectName: string; partName: LEDPartName }) => void;
-}) {
+export default function EffectList({ openDialog }: { openDialog: () => void }) {
   const ledMap = useReactiveVar(reactiveState.ledMap);
   const { dancerMap } = store.getState().load;
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -44,9 +42,37 @@ export default function EffectList({
   );
   const [editOpened, setEditOpened] = useState<boolean>(false); // open edit effect dialog
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
+  const [renameOpened, setRenameOpened] = useState<boolean>(false); // open rename effect dialog
   const [expanded, setExpanded] = useState<boolean>(false);
 
-  // Handle functions
+  const [newEffectName, setNewEffectName] = useState<string>("");
+
+  const handleOpenRename = (partName: LEDPartName, effectName: string) => {
+    setEffectSelectedPart(partName);
+    setEffectSelectedName(effectName);
+    setRenameOpened(true);
+  };
+
+  const handleCloseRename = () => {
+    setRenameOpened(false);
+  };
+
+  const handleRenameEffect = async () => {
+    if (!effectSelectedPart || !effectSelectedName) return;
+
+    const effectID = ledMap[effectSelectedPart][effectSelectedName]?.effectID;
+    if (!effectID) return;
+
+    await renameLEDEffect({
+      payload: {
+        effectID,
+        newName: newEffectName,
+      },
+    });
+
+    handleCloseRename();
+  };
+
   const handleOpenEdit = (partName: LEDPartName, effectName: string) => {
     setEffectSelectedPart(partName);
     setEffectSelectedName(effectName);
@@ -55,13 +81,14 @@ export default function EffectList({
 
   const handleCloseEdit = () => {
     setEditOpened(false);
-    reset();
   };
 
   const handleEditEffect = () => {
-    openDialog({
-      effectName: effectSelectedName!,
-      partName: effectSelectedPart!,
+    setupLEDEditor({
+      payload: {
+        effectName: effectSelectedName!,
+        partName: effectSelectedPart!,
+      },
     });
     handleCloseEdit();
   };
@@ -74,7 +101,6 @@ export default function EffectList({
 
   const handleCloseDelete = () => {
     setDeleteOpened(false);
-    reset();
   };
 
   const handleDeleteEffect = async () => {
@@ -98,12 +124,6 @@ export default function EffectList({
 
   const handleExpanded = () => {
     setExpanded(!expanded);
-  };
-
-  const reset = () => {
-    // setEffectSelectedPart("");
-    // setEffectSelectedName("");
-    //setCollidedFrame([]);
   };
 
   const modelMap = useMemo(() => {
@@ -191,6 +211,7 @@ export default function EffectList({
               key={modelName}
               handleOpenEdit={handleOpenEdit}
               handleOpenDelete={handleOpenDelete}
+              handleOpenRename={handleOpenRename}
               expanded={expanded}
             />
           ))}
@@ -207,6 +228,30 @@ export default function EffectList({
           <Button onClick={handleCloseEdit}>Cancel</Button>
           <Button autoFocus onClick={handleEditEffect}>
             Edit
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={renameOpened} onClose={handleCloseRename}>
+        <DialogTitle>Rename Effect</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure to rename effect "{effectSelectedName}" ?
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Effect Name"
+            type="text"
+            fullWidth
+            value={newEffectName}
+            onChange={(e) => setNewEffectName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseRename}>Cancel</Button>
+          <Button autoFocus onClick={handleRenameEffect}>
+            Rename
           </Button>
         </DialogActions>
       </Dialog>

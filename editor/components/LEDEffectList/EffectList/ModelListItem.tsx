@@ -15,6 +15,7 @@ import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 interface modelProps {
   modelName: string;
   modelData: LEDMap;
+  handleOpenRename: (partName: LEDPartName, effectName: string) => void;
   handleOpenEdit: (partName: LEDPartName, effectName: string) => void;
   handleOpenDelete: (partName: LEDPartName, effectName: string) => void;
   expanded: boolean;
@@ -23,6 +24,7 @@ interface modelProps {
 export default function ModelListItem({
   modelName,
   modelData,
+  handleOpenRename,
   handleOpenEdit,
   handleOpenDelete,
   expanded,
@@ -45,9 +47,10 @@ export default function ModelListItem({
         <ListItemText primary={modelName.toUpperCase()} />
         {listOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
-      <Collapse in={listOpen} timeout="auto">
+      <Collapse in={listOpen} timeout="auto" unmountOnExit>
         <PartList
           modelData={modelData}
+          handleOpenRename={handleOpenRename}
           handleOpenEdit={handleOpenEdit}
           handleOpenDelete={handleOpenDelete}
         />

@@ -85,7 +85,6 @@ const actions = registerActions({
 
     for (const [bulbIndex, bulbData] of LEDBulbsMap.entries()) {
       for (const [key, value] of Object.entries(bulbData)) {
-        console.log({ key, value, dancerName, partName, bulbIndex });
         // @ts-expect-error the key is guaranteed to be in the type
         newCurrentLEDStatus[dancerName][partName].effect[bulbIndex][key] =
           value;
@@ -219,6 +218,31 @@ const actions = registerActions({
         });
         notification.success("LED Effect created");
       }
+    } catch (error) {
+      if (error instanceof Error) {
+        notification.error(error.message);
+      }
+      console.error(error);
+    }
+  },
+
+  renameLEDEffect: async (
+    state: State,
+    payload: {
+      effectID: number;
+      newName: string;
+    }
+  ) => {
+    try {
+      await ledAgent.saveLEDEffect({
+        id: payload.effectID,
+        name: payload.newName,
+        repeat: state.LEDEffectIDtable[payload.effectID].repeat,
+        frames: state.LEDEffectIDtable[payload.effectID].effects.map(
+          toLEDEffectFramePayload
+        ),
+      });
+      notification.success("LED Effect renamed");
     } catch (error) {
       if (error instanceof Error) {
         notification.error(error.message);
@@ -402,6 +426,7 @@ export const {
   deleteCurrentFrameFromCurrentLEDEffect,
   saveCurrentLEDEffectFrame,
   saveLEDEffect,
+  renameLEDEffect,
   updateLEDEffectFrameTime,
   setupLEDEditor,
   cancelEditLEDEffect,
