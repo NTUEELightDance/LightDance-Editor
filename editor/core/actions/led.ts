@@ -313,6 +313,8 @@ const actions = registerActions({
     state.currentLEDEffectStart = 0;
     state.currentLEDEffect = null;
     state.editorState = "IDLE";
+    state.editor = "CONTROL_EDITOR";
+    state.selectedLEDs = [];
     setCurrentTime({
       payload: state.currentTime,
     });

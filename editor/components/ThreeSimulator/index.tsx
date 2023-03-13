@@ -41,7 +41,6 @@ export default function ThreeSimulator() {
 
   const selected = useReactiveVar(reactiveState.selected);
   const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
-  // const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
 
   useLayoutEffect(() => {
@@ -70,13 +69,20 @@ export default function ThreeSimulator() {
   }, [isPlaying]);
 
   useEffect(() => {
-    if (!isLEDPartName(currentLEDPartName)) return;
+    if (!isLEDPartName(currentLEDPartName)) {
+      threeController.deselectLEDs();
+      return;
+    }
 
     threeController.updateSelectedLEDs(selectedLEDs, currentLEDPartName);
   }, [currentLEDPartName, selectedLEDs]);
 
   useEffect(() => {
-    if (!isLEDPartName(currentLEDPartName)) return;
+    if (!isLEDPartName(currentLEDPartName)) {
+      threeController.unfocusLEDParts();
+      return;
+    }
+
     const dancerName = getDancerFromLEDpart(currentLEDPartName);
     threeController.focusOnLEDPart(dancerName, currentLEDPartName);
   }, [currentLEDPartName]);

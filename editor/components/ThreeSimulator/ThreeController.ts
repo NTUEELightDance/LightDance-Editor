@@ -348,6 +348,14 @@ class ThreeController {
     );
   }
 
+  deselectLEDs() {
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        ledPart.deselect();
+      });
+    });
+  }
+
   focusOnLEDPart(dancerName: string, partName: LEDPartName) {
     const part = this.dancers[dancerName].parts.LED[partName];
     const posX = part.position.x;
@@ -383,6 +391,14 @@ class ThreeController {
         } else {
           ledPart.unfocus();
         }
+      });
+    });
+  }
+
+  unfocusLEDParts() {
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        ledPart.unfocus();
       });
     });
   }
