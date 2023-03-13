@@ -146,11 +146,11 @@ export default function LEDEffectDialog({
     updateDisplayModel(selectedDancers, setChosenModel);
   }, [dancers, selected, updateDisplayModel, updateDisplayPart]);
 
-  // useEffect(() => {
-  //   if (!chosenModel) return;
+  useEffect(() => {
+    if (!chosenModel) return;
 
-  //   updateDisplayPart(chosenModel);
-  // }, [chosenModel, updateDisplayPart]);
+    updateDisplayPart(chosenModel);
+  }, [chosenModel, updateDisplayPart]);
 
   // Reset and Close
   function reset() {
