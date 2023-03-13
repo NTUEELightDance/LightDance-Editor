@@ -26,7 +26,7 @@ import {
   notification,
   updateFrameByTimeMap,
 } from "../utils";
-import { NO_EFFECT } from "@/constants";
+import { NEW_EFFECT, NO_EFFECT } from "@/constants";
 import { getLedMap } from "../utils";
 import { updateCurrentLEDStatus } from "../utils";
 import { ControlMap } from "../models";
@@ -85,6 +85,7 @@ const actions = registerActions({
 
     for (const [bulbIndex, bulbData] of LEDBulbsMap.entries()) {
       for (const [key, value] of Object.entries(bulbData)) {
+        console.log({ key, value, dancerName, partName, bulbIndex });
         // @ts-expect-error the key is guaranteed to be in the type
         newCurrentLEDStatus[dancerName][partName].effect[bulbIndex][key] =
           value;
@@ -179,6 +180,7 @@ const actions = registerActions({
     const { frameIndex, time } = payload;
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
     newCurrentLEDEffect.effects[frameIndex].start = time;
+    newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
     state.currentLEDEffect = newCurrentLEDEffect;
   },
 
@@ -246,7 +248,7 @@ const actions = registerActions({
     if (effectID === undefined) {
       state.currentLEDEffect = {
         name: effectName,
-        effectID: 0,
+        effectID: NEW_EFFECT,
         repeat: 1,
         effects: [createEmptyLEDEffectFrame(partLength)],
       };

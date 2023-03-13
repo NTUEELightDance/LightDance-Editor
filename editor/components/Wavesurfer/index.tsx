@@ -51,7 +51,7 @@ function Wavesurfer() {
         const timestamps = Object.entries(controlMap).map(([id, frame]) => ({
           startSecond: frame.start,
           frameID: parseInt(id),
-          draggable: editingData.frameId === parseInt(id),
+          // draggable: editingData.frameId === parseInt(id),
         }));
         waveSurferApp.updateMarkers(timestamps);
       }
@@ -73,7 +73,7 @@ function Wavesurfer() {
         const timestamps = Object.entries(posMap).map(([id, frame]) => ({
           startSecond: frame.start,
           frameID: parseInt(id),
-          draggable: editingData.frameId === parseInt(id),
+          // draggable: editingData.frameId === parseInt(id),
         }));
         waveSurferApp.updateMarkers(timestamps);
       }

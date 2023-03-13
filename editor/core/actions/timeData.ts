@@ -23,6 +23,7 @@ import type {
 
 import { syncCurrentStatusWithControlMap } from "./currentStatus";
 import { syncCurrentPosWithPosMap } from "./currentPos";
+import { NEW_EFFECT } from "@/constants";
 
 const actions = registerActions({
   setCurrentTime: async (state: State, payload: number) => {
@@ -83,11 +84,6 @@ const actions = registerActions({
       time
     );
 
-    console.log("setCurrentTime", {
-      newCurrentLEDStatus,
-      editor: state.editor,
-    });
-
     // calculate the focused LED part's status from current LED effect
     if (state.editor === "LED_EDITOR") {
       const currentLEDPartName = state.currentLEDPartName;
@@ -105,7 +101,7 @@ const actions = registerActions({
             [dancerName]: {
               [currentLEDPartName]: {
                 alpha: 10,
-                effectID: -1,
+                effectID: state.currentLEDEffect.effectID,
               },
             },
           },
@@ -126,15 +122,15 @@ const actions = registerActions({
       };
 
       const pseudoEffectIDtable = {
-        [state.currentLEDEffect.effectID]: state.currentLEDEffect,
-        [-1]: {
-          ...state.LEDEffectIDtable[-1],
+        [NEW_EFFECT]: {
+          ...state.LEDEffectIDtable[NEW_EFFECT],
           effects: [
             createEmptyLEDEffectFrame(
               state.LEDPartLengthMap[currentLEDPartName]
             ),
           ],
         },
+        [state.currentLEDEffect.effectID]: state.currentLEDEffect,
       };
 
       const focusedLEDStatus = updateCurrentLEDStatus(

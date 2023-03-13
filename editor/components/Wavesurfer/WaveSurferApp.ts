@@ -80,7 +80,7 @@ class WaveSurferApp {
         updateLEDEffectFrameTime({
           payload: {
             frameIndex: event.data.frameID,
-            time: event.time * 1000,
+            time: Math.round(event.time * 1000),
           },
         });
       }
