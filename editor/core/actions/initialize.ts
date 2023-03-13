@@ -1,6 +1,6 @@
 import { registerActions } from "../registerActions";
 // types
-import {
+import type {
   State,
   Dancers,
   PartTypeMap,
@@ -10,10 +10,10 @@ import {
   PartName,
   CurrentLEDStatus,
   LEDPartLengthMap,
-  isLEDPartName,
   ColorMap,
-  LEDBulbData,
 } from "../models";
+
+import { isLEDPartName } from "../models";
 
 import { dancerAgent } from "@/api";
 import { createBlack, getControl, getPos } from "../utils";

@@ -15,18 +15,23 @@ import {
   Box,
   Switch,
   FormControlLabel,
+  Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 // import state and type
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
-import store from "../../../store";
-import { getPartType } from "core/utils";
+import store from "@/store";
+import { getPartType, notification } from "core/utils";
 import type { LEDMap, LEDPartName } from "@/core/models";
 import { ledAgent } from "@/api";
 
-export default function EffectList({ openDialog }: { openDialog: () => void }) {
+export default function EffectList({
+  openDialog,
+}: {
+  openDialog: (data?: { effectName: string; partName: LEDPartName }) => void;
+}) {
   const ledMap = useReactiveVar(reactiveState.ledMap);
   const { dancerMap } = store.getState().load;
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -54,6 +59,10 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   };
 
   const handleEditEffect = () => {
+    openDialog({
+      effectName: effectSelectedName!,
+      partName: effectSelectedPart!,
+    });
     handleCloseEdit();
   };
 
@@ -68,15 +77,19 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
     reset();
   };
 
-  const handleDeleteEffect = () => {
+  const handleDeleteEffect = async () => {
     if (!effectSelectedPart || !effectSelectedName) return;
 
     const effectID = ledMap[effectSelectedPart][effectSelectedName]?.effectID;
 
     if (!effectID) return;
     try {
-      ledAgent.deleteLEDEffect(effectID);
+      await ledAgent.deleteLEDEffect(effectID);
+      notification.success("Delete effect successfully!");
     } catch (error) {
+      if (error instanceof Error) {
+        notification.error(error.message);
+      }
       console.error(error);
     } finally {
       handleCloseDelete();
@@ -136,46 +149,53 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   // Return
   return (
     <>
-      <List>
-        <ListSubheader>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              p: 1,
-            }}
-          >
-            <Box>
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={openDialog}
-              >
-                Effect
-              </Button>
+      <Paper
+        sx={{
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <List>
+          <ListSubheader component={Paper} sx={{ m: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 1,
+              }}
+            >
+              <Box>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<AddIcon />}
+                  onClick={() => openDialog()}
+                >
+                  Effect
+                </Button>
+              </Box>
+              <Box>
+                <FormControlLabel
+                  control={<Switch onChange={handleExpanded} size="small" />}
+                  label="Expand"
+                  color="primary"
+                />
+              </Box>
             </Box>
-            <Box>
-              <FormControlLabel
-                control={<Switch onChange={handleExpanded} size="small" />}
-                label="Expand"
-                color="primary"
-              />
-            </Box>
-          </Box>
-        </ListSubheader>
-        {Object.entries(modelMap).map(([modelName, modelData]) => (
-          <ModelListItem
-            modelName={modelName}
-            modelData={modelData as LEDMap}
-            key={modelName}
-            handleOpenEdit={handleOpenEdit}
-            handleOpenDelete={handleOpenDelete}
-            expanded={expanded}
-          />
-        ))}
-      </List>
+          </ListSubheader>
+          {Object.entries(modelMap).map(([modelName, modelData]) => (
+            <ModelListItem
+              modelName={modelName}
+              modelData={modelData as LEDMap}
+              key={modelName}
+              handleOpenEdit={handleOpenEdit}
+              handleOpenDelete={handleOpenDelete}
+              expanded={expanded}
+            />
+          ))}
+        </List>
+      </Paper>
       <Dialog open={editOpened} onClose={handleCloseEdit}>
         <DialogTitle>Edit LED Effect</DialogTitle>
         <DialogContent>

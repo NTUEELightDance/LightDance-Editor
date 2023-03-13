@@ -21,7 +21,7 @@ function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
 
   // handle no effect option and the display
   const options = ["", ...effectNames];
-  const optionDisplay = (val: string) => (val === "" ? "no-effect" : val);
+  const optionDisplay = (val: string) => (val === "" ? "no effect" : val);
 
   return (
     <FormControl sx={{ width: "5.5vw", padding: 0 }} size="small">

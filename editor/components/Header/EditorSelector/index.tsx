@@ -26,11 +26,11 @@ export default function EditorSelector() {
   const openDialog = () => {
     setAddDialogOpen(true);
   };
+
   const handleChangeEditor = (
     event: React.MouseEvent<HTMLElement>,
     newEditorMode: Editor
   ) => {
-    // TODO: handle if editMode is in editing or adding mode, should tell user to save first
     if (editorState !== IDLE) {
       notification.warning("Please SAVE or CANCEL first!");
       return;
@@ -83,7 +83,7 @@ export default function EditorSelector() {
         </ToggleButton>
       </ToggleButtonGroup>
       <LEDEffectDialog
-        addDialogOpen={addDialogOpen}
+        open={addDialogOpen}
         handleClose={() => {
           setAddDialogOpen(false);
         }}

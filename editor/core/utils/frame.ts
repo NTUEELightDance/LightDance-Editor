@@ -82,12 +82,12 @@ export function interpolatePos(
   const { start: nextTime, pos: nextPos } = nextFrame;
   if (preTime === undefined || prePos === undefined) {
     throw new Error(
-      `[Error] interplolationPos, invalid prePosFrame ${preTime}, ${prePos}`
+      `[Error] interpolatePos, invalid prePosFrame ${preTime}, ${prePos}`
     );
   }
   if (nextTime === undefined || nextPos === undefined) {
     throw new Error(
-      `[Error] interplolationPos, invalid nextPosFrame ${nextTime}, ${nextPos}`
+      `[Error] interpolatePos, invalid nextPosFrame ${nextTime}, ${nextPos}`
     );
   }
 

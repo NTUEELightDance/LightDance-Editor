@@ -11,6 +11,7 @@ import {
   updateCurrentLEDStatus,
   getDancerFromLEDpart,
   binarySearchObjects,
+  createEmptyLEDEffectFrame,
 } from "../utils";
 // types
 import type {
@@ -19,8 +20,7 @@ import type {
   LEDEffectRecord,
   State,
 } from "../models";
-// constants
-import { IDLE } from "@/constants";
+
 import { syncCurrentStatusWithControlMap } from "./currentStatus";
 import { syncCurrentPosWithPosMap } from "./currentPos";
 
@@ -38,9 +38,6 @@ const actions = registerActions({
     time = Math.max(time, 0);
 
     state.currentTime = time;
-
-    // only set the time if not IDLE
-    if (state.editorState !== IDLE) return;
 
     // set currentControlIndex
     const newControlIndex = updateFrameByTimeMap(
@@ -86,6 +83,11 @@ const actions = registerActions({
       time
     );
 
+    console.log("setCurrentTime", {
+      newCurrentLEDStatus,
+      editor: state.editor,
+    });
+
     // calculate the focused LED part's status from current LED effect
     if (state.editor === "LED_EDITOR") {
       const currentLEDPartName = state.currentLEDPartName;
@@ -109,12 +111,14 @@ const actions = registerActions({
           },
         },
       };
+
       const pseudoLEDStatus: CurrentLEDStatus = {
         [dancerName]: {
           [currentLEDPartName]:
             state.currentLEDStatus[dancerName][currentLEDPartName],
         },
       };
+
       const pseudoLEDRecord: LEDEffectRecord = {
         [dancerName]: {
           [currentLEDPartName]: [frameID],
@@ -123,6 +127,14 @@ const actions = registerActions({
 
       const pseudoEffectIDtable = {
         [state.currentLEDEffect.effectID]: state.currentLEDEffect,
+        [-1]: {
+          ...state.LEDEffectIDtable[-1],
+          effects: [
+            createEmptyLEDEffectFrame(
+              state.LEDPartLengthMap[currentLEDPartName]
+            ),
+          ],
+        },
       };
 
       const focusedLEDStatus = updateCurrentLEDStatus(

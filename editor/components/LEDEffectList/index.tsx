@@ -1,33 +1,32 @@
 import { useState } from "react";
 
-// mui materials
-import { Paper } from "@mui/material";
-
 import EffectList from "./EffectList";
 import LEDEffectDialog from "./LEDEffectDialog";
+import { LEDPartName } from "@/core/models";
 
 export default function LEDEffectList() {
   const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
+  const [effectName, setEffectName] = useState<string | null>(null);
+  const [partName, setPartName] = useState<LEDPartName | null>(null);
 
-  const openDialog = () => {
+  const openDialog = (data?: { effectName: string; partName: LEDPartName }) => {
     setAddDialogOpen(true);
+    if (data) {
+      setEffectName(data.effectName);
+      setPartName(data.partName);
+    }
   };
 
   return (
     <>
-      <Paper
-        sx={{
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        <EffectList openDialog={openDialog}></EffectList>
-      </Paper>
+      <EffectList openDialog={openDialog}></EffectList>
       <LEDEffectDialog
-        addDialogOpen={addDialogOpen}
+        open={addDialogOpen}
         handleClose={() => {
           setAddDialogOpen(false);
         }}
+        effectName={effectName}
+        partName={partName}
       />
     </>
   );

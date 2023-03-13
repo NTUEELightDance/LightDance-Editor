@@ -73,8 +73,9 @@ export function updateCurrentLEDStatus(
       const { effectID, alpha } = currentStatus[dancerName][
         partName
       ] as LEDData;
+
       if (!effectID || !LEDEffectIDtable[effectID]) {
-        throw `[Invalid src] ${dancerName} ${partName} ${recordId}`;
+        throw `[Invalid src] ${dancerName} ${partName} ${effectID}`;
       }
 
       // get repeat, effects from ledMap and src

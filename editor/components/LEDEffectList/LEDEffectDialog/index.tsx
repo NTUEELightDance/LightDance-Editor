@@ -31,14 +31,18 @@ import {
   Paper,
 } from "@mui/material";
 
-export interface LEDEffectDialogProps {
-  addDialogOpen: boolean;
+export type LEDEffectDialogProps = {
+  open: boolean;
   handleClose: () => void;
-}
+  effectName?: null | string;
+  partName?: null | LEDPartName;
+};
 
 export default function LEDEffectDialog({
-  addDialogOpen,
+  open,
   handleClose,
+  effectName = null,
+  partName = null,
 }: LEDEffectDialogProps) {
   const ledMap: LEDMap = useReactiveVar(reactiveState.ledMap);
 
@@ -49,10 +53,20 @@ export default function LEDEffectDialog({
   // 2. "ADD" implies the entered name is a brand-new name and displays ADD button.
   // 3. "EDIT" suggests that the name is match with an existing effect name, causing an EDIT button to show.
   const [actionMode, setActionMode] = useState<"IDLE" | "EDIT" | "ADD">("IDLE");
-  const [newEffect, setNewEffect] = useState<LedEffectOptionType | null>(null);
+  const [newEffect, setNewEffect] = useState<LedEffectOptionType | null>(
+    effectName && partName
+      ? {
+          LEDEffectName: effectName,
+          partName: partName,
+          inputValue: effectName,
+        }
+      : null
+  );
 
+  const [chosenLEDPart, setChosenLEDPart] = useState<LEDPartName | null>(
+    partName
+  );
   const [chosenModel, setChosenModel] = useState<string | null>(null);
-  const [chosenLEDPart, setChosenLEDPart] = useState<LEDPartName | null>(null);
 
   // Dancers and Parts
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -112,16 +126,6 @@ export default function LEDEffectDialog({
           ) as LEDPartName[];
         }
       }
-      // Display all parts without repeat by selected dancers
-
-      // selectedDancers.forEach((dancerName) => {
-      //   newDisplayLEDParts = _.union(
-      //     newDisplayLEDParts,
-      //     dancers[dancerName].filter((part) => {
-      //       return getPartType(part) === "LED";
-      //     })
-      //   );
-      // });
 
       // if newDisplayLEDParts is empty -> show all parts
       if (newDisplayLEDParts.length === 0) {
@@ -230,7 +234,7 @@ export default function LEDEffectDialog({
   return (
     <div>
       <Paper>
-        <Dialog open={addDialogOpen} onClose={closeAndReset}>
+        <Dialog open={open} onClose={closeAndReset}>
           <DialogTitle>Customize LED Effect</DialogTitle>
           <DialogContent>
             <Grid sx={{ mb: 2, mt: 2 }}>

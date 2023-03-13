@@ -53,7 +53,9 @@ export default function useColorMap() {
         `Successfully deleted color: ${colorMap[colorID].name}`
       );
     } catch (error) {
-      notification.error((error as Error).message);
+      if (error instanceof Error) {
+        notification.error(error.message);
+      }
       console.error(error);
     }
   };

@@ -23,6 +23,7 @@ import {
   createEmptyLEDEffectFrame,
   getControl,
   getDancerFromLEDpart,
+  notification,
   updateFrameByTimeMap,
 } from "../utils";
 import { NO_EFFECT } from "@/constants";
@@ -32,7 +33,6 @@ import { ControlMap } from "../models";
 import { ControlRecord } from "../models";
 import { PartTypeMap } from "../models";
 import { Dancers } from "../models";
-import { initCurrentLEDStatus } from "./initialize";
 import { setCurrentTime } from "./timeData";
 import { ledAgent } from "@/api";
 import { toLEDEffectFramePayload } from "../utils/convert";
@@ -199,20 +199,29 @@ const actions = registerActions({
       state.ledMap[state.currentLEDPartName][state.currentLEDEffectName]
         ?.effectID;
 
-    if (effectID !== undefined) {
-      ledAgent.saveLEDEffect({
-        id: effectID,
-        frames,
-        name: state.currentLEDEffectName,
-        repeat: state.currentLEDEffect.repeat,
-      });
-    } else {
-      ledAgent.addLEDEffect({
-        frames,
-        name: state.currentLEDEffectName,
-        partName: state.currentLEDPartName,
-        repeat: state.currentLEDEffect.repeat,
-      });
+    try {
+      if (effectID !== undefined) {
+        await ledAgent.saveLEDEffect({
+          id: effectID,
+          frames,
+          name: state.currentLEDEffectName,
+          repeat: state.currentLEDEffect.repeat,
+        });
+        notification.success("LED Effect saved");
+      } else {
+        await ledAgent.addLEDEffect({
+          frames,
+          name: state.currentLEDEffectName,
+          partName: state.currentLEDPartName,
+          repeat: state.currentLEDEffect.repeat,
+        });
+        notification.success("LED Effect created");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        notification.error(error.message);
+      }
+      console.error(error);
     }
   },
 
@@ -243,7 +252,7 @@ const actions = registerActions({
       };
     } else {
       const effect = state.LEDEffectIDtable[effectID];
-      state.currentLEDEffect = effect;
+      state.currentLEDEffect = cloneDeep(effect);
     }
 
     const { dancers, LEDPartLengthMap } = state;
@@ -301,7 +310,7 @@ const actions = registerActions({
   syncCurrentLEDStatus: async (state: State) => {
     const [controlMap, controlRecord] = await getControl();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, ledEffectIDtable] = await getLedMap();
+    const [ledMap, ledEffectIDtable] = await getLedMap();
 
     const index = updateFrameByTimeMap(
       controlRecord,
@@ -321,9 +330,17 @@ const actions = registerActions({
       },
     };
 
+    const pseudoLEDEffectRecord: LEDEffectRecord =
+      await generateLEDEffectRecord(
+        pseudoControlMap,
+        controlRecord,
+        state.dancers,
+        state.partTypeMap
+      );
+
     state.currentLEDStatus = updateCurrentLEDStatus(
       pseudoControlMap,
-      state.ledEffectRecord,
+      pseudoLEDEffectRecord,
       state.currentLEDStatus,
       ledEffectIDtable,
       state.currentTime

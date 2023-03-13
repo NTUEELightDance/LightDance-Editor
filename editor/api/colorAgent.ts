@@ -116,11 +116,13 @@ export const colorAgent = {
       const ok = data?.deleteColor?.ok;
 
       if (!ok) {
-        throw new Error("This color is being used is some control frames.");
+        throw new Error(data?.deleteColor?.msg ?? "Unknown Error");
       }
     } catch (error) {
       console.error(error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Delete Color Failed ${error.message}`);
+      }
     }
   },
 };

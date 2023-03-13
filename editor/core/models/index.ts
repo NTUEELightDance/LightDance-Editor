@@ -267,7 +267,7 @@ export type LEDEffectFramePayload = {
 /**
  * LedEffectRecord
  * Save dancer LED part's appearing record id
- * Generated from controlMap and controlRecord, but stripped out the `no-effect` source
+ * Generated from controlMap and controlRecord, but stripped out the `no effect` source
  *
  */
 export type LEDEffectRecord = Record<DancerName, Record<PartName, LEDRecord>>;

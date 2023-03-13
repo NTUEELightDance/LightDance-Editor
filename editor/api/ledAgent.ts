@@ -33,35 +33,30 @@ export const ledAgent = {
     partName: LEDPartName;
     repeat: number;
   }) => {
-    try {
-      const { data: response } = await client.mutate<
-        AddLEDEffectMutationResponseData,
-        AddLEDEffectMutationVariables
-      >({
-        mutation: ADD_LED_EFFECT,
-        variables: {
-          input: {
-            frames: {
-              set: addLEDEffectInput.frames,
-            },
-            name: addLEDEffectInput.name,
-            partName: addLEDEffectInput.partName,
-            repeat: addLEDEffectInput.repeat,
+    const { data: response } = await client.mutate<
+      AddLEDEffectMutationResponseData,
+      AddLEDEffectMutationVariables
+    >({
+      mutation: ADD_LED_EFFECT,
+      variables: {
+        input: {
+          frames: {
+            set: addLEDEffectInput.frames,
           },
+          name: addLEDEffectInput.name,
+          partName: addLEDEffectInput.partName,
+          repeat: addLEDEffectInput.repeat,
         },
-        refetchQueries: [
-          {
-            query: GET_LED_MAP,
-          },
-        ],
-      });
-      if (!response?.addLEDEffect?.ok) {
-        console.error(response?.addLEDEffect?.msg);
-        throw new Error("Add LED Effect Failed");
-      }
-    } catch (error) {
-      console.error(error);
-      throw error;
+      },
+      refetchQueries: [
+        {
+          query: GET_LED_MAP,
+        },
+      ],
+    });
+    if (!response?.addLEDEffect?.ok) {
+      console.error(response?.addLEDEffect?.msg);
+      throw new Error(`Add LED Effect Failed ${response?.addLEDEffect?.msg}`);
     }
   },
 
@@ -71,61 +66,53 @@ export const ledAgent = {
     repeat: number;
     frames: LEDEffectFramePayload[];
   }) => {
-    try {
-      const { data: response } = await client.mutate<
-        EditLEDEffectMutationResponseData,
-        EditLEDEffectMutationVariables
-      >({
-        mutation: EDIT_LED_EFFECT,
-        variables: {
-          input: {
-            id: saveLEDEffectInput.id,
-            name: saveLEDEffectInput.name,
-            repeat: saveLEDEffectInput.repeat,
-            frames: {
-              set: saveLEDEffectInput.frames,
-            },
+    const { data: response } = await client.mutate<
+      EditLEDEffectMutationResponseData,
+      EditLEDEffectMutationVariables
+    >({
+      mutation: EDIT_LED_EFFECT,
+      variables: {
+        input: {
+          id: saveLEDEffectInput.id,
+          name: saveLEDEffectInput.name,
+          repeat: saveLEDEffectInput.repeat,
+          frames: {
+            set: saveLEDEffectInput.frames,
           },
         },
-        refetchQueries: [
-          {
-            query: GET_LED_MAP,
-          },
-        ],
-      });
-      if (!response?.editLEDEffect?.ok) {
-        console.error(response?.editLEDEffect?.msg);
-        throw new Error("Save LED Effect Failed");
-      }
-    } catch (error) {
-      console.error(error);
-      throw error;
+      },
+      refetchQueries: [
+        {
+          query: GET_LED_MAP,
+        },
+      ],
+    });
+    if (!response?.editLEDEffect?.ok) {
+      console.error(response?.editLEDEffect?.msg);
+      throw new Error(`Save LED Effect Failed ${response?.editLEDEffect?.msg}`);
     }
   },
 
   deleteLEDEffect: async (effectID: LEDEffectID) => {
-    try {
-      const { data: response } = await client.mutate<
-        DeleteLEDEffectMutationResponseData,
-        DeleteLEDEffectMutationVariables
-      >({
-        mutation: DELETE_LED_EFFECT,
-        variables: {
-          deleteLedEffectId: effectID,
+    const { data: response } = await client.mutate<
+      DeleteLEDEffectMutationResponseData,
+      DeleteLEDEffectMutationVariables
+    >({
+      mutation: DELETE_LED_EFFECT,
+      variables: {
+        deleteLedEffectId: effectID,
+      },
+      refetchQueries: [
+        {
+          query: GET_LED_MAP,
         },
-        refetchQueries: [
-          {
-            query: GET_LED_MAP,
-          },
-        ],
-      });
-      if (!response?.deleteLEDEffect?.ok) {
-        console.error(response?.deleteLEDEffect?.msg);
-        throw new Error("Delete LED Effect Failed");
-      }
-    } catch (error) {
-      console.error(error);
-      throw error;
+      ],
+    });
+    if (!response?.deleteLEDEffect?.ok) {
+      console.error(response?.deleteLEDEffect?.msg);
+      throw new Error(
+        `Delete LED Effect Failed ${response?.deleteLEDEffect?.msg}`
+      );
     }
   },
 };
