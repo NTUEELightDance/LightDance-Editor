@@ -14,6 +14,7 @@ import {
 } from "@/core/actions";
 import { notification } from "@/core/utils";
 import { LoadingButton } from "@mui/lab";
+import { useHotkeys } from "react-hotkeys-hook";
 
 function LEDEditButton() {
   const editorState = useReactiveVar(reactiveState.editorState);
@@ -52,6 +53,20 @@ function LEDEditButton() {
   const handleCancel = () => {
     cancelEditLEDEffect();
   };
+
+  useHotkeys("ctrl+s, meta+s", (e) => {
+    e.preventDefault();
+    // Save can only be triggered in EDITING mode
+    if (editorState === "EDITING") handleSave();
+  });
+
+  useHotkeys("esc", () => {
+    if (editorState === "EDITING") handleCancel();
+  });
+
+  useHotkeys("a", () => {
+    if (editorState === "EDITING") handleAddFrame();
+  });
 
   return (
     <Box

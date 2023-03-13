@@ -314,6 +314,7 @@ const actions = registerActions({
     state.currentLEDEffect = null;
     state.editorState = "IDLE";
     state.editor = "CONTROL_EDITOR";
+    state.selectionMode = "DANCER_MODE";
     state.selectedLEDs = [];
     setCurrentTime({
       payload: state.currentTime,

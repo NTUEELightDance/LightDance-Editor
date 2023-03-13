@@ -37,6 +37,7 @@ export function updateFrameByTimeMap(
 
   // Check if need to do binary search
   if (
+    map[record[controlIndex + 1]] &&
     map[record[controlIndex + 2]] &&
     time >= map[record[controlIndex + 1]].start &&
     time <= map[record[controlIndex + 2]].start
@@ -44,7 +45,9 @@ export function updateFrameByTimeMap(
     return controlIndex + 1;
   }
 
-  return binarySearchObjects(record, time, (val) => map[val].start);
+  return binarySearchObjects(record, time, (val) => {
+    return map[val].start;
+  });
 }
 
 export function binarySearchObjects<T>(
