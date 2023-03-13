@@ -219,6 +219,15 @@ export type ColorMap = {
   [id: ColorID]: Color;
 };
 
+export type ColorMapPayload = {
+  [id: number]: {
+    // color name
+    color: string;
+    // color rgb
+    colorCode: [number, number, number];
+  };
+};
+
 /**
  * Led Effect Map, get from backend
  */

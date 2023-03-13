@@ -5,8 +5,14 @@ import { createClient } from "graphql-ws";
 
 import Subscriptions from "./subscription";
 import { state } from "@/core/state";
-import { setControlMap, setLEDEffectIDtable, setLEDMap } from "@/core/actions";
 import {
+  setColorMap,
+  setControlMap,
+  setLEDEffectIDtable,
+  setLEDMap,
+} from "@/core/actions";
+import {
+  toColorMap,
   toControlMap,
   toLEDEffectIDTable,
   toLEDMap,
@@ -90,9 +96,9 @@ const client = new ApolloClient({
               if (incoming instanceof Promise) {
                 incoming = await incoming;
               }
-              const colorMap = incoming;
-              // await setColorMap({ payload: colorMap });
-              return colorMap;
+              const colorMap = toColorMap(incoming);
+              await setColorMap({ payload: colorMap });
+              return incoming;
             },
           },
         },

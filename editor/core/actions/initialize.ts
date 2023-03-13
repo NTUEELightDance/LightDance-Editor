@@ -103,19 +103,20 @@ const actions = registerActions({
   initColorMap: async (state: State) => {
     const colorMapResponseData = await colorAgent.getColorMap();
 
-    const colorMap: ColorMap = Object.entries(
-      await colorMapResponseData.colorMap.colorMap
-    ).reduce((acc, [id, { color: name, colorCode: rgb }]) => {
-      return {
-        ...acc,
-        [id]: {
-          id: parseInt(id),
-          name,
-          colorCode: rgbToHex(rgb),
-          rgb,
-        },
-      };
-    }, {} as ColorMap);
+    const colorMap: ColorMap = Object.entries(colorMapResponseData).reduce(
+      (acc, [id, { color: name, colorCode: rgb }]) => {
+        return {
+          ...acc,
+          [id]: {
+            id: parseInt(id),
+            name,
+            colorCode: rgbToHex(rgb),
+            rgb,
+          },
+        };
+      },
+      {} as ColorMap
+    );
 
     state.colorMap = colorMap;
   },

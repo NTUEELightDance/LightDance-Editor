@@ -1,3 +1,4 @@
+import { ColorID, RGB } from "@/core/models";
 import { gql } from "@apollo/client";
 
 export const SUB_POS_RECORD = gql`
@@ -58,6 +59,26 @@ export const SUB_EFFECT_LIST = gql`
         controlFrames
         positionFrames
       }
+    }
+  }
+`;
+
+export interface ColorSubscriptionData {
+  colorSubscription: {
+    id: ColorID;
+    color: string;
+    colorCode: RGB;
+    mutation: "CREATED" | "UPDATED" | "DELETED";
+  };
+}
+
+export const SUB_COLOR = gql`
+  subscription ColorSubscription {
+    colorSubscription {
+      id
+      color
+      colorCode
+      mutation
     }
   }
 `;

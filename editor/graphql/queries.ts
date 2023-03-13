@@ -1,4 +1,8 @@
-import { ControlMapQueryPayload, LEDMapPayload } from "@/core/models";
+import {
+  ColorMapPayload,
+  ControlMapQueryPayload,
+  LEDMapPayload,
+} from "@/core/models";
 import { gql } from "@apollo/client";
 
 export const GET_DANCERS = gql`
@@ -60,14 +64,7 @@ export const GET_POS_RECORD = gql`
 
 export interface ColorQueryResponseData {
   colorMap: {
-    colorMap: {
-      [id: number]: {
-        // color name
-        color: string;
-        // color rgb
-        colorCode: [number, number, number];
-      };
-    };
+    colorMap: ColorMapPayload;
   };
 }
 

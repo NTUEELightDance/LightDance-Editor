@@ -30,11 +30,13 @@ import type {
   LEDPartName,
   LEDEffectIDtable,
   ColorID,
+  ColorMap,
 } from "@/core/models";
 
 import { isColorCode, isFiberData, isLEDData } from "@/core/models";
 
 import { state } from "@/core/state";
+import { ColorQueryResponseData } from "@/graphql";
 
 export function toControlMap(payload: ControlMapQueryPayload): ControlMap {
   const controlMap: ControlMap = {};
@@ -248,7 +250,7 @@ const COLOR = new Color();
 
 export const hexToRGB = memoize((hex: string) => {
   COLOR.setHex(parseInt(hex.replace(/^#/, ""), 16));
-  return COLOR.toArray() as RGB;
+  return COLOR.toArray().map((v) => Math.round(v * 255)) as RGB;
 });
 
 export function rgbToHex(rgb: RGB): ColorCode {
@@ -258,4 +260,23 @@ export function rgbToHex(rgb: RGB): ColorCode {
     return colorCode;
   }
   throw new Error(`Invalid color code: ${colorCode}`);
+}
+
+export function toColorMap(payload: ColorQueryResponseData): ColorMap {
+  const colorMap: ColorMap = Object.entries(payload).reduce(
+    (acc, [id, { color: name, colorCode: rgb }]) => {
+      return {
+        ...acc,
+        [id]: {
+          id: parseInt(id),
+          name,
+          colorCode: rgbToHex(rgb),
+          rgb,
+        },
+      };
+    },
+    {} as ColorMap
+  );
+
+  return colorMap;
 }

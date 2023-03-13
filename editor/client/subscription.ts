@@ -6,8 +6,11 @@ import {
   SUB_CONTROL_RECORD,
   SUB_CONTROL_MAP,
   SUB_EFFECT_LIST,
+  ColorSubscriptionData,
+  SUB_COLOR,
 } from "../graphql";
 import cloneDeep from "lodash/cloneDeep";
+import { ColorMapPayload } from "@/core/models";
 
 const subPosRecord = (client: ApolloClient<NormalizedCacheObject>) => {
   client
@@ -196,12 +199,49 @@ const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
     });
 };
 
+const subColorMap = (client: ApolloClient<NormalizedCacheObject>) => {
+  client.subscribe<ColorSubscriptionData>({ query: SUB_COLOR }).subscribe({
+    next({ data }) {
+      client.cache.modify({
+        id: "ROOT_QUERY",
+        fields: {
+          colorMap(colorMap: ColorMapPayload) {
+            if (!data) return colorMap;
+
+            const {
+              color: colorName,
+              id: colorID,
+              colorCode: rgb,
+            } = data.colorSubscription;
+
+            switch (data.colorSubscription.mutation) {
+              case "CREATED":
+                colorMap[colorID] = {
+                  color: colorName,
+                  colorCode: rgb,
+                };
+                break;
+              case "UPDATED":
+                break;
+              case "DELETED":
+                break;
+            }
+
+            return colorMap;
+          },
+        },
+      });
+    },
+  });
+};
+
 const Subscriptions = (client: ApolloClient<NormalizedCacheObject>) => {
-  // subPosRecord(client);
-  // subPosMap(client);
-  // subControlRecord(client);
-  // subControlMap(client);
-  // subEffectList(client);
+  subPosRecord(client);
+  subPosMap(client);
+  subControlRecord(client);
+  subControlMap(client);
+  subEffectList(client);
+  subColorMap(client);
 };
 
 export default Subscriptions;

@@ -23,7 +23,7 @@ export const colorAgent = {
       query: GET_COLOR_MAP,
     });
 
-    return data;
+    return data.colorMap.colorMap;
   },
 
   addColor: async ({ name, colorCode }: Pick<Color, "name" | "colorCode">) => {
