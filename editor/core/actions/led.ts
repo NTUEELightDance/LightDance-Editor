@@ -254,11 +254,13 @@ const actions = registerActions({
   setupLEDEditor: async (
     state: State,
     payload: {
+      dancerName: DancerName;
       partName: LEDPartName;
       effectName: string;
     }
   ) => {
     const { partName, effectName } = payload;
+    state.currentLEDEffectReferenceDancer = payload.dancerName;
     state.currentLEDPartName = partName;
     state.currentLEDEffectName = effectName;
     state.currentLEDEffectStart = state.currentTime;

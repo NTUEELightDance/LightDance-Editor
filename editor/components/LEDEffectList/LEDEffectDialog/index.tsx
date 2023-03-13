@@ -27,8 +27,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Grid,
   Paper,
+  Box,
 } from "@mui/material";
 
 export type LEDEffectDialogProps = {
@@ -220,9 +220,12 @@ export default function LEDEffectDialog({
   const handleAddLEDEffect = () => {
     if (!isLEDPartName(chosenLEDPart)) return;
     if (!newEffect) return;
+    if (!chosenDancer) return;
+
     setupLEDEditor({
       payload: {
-        partName: chosenLEDPart as LEDPartName,
+        dancerName: chosenDancer,
+        partName: chosenLEDPart,
         effectName: newEffect.LEDEffectName,
       },
     });
@@ -232,9 +235,12 @@ export default function LEDEffectDialog({
   const handleEditLEDEffect = () => {
     if (!isLEDPartName(chosenLEDPart)) return;
     if (!newEffect) return;
+    if (!chosenDancer) return;
+
     setupLEDEditor({
       payload: {
-        partName: chosenLEDPart as LEDPartName,
+        dancerName: chosenDancer,
+        partName: chosenLEDPart,
         effectName: newEffect.LEDEffectName,
       },
     });
@@ -243,65 +249,65 @@ export default function LEDEffectDialog({
 
   // Return
   return (
-    <div>
-      <Paper>
-        <Dialog open={open} onClose={closeAndReset}>
-          <DialogTitle>Customize LED Effect</DialogTitle>
-          <DialogContent>
-            <Grid sx={{ mb: 2, mt: 2 }}>
-              <EffectNameTextField
-                chosenLEDPart={chosenLEDPart}
-                handleChangeChosenModel={setChosenModel}
-                handleChangeChosenLEDPart={handleChangeChosenLEDPart}
-                setActionMode={setActionMode}
-                newEffect={newEffect}
-                setNewEffect={setNewEffect}
-              />
-            </Grid>
-            <Grid>
-              <SingleSelectButtonArray
-                label="Model"
-                selectedOption={chosenModel}
-                handleChangeSelectedOption={setChosenModel}
-                displayModels={displayModels}
-              />
-            </Grid>
-            <Grid>
-              <SingleSelectButtonArray
-                label="Dancer"
-                selectedOption={chosenDancer}
-                handleChangeSelectedOption={handleUpdateChosenDancer}
-                displayModels={displayDancers}
-              />
-            </Grid>
-            <Grid>
-              <LEDPartButton
-                chosenLEDPart={chosenLEDPart}
-                handleChangeChosenLEDPart={handleChangeChosenLEDPart}
-                displayLEDParts={displayLEDParts}
-              />
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeAndReset}>Cancel</Button>
-            {actionMode === "EDIT" ? (
-              <Button
-                onClick={handleEditLEDEffect}
-                disabled={actionMode != "EDIT" || !chosenLEDPart}
-              >
-                Edit
-              </Button>
-            ) : (
-              <Button
-                onClick={handleAddLEDEffect}
-                disabled={actionMode != "ADD" || !chosenLEDPart}
-              >
-                Add
-              </Button>
-            )}
-          </DialogActions>
-        </Dialog>
-      </Paper>
-    </div>
+    <Paper>
+      <Dialog open={open} onClose={closeAndReset}>
+        <DialogTitle>LED Effect</DialogTitle>
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          <Box>
+            <EffectNameTextField
+              chosenLEDPart={chosenLEDPart}
+              handleChangeChosenModel={setChosenModel}
+              handleChangeChosenLEDPart={handleChangeChosenLEDPart}
+              setActionMode={setActionMode}
+              newEffect={newEffect}
+              setNewEffect={setNewEffect}
+            />
+          </Box>
+          <Box>
+            <SingleSelectButtonArray
+              label="Model"
+              selectedOption={chosenModel}
+              handleChangeSelectedOption={setChosenModel}
+              displayModels={displayModels}
+            />
+          </Box>
+          <Box>
+            <SingleSelectButtonArray
+              label="Dancer"
+              selectedOption={chosenDancer}
+              handleChangeSelectedOption={handleUpdateChosenDancer}
+              displayModels={displayDancers}
+            />
+          </Box>
+          <Box>
+            <LEDPartButton
+              chosenLEDPart={chosenLEDPart}
+              handleChangeChosenLEDPart={handleChangeChosenLEDPart}
+              displayLEDParts={displayLEDParts}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeAndReset}>Cancel</Button>
+          {actionMode === "EDIT" ? (
+            <Button
+              onClick={handleEditLEDEffect}
+              disabled={actionMode != "EDIT" || !chosenLEDPart || !chosenDancer}
+            >
+              Edit
+            </Button>
+          ) : (
+            <Button
+              onClick={handleAddLEDEffect}
+              disabled={actionMode != "ADD" || !chosenLEDPart || !chosenDancer}
+            >
+              Add
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
+    </Paper>
   );
 }

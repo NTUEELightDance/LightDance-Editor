@@ -2,7 +2,7 @@ import { Typography, Button } from "@mui/material";
 import Grid from "@mui/system/Unstable_Grid/Grid";
 
 interface SingleSelectButtonArrayProps {
-  label: string;
+  label?: string;
   selectedOption: string | null;
   handleChangeSelectedOption: (option: string) => void;
   displayModels: string[];
@@ -16,8 +16,8 @@ export default function SingleSelectButtonArray({
 }: SingleSelectButtonArrayProps) {
   return (
     <>
-      <Typography sx={{ mb: 1 }}>{label}</Typography>
-      <Grid container spacing={2} justifyContent="flex-start" sx={{ mb: 2 }}>
+      {label && <Typography sx={{ mb: 1 }}>{label}</Typography>}
+      <Grid container spacing={2} justifyContent="flex-start">
         {displayModels.map((modelName) => (
           <Grid key={modelName}>
             <Button

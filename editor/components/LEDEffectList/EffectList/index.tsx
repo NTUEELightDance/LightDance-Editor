@@ -27,9 +27,15 @@ import store from "@/store";
 import { getPartType, notification } from "core/utils";
 import type { LEDMap, LEDPartName } from "@/core/models";
 import { ledAgent } from "@/api";
-import { renameLEDEffect, setupLEDEditor } from "@/core/actions";
+import { renameLEDEffect } from "@/core/actions";
 
-export default function EffectList({ openDialog }: { openDialog: () => void }) {
+export default function LEDEffectList({
+  openAddDialog,
+  openEditDialog,
+}: {
+  openAddDialog: () => void;
+  openEditDialog: (partName: LEDPartName, effectName: string) => void;
+}) {
   const ledMap = useReactiveVar(reactiveState.ledMap);
   const { dancerMap } = store.getState().load;
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -40,7 +46,6 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
   const [effectSelectedName, setEffectSelectedName] = useState<string | null>(
     null
   );
-  const [editOpened, setEditOpened] = useState<boolean>(false); // open edit effect dialog
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
   const [renameOpened, setRenameOpened] = useState<boolean>(false); // open rename effect dialog
   const [expanded, setExpanded] = useState<boolean>(false);
@@ -71,26 +76,6 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
     });
 
     handleCloseRename();
-  };
-
-  const handleOpenEdit = (partName: LEDPartName, effectName: string) => {
-    setEffectSelectedPart(partName);
-    setEffectSelectedName(effectName);
-    setEditOpened(true);
-  };
-
-  const handleCloseEdit = () => {
-    setEditOpened(false);
-  };
-
-  const handleEditEffect = () => {
-    setupLEDEditor({
-      payload: {
-        effectName: effectSelectedName!,
-        partName: effectSelectedPart!,
-      },
-    });
-    handleCloseEdit();
   };
 
   const handleOpenDelete = (partName: LEDPartName, effectName: string) => {
@@ -190,7 +175,7 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
                   variant="outlined"
                   color="primary"
                   startIcon={<AddIcon />}
-                  onClick={() => openDialog()}
+                  onClick={() => openAddDialog()}
                 >
                   Effect
                 </Button>
@@ -209,7 +194,7 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
               modelName={modelName}
               modelData={modelData as LEDMap}
               key={modelName}
-              handleOpenEdit={handleOpenEdit}
+              handleOpenEdit={openEditDialog}
               handleOpenDelete={handleOpenDelete}
               handleOpenRename={handleOpenRename}
               expanded={expanded}
@@ -217,20 +202,6 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
           ))}
         </List>
       </Paper>
-      <Dialog open={editOpened} onClose={handleCloseEdit}>
-        <DialogTitle>Edit LED Effect</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure to edit effect "{effectSelectedName}" ?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseEdit}>Cancel</Button>
-          <Button autoFocus onClick={handleEditEffect}>
-            Edit
-          </Button>
-        </DialogActions>
-      </Dialog>
       <Dialog open={renameOpened} onClose={handleCloseRename}>
         <DialogTitle>Rename Effect</DialogTitle>
         <DialogContent>
