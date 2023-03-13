@@ -1,6 +1,6 @@
 import WebSocket, { WebSocketServer } from "ws";
-import { onRPiMessageHandler, onControlPanelMessageHandler } from "@/websocket";
-import { Message } from "@/types/global";
+import { hadndleOnRPiMessage, hadndleOnControlPanelMessage } from "./websocket";
+import { Message } from "./types/global";
 
 const webSocketConfig = {
   port: 8082,
@@ -29,23 +29,24 @@ const wss = new WebSocketServer(webSocketConfig);
 
 console.log(`Listening on port: ${webSocketConfig.port}`);
 wss.on("connection", function connection(ws: WebSocket) {
-  ws.on("error", console.error);
-
   ws.on("message", function message(data: Buffer) {
     // Parse incomping message to object
     const msg: Message = JSON.parse(data.toString());
 
+    console.log(msg);
     // Handle message according to type of the message payload
     switch (msg.from) {
       case "RPi":
-        onRPiMessageHandler(msg);
+        hadndleOnRPiMessage(ws, msg);
         break;
       case "controlPanel":
-        onControlPanelMessageHandler(msg);
+        hadndleOnControlPanelMessage(ws, msg);
         break;
       default:
-        console.error(`[Error]: Invaliad message ${msg}`);
+        console.error(`[Error]: Invalid message ${msg}`);
         break;
     }
   });
+
+  ws.on("error", console.error);
 });

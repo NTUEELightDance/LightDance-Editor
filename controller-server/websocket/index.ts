@@ -1,4 +1,4 @@
-import onRPiMessageHandler from "./RPi";
-import onControlPanelMessageHandler from "./controlPanel";
+import { hadndleOnRPiMessage } from "./RPi";
+import { hadndleOnControlPanelMessage } from "./controlPanel";
 
-export { onRPiMessageHandler, onControlPanelMessageHandler };
+export { hadndleOnRPiMessage, hadndleOnControlPanelMessage };

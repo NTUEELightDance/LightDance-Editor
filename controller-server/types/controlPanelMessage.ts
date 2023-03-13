@@ -1,46 +1,93 @@
+import { DancerData } from "./schema/DancerData";
+
 interface FromControlPanelBase {
   from: "controlPanel";
-  command: string;
+  topic: string;
 }
 
 export interface FromControlPanelBoardInfo extends FromControlPanelBase {
-  command: "boardInfo";
+  topic: "boardInfo";
 }
 
 export interface FromControlPanelPlay extends FromControlPanelBase {
-  command: "play";
+  topic: "play";
+  payload: {
+    dancers: string[];
+    start: number;
+    delay: number;
+  };
 }
 
 export interface FromControlPanelPause extends FromControlPanelBase {
-  command: "pause";
+  topic: "pause";
+  payload: {
+    dancers: string[];
+  };
 }
 
 export interface FromControlPanelStop extends FromControlPanelBase {
-  command: "stop";
+  topic: "stop";
+  payload: {
+    dancers: string[];
+  };
+}
+
+export interface FromControlPanelLoad extends FromControlPanelBase {
+  topic: "load";
+  payload: {
+    dancers: string[];
+  };
+}
+
+export interface FromControlPanelUpload extends FromControlPanelBase {
+  topic: "upload";
+  payload: {
+    dancers: string[];
+  };
 }
 
 export interface FromControlPanelReboot extends FromControlPanelBase {
-  command: "reboot";
+  topic: "reboot";
+  payload: {
+    dancers: string[];
+  };
 }
 
 export interface FromControlPanelTest extends FromControlPanelBase {
-  command: "test";
+  topic: "test";
+  payload: {
+    dancers: string[];
+    // #ffffff
+    colorCode: string;
+  };
 }
 
 export interface FromControlPanelRed extends FromControlPanelBase {
-  command: "red";
+  topic: "red";
+  payload: {
+    dancers: string[];
+  };
 }
 
 export interface FromControlPanelGreen extends FromControlPanelBase {
-  command: "green";
+  topic: "green";
+  payload: {
+    dancers: string[];
+  };
 }
 
 export interface FromControlPanelBlue extends FromControlPanelBase {
-  command: "blue";
+  topic: "blue";
+  payload: {
+    dancers: string[];
+  };
 }
 
 export interface FromControlPanelDarkAll extends FromControlPanelBase {
-  command: "darkAll";
+  topic: "darkAll";
+  payload: {
+    dancers: string[];
+  };
 }
 
 export type FromControlPanel =
@@ -48,19 +95,34 @@ export type FromControlPanel =
   | FromControlPanelPlay
   | FromControlPanelPause
   | FromControlPanelStop
+  | FromControlPanelLoad
+  | FromControlPanelUpload
+  | FromControlPanelReboot
   | FromControlPanelTest
   | FromControlPanelRed
   | FromControlPanelGreen
   | FromControlPanelBlue
   | FromControlPanelDarkAll;
 
-export interface ToControlPanelDisconnect {
-  command: "disconnect";
+export interface ToControlPanelBase {
+  from: "server";
+  topic: string;
+  statusCode: number;
+}
+
+export interface ToControlPanelBoardInfo extends ToControlPanelBase {
+  topic: "boardInfo";
+  payload: DancerData;
+}
+
+export interface ToControlPanelCommandResponse extends ToControlPanelBase {
+  topic: "command";
   payload: {
-    from: string;
-    success: false;
-    info: "dancer disconnect";
+    command: string;
+    message: string;
   };
 }
 
-export type ToControlPanel = ToControlPanelDisconnect;
+export type ToControlPanel =
+  | ToControlPanelBoardInfo
+  | ToControlPanelCommandResponse;

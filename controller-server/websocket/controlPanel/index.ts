@@ -1,4 +1,5 @@
-import { FromControlPanel } from "@/types/controlPanelMessage";
+import { WebSocket } from "ws";
+
 import {
   handleBoardInfo,
   handlePlay,
@@ -9,37 +10,52 @@ import {
   handleGreen,
   handleBlue,
   handleDarkAll,
+  handleLoad,
+  handleUpload,
 } from "./handler";
 
-export default function handleOnMessage(msg: FromControlPanel) {
-  switch (msg.command) {
+import { FromControlPanel } from "../../types/controlPanelMessage";
+
+export async function hadndleOnControlPanelMessage(
+  ws: WebSocket,
+  msg: FromControlPanel
+) {
+  switch (msg.topic) {
     case "boardInfo":
-      handleBoardInfo(msg);
+      handleBoardInfo(ws);
       break;
     case "play":
-      handlePlay(msg);
+      handlePlay(ws, msg);
       break;
     case "pause":
-      handlePause(msg);
+      handlePause(ws, msg);
       break;
     case "stop":
-      handleStop(msg);
+      handleStop(ws, msg);
       break;
     case "test":
-      handleTest(msg);
+      handleTest(ws, msg);
+      break;
+    case "upload":
+      await handleUpload(ws, msg);
+      break;
+    case "load":
+      handleLoad(ws, msg);
       break;
     case "red":
-      handleRed(msg);
+      handleRed(ws, msg);
       break;
     case "green":
-      handleGreen(msg);
+      handleGreen(ws, msg);
       break;
     case "blue":
-      handleBlue(msg);
+      handleBlue(ws, msg);
       break;
     case "darkAll":
-      handleDarkAll(msg);
+      handleDarkAll(ws, msg);
+      break;
+    default:
+      console.error(`[Error]: Command not found ${msg.topic}`);
       break;
   }
-  console.error(`[Error]: Command not found ${msg.command}`);
 }

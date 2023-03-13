@@ -1,22 +1,30 @@
-export interface FromRPiBoardInfo {
+import { PinMap } from "./schema/PinMapTable";
+import { OF, LED } from "./schema/global";
+
+interface FromRPiBase {
   from: "RPi";
-  command: "boardInfo";
-  status: number;
+  topic: string;
+  statusCode: number;
+}
+
+export interface FromRPiBoardInfo extends FromRPiBase {
+  from: "RPi";
+  topic: "boardInfo";
   payload: {
-    macaddr: string;
+    MAC: string;
   };
 }
 
-export interface FromRPiResponse {
+export interface FromRPiCommandResponse extends FromRPiBase {
   from: "RPi";
-  command: ToRPi["payload"];
-  status: number;
+  topic: "command";
   payload: {
+    command: string;
     message: string;
   };
 }
 
-export type FromRPi = FromRPiBoardInfo | FromRPiResponse;
+export type FromRPi = FromRPiBoardInfo | FromRPiCommandResponse;
 
 // interface PinMap {}
 
@@ -24,64 +32,64 @@ export type FromRPi = FromRPiBoardInfo | FromRPiResponse;
 
 // interface LED {}
 
-// playerctl play [start(mili sec)] [end(mili sec)] -d [delay(sec)]
-interface ToRPiPlay {
-  action: "command";
-  payload: ["playerctl", "play", number, number, "-d", number];
+interface ToRPiBase {
+  from: "server";
+  topic: string;
+  statusCode: number;
 }
 
-interface ToRPiPause {
-  action: "command";
+// playerctl play [start(mili-sec)] -d [delay(mili-sec)]
+export interface ToRPiPlay extends ToRPiBase {
+  topic: "command";
+  payload: ["playerctl", "play", number, "-d", number];
+}
+
+export interface ToRPiPause extends ToRPiBase {
+  topic: "command";
   payload: ["playerctl", "pause"];
 }
 
-interface ToRPiStop {
-  action: "command";
+export interface ToRPiStop extends ToRPiBase {
+  topic: "command";
   payload: ["playerctl", "stop"];
 }
 
-interface ToRPiQuit {
-  action: "command";
-  payload: ["playerctl", "quit"];
-}
-
-interface ToRPiReboot {
-  action: "command";
-  payload: ["playerctl", "restart"];
-}
-
-interface ToRPiList {
-  action: "command";
+export interface ToRPiList extends ToRPiBase {
+  topic: "command";
   payload: ["list"];
+}
+
+export interface ToRPiLoad extends ToRPiBase {
+  topic: "command";
+  payload: ["load"];
 }
 
 // TODO: define type for color with re
 type Color = string;
 
-// ledtest --hex color(hex without)
-interface ToRpiLEDTest {
-  action: "command";
+// ledtest --hex color(hex without #)
+export interface ToRPiLEDTest extends ToRPiBase {
+  topic: "command";
   payload: ["ledtest", "--hex", Color];
 }
 
-// oftest --hex color(hex without)
-interface ToRpiOFTest {
-  action: "command";
+// oftest --hex color(hex without #)
+export interface ToRPiOFTest extends ToRPiBase {
+  topic: "command";
   payload: ["oftest", "--hex", Color];
 }
 
-// interface ToRPiUpload {
-//   action: "upload";
-//   payload: [PinMap, OF, LED];
-// }
+export interface ToRPiUpload extends ToRPiBase {
+  topic: "upload";
+  payload: [PinMap, OF, LED];
+}
 
 export type ToRPi =
   | ToRPiPlay
   | ToRPiPause
   | ToRPiStop
-  | ToRPiQuit
-  | ToRPiReboot
   | ToRPiList
-  | ToRpiLEDTest
-  | ToRpiOFTest;
-// | ToRPiUpload;
+  | ToRPiLoad
+  | ToRPiLEDTest
+  | ToRPiOFTest
+  | ToRPiUpload;
