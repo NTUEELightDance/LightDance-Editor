@@ -1,5 +1,6 @@
 import WebSocket, { WebSocketServer } from "ws";
-import { hadndleOnRPiMessage, hadndleOnControlPanelMessage } from "./websocket";
+
+import { hadndleOnRPiMessage, hadndleOnControlPanelMessage } from "@/websocket";
 import { Message } from "./types/global";
 
 const webSocketConfig = {

@@ -1,5 +1,7 @@
 import { WebSocket } from "ws";
 
+import { FromControlPanel } from "@/types/controlPanelMessage";
+
 import {
   handleBoardInfo,
   handlePlay,
@@ -13,8 +15,6 @@ import {
   handleLoad,
   handleUpload,
 } from "./handler";
-
-import { FromControlPanel } from "../../types/controlPanelMessage";
 
 export async function hadndleOnControlPanelMessage(
   ws: WebSocket,

@@ -2,7 +2,7 @@ import {
   MACAddress,
   DancerDataSchema,
   DancerData,
-} from "../types/schema/DancerData";
+} from "@/types/schema/DancerData";
 
 const dancerTable: DancerData = {
   "00:00:00:00:00:00": {

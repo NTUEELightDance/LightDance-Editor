@@ -1,6 +1,6 @@
-import { instance } from "./axios";
+import { OF, LED, OFSchema, LEDSchema } from "@/types/schema/global";
 
-import { OF, LED, OFSchema, LEDSchema } from "../types/schema/global";
+import { instance } from "./axios";
 
 export async function getDancerLEDDataAPI(dancer: string) {
   const { data }: { data: LED } = await instance.get("/getDancerLEDData", {

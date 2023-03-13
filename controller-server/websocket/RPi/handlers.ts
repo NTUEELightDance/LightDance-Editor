@@ -5,18 +5,19 @@ import {
   FromRPiCommandResponse,
   ToRPi,
   ToRPiUpload,
-} from "../../types/RPiMessage";
-import { ToControlPanelCommandResponse } from "../../types/controlPanelMessage";
-import { MACAddressSchema } from "../..//types/schema/DancerData";
+} from "@/types/RPiMessage";
+import { ToControlPanelCommandResponse } from "@/types/controlPanelMessage";
+import { MACAddressSchema } from "@/types/schema/DancerData";
 
-import dancerTable, { dancerToMac } from "../../configs/dancerTable";
-import pinMapTable from "../../configs/pinMapTable";
+import dancerTable, { dancerToMac } from "@/configs/dancerTable";
+import pinMapTable from "@/configs/pinMapTable";
+
+import { getDancerLEDDataAPI, getDancerFiberDataAPI } from "@/api";
 
 import {
   sendToControlPanel,
   sendBoardInfoToControlPanel,
 } from "../controlPanel/handler";
-import { getDancerLEDDataAPI, getDancerFiberDataAPI } from "../../api";
 
 export const RPiWSs: Record<string, WebSocket> = {};
 

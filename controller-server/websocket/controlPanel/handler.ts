@@ -14,7 +14,7 @@ import {
   FromControlPanelUpload,
   ToControlPanel,
   ToControlPanelBoardInfo,
-} from "../../types/controlPanelMessage";
+} from "@/types/controlPanelMessage";
 
 import {
   ToRPiPlay,
@@ -23,11 +23,11 @@ import {
   ToRPiLoad,
   ToRPiLEDTest,
   ToRPiOFTest,
-} from "../../types/RPiMessage";
+} from "@/types/RPiMessage";
+
+import dancerTable, { dancerToMac } from "@/configs/dancerTable";
 
 import { sendToRPi, sendBoardInfoToRPi } from "../RPi/handlers";
-
-import dancerTable, { dancerToMac } from "../../configs/dancerTable";
 
 export const controlPanelWSs: Record<string, WebSocket> = {};
 

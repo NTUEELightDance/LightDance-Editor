@@ -1,4 +1,4 @@
-import { PinMapTable, PinMapTableSchema } from "../types/schema/PinMapTable";
+import { PinMapTable, PinMapTableSchema } from "@/types/schema/PinMapTable";
 
 const pinMapTable: PinMapTable = {
   "6_stantheman": {
