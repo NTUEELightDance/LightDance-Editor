@@ -51,7 +51,7 @@ export default function PartList({
                     <ListItem sx={{ pl: 4 }}>
                       <ListItemText
                         primary={
-                          <Typography sx={{ fontSize: "20px", color: "white" }}>
+                          <Typography sx={{ color: "white" }}>
                             {effectName}
                           </Typography>
                         }
