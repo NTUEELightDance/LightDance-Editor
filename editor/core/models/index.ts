@@ -395,6 +395,7 @@ export interface State {
   selected: Selected; // array of selected dancer's name
   selectedLEDs: number[]; // array of selected LED bulb's index
 
+  currentLEDEffectReferenceDancer: DancerName | null; // the dancer whose LED part is being edited
   currentLEDPartName: LEDPartName | null; // the LED part whose effect is being edited
   currentLEDEffectName: LEDEffectName | null; // the LED effect name being edited
   currentLEDEffectStart: number; // the start time on the timeline where currentLEDEffect is displayed during editing

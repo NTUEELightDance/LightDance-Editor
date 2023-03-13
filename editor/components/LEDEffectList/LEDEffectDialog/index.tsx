@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import _ from "lodash";
 import { notification } from "core/utils";
 
 // components
-import ModelButton from "./ModelButton";
+import SingleSelectButtonArray from "./SingleSelectButtonArray";
 import LEDPartButton from "./LEDPartButton";
 import EffectNameTextField from "./EffectNameTextField";
 
@@ -52,6 +52,7 @@ export default function LEDEffectDialog({
   const [newEffect, setNewEffect] = useState<LedEffectOptionType | null>(null);
   const [chosenLEDPart, setChosenLEDPart] = useState<LEDPartName | null>(null);
   const [chosenModel, setChosenModel] = useState<string | null>(null);
+  const [chosenDancer, setChosenDancer] = useState<string | null>(null);
 
   // Dancers and Parts
   const dancers = useReactiveVar(reactiveState.dancers);
@@ -62,6 +63,33 @@ export default function LEDEffectDialog({
 
   // Update selected models and LED parts
   const { dancerMap } = store.getState().load;
+
+  const displayDancers = useMemo(() => {
+    if (chosenModel === null) {
+      return Object.keys(dancers);
+    }
+
+    const newDisplayDancers = Object.entries(dancerMap)
+      .filter(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, { modelName }]) => modelName === chosenModel
+      )
+      .map(([dancerName]) => dancerName);
+
+    if (newDisplayDancers.length === 1) {
+      setChosenDancer(newDisplayDancers[0]);
+    }
+
+    return newDisplayDancers;
+  }, [chosenModel, dancerMap, dancers]);
+
+  const handleUpdateChosenDancer = (newDancer: string) => {
+    if (chosenModel === null) {
+      setChosenModel(dancerMap[newDancer]["modelName"]);
+    }
+
+    setChosenDancer(newDancer);
+  };
 
   const updateDisplayModel = useCallback(
     (
@@ -143,6 +171,10 @@ export default function LEDEffectDialog({
       }
     );
 
+    if (selectedDancers.length === 1) {
+      setChosenDancer(selectedDancers[0]);
+    }
+
     updateDisplayModel(selectedDancers, setChosenModel);
   }, [dancers, selected, updateDisplayModel, updateDisplayPart]);
 
@@ -155,22 +187,16 @@ export default function LEDEffectDialog({
   // Reset and Close
   function reset() {
     setChosenModel(null);
+    setChosenDancer(null);
     setChosenLEDPart(null);
     setActionMode("IDLE");
     setNewEffect(null);
   }
+
   function closeAndReset() {
     handleClose();
     reset();
   }
-
-  // Handle function
-  const handleChangeChosenModel = (newChosenModel: string) => {
-    if (newChosenModel !== null) {
-      setChosenModel(newChosenModel);
-    }
-    return;
-  };
 
   const handleChangeChosenLEDPart = async (newChosenPart: string) => {
     if (!isLEDPartName(newChosenPart)) return;
@@ -225,7 +251,7 @@ export default function LEDEffectDialog({
             <Grid sx={{ mb: 2, mt: 2 }}>
               <EffectNameTextField
                 chosenLEDPart={chosenLEDPart}
-                handleChangeChosenModel={handleChangeChosenModel}
+                handleChangeChosenModel={setChosenModel}
                 handleChangeChosenLEDPart={handleChangeChosenLEDPart}
                 setActionMode={setActionMode}
                 newEffect={newEffect}
@@ -233,10 +259,19 @@ export default function LEDEffectDialog({
               />
             </Grid>
             <Grid>
-              <ModelButton
-                chosenModel={chosenModel}
-                handleChangeChosenModel={handleChangeChosenModel}
+              <SingleSelectButtonArray
+                label="Model"
+                selectedOption={chosenModel}
+                handleChangeSelectedOption={setChosenModel}
                 displayModels={displayModels}
+              />
+            </Grid>
+            <Grid>
+              <SingleSelectButtonArray
+                label="Dancer"
+                selectedOption={chosenDancer}
+                handleChangeSelectedOption={handleUpdateChosenDancer}
+                displayModels={displayDancers}
               />
             </Grid>
             <Grid>

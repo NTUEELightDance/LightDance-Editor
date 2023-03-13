@@ -1,27 +1,29 @@
 import { Typography, Button } from "@mui/material";
 import Grid from "@mui/system/Unstable_Grid/Grid";
 
-interface ModelButtonProps {
-  chosenModel: string | null;
-  handleChangeChosenModel: (newChosenModel: string) => void;
+interface SingleSelectButtonArrayProps {
+  label: string;
+  selectedOption: string | null;
+  handleChangeSelectedOption: (option: string) => void;
   displayModels: string[];
 }
 
-export default function ModelButton({
-  chosenModel,
-  handleChangeChosenModel,
+export default function SingleSelectButtonArray({
+  label,
+  selectedOption,
+  handleChangeSelectedOption,
   displayModels,
-}: ModelButtonProps) {
+}: SingleSelectButtonArrayProps) {
   return (
     <>
-      <Typography sx={{ mb: 1 }}>Models</Typography>
+      <Typography sx={{ mb: 1 }}>{label}</Typography>
       <Grid container spacing={2} justifyContent="flex-start" sx={{ mb: 2 }}>
         {displayModels.map((modelName) => (
           <Grid key={modelName}>
             <Button
-              variant={chosenModel === modelName ? "contained" : "outlined"}
+              variant={selectedOption === modelName ? "contained" : "outlined"}
               color="primary"
-              onClick={() => handleChangeChosenModel(modelName)}
+              onClick={() => handleChangeSelectedOption(modelName)}
             >
               {modelName}
             </Button>

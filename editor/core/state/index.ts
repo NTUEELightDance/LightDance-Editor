@@ -52,6 +52,7 @@ export const _state: State = {
   selectedLEDs: [],
 
   currentLEDPartName: null,
+  currentLEDEffectReferenceDancer: null,
   currentLEDEffectName: null,
   currentLEDEffect: null,
   currentLEDEffectStart: 0,

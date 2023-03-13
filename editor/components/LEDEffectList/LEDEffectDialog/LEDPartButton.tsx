@@ -20,28 +20,19 @@ export default function LEDPartButton({
           Please Select a Model First
         </Typography>
       ) : (
-        <>
-          <Grid
-            container
-            spacing={2}
-            justifyContent="flex-start"
-            sx={{ mb: 2 }}
-          >
-            {displayLEDParts.map((partName) => (
-              <Grid item key={partName}>
-                <Button
-                  variant={
-                    chosenLEDPart === partName ? "contained" : "outlined"
-                  }
-                  color="primary"
-                  onClick={() => handleChangeChosenLEDPart(partName)}
-                >
-                  {partName}
-                </Button>
-              </Grid>
-            ))}
-          </Grid>
-        </>
+        <Grid container spacing={2} justifyContent="flex-start" sx={{ mb: 2 }}>
+          {displayLEDParts.map((partName) => (
+            <Grid item key={partName}>
+              <Button
+                variant={chosenLEDPart === partName ? "contained" : "outlined"}
+                color="primary"
+                onClick={() => handleChangeChosenLEDPart(partName)}
+              >
+                {partName}
+              </Button>
+            </Grid>
+          ))}
+        </Grid>
       )}
     </>
   );
