@@ -43,7 +43,7 @@ interface ToRPiBase {
 // playerctl play [start(mili-sec)] -d [delay(mili-sec)]
 export interface ToRPiPlay extends ToRPiBase {
   topic: "command";
-  payload: ["playerctl", "play", number, "-d", number];
+  payload: ["playerctl", "play", string, "-d", string];
 }
 
 export interface ToRPiPause extends ToRPiBase {
@@ -69,16 +69,9 @@ export interface ToRPiLoad extends ToRPiBase {
 // TODO: define type for color with re
 type Color = string;
 
-// ledtest --hex color(hex without #)
-export interface ToRPiLEDTest extends ToRPiBase {
+export interface ToRPiPartTest extends ToRPiBase {
   topic: "command";
-  payload: ["ledtest", "--hex", Color];
-}
-
-// oftest --hex color(hex without #)
-export interface ToRPiOFTest extends ToRPiBase {
-  topic: "command";
-  payload: ["oftest", "--hex", Color];
+  payload: ["parttest", "--hex", Color];
 }
 
 export interface ToRPiUpload extends ToRPiBase {
@@ -92,6 +85,5 @@ export type ToRPi =
   | ToRPiStop
   | ToRPiList
   | ToRPiLoad
-  | ToRPiLEDTest
-  | ToRPiOFTest
+  | ToRPiPartTest
   | ToRPiUpload;

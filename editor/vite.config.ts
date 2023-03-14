@@ -25,6 +25,7 @@ const defineConfig: UserConfigFn = () => {
         },
         "/controller-server-websocket": {
           target: "ws://localhost:8082",
+          ws: true,
           rewrite: (path) => path.replace(/^\/controller-server-websocket/, ""),
         },
         "/api/editor-server": {

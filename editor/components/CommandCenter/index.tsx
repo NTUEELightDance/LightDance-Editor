@@ -1,62 +1,46 @@
-// mui
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
 import { useImmer } from "use-immer";
 
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+
+import useWebsocket from "@/hooks/useCommandCenter";
 import CommandCenterTable from "./CommandCenterTable";
 import CommandControls from "./CommandControls";
 
-// hooks
-import useWebsocket from "hooks/useWebsocket";
-
-/**
- * CommandCenter
- */
 export default function CommandCenter() {
-  // hook
-  const { dancerStatus, delay, sendCommand, setDelay } = useWebsocket();
+  const { send, connected, RPiStatus, reconnect } = useWebsocket();
   const [selectedDancers, setSelectedDancers] = useImmer<string[]>([]); // array of dancerName that is selected
 
-  const handleToggleDancer = (dancerName: string) => {
-    setSelectedDancers((draft) => {
-      const index = draft.indexOf(dancerName);
-      if (index !== -1) draft.splice(index, 1);
-      // index == -1 -> not in the array
-      else draft.push(dancerName);
-    });
-  };
-  const allChecked = () =>
-    selectedDancers.length === Object.keys(dancerStatus).length;
-  const handleAllDancer = () => {
-    if (allChecked()) {
-      // clear all
-      setSelectedDancers([]);
-    } else {
-      // select all
-      setSelectedDancers(Object.keys(dancerStatus));
-    }
-  };
-
   return (
-    <Paper sx={{ p: "2em", minHeight: "100%" }}>
-      <Stack gap="2em">
-        <CommandControls
-          selectedDancers={selectedDancers}
-          delay={delay}
-          sendCommand={sendCommand}
-          setDelay={setDelay}
-        />
-
-        <CommandCenterTable
-          {...{
-            handleAllDancer,
-            allChecked,
-            dancerStatus,
-            selectedDancers,
-            handleToggleDancer,
-          }}
-        />
-      </Stack>
-    </Paper>
+    <>
+      <Paper
+        sx={{
+          width: "100%",
+          bgcolor: "green",
+          fontSize: "0.6rem",
+          textAlign: "center",
+          p: 0,
+        }}
+        square
+      >
+        {connected ? "online" : "offline"}
+      </Paper>
+      <Paper sx={{ p: "1rem", minHeight: "100%" }}>
+        <Stack gap="2em">
+          <CommandControls
+            selectedRPis={selectedDancers}
+            send={send}
+            websocketConnected={connected}
+            reconnect={reconnect}
+          />
+          <CommandCenterTable
+            websocketConnected={connected}
+            RPiStatus={RPiStatus}
+            selectedDancers={selectedDancers}
+            setSelectedDancers={setSelectedDancers}
+          />
+        </Stack>
+      </Paper>
+    </>
   );
 }

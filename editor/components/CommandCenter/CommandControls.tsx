@@ -1,256 +1,257 @@
-import React, { useContext, useState } from "react";
-// mui
-import {
-  Button,
-  ButtonGroup,
-  Box,
-  TextField,
-  Stack,
-  Collapse,
-  IconButton,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import React, { useState } from "react";
+import { PartialControlPanelMessage } from "@/hooks/useCommandCenter";
+import { reactiveState } from "@/core/state";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import TextField from "@mui/material/TextField";
 
-// constants
-import { COMMANDS } from "@/constants";
-// contexts
-import {
-  WaveSurferAppContext,
-  WavesurferContextType,
-} from "contexts/WavesurferContext";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
+import StopRoundedIcon from "@mui/icons-material/StopRounded";
+import LoadIcon from "@mui/icons-material/Input";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import DarkAllIcon from "@mui/icons-material/FlashOff";
+import RebootIcon from "@mui/icons-material/PowerSettingsNew";
+import { Tooltip } from "@mui/material";
 
-import { notification } from "core/utils";
+import { waveSurferAppInstance } from "../Wavesurfer/WaveSurferApp";
+interface CommandControlsProps {
+  selectedRPis: string[];
+  send: (message: PartialControlPanelMessage) => void;
+  websocketConnected: boolean;
+  reconnect: () => void;
+}
 
-import { panelPayloadType } from "types/hooks/webSocket";
-
-export default function CommandControls({
-  selectedDancers,
-  delay,
-  sendCommand,
-  setDelay,
-}: {
-  selectedDancers: string[];
-  delay: number;
-  sendCommand: (panelPayload: panelPayloadType) => Promise<void>;
-  setDelay: any;
-}) {
-  // hook
-
-  const [showDropDown, setShowDropDown] = useState(false);
-
-  const [delayPlayTimeout, setDelayPlayTimeout] =
-    useState<NodeJS.Timeout | null>(null);
-
-  // wavesurfer for play pause
-  const { waveSurferApp } = useContext(
-    WaveSurferAppContext
-  ) as WavesurferContextType;
-  const handlePlay = () => waveSurferApp.play();
-  const handlePause = () => waveSurferApp.pause();
-  const handleStop = () => waveSurferApp.stop();
-
-  // click btn, will call api to server
-  const handleClickBtn = (command: string) => {
-    const payload = {
-      command,
-      selectedDancers,
-      delay,
-    };
-    try {
-      sendCommand(payload);
-      let notificationContent = `command successfully sent: ${command}`;
-
-      // play or pause or stop
-      if (command === COMMANDS.PLAY) {
-        const timeout = setTimeout(() => handlePlay(), delay);
-        setDelayPlayTimeout(timeout);
-        notificationContent += `.\nLight dance will play after ${(
-          delay / 1000
-        ).toFixed(1)} seconds`;
-      } else if (command === COMMANDS.PAUSE) {
-        handlePause();
-      } else if (command === COMMANDS.STOP) {
-        delayPlayTimeout && clearTimeout(delayPlayTimeout);
-        handleStop();
-      } else if (command === COMMANDS.NTHU_PLAY) {
-        const timeout = setTimeout(() => handlePlay(), delay);
-        setDelayPlayTimeout(timeout);
-        notificationContent += `.\nLight dance will play after ${(
-          delay / 1000
-        ).toFixed(1)} seconds`;
-      } else if (command === COMMANDS.NTHU_STOP) {
-        delayPlayTimeout && clearTimeout(delayPlayTimeout);
-        handleStop();
-      }
-      notification.success(notificationContent);
-    } catch (error) {
-      notification.error((error as Error).message);
-    }
-  };
-
-  const ButtonGroup1 = [
-    { command: COMMANDS.UPLOAD_LED, label: "upload LED" },
-    { command: COMMANDS.UPLOAD_OF, label: "upload OF" },
-    { command: COMMANDS.LOAD },
-  ];
-
-  const ButtonGroup2 = [
-    { command: COMMANDS.NTHU_PLAY },
-    { command: COMMANDS.NTHU_STOP },
-    { command: COMMANDS.PLAY },
-    { command: COMMANDS.PAUSE },
-    { command: COMMANDS.STOP },
-    { command: COMMANDS.TEST },
-  ];
-  const ButtonGroup3 = [
-    { command: COMMANDS.RESTARTCONTROLLER },
-    { command: COMMANDS.STMINIT },
-  ];
-
-  const ButtonGroup4 = [
-    { command: COMMANDS.KICK },
-    { command: COMMANDS.SHUTDOWN },
-    { command: COMMANDS.REBOOT },
-  ];
-
-  const ButtonGroup5 = [
-    { command: COMMANDS.RED },
-    { command: COMMANDS.BLUE },
-    { command: COMMANDS.GREEN },
-    { command: COMMANDS.DARKALL },
-  ];
-
-  // const ButtonGroup6 = [
-  //   { command: COMMANDS.LIGTHCURRENTSTATUS, label: "show current frame" },
-  //   { command: COMMANDS.TEST },
-  // ];
-
+function CommandControls({
+  selectedRPis,
+  send,
+  reconnect,
+}: CommandControlsProps) {
+  const [delay, setDelay] = useState(0);
   return (
-    <Box>
-      <Stack direction="column" gap="1em">
-        <Stack direction="row" gap="1em" justifyContent="space-between">
-          <Stack direction="row" gap="1em">
-            <Button
-              size="small"
-              variant="contained"
-              onClick={() => {
-                handleClickBtn(COMMANDS.SYNC);
-              }}
-            >
-              sync
-            </Button>
-
-            <TextField
-              size="small"
-              type="number"
-              label="delay(ms)"
-              onChange={(e) => {
-                setDelay(parseInt(e.target.value));
-              }}
-              sx={{ width: "10em" }}
-            />
-            <ButtonGroup variant="outlined">
-              {ButtonGroup2.map(({ command }) => (
-                <DefaultCommandButton
-                  command={command}
-                  key={command}
-                  handleClick={() => {
-                    handleClickBtn(command);
-                  }}
-                />
-              ))}
-            </ButtonGroup>
-          </Stack>
-
-          <IconButton
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: "3rem",
+      }}
+    >
+      <Button onClick={reconnect} size="small" variant="contained">
+        refresh
+      </Button>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+        }}
+      >
+        <TextField
+          sx={{ width: "5rem" }}
+          label="delay"
+          type="number"
+          variant="outlined"
+          value={0}
+          size="small"
+          onChange={(e) => {
+            const delay = Number(e.target.value);
+            if (delay < 0) {
+              e.target.value = "0";
+            }
+            setDelay(delay);
+          }}
+        />
+        <ButtonGroup>
+          <CommandButton
+            variant="normal"
             onClick={() => {
-              setShowDropDown((showDropDown) => !showDropDown);
+              send({
+                topic: "play",
+                payload: {
+                  dancers: selectedRPis,
+                  start: reactiveState.currentTime(),
+                  delay,
+                },
+              });
+              waveSurferAppInstance.play();
             }}
+            label="play"
+            icon={<PlayArrowRoundedIcon fontSize="small" />}
+          />
+          <CommandButton
+            variant="normal"
+            onClick={() => {
+              send({
+                topic: "pause",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              });
+              waveSurferAppInstance.pause();
+            }}
+            label="pause"
+            icon={<PauseRoundedIcon fontSize="small" />}
+          />
+          <CommandButton
+            variant="normal"
+            onClick={() => {
+              send({
+                topic: "stop",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              });
+              waveSurferAppInstance.stop();
+            }}
+            label="stop"
+            icon={<StopRoundedIcon fontSize="small" />}
+          />
+        </ButtonGroup>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+          }}
+        >
+          <Button
+            onClick={() =>
+              send({
+                topic: "red",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              })
+            }
+            variant="outlined"
+            size="small"
+            color="error"
           >
-            <ExpandMoreIcon
-              sx={{
-                animation: `${showDropDown ? "spinDown" : "spinUp"} 0.5s ease`,
-                animationFillMode: "forwards",
-                "@keyframes spinDown": {
-                  "0%": { transform: "rotate(0deg)" },
-                  "100%": { transform: "rotate(180deg)" },
+            red
+          </Button>
+          <Button
+            onClick={() =>
+              send({
+                topic: "green",
+                payload: {
+                  dancers: selectedRPis,
                 },
-                "@keyframes spinUp": {
-                  "0%": { transform: "rotate(180deg)" },
-                  "100%": { transform: "rotate(0deg)" },
+              })
+            }
+            variant="outlined"
+            size="small"
+            color="success"
+          >
+            green
+          </Button>
+          <Button
+            onClick={() =>
+              send({
+                topic: "blue",
+                payload: {
+                  dancers: selectedRPis,
                 },
-              }}
-            />
-          </IconButton>
-        </Stack>
-        <Collapse in={showDropDown}>
-          <Stack direction="row" gap="1em">
-            <ButtonGroup variant="outlined">
-              {ButtonGroup1.map(({ command, label }) => (
-                <DefaultCommandButton
-                  key={command}
-                  command={command}
-                  label={label}
-                  handleClick={() => {
-                    handleClickBtn(command);
-                  }}
-                />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup variant="outlined">
-              {ButtonGroup3.map(({ command }) => (
-                <DefaultCommandButton
-                  key={command}
-                  command={command}
-                  handleClick={() => {
-                    handleClickBtn(command);
-                  }}
-                />
-              ))}
-            </ButtonGroup>
-          </Stack>
-          <Stack direction="row" gap="1em" mt={2}>
-            <ButtonGroup variant="outlined">
-              {ButtonGroup4.map(({ command }) => (
-                <DefaultCommandButton
-                  key={command}
-                  command={command}
-                  handleClick={() => {
-                    handleClickBtn(command);
-                  }}
-                />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup variant="outlined">
-              {ButtonGroup5.map(({ command }) => (
-                <DefaultCommandButton
-                  key={command}
-                  command={command}
-                  handleClick={() => {
-                    handleClickBtn(command);
-                  }}
-                />
-              ))}
-            </ButtonGroup>
-          </Stack>
-        </Collapse>
-      </Stack>
+              })
+            }
+            variant="outlined"
+            size="small"
+            color="primary"
+          >
+            blue
+          </Button>
+        </Box>
+        <ButtonGroup>
+          <CommandButton
+            variant="normal"
+            onClick={() =>
+              send({
+                topic: "load",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              })
+            }
+            label="load"
+            icon={<LoadIcon fontSize="small" />}
+          />
+          <CommandButton
+            variant="normal"
+            onClick={() =>
+              send({
+                topic: "upload",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              })
+            }
+            label="upload"
+            icon={<UploadFileIcon fontSize="small" />}
+          />
+        </ButtonGroup>
+
+        <ButtonGroup>
+          <CommandButton
+            variant="normal"
+            onClick={() =>
+              send({
+                topic: "darkAll",
+              })
+            }
+            label="dark all"
+            icon={<DarkAllIcon fontSize="small" />}
+          />
+          <CommandButton
+            variant="normal"
+            onClick={() =>
+              send({
+                topic: "reboot",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              })
+            }
+            label="reboot"
+            icon={<RebootIcon fontSize="small" />}
+          />
+        </ButtonGroup>
+      </Box>
     </Box>
   );
 }
 
-function DefaultCommandButton({
-  command,
-  handleClick,
-  label,
-}: {
-  command: string;
-  handleClick: () => void;
+interface NormalCommandButtonProps {
+  variant: "normal";
+  onClick: () => void;
   label?: string;
-}) {
+  icon?: React.ReactNode;
+}
+
+interface IconCommandButtonProps {
+  variant: "icon";
+  onClick: () => void;
+  label?: string;
+  icon: React.ReactNode;
+}
+
+type CommandButtonProps = NormalCommandButtonProps | IconCommandButtonProps;
+
+function CommandButton({ variant, label, onClick, icon }: CommandButtonProps) {
+  if (variant === "icon") {
+    return (
+      <IconButton size="small" onClick={onClick}>
+        {icon}
+      </IconButton>
+    );
+  }
   return (
-    <Button size="small" onClick={handleClick} key={command}>
-      {label || command}
-    </Button>
+    <Tooltip title={label}>
+      <Button size="small" onClick={onClick}>
+        {icon}
+      </Button>
+    </Tooltip>
   );
 }
+
+export default CommandControls;

@@ -5,7 +5,9 @@
 The configuation for pinMapTable and dancerTable is in `configs/`.
 
 ## Message Format
+
 * Example Message from RPi
+
 ```json
 {
     "from": "RPi",
@@ -18,6 +20,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * Example Message from Control Panel
+
 ```json
 {
     "from": "controlPanel",
@@ -32,6 +35,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * Example Message from Server
+
 ```json
 {
     "from": "server",
@@ -46,9 +50,11 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 ## RPi
+
 ### From
 
 * boardInfo
+
 ```json
 {
     "from": "RPi",
@@ -61,6 +67,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * command Response
+
 ```json
 {
     "from": "RPi",
@@ -74,9 +81,10 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 }
 ```
 
-
 ## To
+
 * upload
+
 ```json
 {
     "from": "server",
@@ -87,6 +95,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * play
+
 ```json
 {
     "from": "server",
@@ -97,6 +106,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * pause
+
 ```json
 {
     "from": "server",
@@ -107,6 +117,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * stop
+
 ```json
 {
     "from": "server",
@@ -117,6 +128,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * list
+
 ```json
 {
     "from": "server",
@@ -127,6 +139,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * load
+
 ```json
 {
     "from": "server",
@@ -137,6 +150,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * LED test
+
 ```json
 {
     "from": "server",
@@ -147,6 +161,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * Fiber test
+
 ```json
 {
     "from": "server",
@@ -157,9 +172,11 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 ## Control Panel
+
 ### From
 
 * boardInfo
+
 ```json
 {
     "from": "controlPanel",
@@ -169,6 +186,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * play
+
 ```json
 {
     "from": "controlPanel",
@@ -181,7 +199,9 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
     }
 }
 ```
+
 * pause
+
 ```json
 {
     "from": "controlPanel",
@@ -194,6 +214,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * stop
+
 ```json
 {
     "from": "controlPanel",
@@ -206,6 +227,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * upload
+
 ```json
 {
     "from": "controlPanel",
@@ -218,6 +240,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * load
+
 ```json
 {
     "from": "controlPanel",
@@ -230,6 +253,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * test
+
 ```json
 {
     "from": "controlPanel",
@@ -243,6 +267,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * red
+
 ```json
 {
     "from": "controlPanel",
@@ -255,6 +280,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * green
+
 ```json
 {
     "from": "controlPanel",
@@ -267,6 +293,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * blue
+
 ```json
 {
     "from": "controlPanel",
@@ -279,6 +306,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ```
 
 * darkall
+
 ```json
 {
     "from": "controlPanel",
@@ -290,6 +318,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 ### To
 
 * command
+
 ```json
 {
     "from": "server",
@@ -302,4 +331,3 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
     }
 }
 ```
-

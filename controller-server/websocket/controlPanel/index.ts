@@ -25,34 +25,34 @@ export async function handleOnControlPanelMessage(
       handleBoardInfo(ws);
       break;
     case "play":
-      handlePlay(ws, msg);
+      handlePlay(msg);
       break;
     case "pause":
-      handlePause(ws, msg);
+      handlePause(msg);
       break;
     case "stop":
-      handleStop(ws, msg);
+      handleStop(msg);
       break;
     case "test":
-      handleTest(ws, msg);
+      handleTest(msg);
       break;
     case "upload":
-      await handleUpload(ws, msg);
+      await handleUpload(msg);
       break;
     case "load":
-      handleLoad(ws, msg);
+      handleLoad(msg);
       break;
     case "red":
-      handleRed(ws, msg);
+      handleRed(msg);
       break;
     case "green":
-      handleGreen(ws, msg);
+      handleGreen(msg);
       break;
     case "blue":
-      handleBlue(ws, msg);
+      handleBlue(msg);
       break;
     case "darkAll":
-      handleDarkAll(ws, msg);
+      handleDarkAll();
       break;
     default:
       console.error(`[Error]: Command not found ${msg.topic}`);

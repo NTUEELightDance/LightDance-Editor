@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -6,71 +8,123 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
 
-import { DancerStatusType } from "types/hooks/webSocket";
+import type { RPiStatus } from "@/hooks/useCommandCenter";
+import type { Updater } from "use-immer";
 
 function CommandCenterTable({
-  handleAllDancer,
-  allChecked,
-  dancerStatus,
+  websocketConnected,
+  RPiStatus,
+  setSelectedDancers,
   selectedDancers,
-  handleToggleDancer,
 }: {
-  handleAllDancer: () => void;
-  allChecked: () => boolean;
-  dancerStatus: DancerStatusType;
+  websocketConnected: boolean;
+  RPiStatus: RPiStatus;
+  setSelectedDancers: Updater<string[]>;
   selectedDancers: string[];
-  handleToggleDancer: (dancerName: string) => void;
 }) {
+  const handleToggleDancer = (dancerName: string) => {
+    setSelectedDancers((draft) => {
+      const index = draft.indexOf(dancerName);
+      if (index !== -1) draft.splice(index, 1);
+      // index == -1 -> not in the array
+      else draft.push(dancerName);
+    });
+  };
+
+  const handleAllDancer = () => {
+    const allChecked = selectedDancers.length === Object.keys(RPiStatus).length;
+    if (allChecked) {
+      // clear all
+      setSelectedDancers([]);
+    } else {
+      // select all
+      setSelectedDancers(Object.keys(RPiStatus));
+    }
+  };
+
   return (
     <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
             <TableCell padding="checkbox">
-              <Checkbox onChange={handleAllDancer} checked={allChecked()} />
+              <Checkbox
+                onChange={handleAllDancer}
+                checked={
+                  selectedDancers.length === Object.keys(RPiStatus).length
+                }
+              />
             </TableCell>
-            <TableCell>DancerName</TableCell>
-            <TableCell>HostName</TableCell>
+            <TableCell>name</TableCell>
+            <TableCell>message</TableCell>
             <TableCell>IP</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Message</TableCell>
+            <TableCell>MAC</TableCell>
+            <TableCell>status</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {Object.entries(dancerStatus).map(
-            ([dancerName, { hostname, ip, Ok, msg, isConnected }]) => {
-              const isItemSelected = selectedDancers.includes(dancerName);
-              return (
-                <TableRow
-                  key={dancerName}
-                  hover
-                  onClick={() => {
-                    handleToggleDancer(dancerName);
-                  }}
-                  role="checkbox"
-                  selected={isItemSelected}
-                >
-                  <TableCell padding="checkbox">
-                    <Checkbox checked={isItemSelected} />
-                    {/* <Checkbox checked={isItemSelected} disable = !isConnected/> */}
-                  </TableCell>
-                  <TableCell>{dancerName}</TableCell>
-                  <TableCell>{hostname}</TableCell>
-                  <TableCell>{ip}</TableCell>
-                  <TableCell>
-                    {isConnected ? (
-                      <span style={{ color: "green" }}>Connected</span>
-                    ) : (
-                      <span style={{ color: "red" }}>Disconnected</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <p style={{ color: Ok ? "green" : "red" }}>{msg}</p>
-                  </TableCell>
-                </TableRow>
-              );
-            }
-          )}
+          {_.sortBy(Object.values(RPiStatus), ({ name }) =>
+            parseInt(name.split("_")[0])
+          ).map(({ name, message, IP, MAC, connected, statusCode }) => (
+            <TableRow key={name}>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  onChange={() => handleToggleDancer(name)}
+                  checked={selectedDancers.includes(name)}
+                />
+              </TableCell>
+              <TableCell
+                sx={{
+                  color:
+                    !websocketConnected || !connected
+                      ? "gray"
+                      : connected
+                      ? "green"
+                      : "inherit",
+                }}
+              >
+                {name}
+              </TableCell>
+              <TableCell
+                sx={{
+                  color:
+                    !websocketConnected || !connected
+                      ? "gray"
+                      : statusCode === 0
+                      ? "inherit"
+                      : "red",
+                }}
+              >
+                {message}
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: !websocketConnected || !connected ? "gray" : "inherit",
+                }}
+              >
+                {IP}
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: !websocketConnected || !connected ? "gray" : "inherit",
+                }}
+              >
+                {MAC}
+              </TableCell>
+              <TableCell
+                sx={{
+                  color:
+                    !websocketConnected || !connected
+                      ? "gray"
+                      : connected
+                      ? "green"
+                      : "inherit",
+                }}
+              >
+                {connected ? "connected" : "disconnected"}
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </TableContainer>

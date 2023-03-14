@@ -9,7 +9,6 @@ import {
   FromControlPanelRed,
   FromControlPanelGreen,
   FromControlPanelBlue,
-  FromControlPanelDarkAll,
   FromControlPanelLoad,
   FromControlPanelUpload,
   ToControlPanel,
@@ -21,8 +20,7 @@ import {
   ToRPiPause,
   ToRPiStop,
   ToRPiLoad,
-  ToRPiLEDTest,
-  ToRPiOFTest,
+  ToRPiPartTest,
 } from "@/types/RPiMessage";
 
 import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
@@ -65,20 +63,26 @@ export function handleBoardInfo(ws: WebSocket) {
   sendBoardInfoToControlPanel();
 }
 
-export function handlePlay(ws: WebSocket, msg: FromControlPanelPlay) {
+export function handlePlay(msg: FromControlPanelPlay) {
   const { dancers, start, delay } = msg.payload;
 
   const toRPiMsg: ToRPiPlay = {
     from: "server",
     topic: "command",
     statusCode: 0,
-    payload: ["playerctl", "play", start, "-d", delay],
+    payload: [
+      "playerctl",
+      "play",
+      Math.round(start).toString(),
+      "-d",
+      Math.round(delay).toString(),
+    ],
   };
 
   sendToRPi(dancers, toRPiMsg);
 }
 
-export function handlePause(ws: WebSocket, msg: FromControlPanelPause) {
+export function handlePause(msg: FromControlPanelPause) {
   const { dancers } = msg.payload;
 
   const toRPiMsg: ToRPiPause = {
@@ -91,7 +95,7 @@ export function handlePause(ws: WebSocket, msg: FromControlPanelPause) {
   sendToRPi(dancers, toRPiMsg);
 }
 
-export function handleStop(ws: WebSocket, msg: FromControlPanelStop) {
+export function handleStop(msg: FromControlPanelStop) {
   const { dancers } = msg.payload;
 
   const toRPiMsg: ToRPiStop = {
@@ -104,14 +108,14 @@ export function handleStop(ws: WebSocket, msg: FromControlPanelStop) {
   sendToRPi(dancers, toRPiMsg);
 }
 
-export async function handleUpload(ws: WebSocket, msg: FromControlPanelUpload) {
+export async function handleUpload(msg: FromControlPanelUpload) {
   const { dancers } = msg.payload;
   for (const dancer of dancers) {
     await sendBoardInfoToRPi(dancer);
   }
 }
 
-export function handleLoad(ws: WebSocket, msg: FromControlPanelLoad) {
+export function handleLoad(msg: FromControlPanelLoad) {
   const { dancers } = msg.payload;
   const toRPiMsg: ToRPiLoad = {
     from: "server",
@@ -124,48 +128,40 @@ export function handleLoad(ws: WebSocket, msg: FromControlPanelLoad) {
 }
 
 function sendColor(dancers: string[], colorCode: string) {
-  const toRPiMsgLED: ToRPiLEDTest = {
+  const toRPiMsgPartTest: ToRPiPartTest = {
     from: "server",
     topic: "command",
     statusCode: 0,
-    payload: ["ledtest", "--hex", colorCode.replace(/^#/, "")],
+    payload: ["parttest", "--hex", colorCode.replace(/^#/, "")],
   };
 
-  const toRPiMsgOF: ToRPiOFTest = {
-    from: "server",
-    topic: "command",
-    statusCode: 0,
-    payload: ["oftest", "--hex", colorCode.replace(/^#/, "")],
-  };
-
-  sendToRPi(dancers, toRPiMsgLED);
-  sendToRPi(dancers, toRPiMsgOF);
+  sendToRPi(dancers, toRPiMsgPartTest);
 }
 
-export function handleTest(ws: WebSocket, msg: FromControlPanelTest) {
+export function handleTest(msg: FromControlPanelTest) {
   const { dancers, colorCode } = msg.payload;
   sendColor(dancers, colorCode);
 }
 
-export function handleRed(ws: WebSocket, msg: FromControlPanelRed) {
+export function handleRed(msg: FromControlPanelRed) {
   const { dancers } = msg.payload;
   const colorCode = "ff0000";
   sendColor(dancers, colorCode);
 }
 
-export function handleGreen(ws: WebSocket, msg: FromControlPanelGreen) {
+export function handleGreen(msg: FromControlPanelGreen) {
   const { dancers } = msg.payload;
   const colorCode = "00ff00";
   sendColor(dancers, colorCode);
 }
 
-export function handleBlue(ws: WebSocket, msg: FromControlPanelBlue) {
+export function handleBlue(msg: FromControlPanelBlue) {
   const { dancers } = msg.payload;
   const colorCode = "0000ff";
   sendColor(dancers, colorCode);
 }
 
-export function handleDarkAll(ws: WebSocket, msg: FromControlPanelDarkAll) {
+export function handleDarkAll() {
   const colorCode = "000000";
   sendColor(Object.keys(dancerToMAC), colorCode);
 }

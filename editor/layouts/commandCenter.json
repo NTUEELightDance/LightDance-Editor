@@ -30,7 +30,7 @@
               {
                 "type": "tabset",
                 "selected": 0,
-                "weight": 40,
+                "weight": 45,
                 "enableMaximize": true,
                 "children": [
                   {
@@ -42,39 +42,45 @@
                 ]
               },
               {
-                "type": "tabset",
-                "selected": 0,
-                "weight": 60,
-                "enableMaximize": true,
+                "type": "row",
+                "weight": 55,
                 "children": [
                   {
-                    "type": "tab",
-                    "name": "Three Simulator",
-                    "component": "ThreeSimulator",
-                    "enableClose": false
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "row",
-            "weight": 25,
-            "children": [
-              {
-                "type": "tabset",
-                "selected": 0,
-                "enableMaximize": false,
-                "enableTabStrip": false,
-                "enableDrop": false,
-                "enableDrag": false,
-                "enableSplit": false,
-                "children": [
+                    "type": "tabset",
+                    "selected": 0,
+                    "weight": 75,
+                    "enableMaximize": true,
+                    "children": [
+                      {
+                        "type": "tab",
+                        "name": "Three Simulator",
+                        "component": "ThreeSimulator",
+                        "enableClose": false
+                      }
+                    ]
+                  },
                   {
-                    "type": "tab",
-                    "name": "Wavesurfer",
-                    "component": "Wavesurfer",
-                    "enableClose": false
+                    "type": "row",
+                    "weight": 20,
+                    "children": [
+                      {
+                        "type": "tabset",
+                        "selected": 0,
+                        "enableMaximize": false,
+                        "enableTabStrip": false,
+                        "enableDrop": false,
+                        "enableDrag": false,
+                        "enableSplit": false,
+                        "children": [
+                          {
+                            "type": "tab",
+                            "name": "Wavesurfer",
+                            "component": "Wavesurfer",
+                            "enableClose": false
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }
