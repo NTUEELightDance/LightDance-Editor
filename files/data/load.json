@@ -70,6 +70,26 @@
     "17_signboard": {
       "url": "/asset/models/signboard.draco.glb",
       "modelName": "signboard"
+    },
+    "18_umbrella_hank": {
+      "url": "/asset/models/umbrella.draco.glb",
+      "modelName": "umbrella"
+    },
+    "19_umbrella_henning": {
+      "url": "/asset/models/umbrella.draco.glb",
+      "modelName": "umbrella"
+    },
+    "20_umbrella_hans": {
+      "url": "/asset/models/umbrella.draco.glb",
+      "modelName": "umbrella"
+    },
+    "21_umbrella_rayh": {
+      "url": "/asset/models/umbrella.draco.glb",
+      "modelName": "umbrella"
+    },
+    "22_umbrella_justin": {
+      "url": "/asset/models/umbrella.draco.glb",
+      "modelName": "umbrella"
     }
   }
 }
