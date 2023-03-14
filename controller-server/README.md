@@ -51,7 +51,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * boardInfo
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "boardInfo",
     "statusCode": 0,
     "payload": {
@@ -63,7 +63,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * command Response
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": -1,
     "payload": {
@@ -79,7 +79,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * upload
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "upload",
     "statusCode": 0,
     "payload": [pinMap, OF, LED]
@@ -89,7 +89,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * play
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": 0,
     "payload": ["playerctl", "play", 4000, "-d", 5000]
@@ -99,7 +99,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * pause
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": 0,
     "payload": ["playerctl", "pause"]
@@ -109,7 +109,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * stop
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": 0,
     "payload": ["playerctl", "stop"]
@@ -119,7 +119,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * list
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": 0,
     "payload": ["list"]
@@ -129,7 +129,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * load
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": 0,
     "payload": ["load"]
@@ -139,7 +139,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * LED test
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": 0,
     "payload": ["ledtest", "--hex", "ffffff"]
@@ -149,7 +149,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * Fiber test
 ```json
 {
-    "from": "RPi",
+    "from": "server",
     "topic": "command",
     "statusCode": 0,
     "payload": ["oftest", "--hex", "ffffff"]
@@ -171,41 +171,44 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * play
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "play",
     "statusCode": 0,
     "payload": {
         "dancers": ["6_stantheman", ],
         "start": 4000,
         "delay": 5000
+    }
 }
 ```
 * pause
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "pause",
     "statusCode": 0,
     "payload": {
         "dancers": ["6_stantheman", ],
+    }
 }
 ```
 
 * stop
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "stop",
     "statusCode": 0,
     "payload": {
         "dancers": ["6_stantheman", ],
+    }
 }
 ```
 
 * upload
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "upload",
     "statusCode": 0,
     "payload": {
@@ -217,7 +220,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * load
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "load",
     "statusCode": 0,
     "payload": {
@@ -229,7 +232,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * test
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "test",
     "statusCode": 0,
     "payload": {
@@ -242,7 +245,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * red
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "red",
     "statusCode": 0,
     "payload": {
@@ -254,7 +257,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * green
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "green",
     "statusCode": 0,
     "payload": {
@@ -266,7 +269,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * blue
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "blue",
     "statusCode": 0,
     "payload": {
@@ -278,8 +281,25 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * darkall
 ```json
 {
-    "from": "RPi",
+    "from": "controlPanel",
     "topic": "darkAll",
     "statusCode": 0,
 }
 ```
+
+### To
+
+* command
+```json
+{
+    "from": "server",
+    "topic": "command",
+    "statusCode": 0,
+    "playload": {
+        "MAC": "00:00:00:00:00:00",
+        "command": "playerctl stop",
+        "message": "[Error]: mock error message"
+    }
+}
+```
+
