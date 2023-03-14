@@ -8,8 +8,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: enable pnpm
         run: corepack enable
-      - name: Install modules in editor and editor-server
-        run: pnpm --dir editor install; pnpm --dir editor-server install
-      - name: Run ESLint for editor and editor-server
+      - name: Install modules in editor, editor-server, controller-server
+        run: pnpm --dir editor install; pnpm --dir editor-server install; pnpm --dir controller-server install
+      - name: Run ESLint for editor, editor-server, controller-server
         run: pnpm lint
         continue-on-error: true

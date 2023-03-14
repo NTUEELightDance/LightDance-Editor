@@ -1,7 +1,8 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
-const instance = axios.create({
-  baseURL: "/api/editor-server",
+const { BACKEND_HOSTNAME, BACKEND_PORT } = process.env;
+const instance: AxiosInstance = axios.create({
+  baseURL: `http://${BACKEND_HOSTNAME}:${BACKEND_PORT}/api`,
 });
 
 export { instance };
