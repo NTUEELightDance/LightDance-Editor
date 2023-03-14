@@ -1,4 +1,4 @@
-import { DancerData } from "./schema/DancerData";
+import { DancerData } from "../schema/DancerData";
 
 interface FromControlPanelBase {
   from: "controlPanel";

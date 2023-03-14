@@ -1,4 +1,4 @@
-import { PinMapTable, PinMapTableSchema } from "@/types/schema/PinMapTable";
+import { PinMapTable, PinMapTableSchema } from "@/schema/PinMapTable";
 
 // Record the pinmap for every dancer
 const pinMapTable: PinMapTable = {

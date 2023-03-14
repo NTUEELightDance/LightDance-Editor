@@ -1,4 +1,4 @@
-import { OF, LED, OFSchema, LEDSchema } from "@/types/schema/global";
+import { OF, LED, OFSchema, LEDSchema } from "@/schema/global";
 
 import { instance } from "./axios";
 

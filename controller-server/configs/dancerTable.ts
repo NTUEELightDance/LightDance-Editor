@@ -2,7 +2,7 @@ import {
   MACAddress,
   DancerDataSchema,
   DancerData,
-} from "@/types/schema/DancerData";
+} from "@/schema/DancerData";
 
 // Record the RPi information according to MAC
 const dancerTable: DancerData = {

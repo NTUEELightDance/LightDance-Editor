@@ -7,7 +7,7 @@ import {
   ToRPiUpload,
 } from "@/types/RPiMessage";
 import { ToControlPanelCommandResponse } from "@/types/controlPanelMessage";
-import { MACAddressSchema } from "@/types/schema/DancerData";
+import { MACAddressSchema } from "@/schema/DancerData";
 
 import dancerTable, { dancerToMac } from "@/configs/dancerTable";
 import pinMapTable from "@/configs/pinMapTable";
@@ -51,15 +51,20 @@ export async function sendBoardInfoToRPi(dancer: string) {
 
 export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
   const { MAC } = msg.payload;
-  const { dancer } = dancerTable[MAC];
-
-  console.log(`[RPi]: connected ${dancer}`);
 
   const result = MACAddressSchema.safeParse(MAC);
   if (!result.success) {
     console.error(`[Error]: handleRPiBoardInfo ${result.error}`);
     return;
   }
+
+  if (!(MAC in dancerTable)) {
+    console.error(`[Error]: MAC not found! ${MAC}`);
+    return;
+  }
+
+  const { dancer } = dancerTable[MAC];
+  console.log(`[RPi]: connected ${dancer}`);
 
   dancerTable[MAC].connected = true;
   RPiWSs[MAC] = ws;

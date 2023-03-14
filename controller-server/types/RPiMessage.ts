@@ -1,6 +1,6 @@
-import { PinMap } from "./schema/PinMapTable";
-import { OF, LED } from "./schema/global";
-import { MACAddress } from "./schema/DancerData";
+import { PinMap } from "../schema/PinMapTable";
+import { OF, LED } from "../schema/global";
+import { MACAddress } from "../schema/DancerData";
 
 interface FromRPiBase {
   from: "RPi";
