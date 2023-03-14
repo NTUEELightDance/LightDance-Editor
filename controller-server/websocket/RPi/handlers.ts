@@ -9,7 +9,7 @@ import {
 import { ToControlPanelCommandResponse } from "@/types/controlPanelMessage";
 import { MACAddress, MACAddressSchema } from "@/schema/DancerData";
 
-import dancerTable, { dancerToMac } from "@/configs/dancerTable";
+import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
 import pinMapTable from "@/configs/pinMapTable";
 
 import { getDancerLEDDataAPI, getDancerFiberDataAPI } from "@/api";
@@ -26,7 +26,7 @@ export function sendToRPi(dancers: string[], msg: ToRPi) {
   const toSend = JSON.stringify(msg);
 
   dancers.forEach((dancer: string) => {
-    const MAC = dancerToMac[dancer];
+    const MAC = dancerToMAC[dancer];
     if (MAC in RPiWSs) {
       RPiWSs[MAC].send(toSend);
     }

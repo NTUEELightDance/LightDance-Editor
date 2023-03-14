@@ -4,7 +4,7 @@ import { FromRPi } from "@/types/RPiMessage";
 
 import { handleRPiBoardInfo, handleRPiCommandResponse } from "./handlers";
 
-export async function hadndleOnRPiMessage(ws: WebSocket, msg: FromRPi) {
+export async function handleOnRPiMessage(ws: WebSocket, msg: FromRPi) {
   switch (msg.topic) {
     case "boardInfo":
       await handleRPiBoardInfo(ws, msg);
