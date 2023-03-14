@@ -254,7 +254,7 @@ export const hexToRGB = memoize((hex: string) => {
 });
 
 export function rgbToHex(rgb: RGB): ColorCode {
-  COLOR.setRGB(rgb[0], rgb[1], rgb[2]);
+  COLOR.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
   const colorCode = "#" + COLOR.getHexString();
   if (isColorCode(colorCode)) {
     return colorCode;
