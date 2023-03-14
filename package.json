@@ -16,7 +16,7 @@
     "lint:editor": "pnpm --dir editor lint",
     "lint:editor-server": "pnpm --dir editor-server lint",
     "lint:controller-server": "pnpm --dir controller-server lint",
-    "lint": "pnpm lint:editor && pnpm lint:editor-server && lint:controller-server"
+    "lint": "pnpm lint:editor && pnpm lint:editor-server && pnpm lint:controller-server"
   },
   "browserslist": {
     "production": [
