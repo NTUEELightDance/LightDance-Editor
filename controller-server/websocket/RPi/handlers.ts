@@ -17,13 +17,13 @@ import { getDancerLEDDataAPI, getDancerFiberDataAPI } from "@/api";
 import {
   sendToControlPanel,
   sendBoardInfoToControlPanel,
-} from "../controlPanel/handler";
+} from "@/websocket/controlPanel/handler";
 
 export const RPiWSs: Record<string, WebSocket> = {};
 
 export function sendToRPi(dancers: string[], msg: ToRPi) {
+  console.log("[RPi]: send", msg, dancers, "\n");
   const toSend = JSON.stringify(msg);
-  console.log(toSend);
 
   dancers.forEach((dancer: string) => {
     const MAC = dancerToMac[dancer];
@@ -50,13 +50,14 @@ export async function sendBoardInfoToRPi(dancer: string) {
 }
 
 export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
-  console.log(`[BOARDINFO]: ${msg.payload.MAC}\n`);
   const { MAC } = msg.payload;
   const { dancer } = dancerTable[MAC];
 
+  console.log(`[RPi]: connected ${dancer}`);
+
   const result = MACAddressSchema.safeParse(MAC);
   if (!result.success) {
-    console.error(result.error);
+    console.error(`[Error]: handleRPiBoardInfo ${result.error}`);
     return;
   }
 
@@ -66,6 +67,7 @@ export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
 
   // release ws on close
   ws.on("close", () => {
+    console.log(`[RPi]: connected ${dancer}`);
     dancerTable[MAC].connected = false;
     delete RPiWSs[MAC];
     sendBoardInfoToControlPanel();
@@ -76,10 +78,6 @@ export function handleRPiCommandResponse(
   ws: WebSocket,
   msg: FromRPiCommandResponse
 ) {
-  console.log(`[COMMAND]: ${msg.topic}`);
-  console.log(`${msg.statusCode}`);
-  console.log(`${msg.payload.message}\n`);
-
   const toControlPanelMsg: ToControlPanelCommandResponse = {
     from: "server",
     topic: "command",

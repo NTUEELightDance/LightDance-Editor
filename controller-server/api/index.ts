@@ -9,7 +9,7 @@ export async function getDancerLEDDataAPI(dancer: string) {
 
   const result = LEDSchema.safeParse(data);
   if (!result.success) {
-    console.error(`[getDancerLEDDataAPI]: ${result.error}`);
+    console.error(`[Error]: getDancerLEDDataAPI ${result.error}`);
     return;
   }
 
@@ -23,7 +23,7 @@ export async function getDancerFiberDataAPI(dancer: string) {
 
   const result = OFSchema.safeParse(data);
   if (!result.success) {
-    console.error(`[getDancerFiberDataAPI]: ${result.error}`);
+    console.error(`[Error]: getDancerFiberDataAPI ${result.error}`);
     return;
   }
 

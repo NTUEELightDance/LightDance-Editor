@@ -27,11 +27,12 @@ import {
 
 import dancerTable, { dancerToMac } from "@/configs/dancerTable";
 
-import { sendToRPi, sendBoardInfoToRPi } from "../RPi/handlers";
+import { sendToRPi, sendBoardInfoToRPi } from "@/websocket/RPi/handlers";
 
 export const controlPanelWSs: Record<string, WebSocket> = {};
 
 export function sendToControlPanel(msg: ToControlPanel) {
+  console.log("[Control Panel]: send ", msg, "\n");
   const toSend = JSON.stringify(msg);
 
   Object.values(controlPanelWSs).forEach((ws: WebSocket) => {
@@ -53,7 +54,11 @@ export function sendBoardInfoToControlPanel() {
 export function handleBoardInfo(ws: WebSocket) {
   const uuid = randomUUID();
   controlPanelWSs[uuid] = ws;
+
+  console.log(`[ControlPanel]: connected ${uuid}`);
+
   ws.on("close", () => {
+    console.log(`[ControlPanel]: disconnected ${uuid}`);
     delete controlPanelWSs[uuid];
   });
 
