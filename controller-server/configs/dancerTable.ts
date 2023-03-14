@@ -4,6 +4,7 @@ import {
   DancerData,
 } from "@/types/schema/DancerData";
 
+// Record the RPi information according to MAC
 const dancerTable: DancerData = {
   "00:00:00:00:00:00": {
     IP: "192.168.0.44",

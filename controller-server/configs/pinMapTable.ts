@@ -1,5 +1,6 @@
 import { PinMapTable, PinMapTableSchema } from "@/types/schema/PinMapTable";
 
+// Record the pinmap for every dancer
 const pinMapTable: PinMapTable = {
   "6_stantheman": {
     fps: 30,

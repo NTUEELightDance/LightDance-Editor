@@ -1,5 +1,9 @@
 # Controller Server
 
+## Config
+
+The configuation for pinMapTable and dancerTable is in `configs/`.
+
 ## Message Format
 * Example Message from RPi
 ```json
