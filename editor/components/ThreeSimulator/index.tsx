@@ -18,7 +18,6 @@ import SelectionModeSelector from "components/SelectionModeSelector";
 import { IDLE, POSITION } from "@/constants";
 
 import { isLEDPartName } from "@/core/models";
-import { getDancerFromLEDpart } from "@/core/utils";
 
 /**
  * This is Display component
@@ -42,6 +41,9 @@ export default function ThreeSimulator() {
   const selected = useReactiveVar(reactiveState.selected);
   const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
+  const referenceDancerName = useReactiveVar(
+    reactiveState.currentLEDEffectReferenceDancer
+  );
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -69,23 +71,26 @@ export default function ThreeSimulator() {
   }, [isPlaying]);
 
   useEffect(() => {
-    if (!isLEDPartName(currentLEDPartName)) {
+    if (!isLEDPartName(currentLEDPartName) || !referenceDancerName) {
       threeController.deselectLEDs();
       return;
     }
 
-    threeController.updateSelectedLEDs(selectedLEDs, currentLEDPartName);
-  }, [currentLEDPartName, selectedLEDs]);
+    threeController.updateSelectedLEDs(
+      selectedLEDs,
+      referenceDancerName,
+      currentLEDPartName
+    );
+  }, [currentLEDPartName, referenceDancerName, selectedLEDs]);
 
   useEffect(() => {
-    if (!isLEDPartName(currentLEDPartName)) {
+    if (!isLEDPartName(currentLEDPartName) || !referenceDancerName) {
       threeController.unfocusLEDParts();
       return;
     }
 
-    const dancerName = getDancerFromLEDpart(currentLEDPartName);
-    threeController.focusOnLEDPart(dancerName, currentLEDPartName);
-  }, [currentLEDPartName]);
+    threeController.focusOnLEDPart(referenceDancerName, currentLEDPartName);
+  }, [currentLEDPartName, referenceDancerName]);
 
   useHotkeys("g", () => {
     if (

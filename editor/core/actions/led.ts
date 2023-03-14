@@ -22,7 +22,6 @@ import {
   createBlack,
   createEmptyLEDEffectFrame,
   getControl,
-  getDancerFromLEDpart,
   notification,
   updateFrameByTimeMap,
 } from "../utils";
@@ -101,11 +100,14 @@ const actions = registerActions({
     if (state.currentLEDPartName === null) {
       throw new Error("No current LED part");
     }
+    if (state.currentLEDEffectReferenceDancer === null) {
+      throw new Error("No current LED effect reference dancer");
+    }
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
     const LEDPartName = state.currentLEDPartName;
-    const dancerName = getDancerFromLEDpart(LEDPartName);
+    const referenceDancerName = state.currentLEDEffectReferenceDancer;
 
-    const { effect } = state.currentLEDStatus[dancerName][LEDPartName];
+    const { effect } = state.currentLEDStatus[referenceDancerName][LEDPartName];
     const start = state.currentTime - state.currentLEDEffectStart;
     // check if there is already a frame at the same time
     const index = binarySearchObjects(
@@ -149,11 +151,14 @@ const actions = registerActions({
     if (state.currentLEDPartName === null) {
       throw new Error("No current LED part");
     }
+    if (state.currentLEDEffectReferenceDancer === null) {
+      throw new Error("No current LED effect reference dancer");
+    }
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
     const LEDPartName = state.currentLEDPartName;
-    const dancerName = getDancerFromLEDpart(LEDPartName);
+    const referenceDancerName = state.currentLEDEffectReferenceDancer;
 
-    const { effect } = state.currentLEDStatus[dancerName][LEDPartName];
+    const { effect } = state.currentLEDStatus[referenceDancerName][LEDPartName];
 
     const start = newCurrentLEDEffect.effects[state.currentLEDIndex].start;
 
@@ -303,7 +308,8 @@ const actions = registerActions({
         }
       });
     });
-    const dancerName = getDancerFromLEDpart(partName);
+
+    const dancerName = payload.dancerName;
     newLEDStatus[dancerName][partName].effect =
       state.currentLEDEffect.effects[0].effect;
     state.currentLEDStatus = newLEDStatus;
@@ -311,6 +317,7 @@ const actions = registerActions({
 
   cancelEditLEDEffect: (state: State) => {
     state.currentLEDEffectName = null;
+    state.currentLEDEffectReferenceDancer = null;
     state.currentLEDPartName = null;
     state.currentLEDEffectStart = 0;
     state.currentLEDEffect = null;

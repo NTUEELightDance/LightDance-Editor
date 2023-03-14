@@ -5,7 +5,6 @@ import { useReactiveVar } from "@apollo/client";
 
 import Paper from "@mui/material/Paper";
 import LEDBulbsControlsContent from "./LEDBulbsControls/LEDBulbsControlsContent";
-import { getDancerFromLEDpart } from "@/core/utils";
 import useColorMap from "@/hooks/useColorMap";
 import { ColorID, LEDBulbData } from "@/core/models";
 import {
@@ -19,10 +18,13 @@ function LEDMode() {
   const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
   const currentLEDStatus = useReactiveVar(reactiveState.currentLEDStatus);
+  const referenceDancerName = useReactiveVar(
+    reactiveState.currentLEDEffectReferenceDancer
+  );
   const { colorMap } = useColorMap();
 
   useEffect(() => {
-    if (currentLEDPartName == null) {
+    if (currentLEDPartName == null || referenceDancerName == null) {
       return;
     }
     if (selectedLEDs.length === 0) {
@@ -31,9 +33,8 @@ function LEDMode() {
       return;
     }
 
-    const dancerName = getDancerFromLEDpart(currentLEDPartName);
-
-    const partEffect = currentLEDStatus[dancerName][currentLEDPartName].effect;
+    const partEffect =
+      currentLEDStatus[referenceDancerName][currentLEDPartName].effect;
 
     const selectedLEDEffect = partEffect.filter((effect, i) =>
       selectedLEDs.includes(i)
@@ -56,13 +57,17 @@ function LEDMode() {
     }
 
     saveCurrentLEDEffectFrame();
-  }, [selectedLEDs, currentLEDPartName, currentLEDStatus, colorMap]);
+  }, [
+    selectedLEDs,
+    currentLEDPartName,
+    currentLEDStatus,
+    colorMap,
+    referenceDancerName,
+  ]);
 
-  if (currentLEDPartName == null) {
+  if (currentLEDPartName == null || referenceDancerName == null) {
     return <Paper sx={{ width: "100%", minHeight: "100%" }} square />;
   }
-
-  const dancerName = getDancerFromLEDpart(currentLEDPartName);
 
   const handleColorChange = (colorID: ColorID) => {
     setCurrentColorID(colorID);
@@ -75,7 +80,7 @@ function LEDMode() {
 
     editCurrentLEDStatus({
       payload: {
-        dancerName,
+        dancerName: referenceDancerName,
         partName: currentLEDPartName,
         LEDBulbsMap,
       },
@@ -93,14 +98,12 @@ function LEDMode() {
 
     editCurrentLEDStatus({
       payload: {
-        dancerName,
+        dancerName: referenceDancerName,
         partName: currentLEDPartName,
         LEDBulbsMap,
       },
     });
   };
-
-  // TODO reset currentLEDStatus when esc is pressed
 
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>

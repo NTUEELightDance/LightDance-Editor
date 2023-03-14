@@ -32,8 +32,8 @@ import type {
   SelectionMode,
   State,
   LEDPartName,
+  DancerName,
 } from "@/core/models";
-import { getDancerFromLEDpart } from "@/core/utils";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -340,12 +340,14 @@ class ThreeController {
     });
   }
 
-  updateSelectedLEDs(selectedLEDs: number[], selectedLEDPart: LEDPartName) {
-    const dancerName = getDancerFromLEDpart(selectedLEDPart);
-
-    this.dancers[dancerName].parts.LED[selectedLEDPart].setSelectedLEDBulbs(
-      selectedLEDs
-    );
+  updateSelectedLEDs(
+    selectedLEDs: number[],
+    referenceDancerName: DancerName,
+    selectedLEDPart: LEDPartName
+  ) {
+    this.dancers[referenceDancerName].parts.LED[
+      selectedLEDPart
+    ].setSelectedLEDBulbs(selectedLEDs);
   }
 
   deselectLEDs() {

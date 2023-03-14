@@ -7,11 +7,13 @@ import Box from "@mui/material/Box";
 import EyeIcon from "@mui/icons-material/Visibility";
 
 import { threeController } from "@/components/ThreeSimulator/ThreeController";
-import { getDancerFromLEDpart } from "@/core/utils";
 
 function LEDEditorDash() {
   const editor = useReactiveVar(reactiveState.editor);
   const editorState = useReactiveVar(reactiveState.editorState);
+  const referenceDancerName = useReactiveVar(
+    reactiveState.currentLEDEffectReferenceDancer
+  );
   const currentLEDEffectName = useReactiveVar(
     reactiveState.currentLEDEffectName
   );
@@ -31,10 +33,12 @@ function LEDEditorDash() {
         </div>
         <IconButton
           onClick={() => {
-            if (!currentLEDPartName) return;
+            if (!currentLEDPartName || !referenceDancerName) return;
 
-            const dancerName = getDancerFromLEDpart(currentLEDPartName);
-            threeController.focusOnLEDPart(dancerName, currentLEDPartName);
+            threeController.focusOnLEDPart(
+              referenceDancerName,
+              currentLEDPartName
+            );
           }}
         >
           <EyeIcon />

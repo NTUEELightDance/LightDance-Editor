@@ -28,7 +28,6 @@ import type {
 } from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
-import { getDancerFromLEDpart } from "@/core/utils";
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 
 // @ts-expect-error no types for module css
@@ -263,7 +262,7 @@ class SelectControls extends EventDispatcher {
       } else if (state.selectionMode === "LED_MODE") {
         const currentLEDPartName = state.currentLEDPartName;
         if (!isLEDPartName(currentLEDPartName)) return;
-        const dancerName = getDancerFromLEDpart(currentLEDPartName);
+        const referenceDancerName = state.currentLEDEffectReferenceDancer;
 
         const partsIndex: number[] = [];
         selectionBox.collection.forEach((part) => {
@@ -273,7 +272,7 @@ class SelectControls extends EventDispatcher {
           const parentName = part.parent!.name;
 
           if (
-            parentName === dancerName &&
+            parentName === referenceDancerName &&
             partName.startsWith(currentLEDPartName)
           ) {
             const partNumber = partName.match(/\d{3}$/)?.[0];

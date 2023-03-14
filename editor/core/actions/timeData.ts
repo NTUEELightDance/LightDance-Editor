@@ -9,7 +9,6 @@ import {
   clamp,
   updateFrameByTimeMap,
   updateCurrentLEDStatus,
-  getDancerFromLEDpart,
   binarySearchObjects,
   createEmptyLEDEffectFrame,
 } from "../utils";
@@ -87,21 +86,25 @@ const actions = registerActions({
     // calculate the focused LED part's status from current LED effect
     if (state.editor === "LED_EDITOR") {
       const currentLEDPartName = state.currentLEDPartName;
-      if (currentLEDPartName === null) return;
-      const dancerName = getDancerFromLEDpart(currentLEDPartName);
+      const referenceDancerName = state.currentLEDEffectReferenceDancer;
       const currentLEDEffectName = state.currentLEDEffectName;
+      const currentLEDEffect = state.currentLEDEffect;
+
+      if (currentLEDPartName === null) return;
+      if (referenceDancerName === null) return;
       if (currentLEDEffectName === null) return;
-      if (state.currentLEDEffect === null) return;
+      if (currentLEDEffect === null) return;
+
       const frameID = 0;
       const pseudoControlMap: ControlMap = {
         [frameID]: {
           start: state.currentLEDEffectStart,
           fade: false,
           status: {
-            [dancerName]: {
+            [referenceDancerName]: {
               [currentLEDPartName]: {
                 alpha: 10,
-                effectID: state.currentLEDEffect.effectID,
+                effectID: currentLEDEffect.effectID,
               },
             },
           },
@@ -109,14 +112,14 @@ const actions = registerActions({
       };
 
       const pseudoLEDStatus: CurrentLEDStatus = {
-        [dancerName]: {
+        [referenceDancerName]: {
           [currentLEDPartName]:
-            state.currentLEDStatus[dancerName][currentLEDPartName],
+            state.currentLEDStatus[referenceDancerName][currentLEDPartName],
         },
       };
 
       const pseudoLEDRecord: LEDEffectRecord = {
-        [dancerName]: {
+        [referenceDancerName]: {
           [currentLEDPartName]: [frameID],
         },
       };
@@ -130,7 +133,7 @@ const actions = registerActions({
             ),
           ],
         },
-        [state.currentLEDEffect.effectID]: state.currentLEDEffect,
+        [currentLEDEffect.effectID]: currentLEDEffect,
       };
 
       const focusedLEDStatus = updateCurrentLEDStatus(
@@ -141,11 +144,11 @@ const actions = registerActions({
         time
       );
 
-      newCurrentLEDStatus[dancerName][currentLEDPartName] =
-        focusedLEDStatus[dancerName][currentLEDPartName];
+      newCurrentLEDStatus[referenceDancerName][currentLEDPartName] =
+        focusedLEDStatus[referenceDancerName][currentLEDPartName];
 
       state.currentLEDIndex = binarySearchObjects(
-        state.currentLEDEffect.effects,
+        currentLEDEffect.effects,
         time,
         (effect) => effect.start
       );
