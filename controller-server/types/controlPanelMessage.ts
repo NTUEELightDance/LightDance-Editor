@@ -3,6 +3,7 @@ import { DancerData } from "./schema/DancerData";
 interface FromControlPanelBase {
   from: "controlPanel";
   topic: string;
+  statusCode: number;
 }
 
 export interface FromControlPanelBoardInfo extends FromControlPanelBase {
@@ -85,9 +86,6 @@ export interface FromControlPanelBlue extends FromControlPanelBase {
 
 export interface FromControlPanelDarkAll extends FromControlPanelBase {
   topic: "darkAll";
-  payload: {
-    dancers: string[];
-  };
 }
 
 export type FromControlPanel =
@@ -120,6 +118,7 @@ export interface ToControlPanelCommandResponse extends ToControlPanelBase {
   payload: {
     command: string;
     message: string;
+    dancer: string;
   };
 }
 

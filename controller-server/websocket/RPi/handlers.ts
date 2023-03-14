@@ -78,11 +78,19 @@ export function handleRPiCommandResponse(
   ws: WebSocket,
   msg: FromRPiCommandResponse
 ) {
+  const { MAC, command, message } = msg.payload;
+  const { dancer } = dancerTable[MAC];
+
   const toControlPanelMsg: ToControlPanelCommandResponse = {
     from: "server",
     topic: "command",
     statusCode: msg.statusCode,
-    payload: msg.payload,
+    payload: {
+      dancer,
+      command,
+      message,
+    },
   };
+
   sendToControlPanel(toControlPanelMsg);
 }

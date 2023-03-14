@@ -1,5 +1,6 @@
 import { PinMap } from "./schema/PinMapTable";
 import { OF, LED } from "./schema/global";
+import { MACAddress } from "./schema/DancerData";
 
 interface FromRPiBase {
   from: "RPi";
@@ -11,7 +12,7 @@ export interface FromRPiBoardInfo extends FromRPiBase {
   from: "RPi";
   topic: "boardInfo";
   payload: {
-    MAC: string;
+    MAC: MACAddress;
   };
 }
 
@@ -19,6 +20,7 @@ export interface FromRPiCommandResponse extends FromRPiBase {
   from: "RPi";
   topic: "command";
   payload: {
+    MAC: MACAddress;
     command: string;
     message: string;
   };
