@@ -7,7 +7,7 @@ import {
   ToRPiUpload,
 } from "@/types/RPiMessage";
 import { ToControlPanelCommandResponse } from "@/types/controlPanelMessage";
-import { MACAddressSchema } from "@/schema/DancerData";
+import { MACAddress, MACAddressSchema } from "@/schema/DancerData";
 
 import dancerTable, { dancerToMac } from "@/configs/dancerTable";
 import pinMapTable from "@/configs/pinMapTable";
@@ -22,7 +22,7 @@ import {
 export const RPiWSs: Record<string, WebSocket> = {};
 
 export function sendToRPi(dancers: string[], msg: ToRPi) {
-  console.log("[RPi]: send", msg, dancers, "\n");
+  console.log("[Send]: RPi", msg, dancers, "\n");
   const toSend = JSON.stringify(msg);
 
   dancers.forEach((dancer: string) => {
@@ -49,22 +49,28 @@ export async function sendBoardInfoToRPi(dancer: string) {
   sendToRPi([dancer], toRPiMsg);
 }
 
-export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
-  const { MAC } = msg.payload;
-
+function validateMAC(MAC: MACAddress) {
   const result = MACAddressSchema.safeParse(MAC);
   if (!result.success) {
     console.error(`[Error]: handleRPiBoardInfo ${result.error}`);
-    return;
+    return false;
   }
 
   if (!(MAC in dancerTable)) {
     console.error(`[Error]: MAC not found! ${MAC}`);
-    return;
+    return false;
   }
 
+  return true;
+}
+
+export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
+  const { MAC } = msg.payload;
+
+  if (!validateMAC(MAC)) return;
+
   const { dancer } = dancerTable[MAC];
-  console.log(`[RPi]: connected ${dancer}`);
+  console.log(`[Connected]: RPi ${dancer}`);
 
   dancerTable[MAC].connected = true;
   RPiWSs[MAC] = ws;
@@ -72,7 +78,7 @@ export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
 
   // release ws on close
   ws.on("close", () => {
-    console.log(`[RPi]: connected ${dancer}`);
+    console.log(`[Disconnected]: RPi ${dancer}`);
     dancerTable[MAC].connected = false;
     delete RPiWSs[MAC];
     sendBoardInfoToControlPanel();
@@ -84,6 +90,8 @@ export function handleRPiCommandResponse(
   msg: FromRPiCommandResponse
 ) {
   const { MAC, command, message } = msg.payload;
+  if (!validateMAC(MAC)) return;
+
   const { dancer } = dancerTable[MAC];
 
   const toControlPanelMsg: ToControlPanelCommandResponse = {

@@ -1,14 +1,10 @@
-import {
-  MACAddress,
-  DancerDataSchema,
-  DancerData,
-} from "@/schema/DancerData";
+import { MACAddress, DancerDataSchema, DancerData } from "@/schema/DancerData";
 
 // Record the RPi information according to MAC
 const dancerTable: DancerData = {
-  "00:00:00:00:00:00": {
+  "78:4F:43:8B:9E:C6": {
     IP: "192.168.0.44",
-    MAC: "00:00:00:00:00:00",
+    MAC: "78:4F:43:8B:9E:C6",
     dancer: "6_stantheman",
     hostname: "lightdance-06",
     connected: false,

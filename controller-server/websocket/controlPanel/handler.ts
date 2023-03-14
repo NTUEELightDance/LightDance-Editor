@@ -32,7 +32,7 @@ import { sendToRPi, sendBoardInfoToRPi } from "@/websocket/RPi/handlers";
 export const controlPanelWSs: Record<string, WebSocket> = {};
 
 export function sendToControlPanel(msg: ToControlPanel) {
-  console.log("[Control Panel]: send ", msg, "\n");
+  console.log("[Send]: ControlPanel ", msg, "\n");
   const toSend = JSON.stringify(msg);
 
   Object.values(controlPanelWSs).forEach((ws: WebSocket) => {
@@ -55,10 +55,10 @@ export function handleBoardInfo(ws: WebSocket) {
   const uuid = randomUUID();
   controlPanelWSs[uuid] = ws;
 
-  console.log(`[ControlPanel]: connected ${uuid}`);
+  console.log(`[Connected]: Control Panel ${uuid}`);
 
   ws.on("close", () => {
-    console.log(`[ControlPanel]: disconnected ${uuid}`);
+    console.log(`[Disconnected]: Control Panel ${uuid}`);
     delete controlPanelWSs[uuid];
   });
 

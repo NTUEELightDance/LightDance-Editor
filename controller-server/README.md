@@ -51,7 +51,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * boardInfo
 ```json
 {
-    "from": "server",
+    "from": "RPi",
     "topic": "boardInfo",
     "statusCode": 0,
     "payload": {
@@ -63,7 +63,7 @@ The configuation for pinMapTable and dancerTable is in `configs/`.
 * command Response
 ```json
 {
-    "from": "server",
+    "from": "RPi",
     "topic": "command",
     "statusCode": -1,
     "payload": {

@@ -17,8 +17,14 @@ console.log(`Listening on: ${SERVER_HOSTNAME}:${SERVER_PORT}\n`);
 wss.on("connection", function connection(ws: WebSocket) {
   ws.on("message", function message(data: Buffer) {
     // Parse incomping message to object
-    const msg: Message = JSON.parse(data.toString());
-    console.log("[Received]:", msg, "\n");
+    let msg: Message | null = null;
+    try {
+      msg = JSON.parse(data.toString());
+      console.log("[Received]:", msg, "\n");
+    } catch (error) {
+      console.error(`[Error]: ${error}`);
+    }
+    if (msg === null) return;
 
     // Handle message according to type of the message payload
     switch (msg.from) {
