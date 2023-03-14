@@ -16,7 +16,7 @@ import {
   handleUpload,
 } from "./handler";
 
-export async function hadndleOnControlPanelMessage(
+export async function handleOnControlPanelMessage(
   ws: WebSocket,
   msg: FromControlPanel
 ) {

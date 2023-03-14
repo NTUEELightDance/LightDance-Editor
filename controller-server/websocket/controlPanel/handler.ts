@@ -25,7 +25,7 @@ import {
   ToRPiOFTest,
 } from "@/types/RPiMessage";
 
-import dancerTable, { dancerToMac } from "@/configs/dancerTable";
+import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
 
 import { sendToRPi, sendBoardInfoToRPi } from "@/websocket/RPi/handlers";
 
@@ -167,5 +167,5 @@ export function handleBlue(ws: WebSocket, msg: FromControlPanelBlue) {
 
 export function handleDarkAll(ws: WebSocket, msg: FromControlPanelDarkAll) {
   const colorCode = "000000";
-  sendColor(Object.keys(dancerToMac), colorCode);
+  sendColor(Object.keys(dancerToMAC), colorCode);
 }

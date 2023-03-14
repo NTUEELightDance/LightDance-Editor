@@ -11,10 +11,11 @@ const dancerTable: DancerData = {
   },
 };
 
-export const dancerToMac: Record<string, MACAddress> = {};
+// TODO handle two interfaces
+export const dancerToMAC: Record<string, MACAddress> = {};
 Object.keys(dancerTable).forEach((MAC) => {
   const { dancer } = dancerTable[MAC];
-  dancerToMac[dancer] = MAC;
+  dancerToMAC[dancer] = MAC;
 });
 
 // Validate the config file

@@ -1,22 +1,30 @@
+import { createServer } from "http";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 import WebSocket, { WebSocketServer } from "ws";
+import express from "express";
 
-import { hadndleOnRPiMessage, hadndleOnControlPanelMessage } from "@/websocket";
+import { handleOnRPiMessage, handleOnControlPanelMessage } from "@/websocket";
 import { Message } from "@/types/global";
 
 const { SERVER_HOSTNAME, SERVER_PORT } = process.env;
 
-const wss = new WebSocketServer({
-  host: SERVER_HOSTNAME,
-  port: parseInt(SERVER_PORT as string, 10),
-});
+if (!SERVER_HOSTNAME) {
+  throw new Error("SERVER_HOSTNAME is not defined");
+}
+if (!SERVER_PORT) {
+  throw new Error("SERVER_PORT is not defined");
+}
 
-console.log(`Listening on: ${SERVER_HOSTNAME}:${SERVER_PORT}\n`);
+const app = express();
+const server = createServer(app);
+const wss = new WebSocketServer({ server });
+
 wss.on("connection", function connection(ws: WebSocket) {
+  console.log("[Connected]");
   ws.on("message", function message(data: Buffer) {
-    // Parse incomping message to object
+    // Parse incoming message to object
     let msg: Message | null = null;
     try {
       msg = JSON.parse(data.toString());
@@ -29,10 +37,10 @@ wss.on("connection", function connection(ws: WebSocket) {
     // Handle message according to type of the message payload
     switch (msg.from) {
       case "RPi":
-        hadndleOnRPiMessage(ws, msg);
+        handleOnRPiMessage(ws, msg);
         break;
       case "controlPanel":
-        hadndleOnControlPanelMessage(ws, msg);
+        handleOnControlPanelMessage(ws, msg);
         break;
       default:
         console.error(`[Error]: Invalid message ${msg}`);
@@ -41,4 +49,8 @@ wss.on("connection", function connection(ws: WebSocket) {
   });
 
   ws.on("error", console.error);
+});
+
+server.listen(SERVER_PORT, () => {
+  console.log(`Listening on port ${SERVER_PORT}\n`);
 });
