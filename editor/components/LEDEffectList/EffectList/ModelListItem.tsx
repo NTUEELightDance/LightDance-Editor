@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { LEDMap } from "@/core/models";
+import type { LEDMap, LEDPartName } from "@/core/models";
 import PartList from "./PartList";
 
 import {
@@ -15,14 +15,16 @@ import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 interface modelProps {
   modelName: string;
   modelData: LEDMap;
-  handleOpenEdit: (PartName: string, EffectName: string) => void;
-  handleOpenDelete: (PartName: string, EffectName: string) => void;
+  handleOpenRename: (partName: LEDPartName, effectName: string) => void;
+  handleOpenEdit: (partName: LEDPartName, effectName: string) => void;
+  handleOpenDelete: (partName: LEDPartName, effectName: string) => void;
   expanded: boolean;
 }
 
 export default function ModelListItem({
   modelName,
   modelData,
+  handleOpenRename,
   handleOpenEdit,
   handleOpenDelete,
   expanded,
@@ -48,6 +50,7 @@ export default function ModelListItem({
       <Collapse in={listOpen} timeout="auto" unmountOnExit>
         <PartList
           modelData={modelData}
+          handleOpenRename={handleOpenRename}
           handleOpenEdit={handleOpenEdit}
           handleOpenDelete={handleOpenDelete}
         />

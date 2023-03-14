@@ -64,10 +64,9 @@ export class RequestEditResolver {
     @Arg("LEDEffectID", (type) => Int) lEDEffectID: number,
     @Ctx() ctx: TContext
   ) {
-    const checkEditingLEDEffect =
-      await ctx.prisma.editingLEDEffect.findFirst({
-        where: { LEDEffectId: lEDEffectID },
-      });
+    const checkEditingLEDEffect = await ctx.prisma.editingLEDEffect.findFirst({
+      where: { LEDEffectId: lEDEffectID },
+    });
     const existLEDEffect = await ctx.prisma.lEDEffect.findFirst({
       where: { id: lEDEffectID },
     });

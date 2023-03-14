@@ -1,5 +1,4 @@
 import type { ReactiveVar } from "@apollo/client";
-import { Color } from "three";
 
 export type id = string;
 export type index = number;
@@ -15,6 +14,15 @@ export type ColorName = string;
 export type ColorCode = string & { __colorCode: never };
 export type RGB = [number, number, number];
 export type RGBA = [number, number, number, number];
+export type ColorID = number;
+export type LEDEffectID = number;
+
+export interface Color {
+  id: ColorID;
+  name: ColorName;
+  colorCode: ColorCode;
+  rgb: RGB;
+}
 
 export function isColorCode(colorCode: unknown): colorCode is ColorCode {
   if (typeof colorCode !== "string") return false;
@@ -24,7 +32,7 @@ export function isColorCode(colorCode: unknown): colorCode is ColorCode {
 /**
  * ControlRecord and ControlMap
  */
-export type ControlRecord = id[]; // array of all IDs , each corresponds to diff status
+export type ControlRecord = number[]; // array of all IDs , each corresponds to diff status
 
 export type ControlMap = Record<id, ControlMapElement>;
 
@@ -51,44 +59,41 @@ export function isDancerStatus(status: unknown): status is DancerStatus {
   return isPartData(values[0]) || values.length === 0;
 }
 
-export type PartData = LEDData | FiberData | ELData;
+export type PartData = LEDData | FiberData;
 
 export function isPartData(partData: PartData): partData is PartData {
-  return isFiberData(partData) || isLEDData(partData) || isELData(partData);
+  return isFiberData(partData) || isLEDData(partData);
 }
 
 export interface FiberData {
-  color: string;
+  colorID: ColorID;
   alpha: number; // brightness
-  colorCode?: Color; // this is a three type Color, for doing color fade
+  rgb?: RGB; // this is for three simulator only to calculate fade
 }
 
 export function isFiberData(partData: PartData): partData is FiberData {
   return (
-    typeof (partData as FiberData)?.color === "string" &&
+    typeof (partData as FiberData)?.colorID === "number" &&
     typeof (partData as FiberData)?.alpha === "number"
   );
 }
 
-export interface LEDData {
-  src: string;
+export type LEDData = {
+  effectID: LEDEffectID;
   alpha: number;
-}
+};
 
 export function isLEDData(partData: PartData): partData is LEDData {
   return (
-    typeof (partData as LEDData)?.src === "string" &&
+    typeof (partData as LEDData)?.effectID === "number" &&
     typeof (partData as LEDData)?.alpha === "number"
   );
 }
 
-export type ELData = number;
-
-export function isELData(partData: PartData): partData is ELData {
-  return typeof partData === "number";
-}
-
-export type CurrentStatusDelta = Record<DancerName, DancerStatus>;
+export type CurrentStatusDelta = Record<
+  DancerName,
+  Record<PartName, Partial<FiberData | LEDData>>
+>;
 
 export type ControlMapQueryPayload = {
   [frameId: id]: {
@@ -102,18 +107,20 @@ export type DancerStatusQueryPayload = Array<
   FiberDataQueryPayload | LEDDataQueryPayload
 >;
 
-export type FiberDataQueryPayload = [ColorName, number];
+export type FiberDataQueryPayload = [ColorID, number];
 
-export type LEDDataQueryPayload = [string, number];
+export type LEDDataQueryPayload = [LEDEffectID, number];
 
 export type ControlMapStatusMutationPayload = DancerStatusMutationPayload[];
 
-export type DancerStatusMutationPayload = [string, string][];
+export type DancerStatusMutationPayload = Array<
+  [ColorID | LEDEffectID, number]
+>;
 
 /**
  * PosRecord and PosMap
  */
-export type PosRecord = id[]; // array of all IDs , each corresponds to diff status
+export type PosRecord = number[]; // array of all IDs , each corresponds to diff status
 
 export type PosMap = Record<id, PosMapElement>;
 
@@ -162,7 +169,7 @@ export type EditMode = "IDLE" | "EDITING";
 export type Editor = "CONTROL_EDITOR" | "POS_EDITOR" | "LED_EDITOR";
 export interface EditingData {
   start: number;
-  frameId: string;
+  frameId: number;
   index: number;
 }
 
@@ -193,6 +200,8 @@ export type SelectionMode =
  */
 export type PartTypeMap = Record<string, PartType>;
 
+export type LEDPartLengthMap = Record<LEDPartName, number>;
+
 // PartType
 export type PartType = "LED" | "FIBER" | "El";
 
@@ -206,20 +215,37 @@ export type DancersPayload = DancersArray;
 /**
  * ColorMap
  */
-export type ColorMap = Record<ColorName, ColorCode>;
+export type ColorMap = {
+  [id: ColorID]: Color;
+};
 
-export function isColorMap(colorMap: unknown): colorMap is ColorMap {
-  return Object.values(colorMap as ColorMap).every(isColorCode);
-}
+export type ColorMapPayload = {
+  [id: number]: {
+    // color name
+    color: string;
+    // color rgb
+    colorCode: [number, number, number];
+  };
+};
 
 /**
  * Led Effect Map, get from backend
  */
-export type LEDMap = Record<PartName, Record<LEDEffectName, LEDEffect>>;
+export type LEDMap = {
+  [LEDPartName: LEDPartName]: {
+    [effectName: string]: LEDEffect | undefined;
+  };
+};
+
+export type LEDEffectIDtable = {
+  [effectID: LEDEffectID]: LEDEffect;
+};
 
 export type LEDEffectName = string;
 
 export interface LEDEffect {
+  name: LEDEffectName;
+  effectID: LEDEffectID;
   repeat: number; // repeat counts, 0 for continuously repeat
   effects: LEDEffectFrame[];
 }
@@ -230,54 +256,33 @@ export interface LEDEffectFrame {
   effect: LEDBulbData[]; // ColorCode array for led strips
 }
 
-export type LEDMapPayload = Record<
-  PartName,
-  Record<LEDEffectName, LEDEffectPayload>
->;
-export interface LEDEffectPayload {
-  repeat: number; // repeat counts, 0 for continuously repeat
+export type LEDMapPayload = {
+  [LEDPartName: LEDPartName]: {
+    [effectName: string]: LEDEffectPayload;
+  };
+};
+
+export type LEDEffectPayload = {
+  id: number;
+  repeat: number;
   frames: LEDEffectFramePayload[];
-}
-export interface LEDEffectFramePayload {
-  start: number;
+};
+
+export type LEDEffectFramePayload = {
+  LEDs: Array<[ColorID, number]>;
   fade: boolean;
-  // [r, g, b, alpha(0-10)]
-  LEDs: RGBA[];
-}
+  start: number;
+};
 /**
  * LedEffectRecord
  * Save dancer LED part's appearing record id
- * Generated from controlMap and controlRecord, but stripped out the `no-effect` source
+ * Generated from controlMap and controlRecord, but stripped out the `no effect` source
  *
  */
 export type LEDEffectRecord = Record<DancerName, Record<PartName, LEDRecord>>;
 
-export type LEDRecord = id[];
+export type LEDRecord = number[];
 
-export type addLEDEffectPayload = {
-  partName: LEDPartName;
-  effectName: string;
-  repeat: 0 | 1;
-  ok: boolean;
-  msg: string;
-};
-
-export type saveLEDEffectInput = {
-  frames: {
-    set: JSON[];
-  };
-  id: number;
-  name: string;
-  repeat: 0 | 1;
-};
-
-export type saveLEDEffectPayload = {
-  partName: LEDPartName;
-  effectName: string;
-  repeat: 0 | 1;
-  ok: boolean;
-  msg: string;
-};
 /**
  * CurrentLedEffect
  * Save the ledEffect index (in ledEffectRecord) and the effect
@@ -287,7 +292,7 @@ export type saveLEDEffectPayload = {
  */
 export type CurrentLEDStatus = Record<DancerName, LEDPartStatus>;
 
-export type LEDPartStatus = Record<PartName, LEDPartData>;
+export type LEDPartStatus = Record<LEDPartName, LEDPartData>;
 
 export type LEDPartData = {
   recordIndex: number;
@@ -297,8 +302,9 @@ export type LEDPartData = {
 };
 
 export type LEDBulbData = {
-  colorCode: ColorCode;
+  colorID: ColorID;
   alpha: number;
+  rgb?: RGB; // for calculating fade
 };
 
 export type EffectListType = Array<{
@@ -328,10 +334,18 @@ export type EditGroupError = "DNE";
 // conversion helpers
 export type DancersArray = Array<{
   name: DancerName;
-  parts: Array<{
-    name: PartName;
-    type: PartType;
-  }>;
+  parts: Array<
+    | {
+        name: PartName;
+        type: Exclude<PartType, "LED">;
+        length: null;
+      }
+    | {
+        name: LEDPartName;
+        type: "LED";
+        length: number;
+      }
+  >;
 }>;
 
 export type DancerPartIndexMap = Record<
@@ -342,7 +356,7 @@ export type DancerPartIndexMap = Record<
   }
 >;
 
-/**
+/**z
  * Mutable State
  */
 export interface State {
@@ -355,10 +369,12 @@ export interface State {
   posMap: PosMap;
 
   ledMap: LEDMap; // stores led effects for each part
+  LEDEffectIDtable: LEDEffectIDtable; // stores led effects for each part
 
   currentTime: number; // current time
   currentControlIndex: number; // current index in controlRecord
   currentPosIndex: number; // current index in posRecord
+  currentLEDIndex: number; // current index in ledEffectRecord
   posStack: PosMapStatus[]; // current pos Frame
   posStackIndex: number; // current index in posStack
 
@@ -371,7 +387,7 @@ export interface State {
   ledEffectRecord: LEDEffectRecord;
   currentLEDStatus: CurrentLEDStatus;
 
-  editMode: EditMode;
+  editorState: EditMode;
   editor: Editor;
   selectionMode: SelectionMode;
   editingData: EditingData; // store the editingData's start time id and index
@@ -379,14 +395,16 @@ export interface State {
   selected: Selected; // array of selected dancer's name
   selectedLEDs: number[]; // array of selected LED bulb's index
 
-  currentLEDPartName: LEDPartName | ""; // the LED part whose effect is being edited
-  currentLEDEffectName: LEDEffectName; // the LED effect name being edited
+  currentLEDEffectReferenceDancer: DancerName | null; // the dancer whose LED part is being edited
+  currentLEDPartName: LEDPartName | null; // the LED part whose effect is being edited
+  currentLEDEffectName: LEDEffectName | null; // the LED effect name being edited
   currentLEDEffectStart: number; // the start time on the timeline where currentLEDEffect is displayed during editing
   currentLEDEffect: LEDEffect | null; // the LED effect being edited
 
   dancers: Dancers;
   dancerNames: DancerName[];
   partTypeMap: PartTypeMap;
+  LEDPartLengthMap: LEDPartLengthMap;
   colorMap: ColorMap;
   effectList: EffectListType;
 

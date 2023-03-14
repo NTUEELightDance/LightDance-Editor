@@ -10,39 +10,44 @@ import {
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import OFcontrolsContent from "./OFcontrolsContent";
 
-import { editCurrentStatusDelta } from "core/actions";
-import type { FiberData, CurrentStatusDelta } from "core/models";
+import { editCurrentStatusDelta } from "@/core/actions";
+import type {
+  FiberData,
+  CurrentStatusDelta,
+  ColorMap,
+  ColorID,
+} from "@/core/models";
 
 function OFcontrols({
   part,
   currentDancers,
-  displayValue: { color, alpha },
+  displayValue,
   colorMap,
 }: {
   part: string;
   currentDancers: string[];
   displayValue: FiberData;
-  colorMap: Record<string, string>;
+  colorMap: ColorMap;
 }) {
   const [open, setOpen] = useState<boolean>(false);
 
-  const updateCurrentStatus = (color: string, alpha: number) => {
+  const updateCurrentStatus = (colorID: ColorID, alpha: number) => {
     const currentStatusDelta: CurrentStatusDelta = {};
 
     currentDancers.forEach((dancerName) => {
       if (!currentStatusDelta[dancerName]) currentStatusDelta[dancerName] = {};
-      currentStatusDelta[dancerName][part] = { color, alpha };
+      currentStatusDelta[dancerName][part] = { colorID, alpha };
     });
 
     editCurrentStatusDelta({ payload: currentStatusDelta });
   };
 
-  const handleColorChange = (_colorName: string) => {
-    updateCurrentStatus(_colorName, alpha);
+  const handleColorChange = (colorID: ColorID) => {
+    updateCurrentStatus(colorID, displayValue.alpha);
   };
 
   const handleIntensityChange = (_intensity: number) => {
-    updateCurrentStatus(color, _intensity);
+    updateCurrentStatus(displayValue.colorID, _intensity);
   };
 
   const handleExpand = () => {
@@ -69,7 +74,7 @@ function OFcontrols({
           </Box>
           <Paper
             sx={{
-              backgroundColor: colorMap[color],
+              backgroundColor: colorMap[displayValue.colorID].colorCode,
               display: "inline-block",
               width: "1.5em",
               minWidth: "1.5em",
@@ -79,7 +84,7 @@ function OFcontrols({
             }}
           />
           <Box sx={{ width: "3vw" }}>
-            <Typography>{valueLabelFormat(alpha)}</Typography>
+            <Typography>{valueLabelFormat(displayValue.alpha)}</Typography>
           </Box>
           <div>{open ? <ExpandLess /> : <ExpandMore />}</div>
         </Box>
@@ -89,8 +94,8 @@ function OFcontrols({
         <OFcontrolsContent
           handleColorChange={handleColorChange}
           handleIntensityChange={handleIntensityChange}
-          intensity={alpha}
-          currentColorName={color}
+          intensity={displayValue.alpha}
+          currentColorID={displayValue.colorID}
           oneLine
         />
       </Collapse>

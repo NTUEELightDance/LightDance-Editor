@@ -6,7 +6,7 @@ import {
   PubSub,
   Publisher,
   Arg,
-  Int
+  Int,
 } from "type-graphql";
 import { Prisma } from "@prisma/client";
 

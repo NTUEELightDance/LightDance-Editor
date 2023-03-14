@@ -1,4 +1,4 @@
-import type { LEDMap } from "@/core/models";
+import type { LEDMap, LEDPartName } from "@/core/models";
 
 import {
   List,
@@ -9,18 +9,22 @@ import {
   ListItemSecondaryAction,
   Tooltip,
   IconButton,
+  Box,
 } from "@mui/material";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteIcon from "@mui/icons-material/Delete";
+import RenameIcon from "@mui/icons-material/DriveFileRenameOutline";
 
 interface partProps {
   modelData: LEDMap;
-  handleOpenEdit: (partName: string, effectName: string) => void;
-  handleOpenDelete: (partName: string, effectName: string) => void;
+  handleOpenRename: (partName: LEDPartName, effectName: string) => void;
+  handleOpenEdit: (partName: LEDPartName, effectName: string) => void;
+  handleOpenDelete: (partName: LEDPartName, effectName: string) => void;
 }
 
 export default function PartList({
   modelData,
+  handleOpenRename,
   handleOpenEdit,
   handleOpenDelete,
 }: partProps) {
@@ -33,7 +37,6 @@ export default function PartList({
           bgcolor: "background.paper",
           position: "relative",
           overflow: "auto",
-          maxHeight: 700,
           "& ul": { padding: 0 },
         }}
         subheader={<li />}
@@ -48,54 +51,91 @@ export default function PartList({
                     <ListItem sx={{ pl: 4 }}>
                       <ListItemText
                         primary={
-                          <Typography sx={{ fontSize: "20px", color: "white" }}>
+                          <Typography sx={{ color: "white" }}>
                             {effectName}
                           </Typography>
                         }
                       />
                       <ListItemSecondaryAction>
-                        <Tooltip
-                          title="Edit Effect"
-                          placement="top"
-                          enterDelay={300}
-                          enterNextDelay={300}
-                          followCursor
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: 0.5,
+                          }}
                         >
-                          <IconButton
-                            edge="end"
-                            aria-label="edit"
-                            size="medium"
-                            onClick={() => {
-                              handleOpenEdit(partName, effectName);
-                            }}
+                          <Tooltip
+                            title="Rename Effect"
+                            placement="top"
+                            enterDelay={300}
+                            enterNextDelay={300}
+                            followCursor
                           >
-                            <EditRoundedIcon
-                              fontSize="inherit"
-                              sx={{ color: "white" }}
-                            />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip
-                          title="Delete Effect"
-                          placement="top"
-                          enterDelay={300}
-                          enterNextDelay={300}
-                          followCursor
-                        >
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            size="medium"
-                            onClick={() => {
-                              handleOpenDelete(partName, effectName);
-                            }}
+                            <IconButton
+                              edge="end"
+                              aria-label="edit"
+                              size="small"
+                              onClick={() => {
+                                handleOpenRename(
+                                  partName as LEDPartName,
+                                  effectName
+                                );
+                              }}
+                            >
+                              <RenameIcon
+                                fontSize="inherit"
+                                sx={{ color: "white" }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip
+                            title="Edit Effect"
+                            placement="top"
+                            enterDelay={300}
+                            enterNextDelay={300}
+                            followCursor
                           >
-                            <DeleteIcon
-                              fontSize="inherit"
-                              sx={{ color: "white" }}
-                            />
-                          </IconButton>
-                        </Tooltip>
+                            <IconButton
+                              edge="end"
+                              aria-label="edit"
+                              size="small"
+                              onClick={() => {
+                                handleOpenEdit(
+                                  partName as LEDPartName,
+                                  effectName
+                                );
+                              }}
+                            >
+                              <EditRoundedIcon
+                                fontSize="inherit"
+                                sx={{ color: "white" }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip
+                            title="Delete Effect"
+                            placement="top"
+                            enterDelay={300}
+                            enterNextDelay={300}
+                            followCursor
+                          >
+                            <IconButton
+                              edge="end"
+                              aria-label="delete"
+                              size="small"
+                              onClick={() => {
+                                handleOpenDelete(
+                                  partName as LEDPartName,
+                                  effectName
+                                );
+                              }}
+                            >
+                              <DeleteIcon
+                                fontSize="inherit"
+                                sx={{ color: "white" }}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
                       </ListItemSecondaryAction>
                     </ListItem>
                   </div>

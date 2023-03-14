@@ -120,8 +120,8 @@
                 "children": [
                   {
                     "type": "tab",
-                    "name": "Dancer Tree",
-                    "component": "DancerTree",
+                    "name": "Objects",
+                    "component": "Objects",
                     "enableClose": false
                   }
                 ]

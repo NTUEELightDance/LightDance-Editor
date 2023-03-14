@@ -47,16 +47,17 @@ wss.on("connection", (ws) => {
         type = (<InfoType>((<MesR2S>parsedData).payload.info)).type;
       }
 
-      console.log("[Type of Message]: ", type)
-      // check type : rpi or controlpanel
+      console.log("[Type of Message]: ", type);
+      // check type : rpi or control panel
       switch (type) {
       // rpi
       case ClientType.RPI: {
         // check if `dancer` type's hostname is in board_config.json
         const { macaddr } = (<MesR2S>parsedData).payload.info as MacAddrType;
-        let dancerName = MAC_LIST[macaddr][0]
-        let hostName = MAC_LIST[macaddr][1]
-        let ip = MAC_LIST[macaddr][2]
+        console.log("[Mac Address]: ", macaddr);
+        const dancerName = MAC_LIST[macaddr][0];
+        const hostName = MAC_LIST[macaddr][1];
+        const ip = MAC_LIST[macaddr][2];
         // socket connection established
         const dancerSocket = new DancerSocket(
           ws,
@@ -68,13 +69,13 @@ wss.on("connection", (ws) => {
         dancerSocket.handleMessage();
 
         // Send [control.json, OF.json, LED.json] back to RPi
-        const dancerControlJson = ControlJsonDB[dancerName]
-        const dancerOfJson = OfJsonDB[dancerName]
-        const dancerLedJson = LedJsonDB[dancerName]
+        const dancerControlJson = ControlJsonDB[dancerName];
+        const dancerOfJson = OfJsonDB[dancerName];
+        const dancerLedJson = LedJsonDB[dancerName];
         dancerSocket.sendDataToRpiSocket({
           action: ActionType.UPLOAD,
           payload: [dancerControlJson, dancerOfJson, dancerLedJson]
-        })
+        });
 
         // response
         Object.values(clientAgent.controlPanelClients.getClients()).forEach(

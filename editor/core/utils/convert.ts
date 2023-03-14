@@ -1,5 +1,7 @@
 import { Color } from "three";
 
+import memoize from "lodash/memoize";
+
 import type {
   ControlMap,
   PosMap,
@@ -22,15 +24,19 @@ import type {
   LEDEffectPayload,
   LEDEffectFramePayload,
   LEDEffectFrame,
-  RGBA,
   LEDEffect,
   LEDMapPayload,
   LEDMap,
+  LEDPartName,
+  LEDEffectIDtable,
+  ColorID,
+  ColorMap,
 } from "@/core/models";
 
 import { isColorCode, isFiberData, isLEDData } from "@/core/models";
 
 import { state } from "@/core/state";
+import { ColorQueryResponseData } from "@/graphql";
 
 export function toControlMap(payload: ControlMapQueryPayload): ControlMap {
   const controlMap: ControlMap = {};
@@ -70,15 +76,15 @@ function toPartData(
   payload: FiberDataQueryPayload | LEDDataQueryPayload
 ): PartData {
   if (partType === "LED") {
-    const [src, alpha] = payload;
+    const [effectID, alpha] = payload;
     return {
-      src,
+      effectID,
       alpha,
     };
   } else if (partType === "FIBER") {
-    const [color, alpha] = payload;
+    const [colorID, alpha] = payload;
     return {
-      color,
+      colorID,
       alpha,
     };
   } else {
@@ -140,11 +146,13 @@ export function toControlMapStatusMutationPayload(
   return payload;
 }
 
-function toPartDataMutationPayload(partData: PartData): [string, string] {
+function toPartDataMutationPayload(
+  partData: PartData
+): FiberDataQueryPayload | LEDDataQueryPayload {
   if (isFiberData(partData)) {
-    return [partData.color, partData.alpha.toString()];
+    return [partData.colorID, partData.alpha];
   } else if (isLEDData(partData)) {
-    return [partData.src, partData.alpha.toString()];
+    return [partData.effectID, partData.alpha];
   }
   throw new Error("Invalid part data");
 }
@@ -167,19 +175,41 @@ export function toCoordinatesPayload(
 export function toLEDMap(mapPayload: LEDMapPayload): LEDMap {
   const ledMap: LEDMap = {};
   for (const [partName, effectPayloadMap] of Object.entries(mapPayload)) {
-    ledMap[partName] = {};
+    ledMap[partName as LEDPartName] = {};
     for (const [effectName, payload] of Object.entries(effectPayloadMap)) {
-      ledMap[partName][effectName] = toLEDEffect(payload);
+      ledMap[partName as LEDPartName][effectName] = toLEDEffect(
+        payload,
+        effectName
+      );
     }
   }
   return ledMap;
 }
 
-export function toLEDEffect(payload: LEDEffectPayload): LEDEffect {
+export function toLEDEffectIDTable(
+  mapPayload: LEDMapPayload
+): LEDEffectIDtable {
+  const ledEffectIDtable: LEDEffectIDtable = {};
+  for (const effectPayloadMap of Object.values(mapPayload)) {
+    for (const [effectName, payload] of Object.entries(effectPayloadMap)) {
+      ledEffectIDtable[payload.id] = toLEDEffect(payload, effectName);
+    }
+  }
+
+  return ledEffectIDtable;
+}
+
+export function toLEDEffect(
+  payload: LEDEffectPayload,
+  effectName: string
+): LEDEffect {
   const effects = payload.frames.map((framePayload) =>
     toLEDEffectFrame(framePayload)
   );
+
   return {
+    name: effectName,
+    effectID: payload.id,
     repeat: payload.repeat,
     effects,
   };
@@ -188,12 +218,10 @@ export function toLEDEffect(payload: LEDEffectPayload): LEDEffect {
 export function toLEDEffectFrame(
   framePayload: LEDEffectFramePayload
 ): LEDEffectFrame {
-  const effect = framePayload.LEDs.map((rgba: RGBA) => {
-    const rgb = rgba.slice(0, 3) as RGB;
-    const colorCode = rgbToHex(rgb);
+  const effect = framePayload.LEDs.map(([colorID, alpha]) => {
     return {
-      colorCode,
-      alpha: rgba[3],
+      colorID,
+      alpha,
     };
   });
   const frame: LEDEffectFrame = {
@@ -204,18 +232,51 @@ export function toLEDEffectFrame(
   return frame;
 }
 
-const COLOR = new Color();
-
-export function hexToRGB(hex: string) {
-  COLOR.setHex(parseInt(hex.replace(/^#/, ""), 16));
-  return COLOR.toArray() as RGB;
+export function toLEDEffectFramePayload(
+  frame: LEDEffectFrame
+): LEDEffectFramePayload {
+  const LEDs: [ColorID, number][] = frame.effect.map(({ colorID, alpha }) => [
+    colorID,
+    alpha,
+  ]);
+  return {
+    start: frame.start,
+    fade: frame.fade,
+    LEDs,
+  };
 }
 
+const COLOR = new Color();
+
+export const hexToRGB = memoize((hex: string) => {
+  COLOR.setHex(parseInt(hex.replace(/^#/, ""), 16));
+  return COLOR.toArray().map((v) => Math.round(v * 255)) as RGB;
+});
+
 export function rgbToHex(rgb: RGB): ColorCode {
-  COLOR.setRGB(rgb[0], rgb[1], rgb[2]);
+  COLOR.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
   const colorCode = "#" + COLOR.getHexString();
   if (isColorCode(colorCode)) {
     return colorCode;
   }
   throw new Error(`Invalid color code: ${colorCode}`);
+}
+
+export function toColorMap(payload: ColorQueryResponseData): ColorMap {
+  const colorMap: ColorMap = Object.entries(payload).reduce(
+    (acc, [id, { color: name, colorCode: rgb }]) => {
+      return {
+        ...acc,
+        [id]: {
+          id: parseInt(id),
+          name,
+          colorCode: rgbToHex(rgb),
+          rgb,
+        },
+      };
+    },
+    {} as ColorMap
+  );
+
+  return colorMap;
 }

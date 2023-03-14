@@ -1,26 +1,69 @@
+import {
+  ControlMapStatusMutationPayload,
+  LEDEffectID,
+  LEDEffectFramePayload,
+  LEDPartName,
+} from "@/core/models";
 import { gql } from "@apollo/client";
 
+export interface AddControlFrameMutationResponseData {
+  addControlFrame: {
+    id: number;
+  };
+}
+
+export interface AddControlFrameMutationVariables {
+  start: number;
+  fade?: boolean;
+  controlData?: ControlMapStatusMutationPayload;
+}
+
 export const ADD_CONTROL_FRAME = gql`
-  mutation AddControlFrame($start: Int!, $fade: Boolean) {
-    addControlFrame(start: $start, fade: $fade) {
-      start
+  mutation AddControlFrame(
+    $start: Int!
+    $fade: Boolean
+    $controlData: [[[Int!]!]!]
+  ) {
+    addControlFrame(start: $start, fade: $fade, controlData: $controlData) {
       id
     }
   }
 `;
 
+export interface EditControlFrameMutationResponseData {
+  editControlMap: string;
+}
+
+export interface EditControlFrameMutationVariables {
+  input: {
+    frameId: number;
+    fade?: boolean;
+    controlData: ControlMapStatusMutationPayload;
+  };
+}
+
 export const EDIT_CONTROL_FRAME = gql`
-  mutation EditControlMap($input: EditControlMapInput!) {
-    editControlMap(input: $input) {
-      frameIds
-    }
+  mutation Mutation($input: EditControlMapInput!) {
+    editControlMap(input: $input)
   }
 `;
+
+export interface EditControlFrameTimeMutationResponseData {
+  editControlFrame: {
+    id: number;
+  };
+}
+
+export interface EditControlFrameTimeMutationVariables {
+  input: {
+    frameId: number;
+    start: number;
+  };
+}
 
 export const EDIT_CONTROL_FRAME_TIME = gql`
   mutation EditControlFrame($input: EditControlFrameInput!) {
     editControlFrame(input: $input) {
-      start
       id
     }
   }
@@ -35,9 +78,8 @@ export const DELETE_CONTROL_FRAME_BY_ID = gql`
 `;
 
 export const ADD_POS_FRAME = gql`
-  mutation AddPositionFrame($start: Int!) {
-    addPositionFrame(start: $start) {
-      start
+  mutation AddPositionFrame($start: Int!, $positionData: [[Float!]!]) {
+    addPositionFrame(start: $start, positionData: $positionData) {
       id
     }
   }
@@ -105,28 +147,92 @@ export const CANCEL_EDIT_POS_BY_ID = gql`
   }
 `;
 
+export interface AddColorMutationVariables {
+  color: {
+    // color name
+    color: string;
+    // color rgb
+    colorCode: {
+      set: [number, number, number];
+    };
+  };
+}
+
+export interface AddColorMutationResponseData {
+  addColor: {
+    id: number;
+  };
+}
+
+export interface AddColorMutationResponseData {
+  addColor: {
+    id: number;
+  };
+}
+
+export interface AddColorMutationVariables {
+  color: {
+    // color name
+    color: string;
+    colorCode: {
+      // rgb
+      set: [number, number, number];
+    };
+  };
+}
+
 export const ADD_COLOR = gql`
   mutation AddColor($color: ColorCreateInput!) {
     addColor(color: $color) {
-      color
-      colorCode
+      id
     }
   }
 `;
+
+export interface EditColorMutationVariables {
+  data: {
+    // color name
+    color: {
+      set: string;
+    };
+    // color rgb
+    colorCode: {
+      set: [number, number, number];
+    };
+  };
+  editColorId: number;
+}
+
+export interface EditColorMutationResponseData {
+  editColor: {
+    id: number;
+  };
+}
 
 export const EDIT_COLOR = gql`
-  mutation EditColorCodeByColor($colorCode: String!, $color: String!) {
-    editColorCodeByColor(colorCode: $colorCode, color: $color) {
-      color
-      colorCode
+  mutation EditColor($data: ColorUpdateInput!, $editColorId: Int!) {
+    editColor(data: $data, id: $editColorId) {
+      id
     }
   }
 `;
 
+export interface DeleteColorMutationVariables {
+  deleteColorId: number;
+}
+
+export interface DeleteColorMutationResponseData {
+  deleteColor: {
+    ok: boolean;
+    msg: string;
+  };
+}
+
 export const DELETE_COLOR = gql`
-  mutation DeleteColor($color: String!) {
-    deleteColor(color: $color) {
+  mutation DeleteColor($deleteColorId: Int!) {
+    deleteColor(id: $deleteColorId) {
       ok
+      msg
     }
   }
 `;
@@ -162,38 +268,74 @@ export const DELETE_EFFECT_LIST = gql`
   }
 `;
 
+export interface AddLEDEffectMutationResponseData {
+  addLEDEffect: {
+    ok: boolean;
+    msg: string;
+  };
+}
+
+export interface AddLEDEffectMutationVariables {
+  input: {
+    frames: {
+      set: LEDEffectFramePayload[];
+    };
+    name: string;
+    partName: LEDPartName;
+    repeat: number;
+  };
+}
+
 export const ADD_LED_EFFECT = gql`
-  mutation AddLEDEffect($input: LEDEffectCreateInput!) {
+  mutation Mutation($input: LEDEffectCreateInput!) {
     addLEDEffect(input: $input) {
-      partName
-      effectName
-      repeat
       ok
       msg
     }
   }
 `;
+
+export interface EditLEDEffectMutationResponseData {
+  editLEDEffect: {
+    ok: boolean;
+    msg: string;
+  };
+}
+
+export interface EditLEDEffectMutationVariables {
+  input: {
+    id: LEDEffectID;
+    name: string;
+    repeat: number;
+    frames: {
+      set: LEDEffectFramePayload[];
+    };
+  };
+}
 
 export const EDIT_LED_EFFECT = gql`
   mutation EditLEDEffect($input: EditLEDInput!) {
     editLEDEffect(input: $input) {
-      partName
-      effectName
-      repeat
-      effects {
-        LEDs
-        fade
-        start
-      }
       ok
       msg
     }
   }
 `;
 
+export interface DeleteLEDEffectMutationResponseData {
+  deleteLEDEffect: {
+    ok: boolean;
+    msg: string;
+  };
+}
+
+export interface DeleteLEDEffectMutationVariables {
+  deleteLedEffectId: LEDEffectID;
+}
+
 export const DELETE_LED_EFFECT = gql`
-  mutation DeleteLEDEffect($input: DeleteLEDInput!) {
-    deleteLEDEffect(input: $input) {
+  mutation DeleteLEDEffect($deleteLedEffectId: Int!) {
+    deleteLEDEffect(id: $deleteLedEffectId) {
       ok
       msg
     }

@@ -98,53 +98,6 @@ class ColorResolver {
     return color;
   }
 
-  // @Mutation(() => String)
-  // async renameColor(
-  //   @PubSub(Topic.Color) publish: Publisher<ColorPayload>,
-  //   @Arg("originalColor") originalColor: string,
-  //   @Arg("newColor") newColor: string,
-  //   @Ctx() ctx: TContext
-  // ) {
-  //   // check if new color name exists, if true => throw error
-  //   const existedNewColor = await ctx.prisma.color.findUnique({
-  //     where: { color: newColor },
-  //   });
-  //   if (existedNewColor) {
-  //     throw new Error(
-  //       `color name: ${newColor}/code: ${existedNewColor.colorCode} existed`
-  //     );
-  //   }
-
-  //   // check if old color name exists, if not => throw error
-  //   await ctx.prisma.color.findUniqueOrThrow({
-  //     where: { color: originalColor },
-  //   });
-
-  //   // check if color is used in ControlData
-  //   const checkColorInControl = await ctx.prisma.controlData.findMany({
-  //     where: { value: { path: ["color"], equals: originalColor } },
-  //   });
-  //   if (checkColorInControl.length !== 0) {
-  //     throw new Error(`color is used in ControlData`);
-  //   }
-
-  //   await ctx.prisma.color.update({
-  //     where: { color: originalColor },
-  //     data: { color: newColor },
-  //   });
-
-  //   // publish
-  //   const payload: ColorPayload = {
-  //     mutation: colorMutation.RENAMED,
-  //     color: originalColor,
-  //     renameColor: newColor,
-  //     editBy: ctx.userId,
-  //   };
-  //   await publish(payload);
-
-  //   return newColor;
-  // }
-
   @Mutation(() => ColorResponse)
   async deleteColor(
     @PubSub(Topic.Color) publish: Publisher<ColorPayload>,

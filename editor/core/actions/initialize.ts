@@ -9,12 +9,16 @@ import type {
   DancerPartIndexMap,
   PartName,
   CurrentLEDStatus,
+  LEDPartLengthMap,
+  ColorMap,
 } from "../models";
 
+import { isLEDPartName } from "../models";
+
 import { dancerAgent } from "@/api";
-import { getControl, getPos } from "../utils";
+import { createBlack, getControl, getPos } from "../utils";
 import { colorAgent } from "@/api/colorAgent";
-import { syncCurrentLEDStatus } from "./led";
+import { rgbToHex } from "../utils/convert";
 
 const actions = registerActions({
   initDancers: async (state: State) => {
@@ -33,9 +37,13 @@ const actions = registerActions({
     );
 
     const partTypeMap: PartTypeMap = {};
+    const LEDPartLengthMap: LEDPartLengthMap = {};
     dancersData.forEach((dancer) => {
       dancer.parts.forEach((part) => {
         partTypeMap[part.name] = part.type;
+        if (part.type === "LED") {
+          LEDPartLengthMap[part.name] = part.length;
+        }
       });
     });
 
@@ -66,6 +74,7 @@ const actions = registerActions({
     state.dancerNames = dancerNames;
     state.dancers = dancers;
     state.partTypeMap = partTypeMap;
+    state.LEDPartLengthMap = LEDPartLengthMap;
 
     state.dancersArray = dancersData;
     state.dancerPartIndexMap = dancerPartIndexMap;
@@ -92,23 +101,43 @@ const actions = registerActions({
   },
 
   initColorMap: async (state: State) => {
-    const colorMap = await colorAgent.getColorMap();
+    const colorMapResponseData = await colorAgent.getColorMap();
+
+    const colorMap: ColorMap = Object.entries(colorMapResponseData).reduce(
+      (acc, [id, { color: name, colorCode: rgb }]) => {
+        return {
+          ...acc,
+          [id]: {
+            id: parseInt(id),
+            name,
+            colorCode: rgbToHex(rgb),
+            rgb,
+          },
+        };
+      },
+      {} as ColorMap
+    );
 
     state.colorMap = colorMap;
   },
 
-  initCurrentLEDStatus: (state: State) => {
-    const { dancers, partTypeMap } = state;
+  initCurrentLEDStatus: async (state: State) => {
+    const { dancers, LEDPartLengthMap } = state;
+    const blackColorID = await createBlack();
     const tmp: CurrentLEDStatus = {};
     Object.entries(dancers).map(([dancerName, parts]) => {
       tmp[dancerName] = {};
       parts.forEach((part) => {
-        if (partTypeMap[part] === "LED") {
+        if (isLEDPartName(part)) {
+          const length = LEDPartLengthMap[part];
           tmp[dancerName][part] = {
-            effect: [],
+            effect: [...Array(length)].map(() => ({
+              colorID: blackColorID,
+              alpha: 0,
+            })),
             effectIndex: 0,
             recordIndex: 0,
-            alpha: 0,
+            alpha: 10,
           };
         }
       });

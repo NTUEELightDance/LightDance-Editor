@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 
-import { Paper, Typography, Box } from "@mui/material";
+import { Paper } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
-
-import { grey } from "@mui/material/colors";
 
 import { editCurrentStatusDelta } from "@/core/actions";
 import type {
@@ -13,14 +11,237 @@ import type {
   CurrentStatusDelta,
   SelectedPartPayload,
   LEDData,
+  ColorID,
+  LEDPartName,
 } from "@/core/models";
-import { reactiveState } from "core/state";
+import { reactiveState, state } from "@/core/state";
 import { useReactiveVar } from "@apollo/client";
 
 import { getPartType } from "core/utils";
 import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
+import MixedControlsContent from "./MixedControls/MixedControlsContent";
 
-import _ from "lodash";
+function PartMode() {
+  const selected = useReactiveVar(reactiveState.selected);
+  const currentStatus = useReactiveVar(reactiveState.currentStatus);
+  const LEDEffectIDTable = useReactiveVar(reactiveState.LEDEffectIDtable);
+
+  const [selectedParts, partType] = useMemo(
+    () => getSelectedPartsAndType(selected),
+    [selected]
+  );
+
+  const [currentColorID, setCurrentColorID] = useState<ColorID | null>(null);
+  const [intensity, setIntensity] = useState<number | null>(null);
+  const [LEDEffectName, setLEDsrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (partType === "FIBER") {
+      const [dancerName0, parts0] = Object.entries(selectedParts)[0] ?? [
+        null,
+        null,
+      ];
+      // don't render controls if no part is selected
+      if (dancerName0 == null || parts0 == null) {
+        setCurrentColorID(null);
+        setIntensity(null);
+        return;
+      }
+
+      // check if all selected parts have the same color
+      const assertColorID = (currentStatus[dancerName0][parts0[0]] as FiberData)
+        .colorID;
+      if (
+        Object.entries(selectedParts).every(([dancerName, parts]) =>
+          parts.every(
+            (part) =>
+              (currentStatus[dancerName][part] as FiberData).colorID ===
+              assertColorID
+          )
+        )
+      ) {
+        setCurrentColorID(assertColorID);
+      } else {
+        setCurrentColorID(null);
+      }
+
+      // check if all selected parts have the same intensity
+      const assertIntensity = (
+        currentStatus[dancerName0][parts0[0]] as FiberData
+      ).alpha;
+      if (
+        Object.entries(selectedParts).every(([dancerName, parts]) =>
+          parts.every(
+            (part) =>
+              (currentStatus[dancerName][part] as FiberData).alpha ===
+              assertIntensity
+          )
+        )
+      ) {
+        setIntensity(assertIntensity);
+      } else {
+        setIntensity(null);
+      }
+    }
+  }, [currentStatus, partType, selectedParts]);
+
+  // initialize local state for LED
+  useEffect(() => {
+    if (partType === "LED") {
+      const [dancerName0, parts0] = Object.entries(selectedParts)[0] ?? [
+        null,
+        null,
+      ];
+      // don't render controls if no part is selected
+      if (dancerName0 == null || parts0 == null) {
+        setLEDsrc(null);
+        setIntensity(null);
+        return;
+      }
+
+      const getLEDEffectName = (effectID: number) =>
+        LEDEffectIDTable[effectID].name;
+
+      // check if all selected parts have the same src
+      const firstEffectID = (currentStatus[dancerName0][parts0[0]] as LEDData)
+        .effectID;
+      const assertSrc = getLEDEffectName(firstEffectID);
+
+      if (
+        Object.entries(selectedParts).every(([dancerName, parts]) =>
+          parts.every(
+            (part) =>
+              getLEDEffectName(
+                (currentStatus[dancerName][part] as LEDData).effectID
+              ) === assertSrc
+          )
+        )
+      ) {
+        setLEDsrc(assertSrc);
+      } else {
+        setLEDsrc(null);
+      }
+
+      // check if all selected parts have the same intensity
+      const assertIntensity = (currentStatus[dancerName0][parts0[0]] as LEDData)
+        .alpha;
+      if (
+        Object.entries(selectedParts).every(([dancerName, parts]) =>
+          parts.every(
+            (part) =>
+              (currentStatus[dancerName][part] as LEDData).alpha ===
+              assertIntensity
+          )
+        )
+      ) {
+        setIntensity(assertIntensity);
+      } else {
+        setIntensity(null);
+      }
+    }
+  }, [LEDEffectIDTable, currentStatus, partType, selectedParts]);
+
+  // initialize local state for mixed
+  useEffect(() => {
+    if (partType === "MIXED" && Object.keys(selectedParts).length > 0) {
+      const [dancerName0, parts0] = Object.entries(selectedParts)[0];
+
+      const assertIntensity = (
+        currentStatus[dancerName0][parts0[0]] as LEDData | FiberData
+      ).alpha;
+
+      if (
+        Object.entries(selectedParts).every(([dancerName, parts]) =>
+          parts.every((part) => {
+            const partData = currentStatus[dancerName][part] as
+              | LEDData
+              | FiberData;
+            return partData.alpha === assertIntensity;
+          })
+        )
+      ) {
+        setIntensity(assertIntensity);
+      } else {
+        setIntensity(null);
+      }
+    }
+  }, [currentStatus, partType, selectedParts]);
+
+  // mutate global state
+  useEffect(() => {
+    if (partType === "FIBER" && currentColorID !== null && intensity !== null) {
+      const currentStatusDelta = calculateCurrentStatusDeltaFiber(
+        selectedParts,
+        currentColorID,
+        intensity
+      );
+      editCurrentStatusDelta({ payload: currentStatusDelta });
+    }
+  }, [currentColorID, intensity, partType, selectedParts]);
+
+  useEffect(() => {
+    if (partType === "LED" && LEDEffectName !== null && intensity !== null) {
+      const currentStatusDelta = calculateCurrentStatusDeltaLED(
+        selectedParts,
+        LEDEffectName,
+        intensity
+      );
+      editCurrentStatusDelta({ payload: currentStatusDelta });
+    }
+  }, [LEDEffectName, intensity, partType, selectedParts]);
+
+  useEffect(() => {
+    if (
+      partType === "MIXED" &&
+      intensity !== null &&
+      Object.keys(selectedParts).length > 0
+    ) {
+      const currentStatusDelta = calculateCurrentStatusDeltaMixed(
+        selectedParts,
+        intensity
+      );
+      editCurrentStatusDelta({ payload: currentStatusDelta });
+    }
+  }, [intensity, partType, selectedParts]);
+
+  // reset local state when partType is NONE
+  useEffect(() => {
+    if (partType === "NONE") {
+      setCurrentColorID(null);
+      setLEDsrc(null);
+      setIntensity(null);
+    }
+  }, [partType]);
+
+  // partNames for led  controls
+  const partNames = [...new Set(Object.values(selectedParts).flat())];
+
+  return (
+    <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
+      {partType === "LED" ? (
+        <LEDcontrolsContent
+          parts={partNames as LEDPartName[]}
+          intensity={intensity}
+          src={LEDEffectName}
+          handleIntensityChange={setIntensity}
+          handleSrcChange={setLEDsrc}
+        />
+      ) : partType === "FIBER" ? (
+        <OFcontrolsContent
+          intensity={intensity}
+          currentColorID={currentColorID}
+          handleIntensityChange={setIntensity}
+          handleColorChange={setCurrentColorID}
+        />
+      ) : partType === "MIXED" && Object.keys(selectedParts).length > 0 ? (
+        <MixedControlsContent
+          intensity={intensity}
+          handleIntensityChange={setIntensity}
+        />
+      ) : null}
+    </Paper>
+  );
+}
 
 function getSelectedPartsAndType(selected: Selected) {
   const newSelectedParts: SelectedPartPayload = {};
@@ -34,46 +255,30 @@ function getSelectedPartsAndType(selected: Selected) {
     }
   });
 
+  if (tempSelectedParts.length === 0) {
+    return [newSelectedParts, "NONE"] as const;
+  }
+
   const assertPartType = getPartType(tempSelectedParts[0]);
   if (tempSelectedParts.every((part) => getPartType(part) === assertPartType)) {
     return [newSelectedParts, assertPartType] as const;
   } else {
-    return [newSelectedParts, null] as const;
+    return [newSelectedParts, "MIXED"] as const;
   }
-}
-
-function calculateCurrentStatusDeltaLED(
-  selectedParts: SelectedPartPayload,
-  LEDsrc: string,
-  intensity: number
-) {
-  const currentStatusDelta: CurrentStatusDelta = {};
-  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
-    parts.forEach((partName) => {
-      currentStatusDelta[dancerName] ||= {};
-
-      currentStatusDelta[dancerName][partName] = {
-        src: LEDsrc,
-        alpha: intensity,
-      };
-    });
-  });
-
-  return currentStatusDelta;
 }
 
 function calculateCurrentStatusDeltaFiber(
   selectedParts: SelectedPartPayload,
-  colorName: string,
+  colorID: ColorID,
   intensity: number
 ) {
   const currentStatusDelta: CurrentStatusDelta = {};
   Object.entries(selectedParts).forEach(([dancerName, parts]) => {
     parts.forEach((partName) => {
-      currentStatusDelta[dancerName] ||= {};
+      currentStatusDelta[dancerName] ??= {};
 
       currentStatusDelta[dancerName][partName] = {
-        color: colorName,
+        colorID,
         alpha: intensity,
       };
     });
@@ -82,176 +287,45 @@ function calculateCurrentStatusDeltaFiber(
   return currentStatusDelta;
 }
 
-function PartMode() {
-  const selected = useReactiveVar(reactiveState.selected);
-  const currentStatus = useReactiveVar(reactiveState.currentStatus);
+function calculateCurrentStatusDeltaLED(
+  selectedParts: SelectedPartPayload,
+  LEDeffectName: string,
+  intensity: number
+) {
+  const currentStatusDelta: CurrentStatusDelta = {};
+  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+    parts.forEach((partName) => {
+      currentStatusDelta[dancerName] ??= {};
 
-  const [selectedParts, partType] = useMemo(
-    () => getSelectedPartsAndType(selected),
-    [selected]
-  );
+      const effectID =
+        state.ledMap[partName as LEDPartName][LEDeffectName]?.effectID;
 
-  const [currentColorName, setCurrentColorName] = useState<string | null>(null);
-  const [intensity, setIntensity] = useState<number | null>(null);
-  const [LEDsrc, setLEDsrc] = useState<string | null>(null);
+      currentStatusDelta[dancerName][partName] = {
+        effectID: effectID ?? -1,
+        alpha: intensity,
+      };
+    });
+  });
 
-  // initialize local state for fiber
-  useEffect(() => {
-    if (partType === "FIBER") {
-      const [dancerName, parts] = Object.entries(selectedParts)[0] ?? [
-        null,
-        null,
-      ];
-      // don't render controls if no part is selected
-      if (dancerName == null || parts == null) {
-        setCurrentColorName(null);
-        setIntensity(null);
-        return;
-      }
+  return currentStatusDelta;
+}
 
-      // check if all selected parts have the same color
-      const assertColorName = (currentStatus[dancerName][parts[0]] as FiberData)
-        .color;
-      if (
-        parts.every(
-          (part) =>
-            (currentStatus[dancerName][part] as FiberData).color ===
-            assertColorName
-        )
-      ) {
-        setCurrentColorName(assertColorName);
-      } else {
-        setCurrentColorName(null);
-      }
+function calculateCurrentStatusDeltaMixed(
+  selectedParts: SelectedPartPayload,
+  intensity: number
+) {
+  const currentStatusDelta: CurrentStatusDelta = {};
+  Object.entries(selectedParts).forEach(([dancerName, parts]) => {
+    parts.forEach((partName) => {
+      currentStatusDelta[dancerName] ??= {};
 
-      // check if all selected parts have the same intensity
-      const assertIntensity = (currentStatus[dancerName][parts[0]] as FiberData)
-        .alpha;
-      if (
-        parts.every(
-          (part) =>
-            (currentStatus[dancerName][part] as FiberData).alpha ===
-            assertIntensity
-        )
-      ) {
-        setIntensity(assertIntensity);
-      } else {
-        setIntensity(null);
-      }
-    }
-  }, [currentStatus, partType, selectedParts]);
+      currentStatusDelta[dancerName][partName] = {
+        alpha: intensity,
+      };
+    });
+  });
 
-  // initialize local state for LED
-  useEffect(() => {
-    if (partType === "LED") {
-      const [dancerName, parts] = Object.entries(selectedParts)[0] ?? [
-        null,
-        null,
-      ];
-      // don't render controls if no part is selected
-      if (dancerName == null || parts == null) {
-        setLEDsrc(null);
-        setIntensity(null);
-        return;
-      }
-
-      // check if all selected parts have the same src
-      const assertSrc = (currentStatus[dancerName][parts[0]] as LEDData).src;
-      if (
-        parts.every(
-          (part) =>
-            (currentStatus[dancerName][part] as LEDData).src === assertSrc
-        )
-      ) {
-        setLEDsrc(assertSrc);
-      } else {
-        setLEDsrc(null);
-      }
-
-      // check if all selected parts have the same intensity
-      const assertIntensity = (currentStatus[dancerName][parts[0]] as LEDData)
-        .alpha;
-      if (
-        parts.every(
-          (part) =>
-            (currentStatus[dancerName][part] as LEDData).alpha ===
-            assertIntensity
-        )
-      ) {
-        setIntensity(assertIntensity);
-      } else {
-        setIntensity(null);
-      }
-    }
-  }, [currentStatus, partType, selectedParts]);
-
-  // mutate global state
-  useEffect(() => {
-    const selectedPartsCount = Object.values(selectedParts).flat().length;
-    // don't sync when there is no part selected
-    if (
-      partType === "FIBER" &&
-      currentColorName !== null &&
-      intensity !== null &&
-      selectedPartsCount > 1
-    ) {
-      const currentStatusDelta = calculateCurrentStatusDeltaFiber(
-        selectedParts,
-        currentColorName,
-        intensity
-      );
-      editCurrentStatusDelta({ payload: currentStatusDelta });
-    }
-  }, [currentColorName, intensity, partType, selectedParts]);
-
-  useEffect(() => {
-    // don't sync when there is no part selected
-    if (partType === "LED" && LEDsrc !== null && intensity !== null) {
-      const currentStatusDelta = calculateCurrentStatusDeltaLED(
-        selectedParts,
-        LEDsrc,
-        intensity
-      );
-      editCurrentStatusDelta({ payload: currentStatusDelta });
-    }
-  }, [LEDsrc, intensity, partType, selectedParts]);
-
-  const handleColorChange = (color: string) => {
-    setCurrentColorName(color);
-  };
-
-  // partNames for led  controls
-  const partNames = _.uniq(Object.values(selectedParts).flat());
-
-  return (
-    <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
-      {partType === "LED" ? (
-        <LEDcontrolsContent
-          parts={partNames}
-          intensity={intensity}
-          src={LEDsrc}
-          handleIntensityChange={setIntensity}
-          handleSrcChange={setLEDsrc}
-        />
-      ) : partType === "FIBER" ? (
-        <OFcontrolsContent
-          intensity={intensity}
-          currentColorName={currentColorName}
-          setIntensity={setIntensity}
-          handleColorChange={handleColorChange}
-        />
-      ) : (
-        Object.keys(selectedParts).length > 0 && (
-          <Box sx={{ px: "3em" }}>
-            <Typography color={grey[600]}>
-              You've selected parts of different types, please select parts with
-              the same type.
-            </Typography>
-          </Box>
-        )
-      )}
-    </Paper>
-  );
+  return currentStatusDelta;
 }
 
 export default PartMode;

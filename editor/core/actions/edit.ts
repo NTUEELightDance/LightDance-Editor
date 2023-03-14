@@ -2,8 +2,8 @@ import { registerActions } from "../registerActions";
 // types
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
-import { CONTROL_EDITOR, EDITING, IDLE, POS_EDITOR } from "@/constants";
-import { getControlPayload, getPosPayload, deleteColorCode } from "../utils";
+import { CONTROL_EDITOR, EDITING, POS_EDITOR } from "@/constants";
+import { getControlPayload, getPosPayload, deleteRGB } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
 
@@ -15,7 +15,7 @@ import { notification, updateFrameByTimeMap } from "core/utils";
  * @returns { map, record, index, frameId, frame, agent, fade? }
  */
 const getDataHandler = async (state: State) => {
-  const pureStatus = deleteColorCode(state.currentStatus);
+  const pureStatus = deleteRGB(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
     const [controlMapPayload, controlRecord] = await getControlPayload();
@@ -64,7 +64,7 @@ const actions = registerActions({
    * @param payload
    */
   setEditMode: (state: State, payload: EditMode) => {
-    state.editMode = payload;
+    state.editorState = payload;
   },
 
   /**
@@ -116,7 +116,7 @@ const actions = registerActions({
       notification.error("Permission denied");
       return;
     }
-    state.editMode = EDITING;
+    state.editorState = EDITING;
   },
 
   /**
@@ -128,13 +128,13 @@ const actions = registerActions({
     // save the frameId which request for editing
     const frameId = state.editingData.frameId;
     const requestTimeChange = payload;
-    await agent.saveFrame(
+    await agent.saveFrame({
       frameId,
       frame,
-      state.currentTime,
+      start: state.currentTime,
       requestTimeChange,
-      fade
-    );
+      fade,
+    });
   },
 
   /**
@@ -145,7 +145,9 @@ const actions = registerActions({
     const isCancelled = await agent.cancelEditPermission(frameId);
     if (isCancelled) {
       cancelEditMode();
-    } else notification.error("Cancel Permission Error");
+    } else {
+      notification.error("Cancel Permission Error");
+    }
   },
 
   /**
@@ -153,16 +155,11 @@ const actions = registerActions({
    */
   add: async (state: State) => {
     const { agent, frame, fade } = await getDataHandler(state);
-    // create an empty frame
-    const frameId = await agent.addFrame(state.currentTime, fade);
-    // request edit permission
-    const isPermitted = await agent.requestEditPermission(frameId.toString());
-    if (!isPermitted) {
-      notification.error("Permission denied");
-      return;
-    }
-    // save the frame
-    await agent.saveFrame(frameId, frame, state.currentTime, false, fade);
+    await agent.addFrame({
+      start: state.currentTime,
+      frame,
+      fade,
+    });
   },
 
   /**
@@ -174,7 +171,7 @@ const actions = registerActions({
   },
 
   cancelEditMode: (state: State) => {
-    state.editMode = IDLE;
+    state.editorState = "IDLE";
   },
 });
 

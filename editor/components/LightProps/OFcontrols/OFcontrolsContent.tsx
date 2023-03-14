@@ -1,13 +1,13 @@
 import { Stack, Grid, Typography } from "@mui/material";
-import ColorSelector from "../ColorSelector";
+import ColorSelector from "./ColorSelector";
 import IntensityControl from "../IntensityControl";
+import { ColorID } from "@/core/models";
 
 export interface OFcontrolsContentProps {
-  handleColorChange: (color: string) => void;
+  handleColorChange: (colorID: ColorID) => void;
   intensity: number | null;
-  handleIntensityChange?: (intensity: number) => void;
-  setIntensity?: (intensity: number) => void;
-  currentColorName: string | null;
+  handleIntensityChange: (intensity: number) => void;
+  currentColorID: ColorID | null;
   oneLine?: boolean;
 }
 
@@ -15,8 +15,7 @@ function OFcontrolsContent({
   handleColorChange,
   handleIntensityChange,
   intensity,
-  setIntensity,
-  currentColorName,
+  currentColorID,
   oneLine = false,
 }: OFcontrolsContentProps) {
   return (
@@ -36,16 +35,12 @@ function OFcontrolsContent({
               <ColorSelector
                 placeholder="none"
                 onChange={handleColorChange}
-                currentColorName={currentColorName}
+                currentColorID={currentColorID}
               />
             </Grid>
             <IntensityControl
               intensity={intensity}
-              setIntensity={
-                (handleIntensityChange != null
-                  ? handleIntensityChange
-                  : setIntensity) as (intensity: number) => void
-              }
+              setIntensity={handleIntensityChange}
             />
           </>
         ) : (
@@ -57,7 +52,7 @@ function OFcontrolsContent({
               <ColorSelector
                 placeholder="none"
                 onChange={handleColorChange}
-                currentColorName={currentColorName}
+                currentColorID={currentColorID}
               />
             </Grid>
           </>
@@ -80,11 +75,7 @@ function OFcontrolsContent({
           </Grid>
           <IntensityControl
             intensity={intensity}
-            setIntensity={
-              (handleIntensityChange != null
-                ? handleIntensityChange
-                : setIntensity) as (intensity: number) => void
-            }
+            setIntensity={handleIntensityChange}
           />
         </Grid>
       )}

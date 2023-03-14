@@ -37,47 +37,37 @@ export function updateFrameByTimeMap(
 
   // Check if need to do binary search
   if (
+    map[record[controlIndex + 1]] &&
     map[record[controlIndex + 2]] &&
     time >= map[record[controlIndex + 1]].start &&
     time <= map[record[controlIndex + 2]].start
   ) {
     return controlIndex + 1;
   }
-  return binarySearchFrameMap(record, map, time);
+
+  return binarySearchObjects(record, time, (val) => {
+    return map[val].start;
+  });
 }
 
-/**
- * binarySearch based on controlRecord and controlMap (array of object with start), return the index
- * @param {object} data - target control (array of status)
- * @param {number} time - target time
- */
-export function binarySearchFrameMap(
-  record: ControlRecord | PosRecord,
-  map: ControlMap | PosMap,
-  time: number
+export function binarySearchObjects<T>(
+  data: T[],
+  target: number,
+  getComparable: (val: T) => number
 ) {
-  if (!Array.isArray(record)) {
-    throw new Error(
-      "[Error] updateFrameByTimeMap, invalid parameter(controlRecord)"
-    );
+  let low = 0;
+  let high = data.length - 1;
+  let center = Math.floor((low + high + 1) / 2);
+
+  while (low < high) {
+    if (getComparable(data[center]) <= target) {
+      low = center;
+    } else {
+      high = center - 1;
+    }
+    center = Math.floor((low + high + 1) / 2);
   }
-  if (typeof map !== "object") {
-    throw new Error(
-      "[Error] updateFrameByTimeMap, invalid parameter(controlMap)"
-    );
-  }
-  if (typeof time !== "number") {
-    throw new Error("[Error] binarySearchFrame, invalid parameter(time)");
-  }
-  let l = 0;
-  let r = record.length - 1;
-  let m = Math.floor((l + r + 1) / 2);
-  while (l < r) {
-    if (map[record[m]].start <= time) l = m;
-    else r = m - 1;
-    m = Math.floor((l + r + 1) / 2);
-  }
-  return m;
+  return center;
 }
 
 /**
@@ -95,12 +85,12 @@ export function interpolatePos(
   const { start: nextTime, pos: nextPos } = nextFrame;
   if (preTime === undefined || prePos === undefined) {
     throw new Error(
-      `[Error] interplolationPos, invalid prePosFrame ${preTime}, ${prePos}`
+      `[Error] interpolatePos, invalid prePosFrame ${preTime}, ${prePos}`
     );
   }
   if (nextTime === undefined || nextPos === undefined) {
     throw new Error(
-      `[Error] interplolationPos, invalid nextPosFrame ${nextTime}, ${nextPos}`
+      `[Error] interpolatePos, invalid nextPosFrame ${nextTime}, ${nextPos}`
     );
   }
 

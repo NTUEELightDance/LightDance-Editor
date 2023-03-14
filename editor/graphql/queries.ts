@@ -1,3 +1,8 @@
+import {
+  ColorMapPayload,
+  ControlMapQueryPayload,
+  LEDMapPayload,
+} from "@/core/models";
 import { gql } from "@apollo/client";
 
 export const GET_DANCERS = gql`
@@ -7,22 +12,23 @@ export const GET_DANCERS = gql`
       parts(orderBy: $orderBy) {
         name
         type
+        length
       }
     }
   }
 `;
 
+export interface ControlMapQueryResponseData {
+  ControlMap: {
+    ControlMap: {
+      frameIds: ControlMapQueryPayload;
+    };
+  };
+}
+
 export const GET_CONTROL_MAP = gql`
   query controlMap {
     ControlMap {
-      frameIds
-    }
-  }
-`;
-
-export const SELECT_CONTROL_FRAMES = gql`
-  query ControlMap($select: queryMapInput) {
-    ControlMap(select: $select) {
       frameIds
     }
   }
@@ -56,6 +62,12 @@ export const GET_POS_RECORD = gql`
   }
 `;
 
+export interface ColorQueryResponseData {
+  colorMap: {
+    colorMap: ColorMapPayload;
+  };
+}
+
 export const GET_COLOR_MAP = gql`
   query ColorMap {
     colorMap {
@@ -63,6 +75,12 @@ export const GET_COLOR_MAP = gql`
     }
   }
 `;
+
+export interface LEDMapQueryResponseData {
+  LEDMap: {
+    LEDMap: LEDMapPayload;
+  };
+}
 
 export const GET_LED_MAP = gql`
   query LEDMap {

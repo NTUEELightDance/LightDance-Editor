@@ -15,6 +15,9 @@ import useColorMap from "hooks/useColorMap";
 
 import ColorDialog from "./ColorDialog";
 import ColorListItem from "./ColorListItem";
+import { Color, ColorID } from "@/core/models";
+
+const protectedColors: Color["name"][] = ["black"];
 
 export default function ColorPalette() {
   const { colorMap, handleAddColor, handleEditColor, handleDeleteColor } =
@@ -25,30 +28,12 @@ export default function ColorPalette() {
   const temp: Record<string, boolean> = {};
   Object.keys(colorMap).forEach((colorName) => (temp[colorName] = false));
   const [editDialogOpen, setEditDialogOpen] =
-    useImmer<Record<string, boolean>>(temp);
+    useImmer<Record<ColorID, boolean>>(temp);
 
-  const handleEditClick = (color: string) => () => {
+  const handleEditClick = (colorID: number) => () => {
     setEditDialogOpen((editDialogOpen) => {
-      editDialogOpen[color] = true;
+      editDialogOpen[colorID] = true;
     });
-  };
-
-  const protectedColors = ["blue", "red", "yellow"];
-  const colorMapSorter = (
-    [colorNameA]: [colorNameA: string, colorCodeA: string],
-    [colorNameB]: [colorNameB: string, colorCodeB: string]
-  ) => {
-    if (
-      protectedColors.includes(colorNameA) &&
-      protectedColors.includes(colorNameB)
-    ) {
-      return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
-    }
-
-    if (protectedColors.includes(colorNameA)) return -1;
-    if (protectedColors.includes(colorNameB)) return 1;
-
-    return colorNameA < colorNameB ? -1 : colorNameA > colorNameB ? 1 : 0;
   };
 
   return (
@@ -89,15 +74,24 @@ export default function ColorPalette() {
           <List sx={{ minWidth: "100%" }}>
             <TransitionGroup>
               {Object.entries(colorMap)
-                .sort(colorMapSorter)
-                .map(([colorName, colorCode]) => (
-                  <Collapse key={`${colorName}_${colorCode}`}>
+                .map(([colorID, color]) => ({
+                  ...color,
+                  id: parseInt(colorID),
+                }))
+                .sort((colorA, colorB) =>
+                  colorA.name < colorB.name
+                    ? -1
+                    : colorA.name > colorB.name
+                    ? 1
+                    : 0
+                )
+                .map((color) => (
+                  <Collapse key={`${color.name}_${color.colorCode}`}>
                     <ColorListItem
-                      colorName={colorName}
-                      colorCode={colorCode}
+                      color={color}
                       handleEditClick={handleEditClick}
                       handleDeleteColor={handleDeleteColor}
-                      protect={protectedColors.includes(colorName)}
+                      protect={protectedColors.includes(color.name)}
                     />
                   </Collapse>
                 ))}
@@ -107,7 +101,7 @@ export default function ColorPalette() {
       </Paper>
 
       <ColorDialog
-        type="add"
+        variant="add"
         open={addDialogOpen}
         handleClose={() => {
           setAddDialogOpen(false);
@@ -115,24 +109,25 @@ export default function ColorPalette() {
         handleMutateColor={handleAddColor}
       />
 
-      {Object.entries(colorMap).map(([colorName, colorCode]) => (
-        <ColorDialog
-          type="edit"
-          open={editDialogOpen[colorName]}
-          handleClose={() => {
-            setEditDialogOpen((editDialogOpen) => {
-              editDialogOpen[colorName] = false;
-            });
-          }}
-          handleMutateColor={async (newColorName, newColorCode) => {
-            await handleEditColor(colorName, newColorName, newColorCode);
-          }}
-          defaultColorName={colorName}
-          defaultColorCode={colorCode}
-          disableNameChange={protectedColors.includes(colorName)}
-          key={`${colorName}_${colorCode}`}
-        />
-      ))}
+      {Object.entries(colorMap)
+        .map(([colorID, color]) => ({ ...color, id: parseInt(colorID) }))
+        .sort((colorA, colorB) =>
+          colorA.name < colorB.name ? -1 : colorA.name > colorB.name ? 1 : 0
+        )
+        .map((color) => (
+          <ColorDialog
+            key={`${color.name}_${color.colorCode}`}
+            variant="edit"
+            open={editDialogOpen[color.id]}
+            handleClose={() => {
+              setEditDialogOpen((editDialogOpen) => {
+                editDialogOpen[color.id] = false;
+              });
+            }}
+            handleMutateColor={handleEditColor}
+            color={color}
+          />
+        ))}
     </>
   );
 }

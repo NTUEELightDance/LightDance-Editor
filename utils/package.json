@@ -14,6 +14,7 @@
     "graphql-request": "^4.0.0",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
+    "tmp": "^0.2.1",
     "yargs": "^17.4.0"
   },
   "devDependencies": {

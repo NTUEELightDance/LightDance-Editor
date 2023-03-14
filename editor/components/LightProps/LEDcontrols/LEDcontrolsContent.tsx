@@ -5,9 +5,10 @@ import IntensityControl from "../IntensityControl";
 import useLedMap from "hooks/useLedMap";
 
 import _ from "lodash";
+import { LEDPartName } from "@/core/models";
 
 export interface LEDcontrolsContentProps {
-  parts: string[];
+  parts: LEDPartName[];
   intensity: number | null;
   src: string | null;
   handleIntensityChange: (intensity: number) => void;

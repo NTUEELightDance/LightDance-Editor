@@ -9,8 +9,9 @@ import type { State, ReactiveState, StateKey } from "../models";
 
 /**
  * Mutable State
+ * DO NOT mutate the state directly.
  */
-const _state: State = {
+export const _state: State = {
   isLoggedIn: false,
   token: "",
 
@@ -20,10 +21,12 @@ const _state: State = {
   posMap: {},
 
   ledMap: {},
+  LEDEffectIDtable: {},
 
   currentTime: 0,
   currentControlIndex: 0,
   currentPosIndex: 0,
+  currentLEDIndex: 0,
   posStack: [],
   posStackIndex: 0,
 
@@ -36,11 +39,11 @@ const _state: State = {
   ledEffectRecord: {},
   currentLEDStatus: {},
 
-  editMode: "IDLE",
+  editorState: "IDLE",
   editor: "CONTROL_EDITOR",
   selectionMode: "DANCER_MODE",
   editingData: {
-    frameId: "",
+    frameId: -1,
     start: 0,
     index: 0,
   },
@@ -48,14 +51,16 @@ const _state: State = {
   selected: {},
   selectedLEDs: [],
 
-  currentLEDPartName: "",
-  currentLEDEffectName: "",
+  currentLEDPartName: null,
+  currentLEDEffectReferenceDancer: null,
+  currentLEDEffectName: null,
   currentLEDEffect: null,
   currentLEDEffectStart: 0,
 
   dancers: {},
   dancerNames: [],
   partTypeMap: {},
+  LEDPartLengthMap: {},
   colorMap: {},
   effectList: [],
 
@@ -68,14 +73,6 @@ const diffSet = new Set<string>();
 export const state = onChange(_state, (path: string) => {
   diffSet.add(path.split(".")[0]);
 });
-
-state.toString = () => {
-  if (process.env.NODE_ENV !== "production") {
-    return JSON.parse(JSON.stringify(state));
-  } else {
-    return "Don't print state in production mode";
-  }
-};
 
 /**
  * Reactive State, can trigger react component rerender

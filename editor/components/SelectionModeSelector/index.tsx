@@ -9,25 +9,30 @@ import { reactiveState } from "@/core/state";
 import { setSelectionMode } from "@/core/actions";
 import { useReactiveVar } from "@apollo/client";
 
-import {
-  POS_EDITOR,
-  CONTROL_EDITOR,
-  DANCER,
-  PART,
-  LED_PART,
-  POSITION,
-} from "@/constants";
+import { SelectionMode } from "@/core/models";
+import { useHotkeys } from "react-hotkeys-hook";
+
+const icons = {
+  DANCER_MODE: <DancerIcon />,
+  PART_MODE: <FaTshirt />,
+  LED_MODE: <BlurOnIcon />,
+  POSITION_MODE: <OpenWithRoundedIcon />,
+} as const;
 
 function SelectionModeSelector() {
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
   const editor = useReactiveVar(reactiveState.editor);
 
-  const icons: Record<string, JSX.Element> = {
-    [DANCER]: <DancerIcon />,
-    [PART]: <FaTshirt />,
-    [LED_PART]: <BlurOnIcon />,
-    [POSITION]: <OpenWithRoundedIcon />,
-  };
+  // use v to toggle between dancer and part mode
+  useHotkeys("v", () => {
+    if (editor !== "CONTROL_EDITOR") return;
+
+    if (selectionMode === "DANCER_MODE") {
+      setSelectionMode({ payload: "PART_MODE" });
+    } else if (selectionMode === "PART_MODE") {
+      setSelectionMode({ payload: "DANCER_MODE" });
+    }
+  });
 
   return (
     <div>
@@ -44,10 +49,21 @@ function SelectionModeSelector() {
         direction="down"
       >
         {Object.entries(icons).map(([mode, icon]) => {
-          // Disable tools by its mode
-          const disabled =
-            (editor === POS_EDITOR && mode !== POSITION) ||
-            (editor === CONTROL_EDITOR && mode === POSITION);
+          const selectionMode = mode as SelectionMode;
+
+          let disabled = false;
+          if (editor === "CONTROL_EDITOR") {
+            if (
+              selectionMode !== "DANCER_MODE" &&
+              selectionMode !== "PART_MODE"
+            ) {
+              disabled = true;
+            }
+          } else if (editor === "POS_EDITOR") {
+            if (selectionMode !== "POSITION_MODE") disabled = true;
+          } else if (editor === "LED_EDITOR") {
+            if (selectionMode !== "LED_MODE") disabled = true;
+          }
 
           return (
             <SpeedDialAction
@@ -55,7 +71,7 @@ function SelectionModeSelector() {
               icon={icon}
               tooltipTitle={mode}
               onClick={async () => {
-                await setSelectionMode({ payload: mode });
+                await setSelectionMode({ payload: selectionMode });
               }}
               // @ts-expect-error: Unreachable code error
               disabled={disabled}

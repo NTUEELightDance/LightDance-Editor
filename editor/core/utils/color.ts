@@ -1,18 +1,20 @@
-import { ControlMapStatus, isFiberData } from "../models";
+import { ColorCode, ControlMapStatus, isFiberData } from "../models";
 
 import _ from "lodash";
+import { state } from "../state";
+import { colorAgent } from "@/api";
 
 /**
  * deleteColorCode return status without colorCode
  * @param {object} status - target status
  */
-export function deleteColorCode(status: ControlMapStatus) {
+export function deleteRGB(status: ControlMapStatus) {
   const pureStatus = _.cloneDeep(status);
 
   Object.values(pureStatus).forEach((dancer) => {
     Object.values(dancer).forEach((part) => {
       if (isFiberData(part)) {
-        delete part.colorCode;
+        delete part.rgb;
       }
     });
   });
@@ -31,9 +33,9 @@ export function colorCode2Rgb(colorCode: string) {
     throw `[Error] Invalid paramter at function colorCode2Rgb ${colorCode}`;
   }
   return [
-    parseInt(m.substr(0, 2), 16),
-    parseInt(m.substr(2, 2), 16),
-    parseInt(m.substr(4, 2), 16),
+    parseInt(m.slice(0, 2), 16),
+    parseInt(m.slice(2, 4), 16),
+    parseInt(m.slice(4, 6), 16),
   ];
 }
 
@@ -42,7 +44,7 @@ export function colorCode2Rgb(colorCode: string) {
  * @param rgb [r, g, b]
  * @returns ColorCode
  */
-export function Rgb2ColorCode(rgb: number[]) {
+export function rgb2ColorCode(rgb: number[]) {
   if (rgb.length !== 3) {
     throw "[Error] Invalid parameter at function Rgb2ColorCode";
   }
@@ -61,4 +63,37 @@ export function colorCode2int(colorCode: string) {
   rgb = (rgb << 8) + g;
   rgb = (rgb << 8) + b;
   return rgb;
+}
+
+export function getBlackColorID() {
+  const black = Object.values(state.colorMap).find(
+    (color) => color.colorCode === "#000000"
+  );
+
+  if (!black) {
+    throw "[Error] Failed to find black color";
+  }
+
+  return black.id;
+}
+
+export async function createBlack() {
+  const black = Object.values(state.colorMap).find(
+    (color) => color.colorCode === "#000000"
+  );
+  if (black) {
+    return black.id;
+  }
+
+  // create black color if it doesn't exist
+  const blackID = await colorAgent.addColor({
+    name: "black",
+    colorCode: "#000000" as ColorCode,
+  });
+
+  if (!blackID) {
+    throw "[Error] Failed to create black color";
+  }
+
+  return blackID;
 }

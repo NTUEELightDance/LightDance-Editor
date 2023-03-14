@@ -12,93 +12,104 @@ import {
   DialogContentText,
   DialogActions,
   Button,
-  Grid,
+  Box,
   Switch,
   FormControlLabel,
+  Paper,
+  TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 // import state and type
 import { reactiveState } from "core/state";
 import { useReactiveVar } from "@apollo/client";
-import store from "../../../store";
-import { getPartType } from "core/utils";
-import type { LEDMap } from "@/core/models";
+import store from "@/store";
+import { getPartType, notification } from "core/utils";
+import type { LEDMap, LEDPartName } from "@/core/models";
+import { ledAgent } from "@/api";
+import { renameLEDEffect } from "@/core/actions";
 
-export default function EffectList({ openDialog }: { openDialog: () => void }) {
+export default function LEDEffectList({
+  openAddDialog,
+  openEditDialog,
+}: {
+  openAddDialog: () => void;
+  openEditDialog: (partName: LEDPartName, effectName: string) => void;
+}) {
   const ledMap = useReactiveVar(reactiveState.ledMap);
   const { dancerMap } = store.getState().load;
   const dancers = useReactiveVar(reactiveState.dancers);
 
   // States
-  const [effectSelectedPart, setEffectSelectedPart] = useState<string>("");
-  const [effectSelectedName, setEffectSelectedName] = useState<string>("");
-  const [editOpened, setEditOpened] = useState<boolean>(false); // open edit effect dialog
+  const [effectSelectedPart, setEffectSelectedPart] =
+    useState<LEDPartName | null>(null);
+  const [effectSelectedName, setEffectSelectedName] = useState<string | null>(
+    null
+  );
   const [deleteOpened, setDeleteOpened] = useState<boolean>(false); // open delete effect dialog
+  const [renameOpened, setRenameOpened] = useState<boolean>(false); // open rename effect dialog
   const [expanded, setExpanded] = useState<boolean>(false);
 
-  // Handle functions
-  const handleOpenEdit = (PartName: string, EffectName: string) => {
-    setEffectSelectedPart(PartName);
-    setEffectSelectedName(EffectName);
-    setEditOpened(true);
+  const [newEffectName, setNewEffectName] = useState<string>("");
+
+  const handleOpenRename = (partName: LEDPartName, effectName: string) => {
+    setEffectSelectedPart(partName);
+    setEffectSelectedName(effectName);
+    setRenameOpened(true);
   };
 
-  const handleCloseEdit = () => {
-    setEditOpened(false);
-    reset();
+  const handleCloseRename = () => {
+    setRenameOpened(false);
   };
 
-  //TODO
-  const handleEditEffect = () => {
-    // const ok = await confirmation.warning(
-    //   `This will clear all frames from ${currentTime} to the end of the effect. Are you sure?`
-    // );
+  const handleRenameEffect = async () => {
+    if (!effectSelectedPart || !effectSelectedName) return;
 
-    // if (ok) {
-    //   editEffect({
-    //     payload: { start: currentTime, editId: effectSelectedID },
-    //   });
-    // }
+    const effectID = ledMap[effectSelectedPart][effectSelectedName]?.effectID;
+    if (!effectID) return;
 
-    handleCloseEdit();
+    await renameLEDEffect({
+      payload: {
+        effectID,
+        newName: newEffectName,
+      },
+    });
+
+    handleCloseRename();
   };
 
-  const handleOpenDelete = (PartName: string, EffectName: string) => {
-    setEffectSelectedPart(PartName);
-    setEffectSelectedName(EffectName);
+  const handleOpenDelete = (partName: LEDPartName, effectName: string) => {
+    setEffectSelectedPart(partName);
+    setEffectSelectedName(effectName);
     setDeleteOpened(true);
   };
+
   const handleCloseDelete = () => {
     setDeleteOpened(false);
-    reset();
   };
 
-  //TODO
-  const handleDeleteEffect = () => {
-    //deleteEffect({ payload: effectSelectedPart });
-    handleCloseDelete();
+  const handleDeleteEffect = async () => {
+    if (!effectSelectedPart || !effectSelectedName) return;
+
+    const effectID = ledMap[effectSelectedPart][effectSelectedName]?.effectID;
+
+    if (!effectID) return;
+    try {
+      await ledAgent.deleteLEDEffect(effectID);
+      notification.success("Delete effect successfully!");
+    } catch (error) {
+      if (error instanceof Error) {
+        notification.error(error.message);
+      }
+      console.error(error);
+    } finally {
+      handleCloseDelete();
+    }
   };
 
   const handleExpanded = () => {
     setExpanded(!expanded);
   };
-
-  //TODO
-  const reset = () => {
-    // setEffectSelectedPart("");
-    // setEffectSelectedName("");
-    //setCollidedFrame([]);
-  };
-
-  // *************************************************
-  // Construct modelMap of the following format
-  // {
-  //   modelName: {
-  //       LEDPart1: [LEDEffectList],
-  //       LEDPart2: [LEDEffectLIst2]
-  //   },
-  // }
 
   const modelMap = useMemo(() => {
     const tempModelMap: Record<string, LEDMap> = {};
@@ -140,77 +151,78 @@ export default function EffectList({ openDialog }: { openDialog: () => void }) {
     return tempModelMap;
   }, [dancers, dancerMap, ledMap]);
 
-  // console.log("LEDMap");
-  // console.log(ledMap);
-  // console.log("DancerMap");
-  // console.log(dancerMap);
-  // console.log("Dancers");
-  // console.log(dancers);
-  // console.log("modelList");
-  // console.log(modelList);
-  // console.log("modelMap");
-  // console.log(modelMap);
-
-  // *************************************************
-
   // Return
   return (
     <>
-      <List>
-        <ListSubheader>
-          <Grid
-            container
-            justifyContent="center"
-            spacing={3}
-            sx={{
-              mb: 2,
-              pb: 1,
-              width: "110%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Grid item>
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={openDialog}
-              >
-                Effect
-              </Button>
-            </Grid>
-            <Grid item>
-              <FormControlLabel
-                control={<Switch onChange={handleExpanded} size="small" />}
-                label="Expand"
-                color="primary"
-              />
-            </Grid>
-          </Grid>
-        </ListSubheader>
-        {Object.entries(modelMap).map(([modelName, modelData]) => (
-          <ModelListItem
-            modelName={modelName}
-            modelData={modelData as LEDMap}
-            key={modelName}
-            handleOpenEdit={handleOpenEdit}
-            handleOpenDelete={handleOpenDelete}
-            expanded={expanded}
-          ></ModelListItem>
-        ))}
-      </List>
-      <Dialog open={editOpened} onClose={handleCloseEdit}>
-        <DialogTitle>Edit LED Effect</DialogTitle>
+      <Paper
+        sx={{
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <List>
+          <ListSubheader component={Paper} sx={{ m: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 1,
+              }}
+            >
+              <Box>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<AddIcon />}
+                  onClick={() => openAddDialog()}
+                >
+                  Effect
+                </Button>
+              </Box>
+              <Box>
+                <FormControlLabel
+                  control={<Switch onChange={handleExpanded} size="small" />}
+                  label="Expand"
+                  color="primary"
+                />
+              </Box>
+            </Box>
+          </ListSubheader>
+          {Object.entries(modelMap).map(([modelName, modelData]) => (
+            <ModelListItem
+              modelName={modelName}
+              modelData={modelData as LEDMap}
+              key={modelName}
+              handleOpenEdit={openEditDialog}
+              handleOpenDelete={handleOpenDelete}
+              handleOpenRename={handleOpenRename}
+              expanded={expanded}
+            />
+          ))}
+        </List>
+      </Paper>
+      <Dialog open={renameOpened} onClose={handleCloseRename}>
+        <DialogTitle>Rename Effect</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure to edit effect "{effectSelectedName}" ?
+            Are you sure to rename effect "{effectSelectedName}" ?
           </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Effect Name"
+            type="text"
+            fullWidth
+            value={newEffectName}
+            onChange={(e) => setNewEffectName(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseEdit}>Cancel</Button>
-          <Button autoFocus onClick={handleEditEffect}>
-            Edit
+          <Button onClick={handleCloseRename}>Cancel</Button>
+          <Button autoFocus onClick={handleRenameEffect}>
+            Rename
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,21 +1,24 @@
 import { useState } from "react";
+import { useReactiveVar } from "@apollo/client";
 // components
 import { Box, Typography, ListItemButton, Collapse } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import LEDcontrolsContents from "./LEDcontrolsContent";
 // core
-import type { LEDData } from "core/models";
-import { editCurrentStatusLED, pushStatusStack } from "core/actions";
+import type { LEDData, LEDPartName } from "@/core/models";
+import { editCurrentStatusLED } from "@/core/actions";
+import { reactiveState } from "@/core/state";
 
 function LEDcontrols({
   part,
   currentDancers,
-  displayValue,
+  currentLEDData,
 }: {
-  part: string;
+  part: LEDPartName;
   currentDancers: string[];
-  displayValue: LEDData;
+  currentLEDData: LEDData;
 }) {
+  const LEDEffectIDTable = useReactiveVar(reactiveState.LEDEffectIDtable);
   // Call core actions to update currentStatus
   const updateCurrentStatus = ({
     src,
@@ -27,16 +30,29 @@ function LEDcontrols({
     // src can be empty string, alpha can be zero
     // so check for undefined only
     if (src === undefined && alpha === undefined) return;
-    const payload = currentDancers.map((dancerName) => ({
-      dancerName,
-      partName: part,
-      value: {
-        ...(src !== undefined && { src }),
-        ...(alpha !== undefined && { alpha }),
-      },
-    }));
+
+    const payload = currentDancers.map((dancerName) => {
+      if (src !== undefined) {
+        const effectID = reactiveState.ledMap()[part][src]?.effectID;
+        return {
+          dancerName,
+          partName: part,
+          value: {
+            effectID: effectID ?? -1,
+            ...(alpha !== undefined && { alpha }),
+          },
+        };
+      }
+
+      return {
+        dancerName,
+        partName: part,
+        value: {
+          alpha,
+        },
+      };
+    });
     editCurrentStatusLED({ payload });
-    pushStatusStack();
   };
 
   const handleSrcChange = (src: string) => {
@@ -73,7 +89,7 @@ function LEDcontrols({
             <Typography>{part}</Typography>
           </Box>
           <Box sx={{ width: "3vw" }}>
-            <Typography>{valueLabelFormat(displayValue.alpha)}</Typography>
+            <Typography>{valueLabelFormat(currentLEDData.alpha)}</Typography>
           </Box>
           <div>{open ? <ExpandLess /> : <ExpandMore />}</div>
         </Box>
@@ -81,9 +97,9 @@ function LEDcontrols({
 
       <Collapse in={open} timeout="auto" mountOnEnter unmountOnExit>
         <LEDcontrolsContents
-          parts={[part]}
-          intensity={displayValue.alpha}
-          src={displayValue.src}
+          parts={[part as LEDPartName]}
+          intensity={currentLEDData.alpha}
+          src={LEDEffectIDTable[currentLEDData.effectID].name}
           handleIntensityChange={handleIntensityChange}
           handleSrcChange={handleSrcChange}
           oneLine

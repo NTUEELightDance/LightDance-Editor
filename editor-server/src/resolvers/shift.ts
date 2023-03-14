@@ -1,4 +1,12 @@
-import { Resolver, Ctx, Mutation, PubSub, Publisher, Arg, Int } from "type-graphql";
+import {
+  Resolver,
+  Ctx,
+  Mutation,
+  PubSub,
+  Publisher,
+  Arg,
+  Int,
+} from "type-graphql";
 
 import {
   ControlRecordPayload,

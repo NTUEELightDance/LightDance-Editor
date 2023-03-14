@@ -1,34 +1,45 @@
 import { useState } from "react";
 
-// mui materials
-import { Paper } from "@mui/material";
-
 import EffectList from "./EffectList";
 import LEDEffectDialog from "./LEDEffectDialog";
+import ReferenceDancerNameDialog from "./LEDEffectDialog/ReferenceDancerNameDialog";
+import { LEDPartName } from "@/core/models";
 
 export default function LEDEffectList() {
   const [addDialogOpen, setAddDialogOpen] = useState<boolean>(false);
+  const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
+  const [partName, setPartName] = useState<LEDPartName | null>(null);
+  const [effectName, setEffectName] = useState<string | null>(null);
 
-  const openDialog = () => {
+  const openAddDialog = () => {
     setAddDialogOpen(true);
   };
 
+  const openEditDialog = (partName: LEDPartName, effectName: string) => {
+    setPartName(partName);
+    setEffectName(effectName);
+    if (!partName || !effectName) return;
+    setEditDialogOpen(true);
+  };
+
   return (
-    <div>
-      <Paper
-        sx={{
-          width: "100%",
-          minHeight: "100%",
-        }}
-      >
-        <EffectList openDialog={openDialog}></EffectList>
-      </Paper>
+    <>
+      <EffectList
+        openAddDialog={openAddDialog}
+        openEditDialog={openEditDialog}
+      />
       <LEDEffectDialog
-        addDialogOpen={addDialogOpen}
+        open={addDialogOpen}
         handleClose={() => {
           setAddDialogOpen(false);
         }}
-      ></LEDEffectDialog>
-    </div>
+      />
+      <ReferenceDancerNameDialog
+        open={editDialogOpen}
+        handleClose={() => setEditDialogOpen(false)}
+        partName={partName!}
+        effectName={effectName!}
+      />
+    </>
   );
 }

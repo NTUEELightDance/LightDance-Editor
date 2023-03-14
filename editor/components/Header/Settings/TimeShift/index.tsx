@@ -12,8 +12,6 @@ import { SelectChangeEvent } from "@mui/material";
 import TimeShiftTextField from "./TimeShiftTextField";
 // states and actions
 import { shiftFrameTime } from "core/actions";
-// types
-import { TimeShiftTool } from "types/components/tools";
 // utils
 import { notification, confirmation } from "core/utils";
 import { Box } from "@mui/system";
@@ -21,6 +19,8 @@ import { Box } from "@mui/system";
 const CONTROL = "control";
 const POSITION = "position";
 const BOTH = "both";
+
+export type TimeShiftTool = "control" | "position" | "both";
 
 export default function TimeShift({
   setTimeShiftOpen,

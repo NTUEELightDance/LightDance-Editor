@@ -2,11 +2,7 @@ import { useEffect, useRef, useLayoutEffect } from "react";
 
 // states and actions
 import { reactiveState } from "core/state";
-import {
-  setCurrentLEDPartName,
-  setCurrentPosToGround,
-  setModeToLEDMode,
-} from "core/actions";
+import { setCurrentPosToGround } from "core/actions";
 import { useReactiveVar } from "@apollo/client";
 
 // hotkeys
@@ -21,7 +17,7 @@ import SelectionModeSelector from "components/SelectionModeSelector";
 // constants
 import { IDLE, POSITION } from "@/constants";
 
-import { getDancerFromLEDpart } from "@/core/utils";
+import { isLEDPartName } from "@/core/models";
 
 /**
  * This is Display component
@@ -32,20 +28,22 @@ export default function ThreeSimulator() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { ref: containerRef } = useResizeDetector({
     onResize: (width, height) => {
-      if (threeController && threeController.isInitialized()) {
+      if (threeController.isInitialized()) {
         threeController.resize(width as number, height as number);
       }
     },
   });
 
   const isPlaying = useReactiveVar(reactiveState.isPlaying);
-  const editMode = useReactiveVar(reactiveState.editMode);
+  const editorState = useReactiveVar(reactiveState.editorState);
   const selectionMode = useReactiveVar(reactiveState.selectionMode);
 
   const selected = useReactiveVar(reactiveState.selected);
   const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
-  // const selectedLEDs = useReactiveVar(reactiveState.selectedLEDs);
   const currentLEDPartName = useReactiveVar(reactiveState.currentLEDPartName);
+  const referenceDancerName = useReactiveVar(
+    reactiveState.currentLEDEffectReferenceDancer
+  );
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -54,47 +52,49 @@ export default function ThreeSimulator() {
   }, [containerRef]);
 
   useEffect(() => {
-    if (threeController && threeController.isInitialized()) {
-      threeController.updateSelected(selected);
+    if (threeController.isInitialized()) {
+      threeController.updateSelected(selected, selectionMode);
     }
-  }, [selected]);
+  }, [selected, selectionMode]);
 
   useEffect(() => {
-    if (threeController && threeController.isInitialized()) {
+    if (threeController.isInitialized()) {
       threeController.controls.deactivate();
-      if (editMode !== IDLE) {
+      if (editorState !== IDLE) {
         threeController.controls.activate(selectionMode);
       }
     }
-  }, [editMode, selectionMode]);
+  }, [editorState, selectionMode]);
 
   useEffect(() => {
     threeController.setIsPlaying(isPlaying);
   }, [isPlaying]);
 
   useEffect(() => {
-    threeController.clearSelectedLEDs();
-    if (selectedLEDs.length > 0) {
-      threeController.updateSelectedLEDs(selectedLEDs, currentLEDPartName);
+    if (!isLEDPartName(currentLEDPartName) || !referenceDancerName) {
+      threeController.deselectLEDs();
+      return;
     }
-  }, [selectedLEDs]);
+
+    threeController.updateSelectedLEDs(
+      selectedLEDs,
+      referenceDancerName,
+      currentLEDPartName
+    );
+  }, [currentLEDPartName, referenceDancerName, selectedLEDs]);
 
   useEffect(() => {
-    if (currentLEDPartName !== "") {
-      setModeToLEDMode();
-      const dancer = getDancerFromLEDpart(currentLEDPartName);
-      if (dancer !== undefined && dancer !== "") {
-        threeController.zoomInSelectedLED({
-          dancer: dancer,
-          part: currentLEDPartName,
-        });
-      }
+    if (!isLEDPartName(currentLEDPartName) || !referenceDancerName) {
+      threeController.unfocusLEDParts();
+      return;
     }
-  }, [currentLEDPartName]);
+
+    threeController.focusOnLEDPart(referenceDancerName, currentLEDPartName);
+  }, [currentLEDPartName, referenceDancerName]);
 
   useHotkeys("g", () => {
     if (
-      reactiveState.editMode() !== IDLE &&
+      reactiveState.editorState() !== IDLE &&
       reactiveState.selectionMode() === POSITION
     ) {
       setCurrentPosToGround();

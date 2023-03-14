@@ -1,6 +1,6 @@
 import type { TabNode, IJsonModel } from "flexlayout-react";
 
-import { lazy, Suspense, useMemo, LazyExoticComponent, useEffect } from "react";
+import { lazy, Suspense, useMemo, LazyExoticComponent } from "react";
 
 import {
   Layout as FlexLayout,
@@ -17,52 +17,50 @@ import configFiles from "layouts";
 import useLayout from "hooks/useLayout";
 
 const CommandCenter = lazy(
-  async () => await import("components/CommandCenter")
+  async () => await import("@/components/CommandCenter")
 );
 const ThreeSimulator = lazy(
-  async () => await import("components/ThreeSimulator")
+  async () => await import("@/components/ThreeSimulator")
 );
-const FrameList = lazy(async () => await import("components/FrameList"));
-const DancerTree = lazy(async () => await import("components/DancerTree"));
-const LightProps = lazy(async () => await import("components/LightProps"));
+const FrameList = lazy(async () => await import("@/components/FrameList"));
+const Objects = lazy(async () => await import("@/components/ObjectsPanel"));
+const LightProps = lazy(async () => await import("@/components/LightProps"));
 const LightPresets = lazy(
-  async () => await import("components/Presets/LightPresets")
+  async () => await import("@/components/Presets/LightPresets")
 );
 const PosPresets = lazy(
-  async () => await import("components/Presets/PosPresets")
+  async () => await import("@/components/Presets/PosPresets")
 );
-const EffectList = lazy(async () => await import("components/EffectList"));
+const EffectList = lazy(async () => await import("@/components/EffectList"));
 const LEDEffectList = lazy(
-  async () => await import("components/LEDEffectList")
+  async () => await import("@/components/LEDEffectList")
 );
-const Wavesurfer = lazy(async () => await import("components/Wavesurfer"));
-const ColorPalette = lazy(async () => await import("components/ColorPalette"));
-const File = lazy(
-  async () => await import("@/components/Header/Settings/File")
+const Wavesurfer = lazy(async () => await import("@/components/Wavesurfer"));
+const ColorPalette = lazy(
+  async () => await import("@/components/ColorPalette")
 );
 
-const NotFound = lazy(async () => await import("components/NotFound"));
+const NotFound = lazy(async () => await import("@/components/NotFound"));
 
 const componentMap = {
   ColorPalette,
   CommandCenter,
   ThreeSimulator,
   FrameList,
-  DancerTree,
+  Objects,
   LightProps,
   LightPresets,
   PosPresets,
   EffectList,
   LEDEffectList,
   Wavesurfer,
-  File,
 };
 
 type ComponentMap = typeof componentMap;
 
 const factory = (node: TabNode) => {
   const component = node.getComponent() as keyof ComponentMap;
-  const Component: LazyExoticComponent<(props: any) => JSX.Element> =
+  const Component: LazyExoticComponent<(props: unknown) => JSX.Element> =
     componentMap[component] ?? NotFound;
   return (
     <Suspense

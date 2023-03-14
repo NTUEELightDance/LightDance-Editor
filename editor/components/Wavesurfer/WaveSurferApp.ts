@@ -5,11 +5,14 @@ import MarkersPlugin from "./MarkersPlugin";
 
 // redux
 import store from "@/store";
-import { setCurrentTime, setIsPlaying } from "@/core/actions";
-
-import { Region } from "@/types/components/wavesurfer";
+import {
+  setCurrentTime,
+  setIsPlaying,
+  updateLEDEffectFrameTime,
+} from "@/core/actions";
 
 import { throttle } from "throttle-debounce";
+import { state } from "@/core/state";
 /**
  * control 3rd party package, WaveSurfer
  */
@@ -35,6 +38,7 @@ class WaveSurferApp {
       progressColor: "#1883b5",
       cursorColor: "#edf0f1",
       responsive: true,
+      backend: "MediaElement",
       plugins: [
         CursorPlugin.create({
           showTime: true,
@@ -70,6 +74,25 @@ class WaveSurferApp {
         this.setTimeWhenPlaying(this.getCurrentTime());
       })
     );
+
+    this.waveSurfer.on("marker-drop", (event) => {
+      if (state.editor === "LED_EDITOR") {
+        updateLEDEffectFrameTime({
+          payload: {
+            frameIndex: event.data.frameID,
+            time: Math.round(event.time * 1000),
+          },
+        });
+      }
+    });
+
+    this.waveSurfer.on("pause", () => {
+      this.setIsPlaying();
+    });
+
+    this.waveSurfer.on("play", () => {
+      this.setIsPlaying();
+    });
 
     this.ready = true;
   }
@@ -112,21 +135,15 @@ class WaveSurferApp {
    * @function
    */
   playLoop() {
-    const Regions = Object.values(this.waveSurfer.regions.list);
-    let Region = null;
-    const setRegion = (r: Region) => {
-      if (
-        this.waveSurfer.getCurrentTime() <= (r.end || 0) &&
-        this.waveSurfer.getCurrentTime() >= (r.start || 0)
-      ) {
-        Region = r;
-      }
-    };
-    (Regions as Region[]).map((r) => {
-      setRegion(r);
-    });
+    const regions = Object.values(this.waveSurfer.regions.list);
 
-    if (Region) (Region as any).playLoop();
+    const region = regions.find(
+      (r) =>
+        this.waveSurfer.getCurrentTime() <= r.end &&
+        this.waveSurfer.getCurrentTime() >= r.start
+    );
+
+    if (region) region.playLoop();
   }
 
   /**
@@ -196,23 +213,28 @@ class WaveSurferApp {
    * @param { number } time  - time where marker created
    * @param { number } index - marker's label
    */
-  addMarker(startSecond: number) {
+  addMarker(startSecond: number, frameID: number, draggable: boolean) {
     this.waveSurfer.addMarker({
       time: startSecond,
       color: "#8AE5C8",
       position: "top",
-      draggable: false,
+      draggable,
+      data: {
+        frameID,
+      },
     });
   }
 
-  /**
-   * create markers according to all dancer's status
-   * @param { Object<{}> } controlMap - object of all dancer's status
-   */
-  updateMarkers(timestampsMilliSecond: number[]) {
+  updateMarkers(
+    markerData: Array<{
+      startSecond: number;
+      frameID?: number;
+      draggable?: boolean;
+    }>
+  ) {
     this.waveSurfer.clearMarkers();
-    timestampsMilliSecond.map((time) => {
-      this.addMarker(time / 1000);
+    markerData.map(({ startSecond, frameID, draggable }) => {
+      this.addMarker(startSecond / 1000, frameID ?? -1, !!draggable);
     });
   }
 
@@ -234,16 +256,6 @@ class WaveSurferApp {
         (window.screen.availWidth - this.waveSurfer.params.minPxPerSec)) /
         50
     );
-  }
-
-  clickLast(last: number) {
-    this.waveSurfer.setCurrentTime(last);
-    this.setTime(this.getCurrentTime());
-  }
-
-  clickNext(next: number) {
-    this.waveSurfer.setCurrentTime(next);
-    this.setTime(this.getCurrentTime());
   }
 
   /**

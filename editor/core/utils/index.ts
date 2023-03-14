@@ -1,6 +1,6 @@
 import { controlAgent, posAgent, ledAgent } from "@/api";
 import { reactiveState, state } from "@/core/state";
-import { LEDPartName } from "../models";
+import { ControlMap } from "../models";
 
 /**
  * Get [posMap, posRecord] from posAgent
@@ -24,8 +24,8 @@ export async function getControlPayload() {
 
 export async function getControl() {
   const results = await Promise.allSettled([
-    controlAgent.getControlMapPayload(),
     controlAgent.getControlRecord(),
+    controlAgent.getControlMapPayload(),
   ]);
 
   if (results[0].status === "rejected") {
@@ -36,8 +36,22 @@ export async function getControl() {
     throw results[1].reason;
   }
 
-  const controlRecord = results[1].value;
-  const controlMap = state.controlMap;
+  const controlRecord = results[0].value;
+
+  // wait for the cache to update
+  const waitForControlMap = async (retry = 0): Promise<ControlMap> => {
+    if (
+      retry > 0 &&
+      controlRecord.length !== Object.keys(state.controlMap).length
+    ) {
+      // wait for some time
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      return await waitForControlMap(retry - 1);
+    }
+    return state.controlMap;
+  };
+
+  const controlMap = await waitForControlMap(10);
   return [controlMap, controlRecord] as const;
 }
 
@@ -56,7 +70,8 @@ export async function getLedMap() {
   await ledAgent.getLedMapPayload();
   // the ledMap is updated in the above line by merge function in cache
   const ledMap = state.ledMap;
-  return ledMap;
+  const ledEffectIDtable = state.LEDEffectIDtable;
+  return [ledMap, ledEffectIDtable] as const;
 }
 
 /**
@@ -66,16 +81,6 @@ export async function getLedMap() {
 export function getPartType(partName: string) {
   const partTypeMap = reactiveState.partTypeMap();
   return partTypeMap[partName];
-}
-
-// retrieve the name of the first dancer with this LED part
-export function getDancerFromLEDpart(partName: LEDPartName) {
-  const dancersArray = state.dancersArray;
-  for (const dancer of dancersArray) {
-    if (dancer.parts.some((part) => part.name === partName)) {
-      return dancer.name;
-    }
-  }
 }
 
 export * from "./Notification";

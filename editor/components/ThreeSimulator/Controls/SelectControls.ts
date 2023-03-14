@@ -3,55 +3,89 @@ import {
   Raycaster,
   Vector2,
   Group,
-  WebGLRenderer,
-  PCFShadowMap,
   type Intersection,
   type Object3D,
+  type Renderer,
+  type PerspectiveCamera,
+  type Scene,
 } from "three";
+
 import {
   setSelectedDancers,
   clearSelected,
-  setSelectedLEDParts,
+  setSelectedLEDBulbs,
   setSelectedParts,
 } from "@/core/actions";
 import { state } from "@/core/state";
 import { SelectionBox } from "./SelectionBox";
 import { SelectionHelper } from "./SelectionHelper";
 import { throttle } from "throttle-debounce";
-import type { SelectionMode } from "@/core/models";
+import type {
+  DancerName,
+  LEDPartName,
+  Selected,
+  SelectionMode,
+} from "@/core/models";
 import { SelectedPartPayload } from "@/core/models";
 import { isLEDPartName } from "@/core/models";
-import { getDancerFromLEDpart } from "@/core/utils";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
+
+// @ts-expect-error no types for module css
+import styles from "./controls.module.css";
+import { type Dancer } from "../ThreeComponents";
+import { type DragControls } from "./DragControls";
+
+import _ from "lodash";
 
 const _raycaster = new Raycaster();
 const _pointer = new Vector2();
 const _group = new Group();
 
 class SelectControls extends EventDispatcher {
-  constructor(_objects, _camera, _domElement, _dragControls, _dancers, _scene) {
+  helper: SelectionHelper;
+  enabled: boolean;
+  enableMultiSelection: boolean;
+  onLasso: boolean;
+  blocking: boolean;
+  selectedOutlinePass: OutlinePass;
+
+  activate: (mode: SelectionMode) => void;
+  deactivate: () => void;
+  dispose: () => void;
+  getObjects: () => Object3D[];
+  getGroup: () => Group;
+  getRaycaster: () => Raycaster;
+  updateSelected: (selected: Selected, selectionMode: SelectionMode) => void;
+
+  constructor(
+    _objects: Object3D[],
+    _camera: PerspectiveCamera,
+    _domElement: HTMLCanvasElement,
+    _dragControls: DragControls,
+    _dancers: Record<string, Dancer>,
+    _scene: Scene,
+    _renderer: Renderer,
+    _outlinePass: OutlinePass
+  ) {
     super();
+
+    this.selectedOutlinePass = _outlinePass;
 
     _domElement.style.touchAction = "none"; // disable touch scroll
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let _selected = null;
     let _mode: SelectionMode = "DANCER_MODE";
 
     const _intersections: Intersection<Object3D<Event>>[] = [];
     _scene.add(_group);
 
-    const renderer = new WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFShadowMap;
-
     const selectionBox = new SelectionBox(_camera, _scene);
-    const helper = new SelectionHelper(renderer, "selectBox");
+    this.helper = new SelectionHelper(_renderer, styles.selectionBox);
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const scope = this;
-    function activate(mode) {
+    function activate(mode: SelectionMode) {
       _domElement.addEventListener("pointerdown", onPointerDown);
       _domElement.addEventListener(
         "pointermove",
@@ -87,8 +121,10 @@ class SelectControls extends EventDispatcher {
       return _raycaster;
     }
 
-    function onPointerDown(event) {
+    function onPointerDown(event: PointerEvent) {
       if (event.button !== 0 || scope.enabled === false) return;
+
+      scope.helper.onSelectStart(event);
 
       if (state.selectionMode !== "POSITION_MODE") {
         scope.onLasso = true;
@@ -98,6 +134,8 @@ class SelectControls extends EventDispatcher {
           (-(event.clientY - rect.top) / rect.height) * 2 + 1,
           0.5
         );
+        selectionBox.endPoint.copy(selectionBox.startPoint);
+        selectionBox.select();
       }
 
       updatePointer(event);
@@ -115,17 +153,17 @@ class SelectControls extends EventDispatcher {
         // Multi Selection Mode
         if (event.ctrlKey || event.metaKey) {
           // Toggle Selection
-          if (_group.children.includes(object)) {
-            _removeFromGroup(object);
+          if (_group.children.includes(object!)) {
+            _removeFromGroup(object!);
           } else {
-            _addToGroup(object);
+            _addToGroup(object!);
           }
         }
         // Single Selection Mode
         else {
-          if (!_group.children.includes(object)) {
+          if (!_group.children.includes(object!)) {
             _clearGroup();
-            _addToGroup(object);
+            _addToGroup(object!);
           }
         }
       } else {
@@ -144,13 +182,18 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    let _hover = null;
+    let _hover: string | null = null;
 
-    function onPointerMove(event) {
-      if (state.selectionMode === "POSITION_MODE") {
-        return;
-      }
-      if (scope.onLasso) {
+    function onPointerMove(event: PointerEvent) {
+      if (scope.enabled === false) return;
+
+      // handle lasso selection
+      if (
+        scope.onLasso &&
+        event.buttons & 1 &&
+        state.selectionMode !== "POSITION_MODE"
+      ) {
+        scope.helper.onSelectMove(event);
         updatePointer(event);
         _raycaster.setFromCamera(_pointer, _camera);
         const rect = _domElement.getBoundingClientRect();
@@ -161,96 +204,97 @@ class SelectControls extends EventDispatcher {
         );
         selectionBox.select();
         return;
-      }
-      updatePointer(event);
-      _intersections.length = 0;
+      } else {
+        // handle hover
+        updatePointer(event);
+        _intersections.length = 0;
 
-      _raycaster.setFromCamera(_pointer, _camera);
-      _raycaster.intersectObjects(_objects, true, _intersections);
+        _raycaster.setFromCamera(_pointer, _camera);
+        _raycaster.intersectObjects(_objects, true, _intersections);
 
-      if (_intersections.length > 0) {
-        const { name } = _intersections[0].object.parent;
-        if (_hover && _hover !== name) _unhoverByName(_hover);
-        _hover = name;
-        _hoverByName(_hover);
-      } else if (_hover) {
-        _unhoverByName(_hover);
-        _hover = null;
-      }
-    }
-
-    function onPointerUp(event) {
-      if (scope.onLasso === true) {
-        scope.onLasso = false;
-
-        if (state.selectionMode === "DANCER_MODE") {
-          if (selectionBox.collection.length > 0) {
-            const dancers: string[] = [];
-            selectionBox.collection.forEach((part, index) => {
-              const name = part.name;
-              if (name === "Human") {
-                dancers.push(part.parent.name);
-              }
-            });
-            setSelectedDancers({ payload: dancers });
-          }
-        } else if (state.selectionMode === "PART_MODE") {
-          const parts: SelectedPartPayload = {};
-          selectionBox.collection.forEach((part, index) => {
-            const name = part.name;
-            if (
-              name !== "Human" &&
-              name !== "nameTag" &&
-              !isLEDPartName(name)
-            ) {
-              parts[part.parent.name] ??= [];
-              parts[part.parent.name].push(name);
-            }
-          });
-          setSelectedParts({ payload: parts });
-        } else if (state.selectionMode === "LED_MODE") {
-          const partName = state.currentLEDPartName;
-          const dancerName = getDancerFromLEDpart(partName);
-          if (dancerName === undefined) {
-            return;
-          }
-          if (partName === "") {
-            return;
-          }
-          const partsIndex: number[] = [];
-          selectionBox.collection.forEach((part, index) => {
-            const name = part.name;
-            // console.log(part.parent.name, part.name);
-            if (isLEDPartName(name) && partName !== "" && dancerName !== "") {
-              if (
-                part.parent.name === dancerName &&
-                part.name.slice(0, -3) === partName
-              ) {
-                const partNumber: string = name.slice(-3);
-                partsIndex.push(Number(partNumber));
-              }
-            }
-          });
-
-          const payload: {
-            dancer: string;
-            part: string;
-            partsIndex: number[];
-          } = {
-            dancer: dancerName,
-            part: partName,
-            partsIndex: partsIndex,
-          };
-          setSelectedLEDParts({ payload: payload });
+        if (_intersections.length > 0) {
+          const { name } = _intersections[0].object.parent!;
+          if (_hover && _hover !== name) _unhoverByName(_hover);
+          _hover = name;
+          _hoverByName(_hover);
+        } else if (_hover) {
+          _unhoverByName(_hover);
+          _hover = null;
         }
       }
     }
 
-    function _hoverByName(name) {
+    function onPointerUp() {
+      if (!scope.onLasso) return;
+      scope.onLasso = false;
+
+      scope.helper.onSelectOver();
+
+      if (state.selectionMode === "DANCER_MODE") {
+        if (selectionBox.collection.length > 0) {
+          const dancers: string[] = [];
+          selectionBox.collection.forEach((part) => {
+            const name = part.name;
+            if (name === "Human") {
+              dancers.push(part.parent!.name);
+            }
+          });
+          setSelectedDancers({ payload: dancers });
+        }
+      } else if (state.selectionMode === "PART_MODE") {
+        const parts: SelectedPartPayload = {};
+        const uniqueNames = _.uniqBy(
+          selectionBox.collection
+            .map((part) => ({
+              parentName: part.parent!.name,
+              name: part.name.replace(/\d{3}$/, ""),
+            }))
+            .filter(({ name }) => name !== "Human" && name !== "nameTag"),
+          ({ parentName, name }) => `${parentName}-${name}`
+        );
+
+        uniqueNames.forEach(({ parentName, name }) => {
+          parts[parentName] ??= [];
+          parts[parentName].push(name);
+        });
+
+        setSelectedParts({ payload: parts });
+      } else if (state.selectionMode === "LED_MODE") {
+        const currentLEDPartName = state.currentLEDPartName;
+        if (!isLEDPartName(currentLEDPartName)) return;
+        const referenceDancerName = state.currentLEDEffectReferenceDancer;
+
+        const partsIndex: number[] = [];
+        selectionBox.collection.forEach((part) => {
+          const partName = part.name;
+          if (!isLEDPartName(partName)) return;
+
+          const parentName = part.parent!.name;
+
+          if (
+            parentName === referenceDancerName &&
+            partName.startsWith(currentLEDPartName)
+          ) {
+            const partNumber = partName.match(/\d{3}$/)?.[0];
+
+            if (!partNumber) {
+              return;
+            }
+
+            // the -1 is important because the LED parts are 1-indexed in the model
+            partsIndex.push(parseInt(partNumber) - 1);
+          }
+        });
+
+        setSelectedLEDBulbs({ payload: partsIndex });
+      }
+    }
+
+    function _hoverByName(name: string) {
       _dancers[name].hover();
     }
 
-    function _unhoverByName(name) {
+    function _unhoverByName(name: string) {
       _dancers[name].unhover();
     }
 
@@ -261,11 +305,11 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function _addToGroup(object) {
+    function _addToGroup(object: Object3D) {
       _group.attach(object);
     }
 
-    function _removeFromGroup(object) {
+    function _removeFromGroup(object: Object3D) {
       _scene.attach(object);
     }
 
@@ -279,44 +323,71 @@ class SelectControls extends EventDispatcher {
       }
     }
 
-    function updateSelected(selected) {
-      const selectedObjects = [];
-      Object.entries(selected).forEach(([name, value]) => {
-        _dancers[name].updateSelected(value.selected);
-        const dancer = _dancers[name];
+    function updateSelected(selected: Selected, selectionMode: SelectionMode) {
+      const selectedObjects: Object3D[] = [];
+      const selectedLEDParts: Record<DancerName, Set<LEDPartName>> = {};
 
-        if (value.selected) {
-          _group.attach(dancer.model);
-        } else {
-          _scene.attach(dancer.model);
+      // push dancer and fiber parts and collect LED parts
+      Object.entries(selected).forEach(
+        ([dancerName, { selected: dancerSelected, parts: selectedParts }]) => {
+          _dancers[dancerName].updateSelected(dancerSelected);
+          const dancer = _dancers[dancerName];
+
+          if (dancerSelected) {
+            _group.attach(dancer.model);
+          } else {
+            _scene.attach(dancer.model);
+          }
+
+          selectedObjects.push(
+            ..._dancers[dancerName].model.children.filter((part) => {
+              if (part.name === "nameTag") {
+                return false;
+              }
+
+              if (
+                selectionMode === "DANCER_MODE" ||
+                selectionMode === "POSITION_MODE"
+              ) {
+                if (part.name === "Human" && dancerSelected) {
+                  return true;
+                }
+              }
+
+              selectedLEDParts[dancerName] ??= new Set();
+              if (
+                isLEDPartName(part.name) &&
+                selectedParts.some((partName) => part.name.startsWith(partName))
+              ) {
+                // strip the trailing number
+                const partName = part.name.replace(/\d{3}$/, "") as LEDPartName;
+                selectedLEDParts[dancerName].add(partName);
+                return false;
+              }
+
+              return selectedParts.includes(part.name);
+            })
+          );
         }
+      );
 
-        selectedObjects.push(
-          ..._dancers[name].model.children.filter(
-            (part) =>
-              part.name !== "nameTag" &&
-              ((part.name === "Human" && value.selected) ||
-                value.parts.includes(part.name))
-          )
-        );
+      // push all LED bulbs of selected LED parts
+      Object.entries(selectedLEDParts).forEach(([dancerName, parts]) => {
+        const dancer = _dancers[dancerName];
+        dancer.setSelectedLEDParts(parts);
       });
 
       _updateDragGroup();
+
       //called only dancer selected
-      if (scope.selectedOutline) {
-        scope.selectedOutline.selectedObjects = selectedObjects;
-      }
+      scope.selectedOutlinePass.selectedObjects = selectedObjects;
     }
 
-    function updatePointer(event) {
+    function updatePointer(event: PointerEvent) {
       const rect = _domElement.getBoundingClientRect();
 
       _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
-    }
-
-    function setSelectedOutline(selectedOutline) {
-      this.selectedOutline = selectedOutline;
     }
 
     activate(_mode);
@@ -333,7 +404,6 @@ class SelectControls extends EventDispatcher {
     this.getObjects = getObjects;
     this.getGroup = getGroup;
     this.getRaycaster = getRaycaster;
-    this.setSelectedOutline = setSelectedOutline;
     this.updateSelected = updateSelected;
   }
 }

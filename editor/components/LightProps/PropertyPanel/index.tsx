@@ -13,6 +13,7 @@ import type {
   LEDData,
   FiberData,
   SelectedPartPayload,
+  LEDPartName,
 } from "core/models";
 import { setSelectedParts, setSelectionMode } from "core/actions";
 
@@ -91,9 +92,9 @@ function PropertyPanel({
             {sortedParts.map((part) =>
               partType === "LED" ? (
                 <LEDcontrols
-                  part={part}
+                  part={part as LEDPartName}
                   currentDancers={currentDancers}
-                  displayValue={
+                  currentLEDData={
                     currentStatus[currentDancers[0]][part] as LEDData
                   }
                   key={`${currentDancers[0]}_${part}`}

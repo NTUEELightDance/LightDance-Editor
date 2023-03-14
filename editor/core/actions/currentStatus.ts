@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual } from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import { registerActions } from "../registerActions";
 // utils
 import { getControl, fadeStatus } from "../utils";
@@ -12,7 +12,6 @@ import {
   isLEDData,
 } from "../models";
 
-import { Color } from "three";
 import { syncCurrentLEDStatus } from "./led";
 
 const actions = registerActions({
@@ -43,14 +42,16 @@ const actions = registerActions({
     const {
       dancerName,
       partName,
-      value: { color, alpha },
+      value: { colorID, alpha },
     } = payload;
 
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    if (color && color !== "") {
-      (state.currentStatus[dancerName][partName] as FiberData).color = color;
-      (state.currentStatus[dancerName][partName] as FiberData).colorCode =
-        new Color(state.colorMap[color]);
+    if (colorID && colorID !== -1) {
+      (state.currentStatus[dancerName][partName] as FiberData) = {
+        colorID,
+        alpha,
+        rgb: state.colorMap[colorID].rgb,
+      };
     }
     if (typeof alpha === "number") {
       (state.currentStatus[dancerName][partName] as FiberData).alpha = alpha;
@@ -67,11 +68,11 @@ const actions = registerActions({
     }>
   ) => {
     state.currentStatus = cloneDeep(state.currentStatus); // make a new clone since the data may be readOnly (calculate from cache)
-    payload.forEach(({ dancerName, partName, value: { src, alpha } }) => {
+    payload.forEach(({ dancerName, partName, value: { effectID, alpha } }) => {
       const data = state.currentStatus[dancerName][partName];
       if (isLEDData(data)) {
-        if (typeof src === "string") {
-          data.src = src;
+        if (typeof effectID === "number") {
+          data.effectID = effectID;
         }
         if (typeof alpha === "number") {
           data.alpha = alpha;
@@ -79,6 +80,7 @@ const actions = registerActions({
       }
     });
 
+    pushStatusStack();
     syncCurrentLEDStatus();
   },
 
@@ -86,28 +88,32 @@ const actions = registerActions({
     // make a new clone since the data may be readOnly (calculate from cache)
     const newCurrentStatus = cloneDeep(state.currentStatus);
     const partTypeMap = state.partTypeMap;
-    let hasChange = false;
-    let hasLEDChange = false;
+    let hasChanged = false;
+    let hasLEDChanged = false;
 
-    // only update if there really is a difference
-    Object.entries(payload).forEach(([dancerName, parts]) => {
-      Object.entries(parts).forEach(([partName, newValue]) => {
-        const oldValue = newCurrentStatus[dancerName][partName];
-        if (!isEqual(oldValue, newValue)) {
-          hasChange = true;
+    // change to for loop for readability
+    for (const [dancerName, parts] of Object.entries(payload)) {
+      for (const [partName, partData] of Object.entries(parts)) {
+        for (const [key, newValue] of Object.entries(partData)) {
+          // @ts-expect-error the key is guaranteed to be in the type
+          const oldValue = state.currentStatus[dancerName][partName][key];
+          if (oldValue === newValue) continue;
+          hasChanged = true;
           if (partTypeMap[partName] === "LED") {
-            hasLEDChange = true;
+            hasLEDChanged = true;
           }
-          newCurrentStatus[dancerName][partName] = newValue;
+          // @ts-expect-error the key is guaranteed to be in the type
+          newCurrentStatus[dancerName][partName][key] = newValue;
         }
-      });
-    });
-    if (hasChange) {
+      }
+    }
+
+    if (hasChanged) {
       state.currentStatus = newCurrentStatus;
       pushStatusStack();
     }
 
-    if (hasLEDChange) {
+    if (hasLEDChanged) {
       syncCurrentLEDStatus();
     }
   },

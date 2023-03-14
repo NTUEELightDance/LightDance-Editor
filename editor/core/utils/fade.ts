@@ -1,41 +1,15 @@
 import type {
   ControlMapElement,
   ControlMapStatus,
-  LEDData,
-  FiberData,
-  ELData,
   ColorMap,
-  ColorCode,
+  RGB,
 } from "../models";
-
-import { isColorCode } from "../models";
+import { isLEDData, isFiberData } from "../models";
 
 import { Color } from "three";
 
-function Round1(number: number) {
+function round1(number: number) {
   return Math.round(number * 10) / 10;
-}
-
-function CheckTypeOfLED(
-  object: LEDData | FiberData | ELData
-): object is LEDData {
-  return (
-    (object as LEDData).src !== undefined &&
-    (object as LEDData).alpha !== undefined
-  );
-}
-
-function CheckTypeOfFiber(
-  object: LEDData | FiberData | ELData
-): object is FiberData {
-  return (
-    (object as FiberData).color !== undefined &&
-    (object as FiberData).alpha !== undefined
-  );
-}
-
-function CheckTypeOfEl(object: LEDData | FiberData | ELData): object is ELData {
-  return typeof (object as ELData) === "number";
 }
 
 /**
@@ -64,38 +38,26 @@ export function fadeStatus(
       const nextVal = nextParts[part];
 
       // LED Parts
-      if (CheckTypeOfLED(preVal) && CheckTypeOfLED(nextVal)) {
+      if (isLEDData(preVal) && isLEDData(nextVal)) {
         newStatus[dancer][part] = {
-          alpha: Round1(
+          alpha: round1(
             ((nextVal.alpha - preVal.alpha) * (time - preTime)) /
               (nextTime - preTime) +
               preVal.alpha
           ),
-          src: preVal.src,
+          effectID: preVal.effectID,
         };
       }
 
-      // El Parts
-      else if (CheckTypeOfEl(preVal) && CheckTypeOfEl(nextVal)) {
-        // if (typeof preVal === "number" && typeof nextVal === "number") {
-        newStatus[dancer][part] = Round1(
-          ((nextVal - preVal) * (time - preTime)) / (nextTime - preTime) +
-            preVal
-        );
-        // }
-      }
       // fiber Parts
-      else if (CheckTypeOfFiber(preVal) && CheckTypeOfFiber(nextVal)) {
+      else if (isFiberData(preVal) && isFiberData(nextVal)) {
         // Compute fade color with previous color and next color
-        const newColorHex = fadeColor(
-          colorMap[preVal.color],
-          colorMap[nextVal.color],
+        const newColorRGB = fadeColor(
+          colorMap[preVal.colorID].rgb,
+          colorMap[preVal.colorID].rgb,
           time,
           preTime,
           nextTime
-        );
-        const newColor = new Color().setHex(
-          parseInt(newColorHex.replace(/^#/, ""), 16)
         );
         // Compute new alpha
         const newAlpha = fadeAlpha(
@@ -109,8 +71,8 @@ export function fadeStatus(
         // assign colorCode(fade Color) if fade and between two frames
         newStatus[dancer][part] = {
           alpha: newAlpha,
-          color: preVal.color,
-          colorCode: newColor,
+          colorID: preVal.colorID,
+          rgb: newColorRGB,
         };
       } else {
         throw new Error(
@@ -122,31 +84,32 @@ export function fadeStatus(
   return newStatus;
 }
 
-/**
- * Color Fade
- * @param preHex #ffffff
- * @param nextHex #ffffff
- * @param time
- * @param preTime
- * @param nextTime
- * @returns
- */
+// RGB 0-255
 export function fadeColor(
-  preHex: ColorCode,
-  nextHex: ColorCode,
+  preRGB: RGB,
+  nextRGB: RGB,
   time: number,
   preTime: number,
   nextTime: number
-): ColorCode {
+): RGB {
   // Compute fade color with previous color and next color
-  const preColor = new Color().setHex(parseInt(preHex.replace(/^#/, ""), 16));
-  const nextColor = new Color().setHex(parseInt(nextHex.replace(/^#/, ""), 16));
+  const preColor = new Color().setRGB(
+    preRGB[0] / 255,
+    preRGB[1] / 255,
+    preRGB[2] / 255
+  );
+  const nextColor = new Color().setRGB(
+    nextRGB[0] / 255,
+    nextRGB[1] / 255,
+    nextRGB[2] / 255
+  );
   preColor.lerp(nextColor, (time - preTime) / (nextTime - preTime));
-  const colorCode = `#${preColor.getHexString()}`;
-  if (isColorCode(colorCode)) {
-    return colorCode;
-  }
-  throw new Error(`[Error] fadeColor, invalid colorCode ${colorCode}`);
+
+  return [
+    Math.round(preColor.r * 255),
+    Math.round(preColor.g * 255),
+    Math.round(preColor.b * 255),
+  ];
 }
 
 /**
@@ -165,7 +128,7 @@ export function fadeAlpha(
   preTime: number,
   nextTime: number
 ) {
-  return Round1(
+  return round1(
     ((nextAlpha - preAlpha) * (time - preTime)) / (nextTime - preTime) +
       preAlpha
   );

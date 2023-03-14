@@ -15,9 +15,11 @@ import type {
   SelectedPartPayload,
   PartName,
   Dancers,
-} from "core/models";
-import { setSelectedParts, setSelectionMode } from "core/actions";
-import { notification } from "core/utils";
+  ColorMap,
+  LEDPartName,
+} from "@/core/models";
+import { setSelectedParts, setSelectionMode } from "@/core/actions";
+import { notification } from "@/core/utils";
 import { PART } from "@/constants";
 
 function GroupPanel({
@@ -36,7 +38,7 @@ function GroupPanel({
   parts: string[];
   currentDancers: string[];
   currentStatus: ControlMapStatus;
-  colorMap: Record<string, string>;
+  colorMap: ColorMap;
   deleteGroup: (groupName: string) => Promise<void>;
 }) {
   const sortedParts = [...parts].sort();
@@ -92,9 +94,9 @@ function GroupPanel({
       Items.push(
         partType === "LED" ? (
           <LEDcontrols
-            part={part}
+            part={part as LEDPartName}
             currentDancers={currentDancers}
-            displayValue={displayValue as LEDData}
+            currentLEDData={displayValue as LEDData}
             key={`${currentDancers[0]}_${part}_LED`}
           />
         ) : (

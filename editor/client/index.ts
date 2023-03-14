@@ -5,8 +5,19 @@ import { createClient } from "graphql-ws";
 
 import Subscriptions from "./subscription";
 import { state } from "@/core/state";
-import { setColorMap, setControlMap, setLEDMap } from "@/core/actions";
-import { toControlMap, toLEDMap, toPosMap } from "@/core/utils/convert";
+import {
+  setColorMap,
+  setControlMap,
+  setLEDEffectIDtable,
+  setLEDMap,
+} from "@/core/actions";
+import {
+  toColorMap,
+  toControlMap,
+  toLEDEffectIDTable,
+  toLEDMap,
+  toPosMap,
+} from "@/core/utils/convert";
 import { setPosMap } from "@/core/actions/posMap";
 
 const wsLink = new GraphQLWsLink(
@@ -85,9 +96,9 @@ const client = new ApolloClient({
               if (incoming instanceof Promise) {
                 incoming = await incoming;
               }
-              const colorMap = incoming;
+              const colorMap = toColorMap(incoming);
               await setColorMap({ payload: colorMap });
-              return colorMap;
+              return incoming;
             },
           },
         },
@@ -102,6 +113,20 @@ const client = new ApolloClient({
               const ledMap = toLEDMap(incoming);
               await setLEDMap({
                 payload: ledMap,
+                options: {
+                  refreshThreeSimulator: false,
+                  refreshWavesurfer: false,
+                },
+              });
+              const ledEffectIDtable = toLEDEffectIDTable(incoming);
+              ledEffectIDtable[-1] = {
+                effectID: -1,
+                name: "",
+                effects: [],
+                repeat: 0,
+              };
+              await setLEDEffectIDtable({
+                payload: ledEffectIDtable,
                 options: {
                   refreshThreeSimulator: false,
                   refreshWavesurfer: false,

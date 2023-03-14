@@ -36,7 +36,7 @@ export class ControlMapResolver {
 
 @Resolver((of) => ControlData)
 export class EditControlMapResolver {
-  @Mutation((returns) => ControlMap)
+  @Mutation((returns) => String)
   async editControlMap(
     @PubSub(Topic.ControlMap) publish: Publisher<ControlMapPayload>,
     @Arg("input") input: EditControlMapInput,
@@ -162,10 +162,7 @@ export class EditControlMapResolver {
       },
     };
     await publish(payload);
-    const frameIds = await ctx.prisma.controlFrame.findMany({
-      select: { id: true },
-    });
 
-    return { frameIds: [frameId] };
+    return "ok";
   }
 }

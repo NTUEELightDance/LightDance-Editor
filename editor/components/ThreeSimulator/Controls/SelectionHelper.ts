@@ -1,7 +1,16 @@
-import { Vector2 } from "three";
+import { Vector2, type Renderer } from "three";
 
 class SelectionHelper {
-  constructor(renderer, cssClassName) {
+  renderer: Renderer;
+  element: HTMLDivElement;
+  startPoint: Vector2;
+  pointTopLeft: Vector2;
+  pointBottomRight: Vector2;
+  isDown: boolean;
+
+  constructor(renderer: Renderer, cssClassName: string) {
+    this.isDown = false;
+
     this.element = document.createElement("div");
     this.element.classList.add(cssClassName);
     this.element.style.pointerEvents = "none";
@@ -11,52 +20,12 @@ class SelectionHelper {
     this.startPoint = new Vector2();
     this.pointTopLeft = new Vector2();
     this.pointBottomRight = new Vector2();
-
-    this.isDown = false;
-
-    this.onPointerDown = function (event) {
-      this.isDown = true;
-      this.onSelectStart(event);
-    }.bind(this);
-
-    this.onPointerMove = function (event) {
-      if (this.isDown) {
-        this.onSelectMove(event);
-      }
-    }.bind(this);
-
-    this.onPointerUp = function () {
-      this.isDown = false;
-      this.onSelectOver();
-    }.bind(this);
-
-    this.renderer.domElement.addEventListener(
-      "pointerdown",
-      this.onPointerDown
-    );
-    this.renderer.domElement.addEventListener(
-      "pointermove",
-      this.onPointerMove
-    );
-    this.renderer.domElement.addEventListener("pointerup", this.onPointerUp);
   }
 
-  dispose() {
-    this.renderer.domElement.removeEventListener(
-      "pointerdown",
-      this.onPointerDown
-    );
-    this.renderer.domElement.removeEventListener(
-      "pointermove",
-      this.onPointerMove
-    );
-    this.renderer.domElement.removeEventListener("pointerup", this.onPointerUp);
-  }
-
-  onSelectStart(event) {
+  onSelectStart(event: PointerEvent) {
     this.element.style.display = "none";
 
-    this.renderer.domElement.parentElement.appendChild(this.element);
+    this.renderer.domElement.parentElement!.appendChild(this.element);
 
     this.element.style.left = event.clientX + "px";
     this.element.style.top = event.clientY + "px";
@@ -67,7 +36,7 @@ class SelectionHelper {
     this.startPoint.y = event.clientY;
   }
 
-  onSelectMove(event) {
+  onSelectMove(event: PointerEvent) {
     this.element.style.display = "block";
 
     this.pointBottomRight.x = Math.max(this.startPoint.x, event.clientX);
@@ -84,7 +53,9 @@ class SelectionHelper {
   }
 
   onSelectOver() {
-    this.element.parentElement.removeChild(this.element);
+    if (this.element.parentElement) {
+      this.element.parentElement.removeChild(this.element);
+    }
   }
 }
 

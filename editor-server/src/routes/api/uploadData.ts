@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { PromisePool } from "@supercharge/promise-pool";
+import cliProgress from "cli-progress";
 
 import prisma from "../../prisma";
 import { initRedisControl, initRedisPosition } from "../../utility";
@@ -53,7 +55,13 @@ const uploadData = async (req: Request, res: Response) => {
       ? req.files!.data[0]
       : req.files!.data;
     const dataObj: TExportData = JSON.parse(data.data.toString("ascii"));
-    const { position, control, dancer, color, LEDEffects } = dataObj;
+    const {
+      position: uploadedPositionData,
+      control: uploadedControlData,
+      dancer: uploadedDancerData,
+      color: uploadedColorData,
+      LEDEffects: uploadedLEDEffectsData,
+    } = dataObj;
 
     // save dancer data temporarily (including part data)
     const allDancer: DancerTmpData = {};
@@ -66,23 +74,23 @@ const uploadData = async (req: Request, res: Response) => {
 
     // check all data are valid
     // check main type
-    if (!isArray(dancer))
+    if (!isArray(uploadedDancerData))
       error.push(
         "DANCER_DATA_ERROR: Dancer has incorrect type. Expected type array."
       );
-    if (typeof position !== "object")
+    if (typeof uploadedPositionData !== "object")
       error.push(
         "POSITIONFRAME_DATA_ERROR: Position has incorrect type. Expected type object."
       );
-    if (typeof control !== "object")
+    if (typeof uploadedControlData !== "object")
       error.push(
         "CTRLFRAME_DATA_ERROR: Control has incorrect type. Expected type object."
       );
-    if (typeof color !== "object")
+    if (typeof uploadedColorData !== "object")
       error.push(
         "COLOR_DATA_ERROR: Color has incorrect type. Expected type object."
       );
-    if (typeof LEDEffects !== "object")
+    if (typeof uploadedLEDEffectsData !== "object")
       error.push(
         "LEDEFFECT_DATA_ERROR: LEDEffect has incorrect type. Expected type object."
       );
@@ -92,26 +100,26 @@ const uploadData = async (req: Request, res: Response) => {
     }
 
     // check color data type & add fiber color list
-    Object.keys(color).forEach((colorKey: string) => {
+    Object.keys(uploadedColorData).forEach((colorKey: string) => {
       allFiberColors.add(colorKey);
-      if (!isArray(color[colorKey])) {
+      if (!isArray(uploadedColorData[colorKey])) {
         error.push(
-          `COLOR_DATA_ERROR: Color ${colorKey}'s value type is ${typeof color[
+          `COLOR_DATA_ERROR: Color ${colorKey}'s value type is ${typeof uploadedColorData[
             colorKey
           ]}, while array expected.`
         );
         return;
       }
-      if (color[colorKey].length !== 3) {
+      if (uploadedColorData[colorKey].length !== 3) {
         error.push(
-          `COLOR_DATA_ERROR: Color ${colorKey}'s value length is ${color[colorKey].length}, while 3 expected.`
+          `COLOR_DATA_ERROR: Color ${colorKey}'s value length is ${uploadedColorData[colorKey].length}, while 3 expected.`
         );
         return;
       }
       if (
-        typeof color[colorKey][0] !== "number" ||
-        typeof color[colorKey][1] !== "number" ||
-        typeof color[colorKey][2] !== "number"
+        typeof uploadedColorData[colorKey][0] !== "number" ||
+        typeof uploadedColorData[colorKey][1] !== "number" ||
+        typeof uploadedColorData[colorKey][2] !== "number"
       ) {
         error.push(
           `COLOR_DATA_ERROR: Color ${colorKey}'s value type is incorrect, expected 3 number.`
@@ -120,7 +128,7 @@ const uploadData = async (req: Request, res: Response) => {
     });
 
     // check dancer data type
-    dancer.forEach((dancerObj: TDancerData, dancerIdx) => {
+    uploadedDancerData.forEach((dancerObj: TDancerData, dancerIdx) => {
       const { parts, name } = dancerObj;
       if (typeof name !== "string")
         error.push(
@@ -151,8 +159,8 @@ const uploadData = async (req: Request, res: Response) => {
     });
 
     // check LEDEffect data type
-    Object.keys(LEDEffects).forEach((partName: string) => {
-      const effectData = LEDEffects[partName];
+    Object.keys(uploadedLEDEffectsData).forEach((partName: string) => {
+      const effectData = uploadedLEDEffectsData[partName];
       Object.keys(effectData).forEach((effectName: string) => {
         const { frames, repeat } = effectData[effectName];
         if (typeof repeat !== "number")
@@ -215,8 +223,8 @@ const uploadData = async (req: Request, res: Response) => {
     }
 
     // check every position frame has the same number of real dancers
-    Object.keys(position).forEach((frameId: string) => {
-      const frameObj: PosFrameTmpData = position[frameId];
+    Object.keys(uploadedPositionData).forEach((frameId: string) => {
+      const frameObj: PosFrameTmpData = uploadedPositionData[frameId];
       const { start, pos } = frameObj;
       if (typeof start !== "number")
         error.push(
@@ -260,8 +268,8 @@ const uploadData = async (req: Request, res: Response) => {
     });
 
     // check every dancer in every control frame has the same number of real parts
-    Object.keys(control).map((frameId: string) => {
-      const frameObj: CtrlFrameTmpData = control[frameId];
+    Object.keys(uploadedControlData).map((frameId: string) => {
+      const frameObj: CtrlFrameTmpData = uploadedControlData[frameId];
       const { fade, start, status } = frameObj;
       if (typeof start !== "number")
         error.push(
@@ -314,7 +322,7 @@ const uploadData = async (req: Request, res: Response) => {
           // validate status data & fiber color
           dancerStatus.forEach(
             (partStatus: TELControl | TLEDControl | TFiberControl, partIdx) => {
-              const tmpPart = dancer[dancerIdx].parts[partIdx];
+              const tmpPart = uploadedDancerData[dancerIdx].parts[partIdx];
               if (!isArray(partStatus)) {
                 error.push(
                   `CTRLFRAME_DATA_ERROR: Control frameID ${frameId}, status idx ${dancerIdx}, part Idx ${partIdx} has incorrect type. Expected type array`
@@ -351,7 +359,9 @@ const uploadData = async (req: Request, res: Response) => {
                 }
                 if (
                   partStatus[0] &&
-                  !Object.keys(LEDEffects[tmpPart.name]).includes(partStatus[0])
+                  !Object.keys(uploadedLEDEffectsData[tmpPart.name]).includes(
+                    partStatus[0]
+                  )
                 ) {
                   error.push(
                     `CTRLFRAME_DATA_ERROR: LED src '${partStatus[0]}' not found!!`
@@ -374,204 +384,259 @@ const uploadData = async (req: Request, res: Response) => {
     }
 
     // clear DB
-    await prisma.color.deleteMany();
-    await prisma.positionData.deleteMany();
-    await prisma.controlData.deleteMany();
-    await prisma.part.deleteMany();
-    await prisma.dancer.deleteMany();
-    await prisma.positionFrame.deleteMany();
-    await prisma.controlFrame.deleteMany();
-    await prisma.lEDEffect.deleteMany();
-    await prisma.effectListData.deleteMany();
+    await Promise.all([
+      prisma.color.deleteMany(),
+      prisma.positionData.deleteMany(),
+      prisma.controlData.deleteMany(),
+      prisma.part.deleteMany(),
+      prisma.dancer.deleteMany(),
+      prisma.positionFrame.deleteMany(),
+      prisma.controlFrame.deleteMany(),
+      prisma.lEDEffect.deleteMany(),
+      prisma.effectListData.deleteMany(),
+    ]);
 
-    // create fiber color
+    console.log("DB cleared");
 
     const colorDict: TColorIdPair = {};
-    await Promise.all(
-      Object.keys(color).map(async (colorKey: string) => {
+
+    const colorProgress = new cliProgress.SingleBar(
+      {
+        format:
+          "Create Colors [{bar}] {percentage}% | ETA: {eta}s | {value}/{total}",
+      },
+      cliProgress.Presets.shades_classic
+    );
+
+    colorProgress.start(Object.entries(uploadedColorData).length, 0);
+    await PromisePool.for(Object.entries(uploadedColorData)).process(
+      async ([colorKey, colorCode]) => {
         const newColor = await prisma.color.create({
           data: {
             color: colorKey,
-            colorCode: color[colorKey],
+            colorCode,
           },
         });
         colorDict[colorKey] = newColor.id;
-      })
+        colorProgress.increment();
+      }
+    );
+    colorProgress.stop();
+
+    const LEDDict: TPartLEDPair = {};
+
+    const LEDProgress = new cliProgress.SingleBar(
+      {
+        format:
+          "Creates LED Effects [{bar}] {percentage}% | ETA: {eta}s | {value}/{total}",
+      },
+      cliProgress.Presets.shades_classic
     );
 
-    // create LED data
-    const LEDDict: TPartLEDPair = {};
-    await Promise.all(
-      Object.keys(LEDEffects).map(async (partName: string) => {
-        const effectData = LEDEffects[partName];
-        const EffectIdDict: TLEDIdPair = {};
-        await Promise.all(
-          Object.keys(effectData).map(async (effectName: string) => {
-            const frames = effectData[effectName].frames.map((frame) => {
-              const LEDs = frame.LEDs.map((led) => {
-                return [colorDict[led[0]], led[1]];
-              });
-              return { ...frame, LEDs };
+    for (const [partName, effects] of Object.entries(uploadedLEDEffectsData)) {
+      const EffectIdDict: TLEDIdPair = {};
+      await PromisePool.for(Object.entries(effects)).process(
+        async ([effectName, effectData]) => {
+          const frames = effectData.frames.map((frame) => {
+            const LEDs = frame.LEDs.map((led) => {
+              return [colorDict[led[0]], led[1]];
             });
-            // const frames = effectData[effectName].frames as Prisma.JsonObject[];
-            const { repeat } = effectData[effectName];
-            const led = await prisma.lEDEffect.create({
-              data: {
-                name: effectName,
-                partName: partName,
-                repeat: repeat,
-                frames: frames,
-              },
-            });
-            EffectIdDict[effectName] = led.id;
-          })
-        );
-        LEDDict[partName] = EffectIdDict;
-      })
-    ).catch((e) => console.log(e));
+            return { ...frame, LEDs };
+          });
+          // const frames = effectData[effectName].frames as Prisma.JsonObject[];
+          const { repeat } = effectData;
+          const led = await prisma.lEDEffect.create({
+            data: {
+              name: effectName,
+              partName: partName,
+              repeat: repeat,
+              frames: frames,
+            },
+          });
+          EffectIdDict[effectName] = led.id;
+        }
+      );
+      LEDDict[partName] = EffectIdDict;
+      LEDProgress.increment();
+    }
+    LEDProgress.stop();
 
-    // create dancer & part object
-    await Promise.all(
-      dancer.map(async (dancerObj: TDancerData, dancerIdx) => {
-        const { parts, name } = dancerObj;
-        const newDancer = await prisma.dancer.create({
+    const dancerProgress = new cliProgress.SingleBar(
+      {
+        format:
+          "Create Dancers [{bar}] {percentage}% | ETA: {eta}s | {value}/{total}",
+      },
+      cliProgress.Presets.shades_classic
+    );
+
+    dancerProgress.start(uploadedDancerData.length, 0);
+    for (const [dancerIndex, dancer] of uploadedDancerData.entries()) {
+      const { parts, name } = dancer;
+      const newDancer = await prisma.dancer.create({
+        data: {
+          name: name,
+          id: dancerIndex,
+        },
+      });
+      const allParts: PartTmpData = {};
+
+      // create unique partsList for every dancer
+      const allPartsList = parts.map((partObj: TPartData) => {
+        return partObj.name;
+      });
+
+      await PromisePool.for(parts).process(async (partObj: TPartData) => {
+        const { name, type, length } = partObj;
+        const newPart = await prisma.part.create({
           data: {
             name: name,
-            id: dancerIdx,
+            type: type,
+            length: length,
+            dancer: {
+              connect: { id: newDancer.id },
+            },
           },
         });
-        const allParts: PartTmpData = {};
+        allParts[name] = { id: newPart.id, type: type };
+      });
 
-        // create unique partsList for every dancer
-        const allPartsList = parts.map((partObj: TPartData) => {
-          return partObj.name;
-        });
+      allDancer[name] = {
+        id: newDancer.id,
+        parts: allParts,
+        partsList: allPartsList,
+      };
 
-        // sync parts
-        await Promise.all(
-          parts.map(async (partObj: TPartData) => {
-            const { name, type, length } = partObj;
-            const newPart = await prisma.part.create({
-              data: {
-                name: name,
-                type: type,
-                length: length,
-                dancer: {
-                  connect: { id: newDancer.id },
+      dancerProgress.increment();
+    }
+    dancerProgress.stop();
+
+    const positionProgress = new cliProgress.SingleBar(
+      {
+        format:
+          "Create Position Data [{bar}] {percentage}% | ETA: {eta}s | {value}/{total}",
+      },
+      cliProgress.Presets.shades_classic
+    );
+
+    positionProgress.start(Object.values(uploadedPositionData).length, 0);
+    for (const frameObj of Object.values(uploadedPositionData)) {
+      const { start, pos } = frameObj;
+      const positionFrame = await prisma.positionFrame.create({
+        data: {
+          start: start,
+        },
+      });
+
+      await PromisePool.withConcurrency(30)
+        .for(pos)
+        .process(async ([x, y, z], dancerIdx) => {
+          await prisma.positionData.create({
+            data: {
+              x: x,
+              y: y,
+              z: z,
+              dancer: {
+                connect: {
+                  id: allDancer[uploadedDancerData[dancerIdx].name].id,
                 },
               },
-            });
-            allParts[name] = { id: newPart.id, type: type };
-          })
-        );
-
-        allDancer[name] = {
-          id: newDancer.id,
-          parts: allParts,
-          partsList: allPartsList,
-        };
-      })
-    ).catch((e) => {
-      console.log(e);
-    });
-
-    // deal with position data
-    await Promise.all(
-      Object.values(position).map(async (frameObj: PosFrameTmpData) => {
-        const { start, pos } = frameObj;
-        const positionFrame = await prisma.positionFrame.create({
-          data: {
-            start: start,
-          },
+              frame: { connect: { id: positionFrame.id } },
+            },
+          });
         });
-        // sync pos
-        await Promise.all(
-          pos.map(async ([x, y, z], dancerIdx) => {
-            await prisma.positionData.create({
-              data: {
-                x: x,
-                y: y,
-                z: z,
-                dancer: {
-                  connect: { id: allDancer[dancer[dancerIdx].name].id },
-                },
-                frame: { connect: { id: positionFrame.id } },
-              },
-            });
-          })
-        );
-      })
-    ).catch((e) => {
-      console.log(e);
-    });
 
-    // deal with control data
-    await Promise.all(
-      Object.values(control).map(async (frameObj: CtrlFrameTmpData) => {
-        const { fade, start, status } = frameObj;
-        const controlFrame = await prisma.controlFrame.create({
-          data: {
-            start: start,
-            fade: fade,
-          },
-        });
-        // sync parts
-        await Promise.all(
-          status.map(async (dancerStatus, dancerIdx) => {
-            const realDancer = dancer[dancerIdx];
-            await Promise.all(
-              dancerStatus.map(async (partStatus, partIdx) => {
+      positionProgress.increment();
+    }
+    positionProgress.stop();
+
+    const controlProgress = new cliProgress.SingleBar(
+      {
+        format:
+          "Create Control Data [{bar}] {percentage}% | ETA: {eta}s | {value}/{total}",
+      },
+      cliProgress.Presets.shades_classic
+    );
+
+    controlProgress.start(Object.values(uploadedControlData).length, 0);
+    for (const frameObj of Object.values(uploadedControlData)) {
+      const { fade, start, status } = frameObj;
+      const controlFrame = await prisma.controlFrame.create({
+        data: {
+          start: start,
+          fade: fade,
+        },
+      });
+
+      await PromisePool.withConcurrency(50)
+        .for(
+          status
+            .map((dancerStatus, dancerIdx) => ({
+              realDancer: uploadedDancerData[dancerIdx],
+              dancerStatus,
+            }))
+            .map(({ realDancer, dancerStatus }) => {
+              return dancerStatus.map((partStatus, partIdx) => {
                 const realPart = realDancer.parts[partIdx];
-                const tmpPart = allDancer[realDancer.name].parts[realPart.name];
-                let controlDataJson: Prisma.JsonValue = {};
-                if (tmpPart.type === "FIBER") {
-                  if (partStatus[0] === "") {
-                    controlDataJson = {
-                      color: -1,
-                      alpha: partStatus[1],
-                    };
-                  } else {
-                    controlDataJson = {
-                      color: colorDict[partStatus[0]],
-                      alpha: partStatus[1],
-                    };
-                  }
-                } else if (tmpPart.type === "LED") {
-                  if (partStatus[0] === "") {
-                    controlDataJson = {
-                      src: -1,
-                      alpha: partStatus[1],
-                    };
-                  } else {
-                    controlDataJson = {
-                      src: LEDDict[realPart.name][partStatus[0]],
-                      alpha: partStatus[1],
-                    };
-                  }
-                } else {
-                  controlDataJson = {
-                    value: partStatus[0],
-                  };
-                }
-                await prisma.controlData.create({
-                  data: {
-                    value: controlDataJson,
-                    part: {
-                      connect: {
-                        id: tmpPart.id,
-                      },
-                    },
-                    frame: {
-                      connect: { id: controlFrame.id },
-                    },
-                  },
-                });
-              })
-            );
-          })
-        );
-      })
-    ).catch((e) => console.log(e));
+                return {
+                  realPart,
+                  tmpPart: allDancer[realDancer.name].parts[realPart.name],
+                  partStatus,
+                };
+              });
+            })
+            .flat()
+        )
+        .process(async ({ partStatus, realPart, tmpPart }) => {
+          let controlDataJson: Prisma.JsonValue = {};
+
+          if (tmpPart.type === "FIBER") {
+            if (partStatus[0] === "") {
+              controlDataJson = {
+                color: -1,
+                alpha: partStatus[1],
+              };
+            } else {
+              controlDataJson = {
+                color: colorDict[partStatus[0]],
+                alpha: partStatus[1],
+              };
+            }
+          } else if (tmpPart.type === "LED") {
+            if (partStatus[0] === "") {
+              controlDataJson = {
+                src: -1,
+                alpha: partStatus[1],
+              };
+            } else {
+              controlDataJson = {
+                src: LEDDict[realPart.name][partStatus[0]],
+                alpha: partStatus[1],
+              };
+            }
+          } else {
+            controlDataJson = {
+              value: partStatus[0],
+            };
+          }
+
+          await prisma.controlData.create({
+            data: {
+              value: controlDataJson,
+              part: {
+                connect: {
+                  id: tmpPart.id,
+                },
+              },
+              frame: {
+                connect: { id: controlFrame.id },
+              },
+            },
+          });
+        });
+
+      controlProgress.increment();
+    }
+    controlProgress.stop();
 
     console.log("Data uploaded successfully!!");
 

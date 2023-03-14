@@ -4,9 +4,6 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-// no-effect
-import { NO_EFFECT } from "@/constants";
-
 export interface SrcSelectorProps {
   src: string | null;
   effectNames: string[];
@@ -23,9 +20,8 @@ function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
   };
 
   // handle no effect option and the display
-  const options = [NO_EFFECT, ...effectNames];
-  const optionDisplay = (val: string) =>
-    val === NO_EFFECT ? "no-effect" : val;
+  const options = ["", ...effectNames];
+  const optionDisplay = (val: string) => (val === "" ? "no effect" : val);
 
   return (
     <FormControl sx={{ width: "5.5vw", padding: 0 }} size="small">

@@ -17,10 +17,7 @@ import {
   DecrementPosStackIndex,
   IncrementPosStackIndex,
   setSelectedDancers,
-  setCurrentControlIndex,
-  setCurrentPosIndex,
 } from "@/core/actions";
-import { DANCER, POSITION, PART, CONTROL_EDITOR } from "@/constants";
 
 import { notification } from "@/core/utils";
 
@@ -35,7 +32,7 @@ export default function Clipboard() {
       (name) => reactiveState.selected()[name].selected
     );
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER) {
+    if (selectionMode === "DANCER_MODE") {
       const currentStatus = reactiveState.currentStatus();
       if (selected) {
         notification.success(`Copied ${selected}'s state to clipboard!`);
@@ -53,7 +50,7 @@ export default function Clipboard() {
       notification.error(`Please select dancers first!`);
       return;
     }
-    if (selectionMode === DANCER) {
+    if (selectionMode === "DANCER_MODE") {
       const currentStatus = reactiveState.currentStatus();
       selected.forEach((dancer) => {
         Object.keys(copiedStatus.current()).forEach((part) => {
@@ -88,7 +85,7 @@ export default function Clipboard() {
 
   useHotkeys("ctrl+z, meta+z", () => {
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER || selectionMode === PART) {
+    if (selectionMode === "DANCER_MODE" || selectionMode === "PART_MODE") {
       const statusStackIndex = reactiveState.statusStackIndex();
       // no more undo history
       if (statusStackIndex === 0) {
@@ -96,7 +93,7 @@ export default function Clipboard() {
         return;
       }
       DecrementStatusStackIndex();
-    } else if (selectionMode === POSITION) {
+    } else if (selectionMode === "POSITION_MODE") {
       const posStackIndex = reactiveState.posStackIndex();
       // no more undo history
       if (posStackIndex === 0) {
@@ -110,7 +107,7 @@ export default function Clipboard() {
 
   useHotkeys("ctrl+shift+z, meta+shift+z", () => {
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER || selectionMode === PART) {
+    if (selectionMode === "DANCER_MODE" || selectionMode === "PART_MODE") {
       const statusStack = reactiveState.statusStack();
       const statusStackIndex = reactiveState.statusStackIndex();
       // no more redo history
@@ -119,7 +116,7 @@ export default function Clipboard() {
         return;
       }
       IncrementStatusStackIndex();
-    } else if (selectionMode === POSITION) {
+    } else if (selectionMode === "POSITION_MODE") {
       const posStack = reactiveState.posStack();
       const posStackIndex = reactiveState.posStackIndex();
       // no more redo history
@@ -132,58 +129,11 @@ export default function Clipboard() {
     notification.success("Redo");
   });
 
-  useHotkeys("ctrl+x, meta+x", () => {
-    const selected = Object.keys(reactiveState.selected()).filter(
-      (name) => reactiveState.selected()[name].selected
-    );
-    const selectionMode = reactiveState.selectionMode();
-    if (selected.length === 0) {
-      notification.error(`Please select dancers first!`);
-      return;
-    }
-    if (selectionMode === DANCER) {
-      const currentStatus = reactiveState.currentStatus();
-      selected.forEach((dancer) => {
-        copiedStatus.current(currentStatus[dancer]);
-        Object.keys(currentStatus[dancer]).forEach((part) => {
-          const value = currentStatus[dancer][part];
-          if (isFiberData(value)) {
-            editCurrentStatusFiber({
-              payload: {
-                dancerName: dancer,
-                partName: part,
-                value: {
-                  color: "#000000",
-                  alpha: 0,
-                },
-              },
-            });
-          } else if (isLEDData(value)) {
-            editCurrentStatusLED({
-              payload: [
-                {
-                  dancerName: dancer,
-                  partName: part,
-                  value: {
-                    src: "",
-                    alpha: 0,
-                  },
-                },
-              ],
-            });
-          }
-        });
-      });
-      pushStatusStack();
-      notification.success(`cut dancer: ${selected.join(", ")} light effect`);
-    }
-  });
-
   useHotkeys("ctrl+a, meta+a", (e) => {
     e.preventDefault();
     const selectionMode = reactiveState.selectionMode();
     const dancerNames = reactiveState.dancerNames();
-    if (selectionMode === DANCER || selectionMode === POSITION) {
+    if (selectionMode === "DANCER_MODE" || selectionMode === "POSITION_MODE") {
       setSelectedDancers({
         payload: dancerNames,
       });
@@ -193,7 +143,7 @@ export default function Clipboard() {
   useHotkeys("ctrl+shift+a, meta+shift+a", (e) => {
     e.preventDefault();
     const selectionMode = reactiveState.selectionMode();
-    if (selectionMode === DANCER || selectionMode === POSITION) {
+    if (selectionMode === "DANCER_MODE" || selectionMode === "POSITION_MODE") {
       setSelectedDancers({
         payload: [],
       });

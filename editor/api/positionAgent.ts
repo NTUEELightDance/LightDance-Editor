@@ -39,12 +39,20 @@ export const posAgent = {
     return posRecordData.positionFrameIDs as PosRecord;
   },
 
-  addFrame: async (currentTime: number) => {
+  addFrame: async (addFrameInput: {
+    start: number;
+    frame: PosMapStatus | ControlMapStatus;
+  }) => {
+    if (!isPosMapStatus(addFrameInput.frame)) {
+      return;
+    }
+
     try {
       const { data: response } = await client.mutate({
         mutation: ADD_POS_FRAME,
         variables: {
-          start: currentTime,
+          start: addFrameInput.start,
+          positionData: toPosMapStatusPayload(addFrameInput.frame),
         },
         refetchQueries: [
           {
@@ -56,31 +64,31 @@ export const posAgent = {
         ],
       });
 
-      return response.addPositionFrame.id.toString() as string;
+      return response?.addPositionFrame?.id as number;
     } catch (error) {
       console.error(error);
       throw error;
     }
   },
 
-  saveFrame: async (
-    frameId: string,
-    frame: PosMapStatus | ControlMapStatus,
-    currentTime: number,
-    requestTimeChange: boolean
-  ) => {
-    if (!isPosMapStatus(frame)) {
+  saveFrame: async (saveFrameInput: {
+    frameId: number;
+    frame: PosMapStatus | ControlMapStatus;
+    start: number;
+    requestTimeChange: boolean;
+  }) => {
+    if (!isPosMapStatus(saveFrameInput.frame)) {
       return;
     }
 
-    if (requestTimeChange) {
+    if (saveFrameInput.requestTimeChange) {
       try {
         await client.mutate({
           mutation: EDIT_POS_FRAME_TIME,
           variables: {
             input: {
-              frameID: parseInt(frameId),
-              start: currentTime,
+              frameID: saveFrameInput.frameId,
+              start: saveFrameInput.start,
             },
           },
           refetchQueries: [
@@ -100,8 +108,8 @@ export const posAgent = {
         mutation: EDIT_POS_FRAME,
         variables: {
           input: {
-            frameId: parseInt(frameId),
-            positionData: toPosMapStatusPayload(frame),
+            frameId: saveFrameInput.frameId,
+            positionData: toPosMapStatusPayload(saveFrameInput.frame),
           },
         },
         refetchQueries: [
@@ -116,13 +124,13 @@ export const posAgent = {
     }
   },
 
-  deleteFrame: async (frameId: string) => {
+  deleteFrame: async (frameId: number) => {
     try {
       client.mutate({
         mutation: DELETE_POS_FRAME,
         variables: {
           input: {
-            frameID: parseInt(frameId),
+            frameID: frameId,
           },
         },
         refetchQueries: [
@@ -140,22 +148,22 @@ export const posAgent = {
     }
   },
 
-  requestEditPermission: async (frameId: string) => {
+  requestEditPermission: async (frameId: number) => {
     const { data: response } = await client.mutate({
       mutation: REQUEST_EDIT_POS_BY_ID,
       variables: {
-        frameId: parseInt(frameId),
+        frameId: frameId,
       },
     });
 
     return response.RequestEditPosition.ok;
   },
 
-  cancelEditPermission: async (frameId: string) => {
+  cancelEditPermission: async (frameId: number) => {
     const { data: response } = await client.mutate({
       mutation: CANCEL_EDIT_POS_BY_ID,
       variables: {
-        frameId: parseInt(frameId),
+        frameId: frameId,
       },
     });
 

@@ -4,31 +4,32 @@ import { OrbitControls } from "./OrbitControls";
 import { DragControls } from "./DragControls";
 import { SelectControls } from "./SelectControls";
 
-import { SelectionBox } from "./SelectionBox";
-import { SelectionHelper } from "./SelectionHelper";
-
 import { setCurrentPos } from "core/actions/currentPos";
 
 import { Dancer } from "../ThreeComponents";
 
-import styles from "./controls.module.css";
 import { DANCER, PART, POSITION } from "@/constants";
 
-import { log } from "core/utils";
-import { PosMapStatus } from "@/core/models";
+import { PosMapStatus, SelectionMode } from "@/core/models";
+import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 
 class Controls {
   renderer: THREE.Renderer;
   scene: THREE.Scene;
-  camera: THREE.Camera;
+  camera: THREE.PerspectiveCamera;
   domElement: HTMLElement;
-  dancers: Dancer[];
+  dancers: Record<string, Dancer>;
+  objects: THREE.Object3D[];
+  orbitControls: OrbitControls;
+  dragControls: DragControls;
+  selectControls: SelectControls;
 
   constructor(
     renderer: THREE.Renderer,
     scene: THREE.Scene,
-    camera: THREE.Camera,
-    dancers: Record<string, Dancer>
+    camera: THREE.PerspectiveCamera,
+    dancers: Record<string, Dancer>,
+    outlinePass: OutlinePass
   ) {
     this.renderer = renderer;
     this.scene = scene;
@@ -37,10 +38,12 @@ class Controls {
     this.dancers = dancers;
     this.objects = Object.values(this.dancers).map((dancer) => dancer.model);
 
-    this.initOrbitControls();
-    this.initDragControls();
-    this.initDanceSelector();
-    // this.initBoxSelectControls();
+    this.orbitControls = this.initOrbitControls();
+    this.dragControls = this.initDragControls();
+    this.selectControls = this.initSelectControls(
+      this.dragControls,
+      outlinePass
+    );
   }
 
   initOrbitControls() {
@@ -62,79 +65,36 @@ class Controls {
 
     orbitControls.update();
 
-    this.orbitControls = orbitControls;
-  }
-
-  initBoxSelectControls() {
-    const selectionBox = new SelectionBox(this.camera, this.scene);
-    const helper = new SelectionHelper(
-      selectionBox,
-      this.renderer,
-      styles.selectBox
-    );
-
-    this.domElement.addEventListener("pointerdown", (event) => {
-      if (event.button !== 0) return;
-      const rect = this.domElement.getBoundingClientRect();
-      selectionBox.startPoint.set(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-        0.5
-      );
-    });
-
-    this.domElement.addEventListener("pointermove", (event) => {
-      if (event.button !== 0) return;
-      if (helper.isDown) {
-        const rect = this.domElement.getBoundingClientRect();
-        selectionBox.endPoint.set(
-          ((event.clientX - rect.left) / rect.width) * 2 - 1,
-          (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-          0.5
-        );
-
-        const allSelected = selectionBox.select();
-        log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
-      }
-    });
-
-    this.domElement.addEventListener("pointerup", (event) => {
-      if (event.button !== 0) return;
-      const rect = this.domElement.getBoundingClientRect();
-      selectionBox.endPoint.set(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        (-(event.clientY - rect.top) / rect.height) * 2 + 1,
-        0.5
-      );
-
-      const allSelected = selectionBox.select();
-      log(allSelected.map((obj) => ({ [obj.parent.name]: obj.name })));
-    });
+    return orbitControls;
   }
 
   initDragControls() {
-    this.dragControls = new DragControls(
+    const dragControls = new DragControls(
       [...this.objects],
       this.camera,
       this.renderer.domElement
     );
-    this.dragControls.enabled = false;
-    this.dragControls.addEventListener("dragend", this.dragEnd.bind(this));
+    dragControls.enabled = false;
+    dragControls.addEventListener("dragend", this.dragEnd.bind(this));
+    return dragControls;
   }
 
-  initDanceSelector() {
+  initSelectControls(dragControls: DragControls, outlinePass: OutlinePass) {
     const selectControls = new SelectControls(
       [...this.objects],
       this.camera,
       this.renderer.domElement,
-      this.dragControls,
+      dragControls,
       this.dancers,
-      this.scene
+      this.scene,
+      this.renderer,
+      outlinePass
     );
-    this.selectControls = selectControls;
+
+    return selectControls;
   }
 
-  activate(selectionMode) {
+  activate(selectionMode: SelectionMode) {
     switch (selectionMode) {
       case DANCER:
         break;

@@ -6,13 +6,12 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 
 import { state } from "core/state";
 
-import { FIBER, LED } from "@/constants";
-
 import { LEDPart, FiberPart } from "./Part";
 import {
   Coordinates,
   DancerStatus,
   FiberData,
+  LEDPartName,
   LEDPartStatus,
   isFiberData,
 } from "@/core/models";
@@ -35,8 +34,8 @@ class Dancer {
   model: THREE.Object3D;
   skeleton: THREE.Skeleton | null;
   parts: {
-    [LED]: Record<string, LEDPart>;
-    [FIBER]: Record<string, FiberPart>;
+    LED: Record<string, LEDPart>;
+    FIBER: Record<string, FiberPart>;
   };
 
   initStatus: DancerStatus;
@@ -57,8 +56,8 @@ class Dancer {
     this.model = new Group();
     this.skeleton = null;
     this.parts = {
-      [LED]: {},
-      [FIBER]: {},
+      LED: {},
+      FIBER: {},
     };
     this.initStatus = {};
     this.initPos = { x: 0, y: 0, z: 0 };
@@ -86,7 +85,7 @@ class Dancer {
     // Use fontLoader to load font and create nameTag
     const fontLoader = new FontLoader();
     fontLoader.load(
-      "asset/fonts/helvetiker_regular.typeface.json",
+      "/asset/fonts/helvetiker_regular.typeface.json",
       this.initNameTag.bind(this)
     );
   }
@@ -113,12 +112,12 @@ class Dancer {
     partNames.forEach((partName) => {
       const partType = state.partTypeMap[partName];
       switch (partType) {
-        case LED:
-          this.parts[LED][partName] = new LEDPart(partName, this.model);
-          this.model.add(this.parts[LED][partName].LEDs);
+        case "LED":
+          this.parts.LED[partName] = new LEDPart(partName, this.model);
+          this.model.add(this.parts.LED[partName].LEDs);
           break;
-        case FIBER:
-          this.parts[FIBER][partName] = new FiberPart(partName, this.model);
+        case "FIBER":
+          this.parts.FIBER[partName] = new FiberPart(partName, this.model);
           break;
       }
     });
@@ -175,7 +174,7 @@ class Dancer {
 
   updateSelected(selected: boolean) {
     if (selected) {
-      this.nameTag.material.color.setRGB(0, 0.4, 0.6);
+      this.nameTag.material.color.setRGB(0.21, 0.64, 1);
     } else {
       this.nameTag.material.color.setRGB(1, 1, 1);
     }
@@ -192,7 +191,7 @@ class Dancer {
   }
 
   setFiberStatus(currentStatus: DancerStatus) {
-    Object.entries(this.parts[FIBER]).forEach(([partName, part]) => {
+    Object.entries(this.parts.FIBER).forEach(([partName, part]) => {
       //type of part is FiberData
       if (!isFiberData(currentStatus[partName])) return;
       part.setStatus(currentStatus[partName] as FiberData);
@@ -200,28 +199,32 @@ class Dancer {
   }
 
   setLEDStatus(currentLEDStatus: LEDPartStatus) {
-    Object.entries(this.parts[LED]).forEach(([partName, part]) => {
-      part.setStatus(currentLEDStatus[partName]);
+    Object.entries(this.parts.LED).forEach(([partName, part]) => {
+      part.setStatus(currentLEDStatus[partName as LEDPartName]);
     });
   }
 
-  // Update the model's color
-  // updateColor(color) {
-  //   Object.values(this.FIBERParts).forEach(([name, e]) => {
-  //     e.material.color.setHex(color);
-  //   });
-  // }
+  setSelectedLEDParts(selectedLEDParts: Iterable<string>) {
+    const selectedLEDPartsSet = new Set(selectedLEDParts);
+    Object.entries(this.parts.LED).forEach(([partName, part]) => {
+      if (selectedLEDPartsSet.has(partName)) {
+        part.select();
+      } else {
+        part.deselect();
+      }
+    });
+  }
 
   hover() {
-    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
-      0x232323
-    );
+    this.getHumanMesh().material.color.setHex(0xaaaaaa);
   }
 
   unhover() {
-    (this.model.getObjectByName("Human") as MeshType).material.color.setHex(
-      0x000000
-    );
+    this.getHumanMesh().material.color.setHex(0x000000);
+  }
+
+  getHumanMesh() {
+    return this.model.getObjectByName("Human") as MeshType;
   }
 }
 

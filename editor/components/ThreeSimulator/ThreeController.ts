@@ -29,10 +29,11 @@ import type {
   CurrentLEDStatus,
   PosMapStatus,
   Selected,
+  SelectionMode,
   State,
+  LEDPartName,
+  DancerName,
 } from "@/core/models";
-import { getDancerFromLEDpart } from "@/core/utils";
-import { LEDPartName } from "@/core/models";
 
 /**
  * Control the dancers (or other light objects)'s status and pos
@@ -57,7 +58,7 @@ class ThreeController {
   gridHelper: GridHelper;
   light: THREE.DirectionalLight;
 
-  selectedOutline: OutlinePass;
+  selectedOutlinePass: OutlinePass;
   hoveredOutline: OutlinePass;
   manager: THREE.LoadingManager;
   controls: Controls;
@@ -76,8 +77,8 @@ class ThreeController {
     this.renderer = this.generateRenderer();
     this.camera = this.generateCamera();
     this.scene = this.generateScene();
-    this.selectedOutline = this.generateSelectedOutline();
-    this.hoveredOutline = this.generateHoverOutline();
+    this.selectedOutlinePass = this.generateSelectedOutlinePass();
+    this.hoveredOutline = this.generateHoverOutlinePass();
     this.composer = this.generateComposer();
     this.clock = new THREE.Clock();
     this.settings = new Settings(this);
@@ -90,7 +91,8 @@ class ThreeController {
       this.renderer,
       this.scene,
       this.camera,
-      this.dancers
+      this.dancers,
+      this.selectedOutlinePass
     );
 
     // Data and status for playback
@@ -146,7 +148,7 @@ class ThreeController {
 
     // Initialization of 3D renderer
     const renderer = new THREE.WebGLRenderer({
-      antialias: false,
+      antialias: true,
       powerPreference: "high-performance",
     });
 
@@ -201,30 +203,30 @@ class ThreeController {
     return camera;
   }
 
-  generateSelectedOutline() {
-    const selectedOutline = new OutlinePass(
+  generateSelectedOutlinePass() {
+    const selectedOutlinePass = new OutlinePass(
       new THREE.Vector2(this.width, this.height),
       this.scene,
       this.camera
     );
-    selectedOutline.edgeStrength = 5.0;
-    selectedOutline.edgeThickness = 0.2;
-    selectedOutline.visibleEdgeColor.set(0xffffff);
-    selectedOutline.hiddenEdgeColor.set(0x222222);
+    selectedOutlinePass.edgeStrength = 3.0;
+    selectedOutlinePass.edgeThickness = 0.2;
+    selectedOutlinePass.visibleEdgeColor.set(0xffffff);
+    selectedOutlinePass.hiddenEdgeColor.set(0x222222);
 
-    return selectedOutline;
+    return selectedOutlinePass;
   }
-  generateHoverOutline() {
-    const hoveredOutline = new OutlinePass(
+  generateHoverOutlinePass() {
+    const hoveredOutlinePass = new OutlinePass(
       new THREE.Vector2(this.width, this.height),
       this.scene,
       this.camera
     );
-    hoveredOutline.edgeStrength = 2.0;
-    hoveredOutline.edgeThickness = 1.0;
-    hoveredOutline.visibleEdgeColor.set(0xffff00);
+    hoveredOutlinePass.edgeStrength = 2.0;
+    hoveredOutlinePass.edgeThickness = 1.0;
+    hoveredOutlinePass.visibleEdgeColor.set(0xffff00);
 
-    return hoveredOutline;
+    return hoveredOutlinePass;
   }
   generateComposer() {
     const size = this.renderer.getDrawingBufferSize(new THREE.Vector2());
@@ -241,7 +243,7 @@ class ThreeController {
     // default render pass for post processing
     const renderPass = new RenderPass(this.scene, this.camera);
     composer.addPass(renderPass);
-    composer.addPass(this.selectedOutline);
+    composer.addPass(this.selectedOutlinePass);
     composer.addPass(this.hoveredOutline);
 
     return composer;
@@ -290,9 +292,9 @@ class ThreeController {
       this.renderer,
       this.scene,
       this.camera,
-      this.dancers
+      this.dancers,
+      this.selectedOutlinePass
     );
-    this.controls.selectControls.setSelectedOutline(this.selectedOutline);
   }
 
   // Return true if all the dancer is successfully initialized
@@ -326,75 +328,81 @@ class ThreeController {
     });
   }
 
-  updateSelected(selected: Selected) {
-    if (Object.entries(selected).length === 0) {
-      throw new Error(
-        "[Error] updateDancersStatus, invalid parameter(currentStatus)"
-      );
-    }
-    this.controls.selectControls.updateSelected(selected);
+  updateSelected(selected: Selected, selectionMode: SelectionMode) {
+    this.controls.selectControls.updateSelected(selected, selectionMode);
   }
 
   clearSelectedLEDs() {
-    Object.entries(this.dancers).forEach(([dancerName, dancerData]) => {
-      Object.entries(dancerData.parts.LED).forEach(([ledPart, ledData]) => {
-        ledData.selectedLEDs = [];
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        ledPart.deselect();
       });
     });
   }
 
-  updateSelectedLEDs(selectedLED: number[], selectedLEDPart: string) {
-    const dancerName = getDancerFromLEDpart(selectedLEDPart as LEDPartName);
-    if (dancerName === undefined) {
-      return;
-    }
-    this.clearSelectedLEDs();
-    if (selectedLED.length > 0) {
-      this.dancers[dancerName].parts.LED[selectedLEDPart].selectedLEDs =
-        selectedLED;
-    }
+  updateSelectedLEDs(
+    selectedLEDs: number[],
+    referenceDancerName: DancerName,
+    selectedLEDPart: LEDPartName
+  ) {
+    this.dancers[referenceDancerName].parts.LED[
+      selectedLEDPart
+    ].setSelectedLEDBulbs(selectedLEDs);
   }
 
-  zoomInSelectedLED(selectedLEDPart: { dancer: string; part: string }) {
-    const pos = [];
-    let posx = 0;
-    let posy = 0;
-    let posz = 0;
-    const LEDPart =
-      this.dancers[selectedLEDPart.dancer].parts.LED[selectedLEDPart.part];
-    for (let i = 0; i < LEDPart.model.children.length; i++) {
-      if (LEDPart.model.children[i].name.includes(selectedLEDPart.part)) {
-        pos.push(LEDPart.model.children[i].position);
-        posx += LEDPart.model.children[i].position.x;
-        posy += LEDPart.model.children[i].position.y;
-        posz += LEDPart.model.children[i].position.z;
-      }
-    }
+  deselectLEDs() {
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        ledPart.deselect();
+      });
+    });
+  }
 
-    posx /= pos.length;
-    posy /= pos.length;
-    posz /= pos.length;
-    const addx =
-      this.dancers[selectedLEDPart.dancer].model.position.x === 0
-        ? this.dancers[selectedLEDPart.dancer].initPos.x
-        : this.dancers[selectedLEDPart.dancer].model.position.x;
-    const addy =
-      this.dancers[selectedLEDPart.dancer].model.position.y === 0
-        ? this.dancers[selectedLEDPart.dancer].initPos.y
-        : this.dancers[selectedLEDPart.dancer].model.position.y;
-    if (pos.length > 0) {
-      this.camera.position.set(
-        posx + addx,
-        1.2 * posy + addy,
-        posz + LEDPart.model.position.z + 5
-      );
-      this.camera.rotation.set(0, 0, 0);
+  focusOnLEDPart(dancerName: string, partName: LEDPartName) {
+    const part = this.dancers[dancerName].parts.LED[partName];
+    const posX = part.position.x;
+    const posY = part.position.y;
+    const posZ = part.position.z;
 
-      this.camera.lookAt(posx + addx, posy + addy, -30);
-      this.controls.orbitControls.target.x = posx + addx;
-      this.controls.orbitControls.target.y = posy + addy;
-      this.controls.orbitControls.target.z = -30;
-    }
+    const addX =
+      this.dancers[dancerName].model.position.x === 0
+        ? this.dancers[dancerName].initPos.x
+        : this.dancers[dancerName].model.position.x;
+    const addY =
+      this.dancers[dancerName].model.position.y === 0
+        ? this.dancers[dancerName].initPos.y
+        : this.dancers[dancerName].model.position.y;
+
+    this.camera.position.set(
+      posX + addX,
+      1.2 * posY + addY,
+      posZ + part.model.position.z + 5
+    );
+    this.camera.rotation.set(0, 0, 0);
+
+    this.camera.lookAt(posX + addX, posY + addY, -30);
+    this.controls.orbitControls.target.x = posX + addX;
+    this.controls.orbitControls.target.y = posY + addY;
+    this.controls.orbitControls.target.z = -30;
+
+    // unfocus all LED parts except the selected one
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        if (ledPart.name === partName && dancer.name === dancerName) {
+          ledPart.focus();
+        } else {
+          ledPart.unfocus();
+        }
+      });
+    });
+  }
+
+  unfocusLEDParts() {
+    Object.values(this.dancers).forEach((dancer) => {
+      Object.values(dancer.parts.LED).forEach((ledPart) => {
+        ledPart.unfocus();
+      });
+    });
   }
 
   // calculate and set next frame status according to time and call updateDancers

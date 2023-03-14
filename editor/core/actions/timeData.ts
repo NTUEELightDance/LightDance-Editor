@@ -8,26 +8,28 @@ import {
   getLedMap,
   clamp,
   updateFrameByTimeMap,
-  updateLedEffect,
+  updateCurrentLEDStatus,
+  binarySearchObjects,
+  createEmptyLEDEffectFrame,
 } from "../utils";
 // types
-import type { State } from "../models";
-// constants
-import { IDLE } from "@/constants";
+import type {
+  ControlMap,
+  CurrentLEDStatus,
+  LEDEffectRecord,
+  State,
+} from "../models";
+
 import { syncCurrentStatusWithControlMap } from "./currentStatus";
 import { syncCurrentPosWithPosMap } from "./currentPos";
+import { NEW_EFFECT } from "@/constants";
 
 const actions = registerActions({
-  /**
-   * calculate the currentStatus, currentPos according to the time
-   * It will do fade or position interpolation
-   * @param {State} statue
-   * @param {object} payload
-   */
   setCurrentTime: async (state: State, payload: number) => {
     const [controlMap, controlRecord] = await getControl();
     const [posMap, posRecord] = await getPos();
-    const ledMap = await getLedMap();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, ledEffectIDtable] = await getLedMap();
 
     let time = payload;
     if (isNaN(time)) {
@@ -36,9 +38,6 @@ const actions = registerActions({
     time = Math.max(time, 0);
 
     state.currentTime = time;
-
-    // only set the time if not IDLE
-    if (state.editMode !== IDLE) return;
 
     // set currentControlIndex
     const newControlIndex = updateFrameByTimeMap(
@@ -76,13 +75,86 @@ const actions = registerActions({
       },
     });
 
-    state.currentLEDStatus = updateLedEffect(
+    const newCurrentLEDStatus = updateCurrentLEDStatus(
       controlMap,
       state.ledEffectRecord,
       state.currentLEDStatus,
-      ledMap,
+      ledEffectIDtable,
       time
     );
+
+    // calculate the focused LED part's status from current LED effect
+    if (state.editor === "LED_EDITOR") {
+      const currentLEDPartName = state.currentLEDPartName;
+      const referenceDancerName = state.currentLEDEffectReferenceDancer;
+      const currentLEDEffectName = state.currentLEDEffectName;
+      const currentLEDEffect = state.currentLEDEffect;
+
+      if (currentLEDPartName === null) return;
+      if (referenceDancerName === null) return;
+      if (currentLEDEffectName === null) return;
+      if (currentLEDEffect === null) return;
+
+      const frameID = 0;
+      const pseudoControlMap: ControlMap = {
+        [frameID]: {
+          start: state.currentLEDEffectStart,
+          fade: false,
+          status: {
+            [referenceDancerName]: {
+              [currentLEDPartName]: {
+                alpha: 10,
+                effectID: currentLEDEffect.effectID,
+              },
+            },
+          },
+        },
+      };
+
+      const pseudoLEDStatus: CurrentLEDStatus = {
+        [referenceDancerName]: {
+          [currentLEDPartName]:
+            state.currentLEDStatus[referenceDancerName][currentLEDPartName],
+        },
+      };
+
+      const pseudoLEDRecord: LEDEffectRecord = {
+        [referenceDancerName]: {
+          [currentLEDPartName]: [frameID],
+        },
+      };
+
+      const pseudoEffectIDtable = {
+        [NEW_EFFECT]: {
+          ...state.LEDEffectIDtable[NEW_EFFECT],
+          effects: [
+            createEmptyLEDEffectFrame(
+              state.LEDPartLengthMap[currentLEDPartName]
+            ),
+          ],
+        },
+        [currentLEDEffect.effectID]: currentLEDEffect,
+      };
+
+      const focusedLEDStatus = updateCurrentLEDStatus(
+        pseudoControlMap,
+        pseudoLEDRecord,
+        pseudoLEDStatus,
+        pseudoEffectIDtable,
+        time
+      );
+
+      newCurrentLEDStatus[referenceDancerName][currentLEDPartName] =
+        focusedLEDStatus[referenceDancerName][currentLEDPartName];
+
+      state.currentLEDIndex = binarySearchObjects(
+        currentLEDEffect.effects,
+        time,
+        (effect) => effect.start
+      );
+    }
+
+    state.currentLEDStatus = newCurrentLEDStatus;
   },
 
   /**
@@ -122,7 +194,20 @@ const actions = registerActions({
     const newTime = posMap[posRecord[posIndex]].start;
     setCurrentTime({ payload: newTime });
   },
+
+  setCurrentLEDIndex: async (state: State, payload: number) => {
+    if (state.currentLEDEffect === null) {
+      throw new Error("currentLEDEffect is null");
+    }
+    const frames = state.currentLEDEffect.effects.map((effect) => effect.start);
+    const index = clamp(payload, 0, frames.length - 1);
+    setCurrentTime({ payload: frames[index] + state.currentLEDEffectStart });
+  },
 });
 
-export const { setCurrentTime, setCurrentControlIndex, setCurrentPosIndex } =
-  actions;
+export const {
+  setCurrentTime,
+  setCurrentControlIndex,
+  setCurrentPosIndex,
+  setCurrentLEDIndex,
+} = actions;

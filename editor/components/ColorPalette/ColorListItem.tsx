@@ -9,68 +9,72 @@ import {
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { Color, ColorID } from "@/core/models";
 
 function ColorListItem({
-  colorName,
-  colorCode,
+  color,
   handleEditClick,
   handleDeleteColor,
   protect = false,
 }: {
-  colorName: string;
-  colorCode: string;
-  handleEditClick: (color: string) => () => void;
-  handleDeleteColor: (color: string) => void;
+  color: Color;
+  handleEditClick: (color: ColorID) => () => void;
+  handleDeleteColor: (color: ColorID) => void;
   protect?: boolean;
 }) {
   return (
     <ListItem>
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
+          width: "100%",
+          display: "grid",
           alignItems: "center",
-          width: "90%",
-          mx: "auto",
+          gridAutoColumns: "1fr",
+          gridAutoFlow: "column",
+          placeItems: "center",
         }}
       >
-        <Box sx={{ width: "7em" }}>
-          <Typography>{colorName}</Typography>
-        </Box>
+        <Typography sx={{ width: "3rem" }}>{color.name}</Typography>
         <Paper
           sx={{
-            backgroundColor: colorCode,
+            backgroundColor: color.colorCode,
             display: "flex",
-            width: "8em",
-            mx: "1em",
-            p: "0.5em",
+            width: "6rem",
+            p: "0.5rem",
             height: "2.5em",
             justifyContent: "center",
-            fontSize: "1em",
+            fontSize: "1rem",
           }}
         >
-          {colorCode}
+          {color.colorCode}
         </Paper>
-        <Box sx={{ width: "8em" }}>
-          <IconButton onClick={handleEditClick(colorName)}>
-            <EditIcon fontSize="small" />
-          </IconButton>
+        <Box>
           {protect ? (
-            <Tooltip title="this is a reserved color">
-              <span>
-                <IconButton disabled>
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </span>
-            </Tooltip>
+            <>
+              <Tooltip title="this is a reserved color">
+                <span>
+                  <IconButton disabled>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="this is a reserved color">
+                <span>
+                  <IconButton disabled>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </>
           ) : (
-            <IconButton
-              onClick={() => {
-                handleDeleteColor(colorName);
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
+            <>
+              <IconButton onClick={handleEditClick(color.id)}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+              <IconButton onClick={() => handleDeleteColor(color.id)}>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </>
           )}
         </Box>
       </Box>

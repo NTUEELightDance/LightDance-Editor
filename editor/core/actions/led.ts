@@ -10,24 +10,39 @@ import type {
   LEDData,
   LEDMap,
   LEDEffect,
-  LEDEffectFrame,
   LEDPartName,
+  LEDBulbData,
+  LEDEffectIDtable,
+  CurrentLEDStatus,
 } from "../models";
 import { isLEDPartName } from "../models";
 // utils
-import { getControl } from "../utils";
-import { NO_EFFECT } from "@/constants";
+import {
+  binarySearchObjects,
+  createBlack,
+  createEmptyLEDEffectFrame,
+  getControl,
+  notification,
+  updateFrameByTimeMap,
+} from "../utils";
+import { NEW_EFFECT, NO_EFFECT } from "@/constants";
 import { getLedMap } from "../utils";
-import { binarySearchFrameMap } from "../utils";
-import { updateLedEffect } from "../utils";
+import { updateCurrentLEDStatus } from "../utils";
 import { ControlMap } from "../models";
 import { ControlRecord } from "../models";
 import { PartTypeMap } from "../models";
 import { Dancers } from "../models";
+import { setCurrentTime } from "./timeData";
+import { ledAgent } from "@/api";
+import { toLEDEffectFramePayload } from "../utils/convert";
 
 const actions = registerActions({
   setLEDMap: async (state: State, payload: LEDMap) => {
     state.ledMap = payload;
+  },
+
+  setLEDEffectIDtable: async (state: State, payload: LEDEffectIDtable) => {
+    state.LEDEffectIDtable = payload;
   },
 
   setCurrentLEDPartName: (state: State, payload: string) => {
@@ -56,69 +71,263 @@ const actions = registerActions({
     state.currentLEDEffect = newCurrentLEDEffect;
   },
 
-  addFrameToCurrentLEDEffect: (state: State, payload: LEDEffectFrame) => {
-    if (state.currentLEDEffect === null) {
-      throw new Error("No current LED effect");
-    }
-    const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
-    newCurrentLEDEffect.effects.push(payload);
-    newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
-    state.currentLEDEffect = newCurrentLEDEffect;
-  },
-
-  updateFrameInCurrentLEDEffect: (
+  editCurrentLEDStatus: (
     state: State,
     payload: {
-      index: number;
-      frame: LEDEffectFrame;
+      dancerName: DancerName;
+      partName: LEDPartName;
+      LEDBulbsMap: Map<number, Partial<LEDBulbData>>;
     }
   ) => {
+    const { dancerName, partName, LEDBulbsMap } = payload;
+    const newCurrentLEDStatus = cloneDeep(state.currentLEDStatus);
+
+    for (const [bulbIndex, bulbData] of LEDBulbsMap.entries()) {
+      for (const [key, value] of Object.entries(bulbData)) {
+        // @ts-expect-error the key is guaranteed to be in the type
+        newCurrentLEDStatus[dancerName][partName].effect[bulbIndex][key] =
+          value;
+      }
+    }
+
+    state.currentLEDStatus = newCurrentLEDStatus;
+  },
+
+  addFrameToCurrentLEDEffect: (state: State) => {
     if (state.currentLEDEffect === null) {
       throw new Error("No current LED effect");
     }
+    if (state.currentLEDPartName === null) {
+      throw new Error("No current LED part");
+    }
+    if (state.currentLEDEffectReferenceDancer === null) {
+      throw new Error("No current LED effect reference dancer");
+    }
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
-    newCurrentLEDEffect.effects[payload.index] = payload.frame;
+    const LEDPartName = state.currentLEDPartName;
+    const referenceDancerName = state.currentLEDEffectReferenceDancer;
+
+    const { effect } = state.currentLEDStatus[referenceDancerName][LEDPartName];
+    const start = state.currentTime - state.currentLEDEffectStart;
+    // check if there is already a frame at the same time
+    const index = binarySearchObjects(
+      newCurrentLEDEffect.effects,
+      start,
+      (effect) => effect.start
+    );
+
+    if (newCurrentLEDEffect.effects[index]?.start === start) {
+      throw new Error("There is already a frame at the same time");
+    }
+
+    newCurrentLEDEffect.effects.push({
+      start,
+      fade: state.currentFade,
+      effect,
+    });
     newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
     state.currentLEDEffect = newCurrentLEDEffect;
+
+    setCurrentTime({ payload: state.currentTime });
   },
 
   // payload is the index of the frame to be deleted
-  deleteFrameFromCurrentLEDEffect: (state: State, payload: number) => {
+  deleteCurrentFrameFromCurrentLEDEffect: (state: State) => {
     if (state.currentLEDEffect === null) {
       throw new Error("No current LED effect");
     }
     const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
-    newCurrentLEDEffect.effects.splice(payload, 1);
+    newCurrentLEDEffect.effects.splice(state.currentLEDIndex, 1);
+    state.currentLEDEffect = newCurrentLEDEffect;
+
+    setCurrentTime({ payload: state.currentTime });
+  },
+
+  // payload is whether we should modify the time of the frame
+  saveCurrentLEDEffectFrame: (state: State) => {
+    if (state.currentLEDEffect === null) {
+      throw new Error("No current LED effect");
+    }
+    if (state.currentLEDPartName === null) {
+      throw new Error("No current LED part");
+    }
+    if (state.currentLEDEffectReferenceDancer === null) {
+      throw new Error("No current LED effect reference dancer");
+    }
+    const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
+    const LEDPartName = state.currentLEDPartName;
+    const referenceDancerName = state.currentLEDEffectReferenceDancer;
+
+    const { effect } = state.currentLEDStatus[referenceDancerName][LEDPartName];
+
+    const start = newCurrentLEDEffect.effects[state.currentLEDIndex].start;
+
+    newCurrentLEDEffect.effects[state.currentLEDIndex] = {
+      start,
+      fade: state.currentFade,
+      effect,
+    };
+    newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
     state.currentLEDEffect = newCurrentLEDEffect;
   },
 
-  setupLEDEditor: (
+  updateLEDEffectFrameTime: (
     state: State,
     payload: {
-      partName: LEDPartName;
-      effectName: string;
-      start: number;
+      frameIndex: number;
+      time: number;
     }
   ) => {
-    const { partName, effectName, start } = payload;
+    if (state.currentLEDEffect === null) {
+      throw new Error("No current LED effect");
+    }
+    const { frameIndex, time } = payload;
+    const newCurrentLEDEffect = cloneDeep(state.currentLEDEffect);
+    newCurrentLEDEffect.effects[frameIndex].start = time;
+    newCurrentLEDEffect.effects.sort((a, b) => a.start - b.start);
+    state.currentLEDEffect = newCurrentLEDEffect;
+  },
+
+  saveLEDEffect: async (state: State) => {
+    if (state.currentLEDEffect === null) {
+      throw new Error("No current LED effect");
+    }
+    if (state.currentLEDPartName === null) {
+      throw new Error("No current LED part");
+    }
+    if (state.currentLEDEffectName === null) {
+      throw new Error("No current LED effect name");
+    }
+
+    const frames = state.currentLEDEffect.effects.map(toLEDEffectFramePayload);
+
+    const effectID =
+      state.ledMap[state.currentLEDPartName][state.currentLEDEffectName]
+        ?.effectID;
+
+    try {
+      if (effectID !== undefined) {
+        await ledAgent.saveLEDEffect({
+          id: effectID,
+          frames,
+          name: state.currentLEDEffectName,
+          repeat: state.currentLEDEffect.repeat,
+        });
+        notification.success("LED Effect saved");
+      } else {
+        await ledAgent.addLEDEffect({
+          frames,
+          name: state.currentLEDEffectName,
+          partName: state.currentLEDPartName,
+          repeat: state.currentLEDEffect.repeat,
+        });
+        notification.success("LED Effect created");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        notification.error(error.message);
+      }
+      console.error(error);
+    }
+  },
+
+  renameLEDEffect: async (
+    state: State,
+    payload: {
+      effectID: number;
+      newName: string;
+    }
+  ) => {
+    try {
+      await ledAgent.saveLEDEffect({
+        id: payload.effectID,
+        name: payload.newName,
+        repeat: state.LEDEffectIDtable[payload.effectID].repeat,
+        frames: state.LEDEffectIDtable[payload.effectID].effects.map(
+          toLEDEffectFramePayload
+        ),
+      });
+      notification.success("LED Effect renamed");
+    } catch (error) {
+      if (error instanceof Error) {
+        notification.error(error.message);
+      }
+      console.error(error);
+    }
+  },
+
+  setupLEDEditor: async (
+    state: State,
+    payload: {
+      dancerName: DancerName;
+      partName: LEDPartName;
+      effectName: string;
+    }
+  ) => {
+    const { partName, effectName } = payload;
+    state.currentLEDEffectReferenceDancer = payload.dancerName;
     state.currentLEDPartName = partName;
     state.currentLEDEffectName = effectName;
-    state.currentLEDEffectStart = start;
-    state.currentLEDEffect = {
-      repeat: 1,
-      effects: [],
-    };
+    state.currentLEDEffectStart = state.currentTime;
+    state.selectionMode = "LED_MODE";
+    state.editor = "LED_EDITOR";
+    state.editorState = "EDITING";
+    const partLength = state.LEDPartLengthMap[partName];
+
+    const effectID = state.ledMap[partName][effectName]?.effectID;
+
+    if (effectID === undefined) {
+      state.currentLEDEffect = {
+        name: effectName,
+        effectID: NEW_EFFECT,
+        repeat: 1,
+        effects: [createEmptyLEDEffectFrame(partLength)],
+      };
+    } else {
+      const effect = state.LEDEffectIDtable[effectID];
+      state.currentLEDEffect = cloneDeep(effect);
+    }
+
+    const { dancers, LEDPartLengthMap } = state;
+    const blackColorID = await createBlack();
+    const newLEDStatus: CurrentLEDStatus = {};
+    Object.entries(dancers).map(([dancerName, parts]) => {
+      newLEDStatus[dancerName] = {};
+      parts.forEach((part) => {
+        if (isLEDPartName(part)) {
+          const length = LEDPartLengthMap[part];
+          newLEDStatus[dancerName][part] = {
+            effect: [...Array(length)].map(() => ({
+              colorID: blackColorID,
+              alpha: 0,
+            })),
+            effectIndex: 0,
+            recordIndex: 0,
+            alpha: 10,
+          };
+        }
+      });
+    });
+
+    const dancerName = payload.dancerName;
+    newLEDStatus[dancerName][partName].effect =
+      state.currentLEDEffect.effects[0].effect;
+    state.currentLEDStatus = newLEDStatus;
   },
 
-  exitLEDEditor: (state: State) => {
-    state.currentLEDEffectName = "";
-    state.currentLEDPartName = "";
+  cancelEditLEDEffect: (state: State) => {
+    state.currentLEDEffectName = null;
+    state.currentLEDEffectReferenceDancer = null;
+    state.currentLEDPartName = null;
     state.currentLEDEffectStart = 0;
     state.currentLEDEffect = null;
-  },
-
-  setModeToLEDMode: (state: State) => {
-    state.selectionMode = "LED_MODE";
+    state.editorState = "IDLE";
+    state.editor = "CONTROL_EDITOR";
+    state.selectionMode = "DANCER_MODE";
+    state.selectedLEDs = [];
+    setCurrentTime({
+      payload: state.currentTime,
+    });
   },
 
   /**
@@ -141,11 +350,13 @@ const actions = registerActions({
 
   syncCurrentLEDStatus: async (state: State) => {
     const [controlMap, controlRecord] = await getControl();
-    const ledMap = await getLedMap();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [ledMap, ledEffectIDtable] = await getLedMap();
 
-    const index = binarySearchFrameMap(
+    const index = updateFrameByTimeMap(
       controlRecord,
       controlMap,
+      state.currentLEDIndex,
       state.currentTime
     );
 
@@ -160,11 +371,19 @@ const actions = registerActions({
       },
     };
 
-    state.currentLEDStatus = updateLedEffect(
+    const pseudoLEDEffectRecord: LEDEffectRecord =
+      await generateLEDEffectRecord(
+        pseudoControlMap,
+        controlRecord,
+        state.dancers,
+        state.partTypeMap
+      );
+
+    state.currentLEDStatus = updateCurrentLEDStatus(
       pseudoControlMap,
-      state.ledEffectRecord,
+      pseudoLEDEffectRecord,
       state.currentLEDStatus,
-      ledMap,
+      ledEffectIDtable,
       state.currentTime
     );
   },
@@ -189,14 +408,14 @@ async function generateLEDEffectRecord(
   });
 
   // go through control record, add the index if the led source is NOT NO_EFFECT
-  controlRecord.forEach((id: string) => {
+  controlRecord.forEach((id: number) => {
     const status: ControlMapStatus = controlMap[id].status;
     Object.entries(status).forEach(
       ([dancerName, dancerStatus]: [DancerName, DancerStatus]) => {
         Object.entries(dancerStatus).forEach(([partName, part]) => {
           if (
             partTypeMap[partName] === "LED" &&
-            (part as LEDData).src !== NO_EFFECT
+            (part as LEDData).effectID !== NO_EFFECT
           ) {
             ledEffectRecord[dancerName][partName].push(id);
           }
@@ -209,17 +428,21 @@ async function generateLEDEffectRecord(
 }
 
 export const {
+  setLEDMap,
+  setLEDEffectIDtable,
   setCurrentLEDPartName,
   setCurrentLEDEffectName,
   setCurrentLEDEffect,
   setCurrentLEDEffectRepeat,
-  setLEDMap,
-  setModeToLEDMode,
+  editCurrentLEDStatus,
   syncLEDEffectRecord,
   syncCurrentLEDStatus,
   addFrameToCurrentLEDEffect,
-  deleteFrameFromCurrentLEDEffect,
-  updateFrameInCurrentLEDEffect,
+  deleteCurrentFrameFromCurrentLEDEffect,
+  saveCurrentLEDEffectFrame,
+  saveLEDEffect,
+  renameLEDEffect,
+  updateLEDEffectFrameTime,
   setupLEDEditor,
-  exitLEDEditor,
+  cancelEditLEDEffect,
 } = actions;
