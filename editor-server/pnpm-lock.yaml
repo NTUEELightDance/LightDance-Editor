@@ -21,7 +21,7 @@ specifiers:
   apollo-server-express: ^3.11.1
   bcrypt: ^5.1.0
   body-parser: ^1.20.1
-  class-validator: ^0.13.2
+  class-validator: ^0.14.0
   cli-progress: ^3.12.0
   cookie-parser: ^1.4.6
   csv-stringify: ^6.2.3
@@ -59,7 +59,7 @@ dependencies:
   apollo-server-express: 3.11.1_4mq2c443wwzwcb6dpxnwkfvrzm
   bcrypt: 5.1.0
   body-parser: 1.20.1
-  class-validator: 0.13.2
+  class-validator: 0.14.0
   cli-progress: 3.12.0
   cookie-parser: 1.4.6
   csv-stringify: 6.2.4
@@ -79,7 +79,7 @@ dependencies:
   reflect-metadata: 0.1.13
   ts-node: 10.9.1_4bewfcp2iebiwuold25d6rgcsy
   tslib: 2.5.0
-  type-graphql: 1.1.1_v2revtygxcm7xrdg2oz3ssohfu
+  type-graphql: 1.1.1_yxlhq5elwzdhphazhcbwh6wmlq
   typegraphql-prisma: 0.24.2_tpacrppkdmgpfsj4svysciexpa
   typescript: 4.9.5
   uuid: 9.0.0
@@ -942,6 +942,10 @@ packages:
     resolution: {integrity: sha512-kr90f+ERiQtKWMz5rP32ltJ/BtULDI5RVO0uavn1HQUOwjx0R1h0rnDYNL0CepF1zL5bSY6FISAfd9tOdDhU5Q==}
     dev: true
 
+  /@types/validator/13.7.14:
+    resolution: {integrity: sha512-J6OAed6rhN6zyqL9Of6ZMamhlsOEU/poBVvbHr/dKOYKTeuYYMlDkMv+b6UUV0o2i0tw73cgyv/97WTWaUl0/g==}
+    dev: false
+
   /@types/ws/8.5.4:
     resolution: {integrity: sha512-zdQDHKUgcX/zBc4GrwsE/7dVdAD8JR4EuiAXiiUhhfyIJXXb2+PrGshFyeXWQPMmmZ2XxgaqclgpIC7eTXc1mg==}
     dependencies:
@@ -1529,10 +1533,11 @@ packages:
     resolution: {integrity: sha512-riT/3vI5YpVH6/qomlDnJow6TBee2PBKSEpx3O32EGPYbWGIRsIlGRms3Sm74wYE1JMo8RnO04Hb12+v1J5ICw==}
     dev: false
 
-  /class-validator/0.13.2:
-    resolution: {integrity: sha512-yBUcQy07FPlGzUjoLuUfIOXzgynnQPPruyK1Ge2B74k9ROwnle1E+NxLWnUv5OLU8hA/qL5leAE9XnXq3byaBw==}
+  /class-validator/0.14.0:
+    resolution: {integrity: sha512-ct3ltplN8I9fOwUd8GrP8UQixwff129BkEtuWDKL5W45cQuLd19xqmTLu5ge78YDm/fdje6FMt0hGOhl0lii3A==}
     dependencies:
-      libphonenumber-js: 1.10.19
+      '@types/validator': 13.7.14
+      libphonenumber-js: 1.10.21
       validator: 13.9.0
     dev: false
 
@@ -2691,8 +2696,8 @@ packages:
       type-check: 0.4.0
     dev: true
 
-  /libphonenumber-js/1.10.19:
-    resolution: {integrity: sha512-MDZ1zLIkfSDZV5xBta3nuvbEOlsnKCPe4z5r3hyup/AXveevkl9A1eSWmLhd2FX4k7pJDe4MrLeQsux0HI/VWg==}
+  /libphonenumber-js/1.10.21:
+    resolution: {integrity: sha512-/udZhx49av2r2gZR/+xXSrwcR8smX/sDNrVpOFrvW+CA26TfYTVZfwb3MIDvmwAYMLs7pXuJjZX0VxxGpqPhsA==}
     dev: false
 
   /lines-and-columns/1.2.4:
@@ -3870,7 +3875,7 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /type-graphql/1.1.1_v2revtygxcm7xrdg2oz3ssohfu:
+  /type-graphql/1.1.1_yxlhq5elwzdhphazhcbwh6wmlq:
     resolution: {integrity: sha512-iOOWVn0ehCYMukmnXStbkRwFE9dcjt7/oDcBS1JyQZo9CbhlIll4lHHps54HMEk4A4c8bUPd+DjK8w1/ZrxB4A==}
     engines: {node: '>= 10.3'}
     requiresBuild: true
@@ -3881,7 +3886,7 @@ packages:
       '@types/glob': 7.2.0
       '@types/node': 18.13.0
       '@types/semver': 7.3.13
-      class-validator: 0.13.2
+      class-validator: 0.14.0
       glob: 7.2.3
       graphql: 15.8.0
       graphql-query-complexity: 0.7.2_graphql@15.8.0
@@ -3924,7 +3929,7 @@ packages:
       semver: 7.3.8
       ts-morph: 17.0.1
       tslib: 2.5.0
-      type-graphql: 1.1.1_v2revtygxcm7xrdg2oz3ssohfu
+      type-graphql: 1.1.1_yxlhq5elwzdhphazhcbwh6wmlq
     transitivePeerDependencies:
       - encoding
       - supports-color
