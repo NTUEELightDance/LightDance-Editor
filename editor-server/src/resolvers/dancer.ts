@@ -43,6 +43,7 @@ export class DancerResolver {
       include: { parts: true, positionData: true },
     });
     if (!dancer) throw new Error("dancer not found");
+
     return dancer;
   }
 
