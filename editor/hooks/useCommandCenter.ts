@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useImmer } from "use-immer";
 
 import type {
@@ -17,6 +17,8 @@ import type {
   FromControlPanelBlue,
   FromControlPanelDarkAll,
 } from "@controller-server/types/controlPanelMessage";
+import { notification } from "@/core/utils";
+import useInterval from "./useInterval";
 
 type WebsocketConfig = Partial<
   Pick<WebSocket, "onopen" | "onclose" | "onerror" | "onmessage">
@@ -46,6 +48,8 @@ export type RPiStatus = {
     statusCode: number;
   };
 };
+
+let websocket: WebSocket = initWebsocket({});
 
 export default function useCommandCenter() {
   const [connected, setConnected] = useState(false);
@@ -113,25 +117,42 @@ export default function useCommandCenter() {
     [setRPiStatus]
   );
 
-  useEffect(() => {
-    return () => websocketRef.current.close();
-  }, []);
-
-  const websocketRef = useRef(initWebsocket(websocketConfig));
-
   const reconnect = () => {
-    websocketRef.current.close();
-    websocketRef.current = initWebsocket(websocketConfig);
+    websocket.close();
+    websocket = initWebsocket(websocketConfig);
   };
 
   const send = (message: PartialControlPanelMessage) => {
+    if (websocket.readyState !== WebSocket.OPEN) {
+      setConnected(false);
+      notification.error("websocket is not connected");
+    }
+
     const payload: ToControllerServer = {
       from: "controlPanel",
       statusCode: 0,
       ...message,
     };
-    websocketRef.current.send(JSON.stringify(payload));
+
+    notification.success(`sent command: ${payload.topic}`);
+
+    websocket.send(JSON.stringify(payload));
   };
+
+  useEffect(() => {
+    configureWebsocket(websocket, websocketConfig);
+    setConnected(websocket.readyState === WebSocket.OPEN);
+  }, [websocketConfig]);
+
+  useInterval(() => {
+    if (websocket.readyState !== WebSocket.OPEN) {
+      notification.info("reconnecting...");
+      setConnected(false);
+      reconnect();
+    } else {
+      setConnected(true);
+    }
+  }, 5000);
 
   return { connected, send, reconnect, RPiStatus };
 }
@@ -142,14 +163,21 @@ function initWebsocket({
   onmessage,
   onerror,
 }: WebsocketConfig) {
-  const websocket = new WebSocket(
+  const newWebsocket = new WebSocket(
     `${location.origin.replace(/^http/, "ws")}/controller-server-websocket`
   );
 
-  if (onopen) websocket.onopen = onopen;
-  if (onclose) websocket.onclose = onclose;
-  if (onerror) websocket.onerror = onerror;
-  if (onmessage) websocket.onmessage = onmessage;
+  if (onopen) newWebsocket.onopen = onopen;
+  if (onclose) newWebsocket.onclose = onclose;
+  if (onerror) newWebsocket.onerror = onerror;
+  if (onmessage) newWebsocket.onmessage = onmessage;
 
-  return websocket;
+  return newWebsocket;
+}
+
+function configureWebsocket(websocket: WebSocket, config: WebsocketConfig) {
+  if (config.onopen) websocket.onopen = config.onopen;
+  if (config.onclose) websocket.onclose = config.onclose;
+  if (config.onerror) websocket.onerror = config.onerror;
+  if (config.onmessage) websocket.onmessage = config.onmessage;
 }

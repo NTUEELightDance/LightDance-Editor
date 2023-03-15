@@ -3,12 +3,12 @@ import { useImmer } from "use-immer";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 
-import useWebsocket from "@/hooks/useCommandCenter";
+import useCommandCenter from "@/hooks/useCommandCenter";
 import CommandCenterTable from "./CommandCenterTable";
 import CommandControls from "./CommandControls";
 
 export default function CommandCenter() {
-  const { send, connected, RPiStatus, reconnect } = useWebsocket();
+  const { send, connected, RPiStatus, reconnect } = useCommandCenter();
   const [selectedDancers, setSelectedDancers] = useImmer<string[]>([]); // array of dancerName that is selected
 
   return (
@@ -16,7 +16,7 @@ export default function CommandCenter() {
       <Paper
         sx={{
           width: "100%",
-          bgcolor: "green",
+          bgcolor: connected ? "green" : "red",
           fontSize: "0.6rem",
           textAlign: "center",
           p: 0,

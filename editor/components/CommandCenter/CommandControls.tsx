@@ -6,17 +6,19 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import StopRoundedIcon from "@mui/icons-material/StopRounded";
+import SkipPreviousRoundedIcon from "@mui/icons-material/SkipPreviousRounded";
 import LoadIcon from "@mui/icons-material/Input";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DarkAllIcon from "@mui/icons-material/FlashOff";
 import RebootIcon from "@mui/icons-material/PowerSettingsNew";
-import { Tooltip } from "@mui/material";
 
 import { waveSurferAppInstance } from "../Wavesurfer/WaveSurferApp";
+import { setCurrentTime } from "@/core/actions";
 interface CommandControlsProps {
   selectedRPis: string[];
   send: (message: PartialControlPanelMessage) => void;
@@ -49,8 +51,8 @@ function CommandControls({
         }}
       >
         <TextField
-          sx={{ width: "5rem" }}
-          label="delay"
+          sx={{ width: "5rem", p: 0 }}
+          label="delay (s)"
           type="number"
           variant="outlined"
           value={0}
@@ -107,6 +109,12 @@ function CommandControls({
             }}
             label="stop"
             icon={<StopRoundedIcon fontSize="small" />}
+          />
+          <CommandButton
+            variant="normal"
+            onClick={() => setCurrentTime({ payload: 0 })}
+            label="go to start"
+            icon={<SkipPreviousRoundedIcon fontSize="small" />}
           />
         </ButtonGroup>
         <Box
@@ -167,19 +175,6 @@ function CommandControls({
             variant="normal"
             onClick={() =>
               send({
-                topic: "load",
-                payload: {
-                  dancers: selectedRPis,
-                },
-              })
-            }
-            label="load"
-            icon={<LoadIcon fontSize="small" />}
-          />
-          <CommandButton
-            variant="normal"
-            onClick={() =>
-              send({
                 topic: "upload",
                 payload: {
                   dancers: selectedRPis,
@@ -188,6 +183,19 @@ function CommandControls({
             }
             label="upload"
             icon={<UploadFileIcon fontSize="small" />}
+          />
+          <CommandButton
+            variant="normal"
+            onClick={() =>
+              send({
+                topic: "load",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              })
+            }
+            label="load"
+            icon={<LoadIcon fontSize="small" />}
           />
         </ButtonGroup>
 

@@ -56,8 +56,12 @@ const getDancerFiberData = async (req: Request, res: Response) => {
           alpha: number;
         };
         const rgb = colorDict[color.toString()];
-        if (!rgb) data.status[name] = [0, 0, 0, alpha];
-        else data.status[name] = [...rgb, alpha];
+        const roundedAlpha = Math.round(alpha);
+        if (!rgb) {
+          data.status[name] = [0, 0, 0, roundedAlpha];
+        } else {
+          data.status[name] = [...rgb, roundedAlpha];
+        }
       });
       return data;
     });

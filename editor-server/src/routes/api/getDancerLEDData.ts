@@ -1,11 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
-import { Ctx } from "type-graphql";
-import {
-  Dancer,
-  LEDEffect,
-  Part,
-} from "../../../prisma/generated/type-graphql";
+import { LEDEffect } from "../../../prisma/generated/type-graphql";
 
 import prisma from "../../prisma";
 
