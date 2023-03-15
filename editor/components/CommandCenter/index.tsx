@@ -12,7 +12,7 @@ export default function CommandCenter() {
   const [selectedDancers, setSelectedDancers] = useImmer<string[]>([]); // array of dancerName that is selected
 
   return (
-    <>
+    <Paper sx={{ minHeight: "100%" }}>
       <Paper
         sx={{
           width: "100%",
@@ -25,22 +25,20 @@ export default function CommandCenter() {
       >
         {connected ? "online" : "offline"}
       </Paper>
-      <Paper sx={{ p: "1rem", minHeight: "100%" }}>
-        <Stack gap="2em">
-          <CommandControls
-            selectedRPis={selectedDancers}
-            send={send}
-            websocketConnected={connected}
-            reconnect={reconnect}
-          />
-          <CommandCenterTable
-            websocketConnected={connected}
-            RPiStatus={RPiStatus}
-            selectedDancers={selectedDancers}
-            setSelectedDancers={setSelectedDancers}
-          />
-        </Stack>
-      </Paper>
-    </>
+      <Stack gap="1rem" sx={{ p: "1rem" }}>
+        <CommandControls
+          selectedRPis={selectedDancers}
+          send={send}
+          websocketConnected={connected}
+          reconnect={reconnect}
+        />
+        <CommandCenterTable
+          websocketConnected={connected}
+          RPiStatus={RPiStatus}
+          selectedDancers={selectedDancers}
+          setSelectedDancers={setSelectedDancers}
+        />
+      </Stack>
+    </Paper>
   );
 }
