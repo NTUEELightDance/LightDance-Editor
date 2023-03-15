@@ -16,9 +16,14 @@ import LoadIcon from "@mui/icons-material/Input";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DarkAllIcon from "@mui/icons-material/FlashOff";
 import RebootIcon from "@mui/icons-material/PowerSettingsNew";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import { red, blue, green } from "@mui/material/colors";
 
 import { waveSurferAppInstance } from "../Wavesurfer/WaveSurferApp";
 import { setCurrentTime } from "@/core/actions";
+import { ButtonBase } from "@mui/material";
+
 interface CommandControlsProps {
   selectedRPis: string[];
   send: (message: PartialControlPanelMessage) => void;
@@ -37,7 +42,7 @@ function CommandControls({
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: "3rem",
+        gap: "4rem",
       }}
     >
       <Button onClick={reconnect} size="small" variant="contained">
@@ -124,51 +129,9 @@ function CommandControls({
             gap: 0.5,
           }}
         >
-          <Button
-            onClick={() =>
-              send({
-                topic: "red",
-                payload: {
-                  dancers: selectedRPis,
-                },
-              })
-            }
-            variant="outlined"
-            size="small"
-            color="error"
-          >
-            red
-          </Button>
-          <Button
-            onClick={() =>
-              send({
-                topic: "green",
-                payload: {
-                  dancers: selectedRPis,
-                },
-              })
-            }
-            variant="outlined"
-            size="small"
-            color="success"
-          >
-            green
-          </Button>
-          <Button
-            onClick={() =>
-              send({
-                topic: "blue",
-                payload: {
-                  dancers: selectedRPis,
-                },
-              })
-            }
-            variant="outlined"
-            size="small"
-            color="primary"
-          >
-            blue
-          </Button>
+          <ColorButton color="red" send={send} selectedRPis={selectedRPis} />
+          <ColorButton color="green" send={send} selectedRPis={selectedRPis} />
+          <ColorButton color="blue" send={send} selectedRPis={selectedRPis} />
         </Box>
         <ButtonGroup>
           <CommandButton
@@ -209,6 +172,19 @@ function CommandControls({
             }
             label="dark all"
             icon={<DarkAllIcon fontSize="small" />}
+          />
+          <CommandButton
+            variant="normal"
+            onClick={() =>
+              send({
+                topic: "close",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              })
+            }
+            label="close"
+            icon={<DeleteIcon fontSize="small" />}
           />
           <CommandButton
             variant="normal"
@@ -258,6 +234,41 @@ function CommandButton({ variant, label, onClick, icon }: CommandButtonProps) {
       <Button size="small" onClick={onClick}>
         {icon}
       </Button>
+    </Tooltip>
+  );
+}
+
+interface ColorButtonProps {
+  color: "red" | "green" | "blue";
+  send: (message: PartialControlPanelMessage) => void;
+  selectedRPis: string[];
+}
+
+function ColorButton({ color, send, selectedRPis }: ColorButtonProps) {
+  return (
+    <Tooltip title={`send ${color}`}>
+      <ButtonBase
+        onClick={() =>
+          send({
+            topic: color,
+            payload: {
+              dancers: selectedRPis,
+            },
+          })
+        }
+        sx={{
+          w: "1rem",
+          h: "1rem",
+          borderRadius: "25%",
+          bgcolor:
+            color === "red"
+              ? red[400]
+              : color === "green"
+              ? green[400]
+              : blue[400],
+          p: "0.75rem",
+        }}
+      ></ButtonBase>
     </Tooltip>
   );
 }

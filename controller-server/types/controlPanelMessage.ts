@@ -88,6 +88,13 @@ export interface FromControlPanelDarkAll extends FromControlPanelBase {
   topic: "darkAll";
 }
 
+export interface FromControlPanelCloseGPIO extends FromControlPanelBase {
+  topic: "close";
+  payload: {
+    dancers: string[];
+  };
+}
+
 export type FromControlPanel =
   | FromControlPanelBoardInfo
   | FromControlPanelPlay
@@ -100,7 +107,8 @@ export type FromControlPanel =
   | FromControlPanelRed
   | FromControlPanelGreen
   | FromControlPanelBlue
-  | FromControlPanelDarkAll;
+  | FromControlPanelDarkAll
+  | FromControlPanelCloseGPIO;
 
 export interface ToControlPanelBase {
   from: "server";
