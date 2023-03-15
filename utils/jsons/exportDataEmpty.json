@@ -168,7 +168,7 @@
         {
           "name": "buttons_LED",
           "type": "LED",
-          "length": 2
+          "length": 8
         }
       ]
     },
@@ -290,7 +290,7 @@
         {
           "name": "buttons_LED",
           "type": "LED",
-          "length": 2
+          "length": 8
         },
         {
           "name": "glasses_LED",
@@ -422,7 +422,7 @@
         {
           "name": "buttons_LED",
           "type": "LED",
-          "length": 2
+          "length": 8
         },
         {
           "name": "glasses_LED",
@@ -554,7 +554,7 @@
         {
           "name": "buttons_LED",
           "type": "LED",
-          "length": 2
+          "length": 8
         },
         {
           "name": "glasses_LED",
@@ -686,7 +686,7 @@
         {
           "name": "buttons_LED",
           "type": "LED",
-          "length": 2
+          "length": 8
         },
         {
           "name": "glasses_LED",
@@ -993,7 +993,7 @@
         {
           "name": "kunai_LED",
           "type": "LED",
-          "length": 28
+          "length": 32
         }
       ]
     },
@@ -1134,7 +1134,7 @@
         {
           "name": "kunai_LED",
           "type": "LED",
-          "length": 28
+          "length": 32
         }
       ]
     },
@@ -1275,7 +1275,7 @@
         {
           "name": "kunai_LED",
           "type": "LED",
-          "length": 28
+          "length": 32
         }
       ]
     },
@@ -1416,7 +1416,7 @@
         {
           "name": "kunai_LED",
           "type": "LED",
-          "length": 28
+          "length": 32
         }
       ]
     },
@@ -19837,6 +19837,30 @@
               [
                 "black",
                 0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
               ]
             ]
           }
@@ -19849,6 +19873,30 @@
             "start": 0,
             "fade": false,
             "LEDs": [
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
               [
                 "white",
                 10
@@ -19875,6 +19923,30 @@
               [
                 "red",
                 10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
               ]
             ]
           }
@@ -19894,6 +19966,30 @@
               [
                 "green",
                 10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
               ]
             ]
           }
@@ -19906,6 +20002,30 @@
             "start": 0,
             "fade": false,
             "LEDs": [
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
               [
                 "blue",
                 10
@@ -26757,6 +26877,22 @@
               [
                 "black",
                 0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
+              ],
+              [
+                "black",
+                0
               ]
             ]
           }
@@ -26769,6 +26905,22 @@
             "start": 0,
             "fade": false,
             "LEDs": [
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
+              [
+                "white",
+                10
+              ],
               [
                 "white",
                 10
@@ -27003,6 +27155,22 @@
               [
                 "red",
                 10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
+              ],
+              [
+                "red",
+                10
               ]
             ]
           }
@@ -27126,6 +27294,22 @@
               [
                 "green",
                 10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
+              ],
+              [
+                "green",
+                10
               ]
             ]
           }
@@ -27138,6 +27322,22 @@
             "start": 0,
             "fade": false,
             "LEDs": [
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
+              [
+                "blue",
+                10
+              ],
               [
                 "blue",
                 10
