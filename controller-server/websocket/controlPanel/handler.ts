@@ -13,6 +13,8 @@ import {
   FromControlPanelUpload,
   ToControlPanel,
   ToControlPanelBoardInfo,
+  FromControlPanelCloseGPIO,
+  FromControlPanelReboot,
 } from "@/types/controlPanelMessage";
 
 import {
@@ -21,6 +23,8 @@ import {
   ToRPiStop,
   ToRPiLoad,
   ToRPiPartTest,
+  ToRPiReboot,
+  ToRPiCloseGPIO,
 } from "@/types/RPiMessage";
 
 import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
@@ -122,6 +126,32 @@ export function handleLoad(msg: FromControlPanelLoad) {
     topic: "command",
     statusCode: 0,
     payload: ["load"],
+  };
+
+  sendToRPi(dancers, toRPiMsg);
+}
+
+export function handleReboot(msg: FromControlPanelReboot) {
+  const { dancers } = msg.payload;
+
+  const toRPiMsg: ToRPiReboot = {
+    from: "server",
+    topic: "command",
+    statusCode: 0,
+    payload: ["sudo", "reboot"],
+  };
+
+  sendToRPi(dancers, toRPiMsg);
+}
+
+export function handleCloseGPIO(msg: FromControlPanelCloseGPIO) {
+  const { dancers } = msg.payload;
+
+  const toRPiMsg: ToRPiCloseGPIO = {
+    from: "server",
+    topic: "command",
+    statusCode: 0,
+    payload: ["close"],
   };
 
   sendToRPi(dancers, toRPiMsg);

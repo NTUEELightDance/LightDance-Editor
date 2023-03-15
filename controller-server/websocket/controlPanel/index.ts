@@ -14,6 +14,8 @@ import {
   handleDarkAll,
   handleLoad,
   handleUpload,
+  handleReboot,
+  handleCloseGPIO,
 } from "./handler";
 
 export async function handleOnControlPanelMessage(
@@ -54,8 +56,15 @@ export async function handleOnControlPanelMessage(
     case "darkAll":
       handleDarkAll();
       break;
+    case "reboot":
+      handleReboot(msg);
+      break;
+    case "close":
+      handleCloseGPIO(msg);
+      break;
     default:
-      console.error(`[Error]: Command not found ${msg.topic}`);
+      msg satisfies never;
+      console.log(`[Error]: Unknown topic ${msg}`);
       break;
   }
 }

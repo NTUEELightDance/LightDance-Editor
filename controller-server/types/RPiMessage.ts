@@ -74,6 +74,16 @@ export interface ToRPiPartTest extends ToRPiBase {
   payload: ["parttest", "--hex", Color];
 }
 
+export interface ToRPiCloseGPIO extends ToRPiBase {
+  topic: "command";
+  payload: ["close"];
+}
+
+export interface ToRPiReboot extends ToRPiBase {
+  topic: "command";
+  payload: ["sudo", "reboot"];
+}
+
 export interface ToRPiUpload extends ToRPiBase {
   topic: "upload";
   payload: [PinMap, OF, LED];
@@ -86,4 +96,6 @@ export type ToRPi =
   | ToRPiList
   | ToRPiLoad
   | ToRPiPartTest
+  | ToRPiCloseGPIO
+  | ToRPiReboot
   | ToRPiUpload;

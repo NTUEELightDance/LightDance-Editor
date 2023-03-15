@@ -12,6 +12,7 @@ import type {
   FromControlPanelUpload,
   FromControlPanelReboot,
   FromControlPanelTest,
+  FromControlPanelCloseGPIO,
   FromControlPanelRed,
   FromControlPanelGreen,
   FromControlPanelBlue,
@@ -33,6 +34,7 @@ export type PartialControlPanelMessage =
   | Omit<FromControlPanelUpload, "from" | "statusCode">
   | Omit<FromControlPanelReboot, "from" | "statusCode">
   | Omit<FromControlPanelTest, "from" | "statusCode">
+  | Omit<FromControlPanelCloseGPIO, "from" | "statusCode">
   | Omit<FromControlPanelRed, "from" | "statusCode">
   | Omit<FromControlPanelGreen, "from" | "statusCode">
   | Omit<FromControlPanelBlue, "from" | "statusCode">

@@ -3,29 +3,21 @@ import { OF, LED, OFSchema, LEDSchema } from "@/schema/global";
 import { instance } from "./axios";
 
 export async function getDancerLEDDataAPI(dancer: string) {
-  const { data }: { data: LED } = await instance.get("/getDancerLEDData", {
+  const { data } = await instance.get<LED>("/getDancerLEDData", {
     params: { dancer },
   });
 
-  const result = LEDSchema.safeParse(data);
-  if (!result.success) {
-    console.error(`[Error]: getDancerLEDDataAPI ${result.error}`);
-    return;
-  }
+  LEDSchema.parse(data);
 
   return data;
 }
 
 export async function getDancerFiberDataAPI(dancer: string) {
-  const { data }: { data: OF } = await instance.get("/getDancerFiberData", {
+  const { data } = await instance.get<OF>("/getDancerFiberData", {
     params: { dancer },
   });
 
-  const result = OFSchema.safeParse(data);
-  if (!result.success) {
-    console.error(`[Error]: getDancerFiberDataAPI ${result.error}`);
-    return;
-  }
+  OFSchema.parse(data);
 
   return data;
 }

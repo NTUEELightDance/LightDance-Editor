@@ -35,9 +35,22 @@ export function sendToRPi(dancers: string[], msg: ToRPi) {
 
 export async function sendBoardInfoToRPi(dancer: string) {
   // send pinMap, LED and OF to RPi
-  const LEDData = await getDancerLEDDataAPI(dancer);
-  const OFData = await getDancerFiberDataAPI(dancer);
-  if (!LEDData || !OFData) return;
+  const [LEDresult, OFresult] = await Promise.allSettled([
+    getDancerLEDDataAPI(dancer),
+    getDancerFiberDataAPI(dancer),
+  ]);
+
+  if (LEDresult.status === "rejected") {
+    console.error(`[Error]: failed to fetch LED data ${LEDresult.reason}`);
+    return;
+  }
+  if (OFresult.status === "rejected") {
+    console.error(`[Error]: failed to fetch OF data ${OFresult.reason}`);
+    return;
+  }
+
+  const LEDData = LEDresult.value;
+  const OFData = OFresult.value;
 
   const toRPiMsg: ToRPiUpload = {
     from: "server",
@@ -52,7 +65,7 @@ export async function sendBoardInfoToRPi(dancer: string) {
 function validateMAC(MAC: MACAddress) {
   const result = MACAddressSchema.safeParse(MAC);
   if (!result.success) {
-    console.error(`[Error]: handleRPiBoardInfo ${result.error}`);
+    console.error(`[Error]: invalid MAC address format ${result.error}`);
     return false;
   }
 
