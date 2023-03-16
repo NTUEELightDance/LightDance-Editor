@@ -156,10 +156,11 @@ export default class LEDPart extends Part {
       "alpha"
     ) as THREE.BufferAttribute;
 
+    const colorMap = state.colorMap;
     effect.forEach((display, i) => {
       const { colorID, alpha } = display;
-      const rgb = state.colorMap[colorID].rgb;
-      colorAttribute.setXYZ(i, rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
+      const [r, g, b] = colorMap[colorID].rgb;
+      colorAttribute.setXYZ(i, r / 255, g / 255, b / 255);
       alphaAttribute.setX(i, (alpha / 10) * (statusAlpha / 15));
     });
 

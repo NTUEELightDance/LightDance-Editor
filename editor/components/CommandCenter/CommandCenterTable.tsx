@@ -8,8 +8,12 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Checkbox from "@mui/material/Checkbox";
 
+import CableIcon from "@mui/icons-material/Cable";
+import WifiIcon from "@mui/icons-material/Wifi";
+
 import type { RPiStatus } from "@/hooks/useCommandCenter";
 import type { Updater } from "use-immer";
+import { Box } from "@mui/system";
 
 function CommandCenterTable({
   websocketConnected,
@@ -58,73 +62,100 @@ function CommandCenterTable({
             <TableCell>name</TableCell>
             <TableCell>message</TableCell>
             <TableCell>IP</TableCell>
-            <TableCell>MAC</TableCell>
+            <TableCell sx={{ pl: 5 }}>MAC</TableCell>
             <TableCell>status</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {_.sortBy(Object.values(RPiStatus), ({ name }) =>
             parseInt(name.split("_")[0])
-          ).map(({ name, message, IP, MAC, connected, statusCode }) => (
-            <TableRow key={name}>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  onChange={() => handleToggleDancer(name)}
-                  checked={selectedDancers.includes(name)}
-                />
-              </TableCell>
-              <TableCell
-                sx={{
-                  color:
-                    !websocketConnected || !connected
-                      ? "gray"
-                      : connected
-                      ? "green"
-                      : "inherit",
-                }}
-              >
-                {name}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color:
-                    !websocketConnected || !connected
-                      ? "gray"
-                      : statusCode === 0
-                      ? "inherit"
-                      : "red",
-                }}
-              >
-                {message}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: !websocketConnected || !connected ? "gray" : "inherit",
-                }}
-              >
-                {IP}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: !websocketConnected || !connected ? "gray" : "inherit",
-                }}
-              >
-                {MAC}
-              </TableCell>
-              <TableCell
-                sx={{
-                  color:
-                    !websocketConnected || !connected
-                      ? "gray"
-                      : connected
-                      ? "green"
-                      : "inherit",
-                }}
-              >
-                {connected ? "connected" : "disconnected"}
-              </TableCell>
-            </TableRow>
-          ))}
+          ).map(
+            ({
+              name,
+              message,
+              IP,
+              MAC,
+              connected,
+              interface: networkInterface,
+              statusCode,
+            }) => (
+              <TableRow key={name}>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    onChange={() => handleToggleDancer(name)}
+                    checked={selectedDancers.includes(name)}
+                  />
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color:
+                      !websocketConnected || !connected
+                        ? "gray"
+                        : connected
+                        ? "green"
+                        : "inherit",
+                  }}
+                >
+                  {name}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color:
+                      !websocketConnected || !connected
+                        ? "gray"
+                        : statusCode === 0
+                        ? "inherit"
+                        : "red",
+                  }}
+                >
+                  {message && statusCode === 0 ? "success" : message}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color:
+                      !websocketConnected || !connected ? "gray" : "inherit",
+                    fontFamily: "Monospace",
+                  }}
+                >
+                  {IP}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color:
+                      !websocketConnected || !connected ? "gray" : "inherit",
+                    fontFamily: "Monospace",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    {networkInterface === "wifi" ? (
+                      <WifiIcon fontSize="small" />
+                    ) : (
+                      <CableIcon fontSize="small" />
+                    )}
+                    {MAC}
+                  </Box>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    color:
+                      !websocketConnected || !connected
+                        ? "gray"
+                        : connected
+                        ? "green"
+                        : "inherit",
+                  }}
+                >
+                  {connected ? "connected" : "disconnected"}
+                </TableCell>
+              </TableRow>
+            )
+          )}
         </TableBody>
       </Table>
     </TableContainer>

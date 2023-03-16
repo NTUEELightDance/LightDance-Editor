@@ -37,6 +37,7 @@ function CommandControls({
   reconnect,
 }: CommandControlsProps) {
   const [delay, setDelay] = useState(0);
+
   return (
     <Box
       sx={{
@@ -60,7 +61,7 @@ function CommandControls({
           label="delay (s)"
           type="number"
           variant="outlined"
-          value={0}
+          value={delay}
           size="small"
           onChange={(e) => {
             const delay = Number(e.target.value);
@@ -82,7 +83,9 @@ function CommandControls({
                   delay,
                 },
               });
-              waveSurferAppInstance.play();
+              setTimeout(() => {
+                waveSurferAppInstance.play();
+              }, delay * 1000);
             }}
             label="play"
             icon={<PlayArrowRoundedIcon fontSize="small" />}

@@ -47,6 +47,7 @@ export type RPiStatus = {
     MAC: string;
     connected: boolean;
     message: string;
+    interface: "ethernet" | "wifi";
     statusCode: number;
   };
 };
@@ -76,19 +77,42 @@ export default function useCommandCenter() {
           case "boardInfo":
             setRPiStatus((draft) => {
               Object.values(data.payload).forEach(
-                ({ IP, MAC, connected, dancer }) => {
+                ({
+                  IP,
+                  MAC,
+                  connected,
+                  dancer,
+                  interface: networkInterface,
+                }) => {
                   draft[dancer] ??= {
                     name: dancer,
                     IP,
                     MAC,
                     connected: false,
                     message: "",
+                    interface: networkInterface,
                     statusCode: 0,
                   };
 
-                  draft[dancer].IP = IP;
-                  draft[dancer].MAC = MAC;
-                  draft[dancer].connected = connected;
+                  // if both ethernet and wifi are connected or disconnected, prioritize ethernet
+                  if (
+                    draft[dancer].connected === connected &&
+                    networkInterface === "ethernet"
+                  ) {
+                    draft[dancer].IP = IP;
+                    draft[dancer].MAC = MAC;
+                    draft[dancer].connected = connected;
+                    draft[dancer].interface = networkInterface;
+                    return;
+                  }
+
+                  // when only one of ethernet or wifi is connected, prioritize the connected one
+                  if (connected) {
+                    draft[dancer].IP = IP;
+                    draft[dancer].MAC = MAC;
+                    draft[dancer].connected = connected;
+                    draft[dancer].interface = networkInterface;
+                  }
                 }
               );
             });
@@ -103,6 +127,7 @@ export default function useCommandCenter() {
                 MAC: "",
                 connected: false,
                 message: "",
+                interface: "ethernet",
                 statusCode: 0,
               };
 

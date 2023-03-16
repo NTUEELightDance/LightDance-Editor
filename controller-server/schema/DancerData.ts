@@ -12,6 +12,7 @@ export const DancerDataSchema = z.record(
     dancer: z.string(),
     hostname: z.string().regex(/lightdance-[0-9]{2}/),
     connected: z.boolean(),
+    interface: z.enum(["wifi", "ethernet"]),
   })
 );
 
