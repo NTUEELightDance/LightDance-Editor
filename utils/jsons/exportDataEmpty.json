@@ -1,6 +1,178 @@
 {
   "dancer": [
     {
+      "name": "0_agent",
+      "parts": [
+        {
+          "name": "dome",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_decor_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "zipper_outer_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_decor_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_decor_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "zipper_outer_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_decor_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "beret",
+          "type": "FIBER"
+        },
+        {
+          "name": "brim",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_outer_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_inner_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_front_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_back_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_outer_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_inner_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_inner_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_outer_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "hem",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_back_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_front_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "pocket",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_inner_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_outer_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "tongue",
+          "type": "FIBER"
+        },
+        {
+          "name": "lapel_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "collar_back",
+          "type": "FIBER"
+        },
+        {
+          "name": "lapel_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "collar_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "collar_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "zipper_inner_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "zipper_inner_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "tie_LED",
+          "type": "LED",
+          "length": 73
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
+          "name": "oxford_right_LED",
+          "type": "LED",
+          "length": 77
+        },
+        {
+          "name": "oxford_left_LED",
+          "type": "LED",
+          "length": 77
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED",
+          "length": 25
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED",
+          "length": 8
+        }
+      ]
+    },
+    {
       "name": "1_hank",
       "parts": [
         {
@@ -2504,6 +2676,168 @@
             10
           ],
           [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "",
+            10
+          ],
+          [
+            "",
+            10
+          ],
+          [
+            "",
+            10
+          ],
+          [
+            "",
+            10
+          ],
+          [
+            "",
+            10
+          ],
+          [
+            "",
+            10
+          ],
+          [
+            "",
+            10
+          ]
+        ],
+        [
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
             "",
             10
           ],
@@ -4322,6 +4656,168 @@
       "fade": false,
       "start": 1000,
       "status": [
+        [
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "all_white",
+            10
+          ],
+          [
+            "all_white",
+            10
+          ],
+          [
+            "all_white",
+            10
+          ],
+          [
+            "all_white",
+            10
+          ],
+          [
+            "all_white",
+            10
+          ],
+          [
+            "all_white",
+            10
+          ],
+          [
+            "all_white",
+            10
+          ]
+        ],
         [
           [
             "white",
@@ -6652,6 +7148,168 @@
             10
           ],
           [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "all_red",
+            10
+          ],
+          [
+            "all_red",
+            10
+          ],
+          [
+            "all_red",
+            10
+          ],
+          [
+            "all_red",
+            10
+          ],
+          [
+            "all_red",
+            10
+          ],
+          [
+            "all_red",
+            10
+          ],
+          [
+            "all_red",
+            10
+          ]
+        ],
+        [
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
             "all_red",
             10
           ],
@@ -8470,6 +9128,168 @@
       "fade": false,
       "start": 3000,
       "status": [
+        [
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "all_green",
+            10
+          ],
+          [
+            "all_green",
+            10
+          ],
+          [
+            "all_green",
+            10
+          ],
+          [
+            "all_green",
+            10
+          ],
+          [
+            "all_green",
+            10
+          ],
+          [
+            "all_green",
+            10
+          ],
+          [
+            "all_green",
+            10
+          ]
+        ],
         [
           [
             "green",
@@ -10800,6 +11620,168 @@
             10
           ],
           [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "all_blue",
+            10
+          ],
+          [
+            "all_blue",
+            10
+          ],
+          [
+            "all_blue",
+            10
+          ],
+          [
+            "all_blue",
+            10
+          ],
+          [
+            "all_blue",
+            10
+          ],
+          [
+            "all_blue",
+            10
+          ],
+          [
+            "all_blue",
+            10
+          ]
+        ],
+        [
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
             "all_blue",
             10
           ],
@@ -12620,112 +13602,117 @@
       "start": 0,
       "pos": [
         [
-          -31.5,
+          -33,
           0,
           0
         ],
         [
-          -28.5,
+          -30,
           0,
           0
         ],
         [
-          -25.5,
+          -27,
           0,
           0
         ],
         [
-          -22.5,
+          -24,
           0,
           0
         ],
         [
-          -19.5,
+          -21,
           0,
           0
         ],
         [
-          -16.5,
+          -18,
           0,
           0
         ],
         [
-          -13.5,
+          -15,
           0,
           0
         ],
         [
-          -10.5,
+          -12,
           0,
           0
         ],
         [
-          -7.5,
+          -9,
           0,
           0
         ],
         [
-          -4.5,
+          -6,
           0,
           0
         ],
         [
-          -1.5,
+          -3,
           0,
           0
         ],
         [
-          1.5,
+          0,
           0,
           0
         ],
         [
-          4.5,
+          3,
           0,
           0
         ],
         [
-          7.5,
+          6,
           0,
           0
         ],
         [
-          10.5,
+          9,
           0,
           0
         ],
         [
-          13.5,
+          12,
           0,
           0
         ],
         [
-          16.5,
+          15,
           0,
           0
         ],
         [
-          19.5,
+          18,
           0,
           0
         ],
         [
-          22.5,
+          21,
           0,
           0
         ],
         [
-          25.5,
+          24,
           0,
           0
         ],
         [
-          28.5,
+          27,
           0,
           0
         ],
         [
-          31.5,
+          30,
+          0,
+          0
+        ],
+        [
+          33,
           0,
           0
         ]

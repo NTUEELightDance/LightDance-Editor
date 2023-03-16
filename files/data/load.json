@@ -3,6 +3,10 @@
   "LightPresets": "/data/default_lightPresets.json",
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
+    "0_agent": {
+      "url": "/asset/models/eggsy.draco.glb",
+      "modelName": "eggsy"
+    },
     "1_hank": {
       "url": "/asset/models/eggsy.draco.glb",
       "modelName": "eggsy"
