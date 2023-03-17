@@ -56,7 +56,7 @@ export interface EditControlFrameTimeMutationResponseData {
 
 export interface EditControlFrameTimeMutationVariables {
   input: {
-    frameId: number;
+    frameID: number;
     start: number;
   };
 }

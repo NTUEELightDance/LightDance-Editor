@@ -101,7 +101,7 @@ export const controlAgent = {
           mutation: EDIT_CONTROL_FRAME_TIME,
           variables: {
             input: {
-              frameId: saveFrameInput.frameId,
+              frameID: saveFrameInput.frameId,
               start: saveFrameInput.start,
             },
           },
