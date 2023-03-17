@@ -81,7 +81,12 @@ export interface ToRPiCloseGPIO extends ToRPiBase {
 
 export interface ToRPiReboot extends ToRPiBase {
   topic: "command";
-  payload: ["sudo", "reboot"];
+  payload: ["restart"];
+}
+
+export interface ToRPiWebShell extends ToRPiBase {
+  topic: "command";
+  payload: string[];
 }
 
 export interface ToRPiUpload extends ToRPiBase {
@@ -98,4 +103,5 @@ export type ToRPi =
   | ToRPiPartTest
   | ToRPiCloseGPIO
   | ToRPiReboot
+  | ToRPiWebShell
   | ToRPiUpload;

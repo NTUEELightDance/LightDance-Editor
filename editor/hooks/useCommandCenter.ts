@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useImmer } from "use-immer";
 
 import type {
   FromControlPanel as ToControllerServer,
@@ -12,14 +11,21 @@ import type {
   FromControlPanelUpload,
   FromControlPanelReboot,
   FromControlPanelTest,
+  FromControlPanelWebShell,
   FromControlPanelCloseGPIO,
   FromControlPanelRed,
   FromControlPanelGreen,
   FromControlPanelBlue,
+  FromControlPanelYellow,
+  FromControlPanelMagenta,
+  FromControlPanelCyan,
   FromControlPanelDarkAll,
 } from "@controller-server/types/controlPanelMessage";
 import { notification } from "@/core/utils";
 import useInterval from "./useInterval";
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "@/core/state";
+import { setRPiStatus } from "@/core/actions";
 
 type WebsocketConfig = Partial<
   Pick<WebSocket, "onopen" | "onclose" | "onerror" | "onmessage">
@@ -34,29 +40,21 @@ export type PartialControlPanelMessage =
   | Omit<FromControlPanelUpload, "from" | "statusCode">
   | Omit<FromControlPanelReboot, "from" | "statusCode">
   | Omit<FromControlPanelTest, "from" | "statusCode">
+  | Omit<FromControlPanelWebShell, "from" | "statusCode">
   | Omit<FromControlPanelCloseGPIO, "from" | "statusCode">
   | Omit<FromControlPanelRed, "from" | "statusCode">
   | Omit<FromControlPanelGreen, "from" | "statusCode">
   | Omit<FromControlPanelBlue, "from" | "statusCode">
+  | Omit<FromControlPanelYellow, "from" | "statusCode">
+  | Omit<FromControlPanelMagenta, "from" | "statusCode">
+  | Omit<FromControlPanelCyan, "from" | "statusCode">
   | Omit<FromControlPanelDarkAll, "from" | "statusCode">;
-
-export type RPiStatus = {
-  [name: string]: {
-    name: string;
-    IP: string;
-    MAC: string;
-    connected: boolean;
-    message: string;
-    interface: "ethernet" | "wifi";
-    statusCode: number;
-  };
-};
 
 let websocket: WebSocket = initWebsocket({});
 
 export default function useCommandCenter() {
   const [connected, setConnected] = useState(false);
-  const [RPiStatus, setRPiStatus] = useImmer<RPiStatus>({});
+  const RPiStatus = useReactiveVar(reactiveState.RPiStatus);
 
   const websocketConfig = useMemo<WebsocketConfig>(
     () => ({
@@ -75,64 +73,93 @@ export default function useCommandCenter() {
 
         switch (data.topic) {
           case "boardInfo":
-            setRPiStatus((draft) => {
-              Object.values(data.payload).forEach(
-                ({
-                  IP,
-                  MAC,
-                  connected,
-                  dancer,
-                  interface: networkInterface,
-                }) => {
-                  draft[dancer] ??= {
-                    name: dancer,
+            setRPiStatus({
+              payload: (draft) => {
+                Object.values(data.payload).forEach(
+                  ({
                     IP,
                     MAC,
-                    connected: false,
-                    message: "",
+                    connected,
+                    dancer,
                     interface: networkInterface,
-                    statusCode: 0,
-                  };
+                  }) => {
+                    draft[dancer] ??= {
+                      ethernet: {
+                        name: dancer,
+                        IP,
+                        MAC,
+                        connected: false,
+                        message: "",
+                        statusCode: 0,
+                      },
+                      wifi: {
+                        name: dancer,
+                        IP,
+                        MAC,
+                        connected: false,
+                        message: "",
+                        statusCode: 0,
+                      },
+                    };
 
-                  // if both ethernet and wifi are connected or disconnected, prioritize ethernet
-                  if (
-                    draft[dancer].connected === connected &&
-                    networkInterface === "ethernet"
-                  ) {
-                    draft[dancer].IP = IP;
-                    draft[dancer].MAC = MAC;
-                    draft[dancer].connected = connected;
-                    draft[dancer].interface = networkInterface;
-                    return;
-                  }
+                    if (networkInterface === "ethernet") {
+                      draft[dancer].ethernet = {
+                        name: dancer,
+                        IP,
+                        MAC,
+                        connected,
+                        message: "",
+                        statusCode: 0,
+                      };
+                    }
 
-                  // when only one of ethernet or wifi is connected, prioritize the connected one
-                  if (connected) {
-                    draft[dancer].IP = IP;
-                    draft[dancer].MAC = MAC;
-                    draft[dancer].connected = connected;
-                    draft[dancer].interface = networkInterface;
+                    if (networkInterface === "wifi") {
+                      draft[dancer].wifi = {
+                        name: dancer,
+                        IP,
+                        MAC,
+                        connected,
+                        message: "",
+                        statusCode: 0,
+                      };
+                    }
                   }
-                }
-              );
+                );
+              },
             });
             break;
 
           case "command":
-            setRPiStatus((draft) => {
-              const { command, dancer, message } = data.payload;
-              draft[dancer] ??= {
-                name: dancer,
-                IP: "",
-                MAC: "",
-                connected: false,
-                message: "",
-                interface: "ethernet",
-                statusCode: 0,
-              };
+            setRPiStatus({
+              payload: (draft) => {
+                const { command, dancer, message } = data.payload;
+                draft[dancer] ??= {
+                  ethernet: {
+                    name: dancer,
+                    IP: "",
+                    MAC: "",
+                    connected: false,
+                    message: "",
+                    statusCode: 0,
+                  },
+                  wifi: {
+                    name: dancer,
+                    IP: "",
+                    MAC: "",
+                    connected: false,
+                    message: "",
+                    statusCode: 0,
+                  },
+                };
 
-              draft[dancer].message = `[${command}] ${message}`;
-              draft[dancer].statusCode = data.statusCode;
+                if (draft[dancer].ethernet.connected) {
+                  draft[dancer].ethernet.message = `[${command}] ${message}`;
+                  draft[dancer].ethernet.statusCode = data.statusCode;
+                } else if (draft[dancer].wifi.connected) {
+                  draft[dancer].wifi.message = `[${command}] ${message}`;
+                  draft[dancer].wifi.statusCode = data.statusCode;
+                }
+              },
             });
             break;
 
@@ -141,7 +168,7 @@ export default function useCommandCenter() {
         }
       },
     }),
-    [setRPiStatus]
+    []
   );
 
   const reconnect = () => {

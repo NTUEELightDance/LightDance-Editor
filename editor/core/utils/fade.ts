@@ -54,7 +54,7 @@ export function fadeStatus(
         // Compute fade color with previous color and next color
         const newColorRGB = fadeColor(
           colorMap[preVal.colorID].rgb,
-          colorMap[preVal.colorID].rgb,
+          colorMap[nextVal.colorID].rgb,
           time,
           preTime,
           nextTime
@@ -105,11 +105,13 @@ export function fadeColor(
   );
   preColor.lerp(nextColor, (time - preTime) / (nextTime - preTime));
 
-  return [
+  const currentRGb: RGB = [
     Math.round(preColor.r * 255),
     Math.round(preColor.g * 255),
     Math.round(preColor.b * 255),
   ];
+
+  return currentRGb;
 }
 
 /**

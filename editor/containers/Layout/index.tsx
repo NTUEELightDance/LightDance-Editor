@@ -39,6 +39,7 @@ const Wavesurfer = lazy(async () => await import("@/components/Wavesurfer"));
 const ColorPalette = lazy(
   async () => await import("@/components/ColorPalette")
 );
+const WebShell = lazy(async () => await import("@/components/WebShell"));
 
 const NotFound = lazy(async () => await import("@/components/NotFound"));
 
@@ -54,6 +55,7 @@ const componentMap = {
   EffectList,
   LEDEffectList,
   Wavesurfer,
+  WebShell,
 };
 
 type ComponentMap = typeof componentMap;

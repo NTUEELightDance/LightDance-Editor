@@ -138,13 +138,14 @@ export function updateCurrentLEDStatus(
         if (nextEffect.length !== currEffect.length) {
           throw `[Error] ${dancerName} ${partName} ${effectID} effect length not the same (start: ${currStart})`;
         }
+        const colorMap = state.colorMap;
         currEffect.forEach((_, idx) => {
           const { colorID: currColorID, alpha: currAlpha } = currEffect[idx];
           const { colorID: nextColorID, alpha: nextAlpha } = nextEffect[idx];
 
           const newColorRGB = fadeColor(
-            state.colorMap[currColorID].rgb,
-            state.colorMap[nextColorID].rgb,
+            colorMap[currColorID].rgb,
+            colorMap[nextColorID].rgb,
             offset,
             currStart,
             nextStart

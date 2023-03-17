@@ -11,9 +11,9 @@ import Checkbox from "@mui/material/Checkbox";
 import CableIcon from "@mui/icons-material/Cable";
 import WifiIcon from "@mui/icons-material/Wifi";
 
-import type { RPiStatus } from "@/hooks/useCommandCenter";
 import type { Updater } from "use-immer";
 import { Box } from "@mui/system";
+import type { RPiStatus } from "@/core/models";
 
 function CommandCenterTable({
   websocketConnected,
@@ -67,8 +67,17 @@ function CommandCenterTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {_.sortBy(Object.values(RPiStatus), ({ name }) =>
-            parseInt(name.split("_")[0])
+          {_.sortBy(
+            Object.values(RPiStatus).map(({ ethernet, wifi }) => {
+              if (ethernet.connected === wifi.connected) {
+                return { ...ethernet, interface: "ethernet" };
+              }
+              if (ethernet.connected) {
+                return { ...ethernet, interface: "ethernet" };
+              }
+              return { ...wifi, interface: "wifi" };
+            }),
+            ({ name }) => parseInt(name.split("_")[0])
           ).map(
             ({
               name,

@@ -66,6 +66,8 @@ export const _state: State = {
 
   dancersArray: [],
   dancerPartIndexMap: {},
+
+  RPiStatus: {},
 };
 
 // The diffSet will save changed attributes in state

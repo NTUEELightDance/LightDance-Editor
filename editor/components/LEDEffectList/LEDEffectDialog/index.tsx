@@ -3,7 +3,7 @@ import _ from "lodash";
 import { notification } from "core/utils";
 
 // components
-import SingleSelectButtonArray from "./SingleSelectButtonArray";
+import SingleSelectButtonArray from "../../SingleSelectButtonArray";
 import LEDPartButton from "./LEDPartButton";
 import EffectNameTextField from "./EffectNameTextField";
 
@@ -270,7 +270,7 @@ export default function LEDEffectDialog({
               label="Model"
               selectedOption={chosenModel}
               handleChangeSelectedOption={setChosenModel}
-              displayModels={displayModels}
+              displayedOptions={displayModels}
             />
           </Box>
           <Box>
@@ -278,7 +278,7 @@ export default function LEDEffectDialog({
               label="Dancer"
               selectedOption={chosenDancer}
               handleChangeSelectedOption={handleUpdateChosenDancer}
-              displayModels={displayDancers}
+              displayedOptions={displayDancers}
             />
           </Box>
           <Box>

@@ -18,7 +18,7 @@ import DarkAllIcon from "@mui/icons-material/FlashOff";
 import RebootIcon from "@mui/icons-material/PowerSettingsNew";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { red, blue, green } from "@mui/material/colors";
+import { red, blue, green, yellow, cyan } from "@mui/material/colors";
 
 import { waveSurferAppInstance } from "../Wavesurfer/WaveSurferApp";
 import { setCurrentTime } from "@/core/actions";
@@ -127,14 +127,21 @@ function CommandControls({
         </ButtonGroup>
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: 0.5,
           }}
         >
           <ColorButton color="red" send={send} selectedRPis={selectedRPis} />
           <ColorButton color="green" send={send} selectedRPis={selectedRPis} />
           <ColorButton color="blue" send={send} selectedRPis={selectedRPis} />
+          <ColorButton color="yellow" send={send} selectedRPis={selectedRPis} />
+          <ColorButton color="cyan" send={send} selectedRPis={selectedRPis} />
+          <ColorButton
+            color="magenta"
+            send={send}
+            selectedRPis={selectedRPis}
+          />
         </Box>
         <ButtonGroup>
           <CommandButton
@@ -242,10 +249,19 @@ function CommandButton({ variant, label, onClick, icon }: CommandButtonProps) {
 }
 
 interface ColorButtonProps {
-  color: "red" | "green" | "blue";
+  color: "red" | "green" | "blue" | "yellow" | "magenta" | "cyan";
   send: (message: PartialControlPanelMessage) => void;
   selectedRPis: string[];
 }
+
+const colorTable = {
+  red: red[600],
+  green: green[600],
+  blue: blue[600],
+  yellow: yellow[600],
+  magenta: "#ff00ff",
+  cyan: cyan[600],
+};
 
 function ColorButton({ color, send, selectedRPis }: ColorButtonProps) {
   return (
@@ -263,12 +279,7 @@ function ColorButton({ color, send, selectedRPis }: ColorButtonProps) {
           w: "1rem",
           h: "1rem",
           borderRadius: "25%",
-          bgcolor:
-            color === "red"
-              ? red[400]
-              : color === "green"
-              ? green[400]
-              : blue[400],
+          bgcolor: colorTable[color],
           p: "0.75rem",
         }}
       ></ButtonBase>

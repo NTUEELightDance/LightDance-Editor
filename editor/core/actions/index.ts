@@ -13,3 +13,4 @@ export * from "./colorMap";
 export * from "./led";
 export * from "./effectList";
 export * from "./controlMap";
+export * from "./commandCenter";

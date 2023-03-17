@@ -356,7 +356,23 @@ export type DancerPartIndexMap = Record<
   }
 >;
 
-/**z
+export type InterfaceStatus = {
+  name: string;
+  IP: string;
+  MAC: string;
+  connected: boolean;
+  message: string;
+  statusCode: number;
+};
+
+export type RPiStatus = {
+  [name: string]: {
+    ethernet: InterfaceStatus;
+    wifi: InterfaceStatus;
+  };
+};
+
+/**
  * Mutable State
  */
 export interface State {
@@ -411,6 +427,8 @@ export interface State {
   // for converting
   dancersArray: DancersArray;
   dancerPartIndexMap: DancerPartIndexMap;
+
+  RPiStatus: RPiStatus;
 }
 
 export type StateKey = keyof State;

@@ -8,7 +8,7 @@ import {
   DialogTitle,
   Paper,
 } from "@mui/material";
-import SingleSelectButtonArray from "./SingleSelectButtonArray";
+import SingleSelectButtonArray from "../../SingleSelectButtonArray";
 import { useState } from "react";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "@/core/state";
@@ -59,7 +59,7 @@ export default function ReferenceDancerNameDialog({
           <SingleSelectButtonArray
             selectedOption={chosenDancer}
             handleChangeSelectedOption={setChosenDancer}
-            displayModels={Object.keys(dancers)}
+            displayedOptions={Object.keys(dancers)}
           />
         </DialogContent>
         <DialogActions>

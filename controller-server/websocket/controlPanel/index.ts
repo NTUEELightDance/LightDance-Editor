@@ -16,6 +16,10 @@ import {
   handleUpload,
   handleReboot,
   handleCloseGPIO,
+  handleCyan,
+  handleYellow,
+  handleMagenta,
+  handleWebShell,
 } from "./handler";
 
 export async function handleOnControlPanelMessage(
@@ -53,6 +57,15 @@ export async function handleOnControlPanelMessage(
     case "blue":
       handleBlue(msg);
       break;
+    case "yellow":
+      handleYellow(msg);
+      break;
+    case "magenta":
+      handleMagenta(msg);
+      break;
+    case "cyan":
+      handleCyan(msg);
+      break;
     case "darkAll":
       handleDarkAll();
       break;
@@ -61,6 +74,9 @@ export async function handleOnControlPanelMessage(
       break;
     case "close":
       handleCloseGPIO(msg);
+      break;
+    case "webShell":
+      handleWebShell(msg);
       break;
     default:
       msg satisfies never;

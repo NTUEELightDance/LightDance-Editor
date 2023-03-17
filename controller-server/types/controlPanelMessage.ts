@@ -84,6 +84,27 @@ export interface FromControlPanelBlue extends FromControlPanelBase {
   };
 }
 
+export interface FromControlPanelYellow extends FromControlPanelBase {
+  topic: "yellow";
+  payload: {
+    dancers: string[];
+  };
+}
+
+export interface FromControlPanelMagenta extends FromControlPanelBase {
+  topic: "magenta";
+  payload: {
+    dancers: string[];
+  };
+}
+
+export interface FromControlPanelCyan extends FromControlPanelBase {
+  topic: "cyan";
+  payload: {
+    dancers: string[];
+  };
+}
+
 export interface FromControlPanelDarkAll extends FromControlPanelBase {
   topic: "darkAll";
 }
@@ -92,6 +113,14 @@ export interface FromControlPanelCloseGPIO extends FromControlPanelBase {
   topic: "close";
   payload: {
     dancers: string[];
+  };
+}
+
+export interface FromControlPanelWebShell extends FromControlPanelBase {
+  topic: "webShell";
+  payload: {
+    dancers: string[];
+    command: string[];
   };
 }
 
@@ -107,8 +136,12 @@ export type FromControlPanel =
   | FromControlPanelRed
   | FromControlPanelGreen
   | FromControlPanelBlue
+  | FromControlPanelYellow
+  | FromControlPanelMagenta
+  | FromControlPanelCyan
   | FromControlPanelDarkAll
-  | FromControlPanelCloseGPIO;
+  | FromControlPanelCloseGPIO
+  | FromControlPanelWebShell;
 
 export interface ToControlPanelBase {
   from: "server";

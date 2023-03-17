@@ -150,9 +150,9 @@ function toPartDataMutationPayload(
   partData: PartData
 ): FiberDataQueryPayload | LEDDataQueryPayload {
   if (isFiberData(partData)) {
-    return [partData.colorID, partData.alpha];
+    return [partData.colorID, Math.round(partData.alpha)];
   } else if (isLEDData(partData)) {
-    return [partData.effectID, partData.alpha];
+    return [partData.effectID, Math.round(partData.alpha)];
   }
   throw new Error("Invalid part data");
 }
@@ -237,7 +237,7 @@ export function toLEDEffectFramePayload(
 ): LEDEffectFramePayload {
   const LEDs: [ColorID, number][] = frame.effect.map(({ colorID, alpha }) => [
     colorID,
-    alpha,
+    Math.round(alpha),
   ]);
   return {
     start: frame.start,

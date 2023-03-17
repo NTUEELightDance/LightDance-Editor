@@ -15,6 +15,10 @@ import {
   ToControlPanelBoardInfo,
   FromControlPanelCloseGPIO,
   FromControlPanelReboot,
+  FromControlPanelYellow,
+  FromControlPanelMagenta,
+  FromControlPanelCyan,
+  FromControlPanelWebShell,
 } from "@/types/controlPanelMessage";
 
 import {
@@ -25,6 +29,7 @@ import {
   ToRPiPartTest,
   ToRPiReboot,
   ToRPiCloseGPIO,
+  ToRPiWebShell,
 } from "@/types/RPiMessage";
 
 import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
@@ -138,7 +143,7 @@ export function handleReboot(msg: FromControlPanelReboot) {
     from: "server",
     topic: "command",
     statusCode: 0,
-    payload: ["sudo", "reboot"],
+    payload: ["restart"],
   };
 
   sendToRPi(dancers, toRPiMsg);
@@ -152,6 +157,19 @@ export function handleCloseGPIO(msg: FromControlPanelCloseGPIO) {
     topic: "command",
     statusCode: 0,
     payload: ["close"],
+  };
+
+  sendToRPi(dancers, toRPiMsg);
+}
+
+export function handleWebShell(msg: FromControlPanelWebShell) {
+  const { dancers, command } = msg.payload;
+
+  const toRPiMsg: ToRPiWebShell = {
+    from: "server",
+    topic: "command",
+    statusCode: 0,
+    payload: command,
   };
 
   sendToRPi(dancers, toRPiMsg);
@@ -188,6 +206,24 @@ export function handleGreen(msg: FromControlPanelGreen) {
 export function handleBlue(msg: FromControlPanelBlue) {
   const { dancers } = msg.payload;
   const colorCode = "0000ff";
+  sendColor(dancers, colorCode);
+}
+
+export function handleYellow(msg: FromControlPanelYellow) {
+  const { dancers } = msg.payload;
+  const colorCode = "ffff00";
+  sendColor(dancers, colorCode);
+}
+
+export function handleMagenta(msg: FromControlPanelMagenta) {
+  const { dancers } = msg.payload;
+  const colorCode = "ff00ff";
+  sendColor(dancers, colorCode);
+}
+
+export function handleCyan(msg: FromControlPanelCyan) {
+  const { dancers } = msg.payload;
+  const colorCode = "00ffff";
   sendColor(dancers, colorCode);
 }
 

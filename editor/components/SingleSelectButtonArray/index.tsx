@@ -5,20 +5,20 @@ interface SingleSelectButtonArrayProps {
   label?: string;
   selectedOption: string | null;
   handleChangeSelectedOption: (option: string) => void;
-  displayModels: string[];
+  displayedOptions: string[];
 }
 
 export default function SingleSelectButtonArray({
   label,
   selectedOption,
   handleChangeSelectedOption,
-  displayModels,
+  displayedOptions,
 }: SingleSelectButtonArrayProps) {
   return (
     <>
       {label && <Typography sx={{ mb: 1 }}>{label}</Typography>}
       <Grid container spacing={2} justifyContent="flex-start">
-        {displayModels.map((modelName) => (
+        {displayedOptions.map((modelName) => (
           <Grid key={modelName}>
             <Button
               variant={selectedOption === modelName ? "contained" : "outlined"}

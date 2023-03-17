@@ -30,7 +30,7 @@
               {
                 "type": "tabset",
                 "selected": 0,
-                "weight": 45,
+                "weight": 50,
                 "enableMaximize": true,
                 "children": [
                   {
@@ -43,7 +43,7 @@
               },
               {
                 "type": "row",
-                "weight": 55,
+                "weight": 50,
                 "children": [
                   {
                     "type": "tabset",
@@ -55,6 +55,12 @@
                         "type": "tab",
                         "name": "Three Simulator",
                         "component": "ThreeSimulator",
+                        "enableClose": false
+                      },
+                      {
+                        "type": "tab",
+                        "name": "WebShell",
+                        "component": "WebShell",
                         "enableClose": false
                       }
                     ]
