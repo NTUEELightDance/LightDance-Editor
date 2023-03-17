@@ -88,13 +88,44 @@ const port = process.env.PORT || 4000;
           return true;
         }
         const token = ctx.connectionParams?.token;
-        console.log("connect", token);
         const { success, user } = await verifyToken(token);
-        if (success) {
-          ctx.extra.username = user.name;
-          ctx.extra.userId = user.id;
+
+        if (!success) {
+          console.log("connect failed", token);
+          return false;
         }
-        return success;
+
+        console.log("connected", token);
+
+        ctx.extra.username = user.name;
+        ctx.extra.userId = user.id;
+        // release lock on new connection
+        await prisma.editingControlFrame.update({
+          where: {
+            userId: user.id,
+          },
+          data: {
+            frameId: null,
+          },
+        });
+        await prisma.editingPositionFrame.update({
+          where: {
+            userId: user.id,
+          },
+          data: {
+            frameId: null,
+          },
+        });
+        await prisma.editingLEDEffect.update({
+          where: {
+            userId: user.id,
+          },
+          data: {
+            LEDEffectId: null,
+          },
+        });
+
+        return true;
       },
       onDisconnect: async (ctx) => {
         const { username, userId } = ctx.extra;
