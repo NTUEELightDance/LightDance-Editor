@@ -13,11 +13,19 @@ export default function CountDown({ duration, running }: CountDownProps) {
   useEffect(() => {
     if (running) {
       const interval = setInterval(() => {
-        setTime((time) => time - 1);
+        setTime((time) => (time > 0 ? time - 1 : time));
       }, 1000);
       return () => clearInterval(interval);
+    } else {
+      setTime(duration);
     }
-  }, [running]);
+  }, [running, duration]);
 
-  return <Typography>{time}</Typography>;
+  return <Typography>{toTimeDisplay(time)}</Typography>;
+}
+
+function toTimeDisplay(time: number) {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  return [minutes, seconds].map((t) => t.toString().padStart(2, "0")).join(":");
 }
