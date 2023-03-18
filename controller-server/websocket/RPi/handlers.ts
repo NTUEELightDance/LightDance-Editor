@@ -26,10 +26,31 @@ export function sendToRPi(dancers: string[], msg: ToRPi) {
   const toSend = JSON.stringify(msg);
 
   dancers.forEach((dancer: string) => {
-    const MAC = dancerToMAC[dancer];
-    if (MAC in RPiWSs) {
-      RPiWSs[MAC].send(toSend);
+    if (!(dancer in dancerToMAC)) {
+      console.error(`[Error]: dancer not found! ${dancer}`);
+      return;
     }
+
+    const { wifi, ethernet } = dancerToMAC[dancer];
+
+    for (const MAC of [ethernet, wifi]) {
+      if (MAC in RPiWSs) {
+        if (RPiWSs[MAC].readyState !== WebSocket.OPEN) {
+          delete RPiWSs[MAC];
+          dancerTable[MAC].connected = false;
+          sendBoardInfoToControlPanel();
+          continue;
+        }
+
+        RPiWSs[MAC].send(toSend);
+      } else {
+        dancerTable[MAC].connected = false;
+        sendBoardInfoToControlPanel();
+      }
+    }
+
+    // when both wifi and ethernet are not connected
+    console.error(`[Error]: RPi not connected! ${dancer}`);
   });
 }
 
@@ -87,7 +108,8 @@ export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
 
   dancerTable[MAC].connected = true;
   RPiWSs[MAC] = ws;
-  sendBoardInfoToRPi(dancer);
+
+  sendBoardInfoToControlPanel();
 
   // release ws on close
   ws.on("close", () => {

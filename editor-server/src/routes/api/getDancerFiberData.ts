@@ -67,8 +67,8 @@ const getDancerFiberData = async (req: Request, res: Response) => {
     });
     res.header("Content-Type", "application/json");
     res.send(JSON.stringify(result));
-  } catch (err: any) {
-    res.status(404).send({ err: err.message });
+  } catch (err) {
+    if (err instanceof Error) res.status(404).send({ err: err.message });
   }
 };
 

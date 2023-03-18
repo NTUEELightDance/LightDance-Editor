@@ -2,6 +2,22 @@ import { MACAddress, DancerDataSchema, DancerData } from "@/schema/DancerData";
 
 // Record the RPi information according to MAC
 const dancerTable: DancerData = {
+  "00:00:00:00:00:00": {
+    IP: "192.168.0.0",
+    MAC: "00:00:00:00:00:00",
+    dancer: "0_agent",
+    hostname: "lightdance-00",
+    connected: false,
+    interface: "ethernet",
+  },
+  "00:00:00:00:00:01": {
+    IP: "192.168.0.0",
+    MAC: "00:00:00:00:00:01",
+    dancer: "0_agent",
+    hostname: "lightdance-00",
+    connected: false,
+    interface: "wifi",
+  },
   "B8:27:EB:80:3E:DA": {
     IP: "192.168.0.0",
     MAC: "B8:27:EB:80:3E:DA",
@@ -274,9 +290,9 @@ const dancerTable: DancerData = {
     connected: false,
     interface: "wifi",
   },
-  "B8:27:EB:FA:E3:62": {
+  "B8:27:EB:FA:D3:62": {
     IP: "192.168.0.0",
-    MAC: "B8:27:EB:FA:E3:62",
+    MAC: "B8:27:EB:FA:D3:62",
     dancer: "18_umbrella_hank",
     hostname: "lightdance-18",
     connected: false,
@@ -306,9 +322,9 @@ const dancerTable: DancerData = {
     connected: false,
     interface: "wifi",
   },
-  "B8:27:EB:E7:6F:98": {
+  "B8:27:EB:D7:6F:98": {
     IP: "192.168.0.0",
-    MAC: "B8:27:EB:E7:6F:98",
+    MAC: "B8:27:EB:D7:6F:98",
     dancer: "20_umbrella_hans",
     hostname: "lightdance-20",
     connected: false,
@@ -356,11 +372,17 @@ const dancerTable: DancerData = {
   },
 };
 
-// TODO handle two interfaces
-export const dancerToMAC: Record<string, MACAddress> = {};
+export const dancerToMAC: Record<
+  string,
+  { wifi: MACAddress; ethernet: MACAddress }
+> = {};
 Object.keys(dancerTable).forEach((MAC) => {
-  const { dancer } = dancerTable[MAC];
-  dancerToMAC[dancer] = MAC;
+  const { dancer, interface: networkInterface } = dancerTable[MAC];
+  dancerToMAC[dancer] ??= {
+    wifi: "",
+    ethernet: "",
+  };
+  dancerToMAC[dancer][networkInterface] = MAC;
 });
 
 // Validate the config file

@@ -1,3 +1,4 @@
+import { forwardRef, useState } from "react";
 import { useReactiveVar } from "@apollo/client";
 
 import Paper from "@mui/material/Paper";
@@ -12,13 +13,12 @@ import TreeItem, {
   useTreeItem,
   TreeItemProps,
 } from "@mui/lab/TreeItem";
-import { blue } from "@mui/material/colors";
+import { blue, green } from "@mui/material/colors";
 
 import clsx from "clsx";
 import _ from "lodash";
 
 import { reactiveState } from "@/core/state";
-import { forwardRef, useState } from "react";
 import {
   Divider,
   Table,
@@ -32,7 +32,7 @@ import useCommandCenter from "@/hooks/useCommandCenter";
 export default function WebShell() {
   const dancers = useReactiveVar(reactiveState.dancers);
   const [selectedDancers, setSelectedDancers] = useState<string[]>([]); // array of dancerName that is selected
-  const { RPiStatus, connected, send } = useCommandCenter();
+  const { RPiStatus, connected, send, shellHistory } = useCommandCenter();
   const [command, setCommand] = useState<string>("");
 
   const handleSelect = (event: React.SyntheticEvent, nodeIds: string[]) => {
@@ -52,16 +52,29 @@ export default function WebShell() {
       topic: "webShell",
       payload: {
         dancers: selectedDancers,
-        command: command.split(" "),
+        // TODO fix this
+        command: command.split("@"),
       },
     });
   };
 
   return (
     <Paper
-      sx={{ minHeight: "100%", p: "1rem", display: "flex", gap: "0.5rem" }}
+      sx={{
+        minHeight: "100%",
+        p: "1rem",
+        display: "flex",
+        gap: "0.5rem",
+      }}
     >
-      <Paper sx={{ width: "12rem", p: "0.25rem" }} elevation={3}>
+      <Paper
+        sx={{
+          width: "12rem",
+          p: "0.25rem",
+          height: "100%",
+        }}
+        elevation={3}
+      >
         <Box
           sx={{
             display: "flex",
@@ -101,11 +114,11 @@ export default function WebShell() {
         }}
       >
         <TextField
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", fontFamily: ["Fira Code", "monospace"] }}
           label="Command"
           variant="outlined"
           multiline
-          rows={4}
+          rows={1}
           onChange={(e) => setCommand(e.target.value)}
         />
         <Button
@@ -113,11 +126,51 @@ export default function WebShell() {
           variant="contained"
           size="small"
           onClick={handleExecute}
-          disabled={connected}
+          disabled={!connected}
         >
           execute
         </Button>
-        {selectedDancers.length === 1 ? null : (
+        {selectedDancers.length === 1 ? (
+          <Box
+            sx={{
+              width: "100%",
+              p: "0.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            {shellHistory[selectedDancers[0]]?.map(({ command, output }, i) => (
+              <Box key={i}>
+                <Typography
+                  sx={{
+                    fontFamily: ["Fira Code", "monospace"],
+                  }}
+                >
+                  <Typography
+                    component="span"
+                    sx={{
+                      color: green[700],
+                      fontFamily: ["Fira Code", "monospace"],
+                    }}
+                  >
+                    {`pi@lightdance-${selectedDancers[0]
+                      .split("_")[0]
+                      .padStart(2, "0")}:~/LightDance-RPi $ `}
+                  </Typography>
+                  {command}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: ["Fira Code", "monospace"],
+                  }}
+                >
+                  {output}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        ) : (
           <Table sx={{ width: "100%" }} size="small">
             <TableHead>
               <TableRow>

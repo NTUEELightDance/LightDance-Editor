@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { PartialControlPanelMessage } from "@/hooks/useCommandCenter";
 import { reactiveState } from "@/core/state";
 import Box from "@mui/material/Box";
@@ -23,6 +23,7 @@ import { red, blue, green, yellow, cyan } from "@mui/material/colors";
 import { waveSurferAppInstance } from "../Wavesurfer/WaveSurferApp";
 import { setCurrentTime } from "@/core/actions";
 import { ButtonBase } from "@mui/material";
+import CountDown from "./CountDown";
 
 interface CommandControlsProps {
   selectedRPis: string[];
@@ -36,7 +37,10 @@ function CommandControls({
   send,
   reconnect,
 }: CommandControlsProps) {
-  const [delay, setDelay] = useState(0);
+  const [delaySeconds, setDelaySeconds] = useState(0);
+  const [counterRunning, setCounterRunning] = useState(false);
+
+  const delayPlayTimeout = useRef<NodeJS.Timeout | null>(null);
 
   return (
     <Box
@@ -56,19 +60,20 @@ function CommandControls({
           gap: "1rem",
         }}
       >
+        <CountDown duration={delaySeconds} running={counterRunning} />
         <TextField
           sx={{ width: "5rem", p: 0 }}
           label="delay (s)"
           type="number"
           variant="outlined"
-          value={delay}
+          value={delaySeconds}
           size="small"
           onChange={(e) => {
             const delay = Number(e.target.value);
             if (delay < 0) {
               e.target.value = "0";
             }
-            setDelay(delay);
+            setDelaySeconds(delay);
           }}
         />
         <ButtonGroup>
@@ -80,12 +85,15 @@ function CommandControls({
                 payload: {
                   dancers: selectedRPis,
                   start: reactiveState.currentTime(),
-                  delay,
+                  delay: delaySeconds * 1000,
                 },
               });
-              setTimeout(() => {
+
+              delayPlayTimeout.current = setTimeout(() => {
                 waveSurferAppInstance.play();
-              }, delay * 1000);
+              }, delaySeconds * 1000);
+
+              setCounterRunning(true);
             }}
             label="play"
             icon={<PlayArrowRoundedIcon fontSize="small" />}
@@ -100,6 +108,8 @@ function CommandControls({
                 },
               });
               waveSurferAppInstance.pause();
+
+              setCounterRunning(false);
             }}
             label="pause"
             icon={<PauseRoundedIcon fontSize="small" />}
@@ -114,6 +124,8 @@ function CommandControls({
                 },
               });
               waveSurferAppInstance.stop();
+
+              setCounterRunning(false);
             }}
             label="stop"
             icon={<StopRoundedIcon fontSize="small" />}

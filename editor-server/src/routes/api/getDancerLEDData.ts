@@ -119,7 +119,7 @@ const getDancerLEDData = async (req: Request, res: Response) => {
 
                 const status = LEDs.map((led) => {
                   const color = led[0];
-                  const tmp = (led[1] * originAlpha) / 10;
+                  const tmp = Math.round((led[1] * originAlpha) / 10);
                   const alpha = tmp > 10 ? 15 : tmp;
 
                   // Get color of LEDs
@@ -144,7 +144,7 @@ const getDancerLEDData = async (req: Request, res: Response) => {
 
               const status = LEDs.map((led) => {
                 const color = led[0];
-                const alpha = led[1] * originAlpha;
+                const alpha = Math.round((led[1] * originAlpha) / 10);
 
                 // Get color of LEDs
                 const rgb = colorDict[color.toString()];
@@ -181,8 +181,8 @@ const getDancerLEDData = async (req: Request, res: Response) => {
 
     res.header("Content-Type", "application/json");
     res.send(JSON.stringify(ret));
-  } catch (err: any) {
-    res.status(404).send({ err: err.message });
+  } catch (err) {
+    if (err instanceof Error) res.status(404).send({ err: err.message });
   }
 };
 

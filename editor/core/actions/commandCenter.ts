@@ -15,6 +15,21 @@ const actions = registerActions({
 
     state.RPiStatus = newRPiStatus;
   },
+
+  pushShellHistory: (
+    state: State,
+    payload: {
+      dancer: string;
+      command: string;
+      output: string;
+    }
+  ) => {
+    const { dancer, command, output } = payload;
+    const newShellHistory = state.shellHistory;
+    newShellHistory[dancer] ??= [];
+    newShellHistory[dancer].push({ command, output });
+    state.shellHistory = newShellHistory;
+  },
 });
 
-export const { setRPiStatus } = actions;
+export const { setRPiStatus, pushShellHistory } = actions;

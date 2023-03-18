@@ -25,7 +25,7 @@ import { notification } from "@/core/utils";
 import useInterval from "./useInterval";
 import { useReactiveVar } from "@apollo/client";
 import { reactiveState } from "@/core/state";
-import { setRPiStatus } from "@/core/actions";
+import { pushShellHistory, setRPiStatus } from "@/core/actions";
 
 type WebsocketConfig = Partial<
   Pick<WebSocket, "onopen" | "onclose" | "onerror" | "onmessage">
@@ -55,6 +55,7 @@ let websocket: WebSocket = initWebsocket({});
 export default function useCommandCenter() {
   const [connected, setConnected] = useState(false);
   const RPiStatus = useReactiveVar(reactiveState.RPiStatus);
+  const shellHistory = useReactiveVar(reactiveState.shellHistory);
 
   const websocketConfig = useMemo<WebsocketConfig>(
     () => ({
@@ -126,6 +127,10 @@ export default function useCommandCenter() {
                   }
                 );
               },
+              options: {
+                refreshThreeSimulator: false,
+                refreshWavesurfer: false,
+              },
             });
             break;
 
@@ -161,9 +166,21 @@ export default function useCommandCenter() {
                 }
               },
             });
+            pushShellHistory({
+              payload: {
+                dancer: data.payload.dancer,
+                command: data.payload.command,
+                output: data.payload.message,
+              },
+              options: {
+                refreshThreeSimulator: false,
+                refreshWavesurfer: false,
+              },
+            });
             break;
 
           default:
+            data satisfies never;
             break;
         }
       },
@@ -208,7 +225,7 @@ export default function useCommandCenter() {
     }
   }, 5000);
 
-  return { connected, send, reconnect, RPiStatus };
+  return { connected, send, reconnect, RPiStatus, shellHistory };
 }
 
 function initWebsocket({

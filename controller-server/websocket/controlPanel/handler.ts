@@ -180,7 +180,7 @@ function sendColor(dancers: string[], colorCode: string) {
     from: "server",
     topic: "command",
     statusCode: 0,
-    payload: ["parttest", "--hex", colorCode.replace(/^#/, "")],
+    payload: ["parttest", "--hex", colorCode.replace(/^#/, ""), "-a", "10"],
   };
 
   sendToRPi(dancers, toRPiMsgPartTest);
@@ -228,6 +228,12 @@ export function handleCyan(msg: FromControlPanelCyan) {
 }
 
 export function handleDarkAll() {
-  const colorCode = "000000";
-  sendColor(Object.keys(dancerToMAC), colorCode);
+  const toRPiMsgPartTest: ToRPiPartTest = {
+    from: "server",
+    topic: "command",
+    statusCode: 0,
+    payload: ["parttest", "--hex", "000000", "-a", "0"],
+  };
+
+  sendToRPi(Object.keys(dancerToMAC), toRPiMsgPartTest);
 }

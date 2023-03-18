@@ -372,6 +372,15 @@ export type RPiStatus = {
   };
 };
 
+type ShellTransaction = {
+  command: string;
+  output: string;
+};
+
+export type ShellHistory = {
+  [dancerName: string]: ShellTransaction[];
+};
+
 /**
  * Mutable State
  */
@@ -429,6 +438,7 @@ export interface State {
   dancerPartIndexMap: DancerPartIndexMap;
 
   RPiStatus: RPiStatus;
+  shellHistory: ShellHistory;
 }
 
 export type StateKey = keyof State;
