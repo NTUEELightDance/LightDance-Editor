@@ -120,7 +120,7 @@ export interface FromControlPanelWebShell extends FromControlPanelBase {
   topic: "webShell";
   payload: {
     dancers: string[];
-    command: string[];
+    command: string;
   };
 }
 

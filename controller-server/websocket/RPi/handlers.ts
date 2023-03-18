@@ -23,7 +23,10 @@ export const RPiWSs: Record<string, WebSocket> = {};
 
 export function sendToRPi(dancers: string[], msg: ToRPi) {
   console.log("[Send]: RPi", msg, dancers, "\n");
-  const toSend = JSON.stringify(msg);
+  const toSend = JSON.stringify({
+    ...msg,
+    ...(msg.topic === "command" && { payload: msg.payload.join(" ") }),
+  });
 
   dancers.forEach((dancer: string) => {
     if (!(dancer in dancerToMAC)) {

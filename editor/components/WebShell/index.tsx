@@ -52,8 +52,7 @@ export default function WebShell() {
       topic: "webShell",
       payload: {
         dancers: selectedDancers,
-        // TODO fix this
-        command: command.split("@"),
+        command: command,
       },
     });
   };

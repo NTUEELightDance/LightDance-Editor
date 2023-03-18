@@ -86,7 +86,7 @@ export interface ToRPiReboot extends ToRPiBase {
 
 export interface ToRPiWebShell extends ToRPiBase {
   topic: "command";
-  payload: string[];
+  payload: [string];
 }
 
 export interface ToRPiUpload extends ToRPiBase {

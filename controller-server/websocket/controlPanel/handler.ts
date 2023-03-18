@@ -169,7 +169,7 @@ export function handleWebShell(msg: FromControlPanelWebShell) {
     from: "server",
     topic: "command",
     statusCode: 0,
-    payload: command,
+    payload: [command],
   };
 
   sendToRPi(dancers, toRPiMsg);
