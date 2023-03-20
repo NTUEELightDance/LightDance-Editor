@@ -17,6 +17,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DarkAllIcon from "@mui/icons-material/FlashOff";
 import RebootIcon from "@mui/icons-material/PowerSettingsNew";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SyncIcon from "@mui/icons-material/Sync";
 
 import { red, blue, green, yellow, cyan } from "@mui/material/colors";
 
@@ -37,7 +38,7 @@ function CommandControls({
   send,
   reconnect,
 }: CommandControlsProps) {
-  const [delaySeconds, setDelaySeconds] = useState(0);
+  const [delaySeconds, setDelaySeconds] = useState(1);
   const [counterRunning, setCounterRunning] = useState(false);
 
   const delayPlayTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -47,7 +48,7 @@ function CommandControls({
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: "4rem",
+        gap: "1rem",
       }}
     >
       <Button onClick={reconnect} size="small" variant="contained">
@@ -60,6 +61,21 @@ function CommandControls({
           gap: "1rem",
         }}
       >
+        <ButtonGroup>
+          <CommandButton
+            variant="normal"
+            onClick={() => {
+              send({
+                topic: "sync",
+                payload: {
+                  dancers: selectedRPis,
+                },
+              });
+            }}
+            label="sync"
+            icon={<SyncIcon fontSize="small" />}
+          />
+        </ButtonGroup>
         <CountDown duration={delaySeconds} running={counterRunning} />
         <TextField
           sx={{ width: "5rem", p: 0 }}
@@ -70,8 +86,8 @@ function CommandControls({
           size="small"
           onChange={(e) => {
             const delay = Number(e.target.value);
-            if (delay < 0) {
-              e.target.value = "0";
+            if (delay < 1) {
+              e.target.value = "1";
             }
             setDelaySeconds(delay);
           }}
@@ -85,7 +101,7 @@ function CommandControls({
                 payload: {
                   dancers: selectedRPis,
                   start: reactiveState.currentTime(),
-                  delay: delaySeconds * 1000,
+                  timestamp: Date.now() + delaySeconds * 1000,
                 },
               });
 

@@ -20,6 +20,7 @@ import type {
   FromControlPanelMagenta,
   FromControlPanelCyan,
   FromControlPanelDarkAll,
+  FromControlPanelSync,
 } from "@controller-server/types/controlPanelMessage";
 import { notification } from "@/core/utils";
 import useInterval from "./useInterval";
@@ -48,7 +49,8 @@ export type PartialControlPanelMessage =
   | Omit<FromControlPanelYellow, "from" | "statusCode">
   | Omit<FromControlPanelMagenta, "from" | "statusCode">
   | Omit<FromControlPanelCyan, "from" | "statusCode">
-  | Omit<FromControlPanelDarkAll, "from" | "statusCode">;
+  | Omit<FromControlPanelDarkAll, "from" | "statusCode">
+  | Omit<FromControlPanelSync, "from" | "statusCode">;
 
 let websocket: WebSocket = initWebsocket({});
 
@@ -166,6 +168,7 @@ export default function useCommandCenter() {
                 }
               },
             });
+
             pushShellHistory({
               payload: {
                 dancer: data.payload.dancer,

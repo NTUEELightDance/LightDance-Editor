@@ -32,8 +32,6 @@ export default class FIBERPart extends Part {
 
     this.mesh.material.emissiveIntensity = alpha / 15;
 
-    // console.log("colorID", colorID);
-
     // if colorCode exist use colorCode instead
     if (rgb) {
       this.mesh.material.emissive.setRGB(

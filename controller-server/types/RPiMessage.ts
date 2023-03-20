@@ -26,7 +26,20 @@ export interface FromRPiCommandResponse extends FromRPiBase {
   };
 }
 
-export type FromRPi = FromRPiBoardInfo | FromRPiCommandResponse;
+export interface FromRPiSyncResponse extends FromRPiBase {
+  from: "RPi";
+  topic: "sync";
+  payload: {
+    MAC: MACAddress;
+    command: "sync";
+    message: string;
+  };
+}
+
+export type FromRPi =
+  | FromRPiBoardInfo
+  | FromRPiCommandResponse
+  | FromRPiSyncResponse;
 
 // interface PinMap {}
 

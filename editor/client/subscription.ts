@@ -193,7 +193,6 @@ const subControlMap = (client: ApolloClient<NormalizedCacheObject>) => {
                 ...updateFrames,
               };
 
-              console.log("subscribe");
               setControlMap({
                 payload: toControlMap(newControlMap.frameIds),
               });

@@ -3,6 +3,7 @@ import { WebSocket } from "ws";
 import {
   FromRPiBoardInfo,
   FromRPiCommandResponse,
+  FromRPiSyncResponse,
   ToRPi,
   ToRPiUpload,
 } from "@/types/RPiMessage";
@@ -127,6 +128,26 @@ export function handleRPiCommandResponse(
   ws: WebSocket,
   msg: FromRPiCommandResponse
 ) {
+  const { MAC, command, message } = msg.payload;
+  if (!validateMAC(MAC)) return;
+
+  const { dancer } = dancerTable[MAC];
+
+  const toControlPanelMsg: ToControlPanelCommandResponse = {
+    from: "server",
+    topic: "command",
+    statusCode: msg.statusCode,
+    payload: {
+      dancer,
+      command,
+      message,
+    },
+  };
+
+  sendToControlPanel(toControlPanelMsg);
+}
+
+export function handleRPiSyncResponse(ws: WebSocket, msg: FromRPiSyncResponse) {
   const { MAC, command, message } = msg.payload;
   if (!validateMAC(MAC)) return;
 
