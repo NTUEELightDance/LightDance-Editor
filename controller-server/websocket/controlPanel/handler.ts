@@ -19,6 +19,7 @@ import {
   FromControlPanelMagenta,
   FromControlPanelCyan,
   FromControlPanelWebShell,
+  FromControlPanelSync,
 } from "@/types/controlPanelMessage";
 
 import {
@@ -30,6 +31,7 @@ import {
   ToRPiReboot,
   ToRPiCloseGPIO,
   ToRPiWebShell,
+  ToRPiSync,
 } from "@/types/RPiMessage";
 
 import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
@@ -72,8 +74,21 @@ export function handleBoardInfo(ws: WebSocket) {
   sendBoardInfoToControlPanel();
 }
 
+export function handleSync(msg: FromControlPanelSync) {
+  const { dancers } = msg.payload;
+
+  const toRPiMsg: ToRPiSync = {
+    from: "server",
+    topic: "sync",
+    statusCode: 0,
+    payload: "",
+  };
+
+  sendToRPi(dancers, toRPiMsg);
+}
+
 export function handlePlay(msg: FromControlPanelPlay) {
-  const { dancers, start, delay } = msg.payload;
+  const { dancers, start, timestamp } = msg.payload;
 
   const toRPiMsg: ToRPiPlay = {
     from: "server",
@@ -84,7 +99,7 @@ export function handlePlay(msg: FromControlPanelPlay) {
       "play",
       Math.round(start).toString(),
       "-d",
-      Math.round(delay).toString(),
+      Math.round(timestamp).toString(),
     ],
   };
 
