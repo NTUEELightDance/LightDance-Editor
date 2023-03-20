@@ -15,6 +15,7 @@ import {
   TLEDControl,
   TFiberControl,
   TIdLEDPair,
+  TPositionPos,
 } from "../../types/global";
 import { getRedisControl, getRedisPosition } from "../../utility";
 
@@ -152,6 +153,16 @@ const exportData = async (req: Request, res: Response) => {
       })
     );
     // console.dir(position, { depth: null })
+    Object.entries(position).forEach(([key, { pos, start }]) => {
+      position[key] = {
+        start,
+        pos: pos.map((dancerPos) => {
+          return dancerPos.map(
+            (partPos) => Math.round((partPos + Number.EPSILON) * 100) / 100
+          ) as TPositionPos;
+        }),
+      };
+    });
 
     const data: TExportData = { position, control, dancer, color, LEDEffects };
     // console.log(data)

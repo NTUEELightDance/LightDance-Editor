@@ -5,7 +5,6 @@ import prisma from "./prisma";
 
 import {
   LooseObject,
-  TRedisPos,
   TPartControl,
   TRedisControl,
   TPositionPos,

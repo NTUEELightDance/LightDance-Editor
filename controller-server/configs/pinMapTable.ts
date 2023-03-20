@@ -415,12 +415,12 @@ const pinMapTable: PinMapTable = {
       back_row: 10,
     },
     LEDPARTS: {
-      one_LED: { id: 0, len: 78 },
-      two_LED: { id: 1, len: 75 },
-      three_LED: { id: 2, len: 80 },
-      four_LED: { id: 3, len: 45 },
-      five_LED: { id: 4, len: 43 },
-      six_LED: { id: 5, len: 25 },
+      one_LED: { id: 0, len: 33 },
+      two_LED: { id: 1, len: 35 },
+      three_LED: { id: 2, len: 40 },
+      four_LED: { id: 3, len: 90 },
+      five_LED: { id: 4, len: 83 },
+      six_LED: { id: 5, len: 65 },
     },
   },
   "12_cabinet_ttk": {
