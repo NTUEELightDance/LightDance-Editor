@@ -1,7 +1,6 @@
 import { registerActions } from "../registerActions";
 // utils
 import {
-  getControlPayload,
   getPosPayload,
   getControl,
   getPos,
@@ -164,7 +163,7 @@ const actions = registerActions({
    * @param {object} payload
    */
   setCurrentControlIndex: async (state: State, payload: number) => {
-    const [controlMap, controlRecord] = await getControlPayload();
+    const [controlMap, controlRecord] = await getControl();
     let controlIndex = payload;
     if (isNaN(controlIndex)) {
       throw new Error(

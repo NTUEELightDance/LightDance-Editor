@@ -7,9 +7,7 @@ import {
 import { gql } from "@apollo/client";
 
 export interface AddControlFrameMutationResponseData {
-  addControlFrame: {
-    id: number;
-  };
+  addControlFrame: string;
 }
 
 export interface AddControlFrameMutationVariables {
@@ -24,9 +22,7 @@ export const ADD_CONTROL_FRAME = gql`
     $fade: Boolean
     $controlData: [[[Int!]!]!]
   ) {
-    addControlFrame(start: $start, fade: $fade, controlData: $controlData) {
-      id
-    }
+    addControlFrame(start: $start, fade: $fade, controlData: $controlData)
   }
 `;
 
@@ -49,9 +45,7 @@ export const EDIT_CONTROL_FRAME = gql`
 `;
 
 export interface EditControlFrameTimeMutationResponseData {
-  editControlFrame: {
-    id: number;
-  };
+  editControlFrame: string;
 }
 
 export interface EditControlFrameTimeMutationVariables {
@@ -63,17 +57,13 @@ export interface EditControlFrameTimeMutationVariables {
 
 export const EDIT_CONTROL_FRAME_TIME = gql`
   mutation EditControlFrame($input: EditControlFrameInput!) {
-    editControlFrame(input: $input) {
-      id
-    }
+    editControlFrame(input: $input)
   }
 `;
 
 export const DELETE_CONTROL_FRAME_BY_ID = gql`
   mutation DeleteControlFrame($input: DeleteControlFrameInput!) {
-    deleteControlFrame(input: $input) {
-      id
-    }
+    deleteControlFrame(input: $input)
   }
 `;
 

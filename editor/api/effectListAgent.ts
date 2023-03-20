@@ -3,8 +3,6 @@ import {
   ADD_EFFECT_LIST,
   APPLY_EFFECT_LIST,
   DELETE_EFFECT_LIST,
-  GET_CONTROL_MAP,
-  GET_CONTROL_RECORD,
 } from "@/graphql";
 
 import { notification } from "@/core/utils";
@@ -54,14 +52,14 @@ export const effectListAgent = {
           start,
           applyEffectListId: parseInt(applyId),
         },
-        refetchQueries: [
-          {
-            query: GET_CONTROL_RECORD,
-          },
-          {
-            query: GET_CONTROL_MAP,
-          },
-        ],
+        // refetchQueries: [
+        //   {
+        //     query: GET_CONTROL_RECORD,
+        //   },
+        //   {
+        //     query: GET_CONTROL_MAP,
+        //   },
+        // ],
       });
       if (response.data.applyEffectList.ok) {
         notification.success("Effect List Applied");

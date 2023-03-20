@@ -1,5 +1,4 @@
 import { makeVar } from "@apollo/client";
-import { cloneDeep } from "lodash";
 import onChange from "on-change";
 
 import { debug } from "@/core/utils";
@@ -98,7 +97,14 @@ export function syncReactiveState(states: string[]) {
     diffSet.forEach((key) => {
       if (key in state && key in reactiveState) {
         debug("update reactiveState", key);
-        const newValue = cloneDeep(state[key as StateKey]);
+        const newValue: State[StateKey] = Array.isArray(_state[key as StateKey])
+          ? // @ts-expect-error only shallow copy for object types to speed up
+            [..._state[key as StateKey]]
+          : typeof _state[key as StateKey] === "object"
+          ? // @ts-expect-error only shallow copy for object types to speed up
+            { ..._state[key as StateKey] }
+          : _state[key as StateKey];
+
         // @ts-expect-error newValue's type is guaranteed to be the same as state[key]
         reactiveState[key as StateKey](newValue);
       } else {
@@ -110,7 +116,13 @@ export function syncReactiveState(states: string[]) {
     states.forEach((key) => {
       if (key in reactiveState && key in state) {
         debug("update reactiveState", key);
-        const newValue = cloneDeep(state[key as StateKey]);
+        const newValue: State[StateKey] = Array.isArray(_state[key as StateKey])
+          ? [..._state[key as StateKey]]
+          : typeof _state[key as StateKey] === "object"
+          ? // @ts-expect-error only shallow copy for object types to speed up
+            { ..._state[key as StateKey] }
+          : _state[key as StateKey];
+
         // @ts-expect-error newValue's type is guaranteed to be the same as state[key]
         reactiveState[key as StateKey](newValue);
       } else {

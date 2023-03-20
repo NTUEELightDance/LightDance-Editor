@@ -1169,7 +1169,7 @@ type Mutation {
   RequestEditLEDEffect(LEDEffectID: Int!): RequestEditResponse!
   RequestEditPosition(FrameID: Int!): RequestEditResponse!
   addColor(color: ColorCreateInput!): Color!
-  addControlFrame(controlData: [[[Int!]!]!], fade: Boolean = false, start: Int!): ControlFrame!
+  addControlFrame(controlData: [[[Int!]!]!], fade: Boolean = false, start: Int!): String!
   addDancer(dancer: AddDancerInput!): DancerResponse!
   addEffectList(description: String, end: Int!, start: Int!): EffectListData!
   addLEDEffect(input: LEDEffectCreateInput!): LEDEffectResponse!
@@ -1177,14 +1177,14 @@ type Mutation {
   addPositionFrame(positionData: [[Float!]!], start: Int!): PositionFrame!
   applyEffectList(id: Int!, start: Int!): EffectListResponse!
   deleteColor(id: Int!): ColorResponse!
-  deleteControlFrame(input: DeleteControlFrameInput!): ControlFrame!
+  deleteControlFrame(input: DeleteControlFrameInput!): String!
   deleteDancer(dancer: deleteDancerInput!): DancerResponse!
   deleteEffectList(id: Int!): EffectListResponse!
   deleteLEDEffect(id: Int!): DeleteLEDEffectResponse!
   deletePart(part: DeletePartInput!): PartResponse!
   deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
   editColor(data: ColorUpdateInput!, id: Int!): Color!
-  editControlFrame(input: EditControlFrameInput!): ControlFrame!
+  editControlFrame(input: EditControlFrameInput!): String!
   editControlMap(input: EditControlMapInput!): String!
   editDancer(dancer: editDancerInput!): DancerResponse!
   editLEDEffect(input: EditLEDInput!): LEDEffectResponse!

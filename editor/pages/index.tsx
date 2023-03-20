@@ -11,6 +11,7 @@ import Login from "./Login";
 import NotFound from "./NotFound";
 
 import { ROUTES } from "@/constants";
+import { log } from "@/core/utils";
 
 const theme = createTheme({ palette: { mode: "dark" } });
 
@@ -19,6 +20,8 @@ const Command = lazy(async () => await import("./Command"));
 const Editor = lazy(async () => await import("./Editor"));
 
 export default function RootRouter() {
+  log("last updated: 2023-03-20 19:25");
+
   return (
     <ThemeProvider theme={theme}>
       <PageWrapper>

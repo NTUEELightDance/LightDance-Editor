@@ -3,22 +3,17 @@ import { registerActions } from "../registerActions";
 import { State, EditMode, Editor, EditingData } from "../models";
 // constants
 import { CONTROL_EDITOR, EDITING, POS_EDITOR } from "@/constants";
-import { getControlPayload, getPosPayload, deleteRGB } from "../utils";
+import { getPosPayload, deleteRGB, getControl } from "../utils";
 // api
 import { controlAgent, posAgent } from "api";
 
 import { notification, updateFrameByTimeMap } from "core/utils";
 
-/**
- * This is a helper function for getting data from pos and map
- * @param state
- * @returns { map, record, index, frameId, frame, agent, fade? }
- */
 const getDataHandler = async (state: State) => {
   const pureStatus = deleteRGB(state.currentStatus);
 
   if (state.editor === CONTROL_EDITOR) {
-    const [controlMapPayload, controlRecord] = await getControlPayload();
+    const [controlMapPayload, controlRecord] = await getControl();
     const controlMap = state.controlMap;
     // get the right frameIndex due to the multiple editing issue
     const frameIndex = updateFrameByTimeMap(

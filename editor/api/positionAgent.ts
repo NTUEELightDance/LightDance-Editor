@@ -54,14 +54,14 @@ export const posAgent = {
           start: addFrameInput.start,
           positionData: toPosMapStatusPayload(addFrameInput.frame),
         },
-        refetchQueries: [
-          {
-            query: GET_POS_RECORD,
-          },
-          {
-            query: GET_POS_MAP,
-          },
-        ],
+        // refetchQueries: [
+        //   {
+        //     query: GET_POS_RECORD,
+        //   },
+        //   {
+        //     query: GET_POS_MAP,
+        //   },
+        // ],
       });
 
       return response?.addPositionFrame?.id as number;
@@ -91,11 +91,11 @@ export const posAgent = {
               start: saveFrameInput.start,
             },
           },
-          refetchQueries: [
-            {
-              query: GET_POS_RECORD,
-            },
-          ],
+          // refetchQueries: [
+          //   {
+          //     query: GET_POS_RECORD,
+          //   },
+          // ],
         });
       } catch (error) {
         console.error(error);
@@ -112,11 +112,11 @@ export const posAgent = {
             positionData: toPosMapStatusPayload(saveFrameInput.frame),
           },
         },
-        refetchQueries: [
-          {
-            query: GET_POS_MAP,
-          },
-        ],
+        // refetchQueries: [
+        //   {
+        //     query: GET_POS_MAP,
+        //   },
+        // ],
       });
     } catch (error) {
       console.error(error);
@@ -133,14 +133,14 @@ export const posAgent = {
             frameID: frameId,
           },
         },
-        refetchQueries: [
-          {
-            query: GET_POS_RECORD,
-          },
-          {
-            query: GET_POS_MAP,
-          },
-        ],
+        // refetchQueries: [
+        //   {
+        //     query: GET_POS_RECORD,
+        //   },
+        //   {
+        //     query: GET_POS_MAP,
+        //   },
+        // ],
       });
     } catch (error) {
       console.error(error);

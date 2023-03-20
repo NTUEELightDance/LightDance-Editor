@@ -86,7 +86,7 @@ export default function ColorPalette() {
                     : 0
                 )
                 .map((color) => (
-                  <Collapse key={`${color.name}_${color.colorCode}`}>
+                  <Collapse key={color.id}>
                     <ColorListItem
                       color={color}
                       handleEditClick={handleEditClick}
@@ -116,7 +116,7 @@ export default function ColorPalette() {
         )
         .map((color) => (
           <ColorDialog
-            key={`${color.name}_${color.colorCode}`}
+            key={color.id}
             variant="edit"
             open={editDialogOpen[color.id]}
             handleClose={() => {

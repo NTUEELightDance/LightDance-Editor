@@ -45,7 +45,8 @@ export default class MarkersPlugin implements WaveSurferPlugin {
   markerLineWidth: number;
   markerWidth: number;
   markerHeight: number;
-  markers: Marker[];
+  markersPool: Marker[];
+  usedMarkers = 0;
   showMarkers: boolean;
   dragging: boolean;
   selectedMarker: Marker | null;
@@ -90,7 +91,7 @@ export default class MarkersPlugin implements WaveSurferPlugin {
     this.showMarkers = true;
     this.dragging = false;
     this.wrapper = null;
-    this.markers = [];
+    this.markersPool = [];
     this.selectedMarker = null;
 
     this._onResize = ws.util.debounce(() => {
@@ -153,7 +154,7 @@ export default class MarkersPlugin implements WaveSurferPlugin {
     this.clear();
   }
 
-  add(params: MarkerParams): Marker {
+  add(params: MarkerParams) {
     const marker = {
       time: params.time,
       label: params.label ?? "",
@@ -162,23 +163,40 @@ export default class MarkersPlugin implements WaveSurferPlugin {
       draggable: !!params.draggable,
       data: params.data,
     } as Marker;
+
+    this.usedMarkers++;
+
+    if (this.markersPool.length > this.usedMarkers) {
+      const recycledMarker = this.markersPool[this.usedMarkers];
+
+      recycledMarker.time = marker.time;
+      recycledMarker.label = marker.label;
+      recycledMarker.color = marker.color;
+      recycledMarker.position = marker.position;
+      recycledMarker.draggable = marker.draggable;
+      recycledMarker.data = marker.data;
+
+      this.style(recycledMarker.el, {
+        display: "flex",
+      });
+      this._updateMarkerPosition(recycledMarker);
+      return;
+    }
+
     marker.el = this._createMarkerElement(marker, params.markerElement);
-
     this.wrapper!.appendChild(marker.el);
-    this.markers.push(marker);
-    this._updateMarkerPositions();
-
-    return marker;
+    this.markersPool.push(marker);
+    this._updateMarkerPosition(marker);
   }
 
   remove(index: number): void {
-    const marker = this.markers[index];
+    const marker = this.markersPool[index];
     if (!marker || this.wrapper == null) {
       return;
     }
 
     this.wrapper.removeChild(marker.el);
-    this.markers.splice(index, 1);
+    this.markersPool.splice(index, 1);
   }
 
   _createPointerSVG(color: string, position: "top" | "bottom"): SVGElement {
@@ -295,8 +313,8 @@ export default class MarkersPlugin implements WaveSurferPlugin {
   }
 
   _updateMarkerPositions(): void {
-    for (let i = 0; i < this.markers.length; i++) {
-      const marker = this.markers[i];
+    for (let i = 0; i < this.markersPool.length; i++) {
+      const marker = this.markersPool[i];
       this._updateMarkerPosition(marker);
     }
   }
@@ -351,7 +369,7 @@ export default class MarkersPlugin implements WaveSurferPlugin {
     if (this.showMarkers == showMarkers) return;
 
     this.showMarkers = showMarkers;
-    this.markers.forEach((marker) => {
+    this.markersPool.forEach((marker) => {
       this.style(marker.el, {
         display: this.showMarkers ? "flex" : "none",
       });
@@ -359,9 +377,13 @@ export default class MarkersPlugin implements WaveSurferPlugin {
     this._updateMarkerPositions();
   }
 
-  clear(): void {
-    while (this.markers.length > 0) {
-      this.remove(0);
+  clear() {
+    for (const marker of this.markersPool) {
+      this.style(marker.el, {
+        display: "none",
+      });
     }
+
+    this.usedMarkers = 0;
   }
 }

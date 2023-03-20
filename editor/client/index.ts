@@ -59,10 +59,10 @@ const client = new ApolloClient({
               const controlMap = toControlMap(incoming);
               await setControlMap({
                 payload: controlMap,
-                options: {
-                  refreshThreeSimulator: false,
-                  refreshWavesurfer: false,
-                },
+                // options: {
+                //   refreshThreeSimulator: false,
+                //   refreshWavesurfer: false,
+                // },
               });
               return incoming;
             },
@@ -96,6 +96,7 @@ const client = new ApolloClient({
               if (incoming instanceof Promise) {
                 incoming = await incoming;
               }
+
               const colorMap = toColorMap(incoming);
               await setColorMap({ payload: colorMap });
               return incoming;

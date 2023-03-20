@@ -5,7 +5,6 @@ import { hexToRGB } from "@/core/utils/convert";
 import {
   GET_COLOR_MAP,
   ADD_COLOR,
-  GET_CONTROL_MAP,
   EDIT_COLOR,
   DELETE_COLOR,
   AddColorMutationVariables,
@@ -43,11 +42,11 @@ export const colorAgent = {
             },
           },
         },
-        refetchQueries: [
-          {
-            query: GET_COLOR_MAP,
-          },
-        ],
+        // refetchQueries: [
+        //   {
+        //     query: GET_COLOR_MAP,
+        //   },
+        // ],
       });
 
       return data?.addColor.id;
@@ -81,11 +80,11 @@ export const colorAgent = {
           },
           editColorId: id,
         },
-        refetchQueries: [
-          {
-            query: GET_COLOR_MAP,
-          },
-        ],
+        // refetchQueries: [
+        //   {
+        //     query: GET_COLOR_MAP,
+        //   },
+        // ],
       });
     } catch (error) {
       console.error(error);
@@ -103,14 +102,14 @@ export const colorAgent = {
         variables: {
           deleteColorId: colorID,
         },
-        refetchQueries: [
-          {
-            query: GET_COLOR_MAP,
-          },
-          {
-            query: GET_CONTROL_MAP,
-          },
-        ],
+        // refetchQueries: [
+        //   {
+        //     query: GET_COLOR_MAP,
+        //   },
+        //   {
+        //     query: GET_CONTROL_MAP,
+        //   },
+        // ],
       });
 
       const ok = data?.deleteColor?.ok;

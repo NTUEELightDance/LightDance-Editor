@@ -49,7 +49,7 @@ export class ControlFrameResolver {
   }
 
   // Add controlFrame with nonempty controlData
-  @Mutation((returns) => ControlFrame)
+  @Mutation((returns) => String)
   async addControlFrame(
     @PubSub(Topic.ControlRecord)
     publishControlRecord: Publisher<ControlRecordPayload>,
@@ -216,11 +216,12 @@ export class ControlFrameResolver {
       index,
     };
     await publishControlRecord(recordPayload);
-    return newControlFrame;
+
+    return "ok";
   }
 
   // mainly for adjust frame time
-  @Mutation((returns) => ControlFrame)
+  @Mutation((returns) => String)
   async editControlFrame(
     @PubSub(Topic.ControlRecord)
     publishControlRecord: Publisher<ControlRecordPayload>,
@@ -259,7 +260,7 @@ export class ControlFrameResolver {
     });
     if (!controlFrame) throw new Error("Control Frame not found");
 
-    const updateControlFrame = await ctx.prisma.controlFrame.update({
+    await ctx.prisma.controlFrame.update({
       where: { id: input.frameID },
       data: {
         start: input.start === undefined ? controlFrame.start : input.start,
@@ -297,10 +298,10 @@ export class ControlFrameResolver {
       index,
     };
     await publishControlRecord(recordPayload);
-    return updateControlFrame;
+    return "ok";
   }
 
-  @Mutation((returns) => ControlFrame)
+  @Mutation((returns) => String)
   async deleteControlFrame(
     @PubSub(Topic.ControlRecord)
     publishControlRecord: Publisher<ControlRecordPayload>,
@@ -349,6 +350,6 @@ export class ControlFrameResolver {
       index: -1,
     };
     await publishControlRecord(recordPayload);
-    return deletedFrame;
+    return "ok";
   }
 }

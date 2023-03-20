@@ -19,6 +19,7 @@ import type {
   ControlMapStatus,
   PosMapStatus,
   ControlRecord,
+  ControlMapQueryPayload,
 } from "@/core/models";
 import { isControlMapStatus } from "@/core/models";
 
@@ -33,7 +34,7 @@ export const controlAgent = {
       query: GET_CONTROL_MAP,
     });
 
-    return controlMapData.ControlMap.frameIds;
+    return controlMapData.ControlMap.frameIds as ControlMapQueryPayload;
   },
 
   getControlRecord: async () => {
@@ -64,17 +65,9 @@ export const controlAgent = {
           controlData: toControlMapStatusMutationPayload(addFrameInput.frame),
           ...(addFrameInput.fade && { fade: addFrameInput.fade }),
         },
-        refetchQueries: [
-          {
-            query: GET_CONTROL_RECORD,
-          },
-          {
-            query: GET_CONTROL_MAP,
-          },
-        ],
       });
 
-      return response?.addControlFrame?.id as number;
+      return response?.addControlFrame;
     } catch (error) {
       console.error(error);
       throw error;
@@ -92,33 +85,8 @@ export const controlAgent = {
       return;
     }
 
-    if (saveFrameInput.requestTimeChange) {
-      try {
-        await client.mutate<
-          EditControlFrameTimeMutationResponseData,
-          EditControlFrameTimeMutationVariables
-        >({
-          mutation: EDIT_CONTROL_FRAME_TIME,
-          variables: {
-            input: {
-              frameID: saveFrameInput.frameId,
-              start: saveFrameInput.start,
-            },
-          },
-          refetchQueries: [
-            {
-              query: GET_CONTROL_RECORD,
-            },
-          ],
-        });
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
-    }
-
-    try {
-      await client.mutate({
+    const promises: Promise<unknown>[] = [
+      client.mutate({
         mutation: EDIT_CONTROL_FRAME,
         variables: {
           input: {
@@ -129,12 +97,28 @@ export const controlAgent = {
             fade: saveFrameInput.fade,
           },
         },
-        refetchQueries: [
-          {
-            query: GET_CONTROL_MAP,
+      }),
+    ];
+
+    if (saveFrameInput.requestTimeChange) {
+      promises.push(
+        client.mutate<
+          EditControlFrameTimeMutationResponseData,
+          EditControlFrameTimeMutationVariables
+        >({
+          mutation: EDIT_CONTROL_FRAME_TIME,
+          variables: {
+            input: {
+              frameID: saveFrameInput.frameId,
+              start: saveFrameInput.start,
+            },
           },
-        ],
-      });
+        })
+      );
+    }
+
+    try {
+      await Promise.all(promises);
     } catch (error) {
       console.error(error);
       throw error;
@@ -150,14 +134,6 @@ export const controlAgent = {
             frameID: frameId,
           },
         },
-        refetchQueries: [
-          {
-            query: GET_CONTROL_RECORD,
-          },
-          {
-            query: GET_CONTROL_MAP,
-          },
-        ],
       });
     } catch (error) {
       console.error(error);

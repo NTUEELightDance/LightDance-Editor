@@ -9,8 +9,10 @@ import {
   ColorSubscriptionData,
   SUB_COLOR,
 } from "../graphql";
-import cloneDeep from "lodash/cloneDeep";
-import { ColorMapPayload } from "@/core/models";
+
+import { setColorMap, setControlMap } from "@/core/actions";
+import { toColorMap, toControlMap, toPosMap } from "@/core/utils/convert";
+import { setPosMap } from "@/core/actions/posMap";
 
 const subPosRecord = (client: ApolloClient<NormalizedCacheObject>) => {
   client
@@ -22,7 +24,11 @@ const subPosRecord = (client: ApolloClient<NormalizedCacheObject>) => {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            positionFrameIDs(positionFrameIDs: string[]) {
+            async positionFrameIDs(positionFrameIDs) {
+              if (positionFrameIDs instanceof Promise) {
+                positionFrameIDs = await positionFrameIDs;
+              }
+
               const { index, addID, updateID, deleteID } =
                 data.data.positionRecordSubscription;
               const newPosRecord = [...positionFrameIDs];
@@ -63,21 +69,38 @@ const subPosMap = (client: ApolloClient<NormalizedCacheObject>) => {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            PosMap(posMap) {
-              const { createFrames, deleteFrames, updateFrames } =
-                data.data.positionMapSubscription.frame;
-              const newPosMap = cloneDeep(posMap);
+            async PosMap(posMap) {
+              if (posMap instanceof Promise) {
+                posMap = await posMap;
+              }
+
+              const frame = data.data.positionMapSubscription.frame;
+
+              const { createFrames, deleteFrames, updateFrames } = frame;
+
+              const newPosMap = {
+                ...posMap,
+                frameIds: await posMap.frameIds,
+              };
+
               newPosMap.frameIds = {
                 ...newPosMap.frameIds,
                 ...createFrames,
               };
+
               deleteFrames.forEach((id: string) => {
                 delete newPosMap.frameIds[id];
               });
+
               newPosMap.frameIds = {
                 ...newPosMap.frameIds,
                 ...updateFrames,
               };
+
+              setPosMap({
+                payload: toPosMap(newPosMap.frameIds),
+              });
+
               return newPosMap;
             },
           },
@@ -99,7 +122,11 @@ const subControlRecord = (client: ApolloClient<NormalizedCacheObject>) => {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            controlFrameIDs(controlFrameIDs: string[]) {
+            async controlFrameIDs(controlFrameIDs) {
+              if (controlFrameIDs instanceof Promise) {
+                controlFrameIDs = await controlFrameIDs;
+              }
+
               const { index, addID, updateID, deleteID } =
                 data.data.controlRecordSubscription;
               let newControlRecord = [...controlFrameIDs];
@@ -138,21 +165,39 @@ const subControlMap = (client: ApolloClient<NormalizedCacheObject>) => {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            ControlMap(controlMap) {
-              const { createFrames, deleteFrames, updateFrames } =
-                data.data.controlMapSubscription.frame;
-              const newControlMap = cloneDeep(controlMap);
+            async ControlMap(controlMap) {
+              if (controlMap instanceof Promise) {
+                controlMap = await controlMap;
+              }
+
+              const frame = data.data.controlMapSubscription.frame;
+
+              const { createFrames, deleteFrames, updateFrames } = frame;
+
+              const newControlMap = {
+                ...controlMap,
+                frameIds: await controlMap.frameIds,
+              };
+
               newControlMap.frameIds = {
                 ...newControlMap.frameIds,
                 ...createFrames,
               };
+
               deleteFrames.map((id: string) => {
                 delete newControlMap.frameIds[id];
               });
+
               newControlMap.frameIds = {
                 ...newControlMap.frameIds,
                 ...updateFrames,
               };
+
+              console.log("subscribe");
+              setControlMap({
+                payload: toControlMap(newControlMap.frameIds),
+              });
+
               return newControlMap;
             },
           },
@@ -174,7 +219,11 @@ const subEffectList = (client: ApolloClient<NormalizedCacheObject>) => {
         client.cache.modify({
           id: "ROOT_QUERY",
           fields: {
-            effectList(_effectList) {
+            async effectList(_effectList) {
+              if (_effectList instanceof Promise) {
+                _effectList = await _effectList;
+              }
+
               if (data.data.effectListSubscription.mutation === "CREATED") {
                 return [
                   ..._effectList,
@@ -205,8 +254,16 @@ const subColorMap = (client: ApolloClient<NormalizedCacheObject>) => {
       client.cache.modify({
         id: "ROOT_QUERY",
         fields: {
-          colorMap(colorMap: ColorMapPayload) {
+          async colorMap(colorMap) {
             if (!data) return colorMap;
+            if (colorMap instanceof Promise) {
+              colorMap = await colorMap;
+            }
+
+            const newColorMap = {
+              ...colorMap,
+              colorMap: await colorMap.colorMap,
+            };
 
             const {
               color: colorName,
@@ -216,18 +273,33 @@ const subColorMap = (client: ApolloClient<NormalizedCacheObject>) => {
 
             switch (data.colorSubscription.mutation) {
               case "CREATED":
-                colorMap[colorID] = {
-                  color: colorName,
-                  colorCode: rgb,
+                newColorMap.colorMap = {
+                  ...newColorMap.colorMap,
+                  [colorID]: {
+                    colorCode: rgb,
+                    color: colorName,
+                  },
                 };
                 break;
               case "UPDATED":
+                newColorMap.colorMap = {
+                  ...newColorMap.colorMap,
+                  [colorID]: {
+                    colorCode: rgb,
+                    color: colorName,
+                  },
+                };
                 break;
               case "DELETED":
+                delete newColorMap.colorMap[colorID];
                 break;
             }
 
-            return colorMap;
+            setColorMap({
+              payload: toColorMap(newColorMap.colorMap),
+            });
+
+            return newColorMap;
           },
         },
       });
