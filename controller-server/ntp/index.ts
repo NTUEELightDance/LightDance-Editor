@@ -2,7 +2,7 @@ import dgram from "dgram";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-function createNTPServer() {
+function createNTPServer(port: number) {
   const NTPserver = dgram.createSocket("udp4");
   NTPserver.on("error", (err) => {
     console.error(`Server error:\n${err.stack}`);
@@ -27,7 +27,7 @@ function createNTPServer() {
     console.log("[UDP Server] Socket is closed !");
   });
 
-  NTPserver.bind(7122);
+  NTPserver.bind(port);
   return NTPserver;
 }
 
