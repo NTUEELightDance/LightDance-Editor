@@ -4,6 +4,7 @@ import { FromControlPanel } from "@/types/controlPanelMessage";
 
 import {
   handleBoardInfo,
+  handleSync,
   handlePlay,
   handlePause,
   handleStop,
@@ -29,6 +30,9 @@ export async function handleOnControlPanelMessage(
   switch (msg.topic) {
     case "boardInfo":
       handleBoardInfo(ws);
+      break;
+    case "sync":
+      handleSync(msg);
       break;
     case "play":
       handlePlay(msg);

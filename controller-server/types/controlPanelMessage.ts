@@ -10,12 +10,19 @@ export interface FromControlPanelBoardInfo extends FromControlPanelBase {
   topic: "boardInfo";
 }
 
+export interface FromControlPanelSync extends FromControlPanelBase {
+  topic: "sync";
+  payload: {
+    dancers: string[];
+  };
+}
+
 export interface FromControlPanelPlay extends FromControlPanelBase {
   topic: "play";
   payload: {
     dancers: string[];
     start: number;
-    delay: number;
+    timestamp: number;
   };
 }
 
@@ -126,6 +133,7 @@ export interface FromControlPanelWebShell extends FromControlPanelBase {
 
 export type FromControlPanel =
   | FromControlPanelBoardInfo
+  | FromControlPanelSync
   | FromControlPanelPlay
   | FromControlPanelPause
   | FromControlPanelStop

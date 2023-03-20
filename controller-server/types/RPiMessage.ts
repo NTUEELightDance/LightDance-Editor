@@ -94,6 +94,11 @@ export interface ToRPiUpload extends ToRPiBase {
   payload: [PinMap, OF, LED];
 }
 
+export interface ToRPiSync extends ToRPiBase {
+  topic: "sync";
+  payload: string;
+}
+
 export type ToRPi =
   | ToRPiPlay
   | ToRPiPause
@@ -104,4 +109,5 @@ export type ToRPi =
   | ToRPiCloseGPIO
   | ToRPiReboot
   | ToRPiWebShell
-  | ToRPiUpload;
+  | ToRPiUpload
+  | ToRPiSync;
