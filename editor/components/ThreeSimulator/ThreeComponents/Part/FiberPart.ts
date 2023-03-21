@@ -42,13 +42,11 @@ export default class FIBERPart extends Part {
       return;
     }
 
-    if (state.colorMap[colorID]) {
-      const colorRGB = state.colorMap[colorID].rgb;
-      this.mesh.material.emissive.setRGB(
-        colorRGB[0] / 255,
-        colorRGB[1] / 255,
-        colorRGB[2] / 255
-      );
+    const colorMap = state.colorMap;
+
+    if (colorMap[colorID]) {
+      const [r, g, b] = colorMap[colorID].rgb;
+      this.mesh.material.emissive.setRGB(r / 255, g / 255, b / 255);
     } else {
       throw new Error(`colorID ${colorID} not found`);
     }

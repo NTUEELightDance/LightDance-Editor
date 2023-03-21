@@ -13,7 +13,6 @@ import {
   FiberData,
   LEDPartName,
   LEDPartStatus,
-  isFiberData,
 } from "@/core/models";
 import { Group } from "three";
 
@@ -192,8 +191,6 @@ class Dancer {
 
   setFiberStatus(currentStatus: DancerStatus) {
     Object.entries(this.parts.FIBER).forEach(([partName, part]) => {
-      //type of part is FiberData
-      if (!isFiberData(currentStatus[partName])) return;
       part.setStatus(currentStatus[partName] as FiberData);
     });
   }
