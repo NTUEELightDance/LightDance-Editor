@@ -43,6 +43,12 @@ function CommandControls({
 
   const delayPlayTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  const clearPlayTimeout = () => {
+    if (delayPlayTimeout.current) {
+      clearTimeout(delayPlayTimeout.current);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -105,6 +111,8 @@ function CommandControls({
                 },
               });
 
+              clearPlayTimeout();
+
               delayPlayTimeout.current = setTimeout(() => {
                 waveSurferAppInstance.play();
               }, delaySeconds * 1000);
@@ -123,6 +131,9 @@ function CommandControls({
                   dancers: selectedRPis,
                 },
               });
+
+              clearPlayTimeout();
+
               waveSurferAppInstance.pause();
 
               setCounterRunning(false);
@@ -139,6 +150,9 @@ function CommandControls({
                   dancers: selectedRPis,
                 },
               });
+
+              clearPlayTimeout();
+
               waveSurferAppInstance.stop();
 
               setCounterRunning(false);
