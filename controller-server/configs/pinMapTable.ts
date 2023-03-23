@@ -587,12 +587,12 @@ const pinMapTable: PinMapTable = {
   "18_umbrella_hank": {
     fps: 30,
     OFPARTS: {
-      rib_1: 0,
-      rib_2: 1,
-      rib_3: 2,
-      rib_4: 3,
-      rib_5: 4,
-      rib_6: 5,
+      rib_1: 10,
+      rib_2: 11,
+      rib_3: 12,
+      rib_4: 13,
+      rib_5: 14,
+      rib_6: 15,
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
@@ -602,12 +602,12 @@ const pinMapTable: PinMapTable = {
   "19_umbrella_henning": {
     fps: 30,
     OFPARTS: {
-      rib_1: 0,
-      rib_2: 1,
-      rib_3: 2,
-      rib_4: 3,
-      rib_5: 4,
-      rib_6: 5,
+      rib_1: 10,
+      rib_2: 11,
+      rib_3: 12,
+      rib_4: 13,
+      rib_5: 14,
+      rib_6: 15,
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
@@ -617,12 +617,12 @@ const pinMapTable: PinMapTable = {
   "20_umbrella_hans": {
     fps: 30,
     OFPARTS: {
-      rib_1: 0,
-      rib_2: 1,
-      rib_3: 2,
-      rib_4: 3,
-      rib_5: 4,
-      rib_6: 5,
+      rib_1: 10,
+      rib_2: 11,
+      rib_3: 12,
+      rib_4: 13,
+      rib_5: 14,
+      rib_6: 15,
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
@@ -632,12 +632,12 @@ const pinMapTable: PinMapTable = {
   "21_umbrella_rayh": {
     fps: 30,
     OFPARTS: {
-      rib_1: 0,
-      rib_2: 1,
-      rib_3: 2,
-      rib_4: 3,
-      rib_5: 4,
-      rib_6: 5,
+      rib_1: 10,
+      rib_2: 11,
+      rib_3: 12,
+      rib_4: 13,
+      rib_5: 14,
+      rib_6: 15,
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
@@ -647,12 +647,12 @@ const pinMapTable: PinMapTable = {
   "22_umbrella_justin": {
     fps: 30,
     OFPARTS: {
-      rib_1: 0,
-      rib_2: 1,
-      rib_3: 2,
-      rib_4: 3,
-      rib_5: 4,
-      rib_6: 5,
+      rib_1: 10,
+      rib_2: 11,
+      rib_3: 12,
+      rib_4: 13,
+      rib_5: 14,
+      rib_6: 15,
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },

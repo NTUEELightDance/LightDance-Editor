@@ -58,9 +58,9 @@ const dancerTable: DancerData = {
     connected: false,
     interface: "ethernet",
   },
-  "00:00:00:00:00:32": {
+  "B8:27:EB:CC:B7:55": {
     IP: "192.168.0.0",
-    MAC: "00:00:00:00:00:32",
+    MAC: "B8:27:EB:CC:B7:55",
     dancer: "3_hans",
     hostname: "lightdance-03",
     connected: false,
@@ -274,17 +274,17 @@ const dancerTable: DancerData = {
     connected: false,
     interface: "wifi",
   },
-  "B8:27:EB:9A:43:92": {
+  "E4:5F:01:07:AE:BC": {
     IP: "192.168.0.0",
-    MAC: "B8:27:EB:9A:43:92",
+    MAC: "E4:5F:01:07:AE:BC",
     dancer: "17_signboard",
     hostname: "lightdance-17",
     connected: false,
     interface: "ethernet",
   },
-  "B8:27:EB:CF:16:C7": {
+  "E4:5F:01:07:AE:BE": {
     IP: "192.168.0.0",
-    MAC: "B8:27:EB:CF:16:C7",
+    MAC: "E4:5F:01:07:AE:BE",
     dancer: "17_signboard",
     hostname: "lightdance-17",
     connected: false,
