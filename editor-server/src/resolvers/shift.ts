@@ -122,7 +122,7 @@ export class ShiftResolver {
       });
 
       // update redis
-      const updateControlIDs = await PromisePool.withConcurrency(50)
+      const updateControlIDs = await PromisePool.withConcurrency(25)
         .for(updateControlFrames)
         .process(async ({ id }) => {
           await ctx.prisma.controlFrame.update({
@@ -137,7 +137,7 @@ export class ShiftResolver {
         );
 
       // get id list of deleteControl
-      const deleteControlList = await PromisePool.withConcurrency(50)
+      const deleteControlList = await PromisePool.withConcurrency(25)
         .for(deleteControlFrame)
         .process(async (data) => {
           await deleteRedisControl(data.id);
@@ -192,7 +192,7 @@ export class ShiftResolver {
       });
 
       // update redis
-      const updatePositionIDs: number[] = await PromisePool.withConcurrency(50)
+      const updatePositionIDs: number[] = await PromisePool.withConcurrency(25)
         .for(updatePositionFrames)
         .process(async ({ id }) => {
           await ctx.prisma.positionFrame.update({
@@ -207,7 +207,7 @@ export class ShiftResolver {
         );
 
       // get id list of deletePosition
-      const deletePositionList = await PromisePool.withConcurrency(50)
+      const deletePositionList = await PromisePool.withConcurrency(25)
         .for(deletePositionFrame)
         .process(async (data) => {
           await deleteRedisPosition(data.id);
