@@ -7,6 +7,7 @@ import {
   Arg,
   Int,
 } from "type-graphql";
+import { PromisePool } from "@supercharge/promise-pool";
 
 import {
   ControlRecordPayload,
@@ -121,8 +122,9 @@ export class ShiftResolver {
       });
 
       // update redis
-      const updateControlIDs: number[] = await Promise.all(
-        updateControlFrames.map(async ({ id }) => {
+      const updateControlIDs = await PromisePool.withConcurrency(50)
+        .for(updateControlFrames)
+        .process(async ({ id }) => {
           await ctx.prisma.controlFrame.update({
             where: { id },
             data: { start: { increment: move } },
@@ -130,15 +132,18 @@ export class ShiftResolver {
           await updateRedisControl(id);
           return id;
         })
-      ).then((result) => (move < 0 ? result.reverse() : result));
+        .then((result) =>
+          move < 0 ? result.results.reverse() : result.results
+        );
 
       // get id list of deleteControl
-      const deleteControlList = await Promise.all(
-        deleteControlFrame.map(async (data) => {
+      const deleteControlList = await PromisePool.withConcurrency(50)
+        .for(deleteControlFrame)
+        .process(async (data) => {
           await deleteRedisControl(data.id);
           return data.id;
         })
-      );
+        .then((result) => result.results);
 
       // subscription
       const controlMapPayload: ControlMapPayload = {
@@ -187,8 +192,9 @@ export class ShiftResolver {
       });
 
       // update redis
-      const updatePositionIDs: number[] = await Promise.all(
-        updatePositionFrames.map(async ({ id }) => {
+      const updatePositionIDs: number[] = await PromisePool.withConcurrency(50)
+        .for(updatePositionFrames)
+        .process(async ({ id }) => {
           await ctx.prisma.positionFrame.update({
             where: { id },
             data: { start: { increment: move } },
@@ -196,15 +202,18 @@ export class ShiftResolver {
           await updateRedisPosition(id);
           return id;
         })
-      ).then((result) => (move < 0 ? result.reverse() : result));
+        .then((result) =>
+          move < 0 ? result.results.reverse() : result.results
+        );
 
       // get id list of deletePosition
-      const deletePositionList = await Promise.all(
-        deletePositionFrame.map(async (data) => {
+      const deletePositionList = await PromisePool.withConcurrency(50)
+        .for(deletePositionFrame)
+        .process(async (data) => {
           await deleteRedisPosition(data.id);
           return data.id;
         })
-      );
+        .then((result) => result.results);
 
       // subscription
       const positionMapPayload: PositionMapPayload = {
