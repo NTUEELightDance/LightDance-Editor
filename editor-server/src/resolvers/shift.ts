@@ -63,8 +63,10 @@ export class ShiftResolver {
     }
 
     // overlap interval
-    const overlap_start = move >= 0 ? end + 1 : start + move;
-    const overlap_end = move >= 0 ? end + move : start - 1;
+    const overlap_start =
+      move >= 0 ? (start + move > end ? start + move : end + 1) : start + move;
+    const overlap_end =
+      move >= 0 ? end + move : end + move < start ? end + move : start - 1;
     const check_start = move >= 0 ? start : start + move;
     const check_end = move >= 0 ? end + move : end;
 
@@ -110,63 +112,64 @@ export class ShiftResolver {
       await ctx.prisma.controlFrame.deleteMany({
         where: { start: { lte: overlap_end, gte: overlap_start } },
       });
-      // TODO: remove redis
 
       // shift
       // find source data
       const updateControlFrames = await ctx.prisma.controlFrame.findMany({
         where: { start: { lte: end, gte: start } },
-        orderBy: { start: "asc" },
+        orderBy: { start: move >= 0 ? "asc" : "desc" },
       });
 
-      const findControlFrame = await ctx.prisma.controlFrame.updateMany({
-        where: { start: { lte: overlap_end, gte: overlap_start } },
-        data: { start: { increment: move } },
-      });
       // update redis
       const updateControlIDs: number[] = await Promise.all(
         updateControlFrames.map(async ({ id }) => {
+          await ctx.prisma.controlFrame.update({
+            where: { id },
+            data: { start: { increment: move } },
+          });
           await updateRedisControl(id);
           return id;
         })
-      );
+      ).then((result) => (move < 0 ? result.reverse() : result));
 
       // get id list of deleteControl
-      if (deleteControlFrame?.length > 0) {
-        const deleteControlList = deleteControlFrame.map((data) => {
+      const deleteControlList = await Promise.all(
+        deleteControlFrame.map(async (data) => {
+          await deleteRedisControl(data.id);
           return data.id;
-        });
+        })
+      );
 
-        // subscription
-        const controlMapPayload: ControlMapPayload = {
-          editBy: ctx.userId,
-          frame: {
-            createList: [],
-            deleteList: deleteControlList,
-            updateList: updateControlIDs,
-          },
-        };
-        await publishControlMap(controlMapPayload);
+      // subscription
+      const controlMapPayload: ControlMapPayload = {
+        editBy: ctx.userId,
+        frame: {
+          createList: [],
+          deleteList: deleteControlList,
+          updateList: updateControlIDs,
+        },
+      };
+      await publishControlMap(controlMapPayload);
 
-        let allControlFrames = await ctx.prisma.controlFrame.findMany();
-        allControlFrames = allControlFrames.sort();
-        let index = -1;
-        await allControlFrames.map((frame, idx: number) => {
-          if (frame.id === updateControlIDs[0]) {
-            index = idx;
-          }
-        });
-        const controlRecordPayload: ControlRecordPayload = {
-          mutation: ControlRecordMutation.UPDATED_DELETED,
-          editBy: ctx.userId,
-          addID: [],
-          updateID: updateControlIDs,
-          deleteID: deleteControlList,
-          index,
-        };
-        await publishControlRecord(controlRecordPayload);
-      }
+      let allControlFrames = await ctx.prisma.controlFrame.findMany();
+      allControlFrames = allControlFrames.sort();
+      let index = -1;
+      await allControlFrames.map((frame, idx: number) => {
+        if (frame.id === updateControlIDs[0]) {
+          index = idx;
+        }
+      });
+      const controlRecordPayload: ControlRecordPayload = {
+        mutation: ControlRecordMutation.UPDATED_DELETED,
+        editBy: ctx.userId,
+        addID: [],
+        updateID: updateControlIDs,
+        deleteID: deleteControlList,
+        index,
+      };
+      await publishControlRecord(controlRecordPayload);
     }
+
     if (shiftPosition) {
       // clear
       const deletePositionFrame = await ctx.prisma.positionFrame.findMany({
@@ -175,68 +178,62 @@ export class ShiftResolver {
       await ctx.prisma.positionFrame.deleteMany({
         where: { start: { lte: overlap_end, gte: overlap_start } },
       });
-    }
 
-    // position
-    if (shiftPosition) {
+      // shift
       // find source data
-      let updatePositionFrames = await ctx.prisma.positionFrame.findMany({
+      const updatePositionFrames = await ctx.prisma.positionFrame.findMany({
         where: { start: { lte: end, gte: start } },
+        orderBy: { start: move >= 0 ? "asc" : "desc" },
       });
-      updatePositionFrames = updatePositionFrames.sort();
+
       // update redis
       const updatePositionIDs: number[] = await Promise.all(
-        updatePositionFrames.map(async (obj) => {
-          const { id } = obj;
-          const findPositionFrame = await ctx.prisma.positionFrame.findFirst({
-            where: { id: id },
+        updatePositionFrames.map(async ({ id }) => {
+          await ctx.prisma.positionFrame.update({
+            where: { id },
+            data: { start: { increment: move } },
           });
-          if (findPositionFrame !== null) {
-            await ctx.prisma.positionFrame.update({
-              where: { id: id },
-              data: { start: findPositionFrame.start + move },
-            });
-          }
           await updateRedisPosition(id);
           return id;
         })
-      );
+      ).then((result) => (move < 0 ? result.reverse() : result));
 
       // get id list of deletePosition
-      if (deletePositionFrame !== undefined) {
-        const deletePositionList = deletePositionFrame.map((data) => {
+      const deletePositionList = await Promise.all(
+        deletePositionFrame.map(async (data) => {
+          await deleteRedisPosition(data.id);
           return data.id;
-        });
+        })
+      );
 
-        // subscription
-        const positionMapPayload: PositionMapPayload = {
-          editBy: ctx.userId,
-          frame: {
-            createList: [],
-            deleteList: deletePositionList,
-            updateList: updatePositionIDs,
-          },
-        };
-        await publishPositionMap(positionMapPayload);
+      // subscription
+      const positionMapPayload: PositionMapPayload = {
+        editBy: ctx.userId,
+        frame: {
+          createList: [],
+          deleteList: deletePositionList,
+          updateList: updatePositionIDs,
+        },
+      };
+      await publishPositionMap(positionMapPayload);
 
-        let allPositionFrames = await ctx.prisma.positionFrame.findMany();
-        allPositionFrames = allPositionFrames.sort();
-        let index = -1;
-        await allPositionFrames.map((frame, idx: number) => {
-          if (frame.id === updatePositionIDs[0]) {
-            index = idx;
-          }
-        });
-        const positionRecordPayload: PositionRecordPayload = {
-          mutation: PositionRecordMutation.UPDATED_DELETED,
-          editBy: ctx.userId,
-          addID: [],
-          updateID: updatePositionIDs,
-          deleteID: deletePositionList,
-          index,
-        };
-        await publishPositionRecord(positionRecordPayload);
-      }
+      let allPositionFrames = await ctx.prisma.positionFrame.findMany();
+      allPositionFrames = allPositionFrames.sort();
+      let index = -1;
+      await allPositionFrames.map((frame, idx: number) => {
+        if (frame.id === updatePositionIDs[0]) {
+          index = idx;
+        }
+      });
+      const positionRecordPayload: PositionRecordPayload = {
+        mutation: PositionRecordMutation.UPDATED_DELETED,
+        editBy: ctx.userId,
+        addID: [],
+        updateID: updatePositionIDs,
+        deleteID: deletePositionList,
+        index,
+      };
+      await publishPositionRecord(positionRecordPayload);
     }
 
     return { ok: true, msg: "Done" };
