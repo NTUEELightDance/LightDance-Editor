@@ -12,7 +12,7 @@ import {
 
 import { HexColorPicker } from "react-colorful";
 import { notification } from "core/utils";
-import { Color, ColorCode, isColorCode } from "@/core/models";
+import { Color, isColorCode } from "@/core/models";
 
 export interface NewColorDialogProps {
   variant: "add";
@@ -42,9 +42,11 @@ function ColorDialog({
   handleMutateColor,
 }: NewColorDialogProps | EditColorDialogProps) {
   const [newColorName, setNewColorName] = useState<string>(color?.name || "");
-  const [newColorCode, setNewColorCode] = useState<ColorCode>(
-    color?.colorCode || ("#FFFFFF" as ColorCode)
+  const [newColorCode, setNewColorCode] = useState(
+    color?.colorCode || "#FFFFFF"
   );
+  const [colorNameError, setColorNameError] = useState(false);
+  const [colorCodeError, setColorCodeError] = useState(false);
 
   const handleNameChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
@@ -56,7 +58,6 @@ function ColorDialog({
   const handleColorChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
-    if (!isColorCode(e.target.value)) return;
     setNewColorCode(e.target.value);
   };
 
@@ -65,8 +66,11 @@ function ColorDialog({
     setNewColorCode(colorCode);
   };
 
-  const [colorNameError, setColorNameError] = useState(false);
   const handleSubmit = async () => {
+    if (!isColorCode(newColorCode)) {
+      setColorCodeError(true);
+      return;
+    }
     try {
       if (variant === "add") {
         await handleMutateColor({
@@ -132,6 +136,7 @@ function ColorDialog({
             label="Color Code"
             variant="filled"
             value={newColorCode}
+            error={colorCodeError}
             onChange={handleColorChange}
             inputRef={colorInputRef}
             onKeyDown={handleColorEnter}
