@@ -6,3 +6,4 @@ export * from "./effectListAgent";
 export * from "./fileAgent";
 export * from "./authAgent";
 export * from "./colorAgent";
+export * from "./timeShiftAgent";

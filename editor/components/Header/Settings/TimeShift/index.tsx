@@ -10,15 +10,13 @@ import Stack from "@mui/material/Stack";
 import { SelectChangeEvent } from "@mui/material";
 // components
 import TimeShiftTextField from "./TimeShiftTextField";
-// states and actions
-import { shiftFrameTime } from "core/actions";
 // utils
 import { notification, confirmation } from "core/utils";
 import { Box } from "@mui/system";
 
-const CONTROL = "control";
-const POSITION = "position";
-const BOTH = "both";
+import { timeShiftAgent } from "@/api";
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "@/core/state";
 
 export type TimeShiftTool = "control" | "position" | "both";
 
@@ -27,8 +25,9 @@ export default function TimeShift({
 }: {
   setTimeShiftOpen: (isOpen: boolean) => void;
 }) {
+  const currentTime = useReactiveVar(reactiveState.currentTime);
   // type
-  const [type, setType] = useState<TimeShiftTool>(CONTROL); // another is POSITION
+  const [type, setType] = useState<TimeShiftTool>("control"); // another is POSITION
   const handleChangeType = (
     event: SelectChangeEvent<"control" | "position" | "both">
   ) => {
@@ -36,7 +35,7 @@ export default function TimeShift({
   };
 
   // frame index
-  const [startTime, setStartTime] = useState(0);
+  const [startTime, setStartTime] = useState(currentTime);
   const [endTime, setEndTime] = useState(0);
 
   // time
@@ -69,8 +68,10 @@ export default function TimeShift({
     }
 
     try {
-      await shiftFrameTime({
-        payload: { type, startTime, endTime, shiftTime },
+      await timeShiftAgent.shift({
+        interval: [startTime, endTime],
+        displacement: shiftTime,
+        frameType: type,
       });
       notification.success("Time shift successful!");
     } catch (error) {
@@ -80,7 +81,7 @@ export default function TimeShift({
     setStartTime(0);
     setEndTime(0);
     setShiftTime(0);
-    setType(CONTROL);
+    setType("control");
   };
   return (
     <Box>
@@ -88,9 +89,9 @@ export default function TimeShift({
         <Typography variant="h6">Time Shift Tool</Typography>
         <FormControl size="small" sx={{ width: "9em" }}>
           <Select value={type} onChange={handleChangeType}>
-            <MenuItem value={CONTROL}>Control</MenuItem>
-            <MenuItem value={POSITION}>Position</MenuItem>
-            <MenuItem value={BOTH}>Both</MenuItem>
+            <MenuItem value={"control"}>Control</MenuItem>
+            <MenuItem value={"position"}>Position</MenuItem>
+            <MenuItem value={"both"}>Both</MenuItem>
           </Select>
         </FormControl>
         <TimeShiftTextField

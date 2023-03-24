@@ -332,6 +332,21 @@ export const DELETE_LED_EFFECT = gql`
   }
 `;
 
+export type TimeShiftMutationVariables = {
+  shiftPosition: boolean;
+  shiftControl: boolean;
+  move: number;
+  end: number;
+  start: number;
+};
+
+export type TimeShiftMutationResponseData = {
+  shift: {
+    ok: boolean;
+    msg: string;
+  };
+};
+
 export const SHIFT_TIME = gql`
   mutation Shift(
     $shiftPosition: Boolean!

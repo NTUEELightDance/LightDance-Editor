@@ -69,7 +69,10 @@ export class ShiftResolver {
         where: { start: { lte: end + move, gte: start + move } },
       });
       if (findControlFrame === null) {
-        throw new Error("control frame doesn't exist");
+        return {
+          ok: false,
+          msg: "control frame doesn't exist",
+        };
       } else {
         const findControlFrameID = findControlFrame.id;
         const checkControlEditing =
@@ -88,7 +91,10 @@ export class ShiftResolver {
         where: { start: { lte: end, gte: start } },
       });
       if (findOldControlFrame === null) {
-        throw new Error("old control frame doesn't exist");
+        return {
+          ok: false,
+          msg: "old control frame doesn't exist",
+        };
       } else {
         const findOldControlFrameID = findOldControlFrame.id;
         const checkOldControlEditing =
@@ -110,7 +116,10 @@ export class ShiftResolver {
         where: { start: { lte: end + move, gte: start + move } },
       });
       if (findPositionFrame === null) {
-        throw new Error("position frame doesn't exist");
+        return {
+          ok: false,
+          msg: "position frame doesn't exist",
+        };
       } else {
         const findPositionFrameID = findPositionFrame.id;
         const checkPositionEditing =
@@ -129,7 +138,10 @@ export class ShiftResolver {
         where: { start: { lte: end, gte: start } },
       });
       if (findOldPositionFrame === null) {
-        throw new Error("old position frame doesn't exist");
+        return {
+          ok: false,
+          msg: "old position frame doesn't exist",
+        };
       } else {
         const findOldPositionFrameID = findOldPositionFrame.id;
         const checkOldPositionEditing =
