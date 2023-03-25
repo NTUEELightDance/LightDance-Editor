@@ -31,11 +31,13 @@ export default function useEditHandler() {
     const editingData = reactiveState.editingData();
     const currentTime = reactiveState.currentTime();
 
+    const displayedFromTime = formatDisplayedTime(editingData.start);
+    const displayedToTime = formatDisplayedTime(currentTime);
+    const description = `You have modify the time, do you want to change the time from ${displayedFromTime} to ${displayedToTime}?`;
+
     const requestTimeChange =
       editingData.start !== currentTime &&
-      (await confirmation.info(
-        `You have modify the time, do you want to change the time from ${editingData.start} to ${currentTime}?`
-      ));
+      (await confirmation.info(description));
 
     try {
       await save({ payload: requestTimeChange });
