@@ -174,7 +174,9 @@ const getDancerLEDData = async (req: Request, res: Response) => {
           }
 
           // Remove last frame's frame
-          newControl[newControl.length - 1].fade = false;
+          if (newControl.length > 0) {
+            newControl[newControl.length - 1].fade = false;
+          }
 
           const led = ledDict[src.toString()];
           const { repeat, frames }: { repeat: number; frames: TLEDData[] } =
@@ -246,7 +248,6 @@ const getDancerLEDData = async (req: Request, res: Response) => {
             });
           });
         }
-
       })
     );
 
