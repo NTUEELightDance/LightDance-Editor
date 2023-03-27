@@ -37,6 +37,8 @@ import {
 import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
 
 import { sendToRPi, sendBoardInfoToRPi } from "@/websocket/RPi/handlers";
+import { execArgv } from "process";
+import { exec } from "child_process";
 
 export const controlPanelWSs: Record<string, WebSocket> = {};
 
@@ -90,6 +92,8 @@ export function handleSync(msg: FromControlPanelSync) {
 export function handlePlay(msg: FromControlPanelPlay) {
   const { dancers, start, timestamp } = msg.payload;
 
+  const timestampString = Math.round(timestamp).toString();
+
   const toRPiMsg: ToRPiPlay = {
     from: "server",
     topic: "command",
@@ -99,11 +103,13 @@ export function handlePlay(msg: FromControlPanelPlay) {
       "play",
       Math.round(start).toString(),
       "-d",
-      Math.round(timestamp).toString(),
+      timestampString,
     ],
   };
 
   sendToRPi(dancers, toRPiMsg);
+
+  exec(`./scripts/schedule_play.sh ${timestampString}`);
 }
 
 export function handlePause(msg: FromControlPanelPause) {
@@ -130,6 +136,8 @@ export function handleStop(msg: FromControlPanelStop) {
   };
 
   sendToRPi(dancers, toRPiMsg);
+
+  exec("./scripts/schedule_stop.sh");
 }
 
 export async function handleUpload(msg: FromControlPanelUpload) {

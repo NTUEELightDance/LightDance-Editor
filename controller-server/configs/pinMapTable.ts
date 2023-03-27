@@ -643,7 +643,7 @@ const pinMapTable: PinMapTable = {
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
-      tip_LED: { id: 1, len: 12 },
+      tail_LED: { id: 1, len: 12 },
     },
   },
   "19_umbrella_henning": {
@@ -658,7 +658,7 @@ const pinMapTable: PinMapTable = {
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
-      tip_LED: { id: 1, len: 12 },
+      tail_LED: { id: 1, len: 12 },
     },
   },
   "20_umbrella_hans": {
@@ -673,7 +673,7 @@ const pinMapTable: PinMapTable = {
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
-      tip_LED: { id: 1, len: 12 },
+      tail_LED: { id: 1, len: 12 },
     },
   },
   "21_umbrella_rayh": {
@@ -688,7 +688,7 @@ const pinMapTable: PinMapTable = {
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
-      tip_LED: { id: 1, len: 12 },
+      tail_LED: { id: 1, len: 12 },
     },
   },
   "22_umbrella_justin": {
@@ -703,7 +703,7 @@ const pinMapTable: PinMapTable = {
     },
     LEDPARTS: {
       handle_LED: { id: 0, len: 48 },
-      tip_LED: { id: 1, len: 12 },
+      tail_LED: { id: 1, len: 12 },
     },
   },
 };
