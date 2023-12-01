@@ -1,2 +1,4 @@
-pub(crate) mod clients;
-pub(crate) mod types;
+//! Types and clients used in database operations.
+
+pub mod clients;
+pub mod types;

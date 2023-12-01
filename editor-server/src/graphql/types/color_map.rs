@@ -1,3 +1,5 @@
+//! Color map type and scalar.
+
 use crate::graphql::types::color::Color;
 
 use async_graphql::SimpleObject;

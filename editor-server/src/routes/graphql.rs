@@ -1,3 +1,5 @@
+//! GraphQL routes for Axum server.
+
 use crate::graphql::schema::AppSchema;
 use crate::graphql::subscriptor::websocket::GraphQLSubscription;
 use crate::server::extractors::Authentication;
@@ -28,6 +30,7 @@ async fn graphiql() -> impl IntoResponse {
     )
 }
 
+/// Build GraphQL routes for Axum server.
 pub fn build_graphql_routes(schema: AppSchema) -> Router {
     Router::new()
         // Main routes for GraphQL

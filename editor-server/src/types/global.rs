@@ -1,3 +1,5 @@
+//! Global structs and enums that are used throughout the application.
+
 use crate::db::clients::AppClients;
 
 use std::sync::Arc;

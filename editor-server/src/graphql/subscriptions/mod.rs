@@ -1,3 +1,4 @@
+//! Subscriptions for the GraphQL API.
 pub mod color;
 
 use color::*;

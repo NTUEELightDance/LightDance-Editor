@@ -1,3 +1,7 @@
+//! Websocket support for GraphQL subscription.
+//! This implementation is based on `async-graphql`,
+//! but provides better connection and disconnection callback support.
+
 use crate::graphql::schema::AppSchema;
 use crate::types::global::UserContext;
 

@@ -1,2 +1,4 @@
-pub(crate) mod color;
-pub(crate) mod color_map;
+//! Types used in the graphql schema.
+
+pub mod color;
+pub mod color_map;

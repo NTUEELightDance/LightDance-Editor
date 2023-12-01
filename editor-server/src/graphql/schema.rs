@@ -1,3 +1,4 @@
+//! GraphQL schema type.
 use crate::graphql::{MutationRoot, QueryRoot, SubscriptionRoot};
 
 use async_graphql::Schema;

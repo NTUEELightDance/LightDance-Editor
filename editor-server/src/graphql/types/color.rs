@@ -1,3 +1,5 @@
+//! Color type.
+
 use crate::db::types::color::ColorData;
 
 use async_graphql::SimpleObject;

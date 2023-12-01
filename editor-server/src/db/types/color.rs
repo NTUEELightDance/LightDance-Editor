@@ -1,3 +1,5 @@
+//! Color data type.
+
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct ColorData {
     pub id: i32,

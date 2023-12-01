@@ -1,3 +1,6 @@
+//! Authentication middleware.
+//! Authenticate user by token stored in cookie and pass a user context to the handler.
+
 use crate::db::types::user::UserData;
 use crate::global;
 use crate::types::global::UserContext;

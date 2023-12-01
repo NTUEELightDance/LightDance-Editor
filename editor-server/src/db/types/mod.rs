@@ -1,2 +1,4 @@
-pub(crate) mod color;
-pub(crate) mod user;
+//! Data types used in database queries.
+
+pub mod color;
+pub mod user;

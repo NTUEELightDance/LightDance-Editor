@@ -1,6 +1,8 @@
-pub(crate) mod schema;
-pub(crate) mod subscriptor;
-pub(crate) mod types;
+//! GraphQL queries, mutations and subscriptions.
+
+pub mod schema;
+pub mod subscriptor;
+pub mod types;
 
 mod mutations;
 mod queries;

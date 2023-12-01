@@ -1,3 +1,7 @@
+//! Websocket connection callbacks.
+//! The callbacks are used to authencate user when a connection is established.
+//! and clean up the database when a connection is closed.
+
 use crate::db::types::user::UserData;
 use crate::global;
 use crate::types::global::UserContext;

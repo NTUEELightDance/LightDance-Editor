@@ -1,3 +1,4 @@
+//! Color mutation methods.
 use crate::db::types::color::ColorData;
 use crate::graphql::{
     subscriptions::color::{ColorMutationMode, ColorPayload},

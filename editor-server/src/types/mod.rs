@@ -1,1 +1,3 @@
-pub(crate) mod global;
+//! Types irrelavant to server and graphql.
+
+pub mod global;

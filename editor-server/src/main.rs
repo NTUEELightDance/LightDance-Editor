@@ -1,9 +1,9 @@
-mod db;
-mod global;
-mod graphql;
-mod routes;
-mod server;
-mod types;
+pub mod db;
+pub mod global;
+pub mod graphql;
+pub mod routes;
+pub mod server;
+pub mod types;
 
 use crate::db::clients::AppClients;
 use crate::graphql::schema::build_schema;
@@ -16,12 +16,12 @@ use std::path::Path;
 use std::sync::Arc;
 
 #[tokio::main(flavor = "multi_thread")]
-async fn main() {
+pub async fn main() {
     dotenv::dotenv().ok();
 
     // Set environment type in global env
     let env = var("ENV").expect("ENV is not set");
-    global::env::set(env).expect("Failed to set env");
+    global::env::set(env).unwrap();
 
     // Set database clients in global clients
     let mysql_host = var("DATABASE_URL").expect("DATABASE_URL is not set");
@@ -31,7 +31,7 @@ async fn main() {
     global::clients::set(Arc::new(
         AppClients::connect(mysql_host, (redis_host, redis_port)).await,
     ))
-    .expect("Failed to set clients");
+    .unwrap();
 
     // Build graphql schema
     let schema = build_schema();

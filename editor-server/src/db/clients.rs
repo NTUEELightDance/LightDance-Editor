@@ -1,3 +1,5 @@
+//! App clients and related functions.
+
 use redis::Client;
 use sqlx::{MySql, MySqlPool, Pool};
 
