@@ -1,0 +1,191 @@
+generator client {
+  provider      = "cargo prisma"
+  output        = "../src/prisma"
+  module_path   = "prisma"
+  client_format = "folder"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Color {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  r    Int
+  g    Int
+  b    Int
+
+  // relation => not in db
+  control_datas ControlData[]
+}
+
+model LEDState {
+  id        Int @id @default(autoincrement())
+  effect_id Int
+  position  Int
+  color_id  Int
+  alpha     Int
+
+  // relation => not in db
+  effect LEDEffect @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model LEDEffect {
+  id        Int    @id @default(autoincrement())
+  name      String
+  part_name String
+  repeat    Int
+
+  // relation => not in db
+  editing       EditingLEDEffect?
+  control_datas ControlData[]
+  states        LEDState[]
+
+  @@unique([name, part_name])
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  password String
+
+  // relation => not in db
+  editing_positionFrame_id EditingPositionFrame?
+  editing_controlFrame_id  EditingControlFrame?
+  editing_led_effect_id    EditingLEDEffect?
+}
+
+model EditingPositionFrame {
+  user_id  Int  @id
+  frame_id Int? @unique
+
+  // relation => not in db
+  user         User           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editingFrame PositionFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model EditingControlFrame {
+  user_id  Int  @id @unique
+  frame_id Int? @unique
+
+  // relation => not in db
+  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editingFrame ControlFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model EditingLEDEffect {
+  user_id       Int  @id
+  led_effect_id Int? @unique
+
+  // relation => not in db
+  user               User       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editing_led_effect LEDEffect? @relation(fields: [led_effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Dancer {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  // relation => not in db
+  parts          Part[]
+  position_datas PositionData[]
+}
+
+enum PartType {
+  LED
+  FIBER
+}
+
+model Part {
+  id        Int      @id @default(autoincrement())
+  dancer_id Int
+  name      String
+  type      PartType
+  length    Int?
+
+  // relation => not in db
+  dancer        Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  control_datas ControlData[]
+}
+
+model PositionData {
+  // id       Int    @id @default(autoincrement())
+  dancer_id Int
+  frame_id  Int
+  x         Float
+  y         Float
+  z         Float
+
+  // relation => not in db
+  dancer Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  frame  PositionFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([dancer_id, frame_id])
+}
+
+model PositionFrame {
+  id    Int @id @default(autoincrement())
+  start Int @unique
+
+  // relation => not in db
+  editing        EditingPositionFrame?
+  position_datas PositionData[]
+}
+
+enum ControlDataType {
+  COLOR
+  EFFECT
+}
+
+model ControlData {
+  part_id   Int
+  frame_id  Int
+  type      ControlDataType
+  color_id  Int?
+  effect_id Int?
+  alpha     Int
+
+  // TODO: Check if one of color_id or effect_id is not null
+
+  // relation => not in db
+  part  Part         @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  frame ControlFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  color  Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  effect LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([part_id, frame_id])
+}
+
+model ControlFrame {
+  id    Int     @id @default(autoincrement())
+  start Int     @unique
+  fade  Boolean
+
+  // relation => not in db
+  editing       EditingControlFrame?
+  control_datas ControlData[]
+}
+
+model EffectListData {
+  id          Int     @id @default(autoincrement())
+  start       Int
+  end         Int
+  description String?
+  // dancer_data     Json[]
+  // controlFrames  Json[]
+  // positionFrames Json[]
+}
+
+model Logger {
+  id             Int      @id @default(autoincrement())
+  user           Int
+  variable_value Json?
+  field_name     String
+  time           DateTime @default(now())
+  status         String
+  error_message  Json?
+  result         Json?
+}

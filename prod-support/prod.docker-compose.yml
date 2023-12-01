@@ -1,0 +1,85 @@
+version: "3.4"
+
+services:
+  nginx:
+    image: lightdance-nginx
+    container_name: lightdance-nginx
+    hostname: lightdance-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    networks:
+      - lightdance-editor
+    depends_on:
+      - editor
+      - editor-server
+      - file-server
+
+  editor:
+    image: lightdance-editor
+    container_name: lightdance-editor
+    build:
+      context: ..
+      dockerfile: ./prod-support/editor/Dockerfile
+    expose:
+      - "8080"
+    networks:
+      - lightdance-editor
+    depends_on:
+      - editor-server
+      - file-server
+
+  editor-server:
+    image: lightdance-editor-server
+    container_name: lightdance-editor-server
+    build:
+      context: ..
+      dockerfile: ./prod-support/editor-server/Dockerfile
+    ports:
+      - "4000:4000"
+    networks:
+      - lightdance-editor
+    depends_on:
+      - mysql
+      - redisdb
+
+  file-server:
+    image: lightdance-file-server
+    container_name: lightdance-file-server
+    build:
+      context: ..
+      dockerfile: ./prod-support/file-server/Dockerfile
+    volumes:
+      - ../files:/app/files
+    networks:
+      - lightdance-editor
+
+  mysql:
+    image: mysql:8.1.0
+    container_name: lightdance-mysql
+    environment:
+      MYSQL_DATABASE: editor
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - lightdance-editor
+
+  redisdb:
+    container_name: lightdance-redisdb
+    image: redis
+    volumes:
+      - redis-data:/data
+    networks:
+      - lightdance-editor
+
+networks:
+  lightdance-editor:
+    external:
+      name: eeinfo
+
+volumes:
+  pg-data:
+  redis-data:

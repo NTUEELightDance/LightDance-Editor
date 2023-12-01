@@ -1,0 +1,10 @@
+[package]
+name = "prisma"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-rust", branch = "main", version = "0.6.8", features = [
+    "migrations",
+    "mysql",
+], default-features = false }
