@@ -1,9 +1,9 @@
 use crate::db::types::user::UserData;
-use crate::global::APP_CLIENTS;
+use crate::global;
 use crate::types::global::UserContext;
 
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
-
+use axum_extra::extract::CookieJar;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -20,9 +20,8 @@ impl FromRequestParts<()> for Authentication {
     type Rejection = &'static str;
 
     async fn from_request_parts(_parts: &mut Parts, _state: &()) -> Result<Self, Self::Rejection> {
-        #[cfg(debug_assertions)]
-        {
-            let app_state = APP_CLIENTS.get().unwrap().clone();
+        if global::env::get()? == "development" {
+            let app_state = global::clients::get()?.clone();
             let mysql_pool = app_state.mysql_pool();
 
             let test_user = sqlx::query_as!(
@@ -43,10 +42,7 @@ impl FromRequestParts<()> for Authentication {
             } else {
                 return Err("No test user found");
             }
-        }
-
-        #[cfg(not(debug_assertions))]
-        {
+        } else {
             // Load cookie jar for fetching token
             let cookie_jar = CookieJar::from_request_parts(_parts, &()).await;
             let cookie_jar = match cookie_jar {
@@ -60,7 +56,7 @@ impl FromRequestParts<()> for Authentication {
                 None => return Err("No token"),
             };
 
-            let app_state = APP_CLIENTS.get().unwrap().clone();
+            let app_state = global::clients::get()?.clone();
             let _mysql_pool = app_state.mysql_pool();
 
             // TODO: check token

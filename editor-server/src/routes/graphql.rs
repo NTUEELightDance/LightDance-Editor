@@ -1,7 +1,7 @@
 use crate::graphql::schema::AppSchema;
-use crate::graphql::subscriptor::ws::GraphQLSubscription;
+use crate::graphql::subscriptor::websocket::GraphQLSubscription;
 use crate::server::extractors::Authentication;
-use crate::server::ws::{ws_on_connect, ws_on_disconnect};
+use crate::server::websocket::{ws_on_connect, ws_on_disconnect};
 
 use async_graphql::http::GraphiQLSource;
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};

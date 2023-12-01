@@ -6,7 +6,6 @@ mod server;
 mod types;
 
 use crate::db::clients::AppClients;
-use crate::global::APP_CLIENTS;
 use crate::graphql::schema::build_schema;
 use crate::routes::{api::build_api_routes, graphql::build_graphql_routes};
 
@@ -20,23 +19,28 @@ use std::sync::Arc;
 async fn main() {
     dotenv::dotenv().ok();
 
-    let schema = build_schema();
-
-    if let Err(write_error) = fs::write(Path::new("schema.graphql"), schema.sdl()) {
-        println!("Error writing schema file: {}", write_error);
-    }
+    // Set environment type in global env
+    let env = var("ENV").expect("ENV is not set");
+    global::env::set(env).expect("Failed to set env");
 
     // Set database clients in global clients
     let mysql_host = var("DATABASE_URL").expect("DATABASE_URL is not set");
     let redis_host = var("REDIS_HOST").expect("REDIS_HOST is not set");
     let redis_port = var("REDIS_PORT").expect("REDIS_PORT is not set");
 
-    APP_CLIENTS
-        .set(Arc::new(
-            AppClients::connect(mysql_host, (redis_host, redis_port)).await,
-        ))
-        .unwrap();
+    global::clients::set(Arc::new(
+        AppClients::connect(mysql_host, (redis_host, redis_port)).await,
+    ))
+    .expect("Failed to set clients");
 
+    // Build graphql schema
+    let schema = build_schema();
+
+    if let Err(write_error) = fs::write(Path::new("schema.graphql"), schema.sdl()) {
+        println!("Error writing schema file: {}", write_error);
+    }
+
+    // Build server
     let app = Router::new()
         .nest("/", build_graphql_routes(schema))
         .nest("/api", build_api_routes());

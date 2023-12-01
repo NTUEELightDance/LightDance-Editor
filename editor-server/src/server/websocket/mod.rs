@@ -1,5 +1,5 @@
 use crate::db::types::user::UserData;
-use crate::global::APP_CLIENTS;
+use crate::global;
 use crate::types::global::UserContext;
 
 /// Callbak for websocket connection
@@ -7,9 +7,8 @@ use crate::types::global::UserContext;
 /// The context will be used to clean up the database when the connection is closed
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
     // Use test user in development
-    #[cfg(debug_assertions)]
-    {
-        let app_state = APP_CLIENTS.get().unwrap().clone();
+    if global::env::get().unwrap_or(&"".into()) == "development" {
+        let app_state = global::clients::get().unwrap().clone();
         let mysql_pool = app_state.mysql_pool();
 
         let test_user = sqlx::query_as!(
@@ -30,11 +29,8 @@ pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<User
         } else {
             Err("No test user found".to_string())
         }
-    }
-
-    #[cfg(not(debug_assertions))]
-    {
-        let token = match connection_params.get("token") {
+    } else {
+        let token = match _connection_params.get("token") {
             Some(token) => token.as_str(),
             None => return Err("No token".to_string()),
         };

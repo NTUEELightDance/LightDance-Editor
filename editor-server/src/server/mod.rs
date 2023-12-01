@@ -1,2 +1,2 @@
 pub(crate) mod extractors;
-pub(crate) mod ws;
+pub(crate) mod websocket;

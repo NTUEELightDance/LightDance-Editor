@@ -1,4 +1,4 @@
-pub(crate) mod ws;
+pub(crate) mod websocket;
 
 use futures_channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use futures_util::{Stream, StreamExt};
