@@ -1,5 +1,14 @@
 # Editor Server
 
+## First install
+
+You need to create `.env` before all operations. You can change the settings as you want, their used in development mode.
+
+```sh
+# Lightdance-Editor/editor-server
+cp .env.development .env
+```
+
 If you are running this for the first time, you will need to follow the steps below to initialize the database.
 
 ## When `prisma.schema` changes
@@ -17,7 +26,7 @@ docker compose -f dev.docker-compose.yml up -d
 
 ```sh
 # Lightdance-Editor/editor-server
-cargo prisma migrate deploay
+cargo prisma migrate dev --skip-generate
 ```
 
 ### 3. Run editor-server

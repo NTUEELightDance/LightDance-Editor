@@ -1,6 +1,5 @@
-.env
-
+src/prisma/
 target/
 
-src/prisma/
+prisma/migrations
 schema.graphql
