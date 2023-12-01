@@ -5,7 +5,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./redisData:/data
+      - ./data/redisData:/data
   mysql:
     image: mysql:8.1.0
     environment:

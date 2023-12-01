@@ -1,4 +1,4 @@
-files: ^editor-server/
+files: ^editor-server/src/
 repos:
   - repo: https://github.com/doublify/pre-commit-rust
     rev: v1.0
