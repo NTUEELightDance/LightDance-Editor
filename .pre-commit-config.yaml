@@ -1,0 +1,11 @@
+files: ^editor-server/
+repos:
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0
+    hooks:
+    - id: clippy
+      entry: cargo clippy --manifest-path ./editor-server/Cargo.toml --fix --allow-staged --allow-dirty
+      args: ["--"]
+    - id: fmt
+      entry: cargo fmt --manifest-path ./editor-server/Cargo.toml
+      args: ["--"]
