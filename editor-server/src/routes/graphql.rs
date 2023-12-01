@@ -22,8 +22,8 @@ async fn graphql(
 async fn graphiql() -> impl IntoResponse {
     Html(
         GraphiQLSource::build()
-            .endpoint("/graphql")
-            .subscription_endpoint("/graphql-websocket")
+            .endpoint("/graphql-backend")
+            .subscription_endpoint("/graphql-backend-websocket")
             .finish(),
     )
 }
@@ -31,10 +31,10 @@ async fn graphiql() -> impl IntoResponse {
 pub fn build_graphql_routes(schema: AppSchema) -> Router {
     Router::new()
         // Main routes for GraphQL
-        .route("/graphql", get(graphiql).post(graphql))
+        .route("/graphql-backend", get(graphiql).post(graphql))
         // Websocket route for GraphQL subscriptions with connection and disconnection callbacks
         .route(
-            "/graphql-websocket",
+            "/graphql-backend-websocket",
             get_service(GraphQLSubscription::new(ws_on_connect, ws_on_disconnect)),
         )
         // Pass schema as extension to routes

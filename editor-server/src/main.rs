@@ -49,7 +49,7 @@ async fn main() {
 
     println!("Server is ready!");
     println!("Listening on port {}", server_port);
-    println!("GraphiQL: http://localhost:{}/graphql", server_port);
+    println!("GraphiQL: http://localhost:{}/graphql-backend", server_port);
 
     axum::Server::bind(&format!("0.0.0.0:{}", server_port).parse().unwrap())
         .serve(app.into_make_service())

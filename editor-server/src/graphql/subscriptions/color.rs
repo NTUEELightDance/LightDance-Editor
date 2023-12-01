@@ -2,13 +2,17 @@ use crate::graphql::subscriptor::Subscriptor;
 
 use async_graphql::{Enum, SimpleObject, Subscription};
 use futures_core::stream::Stream;
+use serde::{Deserialize, Serialize};
 
-#[derive(Enum, Clone, Copy, Eq, PartialEq, Default)]
+#[derive(Enum, Clone, Copy, Eq, PartialEq, Default, Serialize, Deserialize)]
 pub enum ColorMutationMode {
     #[default]
-    UPDATED,
-    CREATED,
-    DELETED,
+    #[serde(rename = "UPDATED")]
+    Updated,
+    #[serde(rename = "CREATED")]
+    Created,
+    #[serde(rename = "DELETED")]
+    Deleted,
 }
 
 #[derive(SimpleObject, Clone, Default)]

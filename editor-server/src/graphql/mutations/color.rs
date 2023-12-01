@@ -51,7 +51,7 @@ impl ColorMutation {
         .await?;
 
         let color_payload = ColorPayload {
-            mutation: ColorMutationMode::UPDATED,
+            mutation: ColorMutationMode::Updated,
             id,
             color: Some(data.color.clone()),
             color_code: Some(data.color_code.clone()),
@@ -91,7 +91,7 @@ impl ColorMutation {
         .last_insert_id() as i32;
 
         let color_payload = ColorPayload {
-            mutation: ColorMutationMode::CREATED,
+            mutation: ColorMutationMode::Created,
             id,
             color: Some(data.color.clone()),
             color_code: Some(data.color_code.clone()),
@@ -140,7 +140,7 @@ impl ColorMutation {
         .await?;
 
         let color_payload = ColorPayload {
-            mutation: ColorMutationMode::DELETED,
+            mutation: ColorMutationMode::Deleted,
             id,
             color: None,
             color_code: None,
