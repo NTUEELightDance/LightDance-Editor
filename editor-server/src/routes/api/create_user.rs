@@ -18,9 +18,8 @@ pub struct CreateUserFailedResponse {
     err: String,
 }
 
-/// Logout handler.
-/// Remove token from redis and return success message.
-/// Otherwise return an error message.
+/// CreateUser handler.
+/// Verify admin previlige and create a user.
 pub async fn create_user(
     cookie_jar: Option<CookieJar>,
     query: Option<Json<CreateUserQuery>>,
