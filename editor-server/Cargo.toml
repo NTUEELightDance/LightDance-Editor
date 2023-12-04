@@ -8,11 +8,13 @@ edition = "2021"
 members = ["prisma"]
 
 [dependencies]
+argon2 = "0.5.2"
 async-graphql = "6.0.6"
 async-graphql-axum = "6.0.6"
 async-trait = "0.1.74"
-axum = { version = "0.6.20", features = ["ws"] }
+axum = { version = "0.6.20", features = ["ws", "form", "multipart"] }
 axum-extra = { version = "0.8.0", features = ["cookie"] }
+bcrypt = "0.15.0"
 dotenv = "0.15.0"
 futures-channel = "0.3.28"
 futures-core = "0.3.28"
@@ -26,10 +28,10 @@ sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "migrate"] }
 tokio = { version = "1.32.0", features = ["full"] }
 tower = "0.4.13"
 tower-service = "0.3.2"
+uuid = { version = "1.6.1", features = ["v4"] }
 
 [profile.dev]
 opt-level = 0
 
 [profile.release]
 opt-level = 3
-

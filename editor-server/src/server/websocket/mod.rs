@@ -6,12 +6,14 @@ use crate::db::types::user::UserData;
 use crate::global;
 use crate::types::global::UserContext;
 
+use std::env::var;
+
 /// Callbak for websocket connection
 /// A user context is returned if the connection is successful
 /// The context will be used to clean up the database when the connection is closed
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
     // Use test user in development
-    if global::env::get().unwrap_or(&"".into()) == "development" {
+    if var("ENV").map_err(|_| "ENV not set")? == "development" {
         let app_state = global::clients::get().unwrap().clone();
         let mysql_pool = app_state.mysql_pool();
 

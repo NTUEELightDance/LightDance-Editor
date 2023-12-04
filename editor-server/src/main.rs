@@ -4,10 +4,12 @@ pub mod graphql;
 pub mod routes;
 pub mod server;
 pub mod types;
+pub mod utils;
 
 use crate::db::clients::AppClients;
 use crate::graphql::schema::build_schema;
 use crate::routes::{api::build_api_routes, graphql::build_graphql_routes};
+use crate::utils::authentication::create_admin_user;
 
 use axum::Router;
 use std::env::var;
@@ -19,10 +21,6 @@ use std::sync::Arc;
 pub async fn main() {
     dotenv::dotenv().ok();
 
-    // Set environment type in global env
-    let env = var("ENV").expect("ENV is not set");
-    global::env::set(env).unwrap();
-
     // Set database clients in global clients
     let mysql_host = var("DATABASE_URL").expect("DATABASE_URL is not set");
     let redis_host = var("REDIS_HOST").expect("REDIS_HOST is not set");
@@ -32,6 +30,13 @@ pub async fn main() {
         AppClients::connect(mysql_host, (redis_host, redis_port)).await,
     ))
     .unwrap();
+
+    // Create admin user
+    create_admin_user()
+        .await
+        .expect("Error creating admin user.");
+
+    println!("Admin user created.");
 
     // Build graphql schema
     let schema = build_schema();

@@ -21,7 +21,7 @@ model Color {
   control_datas ControlData[]
 }
 
-model LEDState {
+model LEDEffectState {
   id        Int @id @default(autoincrement())
   effect_id Int
   position  Int
@@ -41,7 +41,7 @@ model LEDEffect {
   // relation => not in db
   editing       EditingLEDEffect?
   control_datas ControlData[]
-  states        LEDState[]
+  states        LEDEffectState[]
 
   @@unique([name, part_name])
 }

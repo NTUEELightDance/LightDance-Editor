@@ -49,6 +49,7 @@ type PartsListTmpData = {
 };
 
 const uploadData = async (req: Request, res: Response) => {
+  console.log("Uploading data...");
   try {
     // read request
     const data = Array.isArray(req.files!.data)
