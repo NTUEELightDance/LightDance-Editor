@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from asyncio import Task
 from dataclasses import dataclass
 from enum import Enum
@@ -49,11 +50,33 @@ LEDPartName = str
 LEDMap = Dict[LEDPartName, Dict[LEDEffectName, LEDEffect]]
 
 MapID = int
+=======
+from typing import (
+    List,
+    Dict,
+    Optional
+)
+from enum import Enum
+from dataclasses import dataclass
+
+
+EffectID = int
+ColorID = int
+
+PartName = str
+DancerName = str
+
+MapID = str
+>>>>>>> f9bf97e (add basic structure)
 
 
 @dataclass
 class LEDData:
+<<<<<<< HEAD
     effect_id: LEDEffectID
+=======
+    effect_id: EffectID
+>>>>>>> f9bf97e (add basic structure)
     alpha: int
 
 
@@ -63,9 +86,14 @@ class FiberData:
     alpha: int
 
 
+<<<<<<< HEAD
 PartData = Union[LEDData, FiberData]
 DancerStatus = Dict[PartName, PartData]
 
+=======
+PartData = LEDData | FiberData
+DancerStatus = Dict[PartName, PartData]
+>>>>>>> f9bf97e (add basic structure)
 ControlMapStatus = Dict[DancerName, DancerStatus]
 
 
@@ -78,8 +106,11 @@ class ControlMapElement:
 
 ControlMap = Dict[MapID, ControlMapElement]
 
+<<<<<<< HEAD
 ControlRecord = List[MapID]
 
+=======
+>>>>>>> f9bf97e (add basic structure)
 
 @dataclass
 class Location:
@@ -99,12 +130,19 @@ class PosMapElement:
 
 PosMap = Dict[MapID, PosMapElement]
 
+<<<<<<< HEAD
 PosRecord = List[MapID]
 
 
 class EditMode(Enum):
     IDLE = 0
     EDITING = 1
+=======
+
+class EditMode(Enum):
+    IDLE = 0
+    EDITING = 0
+>>>>>>> f9bf97e (add basic structure)
 
 
 class Editor(Enum):
@@ -120,6 +158,7 @@ class EditingData:
     index: int
 
 
+<<<<<<< HEAD
 class PartType(Enum):
     LED = "LED"
     FIBER = "FIBER"
@@ -205,21 +244,34 @@ class State:
 
     token: str
     ready: bool
+=======
+@dataclass
+class State:
+    is_running: bool
+    token: str
+>>>>>>> f9bf97e (add basic structure)
 
     control_map: ControlMap
     pos_map: PosMap
 
+<<<<<<< HEAD
     control_record: ControlRecord
     pos_record: PosRecord
 
     led_map: LEDMap
     led_effect_id_table: LEDEffectIDTable
+=======
+    # TODO: Add these
+    # led_map: LEDMap
+    # led_effect_id_table: LEDEffectIDtable
+>>>>>>> f9bf97e (add basic structure)
 
     current_control_index: int
     current_pos_index: int
     current_led_index: int
 
     # NOTE: Maybe we don't need these
+<<<<<<< HEAD
     current_fade: bool
     current_status: ControlMapStatus
     current_pos: PosMapStatus
@@ -227,6 +279,11 @@ class State:
     current_editing_frame: int
     current_editing_detached: bool
     current_editing_frame_synced: bool
+=======
+    # current_fade: bool
+    # current_status: ControlMapStatus
+    # current_pos: PosMapStatus
+>>>>>>> f9bf97e (add basic structure)
 
     # NOTE: Guess we can't implement these
     # status_stack: List[ControlMapStatus]
@@ -246,8 +303,11 @@ class State:
 
     # NOTE: Maybe we don't need these
     # selected: Selected
+<<<<<<< HEAD
     selected_obj_names: List[str]
     selected_obj_type: Optional[SelectedPartType]
+=======
+>>>>>>> f9bf97e (add basic structure)
     # selected_leds: List[int]
 
     # TODO: Add these
@@ -258,6 +318,7 @@ class State:
     # current_led_effect: Optional[LEDEffect]  # the LED effect being edited
 
     # TODO: Add these
+<<<<<<< HEAD
     dancers: Dancers
     dancer_names: List[DancerName]
     part_type_map: PartTypeMap
@@ -268,10 +329,23 @@ class State:
     # TODO: Add these
     dancers_array: DancersArray
     dancer_part_index_map: DancerPartIndexMap
+=======
+    # dancers: Dancers
+    # dancer_names: List[DancerName]
+    # part_type_map: PartTypeMap
+    # led_part_length_map: LEDPartLengthMap
+    # color_map: ColorMap
+    # effect_list: EffectListType
+
+    # TODO: Add these
+    # dancers_array: DancersArray
+    # dancer_part_index_map: DancerPartIndexMap
+>>>>>>> f9bf97e (add basic structure)
 
     # TODO: Add these
     # rpi_status: RPiStatus
     # shell_history: ShellHistory
+<<<<<<< HEAD
 
     color_map_updates: ColorMapUpdates
     color_map_pending: bool
@@ -281,3 +355,5 @@ class State:
 
     pos_map_updates: PosMapUpdates
     pos_map_pending: bool
+=======
+>>>>>>> f9bf97e (add basic structure)

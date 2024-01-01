@@ -1,6 +1,9 @@
 fake-bpy-module-4.0
 gql[all]
+<<<<<<< HEAD
 dataclass_wizard
 aiohttp
 python-dotenv
 typeguard
+=======
+>>>>>>> f9bf97e (add basic structure)

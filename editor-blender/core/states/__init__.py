@@ -1,4 +1,5 @@
 from ..models import (
+<<<<<<< HEAD
     ColorMapUpdates,
     ControlMapUpdates,
     EditingData,
@@ -34,11 +35,41 @@ state = State(
     current_editing_frame=0,
     current_editing_detached=False,
     current_editing_frame_synced=True,
+=======
+    State,
+    EditMode,
+    EditingData,
+    Editor
+)
+
+
+states = State(
+    is_running=False,
+    token="",
+
+    control_map={},
+    pos_map={},
+
+    # TODO: Add these
+    # led_map={},
+    # led_effect_id_table={},
+
+    current_control_index=0,
+    current_pos_index=0,
+    current_led_index=0,
+
+    # NOTE: Maybe we don't need these
+    # current_fade=False,
+    # current_status={},
+    # current_pos={},
+
+>>>>>>> f9bf97e (add basic structure)
     # NOTE: Guess we can't implement these
     # status_stack=[],
     # status_stack_index=0,
     # pos_stack=[],
     # pos_stack_index=0,
+<<<<<<< HEAD
     # TODO: Add these
     # led_effect_record={},
     # current_led_status={}
@@ -72,4 +103,22 @@ state = State(
     control_map_pending=False,
     pos_map_updates=PosMapUpdates(added=[], updated=[], deleted=[]),
     pos_map_pending=False,
+=======
+
+    # TODO: Add these
+    # led_effect_record={},
+    # current_led_status={}
+
+    edit_state=EditMode.IDLE,
+    editor=Editor.CONTROL_EDITOR,
+    editing_data=EditingData(
+        frame_id=-1,
+        start=0,
+        index=0
+    )
+    # NOTE: Guess we can't implement these
+    # selection_mode: SelectMode.DANCER_MODE
+
+    # TODO: Fill these
+>>>>>>> f9bf97e (add basic structure)
 )
