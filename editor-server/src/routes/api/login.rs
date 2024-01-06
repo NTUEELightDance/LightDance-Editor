@@ -31,7 +31,7 @@ pub async fn login(
 ) -> Result<(StatusCode, (HeaderMap, Json<LoginResponse>)), (StatusCode, Json<LoginFailedResponse>)>
 {
     // Check env type
-    let env_type = var("ENV").expect("ENV not set");
+    let env_type = &global::envs::get().env;
 
     if env_type == "development" {
         // Set cookie
