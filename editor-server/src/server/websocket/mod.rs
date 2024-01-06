@@ -5,6 +5,7 @@
 use crate::db::types::user::UserData;
 use crate::global;
 use crate::types::global::UserContext;
+use crate::utils::authentication::verify_token;
 
 use std::env::var;
 
@@ -14,8 +15,8 @@ use std::env::var;
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
     // Use test user in development
     if var("ENV").map_err(|_| "ENV not set")? == "development" {
-        let app_state = global::clients::get().unwrap().clone();
-        let mysql_pool = app_state.mysql_pool();
+        let clients = global::clients::get();
+        let mysql_pool = clients.mysql_pool();
 
         let test_user = sqlx::query_as!(
             UserData,
@@ -30,7 +31,7 @@ pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<User
             Ok(UserContext {
                 username: test_user.name,
                 user_id: test_user.id,
-                app_state,
+                clients,
             })
         } else {
             Err("No test user found".to_string())
@@ -46,18 +47,24 @@ pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<User
             None => return Err("No token".to_string()),
         };
 
-        // TODO: check token in redis and set editing
-        Err("Not implemented".to_string())
+        let clients = global::clients::get();
+        let user = verify_token(clients, &token).await?;
+
+        Ok(UserContext {
+            username: user.name,
+            user_id: user.id,
+            clients,
+        })
     }
 }
 
 /// Callback for websocket disconnection
 /// The user context is used to clean up the database
 pub async fn ws_on_disconnect(context: UserContext) {
-    let app_state = context.app_state;
+    let clients = context.clients;
 
-    let mysql = app_state.mysql_pool();
-    let _redis = app_state.redis_client();
+    let mysql = clients.mysql_pool();
+    let _redis = clients.redis_client();
 
     let user_id = context.user_id;
 

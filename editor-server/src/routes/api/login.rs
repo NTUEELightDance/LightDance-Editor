@@ -66,19 +66,10 @@ pub async fn login(
         };
 
         // Get app state
-        let app_state = global::clients::get()
-            .map_err(|_| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(LoginFailedResponse {
-                        err: "ENV not set.".to_string(),
-                    }),
-                )
-            })?
-            .clone();
+        let clients = global::clients::get();
 
         // Query user
-        let mysql_pool = app_state.mysql_pool();
+        let mysql_pool = clients.mysql_pool();
         let user = sqlx::query_as!(
             UserData,
             r#"
@@ -114,7 +105,7 @@ pub async fn login(
         let expiration_time_seconds = expiration_time_hours * 60 * 60;
 
         // Generate token and store it in redis
-        let redis_client = app_state.redis_client();
+        let redis_client = clients.redis_client();
         let mut conn = redis_client.get_tokio_connection().await.unwrap();
 
         let token = authentication::generate_csrf_token();

@@ -18,7 +18,6 @@ use axum::Router;
 use std::env::var;
 use std::fs;
 use std::path::Path;
-use std::sync::Arc;
 
 #[tokio::main(flavor = "multi_thread")]
 pub async fn main() {
@@ -32,10 +31,7 @@ pub async fn main() {
     let redis_host = var("REDIS_HOST").expect("REDIS_HOST is not set");
     let redis_port = var("REDIS_PORT").expect("REDIS_PORT is not set");
 
-    global::clients::set(Arc::new(
-        AppClients::connect(mysql_host, (redis_host, redis_port)).await,
-    ))
-    .unwrap();
+    global::clients::set(AppClients::connect(mysql_host, (redis_host, redis_port)).await).unwrap();
 
     // Create admin user
     create_admin_user()
@@ -45,7 +41,7 @@ pub async fn main() {
     println!("Admin user created.");
 
     // Initialize redis control and position
-    let clients = global::clients::get().unwrap().clone();
+    let clients = global::clients::get();
 
     init_redis_control(clients.mysql_pool(), clients.redis_client())
         .await

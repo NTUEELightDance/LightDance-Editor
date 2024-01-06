@@ -47,17 +47,10 @@ pub async fn logout(
     };
 
     // Get app state
-    let app_state = global::clients::get()
-        .map_err(|e| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(LogoutFailedResponse { err: e.to_string() }),
-            )
-        })?
-        .clone();
+    let clients = global::clients::get();
 
     // Generate token and store it in redis
-    let redis_client = app_state.redis_client();
+    let redis_client = clients.redis_client();
     let mut conn = redis_client.get_tokio_connection().await.unwrap();
 
     let id: String = conn.get(&token).await.map_err(|_| {

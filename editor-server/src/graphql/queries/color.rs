@@ -13,11 +13,11 @@ pub struct ColorQuery;
 impl ColorQuery {
     async fn color_map(&self, ctx: &Context<'_>) -> GQLResult<ColorMap> {
         let context = ctx.data::<UserContext>()?;
-        let app_state = &context.app_state;
+        let clients = context.clients;
 
-        let mysql = app_state.mysql_pool();
+        let mysql = clients.mysql_pool();
         #[allow(unused)]
-        let redis = app_state.redis_client();
+        let redis = clients.redis_client();
 
         let result = sqlx::query_as!(
             ColorData,

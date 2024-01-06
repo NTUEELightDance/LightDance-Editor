@@ -123,7 +123,6 @@ pub async fn init_redis_control(
 
     frames.iter().for_each(|frame| {
         let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
-        println!("Redis key: {}", redis_key);
 
         let status = dancer_controls
             .iter()
@@ -221,7 +220,6 @@ pub async fn init_redis_position(
 
     frames.iter().for_each(|frame| {
         let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
-        println!("Redis key: {}", redis_key);
 
         let pos = dancer_positions
             .iter()

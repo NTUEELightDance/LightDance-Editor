@@ -1,3 +1,4 @@
+use crate::global;
 use crate::utils::authentication::{create_user as create_user_util, verify_admin_token};
 
 use axum::{http::StatusCode, response::Json};
@@ -62,8 +63,10 @@ pub async fn create_user(
         }
     };
 
+    let clients = global::clients::get();
+
     // Check if user is admin
-    verify_admin_token(&token).await.map_err(|err| {
+    verify_admin_token(clients, &token).await.map_err(|err| {
         (
             StatusCode::UNAUTHORIZED,
             Json(CreateUserFailedResponse { err }),

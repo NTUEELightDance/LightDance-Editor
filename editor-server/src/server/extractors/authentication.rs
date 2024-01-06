@@ -26,8 +26,8 @@ impl FromRequestParts<()> for Authentication {
 
     async fn from_request_parts(_parts: &mut Parts, _state: &()) -> Result<Self, Self::Rejection> {
         if var("ENV").map_err(|_| "ENV not set")? == "development" {
-            let app_state = global::clients::get()?.clone();
-            let mysql_pool = app_state.mysql_pool();
+            let clients = global::clients::get();
+            let mysql_pool = clients.mysql_pool();
 
             let test_user = sqlx::query_as!(
                 UserData,
@@ -42,7 +42,7 @@ impl FromRequestParts<()> for Authentication {
                 return Ok(Authentication(UserContext {
                     username: test_user.name,
                     user_id: test_user.id,
-                    app_state,
+                    clients,
                 }));
             } else {
                 return Err("No test user found.");
@@ -61,10 +61,10 @@ impl FromRequestParts<()> for Authentication {
                 None => return Err("No token."),
             };
 
-            let app_state = global::clients::get()?.clone();
+            let clients = global::clients::get();
 
             // Verify token
-            let redis_client = app_state.redis_client();
+            let redis_client = clients.redis_client();
             let mut redis_conn = redis_client
                 .get_async_connection()
                 .await
@@ -76,7 +76,7 @@ impl FromRequestParts<()> for Authentication {
                 .map_err(|_| "Token is unauthorized.")?;
 
             // Verify user id
-            let mysql_pool = app_state.mysql_pool();
+            let mysql_pool = clients.mysql_pool();
             let user = sqlx::query_as!(
                 UserData,
                 r#"
@@ -92,7 +92,7 @@ impl FromRequestParts<()> for Authentication {
             Ok(Authentication(UserContext {
                 username: user.name,
                 user_id: user.id,
-                app_state,
+                clients,
             }))
         }
     }

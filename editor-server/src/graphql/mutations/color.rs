@@ -33,9 +33,9 @@ impl ColorMutation {
         data: ColorUpdateInput,
     ) -> GQLResult<Color> {
         let context = ctx.data::<UserContext>()?;
-        let app_state = &context.app_state;
+        let clients = context.clients;
 
-        let mysql = app_state.mysql_pool();
+        let mysql = clients.mysql_pool();
 
         let _ = sqlx::query!(
             r#"
@@ -73,9 +73,9 @@ impl ColorMutation {
 
     async fn add_color(&self, ctx: &Context<'_>, data: ColorCreateInput) -> GQLResult<Color> {
         let context = ctx.data::<UserContext>()?;
-        let app_state = &context.app_state;
+        let clients = context.clients;
 
-        let mysql = app_state.mysql_pool();
+        let mysql = clients.mysql_pool();
 
         let id = sqlx::query!(
             r#"
@@ -113,7 +113,7 @@ impl ColorMutation {
     #[allow(unused)]
     async fn delete_color(&self, ctx: &Context<'_>, id: i32) -> GQLResult<bool> {
         let context = ctx.data::<UserContext>()?;
-        let app_state = &context.app_state;
+        let app_state = &context.clients;
 
         let mysql = app_state.mysql_pool();
 

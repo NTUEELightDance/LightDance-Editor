@@ -1,5 +1,6 @@
 //! Authencation functions.
 
+use crate::db::clients::AppClients;
 use crate::db::types::user::UserData;
 use crate::global;
 
@@ -43,11 +44,9 @@ pub fn compare_password(password: &str, hashed_password: &str) -> bool {
 
 /// Authencate user by token stored in cookie.
 /// Then return the user data.
-pub async fn verify_token(token: &str) -> Result<UserData, String> {
-    let app_state = global::clients::get().map_err(|_| "No app state.")?.clone();
-
+pub async fn verify_token(clients: &AppClients, token: &str) -> Result<UserData, String> {
     // Get token from redis
-    let redis_client = app_state.redis_client();
+    let redis_client = clients.redis_client();
     let mut redis_conn = redis_client
         .get_async_connection()
         .await
@@ -61,7 +60,7 @@ pub async fn verify_token(token: &str) -> Result<UserData, String> {
     // Get user from mysql
     // TODO: This part can be removed if we add deleteUser route
     // When user is deleted, the token will be deleted from redis
-    let mysql_pool = app_state.mysql_pool();
+    let mysql_pool = clients.mysql_pool();
 
     let user = sqlx::query_as!(
         UserData,
@@ -78,8 +77,8 @@ pub async fn verify_token(token: &str) -> Result<UserData, String> {
 }
 
 /// Verify if the user token is admin.
-pub async fn verify_admin_token(token: &str) -> Result<(), String> {
-    let user = verify_token(token).await?;
+pub async fn verify_admin_token(clients: &AppClients, token: &str) -> Result<(), String> {
+    let user = verify_token(clients, token).await?;
 
     if user.name != var("ADMIN_USERNAME").expect("ADMIN_USERNAME is not set") {
         return Err("Unauthorized.".into());
@@ -112,8 +111,8 @@ pub async fn create_user(username: &str, password: &str) -> Result<(), String> {
         return Err("Admin user already exists.".into());
     }
 
-    let app_state = global::clients::get().map_err(|_| "No app state.")?.clone();
-    let mysql_pool = app_state.mysql_pool();
+    let clients = global::clients::get();
+    let mysql_pool = clients.mysql_pool();
 
     let user = sqlx::query_as!(
         UserData,
@@ -161,7 +160,7 @@ pub async fn create_admin_user() -> Result<(), String> {
     let admin_username = var("ADMIN_USERNAME").expect("ADMIN_USERNAME is not set");
     let admin_password = var("ADMIN_PASSWORD").expect("ADMIN_PASSWORD is not set");
 
-    let app_state = global::clients::get().map_err(|_| "No app state.")?.clone();
+    let app_state = global::clients::get();
     let mysql_pool = app_state.mysql_pool();
 
     // Delete existing admin user

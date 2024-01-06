@@ -3,13 +3,12 @@
 use crate::db::clients::AppClients;
 
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct UserContext {
     pub username: String,
     pub user_id: i32,
-    pub app_state: Arc<AppClients>,
+    pub clients: &'static AppClients,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
