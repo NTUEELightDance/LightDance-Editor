@@ -1,3 +1,5 @@
+//! Environment variables
+
 use once_cell::sync::OnceCell;
 use std::env::var;
 

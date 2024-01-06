@@ -9,7 +9,10 @@ pub mod utils;
 use crate::db::clients::AppClients;
 use crate::graphql::schema::build_schema;
 use crate::routes::{api::build_api_routes, graphql::build_graphql_routes};
-use crate::utils::authentication::create_admin_user;
+use crate::utils::{
+    authentication::create_admin_user,
+    data::{init_redis_control, init_redis_position},
+};
 
 use axum::Router;
 use std::env::var;
@@ -20,6 +23,9 @@ use std::sync::Arc;
 #[tokio::main(flavor = "multi_thread")]
 pub async fn main() {
     dotenv::dotenv().ok();
+
+    // Set global environment variables
+    global::envs::set();
 
     // Set database clients in global clients
     let mysql_host = var("DATABASE_URL").expect("DATABASE_URL is not set");
@@ -37,6 +43,16 @@ pub async fn main() {
         .expect("Error creating admin user.");
 
     println!("Admin user created.");
+
+    // Initialize redis control and position
+    let clients = global::clients::get().unwrap().clone();
+
+    init_redis_control(clients.mysql_pool(), clients.redis_client())
+        .await
+        .expect("Error initializing redis control.");
+    init_redis_position(clients.mysql_pool(), clients.redis_client())
+        .await
+        .expect("Error initializing redis position.");
 
     // Build graphql schema
     let schema = build_schema();
@@ -56,6 +72,7 @@ pub async fn main() {
     println!("Listening on port {}", server_port);
     println!("GraphiQL: http://localhost:{}/graphql-backend", server_port);
 
+    // Start server
     axum::Server::bind(&format!("0.0.0.0:{}", server_port).parse().unwrap())
         .serve(app.into_make_service())
         .await
