@@ -9,7 +9,7 @@ import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import { SelectChangeEvent } from "@mui/material";
 // components
-import TimeShiftTextField from "./TimeShiftTextField";
+import FrameShiftTextField from "./FrameShiftTextField";
 // utils
 import { notification, confirmation } from "core/utils";
 import { Box } from "@mui/system";
@@ -25,7 +25,8 @@ export default function TimeShift({
 }: {
   setTimeShiftOpen: (isOpen: boolean) => void;
 }) {
-  const currentTime = useReactiveVar(reactiveState.currentTime);
+  const currentFrame = useReactiveVar(reactiveState.currentTime);
+  console.log(currentFrame);
   // type
   const [type, setType] = useState<TimeShiftTool>("control"); // another is POSITION
   const handleChangeType = (
@@ -35,27 +36,28 @@ export default function TimeShift({
   };
 
   // frame index
-  const [startTime, setStartTime] = useState(currentTime);
-  const [endTime, setEndTime] = useState(0);
+  const [startFrame, setStartFrame] = useState(currentFrame);
+  const [endFrame, setEndFrame] = useState(0);
 
   // time
-  const [shiftTime, setShiftTime] = useState(0);
-  const handleChangeShiftTime = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setShiftTime(e.target.valueAsNumber);
+  const [shiftFrame, setShiftFrame] = useState(0);
+  const handleChangeShiftFrame = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShiftFrame(e.target.valueAsNumber);
   };
 
   // submit
-  const submitTimeShift = async () => {
+  const submitFrameShift = async () => {
+    console.log(startFrame, typeof(endFrame))
     setTimeShiftOpen(false);
-    if (startTime < 0) {
-      notification.error("Invalid Start Time");
+    if (startFrame < 0) {
+      notification.error("Invalid Start Frame");
       return;
     }
-    if (endTime < 0) {
-      notification.error("Invalid End Time");
+    if (endFrame < 0) {
+      notification.error("Invalid End Frame");
       return;
     }
-    if (startTime > endTime) {
+    if (startFrame > endFrame) {
       notification.error("Invalid, startTime should be smaller than endTime");
       return;
     }
@@ -69,18 +71,18 @@ export default function TimeShift({
 
     try {
       await timeShiftAgent.shift({
-        interval: [startTime, endTime],
-        displacement: shiftTime,
+        interval: [startFrame, endFrame],
+        displacement: shiftFrame,
         frameType: type,
       });
-      notification.success("Time shift successful!");
+      notification.success("Frame shift successful!");
     } catch (error) {
       notification.error((error as Error).message);
       console.error(error);
     }
-    setStartTime(0);
-    setEndTime(0);
-    setShiftTime(0);
+    setStartFrame(0);
+    setEndFrame(0);
+    setShiftFrame(0);
     setType("control");
   };
   return (
@@ -94,26 +96,26 @@ export default function TimeShift({
             <MenuItem value={"both"}>Both</MenuItem>
           </Select>
         </FormControl>
-        <TimeShiftTextField
-          label="Start Time"
-          time={startTime}
-          setTime={setStartTime}
+        <FrameShiftTextField
+          label="Start Frame"
+          frame={startFrame}
+          setFrame={setStartFrame}
           autoFocus
         />
-        <TimeShiftTextField
-          label="End Time"
-          time={endTime}
-          setTime={setEndTime}
+        <FrameShiftTextField
+          label="End Frame"
+          frame={endFrame}
+          setFrame={setEndFrame}
         />
         <TextField
           type="number"
-          label="Shift time (ms)"
+          label="Shift frame"
           size="small"
-          value={shiftTime}
-          onChange={handleChangeShiftTime}
+          value={shiftFrame}
+          onChange={handleChangeShiftFrame}
           sx={{ width: "9em" }}
         />
-        <Button sx={{ width: "5em" }} onClick={submitTimeShift}>
+        <Button sx={{ width: "5em" }} onClick={submitFrameShift}>
           OK
         </Button>
       </Stack>
