@@ -11,7 +11,11 @@ mod login;
 mod logout;
 mod upload_data;
 
-use axum::{routing::post, Router};
+#[allow(unused_imports)]
+use axum::{
+    routing::{get, post},
+    Router,
+};
 
 /// Build REST API routes for Axum server.
 pub fn build_api_routes() -> Router {

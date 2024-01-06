@@ -89,7 +89,11 @@ pub async fn verify_admin_token(clients: &AppClients, token: &str) -> Result<(),
 
 /// Create user with username and password.
 /// If user already exists, update password.
-pub async fn create_user(username: &str, password: &str) -> Result<(), String> {
+pub async fn create_user(
+    clients: &AppClients,
+    username: &str,
+    password: &str,
+) -> Result<(), String> {
     if username.is_empty() || password.is_empty() {
         return Err("Username and password are required.".into());
     }
@@ -111,7 +115,6 @@ pub async fn create_user(username: &str, password: &str) -> Result<(), String> {
         return Err("Admin user already exists.".into());
     }
 
-    let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
 
     let user = sqlx::query_as!(

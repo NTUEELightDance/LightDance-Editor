@@ -74,7 +74,7 @@ pub async fn create_user(
     })?;
 
     // Create user
-    create_user_util(&query.username, &query.password)
+    create_user_util(clients, &query.username, &query.password)
         .await
         .map_err(|err| {
             (
