@@ -45,77 +45,35 @@ pub async fn init_redis_control(
     let dancer_controls = {
         let dancer_controls = sqlx::query!(
             r#"
-            SELECT
-                Dancer.id,
-                Part.type AS "part_type: PartType",
-                ControlData.frame_id,
-                Color.name AS color,
-                LEDEffect.name AS effect,
-                ControlData.alpha
-            FROM Dancer
-            INNER JOIN Part
-            ON Dancer.id = Part.dancer_id
-            INNER JOIN ControlData
-            ON Part.id = ControlData.part_id
-            LEFT JOIN Color
-            ON ControlData.color_id = Color.id
-            LEFT JOIN LEDEffect
-            ON ControlData.effect_id = LEDEffect.id
-            ORDER BY Dancer.id ASC, Part.id ASC;
-        "#,
+                SELECT
+                    Dancer.id,
+                    Part.type AS "part_type: PartType",
+                    ControlData.frame_id,
+                    Color.name AS color,
+                    LEDEffect.name AS effect,
+                    ControlData.alpha
+                FROM Dancer
+                INNER JOIN Part
+                ON Dancer.id = Part.dancer_id
+                INNER JOIN ControlData
+                ON Part.id = ControlData.part_id
+                LEFT JOIN Color
+                ON ControlData.color_id = Color.id
+                LEFT JOIN LEDEffect
+                ON ControlData.effect_id = LEDEffect.id
+                ORDER BY Dancer.id ASC, Part.id ASC;
+            "#,
         )
         .fetch_all(mysql_pool)
         .await
         .map_err(|e| e.to_string())?;
 
-        // TODO: Benchmark this
-        // let dancer_ids = sqlx::query!(
-        //     r#"
-        //     SELECT Dancer.id
-        //     FROM Dancer
-        //     ORDER BY Dancer.id ASC;
-        // "#,
-        // )
-        // .fetch_all(mysql)
-        // .await
-        // .map_err(|_| "Error fetching dancer ids.")?
-        // .into_iter()
-        // .map(|dancer_id| dancer_id.id)
-        // .collect::<Vec<i32>>();
-        let dancer_ids = dancer_controls
-            .iter()
-            .map(|dancer_control| dancer_control.id)
-            .dedup()
-            .collect_vec();
-
-        let dancer_controls = partition_by_field(&dancer_ids, dancer_controls);
+        let dancer_controls =
+            partition_by_field(|dancer_control| dancer_control.id, dancer_controls);
 
         dancer_controls
             .into_iter()
-            .map(|dancer_control| {
-                // let part_ids = sqlx::query!(
-                //     r#"
-                //         SELECT Part.id
-                //         FROM Part
-                //         WHERE Part.dancer_id = ?
-                //         ORDER BY Part.id ASC;
-                //     "#,
-                //     dancer_control[0].id
-                // )
-                // .fetch_all(mysql)
-                // .await
-                // .map_err(|_| "Error fetching part ids.")?
-                // .into_iter()
-                // .map(|part_id| part_id.id)
-                // .collect::<Vec<i32>>();
-                let part_ids = dancer_control
-                    .iter()
-                    .map(|part| part.id)
-                    .dedup()
-                    .collect_vec();
-
-                partition_by_field(&part_ids, dancer_control)
-            })
+            .map(|dancer_control| partition_by_field(|part| part.id, dancer_control))
             .collect_vec()
     };
 
@@ -134,6 +92,7 @@ pub async fn init_redis_control(
                             .iter()
                             .find(|part_control| part_control.frame_id == frame.id)
                             .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
+
                         match part_control.part_type {
                             PartType::LED => PartControl(
                                 part_control.effect.clone().unwrap(),
@@ -193,29 +152,23 @@ pub async fn init_redis_position(
     let dancer_positions = {
         let dancer_positions = sqlx::query!(
             r#"
-            SELECT
-                Dancer.id,
-                PositionData.frame_id,
-                PositionData.x,
-                PositionData.y,
-                PositionData.z
-            FROM Dancer
-            INNER JOIN PositionData
-            ON Dancer.id = PositionData.dancer_id
-            ORDER BY Dancer.id ASC;
-        "#,
+                SELECT
+                    Dancer.id,
+                    PositionData.frame_id,
+                    PositionData.x,
+                    PositionData.y,
+                    PositionData.z
+                FROM Dancer
+                INNER JOIN PositionData
+                ON Dancer.id = PositionData.dancer_id
+                ORDER BY Dancer.id ASC;
+            "#,
         )
         .fetch_all(mysql_pool)
         .await
         .map_err(|e| e.to_string())?;
 
-        let dancer_ids = dancer_positions
-            .iter()
-            .map(|dancer_position| dancer_position.id)
-            .dedup()
-            .collect_vec();
-
-        partition_by_field(&dancer_ids, dancer_positions)
+        partition_by_field(|dancer_position| dancer_position.id, dancer_positions)
     };
 
     frames.iter().for_each(|frame| {
@@ -228,6 +181,7 @@ pub async fn init_redis_position(
                     .iter()
                     .find(|position| position.frame_id == frame.id)
                     .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+
                 PositionPos(position.x, position.y, position.z)
             })
             .collect_vec();
@@ -307,25 +261,12 @@ pub async fn update_redis_control(
         .await
         .map_err(|e| e.to_string())?;
 
-        let dancer_ids = dancer_controls
-            .iter()
-            .map(|dancer_control| dancer_control.id)
-            .dedup()
-            .collect_vec();
-
-        let dancer_controls = partition_by_field(&dancer_ids, dancer_controls);
+        let dancer_controls =
+            partition_by_field(|dancer_control| dancer_control.id, dancer_controls);
 
         dancer_controls
             .into_iter()
-            .map(|dancer_control| {
-                let part_ids = dancer_control
-                    .iter()
-                    .map(|part| part.id)
-                    .dedup()
-                    .collect_vec();
-
-                partition_by_field(&part_ids, dancer_control)
-            })
+            .map(|dancer_control| partition_by_field(|part| part.id, dancer_control))
             .collect_vec()
     };
 
@@ -342,6 +283,7 @@ pub async fn update_redis_control(
                         .iter()
                         .find(|part_control| part_control.frame_id == frame.id)
                         .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
+
                     match part_control.part_type {
                         PartType::LED => {
                             PartControl(part_control.effect.clone().unwrap(), part_control.alpha)
@@ -401,31 +343,25 @@ pub async fn update_redis_position(
     let dancer_positions = {
         let dancer_positions = sqlx::query!(
             r#"
-            SELECT
-                Dancer.id,
-                PositionData.frame_id,
-                PositionData.x,
-                PositionData.y,
-                PositionData.z
-            FROM Dancer
-            INNER JOIN PositionData
-            ON Dancer.id = PositionData.dancer_id
-            WHERE PositionData.frame_id = ?
-            ORDER BY Dancer.id ASC;
-        "#,
+                SELECT
+                    Dancer.id,
+                    PositionData.frame_id,
+                    PositionData.x,
+                    PositionData.y,
+                    PositionData.z
+                FROM Dancer
+                INNER JOIN PositionData
+                ON Dancer.id = PositionData.dancer_id
+                WHERE PositionData.frame_id = ?
+                ORDER BY Dancer.id ASC;
+            "#,
             frame_id
         )
         .fetch_all(mysql_pool)
         .await
         .map_err(|e| e.to_string())?;
 
-        let dancer_ids = dancer_positions
-            .iter()
-            .map(|dancer_position| dancer_position.id)
-            .dedup()
-            .collect_vec();
-
-        partition_by_field(&dancer_ids, dancer_positions)
+        partition_by_field(|dancer_position| dancer_position.id, dancer_positions)
     };
 
     let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
@@ -438,6 +374,7 @@ pub async fn update_redis_position(
                 .iter()
                 .find(|position| position.frame_id == frame.id)
                 .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+
             PositionPos(position.x, position.y, position.z)
         })
         .collect_vec();

@@ -1,13 +1,18 @@
 //! Utility functions for vectors.
 
-pub fn partition_by_field<T, F>(field: &Vec<T>, vec: Vec<F>) -> Vec<Vec<F>>
+use itertools::Itertools;
+
+pub fn partition_by_field<T, F, V>(get_field: F, vec: Vec<V>) -> Vec<Vec<V>>
 where
-    T: PartialEq + Copy,
+    F: Fn(&V) -> T,
+    T: PartialEq,
 {
     let mut result = vec![Vec::new()];
     let mut current_field = None;
 
-    vec.into_iter().zip(field.iter()).for_each(|(v, f)| {
+    let fields = vec.iter().map(get_field).collect_vec();
+
+    vec.into_iter().zip(fields.iter()).for_each(|(v, f)| {
         if let Some(cf) = current_field {
             if cf != f {
                 result.push(Vec::new());
