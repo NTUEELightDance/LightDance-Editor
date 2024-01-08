@@ -146,6 +146,9 @@ utils/door_led/
 mongodbData
 data
 
+pg
+redisData
+
 editor-server/src/data/private
 
 editor-blender.zip
