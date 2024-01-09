@@ -1,27 +1,30 @@
-from .client import client
+from dataclasses import dataclass
 
+from ..client import client
 
-# TODO: Handle cookies
+# TODO: Handle returned cookies
 # CookieJar?
 
-class AuthAgent:
 
-    async def login(self, username, password):
-        data = {'username': username, 'password': password}
+@dataclass
+class LoginResult:
+    success: bool
+    token: str = ""
+
+
+class AuthAgent:
+    async def login(self, username: str, password: str) -> LoginResult:
+        data = {"username": username, "password": password}
 
         try:
-            res = await client.post('/api/login', json=data)
+            res = await client.http_client.post("/api/login", json=data)
             res = await res.json()
 
-            return {
-                "success": True,
-                "token": res["token"],
-            }
+            return LoginResult(success=True, token=res["token"])
 
         except Exception as e:
-            return {
-                "success": False,
-            }
+            print(e)
+            return LoginResult(success=False)
 
 
 authAgent = AuthAgent()

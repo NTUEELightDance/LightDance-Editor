@@ -1,11 +1,10 @@
-import bpy
 import asyncio
 
-from ...core.states import states
-from ...api import authAgent
+import bpy
 
-from ...properties.login import LoginPropertyGroup
+from ...core.actions.state import login
 from ...operators.async_core import AsyncOperator
+from ...properties.login import LoginPropertyGroupType
 
 
 # class LoginOperator(bpy.types.Operator):
@@ -14,16 +13,11 @@ class LoginOperator(AsyncOperator):
     bl_label = "Login"
 
     async def async_execute(self, context: bpy.types.Context):
-        login: LoginPropertyGroup = getattr(
-            context.window_manager, "ld_login")
+        ld_login: LoginPropertyGroupType = getattr(context.window_manager, "ld_login")
 
-        login_result = await authAgent.login(
-            username=login.username,
-            password=login.password,
-        )
-        print(login_result)
+        await login(ld_login.username, ld_login.password)
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 def register():

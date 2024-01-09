@@ -1,12 +1,6 @@
 import bpy
 
-from . import (
-    operators,
-    panels,
-    properties,
-    handlers
-)
-
+from . import handlers, operators, panels, properties
 
 bl_info = {
     "name": "LightDance Editor",

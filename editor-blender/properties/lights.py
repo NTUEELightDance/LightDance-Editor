@@ -1,10 +1,6 @@
 import bpy
 
-
-from ..core.actions.property.lights import (
-    update_color,
-    update_effect
-)
+from ..core.actions.property.lights import update_alpha, update_color, update_effect
 
 
 def get_color_lists(self: bpy.types.Object, context: bpy.types.Context):
@@ -28,40 +24,52 @@ def get_effect_lists(self: bpy.types.Object, context: bpy.types.Context):
 
 
 def register():
-    setattr(bpy.types.Object, "ld_light_type",
-            bpy.props.EnumProperty(
-                name="LightType",
-                description="Type of light",
-                items=[  # pyright: ignore
-                    ("fiber", "Fiber", "", "", 0),
-                    ("led", "LED", "", "", 1),
-                ],
-            ))
+    setattr(
+        bpy.types.Object,
+        "ld_light_type",
+        bpy.props.EnumProperty(
+            name="LightType",
+            description="Type of light",
+            items=[  # pyright: ignore
+                ("fiber", "Fiber", "", "", 0),
+                ("led", "LED", "", "", 1),
+            ],
+        ),
+    )
 
-    setattr(bpy.types.Object, "ld_color",
-            bpy.props.EnumProperty(
-                name="Color",
-                description="Part fiber color",
-                items=get_color_lists,
-                update=update_color
-            ))
-    setattr(bpy.types.Object, "ld_effect",
-            bpy.props.EnumProperty(
-                name="Effect",
-                description="Part LED effect",
-                items=get_effect_lists,
-                update=update_effect
-            ))
+    setattr(
+        bpy.types.Object,
+        "ld_color",
+        bpy.props.EnumProperty(
+            name="Color",
+            description="Part fiber color",
+            items=get_color_lists,
+            update=update_color,
+        ),
+    )
+    setattr(
+        bpy.types.Object,
+        "ld_effect",
+        bpy.props.EnumProperty(
+            name="Effect",
+            description="Part LED effect",
+            items=get_effect_lists,
+            update=update_effect,
+        ),
+    )
 
-    setattr(bpy.types.Object, "ld_alpha",
-            bpy.props.IntProperty(
-                name="Alpha",
-                description="Alpha of light",
-                min=0,
-                max=255,
-                default=128,
-                update=update_alpha
-            ))
+    setattr(
+        bpy.types.Object,
+        "ld_alpha",
+        bpy.props.IntProperty(
+            name="Alpha",
+            description="Alpha of light",
+            min=0,
+            max=255,
+            default=128,
+            update=update_alpha,
+        ),
+    )
 
     # Properties for the states
 

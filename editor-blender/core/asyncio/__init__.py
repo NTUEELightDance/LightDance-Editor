@@ -1,30 +1,22 @@
 import asyncio
-import traceback
 import inspect
-from typing import (
-    Any,
-    Tuple,
-    Dict,
-    Callable,
-    Coroutine,
-    TypeVar,
-    Generic
-)
+import traceback
+from typing import Any, Callable, Coroutine, Dict, Generic, Optional, Tuple, TypeVar
 
 R = TypeVar("R")
 
 
 class AsyncTask(Generic[R]):
-
     task: Callable[..., Coroutine[Any, Any, R]]
-    then_callback: Callable[[R], Coroutine[Any, Any, None] | None] | None
-    catch_callback: Callable[[Exception],
-                             Coroutine[Any, Any, None] | None] | None
+    then_callback: Callable[[R], Optional[Coroutine[Any, Any, None]]] | None
+    catch_callback: Callable[[Exception], Optional[Coroutine[Any, Any, None]]] | None
 
     args: Tuple[Any, ...]
     kwargs: Dict[str, Any]
 
-    def __init__(self, task: Callable[..., Coroutine[Any, Any, R]], *args, **kwargs):
+    def __init__(
+        self, task: Callable[..., Coroutine[Any, Any, R]], *args: Any, **kwargs: Any
+    ):
         self.task = task
         self.then_callback = None
         self.catch_callback = None
@@ -40,6 +32,7 @@ class AsyncTask(Generic[R]):
                     await self.then_callback(result)
                 else:
                     self.then_callback(result)
+
         except Exception as err:
             if self.catch_callback is not None:
                 traceback.print_exc()
@@ -48,14 +41,17 @@ class AsyncTask(Generic[R]):
                 else:
                     self.catch_callback(err)
 
-    def then(self, callback: Callable[[R], Coroutine[Any, Any, None] | None]) -> "AsyncTask[R]":
+    def then(
+        self, callback: Callable[[R], Optional[Coroutine[Any, Any, None]]]
+    ) -> "AsyncTask[R]":
         self.then_callback = callback
         return self
 
-    def catch(self, callback: Callable[[Exception], Coroutine[Any, Any, None] | None]) -> "AsyncTask[R]":
+    def catch(
+        self, callback: Callable[[Exception], Optional[Coroutine[Any, Any, None]]]
+    ) -> "AsyncTask[R]":
         self.catch_callback = callback
         return self
 
     def exec(self):
         asyncio.ensure_future(self.__run__())
-
