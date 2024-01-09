@@ -1,7 +1,6 @@
 import bpy
 
-
-from ...properties.login import LoginPropertyGroup
+from ...properties.login import LoginPropertyGroupType
 
 
 class StartupPanel(bpy.types.Panel):
@@ -22,8 +21,9 @@ class StartupPanel(bpy.types.Panel):
         if not is_running:
             row.operator("lightdance.async_loop", text="Start", icon="PLAY")
         else:
-            login: LoginPropertyGroup = getattr(
-                context.window_manager, "ld_login")
+            ld_login: LoginPropertyGroupType = getattr(
+                context.window_manager, "ld_login"
+            )
 
             r1 = layout.row()
             r2 = layout.row()
@@ -31,8 +31,8 @@ class StartupPanel(bpy.types.Panel):
 
             r3.operator("lightdance.login", text="Login", icon="PLAY")
 
-            r1.prop(login, 'username', text="Username")
-            r2.prop(login, 'password', text="Password")
+            r1.prop(ld_login, "username", text="Username")
+            r2.prop(ld_login, "password", text="Password")
 
 
 def register():

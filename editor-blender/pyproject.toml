@@ -1,0 +1,17 @@
+[tool.pyright]
+pythonVersion = "3.10"
+
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+
+reportUnusedVariable = "warning"
+reportUnusedImport = "warning"
+
+reportIncompatibleMethodOverride = false
+
+reportUnknownMemberType = false
+
+[tool.black]
+
+[tool.isort]
+profile = "black"

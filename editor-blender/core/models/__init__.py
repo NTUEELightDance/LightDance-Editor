@@ -1,14 +1,31 @@
-from typing import (
-    List,
-    Dict,
-    Optional
-)
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
+from typing import Dict, List, Tuple, Union
 
+ID = str
 
+ColorName = str
+ColorCode = str
+RGB = Tuple[int, int, int]
+RGBA = Tuple[int, int, int, int]
 EffectID = int
 ColorID = int
+
+
+@dataclass
+class Color:
+    id: int
+    name: ColorName
+    color_code: ColorCode
+    rgb: RGB
+
+
+"""
+ColorMap
+"""
+
+ColorMap = Dict[ColorID, Color]
+
 
 PartName = str
 DancerName = str
@@ -28,16 +45,15 @@ class FiberData:
     alpha: int
 
 
-PartData = LEDData | FiberData
+PartData = Union[LEDData, FiberData]
 DancerStatus = Dict[PartName, PartData]
-ControlMapStatus = Dict[DancerName, DancerStatus]
 
 
 @dataclass
 class ControlMapElement:
     start: int
     fade: bool
-    status: ControlMapStatus
+    status: Dict[DancerName, DancerStatus]
 
 
 ControlMap = Dict[MapID, ControlMapElement]
@@ -83,6 +99,7 @@ class EditingData:
 @dataclass
 class State:
     is_running: bool
+    is_logged_in: bool
     token: str
 
     control_map: ControlMap
