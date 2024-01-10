@@ -1,10 +1,12 @@
 from . import (
-    frame
+    frame,
+    auto_select
 )
 
 
 def register():
     frame.register()
+    auto_select.register()
 
 
 def unregister():
