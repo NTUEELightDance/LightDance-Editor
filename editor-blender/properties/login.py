@@ -1,7 +1,5 @@
 import bpy
 
-from ..core.actions.property import update_is_running
-
 
 class LoginPropertyGroup(bpy.types.PropertyGroup):
     username: bpy.props.StringProperty()  # pyright: ignore
@@ -23,11 +21,6 @@ def register():
     )
 
     # Properties for the states
-    setattr(
-        bpy.types.WindowManager,
-        "ld_is_running",
-        bpy.props.BoolProperty(default=False, update=update_is_running),
-    )
 
 
 def unregister():
@@ -35,4 +28,3 @@ def unregister():
     delattr(bpy.types.WindowManager, "ld_login")
 
     # Properties for the states
-    delattr(bpy.types.WindowManager, "ld_is_running")

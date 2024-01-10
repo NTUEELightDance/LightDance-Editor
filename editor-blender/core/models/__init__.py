@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
-ID = str
+ID = int
 
 ColorName = str
 ColorCode = str
@@ -30,7 +30,7 @@ ColorMap = Dict[ColorID, Color]
 PartName = str
 DancerName = str
 
-MapID = str
+MapID = int
 
 
 @dataclass
@@ -48,12 +48,14 @@ class FiberData:
 PartData = Union[LEDData, FiberData]
 DancerStatus = Dict[PartName, PartData]
 
+ControlMapStatus = Dict[DancerName, DancerStatus]
+
 
 @dataclass
 class ControlMapElement:
     start: int
     fade: bool
-    status: Dict[DancerName, DancerStatus]
+    status: ControlMapStatus
 
 
 ControlMap = Dict[MapID, ControlMapElement]
@@ -94,6 +96,30 @@ class EditingData:
     start: int
     frame_id: int
     index: int
+
+
+class PartType(Enum):
+    LED = "LED"
+    FIBER = "FIBER"
+
+
+PartTypeMap = Dict[PartName, PartType]
+
+
+@dataclass
+class DancersArrayPartsItem:
+    name: PartName
+    type: PartType
+    length: Optional[int]
+
+
+@dataclass
+class DancersArrayItem:
+    name: DancerName
+    parts: List[DancersArrayPartsItem]
+
+
+DancersArray = List[DancersArrayItem]
 
 
 @dataclass
@@ -148,13 +174,13 @@ class State:
     # TODO: Add these
     # dancers: Dancers
     # dancer_names: List[DancerName]
-    # part_type_map: PartTypeMap
+    part_type_map: PartTypeMap
     # led_part_length_map: LEDPartLengthMap
     # color_map: ColorMap
     # effect_list: EffectListType
 
     # TODO: Add these
-    # dancers_array: DancersArray
+    dancers_array: DancersArray
     # dancer_part_index_map: DancerPartIndexMap
 
     # TODO: Add these

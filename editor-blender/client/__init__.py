@@ -1,3 +1,4 @@
+from inspect import isclass
 from typing import AsyncGenerator, Dict, Optional, Type, TypeVar, Union
 
 from aiohttp import ClientSession
@@ -17,7 +18,7 @@ T = TypeVar("T")
 
 
 class Clients:
-    def __init__(self, cache: Optional[InMemoryCache] = None):
+    def __init__(self, cache: InMemoryCache):
         self.http_client: ClientSession = ClientSession(
             "http://localhost:4000", cookies={"token": state.token}
         )
@@ -40,10 +41,10 @@ class Clients:
         async for data in self.sub_client.subscribe(query):
             # print("Sub:", data)
 
-            import time
+            # import time
 
             # t = time.time()
-            if issubclass(data_type, JSONWizard):
+            if isclass(data_type) and issubclass(data_type, JSONWizard):
                 data[query_name] = data_type.from_dict(data[query_name])
             # print(time.time() - t)
 
@@ -60,34 +61,26 @@ class Clients:
         query_dict = query.to_dict()
         query_def = query_defs_to_field_table(query_dict)
 
-        if self.cache is not None:
-            definition = query_dict["definitions"][0]
-            query_type = definition["operation"]
+        definition = query_dict["definitions"][0]
+        query_type = definition["operation"]
 
-            if query_type != "query":
-                return await self.client.execute(query)
+        if query_type != "query":
+            return await self.client.execute(query)
 
-            response = self.cache.read_query(response_type, query_def)
+        response = self.cache.read_query(response_type, query_def)
 
-            if response is None:
-                response = await self.client.execute(query)
-
-                if issubclass(response_type, JSONWizard):
-                    query_name = query_def[0]
-                    response[query_name] = response_type.from_dict(response[query_name])
-
-                # TODO: Support enum and list
-
-                self.cache.write_query(response)
-
-            return response
-        else:
+        if response is None:
             response = await self.client.execute(query)
-            if issubclass(response_type, JSONWizard):
+
+            if isclass(response_type) and issubclass(response_type, JSONWizard):
                 query_name = query_def[0]
                 response[query_name] = response_type.from_dict(response[query_name])
 
-            return response
+            # TODO: Support enum and list
+
+            self.cache.write_query(response)
+
+        return response
 
     async def create_graphql_client(self):
         await self.close_graphql_client()

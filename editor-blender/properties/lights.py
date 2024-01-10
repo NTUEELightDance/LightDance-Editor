@@ -1,9 +1,13 @@
+from typing import List, Tuple
+
 import bpy
 
 from ..core.actions.property.lights import update_alpha, update_color, update_effect
 
 
-def get_color_lists(self: bpy.types.Object, context: bpy.types.Context):
+def get_color_lists(
+    self: bpy.types.Object, context: bpy.types.Context
+) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     ld_object_type: str = getattr(self, "ld_object_type")
     if ld_object_type == "fiber":
         # TODO: Get colors from states
@@ -12,7 +16,9 @@ def get_color_lists(self: bpy.types.Object, context: bpy.types.Context):
     return []
 
 
-def get_effect_lists(self: bpy.types.Object, context: bpy.types.Context):
+def get_effect_lists(
+    self: bpy.types.Object, context: bpy.types.Context
+) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     ld_object_type: str = getattr(self, "ld_object_type")
     if ld_object_type == "led":
         ld_dancer_name: str = getattr(self, "ld_dancer_name")
