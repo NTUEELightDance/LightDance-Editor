@@ -11,15 +11,6 @@ from ..core.models import ID, RGB, ColorID
 Misc Types
 """
 
-SubPosition = Tuple[float, float, float]
-
-
-@dataclass
-class SubPositionData(JSONWizard):
-    start: int
-    pos: List[SubPosition]
-    editing: Optional[str] = None
-
 
 SubLEDControl = Tuple[ColorID, int]
 SubFiberControl = Tuple[ColorID, int]
@@ -70,10 +61,20 @@ PositionMap
 """
 
 
+SubPosition = Tuple[float, float, float]
+
+
+@dataclass
+class SubPositionFrame(JSONWizard):
+    start: int
+    pos: List[SubPosition]
+    editing: Optional[str] = None
+
+
 @dataclass
 class SubPositionMapDataScalar(JSONWizard):
-    createFrames: Dict[ID, SubPositionData]
-    updateFrames: Dict[ID, SubPositionData]
+    createFrames: Dict[ID, SubPositionFrame]
+    updateFrames: Dict[ID, SubPositionFrame]
     deleteFrames: List[ID]
 
 

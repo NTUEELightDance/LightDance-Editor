@@ -6,6 +6,7 @@ reportMissingTypeStubs = false
 
 reportUnusedVariable = "warning"
 reportUnusedImport = "warning"
+reportUnusedFunction = "warning"
 
 reportIncompatibleMethodOverride = false
 

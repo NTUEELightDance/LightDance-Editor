@@ -1,8 +1,6 @@
-import asyncio
-
 import bpy
 
-from ...core.actions.state import login
+from ...core.actions.state.auth import login
 from ...operators.async_core import AsyncOperator
 from ...properties.login import LoginPropertyGroupType
 
