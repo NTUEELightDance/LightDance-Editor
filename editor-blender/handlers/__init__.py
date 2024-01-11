@@ -1,12 +1,9 @@
-from . import (
-    frame,
-    auto_select
-)
+from . import frame, objects
 
 
 def register():
     frame.register()
-    auto_select.register()
+    objects.register()
 
 
 def unregister():
