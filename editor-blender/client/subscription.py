@@ -99,7 +99,7 @@ async def sub_pos_map(client: Clients):
             for id, posSub in updateFrames.items():
                 newPosMap.frameIds[id] = pos_frame_sub_to_query(posSub)
 
-            await set_pos_map(pos_map_query_to_state(newPosMap))
+            # await set_pos_map(pos_map_query_to_state(newPosMap))
 
             return newPosMap
 
@@ -174,7 +174,7 @@ async def sub_control_map(client: Clients):
             for id, frameSub in updateFrames.items():
                 newControlMap.frameIds[id] = control_frame_sub_to_query(frameSub)
 
-            await set_control_map(control_map_query_to_state(newControlMap))
+            # await set_control_map(control_map_query_to_state(newControlMap))
 
             return newControlMap
 
@@ -218,7 +218,7 @@ async def sub_color_map(client: Clients):
                 case SubColorMutation.DELETED:
                     del newColorMap.colorMap[id]
 
-            await set_color_map(color_map_query_to_state(newColorMap))
+            # await set_color_map(color_map_query_to_state(newColorMap))
 
             return newColorMap
 
