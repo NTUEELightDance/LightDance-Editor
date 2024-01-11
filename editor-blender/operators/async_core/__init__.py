@@ -57,34 +57,19 @@ class AsyncLoopModalOperator(bpy.types.Operator):
 
     def __del__(self):
         wm = bpy.context.window_manager
-        setattr(
-            wm,
-            "ld_is_running",
-            False,
-        )
+        state.is_running = False
 
     def execute(self, context: bpy.types.Context):
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _: bpy.types.Event):
-        is_running = getattr(
-            context.window_manager,
-            "ld_is_running",
-            False,
-        )
-
         # NOTE: Testing
         # setup_test_states()
 
-        if is_running:
+        if state.is_running:
             return {"PASS_THROUGH"}
 
         context.window_manager.modal_handler_add(self)
-        setattr(
-            context.window_manager,
-            "ld_is_running",
-            True,
-        )
         state.is_running = True
 
         wm = context.window_manager
@@ -96,9 +81,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         return {"RUNNING_MODAL"}
 
     def modal(self, context: bpy.types.Context, event: bpy.types.Event):
-        is_running = getattr(context.window_manager, "ld_is_running", False)
-
-        if not is_running:
+        if not state.is_running:
             return {"FINISHED"}
         if event.type != "TIMER":
             return {"PASS_THROUGH"}
@@ -107,7 +90,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         if stop:
             wm = context.window_manager
             wm.event_timer_remove(self.timer)
-            setattr(wm, "ld_is_running", False)
+            state.is_running = False
 
             return {"FINISHED"}
 

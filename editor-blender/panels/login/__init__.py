@@ -1,5 +1,6 @@
 import bpy
 
+from ...core.states import state
 from ...properties.login import LoginPropertyGroupType
 
 
@@ -16,9 +17,7 @@ class StartupPanel(bpy.types.Panel):
         layout = self.layout
         row = layout.row()
 
-        is_running = getattr(context.window_manager, "ld_is_running", False)
-
-        if not is_running:
+        if not state.is_running:
             row.operator("lightdance.async_loop", text="Start", icon="PLAY")
         else:
             ld_login: LoginPropertyGroupType = getattr(
