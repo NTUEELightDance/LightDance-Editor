@@ -4,7 +4,16 @@ from typing import Dict, List, Tuple, Union
 from dataclass_wizard import JSONWizard
 from gql import gql
 
-from ..core.models import ID, RGB, ColorID, ColorName, EffectID, MapID
+from ..core.models import (
+    ID,
+    RGB,
+    ColorID,
+    ColorName,
+    LEDEffectID,
+    LEDEffectName,
+    LEDPartName,
+    MapID,
+)
 
 """
 Fiber
@@ -16,7 +25,26 @@ QueryFiberDataPayload = Tuple[ColorID, int]
 LED
 """
 
-QueryLEDDataPayload = Tuple[EffectID, int]
+QueryLEDDataPayload = Tuple[LEDEffectID, int]
+
+
+"""
+LEDEffect
+"""
+
+
+@dataclass
+class QueryLEDEffectFramePayload(JSONWizard):
+    LEDs: List[Tuple[ColorID, int]]
+    start: int
+    fade: bool
+
+
+@dataclass
+class QueryLEDEffectPayload(JSONWizard):
+    id: LEDEffectID
+    repeat: int
+    frames: List[QueryLEDEffectFramePayload]
 
 
 """
@@ -152,7 +180,7 @@ class QueryEffectListItem(JSONWizard):
     start: int
     end: int
     description: str
-    id: EffectID
+    id: LEDEffectID
     controlFrames: List[QueryEffectListControlFrame]
     positionFrames: List[QueryEffectListPositionFrame]
 
@@ -170,6 +198,30 @@ GET_EFFECT_LIST = gql(
             id
             controlFrames
             positionFrames
+        }
+    }
+    """
+)
+
+
+"""
+LEDMap
+"""
+
+
+QueryLEDMapPayload = Dict[LEDPartName, Dict[LEDEffectName, QueryLEDEffectPayload]]
+
+
+@dataclass
+class QueryLEDMapData(JSONWizard):
+    LEDMap: QueryLEDMapPayload
+
+
+GET_LED_MAP = gql(
+    """
+    query LEDMap {
+        LEDMap {
+            LEDMap
         }
     }
     """
