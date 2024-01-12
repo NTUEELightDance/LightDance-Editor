@@ -1,10 +1,9 @@
-from . import (
-    frame
-)
+from . import frame, objects
 
 
 def register():
     frame.register()
+    objects.register()
 
 
 def unregister():
