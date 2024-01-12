@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from dataclass_wizard import JSONWizard
 from gql import gql
 
-from ..core.models import ID, RGB, ColorID
+from ..core.models import ID, RGB, ColorID, MapID
 
 """
 Misc Types
@@ -180,18 +180,30 @@ EffectList
 
 class SubEffectListMutation(Enum):
     CREATED = "CREATED"
-    UPDATED = "UPDATED"
     DELETED = "DELETED"
 
 
 @dataclass
-class SubEffectListContent(JSONWizard):
+class SubEffectListControlFrame(JSONWizard):
+    id: MapID
+    start: int
+    fade: bool
+
+
+@dataclass
+class SubEffectListPositionFrame(JSONWizard):
+    id: MapID
+    start: int
+
+
+@dataclass
+class SubEffectListItemData(JSONWizard):
     start: int
     end: int
     description: str
     id: int
-    controlFrames: List[Dict[str, Any]]
-    positionFrames: List[Dict[str, Any]]
+    controlFrames: List[SubEffectListControlFrame]
+    positionFrames: List[SubEffectListPositionFrame]
 
 
 @dataclass
@@ -199,7 +211,7 @@ class SubEffectListData(JSONWizard):
     mutation: SubEffectListMutation
     effectListID: int
     editBy: int
-    effectListData: SubEffectListContent
+    effectListData: SubEffectListItemData
 
 
 SUB_EFFECT_LIST = gql(

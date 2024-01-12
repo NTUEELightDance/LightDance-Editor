@@ -8,10 +8,17 @@ from ...graphqls.queries import (
     QueryCoordinatesPayload,
     QueryDancerStatusPayload,
     QueryDancerStatusPayloadItem,
+    QueryEffectListControlFrame,
+    QueryEffectListItem,
+    QueryEffectListPositionFrame,
     QueryPosFrame,
     QueryPosMapData,
 )
-from ...graphqls.subscriptions import SubControlFrame, SubPositionFrame
+from ...graphqls.subscriptions import (
+    SubControlFrame,
+    SubEffectListItemData,
+    SubPositionFrame,
+)
 from ..models import (
     Color,
     ColorMap,
@@ -29,12 +36,6 @@ from ..models import (
     PosMapStatus,
 )
 from ..states import state
-
-
-# WARNING: Untested
-def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
-    r, g, b = rgb
-    return f"#{r:02x}{g:02x}{b:02x}"
 
 
 # WARNING: Untested
@@ -146,6 +147,11 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
     return response
 
 
+def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
+    r, g, b = rgb
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
 # WARNING: Untested
 def color_map_query_to_state(response: QueryColorMapData) -> ColorMap:
     payload: QueryColorMapPayload = response.colorMap
@@ -161,3 +167,34 @@ def color_map_query_to_state(response: QueryColorMapData) -> ColorMap:
         )
 
     return color_map
+
+
+# WARNING: Untested
+def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectListItem:
+    effectListItem = QueryEffectListItem(
+        start=data.start,
+        end=data.end,
+        description=data.description,
+        id=data.id,
+        controlFrames=[],
+        positionFrames=[],
+    )
+
+    effectListItem.controlFrames = list(
+        map(
+            lambda controlFrame: QueryEffectListControlFrame(
+                id=controlFrame.id, start=controlFrame.start, fade=controlFrame.fade
+            ),
+            data.controlFrames,
+        )
+    )
+    effectListItem.positionFrames = list(
+        map(
+            lambda positionFrame: QueryEffectListPositionFrame(
+                id=positionFrame.id, start=positionFrame.start
+            ),
+            data.positionFrames,
+        )
+    )
+
+    return effectListItem

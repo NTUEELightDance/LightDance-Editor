@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple, Union
 from dataclass_wizard import JSONWizard
 from gql import gql
 
-from ..core.models import ID, RGB, ColorID, ColorName, EffectID
+from ..core.models import ID, RGB, ColorID, ColorName, EffectID, MapID
 
 """
 Fiber
@@ -132,6 +132,48 @@ GET_CONTROL_MAP = gql(
 """
 EffectList
 """
+
+
+@dataclass
+class QueryEffectListControlFrame(JSONWizard):
+    id: MapID
+    start: int
+    fade: bool
+
+
+@dataclass
+class QueryEffectListPositionFrame(JSONWizard):
+    id: MapID
+    start: int
+
+
+@dataclass
+class QueryEffectListItem(JSONWizard):
+    start: int
+    end: int
+    description: str
+    id: EffectID
+    controlFrames: List[QueryEffectListControlFrame]
+    positionFrames: List[QueryEffectListPositionFrame]
+
+
+QueryEffectListData = List[QueryEffectListItem]
+
+
+GET_EFFECT_LIST = gql(
+    """
+    query EffectList {
+        effectList {
+            start
+            end
+            description
+            id
+            controlFrames
+            positionFrames
+        }
+    }
+    """
+)
 
 
 """

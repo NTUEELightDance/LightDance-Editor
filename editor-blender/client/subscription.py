@@ -11,6 +11,7 @@ from ..core.utils.convert import (
     color_map_query_to_state,
     control_frame_sub_to_query,
     control_map_query_to_state,
+    effect_list_data_sub_to_query,
     pos_frame_sub_to_query,
     pos_map_query_to_state,
 )
@@ -19,6 +20,8 @@ from ..graphqls.queries import (
     QueryColorMapPayloadItem,
     QueryControlMapData,
     QueryControlRecordData,
+    QueryEffectListData,
+    QueryEffectListItem,
     QueryPosMapData,
     QueryPosRecordData,
 )
@@ -33,7 +36,8 @@ from ..graphqls.subscriptions import (
     SubColorMutation,
     SubControlMapData,
     SubControlRecordData,
-    SubEffectListContent,
+    SubEffectListData,
+    SubEffectListMutation,
     SubPositionMapData,
     SubPositionRecordData,
 )
@@ -181,11 +185,32 @@ async def sub_control_map(client: Clients):
         await client.cache.modify(Modifiers(fields={"ControlMap": modifier}))
 
 
+# WARNING: Untested
 async def sub_effect_list(client: Clients):
-    async for data in client.subscribe(SubEffectListContent, SUB_EFFECT_LIST):
+    async for data in client.subscribe(SubEffectListData, SUB_EFFECT_LIST):
         print("SubEffectList:", data)
 
-        # TODO: Implement
+        async def modifier(effectList: Optional[QueryEffectListData]):
+            subscriptionData = data["effectListSubscription"]
+
+            newEffectList: QueryEffectListData = []
+            if effectList is not None:
+                newEffectList = effectList
+
+            mutation = subscriptionData.mutation
+            effectListData = subscriptionData.effectListData
+
+            match mutation:
+                case SubEffectListMutation.CREATED:
+                    newEffectList.append(effect_list_data_sub_to_query(effectListData))
+                case SubEffectListMutation.DELETED:
+                    newEffectList = list(
+                        filter(lambda item: item.id != effectListData.id, newEffectList)
+                    )
+
+            return newEffectList
+
+        await client.cache.modify(Modifiers(fields={"effectList": modifier}))
 
 
 async def sub_color_map(client: Clients):
