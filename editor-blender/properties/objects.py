@@ -1,4 +1,12 @@
+from enum import Enum
+
 import bpy
+
+
+class ObjectType(Enum):
+    DANCER = "dancer"
+    HUMAN = "human"
+    LIGHT = "light"
 
 
 def register():
@@ -9,9 +17,9 @@ def register():
             name="ObjectType",
             description="Type of object",
             items=[  # pyright: ignore
-                ("dancer", "Dancer", "", "", 0),
-                ("human", "Human", "", "", 1),
-                ("light", "Light", "", "", 2),
+                (ObjectType.DANCER.value, "Dancer", "", "", 0),
+                (ObjectType.HUMAN.value, "Human", "", "", 1),
+                (ObjectType.LIGHT.value, "Light", "", "", 2),
             ],
             default="human",
         ),
