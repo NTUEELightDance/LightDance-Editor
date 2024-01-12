@@ -60,6 +60,12 @@ export function sendToRPi(dancers: string[], msg: ToRPi) {
 
 export async function sendBoardInfoToRPi(dancer: string) {
   // send pinMap, LED and OF to RPi
+  /*
+      TODO: the structure of LEDresult is changed from
+            {status: Record<string, [number, number, number, number]>, start: number, fade: boolean}[]
+            to Record<string, [number, number, number, number]>[]
+            since start and fade is no longer used.
+   */
   const [LEDresult, OFresult] = await Promise.allSettled([
     getDancerLEDDataAPI(dancer),
     getDancerFiberDataAPI(dancer),
