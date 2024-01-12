@@ -9,7 +9,20 @@ from gql.transport.aiohttp import AIOHTTPTransport
 from gql.transport.websockets import WebsocketsTransport
 from graphql import DocumentNode
 
+from ..core.actions.state.color_map import set_color_map
+from ..core.actions.state.control_map import set_control_map
+from ..core.actions.state.pos_map import set_pos_map
 from ..core.states import state
+from ..core.utils.convert import (
+    color_map_query_to_state,
+    control_map_query_to_state,
+    pos_map_query_to_state,
+)
+from ..graphqls.queries import (
+    QueryColorMapPayload,
+    QueryControlMapPayload,
+    QueryPosMapPayload,
+)
 from .cache import FieldPolicy, InMemoryCache, TypePolicy, query_defs_to_field_table
 
 GQLSession = Union[AsyncClientSession, ReconnectingAsyncClientSession]
@@ -67,7 +80,7 @@ class Clients:
         if query_type != "query":
             return await self.client.execute(query)
 
-        response = self.cache.read_query(response_type, query_def)
+        response = await self.cache.read_query(response_type, query_def)
 
         if response is None:
             response = await self.client.execute(query)
@@ -78,7 +91,7 @@ class Clients:
 
             # TODO: Support enum and list
 
-            self.cache.write_query(response)
+            await self.cache.write_query(response)
 
         return response
 
@@ -120,14 +133,48 @@ class Clients:
             await self.http_client.close()
 
 
+async def merge_pos_map(
+    existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
+) -> QueryPosMapPayload:
+    posMap = pos_map_query_to_state(incoming)
+    await set_pos_map(posMap)
+    return incoming
+
+
+async def merge_control_map(
+    existing: Optional[QueryControlMapPayload], incoming: QueryControlMapPayload
+) -> QueryControlMapPayload:
+    controlMap = control_map_query_to_state(incoming)
+    await set_control_map(controlMap)
+    return incoming
+
+
+async def merge_color_map(
+    existing: Optional[QueryColorMapPayload], incoming: QueryColorMapPayload
+) -> QueryColorMapPayload:
+    colorMap = color_map_query_to_state(incoming)
+    await set_color_map(colorMap)
+    return incoming
+
+
 client = Clients(
     cache=InMemoryCache(
         policies={
+            "PosMap": TypePolicy(
+                fields={
+                    "frameIds": FieldPolicy(merge=merge_pos_map),
+                }
+            ),
             "ControlMap": TypePolicy(
                 fields={
-                    "frameIds": FieldPolicy(merge=lambda existing, incoming: incoming),
+                    "frameIds": FieldPolicy(merge=merge_control_map),
                 }
-            )
+            ),
+            "colorMap": TypePolicy(
+                fields={
+                    "colorMap": FieldPolicy(merge=merge_color_map),
+                }
+            ),
         }
     )
 )
