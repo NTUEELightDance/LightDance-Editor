@@ -9,7 +9,7 @@ jobs:
       - name: enable pnpm
         run: corepack enable
       - name: Install modules in editor, editor-server, controller-server
-        run: pnpm --dir editor install; pnpm --dir editor-server install; pnpm --dir controller-server install
+        run: pnpm --dir editor install --no-frozen-lockfile; pnpm --dir editor-server install --no-frozen-lockfile; pnpm --dir controller-server install --no-frozen-lockfile
       - name: Run ESLint for editor, editor-server, controller-server
         run: pnpm lint
         continue-on-error: true
