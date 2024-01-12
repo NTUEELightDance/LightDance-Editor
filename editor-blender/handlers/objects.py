@@ -8,8 +8,10 @@ def obj_panel_autoselect_handler():
     """
     objects = bpy.context.selected_objects
     for obj in objects:
-        if obj.ld_object_type == "light":
-            if obj.parent.ld_object_type == "light":
+        obj_type: str = getattr(obj, "ld_object_type")
+        if obj_type == "light":
+            parent_type: str = getattr(obj.parent, "ld_object_type")
+            if parent_type == "light":
                 for child in obj.parent.children:
                     child.select_set(True)
                 obj.parent.select_set(True)
@@ -17,12 +19,13 @@ def obj_panel_autoselect_handler():
                 for child in obj.children:
                     child.select_set(True)
 
-        elif obj.ld_object_type == "human":
+        elif obj_type == "human":
             obj.parent.select_set(True)
 
-        elif obj.ld_object_type == "dancer":
+        elif obj_type == "dancer":
             for child in obj.children:
-                if child.ld_object_type == "human":
+                child_type: str = getattr(child, "ld_object_type")
+                if child_type == "human":
                     child.select_set(True)
 
 
