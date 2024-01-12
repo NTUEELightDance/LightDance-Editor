@@ -1,10 +1,9 @@
 from typing import List, Tuple
 
 from ...graphqls.queries import (
-    QueryColorMapData,
     QueryColorMapPayload,
     QueryControlFrame,
-    QueryControlMapData,
+    QueryControlMapPayload,
     QueryCoordinatesPayload,
     QueryDancerStatusPayload,
     QueryDancerStatusPayloadItem,
@@ -12,7 +11,7 @@ from ...graphqls.queries import (
     QueryEffectListItem,
     QueryEffectListPositionFrame,
     QueryPosFrame,
-    QueryPosMapData,
+    QueryPosMapPayload,
 )
 from ...graphqls.subscriptions import (
     SubControlFrame,
@@ -66,9 +65,7 @@ def pos_status_query_to_state(payload: List[QueryCoordinatesPayload]) -> PosMapS
 
 
 # WARNING: Untested
-def pos_map_query_to_state(response: QueryPosMapData) -> PosMap:
-    frames = response.frameIds
-
+def pos_map_query_to_state(frames: QueryPosMapPayload) -> PosMap:
     pos_map: PosMap = {}
 
     for id, frame in frames.items():
@@ -114,9 +111,7 @@ def control_status_query_to_state(
 
 
 # WARNING: Untested
-def control_map_query_to_state(response: QueryControlMapData) -> ControlMap:
-    frames = response.frameIds
-
+def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
     control_map: ControlMap = {}
 
     for id, frame in frames.items():
@@ -153,9 +148,7 @@ def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
 
 
 # WARNING: Untested
-def color_map_query_to_state(response: QueryColorMapData) -> ColorMap:
-    payload: QueryColorMapPayload = response.colorMap
-
+def color_map_query_to_state(payload: QueryColorMapPayload) -> ColorMap:
     color_map: ColorMap = {}
 
     for id, color in payload.items():
