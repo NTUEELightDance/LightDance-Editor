@@ -5,10 +5,11 @@ from typing import Dict, List, Optional, Tuple, Union
 ID = int
 
 ColorName = str
+LEDEffectName = str
 ColorCode = str
 RGB = Tuple[int, int, int]
 RGBA = Tuple[int, int, int, int]
-EffectID = int
+LEDEffectID = int
 ColorID = int
 
 
@@ -20,22 +21,46 @@ class Color:
     rgb: RGB
 
 
-"""
-ColorMap
-"""
-
 ColorMap = Dict[ColorID, Color]
 
 
+@dataclass
+class LEDBuldData:
+    color_id: ColorID
+    alpha: int
+    rgb: Optional[RGB]  # for calculating fade
+
+
+@dataclass
+class LEDEffectFrame:
+    start: int
+    fade: bool
+    effect: List[LEDBuldData]
+
+
+@dataclass
+class LEDEffect:
+    id: LEDEffectID
+    name: LEDEffectName
+    repeat: int
+    effects: List[LEDEffectFrame]
+
+
+LEDEffectIDTable = Dict[LEDEffectID, LEDEffect]
+
 PartName = str
 DancerName = str
+
+LEDPartName = str
+
+LEDMap = Dict[LEDPartName, Dict[LEDEffectName, LEDEffect]]
 
 MapID = int
 
 
 @dataclass
 class LEDData:
-    effect_id: EffectID
+    effect_id: LEDEffectID
     alpha: int
 
 
@@ -131,9 +156,8 @@ class State:
     control_map: ControlMap
     pos_map: PosMap
 
-    # TODO: Add these
-    # led_map: LEDMap
-    # led_effect_id_table: LEDEffectIDtable
+    led_map: LEDMap
+    led_effect_id_table: LEDEffectIDTable
 
     current_control_index: int
     current_pos_index: int
@@ -176,7 +200,7 @@ class State:
     # dancer_names: List[DancerName]
     part_type_map: PartTypeMap
     # led_part_length_map: LEDPartLengthMap
-    # color_map: ColorMap
+    color_map: ColorMap
     # effect_list: EffectListType
 
     # TODO: Add these
