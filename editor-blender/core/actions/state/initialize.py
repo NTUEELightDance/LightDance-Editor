@@ -1,5 +1,6 @@
 from typing import Dict
 
+from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
 from ...models import (
     DancerPartIndexMap,
@@ -61,3 +62,9 @@ async def init_dancers():
     state.dancer_part_index_map = dancer_part_index_map
 
     state.selected = selected
+
+
+async def init_color_map():
+    color_map = await color_agent.get_color_map()
+
+    state.color_map = color_map
