@@ -17,11 +17,11 @@ def register():
     operators.register()
     panels.register()
     properties.register()
-    handlers.register()
 
 
 def unregister():
+    handlers.unmount()
+
     operators.unregister()
     panels.unregister()
     properties.unregister()
-    handlers.unregister()

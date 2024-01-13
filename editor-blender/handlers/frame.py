@@ -6,9 +6,12 @@ def update_current_index(scene: bpy.types.Scene):
     # TODO: Update current control_index, pos_index or effect_index of states
 
 
-def register():
+def mount():
     bpy.app.handlers.frame_change_post.append(update_current_index)
 
 
-def unregister():
-    bpy.app.handlers.frame_change_post.remove(update_current_index)
+def unmount():
+    try:
+        bpy.app.handlers.frame_change_post.remove(update_current_index)
+    except:
+        pass
