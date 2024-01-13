@@ -9,7 +9,12 @@ use http::header::CONTENT_TYPE;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub type GetDataResponse = HashMap<String, Vec<Vec<i32>>>;
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Status {
+    status: Vec<Vec<i32>>,
+}
+
+pub type GetDataResponse = HashMap<String, Status>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GetDataFailedResponse {
@@ -143,7 +148,7 @@ pub async fn get_dancer_led_data(
             }
         }
 
-        response.insert(part_name.clone(), part_data);
+        response.insert(part_name.clone(), Status { status: part_data });
     }
 
     let mut headers = HeaderMap::new();
