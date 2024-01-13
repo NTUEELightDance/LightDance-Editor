@@ -65,6 +65,7 @@ pub async fn get_dancer_led_data(
     .await
     .unwrap();
 
+    // create hasmap for color
     let mut color_map: HashMap<i32, Color> = HashMap::new();
     for color in colors.iter() {
         color_map.insert(
@@ -77,6 +78,7 @@ pub async fn get_dancer_led_data(
         );
     }
 
+    // get parts and control data of parts for dancer
     let dancer_data = sqlx::query!(
         r#"
             SELECT Part.name, Part.length, ControlData.effect_id
@@ -102,6 +104,7 @@ pub async fn get_dancer_led_data(
 
     let mut parts: HashMap<String, Vec<Part>> = HashMap::new();
 
+    // organize control data into their respective parts
     for data in dancer_data.iter() {
         parts
             .entry(data.name.clone())
@@ -118,10 +121,12 @@ pub async fn get_dancer_led_data(
         let mut part_data = vec![vec![0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
 
         for data in control_data.iter() {
+            // -1 means no effect (for now)
             if data.effect_id.unwrap() == -1 {
                 continue;
             }
 
+            // find effect states for effect of given control data and part
             let led_effect_states = sqlx::query!(
                 r#"
                     SELECT LEDEffectState.color_id, LEDEffectState.alpha, LEDEffectState.position
@@ -136,6 +141,7 @@ pub async fn get_dancer_led_data(
             .await
             .unwrap();
 
+            // transfrom color id to rgb values for each position
             for state in led_effect_states.iter() {
                 if state.color_id == 0 {
                     part_data[state.position as usize] = vec![0, 0, 0, state.alpha];
@@ -153,6 +159,9 @@ pub async fn get_dancer_led_data(
 
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+
+    // return data of form {part_name: {status: [[r, g, b, a], [r, g, b, a]]}, ...}
+    // index of status array is position of led
 
     Ok((StatusCode::OK, (HeaderMap::new(), Json(response))))
 }
