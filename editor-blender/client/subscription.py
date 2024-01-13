@@ -21,7 +21,6 @@ from ..graphqls.queries import (
     QueryControlMapData,
     QueryControlRecordData,
     QueryEffectListData,
-    QueryEffectListItem,
     QueryPosMapData,
     QueryPosRecordData,
 )
@@ -103,7 +102,7 @@ async def sub_pos_map(client: Clients):
             for id, posSub in updateFrames.items():
                 newPosMap.frameIds[id] = pos_frame_sub_to_query(posSub)
 
-            # await set_pos_map(pos_map_query_to_state(newPosMap.frameIds))
+            await set_pos_map(pos_map_query_to_state(newPosMap.frameIds))
 
             return newPosMap
 
@@ -178,7 +177,7 @@ async def sub_control_map(client: Clients):
             for id, frameSub in updateFrames.items():
                 newControlMap.frameIds[id] = control_frame_sub_to_query(frameSub)
 
-            # await set_control_map(control_map_query_to_state(newControlMap.frameIds))
+            await set_control_map(control_map_query_to_state(newControlMap.frameIds))
 
             return newControlMap
 
@@ -243,7 +242,7 @@ async def sub_color_map(client: Clients):
                 case SubColorMutation.DELETED:
                     del newColorMap.colorMap[id]
 
-            # await set_color_map(color_map_query_to_state(newColorMap.colorMap))
+            await set_color_map(color_map_query_to_state(newColorMap.colorMap))
 
             return newColorMap
 

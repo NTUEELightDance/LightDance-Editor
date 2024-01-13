@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from dataclass_wizard import JSONWizard
 from gql import gql
@@ -13,6 +13,8 @@ from ..core.models import (
     LEDEffectName,
     LEDPartName,
     MapID,
+    PartName,
+    PartType,
 )
 
 """
@@ -54,6 +56,52 @@ Dancer
 
 QueryDancerStatusPayloadItem = Union[QueryFiberDataPayload, QueryLEDDataPayload]
 QueryDancerStatusPayload = List[QueryDancerStatusPayloadItem]
+
+
+@dataclass
+class QueryPartOrderByWithRelationInput(JSONWizard):
+    class _(JSONWizard.Meta):
+        skip_defaults = True
+
+    # controlData: Optional[ControlDataOrderByRelationAggregateInput]
+    # dancer: Optional[DancerOrderByWithRelationInput]
+    id: Optional[str] = None
+    dancerId: Optional[str] = None
+    length: Optional[str] = None
+    name: Optional[str] = None
+    type: Optional[str] = None
+
+
+@dataclass
+class QueryDancersPayloadPartItem(JSONWizard):
+    name: PartName
+    type: PartType
+    length: Optional[int] = None
+
+
+@dataclass
+class QueryDancersPayloadItem(JSONWizard):
+    name: str
+    parts: List[QueryDancersPayloadPartItem]
+
+
+QueryDancersPayload = List[QueryDancersPayloadItem]
+
+
+GET_DANCERS = gql(
+    """
+    query Dancers($orderBy: [PartOrderByWithRelationInput!]) {
+        dancers {
+            name
+            parts(orderBy: $orderBy) {
+                name
+                type
+                length
+            }
+        }
+    }
+    """
+)
 
 
 """

@@ -129,6 +129,10 @@ class PartType(Enum):
 
 
 PartTypeMap = Dict[PartName, PartType]
+LEDPartLengthMap = Dict[LEDPartName, int]
+
+
+Dancers = Dict[DancerName, List[PartName]]
 
 
 @dataclass
@@ -145,6 +149,24 @@ class DancersArrayItem:
 
 
 DancersArray = List[DancersArrayItem]
+
+
+@dataclass
+class DancerPartIndexMapItem:
+    index: int
+    parts: Dict[PartName, int]
+
+
+DancerPartIndexMap = Dict[DancerName, DancerPartIndexMapItem]
+
+
+@dataclass
+class SelectedItem:
+    selected: bool
+    parts: List[PartName]
+
+
+Selected = Dict[DancerName, SelectedItem]
 
 
 @dataclass
@@ -185,7 +207,7 @@ class State:
     # selection_mode: SelectMode
 
     # NOTE: Maybe we don't need these
-    # selected: Selected
+    selected: Selected
     # selected_leds: List[int]
 
     # TODO: Add these
@@ -196,16 +218,16 @@ class State:
     # current_led_effect: Optional[LEDEffect]  # the LED effect being edited
 
     # TODO: Add these
-    # dancers: Dancers
-    # dancer_names: List[DancerName]
+    dancers: Dancers
+    dancer_names: List[DancerName]
     part_type_map: PartTypeMap
-    # led_part_length_map: LEDPartLengthMap
+    led_part_length_map: LEDPartLengthMap
     color_map: ColorMap
     # effect_list: EffectListType
 
     # TODO: Add these
     dancers_array: DancersArray
-    # dancer_part_index_map: DancerPartIndexMap
+    dancer_part_index_map: DancerPartIndexMap
 
     # TODO: Add these
     # rpi_status: RPiStatus

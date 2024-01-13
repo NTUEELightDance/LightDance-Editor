@@ -30,21 +30,21 @@ state = State(
     # NOTE: Guess we can't implement these
     # selection_mode: SelectMode.DANCER_MODE
     # TODO: Fill these
-    # selected,
+    selected={},
     # selected_leds,
     # current_led_effect_reference_dancer
     # current_led_partName
     # current_led_effect_name
     # current_led_effect_start
     # current_led_effect
-    # dancers
-    # dancer_names
+    dancers={},
+    dancer_names=[],
     part_type_map={},
-    # led_part_length_map
+    led_part_length_map={},
     color_map={},
     # effect_list
     dancers_array=[],
-    # dancer_part_index_map
+    dancer_part_index_map={},
     # rpi_status
     # shell_history
 )
