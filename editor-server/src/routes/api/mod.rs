@@ -20,7 +20,7 @@ use axum::{
 /// Build REST API routes for Axum server.
 pub fn build_api_routes() -> Router {
     Router::new()
-        // .route("/checkToken", get(check_token::check_token))
+        .route("/checkToken", get(check_token::check_token))
         .route("/login", post(login::login))
         .route("/logout", post(logout::logout))
         .route("/createUser", post(create_user::create_user))
