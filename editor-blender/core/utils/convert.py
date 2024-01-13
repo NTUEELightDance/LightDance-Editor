@@ -5,6 +5,7 @@ from ...graphqls.queries import (
     QueryControlFrame,
     QueryControlMapPayload,
     QueryCoordinatesPayload,
+    QueryDancersPayload,
     QueryDancerStatusPayload,
     QueryDancerStatusPayloadItem,
     QueryEffectListControlFrame,
@@ -24,6 +25,9 @@ from ..models import (
     ControlMap,
     ControlMapElement,
     ControlMapStatus,
+    DancersArray,
+    DancersArrayItem,
+    DancersArrayPartsItem,
     DancerStatus,
     FiberData,
     LEDData,
@@ -37,21 +41,38 @@ from ..models import (
 from ..states import state
 
 
-# WARNING: Untested
+def dancers_query_to_state(payload: QueryDancersPayload) -> DancersArray:
+    dancers_array: DancersArray = []
+
+    for dancer in payload:
+        dancerName = dancer.name
+        dancerParts = dancer.parts
+        dancers_array_item = DancersArrayItem(name=dancerName, parts=[])
+
+        for part in dancerParts:
+            dancers_array_item.parts.append(
+                DancersArrayPartsItem(
+                    name=part.name, type=part.type, length=part.length
+                )
+            )
+
+        dancers_array.append(dancers_array_item)
+
+    return dancers_array
+
+
 def pos_frame_sub_to_query(data: SubPositionFrame) -> QueryPosFrame:
     response = QueryPosFrame(start=data.start, pos=[])
 
-    response.pos = list(map(lambda pos: (pos[0], pos[1], pos[2]), data.pos))
+    response.pos = [(pos[0], pos[1], pos[2]) for pos in data.pos]
 
     return response
 
 
-# WARNING: Untested
 def coordinates_query_to_state(payload: QueryCoordinatesPayload) -> Location:
     return Location(x=payload[0], y=payload[1], z=payload[2])
 
 
-# WARNING: Untested
 def pos_status_query_to_state(payload: List[QueryCoordinatesPayload]) -> PosMapStatus:
     pos_map_status: PosMapStatus = {}
 
@@ -64,7 +85,6 @@ def pos_status_query_to_state(payload: List[QueryCoordinatesPayload]) -> PosMapS
     return pos_map_status
 
 
-# WARNING: Untested
 def pos_map_query_to_state(frames: QueryPosMapPayload) -> PosMap:
     pos_map: PosMap = {}
 
@@ -76,7 +96,6 @@ def pos_map_query_to_state(frames: QueryPosMapPayload) -> PosMap:
     return pos_map
 
 
-# WARNING: Untested
 def part_data_query_to_state(
     part_type: PartType, payload: QueryDancerStatusPayloadItem
 ) -> PartData:
@@ -87,7 +106,6 @@ def part_data_query_to_state(
             return FiberData(color_id=payload[0], alpha=payload[1])
 
 
-# WARNING: Untested
 def control_status_query_to_state(
     payload: List[QueryDancerStatusPayload],
 ) -> ControlMapStatus:
@@ -110,7 +128,6 @@ def control_status_query_to_state(
     return control_map_status
 
 
-# WARNING: Untested
 def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
     control_map: ControlMap = {}
 
@@ -126,18 +143,13 @@ def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
     return control_map
 
 
-# WARNING: Untested
 def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
     response = QueryControlFrame(start=data.start, fade=data.fade, status=[])
 
-    response.status = list(
-        map(
-            lambda partControls: list(
-                map(lambda partControl: (partControl[0], partControl[1]), partControls)
-            ),
-            data.status,
-        )
-    )
+    response.status = [
+        [(partControl[0], partControl[1]) for partControl in partControls]
+        for partControls in data.status
+    ]
 
     return response
 
@@ -147,7 +159,6 @@ def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
-# WARNING: Untested
 def color_map_query_to_state(payload: QueryColorMapPayload) -> ColorMap:
     color_map: ColorMap = {}
 
@@ -173,21 +184,15 @@ def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectLis
         positionFrames=[],
     )
 
-    effectListItem.controlFrames = list(
-        map(
-            lambda controlFrame: QueryEffectListControlFrame(
-                id=controlFrame.id, start=controlFrame.start, fade=controlFrame.fade
-            ),
-            data.controlFrames,
+    effectListItem.controlFrames = [
+        QueryEffectListControlFrame(
+            id=controlFrame.id, start=controlFrame.start, fade=controlFrame.fade
         )
-    )
-    effectListItem.positionFrames = list(
-        map(
-            lambda positionFrame: QueryEffectListPositionFrame(
-                id=positionFrame.id, start=positionFrame.start
-            ),
-            data.positionFrames,
-        )
-    )
+        for controlFrame in data.controlFrames
+    ]
+    effectListItem.positionFrames = [
+        QueryEffectListPositionFrame(id=positionFrame.id, start=positionFrame.start)
+        for positionFrame in data.positionFrames
+    ]
 
     return effectListItem
