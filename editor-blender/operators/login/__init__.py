@@ -15,6 +15,8 @@ class LoginOperator(AsyncOperator):
 
         await login(ld_login.username, ld_login.password)
 
+        # TODO: use setup operator
+
         return {"FINISHED"}
 
 
