@@ -5,15 +5,8 @@ from typing import Any, Coroutine
 
 import bpy
 
-# from ...core.models import ControlMapElement
 from ...core.states import state
-
-# # NOTE: Testing
-# def setup_test_states():
-#     for i, frame in enumerate(range(0, 240000, 2000)):
-#         control_map = state.control_map
-#         map_id = str(i)
-#         control_map[map_id] = ControlMapElement(start=frame, fade=False, status={})
+from ...handlers import mount
 
 
 def setup_asyncio_executor():
@@ -73,10 +66,10 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         state.is_running = True
 
         wm = context.window_manager
-        self.timer = wm.event_timer_add(
-            0.001,
-            window=context.window,
-        )
+        self.timer = wm.event_timer_add(0.001, window=context.window)
+
+        # mount handlers
+        mount()
 
         return {"RUNNING_MODAL"}
 

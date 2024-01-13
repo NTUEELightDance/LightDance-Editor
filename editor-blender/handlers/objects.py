@@ -1,6 +1,7 @@
 import bpy
 
 from ..properties.objects import ObjectType
+from .owner import msgbus_owner
 
 
 def obj_panel_autoselect_handler():
@@ -31,10 +32,17 @@ def obj_panel_autoselect_handler():
                     child.select_set(True)
 
 
-def register():
+def mount():
     bpy.msgbus.subscribe_rna(
         key=(bpy.types.LayerObjects, "active"),
-        owner=bpy,
+        owner=msgbus_owner,
         args=(),
         notify=obj_panel_autoselect_handler,
     )
+
+
+def unmount():
+    try:
+        bpy.msgbus.clear_by_owner(msgbus_owner)
+    except:
+        pass

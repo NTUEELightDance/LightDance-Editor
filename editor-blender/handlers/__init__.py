@@ -1,10 +1,11 @@
 from . import frame, objects
 
 
-def register():
-    frame.register()
-    objects.register()
+# TODO: Register in setup operator, not addon register
+def mount():
+    frame.mount()
+    objects.mount()
 
 
-def unregister():
-    frame.unregister()
+def unmount():
+    frame.unmount()
