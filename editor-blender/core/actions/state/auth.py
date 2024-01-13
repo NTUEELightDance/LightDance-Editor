@@ -3,23 +3,7 @@ from ....client import client
 from ....client.subscription import subscribe
 from ....core.asyncio import AsyncTask
 from ....core.states import state
-
-# # NOTE: Test
-# async def query_test():
-#     query = gql(
-#         """
-#         query controlMap {
-#             ControlMap {
-#                 frameIds
-#             }
-#         }
-#         """
-#     )
-#
-#     if client.client is not None:
-#         print('Querying...')
-#         result = await client.execute(query)
-#         print(result)
+from ....preferences import set_preference
 
 
 async def login(username: str, password: str):
@@ -31,13 +15,14 @@ async def login(username: str, password: str):
     state.is_logged_in = login_result.success
     state.token = login_result.token
 
+    set_preference("token", login_result.token)
+
     if login_result.success:
-        await client.update_http_client()
-        await client.create_graphql_client()
+        await client.restart_http()
+        await client.restart_graphql()
 
         AsyncTask(subscribe).then(lambda _: print("Subscription closed.")).catch(
             lambda e: print(e)
         ).exec()
 
-        # NOTE: Test
-        # await query_test()
+        # TODO: Initialize editor

@@ -6,7 +6,7 @@ from typing import Any, Coroutine
 import bpy
 
 from ...core.states import state
-from ...handlers import mount
+from ..utils import execute_operator
 
 
 def setup_asyncio_executor():
@@ -49,7 +49,9 @@ class AsyncLoopModalOperator(bpy.types.Operator):
     bl_label = "Runs the asyncio main loop"
 
     def __del__(self):
-        wm = bpy.context.window_manager
+        if state.is_running:
+            wm = bpy.context.window_manager
+            wm.event_timer_remove(self.timer)
         state.is_running = False
 
     def execute(self, context: bpy.types.Context):
@@ -68,8 +70,8 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         wm = context.window_manager
         self.timer = wm.event_timer_add(0.001, window=context.window)
 
-        # mount handlers
-        mount()
+        print("Starting asyncio loop...")
+        execute_operator("lightdance.setup_blender")
 
         return {"RUNNING_MODAL"}
 

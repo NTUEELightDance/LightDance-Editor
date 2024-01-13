@@ -54,14 +54,25 @@ def deserialize(response_type: Type[T], data: Any) -> Any:
 
 class Clients:
     def __init__(self, cache: InMemoryCache):
-        self.http_client: ClientSession = ClientSession(
-            "http://localhost:4000", cookies={"token": state.token}
-        )
-
+        self.http_client: Optional[ClientSession] = None
         self.client: Optional[GQLSession] = None
         self.sub_client: Optional[GQLSession] = None
 
         self.cache = cache
+
+    async def post(self, url: str, json: Any) -> Any:
+        if self.http_client is None:
+            raise Exception("HTTP client is not initialized")
+
+        async with self.http_client.post(url, json=json) as response:
+            return await response.json()
+
+    async def get(self, url: str) -> Any:
+        if self.http_client is None:
+            raise Exception("HTTP client is not initialized")
+
+        async with self.http_client.get(url) as response:
+            return await response.json()
 
     async def subscribe(
         self, data_type: Type[T], query: DocumentNode
@@ -74,14 +85,7 @@ class Clients:
         query_name = selections[0]["name"]["value"]  # type: ignore
 
         async for data in self.sub_client.subscribe(query):
-            # print("Sub:", data)
-
-            # import time
-
-            # t = time.time()
             data[query_name] = deserialize(data_type, data[query_name])  # type: ignore
-            # print(time.time() - t)
-
             yield data
 
     async def execute(
@@ -123,11 +127,28 @@ class Clients:
 
         return response
 
-    async def create_graphql_client(self):
-        await self.close_graphql_client()
+    async def open_http(self):
+        await self.close_http()
 
         token_payload = {"token": state.token}
 
+        # HTTP client
+        self.http_client = ClientSession("http://localhost:4000", cookies=token_payload)
+
+    async def close_http(self):
+        if self.http_client is not None:
+            await self.http_client.close()
+
+    async def restart_http(self):
+        await self.close_http()
+        await self.open_http()
+
+    async def open_graphql(self):
+        await self.close_graphql()
+
+        token_payload = {"token": state.token}
+
+        # GraphQL client
         transport = AIOHTTPTransport(
             url="http://localhost:4000/graphql", cookies=token_payload
         )
@@ -136,6 +157,7 @@ class Clients:
             transport=transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
 
+        # GraphQL subscription client
         sub_transport = WebsocketsTransport(
             url="ws://localhost:4000/graphql",
             subprotocols=[WebsocketsTransport.GRAPHQLWS_SUBPROTOCOL],
@@ -146,19 +168,19 @@ class Clients:
             transport=sub_transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
 
-    async def close_graphql_client(self):
+    async def close_graphql(self):
+        if self.http_client is not None:
+            await self.http_client.close()
+
         if self.client is not None:
             await self.client.client.close_async()
 
         if self.sub_client is not None:
             await self.sub_client.client.close_async()
 
-    async def update_http_client(self):
-        self.http_client.cookie_jar.update_cookies({"token": state.token})
-
-    async def close_http_client(self):
-        if not self.http_client.closed:
-            await self.http_client.close()
+    async def restart_graphql(self):
+        await self.close_graphql()
+        await self.open_graphql()
 
 
 async def merge_pos_map(

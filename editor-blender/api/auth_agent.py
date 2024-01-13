@@ -17,8 +17,7 @@ class AuthAgent:
         data = {"username": username, "password": password}
 
         try:
-            res = await client.http_client.post("/api/login", json=data)
-            res = await res.json()
+            res = await client.post("/api/login", json=data)
 
             return LoginResult(success=True, token=res["token"])
 
