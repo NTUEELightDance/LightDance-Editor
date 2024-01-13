@@ -2,6 +2,9 @@ from typing import Dict
 
 from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
+from ....client import client
+from ....handlers import mount
+from ....preferences import get_preference
 from ...models import (
     DancerPartIndexMap,
     DancerPartIndexMapItem,
@@ -14,6 +17,18 @@ from ...models import (
     SelectedItem,
 )
 from ...states import state
+
+
+async def init_blender():
+    # Open clients with token
+    token: str = get_preference("token")
+    state.token = token
+
+    await client.open_http()
+    # await client.open_graphql()
+
+    # Mount handlers
+    mount()
 
 
 async def init_dancers():

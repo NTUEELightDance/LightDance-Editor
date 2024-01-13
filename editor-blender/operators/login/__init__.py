@@ -5,7 +5,6 @@ from ...operators.async_core import AsyncOperator
 from ...properties.login import LoginPropertyGroupType
 
 
-# class LoginOperator(bpy.types.Operator):
 class LoginOperator(AsyncOperator):
     bl_idname = "lightdance.login"
     bl_label = "Login"
@@ -14,8 +13,6 @@ class LoginOperator(AsyncOperator):
         ld_login: LoginPropertyGroupType = getattr(context.window_manager, "ld_login")
 
         await login(ld_login.username, ld_login.password)
-
-        # TODO: use setup operator
 
         return {"FINISHED"}
 
