@@ -1,4 +1,5 @@
-from typing import Dict
+import asyncio
+from typing import Dict, List, Optional
 
 from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
@@ -21,6 +22,7 @@ from ...models import (
     SelectedItem,
 )
 from ...states import state
+from ..state.load import load_data
 
 
 async def init_blender():
@@ -34,15 +36,61 @@ async def init_blender():
     token_valid = await auth_agent.check_token()
     if token_valid:
         state.is_logged_in = True
+
         await client.open_graphql()
         AsyncTask(subscribe).exec()
 
-    # Mount handlers
-    mount()
+        # Initialize editor
+        await init_editor()
+        mount()
 
     state.is_running = True
 
     redraw_area("VIEW_3D")
+
+
+async def init_editor():
+    empty_task = asyncio.create_task(asyncio.sleep(0))
+
+    batches_functions = [
+        [load_data, init_dancers, init_color_map],
+        # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
+        # [sync_current_led_status],
+    ]
+    batches_completes = [[False] * len(batch) for batch in batches_functions]
+
+    while True:
+        try:
+            for batch in range(len(batches_functions)):
+                batch_functions = batches_functions[batch]
+                batch_completes = batches_completes[batch]
+                batch_tasks: List[asyncio.Task[Optional[BaseException]]] = [
+                    empty_task
+                ] * len(batch_functions)
+
+                for index, function in enumerate(batch_functions):
+                    if not batch_completes[index]:
+                        batch_tasks[index] = asyncio.create_task(function())
+
+                batch_results = await asyncio.gather(
+                    *batch_tasks, return_exceptions=True
+                )
+
+                batch_done = True
+                for index, result in enumerate(batch_results):
+                    if isinstance(result, BaseException):
+                        batch_done = False
+                    else:
+                        batch_completes[index] = True
+
+                if not batch_done:
+                    raise Exception(f"Batch {batch} failed")
+
+            break
+        except:
+            pass
+
+        await asyncio.sleep(1)
 
 
 async def init_dancers():
@@ -92,8 +140,12 @@ async def init_dancers():
 
     state.selected = selected
 
+    print("Dancers initialized")
+
 
 async def init_color_map():
     color_map = await color_agent.get_color_map()
 
     state.color_map = color_map
+
+    print("Color map initialized")
