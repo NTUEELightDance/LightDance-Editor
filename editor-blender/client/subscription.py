@@ -224,17 +224,21 @@ async def sub_color_map(client: Clients):
                 newColorMap = colorMap
 
             id = subscriptionData.id
+            mutation = subscriptionData.mutation
             color = subscriptionData.color
             colorCode = subscriptionData.colorCode
-            mutation = subscriptionData.mutation
 
             match mutation:
                 case SubColorMutation.CREATED:
+                    if color is None or colorCode is None:
+                        return newColorMap
                     newColorMap.colorMap[id] = QueryColorMapPayloadItem(
                         color=color, colorCode=colorCode
                     )
 
                 case SubColorMutation.UPDATED:
+                    if color is None or colorCode is None:
+                        return newColorMap
                     newColorMap.colorMap[id] = QueryColorMapPayloadItem(
                         color=color, colorCode=colorCode
                     )
