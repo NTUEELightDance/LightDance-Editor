@@ -11,7 +11,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Status {
-    status: Vec<Vec<i32>>,
+    status: Vec<[i32; 4]>,
 }
 
 pub type GetDataResponse = HashMap<String, Status>;
@@ -118,7 +118,7 @@ pub async fn get_dancer_led_data(
     let mut response: GetDataResponse = HashMap::new();
 
     for (part_name, control_data) in parts.iter() {
-        let mut part_data = vec![vec![0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
+        let mut part_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
 
         for data in control_data.iter() {
             // -1 means no effect (for now)
@@ -143,14 +143,10 @@ pub async fn get_dancer_led_data(
 
             // transfrom color id to rgb values for each position
             for state in led_effect_states.iter() {
-                if state.color_id == 0 {
-                    part_data[state.position as usize] = vec![0, 0, 0, state.alpha];
-                } else {
-                    let color = color_map.get(&state.color_id).unwrap();
-
-                    part_data[state.position as usize] =
-                        vec![color.r, color.g, color.b, state.alpha];
-                }
+                let color = color_map
+                    .get(&state.color_id)
+                    .unwrap_or(&Color { r: 0, g: 0, b: 0 });
+                part_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
             }
         }
 
