@@ -1,9 +1,11 @@
 from ....api.auth_agent import auth_agent
 from ....client import client
 from ....client.subscription import subscribe
+from ....core.actions.state.initialize import init_editor
 from ....core.asyncio import AsyncTask
 from ....core.states import state
 from ....core.utils.ui import redraw_area
+from ....handlers import mount
 from ....local_storage import set_storage
 
 
@@ -25,7 +27,9 @@ async def login(username: str, password: str) -> bool:
 
         redraw_area("VIEW_3D")
 
-        # TODO: Initialize editor
+        # Initialize editor
+        await init_editor()
+        mount()
 
     return login_result.success
 
