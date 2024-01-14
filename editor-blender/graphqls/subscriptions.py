@@ -249,9 +249,9 @@ class SubColorMutation(Enum):
 @dataclass
 class SubColorData(JSONWizard):
     id: ColorID
-    color: str
-    colorCode: RGB
     mutation: SubColorMutation
+    color: Optional[str] = None
+    colorCode: Optional[RGB] = None
 
 
 SUB_COLOR_MAP = gql(
