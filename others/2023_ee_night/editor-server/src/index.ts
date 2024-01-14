@@ -52,7 +52,7 @@ const port = process.env.PORT || 4000;
     server: httpServer,
     // Pass a different path here if your ApolloServer serves at
     // a different path.
-    path: "/graphql",
+    path: "/graphql-websocket",
   });
 
   const serverCleanup = useServer<
