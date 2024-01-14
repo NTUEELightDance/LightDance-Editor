@@ -104,11 +104,10 @@ class Clients:
         definition = query_dict["definitions"][0]  # type: ignore
         query_type = definition["operation"]  # type: ignore
 
-        if query_type != "query":
-            return await self.client.execute(query)
+        is_query = query_type == "query"  # type: ignore
 
         # TODO: Check if variables is identical in cache
-        if variables is None:
+        if variables is None and is_query:
             response = await self.cache.read_query(response_type, query_def)
         else:
             response = None
@@ -123,19 +122,10 @@ class Clients:
             query_name = query_def[0]
             response[query_name] = deserialize(response_type, response[query_name])
 
-            await self.cache.write_query(response)
+            if is_query:
+                await self.cache.write_query(response)
 
         return response
-
-    # async def __reconnect__(self) -> None:
-    #     while True:
-    #         await asyncio.sleep(5)
-    #         if self.http_client and self.http_client.closed:
-    #             await self.open_http()
-    #         # if self.client and self.client.closed:
-    #         #     await self.open_graphql()
-    #         # if self.sub_client and self.sub_client.closed:
-    #         #     await self.open_graphql()
 
     async def open_http(self) -> None:
         await self.close_http()
