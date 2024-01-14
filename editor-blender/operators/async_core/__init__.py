@@ -43,7 +43,7 @@ def tick_loop() -> bool:
     return stop_after_this_kick
 
 
-__is_async_loop_running__ = False
+is_async_loop_running = False
 
 
 class AsyncLoopModalOperator(bpy.types.Operator):
@@ -51,24 +51,24 @@ class AsyncLoopModalOperator(bpy.types.Operator):
     bl_label = "Runs the asyncio main loop"
 
     def __del__(self):
-        global __is_async_loop_running__
+        global is_async_loop_running
 
-        if __is_async_loop_running__ and self.timer is not None:  # type: ignore
+        if is_async_loop_running and self.timer is not None:  # type: ignore
             wm = bpy.context.window_manager
             wm.event_timer_remove(self.timer)
-        __is_async_loop_running__ = False
+        is_async_loop_running = False
 
     def execute(self, context: bpy.types.Context):
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _: bpy.types.Event):
-        global __is_async_loop_running__
+        global is_async_loop_running
 
-        if __is_async_loop_running__:
+        if is_async_loop_running:
             return {"PASS_THROUGH"}
 
         context.window_manager.modal_handler_add(self)
-        __is_async_loop_running__ = True
+        is_async_loop_running = True
 
         wm = context.window_manager
         self.timer = wm.event_timer_add(0.001, window=context.window)
@@ -79,9 +79,9 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         return {"RUNNING_MODAL"}
 
     def modal(self, context: bpy.types.Context, event: bpy.types.Event):
-        global __is_async_loop_running__
+        global is_async_loop_running
 
-        if not __is_async_loop_running__:
+        if not is_async_loop_running:
             return {"FINISHED"}
         if event.type != "TIMER":
             return {"PASS_THROUGH"}
@@ -90,7 +90,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         if stop:
             wm = context.window_manager
             wm.event_timer_remove(self.timer)
-            __is_async_loop_running__ = False
+            is_async_loop_running = False
 
             return {"FINISHED"}
 

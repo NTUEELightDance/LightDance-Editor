@@ -4,6 +4,7 @@ state = State(
     is_running=False,
     is_logged_in=False,
     token="",
+    ready=False,
     control_map={},
     pos_map={},
     # TODO: Add these
