@@ -6,7 +6,7 @@ from ....core.asyncio import AsyncTask
 from ....core.states import state
 from ....core.utils.ui import redraw_area
 from ....handlers import mount
-from ....local_storage import set_storage
+from ....storage import set_storage
 
 
 async def login(username: str, password: str) -> bool:
