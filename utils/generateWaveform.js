@@ -23,7 +23,7 @@ const child_process = require("child_process");
 // procedure: check existance->download->construct command->generate waveform
 
 // const img_res = '4000x1000';
-const img_res = '400000x1000';
+const img_res = '420000x1000';
 const hex_colo = '3D82B1';
 const sname = '../files/music/waveform.png';
 const musicName = '../files/music/2023.mp3';    // you can alter the music name here
