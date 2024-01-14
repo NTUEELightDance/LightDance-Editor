@@ -51,9 +51,6 @@ FieldTable = Tuple[str, Optional[List[str]]]
 def query_defs_to_field_table(query_defs: Dict[str, Any]) -> FieldTable:
     definition = query_defs["definitions"][0]
 
-    if definition["operation"] != "query":
-        raise Exception("Only query is supported")
-
     query_def = definition["selection_set"]["selections"][0]
     query_name = query_def["name"]["value"]
 
