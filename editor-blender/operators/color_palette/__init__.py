@@ -3,6 +3,7 @@ from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
 from ...properties.color_palette import ld_ColorItem
 from ..async_core import AsyncOperator
+from ...api.color_agent import color_agent
 
 def add_color(colorName: str, colorCode: list):
     transport = AIOHTTPTransport(url="http://localhost:4000/graphql")
@@ -56,6 +57,7 @@ def delete_color(colorId: int):
     
     response = client.execute(mutation, variable)
     return response
+
 def edit_color(colorId: int, colorName: str, colorCode: list):
     transport = AIOHTTPTransport(url="http://localhost:4000/graphql")
     client = Client(transport=transport, fetch_schema_from_transport=True)
@@ -112,26 +114,27 @@ def handle_colorEdit(context, editing_index):
     panel.editing_index = editing_index
     print(f"editing {editing_index}")
 
-def handle_colorNew(context):
+def handle_colorNew(context): # may not needed
     print('adding color')
 
-def handle_colorDelete(index: int):
-    res = delete_color(index)
+async def handle_colorDelete(index: int):
     print(f"delete color {index}")
-    return res['deleteColor']
+    res = await color_agent.delete_color(index)
+    return res['deleteColor'] # type: ignore
 
 def handle_colorCancel(context):
     print("edit cancelled")
 
-def handle_colorConfirm(editing_state):
+async def handle_colorConfirm(editing_state):
+    # TODO: types
     color_temp = getattr(bpy.context.window_manager,"ld_ColorPalette_temp")[0]
     print("confirmed change")
     if editing_state == "EDIT":
-        response = edit_color(int(color_temp['colorId']), str(color_temp['colorName']), list(color_temp['colorCode']))
-        return response['editColor']
+        response = await color_agent.edit_color(int(color_temp['colorId']), str(color_temp['colorName']), tuple(color_temp['colorCode'])) # type: ignore
+        return response['editColor'] # type: ignore
     elif editing_state == "NEW":
-        response = add_color(str(color_temp['colorName']), list(color_temp['colorCode']))
-        return response['addColor']
+        response = await color_agent.add_color(str(color_temp['colorName']), tuple(color_temp['colorCode'])) # type: ignore
+        return response['addColor'] # type: ignore
 
 ## Define operators
 
@@ -177,18 +180,15 @@ class ld_colorNewOperator(bpy.types.Operator):
         color_temp['colorName'] = "New color"
         return {'FINISHED'}
 
-class ld_colorDeleteOperator(bpy.types.Operator):
+class ld_colorDeleteOperator(AsyncOperator):
     bl_idname = "object.ld_color_delete"
     bl_label = "Delete"
     deleting_index: bpy.props.IntProperty() # type: ignore
     
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-    
-    def execute(self, context):
+    async def async_execute(self, context: bpy.types.Context):
+        print("deleting")
         color_delete = getattr(context.window_manager,"ld_ColorPalette")[self.deleting_index]
-        res = handle_colorDelete(int(color_delete['colorId']))
+        res = await handle_colorDelete(int(color_delete['colorId']))
         if res:
             try:
                 self.report({'INFO'}, f"deleted color")
@@ -212,28 +212,28 @@ class ld_colorCancelOperator(bpy.types.Operator):
         refreshColormap()
         return {'FINISHED'}
 
-class ld_colorConfirmOperator(bpy.types.Operator):
+class ld_colorConfirmOperator(AsyncOperator):
     bl_idname = "object.ld_color_confirm"
     bl_label = "Confirm"
     state = ""
-    
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-    
-    def execute(self, context):
+    # TODO: types
+    async def async_execute(self, context: bpy.types.Context):
         panel = getattr(bpy.types,"LD_PT_color_palette")
         editing_state = panel.editing_state
-        res = handle_colorConfirm(editing_state)
+        print("chk 1")
+        res = await handle_colorConfirm(editing_state)
+        print("chk 2")
         if res:
             try:
                 if editing_state == "EDIT":
-                    self.report({'INFO'}, f"edited color \"{res['color']}\"")
+                    self.report({'INFO'}, f"edited color \"{res['color']}\"") # type: ignore
                 elif editing_state == "NEW":
-                    self.report({'INFO'}, f"added color \"{res['color']}\"")
+                    self.report({'INFO'}, f"added color \"{res['color']}\"") # type: ignore
             except:
                 print(res)
+        print("chk 3")
         panel.editing_mode = False
+        print("comfirmed")
         refreshColormap()
         return {'FINISHED'}
 
