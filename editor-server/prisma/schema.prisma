@@ -36,6 +36,7 @@ model LEDEffect {
   id        Int    @id @default(autoincrement())
   name      String
   part_name String
+  repeat    Int
 
   // relation => not in db
   editing       EditingLEDEffect?
