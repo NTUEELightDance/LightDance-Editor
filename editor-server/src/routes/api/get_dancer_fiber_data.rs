@@ -95,6 +95,29 @@ pub async fn get_dancer_fiber_data(
         );
     }
 
+    // check if dancer is in db
+    let _dancer_name = match sqlx::query!(
+        r#"
+            SELECT Dancer.name
+            FROM Dancer
+            WHERE Dancer.name = ?
+            "#,
+        dancer
+    )
+    .fetch_one(mysql_pool)
+    .await
+    {
+        Ok(dancer_name) => dancer_name,
+        Err(_) => {
+            return Err((
+                StatusCode::NOT_FOUND,
+                Json(GetDataFailedResponse {
+                    err: "Dancer not found.".to_string(),
+                }),
+            ))
+        }
+    };
+
     let data = sqlx::query!(
         r#"
             SELECT ControlFrame.id, ControlFrame.start, ControlFrame.fade, ControlData.color_id, ControlData.alpha, Part.name
