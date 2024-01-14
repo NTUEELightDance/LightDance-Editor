@@ -9,7 +9,7 @@ from ....client.subscription import subscribe
 from ....core.asyncio import AsyncTask
 from ....core.utils.ui import redraw_area
 from ....handlers import mount
-from ....local_storage import get_storage
+from ....storage import get_storage
 from ...models import (
     DancerPartIndexMap,
     DancerPartIndexMapItem,

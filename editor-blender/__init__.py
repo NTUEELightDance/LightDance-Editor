@@ -1,7 +1,3 @@
-import bpy
-
-from . import handlers, local_storage, operators, panels, properties
-
 bl_info = {
     "name": "LightDance Editor",
     "author": "NTUEE LightDance",
@@ -15,17 +11,31 @@ bl_info = {
 }
 
 
+def install_requirements():
+    import subprocess
+    import sys
+
+    from .requirements import requirements
+
+    command = [sys.executable, "-m", "pip", "install"] + requirements
+    subprocess.check_call(command)
+
+
 def register():
-    local_storage.register()
+    install_requirements()
+
+    from . import operators, panels, properties, storage
+
+    storage.register()
     operators.register()
     panels.register()
     properties.register()
 
 
 def unregister():
-    local_storage.unregister()
+    from . import operators, panels, properties, storage
+
+    storage.unregister()
     operators.unregister()
     panels.unregister()
     properties.unregister()
-
-    handlers.unmount()
