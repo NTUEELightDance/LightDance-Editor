@@ -30,6 +30,27 @@ struct Color {
     b: i32,
 }
 
+trait IntoResult<T, E> {
+    fn into_result(self) -> Result<T, E>;
+}
+
+impl<R, E> IntoResult<R, (StatusCode, Json<GetDataFailedResponse>)> for Result<R, E>
+where
+    E: std::string::ToString,
+{
+    fn into_result(self) -> Result<R, (StatusCode, Json<GetDataFailedResponse>)> {
+        match self {
+            Ok(ok) => Ok(ok),
+            Err(err) => Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(GetDataFailedResponse {
+                    err: err.to_string(),
+                }),
+            )),
+        }
+    }
+}
+
 pub async fn get_dancer_fiber_data(
     Query(query): Query<HashMap<String, String>>,
 ) -> Result<
@@ -59,7 +80,7 @@ pub async fn get_dancer_fiber_data(
     )
     .fetch_all(mysql_pool)
     .await
-    .unwrap();
+    .into_result()?;
 
     // create hasmap for color
     let mut color_map: HashMap<i32, Color> = HashMap::new();
@@ -87,14 +108,18 @@ pub async fn get_dancer_fiber_data(
         dancer
     ).fetch_all(mysql_pool)
     .await
-    .unwrap();
+    .into_result()?;
 
     let mut frames = HashMap::new();
 
     for frame in data.iter() {
-        let color = color_map
-            .get(&frame.color_id.unwrap())
-            .unwrap_or(&Color { r: 0, g: 0, b: 0 });
+        let color = if let Some(color_id) = frame.color_id {
+            color_map
+                .get(&color_id)
+                .unwrap_or(&Color { r: 0, g: 0, b: 0 })
+        } else {
+            &Color { r: 0, g: 0, b: 0 } // default color if color_id is None
+        };
 
         frames
             .entry(frame.start)
