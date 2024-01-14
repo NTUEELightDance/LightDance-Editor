@@ -1,12 +1,18 @@
 import bpy
 
+from ...core.states import state
+
 
 class PropertyPanel(bpy.types.Panel):
     bl_label = "Light Property"
-    bl_idname = "VIEW_PT_Property"
+    bl_idname = "VIEW_PT_LightDance_Property"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "LightDance"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.is_logged_in
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout

@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 import bpy
 
@@ -13,7 +13,8 @@ def execute_operator(idname: str):
 
     try:
         module = getattr(bpy.ops, module_name)
-        ops: Callable[[str], None] = getattr(module, ops_name)
+        ops: Callable[[str], Any] = getattr(module, ops_name)
         ops("INVOKE_DEFAULT")
+        print("Executed operator:", idname)
     except:
         print("Failed to execute operator:", idname)

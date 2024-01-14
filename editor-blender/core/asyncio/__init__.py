@@ -53,5 +53,5 @@ class AsyncTask(Generic[R]):
         self.catch_callback = callback
         return self
 
-    def exec(self):
-        asyncio.ensure_future(self.__run__())
+    def exec(self) -> asyncio.Task[Any]:
+        return asyncio.ensure_future(self.__run__())

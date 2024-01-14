@@ -4,12 +4,16 @@ from ...core.states import state
 from ...properties.login import LoginPropertyGroupType
 
 
-class StartupPanel(bpy.types.Panel):
-    bl_label = "Start LightDance Editor"
-    bl_idname = "VIEW_PT_Startup"
+class AuthenticationPanel(bpy.types.Panel):
+    bl_label = "Authentication"
+    bl_idname = "VIEW_PT_LightDance_Authentication"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "LightDance"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.is_running
 
     def draw(self, context: bpy.types.Context):
         global _loop_operator_running
@@ -17,8 +21,8 @@ class StartupPanel(bpy.types.Panel):
         layout = self.layout
         row = layout.row()
 
-        if not state.is_running:
-            row.operator("lightdance.async_loop", text="Start", icon="PLAY")
+        if state.is_logged_in:
+            row.operator("lightdance.logout", text="Logout", icon="PLAY")
         else:
             ld_login: LoginPropertyGroupType = getattr(
                 context.window_manager, "ld_login"
@@ -35,8 +39,8 @@ class StartupPanel(bpy.types.Panel):
 
 
 def register():
-    bpy.utils.register_class(StartupPanel)
+    bpy.utils.register_class(AuthenticationPanel)
 
 
 def unregister():
-    bpy.utils.unregister_class(StartupPanel)
+    bpy.utils.unregister_class(AuthenticationPanel)

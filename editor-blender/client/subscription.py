@@ -250,14 +250,22 @@ async def sub_color_map(client: Clients):
 
 
 async def subscribe():
-    print("Subscribing...")
+    while True:
+        try:
+            print("Subscribing...")
 
-    tasks = [
-        asyncio.create_task(sub_pos_record(client)),
-        asyncio.create_task(sub_pos_map(client)),
-        asyncio.create_task(sub_control_record(client)),
-        asyncio.create_task(sub_control_map(client)),
-        asyncio.create_task(sub_effect_list(client)),
-        asyncio.create_task(sub_color_map(client)),
-    ]
-    await asyncio.gather(*tasks)
+            tasks = [
+                asyncio.create_task(sub_pos_record(client)),
+                asyncio.create_task(sub_pos_map(client)),
+                asyncio.create_task(sub_control_record(client)),
+                asyncio.create_task(sub_control_map(client)),
+                asyncio.create_task(sub_effect_list(client)),
+                asyncio.create_task(sub_color_map(client)),
+            ]
+
+            await asyncio.gather(*tasks)
+        except:
+            print("Subscription closed.")
+
+        print("Reconnecting subscription...")
+        await asyncio.sleep(3)

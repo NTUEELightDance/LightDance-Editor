@@ -1,10 +1,14 @@
 from typing import Dict
 
+from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
 from ....client import client
+from ....client.subscription import subscribe
+from ....core.asyncio import AsyncTask
+from ....core.utils.ui import redraw_area
 from ....handlers import mount
-from ....preferences import get_preference
+from ....local_storage import get_storage
 from ...models import (
     DancerPartIndexMap,
     DancerPartIndexMapItem,
@@ -21,14 +25,24 @@ from ...states import state
 
 async def init_blender():
     # Open clients with token
-    token: str = get_preference("token")
+    token: str = get_storage("token")
     state.token = token
 
     await client.open_http()
-    # await client.open_graphql()
+
+    # Check token
+    token_valid = await auth_agent.check_token()
+    if token_valid:
+        state.is_logged_in = True
+        await client.open_graphql()
+        AsyncTask(subscribe).exec()
 
     # Mount handlers
     mount()
+
+    state.is_running = True
+
+    redraw_area("VIEW_3D")
 
 
 async def init_dancers():

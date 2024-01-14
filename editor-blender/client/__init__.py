@@ -1,3 +1,4 @@
+import asyncio
 from inspect import isclass
 from typing import Any, AsyncGenerator, Dict, List, Optional, Type, TypeVar, Union
 
@@ -60,7 +61,7 @@ class Clients:
 
         self.cache = cache
 
-    async def post(self, url: str, json: Any) -> Any:
+    async def post(self, url: str, json: Optional[Any] = None) -> Any:
         if self.http_client is None:
             raise Exception("HTTP client is not initialized")
 
@@ -115,7 +116,6 @@ class Clients:
         if response is None:
             if variables is not None:
                 params: Dict[str, Any] = serialize(variables)
-                # print(params)
                 response = await self.client.execute(query, variable_values=params)
             else:
                 response = await self.client.execute(query)
@@ -127,7 +127,17 @@ class Clients:
 
         return response
 
-    async def open_http(self):
+    # async def __reconnect__(self) -> None:
+    #     while True:
+    #         await asyncio.sleep(5)
+    #         if self.http_client and self.http_client.closed:
+    #             await self.open_http()
+    #         # if self.client and self.client.closed:
+    #         #     await self.open_graphql()
+    #         # if self.sub_client and self.sub_client.closed:
+    #         #     await self.open_graphql()
+
+    async def open_http(self) -> None:
         await self.close_http()
 
         token_payload = {"token": state.token}
@@ -135,15 +145,15 @@ class Clients:
         # HTTP client
         self.http_client = ClientSession("http://localhost:4000", cookies=token_payload)
 
-    async def close_http(self):
+    async def close_http(self) -> None:
         if self.http_client is not None:
             await self.http_client.close()
 
-    async def restart_http(self):
+    async def restart_http(self) -> None:
         await self.close_http()
         await self.open_http()
 
-    async def open_graphql(self):
+    async def open_graphql(self) -> None:
         await self.close_graphql()
 
         token_payload = {"token": state.token}
@@ -168,17 +178,14 @@ class Clients:
             transport=sub_transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
 
-    async def close_graphql(self):
-        if self.http_client is not None:
-            await self.http_client.close()
-
+    async def close_graphql(self) -> None:
         if self.client is not None:
             await self.client.client.close_async()
 
         if self.sub_client is not None:
             await self.sub_client.client.close_async()
 
-    async def restart_graphql(self):
+    async def restart_graphql(self) -> None:
         await self.close_graphql()
         await self.open_graphql()
 

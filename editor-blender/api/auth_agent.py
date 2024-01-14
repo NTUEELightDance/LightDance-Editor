@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any, Dict
 
 from ..client import client
 
@@ -17,13 +18,35 @@ class AuthAgent:
         data = {"username": username, "password": password}
 
         try:
-            res = await client.post("/api/login", json=data)
-
-            return LoginResult(success=True, token=res["token"])
-
+            res: Dict[str, Any] = await client.post("/api/login", json=data)
+            token = res.get("token")
+            if not token:
+                raise Exception(res["err"])
+            return LoginResult(success=True, token=token)
         except Exception as e:
             print(e)
             return LoginResult(success=False)
 
+    async def logout(self) -> bool:
+        try:
+            res: Dict[str, Any] = await client.post("/api/logout")
+            if not res.get("success"):
+                raise Exception(res["err"])
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
-authAgent = AuthAgent()
+    async def check_token(self) -> bool:
+        try:
+            res: Dict[str, Any] = await client.get("/api/checkToken")
+            token = res.get("token")
+            if not token:
+                raise Exception(res["err"])
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+
+auth_agent = AuthAgent()

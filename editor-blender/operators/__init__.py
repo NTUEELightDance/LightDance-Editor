@@ -1,13 +1,13 @@
-from . import async_core, login, setup
+from . import async_core, auth, setup
 
 
 def register():
     async_core.register()
     setup.register()
-    login.register()
+    auth.register()
 
 
 def unregister():
     async_core.unregister()
     setup.unregister()
-    login.unregister()
+    auth.unregister()
