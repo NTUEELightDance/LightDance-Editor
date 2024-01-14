@@ -4,7 +4,7 @@ from ..client import client
 from ..core.models import ColorMap, ColorName, ColorID, RGB
 from ..core.utils.convert import color_map_query_to_state
 from ..graphqls.queries import GET_COLOR_MAP, QueryColorMapData
-from ..graphqls.mutations import ADD_COLOR, DELETE_COLOR, ColorCreatecolorCodeInput, MutAddColorResponse, ColorCreateInput, MutDeleteColorResponse, MutEditColorResponse
+from ..graphqls.mutations import ADD_COLOR, DELETE_COLOR, EDIT_COLOR, ColorCreatecolorCodeInput, MutAddColorResponse, ColorCreateInput, MutDeleteColorResponse, MutEditColorResponse
 
 
 @dataclass
@@ -23,6 +23,7 @@ class ColorAgent:
             )
         }
         response = await client.execute(MutAddColorResponse, ADD_COLOR, variable)
+        print(response)
         return response
     
     async def edit_color(self, color_id: ColorID, color_name: ColorName, color_rgb: RGB):
@@ -38,7 +39,8 @@ class ColorAgent:
             },
             "editColorId": color_id
         }   
-        response = await client.execute(MutEditColorResponse, DELETE_COLOR, variable)
+        response = await client.execute(MutEditColorResponse, EDIT_COLOR, variable)
+        print(response)
         return response
     
     async def delete_color(self, color_id: ColorID):
@@ -46,7 +48,8 @@ class ColorAgent:
         variable = {
         "deleteColorId": color_id
         }
-        response = await client.execute(MutDeleteColorResponse, ADD_COLOR, variable)
+        response = await client.execute(MutDeleteColorResponse, DELETE_COLOR, variable)
+        print(response)
         return response
 
 color_agent = ColorAgent()
