@@ -15,20 +15,20 @@ async def login(username: str, password: str) -> bool:
         password=password,
     )
 
-    state.is_logged_in = login_result.success
-    state.token = login_result.token
-
-    set_storage("token", login_result.token)
-
     if login_result.success:
+        state.token = login_result.token
+        set_storage("token", login_result.token)
+
+        state.is_logged_in = True
+        redraw_area("VIEW_3D")
+
         await client.restart_http()
         await client.restart_graphql()
         AsyncTask(subscribe).exec()
 
-        redraw_area("VIEW_3D")
-
         # Initialize editor
-        await init_editor()
+        AsyncTask(init_editor).exec()
+
         mount()
 
     return login_result.success
@@ -39,6 +39,7 @@ async def logout() -> bool:
 
     if success:
         state.is_logged_in = False
+        state.ready = False
         state.token = ""
 
         set_storage("token", "")

@@ -12,7 +12,7 @@ class PropertyPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.is_logged_in
+        return state.ready
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout

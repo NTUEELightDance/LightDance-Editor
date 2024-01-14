@@ -36,17 +36,20 @@ async def init_blender():
     token_valid = await auth_agent.check_token()
     if token_valid:
         state.is_logged_in = True
+        state.is_running = True
+        redraw_area("VIEW_3D")
 
         await client.open_graphql()
         AsyncTask(subscribe).exec()
 
         # Initialize editor
-        await init_editor()
+        AsyncTask(init_editor).exec()
+
         mount()
 
-    state.is_running = True
-
-    redraw_area("VIEW_3D")
+    else:
+        state.is_running = True
+        redraw_area("VIEW_3D")
 
 
 async def init_editor():
@@ -91,6 +94,11 @@ async def init_editor():
             pass
 
         await asyncio.sleep(1)
+
+    print("Editor initialized")
+
+    state.ready = True
+    redraw_area("VIEW_3D")
 
 
 async def init_dancers():

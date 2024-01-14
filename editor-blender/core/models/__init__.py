@@ -173,7 +173,9 @@ Selected = Dict[DancerName, SelectedItem]
 class State:
     is_running: bool
     is_logged_in: bool
+
     token: str
+    ready: bool
 
     control_map: ControlMap
     pos_map: PosMap

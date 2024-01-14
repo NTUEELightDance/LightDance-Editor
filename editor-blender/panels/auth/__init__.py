@@ -19,10 +19,14 @@ class AuthenticationPanel(bpy.types.Panel):
         global _loop_operator_running
 
         layout = self.layout
-        row = layout.row()
 
         if state.is_logged_in:
-            row.operator("lightdance.logout", text="Logout", icon="PLAY")
+            r1 = layout.row()
+            r1.operator("lightdance.logout", text="Logout", icon="PLAY")
+
+            if not state.ready:
+                r2 = layout.row()
+                r2.label(text="Loading...", icon="WORLD_DATA")
         else:
             ld_login: LoginPropertyGroupType = getattr(
                 context.window_manager, "ld_login"
@@ -32,10 +36,9 @@ class AuthenticationPanel(bpy.types.Panel):
             r2 = layout.row()
             r3 = layout.row()
 
-            r3.operator("lightdance.login", text="Login", icon="PLAY")
-
             r1.prop(ld_login, "username", text="Username")
             r2.prop(ld_login, "password", text="Password")
+            r3.operator("lightdance.login", text="Login", icon="PLAY")
 
 
 def register():
