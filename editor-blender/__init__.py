@@ -35,7 +35,6 @@ def register():
     storage.register()
     operators.register()
     panels.register()
-    properties.register()
 
 
 def unregister():
