@@ -5,7 +5,6 @@ from typing import Any, Coroutine
 
 import bpy
 
-from ...core.states import state
 from ..utils import execute_operator
 
 
@@ -44,28 +43,32 @@ def tick_loop() -> bool:
     return stop_after_this_kick
 
 
+__is_async_loop_running__ = False
+
+
 class AsyncLoopModalOperator(bpy.types.Operator):
     bl_idname = "lightdance.async_loop"
     bl_label = "Runs the asyncio main loop"
 
     def __del__(self):
-        if state.is_running:
+        global __is_async_loop_running__
+
+        if __is_async_loop_running__:
             wm = bpy.context.window_manager
             wm.event_timer_remove(self.timer)
-        state.is_running = False
+        __is_async_loop_running__ = False
 
     def execute(self, context: bpy.types.Context):
         return {"FINISHED"}
 
     def invoke(self, context: bpy.types.Context, _: bpy.types.Event):
-        # NOTE: Testing
-        # setup_test_states()
+        global __is_async_loop_running__
 
-        if state.is_running:
+        if __is_async_loop_running__:
             return {"PASS_THROUGH"}
 
         context.window_manager.modal_handler_add(self)
-        state.is_running = True
+        __is_async_loop_running__ = True
 
         wm = context.window_manager
         self.timer = wm.event_timer_add(0.001, window=context.window)
@@ -76,7 +79,9 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         return {"RUNNING_MODAL"}
 
     def modal(self, context: bpy.types.Context, event: bpy.types.Event):
-        if not state.is_running:
+        global __is_async_loop_running__
+
+        if not __is_async_loop_running__:
             return {"FINISHED"}
         if event.type != "TIMER":
             return {"PASS_THROUGH"}
@@ -85,7 +90,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         if stop:
             wm = context.window_manager
             wm.event_timer_remove(self.timer)
-            state.is_running = False
+            __is_async_loop_running__ = False
 
             return {"FINISHED"}
 
@@ -98,7 +103,7 @@ class AsyncOperator(bpy.types.Operator):
 
     def invoke(self, context: bpy.types.Context, _: bpy.types.Event):
         self.state = "RUNNING"
-        self.stop_upon_exception = False
+        self.stop_upon_exception = True
 
         context.window_manager.modal_handler_add(self)
         self.timer = context.window_manager.event_timer_add(
@@ -115,8 +120,6 @@ class AsyncOperator(bpy.types.Operator):
 
         Implement in a subclass.
         """
-        await asyncio.sleep(1)
-        print("async execute")
         return
 
     def quit(self):
@@ -137,6 +140,8 @@ class AsyncOperator(bpy.types.Operator):
                     self.quit()
                     self._finish(context)
                     return {"FINISHED"}
+
+                print(ex)
 
                 return {"RUNNING_MODAL"}
 

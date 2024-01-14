@@ -1,6 +1,6 @@
 import bpy
 
-from . import handlers, operators, panels, preferences, properties
+from . import handlers, local_storage, operators, panels, properties
 
 bl_info = {
     "name": "LightDance Editor",
@@ -16,14 +16,14 @@ bl_info = {
 
 
 def register():
-    preferences.register()
+    local_storage.register()
     operators.register()
     panels.register()
     properties.register()
 
 
 def unregister():
-    preferences.unregister()
+    local_storage.unregister()
     operators.unregister()
     panels.unregister()
     properties.unregister()

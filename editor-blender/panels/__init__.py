@@ -1,14 +1,13 @@
-from . import (
-    login,
-    property
-)
+from . import auth, property, startup
 
 
 def register():
-    login.register()
+    startup.register()
+    auth.register()
     property.register()
 
 
 def unregister():
-    login.unregister()
+    startup.unregister()
+    auth.unregister()
     property.unregister()
