@@ -4,6 +4,7 @@ from typing import Any, AsyncGenerator, Dict, List, Optional, Type, TypeVar, Uni
 
 from aiohttp import ClientSession
 from dataclass_wizard import JSONWizard
+from dataclass_wizard.constants import os
 from gql import Client
 from gql.client import AsyncClientSession, ReconnectingAsyncClientSession
 from gql.transport.aiohttp import AIOHTTPTransport
@@ -55,6 +56,11 @@ def deserialize(response_type: Type[T], data: Any) -> Any:
 
 class Clients:
     def __init__(self, cache: InMemoryCache):
+        SERVER_URL = os.getenv("SERVER_URL")
+        if SERVER_URL is None:
+            raise Exception("SERVER_URL is not defined")
+        self.SERVER_URL = SERVER_URL
+
         self.http_client: Optional[ClientSession] = None
         self.client: Optional[GQLSession] = None
         self.sub_client: Optional[GQLSession] = None
@@ -133,7 +139,7 @@ class Clients:
         token_payload = {"token": state.token}
 
         # HTTP client
-        self.http_client = ClientSession("http://localhost:4000", cookies=token_payload)
+        self.http_client = ClientSession(self.SERVER_URL, cookies=token_payload)
 
     async def close_http(self) -> None:
         if self.http_client is not None:
@@ -150,7 +156,7 @@ class Clients:
 
         # GraphQL client
         transport = AIOHTTPTransport(
-            url="http://localhost:4000/graphql", cookies=token_payload
+            url=f"{self.SERVER_URL}/graphql", cookies=token_payload
         )
 
         self.client = await Client(
@@ -158,8 +164,9 @@ class Clients:
         ).connect_async(reconnecting=True)
 
         # GraphQL subscription client
+        ws_url = self.SERVER_URL.replace("http", "ws")
         sub_transport = WebsocketsTransport(
-            url="ws://localhost:4000/graphql",
+            url=f"{ws_url}/graphql",
             subprotocols=[WebsocketsTransport.GRAPHQLWS_SUBPROTOCOL],
             init_payload=token_payload,
         )

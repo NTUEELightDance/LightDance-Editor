@@ -11,18 +11,25 @@ bl_info = {
 }
 
 
-def install_requirements():
-    import subprocess
-    import sys
+def setup():
+    from .requirements import install_requirements
 
-    from .requirements import requirements
+    # Ensure requirements are installed (for release)
+    install_requirements()
 
-    command = [sys.executable, "-m", "pip", "install"] + requirements
-    subprocess.check_call(command)
+    from os import path
+
+    from dotenv import load_dotenv
+
+    # Load .env
+    root_dir = path.dirname(path.realpath(__file__))
+    dotenv_path = path.join(root_dir, ".env")
+
+    load_dotenv(dotenv_path=dotenv_path)
 
 
 def register():
-    install_requirements()
+    setup()
 
     from . import operators, panels, properties, storage
 

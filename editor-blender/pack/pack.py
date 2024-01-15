@@ -1,6 +1,14 @@
 import os
 import subprocess
+from argparse import ArgumentParser
 from os import path
+
+parser = ArgumentParser()
+
+parser.add_argument("-r", "--release", action="store_true")
+parser.parse_args()
+
+pack_for_release = parser.parse_args().release
 
 pack_name = "__blender_temp__"
 folder_name = "editor-blender"
@@ -19,8 +27,19 @@ subprocess.run(["cp", "-r", blender_dir, pack_dir])
 pack_blender_path = path.join(pack_dir, "editor-blender")
 
 # Copy requirements.py
-req_path = path.join(current_dir, "requirements.py")
-subprocess.run(["cp", req_path, pack_blender_path])
+if pack_for_release:
+    req_path = path.join(current_dir, "requirements.py")
+    subprocess.run(["cp", req_path, pack_blender_path])
+
+# Copy dotenv
+if pack_for_release:
+    dotenv_path = path.join(blender_dir, "release", ".env.production")
+    target_path = path.join(pack_blender_path, ".env")
+    subprocess.run(["cp", dotenv_path, target_path])
+else:
+    dotenv_path = path.join(blender_dir, ".env.development")
+    target_path = path.join(pack_blender_path, ".env")
+    subprocess.run(["cp", dotenv_path, target_path])
 
 # Remove release folder
 release_path = path.join(pack_blender_path, "release")
