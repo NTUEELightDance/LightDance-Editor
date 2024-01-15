@@ -1,15 +1,15 @@
-from . import auth, editor, property, startup
+from . import auth, editor, pos_editor, startup
 
 
 def register():
     startup.register()
     auth.register()
     editor.register()
-    property.register()
+    pos_editor.register()
 
 
 def unregister():
     startup.unregister()
     auth.unregister()
     editor.unregister()
-    property.unregister()
+    pos_editor.unregister()

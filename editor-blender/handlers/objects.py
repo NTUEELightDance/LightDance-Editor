@@ -1,6 +1,6 @@
 import bpy
 
-from ..properties.objects import ObjectType
+from ..properties.types import ObjectType
 from .owner import msgbus_owner
 
 
