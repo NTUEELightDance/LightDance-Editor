@@ -40,10 +40,15 @@ async def init_blender():
         redraw_area("VIEW_3D")
 
         await client.open_graphql()
-        AsyncTask(subscribe).exec()
+
+        if state.subscription_task is not None:
+            state.subscription_task.cancel()
+        state.subscription_task = AsyncTask(subscribe).exec()
 
         # Initialize editor
-        AsyncTask(init_editor).exec()
+        if state.init_editor_task is not None:
+            state.init_editor_task.cancel()
+        state.init_editor_task = AsyncTask(init_editor).exec()
 
         mount()
 
