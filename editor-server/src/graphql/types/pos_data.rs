@@ -1,6 +1,5 @@
 //! PosData scalar types.
 
-use crate::db::types::position_frame::PositionFrameData;
 use async_graphql::{InputObject, Scalar, ScalarType, SimpleObject, Value};
 use serde::{Deserialize, Serialize};
 
@@ -12,23 +11,6 @@ pub struct FrameData {
     pub delete_list: Vec<i32>,
     #[serde(rename = "updateList")]
     pub update_list: Vec<i32>,
-}
-
-#[derive(SimpleObject, Serialize, Deserialize)]
-pub struct PosDataMapPosData {
-    pub frame: FrameData,
-}
-
-impl From<&PositionFrameData> for PosDataMapPosData {
-    fn from(_data: &PositionFrameData) -> Self {
-        Self {
-            frame: FrameData {
-                create_list: vec![],
-                delete_list: vec![],
-                update_list: vec![],
-            },
-        }
-    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Default)]

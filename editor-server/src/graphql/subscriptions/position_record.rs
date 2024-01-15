@@ -36,7 +36,7 @@ pub struct PositionRecordSubscription;
 
 #[Subscription]
 impl PositionRecordSubscription {
-    async fn color_subscription(&self) -> impl Stream<Item = PositionRecordPayload> {
+    async fn position_record_subscription(&self) -> impl Stream<Item = PositionRecordPayload> {
         Subscriptor::<PositionRecordPayload>::subscribe()
     }
 }
