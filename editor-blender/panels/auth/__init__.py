@@ -1,7 +1,7 @@
 import bpy
 
 from ...core.states import state
-from ...properties.ui.login import LoginPanelStatusType
+from ...properties.ui.types import LoginPanelStatusType
 
 
 class AuthenticationPanel(bpy.types.Panel):

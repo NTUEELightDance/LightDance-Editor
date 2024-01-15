@@ -2,7 +2,11 @@ from typing import List, Tuple
 
 import bpy
 
-from ..core.actions.property.lights import update_alpha, update_color, update_effect
+from ..core.actions.property.lights import (
+    update_current_alpha,
+    update_current_color,
+    update_current_effect,
+)
 
 
 def get_color_lists(
@@ -50,7 +54,7 @@ def register():
             name="Color",
             description="Part fiber color",
             items=get_color_lists,
-            update=update_color,
+            update=update_current_color,
         ),
     )
     setattr(
@@ -60,7 +64,7 @@ def register():
             name="Effect",
             description="Part LED effect",
             items=get_effect_lists,
-            update=update_effect,
+            update=update_current_effect,
         ),
     )
 
@@ -73,7 +77,7 @@ def register():
             min=0,
             max=255,
             default=128,
-            update=update_alpha,
+            update=update_current_alpha,
         ),
     )
 

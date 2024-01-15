@@ -2,7 +2,7 @@ import bpy
 
 from ...core.actions.state.auth import login, logout
 from ...operators.async_core import AsyncOperator
-from ...properties.ui.login import LoginPanelStatusType
+from ...properties.ui.types import LoginPanelStatusType
 
 
 class LoginOperator(AsyncOperator):
