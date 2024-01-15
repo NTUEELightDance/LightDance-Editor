@@ -1,7 +1,8 @@
 import bpy
+from bpy.types import Context
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
-from ...properties.color_palette import ld_ColorItem
+from ...core.states import state
 #from Gql_utils import add_color, delete_color
 # from ops import ld_colorEditOperator, ld_colorDeleteOperator, ld_colorCancelOperator, ld_colorConfirmOperator, ld_colorNewOperator
 
@@ -83,6 +84,10 @@ class ColorPalettePanel(bpy.types.Panel):
     editing_mode = False
     editing_index = 0 # modified by edit operator
     editing_state = "" # EDIT or NEW
+    
+    @classmethod
+    def poll(cls, context: Context) -> bool:
+        return state.is_logged_in
     
     def draw(self, context):
         layout = self.layout

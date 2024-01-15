@@ -2,7 +2,6 @@ from . import auth, editor, pos_editor, startup, color_palette
 
 
 def register():
-    print("panels registered -------------------------")
     startup.register()
     auth.register()
     editor.register()
