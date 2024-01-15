@@ -3,6 +3,8 @@ from ..models import EditingData, EditMode, Editor, State
 state = State(
     is_running=False,
     is_logged_in=False,
+    subscription_task=None,
+    init_editor_task=None,
     token="",
     ready=False,
     control_map={},

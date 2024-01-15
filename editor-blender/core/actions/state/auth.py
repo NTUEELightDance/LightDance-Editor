@@ -24,10 +24,15 @@ async def login(username: str, password: str) -> bool:
 
         await client.restart_http()
         await client.restart_graphql()
-        AsyncTask(subscribe).exec()
+
+        if state.subscription_task is not None:
+            state.subscription_task.cancel()
+        state.subscription_task = AsyncTask(subscribe).exec()
 
         # Initialize editor
-        AsyncTask(init_editor).exec()
+        if state.init_editor_task is not None:
+            state.init_editor_task.cancel()
+        state.init_editor_task = AsyncTask(init_editor).exec()
 
         mount()
 

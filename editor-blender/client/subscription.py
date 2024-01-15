@@ -6,6 +6,7 @@ from ..client.cache import Modifiers
 from ..core.actions.state.color_map import set_color_map
 from ..core.actions.state.control_map import set_control_map
 from ..core.actions.state.pos_map import set_pos_map
+from ..core.asyncio import AsyncTask
 from ..core.models import ID
 from ..core.utils.convert import (
     color_map_query_to_state,
@@ -251,6 +252,9 @@ async def sub_color_map(client: Clients):
             return newColorMap
 
         await client.cache.modify(Modifiers(fields={"colorMap": modifier}))
+
+
+subscription_task: Optional[asyncio.Task[None]] = None
 
 
 async def subscribe():

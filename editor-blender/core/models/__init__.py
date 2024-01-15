@@ -1,3 +1,4 @@
+from asyncio import Task
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
@@ -173,6 +174,9 @@ Selected = Dict[DancerName, SelectedItem]
 class State:
     is_running: bool
     is_logged_in: bool
+
+    subscription_task: Optional[Task[None]]
+    init_editor_task: Optional[Task[None]]
 
     token: str
     ready: bool
