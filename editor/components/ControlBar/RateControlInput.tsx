@@ -29,7 +29,7 @@ function RateControlInput({
           <Popper open={rateError} anchorEl={inputRef.current}>
             <Paper>
               <Typography sx={{ p: "0.5em 1em" }}>
-                playback rate (0, 4]
+                playback rate (0, 8]
               </Typography>
             </Paper>
           </Popper>
