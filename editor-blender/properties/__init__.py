@@ -1,17 +1,13 @@
-from . import (
-    login,
-    objects, 
-    lights
-)
+from . import lights, objects, ui
 
 
 def register():
-    login.register()
+    ui.register()
     objects.register()
     lights.register()
 
 
 def unregister():
-    login.unregister()
+    ui.unregister()
     objects.unregister()
     lights.unregister()

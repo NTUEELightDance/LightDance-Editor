@@ -1,30 +1,30 @@
 import bpy
 
 
-class LoginPropertyGroup(bpy.types.PropertyGroup):
+class LoginPanelStatus(bpy.types.PropertyGroup):
     username: bpy.props.StringProperty()  # pyright: ignore
     password: bpy.props.StringProperty()  # pyright: ignore
 
 
-class LoginPropertyGroupType:
+class LoginPanelStatusType:
     username: str
     password: str
 
 
 def register():
-    bpy.utils.register_class(LoginPropertyGroup)
+    bpy.utils.register_class(LoginPanelStatus)
 
     setattr(
         bpy.types.WindowManager,
-        "ld_login",
-        bpy.props.PointerProperty(type=LoginPropertyGroup),
+        "ld_ui_login",
+        bpy.props.PointerProperty(type=LoginPanelStatus),
     )
 
     # Properties for the states
 
 
 def unregister():
-    bpy.utils.unregister_class(LoginPropertyGroup)
-    delattr(bpy.types.WindowManager, "ld_login")
+    bpy.utils.unregister_class(LoginPanelStatus)
+    delattr(bpy.types.WindowManager, "ld_ui_login")
 
     # Properties for the states
