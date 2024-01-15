@@ -53,6 +53,8 @@ class AsyncLoopModalOperator(bpy.types.Operator):
     def __del__(self):
         global is_async_loop_running
 
+        print("Stopping asyncio loop...")
+
         if is_async_loop_running and hasattr(self, "timer"):  # type: ignore
             wm = bpy.context.window_manager
             wm.event_timer_remove(self.timer)

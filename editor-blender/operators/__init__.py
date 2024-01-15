@@ -1,4 +1,4 @@
-from . import async_core, auth, editor, setup
+from . import async_core, auth, editor, setup, slider
 
 
 def register():
@@ -6,6 +6,7 @@ def register():
     setup.register()
     auth.register()
     editor.register()
+    slider.register()
 
 
 def unregister():
@@ -13,3 +14,4 @@ def unregister():
     setup.unregister()
     auth.unregister()
     editor.unregister()
+    slider.unregister()
