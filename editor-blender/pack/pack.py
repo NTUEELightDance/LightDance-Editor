@@ -5,10 +5,10 @@ from os import path
 
 parser = ArgumentParser()
 
-parser.add_argument("-r", "--release", action="store_true")
+parser.add_argument("-r", "--pack", action="store_true")
 parser.parse_args()
 
-pack_for_release = parser.parse_args().release
+pack_for_release = parser.parse_args().pack
 
 pack_name = "__blender_temp__"
 folder_name = "editor-blender"
@@ -33,7 +33,7 @@ if pack_for_release:
 
 # Copy dotenv
 if pack_for_release:
-    dotenv_path = path.join(blender_dir, "release", ".env.production")
+    dotenv_path = path.join(blender_dir, "pack", ".env.production")
     target_path = path.join(pack_blender_path, ".env")
     subprocess.run(["cp", dotenv_path, target_path])
 else:
@@ -41,8 +41,8 @@ else:
     target_path = path.join(pack_blender_path, ".env")
     subprocess.run(["cp", dotenv_path, target_path])
 
-# Remove release folder
-release_path = path.join(pack_blender_path, "release")
+# Remove pack folder
+release_path = path.join(pack_blender_path, "pack")
 subprocess.run(["rm", "-r", release_path])
 
 # Remove testing folder

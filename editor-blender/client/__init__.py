@@ -54,12 +54,33 @@ def deserialize(response_type: Type[T], data: Any) -> Any:
         return data
 
 
+def remove_wrapped_slash(path: str) -> str:
+    if path.startswith("/"):
+        return path[1:]
+    return path
+
+
 class Clients:
     def __init__(self, cache: InMemoryCache):
         SERVER_URL = os.getenv("SERVER_URL")
         if SERVER_URL is None:
             raise Exception("SERVER_URL is not defined")
-        self.SERVER_URL = SERVER_URL
+        self.SERVER_URL = remove_wrapped_slash(SERVER_URL)
+
+        HTTP_PATH = os.getenv("HTTP_PATH")
+        if HTTP_PATH is None:
+            raise Exception("HTTP_PATH is not defined")
+        self.HTTP_PATH = remove_wrapped_slash(HTTP_PATH)
+
+        GRAPHQL_PATH = os.getenv("GRAPHQL_PATH")
+        if GRAPHQL_PATH is None:
+            raise Exception("GRAPHQL_PATH is not defined")
+        self.GRAPHQL_PATH = remove_wrapped_slash(GRAPHQL_PATH)
+
+        GRAPHQL_WS_PATH = os.getenv("GRAPHQL_WS_PATH")
+        if GRAPHQL_WS_PATH is None:
+            raise Exception("GRAPHQL_WS_PATH is not defined")
+        self.GRAPHQL_WS_PATH = remove_wrapped_slash(GRAPHQL_WS_PATH)
 
         self.http_client: Optional[ClientSession] = None
         self.client: Optional[GQLSession] = None
@@ -67,18 +88,22 @@ class Clients:
 
         self.cache = cache
 
-    async def post(self, url: str, json: Optional[Any] = None) -> Any:
+    async def post(self, path: str, json: Optional[Any] = None) -> Any:
         if self.http_client is None:
             raise Exception("HTTP client is not initialized")
 
-        async with self.http_client.post(url, json=json) as response:
+        path = remove_wrapped_slash(path)
+        http_path = f"/{self.HTTP_PATH}/{path}"
+        async with self.http_client.post(http_path, json=json) as response:
             return await response.json()
 
-    async def get(self, url: str) -> Any:
+    async def get(self, path: str) -> Any:
         if self.http_client is None:
             raise Exception("HTTP client is not initialized")
 
-        async with self.http_client.get(url) as response:
+        path = remove_wrapped_slash(path)
+        http_path = f"/{self.HTTP_PATH}/{path}"
+        async with self.http_client.get(http_path) as response:
             return await response.json()
 
     async def subscribe(
@@ -140,6 +165,7 @@ class Clients:
 
         # HTTP client
         self.http_client = ClientSession(self.SERVER_URL, cookies=token_payload)
+        print("HTTP client opened")
 
     async def close_http(self) -> None:
         if self.http_client is not None:
@@ -156,17 +182,18 @@ class Clients:
 
         # GraphQL client
         transport = AIOHTTPTransport(
-            url=f"{self.SERVER_URL}/graphql", cookies=token_payload
+            url=f"{self.SERVER_URL}/{self.GRAPHQL_PATH}", cookies=token_payload
         )
 
         self.client = await Client(
             transport=transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
+        print("GraphQL client opened")
 
         # GraphQL subscription client
         ws_url = self.SERVER_URL.replace("http", "ws")
         sub_transport = WebsocketsTransport(
-            url=f"{ws_url}/graphql",
+            url=f"{ws_url}/{self.GRAPHQL_WS_PATH}",
             subprotocols=[WebsocketsTransport.GRAPHQLWS_SUBPROTOCOL],
             init_payload=token_payload,
         )
@@ -174,6 +201,7 @@ class Clients:
         self.sub_client = await Client(
             transport=sub_transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
+        print("GraphQL subscription client opened")
 
     async def close_graphql(self) -> None:
         if self.client is not None:
