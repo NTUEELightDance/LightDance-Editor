@@ -275,13 +275,6 @@ class WaveSurferApp {
   }
 
   /**
-   * get playback rate
-   */
-  getPlaybackRate() {
-    return this.waveSurfer.getPlaybackRate();
-  }
-
-  /**
    * set the global state
    */
   setTime(time: number) {
