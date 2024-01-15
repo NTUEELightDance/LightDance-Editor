@@ -1,7 +1,7 @@
 import bpy
 
 from ...core.states import state
-from ...properties.login import LoginPropertyGroupType
+from ...properties.ui.login import LoginPanelStatusType
 
 
 class AuthenticationPanel(bpy.types.Panel):
@@ -28,16 +28,16 @@ class AuthenticationPanel(bpy.types.Panel):
                 r2 = layout.row()
                 r2.label(text="Loading...", icon="WORLD_DATA")
         else:
-            ld_login: LoginPropertyGroupType = getattr(
-                context.window_manager, "ld_login"
+            ld_ui_login: LoginPanelStatusType = getattr(
+                context.window_manager, "ld_ui_login"
             )
 
             r1 = layout.row()
             r2 = layout.row()
             r3 = layout.row()
 
-            r1.prop(ld_login, "username", text="Username")
-            r2.prop(ld_login, "password", text="Password")
+            r1.prop(ld_ui_login, "username", text="Username")
+            r2.prop(ld_ui_login, "password", text="Password")
             r3.operator("lightdance.login", text="Login", icon="PLAY")
 
 

@@ -2,7 +2,7 @@ import bpy
 
 from ...core.actions.state.auth import login, logout
 from ...operators.async_core import AsyncOperator
-from ...properties.login import LoginPropertyGroupType
+from ...properties.ui.login import LoginPanelStatusType
 
 
 class LoginOperator(AsyncOperator):
@@ -10,9 +10,11 @@ class LoginOperator(AsyncOperator):
     bl_label = "Login"
 
     async def async_execute(self, context: bpy.types.Context):
-        ld_login: LoginPropertyGroupType = getattr(context.window_manager, "ld_login")
+        ld_ui_login: LoginPanelStatusType = getattr(
+            context.window_manager, "ld_ui_login"
+        )
 
-        success = await login(ld_login.username, ld_login.password)
+        success = await login(ld_ui_login.username, ld_ui_login.password)
         if success:
             self.report({"INFO"}, "Login successful.")
         else:

@@ -108,7 +108,7 @@ PosMap = Dict[MapID, PosMapElement]
 
 class EditMode(Enum):
     IDLE = 0
-    EDITING = 0
+    EDITING = 1
 
 
 class Editor(Enum):
