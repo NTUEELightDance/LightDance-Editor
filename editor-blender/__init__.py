@@ -24,7 +24,6 @@ def setup():
     # Load .env
     root_dir = path.dirname(path.realpath(__file__))
     dotenv_path = path.join(root_dir, ".env")
-
     load_dotenv(dotenv_path=dotenv_path)
 
 

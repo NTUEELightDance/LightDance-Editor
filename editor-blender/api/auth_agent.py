@@ -18,7 +18,7 @@ class AuthAgent:
         data = {"username": username, "password": password}
 
         try:
-            res: Dict[str, Any] = await client.post("/api/login", json=data)
+            res: Dict[str, Any] = await client.post("/login", json=data)
             token = res.get("token")
             if not token:
                 raise Exception(res["err"])
@@ -29,7 +29,7 @@ class AuthAgent:
 
     async def logout(self) -> bool:
         try:
-            res: Dict[str, Any] = await client.post("/api/logout")
+            res: Dict[str, Any] = await client.post("/logout")
             if not res.get("success"):
                 raise Exception(res["err"])
             return True
@@ -39,7 +39,7 @@ class AuthAgent:
 
     async def check_token(self) -> bool:
         try:
-            res: Dict[str, Any] = await client.get("/api/checkToken")
+            res: Dict[str, Any] = await client.get("/checkToken")
             token = res.get("token")
             if not token:
                 raise Exception(res["err"])
