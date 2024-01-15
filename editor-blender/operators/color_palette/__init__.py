@@ -220,9 +220,8 @@ class ld_colorConfirmOperator(AsyncOperator):
     async def async_execute(self, context: bpy.types.Context):
         panel = getattr(bpy.types,"LD_PT_color_palette")
         editing_state = panel.editing_state
-        print("chk 1")
+        panel.editing_mode = False
         res = await handle_colorConfirm(editing_state)
-        print("chk 2")
         if res:
             try:
                 if editing_state == "EDIT":
@@ -231,9 +230,6 @@ class ld_colorConfirmOperator(AsyncOperator):
                     self.report({'INFO'}, f"added color \"{res['color']}\"") # type: ignore
             except:
                 print(res)
-        print("chk 3")
-        panel.editing_mode = False
-        print("comfirmed")
         refreshColormap()
         return {'FINISHED'}
 

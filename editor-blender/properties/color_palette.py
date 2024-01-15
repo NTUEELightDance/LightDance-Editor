@@ -10,7 +10,6 @@ class ld_ColorItem(bpy.types.PropertyGroup):
     
     
 def register():
-    print("color palette props init------------------------------")
     bpy.utils.register_class(ld_ColorItem)
     setattr(bpy.types.WindowManager,"ld_ColorPalette", bpy.props.CollectionProperty(type=ld_ColorItem))
     setattr(bpy.types.WindowManager,"ld_ColorPalette_temp", bpy.props.CollectionProperty(type=ld_ColorItem))

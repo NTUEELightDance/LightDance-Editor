@@ -2,7 +2,6 @@ from . import animation, async_core, auth, editor, pos_editor, setup, color_pale
 
 
 def register():
-    print("ops registered -------------------------")
     async_core.register()
     setup.register()
     auth.register()
