@@ -164,34 +164,65 @@ const ffmpegExist = () => {
   return fs.existsSync(ffbin);
 }
 
-const cutImages = () => {
-  sharp(String(ifp))
+const cutImages = async () => {
+  await sharp(String(ifp))
     .extract({ left: 0, top: 0, width: img_res_width, height: img_res_height / 4 })
     .toFile(String(lcp))
-    .then(() => {
-      sharp(String(ifp))
-        .extract({ left: 0, top: 3 * img_res_height / 4, width: img_res_width, height: img_res_height / 4 })
-        .toFile(String(rcp))
-        .then(() => {
-          jm.joinImages([String(lcp), String(rcp)], { direction: "vertical" })
-            .then((img) => {
-              // Save image as file
-              img.toFile(String(ifp));
-            }).catch((err) => {
-              console.log("Failed joining waveforms...")
-              console.log(err);
-            });
-        })
-    }).catch((err) => {
+    .then(()=>{
+      // console.log("here2.5")
+    })
+    .catch((err) => {
+      // console.log("here2.5");
       if (err) {
         console.log("Failed extracting upper half of the waveform...")
         console.log(err);
       }
     })
+  // console.log("here3");
+  await sharp(String(ifp))
+    .extract({ left: 0, top: 3 * img_res_height / 4, width: img_res_width, height: img_res_height / 4 })
+    .toFile(String(rcp))
+    .then(()=>{
+      // console.log("here3.5")
+    })
+    .catch((err) => {
+      // console.log("here3.5");
+      if (err) {
+        console.log("Failed extracting lower half of the waveform...")
+        console.log(err);
+      }
+    })
+  // console.log("here4");
   // console.log(`String(rcp) = ${String(rcp)}`);
 }
 
-const imageManipulate = async () => {
+const AsyncImageManipulation = async () => {
+  await cutImages();
+  // console.log("here 5");
+  await jm.joinImages([String(lcp), String(rcp)], { direction: "vertical" })
+    .then((img) => {
+      // Save image as file
+      img.toFile(String(ifp));
+    }).catch((err) => {
+      console.log("Failed joining waveforms...")
+      console.log(err);
+    });
+}
+
+const rmRedundantWaveform = () => {
+  let rmCmd = ['rm', String(lcp), String(rcp)];
+  rmCmdString = rmCmd.join(' ');
+  // console.log(`rmCmdString = ${rmCmdString}`);
+  console.log("removing redundant waveforms...");
+  try {
+    const ret = child_process.execSync(rmCmdString);
+  } catch (err) {
+    console.error('--- problem removing redundant waveforms...');
+    console.error(err);
+  }
+}
+
+const imageManipulate = async () => { // ugly
   // console.log("here2");
   sharp(String(ifp))
     .extract({ left: 0, top: 0, width: img_res_width, height: img_res_height / 4 })
@@ -212,7 +243,7 @@ const imageManipulate = async () => {
         })
     }).catch((err) => {
       if (err) {
-        console.log("Failed extracting upper half of the waveform...")
+        console.log("Failed extracting half of the waveform...")
         console.log(err);
       }
     })
@@ -222,20 +253,10 @@ const imageManipulate = async () => {
 
 const mainGenerate = async (releaseUrl, ffbin) => {
   await dl_url(releaseUrl, String(ffbin));
-  imageManipulate();
+  await AsyncImageManipulation();
+  rmRedundantWaveform();
 }
 
-const rmRedundantWaveform = () => {
-  let rmCmd = [rm, String(lcp), String(rcp)];
-  rmCmdString = rmCmd.join(' ');
-  console.log("removing redundant waveforms...")
-  try {
-    const ret = child_process.execSync(rmCmdString);
-  } catch (err) {
-    console.error('--- problem removing redundant waveforms...');
-    console.error(err);
-  }
-}
 
 // download if ffmpeg not in path
 let ffmpegExistance = ffmpegExist();  // ffbin, releaseUrl is set in ffmpegExist
