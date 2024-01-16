@@ -198,7 +198,6 @@ impl PositionFrameMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
-        #[allow(unused)]
         let redis = clients.redis_client();
 
         let check = sqlx::query_as!(
@@ -241,7 +240,6 @@ impl PositionFrameMutation {
             }
         }
 
-        #[allow(unused)]
         let position_frame = sqlx::query_as!(
             PositionFrameData,
             r#"
@@ -260,7 +258,7 @@ impl PositionFrameMutation {
             }
         }
 
-        let update_position_frame = sqlx::query_as!(
+        let _ = sqlx::query_as!(
             PositionFrameData,
             r#"
                 UPDATE PositionFrame
@@ -330,7 +328,7 @@ impl PositionFrameMutation {
         Subscriptor::publish(record_payload);
 
         Ok(PositionFrameData {
-            id: update_position_frame.last_insert_id() as i32,
+            id: input.frame_id,
             start: input.start,
         })
     }
@@ -375,11 +373,8 @@ impl PositionFrameMutation {
         .fetch_optional(mysql)
         .await?;
 
-        match deleted_frame {
-            Some(_) => {}
-            None => {
-                return Err("frame id not found".to_string().into());
-            }
+        if deleted_frame.is_none() {
+            return Err("frame id not found".to_string().into());
         }
 
         let _ = sqlx::query_as!(
