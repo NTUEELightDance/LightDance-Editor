@@ -218,7 +218,7 @@ const rmRedundantWaveform = () => {
     const ret = child_process.execSync(rmCmdString);
   } catch (err) {
     console.error('--- problem removing redundant waveforms...');
-    console.error(err);
+    console.error(err); 
   }
 }
 
