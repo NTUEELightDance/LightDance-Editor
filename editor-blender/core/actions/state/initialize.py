@@ -7,6 +7,7 @@ from ....api.dancer_agent import dancer_agent
 from ....client import client
 from ....client.subscription import subscribe
 from ....core.asyncio import AsyncTask
+from ....core.utils.get_data import get_control, get_pos
 from ....core.utils.ui import redraw_area
 from ....handlers import mount
 from ....storage import get_storage
@@ -62,6 +63,7 @@ async def init_editor():
 
     batches_functions = [
         [load_data, init_dancers, init_color_map],
+        [init_current_status, init_current_pos],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -162,3 +164,17 @@ async def init_color_map():
     state.color_map = color_map
 
     print("Color map initialized")
+
+
+async def init_current_status():
+    control_map, control_record = await get_control()
+
+    state.current_status = control_map[control_record[0]].status
+    # TODO: Push status stack
+
+
+async def init_current_pos():
+    pos_map, pos_record = await get_pos()
+
+    state.current_pos = pos_map[pos_record[0]].pos
+    # TODO: Push pos stack

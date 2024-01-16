@@ -5,7 +5,7 @@ from typing import Any, Coroutine
 
 import bpy
 
-from ..utils import execute_operator
+from ...core.utils.operator import execute_operator
 
 
 def setup_asyncio_executor():

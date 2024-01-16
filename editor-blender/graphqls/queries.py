@@ -196,7 +196,7 @@ class QueryControlMapData(JSONWizard):
 
 GET_CONTROL_MAP = gql(
     """
-    query controlmap {
+    query controlMap {
         ControlMap {
             frameIds
         }
