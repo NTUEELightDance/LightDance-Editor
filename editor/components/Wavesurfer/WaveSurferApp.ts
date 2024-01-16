@@ -267,6 +267,13 @@ class WaveSurferApp {
     });
   }
 
+  /** 
+   * set playback rate
+   */
+  setPlaybackRate(rate: number) {
+    this.waveSurfer.setPlaybackRate(rate);
+  }
+
   /**
    * set the global state
    */
