@@ -2,6 +2,7 @@ import bpy
 
 from ...core.actions.state.initialize import init_blender
 from ...operators.async_core import AsyncOperator
+from ..utils import execute_operator
 
 
 class SetupBlenderOperator(AsyncOperator):
@@ -10,6 +11,7 @@ class SetupBlenderOperator(AsyncOperator):
 
     async def async_execute(self, context: bpy.types.Context):
         await init_blender()
+        execute_operator("lightdance.animation_status_listener")
 
         return {"FINISHED"}
 

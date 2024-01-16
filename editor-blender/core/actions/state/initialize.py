@@ -6,6 +6,8 @@ from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
 from ....client import client
 from ....client.subscription import subscribe
+from ....core.actions.state.current_pos import update_current_pos_by_index
+from ....core.actions.state.current_status import update_current_status_by_index
 from ....core.asyncio import AsyncTask
 from ....core.utils.get_data import get_control, get_pos
 from ....core.utils.ui import redraw_area
@@ -15,6 +17,7 @@ from ...models import (
     DancerPartIndexMap,
     DancerPartIndexMapItem,
     Dancers,
+    EditMode,
     LEDPartLengthMap,
     PartName,
     PartType,
@@ -58,6 +61,20 @@ async def init_blender():
         redraw_area("VIEW_3D")
 
 
+def close_blender():
+    state.is_running = False
+    state.is_logged_in = False
+    state.ready = False
+
+    if state.subscription_task is not None:
+        state.subscription_task.cancel()
+        state.subscription_task = None
+
+    if state.init_editor_task is not None:
+        state.init_editor_task.cancel()
+        state.init_editor_task = None
+
+
 async def init_editor():
     empty_task = asyncio.create_task(asyncio.sleep(0))
 
@@ -90,6 +107,7 @@ async def init_editor():
                 for index, result in enumerate(batch_results):
                     if isinstance(result, BaseException):
                         batch_done = False
+                        print(f"Batch {batch} failed: {result}")
                     else:
                         batch_completes[index] = True
 
@@ -97,14 +115,17 @@ async def init_editor():
                     raise Exception(f"Batch {batch} failed")
 
             break
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
         await asyncio.sleep(1)
 
     print("Editor initialized")
 
     state.ready = True
+    # NOTE: Testing
+    # state.edit_state = EditMode.EDITING
+
     redraw_area("VIEW_3D")
 
 
@@ -167,14 +188,20 @@ async def init_color_map():
 
 
 async def init_current_status():
-    control_map, control_record = await get_control()
+    _, control_record = await get_control()
 
-    state.current_status = control_map[control_record[0]].status
+    state.control_record = control_record
+    update_current_status_by_index(0)
     # TODO: Push status stack
+
+    print("Current status initialized")
 
 
 async def init_current_pos():
-    pos_map, pos_record = await get_pos()
+    _, pos_record = await get_pos()
 
-    state.current_pos = pos_map[pos_record[0]].pos
+    state.pos_record = pos_record
+    update_current_pos_by_index(0)
     # TODO: Push pos stack
+
+    print("Current pos initialized")

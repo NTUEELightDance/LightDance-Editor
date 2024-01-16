@@ -178,6 +178,7 @@ Selected = Dict[DancerName, SelectedItem]
 class State:
     is_running: bool
     is_logged_in: bool
+    is_playing: bool
 
     subscription_task: Optional[Task[None]]
     init_editor_task: Optional[Task[None]]
@@ -188,6 +189,9 @@ class State:
     control_map: ControlMap
     pos_map: PosMap
 
+    control_record: ControlRecord
+    pos_record: PosRecord
+
     led_map: LEDMap
     led_effect_id_table: LEDEffectIDTable
 
@@ -196,9 +200,13 @@ class State:
     current_led_index: int
 
     # NOTE: Maybe we don't need these
-    # current_fade: bool
+    current_fade: bool
     current_status: ControlMapStatus
     current_pos: PosMapStatus
+
+    current_editing_frame: int
+    current_editing_detached: bool
+    current_editing_frame_synced: bool
 
     # NOTE: Guess we can't implement these
     # status_stack: List[ControlMapStatus]

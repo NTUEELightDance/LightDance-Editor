@@ -49,6 +49,14 @@ async def logout() -> bool:
 
         set_storage("token", "")
 
+        if state.subscription_task is not None:
+            state.subscription_task.cancel()
+            state.subscription_task = None
+
+        if state.init_editor_task is not None:
+            state.init_editor_task.cancel()
+            state.init_editor_task = None
+
         await client.close_graphql()
         await client.restart_http()
 
