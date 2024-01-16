@@ -179,7 +179,6 @@ class State:
     is_running: bool
     is_logged_in: bool
     is_playing: bool
-    is_colorpalette_updated: bool
 
     subscription_task: Optional[Task[None]]
     init_editor_task: Optional[Task[None]]

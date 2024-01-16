@@ -1,9 +1,10 @@
 from ...models import ColorMap
 from ...states import state
 from ...utils.ui import redraw_area
+from .color_palette_panel import setup_color_data_from_state
 
 
 async def set_color_map(color_map: ColorMap):
     state.color_map = color_map
-    state.is_colorpalette_updated = False
+    setup_color_data_from_state(state.color_map)
     redraw_area("VIEW_3D")
