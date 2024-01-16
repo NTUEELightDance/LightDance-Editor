@@ -7,8 +7,6 @@ from ..graphqls.mutations import (
     ADD_COLOR,
     DELETE_COLOR,
     EDIT_COLOR,
-    ColorCreatecolorCodeInput,
-    ColorCreateInput,
     MutAddColorResponse,
     MutDeleteColorResponse,
     MutEditColorResponse,
@@ -25,11 +23,7 @@ class ColorAgent:
         return color_map_query_to_state(colorMap.colorMap)
 
     async def add_color(self, color_name: ColorName, color_rgb: RGB):
-        variable: dict[str, ColorCreateInput] = {
-            "color": ColorCreateInput(
-                color=color_name, colorCode=ColorCreatecolorCodeInput(set=color_rgb)
-            )
-        }
+        variable = {"color": {"color": color_name, "colorCode": {"set": color_rgb}}}
         response = await client.execute(MutAddColorResponse, ADD_COLOR, variable)
         print(response)
         return response
@@ -37,7 +31,6 @@ class ColorAgent:
     async def edit_color(
         self, color_id: ColorID, color_name: ColorName, color_rgb: RGB
     ):
-        # TODO: types
         variable = {
             "data": {"colorCode": {"set": color_rgb}, "color": {"set": color_name}},
             "editColorId": color_id,
@@ -47,7 +40,6 @@ class ColorAgent:
         return response
 
     async def delete_color(self, color_id: ColorID):
-        # TODO: types
         variable = {"deleteColorId": color_id}
         response = await client.execute(MutDeleteColorResponse, DELETE_COLOR, variable)
         print(response)
