@@ -1,100 +1,48 @@
 import bpy
 from bpy.types import Context
-from gql import Client, gql
-from gql.transport.aiohttp import AIOHTTPTransport
 
-from ...core.models import ColorMap
 from ...core.states import state
-
-
-def lock_colorFloat_change(item):
-    item.color_float = [x / 255 for x in item.color_rgb]
-
-
-def setup_color_data_from_state(colormap: ColorMap):
-    getattr(bpy.context.window_manager, "ld_ColorPalette").clear()
-    for id, color in colormap.items():
-        item = getattr(bpy.context.window_manager, "ld_ColorPalette").add()
-        item.color_id = id
-        item.color_name = color.name
-        item.color_rgb = color.rgb
-        item.color_float = [x / 255 for x in color.rgb]
-        item.color_alpha = 1.0
-        item.color_code = color.color_code
-        bpy.msgbus.subscribe_rna(
-            key=(item.color_float),
-            owner=bpy,
-            args=tuple([item]),
-            notify=lock_colorFloat_change,
-        )
-        bpy.msgbus.subscribe_rna(
-            key=(item.color_rgb),
-            owner=bpy,
-            args=tuple([item]),
-            notify=lock_colorFloat_change,
-        )
-    color_temp = getattr(bpy.context.window_manager, "ld_ColorPalette_temp").add()
-    setattr(color_temp, "color_rgb", [0, 0, 0])
-    setattr(color_temp, "color_float", [x / 255 for x in color_temp.color_rgb])
-    setattr(color_temp, "color_name", "")
-    color_temp_item = getattr(bpy.context.window_manager, "ld_ColorPalette_temp")[0]
-    bpy.msgbus.subscribe_rna(
-        key=(color_temp_item.color_float),
-        owner=bpy,
-        args=tuple([color_temp_item]),
-        notify=lock_colorFloat_change,
-    )
-    bpy.msgbus.subscribe_rna(
-        key=(color_temp_item.color_rgb),
-        owner=bpy,
-        args=tuple([color_temp_item]),
-        notify=lock_colorFloat_change,
-    )
+from ...properties.ui.types import ColorPaletteStatusType
 
 
 class ColorPalettePanel(bpy.types.Panel):
-    bl_label = "Colors"
-    bl_idname = "LD_PT_color_palette"
+    bl_label = "Color Palette"
+    bl_idname = "VIEW_PT_LightDance_ColorPalette"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "ColorPalette"
 
-    editing_mode = False
-    editing_index = 0  # modified by edit operator
-    editing_state = ""  # EDIT or NEW
-
     @classmethod
     def poll(cls, context: Context) -> bool:
-        return state.is_logged_in
+        return state.ready
 
     def draw(self, context):
+        ld_ui_color_panel: ColorPaletteStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_color_panel"
+        )
+
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
 
-        if not self.editing_mode:
-            loaded_colors = getattr(context.window_manager, "ld_ColorPalette")
-            if not state.is_colorpalette_updated:
-                setup_color_data_from_state(state.color_map)
-                state.is_colorpalette_updated = True
-
+        if not getattr(ld_ui_color_panel, "editing_mode"):
+            loaded_colors = getattr(context.window_manager, "ld_color_palette")
+            row = layout.row()
+            row.operator("lightdance.color_new", icon="ADD")
             for i in range(len(loaded_colors)):
                 item = loaded_colors[i]
                 row = layout.row()
                 row.label(
-                    text=f"[{item.color_id}] {item.color_name}",
+                    text=f"[{item.color_id}] {item.color_name}: {item.color_code}",
                 )
                 row = layout.row()
-                row.prop(item, "color_float", text=f"{item.color_code}")
-                row = layout.row()
-                op = row.operator("object.ld_color_edit")
+                row.prop(item, "color_float", text="")
+                op = row.operator("lightdance.color_edit", icon="GREASEPENCIL")
                 setattr(op, "editing_index", i)
-                op = row.operator("object.ld_color_delete")
+                op = row.operator("lightdance.color_delete", icon="TRASH")
                 setattr(op, "deleting_index", i)
-            row = layout.row()
-            row.operator("object.ld_color_new")
         else:
-            temp_item = getattr(bpy.context.window_manager, "ld_ColorPalette_temp")[0]
+            temp_item = getattr(context.window_manager, "ld_color_palette_temp")[0]
             row = layout.row()
             row.label(text="[Edit mode]")
             row = layout.row()
@@ -104,8 +52,8 @@ class ColorPalettePanel(bpy.types.Panel):
             row = layout.row()
             row.prop(temp_item, "color_float", text="display")
             row = layout.row()
-            row.operator("object.ld_color_cancel")
-            row.operator("object.ld_color_confirm")
+            row.operator("lightdance.color_cancel", icon="PANEL_CLOSE")
+            row.operator("lightdance.color_confirm", icon="CHECKMARK")
 
 
 def register():

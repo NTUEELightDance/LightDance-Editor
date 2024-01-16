@@ -1,41 +1,32 @@
 import bpy
 
-from ...api.color_agent import color_agent
+from ...core.actions.state.color_palette_handler import (
+    handle_color_confirm,
+    handle_color_delete,
+)
 from ...core.states import state
+from ...properties.ui.types import ColorPaletteStatusType
 from ..async_core import AsyncOperator
 
 
-async def handle_colorDelete(index: int):
-    res = await color_agent.delete_color(index)
-    return res["deleteColor"]
-
-
-async def handle_colorConfirm(editing_state):
-    color_temp = getattr(bpy.context.window_manager, "ld_ColorPalette_temp")[0]
-    if editing_state == "EDIT":
-        response = await color_agent.edit_color(int(color_temp.color_id), str(color_temp.color_name), tuple(color_temp.color_rgb))  # type: ignore
-        return response["editColor"]
-    elif editing_state == "NEW":
-        response = await color_agent.add_color(str(color_temp.color_name), tuple(color_temp.color_rgb))  # type: ignore
-        return response["addColor"]  # type: ignore
-
-
 class ColorEditOperator(bpy.types.Operator):
-    bl_idname = "object.ld_color_edit"
-    bl_label = "Edit"
+    bl_idname = "lightdance.color_edit"
+    bl_label = ""
     editing_index: bpy.props.IntProperty()  # type: ignore
 
     @classmethod
     def poll(cls, context):
-        return state.is_logged_in
+        return state.ready
 
     def execute(self, context):
-        panel = getattr(bpy.types, "LD_PT_color_palette")
-        setattr(panel, "editing_mode", True)
-        setattr(panel, "editing_index", self.editing_index)
-        setattr(panel, "editing_state", "EDIT")
-        color_temp = getattr(bpy.context.window_manager, "ld_ColorPalette_temp")[0]
-        color_edit = getattr(context.window_manager, "ld_ColorPalette")[
+        ld_ui_color_panel: ColorPaletteStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_color_panel"
+        )
+        setattr(ld_ui_color_panel, "editing_mode", True)
+        setattr(ld_ui_color_panel, "editing_index", self.editing_index)
+        setattr(ld_ui_color_panel, "editing_state", "EDIT")
+        color_temp = getattr(bpy.context.window_manager, "ld_color_palette_temp")[0]
+        color_edit = getattr(context.window_manager, "ld_color_palette")[
             self.editing_index
         ]
         setattr(color_temp, "color_rgb", color_edit.color_rgb)
@@ -46,18 +37,20 @@ class ColorEditOperator(bpy.types.Operator):
 
 
 class ColorNewOperator(bpy.types.Operator):
-    bl_idname = "object.ld_color_new"
+    bl_idname = "lightdance.color_new"
     bl_label = "New"
 
     @classmethod
     def poll(cls, context):
-        return state.is_logged_in
+        return state.ready
 
     def execute(self, context):
-        panel = getattr(bpy.types, "LD_PT_color_palette")
-        setattr(panel, "editing_mode", True)
-        setattr(panel, "editing_state", "NEW")
-        color_temp = getattr(bpy.context.window_manager, "ld_ColorPalette_temp")[0]
+        ld_ui_color_panel: ColorPaletteStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_color_panel"
+        )
+        setattr(ld_ui_color_panel, "editing_mode", True)
+        setattr(ld_ui_color_panel, "editing_state", "NEW")
+        color_temp = getattr(bpy.context.window_manager, "ld_color_palette_temp")[0]
         setattr(color_temp, "color_rgb", [255, 255, 255])
         setattr(color_temp, "color_float", [1.0, 1.0, 1.0])
         setattr(color_temp, "color_name", "New color")
@@ -65,45 +58,57 @@ class ColorNewOperator(bpy.types.Operator):
 
 
 class ColorDeleteOperator(AsyncOperator):
-    bl_idname = "object.ld_color_delete"
-    bl_label = "Delete"
+    bl_idname = "lightdance.color_delete"
+    bl_label = ""
     deleting_index: bpy.props.IntProperty()  # type: ignore
 
+    @classmethod
+    def poll(cls, context):
+        return state.ready
+
     async def async_execute(self, context: bpy.types.Context):
-        color_delete = getattr(context.window_manager, "ld_ColorPalette")[
+        color_delete = getattr(context.window_manager, "ld_color_palette")[
             self.deleting_index
         ]
-        res = await handle_colorDelete(int(color_delete.color_id))
+        res = await handle_color_delete(int(color_delete.color_id))
         if res:
             self.report({"INFO"}, f"deleted color")
         return {"FINISHED"}
 
 
 class ColorCancelOperator(bpy.types.Operator):
-    bl_idname = "object.ld_color_cancel"
+    bl_idname = "lightdance.color_cancel"
     bl_label = "Cancel"
 
     @classmethod
     def poll(cls, context):
-        return state.is_logged_in
+        return state.ready
 
     def execute(self, context):
-        panel = getattr(bpy.types, "LD_PT_color_palette")
-        setattr(panel, "editing_mode", False)
+        ld_ui_color_panel: ColorPaletteStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_color_panel"
+        )
+        setattr(ld_ui_color_panel, "editing_mode", False)
         return {"FINISHED"}
 
 
 class ColorConfirmOperator(AsyncOperator):
-    bl_idname = "object.ld_color_confirm"
+    bl_idname = "lightdance.color_confirm"
     bl_label = "Confirm"
     state = ""
 
+    @classmethod
+    def poll(cls, context):
+        return state.ready
+
     # TODO: types
     async def async_execute(self, context: bpy.types.Context):
-        panel = getattr(bpy.types, "LD_PT_color_palette")
-        editing_state = panel.editing_state
-        setattr(panel, "editing_mode", False)
-        res = await handle_colorConfirm(editing_state)
+        ld_ui_color_panel: ColorPaletteStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_color_panel"
+        )
+        editing_state = ld_ui_color_panel.editing_state
+        setattr(ld_ui_color_panel, "editing_mode", False)
+        res = await handle_color_confirm(editing_state)
         if res:
             if editing_state == "EDIT":
                 self.report({"INFO"}, f'edited color "{res.color}"')

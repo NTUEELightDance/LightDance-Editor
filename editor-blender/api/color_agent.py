@@ -7,9 +7,14 @@ from ..graphqls.mutations import (
     ADD_COLOR,
     DELETE_COLOR,
     EDIT_COLOR,
+    ColorCreatecolorCodeInput,
+    ColorCreateInput,
+    ColorUpdatecolorCodeInput,
+    ColorUpdateInput,
     MutAddColorResponse,
     MutDeleteColorResponse,
     MutEditColorResponse,
+    StringFieldUpdateOperationsInput,
 )
 from ..graphqls.queries import GET_COLOR_MAP, QueryColorMapData
 
@@ -23,26 +28,30 @@ class ColorAgent:
         return color_map_query_to_state(colorMap.colorMap)
 
     async def add_color(self, color_name: ColorName, color_rgb: RGB):
-        variable = {"color": {"color": color_name, "colorCode": {"set": color_rgb}}}
+        variable = {
+            "color": ColorCreateInput(
+                color=color_name, colorCode=ColorCreatecolorCodeInput(set=color_rgb)
+            )
+        }
         response = await client.execute(MutAddColorResponse, ADD_COLOR, variable)
-        print(response)
         return response
 
     async def edit_color(
         self, color_id: ColorID, color_name: ColorName, color_rgb: RGB
     ):
         variable = {
-            "data": {"colorCode": {"set": color_rgb}, "color": {"set": color_name}},
+            "data": ColorUpdateInput(
+                colorCode=ColorUpdatecolorCodeInput(set=color_rgb),
+                color=StringFieldUpdateOperationsInput(set=color_name),
+            ),
             "editColorId": color_id,
         }
         response = await client.execute(MutEditColorResponse, EDIT_COLOR, variable)
-        print(response)
         return response
 
     async def delete_color(self, color_id: ColorID):
         variable = {"deleteColorId": color_id}
         response = await client.execute(MutDeleteColorResponse, DELETE_COLOR, variable)
-        print(response)
         return response
 
 

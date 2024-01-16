@@ -53,7 +53,6 @@ state = State(
     part_type_map={},
     led_part_length_map={},
     color_map={},
-    is_colorpalette_updated=False,
     # effect_list
     dancers_array=[],
     dancer_part_index_map={},
