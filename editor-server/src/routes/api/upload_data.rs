@@ -105,11 +105,8 @@ pub async fn upload_data(
             ))
         };
         
-        // More manual checks on data format?
+        let app_state = global::clients::get();
 
-        let app_state = global::clients::get()
-            .into_result()?
-            .clone();
         let mysql = app_state.mysql_pool();
 
         // Cleaner way to do this?
@@ -343,7 +340,13 @@ pub async fn upload_data(
                         DancerPartType::FIBER => "COLOR",
                     };
                     let color_id = color_dict.get(&part_control_data.0);
-                    let effect_id = led_dict[part_name].get(&part_control_data.0);
+                    let effect_id = match led_dict.get(part_name) {
+                        Some(obj) => match obj.get(&part_control_data.0) {
+                            Some(i) => Some(i),
+                            None => None,
+                        }, 
+                        None => None,
+                    };
                     let alpha = part_control_data.1;
 
                     let _ = sqlx::query!(
@@ -370,7 +373,7 @@ pub async fn upload_data(
         // println!("{:?}", data_obj.color);
         // println!("{:?}", data_obj.dancer);
         // println!("{:?}", data_obj.led_effects);
-
+        println!("Upload Finish!");
         Ok((StatusCode::OK, Json(UploadDataResponse("Data Uploaded Successfully!".to_string()))))
     } else {
         Err((

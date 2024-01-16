@@ -1077,12 +1077,9 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "futures-util",
-<<<<<<< HEAD
  "http",
- "itertools 0.12.0",
-=======
  "indicatif",
->>>>>>> temp
+ "itertools 0.12.0",
  "once_cell",
  "redis",
  "serde",
