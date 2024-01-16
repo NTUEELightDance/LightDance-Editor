@@ -140,11 +140,12 @@ class Clients:
                 response = await self.client.execute(query)
 
             query_name = query_def[0]
-            response[query_name] = deserialize(response_type, response[query_name])
-
+            try:
+                response[query_name] = deserialize(response_type, response[query_name])
+            except Exception as e:
+                print(f"exception occurred in client.__init__: {e}")
             if is_query:
                 await self.cache.write_query(response)
-
         return response
 
     async def open_http(self) -> None:

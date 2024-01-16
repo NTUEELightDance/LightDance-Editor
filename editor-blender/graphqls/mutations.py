@@ -4,27 +4,19 @@ from typing import Dict, List, Optional, Tuple, Union
 from dataclass_wizard import JSONWizard
 from gql import gql
 
-from ..core.models import (
-    RGB, ColorName, ColorCode, ColorID, RGBA, Color, ColorMap
-)
+from ..core.models import RGB
 
 """
 ColorMap
 """
 
-ColorCreatecolorCodeInput = dict[str, RGB]
-
-@dataclass
-class ColorCreateInput(JSONWizard):
-    color: ColorName
-    colorCode: ColorCreatecolorCodeInput
 
 @dataclass
 class MutAddColorResponse(JSONWizard):
     id: int
-    color: Color
+    color: str
     colorCode: RGB
-    
+
 
 @dataclass
 class MutDeleteColorResponse(JSONWizard):
@@ -32,8 +24,13 @@ class MutDeleteColorResponse(JSONWizard):
     msg: str
     ok: bool
 
+
+@dataclass
 class MutEditColorResponse(JSONWizard):
+    id: int
     color: str
+    colorCode: RGB
+
 
 ADD_COLOR = gql(
     """

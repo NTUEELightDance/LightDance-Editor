@@ -2,11 +2,12 @@ import bpy
 
 
 class ld_ColorItem(bpy.types.PropertyGroup):
-    color_id: bpy.props.StringProperty()  # type: ignore
+    color_id: bpy.props.IntProperty()  # type: ignore
     color_name: bpy.props.StringProperty(default="")  # type: ignore
     color_float: bpy.props.FloatVectorProperty(default=(0, 0, 0), min=0, max=1, subtype="COLOR")  # type: ignore
-    color_code: bpy.props.IntVectorProperty(default=(0, 0, 0), min=0, max=255)  # type: ignore
+    color_rgb: bpy.props.IntVectorProperty(default=(0, 0, 0), min=0, max=255)  # type: ignore
     color_alpha: bpy.props.FloatProperty(default=1, min=0, max=1)  # type: ignore
+    color_code: bpy.props.StringProperty()  # type: ignore
 
 
 def register():
