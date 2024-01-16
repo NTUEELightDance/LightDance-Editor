@@ -16,6 +16,7 @@ from typing import (
 )
 
 from dataclass_wizard import JSONWizard
+from typeguard import check_type
 
 Cache = Dict[str, Optional[Any]]
 
@@ -110,7 +111,9 @@ class InMemoryCache:
         query_name, query_field_names = query_def
 
         cache_data = self.cache.get(query_name)
-        if cache_data is None or not isinstance(cache_data, response_type):
+        try:
+            check_type(cache_data, response_type)
+        except:
             return None
 
         response: Dict[str, response_type] = {}
@@ -123,7 +126,7 @@ class InMemoryCache:
                 if query_field_name not in cache_data.__dict__.keys():
                     return None
 
-        response[query_name] = deepcopy(cache_data)
+        response[query_name] = deepcopy(cache_data)  # type: ignore
 
         return response
 
