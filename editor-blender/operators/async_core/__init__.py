@@ -5,6 +5,7 @@ from typing import Any, Coroutine
 
 import bpy
 
+from ...core.actions.state.initialize import close_blender
 from ...core.utils.operator import execute_operator
 
 
@@ -54,6 +55,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         global is_async_loop_running
 
         print("Stopping asyncio loop...")
+        close_blender()
 
         if is_async_loop_running and hasattr(self, "timer"):  # type: ignore
             wm = bpy.context.window_manager

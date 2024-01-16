@@ -20,7 +20,7 @@ async def get_control() -> Tuple[ControlMap, ControlRecord]:
             raise Exception("Failed to get control map")
 
     if len(state.control_map.keys()) == 0:
-        payload = await control_agent.get_control_map_payload()
+        await control_agent.get_control_map_payload()
 
     if len(control_record) != len(state.control_map.keys()):
         await wait_for_control_map(100)

@@ -1,12 +1,12 @@
-from . import frame, objects
+from . import animation, objects
 
 
 def mount():
     print("Mounting handlers...")
-    frame.mount()
+    animation.mount()
     objects.mount()
 
 
 def unmount():
-    frame.unmount()
+    animation.unmount()
     objects.unmount()

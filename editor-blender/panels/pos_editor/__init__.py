@@ -20,16 +20,26 @@ class PosEditor(bpy.types.Panel):
         return (
             state.ready
             and state.editor == Editor.POS_EDITOR
-            # and state.edit_state == EditMode.EDITING
             and ld_object_type == ObjectType.DANCER.value
         )
 
     def draw(self, context: bpy.types.Context):
-        layout = self.layout
+        editing = state.edit_state == EditMode.EDITING
+        properties_enabled = editing and not state.is_playing
 
         position: PositionPropertyType = getattr(context.object, "ld_position")
 
+        layout = self.layout
+
+        if state.current_editing_detached and editing:
+            row = layout.row()
+            row.enabled = not state.is_playing
+            row.label(text="Detached", icon="ERROR")
+            row.operator("lightdance.attach_editing_pos_frame", icon="PLAY")
+
         column = layout.column()
+        column.enabled = properties_enabled
+
         column.prop(position, "transform", text="Transform")
         column.prop(position, "rotation", text="Rotation")
 

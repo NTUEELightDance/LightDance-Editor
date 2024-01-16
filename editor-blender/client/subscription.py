@@ -4,9 +4,8 @@ from typing import List, Optional
 from ..client import Clients, client
 from ..client.cache import Modifiers
 from ..core.actions.state.color_map import set_color_map
-from ..core.actions.state.control_map import set_control_map
-from ..core.actions.state.pos_map import set_pos_map
-from ..core.asyncio import AsyncTask
+from ..core.actions.state.control_map import set_control_map, set_control_record
+from ..core.actions.state.pos_map import set_pos_map, set_pos_record
 from ..core.models import ID
 from ..core.utils.convert import (
     color_map_query_to_state,
@@ -72,6 +71,8 @@ async def sub_pos_record(client: Clients):
 
             if len(deleteID) > 0:
                 newPosRecord = list(filter(lambda id: id not in deleteID, newPosRecord))
+
+            await set_pos_record(newPosRecord)
 
             return newPosRecord
 
@@ -147,6 +148,8 @@ async def sub_control_record(client: Clients):
                 newControlRecord = list(
                     filter(lambda id: id not in deleteID, newControlRecord)
                 )
+
+            await set_control_record(newControlRecord)
 
             return newControlRecord
 

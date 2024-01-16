@@ -36,6 +36,8 @@ class EditorPanel(bpy.types.Panel):
             depress=state.editor == Editor.LED_EDITOR,
         )
 
+        row = layout.box().row(align=True)
+
 
 def register():
     bpy.utils.register_class(EditorPanel)
