@@ -17,8 +17,8 @@ state = State(
     current_led_index=0,
     # NOTE: Maybe we don't need these
     # current_fade=False,
-    # current_status={},
-    # current_pos={},
+    current_status={},
+    current_pos={},
     # NOTE: Guess we can't implement these
     # status_stack=[],
     # status_stack_index=0,

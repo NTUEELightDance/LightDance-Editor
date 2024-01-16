@@ -1,6 +1,6 @@
 import bpy
 
-from ...core.actions.state.utils import execute_slider_dragging_callback
+from ...core.utils.operator import execute_slider_dragging_callback
 
 
 class SliderDraggingListener(bpy.types.Operator):

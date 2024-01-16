@@ -3,8 +3,8 @@ from typing import TypeVar
 
 import bpy
 
-from ....operators.utils import execute_operator
-from ..state.utils import set_slider_dragging_callback
+from ....core.utils.operator import execute_operator
+from ...utils.operator import set_slider_dragging_callback
 
 T = TypeVar("T")
 

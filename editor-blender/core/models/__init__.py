@@ -86,6 +86,8 @@ class ControlMapElement:
 
 ControlMap = Dict[MapID, ControlMapElement]
 
+ControlRecord = List[MapID]
+
 
 @dataclass
 class Location:
@@ -104,6 +106,8 @@ class PosMapElement:
 
 
 PosMap = Dict[MapID, PosMapElement]
+
+PosRecord = List[MapID]
 
 
 class EditMode(Enum):
@@ -193,8 +197,8 @@ class State:
 
     # NOTE: Maybe we don't need these
     # current_fade: bool
-    # current_status: ControlMapStatus
-    # current_pos: PosMapStatus
+    current_status: ControlMapStatus
+    current_pos: PosMapStatus
 
     # NOTE: Guess we can't implement these
     # status_stack: List[ControlMapStatus]
