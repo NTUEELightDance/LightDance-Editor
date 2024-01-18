@@ -1,4 +1,3 @@
-import asyncio
 from inspect import isclass
 from typing import Any, AsyncGenerator, Dict, List, Optional, Type, TypeVar, Union
 
@@ -11,20 +10,7 @@ from gql.transport.aiohttp import AIOHTTPTransport
 from gql.transport.websockets import WebsocketsTransport
 from graphql import DocumentNode
 
-from ..core.actions.state.color_map import set_color_map
-from ..core.actions.state.control_map import set_control_map
-from ..core.actions.state.pos_map import set_pos_map
 from ..core.states import state
-from ..core.utils.convert import (
-    color_map_query_to_state,
-    control_map_query_to_state,
-    pos_map_query_to_state,
-)
-from ..graphqls.queries import (
-    QueryColorMapPayload,
-    QueryControlMapPayload,
-    QueryPosMapPayload,
-)
 from .cache import FieldPolicy, InMemoryCache, TypePolicy, query_defs_to_field_table
 
 GQLSession = Union[AsyncClientSession, ReconnectingAsyncClientSession]
@@ -61,7 +47,7 @@ def remove_wrapped_slash(path: str) -> str:
 
 
 class Clients:
-    def __init__(self, cache: InMemoryCache):
+    def __init__(self):
         SERVER_URL = os.getenv("SERVER_URL")
         if SERVER_URL is None:
             raise Exception("SERVER_URL is not defined")
@@ -86,7 +72,7 @@ class Clients:
         self.client: Optional[GQLSession] = None
         self.sub_client: Optional[GQLSession] = None
 
-        self.cache = cache
+        self.cache = InMemoryCache()
 
     async def post(self, path: str, json: Optional[Any] = None) -> Any:
         if self.http_client is None:
@@ -105,6 +91,9 @@ class Clients:
         http_path = f"/{self.HTTP_PATH}/{path}"
         async with self.http_client.get(http_path) as response:
             return await response.json()
+
+    def configure_cache(self, cache: InMemoryCache) -> None:
+        self.cache = cache
 
     async def subscribe(
         self, data_type: Type[T], query: DocumentNode
@@ -215,48 +204,4 @@ class Clients:
         await self.open_graphql()
 
 
-async def merge_pos_map(
-    existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
-) -> QueryPosMapPayload:
-    posMap = pos_map_query_to_state(incoming)
-    await set_pos_map(posMap)
-    return incoming
-
-
-async def merge_control_map(
-    existing: Optional[QueryControlMapPayload], incoming: QueryControlMapPayload
-) -> QueryControlMapPayload:
-    controlMap = control_map_query_to_state(incoming)
-    await set_control_map(controlMap)
-    return incoming
-
-
-async def merge_color_map(
-    existing: Optional[QueryColorMapPayload], incoming: QueryColorMapPayload
-) -> QueryColorMapPayload:
-    colorMap = color_map_query_to_state(incoming)
-    await set_color_map(colorMap)
-    return incoming
-
-
-client = Clients(
-    cache=InMemoryCache(
-        policies={
-            "PosMap": TypePolicy(
-                fields={
-                    "frameIds": FieldPolicy(merge=merge_pos_map),
-                }
-            ),
-            "ControlMap": TypePolicy(
-                fields={
-                    "frameIds": FieldPolicy(merge=merge_control_map),
-                }
-            ),
-            "colorMap": TypePolicy(
-                fields={
-                    "colorMap": FieldPolicy(merge=merge_color_map),
-                }
-            ),
-        }
-    )
-)
+client = Clients()
