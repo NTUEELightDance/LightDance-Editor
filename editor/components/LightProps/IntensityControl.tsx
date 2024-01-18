@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Grid, Slider, Input } from "@mui/material";
+import { Grid, Slider, Input, Typography } from "@mui/material";
 import { Flare } from "@mui/icons-material";
 
 export interface IntensityControlProps {
@@ -29,7 +29,7 @@ function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
     label: ReactNode;
   }> = Array.from({ length: 11 }, (_, i) => i).map((i) => ({
     value: i,
-    label: i === 0 || i === 10 ? String(i) : null,
+    label: i === 1 || i === 10 ? String(i) : null,
   }));
   sliderMarks.push({
     value: 15,
@@ -42,7 +42,7 @@ function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
         <Slider
           value={intensity ?? 0}
           onChange={handleSliderChange}
-          min={0}
+          min={1}
           max={15}
           step={null}
           valueLabelDisplay="auto"
@@ -64,7 +64,7 @@ function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
           }}
         />
       </Grid>
-      <Grid item>
+      <Grid item sx={{display: "flex"}}>
         <Input
           value={intensity ?? ""}
           size="small"
@@ -76,7 +76,9 @@ function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
             type: "number",
           }}
           sx={{ width: "3em" }}
+          error={intensity === 0}
         />
+        {(intensity === 0) && <Typography fontSize={12} mt={1} ml={1} >invalid</Typography>}
       </Grid>
     </>
   );
