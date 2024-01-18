@@ -25,6 +25,10 @@ pub fn build_api_routes() -> Router {
         .route("/logout", post(logout::logout))
         .route("/createUser", post(create_user::create_user))
         .route(
+            "/getDancerFiberData",
+            get(get_dancer_fiber_data::get_dancer_fiber_data),
+        )
+        .route(
             "/getDancerLEDData",
             get(get_dancer_led_data::get_dancer_led_data),
         )
