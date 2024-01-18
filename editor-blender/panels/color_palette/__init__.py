@@ -42,7 +42,7 @@ class ColorPalettePanel(bpy.types.Panel):
                 op = row.operator("lightdance.color_delete", icon="TRASH")
                 setattr(op, "deleting_index", i)
         else:
-            temp_item = getattr(context.window_manager, "ld_color_palette_temp")[0]
+            temp_item = getattr(context.window_manager, "ld_color_palette_temp")
             row = layout.row()
             row.label(text="[Edit mode]")
             row = layout.row()

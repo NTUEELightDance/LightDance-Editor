@@ -41,7 +41,7 @@ from ...models import (
 )
 from ...states import state
 from ..state.load import load_data
-from .color_palette_panel import setup_color_data_from_state
+from .color_palette import setup_color_data_from_state
 
 
 async def __merge_pos_map(
@@ -142,7 +142,7 @@ async def init_editor():
 
     batches_functions = [
         [load_data, init_dancers, init_color_map],
-        [init_current_status, init_current_pos],
+        # [init_current_status, init_current_pos],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
