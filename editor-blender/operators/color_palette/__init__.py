@@ -1,6 +1,6 @@
 import bpy
 
-from ...core.actions.state.color_palette_handler import (
+from ...core.actions.state.color_palette import (
     handle_color_confirm,
     handle_color_delete,
 )
@@ -25,7 +25,7 @@ class ColorEditOperator(bpy.types.Operator):
         setattr(ld_ui_color_panel, "editing_mode", True)
         setattr(ld_ui_color_panel, "editing_index", self.editing_index)
         setattr(ld_ui_color_panel, "editing_state", "EDIT")
-        color_temp = getattr(bpy.context.window_manager, "ld_color_palette_temp")[0]
+        color_temp = getattr(bpy.context.window_manager, "ld_color_palette_temp")
         color_edit = getattr(context.window_manager, "ld_color_palette")[
             self.editing_index
         ]
@@ -50,7 +50,7 @@ class ColorNewOperator(bpy.types.Operator):
         )
         setattr(ld_ui_color_panel, "editing_mode", True)
         setattr(ld_ui_color_panel, "editing_state", "NEW")
-        color_temp = getattr(bpy.context.window_manager, "ld_color_palette_temp")[0]
+        color_temp = getattr(bpy.context.window_manager, "ld_color_palette_temp")
         setattr(color_temp, "color_rgb", [255, 255, 255])
         setattr(color_temp, "color_float", [1.0, 1.0, 1.0])
         setattr(color_temp, "color_name", "New color")

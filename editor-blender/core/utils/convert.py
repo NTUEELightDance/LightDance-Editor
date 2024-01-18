@@ -202,5 +202,5 @@ def rgb_to_float(rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
     return tuple([i / 255 for i in rgb])  # type: ignore
 
 
-def float_to_rgb(color_float: Tuple[float, float, float]) -> tuple[int, int, int]:
+def float_to_rgb(color_float: Tuple[float, float, float]) -> Tuple[int, int, int]:
     return tuple([round(i * 255) for i in color_float])  # type: ignore

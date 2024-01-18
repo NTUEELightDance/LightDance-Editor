@@ -1,7 +1,7 @@
 from ...models import ColorMap
 from ...states import state
 from ...utils.ui import redraw_area
-from .color_palette_panel import setup_color_data_from_state
+from .color_palette import setup_color_data_from_state
 
 
 async def set_color_map(color_map: ColorMap):
