@@ -35,27 +35,6 @@ struct Color {
     b: i32,
 }
 
-trait IntoResult<T, E> {
-    fn into_result(self) -> Result<T, E>;
-}
-
-impl<R, E> IntoResult<R, (StatusCode, Json<GetDataFailedResponse>)> for Result<R, E>
-where
-    E: std::string::ToString,
-{
-    fn into_result(self) -> Result<R, (StatusCode, Json<GetDataFailedResponse>)> {
-        match self {
-            Ok(ok) => Ok(ok),
-            Err(err) => Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(GetDataFailedResponse {
-                    err: err.to_string(),
-                }),
-            )),
-        }
-    }
-}
-
 pub async fn get_dancer_led_data(
     Query(query): Query<HashMap<String, String>>,
 ) -> Result<
@@ -85,7 +64,7 @@ pub async fn get_dancer_led_data(
     )
     .fetch_all(mysql_pool)
     .await
-    .into_result()?;
+    .unwrap();
 
     // create hasmap for color
     let mut color_map: HashMap<i32, Color> = HashMap::new();
@@ -113,7 +92,7 @@ pub async fn get_dancer_led_data(
     )
     .fetch_all(mysql_pool)
     .await
-    .into_result()?;
+    .unwrap();
 
     if dancer_data.is_empty() {
         return Err((
@@ -161,7 +140,7 @@ pub async fn get_dancer_led_data(
             )
             .fetch_all(mysql_pool)
             .await
-            .into_result()?;
+            .unwrap();
 
             // transfrom color id to rgb values for each position
             for state in led_effect_states.iter() {
