@@ -87,7 +87,7 @@ pub async fn get_dancer_led_data(
     .await
     .into_result()?;
 
-    // create hashmap for color
+    // create hasmap for color
     let mut color_map: HashMap<i32, Color> = HashMap::new();
     for color in colors.iter() {
         color_map.insert(
@@ -144,7 +144,7 @@ pub async fn get_dancer_led_data(
 
         for data in control_data.iter() {
             // -1 means no effect (for now)
-            if data.effect_id.ok_or("Effect id not found").into_result()? == -1 {
+            if data.effect_id.unwrap() == -1 {
                 continue;
             }
 
@@ -157,7 +157,7 @@ pub async fn get_dancer_led_data(
                     WHERE part_name = ? AND LEDEffect.id = ?
                     "#,
                 part_name,
-                data.effect_id.ok_or("Effect id not found").into_result()?
+                data.effect_id.unwrap()
             )
             .fetch_all(mysql_pool)
             .await
