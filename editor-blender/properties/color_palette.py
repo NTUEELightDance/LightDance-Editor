@@ -10,7 +10,9 @@ from ..core.actions.property.color_palette import (
 class ColorPaletteItem(bpy.types.PropertyGroup):
     color_id: bpy.props.IntProperty()  # type: ignore
     color_name: bpy.props.StringProperty(default="")  # type: ignore
-    color_float: bpy.props.FloatVectorProperty(default=(0, 0, 0), min=0, max=1, subtype="COLOR", update=lock_color_float)  # type: ignore
+    color_float: bpy.props.FloatVectorProperty(  # type: ignore
+        default=(0, 0, 0), min=0, max=1, subtype="COLOR", update=lock_color_float
+    )
     color_rgb: bpy.props.IntVectorProperty(default=(0, 0, 0), min=0, max=255)  # type: ignore
     color_alpha: bpy.props.FloatProperty(default=1, min=0, max=1)  # type: ignore
     color_code: bpy.props.StringProperty()  # type: ignore
@@ -19,8 +21,12 @@ class ColorPaletteItem(bpy.types.PropertyGroup):
 class ColorPaletteTempItem(bpy.types.PropertyGroup):
     color_id: bpy.props.IntProperty()  # type: ignore
     color_name: bpy.props.StringProperty(default="")  # type: ignore
-    color_float: bpy.props.FloatVectorProperty(default=(0, 0, 0), min=0, max=1, subtype="COLOR", update=update_color_float)  # type: ignore
-    color_rgb: bpy.props.IntVectorProperty(default=(0, 0, 0), min=0, max=255, update=update_color_rgb)  # type: ignore
+    color_float: bpy.props.FloatVectorProperty(  # type: ignore
+        default=(0, 0, 0), min=0, max=1, subtype="COLOR", update=update_color_float
+    )
+    color_rgb: bpy.props.IntVectorProperty(  # type: ignore
+        default=(0, 0, 0), min=0, max=255, update=update_color_rgb
+    )
     color_alpha: bpy.props.FloatProperty(default=1, min=0, max=1)  # type: ignore
     color_code: bpy.props.StringProperty()  # type: ignore
 
