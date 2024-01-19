@@ -1,4 +1,14 @@
-from . import animation, async_core, auth, editor, pos_editor, setup, slider
+from . import (
+    animation,
+    async_core,
+    auth,
+    color_palette,
+    editor,
+    pos_editor,
+    setup,
+    slider,
+    utils,
+)
 
 
 def register():
@@ -9,6 +19,8 @@ def register():
     slider.register()
     animation.register()
     pos_editor.register()
+    color_palette.register()
+    utils.register()
 
 
 def unregister():
@@ -19,3 +31,5 @@ def unregister():
     slider.unregister()
     animation.unregister()
     pos_editor.unregister()
+    color_palette.unregister()
+    utils.unregister()
