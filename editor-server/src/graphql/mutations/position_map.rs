@@ -10,9 +10,11 @@ use crate::graphql::types::{
     map::{MapID, PositionMap, PositionMapScalar},
     pos_data::{FrameData, PosDataScalar},
 };
+use crate::types::global::RedisPosition;
 use crate::types::global::UserContext;
-use crate::utils::data::update_redis_position;
+use crate::utils::data::{get_redis_position, update_redis_position};
 use async_graphql::{Context, InputObject, Object, Result as GQLResult};
+use std::collections::HashMap;
 
 #[derive(InputObject, Default)]
 pub struct EditPositionMapInput {
@@ -137,9 +139,15 @@ impl PositionMapMutation {
         )
         .fetch_all(mysql)
         .await?;
-
+        let mut result: HashMap<String, RedisPosition> = HashMap::new();
+        for frame_id in frame_ids {
+            result.insert(
+                frame_id.id.to_string(),
+                get_redis_position(redis, frame_id.id).await?,
+            );
+        }
         Ok(PositionMap {
-            frame_ids: PositionMapScalar(frame_ids),
+            frame_ids: PositionMapScalar(result),
         })
     }
 }

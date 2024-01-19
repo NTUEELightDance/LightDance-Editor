@@ -5,6 +5,11 @@ use crate::types::global::UserContext;
 use async_graphql::{Context, Object, Result as GQLResult};
 
 #[derive(Default)]
+pub struct ID {
+    pub id: i32,
+}
+
+#[derive(Default)]
 pub struct PositionFrameQuery;
 
 #[Object]
@@ -47,9 +52,9 @@ impl PositionFrameQuery {
         let redis = clients.redis_client();
 
         let ids = sqlx::query_as!(
-            PositionFrameData,
+            ID,
             r#"
-                SELECT * FROM PositionFrame
+                SELECT id FROM PositionFrame
                 ORDER BY start ASC;
             "#
         )

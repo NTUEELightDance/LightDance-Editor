@@ -1,7 +1,9 @@
 //! PositionMap scalar types
 
+use crate::types::global::RedisPosition;
 use async_graphql::{InputObject, Scalar, ScalarType, SimpleObject, Value};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(InputObject, SimpleObject, Serialize, Deserialize)]
 pub struct MapID {
@@ -9,7 +11,7 @@ pub struct MapID {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct PositionMapScalar(pub Vec<MapID>);
+pub struct PositionMapScalar(pub HashMap<String, RedisPosition>);
 
 #[Scalar]
 impl ScalarType for PositionMapScalar {
@@ -18,10 +20,15 @@ impl ScalarType for PositionMapScalar {
     }
 
     fn to_value(&self) -> Value {
-        Value::List(
+        Value::Object(
             self.0
                 .iter()
-                .map(|map_id| Value::Number(map_id.id.into()))
+                .map(|(k, v)| {
+                    (
+                        async_graphql::Name::new(k),
+                        async_graphql::to_value(v).unwrap(),
+                    )
+                })
                 .collect(),
         )
     }

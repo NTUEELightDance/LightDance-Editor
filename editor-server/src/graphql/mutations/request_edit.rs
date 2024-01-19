@@ -19,6 +19,7 @@ pub struct RequestEditMutation;
 
 #[Object]
 impl RequestEditMutation {
+    #[graphql(name = "RequestEditControl")]
     async fn request_edit_control(
         &self,
         ctx: &Context<'_>,
@@ -89,7 +90,7 @@ impl RequestEditMutation {
             }
         }
     }
-
+    #[graphql(name = "RequestEditPosition")]
     async fn request_edit_position(
         &self,
         ctx: &Context<'_>,
@@ -162,6 +163,7 @@ impl RequestEditMutation {
         }
     }
 
+    #[graphql(name = "RequestEditLEDEffect")]
     async fn request_edit_led_effect(
         &self,
         ctx: &Context<'_>,
@@ -232,6 +234,7 @@ impl RequestEditMutation {
         }
     }
 
+    #[graphql(name = "CancelEditPosition")]
     async fn cancel_edit_position(
         &self,
         ctx: &Context<'_>,
@@ -276,6 +279,7 @@ impl RequestEditMutation {
         })
     }
 
+    #[graphql(name = "CancelEditControl")]
     async fn cancel_edit_control(
         &self,
         ctx: &Context<'_>,
@@ -319,6 +323,7 @@ impl RequestEditMutation {
         })
     }
 
+    #[graphql(name = "CancelEditLEDEffect")]
     async fn cancel_edit_led_effect(
         &self,
         ctx: &Context<'_>,
