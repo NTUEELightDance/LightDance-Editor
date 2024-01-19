@@ -265,7 +265,7 @@ impl LEDMutation {
         };
 
         // check if effect is being edited by another user
-        match sqlx::query!(
+        if let Ok(effect) = sqlx::query!(
             r#"
                 SELECT * FROM EditingLEDEffect WHERE led_effect_id = ?;
             "#,
@@ -274,15 +274,12 @@ impl LEDMutation {
         .fetch_one(mysql)
         .await
         {
-            Ok(effect) => {
-                if effect.user_id != context.user_id {
-                    return Err(GQLError::from(format!(
-                        "This frame is being edited by user {}.",
-                        effect.user_id
-                    )));
-                }
+            if effect.user_id != context.user_id {
+                return Err(GQLError::from(format!(
+                    "This frame is being edited by user {}.",
+                    effect.user_id
+                )));
             }
-            Err(_) => (),
         };
 
         // create array of all color ids from db
@@ -376,6 +373,138 @@ impl LEDMutation {
             effects: frames.clone(),
             ok: true,
             msg: "successfully edited LED effect".to_string(),
+        })
+    }
+
+    #[graphql(name = "deleteLEDEffect")]
+    async fn delete_led_effect(&self, ctx: &Context<'_>, id: i32) -> GQLResult<LEDResponse> {
+        let context = ctx.data::<UserContext>()?;
+        let clients = context.clients;
+
+        let mysql = clients.mysql_pool();
+
+        // check if effect exists
+        let _led_effect = match sqlx::query!(
+            r#"
+                SELECT * FROM LEDEffect WHERE id = ?;
+            "#,
+            id
+        )
+        .fetch_one(mysql)
+        .await
+        {
+            Ok(led_effect) => led_effect,
+            Err(_) => {
+                return Ok(LEDResponse {
+                    id: -1,
+                    part_name: "".to_string(),
+                    effect_name: "".to_string(),
+                    repeat: 0,
+                    effects: vec![],
+                    ok: false,
+                    msg: format!("LEDEffect Id {} not found", id),
+                })
+            }
+        };
+
+        // check control data
+        let control_frames = sqlx::query!(
+            r#"
+                SELECT frame_id FROM ControlData WHERE effect_id = ?;
+            "#,
+            id
+        )
+        .fetch_all(mysql)
+        .await?;
+
+        if !control_frames.is_empty() {
+            let mut control_frames = control_frames
+                .iter()
+                .map(|frame| frame.frame_id)
+                .collect::<Vec<i32>>();
+            control_frames.sort();
+            control_frames.dedup();
+
+            return Ok(LEDResponse {
+                id: -1,
+                part_name: "".to_string(),
+                effect_name: "".to_string(),
+                repeat: 0,
+                effects: vec![],
+                ok: false,
+                msg: format!(
+                    "LEDEffect Id {} is being used in control frames {:?}.",
+                    id, control_frames
+                ),
+            });
+        }
+
+        // check if effect is being edited by another user
+        if let Ok(effect) = sqlx::query!(
+            r#"
+                SELECT * FROM EditingLEDEffect WHERE led_effect_id = ?;
+            "#,
+            id
+        )
+        .fetch_one(mysql)
+        .await
+        {
+            if effect.user_id != context.user_id {
+                return Err(GQLError::from(format!(
+                    "This frame is being edited by user {}.",
+                    effect.user_id
+                )));
+            }
+        };
+
+        // delete from LEDEffectStates
+        let _ = sqlx::query!(
+            r#"
+                DELETE FROM LEDEffectState
+                WHERE effect_id = ?
+            "#,
+            id
+        )
+        .execute(mysql)
+        .await?;
+
+        // delete from LEDEffect
+        let _ = sqlx::query!(
+            r#"
+                DELETE FROM LEDEffect
+                WHERE id = ?
+            "#,
+            id
+        )
+        .execute(mysql)
+        .await?;
+
+        // publish to subscribers
+        let led_payload = LEDPayload {
+            mutation: LEDMutationMode::Deleted,
+            id,
+            edit_by: context.user_id,
+            data: LEDEffectData {
+                id: 0,
+                name: "".to_string(),
+                part_name: "".to_string(),
+                repeat: 0,
+                frames: vec![],
+            },
+            part_name: "".to_string(),
+            effect_name: "".to_string(),
+        };
+
+        Subscriptor::publish(led_payload);
+
+        Ok(LEDResponse {
+            id,
+            part_name: "".to_string(),
+            effect_name: "".to_string(),
+            repeat: 0,
+            effects: vec![],
+            ok: true,
+            msg: "successfully deleted LED effect".to_string(),
         })
     }
 }
