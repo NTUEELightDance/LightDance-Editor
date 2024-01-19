@@ -43,6 +43,7 @@ impl PositionFrameQuery {
         }
     }
 
+    #[graphql(name = "positionFrameIDs")]
     async fn position_frame_ids(&self, ctx: &Context<'_>) -> GQLResult<Vec<i32>> {
         let context = ctx.data::<UserContext>()?;
         let clients = &context.clients;
