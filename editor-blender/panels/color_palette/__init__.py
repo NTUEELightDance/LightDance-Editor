@@ -1,8 +1,8 @@
 import bpy
-from bpy.types import Context
 
 from ...core.states import state
-from ...properties.ui.types import ColorPaletteStatusType
+from ...properties.types import ColorPaletteItemType, ColorPaletteType
+from ...properties.ui.types import ColorPaletteEditModeType, ColorPaletteStatusType
 
 
 class ColorPalettePanel(bpy.types.Panel):
@@ -13,38 +13,43 @@ class ColorPalettePanel(bpy.types.Panel):
     bl_category = "ColorPalette"
 
     @classmethod
-    def poll(cls, context: Context) -> bool:
+    def poll(cls, context: bpy.types.Context) -> bool:
         return state.ready
 
-    def draw(self, context):
-        ld_ui_color_panel: ColorPaletteStatusType = getattr(
-            bpy.context.window_manager, "ld_ui_color_panel"
+    def draw(self, context: bpy.types.Context):
+        ld_ui_color_palette: ColorPaletteStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_color_palette"
         )
 
         layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
 
-        if not getattr(ld_ui_color_panel, "editing_mode"):
-            loaded_colors = getattr(context.window_manager, "ld_color_palette")
+        if ld_ui_color_palette.edit_mode == ColorPaletteEditModeType.IDLE.value:
+            loaded_colors: ColorPaletteType = getattr(
+                context.window_manager, "ld_color_palette"
+            )
             row = layout.row()
-            row.operator("lightdance.color_new", icon="ADD")
-            for i in range(len(loaded_colors)):
-                item = loaded_colors[i]
+            row.operator("lightdance.color_palette_new_mode", icon="ADD")
+
+            for i, item in enumerate(loaded_colors):
                 row = layout.row()
-                row.label(
-                    text=f"[{item.color_id}] {item.color_name}: {item.color_code}",
+                split = row.split()
+                split.operator("lightdance.empty", text=item.color_name)
+                split.prop(item, "color_float", text="")
+                split = row.split(align=True)
+                op = split.operator(
+                    "lightdance.color_palette_edit_mode", icon="GREASEPENCIL"
                 )
-                row = layout.row()
-                row.prop(item, "color_float", text="")
-                op = row.operator("lightdance.color_edit", icon="GREASEPENCIL")
-                setattr(op, "editing_index", i)
-                op = row.operator("lightdance.color_delete", icon="TRASH")
-                setattr(op, "deleting_index", i)
+                setattr(op, "edit_index", i)
+                op = split.operator("lightdance.delete_color", icon="TRASH")
+                setattr(op, "delete_index", i)
         else:
-            temp_item = getattr(context.window_manager, "ld_color_palette_temp")
+            temp_item: ColorPaletteItemType = getattr(
+                context.window_manager, "ld_color_palette_temp"
+            )
             row = layout.row()
-            row.label(text="[Edit mode]")
+            row.label(text="Editing Color")
             row = layout.row()
             row.prop(temp_item, "color_name", text="Name")
             row = layout.row()
@@ -52,8 +57,8 @@ class ColorPalettePanel(bpy.types.Panel):
             row = layout.row()
             row.prop(temp_item, "color_float", text="display")
             row = layout.row()
-            row.operator("lightdance.color_cancel", icon="PANEL_CLOSE")
-            row.operator("lightdance.color_confirm", icon="CHECKMARK")
+            row.operator("lightdance.color_palette_cancel", icon="PANEL_CLOSE")
+            row.operator("lightdance.color_palette_confirm", icon="CHECKMARK")
 
 
 def register():

@@ -41,7 +41,7 @@ from ...models import (
 )
 from ...states import state
 from ..state.load import load_data
-from .color_palette import setup_color_data_from_state
+from .color_palette import setup_color_palette_from_state
 
 
 async def __merge_pos_map(
@@ -245,7 +245,7 @@ async def init_color_map():
     color_map = await color_agent.get_color_map()
 
     state.color_map = color_map
-    setup_color_data_from_state(state.color_map)
+    setup_color_palette_from_state(state.color_map)
     print("Color map initialized")
 
 
