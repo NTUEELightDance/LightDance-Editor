@@ -18,3 +18,19 @@ def execute_operator(idname: str):
         print("Executed operator:", idname)
     except:
         print("Failed to execute operator:", idname)
+
+
+class EmptyOperator(bpy.types.Operator):
+    bl_idname = "lightdance.empty"
+    bl_label = "Empty Operator"
+
+    def execute(self, context: bpy.types.Context):
+        return {"FINISHED"}
+
+
+def register():
+    bpy.utils.register_class(EmptyOperator)
+
+
+def unregister():
+    bpy.utils.unregister_class(EmptyOperator)

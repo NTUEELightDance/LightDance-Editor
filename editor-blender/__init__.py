@@ -33,9 +33,9 @@ def register():
     from . import operators, panels, properties, storage
 
     storage.register()
+    properties.register()
     operators.register()
     panels.register()
-    properties.register()
 
 
 def unregister():

@@ -196,3 +196,15 @@ def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectLis
     ]
 
     return effectListItem
+
+
+def rgb_to_float(rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
+    return (rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
+
+
+def float_to_rgb(color_float: Tuple[float, float, float]) -> Tuple[int, int, int]:
+    return (
+        round(color_float[0] * 255),
+        round(color_float[1] * 255),
+        round(color_float[2] * 255),
+    )

@@ -1,4 +1,4 @@
-from . import auth, editor, pos_editor, startup
+from . import auth, editor, pos_editor, startup, color_palette
 
 
 def register():
@@ -6,6 +6,7 @@ def register():
     auth.register()
     editor.register()
     pos_editor.register()
+    color_palette.register()
 
 
 def unregister():
@@ -13,3 +14,4 @@ def unregister():
     auth.unregister()
     editor.unregister()
     pos_editor.unregister()
+    color_palette.unregister()
