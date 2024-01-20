@@ -1,5 +1,6 @@
 use async_graphql::{InputObject, SimpleObject};
 use serde::{Deserialize, Serialize};
+
 #[derive(SimpleObject, Serialize, Deserialize, Default, Debug, Clone)]
 pub struct Frame {
     #[graphql(name = "LEDs")]
@@ -22,3 +23,22 @@ pub struct LED {
     pub repeat: i32,
     pub frames: Vec<Frame>,
 }
+
+#[derive(SimpleObject, Clone, Default)]
+pub struct LEDEffectData {
+    pub id: i32,
+    pub name: String,
+    pub part_name: String,
+    pub repeat: i32,
+    pub frames: Vec<Frame>,
+}
+
+// #[derive(SimpleObject, Clone, Default)]
+// pub struct LEDEffectData {
+//     pub id: i32,
+//     pub name: String,
+//     pub part_name: String,
+//     pub position: i32,
+//     pub color_id: i32,
+//     pub alpha: i32,
+// }

@@ -1,7 +1,6 @@
 //! Color subscription methods.
 
-use crate::{db::types::led_effect::LEDEffectData, graphql::subscriptor::Subscriptor};
-
+use crate::graphql::{subscriptor::Subscriptor, types::led::LEDEffectData};
 use async_graphql::{Enum, SimpleObject, Subscription};
 use futures_core::stream::Stream;
 use serde::{Deserialize, Serialize};

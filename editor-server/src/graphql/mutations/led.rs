@@ -1,5 +1,4 @@
-use crate::db::types::led_effect::LEDEffectData;
-use crate::graphql::types::led::{Frame, InputFrame};
+use crate::graphql::types::led::{Frame, InputFrame, LEDEffectData};
 use crate::graphql::{
     subscriptions::led::{LEDMutationMode, LEDPayload},
     subscriptor::Subscriptor,
