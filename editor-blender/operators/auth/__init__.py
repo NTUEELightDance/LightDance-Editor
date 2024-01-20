@@ -1,6 +1,7 @@
 import bpy
 
 from ...core.actions.state.auth import login, logout
+from ...core.utils.notification import notify
 from ...operators.async_core import AsyncOperator
 from ...properties.ui.types import LoginPanelStatusType
 
@@ -16,9 +17,9 @@ class LoginOperator(AsyncOperator):
 
         success = await login(ld_ui_login.username, ld_ui_login.password)
         if success:
-            self.report({"INFO"}, "Login successful.")
+            notify("INFO", "Login successful.")
         else:
-            self.report({"ERROR"}, "Login failed.")
+            notify("ERROR", "Login failed.")
 
         return {"FINISHED"}
 
@@ -30,9 +31,9 @@ class LogoutOperator(AsyncOperator):
     async def async_execute(self, context: bpy.types.Context):
         success = await logout()
         if success:
-            self.report({"INFO"}, "Logout successful.")
+            notify("INFO", "Logout successful.")
         else:
-            self.report({"ERROR"}, "Logout failed.")
+            notify("ERROR", "Logout failed.")
 
         return {"FINISHED"}
 

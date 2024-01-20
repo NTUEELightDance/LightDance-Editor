@@ -4,6 +4,7 @@ from ....client.subscription import subscribe
 from ....core.actions.state.initialize import init_editor
 from ....core.asyncio import AsyncTask
 from ....core.states import state
+from ....core.utils.operator import execute_operator
 from ....core.utils.ui import redraw_area
 from ....handlers import mount
 from ....storage import set_storage
@@ -34,7 +35,11 @@ async def login(username: str, password: str) -> bool:
             state.init_editor_task.cancel()
         state.init_editor_task = AsyncTask(init_editor).exec()
 
+        # Mount handlers
         mount()
+
+        # Start notification system
+        execute_operator("lightdance.notification")
 
     return login_result.success
 

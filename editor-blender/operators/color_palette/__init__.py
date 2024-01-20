@@ -2,6 +2,7 @@ import bpy
 
 from ...core.actions.state.color_palette import add_color, delete_color, edit_color
 from ...core.states import state
+from ...core.utils.notification import notify
 from ...core.utils.ui import redraw_area
 from ...properties.types import ColorPaletteItemType, ColorPaletteType
 from ...properties.ui.types import ColorPaletteEditModeType, ColorPaletteStatusType
@@ -91,13 +92,13 @@ class ColorDeleteOperator(AsyncOperator):
 
         try:
             await delete_color(color_delete.color_id)
-            self.report({"INFO"}, "Deleted color")
+            notify("INFO", "Deleted color")
 
             redraw_area("VIEW_3D")
 
         except Exception as e:
             print(e)
-            self.report({"ERROR"}, "Failed to delete color")
+            notify("ERROR", "Failed to delete color")
 
         return {"FINISHED"}
 
@@ -149,14 +150,14 @@ class ColorConfirmOperator(AsyncOperator):
                 )
                 try:
                     await edit_color(id, name, rgb)
-                    self.report({"INFO"}, "Edited color")
+                    notify("INFO", "Edited color")
                     ld_ui_color_palette.edit_mode = ColorPaletteEditModeType.IDLE.value
 
                     redraw_area("VIEW_3D")
 
                 except Exception as e:
                     print(e)
-                    self.report({"ERROR"}, "Failed to edit color")
+                    notify("ERROR", "Failed to edit color")
 
             case ColorPaletteEditModeType.NEW.value:
                 color_temp: ColorPaletteItemType = getattr(
@@ -170,14 +171,14 @@ class ColorConfirmOperator(AsyncOperator):
                 )
                 try:
                     await add_color(name, rgb)
-                    self.report({"INFO"}, "Added color")
+                    notify("INFO", "Added color")
                     ld_ui_color_palette.edit_mode = ColorPaletteEditModeType.IDLE.value
 
                     redraw_area("VIEW_3D")
 
                 except Exception as e:
                     print(e)
-                    self.report({"ERROR"}, "Failed to add color")
+                    notify("ERROR", "Failed to add color")
 
             case _:
                 pass

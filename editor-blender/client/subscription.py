@@ -3,17 +3,21 @@ from typing import List, Optional
 
 from ..client import Clients, client
 from ..client.cache import Modifiers
-from ..core.actions.state.color_map import set_color_map
-from ..core.actions.state.control_map import set_control_map, set_control_record
-from ..core.actions.state.pos_map import set_pos_map, set_pos_record
+from ..core.actions.state.color_map import add_color, delete_color, update_color
+from ..core.actions.state.control_map import (
+    add_control,
+    delete_control,
+    set_control_record,
+)
+from ..core.actions.state.pos_map import add_pos, set_pos_record, update_pos
 from ..core.models import ID
 from ..core.utils.convert import (
-    color_map_query_to_state,
+    color_query_to_state,
+    control_frame_query_to_state,
     control_frame_sub_to_query,
-    control_map_query_to_state,
     effect_list_data_sub_to_query,
+    pos_frame_query_to_state,
     pos_frame_sub_to_query,
-    pos_map_query_to_state,
 )
 from ..graphqls.queries import (
     QueryColorMapData,
@@ -72,13 +76,14 @@ async def sub_pos_record(client: Clients):
             if len(deleteID) > 0:
                 newPosRecord = list(filter(lambda id: id not in deleteID, newPosRecord))
 
-            await set_pos_record(newPosRecord)
+            set_pos_record(newPosRecord)
 
             return newPosRecord
 
         await client.cache.modify(Modifiers(fields={"positionFrameIDs": modifier}))
 
 
+# TODO: Implement lazy update
 async def sub_pos_map(client: Clients):
     async for data in client.subscribe(SubPositionMapData, SUB_POS_MAP):
         print("SubPosMap:", data)
@@ -96,15 +101,23 @@ async def sub_pos_map(client: Clients):
             deleteFrames = frame.deleteFrames
 
             for id, posSub in createFrames.items():
-                newPosMap.frameIds[id] = pos_frame_sub_to_query(posSub)
+                newPosFrame = pos_frame_sub_to_query(posSub)
+                new_pos_frame = pos_frame_query_to_state(newPosFrame)
+
+                newPosMap.frameIds[id] = newPosFrame
+                add_pos(id, new_pos_frame)
 
             for id in deleteFrames:
                 del newPosMap.frameIds[id]
 
             for id, posSub in updateFrames.items():
-                newPosMap.frameIds[id] = pos_frame_sub_to_query(posSub)
+                newPosFrame = pos_frame_sub_to_query(posSub)
+                new_pos_frame = pos_frame_query_to_state(newPosFrame)
 
-            await set_pos_map(pos_map_query_to_state(newPosMap.frameIds))
+                newPosMap.frameIds[id] = newPosFrame
+                update_pos(id, new_pos_frame)
+
+            # set_pos_map(pos_map_query_to_state(newPosMap.frameIds))
 
             return newPosMap
 
@@ -149,13 +162,14 @@ async def sub_control_record(client: Clients):
                     filter(lambda id: id not in deleteID, newControlRecord)
                 )
 
-            await set_control_record(newControlRecord)
+            set_control_record(newControlRecord)
 
             return newControlRecord
 
         await client.cache.modify(Modifiers(fields={"controlFrameIDs": modifier}))
 
 
+# TODO: Implement lazy update
 async def sub_control_map(client: Clients):
     async for data in client.subscribe(SubControlMapData, SUB_CONTROL_MAP):
         print("SubControlMap:", data)
@@ -172,16 +186,27 @@ async def sub_control_map(client: Clients):
             updateFrames = frame.updateFrames
             deleteFrames = frame.deleteFrames
 
+            # NOTE: There's only one modification at a time in fact
+
             for id, frameSub in createFrames.items():
-                newControlMap.frameIds[id] = control_frame_sub_to_query(frameSub)
+                newControlFrame = control_frame_sub_to_query(frameSub)
+                new_control_frame = control_frame_query_to_state(newControlFrame)
+
+                newControlMap.frameIds[id] = newControlFrame
+                add_control(id, new_control_frame)
 
             for id in deleteFrames:
                 del newControlMap.frameIds[id]
+                delete_control(id)
 
             for id, frameSub in updateFrames.items():
-                newControlMap.frameIds[id] = control_frame_sub_to_query(frameSub)
+                newControlFrame = control_frame_sub_to_query(frameSub)
+                new_control_frame = control_frame_query_to_state(newControlFrame)
 
-            await set_control_map(control_map_query_to_state(newControlMap.frameIds))
+                newControlMap.frameIds[id] = newControlFrame
+                add_control(id, new_control_frame)
+
+            # set_control_map(control_map_query_to_state(newControlMap.frameIds))
 
             return newControlMap
 
@@ -216,6 +241,7 @@ async def sub_effect_list(client: Clients):
         await client.cache.modify(Modifiers(fields={"effectList": modifier}))
 
 
+# TODO: Implement lazy update
 async def sub_color_map(client: Clients):
     async for data in client.subscribe(SubColorData, SUB_COLOR_MAP):
         print("SubColorMap:", data)
@@ -236,21 +262,28 @@ async def sub_color_map(client: Clients):
                 case SubColorMutation.CREATED:
                     if color is None or colorCode is None:
                         return newColorMap
-                    newColorMap.colorMap[id] = QueryColorMapPayloadItem(
+                    newColor = QueryColorMapPayloadItem(
                         color=color, colorCode=colorCode
                     )
+                    new_color = color_query_to_state(id, newColor)
+
+                    newColorMap.colorMap[id] = newColor
+                    add_color(id, new_color)
 
                 case SubColorMutation.UPDATED:
                     if color is None or colorCode is None:
                         return newColorMap
-                    newColorMap.colorMap[id] = QueryColorMapPayloadItem(
+                    newColor = QueryColorMapPayloadItem(
                         color=color, colorCode=colorCode
                     )
+                    new_color = color_query_to_state(id, newColor)
+
+                    newColorMap.colorMap[id] = newColor
+                    update_color(id, new_color)
 
                 case SubColorMutation.DELETED:
                     del newColorMap.colorMap[id]
-
-            await set_color_map(color_map_query_to_state(newColorMap.colorMap))
+                    delete_color(id)
 
             return newColorMap
 

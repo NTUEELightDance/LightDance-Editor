@@ -4,6 +4,7 @@ from . import (
     auth,
     color_palette,
     editor,
+    notification,
     pos_editor,
     setup,
     slider,
@@ -21,6 +22,7 @@ def register():
     pos_editor.register()
     color_palette.register()
     utils.register()
+    notification.register()
 
 
 def unregister():
@@ -33,3 +35,4 @@ def unregister():
     pos_editor.unregister()
     color_palette.unregister()
     utils.unregister()
+    notification.unregister()

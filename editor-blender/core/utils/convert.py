@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from ...graphqls.queries import (
     QueryColorMapPayload,
+    QueryColorMapPayloadItem,
     QueryControlFrame,
     QueryControlMapPayload,
     QueryCoordinatesPayload,
@@ -21,6 +22,7 @@ from ...graphqls.subscriptions import (
 )
 from ..models import (
     Color,
+    ColorID,
     ColorMap,
     ControlMap,
     ControlMapElement,
@@ -61,9 +63,15 @@ def dancers_query_to_state(payload: QueryDancersPayload) -> DancersArray:
     return dancers_array
 
 
+def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
+    pos_map_element = PosMapElement(start=payload.start, pos={})
+    pos_map_element.pos = pos_status_query_to_state(payload.pos)
+
+    return pos_map_element
+
+
 def pos_frame_sub_to_query(data: SubPositionFrame) -> QueryPosFrame:
     response = QueryPosFrame(start=data.start, pos=[])
-
     response.pos = [(pos[0], pos[1], pos[2]) for pos in data.pos]
 
     return response
@@ -89,9 +97,7 @@ def pos_map_query_to_state(frames: QueryPosMapPayload) -> PosMap:
     pos_map: PosMap = {}
 
     for id, frame in frames.items():
-        pos_map[id] = PosMapElement(
-            start=frame.start, pos=pos_status_query_to_state(frame.pos)
-        )
+        pos_map[id] = pos_frame_query_to_state(frame)
 
     return pos_map
 
@@ -128,17 +134,21 @@ def control_status_query_to_state(
     return control_map_status
 
 
+def control_frame_query_to_state(payload: QueryControlFrame) -> ControlMapElement:
+    control_map_element = ControlMapElement(
+        start=payload.start, fade=payload.fade, status={}
+    )
+
+    control_map_element.status = control_status_query_to_state(payload.status)
+
+    return control_map_element
+
+
 def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
     control_map: ControlMap = {}
 
     for id, frame in frames.items():
-        control_map_element = ControlMapElement(
-            start=frame.start, fade=frame.fade, status={}
-        )
-
-        control_map_element.status = control_status_query_to_state(frame.status)
-
-        control_map[id] = control_map_element
+        control_map[id] = control_frame_query_to_state(frame)
 
     return control_map
 
@@ -157,6 +167,15 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
 def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
     r, g, b = rgb
     return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def color_query_to_state(id: ColorID, payload: QueryColorMapPayloadItem) -> Color:
+    return Color(
+        id=id,
+        name=payload.color,
+        color_code=rgb_to_hex(payload.colorCode),
+        rgb=payload.colorCode,
+    )
 
 
 def color_map_query_to_state(payload: QueryColorMapPayload) -> ColorMap:

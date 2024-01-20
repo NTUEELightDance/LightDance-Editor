@@ -40,56 +40,32 @@ from ...models import (
     SelectedItem,
 )
 from ...states import state
+from ...utils.operator import execute_operator
 from ..state.load import load_data
 from .color_palette import setup_color_palette_from_state
 
-
-async def __merge_pos_map(
-    existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
-) -> QueryPosMapPayload:
-    posMap = pos_map_query_to_state(incoming)
-    await set_pos_map(posMap)
-    return incoming
-
-
-async def __merge_control_map(
-    existing: Optional[QueryControlMapPayload], incoming: QueryControlMapPayload
-) -> QueryControlMapPayload:
-    controlMap = control_map_query_to_state(incoming)
-    await set_control_map(controlMap)
-    return incoming
-
-
-async def __merge_color_map(
-    existing: Optional[QueryColorMapPayload], incoming: QueryColorMapPayload
-) -> QueryColorMapPayload:
-    colorMap = color_map_query_to_state(incoming)
-    await set_color_map(colorMap)
-    return incoming
-
-
-async def __merge_pos_map(
-    existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
-) -> QueryPosMapPayload:
-    posMap = pos_map_query_to_state(incoming)
-    await set_pos_map(posMap)
-    return incoming
-
-
-async def __merge_control_map(
-    existing: Optional[QueryControlMapPayload], incoming: QueryControlMapPayload
-) -> QueryControlMapPayload:
-    controlMap = control_map_query_to_state(incoming)
-    await set_control_map(controlMap)
-    return incoming
-
-
-async def __merge_color_map(
-    existing: Optional[QueryColorMapPayload], incoming: QueryColorMapPayload
-) -> QueryColorMapPayload:
-    colorMap = color_map_query_to_state(incoming)
-    await set_color_map(colorMap)
-    return incoming
+# async def __merge_pos_map(
+#     existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
+# ) -> QueryPosMapPayload:
+#     posMap = pos_map_query_to_state(incoming)
+#     await set_pos_map(posMap)
+#     return incoming
+#
+#
+# async def __merge_control_map(
+#     existing: Optional[QueryControlMapPayload], incoming: QueryControlMapPayload
+# ) -> QueryControlMapPayload:
+#     controlMap = control_map_query_to_state(incoming)
+#     await set_control_map(controlMap)
+#     return incoming
+#
+#
+# async def __merge_color_map(
+#     existing: Optional[QueryColorMapPayload], incoming: QueryColorMapPayload
+# ) -> QueryColorMapPayload:
+#     colorMap = color_map_query_to_state(incoming)
+#     await set_color_map(colorMap)
+#     return incoming
 
 
 async def init_blender():
@@ -97,21 +73,21 @@ async def init_blender():
     client.configure_cache(
         InMemoryCache(
             policies={
-                "PosMap": TypePolicy(
-                    fields={
-                        "frameIds": FieldPolicy(merge=__merge_pos_map),
-                    }
-                ),
-                "ControlMap": TypePolicy(
-                    fields={
-                        "frameIds": FieldPolicy(merge=__merge_control_map),
-                    }
-                ),
-                "colorMap": TypePolicy(
-                    fields={
-                        "colorMap": FieldPolicy(merge=__merge_color_map),
-                    }
-                ),
+                # "PosMap": TypePolicy(
+                #     fields={
+                #         "frameIds": FieldPolicy(merge=__merge_pos_map),
+                #     }
+                # ),
+                # "ControlMap": TypePolicy(
+                #     fields={
+                #         "frameIds": FieldPolicy(merge=__merge_control_map),
+                #     }
+                # ),
+                # "colorMap": TypePolicy(
+                #     fields={
+                #         "colorMap": FieldPolicy(merge=__merge_color_map),
+                #     }
+                # ),
             }
         )
     )
@@ -140,7 +116,11 @@ async def init_blender():
             state.init_editor_task.cancel()
         state.init_editor_task = AsyncTask(init_editor).exec()
 
+        # Mount handlers
         mount()
+
+        # Start notification system
+        execute_operator("lightdance.notification")
 
     else:
         state.is_running = True
@@ -270,6 +250,7 @@ async def init_color_map():
 
     state.color_map = color_map
     setup_color_palette_from_state(state.color_map)
+
     print("Color map initialized")
 
 

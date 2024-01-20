@@ -2,6 +2,7 @@ import bpy
 
 from ...core.actions.state.editor import set_editor
 from ...core.models import Editor
+from ...core.utils.notification import notify
 
 
 class ToggleControlEditor(bpy.types.Operator):
@@ -12,9 +13,9 @@ class ToggleControlEditor(bpy.types.Operator):
 
     def execute(self, context: bpy.types.Context):
         if set_editor(Editor.CONTROL_EDITOR):
-            self.report({"INFO"}, "Switched to Control Editor")
+            notify("INFO", "Switched to Control Editor")
         else:
-            self.report({"WARNING"}, "Cannot switch to Control Editor")
+            notify("WARNING", "Cannot switch to Control Editor")
 
         return {"FINISHED"}
 
@@ -27,9 +28,9 @@ class TogglePosEditor(bpy.types.Operator):
 
     def execute(self, context: bpy.types.Context):
         if set_editor(Editor.POS_EDITOR):
-            self.report({"INFO"}, "Switched to Position Editor")
+            notify("INFO", "Switched to Position Editor")
         else:
-            self.report({"WARNING"}, "Cannot switch to Position Editor")
+            notify("WARNING", "Cannot switch to Position Editor")
 
         return {"FINISHED"}
 
@@ -43,9 +44,9 @@ class ToggleLEDEditor(bpy.types.Operator):
     def execute(self, context: bpy.types.Context):
         # TODO: Toggle LED editor selection panel
         if set_editor(Editor.LED_EDITOR):
-            self.report({"INFO"}, "Switched to LED Editor")
+            notify("INFO", "Switched to LED Editor")
         else:
-            self.report({"WARNING"}, "Cannot switch to LED Editor")
+            notify("WARNING", "Cannot switch to LED Editor")
 
         return {"FINISHED"}
 
