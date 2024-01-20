@@ -79,7 +79,7 @@ where
         match self {
             Ok(ok) => Ok(ok),
             Err(err) => Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
+                StatusCode::BAD_REQUEST,
                 Json(UploadDataFailedResponse {
                     err: err.to_string(),
                 })
@@ -121,6 +121,8 @@ pub async fn upload_data(
         let _ = sqlx::query!(r#"DELETE FROM LEDEffectState"#,).execute(mysql).await;
         let _ = sqlx::query!(r#"DELETE FROM EffectListData"#,).execute(mysql).await;
         println!("DB cleared");
+
+        let mut tx = mysql.begin().await.into_result()?;
         
         // HashMap<ColorName, ColorID>
         let mut color_dict: HashMap<&String, i32> = HashMap::new();
@@ -137,7 +139,7 @@ pub async fn upload_data(
                 color_code[1],
                 color_code[2],
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await
             .into_result()?
             .last_insert_id() as i32;
@@ -162,7 +164,7 @@ pub async fn upload_data(
                     effect_name,
                     part_name,
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await
                 .into_result()?
                 .last_insert_id() as i32;
@@ -174,12 +176,14 @@ pub async fn upload_data(
                     // What to do if color not found?
                     let color_id = match color_dict.get(color) {
                         Some(i) => i,
-                        None => return Err((
-                            StatusCode::BAD_REQUEST,
-                            Json(UploadDataFailedResponse {
-                                err: format!("Error: Unknown Color Name {color} in LEDEffects/{part_name}/{effect_name} at frame 0, index {index}."),
-                            }),
-                        ))
+                        None => {
+                            return Err((
+                                StatusCode::BAD_REQUEST,
+                                Json(UploadDataFailedResponse {
+                                    err: format!("Error: Unknown Color Name {color} in LEDEffects/{part_name}/{effect_name} at frame 0, index {index}."),
+                                }),
+                            ))
+                        }
                     };
                     let _ = sqlx::query!(
                         r#"
@@ -191,7 +195,7 @@ pub async fn upload_data(
                         color_id,
                         alpha,
                     )
-                    .execute(mysql)
+                    .execute(&mut *tx)
                     .await
                     .into_result()?;
                 }
@@ -214,7 +218,7 @@ pub async fn upload_data(
                 "#,
                 dancer.name,
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await
             .into_result()?
             .last_insert_id() as i32;
@@ -235,7 +239,7 @@ pub async fn upload_data(
                     type_string,
                     part.length,
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await
                 .into_result()?
                 .last_insert_id() as i32;
@@ -266,7 +270,7 @@ pub async fn upload_data(
                 "#,
                 frame_obj.start,
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await
             .into_result()?
             .last_insert_id() as i32;
@@ -285,7 +289,7 @@ pub async fn upload_data(
                     dancer_pos_data[1],
                     dancer_pos_data[2],
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await
                 .into_result()?;
             }
@@ -313,7 +317,7 @@ pub async fn upload_data(
                 frame_obj.start,
                 frame_obj.fade,
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await
             .into_result()?
             .last_insert_id() as i32;
@@ -347,6 +351,27 @@ pub async fn upload_data(
                         }, 
                         None => None,
                     };
+
+                    if color_id == None && type_string == "COLOR" {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            Json(UploadDataFailedResponse {
+                                err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown color {}.",
+                                 frame_obj.start, i, j, &part_control_data.0),
+                            }),
+                        ));
+                    };
+
+                    if effect_id == None && type_string == "EFFECT" {
+                        return Err((
+                            StatusCode::BAD_REQUEST,
+                            Json(UploadDataFailedResponse {
+                                err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown LED effect {}.",
+                                 frame_obj.start, i, j, &part_control_data.0),
+                            }),
+                        ));
+                    };
+
                     let alpha = part_control_data.1;
 
                     let _ = sqlx::query!(
@@ -361,7 +386,7 @@ pub async fn upload_data(
                         effect_id,
                         alpha,
                     )
-                    .execute(mysql)
+                    .execute(&mut *tx)
                     .await
                     .into_result()?;
                 }
@@ -370,9 +395,7 @@ pub async fn upload_data(
         }
         control_progress.finish();
 
-        // println!("{:?}", data_obj.color);
-        // println!("{:?}", data_obj.dancer);
-        // println!("{:?}", data_obj.led_effects);
+        let _ = tx.commit().await.into_result()?;
         println!("Upload Finish!");
         Ok((StatusCode::OK, Json(UploadDataResponse("Data Uploaded Successfully!".to_string()))))
     } else {
