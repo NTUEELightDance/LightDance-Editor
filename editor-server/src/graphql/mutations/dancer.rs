@@ -5,6 +5,7 @@ use crate::graphql::{
     types::dancer::Dancer,
 };
 use crate::types::global::UserContext;
+use crate::utils::data::{init_redis_control, init_redis_position};
 
 use async_graphql::{Context, InputObject, Object, Result as GQLResult, SimpleObject};
 
@@ -41,14 +42,12 @@ impl DancerMutation {
         ctx: &Context<'_>, 
         input: DancerCreateInput
     ) -> GQLResult<DancerResponse> {
-
-        //TODO : figure out redis and postion data and some stuff
-        //Done : check if dancer exists, if no then insert
-
+        
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let redis = clients.redis_client();
 
         let dancer_name = input.name.clone();
 
@@ -80,6 +79,9 @@ impl DancerMutation {
             .await?
             .last_insert_id() as i32,
         };
+
+        init_redis_control(mysql, redis);
+        init_redis_position(mysql, redis);
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Created,
@@ -172,6 +174,7 @@ impl DancerMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let redis = clients.redis_client();
 
         let dancer_id = input.id.clone();
 
@@ -207,6 +210,9 @@ impl DancerMutation {
         )
         .execute(mysql)
         .await?;
+
+        init_redis_control(mysql, redis);
+        init_redis_position(mysql, redis);
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Deleted,
