@@ -10,3 +10,4 @@ pub mod part;
 pub mod position;
 pub mod position_frame;
 pub mod user;
+pub mod dancer;
