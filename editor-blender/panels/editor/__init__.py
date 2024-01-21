@@ -1,6 +1,6 @@
 import bpy
 
-from ...core.models import Editor
+from ...core.models import EditMode, Editor
 from ...core.states import state
 
 
@@ -36,7 +36,27 @@ class EditorPanel(bpy.types.Panel):
             depress=state.editor == Editor.LED_EDITOR,
         )
 
-        row = layout.box().row(align=True)
+        sync_enable = (
+            state.color_map_pending
+            or state.control_map_pending
+            or state.pos_map_pending
+        )
+
+        box = layout.box()
+        row = box.row()
+        row.operator("lightdance.sync_pending_updates", text="Sync incoming updates")
+        row.enabled = sync_enable
+
+        if state.edit_state == EditMode.EDITING:
+            row = box.row()
+            row.label(text="Editing")
+            row.operator("lightdance.save", text="Save")
+            row.operator("lightdance.cancel_edit", text="Cancel")
+        else:
+            row = box.row()
+            row.operator("lightdance.add", text="Add")
+            row.operator("lightdance.request_edit", text="Edit")
+            row.operator("lightdance.delete", text="Delete")
 
 
 def register():

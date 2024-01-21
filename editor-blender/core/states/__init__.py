@@ -1,4 +1,12 @@
-from ..models import EditingData, EditMode, Editor, State
+from ..models import (
+    ColorMapUpdates,
+    ControlMapUpdates,
+    EditingData,
+    EditMode,
+    Editor,
+    PosMapUpdates,
+    State,
+)
 
 state = State(
     is_running=False,
@@ -58,4 +66,10 @@ state = State(
     dancer_part_index_map={},
     # rpi_status
     # shell_history
+    color_map_updates=ColorMapUpdates(added=[], updated=[], deleted=[]),
+    color_map_pending=False,
+    control_map_updates=ControlMapUpdates(added=[], updated=[], deleted=[]),
+    control_map_pending=False,
+    pos_map_updates=PosMapUpdates(added=[], updated=[], deleted=[]),
+    pos_map_pending=False,
 )

@@ -9,7 +9,7 @@ from ..core.actions.state.control_map import (
     delete_control,
     set_control_record,
 )
-from ..core.actions.state.pos_map import add_pos, set_pos_record, update_pos
+from ..core.actions.state.pos_map import add_pos, delete_pos, set_pos_record, update_pos
 from ..core.models import ID
 from ..core.utils.convert import (
     color_query_to_state,
@@ -109,6 +109,7 @@ async def sub_pos_map(client: Clients):
 
             for id in deleteFrames:
                 del newPosMap.frameIds[id]
+                delete_pos(id)
 
             for id, posSub in updateFrames.items():
                 newPosFrame = pos_frame_sub_to_query(posSub)
@@ -299,9 +300,9 @@ async def subscribe():
             print("Subscribing...")
 
             tasks = [
-                asyncio.create_task(sub_pos_record(client)),
+                # asyncio.create_task(sub_pos_record(client)),
                 asyncio.create_task(sub_pos_map(client)),
-                asyncio.create_task(sub_control_record(client)),
+                # asyncio.create_task(sub_control_record(client)),
                 asyncio.create_task(sub_control_map(client)),
                 asyncio.create_task(sub_effect_list(client)),
                 asyncio.create_task(sub_color_map(client)),

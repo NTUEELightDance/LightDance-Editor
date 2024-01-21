@@ -38,7 +38,8 @@ async def login(username: str, password: str) -> bool:
         # Mount handlers
         mount()
 
-        # Start notification system
+        # Start background operators
+        execute_operator("lightdance.animation_status_listener")
         execute_operator("lightdance.notification")
 
     return login_result.success

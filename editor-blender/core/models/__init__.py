@@ -175,6 +175,27 @@ Selected = Dict[DancerName, SelectedItem]
 
 
 @dataclass
+class ColorMapUpdates:
+    added: List[Color]
+    updated: List[Color]
+    deleted: List[ColorID]
+
+
+@dataclass
+class ControlMapUpdates:
+    added: List[Tuple[MapID, ControlMapElement]]
+    updated: List[Tuple[MapID, ControlMapElement]]
+    deleted: List[MapID]
+
+
+@dataclass
+class PosMapUpdates:
+    added: List[Tuple[MapID, PosMapElement]]
+    updated: List[Tuple[MapID, PosMapElement]]
+    deleted: List[MapID]
+
+
+@dataclass
 class State:
     is_running: bool
     is_logged_in: bool
@@ -250,3 +271,12 @@ class State:
     # TODO: Add these
     # rpi_status: RPiStatus
     # shell_history: ShellHistory
+
+    color_map_updates: ColorMapUpdates
+    color_map_pending: bool
+
+    control_map_updates: ControlMapUpdates
+    control_map_pending: bool
+
+    pos_map_updates: PosMapUpdates
+    pos_map_pending: bool

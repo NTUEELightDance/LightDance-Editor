@@ -21,12 +21,17 @@ class SliderDraggingListener(bpy.types.Operator):
         return {"PASS_THROUGH"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
-        wm = context.window_manager
-        wm.modal_handler_add(self)
+        if event.type == "LEFTMOUSE":
+            print("Drag")
+            wm = context.window_manager
+            wm.modal_handler_add(self)
 
-        setattr(wm, "dragging_slider", True)
+            setattr(wm, "dragging_slider", True)
 
-        return {"RUNNING_MODAL"}
+            return {"RUNNING_MODAL"}
+
+        else:
+            return {"PASS_THROUGH"}
 
 
 def register():

@@ -29,7 +29,8 @@ class NotificationOperator(bpy.types.Operator):
         return {"FINISHED"}
 
     def __del__(self):
-        bpy.context.window_manager.event_timer_remove(self._timer)
+        if hasattr(self, "_timer"):
+            bpy.context.window_manager.event_timer_remove(self._timer)
 
 
 def register():

@@ -5,27 +5,33 @@ from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
 from ....client import client
-from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
+
+# from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
 from ....client.subscription import subscribe
 from ....core.actions.state.color_map import set_color_map
-from ....core.actions.state.control_map import set_control_map
+
+# from ....core.actions.state.color_map import set_color_map
+# from ....core.actions.state.control_map import set_control_map
 from ....core.actions.state.current_pos import update_current_pos_by_index
 from ....core.actions.state.current_status import update_current_status_by_index
-from ....core.actions.state.pos_map import set_pos_map
+
+# from ....core.actions.state.pos_map import set_pos_map
 from ....core.asyncio import AsyncTask
 from ....core.states import state
-from ....core.utils.convert import (
-    color_map_query_to_state,
-    control_map_query_to_state,
-    pos_map_query_to_state,
-)
+
+# from ....core.utils.convert import (
+#     color_map_query_to_state,
+#     control_map_query_to_state,
+#     pos_map_query_to_state,
+# )
 from ....core.utils.get_data import get_control, get_pos
 from ....core.utils.ui import redraw_area
-from ....graphqls.queries import (
-    QueryColorMapPayload,
-    QueryControlMapPayload,
-    QueryPosMapPayload,
-)
+
+# from ....graphqls.queries import (
+#     QueryColorMapPayload,
+#     QueryControlMapPayload,
+#     QueryPosMapPayload,
+# )
 from ....handlers import mount
 from ....storage import get_storage
 from ...models import (
@@ -70,27 +76,27 @@ from .color_palette import setup_color_palette_from_state
 
 async def init_blender():
     # Setup cache policies
-    client.configure_cache(
-        InMemoryCache(
-            policies={
-                # "PosMap": TypePolicy(
-                #     fields={
-                #         "frameIds": FieldPolicy(merge=__merge_pos_map),
-                #     }
-                # ),
-                # "ControlMap": TypePolicy(
-                #     fields={
-                #         "frameIds": FieldPolicy(merge=__merge_control_map),
-                #     }
-                # ),
-                # "colorMap": TypePolicy(
-                #     fields={
-                #         "colorMap": FieldPolicy(merge=__merge_color_map),
-                #     }
-                # ),
-            }
-        )
-    )
+    # client.configure_cache(
+    #     InMemoryCache(
+    #         policies={
+    #             "PosMap": TypePolicy(
+    #                 fields={
+    #                     "frameIds": FieldPolicy(merge=__merge_pos_map),
+    #                 }
+    #             ),
+    #             "ControlMap": TypePolicy(
+    #                 fields={
+    #                     "frameIds": FieldPolicy(merge=__merge_control_map),
+    #                 }
+    #             ),
+    #             "colorMap": TypePolicy(
+    #                 fields={
+    #                     "colorMap": FieldPolicy(merge=__merge_color_map),
+    #                 }
+    #             ),
+    #         }
+    #     )
+    # )
 
     # Open clients with token
     token: str = get_storage("token")
@@ -119,7 +125,8 @@ async def init_blender():
         # Mount handlers
         mount()
 
-        # Start notification system
+        # Start background operators
+        execute_operator("lightdance.animation_status_listener")
         execute_operator("lightdance.notification")
 
     else:
@@ -146,7 +153,7 @@ async def init_editor():
 
     batches_functions = [
         [load_data, init_dancers, init_color_map],
-        # [init_current_status, init_current_pos],
+        [init_current_status, init_current_pos],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -247,16 +254,15 @@ async def init_dancers():
 
 async def init_color_map():
     color_map = await color_agent.get_color_map()
-
-    state.color_map = color_map
-    setup_color_palette_from_state(state.color_map)
+    set_color_map(color_map)
 
     print("Color map initialized")
 
 
 async def init_current_status():
-    _, control_record = await get_control()
+    control_map, control_record = await get_control()
 
+    state.control_map = control_map
     state.control_record = control_record
     update_current_status_by_index(0)
     # TODO: Push status stack
@@ -265,10 +271,13 @@ async def init_current_status():
 
 
 async def init_current_pos():
-    _, pos_record = await get_pos()
+    pos_map, pos_record = await get_pos()
 
+    state.pos_map = pos_map
     state.pos_record = pos_record
-    update_current_pos_by_index(0)
+    state.current_pos_index = 0
+    update_current_pos_by_index()
+
     # TODO: Push pos stack
 
     print("Current pos initialized")
