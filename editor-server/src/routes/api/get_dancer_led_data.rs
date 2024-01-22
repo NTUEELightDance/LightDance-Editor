@@ -11,10 +11,12 @@ use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Status {
+    start: i32,
     status: Vec<[i32; 4]>,
+    fade: bool,
 }
 
-pub type GetDataResponse = HashMap<String, Status>;
+pub type GetDataResponse = HashMap<String, Vec<Status>>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GetDataFailedResponse {
@@ -147,9 +149,10 @@ pub async fn get_dancer_led_data(
     let mut response: GetDataResponse = HashMap::new();
 
     for (part_name, control_data) in parts.iter() {
-        let mut part_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
+        let mut part_data = Vec::<Status>::new();
 
         for data in control_data.iter() {
+            let mut effect_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
             // -1 means no effect (for now)
             if data.effect_id.ok_or("Effect id not found").into_result()? == -1 {
                 continue;
@@ -178,17 +181,23 @@ pub async fn get_dancer_led_data(
                 let color = color_map
                     .get(&state.color_id)
                     .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-                part_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
+                effect_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
             }
+
+            part_data.push(Status {
+                start: 0,
+                status: effect_data,
+                fade: false,
+            });
         }
 
-        response.insert(part_name.clone(), Status { status: part_data });
+        response.insert(part_name.clone(), part_data);
     }
 
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-    // return data of form {part_name: {status: [[r, g, b, a], [r, g, b, a]]}, ...}
+    // return data of form {part_name: [{status: [[r, g, b, a], [r, g, b, a]]}, ...}, ...]
     // index of status array is position of led
 
     Ok((StatusCode::OK, (headers, Json(response))))
