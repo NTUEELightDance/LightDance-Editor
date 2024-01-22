@@ -2,10 +2,14 @@
 
 use crate::graphql::{subscriptor::Subscriptor, types::color::Color};
 use crate::types::global::UserContext;
+use crate::utils::data::{
+    delete_redis_control, delete_redis_position, update_redis_control, update_redis_position,
+};
 
 use async_graphql::{
     Context, Error as GQLError, InputObject, Object, Result as GQLResult, SimpleObject,
 };
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 #[derive(InputObject, Default)]
@@ -17,7 +21,6 @@ struct ShiftQuery {
     shift_control: bool,
     shift_position: bool,
 }
-
 struct ControlFrame {
     id: i32,
     start: i32,
@@ -49,6 +52,12 @@ impl FrameMutation {
         let shift_control = query.shift_control;
         let shift_position = query.shift_position;
 
+        let context = ctx.data::<UserContext>()?;
+        let clients = context.clients;
+        let redis_client = &clients.redis_client;
+
+        let mysql = clients.mysql_pool();
+
         //check negative
         if start + mv < 0 {
             return Err(GQLError::new("Negative start is not legal"));
@@ -76,11 +85,6 @@ impl FrameMutation {
         };
         let check_start = if mv >= 0 { start } else { start + mv };
         let check_end = if mv >= 0 { end + mv } else { end };
-
-        let context = ctx.data::<UserContext>()?;
-        let clients = context.clients;
-
-        let mysql = clients.mysql_pool();
 
         //check editing
         if shift_control {
@@ -130,7 +134,7 @@ impl FrameMutation {
 
         if shift_control {
             //clear overlap interval
-            let delete_control_frame = sqlx::query_as!(
+            let delete_control_frames = sqlx::query_as!(
                 ControlFrame,
                 r#"
 					SELECT * FROM ControlFrame
@@ -185,8 +189,8 @@ impl FrameMutation {
                 .fetch_all(mysql)
                 .await?;
             }
-            //update database
-            for control_frame in update_control_frames {
+            //update database and redis
+            for control_frame in &update_control_frames {
                 let _ = sqlx::query!(
                     r#"
 						UPDATE ControlFrame
@@ -198,11 +202,32 @@ impl FrameMutation {
                 )
                 .execute(mysql)
                 .await?;
+                let result = update_redis_control(mysql, redis_client, control_frame.id).await;
+                match result {
+                    Ok(_) => (),
+                    Err(msg) => return Err(GQLError::new(msg)),
+                };
+            }
+            let update_control_ids: Vec<i32> = update_control_frames
+                .into_iter()
+                .map(|update_control_frame| update_control_frame.id)
+                .collect_vec();
+            let delete_control_list: Vec<i32> = delete_control_frames
+                .into_iter()
+                .map(|delete_control_frame| delete_control_frame.id)
+                .collect_vec();
+            for id in &delete_control_list {
+                let result = delete_redis_control(redis_client, *id).await;
+                match result {
+                    Ok(_) => (),
+                    Err(msg) => return Err(GQLError::new(msg)),
+                };
             }
         }
+
         if shift_position {
             //clear overlap interval
-            let delete_position_frame = sqlx::query_as!(
+            let delete_position_frames = sqlx::query_as!(
                 PositionFrame,
                 r#"
 					SELECT * FROM PositionFrame
@@ -257,8 +282,8 @@ impl FrameMutation {
                 .fetch_all(mysql)
                 .await?;
             }
-            //update database
-            for position_frame in update_position_frames {
+            //update database and redis
+            for position_frame in &update_position_frames {
                 let _ = sqlx::query!(
                     r#"
 						UPDATE PositionFrame
@@ -270,6 +295,26 @@ impl FrameMutation {
                 )
                 .execute(mysql)
                 .await?;
+                let result = update_redis_position(mysql, redis_client, position_frame.id).await;
+                match result {
+                    Ok(_) => (),
+                    Err(msg) => return Err(GQLError::new(msg)),
+                };
+            }
+            let update_position_ids: Vec<i32> = update_position_frames
+                .into_iter()
+                .map(|update_position_frame| update_position_frame.id)
+                .collect_vec();
+            let delete_position_list: Vec<i32> = delete_position_frames
+                .into_iter()
+                .map(|delete_position_frame| delete_position_frame.id)
+                .collect_vec();
+            for id in &delete_position_list {
+                let result = delete_redis_position(redis_client, *id).await;
+                match result {
+                    Ok(_) => (),
+                    Err(msg) => return Err(GQLError::new(msg)),
+                };
             }
         }
 
@@ -289,12 +334,39 @@ impl FrameMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+
+        let _ = sqlx::query!(
+            r#"
+				ALTER TABLE ControlFrame
+				AUTO_INCREMENT = 1;
+			"#
+        )
+        .execute(mysql)
+        .await?;
+        let _ = sqlx::query!(
+            r#"
+				ALTER TABLE PositionFrame
+				AUTO_INCREMENT = 1;
+			"#
+        )
+        .execute(mysql)
+        .await?;
+
         for i in start..=end {
             if control {
                 let _ = sqlx::query!(
                     r#"
 						INSERT INTO ControlFrame(start,fade)
 						VALUES(?,0);
+					"#,
+                    i
+                )
+                .execute(mysql)
+                .await?;
+                let _ = sqlx::query!(
+                    r#"
+						INSERT INTO ControlData(alpha,color_id,effect_id,frame_id,part_id,type)
+						VALUES(15,1,NULL,?,1,'COLOR');
 					"#,
                     i
                 )
@@ -311,8 +383,18 @@ impl FrameMutation {
                 )
                 .execute(mysql)
                 .await?;
+                let _ = sqlx::query!(
+                    r#"
+						INSERT INTO PositionData(dancer_id,frame_id,x,y,z)
+						VALUES(1,?,1.1,1.1,1.1);
+					"#,
+                    i
+                )
+                .execute(mysql)
+                .await?;
             }
         }
+
         Ok("Done".to_string())
     }
     //for deleting datas after testing
