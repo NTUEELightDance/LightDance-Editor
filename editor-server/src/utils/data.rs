@@ -1,5 +1,4 @@
 //! Database setting utilities.
-
 use crate::db::types::part::PartType;
 use crate::global;
 use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition, Revision};
@@ -18,6 +17,72 @@ pub async fn init_data(mysql: &Pool<MySql>) -> Result<(), sqlx::Error> {
     )
     .execute(mysql)
     .await?;
+
+    Ok(())
+}
+
+pub async fn init_part_order(mysql: &Pool<MySql>, username: String) -> Result<(), String> {
+    let _ = sqlx::query!(
+        r#"
+            DELETE FROM PartOrder WHERE user_id = (SELECT id FROM User WHERE name = ?);
+        "#,
+        username,
+    );
+
+    let dancers = sqlx::query!(
+        r#"
+            SELECT Dancer.id FROM Dancer;
+        "#,
+    )
+    .fetch_all(mysql)
+    .await
+    .map_err(|_| "error fetching dancers")?;
+
+    for dancer in dancers.iter() {
+        // sort parts by alphabetical order
+        let parts = sqlx::query!(
+            r#"
+                SELECT * FROM Part
+                WHERE model_id = ?
+                ORDER BY Part.name ASC;
+            "#,
+            dancer.id,
+        )
+        .fetch_all(mysql)
+        .await
+        .map_err(|_| "error fetching parts")?;
+
+        let mut led_index = 1;
+        let mut fiber_index = 1;
+
+        for part in parts.iter() {
+            // separate LED and FIBER parts, iterate order from 1
+            let i;
+            if part.r#type == "LED" {
+                i = led_index;
+                led_index += 1;
+            } else {
+                i = fiber_index;
+                fiber_index += 1;
+            }
+
+            let _ = sqlx::query!(
+                r#"
+                    INSERT INTO PartOrder (user_id, part_id, `order`) VALUES (
+                        (SELECT id FROM User WHERE name = ?),
+                        ?,
+                        ?
+                    );
+                "#,
+                username,
+                part.id,
+                i as i32,
+            )
+            .execute(mysql)
+            .await
+            .map_err(|_| "error inserting part order");
+        }
+    }
 
     Ok(())
 }
