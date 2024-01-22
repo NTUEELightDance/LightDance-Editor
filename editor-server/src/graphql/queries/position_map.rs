@@ -8,7 +8,7 @@ use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 use std::collections::HashMap;
 
 #[derive(InputObject, Default)]
-pub struct QueryMapInput {
+pub struct QueryPositionMapInput {
     pub frame_ids: Vec<MapID>,
 }
 
@@ -21,7 +21,7 @@ impl PositionMapQuery {
     async fn pos_map(
         &self,
         ctx: &Context<'_>,
-        select: Option<QueryMapInput>,
+        select: Option<QueryPositionMapInput>,
     ) -> GQLResult<PositionMap> {
         let context = ctx.data::<UserContext>()?;
         let clients = &context.clients;

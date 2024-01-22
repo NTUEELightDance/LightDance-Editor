@@ -1,6 +1,6 @@
 //! Part data type
 
-#[derive(Debug, sqlx::Decode)]
+#[derive(Debug, Clone, sqlx::Decode)]
 pub enum PartType {
     LED,
     FIBER,
