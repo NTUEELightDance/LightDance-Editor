@@ -1,6 +1,6 @@
 //! PositionMap scalar types
 
-use crate::types::global::{RedisPosition, RedisControl};
+use crate::types::global::{RedisControl, RedisPosition};
 use async_graphql::{InputObject, Scalar, ScalarType, SimpleObject, Value};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

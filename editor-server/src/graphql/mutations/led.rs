@@ -1,4 +1,4 @@
-use crate::graphql::types::led::{Frame, InputFrame, LEDEffectData};
+use crate::graphql::types::led::{Frame, LEDEffectData, LEDEffectFrame};
 use crate::graphql::{
     subscriptions::led::{LEDMutationMode, LEDPayload},
     subscriptor::Subscriptor,
@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 // struct defined to to fit old schema
 #[derive(InputObject, Default, Debug)]
 pub struct Set {
-    set: Vec<InputFrame>,
+    set: Vec<Frame>,
 }
 
 #[derive(InputObject, Default, Debug)]
@@ -40,7 +40,7 @@ pub struct LEDEffectResponse {
     part_name: String,
     effect_name: String,
     repeat: i32,
-    effects: Vec<Frame>,
+    effects: Vec<LEDEffectFrame>,
     ok: bool,
     msg: String,
 }
@@ -71,11 +71,11 @@ impl LEDMutation {
         let effect_name = input.name.clone();
         let part_name = input.part_name.clone();
         let repeat = input.repeat;
-        let frames: Vec<Frame> = input
+        let frames: Vec<LEDEffectFrame> = input
             .frames
             .set
             .iter()
-            .map(|frame| Frame {
+            .map(|frame| LEDEffectFrame {
                 leds: frame.leds.clone(),
                 fade: frame.fade,
                 start: frame.start,
@@ -236,11 +236,11 @@ impl LEDMutation {
         let id = input.id;
         let effect_name = input.name.clone();
         let repeat = input.repeat;
-        let frames: Vec<Frame> = input
+        let frames: Vec<LEDEffectFrame> = input
             .frames
             .set
             .iter()
-            .map(|frame| Frame {
+            .map(|frame| LEDEffectFrame {
                 leds: frame.leds.clone(),
                 fade: frame.fade,
                 start: frame.start,

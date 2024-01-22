@@ -13,7 +13,7 @@ use crate::utils::data::update_redis_control;
 use crate::utils::vector::partition_by_field;
 
 use crate::graphql::{
-    subscriptions::control_map::{ControlMapPayload, Frame},
+    subscriptions::control_map::{ControlMapMutationFrame, ControlMapPayload},
     subscriptions::control_record::{ControlRecordMutationMode, ControlRecordPayload},
     subscriptor::Subscriptor,
 };
@@ -233,7 +233,7 @@ impl ControlFrameMutation {
                 }
             }
             // if there are errors, return the errors
-            if errors.len() > 0 {
+            if !errors.is_empty() {
                 // turn errors from Vec<String> into a string
                 let errors = errors.join("\n");
                 return Err(Error::new(errors));
@@ -364,7 +364,7 @@ impl ControlFrameMutation {
         // below is the code for publishing control map
 
         // create frame
-        let frame = Frame {
+        let frame = ControlMapMutationFrame {
             create_list: vec![new_control_frame_id],
             delete_list: Vec::new(), // Assuming you want an empty vector for delete_list
             update_list: Vec::new(), // Assuming you want an empty vector for update_list
@@ -567,7 +567,7 @@ impl ControlFrameMutation {
         // below is the code for publishing control map
 
         // create frame
-        let frame = Frame {
+        let frame = ControlMapMutationFrame {
             create_list: Vec::new(), // Assuming you want an empty vector for create_list
             delete_list: Vec::new(), // Assuming you want an empty vector for delete_list
             update_list: vec![frame_id],
@@ -717,7 +717,7 @@ impl ControlFrameMutation {
         // below is the code for publishing control map
 
         // create frame
-        let frame = Frame {
+        let frame = ControlMapMutationFrame {
             create_list: Vec::new(), // Assuming you want an empty vector for create_list
             delete_list: vec![frame_id],
             update_list: Vec::new(), // Assuming you want an empty vector for update_list

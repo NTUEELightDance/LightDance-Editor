@@ -33,7 +33,7 @@ async fn get_all_frame_ids(ctx: &Context<'_>) -> GQLResult<Vec<i32>> {
 
     let frame_ids: Vec<i32> = result.iter().map(|row| row.id).collect();
 
-    return Ok(frame_ids);
+    Ok(frame_ids)
 }
 
 // Query methods
@@ -42,6 +42,7 @@ pub struct ControlMapQuery;
 
 #[Object]
 impl ControlMapQuery {
+    #[graphql(name = "ControlMap")]
     async fn control_map(
         &self,
         ctx: &Context<'_>,

@@ -12,7 +12,7 @@ use crate::utils::data::update_redis_control;
 use crate::utils::vector::partition_by_field;
 
 use crate::graphql::{
-    subscriptions::control_map::{ControlMapPayload, Frame},
+    subscriptions::control_map::{ControlMapMutationFrame, ControlMapPayload},
     subscriptor::Subscriptor,
 };
 
@@ -213,7 +213,8 @@ impl ControlMapMutation {
                 if dancer.len() < data.len() {
                     let error_message = format!(
                         "Control data in dancer {} is more than parts in payload. Extra number: {}",
-                        index, data.len() - dancer.len()
+                        index,
+                        data.len() - dancer.len()
                     );
                     errors.push(error_message);
                     // if the data is more than the parts, when iter through parts will have "out of bound" error
@@ -292,7 +293,7 @@ impl ControlMapMutation {
         }
 
         // if there are errors, return the errors
-        if errors.len() > 0 {
+        if !errors.is_empty() {
             // turn errors from Vec<String> into a string
             let errors = errors.join("\n");
             return Err(Error::new(errors));
@@ -304,7 +305,7 @@ impl ControlMapMutation {
             let dancer = &dancers[index];
 
             for (_index, _data) in data.iter().enumerate() {
-                let part  = &dancer[_index];
+                let part = &dancer[_index];
                 let part_type = &part.part_type;
 
                 match part_type {
@@ -395,7 +396,7 @@ impl ControlMapMutation {
         // publish the control map
 
         // create frame
-        let frame = Frame {
+        let frame = ControlMapMutationFrame {
             create_list: Vec::new(),
             delete_list: Vec::new(),
             update_list: vec![frame_id],

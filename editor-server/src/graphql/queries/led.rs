@@ -1,7 +1,7 @@
 //! LED query methods
 
 use crate::graphql::types::{
-    led::{Frame, LED},
+    led::{LEDEffectFrame, LED},
     led_map::{LEDMap, LEDMapCustomScalar},
 };
 use crate::types::global::UserContext;
@@ -42,7 +42,7 @@ impl LEDQuery {
                 .or_insert(LED {
                     id: led_effect_state.id,
                     repeat: 0,
-                    frames: vec![Frame {
+                    frames: vec![LEDEffectFrame {
                         leds: vec![[0, 0]; led_effect_state.length as usize],
                         fade: false,
                         start: 0,

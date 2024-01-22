@@ -21,6 +21,6 @@ impl From<&ControlFrame> for ControlFrame {
 }
 
 pub enum ControlDataType {
-  COLOR,
-  EFFECT,
+    COLOR,
+    EFFECT,
 }
