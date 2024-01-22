@@ -34,12 +34,20 @@ pub struct EditLEDInput {
 }
 
 #[derive(SimpleObject, Serialize, Deserialize, Default, Debug)]
-pub struct LEDResponse {
+#[graphql(name = "LEDEffectResponse")]
+pub struct LEDEffectResponse {
     id: i32,
     part_name: String,
     effect_name: String,
     repeat: i32,
     effects: Vec<Frame>,
+    ok: bool,
+    msg: String,
+}
+
+#[derive(SimpleObject, Serialize, Deserialize, Default, Debug)]
+#[graphql(name = "DeleteLEDEffectResponse")]
+pub struct DeleteLEDEffectResponse {
     ok: bool,
     msg: String,
 }
@@ -54,7 +62,7 @@ impl LEDMutation {
         &self,
         ctx: &Context<'_>,
         input: LEDEffectCreateInput,
-    ) -> GQLResult<LEDResponse> {
+    ) -> GQLResult<LEDEffectResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -86,7 +94,7 @@ impl LEDMutation {
         {
             Ok(part) => part,
             Err(_) => {
-                return Ok(LEDResponse {
+                return Ok(LEDEffectResponse {
                     id: -1,
                     part_name,
                     effect_name,
@@ -118,7 +126,7 @@ impl LEDMutation {
                     }
                 }
                 if !found {
-                    return Ok(LEDResponse {
+                    return Ok(LEDEffectResponse {
                         id: -1,
                         part_name,
                         effect_name,
@@ -144,7 +152,7 @@ impl LEDMutation {
         .await
         {
             Ok(_) => {
-                return Ok(LEDResponse {
+                return Ok(LEDEffectResponse {
                     id: -1,
                     part_name,
                     effect_name,
@@ -203,7 +211,7 @@ impl LEDMutation {
 
         Subscriptor::publish(led_payload);
 
-        Ok(LEDResponse {
+        Ok(LEDEffectResponse {
             id,
             part_name,
             effect_name,
@@ -219,7 +227,7 @@ impl LEDMutation {
         &self,
         ctx: &Context<'_>,
         input: EditLEDInput,
-    ) -> GQLResult<LEDResponse> {
+    ) -> GQLResult<LEDEffectResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -251,7 +259,7 @@ impl LEDMutation {
         {
             Ok(led_effect) => led_effect,
             Err(_) => {
-                return Ok(LEDResponse {
+                return Ok(LEDEffectResponse {
                     id: -1,
                     part_name: "".to_string(),
                     effect_name: "".to_string(),
@@ -301,7 +309,7 @@ impl LEDMutation {
                     }
                 }
                 if !found {
-                    return Ok(LEDResponse {
+                    return Ok(LEDEffectResponse {
                         id: -1,
                         part_name: "".to_string(),
                         effect_name: "".to_string(),
@@ -364,7 +372,7 @@ impl LEDMutation {
 
         Subscriptor::publish(led_payload);
 
-        Ok(LEDResponse {
+        Ok(LEDEffectResponse {
             id,
             part_name: led_effect.part_name.clone(),
             effect_name,
@@ -376,30 +384,30 @@ impl LEDMutation {
     }
 
     #[graphql(name = "deleteLEDEffect")]
-    async fn delete_led_effect(&self, ctx: &Context<'_>, id: i32) -> GQLResult<LEDResponse> {
+    async fn delete_led_effect(
+        &self,
+        ctx: &Context<'_>,
+        id: i32,
+    ) -> GQLResult<DeleteLEDEffectResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
 
         // check if effect exists
-        let _led_effect = match sqlx::query!(
+        let led_effect = sqlx::query!(
             r#"
                 SELECT * FROM LEDEffect WHERE id = ?;
             "#,
             id
         )
-        .fetch_one(mysql)
-        .await
-        {
-            Ok(led_effect) => led_effect,
+        .fetch_optional(mysql)
+        .await;
+
+        match led_effect {
+            Ok(_) => {}
             Err(_) => {
-                return Ok(LEDResponse {
-                    id: -1,
-                    part_name: "".to_string(),
-                    effect_name: "".to_string(),
-                    repeat: 0,
-                    effects: vec![],
+                return Ok(DeleteLEDEffectResponse {
                     ok: false,
                     msg: format!("LEDEffect Id {} not found", id),
                 })
@@ -424,12 +432,7 @@ impl LEDMutation {
             control_frames.sort();
             control_frames.dedup();
 
-            return Ok(LEDResponse {
-                id: -1,
-                part_name: "".to_string(),
-                effect_name: "".to_string(),
-                repeat: 0,
-                effects: vec![],
+            return Ok(DeleteLEDEffectResponse {
                 ok: false,
                 msg: format!(
                     "LEDEffect Id {} is being used in control frames {:?}.",
@@ -496,12 +499,7 @@ impl LEDMutation {
 
         Subscriptor::publish(led_payload);
 
-        Ok(LEDResponse {
-            id,
-            part_name: "".to_string(),
-            effect_name: "".to_string(),
-            repeat: 0,
-            effects: vec![],
+        Ok(DeleteLEDEffectResponse {
             ok: true,
             msg: "successfully deleted LED effect".to_string(),
         })

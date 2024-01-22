@@ -2,7 +2,7 @@
 
 use crate::graphql::types::{
     led::{Frame, LED},
-    led_map::{LEDMap, LEDMapScalar},
+    led_map::{LEDMap, LEDMapCustomScalar},
 };
 use crate::types::global::UserContext;
 use async_graphql::{Context, Object, Result as GQLResult};
@@ -13,6 +13,7 @@ pub struct LEDQuery;
 
 #[Object]
 impl LEDQuery {
+    #[graphql(name = "LEDMap")]
     async fn led_map(&self, ctx: &Context<'_>) -> GQLResult<LEDMap> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -53,7 +54,7 @@ impl LEDQuery {
         }
 
         Ok(LEDMap {
-            led_map: LEDMapScalar(result),
+            led_map: LEDMapCustomScalar(result),
         })
     }
 }
