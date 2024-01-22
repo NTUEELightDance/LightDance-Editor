@@ -121,7 +121,7 @@ pub async fn get_dancer_fiber_data(
     let data = sqlx::query!(
         r#"
             SELECT ControlFrame.id, ControlFrame.start, ControlFrame.fade, ControlData.color_id, ControlData.alpha, Part.name
-            FROM controlFrame
+            FROM ControlFrame
             INNER JOIN ControlData ON ControlFrame.id = ControlData.frame_id
             INNER JOIN Part ON ControlData.part_id = Part.id
             INNER JOIN Dancer ON Part.dancer_id = Dancer.id
