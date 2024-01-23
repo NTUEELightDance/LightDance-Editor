@@ -7,6 +7,7 @@ const child_process = require("child_process");
 
 const sharp = require('sharp');
 const jm = require('join-images');
+const readline = require('readline');
 
 // the annotation part can be used when the file is a module
 
@@ -26,10 +27,10 @@ const jm = require('join-images');
 // procedure: check existance->download->construct command->generate waveform
 
 // const img_res = '4000x1000';
-const img_res_width = 42000;
-const img_res_height = 4000;
+let img_res_width = 40000;
+let img_res_height = 400;
 const img_res = String(img_res_width) + 'x' + String(img_res_height);
-console.log(`img_res = ${img_res}`);
+// console.log(`img_res = ${img_res}`);
 const hex_colo = '3D82B1';
 const sname = '../files/music/waveform.png';
 const musicName = '../files/music/2023.mp3';    // you can alter the music name here
@@ -45,6 +46,45 @@ const rcp = path.join(String(__dirname), rightName);
 let releaseUrl = '';    // url for downloading ffmpeg
 let ffbin = '';   // the path name(file name included) of the ffmpeg binary
 let cmd = [];   // the command that will later be used to generate waveform
+
+
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+const readIntegerInput = (prompt) => {
+  return new Promise((resolve, reject) => {
+    rl.question(prompt, (input) => {
+      const parsedInput = parseInt(input, 10);
+      if (!isNaN(parsedInput)) {
+        resolve(parsedInput);
+      } else {
+        console.log("Invalid input, try again...");
+        resolve(readIntegerInput(prompt));
+        // reject(new Error('Invalid input. Please enter a valid integer.'));
+      }
+    });
+  });
+}
+
+const readInput = async (width, height) => {
+
+  try {
+    width = await readIntegerInput('Enter the width of the waveform: ');
+    height = await readIntegerInput('Enter the height of the waveform: ');
+
+    console.log(`Waveform resolution: ${width}x${height}`);
+    // Your logic with the two integer inputs goes here
+
+  } catch (error) {
+    console.log("something wrong in the input...")
+    console.error(error.message);
+  } finally {
+    rl.close();
+  }
+}
 
 
 const callFFMPEG = () => {
@@ -70,6 +110,7 @@ const callFFMPEG = () => {
 
 // download from url and save as dest, then generate waveform
 const dl_url = async (url, dest) => {
+  await readInput(img_res_width, img_res_height)
   let start_time = Date.now();
   console.log("downloading ffmpeg...");
   await axios({
@@ -168,7 +209,7 @@ const cutImages = async () => {
   await sharp(String(ifp))
     .extract({ left: 0, top: 0, width: img_res_width, height: img_res_height / 4 })
     .toFile(String(lcp))
-    .then(()=>{
+    .then(() => {
       // console.log("here2.5")
     })
     .catch((err) => {
@@ -182,7 +223,7 @@ const cutImages = async () => {
   await sharp(String(ifp))
     .extract({ left: 0, top: 3 * img_res_height / 4, width: img_res_width, height: img_res_height / 4 })
     .toFile(String(rcp))
-    .then(()=>{
+    .then(() => {
       // console.log("here3.5")
     })
     .catch((err) => {
@@ -218,7 +259,7 @@ const rmRedundantWaveform = () => {
     const ret = child_process.execSync(rmCmdString);
   } catch (err) {
     console.error('--- problem removing redundant waveforms...');
-    console.error(err); 
+    console.error(err);
   }
 }
 
