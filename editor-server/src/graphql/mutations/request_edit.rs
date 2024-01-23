@@ -35,9 +35,9 @@ impl RequestEditMutation {
         let check_editing_control_frame = sqlx::query_as!(
             EditingControlFrameData,
             r#"
-				SELECT * FROM EditingControlFrame
-				WHERE frame_id = ?;
-			"#,
+                SELECT * FROM EditingControlFrame
+                WHERE frame_id = ?;
+            "#,
             frame_id
         )
         .fetch_optional(mysql)
@@ -45,9 +45,9 @@ impl RequestEditMutation {
 
         let exist_frame = sqlx::query!(
             r#"
-				SELECT * FROM ControlFrame
-				WHERE id = ?;
-			"#,
+                SELECT * FROM ControlFrame
+                WHERE id = ?;
+            "#,
             frame_id
         )
         .fetch_optional(mysql)
@@ -74,10 +74,10 @@ impl RequestEditMutation {
             None => {
                 let _ = sqlx::query!(
                     r#"
-						UPDATE EditingControlFrame 
-						SET frame_id =?
-						WHERE user_id = ?;
-					"#,
+                        UPDATE EditingControlFrame 
+                        SET frame_id =?
+                        WHERE user_id = ?;
+                    "#,
                     frame_id,
                     context.user_id
                 )
@@ -94,7 +94,7 @@ impl RequestEditMutation {
     async fn request_edit_position(
         &self,
         ctx: &Context<'_>,
-        frame_id: i32,
+        #[graphql(name = "FrameID")] frame_id: i32,
     ) -> GQLResult<RequestEditResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -106,9 +106,9 @@ impl RequestEditMutation {
         let check_editing_position_frame = sqlx::query_as!(
             EditingPositionFrameData,
             r#"
-				SELECT * FROM EditingPositionFrame
-				WHERE frame_id = ?;
-			"#,
+                SELECT * FROM EditingPositionFrame
+                WHERE frame_id = ?;
+            "#,
             frame_id
         )
         .fetch_optional(mysql)
@@ -117,9 +117,9 @@ impl RequestEditMutation {
         let exist_frame = sqlx::query_as!(
             PositionFrameData,
             r#"
-				SELECT * FROM PositionFrame
-				WHERE id = ?;
-			"#,
+                SELECT * FROM PositionFrame
+                WHERE id = ?;
+            "#,
             frame_id
         )
         .fetch_optional(mysql)
@@ -146,10 +146,10 @@ impl RequestEditMutation {
             None => {
                 let _ = sqlx::query!(
                     r#"
-						UPDATE EditingPositionFrame 
-						SET frame_id =?
-						WHERE user_id = ?;
-					"#,
+                        UPDATE EditingPositionFrame 
+                        SET frame_id =?
+                        WHERE user_id = ?;
+                    "#,
                     frame_id,
                     context.user_id
                 )
@@ -179,9 +179,9 @@ impl RequestEditMutation {
         let check_editing_led_effect = sqlx::query_as!(
             EditingLEDEffectData,
             r#"
-				SELECT * FROM EditingLEDEffect
-				WHERE led_effect_id = ?;
-			"#,
+                SELECT * FROM EditingLEDEffect
+                WHERE led_effect_id = ?;
+            "#,
             led_effect_id
         )
         .fetch_optional(mysql)
@@ -190,9 +190,9 @@ impl RequestEditMutation {
         let exist_led_effect = sqlx::query_as!(
             LEDEffectData,
             r#"
-				SELECT * FROM LEDEffect
-				WHERE id = ?;
-			"#,
+                SELECT * FROM LEDEffect
+                WHERE id = ?;
+            "#,
             led_effect_id
         )
         .fetch_optional(mysql)
@@ -217,10 +217,10 @@ impl RequestEditMutation {
             None => {
                 let _ = sqlx::query!(
                     r#"
-						UPDATE EditingLEDEffect
-						SET led_effect_id =?
-						WHERE user_id = ?;
-					"#,
+                        UPDATE EditingLEDEffect
+                        SET led_effect_id =?
+                        WHERE user_id = ?;
+                    "#,
                     led_effect_id,
                     context.user_id
                 )
@@ -238,7 +238,7 @@ impl RequestEditMutation {
     async fn cancel_edit_position(
         &self,
         ctx: &Context<'_>,
-        frame_id: i32,
+        #[graphql(name = "FrameID")] frame_id: i32,
     ) -> GQLResult<RequestEditResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -250,9 +250,9 @@ impl RequestEditMutation {
         let exist_frame = sqlx::query_as!(
             PositionFrameData,
             r#"
-				SELECT * FROM PositionFrame
-				WHERE id = ?;
-			"#,
+                SELECT * FROM PositionFrame
+                WHERE id = ?;
+            "#,
             frame_id
         )
         .fetch_optional(mysql)
@@ -264,10 +264,10 @@ impl RequestEditMutation {
 
         let _ = sqlx::query!(
             r#"
-				UPDATE EditingPositionFrame
-				SET frame_id = NULL
-				WHERE frame_id = ?;
-			"#,
+                UPDATE EditingPositionFrame
+                SET frame_id = NULL
+                WHERE frame_id = ?;
+            "#,
             frame_id
         )
         .execute(mysql)
@@ -294,9 +294,9 @@ impl RequestEditMutation {
 
         let exist_frame = sqlx::query!(
             r#"
-				SELECT * FROM ControlFrame
-				WHERE id = ?;
-			"#,
+                SELECT * FROM ControlFrame
+                WHERE id = ?;
+            "#,
             frame_id
         )
         .fetch_optional(mysql)
@@ -308,10 +308,10 @@ impl RequestEditMutation {
 
         let _ = sqlx::query!(
             r#"
-				UPDATE EditingControlFrame
-				SET frame_id = NULL
-				WHERE frame_id = ?;
-			"#,
+                UPDATE EditingControlFrame
+                SET frame_id = NULL
+                WHERE frame_id = ?;
+            "#,
             frame_id
         )
         .execute(mysql)
@@ -339,9 +339,9 @@ impl RequestEditMutation {
         let exist_led_effect = sqlx::query_as!(
             LEDEffectData,
             r#"
-				SELECT * FROM LEDEffect
-				WHERE id = ?;
-			"#,
+                SELECT * FROM LEDEffect
+                WHERE id = ?;
+            "#,
             led_effect_id
         )
         .fetch_optional(mysql)
@@ -353,10 +353,10 @@ impl RequestEditMutation {
 
         let _ = sqlx::query!(
             r#"
-				UPDATE EditingLEDEffect
-				SET led_effect_id = NULL
-				WHERE led_effect_id = ?;
-			"#,
+                UPDATE EditingLEDEffect
+                SET led_effect_id = NULL
+                WHERE led_effect_id = ?;
+            "#,
             led_effect_id
         )
         .execute(mysql)
