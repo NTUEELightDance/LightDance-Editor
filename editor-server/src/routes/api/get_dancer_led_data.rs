@@ -169,7 +169,7 @@ pub async fn get_dancer_led_data(
 
     for (part_name, control_data) in parts.iter() {
         let mut part_data = Vec::<Status>::new();
-        let mut led_bulb_data = HashMap::<i32, Vec<&Part>>::new();
+        let mut led_bulb_control_data = HashMap::<i32, Vec<&Part>>::new();
 
         for data in control_data.iter() {
             println!("{:?}", data);
@@ -185,10 +185,10 @@ pub async fn get_dancer_led_data(
                         SELECT LEDEffectState.color_id, LEDEffectState.alpha, LEDEffectState.position
                         FROM LEDEffect
                         INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id  
-                        WHERE part_name = ? AND LEDEffect.id = ?
+                        WHERE LEDEffect.id = ? AND part_id = (SELECT id FROM Part WHERE name = ?) 
                         "#,
-                    part_name,
-                    data.effect_id.ok_or("Effect id not found").into_result()?
+                        data.effect_id.ok_or("Effect id not found").into_result()?,
+                        part_name
                 )
                 .fetch_all(mysql_pool)
                 .await
@@ -209,7 +209,7 @@ pub async fn get_dancer_led_data(
                     fade: false,
                 });
             } else if data.r#type == "LED_BULBS" {
-                led_bulb_data
+                led_bulb_control_data
                     .entry(data.id)
                     .or_insert_with(Vec::new)
                     .push(data.clone());
@@ -223,14 +223,18 @@ pub async fn get_dancer_led_data(
             }
         }
 
-        for (_, data) in led_bulb_data.iter() {
+        for (_, data) in led_bulb_control_data.iter() {
             let mut effect_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
-            for bulb_data in data.iter() {
+            for led_bulb_data in data.iter() {
                 let color = color_map
-                    .get(&bulb_data.led_bulb_color_id.unwrap())
+                    .get(&led_bulb_data.led_bulb_color_id.unwrap())
                     .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-                effect_data[bulb_data.position.unwrap() as usize] =
-                    [color.r, color.g, color.b, bulb_data.led_bulb_alpha.unwrap()];
+                effect_data[led_bulb_data.position.unwrap() as usize] = [
+                    color.r,
+                    color.g,
+                    color.b,
+                    led_bulb_data.led_bulb_alpha.unwrap(),
+                ];
             }
 
             part_data.push(Status {

@@ -1,5 +1,7 @@
 //! Database setting utilities.
 
+use crate::db::types::control_data::ControlType;
+use crate::db::types::{dancer, part};
 use crate::db::types::part::PartType;
 use crate::global;
 use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition, Revision};
@@ -49,12 +51,12 @@ pub async fn init_redis_control(
                     Dancer.id AS dancer_id,
                     Part.id AS part_id,
                     Part.type AS "part_type: PartType",
-                    ControlData.frame_id,
-                    ControlData.color_id,
-                    ControlData.effect_id,
                     Color.name AS color,
                     LEDEffect.name AS effect,
                     LEDColor.name AS bulb_color,
+                    ControlData.frame_id,
+                    ControlData.id AS control_id,
+                    ControlData.type  AS "type: ControlType",
                     ControlData.alpha
                 FROM Dancer
                 INNER JOIN Model
@@ -84,7 +86,7 @@ pub async fn init_redis_control(
 
         dancer_controls
             .into_iter()
-            .map(|dancer_control| partition_by_field(|part| part.dancer_id, dancer_control))
+            .map(|dancer_control| partition_by_field(|part| part.part_id, dancer_control))
             .collect_vec()
     };
 
@@ -96,25 +98,47 @@ pub async fn init_redis_control(
         .for_each(|(frame, dancer_control)| {
             let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
 
-            let status = dancer_control
+            let status = dancer_controls
                 .iter()
                 .map(|dancer_control| {
                     dancer_control
                         .iter()
-                        .map(|part_control| match part_control.part_type {
-                            PartType::LED => match &part_control.effect {
-                                Some(effect) => PartControl(effect.clone(), part_control.alpha),
-                                None => PartControl(
-                                    part_control.bulb_color.clone().unwrap(),
-                                    part_control.alpha,
-                                ),
-                            },
-                            PartType::FIBER => {
-                                PartControl(part_control.color_id.unwrap(), part_control.alpha)
+                        .map(|part_controls| {
+                            let part_control = part_controls
+                                .iter()
+                                .filter(|part_control| part_control.frame_id == frame.id)
+                                .collect_vec();
+
+                            if part_control.is_empty() {
+                                panic!("Control data {} not found", frame.id);
                             }
-                            })
-                            .collect_vec()
-                    })
+
+                            match part_control[0].r#type {
+                                ControlType::EFFECT => PartControl::LED(
+                                    part_control[0].effect.clone().unwrap_or("-1".to_string()),
+                                    part_control[0].alpha,
+                                ),
+                                ControlType::LED_BULBS => {
+                                    let bulbs = part_control
+                                        .iter()
+                                        .map(|data| {
+                                            (
+                                                data.bulb_color.clone().unwrap_or("-1".to_string()),
+                                                data.alpha,
+                                            )
+                                        })
+                                        .collect_vec();
+
+                                    PartControl::LEDBulbs(bulbs)
+                                }
+                                ControlType::COLOR => PartControl::FIBER(
+                                    part_control[0].color.clone().unwrap_or("-1".to_string()),
+                                    part_control[0].alpha,
+                                ),
+                            }
+                        })
+                        .collect_vec()
+                })
                 .collect_vec();
 
             let result_control = RedisControl {
@@ -259,10 +283,14 @@ pub async fn update_redis_control(
                 SELECT
                     Dancer.id,
                     Part.type AS "part_type: PartType",
+                    Part.id AS part_id,
+                    Color.name AS color,
+                    LEDEffect.name AS effect,
+                    LEDColor.name AS bulb_color,
                     ControlData.frame_id,
-                    ControlData.color_id,
-                    ControlData.effect_id,
-                    ControlData.alpha
+                    ControlData.id AS control_id,
+                    ControlData.alpha,
+                    ControlData.type  AS "type: ControlType"
                 FROM Dancer
                 INNER JOIN Model
                     ON Dancer.model_id = Model.id
@@ -271,37 +299,76 @@ pub async fn update_redis_control(
                 INNER JOIN ControlData
                     ON Part.id = ControlData.part_id AND
                     Dancer.id = ControlData.dancer_id
+                LEFT JOIN LEDBulb
+                    ON ControlData.id = LEDBulb.control_id
+                LEFT JOIN Color
+                    ON ControlData.color_id = Color.id
+                LEFT JOIN LEDEffect
+                    ON ControlData.effect_id = LEDEffect.id
+                LEFT JOIN Color AS LEDColor
+                    ON LEDBulb.color_id = LEDColor.id
                 WHERE ControlData.frame_id = ?
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
-            frame.id
+            frame_id
         )
         .fetch_all(mysql_pool)
         .await
         .map_err(|e| e.to_string())?;
 
-        partition_by_field(|dancer_control| dancer_control.id, dancer_controls)
+        let dancer_controls = partition_by_field(|dancer_control| dancer_control.id, dancer_controls)
+            .into_iter()
+            .map(|dancer_control| partition_by_field(|part| part.control_id, dancer_control))
+            .collect_vec();
+
+        dancer_controls
     };
 
     let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
     println!("Redis key: {}", redis_key);
 
     let status = dancer_controls
-        .iter()
-        .map(|dancer_control| {
-            dancer_control
-                .iter()
-                .map(|part_control| match part_control.part_type {
-                    PartType::LED => {
-                        PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
-                    }
-                    PartType::FIBER => {
-                        PartControl(part_control.color_id.unwrap(), part_control.alpha)
-                    }
-                })
-                .collect_vec()
-        })
-        .collect_vec();
+            .iter()
+            .map(|dancer_control| {
+                dancer_control
+                    .iter()
+                    .map(|part_controls| {
+                        let part_control = part_controls
+                            .iter()
+                            .filter(|part_control| part_control.frame_id == frame.id)
+                            .collect_vec();
+
+                        if part_control.is_empty() {
+                            panic!("Control data {} not found", frame.id);
+                        }
+
+                        match part_control[0].r#type {
+                            ControlType::EFFECT => PartControl::LED(
+                                part_control[0].effect.clone().unwrap_or("-1".to_string()),
+                                part_control[0].alpha,
+                            ),
+                            ControlType::LED_BULBS => {
+                                let bulbs = part_control
+                                    .iter()
+                                    .map(|data| {
+                                        (
+                                            data.bulb_color.clone().unwrap_or("-1".to_string()),
+                                            data.alpha,
+                                        )
+                                    })
+                                    .collect_vec();
+
+                                PartControl::LEDBulbs(bulbs)
+                            }
+                            ControlType::COLOR => PartControl::FIBER(
+                                part_control[0].color.clone().unwrap_or("-1".to_string()),
+                                part_control[0].alpha,
+                            ),
+                        }
+                    })
+                    .collect_vec()
+            })
+            .collect_vec();
 
     let result_control = RedisControl {
         fade: frame.fade != 0,
