@@ -7,6 +7,10 @@ where
     F: Fn(&V) -> T,
     T: PartialEq,
 {
+    if vec.is_empty() {
+        return Vec::new();
+    }
+
     let mut result = vec![Vec::new()];
     let mut current_field = None;
 

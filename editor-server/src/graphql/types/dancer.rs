@@ -22,7 +22,7 @@ pub struct Position {
 }
 
 #[derive(SimpleObject, Debug, Deserialize, Serialize, Clone)]
-pub struct PartData {
+pub struct Part {
     pub id: i32,
     pub dancer_id: i32,
     pub name: String,
@@ -34,7 +34,7 @@ pub struct PartData {
 pub struct Dancer {
     pub id: i32,
     pub name: String,
-    pub parts: Option<Vec<PartData>>,
+    pub parts: Option<Vec<Part>>,
     pub position_datas: Option<Vec<Position>>,
 }
 
