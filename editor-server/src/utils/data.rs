@@ -52,6 +52,9 @@ pub async fn init_redis_control(
                     ControlData.frame_id,
                     ControlData.color_id,
                     ControlData.effect_id,
+                    Color.name AS color,
+                    LEDEffect.name AS effect,
+                    LEDColor.name AS bulb_color,
                     ControlData.alpha
                 FROM Dancer
                 INNER JOIN Model
@@ -61,10 +64,14 @@ pub async fn init_redis_control(
                 INNER JOIN ControlData
                     ON Part.id = ControlData.part_id AND
                     Dancer.id = ControlData.dancer_id
+                LEFT JOIN LEDBulb
+                ON ControlData.id = LEDBulb.control_id
                 LEFT JOIN Color
                     ON ControlData.color_id = Color.id
                 LEFT JOIN LEDEffect
-                    ON ControlData.effect_id = LEDEffect.id
+                ON ControlData.effect_id = LEDEffect.id
+                LEFT JOIN Color AS LEDColor
+                ON LEDBulb.color_id = LEDColor.id
                 ORDER BY ControlData.frame_id, Dancer.id ASC, Part.id ASC;
             "#,
         )
@@ -95,16 +102,19 @@ pub async fn init_redis_control(
                     dancer_control
                         .iter()
                         .map(|part_control| match part_control.part_type {
-                            PartType::LED => PartControl(
-                                part_control.effect_id.unwrap_or(-1),
-                                part_control.alpha,
-                            ),
+                            PartType::LED => match &part_control.effect {
+                                Some(effect) => PartControl(effect.clone(), part_control.alpha),
+                                None => PartControl(
+                                    part_control.bulb_color.clone().unwrap(),
+                                    part_control.alpha,
+                                ),
+                            },
                             PartType::FIBER => {
                                 PartControl(part_control.color_id.unwrap(), part_control.alpha)
                             }
-                        })
-                        .collect_vec()
-                })
+                            })
+                            .collect_vec()
+                    })
                 .collect_vec();
 
             let result_control = RedisControl {

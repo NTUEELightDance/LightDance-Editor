@@ -158,13 +158,23 @@ model PositionFrame {
   position_datas PositionData[]
 }
 
+model LEDBulb {
+  id         Int @id @default(autoincrement())
+  control_id Int
+  position   Int
+  color_id   Int
+  alpha      Int
+}
+
 enum ControlDataType {
   COLOR
   EFFECT
+  LED_BULBS
 }
 
 model ControlData {
   dancer_id Int
+  id        Int     @id @default(autoincrement())
   part_id   Int
   frame_id  Int
   type      ControlDataType
@@ -182,7 +192,7 @@ model ControlData {
   effect   LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   dancer   Dancer?    @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@id([dancer_id, part_id, frame_id])
+  @@unique([dancer_id, part_id, frame_id])
 }
 
 model ControlFrame {
