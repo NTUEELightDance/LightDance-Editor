@@ -11,8 +11,8 @@ pub struct UserContext {
     pub clients: &'static AppClients,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct PartControl(pub String, pub i32);
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct PartControl(pub i32, pub i32);
 // pub enum PartControl {
 //     #[serde(untagged)]
 //     LED(String, i32),
@@ -20,7 +20,7 @@ pub struct PartControl(pub String, pub i32);
 //     FIBER(String, i32),
 // }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisControl {
     pub fade: bool,
     pub start: i32,

@@ -49,8 +49,8 @@ pub async fn init_redis_control(
                     Dancer.id,
                     Part.type AS "part_type: PartType",
                     ControlData.frame_id,
-                    Color.name AS color,
-                    LEDEffect.name AS effect,
+                    ControlData.color_id,
+                    ControlData.effect_id,
                     ControlData.alpha
                 FROM Dancer
                 INNER JOIN Part
@@ -94,12 +94,11 @@ pub async fn init_redis_control(
                             .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
 
                         match part_control.part_type {
-                            PartType::LED => PartControl(
-                                part_control.effect.clone().unwrap(),
-                                part_control.alpha,
-                            ),
+                            PartType::LED => {
+                                PartControl(part_control.effect_id.unwrap(), part_control.alpha)
+                            }
                             PartType::FIBER => {
-                                PartControl(part_control.color.clone().unwrap(), part_control.alpha)
+                                PartControl(part_control.color_id.unwrap(), part_control.alpha)
                             }
                         }
                     })
@@ -240,18 +239,14 @@ pub async fn update_redis_control(
                     Dancer.id,
                     Part.type AS "part_type: PartType",
                     ControlData.frame_id,
-                    Color.name AS color,
-                    LEDEffect.name AS effect,
+                    ControlData.color_id,
+                    ControlData.effect_id,
                     ControlData.alpha
                 FROM Dancer
                 INNER JOIN Part
                 ON Dancer.id = Part.dancer_id
                 INNER JOIN ControlData
                 ON Part.id = ControlData.part_id
-                LEFT JOIN Color
-                ON ControlData.color_id = Color.id
-                LEFT JOIN LEDEffect
-                ON ControlData.effect_id = LEDEffect.id
                 WHERE ControlData.frame_id = ?
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
@@ -286,10 +281,10 @@ pub async fn update_redis_control(
 
                     match part_control.part_type {
                         PartType::LED => {
-                            PartControl(part_control.effect.clone().unwrap(), part_control.alpha)
+                            PartControl(part_control.effect_id.unwrap(), part_control.alpha)
                         }
                         PartType::FIBER => {
-                            PartControl(part_control.color.clone().unwrap(), part_control.alpha)
+                            PartControl(part_control.color_id.unwrap(), part_control.alpha)
                         }
                     }
                 })

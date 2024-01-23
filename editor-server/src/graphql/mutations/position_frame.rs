@@ -44,9 +44,9 @@ impl PositionFrameMutation {
         let check = sqlx::query_as!(
             PositionFrameData,
             r#"
-				SELECT * FROM PositionFrame
-				WHERE start = ?;
-			"#,
+                SELECT * FROM PositionFrame
+                WHERE start = ?;
+            "#,
             start
         )
         .fetch_optional(mysql)
@@ -63,9 +63,9 @@ impl PositionFrameMutation {
         let dancers = sqlx::query_as!(
             DancerData,
             r#"
-				SELECT * FROM Dancer
-				ORDER BY id ASC;
-			"#
+                SELECT * FROM Dancer
+                ORDER BY id ASC;
+            "#
         )
         .fetch_all(mysql)
         .await?;

@@ -1,20 +1,14 @@
 //! Color subscription methods.
 
 use crate::graphql::subscriptor::Subscriptor;
+use crate::graphql::types::control_data::ControlFramesSubDatScalar;
 
 use async_graphql::{SimpleObject, Subscription};
 use futures_core::stream::Stream;
 
 #[derive(SimpleObject, Clone, Default)]
-pub struct ControlMapMutationFrame {
-    pub create_list: Vec<i32>,
-    pub delete_list: Vec<i32>,
-    pub update_list: Vec<i32>,
-}
-#[derive(SimpleObject, Clone, Default)]
-
 pub struct ControlMapPayload {
-    pub frame: ControlMapMutationFrame,
+    pub frame: ControlFramesSubDatScalar,
     pub edit_by: i32,
 }
 

@@ -8,14 +8,16 @@ use crate::types::global::UserContext;
 
 // import modules and functions
 use async_graphql::{Context, Error, FieldResult, InputObject, Object};
+use std::collections::HashMap;
 
-use crate::utils::data::update_redis_control;
+use crate::utils::data::{get_redis_control, update_redis_control};
 use crate::utils::vector::partition_by_field;
 
 use crate::graphql::{
-    subscriptions::control_map::{ControlMapMutationFrame, ControlMapPayload},
+    subscriptions::control_map::ControlMapPayload,
     subscriptions::control_record::{ControlRecordMutationMode, ControlRecordPayload},
     subscriptor::Subscriptor,
+    types::control_data::{ControlFramesSubDatScalar, ControlFramesSubData},
 };
 
 // TODO : make the input type more consistent among the functions.
@@ -360,15 +362,17 @@ impl ControlFrameMutation {
 
         // update redis control
         update_redis_control(mysql, &clients.redis_client, new_control_frame_id).await?;
+        let redis_control = get_redis_control(&clients.redis_client, new_control_frame_id).await?;
+        let create_frames = HashMap::from([(new_control_frame_id.to_string(), redis_control)]);
 
         // below is the code for publishing control map
 
         // create frame
-        let frame = ControlMapMutationFrame {
-            create_list: vec![new_control_frame_id],
-            delete_list: Vec::new(), // Assuming you want an empty vector for delete_list
-            update_list: Vec::new(), // Assuming you want an empty vector for update_list
-        };
+        let frame = ControlFramesSubDatScalar(ControlFramesSubData {
+            create_frames,
+            delete_frames: Vec::new(), // Assuming you want an empty vector for delete_list
+            update_frames: HashMap::new(), // Assuming you want an empty vector for update_list
+        });
 
         // create control map payload
         let control_map_payload = ControlMapPayload {
@@ -563,15 +567,17 @@ impl ControlFrameMutation {
 
         // update redis control
         update_redis_control(mysql, &clients.redis_client, frame_id).await?;
+        let redis_control = get_redis_control(&clients.redis_client, frame_id).await?;
+        let update_frames = HashMap::from([(frame_id.to_string(), redis_control)]);
 
         // below is the code for publishing control map
 
         // create frame
-        let frame = ControlMapMutationFrame {
-            create_list: Vec::new(), // Assuming you want an empty vector for create_list
-            delete_list: Vec::new(), // Assuming you want an empty vector for delete_list
-            update_list: vec![frame_id],
-        };
+        let frame = ControlFramesSubDatScalar(ControlFramesSubData {
+            create_frames: HashMap::new(), // Assuming you want an empty vector for create_list
+            delete_frames: Vec::new(),     // Assuming you want an empty vector for delete_list
+            update_frames,
+        });
 
         // create control map payload
         let control_map_payload = ControlMapPayload {
@@ -717,11 +723,11 @@ impl ControlFrameMutation {
         // below is the code for publishing control map
 
         // create frame
-        let frame = ControlMapMutationFrame {
-            create_list: Vec::new(), // Assuming you want an empty vector for create_list
-            delete_list: vec![frame_id],
-            update_list: Vec::new(), // Assuming you want an empty vector for update_list
-        };
+        let frame = ControlFramesSubDatScalar(ControlFramesSubData {
+            create_frames: HashMap::new(), // Assuming you want an empty vector for create_list
+            delete_frames: vec![frame_id],
+            update_frames: HashMap::new(), // Assuming you want an empty vector for update_list
+        });
 
         // create control map payload
         let control_map_payload = ControlMapPayload {

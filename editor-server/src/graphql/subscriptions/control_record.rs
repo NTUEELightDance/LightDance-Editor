@@ -21,8 +21,11 @@ pub enum ControlRecordMutationMode {
 pub struct ControlRecordPayload {
     pub mutation: ControlRecordMutationMode,
     pub index: i32,
+    #[graphql(name = "addID")]
     pub add_id: Vec<i32>,
+    #[graphql(name = "updateID")]
     pub update_id: Vec<i32>,
+    #[graphql(name = "deleteID")]
     pub delete_id: Vec<i32>,
     pub edit_by: i32,
 }

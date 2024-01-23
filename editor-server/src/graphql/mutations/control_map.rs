@@ -7,13 +7,15 @@ use crate::types::global::UserContext;
 
 // import modules and functions
 use async_graphql::{Context, Error, FieldResult, InputObject, Object};
+use std::collections::HashMap;
 
-use crate::utils::data::update_redis_control;
+use crate::utils::data::{get_redis_control, update_redis_control};
 use crate::utils::vector::partition_by_field;
 
 use crate::graphql::{
-    subscriptions::control_map::{ControlMapMutationFrame, ControlMapPayload},
+    subscriptions::control_map::ControlMapPayload,
     subscriptor::Subscriptor,
+    types::control_data::{ControlFramesSubDatScalar, ControlFramesSubData},
 };
 
 // input type
@@ -392,15 +394,17 @@ impl ControlMapMutation {
 
         // update redis
         update_redis_control(mysql, &clients.redis_client, frame_id).await?;
+        let redis_control = get_redis_control(&clients.redis_client, frame_id).await?;
+        let update_frames = HashMap::from([(frame_id.to_string(), redis_control)]);
 
         // publish the control map
 
         // create frame
-        let frame = ControlMapMutationFrame {
-            create_list: Vec::new(),
-            delete_list: Vec::new(),
-            update_list: vec![frame_id],
-        };
+        let frame = ControlFramesSubDatScalar(ControlFramesSubData {
+            create_frames: HashMap::new(),
+            delete_frames: Vec::new(),
+            update_frames,
+        });
 
         // create control map payload
         let control_map_payload = ControlMapPayload {

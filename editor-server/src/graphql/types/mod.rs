@@ -2,6 +2,7 @@
 
 pub mod color;
 pub mod color_map;
+pub mod control_data;
 pub mod control_frame;
 pub mod dancer;
 pub mod led;
