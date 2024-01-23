@@ -1,16 +1,18 @@
-#![allow(unused)]
-
-use crate::graphql::{subscriptor::Subscriptor, types::color::Color};
+use crate::graphql::subscriptions::{
+    control_map::ControlMapPayload,
+    control_record::{ControlRecordMutationMode, ControlRecordPayload},
+    position_map::PositionMapPayload,
+    position_record::{PositionRecordMutationMode, PositionRecordPayload},
+};
+use crate::graphql::subscriptor::Subscriptor;
+use crate::graphql::types::{control_data::*, pos_data::*};
 use crate::types::global::UserContext;
 use crate::utils::data::{
     delete_redis_control, delete_redis_position, update_redis_control, update_redis_position,
 };
 
-use async_graphql::{
-    Context, Error as GQLError, InputObject, Object, Result as GQLResult, SimpleObject,
-};
+use async_graphql::{Context, Error as GQLError, InputObject, Object, Result as GQLResult};
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
 
 #[derive(InputObject, Default)]
 struct ShiftQuery {
@@ -21,11 +23,13 @@ struct ShiftQuery {
     shift_control: bool,
     shift_position: bool,
 }
+#[derive(Clone)]
 struct ControlFrame {
     id: i32,
     start: i32,
     fade: i32,
 }
+#[derive(Clone)]
 struct PositionFrame {
     id: i32,
     start: i32,
@@ -33,11 +37,6 @@ struct PositionFrame {
 struct EditingFrame {
     frame_id: i32,
     user_id: i32,
-}
-
-//For Testing and Debugging
-fn print_type_of<T>(_: &T) {
-    println!("{}", std::any::type_name::<T>())
 }
 
 #[derive(Default)]
@@ -95,7 +94,7 @@ impl FrameMutation {
 					INNER JOIN EditingControlFrame
 					ON EditingControlFrame.frame_id = ControlFrame.id
 					AND start >= ?
-					AND start <= ?
+					AND start <= ?;
 				"#,
                 check_start,
                 check_end
@@ -117,7 +116,7 @@ impl FrameMutation {
 					INNER JOIN EditingPositionFrame
 					ON EditingPositionFrame.frame_id = PositionFrame.id
 					AND start >= ?
-					AND start <= ?
+					AND start <= ?;
 				"#,
                 check_start,
                 check_end
@@ -139,7 +138,7 @@ impl FrameMutation {
                 r#"
 					SELECT * FROM ControlFrame
 					WHERE start >= ?
-					AND start <= ?
+					AND start <= ?;
 				"#,
                 overlap_start,
                 overlap_end
@@ -150,7 +149,7 @@ impl FrameMutation {
                 r#"
 					DELETE FROM ControlFrame
 					WHERE start >= ?
-					AND start <= ?
+					AND start <= ?;
 				"#,
                 overlap_start,
                 overlap_end
@@ -167,7 +166,7 @@ impl FrameMutation {
 						SELECT * FROM ControlFrame
 						WHERE start >= ?
 						AND start <= ?
-						ORDER BY start DESC
+						ORDER BY start DESC;
 					"#,
                     start,
                     end
@@ -181,7 +180,7 @@ impl FrameMutation {
 						SELECT * FROM ControlFrame
 						WHERE start >= ?
 						AND start <= ?
-						ORDER BY start ASC
+						ORDER BY start ASC;
 					"#,
                     start,
                     end
@@ -195,7 +194,7 @@ impl FrameMutation {
                     r#"
 						UPDATE ControlFrame
 						SET start = ?
-						WHERE start = ?
+						WHERE start = ?;
 					"#,
                     control_frame.start + mv,
                     control_frame.start
@@ -223,6 +222,42 @@ impl FrameMutation {
                     Err(msg) => return Err(GQLError::new(msg)),
                 };
             }
+
+            //subscription
+            let control_map_payload = ControlMapPayload {
+                edit_by: context.user_id,
+                frame: ControlDataScalar(ControlFrameData {
+                    create_list: Vec::new(),
+                    delete_list: delete_control_list.clone(),
+                    update_list: update_control_ids.clone(),
+                }),
+            };
+            Subscriptor::publish(control_map_payload);
+
+            let all_control_frames = sqlx::query_as!(
+                ControlFrame,
+                r#"
+					SELECT * FROM ControlFrame
+					ORDER BY start ASC;
+				"#
+            )
+            .fetch_all(mysql)
+            .await?;
+            let mut index = -1;
+            for (idx, frame) in all_control_frames.iter().enumerate() {
+                if frame.id == update_control_ids.clone()[0] {
+                    index = idx as i32;
+                }
+            }
+            let control_record_payload = ControlRecordPayload {
+                mutation: ControlRecordMutationMode::UpdatedDeleted,
+                edit_by: context.user_id,
+                create_list: Vec::new(),
+                delete_list: delete_control_list.clone(),
+                update_list: update_control_ids.clone(),
+                index,
+            };
+            Subscriptor::publish(control_record_payload);
         }
 
         if shift_position {
@@ -232,7 +267,7 @@ impl FrameMutation {
                 r#"
 					SELECT * FROM PositionFrame
 					WHERE start >= ?
-					AND start <= ?
+					AND start <= ?;
 				"#,
                 overlap_start,
                 overlap_end
@@ -243,7 +278,7 @@ impl FrameMutation {
                 r#"
 					DELETE FROM PositionFrame
 					WHERE start >= ?
-					AND start <= ?
+					AND start <= ?;
 				"#,
                 overlap_start,
                 overlap_end
@@ -260,7 +295,7 @@ impl FrameMutation {
 						SELECT * FROM PositionFrame
 						WHERE start >= ?
 						AND start <= ?
-						ORDER BY start DESC
+						ORDER BY start DESC;
 					"#,
                     start,
                     end
@@ -274,7 +309,7 @@ impl FrameMutation {
 						SELECT * FROM PositionFrame
 						WHERE start >= ?
 						AND start <= ?
-						ORDER BY start ASC
+						ORDER BY start ASC;
 					"#,
                     start,
                     end
@@ -288,7 +323,7 @@ impl FrameMutation {
                     r#"
 						UPDATE PositionFrame
 						SET start = ?
-						WHERE start = ?
+						WHERE start = ?;
 					"#,
                     position_frame.start + mv,
                     position_frame.start
@@ -316,107 +351,43 @@ impl FrameMutation {
                     Err(msg) => return Err(GQLError::new(msg)),
                 };
             }
+
+            //subscription
+            let position_map_payload = PositionMapPayload {
+                edit_by: context.user_id,
+                frame: PosDataScalar(PosFrameData {
+                    create_list: Vec::new(),
+                    delete_list: delete_position_list.clone(),
+                    update_list: update_position_ids.clone(),
+                }),
+            };
+            Subscriptor::publish(position_map_payload);
+            let all_position_frames = sqlx::query_as!(
+                PositionFrame,
+                r#"
+					SELECT * FROM PositionFrame
+					ORDER BY start ASC;
+				"#
+            )
+            .fetch_all(mysql)
+            .await?;
+            let mut index = -1;
+            for (idx, frame) in all_position_frames.iter().enumerate() {
+                if frame.id == update_position_ids.clone()[0] {
+                    index = idx as i32;
+                }
+            }
+            let position_record_payload = PositionRecordPayload {
+                mutation: PositionRecordMutationMode::UpdatedDeleted,
+                edit_by: context.user_id,
+                create_list: Vec::new(),
+                delete_list: delete_position_list.clone(),
+                update_list: update_position_ids.clone(),
+                index,
+            };
+            Subscriptor::publish(position_record_payload);
         }
 
         Ok("Done".to_string())
-    }
-
-    //for inserting data while developing
-    async fn insert(
-        &self,
-        ctx: &Context<'_>,
-        start: i32,
-        end: i32,
-        control: bool,
-        pos: bool,
-    ) -> GQLResult<String> {
-        let context = ctx.data::<UserContext>()?;
-        let clients = context.clients;
-
-        let mysql = clients.mysql_pool();
-
-        let _ = sqlx::query!(
-            r#"
-				ALTER TABLE ControlFrame
-				AUTO_INCREMENT = 1;
-			"#
-        )
-        .execute(mysql)
-        .await?;
-        let _ = sqlx::query!(
-            r#"
-				ALTER TABLE PositionFrame
-				AUTO_INCREMENT = 1;
-			"#
-        )
-        .execute(mysql)
-        .await?;
-
-        for i in start..=end {
-            if control {
-                let _ = sqlx::query!(
-                    r#"
-						INSERT INTO ControlFrame(start,fade)
-						VALUES(?,0);
-					"#,
-                    i
-                )
-                .execute(mysql)
-                .await?;
-                let _ = sqlx::query!(
-                    r#"
-						INSERT INTO ControlData(alpha,color_id,effect_id,frame_id,part_id,type)
-						VALUES(15,1,NULL,?,1,'COLOR');
-					"#,
-                    i
-                )
-                .execute(mysql)
-                .await?;
-            }
-            if pos {
-                let _ = sqlx::query!(
-                    r#"
-						INSERT INTO PositionFrame(start)
-						VALUES(?);
-					"#,
-                    i
-                )
-                .execute(mysql)
-                .await?;
-                let _ = sqlx::query!(
-                    r#"
-						INSERT INTO PositionData(dancer_id,frame_id,x,y,z)
-						VALUES(1,?,1.1,1.1,1.1);
-					"#,
-                    i
-                )
-                .execute(mysql)
-                .await?;
-            }
-        }
-
-        Ok("Done".to_string())
-    }
-    //for deleting datas after testing
-    async fn clear(&self, ctx: &Context<'_>) -> GQLResult<String> {
-        let context = ctx.data::<UserContext>()?;
-        let clients = context.clients;
-
-        let mysql = clients.mysql_pool();
-        let _ = sqlx::query!(
-            r#"
-				DELETE FROM ControlFrame;
-			"#
-        )
-        .execute(mysql)
-        .await?;
-        let _ = sqlx::query!(
-            r#"
-				DELETE FROM PositionFrame;
-			"#
-        )
-        .execute(mysql)
-        .await?;
-        Ok("".to_string())
     }
 }
