@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 //! PositionRecord subscription methods.
 use crate::graphql::subscriptor::Subscriptor;
 
