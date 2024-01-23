@@ -28,10 +28,10 @@ pub struct RedisControl {
     pub status: Vec<Vec<PartControl>>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PositionPos(pub f64, pub f64, pub f64);
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisPosition {
     pub start: i32,
     pub editing: Option<String>,

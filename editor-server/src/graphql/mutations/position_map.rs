@@ -118,14 +118,16 @@ impl PositionMapMutation {
         .await?;
 
         update_redis_position(mysql, redis, frame_to_edit.id).await?;
+        let redis_position = get_redis_position(redis, frame_to_edit.id).await?;
+        let update_frames = HashMap::from([(frame_to_edit.id.to_string(), redis_position)]);
 
         // subscription
         let payload = PositionMapPayload {
             edit_by: context.user_id,
             frame: PosDataScalar(FrameData {
-                create_list: vec![],
-                delete_list: vec![],
-                update_list: vec![frame_to_edit.id],
+                create_frames: HashMap::new(),
+                delete_frames: vec![],
+                update_frames,
             }),
         };
 

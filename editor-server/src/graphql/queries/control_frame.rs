@@ -38,6 +38,7 @@ impl ControlFrameQuery {
         })
     }
 
+    #[graphql(name = "controlFrameIDs")]
     async fn control_frame_ids(&self, ctx: &Context<'_>) -> GQLResult<Vec<i32>> {
         // get the context and the clients
         let context = ctx.data::<UserContext>()?;
