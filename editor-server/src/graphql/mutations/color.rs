@@ -7,7 +7,7 @@ use crate::graphql::{
 };
 use crate::types::global::UserContext;
 
-use async_graphql::{Context, InputObject, Object, Result as GQLResult};
+use async_graphql::{Context, InputObject, Object, Result as GQLResult, SimpleObject};
 
 #[derive(InputObject, Default)]
 pub struct ColorUpdateInput {
@@ -19,6 +19,13 @@ pub struct ColorUpdateInput {
 pub struct ColorCreateInput {
     pub color: String,
     pub color_code: Vec<i32>,
+}
+
+#[derive(SimpleObject, Default)]
+pub struct ColorResponse {
+    pub id: i32,
+    pub msg: String,
+    pub ok: bool,
 }
 
 #[derive(Default)]
@@ -111,7 +118,7 @@ impl ColorMutation {
     }
 
     #[allow(unused)]
-    async fn delete_color(&self, ctx: &Context<'_>, id: i32) -> GQLResult<bool> {
+    async fn delete_color(&self, ctx: &Context<'_>, id: i32) -> GQLResult<ColorResponse> {
         let context = ctx.data::<UserContext>()?;
         let app_state = &context.clients;
 
@@ -128,7 +135,6 @@ impl ColorMutation {
         .fetch_one(mysql)
         .await?;
 
-        // TODO: Check if color is used in any frames
         let check = sqlx::query!(
             r#"
                 SELECT * FROM ControlData
@@ -140,7 +146,11 @@ impl ColorMutation {
         .await?;
 
         if let Some(check) = check {
-            return Ok(false);
+            return Ok(ColorResponse {
+                id: 0,
+                msg: "Color is used in control data with id.".to_string(),
+                ok: false,
+            });
         }
 
         let _ = sqlx::query!(
@@ -163,6 +173,10 @@ impl ColorMutation {
 
         Subscriptor::publish(color_payload);
 
-        Ok(true)
+        Ok(ColorResponse {
+            id,
+            msg: "Color deleted.".to_string(),
+            ok: true,
+        })
     }
 }

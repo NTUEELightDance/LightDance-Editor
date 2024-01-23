@@ -6,6 +6,7 @@ use futures_core::stream::Stream;
 use serde::{Deserialize, Serialize};
 
 #[derive(Enum, Clone, Copy, Eq, PartialEq, Default, Serialize, Deserialize)]
+#[graphql(name = "LEDMutationMode")]
 pub enum LEDMutationMode {
     #[default]
     #[serde(rename = "UPDATED")]
@@ -17,6 +18,7 @@ pub enum LEDMutationMode {
 }
 
 #[derive(SimpleObject, Clone, Default)]
+#[graphql(name = "LEDPayload")]
 pub struct LEDPayload {
     pub mutation: LEDMutationMode,
     pub id: i32,

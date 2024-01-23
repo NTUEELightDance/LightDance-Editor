@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(SimpleObject, Debug, Deserialize, Serialize, Clone)]
 pub struct PositionPos {
-    pub x: f64, 
-    pub y: f64, 
+    pub x: f64,
+    pub y: f64,
     pub z: f64,
 }
 
@@ -42,10 +42,9 @@ impl From<DancerData> for Dancer {
     fn from(data: DancerData) -> Self {
         Self {
             id: data.id,
-            name: data.name.clone(),
+            name: data.name,
             parts: None,
             position_datas: None,
         }
     }
 }
-
