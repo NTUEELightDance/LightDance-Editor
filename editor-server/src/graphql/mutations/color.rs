@@ -129,6 +129,19 @@ impl ColorMutation {
         .await?;
 
         // TODO: Check if color is used in any frames
+        let check = sqlx::query!(
+            r#"
+                SELECT * FROM ControlData
+                WHERE color_id = ?;
+            "#,
+            id
+        )
+        .fetch_optional(mysql)
+        .await?;
+
+        if let Some(check) = check {
+            return Ok(false);
+        }
 
         let _ = sqlx::query!(
             r#"

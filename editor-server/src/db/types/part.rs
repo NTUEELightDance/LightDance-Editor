@@ -1,4 +1,6 @@
-//! Part data types.
+//! Part data type
+use async_graphql::Enum;
+use serde::{Serialize, Deserialize};
 use sqlx::{Decode, FromRow};
 
 #[derive(FromRow, Debug, Clone)]
@@ -10,7 +12,7 @@ pub struct PartData {
     pub length: i32,
 }
 
-#[derive(Debug, Decode, Clone)]
+#[derive(Decode, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug)]
 pub enum PartType {
     LED,
     FIBER,
