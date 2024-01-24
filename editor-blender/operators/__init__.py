@@ -8,6 +8,7 @@ from . import (
     pos_editor,
     setup,
     slider,
+    timeline,
     utils,
 )
 
@@ -23,6 +24,7 @@ def register():
     color_palette.register()
     utils.register()
     notification.register()
+    timeline.register()
 
 
 def unregister():
@@ -36,3 +38,4 @@ def unregister():
     color_palette.unregister()
     utils.unregister()
     notification.unregister()
+    timeline.unregister()

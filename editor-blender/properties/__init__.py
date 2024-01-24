@@ -1,4 +1,4 @@
-from . import lights, objects, position, ui, color_palette
+from . import color_palette, lights, objects, position, timeline, ui
 
 
 def register():
@@ -7,6 +7,7 @@ def register():
     lights.register()
     position.register()
     color_palette.register()
+    timeline.register()
 
 
 def unregister():
@@ -15,3 +16,4 @@ def unregister():
     lights.unregister()
     position.unregister()
     color_palette.unregister()
+    timeline.unregister()

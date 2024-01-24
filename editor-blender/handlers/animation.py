@@ -43,30 +43,31 @@ def frame_change_pre(scene: bpy.types.Scene):
             AsyncTask(defer).exec()
 
     # TODO: Increase efficiency
-    elif state.edit_state == EditMode.IDLE:
-        current_frame = scene.frame_current
-        match state.editor:
-            case Editor.CONTROL_EDITOR:
-                frame_start_list = [
-                    state.control_map[id].start for id in state.control_record
-                ]
-                for i, start in enumerate(frame_start_list):
-                    if start <= current_frame:
-                        if i + 1 < len(frame_start_list):
-                            next_start = frame_start_list[i + 1]
-                            if current_frame < next_start:
-                                update_current_status_by_index(i)
-                                break
-                        else:
+    # elif state.edit_state == EditMode.IDLE:
+    current_frame = scene.frame_current
+    match state.editor:
+        case Editor.CONTROL_EDITOR:
+            frame_start_list = [
+                state.control_map[id].start for id in state.control_record
+            ]
+            for i, start in enumerate(frame_start_list):
+                if start <= current_frame:
+                    if i + 1 < len(frame_start_list):
+                        next_start = frame_start_list[i + 1]
+                        if current_frame < next_start:
                             update_current_status_by_index(i)
                             break
+                    else:
+                        update_current_status_by_index(i)
+                        break
 
-            case Editor.POS_EDITOR:
-                state.current_pos_index = calculate_current_pos_index()
+        case Editor.POS_EDITOR:
+            state.current_pos_index = calculate_current_pos_index()
+            if state.edit_state == EditMode.IDLE:
                 update_current_pos_by_index()
 
-            case Editor.LED_EDITOR:
-                pass
+        case Editor.LED_EDITOR:
+            pass
 
 
 def mount():
