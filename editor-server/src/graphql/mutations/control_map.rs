@@ -241,16 +241,19 @@ impl ControlMapMutation {
             // second, check if the data of each dancer have all information about all parts
             if data.len() != dancer.len() || led_bulb_data.len() != dancer.len() {
                 if dancer.len() < data.len() || dancer.len() < led_bulb_data.len() {
-                    errors.push(
-                        "Control data in dancer {} is more than parts in payload.".to_string(),
-                    );
+                    errors.push(format!(
+                        "Control data in dancer {} is more than parts in payload.",
+                        index
+                    ));
                     // if the data is more than the parts, when iter through parts will have "out of bound" error
                     // so we need to skip the rest of the iteration
                     break;
                 } else {
-                    return Err(Error::new(
-                        "Control data in dancer is less than parts in payload.",
+                    errors.push(format!(
+                        "Control data in dancer {} is less than parts in payload.",
+                        index
                     ));
+                    break;
                 }
             }
 
@@ -300,8 +303,7 @@ impl ControlMapMutation {
                         _index + 1
                     );
                     errors.push(error_message.clone());
-                    // return early because the following code might cause panic
-                    return Err(Error::new(error_message));
+                    break;
                 }
 
                 match part_type {
@@ -364,7 +366,7 @@ impl ControlMapMutation {
                             }
                         } else {
                             let error_message = format!(
-                                "Contro data type of dancer #{} part #{} is not valid",
+                                "Control data type of dancer #{} part #{} is not valid",
                                 index + 1,
                                 _index + 1
                             );
