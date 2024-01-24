@@ -4,6 +4,10 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "@/core/state";
+import { startEditing } from "@/core/actions";
+
 export interface SrcSelectorProps {
   src: string | null;
   effectNames: string[];
@@ -15,7 +19,9 @@ export interface SrcSelectorProps {
  * Select the effectName to be the src
  */
 function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
-  const handleChange = (e: SelectChangeEvent) => {
+  const editorState = useReactiveVar(reactiveState.editorState);
+  const handleChange = async (e: SelectChangeEvent) => {
+    if (editorState === "IDLE") await startEditing();
     handleSrcChange(e.target.value);
   };
 
