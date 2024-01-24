@@ -6,6 +6,9 @@ import { Root, Toggle, Listbox } from "./CustomComponents";
 import useColorMap from "@/hooks/useColorMap";
 import { ColorID } from "@/core/models";
 import { getBlackColorID } from "@/core/utils";
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "@/core/state";
+import { startEditing } from "@/core/actions";
 
 export interface CustomSelectProps {
   placeholder?: string;
@@ -18,6 +21,7 @@ function CustomSelect({
   onChange,
   currentColorID,
 }: CustomSelectProps) {
+  const editorState = useReactiveVar(reactiveState.editorState);
   const listboxRef = useRef<HTMLUListElement>(null);
   const [listboxVisible, setListboxVisible] = useState(false);
   const { colorMap } = useColorMap();
@@ -39,8 +43,9 @@ function CustomSelect({
     listboxRef,
     options,
     value: currentColorID ?? blackID,
-    onChange: (event) => {
+    onChange: async (event) => {
       if (event === null) return;
+      if (editorState === "IDLE") await startEditing();
       const target = event.target as HTMLElement;
       const colorID =
         target.dataset.option ??

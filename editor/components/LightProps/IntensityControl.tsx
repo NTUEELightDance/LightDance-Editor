@@ -2,17 +2,24 @@ import type { ReactNode } from "react";
 import { Grid, Slider, Input, Typography } from "@mui/material";
 import { Flare } from "@mui/icons-material";
 
+import { useReactiveVar } from "@apollo/client";
+import { reactiveState } from "@/core/state";
+import { startEditing } from "@/core/actions";
+
 export interface IntensityControlProps {
   intensity: number | null;
   setIntensity: (intensity: number) => void;
 }
 
 function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
-  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+  const editorState = useReactiveVar(reactiveState.editorState);
+  const handleSliderChange = async (event: Event, newValue: number | number[]) => {
+    if (editorState === "IDLE") await startEditing();
     setIntensity(newValue as number);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (editorState === "IDLE") await startEditing();
     const intensity = Number(event.target.value);
     if (intensity < 0) setIntensity(0);
     else if (intensity === 11 || intensity >= 15) setIntensity(15);
