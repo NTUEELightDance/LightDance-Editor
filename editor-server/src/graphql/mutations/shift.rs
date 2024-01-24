@@ -6,13 +6,15 @@ use crate::graphql::subscriptions::{
 };
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::{control_data::*, pos_data::*};
-use crate::types::global::UserContext;
+use crate::types::global::{RedisControl, RedisPosition, UserContext};
 use crate::utils::data::{
-    delete_redis_control, delete_redis_position, update_redis_control, update_redis_position,
+    delete_redis_control, delete_redis_position, get_redis_control, get_redis_position,
+    update_redis_control, update_redis_position,
 };
 
 use async_graphql::{Context, Error as GQLError, InputObject, Object, Result as GQLResult};
 use itertools::Itertools;
+use std::collections::HashMap;
 
 #[derive(InputObject, Default)]
 struct ShiftQuery {
@@ -224,12 +226,22 @@ impl FrameMutation {
             }
 
             //subscription
+            let mut update_control_frames: HashMap<String, RedisControl> = HashMap::new();
+            for id in &update_control_ids {
+                let result = get_redis_control(redis_client, *id).await;
+                let redis_control = match result {
+                    Ok(redis_control) => redis_control,
+                    Err(msg) => return Err(GQLError::new(msg)),
+                };
+                update_control_frames.insert(id.to_string(), redis_control);
+            }
+
             let control_map_payload = ControlMapPayload {
                 edit_by: context.user_id,
-                frame: ControlDataScalar(ControlFrameData {
-                    create_list: Vec::new(),
-                    delete_list: delete_control_list.clone(),
-                    update_list: update_control_ids.clone(),
+                frame: ControlFramesSubDatScalar(ControlFramesSubData {
+                    create_frames: HashMap::new(),
+                    delete_frames: delete_control_list.clone(),
+                    update_frames: update_control_frames,
                 }),
             };
             Subscriptor::publish(control_map_payload);
@@ -252,9 +264,9 @@ impl FrameMutation {
             let control_record_payload = ControlRecordPayload {
                 mutation: ControlRecordMutationMode::UpdatedDeleted,
                 edit_by: context.user_id,
-                create_list: Vec::new(),
-                delete_list: delete_control_list.clone(),
-                update_list: update_control_ids.clone(),
+                add_id: Vec::new(),
+                delete_id: delete_control_list.clone(),
+                update_id: update_control_ids.clone(),
                 index,
             };
             Subscriptor::publish(control_record_payload);
@@ -351,14 +363,27 @@ impl FrameMutation {
                     Err(msg) => return Err(GQLError::new(msg)),
                 };
             }
-
+            let delete_position_ids: Vec<String> = delete_position_list
+                .clone()
+                .into_iter()
+                .map(|id| id.to_string())
+                .collect();
+            let mut update_position_frames: HashMap<String, RedisPosition> = HashMap::new();
+            for id in &update_position_ids {
+                let result = get_redis_position(redis_client, *id).await;
+                let redis_position = match result {
+                    Ok(redis_position) => redis_position,
+                    Err(msg) => return Err(GQLError::new(msg)),
+                };
+                update_position_frames.insert(id.to_string(), redis_position);
+            }
             //subscription
             let position_map_payload = PositionMapPayload {
                 edit_by: context.user_id,
-                frame: PosDataScalar(PosFrameData {
-                    create_list: Vec::new(),
-                    delete_list: delete_position_list.clone(),
-                    update_list: update_position_ids.clone(),
+                frame: PosDataScalar(FrameData {
+                    create_frames: HashMap::new(),
+                    delete_frames: delete_position_ids,
+                    update_frames: update_position_frames,
                 }),
             };
             Subscriptor::publish(position_map_payload);
@@ -380,9 +405,9 @@ impl FrameMutation {
             let position_record_payload = PositionRecordPayload {
                 mutation: PositionRecordMutationMode::UpdatedDeleted,
                 edit_by: context.user_id,
-                create_list: Vec::new(),
-                delete_list: delete_position_list.clone(),
-                update_list: update_position_ids.clone(),
+                add_id: Vec::new(),
+                delete_id: delete_position_list.clone(),
+                update_id: update_position_ids.clone(),
                 index,
             };
             Subscriptor::publish(position_record_payload);

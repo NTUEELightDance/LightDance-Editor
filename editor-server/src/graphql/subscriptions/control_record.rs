@@ -29,6 +29,8 @@ pub struct ControlRecordPayload {
     pub update_id: Vec<i32>,
     #[graphql(name = "deleteID")]
     pub delete_id: Vec<i32>,
+    #[graphql(name = "editBy")]
+    pub edit_by: i32,
 }
 
 #[derive(Default)]

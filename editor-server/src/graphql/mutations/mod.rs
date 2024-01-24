@@ -30,5 +30,5 @@ pub struct MutationRoot(
     RequestEditMutation,
     LEDMutation,
     DancerMutation,
-	FrameMutation,
+    FrameMutation,
 );

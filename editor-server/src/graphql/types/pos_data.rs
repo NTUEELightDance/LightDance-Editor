@@ -14,9 +14,10 @@ pub struct FrameData {
     pub delete_frames: Vec<String>,
     #[serde(rename = "updateFrames")]
     pub update_frames: HashMap<String, RedisPosition>,
+}
 
 #[derive(Serialize, Deserialize, Clone, Default)]
-pub struct PosDataScalar(pub PosFrameData);
+pub struct PosDataScalar(pub FrameData);
 
 #[Scalar]
 impl ScalarType for PosDataScalar {
