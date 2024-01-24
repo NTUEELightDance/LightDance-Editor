@@ -49,7 +49,7 @@ impl ControlMapMutation {
     // of the input data, and then insert the control data into the database
 
     // as mentioned in the comment of add_control_frame, the control data should be a 3d array
-    // representing all the data on every parts of every dancers
+    // representing all the data on every part of every dancer
     // the first dimension is the dancer id, the second dimension is the part id
     // and the third dimension is the data of each Fiber or LED, depending on the part type
     // they should be a 1d array of length 2, first element representing the Color id or LEDEffect id, the second element representing the alpha value

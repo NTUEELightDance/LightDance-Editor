@@ -160,7 +160,7 @@ pub async fn get_dancer_led_data(
                 led_bulb_color_id: data.led_bulb_color_id,
                 led_bulb_alpha: data.led_bulb_alpha,
                 effect_id: data.effect_id,
-                length: data.length,
+                length: data.part_length,
                 position: data.position,
             });
     }
@@ -169,6 +169,7 @@ pub async fn get_dancer_led_data(
 
     for (part_name, control_data) in parts.iter() {
         let mut part_data = Vec::<Status>::new();
+        // organize led bulbs into their respective control data
         let mut led_bulb_control_data = HashMap::<i32, Vec<&Part>>::new();
 
         for data in control_data.iter() {
@@ -209,11 +210,13 @@ pub async fn get_dancer_led_data(
                     fade: false,
                 });
             } else if data.r#type == "LED_BULBS" {
+                // push led bulb data into a vector for each control data
                 led_bulb_control_data
                     .entry(data.id)
                     .or_insert_with(Vec::new)
                     .push(data.clone());
             } else {
+                // return error if part type is FIBER
                 return Err((
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(GetDataFailedResponse {
@@ -223,13 +226,14 @@ pub async fn get_dancer_led_data(
             }
         }
 
+        // create led data equivalent to effect data
         for (_, data) in led_bulb_control_data.iter() {
-            let mut effect_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
+            let mut led_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
             for led_bulb_data in data.iter() {
                 let color = color_map
                     .get(&led_bulb_data.led_bulb_color_id.unwrap())
                     .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-                effect_data[led_bulb_data.position.unwrap() as usize] = [
+                led_data[led_bulb_data.position.unwrap() as usize] = [
                     color.r,
                     color.g,
                     color.b,
@@ -239,7 +243,7 @@ pub async fn get_dancer_led_data(
 
             part_data.push(Status {
                 start: 0,
-                status: effect_data.clone(),
+                status: led_data.clone(),
                 fade: false,
             });
         }
@@ -250,7 +254,7 @@ pub async fn get_dancer_led_data(
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-    // return data of form {part_name: [{status: [[r, g, b, a], [r, g, b, a]]}, ...}, ...]
+    // return data of form {part_name: [{status: [[r, g, b, a], [r, g, b, a]]}, ...], ...}
     // index of status array is position of led
 
     Ok((StatusCode::OK, (headers, Json(response))))
