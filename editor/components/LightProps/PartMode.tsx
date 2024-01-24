@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 
-import { Paper } from "@mui/material";
+import { Paper, Button } from "@mui/material";
 
 import OFcontrolsContent from "./OFcontrols/OFcontrolsContent";
 
-import { editCurrentStatusDelta } from "@/core/actions";
+import { editCurrentStatusDelta, setSelectionMode} from "@/core/actions";
 import type {
   FiberData,
   Selected,
@@ -20,6 +20,7 @@ import { useReactiveVar } from "@apollo/client";
 import { getPartType } from "core/utils";
 import LEDcontrolsContent from "./LEDcontrols/LEDcontrolsContent";
 import MixedControlsContent from "./MixedControls/MixedControlsContent";
+import { DANCER } from "@/constants";
 
 function PartMode() {
   const selected = useReactiveVar(reactiveState.selected);
@@ -34,6 +35,10 @@ function PartMode() {
   const [currentColorID, setCurrentColorID] = useState<ColorID | null>(null);
   const [intensity, setIntensity] = useState<number | null>(null);
   const [LEDEffectName, setLEDsrc] = useState<string | null>(null);
+  
+  const handleBack = () => {
+    setSelectionMode({payload:DANCER});
+  };
 
   useEffect(() => {
     if (partType === "FIBER") {
@@ -218,6 +223,7 @@ function PartMode() {
 
   return (
     <Paper sx={{ width: "100%", minHeight: "100%", pt: "1.5em" }} square>
+      <Button onClick={handleBack}>Back</Button>
       {partType === "LED" ? (
         <LEDcontrolsContent
           parts={partNames as LEDPartName[]}
