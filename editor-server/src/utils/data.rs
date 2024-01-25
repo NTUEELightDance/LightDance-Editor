@@ -278,7 +278,6 @@ pub async fn update_redis_control(
                         .iter()
                         .find(|part_control| part_control.frame_id == frame.id)
                         .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
-
                     match part_control.part_type {
                         PartType::LED => {
                             PartControl(part_control.effect_id.unwrap(), part_control.alpha)
@@ -286,8 +285,7 @@ pub async fn update_redis_control(
                         PartType::FIBER => {
                             PartControl(part_control.color_id.unwrap(), part_control.alpha)
                         }
-                    }
-                })
+                    })
                 .collect_vec()
         })
         .collect_vec();
