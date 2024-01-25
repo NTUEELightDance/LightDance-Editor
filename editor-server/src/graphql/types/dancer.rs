@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(SimpleObject, Debug, Deserialize, Serialize, Clone)]
 pub struct PositionPos {
-    pub x: f64, 
-    pub y: f64, 
+    pub x: f64,
+    pub y: f64,
     pub z: f64,
 }
 
@@ -22,7 +22,7 @@ pub struct Position {
 }
 
 #[derive(SimpleObject, Debug, Deserialize, Serialize, Clone)]
-pub struct PartData {
+pub struct Part {
     pub id: i32,
     pub dancer_id: i32,
     pub name: String,
@@ -34,7 +34,7 @@ pub struct PartData {
 pub struct Dancer {
     pub id: i32,
     pub name: String,
-    pub parts: Option<Vec<PartData>>,
+    pub parts: Option<Vec<Part>>,
     pub position_datas: Option<Vec<Position>>,
 }
 
@@ -42,10 +42,9 @@ impl From<DancerData> for Dancer {
     fn from(data: DancerData) -> Self {
         Self {
             id: data.id,
-            name: data.name.clone(),
+            name: data.name,
             parts: None,
             position_datas: None,
         }
     }
 }
-

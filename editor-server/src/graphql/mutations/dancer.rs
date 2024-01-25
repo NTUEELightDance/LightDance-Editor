@@ -40,11 +40,10 @@ pub struct DancerMutation;
 impl DancerMutation {
     #[allow(unused)]
     async fn add_dancer(
-        &self, 
-        ctx: &Context<'_>, 
-        input: DancerCreateInput
+        &self,
+        ctx: &Context<'_>,
+        input: DancerCreateInput,
     ) -> GQLResult<DancerResponse> {
-        
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -65,10 +64,10 @@ impl DancerMutation {
 
         let _dancer = match dancer_result {
             Ok(dancer) => {
-                return Ok(DancerResponse{
-                    ok: false, 
+                return Ok(DancerResponse {
+                    ok: false,
                     msg: "Dancer already exists.".to_string(),
-                    dancer_data: Dancer{
+                    dancer_data: Dancer {
                         id: -1,
                         name: "".to_string(),
                         parts: None,
@@ -76,24 +75,20 @@ impl DancerMutation {
                     },
                 })
             }
-            Err(_) => {
-                let insert_result = sqlx::query!(
-                    r#"
+            Err(_) => sqlx::query!(
+                r#"
                         INSERT INTO Dancer (name)
                         VALUES (?)
                     "#,
-                    &dancer_name
-                )
-                .execute(mysql)
-                .await?
-                .last_insert_id() as i32;
-                
-                insert_result
-            }
+                &dancer_name
+            )
+            .execute(mysql)
+            .await?
+            .last_insert_id() as i32,
         };
 
-        let _ = init_redis_control(mysql, redis).await?;
-        let _ = init_redis_position(mysql, redis).await?;
+        init_redis_control(mysql, redis).await?;
+        init_redis_position(mysql, redis).await?;
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Created,
@@ -126,13 +121,12 @@ impl DancerMutation {
         ctx: &Context<'_>,
         input: DancerUpdateInput,
     ) -> GQLResult<DancerResponse> {
-
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
 
-        let dancer_id = input.id.clone();
+        let dancer_id = input.id;
         let dancer_name = input.name.clone();
 
         let dancer_result = sqlx::query_as!(
@@ -150,8 +144,8 @@ impl DancerMutation {
         let _dancer = match dancer_result {
             Ok(dancer) => dancer,
             Err(_) => {
-                return Ok(DancerResponse{
-                    ok: false, 
+                return Ok(DancerResponse {
+                    ok: false,
                     msg: "Dancer not found.".to_string(),
                     dancer_data: Dancer {
                         id: dancer_id,
@@ -166,7 +160,7 @@ impl DancerMutation {
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Updated,
             dancer_data: Some(Dancer {
-                id: input.id.clone(),
+                id: input.id,
                 name: input.name.clone(),
                 parts: None,
                 position_datas: None,
@@ -180,7 +174,7 @@ impl DancerMutation {
             ok: true,
             msg: "dancer updated".to_string(),
             dancer_data: Dancer {
-                id: input.id.clone(),
+                id: input.id,
                 name: input.name.clone(),
                 parts: None,
                 position_datas: None,
@@ -190,18 +184,17 @@ impl DancerMutation {
 
     #[allow(unused)]
     async fn delete_dancer(
-        &self, 
-        ctx: &Context<'_>, 
+        &self,
+        ctx: &Context<'_>,
         input: DancerDeleteInput,
     ) -> GQLResult<DancerResponse> {
-        
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
-        let dancer_id = input.id.clone();
+        let dancer_id = input.id;
 
         let dancer_result = sqlx::query_as!(
             DancerData,
@@ -212,12 +205,12 @@ impl DancerMutation {
         )
         .fetch_one(mysql)
         .await;
-        
+
         let _dancer = match dancer_result {
             Ok(dancer) => dancer,
             Err(_) => {
-                return Ok(DancerResponse{
-                    ok: false, 
+                return Ok(DancerResponse {
+                    ok: false,
                     msg: "Dancer not found.".to_string(),
                     dancer_data: Dancer {
                         id: dancer_id,

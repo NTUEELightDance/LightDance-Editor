@@ -63,9 +63,9 @@ impl PositionFrameMutation {
         let dancers = sqlx::query_as!(
             DancerData,
             r#"
-				SELECT * FROM Dancer
-				ORDER BY id ASC;
-			"#
+                SELECT * FROM Dancer
+                ORDER BY id ASC;
+            "#
         )
         .fetch_all(mysql)
         .await?;

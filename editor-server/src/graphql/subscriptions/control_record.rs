@@ -1,4 +1,4 @@
-//! PositionRecord subscription methods.
+//! Color subscription methods.
 
 use crate::graphql::subscriptor::Subscriptor;
 
@@ -7,39 +7,35 @@ use futures_core::stream::Stream;
 use serde::{Deserialize, Serialize};
 
 #[derive(Enum, Clone, Copy, Eq, PartialEq, Default, Serialize, Deserialize)]
-pub enum PositionRecordMutationMode {
+pub enum ControlRecordMutationMode {
     #[default]
-    #[serde(rename = "CREATED_DELETED")]
-    CreatedDeleted,
-    #[serde(rename = "UPDATED_DELETED")]
-    UpdatedDeleted,
-    #[serde(rename = "CREATED")]
-    Created,
     #[serde(rename = "UPDATED")]
     Updated,
+    #[serde(rename = "CREATED")]
+    Created,
     #[serde(rename = "DELETED")]
     Deleted,
 }
 
 #[derive(SimpleObject, Clone, Default)]
-pub struct PositionRecordPayload {
-    pub mutation: PositionRecordMutationMode,
-    pub edit_by: i32,
+pub struct ControlRecordPayload {
+    pub mutation: ControlRecordMutationMode,
+    pub index: i32,
     #[graphql(name = "addID")]
     pub add_id: Vec<i32>,
     #[graphql(name = "updateID")]
     pub update_id: Vec<i32>,
     #[graphql(name = "deleteID")]
     pub delete_id: Vec<i32>,
-    pub index: i32,
+    pub edit_by: i32,
 }
 
 #[derive(Default)]
-pub struct PositionRecordSubscription;
+pub struct ControlRecordSubscription;
 
 #[Subscription]
-impl PositionRecordSubscription {
-    async fn position_record_subscription(&self) -> impl Stream<Item = PositionRecordPayload> {
-        Subscriptor::<PositionRecordPayload>::subscribe()
+impl ControlRecordSubscription {
+    async fn control_record_subscription(&self) -> impl Stream<Item = ControlRecordPayload> {
+        Subscriptor::<ControlRecordPayload>::subscribe()
     }
 }
