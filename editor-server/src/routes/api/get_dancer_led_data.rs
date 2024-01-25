@@ -173,7 +173,6 @@ pub async fn get_dancer_led_data(
         let mut led_bulb_control_data = HashMap::<i32, Vec<&Part>>::new();
 
         for data in control_data.iter() {
-            println!("{:?}", data);
             let mut effect_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
             if data.r#type == "EFFECT" {
                 // -1 means no effect (for now)

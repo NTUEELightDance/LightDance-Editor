@@ -185,7 +185,7 @@ model ControlData {
   type      ControlDataType
   color_id  Int?
   effect_id Int?
-  alpha     Int
+  alpha     Int?
 
   // TODO: Check if one of color_id or effect_id is not null
 

@@ -57,11 +57,11 @@ impl ControlMapMutation {
     // the first dimension is the dancer id, the second dimension is the part id
     // and the third dimension is the data of each Fiber or LED, depending on the part type
     // they should be a 1d array of length 2, first element representing the Color id or LEDEffect id, the second element representing the alpha value
-    // if control data is of type LED_BULBS, consider replacing the effect_id with 0, or changing the input data structure altogether. The relevant data is moved to led_bulb_data.
+    // if control data is of type LED_BULBS, consider replacing the effect_id with -1, or changing the input data structure altogether. The relevant data is moved to led_bulb_data.
 
     // For led_bulb_data, there is an extra dimension, representing the data of each LED bulb
     // the data of each LED bulb is of length 2 => [color_id, alpha].
-    // if the color is not set for given LED bulb, set the color_id as 0.
+    // if the color is not set for given LED bulb, set the color_id as -1.
     // if LED bulbs are not used for this frame, use an empty array i.e. [[[], [], ...], ...].
 
     async fn edit_control_map(
@@ -335,7 +335,7 @@ impl ControlMapMutation {
                                 errors.push(error_message);
                             }
                             // check if the effect is valid
-                            if !all_led_effect_ids.contains(&effect_id) && effect_id != 0 {
+                            if !all_led_effect_ids.contains(&effect_id) && effect_id != -1 {
                                 let error_message = format!(
                                     "Effect of dancer #{} part #{} is not a valid effect",
                                     index + 1,
@@ -356,7 +356,7 @@ impl ControlMapMutation {
                                 let color_id = bulb_data[0];
 
                                 // check if the color is valid
-                                if !all_color_ids.contains(&color_id) && color_id != 0 {
+                                if !all_color_ids.contains(&color_id) && color_id != -1 {
                                     let error_message = format!(
                                         "Color of LED Bulb of dancer #{} part #{} is not a valid color",
                                         index + 1, _index + 1
@@ -459,7 +459,7 @@ impl ControlMapMutation {
                                 let color_id = bulb_data[0];
                                 let alpha = bulb_data[1];
 
-                                if color_id == 0 {
+                                if color_id == -1 {
                                     continue;
                                 }
 
