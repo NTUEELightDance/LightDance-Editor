@@ -33,13 +33,19 @@ impl DancerQuery {
                 FROM Dancer
                 INNER JOIN Model ON Model.id = Dancer.model_id
                 INNER JOIN Part ON Part.model_id = Model.id
-                ORDER BY Dancer.id ASC, Part.id ASC;
+                INNER JOIN PartOrder ON PartOrder.part_id = Part.id AND PartOrder.user_id = ?
+                ORDER BY Dancer.id ASC, Part.type ASC, PartOrder.order ASC;
             "#,
+            context.user_id
         )
         .fetch_all(mysql)
         .await?;
 
         let dancers = partition_by_field(|row| row.id, result);
+
+        for dancer in dancers.iter() {
+            println!("{:?}", dancer);
+        }
 
         Ok(dancers
             .into_iter()
