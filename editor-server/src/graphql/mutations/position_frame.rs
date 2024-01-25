@@ -8,9 +8,10 @@ use crate::graphql::position_record::{PositionRecordMutationMode, PositionRecord
 use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
-use crate::types::global::UserContext;
-use crate::utils::data::{delete_redis_position, update_redis_position};
+use crate::types::global::{PositionPos, RedisPosition, UserContext};
+use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
 use async_graphql::{Context, InputObject, Object, Result as GQLResult};
+use std::collections::HashMap;
 
 #[derive(InputObject, Default)]
 pub struct EditPositionFrameInput {
@@ -43,9 +44,9 @@ impl PositionFrameMutation {
         let check = sqlx::query_as!(
             PositionFrameData,
             r#"
-				SELECT * FROM PositionFrame
-				WHERE start = ?;
-			"#,
+                SELECT * FROM PositionFrame
+                WHERE start = ?;
+            "#,
             start
         )
         .fetch_optional(mysql)
@@ -107,6 +108,8 @@ impl PositionFrameMutation {
         .await?
         .last_insert_id() as i32;
 
+        let mut create_frames = HashMap::new();
+
         match &position_data {
             Some(data) => {
                 for (idx, coor) in (*data).iter().enumerate() {
@@ -124,6 +127,18 @@ impl PositionFrameMutation {
                     .execute(mysql)
                     .await?;
                 }
+
+                create_frames.insert(
+                    id.to_string(),
+                    RedisPosition {
+                        start,
+                        editing: None,
+                        pos: data
+                            .iter()
+                            .map(|coor| PositionPos(coor[0], coor[1], coor[2]))
+                            .collect(),
+                    },
+                );
             }
             None => {
                 for dancer in dancers {
@@ -150,9 +165,9 @@ impl PositionFrameMutation {
         let map_payload = PositionMapPayload {
             edit_by: context.user_id,
             frame: PosDataScalar(FrameData {
-                create_list: vec![id],
-                delete_list: vec![],
-                update_list: vec![],
+                create_frames,
+                delete_frames: vec![],
+                update_frames: HashMap::new(),
             }),
         };
 
@@ -286,13 +301,16 @@ impl PositionFrameMutation {
         let position_frame = position_frame.unwrap();
         update_redis_position(mysql, redis, position_frame.id).await?;
 
+        let redis_position = get_redis_position(redis, position_frame.id).await?;
+        let update_frames = HashMap::from([(position_frame.id.to_string(), redis_position)]);
+
         // subscription
         let payload = PositionMapPayload {
             edit_by: context.user_id,
             frame: PosDataScalar(FrameData {
-                create_list: vec![],
-                delete_list: vec![],
-                update_list: vec![position_frame.id],
+                create_frames: HashMap::new(),
+                delete_frames: vec![],
+                update_frames,
             }),
         };
 
@@ -404,9 +422,9 @@ impl PositionFrameMutation {
         let map_payload = PositionMapPayload {
             edit_by: context.user_id,
             frame: PosDataScalar(FrameData {
-                create_list: vec![],
-                delete_list: vec![input.frame_id],
-                update_list: vec![],
+                create_frames: HashMap::new(),
+                delete_frames: vec![input.frame_id.to_string()],
+                update_frames: HashMap::new(),
             }),
         };
         delete_redis_position(redis, input.frame_id).await?;

@@ -1,16 +1,19 @@
 //! PosData scalar types.
 
+use crate::types::global::RedisPosition;
+
 use async_graphql::{InputObject, Scalar, ScalarType, SimpleObject, Value};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-#[derive(InputObject, SimpleObject, Serialize, Deserialize, Clone, Default)]
+#[derive(InputObject, SimpleObject, Serialize, Deserialize, Default, Clone)]
 pub struct FrameData {
-    #[serde(rename = "createList")]
-    pub create_list: Vec<i32>,
-    #[serde(rename = "deleteList")]
-    pub delete_list: Vec<i32>,
-    #[serde(rename = "updateList")]
-    pub update_list: Vec<i32>,
+    #[serde(rename = "createFrames")]
+    pub create_frames: HashMap<String, RedisPosition>,
+    #[serde(rename = "deleteFrames")]
+    pub delete_frames: Vec<String>,
+    #[serde(rename = "updateFrames")]
+    pub update_frames: HashMap<String, RedisPosition>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Default)]

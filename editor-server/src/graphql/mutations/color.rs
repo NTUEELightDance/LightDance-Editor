@@ -7,18 +7,41 @@ use crate::graphql::{
 };
 use crate::types::global::UserContext;
 
-use async_graphql::{Context, InputObject, Object, Result as GQLResult};
+use async_graphql::{Context, InputObject, Object, Result as GQLResult, SimpleObject};
+
+// TODO: Remove this after all done
+#[derive(InputObject, Default, Debug)]
+pub struct StringFieldUpdateOperationsInput {
+    pub set: String,
+}
+
+#[derive(InputObject, Default, Debug)]
+pub struct ColorUpdateColorCodeInput {
+    pub set: Vec<i32>,
+}
 
 #[derive(InputObject, Default)]
 pub struct ColorUpdateInput {
-    pub color: String,
-    pub color_code: Vec<i32>,
+    pub color: StringFieldUpdateOperationsInput,
+    pub color_code: ColorUpdateColorCodeInput,
+}
+
+#[derive(InputObject, Default, Debug)]
+pub struct ColorCreateColorCodeInput {
+    pub set: Vec<i32>,
 }
 
 #[derive(InputObject, Default)]
 pub struct ColorCreateInput {
     pub color: String,
-    pub color_code: Vec<i32>,
+    pub color_code: ColorCreateColorCodeInput,
+}
+
+#[derive(SimpleObject, Default)]
+pub struct ColorResponse {
+    pub id: i32,
+    pub msg: String,
+    pub ok: bool,
 }
 
 #[derive(Default)]
@@ -42,10 +65,10 @@ impl ColorMutation {
                 UPDATE Color SET name = ?, r = ?, g = ?, b = ?
                 WHERE id = ?;
             "#,
-            &data.color,
-            data.color_code[0],
-            data.color_code[1],
-            data.color_code[2],
+            &data.color.set,
+            data.color_code.set[0],
+            data.color_code.set[1],
+            data.color_code.set[2],
             id
         )
         .execute(mysql)
@@ -54,8 +77,8 @@ impl ColorMutation {
         let color_payload = ColorPayload {
             mutation: ColorMutationMode::Updated,
             id,
-            color: Some(data.color.clone()),
-            color_code: Some(data.color_code.clone()),
+            color: Some(data.color.set.clone()),
+            color_code: Some(data.color_code.set.clone()),
             edit_by: context.user_id,
             // edit_by: 0,
         };
@@ -64,14 +87,14 @@ impl ColorMutation {
 
         let color = Color {
             id,
-            color: data.color.clone(),
-            color_code: data.color_code.clone(),
+            color: data.color.set,
+            color_code: data.color_code.set,
         };
 
         Ok(color)
     }
 
-    async fn add_color(&self, ctx: &Context<'_>, data: ColorCreateInput) -> GQLResult<Color> {
+    async fn add_color(&self, ctx: &Context<'_>, color: ColorCreateInput) -> GQLResult<Color> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -82,10 +105,10 @@ impl ColorMutation {
                 INSERT INTO Color (name, r, g, b)
                 VALUES (?, ?, ?, ?);
             "#,
-            &data.color,
-            data.color_code[0],
-            data.color_code[1],
-            data.color_code[2]
+            &color.color,
+            color.color_code.set[0],
+            color.color_code.set[1],
+            color.color_code.set[2]
         )
         .execute(mysql)
         .await?
@@ -94,8 +117,8 @@ impl ColorMutation {
         let color_payload = ColorPayload {
             mutation: ColorMutationMode::Created,
             id,
-            color: Some(data.color.clone()),
-            color_code: Some(data.color_code.clone()),
+            color: Some(color.color.clone()),
+            color_code: Some(color.color_code.set.clone()),
             edit_by: context.user_id,
         };
 
@@ -103,15 +126,15 @@ impl ColorMutation {
 
         let color = Color {
             id,
-            color: data.color.clone(),
-            color_code: data.color_code.clone(),
+            color: color.color,
+            color_code: color.color_code.set,
         };
 
         Ok(color)
     }
 
     #[allow(unused)]
-    async fn delete_color(&self, ctx: &Context<'_>, id: i32) -> GQLResult<bool> {
+    async fn delete_color(&self, ctx: &Context<'_>, id: i32) -> GQLResult<ColorResponse> {
         let context = ctx.data::<UserContext>()?;
         let app_state = &context.clients;
 
@@ -128,7 +151,6 @@ impl ColorMutation {
         .fetch_one(mysql)
         .await?;
 
-        // TODO: Check if color is used in any frames
         let check = sqlx::query!(
             r#"
                 SELECT * FROM ControlData
@@ -140,7 +162,11 @@ impl ColorMutation {
         .await?;
 
         if let Some(check) = check {
-            return Ok(false);
+            return Ok(ColorResponse {
+                id: 0,
+                msg: "Color is used in control data with id.".to_string(),
+                ok: false,
+            });
         }
 
         let _ = sqlx::query!(
@@ -163,6 +189,10 @@ impl ColorMutation {
 
         Subscriptor::publish(color_payload);
 
-        Ok(true)
+        Ok(ColorResponse {
+            id,
+            msg: "Color deleted.".to_string(),
+            ok: true,
+        })
     }
 }
