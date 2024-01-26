@@ -89,6 +89,18 @@ QueryDancersPayload = List[QueryDancersPayloadItem]
 
 
 GET_DANCERS = gql(
+    # """
+    # query Dancers {
+    #     dancers {
+    #         name
+    #         parts {
+    #             name
+    #             type
+    #             length
+    #         }
+    #     }
+    # }
+    # """
     """
     query Dancers($orderBy: [PartOrderByWithRelationInput!]) {
         dancers {

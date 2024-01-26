@@ -67,7 +67,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
     def execute(self, context: bpy.types.Context):
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
         global is_async_loop_running
 
         if is_async_loop_running:
@@ -107,7 +107,7 @@ class AsyncOperator(bpy.types.Operator):
     bl_idname = "lightdance.async_operator"
     bl_label = "Base class of async operator"
 
-    def invoke(self, context: bpy.types.Context, _: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
         self.state = "RUNNING"
         self.stop_upon_exception = True
 
@@ -135,7 +135,7 @@ class AsyncOperator(bpy.types.Operator):
     def execute(self, context: bpy.types.Context):
         return {"FINISHED"}
 
-    def modal(self, context: bpy.types.Context, _: bpy.types.Event):
+    def modal(self, context: bpy.types.Context, event: bpy.types.Event):
         task = self.async_task
 
         if self.state != "EXCEPTION" and task and task.done() and not task.cancelled():

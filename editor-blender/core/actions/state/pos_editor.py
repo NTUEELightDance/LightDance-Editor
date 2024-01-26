@@ -1,4 +1,3 @@
-import asyncio
 from typing import List, Optional
 
 import bpy
@@ -9,7 +8,7 @@ from ...models import EditMode
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
-from .current_pos import calculate_current_pos_index, update_current_pos_by_index
+from .current_pos import update_current_pos_by_index
 from .pos_map import apply_pos_map_updates
 
 
@@ -33,8 +32,6 @@ def sync_editing_pos_frame_properties():
         obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-
-            # print(f"Update {dancer_name} to {ld_position.transform}")
             obj.location = ld_position.transform
             obj.rotation_euler = ld_position.rotation
 

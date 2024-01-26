@@ -203,6 +203,30 @@ ControlMap
 """
 
 
+@dataclass
+class MutRequestEditControlResponse(JSONWizard):
+    ok: bool
+    editing: Optional[MapID] = None
+
+
+REQUEST_EDIT_CONTROL_BY_ID = gql(
+    """
+    mutation RequestEditControl($frameId: Int!) {
+        RequestEditControl(FrameID: $frameId) {
+            editing
+            ok
+        }
+    }
+    """
+)
+
+
+@dataclass
+class MutCancelEditControlResponse(JSONWizard):
+    ok: bool
+    editing: Optional[MapID] = None
+
+
 CANCEL_EDIT_CONTROL_BY_ID = gql(
     """
     mutation CancelEditControl($frameId: Int!) {
@@ -210,6 +234,20 @@ CANCEL_EDIT_CONTROL_BY_ID = gql(
             editing
             ok
         }
+    }
+    """
+)
+
+
+@dataclass
+class MutDeleteControlFrameInput(JSONWizard):
+    frameID: MapID
+
+
+DELETE_CONTROL_FRAME = gql(
+    """
+    mutation DeleteControlFrame($input: DeleteControlFrameInput!) {
+        deleteControlFrame(input: $input)
     }
     """
 )

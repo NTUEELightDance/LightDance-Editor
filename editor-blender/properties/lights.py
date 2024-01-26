@@ -7,15 +7,22 @@ from ..core.actions.property.lights import (
     update_current_color,
     update_current_effect,
 )
+from ..core.states import state
+from .types import ColorPaletteItemType, LightType, ObjectType
 
 
 def get_color_lists(
     self: bpy.types.Object, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     ld_object_type: str = getattr(self, "ld_object_type")
-    if ld_object_type == "fiber":
-        # TODO: Get colors from states
-        return []
+    if ld_object_type == ObjectType.LIGHT.value:
+        ld_color_palette: List[ColorPaletteItemType] = getattr(
+            bpy.context.window_manager, "ld_color_palette"
+        )
+        return [
+            (color.color_name, color.color_name, "", "", color.color_id)
+            for color in ld_color_palette
+        ]
 
     return []
 
@@ -24,11 +31,13 @@ def get_effect_lists(
     self: bpy.types.Object, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     ld_object_type: str = getattr(self, "ld_object_type")
-    if ld_object_type == "led":
-        ld_dancer_name: str = getattr(self, "ld_dancer_name")
-        ld_part_name: str = getattr(self, "ld_part_name")
-        # TODO: Get effects from states
-        return []
+    if ld_object_type == ObjectType.LIGHT.value:
+        # ld_part_name: str = getattr(self, "ld_part_name")
+        ld_part_name = self.name
+        return [
+            (effect.name, effect.name, "", "", effect.id)
+            for effect in state.led_map[ld_part_name].values()
+        ]
 
     return []
 
@@ -41,8 +50,9 @@ def register():
             name="LightType",
             description="Type of light",
             items=[  # pyright: ignore
-                ("fiber", "Fiber", "", "", 0),
-                ("led", "LED", "", "", 1),
+                (LightType.FIBER.value, "Fiber", "", "", 0),
+                (LightType.LED.value, "LED", "", "", 1),
+                (LightType.LED_BULB.value, "LED Bulb", "", "", 2),
             ],
         ),
     )
@@ -67,6 +77,16 @@ def register():
             update=update_current_effect,
         ),
     )
+    setattr(
+        bpy.types.Object,
+        "ld_led_pos",
+        bpy.props.IntProperty(
+            name="LED Position",
+            description="Position of LED",
+            min=0,
+            default=0,
+        ),
+    )
 
     setattr(
         bpy.types.Object,
@@ -74,7 +94,7 @@ def register():
         bpy.props.IntProperty(
             name="Alpha",
             description="Alpha of light",
-            min=0,
+            min=1,
             max=255,
             default=128,
             update=update_current_alpha,

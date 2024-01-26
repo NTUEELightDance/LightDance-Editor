@@ -29,22 +29,14 @@ ColorMap = Dict[ColorID, Color]
 class LEDBuldData:
     color_id: ColorID
     alpha: int
-    rgb: Optional[RGB]  # for calculating fade
-
-
-@dataclass
-class LEDEffectFrame:
-    start: int
-    fade: bool
-    effect: List[LEDBuldData]
+    rgb: Optional[RGB] = None  # for calculating fade
 
 
 @dataclass
 class LEDEffect:
     id: LEDEffectID
     name: LEDEffectName
-    repeat: int
-    effects: List[LEDEffectFrame]
+    effect: List[LEDBuldData]
 
 
 LEDEffectIDTable = Dict[LEDEffectID, LEDEffect]

@@ -12,6 +12,8 @@ from ...graphqls.queries import (
     QueryEffectListControlFrame,
     QueryEffectListItem,
     QueryEffectListPositionFrame,
+    QueryLEDEffectFramePayload,
+    QueryLEDMapPayload,
     QueryPosFrame,
     QueryPosMapPayload,
 )
@@ -32,7 +34,10 @@ from ..models import (
     DancersArrayPartsItem,
     DancerStatus,
     FiberData,
+    LEDBuldData,
     LEDData,
+    LEDEffect,
+    LEDMap,
     Location,
     PartData,
     PartType,
@@ -192,6 +197,26 @@ def color_map_query_to_state(payload: QueryColorMapPayload) -> ColorMap:
     return color_map
 
 
+def led_map_query_to_state(payload: QueryLEDMapPayload) -> LEDMap:
+    led_map: LEDMap = {}
+
+    for part_name, effects in payload.items():
+        led_map[part_name] = {}
+        current_map = led_map[part_name]
+
+        for effect_name, effect in effects.items():
+            frame = effect.frames[0]
+            bulb_data = [
+                LEDBuldData(color_id=color_id, alpha=alpha)
+                for color_id, alpha in frame.LEDs
+            ]
+            current_map[effect_name] = LEDEffect(
+                id=effect.id, name=effect_name, effect=bulb_data
+            )
+
+    return led_map
+
+
 # WARNING: Untested
 def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectListItem:
     effectListItem = QueryEffectListItem(
@@ -217,13 +242,9 @@ def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectLis
     return effectListItem
 
 
-def rgb_to_float(rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
-    return (rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
+def rgb_to_float(rgb: Tuple[int, ...]) -> Tuple[float, ...]:
+    return tuple([color / 255 for color in rgb])
 
 
-def float_to_rgb(color_float: Tuple[float, float, float]) -> Tuple[int, int, int]:
-    return (
-        round(color_float[0] * 255),
-        round(color_float[1] * 255),
-        round(color_float[2] * 255),
-    )
+def float_to_rgb(color_float: Tuple[float, ...]) -> Tuple[int, ...]:
+    return tuple([round(color * 255) for color in color_float])

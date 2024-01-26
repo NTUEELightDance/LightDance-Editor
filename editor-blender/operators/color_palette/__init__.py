@@ -183,8 +183,6 @@ class ColorConfirmOperator(AsyncOperator):
             case _:
                 pass
 
-        return {"FINISHED"}
-
 
 operator_list = [
     ColorPaletteEditModeOperator,
