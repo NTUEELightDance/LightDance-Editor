@@ -1,8 +1,9 @@
 import bpy
 
-from ...core.models import EditMode, Editor
+from ...core.models import EditMode, Editor, SelectedPartType
 from ...core.states import state
 from ...properties.types import LightType, ObjectType
+from ...properties.ui.types import ControlEditorStatusType
 
 
 class PosEditor(bpy.types.Panel):
@@ -27,8 +28,6 @@ class PosEditor(bpy.types.Panel):
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.is_playing
 
-        # position: PositionPropertyType = getattr(context.object, "ld_position")
-
         layout = self.layout
 
         if state.current_editing_detached and editing:
@@ -40,14 +39,36 @@ class PosEditor(bpy.types.Panel):
         column = layout.column()
         column.enabled = properties_enabled
 
-        ld_light_type: str = getattr(context.object, "ld_light_type")
+        ld_ui_control_editor: ControlEditorStatusType = getattr(
+            context.window_manager, "ld_ui_control_editor"
+        )
+
         # TODO: Support new bulbs mode
-        if ld_light_type == LightType.FIBER.value:
-            column.prop(context.object, "ld_color", text="Color")
-            column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
-        elif ld_light_type == LightType.LED.value:
-            column.prop(context.object, "ld_effect", text="Effect")
-            column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+        if ld_ui_control_editor.multi_select:
+            if state.selected_obj_type == SelectedPartType.FIBER:
+                column.prop(ld_ui_control_editor, "multi_select_color", text="Color")
+                column.prop(
+                    ld_ui_control_editor,
+                    "multi_select_alpha",
+                    text="Alpha",
+                    slider=True,
+                )
+            else:
+                column.prop(
+                    ld_ui_control_editor,
+                    "multi_select_alpha",
+                    text="Alpha",
+                    slider=True,
+                )
+
+        else:
+            ld_light_type: str = getattr(context.object, "ld_light_type")
+            if ld_light_type == LightType.FIBER.value:
+                column.prop(context.object, "ld_color", text="Color")
+                column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+            elif ld_light_type == LightType.LED.value:
+                column.prop(context.object, "ld_effect", text="Effect")
+                column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
 
 
 def register():
