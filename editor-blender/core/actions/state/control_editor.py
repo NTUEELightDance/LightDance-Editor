@@ -1,14 +1,16 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 import bpy
 
 from ....api.control_agent import control_agent
+from ....graphqls.mutations import MutDancerStatusPayload
 from ....properties.types import LightType
-from ...models import EditMode
+from ...models import EditingData, EditMode, PartType
 from ...states import state
-from ...utils.convert import rgb_to_float
+from ...utils.convert import control_status_state_to_mut, rgb_to_float
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
+from .control_map import apply_control_map_updates
 from .current_status import update_current_status_by_index
 
 
@@ -56,76 +58,85 @@ def sync_editing_control_frame_properties():
 
 
 async def add_control_frame():
-    pass
+    start = bpy.context.scene.frame_current
+    controlData = control_status_state_to_mut(state.current_status)
 
-
-#     start = bpy.context.scene.frame_current
-#     # Get current position data from ld_position
-#     positionData: List[List[float]] = []
-#     for dancer_name in state.dancer_names:
-#         obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
-#         if obj is not None:
-#             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-#             positionData.append(
-#                 [
-#                     ld_position.transform[0],
-#                     ld_position.transform[1],
-#                     ld_position.transform[2],
-#                 ]
-#             )
-#         else:
-#             positionData.append([0, 0, 0])
-#
-#     try:
-#         id = await pos_agent.add_frame(start, positionData)
-#         notify("INFO", f"Added position frame: {id}")
-#     except:
-#         notify("WARNING", "Cannot add position frame")
+    try:
+        await control_agent.add_frame(start, False, controlData)
+        notify("INFO", f"Added control frame")
+    except:
+        notify("WARNING", "Cannot add control frame")
 
 
 async def save_control_frame():
-    pass
+    id = state.editing_data.frame_id
 
+    fade: bool = getattr(bpy.context.window_manager, "ld_fade")
+    # controlData = control_status_state_to_mut(state.current_status)
 
-#     index = state.current_pos_index
-#     id = state.pos_record[index]
-#     # Get current position data from ld_position
-#     positionData: List[List[float]] = []
-#     for dancer_name in state.dancer_names:
-#         obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
-#         if obj is not None:
-#             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-#             positionData.append(
-#                 [
-#                     ld_position.transform[0],
-#                     ld_position.transform[1],
-#                     ld_position.transform[2],
-#                 ]
-#             )
-#         else:
-#             positionData.append([0, 0, 0])
-#
-#     try:
-#         await pos_agent.save_frame(id, positionData)
-#         notify("INFO", f"Saved position frame: {id}")
-#
-#         # Imediately apply changes produced by editing
-#         apply_pos_map_updates()
-#
-#         # Cancel editing
-#         ok = await pos_agent.cancel_edit(id)
-#         if ok:
-#             # Reset editing state
-#             state.current_editing_frame = -1
-#             state.current_editing_detached = False
-#             state.current_editing_frame_synced = False
-#             state.edit_state = EditMode.IDLE
-#
-#             redraw_area("VIEW_3D")
-#         else:
-#             notify("WARNING", "Cannot exit editing")
-#     except:
-#         notify("WARNING", "Cannot save position frame")
+    controlData: List[MutDancerStatusPayload] = []
+    default_color = list(state.color_map.keys())[0]
+
+    for dancer in state.dancers_array:
+        partControlData: MutDancerStatusPayload = []
+        obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+
+        if obj is not None:
+            part_objs: List[bpy.types.Object] = getattr(obj, "children")
+            part_obj_names: List[str] = [obj.name for obj in part_objs]
+
+            for part in dancer.parts:
+                if part.name not in part_obj_names:
+                    if part.type == PartType.FIBER:
+                        partControlData.append((default_color, 0))
+                    elif part.type == PartType.LED:
+                        partControlData.append((-1, 0))
+                    continue
+
+                part_index = part_obj_names.index(part.name)
+                part_obj = part_objs[part_index]
+
+                if part.type == PartType.FIBER:
+                    color_id = part_obj["ld_color"]
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+                    partControlData.append((color_id, ld_alpha))
+                elif part.type == PartType.LED:
+                    effect_id = part_obj["ld_effect"]
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+                    partControlData.append((effect_id, ld_alpha))
+
+        else:
+            for part in dancer.parts:
+                if part.type == PartType.FIBER:
+                    partControlData.append((default_color, 0))
+                elif part.type == PartType.LED:
+                    default_effect = list(state.led_map[part.name].values())[0].id
+                    partControlData.append((default_effect, 0))
+
+        controlData.append(partControlData)
+
+    try:
+        await control_agent.save_frame(id, controlData, fade=fade)
+        notify("INFO", f"Saved control frame")
+
+        # Imediately apply changes produced by editing
+        # apply_control_map_updates()
+
+        # Cancel editing
+        ok = await control_agent.cancel_edit(id)
+        if ok:
+            # Reset editing state
+            state.current_editing_frame = -1
+            state.current_editing_detached = False
+            state.current_editing_frame_synced = False
+            state.edit_state = EditMode.IDLE
+
+            redraw_area("VIEW_3D")
+            redraw_area("DOPESHEET_EDITOR")
+        else:
+            notify("WARNING", "Cannot exit editing")
+    except:
+        notify("WARNING", "Cannot save control frame")
 
 
 async def delete_control_frame():
@@ -148,6 +159,9 @@ async def request_edit_control():
     if ok:
         # Init editing state
         state.current_editing_frame = control_frame.start
+        state.editing_data = EditingData(
+            start=state.current_editing_frame, frame_id=control_id, index=index
+        )
         state.edit_state = EditMode.EDITING
 
         attach_editing_control_frame()

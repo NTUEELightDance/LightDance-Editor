@@ -1,10 +1,18 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 from dataclass_wizard import JSONWizard
 from gql import gql
 
-from ..core.models import RGB, ColorID, ColorName, MapID
+from ..core.models import RGB, ColorID, ColorName, LEDEffectID, MapID
+
+"""
+Dancer
+"""
+
+
+MutDancerStatusPayload = List[Tuple[Union[ColorID, LEDEffectID], int]]
+
 
 """
 ColorMap
@@ -234,6 +242,35 @@ CANCEL_EDIT_CONTROL_BY_ID = gql(
             editing
             ok
         }
+    }
+    """
+)
+
+
+@dataclass
+class MutEditControlFrameInput(JSONWizard):
+    frameId: MapID
+    controlData: List[MutDancerStatusPayload]
+    fade: Optional[bool] = None
+
+
+EDIT_CONTROL_FRAME = gql(
+    """
+    mutation Mutation($input: EditControlMapInput!) {
+        editControlMap(input: $input)
+    }
+    """
+)
+
+
+ADD_CONTROL_FRAME = gql(
+    """
+    mutation AddControlFrame(
+        $start: Int!
+        $fade: Boolean
+        $controlData: [[[Int!]!]!]
+    ) {
+        addControlFrame(start: $start, fade: $fade, controlData: $controlData)
     }
     """
 )

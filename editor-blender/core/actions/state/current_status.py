@@ -32,6 +32,8 @@ def update_current_status_by_index():
     if current_control_map is None:
         return
 
+    setattr(bpy.context.window_manager, "ld_fade", current_control_map.fade)
+
     current_status = current_control_map.status
     state.current_status = current_status
 
@@ -43,6 +45,7 @@ def update_current_status_by_index():
         dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
             part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
+            # TODO: Add this in state
             part_obj_names: List[str] = [obj.name for obj in part_objs]
 
             for part in dancer.parts:

@@ -4,7 +4,7 @@ import bpy
 
 from ....api.pos_agent import pos_agent
 from ....properties.types import PositionPropertyType
-from ...models import EditMode
+from ...models import EditingData, EditMode
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
@@ -62,8 +62,7 @@ async def add_pos_frame():
 
 
 async def save_pos_frame():
-    index = state.current_pos_index
-    id = state.pos_record[index]
+    id = state.editing_data.frame_id
     # Get current position data from ld_position
     positionData: List[List[float]] = []
     for dancer_name in state.dancer_names:
@@ -85,7 +84,7 @@ async def save_pos_frame():
         notify("INFO", f"Saved position frame: {id}")
 
         # Imediately apply changes produced by editing
-        apply_pos_map_updates()
+        # apply_pos_map_updates()
 
         # Cancel editing
         ok = await pos_agent.cancel_edit(id)
@@ -123,6 +122,9 @@ async def request_edit_pos():
     if ok:
         # Init editing state
         state.current_editing_frame = pos_frame.start
+        state.editing_data = EditingData(
+            start=state.current_editing_frame, frame_id=pos_id, index=index
+        )
         state.edit_state = EditMode.EDITING
 
         attach_editing_pos_frame()

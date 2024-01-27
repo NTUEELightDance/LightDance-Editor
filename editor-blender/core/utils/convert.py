@@ -1,5 +1,6 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
+from ...graphqls.mutations import MutDancerStatusPayload
 from ...graphqls.queries import (
     QueryColorMapPayload,
     QueryColorMapPayloadItem,
@@ -37,6 +38,7 @@ from ..models import (
     LEDBuldData,
     LEDData,
     LEDEffect,
+    LEDEffectID,
     LEDMap,
     Location,
     PartData,
@@ -117,6 +119,15 @@ def part_data_query_to_state(
             return FiberData(color_id=payload[0], alpha=payload[1])
 
 
+def part_data_state_to_mut(
+    part_data: PartData,
+) -> Tuple[Union[LEDEffectID, ColorID], int]:
+    if isinstance(part_data, LEDData):
+        return (part_data.effect_id, part_data.alpha)
+    else:
+        return (part_data.color_id, part_data.alpha)
+
+
 def control_status_query_to_state(
     payload: List[QueryDancerStatusPayload],
 ) -> ControlMapStatus:
@@ -167,6 +178,24 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
     ]
 
     return response
+
+
+def control_status_state_to_mut(
+    control_status: ControlMapStatus,
+) -> List[MutDancerStatusPayload]:
+    mut_dancer_status_payload: List[MutDancerStatusPayload] = []
+
+    for dancer in state.dancers_array:
+        dancer_name = dancer.name
+        dancer_status = control_status.get(dancer_name)
+        if dancer_status is None:
+            raise Exception("Dancer status not found")
+
+        mut_dancer_status_payload.append(
+            [part_data_state_to_mut(dancer_status[part.name]) for part in dancer.parts]
+        )
+
+    return mut_dancer_status_payload
 
 
 def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
