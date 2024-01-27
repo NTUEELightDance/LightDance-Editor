@@ -1,10 +1,18 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union
 
 from dataclass_wizard import JSONWizard
 from gql import gql
 
-from ..core.models import RGB, ColorID, ColorName, MapID
+from ..core.models import RGB, ColorID, ColorName, LEDEffectID, MapID
+
+"""
+Dancer
+"""
+
+
+MutDancerStatusPayload = List[Tuple[Union[ColorID, LEDEffectID], int]]
+
 
 """
 ColorMap
@@ -203,6 +211,30 @@ ControlMap
 """
 
 
+@dataclass
+class MutRequestEditControlResponse(JSONWizard):
+    ok: bool
+    editing: Optional[MapID] = None
+
+
+REQUEST_EDIT_CONTROL_BY_ID = gql(
+    """
+    mutation RequestEditControl($frameId: Int!) {
+        RequestEditControl(FrameID: $frameId) {
+            editing
+            ok
+        }
+    }
+    """
+)
+
+
+@dataclass
+class MutCancelEditControlResponse(JSONWizard):
+    ok: bool
+    editing: Optional[MapID] = None
+
+
 CANCEL_EDIT_CONTROL_BY_ID = gql(
     """
     mutation CancelEditControl($frameId: Int!) {
@@ -210,6 +242,49 @@ CANCEL_EDIT_CONTROL_BY_ID = gql(
             editing
             ok
         }
+    }
+    """
+)
+
+
+@dataclass
+class MutEditControlFrameInput(JSONWizard):
+    frameId: MapID
+    controlData: List[MutDancerStatusPayload]
+    fade: Optional[bool] = None
+
+
+EDIT_CONTROL_FRAME = gql(
+    """
+    mutation Mutation($input: EditControlMapInput!) {
+        editControlMap(input: $input)
+    }
+    """
+)
+
+
+ADD_CONTROL_FRAME = gql(
+    """
+    mutation AddControlFrame(
+        $start: Int!
+        $fade: Boolean
+        $controlData: [[[Int!]!]!]
+    ) {
+        addControlFrame(start: $start, fade: $fade, controlData: $controlData)
+    }
+    """
+)
+
+
+@dataclass
+class MutDeleteControlFrameInput(JSONWizard):
+    frameID: MapID
+
+
+DELETE_CONTROL_FRAME = gql(
+    """
+    mutation DeleteControlFrame($input: DeleteControlFrameInput!) {
+        deleteControlFrame(input: $input)
     }
     """
 )

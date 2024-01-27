@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
+from ....api.led_agent import led_agent
 from ....client import client
 
 # from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
@@ -14,6 +15,7 @@ from ....core.actions.state.color_map import set_color_map
 # from ....core.actions.state.control_map import set_control_map
 from ....core.actions.state.current_pos import update_current_pos_by_index
 from ....core.actions.state.current_status import update_current_status_by_index
+from ....core.actions.state.led_map import set_led_map
 
 # from ....core.actions.state.pos_map import set_pos_map
 from ....core.asyncio import AsyncTask
@@ -48,7 +50,6 @@ from ...models import (
 from ...states import state
 from ...utils.operator import execute_operator
 from ..state.load import load_data
-from .color_palette import setup_color_palette_from_state
 
 # async def __merge_pos_map(
 #     existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
@@ -74,7 +75,7 @@ from .color_palette import setup_color_palette_from_state
 #     return incoming
 
 
-async def init_blender():
+async def init():
     # Setup cache policies
     # client.configure_cache(
     #     InMemoryCache(
@@ -106,32 +107,34 @@ async def init_blender():
 
     # Check token
     token_valid = await auth_agent.check_token()
+    state.is_running = True
+
     if token_valid:
         state.is_logged_in = True
-        state.is_running = True
-        redraw_area("VIEW_3D")
+        await init_blender()
 
-        await client.open_graphql()
+    redraw_area("VIEW_3D")
 
-        if state.subscription_task is not None:
-            state.subscription_task.cancel()
-        state.subscription_task = AsyncTask(subscribe).exec()
 
-        # Initialize editor
-        if state.init_editor_task is not None:
-            state.init_editor_task.cancel()
-        state.init_editor_task = AsyncTask(init_editor).exec()
+async def init_blender():
+    await client.restart_http()
+    await client.restart_graphql()
 
-        # Mount handlers
-        mount()
+    if state.subscription_task is not None:
+        state.subscription_task.cancel()
+    state.subscription_task = AsyncTask(subscribe).exec()
 
-        # Start background operators
-        execute_operator("lightdance.animation_status_listener")
-        execute_operator("lightdance.notification")
+    # Initialize editor
+    if state.init_editor_task is not None:
+        state.init_editor_task.cancel()
+    state.init_editor_task = AsyncTask(init_editor).exec()
 
-    else:
-        state.is_running = True
-        redraw_area("VIEW_3D")
+    # Mount handlers
+    mount()
+
+    # Start background operators
+    execute_operator("lightdance.animation_status_listener")
+    execute_operator("lightdance.notification")
 
 
 def close_blender():
@@ -152,9 +155,9 @@ async def init_editor():
     empty_task = asyncio.create_task(asyncio.sleep(0))
 
     batches_functions = [
-        [init_dancers, init_color_map],
-        [load_data],  # this needs dancer array
-        [init_current_status, init_current_pos],
+        [load_data, init_color_map],
+        [init_dancers, init_current_pos],
+        [init_led_map, init_current_status],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -260,12 +263,20 @@ async def init_color_map():
     print("Color map initialized")
 
 
+async def init_led_map():
+    led_map = await led_agent.get_led_map()
+    set_led_map(led_map)
+
+    print("LED map initialized")
+
+
 async def init_current_status():
     control_map, control_record = await get_control()
 
     state.control_map = control_map
     state.control_record = control_record
-    update_current_status_by_index(0)
+    state.current_control_index = 0
+    update_current_status_by_index()
     # TODO: Push status stack
 
     print("Current status initialized")

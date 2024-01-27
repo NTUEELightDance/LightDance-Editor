@@ -100,7 +100,7 @@ def apply_pos_map_updates():
 
     # Update pos record
     pos_record = list(state.pos_map.keys())
-    pos_record.sort()
+    pos_record.sort(key=lambda id: state.pos_map[id].start)
 
     state.pos_record = pos_record
 

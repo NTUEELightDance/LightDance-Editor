@@ -3,6 +3,7 @@ from . import (
     async_core,
     auth,
     color_palette,
+    control_editor,
     editor,
     notification,
     pos_editor,
@@ -25,6 +26,7 @@ def register():
     utils.register()
     notification.register()
     timeline.register()
+    control_editor.register()
 
 
 def unregister():
@@ -39,3 +41,4 @@ def unregister():
     utils.unregister()
     notification.unregister()
     timeline.unregister()
+    control_editor.unregister()

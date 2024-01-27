@@ -1,5 +1,6 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
+from ...graphqls.mutations import MutDancerStatusPayload
 from ...graphqls.queries import (
     QueryColorMapPayload,
     QueryColorMapPayloadItem,
@@ -12,6 +13,8 @@ from ...graphqls.queries import (
     QueryEffectListControlFrame,
     QueryEffectListItem,
     QueryEffectListPositionFrame,
+    QueryLEDEffectFramePayload,
+    QueryLEDMapPayload,
     QueryPosFrame,
     QueryPosMapPayload,
 )
@@ -32,7 +35,11 @@ from ..models import (
     DancersArrayPartsItem,
     DancerStatus,
     FiberData,
+    LEDBuldData,
     LEDData,
+    LEDEffect,
+    LEDEffectID,
+    LEDMap,
     Location,
     PartData,
     PartType,
@@ -112,6 +119,15 @@ def part_data_query_to_state(
             return FiberData(color_id=payload[0], alpha=payload[1])
 
 
+def part_data_state_to_mut(
+    part_data: PartData,
+) -> Tuple[Union[LEDEffectID, ColorID], int]:
+    if isinstance(part_data, LEDData):
+        return (part_data.effect_id, part_data.alpha)
+    else:
+        return (part_data.color_id, part_data.alpha)
+
+
 def control_status_query_to_state(
     payload: List[QueryDancerStatusPayload],
 ) -> ControlMapStatus:
@@ -164,6 +180,24 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
     return response
 
 
+def control_status_state_to_mut(
+    control_status: ControlMapStatus,
+) -> List[MutDancerStatusPayload]:
+    mut_dancer_status_payload: List[MutDancerStatusPayload] = []
+
+    for dancer in state.dancers_array:
+        dancer_name = dancer.name
+        dancer_status = control_status.get(dancer_name)
+        if dancer_status is None:
+            raise Exception("Dancer status not found")
+
+        mut_dancer_status_payload.append(
+            [part_data_state_to_mut(dancer_status[part.name]) for part in dancer.parts]
+        )
+
+    return mut_dancer_status_payload
+
+
 def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
     r, g, b = rgb
     return f"#{r:02x}{g:02x}{b:02x}"
@@ -192,6 +226,26 @@ def color_map_query_to_state(payload: QueryColorMapPayload) -> ColorMap:
     return color_map
 
 
+def led_map_query_to_state(payload: QueryLEDMapPayload) -> LEDMap:
+    led_map: LEDMap = {}
+
+    for part_name, effects in payload.items():
+        led_map[part_name] = {}
+        current_map = led_map[part_name]
+
+        for effect_name, effect in effects.items():
+            frame = effect.frames[0]
+            bulb_data = [
+                LEDBuldData(color_id=color_id, alpha=alpha)
+                for color_id, alpha in frame.LEDs
+            ]
+            current_map[effect_name] = LEDEffect(
+                id=effect.id, name=effect_name, effect=bulb_data
+            )
+
+    return led_map
+
+
 # WARNING: Untested
 def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectListItem:
     effectListItem = QueryEffectListItem(
@@ -217,13 +271,9 @@ def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectLis
     return effectListItem
 
 
-def rgb_to_float(rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
-    return (rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
+def rgb_to_float(rgb: Tuple[int, ...]) -> Tuple[float, ...]:
+    return tuple([color / 255 for color in rgb])
 
 
-def float_to_rgb(color_float: Tuple[float, float, float]) -> Tuple[int, int, int]:
-    return (
-        round(color_float[0] * 255),
-        round(color_float[1] * 255),
-        round(color_float[2] * 255),
-    )
+def float_to_rgb(color_float: Tuple[float, ...]) -> Tuple[int, ...]:
+    return tuple([round(color * 255) for color in color_float])

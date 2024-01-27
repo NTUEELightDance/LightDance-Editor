@@ -8,6 +8,12 @@ class ObjectType(Enum):
     LIGHT = "light"
 
 
+class LightType(Enum):
+    FIBER = "fiber"
+    LED = "led"
+    LED_BULB = "led_bulb"
+
+
 class PositionPropertyType:
     transform: Tuple[float, float, float]
     rotation: Tuple[float, float, float]

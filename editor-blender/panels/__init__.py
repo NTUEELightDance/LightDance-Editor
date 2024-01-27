@@ -1,4 +1,4 @@
-from . import auth, color_palette, editor, pos_editor, startup, timeline
+from . import auth, color_palette, control_editor, editor, pos_editor, startup, timeline
 
 
 def register():
@@ -8,6 +8,7 @@ def register():
     pos_editor.register()
     color_palette.register()
     timeline.register()
+    control_editor.register()
 
 
 def unregister():
@@ -17,3 +18,4 @@ def unregister():
     pos_editor.unregister()
     color_palette.unregister()
     timeline.unregister()
+    control_editor.unregister()

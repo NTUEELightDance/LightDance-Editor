@@ -304,7 +304,7 @@ async def subscribe():
                 asyncio.create_task(sub_pos_map(client)),
                 # asyncio.create_task(sub_control_record(client)),
                 asyncio.create_task(sub_control_map(client)),
-                asyncio.create_task(sub_effect_list(client)),
+                # asyncio.create_task(sub_effect_list(client)),
                 asyncio.create_task(sub_color_map(client)),
             ]
 

@@ -1,6 +1,14 @@
 import bpy
 
 from ...core.actions.state.color_map import apply_color_map_updates
+from ...core.actions.state.control_editor import (
+    add_control_frame,
+    cancel_edit_control,
+    delete_control_frame,
+    request_edit_control,
+    save_control_frame,
+)
+from ...core.actions.state.control_map import apply_control_map_updates
 from ...core.actions.state.editor import set_editor
 from ...core.actions.state.pos_editor import (
     add_pos_frame,
@@ -70,7 +78,7 @@ class SyncPendingUpdates(bpy.types.Operator):
 
     def execute(self, context: bpy.types.Context):
         if state.control_map_pending:
-            pass
+            apply_control_map_updates()
         if state.pos_map_pending:
             apply_pos_map_updates()
         if state.color_map_pending:
@@ -90,13 +98,11 @@ class RequestEdit(AsyncOperator):
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
-                pass
+                await request_edit_control()
             case Editor.POS_EDITOR:
                 await request_edit_pos()
             case Editor.LED_EDITOR:
                 pass
-
-        return {"FINISHED"}
 
 
 class Add(AsyncOperator):
@@ -108,13 +114,11 @@ class Add(AsyncOperator):
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
-                pass
+                await add_control_frame()
             case Editor.POS_EDITOR:
                 await add_pos_frame()
             case Editor.LED_EDITOR:
                 pass
-
-        return {"FINISHED"}
 
 
 class Save(AsyncOperator):
@@ -126,13 +130,11 @@ class Save(AsyncOperator):
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
-                pass
+                await save_control_frame()
             case Editor.POS_EDITOR:
                 await save_pos_frame()
             case Editor.LED_EDITOR:
                 pass
-
-        return {"FINISHED"}
 
 
 class Delete(AsyncOperator):
@@ -144,13 +146,11 @@ class Delete(AsyncOperator):
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
-                pass
+                await delete_control_frame()
             case Editor.POS_EDITOR:
                 await delete_pos_frame()
             case Editor.LED_EDITOR:
                 pass
-
-        return {"FINISHED"}
 
 
 class CancelEdit(AsyncOperator):
@@ -162,13 +162,11 @@ class CancelEdit(AsyncOperator):
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
-                pass
+                await cancel_edit_control()
             case Editor.POS_EDITOR:
                 await cancel_edit_pos()
             case Editor.LED_EDITOR:
                 pass
-
-        return {"FINISHED"}
 
 
 def register():

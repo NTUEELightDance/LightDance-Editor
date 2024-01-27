@@ -56,7 +56,6 @@ class PosAgent:
             ADD_POS_FRAME,
             {"start": start, "positionData": positionData},
         )
-        print(response)
         return response["addPositionFrame"].id
 
     async def save_frame(
@@ -79,17 +78,13 @@ class PosAgent:
 
     async def request_edit(self, id: MapID) -> bool:
         response = await client.execute(
-            MutRequestEditPositionResponse,
-            REQUEST_EDIT_POS_BY_ID,
-            {"frameId": id},
+            MutRequestEditPositionResponse, REQUEST_EDIT_POS_BY_ID, {"frameId": id}
         )
         return response["RequestEditPosition"].ok
 
     async def cancel_edit(self, id: MapID) -> bool:
         response = await client.execute(
-            MutCancelEditPositionResponse,
-            CANCEL_EDIT_POS_BY_ID,
-            {"frameId": id},
+            MutCancelEditPositionResponse, CANCEL_EDIT_POS_BY_ID, {"frameId": id}
         )
         return response["CancelEditPosition"].ok
 

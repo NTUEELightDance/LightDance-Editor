@@ -1,12 +1,8 @@
 from ....api.auth_agent import auth_agent
 from ....client import client
-from ....client.subscription import subscribe
-from ....core.actions.state.initialize import init_editor
-from ....core.asyncio import AsyncTask
+from ....core.actions.state.initialize import init_blender
 from ....core.states import state
-from ....core.utils.operator import execute_operator
 from ....core.utils.ui import redraw_area
-from ....handlers import mount
 from ....storage import set_storage
 
 
@@ -21,26 +17,7 @@ async def login(username: str, password: str) -> bool:
         set_storage("token", login_result.token)
 
         state.is_logged_in = True
-        redraw_area("VIEW_3D")
-
-        await client.restart_http()
-        await client.restart_graphql()
-
-        if state.subscription_task is not None:
-            state.subscription_task.cancel()
-        state.subscription_task = AsyncTask(subscribe).exec()
-
-        # Initialize editor
-        if state.init_editor_task is not None:
-            state.init_editor_task.cancel()
-        state.init_editor_task = AsyncTask(init_editor).exec()
-
-        # Mount handlers
-        mount()
-
-        # Start background operators
-        execute_operator("lightdance.animation_status_listener")
-        execute_operator("lightdance.notification")
+        await init_blender()
 
     return login_result.success
 

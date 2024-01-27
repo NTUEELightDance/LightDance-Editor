@@ -4,7 +4,10 @@ from ...models import EditMode, Editor, PosMapElement
 from ...states import state
 from ...utils.ui import redraw_area
 from .current_pos import calculate_current_pos_index, update_current_pos_by_index
-from .current_status import update_current_status_by_index
+from .current_status import (
+    calculate_current_status_index,
+    update_current_status_by_index,
+)
 from .pos_editor import sync_editing_pos_frame_properties
 
 
@@ -46,18 +49,9 @@ def update_frame_index(current_frame: int):
     # TODO: Increase efficiency
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            frame_start_list = [
-                state.control_map[id].start for id in state.control_record
-            ]
-            for i, start in enumerate(frame_start_list):
-                if start <= current_frame:
-                    if i + 1 < len(frame_start_list):
-                        next_start = frame_start_list[i + 1]
-                        if current_frame < next_start:
-                            update_current_status_by_index(i)
-                            break
-                    else:
-                        update_current_status_by_index(i)
+            state.current_control_index = calculate_current_status_index()
+            if state.edit_state == EditMode.IDLE:
+                update_current_status_by_index()
 
         case Editor.POS_EDITOR:
             state.current_pos_index = calculate_current_pos_index()

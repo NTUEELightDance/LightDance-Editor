@@ -21,8 +21,6 @@ class LoginOperator(AsyncOperator):
         else:
             notify("ERROR", "Login failed.")
 
-        return {"FINISHED"}
-
 
 class LogoutOperator(AsyncOperator):
     bl_idname = "lightdance.logout"
@@ -34,8 +32,6 @@ class LogoutOperator(AsyncOperator):
             notify("INFO", "Logout successful.")
         else:
             notify("ERROR", "Logout failed.")
-
-        return {"FINISHED"}
 
 
 def register():
