@@ -18,12 +18,14 @@ def obj_panel_autoselect_handler():
                 for child in obj.parent.children:
                     child.select_set(True)
                 obj.parent.select_set(True)
+                bpy.context.view_layer.objects.active = obj.parent
             else:
                 for child in obj.children:
                     child.select_set(True)
 
         elif obj_type == ObjectType.HUMAN.value:
             obj.parent.select_set(True)
+            bpy.context.view_layer.objects.active = obj.parent
 
         elif obj_type == ObjectType.DANCER.value:
             for child in obj.children:
