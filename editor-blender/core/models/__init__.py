@@ -160,10 +160,17 @@ DancerPartIndexMap = Dict[DancerName, DancerPartIndexMapItem]
 @dataclass
 class SelectedItem:
     selected: bool
-    parts: List[PartName]
+    parts: List[Tuple[PartName, PartType]]
 
 
 Selected = Dict[DancerName, SelectedItem]
+
+
+class SelectedPartType(Enum):
+    DANCER = 0
+    FIBER = 1
+    LED = 2
+    MIXED_LIGHT = 3
 
 
 @dataclass
@@ -238,7 +245,9 @@ class State:
     # selection_mode: SelectMode
 
     # NOTE: Maybe we don't need these
-    selected: Selected
+    # selected: Selected
+    selected_obj_names: List[str]
+    selected_obj_type: Optional[SelectedPartType]
     # selected_leds: List[int]
 
     # TODO: Add these

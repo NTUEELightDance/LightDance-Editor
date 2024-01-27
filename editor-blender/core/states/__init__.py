@@ -48,8 +48,9 @@ state = State(
     editing_data=EditingData(frame_id=-1, start=0, index=0),
     # NOTE: Guess we can't implement these
     # selection_mode: SelectMode.DANCER_MODE
-    # TODO: Fill these
-    selected={},
+    # selected={},
+    selected_obj_names=[],
+    selected_obj_type=None,
     # selected_leds,
     # current_led_effect_reference_dancer
     # current_led_partName
