@@ -16,8 +16,10 @@ class PosEditor(bpy.types.Panel):
     @classmethod
     def poll(cls, context: bpy.types.Context):
         obj = context.object
-        ld_object_type: str = getattr(obj, "ld_object_type")
+        if obj is None:  # type: ignore
+            return False
 
+        ld_object_type: str = getattr(obj, "ld_object_type")
         return (
             state.ready
             and state.editor == Editor.CONTROL_EDITOR

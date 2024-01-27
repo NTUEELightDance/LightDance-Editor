@@ -1,10 +1,6 @@
 import bpy
 
-from ..core.actions.property.position import (  # continuous_update_current_position,
-    update_current_position,
-)
-
-# from ..core.actions.property.utils import dragging_wrapper
+from ..core.actions.property.position import update_current_position
 
 
 class PositionProperty(bpy.types.PropertyGroup):
@@ -14,6 +10,7 @@ class PositionProperty(bpy.types.PropertyGroup):
         default=(0.0, 0.0, 0.0),
         subtype="XYZ",
         unit="LENGTH",
+        precision=4,
         update=update_current_position,
     )
     rotation: bpy.props.FloatVectorProperty(  # type: ignore
@@ -22,6 +19,7 @@ class PositionProperty(bpy.types.PropertyGroup):
         default=(0.0, 0.0, 0.0),
         subtype="EULER",
         unit="ROTATION",
+        precision=4,
         update=update_current_position,
     )
 

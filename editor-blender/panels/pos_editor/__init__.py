@@ -3,6 +3,7 @@ import bpy
 from ...core.models import EditMode, Editor
 from ...core.states import state
 from ...properties.types import ObjectType, PositionPropertyType
+from ...properties.ui.types import PosEditorStatusType
 
 
 class PosEditor(bpy.types.Panel):
@@ -15,8 +16,10 @@ class PosEditor(bpy.types.Panel):
     @classmethod
     def poll(cls, context: bpy.types.Context):
         obj = context.object
-        ld_object_type: str = getattr(obj, "ld_object_type")
+        if obj is None:  # type: ignore
+            return False
 
+        ld_object_type: str = getattr(obj, "ld_object_type")
         return (
             state.ready
             and state.editor == Editor.POS_EDITOR
@@ -40,8 +43,18 @@ class PosEditor(bpy.types.Panel):
         column = layout.column()
         column.enabled = properties_enabled
 
-        column.prop(position, "transform", text="Transform")
-        column.prop(position, "rotation", text="Rotation")
+        ld_ui_pos_editor: PosEditorStatusType = getattr(
+            context.window_manager, "ld_ui_pos_editor"
+        )
+
+        if ld_ui_pos_editor.multi_select:
+            column.prop(
+                ld_ui_pos_editor, "multi_select_delta_transform", text="Delta Transform"
+            )
+
+        else:
+            column.prop(position, "transform", text="Transform")
+            column.prop(position, "rotation", text="Rotation")
 
 
 def register():

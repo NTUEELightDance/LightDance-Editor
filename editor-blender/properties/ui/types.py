@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Tuple
 
 
 class LoginPanelStatusType:
@@ -21,3 +22,9 @@ class ControlEditorStatusType:
     multi_select: bool
     multi_select_color: str
     multi_select_alpha: int
+
+
+class PosEditorStatusType:
+    multi_select: bool
+    multi_select_delta_transform: Tuple[float, float, float]
+    multi_select_delta_transform_ref: Tuple[float, float, float]

@@ -16,7 +16,6 @@ def update_multi_select_color(
     if not multi_select:
         return
 
-    # TODO: Update ld_color of all selected fibers
     color: str = getattr(self, "multi_select_color")
     for obj_name in state.selected_obj_names:
         obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)

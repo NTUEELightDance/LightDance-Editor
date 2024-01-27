@@ -5,7 +5,7 @@ import bpy
 from ..core.models import Editor, SelectedPartType
 from ..core.states import state
 from ..properties.types import LightType, ObjectType
-from ..properties.ui.types import ControlEditorStatusType
+from ..properties.ui.types import ControlEditorStatusType, PosEditorStatusType
 
 # TODO: Please make this bullshit cleaner
 
@@ -190,7 +190,10 @@ def handle_autoselect_in_control_editor():
         bpy.context.view_layer.objects.active = bpy.data.objects[
             state.selected_obj_names[-1]
         ]
+    if len(state.selected_obj_names) == 0:
+        bpy.context.view_layer.objects.active = None  # type: ignore
 
+    # Maintain control editor's multi-select status
     ld_ui_control_editor: ControlEditorStatusType = getattr(
         bpy.context.window_manager, "ld_ui_control_editor"
     )
@@ -207,6 +210,8 @@ def handle_autoselect_in_control_editor():
 
 
 def handle_autoselect_in_pos_editor():
+    original_selected_obj_names = sorted(state.selected_obj_names.copy())
+
     active_obj = bpy.context.view_layer.objects.active
     select = active_obj.select_get()
     deselect = not active_obj.select_get()
@@ -305,6 +310,20 @@ def handle_autoselect_in_pos_editor():
         bpy.context.view_layer.objects.active = bpy.data.objects[
             state.selected_obj_names[-1]
         ]
+    if len(state.selected_obj_names) == 0:
+        bpy.context.view_layer.objects.active = None  # type: ignore
+
+    # Maintain pos editor's multi-select status
+    ld_ui_pos_editor: PosEditorStatusType = getattr(
+        bpy.context.window_manager, "ld_ui_pos_editor"
+    )
+    ld_ui_pos_editor.multi_select = len(state.selected_obj_names) > 1
+
+    sorted_selected_obj_names = sorted(state.selected_obj_names)
+    if sorted_selected_obj_names != original_selected_obj_names:
+        # Don't trigger update here
+        ld_ui_pos_editor["multi_select_delta_transform"] = (0.0, 0.0, 0.0)  # type: ignore
+        ld_ui_pos_editor["multi_select_delta_transform_ref"] = (0.0, 0.0, 0.0)  # type: ignore
 
 
 def obj_panel_autoselect_handler(scene: bpy.types.Scene):
@@ -312,6 +331,9 @@ def obj_panel_autoselect_handler(scene: bpy.types.Scene):
     Auto-select a group of lights if one of each is selected.
     When a human object is selected, its dancer will also be auto-selected and vice versa.
     """
+    if bpy.context.object is None:  # type: ignore
+        return
+
     match state.editor:
         case Editor.CONTROL_EDITOR:
             handle_autoselect_in_control_editor()
