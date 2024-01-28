@@ -32,12 +32,14 @@ def get_effect_lists(
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     ld_object_type: str = getattr(self, "ld_object_type")
     if ld_object_type == ObjectType.LIGHT.value:
-        # ld_part_name: str = getattr(self, "ld_part_name")
-        ld_part_name = self.name
-        return [
+        ld_part_name: str = getattr(self, "ld_part_name")
+        effect_lists = [
             (effect.name, effect.name, "", "", effect.id)
             for effect in state.led_map[ld_part_name].values()
         ]
+
+        effect_lists.insert(0, ("no-change", "no-change", "", "", -1))
+        return effect_lists  # pyright: ignore
 
     return []
 

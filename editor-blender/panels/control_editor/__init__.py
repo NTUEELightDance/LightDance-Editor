@@ -6,7 +6,7 @@ from ...properties.types import LightType, ObjectType
 from ...properties.ui.types import ControlEditorStatusType
 
 
-class PosEditor(bpy.types.Panel):
+class ControlEditor(bpy.types.Panel):
     bl_label = "Control"
     bl_idname = "VIEW_PT_LightDance_ControlEditor"
     bl_space_type = "VIEW_3D"
@@ -15,16 +15,7 @@ class PosEditor(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        obj = context.object
-        if obj is None:  # type: ignore
-            return False
-
-        ld_object_type: str = getattr(obj, "ld_object_type")
-        return (
-            state.ready
-            and state.editor == Editor.CONTROL_EDITOR
-            and ld_object_type == ObjectType.LIGHT.value
-        )
+        return state.ready and state.editor == Editor.CONTROL_EDITOR
 
     def draw(self, context: bpy.types.Context):
         editing = state.edit_state == EditMode.EDITING
@@ -38,6 +29,16 @@ class PosEditor(bpy.types.Panel):
             row.label(text="Detached", icon="ERROR")
             row.operator("lightdance.attach_editing_control_frame", icon="PLAY")
 
+        # check if object is selected
+        obj = context.object
+        if obj is None:  # type: ignore
+            return
+
+        ld_object_type: str = getattr(obj, "ld_object_type")
+        if ld_object_type != ObjectType.LIGHT.value:
+            return
+
+        # show properties of light
         column = layout.column()
         column.enabled = properties_enabled
 
@@ -45,7 +46,6 @@ class PosEditor(bpy.types.Panel):
             context.window_manager, "ld_ui_control_editor"
         )
 
-        # TODO: Support new bulbs mode
         if ld_ui_control_editor.multi_select:
             if state.selected_obj_type == SelectedPartType.FIBER:
                 column.prop(ld_ui_control_editor, "multi_select_color", text="Color")
@@ -74,8 +74,8 @@ class PosEditor(bpy.types.Panel):
 
 
 def register():
-    bpy.utils.register_class(PosEditor)
+    bpy.utils.register_class(ControlEditor)
 
 
 def unregister():
-    bpy.utils.unregister_class(PosEditor)
+    bpy.utils.unregister_class(ControlEditor)

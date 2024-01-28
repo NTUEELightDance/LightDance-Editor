@@ -15,6 +15,7 @@ from ..core.actions.state.pos_editor import sync_editing_pos_frame_properties
 from ..core.asyncio import AsyncTask
 from ..core.models import EditMode, Editor
 from ..core.states import state
+from ..core.utils.operator import execute_operator
 
 
 # This won't be triggered when pause animation

@@ -5,6 +5,7 @@ from . import (
     color_palette,
     control_editor,
     editor,
+    led_editor,
     notification,
     pos_editor,
     setup,
@@ -27,6 +28,7 @@ def register():
     notification.register()
     timeline.register()
     control_editor.register()
+    led_editor.register()
 
 
 def unregister():
@@ -42,3 +44,4 @@ def unregister():
     notification.unregister()
     timeline.unregister()
     control_editor.unregister()
+    led_editor.unregister()

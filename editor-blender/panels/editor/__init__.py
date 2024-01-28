@@ -17,6 +17,8 @@ class EditorPanel(bpy.types.Panel):
         return state.ready
 
     def draw(self, context: bpy.types.Context):
+        editing = state.edit_state == EditMode.EDITING
+
         layout = self.layout
         row = layout.row(align=True)
 
@@ -47,7 +49,7 @@ class EditorPanel(bpy.types.Panel):
         row.operator("lightdance.sync_pending_updates", text="Sync incoming updates")
         row.enabled = sync_enable
 
-        if state.edit_state == EditMode.EDITING:
+        if editing:
             row = box.row()
             row.label(text="Editing")
             row.operator("lightdance.save", text="Save")

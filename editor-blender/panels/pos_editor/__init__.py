@@ -15,22 +15,11 @@ class PosEditor(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        obj = context.object
-        if obj is None:  # type: ignore
-            return False
-
-        ld_object_type: str = getattr(obj, "ld_object_type")
-        return (
-            state.ready
-            and state.editor == Editor.POS_EDITOR
-            and ld_object_type == ObjectType.DANCER.value
-        )
+        return state.ready and state.editor == Editor.POS_EDITOR
 
     def draw(self, context: bpy.types.Context):
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.is_playing
-
-        position: PositionPropertyType = getattr(context.object, "ld_position")
 
         layout = self.layout
 
@@ -39,6 +28,15 @@ class PosEditor(bpy.types.Panel):
             row.enabled = not state.is_playing
             row.label(text="Detached", icon="ERROR")
             row.operator("lightdance.attach_editing_pos_frame", icon="PLAY")
+
+        # check if object is selected
+        obj = context.object
+        if obj is None:  # type: ignore
+            return
+
+        ld_object_type: str = getattr(obj, "ld_object_type")
+        if ld_object_type != ObjectType.DANCER.value:
+            return
 
         column = layout.column()
         column.enabled = properties_enabled
@@ -53,6 +51,7 @@ class PosEditor(bpy.types.Panel):
             )
 
         else:
+            position: PositionPropertyType = getattr(context.object, "ld_position")
             column.prop(position, "transform", text="Transform")
             column.prop(position, "rotation", text="Rotation")
 

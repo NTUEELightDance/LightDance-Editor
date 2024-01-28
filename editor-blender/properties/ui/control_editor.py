@@ -19,7 +19,6 @@ def get_color_lists(
         (color.color_name, color.color_name, "", "", color.color_id)
         for color in ld_color_palette
     ]
-    color_list.insert(0, ("none", "none", "", "", 0))
 
     return color_list  # pyright: ignore
 

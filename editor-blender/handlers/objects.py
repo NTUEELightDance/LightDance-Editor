@@ -5,7 +5,13 @@ import bpy
 from ..core.models import Editor, SelectedPartType
 from ..core.states import state
 from ..properties.types import LightType, ObjectType
-from ..properties.ui.types import ControlEditorStatusType, PosEditorStatusType
+from ..properties.ui.types import (
+    ControlEditorStatusType,
+    LEDEditorEditModeType,
+    LEDEditorStatusType,
+    PosEditorStatusType,
+)
+from .owner import msgbus_owner
 
 # TODO: Please make this bullshit cleaner
 
@@ -205,7 +211,7 @@ def handle_autoselect_in_control_editor():
     sorted_selected_obj_names = sorted(state.selected_obj_names)
     if sorted_selected_obj_names != original_selected_obj_names:
         # Don't trigger update here
-        ld_ui_control_editor["multi_select_color"] = "none"  # type: ignore
+        ld_ui_control_editor["multi_select_color"] = -1  # type: ignore
         ld_ui_control_editor["multi_select_alpha"] = 128  # type: ignore
 
 
@@ -249,18 +255,9 @@ def handle_autoselect_in_pos_editor():
 
             # deselect all other objects
             for obj in bpy.context.selected_objects:
-                ld_object_type: str = getattr(obj, "ld_object_type")
-                if (
-                    ld_object_type != ObjectType.DANCER.value
-                    and ld_object_type != ObjectType.HUMAN.value
-                ):
-                    obj.select_set(False)
+                obj.select_set(False)
 
             active_obj.select_set(True)
-            for child_obj in dancer_obj.children:
-                if getattr(child_obj, "ld_object_type") == ObjectType.HUMAN.value:
-                    child_obj.select_set(True)
-
             state.selected_obj_names.append(active_obj_name)
 
     # Maintain selected object names
@@ -326,6 +323,193 @@ def handle_autoselect_in_pos_editor():
         ld_ui_pos_editor["multi_select_delta_transform_ref"] = (0.0, 0.0, 0.0)  # type: ignore
 
 
+def handle_autoselect_in_led_editor_edit_mode():
+    # WARNING: It should by fine that we don't consider the case when objects
+    # other than LED bulbs are selected in edit mode since they are filterd out
+    # and that local view if toggled on (maybe we need to ban the keymap for local view)
+
+    original_selected_obj_names = sorted(state.selected_obj_names.copy())
+
+    selected_obj_names: List[str] = []
+    for obj in bpy.context.selected_objects:
+        ld_object_type: str = getattr(obj, "ld_object_type")
+        if ld_object_type == ObjectType.LIGHT.value:
+            ld_light_type: str = getattr(obj, "ld_light_type")
+            if ld_light_type == LightType.LED_BULB.value:
+                selected_obj_names.append(obj.name)
+
+    state.selected_obj_names = selected_obj_names
+
+    for obj in bpy.context.selected_objects:
+        if obj.name not in state.selected_obj_names:
+            obj.select_set(False)
+
+    if len(state.selected_obj_names) == 0:
+        bpy.context.view_layer.objects.active = None  # type: ignore
+
+    # TODO: maintain multi-select of led editor
+    ld_ui_led_editor: LEDEditorStatusType = getattr(
+        bpy.context.window_manager, "ld_ui_led_editor"
+    )
+    ld_ui_led_editor.multi_select = len(state.selected_obj_names) > 1
+
+    sorted_selected_obj_names = sorted(state.selected_obj_names)
+    if sorted_selected_obj_names != original_selected_obj_names:
+        # Don't trigger update here
+        ld_ui_led_editor["multi_select_color"] = -1  # type: ignore
+        ld_ui_led_editor["multi_select_alpha"] = 128  # type: ignore
+
+
+def handle_autoselect_in_led_editor():
+    ld_ui_led_editor: LEDEditorStatusType = getattr(
+        bpy.context.window_manager, "ld_ui_led_editor"
+    )
+
+    if ld_ui_led_editor.edit_mode == LEDEditorEditModeType.EDIT.value:
+        handle_autoselect_in_led_editor_edit_mode()
+        return
+
+    active_obj = bpy.context.view_layer.objects.active
+    select = active_obj.select_get()
+    deselect = not active_obj.select_get()
+
+    ld_object_type: str = getattr(active_obj, "ld_object_type")
+    ld_light_type: str = getattr(active_obj, "ld_light_type")
+
+    if ld_object_type == ObjectType.LIGHT.value:
+        if ld_light_type == LightType.LED_BULB.value:
+            active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
+
+        elif ld_light_type == LightType.FIBER.value:
+            active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
+
+    if ld_object_type == ObjectType.HUMAN.value:
+        active_obj = active_obj.parent
+        active_obj.select_set(True)
+        bpy.context.view_layer.objects.active = active_obj
+
+    active_obj_type: str = getattr(active_obj, "ld_object_type")
+    active_obj_name: str = active_obj.name
+
+    select = select and active_obj_name not in state.selected_obj_names
+    deselect = deselect and active_obj_name in state.selected_obj_names
+
+    if select:
+        if active_obj_type == ObjectType.LIGHT.value:
+            active_light_type: str = getattr(active_obj, "ld_light_type")
+            dancer_obj = active_obj.parent
+
+            if active_light_type == LightType.LED.value:
+                active_obj.select_set(True)
+
+                # deselect all other objects
+                for obj in bpy.context.selected_objects:
+                    obj.select_set(False)
+
+                active_obj.select_set(True)
+                # select all objects in the same group
+                for obj in active_obj.children:
+                    obj.select_set(True)
+
+                state.selected_obj_names = [active_obj.name]
+
+        elif active_obj_type == ObjectType.DANCER.value:
+            dancer_obj = active_obj
+
+            # deselect all other objects
+            for obj in bpy.context.selected_objects:
+                obj.select_set(False)
+
+            active_obj.select_set(True)
+            # select all objects in the same group
+            for child_obj in dancer_obj.children:
+                if getattr(child_obj, "ld_object_type") == ObjectType.HUMAN.value:
+                    child_obj.select_set(True)
+
+            state.selected_obj_names = [active_obj_name]
+
+    # Maintain selected object names
+    selected_type_unchange = state.selected_obj_type is not None and (
+        (
+            state.selected_obj_type == SelectedPartType.DANCER
+            and active_obj_type == ObjectType.DANCER.value
+        )
+        or (
+            state.selected_obj_type != SelectedPartType.DANCER
+            and active_obj_type != ObjectType.DANCER.value
+        )
+    )
+
+    if selected_type_unchange:
+        for obj in bpy.context.selected_objects:
+            obj_name: str = obj.name
+
+            if obj_name not in state.selected_obj_names:
+                obj.select_set(False)
+                continue
+
+    # Remove deselected objects
+    selected_obj_names: List[str] = []
+    for obj_name in state.selected_obj_names:
+        obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)
+        if obj is not None:
+            if obj.select_get():
+                selected_obj_names.append(obj_name)
+
+    state.selected_obj_names = selected_obj_names
+
+    # Maintain selected object type and group selection
+    num_led = 0
+    num_dancer = 0
+    for obj in bpy.context.selected_objects:
+        ld_object_type: str = getattr(obj, "ld_object_type")
+
+        if ld_object_type == ObjectType.DANCER.value:
+            for child_obj in obj.children:
+                if getattr(child_obj, "ld_object_type") == ObjectType.HUMAN.value:
+                    child_obj.select_set(True)
+
+            num_dancer += 1
+
+        elif ld_object_type == ObjectType.LIGHT.value:
+            ld_light_type: str = getattr(obj, "ld_light_type")
+
+            if ld_light_type == LightType.LED.value:
+                for child_obj in obj.children:
+                    child_obj.select_set(True)
+
+                num_led += 1
+
+    if num_dancer > 0:
+        state.selected_obj_type = SelectedPartType.DANCER
+    elif num_led > 0:
+        state.selected_obj_type = SelectedPartType.LED
+    else:
+        state.selected_obj_type = None
+
+    # Active last selected object if current active object is not selected
+    if not active_obj.select_get() and len(state.selected_obj_names) > 0:
+        bpy.context.view_layer.objects.active = bpy.data.objects[
+            state.selected_obj_names[-1]
+        ]
+    if len(state.selected_obj_names) == 0:
+        bpy.context.view_layer.objects.active = None  # type: ignore
+
+    # Maintain led editor's multi-select status
+    if state.selected_obj_type == SelectedPartType.LED:
+        # Don't trigger update dancer here
+        ld_ui_led_editor["edit_dancer"] = state.dancer_names.index(  # type: ignore
+            getattr(active_obj, "ld_dancer_name")
+        )
+        ld_ui_led_editor.edit_part = getattr(active_obj, "ld_part_name")
+    elif state.selected_obj_type == SelectedPartType.DANCER:
+        ld_ui_led_editor.edit_dancer = getattr(active_obj, "ld_dancer_name")
+
+
 def obj_panel_autoselect_handler(scene: bpy.types.Scene):
     """
     Auto-select a group of lights if one of each is selected.
@@ -340,7 +524,7 @@ def obj_panel_autoselect_handler(scene: bpy.types.Scene):
         case Editor.POS_EDITOR:
             handle_autoselect_in_pos_editor()
         case Editor.LED_EDITOR:
-            pass
+            handle_autoselect_in_led_editor()
 
 
 def mount():

@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import bpy
 
-from ...models import FiberData, LEDData, PartType
+from ...models import ControlMapElement, FiberData, LEDData, PartType
 from ...states import state
 
 
@@ -46,7 +46,9 @@ def update_current_status_by_index():
         if dancer_obj is not None:
             part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
             # TODO: Add this in state
-            part_obj_names: List[str] = [obj.name for obj in part_objs]
+            part_obj_names: List[str] = [
+                getattr(obj, "ld_part_name") for obj in part_objs
+            ]
 
             for part in dancer.parts:
                 if part.name not in part_obj_names:
@@ -60,26 +62,24 @@ def update_current_status_by_index():
                     case PartType.FIBER:
                         if not isinstance(part_status, FiberData):
                             raise Exception("FiberData expected")
+
                         color = state.color_map[part_status.color_id]
                         setattr(part_obj, "ld_color", color.name)
-                        setattr(part_obj, "ld_alpha", part_status.alpha)
+                        alpha = part_status.alpha
+                        setattr(part_obj, "ld_alpha", alpha)
                     case PartType.LED:
                         if not isinstance(part_status, LEDData):
                             raise Exception("LEDData expected")
-                        effect = state.led_effect_id_table[part_status.effect_id]
-                        setattr(part_obj, "ld_effect", effect.name)
-                        setattr(part_obj, "ld_alpha", part_status.alpha)
 
-                        bulb_data = effect.effect
-                        led_bulb_objs: List[bpy.types.Object] = getattr(
-                            part_obj, "children"
-                        )
-                        for led_bulb_obj in led_bulb_objs:
-                            pos: int = getattr(led_bulb_obj, "ld_led_pos")
-                            data = bulb_data[pos]
-                            color = state.color_map[data.color_id]
-                            setattr(led_bulb_obj, "ld_color", color.name)
-                            setattr(led_bulb_obj, "ld_alpha", data.alpha)
+                        effect_id = part_status.effect_id
+                        if effect_id == -1:
+                            setattr(part_obj, "ld_effect", "no-change")
+                        else:
+                            effect = state.led_effect_id_table[effect_id]
+                            setattr(part_obj, "ld_effect", effect.name)
+
+                        alpha = part_status.alpha
+                        setattr(part_obj, "ld_alpha", alpha)
 
         # WARNING: Testing
         break

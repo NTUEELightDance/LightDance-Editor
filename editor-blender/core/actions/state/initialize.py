@@ -129,13 +129,6 @@ async def init_blender():
         state.init_editor_task.cancel()
     state.init_editor_task = AsyncTask(init_editor).exec()
 
-    # Mount handlers
-    mount()
-
-    # Start background operators
-    execute_operator("lightdance.animation_status_listener")
-    execute_operator("lightdance.notification")
-
 
 def close_blender():
     state.is_running = False
@@ -201,8 +194,13 @@ async def init_editor():
     print("Editor initialized")
 
     state.ready = True
-    # NOTE: Testing
-    # state.edit_state = EditMode.EDITING
+
+    # Mount handlers
+    mount()
+
+    # Start background operators
+    execute_operator("lightdance.animation_status_listener")
+    execute_operator("lightdance.notification")
 
     redraw_area("VIEW_3D")
 

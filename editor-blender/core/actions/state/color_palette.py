@@ -34,7 +34,9 @@ def setup_color_palette_from_state(colormap: ColorMap):
         item.color_id = id
         item.color_name = color.name
         item.color_rgb = color.rgb
-        item.color_float = rgb_to_float(color.rgb)
+
+        color_float = rgb_to_float(color.rgb)
+        item.color_float = (color_float[0], color_float[1], color_float[2])
         item.color_alpha = 1.0
         item.color_code = color.color_code
 

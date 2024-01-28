@@ -10,6 +10,12 @@ from ...core.actions.state.control_editor import (
 )
 from ...core.actions.state.control_map import apply_control_map_updates
 from ...core.actions.state.editor import set_editor
+from ...core.actions.state.led_editor import (
+    cancel_edit_led_effect,
+    delete_led_effect,
+    request_edit_led_effect,
+    save_led_effect,
+)
 from ...core.actions.state.pos_editor import (
     add_pos_frame,
     cancel_edit_pos,
@@ -18,10 +24,11 @@ from ...core.actions.state.pos_editor import (
     save_pos_frame,
 )
 from ...core.actions.state.pos_map import apply_pos_map_updates
-from ...core.models import Editor
+from ...core.models import EditMode, Editor
 from ...core.states import state
 from ...core.utils.notification import notify
 from ...operators.async_core import AsyncOperator
+from ...properties.ui.types import LEDEditorStatusType
 
 
 class ToggleControlEditor(bpy.types.Operator):
@@ -29,6 +36,13 @@ class ToggleControlEditor(bpy.types.Operator):
 
     bl_idname = "lightdance.toggle_control_editor"
     bl_label = "Toggle Control Editor"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return (
+            state.edit_state != EditMode.EDITING
+            or state.editor == Editor.CONTROL_EDITOR
+        )
 
     def execute(self, context: bpy.types.Context):
         if set_editor(Editor.CONTROL_EDITOR):
@@ -45,6 +59,10 @@ class TogglePosEditor(bpy.types.Operator):
     bl_idname = "lightdance.toggle_pos_editor"
     bl_label = "Toggle Position Editor"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.edit_state != EditMode.EDITING or state.editor == Editor.POS_EDITOR
+
     def execute(self, context: bpy.types.Context):
         if set_editor(Editor.POS_EDITOR):
             notify("INFO", "Switched to Position Editor")
@@ -60,8 +78,11 @@ class ToggleLEDEditor(bpy.types.Operator):
     bl_idname = "lightdance.toggle_led_editor"
     bl_label = "Toggle LED Editor"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.edit_state != EditMode.EDITING or state.editor == Editor.LED_EDITOR
+
     def execute(self, context: bpy.types.Context):
-        # TODO: Toggle LED editor selection panel
         if set_editor(Editor.LED_EDITOR):
             notify("INFO", "Switched to LED Editor")
         else:
@@ -95,6 +116,17 @@ class RequestEdit(AsyncOperator):
     bl_idname = "lightdance.request_edit"
     bl_label = "Request Edit"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        if state.editor == Editor.LED_EDITOR:
+            ld_ui_led_editor: LEDEditorStatusType = getattr(
+                bpy.context.window_manager, "ld_ui_led_editor"
+            )
+            return state.ready and ld_ui_led_editor.edit_effect != ""
+
+        else:
+            return state.ready
+
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
@@ -102,7 +134,7 @@ class RequestEdit(AsyncOperator):
             case Editor.POS_EDITOR:
                 await request_edit_pos()
             case Editor.LED_EDITOR:
-                pass
+                await request_edit_led_effect()
 
 
 class Add(AsyncOperator):
@@ -110,6 +142,17 @@ class Add(AsyncOperator):
 
     bl_idname = "lightdance.add"
     bl_label = "Add"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        if state.editor == Editor.LED_EDITOR:
+            ld_ui_led_editor: LEDEditorStatusType = getattr(
+                bpy.context.window_manager, "ld_ui_led_editor"
+            )
+            return state.ready and ld_ui_led_editor.edit_part != ""
+
+        else:
+            return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
@@ -127,6 +170,10 @@ class Save(AsyncOperator):
     bl_idname = "lightdance.save"
     bl_label = "Save"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.ready
+
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
@@ -134,7 +181,7 @@ class Save(AsyncOperator):
             case Editor.POS_EDITOR:
                 await save_pos_frame()
             case Editor.LED_EDITOR:
-                pass
+                await save_led_effect()
 
 
 class Delete(AsyncOperator):
@@ -143,6 +190,17 @@ class Delete(AsyncOperator):
     bl_idname = "lightdance.delete"
     bl_label = "Delete"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        if state.editor == Editor.LED_EDITOR:
+            ld_ui_led_editor: LEDEditorStatusType = getattr(
+                bpy.context.window_manager, "ld_ui_led_editor"
+            )
+            return state.ready and ld_ui_led_editor.edit_effect != ""
+
+        else:
+            return state.ready
+
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
@@ -150,7 +208,7 @@ class Delete(AsyncOperator):
             case Editor.POS_EDITOR:
                 await delete_pos_frame()
             case Editor.LED_EDITOR:
-                pass
+                await delete_led_effect()
 
 
 class CancelEdit(AsyncOperator):
@@ -159,6 +217,10 @@ class CancelEdit(AsyncOperator):
     bl_idname = "lightdance.cancel_edit"
     bl_label = "Cancel Edit"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.ready
+
     async def async_execute(self, context: bpy.types.Context):
         match state.editor:
             case Editor.CONTROL_EDITOR:
@@ -166,7 +228,7 @@ class CancelEdit(AsyncOperator):
             case Editor.POS_EDITOR:
                 await cancel_edit_pos()
             case Editor.LED_EDITOR:
-                pass
+                await cancel_edit_led_effect()
 
 
 def register():

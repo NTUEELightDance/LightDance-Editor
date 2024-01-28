@@ -33,7 +33,9 @@ def sync_editing_control_frame_properties():
         dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
             part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
-            part_obj_names: List[str] = [obj.name for obj in part_objs]
+            part_obj_names: List[str] = [
+                getattr(obj, "ld_part_name") for obj in part_objs
+            ]
 
             for part in dancer.parts:
                 if part.name not in part_obj_names:
@@ -43,18 +45,18 @@ def sync_editing_control_frame_properties():
                 part_obj = part_objs[part_index]
                 part_type = getattr(part_obj, "ld_light_type")
 
+                # Re-trigger update
                 if part_type == LightType.FIBER.value:
-                    color_id = part_obj["ld_color"]
-                    color = state.color_map[color_id]
+                    ld_color: int = getattr(part_obj, "ld_color")
+                    setattr(part_obj, "ld_color", ld_color)
                     ld_alpha: int = getattr(part_obj, "ld_alpha")
+                    setattr(part_obj, "ld_alpha", ld_alpha)
 
-                    color_float = rgb_to_float((*color.rgb, ld_alpha))
-                    part_obj.color[0] = color_float[0]
-                    part_obj.color[1] = color_float[1]
-                    part_obj.color[2] = color_float[2]
-                    part_obj.color[3] = color_float[3]
                 elif part_type == LightType.LED.value:
-                    pass
+                    ld_effect: int = getattr(part_obj, "ld_effect")
+                    setattr(part_obj, "ld_effect", ld_effect)
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+                    setattr(part_obj, "ld_alpha", ld_alpha)
 
 
 async def add_control_frame():
@@ -83,7 +85,9 @@ async def save_control_frame():
 
         if obj is not None:
             part_objs: List[bpy.types.Object] = getattr(obj, "children")
-            part_obj_names: List[str] = [obj.name for obj in part_objs]
+            part_obj_names: List[str] = [
+                getattr(obj, "ld_part_name") for obj in part_objs
+            ]
 
             for part in dancer.parts:
                 if part.name not in part_obj_names:
