@@ -1,3 +1,7 @@
+use crate::db::types::{
+    editing_control_frame::EditingControlFrameData,
+    editing_position_frame::EditingPositionFrameData,
+};
 use crate::graphql::subscriptions::{
     control_map::ControlMapPayload,
     control_record::{ControlRecordMutationMode, ControlRecordPayload},
@@ -25,22 +29,19 @@ struct ShiftQuery {
     shift_control: bool,
     shift_position: bool,
 }
+
 #[derive(Clone)]
 struct ControlFrame {
     id: i32,
     start: i32,
-    fade: i32,
+    fade: i8,
 }
+
 #[derive(Clone)]
 struct PositionFrame {
     id: i32,
     start: i32,
 }
-struct EditingFrame {
-    frame_id: i32,
-    user_id: i32,
-}
-
 #[derive(Default)]
 pub struct FrameMutation;
 
@@ -90,7 +91,7 @@ impl FrameMutation {
         //check editing
         if shift_control {
             let editing_control_frame = sqlx::query_as!(
-                EditingFrame,
+                EditingControlFrameData,
                 r#"
 					SELECT ControlFrame.id as frame_id, EditingControlFrame.user_id FROM ControlFrame
 					INNER JOIN EditingControlFrame
@@ -104,15 +105,22 @@ impl FrameMutation {
             .fetch_all(mysql)
             .await?;
             if !editing_control_frame.is_empty() {
-                return Err(GQLError::new(format!(
-                    "User {} is editing frame {}",
-                    editing_control_frame[0].user_id, editing_control_frame[0].frame_id
-                )));
+                for editing in editing_control_frame {
+                    match editing.frame_id {
+                        Some(frame_id) => {
+                            return Err(GQLError::new(format!(
+                                "User {} is editing frame {}",
+                                editing.user_id, frame_id
+                            )));
+                        }
+                        None => {}
+                    }
+                }
             }
         }
         if shift_position {
             let editing_position_frame = sqlx::query_as!(
-                EditingFrame,
+                EditingPositionFrameData,
                 r#"
 					SELECT PositionFrame.id as frame_id, EditingPositionFrame.user_id FROM PositionFrame
 					INNER JOIN EditingPositionFrame
@@ -126,10 +134,17 @@ impl FrameMutation {
             .fetch_all(mysql)
             .await?;
             if !editing_position_frame.is_empty() {
-                return Err(GQLError::new(format!(
-                    "User {} is editing frame {}",
-                    editing_position_frame[0].user_id, editing_position_frame[0].frame_id
-                )));
+                for editing in editing_position_frame {
+                    match editing.frame_id {
+                        Some(frame_id) => {
+                            return Err(GQLError::new(format!(
+                                "User {} is editing frame {}",
+                                editing.user_id, frame_id
+                            )));
+                        }
+                        None => {}
+                    }
+                }
             }
         }
 
