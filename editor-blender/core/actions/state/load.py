@@ -112,8 +112,8 @@ def setup_assets(assets_load):
                     ld_part_name=item.name,
                 )
                 bpy.context.object.empty_display_size = 0
-                for obj in part_objects:
-                    obj.name = f"{dancer.name}.{item.name}"
+                for i, obj in enumerate(part_objects):
+                    obj.name = f"{dancer.name}.{item.name}.{i:03}"
                     set_bpy_props(
                         obj,
                         parent=parts_parent,
@@ -121,6 +121,7 @@ def setup_assets(assets_load):
                         ld_light_type=item.type.value.lower(),
                         ld_part_name=item.name,
                         data=bpy.data.meshes["Sphere.001"],
+                        ld_led_pos=i,
                     )
             elif item.type.value == "FIBER":
                 obj = part_objects[0]
@@ -151,18 +152,14 @@ init position keyframes
 
 
 def init_pos_keyframes_from_state():
-    # pos_map = state.pos_map
-    from .fake_pos_map import pos_map  # TODO: remove fake pos map
-
+    pos_map = state.pos_map
     pos_frame_number = len(pos_map)
-    for i, (_, pos_map_element) in enumerate(
-        pos_map.items()
-    ):  # change to enumerate over dancers
-        frame_start = pos_map_element["start"]  # type: ignore
-        pos_status = pos_map_element["pos"]  # type: ignore
+    for i, (_, pos_map_element) in enumerate(pos_map.items()):
+        frame_start = pos_map_element.start
+        pos_status = pos_map_element.pos
         for dancer_name, pos in pos_status.items():
             dancer_obj = bpy.data.objects[dancer_name]
-            dancer_location = (pos["x"], pos["y"], pos["z"])
+            dancer_location = (pos.x, pos.y, pos.z)
             if dancer_obj.animation_data is None:
                 dancer_obj.animation_data_create()
             if dancer_obj.animation_data.action is None:
@@ -206,7 +203,6 @@ def init_ctrl_keyframes_from_state():
     ctrl_map = state.control_map
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
-    print(led_effect_table)
     ctrl_frame_number = len(ctrl_map)
     for i, (id, ctrl_map_element) in enumerate(ctrl_map.items()):
         frame_start = ctrl_map_element.start
@@ -216,36 +212,52 @@ def init_ctrl_keyframes_from_state():
             for part_name, part_data in ctrl.items():
                 if isinstance(part_data, LEDData):
                     part_parent = bpy.data.objects[f"{dancer_name}.{part_name}.parent"]
-                    # part_effect = led_effect_table[part_data.effect_id]
-                    # part_effect_frames = part_effect.effects
-                    # for effect_frame in part_effect_frames:
-                    #     effect_frame_start = frame_start + effect_frame.start
-                    #     effect_list = effect_frame.effect
-                    #     effect_fade = effect_frame.fade
-                    #     for i in range(len(part_parent.children)):
-                    #         led_obj = part_parent.children[i]
-                    #         led_data = effect_list[i]
-                    #         led_rgb = color_map[led_data.color_id].rgb
-                    #         led_rgba = (
-                    #             led_rgb[0]/255,
-                    #             led_rgb[1]/255,
-                    #             led_rgb[2]/255,
-                    #             led_data.alpha/10
-                    #         )
-                    #         if led_obj.animation_data is None:
-                    #             led_obj.animation_data_create()
-                    #         if led_obj.animation_data.action is None:
-                    #             led_obj.animation_data.action = bpy.data.actions.new(part_name+"Action")
-                    #         curves = led_obj.animation_data.action.fcurves
-                    #         for d in range(4):
-                    #             if curves.find("color", index=d) is None:
-                    #                 curves.new("color", index=d)
-                    #                 curves.find("color", index=d).keyframe_points.add(ctrl_frame_number)
-                    #             point = curves.find("color", index=d).keyframe_points[i]
-                    #             point.co = effect_frame_start, led_rgba[d]
-                    #             point.interpolation = "LINEAR" if effect_fade else "CONSTANT"
-                    #             if i == ctrl_frame_number - 1:
-                    #                 curves.find("color", index=d).keyframe_points.sort()
+                    if part_data.effect_id != -1:
+                        part_effect = led_effect_table[part_data.effect_id].effect
+                        for j, led_obj in enumerate(part_parent.children):
+                            led_data = part_effect[j]
+                            led_rgb = color_map[led_data.color_id].rgb
+                            led_rgba = (
+                                led_rgb[0] / 255,
+                                led_rgb[1] / 255,
+                                led_rgb[2] / 255,
+                                led_data.alpha / 10,
+                            )
+                            if led_obj.animation_data is None:
+                                led_obj.animation_data_create()
+                            if led_obj.animation_data.action is None:
+                                led_obj.animation_data.action = bpy.data.actions.new(
+                                    f"{dancer_name}.{part_name}Action.{j:03}"
+                                )
+                            curves = led_obj.animation_data.action.fcurves
+                            for d in range(4):
+                                if curves.find("color", index=d) is None:
+                                    curves.new("color", index=d)
+                                    curves.find("color", index=d).keyframe_points.add(
+                                        ctrl_frame_number
+                                    )
+                                point = curves.find("color", index=d).keyframe_points[i]
+                                point.co = frame_start, led_rgba[d]
+                                point.interpolation = "LINEAR" if fade else "CONSTANT"
+                                if i == ctrl_frame_number - 1:
+                                    curves.find("color", index=d).keyframe_points.sort()
+                    else:
+                        for j, led_obj in enumerate(part_parent.children):
+                            curves = led_obj.animation_data.action.fcurves
+                            for d in range(4):
+                                if curves.find("color", index=d) is None:
+                                    curves.new("color", index=d)
+                                    curves.find("color", index=d).keyframe_points.add(
+                                        ctrl_frame_number
+                                    )
+                                point = curves.find("color", index=d).keyframe_points[i]
+                                last_point = curves.find(
+                                    "color", index=d
+                                ).keyframe_points[i - 1]
+                                point.co = frame_start, last_point.co[1]
+                                point.interpolation = "LINEAR" if fade else "CONSTANT"
+                                if i == ctrl_frame_number - 1:
+                                    curves.find("color", index=d).keyframe_points.sort()
 
                 elif isinstance(part_data, FiberData):
                     part_obj = bpy.data.objects[f"{dancer_name}.{part_name}"]
@@ -260,7 +272,7 @@ def init_ctrl_keyframes_from_state():
                         part_obj.animation_data_create()
                     if part_obj.animation_data.action is None:
                         part_obj.animation_data.action = bpy.data.actions.new(
-                            part_name + "Action"
+                            f"{dancer_name}.{part_name}Action"
                         )
                     curves = part_obj.animation_data.action.fcurves
                     for d in range(4):
