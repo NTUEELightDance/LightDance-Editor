@@ -62,18 +62,12 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
             data = bulb_data[pos]
 
             color = state.color_map[data.color_id]
-            color_float = rgb_to_float(color.rgb)
-
-            led_bulb_obj.color[0] = color_float[0]
-            led_bulb_obj.color[1] = color_float[1]
-            led_bulb_obj.color[2] = color_float[2]
+            setattr(led_bulb_obj, "ld_color", color.name)
 
     else:
         led_bulb_objs: List[bpy.types.Object] = getattr(self, "children")
         for led_bulb_obj in led_bulb_objs:
-            led_bulb_obj.color[0] = 0
-            led_bulb_obj.color[1] = 0
-            led_bulb_obj.color[2] = 0
+            setattr(led_bulb_obj, "ld_color", "black")
 
 
 def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):

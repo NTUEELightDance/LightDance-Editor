@@ -18,6 +18,7 @@ class ControlEditor(bpy.types.Panel):
         return state.ready and state.editor == Editor.CONTROL_EDITOR
 
     def draw(self, context: bpy.types.Context):
+        # TODO: Make human no selectable?
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.is_playing
 
@@ -35,7 +36,7 @@ class ControlEditor(bpy.types.Panel):
             return
 
         ld_object_type: str = getattr(obj, "ld_object_type")
-        if ld_object_type != ObjectType.LIGHT.value:
+        if ld_object_type != ObjectType.LIGHT.value or not obj.select_get():
             return
 
         # show properties of light

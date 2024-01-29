@@ -35,7 +35,7 @@ class PosEditor(bpy.types.Panel):
             return
 
         ld_object_type: str = getattr(obj, "ld_object_type")
-        if ld_object_type != ObjectType.DANCER.value:
+        if ld_object_type != ObjectType.DANCER.value or not obj.select_get():
             return
 
         column = layout.column()

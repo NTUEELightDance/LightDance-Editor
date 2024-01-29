@@ -70,7 +70,6 @@ def enter_editing_led_effect():
             bulb_obj.animation_data.action.fcurves.find("color", index=i).mute = True
 
     # Only select human and bulbs for local view
-    bpy.context.view_layer.objects.active = None  # type: ignore
     for obj in bpy.context.view_layer.objects.selected:  # type: ignore
         obj.select_set(False)
 
@@ -84,6 +83,13 @@ def enter_editing_led_effect():
     # De-select all objects
     for obj in bpy.context.view_layer.objects.selected:  # type: ignore
         obj.select_set(False)
+
+    # active at least on object for autoselect handler to work
+    for obj in part_obj.children:
+        ld_led_pos: int = getattr(obj, "ld_led_pos")
+        if ld_led_pos == 0:
+            bpy.context.view_layer.objects.active = obj
+            break
 
     # Setup outliner filter
     set_outliner_filter(part_obj_name + ".")
@@ -127,6 +133,10 @@ def exit_editing_led_effect():
     # De-select all objects
     for obj in bpy.context.view_layer.objects.selected:  # type: ignore
         obj.select_set(False)
+
+    # Re-select LED
+    bpy.context.view_layer.objects.active = part_obj
+    part_obj.select_set(True)
 
     # Reset outliner filter
     set_outliner_filter("")
