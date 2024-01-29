@@ -2,6 +2,11 @@ from ...models import EditMode, MapID, PosMap, PosMapElement, PosRecord
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
+from ..property.animation_data import (
+    add_single_pos_keyframe,
+    delete_single_pos_keyframe,
+    edit_single_pos_keyframe,
+)
 from .current_pos import calculate_current_pos_index, update_current_pos_by_index
 
 
@@ -83,15 +88,16 @@ def update_pos(id: MapID, frame: PosMapElement):
 def apply_pos_map_updates():
     pos_map_updates = state.pos_map_updates
 
-    # TODO: Update animation data
-
     for pos in pos_map_updates.added:
+        add_single_pos_keyframe(pos[1])
         state.pos_map[pos[0]] = pos[1]
 
     for pos in pos_map_updates.updated:
+        edit_single_pos_keyframe(pos[0], pos[1])
         state.pos_map[pos[0]] = pos[1]
 
     for pos_id in pos_map_updates.deleted:
+        delete_single_pos_keyframe(pos_id)
         del state.pos_map[pos_id]
 
     pos_map_updates.added.clear()

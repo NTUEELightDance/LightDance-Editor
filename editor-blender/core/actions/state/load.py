@@ -7,6 +7,10 @@ from ....client import client
 from ....properties.types import ObjectType
 from ...models import FiberData, LEDData
 from ...states import state
+from ..property.animation_data import (
+    set_ctrl_keyframes_from_state,
+    set_pos_keyframes_from_state,
+)
 
 asset_path = bpy.context.preferences.filepaths.asset_libraries["User Library"].path
 target_path = os.path.join(asset_path, "LightDance")
@@ -67,9 +71,9 @@ def setup_assets(assets_load):
     """
     clear all objects
     """
-    # bpy.ops.object.select_all(action='DESELECT')
-    # bpy.ops.object.select_all()
-    # bpy.ops.object.delete()
+    bpy.ops.object.select_all(action="DESELECT")
+    bpy.ops.object.select_all()
+    bpy.ops.object.delete()
     """
     set dancer objects
     """
@@ -82,7 +86,7 @@ def setup_assets(assets_load):
         dancer_file = dancer_load["url"]
         dancer_filepath = os.path.normpath(target_path + dancer_file)
         dancer_parent = bpy.data.objects.new(dancer_name, None)
-        bpy.context.object.empty_display_size = 0
+        dancer_parent.empty_display_size = 0
         setattr(dancer_parent, "ld_object_type", ObjectType.DANCER.value)
         bpy.context.scene.collection.objects.link(dancer_parent)
         bpy.ops.import_scene.gltf(
@@ -113,8 +117,8 @@ def setup_assets(assets_load):
                     ld_object_type=ObjectType.LIGHT.value,
                     ld_light_type=item.type.value.lower(),
                     ld_part_name=item.name,
+                    empty_display_size=0,
                 )
-                bpy.context.object.empty_display_size = 0
                 for i, obj in enumerate(part_objects):
                     obj.name = f"{dancer.name}.{item.name}.{i:03}"
                     set_bpy_props(
@@ -149,164 +153,6 @@ def set_music_from_load(assets_load):
     )
 
 
-"""
-init position keyframes
-"""
-
-
-def init_pos_keyframes_from_state():
-    pos_map = state.pos_map
-    pos_frame_number = len(pos_map)
-    for i, (_, pos_map_element) in enumerate(pos_map.items()):
-        frame_start = pos_map_element.start
-        pos_status = pos_map_element.pos
-        for dancer_name, pos in pos_status.items():
-            dancer_obj = bpy.data.objects[dancer_name]
-            dancer_location = (pos.x, pos.y, pos.z)
-            if dancer_obj.animation_data is None:
-                dancer_obj.animation_data_create()
-            if dancer_obj.animation_data.action is None:
-                dancer_obj.animation_data.action = bpy.data.actions.new(
-                    dancer_name + "Action"
-                )
-            curves = dancer_obj.animation_data.action.fcurves
-            for d in range(3):
-                if curves.find("location", index=d) is None:
-                    curves.new("location", index=d)
-                    curves.find("location", index=d).keyframe_points.add(
-                        pos_frame_number
-                    )
-                point = curves.find("location", index=d).keyframe_points[i]
-                point.co = frame_start, dancer_location[d]
-                point.interpolation = "LINEAR"
-                if i == pos_frame_number - 1:
-                    curves.find("location", index=d).keyframe_points.sort()
-            # insert fake frame
-            scene = bpy.context.scene
-            if scene.animation_data is None:
-                scene.animation_data_create()
-            if scene.animation_data.action is None:
-                scene.animation_data.action = bpy.data.actions.new("SceneAction")
-            curves = scene.animation_data.action.fcurves
-            if curves.find("ld_pos_frame") is None:
-                curves.new("ld_pos_frame")
-                curves.find("ld_pos_frame").keyframe_points.add(pos_frame_number)
-            curves.find("ld_pos_frame").keyframe_points[i].co = frame_start, i % 2
-            curves.find("ld_pos_frame").keyframe_points[i].interpolation = "CONSTANT"
-            if i == pos_frame_number - 1:
-                curves.find("ld_pos_frame").keyframe_points.sort()
-
-
-"""
-init control keyframes
-"""
-
-
-def init_ctrl_keyframes_from_state():
-    ctrl_map = state.control_map
-    color_map = state.color_map
-    led_effect_table = state.led_effect_id_table
-    ctrl_frame_number = len(ctrl_map)
-    for i, (id, ctrl_map_element) in enumerate(ctrl_map.items()):
-        frame_start = ctrl_map_element.start
-        fade = ctrl_map_element.fade
-        ctrl_status = ctrl_map_element.status
-        for dancer_name, ctrl in ctrl_status.items():
-            for part_name, part_data in ctrl.items():
-                if isinstance(part_data, LEDData):
-                    part_parent = bpy.data.objects[f"{dancer_name}.{part_name}.parent"]
-                    if part_data.effect_id != -1:
-                        part_effect = led_effect_table[part_data.effect_id].effect
-                        for j, led_obj in enumerate(part_parent.children):
-                            led_data = part_effect[j]
-                            led_rgb = color_map[led_data.color_id].rgb
-                            led_rgba = (
-                                led_rgb[0] / 255,
-                                led_rgb[1] / 255,
-                                led_rgb[2] / 255,
-                                led_data.alpha / 10,
-                            )
-                            if led_obj.animation_data is None:
-                                led_obj.animation_data_create()
-                            if led_obj.animation_data.action is None:
-                                led_obj.animation_data.action = bpy.data.actions.new(
-                                    f"{dancer_name}.{part_name}Action.{j:03}"
-                                )
-                            curves = led_obj.animation_data.action.fcurves
-                            for d in range(4):
-                                if curves.find("color", index=d) is None:
-                                    curves.new("color", index=d)
-                                    curves.find("color", index=d).keyframe_points.add(
-                                        ctrl_frame_number
-                                    )
-                                point = curves.find("color", index=d).keyframe_points[i]
-                                point.co = frame_start, led_rgba[d]
-                                point.interpolation = "LINEAR" if fade else "CONSTANT"
-                                if i == ctrl_frame_number - 1:
-                                    curves.find("color", index=d).keyframe_points.sort()
-                    else:
-                        for j, led_obj in enumerate(part_parent.children):
-                            curves = led_obj.animation_data.action.fcurves
-                            for d in range(4):
-                                if curves.find("color", index=d) is None:
-                                    curves.new("color", index=d)
-                                    curves.find("color", index=d).keyframe_points.add(
-                                        ctrl_frame_number
-                                    )
-                                point = curves.find("color", index=d).keyframe_points[i]
-                                last_point = curves.find(
-                                    "color", index=d
-                                ).keyframe_points[i - 1]
-                                point.co = frame_start, last_point.co[1]
-                                point.interpolation = "LINEAR" if fade else "CONSTANT"
-                                if i == ctrl_frame_number - 1:
-                                    curves.find("color", index=d).keyframe_points.sort()
-
-                elif isinstance(part_data, FiberData):
-                    part_obj = bpy.data.objects[f"{dancer_name}.{part_name}"]
-                    part_rgb = color_map[part_data.color_id].rgb
-                    part_rgba = (
-                        part_rgb[0] / 255,
-                        part_rgb[1] / 255,
-                        part_rgb[2] / 255,
-                        part_data.alpha / 10,
-                    )
-                    if part_obj.animation_data is None:
-                        part_obj.animation_data_create()
-                    if part_obj.animation_data.action is None:
-                        part_obj.animation_data.action = bpy.data.actions.new(
-                            f"{dancer_name}.{part_name}Action"
-                        )
-                    curves = part_obj.animation_data.action.fcurves
-                    for d in range(4):
-                        if curves.find("color", index=d) is None:
-                            curves.new("color", index=d)
-                            curves.find("color", index=d).keyframe_points.add(
-                                ctrl_frame_number
-                            )
-                        point = curves.find("color", index=d).keyframe_points[i]
-                        point.co = frame_start, part_rgba[d]
-                        point.interpolation = "LINEAR" if fade else "CONSTANT"
-                        if i == ctrl_frame_number - 1:
-                            curves.find("color", index=d).keyframe_points.sort()
-                else:
-                    print("Invalid part data")
-        # insert fake frame
-        scene = bpy.context.scene
-        if scene.animation_data is None:
-            scene.animation_data_create()
-        if scene.animation_data.action is None:
-            scene.animation_data.action = bpy.data.actions.new("SceneAction")
-        curves = scene.animation_data.action.fcurves
-        if curves.find("ld_control_frame") is None:
-            curves.new("ld_control_frame")
-            curves.find("ld_control_frame").keyframe_points.add(ctrl_frame_number)
-        curves.find("ld_control_frame").keyframe_points[i].co = frame_start, i % 2
-        curves.find("ld_control_frame").keyframe_points[i].interpolation = "CONSTANT"
-        if i == ctrl_frame_number - 1:
-            curves.find("ld_control_frame").keyframe_points.sort()
-
-
 def setup_viewport():
     """
     3d viewport
@@ -336,7 +182,7 @@ async def load_data() -> None:
     assets_load = await fetch_data()
     setup_assets(assets_load)
     set_music_from_load(assets_load)
-    init_pos_keyframes_from_state()
-    init_ctrl_keyframes_from_state()
+    set_pos_keyframes_from_state()
+    set_ctrl_keyframes_from_state()
     setup_viewport()
     print("data loaded")

@@ -2,6 +2,11 @@ from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, Ma
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
+from ..property.animation_data import (
+    add_single_ctrl_keyframe,
+    delete_single_ctrl_keyframe,
+    edit_single_ctrl_keyframe,
+)
 from .current_status import (
     calculate_current_status_index,
     update_current_status_by_index,
@@ -86,15 +91,16 @@ def update_control(id: MapID, frame: ControlMapElement):
 def apply_control_map_updates():
     control_map_updates = state.control_map_updates
 
-    # TODO: Update animation data
-
     for status in control_map_updates.added:
+        add_single_ctrl_keyframe(status[1])
         state.control_map[status[0]] = status[1]
 
     for status in control_map_updates.updated:
+        edit_single_ctrl_keyframe(status[0], status[1])  # TODO: test this
         state.control_map[status[0]] = status[1]
 
     for id in control_map_updates.deleted:
+        delete_single_ctrl_keyframe(id)
         del state.control_map[id]
 
     control_map_updates.added.clear()
