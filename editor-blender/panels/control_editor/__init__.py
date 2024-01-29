@@ -18,7 +18,6 @@ class ControlEditor(bpy.types.Panel):
         return state.ready and state.editor == Editor.CONTROL_EDITOR
 
     def draw(self, context: bpy.types.Context):
-        # TODO: Make human no selectable?
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.is_playing
 
@@ -29,15 +28,6 @@ class ControlEditor(bpy.types.Panel):
             row.enabled = not state.is_playing
             row.label(text="Detached", icon="ERROR")
             row.operator("lightdance.attach_editing_control_frame", icon="PLAY")
-
-        # check if object is selected
-        obj = context.object
-        if obj is None:  # type: ignore
-            return
-
-        ld_object_type: str = getattr(obj, "ld_object_type")
-        if ld_object_type != ObjectType.LIGHT.value or not obj.select_get():
-            return
 
         # show properties of light
         column = layout.column()
@@ -65,6 +55,10 @@ class ControlEditor(bpy.types.Panel):
                 )
 
         else:
+            obj = context.object
+            if obj is None or getattr(obj, "ld_object_type") != ObjectType.LIGHT.value:  # type: ignore
+                return
+
             ld_light_type: str = getattr(context.object, "ld_light_type")
             if ld_light_type == LightType.FIBER.value:
                 column.prop(context.object, "ld_color", text="Color")

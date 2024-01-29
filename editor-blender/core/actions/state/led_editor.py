@@ -81,15 +81,9 @@ def enter_editing_led_effect():
     execute_operator("view3d.localview")
 
     # De-select all objects
+    bpy.context.view_layer.objects.active = None  # type: ignore
     for obj in bpy.context.view_layer.objects.selected:  # type: ignore
         obj.select_set(False)
-
-    # active at least on object for autoselect handler to work
-    for obj in part_obj.children:
-        ld_led_pos: int = getattr(obj, "ld_led_pos")
-        if ld_led_pos == 0:
-            bpy.context.view_layer.objects.active = obj
-            break
 
     # Setup outliner filter
     set_outliner_filter(part_obj_name + ".")

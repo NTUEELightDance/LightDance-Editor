@@ -7,62 +7,88 @@ from ...utils.ui import (
     set_dopesheet_filter,
     set_outliner_hide_mesh,
     set_outliner_hide_mode_column,
+    unset_outliner_focus_led,
+    unset_outliner_hide_empty,
     unset_outliner_hide_mesh,
     unset_outliner_hide_mode_column,
 )
 
 
 def clear_selection():
-    for obj in bpy.context.selected_objects:
-        obj.select_set(False)
+    for obj in bpy.context.view_layer.objects.selected:  # type: ignore
+        obj.select_set(False)  # type: ignore
+
+
+def setup_control_editor():
+    bpy.context.view_layer.objects.active = None  # type: ignore
+    clear_selection()
+
+    unset_outliner_hide_empty()
+    unset_outliner_hide_mesh()
+    unset_outliner_focus_led()
+
+    unset_outliner_hide_mode_column()
+
+    outliner_hide_one_level()
+    outliner_hide_one_level()
+
+    set_dopesheet_filter("control")
+    state.editor = Editor.CONTROL_EDITOR
+
+
+def setup_pos_editor():
+    bpy.context.view_layer.objects.active = None  # type: ignore
+    clear_selection()
+
+    unset_outliner_hide_empty()
+    set_outliner_hide_mesh()
+    unset_outliner_focus_led()
+
+    set_outliner_hide_mode_column()
+
+    outliner_hide_one_level()
+    outliner_hide_one_level()
+
+    set_dopesheet_filter("pos")
+    state.editor = Editor.POS_EDITOR
+
+
+def setup_led_editor():
+    bpy.context.view_layer.objects.active = None  # type: ignore
+    clear_selection()
+
+    ld_ui_led_editor = getattr(bpy.context.window_manager, "ld_ui_led_editor")
+    ld_ui_led_editor["edit_dancer"] = -1
+    ld_ui_led_editor["edit_part"] = -1
+
+    unset_outliner_hide_empty()
+    set_outliner_hide_mesh()
+    unset_outliner_focus_led()
+
+    unset_outliner_hide_mode_column()
+
+    outliner_hide_one_level()
+    outliner_hide_one_level()
+
+    set_dopesheet_filter("EMPTY")
+    state.editor = Editor.LED_EDITOR
 
 
 def set_editor(editor: Editor) -> bool:
     if state.edit_state == EditMode.EDITING:
         return False
 
-    if state.editor == Editor.LED_EDITOR and editor != Editor.LED_EDITOR:
-        # leave led editor
-        unset_outliner_hide_mesh()
-    if state.editor == Editor.POS_EDITOR and editor != Editor.POS_EDITOR:
-        # leave pos editor
-        unset_outliner_hide_mesh()
-        unset_outliner_hide_mode_column()
-
     match editor:
         case Editor.CONTROL_EDITOR:
             if state.editor != Editor.CONTROL_EDITOR:
-                clear_selection()
-                set_dopesheet_filter("control")
-                state.editor = Editor.CONTROL_EDITOR
-
-            return True
+                setup_control_editor()
 
         case Editor.POS_EDITOR:
             if state.editor != Editor.POS_EDITOR:
-                set_outliner_hide_mesh()
-                set_outliner_hide_mode_column()
-                outliner_hide_one_level()
-
-                clear_selection()
-                set_dopesheet_filter("pos")
-                state.editor = Editor.POS_EDITOR
-
-            return True
+                setup_pos_editor()
 
         case Editor.LED_EDITOR:
             if state.editor != Editor.LED_EDITOR:
-                # Clear previous selection
-                ld_ui_led_editor = getattr(
-                    bpy.context.window_manager, "ld_ui_led_editor"
-                )
-                ld_ui_led_editor["edit_dancer"] = -1
-                ld_ui_led_editor["edit_part"] = -1
+                setup_led_editor()
 
-                set_outliner_hide_mesh()
-
-                clear_selection()
-                set_dopesheet_filter("EMPTY")
-                state.editor = Editor.LED_EDITOR
-
-            return True
+    return True

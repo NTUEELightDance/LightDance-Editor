@@ -15,6 +15,7 @@ from ....core.actions.state.color_map import set_color_map
 # from ....core.actions.state.control_map import set_control_map
 from ....core.actions.state.current_pos import update_current_pos_by_index
 from ....core.actions.state.current_status import update_current_status_by_index
+from ....core.actions.state.editor import setup_control_editor
 from ....core.actions.state.led_map import set_led_map
 
 # from ....core.actions.state.pos_map import set_pos_map
@@ -128,6 +129,9 @@ async def init_blender():
     if state.init_editor_task is not None:
         state.init_editor_task.cancel()
     state.init_editor_task = AsyncTask(init_editor).exec()
+
+    # Setup control editor UI
+    setup_control_editor()
 
 
 def close_blender():

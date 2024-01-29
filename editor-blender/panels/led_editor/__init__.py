@@ -39,25 +39,25 @@ class LEDEditor(bpy.types.Panel):
         elif edit_mode == LEDEditorEditModeType.EDIT.value:
             # TODO: Show part info
 
-            # check if object is selected
-            obj = context.object
-            if obj is None:  # type: ignore
-                return
-
-            ld_object_type: str = getattr(obj, "ld_object_type")
-            ld_light_type: str = getattr(obj, "ld_light_type")
-            if (
-                ld_object_type != ObjectType.LIGHT.value
-                or ld_light_type != LightType.LED_BULB.value
-            ):
-                return
-
             # show properties of light
             column = layout.column()
 
             if ld_ui_led_editor.multi_select:
                 column.prop(ld_ui_led_editor, "multi_select_color", text="Color")
             else:
+                # check if object is selected
+                obj = context.object
+                if obj is None:  # type: ignore
+                    return
+
+                ld_object_type: str = getattr(obj, "ld_object_type")
+                ld_light_type: str = getattr(obj, "ld_light_type")
+                if (
+                    ld_object_type != ObjectType.LIGHT.value
+                    or ld_light_type != LightType.LED_BULB.value
+                ):
+                    return
+
                 column.prop(obj, "ld_color", text="Color")
 
 

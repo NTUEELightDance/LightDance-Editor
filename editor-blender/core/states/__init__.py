@@ -43,8 +43,7 @@ state = State(
     # led_effect_record={},
     # current_led_status={}
     edit_state=EditMode.IDLE,
-    # editor=Editor.CONTROL_EDITOR,
-    editor=Editor.POS_EDITOR,
+    editor=Editor.CONTROL_EDITOR,
     editing_data=EditingData(frame_id=-1, start=0, index=0),
     # NOTE: Guess we can't implement these
     # selection_mode: SelectMode.DANCER_MODE

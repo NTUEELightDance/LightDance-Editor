@@ -15,6 +15,10 @@ from ..properties.ui.types import (
 # TODO: Please make this bullshit cleaner
 
 
+def is_light(obj: bpy.types.Object) -> bool:
+    return getattr(obj, "ld_object_type") == ObjectType.LIGHT.value
+
+
 def is_led(obj: bpy.types.Object) -> bool:
     return (
         getattr(obj, "ld_object_type") == ObjectType.LIGHT.value
@@ -46,24 +50,17 @@ def is_human(obj: bpy.types.Object) -> bool:
 
 def handle_autoselect_in_control_editor():
     active_obj = bpy.context.view_layer.objects.active
-    active_object_type: str = getattr(active_obj, "ld_object_type")
-    active_light_type: str = getattr(active_obj, "ld_light_type")
 
-    if (
-        active_object_type == ObjectType.LIGHT.value
-        and active_light_type == LightType.LED_BULB.value
-    ):
-        active_obj = active_obj.parent
-        active_obj.select_set(True)
-        bpy.context.view_layer.objects.active = active_obj
+    if active_obj:
+        if is_led_bulb(active_obj):
+            active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
 
-    if active_object_type == ObjectType.HUMAN.value:
-        active_obj = active_obj.parent
-        active_obj.select_set(True)
-        bpy.context.view_layer.objects.active = active_obj
-
-    active_object_type: str = getattr(active_obj, "ld_object_type")
-    active_light_type: str = getattr(active_obj, "ld_light_type")
+        if is_human(active_obj):
+            active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
 
     # Invisible selected objects only show up in view_layer.objects.selected
     context_selected_objects: List[bpy.types.Object] = []
@@ -87,7 +84,7 @@ def handle_autoselect_in_control_editor():
 
     # NOTE: At this stage, MIXED_LIGHT is not necessarily mixed light, it can be LED or FIBER
     # This is used to determine objects to be selected
-    if active_obj.select_get():
+    if active_obj and active_obj.select_get():
         if is_dancer(active_obj):
             state.selected_obj_type = SelectedPartType.DANCER
         else:
@@ -99,17 +96,9 @@ def handle_autoselect_in_control_editor():
     selected_dancer_objs: List[bpy.types.Object] = []
 
     for obj in context_selected_objects:
-        if is_fiber(obj) and (
-            state.selected_obj_type == SelectedPartType.MIXED_LIGHT
-            or state.selected_obj_type == SelectedPartType.FIBER
-            or state.selected_obj_type is None
-        ):
+        if is_fiber(obj) and state.selected_obj_type != SelectedPartType.DANCER:
             selected_fiber_objs.append(obj)
-        elif is_led(obj) and (
-            state.selected_obj_type == SelectedPartType.MIXED_LIGHT
-            or state.selected_obj_type == SelectedPartType.LED
-            or state.selected_obj_type is None
-        ):
+        elif is_led(obj) and state.selected_obj_type != SelectedPartType.DANCER:
             selected_led_objs.append(obj)
         elif is_dancer(obj) and (
             state.selected_obj_type == SelectedPartType.DANCER
@@ -133,7 +122,7 @@ def handle_autoselect_in_control_editor():
     elif len(selected_dancer_objs) > 0:
         state.selected_obj_type = SelectedPartType.DANCER
         if len(selected_dancer_objs) > 1:
-            selected_base_objs = [active_obj]
+            selected_base_objs = [active_obj] if active_obj else []
         else:
             selected_base_objs = selected_dancer_objs
 
@@ -176,10 +165,14 @@ def handle_autoselect_in_control_editor():
                     child_obj.select_set(True)
 
     # Activate last selected if current active object is deselected
-    if not active_obj.select_get() and len(new_selected_obj_names) > 0:
+    if (not active_obj or not active_obj.select_get()) and len(
+        new_selected_obj_names
+    ) > 0:
         bpy.context.view_layer.objects.active = bpy.data.objects[
             new_selected_obj_names[-1]
         ]
+    if len(new_selected_obj_names) == 0:
+        bpy.context.view_layer.objects.active = None  # type: ignore
 
     # Maintain control editor's multi-select status
     ld_ui_control_editor: ControlEditorStatusType = getattr(
@@ -202,25 +195,22 @@ def handle_autoselect_in_control_editor():
 
 def handle_autoselect_in_pos_editor():
     active_obj = bpy.context.view_layer.objects.active
-    active_object_type: str = getattr(active_obj, "ld_object_type")
-    active_light_type: str = getattr(active_obj, "ld_light_type")
 
-    if active_object_type == ObjectType.LIGHT.value:
-        if active_light_type == LightType.LED_BULB.value:
+    if active_obj:
+        if is_led_bulb(active_obj):
             active_obj = active_obj.parent.parent
-        else:
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
+
+        if is_light(active_obj):
             active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
 
-        active_obj.select_set(True)
-        bpy.context.view_layer.objects.active = active_obj
-
-    if active_object_type == ObjectType.HUMAN.value:
-        active_obj = active_obj.parent
-        active_obj.select_set(True)
-        bpy.context.view_layer.objects.active = active_obj
-
-    active_object_type: str = getattr(active_obj, "ld_object_type")
-    active_light_type: str = getattr(active_obj, "ld_light_type")
+        if is_human(active_obj):
+            active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
 
     # Invisible selected objects only show up in view_layer.objects.selected
     context_selected_objects: List[bpy.types.Object] = []
@@ -236,8 +226,8 @@ def handle_autoselect_in_pos_editor():
 
     # NOTE: At this stage, MIXED_LIGHT is not necessarily mixed light, it can be LED or FIBER
     # This is used to determine objects to be selected
-    if active_obj.select_get():
-        if active_object_type == ObjectType.DANCER.value:
+    if active_obj and active_obj.select_get():
+        if is_dancer(active_obj):
             state.selected_obj_type = SelectedPartType.DANCER
 
     # Maintain selected objects type
@@ -286,10 +276,14 @@ def handle_autoselect_in_pos_editor():
                     child_obj.select_set(True)
 
     # Activate last selected if current active object is deselected
-    if not active_obj.select_get() and len(new_selected_obj_names) > 0:
+    if (not active_obj or not active_obj.select_get()) and len(
+        new_selected_obj_names
+    ) > 0:
         bpy.context.view_layer.objects.active = bpy.data.objects[
             new_selected_obj_names[-1]
         ]
+    if len(new_selected_obj_names) == 0:
+        bpy.context.view_layer.objects.active = None  # type: ignore
 
     # Maintain pos editor's multi-select status
     ld_ui_pos_editor: PosEditorStatusType = getattr(
@@ -311,6 +305,7 @@ def handle_autoselect_in_led_editor_edit_mode():
     # WARNING: It should by fine that we don't consider the case when objects
     # other than LED bulbs are selected in edit mode since they are filterd out
     # and that local view if toggled on (maybe we need to ban the keymap for local view)
+    active_obj = bpy.context.view_layer.objects.active
 
     original_selected_obj_names = sorted(state.selected_obj_names.copy())
 
@@ -328,9 +323,14 @@ def handle_autoselect_in_led_editor_edit_mode():
         if obj.name not in state.selected_obj_names:
             obj.select_set(False)
 
-    # NOTE: We need at least one active object to make the handler triggered by selecting objects in viewport
-    # if len(state.selected_obj_names) == 0:
-    #     bpy.context.view_layer.objects.active = None  # type: ignore
+    if (active_obj and not active_obj.select_get()) and len(
+        state.selected_obj_names
+    ) > 0:
+        bpy.context.view_layer.objects.active = bpy.data.objects[
+            state.selected_obj_names[-1]
+        ]
+    if len(state.selected_obj_names) == 0:
+        bpy.context.view_layer.objects.active = None  # type: ignore
 
     # TODO: maintain multi-select of led editor
     ld_ui_led_editor: LEDEditorStatusType = getattr(
@@ -355,28 +355,21 @@ def handle_autoselect_in_led_editor():
         return
 
     active_obj = bpy.context.view_layer.objects.active
-    active_object_type: str = getattr(active_obj, "ld_object_type")
-    active_light_type: str = getattr(active_obj, "ld_light_type")
 
     # NOTE: Keep selection in led editor
-    if not active_obj.select_get():
+    if active_obj and not active_obj.select_get():
         active_obj.select_set(True)
 
-    if (
-        active_object_type == ObjectType.LIGHT.value
-        and active_light_type != LightType.LED.value
-    ):
-        active_obj = active_obj.parent
-        active_obj.select_set(True)
-        bpy.context.view_layer.objects.active = active_obj
+    if active_obj:
+        if is_light(active_obj) and not is_led(active_obj):
+            active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
 
-    if active_object_type == ObjectType.HUMAN.value:
-        active_obj = active_obj.parent
-        active_obj.select_set(True)
-        bpy.context.view_layer.objects.active = active_obj
-
-    active_object_type: str = getattr(active_obj, "ld_object_type")
-    active_light_type: str = getattr(active_obj, "ld_light_type")
+        if is_human(active_obj):
+            active_obj = active_obj.parent
+            active_obj.select_set(True)
+            bpy.context.view_layer.objects.active = active_obj
 
     # Invisible selected objects only show up in view_layer.objects.selected
     context_selected_objects: List[bpy.types.Object] = []
@@ -400,7 +393,7 @@ def handle_autoselect_in_led_editor():
 
     # NOTE: At this stage, MIXED_LIGHT is not necessarily mixed light, it can be LED or FIBER
     # This is used to determine objects to be selected
-    if active_obj.select_get():
+    if active_obj and active_obj.select_get():
         if is_dancer(active_obj):
             state.selected_obj_type = SelectedPartType.DANCER
         elif is_led(active_obj):
@@ -411,24 +404,25 @@ def handle_autoselect_in_led_editor():
             obj.select_set(False)
 
     # Select objects in the same relation group
-    if is_led(active_obj):
-        for child_obj in active_obj.children:
-            child_obj.select_set(True)
-
-    elif is_dancer(active_obj):
-        for child_obj in active_obj.children:
-            if getattr(child_obj, "ld_object_type") == ObjectType.HUMAN.value:
+    if active_obj:
+        if is_led(active_obj):
+            for child_obj in active_obj.children:
                 child_obj.select_set(True)
 
+        elif is_dancer(active_obj):
+            for child_obj in active_obj.children:
+                if getattr(child_obj, "ld_object_type") == ObjectType.HUMAN.value:
+                    child_obj.select_set(True)
+
     # Maintain led editor's multi-select status
-    if is_led(active_obj):
+    if state.selected_obj_type == SelectedPartType.LED:
         # Don't trigger update dancer here
         ld_ui_led_editor["edit_dancer"] = state.dancer_names.index(  # type: ignore
             getattr(active_obj, "ld_dancer_name")
         )
         ld_ui_led_editor.edit_part = getattr(active_obj, "ld_part_name")
 
-    elif is_dancer(active_obj):
+    elif state.selected_obj_type == SelectedPartType.DANCER:
         ld_ui_led_editor.edit_dancer = getattr(active_obj, "ld_dancer_name")
 
 
@@ -437,8 +431,8 @@ def obj_panel_autoselect_handler(scene: bpy.types.Scene):
     Auto-select a group of lights if one of each is selected.
     When a human object is selected, its dancer will also be auto-selected and vice versa.
     """
-    if bpy.context.object is None:  # type: ignore
-        return
+    # if bpy.context.object is None:  # type: ignore
+    #     return
 
     match state.editor:
         case Editor.CONTROL_EDITOR:
