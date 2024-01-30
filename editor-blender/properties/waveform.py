@@ -70,7 +70,7 @@ class SWD_PGT_settings(bpy.types.PropertyGroup):
 
     height_offset : IntProperty(
         name="Height Offset", description="Adjust the height of the waveform", 
-        default=0, min=-10000, max=10000, soft_min=-5000, soft_max=5000, step=1, options={'HIDDEN'})#, subtype='PIXEL'
+        default=1000, min=-10000, max=10000, soft_min=-5000, soft_max=5000, step=1, options={'HIDDEN'})#, subtype='PIXEL'
     
     end_frame : IntProperty(
         name="End Frame", description="The ending frame of the music (rerender when changed)",
