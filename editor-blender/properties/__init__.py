@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from . import color_palette, lights, objects, position, scene, timeline, ui
 
 
@@ -20,22 +19,3 @@ def unregister():
     color_palette.unregister()
     timeline.unregister()
     scene.unregister()
-=======
-from . import (
-    login,
-    objects, 
-    lights
-)
-
-
-def register():
-    login.register()
-    objects.register()
-    lights.register()
-
-
-def unregister():
-    login.unregister()
-    objects.unregister()
-    lights.unregister()
->>>>>>> f9bf97e (add basic structure)

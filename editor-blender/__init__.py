@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import bpy
 
 from . import (
@@ -10,7 +8,6 @@ from . import (
 )
 
 
->>>>>>> f9bf97e (add basic structure)
 bl_info = {
     "name": "LightDance Editor",
     "author": "NTUEE LightDance",
@@ -24,7 +21,6 @@ bl_info = {
 }
 
 
-<<<<<<< HEAD
 def setup():
     from .requirements import install_requirements
 
@@ -59,17 +55,3 @@ def unregister():
     operators.unregister()
     panels.unregister()
     properties.unregister()
-=======
-def register():
-    operators.register()
-    panels.register()
-    properties.register()
-    handlers.register()
-
-
-def unregister():
-    operators.unregister()
-    panels.unregister()
-    properties.unregister()
-    handlers.unregister()
->>>>>>> f9bf97e (add basic structure)
