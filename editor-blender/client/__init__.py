@@ -1,7 +1,7 @@
 from inspect import isclass
 from typing import Any, AsyncGenerator, Dict, List, Optional, Type, TypeVar, Union
 
-from aiohttp import ClientSession
+from aiohttp import ClientResponse, ClientSession
 from dataclass_wizard import JSONWizard
 from dataclass_wizard.constants import os
 from gql import Client
@@ -68,11 +68,37 @@ class Clients:
             raise Exception("GRAPHQL_WS_PATH is not defined")
         self.GRAPHQL_WS_PATH = remove_wrapped_slash(GRAPHQL_WS_PATH)
 
+        FILE_SERVER_URL = os.getenv("FILE_SERVER_URL")
+        if FILE_SERVER_URL is None:
+            raise Exception("FILE_SERVER_URL is not defined")
+        self.FILE_SERVER_URL = remove_wrapped_slash(FILE_SERVER_URL)
+
         self.http_client: Optional[ClientSession] = None
         self.client: Optional[GQLSession] = None
         self.sub_client: Optional[GQLSession] = None
+        self.file_client: Optional[ClientSession] = None
 
         self.cache = InMemoryCache()
+
+    async def download_json(self, path: str) -> Any:
+        if self.file_client is None:
+            raise Exception("File client is not initialized")
+
+        path = remove_wrapped_slash(path)
+        http_path = f"/{path}"
+        print(http_path)
+        async with self.file_client.get(http_path) as response:
+            return await response.json()
+
+    async def download_binary(self, path: str) -> bytes:
+        if self.file_client is None:
+            raise Exception("File client is not initialized")
+
+        path = remove_wrapped_slash(path)
+        http_path = f"/{path}"
+        print(http_path)
+        async with self.file_client.get(http_path) as response:
+            return await response.content.read()
 
     async def post(self, path: str, json: Optional[Any] = None) -> Any:
         if self.http_client is None:
@@ -164,6 +190,19 @@ class Clients:
     async def restart_http(self) -> None:
         await self.close_http()
         await self.open_http()
+
+    async def open_file(self) -> None:
+        # File client
+        self.file_client = ClientSession(self.FILE_SERVER_URL)
+        print("File client opened")
+
+    async def close_file(self) -> None:
+        if self.file_client is not None:
+            await self.file_client.close()
+
+    async def restart_file(self) -> None:
+        await self.close_file()
+        await self.open_file()
 
     async def open_graphql(self) -> None:
         await self.close_graphql()

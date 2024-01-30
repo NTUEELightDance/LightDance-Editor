@@ -107,6 +107,7 @@ async def init():
     state.username = username
 
     await client.open_http()
+    await client.open_file()
 
     # Check token
     token_valid = await auth_agent.check_token()
