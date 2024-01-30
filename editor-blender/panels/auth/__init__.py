@@ -6,39 +6,31 @@ from ...properties.ui.types import LoginPanelStatusType
 
 class AuthenticationPanel(bpy.types.Panel):
     bl_label = "Authentication"
+    bl_parent_id = "VIEW_PT_LightDance_LightDance"
     bl_idname = "VIEW_PT_LightDance_Authentication"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "LightDance"
+    bl_options = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.is_running
+        return state.is_running and not state.is_logged_in
 
     def draw(self, context: bpy.types.Context):
-        global _loop_operator_running
-
         layout = self.layout
 
-        if state.is_logged_in:
-            r1 = layout.row()
-            r1.operator("lightdance.logout", text="Logout", icon="PLAY")
+        ld_ui_login: LoginPanelStatusType = getattr(
+            context.window_manager, "ld_ui_login"
+        )
 
-            if not state.ready:
-                r2 = layout.row()
-                r2.label(text="Loading...", icon="WORLD_DATA")
-        else:
-            ld_ui_login: LoginPanelStatusType = getattr(
-                context.window_manager, "ld_ui_login"
-            )
+        r1 = layout.row()
+        r2 = layout.row()
+        r3 = layout.row()
 
-            r1 = layout.row()
-            r2 = layout.row()
-            r3 = layout.row()
-
-            r1.prop(ld_ui_login, "username", text="Username")
-            r2.prop(ld_ui_login, "password", text="Password")
-            r3.operator("lightdance.login", text="Login", icon="PLAY")
+        r1.prop(ld_ui_login, "username", text="Username")
+        r2.prop(ld_ui_login, "password", text="Password")
+        r3.operator("lightdance.login", text="Login", icon="PLAY")
 
 
 def register():

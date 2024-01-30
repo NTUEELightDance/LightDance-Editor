@@ -41,3 +41,24 @@ def update_multi_select_color(
         obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)
         if obj is not None:
             setattr(obj, "ld_color", color)
+
+
+def update_show_fiber(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    show_fiber: bool = getattr(self, "show_fiber")
+    if show_fiber:
+        self["show_led"] = False
+        self["show_all"] = False
+
+
+def update_show_led(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    show_led: bool = getattr(self, "show_led")
+    if show_led:
+        self["show_fiber"] = False
+        self["show_all"] = False
+
+
+def update_show_all(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    show_all: bool = getattr(self, "show_all")
+    if show_all:
+        self["show_fiber"] = False
+        self["show_led"] = False

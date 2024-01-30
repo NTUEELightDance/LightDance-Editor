@@ -102,7 +102,9 @@ async def init():
 
     # Open clients with token
     token: str = get_storage("token")
+    username: str = get_storage("username")
     state.token = token
+    state.username = username
 
     await client.open_http()
 

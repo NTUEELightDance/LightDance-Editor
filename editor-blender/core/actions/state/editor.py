@@ -21,6 +21,7 @@ def clear_selection():
 
 def setup_control_editor():
     bpy.context.view_layer.objects.active = None  # type: ignore
+    state.selected_obj_type = None
     clear_selection()
 
     unset_outliner_hide_empty()
@@ -38,6 +39,7 @@ def setup_control_editor():
 
 def setup_pos_editor():
     bpy.context.view_layer.objects.active = None  # type: ignore
+    state.selected_obj_type = None
     clear_selection()
 
     unset_outliner_hide_empty()
@@ -55,6 +57,7 @@ def setup_pos_editor():
 
 def setup_led_editor():
     bpy.context.view_layer.objects.active = None  # type: ignore
+    state.selected_obj_type = None
     clear_selection()
 
     ld_ui_led_editor = getattr(bpy.context.window_manager, "ld_ui_led_editor")

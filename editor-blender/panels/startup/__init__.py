@@ -5,10 +5,12 @@ from ...core.states import state
 
 class SetupPanel(bpy.types.Panel):
     bl_label = "LightDance Editor Startup"
+    bl_parent_id = "VIEW_PT_LightDance_LightDance"
     bl_idname = "VIEW_PT_LightDance_Startup"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "LightDance"
+    bl_options = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context):

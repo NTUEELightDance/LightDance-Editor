@@ -6,6 +6,11 @@ from ...core.actions.property.control_editor import (
     update_multi_select_alpha,
     update_multi_select_color,
 )
+from ...core.actions.property.led_editor import (
+    update_show_all,
+    update_show_fiber,
+    update_show_led,
+)
 from ..types import ColorPaletteItemType, ObjectType
 
 
@@ -44,6 +49,25 @@ class ControlEditorStatus(bpy.types.PropertyGroup):
         min=1,
         max=255,
         update=update_multi_select_alpha,
+    )
+
+    show_fiber: bpy.props.BoolProperty(  # type: ignore
+        name="Show Fiber",
+        description="Show Fiber",
+        default=True,
+        update=update_show_fiber,
+    )
+    show_led: bpy.props.BoolProperty(  # type: ignore
+        name="Show LED",
+        description="Show LED",
+        default=False,
+        update=update_show_led,
+    )
+    show_all: bpy.props.BoolProperty(  # type: ignore
+        name="Show All",
+        description="Show All",
+        default=False,
+        update=update_show_all,
     )
 
 

@@ -11,10 +11,16 @@ class LocalStorage(bpy.types.AddonPreferences):
         description="Token for LightDance Editor",
         default="",
     )
+    username: bpy.props.StringProperty(  # type: ignore
+        name="Username",
+        description="Username for LightDance Editor",
+        default="",
+    )
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
         layout.prop(self, "token")
+        layout.prop(self, "username")
 
 
 def set_storage(key: str, value: Any):

@@ -7,10 +7,12 @@ from ...core.states import state
 # TODO: Add icons
 class EditorPanel(bpy.types.Panel):
     bl_label = "Editor"
+    bl_parent_id = "VIEW_PT_LightDance_LightDance"
     bl_idname = "VIEW_PT_LightDance_Editor"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "LightDance"
+    bl_options = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
@@ -26,16 +28,19 @@ class EditorPanel(bpy.types.Panel):
             "lightdance.toggle_control_editor",
             text="Control",
             depress=state.editor == Editor.CONTROL_EDITOR,
+            icon="LIGHT_DATA",
         )
         row.operator(
             "lightdance.toggle_pos_editor",
             text="Position",
             depress=state.editor == Editor.POS_EDITOR,
+            icon="TRANSFORM_ORIGINS",
         )
         row.operator(
             "lightdance.toggle_led_editor",
             text="LED",
             depress=state.editor == Editor.LED_EDITOR,
+            icon="LIGHTPROBE_GRID",
         )
 
         sync_enable = (
@@ -46,19 +51,23 @@ class EditorPanel(bpy.types.Panel):
 
         box = layout.box()
         row = box.row()
-        row.operator("lightdance.sync_pending_updates", text="Sync incoming updates")
+        row.operator(
+            "lightdance.sync_pending_updates",
+            text="Sync incoming updates",
+            icon="UV_SYNC_SELECT",
+        )
         row.enabled = sync_enable
 
         if editing:
             row = box.row()
             row.label(text="Editing")
-            row.operator("lightdance.save", text="Save")
-            row.operator("lightdance.cancel_edit", text="Cancel")
+            row.operator("lightdance.save", text="Save", icon="CURRENT_FILE")
+            row.operator("lightdance.cancel_edit", text="Cancel", icon="X")
         else:
             row = box.row()
-            row.operator("lightdance.add", text="Add")
-            row.operator("lightdance.request_edit", text="Edit")
-            row.operator("lightdance.delete", text="Delete")
+            row.operator("lightdance.add", text="Add", icon="ADD")
+            row.operator("lightdance.request_edit", text="Edit", icon="GREASEPENCIL")
+            row.operator("lightdance.delete", text="Delete", icon="X")
 
 
 def register():

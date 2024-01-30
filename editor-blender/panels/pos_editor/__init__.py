@@ -8,20 +8,23 @@ from ...properties.ui.types import PosEditorStatusType
 
 class PosEditor(bpy.types.Panel):
     bl_label = "Position"
+    bl_parent_id = "VIEW_PT_LightDance_LightDance"
     bl_idname = "VIEW_PT_LightDance_PosEditor"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "LightDance"
+    bl_options = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
         return state.ready and state.editor == Editor.POS_EDITOR
 
     def draw(self, context: bpy.types.Context):
+        layout = self.layout
+        layout.label(text="Position Editor")
+
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.is_playing
-
-        layout = self.layout
 
         if state.current_editing_detached and editing:
             row = layout.row()

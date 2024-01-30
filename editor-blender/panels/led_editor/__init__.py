@@ -8,10 +8,12 @@ from ...properties.ui.types import LEDEditorEditModeType, LEDEditorStatusType
 
 class LEDEditor(bpy.types.Panel):
     bl_label = "LED Effect"
+    bl_parent_id = "VIEW_PT_LightDance_LightDance"
     bl_idname = "VIEW_PT_LightDance_LEDEditor"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "LightDance"
+    bl_options = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
@@ -19,6 +21,7 @@ class LEDEditor(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
+        layout.label(text="LED Effect")
 
         ld_ui_led_editor: LEDEditorStatusType = getattr(
             context.window_manager, "ld_ui_led_editor"

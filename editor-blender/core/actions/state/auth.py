@@ -14,7 +14,9 @@ async def login(username: str, password: str) -> bool:
 
     if login_result.success:
         state.token = login_result.token
+        state.username = username
         set_storage("token", login_result.token)
+        set_storage("username", username)
 
         state.is_logged_in = True
         await init_blender()
@@ -29,8 +31,10 @@ async def logout() -> bool:
         state.is_logged_in = False
         state.ready = False
         state.token = ""
+        state.username = ""
 
         set_storage("token", "")
+        set_storage("username", "")
 
         if state.subscription_task is not None:
             state.subscription_task.cancel()

@@ -20,7 +20,7 @@ def get_color_lists(
             bpy.context.window_manager, "ld_color_palette"
         )
         return [
-            (color.color_name, color.color_name, "", "", color.color_id)
+            (color.color_name, color.color_name, "", "OBJECT_DATA", color.color_id)
             for color in ld_color_palette
         ]
 

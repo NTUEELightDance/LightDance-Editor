@@ -21,7 +21,7 @@ def get_dancer_lists(
 
     for index, dancer_name in enumerate(state.dancer_names):
         if bpy.data.objects.get(dancer_name) is not None:
-            dancer_list.append((dancer_name, dancer_name, "", "", index))
+            dancer_list.append((dancer_name, dancer_name, "", "OBJECT_DATA", index))
 
     return dancer_list  # pyright: ignore
 
@@ -55,7 +55,7 @@ def get_part_lists(
         if part_type != PartType.LED:
             continue
 
-        part_list.append((part_name, part_name, "", "", index))
+        part_list.append((part_name, part_name, "", "OBJECT_DATA", index))
 
     return part_list  # pyright: ignore
 
@@ -83,7 +83,7 @@ def get_effect_lists(
 
     effects = state.led_map[part_name]
     for effect_name, effect in effects.items():
-        effect_list.append((effect_name, effect_name, "", "", effect.id))
+        effect_list.append((effect_name, effect_name, "", "MATERIAL", effect.id))
 
     return effect_list  # pyright: ignore
 
@@ -95,7 +95,7 @@ def get_color_lists(
         bpy.context.window_manager, "ld_color_palette"
     )
     color_list = [
-        (color.color_name, color.color_name, "", "", color.color_id)
+        (color.color_name, color.color_name, "", "MATERIAL", color.color_id)
         for color in ld_color_palette
     ]
 

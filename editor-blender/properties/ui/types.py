@@ -23,6 +23,10 @@ class ControlEditorStatusType:
     multi_select_color: str
     multi_select_alpha: int
 
+    show_fiber: bool
+    show_led: bool
+    show_all: bool
+
 
 class PosEditorStatusType:
     multi_select: bool

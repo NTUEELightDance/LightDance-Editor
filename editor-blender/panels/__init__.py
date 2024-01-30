@@ -4,6 +4,7 @@ from . import (
     control_editor,
     editor,
     led_editor,
+    lightdance,
     pos_editor,
     startup,
     timeline,
@@ -11,18 +12,22 @@ from . import (
 
 
 def register():
-    startup.register()
+    lightdance.register()
+    # startup.register()
+
     auth.register()
     editor.register()
     pos_editor.register()
-    color_palette.register()
-    timeline.register()
     control_editor.register()
     led_editor.register()
 
+    color_palette.register()
+    timeline.register()
+
 
 def unregister():
-    startup.unregister()
+    lightdance.unregister()
+    # startup.unregister()
     auth.unregister()
     editor.unregister()
     pos_editor.unregister()

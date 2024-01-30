@@ -15,6 +15,7 @@ state = State(
     subscription_task=None,
     init_editor_task=None,
     token="",
+    username="",
     ready=False,
     control_map={},
     pos_map={},

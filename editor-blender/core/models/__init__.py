@@ -204,6 +204,7 @@ class State:
     init_editor_task: Optional[Task[None]]
 
     token: str
+    username: str
     ready: bool
 
     control_map: ControlMap
