@@ -1,5 +1,6 @@
+import asyncio
 from dataclasses import dataclass
-from typing import List
+from typing import Any, Coroutine, List, Optional
 
 from ..client import client
 from ..core.models import MapID, PosMap, PosRecord
@@ -8,7 +9,9 @@ from ..graphqls.mutations import (
     ADD_POS_FRAME,
     CANCEL_EDIT_POS_BY_ID,
     DELETE_POS_FRAME,
+    EDIT_CONTROL_FRAME_TIME,
     EDIT_POS_FRAME,
+    EDIT_POS_FRAME_TIME,
     REQUEST_EDIT_POS_BY_ID,
     MutAddPositionFrameResponse,
     MutCancelEditPositionResponse,
@@ -16,6 +19,8 @@ from ..graphqls.mutations import (
     MutDeletePositionFrameResponse,
     MutEditPositionFrameInput,
     MutEditPositionFrameResponse,
+    MutEditPositionFrameTimeInput,
+    MutEditPositionFrameTimeResponse,
     MutRequestEditPositionResponse,
 )
 from ..graphqls.queries import (
@@ -59,14 +64,32 @@ class PosAgent:
         return response["addPositionFrame"].id
 
     async def save_frame(
-        self, id: MapID, positionData: List[List[float]]
-    ) -> List[MapID]:
-        response = await client.execute(
-            MutEditPositionFrameResponse,
-            EDIT_POS_FRAME,
-            {"input": MutEditPositionFrameInput(frameId=id, positionData=positionData)},
+        self, id: MapID, positionData: List[List[float]], start: Optional[int] = None
+    ):
+        tasks: List[Coroutine[Any, Any, Any]] = []
+
+        tasks.append(
+            client.execute(
+                MutEditPositionFrameResponse,
+                EDIT_POS_FRAME,
+                {
+                    "input": MutEditPositionFrameInput(
+                        frameId=id, positionData=positionData
+                    )
+                },
+            )
         )
-        return response["editPosMap"].frameIds
+
+        if start is not None:
+            tasks.append(
+                client.execute(
+                    MutEditPositionFrameTimeResponse,
+                    EDIT_POS_FRAME_TIME,
+                    {"input": MutEditPositionFrameTimeInput(frameID=id, start=start)},
+                )
+            )
+
+        await asyncio.gather(*tasks)
 
     async def delete_frame(self, id: MapID) -> MapID:
         response = await client.execute(

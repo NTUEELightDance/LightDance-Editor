@@ -8,6 +8,7 @@ from ..core.actions.state.control_map import (
     add_control,
     delete_control,
     set_control_record,
+    update_control,
 )
 from ..core.actions.state.pos_map import add_pos, delete_pos, set_pos_record, update_pos
 from ..core.models import ID
@@ -205,7 +206,7 @@ async def sub_control_map(client: Clients):
                 new_control_frame = control_frame_query_to_state(newControlFrame)
 
                 newControlMap.frameIds[id] = newControlFrame
-                add_control(id, new_control_frame)
+                update_control(id, new_control_frame)
 
             # set_control_map(control_map_query_to_state(newControlMap.frameIds))
 

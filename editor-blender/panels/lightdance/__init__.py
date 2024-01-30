@@ -5,9 +5,6 @@ from ...properties.ui.types import TimeShiftStatusType
 
 
 def draw_time_shift(layout: bpy.types.UILayout):
-    row = layout.row()
-    row.label(text="Time Shift")
-
     ld_ui_time_shift: TimeShiftStatusType = getattr(
         bpy.context.window_manager, "ld_ui_time_shift"
     )
@@ -75,6 +72,9 @@ class LightDancePanel(bpy.types.Panel):
                 )
 
                 if state.shifting:
+                    row = layout.row()
+                    row.label(text="Time Shift")
+
                     box = layout.box()
                     draw_time_shift(box)
 

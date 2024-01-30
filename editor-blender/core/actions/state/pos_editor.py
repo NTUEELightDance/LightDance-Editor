@@ -61,7 +61,7 @@ async def add_pos_frame():
         notify("WARNING", "Cannot add position frame")
 
 
-async def save_pos_frame():
+async def save_pos_frame(start: Optional[int] = None):
     id = state.editing_data.frame_id
     # Get current position data from ld_position
     positionData: List[List[float]] = []
@@ -80,7 +80,7 @@ async def save_pos_frame():
             positionData.append([0, 0, 0])
 
     try:
-        await pos_agent.save_frame(id, positionData)
+        await pos_agent.save_frame(id, positionData, start=start)
         notify("INFO", f"Saved position frame: {id}")
 
         # Imediately apply changes produced by editing

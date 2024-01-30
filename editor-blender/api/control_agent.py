@@ -1,5 +1,6 @@
+import asyncio
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import Any, Coroutine, List, Optional, Tuple, Union
 
 from ..client import client
 from ..core.models import ColorID, ControlMap, ControlRecord, LEDEffectID, MapID
@@ -9,10 +10,12 @@ from ..graphqls.mutations import (
     CANCEL_EDIT_CONTROL_BY_ID,
     DELETE_CONTROL_FRAME,
     EDIT_CONTROL_FRAME,
+    EDIT_CONTROL_FRAME_TIME,
     REQUEST_EDIT_CONTROL_BY_ID,
     MutCancelEditControlResponse,
     MutDeleteControlFrameInput,
     MutEditControlFrameInput,
+    MutEditControlFrameTimeInput,
     MutRequestEditControlResponse,
 )
 from ..graphqls.queries import (
@@ -66,17 +69,32 @@ class ControlAgent:
         id: MapID,
         controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
         fade: Optional[bool] = None,
-    ) -> str:
-        response = await client.execute(
-            str,
-            EDIT_CONTROL_FRAME,
-            {
-                "input": MutEditControlFrameInput(
-                    frameId=id, controlData=controlData, fade=fade
-                )
-            },
+        start: Optional[int] = None,
+    ):
+        tasks: List[Coroutine[Any, Any, Any]] = []
+
+        tasks.append(
+            client.execute(
+                str,
+                EDIT_CONTROL_FRAME,
+                {
+                    "input": MutEditControlFrameInput(
+                        frameId=id, controlData=controlData, fade=fade
+                    )
+                },
+            )
         )
-        return response["editControlMap"]
+
+        if start is not None:
+            tasks.append(
+                client.execute(
+                    str,
+                    EDIT_CONTROL_FRAME_TIME,
+                    {"input": MutEditControlFrameTimeInput(frameID=id, start=start)},
+                )
+            )
+
+        await asyncio.gather(*tasks)
 
     async def delete_frame(self, id: MapID) -> str:
         response = await client.execute(

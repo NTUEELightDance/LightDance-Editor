@@ -48,4 +48,6 @@ async def confirm_shift():
         notify("Time shift success")
 
     except Exception as e:
+        state.shifting = False
+        redraw_area("VIEW_3D")
         notify(f"Time shift failed: {e}")

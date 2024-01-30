@@ -177,19 +177,47 @@ class Save(AsyncOperator):
 
     bl_idname = "lightdance.save"
     bl_label = "Save"
+    bl_options = {"REGISTER", "UNDO"}
+
+    modify_start: bpy.props.BoolProperty(  # type: ignore
+        name="Modify start time",
+        default=False,
+    )
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
-        match state.editor:
-            case Editor.CONTROL_EDITOR:
-                await save_control_frame()
-            case Editor.POS_EDITOR:
-                await save_pos_frame()
-            case Editor.LED_EDITOR:
-                await save_led_effect()
+        modify_start: bool = getattr(self, "modify_start")
+
+        if modify_start:
+            setattr(self, "modify_start", False)
+
+            match state.editor:
+                case Editor.CONTROL_EDITOR:
+                    await save_control_frame(start=bpy.context.scene.frame_current)
+                case Editor.POS_EDITOR:
+                    await save_pos_frame(start=bpy.context.scene.frame_current)
+                case Editor.LED_EDITOR:
+                    await save_led_effect()
+
+        else:
+            match state.editor:
+                case Editor.CONTROL_EDITOR:
+                    await save_control_frame()
+                case Editor.POS_EDITOR:
+                    await save_pos_frame()
+                case Editor.LED_EDITOR:
+                    await save_led_effect()
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+        if (
+            state.editor == Editor.CONTROL_EDITOR and state.current_editing_detached
+        ) or (state.editor == Editor.POS_EDITOR and state.current_editing_detached):
+            return context.window_manager.invoke_props_dialog(self)
+
+        return self.execute(context)
 
 
 class Delete(AsyncOperator):

@@ -108,18 +108,7 @@ class AsyncOperator(bpy.types.Operator):
     bl_label = "Base class of async operator"
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
-        self.state = "RUNNING"
-        self.stop_upon_exception = True
-
-        context.window_manager.modal_handler_add(self)
-        self.timer = context.window_manager.event_timer_add(
-            1 / 15,
-            window=context.window,
-        )
-
-        self._new_async_task(self.async_execute(context))
-
-        return {"RUNNING_MODAL"}
+        return self.execute(context)
 
     async def async_execute(self, context: bpy.types.Context):
         """Entry point of the asynchronous operator.
@@ -133,7 +122,18 @@ class AsyncOperator(bpy.types.Operator):
         self.state = "QUIT"
 
     def execute(self, context: bpy.types.Context):
-        return {"FINISHED"}
+        self.state = "RUNNING"
+        self.stop_upon_exception = True
+
+        context.window_manager.modal_handler_add(self)
+        self.timer = context.window_manager.event_timer_add(
+            1 / 15,
+            window=context.window,
+        )
+
+        self._new_async_task(self.async_execute(context))
+
+        return {"RUNNING_MODAL"}
 
     def modal(self, context: bpy.types.Context, event: bpy.types.Event):
         task = self.async_task

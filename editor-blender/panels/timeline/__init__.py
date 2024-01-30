@@ -22,11 +22,6 @@ class TimelinePanel(bpy.types.Panel):
         row.prop(context.window_manager, "ld_current_frame_index", text="")
         row.operator("lightdance.increase_frame_index", text="", icon="TRIA_RIGHT")
 
-        if state.editor == Editor.CONTROL_EDITOR:
-            row = layout.row(align=True)
-            row.prop(context.window_manager, "ld_fade", text="Fade", toggle=True)
-            row.enabled = state.edit_state == EditMode.EDITING
-
 
 def register():
     bpy.utils.register_class(TimelinePanel)

@@ -59,10 +59,16 @@ class ControlEditor(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
-        layout.label(text="Control Editor")
+
+        row = layout.row()
+        row.label(text="Control Editor")
 
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.is_playing
+
+        split = row.split()
+        split.prop(context.window_manager, "ld_fade", text="Fade", toggle=True)
+        split.enabled = editing
 
         if state.current_editing_detached and editing:
             row = layout.row()

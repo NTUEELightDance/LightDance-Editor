@@ -206,6 +206,30 @@ DELETE_POS_FRAME = gql(
 )
 
 
+@dataclass
+class MutEditPositionFrameTimeInput(JSONWizard):
+    frameID: MapID
+    start: int
+
+
+@dataclass
+class MutEditPositionFrameTimeResponse(JSONWizard):
+    start: int
+    id: MapID
+
+
+EDIT_POS_FRAME_TIME = gql(
+    """
+    mutation EditPositionFrame($input: EditPositionFrameInput!) {
+        editPositionFrame(input: $input) {
+            start
+            id
+        }
+    }
+    """
+)
+
+
 """
 ControlMap
 """
@@ -285,6 +309,21 @@ DELETE_CONTROL_FRAME = gql(
     """
     mutation DeleteControlFrame($input: DeleteControlFrameInput!) {
         deleteControlFrame(input: $input)
+    }
+    """
+)
+
+
+@dataclass
+class MutEditControlFrameTimeInput(JSONWizard):
+    frameID: MapID
+    start: int
+
+
+EDIT_CONTROL_FRAME_TIME = gql(
+    """
+    mutation EditControlFrame($input: EditControlFrameInput!) {
+        editControlFrame(input: $input)
     }
     """
 )

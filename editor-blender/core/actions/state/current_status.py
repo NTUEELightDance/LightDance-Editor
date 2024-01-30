@@ -33,6 +33,7 @@ def update_current_status_by_index():
         return
 
     setattr(bpy.context.window_manager, "ld_fade", current_control_map.fade)
+    setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
 
     current_status = current_control_map.status
     state.current_status = current_status

@@ -70,7 +70,7 @@ async def add_control_frame():
         notify("WARNING", "Cannot add control frame")
 
 
-async def save_control_frame():
+async def save_control_frame(start: Optional[int] = None):
     id = state.editing_data.frame_id
 
     fade: bool = getattr(bpy.context.window_manager, "ld_fade")
@@ -120,7 +120,7 @@ async def save_control_frame():
         controlData.append(partControlData)
 
     try:
-        await control_agent.save_frame(id, controlData, fade=fade)
+        await control_agent.save_frame(id, controlData, fade=fade, start=start)
         notify("INFO", f"Saved control frame")
 
         # Imediately apply changes produced by editing

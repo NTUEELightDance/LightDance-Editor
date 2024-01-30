@@ -52,7 +52,7 @@ class LEDEditorStatusType:
 
 
 class TimeShiftStatusType:
-    edit_mode: str
+    frame_type: str
     start: int
     end: int
     displacement: int
