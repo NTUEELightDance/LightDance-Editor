@@ -5,7 +5,6 @@ import bpy
 
 from ....client import client
 from ....properties.types import ObjectType
-from ...models import FiberData, LEDData
 from ...states import state
 from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
@@ -27,9 +26,8 @@ async def fetch_data(reload: bool = False):
     param reload: Fetch assets again even they already exist is true, otherwise only fetch missing assets.
     """
     print("fetching data")
-    if client.http_client:
-        async with client.http_client.get("/data/load.json") as response:
-            assets_load = await response.json()
+    if client.file_client:
+        assets_load = await client.download_json("/data/load.json")
         try:
             url_set = set()
             for tag in ["Music", "LightPresets", "PosPresets"]:
@@ -44,11 +42,10 @@ async def fetch_data(reload: bool = False):
                 if not os.path.exists(file_dir):
                     os.makedirs(file_dir)
                     print("created folder: ", file_dir)
-                async with client.http_client.get(url) as response:
-                    data = await response.content.read()
-                    print("fetched file ", url, "from server")
-                    with open(file_path, "w+b") as file:
-                        file.write(data)
+                data = await client.download_binary(url)
+                print("fetched file ", url, "from server")
+                with open(file_path, "w+b") as file:
+                    file.write(data)
         except Exception as e:
             print(e)
         """
@@ -80,6 +77,7 @@ def setup_assets(assets_load):
     dancer_array = state.dancers_array
     for dancer in dancer_array:
         dancer_name = dancer.name
+        dancer_index = dancer_name.split("_")[0]
         dancer_load = assets_load["DancerMap"][dancer_name]
         if dancer_name in bpy.context.scene.objects.keys():
             continue
@@ -96,11 +94,12 @@ def setup_assets(assets_load):
         dancer_human = next(obj for obj in dancer_objects if obj.name[0:5] == "Human")
         set_bpy_props(
             dancer_human,
-            name=f"{dancer.name}.Human",
+            name=f"{dancer_index}.Human",
             parent=dancer_parent,
             ld_object_type=ObjectType.HUMAN.value,
             color=(0, 0, 0, 1),
             data=bpy.data.meshes["human"],
+            ld_dancer_name=dancer.name
         )
         for item in dancer.parts:
             part_objects = [i for i in dancer_objects if i.name.find(item.name) >= 0]
@@ -108,7 +107,7 @@ def setup_assets(assets_load):
                 print("Dancer part not found (maybe should reload asset)")
             if item.type.value == "LED":
                 parts_parent = bpy.data.objects.new(
-                    f"{dancer.name}.{item.name}.parent", None
+                    f"{dancer_index}.{item.name}.parent", None
                 )
                 bpy.context.scene.collection.objects.link(parts_parent)
                 set_bpy_props(
@@ -118,9 +117,10 @@ def setup_assets(assets_load):
                     ld_light_type=item.type.value.lower(),
                     ld_part_name=item.name,
                     empty_display_size=0,
+                    ld_dancer_name=dancer.name,
                 )
                 for i, obj in enumerate(part_objects):
-                    obj.name = f"{dancer.name}.{item.name}.{i:03}"
+                    obj.name = f"{dancer_index}.{item.name}.{i:03}"
                     set_bpy_props(
                         obj,
                         parent=parts_parent,
@@ -129,10 +129,11 @@ def setup_assets(assets_load):
                         ld_part_name=item.name,
                         data=bpy.data.meshes["Sphere.001"],
                         ld_led_pos=i,
+                        ld_dancer_name=dancer.name
                     )
             elif item.type.value == "FIBER":
                 obj = part_objects[0]
-                obj.name = f"{dancer.name}.{item.name}"
+                obj.name = f"{dancer_index}.{item.name}"
                 obj.parent = dancer_parent
                 setattr(obj, "ld_object_type", "light")
                 setattr(obj, "ld_light_type", item.type.value.lower())
@@ -148,6 +149,8 @@ def set_music_from_load(assets_load):
     if not scene.sequence_editor:
         scene.sequence_editor_create()
     music_filepath = os.path.normpath(target_path + assets_load["Music"])
+    if scene.sequence_editor.sequences:
+        scene.sequence_editor.sequences.remove(scene.sequence_editor.sequences[0])
     scene.sequence_editor.sequences.new_sound(
         "music", filepath=music_filepath, channel=1, frame_start=0
     )
