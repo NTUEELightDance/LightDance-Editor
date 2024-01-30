@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from . import (
     animation,
     async_core,
@@ -13,10 +14,15 @@ from . import (
     timeline,
     utils,
 )
+=======
+from . import async_core
+from . import login
+>>>>>>> f9bf97e (add basic structure)
 
 
 def register():
     async_core.register()
+<<<<<<< HEAD
     setup.register()
     auth.register()
     editor.register()
@@ -45,3 +51,10 @@ def unregister():
     timeline.unregister()
     control_editor.unregister()
     led_editor.unregister()
+=======
+    login.register()
+
+def unregister():
+    async_core.unregister()
+    login.unregister()
+>>>>>>> f9bf97e (add basic structure)
