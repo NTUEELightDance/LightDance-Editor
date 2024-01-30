@@ -33,8 +33,10 @@ const img_res = String(img_res_width) + 'x' + String(img_res_height);
 // console.log(`img_res = ${img_res}`);
 const hex_colo = '3D82B1';
 const sname = '../files/music/waveform.png';
+const sname_tmp = '../files/music/waveform_tmp.png';
 const musicName = '../files/music/2023.mp3';    // you can alter the music name here
 let ifp = path.join(String(__dirname), sname);       // name (path included) to the waveform image
+let ifp_temp = path.join(String(__dirname), sname_tmp);       // name (path included) to the waveform image
 let sfp = path.join(String(__dirname), musicName);   // name (path included) to the music
 const leftName = '../files/music/leftWaveform.png';
 const rightName = '../files/music/rightWaveform.png';
@@ -92,7 +94,7 @@ const callFFMPEG = () => {
   cmd = [...cmd, '-i', String(sfp),
     '-hide_banner', '-loglevel', 'error', '-filter_complex',
   `showwavespic=s=${img_res}:split_channels=1:colors=${hex_colo}`,
-    '-frames:v', '1', '-y', String(ifp)]
+    '-frames:v', '1', '-y', String(ifp_temp)]
 
   let cmdString = cmd.join(' ');
   // console.log(`cmd = ${cmd.join(' ')}`);
@@ -206,7 +208,7 @@ const ffmpegExist = () => {
 }
 
 const cutImages = async () => {
-  await sharp(String(ifp))
+  await sharp(String(ifp_temp))
     .extract({ left: 0, top: 0, width: img_res_width, height: img_res_height / 4 })
     .toFile(String(lcp))
     .then(() => {
@@ -220,7 +222,7 @@ const cutImages = async () => {
       }
     })
   // console.log("here3");
-  await sharp(String(ifp))
+  await sharp(String(ifp_temp))
     .extract({ left: 0, top: 3 * img_res_height / 4, width: img_res_width, height: img_res_height / 4 })
     .toFile(String(rcp))
     .then(() => {
@@ -237,46 +239,81 @@ const cutImages = async () => {
   // console.log(`String(rcp) = ${String(rcp)}`);
 }
 
-const AsyncImageManipulation = async () => {
-  await cutImages();
-  // console.log("here 5");
+const AsyncJoinImages = async () => {
+  console.log("joining waveforms...")
   await jm.joinImages([String(lcp), String(rcp)], { direction: "vertical" })
     .then((img) => {
       // Save image as file
-      img.toFile(String(ifp));
+      img.toFile(String(ifp))
+      .then(()=>{console.log("image saved");})
+      .catch((err)=>{
+        console.log("failed to save image as file")
+        console.log(err)
+      });
+      
     }).catch((err) => {
       console.log("Failed joining waveforms...")
       console.log(err);
     });
 }
 
+const AsyncImageManipulation = async () => {
+  await cutImages();
+  // console.log("here 5");
+  await AsyncJoinImages();
+  // console.log("here 5");
+}
+
 const rmRedundantWaveform = () => {
-  let rmCmd = ['rm', String(lcp), String(rcp)];
+  let rmCmd = ['rm', String(lcp), String(rcp), String(ifp_temp)];
   rmCmdString = rmCmd.join(' ');
   // console.log(`rmCmdString = ${rmCmdString}`);
   console.log("removing redundant waveforms...");
   try {
-    const ret = child_process.execSync(rmCmdString);
-  } catch (err) {
-    console.error('--- problem removing redundant waveforms...');
-    console.error(err);
+    fs.unlink(String(lcp), (err) => {
+      if (err) throw err;
+      // console.log(`successfully deleted ${String(lcp)}`);
+    });
+    fs.unlink(String(rcp), (err) => {
+      if (err) throw err;
+      // console.log(`successfully deleted ${String(rcp)}`);
+    });
+    fs.unlink(String(ifp_temp), (err) => {
+      if (err) throw err;
+      // console.log(`successfully deleted ${String(rcp)}`);
+    });
+
+  } catch (error) {
+    console.error('Error deleting existing file:', error.message);
   }
+  // try {
+    
+
+  // } catch (error) {
+  //   console.error('Error deleting existing file:', error.message);
+  // }
+  // try {
+  //   const ret = child_process.execSync(rmCmdString);
+  // } catch (err) {
+  //   console.error('--- problem removing redundant waveforms...');
+  //   console.error(err);
+  // }
 }
 
 const imageManipulate = async () => { // ugly
   // console.log("here2");
-  sharp(String(ifp))
+  sharp(String(ifp_temp))
     .extract({ left: 0, top: 0, width: img_res_width, height: img_res_height / 4 })
     .toFile(String(lcp))
     .then(() => {
-      sharp(String(ifp))
+      sharp(String(ifp_temp))
         .extract({ left: 0, top: 3 * img_res_height / 4, width: img_res_width, height: img_res_height / 4 })
         .toFile(String(rcp))
         .then(() => {
           jm.joinImages([String(lcp), String(rcp)], { direction: "vertical" })
             .then((img) => {
               // Save image as file
-              img.toFile(String(ifp));
+              img.toFile(String(ifp_temp));
             }).catch((err) => {
               console.log("Failed joining waveforms...")
               console.log(err);
