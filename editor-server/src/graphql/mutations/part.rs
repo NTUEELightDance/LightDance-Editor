@@ -3,11 +3,12 @@ use crate::db::types::{
     part::{PartType, PartData},
     dancer::DancerData,
     position_frame::PositionFrameData,
+    position::PositionData
 };
 use crate::graphql::{
     subscriptions::dancer::{DancerPayload, DancerMutationMode},
     subscriptor::Subscriptor,
-    types::dancer::Dancer
+    types::dancer::{Dancer, Part}
 };
 use crate::types::global::UserContext;
 use crate::utils::data::{init_redis_control, init_redis_position};
@@ -91,6 +92,14 @@ impl PartMutation {
             }
         }
 
+        if input.part_type == PartType::LED && (input.length.is_none() || input.length.unwrap() < 0) {
+            return Ok(PartResponse{
+                ok: false,
+                msg: Some("length of LED part must be positive number".to_string()),
+                part_data: None,
+            })
+        }
+
         let exist_part = sqlx::query!(
             r#"
                 SELECT * FROM Part 
@@ -105,14 +114,6 @@ impl PartMutation {
             return Ok(PartResponse{
                 ok: false,
                 msg: Some("duplicate part".to_string()),
-                part_data: None,
-            })
-        }
-
-        if input.part_type == PartType::LED && (input.length.is_none() || input.length.unwrap() < 0) {
-            return Ok(PartResponse{
-                ok: false,
-                msg: Some("length of LED part must be positive number".to_string()),
                 part_data: None,
             })
         }
@@ -150,7 +151,7 @@ impl PartMutation {
                     VALUES (?, ?, ?, ?, ?);
                 "#,
                 exist_dancer.clone().unwrap().id,
-                frame_data.id.clone(),
+                frame_data.id,
                 0,
                 0,
                 0
@@ -158,7 +159,31 @@ impl PartMutation {
             .execute(mysql)
             .await?;
         }
-        //
+
+        //find dancer parts
+        let all_parts = sqlx::query_as!(
+            Part,
+            r#"
+                SELECT * FROM Part
+                WHERE dancer_id = ?
+                ORDER BY id ASC;
+            "#,
+            exist_dancer.clone().unwrap().id
+        )
+        .fetch_all(mysql)
+        .await?;
+
+        let all_dancer_pos = sqlx::query_as!(
+            PositionData,
+            r#"
+                SELECT * FROM PositionData
+                WHERE dancer_id = ?
+                ORDER BY frame_id ASC;
+            "#,
+            exist_dancer.clone().unwrap().id
+        )
+        .fetch_all(mysql)
+        .await?;
 
         let _ = init_redis_control(mysql, redis).await?;
         let _ = init_redis_position(mysql, redis).await?;
@@ -168,8 +193,8 @@ impl PartMutation {
             dancer_data: Some(Dancer {
                 id: exist_dancer.clone().unwrap().id,
                 name: exist_dancer.clone().unwrap().name,
-                parts: None,             //not correct
-                position_datas: None,    //not correct
+                parts: Some(all_parts),
+                position_datas: Some(all_dancer_pos),
             }),
             edit_by: context.user_id,
         };
@@ -200,19 +225,17 @@ impl PartMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
-        let id = input.id.clone();
-
-        let exist_part = sqlx::query_as!(
+        let deleted_part = sqlx::query_as!(
             PartData,
             r#"
                 SELECT * FROM Part WHERE id = ?;
             "#,
-            id
+            input.id
         )
         .fetch_optional(mysql)
         .await?;
 
-        match exist_part {
+        match deleted_part {
             Some(_) => {}
             None => {
                 return Ok(PartResponse{
@@ -223,12 +246,12 @@ impl PartMutation {
             }
         }
 
-        let exist_dancer = sqlx::query_as!(
+        let dancer_data = sqlx::query_as!(
             DancerData,
             r#"
                 SELECT * FROM Dancer WHERE id = ?;
             "#,
-            exist_part.unwrap().id.clone()
+            deleted_part.unwrap().id
         )
         .fetch_optional(mysql)
         .await?;
@@ -238,9 +261,34 @@ impl PartMutation {
                 DELETE FROM Part
                 WHERE id = ?;
             "#,
-            input.id.clone()
+            input.id
         )
         .execute(mysql)
+        .await?;
+
+        //find dancer parts
+        let all_parts = sqlx::query_as!(
+            Part,
+            r#"
+                SELECT * FROM Part
+                WHERE dancer_id = ?
+                ORDER BY id ASC;
+            "#,
+            dancer_data.clone().unwrap().id
+        )
+        .fetch_all(mysql)
+        .await?;
+
+        let all_dancer_pos = sqlx::query_as!(
+            PositionData,
+            r#"
+                SELECT * FROM PositionData
+                WHERE dancer_id = ?
+                ORDER BY frame_id ASC;
+            "#,
+            dancer_data.clone().unwrap().id
+        )
+        .fetch_all(mysql)
         .await?;
 
         let _ = init_redis_control(mysql, redis).await?;
@@ -249,10 +297,10 @@ impl PartMutation {
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Deleted,
             dancer_data: Some(Dancer {
-                id: exist_dancer.clone().unwrap().id,
-                name: exist_dancer.clone().unwrap().name,
-                parts: None,             //not correct
-                position_datas: None,    //not correct
+                id: dancer_data.clone().unwrap().id,
+                name: dancer_data.clone().unwrap().name,
+                parts: Some(all_parts),
+                position_datas: Some(all_dancer_pos),
             }),
             edit_by: context.user_id,
         };
@@ -263,6 +311,123 @@ impl PartMutation {
             ok: true,
             msg: Some("successfully delete part".to_string()),
             part_data: None,
+        })
+    }
+    async fn edit_part(
+        &self,
+        ctx: &Context<'_>,
+        input: PartUpdateInput
+    ) -> GQLResult<PartResponse> {
+        
+        let context = ctx.data::<UserContext>()?;
+        let clients = context.clients;
+        
+        let mysql = clients.mysql_pool();
+
+        let _check = match input.part_type{
+            PartType::FIBER | PartType::LED => true,
+        };
+        if !_check {
+            return Ok(PartResponse{
+                    ok: false,
+                    msg: Some("Not a valid type.".to_string()),
+                    part_data: None,
+                })
+        }
+
+        let edited_part = sqlx::query_as!(
+            PartData,
+            r#"
+                SELECT * FROM Part WHERE id = ?;
+            "#,
+            input.id
+        )
+        .fetch_optional(mysql)
+        .await?;
+
+        match edited_part {
+            Some(_) => {}
+            None => {
+                return Ok(PartResponse{
+                    ok: false,
+                    msg: Some("no part found".to_string()),
+                    part_data: None,
+                })
+            }
+        }
+
+        let dancer_data = sqlx::query_as!(
+            DancerData,
+            r#"
+                SELECT * FROM Dancer WHERE id = ?;
+            "#,
+            edited_part.unwrap().id
+        )
+        .fetch_optional(mysql)
+        .await?;
+
+        let _ = sqlx::query!(
+            r#"
+                UPDATE Part SET dancer_id = ?, name = ?, type = ?, length = ?
+                WHERE id = ?;
+            "#,
+            dancer_data.clone().unwrap().id,
+            input.name,
+            input.part_type,
+            input.length,
+            input.id
+        )
+        .execute(mysql)
+        .await?;
+        
+        //find dancer parts
+        let all_parts = sqlx::query_as!(
+            Part,
+            r#"
+                SELECT * FROM Part
+                WHERE dancer_id = ?
+                ORDER BY id ASC;
+            "#,
+            dancer_data.clone().unwrap().id
+        )
+        .fetch_all(mysql)
+        .await?;
+
+        let all_dancer_pos = sqlx::query_as!(
+            PositionData,
+            r#"
+                SELECT * FROM PositionData
+                WHERE dancer_id = ?
+                ORDER BY frame_id ASC;
+            "#,
+            dancer_data.clone().unwrap().id
+        )
+        .fetch_all(mysql)
+        .await?;
+
+        let dancer_payload = DancerPayload {
+            mutation: DancerMutationMode::Updated,
+            dancer_data: Some(Dancer {
+                id: dancer_data.clone().unwrap().id,
+                name: dancer_data.clone().unwrap().name,
+                parts: Some(all_parts),
+                position_datas: Some(all_dancer_pos),
+            }),
+            edit_by: context.user_id,
+        };
+
+        Subscriptor::publish(dancer_payload);
+
+        Ok(PartResponse{
+            ok: true,
+            msg: Some("successfully edit part".to_string()),
+            part_data: Some(PartData {
+                id: input.id.clone(),
+                dancer_id: dancer_data.clone().unwrap().id,
+                name: input.name.clone(),
+                r#type: input.part_type.clone(),
+                length: input.length.clone()
+            }),
         })
     }
 }

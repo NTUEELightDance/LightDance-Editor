@@ -9,4 +9,3 @@ pub mod led;
 pub mod led_map;
 pub mod map;
 pub mod pos_data;
-pub mod part;
