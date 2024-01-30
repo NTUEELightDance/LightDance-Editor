@@ -21,6 +21,7 @@ pub struct EditPositionFrameInput {
 
 #[derive(InputObject, Default)]
 pub struct DeletePositionFrameInput {
+    #[graphql(name = "frameID")]
     pub frame_id: i32,
 }
 

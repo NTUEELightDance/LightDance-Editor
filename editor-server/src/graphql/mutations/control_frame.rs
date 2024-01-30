@@ -34,6 +34,7 @@ pub struct EditControlFrameInput {
 
 #[derive(InputObject, Default)]
 pub struct DeleteControlFrameInput {
+    #[graphql(name = "frameID")]
     pub frame_id: i32,
 }
 
