@@ -13,6 +13,7 @@ from . import (
     slider,
     timeline,
     utils,
+    waveform,
 )
 
 
@@ -31,6 +32,7 @@ def register():
     control_editor.register()
     led_editor.register()
     shift.register()
+    waveform.register()
 
 
 def unregister():
@@ -48,3 +50,4 @@ def unregister():
     control_editor.unregister()
     led_editor.unregister()
     shift.unregister()
+    waveform.unregister()
