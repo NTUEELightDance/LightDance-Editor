@@ -1,13 +1,3 @@
-import bpy
-
-from . import (
-    operators,
-    panels,
-    properties,
-    handlers
-)
-
-
 bl_info = {
     "name": "LightDance Editor",
     "author": "NTUEE LightDance",
