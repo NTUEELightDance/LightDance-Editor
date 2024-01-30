@@ -19,9 +19,9 @@ class EditorPanel(bpy.types.Panel):
         return state.ready
 
     def draw(self, context: bpy.types.Context):
-        editing = state.edit_state == EditMode.EDITING
-
         layout = self.layout
+        layout.enabled = not state.shifting
+
         row = layout.row(align=True)
 
         row.operator(
@@ -43,20 +43,16 @@ class EditorPanel(bpy.types.Panel):
             icon="LIGHTPROBE_GRID",
         )
 
-        sync_enable = (
-            state.color_map_pending
-            or state.control_map_pending
-            or state.pos_map_pending
-        )
-
         box = layout.box()
+
         row = box.row()
         row.operator(
             "lightdance.sync_pending_updates",
             text="Sync incoming updates",
             icon="UV_SYNC_SELECT",
         )
-        row.enabled = sync_enable
+
+        editing = state.edit_state == EditMode.EDITING
 
         if editing:
             row = box.row()

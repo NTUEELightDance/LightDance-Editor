@@ -9,6 +9,7 @@ from . import (
     notification,
     pos_editor,
     setup,
+    shift,
     slider,
     timeline,
     utils,
@@ -29,6 +30,7 @@ def register():
     timeline.register()
     control_editor.register()
     led_editor.register()
+    shift.register()
 
 
 def unregister():
@@ -45,3 +47,4 @@ def unregister():
     timeline.unregister()
     control_editor.unregister()
     led_editor.unregister()
+    shift.unregister()

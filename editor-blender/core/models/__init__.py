@@ -194,6 +194,12 @@ class PosMapUpdates:
     deleted: List[MapID]
 
 
+class FrameType(Enum):
+    CONTROL = "CONTROL"
+    POS = "POS"
+    BOTH = "BOTH"
+
+
 @dataclass
 class State:
     is_running: bool
@@ -242,6 +248,7 @@ class State:
     edit_state: EditMode
     editor: Editor
     editing_data: EditingData
+    shifting: bool
     # NOTE: Guess we can't implement this
     # selection_mode: SelectMode
 

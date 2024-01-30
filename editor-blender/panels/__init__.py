@@ -6,16 +6,19 @@ from . import (
     led_editor,
     lightdance,
     pos_editor,
+    shift,
     startup,
     timeline,
 )
 
 
 def register():
+    # NOTE: Order matters
     lightdance.register()
     # startup.register()
 
     auth.register()
+    # shift.register()
     editor.register()
     pos_editor.register()
     control_editor.register()
@@ -29,6 +32,7 @@ def unregister():
     lightdance.unregister()
     # startup.unregister()
     auth.unregister()
+    # shift.unregister()
     editor.unregister()
     pos_editor.unregister()
     color_palette.unregister()

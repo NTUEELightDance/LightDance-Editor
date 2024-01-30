@@ -288,3 +288,47 @@ DELETE_CONTROL_FRAME = gql(
     }
     """
 )
+
+
+"""
+TimeShift
+"""
+
+
+# @dataclass
+# class MutTimeShiftMutationVariables(JSONWizard):
+#     shiftPosition: bool
+#     shiftControl: bool
+#     move: int
+#     end: int
+#     start: int
+
+
+@dataclass
+class MutTimeShiftResponse(JSONWizard):
+    ok: bool
+    msg: str
+
+
+SHIFT_TIME = gql(
+    """
+    mutation Shift(
+        $shiftPosition: Boolean!
+        $shiftControl: Boolean!
+        $move: Int!
+        $end: Int!
+        $start: Int!
+    ) {
+        shift(
+            shiftPosition: $shiftPosition
+            shiftControl: $shiftControl
+            move: $move
+            end: $end
+            start: $start
+        ) {
+            ok
+            msg
+        }
+    }
+    """
+)

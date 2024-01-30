@@ -97,6 +97,14 @@ class SyncPendingUpdates(bpy.types.Operator):
     bl_idname = "lightdance.sync_pending_updates"
     bl_label = "Sync Pending Updates"
 
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return (
+            state.color_map_pending
+            or state.control_map_pending
+            or state.pos_map_pending
+        )
+
     def execute(self, context: bpy.types.Context):
         if state.control_map_pending:
             apply_control_map_updates()

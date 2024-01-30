@@ -1,6 +1,29 @@
 import bpy
 
 from ...core.states import state
+from ...properties.ui.types import TimeShiftStatusType
+
+
+def draw_time_shift(layout: bpy.types.UILayout):
+    row = layout.row()
+    row.label(text="Time Shift")
+
+    ld_ui_time_shift: TimeShiftStatusType = getattr(
+        bpy.context.window_manager, "ld_ui_time_shift"
+    )
+
+    row = layout.row()
+    row.label(text="Frame Type")
+    row.prop(ld_ui_time_shift, "frame_type", text="")
+
+    col = layout.column(align=True)
+    col.prop(ld_ui_time_shift, "start", text="Start")
+    col.prop(ld_ui_time_shift, "end", text="End")
+    col.prop(ld_ui_time_shift, "displacement", text="Displacement")
+
+    row = layout.row()
+    row.operator("lightdance.confirm_shifting", text="Confirm", icon="CHECKMARK")
+    row.operator("lightdance.cancel_shifting", text="Cancel", icon="X")
 
 
 class LightDanceToolsPanel(bpy.types.Panel):
@@ -15,7 +38,7 @@ class LightDanceToolsPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator("lightdance.empty", text="Timeshift", icon="PLAY")
+        row.operator("lightdance.toggle_shifting", text="Timeshift", icon="PLAY")
         row = layout.row()
         row.operator("lightdance.logout", text="Logout", icon="PLAY")
 
@@ -50,6 +73,10 @@ class LightDancePanel(bpy.types.Panel):
                 row.popover(
                     "VIEW_PT_LightDance_Tools", text="Tools", icon="TOOL_SETTINGS"
                 )
+
+                if state.shifting:
+                    box = layout.box()
+                    draw_time_shift(box)
 
             else:
                 row = layout.row()

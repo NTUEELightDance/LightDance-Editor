@@ -49,3 +49,10 @@ class LEDEditorStatusType:
     multi_select: bool
     multi_select_color: str
     multi_select_alpha: int
+
+
+class TimeShiftStatusType:
+    edit_mode: str
+    start: int
+    end: int
+    displacement: int

@@ -1,4 +1,4 @@
-from . import color_palette, control_editor, led_editor, login, pos_editor
+from . import color_palette, control_editor, led_editor, login, pos_editor, shift
 
 
 def register():
@@ -7,6 +7,7 @@ def register():
     color_palette.register()
     control_editor.register()
     led_editor.register()
+    shift.register()
 
 
 def unregister():
@@ -15,3 +16,4 @@ def unregister():
     color_palette.unregister()
     control_editor.unregister()
     led_editor.unregister()
+    shift.unregister()
