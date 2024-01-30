@@ -1,7 +1,7 @@
 //! Part data type
 use async_graphql::{SimpleObject, Enum};
 use serde::{Serialize, Deserialize};
-use sqlx::{Decode, FromRow};
+use sqlx::{FromRow, Type};
 
 #[derive(SimpleObject, FromRow, Debug, Clone)]
 pub struct PartData {
@@ -9,10 +9,10 @@ pub struct PartData {
     pub dancer_id: i32,
     pub name: String,
     pub r#type: PartType,
-    pub length: i32,
+    pub length: Option<i32>,
 }
 
-#[derive(Decode, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
+#[derive(Type, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
 pub enum PartType {
     #[default]
     LED,

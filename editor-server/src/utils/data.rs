@@ -285,7 +285,8 @@ pub async fn update_redis_control(
                         PartType::FIBER => {
                             PartControl(part_control.color_id.unwrap(), part_control.alpha)
                         }
-                    })
+                    }
+                })
                 .collect_vec()
         })
         .collect_vec();
