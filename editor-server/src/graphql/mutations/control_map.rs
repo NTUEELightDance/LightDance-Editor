@@ -365,7 +365,9 @@ impl ControlMapMutation {
                 sqlx::query!(
                     r#"
                       UPDATE ControlFrame
-                      SET fade = ?
+                      SET
+                        fade = ?,
+                        meta_rev = meta_rev + 1
                       WHERE id = ?;
                     "#,
                     fade,
@@ -388,6 +390,18 @@ impl ControlMapMutation {
               WHERE user_id = ?
             "#,
             context.user_id,
+        )
+        .execute(mysql)
+        .await?;
+
+        // update revision of the frame
+        sqlx::query!(
+            r#"
+              UPDATE ControlFrame
+              SET data_rev = data_rev + 1
+              WHERE id = ?;
+            "#,
+            frame_id,
         )
         .execute(mysql)
         .await?;

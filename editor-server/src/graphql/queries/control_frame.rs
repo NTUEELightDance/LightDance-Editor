@@ -1,7 +1,8 @@
 //! ControlFrame query methods
 
 // import type definition
-use crate::graphql::types::control_frame::ControlFrame;
+use crate::db::types::control_frame::ControlFrameData;
+use crate::graphql::types::control_frame::{ControlFrame, ControlFrameRevision};
 use crate::types::global::UserContext;
 
 // import async_graphql
@@ -19,9 +20,14 @@ impl ControlFrameQuery {
 
         // query the database with the given frame_id
         let result = sqlx::query_as!(
-            ControlFrame,
+            ControlFrameData,
             r#"
-                SELECT id, start, fade as "fade: bool"
+                SELECT
+                    id,
+                    start,
+                    fade as "fade: bool",
+                    meta_rev,
+                    data_rev
                 FROM ControlFrame 
                 WHERE id = ?;
             "#,
@@ -35,6 +41,10 @@ impl ControlFrameQuery {
             id: result.id,
             start: result.start,
             fade: result.fade,
+            rev: ControlFrameRevision {
+                meta: result.meta_rev,
+                data: result.data_rev,
+            },
         })
     }
 
