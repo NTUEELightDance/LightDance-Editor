@@ -26,14 +26,14 @@ function SrcSelector({ src, effectNames, handleSrcChange }: SrcSelectorProps) {
   };
 
   // handle no effect option and the display
-  const options = ["", ...effectNames];
+  const options = ["empty", "", ...effectNames];
   const optionDisplay = (val: string) => (val === "" ? "no effect" : val);
 
   return (
     <FormControl sx={{ width: "5.5vw", padding: 0 }} size="small">
       <InputLabel shrink>src</InputLabel>
       <Select
-        value={src ?? ""}
+        value={src ?? "empty"}
         label="src"
         onChange={handleChange}
         displayEmpty

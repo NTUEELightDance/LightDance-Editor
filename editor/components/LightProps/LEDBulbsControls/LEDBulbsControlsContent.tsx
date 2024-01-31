@@ -53,6 +53,7 @@ function LEDBulbsControlsContent({
         <IntensityControl
           intensity={intensity}
           setIntensity={handleIntensityChange}
+          disabled={false}
         />
       </Grid>
     </Stack>

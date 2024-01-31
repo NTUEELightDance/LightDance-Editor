@@ -12,7 +12,7 @@ import { startEditing } from "@/core/actions";
 
 export interface CustomSelectProps {
   placeholder?: string;
-  onChange: (value: ColorID) => void;
+  onChange: (value: ColorID|null) => void;
   currentColorID: ColorID | null;
 }
 
@@ -28,11 +28,15 @@ function CustomSelect({
   const blackID = getBlackColorID();
 
   const options = useMemo(() => {
-    return Object.values(colorMap).map(({ name, id }) => ({
-      label: name,
-      value: id,
-    }));
-  }, [colorMap]);
+    const emptyOption = { label: placeholder, value: null }; // "empty" option
+    return [
+      emptyOption,
+      ...Object.values(colorMap).map(({ name, id }) => ({
+        label: name,
+        value: id,
+      })),
+    ];
+  }, [colorMap, placeholder]);
   // use color name as state
   const {
     getButtonProps,
@@ -42,16 +46,21 @@ function CustomSelect({
   } = useSelect({
     listboxRef,
     options,
-    value: currentColorID ?? blackID,
+    value: currentColorID ?? null,
     onChange: async (event) => {
       if (event === null) return;
       if (editorState === "IDLE") await startEditing();
       const target = event.target as HTMLElement;
-      const colorID =
-        target.dataset.option ??
-        target.parentElement!.dataset.option ??
-        blackID.toString();
-      onChange(parseInt(colorID));
+      const selectedOption = target.dataset.option ?? target.parentElement!.dataset.option;
+
+      if (selectedOption === "empty") {
+          // Handle the "empty" selection
+          onChange(null);
+      } else {
+          // Handle other selections
+          const colorID = selectedOption ?? blackID.toString();
+          onChange(parseInt(colorID));
+      }
     },
   });
 
@@ -71,13 +80,13 @@ function CustomSelect({
         }}
       >
         <Toggle
-          {...getButtonProps()}
-          // @ts-expect-error we need to set this style variable to change the color
-          style={{
-            ...(colorID ? { "--color": colorMap[colorID].colorCode } : {}),
-          }}
+            {...getButtonProps()}
+             // @ts-expect-error we need to set this style variable to change the color
+            style={{
+                ...(colorID !== null ? { "--color": colorMap[colorID].colorCode } : {}),
+            }}
         >
-          {colorID !== null ? colorMap[colorID].name : placeholder}
+            {colorID !== null ? colorMap[colorID].name : placeholder}
         </Toggle>
         <Listbox
           {...getListboxProps()}
@@ -87,7 +96,7 @@ function CustomSelect({
             <li
               key={option.label}
               {...getOptionProps(option)}
-              data-option={option.value}
+              data-option={option.value !== null ? option.value : "empty"}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -95,14 +104,25 @@ function CustomSelect({
               }}
             >
               <span>
-                <Paper
-                  sx={{
-                    backgroundColor: colorMap[option.value].colorCode,
-                    display: "inline-block",
-                    width: "1em",
-                    height: "1em",
-                  }}
-                />
+                {option.value !== null ? (
+                  <Paper
+                    sx={{
+                      backgroundColor: colorMap[option.value].colorCode,
+                      display: "inline-block",
+                      width: "1em",
+                      height: "1em",
+                    }}
+                  />
+                ) : (
+                  <Paper
+                    sx={{
+                      backgroundColor: "#808080", //grey
+                      display: "inline-block",
+                      width: "1em",
+                      height: "1em",
+                    }}
+                  />
+                )}
               </span>
               <span style={{ marginLeft: "0.25rem" }}>{option.label}</span>
             </li>

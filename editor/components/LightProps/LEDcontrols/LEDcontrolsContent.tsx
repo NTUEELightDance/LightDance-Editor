@@ -57,6 +57,9 @@ function LEDcontrolsContent({
             <IntensityControl
               intensity={intensity}
               setIntensity={handleIntensityChange}
+              // if src equals to null, then the effect is currently
+              // switched to "empty"
+              disabled={src === null}
             />
           </>
         ) : (
@@ -92,6 +95,9 @@ function LEDcontrolsContent({
           <IntensityControl
             intensity={intensity}
             setIntensity={handleIntensityChange}
+            // if src equals to null, then the effect is currently
+            // switched to "empty"
+            disabled={src === null}
           />
         </Grid>
       )}

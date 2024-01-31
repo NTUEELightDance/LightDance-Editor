@@ -9,16 +9,26 @@ import { startEditing } from "@/core/actions";
 export interface IntensityControlProps {
   intensity: number | null;
   setIntensity: (intensity: number) => void;
+  disabled: boolean;
 }
 
-function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
+function IntensityControl({
+  intensity,
+  setIntensity,
+  disabled,
+}: IntensityControlProps) {
   const editorState = useReactiveVar(reactiveState.editorState);
-  const handleSliderChange = async (event: Event, newValue: number | number[]) => {
+  const handleSliderChange = async (
+    event: Event,
+    newValue: number | number[]
+  ) => {
     if (editorState === "IDLE") await startEditing();
     setIntensity(newValue as number);
   };
 
-  const handleInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (editorState === "IDLE") await startEditing();
     const intensity = Number(event.target.value);
     if (intensity < 0) setIntensity(0);
@@ -47,6 +57,7 @@ function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
     <>
       <Grid item>
         <Slider
+          disabled={disabled}
           value={intensity ?? 0}
           onChange={handleSliderChange}
           min={1}
@@ -71,7 +82,7 @@ function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
           }}
         />
       </Grid>
-      <Grid item sx={{display: "flex"}}>
+      <Grid item sx={{ display: "flex" }}>
         <Input
           value={intensity ?? ""}
           size="small"
@@ -85,7 +96,11 @@ function IntensityControl({ intensity, setIntensity }: IntensityControlProps) {
           sx={{ width: "3em" }}
           error={intensity === 0}
         />
-        {(intensity === 0) && <Typography fontSize={12} mt={1} ml={1} >invalid</Typography>}
+        {intensity === 0 && (
+          <Typography fontSize={12} mt={1} ml={1}>
+            invalid
+          </Typography>
+        )}
       </Grid>
     </>
   );

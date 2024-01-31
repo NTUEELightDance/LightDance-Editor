@@ -28,6 +28,7 @@ function MixedControlsContent({
       <IntensityControl
         intensity={intensity}
         setIntensity={handleIntensityChange}
+        disabled={false}
       />
     </Grid>
   );

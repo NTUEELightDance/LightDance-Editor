@@ -188,6 +188,13 @@ function PartMode() {
       );
       editCurrentStatusDelta({ payload: currentStatusDelta });
     }
+    // The following if statement is to assure that if someone 
+    // switches the effect back to empty, we still want the intensity
+    // slider disabled. The slider is disabled when LEDEffectName is
+    // null.
+    if (LEDEffectName === "empty"){ 
+      setLEDsrc(null);
+    }
   }, [LEDEffectName, intensity, partType, selectedParts]);
 
   useEffect(() => {

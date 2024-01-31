@@ -4,7 +4,7 @@ import IntensityControl from "../IntensityControl";
 import { ColorID } from "@/core/models";
 
 export interface OFcontrolsContentProps {
-  handleColorChange: (colorID: ColorID) => void;
+  handleColorChange: (colorID: ColorID | null) => void;
   intensity: number | null;
   handleIntensityChange: (intensity: number) => void;
   currentColorID: ColorID | null;
@@ -33,7 +33,7 @@ function OFcontrolsContent({
           <>
             <Grid item>
               <ColorSelector
-                placeholder="none"
+                placeholder="empty"
                 onChange={handleColorChange}
                 currentColorID={currentColorID}
               />
@@ -41,6 +41,7 @@ function OFcontrolsContent({
             <IntensityControl
               intensity={intensity}
               setIntensity={handleIntensityChange}
+              disabled={currentColorID === null}
             />
           </>
         ) : (
@@ -50,7 +51,7 @@ function OFcontrolsContent({
             </Grid>
             <Grid item>
               <ColorSelector
-                placeholder="none"
+                placeholder="empty"
                 onChange={handleColorChange}
                 currentColorID={currentColorID}
               />
@@ -76,6 +77,7 @@ function OFcontrolsContent({
           <IntensityControl
             intensity={intensity}
             setIntensity={handleIntensityChange}
+            disabled={currentColorID === null}
           />
         </Grid>
       )}
