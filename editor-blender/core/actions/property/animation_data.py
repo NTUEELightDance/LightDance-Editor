@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import bpy
 
 from ...models import ControlMapElement, FiberData, LEDData, MapID, PosMapElement
@@ -13,10 +15,12 @@ def set_ctrl_keyframes_from_state():
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     ctrl_frame_number = len(ctrl_map)
+    fade_seq: List[Tuple[int, bool]] = [(0, False)] * ctrl_frame_number
     for i, (_, ctrl_map_element) in enumerate(ctrl_map.items()):
         frame_start = ctrl_map_element.start
         fade = ctrl_map_element.fade
         ctrl_status = ctrl_map_element.status
+        fade_seq[i] = frame_start, fade
         for dancer_name, ctrl in ctrl_status.items():
             dancer_index = dancer_name.split("_")[0]
             for part_name, part_data in ctrl.items():
@@ -31,7 +35,7 @@ def set_ctrl_keyframes_from_state():
                                 led_rgb[0] / 255,
                                 led_rgb[1] / 255,
                                 led_rgb[2] / 255,
-                                led_data.alpha / 10, # TODO: change to 255
+                                led_data.alpha / 10,  # TODO: change to 255
                             )
                             if led_obj.animation_data is None:
                                 led_obj.animation_data_create()
@@ -83,7 +87,7 @@ def set_ctrl_keyframes_from_state():
                         part_rgb[0] / 255,
                         part_rgb[1] / 255,
                         part_rgb[2] / 255,
-                        part_data.alpha / 10, # TODO: change to 255
+                        part_data.alpha / 10,  # TODO: change to 255
                     )
                     if part_obj.animation_data is None:
                         part_obj.animation_data_create()
@@ -121,10 +125,25 @@ def set_ctrl_keyframes_from_state():
             curves.new("ld_control_frame")
             curves.find("ld_control_frame").keyframe_points.add(ctrl_frame_number)
         curve_points = curves.find("ld_control_frame").keyframe_points
-        curve_points[i].co = frame_start, (frame_start if not fade else curve_points[i-1].co[1])
+        curve_points[i].co = frame_start, frame_start
         curve_points[i].interpolation = "CONSTANT"
-        if i == ctrl_frame_number - 1:
-            curves.find("ld_control_frame").keyframe_points.sort()
+    curves = bpy.context.scene.animation_data.action.fcurves
+    curves.find("ld_control_frame").keyframe_points.sort()
+    fade_seq.sort(key=lambda item: item[0])
+    curve_points = curves.find("ld_control_frame").keyframe_points
+    for frame_start, fade in fade_seq:
+        if fade:
+            point_index = next(
+                list(curve_points).index(p)
+                for p in curve_points
+                if p.co[0] == frame_start
+            )
+            if point_index == ctrl_frame_number - 1:
+                continue
+            curve_points[point_index + 1].co = (
+                curve_points[point_index + 1].co[0],
+                curve_points[point_index].co[1],
+            )
 
 
 def set_pos_keyframes_from_state():
@@ -265,7 +284,7 @@ def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
                             led_rgb[0] / 255,
                             led_rgb[1] / 255,
                             led_rgb[2] / 255,
-                            led_data.alpha / 10, # TODO: change to 255
+                            led_data.alpha / 10,  # TODO: change to 255
                         )
                         curves = led_obj.animation_data.action.fcurves
                         for d in range(4):
@@ -292,7 +311,7 @@ def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
                     part_rgb[0] / 255,
                     part_rgb[1] / 255,
                     part_rgb[2] / 255,
-                    part_data.alpha / 10,# TODO: change to 255
+                    part_data.alpha / 10,  # TODO: change to 255
                 )
                 if part_obj.animation_data is None:
                     part_obj.animation_data_create()
@@ -313,8 +332,28 @@ def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
     curves = scene.animation_data.action.fcurves
     curve_points = curves.find("ld_control_frame").keyframe_points
     point = curve_points.insert(frame_start, frame_start)
+    # update new ld_control_frame
+    try:
+        new_next_point = next(p for p in curve_points if p.co[0] > frame_start)
+        new_next_fade_points = [
+            p
+            for p in curve_points
+            if p.co[0] > frame_start and p.co[1] == new_next_point.co[1]
+        ]
+        if new_next_point.co[0] != new_next_point.co[1]:  # new co's previous point fade
+            point.co = frame_start, new_next_point.co[1]
+        else:
+            point.co = frame_start, frame_start
+        if fade:  # propagate fade to next points
+            for new_p in new_next_fade_points:
+                new_p.co = new_p.co[0], point.co[1]
+        else:  # reset next point to frame_start
+            for new_p in new_next_fade_points:
+                new_p.co = new_p.co[0], new_next_point.co[0]
+    except StopIteration:
+        pass
+    curve_points.sort()
     point.interpolation = "CONSTANT"
-    curves.find("ld_control_frame").keyframe_points.sort()
 
 
 def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
@@ -339,7 +378,7 @@ def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
                             led_rgb[0] / 255,
                             led_rgb[1] / 255,
                             led_rgb[2] / 255,
-                            led_data.alpha / 10,# TODO: change to 255
+                            led_data.alpha / 10,  # TODO: change to 255
                         )
                         curves = led_obj.animation_data.action.fcurves
                         for d in range(4):
@@ -372,7 +411,7 @@ def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
                     part_rgb[0] / 255,
                     part_rgb[1] / 255,
                     part_rgb[2] / 255,
-                    part_data.alpha / 10,# TODO: change to 255
+                    part_data.alpha / 10,  # TODO: change to 255
                 )
                 curves = part_obj.animation_data.action.fcurves
                 for d in range(4):
@@ -383,12 +422,49 @@ def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
                     curve_points.sort()
             else:
                 print("Invalid part data")
-    # insert fake frame
+    # update fake frame
     scene = bpy.context.scene
     curves = scene.animation_data.action.fcurves
     curve_points = curves.find("ld_control_frame").keyframe_points
     point = next(p for p in curve_points if p.co[0] == old_frame_start)
-    point.co = new_frame_start, new_frame_start
+    # update old ld_control_frame
+    try:
+        old_next_point = next(p for p in curve_points if p.co[0] > old_frame_start)
+        old_next_fade_points = [
+            p
+            for p in curve_points
+            if p.co[0] > old_frame_start and p.co[1] == old_next_point.co[1]
+        ]
+        if point.co[0] != point.co[1]:  # old co's previous point fade
+            for old_p in old_next_fade_points:
+                old_p.co = old_p.co[0], point.co[1]
+        elif (
+            old_next_point.co[0] != old_next_point.co[1]
+        ):  # reset next point to frame_start
+            for old_p in old_next_fade_points:
+                old_p.co = old_p.co[0], old_next_point.co[0]
+    except StopIteration:
+        pass
+    # update new ld_control_frame
+    try:
+        new_next_point = next(p for p in curve_points if p.co[0] > new_frame_start)
+        new_next_fade_points = [
+            p
+            for p in curve_points
+            if p.co[0] > new_frame_start and p.co[1] == new_next_point.co[1]
+        ]
+        if new_next_point.co[0] != new_next_point.co[1]:  # new co's previous point fade
+            point.co = new_frame_start, new_next_point.co[1]
+        else:
+            point.co = new_frame_start, new_frame_start
+        if new_fade:  # propagate fade to next points
+            for new_p in new_next_fade_points:
+                new_p.co = new_p.co[0], point.co[1]
+        else:  # reset next point to frame_start
+            for new_p in new_next_fade_points:
+                new_p.co = new_p.co[0], new_next_point.co[0]
+    except StopIteration:
+        pass
     point.interpolation = "CONSTANT"
     curve_points.sort()
 
@@ -425,4 +501,22 @@ def delete_single_ctrl_keyframe(ctrl_id: MapID):
     curves = scene.animation_data.action.fcurves
     curve_points = curves.find("ld_control_frame").keyframe_points
     point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    # update old ld_control_frame
+    try:
+        old_next_point = next(p for p in curve_points if p.co[0] > old_frame_start)
+        old_next_fade_points = [
+            p
+            for p in curve_points
+            if p.co[0] > old_frame_start and p.co[1] == old_next_point.co[1]
+        ]
+        if point.co[0] != point.co[1]:  # old co's previous point fade
+            for old_p in old_next_fade_points:
+                old_p.co = old_p.co[0], point.co[1]
+        elif (
+            old_next_point.co[0] != old_next_point.co[1]
+        ):  # reset next point to frame_start
+            for old_p in old_next_fade_points:
+                old_p.co = old_p.co[0], old_next_point.co[0]
+    except StopIteration:
+        pass
     curve_points.remove(point)

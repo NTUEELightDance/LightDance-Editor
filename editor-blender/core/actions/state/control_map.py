@@ -56,7 +56,7 @@ def delete_control(id: MapID):
     control_map_updates.deleted.append(id)
 
     if state.edit_state == EditMode.EDITING:
-        state.pos_map_pending = True
+        state.control_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_control_map_updates()
