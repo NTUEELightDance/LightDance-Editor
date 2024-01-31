@@ -26,6 +26,7 @@ async def fetch_data(reload: bool = False):
     param reload: Fetch assets again even they already exist is true, otherwise only fetch missing assets.
     """
     print("fetching data")
+    use_draco = False
     if client.file_client:
         assets_load = await client.download_json("/data/load.json")
         try:
@@ -33,7 +34,13 @@ async def fetch_data(reload: bool = False):
             for tag in ["Music", "LightPresets", "PosPresets"]:
                 url_set.add(assets_load[tag])
             for key in assets_load["DancerMap"]:
-                url_set.add(assets_load["DancerMap"][key]["url"])
+                raw_url = assets_load["DancerMap"][key]["url"]
+                if use_draco:
+                    model_url = raw_url
+                else:
+                    model_url = "".join(raw_url.split(".draco"))
+                    assets_load["DancerMap"][key]["url"] = model_url
+                url_set.add(model_url)
             for url in url_set:
                 file_path = os.path.normpath(target_path + url)
                 file_dir = os.path.dirname(file_path)
@@ -60,7 +67,7 @@ async def fetch_data(reload: bool = False):
 
         state.control_map = control_map_query_to_state(control_query)
     else:
-        raise Exception("HTTP client is not initialized")
+        raise Exception("File client is not initialized")
     return assets_load
 
 
@@ -68,9 +75,8 @@ def setup_assets(assets_load):
     """
     clear all objects
     """
-    bpy.ops.object.select_all(action="DESELECT")
-    bpy.ops.object.select_all()
-    bpy.ops.object.delete()
+    for old_obj in bpy.data.objects:
+        bpy.data.objects.remove(old_obj)
     """
     set dancer objects
     """
@@ -99,7 +105,7 @@ def setup_assets(assets_load):
             ld_object_type=ObjectType.HUMAN.value,
             color=(0, 0, 0, 1),
             data=bpy.data.meshes["human"],
-            ld_dancer_name=dancer.name
+            ld_dancer_name=dancer.name,
         )
         for item in dancer.parts:
             part_objects = [i for i in dancer_objects if i.name.find(item.name) >= 0]
@@ -129,7 +135,7 @@ def setup_assets(assets_load):
                         ld_part_name=item.name,
                         data=bpy.data.meshes["Sphere.001"],
                         ld_led_pos=i,
-                        ld_dancer_name=dancer.name
+                        ld_dancer_name=dancer.name,
                     )
             elif item.type.value == "FIBER":
                 obj = part_objects[0]
