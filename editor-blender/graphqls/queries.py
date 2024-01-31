@@ -124,6 +124,17 @@ QueryCoordinatesPayload = Tuple[float, float, float]
 
 
 """
+Revision
+"""
+
+
+@dataclass
+class QueryRevision(JSONWizard):
+    meta: int
+    data: int
+
+
+"""
 PositionRecord
 """
 
@@ -149,6 +160,7 @@ PositionMap
 class QueryPosFrame(JSONWizard):
     start: int
     pos: List[QueryCoordinatesPayload]
+    rev: Optional[QueryRevision] = None
 
 
 QueryPosMapPayload = Dict[ID, QueryPosFrame]
@@ -196,6 +208,7 @@ class QueryControlFrame(JSONWizard):
     start: int
     fade: bool
     status: List[QueryDancerStatusPayload]
+    rev: Optional[QueryRevision] = None
 
 
 QueryControlMapPayload = Dict[ID, QueryControlFrame]

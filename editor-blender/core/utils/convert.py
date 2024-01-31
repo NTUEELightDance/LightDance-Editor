@@ -13,10 +13,10 @@ from ...graphqls.queries import (
     QueryEffectListControlFrame,
     QueryEffectListItem,
     QueryEffectListPositionFrame,
-    QueryLEDEffectFramePayload,
     QueryLEDMapPayload,
     QueryPosFrame,
     QueryPosMapPayload,
+    QueryRevision,
 )
 from ...graphqls.subscriptions import (
     SubControlFrame,
@@ -46,6 +46,7 @@ from ..models import (
     PosMap,
     PosMapElement,
     PosMapStatus,
+    Revision,
 )
 from ..states import state
 
@@ -71,14 +72,22 @@ def dancers_query_to_state(payload: QueryDancersPayload) -> DancersArray:
 
 
 def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
-    pos_map_element = PosMapElement(start=payload.start, pos={})
+    rev = None
+    if payload.rev is not None:
+        rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
+
+    pos_map_element = PosMapElement(start=payload.start, pos={}, rev=rev)
     pos_map_element.pos = pos_status_query_to_state(payload.pos)
 
     return pos_map_element
 
 
 def pos_frame_sub_to_query(data: SubPositionFrame) -> QueryPosFrame:
-    response = QueryPosFrame(start=data.start, pos=[])
+    rev = None
+    if data.rev is not None:
+        rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
+
+    response = QueryPosFrame(start=data.start, pos=[], rev=rev)
     response.pos = [(pos[0], pos[1], pos[2]) for pos in data.pos]
 
     return response
@@ -151,8 +160,12 @@ def control_status_query_to_state(
 
 
 def control_frame_query_to_state(payload: QueryControlFrame) -> ControlMapElement:
+    rev = None
+    if payload.rev is not None:
+        rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
+
     control_map_element = ControlMapElement(
-        start=payload.start, fade=payload.fade, status={}
+        start=payload.start, fade=payload.fade, status={}, rev=rev
     )
 
     control_map_element.status = control_status_query_to_state(payload.status)
@@ -170,7 +183,11 @@ def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
 
 
 def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
-    response = QueryControlFrame(start=data.start, fade=data.fade, status=[])
+    rev = None
+    if data.rev is not None:
+        rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
+
+    response = QueryControlFrame(start=data.start, fade=data.fade, status=[], rev=rev)
 
     response.status = [
         [(partControl[0], partControl[1]) for partControl in partControls]

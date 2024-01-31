@@ -66,6 +66,13 @@ class FiberData:
 PartData = Union[LEDData, FiberData]
 DancerStatus = Dict[PartName, PartData]
 
+
+@dataclass
+class Revision:
+    meta: int
+    data: int
+
+
 ControlMapStatus = Dict[DancerName, DancerStatus]
 
 
@@ -74,6 +81,7 @@ class ControlMapElement:
     start: int
     fade: bool
     status: ControlMapStatus
+    rev: Optional[Revision] = None
 
 
 ControlMap = Dict[MapID, ControlMapElement]
@@ -95,6 +103,7 @@ PosMapStatus = Dict[DancerName, Location]
 class PosMapElement:
     start: int
     pos: PosMapStatus
+    rev: Optional[Revision] = None
 
 
 PosMap = Dict[MapID, PosMapElement]

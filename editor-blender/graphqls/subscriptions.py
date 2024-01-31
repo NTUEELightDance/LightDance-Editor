@@ -17,6 +17,12 @@ SubFiberControl = Tuple[ColorID, int]
 SubPartControl = Union[SubLEDControl, SubFiberControl]
 
 
+@dataclass
+class SubRevision(JSONWizard):
+    meta: int
+    data: int
+
+
 """
 PositoinRecord
 """
@@ -69,6 +75,7 @@ class SubPositionFrame(JSONWizard):
     start: int
     pos: List[SubPosition]
     editing: Optional[str] = None
+    rev: Optional[SubRevision] = None
 
 
 @dataclass
@@ -146,6 +153,7 @@ class SubControlFrame(JSONWizard):
     start: int
     status: List[List[SubPartControl]]
     editing: Optional[str] = None
+    rev: Optional[SubRevision] = None
 
 
 @dataclass
