@@ -1,6 +1,6 @@
 //! Part data type
-use async_graphql::{SimpleObject, Enum};
-use serde::{Serialize, Deserialize};
+use async_graphql::{Enum, SimpleObject};
+use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Type};
 
 #[derive(SimpleObject, FromRow, Debug, Clone)]

@@ -8,7 +8,8 @@ use crate::graphql::position_record::{PositionRecordMutationMode, PositionRecord
 use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
-use crate::types::global::{PositionPos, RedisPosition, UserContext};
+use crate::graphql::types::pos_frame::{PositionFrame, PositionFrameRevision};
+use crate::types::global::{PositionPos, RedisPosition, Revision, UserContext};
 use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
 use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 use std::collections::HashMap;
@@ -21,6 +22,7 @@ pub struct EditPositionFrameInput {
 
 #[derive(InputObject, Default)]
 pub struct DeletePositionFrameInput {
+    #[graphql(name = "frameID")]
     pub frame_id: i32,
 }
 
@@ -34,7 +36,7 @@ impl PositionFrameMutation {
         ctx: &Context<'_>,
         start: i32,
         position_data: Option<Vec<Vec<f64>>>,
-    ) -> GQLResult<PositionFrameData> {
+    ) -> GQLResult<PositionFrame> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -133,6 +135,7 @@ impl PositionFrameMutation {
                     RedisPosition {
                         start,
                         editing: None,
+                        rev: Revision::default(),
                         pos: data
                             .iter()
                             .map(|coor| PositionPos(coor[0], coor[1], coor[2]))
@@ -202,13 +205,17 @@ impl PositionFrameMutation {
 
         Subscriptor::publish(record_payload);
 
-        Ok(PositionFrameData { id, start })
+        Ok(PositionFrame {
+            id,
+            start,
+            rev: PositionFrameRevision::default(),
+        })
     }
     async fn edit_position_frame(
         &self,
         ctx: &Context<'_>,
         input: EditPositionFrameInput,
-    ) -> GQLResult<PositionFrameData> {
+    ) -> GQLResult<PositionFrame> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -298,6 +305,19 @@ impl PositionFrameMutation {
         .execute(mysql)
         .await?;
 
+        // update revision of the frame
+        let _ = sqlx::query_as!(
+            PositionFrameData,
+            r#"
+                UPDATE PositionFrame
+                SET meta_rev = meta_rev + 1
+                WHERE id = ?;
+            "#,
+            input.frame_id
+        )
+        .execute(mysql)
+        .await?;
+
         let position_frame = position_frame.unwrap();
         update_redis_position(mysql, redis, position_frame.id).await?;
 
@@ -345,16 +365,20 @@ impl PositionFrameMutation {
 
         Subscriptor::publish(record_payload);
 
-        Ok(PositionFrameData {
+        Ok(PositionFrame {
             id: input.frame_id,
             start: input.start,
+            rev: PositionFrameRevision {
+                meta: position_frame.meta_rev + 1,
+                data: position_frame.data_rev,
+            },
         })
     }
     async fn delete_position_frame(
         &self,
         ctx: &Context<'_>,
         input: DeletePositionFrameInput,
-    ) -> GQLResult<PositionFrameData> {
+    ) -> GQLResult<PositionFrame> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -442,9 +466,13 @@ impl PositionFrameMutation {
 
         let deleted_frame = deleted_frame.unwrap();
 
-        Ok(PositionFrameData {
+        Ok(PositionFrame {
             id: deleted_frame.id,
             start: deleted_frame.start,
+            rev: PositionFrameRevision {
+                meta: deleted_frame.meta_rev,
+                data: deleted_frame.data_rev,
+            },
         })
     }
 }

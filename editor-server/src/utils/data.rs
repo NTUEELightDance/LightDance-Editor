@@ -2,7 +2,7 @@
 
 use crate::db::types::part::PartType;
 use crate::global;
-use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition};
+use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition, Revision};
 use crate::utils::vector::partition_by_field;
 
 use itertools::Itertools;
@@ -109,6 +109,10 @@ pub async fn init_redis_control(
         let result_control = RedisControl {
             fade: frame.fade != 0,
             start: frame.start,
+            rev: Revision {
+                meta: frame.meta_rev,
+                data: frame.data_rev,
+            },
             editing: frame.user_name.clone(),
             status,
         };
@@ -188,6 +192,10 @@ pub async fn init_redis_position(
         let result_control = RedisPosition {
             start: frame.start,
             editing: frame.user_name.clone(),
+            rev: Revision {
+                meta: frame.meta_rev,
+                data: frame.data_rev,
+            },
             pos,
         };
 
@@ -294,6 +302,10 @@ pub async fn update_redis_control(
     let result_control = RedisControl {
         fade: frame.fade != 0,
         start: frame.start,
+        rev: Revision {
+            meta: frame.meta_rev,
+            data: frame.data_rev,
+        },
         editing: frame.user_name.clone(),
         status,
     };
@@ -376,6 +388,10 @@ pub async fn update_redis_position(
     let result_pos = RedisPosition {
         start: frame.start,
         editing: frame.user_name.clone(),
+        rev: Revision {
+            meta: frame.meta_rev,
+            data: frame.data_rev,
+        },
         pos,
     };
 
