@@ -255,7 +255,6 @@ const mainGenerate = async (releaseUrl, ffbin) => {
   rmRedundantWaveform();
 }
 
-
 // download if ffmpeg not in path
 let ffmpegExistance = ffmpegExist();  // ffbin, releaseUrl is set in ffmpegExist
 // delete ffmpeg if exists
