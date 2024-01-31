@@ -9,6 +9,7 @@ pub mod position_frame;
 pub mod position_map;
 pub mod request_edit;
 pub mod part;
+pub mod shift;
 
 use color::*;
 use control_frame::*;
@@ -19,6 +20,7 @@ use position_frame::*;
 use position_map::*;
 use request_edit::*;
 use part::*;
+use shift::*;
 
 #[derive(async_graphql::MergedObject, Default)]
 pub struct MutationRoot(
@@ -31,4 +33,5 @@ pub struct MutationRoot(
     LEDMutation,
     DancerMutation,
     PartMutation,
+    FrameMutation,
 );

@@ -1,5 +1,3 @@
-//! Color subscription methods.
-
 use crate::graphql::subscriptor::Subscriptor;
 
 use async_graphql::{Enum, SimpleObject, Subscription};
@@ -15,6 +13,10 @@ pub enum ControlRecordMutationMode {
     Created,
     #[serde(rename = "DELETED")]
     Deleted,
+    #[serde(rename = "UPDATED_DELETED")]
+    UpdatedDeleted,
+    #[serde(rename = "CREATED_DELETED")]
+    CreatedDeleted,
 }
 
 #[derive(SimpleObject, Clone, Default)]
@@ -27,6 +29,7 @@ pub struct ControlRecordPayload {
     pub update_id: Vec<i32>,
     #[graphql(name = "deleteID")]
     pub delete_id: Vec<i32>,
+    #[graphql(name = "editBy")]
     pub edit_by: i32,
 }
 

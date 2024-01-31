@@ -1,5 +1,4 @@
 //! PositionRecord subscription methods.
-
 use crate::graphql::subscriptor::Subscriptor;
 
 use async_graphql::{Enum, SimpleObject, Subscription};
