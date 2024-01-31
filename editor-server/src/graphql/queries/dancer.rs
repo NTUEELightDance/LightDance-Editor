@@ -54,7 +54,7 @@ impl DancerQuery {
                             dancer_id: part.part_dancer_id,
                             name: part.part_name,
                             r#type: part.part_type.into(),
-                            length: part.part_length.unwrap_or(0),
+                            length: part.part_length,
                         })
                         .collect(),
                 ),
@@ -104,7 +104,7 @@ impl DancerQuery {
                             dancer_id: part.part_dancer_id,
                             name: part.part_name,
                             r#type: part.part_type.into(),
-                            length: part.part_length.unwrap_or(0),
+                            length: part.part_length,
                         })
                         .collect(),
                 ),
