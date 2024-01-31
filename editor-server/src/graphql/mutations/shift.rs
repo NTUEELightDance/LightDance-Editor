@@ -16,19 +16,9 @@ use crate::utils::data::{
     update_redis_control, update_redis_position,
 };
 
-use async_graphql::{Context, Error as GQLError, InputObject, Object, Result as GQLResult};
+use async_graphql::{Context, Error as GQLError, Object, Result as GQLResult, SimpleObject};
 use itertools::Itertools;
 use std::collections::HashMap;
-
-#[derive(InputObject, Default)]
-struct ShiftQuery {
-    start: i32,
-    end: i32,
-    #[graphql(name = "move")]
-    mv: i32,
-    shift_control: bool,
-    shift_position: bool,
-}
 
 #[derive(Clone)]
 struct ControlFrame {
@@ -42,18 +32,27 @@ struct PositionFrame {
     id: i32,
     start: i32,
 }
+
+#[derive(SimpleObject, Default)]
+struct ShiftResponse {
+    msg: String,
+    ok: bool,
+}
+
 #[derive(Default)]
 pub struct FrameMutation;
 
 #[Object]
 impl FrameMutation {
-    async fn shift(&self, ctx: &Context<'_>, query: ShiftQuery) -> GQLResult<String> {
-        let start = query.start;
-        let end = query.end;
-        let mv = query.mv;
-        let shift_control = query.shift_control;
-        let shift_position = query.shift_position;
-
+    async fn shift(
+        &self,
+        ctx: &Context<'_>,
+        start: i32,
+        end: i32,
+        #[graphql(name = "move")] mv: i32,
+        shift_control: bool,
+        shift_position: bool,
+    ) -> GQLResult<ShiftResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
         let redis_client = &clients.redis_client;
@@ -93,12 +92,12 @@ impl FrameMutation {
             let editing_control_frame = sqlx::query_as!(
                 EditingControlFrameData,
                 r#"
-					SELECT ControlFrame.id as frame_id, EditingControlFrame.user_id FROM ControlFrame
-					INNER JOIN EditingControlFrame
-					ON EditingControlFrame.frame_id = ControlFrame.id
-					AND start >= ?
-					AND start <= ?;
-				"#,
+                    SELECT ControlFrame.id as frame_id, EditingControlFrame.user_id FROM ControlFrame
+                    INNER JOIN EditingControlFrame
+                    ON EditingControlFrame.frame_id = ControlFrame.id
+                    AND start >= ?
+                    AND start <= ?;
+                "#,
                 check_start,
                 check_end
             )
@@ -122,12 +121,12 @@ impl FrameMutation {
             let editing_position_frame = sqlx::query_as!(
                 EditingPositionFrameData,
                 r#"
-					SELECT PositionFrame.id as frame_id, EditingPositionFrame.user_id FROM PositionFrame
-					INNER JOIN EditingPositionFrame
-					ON EditingPositionFrame.frame_id = PositionFrame.id
-					AND start >= ?
-					AND start <= ?;
-				"#,
+                    SELECT PositionFrame.id as frame_id, EditingPositionFrame.user_id FROM PositionFrame
+                    INNER JOIN EditingPositionFrame
+                    ON EditingPositionFrame.frame_id = PositionFrame.id
+                    AND start >= ?
+                    AND start <= ?;
+                "#,
                 check_start,
                 check_end
             )
@@ -153,10 +152,10 @@ impl FrameMutation {
             let delete_control_frames = sqlx::query_as!(
                 ControlFrame,
                 r#"
-					SELECT * FROM ControlFrame
-					WHERE start >= ?
-					AND start <= ?;
-				"#,
+                    SELECT * FROM ControlFrame
+                    WHERE start >= ?
+                    AND start <= ?;
+                "#,
                 overlap_start,
                 overlap_end
             )
@@ -164,10 +163,10 @@ impl FrameMutation {
             .await?;
             let _ = sqlx::query!(
                 r#"
-					DELETE FROM ControlFrame
-					WHERE start >= ?
-					AND start <= ?;
-				"#,
+                    DELETE FROM ControlFrame
+                    WHERE start >= ?
+                    AND start <= ?;
+                "#,
                 overlap_start,
                 overlap_end
             )
@@ -180,11 +179,11 @@ impl FrameMutation {
                 update_control_frames = sqlx::query_as!(
                     ControlFrame,
                     r#"
-						SELECT * FROM ControlFrame
-						WHERE start >= ?
-						AND start <= ?
-						ORDER BY start DESC;
-					"#,
+                        SELECT * FROM ControlFrame
+                        WHERE start >= ?
+                        AND start <= ?
+                        ORDER BY start DESC;
+                    "#,
                     start,
                     end
                 )
@@ -194,11 +193,11 @@ impl FrameMutation {
                 update_control_frames = sqlx::query_as!(
                     ControlFrame,
                     r#"
-						SELECT * FROM ControlFrame
-						WHERE start >= ?
-						AND start <= ?
-						ORDER BY start ASC;
-					"#,
+                        SELECT * FROM ControlFrame
+                        WHERE start >= ?
+                        AND start <= ?
+                        ORDER BY start ASC;
+                    "#,
                     start,
                     end
                 )
@@ -209,10 +208,10 @@ impl FrameMutation {
             for control_frame in &update_control_frames {
                 let _ = sqlx::query!(
                     r#"
-						UPDATE ControlFrame
-						SET start = ?
-						WHERE start = ?;
-					"#,
+                        UPDATE ControlFrame
+                        SET start = ?
+                        WHERE start = ?;
+                    "#,
                     control_frame.start + mv,
                     control_frame.start
                 )
@@ -264,9 +263,9 @@ impl FrameMutation {
             let all_control_frames = sqlx::query_as!(
                 ControlFrame,
                 r#"
-					SELECT * FROM ControlFrame
-					ORDER BY start ASC;
-				"#
+                    SELECT * FROM ControlFrame
+                    ORDER BY start ASC;
+                "#
             )
             .fetch_all(mysql)
             .await?;
@@ -292,10 +291,10 @@ impl FrameMutation {
             let delete_position_frames = sqlx::query_as!(
                 PositionFrame,
                 r#"
-					SELECT * FROM PositionFrame
-					WHERE start >= ?
-					AND start <= ?;
-				"#,
+                    SELECT * FROM PositionFrame
+                    WHERE start >= ?
+                    AND start <= ?;
+                "#,
                 overlap_start,
                 overlap_end
             )
@@ -303,10 +302,10 @@ impl FrameMutation {
             .await?;
             let _ = sqlx::query!(
                 r#"
-					DELETE FROM PositionFrame
-					WHERE start >= ?
-					AND start <= ?;
-				"#,
+                    DELETE FROM PositionFrame
+                    WHERE start >= ?
+                    AND start <= ?;
+                "#,
                 overlap_start,
                 overlap_end
             )
@@ -319,11 +318,11 @@ impl FrameMutation {
                 update_position_frames = sqlx::query_as!(
                     PositionFrame,
                     r#"
-						SELECT * FROM PositionFrame
-						WHERE start >= ?
-						AND start <= ?
-						ORDER BY start DESC;
-					"#,
+                        SELECT * FROM PositionFrame
+                        WHERE start >= ?
+                        AND start <= ?
+                        ORDER BY start DESC;
+                    "#,
                     start,
                     end
                 )
@@ -333,11 +332,11 @@ impl FrameMutation {
                 update_position_frames = sqlx::query_as!(
                     PositionFrame,
                     r#"
-						SELECT * FROM PositionFrame
-						WHERE start >= ?
-						AND start <= ?
-						ORDER BY start ASC;
-					"#,
+                        SELECT * FROM PositionFrame
+                        WHERE start >= ?
+                        AND start <= ?
+                        ORDER BY start ASC;
+                    "#,
                     start,
                     end
                 )
@@ -348,10 +347,10 @@ impl FrameMutation {
             for position_frame in &update_position_frames {
                 let _ = sqlx::query!(
                     r#"
-						UPDATE PositionFrame
-						SET start = ?
-						WHERE start = ?;
-					"#,
+                        UPDATE PositionFrame
+                        SET start = ?
+                        WHERE start = ?;
+                    "#,
                     position_frame.start + mv,
                     position_frame.start
                 )
@@ -405,9 +404,9 @@ impl FrameMutation {
             let all_position_frames = sqlx::query_as!(
                 PositionFrame,
                 r#"
-					SELECT * FROM PositionFrame
-					ORDER BY start ASC;
-				"#
+                    SELECT * FROM PositionFrame
+                    ORDER BY start ASC;
+                "#
             )
             .fetch_all(mysql)
             .await?;
@@ -428,6 +427,9 @@ impl FrameMutation {
             Subscriptor::publish(position_record_payload);
         }
 
-        Ok("Done".to_string())
+        Ok(ShiftResponse {
+            msg: "Shift success".to_string(),
+            ok: true,
+        })
     }
 }
