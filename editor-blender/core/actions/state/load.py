@@ -4,7 +4,7 @@ from typing import Any
 import bpy
 
 from ....client import client
-from ....properties.types import ObjectType
+from ....properties.types import LightType, ObjectType
 from ...states import state
 from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
@@ -120,7 +120,7 @@ def setup_assets(assets_load):
                     parts_parent,
                     parent=dancer_parent,
                     ld_object_type=ObjectType.LIGHT.value,
-                    ld_light_type=item.type.value.lower(),
+                    ld_light_type=LightType.LED.value,
                     ld_part_name=item.name,
                     empty_display_size=0,
                     ld_dancer_name=dancer.name,
@@ -131,7 +131,7 @@ def setup_assets(assets_load):
                         obj,
                         parent=parts_parent,
                         ld_object_type=ObjectType.LIGHT.value,
-                        ld_light_type=item.type.value.lower(),
+                        ld_light_type=LightType.LED_BULB.value,
                         ld_part_name=item.name,
                         data=bpy.data.meshes["Sphere.001"],
                         ld_led_pos=i,
@@ -141,8 +141,8 @@ def setup_assets(assets_load):
                 obj = part_objects[0]
                 obj.name = f"{dancer_index}.{item.name}"
                 obj.parent = dancer_parent
-                setattr(obj, "ld_object_type", "light")
-                setattr(obj, "ld_light_type", item.type.value.lower())
+                setattr(obj, "ld_object_type", ObjectType.LIGHT.value)
+                setattr(obj, "ld_light_type", LightType.FIBER.value)
                 setattr(obj, "ld_part_name", item.name)
     bpy.ops.outliner.orphans_purge(do_recursive=True)
 
