@@ -8,6 +8,7 @@ const child_process = require("child_process");
 const sharp = require('sharp');
 const jm = require('join-images');
 const readline = require('readline');
+const { getAudioDurationInSeconds } = require('get-audio-duration')
 
 // the annotation part can be used when the file is a module
 
@@ -27,9 +28,11 @@ const readline = require('readline');
 // procedure: check existance->download->construct command->generate waveform
 
 // const img_res = '4000x1000';
+let img_milisec_per_pin = 4;
 let img_res_width = 40000;
 let img_res_height = 400;
 let img_res = String(img_res_width) + 'x' + String(img_res_height);
+let music_duration = 420000;
 // console.log(`img_res = ${img_res}`);
 const hex_colo = '3D82B1';
 const sname = '../files/music/waveform.png';
@@ -46,6 +49,12 @@ let releaseUrl = '';    // url for downloading ffmpeg
 let ffbin = '';   // the path name(file name included) of the ffmpeg binary
 let cmd = [];   // the command that will later be used to generate waveform
 
+const readLength = async () => {
+  await getAudioDurationInSeconds(sfp).then((duration) => {
+    music_duration = duration*1000;
+    console.log(`duration = ${music_duration} miliseconds`);
+  })
+}
 
 
 const rl = readline.createInterface({
@@ -71,9 +80,11 @@ const readIntegerInput = (prompt) => {
 const readInput = async () => {
 
   try {
-    img_res_width = await readIntegerInput('Enter the width of the waveform: ');
-    img_res_height = await readIntegerInput('Enter the height of the waveform: ');
-    img_res = img_res_width+'x'+img_res_height;
+    img_milisec_per_pin = await readIntegerInput('Enter time duration(miliseconds) in one pixel: ');
+    img_res_width = Math.round(music_duration/img_milisec_per_pin);
+    // img_res_width = await readIntegerInput('Enter the width of the waveform: ');
+    // img_res_height = await readIntegerInput('Enter the height of the waveform: ');
+    img_res = img_res_width + 'x' + img_res_height;
     console.log(`Waveform resolution: ${img_res}`);
   } catch (error) {
     console.log("something wrong in the input...")
@@ -108,7 +119,7 @@ const callFFMPEG = () => {
 // download from url and save as dest, then generate waveform
 const dl_url = async (url, dest, ffmpegExistance) => {
   await readInput(img_res_width, img_res_height)
-  if(!ffmpegExistance){
+  if (!ffmpegExistance) {
     let start_time = Date.now();
     console.log("downloading ffmpeg...");
     await axios({
@@ -137,9 +148,9 @@ const dl_url = async (url, dest, ffmpegExistance) => {
           //no need to call the reject here, as it will have been called in the
           //'error' stream;
         });
-  
+
       });
-  
+
     }).then(() => {
       const downloadTime = (Date.now() - start_time) / 1000;  // Convert milliseconds to seconds
       console.log(`Download time ${downloadTime.toFixed(2)}s`);
@@ -147,7 +158,7 @@ const dl_url = async (url, dest, ffmpegExistance) => {
     }).catch(function (error) {
       console.error('Error downloading file:', error.message);
     });
-  }else{
+  } else {
     callFFMPEG();
   }
 }
@@ -220,12 +231,12 @@ const AsyncJoinImages = async () => {
     .then((img) => {
       // Save image as file
       img.toFile(String(ifp))
-      .then(()=>{console.log("image saved");})
-      .catch((err)=>{
-        console.log("failed to save image as file")
-        console.log(err)
-      });
-      
+        .then(() => { console.log("image saved"); })
+        .catch((err) => {
+          console.log("failed to save image as file")
+          console.log(err)
+        });
+
     }).catch((err) => {
       console.log("Failed joining waveforms...")
       console.log(err);
@@ -238,7 +249,7 @@ const AsyncImageManipulation = async () => {
 }
 
 const errReport = (err) => {
-  if(err) throw err;
+  if (err) throw err;
 }
 
 const rmRedundantWaveform = () => {
@@ -257,10 +268,12 @@ const rmRedundantWaveform = () => {
 
 const mainGenerate = async (releaseUrl, ffbin) => {
   let ffmpegExistance = await ffmpegExist();  // ffbin, releaseUrl is set in ffmpegExist
+  await readLength();
   await dl_url(releaseUrl, String(ffbin), ffmpegExistance);
   await AsyncImageManipulation();
   rmRedundantWaveform();
 }
+
 
 mainGenerate(releaseUrl, ffbin);
 

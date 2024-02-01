@@ -12,8 +12,8 @@ def side_menu(self, context):
 
     row = layout.row()
     row.prop(scn.swd_settings, 'height_offset')
-    row = layout.row()
-    row.prop(scn.swd_settings, 'end_frame')
+    # row = layout.row()
+    # row.prop(scn.swd_settings, 'end_frame')
     row = layout.row()
     row.prop(scn.swd_settings, 'use_dope')
     row.prop(scn.swd_settings, 'use_graph')

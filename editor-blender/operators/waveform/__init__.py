@@ -186,10 +186,10 @@ class SWD_OT_enable_draw(Operator):
         image = bpy.data.images.load(waveform_path, check_existing=False)
         # print("newe addon")
         sw_start = 0
-        if not context.scene.swd_settings.end_frame:
+        if not bpy.context.scene.frame_end:
             sw_end = 420000
         else:
-            sw_end = context.scene.swd_settings.end_frame
+            sw_end = bpy.context.scene.frame_end
 
         sw_frames = sw_end - sw_start
         height = ((sw_frames * image.size[1]) // image.size[0])

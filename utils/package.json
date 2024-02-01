@@ -13,6 +13,7 @@
     "draco3dgltf": "^1.5.6",
     "form-data": "^4.0.0",
     "fs": "0.0.1-security",
+    "get-audio-duration": "^4.0.1",
     "graphql": "^16.3.0",
     "graphql-request": "^4.0.0",
     "join-images": "^1.1.5",
