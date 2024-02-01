@@ -29,7 +29,7 @@ const readline = require('readline');
 // const img_res = '4000x1000';
 let img_res_width = 40000;
 let img_res_height = 400;
-const img_res = String(img_res_width) + 'x' + String(img_res_height);
+let img_res = String(img_res_width) + 'x' + String(img_res_height);
 // console.log(`img_res = ${img_res}`);
 const hex_colo = '3D82B1';
 const sname = '../files/music/waveform.png';
@@ -68,14 +68,13 @@ const readIntegerInput = (prompt) => {
   });
 }
 
-const readInput = async (width, height) => {
+const readInput = async () => {
 
   try {
-    width = await readIntegerInput('Enter the width of the waveform: ');
-    height = await readIntegerInput('Enter the height of the waveform: ');
-
-    console.log(`Waveform resolution: ${width}x${height}`);
-
+    img_res_width = await readIntegerInput('Enter the width of the waveform: ');
+    img_res_height = await readIntegerInput('Enter the height of the waveform: ');
+    img_res = img_res_width+'x'+img_res_height;
+    console.log(`Waveform resolution: ${img_res}`);
   } catch (error) {
     console.log("something wrong in the input...")
     console.error(error.message);
