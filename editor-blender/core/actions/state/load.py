@@ -216,7 +216,7 @@ def setup_viewport():
     bpy.context.scene.use_audio_scrub = True
     timeline = next(a for a in bpy.context.screen.areas if a.ui_type == "TIMELINE")
     setattr(timeline.spaces.active, "show_seconds", True)  # type: ignore
-    set_dopesheet_filter("control")  # follow default editor
+    set_dopesheet_filter("control_frame")  # follow default editor
 
 
 async def load_data() -> None:

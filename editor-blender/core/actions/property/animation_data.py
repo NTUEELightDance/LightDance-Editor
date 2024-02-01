@@ -127,6 +127,22 @@ def set_ctrl_keyframes_from_state():
         curve_points = curves.find("ld_control_frame").keyframe_points
         curve_points[i].co = frame_start, frame_start
         curve_points[i].interpolation = "CONSTANT"
+        # insert rev frame
+        rev = ctrl_map_element.rev
+        if curves.find("ld_control_meta") is None:
+            curves.new("ld_control_meta")
+            curves.find("ld_control_meta").keyframe_points.add(ctrl_frame_number)
+        curves.find("ld_control_meta").keyframe_points[i].co = frame_start, (
+            rev.meta if rev else -1
+        )
+        curves.find("ld_control_meta").keyframe_points[i].interpolation = "CONSTANT"
+        if curves.find("ld_control_data") is None:
+            curves.new("ld_control_data")
+            curves.find("ld_control_data").keyframe_points.add(ctrl_frame_number)
+        curves.find("ld_control_data").keyframe_points[i].co = frame_start, (
+            rev.data if rev else -1
+        )
+        curves.find("ld_control_data").keyframe_points[i].interpolation = "CONSTANT"
     curves = bpy.context.scene.animation_data.action.fcurves
     curves.find("ld_control_frame").keyframe_points.sort()
     fade_seq.sort(key=lambda item: item[0])
@@ -192,6 +208,22 @@ def set_pos_keyframes_from_state():
         curves.find("ld_pos_frame").keyframe_points[i].interpolation = "CONSTANT"
         if i == pos_frame_number - 1:
             curves.find("ld_pos_frame").keyframe_points.sort()
+        # insert rev frame (meta & data)
+        rev = pos_map_element.rev
+        if curves.find("ld_pos_meta") is None:
+            curves.new("ld_pos_meta")
+            curves.find("ld_pos_meta").keyframe_points.add(pos_frame_number)
+        curves.find("ld_pos_meta").keyframe_points[i].co = frame_start, (
+            rev.meta if rev else -1
+        )
+        curves.find("ld_pos_meta").keyframe_points[i].interpolation = "CONSTANT"
+        if curves.find("ld_pos_data") is None:
+            curves.new("ld_pos_data")
+            curves.find("ld_pos_data").keyframe_points.add(pos_frame_number)
+        curves.find("ld_pos_data").keyframe_points[i].co = frame_start, (
+            rev.data if rev else -1
+        )
+        curves.find("ld_pos_data").keyframe_points[i].interpolation = "CONSTANT"
 
 
 """
@@ -214,6 +246,16 @@ def add_single_pos_keyframe(pos_element: PosMapElement):
     scene = bpy.context.scene
     curves = scene.animation_data.action.fcurves
     point = curves.find("ld_pos_frame").keyframe_points.insert(frame_start, frame_start)
+    point.interpolation = "CONSTANT"
+    # insert rev frame (meta & data)
+    rev = pos_element.rev
+    point = curves.find("ld_pos_meta").keyframe_points.insert(
+        frame_start, (rev.meta if rev else -1)
+    )
+    point.interpolation = "CONSTANT"
+    point = curves.find("ld_pos_data").keyframe_points.insert(
+        frame_start, (rev.data if rev else -1)
+    )
     point.interpolation = "CONSTANT"
 
 
@@ -239,6 +281,14 @@ def edit_single_pos_keyframe(pos_id: MapID, pos_element: PosMapElement):
     point.co = new_frame_start, new_frame_start
     point.interpolation = "CONSTANT"
     curve_points.sort()
+    # insert rev frame (meta & data)
+    rev = pos_element.rev
+    curve_points = curves.find("ld_pos_meta").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    point.co = new_frame_start, (rev.meta if rev else -1)
+    curve_points = curves.find("ld_pos_data").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    point.co = new_frame_start, (rev.data if rev else -1)
 
 
 def delete_single_pos_keyframe(pos_id: MapID):
@@ -255,6 +305,13 @@ def delete_single_pos_keyframe(pos_id: MapID):
     scene = bpy.context.scene
     curves = scene.animation_data.action.fcurves
     curve_points = curves.find("ld_pos_frame").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    curve_points.remove(point)
+    # insert rev frame (meta & data)
+    curve_points = curves.find("ld_pos_meta").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    curve_points.remove(point)
+    curve_points = curves.find("ld_pos_data").keyframe_points
     point = next(p for p in curve_points if p.co[0] == old_frame_start)
     curve_points.remove(point)
 
@@ -353,6 +410,16 @@ def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
     except StopIteration:
         pass
     curve_points.sort()
+    point.interpolation = "CONSTANT"
+    # insert rev frame (meta & data)
+    rev = ctrl_element.rev
+    point = curves.find("ld_control_meta").keyframe_points.insert(
+        frame_start, (rev.meta if rev else -1)
+    )
+    point.interpolation = "CONSTANT"
+    point = curves.find("ld_control_data").keyframe_points.insert(
+        frame_start, (rev.data if rev else -1)
+    )
     point.interpolation = "CONSTANT"
 
 
@@ -467,6 +534,14 @@ def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
         pass
     point.interpolation = "CONSTANT"
     curve_points.sort()
+    # insert rev frame (meta & data)
+    rev = ctrl_element.rev
+    curve_points = curves.find("ld_control_meta").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    point.co = new_frame_start, (rev.meta if rev else -1)
+    curve_points = curves.find("ld_control_data").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    point.co = new_frame_start, (rev.data if rev else -1)
 
 
 def delete_single_ctrl_keyframe(ctrl_id: MapID):
@@ -519,4 +594,11 @@ def delete_single_ctrl_keyframe(ctrl_id: MapID):
                 old_p.co = old_p.co[0], old_next_point.co[0]
     except StopIteration:
         pass
+    curve_points.remove(point)
+    # insert rev frame (meta & data)
+    curve_points = curves.find("ld_control_meta").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
+    curve_points.remove(point)
+    curve_points = curves.find("ld_control_data").keyframe_points
+    point = next(p for p in curve_points if p.co[0] == old_frame_start)
     curve_points.remove(point)

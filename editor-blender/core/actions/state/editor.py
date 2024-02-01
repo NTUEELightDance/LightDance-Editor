@@ -34,7 +34,7 @@ def setup_control_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("control")
+    set_dopesheet_filter("control_frame")
     state.editor = Editor.CONTROL_EDITOR
 
 
@@ -52,7 +52,7 @@ def setup_pos_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("pos")
+    set_dopesheet_filter("pos_frame")
     state.editor = Editor.POS_EDITOR
 
 
