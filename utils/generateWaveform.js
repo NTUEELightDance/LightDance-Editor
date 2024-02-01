@@ -170,7 +170,7 @@ const ffmpegExist = async () => {
   if (process.platform.startsWith('win')) {
     releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/windows/ffmpeg.exe';
   } else if (process.platform.startsWith('linux') || process.platform === 'freebsd') {
-    console.log("linux");
+    // console.log("linux");
     releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/linux/ffmpeg';
   } else { // Mac
     releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/mac/ffmpeg';
@@ -178,8 +178,8 @@ const ffmpegExist = async () => {
 
   // Check if ffmpeg is already in the current path
   ffbin = path.join(String(__dirname), String(path.basename(releaseUrl)));
-  console.log(ffbin);
-  console.log(fs.existsSync(ffbin));
+  // console.log(ffbin);
+  // console.log(fs.existsSync(ffbin));
   return fs.existsSync(ffbin);
 }
 
