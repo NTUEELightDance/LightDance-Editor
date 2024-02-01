@@ -95,7 +95,7 @@ async def save_pos_frame(start: Optional[int] = None):
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
-            redraw_area("VIEW_3D")
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")
     except:
@@ -130,7 +130,7 @@ async def request_edit_pos():
         attach_editing_pos_frame()
         update_current_pos_by_index()
 
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")
 
@@ -150,6 +150,6 @@ async def cancel_edit_pos():
         state.current_editing_frame_synced = False
         state.edit_state = EditMode.IDLE
 
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")

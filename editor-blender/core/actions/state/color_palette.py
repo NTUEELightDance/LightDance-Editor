@@ -1,6 +1,7 @@
 import bpy
 
 from ....api.color_agent import color_agent
+from ....icons import generate_icon_images
 from ....properties.types import ColorPaletteItemType
 from ...models import RGB, ColorID, ColorMap, ColorName
 from ...utils.convert import rgb_to_float
@@ -47,3 +48,5 @@ def setup_color_palette_from_state(colormap: ColorMap):
     color_temp_item.color_float = (0.0, 0.0, 0.0)
 
     setattr(color_temp_item, "color_name", "")
+
+    generate_icon_images(list(colormap.values()), clear=True)

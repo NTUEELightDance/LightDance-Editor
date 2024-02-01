@@ -17,13 +17,13 @@ def set_is_playing(is_playing: bool):
 
 def start_playing():
     # Update panel status
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 def stop_playing():
     # Update current index
     update_frame_index(bpy.context.scene.frame_current)
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 # This part only handle the case when you pause the animation

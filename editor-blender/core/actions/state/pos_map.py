@@ -19,7 +19,7 @@ def add_pos(id: MapID, frame: PosMapElement):
 
     if state.edit_state == EditMode.EDITING:
         state.pos_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_pos_map_updates()
         notify("INFO", f"Added position frame at {frame.start}")
@@ -49,7 +49,7 @@ def delete_pos(id: MapID):
 
     if state.edit_state == EditMode.EDITING:
         state.pos_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_pos_map_updates()
         notify("INFO", f"Deleted position frame {id}")
@@ -74,7 +74,7 @@ def update_pos(id: MapID, frame: PosMapElement):
 
     if state.edit_state == EditMode.EDITING:
         state.pos_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_pos_map_updates()
         notify("INFO", f"Updated position frame {id}")
@@ -109,4 +109,4 @@ def apply_pos_map_updates():
     update_current_pos_by_index()
 
     state.pos_map_pending = False
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

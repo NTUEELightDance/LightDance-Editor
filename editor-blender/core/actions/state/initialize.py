@@ -1,6 +1,8 @@
 import asyncio
 from typing import Dict, List, Optional
 
+import bpy
+
 from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
@@ -14,7 +16,10 @@ from ....core.actions.state.color_map import set_color_map
 # from ....core.actions.state.color_map import set_color_map
 # from ....core.actions.state.control_map import set_control_map
 from ....core.actions.state.current_pos import update_current_pos_by_index
-from ....core.actions.state.current_status import update_current_status_by_index
+from ....core.actions.state.current_status import (
+    calculate_current_status_index,
+    update_current_status_by_index,
+)
 from ....core.actions.state.editor import setup_control_editor
 from ....core.actions.state.led_map import set_led_map
 
@@ -117,7 +122,7 @@ async def init():
         state.is_logged_in = True
         await init_blender()
 
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 async def init_blender():
@@ -209,7 +214,12 @@ async def init_editor():
     execute_operator("lightdance.animation_status_listener")
     execute_operator("lightdance.notification")
 
-    redraw_area("VIEW_3D")
+    # Initialize current index
+    bpy.context.scene.frame_set(0)
+    state.current_control_index = calculate_current_status_index()
+    update_current_status_by_index()
+
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 async def init_dancers():

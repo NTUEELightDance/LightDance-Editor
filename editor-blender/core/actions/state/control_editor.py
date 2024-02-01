@@ -5,10 +5,11 @@ import bpy
 from ....api.control_agent import control_agent
 from ....graphqls.mutations import MutDancerStatusPayload
 from ....properties.types import LightType
-from ...models import EditingData, EditMode, PartType
+from ...models import EditingData, EditMode, PartType, SelectMode
 from ...states import state
 from ...utils.convert import control_status_state_to_mut, rgb_to_float
 from ...utils.notification import notify
+from ...utils.object import clear_selection
 from ...utils.ui import redraw_area
 from .control_map import apply_control_map_updates
 from .current_status import update_current_status_by_index
@@ -135,8 +136,8 @@ async def save_control_frame(start: Optional[int] = None):
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
-            redraw_area("VIEW_3D")
-            redraw_area("DOPESHEET_EDITOR")
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")
     except:
@@ -171,8 +172,7 @@ async def request_edit_control():
         attach_editing_control_frame()
         update_current_status_by_index()
 
-        redraw_area("VIEW_3D")
-        redraw_area("DOPESHEET_EDITOR")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")
 
@@ -192,7 +192,22 @@ async def cancel_edit_control():
         state.current_editing_frame_synced = False
         state.edit_state = EditMode.IDLE
 
-        redraw_area("VIEW_3D")
-        redraw_area("DOPESHEET_EDITOR")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")
+
+
+def toggle_dancer_mode():
+    bpy.context.view_layer.objects.active = None  # type: ignore
+    state.selected_obj_type = None
+    clear_selection()
+    state.selection_mode = SelectMode.DANCER_MODE
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+def toggle_part_mode():
+    bpy.context.view_layer.objects.active = None  # type: ignore
+    state.selected_obj_type = None
+    clear_selection()
+    state.selection_mode = SelectMode.PART_MODE
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

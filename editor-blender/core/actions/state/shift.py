@@ -18,12 +18,12 @@ def toggle_shift():
     ld_ui_time_shift["displacement"] = 0  # type: ignore
 
     state.shifting = True
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 def cancel_shift():
     state.shifting = False
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 async def confirm_shift():
@@ -44,10 +44,10 @@ async def confirm_shift():
             raise Exception(retult.msg)
 
         state.shifting = False
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify("Time shift success")
 
     except Exception as e:
         state.shifting = False
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify(f"Time shift failed: {e}")

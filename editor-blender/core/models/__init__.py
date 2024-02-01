@@ -209,6 +209,11 @@ class FrameType(Enum):
     BOTH = "BOTH"
 
 
+class SelectMode(Enum):
+    DANCER_MODE = 0
+    PART_MODE = 1
+
+
 @dataclass
 class State:
     is_running: bool
@@ -259,10 +264,9 @@ class State:
     editing_data: EditingData
     shifting: bool
     # NOTE: Guess we can't implement this
-    # selection_mode: SelectMode
 
     # NOTE: Maybe we don't need these
-    # selected: Selected
+    selection_mode: SelectMode
     selected_obj_names: List[str]
     selected_obj_type: Optional[SelectedPartType]
     # selected_leds: List[int]

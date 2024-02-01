@@ -94,7 +94,7 @@ class ColorDeleteOperator(AsyncOperator):
             await delete_color(color_delete.color_id)
             notify("INFO", "Deleted color")
 
-            redraw_area("VIEW_3D")
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
         except Exception as e:
             print(e)
@@ -153,7 +153,7 @@ class ColorConfirmOperator(AsyncOperator):
                     notify("INFO", "Edited color")
                     ld_ui_color_palette.edit_mode = ColorPaletteEditModeType.IDLE.value
 
-                    redraw_area("VIEW_3D")
+                    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
                 except Exception as e:
                     print(e)
@@ -174,7 +174,7 @@ class ColorConfirmOperator(AsyncOperator):
                     notify("INFO", "Added color")
                     ld_ui_color_palette.edit_mode = ColorPaletteEditModeType.IDLE.value
 
-                    redraw_area("VIEW_3D")
+                    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
                 except Exception as e:
                     print(e)

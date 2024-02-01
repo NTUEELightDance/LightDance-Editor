@@ -8,19 +8,32 @@ from ..core.actions.property.lights import (
     update_current_effect,
 )
 from ..core.states import state
+from ..icons import icon_collections
 from .types import ColorPaletteItemType, LightType, ObjectType
 
 
 def get_color_lists(
     self: bpy.types.Object, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+) -> List[
+    Tuple[str, str, str, str, int]
+    | Tuple[str, str, str, int, int]
+    | Tuple[str, str, str]
+]:
+    collection = icon_collections["main"]
+
     ld_object_type: str = getattr(self, "ld_object_type")
     if ld_object_type == ObjectType.LIGHT.value:
         ld_color_palette: List[ColorPaletteItemType] = getattr(
             bpy.context.window_manager, "ld_color_palette"
         )
         return [
-            (color.color_name, color.color_name, "", "OBJECT_DATA", color.color_id)
+            (
+                color.color_name,
+                color.color_name,
+                "",
+                collection[color.color_name].icon_id,  # type: ignore
+                color.color_id,
+            )
             for color in ld_color_palette
         ]
 

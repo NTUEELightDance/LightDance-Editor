@@ -22,7 +22,7 @@ def add_control(id: MapID, frame: ControlMapElement):
 
     if state.edit_state == EditMode.EDITING:
         state.control_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_control_map_updates()
         notify("INFO", f"Added control frame {id}")
@@ -52,7 +52,7 @@ def delete_control(id: MapID):
 
     if state.edit_state == EditMode.EDITING:
         state.pos_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_control_map_updates()
         notify("INFO", f"Deleted control frame {id}")
@@ -77,7 +77,7 @@ def update_control(id: MapID, frame: ControlMapElement):
 
     if state.edit_state == EditMode.EDITING:
         state.control_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_control_map_updates()
         notify("INFO", f"Updated control frame {id}")
@@ -112,4 +112,4 @@ def apply_control_map_updates():
     update_current_status_by_index()
 
     state.control_map_pending = False
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

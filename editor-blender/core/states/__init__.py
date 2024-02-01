@@ -5,6 +5,7 @@ from ..models import (
     EditMode,
     Editor,
     PosMapUpdates,
+    SelectMode,
     State,
 )
 
@@ -48,8 +49,7 @@ state = State(
     editing_data=EditingData(frame_id=-1, start=0, index=0),
     shifting=False,
     # NOTE: Guess we can't implement these
-    # selection_mode: SelectMode.DANCER_MODE
-    # selected={},
+    selection_mode=SelectMode.PART_MODE,
     selected_obj_names=[],
     selected_obj_type=None,
     # selected_leds,

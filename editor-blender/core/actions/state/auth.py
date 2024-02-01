@@ -47,6 +47,6 @@ async def logout() -> bool:
         await client.close_graphql()
         await client.restart_http()
 
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
     return success

@@ -21,7 +21,10 @@ class PosEditor(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
-        layout.label(text="Position Editor")
+        layout.enabled = not state.shifting
+
+        row = layout.row()
+        row.label(text="Position Editor")
 
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.is_playing
