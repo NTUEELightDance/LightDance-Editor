@@ -6,6 +6,7 @@ import bpy
 from ....client import client
 from ....properties.types import LightType, ObjectType
 from ...states import state
+from ...utils.ui import set_dopesheet_filter
 from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
     set_pos_keyframes_from_state,
@@ -71,12 +72,38 @@ async def fetch_data(reload: bool = False):
     return assets_load
 
 
+def import_model_to_asset(model_name, model_filepath, parts):
+    """
+    set dancer collection asset
+    """
+    bpy.ops.import_scene.gltf(
+        filepath=model_filepath
+    )  # here all parts of dancer is selected
+    model_parts = bpy.context.selected_objects
+    col = bpy.data.collections.new(model_name)
+    for obj in model_parts:
+        for old_col in obj.users_collection:
+            old_col.objects.unlink(obj)
+        col.objects.link(obj)
+    col.asset_mark()
+    for item in parts:
+        part_objects = [i for i in model_parts if i.name.find(item.name) >= 0]
+        if len(part_objects) == 0:
+            print("Dancer part not found (maybe should reload asset)")
+        if item.type.value == "LED":
+            for i, obj in enumerate(part_objects):
+                set_bpy_props(obj, data=bpy.data.meshes["Sphere.001"])  # type: ignore
+    bpy.ops.outliner.orphans_purge(do_recursive=True)
+    print(f"model {model_name} imported")
+
+
 def setup_assets(assets_load):
     """
-    clear all objects
+    clear all objects in viewport
     """
     for old_obj in bpy.data.objects:
-        bpy.data.objects.remove(old_obj)
+        if old_obj.visible_get():
+            bpy.data.objects.remove(old_obj)
     """
     set dancer objects
     """
@@ -87,19 +114,21 @@ def setup_assets(assets_load):
         dancer_load = assets_load["DancerMap"][dancer_name]
         if dancer_name in bpy.context.scene.objects.keys():
             continue
-        dancer_file = dancer_load["url"]
-        dancer_filepath = os.path.normpath(target_path + dancer_file)
+        model_file = dancer_load["url"]
+        model_filepath = os.path.normpath(target_path + model_file)
+        model_name = dancer_load["modelName"]
         dancer_parent = bpy.data.objects.new(dancer_name, None)
         dancer_parent.empty_display_size = 0
         setattr(dancer_parent, "ld_object_type", ObjectType.DANCER.value)
         bpy.context.scene.collection.objects.link(dancer_parent)
-        bpy.ops.import_scene.gltf(
-            filepath=dancer_filepath
-        )  # here all parts of dancer is selected
-        dancer_objects = bpy.context.selected_objects
+        if model_name not in bpy.data.collections.keys():
+            import_model_to_asset(model_name, model_filepath, dancer.parts)
+        dancer_asset = bpy.data.collections[model_name]
+        dancer_objects = [obj.copy() for obj in dancer_asset.all_objects]
         dancer_human = next(obj for obj in dancer_objects if obj.name[0:5] == "Human")
+        bpy.context.scene.collection.objects.link(dancer_human)  # type: ignore
         set_bpy_props(
-            dancer_human,
+            dancer_human,  # type: ignore
             name=f"{dancer_index}.Human",
             parent=dancer_parent,
             ld_object_type=ObjectType.HUMAN.value,
@@ -126,9 +155,10 @@ def setup_assets(assets_load):
                     ld_dancer_name=dancer.name,
                 )
                 for i, obj in enumerate(part_objects):
+                    bpy.context.scene.collection.objects.link(obj)  # type: ignore
                     obj.name = f"{dancer_index}.{item.name}.{i:03}"
                     set_bpy_props(
-                        obj,
+                        obj,  # type: ignore
                         parent=parts_parent,
                         ld_object_type=ObjectType.LIGHT.value,
                         ld_light_type=LightType.LED_BULB.value,
@@ -139,12 +169,12 @@ def setup_assets(assets_load):
                     )
             elif item.type.value == "FIBER":
                 obj = part_objects[0]
+                bpy.context.scene.collection.objects.link(obj)  # type: ignore
                 obj.name = f"{dancer_index}.{item.name}"
-                obj.parent = dancer_parent
+                obj.parent = dancer_parent  # type: ignore
                 setattr(obj, "ld_object_type", ObjectType.LIGHT.value)
                 setattr(obj, "ld_light_type", LightType.FIBER.value)
                 setattr(obj, "ld_part_name", item.name)
-    bpy.ops.outliner.orphans_purge(do_recursive=True)
 
 
 def set_music_from_load(assets_load):
@@ -177,14 +207,16 @@ def setup_viewport():
     timeline
     """
     bpy.context.scene.render.fps = 1000
+    bpy.context.scene.frame_start = 0
     bpy.context.scene.frame_end = bpy.context.scene.sequence_editor.sequences[
         0
     ].frame_duration
     bpy.context.scene.show_keys_from_selected_only = False
     bpy.context.scene.sync_mode = "AUDIO_SYNC"
+    bpy.context.scene.use_audio_scrub = True
     timeline = next(a for a in bpy.context.screen.areas if a.ui_type == "TIMELINE")
     setattr(timeline.spaces.active, "show_seconds", True)  # type: ignore
-    setattr(timeline.spaces.active.dopesheet, "filter_text", "ld")  # type: ignore
+    set_dopesheet_filter("control")  # follow default editor
 
 
 async def load_data() -> None:
