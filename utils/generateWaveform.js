@@ -107,46 +107,50 @@ const callFFMPEG = () => {
 }
 
 // download from url and save as dest, then generate waveform
-const dl_url = async (url, dest) => {
+const dl_url = async (url, dest, ffmpegExistance) => {
   await readInput(img_res_width, img_res_height)
-  let start_time = Date.now();
-  console.log("downloading ffmpeg...");
-  await axios({
-    method: 'get',
-    url: url,
-    responseType: 'stream',
-    // httpsAgent: {
-    //   rejectUnauthorized: false,  // Disable SSL verification
-    // },
-  }).then((response) => {
-    const writer = fs.createWriteStream(dest);
-    response.data.pipe(writer);
-    // console.log("here1");
-    return new Promise((resolve, reject) => {
-      let error = null;
-      writer.on('error', err => {
-        error = err;
-        writer.close();
-        reject(err);
+  if(!ffmpegExistance){
+    let start_time = Date.now();
+    console.log("downloading ffmpeg...");
+    await axios({
+      method: 'get',
+      url: url,
+      responseType: 'stream',
+      // httpsAgent: {
+      //   rejectUnauthorized: false,  // Disable SSL verification
+      // },
+    }).then((response) => {
+      const writer = fs.createWriteStream(dest);
+      response.data.pipe(writer);
+      // console.log("here1");
+      return new Promise((resolve, reject) => {
+        let error = null;
+        writer.on('error', err => {
+          error = err;
+          writer.close();
+          reject(err);
+        });
+        // or writer.on('finish')?
+        writer.on('close', () => {
+          if (!error) {
+            resolve(true);
+          }
+          //no need to call the reject here, as it will have been called in the
+          //'error' stream;
+        });
+  
       });
-      // or writer.on('finish')?
-      writer.on('close', () => {
-        if (!error) {
-          resolve(true);
-        }
-        //no need to call the reject here, as it will have been called in the
-        //'error' stream;
-      });
-
+  
+    }).then(() => {
+      const downloadTime = (Date.now() - start_time) / 1000;  // Convert milliseconds to seconds
+      console.log(`Download time ${downloadTime.toFixed(2)}s`);
+      callFFMPEG();
+    }).catch(function (error) {
+      console.error('Error downloading file:', error.message);
     });
-
-  }).then(() => {
-    const downloadTime = (Date.now() - start_time) / 1000;  // Convert milliseconds to seconds
-    console.log(`Download time ${downloadTime.toFixed(2)}s`);
+  }else{
     callFFMPEG();
-  }).catch(function (error) {
-    console.error('Error downloading file:', error.message);
-  });
+  }
 }
 
 // unzip file (not used in this file but it exists in the original blender addon)
@@ -162,11 +166,12 @@ const unzip = (zipPath, extractDirPath) => {
 }
 
 // check if ffmpeg exists
-const ffmpegExist = () => {
+const ffmpegExist = async () => {
   // decide releaseUrl based on operating system
   if (process.platform.startsWith('win')) {
     releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/windows/ffmpeg.exe';
   } else if (process.platform.startsWith('linux') || process.platform === 'freebsd') {
+    console.log("linux");
     releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/linux/ffmpeg';
   } else { // Mac
     releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/mac/ffmpeg';
@@ -174,6 +179,8 @@ const ffmpegExist = () => {
 
   // Check if ffmpeg is already in the current path
   ffbin = path.join(String(__dirname), String(path.basename(releaseUrl)));
+  console.log(ffbin);
+  console.log(fs.existsSync(ffbin));
   return fs.existsSync(ffbin);
 }
 
@@ -250,24 +257,27 @@ const rmRedundantWaveform = () => {
 }
 
 const mainGenerate = async (releaseUrl, ffbin) => {
-  await dl_url(releaseUrl, String(ffbin));
+  let ffmpegExistance = await ffmpegExist();  // ffbin, releaseUrl is set in ffmpegExist
+  await dl_url(releaseUrl, String(ffbin), ffmpegExistance);
   await AsyncImageManipulation();
   rmRedundantWaveform();
 }
 
-// download if ffmpeg not in path
-let ffmpegExistance = ffmpegExist();  // ffbin, releaseUrl is set in ffmpegExist
-// delete ffmpeg if exists
-if (ffmpegExistance) {
-  try {
-    fs.unlink(ffbin, (err) => {
-      if (err) throw err;
-      console.log(`successfully deleted ${ffbin}`);
-    });
-
-  } catch (error) {
-    console.error('Error deleting existing file:', error.message);
-  }
-}
-
 mainGenerate(releaseUrl, ffbin);
+
+// download if ffmpeg not in path
+
+// delete ffmpeg if exists
+// if (ffmpegExistance) {
+//   try {
+//     fs.unlink(ffbin, (err) => {
+//       if (err) throw err;
+//       console.log(`successfully deleted ${ffbin}`);
+//     });
+
+//   } catch (error) {
+//     console.error('Error deleting existing file:', error.message);
+//   }
+// }
+
+
