@@ -21,17 +21,17 @@ class PosEditor(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
-        layout.enabled = not state.shifting
+        layout.enabled = not state.shifting and not state.requesting
 
         row = layout.row()
         row.label(text="Position Editor")
 
         editing = state.edit_state == EditMode.EDITING
-        properties_enabled = editing and not state.is_playing
+        properties_enabled = editing and not state.playing
 
         if state.current_editing_detached and editing:
             row = layout.row()
-            row.enabled = not state.is_playing
+            row.enabled = not state.playing
             row.label(text="Detached", icon="ERROR")
             row.operator("lightdance.attach_editing_pos_frame", icon="PLAY")
 

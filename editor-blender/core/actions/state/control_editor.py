@@ -11,6 +11,7 @@ from ...utils.convert import control_status_state_to_mut, rgb_to_float
 from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.ui import redraw_area
+from .app_state import set_requesting
 from .control_map import apply_control_map_updates
 from .current_status import update_current_status_by_index
 
@@ -65,7 +66,9 @@ async def add_control_frame():
     controlData = control_status_state_to_mut(state.current_status)
 
     try:
+        set_requesting(True)
         await control_agent.add_frame(start, False, controlData)
+        set_requesting(False)
         notify("INFO", f"Added control frame")
     except:
         notify("WARNING", "Cannot add control frame")
@@ -121,6 +124,7 @@ async def save_control_frame(start: Optional[int] = None):
         controlData.append(partControlData)
 
     try:
+        set_requesting(True)
         await control_agent.save_frame(id, controlData, fade=fade, start=start)
         notify("INFO", f"Saved control frame")
 
@@ -129,7 +133,9 @@ async def save_control_frame(start: Optional[int] = None):
 
         # Cancel editing
         ok = await control_agent.cancel_edit(id)
-        if ok:
+        set_requesting(False)
+
+        if ok is not None and ok:
             # Reset editing state
             state.current_editing_frame = -1
             state.current_editing_detached = False
@@ -149,7 +155,9 @@ async def delete_control_frame():
     id = state.control_record[index]
 
     try:
+        set_requesting(True)
         await control_agent.delete_frame(id)
+        set_requesting(False)
         notify("INFO", f"Deleted control frame: {id}")
     except:
         notify("WARNING", "Cannot delete control frame")
@@ -160,8 +168,11 @@ async def request_edit_control():
     control_id = state.control_record[index]
     control_frame = state.control_map[control_id]
 
+    set_requesting(True)
     ok = await control_agent.request_edit(control_id)
-    if ok:
+    set_requesting(False)
+
+    if ok is not None and ok:
         # Init editing state
         state.current_editing_frame = control_frame.start
         state.editing_data = EditingData(
@@ -181,8 +192,11 @@ async def cancel_edit_control():
     index = state.current_control_index
     id = state.control_record[index]
 
+    set_requesting(True)
     ok = await control_agent.cancel_edit(id)
-    if ok:
+    set_requesting(False)
+
+    if ok is not None and ok:
         # Revert modification
         update_current_status_by_index()
 

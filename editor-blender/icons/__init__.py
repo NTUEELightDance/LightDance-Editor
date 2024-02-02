@@ -43,6 +43,10 @@ def generate_icon(rgb: Tuple[int, int, int], size: int, fill: float) -> str:
 
 
 def generate_icon_images(colors: List[Color], clear: bool = False):
+    if "main" in icon_collections:
+        collection = icon_collections["main"]
+        bpy.utils.previews.remove(collection)
+
     collection = bpy.utils.previews.new()
     icon_collections["main"] = collection
 

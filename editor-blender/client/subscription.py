@@ -310,8 +310,13 @@ async def subscribe():
             ]
 
             await asyncio.gather(*tasks)
-        except:
-            print("Subscription closed.")
+
+        except asyncio.CancelledError:
+            print("Subscription cancelled.")
+            break
+
+        except Exception as e:
+            print("Subscription closed with error:", e)
 
         print("Reconnecting subscription...")
         await asyncio.sleep(3)

@@ -26,7 +26,8 @@ class AsyncTask(Generic[R]):
 
     async def __run__(self) -> None:
         try:
-            result = await self.task(*self.args, **self.kwargs)
+            self.__task__ = self.task(*self.args, **self.kwargs)
+            result = await self.__task__
             if self.then_callback is not None:
                 if inspect.iscoroutinefunction(self.then_callback):
                     await self.then_callback(result)

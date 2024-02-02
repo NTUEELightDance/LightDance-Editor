@@ -216,9 +216,10 @@ class SelectMode(Enum):
 
 @dataclass
 class State:
-    is_running: bool
-    is_logged_in: bool
-    is_playing: bool
+    running: bool
+    logged_in: bool
+    playing: bool
+    requesting: bool
 
     subscription_task: Optional[Task[None]]
     init_editor_task: Optional[Task[None]]

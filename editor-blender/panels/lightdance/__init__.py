@@ -51,12 +51,12 @@ class LightDancePanel(bpy.types.Panel):
         # Draw header
         layout = self.layout
 
-        if not state.is_running:
+        if not state.running:
             row = layout.row()
             row.operator("lightdance.async_loop", text="Start", icon="PLAY")
 
         else:
-            if not state.is_logged_in:
+            if not state.logged_in:
                 return
 
             if state.ready:

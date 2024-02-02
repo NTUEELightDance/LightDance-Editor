@@ -11,10 +11,6 @@ from .current_status import (
 from .pos_editor import sync_editing_pos_frame_properties
 
 
-def set_is_playing(is_playing: bool):
-    state.is_playing = is_playing
-
-
 def start_playing():
     # Update panel status
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

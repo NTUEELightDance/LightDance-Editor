@@ -10,9 +10,10 @@ from ..models import (
 )
 
 state = State(
-    is_running=False,
-    is_logged_in=False,
-    is_playing=False,
+    running=False,
+    logged_in=False,
+    playing=False,
+    requesting=False,
     subscription_task=None,
     init_editor_task=None,
     token="",

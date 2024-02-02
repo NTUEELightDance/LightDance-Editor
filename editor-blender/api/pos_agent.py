@@ -9,7 +9,6 @@ from ..graphqls.mutations import (
     ADD_POS_FRAME,
     CANCEL_EDIT_POS_BY_ID,
     DELETE_POS_FRAME,
-    EDIT_CONTROL_FRAME_TIME,
     EDIT_POS_FRAME,
     EDIT_POS_FRAME_TIME,
     REQUEST_EDIT_POS_BY_ID,
@@ -34,82 +33,158 @@ from ..graphqls.queries import (
 
 @dataclass
 class PosAgent:
-    async def get_pos_record(self) -> PosRecord:
-        response = await client.execute(
-            QueryPosRecordData,
-            GET_POS_RECORD,
-        )
-        controlRecord = response["positionFrameIDs"]
+    async def get_pos_record(self) -> Optional[PosRecord]:
+        try:
+            response = await client.execute(
+                QueryPosRecordData,
+                GET_POS_RECORD,
+            )
+            controlRecord = response["positionFrameIDs"]
 
-        return controlRecord
+            return controlRecord
 
-    async def get_pos_map_payload(self) -> QueryPosMapPayload:
-        response = await client.execute(QueryPosMapData, GET_POS_MAP)
-        posMap = response["PosMap"]
+        except asyncio.CancelledError:
+            pass
 
-        return posMap.frameIds
+        except Exception as e:
+            print(e)
 
-    async def get_pos_map(self) -> PosMap:
-        response = await client.execute(QueryPosMapData, GET_POS_MAP)
-        posMap = response["PosMap"]
+        return None
 
-        return pos_map_query_to_state(posMap.frameIds)
+    async def get_pos_map_payload(self) -> Optional[QueryPosMapPayload]:
+        try:
+            response = await client.execute(QueryPosMapData, GET_POS_MAP)
+            posMap = response["PosMap"]
 
-    async def add_frame(self, start: int, positionData: List[List[float]]) -> MapID:
-        response = await client.execute(
-            MutAddPositionFrameResponse,
-            ADD_POS_FRAME,
-            {"start": start, "positionData": positionData},
-        )
-        return response["addPositionFrame"].id
+            return posMap.frameIds
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def get_pos_map(self) -> Optional[PosMap]:
+        try:
+            response = await client.execute(QueryPosMapData, GET_POS_MAP)
+            posMap = response["PosMap"]
+
+            return pos_map_query_to_state(posMap.frameIds)
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def add_frame(
+        self, start: int, positionData: List[List[float]]
+    ) -> Optional[MapID]:
+        try:
+            response = await client.execute(
+                MutAddPositionFrameResponse,
+                ADD_POS_FRAME,
+                {"start": start, "positionData": positionData},
+            )
+            return response["addPositionFrame"].id
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
 
     async def save_frame(
         self, id: MapID, positionData: List[List[float]], start: Optional[int] = None
     ):
-        tasks: List[Coroutine[Any, Any, Any]] = []
+        try:
+            tasks: List[Coroutine[Any, Any, Any]] = []
 
-        tasks.append(
-            client.execute(
-                MutEditPositionFrameResponse,
-                EDIT_POS_FRAME,
-                {
-                    "input": MutEditPositionFrameInput(
-                        frameId=id, positionData=positionData
-                    )
-                },
-            )
-        )
-
-        if start is not None:
             tasks.append(
                 client.execute(
-                    MutEditPositionFrameTimeResponse,
-                    EDIT_POS_FRAME_TIME,
-                    {"input": MutEditPositionFrameTimeInput(frameID=id, start=start)},
+                    MutEditPositionFrameResponse,
+                    EDIT_POS_FRAME,
+                    {
+                        "input": MutEditPositionFrameInput(
+                            frameId=id, positionData=positionData
+                        )
+                    },
                 )
             )
 
-        await asyncio.gather(*tasks)
+            if start is not None:
+                tasks.append(
+                    client.execute(
+                        MutEditPositionFrameTimeResponse,
+                        EDIT_POS_FRAME_TIME,
+                        {
+                            "input": MutEditPositionFrameTimeInput(
+                                frameID=id, start=start
+                            )
+                        },
+                    )
+                )
 
-    async def delete_frame(self, id: MapID) -> MapID:
-        response = await client.execute(
-            MutDeletePositionFrameResponse,
-            DELETE_POS_FRAME,
-            {"input": MutDeletePositionFrameInput(frameID=id)},
-        )
-        return response["deletePositionFrame"].id
+            await asyncio.gather(*tasks)
 
-    async def request_edit(self, id: MapID) -> bool:
-        response = await client.execute(
-            MutRequestEditPositionResponse, REQUEST_EDIT_POS_BY_ID, {"frameId": id}
-        )
-        return response["RequestEditPosition"].ok
+        except asyncio.CancelledError:
+            pass
 
-    async def cancel_edit(self, id: MapID) -> bool:
-        response = await client.execute(
-            MutCancelEditPositionResponse, CANCEL_EDIT_POS_BY_ID, {"frameId": id}
-        )
-        return response["CancelEditPosition"].ok
+        except Exception as e:
+            print(e)
+
+    async def delete_frame(self, id: MapID) -> Optional[MapID]:
+        try:
+            response = await client.execute(
+                MutDeletePositionFrameResponse,
+                DELETE_POS_FRAME,
+                {"input": MutDeletePositionFrameInput(frameID=id)},
+            )
+            return response["deletePositionFrame"].id
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def request_edit(self, id: MapID) -> Optional[bool]:
+        try:
+            response = await client.execute(
+                MutRequestEditPositionResponse, REQUEST_EDIT_POS_BY_ID, {"frameId": id}
+            )
+            return response["RequestEditPosition"].ok
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def cancel_edit(self, id: MapID) -> Optional[bool]:
+        try:
+            response = await client.execute(
+                MutCancelEditPositionResponse, CANCEL_EDIT_POS_BY_ID, {"frameId": id}
+            )
+            return response["CancelEditPosition"].ok
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
 
 
 pos_agent = PosAgent()

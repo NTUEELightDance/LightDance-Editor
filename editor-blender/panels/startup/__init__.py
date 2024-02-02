@@ -14,7 +14,7 @@ class SetupPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return not state.is_running
+        return not state.running
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout

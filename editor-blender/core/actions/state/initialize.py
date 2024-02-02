@@ -11,6 +11,7 @@ from ....client import client
 
 # from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
 from ....client.subscription import subscribe
+from ....core.actions.state.app_state import set_logged_in, set_ready, set_running
 from ....core.actions.state.color_map import set_color_map
 
 # from ....core.actions.state.color_map import set_color_map
@@ -116,11 +117,15 @@ async def init():
 
     # Check token
     token_valid = await auth_agent.check_token()
-    state.is_running = True
+    set_running(True)
 
     if token_valid:
-        state.is_logged_in = True
+        set_logged_in(True)
         await init_blender()
+
+    # Start background operators
+    execute_operator("lightdance.animation_status_listener")
+    execute_operator("lightdance.notification")
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
@@ -143,9 +148,9 @@ async def init_blender():
 
 
 def close_blender():
-    state.is_running = False
-    state.is_logged_in = False
-    state.ready = False
+    set_running(False)
+    set_logged_in(False)
+    set_ready(False)
 
     if state.subscription_task is not None:
         state.subscription_task.cancel()
@@ -205,14 +210,10 @@ async def init_editor():
 
     print("Editor initialized")
 
-    state.ready = True
+    set_ready(True)
 
     # Mount handlers
     mount()
-
-    # Start background operators
-    execute_operator("lightdance.animation_status_listener")
-    execute_operator("lightdance.notification")
 
     # Initialize current index
     bpy.context.scene.frame_set(0)
@@ -224,6 +225,9 @@ async def init_editor():
 
 async def init_dancers():
     dancers_array = await dancer_agent.get_dancers()
+
+    if dancers_array is None:
+        raise Exception("Failed to initialize dancers")
 
     dancer_names = [dancer.name for dancer in dancers_array]
     dancers: Dancers = dict(
@@ -274,13 +278,19 @@ async def init_dancers():
 
 async def init_color_map():
     color_map = await color_agent.get_color_map()
-    set_color_map(color_map)
 
+    if color_map is None:
+        raise Exception("Failed to initialize color map")
+
+    set_color_map(color_map)
     print("Color map initialized")
 
 
 async def init_led_map():
     led_map = await led_agent.get_led_map()
+    if led_map is None:
+        raise Exception("Failed to initialize LED map")
+
     set_led_map(led_map)
 
     print("LED map initialized")
@@ -288,6 +298,9 @@ async def init_led_map():
 
 async def init_current_status():
     control_map, control_record = await get_control()
+
+    if control_map is None or control_record is None:
+        raise Exception("Failed to initialize control map")
 
     state.control_map = control_map
     state.control_record = control_record
@@ -300,6 +313,8 @@ async def init_current_status():
 
 async def init_current_pos():
     pos_map, pos_record = await get_pos()
+    if pos_map is None or pos_record is None:
+        raise Exception("Failed to initialize pos map")
 
     state.pos_map = pos_map
     state.pos_record = pos_record

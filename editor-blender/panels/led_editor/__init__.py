@@ -21,7 +21,7 @@ class LEDEditor(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
-        layout.enabled = not state.shifting
+        layout.enabled = not state.shifting and not state.requesting
 
         row = layout.row()
         row.label(text="LED Effect")

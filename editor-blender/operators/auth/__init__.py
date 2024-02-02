@@ -15,11 +15,7 @@ class LoginOperator(AsyncOperator):
             context.window_manager, "ld_ui_login"
         )
 
-        success = await login(ld_ui_login.username, ld_ui_login.password)
-        if success:
-            notify("INFO", "Login successful.")
-        else:
-            notify("ERROR", "Login failed.")
+        await login(ld_ui_login.username, ld_ui_login.password)
 
 
 class LogoutOperator(AsyncOperator):
@@ -27,11 +23,7 @@ class LogoutOperator(AsyncOperator):
     bl_label = "Logout"
 
     async def async_execute(self, context: bpy.types.Context):
-        success = await logout()
-        if success:
-            notify("INFO", "Logout successful.")
-        else:
-            notify("ERROR", "Logout failed.")
+        await logout()
 
 
 def register():

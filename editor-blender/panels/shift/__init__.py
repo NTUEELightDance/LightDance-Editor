@@ -21,6 +21,8 @@ class TimeShift(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
+        layout.enabled = not state.requesting
+
         layout.label(text="Time Shift")
 
         row = layout.row()

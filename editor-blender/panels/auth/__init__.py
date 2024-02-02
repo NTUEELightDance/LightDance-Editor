@@ -15,10 +15,11 @@ class AuthenticationPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.is_running and not state.is_logged_in
+        return state.running and not state.logged_in
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
+        layout.enabled = not state.requesting
 
         ld_ui_login: LoginPanelStatusType = getattr(
             context.window_manager, "ld_ui_login"

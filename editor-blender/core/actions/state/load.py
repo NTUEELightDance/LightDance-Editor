@@ -54,6 +54,9 @@ async def fetch_data(reload: bool = False):
         from ...utils.convert import control_map_query_to_state
 
         control_query = await control_agent.get_control_map_payload()
+        if control_query is None:
+            raise Exception("Control map not found")
+
         state.control_map = control_map_query_to_state(control_query)
     else:
         raise Exception("HTTP client is not initialized")
