@@ -56,17 +56,6 @@ async def fetch_data(reload: bool = False):
                     file.write(data)
         except Exception as e:
             print(e)
-        """
-        temp fetch control map
-        """
-        from ....api.control_agent import control_agent
-        from ...utils.convert import control_map_query_to_state
-
-        control_query = await control_agent.get_control_map_payload()
-        if control_query is None:
-            raise Exception("Control map not found")
-
-        state.control_map = control_map_query_to_state(control_query)
     else:
         raise Exception("File client is not initialized")
     return assets_load
