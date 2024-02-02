@@ -11,7 +11,12 @@ from ....client import client
 
 # from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
 from ....client.subscription import subscribe
-from ....core.actions.state.app_state import set_logged_in, set_ready, set_running
+from ....core.actions.state.app_state import (
+    set_logged_in,
+    set_ready,
+    set_requesting,
+    set_running,
+)
 from ....core.actions.state.color_map import set_color_map
 
 # from ....core.actions.state.color_map import set_color_map
@@ -41,7 +46,7 @@ from ....core.utils.ui import redraw_area
 #     QueryControlMapPayload,
 #     QueryPosMapPayload,
 # )
-from ....handlers import mount
+from ....handlers import mount, unmount
 from ....storage import get_storage
 from ...models import (
     DancerPartIndexMap,
@@ -116,7 +121,10 @@ async def init():
     await client.open_file()
 
     # Check token
+    set_requesting(True)
     token_valid = await auth_agent.check_token()
+    set_requesting(False)
+
     set_running(True)
 
     if token_valid:
@@ -159,6 +167,17 @@ def close_blender():
     if state.init_editor_task is not None:
         state.init_editor_task.cancel()
         state.init_editor_task = None
+
+    unmount()
+
+    close_client_tasks = [
+        client.close_http(),
+        client.close_file(),
+        client.close_graphql(),
+    ]
+    asyncio.get_event_loop().run_until_complete(asyncio.gather(*close_client_tasks))
+
+    print("Blender closed")
 
 
 async def init_editor():

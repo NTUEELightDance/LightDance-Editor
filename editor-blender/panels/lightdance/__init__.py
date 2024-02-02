@@ -50,6 +50,7 @@ class LightDancePanel(bpy.types.Panel):
     def draw(self, context: bpy.types.Context):
         # Draw header
         layout = self.layout
+        layout.enabled = not state.requesting
 
         if not state.running:
             row = layout.row()

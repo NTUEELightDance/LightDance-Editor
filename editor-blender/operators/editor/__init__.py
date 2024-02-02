@@ -225,6 +225,12 @@ class Delete(AsyncOperator):
 
     bl_idname = "lightdance.delete"
     bl_label = "Delete"
+    bl_options = {"REGISTER", "UNDO"}
+
+    confirm: bpy.props.BoolProperty(  # type: ignore
+        name="I know what I am doing",
+        default=False,
+    )
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
@@ -238,13 +244,24 @@ class Delete(AsyncOperator):
             return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
-        match state.editor:
-            case Editor.CONTROL_EDITOR:
-                await delete_control_frame()
-            case Editor.POS_EDITOR:
-                await delete_pos_frame()
-            case Editor.LED_EDITOR:
-                await delete_led_effect()
+        confirm: bool = getattr(self, "confirm")
+
+        if confirm:
+            setattr(self, "confirm", False)
+
+            match state.editor:
+                case Editor.CONTROL_EDITOR:
+                    await delete_control_frame()
+                case Editor.POS_EDITOR:
+                    await delete_pos_frame()
+                case Editor.LED_EDITOR:
+                    await delete_led_effect()
+
+        else:
+            notify("ERROR", "Cancelled")
+
+    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+        return context.window_manager.invoke_props_dialog(self)
 
 
 class CancelEdit(AsyncOperator):
