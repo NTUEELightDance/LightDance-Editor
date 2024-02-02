@@ -80,7 +80,7 @@ def import_model_to_asset(model_name, model_filepath, parts):
         if len(part_objects) == 0:
             print("Dancer part not found (maybe should reload asset)")
         if item.type.value == "LED":
-            for i, obj in enumerate(part_objects):
+            for _, obj in enumerate(part_objects):
                 set_bpy_props(obj, data=bpy.data.meshes["Sphere.001"])  # type: ignore
     bpy.ops.outliner.orphans_purge(do_recursive=True)
     print(f"model {model_name} imported")
@@ -202,7 +202,6 @@ def setup_viewport():
     ].frame_duration
     bpy.context.scene.show_keys_from_selected_only = False
     bpy.context.scene.sync_mode = "AUDIO_SYNC"
-    bpy.context.scene.use_audio_scrub = True
     timeline = next(a for a in bpy.context.screen.areas if a.ui_type == "TIMELINE")
     setattr(timeline.spaces.active, "show_seconds", True)  # type: ignore
     set_dopesheet_filter("control_frame")  # follow default editor

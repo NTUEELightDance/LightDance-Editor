@@ -32,10 +32,11 @@ def set_ctrl_keyframes_from_state():
                             led_data = part_effect[j]
                             led_rgb = color_map[led_data.color_id].rgb
                             led_rgba = (
-                                led_rgb[0] / 255,
-                                led_rgb[1] / 255,
-                                led_rgb[2] / 255,
-                                led_data.alpha / 10,  # TODO: change to 255
+                                (led_rgb[0] / 255)
+                                * (led_data.alpha / 10),  # TODO: change to 255
+                                (led_rgb[1] / 255) * (led_data.alpha / 10),
+                                (led_rgb[2] / 255) * (led_data.alpha / 10),
+                                1,
                             )
                             if led_obj.animation_data is None:
                                 led_obj.animation_data_create()
@@ -84,10 +85,11 @@ def set_ctrl_keyframes_from_state():
                     part_obj = bpy.data.objects[f"{dancer_index}.{part_name}"]
                     part_rgb = color_map[part_data.color_id].rgb
                     part_rgba = (
-                        part_rgb[0] / 255,
-                        part_rgb[1] / 255,
-                        part_rgb[2] / 255,
-                        part_data.alpha / 10,  # TODO: change to 255
+                        (part_rgb[0] / 255)
+                        * (part_data.alpha / 10),  # TODO: change to 255
+                        (part_rgb[1] / 255) * (part_data.alpha / 10),
+                        (part_rgb[2] / 255) * (part_data.alpha / 10),
+                        1,
                     )
                     if part_obj.animation_data is None:
                         part_obj.animation_data_create()
@@ -338,10 +340,11 @@ def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
                         led_data = part_effect[j]
                         led_rgb = color_map[led_data.color_id].rgb
                         led_rgba = (
-                            led_rgb[0] / 255,
-                            led_rgb[1] / 255,
-                            led_rgb[2] / 255,
-                            led_data.alpha / 10,  # TODO: change to 255
+                            (led_rgb[0] / 255)
+                            * (led_data.alpha / 10),  # TODO: change to 255
+                            (led_rgb[1] / 255) * (led_data.alpha / 10),
+                            (led_rgb[2] / 255) * (led_data.alpha / 10),
+                            1,
                         )
                         curves = led_obj.animation_data.action.fcurves
                         for d in range(4):
@@ -365,10 +368,10 @@ def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
                 part_obj = bpy.data.objects[f"{dancer_index}.{part_name}"]
                 part_rgb = color_map[part_data.color_id].rgb
                 part_rgba = (
-                    part_rgb[0] / 255,
-                    part_rgb[1] / 255,
-                    part_rgb[2] / 255,
-                    part_data.alpha / 10,  # TODO: change to 255
+                    (part_rgb[0] / 255) * (part_data.alpha / 10),  # TODO: change to 255
+                    (part_rgb[1] / 255) * (part_data.alpha / 10),
+                    (part_rgb[2] / 255) * (part_data.alpha / 10),
+                    1,
                 )
                 if part_obj.animation_data is None:
                     part_obj.animation_data_create()
@@ -442,10 +445,11 @@ def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
                         led_data = part_effect[j]
                         led_rgb = color_map[led_data.color_id].rgb
                         led_rgba = (
-                            led_rgb[0] / 255,
-                            led_rgb[1] / 255,
-                            led_rgb[2] / 255,
-                            led_data.alpha / 10,  # TODO: change to 255
+                            (led_rgb[0] / 255)
+                            * (led_data.alpha / 10),  # TODO: change to 255
+                            (led_rgb[1] / 255) * (led_data.alpha / 10),
+                            (led_rgb[2] / 255) * (led_data.alpha / 10),
+                            1,
                         )
                         curves = led_obj.animation_data.action.fcurves
                         for d in range(4):
@@ -475,10 +479,10 @@ def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
                 part_obj = bpy.data.objects[f"{dancer_index}.{part_name}"]
                 part_rgb = color_map[part_data.color_id].rgb
                 part_rgba = (
-                    part_rgb[0] / 255,
-                    part_rgb[1] / 255,
-                    part_rgb[2] / 255,
-                    part_data.alpha / 10,  # TODO: change to 255
+                    (part_rgb[0] / 255) * (part_data.alpha / 10),  # TODO: change to 255
+                    (part_rgb[1] / 255) * (part_data.alpha / 10),
+                    (part_rgb[2] / 255) * (part_data.alpha / 10),
+                    1,
                 )
                 curves = part_obj.animation_data.action.fcurves
                 for d in range(4):
