@@ -24,7 +24,7 @@ def attach_editing_control_frame():
     state.current_editing_frame_synced = True
 
     if current_frame != bpy.context.scene.frame_current:
-        bpy.context.scene.frame_set(current_frame)
+        bpy.context.scene.frame_current = current_frame
 
     sync_editing_control_frame_properties()
 

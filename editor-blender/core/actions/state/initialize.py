@@ -216,7 +216,7 @@ async def init_editor():
     mount()
 
     # Initialize current index
-    bpy.context.scene.frame_set(0)
+    bpy.context.scene.frame_current = 0
     state.current_control_index = calculate_current_status_index()
     update_current_status_by_index()
 

@@ -119,7 +119,7 @@ def exit_editing_led_effect():
             bulb_obj.animation_data.action.fcurves.find("color", index=i).mute = False
 
     # Reset pos and color of dancer and LED bulbs
-    bpy.context.scene.frame_set(bpy.context.scene.frame_current)
+    bpy.context.scene.frame_current = bpy.context.scene.frame_current
 
     # Exit local view
     execute_operator("view3d.localview")

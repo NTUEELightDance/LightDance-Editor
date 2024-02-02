@@ -82,10 +82,66 @@ class Clients:
 
         self.cache = InMemoryCache()
 
+    def configure_cache(self, cache: InMemoryCache) -> None:
+        self.cache = cache
+
     async def __timeout__(self, task: Task[Any], timeout: int) -> None:
         await asyncio.sleep(timeout / 1000.0)
         if not task.done():
             task.cancel()
+
+    async def __post__(self, path: str, json: Optional[Any] = None) -> Any:
+        if self.http_client is None:
+            raise Exception("HTTP client is not initialized")
+
+        path = remove_wrapped_slash(path)
+        http_path = f"/{self.HTTP_PATH}/{path}"
+        async with self.http_client.post(http_path, json=json) as response:
+            return await response.json()
+
+    async def __get__(self, path: str) -> Any:
+        if self.http_client is None:
+            raise Exception("HTTP client is not initialized")
+
+        path = remove_wrapped_slash(path)
+        http_path = f"/{self.HTTP_PATH}/{path}"
+        async with self.http_client.get(http_path) as response:
+            return await response.json()
+
+    async def __execute__(
+        self,
+        document: DocumentNode,
+        timeout: int,
+        variable_values: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        if self.client is None:
+            raise Exception("GraphQL client is not initialized")
+
+        task = asyncio.ensure_future(
+            self.client.execute(document, variable_values=variable_values)
+        )
+        asyncio.ensure_future(self.__timeout__(task, timeout))
+
+        result = await task
+        return result
+
+    async def post(
+        self, path: str, json: Optional[Any] = None, timeout: int = 3000
+    ) -> Any:
+        task = asyncio.ensure_future(self.__post__(path, json))
+        asyncio.ensure_future(self.__timeout__(task, timeout))
+
+        result = await task
+        return result
+
+    async def get(
+        self, path: str, json: Optional[Any] = None, timeout: int = 3000
+    ) -> Any:
+        task = asyncio.ensure_future(self.__get__(path))
+        asyncio.ensure_future(self.__timeout__(task, timeout))
+
+        result = await task
+        return result
 
     async def download_json(self, path: str) -> Any:
         if self.file_client is None:
@@ -107,45 +163,6 @@ class Clients:
         async with self.file_client.get(http_path) as response:
             return await response.content.read()
 
-    async def __post__(self, path: str, json: Optional[Any] = None) -> Any:
-        if self.http_client is None:
-            raise Exception("HTTP client is not initialized")
-
-        path = remove_wrapped_slash(path)
-        http_path = f"/{self.HTTP_PATH}/{path}"
-        async with self.http_client.post(http_path, json=json) as response:
-            return await response.json()
-
-    async def post(
-        self, path: str, json: Optional[Any] = None, timeout: int = 1000
-    ) -> Any:
-        task = asyncio.ensure_future(self.__post__(path, json))
-        asyncio.ensure_future(self.__timeout__(task, timeout))
-
-        result = await task
-        return result
-
-    async def __get__(self, path: str) -> Any:
-        if self.http_client is None:
-            raise Exception("HTTP client is not initialized")
-
-        path = remove_wrapped_slash(path)
-        http_path = f"/{self.HTTP_PATH}/{path}"
-        async with self.http_client.get(http_path) as response:
-            return await response.json()
-
-    async def get(
-        self, path: str, json: Optional[Any] = None, timeout: int = 1000
-    ) -> Any:
-        task = asyncio.ensure_future(self.__get__(path))
-        asyncio.ensure_future(self.__timeout__(task, timeout))
-
-        result = await task
-        return result
-
-    def configure_cache(self, cache: InMemoryCache) -> None:
-        self.cache = cache
-
     async def subscribe(
         self, data_type: Type[T], query: DocumentNode
     ) -> AsyncGenerator[Dict[str, T], None]:
@@ -160,28 +177,12 @@ class Clients:
             data[query_name] = deserialize(data_type, data[query_name])  # type: ignore
             yield data
 
-    async def __execute__(
-        self,
-        document: DocumentNode,
-        variable_values: Optional[Dict[str, Any]] = None,
-        timeout: int = 3000,
-    ) -> Dict[str, Any]:
-        if self.client is None:
-            raise Exception("GraphQL client is not initialized")
-
-        task = asyncio.ensure_future(
-            self.client.execute(document, variable_values=variable_values)
-        )
-        asyncio.ensure_future(self.__timeout__(task, timeout))
-
-        result = await task
-        return result
-
     async def execute(
         self,
         response_type: Type[T],
         query: DocumentNode,
         variables: Optional[Dict[str, Any]] = None,
+        timeout: int = 5000,
     ) -> Dict[str, T]:
         if self.client is None:
             raise Exception("GraphQL client is not initialized")
@@ -203,9 +204,11 @@ class Clients:
         if response is None:
             if variables is not None:
                 params: Dict[str, Any] = serialize(variables)
-                response = await self.__execute__(query, variable_values=params)
+                response = await self.__execute__(
+                    query, variable_values=params, timeout=timeout
+                )
             else:
-                response = await self.__execute__(query)
+                response = await self.__execute__(query, timeout=timeout)
 
             query_name = query_def[0]
             response[query_name] = deserialize(response_type, response[query_name])
