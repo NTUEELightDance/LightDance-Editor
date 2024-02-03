@@ -76,8 +76,8 @@ impl PartMutation {
         .fetch_optional(mysql)
         .await?;
 
-        match exist_dancer {
-            Some(_) => {}
+        let exist_dancer = match exist_dancer {
+            Some(dancer) => dancer,
             None => {
                 return Ok(PartResponse {
                     ok: false,
@@ -85,7 +85,7 @@ impl PartMutation {
                     part_data: None,
                 })
             }
-        }
+        };
 
         if input.part_type == PartType::LED && (input.length.is_none() || input.length.unwrap() < 0)
         {
@@ -98,10 +98,11 @@ impl PartMutation {
 
         let exist_part = sqlx::query!(
             r#"
-                SELECT * FROM Part 
-                WHERE name = ?;
+                SELECT * FROM Part
+                WHERE name = ? AND dancer_id = ?;
             "#,
-            input.name
+            input.name,
+            exist_dancer.id
         )
         .fetch_optional(mysql)
         .await?;
@@ -114,19 +115,35 @@ impl PartMutation {
             });
         }
 
-        let new_part_id = sqlx::query!(
-            r#"
-                INSERT INTO Part (dancer_id, name, type, length)
-                VALUES (?, ?, ?, ?);
-            "#,
-            exist_dancer.clone().unwrap().id,
-            input.name,
-            input.part_type,
-            input.length
-        )
-        .execute(mysql)
-        .await?
-        .last_insert_id() as i32;
+        let new_part_id = match input.part_type {
+            PartType::FIBER => sqlx::query!(
+                r#"
+                    INSERT INTO Part (dancer_id, name, type)
+                    VALUES (?, ?, ?);
+                "#,
+                exist_dancer.id,
+                input.name,
+                "FIBER"
+            )
+            .execute(mysql)
+            .await?
+            .last_insert_id() as i32,
+            PartType::LED => sqlx::query!(
+                r#"
+                    INSERT INTO Part (dancer_id, name, type, length)
+                    VALUES (?, ?, ?, ?);
+                "#,
+                exist_dancer.id,
+                input.name,
+                "LED",
+                input
+                    .length
+                    .ok_or("length of LED part must be positive number")?
+            )
+            .execute(mysql)
+            .await?
+            .last_insert_id() as i32,
+        };
 
         //TODO: for each position frame, add empty position data to the dancer
         let all_position_frames = sqlx::query_as!(
@@ -146,7 +163,7 @@ impl PartMutation {
                     INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
                     VALUES (?, ?, ?, ?, ?);
                 "#,
-                exist_dancer.clone().unwrap().id,
+                exist_dancer.id,
                 frame_data.id,
                 0,
                 0,
@@ -164,7 +181,7 @@ impl PartMutation {
                 WHERE dancer_id = ?
                 ORDER BY id ASC;
             "#,
-            exist_dancer.clone().unwrap().id
+            exist_dancer.id
         )
         .fetch_all(mysql)
         .await?;
@@ -176,7 +193,7 @@ impl PartMutation {
                 WHERE dancer_id = ?
                 ORDER BY frame_id ASC;
             "#,
-            exist_dancer.clone().unwrap().id
+            exist_dancer.id
         )
         .fetch_all(mysql)
         .await?;
@@ -187,8 +204,8 @@ impl PartMutation {
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Created,
             dancer_data: Some(Dancer {
-                id: exist_dancer.clone().unwrap().id,
-                name: exist_dancer.clone().unwrap().name,
+                id: exist_dancer.id,
+                name: exist_dancer.name.clone(),
                 parts: Some(all_parts),
                 position_datas: Some(all_dancer_pos),
             }),
@@ -202,7 +219,7 @@ impl PartMutation {
             msg: Some("successfully add part".to_string()),
             part_data: Some(PartData {
                 id: new_part_id,
-                dancer_id: exist_dancer.clone().unwrap().id,
+                dancer_id: exist_dancer.id,
                 name: input.name.clone(),
                 r#type: input.part_type,
                 length: input.length,

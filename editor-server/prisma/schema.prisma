@@ -35,14 +35,18 @@ model LEDEffectState {
 model LEDEffect {
   id        Int    @id @default(autoincrement())
   name      String
-  part_name String
+  dancer_id Int
+  part_id   Int
 
   // relation => not in db
   editing       EditingLEDEffect?
   control_datas ControlData[]
   states        LEDEffectState[]
 
-  @@unique([name, part_name])
+  dancer Dancer @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  part   Part   @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([name, dancer_id, part_id])
 }
 
 model User {
@@ -90,6 +94,7 @@ model Dancer {
   // relation => not in db
   parts          Part[]
   position_datas PositionData[]
+  LEDEffect      LEDEffect[]
 }
 
 enum PartType {
@@ -107,6 +112,7 @@ model Part {
   // relation => not in db
   dancer        Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   control_datas ControlData[]
+  LEDEffect     LEDEffect[]
 }
 
 model PositionData {

@@ -80,7 +80,7 @@ pub async fn get_dancer_led_data(
         r#"
             SELECT Color.r, Color.g, Color.b, Color.id
             FROM Color
-            "#,
+        "#,
     )
     .fetch_all(mysql_pool)
     .await
@@ -102,12 +102,18 @@ pub async fn get_dancer_led_data(
     // get parts and control data of parts for dancer
     let dancer_data = sqlx::query!(
         r#"
-            SELECT Part.name, Part.length, ControlData.effect_id
+            SELECT
+                Dancer.name,
+                Dancer.id,
+                Part.name as "part_name",
+                Part.id as "part_id",
+                Part.length as "part_length",
+                ControlData.effect_id
             FROM Dancer
             INNER JOIN Part ON Dancer.id = Part.dancer_id
             INNER JOIN ControlData ON Part.id = ControlData.part_id
             WHERE Dancer.name = ? AND Part.type = 'LED'
-            "#,
+        "#,
         dancer
     )
     .fetch_all(mysql_pool)
@@ -126,14 +132,11 @@ pub async fn get_dancer_led_data(
     let mut parts: HashMap<String, Vec<Part>> = HashMap::new();
 
     // organize control data into their respective parts
-    for data in dancer_data.iter() {
-        parts
-            .entry(data.name.clone())
-            .or_insert_with(Vec::new)
-            .push(Part {
-                effect_id: data.effect_id,
-                length: data.length,
-            });
+    for data in dancer_data.into_iter() {
+        parts.entry(data.name).or_insert_with(Vec::new).push(Part {
+            length: data.part_length,
+            effect_id: data.effect_id,
+        });
     }
 
     let mut response: GetDataResponse = HashMap::new();
@@ -150,11 +153,14 @@ pub async fn get_dancer_led_data(
             // find effect states for effect of given control data and part
             let led_effect_states = sqlx::query!(
                 r#"
-                    SELECT LEDEffectState.color_id, LEDEffectState.alpha, LEDEffectState.position
+                    SELECT
+                        LEDEffectState.color_id,
+                        LEDEffectState.alpha,
+                        LEDEffectState.position
                     FROM LEDEffect
-                    INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id  
-                    WHERE part_name = ? AND LEDEffect.id = ?
-                    "#,
+                    INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id
+                    WHERE part_id = ? AND LEDEffect.id = ?
+                "#,
                 part_name,
                 data.effect_id.ok_or("Effect id not found").into_result()?
             )
