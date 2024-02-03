@@ -95,7 +95,7 @@ pub async fn init_redis_control(
 
                         match part_control.part_type {
                             PartType::LED => {
-                                PartControl(part_control.effect_id.unwrap(), part_control.alpha)
+                                PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
                             }
                             PartType::FIBER => {
                                 PartControl(part_control.color_id.unwrap(), part_control.alpha)
@@ -280,7 +280,7 @@ pub async fn update_redis_control(
                         .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
                     match part_control.part_type {
                         PartType::LED => {
-                            PartControl(part_control.effect_id.unwrap(), part_control.alpha)
+                            PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
                         }
                         PartType::FIBER => {
                             PartControl(part_control.color_id.unwrap(), part_control.alpha)
