@@ -30,6 +30,8 @@ model LEDEffectState {
 
   // relation => not in db
   effect LEDEffect @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([effect_id, position])
 }
 
 model LEDEffect {

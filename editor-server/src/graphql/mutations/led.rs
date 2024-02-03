@@ -1,8 +1,5 @@
 use crate::graphql::types::led::{Frame, LEDEffectData, LEDEffectFrame};
-use crate::graphql::{
-    subscriptions::led::{LEDMutationMode, LEDPayload},
-    subscriptor::Subscriptor,
-};
+use crate::graphql::{subscriptions::led::LEDPayload, subscriptor::Subscriptor};
 use crate::types::global::UserContext;
 use async_graphql::{
     Context, Error as GQLError, InputObject, Object, Result as GQLResult, SimpleObject,
@@ -209,18 +206,16 @@ impl LEDMutation {
 
         // publish to subscribers
         let led_payload = LEDPayload {
-            mutation: LEDMutationMode::Created,
-            id: effect_id,
-            part_name: part_name.clone(),
-            effect_name: effect_name.clone(),
-            edit_by: context.user_id,
-            data: LEDEffectData {
+            create_effects: vec![LEDEffectData {
                 id: effect_id,
                 name: effect_name.clone(),
+                dancer_name: dancer_name.clone(),
                 part_name: part_name.clone(),
                 repeat,
                 frames: frames.clone(),
-            },
+            }],
+            update_effects: Vec::new(),
+            delete_effects: Vec::new(),
         };
 
         Subscriptor::publish(led_payload);
@@ -378,20 +373,17 @@ impl LEDMutation {
             }
         }
 
-        // publish to subscribers
         let led_payload = LEDPayload {
-            mutation: LEDMutationMode::Updated,
-            id,
-            part_name: led_effect.part_name.clone(),
-            effect_name: effect_name.clone(),
-            edit_by: context.user_id,
-            data: LEDEffectData {
+            create_effects: Vec::new(),
+            update_effects: vec![LEDEffectData {
                 id,
                 name: effect_name.clone(),
+                dancer_name: led_effect.dancer_name.clone(),
                 part_name: led_effect.part_name.clone(),
                 repeat,
                 frames: frames.clone(),
-            },
+            }],
+            delete_effects: Vec::new(),
         };
 
         Subscriptor::publish(led_payload);
@@ -508,18 +500,16 @@ impl LEDMutation {
 
         // publish to subscribers
         let led_payload = LEDPayload {
-            mutation: LEDMutationMode::Deleted,
-            id,
-            edit_by: context.user_id,
-            data: LEDEffectData {
+            create_effects: Vec::new(),
+            update_effects: Vec::new(),
+            delete_effects: vec![LEDEffectData {
                 id: 0,
                 name: "".to_string(),
+                dancer_name: "".to_string(),
                 part_name: "".to_string(),
                 repeat: 0,
                 frames: vec![],
-            },
-            part_name: "".to_string(),
-            effect_name: "".to_string(),
+            }],
         };
 
         Subscriptor::publish(led_payload);

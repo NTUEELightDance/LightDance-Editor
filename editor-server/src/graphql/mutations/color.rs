@@ -1,13 +1,16 @@
 //! Color mutation methods.
 use crate::db::types::color::ColorData;
+use crate::graphql::types::led::{LEDEffectData, LEDEffectFrame};
 use crate::graphql::{
     subscriptions::color::{ColorMutationMode, ColorPayload},
+    subscriptions::led::LEDPayload,
     subscriptor::Subscriptor,
     types::color::Color,
 };
 use crate::types::global::UserContext;
 
 use async_graphql::{Context, InputObject, Object, Result as GQLResult, SimpleObject};
+use itertools::Itertools;
 
 // TODO: Remove this after all done
 #[derive(InputObject, Default, Debug)]
@@ -35,6 +38,7 @@ pub struct ColorCreateColorCodeInput {
 pub struct ColorCreateInput {
     pub color: String,
     pub color_code: ColorCreateColorCodeInput,
+    pub auto_create_effect: Option<bool>,
 }
 
 #[derive(SimpleObject, Default)]
@@ -123,6 +127,104 @@ impl ColorMutation {
         };
 
         Subscriptor::publish(color_payload);
+
+        if color.auto_create_effect.unwrap_or(false) {
+            let dancer_parts = sqlx::query!(
+                r#"
+                    SELECT
+                        Dancer.id,
+                        Part.id AS part_id,
+                        Part.length AS part_length
+                    FROM Dancer
+                    INNER JOIN Part ON Dancer.id = Part.dancer_id
+                    WHERE Part.type = 'LED';
+                "#
+            )
+            .fetch_all(mysql)
+            .await?
+            .into_iter()
+            .map(|row| {
+                let length = row.part_length.unwrap_or(0);
+                (row.id, row.part_id, length)
+            })
+            .collect_vec();
+
+            let create_effect_futures = dancer_parts.iter().map(|dancer_part| {
+                sqlx::query!(
+                    r#"
+                            INSERT INTO LEDEffect (name, dancer_id, part_id)
+                            VALUES (?, ?, ?);
+                        "#,
+                    color.color.clone(),
+                    dancer_part.0,
+                    dancer_part.1
+                )
+                .execute(mysql)
+            });
+
+            let create_effect_results = futures::future::join_all(create_effect_futures)
+                .await
+                .into_iter()
+                .filter_map(|result| result.ok())
+                .collect_vec();
+
+            let mut create_states_futures = Vec::new();
+            create_effect_results
+                .iter()
+                .zip(dancer_parts.iter())
+                .for_each(|(result, dancer_part)| {
+                        for pos in 0..dancer_part.2 {
+                            create_states_futures.push(
+                                sqlx::query!(
+                                    r#"
+                                        INSERT INTO LEDEffectState (effect_id, position, color_id, alpha)
+                                        VALUES (?, ?, ?, ?)
+                                        ON DUPLICATE KEY UPDATE color_id = VALUES(color_id), alpha = VALUES(alpha);
+                                    "#,
+                                    result.last_insert_id() as i32,
+                                    pos,
+                                    id,
+                                    255
+                                )
+                                .execute(mysql),
+                            )
+                        }
+                });
+
+            futures::future::join_all(create_states_futures).await;
+
+            let create_effects = create_effect_results
+                .iter()
+                .zip(dancer_parts)
+                .map(|(result, dancer_part)| {
+                    let effect_id = result.last_insert_id() as i32;
+                    let frames = (0..dancer_part.2)
+                        .map(|pos| LEDEffectFrame {
+                            leds: (0..dancer_part.2).map(|_| [id, 255]).collect_vec(),
+                            fade: false,
+                            start: pos,
+                        })
+                        .collect_vec();
+
+                    LEDEffectData {
+                        id: effect_id,
+                        name: color.color.clone(),
+                        dancer_name: "".to_string(),
+                        part_name: "".to_string(),
+                        repeat: 0,
+                        frames,
+                    }
+                })
+                .collect_vec();
+
+            let led_payload = LEDPayload {
+                create_effects,
+                update_effects: Vec::new(),
+                delete_effects: Vec::new(),
+            };
+
+            Subscriptor::publish(led_payload);
+        }
 
         let color = Color {
             id,

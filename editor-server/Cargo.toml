@@ -16,6 +16,7 @@ axum = { version = "0.6.20", features = ["ws", "form", "multipart"] }
 axum-extra = { version = "0.8.0", features = ["cookie"] }
 bcrypt = "0.15.0"
 dotenv = "0.15.0"
+futures = "0.3.30"
 futures-channel = "0.3.28"
 futures-core = "0.3.28"
 futures-util = "0.3.28"
