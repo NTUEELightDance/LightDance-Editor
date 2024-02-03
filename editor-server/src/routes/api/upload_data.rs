@@ -1,4 +1,5 @@
 use crate::global;
+use crate::utils::data::{init_redis_control, init_redis_position};
 
 use axum::{extract::Multipart, http::StatusCode, response::Json};
 use indicatif::ProgressBar;
@@ -107,9 +108,9 @@ pub async fn upload_data(
             }
         };
 
-        let app_state = global::clients::get();
+        let clients = global::clients::get();
 
-        let mysql = app_state.mysql_pool();
+        let mysql = clients.mysql_pool();
 
         // Cleaner way to do this?
         let _ = sqlx::query!(r#"DELETE FROM Color"#,).execute(mysql).await;
@@ -408,6 +409,13 @@ pub async fn upload_data(
             control_progress.inc(1);
         }
         control_progress.finish();
+
+        init_redis_control(clients.mysql_pool(), clients.redis_client())
+            .await
+            .expect("Error initializing redis control.");
+        init_redis_position(clients.mysql_pool(), clients.redis_client())
+            .await
+            .expect("Error initializing redis position.");
 
         tx.commit().await.into_result()?;
         println!("Upload Finish!");
