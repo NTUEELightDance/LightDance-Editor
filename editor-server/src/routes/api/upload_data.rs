@@ -16,7 +16,7 @@ struct ControlData {
 #[derive(Debug, Deserialize, Serialize)]
 struct PositionData {
     start: i32,
-    pos: Vec<[i32; 3]>,
+    pos: Vec<[f32; 3]>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -410,6 +410,9 @@ pub async fn upload_data(
         }
         control_progress.finish();
 
+        tx.commit().await.into_result()?;
+        println!("Upload Finish!");
+
         init_redis_control(clients.mysql_pool(), clients.redis_client())
             .await
             .expect("Error initializing redis control.");
@@ -417,8 +420,6 @@ pub async fn upload_data(
             .await
             .expect("Error initializing redis position.");
 
-        tx.commit().await.into_result()?;
-        println!("Upload Finish!");
         Ok((
             StatusCode::OK,
             Json(UploadDataResponse(
