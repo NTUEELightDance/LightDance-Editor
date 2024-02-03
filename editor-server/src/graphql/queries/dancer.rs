@@ -43,10 +43,6 @@ impl DancerQuery {
 
         let dancers = partition_by_field(|row| row.id, result);
 
-        for dancer in dancers.iter() {
-            println!("{:?}", dancer);
-        }
-
         Ok(dancers
             .into_iter()
             .map(|dancer| Dancer {
