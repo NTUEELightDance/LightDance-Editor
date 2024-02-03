@@ -1,20 +1,20 @@
 use crate::global;
 
-use axum::{http::StatusCode, response::Json, extract::Multipart};
+use axum::{extract::Multipart, http::StatusCode, response::Json};
+use indicatif::ProgressBar;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use indicatif::ProgressBar;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct ControlData {
     start: i32,
-    fade: bool, 
+    fade: bool,
     status: Vec<Vec<(String, i32)>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 struct PositionData {
-    start: i32, 
+    start: i32,
     pos: Vec<[i32; 3]>,
 }
 
@@ -27,7 +27,7 @@ struct LEDFrame {
 }
 #[derive(Debug, Deserialize, Serialize)]
 struct LEDPart {
-    repeat: i32, 
+    repeat: i32,
     frames: Vec<LEDFrame>,
 }
 
@@ -45,7 +45,7 @@ struct DancerPart {
 }
 #[derive(Debug, Deserialize, Serialize)]
 struct Dancer {
-    name: String, 
+    name: String,
     parts: Vec<DancerPart>,
 }
 
@@ -82,14 +82,14 @@ where
                 StatusCode::BAD_REQUEST,
                 Json(UploadDataFailedResponse {
                     err: err.to_string(),
-                })
-            ))
+                }),
+            )),
         }
     }
 }
 
 pub async fn upload_data(
-    mut files: Multipart
+    mut files: Multipart,
 ) -> Result<(StatusCode, Json<UploadDataResponse>), (StatusCode, Json<UploadDataFailedResponse>)> {
     // read request
     if let Some(field) = files.next_field().await.into_result()? {
@@ -97,33 +97,49 @@ pub async fn upload_data(
         // parse json & check types
         let data_obj: DataObj = match serde_json::from_slice(&raw_data) {
             Ok(data_obj) => data_obj,
-            Err(e) => return Err((
-                StatusCode::BAD_REQUEST,
-                Json(UploadDataFailedResponse {
-                    err: format!("JSON was not well formatted: {e}"),
-                }),
-            ))
+            Err(e) => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    Json(UploadDataFailedResponse {
+                        err: format!("JSON was not well formatted: {e}"),
+                    }),
+                ))
+            }
         };
-        
+
         let app_state = global::clients::get();
 
         let mysql = app_state.mysql_pool();
 
         // Cleaner way to do this?
         let _ = sqlx::query!(r#"DELETE FROM Color"#,).execute(mysql).await;
-        let _ = sqlx::query!(r#"DELETE FROM PositionData"#,).execute(mysql).await;
-        let _ = sqlx::query!(r#"DELETE FROM ControlData"#,).execute(mysql).await;
+        let _ = sqlx::query!(r#"DELETE FROM PositionData"#,)
+            .execute(mysql)
+            .await;
+        let _ = sqlx::query!(r#"DELETE FROM ControlData"#,)
+            .execute(mysql)
+            .await;
         let _ = sqlx::query!(r#"DELETE FROM Part"#,).execute(mysql).await;
         let _ = sqlx::query!(r#"DELETE FROM Dancer"#,).execute(mysql).await;
-        let _ = sqlx::query!(r#"DELETE FROM PositionFrame"#,).execute(mysql).await;
-        let _ = sqlx::query!(r#"DELETE FROM ControlFrame"#,).execute(mysql).await;
-        let _ = sqlx::query!(r#"DELETE FROM LEDEffect"#,).execute(mysql).await;
-        let _ = sqlx::query!(r#"DELETE FROM LEDEffectState"#,).execute(mysql).await;
-        let _ = sqlx::query!(r#"DELETE FROM EffectListData"#,).execute(mysql).await;
+        let _ = sqlx::query!(r#"DELETE FROM PositionFrame"#,)
+            .execute(mysql)
+            .await;
+        let _ = sqlx::query!(r#"DELETE FROM ControlFrame"#,)
+            .execute(mysql)
+            .await;
+        let _ = sqlx::query!(r#"DELETE FROM LEDEffect"#,)
+            .execute(mysql)
+            .await;
+        let _ = sqlx::query!(r#"DELETE FROM LEDEffectState"#,)
+            .execute(mysql)
+            .await;
+        let _ = sqlx::query!(r#"DELETE FROM EffectListData"#,)
+            .execute(mysql)
+            .await;
         println!("DB cleared");
 
         let mut tx = mysql.begin().await.into_result()?;
-        
+
         // HashMap<ColorName, ColorID>
         let mut color_dict: HashMap<&String, i32> = HashMap::new();
         let color_progress = ProgressBar::new(data_obj.color.len().try_into().unwrap_or_default());
@@ -151,7 +167,8 @@ pub async fn upload_data(
 
         // HashMap<LEDPartName, HashMap<EffectName, EffectID>>
         let mut led_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
-        let led_progress = ProgressBar::new(data_obj.led_effects.len().try_into().unwrap_or_default());
+        let led_progress =
+            ProgressBar::new(data_obj.led_effects.len().try_into().unwrap_or_default());
         println!("Create LED Effects...");
         for (part_name, effects) in &data_obj.led_effects {
             let mut effect_dict: HashMap<&String, i32> = HashMap::new();
@@ -188,8 +205,8 @@ pub async fn upload_data(
                             INSERT INTO LEDEffectState (effect_id, position, color_id, alpha)
                             VALUES (?, ?, ?, ?);
                         "#,
-                        effect_id, 
-                        index as i32, 
+                        effect_id,
+                        index as i32,
                         color_id,
                         alpha,
                     )
@@ -204,8 +221,10 @@ pub async fn upload_data(
         led_progress.finish();
 
         // HashMap<DancerName, (DancerID, HashMap<PartName, (PartID, PartType)>)>
-        let mut all_dancer: HashMap<&String, (i32, HashMap<&String, (i32, &DancerPartType)>)> = HashMap::new();
-        let dancer_progress = ProgressBar::new(data_obj.dancer.len().try_into().unwrap_or_default());
+        let mut all_dancer: HashMap<&String, (i32, HashMap<&String, (i32, &DancerPartType)>)> =
+            HashMap::new();
+        let dancer_progress =
+            ProgressBar::new(data_obj.dancer.len().try_into().unwrap_or_default());
         println!("Create Dancers...");
         for dancer in &data_obj.dancer {
             let dancer_id = sqlx::query!(
@@ -248,7 +267,8 @@ pub async fn upload_data(
         }
         dancer_progress.finish();
 
-        let position_progress = ProgressBar::new(data_obj.position.len().try_into().unwrap_or_default());
+        let position_progress =
+            ProgressBar::new(data_obj.position.len().try_into().unwrap_or_default());
         println!("Create Position Data...");
         for (_, frame_obj) in &data_obj.position {
             if frame_obj.pos.len() != data_obj.dancer.len() {
@@ -279,7 +299,7 @@ pub async fn upload_data(
                         INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
                         VALUES (?, ?, ?, ?, ?);
                     "#,
-                    dancer_id, 
+                    dancer_id,
                     frame_id,
                     dancer_pos_data[0],
                     dancer_pos_data[1],
@@ -293,7 +313,8 @@ pub async fn upload_data(
         }
         position_progress.finish();
 
-        let control_progress = ProgressBar::new(data_obj.control.len().try_into().unwrap_or_default());
+        let control_progress =
+            ProgressBar::new(data_obj.control.len().try_into().unwrap_or_default());
         println!("Create Control Data...");
         for (_, frame_obj) in &data_obj.control {
             if frame_obj.status.len() != data_obj.dancer.len() {
@@ -341,10 +362,7 @@ pub async fn upload_data(
                     };
                     let color_id = color_dict.get(&part_control_data.0);
                     let effect_id = match led_dict.get(part_name) {
-                        Some(obj) => match obj.get(&part_control_data.0) {
-                            Some(i) => Some(i),
-                            None => None,
-                        }, 
+                        Some(obj) => obj.get(&part_control_data.0),
                         None => None,
                     };
 
@@ -391,15 +409,20 @@ pub async fn upload_data(
         }
         control_progress.finish();
 
-        let _ = tx.commit().await.into_result()?;
+        tx.commit().await.into_result()?;
         println!("Upload Finish!");
-        Ok((StatusCode::OK, Json(UploadDataResponse("Data Uploaded Successfully!".to_string()))))
+        Ok((
+            StatusCode::OK,
+            Json(UploadDataResponse(
+                "Data Uploaded Successfully!".to_string(),
+            )),
+        ))
     } else {
         Err((
             StatusCode::BAD_REQUEST,
             Json(UploadDataFailedResponse {
-                err: "No File!".to_string()
-            }), 
+                err: "No File!".to_string(),
+            }),
         ))
     }
 }
