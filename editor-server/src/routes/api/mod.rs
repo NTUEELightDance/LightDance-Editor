@@ -32,4 +32,5 @@ pub fn build_api_routes() -> Router {
             "/getDancerLEDData",
             get(get_dancer_led_data::get_dancer_led_data),
         )
+        .route("/uploadData", post(upload_data::upload_data))
 }
