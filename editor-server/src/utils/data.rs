@@ -46,7 +46,8 @@ pub async fn init_redis_control(
         let dancer_controls = sqlx::query!(
             r#"
                 SELECT
-                    Dancer.id,
+                    Dancer.id AS dancer_id,
+                    Part.id AS part_id,
                     Part.type AS "part_type: PartType",
                     ControlData.frame_id,
                     ControlData.color_id,
@@ -69,56 +70,53 @@ pub async fn init_redis_control(
         .map_err(|e| e.to_string())?;
 
         let dancer_controls =
-            partition_by_field(|dancer_control| dancer_control.id, dancer_controls);
+            partition_by_field(|dancer_control| dancer_control.frame_id, dancer_controls);
 
         dancer_controls
             .into_iter()
-            .map(|dancer_control| partition_by_field(|part| part.id, dancer_control))
+            .map(|dancer_control| partition_by_field(|part| part.dancer_id, dancer_control))
             .collect_vec()
     };
 
     let mut result = Vec::new();
 
-    frames.iter().for_each(|frame| {
-        let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
+    frames
+        .iter()
+        .zip(dancer_controls)
+        .for_each(|(frame, dancer_control)| {
+            let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
 
-        let status = dancer_controls
-            .iter()
-            .map(|dancer_control| {
-                dancer_control
-                    .iter()
-                    .map(|part_controls| {
-                        let part_control = part_controls
-                            .iter()
-                            .find(|part_control| part_control.frame_id == frame.id)
-                            .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
-
-                        match part_control.part_type {
-                            PartType::LED => {
-                                PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
-                            }
+            let status = dancer_control
+                .iter()
+                .map(|dancer_control| {
+                    dancer_control
+                        .iter()
+                        .map(|part_control| match part_control.part_type {
+                            PartType::LED => PartControl(
+                                part_control.effect_id.unwrap_or(-1),
+                                part_control.alpha,
+                            ),
                             PartType::FIBER => {
                                 PartControl(part_control.color_id.unwrap(), part_control.alpha)
                             }
-                        }
-                    })
-                    .collect_vec()
-            })
-            .collect_vec();
+                        })
+                        .collect_vec()
+                })
+                .collect_vec();
 
-        let result_control = RedisControl {
-            fade: frame.fade != 0,
-            start: frame.start,
-            rev: Revision {
-                meta: frame.meta_rev,
-                data: frame.data_rev,
-            },
-            editing: frame.user_name.clone(),
-            status,
-        };
+            let result_control = RedisControl {
+                fade: frame.fade != 0,
+                start: frame.start,
+                rev: Revision {
+                    meta: frame.meta_rev,
+                    data: frame.data_rev,
+                },
+                editing: frame.user_name.clone(),
+                status,
+            };
 
-        result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
-    });
+            result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
+        });
 
     if !result.is_empty() {
         let mut conn = redis_client.get_tokio_connection().await.unwrap();
