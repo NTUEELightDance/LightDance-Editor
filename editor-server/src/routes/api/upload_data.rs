@@ -171,9 +171,7 @@ pub async fn upload_data(
 
                 effect_dict.insert(effect_name, effect_id);
 
-                // Only one frame?
                 for (index, (color, alpha)) in effect_data.frames[0].leds.iter().enumerate() {
-                    // What to do if color not found?
                     let color_id = match color_dict.get(color) {
                         Some(i) => i,
                         None => {
@@ -205,7 +203,6 @@ pub async fn upload_data(
         }
         led_progress.finish();
 
-        // What's the point of "partsList" anyways...
         // HashMap<DancerName, (DancerID, HashMap<PartName, (PartID, PartType)>)>
         let mut all_dancer: HashMap<&String, (i32, HashMap<&String, (i32, &DancerPartType)>)> = HashMap::new();
         let dancer_progress = ProgressBar::new(data_obj.dancer.len().try_into().unwrap_or_default());
@@ -275,7 +272,6 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            // How do I implement "withConcurrency" here?
             for (index, dancer_pos_data) in frame_obj.pos.iter().enumerate() {
                 let dancer_id = all_dancer[&data_obj.dancer[index].name].0;
                 let _ = sqlx::query!(
@@ -352,25 +348,25 @@ pub async fn upload_data(
                         None => None,
                     };
 
-                    if color_id == None && type_string == "COLOR" {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            Json(UploadDataFailedResponse {
-                                err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown color {}.",
-                                 frame_obj.start, i, j, &part_control_data.0),
-                            }),
-                        ));
-                    };
+                    // if color_id == None && type_string == "COLOR" {
+                    //     return Err((
+                    //         StatusCode::BAD_REQUEST,
+                    //         Json(UploadDataFailedResponse {
+                    //             err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown color {}.",
+                    //              frame_obj.start, i, j, &part_control_data.0),
+                    //         }),
+                    //     ));
+                    // };
 
-                    if effect_id == None && type_string == "EFFECT" {
-                        return Err((
-                            StatusCode::BAD_REQUEST,
-                            Json(UploadDataFailedResponse {
-                                err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown LED effect {}.",
-                                 frame_obj.start, i, j, &part_control_data.0),
-                            }),
-                        ));
-                    };
+                    // if effect_id == None && type_string == "EFFECT" {
+                    //     return Err((
+                    //         StatusCode::BAD_REQUEST,
+                    //         Json(UploadDataFailedResponse {
+                    //             err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown LED effect {}.",
+                    //              frame_obj.start, i, j, &part_control_data.0),
+                    //         }),
+                    //     ));
+                    // };
 
                     let alpha = part_control_data.1;
 
