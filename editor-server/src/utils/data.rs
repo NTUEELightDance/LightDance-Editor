@@ -62,7 +62,7 @@ pub async fn init_redis_control(
                 ON ControlData.color_id = Color.id
                 LEFT JOIN LEDEffect
                 ON ControlData.effect_id = LEDEffect.id
-                ORDER BY Dancer.id ASC, Part.id ASC;
+                ORDER BY ControlData.frame_id, Dancer.id ASC, Part.id ASC;
             "#,
         )
         .fetch_all(mysql_pool)
@@ -284,6 +284,7 @@ pub async fn update_redis_control(
                         .iter()
                         .find(|part_control| part_control.frame_id == frame.id)
                         .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
+
                     match part_control.part_type {
                         PartType::LED => {
                             PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
@@ -418,7 +419,6 @@ pub async fn get_redis_control(
         Ok(cache) => {
             let mut cache: RedisControl = serde_json::from_str(&cache).unwrap();
             cache.editing = None;
-            println!("Cache: {:?}", cache);
             Ok(cache)
         }
         Err(_) => Err(format!("Frame {} not found in redis.", frame_id)),
@@ -442,7 +442,6 @@ pub async fn get_redis_position(
         Ok(cache) => {
             let mut cache: RedisPosition = serde_json::from_str(&cache).unwrap();
             cache.editing = None;
-            println!("Cache: {:?}", cache);
             Ok(cache)
         }
         Err(_) => Err(format!("Frame {} not found in redis.", frame_id)),
