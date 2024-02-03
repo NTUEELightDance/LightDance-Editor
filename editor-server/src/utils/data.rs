@@ -262,13 +262,7 @@ pub async fn update_redis_control(
         .await
         .map_err(|e| e.to_string())?;
 
-        let dancer_controls =
-            partition_by_field(|dancer_control| dancer_control.id, dancer_controls);
-
-        dancer_controls
-            .into_iter()
-            .map(|dancer_control| partition_by_field(|part| part.id, dancer_control))
-            .collect_vec()
+        partition_by_field(|dancer_control| dancer_control.id, dancer_controls)
     };
 
     let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
@@ -279,19 +273,12 @@ pub async fn update_redis_control(
         .map(|dancer_control| {
             dancer_control
                 .iter()
-                .map(|part_controls| {
-                    let part_control = part_controls
-                        .iter()
-                        .find(|part_control| part_control.frame_id == frame.id)
-                        .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
-
-                    match part_control.part_type {
-                        PartType::LED => {
-                            PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
-                        }
-                        PartType::FIBER => {
-                            PartControl(part_control.color_id.unwrap(), part_control.alpha)
-                        }
+                .map(|part_control| match part_control.part_type {
+                    PartType::LED => {
+                        PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
+                    }
+                    PartType::FIBER => {
+                        PartControl(part_control.color_id.unwrap(), part_control.alpha)
                     }
                 })
                 .collect_vec()
