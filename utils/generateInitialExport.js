@@ -51,6 +51,13 @@ async function getParts(modelPath, dancerName) {
     type: partName.split("_").pop() === "LED" ? "LED" : "FIBER",
   }));
 
+  parts.sort((a, b) => {
+    if (a.type === b.type) {
+      return a.name.localeCompare(b.name);
+    }
+    return a.type === "FIBER" ? -1 : 1;
+  });
+
   const LEDs = root
     .listNodes()
     .map((node) => node.getName())
@@ -176,8 +183,6 @@ function generateEmptyLEDEffects(dancerData) {
 
   const dancerData = await Promise.all(
     Object.entries(dancerMap).map(async ([dancerName, { url }]) => {
-      // const rootSplit = fileServerRoot.split("//");
-      // const fullPath = rootSplit[0] + "//" + path.join(rootSplit[1], url);
       const fullPath = path.join(fileServerRoot, url);
       const modelUrl = toGlbPath(fullPath);
       return {
@@ -193,15 +198,15 @@ function generateEmptyLEDEffects(dancerData) {
   );
 
   const controlData = {
-    0: generateEmptyControlFrame(dancerData, 0, BLACK, NO_EFFECT),
-    1: generateEmptyControlFrame(dancerData, 1000, WHITE, ALL_WHITE),
-    2: generateEmptyControlFrame(dancerData, 2000, RED, ALL_RED),
-    3: generateEmptyControlFrame(dancerData, 3000, GREEN, ALL_GREEN),
-    4: generateEmptyControlFrame(dancerData, 4000, BLUE, ALL_BLUE),
+    1: generateEmptyControlFrame(dancerData, 0, BLACK, NO_EFFECT),
+    2: generateEmptyControlFrame(dancerData, 1000, WHITE, ALL_WHITE),
+    3: generateEmptyControlFrame(dancerData, 2000, RED, ALL_RED),
+    4: generateEmptyControlFrame(dancerData, 3000, GREEN, ALL_GREEN),
+    5: generateEmptyControlFrame(dancerData, 4000, BLUE, ALL_BLUE),
   };
 
   const positionData = {
-    0: generateEmptyPosMap(dancerData),
+    1: generateEmptyPosMap(dancerData),
   };
 
   const colorData = {

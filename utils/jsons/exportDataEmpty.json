@@ -28,11 +28,6 @@
           "type": "FIBER"
         },
         {
-          "name": "buttons_LED",
-          "type": "LED",
-          "length": 8
-        },
-        {
           "name": "collar_back",
           "type": "FIBER"
         },
@@ -43,21 +38,6 @@
         {
           "name": "collar_right",
           "type": "FIBER"
-        },
-        {
-          "name": "glasses_LED",
-          "type": "LED",
-          "length": 25
-        },
-        {
-          "name": "glove_left_LED",
-          "type": "LED",
-          "length": 42
-        },
-        {
-          "name": "glove_right_LED",
-          "type": "LED",
-          "length": 42
         },
         {
           "name": "hem",
@@ -104,6 +84,38 @@
           "type": "FIBER"
         },
         {
+          "name": "pocket",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED",
+          "length": 8
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED",
+          "length": 25
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
           "name": "oxford_left_LED",
           "type": "LED",
           "length": 77
@@ -114,21 +126,9 @@
           "length": 77
         },
         {
-          "name": "pocket",
-          "type": "FIBER"
-        },
-        {
           "name": "tie_LED",
           "type": "LED",
           "length": 73
-        },
-        {
-          "name": "waist_left",
-          "type": "FIBER"
-        },
-        {
-          "name": "waist_right",
-          "type": "FIBER"
         }
       ]
     },
@@ -160,11 +160,6 @@
           "type": "FIBER"
         },
         {
-          "name": "buttons_LED",
-          "type": "LED",
-          "length": 8
-        },
-        {
           "name": "collar_back",
           "type": "FIBER"
         },
@@ -175,21 +170,6 @@
         {
           "name": "collar_right",
           "type": "FIBER"
-        },
-        {
-          "name": "glasses_LED",
-          "type": "LED",
-          "length": 25
-        },
-        {
-          "name": "glove_left_LED",
-          "type": "LED",
-          "length": 42
-        },
-        {
-          "name": "glove_right_LED",
-          "type": "LED",
-          "length": 42
         },
         {
           "name": "hem",
@@ -236,6 +216,38 @@
           "type": "FIBER"
         },
         {
+          "name": "pocket",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED",
+          "length": 8
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED",
+          "length": 25
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
           "name": "oxford_left_LED",
           "type": "LED",
           "length": 77
@@ -246,27 +258,15 @@
           "length": 77
         },
         {
-          "name": "pocket",
-          "type": "FIBER"
-        },
-        {
           "name": "tie_LED",
           "type": "LED",
           "length": 73
-        },
-        {
-          "name": "waist_left",
-          "type": "FIBER"
-        },
-        {
-          "name": "waist_right",
-          "type": "FIBER"
         }
       ]
     }
   ],
   "control": {
-    "0": {
+    "1": {
       "fade": false,
       "start": 0,
       "status": [
@@ -296,7 +296,59 @@
             10
           ],
           [
-            "",
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
             10
           ],
           [
@@ -324,47 +376,7 @@
             10
           ],
           [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
+            "",
             10
           ],
           [
@@ -376,19 +388,7 @@
             10
           ],
           [
-            "black",
-            10
-          ],
-          [
             "",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
             10
           ]
         ],
@@ -418,7 +418,59 @@
             10
           ],
           [
-            "",
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
+            10
+          ],
+          [
+            "black",
             10
           ],
           [
@@ -446,47 +498,7 @@
             10
           ],
           [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
+            "",
             10
           ],
           [
@@ -498,25 +510,13 @@
             10
           ],
           [
-            "black",
-            10
-          ],
-          [
             "",
-            10
-          ],
-          [
-            "black",
-            10
-          ],
-          [
-            "black",
             10
           ]
         ]
       ]
     },
-    "1": {
+    "2": {
       "fade": false,
       "start": 1000,
       "status": [
@@ -546,7 +546,59 @@
             10
           ],
           [
-            "all_white",
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
             10
           ],
           [
@@ -574,47 +626,7 @@
             10
           ],
           [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
+            "all_white",
             10
           ],
           [
@@ -626,19 +638,7 @@
             10
           ],
           [
-            "white",
-            10
-          ],
-          [
             "all_white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
             10
           ]
         ],
@@ -668,7 +668,59 @@
             10
           ],
           [
-            "all_white",
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
+            10
+          ],
+          [
+            "white",
             10
           ],
           [
@@ -696,47 +748,7 @@
             10
           ],
           [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
+            "all_white",
             10
           ],
           [
@@ -748,25 +760,13 @@
             10
           ],
           [
-            "white",
-            10
-          ],
-          [
             "all_white",
-            10
-          ],
-          [
-            "white",
-            10
-          ],
-          [
-            "white",
             10
           ]
         ]
       ]
     },
-    "2": {
+    "3": {
       "fade": false,
       "start": 2000,
       "status": [
@@ -796,7 +796,59 @@
             10
           ],
           [
-            "all_red",
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
             10
           ],
           [
@@ -824,47 +876,7 @@
             10
           ],
           [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
+            "all_red",
             10
           ],
           [
@@ -876,19 +888,7 @@
             10
           ],
           [
-            "red",
-            10
-          ],
-          [
             "all_red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
             10
           ]
         ],
@@ -918,7 +918,59 @@
             10
           ],
           [
-            "all_red",
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
+            10
+          ],
+          [
+            "red",
             10
           ],
           [
@@ -946,47 +998,7 @@
             10
           ],
           [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
+            "all_red",
             10
           ],
           [
@@ -998,25 +1010,13 @@
             10
           ],
           [
-            "red",
-            10
-          ],
-          [
             "all_red",
-            10
-          ],
-          [
-            "red",
-            10
-          ],
-          [
-            "red",
             10
           ]
         ]
       ]
     },
-    "3": {
+    "4": {
       "fade": false,
       "start": 3000,
       "status": [
@@ -1046,7 +1046,59 @@
             10
           ],
           [
-            "all_green",
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
             10
           ],
           [
@@ -1074,47 +1126,7 @@
             10
           ],
           [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
+            "all_green",
             10
           ],
           [
@@ -1126,19 +1138,7 @@
             10
           ],
           [
-            "green",
-            10
-          ],
-          [
             "all_green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
             10
           ]
         ],
@@ -1168,7 +1168,59 @@
             10
           ],
           [
-            "all_green",
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
+            10
+          ],
+          [
+            "green",
             10
           ],
           [
@@ -1196,47 +1248,7 @@
             10
           ],
           [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
+            "all_green",
             10
           ],
           [
@@ -1248,25 +1260,13 @@
             10
           ],
           [
-            "green",
-            10
-          ],
-          [
             "all_green",
-            10
-          ],
-          [
-            "green",
-            10
-          ],
-          [
-            "green",
             10
           ]
         ]
       ]
     },
-    "4": {
+    "5": {
       "fade": false,
       "start": 4000,
       "status": [
@@ -1296,7 +1296,59 @@
             10
           ],
           [
-            "all_blue",
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
             10
           ],
           [
@@ -1324,47 +1376,7 @@
             10
           ],
           [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
+            "all_blue",
             10
           ],
           [
@@ -1376,19 +1388,7 @@
             10
           ],
           [
-            "blue",
-            10
-          ],
-          [
             "all_blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
             10
           ]
         ],
@@ -1418,7 +1418,59 @@
             10
           ],
           [
-            "all_blue",
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
+            10
+          ],
+          [
+            "blue",
             10
           ],
           [
@@ -1446,47 +1498,7 @@
             10
           ],
           [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
+            "all_blue",
             10
           ],
           [
@@ -1498,19 +1510,7 @@
             10
           ],
           [
-            "blue",
-            10
-          ],
-          [
             "all_blue",
-            10
-          ],
-          [
-            "blue",
-            10
-          ],
-          [
-            "blue",
             10
           ]
         ]
@@ -1518,7 +1518,7 @@
     }
   },
   "position": {
-    "0": {
+    "1": {
       "start": 0,
       "pos": [
         [
