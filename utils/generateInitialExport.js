@@ -25,7 +25,7 @@ const io = new NodeIO();
 
 const modelPartNameCache = new Map();
 
-async function getParts(modelPath) {
+async function getParts(modelPath, dancerName) {
   if (modelPartNameCache.has(modelPath)) {
     return modelPartNameCache.get(modelPath);
   }
@@ -35,6 +35,10 @@ async function getParts(modelPath) {
   const partNames = root
     .listNodes()
     .map((node) => node.getName())
+    // remove dancer root object
+    .filter((name) => name !== dancerName)
+    // drop first '_'
+    .map((name) => name.split("_").slice(1).join("_"))
     // drop after '.'
     .map((name) => name.split(".")[0])
     // remove duplicates
@@ -50,7 +54,9 @@ async function getParts(modelPath) {
   const LEDs = root
     .listNodes()
     .map((node) => node.getName())
-    .filter((name) => name.includes("_LED."));
+    .filter((name) => name.includes("_LED."))
+    // drop first '_'
+    .map((name) => name.split("_").slice(1).join("_"));
 
   const LEDcounter = LEDs.reduce((acc, LEDname) => {
     const partName = LEDname.split(".")[0];
@@ -170,10 +176,13 @@ function generateEmptyLEDEffects(dancerData) {
 
   const dancerData = await Promise.all(
     Object.entries(dancerMap).map(async ([dancerName, { url }]) => {
-      const modelUrl = toGlbPath(path.join(fileServerRoot, url));
+      // const rootSplit = fileServerRoot.split("//");
+      // const fullPath = rootSplit[0] + "//" + path.join(rootSplit[1], url);
+      const fullPath = path.join(fileServerRoot, url);
+      const modelUrl = toGlbPath(fullPath);
       return {
         name: dancerName,
-        parts: await getParts(modelUrl),
+        parts: await getParts(modelUrl, dancerName),
       };
     })
   );
