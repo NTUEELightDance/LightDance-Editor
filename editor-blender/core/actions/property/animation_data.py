@@ -287,11 +287,16 @@ def edit_single_pos_keyframe(pos_id: MapID, pos_element: PosMapElement):
     # insert rev frame (meta & data)
     rev = pos_element.rev
     pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
-    pos_rev_item = next(item for item in pos_rev if item.frame_id == pos_id)
-    pos_rev_item.data = rev.data if rev else -1
-    pos_rev_item.meta = rev.meta if rev else -1
-    pos_rev_item.frame_id = pos_id
-    pos_rev_item.frame_start = new_frame_start
+    try:
+        pos_rev_item = next(
+            item for item in pos_rev if getattr(item, "frame_id") == pos_id
+        )
+        pos_rev_item.data = rev.data if rev else -1
+        pos_rev_item.meta = rev.meta if rev else -1
+        pos_rev_item.frame_id = pos_id
+        pos_rev_item.frame_start = new_frame_start
+    except StopIteration:
+        pass
 
 
 def delete_single_pos_keyframe(pos_id: MapID, incoming_frame_start: int | None = None):
@@ -321,8 +326,13 @@ def delete_single_pos_keyframe(pos_id: MapID, incoming_frame_start: int | None =
     point = next(p for p in curve_points if p.co[0] == old_frame_start)
     curve_points.remove(point)
     pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
-    pos_rev_item = next(item for item in pos_rev if item.frame_id == pos_id)
-    pos_rev.remove(pos_rev_item)
+    try:
+        pos_rev_item = next(
+            item for item in pos_rev if getattr(item, "frame_id") == pos_id
+        )
+        pos_rev.remove(pos_rev_item)
+    except StopIteration:
+        pass
 
 
 """
@@ -547,11 +557,16 @@ def edit_single_ctrl_keyframe(
     # insert rev frame (meta & data)
     rev = ctrl_element.rev
     ctrl_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_ctrl_rev")
-    ctrl_rev_item = next(item for item in ctrl_rev if item.frame_id == ctrl_id)
-    ctrl_rev_item.data = rev.data if rev else -1
-    ctrl_rev_item.meta = rev.meta if rev else -1
-    ctrl_rev_item.frame_id = ctrl_id
-    ctrl_rev_item.frame_start = new_frame_start
+    try:
+        ctrl_rev_item = next(
+            item for item in ctrl_rev if getattr(item, "frame_id") == ctrl_id
+        )
+        ctrl_rev_item.data = rev.data if rev else -1
+        ctrl_rev_item.meta = rev.meta if rev else -1
+        ctrl_rev_item.frame_id = ctrl_id
+        ctrl_rev_item.frame_start = new_frame_start
+    except StopIteration:
+        pass
 
 
 def delete_single_ctrl_keyframe(
@@ -618,5 +633,10 @@ def delete_single_ctrl_keyframe(
     curve_points.remove(point)
 
     ctrl_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_ctrl_rev")
-    ctrl_rev_item = next(item for item in ctrl_rev if item.frame_id == ctrl_id)
-    ctrl_rev.remove(ctrl_rev_item)
+    try:
+        ctrl_rev_item = next(
+            item for item in ctrl_rev if getattr(item, "frame_id") == ctrl_id
+        )
+        ctrl_rev.remove(ctrl_rev_item)
+    except StopIteration:
+        pass
