@@ -125,8 +125,10 @@ model PositionData {
 }
 
 model PositionFrame {
-  id    Int @id @default(autoincrement())
-  start Int @unique
+  id       Int @id @default(autoincrement())
+  start    Int @unique
+  meta_rev Int @default(0)
+  data_rev Int @default(0)
 
   // relation => not in db
   editing        EditingPositionFrame?
@@ -159,9 +161,11 @@ model ControlData {
 }
 
 model ControlFrame {
-  id    Int     @id @default(autoincrement())
-  start Int     @unique
-  fade  Boolean
+  id       Int     @id @default(autoincrement())
+  start    Int     @unique
+  fade     Boolean
+  meta_rev Int     @default(0)
+  data_rev Int     @default(0)
 
   // relation => not in db
   editing       EditingControlFrame?
