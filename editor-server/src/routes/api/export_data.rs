@@ -1,18 +1,19 @@
 use crate::db::types::{
-    color::ColorData, control_frame::ControlFrameData, part::PartData,
-    position_frame::PositionFrameData,
+    color::ColorData, control_frame::ControlFrameData, position_frame::PositionFrameData,
 };
 use crate::global;
 use crate::types::global::PositionPos;
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
+
 use async_graphql::Enum;
 use axum::{http::StatusCode, response::Json};
 use http::header::CONTENT_TYPE;
 use http::HeaderMap;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExPositionData {
@@ -88,7 +89,7 @@ pub struct ExportDataResponse {
     pub position: HashMap<String, ExPositionData>,
     pub control: HashMap<String, ExControlData>,
     #[serde(rename = "LEDEffects")]
-    pub led_effects: HashMap<String, HashMap<String, ExLEDPart>>,
+    pub led_effects: HashMap<String, HashMap<String, HashMap<String, ExLEDPart>>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -184,84 +185,96 @@ pub async fn export_data() -> Result<
         .collect();
 
     // grab LEDEffect data (different schema)
-    let led_parts = sqlx::query_as!(
-        PartData,
+    let led_dancer_parts = sqlx::query!(
         r#"
-            SELECT * FROM Part
-            WHERE type = "LED";
+            SELECT
+                Part.id AS part_id,
+                Part.name AS part_name,
+                Dancer.id AS dancer_id, 
+                Dancer.name AS dancer_name
+            FROM Part
+            JOIN Dancer ON Dancer.id = Part.dancer_id
+            WHERE type = "LED"
+            ORDER BY Dancer.id ASC, Part.id ASC;
         "#,
     )
     .fetch_all(mysql_pool)
     .await
     .into_result()?;
 
-    let mut seen = HashSet::new();
-    let led_parts_name = led_parts
-        .iter()
-        .filter_map(|part| {
-            if seen.insert(part.name.clone()) {
-                Some(part.name.clone())
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<String>>();
+    let led_dancer_parts = partition_by_field(|row| row.dancer_id, led_dancer_parts)
+        .into_iter()
+        .map(|parts| partition_by_field(|row| row.part_id, parts))
+        .collect_vec();
 
     let mut led_effects = HashMap::new();
     let mut led_dict = HashMap::new();
 
-    for part_name in led_parts_name {
-        let mut led_part = HashMap::<String, ExLEDPart>::new();
-        // LEDEffectState
-        let result = {
-            let result = sqlx::query!(
-                r#"
-                SELECT
-                    LEDEffect.id,
-                    LEDEffect.name,
-                    LEDEffect.part_name,
-                    LEDEffectState.color_id,
-                    LEDEffectState.alpha,
-                    LEDEffectState.position
-                FROM LEDEffect
-                INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id
-                WHERE part_name = ?
-                ORDER BY LEDEffect.id ASC, LEDEffectState.position ASC;
-            "#,
-                part_name
-            )
-            .fetch_all(mysql_pool)
-            .await
-            .into_result()?;
-            partition_by_field(|row| row.id, result)
-        };
+    for dancer_parts in led_dancer_parts {
+        for parts in dancer_parts {
+            let dancer_id = parts[0].dancer_id;
+            let dancer_name = &parts[0].dancer_name;
 
-        result.iter().for_each(|led_effect_states| {
-            let led_frames = vec![TExportLEDFrame {
-                leds: led_effect_states
-                    .iter()
-                    .map(|led_effect_state| {
-                        ExLEDFrameLED(
-                            color_dict[&led_effect_state.color_id].clone(),
-                            led_effect_state.alpha,
-                        )
-                    })
-                    .collect(),
-                start: 0,
-                fade: false,
-            }];
+            let part_id = parts[0].part_id;
+            let part_name = &parts[0].part_name;
 
-            led_part.insert(
-                led_effect_states[0].name.clone(),
-                ExLEDPart {
-                    repeat: 0,
-                    frames: led_frames,
-                },
-            );
-            led_dict.insert(led_effect_states[0].id, led_effect_states[0].name.clone());
-        });
+            let mut led_part = HashMap::<String, ExLEDPart>::new();
+            // LEDEffectState
+            let led_effects_states = {
+                let result = sqlx::query!(
+                    r#"
+                        SELECT
+                            LEDEffect.id,
+                            LEDEffect.name,
+                            LEDEffect.part_id,
+                            LEDEffectState.color_id,
+                            LEDEffectState.alpha,
+                            LEDEffectState.position
+                        FROM LEDEffect
+                        INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id
+                        WHERE dancer_id = ? AND part_id = ?
+                        ORDER BY LEDEffect.id ASC, LEDEffectState.position ASC;
+                    "#,
+                    dancer_id,
+                    part_id
+                )
+                .fetch_all(mysql_pool)
+                .await
+                .into_result()?;
 
-        led_effects.insert(part_name, led_part);
+                partition_by_field(|row| row.id, result)
+            };
+
+            led_effects_states.iter().for_each(|led_effect_states| {
+                let led_frames = vec![TExportLEDFrame {
+                    leds: led_effect_states
+                        .iter()
+                        .map(|led_effect_state| {
+                            ExLEDFrameLED(
+                                color_dict[&led_effect_state.color_id].clone(),
+                                led_effect_state.alpha,
+                            )
+                        })
+                        .collect(),
+                    start: 0,
+                    fade: false,
+                }];
+
+                led_part.insert(
+                    led_effect_states[0].name.clone(),
+                    ExLEDPart {
+                        repeat: 0,
+                        frames: led_frames,
+                    },
+                );
+                led_dict.insert(led_effect_states[0].id, led_effect_states[0].name.clone());
+            });
+
+            led_effects
+                .entry(dancer_name.clone())
+                .or_insert(HashMap::new())
+                .insert(part_name.clone(), led_part);
+        }
     }
 
     // grab control data from redis

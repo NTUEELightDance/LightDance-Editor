@@ -142,25 +142,32 @@ function generateDefaultEffect(length, color) {
 }
 
 function generateEmptyLEDEffects(dancerData) {
-  const LEDparts = [];
-  dancerData.forEach(({ parts }) => {
+  const LEDMap = [];
+  dancerData.forEach(({ name, parts }) => {
+    let dancerParts = { name, parts: [] };
     parts.forEach((part) => {
       if (part.type === "LED") {
-        LEDparts.push(part);
+        dancerParts.parts.push(part);
       }
     });
+    LEDMap.push(dancerParts);
   });
 
-  const effects = LEDparts.reduce((acc, part) => {
+  const effects = LEDMap.reduce((dancerAcc, dancerParts) => {
     return {
-      ...acc,
-      [part.name]: {
-        [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
-        [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
-        [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
-        [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
-        [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
-      },
+      ...dancerAcc,
+      [dancerParts.name]: dancerParts.parts.reduce((partAcc, part) => {
+        return {
+          ...partAcc,
+          [part.name]: {
+            [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
+            [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
+            [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
+            [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
+            [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
+          },
+        };
+      }, {})
     };
   }, {});
 

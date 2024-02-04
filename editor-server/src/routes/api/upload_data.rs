@@ -57,7 +57,7 @@ struct DataObj {
     dancer: Vec<Dancer>,
     color: HashMap<String, [i32; 3]>,
     #[serde(rename = "LEDEffects")]
-    led_effects: HashMap<String, HashMap<String, LEDPart>>,
+    led_effects: HashMap<String, HashMap<String, HashMap<String, LEDPart>>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -166,67 +166,14 @@ pub async fn upload_data(
         }
         color_progress.finish();
 
-        // HashMap<LEDPartName, HashMap<EffectName, EffectID>>
-        let mut led_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
-        let led_progress =
-            ProgressBar::new(data_obj.led_effects.len().try_into().unwrap_or_default());
-        println!("Create LED Effects...");
-        for (part_name, effects) in &data_obj.led_effects {
-            let mut effect_dict: HashMap<&String, i32> = HashMap::new();
-            for (effect_name, effect_data) in effects {
-                let effect_id = sqlx::query!(
-                    r#"
-                        INSERT INTO LEDEffect (name, part_name)
-                        VALUES (?, ?);
-                    "#,
-                    effect_name,
-                    part_name,
-                )
-                .execute(&mut *tx)
-                .await
-                .into_result()?
-                .last_insert_id() as i32;
-
-                effect_dict.insert(effect_name, effect_id);
-
-                for (index, (color, alpha)) in effect_data.frames[0].leds.iter().enumerate() {
-                    let color_id = match color_dict.get(color) {
-                        Some(i) => i,
-                        None => {
-                            return Err((
-                                StatusCode::BAD_REQUEST,
-                                Json(UploadDataFailedResponse {
-                                    err: format!("Error: Unknown Color Name {color} in LEDEffects/{part_name}/{effect_name} at frame 0, index {index}."),
-                                }),
-                            ))
-                        }
-                    };
-                    let _ = sqlx::query!(
-                        r#"
-                            INSERT INTO LEDEffectState (effect_id, position, color_id, alpha)
-                            VALUES (?, ?, ?, ?);
-                        "#,
-                        effect_id,
-                        index as i32,
-                        color_id,
-                        alpha,
-                    )
-                    .execute(&mut *tx)
-                    .await
-                    .into_result()?;
-                }
-            }
-            led_dict.insert(part_name, effect_dict);
-            led_progress.inc(1);
-        }
-        led_progress.finish();
-
         // HashMap<DancerName, (DancerID, HashMap<PartName, (PartID, PartType)>)>
         let mut all_dancer: HashMap<&String, (i32, HashMap<&String, (i32, &DancerPartType)>)> =
             HashMap::new();
         let dancer_progress =
             ProgressBar::new(data_obj.dancer.len().try_into().unwrap_or_default());
+
         println!("Create Dancers...");
+
         for dancer in &data_obj.dancer {
             let dancer_id = sqlx::query!(
                 r#"
@@ -267,6 +214,86 @@ pub async fn upload_data(
             dancer_progress.inc(1);
         }
         dancer_progress.finish();
+
+        // HashMap<LEDPartName, HashMap<EffectName, EffectID>>
+        let mut led_dict: HashMap<&String, HashMap<&String, HashMap<&String, i32>>> =
+            HashMap::new();
+        let led_progress =
+            ProgressBar::new(data_obj.led_effects.len().try_into().unwrap_or_default());
+
+        println!("Create LED Effects...");
+
+        for (dancer_name, dancer_effects) in &data_obj.led_effects {
+            let mut dancer_effect_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
+
+            let dancer = all_dancer
+                .get(dancer_name)
+                .ok_or("Error: Unknown Dancer Name")
+                .into_result()?;
+            let dancer_id = dancer.0;
+            let all_part = &dancer.1;
+
+            for (part_name, effects) in dancer_effects {
+                let mut part_effect_dict: HashMap<&String, i32> = HashMap::new();
+
+                let part = all_part
+                    .get(part_name)
+                    .ok_or("Error: Unknown Part Name")
+                    .into_result()?;
+
+                let part_id = part.0;
+
+                for (effect_name, effect_data) in effects {
+                    let effect_id = sqlx::query!(
+                        r#"
+                            INSERT INTO LEDEffect (name, dancer_id, part_id)
+                            VALUES (?, ?, ?);
+                        "#,
+                        effect_name,
+                        dancer_id,
+                        part_id
+                    )
+                    .execute(&mut *tx)
+                    .await
+                    .into_result()?
+                    .last_insert_id() as i32;
+
+                    part_effect_dict.insert(effect_name, effect_id);
+
+                    for (index, (color, alpha)) in effect_data.frames[0].leds.iter().enumerate() {
+                        let color_id = match color_dict.get(color) {
+                                Some(i) => i,
+                                None => {
+                                    return Err((
+                                        StatusCode::BAD_REQUEST,
+                                        Json(UploadDataFailedResponse {
+                                            err: format!("Error: Unknown Color Name {color} in LEDEffects/{dancer_name}/{effect_name} at frame 0, index {index}."),
+                                        }),
+                                    ))
+                                }
+                            };
+                        let _ = sqlx::query!(
+                                r#"
+                                    INSERT INTO LEDEffectState (effect_id, position, color_id, alpha)
+                                    VALUES (?, ?, ?, ?);
+                                "#,
+                                effect_id,
+                                index as i32,
+                                color_id,
+                                alpha,
+                            )
+                            .execute(&mut *tx)
+                            .await
+                            .into_result()?;
+                    }
+                }
+                dancer_effect_dict.insert(dancer_name, part_effect_dict);
+            }
+
+            led_dict.insert(dancer_name, dancer_effect_dict);
+            led_progress.inc(1);
+        }
+        led_progress.finish();
 
         let position_progress =
             ProgressBar::new(data_obj.position.len().try_into().unwrap_or_default());
@@ -316,8 +343,10 @@ pub async fn upload_data(
 
         let control_progress =
             ProgressBar::new(data_obj.control.len().try_into().unwrap_or_default());
+
         println!("Create Control Data...");
-        for (_, frame_obj) in &data_obj.control {
+
+        for frame_obj in data_obj.control.values() {
             if frame_obj.status.len() != data_obj.dancer.len() {
                 return Err((
                     StatusCode::BAD_REQUEST,
@@ -327,6 +356,7 @@ pub async fn upload_data(
                     }),
                 ));
             }
+
             let frame_id = sqlx::query!(
                 r#"
                     INSERT INTO ControlFrame (start, fade)
@@ -362,8 +392,11 @@ pub async fn upload_data(
                         DancerPartType::FIBER => "COLOR",
                     };
                     let color_id = color_dict.get(&part_control_data.0);
-                    let effect_id = match led_dict.get(part_name) {
-                        Some(obj) => obj.get(&part_control_data.0),
+                    let effect_id = match led_dict.get(dancer_name) {
+                        Some(parts_dict) => match parts_dict.get(part_name) {
+                            Some(effect_dict) => effect_dict.get(&part_control_data.0),
+                            None => None,
+                        },
                         None => None,
                     };
 
@@ -389,7 +422,7 @@ pub async fn upload_data(
 
                     let alpha = part_control_data.1;
 
-                    let _ = sqlx::query!(
+                    sqlx::query!(
                         r#"
                             INSERT INTO ControlData (part_id, frame_id, type, color_id, effect_id, alpha)
                             VALUES (?, ?, ?, ?, ?, ?);
