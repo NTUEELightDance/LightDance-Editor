@@ -5,6 +5,8 @@ import bpy
 
 from ....client import client
 from ....properties.types import LightType, ObjectType
+from ...actions.property.revision import update_rev_changes
+from ...models import PartType
 from ...states import state
 from ...utils.ui import set_dopesheet_filter
 from ..property.animation_data import (
@@ -86,16 +88,24 @@ def import_model_to_asset(model_name, model_filepath, parts):
     print(f"model {model_name} imported")
 
 
-def setup_assets(assets_load):
+def setup_objects(assets_load):
     """
     clear all objects in viewport
     """
     for old_obj in bpy.data.objects:
-        if old_obj.visible_get():
+        if old_obj.visible_get() and not getattr(old_obj, "ld_dancer_name"):
             bpy.data.objects.remove(old_obj)
     """
     set dancer objects
     """
+    if check_local_object_list():
+        print("local objects detected")
+        return
+    else:
+        for old_obj in bpy.data.objects:
+            if old_obj.visible_get():
+                bpy.data.objects.remove(old_obj)
+
     dancer_array = state.dancers_array
     for dancer in dancer_array:
         dancer_name = dancer.name
@@ -107,6 +117,11 @@ def setup_assets(assets_load):
         model_filepath = os.path.normpath(target_path + model_file)
         model_name = dancer_load["modelName"]
         dancer_parent = bpy.data.objects.new(dancer_name, None)
+        set_bpy_props(
+            dancer_parent,
+            ld_dancer_name=dancer.name,
+            empty_display_size=0,
+        )
         dancer_parent.empty_display_size = 0
         setattr(dancer_parent, "ld_object_type", ObjectType.DANCER.value)
         bpy.context.scene.collection.objects.link(dancer_parent)
@@ -145,9 +160,10 @@ def setup_assets(assets_load):
                 )
                 for i, obj in enumerate(part_objects):
                     bpy.context.scene.collection.objects.link(obj)  # type: ignore
-                    obj.name = f"{dancer_index}.{item.name}.{i:03}"
+                    # obj.name = f"{dancer_index}.{item.name}.{i:03}"
                     set_bpy_props(
                         obj,  # type: ignore
+                        name=f"{dancer_index}.{item.name}.{i:03}",
                         parent=parts_parent,
                         ld_object_type=ObjectType.LIGHT.value,
                         ld_light_type=LightType.LED_BULB.value,
@@ -159,14 +175,18 @@ def setup_assets(assets_load):
             elif item.type.value == "FIBER":
                 obj = part_objects[0]
                 bpy.context.scene.collection.objects.link(obj)  # type: ignore
-                obj.name = f"{dancer_index}.{item.name}"
-                obj.parent = dancer_parent  # type: ignore
-                setattr(obj, "ld_object_type", ObjectType.LIGHT.value)
-                setattr(obj, "ld_light_type", LightType.FIBER.value)
-                setattr(obj, "ld_part_name", item.name)
+                set_bpy_props(
+                    obj,  # type: ignore
+                    name=f"{dancer_index}.{item.name}",
+                    parent=dancer_parent,
+                    ld_object_type=ObjectType.LIGHT.value,
+                    ld_light_type=LightType.FIBER.value,
+                    ld_part_name=item.name,
+                    ld_dancer_name=dancer.name,
+                )
 
 
-def set_music_from_load(assets_load):
+def setup_music(assets_load):
     """
     set music
     """
@@ -207,11 +227,49 @@ def setup_viewport():
     set_dopesheet_filter("control_frame")  # follow default editor
 
 
+def setup_animation_data():
+    if not getattr(bpy.context.scene, "ld_anidata"):
+        set_pos_keyframes_from_state()
+        set_ctrl_keyframes_from_state()
+        setattr(bpy.context.scene, "ld_anidata", True)
+    else:
+        print("local animation data detected")
+        update_rev_changes(state.pos_map, state.control_map)  # TODO: test this
+
+
+def check_local_object_list():
+    for dancer_item in state.dancers_array:
+        dancer_name = dancer_item.name
+        if dancer_name not in bpy.data.objects.keys():
+            return False
+        dancer_parts = dancer_item.parts
+        dancer_index = dancer_name.split("_")[0]
+        for part_item in dancer_parts:
+            part_name = part_item.name
+            part_type = part_item.type
+            match part_type:
+                case PartType.LED:
+                    if (
+                        f"{dancer_index}.{part_name}.parent"
+                        not in bpy.data.objects.keys()
+                    ):
+                        return False
+                    part_parent = bpy.data.objects[f"{dancer_index}.{part_name}.parent"]
+
+                    if len(part_parent.children) != part_item.length:
+                        return False
+                case PartType.FIBER:
+                    if f"{dancer_index}.{part_name}" not in bpy.data.objects.keys():
+                        return False
+                case _:
+                    return False
+    return True
+
+
 async def load_data() -> None:
     assets_load = await fetch_data()
-    setup_assets(assets_load)
-    set_music_from_load(assets_load)
-    set_pos_keyframes_from_state()
-    set_ctrl_keyframes_from_state()
+    setup_objects(assets_load)
+    setup_music(assets_load)
+    setup_animation_data()
     setup_viewport()
     print("data loaded")

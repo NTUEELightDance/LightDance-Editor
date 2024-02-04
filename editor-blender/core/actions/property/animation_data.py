@@ -1,8 +1,16 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import bpy
 
-from ...models import ControlMapElement, FiberData, LEDData, MapID, PosMapElement
+from ....properties.types import RevisionPropertyItemType, RevisionPropertyType
+from ...models import (
+    ControlMapElement,
+    FiberData,
+    LEDData,
+    MapID,
+    PartType,
+    PosMapElement,
+)
 from ...states import state
 
 """
@@ -10,13 +18,13 @@ setups & update colormap(===setups)
 """
 
 
-def set_ctrl_keyframes_from_state():
+def set_ctrl_keyframes_from_state(effect_only: bool = False):
     ctrl_map = state.control_map
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     ctrl_frame_number = len(ctrl_map)
     fade_seq: List[Tuple[int, bool]] = [(0, False)] * ctrl_frame_number
-    for i, (_, ctrl_map_element) in enumerate(ctrl_map.items()):
+    for i, (id, ctrl_map_element) in enumerate(ctrl_map.items()):
         frame_start = ctrl_map_element.start
         fade = ctrl_map_element.fade
         ctrl_status = ctrl_map_element.status
@@ -82,6 +90,8 @@ def set_ctrl_keyframes_from_state():
                                     curves.find("color", index=d).keyframe_points.sort()
 
                 elif isinstance(part_data, FiberData):
+                    if effect_only:
+                        continue
                     part_obj = bpy.data.objects[f"{dancer_index}.{part_name}"]
                     part_rgb = color_map[part_data.color_id].rgb
                     part_rgba = (
@@ -129,22 +139,15 @@ def set_ctrl_keyframes_from_state():
         curve_points = curves.find("ld_control_frame").keyframe_points
         curve_points[i].co = frame_start, frame_start
         curve_points[i].interpolation = "CONSTANT"
-        # insert rev frame
+        # set revision
         rev = ctrl_map_element.rev
-        if curves.find("ld_control_meta") is None:
-            curves.new("ld_control_meta")
-            curves.find("ld_control_meta").keyframe_points.add(ctrl_frame_number)
-        curves.find("ld_control_meta").keyframe_points[i].co = frame_start, (
-            rev.meta if rev else -1
-        )
-        curves.find("ld_control_meta").keyframe_points[i].interpolation = "CONSTANT"
-        if curves.find("ld_control_data") is None:
-            curves.new("ld_control_data")
-            curves.find("ld_control_data").keyframe_points.add(ctrl_frame_number)
-        curves.find("ld_control_data").keyframe_points[i].co = frame_start, (
-            rev.data if rev else -1
-        )
-        curves.find("ld_control_data").keyframe_points[i].interpolation = "CONSTANT"
+        ctrl_rev_item: RevisionPropertyItemType = getattr(
+            bpy.context.scene, "ld_ctrl_rev"
+        ).add()
+        ctrl_rev_item.data = rev.data if rev else -1
+        ctrl_rev_item.meta = rev.meta if rev else -1
+        ctrl_rev_item.frame_id = id
+        ctrl_rev_item.frame_start = frame_start
     curves = bpy.context.scene.animation_data.action.fcurves
     curves.find("ld_control_frame").keyframe_points.sort()
     fade_seq.sort(key=lambda item: item[0])
@@ -167,7 +170,7 @@ def set_ctrl_keyframes_from_state():
 def set_pos_keyframes_from_state():
     pos_map = state.pos_map
     pos_frame_number = len(pos_map)
-    for i, (_, pos_map_element) in enumerate(pos_map.items()):
+    for i, (id, pos_map_element) in enumerate(pos_map.items()):
         frame_start = pos_map_element.start
         pos_status = pos_map_element.pos
         for dancer_name, pos in pos_status.items():
@@ -210,22 +213,15 @@ def set_pos_keyframes_from_state():
         curves.find("ld_pos_frame").keyframe_points[i].interpolation = "CONSTANT"
         if i == pos_frame_number - 1:
             curves.find("ld_pos_frame").keyframe_points.sort()
-        # insert rev frame (meta & data)
+        # set revision
         rev = pos_map_element.rev
-        if curves.find("ld_pos_meta") is None:
-            curves.new("ld_pos_meta")
-            curves.find("ld_pos_meta").keyframe_points.add(pos_frame_number)
-        curves.find("ld_pos_meta").keyframe_points[i].co = frame_start, (
-            rev.meta if rev else -1
-        )
-        curves.find("ld_pos_meta").keyframe_points[i].interpolation = "CONSTANT"
-        if curves.find("ld_pos_data") is None:
-            curves.new("ld_pos_data")
-            curves.find("ld_pos_data").keyframe_points.add(pos_frame_number)
-        curves.find("ld_pos_data").keyframe_points[i].co = frame_start, (
-            rev.data if rev else -1
-        )
-        curves.find("ld_pos_data").keyframe_points[i].interpolation = "CONSTANT"
+        pos_rev: RevisionPropertyItemType = getattr(
+            bpy.context.scene, "ld_pos_rev"
+        ).add()
+        pos_rev.data = rev.data if rev else -1
+        pos_rev.meta = rev.meta if rev else -1
+        pos_rev.frame_id = id
+        pos_rev.frame_start = frame_start
 
 
 """
@@ -233,7 +229,7 @@ update position keyframes
 """
 
 
-def add_single_pos_keyframe(pos_element: PosMapElement):
+def add_single_pos_keyframe(id: MapID, pos_element: PosMapElement):
     frame_start = pos_element.start
     pos_status = pos_element.pos
     for dancer_name, pos in pos_status.items():
@@ -259,6 +255,11 @@ def add_single_pos_keyframe(pos_element: PosMapElement):
         frame_start, (rev.data if rev else -1)
     )
     point.interpolation = "CONSTANT"
+    pos_rev: RevisionPropertyItemType = getattr(bpy.context.scene, "ld_pos_rev").add()
+    pos_rev.data = rev.data if rev else -1
+    pos_rev.meta = rev.meta if rev else -1
+    pos_rev.frame_id = id
+    pos_rev.frame_start = frame_start
 
 
 def edit_single_pos_keyframe(pos_id: MapID, pos_element: PosMapElement):
@@ -285,19 +286,22 @@ def edit_single_pos_keyframe(pos_id: MapID, pos_element: PosMapElement):
     curve_points.sort()
     # insert rev frame (meta & data)
     rev = pos_element.rev
-    curve_points = curves.find("ld_pos_meta").keyframe_points
-    point = next(p for p in curve_points if p.co[0] == old_frame_start)
-    point.co = new_frame_start, (rev.meta if rev else -1)
-    curve_points = curves.find("ld_pos_data").keyframe_points
-    point = next(p for p in curve_points if p.co[0] == old_frame_start)
-    point.co = new_frame_start, (rev.data if rev else -1)
+    pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
+    pos_rev_item = next(item for item in pos_rev if item.frame_id == pos_id)
+    pos_rev_item.data = rev.data if rev else -1
+    pos_rev_item.meta = rev.meta if rev else -1
+    pos_rev_item.frame_id = pos_id
+    pos_rev_item.frame_start = new_frame_start
 
 
-def delete_single_pos_keyframe(pos_id: MapID):
+def delete_single_pos_keyframe(pos_id: MapID, incoming_frame_start: int | None = None):
     old_pos_map = state.pos_map  # pos_map before update
-    old_frame_start = old_pos_map[pos_id].start
-    old_pos_status = old_pos_map[pos_id].pos
-    for dancer_name, _ in old_pos_status.items():
+    old_frame_start = (
+        incoming_frame_start if incoming_frame_start else old_pos_map[pos_id].start
+    )
+    dancers_array = state.dancers_array
+    for dancer_item in dancers_array:
+        dancer_name = dancer_item.name
         dancer_obj = bpy.data.objects[dancer_name]
         curves = dancer_obj.animation_data.action.fcurves
         for d in range(3):
@@ -316,6 +320,9 @@ def delete_single_pos_keyframe(pos_id: MapID):
     curve_points = curves.find("ld_pos_data").keyframe_points
     point = next(p for p in curve_points if p.co[0] == old_frame_start)
     curve_points.remove(point)
+    pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
+    pos_rev_item = next(item for item in pos_rev if item.frame_id == pos_id)
+    pos_rev.remove(pos_rev_item)
 
 
 """
@@ -323,7 +330,7 @@ update control keyframes
 """
 
 
-def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
+def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     frame_start = ctrl_element.start
@@ -416,17 +423,16 @@ def add_single_ctrl_keyframe(ctrl_element: ControlMapElement):
     point.interpolation = "CONSTANT"
     # insert rev frame (meta & data)
     rev = ctrl_element.rev
-    point = curves.find("ld_control_meta").keyframe_points.insert(
-        frame_start, (rev.meta if rev else -1)
-    )
-    point.interpolation = "CONSTANT"
-    point = curves.find("ld_control_data").keyframe_points.insert(
-        frame_start, (rev.data if rev else -1)
-    )
-    point.interpolation = "CONSTANT"
+    ctrl_rev: RevisionPropertyItemType = getattr(bpy.context.scene, "ld_ctrl_rev").add()
+    ctrl_rev.data = rev.data if rev else -1
+    ctrl_rev.meta = rev.meta if rev else -1
+    ctrl_rev.frame_id = id
+    ctrl_rev.frame_start = frame_start
 
 
-def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
+def edit_single_ctrl_keyframe(
+    ctrl_id: MapID, ctrl_element: ControlMapElement, only_meta: bool = False
+):
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     old_ctrl_map = state.control_map  # control_map before update
@@ -540,41 +546,52 @@ def edit_single_ctrl_keyframe(ctrl_id: MapID, ctrl_element: ControlMapElement):
     curve_points.sort()
     # insert rev frame (meta & data)
     rev = ctrl_element.rev
-    curve_points = curves.find("ld_control_meta").keyframe_points
-    point = next(p for p in curve_points if p.co[0] == old_frame_start)
-    point.co = new_frame_start, (rev.meta if rev else -1)
-    curve_points = curves.find("ld_control_data").keyframe_points
-    point = next(p for p in curve_points if p.co[0] == old_frame_start)
-    point.co = new_frame_start, (rev.data if rev else -1)
+    ctrl_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_ctrl_rev")
+    ctrl_rev_item = next(item for item in ctrl_rev if item.frame_id == ctrl_id)
+    ctrl_rev_item.data = rev.data if rev else -1
+    ctrl_rev_item.meta = rev.meta if rev else -1
+    ctrl_rev_item.frame_id = ctrl_id
+    ctrl_rev_item.frame_start = new_frame_start
 
 
-def delete_single_ctrl_keyframe(ctrl_id: MapID):
-    old_ctrl_map = state.control_map  # pos_map before update
-    old_frame_start = old_ctrl_map[ctrl_id].start
-    old_ctrl_status = old_ctrl_map[ctrl_id].status
-    for dancer_name, ctrl in old_ctrl_status.items():
+def delete_single_ctrl_keyframe(
+    ctrl_id: MapID, incoming_frame_start: Optional[int] = None
+):
+    old_ctrl_map = state.control_map  # only for checking dancer list
+    old_frame_start = (
+        incoming_frame_start if incoming_frame_start else old_ctrl_map[ctrl_id].start
+    )
+    dancers_array = state.dancers_array
+    for dancer_item in dancers_array:
+        dancer_name = dancer_item.name
+        dancer_parts = dancer_item.parts
         dancer_index = dancer_name.split("_")[0]
-        for part_name, part_data in ctrl.items():
-            if isinstance(part_data, LEDData):
-                part_parent = bpy.data.objects[f"{dancer_index}.{part_name}.parent"]
-                for led_obj in part_parent.children:
-                    curves = led_obj.animation_data.action.fcurves
+        for part_item in dancer_parts:
+            part_name = part_item.name
+            part_type = part_item.type
+            match part_type:
+                case PartType.LED:
+                    part_parent = bpy.data.objects[f"{dancer_index}.{part_name}.parent"]
+                    for led_obj in part_parent.children:
+                        curves = led_obj.animation_data.action.fcurves
+                        for d in range(4):
+                            curve_points = curves.find("color", index=d).keyframe_points
+                            point = next(
+                                p for p in curve_points if p.co[0] == old_frame_start
+                            )
+                            curve_points.remove(point)
+
+                case PartType.FIBER:
+                    part_obj = bpy.data.objects[f"{dancer_index}.{part_name}"]
+                    curves = part_obj.animation_data.action.fcurves
                     for d in range(4):
                         curve_points = curves.find("color", index=d).keyframe_points
                         point = next(
                             p for p in curve_points if p.co[0] == old_frame_start
                         )
                         curve_points.remove(point)
-
-            elif isinstance(part_data, FiberData):
-                part_obj = bpy.data.objects[f"{dancer_index}.{part_name}"]
-                curves = part_obj.animation_data.action.fcurves
-                for d in range(4):
-                    curve_points = curves.find("color", index=d).keyframe_points
-                    point = next(p for p in curve_points if p.co[0] == old_frame_start)
-                    curve_points.remove(point)
-            else:
-                print("Invalid part data")
+                case _:
+                    print("Invalid part data")
     # insert fake frame
     scene = bpy.context.scene
     curves = scene.animation_data.action.fcurves
@@ -599,10 +616,7 @@ def delete_single_ctrl_keyframe(ctrl_id: MapID):
     except StopIteration:
         pass
     curve_points.remove(point)
-    # insert rev frame (meta & data)
-    curve_points = curves.find("ld_control_meta").keyframe_points
-    point = next(p for p in curve_points if p.co[0] == old_frame_start)
-    curve_points.remove(point)
-    curve_points = curves.find("ld_control_data").keyframe_points
-    point = next(p for p in curve_points if p.co[0] == old_frame_start)
-    curve_points.remove(point)
+
+    ctrl_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_ctrl_rev")
+    ctrl_rev_item = next(item for item in ctrl_rev if item.frame_id == ctrl_id)
+    ctrl_rev.remove(ctrl_rev_item)

@@ -89,7 +89,7 @@ def apply_pos_map_updates():
     pos_map_updates = state.pos_map_updates
 
     for pos in pos_map_updates.added:
-        add_single_pos_keyframe(pos[1])
+        add_single_pos_keyframe(pos[0], pos[1])
         state.pos_map[pos[0]] = pos[1]
 
     for pos in pos_map_updates.updated:

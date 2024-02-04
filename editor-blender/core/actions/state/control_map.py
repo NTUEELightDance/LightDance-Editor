@@ -92,11 +92,11 @@ def apply_control_map_updates():
     control_map_updates = state.control_map_updates
 
     for status in control_map_updates.added:
-        add_single_ctrl_keyframe(status[1])
+        add_single_ctrl_keyframe(status[0], status[1])
         state.control_map[status[0]] = status[1]
 
     for status in control_map_updates.updated:
-        edit_single_ctrl_keyframe(status[0], status[1])  # TODO: test this
+        edit_single_ctrl_keyframe(status[0], status[1])
         state.control_map[status[0]] = status[1]
 
     for id in control_map_updates.deleted:
