@@ -2,6 +2,7 @@
   "dancer": [
     {
       "name": "0_agent",
+      "model": "0_agent",
       "parts": [
         {
           "name": "arm_inner_left",
@@ -134,6 +135,140 @@
     },
     {
       "name": "1_hank",
+      "model": "1_hank",
+      "parts": [
+        {
+          "name": "arm_inner_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_inner_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_outer_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "arm_outer_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "beret",
+          "type": "FIBER"
+        },
+        {
+          "name": "brim",
+          "type": "FIBER"
+        },
+        {
+          "name": "collar_back",
+          "type": "FIBER"
+        },
+        {
+          "name": "collar_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "collar_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "hem",
+          "type": "FIBER"
+        },
+        {
+          "name": "lapel_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "lapel_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_back_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_back_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_front_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_front_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_inner_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_inner_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_outer_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "leg_outer_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "pocket",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_left",
+          "type": "FIBER"
+        },
+        {
+          "name": "waist_right",
+          "type": "FIBER"
+        },
+        {
+          "name": "buttons_LED",
+          "type": "LED",
+          "length": 8
+        },
+        {
+          "name": "glasses_LED",
+          "type": "LED",
+          "length": 25
+        },
+        {
+          "name": "glove_left_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
+          "name": "glove_right_LED",
+          "type": "LED",
+          "length": 42
+        },
+        {
+          "name": "oxford_left_LED",
+          "type": "LED",
+          "length": 77
+        },
+        {
+          "name": "oxford_right_LED",
+          "type": "LED",
+          "length": 77
+        },
+        {
+          "name": "tie_LED",
+          "type": "LED",
+          "length": 73
+        }
+      ]
+    },
+    {
+      "name": "2_henning",
+      "model": "0_agent",
       "parts": [
         {
           "name": "arm_inner_left",
@@ -333,6 +468,38 @@
           ["", 10],
           ["", 10],
           ["", 10]
+        ],
+        [
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["black", 10],
+          ["", 10],
+          ["", 10],
+          ["", 10],
+          ["", 10],
+          ["", 10],
+          ["", 10],
+          ["", 10]
         ]
       ]
     },
@@ -340,6 +507,38 @@
       "fade": false,
       "start": 1000,
       "status": [
+        [
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["white", 10],
+          ["all_white", 10],
+          ["all_white", 10],
+          ["all_white", 10],
+          ["all_white", 10],
+          ["all_white", 10],
+          ["all_white", 10],
+          ["all_white", 10]
+        ],
         [
           ["white", 10],
           ["white", 10],
@@ -473,6 +672,38 @@
           ["all_red", 10],
           ["all_red", 10],
           ["all_red", 10]
+        ],
+        [
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["red", 10],
+          ["all_red", 10],
+          ["all_red", 10],
+          ["all_red", 10],
+          ["all_red", 10],
+          ["all_red", 10],
+          ["all_red", 10],
+          ["all_red", 10]
         ]
       ]
     },
@@ -480,6 +711,38 @@
       "fade": false,
       "start": 3000,
       "status": [
+        [
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["green", 10],
+          ["all_green", 10],
+          ["all_green", 10],
+          ["all_green", 10],
+          ["all_green", 10],
+          ["all_green", 10],
+          ["all_green", 10],
+          ["all_green", 10]
+        ],
         [
           ["green", 10],
           ["green", 10],
@@ -613,6 +876,38 @@
           ["all_blue", 10],
           ["all_blue", 10],
           ["all_blue", 10]
+        ],
+        [
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["blue", 10],
+          ["all_blue", 10],
+          ["all_blue", 10],
+          ["all_blue", 10],
+          ["all_blue", 10],
+          ["all_blue", 10],
+          ["all_blue", 10],
+          ["all_blue", 10]
         ]
       ]
     }
@@ -621,8 +916,9 @@
     "1": {
       "start": 0,
       "pos": [
-        [-1.5, 0, 0],
-        [1.5, 0, 0]
+        [-3, 0, 0],
+        [0, 0, 0],
+        [3, 0, 0]
       ]
     }
   },

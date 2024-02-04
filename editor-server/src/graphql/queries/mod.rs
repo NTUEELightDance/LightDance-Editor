@@ -5,6 +5,7 @@ pub mod control_frame;
 pub mod control_map;
 pub mod dancer;
 pub mod led;
+pub mod model;
 pub mod position_frame;
 pub mod position_map;
 
@@ -13,6 +14,7 @@ use control_frame::*;
 use control_map::*;
 use dancer::*;
 use led::*;
+use model::*;
 use position_frame::*;
 use position_map::*;
 
@@ -25,4 +27,5 @@ pub struct QueryRoot(
     ControlMapQuery,
     LEDQuery,
     DancerQuery,
+    ModelQuery,
 );

@@ -53,6 +53,7 @@ pub struct ExPartData {
 pub struct ExDancerData {
     pub parts: Vec<ExPartData>,
     pub name: String,
+    pub model: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -155,11 +156,13 @@ pub async fn export_data() -> Result<
             SELECT
                 Dancer.id,
                 Dancer.name,
+                Model.name as model_name,
                 Part.name as part_name,
                 Part.type as part_type,
                 Part.length as part_length
             FROM Dancer
-            INNER JOIN Part ON Part.dancer_id = Dancer.id
+            INNER JOIN Model ON Dancer.model_id = Model.id
+            INNER JOIN Part ON Part.model_id = Model.id
             ORDER BY Dancer.id ASC, Part.id ASC;
         "#,
     )
@@ -173,6 +176,7 @@ pub async fn export_data() -> Result<
         .into_iter()
         .map(|dancer_obj| ExDancerData {
             name: dancer_obj[0].name.clone(),
+            model: dancer_obj[0].model_name.clone(),
             parts: dancer_obj
                 .into_iter()
                 .map(|part| ExPartData {
@@ -185,24 +189,24 @@ pub async fn export_data() -> Result<
         .collect();
 
     // grab LEDEffect data (different schema)
-    let led_dancer_parts = sqlx::query!(
+    let led_models_parts = sqlx::query!(
         r#"
             SELECT
                 Part.id AS part_id,
                 Part.name AS part_name,
-                Dancer.id AS dancer_id, 
-                Dancer.name AS dancer_name
+                Model.id AS model_id,
+                Model.name AS model_name
             FROM Part
-            JOIN Dancer ON Dancer.id = Part.dancer_id
+            INNER JOIN Model ON Model.id = Part.model_id
             WHERE type = "LED"
-            ORDER BY Dancer.id ASC, Part.id ASC;
+            ORDER BY Model.id ASC, Part.id ASC;
         "#,
     )
     .fetch_all(mysql_pool)
     .await
     .into_result()?;
 
-    let led_dancer_parts = partition_by_field(|row| row.dancer_id, led_dancer_parts)
+    let led_dancer_parts = partition_by_field(|row| row.model_id, led_models_parts)
         .into_iter()
         .map(|parts| partition_by_field(|row| row.part_id, parts))
         .collect_vec();
@@ -212,8 +216,8 @@ pub async fn export_data() -> Result<
 
     for dancer_parts in led_dancer_parts {
         for parts in dancer_parts {
-            let dancer_id = parts[0].dancer_id;
-            let dancer_name = &parts[0].dancer_name;
+            let model_id = parts[0].model_id;
+            let model_name = &parts[0].model_name;
 
             let part_id = parts[0].part_id;
             let part_name = &parts[0].part_name;
@@ -232,10 +236,10 @@ pub async fn export_data() -> Result<
                             LEDEffectState.position
                         FROM LEDEffect
                         INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id
-                        WHERE dancer_id = ? AND part_id = ?
+                        WHERE model_id = ? AND part_id = ?
                         ORDER BY LEDEffect.id ASC, LEDEffectState.position ASC;
                     "#,
-                    dancer_id,
+                    model_id,
                     part_id
                 )
                 .fetch_all(mysql_pool)
@@ -271,7 +275,7 @@ pub async fn export_data() -> Result<
             });
 
             led_effects
-                .entry(dancer_name.clone())
+                .entry(model_name.clone())
                 .or_insert(HashMap::new())
                 .insert(part_name.clone(), led_part);
         }
@@ -287,7 +291,8 @@ pub async fn export_data() -> Result<
                 fade as "fade: bool", 
                 meta_rev, 
                 data_rev
-            FROM ControlFrame;
+            FROM ControlFrame
+            ORDER BY start ASC;
         "#,
     )
     .fetch_all(mysql_pool)
@@ -337,7 +342,8 @@ pub async fn export_data() -> Result<
     let position_frames = sqlx::query_as!(
         PositionFrameData,
         r#"
-            SELECT * FROM PositionFrame;
+            SELECT * FROM PositionFrame
+            ORDER BY start ASC;
         "#
     )
     .fetch_all(mysql_pool)

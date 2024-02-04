@@ -129,14 +129,14 @@ impl ColorMutation {
         Subscriptor::publish(color_payload);
 
         if color.auto_create_effect.unwrap_or(false) {
-            let dancer_parts = sqlx::query!(
+            let model_parts = sqlx::query!(
                 r#"
                     SELECT
-                        Dancer.id,
+                        Model.id,
                         Part.id AS part_id,
                         Part.length AS part_length
-                    FROM Dancer
-                    INNER JOIN Part ON Dancer.id = Part.dancer_id
+                    FROM Model
+                    INNER JOIN Part ON Model.id = Part.model_id
                     WHERE Part.type = 'LED';
                 "#
             )
@@ -149,15 +149,15 @@ impl ColorMutation {
             })
             .collect_vec();
 
-            let create_effect_futures = dancer_parts.iter().map(|dancer_part| {
+            let create_effect_futures = model_parts.iter().map(|model_part| {
                 sqlx::query!(
                     r#"
-                            INSERT INTO LEDEffect (name, dancer_id, part_id)
-                            VALUES (?, ?, ?);
-                        "#,
+                        INSERT INTO LEDEffect (name, model_id, part_id)
+                        VALUES (?, ?, ?);
+                    "#,
                     color.color.clone(),
-                    dancer_part.0,
-                    dancer_part.1
+                    model_part.0,
+                    model_part.1
                 )
                 .execute(mysql)
             });
@@ -171,7 +171,7 @@ impl ColorMutation {
             let mut create_states_futures = Vec::new();
             create_effect_results
                 .iter()
-                .zip(dancer_parts.iter())
+                .zip(model_parts.iter())
                 .for_each(|(result, dancer_part)| {
                         for pos in 0..dancer_part.2 {
                             create_states_futures.push(
@@ -195,12 +195,12 @@ impl ColorMutation {
 
             let create_effects = create_effect_results
                 .iter()
-                .zip(dancer_parts)
-                .map(|(result, dancer_part)| {
+                .zip(model_parts)
+                .map(|(result, model_part)| {
                     let effect_id = result.last_insert_id() as i32;
-                    let frames = (0..dancer_part.2)
+                    let frames = (0..model_part.2)
                         .map(|pos| LEDEffectFrame {
-                            leds: (0..dancer_part.2).map(|_| [id, 255]).collect_vec(),
+                            leds: (0..model_part.2).map(|_| [id, 255]).collect_vec(),
                             fade: false,
                             start: pos,
                         })
@@ -209,7 +209,7 @@ impl ColorMutation {
                     LEDEffectData {
                         id: effect_id,
                         name: color.color.clone(),
-                        dancer_name: "".to_string(),
+                        model_name: "".to_string(),
                         part_name: "".to_string(),
                         repeat: 0,
                         frames,

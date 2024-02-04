@@ -23,11 +23,11 @@ const partNameIgnore = new Set(["Human"]);
 
 const io = new NodeIO();
 
-const modelPartNameCache = new Map();
+const modelPartsCache = new Map();
 
-async function getParts(modelPath, dancerName) {
-  if (modelPartNameCache.has(modelPath)) {
-    return modelPartNameCache.get(modelPath);
+async function getParts(modelPath, dancerName, modelName) {
+  if (modelPartsCache.has(modelPath)) {
+    return modelPartsCache.get(modelPath);
   }
 
   const document = await io.read(modelPath); // → Document
@@ -36,7 +36,7 @@ async function getParts(modelPath, dancerName) {
     .listNodes()
     .map((node) => node.getName())
     // remove dancer root object
-    .filter((name) => name !== dancerName)
+    .filter((name) => name !== modelName)
     // drop first '_'
     .map((name) => name.split("_").slice(1).join("_"))
     // drop after '.'
@@ -80,7 +80,7 @@ async function getParts(modelPath, dancerName) {
     part.length = length;
   });
 
-  modelPartNameCache.set(modelPath, parts);
+  modelPartsCache.set(modelPath, parts);
 
   return parts;
 }
@@ -141,9 +141,9 @@ function generateDefaultEffect(length, color) {
   };
 }
 
-function generateEmptyLEDEffects(dancerData) {
+function generateEmptyLEDEffects(modelParts) {
   const LEDMap = [];
-  dancerData.forEach(({ name, parts }) => {
+  modelParts.forEach(({ name, parts }) => {
     let dancerParts = { name, parts: [] };
     parts.forEach((part) => {
       if (part.type === "LED") {
@@ -189,15 +189,24 @@ function generateEmptyLEDEffects(dancerData) {
   }
 
   const dancerData = await Promise.all(
-    Object.entries(dancerMap).map(async ([dancerName, { url }]) => {
+    Object.entries(dancerMap).map(async ([dancerName, { url, modelName }]) => {
       const fullPath = path.join(fileServerRoot, url);
       const modelUrl = toGlbPath(fullPath);
       return {
         name: dancerName,
-        parts: await getParts(modelUrl, dancerName),
+        model: modelName,
+        parts: await getParts(modelUrl, dancerName, modelName),
       };
     })
   );
+
+  const modelParts = Array.from(modelPartsCache.entries()).map(([modelPath, parts]) => {
+    const modelName = path.basename(modelPath, ".glb");
+    return {
+      name: modelName,
+      parts,
+    };
+  });
 
   // sort by dancer name
   dancerData.sort(
@@ -224,7 +233,7 @@ function generateEmptyLEDEffects(dancerData) {
     [BLUE]: BLUE_RGB,
   };
 
-  const LEDEffectsData = generateEmptyLEDEffects(dancerData);
+  const LEDEffectsData = generateEmptyLEDEffects(modelParts);
 
   const exportData = {
     dancer: dancerData,

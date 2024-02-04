@@ -26,8 +26,8 @@ impl LEDQuery {
         let led_effect_states = sqlx::query!(
             r#"
                 SELECT
-                    Dancer.id as "dancer_id",
-                    Dancer.name as "dancer_name",
+                    Model.id as "model_id",
+                    Model.name as "model_name",
                     Part.id as "part_id",
                     Part.name as "part_name",
                     Part.length as "length!",
@@ -36,12 +36,12 @@ impl LEDQuery {
                     LEDEffectState.position,
                     LEDEffectState.color_id,
                     LEDEffectState.alpha
-                FROM Dancer
-                INNER JOIN Part ON Dancer.id = Part.dancer_id
+                FROM Model
+                INNER JOIN Part ON Model.id = Part.model_id
                 INNER JOIN LEDEffect ON Part.id = LEDEffect.part_id
                 INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id
                 WHERE Part.type = 'LED'
-                ORDER BY Dancer.id ASC, Part.id ASC, LEDEffect.id ASC, LEDEffectState.position ASC;
+                ORDER BY Model.id ASC, Part.id ASC, LEDEffect.id ASC, LEDEffectState.position ASC;
             "#,
         )
         .fetch_all(mysql)
@@ -49,7 +49,7 @@ impl LEDQuery {
 
         let mut result: HashMap<String, HashMap<String, HashMap<String, LED>>> = HashMap::new();
 
-        let led_effect_states = partition_by_field(|row| row.dancer_id, led_effect_states)
+        let led_effect_states = partition_by_field(|row| row.model_id, led_effect_states)
             .into_iter()
             .map(|vector| {
                 partition_by_field(|row| row.part_id, vector)
@@ -60,8 +60,8 @@ impl LEDQuery {
             .collect_vec();
 
         led_effect_states.iter().for_each(|dancer_states| {
-            let dancer_name = &dancer_states[0][0][0].dancer_name;
-            let dancer = result.entry(dancer_name.clone()).or_insert(HashMap::new());
+            let model_name = &dancer_states[0][0][0].model_name;
+            let dancer = result.entry(model_name.clone()).or_insert(HashMap::new());
 
             dancer_states.iter().for_each(|part_states| {
                 let part_name = &part_states[0][0].part_name;

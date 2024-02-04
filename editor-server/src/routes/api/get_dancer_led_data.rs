@@ -110,8 +110,13 @@ pub async fn get_dancer_led_data(
                 Part.length as "part_length",
                 ControlData.effect_id
             FROM Dancer
-            INNER JOIN Part ON Dancer.id = Part.dancer_id
-            INNER JOIN ControlData ON Part.id = ControlData.part_id
+            INNER JOIN Model
+                ON Dancer.model_id = Model.id
+            INNER JOIN Part
+                ON Model.id = Part.model_id
+            INNER JOIN ControlData
+                ON Part.id = ControlData.part_id AND
+                ControlData.dancer_id = Dancer.id
             WHERE Dancer.name = ? AND Part.type = 'LED'
         "#,
         dancer

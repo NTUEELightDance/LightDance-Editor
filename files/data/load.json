@@ -10,6 +10,10 @@
     "1_hank": {
       "url": "/asset/models/1_hank.draco.glb",
       "modelName": "1_hank"
+    },
+    "2_henning": {
+      "url": "/asset/models/0_agent.draco.glb",
+      "modelName": "0_agent"
     }
   }
 }

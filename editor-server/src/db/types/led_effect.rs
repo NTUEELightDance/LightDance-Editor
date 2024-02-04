@@ -8,6 +8,6 @@ use serde::{Deserialize, Serialize};
 pub struct LEDEffectData {
     pub id: i32,
     pub name: String,
-    pub dancer_id: i32,
+    pub model_id: i32,
     pub part_id: i32,
 }

@@ -16,7 +16,7 @@ pub struct Set {
 #[graphql(name = "LEDEffectCreateInput")]
 pub struct LEDEffectCreateInput {
     pub name: String,
-    pub dancer_name: String,
+    pub model_name: String,
     pub part_name: String,
     pub repeat: i32,
     pub frames: Set,
@@ -35,7 +35,7 @@ pub struct EditLEDInput {
 #[graphql(name = "LEDEffectResponse")]
 pub struct LEDEffectResponse {
     id: i32,
-    dancer_name: String,
+    model_name: String,
     part_name: String,
     effect_name: String,
     repeat: i32,
@@ -68,7 +68,7 @@ impl LEDMutation {
         let mysql = clients.mysql_pool();
 
         let effect_name = input.name.clone();
-        let dancer_name = input.dancer_name.clone();
+        let model_name = input.model_name.clone();
         let part_name = input.part_name.clone();
         let repeat = input.repeat;
         let frames: Vec<LEDEffectFrame> = input
@@ -83,26 +83,26 @@ impl LEDMutation {
             .collect();
 
         // check part exists
-        let (dancer_id, part_id) = match sqlx::query!(
+        let (model_id, part_id) = match sqlx::query!(
             r#"
                 SELECT
-                    Dancer.id as "dancer_id",
+                    Model.id as "model_id",
                     Part.id as "part_id"
                 FROM Part
-                INNER JOIN Dancer ON Part.dancer_id = Dancer.id
-                WHERE Part.name = ? AND Dancer.name = ?;
+                INNER JOIN Model ON Part.model_id = Model.id
+                WHERE Part.name = ? AND Model.name = ?;
             "#,
             &part_name,
-            &dancer_name,
+            &model_name,
         )
         .fetch_one(mysql)
         .await
         {
-            Ok(row) => (row.dancer_id, row.part_id),
+            Ok(row) => (row.model_id, row.part_id),
             Err(_) => {
                 return Ok(LEDEffectResponse {
                     id: -1,
-                    dancer_name,
+                    model_name,
                     part_name,
                     effect_name,
                     repeat,
@@ -135,7 +135,7 @@ impl LEDMutation {
                 if !found {
                     return Ok(LEDEffectResponse {
                         id: -1,
-                        dancer_name,
+                        model_name,
                         part_name,
                         effect_name,
                         repeat,
@@ -151,11 +151,11 @@ impl LEDMutation {
         let effect_id = match sqlx::query!(
             r#"
                 SELECT * from LEDEffect
-                WHERE name = ? AND part_id = ? AND dancer_id = ?;
+                WHERE name = ? AND part_id = ? AND model_id = ?;
             "#,
             &effect_name,
             part_id,
-            dancer_id
+            model_id
         )
         .fetch_one(mysql)
         .await
@@ -163,7 +163,7 @@ impl LEDMutation {
             Ok(_) => {
                 return Ok(LEDEffectResponse {
                     id: -1,
-                    dancer_name,
+                    model_name,
                     part_name,
                     effect_name,
                     repeat,
@@ -174,11 +174,11 @@ impl LEDMutation {
             }
             Err(_) => sqlx::query!(
                 r#"
-                    INSERT INTO LEDEffect (name, dancer_id, part_id)
+                    INSERT INTO LEDEffect (name, model_id, part_id)
                     VALUES (?, ?, ?)
                 "#,
                 &effect_name,
-                dancer_id,
+                model_id,
                 part_id
             )
             .execute(mysql)
@@ -209,7 +209,7 @@ impl LEDMutation {
             create_effects: vec![LEDEffectData {
                 id: effect_id,
                 name: effect_name.clone(),
-                dancer_name: dancer_name.clone(),
+                model_name: model_name.clone(),
                 part_name: part_name.clone(),
                 repeat,
                 frames: frames.clone(),
@@ -222,7 +222,7 @@ impl LEDMutation {
 
         Ok(LEDEffectResponse {
             id: effect_id,
-            dancer_name,
+            model_name,
             part_name,
             effect_name,
             repeat: 0,
@@ -262,10 +262,10 @@ impl LEDMutation {
             r#"
                 SELECT
                     LEDEffect.*,
-                    Dancer.name as "dancer_name",
+                    Model.name as "model_name",
                     Part.name as "part_name"
                 FROM LEDEffect
-                INNER JOIN Dancer ON LEDEffect.dancer_id = Dancer.id
+                INNER JOIN Model ON LEDEffect.model_id = Model.id
                 INNER JOIN Part ON LEDEffect.part_id = Part.id
                 WHERE LEDEffect.id = ?;
             "#,
@@ -278,7 +278,7 @@ impl LEDMutation {
             Err(_) => {
                 return Ok(LEDEffectResponse {
                     id: -1,
-                    dancer_name: "".to_string(),
+                    model_name: "".to_string(),
                     part_name: "".to_string(),
                     effect_name: "".to_string(),
                     repeat: 0,
@@ -329,7 +329,7 @@ impl LEDMutation {
                 if !found {
                     return Ok(LEDEffectResponse {
                         id: -1,
-                        dancer_name: "".to_string(),
+                        model_name: "".to_string(),
                         part_name: "".to_string(),
                         effect_name: "".to_string(),
                         repeat: 0,
@@ -378,7 +378,7 @@ impl LEDMutation {
             update_effects: vec![LEDEffectData {
                 id,
                 name: effect_name.clone(),
-                dancer_name: led_effect.dancer_name.clone(),
+                model_name: led_effect.model_name.clone(),
                 part_name: led_effect.part_name.clone(),
                 repeat,
                 frames: frames.clone(),
@@ -390,7 +390,7 @@ impl LEDMutation {
 
         Ok(LEDEffectResponse {
             id,
-            dancer_name: led_effect.dancer_name,
+            model_name: led_effect.model_name,
             part_name: led_effect.part_name,
             effect_name,
             repeat,
@@ -505,7 +505,7 @@ impl LEDMutation {
             delete_effects: vec![LEDEffectData {
                 id: 0,
                 name: "".to_string(),
-                dancer_name: "".to_string(),
+                model_name: "".to_string(),
                 part_name: "".to_string(),
                 repeat: 0,
                 frames: vec![],
