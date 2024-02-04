@@ -34,6 +34,7 @@ pub struct EditControlFrameInput {
 
 #[derive(InputObject, Default)]
 pub struct DeleteControlFrameInput {
+    #[graphql(name = "frameID")]
     pub frame_id: i32,
 }
 
@@ -490,8 +491,12 @@ impl ControlFrameMutation {
         let original_frame = sqlx::query_as!(
             ControlFrameData,
             r#"
-              SELECT 
-              id, start, fade as "fade: bool"
+              SELECT
+                  id,
+                  start,
+                  fade as "fade: bool",
+                  meta_rev,
+                  data_rev
               FROM ControlFrame
               WHERE id = ?
             "#,
@@ -560,6 +565,18 @@ impl ControlFrameMutation {
             "#,
             start,
             fade,
+            frame_id
+        )
+        .execute(mysql)
+        .await?;
+
+        // update revision of the frame
+        sqlx::query!(
+            r#"
+              UPDATE ControlFrame
+              SET meta_rev = meta_rev + 1
+              WHERE id = ?;
+            "#,
             frame_id
         )
         .execute(mysql)
@@ -660,8 +677,12 @@ impl ControlFrameMutation {
         let original_frame = sqlx::query_as!(
             ControlFrameData,
             r#"
-              SELECT 
-              id, start, fade as "fade: bool"
+              SELECT
+                  id,
+                  start,
+                  fade as "fade: bool",
+                  meta_rev,
+                  data_rev
               FROM ControlFrame
               WHERE id = ?
             "#,

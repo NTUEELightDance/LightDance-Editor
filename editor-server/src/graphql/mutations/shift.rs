@@ -1,6 +1,6 @@
 use crate::db::types::{
-    editing_control_frame::EditingControlFrameData,
-    editing_position_frame::EditingPositionFrameData,
+    control_frame::ControlFrameData, editing_control_frame::EditingControlFrameData,
+    editing_position_frame::EditingPositionFrameData, position_frame::PositionFrameData,
 };
 use crate::graphql::subscriptions::{
     control_map::ControlMapPayload,
@@ -19,19 +19,6 @@ use crate::utils::data::{
 use async_graphql::{Context, Error as GQLError, Object, Result as GQLResult, SimpleObject};
 use itertools::Itertools;
 use std::collections::HashMap;
-
-#[derive(Clone)]
-struct ControlFrame {
-    id: i32,
-    start: i32,
-    fade: i8,
-}
-
-#[derive(Clone)]
-struct PositionFrame {
-    id: i32,
-    start: i32,
-}
 
 #[derive(SimpleObject, Default)]
 struct ShiftResponse {
@@ -150,9 +137,15 @@ impl FrameMutation {
         if shift_control {
             //clear overlap interval
             let delete_control_frames = sqlx::query_as!(
-                ControlFrame,
+                ControlFrameData,
                 r#"
-                    SELECT * FROM ControlFrame
+                    SELECT
+                        id,
+                        start,
+                        fade as "fade: bool",
+                        meta_rev,
+                        data_rev
+                    FROM ControlFrame
                     WHERE start >= ?
                     AND start <= ?;
                 "#,
@@ -177,9 +170,15 @@ impl FrameMutation {
             let update_control_frames;
             if mv >= 0 {
                 update_control_frames = sqlx::query_as!(
-                    ControlFrame,
+                    ControlFrameData,
                     r#"
-                        SELECT * FROM ControlFrame
+                        SELECT
+                            id,
+                            start,
+                            fade as "fade: bool",
+                            meta_rev,
+                            data_rev
+                        FROM ControlFrame
                         WHERE start >= ?
                         AND start <= ?
                         ORDER BY start DESC;
@@ -191,9 +190,15 @@ impl FrameMutation {
                 .await?;
             } else {
                 update_control_frames = sqlx::query_as!(
-                    ControlFrame,
+                    ControlFrameData,
                     r#"
-                        SELECT * FROM ControlFrame
+                        SELECT
+                            id,
+                            start,
+                            fade as "fade: bool",
+                            meta_rev,
+                            data_rev
+                        FROM ControlFrame
                         WHERE start >= ?
                         AND start <= ?
                         ORDER BY start ASC;
@@ -209,7 +214,9 @@ impl FrameMutation {
                 let _ = sqlx::query!(
                     r#"
                         UPDATE ControlFrame
-                        SET start = ?
+                        SET
+                            start = ?,
+                            meta_rev = meta_rev + 1
                         WHERE start = ?;
                     "#,
                     control_frame.start + mv,
@@ -261,9 +268,15 @@ impl FrameMutation {
             Subscriptor::publish(control_map_payload);
 
             let all_control_frames = sqlx::query_as!(
-                ControlFrame,
+                ControlFrameData,
                 r#"
-                    SELECT * FROM ControlFrame
+                    SELECT
+                        id,
+                        start,
+                        fade as "fade: bool",
+                        meta_rev,
+                        data_rev
+                    FROM ControlFrame
                     ORDER BY start ASC;
                 "#
             )
@@ -289,7 +302,7 @@ impl FrameMutation {
         if shift_position {
             //clear overlap interval
             let delete_position_frames = sqlx::query_as!(
-                PositionFrame,
+                PositionFrameData,
                 r#"
                     SELECT * FROM PositionFrame
                     WHERE start >= ?
@@ -316,7 +329,7 @@ impl FrameMutation {
             let update_position_frames;
             if mv >= 0 {
                 update_position_frames = sqlx::query_as!(
-                    PositionFrame,
+                    PositionFrameData,
                     r#"
                         SELECT * FROM PositionFrame
                         WHERE start >= ?
@@ -330,7 +343,7 @@ impl FrameMutation {
                 .await?;
             } else {
                 update_position_frames = sqlx::query_as!(
-                    PositionFrame,
+                    PositionFrameData,
                     r#"
                         SELECT * FROM PositionFrame
                         WHERE start >= ?
@@ -348,7 +361,9 @@ impl FrameMutation {
                 let _ = sqlx::query!(
                     r#"
                         UPDATE PositionFrame
-                        SET start = ?
+                        SET
+                            start = ?, 
+                            meta_rev = meta_rev + 1
                         WHERE start = ?;
                     "#,
                     position_frame.start + mv,
@@ -402,7 +417,7 @@ impl FrameMutation {
             };
             Subscriptor::publish(position_map_payload);
             let all_position_frames = sqlx::query_as!(
-                PositionFrame,
+                PositionFrameData,
                 r#"
                     SELECT * FROM PositionFrame
                     ORDER BY start ASC;

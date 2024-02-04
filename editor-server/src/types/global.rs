@@ -23,10 +23,17 @@ pub struct PartControl(pub i32, pub i32); // [id: number, alpha: number]
 //     FIBER(String, i32),
 // }
 
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub struct Revision {
+    pub meta: i32,
+    pub data: i32,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisControl {
     pub fade: bool,
     pub start: i32,
+    pub rev: Revision,
     pub editing: Option<String>,
     pub status: Vec<Vec<PartControl>>,
 }
@@ -38,6 +45,7 @@ pub struct PositionPos(pub f64, pub f64, pub f64);
 pub struct RedisPosition {
     pub start: i32,
     pub editing: Option<String>,
+    pub rev: Revision,
     pub pos: Vec<PositionPos>,
 }
 

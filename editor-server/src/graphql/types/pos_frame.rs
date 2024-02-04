@@ -1,37 +1,30 @@
-//! ControlFrame type.
+//! PositionFrame type.
 
 use async_graphql::SimpleObject;
 use serde::{Deserialize, Serialize};
 
 #[derive(SimpleObject, Serialize, Deserialize, Default)]
-pub struct ControlFrameRevision {
+pub struct PositionFrameRevision {
     pub meta: i32,
     pub data: i32,
 }
 
 #[derive(SimpleObject, Serialize, Deserialize, Default)]
-pub struct ControlFrame {
+pub struct PositionFrame {
     pub id: i32,
     pub start: i32,
-    pub fade: bool,
-    pub rev: ControlFrameRevision,
+    pub rev: PositionFrameRevision,
 }
 
-impl From<&ControlFrame> for ControlFrame {
-    fn from(data: &ControlFrame) -> Self {
+impl From<&PositionFrame> for PositionFrame {
+    fn from(data: &PositionFrame) -> Self {
         Self {
             id: data.id,
             start: data.start,
-            fade: data.fade,
-            rev: ControlFrameRevision {
+            rev: PositionFrameRevision {
                 meta: data.rev.meta,
                 data: data.rev.data,
             },
         }
     }
-}
-
-pub enum ControlDataType {
-    COLOR,
-    EFFECT,
 }

@@ -133,19 +133,19 @@ impl ControlMapMutation {
         let raw_dancer_data: Vec<DancerData> = sqlx::query_as!(
             DancerData,
             r#"
-            SELECT
-              Dancer.id AS "dancer_id",
-              Part.type AS "part_type: PartType",
-              Part.id AS "part_id",
-              ControlData.frame_id AS "control_data_frame_id"
-            FROM Dancer
-            INNER JOIN Part
-            ON Dancer.id = Part.dancer_id
-            INNER JOIN ControlData
-            ON Part.id = ControlData.part_id
-            WHERE ControlData.frame_id = ?
-            ORDER BY Dancer.id ASC, Part.id ASC;
-          "#,
+                SELECT
+                    Dancer.id AS "dancer_id",
+                    Part.type AS "part_type: PartType",
+                    Part.id AS "part_id",
+                    ControlData.frame_id AS "control_data_frame_id"
+                FROM Dancer
+                INNER JOIN Part
+                ON Dancer.id = Part.dancer_id
+                INNER JOIN ControlData
+                ON Part.id = ControlData.part_id
+                WHERE ControlData.frame_id = ?
+                ORDER BY Dancer.id ASC, Part.id ASC;
+            "#,
             frame_id
         )
         .fetch_all(mysql)
@@ -282,7 +282,7 @@ impl ControlMapMutation {
                         let effect_id = _data[0];
 
                         // check if the effect is valid
-                        if !all_led_effect_ids.contains(&effect_id) {
+                        if effect_id > 0 && !all_led_effect_ids.contains(&effect_id) {
                             let error_message = format!(
                                 "Effect of dancer #{} part #{} is not a valid effect",
                                 index, _index
@@ -318,9 +318,9 @@ impl ControlMapMutation {
 
                         sqlx::query!(
                             r#"
-                              UPDATE ControlData
-                              SET color_id = ?, alpha = ?
-                              WHERE frame_id = ? AND part_id = ?;
+                                UPDATE ControlData
+                                SET color_id = ?, alpha = ?
+                                WHERE frame_id = ? AND part_id = ?;
                             "#,
                             color_id,
                             alpha,
@@ -335,19 +335,34 @@ impl ControlMapMutation {
                         let effect_id = _data[0];
                         let alpha = _data[1];
 
-                        sqlx::query!(
-                            r#"
-                              UPDATE ControlData
-                              SET effect_id = ?, alpha = ?
-                              WHERE frame_id = ? AND part_id = ?;
-                            "#,
-                            effect_id,
-                            alpha,
-                            frame_id,
-                            part.part_id,
-                        )
-                        .execute(mysql)
-                        .await?;
+                        if effect_id > 0 {
+                            sqlx::query!(
+                                r#"
+                                    UPDATE ControlData
+                                    SET effect_id = ?, alpha = ?
+                                    WHERE frame_id = ? AND part_id = ?;
+                                "#,
+                                effect_id,
+                                alpha,
+                                frame_id,
+                                part.part_id,
+                            )
+                            .execute(mysql)
+                            .await?;
+                        } else {
+                            sqlx::query!(
+                                r#"
+                                    UPDATE ControlData
+                                    SET effect_id = NULL, alpha = ?
+                                    WHERE frame_id = ? AND part_id = ?;
+                                "#,
+                                alpha,
+                                frame_id,
+                                part.part_id,
+                            )
+                            .execute(mysql)
+                            .await?;
+                        }
                     }
                 };
             }
@@ -364,9 +379,11 @@ impl ControlMapMutation {
             Some(fade) => {
                 sqlx::query!(
                     r#"
-                      UPDATE ControlFrame
-                      SET fade = ?
-                      WHERE id = ?;
+                        UPDATE ControlFrame
+                        SET
+                            fade = ?,
+                            meta_rev = meta_rev + 1
+                        WHERE id = ?;
                     "#,
                     fade,
                     frame_id,
@@ -388,6 +405,18 @@ impl ControlMapMutation {
               WHERE user_id = ?
             "#,
             context.user_id,
+        )
+        .execute(mysql)
+        .await?;
+
+        // update revision of the frame
+        sqlx::query!(
+            r#"
+              UPDATE ControlFrame
+              SET data_rev = data_rev + 1
+              WHERE id = ?;
+            "#,
+            frame_id,
         )
         .execute(mysql)
         .await?;

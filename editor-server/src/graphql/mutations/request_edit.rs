@@ -23,7 +23,7 @@ impl RequestEditMutation {
     async fn request_edit_control(
         &self,
         ctx: &Context<'_>,
-        frame_id: i32,
+        #[graphql(name = "FrameID")] frame_id: i32,
     ) -> GQLResult<RequestEditResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -283,7 +283,7 @@ impl RequestEditMutation {
     async fn cancel_edit_control(
         &self,
         ctx: &Context<'_>,
-        frame_id: i32,
+        #[graphql(name = "FrameID")] frame_id: i32,
     ) -> GQLResult<RequestEditResponse> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
