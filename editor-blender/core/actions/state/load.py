@@ -1,12 +1,12 @@
 import os
-from typing import Any
+from typing import Any, Dict, List, Set, cast
 
 import bpy
 
 from ....client import client
 from ....properties.types import LightType, ObjectType
 from ...actions.property.revision import update_rev_changes
-from ...models import PartType
+from ...models import DancersArrayPartsItem, PartType
 from ...states import state
 from ...utils.ui import set_dopesheet_filter
 from ..property.animation_data import (
@@ -14,7 +14,9 @@ from ..property.animation_data import (
     set_pos_keyframes_from_state,
 )
 
-asset_path = bpy.context.preferences.filepaths.asset_libraries["User Library"].path
+asset_path = cast(
+    str, bpy.context.preferences.filepaths.asset_libraries["User Library"].path
+)
 target_path = os.path.join(asset_path, "LightDance")
 
 
@@ -30,12 +32,15 @@ async def fetch_data(reload: bool = False):
     """
     print("fetching data")
     use_draco = False
+
     if client.file_client:
-        assets_load = await client.download_json("/data/load.json")
+        assets_load: Dict[str, Any] = await client.download_json("/data/load.json")
+
         try:
-            url_set = set()
+            url_set: Set[str] = set()
             for tag in ["Music", "LightPresets", "PosPresets"]:
                 url_set.add(assets_load[tag])
+
             for key in assets_load["DancerMap"]:
                 raw_url = assets_load["DancerMap"][key]["url"]
                 if use_draco:
@@ -43,66 +48,124 @@ async def fetch_data(reload: bool = False):
                 else:
                     model_url = "".join(raw_url.split(".draco"))
                     assets_load["DancerMap"][key]["url"] = model_url
+
                 url_set.add(model_url)
+
             for url in url_set:
                 file_path = os.path.normpath(target_path + url)
                 file_dir = os.path.dirname(file_path)
                 if os.path.isfile(file_path) and not reload:
                     continue
+
                 if not os.path.exists(file_dir):
                     os.makedirs(file_dir)
                     print("created folder: ", file_dir)
+
                 data = await client.download_binary(url)
                 print("fetched file ", url, "from server")
                 with open(file_path, "w+b") as file:
                     file.write(data)
+
         except Exception as e:
             print(e)
+
     else:
         raise Exception("File client is not initialized")
+
     return assets_load
 
 
-def import_model_to_asset(model_name, model_filepath, parts):
+def import_model_to_asset(
+    model_name: str, model_filepath: str, parts: List[DancersArrayPartsItem]
+):
     """
     set dancer collection asset
     """
     bpy.ops.import_scene.gltf(
         filepath=model_filepath
     )  # here all parts of dancer is selected
-    model_parts = bpy.context.selected_objects
+    model_objs = bpy.context.selected_objects
+
     col = bpy.data.collections.new(model_name)
-    for obj in model_parts:
+    for obj in model_objs:
         for old_col in obj.users_collection:
             old_col.objects.unlink(obj)
         col.objects.link(obj)
+
+        # avoid part name conflict
+        obj.name = f"{model_name}.{obj.name}"
+
+    # Clean meshes
+    sphere_mesh = find_first_mesh("Sphere")
+    sphere_mesh.name = f"{model_name}.Sphere"
+
+    for obj in model_objs:
+        if obj.type == "EMPTY":
+            continue
+        if "Sphere" in obj.data.name and obj.data != sphere_mesh:
+            bpy.data.meshes.remove(cast(bpy.types.Mesh, obj.data), do_unlink=True)
+            obj.data = sphere_mesh
+
+    human_mesh = find_first_mesh("human")
+    human_mesh.name = f"{model_name}.Human"
+
+    for obj in model_objs:
+        if obj.type == "EMPTY":
+            continue
+        mesh = obj.data
+        if "BezierCurve" in mesh.name and model_name not in mesh.name:
+            mesh.name = f"{model_name}.{mesh.name}"
+
+    # for obj in model_objs:
+    #     if obj.type == "EMPTY":
+    #         continue
+    #     mesh = obj.data
+    #     print(obj.name, mesh.name)
+
     col.asset_mark()
-    for item in parts:
-        part_objects = [i for i in model_parts if i.name.find(item.name) >= 0]
+    for part in parts:
+        part_objects = [
+            part_obj for part_obj in model_objs if part_obj.name.find(part.name) >= 0
+        ]
         if len(part_objects) == 0:
             print("Dancer part not found (maybe should reload asset)")
-        if item.type.value == "LED":
-            for _, obj in enumerate(part_objects):
-                set_bpy_props(obj, data=bpy.data.meshes["Sphere.001"])  # type: ignore
+
     bpy.ops.outliner.orphans_purge(do_recursive=True)
-    print(f"model {model_name} imported")
+    print(f"Model: {model_name} imported")
 
 
-def setup_objects(assets_load):
+def find_first_mesh(mesh_name: str) -> bpy.types.Mesh:
+    data_meshes = cast(Dict[str, bpy.types.Mesh], bpy.data.meshes)
+    mesh = data_meshes.get(mesh_name)
+
+    if mesh is None:
+        candidates = [name for name in data_meshes.keys() if name.find(mesh_name) == 0]
+        numbers = [int(name.split(".")[-1]) for name in candidates]
+        mesh = data_meshes[candidates[numbers.index(min(numbers))]]
+
+    return mesh
+
+
+def setup_objects(assets_load: Dict[str, Any]):
     """
     clear all objects in viewport
     """
-    for old_obj in bpy.data.objects:
-        if old_obj.visible_get() and not getattr(old_obj, "ld_dancer_name"):
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
+    for old_obj in data_objects.values():
+        if old_obj.visible_get() and not hasattr(old_obj, "ld_dancer_name"):
             bpy.data.objects.remove(old_obj)
+
     """
     set dancer objects
     """
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
     if check_local_object_list():
         print("local objects detected")
         return
     else:
-        for old_obj in bpy.data.objects:
+        for old_obj in data_objects.values():
             if old_obj.visible_get():
                 bpy.data.objects.remove(old_obj)
 
@@ -113,85 +176,116 @@ def setup_objects(assets_load):
         dancer_load = assets_load["DancerMap"][dancer_name]
         if dancer_name in bpy.context.scene.objects.keys():
             continue
-        model_file = dancer_load["url"]
+
+        model_file: str = dancer_load["url"]
         model_filepath = os.path.normpath(target_path + model_file)
-        model_name = dancer_load["modelName"]
-        dancer_parent = bpy.data.objects.new(dancer_name, None)
-        set_bpy_props(
-            dancer_parent,
-            ld_dancer_name=dancer.name,
-            empty_display_size=0,
-            ld_model_name=model_name,
-        )
-        dancer_parent.empty_display_size = 0
-        setattr(dancer_parent, "ld_object_type", ObjectType.DANCER.value)
-        bpy.context.scene.collection.objects.link(dancer_parent)
+        model_name: str = dancer_load["modelName"]
+
         if model_name not in bpy.data.collections.keys():
             import_model_to_asset(model_name, model_filepath, dancer.parts)
-        dancer_asset = bpy.data.collections[model_name]
-        dancer_objects = [obj.copy() for obj in dancer_asset.all_objects]
-        dancer_human = next(obj for obj in dancer_objects if obj.name[0:5] == "Human")
-        bpy.context.scene.collection.objects.link(dancer_human)  # type: ignore
+
+        data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+        dancer_asset = cast(bpy.types.Collection, bpy.data.collections[model_name])
+
+        dancer_asset_objects_dict = {
+            obj.name: cast(bpy.types.Object, obj.copy())
+            for obj in cast(List[bpy.types.Object], dancer_asset.all_objects)
+        }
+
+        for name, obj in dancer_asset_objects_dict.items():
+            pure_name = ".".join(name.split(".")[1:])
+            new_name = f"{dancer_index}_{pure_name}"
+            if pure_name == model_name:
+                new_name = dancer_name
+            obj.name = new_name
+
+        dancer_asset_objects = {
+            obj.name: obj
+            for obj in cast(List[bpy.types.Object], dancer_asset_objects_dict.values())
+        }
+
+        # for name, obj in dancer_asset_objects.items():
+        #     print(name, obj)
+        # break
+
+        # dancer_parent = bpy.data.objects.new(dancer_name, None)
+        dancer_obj = dancer_asset_objects[dancer_name]
         set_bpy_props(
-            dancer_human,  # type: ignore
-            name=f"{dancer_index}.Human",
-            parent=dancer_parent,
-            ld_object_type=ObjectType.HUMAN.value,
+            dancer_obj,
+            empty_display_size=0,
+            ld_dancer_name=dancer.name,
+            ld_model_name=model_name,
+            ld_object_type=ObjectType.DANCER.value,
+        )
+        bpy.context.scene.collection.objects.link(dancer_obj)
+
+        human_name = f"{dancer_index}_Human"
+        human_obj = dancer_asset_objects[human_name]
+        set_bpy_props(
+            human_obj,
+            parent=dancer_obj,
             color=(0, 0, 0, 1),
-            data=bpy.data.meshes["human"],
+            ld_object_type=ObjectType.HUMAN.value,
             ld_dancer_name=dancer.name,
             ld_model_name=model_name,
         )
-        for item in dancer.parts:
-            part_objects = [i for i in dancer_objects if i.name.find(item.name) >= 0]
-            if len(part_objects) == 0:
+        bpy.context.scene.collection.objects.link(human_obj)
+
+        for part_item in dancer.parts:
+            part_obj_name = f"{dancer_index}_{part_item.name}"
+            part_obj = dancer_asset_objects.get(part_obj_name)
+
+            if part_obj is None:
                 print("Dancer part not found (maybe should reload asset)")
-            if item.type.value == "LED":
-                parts_parent = bpy.data.objects.new(
-                    f"{dancer_index}.{item.name}.parent", None
-                )
-                bpy.context.scene.collection.objects.link(parts_parent)
+                continue
+
+            if part_item.type.value == "LED":
                 set_bpy_props(
-                    parts_parent,
-                    parent=dancer_parent,
+                    part_obj,
+                    parent=dancer_obj,
+                    empty_display_size=0,
                     ld_object_type=ObjectType.LIGHT.value,
                     ld_light_type=LightType.LED.value,
-                    ld_part_name=item.name,
-                    empty_display_size=0,
+                    ld_part_name=part_item.name,
                     ld_dancer_name=dancer.name,
                     ld_model_name=model_name,
                 )
-                for i, obj in enumerate(part_objects):
-                    bpy.context.scene.collection.objects.link(obj)  # type: ignore
-                    # obj.name = f"{dancer_index}.{item.name}.{i:03}"
+                bpy.context.scene.collection.objects.link(part_obj)
+
+                led_objs = [
+                    obj
+                    for obj_name, obj in dancer_asset_objects.items()
+                    if f"{part_obj_name}." in obj_name
+                ]
+                for led_obj in led_objs:
+                    position = int(led_obj.name.split(".")[-1])
                     set_bpy_props(
-                        obj,  # type: ignore
-                        name=f"{dancer_index}.{item.name}.{i:03}",
-                        parent=parts_parent,
+                        led_obj,
+                        parent=part_obj,
                         ld_object_type=ObjectType.LIGHT.value,
                         ld_light_type=LightType.LED_BULB.value,
-                        ld_part_name=item.name,
-                        data=bpy.data.meshes["Sphere.001"],
-                        ld_led_pos=i,
+                        ld_part_name=part_item.name,
                         ld_dancer_name=dancer.name,
                         ld_model_name=model_name,
+                        ld_led_pos=position,
                     )
-            elif item.type.value == "FIBER":
-                obj = part_objects[0]
-                bpy.context.scene.collection.objects.link(obj)  # type: ignore
+                    bpy.context.scene.collection.objects.link(led_obj)
+
+            elif part_item.type.value == "FIBER":
                 set_bpy_props(
-                    obj,  # type: ignore
-                    name=f"{dancer_index}.{item.name}",
-                    parent=dancer_parent,
+                    part_obj,
+                    parent=dancer_obj,
+                    name=part_obj_name,
                     ld_object_type=ObjectType.LIGHT.value,
                     ld_light_type=LightType.FIBER.value,
-                    ld_part_name=item.name,
+                    ld_part_name=part_item.name,
                     ld_dancer_name=dancer.name,
                     ld_model_name=model_name,
                 )
+                bpy.context.scene.collection.objects.link(part_obj)
 
 
-def setup_music(assets_load):
+def setup_music(assets_load: Dict[str, Any]):
     """
     set music
     """
@@ -200,7 +294,9 @@ def setup_music(assets_load):
         scene.sequence_editor_create()
     music_filepath = os.path.normpath(target_path + assets_load["Music"])
     if scene.sequence_editor.sequences:
-        scene.sequence_editor.sequences.remove(scene.sequence_editor.sequences[0])
+        sequence = cast(bpy.types.SoundSequence, scene.sequence_editor.sequences[0])
+        scene.sequence_editor.sequences.remove(sequence)
+
     scene.sequence_editor.sequences.new_sound(
         "music", filepath=music_filepath, channel=1, frame_start=0
     )
@@ -210,12 +306,18 @@ def setup_viewport():
     """
     3d viewport
     """
-    view_3d = next(a for a in bpy.context.screen.areas if a.ui_type == "VIEW_3D")
-    setattr(view_3d.spaces.active.overlay, "show_relationship_lines", False)  # type: ignore
-    setattr(view_3d.spaces.active.shading, "background_type", "VIEWPORT")  # type: ignore
-    setattr(view_3d.spaces.active.shading, "background_color", (0, 0, 0))  # type: ignore
-    setattr(view_3d.spaces.active.shading, "color_type", "OBJECT")  # type: ignore
-    setattr(view_3d.spaces.active.shading, "light", "FLAT")  # type: ignore
+    view_3d = next(
+        area
+        for area in cast(List[bpy.types.Area], bpy.context.screen.areas)
+        if area.ui_type == "VIEW_3D"
+    )
+
+    space = cast(bpy.types.SpaceView3D, view_3d.spaces.active)
+    space.overlay.show_relationship_lines = False
+    space.shading.background_type = "VIEWPORT"
+    space.shading.background_color = (0, 0, 0)
+    space.shading.color_type = "OBJECT"
+    space.shading.light = "FLAT"
 
     """
     timeline
@@ -225,10 +327,18 @@ def setup_viewport():
     bpy.context.scene.frame_end = bpy.context.scene.sequence_editor.sequences[
         0
     ].frame_duration
+
     bpy.context.scene.show_keys_from_selected_only = False
     bpy.context.scene.sync_mode = "AUDIO_SYNC"
-    timeline = next(a for a in bpy.context.screen.areas if a.ui_type == "TIMELINE")
-    setattr(timeline.spaces.active, "show_seconds", True)  # type: ignore
+    timeline = next(
+        area
+        for area in cast(List[bpy.types.Area], bpy.context.screen.areas)
+        if area.ui_type == "TIMELINE"
+    )
+
+    space = cast(bpy.types.SpaceSequenceEditor, timeline.spaces.active)
+    space.show_seconds = True
+
     set_dopesheet_filter("control_frame")  # follow default editor
 
 
@@ -239,42 +349,46 @@ def setup_animation_data():
         setattr(bpy.context.scene, "ld_anidata", True)
     else:
         print("local animation data detected")
-        update_rev_changes(state.pos_map, state.control_map)  # TODO: test this
+        # update_rev_changes(state.pos_map, state.control_map)  # TODO: test this
 
 
 def check_local_object_list():
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
     for dancer_item in state.dancers_array:
         dancer_name = dancer_item.name
         if dancer_name not in bpy.data.objects.keys():
             return False
+
         dancer_parts = dancer_item.parts
         dancer_index = dancer_name.split("_")[0]
         for part_item in dancer_parts:
             part_name = part_item.name
             part_type = part_item.type
+            part_obj_name = f"{dancer_index}_{part_name}"
+
             match part_type:
                 case PartType.LED:
-                    if (
-                        f"{dancer_index}.{part_name}.parent"
-                        not in bpy.data.objects.keys()
-                    ):
+                    part_parent = data_objects.get(part_obj_name)
+                    if part_parent is None:
                         return False
-                    part_parent = bpy.data.objects[f"{dancer_index}.{part_name}.parent"]
 
                     if len(part_parent.children) != part_item.length:
                         return False
+
                 case PartType.FIBER:
-                    if f"{dancer_index}.{part_name}" not in bpy.data.objects.keys():
+                    if part_obj_name not in data_objects.keys():
                         return False
-                case _:
-                    return False
+
     return True
 
 
 async def load_data() -> None:
     assets_load = await fetch_data()
+
     setup_objects(assets_load)
     setup_music(assets_load)
     setup_animation_data()
-    setup_viewport()
-    print("data loaded")
+    # setup_viewport()
+
+    print("Data loaded")

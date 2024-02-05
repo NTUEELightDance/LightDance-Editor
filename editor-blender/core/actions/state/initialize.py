@@ -158,9 +158,6 @@ async def init_blender():
         state.init_editor_task.cancel()
     state.init_editor_task = AsyncTask(init_editor).exec()
 
-    # Setup control editor UI
-    setup_control_editor()
-
 
 def close_blender():
     set_running(False)
@@ -245,6 +242,9 @@ async def init_editor():
     bpy.context.scene.frame_current = 0
     state.current_control_index = calculate_current_status_index()
     update_current_status_by_index()
+
+    # Setup control editor UI
+    setup_control_editor()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
