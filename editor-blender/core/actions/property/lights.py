@@ -13,12 +13,13 @@ def update_current_color(self: bpy.types.Object, context: bpy.types.Context):
         return
 
     color_id: int = self["ld_color"]
+    ld_alpha: int = self["ld_alpha"]
     color = state.color_map[color_id]
     color_float = rgb_to_float(color.rgb)
 
-    self.color[0] = color_float[0]
-    self.color[1] = color_float[1]
-    self.color[2] = color_float[2]
+    self.color[0] = color_float[0] * (ld_alpha / 255)
+    self.color[1] = color_float[1] * (ld_alpha / 255)
+    self.color[2] = color_float[2] * (ld_alpha / 255)
 
 
 def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
@@ -76,10 +77,16 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
 
     ld_light_type: str = getattr(self, "ld_light_type")
     ld_alpha: int = getattr(self, "ld_alpha")
-
+    color_id: int = self["ld_color"]
+    color = state.color_map[color_id]
+    color_float = rgb_to_float(color.rgb)
     if ld_light_type == LightType.LED.value:
         led_bulb_objs: List[bpy.types.Object] = getattr(self, "children")
         for led_bulb_obj in led_bulb_objs:
-            led_bulb_obj.color[3] = ld_alpha / 255
+            led_bulb_obj.color[0] = color_float[0] * (ld_alpha / 255)
+            led_bulb_obj.color[1] = color_float[1] * (ld_alpha / 255)
+            led_bulb_obj.color[2] = color_float[2] * (ld_alpha / 255)
     else:
-        self.color[3] = ld_alpha / 255
+        self.color[0] = color_float[0] * (ld_alpha / 255)
+        self.color[1] = color_float[1] * (ld_alpha / 255)
+        self.color[2] = color_float[2] * (ld_alpha / 255)

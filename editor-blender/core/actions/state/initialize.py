@@ -5,6 +5,7 @@ import bpy
 
 from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
+from ....api.control_agent import control_agent
 from ....api.dancer_agent import dancer_agent
 from ....api.led_agent import led_agent
 from ....api.model_agent import model_agent
@@ -19,6 +20,7 @@ from ....core.actions.state.app_state import (
     set_running,
 )
 from ....core.actions.state.color_map import set_color_map
+from ....core.actions.state.control_map import set_control_map
 
 # from ....core.actions.state.color_map import set_color_map
 # from ....core.actions.state.control_map import set_control_map
@@ -193,6 +195,7 @@ async def init_editor():
         [init_models, init_dancers],
         [init_color_map, init_led_map],
         [init_current_pos, init_current_status],
+        [load_data],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -353,6 +356,16 @@ async def init_led_map():
     set_led_map(led_map)
 
     print("LED map initialized")
+
+
+async def init_control_map():
+    control_map = await control_agent.get_control_map()
+    if control_map is None:
+        raise Exception("Control map not found")
+
+    set_control_map(control_map)
+
+    print("Control map initialized")
 
 
 async def init_current_status():

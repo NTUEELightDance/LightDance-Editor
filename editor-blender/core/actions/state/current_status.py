@@ -81,6 +81,3 @@ def update_current_status_by_index():
 
                         alpha = part_status.alpha
                         setattr(part_obj, "ld_alpha", alpha)
-
-        # WARNING: Testing
-        break
