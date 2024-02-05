@@ -121,6 +121,7 @@ def setup_objects(assets_load):
             dancer_parent,
             ld_dancer_name=dancer.name,
             empty_display_size=0,
+            ld_model_name=model_name,
         )
         dancer_parent.empty_display_size = 0
         setattr(dancer_parent, "ld_object_type", ObjectType.DANCER.value)
@@ -139,6 +140,7 @@ def setup_objects(assets_load):
             color=(0, 0, 0, 1),
             data=bpy.data.meshes["human"],
             ld_dancer_name=dancer.name,
+            ld_model_name=model_name,
         )
         for item in dancer.parts:
             part_objects = [i for i in dancer_objects if i.name.find(item.name) >= 0]
@@ -157,6 +159,7 @@ def setup_objects(assets_load):
                     ld_part_name=item.name,
                     empty_display_size=0,
                     ld_dancer_name=dancer.name,
+                    ld_model_name=model_name,
                 )
                 for i, obj in enumerate(part_objects):
                     bpy.context.scene.collection.objects.link(obj)  # type: ignore
@@ -171,6 +174,7 @@ def setup_objects(assets_load):
                         data=bpy.data.meshes["Sphere.001"],
                         ld_led_pos=i,
                         ld_dancer_name=dancer.name,
+                        ld_model_name=model_name,
                     )
             elif item.type.value == "FIBER":
                 obj = part_objects[0]
@@ -183,6 +187,7 @@ def setup_objects(assets_load):
                     ld_light_type=LightType.FIBER.value,
                     ld_part_name=item.name,
                     ld_dancer_name=dancer.name,
+                    ld_model_name=model_name,
                 )
 
 
