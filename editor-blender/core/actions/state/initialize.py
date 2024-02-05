@@ -191,7 +191,6 @@ async def init_editor():
     empty_task = asyncio.create_task(asyncio.sleep(0))
 
     batches_functions = [
-        # [load_data, init_color_map],
         [init_models, init_dancers],
         [init_color_map, init_led_map],
         [init_current_pos, init_current_status],
