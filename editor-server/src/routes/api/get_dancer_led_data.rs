@@ -180,5 +180,5 @@ pub async fn get_dancer_led_data(
     // return data of form {part_name: {status: [[r, g, b, a], [r, g, b, a]]}, ...}
     // index of status array is position of led
 
-    Ok((StatusCode::OK, (HeaderMap::new(), Json(response))))
+    Ok((StatusCode::OK, (headers, Json(response))))
 }
