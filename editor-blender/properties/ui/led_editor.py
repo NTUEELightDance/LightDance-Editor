@@ -4,6 +4,7 @@ import bpy
 
 from ...core.actions.property.led_editor import (
     update_edit_dancer,
+    update_edit_model,
     update_edit_part,
     update_multi_select_color,
 )
@@ -13,13 +14,45 @@ from ..types import ColorPaletteItemType
 from .types import LEDEditorEditModeType
 
 
+def get_model_lists(
+    self: bpy.types.PropertyGroup, context: bpy.types.Context
+) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    model_list = []
+    # model_list.append(("none", "none", "", "", -1))
+
+    for index, model_name in enumerate(state.model_names):
+        model_list.append((model_name, model_name, "", "POSE_HLT", index))
+
+    return model_list  # pyright: ignore
+
+
+def get_edit_model(self: bpy.types.PropertyGroup) -> int:
+    return self["edit_model"]
+
+
+def set_edit_model(self: bpy.types.PropertyGroup, value: int):
+    if self["edit_model"] != value:
+        self["edit_model"] = value
+        # Default select first dancer
+        self["edit_dancer"] = 0
+        self["edit_part"] = -1
+        self["edit_effect"] = -1
+
+
 def get_dancer_lists(
     self: bpy.types.PropertyGroup, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     dancer_list = []
     # dancer_list.append(("none", "none", "", "", -1))
 
-    for index, dancer_name in enumerate(state.dancer_names):
+    model_name = getattr(self, "edit_model")
+
+    if model_name == "":
+        return dancer_list  # pyright: ignore
+
+    model_dancers = state.models[model_name]
+
+    for index, dancer_name in enumerate(model_dancers):
         if bpy.data.objects.get(dancer_name) is not None:
             dancer_list.append((dancer_name, dancer_name, "", "OBJECT_DATA", index))
 
@@ -75,13 +108,14 @@ def get_effect_lists(
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     effect_list = []
 
+    model_name = getattr(self, "edit_model")
     dancer_name = getattr(self, "edit_dancer")
     part_name = getattr(self, "edit_part")
 
     if dancer_name == "" or part_name == "":
         return effect_list  # pyright: ignore
 
-    effects = state.led_map[part_name]
+    effects = state.led_map[model_name][part_name]
     for effect_name, effect in effects.items():
         effect_list.append((effect_name, effect_name, "", "MATERIAL", effect.id))
 
@@ -112,6 +146,13 @@ class LEDEditorStatus(bpy.types.PropertyGroup):
             (LEDEditorEditModeType.NEW.value, "", ""),
         ],
         default=LEDEditorEditModeType.IDLE.value,
+    )
+    edit_model: bpy.props.EnumProperty(  # type: ignore
+        items=get_model_lists,
+        default=-1,  # pyright: ignore
+        update=update_edit_model,
+        get=get_edit_model,
+        set=set_edit_model,
     )
     edit_dancer: bpy.props.EnumProperty(  # type: ignore
         items=get_dancer_lists,

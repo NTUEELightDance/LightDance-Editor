@@ -59,14 +59,18 @@ state = State(
     # current_led_effect_name
     # current_led_effect_start
     # current_led_effect
+    models={},
+    model_names=[],
+    models_array=[],
+    model_dancer_index_map={},
     dancers={},
     dancer_names=[],
+    dancers_array=[],
+    dancer_part_index_map={},
     part_type_map={},
     led_part_length_map={},
     color_map={},
     # effect_list
-    dancers_array=[],
-    dancer_part_index_map={},
     # rpi_status
     # shell_history
     color_map_updates=ColorMapUpdates(added=[], updated=[], deleted=[]),
