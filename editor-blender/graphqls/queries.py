@@ -188,8 +188,8 @@ PositionMap
 @dataclass
 class QueryPosFrame(JSONWizard):
     start: int
+    rev: QueryRevision
     pos: List[QueryCoordinatesPayload]
-    rev: Optional[QueryRevision] = None
 
 
 QueryPosMapPayload = Dict[ID, QueryPosFrame]
@@ -236,8 +236,8 @@ ControlMap
 class QueryControlFrame(JSONWizard):
     start: int
     fade: bool
+    rev: QueryRevision
     status: List[QueryDancerStatusPayload]
-    rev: Optional[QueryRevision] = None
 
 
 QueryControlMapPayload = Dict[ID, QueryControlFrame]

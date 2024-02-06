@@ -74,8 +74,8 @@ SubPosition = Tuple[float, float, float]
 class SubPositionFrame(JSONWizard):
     start: int
     pos: List[SubPosition]
+    rev: SubRevision
     editing: Optional[str] = None
-    rev: Optional[SubRevision] = None
 
 
 @dataclass
@@ -151,9 +151,9 @@ ControlMap
 class SubControlFrame(JSONWizard):
     fade: bool
     start: int
+    rev: SubRevision
     status: List[List[SubPartControl]]
     editing: Optional[str] = None
-    rev: Optional[SubRevision] = None
 
 
 @dataclass

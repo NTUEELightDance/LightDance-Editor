@@ -5,6 +5,7 @@ import bpy
 
 from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
+from ....api.control_agent import control_agent
 from ....api.dancer_agent import dancer_agent
 from ....api.led_agent import led_agent
 from ....api.model_agent import model_agent
@@ -19,6 +20,7 @@ from ....core.actions.state.app_state import (
     set_running,
 )
 from ....core.actions.state.color_map import set_color_map
+from ....core.actions.state.control_map import set_control_map
 
 # from ....core.actions.state.color_map import set_color_map
 # from ....core.actions.state.control_map import set_control_map
@@ -156,9 +158,6 @@ async def init_blender():
         state.init_editor_task.cancel()
     state.init_editor_task = AsyncTask(init_editor).exec()
 
-    # Setup control editor UI
-    setup_control_editor()
-
 
 def close_blender():
     set_running(False)
@@ -189,10 +188,10 @@ async def init_editor():
     empty_task = asyncio.create_task(asyncio.sleep(0))
 
     batches_functions = [
-        # [load_data, init_color_map],
         [init_models, init_dancers],
         [init_color_map, init_led_map],
         [init_current_pos, init_current_status],
+        [load_data],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -243,6 +242,9 @@ async def init_editor():
     bpy.context.scene.frame_current = 0
     state.current_control_index = calculate_current_status_index()
     update_current_status_by_index()
+
+    # Setup control editor UI
+    setup_control_editor()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
@@ -315,13 +317,6 @@ async def init_dancers():
             index=index, parts=parts
         )
 
-    # selected: Selected = dict(
-    #     [
-    #         (dancer_name, SelectedItem(selected=False, parts=[]))
-    #         for dancer_name in dancer_names
-    #     ]
-    # )
-
     state.dancers = dancers
     state.dancer_names = dancer_names
     state.part_type_map = part_type_map
@@ -329,8 +324,6 @@ async def init_dancers():
 
     state.dancers_array = dancers_array
     state.dancer_part_index_map = dancer_part_index_map
-
-    # state.selected = selected
 
     print("Dancers initialized")
 
@@ -353,6 +346,16 @@ async def init_led_map():
     set_led_map(led_map)
 
     print("LED map initialized")
+
+
+async def init_control_map():
+    control_map = await control_agent.get_control_map()
+    if control_map is None:
+        raise Exception("Control map not found")
+
+    set_control_map(control_map)
+
+    print("Control map initialized")
 
 
 async def init_current_status():

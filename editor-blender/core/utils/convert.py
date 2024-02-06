@@ -83,9 +83,7 @@ def dancers_query_to_state(payload: QueryDancersPayload) -> DancersArray:
 
 
 def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
-    rev = None
-    if payload.rev is not None:
-        rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
+    rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
 
     pos_map_element = PosMapElement(start=payload.start, pos={}, rev=rev)
     pos_map_element.pos = pos_status_query_to_state(payload.pos)
@@ -94,9 +92,7 @@ def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
 
 
 def pos_frame_sub_to_query(data: SubPositionFrame) -> QueryPosFrame:
-    rev = None
-    if data.rev is not None:
-        rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
+    rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
 
     response = QueryPosFrame(start=data.start, pos=[], rev=rev)
     response.pos = [(pos[0], pos[1], pos[2]) for pos in data.pos]
@@ -171,9 +167,7 @@ def control_status_query_to_state(
 
 
 def control_frame_query_to_state(payload: QueryControlFrame) -> ControlMapElement:
-    rev = None
-    if payload.rev is not None:
-        rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
+    rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
 
     control_map_element = ControlMapElement(
         start=payload.start, fade=payload.fade, status={}, rev=rev
@@ -194,9 +188,7 @@ def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
 
 
 def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
-    rev = None
-    if data.rev is not None:
-        rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
+    rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
 
     response = QueryControlFrame(start=data.start, fade=data.fade, status=[], rev=rev)
 
@@ -309,3 +301,13 @@ def rgb_to_float(rgb: Tuple[int, ...]) -> Tuple[float, ...]:
 
 def float_to_rgb(color_float: Tuple[float, ...]) -> Tuple[int, ...]:
     return tuple([round(color * 255) for color in color_float])
+
+
+def rgba_to_float(rgb: Union[Tuple[int, ...], List[int]], a: int) -> Tuple[float, ...]:
+    r, g, b = rgb
+    a_float = a / 255
+    return (
+        r / 255 * a_float,
+        g / 255 * a_float,
+        b / 255 * a_float,
+    )

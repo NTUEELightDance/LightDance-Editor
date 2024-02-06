@@ -65,6 +65,8 @@ async def add_control_frame():
     start = bpy.context.scene.frame_current
     controlData = control_status_state_to_mut(state.current_status)
 
+    print(controlData)
+
     try:
         set_requesting(True)
         await control_agent.add_frame(start, False, controlData)
@@ -118,8 +120,7 @@ async def save_control_frame(start: Optional[int] = None):
                 if part.type == PartType.FIBER:
                     partControlData.append((default_color, 0))
                 elif part.type == PartType.LED:
-                    default_effect = list(state.led_map[part.name].values())[0].id
-                    partControlData.append((default_effect, 0))
+                    partControlData.append((-1, 0))
 
         controlData.append(partControlData)
 
