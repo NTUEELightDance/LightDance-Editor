@@ -6,6 +6,15 @@ from ...models import EditMode
 from ...states import state
 
 
+def update_edit_model(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    dancer_name: str = getattr(self, "edit_dancer")
+    dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+
+    if dancer_obj is not None:
+        dancer_obj.select_set(True)
+        bpy.context.view_layer.objects.active = dancer_obj
+
+
 def update_edit_dancer(self: bpy.types.PropertyGroup, context: bpy.types.Context):
     dancer_name: str = getattr(self, "edit_dancer")
     dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)

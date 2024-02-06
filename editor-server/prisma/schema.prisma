@@ -30,19 +30,25 @@ model LEDEffectState {
 
   // relation => not in db
   effect LEDEffect @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([effect_id, position])
 }
 
 model LEDEffect {
-  id        Int    @id @default(autoincrement())
-  name      String
-  part_name String
+  id       Int    @id @default(autoincrement())
+  name     String
+  model_id Int
+  part_id  Int
 
   // relation => not in db
   editing       EditingLEDEffect?
   control_datas ControlData[]
   states        LEDEffectState[]
 
-  @@unique([name, part_name])
+  model Model @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  part  Part  @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([name, model_id, part_id])
 }
 
 model User {
@@ -70,8 +76,8 @@ model EditingControlFrame {
   frame_id Int? @unique
 
   // relation => not in db
-  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  editingFrame ControlFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editing_frame ControlFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model EditingLEDEffect {
@@ -83,13 +89,26 @@ model EditingLEDEffect {
   editing_led_effect LEDEffect? @relation(fields: [led_effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model Dancer {
+model Model {
   id   Int    @id @default(autoincrement())
   name String @unique
 
   // relation => not in db
-  parts          Part[]
+  dancers    Dancer[]
+  parts      Part[]
+  led_effect LEDEffect[]
+}
+
+model Dancer {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  model_id Int
+
+  // relation => not in db
+  model Model @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
   position_datas PositionData[]
+  control_datas  ControlData[]
 }
 
 enum PartType {
@@ -98,15 +117,19 @@ enum PartType {
 }
 
 model Part {
-  id        Int      @id @default(autoincrement())
-  dancer_id Int
-  name      String
-  type      PartType
-  length    Int?
+  id       Int      @id @default(autoincrement())
+  model_id Int
+  name     String
+  type     PartType
+  length   Int?
 
   // relation => not in db
-  dancer        Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  model Model @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
   control_datas ControlData[]
+  led_effect    LEDEffect[]
+
+  @@unique([name, model_id])
 }
 
 model PositionData {
@@ -141,6 +164,7 @@ enum ControlDataType {
 }
 
 model ControlData {
+  dancer_id Int
   part_id   Int
   frame_id  Int
   type      ControlDataType
@@ -154,10 +178,12 @@ model ControlData {
   part  Part         @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   frame ControlFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  color  Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  effect LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  color    Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  effect   LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Dancer   Dancer?    @relation(fields: [dancerId], references: [id])
+  dancerId Int?
 
-  @@id([part_id, frame_id])
+  @@id([dancer_id, part_id, frame_id])
 }
 
 model ControlFrame {

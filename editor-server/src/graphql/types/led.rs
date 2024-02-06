@@ -31,6 +31,7 @@ pub struct LED {
 pub struct LEDEffectData {
     pub id: i32,
     pub name: String,
+    pub model_name: String,
     pub part_name: String,
     pub repeat: i32,
     pub frames: Vec<LEDEffectFrame>,

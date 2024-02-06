@@ -1,8 +1,5 @@
 use crate::graphql::types::led::{Frame, LEDEffectData, LEDEffectFrame};
-use crate::graphql::{
-    subscriptions::led::{LEDMutationMode, LEDPayload},
-    subscriptor::Subscriptor,
-};
+use crate::graphql::{subscriptions::led::LEDPayload, subscriptor::Subscriptor};
 use crate::types::global::UserContext;
 use async_graphql::{
     Context, Error as GQLError, InputObject, Object, Result as GQLResult, SimpleObject,
@@ -19,6 +16,7 @@ pub struct Set {
 #[graphql(name = "LEDEffectCreateInput")]
 pub struct LEDEffectCreateInput {
     pub name: String,
+    pub model_name: String,
     pub part_name: String,
     pub repeat: i32,
     pub frames: Set,
@@ -37,6 +35,7 @@ pub struct EditLEDInput {
 #[graphql(name = "LEDEffectResponse")]
 pub struct LEDEffectResponse {
     id: i32,
+    model_name: String,
     part_name: String,
     effect_name: String,
     repeat: i32,
@@ -69,6 +68,7 @@ impl LEDMutation {
         let mysql = clients.mysql_pool();
 
         let effect_name = input.name.clone();
+        let model_name = input.model_name.clone();
         let part_name = input.part_name.clone();
         let repeat = input.repeat;
         let frames: Vec<LEDEffectFrame> = input
@@ -83,25 +83,32 @@ impl LEDMutation {
             .collect();
 
         // check part exists
-        let _part = match sqlx::query!(
+        let (model_id, part_id) = match sqlx::query!(
             r#"
-                SELECT * FROM Part WHERE name = ?;
+                SELECT
+                    Model.id as "model_id",
+                    Part.id as "part_id"
+                FROM Part
+                INNER JOIN Model ON Part.model_id = Model.id
+                WHERE Part.name = ? AND Model.name = ?;
             "#,
-            &part_name
+            &part_name,
+            &model_name,
         )
         .fetch_one(mysql)
         .await
         {
-            Ok(part) => part,
+            Ok(row) => (row.model_id, row.part_id),
             Err(_) => {
                 return Ok(LEDEffectResponse {
                     id: -1,
+                    model_name,
                     part_name,
                     effect_name,
                     repeat,
                     effects: vec![],
                     ok: false,
-                    msg: "No corresponding part.".to_string(),
+                    msg: "No corresponding dancer-part pair.".to_string(),
                 })
             }
         };
@@ -128,6 +135,7 @@ impl LEDMutation {
                 if !found {
                     return Ok(LEDEffectResponse {
                         id: -1,
+                        model_name,
                         part_name,
                         effect_name,
                         repeat,
@@ -140,13 +148,14 @@ impl LEDMutation {
         }
 
         // check if effect name exists
-        let id = match sqlx::query!(
+        let effect_id = match sqlx::query!(
             r#"
                 SELECT * from LEDEffect
-                WHERE name = ? AND part_name = ?;
+                WHERE name = ? AND part_id = ? AND model_id = ?;
             "#,
             &effect_name,
-            &part_name,
+            part_id,
+            model_id
         )
         .fetch_one(mysql)
         .await
@@ -154,6 +163,7 @@ impl LEDMutation {
             Ok(_) => {
                 return Ok(LEDEffectResponse {
                     id: -1,
+                    model_name,
                     part_name,
                     effect_name,
                     repeat,
@@ -164,11 +174,12 @@ impl LEDMutation {
             }
             Err(_) => sqlx::query!(
                 r#"
-                    INSERT INTO LEDEffect (name, part_name)
-                    VALUES (?, ?)
+                    INSERT INTO LEDEffect (name, model_id, part_id)
+                    VALUES (?, ?, ?)
                 "#,
                 &effect_name,
-                &part_name,
+                model_id,
+                part_id
             )
             .execute(mysql)
             .await?
@@ -183,7 +194,7 @@ impl LEDMutation {
                         INSERT INTO LEDEffectState (effect_id, position, color_id, alpha)
                         VALUES (?, ?, ?, ?)
                     "#,
-                    id,
+                    effect_id,
                     i as i32,
                     led[0],
                     led[1],
@@ -195,24 +206,23 @@ impl LEDMutation {
 
         // publish to subscribers
         let led_payload = LEDPayload {
-            mutation: LEDMutationMode::Created,
-            id,
-            part_name: part_name.clone(),
-            effect_name: effect_name.clone(),
-            edit_by: context.user_id,
-            data: LEDEffectData {
-                id,
+            create_effects: vec![LEDEffectData {
+                id: effect_id,
                 name: effect_name.clone(),
+                model_name: model_name.clone(),
                 part_name: part_name.clone(),
                 repeat,
                 frames: frames.clone(),
-            },
+            }],
+            update_effects: Vec::new(),
+            delete_effects: Vec::new(),
         };
 
         Subscriptor::publish(led_payload);
 
         Ok(LEDEffectResponse {
-            id,
+            id: effect_id,
+            model_name,
             part_name,
             effect_name,
             repeat: 0,
@@ -250,7 +260,14 @@ impl LEDMutation {
         // check if effect exists
         let led_effect = match sqlx::query!(
             r#"
-                SELECT * FROM LEDEffect WHERE id = ?;
+                SELECT
+                    LEDEffect.*,
+                    Model.name as "model_name",
+                    Part.name as "part_name"
+                FROM LEDEffect
+                INNER JOIN Model ON LEDEffect.model_id = Model.id
+                INNER JOIN Part ON LEDEffect.part_id = Part.id
+                WHERE LEDEffect.id = ?;
             "#,
             id
         )
@@ -261,6 +278,7 @@ impl LEDMutation {
             Err(_) => {
                 return Ok(LEDEffectResponse {
                     id: -1,
+                    model_name: "".to_string(),
                     part_name: "".to_string(),
                     effect_name: "".to_string(),
                     repeat: 0,
@@ -311,6 +329,7 @@ impl LEDMutation {
                 if !found {
                     return Ok(LEDEffectResponse {
                         id: -1,
+                        model_name: "".to_string(),
                         part_name: "".to_string(),
                         effect_name: "".to_string(),
                         repeat: 0,
@@ -354,30 +373,28 @@ impl LEDMutation {
             }
         }
 
-        // publish to subscribers
         let led_payload = LEDPayload {
-            mutation: LEDMutationMode::Updated,
-            id,
-            part_name: led_effect.part_name.clone(),
-            effect_name: effect_name.clone(),
-            edit_by: context.user_id,
-            data: LEDEffectData {
+            create_effects: Vec::new(),
+            update_effects: vec![LEDEffectData {
                 id,
                 name: effect_name.clone(),
+                model_name: led_effect.model_name.clone(),
                 part_name: led_effect.part_name.clone(),
                 repeat,
                 frames: frames.clone(),
-            },
+            }],
+            delete_effects: Vec::new(),
         };
 
         Subscriptor::publish(led_payload);
 
         Ok(LEDEffectResponse {
             id,
-            part_name: led_effect.part_name.clone(),
+            model_name: led_effect.model_name,
+            part_name: led_effect.part_name,
             effect_name,
             repeat,
-            effects: frames.clone(),
+            effects: frames,
             ok: true,
             msg: "successfully edited LED effect".to_string(),
         })
@@ -483,18 +500,16 @@ impl LEDMutation {
 
         // publish to subscribers
         let led_payload = LEDPayload {
-            mutation: LEDMutationMode::Deleted,
-            id,
-            edit_by: context.user_id,
-            data: LEDEffectData {
+            create_effects: Vec::new(),
+            update_effects: Vec::new(),
+            delete_effects: vec![LEDEffectData {
                 id: 0,
                 name: "".to_string(),
+                model_name: "".to_string(),
                 part_name: "".to_string(),
                 repeat: 0,
                 frames: vec![],
-            },
-            part_name: "".to_string(),
-            effect_name: "".to_string(),
+            }],
         };
 
         Subscriptor::publish(led_payload);

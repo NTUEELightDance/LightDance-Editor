@@ -7,6 +7,7 @@ from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
 from ....api.dancer_agent import dancer_agent
 from ....api.led_agent import led_agent
+from ....api.model_agent import model_agent
 from ....client import client
 
 # from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
@@ -49,10 +50,14 @@ from ....core.utils.ui import redraw_area
 from ....handlers import mount, unmount
 from ....storage import get_storage
 from ...models import (
+    DancerName,
     DancerPartIndexMap,
     DancerPartIndexMapItem,
     Dancers,
     LEDPartLengthMap,
+    ModelDancerIndexMap,
+    ModelDancerIndexMapItem,
+    Models,
     PartName,
     PartType,
     PartTypeMap,
@@ -185,9 +190,9 @@ async def init_editor():
 
     batches_functions = [
         # [load_data, init_color_map],
-        [init_color_map],
-        [init_dancers, init_current_pos],
-        [init_led_map, init_current_status],
+        [init_models, init_dancers],
+        [init_color_map, init_led_map],
+        [init_current_pos, init_current_status],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -240,6 +245,41 @@ async def init_editor():
     update_current_status_by_index()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+async def init_models():
+    models_array = await model_agent.get_models()
+
+    if models_array is None:
+        raise Exception("Failed to initialize models")
+
+    model_names = [model.name for model in models_array]
+    models: Models = dict(
+        [
+            (model.name, [dancer_name for dancer_name in model.dancers])
+            for model in models_array
+        ]
+    )
+
+    model_dancer_index_map: ModelDancerIndexMap = {}
+
+    for index, model in enumerate(models_array):
+        dancers: Dict[DancerName, int] = dict(
+            [
+                (dancer_name, dancer_index)
+                for dancer_index, dancer_name in enumerate(model.dancers)
+            ]
+        )
+        model_dancer_index_map[model.name] = ModelDancerIndexMapItem(
+            index=index, dancers=dancers
+        )
+
+    state.models = models
+    state.model_names = model_names
+    state.models_array = models_array
+    state.model_dancer_index_map = model_dancer_index_map
+
+    print("Models initialized")
 
 
 async def init_dancers():

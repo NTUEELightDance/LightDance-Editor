@@ -1,31 +1,15 @@
 //! Color subscription methods.
 
 use crate::graphql::{subscriptor::Subscriptor, types::led::LEDEffectData};
-use async_graphql::{Enum, SimpleObject, Subscription};
+use async_graphql::{SimpleObject, Subscription};
 use futures_core::stream::Stream;
-use serde::{Deserialize, Serialize};
-
-#[derive(Enum, Clone, Copy, Eq, PartialEq, Default, Serialize, Deserialize)]
-#[graphql(name = "LEDMutationMode")]
-pub enum LEDMutationMode {
-    #[default]
-    #[serde(rename = "UPDATED")]
-    Updated,
-    #[serde(rename = "CREATED")]
-    Created,
-    #[serde(rename = "DELETED")]
-    Deleted,
-}
 
 #[derive(SimpleObject, Clone, Default)]
 #[graphql(name = "LEDPayload")]
 pub struct LEDPayload {
-    pub mutation: LEDMutationMode,
-    pub id: i32,
-    pub part_name: String,
-    pub effect_name: String,
-    pub edit_by: i32,
-    pub data: LEDEffectData,
+    pub create_effects: Vec<LEDEffectData>,
+    pub update_effects: Vec<LEDEffectData>,
+    pub delete_effects: Vec<LEDEffectData>,
 }
 
 #[derive(Default)]

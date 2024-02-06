@@ -14,6 +14,7 @@ from ...graphqls.queries import (
     QueryEffectListItem,
     QueryEffectListPositionFrame,
     QueryLEDMapPayload,
+    QueryModelPayload,
     QueryPosFrame,
     QueryPosMapPayload,
     QueryRevision,
@@ -41,6 +42,8 @@ from ..models import (
     LEDEffectID,
     LEDMap,
     Location,
+    ModelsArray,
+    ModelsArrayItem,
     PartData,
     PartType,
     PosMap,
@@ -49,6 +52,14 @@ from ..models import (
     Revision,
 )
 from ..states import state
+
+
+def models_query_to_state(payload: QueryModelPayload) -> ModelsArray:
+    models_array = [
+        ModelsArrayItem(name=model.name, dancers=model.dancers) for model in payload
+    ]
+
+    return models_array
 
 
 def dancers_query_to_state(payload: QueryDancersPayload) -> DancersArray:
@@ -246,19 +257,23 @@ def color_map_query_to_state(payload: QueryColorMapPayload) -> ColorMap:
 def led_map_query_to_state(payload: QueryLEDMapPayload) -> LEDMap:
     led_map: LEDMap = {}
 
-    for part_name, effects in payload.items():
-        led_map[part_name] = {}
-        current_map = led_map[part_name]
+    for model_name, parts in payload.items():
+        led_map[model_name] = {}
+        model_map = led_map[model_name]
 
-        for effect_name, effect in effects.items():
-            frame = effect.frames[0]
-            bulb_data = [
-                LEDBuldData(color_id=color_id, alpha=alpha)
-                for color_id, alpha in frame.LEDs
-            ]
-            current_map[effect_name] = LEDEffect(
-                id=effect.id, name=effect_name, effect=bulb_data
-            )
+        for part_name, effects in parts.items():
+            model_map[part_name] = {}
+            part_map = model_map[part_name]
+
+            for effect_name, effect in effects.items():
+                frame = effect.frames[0]
+                bulb_data = [
+                    LEDBuldData(color_id=color_id, alpha=alpha)
+                    for color_id, alpha in frame.LEDs
+                ]
+                part_map[effect_name] = LEDEffect(
+                    id=effect.id, name=effect_name, effect=bulb_data
+                )
 
     return led_map
 

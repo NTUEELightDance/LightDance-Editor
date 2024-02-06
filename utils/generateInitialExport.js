@@ -23,11 +23,11 @@ const partNameIgnore = new Set(["Human"]);
 
 const io = new NodeIO();
 
-const modelPartNameCache = new Map();
+const modelPartsCache = new Map();
 
-async function getParts(modelPath, dancerName) {
-  if (modelPartNameCache.has(modelPath)) {
-    return modelPartNameCache.get(modelPath);
+async function getParts(modelPath, dancerName, modelName) {
+  if (modelPartsCache.has(modelPath)) {
+    return modelPartsCache.get(modelPath);
   }
 
   const document = await io.read(modelPath); // → Document
@@ -36,7 +36,7 @@ async function getParts(modelPath, dancerName) {
     .listNodes()
     .map((node) => node.getName())
     // remove dancer root object
-    .filter((name) => name !== dancerName)
+    .filter((name) => name !== modelName)
     // drop first '_'
     .map((name) => name.split("_").slice(1).join("_"))
     // drop after '.'
@@ -80,7 +80,7 @@ async function getParts(modelPath, dancerName) {
     part.length = length;
   });
 
-  modelPartNameCache.set(modelPath, parts);
+  modelPartsCache.set(modelPath, parts);
 
   return parts;
 }
@@ -141,26 +141,33 @@ function generateDefaultEffect(length, color) {
   };
 }
 
-function generateEmptyLEDEffects(dancerData) {
-  const LEDparts = [];
-  dancerData.forEach(({ parts }) => {
+function generateEmptyLEDEffects(modelParts) {
+  const LEDMap = [];
+  modelParts.forEach(({ name, parts }) => {
+    let dancerParts = { name, parts: [] };
     parts.forEach((part) => {
       if (part.type === "LED") {
-        LEDparts.push(part);
+        dancerParts.parts.push(part);
       }
     });
+    LEDMap.push(dancerParts);
   });
 
-  const effects = LEDparts.reduce((acc, part) => {
+  const effects = LEDMap.reduce((dancerAcc, dancerParts) => {
     return {
-      ...acc,
-      [part.name]: {
-        [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
-        [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
-        [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
-        [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
-        [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
-      },
+      ...dancerAcc,
+      [dancerParts.name]: dancerParts.parts.reduce((partAcc, part) => {
+        return {
+          ...partAcc,
+          [part.name]: {
+            [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
+            [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
+            [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
+            [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
+            [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
+          },
+        };
+      }, {})
     };
   }, {});
 
@@ -182,15 +189,24 @@ function generateEmptyLEDEffects(dancerData) {
   }
 
   const dancerData = await Promise.all(
-    Object.entries(dancerMap).map(async ([dancerName, { url }]) => {
+    Object.entries(dancerMap).map(async ([dancerName, { url, modelName }]) => {
       const fullPath = path.join(fileServerRoot, url);
       const modelUrl = toGlbPath(fullPath);
       return {
         name: dancerName,
-        parts: await getParts(modelUrl, dancerName),
+        model: modelName,
+        parts: await getParts(modelUrl, dancerName, modelName),
       };
     })
   );
+
+  const modelParts = Array.from(modelPartsCache.entries()).map(([modelPath, parts]) => {
+    const modelName = path.basename(modelPath, ".glb");
+    return {
+      name: modelName,
+      parts,
+    };
+  });
 
   // sort by dancer name
   dancerData.sort(
@@ -217,7 +233,7 @@ function generateEmptyLEDEffects(dancerData) {
     [BLUE]: BLUE_RGB,
   };
 
-  const LEDEffectsData = generateEmptyLEDEffects(dancerData);
+  const LEDEffectsData = generateEmptyLEDEffects(modelParts);
 
   const exportData = {
     dancer: dancerData,

@@ -54,14 +54,17 @@ pub async fn init_redis_control(
                     ControlData.effect_id,
                     ControlData.alpha
                 FROM Dancer
+                INNER JOIN Model
+                    ON Dancer.model_id = Model.id
                 INNER JOIN Part
-                ON Dancer.id = Part.dancer_id
+                    ON Model.id = Part.model_id
                 INNER JOIN ControlData
-                ON Part.id = ControlData.part_id
+                    ON Part.id = ControlData.part_id AND
+                    Dancer.id = ControlData.dancer_id
                 LEFT JOIN Color
-                ON ControlData.color_id = Color.id
+                    ON ControlData.color_id = Color.id
                 LEFT JOIN LEDEffect
-                ON ControlData.effect_id = LEDEffect.id
+                    ON ControlData.effect_id = LEDEffect.id
                 ORDER BY ControlData.frame_id, Dancer.id ASC, Part.id ASC;
             "#,
         )
@@ -249,10 +252,13 @@ pub async fn update_redis_control(
                     ControlData.effect_id,
                     ControlData.alpha
                 FROM Dancer
+                INNER JOIN Model
+                    ON Dancer.model_id = Model.id
                 INNER JOIN Part
-                ON Dancer.id = Part.dancer_id
+                    ON Model.id = Part.model_id
                 INNER JOIN ControlData
-                ON Part.id = ControlData.part_id
+                    ON Part.id = ControlData.part_id AND
+                    Dancer.id = ControlData.dancer_id
                 WHERE ControlData.frame_id = ?
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
