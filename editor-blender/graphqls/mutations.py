@@ -208,7 +208,7 @@ DELETE_POS_FRAME = gql(
 
 @dataclass
 class MutEditPositionFrameTimeInput(JSONWizard):
-    frameID: MapID
+    frameId: MapID
     start: int
 
 
@@ -316,7 +316,7 @@ DELETE_CONTROL_FRAME = gql(
 
 @dataclass
 class MutEditControlFrameTimeInput(JSONWizard):
-    frameID: MapID
+    frameId: MapID
     start: int
 
 

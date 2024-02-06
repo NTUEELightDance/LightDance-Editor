@@ -85,6 +85,14 @@ def register():
     )
     setattr(
         bpy.types.Object,
+        "ld_color_float",
+        bpy.props.FloatVectorProperty(
+            name="Color float",
+            description="Part fiber color",
+        ),
+    )
+    setattr(
+        bpy.types.Object,
         "ld_effect",
         bpy.props.EnumProperty(
             name="Effect",

@@ -81,8 +81,8 @@ ControlMapStatus = Dict[DancerName, DancerStatus]
 class ControlMapElement:
     start: int
     fade: bool
+    rev: Revision
     status: ControlMapStatus
-    rev: Optional[Revision] = None
 
 
 ControlMap = Dict[MapID, ControlMapElement]
@@ -103,8 +103,8 @@ PosMapStatus = Dict[DancerName, Location]
 @dataclass
 class PosMapElement:
     start: int
+    rev: Revision
     pos: PosMapStatus
-    rev: Optional[Revision] = None
 
 
 PosMap = Dict[MapID, PosMapElement]

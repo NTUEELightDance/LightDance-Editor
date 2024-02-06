@@ -30,3 +30,13 @@ class ColorPaletteItemType:
 
 
 ColorPaletteType = List[ColorPaletteItemType]
+
+
+class RevisionPropertyItemType:
+    frame_id: int
+    frame_start: int
+    meta: int
+    data: int
+
+
+RevisionPropertyType = List[RevisionPropertyItemType]

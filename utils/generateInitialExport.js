@@ -25,9 +25,9 @@ const io = new NodeIO();
 
 const modelPartsCache = new Map();
 
-async function getParts(modelPath, dancerName, modelName) {
-  if (modelPartsCache.has(modelPath)) {
-    return modelPartsCache.get(modelPath);
+async function getParts(modelPath, modelName) {
+  if (modelPartNameCache.has(modelPath)) {
+    return modelPartNameCache.get(modelPath);
   }
 
   const document = await io.read(modelPath); // → Document
@@ -38,7 +38,7 @@ async function getParts(modelPath, dancerName, modelName) {
     // remove dancer root object
     .filter((name) => name !== modelName)
     // drop first '_'
-    .map((name) => name.split("_").slice(1).join("_"))
+    // .map((name) => name.split("_").slice(1).join("_"))
     // drop after '.'
     .map((name) => name.split(".")[0])
     // remove duplicates
@@ -61,9 +61,9 @@ async function getParts(modelPath, dancerName, modelName) {
   const LEDs = root
     .listNodes()
     .map((node) => node.getName())
-    .filter((name) => name.includes("_LED."))
+    .filter((name) => name.includes("_LED."));
     // drop first '_'
-    .map((name) => name.split("_").slice(1).join("_"));
+    // .map((name) => name.split("_").slice(1).join("_"));
 
   const LEDcounter = LEDs.reduce((acc, LEDname) => {
     const partName = LEDname.split(".")[0];
@@ -195,7 +195,7 @@ function generateEmptyLEDEffects(modelParts) {
       return {
         name: dancerName,
         model: modelName,
-        parts: await getParts(modelUrl, dancerName, modelName),
+        parts: await getParts(modelUrl, modelName),
       };
     })
   );
