@@ -125,7 +125,7 @@ class PosAgent:
                         EDIT_POS_FRAME_TIME,
                         {
                             "input": MutEditPositionFrameTimeInput(
-                                frameID=id, start=start
+                                frameId=id, start=start
                             )
                         },
                     )

@@ -21,7 +21,6 @@ def register():
     setattr(bpy.types.Object, "ld_model_name", bpy.props.StringProperty())
     setattr(bpy.types.Object, "ld_dancer_name", bpy.props.StringProperty())
     setattr(bpy.types.Object, "ld_part_name", bpy.props.StringProperty())
-    setattr(bpy.types.Object, "ld_model_name", bpy.props.StringProperty())
 
 
 def unregister():
@@ -29,4 +28,3 @@ def unregister():
     delattr(bpy.types.Object, "ld_model_name")
     delattr(bpy.types.Object, "ld_dancer_name")
     delattr(bpy.types.Object, "ld_part_name")
-    delattr(bpy.types.Object, "ld_model_name")

@@ -116,12 +116,6 @@ def import_model_to_asset(
         if "BezierCurve" in mesh.name and model_name not in mesh.name:
             mesh.name = f"{model_name}.{mesh.name}"
 
-    # for obj in model_objs:
-    #     if obj.type == "EMPTY":
-    #         continue
-    #     mesh = obj.data
-    #     print(obj.name, mesh.name)
-
     col.asset_mark()
     for part in parts:
         part_objects = [
@@ -262,6 +256,7 @@ def setup_objects(assets_load: Dict[str, Any]):
                     set_bpy_props(
                         led_obj,
                         parent=part_obj,
+                        color=(0, 0, 0, 1),
                         ld_object_type=ObjectType.LIGHT.value,
                         ld_light_type=LightType.LED_BULB.value,
                         ld_part_name=part_item.name,
@@ -276,6 +271,7 @@ def setup_objects(assets_load: Dict[str, Any]):
                     part_obj,
                     parent=dancer_obj,
                     name=part_obj_name,
+                    color=(0, 0, 0, 1),
                     ld_object_type=ObjectType.LIGHT.value,
                     ld_light_type=LightType.FIBER.value,
                     ld_part_name=part_item.name,
@@ -389,6 +385,6 @@ async def load_data() -> None:
     setup_objects(assets_load)
     setup_music(assets_load)
     setup_animation_data()
-    # setup_viewport()
+    setup_viewport()
 
     print("Data loaded")

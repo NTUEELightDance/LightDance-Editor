@@ -129,7 +129,7 @@ class ControlAgent:
                         EDIT_CONTROL_FRAME_TIME,
                         {
                             "input": MutEditControlFrameTimeInput(
-                                frameID=id, start=start
+                                frameId=id, start=start
                             )
                         },
                     )

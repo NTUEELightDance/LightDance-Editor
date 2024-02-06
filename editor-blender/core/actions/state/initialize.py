@@ -317,13 +317,6 @@ async def init_dancers():
             index=index, parts=parts
         )
 
-    # selected: Selected = dict(
-    #     [
-    #         (dancer_name, SelectedItem(selected=False, parts=[]))
-    #         for dancer_name in dancer_names
-    #     ]
-    # )
-
     state.dancers = dancers
     state.dancer_names = dancer_names
     state.part_type_map = part_type_map
@@ -331,8 +324,6 @@ async def init_dancers():
 
     state.dancers_array = dancers_array
     state.dancer_part_index_map = dancer_part_index_map
-
-    # state.selected = selected
 
     print("Dancers initialized")
 

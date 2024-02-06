@@ -20,4 +20,4 @@ def unregister():
     color_palette.unregister()
     timeline.unregister()
     scene.unregister()
-    revision.register()
+    revision.unregister()
