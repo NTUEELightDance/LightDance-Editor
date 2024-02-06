@@ -6,7 +6,7 @@ use sqlx::{FromRow, Type};
 #[derive(SimpleObject, FromRow, Debug, Clone)]
 pub struct PartData {
     pub id: i32,
-    pub dancer_id: i32,
+    pub model_id: i32,
     pub name: String,
     pub r#type: PartType,
     pub length: Option<i32>,

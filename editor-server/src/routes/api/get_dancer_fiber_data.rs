@@ -96,18 +96,17 @@ pub async fn get_dancer_fiber_data(
     }
 
     // check if dancer is in db
-    let _dancer_name = match sqlx::query!(
+    let dancer_id = match sqlx::query!(
         r#"
-            SELECT Dancer.name
-            FROM Dancer
+            SELECT Dancer.id FROM Dancer
             WHERE Dancer.name = ?
-            "#,
+        "#,
         dancer
     )
     .fetch_one(mysql_pool)
     .await
     {
-        Ok(dancer_name) => dancer_name,
+        Ok(dancer_name) => dancer_name.id,
         Err(_) => {
             return Err((
                 StatusCode::NOT_FOUND,
@@ -120,16 +119,29 @@ pub async fn get_dancer_fiber_data(
 
     let data = sqlx::query!(
         r#"
-            SELECT ControlFrame.id, ControlFrame.start, ControlFrame.fade, ControlData.color_id, ControlData.alpha, Part.name
-            FROM ControlFrame
-            INNER JOIN ControlData ON ControlFrame.id = ControlData.frame_id
-            INNER JOIN Part ON ControlData.part_id = Part.id
-            INNER JOIN Dancer ON Part.dancer_id = Dancer.id
-            WHERE Dancer.name = ? AND Part.type = 'FIBER'
-            ORDER BY ControlFrame.start ASC
-            "#,
-        dancer
-    ).fetch_all(mysql_pool)
+            SELECT
+                ControlFrame.id,
+                ControlFrame.start,
+                ControlFrame.fade,
+                ControlData.color_id,
+                ControlData.alpha,
+                Part.name
+            FROM Dancer
+            INNER JOIN Model
+                ON Model.id = Dancer.model_id
+            INNER JOIN Part
+                ON Part.model_id = Model.id
+            INNER JOIN ControlData
+                ON ControlData.part_id = Part.id AND
+                ControlData.dancer_id = Dancer.id
+            INNER JOIN ControlFrame
+                ON ControlFrame.id = ControlData.frame_id
+            WHERE Dancer.id = ? AND Part.type = 'FIBER'
+            ORDER BY ControlFrame.start ASC;
+        "#,
+        dancer_id
+    )
+    .fetch_all(mysql_pool)
     .await
     .into_result()?;
 

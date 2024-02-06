@@ -65,12 +65,12 @@ impl ControlFrameMutation {
         // check if the control frame already exists on the start time
         let exist = sqlx::query!(
             r#"
-            SELECT EXISTS (
-              SELECT 1
-              FROM ControlFrame
-              WHERE start = ?
-              LIMIT 1
-            ) AS exist;
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM ControlFrame
+                    WHERE start = ?
+                    LIMIT 1
+                ) AS exist;
            "#,
             start
         )
@@ -88,18 +88,18 @@ impl ControlFrameMutation {
         // Below we check if the control data is valid when the data is given
 
         // we need to fetch the dancer data, ascending by dancer_id and part_id
-        let raw_dancer_data: Vec<DancerData> = sqlx::query_as!(
+        let raw_dancer_data = sqlx::query_as!(
             DancerData,
             r#"
-            SELECT
-              Dancer.id AS "dancer_id",
-              Part.type AS "part_type: PartType",
-              Part.id AS "part_id"
-            FROM Dancer
-            INNER JOIN Part
-            ON Dancer.id = Part.dancer_id
-            ORDER BY Dancer.id ASC, Part.id ASC;
-          "#,
+                SELECT
+                    Dancer.id AS "dancer_id",
+                    Part.type AS "part_type: PartType",
+                    Part.id AS "part_id"
+                FROM Dancer
+                INNER JOIN Model ON Dancer.model_id = Model.id
+                INNER JOIN Part ON Model.id = Part.model_id
+                ORDER BY Dancer.id ASC, Part.id ASC;
+            "#,
         )
         .fetch_all(mysql)
         .await?;
@@ -268,6 +268,7 @@ impl ControlFrameMutation {
 
                 // iterate through every part of the dancer
                 for (_index, _data) in data.iter().enumerate() {
+                    let dancer_id = &dancer[_index].dancer_id;
                     let part = &dancer[_index];
                     let part_type = &part.part_type;
 
@@ -277,10 +278,11 @@ impl ControlFrameMutation {
                             // please refer to the schema of ControlData table
                             sqlx::query!(
                                 r#"
-                                  INSERT INTO ControlData 
-                                  (part_id, frame_id, type, color_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?);
+                                  INSERT INTO ControlData
+                                  (dancer_id, part_id, frame_id, type, color_id, alpha)
+                                  VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
+                                dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
                                 "COLOR": ControlDataType,
@@ -295,9 +297,10 @@ impl ControlFrameMutation {
                             sqlx::query!(
                                 r#"
                                   INSERT INTO ControlData 
-                                  (part_id, frame_id, type, effect_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?);
+                                  (dancer_id, part_id, frame_id, type, effect_id, alpha)
+                                  VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
+                                dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
                                 "EFFECT": ControlDataType,
@@ -315,9 +318,10 @@ impl ControlFrameMutation {
         // the default data set color_id/effect_id to -1 and alpha to 0
         else {
             // iterate through every dancer
-            for (_, dancer) in dancers.iter().enumerate() {
+            for dancer in dancers.iter() {
                 // iterate through every part of the dancer
                 for (_index, part) in dancer.iter().enumerate() {
+                    let dancer_id = &part.dancer_id;
                     let part_type = &part.part_type;
 
                     match part_type {
@@ -327,9 +331,10 @@ impl ControlFrameMutation {
                             sqlx::query!(
                                 r#"
                                   INSERT INTO ControlData
-                                  (part_id, frame_id, type, color_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?);
+                                  (dancer_id, part_id, frame_id, type, color_id, alpha)
+                                  VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
+                                dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
                                 "COLOR": ControlDataType,
@@ -344,9 +349,10 @@ impl ControlFrameMutation {
                             sqlx::query!(
                                 r#"
                                   INSERT INTO ControlData
-                                  (part_id, frame_id, type, effect_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?);
+                                  (dancer_id, part_id, frame_id, type, effect_id, alpha)
+                                  VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
+                                dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
                                 "EFFECT": ControlDataType,

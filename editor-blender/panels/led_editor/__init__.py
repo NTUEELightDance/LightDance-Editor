@@ -34,6 +34,9 @@ class LEDEditor(bpy.types.Panel):
 
         if edit_mode == LEDEditorEditModeType.IDLE.value:
             row = layout.row()
+            row.prop(ld_ui_led_editor, "edit_model", text="Model")
+
+            row = layout.row()
             row.prop(ld_ui_led_editor, "edit_dancer", text="Dancer")
 
             row = layout.row()

@@ -130,7 +130,7 @@ impl ControlMapMutation {
         // Below we check if the control data is valid when the data is given
 
         // we need to fetch the dancer data, ascending by dancer_id and part_id
-        let raw_dancer_data: Vec<DancerData> = sqlx::query_as!(
+        let raw_dancer_data = sqlx::query_as!(
             DancerData,
             r#"
                 SELECT
@@ -139,10 +139,13 @@ impl ControlMapMutation {
                     Part.id AS "part_id",
                     ControlData.frame_id AS "control_data_frame_id"
                 FROM Dancer
+                INNER JOIN Model
+                    ON Dancer.model_id = Model.id
                 INNER JOIN Part
-                ON Dancer.id = Part.dancer_id
+                    ON Model.id = Part.model_id
                 INNER JOIN ControlData
-                ON Part.id = ControlData.part_id
+                    ON Part.id = ControlData.part_id AND
+                    ControlData.dancer_id = Dancer.id
                 WHERE ControlData.frame_id = ?
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
@@ -307,6 +310,7 @@ impl ControlMapMutation {
             let dancer = &dancers[index];
 
             for (_index, _data) in data.iter().enumerate() {
+                let dancer_id = dancer[_index].dancer_id;
                 let part = &dancer[_index];
                 let part_type = &part.part_type;
 
@@ -320,12 +324,13 @@ impl ControlMapMutation {
                             r#"
                                 UPDATE ControlData
                                 SET color_id = ?, alpha = ?
-                                WHERE frame_id = ? AND part_id = ?;
+                                WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                             "#,
                             color_id,
                             alpha,
                             frame_id,
                             part.part_id,
+                            dancer_id,
                         )
                         .execute(mysql)
                         .await?;
@@ -340,12 +345,13 @@ impl ControlMapMutation {
                                 r#"
                                     UPDATE ControlData
                                     SET effect_id = ?, alpha = ?
-                                    WHERE frame_id = ? AND part_id = ?;
+                                    WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                 "#,
                                 effect_id,
                                 alpha,
                                 frame_id,
                                 part.part_id,
+                                dancer_id,
                             )
                             .execute(mysql)
                             .await?;
@@ -354,11 +360,12 @@ impl ControlMapMutation {
                                 r#"
                                     UPDATE ControlData
                                     SET effect_id = NULL, alpha = ?
-                                    WHERE frame_id = ? AND part_id = ?;
+                                    WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                 "#,
                                 alpha,
                                 frame_id,
                                 part.part_id,
+                                dancer_id,
                             )
                             .execute(mysql)
                             .await?;

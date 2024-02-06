@@ -1,11 +1,10 @@
-// ! Dancer data types.
+// ! Model data types.
 
 use async_graphql::SimpleObject;
 use serde::{Deserialize, Serialize};
 
 #[derive(sqlx::FromRow, SimpleObject, Deserialize, Serialize, Default, Debug, Clone)]
-pub struct DancerData {
+pub struct ModelData {
     pub id: i32,
     pub name: String,
-    pub model_id: i32,
 }

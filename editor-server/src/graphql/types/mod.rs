@@ -8,5 +8,6 @@ pub mod dancer;
 pub mod led;
 pub mod led_map;
 pub mod map;
+pub mod model;
 pub mod pos_data;
 pub mod pos_frame;

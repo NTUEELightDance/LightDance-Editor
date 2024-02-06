@@ -62,6 +62,7 @@ def setup_led_editor():
     clear_selection()
 
     ld_ui_led_editor = getattr(bpy.context.window_manager, "ld_ui_led_editor")
+    ld_ui_led_editor["edit_model"] = -1
     ld_ui_led_editor["edit_dancer"] = -1
     ld_ui_led_editor["edit_part"] = -1
 

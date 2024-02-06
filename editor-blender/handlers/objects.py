@@ -647,12 +647,15 @@ def handle_autoselect_in_led_editor():
     # Maintain led editor's multi-select status
     if state.selected_obj_type == SelectedPartType.LED:
         # Don't trigger update dancer here
-        ld_ui_led_editor["edit_dancer"] = state.dancer_names.index(  # type: ignore
-            getattr(active_obj, "ld_dancer_name")
-        )
+        ld_model_name = getattr(active_obj, "ld_model_name")
+        ld_dancer_name = getattr(active_obj, "ld_dancer_name")
+        ld_ui_led_editor["edit_model"] = state.model_dancer_index_map[ld_model_name].index  # type: ignore
+        ld_ui_led_editor["edit_dancer"] = state.dancer_part_index_map[ld_dancer_name].index  # type: ignore
         ld_ui_led_editor.edit_part = getattr(active_obj, "ld_part_name")
 
     elif state.selected_obj_type == SelectedPartType.DANCER:
+        ld_model_name = getattr(active_obj, "ld_model_name")
+        ld_ui_led_editor["edit_model"] = state.model_dancer_index_map[ld_model_name].index  # type: ignore
         ld_ui_led_editor.edit_dancer = getattr(active_obj, "ld_dancer_name")
 
 
