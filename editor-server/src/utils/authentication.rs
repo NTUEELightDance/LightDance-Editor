@@ -166,6 +166,8 @@ pub async fn create_admin_user() -> Result<(), String> {
     let app_state = global::clients::get();
     let mysql_pool = app_state.mysql_pool();
 
+    println!("Creating admin user...");
+
     // Delete existing admin user
     let _ = sqlx::query!(
         r#"

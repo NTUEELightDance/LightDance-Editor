@@ -138,7 +138,7 @@ pub async fn get_dancer_led_data(
 
     // organize control data into their respective parts
     for data in dancer_data.into_iter() {
-        parts.entry(data.name).or_insert_with(Vec::new).push(Part {
+        parts.entry(data.name).or_default().push(Part {
             length: data.part_length,
             effect_id: data.effect_id,
         });

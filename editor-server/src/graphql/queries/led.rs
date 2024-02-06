@@ -61,11 +61,11 @@ impl LEDQuery {
 
         led_effect_states.iter().for_each(|dancer_states| {
             let model_name = &dancer_states[0][0][0].model_name;
-            let dancer = result.entry(model_name.clone()).or_insert(HashMap::new());
+            let dancer = result.entry(model_name.clone()).or_default();
 
             dancer_states.iter().for_each(|part_states| {
                 let part_name = &part_states[0][0].part_name;
-                let part = dancer.entry(part_name.clone()).or_insert(HashMap::new());
+                let part = dancer.entry(part_name.clone()).or_default();
 
                 part_states.iter().for_each(|effect_states| {
                     let effect_name = &effect_states[0].effect_name;

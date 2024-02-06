@@ -1,5 +1,5 @@
 [package]
-rust-version = "1.70.0"
+rust-version = "1.75.0"
 name = "editor-server"
 version = "0.1.0"
 edition = "2021"
