@@ -26,8 +26,8 @@ const io = new NodeIO();
 const modelPartsCache = new Map();
 
 async function getParts(modelPath, modelName) {
-  if (modelPartNameCache.has(modelPath)) {
-    return modelPartNameCache.get(modelPath);
+  if (modelPartsCache.has(modelPath)) {
+    return modelPartsCache.get(modelPath);
   }
 
   const document = await io.read(modelPath); // → Document
@@ -96,9 +96,9 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
   const status = dancerData.map(({ parts }) =>
     parts.map(({ type }) => {
       if (type === "LED") {
-        return [effect, 10];
+        return [effect, 255];
       } else if (type === "FIBER") {
-        return [color, 10];
+        return [color, 255];
       } else {
         throw new Error(`unknown type: ${type}`);
       }

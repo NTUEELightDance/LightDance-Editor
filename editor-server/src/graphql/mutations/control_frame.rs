@@ -135,8 +135,8 @@ impl ControlFrameMutation {
             // fetch data about colors and LED effects
             let all_fiber_color_ids = sqlx::query!(
                 r#"
-              SELECT id FROM Color ORDER BY id ASC;
-            "#,
+                    SELECT id FROM Color ORDER BY id ASC;
+                "#,
             )
             .fetch_all(mysql)
             .await?
@@ -146,8 +146,8 @@ impl ControlFrameMutation {
 
             let all_led_effect_ids = sqlx::query!(
                 r#"
-              SELECT id FROM LEDEffect ORDER BY id ASC;
-            "#,
+                    SELECT id FROM LEDEffect ORDER BY id ASC;
+                "#,
             )
             .fetch_all(mysql)
             .await?
@@ -224,7 +224,7 @@ impl ControlFrameMutation {
                             let effect_id = _data[0];
 
                             // check if the effect is valid
-                            if !all_led_effect_ids.contains(&effect_id) {
+                            if effect_id > 0 && !all_led_effect_ids.contains(&effect_id) {
                                 let error_message = format!(
                                     "Effect of dancer #{} part #{} is not a valid effect",
                                     index, _index
@@ -278,9 +278,9 @@ impl ControlFrameMutation {
                             // please refer to the schema of ControlData table
                             sqlx::query!(
                                 r#"
-                                  INSERT INTO ControlData
-                                  (dancer_id, part_id, frame_id, type, color_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?, ?);
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, color_id, alpha)
+                                    VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
                                 dancer_id,
                                 part.part_id,
@@ -293,22 +293,42 @@ impl ControlFrameMutation {
                             .await?;
                         }
                         PartType::LED => {
+                            let effect_id = _data[0];
+                            let alpha = _data[1];
+
                             // create a new control data and insert it into the database
-                            sqlx::query!(
-                                r#"
-                                  INSERT INTO ControlData 
-                                  (dancer_id, part_id, frame_id, type, effect_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?, ?);
-                                "#,
-                                dancer_id,
-                                part.part_id,
-                                new_control_frame_id,
-                                "EFFECT": ControlDataType,
-                                _data[0],
-                                _data[1],
-                            )
-                            .execute(mysql)
-                            .await?;
+                            if effect_id > 0 {
+                                sqlx::query!(
+                                    r#"
+                                        INSERT INTO ControlData 
+                                        (dancer_id, part_id, frame_id, type, effect_id, alpha)
+                                        VALUES (?, ?, ?, ?, ?, ?);
+                                    "#,
+                                    dancer_id,
+                                    part.part_id,
+                                    new_control_frame_id,
+                                    "EFFECT": ControlDataType,
+                                    effect_id,
+                                    alpha,
+                                )
+                                .execute(mysql)
+                                .await?;
+                            } else {
+                                sqlx::query!(
+                                    r#"
+                                        INSERT INTO ControlData 
+                                        (dancer_id, part_id, frame_id, type, alpha)
+                                        VALUES (?, ?, ?, ?, ?);
+                                    "#,
+                                    dancer_id,
+                                    part.part_id,
+                                    new_control_frame_id,
+                                    "EFFECT": ControlDataType,
+                                    alpha,
+                                )
+                                .execute(mysql)
+                                .await?;
+                            }
                         }
                     }
                 }
@@ -330,9 +350,9 @@ impl ControlFrameMutation {
                             // please refer to the schema of ControlData table
                             sqlx::query!(
                                 r#"
-                                  INSERT INTO ControlData
-                                  (dancer_id, part_id, frame_id, type, color_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?, ?);
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, color_id, alpha)
+                                    VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
                                 dancer_id,
                                 part.part_id,
@@ -348,9 +368,9 @@ impl ControlFrameMutation {
                             // create a new control data and insert it into the database
                             sqlx::query!(
                                 r#"
-                                  INSERT INTO ControlData
-                                  (dancer_id, part_id, frame_id, type, effect_id, alpha)
-                                  VALUES (?, ?, ?, ?, ?, ?);
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, effect_id, alpha)
+                                    VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
                                 dancer_id,
                                 part.part_id,
@@ -398,9 +418,9 @@ impl ControlFrameMutation {
         // get all control frames
         let all_control_frames = sqlx::query!(
             r#"
-            SELECT id
-            FROM ControlFrame
-            ORDER BY start ASC
+                SELECT id
+                FROM ControlFrame
+                ORDER BY start ASC
             "#
         )
         .fetch_all(mysql)
@@ -463,12 +483,12 @@ impl ControlFrameMutation {
 
             let exist = sqlx::query!(
                 r#"
-                SELECT EXISTS (
-                  SELECT 1
-                  FROM ControlFrame
-                  WHERE start = ? AND id != ?
-                  LIMIT 1
-                ) AS exist;
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM ControlFrame
+                        WHERE start = ? AND id != ?
+                        LIMIT 1
+                    ) AS exist;
                "#,
                 start,
                 frame_id
@@ -497,14 +517,14 @@ impl ControlFrameMutation {
         let original_frame = sqlx::query_as!(
             ControlFrameData,
             r#"
-              SELECT
-                  id,
-                  start,
-                  fade as "fade: bool",
-                  meta_rev,
-                  data_rev
-              FROM ControlFrame
-              WHERE id = ?
+                SELECT
+                    id,
+                    start,
+                    fade as "fade: bool",
+                    meta_rev,
+                    data_rev
+                FROM ControlFrame
+                WHERE id = ?
             "#,
             frame_id
         )
@@ -526,9 +546,9 @@ impl ControlFrameMutation {
         let is_editing = sqlx::query_as!(
             EditingControlFrameData,
             r#"
-              SELECT * FROM EditingControlFrame
-              WHERE frame_id = ?
-              LIMIT 1;
+                SELECT * FROM EditingControlFrame
+                WHERE frame_id = ?
+                LIMIT 1;
             "#,
             frame_id,
         )
@@ -565,9 +585,9 @@ impl ControlFrameMutation {
         // update the frame
         sqlx::query!(
             r#"
-              UPDATE ControlFrame
-              SET start = ?, fade = ?
-              WHERE id = ?;
+                UPDATE ControlFrame
+                SET start = ?, fade = ?
+                WHERE id = ?;
             "#,
             start,
             fade,
@@ -579,9 +599,9 @@ impl ControlFrameMutation {
         // update revision of the frame
         sqlx::query!(
             r#"
-              UPDATE ControlFrame
-              SET meta_rev = meta_rev + 1
-              WHERE id = ?;
+                UPDATE ControlFrame
+                SET meta_rev = meta_rev + 1
+                WHERE id = ?;
             "#,
             frame_id
         )
@@ -619,9 +639,9 @@ impl ControlFrameMutation {
         // get all control frames
         let all_control_frames = sqlx::query!(
             r#"
-            SELECT id
-            FROM ControlFrame
-            ORDER BY start ASC
+                SELECT id
+                FROM ControlFrame
+                ORDER BY start ASC
             "#
         )
         .fetch_all(mysql)
@@ -683,14 +703,14 @@ impl ControlFrameMutation {
         let original_frame = sqlx::query_as!(
             ControlFrameData,
             r#"
-              SELECT
-                  id,
-                  start,
-                  fade as "fade: bool",
-                  meta_rev,
-                  data_rev
-              FROM ControlFrame
-              WHERE id = ?
+                SELECT
+                    id,
+                    start,
+                    fade as "fade: bool",
+                    meta_rev,
+                    data_rev
+                FROM ControlFrame
+                WHERE id = ?
             "#,
             frame_id
         )
@@ -712,9 +732,9 @@ impl ControlFrameMutation {
         let is_editing = sqlx::query_as!(
             EditingControlFrameData,
             r#"
-              SELECT * FROM EditingControlFrame
-              WHERE frame_id = ?
-              LIMIT 1;
+                SELECT * FROM EditingControlFrame
+                WHERE frame_id = ?
+                LIMIT 1;
             "#,
             frame_id,
         )
