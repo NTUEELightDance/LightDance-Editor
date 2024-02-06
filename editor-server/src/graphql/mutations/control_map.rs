@@ -86,9 +86,9 @@ impl ControlMapMutation {
         // check if the frame exists
         let is_frame_exists = sqlx::query!(
             r#"
-              SELECT id FROM ControlFrame
-              WHERE id = ?
-              LIMIT 1;
+                SELECT id FROM ControlFrame
+                WHERE id = ?
+                LIMIT 1;
             "#,
             frame_id,
         )
@@ -105,9 +105,9 @@ impl ControlMapMutation {
         let is_editing = sqlx::query_as!(
             EditingControlFrameData,
             r#"
-              SELECT * FROM EditingControlFrame
-              WHERE frame_id = ?
-              LIMIT 1;
+                SELECT * FROM EditingControlFrame
+                WHERE frame_id = ?
+                LIMIT 1;
             "#,
             frame_id,
         )
@@ -187,7 +187,7 @@ impl ControlMapMutation {
         // fetch data about colors and LED effects
         let all_fiber_color_ids = sqlx::query!(
             r#"
-              SELECT id FROM Color ORDER BY id ASC;
+                SELECT id FROM Color ORDER BY id ASC;
             "#,
         )
         .fetch_all(mysql)
@@ -198,7 +198,7 @@ impl ControlMapMutation {
 
         let all_led_effect_ids = sqlx::query!(
             r#"
-              SELECT id FROM LEDEffect ORDER BY id ASC;
+                SELECT id FROM LEDEffect ORDER BY id ASC;
             "#,
         )
         .fetch_all(mysql)
@@ -407,9 +407,9 @@ impl ControlMapMutation {
         // I will keep this code for now, but we might need to examine the necessity in the future
         sqlx::query!(
             r#"
-              UPDATE EditingControlFrame
-              SET frame_id = NULL
-              WHERE user_id = ?
+                UPDATE EditingControlFrame
+                SET frame_id = NULL
+                WHERE user_id = ?
             "#,
             context.user_id,
         )
@@ -419,9 +419,9 @@ impl ControlMapMutation {
         // update revision of the frame
         sqlx::query!(
             r#"
-              UPDATE ControlFrame
-              SET data_rev = data_rev + 1
-              WHERE id = ?;
+                UPDATE ControlFrame
+                SET data_rev = data_rev + 1
+                WHERE id = ?;
             "#,
             frame_id,
         )

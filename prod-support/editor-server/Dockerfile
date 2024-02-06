@@ -11,7 +11,7 @@ WORKDIR /editor-server/prisma
 RUN cargo fetch
 
 WORKDIR /editor-server
-RUN cargo prisma migrate deploy
+RUN cargo prisma migrate dev --skip-generate
 
 COPY ./editor-server/Cargo.toml .
 COPY ./editor-server/Cargo.lock .

@@ -118,6 +118,8 @@ pub async fn init_redis_control(
                 status,
             };
 
+            println!("Redis key: {}", redis_key);
+
             result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
         });
 

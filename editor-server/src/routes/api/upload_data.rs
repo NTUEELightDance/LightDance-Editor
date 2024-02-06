@@ -273,7 +273,7 @@ pub async fn upload_data(
         println!("Create LED Effects...");
 
         for (model_name, dancer_effects) in &data_obj.led_effects {
-            let mut dancer_effect_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
+            let mut model_effect_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
 
             let model = all_model
                 .get(model_name)
@@ -337,17 +337,19 @@ pub async fn upload_data(
                             .into_result()?;
                     }
                 }
-                dancer_effect_dict.insert(model_name, part_effect_dict);
+                model_effect_dict.insert(part_name, part_effect_dict);
             }
 
-            led_dict.insert(model_name, dancer_effect_dict);
+            led_dict.insert(model_name, model_effect_dict);
             led_progress.inc(1);
         }
         led_progress.finish();
 
         let position_progress =
             ProgressBar::new(data_obj.position.len().try_into().unwrap_or_default());
+
         println!("Create Position Data...");
+
         for (_, frame_obj) in &data_obj.position {
             if frame_obj.pos.len() != data_obj.dancer.len() {
                 return Err((
@@ -402,7 +404,7 @@ pub async fn upload_data(
                     StatusCode::BAD_REQUEST,
                     Json(UploadDataFailedResponse {
                         err: format!("Error: Control frame starting at {} has invalid number of dancers. Found {}, Expected {}.",
-                         frame_obj.start, frame_obj.status.len(), data_obj.dancer.len()),
+                        frame_obj.start, frame_obj.status.len(), data_obj.dancer.len()),
                     }),
                 ));
             }
@@ -430,45 +432,28 @@ pub async fn upload_data(
                         }),
                     ));
                 };
+
                 let dancer_name = &data_obj.dancer[i].name;
+                let model_name = &data_obj.dancer[i].model;
                 let real_dancer = &all_dancer[dancer_name];
 
                 for (j, part_control_data) in dancer_control_data.iter().enumerate() {
                     let part_name = &data_obj.dancer[i].parts[j].name;
                     let real_part = &real_dancer.1[part_name];
+
                     // This is apparently wrong currently
                     let type_string = match &real_part.1 {
                         DancerPartType::LED => "EFFECT",
                         DancerPartType::FIBER => "COLOR",
                     };
                     let color_id = color_dict.get(&part_control_data.0);
-                    let effect_id = match led_dict.get(dancer_name) {
+                    let effect_id = match led_dict.get(model_name) {
                         Some(parts_dict) => match parts_dict.get(part_name) {
                             Some(effect_dict) => effect_dict.get(&part_control_data.0),
                             None => None,
                         },
                         None => None,
                     };
-
-                    // if color_id == None && type_string == "COLOR" {
-                    //     return Err((
-                    //         StatusCode::BAD_REQUEST,
-                    //         Json(UploadDataFailedResponse {
-                    //             err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown color {}.",
-                    //              frame_obj.start, i, j, &part_control_data.0),
-                    //         }),
-                    //     ));
-                    // };
-
-                    // if effect_id == None && type_string == "EFFECT" {
-                    //     return Err((
-                    //         StatusCode::BAD_REQUEST,
-                    //         Json(UploadDataFailedResponse {
-                    //             err: format!("Error: Control frame starting at {}, dancer index {}, part index {} has unknown LED effect {}.",
-                    //              frame_obj.start, i, j, &part_control_data.0),
-                    //         }),
-                    //     ));
-                    // };
 
                     let alpha = part_control_data.1;
 
