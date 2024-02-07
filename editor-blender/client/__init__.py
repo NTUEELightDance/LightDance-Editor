@@ -197,7 +197,9 @@ class Clients:
 
         # TODO: Check if variables is identical in cache
         if variables is None and is_query:
-            response = await self.cache.read_query(response_type, query_def)
+            # NOTE: Cache is disabled for now
+            response = None
+            # response = await self.cache.read_query(response_type, query_def)
         else:
             response = None
 
@@ -212,8 +214,9 @@ class Clients:
 
             query_name = query_def[0]
             response[query_name] = deserialize(response_type, response[query_name])
-            if is_query:
-                await self.cache.write_query(response)
+            # NOTE: Cache is disabled for now
+            # if is_query:
+            #     await self.cache.write_query(response)
 
         return response
 

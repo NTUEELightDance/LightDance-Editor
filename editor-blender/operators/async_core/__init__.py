@@ -32,11 +32,6 @@ def tick_loop() -> bool:
         return True
 
     stop_after_this_kick = False
-    #    all_tasks = asyncio.all_tasks(loop)
-    #    if not len(all_tasks):
-    #        stop_after_this_kick = True
-    #    elif all(task.done() for task in all_tasks):
-    #        stop_after_this_kick = True
 
     loop.stop()
     loop.run_forever()
@@ -54,6 +49,8 @@ class AsyncLoopModalOperator(bpy.types.Operator):
     def __del__(self):
         global is_async_loop_running
 
+        is_async_loop_running = False
+
         print("Stopping asyncio loop...")
         close_blender()
 
@@ -61,8 +58,6 @@ class AsyncLoopModalOperator(bpy.types.Operator):
             wm = bpy.context.window_manager
             wm.event_timer_remove(self.timer)
             delattr(self, "timer")
-
-        is_async_loop_running = False
 
     def execute(self, context: bpy.types.Context):
         return {"FINISHED"}

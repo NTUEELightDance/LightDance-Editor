@@ -309,14 +309,21 @@ def setup_viewport():
     )
 
     space = cast(bpy.types.SpaceView3D, view_3d.spaces.active)
+
     space.overlay.show_relationship_lines = False
+    space.overlay.show_cursor = False
+    space.overlay.show_bones = False
+    space.overlay.show_motion_paths = False
+    space.overlay.show_object_origins = False
+    space.overlay.show_extras = False
+
     space.shading.background_type = "VIEWPORT"
     space.shading.background_color = (0, 0, 0)
     space.shading.color_type = "OBJECT"
     space.shading.light = "FLAT"
 
     """
-    timeline
+    scene
     """
     bpy.context.scene.render.fps = 1000
     bpy.context.scene.frame_start = 0
@@ -324,18 +331,43 @@ def setup_viewport():
         0
     ].frame_duration
 
+    bpy.context.scene.tool_settings.use_keyframe_insert_auto = False
     bpy.context.scene.show_keys_from_selected_only = False
     bpy.context.scene.sync_mode = "AUDIO_SYNC"
+
+    bpy.context.scene.render.use_simplify = True
+    bpy.context.scene.render.simplify_subdivision = 0
+    bpy.context.scene.render.simplify_volumes = 0
+    bpy.context.scene.render.simplify_shadows = 0
+    bpy.context.scene.render.simplify_child_particles_render = 0
+    bpy.context.scene.eevee.gi_diffuse_bounces = 0
+
+    """
+    timeline
+    """
     timeline = next(
         area
         for area in cast(List[bpy.types.Area], bpy.context.screen.areas)
         if area.ui_type == "TIMELINE"
     )
-
     space = cast(bpy.types.SpaceSequenceEditor, timeline.spaces.active)
+
     space.show_seconds = True
 
     set_dopesheet_filter("control_frame")  # follow default editor
+
+    """
+    Outliner
+    """
+    outliner = next(
+        area
+        for area in cast(List[bpy.types.Area], bpy.context.screen.areas)
+        if area.ui_type == "OUTLINER"
+    )
+    space = cast(bpy.types.SpaceOutliner, outliner.spaces.active)
+
+    space.use_filter_collection = False
+    space.use_filter_object_content = False
 
 
 def setup_animation_data():

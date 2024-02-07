@@ -4,6 +4,7 @@ from ....core.actions.state.app_state import set_logged_in, set_ready
 from ....core.actions.state.initialize import init_blender
 from ....core.states import state
 from ....core.utils.ui import redraw_area
+from ....handlers import unmount_handlers
 from ....storage import set_storage
 from ...utils.notification import notify
 from .app_state import set_requesting
@@ -59,6 +60,8 @@ async def logout() -> None:
 
         await client.close_graphql()
         await client.restart_http()
+
+        unmount_handlers()
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
