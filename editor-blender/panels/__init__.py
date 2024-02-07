@@ -9,6 +9,7 @@ from . import (
     shift,
     startup,
     timeline,
+    waveform,
 )
 
 
@@ -23,7 +24,7 @@ def register():
     pos_editor.register()
     control_editor.register()
     led_editor.register()
-
+    waveform.register()
     color_palette.register()
     timeline.register()
 
@@ -39,3 +40,4 @@ def unregister():
     timeline.unregister()
     control_editor.unregister()
     led_editor.unregister()
+    waveform.unregister()
