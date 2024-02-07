@@ -8,18 +8,13 @@ use serde::{Deserialize, Serialize};
 
 // struct defined to to fit old schema
 #[derive(InputObject, Default, Debug)]
-pub struct Set {
-    set: Vec<Frame>,
-}
-
-#[derive(InputObject, Default, Debug)]
 #[graphql(name = "LEDEffectCreateInput")]
 pub struct LEDEffectCreateInput {
     pub name: String,
     pub model_name: String,
     pub part_name: String,
     pub repeat: i32,
-    pub frames: Set,
+    pub frames: Vec<Frame>,
 }
 
 #[derive(InputObject, Default, Debug)]
@@ -28,7 +23,7 @@ pub struct EditLEDInput {
     pub id: i32,
     pub name: String,
     pub repeat: i32,
-    pub frames: Set,
+    pub frames: Vec<Frame>,
 }
 
 #[derive(SimpleObject, Serialize, Deserialize, Default, Debug)]
@@ -73,7 +68,6 @@ impl LEDMutation {
         let repeat = input.repeat;
         let frames: Vec<LEDEffectFrame> = input
             .frames
-            .set
             .iter()
             .map(|frame| LEDEffectFrame {
                 leds: frame.leds.clone(),
@@ -248,7 +242,6 @@ impl LEDMutation {
         let repeat = input.repeat;
         let frames: Vec<LEDEffectFrame> = input
             .frames
-            .set
             .iter()
             .map(|frame| LEDEffectFrame {
                 leds: frame.leds.clone(),

@@ -12,7 +12,7 @@ pub struct LEDEffectFrame {
 
 #[derive(InputObject, Serialize, Deserialize, Default, Debug, Clone)]
 pub struct Frame {
-    #[graphql(name = "LEDs")]
+    // #[graphql(name = "LEDs")]
     pub leds: Vec<[i32; 2]>,
     pub fade: bool,
     pub start: i32,

@@ -3,3 +3,5 @@ target/
 
 prisma/migrations
 schema.graphql
+
+src/prisma
