@@ -248,6 +248,8 @@ class State:
     subscription_task: Optional[Task[None]]
     init_editor_task: Optional[Task[None]]
 
+    assets_path: str
+
     token: str
     username: str
     ready: bool
