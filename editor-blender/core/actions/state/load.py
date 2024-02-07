@@ -13,7 +13,6 @@ from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
     set_pos_keyframes_from_state,
 )
-from .waveform import enable_waveform
 
 asset_path = cast(
     str, bpy.context.preferences.filepaths.asset_libraries["User Library"].path
@@ -299,16 +298,6 @@ def setup_music(assets_load: Dict[str, Any]):
     )
 
 
-def setup_wavefrom(assets_load: Dict[str, Any]):
-    """
-    set waveform
-    """
-    waveform_filepath = os.path.normpath(target_path + assets_load["Waveform"])
-    print(waveform_filepath)
-    enable_waveform(waveform_filepath)
-    print("Waveform loaded")
-
-
 def setup_viewport():
     """
     3d viewport
@@ -391,13 +380,13 @@ def check_local_object_list():
 
 
 async def load_data() -> None:
+    state.assets_path = target_path
+
     assets_load = await fetch_data()
 
     setup_objects(assets_load)
     setup_music(assets_load)
     setup_animation_data()
     setup_viewport()
-
-    setup_wavefrom(assets_load)
 
     print("Data loaded")

@@ -1,6 +1,6 @@
 {
   "Music": "/music/2023.mp3",
-  "Waveform": "/music/waveform.png",
+  "Waveform": "/data/waveform.json",
   "LightPresets": "/data/default_lightPresets.json",
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {

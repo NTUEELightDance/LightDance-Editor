@@ -1,12 +1,13 @@
-from . import animation, objects
+from . import animation, objects, waveform
 
 
-def mount():
-    print("Mounting handlers...")
+def mount_handlers():
     animation.mount()
     objects.mount()
+    waveform.mount()
 
 
-def unmount():
+def unmount_handlers():
     animation.unmount()
     objects.unmount()
+    waveform.unmount()

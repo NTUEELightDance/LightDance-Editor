@@ -49,7 +49,7 @@ from ....core.utils.ui import redraw_area
 #     QueryControlMapPayload,
 #     QueryPosMapPayload,
 # )
-from ....handlers import mount, unmount
+from ....handlers import mount_handlers, unmount_handlers
 from ....storage import get_storage
 from ...models import (
     DancerName,
@@ -172,7 +172,7 @@ def close_blender():
         state.init_editor_task.cancel()
         state.init_editor_task = None
 
-    unmount()
+    unmount_handlers()
 
     close_client_tasks = [
         client.close_http(),
@@ -236,7 +236,8 @@ async def init_editor():
     set_ready(True)
 
     # Mount handlers
-    mount()
+    mount_handlers()
+    print("Handlers mounted")
 
     # Initialize current index
     bpy.context.scene.frame_current = 0

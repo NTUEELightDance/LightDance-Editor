@@ -99,11 +99,11 @@ const callFFMPEG = () => {
   cmd = ["sudo", "ffmpeg"];
   cmd = [...cmd, "-i", String(sfp),
     "-hide_banner", "-loglevel", "error", "-filter_complex",
-    `showwavespic=s=${img_res}:split_channels=1:colors=${hex_colo}`,
+  `showwavespic=s=${img_res}:split_channels=1:colors=${hex_colo}`,
     "-frames:v", "1", "-y", String(ifp_temp)];
 
   let cmdString = cmd.join(" ");
-  // console.log(`cmd = ${cmd.join(' ')}`);
+  console.log(`cmd = ${cmd.join(" ")}`);
   let startGenerationTime = Date.now();
   console.log("start generating");
   try {
@@ -291,4 +291,3 @@ mainGenerate(releaseUrl, ffbin);
 //     console.error('Error deleting existing file:', error.message);
 //   }
 // }
-

@@ -1,4 +1,4 @@
-from . import color_palette, lights, objects, position, revision, scene, timeline, ui, waveform
+from . import color_palette, lights, objects, position, revision, scene, timeline, ui
 
 
 def register():
@@ -10,7 +10,6 @@ def register():
     timeline.register()
     scene.register()
     revision.register()
-    waveform.register()
 
 
 def unregister():
@@ -21,5 +20,4 @@ def unregister():
     color_palette.unregister()
     timeline.unregister()
     scene.unregister()
-    waveform.unregister()
     revision.unregister()

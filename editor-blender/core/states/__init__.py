@@ -16,6 +16,7 @@ state = State(
     requesting=False,
     subscription_task=None,
     init_editor_task=None,
+    assets_path="",
     token="",
     username="",
     ready=False,
