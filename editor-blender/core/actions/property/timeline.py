@@ -26,7 +26,7 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                     current_frame = state.control_map[current_frame_id]
                     start = current_frame.start
 
-                    bpy.context.scene.frame_set(start)
+                    bpy.context.scene.frame_current = start
             case Editor.POS_EDITOR:
                 if num >= 0 and num < len(state.pos_record):
                     current_frame_index = num
@@ -34,7 +34,7 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                     current_frame = state.pos_map[current_frame_id]
                     start = current_frame.start
 
-                    bpy.context.scene.frame_set(start)
+                    bpy.context.scene.frame_current = start
             case Editor.LED_EDITOR:
                 pass
 

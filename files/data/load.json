@@ -4,96 +4,16 @@
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
     "0_agent": {
-      "url": "/asset/models/eggsy.draco.glb",
-      "modelName": "eggsy"
+      "url": "/asset/models/0_agent.draco.glb",
+      "modelName": "0_agent"
     },
     "1_hank": {
-      "url": "/asset/models/eggsy.draco.glb",
-      "modelName": "eggsy"
+      "url": "/asset/models/1_hank.draco.glb",
+      "modelName": "1_hank"
     },
     "2_henning": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
-    },
-    "3_hans": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
-    },
-    "4_rayh": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
-    },
-    "5_justin": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
-    },
-    "6_stantheman": {
-      "url": "/asset/models/reaper.draco.glb",
-      "modelName": "reaper"
-    },
-    "7_ken": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
-    },
-    "8_samuel": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
-    },
-    "9_alice": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
-    },
-    "10_ttk": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
-    },
-    "11_cabinet_ken": {
-      "url": "/asset/models/cabinet_ken.draco.glb",
-      "modelName": "cabinet_ken"
-    },
-    "12_cabinet_ttk": {
-      "url": "/asset/models/cabinet_ttk.draco.glb",
-      "modelName": "cabinet_ttk"
-    },
-    "13_cabinet_samuel": {
-      "url": "/asset/models/cabinet_samuel.draco.glb",
-      "modelName": "cabinet_samuel"
-    },
-    "14_counter_left": {
-      "url": "/asset/models/counter_1.draco.glb",
-      "modelName": "counter_1"
-    },
-    "15_counter_right": {
-      "url": "/asset/models/counter_2.draco.glb",
-      "modelName": "counter_2"
-    },
-    "16_scythe": {
-      "url": "/asset/models/scythe.draco.glb",
-      "modelName": "scythe"
-    },
-    "17_signboard": {
-      "url": "/asset/models/signboard.draco.glb",
-      "modelName": "signboard"
-    },
-    "18_umbrella_hank": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "19_umbrella_henning": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "20_umbrella_hans": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "21_umbrella_rayh": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "22_umbrella_justin": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
+      "url": "/asset/models/0_agent.draco.glb",
+      "modelName": "0_agent"
     }
   }
 }

@@ -25,13 +25,14 @@ impl DancerQuery {
                 SELECT
                     Dancer.id,
                     Dancer.name,
+                    Dancer.model_id,
                     Part.id as part_id,
-                    Part.dancer_id as part_dancer_id,
                     Part.name as part_name,
                     Part.type as part_type,
                     Part.length as part_length
                 FROM Dancer
-                INNER JOIN Part ON Part.dancer_id = Dancer.id
+                INNER JOIN Model ON Model.id = Dancer.model_id
+                INNER JOIN Part ON Part.model_id = Model.id
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
         )
@@ -51,10 +52,10 @@ impl DancerQuery {
                         .into_iter()
                         .map(|part| Part {
                             id: part.part_id,
-                            dancer_id: part.part_dancer_id,
+                            model_id: part.model_id,
                             name: part.part_name,
                             r#type: part.part_type.into(),
-                            length: part.part_length.unwrap_or(0),
+                            length: part.part_length,
                         })
                         .collect(),
                 ),
@@ -75,13 +76,14 @@ impl DancerQuery {
                 SELECT
                     Dancer.id,
                     Dancer.name,
+                    Dancer.model_id,
                     Part.id as part_id,
-                    Part.dancer_id as part_dancer_id,
                     Part.name as part_name,
                     Part.type as part_type,
                     Part.length as part_length
                 FROM Dancer
-                INNER JOIN Part ON Part.dancer_id = Dancer.id
+                INNER JOIN Model ON Model.id = Dancer.model_id
+                INNER JOIN Part ON Part.model_id = Model.id
                 WHERE Dancer.name = ?
                 ORDER BY Part.id ASC;
             "#,
@@ -101,10 +103,10 @@ impl DancerQuery {
                         .into_iter()
                         .map(|part| Part {
                             id: part.part_id,
-                            dancer_id: part.part_dancer_id,
+                            model_id: part.model_id,
                             name: part.part_name,
                             r#type: part.part_type.into(),
-                            length: part.part_length.unwrap_or(0),
+                            length: part.part_length,
                         })
                         .collect(),
                 ),

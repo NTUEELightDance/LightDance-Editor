@@ -1,20 +1,34 @@
 import asyncio
 from typing import Dict, List, Optional
 
+import bpy
+
 from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
+from ....api.control_agent import control_agent
 from ....api.dancer_agent import dancer_agent
 from ....api.led_agent import led_agent
+from ....api.model_agent import model_agent
 from ....client import client
 
 # from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
 from ....client.subscription import subscribe
+from ....core.actions.state.app_state import (
+    set_logged_in,
+    set_ready,
+    set_requesting,
+    set_running,
+)
 from ....core.actions.state.color_map import set_color_map
+from ....core.actions.state.control_map import set_control_map
 
 # from ....core.actions.state.color_map import set_color_map
 # from ....core.actions.state.control_map import set_control_map
 from ....core.actions.state.current_pos import update_current_pos_by_index
-from ....core.actions.state.current_status import update_current_status_by_index
+from ....core.actions.state.current_status import (
+    calculate_current_status_index,
+    update_current_status_by_index,
+)
 from ....core.actions.state.editor import setup_control_editor
 from ....core.actions.state.led_map import set_led_map
 
@@ -35,13 +49,17 @@ from ....core.utils.ui import redraw_area
 #     QueryControlMapPayload,
 #     QueryPosMapPayload,
 # )
-from ....handlers import mount
+from ....handlers import mount, unmount
 from ....storage import get_storage
 from ...models import (
+    DancerName,
     DancerPartIndexMap,
     DancerPartIndexMapItem,
     Dancers,
     LEDPartLengthMap,
+    ModelDancerIndexMap,
+    ModelDancerIndexMapItem,
+    Models,
     PartName,
     PartType,
     PartTypeMap,
@@ -110,14 +128,21 @@ async def init():
     await client.open_file()
 
     # Check token
+    set_requesting(True)
     token_valid = await auth_agent.check_token()
-    state.is_running = True
+    set_requesting(False)
+
+    set_running(True)
 
     if token_valid:
-        state.is_logged_in = True
+        set_logged_in(True)
         await init_blender()
 
-    redraw_area("VIEW_3D")
+    # Start background operators
+    execute_operator("lightdance.animation_status_listener")
+    execute_operator("lightdance.notification")
+
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 async def init_blender():
@@ -133,14 +158,11 @@ async def init_blender():
         state.init_editor_task.cancel()
     state.init_editor_task = AsyncTask(init_editor).exec()
 
-    # Setup control editor UI
-    setup_control_editor()
-
 
 def close_blender():
-    state.is_running = False
-    state.is_logged_in = False
-    state.ready = False
+    set_running(False)
+    set_logged_in(False)
+    set_ready(False)
 
     if state.subscription_task is not None:
         state.subscription_task.cancel()
@@ -150,15 +172,26 @@ def close_blender():
         state.init_editor_task.cancel()
         state.init_editor_task = None
 
+    unmount()
+
+    close_client_tasks = [
+        client.close_http(),
+        client.close_file(),
+        client.close_graphql(),
+    ]
+    asyncio.get_event_loop().run_until_complete(asyncio.gather(*close_client_tasks))
+
+    print("Blender closed")
+
 
 async def init_editor():
     empty_task = asyncio.create_task(asyncio.sleep(0))
 
     batches_functions = [
-        # [load_data, init_color_map],
-        [init_color_map],
-        [init_dancers, init_current_pos],
-        [init_led_map, init_current_status],
+        [init_models, init_dancers],
+        [init_color_map, init_led_map],
+        [init_current_pos, init_current_status],
+        [load_data],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -200,20 +233,62 @@ async def init_editor():
 
     print("Editor initialized")
 
-    state.ready = True
+    set_ready(True)
 
     # Mount handlers
     mount()
 
-    # Start background operators
-    execute_operator("lightdance.animation_status_listener")
-    execute_operator("lightdance.notification")
+    # Initialize current index
+    bpy.context.scene.frame_current = 0
+    state.current_control_index = calculate_current_status_index()
+    update_current_status_by_index()
 
-    redraw_area("VIEW_3D")
+    # Setup control editor UI
+    setup_control_editor()
+
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+async def init_models():
+    models_array = await model_agent.get_models()
+
+    if models_array is None:
+        raise Exception("Failed to initialize models")
+
+    model_names = [model.name for model in models_array]
+    models: Models = dict(
+        [
+            (model.name, [dancer_name for dancer_name in model.dancers])
+            for model in models_array
+        ]
+    )
+
+    model_dancer_index_map: ModelDancerIndexMap = {}
+
+    for index, model in enumerate(models_array):
+        dancers: Dict[DancerName, int] = dict(
+            [
+                (dancer_name, dancer_index)
+                for dancer_index, dancer_name in enumerate(model.dancers)
+            ]
+        )
+        model_dancer_index_map[model.name] = ModelDancerIndexMapItem(
+            index=index, dancers=dancers
+        )
+
+    state.models = models
+    state.model_names = model_names
+    state.models_array = models_array
+    state.model_dancer_index_map = model_dancer_index_map
+
+    print("Models initialized")
 
 
 async def init_dancers():
     dancers_array = await dancer_agent.get_dancers()
+
+    if dancers_array is None:
+        raise Exception("Failed to initialize dancers")
 
     dancer_names = [dancer.name for dancer in dancers_array]
     dancers: Dancers = dict(
@@ -242,13 +317,6 @@ async def init_dancers():
             index=index, parts=parts
         )
 
-    # selected: Selected = dict(
-    #     [
-    #         (dancer_name, SelectedItem(selected=False, parts=[]))
-    #         for dancer_name in dancer_names
-    #     ]
-    # )
-
     state.dancers = dancers
     state.dancer_names = dancer_names
     state.part_type_map = part_type_map
@@ -257,27 +325,44 @@ async def init_dancers():
     state.dancers_array = dancers_array
     state.dancer_part_index_map = dancer_part_index_map
 
-    # state.selected = selected
-
     print("Dancers initialized")
 
 
 async def init_color_map():
     color_map = await color_agent.get_color_map()
-    set_color_map(color_map)
 
+    if color_map is None:
+        raise Exception("Failed to initialize color map")
+
+    set_color_map(color_map)
     print("Color map initialized")
 
 
 async def init_led_map():
     led_map = await led_agent.get_led_map()
+    if led_map is None:
+        raise Exception("Failed to initialize LED map")
+
     set_led_map(led_map)
 
     print("LED map initialized")
 
 
+async def init_control_map():
+    control_map = await control_agent.get_control_map()
+    if control_map is None:
+        raise Exception("Control map not found")
+
+    set_control_map(control_map)
+
+    print("Control map initialized")
+
+
 async def init_current_status():
     control_map, control_record = await get_control()
+
+    if control_map is None or control_record is None:
+        raise Exception("Failed to initialize control map")
 
     state.control_map = control_map
     state.control_record = control_record
@@ -290,6 +375,8 @@ async def init_current_status():
 
 async def init_current_pos():
     pos_map, pos_record = await get_pos()
+    if pos_map is None or pos_record is None:
+        raise Exception("Failed to initialize pos map")
 
     state.pos_map = pos_map
     state.pos_record = pos_record

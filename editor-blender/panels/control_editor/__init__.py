@@ -2,7 +2,7 @@ from typing import List
 
 import bpy
 
-from ...core.models import EditMode, Editor, SelectedPartType
+from ...core.models import EditMode, Editor, SelectedPartType, SelectMode
 from ...core.states import state
 from ...properties.types import LightType, ObjectType
 from ...properties.ui.types import ControlEditorStatusType
@@ -59,20 +59,37 @@ class ControlEditor(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
+        layout.enabled = not state.shifting and not state.requesting
 
         row = layout.row()
         row.label(text="Control Editor")
 
         editing = state.edit_state == EditMode.EDITING
-        properties_enabled = editing and not state.is_playing
+        properties_enabled = editing and not state.playing
 
         split = row.split()
-        split.prop(context.window_manager, "ld_fade", text="Fade", toggle=True)
-        split.enabled = editing
+        row = split.row(align=True)
+        row.operator(
+            "lightdance.toggle_dancer_mode",
+            icon="POSE_HLT",
+            text="",
+            depress=state.selection_mode == SelectMode.DANCER_MODE,
+        )
+        row.operator(
+            "lightdance.toggle_part_mode",
+            icon="OBJECT_DATA",
+            text="",
+            depress=state.selection_mode == SelectMode.PART_MODE,
+        )
+
+        row = split.row()
+        row.label(text="Fade: ")
+        row.prop(context.window_manager, "ld_fade", text="")
+        row.enabled = editing
 
         if state.current_editing_detached and editing:
             row = layout.row()
-            row.enabled = not state.is_playing
+            row.enabled = not state.playing
             row.label(text="Detached", icon="ERROR")
             row.operator("lightdance.attach_editing_control_frame", icon="PLAY")
 
@@ -133,6 +150,10 @@ class ControlEditor(bpy.types.Panel):
                     column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
 
             elif ld_object_type == ObjectType.DANCER.value:
+                ld_dancer_name: str = getattr(context.object, "ld_dancer_name")
+                row = layout.row()
+                row.label(text=ld_dancer_name, icon="POSE_HLT")
+
                 row = layout.row(align=True)
                 row.prop(ld_ui_control_editor, "show_fiber", toggle=True, text="FIBER")
                 row.prop(ld_ui_control_editor, "show_led", toggle=True, text="LED")

@@ -1,6 +1,7 @@
 import bpy
 
-from ...core.actions.state.animation import set_is_playing, start_playing, stop_playing
+from ...core.actions.state.animation import start_playing, stop_playing
+from ...core.actions.state.app_state import set_playing
 from ...core.states import state
 
 is_animation_status_listener_running = False
@@ -53,14 +54,14 @@ class AnimationStatusListenerOperator(bpy.types.Operator):
             context.screen, "is_animation_playing", False
         )
 
-        if not state.is_playing and is_animation_playing:
+        if not state.playing and is_animation_playing:
             # TODO: Start playing
             start_playing()
-        elif state.is_playing and not is_animation_playing:
+        elif state.playing and not is_animation_playing:
             # TODO: Stop playing
             stop_playing()
 
-        set_is_playing(is_animation_playing)
+        set_playing(is_animation_playing)
 
         return {"RUNNING_MODAL"}
 

@@ -29,39 +29,75 @@ from ..graphqls.queries import (
 
 @dataclass
 class ControlAgent:
-    async def get_control_record(self) -> ControlRecord:
-        response = await client.execute(
-            QueryControlRecordData,
-            GET_CONTROL_RECORD,
-        )
-        controlRecord = response["controlFrameIDs"]
+    async def get_control_record(self) -> Optional[ControlRecord]:
+        try:
+            response = await client.execute(
+                QueryControlRecordData,
+                GET_CONTROL_RECORD,
+            )
+            controlRecord = response["controlFrameIDs"]
 
-        return controlRecord
+            return controlRecord
 
-    async def get_control_map_payload(self) -> QueryControlMapPayload:
-        response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
-        controlMap = response["ControlMap"]
+        except asyncio.CancelledError:
+            pass
 
-        return controlMap.frameIds
+        except Exception as e:
+            print(e)
 
-    async def get_control_map(self) -> ControlMap:
-        response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
-        controlMap = response["ControlMap"]
+        return None
 
-        return control_map_query_to_state(controlMap.frameIds)
+    async def get_control_map_payload(self) -> Optional[QueryControlMapPayload]:
+        try:
+            response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
+            controlMap = response["ControlMap"]
+
+            return controlMap.frameIds
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def get_control_map(self) -> Optional[ControlMap]:
+        try:
+            response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
+            controlMap = response["ControlMap"]
+
+            return control_map_query_to_state(controlMap.frameIds)
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
 
     async def add_frame(
         self,
         start: int,
         fade: bool,
         controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
-    ) -> str:
-        response = await client.execute(
-            str,
-            ADD_CONTROL_FRAME,
-            {"start": start, "controlData": controlData, "fade": fade},
-        )
-        return response["addControlFrame"]
+    ) -> Optional[str]:
+        try:
+            response = await client.execute(
+                str,
+                ADD_CONTROL_FRAME,
+                {"start": start, "controlData": controlData, "fade": fade},
+            )
+            return response["addControlFrame"]
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
 
     # TODO: Support only change fade
     async def save_frame(
@@ -71,50 +107,90 @@ class ControlAgent:
         fade: Optional[bool] = None,
         start: Optional[int] = None,
     ):
-        tasks: List[Coroutine[Any, Any, Any]] = []
+        try:
+            tasks: List[Coroutine[Any, Any, Any]] = []
 
-        tasks.append(
-            client.execute(
-                str,
-                EDIT_CONTROL_FRAME,
-                {
-                    "input": MutEditControlFrameInput(
-                        frameId=id, controlData=controlData, fade=fade
-                    )
-                },
-            )
-        )
-
-        if start is not None:
             tasks.append(
                 client.execute(
                     str,
-                    EDIT_CONTROL_FRAME_TIME,
-                    {"input": MutEditControlFrameTimeInput(frameID=id, start=start)},
+                    EDIT_CONTROL_FRAME,
+                    {
+                        "input": MutEditControlFrameInput(
+                            frameId=id, controlData=controlData, fade=fade
+                        )
+                    },
                 )
             )
 
-        await asyncio.gather(*tasks)
+            if start is not None:
+                tasks.append(
+                    client.execute(
+                        str,
+                        EDIT_CONTROL_FRAME_TIME,
+                        {
+                            "input": MutEditControlFrameTimeInput(
+                                frameId=id, start=start
+                            )
+                        },
+                    )
+                )
 
-    async def delete_frame(self, id: MapID) -> str:
-        response = await client.execute(
-            str,
-            DELETE_CONTROL_FRAME,
-            {"input": MutDeleteControlFrameInput(frameID=id)},
-        )
-        return response["deleteControlFrame"]
+            await asyncio.gather(*tasks)
 
-    async def request_edit(self, id: MapID) -> bool:
-        response = await client.execute(
-            MutRequestEditControlResponse, REQUEST_EDIT_CONTROL_BY_ID, {"frameId": id}
-        )
-        return response["RequestEditControl"].ok
+        except asyncio.CancelledError:
+            pass
 
-    async def cancel_edit(self, id: MapID) -> bool:
-        response = await client.execute(
-            MutCancelEditControlResponse, CANCEL_EDIT_CONTROL_BY_ID, {"frameId": id}
-        )
-        return response["CancelEditControl"].ok
+        except Exception as e:
+            print(e)
+
+    async def delete_frame(self, id: MapID) -> Optional[str]:
+        try:
+            response = await client.execute(
+                str,
+                DELETE_CONTROL_FRAME,
+                {"input": MutDeleteControlFrameInput(frameID=id)},
+            )
+            return response["deleteControlFrame"]
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def request_edit(self, id: MapID) -> Optional[bool]:
+        try:
+            response = await client.execute(
+                MutRequestEditControlResponse,
+                REQUEST_EDIT_CONTROL_BY_ID,
+                {"frameId": id},
+            )
+            return response["RequestEditControl"].ok
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def cancel_edit(self, id: MapID) -> Optional[bool]:
+        try:
+            response = await client.execute(
+                MutCancelEditControlResponse, CANCEL_EDIT_CONTROL_BY_ID, {"frameId": id}
+            )
+            return response["CancelEditControl"].ok
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
 
 
 control_agent = ControlAgent()

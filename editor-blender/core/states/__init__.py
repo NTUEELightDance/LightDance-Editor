@@ -5,13 +5,15 @@ from ..models import (
     EditMode,
     Editor,
     PosMapUpdates,
+    SelectMode,
     State,
 )
 
 state = State(
-    is_running=False,
-    is_logged_in=False,
-    is_playing=False,
+    running=False,
+    logged_in=False,
+    playing=False,
+    requesting=False,
     subscription_task=None,
     init_editor_task=None,
     token="",
@@ -48,8 +50,7 @@ state = State(
     editing_data=EditingData(frame_id=-1, start=0, index=0),
     shifting=False,
     # NOTE: Guess we can't implement these
-    # selection_mode: SelectMode.DANCER_MODE
-    # selected={},
+    selection_mode=SelectMode.PART_MODE,
     selected_obj_names=[],
     selected_obj_type=None,
     # selected_leds,
@@ -58,14 +59,18 @@ state = State(
     # current_led_effect_name
     # current_led_effect_start
     # current_led_effect
+    models={},
+    model_names=[],
+    models_array=[],
+    model_dancer_index_map={},
     dancers={},
     dancer_names=[],
+    dancers_array=[],
+    dancer_part_index_map={},
     part_type_map={},
     led_part_length_map={},
     color_map={},
     # effect_list
-    dancers_array=[],
-    dancer_part_index_map={},
     # rpi_status
     # shell_history
     color_map_updates=ColorMapUpdates(added=[], updated=[], deleted=[]),

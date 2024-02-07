@@ -18,11 +18,13 @@ def register():
             default="human",
         ),
     )
+    setattr(bpy.types.Object, "ld_model_name", bpy.props.StringProperty())
     setattr(bpy.types.Object, "ld_dancer_name", bpy.props.StringProperty())
     setattr(bpy.types.Object, "ld_part_name", bpy.props.StringProperty())
 
 
 def unregister():
     delattr(bpy.types.Object, "ld_object_type")
+    delattr(bpy.types.Object, "ld_model_name")
     delattr(bpy.types.Object, "ld_dancer_name")
     delattr(bpy.types.Object, "ld_part_name")

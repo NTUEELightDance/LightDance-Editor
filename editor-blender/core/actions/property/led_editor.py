@@ -6,6 +6,15 @@ from ...models import EditMode
 from ...states import state
 
 
+def update_edit_model(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    dancer_name: str = getattr(self, "edit_dancer")
+    dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+
+    if dancer_obj is not None:
+        dancer_obj.select_set(True)
+        bpy.context.view_layer.objects.active = dancer_obj
+
+
 def update_edit_dancer(self: bpy.types.PropertyGroup, context: bpy.types.Context):
     dancer_name: str = getattr(self, "edit_dancer")
     dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
@@ -41,24 +50,3 @@ def update_multi_select_color(
         obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)
         if obj is not None:
             setattr(obj, "ld_color", color)
-
-
-def update_show_fiber(self: bpy.types.PropertyGroup, context: bpy.types.Context):
-    show_fiber: bool = getattr(self, "show_fiber")
-    if show_fiber:
-        self["show_led"] = False
-        self["show_all"] = False
-
-
-def update_show_led(self: bpy.types.PropertyGroup, context: bpy.types.Context):
-    show_led: bool = getattr(self, "show_led")
-    if show_led:
-        self["show_fiber"] = False
-        self["show_all"] = False
-
-
-def update_show_all(self: bpy.types.PropertyGroup, context: bpy.types.Context):
-    show_all: bool = getattr(self, "show_all")
-    if show_all:
-        self["show_fiber"] = False
-        self["show_led"] = False

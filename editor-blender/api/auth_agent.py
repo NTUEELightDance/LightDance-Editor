@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from typing import Any, Dict
 
@@ -11,6 +12,7 @@ from ..client import client
 class LoginResult:
     success: bool
     token: str = ""
+    err: str = ""
 
 
 class AuthAgent:
@@ -23,9 +25,12 @@ class AuthAgent:
             if not token:
                 raise Exception(res["err"])
             return LoginResult(success=True, token=token)
+
+        except asyncio.CancelledError:
+            return LoginResult(success=False, err="Timeout")
+
         except Exception as e:
-            print(e)
-            return LoginResult(success=False)
+            return LoginResult(success=False, err=str(e))
 
     async def logout(self) -> bool:
         try:
@@ -33,6 +38,10 @@ class AuthAgent:
             if not res.get("success"):
                 raise Exception(res["err"])
             return True
+
+        except asyncio.CancelledError:
+            return False
+
         except Exception as e:
             print(e)
             return False
@@ -44,6 +53,10 @@ class AuthAgent:
             if not token:
                 raise Exception(res["err"])
             return True
+
+        except asyncio.CancelledError:
+            return False
+
         except Exception as e:
             print(e)
             return False

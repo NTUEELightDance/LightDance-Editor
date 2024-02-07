@@ -3,9 +3,9 @@ import bpy
 from ....api.time_shift_agent import time_shift_agent
 from ....properties.ui.types import TimeShiftStatusType
 from ...models import FrameType
-from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
+from .app_state import set_requesting, set_shifting
 
 
 def toggle_shift():
@@ -17,13 +17,13 @@ def toggle_shift():
     ld_ui_time_shift["end"] = bpy.context.scene.frame_current  # type: ignore
     ld_ui_time_shift["displacement"] = 0  # type: ignore
 
-    state.shifting = True
-    redraw_area("VIEW_3D")
+    set_shifting(True)
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 def cancel_shift():
-    state.shifting = False
-    redraw_area("VIEW_3D")
+    set_shifting(False)
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 async def confirm_shift():
@@ -37,17 +37,20 @@ async def confirm_shift():
     displacement = ld_ui_time_shift.displacement
 
     try:
-        retult = await time_shift_agent.shfit(
+        set_requesting(True)
+        retult = await time_shift_agent.shift(
             frame_type=frame_type, interval=(start, end), displacement=displacement
         )
+        set_requesting(False)
+
         if not retult.ok:
             raise Exception(retult.msg)
 
-        state.shifting = False
-        redraw_area("VIEW_3D")
+        set_shifting(False)
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify("Time shift success")
 
     except Exception as e:
-        state.shifting = False
-        redraw_area("VIEW_3D")
+        set_shifting(False)
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify(f"Time shift failed: {e}")

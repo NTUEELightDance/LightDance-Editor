@@ -44,9 +44,10 @@ LEDEffectIDTable = Dict[LEDEffectID, LEDEffect]
 PartName = str
 DancerName = str
 
+LEDModelName = str
 LEDPartName = str
 
-LEDMap = Dict[LEDPartName, Dict[LEDEffectName, LEDEffect]]
+LEDMap = Dict[LEDModelName, Dict[LEDPartName, Dict[LEDEffectName, LEDEffect]]]
 
 MapID = int
 
@@ -66,6 +67,13 @@ class FiberData:
 PartData = Union[LEDData, FiberData]
 DancerStatus = Dict[PartName, PartData]
 
+
+@dataclass
+class Revision:
+    meta: int
+    data: int
+
+
 ControlMapStatus = Dict[DancerName, DancerStatus]
 
 
@@ -73,6 +81,7 @@ ControlMapStatus = Dict[DancerName, DancerStatus]
 class ControlMapElement:
     start: int
     fade: bool
+    rev: Revision
     status: ControlMapStatus
 
 
@@ -94,6 +103,7 @@ PosMapStatus = Dict[DancerName, Location]
 @dataclass
 class PosMapElement:
     start: int
+    rev: Revision
     pos: PosMapStatus
 
 
@@ -200,11 +210,40 @@ class FrameType(Enum):
     BOTH = "BOTH"
 
 
+class SelectMode(Enum):
+    DANCER_MODE = 0
+    PART_MODE = 1
+
+
+ModelName = str
+
+Models = Dict[ModelName, List[DancerName]]
+
+
+@dataclass
+class ModelsArrayItem:
+    name: ModelName
+    dancers: List[DancerName]
+
+
+ModelsArray = List[ModelsArrayItem]
+
+
+@dataclass
+class ModelDancerIndexMapItem:
+    index: int
+    dancers: Dict[DancerName, int]
+
+
+ModelDancerIndexMap = Dict[ModelName, ModelDancerIndexMapItem]
+
+
 @dataclass
 class State:
-    is_running: bool
-    is_logged_in: bool
-    is_playing: bool
+    running: bool
+    logged_in: bool
+    playing: bool
+    requesting: bool
 
     subscription_task: Optional[Task[None]]
     init_editor_task: Optional[Task[None]]
@@ -249,14 +288,10 @@ class State:
     editor: Editor
     editing_data: EditingData
     shifting: bool
-    # NOTE: Guess we can't implement this
-    # selection_mode: SelectMode
 
-    # NOTE: Maybe we don't need these
-    # selected: Selected
+    selection_mode: SelectMode
     selected_obj_names: List[str]
     selected_obj_type: Optional[SelectedPartType]
-    # selected_leds: List[int]
 
     # TODO: Add these
     # current_led_effect_reference_dancer: Optional[DancerName]  # the dancer whose LED part is being edited
@@ -265,17 +300,20 @@ class State:
     # current_led_effect_start: int  # the start time on the timeline where currentLEDEffect is displayed during editing
     # current_led_effect: Optional[LEDEffect]  # the LED effect being edited
 
-    # TODO: Add these
+    models: Models
+    model_names: List[ModelName]
+    models_array: ModelsArray
+    model_dancer_index_map: ModelDancerIndexMap
+
     dancers: Dancers
     dancer_names: List[DancerName]
+    dancers_array: DancersArray
+    dancer_part_index_map: DancerPartIndexMap
+
     part_type_map: PartTypeMap
     led_part_length_map: LEDPartLengthMap
     color_map: ColorMap
     # effect_list: EffectListType
-
-    # TODO: Add these
-    dancers_array: DancersArray
-    dancer_part_index_map: DancerPartIndexMap
 
     # TODO: Add these
     # rpi_status: RPiStatus

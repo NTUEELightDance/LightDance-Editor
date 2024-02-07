@@ -7,4 +7,6 @@ use serde::{Deserialize, Serialize};
 pub struct PositionFrameData {
     pub id: i32,
     pub start: i32,
+    pub meta_rev: i32,
+    pub data_rev: i32,
 }

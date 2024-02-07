@@ -11,6 +11,7 @@ from ..core.models import (
     ColorName,
     LEDEffectID,
     LEDEffectName,
+    LEDModelName,
     LEDPartName,
     MapID,
     PartName,
@@ -47,6 +48,34 @@ class QueryLEDEffectPayload(JSONWizard):
     id: LEDEffectID
     repeat: int
     frames: List[QueryLEDEffectFramePayload]
+
+
+"""
+Model
+"""
+
+
+@dataclass
+class QueryModelPayloadItem(JSONWizard):
+    id: ID
+    name: str
+    dancers: List[str]
+
+
+QueryModelPayload = List[QueryModelPayloadItem]
+
+
+GET_MODELS = gql(
+    """
+    query Models {
+        models {
+            id
+            name
+            dancers
+        }
+    }
+    """
+)
 
 
 """
@@ -89,23 +118,11 @@ QueryDancersPayload = List[QueryDancersPayloadItem]
 
 
 GET_DANCERS = gql(
-    # """
-    # query Dancers {
-    #     dancers {
-    #         name
-    #         parts {
-    #             name
-    #             type
-    #             length
-    #         }
-    #     }
-    # }
-    # """
     """
-    query Dancers($orderBy: [PartOrderByWithRelationInput!]) {
+    query Dancers {
         dancers {
             name
-            parts(orderBy: $orderBy) {
+            parts {
                 name
                 type
                 length
@@ -113,6 +130,18 @@ GET_DANCERS = gql(
         }
     }
     """
+    # """
+    # query Dancers($orderBy: [PartOrderByWithRelationInput!]) {
+    #     dancers {
+    #         name
+    #         parts(orderBy: $orderBy) {
+    #             name
+    #             type
+    #             length
+    #         }
+    #     }
+    # }
+    # """
 )
 
 
@@ -121,6 +150,17 @@ Coordinates
 """
 
 QueryCoordinatesPayload = Tuple[float, float, float]
+
+
+"""
+Revision
+"""
+
+
+@dataclass
+class QueryRevision(JSONWizard):
+    meta: int
+    data: int
 
 
 """
@@ -148,6 +188,7 @@ PositionMap
 @dataclass
 class QueryPosFrame(JSONWizard):
     start: int
+    rev: QueryRevision
     pos: List[QueryCoordinatesPayload]
 
 
@@ -195,6 +236,7 @@ ControlMap
 class QueryControlFrame(JSONWizard):
     start: int
     fade: bool
+    rev: QueryRevision
     status: List[QueryDancerStatusPayload]
 
 
@@ -268,8 +310,9 @@ GET_EFFECT_LIST = gql(
 LEDMap
 """
 
-
-QueryLEDMapPayload = Dict[LEDPartName, Dict[LEDEffectName, QueryLEDEffectPayload]]
+QueryLEDMapPayload = Dict[
+    LEDModelName, Dict[LEDPartName, Dict[LEDEffectName, QueryLEDEffectPayload]]
+]
 
 
 @dataclass

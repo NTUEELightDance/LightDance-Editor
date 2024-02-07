@@ -5,11 +5,13 @@ import bpy
 from ....api.control_agent import control_agent
 from ....graphqls.mutations import MutDancerStatusPayload
 from ....properties.types import LightType
-from ...models import EditingData, EditMode, PartType
+from ...models import EditingData, EditMode, PartType, SelectMode
 from ...states import state
 from ...utils.convert import control_status_state_to_mut, rgb_to_float
 from ...utils.notification import notify
+from ...utils.object import clear_selection
 from ...utils.ui import redraw_area
+from .app_state import set_requesting
 from .control_map import apply_control_map_updates
 from .current_status import update_current_status_by_index
 
@@ -22,7 +24,7 @@ def attach_editing_control_frame():
     state.current_editing_frame_synced = True
 
     if current_frame != bpy.context.scene.frame_current:
-        bpy.context.scene.frame_set(current_frame)
+        bpy.context.scene.frame_current = current_frame
 
     sync_editing_control_frame_properties()
 
@@ -63,8 +65,12 @@ async def add_control_frame():
     start = bpy.context.scene.frame_current
     controlData = control_status_state_to_mut(state.current_status)
 
+    print(controlData)
+
     try:
+        set_requesting(True)
         await control_agent.add_frame(start, False, controlData)
+        set_requesting(False)
         notify("INFO", f"Added control frame")
     except:
         notify("WARNING", "Cannot add control frame")
@@ -114,12 +120,12 @@ async def save_control_frame(start: Optional[int] = None):
                 if part.type == PartType.FIBER:
                     partControlData.append((default_color, 0))
                 elif part.type == PartType.LED:
-                    default_effect = list(state.led_map[part.name].values())[0].id
-                    partControlData.append((default_effect, 0))
+                    partControlData.append((-1, 0))
 
         controlData.append(partControlData)
 
     try:
+        set_requesting(True)
         await control_agent.save_frame(id, controlData, fade=fade, start=start)
         notify("INFO", f"Saved control frame")
 
@@ -128,15 +134,17 @@ async def save_control_frame(start: Optional[int] = None):
 
         # Cancel editing
         ok = await control_agent.cancel_edit(id)
-        if ok:
+        set_requesting(False)
+
+        if ok is not None and ok:
             # Reset editing state
             state.current_editing_frame = -1
             state.current_editing_detached = False
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
-            redraw_area("VIEW_3D")
-            redraw_area("DOPESHEET_EDITOR")
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")
     except:
@@ -148,7 +156,9 @@ async def delete_control_frame():
     id = state.control_record[index]
 
     try:
+        set_requesting(True)
         await control_agent.delete_frame(id)
+        set_requesting(False)
         notify("INFO", f"Deleted control frame: {id}")
     except:
         notify("WARNING", "Cannot delete control frame")
@@ -159,8 +169,11 @@ async def request_edit_control():
     control_id = state.control_record[index]
     control_frame = state.control_map[control_id]
 
+    set_requesting(True)
     ok = await control_agent.request_edit(control_id)
-    if ok:
+    set_requesting(False)
+
+    if ok is not None and ok:
         # Init editing state
         state.current_editing_frame = control_frame.start
         state.editing_data = EditingData(
@@ -171,8 +184,7 @@ async def request_edit_control():
         attach_editing_control_frame()
         update_current_status_by_index()
 
-        redraw_area("VIEW_3D")
-        redraw_area("DOPESHEET_EDITOR")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")
 
@@ -181,8 +193,11 @@ async def cancel_edit_control():
     index = state.current_control_index
     id = state.control_record[index]
 
+    set_requesting(True)
     ok = await control_agent.cancel_edit(id)
-    if ok:
+    set_requesting(False)
+
+    if ok is not None and ok:
         # Revert modification
         update_current_status_by_index()
 
@@ -192,7 +207,22 @@ async def cancel_edit_control():
         state.current_editing_frame_synced = False
         state.edit_state = EditMode.IDLE
 
-        redraw_area("VIEW_3D")
-        redraw_area("DOPESHEET_EDITOR")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")
+
+
+def toggle_dancer_mode():
+    bpy.context.view_layer.objects.active = None  # type: ignore
+    state.selected_obj_type = None
+    clear_selection()
+    state.selection_mode = SelectMode.DANCER_MODE
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+def toggle_part_mode():
+    bpy.context.view_layer.objects.active = None  # type: ignore
+    state.selected_obj_type = None
+    clear_selection()
+    state.selection_mode = SelectMode.PART_MODE
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

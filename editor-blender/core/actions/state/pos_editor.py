@@ -8,8 +8,8 @@ from ...models import EditingData, EditMode
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
+from .app_state import set_requesting
 from .current_pos import update_current_pos_by_index
-from .pos_map import apply_pos_map_updates
 
 
 def attach_editing_pos_frame():
@@ -20,7 +20,7 @@ def attach_editing_pos_frame():
     state.current_editing_frame_synced = True
 
     if current_frame != bpy.context.scene.frame_current:
-        bpy.context.scene.frame_set(current_frame)
+        bpy.context.scene.frame_current = current_frame
 
     sync_editing_pos_frame_properties()
 
@@ -55,7 +55,9 @@ async def add_pos_frame():
             positionData.append([0, 0, 0])
 
     try:
+        set_requesting(True)
         id = await pos_agent.add_frame(start, positionData)
+        set_requesting(False)
         notify("INFO", f"Added position frame: {id}")
     except:
         notify("WARNING", "Cannot add position frame")
@@ -80,22 +82,27 @@ async def save_pos_frame(start: Optional[int] = None):
             positionData.append([0, 0, 0])
 
     try:
+        set_requesting(True)
         await pos_agent.save_frame(id, positionData, start=start)
+        set_requesting(False)
         notify("INFO", f"Saved position frame: {id}")
 
         # Imediately apply changes produced by editing
         # apply_pos_map_updates()
 
         # Cancel editing
+        set_requesting(True)
         ok = await pos_agent.cancel_edit(id)
-        if ok:
+        set_requesting(False)
+
+        if ok is not None and ok:
             # Reset editing state
             state.current_editing_frame = -1
             state.current_editing_detached = False
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
-            redraw_area("VIEW_3D")
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")
     except:
@@ -107,7 +114,10 @@ async def delete_pos_frame():
     id = state.pos_record[index]
 
     try:
+        set_requesting(True)
         await pos_agent.delete_frame(id)
+        set_requesting(False)
+
         notify("INFO", f"Deleted position frame: {id}")
     except:
         notify("WARNING", "Cannot delete position frame")
@@ -118,8 +128,11 @@ async def request_edit_pos():
     pos_id = state.pos_record[index]
     pos_frame = state.pos_map[pos_id]
 
+    set_requesting(True)
     ok = await pos_agent.request_edit(pos_id)
-    if ok:
+    set_requesting(False)
+
+    if ok is not None and ok:
         # Init editing state
         state.current_editing_frame = pos_frame.start
         state.editing_data = EditingData(
@@ -130,7 +143,7 @@ async def request_edit_pos():
         attach_editing_pos_frame()
         update_current_pos_by_index()
 
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")
 
@@ -139,8 +152,11 @@ async def cancel_edit_pos():
     index = state.current_pos_index
     id = state.pos_record[index]
 
+    set_requesting(True)
     ok = await pos_agent.cancel_edit(id)
-    if ok:
+    set_requesting(False)
+
+    if ok is not None and ok:
         # Revert modification
         update_current_pos_by_index()
 
@@ -150,6 +166,6 @@ async def cancel_edit_pos():
         state.current_editing_frame_synced = False
         state.edit_state = EditMode.IDLE
 
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         notify("WARNING", "Cannot cancel edit")

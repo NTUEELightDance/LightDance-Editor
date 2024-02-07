@@ -1,9 +1,14 @@
+from typing import Set
+
 import bpy
 
 
-def redraw_area(area_type: str):
+def redraw_area(area_types: Set[str]):
+    if bpy.context.screen is None:  # type: ignore
+        return
+
     for area in bpy.context.screen.areas:  # type: ignore
-        if area.type == area_type:  # type: ignore
+        if area.type in area_types:  # type: ignore
             area.tag_redraw()  # type: ignore
 
 

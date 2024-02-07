@@ -13,10 +13,11 @@ from ...graphqls.queries import (
     QueryEffectListControlFrame,
     QueryEffectListItem,
     QueryEffectListPositionFrame,
-    QueryLEDEffectFramePayload,
     QueryLEDMapPayload,
+    QueryModelPayload,
     QueryPosFrame,
     QueryPosMapPayload,
+    QueryRevision,
 )
 from ...graphqls.subscriptions import (
     SubControlFrame,
@@ -41,13 +42,24 @@ from ..models import (
     LEDEffectID,
     LEDMap,
     Location,
+    ModelsArray,
+    ModelsArrayItem,
     PartData,
     PartType,
     PosMap,
     PosMapElement,
     PosMapStatus,
+    Revision,
 )
 from ..states import state
+
+
+def models_query_to_state(payload: QueryModelPayload) -> ModelsArray:
+    models_array = [
+        ModelsArrayItem(name=model.name, dancers=model.dancers) for model in payload
+    ]
+
+    return models_array
 
 
 def dancers_query_to_state(payload: QueryDancersPayload) -> DancersArray:
@@ -71,14 +83,18 @@ def dancers_query_to_state(payload: QueryDancersPayload) -> DancersArray:
 
 
 def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
-    pos_map_element = PosMapElement(start=payload.start, pos={})
+    rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
+
+    pos_map_element = PosMapElement(start=payload.start, pos={}, rev=rev)
     pos_map_element.pos = pos_status_query_to_state(payload.pos)
 
     return pos_map_element
 
 
 def pos_frame_sub_to_query(data: SubPositionFrame) -> QueryPosFrame:
-    response = QueryPosFrame(start=data.start, pos=[])
+    rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
+
+    response = QueryPosFrame(start=data.start, pos=[], rev=rev)
     response.pos = [(pos[0], pos[1], pos[2]) for pos in data.pos]
 
     return response
@@ -151,8 +167,10 @@ def control_status_query_to_state(
 
 
 def control_frame_query_to_state(payload: QueryControlFrame) -> ControlMapElement:
+    rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
+
     control_map_element = ControlMapElement(
-        start=payload.start, fade=payload.fade, status={}
+        start=payload.start, fade=payload.fade, status={}, rev=rev
     )
 
     control_map_element.status = control_status_query_to_state(payload.status)
@@ -170,7 +188,9 @@ def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
 
 
 def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
-    response = QueryControlFrame(start=data.start, fade=data.fade, status=[])
+    rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
+
+    response = QueryControlFrame(start=data.start, fade=data.fade, status=[], rev=rev)
 
     response.status = [
         [(partControl[0], partControl[1]) for partControl in partControls]
@@ -229,19 +249,23 @@ def color_map_query_to_state(payload: QueryColorMapPayload) -> ColorMap:
 def led_map_query_to_state(payload: QueryLEDMapPayload) -> LEDMap:
     led_map: LEDMap = {}
 
-    for part_name, effects in payload.items():
-        led_map[part_name] = {}
-        current_map = led_map[part_name]
+    for model_name, parts in payload.items():
+        led_map[model_name] = {}
+        model_map = led_map[model_name]
 
-        for effect_name, effect in effects.items():
-            frame = effect.frames[0]
-            bulb_data = [
-                LEDBuldData(color_id=color_id, alpha=alpha)
-                for color_id, alpha in frame.LEDs
-            ]
-            current_map[effect_name] = LEDEffect(
-                id=effect.id, name=effect_name, effect=bulb_data
-            )
+        for part_name, effects in parts.items():
+            model_map[part_name] = {}
+            part_map = model_map[part_name]
+
+            for effect_name, effect in effects.items():
+                frame = effect.frames[0]
+                bulb_data = [
+                    LEDBuldData(color_id=color_id, alpha=alpha)
+                    for color_id, alpha in frame.LEDs
+                ]
+                part_map[effect_name] = LEDEffect(
+                    id=effect.id, name=effect_name, effect=bulb_data
+                )
 
     return led_map
 
@@ -277,3 +301,13 @@ def rgb_to_float(rgb: Tuple[int, ...]) -> Tuple[float, ...]:
 
 def float_to_rgb(color_float: Tuple[float, ...]) -> Tuple[int, ...]:
     return tuple([round(color * 255) for color in color_float])
+
+
+def rgba_to_float(rgb: Union[Tuple[int, ...], List[int]], a: int) -> Tuple[float, ...]:
+    r, g, b = rgb
+    a_float = a / 255
+    return (
+        r / 255 * a_float,
+        g / 255 * a_float,
+        b / 255 * a_float,
+    )

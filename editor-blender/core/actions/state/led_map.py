@@ -8,9 +8,10 @@ def set_led_map(led_map: LEDMap):
     state.led_map = led_map
     state.led_effect_id_table = {}
 
-    for part_effects in led_map.values():
-        for effect in part_effects.values():
-            state.led_effect_id_table[effect.id] = effect
+    for model_effects in led_map.values():
+        for part_effects in model_effects.values():
+            for effect in part_effects.values():
+                state.led_effect_id_table[effect.id] = effect
 
     # TODO: Setup LED Effect List
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

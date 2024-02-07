@@ -96,7 +96,6 @@ def exit_editing_led_effect():
     ld_ui_led_editor: LEDEditorStatusType = getattr(
         bpy.context.window_manager, "ld_ui_led_editor"
     )
-    ld_ui_led_editor.edit_mode = LEDEditorEditModeType.IDLE.value
 
     edit_dancer = ld_ui_led_editor.edit_dancer
     edit_part = ld_ui_led_editor.edit_part
@@ -107,9 +106,6 @@ def exit_editing_led_effect():
 
     dancer_obj: bpy.types.Object = bpy.data.objects.get(edit_dancer)  # type: ignore
 
-    # Set edit state
-    state.edit_state = EditMode.IDLE
-
     # Mute fcurves of dancer and LED bulbs
     for i in range(3):
         dancer_obj.animation_data.action.fcurves.find("location", index=i).mute = False
@@ -119,7 +115,7 @@ def exit_editing_led_effect():
             bulb_obj.animation_data.action.fcurves.find("color", index=i).mute = False
 
     # Reset pos and color of dancer and LED bulbs
-    bpy.context.scene.frame_set(bpy.context.scene.frame_current)
+    bpy.context.scene.frame_current = bpy.context.scene.frame_current
 
     # Exit local view
     execute_operator("view3d.localview")
@@ -131,6 +127,13 @@ def exit_editing_led_effect():
     # Re-select LED
     bpy.context.view_layer.objects.active = part_obj
     part_obj.select_set(True)
+
+    for obj in part_obj.children:
+        obj.select_set(True)
+
+    # Set edit state
+    state.edit_state = EditMode.IDLE
+    ld_ui_led_editor.edit_mode = LEDEditorEditModeType.IDLE.value
 
     # Reset outliner filter
     set_outliner_filter("")

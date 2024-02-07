@@ -1,14 +1,17 @@
-from ...models import Color, ColorID, ColorMap, EditMode
+import bpy
+
+from ...models import Color, ColorID, ColorMap, EditMode, FiberData, LEDData
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from .color_palette import setup_color_palette_from_state
+from .load import set_ctrl_keyframes_from_state
 
 
 def set_color_map(color_map: ColorMap):
     state.color_map = color_map
     setup_color_palette_from_state(state.color_map)
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
 def add_color(id: ColorID, color: Color):
@@ -17,7 +20,7 @@ def add_color(id: ColorID, color: Color):
 
     if state.edit_state == EditMode.EDITING:
         state.color_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_color_map_updates()
         notify("INFO", f"Added color {color.name}")
@@ -47,7 +50,7 @@ def delete_color(id: ColorID):
 
     if state.edit_state == EditMode.EDITING:
         state.color_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         color_name = state.color_map[id].name
         apply_color_map_updates()
@@ -73,7 +76,7 @@ def update_color(id: ColorID, color: Color):
 
     if state.edit_state == EditMode.EDITING:
         state.color_map_pending = True
-        redraw_area("VIEW_3D")
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
         apply_color_map_updates()
         notify("INFO", f"Updated color {color.name}")
@@ -87,6 +90,7 @@ def apply_color_map_updates():
 
     for color in color_map_updates.updated:
         state.color_map[color.id] = color
+        set_ctrl_keyframes_from_state()  # TODO: test this
 
     for color_id in color_map_updates.deleted:
         del state.color_map[color_id]
@@ -95,9 +99,7 @@ def apply_color_map_updates():
     color_map_updates.updated.clear()
     color_map_updates.deleted.clear()
 
-    # TODO: Update animation data
-
     setup_color_palette_from_state(state.color_map)
 
     state.color_map_pending = False
-    redraw_area("VIEW_3D")
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

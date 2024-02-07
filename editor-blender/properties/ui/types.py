@@ -42,6 +42,7 @@ class LEDEditorEditModeType(Enum):
 
 class LEDEditorStatusType:
     edit_mode: str
+    edit_model: str
     edit_dancer: str
     edit_part: str
     edit_effect: str

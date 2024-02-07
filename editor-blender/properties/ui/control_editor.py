@@ -6,26 +6,61 @@ from ...core.actions.property.control_editor import (
     update_multi_select_alpha,
     update_multi_select_color,
 )
-from ...core.actions.property.led_editor import (
-    update_show_all,
-    update_show_fiber,
-    update_show_led,
-)
+from ...icons import icon_collections
 from ..types import ColorPaletteItemType, ObjectType
 
 
 def get_color_lists(
     self: bpy.types.PropertyGroup, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    collection = icon_collections["main"]
+
     ld_color_palette: List[ColorPaletteItemType] = getattr(
         bpy.context.window_manager, "ld_color_palette"
     )
-    color_list = [
-        (color.color_name, color.color_name, "", "", color.color_id)
+    return [
+        (
+            color.color_name,
+            color.color_name,
+            "",
+            collection[color.color_name].icon_id,  # type: ignore
+            color.color_id,
+        )
         for color in ld_color_palette
     ]
 
-    return color_list  # pyright: ignore
+
+def get_show_fiber(self: bpy.types.PropertyGroup) -> bool:
+    return self["show_fiber"]
+
+
+def set_show_fiber(self: bpy.types.PropertyGroup, value: bool) -> None:
+    if value:
+        self["show_fiber"] = value
+        self["show_led"] = False
+        self["show_all"] = False
+
+
+def get_show_led(self: bpy.types.PropertyGroup) -> bool:
+    return self["show_led"]
+
+
+def set_show_led(self: bpy.types.PropertyGroup, value: bool) -> None:
+    if value:
+        self["show_fiber"] = False
+        self["show_led"] = value
+        self["show_all"] = False
+
+
+def get_show_all(self: bpy.types.PropertyGroup) -> bool:
+    return self["show_all"]
+
+
+def set_show_all(self: bpy.types.PropertyGroup, value: bool) -> None:
+    if value:
+        self["show_fiber"] = False
+        self["show_led"] = False
+        self["show_all"] = value
 
 
 class ControlEditorStatus(bpy.types.PropertyGroup):
@@ -54,20 +89,20 @@ class ControlEditorStatus(bpy.types.PropertyGroup):
     show_fiber: bpy.props.BoolProperty(  # type: ignore
         name="Show Fiber",
         description="Show Fiber",
-        default=True,
-        update=update_show_fiber,
+        get=get_show_fiber,
+        set=set_show_fiber,
     )
     show_led: bpy.props.BoolProperty(  # type: ignore
         name="Show LED",
         description="Show LED",
-        default=False,
-        update=update_show_led,
+        get=get_show_led,
+        set=set_show_led,
     )
     show_all: bpy.props.BoolProperty(  # type: ignore
         name="Show All",
         description="Show All",
-        default=False,
-        update=update_show_all,
+        get=get_show_all,
+        set=set_show_all,
     )
 
 

@@ -1,27 +1,47 @@
 import bpy
 
 from ....api.color_agent import color_agent
+from ....icons import generate_icon_images
 from ....properties.types import ColorPaletteItemType
 from ...models import RGB, ColorID, ColorMap, ColorName
 from ...utils.convert import rgb_to_float
+from .app_state import set_requesting
 
 
 async def delete_color(id: ColorID):
+    set_requesting(True)
     result = await color_agent.delete_color(id)
-    result = result["deleteColor"]
+    set_requesting(False)
+
+    if result is None:
+        raise Exception("Failed to delete color")
+
     if not result.ok:
         raise Exception(result.msg)
+
     return result
 
 
 async def add_color(name: ColorName, rgb: RGB):
+    set_requesting(True)
     result = await color_agent.add_color(name, rgb)
-    return result["addColor"]
+    set_requesting(False)
+
+    if result is None:
+        raise Exception("Failed to add color")
+
+    return result
 
 
 async def edit_color(id: ColorID, name: ColorName, rgb: RGB):
+    set_requesting(True)
     result = await color_agent.edit_color(id, name, rgb)
-    return result["editColor"]
+    set_requesting(False)
+
+    if result is None:
+        raise Exception("Failed to edit color")
+
+    return result
 
 
 def setup_color_palette_from_state(colormap: ColorMap):
@@ -47,3 +67,5 @@ def setup_color_palette_from_state(colormap: ColorMap):
     color_temp_item.color_float = (0.0, 0.0, 0.0)
 
     setattr(color_temp_item, "color_name", "")
+
+    generate_icon_images(list(colormap.values()), clear=True)

@@ -133,10 +133,9 @@ impl DancerMutation {
             DancerData,
             r#"
                 SELECT * FROM Dancer 
-                WHERE id = ? AND name = ?;
+                WHERE id = ?;
             "#,
             &dancer_id,
-            &dancer_name
         )
         .fetch_one(mysql)
         .await;
@@ -156,6 +155,18 @@ impl DancerMutation {
                 })
             }
         };
+
+        let _ = sqlx::query!(
+            r#"
+                UPDATE Dancer
+                SET name = ?
+                WHERE id = ?
+            "#,
+            &dancer_name,
+            &dancer_id
+        )
+        .execute(mysql)
+        .await?;
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Updated,

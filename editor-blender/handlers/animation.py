@@ -21,7 +21,7 @@ from ..core.utils.operator import execute_operator
 # This won't be triggered when pause animation
 # Similar logic is implemented in core/actions/state/animation.py
 def frame_change_pre(scene: bpy.types.Scene):
-    if state.is_playing:
+    if state.playing:
         return
 
     if state.edit_state == EditMode.EDITING:

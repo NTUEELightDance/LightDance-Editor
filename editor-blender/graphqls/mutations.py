@@ -208,7 +208,7 @@ DELETE_POS_FRAME = gql(
 
 @dataclass
 class MutEditPositionFrameTimeInput(JSONWizard):
-    frameID: MapID
+    frameId: MapID
     start: int
 
 
@@ -316,7 +316,7 @@ DELETE_CONTROL_FRAME = gql(
 
 @dataclass
 class MutEditControlFrameTimeInput(JSONWizard):
-    frameID: MapID
+    frameId: MapID
     start: int
 
 
@@ -365,6 +365,153 @@ SHIFT_TIME = gql(
             end: $end
             start: $start
         ) {
+            ok
+            msg
+        }
+    }
+    """
+)
+
+
+"""
+To add effect list 
+"""
+ADD_EFFECT_LIST = gql(
+    """
+    mutation AddEffectList($end: Int!, $start: Int!, $description: str) {
+        addEffectList(end: $end, start: $start, description: $description) {
+            controlFrames
+            positionFrames
+            id
+            end
+            start
+            description
+        }
+    }
+    """
+)
+
+
+"""
+To apply effect list
+"""
+APPLY_EFFECT_LIST = gql(
+    """
+    mutation ApplyEffectList($start: Int!, $applyEffectListId: Int!) {
+        applyEffectList(start: $start, id: $applyEffectListId) {
+            msg
+            ok
+        }
+    }
+    """
+)
+
+
+"""
+To delete effect list
+"""
+DELETE_EFFECT_LIST = gql(
+    """
+    mutation DeleteEffectList($deleteEffectListId: Int!) {
+        deleteEffectList(id: $deleteEffectListId) {
+            ok
+            msg
+        }
+    }
+    """
+)
+
+
+"""
+To add LED effect
+"""
+@dataclass
+class MutLEDEffectResponse(JSONWizard):
+    ok: bool
+    msg: str
+
+@dataclass
+class MutAddLEDEffectResponsePayload(JSONWizard):
+    addLEDEffect: MutLEDEffectResponse
+
+@dataclass
+class MutLEDEffectFramePayload(JSONWizard):
+    LEDs: List[Tuple[ColorID, int]]
+    start: int
+    fade: bool
+
+@dataclass
+class MutFrames(JSONWizard):
+    set: List[MutLEDEffectFramePayload]
+
+@dataclass
+class MutAddLEDEffectInput(JSONWizard):
+    name: str
+    partName: LEDPartName
+    repeat: int
+    frames: MutFrames
+
+@dataclass
+class MutAddLEDEffectVriablesPayload(JSONWizard):
+    input: MutAddLEDEffectInput
+
+ADD_LED_EFFECT = gql(
+    """
+    mutation Mutation($input: LEDEffectCreateInput!) {
+        addLEDEffect(input: $input) {
+            ok
+            msg
+        }
+    }
+    """
+)
+
+
+"""
+To edit LED effect
+"""
+@dataclass
+class MutEditLEDEffectResponsePayload(JSONWizard):
+    editLEDEffect: MutLEDEffectResponse
+
+@dataclass
+class MutEditLEDEffectInput(JSONWizard):
+    id: int
+    name: str
+    repeat: int
+    frames: MutFrames
+
+@dataclass
+class MutEditLEDEffectVriablesPayload(JSONWizard):
+    input: MutEditLEDEffectInput
+
+EDIT_LED_EFFECT = gql(
+    """
+    mutation EditLEDEffect($input: EditLEDInput!) {
+        editLEDEffect(input: $input) {
+            ok
+            msg
+        }
+    }
+    """
+)
+
+
+"""
+To delete LED effect
+"""
+@dataclass
+class MutDeleteLEDEffectResponsePayload(JSONWizard):
+    deleteLEDEffect: MutLEDEffectResponse
+
+@dataclass
+class MutDeleteLEDEffectVriablesPayload(JSONWizard):
+    deleteLEDEffectId: LEDEffectID
+
+DELETE_LED_EFFECT = gql(
+    """
+    mutation DeleteLEDEffect($deleteLedEffectId: Int!) {
+        deleteLEDEffect(id: $deleteLedEffectId) {
             ok
             msg
         }

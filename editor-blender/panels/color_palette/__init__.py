@@ -17,11 +17,13 @@ class ColorPalettePanel(bpy.types.Panel):
         return state.ready
 
     def draw(self, context: bpy.types.Context):
+        layout = self.layout
+        layout.enabled = not state.requesting
+
         ld_ui_color_palette: ColorPaletteStatusType = getattr(
             bpy.context.window_manager, "ld_ui_color_palette"
         )
 
-        layout = self.layout
         layout.use_property_split = True
         layout.use_property_decorate = False
 

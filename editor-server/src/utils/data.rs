@@ -2,7 +2,7 @@
 
 use crate::db::types::part::PartType;
 use crate::global;
-use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition};
+use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition, Revision};
 use crate::utils::vector::partition_by_field;
 
 use itertools::Itertools;
@@ -46,22 +46,26 @@ pub async fn init_redis_control(
         let dancer_controls = sqlx::query!(
             r#"
                 SELECT
-                    Dancer.id,
+                    Dancer.id AS dancer_id,
+                    Part.id AS part_id,
                     Part.type AS "part_type: PartType",
                     ControlData.frame_id,
                     ControlData.color_id,
                     ControlData.effect_id,
                     ControlData.alpha
                 FROM Dancer
+                INNER JOIN Model
+                    ON Dancer.model_id = Model.id
                 INNER JOIN Part
-                ON Dancer.id = Part.dancer_id
+                    ON Model.id = Part.model_id
                 INNER JOIN ControlData
-                ON Part.id = ControlData.part_id
+                    ON Part.id = ControlData.part_id AND
+                    Dancer.id = ControlData.dancer_id
                 LEFT JOIN Color
-                ON ControlData.color_id = Color.id
+                    ON ControlData.color_id = Color.id
                 LEFT JOIN LEDEffect
-                ON ControlData.effect_id = LEDEffect.id
-                ORDER BY Dancer.id ASC, Part.id ASC;
+                    ON ControlData.effect_id = LEDEffect.id
+                ORDER BY ControlData.frame_id, Dancer.id ASC, Part.id ASC;
             "#,
         )
         .fetch_all(mysql_pool)
@@ -69,52 +73,55 @@ pub async fn init_redis_control(
         .map_err(|e| e.to_string())?;
 
         let dancer_controls =
-            partition_by_field(|dancer_control| dancer_control.id, dancer_controls);
+            partition_by_field(|dancer_control| dancer_control.frame_id, dancer_controls);
 
         dancer_controls
             .into_iter()
-            .map(|dancer_control| partition_by_field(|part| part.id, dancer_control))
+            .map(|dancer_control| partition_by_field(|part| part.dancer_id, dancer_control))
             .collect_vec()
     };
 
     let mut result = Vec::new();
 
-    frames.iter().for_each(|frame| {
-        let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
+    frames
+        .iter()
+        .zip(dancer_controls)
+        .for_each(|(frame, dancer_control)| {
+            let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
 
-        let status = dancer_controls
-            .iter()
-            .map(|dancer_control| {
-                dancer_control
-                    .iter()
-                    .map(|part_controls| {
-                        let part_control = part_controls
-                            .iter()
-                            .find(|part_control| part_control.frame_id == frame.id)
-                            .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
-
-                        match part_control.part_type {
-                            PartType::LED => {
-                                PartControl(part_control.effect_id.unwrap(), part_control.alpha)
-                            }
+            let status = dancer_control
+                .iter()
+                .map(|dancer_control| {
+                    dancer_control
+                        .iter()
+                        .map(|part_control| match part_control.part_type {
+                            PartType::LED => PartControl(
+                                part_control.effect_id.unwrap_or(-1),
+                                part_control.alpha,
+                            ),
                             PartType::FIBER => {
                                 PartControl(part_control.color_id.unwrap(), part_control.alpha)
                             }
-                        }
-                    })
-                    .collect_vec()
-            })
-            .collect_vec();
+                        })
+                        .collect_vec()
+                })
+                .collect_vec();
 
-        let result_control = RedisControl {
-            fade: frame.fade != 0,
-            start: frame.start,
-            editing: frame.user_name.clone(),
-            status,
-        };
+            let result_control = RedisControl {
+                fade: frame.fade != 0,
+                start: frame.start,
+                rev: Revision {
+                    meta: frame.meta_rev,
+                    data: frame.data_rev,
+                },
+                editing: frame.user_name.clone(),
+                status,
+            };
 
-        result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
-    });
+            println!("Redis key: {}", redis_key);
+
+            result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
+        });
 
     if !result.is_empty() {
         let mut conn = redis_client.get_tokio_connection().await.unwrap();
@@ -188,6 +195,10 @@ pub async fn init_redis_position(
         let result_control = RedisPosition {
             start: frame.start,
             editing: frame.user_name.clone(),
+            rev: Revision {
+                meta: frame.meta_rev,
+                data: frame.data_rev,
+            },
             pos,
         };
 
@@ -243,10 +254,13 @@ pub async fn update_redis_control(
                     ControlData.effect_id,
                     ControlData.alpha
                 FROM Dancer
+                INNER JOIN Model
+                    ON Dancer.model_id = Model.id
                 INNER JOIN Part
-                ON Dancer.id = Part.dancer_id
+                    ON Model.id = Part.model_id
                 INNER JOIN ControlData
-                ON Part.id = ControlData.part_id
+                    ON Part.id = ControlData.part_id AND
+                    Dancer.id = ControlData.dancer_id
                 WHERE ControlData.frame_id = ?
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
@@ -256,13 +270,7 @@ pub async fn update_redis_control(
         .await
         .map_err(|e| e.to_string())?;
 
-        let dancer_controls =
-            partition_by_field(|dancer_control| dancer_control.id, dancer_controls);
-
-        dancer_controls
-            .into_iter()
-            .map(|dancer_control| partition_by_field(|part| part.id, dancer_control))
-            .collect_vec()
+        partition_by_field(|dancer_control| dancer_control.id, dancer_controls)
     };
 
     let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
@@ -273,19 +281,12 @@ pub async fn update_redis_control(
         .map(|dancer_control| {
             dancer_control
                 .iter()
-                .map(|part_controls| {
-                    let part_control = part_controls
-                        .iter()
-                        .find(|part_control| part_control.frame_id == frame.id)
-                        .unwrap_or_else(|| panic!("ControlData {} not found", frame.id));
-
-                    match part_control.part_type {
-                        PartType::LED => {
-                            PartControl(part_control.effect_id.unwrap(), part_control.alpha)
-                        }
-                        PartType::FIBER => {
-                            PartControl(part_control.color_id.unwrap(), part_control.alpha)
-                        }
+                .map(|part_control| match part_control.part_type {
+                    PartType::LED => {
+                        PartControl(part_control.effect_id.unwrap_or(-1), part_control.alpha)
+                    }
+                    PartType::FIBER => {
+                        PartControl(part_control.color_id.unwrap(), part_control.alpha)
                     }
                 })
                 .collect_vec()
@@ -295,6 +296,10 @@ pub async fn update_redis_control(
     let result_control = RedisControl {
         fade: frame.fade != 0,
         start: frame.start,
+        rev: Revision {
+            meta: frame.meta_rev,
+            data: frame.data_rev,
+        },
         editing: frame.user_name.clone(),
         status,
     };
@@ -377,6 +382,10 @@ pub async fn update_redis_position(
     let result_pos = RedisPosition {
         start: frame.start,
         editing: frame.user_name.clone(),
+        rev: Revision {
+            meta: frame.meta_rev,
+            data: frame.data_rev,
+        },
         pos,
     };
 
@@ -405,7 +414,6 @@ pub async fn get_redis_control(
         Ok(cache) => {
             let mut cache: RedisControl = serde_json::from_str(&cache).unwrap();
             cache.editing = None;
-            println!("Cache: {:?}", cache);
             Ok(cache)
         }
         Err(_) => Err(format!("Frame {} not found in redis.", frame_id)),
@@ -429,7 +437,6 @@ pub async fn get_redis_position(
         Ok(cache) => {
             let mut cache: RedisPosition = serde_json::from_str(&cache).unwrap();
             cache.editing = None;
-            println!("Cache: {:?}", cache);
             Ok(cache)
         }
         Err(_) => Err(format!("Frame {} not found in redis.", frame_id)),

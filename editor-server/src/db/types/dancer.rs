@@ -7,4 +7,5 @@ use serde::{Deserialize, Serialize};
 pub struct DancerData {
     pub id: i32,
     pub name: String,
+    pub model_id: i32,
 }

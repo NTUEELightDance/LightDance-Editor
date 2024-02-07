@@ -2,6 +2,7 @@ import bpy
 
 from ...models import EditMode, Editor
 from ...states import state
+from ...utils.object import clear_selection
 from ...utils.ui import (
     outliner_hide_one_level,
     set_dopesheet_filter,
@@ -14,15 +15,15 @@ from ...utils.ui import (
 )
 
 
-def clear_selection():
-    for obj in bpy.context.view_layer.objects.selected:  # type: ignore
-        obj.select_set(False)  # type: ignore
-
-
 def setup_control_editor():
     bpy.context.view_layer.objects.active = None  # type: ignore
     state.selected_obj_type = None
     clear_selection()
+
+    ld_ui_control_editor = getattr(bpy.context.window_manager, "ld_ui_control_editor")
+    ld_ui_control_editor["show_fiber"] = False
+    ld_ui_control_editor["show_led"] = False
+    ld_ui_control_editor["show_all"] = True
 
     unset_outliner_hide_empty()
     unset_outliner_hide_mesh()
@@ -33,7 +34,7 @@ def setup_control_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("control")
+    set_dopesheet_filter("control_frame")
     state.editor = Editor.CONTROL_EDITOR
 
 
@@ -51,7 +52,7 @@ def setup_pos_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("pos")
+    set_dopesheet_filter("pos_frame")
     state.editor = Editor.POS_EDITOR
 
 
@@ -61,6 +62,7 @@ def setup_led_editor():
     clear_selection()
 
     ld_ui_led_editor = getattr(bpy.context.window_manager, "ld_ui_led_editor")
+    ld_ui_led_editor["edit_model"] = -1
     ld_ui_led_editor["edit_dancer"] = -1
     ld_ui_led_editor["edit_part"] = -1
 

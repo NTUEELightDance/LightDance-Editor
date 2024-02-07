@@ -1,7 +1,6 @@
 //! Global structs and enums that are used throughout the application.
 
 use crate::db::clients::AppClients;
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
@@ -12,7 +11,8 @@ pub struct UserContext {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartControl(pub i32, pub i32);
+pub struct PartControl(pub i32, pub i32); // [id: number, alpha: number]
+
 // pub enum PartControl {
 //     #[serde(untagged)]
 //     LED(String, i32),
@@ -20,10 +20,17 @@ pub struct PartControl(pub i32, pub i32);
 //     FIBER(String, i32),
 // }
 
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub struct Revision {
+    pub meta: i32,
+    pub data: i32,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisControl {
     pub fade: bool,
     pub start: i32,
+    pub rev: Revision,
     pub editing: Option<String>,
     pub status: Vec<Vec<PartControl>>,
 }
@@ -35,5 +42,6 @@ pub struct PositionPos(pub f64, pub f64, pub f64);
 pub struct RedisPosition {
     pub start: i32,
     pub editing: Option<String>,
+    pub rev: Revision,
     pub pos: Vec<PositionPos>,
 }

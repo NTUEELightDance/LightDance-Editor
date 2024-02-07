@@ -21,7 +21,10 @@ class LEDEditor(bpy.types.Panel):
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
-        layout.label(text="LED Effect")
+        layout.enabled = not state.shifting and not state.requesting
+
+        row = layout.row()
+        row.label(text="LED Effect")
 
         ld_ui_led_editor: LEDEditorStatusType = getattr(
             context.window_manager, "ld_ui_led_editor"
@@ -30,6 +33,9 @@ class LEDEditor(bpy.types.Panel):
         edit_mode = ld_ui_led_editor.edit_mode
 
         if edit_mode == LEDEditorEditModeType.IDLE.value:
+            row = layout.row()
+            row.prop(ld_ui_led_editor, "edit_model", text="Model")
+
             row = layout.row()
             row.prop(ld_ui_led_editor, "edit_dancer", text="Dancer")
 
