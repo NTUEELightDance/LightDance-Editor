@@ -5,10 +5,10 @@ const axios = require("axios");
 
 const child_process = require("child_process");
 
-const sharp = require('sharp');
-const jm = require('join-images');
-const readline = require('readline');
-const { getAudioDurationInSeconds } = require('get-audio-duration')
+const sharp = require("sharp");
+const jm = require("join-images");
+const readline = require("readline");
+const { getAudioDurationInSeconds } = require("get-audio-duration");
 
 // the annotation part can be used when the file is a module
 
@@ -31,30 +31,30 @@ const { getAudioDurationInSeconds } = require('get-audio-duration')
 let img_milisec_per_pin = 4;
 let img_res_width = 40000;
 let img_res_height = 400;
-let img_res = String(img_res_width) + 'x' + String(img_res_height);
+let img_res = String(img_res_width) + "x" + String(img_res_height);
 let music_duration = 420000;
 // console.log(`img_res = ${img_res}`);
-const hex_colo = '3D82B1';
-const sname = '../files/music/waveform.png';
-const sname_tmp = '../files/music/waveform_tmp.png';
-const musicName = '../files/music/2023.mp3';    // you can alter the music name here
+const hex_colo = "3D82B1";
+const sname = "../files/music/waveform.png";
+const sname_tmp = "../files/music/waveform_tmp.png";
+const musicName = "../files/music/2023.mp3";    // you can alter the music name here
 let ifp = path.join(String(__dirname), sname);       // name (path included) to the waveform image
 let ifp_temp = path.join(String(__dirname), sname_tmp);       // name (path included) to the waveform image
 let sfp = path.join(String(__dirname), musicName);   // name (path included) to the music
-const leftName = '../files/music/leftWaveform.png';
-const rightName = '../files/music/rightWaveform.png';
+const leftName = "../files/music/leftWaveform.png";
+const rightName = "../files/music/rightWaveform.png";
 const lcp = path.join(String(__dirname), leftName);
 const rcp = path.join(String(__dirname), rightName);
-let releaseUrl = '';    // url for downloading ffmpeg
-let ffbin = '';   // the path name(file name included) of the ffmpeg binary
+let releaseUrl = "";    // url for downloading ffmpeg
+let ffbin = "";   // the path name(file name included) of the ffmpeg binary
 let cmd = [];   // the command that will later be used to generate waveform
 
 const readLength = async () => {
   await getAudioDurationInSeconds(sfp).then((duration) => {
-    music_duration = duration*1000;
+    music_duration = duration * 1000;
     console.log(`duration = ${music_duration} miliseconds`);
-  })
-}
+  });
+};
 
 
 const rl = readline.createInterface({
@@ -75,57 +75,57 @@ const readIntegerInput = (prompt) => {
       }
     });
   });
-}
+};
 
 const readInput = async () => {
 
   try {
-    img_milisec_per_pin = await readIntegerInput('Enter time duration(miliseconds) in one pixel: ');
-    img_res_width = Math.round(music_duration/img_milisec_per_pin);
+    img_milisec_per_pin = await readIntegerInput("Enter time duration(miliseconds) in one pixel: ");
+    img_res_width = Math.round(music_duration / img_milisec_per_pin);
     // img_res_width = await readIntegerInput('Enter the width of the waveform: ');
     // img_res_height = await readIntegerInput('Enter the height of the waveform: ');
-    img_res = img_res_width + 'x' + img_res_height;
+    img_res = img_res_width + "x" + img_res_height;
     console.log(`Waveform resolution: ${img_res}`);
   } catch (error) {
-    console.log("something wrong in the input...")
+    console.log("something wrong in the input...");
     console.error(error.message);
   } finally {
     rl.close();
   }
-}
+};
 
 
 const callFFMPEG = () => {
-  cmd = ['sudo', 'ffmpeg'];
-  cmd = [...cmd, '-i', String(sfp),
-    '-hide_banner', '-loglevel', 'error', '-filter_complex',
-  `showwavespic=s=${img_res}:split_channels=1:colors=${hex_colo}`,
-    '-frames:v', '1', '-y', String(ifp_temp)]
+  cmd = ["sudo", "ffmpeg"];
+  cmd = [...cmd, "-i", String(sfp),
+    "-hide_banner", "-loglevel", "error", "-filter_complex",
+    `showwavespic=s=${img_res}:split_channels=1:colors=${hex_colo}`,
+    "-frames:v", "1", "-y", String(ifp_temp)];
 
-  let cmdString = cmd.join(' ');
+  let cmdString = cmd.join(" ");
   // console.log(`cmd = ${cmd.join(' ')}`);
   let startGenerationTime = Date.now();
   console.log("start generating");
   try {
     const ret = child_process.execSync(cmdString);
   } catch (err) {
-    console.error('--- problem generating sound wave image');
+    console.error("--- problem generating sound wave image");
     console.error(err);
   }
   const elapsedTime = Date.now() - startGenerationTime;
   console.log(`Time taken for generating waveform: ${elapsedTime} ms`);
-}
+};
 
 // download from url and save as dest, then generate waveform
 const dl_url = async (url, dest, ffmpegExistance) => {
-  await readInput(img_res_width, img_res_height)
+  await readInput(img_res_width, img_res_height);
   if (!ffmpegExistance) {
     let start_time = Date.now();
     console.log("downloading ffmpeg...");
     await axios({
-      method: 'get',
+      method: "get",
       url: url,
-      responseType: 'stream',
+      responseType: "stream",
       // httpsAgent: {
       //   rejectUnauthorized: false,  // Disable SSL verification
       // },
@@ -135,13 +135,13 @@ const dl_url = async (url, dest, ffmpegExistance) => {
       // console.log("here1");
       return new Promise((resolve, reject) => {
         let error = null;
-        writer.on('error', err => {
+        writer.on("error", err => {
           error = err;
           writer.close();
           reject(err);
         });
         // or writer.on('finish')?
-        writer.on('close', () => {
+        writer.on("close", () => {
           if (!error) {
             resolve(true);
           }
@@ -155,13 +155,13 @@ const dl_url = async (url, dest, ffmpegExistance) => {
       const downloadTime = (Date.now() - start_time) / 1000;  // Convert milliseconds to seconds
       console.log(`Download time ${downloadTime.toFixed(2)}s`);
       callFFMPEG();
-    }).catch(function (error) {
-      console.error('Error downloading file:', error.message);
+    }).catch(function(error) {
+      console.error("Error downloading file:", error.message);
     });
   } else {
     callFFMPEG();
   }
-}
+};
 
 // unzip file (not used in this file but it exists in the original blender addon)
 const unzip = (zipPath, extractDirPath) => {
@@ -171,20 +171,20 @@ const unzip = (zipPath, extractDirPath) => {
     zip.extractAllTo(extractDirPath, /*overwrite*/ true);
     console.log(`Successfully extracted: ${zipPath} to ${extractDirPath}`);
   } catch (error) {
-    console.error('Error extracting zip file:', error.message);
+    console.error("Error extracting zip file:", error.message);
   }
-}
+};
 
 // check if ffmpeg exists
 const ffmpegExist = async () => {
   // decide releaseUrl based on operating system
-  if (process.platform.startsWith('win')) {
-    releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/windows/ffmpeg.exe';
-  } else if (process.platform.startsWith('linux') || process.platform === 'freebsd') {
+  if (process.platform.startsWith("win")) {
+    releaseUrl = "https://github.com/Pullusb/static_bin/raw/main/ffmpeg/windows/ffmpeg.exe";
+  } else if (process.platform.startsWith("linux") || process.platform === "freebsd") {
     // console.log("linux");
-    releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/linux/ffmpeg';
+    releaseUrl = "https://github.com/Pullusb/static_bin/raw/main/ffmpeg/linux/ffmpeg";
   } else { // Mac
-    releaseUrl = 'https://github.com/Pullusb/static_bin/raw/main/ffmpeg/mac/ffmpeg';
+    releaseUrl = "https://github.com/Pullusb/static_bin/raw/main/ffmpeg/mac/ffmpeg";
   }
 
   // Check if ffmpeg is already in the current path
@@ -192,7 +192,7 @@ const ffmpegExist = async () => {
   // console.log(ffbin);
   // console.log(fs.existsSync(ffbin));
   return fs.existsSync(ffbin);
-}
+};
 
 const cutImages = async () => {
   await sharp(String(ifp_temp))
@@ -204,10 +204,10 @@ const cutImages = async () => {
     .catch((err) => {
       // console.log("here2.5");
       if (err) {
-        console.log("Failed extracting upper half of the waveform...")
+        console.log("Failed extracting upper half of the waveform...");
         console.log(err);
       }
-    })
+    });
   // console.log("here3");
   await sharp(String(ifp_temp))
     .extract({ left: 0, top: 3 * img_res_height / 4, width: img_res_width, height: img_res_height / 4 })
@@ -218,43 +218,43 @@ const cutImages = async () => {
     .catch((err) => {
       // console.log("here3.5");
       if (err) {
-        console.log("Failed extracting lower half of the waveform...")
+        console.log("Failed extracting lower half of the waveform...");
         console.log(err);
       }
-    })
+    });
   // console.log("here4");
-}
+};
 
 const AsyncJoinImages = async () => {
-  console.log("joining waveforms...")
+  console.log("joining waveforms...");
   await jm.joinImages([String(lcp), String(rcp)], { direction: "vertical" })
     .then((img) => {
       // Save image as file
       img.toFile(String(ifp))
         .then(() => { console.log("image saved"); })
         .catch((err) => {
-          console.log("failed to save image as file")
-          console.log(err)
+          console.log("failed to save image as file");
+          console.log(err);
         });
 
     }).catch((err) => {
-      console.log("Failed joining waveforms...")
+      console.log("Failed joining waveforms...");
       console.log(err);
     });
-}
+};
 
 const AsyncImageManipulation = async () => {
   await cutImages();
   await AsyncJoinImages();
-}
+};
 
 const errReport = (err) => {
   if (err) throw err;
-}
+};
 
 const rmRedundantWaveform = () => {
-  let rmCmd = ['rm', String(lcp), String(rcp), String(ifp_temp)];
-  rmCmdString = rmCmd.join(' ');
+  let rmCmd = ["rm", String(lcp), String(rcp), String(ifp_temp)];
+  rmCmdString = rmCmd.join(" ");
   // console.log(`rmCmdString = ${rmCmdString}`);
   console.log("removing redundant waveforms...");
   try {
@@ -262,9 +262,9 @@ const rmRedundantWaveform = () => {
     fs.unlink(String(rcp), errReport);
     fs.unlink(String(ifp_temp), errReport);
   } catch (error) {
-    console.error('Error deleting existing file:', error.message);
+    console.error("Error deleting existing file:", error.message);
   }
-}
+};
 
 const mainGenerate = async (releaseUrl, ffbin) => {
   let ffmpegExistance = await ffmpegExist();  // ffbin, releaseUrl is set in ffmpegExist
@@ -272,7 +272,7 @@ const mainGenerate = async (releaseUrl, ffbin) => {
   await dl_url(releaseUrl, String(ffbin), ffmpegExistance);
   await AsyncImageManipulation();
   rmRedundantWaveform();
-}
+};
 
 
 mainGenerate(releaseUrl, ffbin);
@@ -291,5 +291,4 @@ mainGenerate(releaseUrl, ffbin);
 //     console.error('Error deleting existing file:', error.message);
 //   }
 // }
-
 
