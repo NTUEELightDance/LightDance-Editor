@@ -4,7 +4,15 @@ from typing import List, Optional, Tuple, Union
 from dataclass_wizard import JSONWizard
 from gql import gql
 
-from ..core.models import RGB, ColorID, ColorName, LEDEffectID, MapID
+from ..core.models import (
+    RGB,
+    ColorID,
+    ColorName,
+    LEDEffectID,
+    LEDPartName,
+    MapID,
+    ModelName,
+)
 
 """
 Dancer
@@ -425,35 +433,34 @@ DELETE_EFFECT_LIST = gql(
 """
 To add LED effect
 """
+
+
 @dataclass
-class MutLEDEffectResponse(JSONWizard):
+class MutAddLEDEffectResponse(JSONWizard):
     ok: bool
     msg: str
 
+
 @dataclass
 class MutAddLEDEffectResponsePayload(JSONWizard):
-    addLEDEffect: MutLEDEffectResponse
+    addLEDEffect: MutAddLEDEffectResponse
+
 
 @dataclass
 class MutLEDEffectFramePayload(JSONWizard):
-    LEDs: List[Tuple[ColorID, int]]
+    leds: List[Tuple[ColorID, int]]
     start: int
     fade: bool
 
-@dataclass
-class MutFrames(JSONWizard):
-    set: List[MutLEDEffectFramePayload]
 
 @dataclass
 class MutAddLEDEffectInput(JSONWizard):
     name: str
+    modelName: ModelName
     partName: LEDPartName
     repeat: int
-    frames: MutFrames
+    frames: List[MutLEDEffectFramePayload]
 
-@dataclass
-class MutAddLEDEffectVriablesPayload(JSONWizard):
-    input: MutAddLEDEffectInput
 
 ADD_LED_EFFECT = gql(
     """
@@ -470,20 +477,21 @@ ADD_LED_EFFECT = gql(
 """
 To edit LED effect
 """
+
+
 @dataclass
-class MutEditLEDEffectResponsePayload(JSONWizard):
-    editLEDEffect: MutLEDEffectResponse
+class MutEditLEDEffectResponse(JSONWizard):
+    ok: bool
+    msg: str
+
 
 @dataclass
 class MutEditLEDEffectInput(JSONWizard):
     id: int
     name: str
     repeat: int
-    frames: MutFrames
+    frames: List[MutLEDEffectFramePayload]
 
-@dataclass
-class MutEditLEDEffectVriablesPayload(JSONWizard):
-    input: MutEditLEDEffectInput
 
 EDIT_LED_EFFECT = gql(
     """
@@ -500,13 +508,13 @@ EDIT_LED_EFFECT = gql(
 """
 To delete LED effect
 """
-@dataclass
-class MutDeleteLEDEffectResponsePayload(JSONWizard):
-    deleteLEDEffect: MutLEDEffectResponse
+
 
 @dataclass
-class MutDeleteLEDEffectVriablesPayload(JSONWizard):
-    deleteLEDEffectId: LEDEffectID
+class MutDeleteLEDEffectResponse(JSONWizard):
+    ok: bool
+    msg: str
+
 
 DELETE_LED_EFFECT = gql(
     """
