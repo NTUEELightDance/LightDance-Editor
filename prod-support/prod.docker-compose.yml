@@ -11,7 +11,7 @@ services:
     ports:
       - "8081:80"
     networks:
-      - lightdance-editor
+      - nginx
     depends_on:
       - editor
       - editor-server
@@ -26,7 +26,7 @@ services:
     expose:
       - "8080"
     networks:
-      - lightdance-editor
+      - nginx
     depends_on:
       - editor-server
       - file-server
@@ -40,7 +40,7 @@ services:
     ports:
       - "4000:4000"
     networks:
-      - lightdance-editor
+      - nginx
     depends_on:
       - mysql
       - redisdb
@@ -54,7 +54,7 @@ services:
     volumes:
       - ../files:/app/files
     networks:
-      - lightdance-editor
+      - nginx
 
   mysql:
     image: mysql:8.1.0
@@ -65,7 +65,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - lightdance-editor
+      - nginx
 
   redisdb:
     image: redis
@@ -73,12 +73,11 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - lightdance-editor
+      - nginx
 
 networks:
-  lightdance-editor:
-    external:
-      name: eeinfo
+  nginx:
+    external: true
 
 volumes:
   mysql-data:
