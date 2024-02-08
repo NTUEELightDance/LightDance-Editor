@@ -230,7 +230,7 @@ async def init_editor():
         except Exception as e:
             print(e)
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
 
     print("Editor initialized")
 

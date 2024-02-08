@@ -1,3 +1,4 @@
+import asyncio
 import os
 from typing import Any, Dict, List, Set, cast
 
@@ -75,7 +76,7 @@ async def fetch_data(reload: bool = False):
     return assets_load
 
 
-def import_model_to_asset(
+async def import_model_to_asset(
     model_name: str, model_filepath: str, parts: List[DancersArrayPartsItem]
 ):
     """
@@ -84,7 +85,14 @@ def import_model_to_asset(
     bpy.ops.import_scene.gltf(
         filepath=model_filepath
     )  # here all parts of dancer is selected
-    model_objs = bpy.context.selected_objects
+    while True:
+        model_objs = getattr(bpy.context, "selected_objects", None)
+        if model_objs is None:
+            await asyncio.sleep(0.1)
+        else:
+            break
+
+    model_objs = cast(List[bpy.types.Object], model_objs)
 
     col = bpy.data.collections.new(model_name)
     for obj in model_objs:
@@ -140,7 +148,7 @@ def find_first_mesh(mesh_name: str) -> bpy.types.Mesh:
     return mesh
 
 
-def setup_objects(assets_load: Dict[str, Any]):
+async def setup_objects(assets_load: Dict[str, Any]):
     """
     clear all objects in viewport
     """
@@ -176,7 +184,7 @@ def setup_objects(assets_load: Dict[str, Any]):
         model_name: str = dancer_load["modelName"]
 
         if model_name not in bpy.data.collections.keys():
-            import_model_to_asset(model_name, model_filepath, dancer.parts)
+            await import_model_to_asset(model_name, model_filepath, dancer.parts)
 
         data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
         dancer_asset = cast(bpy.types.Collection, bpy.data.collections[model_name])
@@ -222,7 +230,7 @@ def setup_objects(assets_load: Dict[str, Any]):
             asset_part_obj_name = f"{model_name}.{part_item.name}"
             asset_part_obj = dancer_asset_objects.get(asset_part_obj_name)
             if asset_part_obj is None:
-                print(f"Part {part_item.name} not found in dancer {dancer_name}")
+                print(f"Object {asset_part_obj_name} not found in dancer {dancer_name}")
                 continue
 
             part_obj = cast(bpy.types.Object, asset_part_obj.copy())
@@ -259,7 +267,7 @@ def setup_objects(assets_load: Dict[str, Any]):
                         continue
 
                     led_obj = cast(bpy.types.Object, asset_led_obj.copy())
-                    sub_obj_name = f"{model_name}.{part_obj_name}.{position:03}"
+                    sub_obj_name = f"{part_obj_name}.{position:03}"
 
                     set_bpy_props(
                         led_obj,
@@ -475,7 +483,7 @@ async def load_data() -> None:
     setup_render()
     setup_display()
 
-    setup_objects(assets_load)
+    await setup_objects(assets_load)
     setup_music(assets_load)
     setup_animation_data()
 
