@@ -32,12 +32,13 @@ class TimelinePanel(bpy.types.Panel):
         row.operator("lightdance.increase_frame_index", text="", icon="TRIA_RIGHT")
 
         box = layout.box()
-        box.use_property_split = True
+        col = box.column(align=True)
+        col.use_property_split = True
 
-        row = box.row(align=True)
+        row = col.row(align=True)
         row.prop(context.window_manager, "ld_time", text="Time")
 
-        row = box.row(align=True)
+        row = col.row(align=True)
         row.prop(context.window_manager, "ld_play_speed", text="Play speed")
 
 

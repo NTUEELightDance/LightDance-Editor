@@ -13,6 +13,8 @@ from ..core.utils.ui import redraw_area
 
 class WaveformSettings:
     def __init__(self):
+        self.top_offset: int = 0
+        self.bottom_offset: int = 0
         self.region: Optional[bpy.types.Region] = None
         self.shader: Optional[gpu.types.GPUShader] = None
         self.batch: Optional[gpu.types.GPUBatch] = None
@@ -37,8 +39,19 @@ def draw():
     x_mid = (x0 + x1) / 2
     x_scale = x1 - x_mid
 
+    height = region.height
+    top_offset = waveform_settings.top_offset
+    bottom_offset = waveform_settings.bottom_offset
+
+    y0 = bottom_offset
+    y1 = height - top_offset
+    y_mid = (y0 + y1 - height) / height
+    y_scale = (y1 - y0) / height
+
     shader.uniform_float("view_x_mid", x_mid)  # type: ignore
     shader.uniform_float("view_x_scale", x_scale)  # type: ignore
+    shader.uniform_float("view_y_mid", y_mid)  # type: ignore
+    shader.uniform_float("view_y_scale", y_scale)  # type: ignore
 
     batch.draw(shader)
 
@@ -84,6 +97,13 @@ def mount():
         if region.type == "WINDOW"
     )
 
+    header_region = next(
+        region
+        for region in cast(List[bpy.types.Region], area.regions)
+        if region.type == "HEADER"
+    )
+    waveform_settings.top_offset = int(header_region.height * 0.8)
+
     # Create shader
     vert_out = gpu.types.GPUStageInterfaceInfo("my_interface")  # type: ignore
     vert_out.smooth("VEC3", "pos")
@@ -91,6 +111,8 @@ def mount():
     shader_info = gpu.types.GPUShaderCreateInfo()
     shader_info.push_constant("FLOAT", "view_x_mid")
     shader_info.push_constant("FLOAT", "view_x_scale")
+    shader_info.push_constant("FLOAT", "view_y_mid")
+    shader_info.push_constant("FLOAT", "view_y_scale")
     shader_info.vertex_in(0, "VEC2", "position")
     shader_info.vertex_out(vert_out)
     shader_info.fragment_out(0, "VEC4", "FragColor")
@@ -99,13 +121,26 @@ def mount():
         """
         void main() {
             float x = (position[0] - view_x_mid) / view_x_scale;
-            float y = position[1];
+            float y = position[1] * view_y_scale + view_y_mid;
             pos = vec3(x, y, 0.0);
             gl_Position = vec4(x, y, 0.0, 1.0);
         }
         """
     )
 
+    # shader_info.fragment_source(
+    #     """
+    #     void main() {
+    #         float h = abs(pos[1] - view_y_mid);
+    #         FragColor = vec4(
+    #             0.24 + 0.7 * h,
+    #             0.51 - 0.5 * h,
+    #             0.69 - 0.7 * h,
+    #             1.0
+    #         );
+    #     }
+    #     """
+    # )
     shader_info.fragment_source(
         """
         void main() {
