@@ -25,21 +25,23 @@ class TimelinePanel(bpy.types.Panel):
             not state.shifting and not state.requesting and not state.playing
         )
 
+        box = layout.box()
+        col = box.column(align=True)
+        # col.use_property_split = True
+
+        row = col.row()
+        row.label(text="Time")
+        row.prop(context.window_manager, "ld_time", text="")
+
+        row = col.row()
+        row.label(text="Play speed")
+        row.prop(context.window_manager, "ld_play_speed", text="")
+
         row = layout.row(align=True)
         row.label(text="Frame")
         row.operator("lightdance.decrease_frame_index", text="", icon="TRIA_LEFT")
         row.prop(context.window_manager, "ld_current_frame_index", text="")
         row.operator("lightdance.increase_frame_index", text="", icon="TRIA_RIGHT")
-
-        box = layout.box()
-        col = box.column(align=True)
-        col.use_property_split = True
-
-        row = col.row(align=True)
-        row.prop(context.window_manager, "ld_time", text="Time")
-
-        row = col.row(align=True)
-        row.prop(context.window_manager, "ld_play_speed", text="Play speed")
 
 
 def register():

@@ -1,6 +1,6 @@
 import asyncio
 import os
-from typing import Any, Dict, List, Set, cast
+from typing import Any, Dict, List, Optional, Set, cast
 
 import bpy
 
@@ -9,7 +9,7 @@ from ....properties.types import LightType, ObjectType
 from ...actions.property.revision import update_rev_changes
 from ...models import DancersArrayPartsItem, PartType
 from ...states import state
-from ...utils.ui import set_dopesheet_filter
+from ...utils.ui import redraw_area, set_dopesheet_filter
 from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
     set_pos_keyframes_from_state,
@@ -352,17 +352,97 @@ def setup_music(assets_load: Dict[str, Any]):
     bpy.context.window_manager["ld_play_speed"] = 1.0
 
 
+# WARNING: This function will crash for now
+def close_area(screen: bpy.types.Screen, area_ui_type: str):
+    try:
+        area = next(
+            area
+            for area in cast(List[bpy.types.Area], screen.areas)
+            if area.ui_type == area_ui_type
+        )
+
+        ctx = cast(Dict[str, Any], bpy.context.copy())
+        ctx["screen"] = screen
+        ctx["area"] = area
+        ctx["region"] = area.regions[-1]
+
+        with bpy.context.temp_override(**ctx):
+            bpy.ops.screen.area_close()
+
+    except StopIteration:
+        pass
+
+
+def split_area(
+    screen: bpy.types.Screen, area_ui_type: str, direction: str, factor: float
+):
+    try:
+        area = next(
+            area
+            for area in cast(List[bpy.types.Area], screen.areas)
+            if area.ui_type == area_ui_type
+        )
+
+        ctx = cast(Dict[str, Any], bpy.context.copy())
+        ctx["screen"] = screen
+        ctx["area"] = area
+        ctx["region"] = area.regions[-1]
+
+        with bpy.context.temp_override(**ctx):
+            bpy.ops.screen.area_split(direction=direction, factor=factor)
+
+    except StopIteration:
+        pass
+
+
+def get_area(
+    screen: bpy.types.Screen, area_ui_type: str, sort_by: str = "x", index: int = 0
+) -> Optional[bpy.types.Area]:
+    areas = [
+        area
+        for area in cast(List[bpy.types.Area], screen.areas)
+        if area.ui_type == area_ui_type
+    ]
+
+    if sort_by == "x":
+        areas.sort(key=lambda area: area.x)
+    elif sort_by == "y":
+        areas.sort(key=lambda area: area.y)
+
+    if index < 0 or index >= len(areas):
+        return None
+
+    return areas[index]
+
+
 def setup_display():
+    screen = bpy.context.screen
+
+    """
+    Setup layout
+    """
+    # split_area(screen, "VIEW_3D", "HORIZONTAL", 0.3)
+    # timeline_area = get_area(screen, "VIEW_3D", "y", 0)
+    # if timeline_area is None:
+    #     return
+    # timeline_area.ui_type = "TIMELINE"
+    #
+    # split_area(screen, "VIEW_3D", "VERTICAL", 0.8)
+    # outliner_area = get_area(screen, "VIEW_3D", "x", 1)
+    # if outliner_area is None:
+    #     return
+    # outliner_area.ui_type = "OUTLINER"
+
     """
     3d viewport
     """
-    view_3d = next(
-        area
-        for area in cast(List[bpy.types.Area], bpy.context.screen.areas)
-        if area.ui_type == "VIEW_3D"
-    )
+    view_3d_area = get_area(screen, "VIEW_3D")
+    if view_3d_area is None:
+        return
 
-    space = cast(bpy.types.SpaceView3D, view_3d.spaces.active)
+    view_3d_area.show_menus = False
+
+    space = cast(bpy.types.SpaceView3D, view_3d_area.spaces.active)
 
     space.overlay.show_relationship_lines = False
     space.overlay.show_cursor = False
@@ -376,6 +456,11 @@ def setup_display():
     space.shading.color_type = "OBJECT"
     space.shading.light = "FLAT"
 
+    space.show_region_ui = True
+    space.show_region_header = False
+    space.show_region_toolbar = False
+    space.show_region_tool_header = False
+
     """
     scene
     """
@@ -386,52 +471,36 @@ def setup_display():
     """
     timeline
     """
-    timeline = next(
-        area
-        for area in cast(List[bpy.types.Area], bpy.context.screen.areas)
-        if area.ui_type == "TIMELINE"
-    )
-    space = cast(bpy.types.SpaceSequenceEditor, timeline.spaces.active)
+    timeline = get_area(screen, "TIMELINE")
+    if timeline is None:
+        return
+
+    timeline.show_menus = False
+
+    space = cast(bpy.types.SpaceDopeSheetEditor, timeline.spaces.active)
 
     space.show_seconds = False
+
+    space.show_region_ui = True
+    # space.show_region_header = False
+    space.show_region_channels = False
 
     set_dopesheet_filter("control_frame")  # follow default editor
 
     """
     Outliner
     """
-    outliner = next(
-        area
-        for area in cast(List[bpy.types.Area], bpy.context.screen.areas)
-        if area.ui_type == "OUTLINER"
-    )
+    outliner = get_area(screen, "OUTLINER")
+    if outliner is None:
+        return
+
+    outliner.show_menus = False
+
     space = cast(bpy.types.SpaceOutliner, outliner.spaces.active)
 
     space.use_filter_collection = False
     space.use_filter_object_content = False
     space.use_sort_alpha = False
-
-    """
-    Layout
-    """
-    try:
-        screen = bpy.context.screen
-        area = next(
-            area
-            for area in cast(List[bpy.types.Area], screen.areas)
-            if area.type == "PROPERTIES"
-        )
-
-        ctx = cast(Dict[str, Any], bpy.context.copy())
-        ctx["screen"] = screen
-        ctx["area"] = area
-        ctx["region"] = area.regions[-1]
-
-        with bpy.context.temp_override(**ctx):
-            bpy.ops.screen.area_close()
-
-    except StopIteration:
-        pass
 
 
 def setup_animation_data():
@@ -477,7 +546,6 @@ def check_local_object_list():
 
 async def load_data() -> None:
     state.assets_path = target_path
-
     assets_load = await fetch_data()
 
     setup_render()
