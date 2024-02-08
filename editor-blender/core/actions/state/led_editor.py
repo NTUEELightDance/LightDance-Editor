@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import bpy
 
-from ....core.models import EditMode
+from ....api.led_agent import led_agent
+from ....core.models import ColorID, EditMode
 from ....core.states import state
 from ....core.utils.operator import execute_operator
 from ....core.utils.ui import (
@@ -15,24 +16,87 @@ from ....core.utils.ui import (
     unset_outliner_hide_mode_column,
 )
 from ....properties.ui.types import LEDEditorEditModeType, LEDEditorStatusType
+from ...utils.notification import notify
+from ..property.animation_data import set_ctrl_keyframes_from_state
+from .app_state import set_requesting
 
 
 async def request_edit_led_effect():
-    # TODO: Send request
-    enter_editing_led_effect()
+    led_index = state.current_led_index
+    set_requesting(True)
+    ok = await led_agent.request_edit(led_index)
+    set_requesting(False)
+    if ok is not None and ok:
+        enter_editing_led_effect()
+    else:
+        notify("WARNING", "Edit request rejected")
 
 
 async def cancel_edit_led_effect():
-    # TODO: Send request
-    exit_editing_led_effect()
+    led_index = state.current_led_index
+    set_requesting(True)
+    ok = await led_agent.cancel_edit(led_index)
+    set_requesting(False)
+    if ok is not None and ok:
+        exit_editing_led_effect()
+        notify("INFO", "Edit cancelled")
+    else:
+        notify("WARNING", "Cannot cancel edit")
 
 
 async def save_led_effect():
-    pass
+    led_index = state.current_led_index
+    led_effect = state.led_effect_id_table[led_index]
+    effect_name = led_effect.name
+    ld_ui_led_editor: LEDEditorStatusType = getattr(
+        bpy.context.window_manager, "ld_ui_led_editor"
+    )
+    edit_dancer = ld_ui_led_editor.edit_dancer
+    edit_part = ld_ui_led_editor.edit_part
+    dancer_index = state.dancer_names.index(edit_dancer)
+    part_obj_name = f"{dancer_index}_" + edit_part
+    part_obj: bpy.types.Object = bpy.data.objects.get(part_obj_name)  # type: ignore
+    part_child_objs = part_obj.children
+    new_effect: List[Tuple[ColorID, int]] = [(-1, 0)] * len(part_child_objs)
+    for i, obj in enumerate(part_child_objs):
+        if obj:
+            ld_color: ColorID = obj.get("ld_color")  # type: ignore # must use get
+            ld_alpha: int = getattr(obj, "ld_alpha")  # type: ignore # must use getattr
+            new_effect[i] = (ld_color, ld_alpha)
+        else:
+            raise Exception(f"LED bulb object missing in {part_obj_name}")
+    print(new_effect)
+    try:
+        set_requesting(True)
+        await led_agent.save_led_effect(led_index, effect_name, new_effect)
+        notify("INFO", "Saved LED Effect")
+
+        # Imediately apply changes produced by editing
+        set_ctrl_keyframes_from_state(effect_only=True)
+
+        # Cancel editing
+        ok = await led_agent.cancel_edit(led_index)
+        set_requesting(False)
+        if ok is not None and ok:
+            exit_editing_led_effect()
+        else:
+            notify("WARNING", "Cannot exit editing")
+    except:
+        notify("WARNING", "Cannot save LED effect")
 
 
 async def delete_led_effect():
-    pass
+    led_index = state.current_led_index
+    if led_index == -1:
+        notify("WARNING", "No LED effect is selected!")
+        return
+    try:
+        set_requesting(True)
+        await led_agent.delete_led_effect(led_index)
+        set_requesting(False)
+        notify("INFO", f"Deleted LED effect: {led_index}")
+    except:
+        notify("WARNING", "Cannot delete LED effect")
 
 
 def enter_editing_led_effect():
@@ -66,7 +130,7 @@ def enter_editing_led_effect():
         dancer_obj.animation_data.action.fcurves.find("location", index=i).mute = True
 
     for bulb_obj in part_obj.children:
-        for i in range(4):
+        for i in range(3):
             bulb_obj.animation_data.action.fcurves.find("color", index=i).mute = True
 
     # Only select human and bulbs for local view
@@ -111,7 +175,7 @@ def exit_editing_led_effect():
         dancer_obj.animation_data.action.fcurves.find("location", index=i).mute = False
 
     for bulb_obj in part_obj.children:
-        for i in range(4):
+        for i in range(3):
             bulb_obj.animation_data.action.fcurves.find("color", index=i).mute = False
 
     # Reset pos and color of dancer and LED bulbs

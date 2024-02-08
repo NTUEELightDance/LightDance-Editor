@@ -186,7 +186,7 @@ async def request_edit_control():
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
-        notify("WARNING", "Cannot cancel edit")
+        notify("WARNING", "Edit request rejected")
 
 
 async def cancel_edit_control():
