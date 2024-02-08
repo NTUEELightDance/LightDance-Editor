@@ -180,32 +180,20 @@ def setup_objects(assets_load: Dict[str, Any]):
 
         data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
         dancer_asset = cast(bpy.types.Collection, bpy.data.collections[model_name])
-
-        dancer_asset_objects_dict = {
-            obj.name: cast(bpy.types.Object, obj.copy())
+        dancer_asset_objects = {
+            cast(str, obj.name): obj
             for obj in cast(List[bpy.types.Object], dancer_asset.all_objects)
         }
 
-        for name, obj in dancer_asset_objects_dict.items():
-            pure_name = ".".join(name.split(".")[1:])
-            new_name = f"{dancer_index}_{pure_name}"
-            if pure_name == model_name:
-                new_name = dancer_name
-            obj.name = new_name
+        asset_dancer_obj = dancer_asset_objects.get(f"{model_name}.{model_name}")
+        if asset_dancer_obj is None:
+            print(f"Dancer {dancer_name} not found in asset")
+            continue
 
-        dancer_asset_objects = {
-            obj.name: obj
-            for obj in cast(List[bpy.types.Object], dancer_asset_objects_dict.values())
-        }
-
-        # for name, obj in dancer_asset_objects.items():
-        #     print(name, obj)
-        # break
-
-        # dancer_parent = bpy.data.objects.new(dancer_name, None)
-        dancer_obj = dancer_asset_objects[dancer_name]
+        dancer_obj = cast(bpy.types.Object, asset_dancer_obj.copy())
         set_bpy_props(
             dancer_obj,
+            name=dancer_name,
             empty_display_size=0,
             ld_dancer_name=dancer.name,
             ld_model_name=model_name,
@@ -213,10 +201,15 @@ def setup_objects(assets_load: Dict[str, Any]):
         )
         bpy.context.scene.collection.objects.link(dancer_obj)
 
-        human_name = f"{dancer_index}_Human"
-        human_obj = dancer_asset_objects[human_name]
+        asset_human_obj = dancer_asset_objects.get(f"{model_name}.Human")
+        if asset_human_obj is None:
+            print(f"Human not found in dancer {dancer_name}")
+            continue
+
+        human_obj = cast(bpy.types.Object, asset_human_obj.copy())
         set_bpy_props(
             human_obj,
+            name=f"{dancer_index}_Human",
             parent=dancer_obj,
             color=(0, 0, 0, 1),
             ld_object_type=ObjectType.HUMAN.value,
@@ -226,16 +219,19 @@ def setup_objects(assets_load: Dict[str, Any]):
         bpy.context.scene.collection.objects.link(human_obj)
 
         for part_item in dancer.parts:
-            part_obj_name = f"{dancer_index}_{part_item.name}"
-            part_obj = dancer_asset_objects.get(part_obj_name)
-
-            if part_obj is None:
-                print("Dancer part not found (maybe should reload asset)")
+            asset_part_obj_name = f"{model_name}.{part_item.name}"
+            asset_part_obj = dancer_asset_objects.get(asset_part_obj_name)
+            if asset_part_obj is None:
+                print(f"Part {part_item.name} not found in dancer {dancer_name}")
                 continue
+
+            part_obj = cast(bpy.types.Object, asset_part_obj.copy())
+            part_obj_name = f"{dancer_index}_{part_item.name}"
 
             if part_item.type.value == "LED":
                 set_bpy_props(
                     part_obj,
+                    name=part_obj_name,
                     parent=dancer_obj,
                     empty_display_size=0,
                     ld_object_type=ObjectType.LIGHT.value,
@@ -246,15 +242,28 @@ def setup_objects(assets_load: Dict[str, Any]):
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
 
-                led_objs = [
-                    obj
-                    for obj_name, obj in dancer_asset_objects.items()
-                    if f"{part_obj_name}." in obj_name
-                ]
-                for led_obj in led_objs:
-                    position = int(led_obj.name.split(".")[-1])
+                length = part_item.length
+                if length is None:
+                    print(
+                        f"LED part {part_item.name} length not found in dancer {dancer_name}"
+                    )
+                    continue
+
+                for position in range(length):
+                    asset_sub_obj_name = f"{asset_part_obj_name}.{position:03}"
+                    asset_led_obj = dancer_asset_objects.get(asset_sub_obj_name)
+                    if asset_led_obj is None:
+                        print(
+                            f"LED part {part_item.name} position {position} not found in dancer {dancer_name}"
+                        )
+                        continue
+
+                    led_obj = cast(bpy.types.Object, asset_led_obj.copy())
+                    sub_obj_name = f"{model_name}.{part_obj_name}.{position:03}"
+
                     set_bpy_props(
                         led_obj,
+                        name=sub_obj_name,
                         parent=part_obj,
                         color=(0, 0, 0, 1),
                         ld_object_type=ObjectType.LIGHT.value,
@@ -269,8 +278,8 @@ def setup_objects(assets_load: Dict[str, Any]):
             elif part_item.type.value == "FIBER":
                 set_bpy_props(
                     part_obj,
-                    parent=dancer_obj,
                     name=part_obj_name,
+                    parent=dancer_obj,
                     color=(0, 0, 0, 1),
                     ld_object_type=ObjectType.LIGHT.value,
                     ld_light_type=LightType.FIBER.value,
@@ -280,7 +289,7 @@ def setup_objects(assets_load: Dict[str, Any]):
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
 
-    for obj in bpy.context.selected_objects:
+    for obj in cast(List[bpy.types.Object], bpy.context.view_layer.objects.selected):
         obj.select_set(False)
 
 
@@ -392,6 +401,7 @@ def setup_display():
 
     space.use_filter_collection = False
     space.use_filter_object_content = False
+    space.use_sort_alpha = False
 
     """
     Layout
