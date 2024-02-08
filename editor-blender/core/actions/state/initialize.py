@@ -67,6 +67,7 @@ from ...models import (
     SelectedItem,
 )
 from ...states import state
+from ...utils.convert import frame_to_time
 from ...utils.operator import execute_operator
 from ..state.load import load_data
 
@@ -239,10 +240,12 @@ async def init_editor():
     mount_handlers()
     print("Handlers mounted")
 
-    # Initialize current index
+    # Initialize current index and time
     bpy.context.scene.frame_current = 0
     state.current_control_index = calculate_current_status_index()
     update_current_status_by_index()
+
+    bpy.context.window_manager["ld_time"] = frame_to_time(0)
 
     # Setup control editor UI
     setup_control_editor()

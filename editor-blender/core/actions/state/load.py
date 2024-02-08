@@ -280,6 +280,24 @@ def setup_objects(assets_load: Dict[str, Any]):
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
 
+    for obj in bpy.context.selected_objects:
+        obj.select_set(False)
+
+
+def setup_render():
+    """
+    clean render settings
+    """
+    bpy.context.scene.render.fps = 1000
+    bpy.context.scene.render.fps_base = 1.0
+
+    bpy.context.scene.render.use_simplify = True
+    bpy.context.scene.render.simplify_subdivision = 0
+    bpy.context.scene.render.simplify_volumes = 0
+    bpy.context.scene.render.simplify_shadows = 0
+    bpy.context.scene.render.simplify_child_particles_render = 0
+    bpy.context.scene.eevee.gi_diffuse_bounces = 0
+
 
 def setup_music(assets_load: Dict[str, Any]):
     """
@@ -293,12 +311,31 @@ def setup_music(assets_load: Dict[str, Any]):
         sequence = cast(bpy.types.SoundSequence, scene.sequence_editor.sequences[0])
         scene.sequence_editor.sequences.remove(sequence)
 
-    scene.sequence_editor.sequences.new_sound(
+    strip = scene.sequence_editor.sequences.new_sound(
         "music", filepath=music_filepath, channel=1, frame_start=0
     )
 
+    # set frame range
+    bpy.context.scene.frame_start = 0
+    bpy.context.scene.frame_end = bpy.context.scene.sequence_editor.sequences[
+        0
+    ].frame_duration
 
-def setup_viewport():
+    # set retiming
+    duration = strip.frame_duration
+
+    strip.select = True
+    bpy.context.scene.sequence_editor.active_strip = strip
+
+    bpy.ops.sequencer.retiming_reset()
+    bpy.ops.sequencer.retiming_key_add()
+    bpy.ops.sequencer.retiming_key_add(timeline_frame=duration)
+    bpy.ops.sequencer.retiming_segment_speed_set()
+
+    bpy.context.window_manager["ld_play_speed"] = 1.0
+
+
+def setup_display():
     """
     3d viewport
     """
@@ -325,22 +362,9 @@ def setup_viewport():
     """
     scene
     """
-    bpy.context.scene.render.fps = 1000
-    bpy.context.scene.frame_start = 0
-    bpy.context.scene.frame_end = bpy.context.scene.sequence_editor.sequences[
-        0
-    ].frame_duration
-
     bpy.context.scene.tool_settings.use_keyframe_insert_auto = False
     bpy.context.scene.show_keys_from_selected_only = False
     bpy.context.scene.sync_mode = "AUDIO_SYNC"
-
-    bpy.context.scene.render.use_simplify = True
-    bpy.context.scene.render.simplify_subdivision = 0
-    bpy.context.scene.render.simplify_volumes = 0
-    bpy.context.scene.render.simplify_shadows = 0
-    bpy.context.scene.render.simplify_child_particles_render = 0
-    bpy.context.scene.eevee.gi_diffuse_bounces = 0
 
     """
     timeline
@@ -352,7 +376,7 @@ def setup_viewport():
     )
     space = cast(bpy.types.SpaceSequenceEditor, timeline.spaces.active)
 
-    space.show_seconds = True
+    space.show_seconds = False
 
     set_dopesheet_filter("control_frame")  # follow default editor
 
@@ -368,6 +392,28 @@ def setup_viewport():
 
     space.use_filter_collection = False
     space.use_filter_object_content = False
+
+    """
+    Layout
+    """
+    try:
+        screen = bpy.context.screen
+        area = next(
+            area
+            for area in cast(List[bpy.types.Area], screen.areas)
+            if area.type == "PROPERTIES"
+        )
+
+        ctx = cast(Dict[str, Any], bpy.context.copy())
+        ctx["screen"] = screen
+        ctx["area"] = area
+        ctx["region"] = area.regions[-1]
+
+        with bpy.context.temp_override(**ctx):
+            bpy.ops.screen.area_close()
+
+    except StopIteration:
+        pass
 
 
 def setup_animation_data():
@@ -416,9 +462,11 @@ async def load_data() -> None:
 
     assets_load = await fetch_data()
 
+    setup_render()
+    setup_display()
+
     setup_objects(assets_load)
     setup_music(assets_load)
     setup_animation_data()
-    setup_viewport()
 
     print("Data loaded")
