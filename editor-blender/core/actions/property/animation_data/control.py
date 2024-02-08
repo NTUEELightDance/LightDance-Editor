@@ -92,6 +92,8 @@ def set_ctrl_keyframes_from_state(effect_only: bool = False):
                             point.co = frame_start, led_rgb_float[d]
                             point.interpolation = "LINEAR" if fade else "CONSTANT"
 
+                            point.select_control_point = False
+
                 else:
                     if effect_only:
                         continue
@@ -119,6 +121,8 @@ def set_ctrl_keyframes_from_state(effect_only: bool = False):
                         point.co = frame_start, fiber_rgb_float[d]
                         point.interpolation = "LINEAR" if fade else "CONSTANT"
 
+                        point.select_control_point = False
+
         # insert fake frame
         scene = bpy.context.scene
         action = ensure_action(scene, "SceneAction")
@@ -131,6 +135,8 @@ def set_ctrl_keyframes_from_state(effect_only: bool = False):
         point = kpoints_list[i]
         point.co = frame_start, frame_start
         point.interpolation = "CONSTANT"
+
+        point.select_control_point = False
 
         # set revision
         rev = ctrl_map_element.rev

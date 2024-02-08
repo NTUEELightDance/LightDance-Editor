@@ -311,3 +311,22 @@ def rgba_to_float(rgb: Union[Tuple[int, ...], List[int]], a: int) -> Tuple[float
         g / 255 * a_float,
         b / 255 * a_float,
     )
+
+
+def frame_to_time(frame: int) -> str:
+    milliseconds = frame
+    seconds = milliseconds // 1000
+    minutes = seconds // 60
+    return f"{minutes:02}:{seconds % 60:02}:{milliseconds % 1000:03}"
+
+
+def time_to_frame(time: str) -> int:
+    splits = time.split(":")
+    if len(splits) != 3:
+        return -1
+
+    minutes = int(splits[0])
+    seconds = int(splits[1])
+    milliseconds = int(splits[2])
+
+    return (minutes * 60 + seconds) * 1000 + milliseconds

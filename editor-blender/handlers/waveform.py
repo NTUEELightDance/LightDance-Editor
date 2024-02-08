@@ -133,12 +133,6 @@ def mount():
     print("Waveform loaded")
     redraw_area({"DOPESHEET_EDITOR"})
 
-    # View all
-    ctx = cast(bpy.types.Context, bpy.context.copy())
-    ctx["area"] = area
-    ctx["region"] = region
-    bpy.ops.action.view_all(ctx)
-
 
 def unmount():
     global waveform_settings

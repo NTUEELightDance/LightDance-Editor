@@ -2,6 +2,7 @@ import bpy
 
 from ...models import EditMode, Editor
 from ...states import state
+from ...utils.convert import time_to_frame
 
 
 def get_current_frame_index(self: bpy.types.WindowManager) -> str:
@@ -61,3 +62,32 @@ def set_fade(self: bpy.types.WindowManager, value: bool):
                 pass
             case Editor.LED_EDITOR:
                 pass
+
+
+def get_play_speed(self: bpy.types.WindowManager) -> float:
+    return self["ld_play_speed"]  # type: ignore
+
+
+def set_play_speed(self: bpy.types.WindowManager, value: float):
+    if bpy.context.screen.is_animation_playing:
+        return
+
+    self["ld_play_speed"] = value
+
+    current_frame = bpy.context.scene.frame_current
+    bpy.context.scene.render.fps_base = 1 / value
+
+    bpy.context.scene.frame_current = current_frame
+
+
+def get_time(self: bpy.types.WindowManager) -> str:
+    return self["ld_time"]  # type: ignore
+
+
+def set_time(self: bpy.types.WindowManager, value: str):
+    frame = time_to_frame(value)
+    if frame < 0:
+        return
+
+    self["ld_time"] = value
+    bpy.context.scene.frame_current = frame

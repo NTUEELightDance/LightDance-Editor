@@ -15,12 +15,14 @@ from ..core.actions.state.pos_editor import sync_editing_pos_frame_properties
 from ..core.asyncio import AsyncTask
 from ..core.models import EditMode, Editor
 from ..core.states import state
-from ..core.utils.operator import execute_operator
+from ..core.utils.convert import frame_to_time
 
 
 # This won't be triggered when pause animation
 # Similar logic is implemented in core/actions/state/animation.py
 def frame_change_pre(scene: bpy.types.Scene):
+    bpy.context.window_manager["ld_time"] = frame_to_time(scene.frame_current)
+
     if state.playing:
         return
 

@@ -30,7 +30,6 @@ def set_pos_keyframes_from_state():
             dancer_obj = data_objects[dancer_name]
             action = ensure_action(dancer_obj, dancer_name + "Action")
 
-            curves = action.fcurves
             for d in range(3):
                 curve = ensure_curve(
                     action,
@@ -45,8 +44,8 @@ def set_pos_keyframes_from_state():
                 point.co = frame_start, dancer_location[d]
 
                 point.interpolation = "LINEAR"
-                if i == pos_frame_number - 1:
-                    curves.find("location", index=d).keyframe_points.sort()
+
+                point.select_control_point = False
 
         # insert fake frame
         scene = bpy.context.scene
@@ -60,6 +59,8 @@ def set_pos_keyframes_from_state():
         point = kpoints_list[i]
         point.co = frame_start, frame_start
         point.interpolation = "CONSTANT"
+
+        point.select_control_point = False
 
         # set revision
         rev = pos_map_element.rev
