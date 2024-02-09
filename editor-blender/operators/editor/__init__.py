@@ -11,6 +11,7 @@ from ...core.actions.state.control_editor import (
 from ...core.actions.state.control_map import apply_control_map_updates
 from ...core.actions.state.editor import set_editor
 from ...core.actions.state.led_editor import (
+    add_led_effect,
     cancel_edit_led_effect,
     delete_led_effect,
     request_edit_led_effect,
@@ -169,7 +170,7 @@ class Add(AsyncOperator):
             case Editor.POS_EDITOR:
                 await add_pos_frame()
             case Editor.LED_EDITOR:
-                pass
+                await add_led_effect()
 
 
 class Save(AsyncOperator):
