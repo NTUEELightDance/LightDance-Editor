@@ -3,6 +3,7 @@ from . import (
     assets,
     async_core,
     auth,
+    clipboard,
     color_palette,
     control_editor,
     editor,
@@ -32,6 +33,7 @@ def register():
     control_editor.register()
     led_editor.register()
     shift.register()
+    clipboard.register()
     assets.register()
 
 
@@ -50,4 +52,5 @@ def unregister():
     control_editor.unregister()
     led_editor.unregister()
     shift.unregister()
+    clipboard.unregister()
     assets.unregister()
