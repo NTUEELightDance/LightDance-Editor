@@ -37,6 +37,8 @@ class LightDanceToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.operator("lightdance.toggle_shifting", text="Timeshift", icon="PLAY")
         row = layout.row()
+        row.operator("lightdance.clear_assets", text="Clear Assets", icon="PLAY")
+        row = layout.row()
         row.operator("lightdance.logout", text="Logout", icon="PLAY")
 
 

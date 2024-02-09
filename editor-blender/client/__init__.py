@@ -12,6 +12,7 @@ from gql.transport.aiohttp import AIOHTTPTransport
 from gql.transport.websockets import WebsocketsTransport
 from graphql import DocumentNode
 
+from ..core.constants import constants
 from ..core.states import state
 from .cache import InMemoryCache, query_defs_to_field_table
 
@@ -50,30 +51,30 @@ def remove_wrapped_slash(path: str) -> str:
 
 class Clients:
     def __init__(self):
-        SERVER_URL = os.getenv("SERVER_URL")
-        if SERVER_URL is None:
-            raise Exception("SERVER_URL is not defined")
-        self.SERVER_URL = remove_wrapped_slash(SERVER_URL)
-
-        HTTP_PATH = os.getenv("HTTP_PATH")
-        if HTTP_PATH is None:
-            raise Exception("HTTP_PATH is not defined")
-        self.HTTP_PATH = remove_wrapped_slash(HTTP_PATH)
-
-        GRAPHQL_PATH = os.getenv("GRAPHQL_PATH")
-        if GRAPHQL_PATH is None:
-            raise Exception("GRAPHQL_PATH is not defined")
-        self.GRAPHQL_PATH = remove_wrapped_slash(GRAPHQL_PATH)
-
-        GRAPHQL_WS_PATH = os.getenv("GRAPHQL_WS_PATH")
-        if GRAPHQL_WS_PATH is None:
-            raise Exception("GRAPHQL_WS_PATH is not defined")
-        self.GRAPHQL_WS_PATH = remove_wrapped_slash(GRAPHQL_WS_PATH)
-
-        FILE_SERVER_URL = os.getenv("FILE_SERVER_URL")
-        if FILE_SERVER_URL is None:
-            raise Exception("FILE_SERVER_URL is not defined")
-        self.FILE_SERVER_URL = remove_wrapped_slash(FILE_SERVER_URL)
+        # SERVER_URL = os.getenv("SERVER_URL")
+        # if SERVER_URL is None:
+        #     raise Exception("SERVER_URL is not defined")
+        # self.SERVER_URL = remove_wrapped_slash(SERVER_URL)
+        #
+        # HTTP_PATH = os.getenv("HTTP_PATH")
+        # if HTTP_PATH is None:
+        #     raise Exception("HTTP_PATH is not defined")
+        # self.HTTP_PATH = remove_wrapped_slash(HTTP_PATH)
+        #
+        # GRAPHQL_PATH = os.getenv("GRAPHQL_PATH")
+        # if GRAPHQL_PATH is None:
+        #     raise Exception("GRAPHQL_PATH is not defined")
+        # self.GRAPHQL_PATH = remove_wrapped_slash(GRAPHQL_PATH)
+        #
+        # GRAPHQL_WS_PATH = os.getenv("GRAPHQL_WS_PATH")
+        # if GRAPHQL_WS_PATH is None:
+        #     raise Exception("GRAPHQL_WS_PATH is not defined")
+        # self.GRAPHQL_WS_PATH = remove_wrapped_slash(GRAPHQL_WS_PATH)
+        #
+        # FILE_SERVER_URL = os.getenv("FILE_SERVER_URL")
+        # if FILE_SERVER_URL is None:
+        #     raise Exception("FILE_SERVER_URL is not defined")
+        # self.FILE_SERVER_URL = remove_wrapped_slash(FILE_SERVER_URL)
 
         self.http_client: Optional[ClientSession] = None
         self.client: Optional[GQLSession] = None
@@ -95,7 +96,7 @@ class Clients:
             raise Exception("HTTP client is not initialized")
 
         path = remove_wrapped_slash(path)
-        http_path = f"/{self.HTTP_PATH}/{path}"
+        http_path = f"/{constants.HTTP_PATH}/{path}"
         async with self.http_client.post(http_path, json=json) as response:
             return await response.json()
 
@@ -104,7 +105,7 @@ class Clients:
             raise Exception("HTTP client is not initialized")
 
         path = remove_wrapped_slash(path)
-        http_path = f"/{self.HTTP_PATH}/{path}"
+        http_path = f"/{constants.HTTP_PATH}/{path}"
         async with self.http_client.get(http_path) as response:
             return await response.json()
 
@@ -226,7 +227,7 @@ class Clients:
         token_payload = {"token": state.token}
 
         # HTTP client
-        self.http_client = ClientSession(self.SERVER_URL, cookies=token_payload)
+        self.http_client = ClientSession(constants.SERVER_URL, cookies=token_payload)
         print("HTTP client opened")
 
     async def close_http(self) -> None:
@@ -239,7 +240,7 @@ class Clients:
 
     async def open_file(self) -> None:
         # File client
-        self.file_client = ClientSession(self.FILE_SERVER_URL)
+        self.file_client = ClientSession(constants.FILE_SERVER_URL)
         print("File client opened")
 
     async def close_file(self) -> None:
@@ -257,7 +258,8 @@ class Clients:
 
         # GraphQL client
         transport = AIOHTTPTransport(
-            url=f"{self.SERVER_URL}/{self.GRAPHQL_PATH}", cookies=token_payload
+            url=f"{constants.SERVER_URL}/{constants.GRAPHQL_PATH}",
+            cookies=token_payload,
         )
 
         self.client = await Client(
@@ -266,9 +268,9 @@ class Clients:
         print("GraphQL client opened")
 
         # GraphQL subscription client
-        ws_url = self.SERVER_URL.replace("http", "ws")
+        ws_url = constants.SERVER_URL.replace("http", "ws")
         sub_transport = WebsocketsTransport(
-            url=f"{ws_url}/{self.GRAPHQL_WS_PATH}",
+            url=f"{ws_url}/{constants.GRAPHQL_WS_PATH}",
             subprotocols=[WebsocketsTransport.GRAPHQLWS_SUBPROTOCOL],
             init_payload=token_payload,
         )

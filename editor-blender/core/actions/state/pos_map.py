@@ -89,15 +89,24 @@ def apply_pos_map_updates():
     pos_map_updates = state.pos_map_updates
 
     for pos in pos_map_updates.added:
-        add_single_pos_keyframe(pos[0], pos[1])
+        try:
+            add_single_pos_keyframe(pos[0], pos[1])
+        except Exception as e:
+            notify("ERROR", f"Failed to add position keyframe {pos[0]}: {e}")
         state.pos_map[pos[0]] = pos[1]
 
     for pos in pos_map_updates.updated:
-        edit_single_pos_keyframe(pos[0], pos[1])
+        try:
+            edit_single_pos_keyframe(pos[0], pos[1])
+        except Exception as e:
+            notify("ERROR", f"Failed to edit position keyframe {pos[0]}: {e}")
         state.pos_map[pos[0]] = pos[1]
 
     for pos_id in pos_map_updates.deleted:
-        delete_single_pos_keyframe(pos_id)
+        try:
+            delete_single_pos_keyframe(pos_id)
+        except Exception as e:
+            notify("ERROR", f"Failed to delete position keyframe {pos_id}: {e}")
         del state.pos_map[pos_id]
 
     pos_map_updates.added.clear()
