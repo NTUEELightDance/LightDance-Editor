@@ -1,6 +1,8 @@
 from ..models import (
+    Clipboard,
     ColorMapUpdates,
     ControlMapUpdates,
+    CopiedType,
     EditingData,
     EditMode,
     Editor,
@@ -54,6 +56,7 @@ state = State(
     selection_mode=SelectMode.PART_MODE,
     selected_obj_names=[],
     selected_obj_type=None,
+    clipboard=Clipboard(CopiedType.NONE),
     # selected_leds,
     # current_led_effect_reference_dancer
     # current_led_partName

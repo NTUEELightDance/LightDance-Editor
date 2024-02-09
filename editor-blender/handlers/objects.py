@@ -147,6 +147,8 @@ def handle_autoselect_in_control_editor_dancer_mode():
     )
     ld_ui_pos_editor.multi_select = len(new_selected_obj_names) > 1
 
+    state.selected_obj_names = new_selected_obj_names
+
 
 def handle_autoselect_in_control_editor_part_mode():
     active_obj = bpy.context.view_layer.objects.active

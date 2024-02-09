@@ -238,6 +238,36 @@ class ModelDancerIndexMapItem:
 ModelDancerIndexMap = Dict[ModelName, ModelDancerIndexMapItem]
 
 
+class CopiedType(Enum):
+    NONE = 0
+    CONTROL_FRAME = 1
+    POS_FRAME = 2
+    DANCER = 3
+    PARTS = 4
+
+
+@dataclass
+class CopiedPartData:
+    alpha: int
+    color: Optional[str] = None
+    effect: Optional[str] = None
+
+
+@dataclass
+class CopiedDancerData:
+    name: DancerName
+    model: ModelName
+    parts: Dict[PartName, CopiedPartData]
+
+
+@dataclass
+class Clipboard:
+    type: CopiedType
+    control_frame: Optional[ControlMapElement] = None
+    pos_frame: Optional[PosMapElement] = None
+    dancer: Optional[CopiedDancerData] = None
+
+
 @dataclass
 class State:
     running: bool
@@ -294,6 +324,8 @@ class State:
     selection_mode: SelectMode
     selected_obj_names: List[str]
     selected_obj_type: Optional[SelectedPartType]
+
+    clipboard: Clipboard
 
     # TODO: Add these
     # current_led_effect_reference_dancer: Optional[DancerName]  # the dancer whose LED part is being edited

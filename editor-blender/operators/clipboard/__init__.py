@@ -1,18 +1,24 @@
+from typing import Dict, List, Optional, cast
+
 import bpy
 
-from ...core.models import EditMode, Editor, SelectMode
+from ...core.models import (
+    CopiedDancerData,
+    CopiedPartData,
+    CopiedType,
+    EditMode,
+    Editor,
+    PartName,
+    SelectMode,
+)
 from ...core.states import state
 from ...core.utils.notification import notify
+from ...properties.types import LightType, ObjectType
 
-clipboard = {}
-# save parts' names for check
-part_name = []
-# fix name bug like human -> ""
-name_bug = [""]
+default_keymaps = ["view3d.copybuffer", "view3d.pastebuffer"]
 
-# attributes for copy & paste
-fiber_attrs = ["ld_alpha", "ld_color"]
-LED_attrs = ["ld_alpha", "ld_effect"]
+
+# TODO: Add base model to dancer for varification
 
 
 class CopyOperator(bpy.types.Operator):
@@ -28,91 +34,108 @@ class CopyOperator(bpy.types.Operator):
             notify("INFO", "Not Edit Mode")
             return {"FINISHED"}
 
+        data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
         if state.selection_mode == SelectMode.DANCER_MODE:
-            try:
-                active_obj = bpy.context.view_layer.objects.active.children
+            if len(state.selected_obj_names) != 1:
+                return {"CANCELLED"}
 
-                clipboard.clear()
-                part_name.clear()
+            selected_obj_name = state.selected_obj_names[0]
+            selected_obj = data_objects[selected_obj_name]
 
-                for obj in active_obj:
-                    # save data for every part
-                    part_dict = {}
+            ld_object_type: str = getattr(selected_obj, "ld_object_type")
+            if ld_object_type != ObjectType.DANCER.value:
+                return {"CANCELLED"}
 
-                    name = getattr(obj, "ld_part_name")
+            clipboard = state.clipboard
+            clipboard.type = CopiedType.DANCER
 
-                    # fix no part name bug
-                    if name in name_bug:
-                        continue
+            dancer_name: str = getattr(selected_obj, "ld_dancer_name")
+            model_name: str = getattr(selected_obj, "ld_model_name")
 
-                    match getattr(obj, "ld_light_type"):
-                        case "fiber":
-                            # fiber -> alpha & color
-                            for attr in fiber_attrs:
-                                part_dict.update({attr: getattr(obj, attr)})
+            dancer_status: Dict[PartName, CopiedPartData] = {}
+            clipboard.dancer = CopiedDancerData(
+                name=dancer_name, model=model_name, parts=dancer_status
+            )
 
-                        case "led":
-                            # LED -> alpha & effect
-                            for attr in LED_attrs:
-                                part_dict.update({attr: getattr(obj, attr)})
+            for part_obj in selected_obj.children:
+                ld_object_type: str = getattr(part_obj, "ld_object_type")
+                if ld_object_type != ObjectType.LIGHT.value:
+                    continue
 
-                        case _:
-                            pass
+                part_name: str = getattr(part_obj, "ld_part_name")
+                part_type: str = getattr(part_obj, "ld_light_type")
 
-                    # add dict(ld_part_name:ld_alpha,ld_color,ld_effect)
-                    part_name.append(name)
-                    clipboard.update({name: part_dict})  # type: ignore
+                if part_type == LightType.FIBER.value:
+                    ld_color: str = getattr(part_obj, "ld_color")
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
 
-                # check selectMode & name
-                clipboard.update({"selection_mode": SelectMode.DANCER_MODE})
-                clipboard.update({"name": bpy.context.view_layer.objects.active.name})
-                notify(
-                    "INFO",
-                    f"copied {bpy.context.view_layer.objects.active.name} into clipboard",
-                )
-            except:
-                pass
+                    dancer_status[part_name] = CopiedPartData(
+                        alpha=ld_alpha,
+                        color=ld_color,
+                    )
 
-        if state.selection_mode == SelectMode.PART_MODE:
-            try:
-                active_obj = bpy.context.view_layer.objects.active
+                elif part_type == LightType.LED.value:
+                    ld_effect: str = getattr(part_obj, "ld_effect")
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
 
-                part_dict = {}
+                    dancer_status[part_name] = CopiedPartData(
+                        alpha=ld_alpha,
+                        effect=ld_effect,
+                    )
 
-                name = getattr(active_obj, "ld_part_name")
+        elif state.selection_mode == SelectMode.PART_MODE:
+            selected_obj_dancer_names = [
+                cast(str, getattr(data_objects[obj_name], "ld_dancer_name"))
+                for obj_name in state.selected_obj_names
+            ]
 
-                if name in name_bug:
-                    return {"FINISHED"}
+            # check if all selected objects are from the same dancer
+            if selected_obj_dancer_names.count(selected_obj_dancer_names[0]) != len(
+                selected_obj_dancer_names
+            ):
+                return {"CANCELLED"}
 
-                clipboard.clear()
-                part_name.clear()
+            dancer_name = selected_obj_dancer_names[0]
+            dancer_obj = data_objects[dancer_name]
+            model_name: str = getattr(dancer_obj, "ld_model_name")
 
-                light_type = getattr(active_obj, "ld_light_type")
+            selected_obj_names = state.selected_obj_names
+            selected_objs = [data_objects[obj_name] for obj_name in selected_obj_names]
 
-                match light_type:
-                    case "fiber":
-                        # fiber -> alpha & color
-                        for attr in fiber_attrs:
-                            part_dict.update({attr: getattr(active_obj, attr)})
+            clipboard = state.clipboard
+            clipboard.type = CopiedType.DANCER
 
-                    case "led":
-                        # LED -> alpha & effect
-                        for attr in LED_attrs:
-                            part_dict.update({attr: getattr(active_obj, attr)})
+            dancer_status: Dict[PartName, CopiedPartData] = {}
+            clipboard.dancer = CopiedDancerData(
+                name=dancer_name, model=model_name, parts=dancer_status
+            )
 
-                # add dict(ld_part_name:ld_alpha,ld_color,ld_effect)
-                part_name.append(light_type)
-                clipboard.update({light_type: part_dict})  # type: ignore
+            for part_obj in selected_objs:
+                ld_object_type: str = getattr(part_obj, "ld_object_type")
+                if ld_object_type != ObjectType.LIGHT.value:
+                    continue
 
-                # check selectMode & name
-                clipboard.update({"selection_mode": SelectMode.PART_MODE})
-                clipboard.update({"name": bpy.context.view_layer.objects.active.name})
-                notify(
-                    "INFO",
-                    f"copied {bpy.context.view_layer.objects.active.name} into clipboard",
-                )
-            except:
-                pass
+                part_name: str = getattr(part_obj, "ld_part_name")
+                part_type: str = getattr(part_obj, "ld_light_type")
+
+                if part_type == LightType.FIBER.value:
+                    ld_color: str = getattr(part_obj, "ld_color")
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+
+                    dancer_status[part_name] = CopiedPartData(
+                        alpha=ld_alpha,
+                        color=ld_color,
+                    )
+
+                elif part_type == LightType.LED.value:
+                    ld_effect: str = getattr(part_obj, "ld_effect")
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+
+                    dancer_status[part_name] = CopiedPartData(
+                        alpha=ld_alpha,
+                        effect=ld_effect,
+                    )
 
         return {"FINISHED"}
 
@@ -120,6 +143,7 @@ class CopyOperator(bpy.types.Operator):
 class PasteOperator(bpy.types.Operator):
     bl_idname = "lightdance.paste"
     bl_label = "Paste"
+    bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context):
         if state.editor != Editor.CONTROL_EDITOR:
@@ -130,150 +154,192 @@ class PasteOperator(bpy.types.Operator):
             notify("INFO", f"Not Edit Mode")
             return {"FINISHED"}
 
-        if clipboard == {}:
+        clipboard = state.clipboard
+        if clipboard.type == CopiedType.NONE:
             notify("INFO", f"Not copied yet")
             return {"FINISHED"}
 
-        if (
-            clipboard["selection_mode"] == SelectMode.DANCER_MODE
-            and state.selection_mode == SelectMode.DANCER_MODE
-        ):
-            part = ""
-            try:
-                if clipboard["name"] == bpy.context.view_layer.objects.active.name:
-                    return {"FINISHED"}
+        data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
-                active_obj = bpy.context.view_layer.objects.active.children
+        if state.selection_mode == SelectMode.DANCER_MODE:
+            copied_dancer = clipboard.dancer
+            if copied_dancer is None:
+                return {"CANCELLED"}
 
-                # check is same type by compare all part name
-                check_part_name = []
-                for obj in active_obj:
-                    check_part_name.append(getattr(obj, "ld_part_name"))
+            for dancer_obj_name in state.selected_obj_names:
+                dancer_obj = data_objects[dancer_obj_name]
 
-                # fix no part name bug
-                for name in name_bug:
-                    try:
-                        check_part_name.remove("")
-                    except:
-                        pass
+                ld_object_type: str = getattr(dancer_obj, "ld_object_type")
+                if ld_object_type != ObjectType.DANCER.value:
+                    return {"CANCELLED"}
 
-                # check is same type by compare all part name
-                if len(part_name) != len(check_part_name):
-                    notify("INFO", f"Wrong object type")
-                    return {"FINISHED"}
+                # dancer_name: str = getattr(selected_obj, "ld_dancer_name")
+                # model_name: str = getattr(selected_obj, "ld_model_name")
 
-                for name in check_part_name:
-                    if name not in part_name:
-                        notify("INFO", f"Wrong object type")
-                        return {"FINISHED"}
-
-                for copy, paste in zip(part_name, check_part_name):
-                    if paste != copy:
-                        notify("INFO", f"Wrong object type")
-                        return {"FINISHED"}
-
-                # paste
-                for obj in active_obj:
-                    part = getattr(obj, "ld_part_name")
-                    # fix no part name bug
-                    if part in name_bug:
+                for part_obj in dancer_obj.children:
+                    ld_object_type: str = getattr(part_obj, "ld_object_type")
+                    if ld_object_type != ObjectType.LIGHT.value:
                         continue
 
-                    paste = clipboard[part]  # type: ignore
+                    part_name: str = getattr(part_obj, "ld_part_name")
+                    part_type: str = getattr(part_obj, "ld_light_type")
 
-                    match getattr(obj, "ld_light_type"):
-                        case "fiber":
-                            # fiber -> alpha & color
-                            for attr in fiber_attrs:
-                                setattr(obj, attr, paste[attr])
+                    if part_name in copied_dancer.parts:
+                        copied_part_data = copied_dancer.parts[part_name]
 
-                        case "led":
-                            # LED -> alpha & effect
-                            for attr in LED_attrs:
-                                setattr(obj, attr, paste[attr])
+                        if part_type == LightType.FIBER.value:
+                            copied_color: Optional[str] = copied_part_data.color
+                            copied_alpha: int = copied_part_data.alpha
 
-                        case _:
-                            pass
-                notify(
-                    "INFO",
-                    f"copied {clipboard['name']} into {bpy.context.view_layer.objects.active.name}",
-                )
-            except:
-                pass
+                            if copied_color is not None:
+                                setattr(part_obj, "ld_color", copied_color)
+                                setattr(part_obj, "ld_alpha", copied_alpha)
 
-        if (
-            state.selection_mode == SelectMode.PART_MODE
-            and clipboard["selection_mode"] == SelectMode.PART_MODE
-        ):
-            try:
-                if clipboard["name"] == bpy.context.view_layer.objects.active.name:
-                    return {"FINISHED"}
+                        elif part_type == LightType.LED.value:
+                            copied_effect: Optional[str] = copied_part_data.effect
+                            copied_alpha: int = copied_part_data.alpha
 
-                active_obj = bpy.context.view_layer.objects.active
-                check_part_name = []
+                            if copied_effect is not None:
+                                setattr(part_obj, "ld_effect", copied_effect)
+                                setattr(part_obj, "ld_alpha", copied_alpha)
 
-                part = getattr(active_obj, "ld_part_name")
+        elif state.selection_mode == SelectMode.PART_MODE:
+            copied_dancer = clipboard.dancer
+            if copied_dancer is None:
+                return {"CANCELLED"}
 
-                if part in name_bug:
-                    return {"FINISHED"}
+            selected_dancer_objs: Dict[str, List[bpy.types.Object]] = {}
+            for obj_name in state.selected_obj_names:
+                obj = data_objects[obj_name]
+                dancer_name: str = getattr(obj, "ld_dancer_name")
 
-                light_type = getattr(active_obj, "ld_light_type")
+                if dancer_name not in selected_dancer_objs:
+                    selected_dancer_objs[dancer_name] = []
 
-                check_part_name.append(light_type)
+                selected_dancer_objs[dancer_name].append(obj)
 
-                if check_part_name != part_name:
-                    notify("INFO", f"Wrong object type")
-                    return {"FINISHED"}
+            for dancer_name, dancer_part_objs in selected_dancer_objs.items():
+                dancer_obj = data_objects[dancer_name]
 
-                paste = clipboard[light_type]  # type: ignore
+                ld_object_type: str = getattr(dancer_obj, "ld_object_type")
+                if ld_object_type != ObjectType.DANCER.value:
+                    return {"CANCELLED"}
 
-                match light_type:
-                    case "fiber":
-                        # fiber -> alpha & color
-                        for attr in fiber_attrs:
-                            setattr(active_obj, attr, paste[attr])
+                for part_obj in dancer_part_objs:
+                    ld_object_type: str = getattr(part_obj, "ld_object_type")
+                    if ld_object_type != ObjectType.LIGHT.value:
+                        continue
 
-                    case "led":
-                        # LED -> alpha & effect
-                        for attr in LED_attrs:
-                            setattr(active_obj, attr, paste[attr])
+                    part_name: str = getattr(part_obj, "ld_part_name")
+                    part_type: str = getattr(part_obj, "ld_light_type")
 
-                    case _:
-                        pass
+                    if part_name in copied_dancer.parts:
+                        copied_part_data = copied_dancer.parts[part_name]
 
-                notify(
-                    "INFO",
-                    f"copied {clipboard['name']} into {bpy.context.view_layer.objects.active.name}",
-                )
-            except:
-                pass
+                        if part_type == LightType.FIBER.value:
+                            copied_color: Optional[str] = copied_part_data.color
+                            copied_alpha: int = copied_part_data.alpha
+
+                            if copied_color is not None:
+                                setattr(part_obj, "ld_color", copied_color)
+                                setattr(part_obj, "ld_alpha", copied_alpha)
+
+                        elif part_type == LightType.LED.value:
+                            copied_effect: Optional[str] = copied_part_data.effect
+                            copied_alpha: int = copied_part_data.alpha
+
+                            if copied_effect is not None:
+                                setattr(part_obj, "ld_effect", copied_effect)
+                                setattr(part_obj, "ld_alpha", copied_alpha)
 
         return {"FINISHED"}
+
+
+def check_keymaps_exist(
+    keymaps: List[bpy.types.KeyMapItem],
+    names: List[str],
+    ctrl: List[int],
+    oskey: List[int],
+) -> List[Optional[bpy.types.KeyMapItem]]:
+    wm = bpy.context.window_manager
+    kc_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
+        "3D View"
+    ].keymap_items
+    kc_items = cast(List[bpy.types.KeyMapItem], kc_items)
+
+    results: List[Optional[bpy.types.KeyMapItem]] = [None] * len(names)
+
+    for keymap in keymaps:
+        for i in range(len(names)):
+            if (
+                keymap.idname == names[i]
+                and keymap.ctrl == ctrl[i]
+                and keymap.oskey == oskey[i]
+            ):
+                results[i] = keymap
+
+    return results
 
 
 def register():
     bpy.utils.register_class(CopyOperator)
     bpy.utils.register_class(PasteOperator)
-    try:
-        wm = bpy.context.window_manager
-        kc_items = wm.keyconfigs.default.keymaps["3D View"].keymap_items
-        copy_km = kc_items["view3d.copybuffer"]
-        paste_km = kc_items["view3d.pastebuffer"]
-        kc_items.remove(copy_km)
-        kc_items.remove(paste_km)
-        kc_items.new("lightdance.copy", "C", value="PRESS", ctrl=1)
-        kc_items.new("lightdance.paste", "V", value="PRESS", ctrl=1)
-    except:
-        pass
+
+    # Active keymaps and disable default keymaps
+
+    wm = bpy.context.window_manager
+    km_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
+        "3D View"
+    ].keymap_items
+    km_items = cast(List[bpy.types.KeyMapItem], km_items)
+
+    for keymap in km_items:
+        if keymap.idname in default_keymaps:
+            keymap.active = False
+
+    new_keymaps_config = (
+        [
+            "lightdance.copy",
+            "lightdance.copy",
+            "lightdance.paste",
+            "lightdance.paste",
+        ],
+        ["C", "C", "V", "V"],
+        [1, 0, 1, 0],
+        [0, 1, 0, 1],
+    )
+
+    new_keymaps = check_keymaps_exist(
+        km_items,
+        new_keymaps_config[0],
+        new_keymaps_config[2],
+        new_keymaps_config[3],
+    )
+
+    km_items = cast(bpy.types.KeyMapItems, km_items)
+    for i in range(len(new_keymaps)):
+        new_keymap = new_keymaps[i]
+
+        if new_keymap is None:
+            new_keymaps[i] = km_items.new(
+                new_keymaps_config[0][i],
+                new_keymaps_config[1][i],
+                ctrl=new_keymaps_config[2][i],
+                oskey=new_keymaps_config[3][i],
+                value="PRESS",
+            )
+
+        else:
+            new_keymap.active = True
+
+    global clipboard_keymaps
+
+    clipboard_keymaps = cast(List[bpy.types.KeyMapItem], new_keymaps)
 
 
 def unregister():
     bpy.utils.unregister_class(CopyOperator)
     bpy.utils.unregister_class(PasteOperator)
-    try:
-        wm = bpy.context.window_manager
-        kc_items = wm.keyconfigs.default.keymaps["3D View"].keymap_items
-        kc_items.remove(kc_items.find_from_operator("lightdance.copy"))
-        kc_items.remove(kc_items.find_from_operator("lightdance.paste"))
-    except:
-        pass
+
+    for keymap in clipboard_keymaps:
+        keymap.active = False
