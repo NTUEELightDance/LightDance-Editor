@@ -92,15 +92,24 @@ def apply_control_map_updates():
     control_map_updates = state.control_map_updates
 
     for status in control_map_updates.added:
-        add_single_ctrl_keyframe(status[0], status[1])
+        try:
+            add_single_ctrl_keyframe(status[0], status[1])
+        except Exception as e:
+            notify("ERROR", f"Failed to add control keyframe {status[0]}: {e}")
         state.control_map[status[0]] = status[1]
 
     for status in control_map_updates.updated:
-        edit_single_ctrl_keyframe(status[0], status[1])
+        try:
+            edit_single_ctrl_keyframe(status[0], status[1])
+        except Exception as e:
+            notify("ERROR", f"Failed to update control keyframe {status[0]}: {e}")
         state.control_map[status[0]] = status[1]
 
     for id in control_map_updates.deleted:
-        delete_single_ctrl_keyframe(id)
+        try:
+            delete_single_ctrl_keyframe(id)
+        except Exception as e:
+            notify("ERROR", f"Failed to delete control keyframe {id}: {e}")
         del state.control_map[id]
 
     control_map_updates.added.clear()

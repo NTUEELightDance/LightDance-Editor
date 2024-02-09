@@ -1,5 +1,6 @@
 from . import (
     animation,
+    assets,
     async_core,
     auth,
     color_palette,
@@ -31,6 +32,7 @@ def register():
     control_editor.register()
     led_editor.register()
     shift.register()
+    assets.register()
 
 
 def unregister():
@@ -48,3 +50,4 @@ def unregister():
     control_editor.unregister()
     led_editor.unregister()
     shift.unregister()
+    assets.unregister()
