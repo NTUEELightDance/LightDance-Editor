@@ -502,6 +502,14 @@ def setup_display():
     space.use_filter_object_content = False
     space.use_sort_alpha = False
 
+    space.show_restrict_column_hide = False
+    space.show_restrict_column_enable = False
+    space.show_restrict_column_select = False
+    space.show_restrict_column_viewport = False
+    space.show_restrict_column_render = False
+    space.show_restrict_column_holdout = False
+    space.show_restrict_column_indirect_only = False
+
 
 def setup_animation_data():
     if not getattr(bpy.context.scene, "ld_anidata"):
