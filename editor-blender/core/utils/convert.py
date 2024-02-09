@@ -22,6 +22,7 @@ from ...graphqls.queries import (
 from ...graphqls.subscriptions import (
     SubControlFrame,
     SubEffectListItemData,
+    SubLEDRecordDataItem,
     SubPositionFrame,
 )
 from ..models import (
@@ -36,7 +37,7 @@ from ..models import (
     DancersArrayPartsItem,
     DancerStatus,
     FiberData,
-    LEDBuldData,
+    LEDBulbData,
     LEDData,
     LEDEffect,
     LEDEffectID,
@@ -260,7 +261,7 @@ def led_map_query_to_state(payload: QueryLEDMapPayload) -> LEDMap:
             for effect_name, effect in effects.items():
                 frame = effect.frames[0]
                 bulb_data = [
-                    LEDBuldData(color_id=color_id, alpha=alpha)
+                    LEDBulbData(color_id=color_id, alpha=alpha)
                     for color_id, alpha in frame.LEDs
                 ]
                 part_map[effect_name] = LEDEffect(
@@ -293,6 +294,14 @@ def effect_list_data_sub_to_query(data: SubEffectListItemData) -> QueryEffectLis
     ]
 
     return effectListItem
+
+
+def led_record_sub_to_state_item(led_payload_item: SubLEDRecordDataItem) -> LEDEffect:
+    effect = [
+        LEDBulbData(color_id=bulb[0], alpha=bulb[1])
+        for bulb in led_payload_item.frames[0].LEDs
+    ]
+    return LEDEffect(id=led_payload_item.id, name=led_payload_item.name, effect=effect)
 
 
 def rgb_to_float(rgb: Tuple[int, ...]) -> Tuple[float, ...]:

@@ -17,7 +17,6 @@ from ....core.utils.ui import (
 )
 from ....properties.ui.types import LEDEditorEditModeType, LEDEditorStatusType
 from ...utils.notification import notify
-from ..property.animation_data import set_ctrl_keyframes_from_state
 from .app_state import set_requesting
 
 

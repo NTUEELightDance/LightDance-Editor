@@ -10,13 +10,19 @@ from ..core.actions.state.control_map import (
     set_control_record,
     update_control,
 )
+from ..core.actions.state.led_map import (
+    add_led_effect,
+    delete_led_effect,
+    edit_led_effect,
+)
 from ..core.actions.state.pos_map import add_pos, delete_pos, set_pos_record, update_pos
-from ..core.models import ID
+from ..core.models import ID, LEDMap
 from ..core.utils.convert import (
     color_query_to_state,
     control_frame_query_to_state,
     control_frame_sub_to_query,
     effect_list_data_sub_to_query,
+    led_record_sub_to_state_item,
     pos_frame_query_to_state,
     pos_frame_sub_to_query,
 )
@@ -34,6 +40,7 @@ from ..graphqls.subscriptions import (
     SUB_CONTROL_MAP,
     SUB_CONTROL_RECORD,
     SUB_EFFECT_LIST,
+    SUB_LED_RECORD,
     SUB_POS_MAP,
     SUB_POS_RECORD,
     SubColorData,
@@ -42,6 +49,7 @@ from ..graphqls.subscriptions import (
     SubControlRecordData,
     SubEffectListData,
     SubEffectListMutation,
+    SubLEDRecordData,
     SubPositionMapData,
     SubPositionRecordData,
 )
@@ -243,6 +251,42 @@ async def sub_effect_list(client: Clients):
         await client.cache.modify(Modifiers(fields={"effectList": modifier}))
 
 
+async def sub_led_record(client: Clients):
+    async for data in client.subscribe(SubLEDRecordData, SUB_LED_RECORD):
+        print("SubEffectRecord:", data)
+
+        async def modifier(LedMap: Optional[LEDMap]):
+            subscriptionData = data["ledRecordSubscription"]
+
+            newLedMap: LEDMap = {}
+            if LedMap is not None:
+                newLedMap = LedMap
+
+            for item in subscriptionData.createEffects:
+                effect_item = led_record_sub_to_state_item(item)
+                # newLedMap[item.model_name][item.part_name][item.name] = effect_item
+                add_led_effect(item.model_name, item.part_name, item.name, effect_item)
+
+            for item in subscriptionData.deleteEffects:
+                # delete_name = next(name for name, effect in newLedMap[item.model_name][item.part_name].items() if effect.id == item.id)
+                # del newLedMap[item.model_name][item.part_name][delete_name]
+                delete_led_effect(item.model_name, item.part_name, item.id)
+
+            for item in subscriptionData.updateEffects:
+                # edited_name = next(name for name, effect in newLedMap[item.model_name][item.part_name].items() if effect.id == item.id)
+                effect_item = led_record_sub_to_state_item(item)
+                # if item.name == edited_name:
+                #     newLedMap[item.model_name][item.part_name][edited_name] = effect_item
+                # else:
+                #     del newLedMap[item.model_name][item.part_name][edited_name]
+                #     newLedMap[item.model_name][item.part_name][item.name] = effect_item
+                edit_led_effect(item.model_name, item.part_name, item.name, effect_item)
+
+            return newLedMap
+
+        await client.cache.modify(Modifiers(fields={"LEDMap": modifier}))
+
+
 # TODO: Implement lazy update
 async def sub_color_map(client: Clients):
     async for data in client.subscribe(SubColorData, SUB_COLOR_MAP):
@@ -306,6 +350,7 @@ async def subscribe():
                 # asyncio.create_task(sub_control_record(client)),
                 asyncio.create_task(sub_control_map(client)),
                 # asyncio.create_task(sub_effect_list(client)),
+                asyncio.create_task(sub_led_record(client)),
                 asyncio.create_task(sub_color_map(client)),
             ]
 
