@@ -503,9 +503,9 @@ impl LEDMutation {
             update_effects: Vec::new(),
             delete_effects: vec![LEDEffectData {
                 id,
-                name: "".to_string(),
-                model_name: led_effect.model_name.clone(),
-                part_name: led_effect.part_name.clone(),
+                name: led_effect.name,
+                model_name: led_effect.model_name,
+                part_name: led_effect.part_name,
                 repeat: 0,
                 frames: vec![],
             }],
