@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from dataclass_wizard import JSONWizard
 from gql import gql
@@ -236,6 +236,64 @@ SUB_EFFECT_LIST = gql(
                 id
                 controlFrames
                 positionFrames
+            }
+        }
+    }
+    """
+)
+
+
+@dataclass
+class SubLEDRecordDataBulbData(JSONWizard):
+    LEDs: List[Tuple[int, int]]
+
+
+@dataclass
+class SubLEDRecordDataItem(JSONWizard):
+    id: int
+    name: str
+    model_name: str
+    part_name: str
+    frames: List[SubLEDRecordDataBulbData]
+
+
+@dataclass
+class SubLEDRecordData(JSONWizard):
+    createEffects: List[SubLEDRecordDataItem]
+    updateEffects: List[SubLEDRecordDataItem]
+    deleteEffects: List[SubLEDRecordDataItem]
+
+
+SUB_LED_RECORD = gql(
+    """
+    subscription ledRecordSubscription {
+        ledRecordSubscription {
+            createEffects {
+                id
+                name
+                modelName
+                partName
+                frames {
+                    LEDs
+                }
+            }
+            updateEffects {
+                id
+                name
+                modelName
+                partName
+                frames {
+                    LEDs
+                }
+            }
+            deleteEffects {
+                id
+                name
+                modelName
+                partName
+                frames {
+                    LEDs
+                }
             }
         }
     }

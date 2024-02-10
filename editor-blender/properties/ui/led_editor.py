@@ -4,6 +4,7 @@ import bpy
 
 from ...core.actions.property.led_editor import (
     update_edit_dancer,
+    update_edit_effect,
     update_edit_model,
     update_edit_part,
     update_multi_select_color,
@@ -169,9 +170,9 @@ class LEDEditorStatus(bpy.types.PropertyGroup):
         set=set_edit_part,
     )
     edit_effect: bpy.props.EnumProperty(  # type: ignore
-        items=get_effect_lists,
-        default=-1,  # pyright: ignore
+        items=get_effect_lists, default=-1, update=update_edit_effect  # pyright: ignore
     )
+    new_effect: bpy.props.StringProperty(default="New effect")  # type: ignore
 
     multi_select: bpy.props.BoolProperty(  # type: ignore
         name="Multi Select",

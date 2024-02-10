@@ -26,7 +26,7 @@ ColorMap = Dict[ColorID, Color]
 
 
 @dataclass
-class LEDBuldData:
+class LEDBulbData:
     color_id: ColorID
     alpha: int
     rgb: Optional[RGB] = None  # for calculating fade
@@ -36,7 +36,7 @@ class LEDBuldData:
 class LEDEffect:
     id: LEDEffectID
     name: LEDEffectName
-    effect: List[LEDBuldData]
+    effect: List[LEDBulbData]
 
 
 LEDEffectIDTable = Dict[LEDEffectID, LEDEffect]
@@ -361,3 +361,5 @@ class State:
 
     pos_map_updates: PosMapUpdates
     pos_map_pending: bool
+
+    led_map_pending: bool

@@ -35,6 +35,11 @@ def update_edit_part(self: bpy.types.PropertyGroup, context: bpy.types.Context):
         bpy.context.view_layer.objects.active = part_obj
 
 
+def update_edit_effect(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    effect_index = self["edit_effect"]
+    state.current_led_index = effect_index
+
+
 def update_multi_select_color(
     self: bpy.types.PropertyGroup, context: bpy.types.Context
 ):

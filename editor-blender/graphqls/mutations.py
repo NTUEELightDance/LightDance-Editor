@@ -480,6 +480,42 @@ To edit LED effect
 
 
 @dataclass
+class MutRequestEditLEDEffectResponse(JSONWizard):
+    ok: bool
+    editing: Optional[MapID] = None
+
+
+REQUEST_EDIT_LED_EFFECT_BY_ID = gql(
+    """
+    mutation RequestEditLEDEffect($ledEffectId: Int!) {
+        RequestEditLEDEffect(ledEffectId: $ledEffectId) {
+            editing
+            ok
+        }
+    }
+    """
+)
+
+
+@dataclass
+class MutCancelEditLEDEffectResponse(JSONWizard):
+    ok: bool
+    editing: Optional[MapID] = None
+
+
+CANCEL_EDIT_LED_EFFECT_BY_ID = gql(
+    """
+    mutation CancelEditLEDEffect($ledEffectId: Int!) {
+        CancelEditLEDEffect(ledEffectId: $ledEffectId) {
+            editing
+            ok
+        }
+    }
+    """
+)
+
+
+@dataclass
 class MutEditLEDEffectResponse(JSONWizard):
     ok: bool
     msg: str

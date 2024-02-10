@@ -83,4 +83,5 @@ state = State(
     control_map_pending=False,
     pos_map_updates=PosMapUpdates(added=[], updated=[], deleted=[]),
     pos_map_pending=False,
+    led_map_pending=False,
 )

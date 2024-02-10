@@ -7,14 +7,18 @@ from ..core.models import ID, ColorID, LEDEffectID, LEDMap, ModelName, PartName
 from ..core.utils.convert import led_map_query_to_state
 from ..graphqls.mutations import (
     ADD_LED_EFFECT,
+    CANCEL_EDIT_LED_EFFECT_BY_ID,
     DELETE_LED_EFFECT,
     EDIT_LED_EFFECT,
+    REQUEST_EDIT_LED_EFFECT_BY_ID,
     MutAddLEDEffectInput,
     MutAddLEDEffectResponse,
+    MutCancelEditLEDEffectResponse,
     MutDeleteLEDEffectResponse,
     MutEditLEDEffectInput,
     MutEditLEDEffectResponse,
     MutLEDEffectFramePayload,
+    MutRequestEditLEDEffectResponse,
 )
 from ..graphqls.queries import GET_LED_MAP, QueryLEDMapData
 
@@ -69,7 +73,7 @@ class LEDAgent:
 
         return None
 
-    async def edit_led_effect(
+    async def save_led_effect(
         self, id: ID, name: str, leds: List[Tuple[ColorID, int]]
     ) -> Optional[MutEditLEDEffectResponse]:
         try:
@@ -88,6 +92,40 @@ class LEDAgent:
                 },
             )
             return response["editLEDEffect"]
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def request_edit(self, id: LEDEffectID) -> Optional[bool]:
+        try:
+            response = await client.execute(
+                MutRequestEditLEDEffectResponse,
+                REQUEST_EDIT_LED_EFFECT_BY_ID,
+                {"ledEffectId": id},
+            )
+            return response["RequestEditLEDEffect"].ok
+
+        except asyncio.CancelledError:
+            pass
+
+        except Exception as e:
+            print(e)
+
+        return None
+
+    async def cancel_edit(self, id: LEDEffectID) -> Optional[bool]:
+        try:
+            response = await client.execute(
+                MutCancelEditLEDEffectResponse,
+                CANCEL_EDIT_LED_EFFECT_BY_ID,
+                {"ledEffectId": id},
+            )
+            return response["CancelEditLEDEffect"].ok
 
         except asyncio.CancelledError:
             pass

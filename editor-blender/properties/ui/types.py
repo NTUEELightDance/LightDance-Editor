@@ -46,6 +46,7 @@ class LEDEditorStatusType:
     edit_dancer: str
     edit_part: str
     edit_effect: str
+    new_effect: str
 
     multi_select: bool
     multi_select_color: str

@@ -11,11 +11,13 @@ from ...core.actions.state.control_editor import (
 from ...core.actions.state.control_map import apply_control_map_updates
 from ...core.actions.state.editor import set_editor
 from ...core.actions.state.led_editor import (
+    add_led_effect,
     cancel_edit_led_effect,
     delete_led_effect,
     request_edit_led_effect,
     save_led_effect,
 )
+from ...core.actions.state.led_map import apply_led_map_updates
 from ...core.actions.state.pos_editor import (
     add_pos_frame,
     cancel_edit_pos,
@@ -103,6 +105,7 @@ class SyncPendingUpdates(bpy.types.Operator):
             state.color_map_pending
             or state.control_map_pending
             or state.pos_map_pending
+            or state.led_map_pending
         )
 
     def execute(self, context: bpy.types.Context):
@@ -112,6 +115,8 @@ class SyncPendingUpdates(bpy.types.Operator):
             apply_pos_map_updates()
         if state.color_map_pending:
             apply_color_map_updates()
+        if state.led_map_pending:
+            apply_led_map_updates()
 
         notify("INFO", "Synced pending updates")
 
@@ -169,7 +174,7 @@ class Add(AsyncOperator):
             case Editor.POS_EDITOR:
                 await add_pos_frame()
             case Editor.LED_EDITOR:
-                pass
+                await add_led_effect()
 
 
 class Save(AsyncOperator):
