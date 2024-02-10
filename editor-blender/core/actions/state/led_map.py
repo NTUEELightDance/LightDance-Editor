@@ -1,6 +1,5 @@
 from ...models import LEDEffect, LEDMap
 from ...states import state
-from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from ..property.animation_data import set_ctrl_keyframes_from_state
 

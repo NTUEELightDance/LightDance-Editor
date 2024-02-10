@@ -405,17 +405,23 @@ impl LEDMutation {
         let mysql = clients.mysql_pool();
 
         // check if effect exists
-        let led_effect = sqlx::query!(
+        let led_effect = match sqlx::query!(
             r#"
-                SELECT * FROM LEDEffect WHERE id = ?;
+                SELECT
+                    LEDEffect.*,
+                    Model.name as "model_name",
+                    Part.name as "part_name"
+                FROM LEDEffect
+                INNER JOIN Model ON LEDEffect.model_id = Model.id
+                INNER JOIN Part ON LEDEffect.part_id = Part.id
+                WHERE LEDEffect.id = ?;
             "#,
             id
         )
-        .fetch_optional(mysql)
-        .await;
-
-        match led_effect {
-            Ok(_) => {}
+        .fetch_one(mysql)
+        .await
+        {
+            Ok(led_effect) => led_effect,
             Err(_) => {
                 return Ok(DeleteLEDEffectResponse {
                     ok: false,
@@ -495,7 +501,14 @@ impl LEDMutation {
         let led_payload = LEDPayload {
             create_effects: Vec::new(),
             update_effects: Vec::new(),
-            delete_effects: vec![id],
+            delete_effects: vec![LEDEffectData {
+                id,
+                name: "".to_string(),
+                model_name: led_effect.model_name.clone(),
+                part_name: led_effect.part_name.clone(),
+                repeat: 0,
+                frames: vec![],
+            }],
         };
 
         Subscriptor::publish(led_payload);
