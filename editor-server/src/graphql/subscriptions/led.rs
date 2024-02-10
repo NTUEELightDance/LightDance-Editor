@@ -9,7 +9,7 @@ use futures_core::stream::Stream;
 pub struct LEDPayload {
     pub create_effects: Vec<LEDEffectData>,
     pub update_effects: Vec<LEDEffectData>,
-    pub delete_effects: Vec<LEDEffectData>,
+    pub delete_effects: Vec<i32>,
 }
 
 #[derive(Default)]

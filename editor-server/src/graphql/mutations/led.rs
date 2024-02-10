@@ -495,14 +495,7 @@ impl LEDMutation {
         let led_payload = LEDPayload {
             create_effects: Vec::new(),
             update_effects: Vec::new(),
-            delete_effects: vec![LEDEffectData {
-                id: 0,
-                name: "".to_string(),
-                model_name: "".to_string(),
-                part_name: "".to_string(),
-                repeat: 0,
-                frames: vec![],
-            }],
+            delete_effects: vec![id],
         };
 
         Subscriptor::publish(led_payload);
