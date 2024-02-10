@@ -53,7 +53,8 @@ def get_dancer_lists(
 
     model_dancers = state.models[model_name]
 
-    for index, dancer_name in enumerate(model_dancers):
+    for dancer_name in model_dancers:
+        index = state.dancer_part_index_map[dancer_name].index
         if bpy.data.objects.get(dancer_name) is not None:
             dancer_list.append((dancer_name, dancer_name, "", "OBJECT_DATA", index))
 

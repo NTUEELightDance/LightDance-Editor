@@ -252,8 +252,8 @@ class SubLEDRecordDataBulbData(JSONWizard):
 class SubLEDRecordDataItem(JSONWizard):
     id: int
     name: str
-    model_name: str
-    part_name: str
+    modelName: str
+    partName: str
     frames: List[SubLEDRecordDataBulbData]
 
 

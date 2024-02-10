@@ -1,6 +1,9 @@
 import bpy
 
-from ...core.actions.state.color_map import apply_color_map_updates
+from ...core.actions.state.color_map import (
+    apply_color_map_updates_add_or_delete,
+    apply_color_map_updates_update,
+)
 from ...core.actions.state.control_editor import (
     add_control_frame,
     cancel_edit_control,
@@ -17,7 +20,10 @@ from ...core.actions.state.led_editor import (
     request_edit_led_effect,
     save_led_effect,
 )
-from ...core.actions.state.led_map import apply_led_map_updates
+from ...core.actions.state.led_map import (
+    apply_led_map_updates_add_or_delete,
+    apply_led_map_updates_update,
+)
 from ...core.actions.state.pos_editor import (
     add_pos_frame,
     cancel_edit_pos,
@@ -93,19 +99,40 @@ class ToggleLEDEditor(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class SyncPendingUpdates(bpy.types.Operator):
+class SyncColorUpdates(bpy.types.Operator):
     """Sync Editor"""
 
-    bl_idname = "lightdance.sync_pending_updates"
-    bl_label = "Sync Pending Updates"
+    bl_idname = "lightdance.sync_color_updates"
+    bl_label = "Sync Color Updates"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.color_map_pending.update or state.led_map_pending.update
+
+    def execute(self, context: bpy.types.Context):
+        if state.color_map_pending.update:
+            apply_color_map_updates_update()
+        if state.led_map_pending.update:
+            apply_led_map_updates_update()
+
+        notify("INFO", "Synced pending updates")
+
+        return {"FINISHED"}
+
+
+class SyncMapUpdates(bpy.types.Operator):
+    """Sync Editor"""
+
+    bl_idname = "lightdance.sync_map_updates"
+    bl_label = "Sync Map Updates"
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
         return (
-            state.color_map_pending
+            state.color_map_pending.add_or_delete
+            or state.led_map_pending.add_or_delete
             or state.control_map_pending
             or state.pos_map_pending
-            or state.led_map_pending
         )
 
     def execute(self, context: bpy.types.Context):
@@ -114,9 +141,9 @@ class SyncPendingUpdates(bpy.types.Operator):
         if state.pos_map_pending:
             apply_pos_map_updates()
         if state.color_map_pending:
-            apply_color_map_updates()
+            apply_color_map_updates_add_or_delete()
         if state.led_map_pending:
-            apply_led_map_updates()
+            apply_led_map_updates_add_or_delete()
 
         notify("INFO", "Synced pending updates")
 
@@ -293,7 +320,8 @@ def register():
     bpy.utils.register_class(ToggleControlEditor)
     bpy.utils.register_class(TogglePosEditor)
     bpy.utils.register_class(ToggleLEDEditor)
-    bpy.utils.register_class(SyncPendingUpdates)
+    bpy.utils.register_class(SyncMapUpdates)
+    bpy.utils.register_class(SyncColorUpdates)
     bpy.utils.register_class(Add)
     bpy.utils.register_class(Save)
     bpy.utils.register_class(Delete)
@@ -305,7 +333,8 @@ def unregister():
     bpy.utils.unregister_class(ToggleControlEditor)
     bpy.utils.unregister_class(TogglePosEditor)
     bpy.utils.unregister_class(ToggleLEDEditor)
-    bpy.utils.unregister_class(SyncPendingUpdates)
+    bpy.utils.unregister_class(SyncMapUpdates)
+    bpy.utils.unregister_class(SyncColorUpdates)
     bpy.utils.unregister_class(Add)
     bpy.utils.unregister_class(Save)
     bpy.utils.unregister_class(Delete)

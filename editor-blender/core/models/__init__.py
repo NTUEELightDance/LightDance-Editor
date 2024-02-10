@@ -191,6 +191,13 @@ class ColorMapUpdates:
 
 
 @dataclass
+class LEDMapUpdates:
+    added: List[Tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffect]]
+    updated: List[Tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffect]]
+    deleted: List[Tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffectID]]
+
+
+@dataclass
 class ControlMapUpdates:
     added: List[Tuple[MapID, ControlMapElement]]
     updated: List[Tuple[MapID, ControlMapElement]]
@@ -266,6 +273,18 @@ class Clipboard:
     control_frame: Optional[ControlMapElement] = None
     pos_frame: Optional[PosMapElement] = None
     dancer: Optional[CopiedDancerData] = None
+
+
+@dataclass
+class ColorMapPending:
+    add_or_delete: bool
+    update: bool
+
+
+@dataclass
+class LEDMapPending:
+    add_or_delete: bool
+    update: bool
 
 
 @dataclass
@@ -354,7 +373,7 @@ class State:
     # shell_history: ShellHistory
 
     color_map_updates: ColorMapUpdates
-    color_map_pending: bool
+    color_map_pending: ColorMapPending
 
     control_map_updates: ControlMapUpdates
     control_map_pending: bool
@@ -362,4 +381,5 @@ class State:
     pos_map_updates: PosMapUpdates
     pos_map_pending: bool
 
-    led_map_pending: bool
+    led_map_updates: LEDMapUpdates
+    led_map_pending: LEDMapPending

@@ -264,23 +264,28 @@ async def sub_led_record(client: Clients):
 
             for item in subscriptionData.createEffects:
                 effect_item = led_record_sub_to_state_item(item)
-                # newLedMap[item.model_name][item.part_name][item.name] = effect_item
-                add_led_effect(item.model_name, item.part_name, item.name, effect_item)
+                # newLedMap[item.modelName][item.partName][item.name] = effect_item
+                add_led_effect(item.modelName, item.partName, item.name, effect_item)
 
             for item in subscriptionData.deleteEffects:
-                # delete_name = next(name for name, effect in newLedMap[item.model_name][item.part_name].items() if effect.id == item.id)
-                # del newLedMap[item.model_name][item.part_name][delete_name]
-                delete_led_effect(item.model_name, item.part_name, item.id)
+                # del newLedMap[item.modelName][item.partName][item.name]
+                delete_led_effect(item.modelName, item.partName, item.name, item.id)
 
             for item in subscriptionData.updateEffects:
-                # edited_name = next(name for name, effect in newLedMap[item.model_name][item.part_name].items() if effect.id == item.id)
+                # edited_name = next(
+                #     name
+                #     for name, effect in newLedMap[item.modelName][item.partName].items()
+                #     if effect.id == item.id
+                # )
+
                 effect_item = led_record_sub_to_state_item(item)
                 # if item.name == edited_name:
-                #     newLedMap[item.model_name][item.part_name][edited_name] = effect_item
+                #     newLedMap[item.modelName][item.partName][edited_name] = effect_item
                 # else:
-                #     del newLedMap[item.model_name][item.part_name][edited_name]
-                #     newLedMap[item.model_name][item.part_name][item.name] = effect_item
-                edit_led_effect(item.model_name, item.part_name, item.name, effect_item)
+                #     del newLedMap[item.modelName][item.partName][edited_name]
+                #     newLedMap[item.modelName][item.partName][item.name] = effect_item
+
+                edit_led_effect(item.modelName, item.partName, item.name, effect_item)
 
             return newLedMap
 
@@ -341,20 +346,22 @@ subscription_task: Optional[asyncio.Task[None]] = None
 
 async def subscribe():
     while True:
+        print("Subscribing...")
+
+        tasks = [
+            # asyncio.create_task(sub_pos_record(client)),
+            asyncio.create_task(sub_pos_map(client)),
+            # asyncio.create_task(sub_control_record(client)),
+            asyncio.create_task(sub_control_map(client)),
+            # asyncio.create_task(sub_effect_list(client)),
+            asyncio.create_task(sub_led_record(client)),
+            asyncio.create_task(sub_color_map(client)),
+        ]
+
+        fut = asyncio.gather(*tasks)
+
         try:
-            print("Subscribing...")
-
-            tasks = [
-                # asyncio.create_task(sub_pos_record(client)),
-                asyncio.create_task(sub_pos_map(client)),
-                # asyncio.create_task(sub_control_record(client)),
-                asyncio.create_task(sub_control_map(client)),
-                # asyncio.create_task(sub_effect_list(client)),
-                asyncio.create_task(sub_led_record(client)),
-                asyncio.create_task(sub_color_map(client)),
-            ]
-
-            await asyncio.gather(*tasks)
+            await fut
 
         except asyncio.CancelledError:
             print("Subscription cancelled.")
@@ -362,6 +369,7 @@ async def subscribe():
 
         except Exception as e:
             print("Subscription closed with error:", e)
+            fut.cancel()
 
         print("Reconnecting subscription...")
         await asyncio.sleep(3)

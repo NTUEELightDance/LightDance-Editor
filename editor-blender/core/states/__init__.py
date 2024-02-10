@@ -1,11 +1,14 @@
 from ..models import (
     Clipboard,
+    ColorMapPending,
     ColorMapUpdates,
     ControlMapUpdates,
     CopiedType,
     EditingData,
     EditMode,
     Editor,
+    LEDMapPending,
+    LEDMapUpdates,
     PosMapUpdates,
     SelectMode,
     State,
@@ -57,12 +60,6 @@ state = State(
     selected_obj_names=[],
     selected_obj_type=None,
     clipboard=Clipboard(CopiedType.NONE),
-    # selected_leds,
-    # current_led_effect_reference_dancer
-    # current_led_partName
-    # current_led_effect_name
-    # current_led_effect_start
-    # current_led_effect
     models={},
     model_names=[],
     models_array=[],
@@ -78,10 +75,11 @@ state = State(
     # rpi_status
     # shell_history
     color_map_updates=ColorMapUpdates(added=[], updated=[], deleted=[]),
-    color_map_pending=False,
+    color_map_pending=ColorMapPending(add_or_delete=False, update=False),
+    led_map_updates=LEDMapUpdates(added=[], updated=[], deleted=[]),
+    led_map_pending=LEDMapPending(add_or_delete=False, update=False),
     control_map_updates=ControlMapUpdates(added=[], updated=[], deleted=[]),
     control_map_pending=False,
     pos_map_updates=PosMapUpdates(added=[], updated=[], deleted=[]),
     pos_map_pending=False,
-    led_map_pending=False,
 )

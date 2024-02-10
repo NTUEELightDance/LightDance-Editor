@@ -45,22 +45,27 @@ class EditorPanel(bpy.types.Panel):
 
         box = layout.box()
 
-        row = box.row()
+        row = box.row(align=True)
         row.operator(
-            "lightdance.sync_pending_updates",
-            text="Sync incoming updates",
+            "lightdance.sync_map_updates",
+            text="Control / Position",
+            icon="UV_SYNC_SELECT",
+        )
+        row.operator(
+            "lightdance.sync_color_updates",
+            text="Color / Effect",
             icon="UV_SYNC_SELECT",
         )
 
         editing = state.edit_state == EditMode.EDITING
 
         if editing:
-            row = box.row()
+            row = box.row(align=True)
             row.label(text="Editing")
             row.operator("lightdance.save", text="Save", icon="CURRENT_FILE")
             row.operator("lightdance.cancel_edit", text="Cancel", icon="X")
         else:
-            row = box.row()
+            row = box.row(align=True)
             row.operator("lightdance.add", text="Add", icon="ADD")
             row.operator("lightdance.request_edit", text="Edit", icon="GREASEPENCIL")
             row.operator("lightdance.delete", text="Delete", icon="X")
