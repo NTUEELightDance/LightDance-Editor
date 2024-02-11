@@ -1,4 +1,4 @@
-from . import animation, name_tag, objects, waveform
+from . import animation, keymap, name_tag, objects, waveform
 
 
 def mount_handlers():
@@ -6,6 +6,7 @@ def mount_handlers():
     objects.mount()
     waveform.mount()
     name_tag.mount()
+    keymap.mount()
 
 
 def unmount_handlers():
@@ -13,3 +14,4 @@ def unmount_handlers():
     objects.unmount()
     waveform.unmount()
     name_tag.unmount()
+    keymap.unmount()
