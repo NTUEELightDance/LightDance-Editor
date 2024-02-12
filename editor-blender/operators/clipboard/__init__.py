@@ -15,9 +15,6 @@ from ...core.states import state
 from ...core.utils.notification import notify
 from ...properties.types import LightType, ObjectType
 
-default_keymaps = ["view3d.copybuffer", "view3d.pastebuffer"]
-
-
 # TODO: Add base model to dancer for varification
 
 
@@ -255,91 +252,11 @@ class PasteOperator(bpy.types.Operator):
         return {"FINISHED"}
 
 
-def check_keymaps_exist(
-    keymaps: List[bpy.types.KeyMapItem],
-    names: List[str],
-    ctrl: List[int],
-    oskey: List[int],
-) -> List[Optional[bpy.types.KeyMapItem]]:
-    wm = bpy.context.window_manager
-    kc_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
-        "3D View"
-    ].keymap_items
-    kc_items = cast(List[bpy.types.KeyMapItem], kc_items)
-
-    results: List[Optional[bpy.types.KeyMapItem]] = [None] * len(names)
-
-    for keymap in keymaps:
-        for i in range(len(names)):
-            if (
-                keymap.idname == names[i]
-                and keymap.ctrl == ctrl[i]
-                and keymap.oskey == oskey[i]
-            ):
-                results[i] = keymap
-
-    return results
-
-
 def register():
     bpy.utils.register_class(CopyOperator)
     bpy.utils.register_class(PasteOperator)
-
-    # Active keymaps and disable default keymaps
-
-    wm = bpy.context.window_manager
-    km_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
-        "3D View"
-    ].keymap_items
-    km_items = cast(List[bpy.types.KeyMapItem], km_items)
-
-    for keymap in km_items:
-        if keymap.idname in default_keymaps:
-            keymap.active = False
-
-    new_keymaps_config = (
-        [
-            "lightdance.copy",
-            "lightdance.copy",
-            "lightdance.paste",
-            "lightdance.paste",
-        ],
-        ["C", "C", "V", "V"],
-        [1, 0, 1, 0],
-        [0, 1, 0, 1],
-    )
-
-    new_keymaps = check_keymaps_exist(
-        km_items,
-        new_keymaps_config[0],
-        new_keymaps_config[2],
-        new_keymaps_config[3],
-    )
-
-    km_items = cast(bpy.types.KeyMapItems, km_items)
-    for i in range(len(new_keymaps)):
-        new_keymap = new_keymaps[i]
-
-        if new_keymap is None:
-            new_keymaps[i] = km_items.new(
-                new_keymaps_config[0][i],
-                new_keymaps_config[1][i],
-                ctrl=new_keymaps_config[2][i],
-                oskey=new_keymaps_config[3][i],
-                value="PRESS",
-            )
-
-        else:
-            new_keymap.active = True
-
-    global clipboard_keymaps
-
-    clipboard_keymaps = cast(List[bpy.types.KeyMapItem], new_keymaps)
 
 
 def unregister():
     bpy.utils.unregister_class(CopyOperator)
     bpy.utils.unregister_class(PasteOperator)
-
-    for keymap in clipboard_keymaps:
-        keymap.active = False
