@@ -1,6 +1,7 @@
 from . import (
     auth,
     color_palette,
+    command_center,
     control_editor,
     editor,
     led_editor,
@@ -22,6 +23,7 @@ def register():
     color_palette.register()
 
     timeline.register()
+    command_center.register()
 
 
 def unregister():
@@ -32,6 +34,7 @@ def unregister():
     pos_editor.unregister()
     color_palette.unregister()
     timeline.unregister()
+    command_center.unregister()
     control_editor.unregister()
 
     led_editor.unregister()

@@ -4,3 +4,4 @@ dataclass_wizard
 aiohttp
 python-dotenv
 typeguard
+websockets

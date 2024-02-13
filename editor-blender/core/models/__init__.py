@@ -288,6 +288,34 @@ class LEDMapPending:
 
 
 @dataclass
+class InterfaceStatus:
+    name: str
+    IP: str
+    MAC: str
+    connected: bool
+    message: str
+    statusCode: int
+
+
+@dataclass
+class RPiStatusItem:
+    ethernet: InterfaceStatus
+    wifi: InterfaceStatus
+
+
+RPiStatus = Dict[str, RPiStatusItem]
+
+
+@dataclass
+class ShellTransaction:
+    command: str
+    output: str
+
+
+ShellHistory = Dict[str, List[ShellTransaction]]
+
+
+@dataclass
 class State:
     running: bool
     sync: bool
@@ -298,6 +326,7 @@ class State:
 
     subscription_task: Optional[Task[None]]
     init_editor_task: Optional[Task[None]]
+    command_task: Optional[Task[None]]
 
     assets_path: str
 
@@ -370,9 +399,8 @@ class State:
     color_map: ColorMap
     # effect_list: EffectListType
 
-    # TODO: Add these
-    # rpi_status: RPiStatus
-    # shell_history: ShellHistory
+    rpi_status: RPiStatus
+    shell_history: ShellHistory
 
     color_map_updates: ColorMapUpdates
     color_map_pending: ColorMapPending

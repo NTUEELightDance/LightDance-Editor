@@ -12,7 +12,7 @@ from ....api.model_agent import model_agent
 from ....client import client
 
 # from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
-from ....client.subscription import subscribe
+from ....client.subscription import subscribe, subscribe_command
 from ....core.actions.state.app_state import (
     set_logged_in,
     set_ready,
@@ -156,10 +156,15 @@ async def reload():
 async def init_blender():
     await client.restart_http()
     await client.restart_graphql()
+    await client.restart_command()  # WARNING: temp
 
     if state.subscription_task is not None:
         state.subscription_task.cancel()
     state.subscription_task = AsyncTask(subscribe).exec()
+
+    if state.command_task is not None:  # WARNING: temp
+        state.command_task.cancel()
+    state.command_task = AsyncTask(subscribe_command).exec()
 
     # Initialize editor
     if state.init_editor_task is not None:

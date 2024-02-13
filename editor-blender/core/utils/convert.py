@@ -322,6 +322,17 @@ def rgba_to_float(rgb: Union[Tuple[int, ...], List[int]], a: int) -> Tuple[float
     )
 
 
+def is_color_code(color_code: str) -> bool:
+    if len(color_code) != 7:
+        return False
+    if color_code[0] != "#":
+        return False
+    for char in color_code[1:8]:
+        if char not in "1234567890abcdef":
+            return False
+    return True
+
+
 def frame_to_time(frame: int) -> str:
     milliseconds = frame
     seconds = milliseconds // 1000

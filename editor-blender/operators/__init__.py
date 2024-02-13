@@ -5,6 +5,7 @@ from . import (
     auth,
     clipboard,
     color_palette,
+    command_center,
     control_editor,
     editor,
     led_editor,
@@ -32,6 +33,7 @@ def register():
     notification.register()
     timeline.register()
     control_editor.register()
+    command_center.register()
     led_editor.register()
     shift.register()
     clipboard.register()
@@ -52,6 +54,7 @@ def unregister():
     notification.unregister()
     timeline.unregister()
     control_editor.unregister()
+    command_center.register()
     led_editor.unregister()
     shift.unregister()
     clipboard.unregister()
