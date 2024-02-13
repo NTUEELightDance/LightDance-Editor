@@ -55,9 +55,11 @@ class LEDEditorStatusType:
 
 class CommandCenterStatusType:
     color: Literal["red", "green", "blue", "yellow", "magenta", "cyan"]
+    color_code: str
     command: str
     connected: bool
-    countdown: int
+    countdown: str
+    delay: int
 
 
 class CommandCenterRPiStatusType:

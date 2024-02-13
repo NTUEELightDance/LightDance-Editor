@@ -1,9 +1,18 @@
-from typing import List
+import asyncio
+from typing import Any, List, Optional
 
 import bpy
 
 from ....properties.ui.types import CommandCenterRPiStatusType, CommandCenterStatusType
+from ...asyncio import AsyncTask
 from ...states import state
+
+
+class Countdown_task_class:
+    task: Optional[asyncio.Task[Any]] = None
+
+
+countdown_task = Countdown_task_class()
 
 
 def set_command_status(connected: bool):
@@ -62,3 +71,22 @@ def get_selected_dancer() -> List[str]:
         bpy.context.window_manager, "ld_ui_rpi_status"
     )
     return [item.name for item in rpi_status_list if item.selected]
+
+
+def set_countdown(delay: int):
+    async def countdown(delay: int):
+        command_status: CommandCenterStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_command_center"
+        )
+        for t in range(delay + 1):
+            seconds = delay - t
+            m, s = divmod(seconds, 60)
+            countdown = f"{m:02d}:{s:02d}"
+            command_status.countdown = countdown
+            print(countdown)
+            if seconds > 0:
+                await asyncio.sleep(1)
+            else:
+                bpy.ops.screen.animation_play()
+
+    countdown_task.task = AsyncTask(countdown, delay=delay).exec()

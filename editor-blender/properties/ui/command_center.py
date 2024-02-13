@@ -5,6 +5,20 @@ class CommandCenterStatus(bpy.types.PropertyGroup):
     """Status of command center"""
 
     connected: bpy.props.BoolProperty(default=False)  # type: ignore
+    color: bpy.props.EnumProperty(
+        items=[  # type: ignore
+            ("red", "red", ""),
+            ("green", "green", ""),
+            ("blue", "blue", ""),
+            ("yellow", "yellow", ""),
+            ("magenta", "magenta", ""),
+            ("cyan", "cyan", ""),
+        ]
+    )
+    color_code: bpy.props.StringProperty(maxlen=7, default="#000000")  # type: ignore
+    command: bpy.props.StringProperty()  # type: ignore
+    delay: bpy.props.IntProperty(min=0, max=3000)  # type: ignore
+    countdown: bpy.props.StringProperty(default="00:00")  # type: ignore
 
 
 class CommandCenterRPiStatus(bpy.types.PropertyGroup):

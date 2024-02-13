@@ -381,14 +381,13 @@ async def subscribe():
 
 
 async def sub_controller_server(client: Clients):
-    set_command_status(True)  # WARNING: temp
     async for controller_data in client.subscribe_command():
-        print("Sub from controller server", controller_data)
-        # set_requesting(False)
         match controller_data.topic:
             case "boardInfo":
+                print("Board info from controller server")
                 read_board_info_payload(controller_data.payload)
             case "command":
+                print(f"Command response from controller server: {controller_data}")
                 read_command_response(controller_data)
 
 

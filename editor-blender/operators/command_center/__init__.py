@@ -1,8 +1,18 @@
+import time
+
 import bpy
 
 from ...api.command_agent import command_agent
-from ...core.actions.property.command import get_selected_dancer
+from ...client import client
+from ...client.subscription import subscribe_command
+from ...core.actions.property.command import (
+    countdown_task,
+    get_selected_dancer,
+    set_command_status,
+    set_countdown,
+)
 from ...core.actions.state.app_state import set_requesting
+from ...core.asyncio import AsyncTask
 from ...core.states import state
 from ...core.utils.convert import is_color_code
 from ...core.utils.notification import notify
@@ -21,12 +31,14 @@ from ...graphqls.command import (
     ToControllerServerUploadPartial,
     ToControllerServerWebShellPartial,
 )
+from ...properties.ui.types import CommandCenterStatusType
 from ..async_core import AsyncOperator
 
 
-class CommandCenterRefreshOperator(AsyncOperator):
-    bl_idname = "lightdance.command_center_refresh"
+class CommandCenterStartOperator(AsyncOperator):
+    bl_idname = "lightdance.command_center_start"
     bl_label = ""
+    bl_description = "Connect to controller server."
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
@@ -34,6 +46,37 @@ class CommandCenterRefreshOperator(AsyncOperator):
 
     async def async_execute(self, context: bpy.types.Context):
         try:
+            await client.open_command()
+            if state.command_task is not None:
+                state.command_task.cancel()
+            state.command_task = AsyncTask(subscribe_command).exec()
+
+            info_payload = ToControllerServerBoardInfoPartial.from_dict(
+                {"topic": "boardInfo"}
+            )
+            # set_requesting(True)
+            await command_agent.send_to_controller_server(info_payload)
+            set_command_status(True)
+
+        except Exception as e:
+            # set_requesting(False)
+            raise Exception(f"Can't connect to controller server: {e}")
+        return {"FINISHED"}
+
+
+class CommandCenterRefreshOperator(AsyncOperator):
+    bl_idname = "lightdance.command_center_refresh"
+    bl_label = ""
+    bl_description = "Reconnect to controller server"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return state.ready
+
+    async def async_execute(self, context: bpy.types.Context):
+        try:
+            await client.restart_command()
+            set_command_status(True)
             info_payload = ToControllerServerBoardInfoPartial.from_dict(
                 {"topic": "boardInfo"}
             )
@@ -49,6 +92,7 @@ class CommandCenterRefreshOperator(AsyncOperator):
 class CommandCenterSyncOperator(AsyncOperator):
     bl_idname = "lightdance.command_center_sync"
     bl_label = ""
+    bl_description = "Sync RPi status from controller server"
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
@@ -77,12 +121,24 @@ class CommandCenterPlayOperator(AsyncOperator):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
+        command_status: CommandCenterStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_command_center"
+        )
+        set_countdown(command_status.delay)
         try:
-            sync_payload = ToControllerServerPlayPartial.from_dict(
-                {"topic": "sync", "payload": {"dancers": get_selected_dancer()}}
+            play_payload = ToControllerServerPlayPartial.from_dict(
+                {
+                    "topic": "play",
+                    "payload": {
+                        "dancers": get_selected_dancer(),
+                        "start": bpy.context.scene.frame_current,
+                        "timestamp": int(time.time() * 1000)
+                        + command_status.delay * 1000,
+                    },
+                }
             )
             # set_requesting(True)
-            await command_agent.send_to_controller_server(sync_payload)
+            await command_agent.send_to_controller_server(play_payload)
 
         except Exception as e:
             # set_requesting(False)
@@ -99,12 +155,13 @@ class CommandCenterPauseOperator(AsyncOperator):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
+        bpy.ops.screen.animation_cancel(restore_frame=False)
         try:
-            sync_payload = ToControllerServerPausePartial.from_dict(
-                {"topic": "sync", "payload": {"dancers": get_selected_dancer()}}
+            pause_payload = ToControllerServerPausePartial.from_dict(
+                {"topic": "pause", "payload": {"dancers": get_selected_dancer()}}
             )
             # set_requesting(True)
-            await command_agent.send_to_controller_server(sync_payload)
+            await command_agent.send_to_controller_server(pause_payload)
 
         except Exception as e:
             # set_requesting(False)
@@ -121,12 +178,20 @@ class CommandCenterStopOperator(AsyncOperator):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
+        bpy.ops.screen.animation_cancel(restore_frame=True)
+        if countdown_task.task:
+            countdown_task.task.cancel()
+            countdown_task.task = None
+        command_status: CommandCenterStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_command_center"
+        )
+        command_status.countdown = "00:00"
         try:
-            sync_payload = ToControllerServerStopPartial.from_dict(
-                {"topic": "sync", "payload": {"dancers": get_selected_dancer()}}
+            stop_payload = ToControllerServerStopPartial.from_dict(
+                {"topic": "stop", "payload": {"dancers": get_selected_dancer()}}
             )
             # set_requesting(True)
-            await command_agent.send_to_controller_server(sync_payload)
+            await command_agent.send_to_controller_server(stop_payload)
 
         except Exception as e:
             # set_requesting(False)
@@ -144,7 +209,9 @@ class CommandCenterLoadOperator(AsyncOperator):
 
     async def async_execute(self, context: bpy.types.Context):
         try:
-            load_payload = ToControllerServerLoadPartial.from_dict({"topic": "load"})
+            load_payload = ToControllerServerLoadPartial.from_dict(
+                {"topic": "load", "payload": {"dancers": get_selected_dancer()}}
+            )
             # set_requesting(True)
             await command_agent.send_to_controller_server(load_payload)
 
@@ -208,13 +275,16 @@ class CommandCenterTestOperator(AsyncOperator):
 
     async def async_execute(self, context: bpy.types.Context):
         try:
-            color_code = ""  # TODO
+            command_status: CommandCenterStatusType = getattr(
+                bpy.context.window_manager, "ld_ui_command_center"
+            )
+            color_code = command_status.color_code
             if not is_color_code(color_code):
                 notify("WARNING", "Invalid color code!")
                 return {"CANCELLED"}
             sync_payload = ToControllerServerTestPartial.from_dict(
                 {
-                    "topic": "sync",
+                    "topic": "test",
                     "payload": {
                         "dancers": get_selected_dancer(),
                         "colorCode": f"{color_code}",
@@ -234,26 +304,19 @@ class CommandCenterColorOperator(AsyncOperator):
     bl_idname = "lightdance.command_center_color"
     bl_label = ""
 
-    color: bpy.props.EnumProperty(
-        items=[  # type: ignore
-            ("red", "red", ""),
-            ("green", "green", ""),
-            ("blue", "blue", ""),
-            ("yellow", "yellow", ""),
-            ("magenta", "magenta", ""),
-            ("cyan", "cyan", ""),
-        ]
-    )
-
     @classmethod
     def poll(cls, context: bpy.types.Context):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
+        command_status: CommandCenterStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_command_center"
+        )
+        color = command_status.color
         try:
             color_payload = ToControllerServerColorPartial.from_dict(
                 {
-                    "topic": f"{self.color}",
+                    "topic": f"{color}",
                     "payload": {"dancers": get_selected_dancer()},
                 }
             )
@@ -319,11 +382,14 @@ class CommandCenterWebShellOperator(AsyncOperator):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
-        command: str = ""  # TODO
+        command_status: CommandCenterStatusType = getattr(
+            bpy.context.window_manager, "ld_ui_command_center"
+        )
+        command: str = command_status.command
         try:
             sync_payload = ToControllerServerWebShellPartial.from_dict(
                 {
-                    "topic": "sync",
+                    "topic": "webShell",
                     "payload": {
                         "dancers": get_selected_dancer(),
                         "command": f"{command}",
@@ -345,14 +411,15 @@ ops_list = [
     CommandCenterColorOperator,
     CommandCenterDarkAllOperator,
     CommandCenterLoadOperator,
-    # CommandCenterPauseOperator,
-    # CommandCenterPlayOperator,
+    CommandCenterPauseOperator,
+    CommandCenterPlayOperator,
     CommandCenterRebootOperator,
-    # CommandCenterStopOperator,
+    CommandCenterStopOperator,
+    CommandCenterStartOperator,
     CommandCenterSyncOperator,
     CommandCenterTestOperator,
     CommandCenterUploadOperator,
-    # CommandCenterWebShellOperator # TODO
+    CommandCenterWebShellOperator,
 ]
 
 

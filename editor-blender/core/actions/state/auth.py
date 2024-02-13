@@ -59,8 +59,13 @@ async def logout() -> None:
             state.init_editor_task.cancel()
             state.init_editor_task = None
 
+        if state.command_task is not None:
+            state.command_task.cancel()
+            state.command_task = None
+
         await client.close_graphql()
         await client.restart_http()
+        await client.close_command()
 
         unmount_handlers()
 
