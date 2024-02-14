@@ -55,7 +55,7 @@ class ControlEditor(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.ready and state.editor == Editor.CONTROL_EDITOR
+        return state.ready and state.sync and state.editor == Editor.CONTROL_EDITOR
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout

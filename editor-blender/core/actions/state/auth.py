@@ -7,7 +7,7 @@ from ....core.utils.ui import redraw_area
 from ....handlers import unmount_handlers
 from ....storage import set_storage
 from ...utils.notification import notify
-from .app_state import set_requesting
+from .app_state import set_requesting, set_sync
 
 
 async def login(username: str, password: str) -> None:
@@ -39,6 +39,7 @@ async def logout() -> None:
     set_requesting(False)
 
     if success:
+        set_sync(False)
         set_logged_in(False)
         set_ready(False)
 

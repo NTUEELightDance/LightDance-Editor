@@ -9,6 +9,7 @@ from . import (
     editor,
     led_editor,
     notification,
+    ping,
     pos_editor,
     setup,
     shift,
@@ -35,6 +36,7 @@ def register():
     shift.register()
     clipboard.register()
     assets.register()
+    ping.register()
 
 
 def unregister():
@@ -54,3 +56,4 @@ def unregister():
     shift.unregister()
     clipboard.unregister()
     assets.unregister()
+    ping.unregister()

@@ -2,12 +2,18 @@ import bpy
 
 from ...core.utils.notification import notifications
 
+is_notification_running = False
+
 
 class NotificationOperator(bpy.types.Operator):
     bl_idname = "lightdance.notification"
     bl_label = "Notification Operator"
 
     def modal(self, context: bpy.types.Context, event: bpy.types.Event):
+        global is_notification_running
+
+        if not is_notification_running:
+            return {"FINISHED"}
         if event.type == "TIMER":
             while len(notifications) > 0:
                 notification = notifications.pop()
@@ -18,10 +24,15 @@ class NotificationOperator(bpy.types.Operator):
         return {"PASS_THROUGH"}
 
     def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+        global is_notification_running
+
+        if is_notification_running:
+            return {"PASS_THROUGH"}
+
         context.window_manager.modal_handler_add(self)
-        self._timer = context.window_manager.event_timer_add(
-            0.01, window=context.window
-        )
+        is_notification_running = True
+
+        print("Starting notification...")
 
         return {"RUNNING_MODAL"}
 
@@ -29,8 +40,11 @@ class NotificationOperator(bpy.types.Operator):
         return {"FINISHED"}
 
     def __del__(self):
-        if hasattr(self, "_timer"):
-            bpy.context.window_manager.event_timer_remove(self._timer)
+        global is_notification_running
+
+        print("Stopping notification...")
+
+        is_notification_running = False
 
 
 def register():

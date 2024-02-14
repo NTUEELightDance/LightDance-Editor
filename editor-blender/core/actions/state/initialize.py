@@ -18,6 +18,7 @@ from ....core.actions.state.app_state import (
     set_ready,
     set_requesting,
     set_running,
+    set_sync,
 )
 from ....core.actions.state.color_map import set_color_map
 from ....core.actions.state.control_map import set_control_map
@@ -142,8 +143,14 @@ async def init():
     # Start background operators
     execute_operator("lightdance.animation_status_listener")
     execute_operator("lightdance.notification")
+    execute_operator("lightdance.ping")
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+async def reload():
+    set_ready(False)
+    await init_blender()
 
 
 async def init_blender():
@@ -162,6 +169,7 @@ async def init_blender():
 
 def close_blender():
     set_running(False)
+    set_sync(False)
     set_logged_in(False)
     set_ready(False)
 
@@ -235,6 +243,7 @@ async def init_editor():
     print("Editor initialized")
 
     set_ready(True)
+    set_sync(True)
 
     # Mount handlers
     mount_handlers()

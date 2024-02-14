@@ -17,7 +17,7 @@ class PosEditor(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.ready and state.editor == Editor.POS_EDITOR
+        return state.ready and state.sync and state.editor == Editor.POS_EDITOR
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout

@@ -290,6 +290,8 @@ class LEDMapPending:
 @dataclass
 class State:
     running: bool
+    sync: bool
+
     logged_in: bool
     playing: bool
     requesting: bool

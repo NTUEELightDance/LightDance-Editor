@@ -16,11 +16,6 @@ class AnimationStatusListenerOperator(bpy.types.Operator):
 
         print("Stopping animation status listener...")
 
-        if is_animation_status_listener_running and hasattr(self, "timer"):  # type: ignore
-            wm = bpy.context.window_manager
-            wm.event_timer_remove(self.timer)
-            delattr(self, "timer")
-
         is_animation_status_listener_running = False
 
     def execute(self, context: bpy.types.Context):
@@ -34,9 +29,6 @@ class AnimationStatusListenerOperator(bpy.types.Operator):
 
         context.window_manager.modal_handler_add(self)
         is_animation_status_listener_running = True
-
-        wm = context.window_manager
-        self.timer = wm.event_timer_add(0.001, window=context.window)
 
         print("Starting animation status listener...")
 

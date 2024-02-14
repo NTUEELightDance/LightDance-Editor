@@ -39,6 +39,8 @@ class LightDanceToolsPanel(bpy.types.Panel):
         row = layout.row()
         row.operator("lightdance.clear_assets", text="Clear Assets", icon="PLAY")
         row = layout.row()
+        row.operator("lightdance.reload_blender", text="Reload", icon="PLAY")
+        row = layout.row()
         row.operator("lightdance.logout", text="Logout", icon="PLAY")
 
 
@@ -63,23 +65,30 @@ class LightDancePanel(bpy.types.Panel):
                 return
 
             if state.ready:
-                # TODO: Show function menu
-                row = layout.row()
-                if state.username == "":
-                    row.label(text="TestUser", icon="WORLD_DATA")
-                else:
-                    row.label(text=state.username, icon="WORLD_DATA")
-
-                row.popover(
-                    "VIEW_PT_LightDance_Tools", text="Tools", icon="TOOL_SETTINGS"
-                )
-
-                if state.shifting:
+                if state.sync:
                     row = layout.row()
-                    row.label(text="Time Shift")
+                    if state.username == "":
+                        row.label(text="TestUser", icon="WORLD_DATA")
+                    else:
+                        row.label(text=state.username, icon="WORLD_DATA")
 
-                    box = layout.box()
-                    draw_time_shift(box)
+                    row.popover(
+                        "VIEW_PT_LightDance_Tools", text="Tools", icon="TOOL_SETTINGS"
+                    )
+
+                    if state.shifting:
+                        row = layout.row()
+                        row.label(text="Time Shift")
+
+                        box = layout.box()
+                        draw_time_shift(box)
+
+                else:
+                    row = layout.row()
+                    row.label(text="You are currently offline")
+                    row.operator(
+                        "lightdance.reload_blender", text="Reload", icon="PLAY"
+                    )
 
             else:
                 row = layout.row()

@@ -16,7 +16,7 @@ class EditorPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.ready
+        return state.ready and state.sync
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout

@@ -7,6 +7,11 @@ def set_running(value: bool):
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
+def set_sync(value: bool):
+    state.sync = value
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
 def set_logged_in(value: bool):
     state.logged_in = value
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

@@ -17,7 +17,7 @@ class LEDEditor(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.ready and state.editor == Editor.LED_EDITOR
+        return state.ready and state.sync and state.editor == Editor.LED_EDITOR
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout
@@ -32,46 +32,46 @@ class LEDEditor(bpy.types.Panel):
 
         edit_mode = ld_ui_led_editor.edit_mode
 
-        match edit_mode:
-            case LEDEditorEditModeType.IDLE.value:
-                row = layout.row()
-                row.prop(ld_ui_led_editor, "edit_model", text="Model")
+        if edit_mode == LEDEditorEditModeType.IDLE.value:
+            row = layout.row()
+            row.prop(ld_ui_led_editor, "edit_model", text="Model")
 
-                row = layout.row()
-                row.prop(ld_ui_led_editor, "edit_dancer", text="Dancer")
+            row = layout.row()
+            row.prop(ld_ui_led_editor, "edit_dancer", text="Dancer")
 
-                row = layout.row()
-                row.prop(ld_ui_led_editor, "edit_part", text="Part")
+            row = layout.row()
+            row.prop(ld_ui_led_editor, "edit_part", text="Part")
 
-                row = layout.row()
-                row.prop(ld_ui_led_editor, "edit_effect", text="Effect")
-                pass
-            case LEDEditorEditModeType.EDIT.value:
-                # TODO: Show part info
+            row = layout.row()
+            row.prop(ld_ui_led_editor, "edit_effect", text="Effect")
 
-                # show properties of light
-                column = layout.column()
+        elif edit_mode == LEDEditorEditModeType.EDIT.value:
+            # TODO: Show part info
 
-                if ld_ui_led_editor.multi_select:
-                    column.prop(ld_ui_led_editor, "multi_select_color", text="Color")
-                else:
-                    # check if object is selected
-                    obj = context.object
-                    if obj is None:  # type: ignore
-                        return
+            # show properties of light
+            column = layout.column()
 
-                    ld_object_type: str = getattr(obj, "ld_object_type")
-                    ld_light_type: str = getattr(obj, "ld_light_type")
-                    if (
-                        ld_object_type != ObjectType.LIGHT.value
-                        or ld_light_type != LightType.LED_BULB.value
-                    ):
-                        return
+            if ld_ui_led_editor.multi_select:
+                column.prop(ld_ui_led_editor, "multi_select_color", text="Color")
+            else:
+                # check if object is selected
+                obj = context.object
+                if obj is None:  # type: ignore
+                    return
 
-                    column.prop(obj, "ld_color", text="Color")
-            case LEDEditorEditModeType.NEW.value:
-                column = layout.column()
-                column.prop(ld_ui_led_editor, "new_effect", text="Name")
+                ld_object_type: str = getattr(obj, "ld_object_type")
+                ld_light_type: str = getattr(obj, "ld_light_type")
+                if (
+                    ld_object_type != ObjectType.LIGHT.value
+                    or ld_light_type != LightType.LED_BULB.value
+                ):
+                    return
+
+                column.prop(obj, "ld_color", text="Color")
+
+        else:
+            column = layout.column()
+            column.prop(ld_ui_led_editor, "new_effect", text="Name")
 
 
 def register():

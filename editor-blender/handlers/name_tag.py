@@ -94,8 +94,11 @@ def mount():
 
 def unmount():
     global name_tag_settings
-    if name_tag_settings.name_tag_handle is not None:
-        bpy.types.SpaceView3D.draw_handler_remove(
-            name_tag_settings.name_tag_handle, "WINDOW"
-        )
-        name_tag_settings.name_tag_handle = None
+    try:
+        if name_tag_settings.name_tag_handle is not None:
+            bpy.types.SpaceView3D.draw_handler_remove(
+                name_tag_settings.name_tag_handle, "WINDOW"
+            )
+            name_tag_settings.name_tag_handle = None
+    except:
+        pass
