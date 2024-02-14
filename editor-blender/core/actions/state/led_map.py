@@ -1,4 +1,9 @@
-from ...models import EditMode, LEDEffect, LEDMap
+from typing import List, Optional, cast
+
+import bpy
+
+from ....properties.types import LightType
+from ...models import EditMode, LEDEffect, LEDEffectID, LEDMap
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
@@ -24,12 +29,15 @@ def add_led_effect(
     led_map_update = state.led_map_updates
     led_map_update.added.append((model_name, part_name, effect_name, effect_item))
 
-    if state.edit_state == EditMode.EDITING:
-        state.led_map_pending.add_or_delete = True
-        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-    else:
-        apply_led_map_updates_add_or_delete()
-        notify("INFO", f"Added color {effect_name}")
+    # if state.edit_state == EditMode.EDITING:
+    #     state.led_map_pending.add_or_delete = True
+    #     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    # else:
+    #     apply_led_map_updates_add_or_delete()
+    #     notify("INFO", f"Added color {effect_name}")
+
+    apply_led_map_updates_add_or_delete()
+    notify("INFO", f"Added color {effect_name}")
 
 
 def edit_led_effect(
@@ -79,12 +87,18 @@ def delete_led_effect(
 
     led_map_update.deleted.append((model_name, part_name, effect_name, effect_id))
 
+    # if state.edit_state == EditMode.EDITING:
+    #     state.led_map_pending.add_or_delete = True
+    #     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    # else:
+    #     apply_led_map_updates_add_or_delete()
+    #     notify("INFO", f"Deleted color {effect_id}")
+
     if state.edit_state == EditMode.EDITING:
-        state.led_map_pending.add_or_delete = True
-        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-    else:
-        apply_led_map_updates_add_or_delete()
-        notify("INFO", f"Deleted color {effect_id}")
+        remove_effect_in_editing_status(effect_id)
+
+    apply_led_map_updates_add_or_delete()
+    notify("INFO", f"Deleted color {effect_id}")
 
 
 def apply_led_map_updates_add_or_delete():
@@ -117,3 +131,26 @@ def apply_led_map_updates_update():
 
     state.led_map_pending.update = False
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+def remove_effect_in_editing_status(effect_id: LEDEffectID):
+    for dancer in state.dancers_array:
+        dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        if dancer_obj is not None:
+            part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
+            part_obj_names: List[str] = [
+                getattr(obj, "ld_part_name") for obj in part_objs
+            ]
+
+            for part in dancer.parts:
+                if part.name not in part_obj_names:
+                    continue
+
+                part_index = part_obj_names.index(part.name)
+                part_obj = part_objs[part_index]
+                part_type = getattr(part_obj, "ld_light_type")
+
+                if part_type == LightType.FIBER.value:
+                    ld_effect_id: int = cast(int, part_obj["ld_effect"])
+                    if ld_effect_id == effect_id:
+                        part_obj["ld_effect"] = -1

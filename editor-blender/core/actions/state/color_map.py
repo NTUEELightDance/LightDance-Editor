@@ -1,3 +1,8 @@
+from typing import List, Optional, cast
+
+import bpy
+
+from ....properties.types import LightType
 from ...models import Color, ColorID, ColorMap, EditMode
 from ...states import state
 from ...utils.notification import notify
@@ -16,12 +21,15 @@ def add_color(id: ColorID, color: Color):
     color_map_updates = state.color_map_updates
     color_map_updates.added.append(color)
 
-    if state.edit_state == EditMode.EDITING:
-        state.color_map_pending.add_or_delete = True
-        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-    else:
-        apply_color_map_updates_add_or_delete()
-        notify("INFO", f"Added color {color.name}")
+    # if state.edit_state == EditMode.EDITING:
+    #     state.color_map_pending.add_or_delete = True
+    #     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    # else:
+    #     apply_color_map_updates_add_or_delete()
+    #     notify("INFO", f"Added color {color.name}")
+
+    apply_color_map_updates_add_or_delete()
+    notify("INFO", f"Added color {color.name}")
 
 
 def delete_color(id: ColorID):
@@ -42,13 +50,20 @@ def delete_color(id: ColorID):
 
     color_map_updates.deleted.append(id)
 
+    # if state.edit_state == EditMode.EDITING:
+    #     state.color_map_pending.add_or_delete = True
+    #     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    # else:
+    #     color_name = state.color_map[id].name
+    #     apply_color_map_updates_add_or_delete()
+    #     notify("INFO", f"Deleted color {color_name}")
+
     if state.edit_state == EditMode.EDITING:
-        state.color_map_pending.add_or_delete = True
-        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-    else:
-        color_name = state.color_map[id].name
-        apply_color_map_updates_add_or_delete()
-        notify("INFO", f"Deleted color {color_name}")
+        remove_color_in_editing_status(id)
+
+    color = state.color_map[id]
+    apply_color_map_updates_add_or_delete()
+    notify("INFO", f"Deleted color {color.name}")
 
 
 def update_color(id: ColorID, color: Color):
@@ -99,5 +114,30 @@ def apply_color_map_updates_update():
 
     color_map_updates.updated.clear()
 
+    setup_color_palette_from_state(state.color_map)
+
     state.color_map_pending.update = False
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+def remove_color_in_editing_status(id: ColorID):
+    for dancer in state.dancers_array:
+        dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        if dancer_obj is not None:
+            part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
+            part_obj_names: List[str] = [
+                getattr(obj, "ld_part_name") for obj in part_objs
+            ]
+
+            for part in dancer.parts:
+                if part.name not in part_obj_names:
+                    continue
+
+                part_index = part_obj_names.index(part.name)
+                part_obj = part_objs[part_index]
+                part_type = getattr(part_obj, "ld_light_type")
+
+                if part_type == LightType.FIBER.value:
+                    ld_color_id: int = cast(int, part_obj["ld_color"])
+                    if ld_color_id == id:
+                        setattr(part_obj, "ld_color", "black")
