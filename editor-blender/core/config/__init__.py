@@ -50,6 +50,11 @@ class Config:
             raise Exception("FILE_SERVER_URL is not defined")
         self.FILE_SERVER_URL = remove_wrapped_slash(FILE_SERVER_URL)
 
+        CONTROLLER_WS_URL = os.getenv("CONTROLLER_WS_URL")
+        if CONTROLLER_WS_URL is None:
+            raise Exception("CONTROLLER_WS_URL is not defined")
+        self.CONTROLLER_WS_URL = remove_wrapped_slash(CONTROLLER_WS_URL)
+
         """
         Assets
         """

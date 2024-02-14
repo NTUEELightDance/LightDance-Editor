@@ -325,10 +325,8 @@ class Clients:
         await self.open_graphql()
 
     async def open_command(self):
-        # ws_url = self.SERVER_URL.replace("http", "ws")
-        # uri = f"{ws_url}/controller-server-websocket"
         self.command_client = await connect(
-            uri=f"ws://localhost:8082",  # WARNING: dev mode
+            uri=constants.CONTROLLER_WS_URL,
             extra_headers=[("token", state.token)],
         )
         print("Command client opened")
