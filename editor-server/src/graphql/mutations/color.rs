@@ -8,6 +8,7 @@ use crate::graphql::{
     types::color::Color,
 };
 use crate::types::global::UserContext;
+use crate::utils::revision::update_revision;
 
 use async_graphql::{Context, InputObject, Object, Result as GQLResult, SimpleObject};
 use itertools::Itertools;
@@ -88,6 +89,8 @@ impl ColorMutation {
         };
 
         Subscriptor::publish(color_payload);
+
+        update_revision(mysql).await?;
 
         let color = Color {
             id,
@@ -226,6 +229,8 @@ impl ColorMutation {
             Subscriptor::publish(led_payload);
         }
 
+        update_revision(mysql).await?;
+
         let color = Color {
             id,
             color: color.color,
@@ -290,6 +295,8 @@ impl ColorMutation {
         };
 
         Subscriptor::publish(color_payload);
+
+        update_revision(mysql).await?;
 
         Ok(ColorResponse {
             id,

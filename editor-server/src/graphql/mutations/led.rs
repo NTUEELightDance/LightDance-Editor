@@ -1,6 +1,8 @@
 use crate::graphql::types::led::{Frame, LEDEffectData, LEDEffectFrame};
 use crate::graphql::{subscriptions::led::LEDPayload, subscriptor::Subscriptor};
 use crate::types::global::UserContext;
+use crate::utils::revision::update_revision;
+
 use async_graphql::{
     Context, Error as GQLError, InputObject, Object, Result as GQLResult, SimpleObject,
 };
@@ -214,6 +216,8 @@ impl LEDMutation {
 
         Subscriptor::publish(led_payload);
 
+        update_revision(mysql).await?;
+
         Ok(LEDEffectResponse {
             id: effect_id,
             model_name,
@@ -381,6 +385,8 @@ impl LEDMutation {
 
         Subscriptor::publish(led_payload);
 
+        update_revision(mysql).await?;
+
         Ok(LEDEffectResponse {
             id,
             model_name: led_effect.model_name,
@@ -512,6 +518,8 @@ impl LEDMutation {
         };
 
         Subscriptor::publish(led_payload);
+
+        update_revision(mysql).await?;
 
         Ok(DeleteLEDEffectResponse {
             ok: true,

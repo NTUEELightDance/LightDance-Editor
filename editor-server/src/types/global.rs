@@ -45,3 +45,9 @@ pub struct RedisPosition {
     pub rev: Revision,
     pub pos: Vec<PositionPos>,
 }
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct DBRevision {
+    pub uuid: String,
+    pub time: String,
+}

@@ -11,6 +11,8 @@ use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
 use crate::graphql::types::pos_frame::{PositionFrame, PositionFrameRevision};
 use crate::types::global::{PositionPos, RedisPosition, Revision, UserContext};
 use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
+use crate::utils::revision::update_revision;
+
 use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 use std::collections::HashMap;
 
@@ -205,6 +207,8 @@ impl PositionFrameMutation {
 
         Subscriptor::publish(record_payload);
 
+        update_revision(mysql).await?;
+
         Ok(PositionFrame {
             id,
             start,
@@ -365,6 +369,8 @@ impl PositionFrameMutation {
 
         Subscriptor::publish(record_payload);
 
+        update_revision(mysql).await?;
+
         Ok(PositionFrame {
             id: input.frame_id,
             start: input.start,
@@ -463,6 +469,8 @@ impl PositionFrameMutation {
             index: -1,
         };
         Subscriptor::publish(record_payload);
+
+        update_revision(mysql).await?;
 
         let deleted_frame = deleted_frame.unwrap();
 

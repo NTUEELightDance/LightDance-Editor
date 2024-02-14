@@ -4,6 +4,7 @@
 use crate::db::types::editing_control_frame::EditingControlFrameData;
 use crate::db::types::part::PartType;
 use crate::types::global::UserContext;
+use crate::utils::revision::update_revision;
 
 // import modules and functions
 use async_graphql::{Context, Error, FieldResult, InputObject, Object};
@@ -450,6 +451,8 @@ impl ControlMapMutation {
 
         // publish control map
         Subscriptor::publish(control_map_payload);
+
+        update_revision(mysql).await?;
 
         // TODO: check the necessity of publishing the control record (similar to the code in control_frame.rs)
         // the previous code doesn't implement this

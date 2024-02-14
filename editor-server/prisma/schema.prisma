@@ -218,3 +218,9 @@ model Logger {
   error_message  Json?
   result         Json?
 }
+
+model Revision {
+  id   Int      @id @default(autoincrement())
+  uuid String   @unique
+  time DateTime @default(now())
+}

@@ -13,6 +13,8 @@ use crate::graphql::types::{
 use crate::types::global::RedisPosition;
 use crate::types::global::UserContext;
 use crate::utils::data::{get_redis_position, update_redis_position};
+use crate::utils::revision::update_revision;
+
 use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 use std::collections::HashMap;
 
@@ -148,6 +150,9 @@ impl PositionMapMutation {
                 get_redis_position(redis, frame_id.id).await?,
             );
         }
+
+        update_revision(mysql).await?;
+
         Ok(PositionMap {
             frame_ids: PositionMapScalar(result),
         })

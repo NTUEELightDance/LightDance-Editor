@@ -15,6 +15,7 @@ use crate::utils::data::{
     delete_redis_control, delete_redis_position, get_redis_control, get_redis_position,
     update_redis_control, update_redis_position,
 };
+use crate::utils::revision::update_revision;
 
 use async_graphql::{Context, Error as GQLError, Object, Result as GQLResult, SimpleObject};
 use itertools::Itertools;
@@ -441,6 +442,8 @@ impl FrameMutation {
             };
             Subscriptor::publish(position_record_payload);
         }
+
+        update_revision(mysql).await?;
 
         Ok(ShiftResponse {
             msg: "Shift success".to_string(),

@@ -28,7 +28,7 @@ redis = { version = "0.23.3", features = ["tokio-comp"] }
 serde = "1.0.188"
 serde_json = "1.0.107"
 slab = "0.4.9"
-sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "migrate", "postgres"] }
+sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "migrate", "postgres", "chrono"] }
 tokio = { version = "1.32.0", features = ["full"] }
 tower = "0.4.13"
 tower-http = { version = "0.4.3", features = ["cors"] }

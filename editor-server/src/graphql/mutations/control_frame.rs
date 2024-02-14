@@ -5,6 +5,7 @@ use crate::db::types::control_frame::ControlFrameData;
 use crate::db::types::editing_control_frame::EditingControlFrameData;
 use crate::db::types::part::PartType;
 use crate::types::global::UserContext;
+use crate::utils::revision::update_revision;
 
 // import modules and functions
 use async_graphql::{Context, Error, FieldResult, InputObject, Object};
@@ -452,6 +453,8 @@ impl ControlFrameMutation {
         // publish control record
         Subscriptor::publish(control_record_payload);
 
+        update_revision(mysql).await?;
+
         // return
         Ok("ok".to_string())
     }
@@ -675,6 +678,8 @@ impl ControlFrameMutation {
         // publish control record
         Subscriptor::publish(control_record_payload);
 
+        update_revision(mysql).await?;
+
         // return
         Ok("ok".to_string())
     }
@@ -799,6 +804,8 @@ impl ControlFrameMutation {
 
         // publish control record
         Subscriptor::publish(control_record_payload);
+
+        update_revision(mysql).await?;
 
         // return
         Ok("ok".to_string())

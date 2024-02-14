@@ -5,6 +5,7 @@ use axum::{extract::Multipart, http::StatusCode, response::Json};
 use indicatif::ProgressBar;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct ControlData {
@@ -139,6 +140,9 @@ pub async fn upload_data(
             .execute(mysql)
             .await;
         let _ = sqlx::query!(r#"DELETE FROM Model"#,).execute(mysql).await;
+        let _ = sqlx::query!(r#"DELETE FROM Revision"#,)
+            .execute(mysql)
+            .await;
 
         println!("DB cleared");
 
@@ -478,6 +482,18 @@ pub async fn upload_data(
             control_progress.inc(1);
         }
         control_progress.finish();
+
+        // Init revision
+        let _ = sqlx::query!(
+            r#"
+                INSERT INTO Revision (uuid)
+                VALUES (?);
+            "#,
+            Uuid::new_v4().to_string(),
+        )
+        .execute(&mut *tx)
+        .await
+        .into_result()?;
 
         tx.commit().await.into_result()?;
         println!("Upload Finish!");
