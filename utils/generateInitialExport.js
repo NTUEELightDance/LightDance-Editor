@@ -62,8 +62,8 @@ async function getParts(modelPath, modelName) {
     .listNodes()
     .map((node) => node.getName())
     .filter((name) => name.includes("_LED."));
-    // drop first '_'
-    // .map((name) => name.split("_").slice(1).join("_"));
+  // drop first '_'
+  // .map((name) => name.split("_").slice(1).join("_"));
 
   const LEDcounter = LEDs.reduce((acc, LEDname) => {
     const partName = LEDname.split(".")[0];
@@ -116,8 +116,8 @@ function generateEmptyPosMap(dancerData) {
   const length = dancerData.length;
   const spacing = 3;
   const pos = dancerData.map((val, index) => [
-    (index - (length - 1) / 2) * spacing,
     0,
+    (index - (length - 1) / 2) * spacing,
     0,
   ]);
 

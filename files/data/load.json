@@ -16,5 +16,12 @@
       "url": "/asset/models/0_agent.draco.glb",
       "modelName": "0_agent"
     }
+  },
+  "Config": {
+    "Stage": {
+      "width": 9.5,
+      "length": 4.0,
+      "scale": 3.0
+    }
   }
 }
