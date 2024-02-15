@@ -1,4 +1,4 @@
-from typing import Dict, cast
+from typing import Dict, Optional, cast
 
 import bpy
 
@@ -143,12 +143,18 @@ def add_single_pos_keyframe(id: MapID, pos_element: PosMapElement):
     pos_rev.frame_start = frame_start
 
 
-def edit_single_pos_keyframe(pos_id: MapID, pos_element: PosMapElement):
+def edit_single_pos_keyframe(
+    pos_id: MapID, pos_element: PosMapElement, frame_start: Optional[int] = None
+):
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
     old_pos_map = state.pos_map  # pos_map before update
-    old_pos_frame = old_pos_map[pos_id]
-    old_frame_start = old_pos_frame.start
+
+    if frame_start is None:
+        old_pos_frame = old_pos_map[pos_id]
+        old_frame_start = old_pos_frame.start
+    else:
+        old_frame_start = frame_start
 
     new_pos_status = pos_element.pos
     new_frame_start = pos_element.start
@@ -224,13 +230,16 @@ def edit_single_pos_keyframe(pos_id: MapID, pos_element: PosMapElement):
         pass
 
 
-def delete_single_pos_keyframe(pos_id: MapID, incoming_frame_start: int | None = None):
+def delete_single_pos_keyframe(
+    pos_id: MapID, incoming_frame_start: Optional[int] = None
+):
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
-    old_pos_map = state.pos_map  # pos_map before update
-    old_frame_start = (
-        incoming_frame_start if incoming_frame_start else old_pos_map[pos_id].start
-    )
+    if incoming_frame_start is None:
+        old_pos_map = state.pos_map  # pos_map before update
+        old_frame_start = old_pos_map[pos_id].start
+    else:
+        old_frame_start = incoming_frame_start
 
     dancers_array = state.dancers_array
     for dancer_item in dancers_array:

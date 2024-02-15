@@ -342,16 +342,23 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
     ctrl_rev.frame_start = frame_start
 
 
+# WARNING: Fade is still buggy, fade frame is not connected to the next frame sometimes
 def edit_single_ctrl_keyframe(
-    ctrl_id: MapID, ctrl_element: ControlMapElement, only_meta: bool = False
+    ctrl_id: MapID,
+    ctrl_element: ControlMapElement,
+    frame_start: Optional[int] = None,
+    only_meta: bool = False,
 ):
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
 
-    old_ctrl_map = state.control_map  # control_map before update
-    old_frame_start = old_ctrl_map[ctrl_id].start
+    if frame_start is None:
+        old_ctrl_map = state.control_map  # control_map before update
+        old_frame_start = old_ctrl_map[ctrl_id].start
+    else:
+        old_frame_start = frame_start
 
     new_frame_start = ctrl_element.start
     new_ctrl_status = ctrl_element.status
@@ -527,10 +534,12 @@ def delete_single_ctrl_keyframe(
 ):
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
-    old_ctrl_map = state.control_map  # only for checking dancer list
-    old_frame_start = (
-        incoming_frame_start if incoming_frame_start else old_ctrl_map[ctrl_id].start
-    )
+    if incoming_frame_start is None:
+        old_ctrl_map = state.control_map  # only for checking dancer list
+        old_frame_start = old_ctrl_map[ctrl_id].start
+    else:
+        old_frame_start = incoming_frame_start
+
     dancers_array = state.dancers_array
 
     for dancer_item in dancers_array:

@@ -38,26 +38,32 @@ def name_tag_draw():
 
     dancer_names = state.dancer_names
     for name in dancer_names:
-        dancer_obj = cast(bpy.types.Object, bpy.data.objects[name])
-        dancer_location = dancer_obj.location
-        text_location_3d = Vector(
-            (
-                dancer_location[0] + name_tag_settings.x_offset,
-                dancer_location[1] + name_tag_settings.y_offset,
-                dancer_location[2] + name_tag_settings.z_offset,
+        try:
+            dancer_obj = cast(bpy.types.Object, bpy.data.objects[name])
+            dancer_location = dancer_obj.location
+            text_location_3d = Vector(
+                (
+                    dancer_location[0] + name_tag_settings.x_offset,
+                    dancer_location[1] + name_tag_settings.y_offset,
+                    dancer_location[2] + name_tag_settings.z_offset,
+                )
             )
-        )
-        text_view_2d = location_3d_to_region_2d(region, region_data, text_location_3d)
-        text_w, text_h = cast(
-            Tuple[float, float], blf.dimensions(name_tag_settings.font_id, name)
-        )
-        blf.position(
-            name_tag_settings.font_id,
-            text_view_2d[0] - text_w / 2,
-            text_view_2d[1] - text_h / 2,
-            0,
-        )
-        blf.draw(name_tag_settings.font_id, name)
+            text_view_2d = location_3d_to_region_2d(
+                region, region_data, text_location_3d
+            )
+            text_w, text_h = cast(
+                Tuple[float, float], blf.dimensions(name_tag_settings.font_id, name)
+            )
+            blf.position(
+                name_tag_settings.font_id,
+                text_view_2d[0] - text_w / 2,
+                text_view_2d[1] - text_h / 2,
+                0,
+            )
+            blf.draw(name_tag_settings.font_id, name)
+
+        except AttributeError:
+            pass
 
 
 def name_tag_handler():

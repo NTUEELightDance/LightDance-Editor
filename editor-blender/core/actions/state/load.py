@@ -563,7 +563,7 @@ def setup_animation_data():
         setattr(bpy.context.scene, "ld_anidata", True)
     else:
         print("local animation data detected")
-        # update_rev_changes(state.pos_map, state.control_map)  # TODO: test this
+        update_rev_changes(state.pos_map, state.control_map)  # TODO: test this
 
 
 def check_local_object_list():

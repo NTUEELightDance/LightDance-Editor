@@ -46,8 +46,12 @@ def draw():
 
     y0 = bottom_offset
     y1 = height - top_offset
-    y_mid = (y0 + y1 - height) / height
-    y_scale = (y1 - y0) / height
+    if height == 0:
+        y_mid = 0
+        y_scale = 1
+    else:
+        y_mid = (y0 + y1 - height) / height
+        y_scale = (y1 - y0) / height
 
     shader.uniform_float("view_x_mid", x_mid)  # type: ignore
     shader.uniform_float("view_x_scale", x_scale)  # type: ignore
@@ -90,7 +94,7 @@ def mount():
     area = next(
         area
         for area in cast(List[bpy.types.Area], screen.areas)
-        if area.type == "DOPESHEET_EDITOR"
+        if area.ui_type == "TIMELINE"
     )
     region = next(
         region
