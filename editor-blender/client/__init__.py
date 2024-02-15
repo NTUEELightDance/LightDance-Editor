@@ -5,14 +5,13 @@ from typing import Any, AsyncGenerator, Dict, Optional, Type, TypeVar, Union
 
 from aiohttp import ClientSession
 from dataclass_wizard import JSONWizard
-from dataclass_wizard.constants import os
 from gql import Client
 from gql.client import AsyncClientSession, ReconnectingAsyncClientSession
 from gql.transport.aiohttp import AIOHTTPTransport
 from gql.transport.websockets import WebsocketsTransport
 from graphql import DocumentNode
 
-from ..core.constants import constants
+from ..core.config import config
 from ..core.states import state
 from .cache import InMemoryCache, query_defs_to_field_table
 
@@ -96,7 +95,7 @@ class Clients:
             raise Exception("HTTP client is not initialized")
 
         path = remove_wrapped_slash(path)
-        http_path = f"/{constants.HTTP_PATH}/{path}"
+        http_path = f"/{config.HTTP_PATH}/{path}"
         async with self.http_client.post(http_path, json=json) as response:
             return await response.json()
 
@@ -105,7 +104,7 @@ class Clients:
             raise Exception("HTTP client is not initialized")
 
         path = remove_wrapped_slash(path)
-        http_path = f"/{constants.HTTP_PATH}/{path}"
+        http_path = f"/{config.HTTP_PATH}/{path}"
         async with self.http_client.get(http_path) as response:
             return await response.json()
 
@@ -227,7 +226,7 @@ class Clients:
         token_payload = {"token": state.token}
 
         # HTTP client
-        self.http_client = ClientSession(constants.SERVER_URL, cookies=token_payload)
+        self.http_client = ClientSession(config.SERVER_URL, cookies=token_payload)
         print("HTTP client opened")
 
     async def close_http(self) -> None:
@@ -240,7 +239,7 @@ class Clients:
 
     async def open_file(self) -> None:
         # File client
-        self.file_client = ClientSession(constants.FILE_SERVER_URL)
+        self.file_client = ClientSession(config.FILE_SERVER_URL)
         print("File client opened")
 
     async def close_file(self) -> None:
@@ -258,7 +257,7 @@ class Clients:
 
         # GraphQL client
         transport = AIOHTTPTransport(
-            url=f"{constants.SERVER_URL}/{constants.GRAPHQL_PATH}",
+            url=f"{config.SERVER_URL}/{config.GRAPHQL_PATH}",
             cookies=token_payload,
         )
 
@@ -268,9 +267,9 @@ class Clients:
         print("GraphQL client opened")
 
         # GraphQL subscription client
-        ws_url = constants.SERVER_URL.replace("http", "ws")
+        ws_url = config.SERVER_URL.replace("http", "ws")
         sub_transport = WebsocketsTransport(
-            url=f"{ws_url}/{constants.GRAPHQL_WS_PATH}",
+            url=f"{ws_url}/{config.GRAPHQL_WS_PATH}",
             subprotocols=[WebsocketsTransport.GRAPHQLWS_SUBPROTOCOL],
             init_payload=token_payload,
         )

@@ -12,7 +12,7 @@ def remove_wrapped_slash(path: str) -> str:
     return path
 
 
-class Constants:
+class Config:
     def __init__(self):
         pass
 
@@ -59,4 +59,4 @@ class Constants:
         self.ASSET_PATH = os.path.join(library_path, "LightDance")
 
 
-constants = Constants()
+config = Config()

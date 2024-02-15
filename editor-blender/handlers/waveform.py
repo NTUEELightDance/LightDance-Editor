@@ -7,7 +7,7 @@ import bpy.path
 import gpu
 from gpu_extras import batch as g_batch
 
-from ..core.constants import constants
+from ..core.config import config
 from ..core.states import state
 from ..core.utils.ui import redraw_area
 
@@ -61,7 +61,7 @@ def mount():
     global waveform_settings
 
     # Load waveform data
-    waveform_path = os.path.join(constants.ASSET_PATH, "data/waveform.json")
+    waveform_path = os.path.join(config.ASSET_PATH, "data/waveform.json")
 
     try:
         waveform_file = open(waveform_path, "r")

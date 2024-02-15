@@ -2,7 +2,7 @@ import os
 
 import bpy
 
-from ...core.constants import constants
+from ...core.config import config
 from ...core.utils.notification import notify
 
 
@@ -32,7 +32,7 @@ class ClearAssets(bpy.types.Operator):
             notify("ERROR", "Cancelled")
             return {"CANCELLED"}
 
-        remove_dir_files(constants.ASSET_PATH)
+        remove_dir_files(config.ASSET_PATH)
         notify("INFO", "Assets cleared")
 
         return {"FINISHED"}

@@ -17,10 +17,10 @@ def setup():
     # Ensure requirements are installed (for release)
     install_requirements()
 
-    # Initialize constants
-    from .core.constants import constants
+    # Initialize config
+    from .core.config import config
 
-    constants.initialize()
+    config.initialize()
 
 
 def register():

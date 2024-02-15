@@ -7,8 +7,10 @@ import bpy
 from ....client import client
 from ....properties.types import LightType, ObjectType
 from ...actions.property.revision import update_rev_changes
+from ...config import config
 from ...models import DancersArrayPartsItem, PartType
 from ...states import state
+from ...utils.convert import rgb_to_float
 from ...utils.ui import redraw_area, set_dopesheet_filter
 from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
@@ -24,6 +26,14 @@ target_path = os.path.join(asset_path, "LightDance")
 def set_bpy_props(obj: bpy.types.Object, **props: Any):
     for key, value in props.items():
         setattr(obj, key, value)
+
+
+def parse_config(config_dict: Dict[str, Any]):
+    stage_config = config_dict["Stage"]
+
+    setattr(config, "stage_width", cast(float, stage_config["width"]))
+    setattr(config, "stage_length", cast(float, stage_config["length"]))
+    setattr(config, "stage_scale", cast(float, stage_config["scale"]))
 
 
 async def fetch_data(reload: bool = False):
@@ -51,6 +61,8 @@ async def fetch_data(reload: bool = False):
                     assets_load["DancerMap"][key]["url"] = model_url
 
                 url_set.add(model_url)
+
+            parse_config(assets_load["Config"])
 
             for url in url_set:
                 file_path = os.path.normpath(target_path + url)
@@ -297,6 +309,35 @@ async def setup_objects(assets_load: Dict[str, Any]):
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
 
+    # Create floor
+    stage_scale: float = getattr(config, "stage_scale")
+    stage_width: float = getattr(config, "stage_width") * stage_scale
+    stage_length: float = getattr(config, "stage_length") * stage_scale
+    stage_stroke = 0.02
+    stage_color = (*rgb_to_float((38, 123, 216)), 1)
+
+    edge_locations = [
+        (0, stage_width / 2, 0),
+        (0, -stage_width / 2, 0),
+        (stage_length / 2, 0, 0),
+        (-stage_length / 2, 0, 0),
+    ]
+    edge_scales = [
+        (stage_length + stage_stroke, stage_stroke, stage_stroke),
+        (stage_length + stage_stroke, stage_stroke, stage_stroke),
+        (stage_stroke, stage_width + stage_stroke, stage_stroke),
+        (stage_stroke, stage_width + stage_stroke, stage_stroke),
+    ]
+
+    for i in range(4):
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        edge_obj = bpy.context.object
+        edge_obj.name = f"FloorEdge{i}"
+        edge_obj.location = edge_locations[i]
+        edge_obj.scale = edge_scales[i]
+        edge_obj.color = cast(bpy.types.bpy_prop_array, stage_color)
+        edge_obj.hide_select = True
+
     for obj in cast(List[bpy.types.Object], bpy.context.view_layer.objects.selected):
         obj.select_set(False)
 
@@ -450,14 +491,17 @@ def setup_display():
     space.overlay.show_motion_paths = False
     space.overlay.show_object_origins = False
     space.overlay.show_extras = False
+    # space.overlay.show_floor = False
 
     space.shading.background_type = "VIEWPORT"
     space.shading.background_color = (0, 0, 0)
     space.shading.color_type = "OBJECT"
     space.shading.light = "FLAT"
+    # space.shading.light = "STUDIO"
+    # space.shading.studio_light = "paint.sl"
 
     space.show_region_ui = True
-    space.show_region_header = False
+    # space.show_region_header = False
     space.show_region_toolbar = False
     space.show_region_tool_header = False
 
@@ -498,6 +542,7 @@ def setup_display():
 
     space = cast(bpy.types.SpaceOutliner, outliner.spaces.active)
 
+    space.filter_state = "SELECTABLE"
     space.use_filter_collection = False
     space.use_filter_object_content = False
     space.use_sort_alpha = False

@@ -10,6 +10,9 @@ default_delete_keymaps = {
     "User Interface": ["anim.keyframe_delete_button"],
 }
 
+default_keymaps: List[bpy.types.KeyMapItem] = []
+clipboard_keymaps: List[bpy.types.KeyMapItem] = []
+
 
 def check_keymaps_exist(
     keymaps: List[bpy.types.KeyMapItem],

@@ -8,7 +8,6 @@ class PingAgent:
     async def ping(self) -> bool:
         try:
             res: Dict[str, Any] = await client.get("/ping")
-            print(res)
             revision = res.get("uuid")
             if not revision:
                 return False
