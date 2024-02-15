@@ -117,7 +117,8 @@ async def sub_pos_map(client: Clients):
                 add_pos(id, new_pos_frame)
 
             for id in deleteFrames:
-                del newPosMap.frameIds[id]
+                # NOTE: Temporary disabled since cache is not enabled for now
+                # del newPosMap.frameIds[id]
                 delete_pos(id)
 
             for id, posSub in updateFrames.items():
@@ -206,7 +207,8 @@ async def sub_control_map(client: Clients):
                 add_control(id, new_control_frame)
 
             for id in deleteFrames:
-                del newControlMap.frameIds[id]
+                # NOTE: Temporary disabled since cache is not enabled for now
+                # del newControlMap.frameIds[id]
                 delete_control(id)
 
             for id, frameSub in updateFrames.items():

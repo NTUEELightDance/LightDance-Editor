@@ -290,27 +290,34 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
 
     # update new ld_control_frame
     try:
-        new_next_point = next(p for p in kpoints_list if p.co[0] > frame_start)
-        new_next_fade_points = [
+        first_next_point = next(p for p in kpoints_list if p.co[0] > frame_start)
+        next_points = [
             point
             for point in kpoints_list
-            if point.co[0] > frame_start and point.co[1] == new_next_point.co[1]
+            if point.co[0] > frame_start and point.co[1] == first_next_point.co[1]
         ]
 
-        if new_next_point.co[0] != new_next_point.co[1]:  # new co's previous point fade
-            point.co = frame_start, new_next_point.co[1]
+        if (
+            first_next_point.co[0] != first_next_point.co[1]
+        ):  # new co's previous point fade
+            point.co = frame_start, first_next_point.co[1]
         else:
             point.co = frame_start, frame_start
 
         if fade:  # propagate fade to next points
-            for new_p in new_next_fade_points:
-                new_p.co = new_p.co[0], point.co[1]
+            for next_point in next_points:
+                next_point.co = next_point.co[0], point.co[1]
         else:  # reset next point to frame_start
-            for new_p in new_next_fade_points:
-                new_p.co = new_p.co[0], new_next_point.co[0]
+            for next_point in next_points:
+                next_point.co = next_point.co[0], next_point.co[0]
 
     except StopIteration:
-        pass
+        old_last_frame = next(
+            frame for _, frame in inv_sorted_ctrl_map if frame.start < frame_start
+        )
+
+        if old_last_frame.fade:
+            point.co = frame_start, old_last_frame.start
 
     point.interpolation = "CONSTANT"
     curve.keyframe_points.sort()
@@ -488,7 +495,8 @@ def edit_single_ctrl_keyframe(
                 new_p.co = new_p.co[0], new_next_point.co[0]
 
     except StopIteration:
-        pass
+        # No next point
+        point.co = new_frame_start, new_frame_start
 
     point.interpolation = "CONSTANT"
     kpoints.sort()
