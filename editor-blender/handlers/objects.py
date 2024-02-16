@@ -189,25 +189,36 @@ def handle_autoselect_in_control_editor_part_mode():
     if active_obj and active_obj.select_get():
         if is_dancer(active_obj):
             state.selected_obj_type = SelectedPartType.DANCER
-        else:
-            state.selected_obj_type = SelectedPartType.MIXED_LIGHT
+        elif is_led(active_obj):
+            state.selected_obj_type = SelectedPartType.LED
+        elif is_fiber(active_obj):
+            state.selected_obj_type = SelectedPartType.FIBER
+        # else:
+        #     state.selected_obj_type = SelectedPartType.MIXED_LIGHT
 
     selected_base_objs: List[bpy.types.Object] = []
     selected_fiber_objs: List[bpy.types.Object] = []
     selected_led_objs: List[bpy.types.Object] = []
 
     for obj in context_selected_objects:
-        if is_fiber(obj):
+        if is_fiber(obj) and (
+            state.selected_obj_type == SelectedPartType.FIBER
+            or state.selected_obj_type is None
+        ):
             selected_fiber_objs.append(obj)
-        elif is_led(obj):
+        elif is_led(obj) and (
+            state.selected_obj_type == SelectedPartType.LED
+            or state.selected_obj_type is None
+        ):
             selected_led_objs.append(obj)
 
     # Maintain selected objects type
-    if len(selected_led_objs) > 0 and len(selected_fiber_objs) > 0:
-        state.selected_obj_type = SelectedPartType.MIXED_LIGHT
-        selected_base_objs = [*selected_led_objs, *selected_fiber_objs]
-
-    elif len(selected_led_objs) > 0:
+    # if len(selected_led_objs) > 0 and len(selected_fiber_objs) > 0:
+    #     state.selected_obj_type = SelectedPartType.MIXED_LIGHT
+    #     selected_base_objs = [*selected_led_objs, *selected_fiber_objs]
+    #
+    # elif len(selected_led_objs) > 0:
+    if len(selected_led_objs) > 0:
         state.selected_obj_type = SelectedPartType.LED
         selected_base_objs = selected_led_objs
 
@@ -268,6 +279,7 @@ def handle_autoselect_in_control_editor_part_mode():
     sorted_new_selected_obj_names = sorted(new_selected_obj_names.copy())
     if sorted_selected_obj_names != sorted_new_selected_obj_names:
         # Don't trigger update here
+        ld_ui_control_editor["multi_select_effect"] = -1  # type: ignore
         ld_ui_control_editor["multi_select_color"] = -1  # type: ignore
         ld_ui_control_editor["multi_select_alpha"] = 128  # type: ignore
 
