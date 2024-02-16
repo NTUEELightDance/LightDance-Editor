@@ -112,6 +112,7 @@ class ControlEditor(bpy.types.Panel):
                     slider=True,
                 )
             else:
+                column.prop(ld_ui_control_editor, "multi_select_effect", text="Effect")
                 column.prop(
                     ld_ui_control_editor,
                     "multi_select_alpha",

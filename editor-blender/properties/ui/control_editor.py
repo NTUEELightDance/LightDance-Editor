@@ -1,13 +1,49 @@
-from typing import List, Tuple
+from typing import Dict, List, Set, Tuple, cast
 
 import bpy
 
 from ...core.actions.property.control_editor import (
     update_multi_select_alpha,
     update_multi_select_color,
+    update_multi_select_effect,
 )
+from ...core.states import state
 from ...icons import icon_collections
-from ..types import ColorPaletteItemType, ObjectType
+from ..types import ColorPaletteItemType, LightType, ObjectType
+
+
+def get_effect_lists(
+    self: bpy.types.PropertyGroup, context: bpy.types.Context
+) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    possible_effects: Set[str] = set()
+
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    for obj_name in state.selected_obj_names:
+        obj = data_objects[obj_name]
+        ld_object_type: str = getattr(obj, "ld_object_type")
+        if ld_object_type != ObjectType.LIGHT.value:
+            continue
+
+        ld_light_type: str = getattr(obj, "ld_light_type")
+        if ld_light_type != LightType.LED.value:
+            continue
+
+        ld_model_name: str = getattr(obj, "ld_model_name")
+        ld_part_name: str = getattr(obj, "ld_part_name")
+
+        if len(possible_effects) == 0:
+            possible_effects.update(state.led_map[ld_model_name][ld_part_name])
+        else:
+            possible_effects = possible_effects.intersection(
+                state.led_map[ld_model_name][ld_part_name]
+            )
+
+    effect_list: List[str] = list(possible_effects)
+    effect_list.sort()
+
+    effect_list = ["no-change"] + effect_list
+
+    return [(effect, effect, "", "", index) for index, effect in enumerate(effect_list)]
 
 
 def get_color_lists(
@@ -75,8 +111,15 @@ class ControlEditorStatus(bpy.types.PropertyGroup):
         name="Multi Select Color",
         description="Color of multi select",
         items=get_color_lists,
-        default=0,  # pyright: ignore
+        default=0,  # type: ignore
         update=update_multi_select_color,
+    )
+    multi_select_effect: bpy.props.EnumProperty(  # type: ignore
+        name="Multi Select Effect",
+        description="Effect of multi select",
+        items=get_effect_lists,
+        default=0,  # type: ignore
+        update=update_multi_select_effect,
     )
     multi_select_alpha: bpy.props.IntProperty(  # type: ignore
         name="Multi Select Alpha",

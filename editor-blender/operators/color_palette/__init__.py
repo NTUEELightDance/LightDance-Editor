@@ -1,3 +1,5 @@
+from typing import Optional
+
 import bpy
 
 from ...core.actions.state.color_palette import add_color, delete_color, edit_color
@@ -7,6 +9,18 @@ from ...core.utils.ui import redraw_area
 from ...properties.types import ColorPaletteItemType, ColorPaletteType
 from ...properties.ui.types import ColorPaletteEditModeType, ColorPaletteStatusType
 from ..async_core import AsyncOperator
+
+
+def fix_color_name(name: str) -> Optional[str]:
+    if len(name) == 0:
+        return None
+
+    name = name.replace(" ", "_")
+    name = name.replace("-", "_")
+    name = name.replace(".", "_")
+    name = name.replace(",", "_")
+
+    return name
 
 
 class ColorPaletteEditModeOperator(bpy.types.Operator):
@@ -67,7 +81,7 @@ class ColorPaletteNewModeOperator(bpy.types.Operator):
 
         color_temp.color_rgb = (255, 255, 255)
         color_temp.color_float = (1.0, 1.0, 1.0)
-        color_temp.color_name = "New color"
+        color_temp.color_name = ""
 
         return {"FINISHED"}
 
@@ -142,7 +156,11 @@ class ColorConfirmOperator(AsyncOperator):
                 )
 
                 id = color_temp.color_id
-                name = color_temp.color_name
+                name = fix_color_name(color_temp.color_name)
+                if name is None:
+                    notify("ERROR", "Invalid color name")
+                    return {"CANCELLED"}
+
                 rgb = (
                     color_temp.color_rgb[0],
                     color_temp.color_rgb[1],
@@ -163,7 +181,11 @@ class ColorConfirmOperator(AsyncOperator):
                 color_temp: ColorPaletteItemType = getattr(
                     bpy.context.window_manager, "ld_color_palette_temp"
                 )
-                name = color_temp.color_name
+                name = fix_color_name(color_temp.color_name)
+                if name is None:
+                    notify("ERROR", "Invalid color name")
+                    return {"CANCELLED"}
+
                 rgb = (
                     color_temp.color_rgb[0],
                     color_temp.color_rgb[1],
