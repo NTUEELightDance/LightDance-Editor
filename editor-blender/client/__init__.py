@@ -326,7 +326,7 @@ class Clients:
 
     async def open_command(self):
         self.command_client = await connect(
-            uri=constants.CONTROLLER_WS_URL,
+            uri=config.CONTROLLER_WS_URL,
             extra_headers=[("token", state.token)],
         )
         print("Command client opened")

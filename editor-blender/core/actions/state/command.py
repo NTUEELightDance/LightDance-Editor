@@ -56,9 +56,9 @@ def read_command_response(data: FromControllerServerCommandResponse):
     dancer = payload.dancer
     command = payload.command
     message = payload.message
-    rpi_status = state.rpi_status[dancer]
-    if not rpi_status:
-        rpi_status = RPiStatusItem(
+    rpi_status = state.rpi_status
+    if dancer not in state.rpi_status:
+        rpi_status[dancer] = RPiStatusItem(
             ethernet=InterfaceStatus(
                 name=dancer, IP="", MAC="", connected=False, statusCode=0, message=""
             ),
@@ -66,12 +66,13 @@ def read_command_response(data: FromControllerServerCommandResponse):
                 name=dancer, IP="", MAC="", connected=False, statusCode=0, message=""
             ),
         )
-    if rpi_status.ethernet.connected:
-        rpi_status.ethernet.message = f"[{command}] {message}"
-        rpi_status.ethernet.statusCode = data.statusCode
-    if rpi_status.wifi.connected:
-        rpi_status.wifi.message = f"[{command}] {message}"
-        rpi_status.wifi.statusCode = data.statusCode
+    rpi_status_item = rpi_status[dancer]
+    if rpi_status_item.ethernet.connected:
+        rpi_status_item.ethernet.message = f"[{command}] {message}"
+        rpi_status_item.ethernet.statusCode = data.statusCode
+    if rpi_status_item.wifi.connected:
+        rpi_status_item.wifi.message = f"[{command}] {message}"
+        rpi_status_item.wifi.statusCode = data.statusCode
 
     shell_history = state.shell_history
     if not shell_history[dancer]:

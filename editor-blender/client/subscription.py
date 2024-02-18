@@ -385,11 +385,11 @@ async def sub_controller_server(client: Clients):
     async for controller_data in client.subscribe_command():
         match controller_data.topic:
             case "boardInfo":
-                notify("Board info updated")
+                notify("INFO", "Board info updated")
                 print("Board info from controller server")
                 read_board_info_payload(controller_data.payload)
             case "command":
-                notify("Command response received")
+                notify("INFO", "Command response received")
                 print(f"Command response from controller server: {controller_data}")
                 read_command_response(controller_data)
 
