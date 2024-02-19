@@ -77,4 +77,4 @@ def read_command_response(data: FromControllerServerCommandResponse):
     if dancer not in shell_history:
         shell_history[dancer] = []
     shell_history[dancer].append(ShellTransaction(command=command, output=message))
-    print(rpi_status_item)
+    set_RPi_props_from_state()
