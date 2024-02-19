@@ -12,11 +12,11 @@ const GREEN = "green";
 const GREEN_RGB = [0, 255, 0];
 const BLUE = "blue";
 const BLUE_RGB = [0, 0, 255];
-const ALL_BLACK = "all_black";
-const ALL_WHITE = "all_white";
-const ALL_RED = "all_red";
-const ALL_GREEN = "all_green";
-const ALL_BLUE = "all_blue";
+const ALL_BLACK = "black";
+const ALL_WHITE = "white";
+const ALL_RED = "red";
+const ALL_GREEN = "green";
+const ALL_BLUE = "blue";
 const NO_EFFECT = "";
 
 const partNameIgnore = new Set(["Human"]);
