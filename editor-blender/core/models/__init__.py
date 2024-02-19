@@ -341,6 +341,7 @@ class State:
     editor: Editor
     editing_data: EditingData
     shifting: bool
+    local_view: bool
 
     selection_mode: SelectMode
     selected_obj_names: List[str]

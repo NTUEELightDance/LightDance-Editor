@@ -54,6 +54,7 @@ state = State(
     # current_led_status={}
     edit_state=EditMode.IDLE,
     editor=Editor.CONTROL_EDITOR,
+    local_view=False,
     editing_data=EditingData(frame_id=-1, start=0, index=0),
     shifting=False,
     # NOTE: Guess we can't implement these

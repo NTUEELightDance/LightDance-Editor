@@ -35,6 +35,8 @@ def name_tag_draw():
         region_data = cast(bpy.types.RegionView3D, region.data)
     else:
         return
+    if state.local_view:
+        return
 
     dancer_names = state.dancer_names
     for name in dancer_names:

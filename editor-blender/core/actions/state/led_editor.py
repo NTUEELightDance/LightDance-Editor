@@ -194,6 +194,7 @@ def enter_editing_led_effect():
 
     # Toggle local view
     execute_operator("view3d.localview")
+    state.local_view = True
 
     # De-select all objects
     bpy.context.view_layer.objects.active = None  # type: ignore
@@ -234,6 +235,7 @@ def exit_editing_led_effect():
 
     # Exit local view
     execute_operator("view3d.localview")
+    state.local_view = False
 
     # De-select all objects
     for obj in bpy.context.view_layer.objects.selected:  # type: ignore
