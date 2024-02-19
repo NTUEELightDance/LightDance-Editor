@@ -1,4 +1,5 @@
 import asyncio
+import json
 from asyncio import Task
 from inspect import isclass
 from typing import Any, AsyncGenerator, Dict, Optional, Type, TypeVar, Union
@@ -10,9 +11,15 @@ from gql.client import AsyncClientSession, ReconnectingAsyncClientSession
 from gql.transport.aiohttp import AIOHTTPTransport
 from gql.transport.websockets import WebsocketsTransport
 from graphql import DocumentNode
+from websockets.client import WebSocketClientProtocol, connect
 
 from ..core.config import config
 from ..core.states import state
+from ..graphqls.command import (
+    FromControllerServer,
+    FromControllerServerBoardInfo,
+    FromControllerServerCommandResponse,
+)
 from .cache import InMemoryCache, query_defs_to_field_table
 
 GQLSession = Union[AsyncClientSession, ReconnectingAsyncClientSession]
@@ -79,6 +86,7 @@ class Clients:
         self.client: Optional[GQLSession] = None
         self.sub_client: Optional[GQLSession] = None
         self.file_client: Optional[ClientSession] = None
+        self.command_client: Optional[WebSocketClientProtocol] = None
 
         self.cache = InMemoryCache()
 
@@ -220,6 +228,32 @@ class Clients:
 
         return response
 
+    async def subscribe_command(self) -> AsyncGenerator[FromControllerServer, None]:
+        if self.command_client is None:
+            raise Exception("Command client is not initialized")
+        async for data in self.command_client:
+            if isinstance(data, str):
+                data_dict = json.loads(data)
+                match data_dict["topic"]:
+                    case "boardInfo":
+                        sub_data: FromControllerServer = deserialize(
+                            FromControllerServerBoardInfo, data_dict
+                        )
+                    case "command":
+                        sub_data: FromControllerServer = deserialize(
+                            FromControllerServerCommandResponse, data_dict
+                        )
+                    case _:
+                        raise Exception("Invalid command data recieved")
+                yield sub_data
+            else:
+                raise Exception("Invalid command data recieved")
+
+    async def send_command(self, data: str):
+        if self.command_client is None:
+            raise Exception("Command client is not initialized")
+        await self.command_client.send(data)
+
     async def open_http(self) -> None:
         await self.close_http()
 
@@ -289,6 +323,23 @@ class Clients:
     async def restart_graphql(self) -> None:
         await self.close_graphql()
         await self.open_graphql()
+
+    async def open_command(self):
+        self.command_client = await connect(
+            uri=config.CONTROLLER_WS_URL,
+            extra_headers=[("token", state.token)],
+        )
+        print("Command client opened")
+
+    async def close_command(self):
+        if self.command_client is not None:
+            await self.command_client.close()
+        else:
+            return
+
+    async def restart_command(self):
+        await self.close_command()
+        await self.open_command()
 
 
 client = Clients()

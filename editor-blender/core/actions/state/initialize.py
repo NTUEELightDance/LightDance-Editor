@@ -12,7 +12,7 @@ from ....api.model_agent import model_agent
 from ....client import client
 
 # from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
-from ....client.subscription import subscribe
+from ....client.subscription import subscribe, subscribe_command
 from ....core.actions.state.app_state import (
     set_logged_in,
     set_ready,

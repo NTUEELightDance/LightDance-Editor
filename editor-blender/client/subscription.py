@@ -3,7 +3,10 @@ from typing import List, Optional
 
 from ..client import Clients, client
 from ..client.cache import Modifiers
+from ..core.actions.property.command import set_command_status
+from ..core.actions.state.app_state import set_requesting
 from ..core.actions.state.color_map import add_color, delete_color, update_color
+from ..core.actions.state.command import read_board_info_payload, read_command_response
 from ..core.actions.state.control_map import (
     add_control,
     delete_control,
@@ -26,6 +29,7 @@ from ..core.utils.convert import (
     pos_frame_query_to_state,
     pos_frame_sub_to_query,
 )
+from ..core.utils.notification import notify
 from ..graphqls.queries import (
     QueryColorMapData,
     QueryColorMapPayloadItem,
@@ -373,5 +377,41 @@ async def subscribe():
             print("Subscription closed with error:", e)
             fut.cancel()
 
+        print("Reconnecting subscription...")
+        await asyncio.sleep(3)
+
+
+async def sub_controller_server(client: Clients):
+    async for controller_data in client.subscribe_command():
+        match controller_data.topic:
+            case "boardInfo":
+                notify("INFO", "Board info updated")
+                print("Board info from controller server")
+                read_board_info_payload(controller_data.payload)
+            case "command":
+                notify("INFO", "Command response received")
+                print(f"Command response from controller server: {controller_data}")
+                read_command_response(controller_data)
+
+
+async def subscribe_command():
+    while True:
+        try:
+            print("Subscribing controller server...")
+
+            tasks = [
+                asyncio.create_task(sub_controller_server(client)),
+            ]
+
+            await asyncio.gather(*tasks)
+
+        except asyncio.CancelledError:
+            print("Subscription cancelled.")
+            break
+
+        except Exception as e:
+            print("Subscription closed with error:", e)
+
+        set_command_status(False)
         print("Reconnecting subscription...")
         await asyncio.sleep(3)

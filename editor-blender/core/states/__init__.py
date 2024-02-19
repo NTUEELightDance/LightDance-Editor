@@ -22,6 +22,7 @@ state = State(
     requesting=False,
     subscription_task=None,
     init_editor_task=None,
+    command_task=None,
     assets_path="",
     token="",
     username="",
@@ -74,8 +75,8 @@ state = State(
     led_part_length_map={},
     color_map={},
     # effect_list
-    # rpi_status
-    # shell_history
+    rpi_status={},
+    shell_history={},
     color_map_updates=ColorMapUpdates(added=[], updated=[], deleted=[]),
     color_map_pending=ColorMapPending(add_or_delete=False, update=False),
     led_map_updates=LEDMapUpdates(added=[], updated=[], deleted=[]),

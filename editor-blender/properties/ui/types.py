@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Tuple
+from typing import Literal, Tuple
 
 
 class LoginPanelStatusType:
@@ -51,6 +51,26 @@ class LEDEditorStatusType:
     multi_select: bool
     multi_select_color: str
     multi_select_alpha: int
+
+
+class CommandCenterStatusType:
+    color: Literal["red", "green", "blue", "yellow", "magenta", "cyan"]
+    color_code: str
+    command: str
+    connected: bool
+    countdown: str
+    delay: int
+
+
+class CommandCenterRPiStatusType:
+    name: str
+    IP: str
+    MAC: str
+    connected: bool
+    message: str
+    statusCode: int
+    interface_type: Literal["ethernet", "wifi"]
+    selected: bool
 
 
 class TimeShiftStatusType:
