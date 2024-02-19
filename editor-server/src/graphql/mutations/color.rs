@@ -136,7 +136,9 @@ impl ColorMutation {
                 r#"
                     SELECT
                         Model.id,
+                        Model.name AS model_name,
                         Part.id AS part_id,
+                        Part.name AS part_name,
                         Part.length AS part_length
                     FROM Model
                     INNER JOIN Part ON Model.id = Part.model_id
@@ -148,7 +150,7 @@ impl ColorMutation {
             .into_iter()
             .map(|row| {
                 let length = row.part_length.unwrap_or(0);
-                (row.id, row.part_id, length)
+                (row.id, row.part_id, length, row.model_name, row.part_name)
             })
             .collect_vec();
 
@@ -174,9 +176,9 @@ impl ColorMutation {
             let mut create_states_futures = Vec::new();
             create_effect_results
                 .iter()
-                .zip(model_parts.iter())
-                .for_each(|(result, dancer_part)| {
-                        for pos in 0..dancer_part.2 {
+                .zip(&model_parts)
+                .for_each(|(result, model_part)| {
+                        for pos in 0..model_part.2 {
                             create_states_futures.push(
                                 sqlx::query!(
                                     r#"
@@ -212,8 +214,8 @@ impl ColorMutation {
                     LEDEffectData {
                         id: effect_id,
                         name: color.color.clone(),
-                        model_name: "".to_string(),
-                        part_name: "".to_string(),
+                        model_name: model_part.3,
+                        part_name: model_part.4,
                         repeat: 0,
                         frames,
                     }
@@ -258,17 +260,33 @@ impl ColorMutation {
         .fetch_one(mysql)
         .await?;
 
-        let check = sqlx::query!(
+        let check_color = sqlx::query!(
             r#"
-                SELECT * FROM ControlData
-                WHERE color_id = ?;
+                SELECT COUNT(ControlData.frame_id) AS count
+                FROM ControlData
+                WHERE ControlData.color_id = ?;
             "#,
             id
         )
-        .fetch_optional(mysql)
-        .await?;
+        .fetch_one(mysql)
+        .await?
+        .count;
 
-        if let Some(check) = check {
+        let check_effect = sqlx::query!(
+            r#"
+                SELECT COUNT(ControlData.frame_id) AS count
+                FROM LEDEffectState
+                INNER JOIN ControlData 
+                    ON ControlData.effect_id = LEDEffectState.effect_id
+                WHERE LEDEffectState.color_id = ?;
+            "#,
+            id
+        )
+        .fetch_one(mysql)
+        .await?
+        .count;
+
+        if check_color + check_effect > 0 {
             return Ok(ColorResponse {
                 id: 0,
                 msg: "Color is used in control data with id.".to_string(),
@@ -295,6 +313,57 @@ impl ColorMutation {
         };
 
         Subscriptor::publish(color_payload);
+
+        let delete_effects = sqlx::query!(
+            r#"
+                SELECT
+                    DISTINCT LEDEffect.id,
+                    Model.name AS model_name,
+                    Part.name AS part_name
+                FROM LEDEffectState
+                INNER JOIN LEDEffect
+                    ON LEDEffectState.effect_id = LEDEffect.id
+                INNER JOIN Model ON LEDEffect.model_id = Model.id
+                INNER JOIN Part ON LEDEffect.part_id = Part.id
+                WHERE LEDEffectState.color_id = ?;
+            "#,
+            id
+        )
+        .fetch_all(mysql)
+        .await?;
+
+        let delete_effect_futures = delete_effects.iter().map(|effect| {
+            sqlx::query!(
+                r#"
+                    DELETE FROM LEDEffect
+                    WHERE id = ?;
+                "#,
+                effect.id
+            )
+            .execute(mysql)
+        });
+
+        futures::future::join_all(delete_effect_futures).await;
+
+        let delete_effects = delete_effects
+            .iter()
+            .map(|effect| LEDEffectData {
+                id: effect.id,
+                name: color.name.clone(),
+                model_name: effect.model_name.clone(),
+                part_name: effect.part_name.clone(),
+                repeat: 0,
+                frames: Vec::new(),
+            })
+            .collect_vec();
+
+        let led_payload = LEDPayload {
+            create_effects: Vec::new(),
+            update_effects: Vec::new(),
+            delete_effects,
+        };
+
+        Subscriptor::publish(led_payload);
 
         update_revision(mysql).await?;
 

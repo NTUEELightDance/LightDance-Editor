@@ -180,8 +180,7 @@ model ControlData {
 
   color    Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   effect   LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Dancer   Dancer?    @relation(fields: [dancerId], references: [id])
-  dancerId Int?
+  dancer   Dancer?    @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([dancer_id, part_id, frame_id])
 }
