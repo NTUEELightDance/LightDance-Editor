@@ -41,10 +41,8 @@ class LD_UL_DancerList(bpy.types.UIList):
             column.label(text=f"{item.IP}", icon=interface_icon)
             column = split.column()
             column.label(text=f"{item.MAC}")
-
-            if item.message:
-                row = column_main.row()
-                row.label(text=f"Message: {item.message}", icon="INFO")
+            row = column_main.row()
+            row.label(text=f"Message: {item.message}", icon="INFO")
         elif self.layout_type in {"GRID"}:
             pass  # NOTE: Not sure when this case happens
 

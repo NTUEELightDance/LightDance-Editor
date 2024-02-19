@@ -73,8 +73,8 @@ def read_command_response(data: FromControllerServerCommandResponse):
     if rpi_status_item.wifi.connected:
         rpi_status_item.wifi.message = f"[{command}] {message}"
         rpi_status_item.wifi.statusCode = data.statusCode
-
     shell_history = state.shell_history
-    if not shell_history[dancer]:
+    if dancer not in shell_history:
         shell_history[dancer] = []
     shell_history[dancer].append(ShellTransaction(command=command, output=message))
+    print(rpi_status_item)
