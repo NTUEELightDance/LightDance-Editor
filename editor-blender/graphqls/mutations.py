@@ -36,6 +36,7 @@ class ColorCreatecolorCodeInput(JSONWizard):
 class ColorCreateInput(JSONWizard):
     color: ColorName
     colorCode: ColorCreatecolorCodeInput
+    autoCreateEffect: bool
 
 
 @dataclass

@@ -44,7 +44,9 @@ class ColorAgent:
         try:
             variable = {
                 "color": ColorCreateInput(
-                    color=color_name, colorCode=ColorCreatecolorCodeInput(set=color_rgb)
+                    color=color_name,
+                    colorCode=ColorCreatecolorCodeInput(set=color_rgb),
+                    autoCreateEffect=True,
                 )
             }
             response = await client.execute(MutAddColorResponse, ADD_COLOR, variable)
