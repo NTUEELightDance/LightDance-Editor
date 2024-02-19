@@ -10,6 +10,7 @@ from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from .app_state import set_requesting
 from .current_pos import update_current_pos_by_index
+from .pos_map import apply_pos_map_updates
 
 
 def attach_editing_pos_frame():
@@ -124,6 +125,9 @@ async def delete_pos_frame():
 
 
 async def request_edit_pos():
+    if state.pos_map_pending:
+        apply_pos_map_updates()
+
     index = state.current_pos_index
     pos_id = state.pos_record[index]
     pos_frame = state.pos_map[pos_id]
