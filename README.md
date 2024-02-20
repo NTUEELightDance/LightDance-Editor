@@ -115,3 +115,6 @@ export NODE_OPTIONS="--max-old-space-size=8192"
 pnpm install
 node initDB.js jsons/exportDataEmpty.json
 ```
+### Waveform generation
+We use [audiowaveform](https://github.com/bbc/audiowaveform/tree/master?fbclid=IwAR19jDCDp5DCzdLK7Z8EgE7W5NSjm8B-wdFABsrT62D2b80bVtCuydkMgnM) to generate waveform. Refer to [Installation](https://github.com/bbc/audiowaveform/blob/master/README.md#installation) section to install the package first.
+
