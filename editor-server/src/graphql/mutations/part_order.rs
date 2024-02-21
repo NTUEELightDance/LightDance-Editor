@@ -5,7 +5,7 @@ use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 
 #[derive(InputObject, Default)]
 pub struct OrderUpdateInput {
-    pub dancer_id: i32,
+    pub dancer: String,
     pub part_type: String,
     pub order: HashMap<String, i32>,
 }
@@ -29,17 +29,17 @@ impl PartOrderMutation {
             return Err("Invalid part type, part type should be FIBER or LED".into());
         }
 
-        match sqlx::query!(
+        let dancer_id = match sqlx::query!(
             r#"
-                SELECT Dancer.name FROM Dancer
-                WHERE Dancer.id = ?;
+                SELECT Dancer.id FROM Dancer
+                WHERE Dancer.name = ?;
             "#,
-            data.dancer_id
+            data.dancer
         )
         .fetch_one(mysql)
         .await
         {
-            Ok(_) => (),
+            Ok(ok) => ok.id,
             Err(_) => {
                 return Err("Dancer not found.".into());
             }
@@ -52,7 +52,7 @@ impl PartOrderMutation {
                 INNER JOIN Part ON PartOrder.part_id = Part.id
                 WHERE Part.model_id = ? AND type = ? AND user_id = ?
             "#,
-            data.dancer_id,
+            dancer_id,
             data.part_type,
             context.user_id
         )
@@ -66,7 +66,7 @@ impl PartOrderMutation {
                 WHERE Part.model_id = ? AND type = ?
                 ORDER BY Part.id ASC;
             "#,
-            data.dancer_id,
+            dancer_id,
             data.part_type
         )
         .fetch_all(mysql)

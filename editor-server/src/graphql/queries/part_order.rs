@@ -5,7 +5,7 @@ use async_graphql::{Context, InputObject, Object, Result as GQLResult};
 
 #[derive(InputObject, Default)]
 pub struct GetOrderInput {
-    pub dancer_id: i32,
+    pub dancer: String,
     pub part_type: String,
 }
 
@@ -28,17 +28,17 @@ impl PartOrderQuery {
             return Err("Invalid part type, part type should be FIBER or LED".into());
         }
 
-        match sqlx::query!(
+        let dancer_id = match sqlx::query!(
             r#"
-                SELECT Dancer.name FROM Dancer
-                WHERE Dancer.id = ?;
+                SELECT Dancer.id FROM Dancer
+                WHERE Dancer.name = ?;
             "#,
-            data.dancer_id
+            data.dancer
         )
         .fetch_one(mysql)
         .await
         {
-            Ok(_) => (),
+            Ok(ok) => ok.id,
             Err(_) => {
                 return Err("Dancer not found.".into());
             }
@@ -50,7 +50,7 @@ impl PartOrderQuery {
                 INNER JOIN Part ON PartOrder.part_id = Part.id
                 WHERE Part.model_id = ? AND type = ? AND user_id = ?
             "#,
-            data.dancer_id,
+            dancer_id,
             data.part_type,
             context.user_id
         )
