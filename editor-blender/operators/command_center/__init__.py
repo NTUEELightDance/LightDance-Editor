@@ -424,10 +424,18 @@ ops_list = [
 
 
 def register():
-    for op in ops_list:
-        bpy.utils.register_class(op)
+    try:
+        for op in ops_list:
+            bpy.utils.register_class(op)
+
+    except Exception as e:
+        print(f"Can't register operator: {e}")
 
 
 def unregister():
-    for op in ops_list:
-        bpy.utils.unregister_class(op)
+    try:
+        for op in ops_list:
+            bpy.utils.unregister_class(op)
+
+    except Exception as e:
+        print(f"Can't register operator: {e}")

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import blf
 import bpy
@@ -13,7 +13,7 @@ class NameTagSettings:
     def __init__(self):
         self.x_offset: float = 0
         self.y_offset: float = 0
-        self.z_offset: float = 6.5
+        self.z_offset: float = 2
         self.fontsize: int = 25
         self.text_rgba: Tuple[float, float, float, float] = (1, 1, 1, 1)
         self.font_id: int = 0
@@ -28,6 +28,8 @@ name_tag_settings = NameTagSettings()
 def name_tag_draw():
     global name_tag_settings
 
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
     blf.size(name_tag_settings.font_id, name_tag_settings.fontsize)
     blf.color(name_tag_settings.font_id, *name_tag_settings.text_rgba)
     if name_tag_settings.region:
@@ -41,7 +43,10 @@ def name_tag_draw():
     dancer_names = state.dancer_names
     for name in dancer_names:
         try:
-            dancer_obj = cast(bpy.types.Object, bpy.data.objects[name])
+            dancer_obj = data_objects.get(name)
+            if dancer_obj is None:
+                continue
+
             dancer_location = dancer_obj.location
             text_location_3d = Vector(
                 (
@@ -67,6 +72,9 @@ def name_tag_draw():
             blf.draw(name_tag_settings.font_id, name)
 
         except AttributeError:
+            pass
+
+        except TypeError:
             pass
 
 

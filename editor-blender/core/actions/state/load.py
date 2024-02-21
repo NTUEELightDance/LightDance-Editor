@@ -117,17 +117,19 @@ async def import_model_to_asset(
 
     # Clean meshes
     sphere_mesh = find_first_mesh("Sphere")
-    sphere_mesh.name = f"{model_name}.Sphere"
+    if sphere_mesh is not None:
+        sphere_mesh.name = f"{model_name}.Sphere"
 
-    for obj in model_objs:
-        if obj.type == "EMPTY":
-            continue
-        if "Sphere" in obj.data.name and obj.data != sphere_mesh:
-            bpy.data.meshes.remove(cast(bpy.types.Mesh, obj.data), do_unlink=True)
-            obj.data = sphere_mesh
+        for obj in model_objs:
+            if obj.type == "EMPTY":
+                continue
+            if "Sphere" in obj.data.name and obj.data != sphere_mesh:
+                bpy.data.meshes.remove(cast(bpy.types.Mesh, obj.data), do_unlink=True)
+                obj.data = sphere_mesh
 
     human_mesh = find_first_mesh("human")
-    human_mesh.name = f"{model_name}.Human"
+    if human_mesh is not None:
+        human_mesh.name = f"{model_name}.Human"
 
     for obj in model_objs:
         if obj.type == "EMPTY":
@@ -148,12 +150,15 @@ async def import_model_to_asset(
     print(f"Model: {model_name} imported")
 
 
-def find_first_mesh(mesh_name: str) -> bpy.types.Mesh:
+def find_first_mesh(mesh_name: str) -> Optional[bpy.types.Mesh]:
     data_meshes = cast(Dict[str, bpy.types.Mesh], bpy.data.meshes)
     mesh = data_meshes.get(mesh_name)
 
     if mesh is None:
         candidates = [name for name in data_meshes.keys() if name.find(mesh_name) == 0]
+        if len(candidates) == 0:
+            return None
+
         numbers = [int(name.split(".")[-1]) for name in candidates]
         mesh = data_meshes[candidates[numbers.index(min(numbers))]]
 
@@ -545,7 +550,7 @@ def setup_display():
     space.filter_state = "SELECTABLE"
     space.use_filter_collection = False
     space.use_filter_object_content = False
-    space.use_sort_alpha = False
+    space.use_sort_alpha = True
 
     space.show_restrict_column_hide = False
     space.show_restrict_column_enable = False
