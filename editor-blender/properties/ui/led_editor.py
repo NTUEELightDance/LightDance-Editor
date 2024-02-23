@@ -19,7 +19,8 @@ def get_model_lists(
     self: bpy.types.PropertyGroup, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     model_list = []
-    # model_list.append(("none", "none", "", "", -1))
+    if get_edit_model(self) == -1:
+        model_list.append(("NONE", "", "", "", -1))
 
     for index, model_name in enumerate(state.model_names):
         model_list.append((model_name, model_name, "", "POSE_HLT", index))
@@ -44,11 +45,12 @@ def get_dancer_lists(
     self: bpy.types.PropertyGroup, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     dancer_list = []
-    # dancer_list.append(("none", "none", "", "", -1))
+    if get_edit_dancer(self) == -1:
+        dancer_list.append(("NONE", "", "", "", -1))
 
     model_name = getattr(self, "edit_model")
 
-    if model_name == "":
+    if model_name == "NONE":
         return dancer_list  # pyright: ignore
 
     model_dancers = state.models[model_name]
@@ -76,11 +78,12 @@ def get_part_lists(
     self: bpy.types.PropertyGroup, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     part_list = []
-    # part_list.append(("none", "none", "", "", -1))
+    if get_edit_part(self) == -1:
+        part_list.append(("NONE", "", "", "", -1))
 
     dancer_name = getattr(self, "edit_dancer")
 
-    if dancer_name == "":
+    if dancer_name == "NONE":
         return part_list  # pyright: ignore
 
     dancer_parts = state.dancers[dancer_name]
@@ -105,16 +108,30 @@ def set_edit_part(self: bpy.types.PropertyGroup, value: int):
         self["edit_effect"] = -1
 
 
+def get_edit_effect(self: bpy.types.PropertyGroup) -> int:
+    if "edit_effect" in self:
+        return self["edit_effect"]
+    else:
+        return -1
+
+
+def set_edit_effect(self: bpy.types.PropertyGroup, value: int):
+    if self["edit_effect"] != value:
+        self["edit_effect"] = value
+
+
 def get_effect_lists(
     self: bpy.types.PropertyGroup, context: bpy.types.Context
 ) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
     effect_list = []
+    if get_edit_effect(self) == -1:
+        effect_list.append(("NONE", "", "", "", -1))
 
     model_name = getattr(self, "edit_model")
     dancer_name = getattr(self, "edit_dancer")
     part_name = getattr(self, "edit_part")
 
-    if dancer_name == "" or part_name == "":
+    if dancer_name == "NONE" or part_name == "NONE":
         return effect_list  # pyright: ignore
 
     effects = state.led_map[model_name][part_name]
@@ -171,7 +188,11 @@ class LEDEditorStatus(bpy.types.PropertyGroup):
         set=set_edit_part,
     )
     edit_effect: bpy.props.EnumProperty(  # type: ignore
-        items=get_effect_lists, default=-1, update=update_edit_effect  # pyright: ignore
+        items=get_effect_lists,
+        default=-1, # pyright: ignore
+        update=update_edit_effect,
+        get=get_edit_effect,
+        set=set_edit_effect,  
     )
     new_effect: bpy.props.StringProperty(default="New effect")  # type: ignore
 

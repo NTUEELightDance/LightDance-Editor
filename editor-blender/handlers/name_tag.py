@@ -53,6 +53,8 @@ def name_tag_draw():
             text_view_2d = location_3d_to_region_2d(
                 region, region_data, text_location_3d
             )
+            if not text_view_2d:
+                continue
             text_w, text_h = cast(
                 Tuple[float, float], blf.dimensions(name_tag_settings.font_id, name)
             )
