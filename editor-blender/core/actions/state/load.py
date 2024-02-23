@@ -124,8 +124,9 @@ async def import_model_to_asset(
             if obj.type == "EMPTY":
                 continue
             if "Sphere" in obj.data.name and obj.data != sphere_mesh:
-                bpy.data.meshes.remove(cast(bpy.types.Mesh, obj.data), do_unlink=True)
+                old_mesh = cast(bpy.types.Mesh, obj.data)
                 obj.data = sphere_mesh
+                bpy.data.meshes.remove(old_mesh, do_unlink=True)
 
     human_mesh = find_first_mesh("human")
     if human_mesh is not None:
@@ -148,6 +149,9 @@ async def import_model_to_asset(
 
     bpy.ops.outliner.orphans_purge(do_recursive=True)
     print(f"Model: {model_name} imported")
+
+    # for obj in col.all_objects:
+    #     print(obj.name)
 
 
 def find_first_mesh(mesh_name: str) -> Optional[bpy.types.Mesh]:
