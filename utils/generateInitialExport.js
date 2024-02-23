@@ -114,7 +114,7 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
 
 function generateEmptyPosMap(dancerData) {
   const length = dancerData.length;
-  const spacing = 3;
+  const spacing = 1;
   const pos = dancerData.map((val, index) => [
     0,
     (index - (length - 1) / 2) * spacing,

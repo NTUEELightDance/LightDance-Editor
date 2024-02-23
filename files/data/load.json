@@ -1,27 +1,19 @@
 {
-  "Music": "/music/2023.mp3",
+  "Music": "/music/2024.mp3",
   "Waveform": "/data/waveform.json",
   "LightPresets": "/data/default_lightPresets.json",
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
-    "0_agent": {
-      "url": "/asset/models/0_agent.draco.glb",
-      "modelName": "0_agent"
-    },
-    "1_hank": {
-      "url": "/asset/models/1_hank.draco.glb",
-      "modelName": "1_hank"
-    },
-    "2_henning": {
-      "url": "/asset/models/0_agent.draco.glb",
-      "modelName": "0_agent"
+    "0_xn": {
+      "url": "/asset/models/10_chris.draco.glb",
+      "modelName": "10_chris"
     }
   },
   "Config": {
     "Stage": {
       "width": 9.5,
       "length": 4.0,
-      "scale": 3.0
+      "scale": 1.0
     }
   }
 }
