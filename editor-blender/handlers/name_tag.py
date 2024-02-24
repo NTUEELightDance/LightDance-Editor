@@ -13,7 +13,7 @@ class NameTagSettings:
     def __init__(self):
         self.x_offset: float = 0
         self.y_offset: float = 0
-        self.z_offset: float = 2
+        self.z_offset: float = 2.3
         self.fontsize: int = 25
         self.text_rgba: Tuple[float, float, float, float] = (1, 1, 1, 1)
         self.font_id: int = 0

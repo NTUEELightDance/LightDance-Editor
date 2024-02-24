@@ -5,6 +5,46 @@
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
     "0_xn": {
+      "url": "/asset/models/0_xn.draco.glb",
+      "modelName": "0_xn"
+    },
+    "1_yck": {
+      "url": "/asset/models/1_yck.draco.glb",
+      "modelName": "1_yck"
+    },
+    "2_sssam": {
+      "url": "/asset/models/2_sssam.draco.glb",
+      "modelName": "2_sssam"
+    },
+    "3_crc": {
+      "url": "/asset/models/3_crc.draco.glb",
+      "modelName": "3_crc"
+    },
+    "4_arthur": {
+      "url": "/asset/models/4_arthur.draco.glb",
+      "modelName": "4_arthur"
+    },
+    "5_cs": {
+      "url": "/asset/models/5_cs.draco.glb",
+      "modelName": "5_cs"
+    },
+    "6_rakec": {
+      "url": "/asset/models/6_rakec.draco.glb",
+      "modelName": "6_rakec"
+    },
+    "7_jya": {
+      "url": "/asset/models/7_jya.draco.glb",
+      "modelName": "7_jya"
+    },
+    "8_circle": {
+      "url": "/asset/models/8_circle.draco.glb",
+      "modelName": "8_circle"
+    },
+    "9_ricky": {
+      "url": "/asset/models/9_ricky.draco.glb",
+      "modelName": "9_ricky"
+    },
+    "10_chris": {
       "url": "/asset/models/10_chris.draco.glb",
       "modelName": "10_chris"
     }
