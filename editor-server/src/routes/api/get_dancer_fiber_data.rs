@@ -1,4 +1,5 @@
 use crate::global;
+
 use axum::{
     extract::Query,
     headers::{HeaderMap, HeaderValue},
@@ -167,7 +168,11 @@ pub async fn get_dancer_fiber_data(
             .insert(frame.name.clone(), [color.r, color.g, color.b, frame.alpha]);
     }
 
-    let response: Vec<Frame> = frames.into_values().collect();
+    // sort response by frame.start
+    let mut frames: Vec<(_, _)> = frames.into_iter().collect();
+    frames.sort_by_key(|&(start, _)| start);
+
+    let response = frames.into_iter().map(|(_, frame)| frame).collect();
 
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));

@@ -57,6 +57,7 @@ model User {
   password String
 
   // relation => not in db
+  partOrder PartOrder[]
   editing_positionFrame_id EditingPositionFrame?
   editing_controlFrame_id  EditingControlFrame?
   editing_led_effect_id    EditingLEDEffect?
@@ -128,6 +129,7 @@ model Part {
 
   control_datas ControlData[]
   led_effect    LEDEffect[]
+  order         PartOrder[]
 
   @@unique([name, model_id])
 }
@@ -158,19 +160,32 @@ model PositionFrame {
   position_datas PositionData[]
 }
 
+model LEDBulb {
+  id         Int @id @default(autoincrement())
+  control_id Int
+  position   Int
+  color_id   Int
+  alpha      Int
+
+  // relation => not in db
+  control ControlData @relation(fields: [control_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
 enum ControlDataType {
   COLOR
   EFFECT
+  LED_BULBS
 }
 
 model ControlData {
   dancer_id Int
+  id        Int     @id @default(autoincrement())
   part_id   Int
   frame_id  Int
   type      ControlDataType
   color_id  Int?
   effect_id Int?
-  alpha     Int
+  alpha     Int?
 
   // TODO: Check if one of color_id or effect_id is not null
 
@@ -181,8 +196,9 @@ model ControlData {
   color    Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   effect   LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   dancer   Dancer?    @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@id([dancer_id, part_id, frame_id])
+  led_bulbs  LEDBulb[]
+  
+  @@unique([dancer_id, part_id, frame_id])
 }
 
 model ControlFrame {
@@ -195,6 +211,19 @@ model ControlFrame {
   // relation => not in db
   editing       EditingControlFrame?
   control_datas ControlData[]
+}
+
+model PartOrder {
+  id        Int @id @default(autoincrement())
+  part_id   Int
+  order     Int
+  user_id   Int
+
+  // relation => not in db
+  part   Part   @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([part_id, order, user_id])
 }
 
 model EffectListData {
