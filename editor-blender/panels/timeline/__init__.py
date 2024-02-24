@@ -43,6 +43,10 @@ class TimelinePanel(bpy.types.Panel):
         row.prop(context.window_manager, "ld_current_frame_index", text="")
         row.operator("lightdance.increase_frame_index", text="", icon="TRIA_RIGHT")
 
+        row = layout.row(align=True)
+        row.operator("lightdance.copy_frame", text="Copy", icon="PLAY")
+        row.operator("lightdance.paste_frame", text="Paste", icon="PLAY")
+
 
 def register():
     bpy.utils.register_class(TimelinePanel)

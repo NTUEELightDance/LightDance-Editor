@@ -134,9 +134,6 @@ async def save_control_frame(start: Optional[int] = None):
         await control_agent.save_frame(id, controlData, fade=fade, start=start)
         notify("INFO", f"Saved control frame")
 
-        # Imediately apply changes produced by editing
-        # apply_control_map_updates()
-
         # Cancel editing
         ok = await control_agent.cancel_edit(id)
         set_requesting(False)
@@ -148,7 +145,9 @@ async def save_control_frame(start: Optional[int] = None):
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
-            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            # Imediately apply changes produced by editing
+            apply_control_map_updates()
+
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")

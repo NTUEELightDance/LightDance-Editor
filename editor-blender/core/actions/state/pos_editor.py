@@ -85,14 +85,9 @@ async def save_pos_frame(start: Optional[int] = None):
     try:
         set_requesting(True)
         await pos_agent.save_frame(id, positionData, start=start)
-        set_requesting(False)
         notify("INFO", f"Saved position frame: {id}")
 
-        # Imediately apply changes produced by editing
-        # apply_pos_map_updates()
-
         # Cancel editing
-        set_requesting(True)
         ok = await pos_agent.cancel_edit(id)
         set_requesting(False)
 
@@ -102,6 +97,9 @@ async def save_pos_frame(start: Optional[int] = None):
             state.current_editing_detached = False
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
+
+            # Imediately apply changes produced by editing
+            apply_pos_map_updates()
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
