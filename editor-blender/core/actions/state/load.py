@@ -11,7 +11,7 @@ from ...config import config
 from ...models import DancersArrayPartsItem, PartType
 from ...states import state
 from ...utils.convert import rgb_to_float
-from ...utils.ui import redraw_area, set_dopesheet_filter
+from ...utils.ui import set_dopesheet_filter
 from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
     set_pos_keyframes_from_state,
@@ -318,6 +318,10 @@ async def setup_objects(assets_load: Dict[str, Any]):
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
 
+
+def setup_floor():
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
     # Create floor
     stage_scale: float = getattr(config, "stage_scale")
     stage_width: float = getattr(config, "stage_width") * stage_scale
@@ -339,6 +343,10 @@ async def setup_objects(assets_load: Dict[str, Any]):
     ]
 
     for i in range(4):
+        name = f"FloorEdge{i}"
+        if data_objects.get(name) is not None:
+            bpy.data.objects.remove(data_objects[name])
+
         bpy.ops.mesh.primitive_cube_add(size=1)
         edge_obj = bpy.context.object
         edge_obj.name = f"FloorEdge{i}"
@@ -614,6 +622,8 @@ async def load_data() -> None:
     setup_display()
 
     await setup_objects(assets_load)
+    setup_floor()
+
     setup_music(assets_load)
     setup_animation_data()
 
