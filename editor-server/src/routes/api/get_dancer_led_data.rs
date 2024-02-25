@@ -9,12 +9,14 @@ use http::header::CONTENT_TYPE;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Status {
+    start: i32,
     status: Vec<[i32; 4]>,
+    fade: bool,
 }
 
-pub type GetDataResponse = HashMap<String, Status>;
+pub type GetDataResponse = HashMap<String, Vec<Status>>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GetDataFailedResponse {
@@ -25,6 +27,8 @@ pub struct GetDataFailedResponse {
 struct Part {
     length: Option<i32>,
     effect_id: Option<i32>,
+    start: i32,
+    fade: bool,
 }
 
 #[derive(Debug)]
@@ -108,7 +112,9 @@ pub async fn get_dancer_led_data(
                 Part.name as "part_name",
                 Part.id as "part_id",
                 Part.length as "part_length",
-                ControlData.effect_id
+                ControlData.effect_id,
+                ControlFrame.start,
+                ControlFrame.fade
             FROM Dancer
             INNER JOIN Model
                 ON Dancer.model_id = Model.id
@@ -117,7 +123,10 @@ pub async fn get_dancer_led_data(
             INNER JOIN ControlData
                 ON Part.id = ControlData.part_id AND
                 ControlData.dancer_id = Dancer.id
+            INNER JOIN ControlFrame
+                ON ControlData.frame_id = ControlFrame.id
             WHERE Dancer.name = ? AND Part.type = 'LED'
+            ORDER BY ControlFrame.start
         "#,
         dancer
     )
@@ -138,20 +147,41 @@ pub async fn get_dancer_led_data(
 
     // organize control data into their respective parts
     for data in dancer_data.into_iter() {
-        parts.entry(data.name).or_default().push(Part {
+        parts.entry(data.part_name).or_default().push(Part {
             length: data.part_length,
             effect_id: data.effect_id,
+            start: data.start,
+            fade: data.fade == 1,
         });
     }
 
     let mut response: GetDataResponse = HashMap::new();
 
     for (part_name, control_data) in parts.iter() {
-        let mut part_data = vec![[0, 0, 0, 0]; control_data[0].length.unwrap() as usize];
+        let mut part_data = Vec::<Status>::new();
 
         for data in control_data.iter() {
-            // -1 means no effect (for now)
-            if data.effect_id.ok_or("Effect id not found").into_result()? == -1 {
+            let start = data.start;
+            let fade = data.fade;
+            let length = data.length.ok_or("Length not found").into_result()?;
+
+            let mut effect_data = vec![[0, 0, 0, 0]; length as usize];
+
+            if data.effect_id.is_none() {
+                let previous_part_status = part_data
+                    .last()
+                    .ok_or("effect_id is null on first frame")
+                    .into_result()?
+                    .clone()
+                    .status;
+
+                part_data.push({
+                    Status {
+                        start,
+                        status: previous_part_status,
+                        fade,
+                    }
+                });
                 continue;
             }
 
@@ -162,11 +192,9 @@ pub async fn get_dancer_led_data(
                         LEDEffectState.color_id,
                         LEDEffectState.alpha,
                         LEDEffectState.position
-                    FROM LEDEffect
-                    INNER JOIN LEDEffectState ON LEDEffect.id = LEDEffectState.effect_id
-                    WHERE part_id = ? AND LEDEffect.id = ?
+                    FROM LEDEffectState
+                    WHERE effect_id = ?
                 "#,
-                part_name,
                 data.effect_id.ok_or("Effect id not found").into_result()?
             )
             .fetch_all(mysql_pool)
@@ -178,17 +206,23 @@ pub async fn get_dancer_led_data(
                 let color = color_map
                     .get(&state.color_id)
                     .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-                part_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
+                effect_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
             }
+
+            part_data.push(Status {
+                start,
+                status: effect_data,
+                fade,
+            });
         }
 
-        response.insert(part_name.clone(), Status { status: part_data });
+        response.insert(part_name.clone(), part_data);
     }
 
     let mut headers = HeaderMap::new();
     headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
-    // return data of form {part_name: {status: [[r, g, b, a], [r, g, b, a]]}, ...}
+    // return data of form {part_name: [{status: [[r, g, b, a], [r, g, b, a]]}, ...}, ...]
     // index of status array is position of led
 
     Ok((StatusCode::OK, (headers, Json(response))))
