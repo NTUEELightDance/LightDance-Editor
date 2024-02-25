@@ -6,79 +6,91 @@ const pinMapTable: PinMapTable = {
     dancer: "0_xn",
     fps: 30,
     OFPARTS: {
-      arm_inner_left: 8,
-    }
+      arm_inner_right: 8,
+      arm_inner_left: 9,
+    },
+    LEDPARTS: {
+      shoe_left_LED: { id: 0, len: 75 },
+    },
+    LEDPARTS_MERGE: {
+      shoe_left_LED: [
+        "shoe_bottom_left_LED",
+        "shoe_outer_left_LED",
+        "shoe_top_left_LED",
+        "shoe_front_left_LED"
+    ]
+    },
   },
-  "1_yck": {
-    dancer: "1_yck",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "2_sssam": {
-    dancer: "2_sssam",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "3_crc": {
-    dancer: "3_crc",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "4_arthur": {
-    dancer: "4_arthur",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "5_cs": {
-    dancer: "5_cs",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "6_rakec": {
-    dancer: "6_rakec",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "7_jya": {
-    dancer: "7_jya",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "8_circle": {
-    dancer: "8_circle",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "9_ricky": {
-    dancer: "9_ricky",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
-  "10_chris": {
-    dancer: "10_chris",
-    fps: 30,
-    OFPARTS: {
-      arm_inner_left: 8,
-    }
-  },
+  // "1_yck": {
+  //   dancer: "1_yck",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "2_sssam": {
+  //   dancer: "2_sssam",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "3_crc": {
+  //   dancer: "3_crc",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "4_arthur": {
+  //   dancer: "4_arthur",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "5_cs": {
+  //   dancer: "5_cs",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "6_rakec": {
+  //   dancer: "6_rakec",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "7_jya": {
+  //   dancer: "7_jya",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "8_circle": {
+  //   dancer: "8_circle",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "9_ricky": {
+  //   dancer: "9_ricky",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
+  // "10_chris": {
+  //   dancer: "10_chris",
+  //   fps: 30,
+  //   OFPARTS: {
+  //     arm_inner_left: 9,
+  //   }
+  // },
   // "0_agent": {
   //   dancer: "0_agent",
   //   fps: 30,

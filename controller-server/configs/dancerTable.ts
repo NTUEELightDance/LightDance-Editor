@@ -2,22 +2,22 @@ import { MACAddress, DancerDataSchema, DancerData } from "@/schema/DancerData";
 
 // Record the RPi information according to MAC
 const dancerTable: DancerData = {
-  // "E4:5F:01:B3:CC:19": {
-  //   IP: "192.168.0.0",
-  //   MAC: "E4:5F:01:B3:CC:19",
-  //   dancer: "14_counter_left",
-  //   hostname: "lightdance-00",
-  //   connected: false,
-  //   interface: "ethernet",
-  // },
-  // "E4:5F:01:B3:CC:1A": {
-  //   IP: "192.168.0.0",
-  //   MAC: "E4:5F:01:B3:CC:1A",
-  //   dancer: "14_counter_left",
-  //   hostname: "lightdance-00",
-  //   connected: false,
-  //   interface: "wifi",
-  // },
+  "E4:5F:01:B3:CC:19": {
+    IP: "192.168.0.0",
+    MAC: "E4:5F:01:B3:CC:19",
+    dancer: "0_xn",
+    hostname: "lightdance-01",
+    connected: false,
+    interface: "ethernet",
+  },
+  "E4:5F:01:B3:CC:1A": {
+    IP: "192.168.0.0",
+    MAC: "E4:5F:01:B3:CC:1A",
+    dancer: "0_xn",
+    hostname: "lightdance-01",
+    connected: false,
+    interface: "wifi",
+  },
   "B8:27:EB:80:3E:DA": {
     IP: "192.168.0.0",
     MAC: "B8:27:EB:80:3E:DA",
@@ -34,6 +34,22 @@ const dancerTable: DancerData = {
     connected: false,
     interface: "wifi",
   },
+  // "E4:5F:01:B3:CC:19": {
+  //   IP: "192.168.0.0",
+  //   MAC: "E4:5F:01:B3:CC:19",
+  //   dancer: "1_yck",
+  //   hostname: "lightdance-01",
+  //   connected: false,
+  //   interface: "ethernet",
+  // },
+  // "E4:5F:01:B3:CC:1A": {
+  //   IP: "192.168.0.0",
+  //   MAC: "E4:5F:01:B3:CC:1A",
+  //   dancer: "1_yck",
+  //   hostname: "lightdance-01",
+  //   connected: false,
+  //   interface: "wifi",
+  // },
   "E4:5F:01:B3:E6:8F": {
     IP: "192.168.0.0",
     MAC: "E4:5F:01:B3:E6:8F",

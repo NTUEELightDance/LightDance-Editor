@@ -4,7 +4,7 @@ export const ColorSchema = z.tuple([
   z.number().int().min(0).max(255),
   z.number().int().min(0).max(255),
   z.number().int().min(0).max(255),
-  z.number().int().min(0).max(15),
+  z.number().int().min(0).max(255),
 ]);
 
 export const OFSchema = z.array(

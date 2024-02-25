@@ -6,8 +6,10 @@ import { instance } from "./axios";
 
 export async function getDancerLEDDataAPI(RPiName: string) {
   const getRPiDataJSON = pinMapTable[RPiName];
-  const { data } = await instance.get<LED>("/getDancerLEDData", {
-    params: { getRPiDataJSON },
+  const { data } = await instance.post<LED>("/getDancerLEDData", {
+    dancer: getRPiDataJSON.dancer,
+    LEDPARTS: getRPiDataJSON.LEDPARTS,
+    LEDPARTS_MERGE: getRPiDataJSON.LEDPARTS_MERGE,
   });
 
   LEDSchema.parse(data);
@@ -17,8 +19,9 @@ export async function getDancerLEDDataAPI(RPiName: string) {
 
 export async function getDancerFiberDataAPI(RPiName: string) {
   const getRPiDataJSON = pinMapTable[RPiName];
-  const { data } = await instance.get<OF>("/getDancerFiberData", {
-    params: { getRPiDataJSON },
+  const { data } = await instance.post<OF>("/getDancerFiberData", {
+    dancer: getRPiDataJSON.dancer,
+    OFPARTS: getRPiDataJSON.OFPARTS,
   });
 
   OFSchema.parse(data);
