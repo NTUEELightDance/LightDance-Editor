@@ -1,14 +1,15 @@
 use crate::global;
 
 use axum::{
-    extract::Query,
     headers::{HeaderMap, HeaderValue},
     http::StatusCode,
     response::Json,
 };
 use http::header::CONTENT_TYPE;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Frame {
@@ -29,6 +30,13 @@ struct Color {
     r: i32,
     g: i32,
     b: i32,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetFiberDataQuery {
+    dancer: String,
+    #[serde(rename = "OFPARTS")]
+    of_parts: HashMap<String, i32>,
 }
 
 trait IntoResult<T, E> {
@@ -53,22 +61,32 @@ where
 }
 
 pub async fn get_dancer_fiber_data(
-    Query(query): Query<HashMap<String, String>>,
+    query: Option<Json<GetFiberDataQuery>>,
 ) -> Result<
     (StatusCode, (HeaderMap, Json<GetDataResponse>)),
     (StatusCode, Json<GetDataFailedResponse>),
 > {
-    let dancer = match query.get("dancer") {
-        Some(dancer) => dancer,
+    let query = match query {
+        Some(query) => query.0,
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
                 Json(GetDataFailedResponse {
-                    err: "Dancer name is required.".to_string(),
+                    err: "Query is required.".to_string(),
                 }),
             ))
         }
     };
+
+    let GetFiberDataQuery {
+        dancer,
+        of_parts: required_parts,
+    } = query;
+
+    let mut parts_filter = HashSet::new();
+    required_parts.keys().for_each(|part_name| {
+        parts_filter.insert(part_name);
+    });
 
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
@@ -144,7 +162,10 @@ pub async fn get_dancer_fiber_data(
     )
     .fetch_all(mysql_pool)
     .await
-    .into_result()?;
+    .into_result()?
+    .into_iter()
+    .filter(|frame| parts_filter.contains(&frame.name))
+    .collect_vec();
 
     let mut frames = HashMap::new();
 

@@ -28,11 +28,11 @@ pub fn build_api_routes() -> Router {
         .route("/createUser", post(create_user::create_user))
         .route(
             "/getDancerFiberData",
-            get(get_dancer_fiber_data::get_dancer_fiber_data),
+            post(get_dancer_fiber_data::get_dancer_fiber_data),
         )
         .route(
             "/getDancerLEDData",
-            get(get_dancer_led_data::get_dancer_led_data),
+            post(get_dancer_led_data::get_dancer_led_data),
         )
         .route("/exportData", get(export_data::export_data))
         .route("/uploadData", post(upload_data::upload_data))

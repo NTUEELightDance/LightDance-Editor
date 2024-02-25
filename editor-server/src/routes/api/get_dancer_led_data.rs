@@ -1,13 +1,16 @@
 use crate::global;
+use crate::utils::vector::partition_by_field;
+
 use axum::{
-    extract::Query,
     headers::{HeaderMap, HeaderValue},
     http::StatusCode,
     response::Json,
 };
 use http::header::CONTENT_TYPE;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Status {
@@ -38,6 +41,21 @@ struct Color {
     b: i32,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+struct GetLEDDataQueryLEDPart {
+    id: i32,
+    len: i32,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetLEDDataQuery {
+    dancer: String,
+    #[serde(rename = "LEDPARTS")]
+    led_parts: HashMap<String, GetLEDDataQueryLEDPart>,
+    #[serde(rename = "LEDPARTS_MERGE")]
+    led_parts_merge: HashMap<String, Vec<String>>,
+}
+
 trait IntoResult<T, E> {
     fn into_result(self) -> Result<T, E>;
 }
@@ -60,22 +78,42 @@ where
 }
 
 pub async fn get_dancer_led_data(
-    Query(query): Query<HashMap<String, String>>,
+    query: Option<Json<GetLEDDataQuery>>,
 ) -> Result<
     (StatusCode, (HeaderMap, Json<GetDataResponse>)),
     (StatusCode, Json<GetDataFailedResponse>),
 > {
-    let dancer = match query.get("dancer") {
-        Some(dancer) => dancer,
+    let query = match query {
+        Some(query) => query.0,
         None => {
             return Err((
                 StatusCode::BAD_REQUEST,
                 Json(GetDataFailedResponse {
-                    err: "Dancer name is required.".to_string(),
+                    err: "Query not found.".to_string(),
                 }),
             ))
         }
     };
+
+    let GetLEDDataQuery {
+        dancer,
+        led_parts: required_parts,
+        led_parts_merge: parts_merge,
+    } = query;
+
+    let mut parts_filter = HashSet::new();
+    required_parts
+        .keys()
+        .for_each(|part_name| match parts_merge.get(part_name) {
+            Some(merge_parts) => {
+                merge_parts.iter().for_each(|part| {
+                    parts_filter.insert(part);
+                });
+            }
+            None => {
+                parts_filter.insert(part_name);
+            }
+        });
 
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
@@ -101,6 +139,39 @@ pub async fn get_dancer_led_data(
                 b: color.b,
             },
         );
+    }
+
+    let effect_states = sqlx::query!(
+        r#"
+            SELECT
+                LEDEffectState.color_id,
+                LEDEffectState.alpha,
+                LEDEffectState.position,
+                LEDEffectState.effect_id
+            FROM LEDEffectState
+            ORDER BY LEDEffectState.effect_id, LEDEffectState.position;
+        "#,
+    )
+    .fetch_all(mysql_pool)
+    .await
+    .into_result()?;
+
+    let effect_states = partition_by_field(|state| state.effect_id, effect_states);
+
+    let mut effect_states_map: HashMap<i32, Vec<[i32; 4]>> = HashMap::new();
+    for states in effect_states.iter() {
+        let effect_id = states[0].effect_id;
+
+        let mut effect_data = vec![[0, 0, 0, 0]; states.len()];
+
+        for state in states.iter() {
+            let color = color_map
+                .get(&state.color_id)
+                .unwrap_or(&Color { r: 0, g: 0, b: 0 });
+            effect_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
+        }
+
+        effect_states_map.insert(effect_id, effect_data);
     }
 
     // get parts and control data of parts for dancer
@@ -132,7 +203,10 @@ pub async fn get_dancer_led_data(
     )
     .fetch_all(mysql_pool)
     .await
-    .into_result()?;
+    .into_result()?
+    .into_iter()
+    .filter(|data| parts_filter.contains(&data.part_name))
+    .collect_vec();
 
     if dancer_data.is_empty() {
         return Err((
@@ -143,11 +217,11 @@ pub async fn get_dancer_led_data(
         ));
     }
 
-    let mut parts: HashMap<String, Vec<Part>> = HashMap::new();
+    let mut fetched_parts: HashMap<String, Vec<Part>> = HashMap::new();
 
     // organize control data into their respective parts
     for data in dancer_data.into_iter() {
-        parts.entry(data.part_name).or_default().push(Part {
+        fetched_parts.entry(data.part_name).or_default().push(Part {
             length: data.part_length,
             effect_id: data.effect_id,
             start: data.start,
@@ -157,66 +231,101 @@ pub async fn get_dancer_led_data(
 
     let mut response: GetDataResponse = HashMap::new();
 
-    for (part_name, control_data) in parts.iter() {
-        let mut part_data = Vec::<Status>::new();
+    for (part_name, _) in required_parts.iter() {
+        match parts_merge.get(part_name) {
+            Some(parts) => {
+                let mut frame_effect_datas = HashMap::new();
 
-        for data in control_data.iter() {
-            let start = data.start;
-            let fade = data.fade;
-            let length = data.length.ok_or("Length not found").into_result()?;
+                for sub_part_name in parts.iter() {
+                    let control_data = fetched_parts.get(sub_part_name);
 
-            let mut effect_data = vec![[0, 0, 0, 0]; length as usize];
+                    if let Some(control_data) = control_data {
+                        for data in control_data.iter() {
+                            let start = data.start;
+                            let fade = data.fade;
+                            let length = data.length.ok_or("Length not found").into_result()?;
 
-            if data.effect_id.is_none() {
-                let previous_part_status = part_data
-                    .last()
-                    .ok_or("effect_id is null on first frame")
-                    .into_result()?
-                    .clone()
-                    .status;
+                            if let Some(effect_id) = data.effect_id {
+                                let effect_data = effect_states_map
+                                    .get(&effect_id)
+                                    .ok_or("Effect data not found")
+                                    .into_result()?
+                                    .clone();
 
-                part_data.push({
-                    Status {
-                        start,
-                        status: previous_part_status,
-                        fade,
+                                frame_effect_datas
+                                    .entry(start)
+                                    .or_insert((start, fade, Vec::new()))
+                                    .2
+                                    .extend_from_slice(&effect_data);
+                            } else {
+                                let previous_part_status = match response.get(part_name) {
+                                    Some(status) => status.last().unwrap().status.clone(),
+                                    None => vec![[0, 0, 0, 0]; length as usize],
+                                };
+
+                                frame_effect_datas
+                                    .entry(start)
+                                    .or_insert((start, fade, Vec::new()))
+                                    .2
+                                    .extend_from_slice(&previous_part_status);
+                            }
+                        }
                     }
-                });
-                continue;
+                }
+
+                let mut part_data = Vec::<Status>::new();
+
+                for (_, (start, fade, effect_datas)) in frame_effect_datas {
+                    part_data.push(Status {
+                        start,
+                        fade,
+                        status: effect_datas,
+                    });
+                }
+
+                response.insert(part_name.clone(), part_data);
             }
+            None => {
+                let control_data = fetched_parts.get(part_name);
 
-            // find effect states for effect of given control data and part
-            let led_effect_states = sqlx::query!(
-                r#"
-                    SELECT
-                        LEDEffectState.color_id,
-                        LEDEffectState.alpha,
-                        LEDEffectState.position
-                    FROM LEDEffectState
-                    WHERE effect_id = ?
-                "#,
-                data.effect_id.ok_or("Effect id not found").into_result()?
-            )
-            .fetch_all(mysql_pool)
-            .await
-            .into_result()?;
+                if let Some(control_data) = control_data {
+                    let mut part_data = Vec::<Status>::new();
 
-            // transfrom color id to rgb values for each position
-            for state in led_effect_states.iter() {
-                let color = color_map
-                    .get(&state.color_id)
-                    .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-                effect_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
+                    for data in control_data.iter() {
+                        let start = data.start;
+                        let fade = data.fade;
+                        let length = data.length.ok_or("Length not found").into_result()?;
+
+                        if let Some(effect_id) = data.effect_id {
+                            let effect_data = effect_states_map
+                                .get(&effect_id)
+                                .ok_or("Effect data not found")
+                                .into_result()?
+                                .clone();
+
+                            part_data.push(Status {
+                                start,
+                                status: effect_data,
+                                fade,
+                            });
+                        } else {
+                            let previous_part_status = match part_data.last() {
+                                Some(status) => status.status.clone(),
+                                None => vec![[0, 0, 0, 0]; length as usize],
+                            };
+
+                            part_data.push(Status {
+                                start,
+                                status: previous_part_status,
+                                fade,
+                            });
+                        }
+                    }
+
+                    response.insert(part_name.clone(), part_data);
+                }
             }
-
-            part_data.push(Status {
-                start,
-                status: effect_data,
-                fade,
-            });
         }
-
-        response.insert(part_name.clone(), part_data);
     }
 
     let mut headers = HeaderMap::new();
