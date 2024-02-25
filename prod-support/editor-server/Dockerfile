@@ -4,9 +4,12 @@ RUN cargo new editor-server
 WORKDIR /editor-server
 
 COPY ./editor-server/.cargo ./.cargo
-COPY ./editor-server/prisma ./prisma
-RUN rm -r ./prisma/migrations
 RUN echo '\n\n[workspace]\nmembers = ["prisma"]\n' >> ./Cargo.toml
+
+RUN mkdir ./prisma
+COPY ./editor-server/prisma/schema.prisma ./prisma/schema.prisma
+COPY ./editor-server/prisma/Cargo.toml ./prisma/Cargo.toml
+COPY ./editor-server/prisma/src ./prisma/src
 
 RUN cargo prisma validate
 
@@ -21,3 +24,4 @@ COPY ./editor-server/.env.production ./.env
 COPY ./editor-server/src ./src
 
 CMD ["bash", "-c", "./target/debug/prisma migrate deploy && cargo run --release"]
+
