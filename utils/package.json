@@ -33,7 +33,7 @@
   "scripts": {
     "initDB": "node initDB.js ./out/exportData.json",
     "save": "node saveData.js ./out/exportData.json",
-    "lint": "eslint --fix .",
-    "generateWaveform": "node generateWaveform.js"
+    "waveform": "node generateWaveform.js",
+    "lint": "eslint --fix ."
   }
 }

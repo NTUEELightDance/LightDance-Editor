@@ -4,12 +4,8 @@ const child_process = require("child_process");
 const readline = require("readline");
 
 
-const sname = "../files/data/wavform.json";
-const musicName = "../files/music/2023.mp3";    // you can alter the music name here
-let ifp = path.join(String(__dirname), sname);       // name (path included) to the waveform image
-let sfp = path.join(String(__dirname), musicName);   // name (path included) to the music
-let cmd = [];   // the command that will later be used to generate waveform
-let pixelsPerSecond = 1000;
+const waveformFolder = "../files/data/";
+const musicFolder = "../files/music/";    // you can alter the music name here
 
 
 const rl = readline.createInterface({
@@ -17,51 +13,63 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const readIntegerInput = (prompt) => {
+const readIntegerInput = (prompt, defaultValue, retry) => {
   return new Promise((resolve, reject) => {
     rl.question(prompt, (input) => {
-
       const parsedInput = parseInt(input, 10);
+
       if (!isNaN(parsedInput)) {
         resolve(parsedInput);
-      } else {
-        if (input == "") {
-          resolve(1000);
-        } else {
-          console.log("Invalid input, try again...");
-          resolve(readIntegerInput(prompt));
-        }
+        return;
       }
+
+      if (input === "") {
+        resolve(defaultValue);
+        return;
+      }
+
+      if (retry) {
+        console.log("Invalid input, try again...");
+        resolve(readIntegerInput(prompt, defaultValue, retry));
+        return;
+      }
+
+      reject(new Error("Invalid input"));
     });
   });
 };
 
-const readInput = async () => {
+const readInput = async (prompt, defaultValue) => {
+  return new Promise((resolve) => {
+    rl.question(prompt, (input) => {
+      if (input === "") {
+        resolve(defaultValue);
+        return;
+      }
 
-  try {
-    pixelsPerSecond = await readIntegerInput("Enter pixels-per-second(1000): ");
-    if (!(typeof pixelsPerSecond === 'number' && isFinite(pixelsPerSecond))) {
-      pixelsPerSecond = 1000;
-    }
-  } catch (error) {
-    console.log("something wrong in the input...");
-    console.error(error.message);
-  } finally {
-    rl.close();
-  }
+      resolve(input);
+    });
+  });
 };
 
-const generateWav = () => {
+const main = async () => {
+  const pixelsPerSecond = await readIntegerInput("Enter pixels-per-second (1000): ", 1000, true);
+  const audioFileName = await readInput("Enter audio filename (2024.mp3): ", "2024.mp3");
+  const waveformFileName = await readInput("Enter waveform filename (waveform.json): ", "waveform.json");
 
-  cmd = ["sudo", "audiowaveform"];
-  cmd = [...cmd, "-i", String(sfp), "-o", String(ifp), "--pixels-per-second", String(pixelsPerSecond)];
+  const audioFilePath = path.join(musicFolder, audioFileName);
+  const waveformFilePath = path.join(waveformFolder, waveformFileName);
+
+  const cmd = ["sudo", "audiowaveform", "-i", String(audioFilePath), "-o", String(waveformFilePath), "--pixels-per-second", String(pixelsPerSecond)];
 
   let cmdString = cmd.join(" ");
   console.log(`cmd = ${cmdString}`);
+
   let startGenerationTime = Date.now();
   console.log("start generating");
+
   try {
-    const ret = child_process.execSync(cmdString);
+    child_process.execSync(cmdString);
   } catch (err) {
     console.error("--- problem generating sound wave image");
     console.error(err);
@@ -70,9 +78,9 @@ const generateWav = () => {
   console.log(`Time taken for generating waveform: ${elapsedTime} ms`);
 };
 
-const mainGenerate = async () => {
-  await readInput();
-  generateWav();
-}
-
-mainGenerate();
+main().then(() => {
+  rl.close();
+}).catch((err) => {
+  console.error(err);
+  rl.close();
+});
