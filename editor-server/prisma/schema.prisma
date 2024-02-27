@@ -1,37 +1,54 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "cargo prisma"
+  output        = "../src/prisma"
+  module_path   = "prisma"
+  client_format = "folder"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator typegraphql {
-  provider = "typegraphql-prisma"
-  output   = "./generated/type-graphql"
+model Color {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  r    Int
+  g    Int
+  b    Int
+
+  // relation => not in db
+  control_datas ControlData[]
 }
 
-model Color {
-  id        Int    @id @default(autoincrement())
-  color     String @unique
-  colorCode Int[]
+model LEDEffectState {
+  id        Int @id @default(autoincrement())
+  effect_id Int
+  position  Int
+  color_id  Int
+  alpha     Int
+
+  // relation => not in db
+  effect LEDEffect @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([effect_id, position])
 }
 
 model LEDEffect {
   id       Int    @id @default(autoincrement())
   name     String
-  partName String
-  repeat   Int
-  frames   Json[]
+  model_id Int
+  part_id  Int
 
   // relation => not in db
-  editing EditingLEDEffect?
+  editing       EditingLEDEffect?
+  control_datas ControlData[]
+  states        LEDEffectState[]
 
-  @@unique([name, partName])
+  model Model @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  part  Part  @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([name, model_id, part_id])
 }
 
 model User {
@@ -40,45 +57,58 @@ model User {
   password String
 
   // relation => not in db
-  editingPositionFrameId EditingPositionFrame?
-  editingControlFrameId  EditingControlFrame?
-  editingLEDEffectId     EditingLEDEffect?
+  editing_positionFrame_id EditingPositionFrame?
+  editing_controlFrame_id  EditingControlFrame?
+  editing_led_effect_id    EditingLEDEffect?
 }
 
 model EditingPositionFrame {
-  userId  Int  @id
-  frameId Int? @unique
+  user_id  Int  @id
+  frame_id Int? @unique
 
   // relation => not in db
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  editingFrame PositionFrame? @relation(fields: [frameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user         User           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editingFrame PositionFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model EditingControlFrame {
-  userId  Int  @id
-  frameId Int? @unique
+  user_id  Int  @id @unique
+  frame_id Int? @unique
 
   // relation => not in db
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  editingFrame ControlFrame? @relation(fields: [frameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editing_frame ControlFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model EditingLEDEffect {
-  userId      Int  @id
-  LEDEffectId Int? @unique
+  user_id       Int  @id
+  led_effect_id Int? @unique
 
   // relation => not in db
-  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  editingLEDEffect LEDEffect? @relation(fields: [LEDEffectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user               User       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  editing_led_effect LEDEffect? @relation(fields: [led_effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model Dancer {
+model Model {
   id   Int    @id @default(autoincrement())
   name String @unique
 
   // relation => not in db
-  parts        Part[]
-  positionData PositionData[]
+  dancers    Dancer[]
+  parts      Part[]
+  led_effect LEDEffect[]
+}
+
+model Dancer {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  model_id Int
+
+  // relation => not in db
+  model Model @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  position_datas PositionData[]
+  control_datas  ControlData[]
 }
 
 enum PartType {
@@ -88,78 +118,108 @@ enum PartType {
 
 model Part {
   id       Int      @id @default(autoincrement())
-  dancerId Int
+  model_id Int
   name     String
   type     PartType
   length   Int?
 
   // relation => not in db
-  dancer      Dancer        @relation(fields: [dancerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  controlData ControlData[]
+  model Model @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  control_datas ControlData[]
+  led_effect    LEDEffect[]
+
+  @@unique([name, model_id])
 }
 
 model PositionData {
-  dancerId Int
-  frameId  Int
-  x        Float
-  y        Float
-  z        Float
+  // id       Int    @id @default(autoincrement())
+  dancer_id Int
+  frame_id  Int
+  x         Float
+  y         Float
+  z         Float
 
   // relation => not in db
-  dancer Dancer        @relation(fields: [dancerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  frame  PositionFrame @relation(fields: [frameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dancer Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  frame  PositionFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@id([dancerId, frameId])
+  @@id([dancer_id, frame_id])
 }
 
 model PositionFrame {
-  id    Int @id @default(autoincrement())
-  start Int @unique
+  id       Int @id @default(autoincrement())
+  start    Int @unique
+  meta_rev Int @default(0)
+  data_rev Int @default(0)
 
   // relation => not in db
-  editing       EditingPositionFrame?
-  positionDatas PositionData[]
+  editing        EditingPositionFrame?
+  position_datas PositionData[]
+}
+
+enum ControlDataType {
+  COLOR
+  EFFECT
 }
 
 model ControlData {
-  partId  Int
-  frameId Int
-  value   Json
+  dancer_id Int
+  part_id   Int
+  frame_id  Int
+  type      ControlDataType
+  color_id  Int?
+  effect_id Int?
+  alpha     Int
+
+  // TODO: Check if one of color_id or effect_id is not null
 
   // relation => not in db
-  part  Part         @relation(fields: [partId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  frame ControlFrame @relation(fields: [frameId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  part  Part         @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  frame ControlFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@id([partId, frameId])
+  color    Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  effect   LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dancer   Dancer?    @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([dancer_id, part_id, frame_id])
 }
 
 model ControlFrame {
-  id    Int     @id @default(autoincrement())
-  start Int     @unique
-  fade  Boolean
+  id       Int     @id @default(autoincrement())
+  start    Int     @unique
+  fade     Boolean
+  meta_rev Int     @default(0)
+  data_rev Int     @default(0)
 
   // relation => not in db
-  editing      EditingControlFrame?
-  controlDatas ControlData[]
+  editing       EditingControlFrame?
+  control_datas ControlData[]
 }
 
 model EffectListData {
-  id             Int     @id @default(autoincrement())
-  start          Int
-  end            Int
-  description    String?
-  dancerData     Json[]
-  controlFrames  Json[]
-  positionFrames Json[]
+  id          Int     @id @default(autoincrement())
+  start       Int
+  end         Int
+  description String?
+  // dancer_data     Json[]
+  // controlFrames  Json[]
+  // positionFrames Json[]
 }
 
 model Logger {
-  id            Int      @id @default(autoincrement())
-  user          Int
-  variableValue Json?
-  fieldName     String
-  time          DateTime @default(now())
-  status        String
-  errorMessage  Json?
-  result        Json?
+  id             Int      @id @default(autoincrement())
+  user           Int
+  variable_value Json?
+  field_name     String
+  time           DateTime @default(now())
+  status         String
+  error_message  Json?
+  result         Json?
+}
+
+model Revision {
+  id   Int      @id @default(autoincrement())
+  uuid String   @unique
+  time DateTime @default(now())
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const PinMapSchema = z.object({
+  dancer: z.string(),
   fps: z.number(),
   OFPARTS: z.record(z.string(), z.number()),
   LEDPARTS: z.record(
@@ -9,6 +10,9 @@ export const PinMapSchema = z.object({
       id: z.number(),
       len: z.number(),
     })
+  ),
+  LEDPARTS_MERGE: z.record(
+    z.array(z.string()),
   ),
 });
 

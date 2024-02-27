@@ -5,15 +5,13 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./redisData:/data
-  postgresql:
-    image: postgres
+      - ./data/redisData:/data
+  mysql:
+    image: mysql:8.1.0
     environment:
-      POSTGRES_DB: lightdance
-      POSTGRES_USER: lightdance-user
-      POSTGRES_PASSWORD: NTUEELightdance
-      PGDATA: /var/lib/postgresql/data
-    volumes:
-      - ./pg/pg-data:/var/lib/postgresql/data
+      MYSQL_DATABASE: editor
+      MYSQL_ROOT_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "3306:3306"
+    volumes:
+      - ./data/mysql:/var/lib/mysql

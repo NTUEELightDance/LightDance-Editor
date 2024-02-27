@@ -1,10 +1,15 @@
 import { OF, LED, OFSchema, LEDSchema } from "@/schema/global";
 
+import pinMapTable from "@/configs/pinMapTable";
+
 import { instance } from "./axios";
 
-export async function getDancerLEDDataAPI(dancer: string) {
-  const { data } = await instance.get<LED>("/getDancerLEDData", {
-    params: { dancer },
+export async function getDancerLEDDataAPI(RPiName: string) {
+  const getRPiDataJSON = pinMapTable[RPiName];
+  const { data } = await instance.post<LED>("/getDancerLEDData", {
+    dancer: getRPiDataJSON.dancer,
+    LEDPARTS: getRPiDataJSON.LEDPARTS,
+    LEDPARTS_MERGE: getRPiDataJSON.LEDPARTS_MERGE,
   });
 
   LEDSchema.parse(data);
@@ -12,9 +17,11 @@ export async function getDancerLEDDataAPI(dancer: string) {
   return data;
 }
 
-export async function getDancerFiberDataAPI(dancer: string) {
-  const { data } = await instance.get<OF>("/getDancerFiberData", {
-    params: { dancer },
+export async function getDancerFiberDataAPI(RPiName: string) {
+  const getRPiDataJSON = pinMapTable[RPiName];
+  const { data } = await instance.post<OF>("/getDancerFiberData", {
+    dancer: getRPiDataJSON.dancer,
+    OFPARTS: getRPiDataJSON.OFPARTS,
   });
 
   OFSchema.parse(data);

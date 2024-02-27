@@ -1,4 +1,3 @@
 */node_modules
 
-editor-server/prisma/generated
-editor-server/prisma/migrations
+editor-server/target

@@ -1,99 +1,59 @@
 {
-  "Music": "/music/2023.mp3",
+  "Music": "/music/2024.mp3",
+  "Waveform": "/data/waveform.json",
   "LightPresets": "/data/default_lightPresets.json",
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
-    "0_agent": {
-      "url": "/asset/models/eggsy.draco.glb",
-      "modelName": "eggsy"
+    "0_xn": {
+      "url": "/asset/models/0_xn.draco.glb",
+      "modelName": "0_xn"
     },
-    "1_hank": {
-      "url": "/asset/models/eggsy.draco.glb",
-      "modelName": "eggsy"
+    "1_yck": {
+      "url": "/asset/models/1_yck.draco.glb",
+      "modelName": "1_yck"
     },
-    "2_henning": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
+    "2_sssam": {
+      "url": "/asset/models/2_sssam.draco.glb",
+      "modelName": "2_sssam"
     },
-    "3_hans": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
+    "3_crc": {
+      "url": "/asset/models/3_crc.draco.glb",
+      "modelName": "3_crc"
     },
-    "4_rayh": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
+    "4_arthur": {
+      "url": "/asset/models/4_arthur.draco.glb",
+      "modelName": "4_arthur"
     },
-    "5_justin": {
-      "url": "/asset/models/agent.draco.glb",
-      "modelName": "agent"
+    "5_cs": {
+      "url": "/asset/models/5_cs.draco.glb",
+      "modelName": "5_cs"
     },
-    "6_stantheman": {
-      "url": "/asset/models/reaper.draco.glb",
-      "modelName": "reaper"
+    "6_rakec": {
+      "url": "/asset/models/6_rakec.draco.glb",
+      "modelName": "6_rakec"
     },
-    "7_ken": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
+    "7_jya": {
+      "url": "/asset/models/7_jya.draco.glb",
+      "modelName": "7_jya"
     },
-    "8_samuel": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
+    "8_circle": {
+      "url": "/asset/models/8_circle.draco.glb",
+      "modelName": "8_circle"
     },
-    "9_alice": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
+    "9_ricky": {
+      "url": "/asset/models/9_ricky.draco.glb",
+      "modelName": "9_ricky"
     },
-    "10_ttk": {
-      "url": "/asset/models/assassin.draco.glb",
-      "modelName": "assassin"
-    },
-    "11_cabinet_ken": {
-      "url": "/asset/models/cabinet_ken.draco.glb",
-      "modelName": "cabinet_ken"
-    },
-    "12_cabinet_ttk": {
-      "url": "/asset/models/cabinet_ttk.draco.glb",
-      "modelName": "cabinet_ttk"
-    },
-    "13_cabinet_samuel": {
-      "url": "/asset/models/cabinet_samuel.draco.glb",
-      "modelName": "cabinet_samuel"
-    },
-    "14_counter_left": {
-      "url": "/asset/models/counter_1.draco.glb",
-      "modelName": "counter_1"
-    },
-    "15_counter_right": {
-      "url": "/asset/models/counter_2.draco.glb",
-      "modelName": "counter_2"
-    },
-    "16_scythe": {
-      "url": "/asset/models/scythe.draco.glb",
-      "modelName": "scythe"
-    },
-    "17_signboard": {
-      "url": "/asset/models/signboard.draco.glb",
-      "modelName": "signboard"
-    },
-    "18_umbrella_hank": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "19_umbrella_henning": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "20_umbrella_hans": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "21_umbrella_rayh": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
-    },
-    "22_umbrella_justin": {
-      "url": "/asset/models/umbrella.draco.glb",
-      "modelName": "umbrella"
+    "10_chris": {
+      "url": "/asset/models/10_chris.draco.glb",
+      "modelName": "10_chris"
+    }
+  },
+  "Config": {
+    "Stage": {
+      "width": 11.5,
+      "length": 8.0,
+      "scale": 1.0
     }
   }
 }

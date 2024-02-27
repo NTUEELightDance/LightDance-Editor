@@ -2,17 +2,11 @@
 
 ## First install
 
-You need to first generate prisma client code from you schema.prisma file after you install the package:
-This will be done automatically when you run `pnpm install:all` or `pnpm install:editor-server` in the project's root directory.
+You need to create `.env` before all operations. You can change the settings as you want, their used in development mode.
 
 ```sh
-npx prisma generate
-```
-
-or
-
-```sh
-pnpm generate
+# Lightdance-Editor/editor-server
+cp .env.development .env
 ```
 
 If you are running this for the first time, you will need to follow the steps below to initialize the database.
@@ -32,7 +26,7 @@ docker compose -f dev.docker-compose.yml up -d
 
 ```sh
 # Lightdance-Editor/editor-server
-pnpm migrate
+cargo prisma migrate dev --skip-generate
 ```
 
 ### 3. Run editor-server
@@ -55,7 +49,6 @@ node initDB.js jsons/exportDataEmpty.json
 If you have initialized the database before, and you want to get a clean database, you should follow the steps below:
 
 1. shutdown the database with `docker compose -f dev.docker-compose.yml down`
-2. Delete the `../pg` folder
-3. Delete the `../redis` folder
-4. Delete the `prisma/migrations` folder
+2. Delete the `data` folder
+4. Delete the `editor-server/prisma/migrations` folder
 5. follow the steps above to initialize the database again

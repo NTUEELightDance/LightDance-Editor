@@ -12,22 +12,22 @@ const GREEN = "green";
 const GREEN_RGB = [0, 255, 0];
 const BLUE = "blue";
 const BLUE_RGB = [0, 0, 255];
-const ALL_BLACK = "all_black";
-const ALL_WHITE = "all_white";
-const ALL_RED = "all_red";
-const ALL_GREEN = "all_green";
-const ALL_BLUE = "all_blue";
+const ALL_BLACK = "black";
+const ALL_WHITE = "white";
+const ALL_RED = "red";
+const ALL_GREEN = "green";
+const ALL_BLUE = "blue";
 const NO_EFFECT = "";
 
 const partNameIgnore = new Set(["Human"]);
 
 const io = new NodeIO();
 
-const modelPartNameCache = new Map();
+const modelPartsCache = new Map();
 
-async function getParts(modelPath) {
-  if (modelPartNameCache.has(modelPath)) {
-    return modelPartNameCache.get(modelPath);
+async function getParts(modelPath, modelName) {
+  if (modelPartsCache.has(modelPath)) {
+    return modelPartsCache.get(modelPath);
   }
 
   const document = await io.read(modelPath); // → Document
@@ -35,6 +35,10 @@ async function getParts(modelPath) {
   const partNames = root
     .listNodes()
     .map((node) => node.getName())
+    // remove dancer root object
+    .filter((name) => name !== modelName)
+    // drop first '_'
+    // .map((name) => name.split("_").slice(1).join("_"))
     // drop after '.'
     .map((name) => name.split(".")[0])
     // remove duplicates
@@ -47,10 +51,19 @@ async function getParts(modelPath) {
     type: partName.split("_").pop() === "LED" ? "LED" : "FIBER",
   }));
 
+  parts.sort((a, b) => {
+    if (a.type === b.type) {
+      return a.name.localeCompare(b.name);
+    }
+    return a.type === "FIBER" ? -1 : 1;
+  });
+
   const LEDs = root
     .listNodes()
     .map((node) => node.getName())
     .filter((name) => name.includes("_LED."));
+  // drop first '_'
+  // .map((name) => name.split("_").slice(1).join("_"));
 
   const LEDcounter = LEDs.reduce((acc, LEDname) => {
     const partName = LEDname.split(".")[0];
@@ -67,7 +80,7 @@ async function getParts(modelPath) {
     part.length = length;
   });
 
-  modelPartNameCache.set(modelPath, parts);
+  modelPartsCache.set(modelPath, parts);
 
   return parts;
 }
@@ -83,9 +96,9 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
   const status = dancerData.map(({ parts }) =>
     parts.map(({ type }) => {
       if (type === "LED") {
-        return [effect, 10];
+        return [effect, 255];
       } else if (type === "FIBER") {
-        return [color, 10];
+        return [color, 255];
       } else {
         throw new Error(`unknown type: ${type}`);
       }
@@ -101,10 +114,10 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
 
 function generateEmptyPosMap(dancerData) {
   const length = dancerData.length;
-  const spacing = 3;
+  const spacing = 1;
   const pos = dancerData.map((val, index) => [
-    (index - (length - 1) / 2) * spacing,
     0,
+    (index - (length - 1) / 2) * spacing,
     0,
   ]);
 
@@ -128,26 +141,33 @@ function generateDefaultEffect(length, color) {
   };
 }
 
-function generateEmptyLEDEffects(dancerData) {
-  const LEDparts = [];
-  dancerData.forEach(({ parts }) => {
+function generateEmptyLEDEffects(modelParts) {
+  const LEDMap = [];
+  modelParts.forEach(({ name, parts }) => {
+    let dancerParts = { name, parts: [] };
     parts.forEach((part) => {
       if (part.type === "LED") {
-        LEDparts.push(part);
+        dancerParts.parts.push(part);
       }
     });
+    LEDMap.push(dancerParts);
   });
 
-  const effects = LEDparts.reduce((acc, part) => {
+  const effects = LEDMap.reduce((dancerAcc, dancerParts) => {
     return {
-      ...acc,
-      [part.name]: {
-        [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
-        [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
-        [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
-        [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
-        [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
-      },
+      ...dancerAcc,
+      [dancerParts.name]: dancerParts.parts.reduce((partAcc, part) => {
+        return {
+          ...partAcc,
+          [part.name]: {
+            [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
+            [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
+            [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
+            [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
+            [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
+          },
+        };
+      }, {})
     };
   }, {});
 
@@ -169,14 +189,24 @@ function generateEmptyLEDEffects(dancerData) {
   }
 
   const dancerData = await Promise.all(
-    Object.entries(dancerMap).map(async ([dancerName, { url }]) => {
-      const modelUrl = toGlbPath(path.join(fileServerRoot, url));
+    Object.entries(dancerMap).map(async ([dancerName, { url, modelName }]) => {
+      const fullPath = path.join(fileServerRoot, url);
+      const modelUrl = toGlbPath(fullPath);
       return {
         name: dancerName,
-        parts: await getParts(modelUrl),
+        model: modelName,
+        parts: await getParts(modelUrl, modelName),
       };
     })
   );
+
+  const modelParts = Array.from(modelPartsCache.entries()).map(([modelPath, parts]) => {
+    const modelName = path.basename(modelPath, ".glb");
+    return {
+      name: modelName,
+      parts,
+    };
+  });
 
   // sort by dancer name
   dancerData.sort(
@@ -184,15 +214,15 @@ function generateEmptyLEDEffects(dancerData) {
   );
 
   const controlData = {
-    0: generateEmptyControlFrame(dancerData, 0, BLACK, NO_EFFECT),
-    1: generateEmptyControlFrame(dancerData, 1000, WHITE, ALL_WHITE),
-    2: generateEmptyControlFrame(dancerData, 2000, RED, ALL_RED),
-    3: generateEmptyControlFrame(dancerData, 3000, GREEN, ALL_GREEN),
-    4: generateEmptyControlFrame(dancerData, 4000, BLUE, ALL_BLUE),
+    1: generateEmptyControlFrame(dancerData, 0, BLACK, NO_EFFECT),
+    2: generateEmptyControlFrame(dancerData, 1000, WHITE, ALL_WHITE),
+    3: generateEmptyControlFrame(dancerData, 2000, RED, ALL_RED),
+    4: generateEmptyControlFrame(dancerData, 3000, GREEN, ALL_GREEN),
+    5: generateEmptyControlFrame(dancerData, 4000, BLUE, ALL_BLUE),
   };
 
   const positionData = {
-    0: generateEmptyPosMap(dancerData),
+    1: generateEmptyPosMap(dancerData),
   };
 
   const colorData = {
@@ -203,7 +233,7 @@ function generateEmptyLEDEffects(dancerData) {
     [BLUE]: BLUE_RGB,
   };
 
-  const LEDEffectsData = generateEmptyLEDEffects(dancerData);
+  const LEDEffectsData = generateEmptyLEDEffects(modelParts);
 
   const exportData = {
     dancer: dancerData,

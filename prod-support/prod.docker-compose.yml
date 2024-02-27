@@ -11,7 +11,7 @@ services:
     ports:
       - "8081:80"
     networks:
-      - lightdance-editor
+      - nginx
     depends_on:
       - editor
       - editor-server
@@ -26,7 +26,7 @@ services:
     expose:
       - "8080"
     networks:
-      - lightdance-editor
+      - nginx
     depends_on:
       - editor-server
       - file-server
@@ -40,9 +40,9 @@ services:
     ports:
       - "4000:4000"
     networks:
-      - lightdance-editor
+      - nginx
     depends_on:
-      - postgresql
+      - mysql
       - redisdb
 
   file-server:
@@ -54,36 +54,31 @@ services:
     volumes:
       - ../files:/app/files
     networks:
-      - lightdance-editor
+      - nginx
 
-  postgresql:
-    image: postgres
-    container_name: lightdance-postgresql
+  mysql:
+    image: mysql:8.1.0
+    container_name: lightdance-mysql
     environment:
-      POSTGRES_DB: lightdance
-      POSTGRES_USER: lightdance-user
-      POSTGRES_PASSWORD: NTUEELightdance
-      PGDATA: /var/lib/postgresql/data
+      MYSQL_DATABASE: editor
+      MYSQL_ROOT_PASSWORD: password
     volumes:
-      - pg-data:/var/lib/postgresql/data
+      - mysql-data:/var/lib/mysql
     networks:
-      - lightdance-editor
-    expose:
-      - 5432
+      - nginx
 
   redisdb:
-    container_name: lightdance-redisdb
     image: redis
+    container_name: lightdance-redisdb
     volumes:
       - redis-data:/data
     networks:
-      - lightdance-editor
+      - nginx
 
 networks:
-  lightdance-editor:
-    external:
-      name: eeinfo
+  nginx:
+    external: true
 
 volumes:
-  pg-data:
+  mysql-data:
   redis-data:

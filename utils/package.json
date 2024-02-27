@@ -7,13 +7,23 @@
     "@gltf-transform/core": "^2.5.1",
     "@gltf-transform/extensions": "^2.5.1",
     "ajv": "^8.10.0",
+    "all": "^0.0.0",
     "axios": "^0.26.1",
+    "child_process": "^1.0.2",
     "draco3dgltf": "^1.5.6",
     "form-data": "^4.0.0",
+    "fs": "0.0.1-security",
+    "get-audio-duration": "^4.0.1",
     "graphql": "^16.3.0",
     "graphql-request": "^4.0.0",
+    "join-images": "^1.1.5",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
+    "nodemon": "^3.0.2",
+    "os": "^0.1.2",
+    "path": "^0.12.7",
+    "process": "^0.11.10",
+    "sharp": "^0.32.6",
     "tmp": "^0.2.1",
     "yargs": "^17.4.0"
   },
@@ -23,6 +33,7 @@
   "scripts": {
     "initDB": "node initDB.js ./out/exportData.json",
     "save": "node saveData.js ./out/exportData.json",
+    "waveform": "node generateWaveform.js",
     "lint": "eslint --fix ."
   }
 }

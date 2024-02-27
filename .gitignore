@@ -144,7 +144,11 @@ utils/door_led/
 !.yarn/versions
 
 mongodbData
-redisData
+data
+
 pg
+redisData
 
 editor-server/src/data/private
+
+editor-blender.zip

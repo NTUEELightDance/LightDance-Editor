@@ -40,7 +40,10 @@ const defineConfig: UserConfigFn = () => {
           target: "ws://localhost:4000",
           ws: true,
           rewrite: (path) => {
-            return path.replace(/^\/graphql-backend-websocket/, "graphql");
+            return path.replace(
+              /^\/graphql-backend-websocket/,
+              "graphql-websocket"
+            );
           },
         },
       },
