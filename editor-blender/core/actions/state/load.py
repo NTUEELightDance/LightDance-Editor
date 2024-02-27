@@ -582,6 +582,10 @@ def setup_animation_data():
         print("local animation data detected")
         update_rev_changes(state.pos_map, state.control_map)  # TODO: test this
 
+    # set_pos_keyframes_from_state()
+    # set_ctrl_keyframes_from_state()
+    # setattr(bpy.context.scene, "ld_anidata", True)
+
 
 def check_local_object_list():
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
