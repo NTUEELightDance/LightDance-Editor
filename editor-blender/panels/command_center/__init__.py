@@ -56,7 +56,7 @@ class ControlPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context: bpy.types.Context):
-        return state.ready
+        return True
 
     def draw(self, context: bpy.types.Context):
         command_center_status: CommandCenterStatusType = getattr(
