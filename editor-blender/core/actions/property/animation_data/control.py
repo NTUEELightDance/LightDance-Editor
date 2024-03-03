@@ -558,20 +558,20 @@ def delete_single_ctrl_keyframe(
 
                     for led_obj in part_parent.children:
                         curves = led_obj.animation_data.action.fcurves
-                        index: Optional[int] = None
+                        ctrl_rev_index: Optional[int] = None
 
                         for d in range(3):
                             curve = curves.find("color", index=d)
                             kpoints, kpoints_list = get_keyframe_points(curve)
 
-                            if index is None:
-                                index, point = next(
+                            if ctrl_rev_index is None:
+                                ctrl_rev_index, point = next(
                                     (i, point)
                                     for i, point in enumerate(kpoints_list)
                                     if point.co[0] == old_frame_start
                                 )
                             else:
-                                point = kpoints_list[index]
+                                point = kpoints_list[ctrl_rev_index]
 
                             kpoints.remove(point)
 
@@ -622,14 +622,13 @@ def delete_single_ctrl_keyframe(
 
     kpoints.remove(point)
 
-    # TODO: delete rev
-
     ctrl_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_ctrl_rev")
     try:
-        ctrl_rev_index = next(
+        ctrl_rev_indexes = [
             i for i, item in enumerate(ctrl_rev) if getattr(item, "frame_id") == ctrl_id
-        )
-        ctrl_rev.remove(ctrl_rev_index)  # type: ignore
+        ]
+        for ctrl_rev_index in ctrl_rev_indexes:
+            ctrl_rev.remove(ctrl_rev_index)  # type: ignore
 
     except StopIteration:
         pass

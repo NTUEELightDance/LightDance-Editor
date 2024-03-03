@@ -18,24 +18,25 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
     local_rev = [
         (rev.frame_id, rev.frame_start, rev.meta, rev.data) for rev in ld_pos_rev
     ]
+    local_rev = list(dict.fromkeys(local_rev))
 
     incoming_rev = {id: element.rev for id, element in incoming_pos_map.items()}
 
     for frame_id, frame_start, meta, data in local_rev:
         incoming_rev_item = incoming_rev.get(frame_id)
         if incoming_rev_item is None:  # delete
-            # print(f"deleting {frame_id}, {frame_start}")
+            print(f"[POS] deleting {frame_id}, {frame_start}")
             delete_single_pos_keyframe(frame_id, frame_start)
 
         else:
             if not (
                 incoming_rev_item.data == data
                 and incoming_rev_item.meta == meta
-                and data > 0
-                and meta > 0
+                and data >= 0
+                and meta >= 0
             ):
                 # local animation data matches incoming
-                # print(f"editing {frame_id}, {incoming_pos_map[frame_id].start}")
+                print(f"[POS] editing {frame_id}, {incoming_pos_map[frame_id].start}")
                 edit_single_pos_keyframe(
                     frame_id, incoming_pos_map[frame_id], frame_start
                 )
@@ -43,7 +44,7 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
             del incoming_rev[frame_id]
 
     for id in incoming_rev.keys():
-        # print(f"adding {id}, {incoming_pos_map[id].start}")
+        print(f"[POS] adding {id}, {incoming_pos_map[id].start}")
         add_single_pos_keyframe(id, incoming_pos_map[id])
 
     # control
@@ -51,24 +52,27 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
     local_rev = [
         (rev.frame_id, rev.frame_start, rev.meta, rev.data) for rev in ld_ctrl_rev
     ]
+    local_rev = list(dict.fromkeys(local_rev))
 
     incoming_rev = {id: element.rev for id, element in incoming_control_map.items()}
 
     for frame_id, frame_start, meta, data in local_rev:
         incoming_rev_item = incoming_rev.get(frame_id)
         if incoming_rev_item is None:
-            # print(f"deleting {local_id}")
+            print(f"[CTRL] deleting {frame_id}, {frame_start}")
             delete_single_ctrl_keyframe(frame_id, frame_start)
 
         else:
             if not (
                 incoming_rev_item.data == data
                 and incoming_rev_item.meta == meta
-                and data > 0
-                and meta > 0
+                and data >= 0
+                and meta >= 0
             ):
                 # local animation data matches incoming
-                # print(f"editing {local_id}")
+                print(
+                    f"[CTRL] editing {frame_id}, {incoming_control_map[frame_id].start}"
+                )
                 edit_single_ctrl_keyframe(
                     frame_id, incoming_control_map[frame_id], frame_start
                 )
@@ -76,5 +80,5 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
             del incoming_rev[frame_id]
 
     for id in incoming_rev.keys():
-        # print(f"adding {id}")
+        print(f"[CTRL] adding {id}, {incoming_control_map[id].start}")
         add_single_ctrl_keyframe(id, incoming_control_map[id])
