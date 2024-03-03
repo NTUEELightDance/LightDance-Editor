@@ -278,10 +278,11 @@ def delete_single_pos_keyframe(
 
     pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
     try:
-        pos_rev_index = next(
+        pos_rev_indexes = [
             i for i, item in enumerate(pos_rev) if getattr(item, "frame_id") == pos_id
-        )
-        pos_rev.remove(pos_rev_index)  # type: ignore
+        ]
+        for pos_rev_index in pos_rev_indexes:
+            pos_rev.remove(pos_rev_index)  # type: ignore
 
     except StopIteration:
         pass
