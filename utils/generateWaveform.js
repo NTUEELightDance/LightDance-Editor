@@ -60,7 +60,7 @@ const main = async () => {
   const audioFilePath = path.join(musicFolder, audioFileName);
   const waveformFilePath = path.join(waveformFolder, waveformFileName);
 
-  const cmd = ["sudo", "audiowaveform", "-i", String(audioFilePath), "-o", String(waveformFilePath), "--pixels-per-second", String(pixelsPerSecond)];
+  const cmd = ["audiowaveform", "-i", String(audioFilePath), "-o", String(waveformFilePath), "--pixels-per-second", String(pixelsPerSecond)];
 
   let cmdString = cmd.join(" ");
   console.log(`cmd = ${cmdString}`);
