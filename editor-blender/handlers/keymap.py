@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, cast
 import bpy
 
 default_clipboard_keymaps = ["view3d.copybuffer", "view3d.pastebuffer"]
+default_select_all_keymaps = ["wm.call_menu"]
 default_delete_keymaps = {
     "Object Mode": ["object.delete", "anim.keyframe_delete_v3d"],
     "Dopesheet": ["action.delete"],
@@ -55,8 +56,51 @@ def mount():
                 keymap.active = False
                 default_keymaps.append(keymap)
 
-    # Active clipboard keymaps and disable default keymaps
+    # Active select all keymaps and disable default keymaps
+    object_mode_km_items = cast(
+        Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps
+    )["Object Mode"].keymap_items
+    object_mode_km_items = cast(List[bpy.types.KeyMapItem], object_mode_km_items)
 
+    for keymap in object_mode_km_items:
+        if keymap.idname in default_select_all_keymaps:
+            keymap.active = False
+            default_keymaps.append(keymap)
+
+    new_keymaps_config = (
+        ["lightdance.select_all", "lightdance.select_all"],
+        ["A", "A"],
+        [1, 0],
+        [0, 1],
+    )
+
+    new_keymaps = check_keymaps_exist(
+        object_mode_km_items,
+        new_keymaps_config[0],
+        new_keymaps_config[2],
+        new_keymaps_config[3],
+    )
+
+    object_mode_km_items = cast(bpy.types.KeyMapItems, object_mode_km_items)
+    for i in range(len(new_keymaps)):
+        new_keymap = new_keymaps[i]
+
+        if new_keymap is None:
+            new_keymaps[i] = object_mode_km_items.new(
+                new_keymaps_config[0][i],
+                new_keymaps_config[1][i],
+                ctrl=new_keymaps_config[2][i],
+                oskey=new_keymaps_config[3][i],
+                value="PRESS",
+            )
+
+        else:
+            new_keymap.active = True
+
+    global select_all_keymaps
+    select_all_keymaps = cast(List[bpy.types.KeyMapItem], new_keymaps)
+
+    # Active clipboard keymaps and disable default keymaps
     view_3d_km_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
         "3D View"
     ].keymap_items
@@ -103,7 +147,6 @@ def mount():
             new_keymap.active = True
 
     global clipboard_keymaps
-
     clipboard_keymaps = cast(List[bpy.types.KeyMapItem], new_keymaps)
 
 

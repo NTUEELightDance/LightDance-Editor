@@ -12,6 +12,7 @@ from . import (
     notification,
     ping,
     pos_editor,
+    select,
     setup,
     shift,
     slider,
@@ -39,6 +40,7 @@ def register():
     clipboard.register()
     assets.register()
     ping.register()
+    select.register()
 
 
 def unregister():
@@ -60,3 +62,4 @@ def unregister():
     clipboard.unregister()
     assets.unregister()
     ping.unregister()
+    select.unregister()
