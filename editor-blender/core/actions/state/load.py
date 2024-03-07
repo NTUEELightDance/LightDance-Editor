@@ -573,6 +573,16 @@ def setup_display():
     space.show_restrict_column_indirect_only = False
 
 
+def clear_animation_data():
+    data_objects = cast(List[bpy.types.Object], bpy.data.objects)
+    for obj in data_objects:
+        obj.animation_data_clear()
+
+    setattr(bpy.context.scene, "ld_anidata", False)
+    bpy.context.scene.animation_data_clear()
+    bpy.context.window_manager.animation_data_clear()
+
+
 def setup_animation_data():
     if not getattr(bpy.context.scene, "ld_anidata"):
         set_pos_keyframes_from_state()
@@ -580,11 +590,13 @@ def setup_animation_data():
         setattr(bpy.context.scene, "ld_anidata", True)
     else:
         print("local animation data detected")
-        update_rev_changes(state.pos_map, state.control_map)  # TODO: test this
-
-    # set_pos_keyframes_from_state()
-    # set_ctrl_keyframes_from_state()
-    # setattr(bpy.context.scene, "ld_anidata", True)
+        try:
+            update_rev_changes(state.pos_map, state.control_map)
+        except:
+            clear_animation_data()
+            set_pos_keyframes_from_state()
+            set_ctrl_keyframes_from_state()
+            setattr(bpy.context.scene, "ld_anidata", True)
 
 
 def check_local_object_list():
