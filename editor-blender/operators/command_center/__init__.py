@@ -132,8 +132,8 @@ class CommandCenterPlayOperator(AsyncOperator):
                     "payload": {
                         "dancers": get_selected_dancer(),
                         "start": bpy.context.scene.frame_current,
-                        "timestamp": int(time.time() * 1000)
-                        + command_status.delay * 1000,
+                        "timestamp": int(time.time())
+                        + command_status.delay,
                     },
                 }
             )
