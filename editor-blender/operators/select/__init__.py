@@ -45,8 +45,12 @@ class SelectAllLEDOperator(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context):
+        if not bpy.context.object:
+            return {"FINISHED"}
+        current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
+        current_dancer_obj = bpy.data.objects[current_dancer_name]
         bpy.ops.object.select_all(action="DESELECT")
-        for obj in bpy.context.view_layer.objects:
+        for obj in current_dancer_obj.children:
             obj = cast(bpy.types.Object, obj)
             if getattr(obj, "ld_light_type") == "led":
                 obj.select_set(True)
@@ -60,8 +64,12 @@ class SelectAllFiberOperator(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context):
+        if not bpy.context.object:
+            return {"FINISHED"}
+        current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
+        current_dancer_obj = bpy.data.objects[current_dancer_name]
         bpy.ops.object.select_all(action="DESELECT")
-        for obj in bpy.context.view_layer.objects:
+        for obj in current_dancer_obj.children:
             obj = cast(bpy.types.Object, obj)
             if getattr(obj, "ld_light_type") == "fiber":
                 obj.select_set(True)
@@ -75,10 +83,14 @@ class SelectRandomFiberOperator(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context):
+        if not bpy.context.object:
+            return {"FINISHED"}
+        current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
+        current_dancer_obj = bpy.data.objects[current_dancer_name]
         bpy.ops.object.select_all(action="DESELECT")
         fiber_list = [
             cast(bpy.types.Object, obj)
-            for obj in bpy.context.view_layer.objects
+            for obj in current_dancer_obj.children
             if getattr(obj, "ld_light_type") == "fiber"
         ]
         N_fiber = len(fiber_list)
@@ -97,10 +109,14 @@ class SelectRandomLEDOperator(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context: bpy.types.Context):
+        if not bpy.context.object:
+            return {"FINISHED"}
+        current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
+        current_dancer_obj = bpy.data.objects[current_dancer_name]
         bpy.ops.object.select_all(action="DESELECT")
         led_list = [
             cast(bpy.types.Object, obj)
-            for obj in bpy.context.view_layer.objects
+            for obj in current_dancer_obj.children
             if getattr(obj, "ld_light_type") == "led"
         ]
         N_led = len(led_list)
