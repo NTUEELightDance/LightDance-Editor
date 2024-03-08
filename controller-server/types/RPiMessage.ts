@@ -84,7 +84,7 @@ type Color = string;
 
 export interface ToRPiPartTest extends ToRPiBase {
   topic: "command";
-  payload: ["parttest", "--hex", Color, "-a", "10" | "0"];
+  payload: ["parttest", "--hex", Color, "-a", "200" | "0"];
 }
 
 export interface ToRPiCloseGPIO extends ToRPiBase {

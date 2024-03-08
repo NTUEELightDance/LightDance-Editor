@@ -203,7 +203,7 @@ function sendColor(dancers: string[], colorCode: string) {
     from: "server",
     topic: "command",
     statusCode: 0,
-    payload: ["parttest", "--hex", colorCode.replace(/^#/, ""), "-a", "10"],
+    payload: ["parttest", "--hex", colorCode.replace(/^#/, ""), "-a", "200"],
   };
 
   sendToRPi(dancers, toRPiMsgPartTest);
