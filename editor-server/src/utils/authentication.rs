@@ -13,6 +13,8 @@ use redis::AsyncCommands;
 use std::env::var;
 use uuid::Uuid;
 
+use super::data::init_part_order;
+
 // const HASH_ROUNDS: u32 = 8;
 
 /// Generate a random string for CSRF token.
@@ -154,6 +156,9 @@ pub async fn create_user(
         .map_err(|_| "Error creating user.")?;
     }
 
+    // create part order for user
+    init_part_order(mysql_pool, username.to_string()).await?;
+
     Ok(())
 }
 
@@ -165,6 +170,17 @@ pub async fn create_admin_user() -> Result<(), String> {
 
     let app_state = global::clients::get();
     let mysql_pool = app_state.mysql_pool();
+
+    // Delete existing part order for user
+    let _ = sqlx::query!(
+        r#"
+        DELETE FROM PartOrder WHERE user_id = (SELECT id FROM User WHERE name = ?);
+        "#,
+        admin_username,
+    )
+    .execute(mysql_pool)
+    .await
+    .map_err(|err| err.to_string())?;
 
     println!("Creating admin user...");
 
@@ -192,6 +208,8 @@ pub async fn create_admin_user() -> Result<(), String> {
     .execute(mysql_pool)
     .await
     .map_err(|_| "Error creating admin user.")?;
+
+    init_part_order(mysql_pool, admin_username).await?;
 
     Ok(())
 }
