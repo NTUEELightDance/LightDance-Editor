@@ -95,10 +95,14 @@ pub async fn upload_data(
     mut files: Multipart,
 ) -> Result<(StatusCode, Json<UploadDataResponse>), (StatusCode, Json<UploadDataFailedResponse>)> {
     // read request
-    if let Some(field) = files.next_field().await.into_result()? {
-        let raw_data = field.bytes().await.into_result()?;
+    if let Some(mut field) = files.next_field().await.into_result()? {
+        let mut concatenated_bytes = Vec::new();
+        while let Some(chunk_data) = field.chunk().await.into_result()? {
+            concatenated_bytes.extend_from_slice(&chunk_data);
+        }
+        let raw_data = concatenated_bytes.as_slice();
         // parse json & check types
-        let data_obj: DataObj = match serde_json::from_slice(&raw_data) {
+        let data_obj: DataObj = match serde_json::from_slice(raw_data) {
             Ok(data_obj) => data_obj,
             Err(e) => {
                 return Err((
