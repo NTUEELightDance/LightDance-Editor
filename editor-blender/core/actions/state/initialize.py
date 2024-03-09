@@ -379,9 +379,10 @@ async def init_control_map():
 
     state.control_map = control_map
     state.control_record = control_record
+    state.control_start_record = [control_map[id].start for id in control_record]
+
     state.current_control_index = 0
     update_current_status_by_index()
-    # TODO: Push status stack
 
     print("Current status initialized")
 
@@ -395,9 +396,9 @@ async def init_pos_map():
 
     state.pos_map = pos_map
     state.pos_record = pos_record
+    state.pos_start_record = [pos_map[id].start for id in pos_record]
+
     state.current_pos_index = 0
     update_current_pos_by_index()
-
-    # TODO: Push pos stack
 
     print("Current pos initialized")

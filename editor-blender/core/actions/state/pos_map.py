@@ -117,7 +117,10 @@ def apply_pos_map_updates():
     pos_record = list(state.pos_map.keys())
     pos_record.sort(key=lambda id: state.pos_map[id].start)
 
+    pos_start_record = [state.pos_map[id].start for id in pos_record]
+
     state.pos_record = pos_record
+    state.pos_start_record = pos_start_record
 
     # Update current pos index
     state.current_pos_index = calculate_current_pos_index()

@@ -89,6 +89,8 @@ ControlMap = Dict[MapID, ControlMapElement]
 
 ControlRecord = List[MapID]
 
+ControlStartRecord = List[int]
+
 
 @dataclass
 class Location:
@@ -110,6 +112,8 @@ class PosMapElement:
 PosMap = Dict[MapID, PosMapElement]
 
 PosRecord = List[MapID]
+
+PosStartRecord = List[int]
 
 
 class EditMode(Enum):
@@ -340,7 +344,9 @@ class State:
     pos_map: PosMap
 
     control_record: ControlRecord
+    control_start_record: ControlStartRecord
     pos_record: PosRecord
+    pos_start_record: PosStartRecord
 
     led_map: LEDMap
     led_effect_id_table: LEDEffectIDTable

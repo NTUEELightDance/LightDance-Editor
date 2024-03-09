@@ -120,7 +120,10 @@ def apply_control_map_updates():
     control_record = list(state.control_map.keys())
     control_record.sort(key=lambda id: state.control_map[id].start)
 
+    control_start_record = [state.control_map[id].start for id in control_record]
+
     state.control_record = control_record
+    state.control_start_record = control_start_record
 
     # Update current control index
     state.current_control_index = calculate_current_status_index()

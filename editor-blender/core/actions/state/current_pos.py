@@ -4,21 +4,11 @@ import bpy
 
 from ....properties.types import PositionPropertyType
 from ...states import state
+from ...utils.algorithms import binary_search
 
 
 def calculate_current_pos_index() -> int:
-    frame_start_list = [state.pos_map[id].start for id in state.pos_record]
-    current_frame = bpy.context.scene.frame_current
-    for i, start in enumerate(frame_start_list):
-        if start <= current_frame:
-            if i + 1 < len(frame_start_list):
-                next_start = frame_start_list[i + 1]
-                if current_frame < next_start:
-                    return i
-            else:
-                return i
-
-    return 0
+    return binary_search(state.pos_start_record, bpy.context.scene.frame_current)
 
 
 def update_current_pos_by_index():
