@@ -13,3 +13,7 @@ cp ./out/exportData.json $backupPath/
 
 cd $backupPath
 mv ./exportData.json ./$time.json
+
+git add .
+git commit -m "backup $time"
+git push
