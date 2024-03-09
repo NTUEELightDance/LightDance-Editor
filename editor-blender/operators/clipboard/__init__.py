@@ -27,10 +27,6 @@ class CopyOperator(bpy.types.Operator):
             notify("INFO", "Not Control Editor")
             return {"FINISHED"}
 
-        if state.edit_state == EditMode.IDLE:
-            notify("INFO", "Not Edit Mode")
-            return {"FINISHED"}
-
         if state.selection_mode == SelectMode.DANCER_MODE:
             copy_dancer()
 
@@ -40,18 +36,14 @@ class CopyOperator(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class PasteOperator(bpy.types.Operator):
+class PasteOperator(AsyncOperator):
     bl_idname = "lightdance.paste"
     bl_label = "Paste"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context):
+    async def async_execute(self, context: bpy.types.Context):
         if state.editor != Editor.CONTROL_EDITOR:
             notify("INFO", f"Not Control Editor")
-            return {"FINISHED"}
-
-        if state.edit_state == EditMode.IDLE:
-            notify("INFO", f"Not Edit Mode")
             return {"FINISHED"}
 
         clipboard = state.clipboard
@@ -60,11 +52,11 @@ class PasteOperator(bpy.types.Operator):
             return {"FINISHED"}
 
         if state.selection_mode == SelectMode.DANCER_MODE:
-            if not paste_dancer():
+            if not (await paste_dancer()):
                 return {"CANCELLED"}
 
         elif state.selection_mode == SelectMode.PART_MODE:
-            if not paste_part():
+            if not (await paste_part()):
                 return {"CANCELLED"}
 
         return {"FINISHED"}

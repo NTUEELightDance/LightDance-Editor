@@ -9,6 +9,7 @@ from ...models import (
     CopiedDancerData,
     CopiedPartData,
     CopiedType,
+    EditMode,
     FiberData,
     LEDData,
     PartName,
@@ -127,7 +128,11 @@ def copy_part():
             )
 
 
-def paste_dancer() -> bool:
+async def paste_dancer() -> bool:
+    if state.edit_state != EditMode.EDITING:
+        if not (await request_edit_control()):
+            return False
+
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
     copied_dancer = state.clipboard.dancer
@@ -174,7 +179,11 @@ def paste_dancer() -> bool:
     return True
 
 
-def paste_part() -> bool:
+async def paste_part() -> bool:
+    if state.edit_state != EditMode.EDITING:
+        if not (await request_edit_control()):
+            return False
+
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
     copied_dancer = state.clipboard.dancer

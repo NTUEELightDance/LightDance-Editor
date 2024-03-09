@@ -168,7 +168,7 @@ async def delete_control_frame():
         notify("WARNING", "Cannot delete control frame")
 
 
-async def request_edit_control():
+async def request_edit_control() -> bool:
     if state.color_map_pending.add_or_delete:
         apply_color_map_updates_add_or_delete()
     if state.color_map_pending.update:
@@ -200,8 +200,10 @@ async def request_edit_control():
         update_current_status_by_index()
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+        return True
     else:
         notify("WARNING", "Edit request rejected")
+        return False
 
 
 async def cancel_edit_control():

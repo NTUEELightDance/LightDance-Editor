@@ -122,7 +122,7 @@ async def delete_pos_frame():
         notify("WARNING", "Cannot delete position frame")
 
 
-async def request_edit_pos():
+async def request_edit_pos() -> bool:
     if state.pos_map_pending:
         apply_pos_map_updates()
 
@@ -146,8 +146,10 @@ async def request_edit_pos():
         update_current_pos_by_index()
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+        return True
     else:
         notify("WARNING", "Cannot cancel edit")
+        return False
 
 
 async def cancel_edit_pos():
