@@ -68,6 +68,7 @@ async def logout() -> None:
         await client.close_command()
 
         unmount_handlers()
+        print("Handlers unmounted")
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 

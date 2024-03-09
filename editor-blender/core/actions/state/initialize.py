@@ -150,6 +150,10 @@ async def init():
 
 async def reload():
     set_ready(False)
+
+    unmount_handlers()
+    print("Handlers unmounted")
+
     await init_blender()
 
 
