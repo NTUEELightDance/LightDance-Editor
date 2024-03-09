@@ -92,7 +92,7 @@ class LightDancePanel(bpy.types.Panel):
 
             else:
                 row = layout.row()
-                row.label(text="Loading...", icon="WORLD_DATA")
+                row.label(text=state.init_message, icon="WORLD_DATA")
 
 
 def register():

@@ -632,15 +632,21 @@ def check_local_object_list():
 
 async def load_data() -> None:
     state.assets_path = target_path
+
+    state.init_message = "Fetching data"
     assets_load = await fetch_data()
 
     setup_render()
     setup_display()
 
+    state.init_message = "Setting up objects"
     await setup_objects(assets_load)
     setup_floor()
 
+    state.init_message = "Setting up music"
     setup_music(assets_load)
+
+    state.init_message = "Setting up animation"
     setup_animation_data()
 
     print("Data loaded")

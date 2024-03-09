@@ -61,7 +61,7 @@ from ..graphqls.subscriptions import (
 
 async def sub_pos_record(client: Clients):
     async for data in client.subscribe(SubPositionRecordData, SUB_POS_RECORD):
-        print("SubPosRecord:", data)
+        # print("SubPosRecord:", data)
 
         async def modifier(posRecord: Optional[QueryPosRecordData]):
             subscriptionData = data["positionRecordSubscription"]
@@ -99,7 +99,7 @@ async def sub_pos_record(client: Clients):
 # TODO: Implement lazy update
 async def sub_pos_map(client: Clients):
     async for data in client.subscribe(SubPositionMapData, SUB_POS_MAP):
-        print("SubPosMap:", data)
+        # print("SubPosMap:", data)
 
         async def modifier(posMap: Optional[QueryPosMapData]):
             subscriptionData = data["positionMapSubscription"]
@@ -141,7 +141,7 @@ async def sub_pos_map(client: Clients):
 
 async def sub_control_record(client: Clients):
     async for data in client.subscribe(SubControlRecordData, SUB_CONTROL_RECORD):
-        print("SubControlRecord:", data)
+        # print("SubControlRecord:", data)
 
         async def modifier(controlRecord: Optional[QueryControlRecordData]):
             subscriptionData = data["controlRecordSubscription"]
@@ -187,7 +187,7 @@ async def sub_control_record(client: Clients):
 # TODO: Implement lazy update
 async def sub_control_map(client: Clients):
     async for data in client.subscribe(SubControlMapData, SUB_CONTROL_MAP):
-        print("SubControlMap:", data)
+        # print("SubControlMap:", data)
 
         async def modifier(controlMap: Optional[QueryControlMapData]):
             subscriptionData = data["controlMapSubscription"]
@@ -232,7 +232,7 @@ async def sub_control_map(client: Clients):
 # WARNING: Untested
 async def sub_effect_list(client: Clients):
     async for data in client.subscribe(SubEffectListData, SUB_EFFECT_LIST):
-        print("SubEffectList:", data)
+        # print("SubEffectList:", data)
 
         async def modifier(effectList: Optional[QueryEffectListData]):
             subscriptionData = data["effectListSubscription"]
@@ -259,7 +259,7 @@ async def sub_effect_list(client: Clients):
 
 async def sub_led_record(client: Clients):
     async for data in client.subscribe(SubLEDRecordData, SUB_LED_RECORD):
-        print("SubEffectRecord:", data)
+        # print("SubEffectRecord:", data)
 
         async def modifier(LedMap: Optional[LEDMap]):
             subscriptionData = data["ledRecordSubscription"]
@@ -301,7 +301,7 @@ async def sub_led_record(client: Clients):
 # TODO: Implement lazy update
 async def sub_color_map(client: Clients):
     async for data in client.subscribe(SubColorData, SUB_COLOR_MAP):
-        print("SubColorMap:", data)
+        # print("SubColorMap:", data)
 
         async def modifier(colorMap: Optional[QueryColorMapData]):
             subscriptionData = data["colorSubscription"]

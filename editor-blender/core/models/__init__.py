@@ -320,6 +320,8 @@ class State:
     running: bool
     sync: bool
 
+    init_message: str
+
     logged_in: bool
     playing: bool
     requesting: bool

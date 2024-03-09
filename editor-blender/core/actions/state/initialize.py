@@ -199,7 +199,7 @@ async def init_editor():
     batches_functions = [
         [init_models, init_dancers],
         [init_color_map, init_led_map],
-        [init_current_pos, init_current_status],
+        [init_pos_map, init_control_map],
         [load_data],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
@@ -263,6 +263,8 @@ async def init_editor():
 
 
 async def init_models():
+    state.init_message = "Initializing models..."
+
     models_array = await model_agent.get_models()
 
     if models_array is None:
@@ -298,6 +300,8 @@ async def init_models():
 
 
 async def init_dancers():
+    state.init_message = "Initializing dancers..."
+
     dancers_array = await dancer_agent.get_dancers()
 
     if dancers_array is None:
@@ -342,6 +346,8 @@ async def init_dancers():
 
 
 async def init_color_map():
+    state.init_message = "Initializing color map..."
+
     color_map = await color_agent.get_color_map()
 
     if color_map is None:
@@ -352,6 +358,8 @@ async def init_color_map():
 
 
 async def init_led_map():
+    state.init_message = "Initializing LED map..."
+
     led_map = await led_agent.get_led_map()
     if led_map is None:
         raise Exception("Failed to initialize LED map")
@@ -362,16 +370,8 @@ async def init_led_map():
 
 
 async def init_control_map():
-    control_map = await control_agent.get_control_map()
-    if control_map is None:
-        raise Exception("Control map not found")
+    state.init_message = "Initializing control map..."
 
-    set_control_map(control_map)
-
-    print("Control map initialized")
-
-
-async def init_current_status():
     control_map, control_record = await get_control()
 
     if control_map is None or control_record is None:
@@ -386,7 +386,9 @@ async def init_current_status():
     print("Current status initialized")
 
 
-async def init_current_pos():
+async def init_pos_map():
+    state.init_message = "Initializing pos map..."
+
     pos_map, pos_record = await get_pos()
     if pos_map is None or pos_record is None:
         raise Exception("Failed to initialize pos map")
