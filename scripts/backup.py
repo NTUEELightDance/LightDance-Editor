@@ -18,7 +18,7 @@ backupPath = sys.argv[2]
 utilsPath = path.join(editorPath, "utils")
 subprocess.run(["pnpm", "save"], cwd=utilsPath)
 
-tables = os.listdir(backupPath)
+tables = [file for file in os.listdir(backupPath) if file != ".git"]
 tables.sort()
 
 updateTable = False
