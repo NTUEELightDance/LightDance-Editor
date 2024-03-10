@@ -13,7 +13,7 @@ use http::HeaderMap;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExPositionData {
@@ -86,11 +86,11 @@ pub struct ExPartControl(pub String, pub i32); // TLEDControl: [src: string, alp
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExportDataResponse {
     pub dancer: Vec<ExDancerData>,
-    pub color: HashMap<String, ExColorData>,
-    pub position: HashMap<String, ExPositionData>,
-    pub control: HashMap<String, ExControlData>,
+    pub color: BTreeMap<String, ExColorData>,
+    pub position: BTreeMap<String, ExPositionData>,
+    pub control: BTreeMap<String, ExControlData>,
     #[serde(rename = "LEDEffects")]
-    pub led_effects: HashMap<String, HashMap<String, HashMap<String, ExLEDPart>>>,
+    pub led_effects: BTreeMap<String, BTreeMap<String, BTreeMap<String, ExLEDPart>>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -138,8 +138,8 @@ pub async fn export_data() -> Result<
     .await
     .into_result()?;
 
-    let mut color = HashMap::<String, ExColorData>::new();
-    let mut color_dict = HashMap::new();
+    let mut color = BTreeMap::<String, ExColorData>::new();
+    let mut color_dict = BTreeMap::new();
 
     // IColor
     for color_obj in color_data {
@@ -211,8 +211,8 @@ pub async fn export_data() -> Result<
         .map(|parts| partition_by_field(|row| row.part_id, parts))
         .collect_vec();
 
-    let mut led_effects = HashMap::new();
-    let mut led_dict = HashMap::new();
+    let mut led_effects = BTreeMap::new();
+    let mut led_dict = BTreeMap::new();
 
     for dancer_parts in led_dancer_parts {
         for parts in dancer_parts {
@@ -222,7 +222,7 @@ pub async fn export_data() -> Result<
             let part_id = parts[0].part_id;
             let part_name = &parts[0].part_name;
 
-            let mut led_part = HashMap::<String, ExLEDPart>::new();
+            let mut led_part = BTreeMap::<String, ExLEDPart>::new();
             // LEDEffectState
             let led_effects_states = {
                 let result = sqlx::query!(
@@ -276,7 +276,7 @@ pub async fn export_data() -> Result<
 
             led_effects
                 .entry(model_name.clone())
-                .or_insert(HashMap::new())
+                .or_insert(BTreeMap::new())
                 .insert(part_name.clone(), led_part);
         }
     }
@@ -298,7 +298,7 @@ pub async fn export_data() -> Result<
     .fetch_all(mysql_pool)
     .await
     .into_result()?;
-    let mut control = HashMap::<String, ExControlData>::new();
+    let mut control = BTreeMap::<String, ExControlData>::new();
     for control_frame in control_frames {
         let redis_contol = get_redis_control(redis, control_frame.id)
             .await
@@ -350,7 +350,7 @@ pub async fn export_data() -> Result<
     .await
     .into_result()?;
 
-    let mut position = HashMap::<String, ExPositionData>::new();
+    let mut position = BTreeMap::<String, ExPositionData>::new();
 
     for position_frame in position_frames {
         let redis_position = get_redis_position(redis, position_frame.id)
