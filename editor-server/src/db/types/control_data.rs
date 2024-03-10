@@ -6,8 +6,11 @@ use sqlx::Decode;
 
 #[derive(Debug, Clone, PartialEq, Decode)]
 pub enum ControlType {
+    #[sqlx(rename = "COLOR")]
     Color,
+    #[sqlx(rename = "EFFECT")]
     Effect,
+    #[sqlx(rename = "LED_BULBS")]
     LEDBulbs,
 }
 
@@ -18,6 +21,16 @@ impl From<String> for ControlType {
             "COLOR" => Self::Color,
             "LED_BULBS" => Self::LEDBulbs,
             _ => panic!("Invalid control data type."),
+        }
+    }
+}
+
+impl From<ControlType> for String {
+    fn from(val: ControlType) -> Self {
+        match val {
+            ControlType::Effect => "EFFECT".to_string(),
+            ControlType::Color => "COLOR".to_string(),
+            ControlType::LEDBulbs => "LED_BULBS".to_string(),
         }
     }
 }
