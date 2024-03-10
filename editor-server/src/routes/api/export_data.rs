@@ -78,10 +78,13 @@ pub struct ExControlData {
     pub fade: bool,
     pub start: i32,
     pub status: Vec<Vec<ExPartControl>>,
+    pub led_status: Vec<Vec<ExPartControlBulbs>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ExPartControl(pub String, pub i32); // TLEDControl: [src: string, alpha: number] or TFiberControl: [color: string, alpha: number]
+
+pub type ExPartControlBulbs = Vec<(String, i32)>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExportDataResponse {
@@ -306,37 +309,51 @@ pub async fn export_data() -> Result<
         let fade = redis_control.fade;
         let start = redis_control.start;
         let status = redis_control.status;
+        let led_status = redis_control.led_status;
+
         let new_status: Vec<Vec<ExPartControl>> = status
             .into_iter()
-            .enumerate()
-            .map(|(_dancer_idx, dancer_statue)| {
+            .map(|dancer_statue| {
                 dancer_statue
                     .into_iter()
-                    .enumerate()
-                    .map(|(_part_idx, part_status)| match part_status {
-                        PartControl::FIBER(color, alpha) => {
-                            if color == "-1" {
-                                return ExPartControl(String::new(), alpha);
-                            }
-                            ExPartControl(color, alpha)
+                    .map(|part_status| match part_status {
+                        PartControl::FIBER(color_id, alpha) => {
+                            ExPartControl(color_dict[&color_id].clone(), alpha)
                         }
-                        PartControl::LED(color, alpha) => {
-                            if color == "-1" {
-                                return ExPartControl(String::new(), alpha);
+                        PartControl::LED(effect_id, alpha) => {
+                            if effect_id == 0 {
+                                ExPartControl("".to_string(), alpha)
+                            } else if effect_id == -1 {
+                                ExPartControl("no-change".to_string(), alpha)
+                            } else {
+                                ExPartControl(led_dict[&effect_id].clone(), alpha)
                             }
-                            ExPartControl(color, alpha)
-                        }
-                        PartControl::LEDBulbs(_) => {
-                            todo!()
                         }
                     })
                     .collect::<Vec<ExPartControl>>()
             })
             .collect();
+
+        let new_led_status: Vec<Vec<ExPartControlBulbs>> = led_status
+            .into_iter()
+            .map(|dancer_led_status| {
+                dancer_led_status
+                    .into_iter()
+                    .map(|part_led_status| {
+                        part_led_status
+                            .into_iter()
+                            .map(|(color_id, alpha)| (color_dict[&color_id].clone(), alpha))
+                            .collect::<ExPartControlBulbs>()
+                    })
+                    .collect()
+            })
+            .collect();
+
         let new_cache_obj = ExControlData {
             fade,
             start,
             status: new_status,
+            led_status: new_led_status,
         };
         control.insert(control_frame.id.to_string(), new_cache_obj);
     }
