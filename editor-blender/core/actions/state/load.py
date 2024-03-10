@@ -582,6 +582,9 @@ def clear_animation_data():
     bpy.context.scene.animation_data_clear()
     bpy.context.window_manager.animation_data_clear()
 
+    bpy.context.scene.ld_ctrl_rev.clear()  # type: ignore
+    bpy.context.scene.ld_pos_rev.clear()  # type: ignore
+
 
 def setup_animation_data():
     if not getattr(bpy.context.scene, "ld_anidata"):
