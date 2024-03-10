@@ -116,7 +116,7 @@ pub async fn init_redis_control(
 
                     match part_control[0].r#type {
                         ControlType::Effect => {
-                            dancer_status.push(PartControl::LED(
+                            dancer_status.push(PartControl(
                                 part_control[0].effect_id.unwrap_or(-1),
                                 part_control[0].alpha,
                             ));
@@ -128,11 +128,11 @@ pub async fn init_redis_control(
                                 .map(|data| (data.bulb_color_id.unwrap_or(-1), data.alpha))
                                 .collect_vec();
 
-                            dancer_status.push(PartControl::LED(0, part_control[0].alpha));
+                            dancer_status.push(PartControl(0, part_control[0].alpha));
                             dancer_led_status.push(bulbs);
                         }
                         ControlType::Color => {
-                            dancer_status.push(PartControl::FIBER(
+                            dancer_status.push(PartControl(
                                 part_control[0].color_id.unwrap_or(-1),
                                 part_control[0].alpha,
                             ));
@@ -344,7 +344,7 @@ pub async fn update_redis_control(
 
             match part_control[0].r#type {
                 ControlType::Effect => {
-                    dancer_status.push(PartControl::LED(
+                    dancer_status.push(PartControl(
                         part_control[0].effect_id.unwrap_or(-1),
                         part_control[0].alpha,
                     ));
@@ -356,11 +356,11 @@ pub async fn update_redis_control(
                         .map(|data| (data.bulb_color_id.unwrap_or(-1), data.alpha))
                         .collect_vec();
 
-                    dancer_status.push(PartControl::LED(0, part_control[0].alpha));
+                    dancer_status.push(PartControl(0, part_control[0].alpha));
                     dancer_led_status.push(bulbs);
                 }
                 ControlType::Color => {
-                    dancer_status.push(PartControl::FIBER(
+                    dancer_status.push(PartControl(
                         part_control[0].color_id.unwrap_or(-1),
                         part_control[0].alpha,
                     ));
