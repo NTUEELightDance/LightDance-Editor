@@ -1,3 +1,5 @@
+// TODO: Support bulbs
+
 use crate::global;
 use crate::utils::vector::partition_by_field;
 
