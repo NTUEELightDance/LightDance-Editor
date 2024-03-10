@@ -2,7 +2,7 @@ use crate::db::types::{
     color::ColorData, control_frame::ControlFrameData, position_frame::PositionFrameData,
 };
 use crate::global;
-use crate::types::global::PositionPos;
+use crate::types::global::{PartControl, PositionPos};
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
@@ -300,31 +300,34 @@ pub async fn export_data() -> Result<
     .into_result()?;
     let mut control = BTreeMap::<String, ExControlData>::new();
     for control_frame in control_frames {
-        let redis_contol = get_redis_control(redis, control_frame.id)
+        let redis_control = get_redis_control(redis, control_frame.id)
             .await
             .into_result()?;
-        let fade = redis_contol.fade;
-        let start = redis_contol.start;
-        let status = redis_contol.status;
+        let fade = redis_control.fade;
+        let start = redis_control.start;
+        let status = redis_control.status;
         let new_status: Vec<Vec<ExPartControl>> = status
             .into_iter()
             .enumerate()
-            .map(|(dancer_idx, dancer_statue)| {
+            .map(|(_dancer_idx, dancer_statue)| {
                 dancer_statue
                     .into_iter()
                     .enumerate()
-                    .map(|(part_idx, part_status)| {
-                        let part_type = dancer[dancer_idx].parts[part_idx].r#type;
-                        if part_type == ExPartType::FIBER {
-                            if part_status.0 == -1 {
-                                return ExPartControl(String::new(), part_status.1);
+                    .map(|(_part_idx, part_status)| match part_status {
+                        PartControl::FIBER(color, alpha) => {
+                            if color == "-1" {
+                                return ExPartControl(String::new(), alpha);
                             }
-                            ExPartControl(color_dict[&part_status.0].clone(), part_status.1)
-                        } else {
-                            if part_status.0 == -1 {
-                                return ExPartControl(String::new(), part_status.1);
+                            ExPartControl(color, alpha)
+                        }
+                        PartControl::LED(color, alpha) => {
+                            if color == "-1" {
+                                return ExPartControl(String::new(), alpha);
                             }
-                            ExPartControl(led_dict[&part_status.0].clone(), part_status.1)
+                            ExPartControl(color, alpha)
+                        }
+                        PartControl::LEDBulbs(_) => {
+                            todo!()
                         }
                     })
                     .collect::<Vec<ExPartControl>>()
