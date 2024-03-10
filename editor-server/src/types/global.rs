@@ -11,12 +11,7 @@ pub struct UserContext {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub enum PartControl {
-    #[serde(untagged)]
-    LED(i32, i32),
-    #[serde(untagged)]
-    FIBER(i32, i32),
-}
+pub struct PartControl(pub i32, pub i32);
 
 pub type PartControlBulbs = Vec<(i32, i32)>;
 
