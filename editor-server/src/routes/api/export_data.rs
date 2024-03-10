@@ -2,7 +2,7 @@ use crate::db::types::{
     color::ColorData, control_frame::ControlFrameData, position_frame::PositionFrameData,
 };
 use crate::global;
-use crate::types::global::{PartControl, PositionPos};
+use crate::types::global::PositionPos;
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
@@ -306,6 +306,7 @@ pub async fn export_data() -> Result<
         let redis_control = get_redis_control(redis, control_frame.id)
             .await
             .into_result()?;
+
         let fade = redis_control.fade;
         let start = redis_control.start;
         let status = redis_control.status;
@@ -313,20 +314,30 @@ pub async fn export_data() -> Result<
 
         let new_status: Vec<Vec<ExPartControl>> = status
             .into_iter()
-            .map(|dancer_statue| {
-                dancer_statue
+            .enumerate()
+            .map(|(dancer_idx, dancer_status)| {
+                dancer_status
                     .into_iter()
-                    .map(|part_status| match part_status {
-                        PartControl::FIBER(color_id, alpha) => {
-                            ExPartControl(color_dict[&color_id].clone(), alpha)
-                        }
-                        PartControl::LED(effect_id, alpha) => {
-                            if effect_id == 0 {
-                                ExPartControl("".to_string(), alpha)
-                            } else if effect_id == -1 {
-                                ExPartControl("no-change".to_string(), alpha)
-                            } else {
-                                ExPartControl(led_dict[&effect_id].clone(), alpha)
+                    .enumerate()
+                    .map(|(part_idx, part_status)| {
+                        let part_type = dancer[dancer_idx].parts[part_idx].r#type;
+
+                        match part_type {
+                            ExPartType::FIBER => {
+                                let color_id = part_status.0;
+                                let alpha = part_status.1;
+                                ExPartControl(color_dict[&color_id].clone(), alpha)
+                            }
+                            ExPartType::LED => {
+                                let effect_id = part_status.0;
+                                let alpha = part_status.1;
+                                if effect_id == 0 {
+                                    ExPartControl("".to_string(), alpha)
+                                } else if effect_id == -1 {
+                                    ExPartControl("no-change".to_string(), alpha)
+                                } else {
+                                    ExPartControl(led_dict[&effect_id].clone(), alpha)
+                                }
                             }
                         }
                     })
