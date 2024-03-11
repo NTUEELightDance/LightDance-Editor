@@ -7,9 +7,9 @@ const pinMapTable: PinMapTable = {
     fps: 30,
     OFPARTS: {
       body_inner_right: 0,
-      body_outer_right:1,
-      collar_short:2,
-      shoulder_right:3,
+      body_outer_right: 1,
+      collar_short: 2,
+      shoulder_right: 3,
       arm_inner_right: 4,
       elbow_right: 5,
       belt_up_down: 7,
@@ -18,46 +18,46 @@ const pinMapTable: PinMapTable = {
       hat_outer: 10,
       hat_inner: 11,
       body_inner_left: 13,
-      body_outer_left: 14, 
+      body_outer_left: 14,
       collar_long: 15,
       shoulder_left: 16,
       arm_inner_left: 17,
       elbow_left: 18,
-      leg_outer_right	: 20,
+      leg_outer_right: 20,
       leg_inner_right: 21,
       leg_outer_left: 30,
-      leg_inner_left: 31
+      leg_inner_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
-  }, 
+  },
   "1_yck": {
     dancer: "1_yck",
     fps: 30,
     OFPARTS: {
       body_inner_right: 0,
-      body_outer_right:1,
-      collar_short:2,
-      shoulder_right:3,
+      body_outer_right: 1,
+      collar_short: 2,
+      shoulder_right: 3,
       arm_inner_right: 4,
       elbow_right: 5,
       belt_up_down: 7,
@@ -66,35 +66,35 @@ const pinMapTable: PinMapTable = {
       hat_outer: 10,
       hat_inner: 11,
       body_inner_left: 13,
-      body_outer_left: 14, 
+      body_outer_left: 14,
       collar_long: 15,
       shoulder_left: 16,
       arm_inner_left: 17,
       elbow_left: 18,
-      leg_outer_right	: 20,
+      leg_outer_right: 20,
       leg_inner_right: 21,
       leg_outer_left: 30,
-      leg_inner_left: 31
+      leg_inner_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -106,7 +106,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -128,27 +128,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 33
+      sock_left: 33,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -160,7 +160,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -182,27 +182,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -214,7 +214,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -236,27 +236,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -268,7 +268,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -290,27 +290,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -322,7 +322,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -344,27 +344,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -376,7 +376,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -398,27 +398,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -430,7 +430,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -452,27 +452,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -484,7 +484,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -506,27 +506,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
@@ -538,7 +538,7 @@ const pinMapTable: PinMapTable = {
       body_outer_right: 1,
       collar_short: 2,
       shoulder_right: 3,
-      arm_inner_right:4,
+      arm_inner_right: 4,
       elbow_right: 5,
       arm_front_right: 6,
       body_bottom: 7,
@@ -560,27 +560,27 @@ const pinMapTable: PinMapTable = {
       leg_outer_left: 30,
       leg_inner_left: 31,
       leg_bottom_left: 32,
-      sock_left: 31
+      sock_left: 31,
     },
     LEDPARTS: {
       shoe_left_LED: { id: 0, len: 75 },
       shoe_right_LED: { id: 3, len: 75 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
-      glove_right_LED: { id: 7, len: 36 }
+      glove_right_LED: { id: 7, len: 36 },
     },
     LEDPARTS_MERGE: {
       shoe_left_LED: [
         "shoe_bottom_left_LED",
         "shoe_outer_left_LED",
         "shoe_top_left_LED",
-        "shoe_front_left_LED"
+        "shoe_front_left_LED",
       ],
       shoe_right_LED: [
         "shoe_bottom_right_LED",
         "shoe_outer_right_LED",
         "shoe_top_right_LED",
-        "shoe_front_right_LED"
+        "shoe_front_right_LED",
       ],
     },
   },
