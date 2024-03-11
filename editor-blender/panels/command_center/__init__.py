@@ -8,6 +8,12 @@ from ...properties.ui.types import CommandCenterRPiStatusType, CommandCenterStat
 
 
 class LD_UL_DancerList(bpy.types.UIList):
+    filtering_connected: bpy.props.BoolProperty(default=False)  # type: ignore
+    show_ip: bpy.props.BoolProperty(default=False)  # type: ignore
+    show_mac: bpy.props.BoolProperty(default=True)  # type: ignore
+    select_all: bpy.props.BoolProperty(default=False)  # type: ignore
+    select_all_connect: bpy.props.BoolProperty(default=False)  # type: ignore
+
     def draw_item(
         self,
         context: Context | None,
@@ -27,24 +33,49 @@ class LD_UL_DancerList(bpy.types.UIList):
         if self.layout_type in {"DEFAULT", "COMPACT"}:
             column_main = layout.column()
             row = column_main.row()
-            split = row.split(factor=0.3)
+            split = row.split(factor=0.2)
             column = split.column()
             row = column.row(align=True)
-            row.prop(
-                item, "selected", text="", emboss=True
-            )  # TODO: emboss=item.connected
+            if self.select_all:
+                setattr(item, "selected", True)
+            if self.select_all_connect and item.connected:
+                setattr(item, "selected", True)
+            row.prop(item, "selected", text="", emboss=True)
             row.label(text=item.name, icon=connection_icon)
             column = split.column()
             row = column.row()
-            split = row.split(factor=0.5)
+            split = row.split(
+                factor=(0.5 if self.show_ip else 0.3) if self.show_mac else 0.01
+            )
             column = split.column()
-            column.label(text=f"{item.IP}", icon=interface_icon)
+            if self.show_mac:
+                addr = f"{item.MAC}" if not self.show_ip else f"{item.MAC} / {item.IP}"
+                column.label(text=addr, icon=interface_icon)
             column = split.column()
-            column.label(text=f"{item.MAC}")
-            row = column_main.row()
-            row.label(text=f"Message: {item.message}", icon="INFO")
+            column.label(text=f"Message: {item.message}", icon="INFO")
+
         elif self.layout_type in {"GRID"}:
-            pass  # NOTE: Not sure when this case happens
+            pass
+
+    def draw_filter(self, context: Context | None, layout: UILayout):
+        row = layout.row()
+        row.prop(self, "select_all_connect", text="Select all connected RPi")
+        row.prop(self, "select_all", text="Select all RPi")
+        row = layout.row()
+        row.prop(self, "filtering_connected", text="Show connected RPi's only")
+        row.prop(self, "show_mac", text="Show MAC addresses")
+        if self.show_mac:
+            row.prop(self, "show_ip", text="Show IP addresses")
+
+    def filter_items(
+        self, context: Context | None, data: Any | None, property: str | Any
+    ):
+        prop = getattr(data, property)
+        return (
+            [getattr(item, "connected") for item in prop]
+            if self.filtering_connected
+            else []
+        ), []
 
 
 class ControlPanel(bpy.types.Panel):
@@ -80,14 +111,12 @@ class ControlPanel(bpy.types.Panel):
             row.operator(
                 "lightdance.command_center_sync", text="Sync", icon="UV_SYNC_SELECT"
             )
-            row = layout.row()
             row.operator(
                 "lightdance.command_center_load", text="Load", icon="FILE_CACHE"
             )
             row.operator(
                 "lightdance.command_center_upload", text="Upload", icon="EXPORT"
             )
-            row = layout.row()
             row.operator(
                 "lightdance.command_center_close_gpio", text="Close", icon="QUIT"
             )
@@ -102,12 +131,36 @@ class ControlPanel(bpy.types.Panel):
             )
             column = split.column()
             row = column.row()
-            row.operator(
+            op = row.operator(
                 "lightdance.command_center_color",
-                text="Send color",
-                icon="OUTLINER_OB_LIGHT",
+                text="R",
             )
-            row.prop(command_center_status, "color")
+            setattr(op, "color", "red")
+            op = row.operator(
+                "lightdance.command_center_color",
+                text="G",
+            )
+            setattr(op, "color", "green")
+            op = row.operator(
+                "lightdance.command_center_color",
+                text="B",
+            )
+            setattr(op, "color", "blue")
+            op = row.operator(
+                "lightdance.command_center_color",
+                text="Y/RG",
+            )
+            setattr(op, "color", "yellow")
+            op = row.operator(
+                "lightdance.command_center_color",
+                text="C/GB",
+            )
+            setattr(op, "color", "cyan")
+            op = row.operator(
+                "lightdance.command_center_color",
+                text="M/RB",
+            )
+            op = setattr(op, "color", "magenta")
             row = column.row()
             row.operator(
                 "lightdance.command_center_test",

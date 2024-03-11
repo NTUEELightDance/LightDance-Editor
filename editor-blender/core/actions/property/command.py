@@ -89,4 +89,6 @@ def set_countdown(delay: int):
             else:
                 bpy.ops.screen.animation_play()
 
+    if countdown_task.task:
+        countdown_task.task.cancel()
     countdown_task.task = AsyncTask(countdown, delay=delay).exec()

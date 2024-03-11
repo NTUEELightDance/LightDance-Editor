@@ -136,9 +136,10 @@ async def init():
 
     set_running(True)
 
-    if token_valid:
-        set_logged_in(True)
-        await init_blender()
+    # # Auto login
+    # if token_valid:
+    #     set_logged_in(True)
+    #     await init_blender()
 
     # Start background operators
     execute_operator("lightdance.animation_status_listener")
