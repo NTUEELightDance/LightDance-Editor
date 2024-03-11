@@ -161,10 +161,10 @@ function generateEmptyLEDEffects(modelParts) {
           ...partAcc,
           [part.name]: {
             [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
-            [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 10]),
-            [ALL_RED]: generateDefaultEffect(part.length, [RED, 10]),
-            [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 10]),
-            [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 10]),
+            [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 255]),
+            [ALL_RED]: generateDefaultEffect(part.length, [RED, 255]),
+            [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 255]),
+            [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 255]),
           },
         };
       }, {})
