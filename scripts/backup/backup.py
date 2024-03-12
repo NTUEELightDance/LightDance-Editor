@@ -1,10 +1,6 @@
-# Usage: ./backup.sh <editorPath> <backupPath>
+# Usage: ./backup.py <editorPath> <backupPath>
 # Description: This script is used to backup the data of the editor to the backupPath
-# Example: ./backup.sh ~/LightDancer-Editor ~/LightTableBackup
-# Note: You can setup crontab to run this script periodically
-#      1. crontab -e
-#      2. Add a line like this: 0 * * * * python3 ~/LightDance-Editor/scripts/backup.py ~/LightDance-Editor ~/LightTableBackup
-#      3. Save and exit
+# Example: ./backup.py ~/LightDancer-Editor ~/LightTableBackup
 
 import sys
 import subprocess
@@ -36,7 +32,7 @@ if not updateTable:
 
 if updateTable:
     now = datetime.now()
-    timestamp = now.strftime('%H:%M:%S-%d.%m.%Y')
+    timestamp = now.strftime('%Y.%m.%d-%H:%M:%S')
     newTablePath = path.join(backupPath, f"{timestamp}.json")
 
     subprocess.run(["cp", exportTablePath, newTablePath])
