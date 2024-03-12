@@ -633,7 +633,7 @@ def check_local_object_list():
     return True
 
 
-async def load_data() -> None:
+async def load_data(music_only=False) -> None:
     state.assets_path = target_path
 
     state.init_message = "Fetching data..."
@@ -642,17 +642,20 @@ async def load_data() -> None:
 
     setup_render()
     setup_display()
+    
+    state.init_message = "Setting up music"
+    redraw_area({"VIEW_3D"})
+    setup_music(assets_load)
+    if music_only:
+        print("Music loaded")
+        return
 
     state.init_message = "Setting up objects..."
     redraw_area({"VIEW_3D"})
     await setup_objects(assets_load)
     setup_floor()
 
-    state.init_message = "Setting up music..."
-    redraw_area({"VIEW_3D"})
-    setup_music(assets_load)
-
-    state.init_message = "Setting up animation..."
+    state.init_message = "Setting up animation"
     redraw_area({"VIEW_3D"})
     setup_animation_data()
 
