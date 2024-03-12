@@ -13,7 +13,7 @@ export const PinMapSchema = z.object({
   ),
   LEDPARTS_MERGE: z.record(
     z.array(z.string()),
-  ),
+  ).optional(),
 });
 
 export const PinMapTableSchema = z.record(z.string(), PinMapSchema);
