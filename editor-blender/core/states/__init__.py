@@ -17,7 +17,7 @@ from ..models import (
 state = State(
     running=False,
     sync=False,
-    init_message="",
+    init_message="Loading...",
     logged_in=False,
     playing=False,
     requesting=False,

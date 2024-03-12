@@ -11,7 +11,7 @@ from ...config import config
 from ...models import DancersArrayPartsItem, PartType
 from ...states import state
 from ...utils.convert import rgb_to_float
-from ...utils.ui import set_dopesheet_filter
+from ...utils.ui import redraw_area, set_dopesheet_filter
 from ..property.animation_data import (
     set_ctrl_keyframes_from_state,
     set_pos_keyframes_from_state,
@@ -636,20 +636,24 @@ def check_local_object_list():
 async def load_data() -> None:
     state.assets_path = target_path
 
-    state.init_message = "Fetching data"
+    state.init_message = "Fetching data..."
+    redraw_area({"VIEW_3D"})
     assets_load = await fetch_data()
 
     setup_render()
     setup_display()
 
-    state.init_message = "Setting up objects"
+    state.init_message = "Setting up objects..."
+    redraw_area({"VIEW_3D"})
     await setup_objects(assets_load)
     setup_floor()
 
-    state.init_message = "Setting up music"
+    state.init_message = "Setting up music..."
+    redraw_area({"VIEW_3D"})
     setup_music(assets_load)
 
-    state.init_message = "Setting up animation"
+    state.init_message = "Setting up animation..."
+    redraw_area({"VIEW_3D"})
     setup_animation_data()
 
     print("Data loaded")
