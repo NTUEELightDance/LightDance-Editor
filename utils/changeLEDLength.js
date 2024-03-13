@@ -33,19 +33,18 @@ const main = (oldData, newData) => {
       }
 
       if (oldPart.length !== newPart.length) {
-        console.log(
-          `LED length for ${modelName} ${oldPart.name} changed from ${oldPart.length} to ${newPart.length}`
-        );
-
-        oldPart.length = newPart.length;
+        // console.log(
+        //   `LED length for ${modelName} ${oldPart.name} changed from ${oldPart.length} to ${newPart.length}`
+        // );
 
         let modelPartEffects = oldData.LEDEffects[modelName][oldPart.name];
 
         if (oldPart.length < newPart.length) {
-          console.log("Old length is less than new length");
+          // console.log("Old length is less than new length");
 
           Object.keys(modelPartEffects).forEach((effectName) => {
             let effect = modelPartEffects[effectName];
+            // console.log(effectName);
             const lastLED = effect.frames[0].LEDs[effect.frames[0].LEDs.length - 1];
             effect.frames.forEach((frame) => {
               frame.LEDs = frame.LEDs.concat(
@@ -54,7 +53,7 @@ const main = (oldData, newData) => {
             });
           });
         } else {
-          console.log("Old length is greater than new length");
+          // console.log("Old length is greater than new length");
 
           Object.keys(modelPartEffects).forEach((effectName) => {
             let effect = modelPartEffects[effectName];
@@ -63,6 +62,8 @@ const main = (oldData, newData) => {
             });
           });
         }
+
+        oldPart.length = newPart.length;
       }
     });
   });
@@ -77,4 +78,4 @@ const main = (oldData, newData) => {
 
 const modifiedData = main(oldData, newData);
 
-// console.log(JSON.stringify(modifiedData, null, 2));
+console.log(JSON.stringify(modifiedData, null, 2));
