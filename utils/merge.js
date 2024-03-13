@@ -51,15 +51,24 @@ const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffec
 
   // Create default effects for new dancers
   newData.dancer.forEach((dancer) => {
+    if (dancer.model in mergedLEDEffects) {
+      return;
+    }
+
     let dancerEffects = {};
     dancer.parts.forEach((part) => {
       let partEffects = {};
       if (part.type == "LED") {
         Object.keys(mergedColor).forEach((colorName) => {
           partEffects[colorName] = {
-            start: 0,
-            fade: false,
-            frames: Array(part.length).fill([colorName, 255])
+            repeat: 0,
+            frames: [
+              {
+                LEDs: Array(part.length).fill([colorName, 255]),
+                start: 0,
+                fade: false
+              }
+            ]
           };
         });
 
@@ -80,8 +89,8 @@ const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffec
 };
 
 const defaultPosition = generateDefaultPosition(newData.dancer);
-const defaultColorData = ["black", 255];
-const defaultEffectData = ["black", 255];
+const defaultColorData = ["black", 0];
+const defaultEffectData = ["black", 0];
 const mergedData = merge(oldData, newData, defaultPosition, defaultColorData, defaultEffectData);
 
 console.log(JSON.stringify(mergedData, null, 2));
