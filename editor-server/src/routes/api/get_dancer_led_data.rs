@@ -283,6 +283,7 @@ pub async fn get_dancer_led_data(
                     });
                 }
 
+                part_data.sort_by_key(|status| status.start);
                 response.insert(part_name.clone(), part_data);
             }
             None => {
@@ -322,6 +323,7 @@ pub async fn get_dancer_led_data(
                         }
                     }
 
+                    part_data.sort_by_key(|status| status.start);
                     response.insert(part_name.clone(), part_data);
                 }
             }
