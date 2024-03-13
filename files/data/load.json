@@ -47,6 +47,14 @@
     "10_chris": {
       "url": "/asset/models/10_chris.draco.glb",
       "modelName": "10_chris"
+    },
+    "11_temple": {
+      "url": "/asset/models/11_temple.draco.glb",
+      "modelName": "11_temple"
+    },
+    "12_bridge": {
+      "url": "/asset/models/12_bridge.draco.glb",
+      "modelName": "12_bridge"
     }
   },
   "Config": {
