@@ -55,6 +55,22 @@
     "12_bridge": {
       "url": "/asset/models/12_bridge.draco.glb",
       "modelName": "12_bridge"
+    },
+    "13_nian": {
+      "url": "/asset/models/13_nian.draco.glb",
+      "modelName": "13_nian"
+    },
+    "14_sword": {
+      "url": "/asset/models/14_sword.draco.glb",
+      "modelName": "14_sword"
+    },
+    "15_guandao": {
+      "url": "/asset/models/15_guandao.draco.glb",
+      "modelName": "15_guandao"
+    },
+    "16_effectboard": {
+      "url": "/asset/models/16_effectboard.draco.glb",
+      "modelName": "16_effectboard"
     }
   },
   "Config": {
