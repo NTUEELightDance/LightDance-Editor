@@ -247,6 +247,10 @@ async def init_editor():
 
     print("Editor initialized")
 
+    # In case the connection is lost during long initialization
+    await client.restart_http()
+    await client.restart_graphql()
+
     set_ready(True)
     set_sync(True)
 
