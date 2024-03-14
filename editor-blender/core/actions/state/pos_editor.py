@@ -68,6 +68,7 @@ async def save_pos_frame(start: Optional[int] = None):
     id = state.editing_data.frame_id
     # Get current position data from ld_position
     positionData: List[List[float]] = []
+
     for dancer_name in state.dancer_names:
         obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
         if obj is not None:

@@ -70,8 +70,6 @@ async def add_control_frame():
     start = bpy.context.scene.frame_current
     controlData = control_status_state_to_mut(state.current_status)
 
-    print(controlData)
-
     try:
         set_requesting(True)
         await control_agent.add_frame(start, False, controlData)
@@ -85,7 +83,6 @@ async def save_control_frame(start: Optional[int] = None):
     id = state.editing_data.frame_id
 
     fade: bool = getattr(bpy.context.window_manager, "ld_fade")
-    # controlData = control_status_state_to_mut(state.current_status)
 
     controlData: List[MutDancerStatusPayload] = []
     default_color = list(state.color_map.keys())[0]
