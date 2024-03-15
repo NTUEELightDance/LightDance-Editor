@@ -86,9 +86,10 @@ async function getParts(modelPath, modelName) {
 }
 
 function toGlbPath(dracoPath) {
-  if (!dracoPath.endsWith(".draco.glb")) {
-    throw new Error("not using draco glb in dancer map");
-  }
+  // NOTE: We don't use draco currently
+  // if (!dracoPath.endsWith(".draco.glb")) {
+  //   throw new Error("not using draco glb in dancer map");
+  // }
   return dracoPath.replace(".draco.glb", ".glb");
 }
 

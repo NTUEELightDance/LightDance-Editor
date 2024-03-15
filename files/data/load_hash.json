@@ -1,0 +1,59 @@
+{
+  "Music": "cc3e6dd17aea529de5723af3f45b30e531239003f2af6fec41e92cf80db5f98d",
+  "Waveform": "aaff2d8270727f82177022417beb07b47cf51383a0433e046d03f4a034d3686d",
+  "LightPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "PosPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "DancerMap": {
+    "0_xn": {
+      "url": "f2d02747deaa3743a9951560b310642d6b2d7e056e86db41e6ac40d1523e04f6"
+    },
+    "1_yck": {
+      "url": "c614580f37edfef2679138d3139d834d7e07f08478895fd722faf79ee7ee6147"
+    },
+    "2_sssam": {
+      "url": "98c1ca9c6d66e50276f22b78942a8e7aef8cad1eb16f9f63c200cd181497b63a"
+    },
+    "3_crc": {
+      "url": "c503fbd64bb88ffec7c87496ca72a89498d6e1cf06a64d56a41d2b724671c640"
+    },
+    "4_arthur": {
+      "url": "680fa9ad640a8410900fcbfb52a682eb16fc69f427b82eeccfa61759fd0e91c3"
+    },
+    "5_cs": {
+      "url": "c4e7852c2f89ca5ea3b476d44ef0590ecf51ce34ce09e0262f5c39c657760a3b"
+    },
+    "6_rakec": {
+      "url": "f924bca20e39fac2b33608ef0af52a4d5d4d03dc84c5f94b5063f95499c02232"
+    },
+    "7_jya": {
+      "url": "3df4532fbb388a7cf2b751e3ba1c7a188ffa294de5ca5503f621e67632382b63"
+    },
+    "8_circle": {
+      "url": "f29a354dbe2f174fcdc493fe30d304a517078b42ece1cd5bbe00f018ba8e7dd6"
+    },
+    "9_ricky": {
+      "url": "dbc531478361bd93dc16323358e419d7bb25850459d9d7e174283e8b4fa59ea5"
+    },
+    "10_chris": {
+      "url": "7bb4e62a37cd6eee085a7d3e15bc4c078b6ce129a66f9e4e473d670bce39d881"
+    },
+    "11_temple": {
+      "url": "97267f38170b4622bf160768683054efe13fb8428296fcc07a83e0923b478b2c"
+    },
+    "12_bridge": {
+      "url": "be1e08e32bad07ebdc2a3e4d9a6c1a4d71e43e6842caa6125917d6160b39c30a"
+    },
+    "13_nian": {
+      "url": "97db1bc1353496e468c362b8f11ed13b8177d797ab2ee4d679c0a1f8668f5c96"
+    },
+    "14_sword": {
+      "url": "8e3975f47fef397d407bd9a50c5be4cd54f5794c94925bb645ae77b4bc12bcfd"
+    },
+    "15_guandao": {
+      "url": "105eaca059f5cdc56d40e002c1bb07cb5f8ade379ab42c5b49f51f9dab8c1513"
+    },
+    "16_effectboard": {
+      "url": "f5ada75a4a32124d76778481a336009d3585eb4da7f510df6c8ca7f18533c0eb"
+    }
+  }
+}

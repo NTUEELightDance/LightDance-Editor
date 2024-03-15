@@ -1,6 +1,7 @@
 import asyncio
+import json
 import os
-from typing import Any, Dict, List, Optional, Set, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, cast
 
 import bpy
 
@@ -46,28 +47,58 @@ async def fetch_data(reload: bool = False):
 
     if client.file_client:
         assets_load: Dict[str, Any] = await client.download_json("/data/load.json")
+        assets_load_hash: Dict[str, Any] = await client.download_json(
+            "/data/load_hash.json"
+        )
+
+        local_load_hash_path = os.path.normpath(target_path + "/load_hash.json")
+        new_load_hash = False
+        local_load_hash: Dict[str, Any] = {}
+
+        if not os.path.exists(local_load_hash_path):
+            with open(local_load_hash_path, "w") as file:
+                json.dump(assets_load_hash, file)
+            new_load_hash = True
+
+        else:
+            with open(os.path.normpath(target_path + "/load_hash.json"), "r") as file:
+                local_load_hash = json.load(file)
 
         try:
-            url_set: Set[str] = set()
+            url_set: Set[Tuple[str, bool]] = set()
             for tag in ["Waveform", "Music", "LightPresets", "PosPresets"]:
-                url_set.add(assets_load[tag])
+                hash_match = not new_load_hash and (
+                    assets_load_hash[tag] == local_load_hash[tag]
+                )
+                url_set.add((assets_load[tag], hash_match))
+
+                if not hash_match:
+                    print(f"Hash mismatch for {tag}")
 
             for key in assets_load["DancerMap"]:
                 raw_url = assets_load["DancerMap"][key]["url"]
+
                 if use_draco:
                     model_url = raw_url
                 else:
                     model_url = "".join(raw_url.split(".draco"))
                     assets_load["DancerMap"][key]["url"] = model_url
 
-                url_set.add(model_url)
+                hash_match = not new_load_hash and (
+                    assets_load_hash["DancerMap"][key]["url"]
+                    == local_load_hash["DancerMap"][key]["url"]
+                )
+                url_set.add((model_url, hash_match))
+
+                if not hash_match:
+                    print(f"Hash mismatch for DancerMap/{key}/url")
 
             parse_config(assets_load["Config"])
 
-            for url in url_set:
+            for url, hash_match in url_set:
                 file_path = os.path.normpath(target_path + url)
                 file_dir = os.path.dirname(file_path)
-                if os.path.isfile(file_path) and not reload:
+                if os.path.isfile(file_path) and not reload and hash_match:
                     continue
 
                 if not os.path.exists(file_dir):
@@ -635,7 +666,7 @@ def check_local_object_list():
     return True
 
 
-async def load_data(music_only=False) -> None:
+async def load_data(music_only: bool = False) -> None:
     state.assets_path = target_path
 
     state.init_message = "Fetching data..."
