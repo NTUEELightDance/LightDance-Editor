@@ -6,6 +6,7 @@ import bpy
 from ....properties.ui.types import CommandCenterRPiStatusType, CommandCenterStatusType
 from ...asyncio import AsyncTask
 from ...states import state
+from ...utils.ui import redraw_area
 
 
 class Countdown_task_class:
@@ -83,6 +84,7 @@ def set_countdown(delay: int):
             m, s = divmod(seconds, 60)
             countdown = f"{m:02d}:{s:02d}"
             command_status.countdown = countdown
+            redraw_area({"VIEW_3D"})
             print(countdown)
             if seconds > 0:
                 await asyncio.sleep(1)

@@ -10,7 +10,7 @@ from ...properties.ui.types import CommandCenterRPiStatusType, CommandCenterStat
 class LD_UL_DancerList(bpy.types.UIList):
     filtering_connected: bpy.props.BoolProperty(default=False)  # type: ignore
     show_ip: bpy.props.BoolProperty(default=False)  # type: ignore
-    show_mac: bpy.props.BoolProperty(default=True)  # type: ignore
+    show_mac: bpy.props.BoolProperty(default=False)  # type: ignore
     select_all: bpy.props.BoolProperty(default=False)  # type: ignore
     select_all_connect: bpy.props.BoolProperty(default=False)  # type: ignore
 

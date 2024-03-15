@@ -429,6 +429,7 @@ def setup_music(assets_load: Dict[str, Any]):
 
     # set retiming
     duration = strip.frame_duration
+    state.partial_load_frames = (0, duration)
 
     strip.select = True
     bpy.context.scene.sequence_editor.active_strip = strip
@@ -666,26 +667,26 @@ def check_local_object_list():
     return True
 
 
-async def load_data(music_only: bool = False) -> None:
-    state.assets_path = target_path
-
+async def init_assets():
     state.init_message = "Fetching data..."
     redraw_area({"VIEW_3D"})
-    assets_load = await fetch_data()
-
+    state.assets_path = target_path
+    state.assets_load = await fetch_data()
+    state.init_message = "Setting up objects..."
+    redraw_area({"VIEW_3D"})
     setup_render()
     setup_display()
 
     state.init_message = "Setting up music"
     redraw_area({"VIEW_3D"})
-    setup_music(assets_load)
-    if music_only:
-        print("Music loaded")
-        return
+    setup_music(state.assets_load)
+    print("Music loaded")
 
+
+async def load_data() -> None:
     state.init_message = "Setting up objects..."
     redraw_area({"VIEW_3D"})
-    await setup_objects(assets_load)
+    await setup_objects(state.assets_load)
     setup_floor()
 
     state.init_message = "Setting up animation"

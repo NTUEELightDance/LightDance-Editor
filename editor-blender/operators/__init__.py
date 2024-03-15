@@ -9,6 +9,7 @@ from . import (
     control_editor,
     editor,
     led_editor,
+    load,
     notification,
     ping,
     pos_editor,
@@ -41,6 +42,7 @@ def register():
     assets.register()
     ping.register()
     select.register()
+    load.register()
 
 
 def unregister():
@@ -56,10 +58,11 @@ def unregister():
     notification.unregister()
     timeline.unregister()
     control_editor.unregister()
-    command_center.register()
+    command_center.unregister()
     led_editor.unregister()
     shift.unregister()
     clipboard.unregister()
     assets.unregister()
     ping.unregister()
     select.unregister()
+    load.unregister()

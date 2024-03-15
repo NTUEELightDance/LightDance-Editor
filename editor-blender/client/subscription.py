@@ -30,6 +30,7 @@ from ..core.utils.convert import (
     pos_frame_sub_to_query,
 )
 from ..core.utils.notification import notify
+from ..core.utils.ui import redraw_area
 from ..graphqls.queries import (
     QueryColorMapData,
     QueryColorMapPayloadItem,
@@ -392,6 +393,7 @@ async def sub_controller_server(client: Clients):
                 notify("INFO", "Command response received")
                 print(f"Command response from controller server: {controller_data}")
                 read_command_response(controller_data)
+        redraw_area({"VIEW_3D"})
 
 
 async def subscribe_command():

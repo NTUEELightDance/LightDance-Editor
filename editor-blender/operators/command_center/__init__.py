@@ -58,7 +58,7 @@ class CommandCenterStartOperator(AsyncOperator):
             # set_requesting(True)
             await command_agent.send_to_controller_server(info_payload)
             set_command_status(True)
-            await load_data(music_only=True)
+            await load_data()
 
         except Exception as e:
             # set_requesting(False)
