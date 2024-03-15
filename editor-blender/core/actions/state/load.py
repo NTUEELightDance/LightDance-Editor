@@ -532,6 +532,8 @@ def setup_display():
     """
     timeline
     """
+    screen.use_follow = True
+
     timeline = get_area(screen, "TIMELINE")
     if timeline is None:
         return
@@ -642,7 +644,7 @@ async def load_data(music_only=False) -> None:
 
     setup_render()
     setup_display()
-    
+
     state.init_message = "Setting up music"
     redraw_area({"VIEW_3D"})
     setup_music(assets_load)

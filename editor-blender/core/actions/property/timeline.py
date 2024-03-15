@@ -91,3 +91,11 @@ def set_time(self: bpy.types.WindowManager, value: str):
 
     self["ld_time"] = value
     bpy.context.scene.frame_current = frame
+
+
+def get_follow_frame(self: bpy.types.WindowManager) -> bool:
+    return bpy.context.screen.use_follow
+
+
+def set_follow_frame(self: bpy.types.WindowManager, value: bool):
+    bpy.context.screen.use_follow = value

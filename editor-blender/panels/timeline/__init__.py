@@ -37,6 +37,10 @@ class TimelinePanel(bpy.types.Panel):
         row.label(text="Play speed")
         row.prop(context.window_manager, "ld_play_speed", text="")
 
+        row = col.row()
+        row.label(text="Follow frame")
+        row.prop(context.window_manager, "ld_follow_frame", text="")
+
         row = layout.row(align=True)
         row.label(text="Frame")
         row.operator("lightdance.decrease_frame_index", text="", icon="TRIA_LEFT")
