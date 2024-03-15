@@ -139,10 +139,13 @@ model PositionData {
   x         Float
   y         Float
   z         Float
+  rx        Float
+  ry        Float
+  rz        Float
 
   // relation => not in db
-  dancer Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  frame  PositionFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dancer    Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  frame     PositionFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([dancer_id, frame_id])
 }
@@ -178,9 +181,9 @@ model ControlData {
   part  Part         @relation(fields: [part_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   frame ControlFrame @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  color    Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  effect   LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  dancer   Dancer?    @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  color  Color?     @relation(fields: [color_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  effect LEDEffect? @relation(fields: [effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dancer Dancer?    @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([dancer_id, part_id, frame_id])
 }

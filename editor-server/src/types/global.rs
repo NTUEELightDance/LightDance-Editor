@@ -36,7 +36,7 @@ pub struct RedisControl {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PositionPos(pub f64, pub f64, pub f64);
+pub struct PositionPos(pub f64, pub f64, pub f64, pub f64, pub f64, pub f64);
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisPosition {

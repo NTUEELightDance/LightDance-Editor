@@ -375,6 +375,9 @@ pub async fn export_data() -> Result<
                         ((dancer_pos.0 + std::f64::EPSILON) * 100.0).round() / 100.0,
                         ((dancer_pos.1 + std::f64::EPSILON) * 100.0).round() / 100.0,
                         ((dancer_pos.2 + std::f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_pos.3 + std::f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_pos.4 + std::f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_pos.5 + std::f64::EPSILON) * 100.0).round() / 100.0,
                     )
                 })
                 .collect();
