@@ -70,7 +70,7 @@ from ...models import (
 from ...states import state
 from ...utils.convert import frame_to_time
 from ...utils.operator import execute_operator
-from ..state.load import load_data
+from ..state.load import init_assets, load_data
 
 # async def __merge_pos_map(
 #     existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
@@ -136,10 +136,10 @@ async def init():
 
     set_running(True)
 
-    # # Auto login
-    # if token_valid:
-    #     set_logged_in(True)
-    #     await init_blender()
+    # Auto login
+    if token_valid:
+        set_logged_in(True)
+        await init_blender()
 
     # Start background operators
     execute_operator("lightdance.animation_status_listener")
@@ -205,7 +205,7 @@ async def init_editor():
         [init_models, init_dancers],
         [init_color_map, init_led_map],
         [init_pos_map, init_control_map],
-        [load_data],
+        [init_assets],
         # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
         # [sync_current_led_status],
     ]
@@ -244,9 +244,15 @@ async def init_editor():
             print(e)
 
         await asyncio.sleep(2)
+    state.init_message = ""
+    state.loading = True
 
+
+async def init_load():
+    state.loading = False
+    redraw_area({"VIEW_3D"})
+    await load_data()
     print("Editor initialized")
-
     # In case the connection is lost during long initialization
     await client.restart_http()
     await client.restart_graphql()

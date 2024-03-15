@@ -327,6 +327,8 @@ class State:
     init_message: str
 
     logged_in: bool
+    loading: bool
+    partial_load_frames: Tuple[int, int]
     playing: bool
     requesting: bool
 
@@ -335,6 +337,8 @@ class State:
     command_task: Optional[Task[None]]
 
     assets_path: str
+    assets_load: Dict
+    music_frame_length: int
 
     token: str
     username: str

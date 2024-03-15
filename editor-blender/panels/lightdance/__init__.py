@@ -74,6 +74,11 @@ class LightDancePanel(bpy.types.Panel):
             if not state.logged_in:
                 return
 
+            if state.loading:
+                row = layout.row()
+                row.operator("lightdance.load", icon="PLAY")
+                return
+
             if state.ready:
                 if state.sync:
                     if state.shifting:
@@ -91,8 +96,9 @@ class LightDancePanel(bpy.types.Panel):
                     )
 
             else:
-                row = layout.row()
-                row.label(text=state.init_message, icon="WORLD_DATA")
+                if state.init_message:
+                    row = layout.row()
+                    row.label(text=state.init_message, icon="WORLD_DATA")
 
 
 def register():
