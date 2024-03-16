@@ -682,7 +682,7 @@ async def init_assets():
     setup_render()
     setup_display()
 
-    state.user_log = "Setting up music"
+    state.user_log = "Setting up music..."
     redraw_area({"VIEW_3D"})
     await asyncio.sleep(0.1)
 
@@ -698,7 +698,7 @@ async def load_data() -> None:
     await setup_objects(state.assets_load)
     setup_floor()
 
-    state.user_log = "Setting up animation"
+    state.user_log = "Setting up animation..."
     redraw_area({"VIEW_3D"})
     await asyncio.sleep(0.1)
 

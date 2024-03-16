@@ -110,7 +110,8 @@ def apply_color_map_updates_update():
 
     for color in color_map_updates.updated:
         state.color_map[color.id] = color
-        set_ctrl_keyframes_from_state()  # TODO: test this
+
+    set_ctrl_keyframes_from_state()
 
     color_map_updates.updated.clear()
 
