@@ -15,8 +15,8 @@ const pinMapTable: PinMapTable = {
       belt_up_down: 7,
       belt_left_right: 8,
       body_bottom: 9,
-      hat_bottom: 10,
-      hat_side: 11,
+      hat_outer: 10,
+      hat_inner: 11,
       body_inner_left: 13,
       body_outer_left: 14,
       collar_long: 15,
@@ -63,8 +63,8 @@ const pinMapTable: PinMapTable = {
       belt_up_down: 7,
       belt_left_right: 8,
       body_bottom: 9,
-      hat_bottom: 10,
-      hat_side: 11,
+      hat_outer: 10,
+      hat_inner: 11,
       body_inner_left: 13,
       body_outer_left: 14,
       collar_long: 15,
@@ -239,8 +239,8 @@ const pinMapTable: PinMapTable = {
       sock_left: 33,
     },
     LEDPARTS: {
-      shoe_left_LED: { id: 0, len: 72 },
-      shoe_right_LED: { id: 3, len: 72 },
+      shoe_left_LED: { id: 0, len: 81 },
+      shoe_right_LED: { id: 3, len: 81 },
       face_LED: { id: 5, len: 14 },
       glove_left_LED: { id: 7, len: 36 },
       glove_right_LED: { id: 4, len: 36 }
@@ -755,7 +755,8 @@ const pinMapTable: PinMapTable = {
       blade_holder_LED: { id: 3, len: 34 },
       blade_LED: { id: 4, len: 76 },
       effect_LED: { id: 5, len: 91 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   },
   "19_effectboard": {
     dancer: "16_effectboard",
