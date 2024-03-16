@@ -1,6 +1,10 @@
+import asyncio
+import time
 from typing import Any, Callable, Dict, Optional
 
 import bpy
+
+from ..asyncio import AsyncTask
 
 slider_dragging_callback: Optional[Callable[[], None]] = None
 
@@ -32,3 +36,19 @@ def execute_operator(idname: str, **kwargs: Any):
         print("Executed operator:", idname)
     except:
         print("Failed to execute operator:", idname)
+
+
+class Debounce:
+    def __init__(self, action: Callable[[], None], delay: float):
+        self.action = action
+        self.delay = delay
+        self.last_time = 0
+
+    async def delayed_action(self, trigger_time: float):
+        await asyncio.sleep(self.delay)
+        if trigger_time == self.last_time:
+            self.action()
+
+    def trigger(self):
+        self.last_time = time.time()
+        AsyncTask(self.delayed_action, self.last_time).exec()

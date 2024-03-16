@@ -16,20 +16,14 @@ from ..core.asyncio import AsyncTask
 from ..core.models import EditMode, Editor
 from ..core.states import state
 from ..core.utils.convert import frame_to_time
+from ..core.utils.operator import Debounce
 
 
-# This won't be triggered when pause animation
-# Similar logic is implemented in core/actions/state/animation.py
-def frame_change_pre(scene: bpy.types.Scene):
-    bpy.context.window_manager["ld_time"] = frame_to_time(scene.frame_current)
-
-    if state.playing:
-        return
-
+def frame_change_post_body():
     if state.edit_state == EditMode.EDITING:
         # When the frame is changed, check where the editing frame is attached
         # If it is attached, sync the properties
-        current_frame = scene.frame_current
+        current_frame = bpy.context.scene.frame_current
         detached = current_frame != state.current_editing_frame
 
         state.current_editing_detached = detached
@@ -55,8 +49,7 @@ def frame_change_pre(scene: bpy.types.Scene):
 
             AsyncTask(defer).exec()
 
-    # TODO: Increase efficiency
-    current_frame = scene.frame_current
+    current_frame = bpy.context.scene.frame_current
     match state.editor:
         case Editor.CONTROL_EDITOR:
             state.current_control_index = calculate_current_status_index()
@@ -72,14 +65,30 @@ def frame_change_pre(scene: bpy.types.Scene):
             pass
 
 
+debounce = Debounce(frame_change_post_body, 0.3)
+
+
+# This won't be triggered when pause animation
+# Similar logic is implemented in core/actions/state/animation.py
+def frame_change_post(scene: bpy.types.Scene):
+    bpy.context.window_manager["ld_time"] = frame_to_time(
+        bpy.context.scene.frame_current
+    )
+
+    if state.playing:
+        return
+
+    debounce.trigger()
+
+
 def mount():
-    bpy.app.handlers.frame_change_post.append(frame_change_pre)
+    bpy.app.handlers.frame_change_post.append(frame_change_post)
     # bpy.app.handlers.frame_change_pre.append(frame_change_pre)
 
 
 def unmount():
     try:
-        bpy.app.handlers.frame_change_post.remove(frame_change_pre)
+        bpy.app.handlers.frame_change_post.remove(frame_change_post)
         # bpy.app.handlers.frame_change_pre.remove(frame_change_pre)
     except:
         pass

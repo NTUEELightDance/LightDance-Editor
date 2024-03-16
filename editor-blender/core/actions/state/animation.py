@@ -42,7 +42,6 @@ def update_frame_index(current_frame: int):
 
             sync_editing_pos_frame_properties()
 
-    # TODO: Increase efficiency
     match state.editor:
         case Editor.CONTROL_EDITOR:
             state.current_control_index = calculate_current_status_index()
