@@ -35,31 +35,29 @@ def frame_change_post_body():
             state.current_editing_frame = current_frame
             state.current_editing_frame_synced = True
 
-            # Wait for animation update finishing
-            # or the location will be reset to the original value
-            async def defer():
-                await asyncio.sleep(0.03)
-                match state.editor:
-                    case Editor.CONTROL_EDITOR:
-                        sync_editing_control_frame_properties()
-                    case Editor.POS_EDITOR:
-                        sync_editing_pos_frame_properties()
-                    case Editor.LED_EDITOR:
-                        pass
-
-            AsyncTask(defer).exec()
+            match state.editor:
+                case Editor.CONTROL_EDITOR:
+                    sync_editing_control_frame_properties()
+                case Editor.POS_EDITOR:
+                    sync_editing_pos_frame_properties()
+                case Editor.LED_EDITOR:
+                    pass
 
     current_frame = bpy.context.scene.frame_current
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            state.current_control_index = calculate_current_status_index()
-            if state.edit_state == EditMode.IDLE:
-                update_current_status_by_index()
+            control_frame = state.control_record[state.current_control_index]
+            if control_frame != current_frame:
+                state.current_control_index = calculate_current_status_index()
+                if state.edit_state == EditMode.IDLE:
+                    update_current_status_by_index()
 
         case Editor.POS_EDITOR:
-            state.current_pos_index = calculate_current_pos_index()
-            if state.edit_state == EditMode.IDLE:
-                update_current_pos_by_index()
+            pos_frame = state.pos_record[state.current_pos_index]
+            if pos_frame != current_frame:
+                state.current_pos_index = calculate_current_pos_index()
+                if state.edit_state == EditMode.IDLE:
+                    update_current_pos_by_index()
 
         case Editor.LED_EDITOR:
             pass

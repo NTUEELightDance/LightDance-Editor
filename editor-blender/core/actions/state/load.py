@@ -668,29 +668,39 @@ def check_local_object_list():
 
 
 async def init_assets():
-    state.init_message = "Fetching data..."
+    state.user_log = "Fetching data..."
     redraw_area({"VIEW_3D"})
+    await asyncio.sleep(0.1)
+
     state.assets_path = target_path
     state.assets_load = await fetch_data()
-    state.init_message = "Setting up objects..."
+
+    state.user_log = "Setting up objects..."
     redraw_area({"VIEW_3D"})
+    await asyncio.sleep(0.1)
+
     setup_render()
     setup_display()
 
-    state.init_message = "Setting up music"
+    state.user_log = "Setting up music"
     redraw_area({"VIEW_3D"})
+    await asyncio.sleep(0.1)
+
     setup_music(state.assets_load)
     print("Music loaded")
 
 
 async def load_data() -> None:
-    state.init_message = "Setting up objects..."
+    state.user_log = "Setting up objects..."
     redraw_area({"VIEW_3D"})
+    await asyncio.sleep(0.1)
+
     await setup_objects(state.assets_load)
     setup_floor()
 
-    state.init_message = "Setting up animation"
+    state.user_log = "Setting up animation"
     redraw_area({"VIEW_3D"})
-    setup_animation_data()
+    await asyncio.sleep(0.1)
 
+    setup_animation_data()
     print("Data loaded")

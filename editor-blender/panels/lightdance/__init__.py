@@ -1,7 +1,9 @@
 import bpy
 
 from ...core.states import state
+from ...properties.types import Preferences
 from ...properties.ui.types import TimeShiftStatusType
+from ...storage import get_storage
 
 
 def draw_time_shift(layout: bpy.types.UILayout):
@@ -23,6 +25,26 @@ def draw_time_shift(layout: bpy.types.UILayout):
     row.operator("lightdance.cancel_shifting", text="Cancel", icon="X")
 
 
+class LightDancePreferencesPanel(bpy.types.Panel):
+    bl_label = "Tools"
+    bl_idname = "VIEW_PT_LightDance_Preferences"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "LightDance"
+    bl_options = {"INSTANCED"}
+
+    def draw(self, context: bpy.types.Context):
+        layout = self.layout
+        col = layout.column(align=True)
+
+        preferences: Preferences = get_storage("preferences")
+
+        row = col.row()
+        row.prop(preferences, "auto_sync", text="Auto Sync")
+        row = col.row()
+        row.prop(preferences, "follow_frame", text="Follow Frame")
+
+
 class LightDanceToolsPanel(bpy.types.Panel):
     bl_label = "Tools"
     bl_idname = "VIEW_PT_LightDance_Tools"
@@ -36,14 +58,16 @@ class LightDanceToolsPanel(bpy.types.Panel):
 
         if state.logged_in:
             row = layout.row()
-            row.operator("lightdance.toggle_shifting", text="Timeshift", icon="PLAY")
+            row.operator("lightdance.toggle_shifting", text="Timeshift", icon="TIME")
             row = layout.row()
-            row.operator("lightdance.reload_blender", text="Reload", icon="PLAY")
+            row.operator(
+                "lightdance.reload_blender", text="Reload", icon="RECOVER_LAST"
+            )
             row = layout.row()
-            row.operator("lightdance.logout", text="Logout", icon="PLAY")
+            row.operator("lightdance.logout", text="Logout", icon="GHOST_ENABLED")
 
         row = layout.row()
-        row.operator("lightdance.clear_assets", text="Clear Assets", icon="PLAY")
+        row.operator("lightdance.clear_assets", text="Clear Assets", icon="CANCEL")
 
 
 class LightDancePanel(bpy.types.Panel):
@@ -60,11 +84,14 @@ class LightDancePanel(bpy.types.Panel):
 
         row = layout.row()
         if not state.logged_in:
-            row.label(text="Welcome", icon="WORLD_DATA")
+            row.label(text="Welcome", icon="USER")
         else:
-            row.label(text=state.username, icon="WORLD_DATA")
+            row.label(text=state.username, icon="USER")
 
         row.popover("VIEW_PT_LightDance_Tools", text="Tools", icon="TOOL_SETTINGS")
+
+        if state.logged_in:
+            row.popover("VIEW_PT_LightDance_Preferences", text="", icon="SETTINGS")
 
         if not state.running:
             row = layout.row()
@@ -92,20 +119,22 @@ class LightDancePanel(bpy.types.Panel):
                     row = layout.row()
                     row.label(text="You are currently offline")
                     row.operator(
-                        "lightdance.reload_blender", text="Reload", icon="PLAY"
+                        "lightdance.reload_blender", text="Reload", icon="RECOVER_LAST"
                     )
 
             else:
-                if state.init_message:
+                if state.user_log:
                     row = layout.row()
-                    row.label(text=state.init_message, icon="WORLD_DATA")
+                    row.label(text=state.user_log, icon="TEXT")
 
 
 def register():
     bpy.utils.register_class(LightDanceToolsPanel)
+    bpy.utils.register_class(LightDancePreferencesPanel)
     bpy.utils.register_class(LightDancePanel)
 
 
 def unregister():
     bpy.utils.unregister_class(LightDanceToolsPanel)
+    bpy.utils.unregister_class(LightDancePreferencesPanel)
     bpy.utils.unregister_class(LightDancePanel)

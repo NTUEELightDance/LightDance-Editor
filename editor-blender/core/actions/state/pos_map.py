@@ -22,7 +22,7 @@ def add_pos(id: MapID, frame: PosMapElement):
     pos_map_updates = state.pos_map_updates
     pos_map_updates.added.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING:
+    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
         state.pos_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -52,7 +52,7 @@ def delete_pos(id: MapID):
 
     pos_map_updates.deleted.append(id)
 
-    if state.edit_state == EditMode.EDITING:
+    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
         state.pos_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -77,7 +77,7 @@ def update_pos(id: MapID, frame: PosMapElement):
 
     pos_map_updates.updated.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING:
+    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
         state.pos_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -86,6 +86,9 @@ def update_pos(id: MapID, frame: PosMapElement):
 
 
 def apply_pos_map_updates():
+    if not state.ready:
+        return
+
     pos_map_updates = state.pos_map_updates
 
     for pos in pos_map_updates.added:

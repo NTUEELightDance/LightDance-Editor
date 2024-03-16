@@ -1,7 +1,7 @@
 from asyncio import Task
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 ID = int
 
@@ -320,11 +320,19 @@ ShellHistory = Dict[str, List[ShellTransaction]]
 
 
 @dataclass
+class Preferences:
+    auto_sync: bool
+    follow_frame: bool
+
+
+@dataclass
 class State:
     running: bool
     sync: bool
 
-    init_message: str
+    user_log: str
+
+    preferences: Preferences
 
     logged_in: bool
     loading: bool
@@ -337,7 +345,7 @@ class State:
     command_task: Optional[Task[None]]
 
     assets_path: str
-    assets_load: Dict
+    assets_load: Dict[str, Any]
     music_frame_length: int
 
     token: str

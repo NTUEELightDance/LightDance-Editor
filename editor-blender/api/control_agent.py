@@ -94,10 +94,9 @@ class ControlAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as e:
-            print(e)
-
-        return None
+        except Exception as err:
+            print(err)
+            raise err
 
     # TODO: Support only change fade
     async def save_frame(
@@ -140,8 +139,9 @@ class ControlAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as e:
-            print(e)
+        except Exception as err:
+            print(err)
+            raise err
 
     async def delete_frame(self, id: MapID) -> Optional[str]:
         try:
@@ -155,10 +155,9 @@ class ControlAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as e:
-            print(e)
-
-        return None
+        except Exception as err:
+            print(err)
+            raise err
 
     async def request_edit(self, id: MapID) -> Optional[bool]:
         try:
@@ -172,10 +171,9 @@ class ControlAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as e:
-            print(e)
-
-        return None
+        except Exception as err:
+            print(err)
+            raise err
 
     async def cancel_edit(self, id: MapID) -> Optional[bool]:
         try:
@@ -187,10 +185,9 @@ class ControlAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as e:
-            print(e)
-
-        return None
+        except Exception as err:
+            print(err)
+            raise err
 
 
 control_agent = ControlAgent()

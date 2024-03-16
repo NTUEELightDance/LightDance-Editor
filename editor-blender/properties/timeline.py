@@ -2,11 +2,9 @@ import bpy
 
 from ..core.actions.property.timeline import (
     get_current_frame_index,
-    get_follow_frame,
     get_play_speed,
     get_time,
     set_current_frame_index,
-    set_follow_frame,
     set_play_speed,
     set_time,
 )
@@ -58,15 +56,6 @@ def register():
             description="Time",
         ),
     )
-    setattr(
-        bpy.types.WindowManager,
-        "ld_follow_frame",
-        bpy.props.BoolProperty(
-            get=get_follow_frame,
-            set=set_follow_frame,
-            description="Follow frame",
-        ),
-    )
 
 
 def unregister():
@@ -75,4 +64,3 @@ def unregister():
     delattr(bpy.types.WindowManager, "ld_start")
     delattr(bpy.types.WindowManager, "ld_play_speed")
     delattr(bpy.types.WindowManager, "ld_time")
-    delattr(bpy.types.WindowManager, "ld_follow_frame")

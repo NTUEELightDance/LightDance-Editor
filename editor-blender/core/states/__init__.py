@@ -10,6 +10,7 @@ from ..models import (
     LEDMapPending,
     LEDMapUpdates,
     PosMapUpdates,
+    Preferences,
     SelectMode,
     State,
 )
@@ -17,7 +18,8 @@ from ..models import (
 state = State(
     running=False,
     sync=False,
-    init_message="Loading...",
+    user_log="Loading...",
+    preferences=Preferences(auto_sync=True, follow_frame=True),
     logged_in=False,
     loading=False,
     partial_load_frames=(0, 0),

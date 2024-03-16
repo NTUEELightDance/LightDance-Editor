@@ -70,13 +70,14 @@ async def add_control_frame():
     start = bpy.context.scene.frame_current
     controlData = control_status_state_to_mut(state.current_status)
 
+    set_requesting(True)
     try:
-        set_requesting(True)
         await control_agent.add_frame(start, False, controlData)
-        set_requesting(False)
         notify("INFO", f"Added control frame")
     except:
         notify("WARNING", "Cannot add control frame")
+
+    set_requesting(False)
 
 
 async def save_control_frame(start: Optional[int] = None):
@@ -126,14 +127,13 @@ async def save_control_frame(start: Optional[int] = None):
 
         controlData.append(partControlData)
 
+    set_requesting(True)
     try:
-        set_requesting(True)
         await control_agent.save_frame(id, controlData, fade=fade, start=start)
         notify("INFO", f"Saved control frame")
 
         # Cancel editing
         ok = await control_agent.cancel_edit(id)
-        set_requesting(False)
 
         if ok is not None and ok:
             # Reset editing state
@@ -151,18 +151,21 @@ async def save_control_frame(start: Optional[int] = None):
     except:
         notify("WARNING", "Cannot save control frame")
 
+    set_requesting(False)
+
 
 async def delete_control_frame():
     index = state.current_control_index
     id = state.control_record[index]
 
+    set_requesting(True)
     try:
-        set_requesting(True)
         await control_agent.delete_frame(id)
-        set_requesting(False)
         notify("INFO", f"Deleted control frame: {id}")
     except:
         notify("WARNING", "Cannot delete control frame")
+
+    set_requesting(False)
 
 
 async def request_edit_control() -> bool:
@@ -208,22 +211,27 @@ async def cancel_edit_control():
     id = state.control_record[index]
 
     set_requesting(True)
-    ok = await control_agent.cancel_edit(id)
-    set_requesting(False)
+    try:
+        ok = await control_agent.cancel_edit(id)
 
-    if ok is not None and ok:
-        # Revert modification
-        update_current_status_by_index()
+        if ok is not None and ok:
+            # Revert modification
+            update_current_status_by_index()
 
-        # Reset editing state
-        state.current_editing_frame = -1
-        state.current_editing_detached = False
-        state.current_editing_frame_synced = False
-        state.edit_state = EditMode.IDLE
+            # Reset editing state
+            state.current_editing_frame = -1
+            state.current_editing_detached = False
+            state.current_editing_frame_synced = False
+            state.edit_state = EditMode.IDLE
 
-        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-    else:
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+        else:
+            notify("WARNING", "Cannot cancel edit")
+
+    except:
         notify("WARNING", "Cannot cancel edit")
+
+    set_requesting(False)
 
 
 def toggle_dancer_mode():

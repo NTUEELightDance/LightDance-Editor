@@ -40,3 +40,8 @@ class RevisionPropertyItemType:
 
 
 RevisionPropertyType = List[RevisionPropertyItemType]
+
+
+class Preferences:
+    auto_sync: bool
+    follow_frame: bool

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, cast
 
 import bpy
 
@@ -51,6 +51,7 @@ from ....core.utils.ui import redraw_area
 #     QueryPosMapPayload,
 # )
 from ....handlers import mount_handlers, unmount_handlers
+from ....properties.types import Preferences
 from ....storage import get_storage
 from ...models import (
     DancerName,
@@ -94,6 +95,12 @@ from ..state.load import init_assets, load_data
 #     colorMap = color_map_query_to_state(incoming)
 #     await set_color_map(colorMap)
 #     return incoming
+
+
+def read_preferences():
+    preferences: Preferences = get_storage("preferences")
+    state.preferences.auto_sync = preferences.auto_sync
+    state.preferences.follow_frame = preferences.follow_frame
 
 
 async def init():
@@ -244,7 +251,7 @@ async def init_editor():
             print(e)
 
         await asyncio.sleep(2)
-    state.init_message = ""
+    state.user_log = ""
     state.loading = True
 
 
@@ -278,7 +285,7 @@ async def init_load():
 
 
 async def init_models():
-    state.init_message = "Initializing models..."
+    state.user_log = "Initializing models..."
 
     models_array = await model_agent.get_models()
 
@@ -315,7 +322,7 @@ async def init_models():
 
 
 async def init_dancers():
-    state.init_message = "Initializing dancers..."
+    state.user_log = "Initializing dancers..."
 
     dancers_array = await dancer_agent.get_dancers()
 
@@ -361,7 +368,7 @@ async def init_dancers():
 
 
 async def init_color_map():
-    state.init_message = "Initializing color map..."
+    state.user_log = "Initializing color map..."
 
     color_map = await color_agent.get_color_map()
 
@@ -373,7 +380,7 @@ async def init_color_map():
 
 
 async def init_led_map():
-    state.init_message = "Initializing LED map..."
+    state.user_log = "Initializing LED map..."
 
     led_map = await led_agent.get_led_map()
     if led_map is None:
@@ -385,7 +392,7 @@ async def init_led_map():
 
 
 async def init_control_map():
-    state.init_message = "Initializing control map..."
+    state.user_log = "Initializing control map..."
 
     control_map, control_record = await get_control()
 
@@ -403,7 +410,7 @@ async def init_control_map():
 
 
 async def init_pos_map():
-    state.init_message = "Initializing pos map..."
+    state.user_log = "Initializing pos map..."
 
     pos_map, pos_record = await get_pos()
     if pos_map is None or pos_record is None:

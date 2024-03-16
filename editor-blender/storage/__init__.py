@@ -2,6 +2,8 @@ from typing import Any
 
 import bpy
 
+from ..properties.preferences import Preferences
+
 
 class LocalStorage(bpy.types.AddonPreferences):
     bl_idname = "editor-blender"
@@ -15,6 +17,11 @@ class LocalStorage(bpy.types.AddonPreferences):
         name="Username",
         description="Username for LightDance Editor",
         default="",
+    )
+    preferences: bpy.props.PointerProperty(  # type: ignore
+        name="Preferences",
+        description="Preferences",
+        type=Preferences,
     )
 
     def draw(self, context: bpy.types.Context):

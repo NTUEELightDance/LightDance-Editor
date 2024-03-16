@@ -83,14 +83,13 @@ async def save_pos_frame(start: Optional[int] = None):
         else:
             positionData.append([0, 0, 0])
 
+    set_requesting(True)
     try:
-        set_requesting(True)
         await pos_agent.save_frame(id, positionData, start=start)
         notify("INFO", f"Saved position frame: {id}")
 
         # Cancel editing
         ok = await pos_agent.cancel_edit(id)
-        set_requesting(False)
 
         if ok is not None and ok:
             # Reset editing state
@@ -108,19 +107,21 @@ async def save_pos_frame(start: Optional[int] = None):
     except:
         notify("WARNING", "Cannot save position frame")
 
+    set_requesting(False)
+
 
 async def delete_pos_frame():
     index = state.current_pos_index
     id = state.pos_record[index]
 
+    set_requesting(True)
     try:
-        set_requesting(True)
         await pos_agent.delete_frame(id)
-        set_requesting(False)
-
         notify("INFO", f"Deleted position frame: {id}")
     except:
         notify("WARNING", "Cannot delete position frame")
+
+    set_requesting(False)
 
 
 async def request_edit_pos() -> bool:
@@ -158,19 +159,24 @@ async def cancel_edit_pos():
     id = state.pos_record[index]
 
     set_requesting(True)
-    ok = await pos_agent.cancel_edit(id)
-    set_requesting(False)
+    try:
+        ok = await pos_agent.cancel_edit(id)
 
-    if ok is not None and ok:
-        # Revert modification
-        update_current_pos_by_index()
+        if ok is not None and ok:
+            # Revert modification
+            update_current_pos_by_index()
 
-        # Reset editing state
-        state.current_editing_frame = -1
-        state.current_editing_detached = False
-        state.current_editing_frame_synced = False
-        state.edit_state = EditMode.IDLE
+            # Reset editing state
+            state.current_editing_frame = -1
+            state.current_editing_detached = False
+            state.current_editing_frame_synced = False
+            state.edit_state = EditMode.IDLE
 
-        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-    else:
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+        else:
+            notify("WARNING", "Cannot cancel edit")
+
+    except:
         notify("WARNING", "Cannot cancel edit")
+
+    set_requesting(False)

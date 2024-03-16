@@ -25,7 +25,7 @@ def add_control(id: MapID, frame: ControlMapElement):
     control_map_updates = state.control_map_updates
     control_map_updates.added.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING:
+    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
         state.control_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -55,7 +55,7 @@ def delete_control(id: MapID):
 
     control_map_updates.deleted.append(id)
 
-    if state.edit_state == EditMode.EDITING:
+    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
         state.control_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -80,7 +80,7 @@ def update_control(id: MapID, frame: ControlMapElement):
 
     control_map_updates.updated.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING:
+    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
         state.control_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -89,6 +89,9 @@ def update_control(id: MapID, frame: ControlMapElement):
 
 
 def apply_control_map_updates():
+    if not state.ready:
+        return
+
     control_map_updates = state.control_map_updates
 
     for status in control_map_updates.added:

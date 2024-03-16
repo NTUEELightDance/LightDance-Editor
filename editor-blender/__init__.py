@@ -1,7 +1,7 @@
 bl_info = {
     "name": "LightDance Editor",
     "author": "NTUEE LightDance",
-    "version": (1, 0),
+    "version": (1, 1),
     "blender": (4, 0, 0),
     "location": "View3D > Toolshelf",
     "description": "Addon for LightDance Editor",
@@ -28,16 +28,16 @@ def register():
 
     from . import operators, panels, properties, storage
 
-    storage.register()
     properties.register()
     operators.register()
     panels.register()
+    storage.register()
 
 
 def unregister():
     from . import operators, panels, properties, storage
 
     storage.unregister()
-    operators.unregister()
     panels.unregister()
+    operators.unregister()
     properties.unregister()
