@@ -55,6 +55,7 @@ def get_effect_lists(
         effect_lists.sort(key=lambda x: x[1])
 
         effect_lists.insert(0, ("no-change", "no-change", "", "", -1))
+        effect_lists.insert(0, ("(Bulb color)", "(Bulb color)", "", "", 0))
         return effect_lists  # pyright: ignore
 
     return []

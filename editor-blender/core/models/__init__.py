@@ -185,6 +185,7 @@ class SelectedPartType(Enum):
     FIBER = 1
     LED = 2
     MIXED_LIGHT = 3
+    LED_BULB = 4
 
 
 @dataclass

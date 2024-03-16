@@ -111,6 +111,14 @@ class ControlEditor(bpy.types.Panel):
                     text="Alpha",
                     slider=True,
                 )
+            elif state.selected_obj_type == SelectedPartType.LED_BULB:
+                column.prop(ld_ui_control_editor, "multi_select_color", text="Color")
+                column.prop(
+                    ld_ui_control_editor,
+                    "multi_select_alpha",
+                    text="Alpha",
+                    slider=True,
+                )
             else:
                 column.prop(ld_ui_control_editor, "multi_select_effect", text="Effect")
                 column.prop(
@@ -148,6 +156,15 @@ class ControlEditor(bpy.types.Panel):
                         text="Effect",
                         icon="LIGHTPROBE_GRID",
                     )
+                    column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                elif ld_light_type == LightType.LED_BULB.value:
+                    column.prop(
+                        context.object.parent,
+                        "ld_effect",
+                        text="Effect",
+                        icon="LIGHTPROBE_GRID",
+                    )
+                    column.prop(context.object, "ld_color", text="Color")
                     column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
 
             elif ld_object_type == ObjectType.DANCER.value:
