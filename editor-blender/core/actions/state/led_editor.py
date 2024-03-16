@@ -56,9 +56,13 @@ async def cancel_edit_led_effect():
                 notify("INFO", "Edit cancelled")
             else:
                 notify("WARNING", "Cannot cancel edit")
+
         case LEDEditorEditModeType.NEW.value:
             state.edit_state = EditMode.IDLE
             ld_ui_led_editor.edit_mode = LEDEditorEditModeType.IDLE.value
+
+        case _:
+            pass
 
 
 async def save_led_effect():
@@ -102,6 +106,7 @@ async def save_led_effect():
                     notify("WARNING", "Cannot exit editing")
             except:
                 notify("WARNING", "Cannot save LED effect")
+
         case LEDEditorEditModeType.NEW.value:
             new_effect_name = ld_ui_led_editor.new_effect
             edit_model = ld_ui_led_editor.edit_model
@@ -131,6 +136,9 @@ async def save_led_effect():
                     notify("WARNING", "Cannot add LED effect")
             except:
                 notify("WARNING", "Cannot add LED effect")
+
+        case _:
+            pass
 
 
 async def delete_led_effect():
