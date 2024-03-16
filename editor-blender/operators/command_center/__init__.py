@@ -12,7 +12,7 @@ from ...core.actions.property.command import (
     set_countdown,
 )
 from ...core.actions.state.app_state import set_requesting
-from ...core.actions.state.load import load_data
+from ...core.actions.state.load import init_assets
 from ...core.asyncio import AsyncTask
 from ...core.states import state
 from ...core.utils.convert import is_color_code
@@ -58,7 +58,7 @@ class CommandCenterStartOperator(AsyncOperator):
             # set_requesting(True)
             await command_agent.send_to_controller_server(info_payload)
             set_command_status(True)
-            await load_data()
+            await init_assets()
 
         except Exception as e:
             # set_requesting(False)
