@@ -609,7 +609,8 @@ const pinMapTable: PinMapTable = {
       pillarRight: { id: 5, len: 24 },
       pillarRoofDeco: { id: 6, len: 60 },
       roofTile3: { id: 7, len: 84 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   },
   "12_temple_2": {
     dancer: "11_temple",
@@ -628,7 +629,8 @@ const pinMapTable: PinMapTable = {
       face: { id: 3, len: 15 },
       center: { id: 4, len: 60 },
       rightSide: { id: 5, len: 30 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   },
   "13_bridge_1": {
     dancer: "12_bridge",
@@ -662,7 +664,8 @@ const pinMapTable: PinMapTable = {
       lamp_front_right_LED: { id: 4, len: 33 },
       fire1_LED: { id: 6, len: 72 },
       lamp_front_left_LED: { id: 7, len: 33 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   },
   "15_nian_1": {
     dancer: "13_nian",
@@ -693,7 +696,8 @@ const pinMapTable: PinMapTable = {
       backfoot_left_LED: { id: 3, len: 30 },
       tail_LED: { id: 5, len: 78 },
       slash_LED: { id: 6, len: 40 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   },
   "16_nian_2": {
     dancer: "13_nian",
@@ -725,7 +729,8 @@ const pinMapTable: PinMapTable = {
       back_LED: { id: 4, len: 60 },
       face_LED: { id: 5, len: 36 },
       teeth_LED: { id: 6, len: 12 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   },
   "17_sword": {
     dancer: "14_sword",
@@ -736,7 +741,8 @@ const pinMapTable: PinMapTable = {
       fan_left_LED: { id: 1, len: 31 },
       sword_LED: { id: 2, len: 131 },
       fan_right_LED: { id: 3, len: 31 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   },
   "18_guandao": {
     dancer: "15_guandao",
@@ -758,7 +764,8 @@ const pinMapTable: PinMapTable = {
     },
     LEDPARTS: {
       LED: { id: 1, len: 128 }
-    }
+    },
+    LEDPARTS_MERGE: {}
   }
 };
 
