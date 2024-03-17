@@ -281,7 +281,7 @@ def handle_autoselect_in_control_editor_part_mode():
         # Don't trigger update here
         ld_ui_control_editor["multi_select_effect"] = -1  # type: ignore
         ld_ui_control_editor["multi_select_color"] = -1  # type: ignore
-        ld_ui_control_editor["multi_select_alpha"] = 128  # type: ignore
+        ld_ui_control_editor["multi_select_alpha"] = 150  # type: ignore
 
     state.selected_obj_names = new_selected_obj_names
 
@@ -586,7 +586,7 @@ def handle_autoselect_in_led_editor_edit_mode():
     if sorted_selected_obj_names != original_selected_obj_names:
         # Don't trigger update here
         ld_ui_led_editor["multi_select_color"] = -1  # type: ignore
-        ld_ui_led_editor["multi_select_alpha"] = 128  # type: ignore
+        ld_ui_led_editor["multi_select_alpha"] = 150  # type: ignore
 
 
 def handle_autoselect_in_led_editor():

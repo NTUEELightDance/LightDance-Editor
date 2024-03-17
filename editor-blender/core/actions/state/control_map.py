@@ -7,10 +7,7 @@ from ..property.animation_data import (
     delete_single_ctrl_keyframe,
     edit_single_ctrl_keyframe,
 )
-from .current_status import (
-    calculate_current_status_index,
-    update_current_status_by_index,
-)
+from .current_status import calculate_current_status_index
 
 
 def set_control_map(control_map: ControlMap):
@@ -130,7 +127,6 @@ def apply_control_map_updates():
 
     # Update current control index
     state.current_control_index = calculate_current_status_index()
-    update_current_status_by_index()
 
     state.control_map_pending = False
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

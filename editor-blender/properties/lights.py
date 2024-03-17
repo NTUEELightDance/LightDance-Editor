@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Dict, List, Tuple, cast
 
 import bpy
 
@@ -7,6 +7,7 @@ from ..core.actions.property.lights import (
     update_current_color,
     update_current_effect,
 )
+from ..core.models import EditMode, FiberData, LEDData
 from ..core.states import state
 from ..icons import icon_collections
 from .types import ColorPaletteItemType, LightType, ObjectType
@@ -26,16 +27,22 @@ def get_color_lists(
         ld_color_palette: List[ColorPaletteItemType] = getattr(
             bpy.context.window_manager, "ld_color_palette"
         )
-        return [
+        color_list = [
             (
                 color.color_name,
                 color.color_name,
                 "",
-                collection[color.color_name].icon_id,  # type: ignore
+                # cast(Dict[str, bpy.types.ImagePreview], collection)[
+                #     color.color_name
+                # ].icon_id,
+                "",
                 color.color_id,
             )
             for color in ld_color_palette
         ]
+        color_list.sort(key=lambda x: x[1])
+
+        return color_list  # pyright: ignore
 
     return []
 
@@ -60,6 +67,84 @@ def get_effect_lists(
     return []
 
 
+# def get_color(self: bpy.types.Object) -> int:
+#     if not state.ready:
+#         return 0
+#
+#     if state.edit_state == EditMode.EDITING:
+#         return cast(int, self.get("ld_color", 0))
+#
+#     ld_object_type: str = getattr(self, "ld_object_type")
+#     if ld_object_type == ObjectType.LIGHT.value:
+#         frame_index = state.current_control_index
+#         frame_id = state.control_record[frame_index]
+#
+#         ld_dancer_name: str = getattr(self, "ld_dancer_name")
+#         ld_part_name: str = getattr(self, "ld_part_name")
+#
+#         status = state.control_map[frame_id].status[ld_dancer_name][ld_part_name]
+#         color_id = cast(FiberData, status).color_id
+#
+#         self["ld_color"] = color_id
+#         return color_id
+#
+#     return 0
+
+
+# def set_color(self: bpy.types.Object, value: int) -> None:
+#     self["ld_color"] = value
+
+
+# def get_effect(self: bpy.types.Object) -> int:
+#     if not state.ready:
+#         return 0
+#
+#     if state.edit_state == EditMode.EDITING:
+#         return cast(int, self.get("ld_effect", 0))
+#
+#     ld_object_type: str = getattr(self, "ld_object_type")
+#     if ld_object_type == ObjectType.LIGHT.value:
+#         frame_index = state.current_control_index
+#         frame_id = state.control_record[frame_index]
+#
+#         ld_dancer_name: str = getattr(self, "ld_dancer_name")
+#         ld_part_name: str = getattr(self, "ld_part_name")
+#
+#         status = state.control_map[frame_id].status[ld_dancer_name][ld_part_name]
+#         return cast(LEDData, status).effect_id
+#
+#     return 0
+
+
+# def set_effect(self: bpy.types.Object, value: int) -> None:
+#     self["ld_effect"] = value
+
+
+# def get_alpha(self: bpy.types.Object) -> int:
+#     if not state.ready:
+#         return 1
+#
+#     if state.edit_state == EditMode.EDITING:
+#         return cast(int, self.get("ld_alpha", 1))
+#
+#     ld_object_type: str = getattr(self, "ld_object_type")
+#     if ld_object_type == ObjectType.LIGHT.value:
+#         frame_index = state.current_control_index
+#         frame_id = state.control_record[frame_index]
+#
+#         ld_dancer_name: str = getattr(self, "ld_dancer_name")
+#         ld_part_name: str = getattr(self, "ld_part_name")
+#
+#         status = state.control_map[frame_id].status[ld_dancer_name][ld_part_name]
+#         return status.alpha
+#
+#     return 1
+
+
+# def set_alpha(self: bpy.types.Object, value: int) -> None:
+#     self["ld_alpha"] = value
+
+
 def register():
     setattr(
         bpy.types.Object,
@@ -82,6 +167,8 @@ def register():
             name="Color",
             description="Part fiber color",
             items=get_color_lists,
+            # get=get_color,
+            # set=set_color,
             update=update_current_color,
         ),
     )
@@ -100,6 +187,8 @@ def register():
             name="Effect",
             description="Part LED effect",
             items=get_effect_lists,
+            # get=get_effect,
+            # set=set_effect,
             update=update_current_effect,
         ),
     )
@@ -122,7 +211,9 @@ def register():
             description="Alpha of light",
             min=1,
             max=255,
-            default=128,
+            default=150,
+            # get=get_alpha,
+            # set=set_alpha,
             update=update_current_alpha,
         ),
     )

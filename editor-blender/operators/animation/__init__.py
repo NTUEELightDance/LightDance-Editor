@@ -47,10 +47,8 @@ class AnimationStatusListenerOperator(bpy.types.Operator):
         )
 
         if not state.playing and is_animation_playing:
-            # TODO: Start playing
             start_playing()
         elif state.playing and not is_animation_playing:
-            # TODO: Stop playing
             stop_playing()
 
         set_playing(is_animation_playing)

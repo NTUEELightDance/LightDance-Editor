@@ -200,6 +200,25 @@ def find_first_mesh(mesh_name: str) -> Optional[bpy.types.Mesh]:
     return mesh
 
 
+def setup_dancer_part_objects_map():
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
+    dancer_array = state.dancers_array
+    for dancer in dancer_array:
+        dancer_name = dancer.name
+        dancer_index = state.dancer_part_index_map[dancer_name].index
+
+        dancer_obj = data_objects[dancer_name]
+        state.dancer_part_objects_map[dancer_name] = (dancer_obj, {})
+
+        for part_item in dancer.parts:
+            part_name = part_item.name
+            part_obj_name = f"{dancer_index}_{part_name}"
+            part_obj = data_objects[part_obj_name]
+
+            state.dancer_part_objects_map[dancer_name][1][part_name] = part_obj
+
+
 async def setup_objects(assets_load: Dict[str, Any]):
     """
     clear all objects in viewport
@@ -217,6 +236,7 @@ async def setup_objects(assets_load: Dict[str, Any]):
 
     if check_local_object_list():
         print("local objects detected")
+        setup_dancer_part_objects_map()
         return
     else:
         for old_obj in data_objects.values():
@@ -348,6 +368,8 @@ async def setup_objects(assets_load: Dict[str, Any]):
                     ld_model_name=model_name,
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
+
+    setup_dancer_part_objects_map()
 
 
 def setup_floor():

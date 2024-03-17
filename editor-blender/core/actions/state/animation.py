@@ -1,8 +1,9 @@
 import bpy
 
-from ...models import EditMode, Editor, PosMapElement
+from ...models import EditMode, Editor
 from ...states import state
 from ...utils.ui import redraw_area
+from .control_editor import sync_editing_control_frame_properties
 from .current_pos import calculate_current_pos_index, update_current_pos_by_index
 from .current_status import (
     calculate_current_status_index,
@@ -40,31 +41,26 @@ def update_frame_index(current_frame: int):
             state.current_editing_frame = current_frame
             state.current_editing_frame_synced = True
 
-            sync_editing_pos_frame_properties()
+            match state.editor:
+                case Editor.CONTROL_EDITOR:
+                    sync_editing_control_frame_properties()
+                case Editor.POS_EDITOR:
+                    sync_editing_pos_frame_properties()
+                case Editor.LED_EDITOR:
+                    pass
 
     match state.editor:
         case Editor.CONTROL_EDITOR:
+            old_index = state.current_control_index
             state.current_control_index = calculate_current_status_index()
-            if state.edit_state == EditMode.IDLE:
+            if old_index != state.current_control_index:
                 update_current_status_by_index()
 
         case Editor.POS_EDITOR:
+            old_index = state.current_pos_index
             state.current_pos_index = calculate_current_pos_index()
-            if state.edit_state == EditMode.IDLE:
+            if old_index != state.current_pos_index:
                 update_current_pos_by_index()
 
         case Editor.LED_EDITOR:
             pass
-
-
-def insert_pos_frame(index: int, frame: PosMapElement):
-    scene = bpy.context.scene
-    dancer_names = state.dancer_names
-
-
-def update_pos_frame():
-    pass
-
-
-def delete_pos_frame():
-    pass

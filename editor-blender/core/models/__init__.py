@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+import bpy
+
 ID = int
 
 ColorName = str
@@ -325,6 +327,11 @@ class Preferences:
     follow_frame: bool
 
 
+DancerPartObjectsMap = Dict[
+    DancerName, Tuple[bpy.types.Object, Dict[PartName, bpy.types.Object]]
+]
+
+
 @dataclass
 class State:
     running: bool
@@ -376,16 +383,6 @@ class State:
     current_editing_detached: bool
     current_editing_frame_synced: bool
 
-    # NOTE: Guess we can't implement these
-    # status_stack: List[ControlMapStatus]
-    # status_stack_index: int
-    # pos_stack: List[PosMapStatus]
-    # pos_stack_index: int
-
-    # TODO: Add these
-    # led_effect_record: LEDEffectRecord
-    # current_led_status: CurrentLEDStatus
-
     edit_state: EditMode
     editor: Editor
     editing_data: EditingData
@@ -397,13 +394,6 @@ class State:
     selected_obj_type: Optional[SelectedPartType]
 
     clipboard: Clipboard
-
-    # TODO: Add these
-    # current_led_effect_reference_dancer: Optional[DancerName]  # the dancer whose LED part is being edited
-    # current_led_partName: Optional[LEDPartName]  # the LED part whose effect is being edited
-    # current_led_effect_name: Optional[LEDEffectName]  # the LED effect name being edited
-    # current_led_effect_start: int  # the start time on the timeline where currentLEDEffect is displayed during editing
-    # current_led_effect: Optional[LEDEffect]  # the LED effect being edited
 
     models: Models
     model_names: List[ModelName]
@@ -418,7 +408,6 @@ class State:
     part_type_map: PartTypeMap
     led_part_length_map: LEDPartLengthMap
     color_map: ColorMap
-    # effect_list: EffectListType
 
     rpi_status: RPiStatus
     shell_history: ShellHistory
@@ -434,3 +423,5 @@ class State:
 
     led_map_updates: LEDMapUpdates
     led_map_pending: LEDMapPending
+
+    dancer_part_objects_map: DancerPartObjectsMap

@@ -7,7 +7,7 @@ from ....graphqls.mutations import MutDancerStatusPayload
 from ....properties.types import LightType
 from ...models import EditingData, EditMode, PartType, SelectMode
 from ...states import state
-from ...utils.convert import control_status_state_to_mut, rgb_to_float
+from ...utils.convert import control_status_state_to_mut
 from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.ui import redraw_area

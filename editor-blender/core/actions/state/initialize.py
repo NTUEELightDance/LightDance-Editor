@@ -406,7 +406,7 @@ async def init_control_map():
     state.current_control_index = 0
     update_current_status_by_index()
 
-    print("Current status initialized")
+    print("Control map initialized")
 
 
 async def init_pos_map():
@@ -423,4 +423,4 @@ async def init_pos_map():
     state.current_pos_index = 0
     update_current_pos_by_index()
 
-    print("Current pos initialized")
+    print("Pos map initialized")

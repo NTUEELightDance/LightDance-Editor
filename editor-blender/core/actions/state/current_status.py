@@ -1,8 +1,10 @@
+# import time
 from typing import List, Optional
 
 import bpy
 
-from ...models import FiberData, LEDData, PartType
+from ....properties.types import LightType, ObjectType
+from ...models import FiberData, LEDData
 from ...states import state
 from ...utils.algorithms import binary_search
 
@@ -22,35 +24,31 @@ def update_current_status_by_index():
     if current_control_map is None:
         return
 
-    setattr(bpy.context.window_manager, "ld_fade", current_control_map.fade)
-    setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
-
     current_status = current_control_map.status
     state.current_status = current_status
 
     for dancer in state.dancers_array:
+        # stime = time.time()
         dancer_status = current_status.get(dancer.name)
         if dancer_status is None:
             continue
 
-        dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
-        if dancer_obj is not None:
-            part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
-            # TODO: Add this in state
-            part_obj_names: List[str] = [
-                getattr(obj, "ld_part_name") for obj in part_objs
-            ]
+        dancer_part_objects = state.dancer_part_objects_map.get(dancer.name)
+        if dancer_part_objects is not None:
+            part_objects = dancer_part_objects[1]
 
-            for part in dancer.parts:
-                if part.name not in part_obj_names:
+            for part_name, part_obj in part_objects.items():
+                # stime = time.time()
+                light_type = getattr(part_obj, "ld_light_type")
+
+                part_status = dancer_status.get(part_name)
+                if part_status is None:
                     continue
+                # print(f"get part_status: {time.time() - stime}")
 
-                part_index = part_obj_names.index(part.name)
-                part_obj = part_objs[part_index]
-                part_status = dancer_status[part.name]
-
-                match part.type:
-                    case PartType.FIBER:
+                # stime = time.time()
+                match light_type:
+                    case LightType.FIBER.value:
                         if not isinstance(part_status, FiberData):
                             raise Exception("FiberData expected")
 
@@ -58,7 +56,7 @@ def update_current_status_by_index():
                         setattr(part_obj, "ld_color", color.name)
                         alpha = part_status.alpha
                         setattr(part_obj, "ld_alpha", alpha)
-                    case PartType.LED:
+                    case LightType.LED.value:
                         if not isinstance(part_status, LEDData):
                             raise Exception("LEDData expected")
 
@@ -71,3 +69,7 @@ def update_current_status_by_index():
 
                         alpha = part_status.alpha
                         setattr(part_obj, "ld_alpha", alpha)
+
+                    case _:
+                        pass
+                # print(f"set ld_color and ld_effect: {time.time() - stime}")
