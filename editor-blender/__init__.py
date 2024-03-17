@@ -1,7 +1,7 @@
 bl_info = {
     "name": "LightDance Editor",
     "author": "NTUEE LightDance",
-    "version": (1, 1),
+    "version": (1, 2),
     "blender": (4, 0, 0),
     "location": "View3D > Toolshelf",
     "description": "Addon for LightDance Editor",

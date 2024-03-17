@@ -7,7 +7,7 @@ from ...models import EditMode, LEDEffect, LEDEffectID, LEDMap
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
-from ..property.animation_data import set_ctrl_keyframes_from_state
+from ..property.animation_data import init_ctrl_keyframes_from_state
 
 
 def set_led_map(led_map: LEDMap):
@@ -126,7 +126,7 @@ def apply_led_map_updates_update():
         state.led_map[model][part][name] = effect
         state.led_effect_id_table[effect.id] = effect
 
-    set_ctrl_keyframes_from_state(effect_only=True)
+    init_ctrl_keyframes_from_state(effect_only=True)
 
     led_map_update.updated.clear()
 

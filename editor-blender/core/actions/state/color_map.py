@@ -8,7 +8,7 @@ from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from .color_palette import setup_color_palette_from_state
-from .load import set_ctrl_keyframes_from_state
+from .load import init_ctrl_keyframes_from_state
 
 
 def set_color_map(color_map: ColorMap):
@@ -111,7 +111,7 @@ def apply_color_map_updates_update():
     for color in color_map_updates.updated:
         state.color_map[color.id] = color
 
-    set_ctrl_keyframes_from_state()
+    init_ctrl_keyframes_from_state()
 
     color_map_updates.updated.clear()
 

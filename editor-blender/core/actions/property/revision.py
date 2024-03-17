@@ -1,14 +1,17 @@
+from typing import List, Tuple
+
 import bpy
 
 from ....properties.types import RevisionPropertyType
-from ...models import ControlMap, MapID, PosMap
+from ...models import ControlMap, ControlMapElement, MapID, PosMap
+from ...utils.convert import control_modify_to_animation_data
 from .animation_data import (
-    add_single_ctrl_keyframe,
     add_single_pos_keyframe,
-    delete_single_ctrl_keyframe,
     delete_single_pos_keyframe,
-    edit_single_ctrl_keyframe,
     edit_single_pos_keyframe,
+    modify_partial_ctrl_keyframes,
+    reset_ctrl_rev,
+    reset_fade_sequence,
 )
 
 
@@ -56,11 +59,18 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
 
     incoming_rev = {id: element.rev for id, element in incoming_control_map.items()}
 
+    # sorted by old start time
+    control_update: List[Tuple[int, MapID, ControlMapElement]] = []
+    # sorted by start time
+    control_add: List[Tuple[MapID, ControlMapElement]] = []
+    # sorted by start time
+    control_delete: List[Tuple[int, MapID]] = []
+
     for frame_id, frame_start, meta, data in local_rev:
         incoming_rev_item = incoming_rev.get(frame_id)
         if incoming_rev_item is None:
-            print(f"[CTRL] deleting {frame_id}, {frame_start}")
-            delete_single_ctrl_keyframe(frame_id, frame_start)
+            print(f"[CTRL] delete {frame_id: 4d}, {frame_start}")
+            control_delete.append((frame_start, frame_id))
 
         else:
             if not (
@@ -71,14 +81,33 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
             ):
                 # local animation data matches incoming
                 print(
-                    f"[CTRL] editing {frame_id}, {incoming_control_map[frame_id].start}"
+                    f"[CTRL]   edit {frame_id: 4d}, {incoming_control_map[frame_id].start}"
                 )
-                edit_single_ctrl_keyframe(
-                    frame_id, incoming_control_map[frame_id], frame_start
+                control_update.append(
+                    (frame_start, frame_id, incoming_control_map[frame_id])
                 )
 
             del incoming_rev[frame_id]
 
     for id in incoming_rev.keys():
-        print(f"[CTRL] adding {id}, {incoming_control_map[id].start}")
-        add_single_ctrl_keyframe(id, incoming_control_map[id])
+        print(f"[CTRL]    add {id: 4d}, {incoming_control_map[id].start}")
+        control_add.append((id, incoming_control_map[id]))
+
+    control_update.sort(key=lambda x: x[0])
+    control_add.sort(key=lambda x: x[1].start)
+    control_delete.sort(key=lambda x: x[0])
+
+    modify_animation_data = control_modify_to_animation_data(
+        control_delete, control_update, control_add
+    )
+    modify_partial_ctrl_keyframes(modify_animation_data)
+
+    sorted_ctrl_map = sorted(
+        incoming_control_map.items(), key=lambda item: item[1].start
+    )
+    fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
+    reset_fade_sequence(fade_seq)
+    print("Done reset fade sequence")
+
+    reset_ctrl_rev(sorted_ctrl_map)
+    print("Done reset control rev")

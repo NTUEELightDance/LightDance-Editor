@@ -33,7 +33,10 @@ def ensure_curve(
         curves.new(data_path, index=index)
         curve = curves.find(data_path, index=index)
         curve.keyframe_points.add(keyframe_points)
-    elif clear:
+
+        return curve
+
+    if clear:
         curve.keyframe_points.clear()
         curve.keyframe_points.add(keyframe_points)
 
