@@ -337,7 +337,10 @@ impl ControlMapMutation {
                                     errors.push(error_message);
                                 }
                                 // check if the effect is valid
-                                if !all_led_effect_ids.contains(&effect_id) && effect_id != -1 {
+                                if !all_led_effect_ids.contains(&effect_id)
+                                    && effect_id != -1
+                                    && effect_id != 0
+                                {
                                     let error_message = format!(
                                         "Effect of dancer #{} part #{} is not a valid effect",
                                         index + 1,

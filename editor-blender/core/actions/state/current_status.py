@@ -25,7 +25,9 @@ def update_current_status_by_index():
         return
 
     current_status = current_control_map.status
+    current_led_status = current_control_map.led_status
     state.current_status = current_status
+    state.current_led_status = current_led_status
 
     for dancer in state.dancers_array:
         # stime = time.time()

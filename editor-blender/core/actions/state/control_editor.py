@@ -1,13 +1,17 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import bpy
 
 from ....api.control_agent import control_agent
-from ....graphqls.mutations import MutDancerStatusPayload
+from ....graphqls.mutations import MutDancerLEDStatusPayload, MutDancerStatusPayload
 from ....properties.types import LightType
 from ...models import EditingData, EditMode, PartType, SelectMode
 from ...states import state
-from ...utils.convert import control_status_state_to_mut
+from ...utils.convert import (
+    control_status_state_to_mut,
+    led_status_state_to_mut,
+    rgb_to_float,
+)
 from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.ui import redraw_area
@@ -69,10 +73,11 @@ def sync_editing_control_frame_properties():
 async def add_control_frame():
     start = bpy.context.scene.frame_current
     controlData = control_status_state_to_mut(state.current_status)
+    ledControlData = led_status_state_to_mut(state.current_led_status)
 
     set_requesting(True)
     try:
-        await control_agent.add_frame(start, False, controlData)
+        await control_agent.add_frame(start, False, controlData, ledControlData)
         notify("INFO", f"Added control frame")
     except:
         notify("WARNING", "Cannot add control frame")
@@ -86,10 +91,12 @@ async def save_control_frame(start: Optional[int] = None):
     fade: bool = getattr(bpy.context.window_manager, "ld_fade")
 
     controlData: List[MutDancerStatusPayload] = []
+    ledBulbData: List[MutDancerLEDStatusPayload] = []
     default_color = list(state.color_map.keys())[0]
 
     for dancer in state.dancers_array:
         partControlData: MutDancerStatusPayload = []
+        partLedBulbData: MutDancerLEDStatusPayload = []
         obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
 
         if obj is not None:
@@ -102,8 +109,10 @@ async def save_control_frame(start: Optional[int] = None):
                 if part.name not in part_obj_names:
                     if part.type == PartType.FIBER:
                         partControlData.append((default_color, 0))
+                        partLedBulbData.append(([(0, 0)]))
                     elif part.type == PartType.LED:
                         partControlData.append((-1, 0))
+                        partLedBulbData.append(([(0, 0)]))
                     continue
 
                 part_index = part_obj_names.index(part.name)
@@ -113,23 +122,41 @@ async def save_control_frame(start: Optional[int] = None):
                     color_id = part_obj["ld_color"]
                     ld_alpha: int = getattr(part_obj, "ld_alpha")
                     partControlData.append((color_id, ld_alpha))
+                    partLedBulbData.append([(0, 0)])
                 elif part.type == PartType.LED:
                     effect_id = part_obj["ld_effect"]
                     ld_alpha: int = getattr(part_obj, "ld_alpha")
                     partControlData.append((effect_id, ld_alpha))
+                    if effect_id == 0:
+                        bulb_objs: List[bpy.types.Object] = list(
+                            getattr(part_obj, "children")
+                        )
+                        bulb_objs.sort(key=lambda _obj: getattr(_obj, "ld_led_pos"))
+                        bulb_color_list: List[Tuple[int, int]] = [
+                            (obj["ld_color"], getattr(obj, "ld_alpha"))
+                            for obj in bulb_objs
+                        ]
+                        partLedBulbData.append(bulb_color_list)
+                    else:
+                        partLedBulbData.append([(0, 0)])
 
         else:
             for part in dancer.parts:
                 if part.type == PartType.FIBER:
                     partControlData.append((default_color, 0))
+                    partLedBulbData.append(None)
                 elif part.type == PartType.LED:
                     partControlData.append((-1, 0))
+                    partLedBulbData.append(None)
 
         controlData.append(partControlData)
+        ledBulbData.append(partLedBulbData)
 
     set_requesting(True)
     try:
-        await control_agent.save_frame(id, controlData, fade=fade, start=start)
+        await control_agent.save_frame(
+            id, controlData, ledBulbData, fade=fade, start=start
+        )
         notify("INFO", f"Saved control frame")
 
         # Cancel editing

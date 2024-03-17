@@ -68,6 +68,7 @@ class FiberData:
 
 PartData = Union[LEDData, FiberData]
 DancerStatus = Dict[PartName, PartData]
+DancerLEDBulbStatus = Dict[PartName, List[LEDBulbData]]
 
 
 @dataclass
@@ -78,6 +79,8 @@ class Revision:
 
 ControlMapStatus = Dict[DancerName, DancerStatus]
 
+ControlMapLEDBulbStatus = Dict[DancerName, DancerLEDBulbStatus]
+
 
 @dataclass
 class ControlMapElement:
@@ -85,6 +88,7 @@ class ControlMapElement:
     fade: bool
     rev: Revision
     status: ControlMapStatus
+    led_status: ControlMapLEDBulbStatus
 
 
 ControlMap = Dict[MapID, ControlMapElement]
@@ -386,6 +390,7 @@ class State:
     # NOTE: Maybe we don't need these
     current_fade: bool
     current_status: ControlMapStatus
+    current_led_status: ControlMapLEDBulbStatus
     current_pos: PosMapStatus
 
     current_editing_frame: int
