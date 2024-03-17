@@ -1,21 +1,25 @@
+from typing import cast
+
 import bpy
 
 from ..core.states import state
 
 
 def get_auto_sync(self: bpy.types.PropertyGroup) -> bool:
-    return state.preferences.auto_sync
+    return cast(bool, self.get("auto_sync", False))
 
 
 def get_follow_frame(self: bpy.types.PropertyGroup) -> bool:
-    return state.preferences.follow_frame
+    return cast(bool, self.get("follow_frame", False))
 
 
 def set_auto_sync(self: bpy.types.PropertyGroup, value: bool):
+    self["auto_sync"] = value
     state.preferences.auto_sync = value
 
 
 def set_follow_frame(self: bpy.types.PropertyGroup, value: bool):
+    self["follow_frame"] = value
     state.preferences.follow_frame = value
     bpy.context.screen.use_follow = value
 

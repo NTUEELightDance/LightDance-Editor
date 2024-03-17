@@ -127,6 +127,8 @@ async def init():
     #     )
     # )
 
+    read_preferences()
+
     # Open clients with token
     token: str = get_storage("token")
     username: str = get_storage("username")
