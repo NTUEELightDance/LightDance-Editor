@@ -13,6 +13,8 @@ from ..graphqls.mutations import (
     EDIT_CONTROL_FRAME_TIME,
     REQUEST_EDIT_CONTROL_BY_ID,
     MutCancelEditControlResponse,
+    MutDancerLEDStatusPayload,
+    MutDancerStatusPayload,
     MutDeleteControlFrameInput,
     MutEditControlFrameInput,
     MutEditControlFrameTimeInput,
@@ -81,13 +83,19 @@ class ControlAgent:
         self,
         start: int,
         fade: bool,
-        controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
+        controlData: List[MutDancerStatusPayload],
+        ledControlData: List[MutDancerLEDStatusPayload],
     ) -> Optional[str]:
         try:
             response = await client.execute(
                 str,
                 ADD_CONTROL_FRAME,
-                {"start": start, "controlData": controlData, "fade": fade},
+                {
+                    "start": start,
+                    "controlData": controlData,
+                    "fade": fade,
+                    "ledControlData": ledControlData,
+                },
             )
             return response["addControlFrame"]
 
@@ -103,7 +111,8 @@ class ControlAgent:
     async def save_frame(
         self,
         id: MapID,
-        controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
+        controlData: List[MutDancerStatusPayload],
+        ledBulbData: List[MutDancerLEDStatusPayload],
         fade: Optional[bool] = None,
         start: Optional[int] = None,
     ):
@@ -116,7 +125,10 @@ class ControlAgent:
                     EDIT_CONTROL_FRAME,
                     {
                         "input": MutEditControlFrameInput(
-                            frameId=id, controlData=controlData, fade=fade
+                            frameId=id,
+                            controlData=controlData,
+                            ledBulbData=ledBulbData,
+                            fade=fade,
                         )
                     },
                 )
