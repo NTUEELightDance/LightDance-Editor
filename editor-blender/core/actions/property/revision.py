@@ -11,7 +11,7 @@ from .animation_data import (
     edit_single_pos_keyframe,
     modify_partial_ctrl_keyframes,
     reset_ctrl_rev,
-    reset_fade_sequence,
+    update_control_frames_and_fade_sequence,
 )
 
 
@@ -106,8 +106,14 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
         incoming_control_map.items(), key=lambda item: item[1].start
     )
     fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
-    reset_fade_sequence(fade_seq)
-    print("Done reset fade sequence")
+
+    delete_frames = [frame[0] for frame in control_delete]
+    update_frames = [(frame[0], frame[2].start) for frame in control_update]
+    add_frames = [frame[1].start for frame in control_add]
+    update_control_frames_and_fade_sequence(
+        delete_frames, update_frames, add_frames, fade_seq
+    )
+    print("Done reset control frames and fade sequence")
 
     reset_ctrl_rev(sorted_ctrl_map)
     print("Done reset control rev")

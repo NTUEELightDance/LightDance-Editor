@@ -7,8 +7,9 @@ from .control import (
     edit_single_ctrl_keyframe,
     init_ctrl_keyframes_from_state,
     modify_partial_ctrl_keyframes,
+    reset_control_frames_and_fade_sequence,
     reset_ctrl_rev,
-    reset_fade_sequence,
+    update_control_frames_and_fade_sequence,
 )
 from .position import (
     add_single_pos_keyframe,

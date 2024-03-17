@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Tuple, cast
 import bpy
 
 from .....properties.types import RevisionPropertyItemType, RevisionPropertyType
-from ....models import ControlMapElement, DancerName, LEDData, MapID, PartName, PartType
+from ....models import ControlMapElement, LEDData, MapID, PartType
 from ....states import state
 from ....utils.convert import (
     ControlAddAnimationData,
@@ -19,7 +19,7 @@ from ....utils.convert import (
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 
 
-def reset_fade_sequence(fade_seq: List[Tuple[int, bool]]):
+def reset_control_frames_and_fade_sequence(fade_seq: List[Tuple[int, bool]]):
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
     curve = ensure_curve(
@@ -55,6 +55,72 @@ def reset_ctrl_rev(sorted_ctrl_map: List[Tuple[MapID, ControlMapElement]]):
         ctrl_rev_item.frame_start = frame_start
 
 
+def update_control_frames_and_fade_sequence(
+    delete_frames: List[int],
+    update_frames: List[Tuple[int, int]],
+    add_frames: List[int],
+    fade_seq: List[Tuple[int, bool]],
+):
+    scene = bpy.context.scene
+    action = ensure_action(scene, "SceneAction")
+
+    curve = ensure_curve(action, "ld_control_frame")
+    _, kpoints_list = get_keyframe_points(curve)
+
+    # Delete frames
+    kpoints_len = len(kpoints_list)
+    curve_index = 0
+
+    for old_start in delete_frames:
+        while (
+            curve_index < kpoints_len and kpoints_list[curve_index].co[0] != old_start
+        ):
+            curve_index += 1
+
+        if curve_index < kpoints_len:
+            point = kpoints_list[curve_index]
+            curve.keyframe_points.remove(point)
+
+    # Update frames
+    kpoints_len = len(kpoints_list)
+    curve_index = 0
+    points_to_update: List[Tuple[int, bpy.types.Keyframe]] = []
+
+    for old_start, frame_start in update_frames:
+        while (
+            curve_index < kpoints_len and kpoints_list[curve_index].co[0] != old_start
+        ):
+            curve_index += 1
+
+        if curve_index < kpoints_len:
+            point = kpoints_list[curve_index]
+            points_to_update.append((frame_start, point))
+
+    for frame_start, point in points_to_update:
+        point.co = frame_start, frame_start
+
+    # Add frames
+    kpoints_len = len(kpoints_list)
+    curve.keyframe_points.add(len(add_frames))
+
+    for i, frame_start in enumerate(add_frames):
+        point = kpoints_list[kpoints_len + i]
+        point.co = frame_start, frame_start
+
+    curve.keyframe_points.sort()
+
+    # update fade sequence
+    for i, (start, _) in enumerate(fade_seq):
+        point = kpoints_list[i]
+        point.co = start, start
+
+        if i > 0 and fade_seq[i - 1][1]:
+            point.co = start, kpoints_list[i - 1].co[1]
+
+        point.interpolation = "CONSTANT"
+        point.select_control_point = False
+
+
 """
 initiate control keyframes
 """
@@ -82,24 +148,6 @@ def init_ctrl_single_object_action(
             point.interpolation = "LINEAR" if fade else "CONSTANT"
 
             point.select_control_point = False
-
-
-# Set ld_control_frame keyframes and fade
-def init_ctrl_frame_action(action: bpy.types.Action, fade_seq: List[Tuple[int, bool]]):
-    curve = ensure_curve(
-        action, "ld_control_frame", keyframe_points=len(fade_seq), clear=True
-    )
-
-    _, kpoints_list = get_keyframe_points(curve)
-    for i, (start, _) in enumerate(fade_seq):
-        point = kpoints_list[i]
-        point.co = start, start
-
-        if i > 0 and fade_seq[i - 1][1]:
-            point.co = start, kpoints_list[i - 1].co[1]
-
-        point.interpolation = "CONSTANT"
-        point.select_control_point = False
 
 
 def init_ctrl_keyframes_from_state(effect_only: bool = False):
@@ -153,7 +201,7 @@ def init_ctrl_keyframes_from_state(effect_only: bool = False):
     action = ensure_action(scene, "SceneAction")
 
     fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
-    init_ctrl_frame_action(action, fade_seq)
+    reset_control_frames_and_fade_sequence(fade_seq)
 
 
 """
