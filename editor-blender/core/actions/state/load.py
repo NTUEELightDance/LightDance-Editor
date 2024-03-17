@@ -110,6 +110,9 @@ async def fetch_data(reload: bool = False):
                 with open(file_path, "w+b") as file:
                     file.write(data)
 
+            with open(local_load_hash_path, "w") as file:
+                json.dump(assets_load_hash, file)
+
         except Exception as e:
             print(e)
 
