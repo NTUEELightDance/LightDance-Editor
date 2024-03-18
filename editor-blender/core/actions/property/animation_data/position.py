@@ -1,4 +1,4 @@
-from typing import Dict, Optional, cast
+from typing import Dict, List, Optional, cast
 
 import bpy
 
@@ -7,12 +7,14 @@ from ....models import MapID, PosMapElement
 from ....states import state
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 
+# TODO: Improve this like Control
+
 """
 setups & update colormap(===setups)
 """
 
 
-def set_pos_keyframes_from_state():
+def init_pos_keyframes_from_state(dancers_reset: Optional[List[bool]] = None):
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
     pos_map = state.pos_map
@@ -25,6 +27,10 @@ def set_pos_keyframes_from_state():
         pos_status = pos_map_element.pos
 
         for dancer_name, pos in pos_status.items():
+            dancer_index = state.dancer_part_index_map[dancer_name].index
+            if dancers_reset and not dancers_reset[dancer_index]:
+                continue
+
             dancer_location = (pos.x, pos.y, pos.z)
 
             dancer_obj = data_objects[dancer_name]
@@ -64,24 +70,6 @@ def set_pos_keyframes_from_state():
 
         # set revision
         rev = pos_map_element.rev
-
-        # curve = ensure_curve(
-        #     action, "ld_pos_meta", keyframe_points=pos_frame_number, clear=i == 0
-        # )
-        # _, kpoints_list = get_keyframe_points(curve)
-        #
-        # point = kpoints_list[i]
-        # point.co = frame_start, rev.meta
-        # point.interpolation = "CONSTANT"
-        #
-        # curve = ensure_curve(
-        #     action, "ld_pos_data", keyframe_points=pos_frame_number, clear=i == 0
-        # )
-        # _, kpoints_list = get_keyframe_points(curve)
-        #
-        # point = kpoints_list[i]
-        # point.co = frame_start, rev.data
-        # point.interpolation = "CONSTANT"
 
         pos_rev_item: RevisionPropertyItemType = getattr(
             bpy.context.scene, "ld_pos_rev"

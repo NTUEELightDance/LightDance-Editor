@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import bpy
 
@@ -15,7 +15,11 @@ from .animation_data import (
 )
 
 
-def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMap):
+def update_rev_changes(
+    incoming_pos_map: PosMap,
+    incoming_control_map: ControlMap,
+    dancers_reset: Optional[List[bool]] = None,
+):
     # position
     ld_pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
     local_rev = [
@@ -100,7 +104,7 @@ def update_rev_changes(incoming_pos_map: PosMap, incoming_control_map: ControlMa
     modify_animation_data = control_modify_to_animation_data(
         control_delete, control_update, control_add
     )
-    modify_partial_ctrl_keyframes(modify_animation_data)
+    modify_partial_ctrl_keyframes(modify_animation_data, dancers_reset)
 
     sorted_ctrl_map = sorted(
         incoming_control_map.items(), key=lambda item: item[1].start

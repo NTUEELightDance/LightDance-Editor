@@ -126,7 +126,7 @@ def apply_led_map_updates_update():
         state.led_map[model][part][name] = effect
         state.led_effect_id_table[effect.id] = effect
 
-    init_ctrl_keyframes_from_state(effect_only=True)
+    init_ctrl_keyframes_from_state()
 
     led_map_update.updated.clear()
 

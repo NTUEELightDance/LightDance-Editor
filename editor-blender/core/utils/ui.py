@@ -1,6 +1,15 @@
+import asyncio
 from typing import Set
 
 import bpy
+
+from ..states import state
+
+
+async def update_user_log(message: str):
+    state.user_log = message
+    redraw_area({"VIEW_3D"})
+    await asyncio.sleep(0.1)
 
 
 def redraw_area(area_types: Set[str]):

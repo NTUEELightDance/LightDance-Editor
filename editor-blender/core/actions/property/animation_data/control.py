@@ -150,7 +150,7 @@ def init_ctrl_single_object_action(
             point.select_control_point = False
 
 
-def init_ctrl_keyframes_from_state(effect_only: bool = False):
+def init_ctrl_keyframes_from_state(dancers_reset: Optional[List[bool]] = None):
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
     ctrl_map = state.control_map
@@ -160,6 +160,9 @@ def init_ctrl_keyframes_from_state(effect_only: bool = False):
     animation_data = control_map_to_animation_data(sorted_ctrl_map)
 
     for dancer_index, dancer_item in enumerate(state.dancers_array):
+        if dancers_reset is not None and not dancers_reset[dancer_index]:
+            continue
+
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 
@@ -200,8 +203,9 @@ def init_ctrl_keyframes_from_state(effect_only: bool = False):
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
 
-    fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
-    reset_control_frames_and_fade_sequence(fade_seq)
+    if dancers_reset is None or all(dancers_reset):
+        fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
+        reset_control_frames_and_fade_sequence(fade_seq)
 
 
 """
@@ -272,10 +276,16 @@ def modify_partial_ctrl_single_object_action(
         curve.keyframe_points.sort()
 
 
-def modify_partial_ctrl_keyframes(animation_data: ControlModifyAnimationData):
+def modify_partial_ctrl_keyframes(
+    animation_data: ControlModifyAnimationData,
+    dancers_reset: Optional[List[bool]] = None,
+):
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_index, dancer_item in enumerate(state.dancers_array):
+        if not dancers_reset is None and dancers_reset[dancer_index]:
+            continue
+
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 

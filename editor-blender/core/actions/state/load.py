@@ -6,16 +6,16 @@ from typing import Any, Dict, List, Optional, Set, Tuple, cast
 import bpy
 
 from ....client import client
-from ....properties.types import LightType, ObjectType
+from ....properties.types import DancerModelHashItemType, LightType, ObjectType
 from ...actions.property.revision import update_rev_changes
 from ...config import config
-from ...models import DancersArrayPartsItem, PartType
+from ...models import DancersArrayPartsItem, ModelName, PartType
 from ...states import state
 from ...utils.convert import rgb_to_float
-from ...utils.ui import redraw_area, set_dopesheet_filter
+from ...utils.ui import set_dopesheet_filter, update_user_log
 from ..property.animation_data import (
     init_ctrl_keyframes_from_state,
-    set_pos_keyframes_from_state,
+    init_pos_keyframes_from_state,
 )
 
 asset_path = cast(
@@ -42,7 +42,6 @@ async def fetch_data(reload: bool = False):
     Fetch assets from editor-server
     param reload: Fetch assets again even they already exist is true, otherwise only fetch missing assets.
     """
-    print("fetching data")
     use_draco = False
 
     if client.file_client:
@@ -75,6 +74,8 @@ async def fetch_data(reload: bool = False):
                 if not hash_match:
                     print(f"Hash mismatch for {tag}")
 
+            dancer_model_update: Dict[str, bool] = {}
+            dancer_models_hash: Dict[str, str] = {}
             for key in assets_load["DancerMap"]:
                 raw_url = assets_load["DancerMap"][key]["url"]
 
@@ -84,6 +85,7 @@ async def fetch_data(reload: bool = False):
                     model_url = "".join(raw_url.split(".draco"))
                     assets_load["DancerMap"][key]["url"] = model_url
 
+                dancer_models_hash[key] = assets_load_hash["DancerMap"][key]["url"]
                 hash_match = not new_load_hash and (
                     assets_load_hash["DancerMap"][key]["url"]
                     == local_load_hash["DancerMap"][key]["url"]
@@ -92,6 +94,9 @@ async def fetch_data(reload: bool = False):
 
                 if not hash_match:
                     print(f"Hash mismatch for DancerMap/{key}/url")
+                    dancer_model_update[key] = True
+                else:
+                    dancer_model_update[key] = False
 
             parse_config(assets_load["Config"])
 
@@ -115,11 +120,14 @@ async def fetch_data(reload: bool = False):
 
         except Exception as e:
             print(e)
+            raise Exception("Failed to fetch assets")
 
     else:
         raise Exception("File client is not initialized")
 
-    return assets_load
+    state.init_temps.assets_load = assets_load
+    state.init_temps.dancer_model_update = dancer_model_update
+    state.init_temps.dancer_models_hash = dancer_models_hash
 
 
 async def import_model_to_asset(
@@ -184,9 +192,6 @@ async def import_model_to_asset(
     bpy.ops.outliner.orphans_purge(do_recursive=True)
     print(f"Model: {model_name} imported")
 
-    # for obj in col.all_objects:
-    #     print(obj.name)
-
 
 def find_first_mesh(mesh_name: str) -> Optional[bpy.types.Mesh]:
     data_meshes = cast(Dict[str, bpy.types.Mesh], bpy.data.meshes)
@@ -222,12 +227,19 @@ def setup_dancer_part_objects_map():
             state.dancer_part_objects_map[dancer_name][1][part_name] = part_obj
 
 
-async def setup_objects(assets_load: Dict[str, Any]):
+def recursive_remove_object(obj: bpy.types.Object):
+    for child in obj.children:
+        recursive_remove_object(child)
+
+    bpy.data.objects.remove(obj)
+
+
+async def setup_objects():
+    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+
     """
     clear all objects in viewport
     """
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
-
     for old_obj in data_objects.values():
         if old_obj.visible_get() and not hasattr(old_obj, "ld_dancer_name"):
             bpy.data.objects.remove(old_obj)
@@ -235,31 +247,60 @@ async def setup_objects(assets_load: Dict[str, Any]):
     """
     set dancer objects
     """
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    assets_load = state.init_temps.assets_load
+    dancers_model_update = state.init_temps.dancer_model_update
+    dancer_reset_animation = state.init_temps.dancers_reset_animation
 
-    if check_local_object_list():
-        print("local objects detected")
-        setup_dancer_part_objects_map()
-        return
-    else:
+    dancer_reset_animation.extend([True] * len(state.dancers_array))
+
+    check_local_object_list()
+    dancers_object_exist = state.init_temps.dancers_object_exist
+
+    # New file
+    if not any(dancers_object_exist.values()):
         for old_obj in data_objects.values():
             if old_obj.visible_get():
                 bpy.data.objects.remove(old_obj)
 
+    models_ready: Dict[ModelName, bool] = {}
+
     dancer_array = state.dancers_array
-    for dancer in dancer_array:
+    for dancer_index, dancer in enumerate(dancer_array):
         dancer_name = dancer.name
-        dancer_index = dancer_name.split("_")[0]
-        dancer_load = assets_load["DancerMap"][dancer_name]
-        if dancer_name in bpy.context.scene.objects.keys():
+        dancer_object_exist = dancers_object_exist[dancer_name]
+        dancer_model_update = dancers_model_update[dancer_name]
+
+        # Dancer object exists and model doesn't need to be updated
+        if dancer_object_exist and not dancer_model_update:
+            state.init_temps.dancers_reset_animation[dancer_index] = False
             continue
+
+        print(f"Setting up dancer {dancer.name}...")
+        dancer_load = assets_load["DancerMap"][dancer_name]
+
+        # Remove existing dancer object if model needs to be updated
+        if dancer_object_exist:
+            dancer_obj = data_objects[dancer_name]
+            recursive_remove_object(dancer_obj)
 
         model_file: str = dancer_load["url"]
         model_filepath = os.path.normpath(target_path + model_file)
         model_name: str = dancer_load["modelName"]
 
+        # Remove model in collections if model needs to be updated
+        if dancer_model_update and not models_ready.get(model_name, False):
+            collection = cast(bpy.types.Collection, bpy.data.collections[model_name])
+            all_objects = cast(List[bpy.types.Object], collection.all_objects)
+            collection_objects = [obj for obj in all_objects]
+
+            bpy.data.collections.remove(collection)
+            for obj in collection_objects:
+                bpy.data.objects.remove(obj)
+
         if model_name not in bpy.data.collections.keys():
             await import_model_to_asset(model_name, model_filepath, dancer.parts)
+
+        models_ready[model_name] = True
 
         data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
         dancer_asset = cast(bpy.types.Collection, bpy.data.collections[model_name])
@@ -371,6 +412,16 @@ async def setup_objects(assets_load: Dict[str, Any]):
                     ld_model_name=model_name,
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
+
+        # Add model hash to blender if dancer is successfully loaded
+        new_dancer_models_hash = cast(
+            DancerModelHashItemType,
+            getattr(bpy.context.scene, "ld_dancer_model_hash").add(),
+        )
+        new_dancer_models_hash.dancer_name = dancer_name
+        new_dancer_models_hash.model_hash = state.init_temps.dancer_models_hash[
+            dancer_name
+        ]
 
     setup_dancer_part_objects_map()
 
@@ -632,47 +683,48 @@ def setup_display():
     space.show_restrict_column_indirect_only = False
 
 
-def clear_animation_data():
-    data_objects = cast(List[bpy.types.Object], bpy.data.objects)
-    for obj in data_objects:
-        obj.animation_data_clear()
-
-    setattr(bpy.context.scene, "ld_anidata", False)
-    bpy.context.scene.animation_data_clear()
-    bpy.context.window_manager.animation_data_clear()
-
-    bpy.context.scene.ld_ctrl_rev.clear()  # type: ignore
-    bpy.context.scene.ld_pos_rev.clear()  # type: ignore
-
-
 def setup_animation_data():
-    if not getattr(bpy.context.scene, "ld_anidata"):
-        set_pos_keyframes_from_state()
-        try:
-            init_ctrl_keyframes_from_state()
-        except Exception as e:
-            print(e)
-        setattr(bpy.context.scene, "ld_anidata", True)
-    else:
-        print("local animation data detected")
-        try:
-            update_rev_changes(state.pos_map, state.control_map)
-        except Exception as e:
-            print(e)
+    dancers_reset_animation = state.init_temps.dancers_reset_animation
+    reset_all = all(dancers_reset_animation)
+    update_all = not any(dancers_reset_animation)
 
-            # clear_animation_data()
-            # set_pos_keyframes_from_state()
-            # set_ctrl_keyframes_from_state()
-            # setattr(bpy.context.scene, "ld_anidata", True)
+    if reset_all:
+        init_ctrl_keyframes_from_state()
+        init_pos_keyframes_from_state()
+        return
+
+    if update_all:
+        update_rev_changes(state.pos_map, state.control_map)
+        return
+
+    init_ctrl_keyframes_from_state(dancers_reset_animation)
+    init_pos_keyframes_from_state(dancers_reset_animation)
+    update_rev_changes(state.pos_map, state.control_map, dancers_reset_animation)
 
 
 def check_local_object_list():
     data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    dancer_objects_exist = {}
+    dancer_model_update = state.init_temps.dancer_model_update
+
+    dancer_models_hash = state.init_temps.dancer_models_hash
+
+    local_dancer_models_hash_list = cast(
+        List[DancerModelHashItemType],
+        getattr(bpy.context.scene, "ld_dancer_model_hash"),
+    )
+    local_dancer_models_hash = dict(
+        (model_hash.dancer_name, (i, model_hash))
+        for i, model_hash in enumerate(local_dancer_models_hash_list)
+    )
 
     for dancer_item in state.dancers_array:
         dancer_name = dancer_item.name
+        dancer_objects_exist[dancer_name] = True
+
         if dancer_name not in bpy.data.objects.keys():
-            return False
+            dancer_objects_exist[dancer_name] = False
+            continue
 
         dancer_parts = dancer_item.parts
         dancer_index = dancer_name.split("_")[0]
@@ -685,52 +737,56 @@ def check_local_object_list():
                 case PartType.LED:
                     part_parent = data_objects.get(part_obj_name)
                     if part_parent is None:
-                        return False
+                        dancer_objects_exist[dancer_name] = False
+                        break
 
                     if len(part_parent.children) != part_item.length:
-                        return False
+                        dancer_objects_exist[dancer_name] = False
+                        break
 
                 case PartType.FIBER:
                     if part_obj_name not in data_objects.keys():
-                        return False
+                        dancer_objects_exist[dancer_name] = False
+                        break
 
-    return True
+        local_dancer_model_hash = local_dancer_models_hash.get(dancer_name)
+        if local_dancer_model_hash is None or local_dancer_model_hash[
+            1
+        ].model_hash != dancer_models_hash.get(dancer_name, ""):
+            print(f"Model hash mismatch for {dancer_name}")
+            dancer_model_update[dancer_name] = True
+            if local_dancer_model_hash is not None:
+                getattr(bpy.context.scene, "ld_dancer_model_hash").remove(
+                    local_dancer_model_hash[0]
+                )
+
+        # Model should be updated, remove dancer first
+        if not dancer_objects_exist[dancer_name]:
+            dancer_obj = data_objects[dancer_name]
+            recursive_remove_object(dancer_obj)
+
+    state.init_temps.dancers_object_exist = dancer_objects_exist
 
 
 async def init_assets():
-    state.user_log = "Fetching data..."
-    redraw_area({"VIEW_3D"})
-    await asyncio.sleep(0.1)
-
-    state.assets_path = target_path
-    state.assets_load = await fetch_data()
-
-    state.user_log = "Setting up objects..."
-    redraw_area({"VIEW_3D"})
-    await asyncio.sleep(0.1)
+    await update_user_log("Fetching data...")
+    await fetch_data()
 
     setup_render()
     setup_display()
 
-    state.user_log = "Setting up music..."
-    redraw_area({"VIEW_3D"})
-    await asyncio.sleep(0.1)
-
-    setup_music(state.assets_load)
-    print("Music loaded")
+    await update_user_log("Setting up music...")
+    setup_music(state.init_temps.assets_load)
 
 
-async def load_data() -> None:
-    state.user_log = "Setting up objects..."
-    redraw_area({"VIEW_3D"})
-    await asyncio.sleep(0.1)
-
-    await setup_objects(state.assets_load)
+async def load_data():
+    await update_user_log("Setting up objects...")
+    try:
+        await setup_objects()
+    except Exception as e:
+        print(e)
+        raise Exception("Failed to setup objects")
     setup_floor()
 
-    state.user_log = "Setting up animation..."
-    redraw_area({"VIEW_3D"})
-    await asyncio.sleep(0.1)
-
+    await update_user_log("Setting up animation data...")
     setup_animation_data()
-    print("Data loaded")

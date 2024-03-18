@@ -8,6 +8,11 @@ class KeyframeRevisionItem(bpy.types.PropertyGroup):
     data: bpy.props.IntProperty(default=-1)  # type: ignore
 
 
+class ModelHashItem(bpy.types.PropertyGroup):
+    dancer_name: bpy.props.StringProperty()  # type: ignore
+    model_hash: bpy.props.StringProperty()  # type: ignore
+
+
 def register():
     bpy.utils.register_class(KeyframeRevisionItem)
     setattr(
@@ -20,7 +25,13 @@ def register():
         "ld_ctrl_rev",
         bpy.props.CollectionProperty(type=KeyframeRevisionItem),
     )
-    setattr(bpy.types.Scene, "ld_anidata", bpy.props.BoolProperty(default=False))
+
+    bpy.utils.register_class(ModelHashItem)
+    setattr(
+        bpy.types.Scene,
+        "ld_dancer_model_hash",
+        bpy.props.CollectionProperty(type=ModelHashItem),
+    )
 
 
 def unregister():
@@ -33,4 +44,6 @@ def unregister():
         bpy.types.Scene,
         "ld_ctrl_rev",
     )
-    delattr(bpy.types.Scene, "ld_anidata")
+
+    bpy.utils.unregister_class(ModelHashItem)
+    delattr(bpy.types.Scene, "ld_dancer_model_hash")

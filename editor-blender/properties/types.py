@@ -42,6 +42,11 @@ class RevisionPropertyItemType:
 RevisionPropertyType = List[RevisionPropertyItemType]
 
 
+class DancerModelHashItemType:
+    dancer_name: str
+    model_hash: str
+
+
 class Preferences:
     auto_sync: bool
     follow_frame: bool

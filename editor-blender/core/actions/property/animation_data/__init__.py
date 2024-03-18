@@ -15,5 +15,5 @@ from .position import (
     add_single_pos_keyframe,
     delete_single_pos_keyframe,
     edit_single_pos_keyframe,
-    set_pos_keyframes_from_state,
+    init_pos_keyframes_from_state,
 )

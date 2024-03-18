@@ -333,6 +333,15 @@ DancerPartObjectsMap = Dict[
 
 
 @dataclass
+class InitializationTemporaries:
+    assets_load: Dict[str, Any]
+    dancer_models_hash: Dict[str, str]
+    dancer_model_update: Dict[DancerName, bool]
+    dancers_object_exist: Dict[DancerName, bool]
+    dancers_reset_animation: List[bool]
+
+
+@dataclass
 class State:
     running: bool
     sync: bool
@@ -351,8 +360,7 @@ class State:
     init_editor_task: Optional[Task[None]]
     command_task: Optional[Task[None]]
 
-    assets_path: str
-    assets_load: Dict[str, Any]
+    init_temps: InitializationTemporaries
     music_frame_length: int
 
     token: str
