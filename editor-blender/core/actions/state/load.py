@@ -709,13 +709,10 @@ def check_local_object_list():
 
     dancer_models_hash = state.init_temps.dancer_models_hash
 
-    local_dancer_models_hash_list = cast(
+    # local_dancer_models_hash_list = cast(
+    local_dancer_models_hash = cast(
         List[DancerModelHashItemType],
         getattr(bpy.context.scene, "ld_dancer_model_hash"),
-    )
-    local_dancer_models_hash = dict(
-        (model_hash.dancer_name, (i, model_hash))
-        for i, model_hash in enumerate(local_dancer_models_hash_list)
     )
 
     for dancer_item in state.dancers_array:
@@ -749,7 +746,12 @@ def check_local_object_list():
                         dancer_objects_exist[dancer_name] = False
                         break
 
-        local_dancer_model_hash = local_dancer_models_hash.get(dancer_name)
+        local_dancer_model_hash = None
+        for i, model_hash in enumerate(local_dancer_models_hash):
+            if model_hash.dancer_name == dancer_name:
+                local_dancer_model_hash = (i, model_hash)
+                break
+
         if local_dancer_model_hash is None or local_dancer_model_hash[
             1
         ].model_hash != dancer_models_hash.get(dancer_name, ""):
