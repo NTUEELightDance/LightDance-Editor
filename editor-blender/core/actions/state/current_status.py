@@ -1,9 +1,6 @@
-# import time
-from typing import List, Optional
-
 import bpy
 
-from ....properties.types import LightType, ObjectType
+from ....properties.types import LightType
 from ...models import FiberData, LEDData
 from ...states import state
 from ...utils.algorithms import binary_search
@@ -24,11 +21,13 @@ def update_current_status_by_index():
     if current_control_map is None:
         return
 
+    setattr(bpy.context.window_manager, "ld_fade", current_control_map.fade)
+    setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
+
     current_status = current_control_map.status
     state.current_status = current_status
 
     for dancer in state.dancers_array:
-        # stime = time.time()
         dancer_status = current_status.get(dancer.name)
         if dancer_status is None:
             continue
@@ -38,15 +37,12 @@ def update_current_status_by_index():
             part_objects = dancer_part_objects[1]
 
             for part_name, part_obj in part_objects.items():
-                # stime = time.time()
                 light_type = getattr(part_obj, "ld_light_type")
 
                 part_status = dancer_status.get(part_name)
                 if part_status is None:
                     continue
-                # print(f"get part_status: {time.time() - stime}")
 
-                # stime = time.time()
                 match light_type:
                     case LightType.FIBER.value:
                         if not isinstance(part_status, FiberData):
@@ -72,4 +68,3 @@ def update_current_status_by_index():
 
                     case _:
                         pass
-                # print(f"set ld_color and ld_effect: {time.time() - stime}")
