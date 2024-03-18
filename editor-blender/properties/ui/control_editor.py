@@ -41,7 +41,7 @@ def get_effect_lists(
     effect_list: List[str] = list(possible_effects)
     effect_list.sort()
 
-    effect_list = ["no-change"] + effect_list
+    effect_list = ["(Bulb color)"] + ["no-change"] + effect_list
 
     return [(effect, effect, "", "", index) for index, effect in enumerate(effect_list)]
 

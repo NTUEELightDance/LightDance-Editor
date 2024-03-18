@@ -55,6 +55,9 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
             control_index -= 1
 
+    if effect_id == 0:
+        return
+
     if effect_id != -1:
         effect = state.led_effect_id_table[effect_id]
 
@@ -89,6 +92,7 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
             led_bulb_obj.color[0] = bulb_ld_color_float[0] * (ld_alpha / 255)
             led_bulb_obj.color[1] = bulb_ld_color_float[1] * (ld_alpha / 255)
             led_bulb_obj.color[2] = bulb_ld_color_float[2] * (ld_alpha / 255)
+            setattr(led_bulb_obj, "ld_alpha", ld_alpha)
     else:
         self.color[0] = ld_color_float[0] * (ld_alpha / 255)
         self.color[1] = ld_color_float[1] * (ld_alpha / 255)
