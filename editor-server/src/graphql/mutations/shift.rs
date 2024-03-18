@@ -3,10 +3,7 @@ use crate::db::types::{
     editing_position_frame::EditingPositionFrameData, position_frame::PositionFrameData,
 };
 use crate::graphql::subscriptions::{
-    control_map::ControlMapPayload,
-    control_record::{ControlRecordMutationMode, ControlRecordPayload},
-    position_map::PositionMapPayload,
-    position_record::{PositionRecordMutationMode, PositionRecordPayload},
+    control_map::ControlMapPayload, position_map::PositionMapPayload,
 };
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::{control_data::*, pos_data::*};
@@ -42,6 +39,7 @@ impl FrameMutation {
         shift_position: bool,
     ) -> GQLResult<ShiftResponse> {
         let context = ctx.data::<UserContext>()?;
+
         let clients = context.clients;
         let redis_client = &clients.redis_client;
 
@@ -268,36 +266,39 @@ impl FrameMutation {
             };
             Subscriptor::publish(control_map_payload);
 
-            let all_control_frames = sqlx::query_as!(
-                ControlFrameData,
-                r#"
-                    SELECT
-                        id,
-                        start,
-                        fade as "fade: bool",
-                        meta_rev,
-                        data_rev
-                    FROM ControlFrame
-                    ORDER BY start ASC;
-                "#
-            )
-            .fetch_all(mysql)
-            .await?;
-            let mut index = -1;
-            for (idx, frame) in all_control_frames.iter().enumerate() {
-                if frame.id == update_control_ids.clone()[0] {
-                    index = idx as i32;
-                }
-            }
-            let control_record_payload = ControlRecordPayload {
-                mutation: ControlRecordMutationMode::UpdatedDeleted,
-                edit_by: context.user_id,
-                add_id: Vec::new(),
-                delete_id: delete_control_list.clone(),
-                update_id: update_control_ids.clone(),
-                index,
-            };
-            Subscriptor::publish(control_record_payload);
+            // NOTE: Not used in frontend
+            // let all_control_frames = sqlx::query_as!(
+            //     ControlFrameData,
+            //     r#"
+            //         SELECT
+            //             id,
+            //             start,
+            //             fade as "fade: bool",
+            //             meta_rev,
+            //             data_rev
+            //         FROM ControlFrame
+            //         ORDER BY start ASC;
+            //     "#
+            // )
+            // .fetch_all(mysql)
+            // .await?;
+            // let mut index = -1;
+            //
+            // for (idx, frame) in all_control_frames.iter().enumerate() {
+            //     if frame.id == update_control_ids.clone()[0] {
+            //         index = idx as i32;
+            //     }
+            // }
+            //
+            // let control_record_payload = ControlRecordPayload {
+            //     mutation: ControlRecordMutationMode::UpdatedDeleted,
+            //     edit_by: context.user_id,
+            //     add_id: Vec::new(),
+            //     delete_id: delete_control_list.clone(),
+            //     update_id: update_control_ids.clone(),
+            //     index,
+            // };
+            // Subscriptor::publish(control_record_payload);
         }
 
         if shift_position {
@@ -417,30 +418,32 @@ impl FrameMutation {
                 }),
             };
             Subscriptor::publish(position_map_payload);
-            let all_position_frames = sqlx::query_as!(
-                PositionFrameData,
-                r#"
-                    SELECT * FROM PositionFrame
-                    ORDER BY start ASC;
-                "#
-            )
-            .fetch_all(mysql)
-            .await?;
-            let mut index = -1;
-            for (idx, frame) in all_position_frames.iter().enumerate() {
-                if frame.id == update_position_ids.clone()[0] {
-                    index = idx as i32;
-                }
-            }
-            let position_record_payload = PositionRecordPayload {
-                mutation: PositionRecordMutationMode::UpdatedDeleted,
-                edit_by: context.user_id,
-                add_id: Vec::new(),
-                delete_id: delete_position_list.clone(),
-                update_id: update_position_ids.clone(),
-                index,
-            };
-            Subscriptor::publish(position_record_payload);
+
+            // NOTE: Not used in frontend
+            // let all_position_frames = sqlx::query_as!(
+            //     PositionFrameData,
+            //     r#"
+            //         SELECT * FROM PositionFrame
+            //         ORDER BY start ASC;
+            //     "#
+            // )
+            // .fetch_all(mysql)
+            // .await?;
+            // let mut index = -1;
+            // for (idx, frame) in all_position_frames.iter().enumerate() {
+            //     if frame.id == update_position_ids.clone()[0] {
+            //         index = idx as i32;
+            //     }
+            // }
+            // let position_record_payload = PositionRecordPayload {
+            //     mutation: PositionRecordMutationMode::UpdatedDeleted,
+            //     edit_by: context.user_id,
+            //     add_id: Vec::new(),
+            //     delete_id: delete_position_list.clone(),
+            //     update_id: update_position_ids.clone(),
+            //     index,
+            // };
+            // Subscriptor::publish(position_record_payload);
         }
 
         update_revision(mysql).await?;
