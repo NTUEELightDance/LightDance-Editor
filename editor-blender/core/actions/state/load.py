@@ -288,7 +288,11 @@ async def setup_objects():
         model_name: str = dancer_load["modelName"]
 
         # Remove model in collections if model needs to be updated
-        if dancer_model_update and not models_ready.get(model_name, False):
+        if (
+            dancer_model_update
+            and not models_ready.get(model_name, False)
+            and model_name in bpy.data.collections.keys()
+        ):
             collection = cast(bpy.types.Collection, bpy.data.collections[model_name])
             all_objects = cast(List[bpy.types.Object], collection.all_objects)
             collection_objects = [obj for obj in all_objects]
