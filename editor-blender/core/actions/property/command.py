@@ -88,8 +88,6 @@ def set_countdown(delay: int):
             print(countdown)
             if seconds > 0:
                 await asyncio.sleep(1)
-            else:
-                bpy.ops.screen.animation_play()
 
     if countdown_task.task:
         countdown_task.task.cancel()

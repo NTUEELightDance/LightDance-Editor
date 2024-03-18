@@ -339,6 +339,7 @@ class Clients:
 
     async def restart_command(self):
         await self.close_command()
+        await asyncio.sleep(1)
         await self.open_command()
 
 

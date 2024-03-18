@@ -127,6 +127,7 @@ class CommandCenterPlayOperator(AsyncOperator):
             bpy.context.window_manager, "ld_ui_command_center"
         )
         set_countdown(command_status.delay)
+        start_timestamp_ms = int(time.time() * 1000) + command_status.delay * 1000
         try:
             play_payload = ToControllerServerPlayPartial.from_dict(
                 {
@@ -134,12 +135,13 @@ class CommandCenterPlayOperator(AsyncOperator):
                     "payload": {
                         "dancers": get_selected_dancer(),
                         "start": bpy.context.scene.frame_current,
-                        "timestamp": int(time.time()) + command_status.delay,
+                        "timestamp": start_timestamp_ms,
                     },
                 }
             )
             # set_requesting(True)
             await command_agent.send_to_controller_server(play_payload)
+            state.last_play_timestamp_ms = start_timestamp_ms
 
         except Exception as e:
             # set_requesting(False)
@@ -156,13 +158,18 @@ class CommandCenterPauseOperator(AsyncOperator):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
-        bpy.ops.screen.animation_cancel(restore_frame=False)
+        # bpy.ops.screen.animation_cancel(restore_frame=False)
         try:
             pause_payload = ToControllerServerPausePartial.from_dict(
                 {"topic": "pause", "payload": {"dancers": get_selected_dancer()}}
             )
             # set_requesting(True)
             await command_agent.send_to_controller_server(pause_payload)
+            time_since_last_play_ms = (
+                int(time.time() * 1000) - state.last_play_timestamp_ms
+            )
+            if time_since_last_play_ms < 600000:
+                bpy.context.scene.frame_current += time_since_last_play_ms
 
         except Exception as e:
             # set_requesting(False)
@@ -179,7 +186,7 @@ class CommandCenterStopOperator(AsyncOperator):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
-        bpy.ops.screen.animation_cancel(restore_frame=True)
+        # bpy.ops.screen.animation_cancel(restore_frame=True)
         if countdown_task.task:
             countdown_task.task.cancel()
             countdown_task.task = None
@@ -193,6 +200,7 @@ class CommandCenterStopOperator(AsyncOperator):
             )
             # set_requesting(True)
             await command_agent.send_to_controller_server(stop_payload)
+            bpy.context.scene.frame_current = 0
 
         except Exception as e:
             # set_requesting(False)

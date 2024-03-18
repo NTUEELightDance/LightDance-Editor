@@ -419,6 +419,7 @@ class State:
 
     rpi_status: RPiStatus
     shell_history: ShellHistory
+    last_play_timestamp_ms: int
 
     color_map_updates: ColorMapUpdates
     color_map_pending: ColorMapPending
