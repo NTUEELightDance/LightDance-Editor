@@ -79,6 +79,7 @@ state = State(
     color_map={},
     rpi_status={},
     shell_history={},
+    last_play_timestamp_ms=0,
     color_map_updates=ColorMapUpdates(added=[], updated=[], deleted=[]),
     color_map_pending=ColorMapPending(add_or_delete=False, update=False),
     led_map_updates=LEDMapUpdates(added=[], updated=[], deleted=[]),

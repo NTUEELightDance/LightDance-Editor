@@ -4,6 +4,16 @@
 
 The configuation for pinMapTable and dancerTable is in `configs/`.
 
+## Playing music
+
+For Linux, use `play` command, it can be installed by running:
+```
+sudo apt-get install sox libsox-fmt-all
+```
+For macOS, use `afplay` command.
+
+These commands must be modified in `scripts/schedule_play.sh` and `scripts/schedule_stop.sh` depending on the device that the controller server runs on.
+
 ## Message Format
 
 * Example Message from RPi
