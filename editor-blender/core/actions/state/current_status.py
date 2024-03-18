@@ -25,7 +25,9 @@ def update_current_status_by_index():
     setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
 
     current_status = current_control_map.status
+    current_led_status = current_control_map.led_status
     state.current_status = current_status
+    state.current_led_status = current_led_status
 
     for dancer in state.dancers_array:
         dancer_status = current_status.get(dancer.name)
