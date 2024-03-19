@@ -615,15 +615,7 @@ const pinMapTable: PinMapTable = {
   "12_temple_2": {
     dancer: "11_temple",
     fps: 30,
-    OFPARTS: {
-      face: 0,
-      arm_left: 1,
-      arm_right: 2,
-      leg_left: 3,
-      leg_right: 4,
-      detail_left: 5,
-      detail_right: 6,
-    },
+    OFPARTS: {},
     LEDPARTS: {
       left_side_LED: { id: 2, len: 30 },
       face_LED: { id: 3, len: 15 },
@@ -761,7 +753,7 @@ const pinMapTable: PinMapTable = {
     fps: 30,
     OFPARTS: {},
     LEDPARTS: {
-      LED: { id: 1, len: 128 },
+      sword_effect_LED: { id: 1, len: 128 },
     },
     LEDPARTS_MERGE: {},
   },
