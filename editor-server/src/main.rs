@@ -19,7 +19,7 @@ use std::env::var;
 use std::fs;
 use std::path::Path;
 
-#[tokio::main(flavor = "multi_thread")]
+#[tokio::main(flavor = "multi_thread", worker_threads = 20)]
 pub async fn main() {
     dotenv::dotenv().ok();
 
