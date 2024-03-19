@@ -1,5 +1,6 @@
 import asyncio
 import time
+import traceback
 from typing import Any, Callable, Dict, Optional
 
 import bpy
@@ -35,6 +36,7 @@ def execute_operator(idname: str, **kwargs: Any):
         ops("INVOKE_DEFAULT", **kwargs)
         print("Executed operator:", idname)
     except:
+        traceback.print_exc()
         print("Failed to execute operator:", idname)
 
 

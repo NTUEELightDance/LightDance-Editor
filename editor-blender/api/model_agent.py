@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from dataclasses import dataclass
 from typing import Optional
 
@@ -20,8 +21,8 @@ class ModelAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            traceback.print_exc()
 
         return None
 

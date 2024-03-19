@@ -1,3 +1,5 @@
+import traceback
+
 from ...models import EditMode, MapID, PosMap, PosMapElement, PosRecord
 from ...states import state
 from ...utils.notification import notify
@@ -24,7 +26,11 @@ def add_pos(id: MapID, frame: PosMapElement):
     pos_map_updates = state.pos_map_updates
     pos_map_updates.added.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
+    if (
+        state.edit_state == EditMode.EDITING
+        or not state.preferences.auto_sync
+        or not state.ready
+    ):
         state.pos_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -56,7 +62,11 @@ def delete_pos(id: MapID):
 
     pos_map_updates.deleted.append(id)
 
-    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
+    if (
+        state.edit_state == EditMode.EDITING
+        or not state.preferences.auto_sync
+        or not state.ready
+    ):
         state.pos_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -83,7 +93,11 @@ def update_pos(id: MapID, frame: PosMapElement):
 
     pos_map_updates.updated.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
+    if (
+        state.edit_state == EditMode.EDITING
+        or not state.preferences.auto_sync
+        or not state.ready
+    ):
         state.pos_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -102,6 +116,7 @@ def apply_pos_map_updates():
         try:
             add_single_pos_keyframe(pos[0], pos[1])
         except Exception as e:
+            traceback.print_exc()
             notify("ERROR", f"Failed to add position keyframe {pos[0]}: {e}")
         state.pos_map[pos[0]] = pos[1]
 
@@ -110,6 +125,7 @@ def apply_pos_map_updates():
         try:
             edit_single_pos_keyframe(pos[0], pos[1])
         except Exception as e:
+            traceback.print_exc()
             notify("ERROR", f"Failed to edit position keyframe {pos[0]}: {e}")
         state.pos_map[pos[0]] = pos[1]
 
@@ -118,6 +134,7 @@ def apply_pos_map_updates():
         try:
             delete_single_pos_keyframe(pos_id)
         except Exception as e:
+            traceback.print_exc()
             notify("ERROR", f"Failed to delete position keyframe {pos_id}: {e}")
         del state.pos_map[pos_id]
 

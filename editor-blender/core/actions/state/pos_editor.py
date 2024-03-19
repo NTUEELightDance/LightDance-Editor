@@ -1,3 +1,4 @@
+import traceback
 from typing import List, Optional
 
 import bpy
@@ -61,6 +62,7 @@ async def add_pos_frame():
         set_requesting(False)
         notify("INFO", f"Added position frame: {id}")
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot add position frame")
 
 
@@ -105,6 +107,7 @@ async def save_pos_frame(start: Optional[int] = None):
         else:
             notify("WARNING", "Cannot exit editing")
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot save position frame")
 
     set_requesting(False)
@@ -119,6 +122,7 @@ async def delete_pos_frame():
         await pos_agent.delete_frame(id)
         notify("INFO", f"Deleted position frame: {id}")
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot delete position frame")
 
     set_requesting(False)
@@ -177,6 +181,7 @@ async def cancel_edit_pos():
             notify("WARNING", "Cannot cancel edit")
 
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot cancel edit")
 
     set_requesting(False)

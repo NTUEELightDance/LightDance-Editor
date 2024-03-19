@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from dataclasses import dataclass
 from typing import Any, Dict
 
@@ -30,6 +31,7 @@ class AuthAgent:
             return LoginResult(success=False, err="Timeout")
 
         except Exception as e:
+            traceback.print_exc()
             return LoginResult(success=False, err=str(e))
 
     async def logout(self) -> bool:
@@ -42,8 +44,8 @@ class AuthAgent:
         except asyncio.CancelledError:
             return False
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            traceback.print_exc()
             return False
 
     async def check_token(self) -> bool:
@@ -57,8 +59,8 @@ class AuthAgent:
         except asyncio.CancelledError:
             return False
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            traceback.print_exc()
             return False
 
 

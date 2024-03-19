@@ -1,3 +1,4 @@
+import traceback
 from typing import Any, Callable
 
 import bpy
@@ -17,6 +18,7 @@ def execute_operator(idname: str):
         ops("INVOKE_DEFAULT")
         print("Executed operator:", idname)
     except:
+        traceback.print_exc()
         print("Failed to execute operator:", idname)
 
 

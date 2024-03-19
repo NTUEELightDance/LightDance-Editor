@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from dataclasses import dataclass
 from typing import Any, Coroutine, List, Optional
 
@@ -46,9 +47,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
     async def get_pos_map_payload(self) -> Optional[QueryPosMapPayload]:
         try:
@@ -60,9 +60,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
     async def get_pos_map(self) -> Optional[PosMap]:
         try:
@@ -74,9 +73,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
     async def add_frame(
         self, start: int, positionData: List[List[float]]
@@ -92,9 +90,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
     async def save_frame(
         self, id: MapID, positionData: List[List[float]], start: Optional[int] = None
@@ -132,9 +129,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
     async def delete_frame(self, id: MapID) -> Optional[MapID]:
         try:
@@ -148,9 +144,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
     async def request_edit(self, id: MapID) -> Optional[bool]:
         try:
@@ -162,9 +157,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
     async def cancel_edit(self, id: MapID) -> Optional[bool]:
         try:
@@ -176,9 +170,8 @@ class PosAgent:
         except asyncio.CancelledError:
             pass
 
-        except Exception as err:
-            print(err)
-            raise err
+        except Exception:
+            traceback.print_exc()
 
 
 pos_agent = PosAgent()

@@ -1,3 +1,5 @@
+import traceback
+
 import bpy
 
 from ....api.time_shift_agent import time_shift_agent
@@ -46,11 +48,12 @@ async def confirm_shift():
         if not retult.ok:
             raise Exception(retult.msg)
 
-        set_shifting(False)
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify("Time shift success")
 
     except Exception as e:
-        set_shifting(False)
+        traceback.print_exc()
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify(f"Time shift failed: {e}")
+
+    set_shifting(False)

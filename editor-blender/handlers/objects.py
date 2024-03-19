@@ -1,3 +1,4 @@
+import traceback
 from typing import Dict, List
 
 import bpy
@@ -698,4 +699,4 @@ def unmount():
     try:
         bpy.app.handlers.depsgraph_update_pre.remove(obj_panel_autoselect_handler)
     except:
-        pass
+        traceback.print_exc()

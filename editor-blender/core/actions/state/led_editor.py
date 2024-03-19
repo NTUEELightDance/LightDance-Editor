@@ -1,3 +1,4 @@
+import traceback
 from typing import List, Tuple
 
 import bpy
@@ -105,6 +106,7 @@ async def save_led_effect():
                 else:
                     notify("WARNING", "Cannot exit editing")
             except:
+                traceback.print_exc()
                 notify("WARNING", "Cannot save LED effect")
 
         case LEDEditorEditModeType.NEW.value:
@@ -135,6 +137,7 @@ async def save_led_effect():
                 else:
                     notify("WARNING", "Cannot add LED effect")
             except:
+                traceback.print_exc()
                 notify("WARNING", "Cannot add LED effect")
 
         case _:
@@ -155,6 +158,7 @@ async def delete_led_effect():
         else:
             notify("WARNING", "Cannot delete LED effect")
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot delete LED effect")
 
 

@@ -1,3 +1,4 @@
+import traceback
 from typing import List, Optional
 
 import bpy
@@ -75,6 +76,7 @@ async def add_control_frame():
         await control_agent.add_frame(start, False, controlData)
         notify("INFO", f"Added control frame")
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot add control frame")
 
     set_requesting(False)
@@ -149,6 +151,7 @@ async def save_control_frame(start: Optional[int] = None):
         else:
             notify("WARNING", "Cannot exit editing")
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot save control frame")
 
     set_requesting(False)
@@ -163,6 +166,7 @@ async def delete_control_frame():
         await control_agent.delete_frame(id)
         notify("INFO", f"Deleted control frame: {id}")
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot delete control frame")
 
     set_requesting(False)
@@ -229,6 +233,7 @@ async def cancel_edit_control():
             notify("WARNING", "Cannot cancel edit")
 
     except:
+        traceback.print_exc()
         notify("WARNING", "Cannot cancel edit")
 
     set_requesting(False)

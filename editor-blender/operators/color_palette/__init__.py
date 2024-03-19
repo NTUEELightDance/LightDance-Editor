@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional
 
 import bpy
@@ -110,8 +111,8 @@ class ColorDeleteOperator(AsyncOperator):
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            traceback.print_exc()
             notify("ERROR", "Failed to delete color")
 
         return {"FINISHED"}
@@ -173,8 +174,8 @@ class ColorConfirmOperator(AsyncOperator):
 
                     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
-                except Exception as e:
-                    print(e)
+                except Exception:
+                    traceback.print_exc()
                     notify("ERROR", "Failed to edit color")
 
             case ColorPaletteEditModeType.NEW.value:
@@ -198,8 +199,8 @@ class ColorConfirmOperator(AsyncOperator):
 
                     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
-                except Exception as e:
-                    print(e)
+                except Exception:
+                    traceback.print_exc()
                     notify("ERROR", "Failed to add color")
 
             case _:

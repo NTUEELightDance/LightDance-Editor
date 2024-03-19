@@ -1,3 +1,5 @@
+import traceback
+
 from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, MapID
 from ...states import state
 from ...utils.notification import notify
@@ -24,7 +26,11 @@ def add_control(id: MapID, frame: ControlMapElement):
     control_map_updates = state.control_map_updates
     control_map_updates.added.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
+    if (
+        state.edit_state == EditMode.EDITING
+        or not state.preferences.auto_sync
+        or not state.ready
+    ):
         state.control_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -56,7 +62,11 @@ def delete_control(id: MapID):
 
     control_map_updates.deleted.append(id)
 
-    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
+    if (
+        state.edit_state == EditMode.EDITING
+        or not state.preferences.auto_sync
+        or not state.ready
+    ):
         state.control_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -83,7 +93,11 @@ def update_control(id: MapID, frame: ControlMapElement):
 
     control_map_updates.updated.append((id, frame))
 
-    if state.edit_state == EditMode.EDITING or not state.preferences.auto_sync:
+    if (
+        state.edit_state == EditMode.EDITING
+        or not state.preferences.auto_sync
+        or not state.ready
+    ):
         state.control_map_pending = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     else:
@@ -102,6 +116,7 @@ def apply_control_map_updates():
         try:
             add_single_ctrl_keyframe(status[0], status[1])
         except Exception as e:
+            traceback.print_exc()
             notify("ERROR", f"Failed to add control keyframe {status[0]}: {e}")
         state.control_map[status[0]] = status[1]
 
@@ -110,6 +125,7 @@ def apply_control_map_updates():
         try:
             edit_single_ctrl_keyframe(status[0], status[1])
         except Exception as e:
+            traceback.print_exc()
             notify("ERROR", f"Failed to update control keyframe {status[0]}: {e}")
         state.control_map[status[0]] = status[1]
 
@@ -118,6 +134,7 @@ def apply_control_map_updates():
         try:
             delete_single_ctrl_keyframe(id)
         except Exception as e:
+            traceback.print_exc()
             notify("ERROR", f"Failed to delete control keyframe {id}: {e}")
         del state.control_map[id]
 

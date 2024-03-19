@@ -1,4 +1,5 @@
 import time
+import traceback
 
 import bpy
 
@@ -61,7 +62,7 @@ class CommandCenterStartOperator(AsyncOperator):
             await init_assets()
 
         except Exception as e:
-            # set_requesting(False)
+            traceback.print_exc()
             raise Exception(f"Can't connect to controller server: {e}")
         return {"FINISHED"}
 
@@ -87,6 +88,7 @@ class CommandCenterRefreshOperator(AsyncOperator):
 
         except Exception as e:
             # set_requesting(False)
+            traceback.print_exc()
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
 
@@ -109,6 +111,7 @@ class CommandCenterSyncOperator(AsyncOperator):
             await command_agent.send_to_controller_server(sync_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -144,6 +147,7 @@ class CommandCenterPlayOperator(AsyncOperator):
             state.last_play_timestamp_ms = start_timestamp_ms
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -172,6 +176,7 @@ class CommandCenterPauseOperator(AsyncOperator):
                 bpy.context.scene.frame_current += time_since_last_play_ms
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -203,6 +208,7 @@ class CommandCenterStopOperator(AsyncOperator):
             bpy.context.scene.frame_current = 0
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -225,6 +231,7 @@ class CommandCenterLoadOperator(AsyncOperator):
             await command_agent.send_to_controller_server(load_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -247,6 +254,7 @@ class CommandCenterUploadOperator(AsyncOperator):
             await command_agent.send_to_controller_server(upload_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -269,6 +277,7 @@ class CommandCenterRebootOperator(AsyncOperator):
             await command_agent.send_to_controller_server(reboot_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -304,6 +313,7 @@ class CommandCenterTestOperator(AsyncOperator):
             await command_agent.send_to_controller_server(sync_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -339,6 +349,7 @@ class CommandCenterColorOperator(AsyncOperator):
             await command_agent.send_to_controller_server(color_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -361,6 +372,7 @@ class CommandCenterDarkAllOperator(AsyncOperator):
             await command_agent.send_to_controller_server(dark_all_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -383,6 +395,7 @@ class CommandCenterCloseGPIOOperator(AsyncOperator):
             await command_agent.send_to_controller_server(sync_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -415,6 +428,7 @@ class CommandCenterWebShellOperator(AsyncOperator):
             await command_agent.send_to_controller_server(sync_payload)
 
         except Exception as e:
+            traceback.print_exc()
             # set_requesting(False)
             raise Exception(f"Can't send message to controller server: {e}")
         return {"FINISHED"}
@@ -443,8 +457,8 @@ def register():
         for op in ops_list:
             bpy.utils.register_class(op)
 
-    except Exception as e:
-        print(f"Can't register operator: {e}")
+    except Exception:
+        traceback.print_exc()
 
 
 def unregister():
@@ -452,5 +466,5 @@ def unregister():
         for op in ops_list:
             bpy.utils.unregister_class(op)
 
-    except Exception as e:
-        print(f"Can't register operator: {e}")
+    except Exception:
+        traceback.print_exc()

@@ -1,3 +1,4 @@
+import traceback
 from typing import Any, Dict, List, Optional, cast
 
 import bpy
@@ -45,7 +46,7 @@ def split_area(
             bpy.ops.screen.area_split(direction=direction, factor=factor)
 
     except StopIteration:
-        pass
+        traceback.print_exc()
 
 
 def get_area(

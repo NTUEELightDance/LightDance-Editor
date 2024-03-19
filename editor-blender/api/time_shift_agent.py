@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from dataclasses import dataclass
 from typing import Tuple
 
@@ -46,7 +47,7 @@ class TimeShiftAgent:
             return ShiftResult(ok=False, msg="Timeout")
 
         except Exception as e:
-            print(e)
+            traceback.print_exc()
             return ShiftResult(ok=False, msg=str(e))
 
 

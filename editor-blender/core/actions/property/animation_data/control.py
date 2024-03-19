@@ -36,6 +36,8 @@ def reset_control_frames_and_fade_sequence(fade_seq: List[Tuple[int, bool]]):
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
+        # point.handle_left_type = "FREE"
+        # point.handle_right_type = "FREE"
 
 
 def reset_ctrl_rev(sorted_ctrl_map: List[Tuple[MapID, ControlMapElement]]):
@@ -119,6 +121,8 @@ def update_control_frames_and_fade_sequence(
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
+        # point.handle_left_type = "FREE"
+        # point.handle_right_type = "FREE"
 
 
 """
@@ -145,9 +149,11 @@ def init_ctrl_single_object_action(
             point = kpoints_list[i]
 
             point.co = frame_start, rgb_float[d]
-            point.interpolation = "LINEAR" if fade else "CONSTANT"
 
+            point.interpolation = "LINEAR" if fade else "CONSTANT"
             point.select_control_point = False
+            # point.handle_left_type = "FREE"
+            # point.handle_right_type = "FREE"
 
 
 def init_ctrl_keyframes_from_state(dancers_reset: Optional[List[bool]] = None):
@@ -260,6 +266,8 @@ def modify_partial_ctrl_single_object_action(
             point.co = frame_start, led_rgb_float
             point.interpolation = "LINEAR" if fade else "CONSTANT"
             point.select_control_point = False
+            # point.handle_left_type = "FREE"
+            # point.handle_right_type = "FREE"
 
         # Add frames
         kpoints_len = len(kpoints_list)
@@ -269,9 +277,11 @@ def modify_partial_ctrl_single_object_action(
             point = kpoints_list[kpoints_len + i]
 
             point.co = frame_start, rgb_float[d]
-            point.interpolation = "LINEAR" if fade else "CONSTANT"
 
+            point.interpolation = "LINEAR" if fade else "CONSTANT"
             point.select_control_point = True
+            # point.handle_left_type = "FREE"
+            # point.handle_right_type = "FREE"
 
         curve.keyframe_points.sort()
 
@@ -350,9 +360,11 @@ def add_partial_ctrl_single_object_action(
             point = kpoints_list[kpoints_len + i]
 
             point.co = frame_start, rgb_float[d]
-            point.interpolation = "LINEAR" if fade else "CONSTANT"
 
+            point.interpolation = "LINEAR" if fade else "CONSTANT"
             point.select_control_point = True
+            # point.handle_left_type = "FREE"
+            # point.handle_right_type = "FREE"
 
         curve.keyframe_points.sort()
 
@@ -462,6 +474,8 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
                             frame_start, led_rgb_float[d]
                         )
                         point.interpolation = "LINEAR" if fade else "CONSTANT"
+                        # point.handle_left_type = "FREE"
+                        # point.handle_right_type = "FREE"
 
             else:
                 part_obj = data_objects[part_obj_name]
@@ -476,6 +490,8 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
                         frame_start, part_rgba[d]
                     )
                     point.interpolation = "LINEAR" if fade else "CONSTANT"
+                    # point.handle_left_type = "FREE"
+                    # point.handle_right_type = "FREE"
 
     # insert fake frame
     scene = bpy.context.scene
@@ -518,18 +534,12 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
             point.co = frame_start, old_last_frame.start
 
     point.interpolation = "CONSTANT"
+    # point.handle_left_type = "FREE"
+    # point.handle_right_type = "FREE"
     curve.keyframe_points.sort()
 
     # insert rev frame (meta & data)
     rev = ctrl_element.rev
-
-    # curve = curves.find("ld_ctrl_meta")
-    # point = curve.keyframe_points.insert(frame_start, (rev.meta if rev else -1))
-    # point.interpolation = "CONSTANT"
-    #
-    # curve = curves.find("ld_ctrl_data")
-    # point = curve.keyframe_points.insert(frame_start, (rev.data if rev else -1))
-    # point.interpolation = "CONSTANT"
 
     ctrl_rev: RevisionPropertyItemType = getattr(bpy.context.scene, "ld_ctrl_rev").add()
 
@@ -572,6 +582,8 @@ def edit_partial_ctrl_single_object_action(
             point.co = frame_start, led_rgb_float
             point.interpolation = "LINEAR" if fade else "CONSTANT"
             point.select_control_point = False
+            # point.handle_left_type = "FREE"
+            # point.handle_right_type = "FREE"
 
         curve.keyframe_points.sort()
 
@@ -712,6 +724,8 @@ def edit_single_ctrl_keyframe(
 
                         point.co = new_frame_start, led_rgb_float[d]
                         point.interpolation = "LINEAR" if new_fade else "CONSTANT"
+                        # point.handle_left_type = "FREE"
+                        # point.handle_right_type = "FREE"
 
                         # TODO: Delete and insert instead of sorting
                         kpoints.sort()
@@ -733,6 +747,8 @@ def edit_single_ctrl_keyframe(
                     )
                     point.co = new_frame_start, part_rgb_float[d]
                     point.interpolation = "LINEAR" if new_fade else "CONSTANT"
+                    # point.handle_left_type = "FREE"
+                    # point.handle_right_type = "FREE"
 
                     # TODO: Delete and insert instead of sorting
                     kpoints.sort()
@@ -793,6 +809,8 @@ def edit_single_ctrl_keyframe(
         point.co = new_frame_start, new_frame_start
 
     point.interpolation = "CONSTANT"
+    # point.handle_left_type = "FREE"
+    # point.handle_right_type = "FREE"
     kpoints.sort()
 
     # update rev frame (meta & data)

@@ -1,3 +1,4 @@
+import traceback
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 import blf
@@ -72,10 +73,10 @@ def name_tag_draw():
             blf.draw(name_tag_settings.font_id, name)
 
         except AttributeError:
-            pass
+            traceback.print_exc()
 
         except TypeError:
-            pass
+            traceback.print_exc()
 
 
 def name_tag_handler():
@@ -119,4 +120,4 @@ def unmount():
             )
             name_tag_settings.name_tag_handle = None
     except:
-        pass
+        traceback.print_exc()

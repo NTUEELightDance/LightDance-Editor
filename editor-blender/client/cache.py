@@ -1,3 +1,4 @@
+import traceback
 from copy import deepcopy
 from dataclasses import dataclass
 from inspect import iscoroutine
@@ -114,6 +115,7 @@ class InMemoryCache:
         try:
             check_type(cache_data, response_type)
         except:
+            traceback.print_exc()
             return None
 
         response: Dict[str, response_type] = {}

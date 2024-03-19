@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 from typing import Any, List, Optional, cast
 
 import bpy

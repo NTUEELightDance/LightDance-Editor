@@ -1,3 +1,5 @@
+import traceback
+
 import bpy
 
 from ..core.actions.state.control_editor import sync_editing_control_frame_properties
@@ -77,4 +79,4 @@ def unmount():
     try:
         bpy.app.handlers.frame_change_post.remove(frame_change_post)
     except:
-        pass
+        traceback.print_exc()

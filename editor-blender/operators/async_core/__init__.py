@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Coroutine
 
@@ -183,7 +184,7 @@ class AsyncOperator(bpy.types.Operator):
         except asyncio.CancelledError:
             pass
         except Exception:
-            pass
+            traceback.print_exc()
 
 
 def register():

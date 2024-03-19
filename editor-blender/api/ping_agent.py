@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from typing import Any, Dict
 
 from ..client import client
@@ -17,7 +18,8 @@ class PingAgent:
         except asyncio.CancelledError:
             return False
 
-        except Exception as e:
+        except Exception:
+            traceback.print_exc()
             return False
 
 

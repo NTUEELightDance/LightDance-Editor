@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 from typing import Any, Dict, Set, Tuple, cast
 
 from .....client import client
@@ -104,8 +105,8 @@ async def fetch_data(reload: bool = False):
             with open(local_load_hash_path, "w") as file:
                 json.dump(assets_load_hash, file)
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            traceback.print_exc()
             raise Exception("Failed to fetch assets")
 
     else:
@@ -131,8 +132,8 @@ async def load_data():
     await update_user_log("Setting up objects...")
     try:
         await setup_objects()
-    except Exception as e:
-        print(e)
+    except Exception:
+        traceback.print_exc()
         raise Exception("Failed to setup objects")
     setup_floor()
 
