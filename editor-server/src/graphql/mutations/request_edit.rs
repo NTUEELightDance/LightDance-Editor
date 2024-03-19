@@ -29,8 +29,7 @@ impl RequestEditMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
-        #[allow(unused_variables)]
-        let redis = clients.redis_client();
+        let mut tx = mysql.begin().await?;
 
         let check_editing_control_frame = sqlx::query_as!(
             EditingControlFrameData,
@@ -40,7 +39,7 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         let exist_frame = sqlx::query!(
@@ -50,7 +49,7 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if exist_frame.is_none() {
@@ -58,7 +57,7 @@ impl RequestEditMutation {
         }
 
         // update EditingControlFrame
-        match check_editing_control_frame {
+        let response = match check_editing_control_frame {
             Some(editing) => {
                 if editing.user_id != context.user_id {
                     return Ok(RequestEditResponse {
@@ -81,15 +80,21 @@ impl RequestEditMutation {
                     frame_id,
                     context.user_id
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
                 Ok(RequestEditResponse {
                     editing: Some(context.user_id),
                     ok: true,
                 })
             }
-        }
+        };
+
+        // Commit the transaction
+        tx.commit().await?;
+
+        response
     }
+
     #[graphql(name = "RequestEditPosition")]
     async fn request_edit_position(
         &self,
@@ -100,8 +105,7 @@ impl RequestEditMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
-        #[allow(unused_variables)]
-        let redis = clients.redis_client();
+        let mut tx = mysql.begin().await?;
 
         let check_editing_position_frame = sqlx::query_as!(
             EditingPositionFrameData,
@@ -111,7 +115,7 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         let exist_frame = sqlx::query_as!(
@@ -122,7 +126,7 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if exist_frame.is_none() {
@@ -130,7 +134,7 @@ impl RequestEditMutation {
         }
 
         // update EditingPositionFrame
-        match check_editing_position_frame {
+        let response = match check_editing_position_frame {
             Some(editing) => {
                 if editing.user_id != context.user_id {
                     return Ok(RequestEditResponse {
@@ -153,14 +157,19 @@ impl RequestEditMutation {
                     frame_id,
                     context.user_id
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
                 Ok(RequestEditResponse {
                     editing: Some(context.user_id),
                     ok: true,
                 })
             }
-        }
+        };
+
+        // Commit the transaction
+        tx.commit().await?;
+
+        response
     }
 
     #[graphql(name = "RequestEditLEDEffect")]
@@ -173,8 +182,7 @@ impl RequestEditMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
-        #[allow(unused_variables)]
-        let redis = clients.redis_client();
+        let mut tx = mysql.begin().await?;
 
         let check_editing_led_effect = sqlx::query_as!(
             EditingLEDEffectData,
@@ -184,7 +192,7 @@ impl RequestEditMutation {
             "#,
             led_effect_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         let exist_led_effect = sqlx::query_as!(
@@ -195,13 +203,13 @@ impl RequestEditMutation {
             "#,
             led_effect_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
         if exist_led_effect.is_none() {
             return Err(format!("frame id {} not found", led_effect_id).into());
         }
 
-        match check_editing_led_effect {
+        let response = match check_editing_led_effect {
             Some(editing) => {
                 if editing.user_id != context.user_id {
                     return Ok(RequestEditResponse {
@@ -224,14 +232,19 @@ impl RequestEditMutation {
                     led_effect_id,
                     context.user_id
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
                 Ok(RequestEditResponse {
                     editing: Some(context.user_id),
                     ok: true,
                 })
             }
-        }
+        };
+
+        // Commit the transaction
+        tx.commit().await?;
+
+        response
     }
 
     #[graphql(name = "CancelEditPosition")]
@@ -244,8 +257,7 @@ impl RequestEditMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
-        #[allow(unused_variables)]
-        let redis = clients.redis_client();
+        let mut tx = mysql.begin().await?;
 
         let exist_frame = sqlx::query_as!(
             PositionFrameData,
@@ -255,7 +267,7 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if exist_frame.is_none() {
@@ -270,8 +282,11 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(RequestEditResponse {
             editing: None,
@@ -289,8 +304,7 @@ impl RequestEditMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
-        #[allow(unused_variables)]
-        let redis = clients.redis_client();
+        let mut tx = mysql.begin().await?;
 
         let exist_frame = sqlx::query!(
             r#"
@@ -299,7 +313,7 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if exist_frame.is_none() {
@@ -314,8 +328,11 @@ impl RequestEditMutation {
             "#,
             frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(RequestEditResponse {
             editing: None,
@@ -333,8 +350,7 @@ impl RequestEditMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
-        #[allow(unused_variables)]
-        let redis = clients.redis_client();
+        let mut tx = mysql.begin().await?;
 
         let exist_led_effect = sqlx::query_as!(
             LEDEffectData,
@@ -344,7 +360,7 @@ impl RequestEditMutation {
             "#,
             led_effect_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if exist_led_effect.is_none() {
@@ -359,8 +375,11 @@ impl RequestEditMutation {
             "#,
             led_effect_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(RequestEditResponse {
             editing: None,

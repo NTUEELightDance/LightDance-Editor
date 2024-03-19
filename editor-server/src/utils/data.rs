@@ -10,22 +10,7 @@ use redis::AsyncCommands;
 use redis::Client;
 use sqlx::{MySql, Pool};
 
-pub async fn init_data(mysql: &Pool<MySql>) -> Result<(), sqlx::Error> {
-    sqlx::query!(
-        r#"
-            DELETE FROM User;
-        "#,
-    )
-    .execute(mysql)
-    .await?;
-
-    Ok(())
-}
-
-pub async fn init_redis_control(
-    mysql_pool: &Pool<MySql>,
-    redis_client: &Client,
-) -> Result<(), String> {
+pub async fn init_redis_control(mysql: &Pool<MySql>, redis_client: &Client) -> Result<(), String> {
     let envs = global::envs::get();
 
     let frames = sqlx::query!(
@@ -38,7 +23,7 @@ pub async fn init_redis_control(
             ON EditingControlFrame.user_id = User.id;
         "#,
     )
-    .fetch_all(mysql_pool)
+    .fetch_all(mysql)
     .await
     .map_err(|e| e.to_string())?;
 
@@ -68,7 +53,7 @@ pub async fn init_redis_control(
                 ORDER BY ControlData.frame_id, Dancer.id ASC, Part.id ASC;
             "#,
         )
-        .fetch_all(mysql_pool)
+        .fetch_all(mysql)
         .await
         .map_err(|e| e.to_string())?;
 
@@ -133,10 +118,7 @@ pub async fn init_redis_control(
     Ok(())
 }
 
-pub async fn init_redis_position(
-    mysql_pool: &Pool<MySql>,
-    redis_client: &Client,
-) -> Result<(), String> {
+pub async fn init_redis_position(mysql: &Pool<MySql>, redis_client: &Client) -> Result<(), String> {
     let envs = global::envs::get();
 
     let frames = sqlx::query!(
@@ -149,7 +131,7 @@ pub async fn init_redis_position(
             ON EditingPositionFrame.user_id = User.id;
         "#,
     )
-    .fetch_all(mysql_pool)
+    .fetch_all(mysql)
     .await
     .map_err(|e| e.to_string())?;
 
@@ -170,7 +152,7 @@ pub async fn init_redis_position(
                 ORDER BY Dancer.id ASC;
             "#,
         )
-        .fetch_all(mysql_pool)
+        .fetch_all(mysql)
         .await
         .map_err(|e| e.to_string())?;
 
@@ -215,11 +197,14 @@ pub async fn init_redis_position(
     Ok(())
 }
 
-pub async fn update_redis_control(
-    mysql_pool: &Pool<MySql>,
+pub async fn update_redis_control<E>(
+    executor: &mut E,
     redis_client: &Client,
     frame_id: i32,
-) -> Result<(), String> {
+) -> Result<(), String>
+where
+    for<'e> &'e mut E: sqlx::Executor<'e, Database = sqlx::MySql>,
+{
     let envs = global::envs::get();
 
     let frame = sqlx::query!(
@@ -234,7 +219,7 @@ pub async fn update_redis_control(
         "#,
         frame_id
     )
-    .fetch_optional(mysql_pool)
+    .fetch_optional(&mut *executor)
     .await
     .map_err(|e| e.to_string())?;
 
@@ -266,7 +251,7 @@ pub async fn update_redis_control(
             "#,
             frame.id
         )
-        .fetch_all(mysql_pool)
+        .fetch_all(&mut *executor)
         .await
         .map_err(|e| e.to_string())?;
 
@@ -312,11 +297,14 @@ pub async fn update_redis_control(
     Ok(())
 }
 
-pub async fn update_redis_position(
-    mysql_pool: &Pool<MySql>,
+pub async fn update_redis_position<E>(
+    executor: &mut E,
     redis_client: &Client,
     frame_id: i32,
-) -> Result<(), String> {
+) -> Result<(), String>
+where
+    for<'e> &'e mut E: sqlx::Executor<'e, Database = sqlx::MySql>,
+{
     let envs = global::envs::get();
 
     let frame = sqlx::query!(
@@ -331,7 +319,7 @@ pub async fn update_redis_position(
         "#,
         frame_id
     )
-    .fetch_optional(mysql_pool)
+    .fetch_optional(&mut *executor)
     .await
     .map_err(|e| e.to_string())?;
 
@@ -357,7 +345,7 @@ pub async fn update_redis_position(
             "#,
             frame_id
         )
-        .fetch_all(mysql_pool)
+        .fetch_all(&mut *executor)
         .await
         .map_err(|e| e.to_string())?;
 

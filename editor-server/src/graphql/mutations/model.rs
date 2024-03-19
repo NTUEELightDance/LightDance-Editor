@@ -41,6 +41,8 @@ impl ModelMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let model_name = input.name.clone();
@@ -68,10 +70,13 @@ impl ModelMutation {
                 "#,
                 &model_name
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await?
             .last_insert_id() as i32,
         };
+
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(ModelMutationResponse {
             ok: true,
@@ -89,6 +94,7 @@ impl ModelMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         let model_id = input.id;
         let model_name = input.name.clone();
@@ -122,8 +128,11 @@ impl ModelMutation {
             &model_name,
             &model_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(ModelMutationResponse {
             ok: true,
@@ -141,6 +150,8 @@ impl ModelMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let model_id = input.id;
@@ -171,8 +182,11 @@ impl ModelMutation {
             "#,
             &model_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(ModelMutationResponse {
             ok: true,

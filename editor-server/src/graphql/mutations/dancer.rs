@@ -48,6 +48,8 @@ impl DancerMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let dancer_name = input.name.clone();
@@ -59,7 +61,7 @@ impl DancerMutation {
             "#,
             &dancer_name
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await;
 
         if let Ok(dancer) = dancer_result {
@@ -75,7 +77,7 @@ impl DancerMutation {
             "#,
             &input.model
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await?;
 
         let dancer_id = sqlx::query!(
@@ -85,9 +87,12 @@ impl DancerMutation {
             &dancer_name,
             raw_model.id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?
         .last_insert_id() as i32;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         init_redis_control(mysql, redis).await?;
         init_redis_position(mysql, redis).await?;
@@ -121,6 +126,7 @@ impl DancerMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         let dancer_id = input.id;
         let dancer_name = input.name.clone();
@@ -132,7 +138,7 @@ impl DancerMutation {
             "#,
             &dancer_id,
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await;
 
         if let Err(_) = raw_dancer {
@@ -159,8 +165,11 @@ impl DancerMutation {
             &dancer_name,
             &dancer_id.id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Updated,
@@ -191,6 +200,8 @@ impl DancerMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let dancer_id = input.id;
@@ -202,7 +213,7 @@ impl DancerMutation {
             "#,
             &dancer_id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await;
 
         let _dancer = match raw_dancer {
@@ -221,11 +232,14 @@ impl DancerMutation {
             "#,
             &dancer_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
-        let _ = init_redis_control(mysql, redis).await;
-        let _ = init_redis_position(mysql, redis).await;
+        // Commit the transaction
+        tx.commit().await?;
+
+        init_redis_control(mysql, redis).await;
+        init_redis_position(mysql, redis).await;
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Deleted,

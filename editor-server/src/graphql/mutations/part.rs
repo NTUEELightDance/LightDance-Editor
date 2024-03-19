@@ -2,9 +2,7 @@
 use crate::db::types::{
     model::ModelData,
     part::{PartData, PartType},
-    position::PositionData,
 };
-use crate::graphql::types::dancer::Part;
 use crate::types::global::UserContext;
 use crate::utils::data::{init_redis_control, init_redis_position};
 
@@ -48,6 +46,8 @@ impl PartMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let _check = match input.part_type {
@@ -68,7 +68,7 @@ impl PartMutation {
             "#,
             input.model_name
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         let exist_model = match exist_model {
@@ -99,7 +99,7 @@ impl PartMutation {
             input.name,
             exist_model.id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(_part) = exist_part {
@@ -120,7 +120,7 @@ impl PartMutation {
                 input.name,
                 "FIBER"
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await?
             .last_insert_id() as i32,
             PartType::LED => sqlx::query!(
@@ -135,52 +135,16 @@ impl PartMutation {
                     .length
                     .ok_or("length of LED part must be positive number")?
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await?
             .last_insert_id() as i32,
         };
 
-        //find dancer parts
-        let _all_parts = sqlx::query_as!(
-            Part,
-            r#"
-                SELECT * FROM Part
-                WHERE model_id = ?
-                ORDER BY id ASC;
-            "#,
-            exist_model.id
-        )
-        .fetch_all(mysql)
-        .await?;
-
-        let _all_dancer_pos = sqlx::query_as!(
-            PositionData,
-            r#"
-                SELECT * FROM PositionData
-                WHERE dancer_id = ?
-                ORDER BY frame_id ASC;
-            "#,
-            exist_model.id
-        )
-        .fetch_all(mysql)
-        .await?;
+        // Commit the transaction
+        tx.commit().await?;
 
         init_redis_control(mysql, redis).await?;
         init_redis_position(mysql, redis).await?;
-
-        // TODO: Query all dancers and notify about the new part.
-        // let dancer_payload = DancerPayload {
-        //     mutation: DancerMutationMode::Updated,
-        //     dancer_data: Some(Dancer {
-        //         id: dancer.id,
-        //         name: dancer.name.clone(),
-        //         parts: Some(all_parts),
-        //         position_datas: None,
-        //     }),
-        //     edit_by: context.user_id,
-        // };
-        //
-        // Subscriptor::publish(dancer_payload);
 
         Ok(PartResponse {
             ok: true,
@@ -204,6 +168,8 @@ impl PartMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let deleted_part = sqlx::query_as!(
@@ -213,7 +179,7 @@ impl PartMutation {
             "#,
             input.id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         match deleted_part {
@@ -227,58 +193,21 @@ impl PartMutation {
             }
         }
 
-        let model_data = sqlx::query_as!(
-            ModelData,
-            r#"
-                SELECT Model.*
-                FROM Part
-                INNER JOIN Model ON Part.model_id = Model.id
-                WHERE Part.id = ?;
-            "#,
-            deleted_part.unwrap().id
-        )
-        .fetch_optional(mysql)
-        .await?;
-
-        let _ = sqlx::query!(
+        sqlx::query!(
             r#"
                 DELETE FROM Part
                 WHERE id = ?;
             "#,
             input.id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
-        //find model parts
-        let _all_parts = sqlx::query_as!(
-            Part,
-            r#"
-                SELECT * FROM Part
-                WHERE model_id = ?
-                ORDER BY id ASC;
-            "#,
-            model_data.clone().unwrap().id
-        )
-        .fetch_all(mysql)
-        .await?;
+        // Commit the transaction
+        tx.commit().await?;
 
         init_redis_control(mysql, redis).await?;
         init_redis_position(mysql, redis).await?;
-
-        // TODO: Query all dancers and notify about the deleted part.
-        // let dancer_payload = DancerPayload {
-        //     mutation: DancerMutationMode::Updated,
-        //     dancer_data: Some(Dancer {
-        //         id: dancer.clone().unwrap().id,
-        //         name: dancer.clone().unwrap().name,
-        //         parts: Some(all_parts),
-        //         position_datas: None,
-        //     }),
-        //     edit_by: context.user_id,
-        // };
-        //
-        // Subscriptor::publish(dancer_payload);
 
         Ok(PartResponse {
             ok: true,
@@ -295,6 +224,7 @@ impl PartMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         let _check = match input.part_type {
             PartType::FIBER | PartType::LED => true,
@@ -314,7 +244,7 @@ impl PartMutation {
             "#,
             input.id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         let edited_part = match edited_part {
@@ -335,7 +265,7 @@ impl PartMutation {
             "#,
             edited_part.model_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         let model_data = match model_data {
@@ -360,35 +290,11 @@ impl PartMutation {
             input.length,
             input.id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
-        //find dancer parts
-        let _all_parts = sqlx::query_as!(
-            Part,
-            r#"
-                SELECT * FROM Part
-                WHERE model_id = ?
-                ORDER BY id ASC;
-            "#,
-            model_data.id
-        )
-        .fetch_all(mysql)
-        .await?;
-
-        // TODO: Query all dancers and notify about the edited part.
-        // let dancer_payload = DancerPayload {
-        //     mutation: DancerMutationMode::Updated,
-        //     dancer_data: Some(Dancer {
-        //         id: dancer.clone().unwrap().id,
-        //         name: dancer.clone().unwrap().name,
-        //         parts: Some(all_parts),
-        //         position_datas: Some(all_dancer_pos),
-        //     }),
-        //     edit_by: context.user_id,
-        // };
-        //
-        // Subscriptor::publish(dancer_payload);
+        // Commit the transaction
+        tx.commit().await?;
 
         Ok(PartResponse {
             ok: true,

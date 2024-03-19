@@ -38,6 +38,8 @@ impl PositionMapMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         //check payload correctness
@@ -49,7 +51,7 @@ impl PositionMapMutation {
           	"#,
             input.frame_id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await?;
 
         let editing = sqlx::query_as!(
@@ -60,7 +62,7 @@ impl PositionMapMutation {
           	"#,
             frame_to_edit.id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         // to check if the frame is editing by other user
@@ -77,7 +79,7 @@ impl PositionMapMutation {
             	ORDER BY id ASC;
           	"#
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         if input.position_data.len() != dancers.len() {
@@ -103,7 +105,7 @@ impl PositionMapMutation {
                 dancer.id,
                 frame_to_edit.id
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await?;
         }
 
@@ -116,10 +118,16 @@ impl PositionMapMutation {
           	"#,
             context.user_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
-        update_redis_position(mysql, redis, frame_to_edit.id).await?;
+        update_revision(&mut *tx).await?;
+
+        update_redis_position(&mut *tx, redis, frame_to_edit.id).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
+
         let redis_position = get_redis_position(redis, frame_to_edit.id).await?;
         let update_frames = HashMap::from([(frame_to_edit.id.to_string(), redis_position)]);
 
@@ -138,11 +146,12 @@ impl PositionMapMutation {
         let frame_ids = sqlx::query_as!(
             MapID,
             r#"
-            	SELECT id FROM PositionFrame;
-          	"#
+                SELECT id FROM PositionFrame;
+            "#
         )
         .fetch_all(mysql)
         .await?;
+
         let mut result: HashMap<String, RedisPosition> = HashMap::new();
         for frame_id in frame_ids {
             result.insert(
@@ -150,8 +159,6 @@ impl PositionMapMutation {
                 get_redis_position(redis, frame_id.id).await?,
             );
         }
-
-        update_revision(mysql).await?;
 
         Ok(PositionMap {
             frame_ids: PositionMapScalar(result),

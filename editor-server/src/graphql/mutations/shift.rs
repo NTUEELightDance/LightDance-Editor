@@ -44,6 +44,9 @@ impl FrameMutation {
         let redis_client = &clients.redis_client;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
+        println!("Shift start: {}, end: {}, mv: {}", start, end, mv);
 
         //check negative
         if start + mv < 0 {
@@ -87,7 +90,7 @@ impl FrameMutation {
                 check_start,
                 check_end
             )
-            .fetch_all(mysql)
+            .fetch_all(&mut *tx)
             .await?;
             if !editing_control_frame.is_empty() {
                 for editing in editing_control_frame {
@@ -116,7 +119,7 @@ impl FrameMutation {
                 check_start,
                 check_end
             )
-            .fetch_all(mysql)
+            .fetch_all(&mut *tx)
             .await?;
             if !editing_position_frame.is_empty() {
                 for editing in editing_position_frame {
@@ -133,7 +136,7 @@ impl FrameMutation {
             }
         }
 
-        if shift_control {
+        let control_map_payload = if shift_control {
             //clear overlap interval
             let delete_control_frames = sqlx::query_as!(
                 ControlFrameData,
@@ -151,7 +154,7 @@ impl FrameMutation {
                 overlap_start,
                 overlap_end
             )
-            .fetch_all(mysql)
+            .fetch_all(&mut *tx)
             .await?;
             let _ = sqlx::query!(
                 r#"
@@ -162,7 +165,7 @@ impl FrameMutation {
                 overlap_start,
                 overlap_end
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await?;
 
             //get source data
@@ -185,7 +188,7 @@ impl FrameMutation {
                     start,
                     end
                 )
-                .fetch_all(mysql)
+                .fetch_all(&mut *tx)
                 .await?;
             } else {
                 update_control_frames = sqlx::query_as!(
@@ -205,7 +208,7 @@ impl FrameMutation {
                     start,
                     end
                 )
-                .fetch_all(mysql)
+                .fetch_all(&mut *tx)
                 .await?;
             }
             //update database and redis
@@ -221,9 +224,9 @@ impl FrameMutation {
                     control_frame.start + mv,
                     control_frame.start
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
-                let result = update_redis_control(mysql, redis_client, control_frame.id).await;
+                let result = update_redis_control(&mut *tx, redis_client, control_frame.id).await;
                 match result {
                     Ok(_) => (),
                     Err(msg) => return Err(GQLError::new(msg)),
@@ -256,52 +259,19 @@ impl FrameMutation {
                 update_control_frames.insert(id.to_string(), redis_control);
             }
 
-            let control_map_payload = ControlMapPayload {
+            Some(ControlMapPayload {
                 edit_by: context.user_id,
                 frame: ControlFramesSubDatScalar(ControlFramesSubData {
                     create_frames: HashMap::new(),
                     delete_frames: delete_control_list.clone(),
                     update_frames: update_control_frames,
                 }),
-            };
-            Subscriptor::publish(control_map_payload);
+            })
+        } else {
+            None
+        };
 
-            // NOTE: Not used in frontend
-            // let all_control_frames = sqlx::query_as!(
-            //     ControlFrameData,
-            //     r#"
-            //         SELECT
-            //             id,
-            //             start,
-            //             fade as "fade: bool",
-            //             meta_rev,
-            //             data_rev
-            //         FROM ControlFrame
-            //         ORDER BY start ASC;
-            //     "#
-            // )
-            // .fetch_all(mysql)
-            // .await?;
-            // let mut index = -1;
-            //
-            // for (idx, frame) in all_control_frames.iter().enumerate() {
-            //     if frame.id == update_control_ids.clone()[0] {
-            //         index = idx as i32;
-            //     }
-            // }
-            //
-            // let control_record_payload = ControlRecordPayload {
-            //     mutation: ControlRecordMutationMode::UpdatedDeleted,
-            //     edit_by: context.user_id,
-            //     add_id: Vec::new(),
-            //     delete_id: delete_control_list.clone(),
-            //     update_id: update_control_ids.clone(),
-            //     index,
-            // };
-            // Subscriptor::publish(control_record_payload);
-        }
-
-        if shift_position {
+        let position_map_payload = if shift_position {
             //clear overlap interval
             let delete_position_frames = sqlx::query_as!(
                 PositionFrameData,
@@ -313,7 +283,7 @@ impl FrameMutation {
                 overlap_start,
                 overlap_end
             )
-            .fetch_all(mysql)
+            .fetch_all(&mut *tx)
             .await?;
             let _ = sqlx::query!(
                 r#"
@@ -324,7 +294,7 @@ impl FrameMutation {
                 overlap_start,
                 overlap_end
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await?;
 
             //get source data
@@ -341,7 +311,7 @@ impl FrameMutation {
                     start,
                     end
                 )
-                .fetch_all(mysql)
+                .fetch_all(&mut *tx)
                 .await?;
             } else {
                 update_position_frames = sqlx::query_as!(
@@ -355,7 +325,7 @@ impl FrameMutation {
                     start,
                     end
                 )
-                .fetch_all(mysql)
+                .fetch_all(&mut *tx)
                 .await?;
             }
             //update database and redis
@@ -371,9 +341,10 @@ impl FrameMutation {
                     position_frame.start + mv,
                     position_frame.start
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
-                let result = update_redis_position(mysql, redis_client, position_frame.id).await;
+
+                let result = update_redis_position(&mut *tx, redis_client, position_frame.id).await;
                 match result {
                     Ok(_) => (),
                     Err(msg) => return Err(GQLError::new(msg)),
@@ -408,45 +379,31 @@ impl FrameMutation {
                 };
                 update_position_frames.insert(id.to_string(), redis_position);
             }
+
             //subscription
-            let position_map_payload = PositionMapPayload {
+            Some(PositionMapPayload {
                 edit_by: context.user_id,
                 frame: PosDataScalar(FrameData {
                     create_frames: HashMap::new(),
                     delete_frames: delete_position_ids,
                     update_frames: update_position_frames,
                 }),
-            };
-            Subscriptor::publish(position_map_payload);
+            })
+        } else {
+            None
+        };
 
-            // NOTE: Not used in frontend
-            // let all_position_frames = sqlx::query_as!(
-            //     PositionFrameData,
-            //     r#"
-            //         SELECT * FROM PositionFrame
-            //         ORDER BY start ASC;
-            //     "#
-            // )
-            // .fetch_all(mysql)
-            // .await?;
-            // let mut index = -1;
-            // for (idx, frame) in all_position_frames.iter().enumerate() {
-            //     if frame.id == update_position_ids.clone()[0] {
-            //         index = idx as i32;
-            //     }
-            // }
-            // let position_record_payload = PositionRecordPayload {
-            //     mutation: PositionRecordMutationMode::UpdatedDeleted,
-            //     edit_by: context.user_id,
-            //     add_id: Vec::new(),
-            //     delete_id: delete_position_list.clone(),
-            //     update_id: update_position_ids.clone(),
-            //     index,
-            // };
-            // Subscriptor::publish(position_record_payload);
+        update_revision(&mut *tx).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
+
+        if let Some(control_map_payload) = control_map_payload {
+            Subscriptor::publish(control_map_payload);
         }
-
-        update_revision(mysql).await?;
+        if let Some(position_map_payload) = position_map_payload {
+            Subscriptor::publish(position_map_payload);
+        }
 
         Ok(ShiftResponse {
             msg: "Shift success".to_string(),

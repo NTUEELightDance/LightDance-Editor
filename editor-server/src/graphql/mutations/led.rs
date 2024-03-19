@@ -63,6 +63,7 @@ impl LEDMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         let effect_name = input.name.clone();
         let model_name = input.model_name.clone();
@@ -91,7 +92,7 @@ impl LEDMutation {
             &part_name,
             &model_name,
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await
         {
             Ok(row) => (row.model_id, row.part_id),
@@ -115,7 +116,7 @@ impl LEDMutation {
                 SELECT id FROM Color;
             "#
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         // check if all color ids in frames are in db
@@ -153,7 +154,7 @@ impl LEDMutation {
             part_id,
             model_id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await
         {
             Ok(_) => {
@@ -177,7 +178,7 @@ impl LEDMutation {
                 model_id,
                 part_id
             )
-            .execute(mysql)
+            .execute(&mut *tx)
             .await?
             .last_insert_id() as i32,
         };
@@ -195,10 +196,15 @@ impl LEDMutation {
                     led[0],
                     led[1],
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
             }
         }
+
+        update_revision(&mut *tx).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         // publish to subscribers
         let led_payload = LEDPayload {
@@ -215,8 +221,6 @@ impl LEDMutation {
         };
 
         Subscriptor::publish(led_payload);
-
-        update_revision(mysql).await?;
 
         Ok(LEDEffectResponse {
             id: effect_id,
@@ -240,6 +244,7 @@ impl LEDMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         let id = input.id;
         let effect_name = input.name.clone();
@@ -268,7 +273,7 @@ impl LEDMutation {
             "#,
             id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await
         {
             Ok(led_effect) => led_effect,
@@ -293,7 +298,7 @@ impl LEDMutation {
             "#,
             id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await
         {
             if effect.user_id != context.user_id {
@@ -310,7 +315,7 @@ impl LEDMutation {
                 SELECT id FROM Color;
             "#
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         // check if all color ids in frames are in db
@@ -348,7 +353,7 @@ impl LEDMutation {
             &effect_name,
             id,
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         // update LEDEffectStates
@@ -365,10 +370,15 @@ impl LEDMutation {
                     i as i32,
                     id
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
             }
         }
+
+        update_revision(&mut *tx).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         let led_payload = LEDPayload {
             create_effects: Vec::new(),
@@ -384,8 +394,6 @@ impl LEDMutation {
         };
 
         Subscriptor::publish(led_payload);
-
-        update_revision(mysql).await?;
 
         Ok(LEDEffectResponse {
             id,
@@ -409,6 +417,7 @@ impl LEDMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         // check if effect exists
         let led_effect = match sqlx::query!(
@@ -424,7 +433,7 @@ impl LEDMutation {
             "#,
             id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await
         {
             Ok(led_effect) => led_effect,
@@ -443,7 +452,7 @@ impl LEDMutation {
             "#,
             id
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         if !control_frames.is_empty() {
@@ -470,7 +479,7 @@ impl LEDMutation {
             "#,
             id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await
         {
             if effect.user_id != context.user_id {
@@ -489,7 +498,7 @@ impl LEDMutation {
             "#,
             id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         // delete from LEDEffect
@@ -500,8 +509,13 @@ impl LEDMutation {
             "#,
             id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        update_revision(&mut *tx).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         // publish to subscribers
         let led_payload = LEDPayload {
@@ -518,8 +532,6 @@ impl LEDMutation {
         };
 
         Subscriptor::publish(led_payload);
-
-        update_revision(mysql).await?;
 
         Ok(DeleteLEDEffectResponse {
             ok: true,

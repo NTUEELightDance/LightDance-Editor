@@ -61,7 +61,9 @@ impl ControlFrameMutation {
     ) -> FieldResult<String> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
+
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         // check if the control frame already exists on the start time
         let exist = sqlx::query!(
@@ -75,7 +77,7 @@ impl ControlFrameMutation {
            "#,
             start
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await?
         .exist;
 
@@ -102,7 +104,7 @@ impl ControlFrameMutation {
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         // Use the partition_by_field function to group raw_dancer_data by dancer_id
@@ -139,7 +141,7 @@ impl ControlFrameMutation {
                     SELECT id FROM Color ORDER BY id ASC;
                 "#,
             )
-            .fetch_all(mysql)
+            .fetch_all(&mut *tx)
             .await?
             .iter()
             .map(|color_id| color_id.id)
@@ -150,7 +152,7 @@ impl ControlFrameMutation {
                     SELECT id FROM LEDEffect ORDER BY id ASC;
                 "#,
             )
-            .fetch_all(mysql)
+            .fetch_all(&mut *tx)
             .await?
             .into_iter()
             .map(|effect_id| effect_id.id)
@@ -255,7 +257,7 @@ impl ControlFrameMutation {
             start,
             fade
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         let new_control_frame_id = new_control_frame.last_insert_id() as i32;
@@ -290,7 +292,7 @@ impl ControlFrameMutation {
                                 _data[0],
                                 _data[1],
                             )
-                            .execute(mysql)
+                            .execute(&mut *tx)
                             .await?;
                         }
                         PartType::LED => {
@@ -312,7 +314,7 @@ impl ControlFrameMutation {
                                     effect_id,
                                     alpha,
                                 )
-                                .execute(mysql)
+                                .execute(&mut *tx)
                                 .await?;
                             } else {
                                 sqlx::query!(
@@ -327,7 +329,7 @@ impl ControlFrameMutation {
                                     "EFFECT": ControlDataType,
                                     alpha,
                                 )
-                                .execute(mysql)
+                                .execute(&mut *tx)
                                 .await?;
                             }
                         }
@@ -362,7 +364,7 @@ impl ControlFrameMutation {
                                 -1,
                                 0,
                             )
-                            .execute(mysql)
+                            .execute(&mut *tx)
                             .await?;
                         }
                         PartType::LED => {
@@ -380,7 +382,7 @@ impl ControlFrameMutation {
                                 -1,
                                 0,
                             )
-                            .execute(mysql)
+                            .execute(&mut *tx)
                             .await?;
                         }
                     }
@@ -388,8 +390,14 @@ impl ControlFrameMutation {
             }
         }
 
+        update_revision(&mut *tx).await?;
+
         // update redis control
-        update_redis_control(mysql, &clients.redis_client, new_control_frame_id).await?;
+        update_redis_control(&mut *tx, &clients.redis_client, new_control_frame_id).await?;
+
+        // commit the transaction
+        tx.commit().await?;
+
         let redis_control = get_redis_control(&clients.redis_client, new_control_frame_id).await?;
         let create_frames = HashMap::from([(new_control_frame_id.to_string(), redis_control)]);
 
@@ -411,50 +419,6 @@ impl ControlFrameMutation {
         // publish control map
         Subscriptor::publish(control_map_payload);
 
-        // below is the code for publishing control record
-        // first, get the index of the new control frame
-
-        let mut index = -1;
-
-        // get all control frames
-        let all_control_frames = sqlx::query!(
-            r#"
-                SELECT id
-                FROM ControlFrame
-                ORDER BY start ASC
-            "#
-        )
-        .fetch_all(mysql)
-        .await?;
-
-        // get the index of the new control frame
-        for (i, control_frame) in all_control_frames.iter().enumerate() {
-            if control_frame.id == new_control_frame_id {
-                index = i as i32;
-                break;
-            }
-        }
-
-        // if the index is not found, return error
-        if index == -1 {
-            return Err(Error::new("Index of the new control frame is not found"));
-        }
-
-        // create control map payload
-        let control_record_payload = ControlRecordPayload {
-            mutation: ControlRecordMutationMode::Created,
-            index,
-            add_id: vec![new_control_frame_id],
-            update_id: vec![],
-            delete_id: vec![],
-            edit_by: context.user_id,
-        };
-
-        // publish control record
-        Subscriptor::publish(control_record_payload);
-
-        update_revision(mysql).await?;
-
         // return
         Ok("ok".to_string())
     }
@@ -469,7 +433,9 @@ impl ControlFrameMutation {
         // get the context and clients
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
+
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         // get the input data
         let frame_id = input.frame_id;
@@ -496,7 +462,7 @@ impl ControlFrameMutation {
                 start,
                 frame_id
             )
-            .fetch_one(mysql)
+            .fetch_one(&mut *tx)
             .await?
             .exist;
 
@@ -531,7 +497,7 @@ impl ControlFrameMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await;
 
         // if the original frame is not found, return error
@@ -555,7 +521,7 @@ impl ControlFrameMutation {
             "#,
             frame_id,
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if is_editing.is_some() {
@@ -596,7 +562,7 @@ impl ControlFrameMutation {
             fade,
             frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         // update revision of the frame
@@ -608,11 +574,17 @@ impl ControlFrameMutation {
             "#,
             frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
+        update_revision(&mut *tx).await?;
+
         // update redis control
-        update_redis_control(mysql, &clients.redis_client, frame_id).await?;
+        update_redis_control(&mut *tx, &clients.redis_client, frame_id).await?;
+
+        // commit the transaction
+        tx.commit().await?;
+
         let redis_control = get_redis_control(&clients.redis_client, frame_id).await?;
         let update_frames = HashMap::from([(frame_id.to_string(), redis_control)]);
 
@@ -634,52 +606,6 @@ impl ControlFrameMutation {
         // publish control map
         Subscriptor::publish(control_map_payload);
 
-        // below is the code for publishing control record
-        // first, get the index of the updated control frame
-
-        let mut index = -1;
-
-        // get all control frames
-        let all_control_frames = sqlx::query!(
-            r#"
-                SELECT id
-                FROM ControlFrame
-                ORDER BY start ASC
-            "#
-        )
-        .fetch_all(mysql)
-        .await?;
-
-        // get the index of the updated control frame
-        for (i, control_frame) in all_control_frames.iter().enumerate() {
-            if control_frame.id == frame_id {
-                index = i as i32;
-                break;
-            }
-        }
-
-        // if the index is not found, return error
-        if index == -1 {
-            return Err(Error::new(
-                "Index of the updated control frame is not found",
-            ));
-        }
-
-        // create control map payload
-        let control_record_payload = ControlRecordPayload {
-            mutation: ControlRecordMutationMode::Updated,
-            index,
-            add_id: vec![],
-            update_id: vec![frame_id],
-            delete_id: vec![],
-            edit_by: context.user_id,
-        };
-
-        // publish control record
-        Subscriptor::publish(control_record_payload);
-
-        update_revision(mysql).await?;
-
         // return
         Ok("ok".to_string())
     }
@@ -693,7 +619,9 @@ impl ControlFrameMutation {
         // get the context and clients
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
+
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         // get the input data
         let frame_id = input.frame_id;
@@ -719,7 +647,7 @@ impl ControlFrameMutation {
             "#,
             frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await;
 
         // if the original frame is not found, return error
@@ -743,7 +671,7 @@ impl ControlFrameMutation {
             "#,
             frame_id,
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if is_editing.is_some() {
@@ -766,11 +694,16 @@ impl ControlFrameMutation {
             "#,
             frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
+        update_revision(&mut *tx).await?;
+
         // update redis control
-        update_redis_control(mysql, &clients.redis_client, frame_id).await?;
+        update_redis_control(&mut *tx, &clients.redis_client, frame_id).await?;
+
+        // commit the transaction
+        tx.commit().await?;
 
         // below is the code for publishing control map
 
@@ -804,8 +737,6 @@ impl ControlFrameMutation {
 
         // publish control record
         Subscriptor::publish(control_record_payload);
-
-        update_revision(mysql).await?;
 
         // return
         Ok("ok".to_string())

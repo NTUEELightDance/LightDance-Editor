@@ -62,7 +62,9 @@ impl ControlMapMutation {
         // get the context and clients
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
+
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
 
         // get the input data
         let frame_id = input.frame_id;
@@ -93,7 +95,7 @@ impl ControlMapMutation {
             "#,
             frame_id,
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         // if the frame does not exist, return error
@@ -112,7 +114,7 @@ impl ControlMapMutation {
             "#,
             frame_id,
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if is_editing.is_some() {
@@ -152,7 +154,7 @@ impl ControlMapMutation {
             "#,
             frame_id
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         // Use the partition_by_field function to group raw_dancer_data by dancer_id
@@ -191,7 +193,7 @@ impl ControlMapMutation {
                 SELECT id FROM Color ORDER BY id ASC;
             "#,
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?
         .iter()
         .map(|color_id| color_id.id)
@@ -202,7 +204,7 @@ impl ControlMapMutation {
                 SELECT id FROM LEDEffect ORDER BY id ASC;
             "#,
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?
         .into_iter()
         .map(|effect_id| effect_id.id)
@@ -333,7 +335,7 @@ impl ControlMapMutation {
                             part.part_id,
                             dancer_id,
                         )
-                        .execute(mysql)
+                        .execute(&mut *tx)
                         .await?;
                     }
                     // if the part is LED, update the effect and alpha
@@ -354,7 +356,7 @@ impl ControlMapMutation {
                                 part.part_id,
                                 dancer_id,
                             )
-                            .execute(mysql)
+                            .execute(&mut *tx)
                             .await?;
                         } else {
                             sqlx::query!(
@@ -368,7 +370,7 @@ impl ControlMapMutation {
                                 part.part_id,
                                 dancer_id,
                             )
-                            .execute(mysql)
+                            .execute(&mut *tx)
                             .await?;
                         }
                     }
@@ -396,7 +398,7 @@ impl ControlMapMutation {
                     fade,
                     frame_id,
                 )
-                .execute(mysql)
+                .execute(&mut *tx)
                 .await?;
             }
             None => {}
@@ -414,7 +416,7 @@ impl ControlMapMutation {
             "#,
             context.user_id,
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         // update revision of the frame
@@ -426,11 +428,17 @@ impl ControlMapMutation {
             "#,
             frame_id,
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
+        update_revision(&mut *tx).await?;
+
         // update redis
-        update_redis_control(mysql, &clients.redis_client, frame_id).await?;
+        update_redis_control(&mut *tx, &clients.redis_client, frame_id).await?;
+
+        // commit the transaction
+        tx.commit().await?;
+
         let redis_control = get_redis_control(&clients.redis_client, frame_id).await?;
         let update_frames = HashMap::from([(frame_id.to_string(), redis_control)]);
 
@@ -451,8 +459,6 @@ impl ControlMapMutation {
 
         // publish control map
         Subscriptor::publish(control_map_payload);
-
-        update_revision(mysql).await?;
 
         // TODO: check the necessity of publishing the control record (similar to the code in control_frame.rs)
         // the previous code doesn't implement this

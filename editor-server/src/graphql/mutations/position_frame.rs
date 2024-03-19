@@ -4,7 +4,6 @@ use crate::db::types::{
     dancer::DancerData, editing_position_frame::EditingPositionFrameData,
     position_frame::PositionFrameData,
 };
-use crate::graphql::position_record::{PositionRecordMutationMode, PositionRecordPayload};
 use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
@@ -43,6 +42,8 @@ impl PositionFrameMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let check = sqlx::query_as!(
@@ -53,7 +54,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(check) = check {
@@ -71,7 +72,7 @@ impl PositionFrameMutation {
                 ORDER BY id ASC;
             "#
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         match &position_data {
@@ -108,7 +109,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?
         .last_insert_id() as i32;
 
@@ -128,7 +129,7 @@ impl PositionFrameMutation {
                         coor[1],
                         coor[2]
                     )
-                    .execute(mysql)
+                    .execute(&mut *tx)
                     .await?;
                 }
 
@@ -158,13 +159,18 @@ impl PositionFrameMutation {
                         0.0,
                         0.0
                     )
-                    .execute(mysql)
+                    .execute(&mut *tx)
                     .await?;
                 }
             }
         }
 
-        update_redis_position(mysql, redis, id).await?;
+        update_revision(&mut *tx).await?;
+
+        update_redis_position(&mut *tx, redis, id).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         // subscription
         let map_payload = PositionMapPayload {
@@ -177,37 +183,6 @@ impl PositionFrameMutation {
         };
 
         Subscriptor::publish(map_payload);
-
-        let all_position_frames = sqlx::query_as!(
-            PositionFrameData,
-            r#"
-                SELECT * FROM PositionFrame
-                ORDER BY start ASC;
-            "#
-        )
-        .fetch_all(mysql)
-        .await?;
-
-        let mut index = -1;
-        for (idx, frame) in all_position_frames.iter().enumerate() {
-            if frame.id == id {
-                index = idx as i32;
-                break;
-            }
-        }
-
-        let record_payload = PositionRecordPayload {
-            mutation: PositionRecordMutationMode::Created,
-            edit_by: context.user_id,
-            add_id: vec![id],
-            update_id: vec![],
-            delete_id: vec![],
-            index,
-        };
-
-        Subscriptor::publish(record_payload);
-
-        update_revision(mysql).await?;
 
         Ok(PositionFrame {
             id,
@@ -224,6 +199,8 @@ impl PositionFrameMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let check = sqlx::query_as!(
@@ -234,7 +211,7 @@ impl PositionFrameMutation {
             "#,
             input.start
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(check) = check {
@@ -255,7 +232,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(frame_to_edit) = frame_to_edit {
@@ -274,7 +251,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         match position_frame {
@@ -294,7 +271,7 @@ impl PositionFrameMutation {
             input.start,
             input.frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         let _ = sqlx::query_as!(
@@ -306,7 +283,7 @@ impl PositionFrameMutation {
             "#,
             context.user_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         // update revision of the frame
@@ -319,11 +296,16 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
+        update_revision(&mut *tx).await?;
+
         let position_frame = position_frame.unwrap();
-        update_redis_position(mysql, redis, position_frame.id).await?;
+        update_redis_position(&mut *tx, redis, position_frame.id).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
 
         let redis_position = get_redis_position(redis, position_frame.id).await?;
         let update_frames = HashMap::from([(position_frame.id.to_string(), redis_position)]);
@@ -339,37 +321,6 @@ impl PositionFrameMutation {
         };
 
         Subscriptor::publish(payload);
-
-        let all_position_frames = sqlx::query_as!(
-            PositionFrameData,
-            r#"
-                SELECT * FROM PositionFrame
-                ORDER BY start ASC;
-            "#,
-        )
-        .fetch_all(mysql)
-        .await?;
-
-        let mut index = -1;
-        for (idx, frame) in all_position_frames.iter().enumerate() {
-            if frame.id == position_frame.id {
-                index = idx as i32;
-                break;
-            }
-        }
-
-        let record_payload = PositionRecordPayload {
-            mutation: PositionRecordMutationMode::Updated,
-            edit_by: context.user_id,
-            add_id: vec![],
-            update_id: vec![position_frame.id],
-            delete_id: vec![],
-            index,
-        };
-
-        Subscriptor::publish(record_payload);
-
-        update_revision(mysql).await?;
 
         Ok(PositionFrame {
             id: input.frame_id,
@@ -389,6 +340,8 @@ impl PositionFrameMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+        let mut tx = mysql.begin().await?;
+
         let redis = clients.redis_client();
 
         let frame_to_delete = sqlx::query_as!(
@@ -399,7 +352,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(frame_to_delete) = frame_to_delete {
@@ -418,7 +371,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if deleted_frame.is_none() {
@@ -433,7 +386,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         let _ = sqlx::query_as!(
@@ -445,8 +398,15 @@ impl PositionFrameMutation {
             "#,
             context.user_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        update_revision(&mut *tx).await?;
+
+        // Commit the transaction
+        tx.commit().await?;
+
+        delete_redis_position(redis, input.frame_id).await?;
 
         // subscription
         let map_payload = PositionMapPayload {
@@ -457,20 +417,7 @@ impl PositionFrameMutation {
                 update_frames: HashMap::new(),
             }),
         };
-        delete_redis_position(redis, input.frame_id).await?;
         Subscriptor::publish(map_payload);
-
-        let record_payload = PositionRecordPayload {
-            mutation: PositionRecordMutationMode::Deleted,
-            add_id: vec![],
-            update_id: vec![],
-            delete_id: vec![input.frame_id],
-            edit_by: context.user_id,
-            index: -1,
-        };
-        Subscriptor::publish(record_payload);
-
-        update_revision(mysql).await?;
 
         let deleted_frame = deleted_frame.unwrap();
 
