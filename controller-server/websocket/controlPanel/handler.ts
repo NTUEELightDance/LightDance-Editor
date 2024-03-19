@@ -109,7 +109,7 @@ export function handlePlay(msg: FromControlPanelPlay) {
 
   sendToRPi(dancers, toRPiMsg);
 
-  exec(`./scripts/schedule_play.sh ${timestampString} ${start/1000}`);
+  return exec(`./scripts/schedule_play.sh ${timestampString} ${start/1000}`);
 }
 
 export function handlePause(msg: FromControlPanelPause) {

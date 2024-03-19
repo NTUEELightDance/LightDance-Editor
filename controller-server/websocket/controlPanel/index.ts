@@ -2,6 +2,8 @@ import { WebSocket } from "ws";
 
 import { FromControlPanel } from "@/types/controlPanelMessage";
 
+import { ChildProcess } from "child_process";
+
 import {
   handleBoardInfo,
   handleSync,
@@ -23,6 +25,8 @@ import {
   handleWebShell,
 } from "./handler";
 
+let music_subprocess: ChildProcess | null = null;
+
 export async function handleOnControlPanelMessage(
   ws: WebSocket,
   msg: FromControlPanel
@@ -35,12 +39,26 @@ export async function handleOnControlPanelMessage(
       handleSync(msg);
       break;
     case "play":
-      handlePlay(msg);
+      music_subprocess = handlePlay(msg);
       break;
     case "pause":
+      if (music_subprocess?.pid && !music_subprocess.killed) {
+        console.log(music_subprocess.pid+1);
+        try {
+          process.kill(music_subprocess.pid+1, 'SIGHUP')
+        } catch {}
+        console.log("killed music");
+      }
       handlePause(msg);
       break;
     case "stop":
+      if (music_subprocess?.pid && !music_subprocess.killed) {
+        console.log(music_subprocess.pid+1);
+        try {
+          process.kill(music_subprocess.pid+1, 'SIGHUP')
+        } catch {}
+        console.log("killed music");
+      }
       handleStop(msg);
       break;
     case "test":
