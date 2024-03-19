@@ -19,6 +19,8 @@ def set_pos_record(pos_record: PosRecord):
 
 
 def add_pos(id: MapID, frame: PosMapElement):
+    print(f"Add pos {id} at {frame.start}")
+
     pos_map_updates = state.pos_map_updates
     pos_map_updates.added.append((id, frame))
 
@@ -31,6 +33,8 @@ def add_pos(id: MapID, frame: PosMapElement):
 
 
 def delete_pos(id: MapID):
+    print(f"Delete pos {id}")
+
     pos_map_updates = state.pos_map_updates
 
     for pos in pos_map_updates.added:
@@ -61,6 +65,8 @@ def delete_pos(id: MapID):
 
 
 def update_pos(id: MapID, frame: PosMapElement):
+    print(f"Update pos {id} at {frame.start}")
+
     pos_map_updates = state.pos_map_updates
 
     for pos in pos_map_updates.added:
@@ -92,6 +98,7 @@ def apply_pos_map_updates():
     pos_map_updates = state.pos_map_updates
 
     for pos in pos_map_updates.added:
+        print(f"Apply added pos {pos[0]} at {pos[1].start} to pos map")
         try:
             add_single_pos_keyframe(pos[0], pos[1])
         except Exception as e:
@@ -99,6 +106,7 @@ def apply_pos_map_updates():
         state.pos_map[pos[0]] = pos[1]
 
     for pos in pos_map_updates.updated:
+        print(f"Apply updated pos {pos[0]} at {pos[1].start} to pos map")
         try:
             edit_single_pos_keyframe(pos[0], pos[1])
         except Exception as e:
@@ -106,6 +114,7 @@ def apply_pos_map_updates():
         state.pos_map[pos[0]] = pos[1]
 
     for pos_id in pos_map_updates.deleted:
+        print(f"Apply deleted pos {id} to pos map")
         try:
             delete_single_pos_keyframe(pos_id)
         except Exception as e:

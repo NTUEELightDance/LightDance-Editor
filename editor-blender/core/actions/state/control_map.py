@@ -19,6 +19,8 @@ def set_control_record(control_record: ControlRecord):
 
 
 def add_control(id: MapID, frame: ControlMapElement):
+    print(f"Add control {id} at {frame.start}")
+
     control_map_updates = state.control_map_updates
     control_map_updates.added.append((id, frame))
 
@@ -31,6 +33,8 @@ def add_control(id: MapID, frame: ControlMapElement):
 
 
 def delete_control(id: MapID):
+    print(f"Delete control {id}")
+
     control_map_updates = state.control_map_updates
 
     for status in control_map_updates.added:
@@ -61,6 +65,8 @@ def delete_control(id: MapID):
 
 
 def update_control(id: MapID, frame: ControlMapElement):
+    print(f"Update control {id} at {frame.start}")
+
     control_map_updates = state.control_map_updates
 
     for status in control_map_updates.added:
@@ -92,6 +98,7 @@ def apply_control_map_updates():
     control_map_updates = state.control_map_updates
 
     for status in control_map_updates.added:
+        print(f"Apply added control {status[0]} at {status[1].start} to control map")
         try:
             add_single_ctrl_keyframe(status[0], status[1])
         except Exception as e:
@@ -99,6 +106,7 @@ def apply_control_map_updates():
         state.control_map[status[0]] = status[1]
 
     for status in control_map_updates.updated:
+        print(f"Apply updated control {status[0]} at {status[1].start} to control map")
         try:
             edit_single_ctrl_keyframe(status[0], status[1])
         except Exception as e:
@@ -106,6 +114,7 @@ def apply_control_map_updates():
         state.control_map[status[0]] = status[1]
 
     for id in control_map_updates.deleted:
+        print(f"Apply deleted control {id} to control map")
         try:
             delete_single_ctrl_keyframe(id)
         except Exception as e:

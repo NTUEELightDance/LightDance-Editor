@@ -7,8 +7,8 @@ from ...models import Color, ColorID, ColorMap, EditMode
 from ...states import state
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
+from ..property.animation_data import init_ctrl_keyframes_from_state
 from .color_palette import setup_color_palette_from_state
-from .load import init_ctrl_keyframes_from_state
 
 
 def set_color_map(color_map: ColorMap):

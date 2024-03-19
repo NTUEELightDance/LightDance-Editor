@@ -1,18 +1,15 @@
 import asyncio
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional
 
 import bpy
 
 from ....api.auth_agent import auth_agent
 from ....api.color_agent import color_agent
-from ....api.control_agent import control_agent
 from ....api.dancer_agent import dancer_agent
 from ....api.led_agent import led_agent
 from ....api.model_agent import model_agent
 from ....client import client
-
-# from ....client.cache import FieldPolicy, InMemoryCache, TypePolicy
-from ....client.subscription import subscribe, subscribe_command
+from ....client.subscription import subscribe
 from ....core.actions.state.app_state import (
     set_logged_in,
     set_ready,
@@ -21,10 +18,6 @@ from ....core.actions.state.app_state import (
     set_sync,
 )
 from ....core.actions.state.color_map import set_color_map
-from ....core.actions.state.control_map import set_control_map
-
-# from ....core.actions.state.color_map import set_color_map
-# from ....core.actions.state.control_map import set_control_map
 from ....core.actions.state.current_pos import update_current_pos_by_index
 from ....core.actions.state.current_status import (
     calculate_current_status_index,
@@ -32,24 +25,10 @@ from ....core.actions.state.current_status import (
 )
 from ....core.actions.state.editor import setup_control_editor
 from ....core.actions.state.led_map import set_led_map
-
-# from ....core.actions.state.pos_map import set_pos_map
 from ....core.asyncio import AsyncTask
 from ....core.states import state
-
-# from ....core.utils.convert import (
-#     color_map_query_to_state,
-#     control_map_query_to_state,
-#     pos_map_query_to_state,
-# )
 from ....core.utils.get_data import get_control, get_pos
 from ....core.utils.ui import redraw_area
-
-# from ....graphqls.queries import (
-#     QueryColorMapPayload,
-#     QueryControlMapPayload,
-#     QueryPosMapPayload,
-# )
 from ....handlers import mount_handlers, unmount_handlers
 from ....properties.types import Preferences
 from ....storage import get_storage
@@ -65,8 +44,6 @@ from ...models import (
     PartName,
     PartType,
     PartTypeMap,
-    Selected,
-    SelectedItem,
 )
 from ...states import state
 from ...utils.convert import frame_to_time
@@ -215,8 +192,6 @@ async def init_editor():
         [init_color_map, init_led_map],
         [init_pos_map, init_control_map],
         [init_assets],
-        # [init_current_status, init_current_pos, init_current_led_status, sync_led_effect_record],
-        # [sync_current_led_status],
     ]
     batches_completes = [[False] * len(batch) for batch in batches_functions]
 
