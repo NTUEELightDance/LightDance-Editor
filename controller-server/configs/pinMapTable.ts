@@ -607,7 +607,7 @@ const pinMapTable: PinMapTable = {
       lamp_left_LED: { id: 3, len: 3 },
       lamp_right_LED: { id: 4, len: 3 },
       pillar_right_LED: { id: 5, len: 24 },
-      pillar_roof_deco_LED: { id: 6, len: 60 },
+      pillar_roof_deco_LED: { id: 6, len: 104 },
       roof_tile3_LED: { id: 7, len: 84 },
     },
     LEDPARTS_MERGE: {},
@@ -716,11 +716,11 @@ const pinMapTable: PinMapTable = {
       jaw_low: 25
     },
     LEDPARTS: {
-      forefoot_left_LED: { id: 0, len: 30 },
-      forefoot_right_LED: { id: 3, len: 40 },
-      back_LED: { id: 4, len: 60 },
-      upperjaw_LED: { id: 5, len: 36 },
-      lowerjaw_LED: { id: 6, len: 12 }
+      forefoot_left_LED: { id: 0, len: 66 },
+      forefoot_right_LED: { id: 3, len: 64 },
+      back_LED: { id: 4, len: 76 },
+      upperjaw_LED: { id: 5, len: 33 },
+      lowerjaw_LED: { id: 6, len: 16 }
     },
     LEDPARTS_MERGE: {},
   },

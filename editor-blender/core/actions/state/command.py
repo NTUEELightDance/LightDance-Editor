@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from ....graphqls.command import (
     FromControllerServerBoardInfoPayload,
     FromControllerServerCommandResponse,
@@ -37,7 +39,7 @@ def read_board_info_payload(payload: FromControllerServerBoardInfoPayload):
                     MAC=item.MAC,
                     connected=item.connected,
                     statusCode=0,
-                    message="",
+                    message=state.rpi_status[item.dancer].ethernet.message,
                 )
             case "wifi":
                 rpi_status[item.dancer].wifi = InterfaceStatus(
@@ -46,7 +48,7 @@ def read_board_info_payload(payload: FromControllerServerBoardInfoPayload):
                     MAC=item.MAC,
                     connected=item.connected,
                     statusCode=0,
-                    message="",
+                    message=state.rpi_status[item.dancer].wifi.message,
                 )
     set_RPi_props_from_state()
 
@@ -66,12 +68,13 @@ def read_command_response(data: FromControllerServerCommandResponse):
                 name=dancer, IP="", MAC="", connected=False, statusCode=0, message=""
             ),
         )
+    message_str = f"({datetime.now().time()})[{command}] {message}"
     rpi_status_item = rpi_status[dancer]
     if rpi_status_item.ethernet.connected:
-        rpi_status_item.ethernet.message = f"[{command}] {message}"
+        rpi_status_item.ethernet.message = message_str
         rpi_status_item.ethernet.statusCode = data.statusCode
     if rpi_status_item.wifi.connected:
-        rpi_status_item.wifi.message = f"[{command}] {message}"
+        rpi_status_item.wifi.message = message_str
         rpi_status_item.wifi.statusCode = data.statusCode
     shell_history = state.shell_history
     if dancer not in shell_history:
