@@ -1,41 +1,41 @@
 {
-  "Music": "cc3e6dd17aea529de5723af3f45b30e531239003f2af6fec41e92cf80db5f98d",
+  "Music": "5a243640f6467148b4683a5bc303ff06526fd4f5c04d6fb87994cec94e0831ae",
   "Waveform": "aaff2d8270727f82177022417beb07b47cf51383a0433e046d03f4a034d3686d",
   "LightPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
   "PosPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
   "DancerMap": {
     "0_xn": {
-      "url": "f2d02747deaa3743a9951560b310642d6b2d7e056e86db41e6ac40d1523e04f6"
+      "url": "c0c2709ac84a337604bd021724e47ae6192dd0258a5e235089824487c2e1390a"
     },
     "1_yck": {
-      "url": "c614580f37edfef2679138d3139d834d7e07f08478895fd722faf79ee7ee6147"
+      "url": "eff6166277a0f66d42f909fc7614d96d3448ae789c669e1b6d666fb4b1df53bc"
     },
     "2_sssam": {
-      "url": "98c1ca9c6d66e50276f22b78942a8e7aef8cad1eb16f9f63c200cd181497b63a"
+      "url": "ab73db0e857326e6fc7aec368f8cc96a9915e3e190f5ce482a340bca2331a55e"
     },
     "3_crc": {
-      "url": "c503fbd64bb88ffec7c87496ca72a89498d6e1cf06a64d56a41d2b724671c640"
+      "url": "ab73db0e857326e6fc7aec368f8cc96a9915e3e190f5ce482a340bca2331a55e"
     },
     "4_arthur": {
-      "url": "680fa9ad640a8410900fcbfb52a682eb16fc69f427b82eeccfa61759fd0e91c3"
+      "url": "7540b49cb38daa6c44ac1f5704da199af6eb85f457d61935791731c1beb28c1f"
     },
     "5_cs": {
-      "url": "c4e7852c2f89ca5ea3b476d44ef0590ecf51ce34ce09e0262f5c39c657760a3b"
+      "url": "326a13dfd799fe16c1ef39a364ae3a682f70999b72d13a1559f70fea4f7e0d7d"
     },
     "6_rakec": {
-      "url": "f924bca20e39fac2b33608ef0af52a4d5d4d03dc84c5f94b5063f95499c02232"
+      "url": "3472dc9784f89f0f2dddf636af1395d8212975bfa554ffca925852ccab95423e"
     },
     "7_jya": {
-      "url": "3df4532fbb388a7cf2b751e3ba1c7a188ffa294de5ca5503f621e67632382b63"
+      "url": "0ff7181cfb6627e96bede36866447232566d4effc3847f2a049920d70f2064cd"
     },
     "8_circle": {
-      "url": "f29a354dbe2f174fcdc493fe30d304a517078b42ece1cd5bbe00f018ba8e7dd6"
+      "url": "690207b4a59ec443256ae1ab967dc597314c7f06756c926c879c3463feea0380"
     },
     "9_ricky": {
-      "url": "dbc531478361bd93dc16323358e419d7bb25850459d9d7e174283e8b4fa59ea5"
+      "url": "d43a2a813edf6c31c16e12aef6a38618a68ab3264c007c2969990df347818917"
     },
     "10_chris": {
-      "url": "7bb4e62a37cd6eee085a7d3e15bc4c078b6ce129a66f9e4e473d670bce39d881"
+      "url": "a0f0cda144bf66b79fd21125c1e3eed2430ca52302faba5db7a4de1b0bcd1555"
     },
     "11_temple": {
       "url": "6a2ab4a71a65ce1277a9b371f6fafe6e426f3ff83ac44bbe597d3bf82c0984c4"
@@ -47,13 +47,13 @@
       "url": "9f6724b2ae55b4a48d0e6e46662b27b0beff9d8c050be73c456e6dd48ec66ac8"
     },
     "14_sword": {
-      "url": "8e3975f47fef397d407bd9a50c5be4cd54f5794c94925bb645ae77b4bc12bcfd"
+      "url": "d4da1b8efc175cdda79b17ed1011023b1b9c7bafc63f892cf2bb0731e251d218"
     },
     "15_guandao": {
-      "url": "105eaca059f5cdc56d40e002c1bb07cb5f8ade379ab42c5b49f51f9dab8c1513"
+      "url": "038a69d52a1a8c8e642182b2d9b491a943da3de8519fa8796698c00f5a1931f8"
     },
     "16_effectboard": {
-      "url": "f5ada75a4a32124d76778481a336009d3585eb4da7f510df6c8ca7f18533c0eb"
+      "url": "992004772c8deb63a93a9429f5da8f93a29bad4d7a9a7d68d845e3bd27654774"
     }
   }
 }
