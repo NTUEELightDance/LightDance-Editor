@@ -17,7 +17,7 @@ class CommandCenterStatus(bpy.types.PropertyGroup):
     )
     color_code: bpy.props.StringProperty(maxlen=7, default="#000000")  # type: ignore
     command: bpy.props.StringProperty()  # type: ignore
-    delay: bpy.props.IntProperty(min=0, max=3000)  # type: ignore
+    delay: bpy.props.IntProperty(min=0, max=3000, default=120)  # type: ignore
     countdown: bpy.props.StringProperty(default="00:00")  # type: ignore
 
 

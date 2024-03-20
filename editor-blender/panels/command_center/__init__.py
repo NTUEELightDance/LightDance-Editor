@@ -67,7 +67,7 @@ class LD_UL_DancerList(bpy.types.UIList):
         if self.show_mac:
             row.prop(self, "show_ip", text="Show IP addresses")
 
-    def filter_items(
+    def filter_items(  # WARNING: Doesn't work for now
         self, context: Context | None, data: Any | None, property: str | Any
     ):
         prop = getattr(data, property)

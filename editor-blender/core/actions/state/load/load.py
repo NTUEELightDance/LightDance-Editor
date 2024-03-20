@@ -39,6 +39,9 @@ async def fetch_data(reload: bool = False):
         new_load_hash = False
         local_load_hash: Dict[str, Any] = {}
 
+        if not os.path.exists(config.ASSET_PATH):
+            os.mkdir(config.ASSET_PATH)
+
         if not os.path.exists(local_load_hash_path):
             with open(local_load_hash_path, "w") as file:
                 json.dump(assets_load_hash, file)
