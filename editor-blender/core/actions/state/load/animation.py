@@ -9,16 +9,16 @@ from ...property.animation_data import (
 
 
 def setup_animation_data():
+    dancers_reset_animation = state.init_temps.dancers_reset_animation
+    reset_all = all(dancers_reset_animation)
+    update_all = not any(dancers_reset_animation)
+
+    if reset_all:
+        init_ctrl_keyframes_from_state()
+        init_pos_keyframes_from_state()
+        return
+
     try:
-        dancers_reset_animation = state.init_temps.dancers_reset_animation
-        reset_all = all(dancers_reset_animation)
-        update_all = not any(dancers_reset_animation)
-
-        if reset_all:
-            init_ctrl_keyframes_from_state()
-            init_pos_keyframes_from_state()
-            return
-
         if update_all:
             update_rev_changes(state.pos_map, state.control_map)
             return
@@ -29,4 +29,5 @@ def setup_animation_data():
 
     except Exception:
         traceback.print_exc()
-        pass
+        init_ctrl_keyframes_from_state()
+        init_pos_keyframes_from_state()
