@@ -77,6 +77,63 @@ where
     }
 }
 
+fn convert_true_color_wo_norm(color: &[i32; 4]) -> [i32; 3] {
+    [
+        color[0] * color[3],
+        color[1] * color[3],
+        color[2] * color[3],
+    ]
+}
+
+fn check_same_status(s1: &Status, s2: &Status) -> bool {
+    if s1.status.len() != s2.status.len() {
+        return false;
+    }
+
+    for (c1, c2) in s1.status.iter().zip(s2.status.iter()) {
+        let c1 = convert_true_color_wo_norm(c1);
+        let c2 = convert_true_color_wo_norm(c2);
+        if c1 != c2 {
+            return false;
+        }
+    }
+
+    true
+}
+
+fn filter_identical_frames(statuses: Vec<Status>) -> Vec<Status> {
+    let length = statuses.len();
+    let mut identical_and_fade = vec![(false, false); statuses.len()];
+    for (i, status) in statuses.iter().enumerate() {
+        identical_and_fade[i] = (
+            i != length - 1 && check_same_status(status, &statuses[i + 1]),
+            status.fade,
+        );
+    }
+
+    // Remove executive identical frames
+    let mut keep_frame = vec![true; statuses.len()];
+    for (i, (identical, fade)) in identical_and_fade.iter().enumerate() {
+        // Must keep if previous frame is not the same
+        let identical_prev = i != 0 && identical_and_fade[i - 1].0;
+        if !identical_prev {
+            continue;
+        }
+
+        if !identical && *fade {
+            continue;
+        }
+
+        keep_frame[i] = false;
+    }
+
+    statuses
+        .into_iter()
+        .zip(keep_frame)
+        .filter_map(|(status, keep)| if keep { Some(status) } else { None })
+        .collect_vec()
+}
+
 pub async fn get_dancer_led_data(
     query: Option<Json<GetLEDDataQuery>>,
 ) -> Result<
@@ -284,49 +341,7 @@ pub async fn get_dancer_led_data(
                 }
 
                 part_data.sort_by_key(|status| status.start);
-
-                // Remove executive black frames
-                let mut keep_frame = vec![true; part_data.len()];
-                let black_and_fade = part_data
-                    .iter()
-                    .map(|status| {
-                        (
-                            status
-                                .status
-                                .iter()
-                                .all(|color| color[0] == 0 && color[1] == 0 && color[2] == 0),
-                            status.fade,
-                        )
-                    })
-                    .collect_vec();
-
-                for (i, (is_black, fade)) in black_and_fade.iter().enumerate() {
-                    if i == 0 || i == black_and_fade.len() - 1 || !is_black {
-                        continue;
-                    }
-
-                    // Must keep if previous frame is not black
-                    let prev = &black_and_fade[i - 1];
-                    if !prev.0 {
-                        continue;
-                    }
-
-                    // Must keep if next frame is not black and current is fading
-                    let next = &black_and_fade[i + 1];
-                    if !next.0 && *fade {
-                        continue;
-                    }
-
-                    keep_frame[i] = false;
-                }
-
-                let part_data = part_data
-                    .into_iter()
-                    .zip(keep_frame)
-                    .filter_map(|(status, keep)| if keep { Some(status) } else { None })
-                    .collect_vec();
-
-                response.insert(part_name.clone(), part_data);
+                response.insert(part_name.clone(), filter_identical_frames(part_data));
             }
             None => {
                 let control_data = fetched_parts.get(part_name);
@@ -366,49 +381,7 @@ pub async fn get_dancer_led_data(
                     }
 
                     part_data.sort_by_key(|status| status.start);
-
-                    // Remove executive black frames
-                    let mut keep_frame = vec![true; part_data.len()];
-                    let black_and_fade = part_data
-                        .iter()
-                        .map(|status| {
-                            (
-                                status
-                                    .status
-                                    .iter()
-                                    .all(|color| color[0] == 0 && color[1] == 0 && color[2] == 0),
-                                status.fade,
-                            )
-                        })
-                        .collect_vec();
-
-                    for (i, (is_black, fade)) in black_and_fade.iter().enumerate() {
-                        if i == 0 || i == black_and_fade.len() - 1 || !is_black {
-                            continue;
-                        }
-
-                        // Must keep if previous frame is not black
-                        let prev = &black_and_fade[i - 1];
-                        if !prev.0 {
-                            continue;
-                        }
-
-                        // Must keep if next frame is not black and current is fading
-                        let next = &black_and_fade[i + 1];
-                        if !next.0 && *fade {
-                            continue;
-                        }
-
-                        keep_frame[i] = false;
-                    }
-
-                    let part_data = part_data
-                        .into_iter()
-                        .zip(keep_frame)
-                        .filter_map(|(status, keep)| if keep { Some(status) } else { None })
-                        .collect_vec();
-
-                    response.insert(part_name.clone(), part_data);
+                    response.insert(part_name.clone(), filter_identical_frames(part_data));
                 }
             }
         }
