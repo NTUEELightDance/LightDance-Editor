@@ -79,4 +79,4 @@ def unmount():
     try:
         bpy.app.handlers.frame_change_post.remove(frame_change_post)
     except:
-        traceback.print_exc()
+        pass

@@ -1,15 +1,12 @@
-import traceback
+from typing import List, Tuple
 
 from ...models import EditMode, MapID, PosMap, PosMapElement, PosRecord
 from ...states import state
+from ...utils.convert import pos_modify_to_animation_data
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
-from ..property.animation_data import (
-    add_single_pos_keyframe,
-    delete_single_pos_keyframe,
-    edit_single_pos_keyframe,
-)
-from .current_pos import calculate_current_pos_index, update_current_pos_by_index
+from ..property.animation_data import modify_partial_pos_keyframes, update_pos_frames
+from .current_pos import calculate_current_pos_index
 
 
 def set_pos_map(pos_map: PosMap):
@@ -41,6 +38,10 @@ def add_pos(id: MapID, frame: PosMapElement):
 def delete_pos(id: MapID):
     print(f"Delete pos {id}")
 
+    old_frame = state.pos_map.get(id)
+    if old_frame is None:
+        return
+
     pos_map_updates = state.pos_map_updates
 
     for pos in pos_map_updates.added:
@@ -60,7 +61,7 @@ def delete_pos(id: MapID):
         if pos[0] == id:
             pos_map_updates.updated.remove(pos)
 
-    pos_map_updates.deleted.append(id)
+    pos_map_updates.deleted.append((old_frame.start, id))
 
     if (
         state.edit_state == EditMode.EDITING
@@ -88,10 +89,10 @@ def update_pos(id: MapID, frame: PosMapElement):
     for pos in pos_map_updates.updated:
         if pos[0] == id:
             pos_map_updates.updated.remove(pos)
-            pos_map_updates.updated.append((id, frame))
+            pos_map_updates.updated.append((frame.start, id, frame))
             return
 
-    pos_map_updates.updated.append((id, frame))
+    pos_map_updates.updated.append((frame.start, id, frame))
 
     if (
         state.edit_state == EditMode.EDITING
@@ -111,32 +112,25 @@ def apply_pos_map_updates():
 
     pos_map_updates = state.pos_map_updates
 
-    for pos in pos_map_updates.added:
-        print(f"Apply added pos {pos[0]} at {pos[1].start} to pos map")
-        try:
-            add_single_pos_keyframe(pos[0], pos[1])
-        except Exception as e:
-            traceback.print_exc()
-            notify("ERROR", f"Failed to add position keyframe {pos[0]}: {e}")
-        state.pos_map[pos[0]] = pos[1]
+    pos_update: List[Tuple[int, MapID, PosMapElement]] = []
+    pos_add: List[Tuple[MapID, PosMapElement]] = []
+    pos_delete: List[Tuple[int, MapID]] = []
 
-    for pos in pos_map_updates.updated:
-        print(f"Apply updated pos {pos[0]} at {pos[1].start} to pos map")
-        try:
-            edit_single_pos_keyframe(pos[0], pos[1])
-        except Exception as e:
-            traceback.print_exc()
-            notify("ERROR", f"Failed to edit position keyframe {pos[0]}: {e}")
-        state.pos_map[pos[0]] = pos[1]
+    for id, pos in pos_map_updates.added:
+        state.pos_map[id] = pos
+        pos_add.append((id, pos))
 
-    for pos_id in pos_map_updates.deleted:
-        print(f"Apply deleted pos {id} to pos map")
-        try:
-            delete_single_pos_keyframe(pos_id)
-        except Exception as e:
-            traceback.print_exc()
-            notify("ERROR", f"Failed to delete position keyframe {pos_id}: {e}")
-        del state.pos_map[pos_id]
+    for _, id, pos in pos_map_updates.updated:
+        state.pos_map[id] = pos
+        pos_update.append((pos.start, id, pos))
+
+    for _, id in pos_map_updates.deleted:
+        frame = state.pos_map.get(id)
+        if frame is None:
+            continue
+
+        pos_delete.append((frame.start, id))
+        del state.pos_map[id]
 
     pos_map_updates.added.clear()
     pos_map_updates.updated.clear()
@@ -153,7 +147,22 @@ def apply_pos_map_updates():
 
     # Update current pos index
     state.current_pos_index = calculate_current_pos_index()
-    update_current_pos_by_index()
-
     state.pos_map_pending = False
+
+    # Update animation data
+    pos_update.sort(key=lambda pos: pos[0])
+    pos_add.sort(key=lambda pos: pos[1].start)
+    pos_delete.sort(key=lambda pos: pos[0])
+
+    # TODO:
+    modify_animation_data = pos_modify_to_animation_data(
+        pos_delete, pos_update, pos_add
+    )
+    modify_partial_pos_keyframes(modify_animation_data)
+
+    delete_frames = [frame[0] for frame in pos_delete]
+    update_frames = [(frame[0], frame[2].start) for frame in pos_update]
+    add_frames = [frame[1].start for frame in pos_add]
+    update_pos_frames(delete_frames, update_frames, add_frames)
+
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

@@ -79,6 +79,10 @@ def read_preferences():
     state.preferences.auto_sync = preferences.auto_sync
     state.preferences.follow_frame = preferences.follow_frame
 
+    # Trigger property setter
+    preferences.auto_sync = state.preferences.auto_sync
+    preferences.follow_frame = state.preferences.follow_frame
+
 
 async def init():
     # Setup cache policies

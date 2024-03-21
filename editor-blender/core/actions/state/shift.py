@@ -49,11 +49,11 @@ async def confirm_shift():
             raise Exception(retult.msg)
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-        notify("Time shift success")
+        notify("INFO", "Time shift success")
 
     except Exception as e:
         traceback.print_exc()
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-        notify(f"Time shift failed: {e}")
+        notify("ERROR", f"Time shift failed: {e}")
 
     set_shifting(False)

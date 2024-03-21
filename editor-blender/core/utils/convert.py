@@ -355,6 +355,48 @@ def time_to_frame(time: str) -> int:
     return (minutes * 60 + seconds) * 1000 + milliseconds
 
 
+PosDeleteCurveData = List[int]
+PosUpdateCurveData = List[Tuple[int, int, Tuple[float, float, float]]]
+PosAddCurveData = List[Tuple[int, Tuple[float, float, float]]]
+
+PosModifyAnimationData = Dict[
+    DancerName, Tuple[PosDeleteCurveData, PosUpdateCurveData, PosAddCurveData]
+]
+
+
+def pos_modify_to_animation_data(
+    pos_delete: List[Tuple[int, MapID]],
+    pos_update: List[Tuple[int, MapID, PosMapElement]],
+    pos_add: List[Tuple[MapID, PosMapElement]],
+) -> PosModifyAnimationData:
+    new_map: PosModifyAnimationData = {}
+    for dancer in state.dancers_array:
+        new_map[dancer.name] = ([], [], [])
+
+    for old_start, _ in pos_delete:
+        for _, dancer_item in enumerate(state.dancers_array):
+            dancer = dancer_item.name
+            new_map[dancer_item.name][0].append(old_start)
+
+    for old_start, _, frame in pos_update:
+        pos_status = frame.pos
+        for _, dancer_item in enumerate(state.dancers_array):
+            pos = pos_status[dancer_item.name]
+            dancer = dancer_item.name
+            new_map[dancer_item.name][1].append(
+                (old_start, frame.start, (pos.x, pos.y, pos.z))
+            )
+
+    for _, frame in pos_add:
+        pos_status = frame.pos
+        for _, dancer_item in enumerate(state.dancers_array):
+            pos = pos_status[dancer_item.name]
+            dancer = dancer_item.name
+            new_map[dancer_item.name][2].append((frame.start, (pos.x, pos.y, pos.z)))
+
+    return new_map
+
+
 ControlAnimationData = Dict[
     DancerName,
     Dict[

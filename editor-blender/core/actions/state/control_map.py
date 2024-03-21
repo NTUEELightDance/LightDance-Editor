@@ -1,13 +1,13 @@
-import traceback
+from typing import List, Tuple
 
 from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, MapID
 from ...states import state
+from ...utils.convert import control_modify_to_animation_data
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from ..property.animation_data import (
-    add_single_ctrl_keyframe,
-    delete_single_ctrl_keyframe,
-    edit_single_ctrl_keyframe,
+    modify_partial_ctrl_keyframes,
+    update_control_frames_and_fade_sequence,
 )
 from .current_status import calculate_current_status_index
 
@@ -41,6 +41,10 @@ def add_control(id: MapID, frame: ControlMapElement):
 def delete_control(id: MapID):
     print(f"Delete control {id}")
 
+    old_frame = state.control_map.get(id)
+    if old_frame is None:
+        return
+
     control_map_updates = state.control_map_updates
 
     for status in control_map_updates.added:
@@ -60,7 +64,7 @@ def delete_control(id: MapID):
         if status[0] == id:
             control_map_updates.updated.remove(status)
 
-    control_map_updates.deleted.append(id)
+    control_map_updates.deleted.append((old_frame.start, id))
 
     if (
         state.edit_state == EditMode.EDITING
@@ -88,10 +92,10 @@ def update_control(id: MapID, frame: ControlMapElement):
     for status in control_map_updates.updated:
         if status[0] == id:
             control_map_updates.updated.remove(status)
-            control_map_updates.updated.append((id, frame))
+            control_map_updates.updated.append((frame.start, id, frame))
             return
 
-    control_map_updates.updated.append((id, frame))
+    control_map_updates.updated.append((frame.start, id, frame))
 
     if (
         state.edit_state == EditMode.EDITING
@@ -111,31 +115,24 @@ def apply_control_map_updates():
 
     control_map_updates = state.control_map_updates
 
-    for status in control_map_updates.added:
-        print(f"Apply added control {status[0]} at {status[1].start} to control map")
-        try:
-            add_single_ctrl_keyframe(status[0], status[1])
-        except Exception as e:
-            traceback.print_exc()
-            notify("ERROR", f"Failed to add control keyframe {status[0]}: {e}")
-        state.control_map[status[0]] = status[1]
+    control_update: List[Tuple[int, MapID, ControlMapElement]] = []
+    control_add: List[Tuple[MapID, ControlMapElement]] = []
+    control_delete: List[Tuple[int, MapID]] = []
 
-    for status in control_map_updates.updated:
-        print(f"Apply updated control {status[0]} at {status[1].start} to control map")
-        try:
-            edit_single_ctrl_keyframe(status[0], status[1])
-        except Exception as e:
-            traceback.print_exc()
-            notify("ERROR", f"Failed to update control keyframe {status[0]}: {e}")
-        state.control_map[status[0]] = status[1]
+    for id, status in control_map_updates.added:
+        state.control_map[id] = status
+        control_add.append((id, status))
 
-    for id in control_map_updates.deleted:
-        print(f"Apply deleted control {id} to control map")
-        try:
-            delete_single_ctrl_keyframe(id)
-        except Exception as e:
-            traceback.print_exc()
-            notify("ERROR", f"Failed to delete control keyframe {id}: {e}")
+    for _, id, status in control_map_updates.updated:
+        state.control_map[id] = status
+        control_update.append((status.start, id, status))
+
+    for _, id in control_map_updates.deleted:
+        frame = state.control_map.get(id)
+        if frame is None:
+            continue
+
+        control_delete.append((frame.start, id))
         del state.control_map[id]
 
     control_map_updates.added.clear()
@@ -153,6 +150,27 @@ def apply_control_map_updates():
 
     # Update current control index
     state.current_control_index = calculate_current_status_index()
-
     state.control_map_pending = False
+
+    # Update animation data
+    control_update.sort(key=lambda x: x[0])
+    control_add.sort(key=lambda x: x[1].start)
+    control_delete.sort(key=lambda x: x[0])
+
+    # TODO: Implement new add, update, delete so we don't need to add, update, delete all the time
+    modify_animation_data = control_modify_to_animation_data(
+        control_delete, control_update, control_add
+    )
+    modify_partial_ctrl_keyframes(modify_animation_data)
+
+    sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
+    fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
+
+    delete_frames = [frame[0] for frame in control_delete]
+    update_frames = [(frame[0], frame[2].start) for frame in control_update]
+    add_frames = [frame[1].start for frame in control_add]
+    update_control_frames_and_fade_sequence(
+        delete_frames, update_frames, add_frames, fade_seq
+    )
+
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

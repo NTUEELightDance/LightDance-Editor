@@ -56,14 +56,15 @@ async def add_pos_frame():
         else:
             positionData.append([0, 0, 0])
 
+    set_requesting(True)
     try:
-        set_requesting(True)
         id = await pos_agent.add_frame(start, positionData)
-        set_requesting(False)
         notify("INFO", f"Added position frame: {id}")
     except:
         traceback.print_exc()
         notify("WARNING", "Cannot add position frame")
+
+    set_requesting(False)
 
 
 async def save_pos_frame(start: Optional[int] = None):
@@ -101,7 +102,7 @@ async def save_pos_frame(start: Optional[int] = None):
             state.edit_state = EditMode.IDLE
 
             # Imediately apply changes produced by editing
-            apply_pos_map_updates()
+            # apply_pos_map_updates()
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
@@ -129,8 +130,8 @@ async def delete_pos_frame():
 
 
 async def request_edit_pos() -> bool:
-    if state.pos_map_pending:
-        apply_pos_map_updates()
+    # if state.pos_map_pending:
+    #     apply_pos_map_updates()
 
     index = state.current_pos_index
     pos_id = state.pos_record[index]

@@ -206,15 +206,15 @@ class LEDMapUpdates:
 @dataclass
 class ControlMapUpdates:
     added: List[Tuple[MapID, ControlMapElement]]
-    updated: List[Tuple[MapID, ControlMapElement]]
-    deleted: List[MapID]
+    updated: List[Tuple[int, MapID, ControlMapElement]]
+    deleted: List[Tuple[int, MapID]]
 
 
 @dataclass
 class PosMapUpdates:
     added: List[Tuple[MapID, PosMapElement]]
-    updated: List[Tuple[MapID, PosMapElement]]
-    deleted: List[MapID]
+    updated: List[Tuple[int, MapID, PosMapElement]]
+    deleted: List[Tuple[int, MapID]]
 
 
 class FrameType(Enum):

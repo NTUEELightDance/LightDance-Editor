@@ -13,13 +13,14 @@ from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.ui import redraw_area
 from .app_state import set_requesting
-from .color_map import (
-    apply_color_map_updates_add_or_delete,
-    apply_color_map_updates_update,
-)
-from .control_map import apply_control_map_updates
 from .current_status import update_current_status_by_index
-from .led_map import apply_led_map_updates_add_or_delete, apply_led_map_updates_update
+
+# from .color_map import (
+#     apply_color_map_updates_add_or_delete,
+#     apply_color_map_updates_update,
+# )
+# from .control_map import apply_control_map_updates
+# from .led_map import apply_led_map_updates_add_or_delete, apply_led_map_updates_update
 
 
 def attach_editing_control_frame():
@@ -145,7 +146,7 @@ async def save_control_frame(start: Optional[int] = None):
             state.edit_state = EditMode.IDLE
 
             # Imediately apply changes produced by editing
-            apply_control_map_updates()
+            # apply_control_map_updates()
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
@@ -173,16 +174,16 @@ async def delete_control_frame():
 
 
 async def request_edit_control() -> bool:
-    if state.color_map_pending.add_or_delete:
-        apply_color_map_updates_add_or_delete()
-    if state.color_map_pending.update:
-        apply_color_map_updates_update()
-    if state.led_map_pending.add_or_delete:
-        apply_led_map_updates_add_or_delete()
-    if state.led_map_pending.update:
-        apply_led_map_updates_update()
-    if state.control_map_pending:
-        apply_control_map_updates()
+    # if state.color_map_pending.add_or_delete:
+    #     apply_color_map_updates_add_or_delete()
+    # if state.color_map_pending.update:
+    #     apply_color_map_updates_update()
+    # if state.led_map_pending.add_or_delete:
+    #     apply_led_map_updates_add_or_delete()
+    # if state.led_map_pending.update:
+    #     apply_led_map_updates_update()
+    # if state.control_map_pending:
+    #     apply_control_map_updates()
 
     index = state.current_control_index
     control_id = state.control_record[index]

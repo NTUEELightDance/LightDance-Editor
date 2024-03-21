@@ -120,4 +120,4 @@ def unmount():
             )
             name_tag_settings.name_tag_handle = None
     except:
-        traceback.print_exc()
+        pass

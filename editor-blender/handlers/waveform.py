@@ -1,6 +1,5 @@
 import json
 import os
-import traceback
 from typing import Any, List, Optional, cast
 
 import bpy
@@ -9,7 +8,6 @@ import gpu
 from gpu_extras import batch as g_batch
 
 from ..core.config import config
-from ..core.states import state
 from ..core.utils.ui import redraw_area
 
 

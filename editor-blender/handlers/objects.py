@@ -699,4 +699,4 @@ def unmount():
     try:
         bpy.app.handlers.depsgraph_update_pre.remove(obj_panel_autoselect_handler)
     except:
-        traceback.print_exc()
+        pass
