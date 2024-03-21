@@ -61,6 +61,12 @@ class LightDanceToolsPanel(bpy.types.Panel):
             row.operator("lightdance.toggle_shifting", text="Timeshift", icon="TIME")
             row = layout.row()
             row.operator(
+                "lightdance.reset_animation",
+                text="Reset Animation",
+                icon="RECOVER_LAST",
+            )
+            row = layout.row()
+            row.operator(
                 "lightdance.reload_blender", text="Reload", icon="RECOVER_LAST"
             )
             row = layout.row()

@@ -1,5 +1,9 @@
 import bpy
 
+from ...core.actions.property.animation_data import (
+    init_ctrl_keyframes_from_state,
+    init_pos_keyframes_from_state,
+)
 from ...core.actions.state.animation import start_playing, stop_playing
 from ...core.actions.state.app_state import set_playing
 from ...core.states import state
@@ -56,9 +60,22 @@ class AnimationStatusListenerOperator(bpy.types.Operator):
         return {"RUNNING_MODAL"}
 
 
+class ResetAnimationOperator(bpy.types.Operator):
+    bl_idname = "lightdance.reset_animation"
+    bl_label = "Reset animation"
+
+    def execute(self, context: bpy.types.Context):
+        init_ctrl_keyframes_from_state()
+        init_pos_keyframes_from_state()
+
+        return {"FINISHED"}
+
+
 def register():
     bpy.utils.register_class(AnimationStatusListenerOperator)
+    bpy.utils.register_class(ResetAnimationOperator)
 
 
 def unregister():
     bpy.utils.unregister_class(AnimationStatusListenerOperator)
+    bpy.utils.unregister_class(ResetAnimationOperator)
