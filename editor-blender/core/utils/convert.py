@@ -641,6 +641,7 @@ def control_add_to_animation_data(
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     prev_effect_ids: Dict[DancerName, Dict[PartName, List[int]]] = {}
+    prev_led_status: Dict[DancerName, Dict[PartName, List[List[Tuple[int, int]]]]] = {}
 
     for _, frame in control_add:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -652,6 +653,7 @@ def control_add_to_animation_data(
                 part_map = new_map[dancer_name][part_name]
 
                 part_data = frame.status[dancer_name][part_name]
+                part_led_status = frame.led_status[dancer_name][part_name]
                 part_alpha = part_data.alpha
 
                 if isinstance(part_data, LEDData):
@@ -659,6 +661,9 @@ def control_add_to_animation_data(
                     prev_effect_id = prev_effect_ids.setdefault(
                         dancer_name, {}
                     ).setdefault(part_name, [-1])
+                    prev_led_bulbs = prev_led_status.setdefault(
+                        dancer_name, {}
+                    ).setdefault(part_name, [[]])
 
                     led_rgb_floats = []
                     if part_data.effect_id > 0:
@@ -670,11 +675,30 @@ def control_add_to_animation_data(
 
                         prev_effect_id[0] = part_data.effect_id
 
+                    elif part_data.effect_id == 0:
+                        led_rgb_floats = [
+                            rgba_to_float(
+                                color_map[led_data.color_id].rgb, led_data.alpha
+                            )
+                            for led_data in part_led_status
+                        ]
+                        prev_led_bulbs[0] = [
+                            (led_data.color_id, led_data.alpha)
+                            for led_data in part_led_status
+                        ]
+
                     elif prev_effect_id[0] > 0:
                         prev_effect = led_effect_table[prev_effect_id[0]].effect
                         led_rgb_floats = [
                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
                             for led_data in prev_effect
+                        ]
+
+                    elif prev_effect_id[0] == 0:
+                        prev_status = prev_led_bulbs[0]
+                        led_rgb_floats = [
+                            rgba_to_float(color_map[led_bulb[0]].rgb, led_bulb[1])
+                            for led_bulb in prev_status
                         ]
 
                     else:
@@ -740,6 +764,7 @@ def control_update_to_animation_data(
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     prev_effect_ids: Dict[DancerName, Dict[PartName, List[int]]] = {}
+    prev_led_status: Dict[DancerName, Dict[PartName, List[List[Tuple[int, int]]]]] = {}
 
     for old_start, _, frame in control_update:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -751,6 +776,7 @@ def control_update_to_animation_data(
                 part_map = new_map[dancer_name][part_name]
 
                 part_data = frame.status[dancer_name][part_name]
+                part_led_status = frame.led_status[dancer_name][part_name]
                 part_alpha = part_data.alpha
 
                 if isinstance(part_data, LEDData):
@@ -758,6 +784,9 @@ def control_update_to_animation_data(
                     prev_effect_id = prev_effect_ids.setdefault(
                         dancer_name, {}
                     ).setdefault(part_name, [-1])
+                    prev_led_bulbs = prev_led_status.setdefault(
+                        dancer_name, {}
+                    ).setdefault(part_name, [[]])
 
                     led_rgb_floats = []
                     if part_data.effect_id > 0:
@@ -769,11 +798,30 @@ def control_update_to_animation_data(
 
                         prev_effect_id[0] = part_data.effect_id
 
+                    elif part_data.effect_id == 0:
+                        led_rgb_floats = [
+                            rgba_to_float(
+                                color_map[led_data.color_id].rgb, led_data.alpha
+                            )
+                            for led_data in part_led_status
+                        ]
+                        prev_led_bulbs[0] = [
+                            (led_data.color_id, led_data.alpha)
+                            for led_data in part_led_status
+                        ]
+
                     elif prev_effect_id[0] > 0:
                         prev_effect = led_effect_table[prev_effect_id[0]].effect
                         led_rgb_floats = [
                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
                             for led_data in prev_effect
+                        ]
+
+                    elif prev_effect_id[0] == 0:
+                        prev_status = prev_led_bulbs[0]
+                        led_rgb_floats = [
+                            rgba_to_float(color_map[led_bulb[0]].rgb, led_bulb[1])
+                            for led_bulb in prev_status
                         ]
 
                     else:
@@ -807,6 +855,7 @@ def control_map_to_animation_data(
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     prev_effect_ids: Dict[DancerName, Dict[PartName, List[int]]] = {}
+    prev_led_status: Dict[DancerName, Dict[PartName, List[List[Tuple[int, int]]]]] = {}
 
     for _, frame in control_map:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -818,6 +867,7 @@ def control_map_to_animation_data(
                 part_map = new_map[dancer_name][part_name]
 
                 part_data = frame.status[dancer_name][part_name]
+                part_led_status = frame.led_status[dancer_name][part_name]
                 part_alpha = part_data.alpha
 
                 if isinstance(part_data, LEDData):
@@ -825,6 +875,9 @@ def control_map_to_animation_data(
                     prev_effect_id = prev_effect_ids.setdefault(
                         dancer_name, {}
                     ).setdefault(part_name, [-1])
+                    prev_led_bulbs = prev_led_status.setdefault(
+                        dancer_name, {}
+                    ).setdefault(part_name, [[]])
 
                     led_rgb_floats = []
                     if part_data.effect_id > 0:
@@ -836,12 +889,34 @@ def control_map_to_animation_data(
 
                         prev_effect_id[0] = part_data.effect_id
 
+                    elif part_data.effect_id == 0:
+                        led_rgb_floats = [
+                            rgba_to_float(
+                                color_map[led_data.color_id].rgb, led_data.alpha
+                            )
+                            for led_data in part_led_status
+                        ]
+                        prev_led_bulbs[0] = [
+                            (led_data.color_id, led_data.alpha)
+                            for led_data in part_led_status
+                        ]
+
                     elif prev_effect_id[0] > 0:
                         prev_effect = led_effect_table[prev_effect_id[0]].effect
                         led_rgb_floats = [
                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
                             for led_data in prev_effect
                         ]
+
+                    elif prev_effect_id[0] == 0:
+                        prev_status = prev_led_bulbs[0]
+                        led_rgb_floats = [
+                            rgba_to_float(color_map[led_bulb[0]].rgb, led_bulb[1])
+                            for led_bulb in prev_status
+                        ]
+                        import pdb
+
+                        pdb.set_trace()
 
                     else:
                         led_rgb_floats = [(0, 0, 0)] * part_length

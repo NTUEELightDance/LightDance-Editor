@@ -415,6 +415,7 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
     led_effect_table = state.led_effect_id_table
 
     ctrl_status = ctrl_element.status
+    led_status = ctrl_element.led_status
     frame_start = ctrl_element.start
     fade = ctrl_element.fade
 
@@ -438,6 +439,13 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
                         for led_data in part_effect
                     ]
 
+                elif part_data.effect_id == 0:
+                    part_status = led_status[dancer_name][part_name]
+                    led_rgb_floats = [
+                        rgba_to_float(color_map[led_data.color_id].rgb, led_data.alpha)
+                        for led_data in part_status
+                    ]
+
                 else:
                     try:
                         prev_effect_frame = next(
@@ -447,19 +455,30 @@ def add_single_ctrl_keyframe(id: MapID, ctrl_element: ControlMapElement):
                             and cast(
                                 LEDData, frame.status[dancer_name][part_name]
                             ).effect_id
-                            > 0
+                            >= 0
                         )
                         prev_effect_id = cast(
                             LEDData, prev_effect_frame.status[dancer_name][part_name]
                         ).effect_id
 
-                        prev_effect = led_effect_table[prev_effect_id].effect
-                        led_rgb_floats = [
-                            rgba_to_float(
-                                color_map[led_data.color_id].rgb, part_data.alpha
-                            )
-                            for led_data in prev_effect
-                        ]
+                        if prev_effect_id > 0:
+                            prev_effect = led_effect_table[prev_effect_id].effect
+                            led_rgb_floats = [
+                                rgba_to_float(
+                                    color_map[led_data.color_id].rgb, part_data.alpha
+                                )
+                                for led_data in prev_effect
+                            ]
+
+                        else:
+                            prev_led_status = prev_effect_frame.led_status
+                            part_status = prev_led_status[dancer_name][part_name]
+                            led_rgb_floats = [
+                                rgba_to_float(
+                                    color_map[led_data.color_id].rgb, led_data.alpha
+                                )
+                                for led_data in part_status
+                            ]
 
                     except StopIteration:
                         led_rgb_floats = [(0, 0, 0)] * len(part_parent.children)
@@ -661,6 +680,7 @@ def edit_single_ctrl_keyframe(
 
     new_frame_start = ctrl_element.start
     new_ctrl_status = ctrl_element.status
+    new_led_status = ctrl_element.led_status
     new_fade = ctrl_element.fade
 
     old_inv_sorted_ctrl_map = sorted(
@@ -684,6 +704,13 @@ def edit_single_ctrl_keyframe(
                         for led_data in part_effect
                     ]
 
+                elif part_data.effect_id == 0:
+                    part_status = new_led_status[dancer_name][part_name]
+                    led_rgb_floats = [
+                        rgba_to_float(color_map[led_data.color_id].rgb, led_data.alpha)
+                        for led_data in part_status
+                    ]
+
                 else:
                     try:
                         prev_effect_frame = next(
@@ -693,17 +720,29 @@ def edit_single_ctrl_keyframe(
                             and cast(
                                 LEDData, frame.status[dancer_name][part_name]
                             ).effect_id
-                            > 0
+                            >= 0
                         )
                         prev_effect_id = cast(
                             LEDData, prev_effect_frame.status[dancer_name][part_name]
                         ).effect_id
 
-                        prev_effect = led_effect_table[prev_effect_id].effect
-                        led_rgb_floats = [
-                            rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
-                            for led_data in prev_effect
-                        ]
+                        if prev_effect_id > 0:
+                            prev_effect = led_effect_table[prev_effect_id].effect
+                            led_rgb_floats = [
+                                rgba_to_float(
+                                    color_map[led_data.color_id].rgb, part_alpha
+                                )
+                                for led_data in prev_effect
+                            ]
+                        else:
+                            prev_led_status = prev_effect_frame.led_status
+                            part_status = prev_led_status[dancer_name][part_name]
+                            led_rgb_floats = [
+                                rgba_to_float(
+                                    color_map[led_data.color_id].rgb, led_data.alpha
+                                )
+                                for led_data in part_status
+                            ]
 
                     except StopIteration:
                         led_rgb_floats = [(0, 0, 0)] * len(part_parent.children)
