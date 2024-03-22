@@ -177,6 +177,7 @@ class ControlPanel(bpy.types.Panel):
             row.operator("lightdance.command_center_stop", text="", icon="SNAP_FACE")
             op = row.operator("screen.frame_jump", text="", icon="REW")
             setattr(op, "end", False)
+            row.operator("lightdance.command_center_force_stop", icon="CANCEL")
             column = split.column()
             row = column.row()
             row.prop(

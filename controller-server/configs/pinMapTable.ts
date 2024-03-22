@@ -679,11 +679,10 @@ const pinMapTable: PinMapTable = {
       belly: 35,
     },
     LEDPARTS: {
-      backfoot_right_LED: { id: 0, len: 57 },
-      backfoot_left_LED: { id: 3, len: 30 },
+      backfoot_right_LED: { id: 0, len: 120 },
+      backfoot_left_LED: { id: 3, len: 70 },
       back_LED: { id: 4, len: 76 },
       tail_LED: { id: 5, len: 119 },
-      slash_LED: { id: 6, len: 40 },
     },
     LEDPARTS_MERGE: {},
   },

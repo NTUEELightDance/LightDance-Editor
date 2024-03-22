@@ -434,6 +434,42 @@ class CommandCenterWebShellOperator(AsyncOperator):
         return {"FINISHED"}
 
 
+class CommandCenterForceStopOperator(AsyncOperator):
+    bl_idname = "lightdance.command_center_force_stop"
+    bl_label = "Force stop"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context):
+        return True
+
+    async def async_execute(self, context: bpy.types.Context):
+        try:
+            stop_payload = ToControllerServerStopPartial.from_dict(
+                {"topic": "stop", "payload": {"dancers": get_selected_dancer()}}
+            )
+
+            await command_agent.send_to_controller_server(stop_payload)
+            bpy.context.scene.frame_current = 0
+
+            sync_payload = ToControllerServerWebShellPartial.from_dict(
+                {
+                    "topic": "webShell",
+                    "payload": {
+                        "dancers": get_selected_dancer(),
+                        "command": f"sudo systemctl restart player.service",
+                    },
+                }
+            )
+
+            await command_agent.send_to_controller_server(sync_payload)
+
+        except Exception as e:
+            traceback.print_exc()
+
+            raise Exception(f"Can't send message to controller server: {e}")
+        return {"FINISHED"}
+
+
 ops_list = [
     CommandCenterRefreshOperator,
     CommandCenterCloseGPIOOperator,
@@ -449,6 +485,7 @@ ops_list = [
     CommandCenterTestOperator,
     CommandCenterUploadOperator,
     CommandCenterWebShellOperator,
+    CommandCenterForceStopOperator,
 ]
 
 
