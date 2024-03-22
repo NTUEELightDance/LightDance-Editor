@@ -33,6 +33,8 @@ class CopyOperator(bpy.types.Operator):
         elif state.selection_mode == SelectMode.PART_MODE:
             copy_part()
 
+        notify("INFO", "Copied")
+
         return {"FINISHED"}
 
 
@@ -59,6 +61,8 @@ class PasteOperator(AsyncOperator):
             if not (await paste_part()):
                 return {"CANCELLED"}
 
+        notify("INFO", f"Pasted")
+
         return {"FINISHED"}
 
 
@@ -80,6 +84,8 @@ class CopyFrameOperator(bpy.types.Operator):
 
         elif state.editor == Editor.POS_EDITOR:
             copy_pos_frame()
+
+        notify("INFO", f"Copied")
 
         return {"FINISHED"}
 
@@ -111,6 +117,8 @@ class PasteFrameOperator(AsyncOperator):
 
         elif state.editor == Editor.POS_EDITOR:
             await paste_pos_frame(confirm_add)
+
+        notify("INFO", f"Pasted")
 
         return {"FINISHED"}
 
