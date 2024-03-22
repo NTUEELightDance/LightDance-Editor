@@ -71,7 +71,7 @@ pub async fn init_redis_control(
                     ON ControlData.effect_id = LEDEffect.id
                 LEFT JOIN LEDBulb
                     ON ControlData.id = LEDBulb.control_id
-                ORDER BY ControlData.frame_id, Dancer.id ASC, Part.id ASC;
+                ORDER BY ControlData.frame_id, Dancer.id ASC, Part.id ASC, LEDBulb.position ASC;
             "#,
         )
         .fetch_all(mysql_pool)
@@ -311,7 +311,7 @@ pub async fn update_redis_control(
                 LEFT JOIN LEDBulb
                     ON ControlData.id = LEDBulb.control_id
                 WHERE ControlData.frame_id = ?
-                ORDER BY Dancer.id ASC, Part.id ASC;
+                ORDER BY Dancer.id ASC, Part.id ASC, LEDBulb.position ASC;
             "#,
             frame.id
         )
