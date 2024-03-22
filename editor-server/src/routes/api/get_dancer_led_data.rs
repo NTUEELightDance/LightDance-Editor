@@ -114,13 +114,17 @@ fn filter_identical_frames(statuses: Vec<Status>) -> Vec<Status> {
     // Remove executive identical frames
     let mut keep_frame = vec![true; statuses.len()];
     for (i, (identical, fade)) in identical_and_fade.iter().enumerate() {
-        // Must keep if previous frame is not the same
-        let identical_prev = i != 0 && identical_and_fade[i - 1].0;
-        if !identical_prev {
+        if !identical && *fade {
             continue;
         }
 
-        if !identical && *fade {
+        // Must keep if previous frame is not the same
+        if i > 0 {
+            let prev = identical_and_fade[i - 1];
+            if !prev.0 || (!identical && prev.1) {
+                continue;
+            }
+        } else {
             continue;
         }
 
