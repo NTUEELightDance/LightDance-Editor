@@ -61,6 +61,8 @@ def update_current_status_by_index():
                         effect_id = part_status.effect_id
                         if effect_id == -1:
                             setattr(part_obj, "ld_effect", "no-change")
+                        elif effect_id == 0:
+                            setattr(part_obj, "ld_effect", "(Bulb color)")
                         else:
                             effect = state.led_effect_id_table[effect_id]
                             setattr(part_obj, "ld_effect", effect.name)
