@@ -39,6 +39,13 @@ export async function handleOnControlPanelMessage(
       handleSync(msg);
       break;
     case "play":
+      if (music_subprocess?.pid && !music_subprocess.killed) {
+        console.log(music_subprocess.pid+1);
+        try {
+          process.kill(music_subprocess.pid+1, 'SIGHUP')
+        } catch {}
+        console.log("killed music");
+      }
       music_subprocess = handlePlay(msg);
       break;
     case "pause":
