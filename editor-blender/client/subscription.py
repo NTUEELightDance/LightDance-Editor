@@ -188,7 +188,7 @@ async def sub_control_record(client: Clients):
 # TODO: Implement lazy update
 async def sub_control_map(client: Clients):
     async for data in client.subscribe(SubControlMapData, SUB_CONTROL_MAP):
-        # print("SubControlMap:", data)
+        print("SubControlMap:", data)
 
         async def modifier(controlMap: Optional[QueryControlMapData]):
             subscriptionData = data["controlMapSubscription"]
