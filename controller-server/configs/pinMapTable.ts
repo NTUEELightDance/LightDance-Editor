@@ -671,11 +671,6 @@ const pinMapTable: PinMapTable = {
       backfoot_left_out: 10,
       backpalm_left_out: 11,
       backpalm_left_mid: 12,
-      forefoot_left_out: 20,
-      forefoot_left_mid: 21,
-      forefoot_left_in: 22,
-      forepalm_left_out: 23,
-      forepalm_left_in: 24,
       tail1: 30,
       tail2: 31,
       tail3: 32,
@@ -686,7 +681,8 @@ const pinMapTable: PinMapTable = {
     LEDPARTS: {
       backfoot_right_LED: { id: 0, len: 57 },
       backfoot_left_LED: { id: 3, len: 30 },
-      tail_LED: { id: 5, len: 78 },
+      back_LED: { id: 4, len: 76 },
+      tail_LED: { id: 5, len: 119 },
       slash_LED: { id: 6, len: 40 },
     },
     LEDPARTS_MERGE: {},
@@ -713,12 +709,16 @@ const pinMapTable: PinMapTable = {
       nose: 22, 
       jaw_up: 23,
       jaw_mid: 24,
-      jaw_low: 25
+      jaw_low: 25,
+      forefoot_left_out: 30,
+      forefoot_left_mid: 31,
+      forefoot_left_in: 32,
+      forepalm_left_out: 33,
+      forepalm_left_in: 34
     },
     LEDPARTS: {
       forefoot_left_LED: { id: 0, len: 66 },
       forefoot_right_LED: { id: 3, len: 64 },
-      back_LED: { id: 4, len: 76 },
       upperjaw_LED: { id: 5, len: 33 },
       lowerjaw_LED: { id: 6, len: 16 }
     },
