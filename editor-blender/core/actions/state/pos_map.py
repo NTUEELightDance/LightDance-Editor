@@ -8,6 +8,7 @@ from ...utils.ui import redraw_area
 from ..property.animation_data import (
     modify_partial_pos_keyframes,
     reset_pos_frames,
+    reset_pos_rev,
     update_pos_frames,
 )
 from .current_pos import calculate_current_pos_index
@@ -25,7 +26,7 @@ def add_pos(id: MapID, frame: PosMapElement):
     print(f"Add pos {id} at {frame.start}")
 
     pos_map_updates = state.pos_map_updates
-    pos_map_updates.added.append((id, frame))
+    pos_map_updates.added[id] = frame
 
     if (
         state.edit_state == EditMode.EDITING
@@ -48,9 +49,9 @@ def delete_pos(id: MapID):
 
     pos_map_updates = state.pos_map_updates
 
-    for pos in pos_map_updates.added:
-        if pos[0] == id:
-            pos_map_updates.added.remove(pos)
+    for added_id, _ in pos_map_updates.added.items():
+        if added_id == id:
+            pos_map_updates.added.pop(added_id)
 
             if (
                 len(pos_map_updates.added) == 0
@@ -61,11 +62,11 @@ def delete_pos(id: MapID):
 
             return
 
-    for pos in pos_map_updates.updated:
-        if pos[0] == id:
-            pos_map_updates.updated.remove(pos)
+    for updated_id, _ in pos_map_updates.updated.items():
+        if updated_id == id:
+            pos_map_updates.updated.pop(updated_id)
 
-    pos_map_updates.deleted.append((old_frame.start, id))
+    pos_map_updates.deleted[id] = old_frame.start
 
     if (
         state.edit_state == EditMode.EDITING
@@ -84,19 +85,20 @@ def update_pos(id: MapID, frame: PosMapElement):
 
     pos_map_updates = state.pos_map_updates
 
-    for pos in pos_map_updates.added:
-        if pos[0] == id:
-            pos_map_updates.added.remove(pos)
-            pos_map_updates.added.append((id, frame))
+    for add_id, _ in pos_map_updates.added.items():
+        if add_id == id:
+            pos_map_updates.added.pop(add_id)
+            pos_map_updates.added[id] = frame
             return
 
-    for pos in pos_map_updates.updated:
-        if pos[0] == id:
-            pos_map_updates.updated.remove(pos)
-            pos_map_updates.updated.append((frame.start, id, frame))
+    for updated_id, _ in pos_map_updates.updated.items():
+        if updated_id == id:
+            old_frame = state.pos_map[id]
+            pos_map_updates.updated.pop(updated_id)
+            pos_map_updates.updated[id] = (old_frame.start, frame)
             return
 
-    pos_map_updates.updated.append((frame.start, id, frame))
+    pos_map_updates.updated[id] = (frame.start, frame)
 
     if (
         state.edit_state == EditMode.EDITING
@@ -116,30 +118,6 @@ def apply_pos_map_updates():
 
     pos_map_updates = state.pos_map_updates
 
-    pos_update: List[Tuple[int, MapID, PosMapElement]] = []
-    pos_add: List[Tuple[MapID, PosMapElement]] = []
-    pos_delete: List[Tuple[int, MapID]] = []
-
-    for id, pos in pos_map_updates.added:
-        state.pos_map[id] = pos
-        pos_add.append((id, pos))
-
-    for _, id, pos in pos_map_updates.updated:
-        state.pos_map[id] = pos
-        pos_update.append((pos.start, id, pos))
-
-    for _, id in pos_map_updates.deleted:
-        frame = state.pos_map.get(id)
-        if frame is None:
-            continue
-
-        pos_delete.append((frame.start, id))
-        del state.pos_map[id]
-
-    pos_map_updates.added.clear()
-    pos_map_updates.updated.clear()
-    pos_map_updates.deleted.clear()
-
     # Update pos record
     pos_record = list(state.pos_map.keys())
     pos_record.sort(key=lambda id: state.pos_map[id].start)
@@ -154,21 +132,42 @@ def apply_pos_map_updates():
     state.pos_map_pending = False
 
     # Update animation data
-    pos_update.sort(key=lambda pos: pos[0])
-    pos_add.sort(key=lambda pos: pos[1].start)
-    pos_delete.sort(key=lambda pos: pos[0])
+    updated = sorted(
+        [(start, id, frame) for id, (start, frame) in pos_map_updates.updated.items()],
+        key=lambda x: x[0],
+    )
+    added = sorted(
+        [(id, frame) for id, frame in pos_map_updates.added.items()],
+        key=lambda x: x[1].start,
+    )
+    deleted = sorted(
+        [(start, id) for id, start in pos_map_updates.deleted.items()],
+        key=lambda x: x[0],
+    )
 
     # TODO:
-    modify_animation_data = pos_modify_to_animation_data(
-        pos_delete, pos_update, pos_add
-    )
+    modify_animation_data = pos_modify_to_animation_data(deleted, updated, added)
     modify_partial_pos_keyframes(modify_animation_data)
+
+    # Update control map
+    for id, frame in added:
+        state.pos_map[id] = frame
+    for _, id, frame in updated:
+        state.pos_map[id] = frame
+    for _, id in deleted:
+        state.pos_map.pop(id)
+
+    pos_map_updates.added.clear()
+    pos_map_updates.updated.clear()
+    pos_map_updates.deleted.clear()
 
     # WARNING: This i buggy, use reset instead
     # delete_frames = [frame[0] for frame in pos_delete]
     # update_frames = [(frame[0], frame[2].start) for frame in pos_update]
     # add_frames = [frame[1].start for frame in pos_add]
     # update_pos_frames(delete_frames, update_frames, add_frames)
+    sorted_pos_map = sorted(state.pos_map.items(), key=lambda item: item[1].start)
     reset_pos_frames()
+    reset_pos_rev(sorted_pos_map)
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

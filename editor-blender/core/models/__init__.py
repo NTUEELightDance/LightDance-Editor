@@ -1,7 +1,7 @@
 from asyncio import Task
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import bpy
 
@@ -205,16 +205,16 @@ class LEDMapUpdates:
 
 @dataclass
 class ControlMapUpdates:
-    added: List[Tuple[MapID, ControlMapElement]]
-    updated: List[Tuple[int, MapID, ControlMapElement]]
-    deleted: List[Tuple[int, MapID]]
+    added: Dict[MapID, ControlMapElement]
+    updated: Dict[MapID, Tuple[int, ControlMapElement]]
+    deleted: Dict[MapID, int]
 
 
 @dataclass
 class PosMapUpdates:
-    added: List[Tuple[MapID, PosMapElement]]
-    updated: List[Tuple[int, MapID, PosMapElement]]
-    deleted: List[Tuple[int, MapID]]
+    added: Dict[MapID, PosMapElement]
+    updated: Dict[MapID, Tuple[int, PosMapElement]]
+    deleted: Dict[MapID, int]
 
 
 class FrameType(Enum):

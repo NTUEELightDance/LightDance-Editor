@@ -102,7 +102,7 @@ async def save_pos_frame(start: Optional[int] = None):
             state.edit_state = EditMode.IDLE
 
             # Imediately apply changes produced by editing
-            # apply_pos_map_updates()
+            apply_pos_map_updates()
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:

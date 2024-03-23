@@ -35,8 +35,6 @@ def reset_control_frames_and_fade_sequence(fade_seq: List[Tuple[int, bool]]):
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
-        # point.handle_left_type = "FREE"
-        # point.handle_right_type = "FREE"
 
 
 def reset_ctrl_rev(sorted_ctrl_map: List[Tuple[MapID, ControlMapElement]]):
@@ -74,7 +72,8 @@ def update_control_frames_and_fade_sequence(
 
     for old_start in delete_frames:
         while (
-            curve_index < kpoints_len and kpoints_list[curve_index].co[0] != old_start
+            curve_index < kpoints_len
+            and int(kpoints_list[curve_index].co[0]) != old_start
         ):
             curve_index += 1
 
@@ -89,7 +88,8 @@ def update_control_frames_and_fade_sequence(
 
     for old_start, frame_start in update_frames:
         while (
-            curve_index < kpoints_len and kpoints_list[curve_index].co[0] != old_start
+            curve_index < kpoints_len
+            and int(kpoints_list[curve_index].co[0]) != old_start
         ):
             curve_index += 1
 
@@ -244,7 +244,7 @@ def modify_partial_ctrl_single_object_action(
         for old_start in frames[0]:
             while (
                 curve_index < kpoints_len
-                and kpoints_lists[0][curve_index].co[0] != old_start
+                and int(kpoints_lists[0][curve_index].co[0]) != old_start
             ):
                 curve_index += 1
 
@@ -260,29 +260,27 @@ def modify_partial_ctrl_single_object_action(
         curve_index = 0
         points_to_update: List[Tuple[int, bpy.types.Keyframe, float, bool]] = []
 
-        for old_start, frame_start, fade, led_rgb_float in frames[1]:
+        for old_start, frame_start, fade, rgb in frames[1]:
             if old_start != frame_start:
                 update_reorder = True
 
             while (
                 curve_index < kpoints_len
-                and kpoints_lists[0][curve_index].co[0] != old_start
+                and int(kpoints_lists[0][curve_index].co[0]) != old_start
             ):
                 curve_index += 1
+
+            # print("Finding", old_start, frame_start, curve_index)
 
             if curve_index < kpoints_len:
                 for d in range(3):
                     point = kpoints_lists[d][curve_index]
-                    points_to_update.append(
-                        (frame_start, point, led_rgb_float[d], fade)
-                    )
+                    points_to_update.append((frame_start, point, rgb[d], fade))
 
-        for frame_start, point, led_rgb_float, fade in points_to_update:
-            point.co = frame_start, led_rgb_float
+        for frame_start, point, value, fade in points_to_update:
+            point.co = frame_start, value
             point.interpolation = "LINEAR" if fade else "CONSTANT"
             point.select_control_point = False
-            # point.handle_left_type = "FREE"
-            # point.handle_right_type = "FREE"
 
     kpoints_len = len(kpoints_lists[0])
 
@@ -449,7 +447,7 @@ def edit_partial_ctrl_single_object_action(
 
         while (
             curve_index < kpoints_len
-            and kpoints_lists[0][curve_index].co[0] != old_start
+            and int(kpoints_lists[0][curve_index].co[0]) != old_start
         ):
             curve_index += 1
 
@@ -541,7 +539,7 @@ def delete_partial_ctrl_single_object_action(
     for old_start in frames:
         while (
             curve_index < kpoints_len
-            and kpoints_lists[0][curve_index].co[0] != old_start
+            and int(kpoints_lists[0][curve_index].co[0]) != old_start
         ):
             curve_index += 1
 

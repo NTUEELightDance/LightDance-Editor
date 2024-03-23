@@ -8,6 +8,7 @@ from ...utils.ui import redraw_area
 from ..property.animation_data import (
     modify_partial_ctrl_keyframes,
     reset_control_frames_and_fade_sequence,
+    reset_ctrl_rev,
     update_control_frames_and_fade_sequence,
 )
 from .current_status import calculate_current_status_index
@@ -25,7 +26,7 @@ def add_control(id: MapID, frame: ControlMapElement):
     print(f"Add control {id} at {frame.start}")
 
     control_map_updates = state.control_map_updates
-    control_map_updates.added.append((id, frame))
+    control_map_updates.added[id] = frame
 
     if (
         state.edit_state == EditMode.EDITING
@@ -48,9 +49,9 @@ def delete_control(id: MapID):
 
     control_map_updates = state.control_map_updates
 
-    for status in control_map_updates.added:
-        if status[0] == id:
-            control_map_updates.added.remove(status)
+    for added_id, _ in control_map_updates.added.items():
+        if added_id == id:
+            control_map_updates.added.pop(added_id)
 
             if (
                 len(control_map_updates.added) == 0
@@ -61,11 +62,11 @@ def delete_control(id: MapID):
 
             return
 
-    for status in control_map_updates.updated:
-        if status[0] == id:
-            control_map_updates.updated.remove(status)
+    for updated_id, _ in control_map_updates.updated.items():
+        if updated_id == id:
+            control_map_updates.updated.pop(updated_id)
 
-    control_map_updates.deleted.append((old_frame.start, id))
+    control_map_updates.deleted[id] = old_frame.start
 
     if (
         state.edit_state == EditMode.EDITING
@@ -84,19 +85,23 @@ def update_control(id: MapID, frame: ControlMapElement):
 
     control_map_updates = state.control_map_updates
 
-    for status in control_map_updates.added:
-        if status[0] == id:
-            control_map_updates.added.remove(status)
-            control_map_updates.added.append((id, frame))
+    for added_id, _ in control_map_updates.added.items():
+        if added_id == id:
+            control_map_updates.added.pop(added_id)
+            control_map_updates.added[id] = frame
             return
 
-    for status in control_map_updates.updated:
-        if status[0] == id:
-            control_map_updates.updated.remove(status)
-            control_map_updates.updated.append((frame.start, id, frame))
+    for updated_id, _ in control_map_updates.updated.items():
+        if updated_id == id:
+            old_frame = state.control_map[id]
+            control_map_updates.updated.pop(updated_id)
+            control_map_updates.updated[id] = (old_frame.start, frame)
             return
 
-    control_map_updates.updated.append((frame.start, id, frame))
+    control_map_updates.updated[id] = (frame.start, frame)
+
+    # for id, (start, _) in control_map_updates.updated.items():
+    #     print(f"Updated control {id} at {start}")
 
     if (
         state.edit_state == EditMode.EDITING
@@ -116,30 +121,6 @@ def apply_control_map_updates():
 
     control_map_updates = state.control_map_updates
 
-    control_update: List[Tuple[int, MapID, ControlMapElement]] = []
-    control_add: List[Tuple[MapID, ControlMapElement]] = []
-    control_delete: List[Tuple[int, MapID]] = []
-
-    for id, status in control_map_updates.added:
-        state.control_map[id] = status
-        control_add.append((id, status))
-
-    for _, id, status in control_map_updates.updated:
-        state.control_map[id] = status
-        control_update.append((status.start, id, status))
-
-    for _, id in control_map_updates.deleted:
-        frame = state.control_map.get(id)
-        if frame is None:
-            continue
-
-        control_delete.append((frame.start, id))
-        del state.control_map[id]
-
-    control_map_updates.added.clear()
-    control_map_updates.updated.clear()
-    control_map_updates.deleted.clear()
-
     # Update control record
     control_record = list(state.control_map.keys())
     control_record.sort(key=lambda id: state.control_map[id].start)
@@ -154,15 +135,37 @@ def apply_control_map_updates():
     state.control_map_pending = False
 
     # Update animation data
-    control_update.sort(key=lambda x: x[0])
-    control_add.sort(key=lambda x: x[1].start)
-    control_delete.sort(key=lambda x: x[0])
+    updated = sorted(
+        [
+            (start, id, frame)
+            for id, (start, frame) in control_map_updates.updated.items()
+        ],
+        key=lambda x: x[0],
+    )
+    added = sorted(
+        [(id, frame) for id, frame in control_map_updates.added.items()],
+        key=lambda x: x[1].start,
+    )
+    deleted = sorted(
+        [(start, id) for id, start in control_map_updates.deleted.items()],
+        key=lambda x: x[0],
+    )
 
     # TODO: Implement new add, update, delete so we don't need to add, update, delete all the time
-    modify_animation_data = control_modify_to_animation_data(
-        control_delete, control_update, control_add
-    )
+    modify_animation_data = control_modify_to_animation_data(deleted, updated, added)
     modify_partial_ctrl_keyframes(modify_animation_data)
+
+    # Update control map
+    for id, frame in added:
+        state.control_map[id] = frame
+    for _, id, frame in updated:
+        state.control_map[id] = frame
+    for _, id in deleted:
+        state.control_map.pop(id)
+
+    control_map_updates.added.clear()
+    control_map_updates.updated.clear()
+    control_map_updates.deleted.clear()
 
     # WARNING: This i buggy, use reset instead
     # sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
@@ -177,5 +180,6 @@ def apply_control_map_updates():
     sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
     fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
     reset_control_frames_and_fade_sequence(fade_seq)
+    reset_ctrl_rev(sorted_ctrl_map)
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

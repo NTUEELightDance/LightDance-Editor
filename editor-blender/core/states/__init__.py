@@ -84,9 +84,9 @@ state = State(
     color_map_pending=ColorMapPending(add_or_delete=False, update=False),
     led_map_updates=LEDMapUpdates(added=[], updated=[], deleted=[]),
     led_map_pending=LEDMapPending(add_or_delete=False, update=False),
-    control_map_updates=ControlMapUpdates(added=[], updated=[], deleted=[]),
+    control_map_updates=ControlMapUpdates(added={}, updated={}, deleted={}),
     control_map_pending=False,
-    pos_map_updates=PosMapUpdates(added=[], updated=[], deleted=[]),
+    pos_map_updates=PosMapUpdates(added={}, updated={}, deleted={}),
     pos_map_pending=False,
     dancer_part_objects_map={},
 )

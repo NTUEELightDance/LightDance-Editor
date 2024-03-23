@@ -67,7 +67,8 @@ def update_pos_frames(
 
     for old_start in delete_frames:
         while (
-            curve_index < kpoints_len and kpoints_list[curve_index].co[0] != old_start
+            curve_index < kpoints_len
+            and int(kpoints_list[curve_index].co[0]) != old_start
         ):
             curve_index += 1
 
@@ -82,7 +83,8 @@ def update_pos_frames(
 
     for old_start, frame_start in update_frames:
         while (
-            curve_index < kpoints_len and kpoints_list[curve_index].co[0] != old_start
+            curve_index < kpoints_len
+            and int(kpoints_list[curve_index].co[0]) != old_start
         ):
             curve_index += 1
 
@@ -209,7 +211,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
             for old_start in frames[0]:
                 while (
                     curve_index < kpoints_len
-                    and kpoints_lists[0][curve_index].co[0] != old_start
+                    and int(kpoints_lists[0][curve_index].co[0]) != old_start
                 ):
                     curve_index += 1
 
@@ -231,7 +233,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
 
                 while (
                     curve_index < kpoints_len
-                    and kpoints_lists[0][curve_index].co[0] != old_start
+                    and int(kpoints_lists[0][curve_index].co[0]) != old_start
                 ):
                     curve_index += 1
 

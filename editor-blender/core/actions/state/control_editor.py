@@ -13,13 +13,14 @@ from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.ui import redraw_area
 from .app_state import set_requesting
-from .current_status import update_current_status_by_index
 
 # from .color_map import (
 #     apply_color_map_updates_add_or_delete,
 #     apply_color_map_updates_update,
 # )
-# from .control_map import apply_control_map_updates
+from .control_map import apply_control_map_updates
+from .current_status import update_current_status_by_index
+
 # from .led_map import apply_led_map_updates_add_or_delete, apply_led_map_updates_update
 
 
@@ -146,7 +147,7 @@ async def save_control_frame(start: Optional[int] = None):
             state.edit_state = EditMode.IDLE
 
             # Imediately apply changes produced by editing
-            # apply_control_map_updates()
+            apply_control_map_updates()
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
