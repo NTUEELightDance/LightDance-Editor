@@ -1,16 +1,8 @@
-import traceback
-
 import bpy
 
 from ..core.actions.state.control_editor import sync_editing_control_frame_properties
-from ..core.actions.state.current_pos import (
-    calculate_current_pos_index,
-    update_current_pos_by_index,
-)
-from ..core.actions.state.current_status import (
-    calculate_current_status_index,
-    update_current_status_by_index,
-)
+from ..core.actions.state.current_pos import calculate_current_pos_index
+from ..core.actions.state.current_status import calculate_current_status_index
 from ..core.actions.state.pos_editor import sync_editing_pos_frame_properties
 from ..core.models import EditMode, Editor
 from ..core.states import state
@@ -44,12 +36,18 @@ def frame_change_post_body():
 
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            state.current_control_index = calculate_current_status_index()
-            update_current_status_by_index()
+            setattr(
+                bpy.context.window_manager,
+                "ld_current_frame_index",
+                str(calculate_current_status_index()),
+            )
 
         case Editor.POS_EDITOR:
-            state.current_pos_index = calculate_current_pos_index()
-            update_current_pos_by_index()
+            setattr(
+                bpy.context.window_manager,
+                "ld_current_frame_index",
+                str(calculate_current_pos_index()),
+            )
 
         case Editor.LED_EDITOR:
             pass

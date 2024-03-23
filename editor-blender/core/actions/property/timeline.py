@@ -1,5 +1,7 @@
 import bpy
 
+from ...actions.state.current_pos import update_current_pos_by_index
+from ...actions.state.current_status import update_current_status_by_index
 from ...models import EditMode, Editor
 from ...states import state
 from ...utils.convert import time_to_frame
@@ -29,6 +31,10 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
 
                     bpy.context.scene.frame_current = start
                     state.current_control_index = current_frame_index
+
+                    if not state.edit_state == EditMode.EDITING:
+                        update_current_status_by_index()
+
             case Editor.POS_EDITOR:
                 if num >= 0 and num < len(state.pos_record):
                     current_frame_index = num
@@ -38,6 +44,10 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
 
                     bpy.context.scene.frame_current = start
                     state.current_pos_index = current_frame_index
+
+                    if not state.edit_state == EditMode.EDITING:
+                        update_current_pos_by_index()
+
             case Editor.LED_EDITOR:
                 pass
 

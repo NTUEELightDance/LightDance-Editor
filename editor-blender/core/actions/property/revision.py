@@ -11,7 +11,9 @@ from ...utils.convert import (
 from .animation_data import (
     modify_partial_ctrl_keyframes,
     modify_partial_pos_keyframes,
+    reset_control_frames_and_fade_sequence,
     reset_ctrl_rev,
+    reset_pos_frames,
     reset_pos_rev,
     update_control_frames_and_fade_sequence,
     update_pos_frames,
@@ -73,10 +75,11 @@ def update_rev_changes(
 
     sorted_pos_map = sorted(incoming_pos_map.items(), key=lambda item: item[1].start)
 
-    delete_frames = [frame[0] for frame in pos_delete]
-    update_frames = [(frame[0], frame[2].start) for frame in pos_update]
-    add_frames = [frame[1].start for frame in pos_add]
-    update_pos_frames(delete_frames, update_frames, add_frames)
+    # delete_frames = [frame[0] for frame in pos_delete]
+    # update_frames = [(frame[0], frame[2].start) for frame in pos_update]
+    # add_frames = [frame[1].start for frame in pos_add]
+    # update_pos_frames(delete_frames, update_frames, add_frames)
+    reset_pos_frames()
     print("Done reset pos frames")
 
     reset_pos_rev(sorted_pos_map)
@@ -139,12 +142,13 @@ def update_rev_changes(
     )
     fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
 
-    delete_frames = [frame[0] for frame in control_delete]
-    update_frames = [(frame[0], frame[2].start) for frame in control_update]
-    add_frames = [frame[1].start for frame in control_add]
-    update_control_frames_and_fade_sequence(
-        delete_frames, update_frames, add_frames, fade_seq
-    )
+    # delete_frames = [frame[0] for frame in control_delete]
+    # update_frames = [(frame[0], frame[2].start) for frame in control_update]
+    # add_frames = [frame[1].start for frame in control_add]
+    # update_control_frames_and_fade_sequence(
+    #     delete_frames, update_frames, add_frames, fade_seq
+    # )
+    reset_control_frames_and_fade_sequence(fade_seq)
     print("Done reset control frames and fade sequence")
 
     reset_ctrl_rev(sorted_ctrl_map)

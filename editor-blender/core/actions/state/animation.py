@@ -4,11 +4,8 @@ from ...models import EditMode, Editor
 from ...states import state
 from ...utils.ui import redraw_area
 from .control_editor import sync_editing_control_frame_properties
-from .current_pos import calculate_current_pos_index, update_current_pos_by_index
-from .current_status import (
-    calculate_current_status_index,
-    update_current_status_by_index,
-)
+from .current_pos import calculate_current_pos_index
+from .current_status import calculate_current_status_index
 from .pos_editor import sync_editing_pos_frame_properties
 
 
@@ -51,16 +48,18 @@ def update_frame_index(current_frame: int):
 
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            old_index = state.current_control_index
-            state.current_control_index = calculate_current_status_index()
-            if old_index != state.current_control_index:
-                update_current_status_by_index()
+            setattr(
+                bpy.context.window_manager,
+                "ld_current_frame_index",
+                str(calculate_current_status_index()),
+            )
 
         case Editor.POS_EDITOR:
-            old_index = state.current_pos_index
-            state.current_pos_index = calculate_current_pos_index()
-            if old_index != state.current_pos_index:
-                update_current_pos_by_index()
+            setattr(
+                bpy.context.window_manager,
+                "ld_current_frame_index",
+                str(calculate_current_pos_index()),
+            )
 
         case Editor.LED_EDITOR:
             pass

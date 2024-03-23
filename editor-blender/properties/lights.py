@@ -32,10 +32,9 @@ def get_color_lists(
                 color.color_name,
                 color.color_name,
                 "",
-                # cast(Dict[str, bpy.types.ImagePreview], collection)[
-                #     color.color_name
-                # ].icon_id,
-                "",
+                cast(Dict[str, bpy.types.ImagePreview], collection)[
+                    color.color_name
+                ].icon_id,
                 color.color_id,
             )
             for color in ld_color_palette
@@ -67,57 +66,51 @@ def get_effect_lists(
     return []
 
 
-# def get_color(self: bpy.types.Object) -> int:
-#     if not state.ready:
-#         return 0
-#
-#     if state.edit_state == EditMode.EDITING:
-#         return cast(int, self.get("ld_color", 0))
-#
-#     ld_object_type: str = getattr(self, "ld_object_type")
-#     if ld_object_type == ObjectType.LIGHT.value:
-#         frame_index = state.current_control_index
-#         frame_id = state.control_record[frame_index]
-#
-#         ld_dancer_name: str = getattr(self, "ld_dancer_name")
-#         ld_part_name: str = getattr(self, "ld_part_name")
-#
-#         status = state.control_map[frame_id].status[ld_dancer_name][ld_part_name]
-#         color_id = cast(FiberData, status).color_id
-#
-#         self["ld_color"] = color_id
-#         return color_id
-#
-#     return 0
+def get_color(self: bpy.types.Object) -> int:
+    if not state.ready:
+        return 0
+
+    if state.edit_state == EditMode.EDITING:
+        return cast(int, self.get("ld_color", 0))
+
+    ld_dancer_name: str = self["ld_dancer_name"]
+    ld_part_name: str = self["ld_part_name"]
+
+    dancer_status = state.current_status.get(ld_dancer_name)
+    if dancer_status is None:
+        return 0
+
+    status = dancer_status.get(ld_part_name)
+    if status is None:
+        return 0
+
+    color_id = cast(FiberData, status).color_id
+    self["ld_color"] = color_id
+
+    return color_id
+    # return self["ld_color"]
 
 
-# def set_color(self: bpy.types.Object, value: int) -> None:
-#     self["ld_color"] = value
+def set_color(self: bpy.types.Object, value: int) -> None:
+    self["ld_color"] = value
 
 
-# def get_effect(self: bpy.types.Object) -> int:
-#     if not state.ready:
-#         return 0
-#
-#     if state.edit_state == EditMode.EDITING:
-#         return cast(int, self.get("ld_effect", 0))
-#
-#     ld_object_type: str = getattr(self, "ld_object_type")
-#     if ld_object_type == ObjectType.LIGHT.value:
-#         frame_index = state.current_control_index
-#         frame_id = state.control_record[frame_index]
-#
-#         ld_dancer_name: str = getattr(self, "ld_dancer_name")
-#         ld_part_name: str = getattr(self, "ld_part_name")
-#
-#         status = state.control_map[frame_id].status[ld_dancer_name][ld_part_name]
-#         return cast(LEDData, status).effect_id
-#
-#     return 0
+def get_effect(self: bpy.types.Object) -> int:
+    if not state.ready:
+        return 0
+
+    if state.edit_state == EditMode.EDITING:
+        return cast(int, self.get("ld_effect", 0))
+
+    ld_dancer_name: str = getattr(self, "ld_dancer_name")
+    ld_part_name: str = getattr(self, "ld_part_name")
+
+    status = state.current_status[ld_dancer_name][ld_part_name]
+    return cast(LEDData, status).effect_id
 
 
-# def set_effect(self: bpy.types.Object, value: int) -> None:
-#     self["ld_effect"] = value
+def set_effect(self: bpy.types.Object, value: int) -> None:
+    self["ld_effect"] = value
 
 
 # def get_alpha(self: bpy.types.Object) -> int:

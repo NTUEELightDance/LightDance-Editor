@@ -11,6 +11,7 @@ from .control import (
 from .position import (
     init_pos_keyframes_from_state,
     modify_partial_pos_keyframes,
+    reset_pos_frames,
     reset_pos_rev,
     update_pos_frames,
 )
