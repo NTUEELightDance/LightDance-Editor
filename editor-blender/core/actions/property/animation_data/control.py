@@ -261,9 +261,6 @@ def modify_partial_ctrl_single_object_action(
         points_to_update: List[Tuple[int, bpy.types.Keyframe, float, bool]] = []
 
         for old_start, frame_start, fade, rgb in frames[1]:
-            if old_start != frame_start:
-                update_reorder = True
-
             while (
                 curve_index < kpoints_len
                 and int(kpoints_lists[0][curve_index].co[0]) != old_start
@@ -276,6 +273,13 @@ def modify_partial_ctrl_single_object_action(
                 for d in range(3):
                     point = kpoints_lists[d][curve_index]
                     points_to_update.append((frame_start, point, rgb[d], fade))
+
+                if old_start != frame_start and not (
+                    kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
+                    and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
+                    >= frame_start
+                ):
+                    update_reorder = True
 
         for frame_start, point, value, fade in points_to_update:
             point.co = frame_start, value
@@ -442,9 +446,6 @@ def edit_partial_ctrl_single_object_action(
     curve_index = 0
 
     for old_start, frame_start, fade, led_rgb_float in frames:
-        if old_start != frame_start:
-            reorder = True
-
         while (
             curve_index < kpoints_len
             and int(kpoints_lists[0][curve_index].co[0]) != old_start
@@ -455,6 +456,13 @@ def edit_partial_ctrl_single_object_action(
             for d, (curve, kpoints_list) in enumerate(zip(curves, kpoints_lists)):
                 point = kpoints_list[curve_index]
                 points_to_update.append((frame_start, point, led_rgb_float[d], fade))
+
+            if old_start != frame_start and not (
+                kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
+                and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
+                >= frame_start
+            ):
+                reorder = True
 
     for frame_start, point, led_rgb_float, fade in points_to_update:
         point.co = frame_start, led_rgb_float
