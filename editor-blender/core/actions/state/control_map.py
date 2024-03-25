@@ -121,19 +121,6 @@ def apply_control_map_updates():
 
     control_map_updates = state.control_map_updates
 
-    # Update control record
-    control_record = list(state.control_map.keys())
-    control_record.sort(key=lambda id: state.control_map[id].start)
-
-    control_start_record = [state.control_map[id].start for id in control_record]
-
-    state.control_record = control_record
-    state.control_start_record = control_start_record
-
-    # Update current control index
-    state.current_control_index = calculate_current_status_index()
-    state.control_map_pending = False
-
     # Update animation data
     updated = sorted(
         [
@@ -162,6 +149,19 @@ def apply_control_map_updates():
         state.control_map[id] = frame
     for _, id in deleted:
         state.control_map.pop(id)
+
+    # Update control record
+    control_record = list(state.control_map.keys())
+    control_record.sort(key=lambda id: state.control_map[id].start)
+
+    control_start_record = [state.control_map[id].start for id in control_record]
+
+    state.control_record = control_record
+    state.control_start_record = control_start_record
+
+    # Update current control index
+    state.current_control_index = calculate_current_status_index()
+    state.control_map_pending = False
 
     control_map_updates.added.clear()
     control_map_updates.updated.clear()
