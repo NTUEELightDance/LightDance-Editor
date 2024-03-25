@@ -98,17 +98,17 @@ const dancerTable: DancerData = {
     connected: false,
     interface: "wifi",
   },
-  "D8:3A:DD:22:AC:76": { // 6
+  "D8:3A:DD:22:AB:29": { // 6
     IP: "192.168.0.44",
-    MAC: "D8:3A:DD:22:AC:76",
+    MAC: "D8:3A:DD:22:AB:29",
     dancer: "6_rakec",
     hostname: "lightdance-06",
     connected: false,
     interface: "ethernet",
   },
-  "D8:3A:DD:22:AC:78": { // 6
+  "D8:3A:DD:22:AB:2A": { // 6
     IP: "192.168.0.44",
-    MAC: "D8:3A:DD:22:AC:78",
+    MAC: "D8:3A:DD:22:AB:2A",
     dancer: "6_rakec",
     hostname: "lightdance-06",
     connected: false,
@@ -226,22 +226,7 @@ const dancerTable: DancerData = {
     connected: false,
     interface: "wifi",
   },
-  // "B8:27:EB:99:E2:00": { // 14
-  //   IP: "192.168.0.0",
-  //   MAC: "B8:27:EB:99:E2:00",
-  //   dancer: "14_bridge_2",
-  //   hostname: "lightdance-14",
-  //   connected: false,
-  //   interface: "ethernet",
-  // },
-  // "B8:27:EB:CC:B7:55": { // 14
-  //   IP: "192.168.0.0",
-  //   MAC: "B8:27:EB:CC:B7:55",
-  //   dancer: "14_bridge_2",
-  //   hostname: "lightdance-14",
-  //   connected: false,
-  //   interface: "wifi",
-  // },
+  // 14 ether B8:27:EB:99:E2:00 wifi B8:27:EB:CC:B7:55
   "B8:27:EB:82:79:49": { // 15
     IP: "192.168.0.0",
     MAC: "B8:27:EB:82:79:49",
@@ -323,25 +308,10 @@ const dancerTable: DancerData = {
     interface: "wifi",
   },
   // 20 broken
-  "B8:27:EB:B5:9C:B5": { // 21
-    IP: "192.168.0.0",
-    MAC: "B8:27:EB:B5:9C:B5",
-    dancer: "21",
-    hostname: "lightdance-21",
-    connected: false,
-    interface: "ethernet",
-  },
-  "B8:27:EB:E0:C9:E0": { // 21
-    IP: "192.168.0.0",
-    MAC: "B8:27:EB:E0:C9:E0",
-    dancer: "21",
-    hostname: "lightdance-21",
-    connected: false,
-    interface: "wifi",
-  },
-  // 22 replaced
-  // 23 broken
-  // 24 replaced
+  // 21 ether B8:27:EB:B5:9C:B5 wifi B8:27:EB:E0:C9:E0
+  // 22 ether B8:27:EB:80:87:B3 wifi B8:27:EB:D5:D2:E6
+  // 23 ether D8:3A:DD:22:AD:15 wifi D8:3A:DD:22:AD:16
+  // 24 ether B8:27:EB:83:0B:44 wifi B8:27:EB:D6:5E:11
 };
 
 export const dancerToMAC: Record<
