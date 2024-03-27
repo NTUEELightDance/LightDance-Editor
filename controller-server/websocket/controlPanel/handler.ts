@@ -37,7 +37,7 @@ import {
 import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
 
 import { sendToRPi, sendBoardInfoToRPi } from "@/websocket/RPi/handlers";
-import { execArgv } from "process";
+
 import { exec } from "child_process";
 
 export const controlPanelWSs: Record<string, WebSocket> = {};
@@ -109,7 +109,9 @@ export function handlePlay(msg: FromControlPanelPlay) {
 
   sendToRPi(dancers, toRPiMsg);
 
-  const _timestampString = Math.round(timestamp-200).toString();
+  const music_delay = 0; // time offset of music
+
+  const _timestampString = Math.round(timestamp - music_delay).toString();
 
   return exec(`./scripts/schedule_play.sh ${_timestampString} ${start/1000}`);
 }
