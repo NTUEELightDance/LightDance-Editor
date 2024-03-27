@@ -19,7 +19,9 @@ Dancer
 """
 
 
-MutDancerStatusPayload = List[Tuple[Union[ColorID, LEDEffectID], int]]
+MutDancerStatusPayload = List[Optional[Tuple[Union[ColorID, LEDEffectID], int]]]
+
+MutDancerLEDStatusPayload = List[Optional[List[Tuple[ColorID, int]]]]
 
 
 """
@@ -284,6 +286,7 @@ CANCEL_EDIT_CONTROL_BY_ID = gql(
 class MutEditControlFrameInput(JSONWizard):
     frameId: MapID
     controlData: List[MutDancerStatusPayload]
+    ledBulbData: Optional[List[MutDancerLEDStatusPayload]]
     fade: Optional[bool] = None
 
 
@@ -302,8 +305,9 @@ ADD_CONTROL_FRAME = gql(
         $start: Int!
         $fade: Boolean
         $controlData: [[[Int!]!]!]
+        $ledControlData: [[[[Int!]!]!]!]!
     ) {
-        addControlFrame(start: $start, fade: $fade, controlData: $controlData)
+        addControlFrame(start: $start, fade: $fade, controlData: $controlData, ledControlData: $ledControlData)
     }
     """
 )

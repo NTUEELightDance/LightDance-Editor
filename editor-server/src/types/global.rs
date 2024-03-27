@@ -11,14 +11,9 @@ pub struct UserContext {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartControl(pub i32, pub i32); // [id: number, alpha: number]
+pub struct PartControl(pub i32, pub i32);
 
-// pub enum PartControl {
-//     #[serde(untagged)]
-//     LED(String, i32),
-//     #[serde(untagged)]
-//     FIBER(String, i32),
-// }
+pub type PartControlBulbs = Vec<(i32, i32)>;
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct Revision {
@@ -33,6 +28,7 @@ pub struct RedisControl {
     pub rev: Revision,
     pub editing: Option<String>,
     pub status: Vec<Vec<PartControl>>,
+    pub led_status: Vec<Vec<PartControlBulbs>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
