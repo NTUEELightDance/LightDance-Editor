@@ -4,73 +4,17 @@
   "LightPresets": "/data/default_lightPresets.json",
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
-    "0_xn": {
-      "url": "/asset/models/0_xn.glb",
-      "modelName": "0_xn"
-    },
-    "1_yck": {
+    "0_hjko": {
       "url": "/asset/models/1_yck.glb",
       "modelName": "1_yck"
     },
-    "2_sssam": {
-      "url": "/asset/models/2_sssam.glb",
-      "modelName": "2_sssam"
-    },
-    "3_crc": {
-      "url": "/asset/models/3_crc.glb",
-      "modelName": "3_crc"
-    },
-    "4_arthur": {
+    "1_sauby": {
       "url": "/asset/models/4_arthur.glb",
       "modelName": "4_arthur"
     },
-    "5_cs": {
-      "url": "/asset/models/5_cs.glb",
-      "modelName": "5_cs"
-    },
-    "6_rakec": {
-      "url": "/asset/models/6_rakec.glb",
-      "modelName": "6_rakec"
-    },
-    "7_jya": {
-      "url": "/asset/models/7_jya.glb",
-      "modelName": "7_jya"
-    },
-    "8_circle": {
-      "url": "/asset/models/8_circle.glb",
-      "modelName": "8_circle"
-    },
-    "9_ricky": {
+    "2_adam": {
       "url": "/asset/models/9_ricky.glb",
       "modelName": "9_ricky"
-    },
-    "10_chris": {
-      "url": "/asset/models/10_chris.glb",
-      "modelName": "10_chris"
-    },
-    "11_temple": {
-      "url": "/asset/models/11_temple.glb",
-      "modelName": "11_temple"
-    },
-    "12_bridge": {
-      "url": "/asset/models/12_bridge.glb",
-      "modelName": "12_bridge"
-    },
-    "13_nian": {
-      "url": "/asset/models/13_nian.glb",
-      "modelName": "13_nian"
-    },
-    "14_sword": {
-      "url": "/asset/models/14_sword.glb",
-      "modelName": "14_sword"
-    },
-    "15_guandao": {
-      "url": "/asset/models/15_guandao.glb",
-      "modelName": "15_guandao"
-    },
-    "16_effectboard": {
-      "url": "/asset/models/16_effectboard.glb",
-      "modelName": "16_effectboard"
     }
   },
   "Config": {

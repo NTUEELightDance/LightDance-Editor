@@ -146,7 +146,7 @@ class ControlEditor(bpy.types.Panel):
                         context.object,
                         "ld_effect",
                         text="Effect",
-                        icon="LIGHTPROBE_GRID",
+                        icon="LIGHTPROBE_VOLUME",
                     )
                     column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
 

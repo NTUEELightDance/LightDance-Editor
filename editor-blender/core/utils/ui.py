@@ -87,8 +87,10 @@ def outliner_hide_one_level():
     for area in bpy.context.screen.areas:  # type: ignore
         if area.type == "OUTLINER":  # type: ignore
             region = area.regions[0]  # type: ignore
-            override = bpy.context.copy()
+            override = bpy.context.copy()  # type: ignore
             override["area"] = area  # type: ignore
             override["region"] = region  # type: ignore
             with bpy.context.temp_override(**override):  # type: ignore
-                bpy.ops.outliner.show_one_level(open=False)
+                # FIXME: Broken at 4.1, to be checked if this alternative is working
+                if bpy.ops.outliner.show_one_level.poll():  # type: ignore
+                    bpy.ops.outliner.show_one_level(open=False)

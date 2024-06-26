@@ -105,7 +105,7 @@ async def save_led_effect():
                     exit_editing_led_effect()
                 else:
                     notify("WARNING", "Cannot exit editing")
-            except:
+            except Exception:
                 traceback.print_exc()
                 notify("WARNING", "Cannot save LED effect")
 
@@ -136,7 +136,7 @@ async def save_led_effect():
                     )
                 else:
                     notify("WARNING", "Cannot add LED effect")
-            except:
+            except Exception:
                 traceback.print_exc()
                 notify("WARNING", "Cannot add LED effect")
 
@@ -157,7 +157,7 @@ async def delete_led_effect():
             notify("INFO", f"Deleted LED effect: {led_index}")
         else:
             notify("WARNING", "Cannot delete LED effect")
-    except:
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot delete LED effect")
 

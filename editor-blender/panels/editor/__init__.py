@@ -40,7 +40,7 @@ class EditorPanel(bpy.types.Panel):
             "lightdance.toggle_led_editor",
             text="LED",
             depress=state.editor == Editor.LED_EDITOR,
-            icon="LIGHTPROBE_GRID",
+            icon="LIGHTPROBE_VOLUME",
         )
 
         box = layout.box()

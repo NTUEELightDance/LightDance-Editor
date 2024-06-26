@@ -189,10 +189,10 @@ class LEDEditorStatus(bpy.types.PropertyGroup):
     )
     edit_effect: bpy.props.EnumProperty(  # type: ignore
         items=get_effect_lists,
-        default=-1, # pyright: ignore
+        default=-1,  # pyright: ignore
         update=update_edit_effect,
         get=get_edit_effect,
-        set=set_edit_effect,  
+        set=set_edit_effect,
     )
     new_effect: bpy.props.StringProperty(default="New effect")  # type: ignore
 
