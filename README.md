@@ -35,28 +35,29 @@ http://localhost:8082 - controller-server
 
 ### Local
 
+#### Start database
+copy the environment variables for development
+```sh
+# in Lightdance-Editor/editor-server
+cp .env.development .env
+```
+migrate the database
+```sh
+# in Lightdance-Editor/editor-server
+cargo prisma migrate dev --skip-generate
+```
+start mySQL and redisDB
+```sh
+# in Lightdance-Editor
+docker compose -f dev.docker-compose.yml up -d
+```
+
 #### Install the dependencies
 
 This will install all dependencies for the app.
-
 ```sh
+# in Lightdance-Editor
 pnpm install:all
-```
-
-#### Initialize Prisma
-
-If you are running this for the first time, you need follow the instructions in [editor-server/README.md](editor-server/README.md) to initialize prisma.
-
-```sh
-echo "I know you only want to copy and paste commands, but please read the instructions in editor-server/README.md"
-```
-
-#### Start database
-
-You need to have postgresql and redis running for the backend to work.
-
-```sh
-docker compose -f dev.docker-compose.yml up -d
 ```
 
 #### Run all services
