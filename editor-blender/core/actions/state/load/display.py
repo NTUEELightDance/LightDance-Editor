@@ -75,6 +75,7 @@ def setup_display():
     """
     Setup layout
     """
+    # TODO: Fixed layout
     # split_area(screen, "VIEW_3D", "HORIZONTAL", 0.3)
     # timeline_area = get_area(screen, "VIEW_3D", "y", 0)
     # if timeline_area is None:
@@ -110,6 +111,7 @@ def setup_display():
     space.shading.background_color = (0, 0, 0)
     space.shading.color_type = "OBJECT"
     space.shading.light = "FLAT"
+    space.shading.show_object_outline = False
     # space.shading.light = "STUDIO"
     # space.shading.studio_light = "paint.sl"
 

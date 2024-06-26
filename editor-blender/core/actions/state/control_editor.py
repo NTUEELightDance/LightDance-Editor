@@ -76,8 +76,8 @@ async def add_control_frame():
     set_requesting(True)
     try:
         await control_agent.add_frame(start, False, controlData)
-        notify("INFO", f"Added control frame")
-    except:
+        notify("INFO", "Added control frame")
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot add control frame")
 
@@ -134,7 +134,7 @@ async def save_control_frame(start: Optional[int] = None):
     set_requesting(True)
     try:
         await control_agent.save_frame(id, controlData, fade=fade, start=start)
-        notify("INFO", f"Saved control frame")
+        notify("INFO", "Saved control frame")
 
         # Cancel editing
         ok = await control_agent.cancel_edit(id)
@@ -152,7 +152,7 @@ async def save_control_frame(start: Optional[int] = None):
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")
-    except:
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot save control frame")
 
@@ -167,7 +167,7 @@ async def delete_control_frame():
     try:
         await control_agent.delete_frame(id)
         notify("INFO", f"Deleted control frame: {id}")
-    except:
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot delete control frame")
 
@@ -234,7 +234,7 @@ async def cancel_edit_control():
         else:
             notify("WARNING", "Cannot cancel edit")
 
-    except:
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot cancel edit")
 

@@ -45,7 +45,6 @@ from ...models import (
     PartType,
     PartTypeMap,
 )
-from ...states import state
 from ...utils.convert import frame_to_time
 from ...utils.operator import execute_operator
 from ..state.load import init_assets, load_data
@@ -197,6 +196,7 @@ async def init_editor():
         [init_pos_map, init_control_map],
         [init_assets],
     ]
+    ...
     batches_completes = [[False] * len(batch) for batch in batches_functions]
 
     while True:

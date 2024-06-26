@@ -44,6 +44,8 @@ is_async_loop_running = False
 
 
 class AsyncLoopModalOperator(bpy.types.Operator):
+    """Starts the async loop of editor"""
+
     bl_idname = "lightdance.async_loop"
     bl_label = "Runs the asyncio main loop"
 

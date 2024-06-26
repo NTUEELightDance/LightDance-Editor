@@ -1,4 +1,4 @@
-fake-bpy-module-4.0
+fake-bpy-module-4.1
 gql[all]
 dataclass_wizard
 aiohttp

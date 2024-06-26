@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, MapID
 from ...states import state
 from ...utils.convert import control_modify_to_animation_data
@@ -9,7 +7,6 @@ from ..property.animation_data import (
     modify_partial_ctrl_keyframes,
     reset_control_frames_and_fade_sequence,
     reset_ctrl_rev,
-    update_control_frames_and_fade_sequence,
 )
 from .current_status import calculate_current_status_index
 

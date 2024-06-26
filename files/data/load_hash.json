@@ -4,56 +4,14 @@
   "LightPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
   "PosPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
   "DancerMap": {
-    "0_xn": {
-      "url": "c0c2709ac84a337604bd021724e47ae6192dd0258a5e235089824487c2e1390a"
-    },
-    "1_yck": {
+    "0_hjko": {
       "url": "eff6166277a0f66d42f909fc7614d96d3448ae789c669e1b6d666fb4b1df53bc"
     },
-    "2_sssam": {
-      "url": "ab73db0e857326e6fc7aec368f8cc96a9915e3e190f5ce482a340bca2331a55e"
-    },
-    "3_crc": {
-      "url": "6083492d4b0293beb66986898968997518489e5dbcf0d0cf01ffb2364c26049f"
-    },
-    "4_arthur": {
+    "1_sauby": {
       "url": "7540b49cb38daa6c44ac1f5704da199af6eb85f457d61935791731c1beb28c1f"
     },
-    "5_cs": {
-      "url": "326a13dfd799fe16c1ef39a364ae3a682f70999b72d13a1559f70fea4f7e0d7d"
-    },
-    "6_rakec": {
-      "url": "3472dc9784f89f0f2dddf636af1395d8212975bfa554ffca925852ccab95423e"
-    },
-    "7_jya": {
-      "url": "0ff7181cfb6627e96bede36866447232566d4effc3847f2a049920d70f2064cd"
-    },
-    "8_circle": {
-      "url": "690207b4a59ec443256ae1ab967dc597314c7f06756c926c879c3463feea0380"
-    },
-    "9_ricky": {
+    "2_adam": {
       "url": "d43a2a813edf6c31c16e12aef6a38618a68ab3264c007c2969990df347818917"
-    },
-    "10_chris": {
-      "url": "a0f0cda144bf66b79fd21125c1e3eed2430ca52302faba5db7a4de1b0bcd1555"
-    },
-    "11_temple": {
-      "url": "6a2ab4a71a65ce1277a9b371f6fafe6e426f3ff83ac44bbe597d3bf82c0984c4"
-    },
-    "12_bridge": {
-      "url": "80716e9cf95abb32a797efb74a964c0484509da011ee2476dd81f94e5dc69837"
-    },
-    "13_nian": {
-      "url": "9f6724b2ae55b4a48d0e6e46662b27b0beff9d8c050be73c456e6dd48ec66ac8"
-    },
-    "14_sword": {
-      "url": "d4da1b8efc175cdda79b17ed1011023b1b9c7bafc63f892cf2bb0731e251d218"
-    },
-    "15_guandao": {
-      "url": "038a69d52a1a8c8e642182b2d9b491a943da3de8519fa8796698c00f5a1931f8"
-    },
-    "16_effectboard": {
-      "url": "992004772c8deb63a93a9429f5da8f93a29bad4d7a9a7d68d845e3bd27654774"
     }
   }
 }
