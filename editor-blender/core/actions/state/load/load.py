@@ -76,10 +76,13 @@ async def fetch_data(reload: bool = False):
                     assets_load["DancerMap"][key]["url"] = model_url
 
                 dancer_models_hash[key] = assets_load_hash["DancerMap"][key]["url"]
-                hash_match = not new_load_hash and (
-                    assets_load_hash["DancerMap"][key]["url"]
-                    == local_load_hash["DancerMap"][key]["url"]
-                )
+                if not new_load_hash and key in local_load_hash["DancerMap"]:
+                    hash_match = (
+                        assets_load_hash["DancerMap"][key]["url"]
+                        == local_load_hash["DancerMap"][key]["url"]
+                    )
+                else:
+                    hash_match = False
                 url_set.add((model_url, hash_match))
 
                 if not hash_match:
