@@ -724,7 +724,11 @@ impl ControlFrameMutation {
 
         // if the original frame is not found, return error
         match original_frame {
-            Ok(Some(frame)) => frame,
+            Ok(Some(frame)) => {
+                if frame.start == 0 {
+                    return Err(Error::new("The first frame can not be deleted."));
+                }
+            },
             Ok(None) => {
                 return Err(Error::new("The target frame is not found"));
             }
@@ -807,7 +811,9 @@ impl ControlFrameMutation {
 
         update_revision(mysql).await?;
 
-        // return
+        // logging
+        println!("Control frame #{} is deleted by user #{}", frame_id, context.user_id);
+
         Ok("ok".to_string())
     }
 }
