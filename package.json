@@ -3,20 +3,17 @@
   "version": "3.0.0-beta1",
   "private": true,
   "scripts": {
-    "install:editor": "pnpm install --dir ./editor",
     "install:controller-server": "pnpm install --dir ./controller-server",
     "install:file-server": "pnpm install --dir ./file-server",
     "install:editor-server": "cd editor-server && cargo build",
-    "install:all": "pnpm install; run-p install:editor install:controller-server install:file-server install:editor-server",
-    "dev:editor": "pnpm --dir editor start",
+    "install:all": "pnpm install; run-p install:controller-server install:file-server install:editor-server",
     "dev:editor-server": "cd editor-server && cargo run",
     "dev:controller-server": "pnpm --dir controller-server start",
     "dev:file-server": "pnpm --dir file-server start",
     "dev": "run-p dev:*",
-    "lint:editor": "pnpm --dir editor lint",
     "lint:editor-server": "cargo clippy --manifest-path ./editor-server/Cargo.toml",
     "lint:controller-server": "pnpm --dir controller-server lint",
-    "lint": "pnpm lint:editor && pnpm lint:controller-server",
+    "lint": "pnpm lint:controller-server",
     "zip": "python editor-blender/pack/pack.py"
   },
   "browserslist": {
