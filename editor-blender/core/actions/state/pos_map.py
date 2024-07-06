@@ -118,19 +118,6 @@ def apply_pos_map_updates():
 
     pos_map_updates = state.pos_map_updates
 
-    # Update pos record
-    pos_record = list(state.pos_map.keys())
-    pos_record.sort(key=lambda id: state.pos_map[id].start)
-
-    pos_start_record = [state.pos_map[id].start for id in pos_record]
-
-    state.pos_record = pos_record
-    state.pos_start_record = pos_start_record
-
-    # Update current pos index
-    state.current_pos_index = calculate_current_pos_index()
-    state.pos_map_pending = False
-
     # Update animation data
     updated = sorted(
         [(start, id, frame) for id, (start, frame) in pos_map_updates.updated.items()],
@@ -156,6 +143,19 @@ def apply_pos_map_updates():
         state.pos_map[id] = frame
     for _, id in deleted:
         state.pos_map.pop(id)
+
+    # Update pos record
+    pos_record = list(state.pos_map.keys())
+    pos_record.sort(key=lambda id: state.pos_map[id].start)
+
+    pos_start_record = [state.pos_map[id].start for id in pos_record]
+
+    state.pos_record = pos_record
+    state.pos_start_record = pos_start_record
+
+    # Update current pos index
+    state.current_pos_index = calculate_current_pos_index()
+    state.pos_map_pending = False
 
     pos_map_updates.added.clear()
     pos_map_updates.updated.clear()

@@ -13,21 +13,6 @@ services:
     networks:
       - nginx
     depends_on:
-      - editor
-      - editor-server
-      - file-server
-
-  editor:
-    image: lightdance-editor
-    container_name: lightdance-editor
-    build:
-      context: ..
-      dockerfile: ./prod-support/editor/Dockerfile
-    expose:
-      - "8080"
-    networks:
-      - nginx
-    depends_on:
       - editor-server
       - file-server
 

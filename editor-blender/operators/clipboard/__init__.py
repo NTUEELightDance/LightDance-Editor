@@ -41,7 +41,7 @@ class CopyOperator(bpy.types.Operator):
 class PasteOperator(AsyncOperator):
     bl_idname = "lightdance.paste"
     bl_label = "Paste"
-    bl_options = {"REGISTER", "UNDO"}
+    # bl_options = {"REGISTER", "UNDO"}
 
     async def async_execute(self, context: bpy.types.Context):
         if state.editor != Editor.CONTROL_EDITOR:

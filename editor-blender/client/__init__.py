@@ -57,31 +57,6 @@ def remove_wrapped_slash(path: str) -> str:
 
 class Clients:
     def __init__(self):
-        # SERVER_URL = os.getenv("SERVER_URL")
-        # if SERVER_URL is None:
-        #     raise Exception("SERVER_URL is not defined")
-        # self.SERVER_URL = remove_wrapped_slash(SERVER_URL)
-        #
-        # HTTP_PATH = os.getenv("HTTP_PATH")
-        # if HTTP_PATH is None:
-        #     raise Exception("HTTP_PATH is not defined")
-        # self.HTTP_PATH = remove_wrapped_slash(HTTP_PATH)
-        #
-        # GRAPHQL_PATH = os.getenv("GRAPHQL_PATH")
-        # if GRAPHQL_PATH is None:
-        #     raise Exception("GRAPHQL_PATH is not defined")
-        # self.GRAPHQL_PATH = remove_wrapped_slash(GRAPHQL_PATH)
-        #
-        # GRAPHQL_WS_PATH = os.getenv("GRAPHQL_WS_PATH")
-        # if GRAPHQL_WS_PATH is None:
-        #     raise Exception("GRAPHQL_WS_PATH is not defined")
-        # self.GRAPHQL_WS_PATH = remove_wrapped_slash(GRAPHQL_WS_PATH)
-        #
-        # FILE_SERVER_URL = os.getenv("FILE_SERVER_URL")
-        # if FILE_SERVER_URL is None:
-        #     raise Exception("FILE_SERVER_URL is not defined")
-        # self.FILE_SERVER_URL = remove_wrapped_slash(FILE_SERVER_URL)
-
         self.http_client: Optional[ClientSession] = None
         self.client: Optional[GQLSession] = None
         self.sub_client: Optional[GQLSession] = None

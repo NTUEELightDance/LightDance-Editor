@@ -114,7 +114,7 @@ class InMemoryCache:
         cache_data = self.cache.get(query_name)
         try:
             check_type(cache_data, response_type)
-        except:
+        except Exception:
             traceback.print_exc()
             return None
 
@@ -134,7 +134,7 @@ class InMemoryCache:
 
     async def write_query(self, data: Dict[str, Any]) -> None:
         query_name, response = list(data.items())[0]
-        response_type = type(response)
+        response_type = type(response)  # type: ignore
 
         cache_data = self.cache.get(query_name)
         if cache_data is not None and not isinstance(cache_data, response_type):

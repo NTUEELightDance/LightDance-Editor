@@ -1,16 +1,5 @@
 # Editor Server
 
-## First install
-
-You need to create `.env` before all operations. You can change the settings as you want, their used in development mode.
-
-```sh
-# Lightdance-Editor/editor-server
-cp .env.development .env
-```
-
-If you are running this for the first time, you will need to follow the steps below to initialize the database.
-
 ## When `prisma.schema` changes
 
 When you change the prisma schema, you need to regenerate the prisma client code and migrate the database.
@@ -52,3 +41,11 @@ If you have initialized the database before, and you want to get a clean databas
 2. Delete the `data` folder
 4. Delete the `editor-server/prisma/migrations` folder
 5. follow the steps above to initialize the database again
+
+## Tip
+
+If you want to browse the database with a GUI
+```sh
+# Lightdance-Editor/editor-server
+npx primsa studio
+```

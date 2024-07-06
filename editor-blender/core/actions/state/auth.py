@@ -30,7 +30,7 @@ async def login(username: str, password: str) -> None:
         notify("INFO", "Login successful.")
 
     else:
-        notify("ERROR", f"Login failed.")
+        notify("ERROR", "Login failed.")
 
 
 async def logout() -> None:

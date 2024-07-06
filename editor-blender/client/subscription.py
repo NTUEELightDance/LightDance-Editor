@@ -4,7 +4,6 @@ from typing import List, Optional
 from ..client import Clients, client
 from ..client.cache import Modifiers
 from ..core.actions.property.command import set_command_status
-from ..core.actions.state.app_state import set_requesting
 from ..core.actions.state.color_map import add_color, delete_color, update_color
 from ..core.actions.state.command import read_board_info_payload, read_command_response
 from ..core.actions.state.control_map import (

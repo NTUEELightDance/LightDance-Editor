@@ -127,8 +127,6 @@ def update_control_frames_and_fade_sequence(
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
-        # point.handle_left_type = "FREE"
-        # point.handle_right_type = "FREE"
 
 
 """
@@ -261,21 +259,23 @@ def modify_partial_ctrl_single_object_action(
         points_to_update: List[Tuple[int, bpy.types.Keyframe, float, bool]] = []
 
         for old_start, frame_start, fade, rgb in frames[1]:
-            if old_start != frame_start:
-                update_reorder = True
-
             while (
                 curve_index < kpoints_len
                 and int(kpoints_lists[0][curve_index].co[0]) != old_start
             ):
                 curve_index += 1
 
-            # print("Finding", old_start, frame_start, curve_index)
-
             if curve_index < kpoints_len:
                 for d in range(3):
                     point = kpoints_lists[d][curve_index]
                     points_to_update.append((frame_start, point, rgb[d], fade))
+
+                if old_start != frame_start and not (
+                    kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
+                    and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
+                    >= frame_start
+                ):
+                    update_reorder = True
 
         for frame_start, point, value, fade in points_to_update:
             point.co = frame_start, value
@@ -286,20 +286,24 @@ def modify_partial_ctrl_single_object_action(
 
     # Add frames
     if add:
-        for d in range(3):
-            curves[d].keyframe_points.add(len(frames[2]))
-
-            for i, (frame_start, fade, rgb_float) in enumerate(frames[2]):
-                point = kpoints_lists[d][kpoints_len + i]
-
-                point.co = frame_start, rgb_float[d]
+        for d, curve in enumerate(curves):
+            # WARNING: Not sure which is faster
+            # curves[d].keyframe_points.add(len(frames[2]))
+            #
+            # for i, (frame_start, fade, rgb_float) in enumerate(frames[2]):
+            #     point = kpoints_lists[d][kpoints_len + i]
+            #
+            #     point.co = frame_start, rgb_float[d]
+            #
+            #     point.interpolation = "LINEAR" if fade else "CONSTANT"
+            #     point.select_control_point = True
+            for frame_start, fade, rgb_float in frames[2]:
+                point = curve.keyframe_points.insert(frame_start, rgb_float[d])
 
                 point.interpolation = "LINEAR" if fade else "CONSTANT"
                 point.select_control_point = True
-                # point.handle_left_type = "FREE"
-                # point.handle_right_type = "FREE"
 
-    if update_reorder or add:
+    if update_reorder:
         for curve in curves:
             curve.keyframe_points.sort()
 
@@ -370,19 +374,23 @@ def add_partial_ctrl_single_object_action(
     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
     for d, curve in enumerate(curves):
-        kpoints_len = len(kpoints_lists[d])
-        curve.keyframe_points.add(len(frames))
-
-        for i, (frame_start, fade, rgb_float) in enumerate(frames):
-            point = kpoints_lists[d][kpoints_len + i]
-            point.co = frame_start, rgb_float[d]
+        # WARNING: Not sure which is faster
+        # kpoints_len = len(kpoints_lists[d])
+        # curve.keyframe_points.add(len(frames))
+        #
+        # for i, (frame_start, fade, rgb_float) in enumerate(frames):
+        #     point = kpoints_lists[d][kpoints_len + i]
+        #     point.co = frame_start, rgb_float[d]
+        #
+        #     point.interpolation = "LINEAR" if fade else "CONSTANT"
+        #     point.select_control_point = True
+        #
+        # curve.keyframe_points.sort()
+        for frame_start, fade, rgb_float in frames:
+            point = curve.keyframe_points.insert(frame_start, rgb_float[d])
 
             point.interpolation = "LINEAR" if fade else "CONSTANT"
             point.select_control_point = True
-            # point.handle_left_type = "FREE"
-            # point.handle_right_type = "FREE"
-
-        curve.keyframe_points.sort()
 
 
 def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
@@ -436,15 +444,12 @@ def edit_partial_ctrl_single_object_action(
     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
-    reorder = False
+    update_reorder = False
     kpoints_len = len(kpoints_lists[0])
     points_to_update: List[Tuple[int, bpy.types.Keyframe, float, bool]] = []
     curve_index = 0
 
     for old_start, frame_start, fade, led_rgb_float in frames:
-        if old_start != frame_start:
-            reorder = True
-
         while (
             curve_index < kpoints_len
             and int(kpoints_lists[0][curve_index].co[0]) != old_start
@@ -456,14 +461,19 @@ def edit_partial_ctrl_single_object_action(
                 point = kpoints_list[curve_index]
                 points_to_update.append((frame_start, point, led_rgb_float[d], fade))
 
+            if old_start != frame_start and not (
+                kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
+                and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
+                >= frame_start
+            ):
+                update_reorder = True
+
     for frame_start, point, led_rgb_float, fade in points_to_update:
         point.co = frame_start, led_rgb_float
         point.interpolation = "LINEAR" if fade else "CONSTANT"
         point.select_control_point = False
-        # point.handle_left_type = "FREE"
-        # point.handle_right_type = "FREE"
 
-    if reorder:
+    if update_reorder:
         for curve in curves:
             curve.keyframe_points.sort()
 
@@ -505,21 +515,6 @@ def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
                     animation_data[dancer_name][part_name],
                 )
                 edit_partial_ctrl_single_object_action(action, frames)
-
-    # getattr(bpy.context.scene, "ld_ctrl_rev").clear()
-    # for id, ctrl_map_element in sorted_ctrl_map:
-    #     frame_start = ctrl_map_element.start
-    #     rev = ctrl_map_element.rev
-    #
-    #     ctrl_rev_item: RevisionPropertyItemType = getattr(
-    #         bpy.context.scene, "ld_ctrl_rev"
-    #     ).add()
-    #
-    #     ctrl_rev_item.data = rev.data if rev else -1
-    #     ctrl_rev_item.meta = rev.meta if rev else -1
-    #
-    #     ctrl_rev_item.frame_id = id
-    #     ctrl_rev_item.frame_start = frame_start
 
 
 """

@@ -179,7 +179,7 @@ async def save_control_frame(start: Optional[int] = None):
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")
-    except:
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot save control frame")
 
@@ -194,7 +194,7 @@ async def delete_control_frame():
     try:
         await control_agent.delete_frame(id)
         notify("INFO", f"Deleted control frame: {id}")
-    except:
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot delete control frame")
 
@@ -261,7 +261,7 @@ async def cancel_edit_control():
         else:
             notify("WARNING", "Cannot cancel edit")
 
-    except:
+    except Exception:
         traceback.print_exc()
         notify("WARNING", "Cannot cancel edit")
 

@@ -9,7 +9,7 @@ jobs:
       - name: enable pnpm
         run: corepack enable
       - name: Install modules in editor, controller-server
-        run: pnpm --dir editor install; pnpm --dir controller-server install
-      - name: Run ESLint for editor, controller-server
+        run: pnpm --dir controller-server install
+      - name: Run ESLint for controller-server
         run: pnpm lint
         continue-on-error: true

@@ -444,13 +444,10 @@ class CommandCenterForceStopOperator(AsyncOperator):
 
     async def async_execute(self, context: bpy.types.Context):
         try:
-            stop_payload = ToControllerServerStopPartial.from_dict(
-                {"topic": "stop", "payload": {"dancers": get_selected_dancer()}}
-            )
-
-            await command_agent.send_to_controller_server(stop_payload)
             bpy.context.scene.frame_current = 0
-
+            if countdown_task.task:
+                countdown_task.task.cancel()
+                countdown_task.task = None
             sync_payload = ToControllerServerWebShellPartial.from_dict(
                 {
                     "topic": "webShell",
