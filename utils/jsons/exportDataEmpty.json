@@ -488,6 +488,7 @@
     "1": {
       "fade": false,
       "start": 0,
+      "led_status": [],
       "status": [
         [
           [
@@ -932,6 +933,7 @@
     "2": {
       "fade": false,
       "start": 1000,
+      "led_status": [],
       "status": [
         [
           [
@@ -1376,6 +1378,7 @@
     "3": {
       "fade": false,
       "start": 2000,
+      "led_status": [],
       "status": [
         [
           [
@@ -1820,6 +1823,7 @@
     "4": {
       "fade": false,
       "start": 3000,
+      "led_status": [],
       "status": [
         [
           [
@@ -2264,6 +2268,7 @@
     "5": {
       "fade": false,
       "start": 4000,
+      "led_status": [],
       "status": [
         [
           [
