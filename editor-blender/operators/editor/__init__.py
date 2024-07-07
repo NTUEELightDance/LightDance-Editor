@@ -237,7 +237,10 @@ class Save(AsyncOperator):
         else:
             match state.editor:
                 case Editor.CONTROL_EDITOR:
-                    await save_control_frame()
+                    try:
+                        await save_control_frame()
+                    except Exception as e:
+                        print(e)  # NOTE: debugging
                 case Editor.POS_EDITOR:
                     await save_pos_frame()
                 case Editor.LED_EDITOR:

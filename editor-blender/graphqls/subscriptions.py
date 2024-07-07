@@ -14,7 +14,9 @@ Misc Types
 
 SubLEDControl = Tuple[ColorID, int]
 SubFiberControl = Tuple[ColorID, int]
+SubLEDBulbControl = Tuple[ColorID, int]
 SubPartControl = Union[SubLEDControl, SubFiberControl]
+SubPartLEDBulbControl = List[SubLEDBulbControl]
 
 
 @dataclass
@@ -153,6 +155,7 @@ class SubControlFrame(JSONWizard):
     start: int
     rev: SubRevision
     status: List[List[SubPartControl]]
+    led_status: List[List[SubPartLEDBulbControl]]
     editing: Optional[str] = None
 
 

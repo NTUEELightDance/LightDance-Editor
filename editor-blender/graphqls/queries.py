@@ -29,6 +29,7 @@ LED
 """
 
 QueryLEDDataPayload = Tuple[LEDEffectID, int]
+QueryLEDBulbDataPayload = List[Tuple[ColorID, int]]
 
 
 """
@@ -85,6 +86,7 @@ Dancer
 
 QueryDancerStatusPayloadItem = Union[QueryFiberDataPayload, QueryLEDDataPayload]
 QueryDancerStatusPayload = List[QueryDancerStatusPayloadItem]
+QueryDancerLEDBulbStatusPayload = List[QueryLEDBulbDataPayload]
 
 
 @dataclass
@@ -238,6 +240,7 @@ class QueryControlFrame(JSONWizard):
     fade: bool
     rev: QueryRevision
     status: List[QueryDancerStatusPayload]
+    led_status: List[QueryDancerLEDBulbStatusPayload]
 
 
 QueryControlMapPayload = Dict[ID, QueryControlFrame]

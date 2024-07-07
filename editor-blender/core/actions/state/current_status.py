@@ -25,7 +25,9 @@ def update_current_status_by_index():
     setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
 
     current_status = current_control_map.status
+    current_led_status = current_control_map.led_status
     state.current_status = current_status
+    state.current_led_status = current_led_status
 
     for dancer in state.dancers_array:
         dancer_status = current_status.get(dancer.name)
@@ -59,6 +61,8 @@ def update_current_status_by_index():
                         effect_id = part_status.effect_id
                         if effect_id == -1:
                             setattr(part_obj, "ld_effect", "no-change")
+                        elif effect_id == 0:
+                            setattr(part_obj, "ld_effect", "(Bulb color)")
                         else:
                             effect = state.led_effect_id_table[effect_id]
                             setattr(part_obj, "ld_effect", effect.name)
