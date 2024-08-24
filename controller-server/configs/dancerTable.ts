@@ -2,17 +2,17 @@ import { MACAddress, DancerDataSchema, DancerData } from "@/schema/DancerData";
 
 // Record the RPi information according to MAC
 const dancerTable: DancerData = {
-  "DC:A6:32:F4:48:5E": {
+  "B8:27:EB:82:79:49": {
     IP: "192.168.0.0",
-    MAC: "DC:A6:32:F4:48:5E",
+    MAC: "B8:27:EB:82:79:49",
     dancer: "0_hjko",
     hostname: "lightdance-01",
     connected: false,
     interface: "ethernet",
   },
-  "DC:A6:32:F4:48:5F": {
+  "B8:27:EB:D7:2C:1C": {
     IP: "192.168.0.0",
-    MAC: "DC:A6:32:F4:48:5F",
+    MAC: "B8:27:EB:D7:2C:1C",
     dancer: "0_hjko",
     hostname: "lightdance-01",
     connected: false,
