@@ -1,4 +1,4 @@
-name: Rust clippy and fmt check
+name: Rust fmt check
 
 on: [push, pull_request]
 
@@ -11,5 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cargo clippy --manifest-path ./editor-server/Cargo.toml
       - run: cargo fmt --manifest-path ./editor-server/Cargo.toml

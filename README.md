@@ -46,15 +46,15 @@ copy the environment variables for development
 # in Lightdance-Editor/editor-server
 cp .env.development .env
 ```
-migrate the database
-```sh
-# in Lightdance-Editor/editor-server
-cargo prisma migrate dev --skip-generate
-```
 start mySQL and redisDB
 ```sh
 # in Lightdance-Editor
 docker compose -f dev.docker-compose.yml up -d
+```
+migrate the database
+```sh
+# in Lightdance-Editor/editor-server
+cargo prisma migrate dev --skip-generate
 ```
 
 #### Install the dependencies
