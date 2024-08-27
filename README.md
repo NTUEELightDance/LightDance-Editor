@@ -34,6 +34,11 @@ http://localhost:8082 - controller-server
 ## Development
 
 ### Local
+#### Install Pre-Commit
+```sh
+# in Lightdance-Editor
+pre-commit install
+```
 
 #### Start database
 copy the environment variables for development

@@ -35,8 +35,8 @@ struct LEDPart {
 
 #[derive(Debug, Deserialize, Serialize)]
 enum DancerPartType {
-    LED,
-    FIBER,
+    Led,
+    Fiber,
 }
 #[derive(Debug, Deserialize, Serialize)]
 struct DancerPart {
@@ -229,8 +229,8 @@ pub async fn upload_data(
             let mut part_dict: HashMap<&String, (i32, &DancerPartType)> = HashMap::new();
             for part in &dancer.parts {
                 let type_string = match &part.part_type {
-                    DancerPartType::LED => "LED",
-                    DancerPartType::FIBER => "FIBER",
+                    DancerPartType::Led => "LED",
+                    DancerPartType::Fiber => "FIBER",
                 };
 
                 let part_id = sqlx::query!(
@@ -358,7 +358,7 @@ pub async fn upload_data(
 
         println!("Create Position Data...");
 
-        for (_, frame_obj) in &data_obj.position {
+        for frame_obj in data_obj.position.values() {
             if frame_obj.pos.len() != data_obj.dancer.len() {
                 return Err((
                     StatusCode::BAD_REQUEST,
@@ -451,8 +451,8 @@ pub async fn upload_data(
 
                     // This is apparently wrong currently
                     let type_string = match &real_part.1 {
-                        DancerPartType::LED => "EFFECT",
-                        DancerPartType::FIBER => "COLOR",
+                        DancerPartType::Led => "EFFECT",
+                        DancerPartType::Fiber => "COLOR",
                     };
                     let color_id = color_dict.get(&part_control_data.0);
                     let effect_id = match led_dict.get(model_name) {

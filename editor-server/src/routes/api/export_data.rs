@@ -27,8 +27,8 @@ pub struct ExColorData(pub i32, pub i32, pub i32); // [r: number, g: number, b: 
 impl From<String> for ExPartType {
     fn from(data: String) -> Self {
         match data.as_str() {
-            "LED" => ExPartType::LED,
-            "FIBER" => ExPartType::FIBER,
+            "LED" => ExPartType::Led,
+            "FIBER" => ExPartType::Fiber,
             _ => panic!("Invalid TPartType value: {}", data),
         }
     }
@@ -37,8 +37,8 @@ impl From<String> for ExPartType {
 #[derive(Type, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
 pub enum ExPartType {
     #[default]
-    LED,
-    FIBER,
+    Led,
+    Fiber,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -315,7 +315,7 @@ pub async fn export_data() -> Result<
                     .enumerate()
                     .map(|(part_idx, part_status)| {
                         let part_type = dancer[dancer_idx].parts[part_idx].r#type;
-                        if part_type == ExPartType::FIBER {
+                        if part_type == ExPartType::Fiber {
                             if part_status.0 == -1 {
                                 return ExPartControl(String::new(), part_status.1);
                             }
@@ -372,9 +372,9 @@ pub async fn export_data() -> Result<
                 .iter()
                 .map(|dancer_pos| {
                     PositionPos(
-                        ((dancer_pos.0 + std::f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_pos.1 + std::f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_pos.2 + std::f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_pos.0 + f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_pos.1 + f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_pos.2 + f64::EPSILON) * 100.0).round() / 100.0,
                     )
                 })
                 .collect();

@@ -383,23 +383,20 @@ impl ControlMapMutation {
         // but we might need to examine the logic of how the "fade" field is updated in the future
 
         // if fade is given, update the fade field of the frame
-        match fade {
-            Some(fade) => {
-                sqlx::query!(
-                    r#"
-                        UPDATE ControlFrame
-                        SET
-                            fade = ?,
-                            meta_rev = meta_rev + 1
-                        WHERE id = ?;
-                    "#,
-                    fade,
-                    frame_id,
-                )
-                .execute(mysql)
-                .await?;
-            }
-            None => {}
+        if let Some(fade) = fade {
+            sqlx::query!(
+                r#"
+                    UPDATE ControlFrame
+                    SET
+                        fade = ?,
+                        meta_rev = meta_rev + 1
+                    WHERE id = ?;
+                "#,
+                fade,
+                frame_id,
+            )
+            .execute(mysql)
+            .await?;
         };
 
         // TODO: check the necessity of the code below

@@ -135,7 +135,7 @@ impl DancerMutation {
         .fetch_one(mysql)
         .await;
 
-        if let Err(_) = raw_dancer {
+        if raw_dancer.is_err() {
             return Ok(DancerMutationResponse {
                 ok: false,
                 msg: "Dancer not found.".to_string(),

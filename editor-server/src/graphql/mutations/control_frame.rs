@@ -341,7 +341,7 @@ impl ControlFrameMutation {
             // iterate through every dancer
             for dancer in dancers.iter() {
                 // iterate through every part of the dancer
-                for (_index, part) in dancer.iter().enumerate() {
+                for part in dancer.iter() {
                     let dancer_id = &part.dancer_id;
                     let part_type = &part.part_type;
 
@@ -728,7 +728,7 @@ impl ControlFrameMutation {
                 if frame.start == 0 {
                     return Err(Error::new("The first frame can not be deleted."));
                 }
-            },
+            }
             Ok(None) => {
                 return Err(Error::new("The target frame is not found"));
             }
@@ -812,7 +812,10 @@ impl ControlFrameMutation {
         update_revision(mysql).await?;
 
         // logging
-        println!("Control frame #{} is deleted by user #{}", frame_id, context.user_id);
+        println!(
+            "Control frame #{} is deleted by user #{}",
+            frame_id, context.user_id
+        );
 
         Ok("ok".to_string())
     }

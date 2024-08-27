@@ -13,7 +13,7 @@
     "dev": "run-p dev:*",
     "lint:editor-server": "cargo clippy --manifest-path ./editor-server/Cargo.toml",
     "lint:controller-server": "pnpm --dir controller-server lint",
-    "lint": "pnpm lint:controller-server",
+    "lint": "pnpm lint:controller-server && pnpm lint:editor-server",
     "zip": "python editor-blender/pack/pack.py"
   },
   "browserslist": {

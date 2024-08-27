@@ -11,9 +11,7 @@ export const PinMapSchema = z.object({
       len: z.number(),
     })
   ),
-  LEDPARTS_MERGE: z.record(
-    z.array(z.string()),
-  ),
+  LEDPARTS_MERGE: z.record(z.array(z.string())),
 });
 
 export const PinMapTableSchema = z.record(z.string(), PinMapSchema);

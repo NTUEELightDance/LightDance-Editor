@@ -47,5 +47,5 @@ If you have initialized the database before, and you want to get a clean databas
 If you want to browse the database with a GUI
 ```sh
 # Lightdance-Editor/editor-server
-npx primsa studio
+npx prisma studio
 ```

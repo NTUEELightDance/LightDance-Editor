@@ -1,0 +1,15 @@
+name: Rust clippy and fmt check
+
+on: [push, pull_request]
+
+# Make sure CI fails on all warnings, including Clippy lints
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo clippy --manifest-path ./editor-server/Cargo.toml
+      - run: cargo fmt --manifest-path ./editor-server/Cargo.toml

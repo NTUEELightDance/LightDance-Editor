@@ -40,30 +40,36 @@ export async function handleOnControlPanelMessage(
       break;
     case "play":
       if (music_subprocess?.pid && !music_subprocess.killed) {
-        console.log(music_subprocess.pid+1);
+        console.log(music_subprocess.pid + 1);
         try {
-          process.kill(music_subprocess.pid+1, 'SIGHUP')
-        } catch {}
+          process.kill(music_subprocess.pid + 1, "SIGHUP");
+        } catch {
+          console.log("failed to kill music");
+        }
         console.log("killed music");
       }
       music_subprocess = handlePlay(msg);
       break;
     case "pause":
       if (music_subprocess?.pid && !music_subprocess.killed) {
-        console.log(music_subprocess.pid+1);
+        console.log(music_subprocess.pid + 1);
         try {
-          process.kill(music_subprocess.pid+1, 'SIGHUP')
-        } catch {}
+          process.kill(music_subprocess.pid + 1, "SIGHUP");
+        } catch {
+          console.log("failed to kill music");
+        }
         console.log("killed music");
       }
       handlePause(msg);
       break;
     case "stop":
       if (music_subprocess?.pid && !music_subprocess.killed) {
-        console.log(music_subprocess.pid+1);
+        console.log(music_subprocess.pid + 1);
         try {
-          process.kill(music_subprocess.pid+1, 'SIGHUP')
-        } catch {}
+          process.kill(music_subprocess.pid + 1, "SIGHUP");
+        } catch {
+          console.log("failed to kill music");
+        }
         console.log("killed music");
       }
       handleStop(msg);
