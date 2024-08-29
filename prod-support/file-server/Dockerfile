@@ -1,18 +1,21 @@
-FROM node:18-buster
+FROM rust:1.75
 
 WORKDIR /app
 
-RUN corepack enable
-
-# LightDance-Editor/files will be mapped to /app/files
-RUN mkdir file-server
-COPY ["file-server/package.json", "file-server/pnpm-lock.yaml", "./file-server/"]
+RUN cargo new file-server
 
 WORKDIR /app/file-server
-RUN pnpm install
 
-COPY ./file-server .
+COPY ./file-server/Cargo.toml .
+COPY ./file-server/Cargo.lock .
+
+RUN cargo fetch
+RUN rm -r ./src
+
+COPY ./file-server/src ./src
+
+ENV PORT=8081
 
 EXPOSE 8081
 
-CMD ["pnpm", "prod"]
+CMD ["cargo", "run", "--release"]

@@ -10,6 +10,15 @@ repos:
         files: ^editor-server/src/
         entry: cargo fmt --manifest-path ./editor-server/Cargo.toml
         args: ["--"]
+      - id: clippy
+        files: ^file-server/
+        entry: cargo clippy --manifest-path ./file-server/Cargo.toml --fix --allow-staged --allow-dirty
+        args: ["--"]
+      - id: fmt
+        files: ^file-server/src/
+        entry: cargo fmt --manifest-path ./file-server/Cargo.toml
+        args: ["--"]  
+      
 
   - repo: https://github.com/psf/black
     rev: 23.12.1
