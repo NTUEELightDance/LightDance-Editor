@@ -1,4 +1,4 @@
-name: Rust fmt check
+name: Rust CI
 
 on: [push, pull_request]
 
@@ -7,8 +7,17 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  clippy_check:
+  editor-server_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cargo fmt --manifest-path ./editor-server/Cargo.toml
+      - run: cd editor-server && cp .env.development .env
+      - name: Start database
+        run: docker compose -f dev.docker-compose.yml up -d
+      - name: Migrate database
+        run: cd editor-server && cargo prisma migrate dev --skip-generate --name init
+      - name: build test and clippy check
+        run: cargo clippy --manifest-path ./editor-server/Cargo.toml
+      - name: fmt check
+        run: cargo fmt --manifest-path ./editor-server/Cargo.toml
+      

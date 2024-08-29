@@ -54,7 +54,7 @@ docker compose -f dev.docker-compose.yml up -d
 migrate the database
 ```sh
 # in Lightdance-Editor/editor-server
-cargo prisma migrate dev --skip-generate
+cargo prisma migrate dev --skip-generate --name init
 ```
 
 #### Install the dependencies
