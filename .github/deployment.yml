@@ -1,0 +1,19 @@
+name: Deployment Test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build Docker images
+      run: docker compose -f prod-support/prod.docker-compose.yml build
+
+    - name: Run deployment test
+      run: docker compose -f prod-support/prod.docker-compose.yml up -d
