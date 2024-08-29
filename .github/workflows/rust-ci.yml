@@ -7,7 +7,7 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  editor-server_test:
+  editor-server-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,4 +20,11 @@ jobs:
         run: cargo clippy --manifest-path ./editor-server/Cargo.toml
       - name: fmt check
         run: cargo fmt --manifest-path ./editor-server/Cargo.toml
-      
+  file-server-test:
+     runs-on: ubuntu-latest
+     steps: 
+       - uses: actions/checkout@v4
+       - name: build test and clippy check
+         run: cargo clippy --manifest-path ./file-server/Cargo.toml
+       - name: fmt check
+         run: cargo fmt --manifest-path ./file-server/Cargo.toml
