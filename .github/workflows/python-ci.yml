@@ -7,11 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: isort/isort-action@v1
+      - name: isort 
+        uses: isort/isort-action@v1
         with:
           requirements-files: "./editor-blender/requirements.txt"
           sort-paths: "./editor-blender"
-      - uses: psf/black@stable
+      - name: black
+        uses: psf/black@stable
         with:
             options: "--check --verbose"
             src: "./editor-blender"
