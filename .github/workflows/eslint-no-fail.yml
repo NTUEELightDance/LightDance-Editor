@@ -1,8 +1,7 @@
 name: ESLint
-run-name: controller-server-lint
 on: [push, pull_request]
 jobs:
-  eslint:
+  controller-server-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
