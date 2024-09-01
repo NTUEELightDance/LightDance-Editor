@@ -1,8 +1,7 @@
-name: eslint no fail
-run-name: eslint no fail ${{ github.event.pull_request.branches[0].name }}
+name: ESLint
 on: [push, pull_request]
 jobs:
-  eslint:
+  controller-server-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
