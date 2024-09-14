@@ -6,6 +6,7 @@ use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition
 use crate::utils::vector::partition_by_field;
 
 use itertools::Itertools;
+use redis::aio::Connection;
 use redis::AsyncCommands;
 use redis::Client;
 use sqlx::{MySql, Pool};
@@ -42,7 +43,7 @@ pub async fn init_redis_control(
     .await
     .map_err(|e| e.to_string())?;
 
-    let dancer_controls = {
+    let dancer_controls: Vec<Vec<Vec<_>>> = {
         let dancer_controls = sqlx::query!(
             r#"
                 SELECT
@@ -81,7 +82,7 @@ pub async fn init_redis_control(
             .collect_vec()
     };
 
-    let mut result = Vec::new();
+    let mut result: Vec<(String, String)> = Vec::new();
 
     frames
         .iter()
@@ -124,8 +125,10 @@ pub async fn init_redis_control(
         });
 
     if !result.is_empty() {
-        let mut conn = redis_client.get_tokio_connection().await.unwrap();
-        conn.mset(&result).await.map_err(|e| e.to_string())?;
+        let mut conn: Connection = redis_client.get_tokio_connection().await.unwrap();
+        conn.mset::<String, String, ()>(&result)
+            .await
+            .map_err(|e| e.to_string())?;
     }
 
     println!("Redis done initializing ControlMap");
@@ -206,8 +209,10 @@ pub async fn init_redis_position(
     });
 
     if !result.is_empty() {
-        let mut conn = redis_client.get_tokio_connection().await.unwrap();
-        conn.mset(&result).await.map_err(|e| e.to_string())?;
+        let mut conn: Connection = redis_client.get_tokio_connection().await.unwrap();
+        conn.mset::<String, String, ()>(&result)
+            .await
+            .map_err(|e| e.to_string())?;
     }
 
     println!("Redis done initializing PositionMap");
@@ -304,8 +309,8 @@ pub async fn update_redis_control(
         status,
     };
 
-    let mut conn = redis_client.get_tokio_connection().await.unwrap();
-    conn.set(redis_key, serde_json::to_string(&result_control).unwrap())
+    let mut conn: Connection = redis_client.get_tokio_connection().await.unwrap();
+    conn.set::<String, String, ()>(redis_key, serde_json::to_string(&result_control).unwrap())
         .await
         .map_err(|e| e.to_string())?;
 
@@ -389,8 +394,8 @@ pub async fn update_redis_position(
         pos,
     };
 
-    let mut conn = redis_client.get_tokio_connection().await.unwrap();
-    conn.set(redis_key, serde_json::to_string(&result_pos).unwrap())
+    let mut conn: Connection = redis_client.get_tokio_connection().await.unwrap();
+    conn.set::<String, String, ()>(redis_key, serde_json::to_string(&result_pos).unwrap())
         .await
         .map_err(|e| e.to_string())?;
 
@@ -444,8 +449,8 @@ pub async fn get_redis_position(
 }
 
 pub async fn delete_redis_control(redis_client: &Client, frame_id: i32) -> Result<(), String> {
-    let mut conn = redis_client.get_tokio_connection().await.unwrap();
-    conn.del(format!(
+    let mut conn: Connection = redis_client.get_tokio_connection().await.unwrap();
+    conn.del::<String, ()>(format!(
         "{}{}",
         global::envs::get().redis_ctrl_prefix,
         frame_id
@@ -457,8 +462,8 @@ pub async fn delete_redis_control(redis_client: &Client, frame_id: i32) -> Resul
 }
 
 pub async fn delete_redis_position(redis_client: &Client, frame_id: i32) -> Result<(), String> {
-    let mut conn = redis_client.get_tokio_connection().await.unwrap();
-    conn.del(format!(
+    let mut conn: Connection = redis_client.get_tokio_connection().await.unwrap();
+    conn.del::<String, ()>(format!(
         "{}{}",
         global::envs::get().redis_pos_prefix,
         frame_id

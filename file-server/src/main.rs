@@ -1,4 +1,4 @@
-use axum::{routing::get, Router};
+use axum::Router;
 use dotenv::dotenv;
 use std::env::var;
 use tower_http::services::ServeDir;
@@ -16,8 +16,7 @@ async fn main() {
     let app = Router::new()
         .nest_service("/music", ServeDir::new(music_path))
         .nest_service("/data", ServeDir::new(data_path))
-        .nest_service("/assets", ServeDir::new(assets_path))
-        .nest_service("/ping", get(|| async { "pong" }));
+        .nest_service("/assets", ServeDir::new(assets_path));
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
         .await
