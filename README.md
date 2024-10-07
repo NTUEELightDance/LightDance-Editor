@@ -15,8 +15,9 @@
   An online editor to design, simulate and control the lights
 </p>
 <div align="center" >
-    <img src="https://user-images.githubusercontent.com/17617373/199907047-a87e1cea-4ff4-45c9-9f41-e05d28a47473.gif" width="100%">
+    <img src="https://github.com/user-attachments/assets/31783e15-0606-47ef-8204-50068e81d938" width="100%">
 </div>
+
 
 ## Architecture
 
