@@ -26,7 +26,6 @@
 ### Services
 
 ```text
-http://localhost:8080 - editor
 http://localhost:4000 - editor-server
 http://localhost:8081 - file-server
 http://localhost:8082 - controller-server
@@ -107,8 +106,6 @@ Start all services
 ```sh
 docker compose -f prod-support/prod.docker-compose.yml up -d
 ```
-
-Editor will run on `http://localhost:8080`.
 
 Editor-server will run on `http://localhost:4000`.
 
