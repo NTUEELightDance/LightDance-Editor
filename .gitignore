@@ -153,3 +153,5 @@ editor-server/src/data/private
 
 editor-blender.zip
 target/
+
+.venv
