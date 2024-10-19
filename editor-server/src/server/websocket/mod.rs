@@ -1,5 +1,5 @@
 //! Websocket connection callbacks.
-//! The callbacks are used to authencate user when a connection is established.
+//! The callbacks are used to authenticate user when a connection is established.
 //! and clean up the database when a connection is closed.
 
 use crate::db::types::user::UserData;
@@ -9,7 +9,7 @@ use crate::utils::authentication::verify_token;
 
 use std::env::var;
 
-/// Callbak for websocket connection
+/// Callback for websocket connection
 /// A user context is returned if the connection is successful
 /// The context will be used to clean up the database when the connection is closed
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
