@@ -40,6 +40,14 @@ http://localhost:8082 - controller-server
 pre-commit install
 ```
 
+#### Configure node environment
+```sh
+# in Lightdance-Editor
+nvm install
+corepack enable
+corepack install
+```
+
 #### Start database
 copy the environment variables for development
 ```sh
@@ -72,7 +80,6 @@ There are the services you'll need to run if you are developing editor-server. Y
 ```sh
 pnpm dev:file-server
 pnpm dev:editor-server
-pnpm dev:editor
 ```
 
 If you are developing the command center, you may also need to run:
@@ -83,7 +90,7 @@ pnpm dev:controller-server
 
 #### Run all services in parallel
 
-This command runs all services in parallel. You can see the editor on `http://localhost:8080`. This is useful for demo, yet not recommended in development.
+This command runs all services in parallel. This is useful for demo, yet not recommended in development.
 
 ```sh
 pnpm dev

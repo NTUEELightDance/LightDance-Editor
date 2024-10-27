@@ -3,11 +3,11 @@
   "version": "3.0.0-beta1",
   "private": true,
   "scripts": {
-    "install:controller-server": "pnpm install --dir ./controller-server",
+    "install:controller-server": "cd controller-server && pnpm install",
     "install:editor-server": "cargo build --manifest-path ./editor-server/Cargo.toml",
     "install:file-server": "cargo build --manifest-path ./file-server/Cargo.toml",
     "install:all": "pnpm install; run-p install:controller-server install:file-server install:editor-server",
-    "dev:controller-server": "pnpm --dir controller-server start",
+    "dev:controller-server": "cd controller-server && pnpm start",
     "dev:editor-server": "cd editor-server && cargo run",
     "dev:file-server": "cd file-server && cargo run",
     "dev": "run-p dev:*",
