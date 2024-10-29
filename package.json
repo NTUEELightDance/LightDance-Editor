@@ -4,17 +4,19 @@
   "private": true,
   "scripts": {
     "install:controller-server": "cd controller-server && pnpm install",
+    "install:editor-blender": "cd editor-blender && virtualenv --python=python3.12 .venv && .venv/bin/pip install -r requirements.txt -q",
     "install:editor-server": "cargo build --manifest-path ./editor-server/Cargo.toml",
     "install:file-server": "cargo build --manifest-path ./file-server/Cargo.toml",
-    "install:all": "pnpm install; run-p install:controller-server install:file-server install:editor-server",
+    "install:all": "pnpm install; run-p install:controller-server install:file-server install:editor-server install:editor-blender",
     "dev:controller-server": "cd controller-server && pnpm start",
     "dev:editor-server": "cd editor-server && cargo run",
     "dev:file-server": "cd file-server && cargo run",
+    "dev:pack": "python3 editor-blender/pack/pack.py",
     "dev": "run-p dev:*",
     "lint:controller-server": "pnpm --dir controller-server lint",
     "lint:editor-server": "cargo clippy --manifest-path ./editor-server/Cargo.toml",
     "lint": "pnpm lint:controller-server && pnpm lint:editor-server",
-    "zip": "python editor-blender/pack/pack.py"
+    "prod:pack": "python3 editor-blender/pack/pack.py -r"
   },
   "browserslist": {
     "production": [

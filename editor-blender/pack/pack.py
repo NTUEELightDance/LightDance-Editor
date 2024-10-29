@@ -49,6 +49,10 @@ subprocess.run(["rm", "-r", release_path])
 tests_path = path.join(pack_blender_path, "tests")
 subprocess.run(["rm", "-r", tests_path])
 
+# Remove venv folder
+venv_path = path.join(pack_blender_path, ".venv")
+subprocess.run(["rm", "-r", venv_path])
+
 
 def remove_pycache(root_dir: str):
     for dir in os.listdir(root_dir):

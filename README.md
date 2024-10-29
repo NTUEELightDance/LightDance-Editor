@@ -47,6 +47,7 @@ nvm install
 corepack enable
 corepack install
 ```
+Then by executing `nvm use` you can choose the specified version of node and pnpm
 
 #### Start database
 copy the environment variables for development
@@ -72,6 +73,7 @@ This will install all dependencies for the app.
 # in Lightdance-Editor
 pnpm install:all
 ```
+This will setup a venv for python3.12, remember to select it as interpreter before developing frontend.
 
 #### Run all services
 
@@ -87,6 +89,13 @@ If you are developing the command center, you may also need to run:
 ```sh
 pnpm dev:controller-server
 ```
+
+To pack the frontend blender add-on, run:
+```sh
+pnpm dev:editor-blender # For local development
+pnpm prod:editor-blender # For production
+```
+The packed file will be stored at `./editor-blender.zip`
 
 #### Run all services in parallel
 
