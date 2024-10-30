@@ -27,9 +27,8 @@ subprocess.run(["cp", "-r", blender_dir, pack_dir])
 pack_blender_path = path.join(pack_dir, "editor-blender")
 
 # Copy requirements.py
-if pack_for_release:
-    req_path = path.join(current_dir, "requirements.py")
-    subprocess.run(["cp", req_path, pack_blender_path])
+req_path = path.join(current_dir, "requirements.py")
+subprocess.run(["cp", req_path, pack_blender_path])
 
 # Copy dotenv
 if pack_for_release:

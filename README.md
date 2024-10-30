@@ -73,7 +73,7 @@ This will install all dependencies for the app.
 # in Lightdance-Editor
 pnpm install:all
 ```
-This will setup a venv for python3.12, remember to select it as interpreter before developing frontend.
+This will setup a venv for python (>3.10 recommended), remember to select it as interpreter before developing frontend.
 
 #### Run all services
 
@@ -92,10 +92,11 @@ pnpm dev:controller-server
 
 To pack the frontend blender add-on, run:
 ```sh
-pnpm dev:editor-blender # For local development
-pnpm prod:editor-blender # For production
+pnpm dev:pack # For local development
+pnpm prod:pack # For production
 ```
 The packed file will be stored at `./editor-blender.zip`
+, to install the add-on, see [Blender Add-ons Documentation](https://docs.blender.org/manual/en/latest/editors/preferences/addons.html).
 
 #### Run all services in parallel
 
