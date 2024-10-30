@@ -6,141 +6,141 @@
       "parts": [
         {
           "name": "arm_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "arm_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "belt_left_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "belt_up_down",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_bottom",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_outer_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_outer_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "collar_long",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "collar_short",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_inner",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_outer",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_outer_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_outer_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "shoulder_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "shoulder_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "wrist_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "wrist_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "face_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "glove_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 36
         },
         {
           "name": "glove_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 36
         },
         {
           "name": "shoe_bottom_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 37
         },
         {
           "name": "shoe_bottom_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 37
         },
         {
           "name": "shoe_front_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "shoe_front_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "shoe_outer_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 8
         },
         {
           "name": "shoe_outer_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 8
         },
         {
           "name": "shoe_top_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "shoe_top_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         }
       ]
@@ -151,165 +151,165 @@
       "parts": [
         {
           "name": "arm_front_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "arm_front_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "arm_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "arm_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "belt",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_bottom",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_outer_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_outer_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "collar_long",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "collar_short",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "elbow_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "elbow_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_135",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_180",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_90",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_bottom_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_bottom_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_outer_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_outer_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "shoulder_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "shoulder_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "sock_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "sock_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "face_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "glove_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 36
         },
         {
           "name": "glove_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 36
         },
         {
           "name": "shoe_bottom_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 39
         },
         {
           "name": "shoe_bottom_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 39
         },
         {
           "name": "shoe_front_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 16
         },
         {
           "name": "shoe_front_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 16
         },
         {
           "name": "shoe_outer_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 7
         },
         {
           "name": "shoe_outer_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 7
         },
         {
           "name": "shoe_top_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 19
         },
         {
           "name": "shoe_top_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 19
         }
       ]
@@ -320,165 +320,165 @@
       "parts": [
         {
           "name": "arm_front_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "arm_front_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "arm_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "arm_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "belt",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_bottom",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_outer_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "body_outer_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "collar_long",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "collar_short",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "elbow_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "elbow_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_135",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_180",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "hat_90",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_bottom_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_bottom_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_inner_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_inner_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_outer_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "leg_outer_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "shoulder_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "shoulder_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "sock_left",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "sock_right",
-          "type": "FIBER"
+          "type": "Fiber"
         },
         {
           "name": "face_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "glove_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 36
         },
         {
           "name": "glove_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 36
         },
         {
           "name": "shoe_bottom_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 37
         },
         {
           "name": "shoe_bottom_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 37
         },
         {
           "name": "shoe_front_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "shoe_front_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "shoe_outer_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 7
         },
         {
           "name": "shoe_outer_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 7
         },
         {
           "name": "shoe_top_left_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         },
         {
           "name": "shoe_top_right_LED",
-          "type": "LED",
+          "type": "Led",
           "length": 14
         }
       ]
