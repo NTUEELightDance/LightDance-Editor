@@ -87,6 +87,10 @@ pnpm dev:editor-server
 If you are developing the command center, you may also need to run:
 
 ```sh
+# in Lightdance-Editor/controller-server
+cp .env.defaults .env
+
+# in Lightdance-Editor
 pnpm dev:controller-server
 ```
 
