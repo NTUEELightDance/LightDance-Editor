@@ -1,22 +1,4 @@
-bl_info = {
-    "name": "LightDance Editor",
-    "author": "NTUEE LightDance",
-    "version": (1, 2, 1),
-    "blender": (4, 0, 0),
-    "location": "View3D > Toolshelf",
-    "description": "Addon for LightDance Editor",
-    "warning": "",
-    "wiki_url": "",
-    "category": "LightDance",
-}
-
-
 def setup():
-    from .requirements import install_requirements
-
-    # Ensure requirements are installed (for release)
-    install_requirements()
-
     # Initialize config
     from .core.config import config
 

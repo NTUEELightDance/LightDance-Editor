@@ -1,0 +1,16 @@
+schema_version = "1.0.0"
+id = "lightdance_editor"
+version = "1.3.0"
+name = "LightDance Editor"
+tagline = "Addon for LightDance Editor"
+maintainer = "NTUEE LightDance"
+type = "add-on"
+blender_version_min = "4.2.0"
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+wheels = [
+  
+]
+network = "Connect with the editor backend"
+files = "Store and load assets"

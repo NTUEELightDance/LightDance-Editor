@@ -3,6 +3,8 @@ import subprocess
 from argparse import ArgumentParser
 from os import path
 
+import toml
+
 parser = ArgumentParser()
 
 parser.add_argument("-r", "--pack", action="store_true")
@@ -27,8 +29,9 @@ subprocess.run(["cp", "-r", blender_dir, pack_dir])
 pack_blender_path = path.join(pack_dir, "editor-blender")
 
 # Copy requirements.py
-req_path = path.join(current_dir, "requirements.py")
-subprocess.run(["cp", req_path, pack_blender_path])
+# if pack_for_release:
+#     req_path = path.join(current_dir, "requirements.py")
+#     subprocess.run(["cp", req_path, pack_blender_path])
 
 # Copy dotenv
 if pack_for_release:
@@ -46,11 +49,11 @@ subprocess.run(["rm", "-r", release_path])
 
 # Remove testing folder
 tests_path = path.join(pack_blender_path, "tests")
-subprocess.run(["rm", "-r", tests_path])
+subprocess.run(["rm", "-rf", tests_path])
 
 # Remove venv folder
 venv_path = path.join(pack_blender_path, ".venv")
-subprocess.run(["rm", "-r", venv_path])
+subprocess.run(["rm", "-rf", venv_path])
 
 
 def remove_pycache(root_dir: str):
@@ -65,9 +68,34 @@ def remove_pycache(root_dir: str):
 # Remove __pycache__
 remove_pycache(pack_blender_path)
 
+# Update manifest file
+
+wheels_dir = f"{pack_blender_path}/wheels"
+manifest_file = f"{pack_blender_path}/blender_manifest.toml"
+
+# Get list of .whl files
+wheels_list = [
+    f"./wheels/{filename}"
+    for filename in os.listdir(wheels_dir)
+    if filename.endswith(".whl")
+]
+
+# Read the existing manifest file
+with open(manifest_file, "r") as f:
+    manifest_data = toml.load(f)
+
+# Update the wheels list in the manifest data
+manifest_data["wheels"] = wheels_list
+
+# Write the updated manifest data back to the file
+with open(manifest_file, "w") as f:
+    toml.dump(manifest_data, f)
+
 # Zip
-subprocess.run(["zip", "-r", f"{folder_name}.zip", folder_name], cwd=pack_dir)
+subprocess.run(["zip", "-rq", f"{folder_name}.zip", folder_name], cwd=pack_dir)
 subprocess.run(["mv", f"{folder_name}.zip", root_dir], cwd=pack_dir)
+
+print("Packed successfully.")
 
 # Remove temp folder
 subprocess.run(["rm", "-r", pack_dir])
