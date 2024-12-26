@@ -121,7 +121,11 @@ node initDB.js jsons/exportDataEmpty.json
 ```
 
 ## Production
-
+migrate the database
+```sh
+# in Lightdance-Editor/editor-server
+cargo prisma migrate dev --skip-generate --name init
+```
 Start all services
 
 ```sh
