@@ -74,30 +74,27 @@ impl PositionFrameMutation {
         .fetch_all(mysql)
         .await?;
 
-        match &position_data {
-            Some(data) => {
-                if (*data).len() != dancers.len() {
-                    return Err(format!(
-                        "Not all dancers in payload. Missing number: {}",
-                        dancers.len() as i32 - (*data).len() as i32,
-                    )
-                    .into());
-                }
-                let mut errors = Vec::<String>::new();
-                for (idx, coor) in (*data).iter().enumerate() {
-                    if coor.len() != 3 {
-                        errors.push(format!(
-                            "Not all coordinates in dancer #{} in payload. Missing number: {}",
-                            idx,
-                            3 - coor.len()
-                        ));
-                    }
-                }
-                if !errors.is_empty() {
-                    return Err(errors.join("\n").into());
+        if let Some(data) = &position_data {
+            if (*data).len() != dancers.len() {
+                return Err(format!(
+                    "Not all dancers in payload. Missing number: {}",
+                    dancers.len() as i32 - (*data).len() as i32,
+                )
+                .into());
+            }
+            let mut errors = Vec::<String>::new();
+            for (idx, coor) in (*data).iter().enumerate() {
+                if coor.len() != 3 {
+                    errors.push(format!(
+                        "Not all coordinates in dancer #{} in payload. Missing number: {}",
+                        idx,
+                        3 - coor.len()
+                    ));
                 }
             }
-            None => {}
+            if !errors.is_empty() {
+                return Err(errors.join("\n").into());
+            }
         }
 
         // newPositionFrame.id
