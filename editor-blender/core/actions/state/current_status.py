@@ -7,11 +7,15 @@ from ...utils.algorithms import binary_search
 
 
 def calculate_current_status_index() -> int:
+    if not bpy.context:
+        return 0  # Won't actually happen
     return binary_search(state.control_start_record, bpy.context.scene.frame_current)
 
 
 def update_current_status_by_index():
     """Update current status by index and set ld_color and ld_effect"""
+    if not bpy.context:
+        return
     index = state.current_control_index
 
     control_map = state.control_map

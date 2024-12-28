@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, List, Optional, cast
+from typing import Any, cast
 
 import bpy
 import bpy.path
@@ -15,9 +15,9 @@ class WaveformSettings:
     def __init__(self):
         self.top_offset: int = 0
         self.bottom_offset: int = 0
-        self.region: Optional[bpy.types.Region] = None
-        self.shader: Optional[gpu.types.GPUShader] = None
-        self.batch: Optional[gpu.types.GPUBatch] = None
+        self.region: bpy.types.Region | None = None
+        self.shader: gpu.types.GPUShader | None = None
+        self.batch: gpu.types.GPUBatch | None = None
         self.handle_dope: Any = None
 
 
@@ -74,7 +74,7 @@ def mount():
 
     waveform_data = json.load(waveform_file)
 
-    data: List[int] = waveform_data["data"]
+    data: list[int] = waveform_data["data"]
     length: int = waveform_data["length"]
     wave_bits: int = waveform_data["bits"]
 
@@ -92,18 +92,18 @@ def mount():
     screen = cast(bpy.types.Screen, bpy.data.screens["Layout"])
     area = next(
         area
-        for area in cast(List[bpy.types.Area], screen.areas)
+        for area in cast(list[bpy.types.Area], screen.areas)
         if area.ui_type == "TIMELINE"
     )
     region = next(
         region
-        for region in cast(List[bpy.types.Region], area.regions)
+        for region in cast(list[bpy.types.Region], area.regions)
         if region.type == "WINDOW"
     )
 
     header_region = next(
         region
-        for region in cast(List[bpy.types.Region], area.regions)
+        for region in cast(list[bpy.types.Region], area.regions)
         if region.type == "HEADER"
     )
     waveform_settings.top_offset = int(header_region.height * 0.8)

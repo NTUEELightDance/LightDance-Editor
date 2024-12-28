@@ -1,7 +1,7 @@
 import json
 import os
 import traceback
-from typing import Any, Dict, Set, Tuple, cast
+from typing import Any, cast
 
 from .....client import client
 from ....config import config
@@ -14,7 +14,7 @@ from .objects import setup_floor, setup_objects
 from .render import setup_render
 
 
-def parse_config(config_dict: Dict[str, Any]):
+def parse_config(config_dict: dict[str, Any]):
     stage_config = config_dict["Stage"]
 
     setattr(config, "stage_width", cast(float, stage_config["width"]))
@@ -30,14 +30,14 @@ async def fetch_data(reload: bool = False):
     use_draco = False
 
     if client.file_client:
-        assets_load: Dict[str, Any] = await client.download_json("/data/load.json")
-        assets_load_hash: Dict[str, Any] = await client.download_json(
+        assets_load: dict[str, Any] = await client.download_json("/data/load.json")
+        assets_load_hash: dict[str, Any] = await client.download_json(
             "/data/load_hash.json"
         )
 
         local_load_hash_path = os.path.normpath(config.ASSET_PATH + "/load_hash.json")
         new_load_hash = False
-        local_load_hash: Dict[str, Any] = {}
+        local_load_hash: dict[str, Any] = {}
 
         if not os.path.exists(config.ASSET_PATH):
             os.mkdir(config.ASSET_PATH)
@@ -54,7 +54,7 @@ async def fetch_data(reload: bool = False):
                 local_load_hash = json.load(file)
 
         try:
-            url_set: Set[Tuple[str, bool]] = set()
+            url_set: set[tuple[str, bool]] = set()
             for tag in ["Waveform", "Music", "LightPresets", "PosPresets"]:
                 hash_match = not new_load_hash and (
                     assets_load_hash[tag] == local_load_hash[tag]
@@ -64,8 +64,8 @@ async def fetch_data(reload: bool = False):
                 if not hash_match:
                     print(f"Hash mismatch for {tag}")
 
-            dancer_model_update: Dict[str, bool] = {}
-            dancer_models_hash: Dict[str, str] = {}
+            dancer_model_update: dict[str, bool] = {}
+            dancer_models_hash: dict[str, str] = {}
             for key in assets_load["DancerMap"]:
                 raw_url = assets_load["DancerMap"][key]["url"]
 

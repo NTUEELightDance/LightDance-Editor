@@ -1,8 +1,9 @@
 import asyncio
 import json
 from asyncio import Task
+from collections.abc import AsyncGenerator
 from inspect import isclass
-from typing import Any, AsyncGenerator, Dict, Optional, Type, TypeVar, Union
+from typing import Any, TypeVar
 
 from aiohttp import ClientSession
 from dataclass_wizard import JSONWizard
@@ -22,12 +23,12 @@ from ..graphqls.command import (
 )
 from .cache import InMemoryCache, query_defs_to_field_table
 
-GQLSession = Union[AsyncClientSession, ReconnectingAsyncClientSession]
+GQLSession = AsyncClientSession | ReconnectingAsyncClientSession
 
 T = TypeVar("T")
 
 
-def serialize(data: Any) -> Dict[str, Any]:
+def serialize(data: Any) -> dict[str, Any]:
     # TODO: Support enum
     if isinstance(data, JSONWizard):
         return data.to_dict()
@@ -39,7 +40,7 @@ def serialize(data: Any) -> Dict[str, Any]:
         return data
 
 
-def deserialize(response_type: Type[T], data: Any) -> Any:
+def deserialize(response_type: type[T], data: Any) -> Any:
     # TODO: Support enum
     if isclass(response_type) and issubclass(response_type, JSONWizard):
         return response_type.from_dict(data)
@@ -57,11 +58,11 @@ def remove_wrapped_slash(path: str) -> str:
 
 class Clients:
     def __init__(self):
-        self.http_client: Optional[ClientSession] = None
-        self.client: Optional[GQLSession] = None
-        self.sub_client: Optional[GQLSession] = None
-        self.file_client: Optional[ClientSession] = None
-        self.command_client: Optional[WebSocketClientProtocol] = None
+        self.http_client: ClientSession | None = None
+        self.client: GQLSession | None = None
+        self.sub_client: GQLSession | None = None
+        self.file_client: ClientSession | None = None
+        self.command_client: WebSocketClientProtocol | None = None
 
         self.cache = InMemoryCache()
 
@@ -73,7 +74,7 @@ class Clients:
         if not task.done():
             task.cancel()
 
-    async def __post__(self, path: str, json: Optional[Any] = None) -> Any:
+    async def __post__(self, path: str, json: Any | None = None) -> Any:
         if self.http_client is None:
             raise Exception("HTTP client is not initialized")
 
@@ -95,8 +96,8 @@ class Clients:
         self,
         document: DocumentNode,
         timeout: int,
-        variable_values: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        variable_values: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         if self.client is None:
             raise Exception("GraphQL client is not initialized")
 
@@ -109,7 +110,7 @@ class Clients:
         return result
 
     async def post(
-        self, path: str, json: Optional[Any] = None, timeout: int = 3000
+        self, path: str, json: Any | None = None, timeout: int = 3000
     ) -> Any:
         task = asyncio.ensure_future(self.__post__(path, json))
         asyncio.ensure_future(self.__timeout__(task, timeout))
@@ -117,9 +118,7 @@ class Clients:
         result = await task
         return result
 
-    async def get(
-        self, path: str, json: Optional[Any] = None, timeout: int = 3000
-    ) -> Any:
+    async def get(self, path: str, json: Any | None = None, timeout: int = 3000) -> Any:
         task = asyncio.ensure_future(self.__get__(path))
         asyncio.ensure_future(self.__timeout__(task, timeout))
 
@@ -147,8 +146,8 @@ class Clients:
             return await response.content.read()
 
     async def subscribe(
-        self, data_type: Type[T], query: DocumentNode
-    ) -> AsyncGenerator[Dict[str, T], None]:
+        self, data_type: type[T], query: DocumentNode
+    ) -> AsyncGenerator[dict[str, T], None]:
         if self.sub_client is None:
             raise Exception("GraphQL client is not initialized")
 
@@ -162,11 +161,11 @@ class Clients:
 
     async def execute(
         self,
-        response_type: Type[T],
+        response_type: type[T],
         query: DocumentNode,
-        variables: Optional[Dict[str, Any]] = None,
+        variables: dict[str, Any] | None = None,
         timeout: int = 5000,
-    ) -> Dict[str, T]:
+    ) -> dict[str, T]:
         if self.client is None:
             raise Exception("GraphQL client is not initialized")
 
@@ -188,7 +187,7 @@ class Clients:
 
         if response is None:
             if variables is not None:
-                params: Dict[str, Any] = serialize(variables)
+                params: dict[str, Any] = serialize(variables)
                 response = await self.__execute__(
                     query, variable_values=params, timeout=timeout
                 )

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
 
 from dataclass_wizard import JSONWizard
 from gql import gql
@@ -19,7 +18,7 @@ Dancer
 """
 
 
-MutDancerStatusPayload = List[Tuple[Union[ColorID, LEDEffectID], int]]
+MutDancerStatusPayload = list[tuple[ColorID | LEDEffectID, int]]
 
 
 """
@@ -121,7 +120,7 @@ PosMap
 @dataclass
 class MutRequestEditPositionResponse(JSONWizard):
     ok: bool
-    editing: Optional[MapID] = None
+    editing: MapID | None = None
 
 
 REQUEST_EDIT_POS_BY_ID = gql(
@@ -139,7 +138,7 @@ REQUEST_EDIT_POS_BY_ID = gql(
 @dataclass
 class MutCancelEditPositionResponse(JSONWizard):
     ok: bool
-    editing: Optional[MapID] = None
+    editing: MapID | None = None
 
 
 CANCEL_EDIT_POS_BY_ID = gql(
@@ -157,12 +156,12 @@ CANCEL_EDIT_POS_BY_ID = gql(
 @dataclass
 class MutEditPositionFrameInput(JSONWizard):
     frameId: MapID
-    positionData: List[List[float]]
+    positionData: list[list[float]]
 
 
 @dataclass
 class MutEditPositionFrameResponse(JSONWizard):
-    frameIds: List[MapID]
+    frameIds: list[MapID]
 
 
 EDIT_POS_FRAME = gql(
@@ -247,7 +246,7 @@ ControlMap
 @dataclass
 class MutRequestEditControlResponse(JSONWizard):
     ok: bool
-    editing: Optional[MapID] = None
+    editing: MapID | None = None
 
 
 REQUEST_EDIT_CONTROL_BY_ID = gql(
@@ -265,7 +264,7 @@ REQUEST_EDIT_CONTROL_BY_ID = gql(
 @dataclass
 class MutCancelEditControlResponse(JSONWizard):
     ok: bool
-    editing: Optional[MapID] = None
+    editing: MapID | None = None
 
 
 CANCEL_EDIT_CONTROL_BY_ID = gql(
@@ -283,8 +282,8 @@ CANCEL_EDIT_CONTROL_BY_ID = gql(
 @dataclass
 class MutEditControlFrameInput(JSONWizard):
     frameId: MapID
-    controlData: List[MutDancerStatusPayload]
-    fade: Optional[bool] = None
+    controlData: list[MutDancerStatusPayload]
+    fade: bool | None = None
 
 
 EDIT_CONTROL_FRAME = gql(
@@ -449,7 +448,7 @@ class MutAddLEDEffectResponsePayload(JSONWizard):
 
 @dataclass
 class MutLEDEffectFramePayload(JSONWizard):
-    leds: List[Tuple[ColorID, int]]
+    leds: list[tuple[ColorID, int]]
     start: int
     fade: bool
 
@@ -460,7 +459,7 @@ class MutAddLEDEffectInput(JSONWizard):
     modelName: ModelName
     partName: LEDPartName
     repeat: int
-    frames: List[MutLEDEffectFramePayload]
+    frames: list[MutLEDEffectFramePayload]
 
 
 ADD_LED_EFFECT = gql(
@@ -483,7 +482,7 @@ To edit LED effect
 @dataclass
 class MutRequestEditLEDEffectResponse(JSONWizard):
     ok: bool
-    editing: Optional[MapID] = None
+    editing: MapID | None = None
 
 
 REQUEST_EDIT_LED_EFFECT_BY_ID = gql(
@@ -501,7 +500,7 @@ REQUEST_EDIT_LED_EFFECT_BY_ID = gql(
 @dataclass
 class MutCancelEditLEDEffectResponse(JSONWizard):
     ok: bool
-    editing: Optional[MapID] = None
+    editing: MapID | None = None
 
 
 CANCEL_EDIT_LED_EFFECT_BY_ID = gql(
@@ -527,7 +526,7 @@ class MutEditLEDEffectInput(JSONWizard):
     id: int
     name: str
     repeat: int
-    frames: List[MutLEDEffectFramePayload]
+    frames: list[MutLEDEffectFramePayload]
 
 
 EDIT_LED_EFFECT = gql(

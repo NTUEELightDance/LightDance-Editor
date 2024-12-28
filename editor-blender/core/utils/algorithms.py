@@ -1,7 +1,4 @@
-from typing import List
-
-
-def binary_search(arr: List[int], x: int) -> int:
+def binary_search(arr: list[int], x: int) -> int:
     """
     :param arr: sorted list of integers
     :param x: integer to search for

@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 import bpy
 
@@ -7,10 +7,12 @@ from ....config import config
 from ....states import state
 
 
-def setup_music(assets_load: Dict[str, Any]):
+def setup_music(assets_load: dict[str, Any]):
     """
     set music
     """
+    if not bpy.context:
+        return
     scene = bpy.context.scene
     if not scene.sequence_editor:
         scene.sequence_editor_create()

@@ -1,5 +1,3 @@
-from typing import List
-
 import bpy
 
 from ....properties.types import LightType
@@ -59,7 +57,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
         effect = state.led_effect_id_table[effect_id]
 
         bulb_data = effect.effect
-        led_bulb_objs: List[bpy.types.Object] = getattr(self, "children")
+        led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
 
         for led_bulb_obj in led_bulb_objs:
             pos: int = getattr(led_bulb_obj, "ld_led_pos")
@@ -69,7 +67,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
             setattr(led_bulb_obj, "ld_color", color.name)
 
     else:
-        led_bulb_objs: List[bpy.types.Object] = getattr(self, "children")
+        led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
         for led_bulb_obj in led_bulb_objs:
             setattr(led_bulb_obj, "ld_color", "black")
 
@@ -80,12 +78,12 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
 
     ld_light_type: str = getattr(self, "ld_light_type")
     ld_alpha: int = getattr(self, "ld_alpha")
-    ld_color_float: List[float] = getattr(self, "ld_color_float")
+    ld_color_float: list[float] = getattr(self, "ld_color_float")
 
     if ld_light_type == LightType.LED.value:
-        led_bulb_objs: List[bpy.types.Object] = getattr(self, "children")
+        led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
         for led_bulb_obj in led_bulb_objs:
-            bulb_ld_color_float: List[float] = getattr(led_bulb_obj, "ld_color_float")
+            bulb_ld_color_float: list[float] = getattr(led_bulb_obj, "ld_color_float")
             led_bulb_obj.color[0] = bulb_ld_color_float[0] * (ld_alpha / 255)
             led_bulb_obj.color[1] = bulb_ld_color_float[1] * (ld_alpha / 255)
             led_bulb_obj.color[2] = bulb_ld_color_float[2] * (ld_alpha / 255)

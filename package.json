@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "install:controller-server": "cd controller-server && pnpm install",
-    "install:editor-blender": "cd editor-blender && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -q",
     "install:editor-server": "cargo build --manifest-path ./editor-server/Cargo.toml",
     "install:file-server": "cargo build --manifest-path ./file-server/Cargo.toml",
-    "install:all": "pnpm install; run-p install:controller-server install:file-server install:editor-server install:editor-blender",
+    "install:all": "pnpm install; run-p install:controller-server install:file-server install:editor-server",
     "dev:controller-server": "cd controller-server && pnpm start",
     "dev:editor-server": "cd editor-server && cargo run",
     "dev:file-server": "cd file-server && cargo run",

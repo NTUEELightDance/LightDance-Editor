@@ -1,4 +1,10 @@
-from typing import Dict, List, Optional, Tuple, cast
+"""
+control.py
+
+- This file contains functions to update control keyframes in Blender.
+"""
+
+from typing import cast
 
 import bpy
 
@@ -18,7 +24,9 @@ from ....utils.convert import (
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 
 
-def reset_control_frames_and_fade_sequence(fade_seq: List[Tuple[int, bool]]):
+def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
+    if not bpy.context:
+        return
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
     curve = ensure_curve(
@@ -37,7 +45,9 @@ def reset_control_frames_and_fade_sequence(fade_seq: List[Tuple[int, bool]]):
         point.select_control_point = False
 
 
-def reset_ctrl_rev(sorted_ctrl_map: List[Tuple[MapID, ControlMapElement]]):
+def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]):
+    if not bpy.context:
+        return
     getattr(bpy.context.scene, "ld_ctrl_rev").clear()
     for _, (id, ctrl_map_element) in enumerate(sorted_ctrl_map):
         frame_start = ctrl_map_element.start
@@ -55,11 +65,13 @@ def reset_ctrl_rev(sorted_ctrl_map: List[Tuple[MapID, ControlMapElement]]):
 
 
 def update_control_frames_and_fade_sequence(
-    delete_frames: List[int],
-    update_frames: List[Tuple[int, int]],
-    add_frames: List[int],
-    fade_seq: List[Tuple[int, bool]],
+    delete_frames: list[int],
+    update_frames: list[tuple[int, int]],
+    add_frames: list[int],
+    fade_seq: list[tuple[int, bool]],
 ):
+    if not bpy.context:
+        return
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
 
@@ -84,7 +96,7 @@ def update_control_frames_and_fade_sequence(
     # Update frames
     kpoints_len = len(kpoints_list)
     curve_index = 0
-    points_to_update: List[Tuple[int, bpy.types.Keyframe]] = []
+    points_to_update: list[tuple[int, bpy.types.Keyframe]] = []
 
     for old_start, frame_start in update_frames:
         while (
@@ -136,7 +148,7 @@ initiate control keyframes
 
 def init_ctrl_single_object_action(
     action: bpy.types.Action,
-    frames: List[Tuple[int, bool, Tuple[float, float, float]]],
+    frames: list[tuple[int, bool, tuple[float, float, float]]],
     ctrl_frame_number: int,
 ):
     curves = [
@@ -156,8 +168,10 @@ def init_ctrl_single_object_action(
             point.select_control_point = False
 
 
-def init_ctrl_keyframes_from_state(dancers_reset: Optional[List[bool]] = None):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
+    if not bpy.context:
+        return
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     ctrl_map = state.control_map
     ctrl_frame_number = len(ctrl_map)
@@ -189,7 +203,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: Optional[List[bool]] = None):
                     )
 
                     frames = cast(
-                        List[Tuple[int, bool, Tuple[float, float, float]]],
+                        list[tuple[int, bool, tuple[float, float, float]]],
                         animation_data[dancer_name][part_name][position],
                     )
                     init_ctrl_single_object_action(action, frames, ctrl_frame_number)
@@ -198,7 +212,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: Optional[List[bool]] = None):
                 action = ensure_action(part_obj, f"{part_obj_name}Action")
 
                 frames = cast(
-                    List[Tuple[int, bool, Tuple[float, float, float]]],
+                    list[tuple[int, bool, tuple[float, float, float]]],
                     animation_data[dancer_name][part_name],
                 )
                 init_ctrl_single_object_action(action, frames, ctrl_frame_number)
@@ -221,7 +235,7 @@ modify control keyframes (adding, updating, and deleting all in one function)
 
 def modify_partial_ctrl_single_object_action(
     action: bpy.types.Action,
-    frames: Tuple[
+    frames: tuple[
         ControlDeleteCurveData,
         ControlUpdateCurveData,
         ControlAddCurveData,
@@ -256,7 +270,7 @@ def modify_partial_ctrl_single_object_action(
     update_reorder = False
     if update:
         curve_index = 0
-        points_to_update: List[Tuple[int, bpy.types.Keyframe, float, bool]] = []
+        points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
 
         for old_start, frame_start, fade, rgb in frames[1]:
             while (
@@ -310,9 +324,9 @@ def modify_partial_ctrl_single_object_action(
 
 def modify_partial_ctrl_keyframes(
     animation_data: ControlModifyAnimationData,
-    dancers_reset: Optional[List[bool]] = None,
+    dancers_reset: list[bool] | None = None,
 ):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         if dancers_reset is not None and dancers_reset[dancer_index]:
@@ -338,7 +352,7 @@ def modify_partial_ctrl_keyframes(
                     )
 
                     frames = cast(
-                        Tuple[
+                        tuple[
                             ControlDeleteCurveData,
                             ControlUpdateCurveData,
                             ControlAddCurveData,
@@ -351,7 +365,7 @@ def modify_partial_ctrl_keyframes(
                 action = ensure_action(part_obj, f"{part_obj_name}Action")
 
                 frames = cast(
-                    Tuple[
+                    tuple[
                         ControlDeleteCurveData,
                         ControlUpdateCurveData,
                         ControlAddCurveData,
@@ -368,7 +382,7 @@ add control keyframes
 
 def add_partial_ctrl_single_object_action(
     action: bpy.types.Action,
-    frames: List[Tuple[int, bool, Tuple[float, float, float]]],
+    frames: list[tuple[int, bool, tuple[float, float, float]]],
 ):
     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
@@ -394,7 +408,7 @@ def add_partial_ctrl_single_object_action(
 
 
 def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         dancer_name = dancer_item.name
@@ -417,7 +431,7 @@ def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
                     )
 
                     frames = cast(
-                        List[Tuple[int, bool, Tuple[float, float, float]]],
+                        list[tuple[int, bool, tuple[float, float, float]]],
                         animation_data[dancer_name][part_name][position],
                     )
                     add_partial_ctrl_single_object_action(action, frames)
@@ -426,7 +440,7 @@ def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
                 action = ensure_action(part_obj, f"{part_obj_name}Action")
 
                 frames = cast(
-                    List[Tuple[int, bool, Tuple[float, float, float]]],
+                    list[tuple[int, bool, tuple[float, float, float]]],
                     animation_data[dancer_name][part_name],
                 )
                 add_partial_ctrl_single_object_action(action, frames)
@@ -439,14 +453,14 @@ update control keyframes
 
 def edit_partial_ctrl_single_object_action(
     action: bpy.types.Action,
-    frames: List[Tuple[int, int, bool, Tuple[float, float, float]]],
+    frames: list[tuple[int, int, bool, tuple[float, float, float]]],
 ):
     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
     update_reorder = False
     kpoints_len = len(kpoints_lists[0])
-    points_to_update: List[Tuple[int, bpy.types.Keyframe, float, bool]] = []
+    points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
     curve_index = 0
 
     for old_start, frame_start, fade, led_rgb_float in frames:
@@ -479,7 +493,7 @@ def edit_partial_ctrl_single_object_action(
 
 
 def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         dancer_name = dancer_item.name
@@ -502,7 +516,7 @@ def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
                     )
 
                     frames = cast(
-                        List[Tuple[int, int, bool, Tuple[float, float, float]]],
+                        list[tuple[int, int, bool, tuple[float, float, float]]],
                         animation_data[dancer_name][part_name][position],
                     )
                     edit_partial_ctrl_single_object_action(action, frames)
@@ -511,7 +525,7 @@ def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
                 action = ensure_action(part_obj, f"{part_obj_name}Action")
 
                 frames = cast(
-                    List[Tuple[int, int, bool, Tuple[float, float, float]]],
+                    list[tuple[int, int, bool, tuple[float, float, float]]],
                     animation_data[dancer_name][part_name],
                 )
                 edit_partial_ctrl_single_object_action(action, frames)
@@ -523,7 +537,7 @@ delete control keyframes
 
 
 def delete_partial_ctrl_single_object_action(
-    action: bpy.types.Action, frames: List[int]
+    action: bpy.types.Action, frames: list[int]
 ):
     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
@@ -545,7 +559,7 @@ def delete_partial_ctrl_single_object_action(
 
 
 def delete_partial_ctrl_keyframes(animation_data: ControlDeleteAnimationData):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         dancer_name = dancer_item.name
@@ -568,7 +582,7 @@ def delete_partial_ctrl_keyframes(animation_data: ControlDeleteAnimationData):
                     )
 
                     frames = cast(
-                        List[int],
+                        list[int],
                         animation_data[dancer_name][part_name][position],
                     )
                     delete_partial_ctrl_single_object_action(action, frames)
@@ -577,7 +591,7 @@ def delete_partial_ctrl_keyframes(animation_data: ControlDeleteAnimationData):
                 action = ensure_action(part_obj, f"{part_obj_name}Action")
 
                 frames = cast(
-                    List[int],
+                    list[int],
                     animation_data[dancer_name][part_name],
                 )
                 delete_partial_ctrl_single_object_action(action, frames)

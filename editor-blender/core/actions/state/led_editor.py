@@ -1,5 +1,4 @@
 import traceback
-from typing import List, Tuple
 
 import bpy
 
@@ -22,6 +21,8 @@ from .app_state import set_requesting
 
 
 async def add_led_effect():
+    if not bpy.context:
+        return
     ld_ui_led_editor: LEDEditorStatusType = getattr(
         bpy.context.window_manager, "ld_ui_led_editor"
     )
@@ -42,6 +43,8 @@ async def request_edit_led_effect():
 
 
 async def cancel_edit_led_effect():
+    if not bpy.context:
+        return
     ld_ui_led_editor: LEDEditorStatusType = getattr(
         bpy.context.window_manager, "ld_ui_led_editor"
     )
@@ -67,6 +70,8 @@ async def cancel_edit_led_effect():
 
 
 async def save_led_effect():
+    if not bpy.context:
+        return
     ld_ui_led_editor: LEDEditorStatusType = getattr(
         bpy.context.window_manager, "ld_ui_led_editor"
     )
@@ -82,7 +87,7 @@ async def save_led_effect():
             part_obj_name = f"{dancer_index}_" + edit_part
             part_obj: bpy.types.Object = bpy.data.objects.get(part_obj_name)  # type: ignore
             part_child_objs = part_obj.children
-            new_effect: List[Tuple[ColorID, int]] = [(-1, 0)] * len(part_child_objs)
+            new_effect: list[tuple[ColorID, int]] = [(-1, 0)] * len(part_child_objs)
             for i, obj in enumerate(part_child_objs):
                 if obj:
                     ld_color: ColorID = obj.get("ld_color")  # type: ignore # must use get
@@ -163,6 +168,8 @@ async def delete_led_effect():
 
 
 def enter_editing_led_effect():
+    if not bpy.context:
+        return
     ld_ui_led_editor: LEDEditorStatusType = getattr(
         bpy.context.window_manager, "ld_ui_led_editor"
     )
@@ -190,11 +197,15 @@ def enter_editing_led_effect():
 
     # Mute fcurves of dancer and LED bulbs
     for i in range(3):
-        dancer_obj.animation_data.action.fcurves.find("location", index=i).mute = True
+        if not (dancer_action := dancer_obj.animation_data.action):
+            continue
+        dancer_action.fcurves.find("location", index=i).mute = True
 
     for bulb_obj in part_obj.children:
         for i in range(3):
-            bulb_obj.animation_data.action.fcurves.find("color", index=i).mute = True
+            if not (bulb_action := bulb_obj.animation_data.action):
+                continue
+            bulb_action.fcurves.find("color", index=i).mute = True
 
     # Only select human and bulbs for local view
     for obj in bpy.context.view_layer.objects.selected:  # type: ignore
@@ -221,6 +232,8 @@ def enter_editing_led_effect():
 
 
 def exit_editing_led_effect():
+    if not bpy.context:
+        return
     ld_ui_led_editor: LEDEditorStatusType = getattr(
         bpy.context.window_manager, "ld_ui_led_editor"
     )
@@ -236,11 +249,15 @@ def exit_editing_led_effect():
 
     # Mute fcurves of dancer and LED bulbs
     for i in range(3):
-        dancer_obj.animation_data.action.fcurves.find("location", index=i).mute = False
+        if not (dancer_action := dancer_obj.animation_data.action):
+            continue
+        dancer_action.fcurves.find("location", index=i).mute = False
 
     for bulb_obj in part_obj.children:
         for i in range(3):
-            bulb_obj.animation_data.action.fcurves.find("color", index=i).mute = False
+            if not (bulb_action := bulb_obj.animation_data.action):
+                continue
+            bulb_action.fcurves.find("color", index=i).mute = False
 
     # Reset pos and color of dancer and LED bulbs
     bpy.context.scene.frame_current = bpy.context.scene.frame_current

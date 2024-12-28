@@ -1,5 +1,3 @@
-from typing import Optional, Tuple
-
 import bpy
 
 from ....properties.types import PositionPropertyType
@@ -17,10 +15,10 @@ def update_multi_select_delta_transform(
     if not multi_select:
         return
 
-    delta_transform: Tuple[float, float, float] = getattr(
+    delta_transform: tuple[float, float, float] = getattr(
         self, "multi_select_delta_transform"
     )
-    delta_transform_ref: Tuple[float, float, float] = getattr(
+    delta_transform_ref: tuple[float, float, float] = getattr(
         self, "multi_select_delta_transform_ref"
     )
     delta = (
@@ -29,7 +27,7 @@ def update_multi_select_delta_transform(
         delta_transform[2] - delta_transform_ref[2],
     )
     for obj_name in state.selected_obj_names:
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(obj_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             ld_position.transform = (

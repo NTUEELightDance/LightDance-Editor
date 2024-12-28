@@ -11,6 +11,8 @@ from .app_state import set_requesting, set_shifting
 
 
 def toggle_shift():
+    if not bpy.context:
+        return
     ld_ui_time_shift: TimeShiftStatusType = getattr(
         bpy.context.window_manager, "ld_ui_time_shift"
     )
@@ -29,6 +31,8 @@ def cancel_shift():
 
 
 async def confirm_shift():
+    if not bpy.context:
+        return
     ld_ui_time_shift: TimeShiftStatusType = getattr(
         bpy.context.window_manager, "ld_ui_time_shift"
     )

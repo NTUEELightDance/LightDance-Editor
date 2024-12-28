@@ -1,5 +1,3 @@
-from typing import List, Optional, Tuple
-
 import bpy
 
 from ....properties.types import RevisionPropertyType
@@ -23,8 +21,10 @@ from .animation_data import (
 def update_rev_changes(
     incoming_pos_map: PosMap,
     incoming_control_map: ControlMap,
-    dancers_reset: Optional[List[bool]] = None,
+    dancers_reset: list[bool] | None = None,
 ):
+    if not bpy.context:
+        return
     # position
     ld_pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
     local_rev = [
@@ -35,11 +35,11 @@ def update_rev_changes(
     incoming_rev = {id: element.rev for id, element in incoming_pos_map.items()}
 
     # sorted by old start time
-    pos_update: List[Tuple[int, MapID, PosMapElement]] = []
+    pos_update: list[tuple[int, MapID, PosMapElement]] = []
     # sorted by start time
-    pos_add: List[Tuple[MapID, PosMapElement]] = []
+    pos_add: list[tuple[MapID, PosMapElement]] = []
     # sorted by start time
-    pos_delete: List[Tuple[int, MapID]] = []
+    pos_delete: list[tuple[int, MapID]] = []
 
     for frame_id, frame_start, meta, data in local_rev:
         incoming_rev_item = incoming_rev.get(frame_id)
@@ -95,11 +95,11 @@ def update_rev_changes(
     incoming_rev = {id: element.rev for id, element in incoming_control_map.items()}
 
     # sorted by old start time
-    control_update: List[Tuple[int, MapID, ControlMapElement]] = []
+    control_update: list[tuple[int, MapID, ControlMapElement]] = []
     # sorted by start time
-    control_add: List[Tuple[MapID, ControlMapElement]] = []
+    control_add: list[tuple[MapID, ControlMapElement]] = []
     # sorted by start time
-    control_delete: List[Tuple[int, MapID]] = []
+    control_delete: list[tuple[int, MapID]] = []
 
     for frame_id, frame_start, meta, data in local_rev:
         incoming_rev_item = incoming_rev.get(frame_id)

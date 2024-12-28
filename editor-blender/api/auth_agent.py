@@ -1,7 +1,7 @@
 import asyncio
 import traceback
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 from ..client import client
 
@@ -18,10 +18,11 @@ class LoginResult:
 
 class AuthAgent:
     async def login(self, username: str, password: str) -> LoginResult:
+        """Login to the server and get a token or an error message."""
         data = {"username": username, "password": password}
 
         try:
-            res: Dict[str, Any] = await client.post("/login", json=data)
+            res: dict[str, Any] = await client.post("/login", json=data)
             token = res.get("token")
             if not token:
                 raise Exception(res["err"])
@@ -35,8 +36,9 @@ class AuthAgent:
             return LoginResult(success=False, err=str(e))
 
     async def logout(self) -> bool:
+        """Logout from the server."""
         try:
-            res: Dict[str, Any] = await client.post("/logout")
+            res: dict[str, Any] = await client.post("/logout")
             if not res.get("success"):
                 raise Exception(res["err"])
             return True
@@ -49,8 +51,9 @@ class AuthAgent:
             return False
 
     async def check_token(self) -> bool:
+        """Check if the authentication token is still valid."""
         try:
-            res: Dict[str, Any] = await client.get("/checkToken")
+            res: dict[str, Any] = await client.get("/checkToken")
             token = res.get("token")
             if not token:
                 raise Exception(res["err"])

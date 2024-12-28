@@ -1,5 +1,5 @@
 import traceback
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, cast
 
 import blf
 import bpy
@@ -16,11 +16,11 @@ class NameTagSettings:
         self.y_offset: float = 0
         self.z_offset: float = 2.3
         self.fontsize: int = 25
-        self.text_rgba: Tuple[float, float, float, float] = (1, 1, 1, 1)
+        self.text_rgba: tuple[float, float, float, float] = (1, 1, 1, 1)
         self.font_id: int = 0
         self.name_tag_handle: Any = None
         self.name_tag_draw: Any = None
-        self.region: Optional[bpy.types.Region] = None
+        self.region: bpy.types.Region | None = None
 
 
 name_tag_settings = NameTagSettings()
@@ -29,7 +29,7 @@ name_tag_settings = NameTagSettings()
 def name_tag_draw():
     global name_tag_settings
 
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     blf.size(name_tag_settings.font_id, name_tag_settings.fontsize)
     blf.color(name_tag_settings.font_id, *name_tag_settings.text_rgba)
@@ -62,7 +62,7 @@ def name_tag_draw():
             if not text_view_2d:
                 continue
             text_w, text_h = cast(
-                Tuple[float, float], blf.dimensions(name_tag_settings.font_id, name)
+                tuple[float, float], blf.dimensions(name_tag_settings.font_id, name)
             )
             blf.position(
                 name_tag_settings.font_id,
@@ -95,12 +95,12 @@ def mount():
     screen = cast(bpy.types.Screen, bpy.data.screens["Layout"])
     area = next(
         area
-        for area in cast(List[bpy.types.Area], screen.areas)
+        for area in cast(list[bpy.types.Area], screen.areas)
         if area.type == "VIEW_3D"
     )
     region = next(
         region
-        for region in cast(List[bpy.types.Region], area.regions)
+        for region in cast(list[bpy.types.Region], area.regions)
         if region.type == "WINDOW"
     )
     name_tag_settings.region = region

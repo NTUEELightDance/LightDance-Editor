@@ -1,5 +1,3 @@
-from typing import Optional
-
 import bpy
 
 from ....properties.types import PositionPropertyType
@@ -8,11 +6,15 @@ from ...utils.algorithms import binary_search
 
 
 def calculate_current_pos_index() -> int:
+    if not bpy.context:
+        return 0  # Won't actually happen
     return binary_search(state.pos_start_record, bpy.context.scene.frame_current)
 
 
 def update_current_pos_by_index():
     """Update current position by index and set ld_position"""
+    if not bpy.context:
+        return
     index = state.current_pos_index
 
     pos_map = state.pos_map
@@ -31,7 +33,7 @@ def update_current_pos_by_index():
             if dancer_pos is None:
                 continue
 
-            obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+            obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
             if obj is not None:
                 ld_position: PositionPropertyType = getattr(obj, "ld_position")
                 # This also sets the actual location by update handler
@@ -55,7 +57,7 @@ def update_current_pos_by_index():
             if dancer_pos is None or next_dancer_pos is None:
                 continue
 
-            obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+            obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
             ratio = (frame - current_start) / (next_start - current_start)
             if obj is not None:
                 ld_position: PositionPropertyType = getattr(obj, "ld_position")

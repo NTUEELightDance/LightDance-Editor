@@ -1,5 +1,5 @@
 import traceback
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Literal, cast
 
 import bpy
 
@@ -8,14 +8,16 @@ from ....utils.ui import set_dopesheet_filter
 
 # WARNING: This function will crash for now
 def close_area(screen: bpy.types.Screen, area_ui_type: str):
+    if not bpy.context:
+        return
     try:
         area = next(
             area
-            for area in cast(List[bpy.types.Area], screen.areas)
+            for area in cast(list[bpy.types.Area], screen.areas)
             if area.ui_type == area_ui_type
         )
 
-        ctx = cast(Dict[str, Any], bpy.context.copy())
+        ctx = cast(dict[str, Any], bpy.context.copy())
         ctx["screen"] = screen
         ctx["area"] = area
         ctx["region"] = area.regions[-1]
@@ -28,16 +30,21 @@ def close_area(screen: bpy.types.Screen, area_ui_type: str):
 
 
 def split_area(
-    screen: bpy.types.Screen, area_ui_type: str, direction: str, factor: float
+    screen: bpy.types.Screen,
+    area_ui_type: str,
+    direction: Literal["HORIZONTAL", "VERTICAL"],
+    factor: float,
 ):
+    if not bpy.context:
+        return
     try:
         area = next(
             area
-            for area in cast(List[bpy.types.Area], screen.areas)
+            for area in cast(list[bpy.types.Area], screen.areas)
             if area.ui_type == area_ui_type
         )
 
-        ctx = cast(Dict[str, Any], bpy.context.copy())
+        ctx = cast(dict[str, Any], bpy.context.copy())
         ctx["screen"] = screen
         ctx["area"] = area
         ctx["region"] = area.regions[-1]
@@ -51,10 +58,10 @@ def split_area(
 
 def get_area(
     screen: bpy.types.Screen, area_ui_type: str, sort_by: str = "x", index: int = 0
-) -> Optional[bpy.types.Area]:
+) -> bpy.types.Area | None:
     areas = [
         area
-        for area in cast(List[bpy.types.Area], screen.areas)
+        for area in cast(list[bpy.types.Area], screen.areas)
         if area.ui_type == area_ui_type
     ]
 
@@ -70,6 +77,8 @@ def get_area(
 
 
 def setup_display():
+    if not bpy.context:
+        return
     screen = bpy.context.screen
 
     """

@@ -1,7 +1,6 @@
 import asyncio
 import traceback
 from dataclasses import dataclass
-from typing import Tuple
 
 from ..client import client
 from ..core.models import FrameType
@@ -17,7 +16,7 @@ class ShiftResult:
 @dataclass
 class TimeShiftAgent:
     async def shift(
-        self, frame_type: FrameType, interval: Tuple[int, int], displacement: int
+        self, frame_type: FrameType, interval: tuple[int, int], displacement: int
     ) -> ShiftResult:
         try:
             shiftControl = (

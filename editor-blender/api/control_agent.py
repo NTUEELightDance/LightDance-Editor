@@ -1,7 +1,8 @@
 import asyncio
 import traceback
+from collections.abc import Coroutine
 from dataclasses import dataclass
-from typing import Any, Coroutine, List, Optional, Tuple, Union
+from typing import Any
 
 from ..client import client
 from ..core.models import ColorID, ControlMap, ControlRecord, LEDEffectID, MapID
@@ -30,7 +31,8 @@ from ..graphqls.queries import (
 
 @dataclass
 class ControlAgent:
-    async def get_control_record(self) -> Optional[ControlRecord]:
+    async def get_control_record(self) -> ControlRecord | None:
+        """Get the control record from the server."""
         try:
             response = await client.execute(
                 QueryControlRecordData,
@@ -48,7 +50,8 @@ class ControlAgent:
 
         return None
 
-    async def get_control_map_payload(self) -> Optional[QueryControlMapPayload]:
+    async def get_control_map_payload(self) -> QueryControlMapPayload | None:
+        """Get the control map raw payload from the server"""
         try:
             response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
             controlMap = response["ControlMap"]
@@ -63,7 +66,8 @@ class ControlAgent:
 
         return None
 
-    async def get_control_map(self) -> Optional[ControlMap]:
+    async def get_control_map(self) -> ControlMap | None:
+        """Get the control map from the server."""
         try:
             response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
             controlMap = response["ControlMap"]
@@ -82,8 +86,9 @@ class ControlAgent:
         self,
         start: int,
         fade: bool,
-        controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
-    ) -> Optional[str]:
+        controlData: list[list[tuple[ColorID | LEDEffectID, int]]],
+    ) -> str | None:
+        """Add a new control frame to the control map."""
         try:
             response = await client.execute(
                 str,
@@ -103,12 +108,13 @@ class ControlAgent:
     async def save_frame(
         self,
         id: MapID,
-        controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
-        fade: Optional[bool] = None,
-        start: Optional[int] = None,
+        controlData: list[list[tuple[ColorID | LEDEffectID, int]]],
+        fade: bool | None = None,
+        start: int | None = None,
     ):
+        """Edit a control frame in the control map."""
         try:
-            tasks: List[Coroutine[Any, Any, Any]] = []
+            tasks: list[Coroutine[Any, Any, Any]] = []
 
             tasks.append(
                 client.execute(
@@ -144,7 +150,8 @@ class ControlAgent:
             print(err)
             raise err
 
-    async def delete_frame(self, id: MapID) -> Optional[str]:
+    async def delete_frame(self, id: MapID) -> str | None:
+        """Delete a control frame from the control map."""
         try:
             response = await client.execute(
                 str,
@@ -160,7 +167,11 @@ class ControlAgent:
             print(err)
             raise err
 
-    async def request_edit(self, id: MapID) -> Optional[bool]:
+    async def request_edit(self, id: MapID) -> bool | None:
+        """Request to edit a control frame.
+        Returns True if the request is successful, the server will prevent other users from editing the frame.
+        Returns False if other users are editing the frame.
+        """
         try:
             response = await client.execute(
                 MutRequestEditControlResponse,
@@ -176,7 +187,8 @@ class ControlAgent:
             print(err)
             raise err
 
-    async def cancel_edit(self, id: MapID) -> Optional[bool]:
+    async def cancel_edit(self, id: MapID) -> bool | None:
+        """Cancel the edit request of the control frame."""
         try:
             response = await client.execute(
                 MutCancelEditControlResponse, CANCEL_EDIT_CONTROL_BY_ID, {"frameId": id}

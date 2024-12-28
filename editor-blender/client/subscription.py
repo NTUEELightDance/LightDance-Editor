@@ -1,5 +1,4 @@
 import asyncio
-from typing import List, Optional
 
 from ..client import Clients, client
 from ..client.cache import Modifiers
@@ -63,10 +62,10 @@ async def sub_pos_record(client: Clients):
     async for data in client.subscribe(SubPositionRecordData, SUB_POS_RECORD):
         # print("SubPosRecord:", data)
 
-        async def modifier(posRecord: Optional[QueryPosRecordData]):
+        async def modifier(posRecord: QueryPosRecordData | None):
             subscriptionData = data["positionRecordSubscription"]
 
-            newPosRecord: List[ID] = []
+            newPosRecord: list[ID] = []
             if posRecord is not None:
                 newPosRecord = posRecord
 
@@ -101,7 +100,7 @@ async def sub_pos_map(client: Clients):
     async for data in client.subscribe(SubPositionMapData, SUB_POS_MAP):
         # print("SubPosMap:", data)
 
-        async def modifier(posMap: Optional[QueryPosMapData]):
+        async def modifier(posMap: QueryPosMapData | None):
             subscriptionData = data["positionMapSubscription"]
 
             newPosMap = QueryPosMapData(frameIds={})
@@ -143,10 +142,10 @@ async def sub_control_record(client: Clients):
     async for data in client.subscribe(SubControlRecordData, SUB_CONTROL_RECORD):
         # print("SubControlRecord:", data)
 
-        async def modifier(controlRecord: Optional[QueryControlRecordData]):
+        async def modifier(controlRecord: QueryControlRecordData | None):
             subscriptionData = data["controlRecordSubscription"]
 
-            newControlRecord: List[ID] = []
+            newControlRecord: list[ID] = []
             if controlRecord is not None:
                 newControlRecord = controlRecord
 
@@ -189,7 +188,7 @@ async def sub_control_map(client: Clients):
     async for data in client.subscribe(SubControlMapData, SUB_CONTROL_MAP):
         # print("SubControlMap:", data)
 
-        async def modifier(controlMap: Optional[QueryControlMapData]):
+        async def modifier(controlMap: QueryControlMapData | None):
             subscriptionData = data["controlMapSubscription"]
 
             newControlMap = QueryControlMapData(frameIds={})
@@ -234,7 +233,7 @@ async def sub_effect_list(client: Clients):
     async for data in client.subscribe(SubEffectListData, SUB_EFFECT_LIST):
         # print("SubEffectList:", data)
 
-        async def modifier(effectList: Optional[QueryEffectListData]):
+        async def modifier(effectList: QueryEffectListData | None):
             subscriptionData = data["effectListSubscription"]
 
             newEffectList: QueryEffectListData = []
@@ -261,7 +260,7 @@ async def sub_led_record(client: Clients):
     async for data in client.subscribe(SubLEDRecordData, SUB_LED_RECORD):
         # print("SubEffectRecord:", data)
 
-        async def modifier(LedMap: Optional[LEDMap]):
+        async def modifier(LedMap: LEDMap | None):
             subscriptionData = data["ledRecordSubscription"]
 
             newLedMap: LEDMap = {}
@@ -303,7 +302,7 @@ async def sub_color_map(client: Clients):
     async for data in client.subscribe(SubColorData, SUB_COLOR_MAP):
         # print("SubColorMap:", data)
 
-        async def modifier(colorMap: Optional[QueryColorMapData]):
+        async def modifier(colorMap: QueryColorMapData | None):
             subscriptionData = data["colorSubscription"]
 
             newColorMap = QueryColorMapData(colorMap={})
@@ -347,7 +346,7 @@ async def sub_color_map(client: Clients):
         await client.cache.modify(Modifiers(fields={"colorMap": modifier}))
 
 
-subscription_task: Optional[asyncio.Task[None]] = None
+subscription_task: asyncio.Task[None] | None = None
 
 
 async def subscribe():

@@ -1,13 +1,14 @@
 import asyncio
 import time
 import traceback
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import bpy
 
 from ..asyncio import AsyncTask
 
-slider_dragging_callback: Optional[Callable[[], None]] = None
+slider_dragging_callback: Callable[[], None] | None = None
 
 
 def set_slider_dragging_callback(callback: Callable[[], None]):

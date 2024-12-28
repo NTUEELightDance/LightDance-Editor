@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, List, Optional
+from typing import Any
 
 import bpy
 
@@ -10,13 +10,15 @@ from ...utils.ui import redraw_area
 
 
 class Countdown_task_class:
-    task: Optional[asyncio.Task[Any]] = None
+    task: asyncio.Task[Any] | None = None
 
 
 countdown_task = Countdown_task_class()
 
 
 def set_command_status(connected: bool):
+    if not bpy.context:
+        return
     command_status: CommandCenterStatusType = getattr(
         bpy.context.window_manager, "ld_ui_command_center"
     )
@@ -24,7 +26,9 @@ def set_command_status(connected: bool):
 
 
 def set_RPi_props_from_state():
-    rpi_props: List[CommandCenterRPiStatusType] = getattr(
+    if not bpy.context:
+        return
+    rpi_props: list[CommandCenterRPiStatusType] = getattr(
         bpy.context.window_manager, "ld_ui_rpi_status"
     )
 
@@ -67,8 +71,10 @@ def set_RPi_props_from_state():
             rpi_item.statusCode = interface_status.statusCode
 
 
-def get_selected_dancer() -> List[str]:
-    rpi_status_list: List[CommandCenterRPiStatusType] = getattr(
+def get_selected_dancer() -> list[str]:
+    if not bpy.context:
+        return []
+    rpi_status_list: list[CommandCenterRPiStatusType] = getattr(
         bpy.context.window_manager, "ld_ui_rpi_status"
     )
     return [item.name for item in rpi_status_list if item.selected]
@@ -76,6 +82,8 @@ def get_selected_dancer() -> List[str]:
 
 def set_countdown(delay: int):
     async def countdown(delay: int):
+        if not bpy.context:
+            return
         command_status: CommandCenterStatusType = getattr(
             bpy.context.window_manager, "ld_ui_command_center"
         )

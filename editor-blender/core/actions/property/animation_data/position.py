@@ -1,4 +1,10 @@
-from typing import Dict, List, Optional, Tuple, cast
+"""
+position.py
+
+- This file contains functions to update position keyframes in Blender.
+"""
+
+from typing import cast
 
 import bpy
 
@@ -15,6 +21,8 @@ from .utils import ensure_action, ensure_curve, get_keyframe_points
 
 
 def reset_pos_frames():
+    if not bpy.context:
+        return
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
     curve = ensure_curve(
@@ -33,7 +41,9 @@ def reset_pos_frames():
         point.select_control_point = False
 
 
-def reset_pos_rev(sorted_pos_map: List[Tuple[MapID, PosMapElement]]):
+def reset_pos_rev(sorted_pos_map: list[tuple[MapID, PosMapElement]]):
+    if not bpy.context:
+        return
     getattr(bpy.context.scene, "ld_pos_rev").clear()
     for _, (id, pos_map_element) in enumerate(sorted_pos_map):
         frame_start = pos_map_element.start
@@ -51,10 +61,12 @@ def reset_pos_rev(sorted_pos_map: List[Tuple[MapID, PosMapElement]]):
 
 
 def update_pos_frames(
-    delete_frames: List[int],
-    update_frames: List[Tuple[int, int]],
-    add_frames: List[int],
+    delete_frames: list[int],
+    update_frames: list[tuple[int, int]],
+    add_frames: list[int],
 ):
+    if not bpy.context:
+        return
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
 
@@ -79,7 +91,7 @@ def update_pos_frames(
     # Update frames
     kpoints_len = len(kpoints_list)
     curve_index = 0
-    points_to_update: List[Tuple[int, bpy.types.Keyframe]] = []
+    points_to_update: list[tuple[int, bpy.types.Keyframe]] = []
 
     for old_start, frame_start in update_frames:
         while (
@@ -113,8 +125,10 @@ setups & update colormap(===setups)
 """
 
 
-def init_pos_keyframes_from_state(dancers_reset: Optional[List[bool]] = None):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
+    if not bpy.context:
+        return
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     pos_map = state.pos_map
     pos_frame_number = len(pos_map)
@@ -187,7 +201,7 @@ update position keyframes
 
 
 def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_item in state.dancers_array:
         dancer_name = dancer_item.name
@@ -225,7 +239,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         update_reorder = False
         if update:
             curve_index = 0
-            points_to_update: List[Tuple[int, bpy.types.Keyframe, float]] = []
+            points_to_update: list[tuple[int, bpy.types.Keyframe, float]] = []
 
             for old_start, frame_start, pos in frames[1]:
                 if old_start != frame_start:

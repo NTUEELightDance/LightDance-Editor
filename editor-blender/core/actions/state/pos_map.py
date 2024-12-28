@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from ...models import EditMode, MapID, PosMap, PosMapElement, PosRecord
 from ...states import state
 from ...utils.convert import pos_modify_to_animation_data

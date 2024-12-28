@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
 
 from dataclass_wizard import JSONWizard
 from gql import gql
@@ -12,9 +11,9 @@ Misc Types
 """
 
 
-SubLEDControl = Tuple[ColorID, int]
-SubFiberControl = Tuple[ColorID, int]
-SubPartControl = Union[SubLEDControl, SubFiberControl]
+SubLEDControl = tuple[ColorID, int]
+SubFiberControl = tuple[ColorID, int]
+SubPartControl = SubLEDControl | SubFiberControl
 
 
 @dataclass
@@ -41,9 +40,9 @@ class SubPositionRecordData(JSONWizard):
     mutation: SubPositionMutation
     editBy: int
     index: int
-    addID: List[int]
-    updateID: List[int]
-    deleteID: List[int]
+    addID: list[int]
+    updateID: list[int]
+    deleteID: list[int]
 
 
 SUB_POS_RECORD = gql(
@@ -67,22 +66,22 @@ PositionMap
 """
 
 
-SubPosition = Tuple[float, float, float]
+SubPosition = tuple[float, float, float]
 
 
 @dataclass
 class SubPositionFrame(JSONWizard):
     start: int
-    pos: List[SubPosition]
+    pos: list[SubPosition]
     rev: SubRevision
-    editing: Optional[str] = None
+    editing: str | None = None
 
 
 @dataclass
 class SubPositionMapDataScalar(JSONWizard):
-    createFrames: Dict[ID, SubPositionFrame]
-    updateFrames: Dict[ID, SubPositionFrame]
-    deleteFrames: List[ID]
+    createFrames: dict[ID, SubPositionFrame]
+    updateFrames: dict[ID, SubPositionFrame]
+    deleteFrames: list[ID]
 
 
 @dataclass
@@ -121,9 +120,9 @@ class SubControlRecordData(JSONWizard):
     mutation: SubControlMutation
     editBy: int
     index: int
-    addID: List[int]
-    updateID: List[int]
-    deleteID: List[int]
+    addID: list[int]
+    updateID: list[int]
+    deleteID: list[int]
 
 
 SUB_CONTROL_RECORD = gql(
@@ -152,15 +151,15 @@ class SubControlFrame(JSONWizard):
     fade: bool
     start: int
     rev: SubRevision
-    status: List[List[SubPartControl]]
-    editing: Optional[str] = None
+    status: list[list[SubPartControl]]
+    editing: str | None = None
 
 
 @dataclass
 class SubControlMapDataScalar(JSONWizard):
-    createFrames: Dict[ID, SubControlFrame]
-    updateFrames: Dict[ID, SubControlFrame]
-    deleteFrames: List[ID]
+    createFrames: dict[ID, SubControlFrame]
+    updateFrames: dict[ID, SubControlFrame]
+    deleteFrames: list[ID]
 
 
 @dataclass
@@ -210,8 +209,8 @@ class SubEffectListItemData(JSONWizard):
     end: int
     description: str
     id: int
-    controlFrames: List[SubEffectListControlFrame]
-    positionFrames: List[SubEffectListPositionFrame]
+    controlFrames: list[SubEffectListControlFrame]
+    positionFrames: list[SubEffectListPositionFrame]
 
 
 @dataclass
@@ -245,7 +244,7 @@ SUB_EFFECT_LIST = gql(
 
 @dataclass
 class SubLEDRecordDataBulbData(JSONWizard):
-    LEDs: List[Tuple[int, int]]
+    LEDs: list[tuple[int, int]]
 
 
 @dataclass
@@ -254,14 +253,14 @@ class SubLEDRecordDataItem(JSONWizard):
     name: str
     modelName: str
     partName: str
-    frames: List[SubLEDRecordDataBulbData]
+    frames: list[SubLEDRecordDataBulbData]
 
 
 @dataclass
 class SubLEDRecordData(JSONWizard):
-    createEffects: List[SubLEDRecordDataItem]
-    updateEffects: List[SubLEDRecordDataItem]
-    deleteEffects: List[SubLEDRecordDataItem]
+    createEffects: list[SubLEDRecordDataItem]
+    updateEffects: list[SubLEDRecordDataItem]
+    deleteEffects: list[SubLEDRecordDataItem]
 
 
 SUB_LED_RECORD = gql(
@@ -316,8 +315,8 @@ class SubColorMutation(Enum):
 class SubColorData(JSONWizard):
     id: ColorID
     mutation: SubColorMutation
-    color: Optional[str] = None
-    colorCode: Optional[RGB] = None
+    color: str | None = None
+    colorCode: RGB | None = None
 
 
 SUB_COLOR_MAP = gql(

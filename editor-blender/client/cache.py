@@ -1,25 +1,14 @@
 import traceback
+from collections.abc import Callable, Coroutine
 from copy import deepcopy
 from dataclasses import dataclass
 from inspect import iscoroutine
-from typing import (
-    Any,
-    Callable,
-    Coroutine,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import Any, Generic, TypeVar
 
 from dataclass_wizard import JSONWizard
 from typeguard import check_type
 
-Cache = Dict[str, Optional[Any]]
+Cache = dict[str, Any | None]
 
 T = TypeVar("T")
 
@@ -31,26 +20,26 @@ class FieldPolicy(Generic[T]):
 
 @dataclass
 class TypePolicy(Generic[T]):
-    fields: Dict[str, FieldPolicy[T]]
+    fields: dict[str, FieldPolicy[T]]
 
 
-TypePolicies = Dict[str, TypePolicy[Any]]
+TypePolicies = dict[str, TypePolicy[Any]]
 
 K = TypeVar("K")
 MK = TypeVar("MK")
 
-Modifier = Callable[[K], Union[K, Coroutine[Any, Any, K]]]
+Modifier = Callable[[K], K | Coroutine[Any, Any, K]]
 
 
 @dataclass
 class Modifiers(Generic[MK]):
-    fields: Dict[str, Modifier[MK]]
+    fields: dict[str, Modifier[MK]]
 
 
-FieldTable = Tuple[str, Optional[List[str]]]
+FieldTable = tuple[str, list[str] | None]
 
 
-def query_defs_to_field_table(query_defs: Dict[str, Any]) -> FieldTable:
+def query_defs_to_field_table(query_defs: dict[str, Any]) -> FieldTable:
     definition = query_defs["definitions"][0]
 
     query_def = definition["selection_set"]["selections"][0]
@@ -93,7 +82,7 @@ class InMemoryCache:
         self.cache: Cache = {}
         self.policies: TypePolicies = policies
 
-    async def modify(self, modifiers: Modifiers[Optional[Any]]) -> None:
+    async def modify(self, modifiers: Modifiers[Any | None]) -> None:
         fields = modifiers.fields
 
         for field_name, modifier in fields.items():
@@ -107,8 +96,8 @@ class InMemoryCache:
                     self.cache[field_name] = modified_cache_data
 
     async def read_query(
-        self, response_type: Type[T], query_def: FieldTable
-    ) -> Optional[Dict[str, T]]:
+        self, response_type: type[T], query_def: FieldTable
+    ) -> dict[str, T] | None:
         query_name, query_field_names = query_def
 
         cache_data = self.cache.get(query_name)
@@ -118,7 +107,7 @@ class InMemoryCache:
             traceback.print_exc()
             return None
 
-        response: Dict[str, response_type] = {}
+        response: dict[str, response_type] = {}
 
         if query_field_names is not None:
             if not isinstance(cache_data, JSONWizard):
@@ -132,7 +121,7 @@ class InMemoryCache:
 
         return response
 
-    async def write_query(self, data: Dict[str, Any]) -> None:
+    async def write_query(self, data: dict[str, Any]) -> None:
         query_name, response = list(data.items())[0]
         response_type = type(response)  # type: ignore
 
@@ -141,7 +130,7 @@ class InMemoryCache:
             raise Exception("Cache structure not match query")
 
         if isinstance(response, JSONWizard):
-            new_cache_data_dict: Dict[str, Any] = {}
+            new_cache_data_dict: dict[str, Any] = {}
             for key in response_type.__dataclass_fields__.keys():  # type: ignore
                 new_cache_data_dict[key] = None  # type: ignore
             new_cache_data = response_type(**new_cache_data_dict)

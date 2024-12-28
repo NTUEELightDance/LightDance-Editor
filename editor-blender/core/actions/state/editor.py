@@ -16,7 +16,9 @@ from ...utils.ui import (
 
 
 def setup_control_editor():
-    bpy.context.view_layer.objects.active = None  # type: ignore
+    if not bpy.context:
+        return
+    bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
     clear_selection()
 
@@ -39,7 +41,9 @@ def setup_control_editor():
 
 
 def setup_pos_editor():
-    bpy.context.view_layer.objects.active = None  # type: ignore
+    if not bpy.context:
+        return
+    bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
     clear_selection()
 
@@ -57,7 +61,9 @@ def setup_pos_editor():
 
 
 def setup_led_editor():
-    bpy.context.view_layer.objects.active = None  # type: ignore
+    if not bpy.context:
+        return
+    bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
     clear_selection()
 

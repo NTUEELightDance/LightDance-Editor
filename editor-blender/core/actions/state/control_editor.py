@@ -1,5 +1,4 @@
 import traceback
-from typing import List, Optional
 
 import bpy
 
@@ -26,6 +25,8 @@ from .current_status import update_current_status_by_index
 
 def attach_editing_control_frame():
     """Attach to editing frame and sync location to ld_position"""
+    if not bpy.context:
+        return
     current_frame = state.current_editing_frame
 
     state.current_editing_detached = False
@@ -40,10 +41,10 @@ def attach_editing_control_frame():
 def sync_editing_control_frame_properties():
     """Sync location to ld_position"""
     for dancer in state.dancers_array:
-        dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
-            part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
-            part_obj_names: List[str] = [
+            part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
+            part_obj_names: list[str] = [
                 getattr(obj, "ld_part_name") for obj in part_objs
             ]
 
@@ -70,6 +71,8 @@ def sync_editing_control_frame_properties():
 
 
 async def add_control_frame():
+    if not bpy.context:
+        return
     start = bpy.context.scene.frame_current
     controlData = control_status_state_to_mut(state.current_status)
 
@@ -84,21 +87,23 @@ async def add_control_frame():
     set_requesting(False)
 
 
-async def save_control_frame(start: Optional[int] = None):
+async def save_control_frame(start: int | None = None):
+    if not bpy.context:
+        return
     id = state.editing_data.frame_id
 
     fade: bool = getattr(bpy.context.window_manager, "ld_fade")
 
-    controlData: List[MutDancerStatusPayload] = []
+    controlData: list[MutDancerStatusPayload] = []
     default_color = list(state.color_map.keys())[0]
 
     for dancer in state.dancers_array:
         partControlData: MutDancerStatusPayload = []
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
 
         if obj is not None:
-            part_objs: List[bpy.types.Object] = getattr(obj, "children")
-            part_obj_names: List[str] = [
+            part_objs: list[bpy.types.Object] = getattr(obj, "children")
+            part_obj_names: list[str] = [
                 getattr(obj, "ld_part_name") for obj in part_objs
             ]
 

@@ -19,6 +19,8 @@ def get_current_frame_index(self: bpy.types.WindowManager) -> str:
 
 
 def set_current_frame_index(self: bpy.types.WindowManager, value: str):
+    if not bpy.context:
+        return
     if str.isnumeric(value):
         num = int(value)
         match state.editor:
@@ -81,6 +83,8 @@ def get_play_speed(self: bpy.types.WindowManager) -> float:
 
 
 def set_play_speed(self: bpy.types.WindowManager, value: float):
+    if not bpy.context:
+        return
     if bpy.context.screen.is_animation_playing:
         return
 
@@ -97,6 +101,8 @@ def get_time(self: bpy.types.WindowManager) -> str:
 
 
 def set_time(self: bpy.types.WindowManager, value: str):
+    if not bpy.context:
+        return
     frame = time_to_frame(value)
     if frame < 0:
         return

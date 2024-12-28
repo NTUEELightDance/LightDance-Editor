@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union, cast
+from typing import cast
 
 from ...graphqls.mutations import MutDancerStatusPayload
 from ...graphqls.queries import (
@@ -108,7 +108,7 @@ def coordinates_query_to_state(payload: QueryCoordinatesPayload) -> Location:
     return Location(x=payload[0], y=payload[1], z=payload[2])
 
 
-def pos_status_query_to_state(payload: List[QueryCoordinatesPayload]) -> PosMapStatus:
+def pos_status_query_to_state(payload: list[QueryCoordinatesPayload]) -> PosMapStatus:
     pos_map_status: PosMapStatus = {}
 
     for dancerIndex, dancerStatus in enumerate(payload):
@@ -141,7 +141,7 @@ def part_data_query_to_state(
 
 def part_data_state_to_mut(
     part_data: PartData,
-) -> Tuple[Union[LEDEffectID, ColorID], int]:
+) -> tuple[LEDEffectID | ColorID, int]:
     if isinstance(part_data, LEDData):
         return (part_data.effect_id, part_data.alpha)
     else:
@@ -149,7 +149,7 @@ def part_data_state_to_mut(
 
 
 def control_status_query_to_state(
-    payload: List[QueryDancerStatusPayload],
+    payload: list[QueryDancerStatusPayload],
 ) -> ControlMapStatus:
     control_map_status: ControlMapStatus = {}
 
@@ -206,8 +206,8 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
 
 def control_status_state_to_mut(
     control_status: ControlMapStatus,
-) -> List[MutDancerStatusPayload]:
-    mut_dancer_status_payload: List[MutDancerStatusPayload] = []
+) -> list[MutDancerStatusPayload]:
+    mut_dancer_status_payload: list[MutDancerStatusPayload] = []
 
     for dancer in state.dancers_array:
         dancer_name = dancer.name
@@ -222,7 +222,7 @@ def control_status_state_to_mut(
     return mut_dancer_status_payload
 
 
-def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
+def rgb_to_hex(rgb: tuple[int, int, int]) -> str:
     r, g, b = rgb
     return f"#{r:02x}{g:02x}{b:02x}"
 
@@ -307,15 +307,15 @@ def led_record_sub_to_state_item(led_payload_item: SubLEDRecordDataItem) -> LEDE
     return LEDEffect(id=led_payload_item.id, name=led_payload_item.name, effect=effect)
 
 
-def rgb_to_float(rgb: Tuple[int, ...]) -> Tuple[float, ...]:
+def rgb_to_float(rgb: tuple[int, ...]) -> tuple[float, ...]:
     return tuple([color / 255 for color in rgb])
 
 
-def float_to_rgb(color_float: Tuple[float, ...]) -> Tuple[int, ...]:
+def float_to_rgb(color_float: tuple[float, ...]) -> tuple[int, ...]:
     return tuple([round(color * 255) for color in color_float])
 
 
-def rgba_to_float(rgb: Union[Tuple[int, ...], List[int]], a: int) -> Tuple[float, ...]:
+def rgba_to_float(rgb: tuple[int, ...] | list[int], a: int) -> tuple[float, ...]:
     r, g, b = rgb
     a_float = a / 255
     return (
@@ -355,19 +355,19 @@ def time_to_frame(time: str) -> int:
     return (minutes * 60 + seconds) * 1000 + milliseconds
 
 
-PosDeleteCurveData = List[int]
-PosUpdateCurveData = List[Tuple[int, int, Tuple[float, float, float]]]
-PosAddCurveData = List[Tuple[int, Tuple[float, float, float]]]
+PosDeleteCurveData = list[int]
+PosUpdateCurveData = list[tuple[int, int, tuple[float, float, float]]]
+PosAddCurveData = list[tuple[int, tuple[float, float, float]]]
 
-PosModifyAnimationData = Dict[
-    DancerName, Tuple[PosDeleteCurveData, PosUpdateCurveData, PosAddCurveData]
+PosModifyAnimationData = dict[
+    DancerName, tuple[PosDeleteCurveData, PosUpdateCurveData, PosAddCurveData]
 ]
 
 
 def pos_modify_to_animation_data(
-    pos_delete: List[Tuple[int, MapID]],
-    pos_update: List[Tuple[int, MapID, PosMapElement]],
-    pos_add: List[Tuple[MapID, PosMapElement]],
+    pos_delete: list[tuple[int, MapID]],
+    pos_update: list[tuple[int, MapID, PosMapElement]],
+    pos_add: list[tuple[MapID, PosMapElement]],
 ) -> PosModifyAnimationData:
     new_map: PosModifyAnimationData = {}
     for dancer in state.dancers_array:
@@ -397,77 +397,65 @@ def pos_modify_to_animation_data(
     return new_map
 
 
-ControlAnimationData = Dict[
+ControlAnimationData = dict[
     DancerName,
-    Dict[
+    dict[
         PartName,
-        Union[
-            List[Tuple[int, bool, Tuple[float, float, float]]],
-            List[List[Tuple[int, bool, Tuple[float, float, float]]]],
-        ],
+        (
+            list[tuple[int, bool, tuple[float, float, float]]]
+            | list[list[tuple[int, bool, tuple[float, float, float]]]]
+        ),
     ],
 ]
 
-ControlDeleteCurveData = List[int]
-ControlUpdateCurveData = List[Tuple[int, int, bool, Tuple[float, float, float]]]
-ControlAddCurveData = List[Tuple[int, bool, Tuple[float, float, float]]]
+ControlDeleteCurveData = list[int]
+ControlUpdateCurveData = list[tuple[int, int, bool, tuple[float, float, float]]]
+ControlAddCurveData = list[tuple[int, bool, tuple[float, float, float]]]
 
-ControlModifyAnimationData = Dict[
+ControlModifyAnimationData = dict[
     DancerName,
-    Dict[
+    dict[
         PartName,
-        Union[
-            Tuple[
+        (
+            tuple[
                 ControlDeleteCurveData,
                 ControlUpdateCurveData,
                 ControlAddCurveData,
-            ],
-            List[
-                Tuple[
+            ]
+            | list[
+                tuple[
                     ControlDeleteCurveData,
                     ControlUpdateCurveData,
                     ControlAddCurveData,
                 ]
-            ],
-        ],
+            ]
+        ),
     ],
 ]
 
-ControlUpdateAnimationData = Dict[
+ControlUpdateAnimationData = dict[
     DancerName,
-    Dict[
+    dict[
         PartName,
-        Union[
-            ControlUpdateCurveData,
-            List[ControlUpdateCurveData],
-        ],
+        ControlUpdateCurveData | list[ControlUpdateCurveData],
     ],
 ]
 
-ControlDeleteAnimationData = Dict[
+ControlDeleteAnimationData = dict[
     DancerName,
-    Dict[
-        PartName,
-        Union[ControlDeleteCurveData, List[ControlDeleteCurveData]],
-    ],
+    dict[PartName, ControlDeleteCurveData | list[ControlDeleteCurveData]],
 ]
 
-ControlAddAnimationData = Dict[
+ControlAddAnimationData = dict[
     DancerName,
-    Dict[
-        PartName,
-        Union[
-            ControlAddCurveData,
-            List[ControlAddCurveData],
-        ],
-    ],
+    dict[PartName, ControlAddCurveData | list[ControlAddCurveData]],
 ]
 
 
 def control_modify_to_animation_data(
-    control_delete: List[Tuple[int, MapID]],
-    control_update: List[Tuple[int, MapID, ControlMapElement]],
-    control_add: List[Tuple[MapID, ControlMapElement]],
+    control_delete: list[tuple[int, MapID]],
+    control_update: list[tuple[int, MapID, ControlMapElement]],
+    control_add: list[tuple[MapID, ControlMapElement]],
 ) -> ControlModifyAnimationData:
     new_map: ControlModifyAnimationData = {}
     for dancer_name in state.dancers_array:
@@ -483,7 +471,7 @@ def control_modify_to_animation_data(
 
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
-    prev_effect_ids: Dict[DancerName, Dict[PartName, List[int]]] = {}
+    prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
 
     for old_start, _ in control_delete:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -604,7 +592,7 @@ def control_modify_to_animation_data(
 
 
 def control_add_to_animation_data(
-    control_add: List[Tuple[MapID, ControlMapElement]],
+    control_add: list[tuple[MapID, ControlMapElement]],
 ) -> ControlAddAnimationData:
     new_map: ControlAddAnimationData = {}
     for dancer_name in state.dancers_array:
@@ -614,7 +602,7 @@ def control_add_to_animation_data(
 
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
-    prev_effect_ids: Dict[DancerName, Dict[PartName, List[int]]] = {}
+    prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
 
     for _, frame in control_add:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -670,7 +658,7 @@ def control_add_to_animation_data(
 
 
 def control_delete_to_animation_data(
-    control_delete: List[Tuple[int, MapID]]
+    control_delete: list[tuple[int, MapID]]
 ) -> ControlDeleteAnimationData:
     new_map: ControlDeleteAnimationData = {}
     for dancer_name in state.dancers_array:
@@ -703,7 +691,7 @@ def control_delete_to_animation_data(
 
 
 def control_update_to_animation_data(
-    control_update: List[Tuple[int, MapID, ControlMapElement]],
+    control_update: list[tuple[int, MapID, ControlMapElement]],
 ) -> ControlUpdateAnimationData:
     new_map: ControlUpdateAnimationData = {}
     for dancer_name in state.dancers_array:
@@ -713,7 +701,7 @@ def control_update_to_animation_data(
 
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
-    prev_effect_ids: Dict[DancerName, Dict[PartName, List[int]]] = {}
+    prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
 
     for old_start, _, frame in control_update:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -770,7 +758,7 @@ def control_update_to_animation_data(
 
 # Control map needs to be sorted by start time
 def control_map_to_animation_data(
-    control_map: List[Tuple[MapID, ControlMapElement]],
+    control_map: list[tuple[MapID, ControlMapElement]],
 ) -> ControlAnimationData:
     new_map: ControlAnimationData = {}
     for dancer_name in state.dancers_array:
@@ -780,7 +768,7 @@ def control_map_to_animation_data(
 
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
-    prev_effect_ids: Dict[DancerName, Dict[PartName, List[int]]] = {}
+    prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
 
     for _, frame in control_map:
         for _, dancer_item in enumerate(state.dancers_array):

@@ -5,6 +5,8 @@ def setup_render():
     """
     clean render settings
     """
+    if not bpy.context:
+        return
     bpy.context.scene.render.fps = 1000
     bpy.context.scene.render.fps_base = 1.0
 

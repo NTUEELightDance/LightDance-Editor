@@ -1,4 +1,4 @@
-from typing import List, Optional, cast
+from typing import cast
 
 import bpy
 
@@ -123,10 +123,10 @@ def apply_color_map_updates_update():
 
 def remove_color_in_editing_status(id: ColorID):
     for dancer in state.dancers_array:
-        dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
-            part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
-            part_obj_names: List[str] = [
+            part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
+            part_obj_names: list[str] = [
                 getattr(obj, "ld_part_name") for obj in part_objs
             ]
 

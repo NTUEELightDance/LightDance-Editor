@@ -1,13 +1,12 @@
 import os
 from os import path
-from typing import Dict, List, Tuple
 
 import bpy
 import bpy.utils.previews
 
 from ..core.models import Color
 
-icon_collections: Dict[str, bpy.utils.previews.ImagePreviewCollection] = {}
+icon_collections: dict[str, bpy.utils.previews.ImagePreviewCollection] = {}
 
 
 TEMPLATE = """
@@ -27,7 +26,7 @@ TEMPLATE = """
 """
 
 
-def generate_icon(rgb: Tuple[int, int, int], size: int, fill: float) -> str:
+def generate_icon(rgb: tuple[int, int, int], size: int, fill: float) -> str:
     radius = size / 2 * fill
 
     content = TEMPLATE.replace("($size)", str(size))
@@ -42,7 +41,7 @@ def generate_icon(rgb: Tuple[int, int, int], size: int, fill: float) -> str:
     return content
 
 
-def generate_icon_images(colors: List[Color], clear: bool = False):
+def generate_icon_images(colors: list[Color], clear: bool = False):
     if "main" in icon_collections:
         collection = icon_collections["main"]
         bpy.utils.previews.remove(collection)

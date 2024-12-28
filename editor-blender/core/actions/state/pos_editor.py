@@ -1,5 +1,4 @@
 import traceback
-from typing import List, Optional
 
 import bpy
 
@@ -16,6 +15,8 @@ from .pos_map import apply_pos_map_updates
 
 def attach_editing_pos_frame():
     """Attach to editing frame and sync location to ld_position"""
+    if not bpy.context:
+        return
     current_frame = state.current_editing_frame
 
     state.current_editing_detached = False
@@ -31,7 +32,7 @@ def sync_editing_pos_frame_properties():
     """Sync location to ld_position"""
     for dancer_name in state.dancer_names:
         # print(f"Syncing {dancer_name} to editing frame")
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             obj.location = ld_position.transform
@@ -39,11 +40,13 @@ def sync_editing_pos_frame_properties():
 
 
 async def add_pos_frame():
+    if not bpy.context:
+        return
     start = bpy.context.scene.frame_current
     # Get current position data from ld_position
-    positionData: List[List[float]] = []
+    positionData: list[list[float]] = []
     for dancer_name in state.dancer_names:
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             positionData.append(
@@ -67,13 +70,13 @@ async def add_pos_frame():
     set_requesting(False)
 
 
-async def save_pos_frame(start: Optional[int] = None):
+async def save_pos_frame(start: int | None = None):
     id = state.editing_data.frame_id
     # Get current position data from ld_position
-    positionData: List[List[float]] = []
+    positionData: list[list[float]] = []
 
     for dancer_name in state.dancer_names:
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             positionData.append(

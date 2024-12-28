@@ -1,5 +1,4 @@
 import asyncio
-from typing import Set
 
 import bpy
 
@@ -12,7 +11,7 @@ async def update_user_log(message: str):
     await asyncio.sleep(0.1)
 
 
-def redraw_area(area_types: Set[str]):
+def redraw_area(area_types: set[str]):
     if bpy.context.screen is None:  # type: ignore
         return
 

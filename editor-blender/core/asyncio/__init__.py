@@ -1,18 +1,19 @@
 import asyncio
 import inspect
 import traceback
-from typing import Any, Callable, Coroutine, Dict, Generic, Optional, Tuple, TypeVar
+from collections.abc import Callable, Coroutine
+from typing import Any, Generic, TypeVar
 
 R = TypeVar("R")
 
 
 class AsyncTask(Generic[R]):
     task: Callable[..., Coroutine[Any, Any, R]]
-    then_callback: Callable[[R], Optional[Coroutine[Any, Any, None]]] | None
-    catch_callback: Callable[[Exception], Optional[Coroutine[Any, Any, None]]] | None
+    then_callback: Callable[[R], Coroutine[Any, Any, None] | None] | None
+    catch_callback: Callable[[Exception], Coroutine[Any, Any, None] | None] | None
 
-    args: Tuple[Any, ...]
-    kwargs: Dict[str, Any]
+    args: tuple[Any, ...]
+    kwargs: dict[str, Any]
 
     def __init__(
         self, task: Callable[..., Coroutine[Any, Any, R]], *args: Any, **kwargs: Any
@@ -43,13 +44,13 @@ class AsyncTask(Generic[R]):
                     self.catch_callback(err)
 
     def then(
-        self, callback: Callable[[R], Optional[Coroutine[Any, Any, None]]]
+        self, callback: Callable[[R], Coroutine[Any, Any, None] | None]
     ) -> "AsyncTask[R]":
         self.then_callback = callback
         return self
 
     def catch(
-        self, callback: Callable[[Exception], Optional[Coroutine[Any, Any, None]]]
+        self, callback: Callable[[Exception], Coroutine[Any, Any, None] | None]
     ) -> "AsyncTask[R]":
         self.catch_callback = callback
         return self

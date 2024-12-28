@@ -1,11 +1,9 @@
-from typing import Optional, Tuple
-
 from ...api.control_agent import control_agent
 from ...api.pos_agent import pos_agent
 from ..models import ControlMap, ControlRecord, PosMap, PosRecord
 
 
-async def get_control() -> Tuple[Optional[ControlMap], Optional[ControlRecord]]:
+async def get_control() -> tuple[ControlMap | None, ControlRecord | None]:
     control_record = await control_agent.get_control_record()
     control_map = await control_agent.get_control_map()
 
@@ -29,7 +27,7 @@ async def get_control() -> Tuple[Optional[ControlMap], Optional[ControlRecord]]:
     return control_map, control_record
 
 
-async def get_pos() -> Tuple[Optional[PosMap], Optional[PosRecord]]:
+async def get_pos() -> tuple[PosMap | None, PosRecord | None]:
     pos_map = await pos_agent.get_pos_map()
     pos_record = await pos_agent.get_pos_record()
 

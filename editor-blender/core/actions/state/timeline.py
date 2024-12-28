@@ -5,6 +5,8 @@ from ...states import state
 
 
 def increase_frame_index():
+    if not bpy.context:
+        return
     match state.editor:
         case Editor.CONTROL_EDITOR:
             current_frame_index = state.current_control_index
@@ -27,6 +29,8 @@ def increase_frame_index():
 
 
 def decrease_frame_index():
+    if not bpy.context:
+        return
     match state.editor:
         case Editor.CONTROL_EDITOR:
             current_frame_index = state.current_control_index

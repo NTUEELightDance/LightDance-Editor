@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Union
+from typing import Literal
 
 from dataclass_wizard import JSONWizard
 
@@ -10,25 +10,25 @@ To controller server
 
 @dataclass
 class ToControllerServerBasePayload(JSONWizard):
-    dancers: List[str]
+    dancers: list[str]
 
 
 @dataclass
 class ToControllerServerPlayPayload(JSONWizard):
-    dancers: List[str]
+    dancers: list[str]
     start: int
     timestamp: int
 
 
 @dataclass
 class ToControllerServerColorPayload(JSONWizard):
-    dancers: List[str]
+    dancers: list[str]
     colorCode: str
 
 
 @dataclass
 class ToControllerServerWebShellPayload(JSONWizard):
-    dancers: List[str]
+    dancers: list[str]
     command: str
 
 
@@ -211,11 +211,10 @@ class DancerDataItem(JSONWizard):
 @dataclass
 class FromControllerServerBase(JSONWizard):
     from_: Literal["server"]
-    topic: str
     statusCode: int
 
 
-FromControllerServerBoardInfoPayload = Dict[str, DancerDataItem]
+FromControllerServerBoardInfoPayload = dict[str, DancerDataItem]
 
 
 @dataclass
@@ -243,41 +242,38 @@ class FromControllerServerCommandResponse(FromControllerServerBase):
     payload: FromControllerServerCommandResponsePayload
 
 
-ToControllerServer = Union[
-    ToControllerServerBoardInfo,
-    ToControllerServerCloseGPIO,
-    ToControllerServerColor,
-    ToControllerServerDarkAll,
-    ToControllerServerLoad,
-    ToControllerServerPause,
-    ToControllerServerPlay,
-    ToControllerServerReboot,
-    ToControllerServerStop,
-    ToControllerServerSync,
-    ToControllerServerTest,
-    ToControllerServerUpload,
-    ToControllerServerWebShell,
-]
+ToControllerServer = (
+    ToControllerServerBoardInfo
+    | ToControllerServerCloseGPIO
+    | ToControllerServerColor
+    | ToControllerServerDarkAll
+    | ToControllerServerLoad
+    | ToControllerServerPause
+    | ToControllerServerPlay
+    | ToControllerServerReboot
+    | ToControllerServerStop
+    | ToControllerServerSync
+    | ToControllerServerTest
+    | ToControllerServerUpload
+    | ToControllerServerWebShell
+)
 
-ToControllerServerPartial = Union[
-    ToControllerServerBoardInfoPartial,
-    ToControllerServerCloseGPIOPartial,
-    ToControllerServerColorPartial,
-    ToControllerServerDarkAllPartial,
-    ToControllerServerLoadPartial,
-    ToControllerServerPausePartial,
-    ToControllerServerPlayPartial,
-    ToControllerServerRebootPartial,
-    ToControllerServerStopPartial,
-    ToControllerServerSyncPartial,
-    ToControllerServerTestPartial,
-    ToControllerServerUploadPartial,
-    ToControllerServerWebShellPartial,
-]
+ToControllerServerPartial = (
+    ToControllerServerBoardInfoPartial
+    | ToControllerServerCloseGPIOPartial
+    | ToControllerServerColorPartial
+    | ToControllerServerDarkAllPartial
+    | ToControllerServerLoadPartial
+    | ToControllerServerPausePartial
+    | ToControllerServerPlayPartial
+    | ToControllerServerRebootPartial
+    | ToControllerServerStopPartial
+    | ToControllerServerSyncPartial
+    | ToControllerServerTestPartial
+    | ToControllerServerUploadPartial
+    | ToControllerServerWebShellPartial
+)
 
-FromControllerServer = Union[
-    FromControllerServerBoardInfo, FromControllerServerCommandResponse
-]
-
-# a = FromControllerServerBoardInfo.from_json("""{"from": "server", "topic": "boardInfo", "statusCode": 0, "payload": {}}""")
-# print(a.to_dict())
+FromControllerServer = (
+    FromControllerServerBoardInfo | FromControllerServerCommandResponse
+)

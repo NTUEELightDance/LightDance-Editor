@@ -1,7 +1,6 @@
 import asyncio
 import traceback
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 from ..client import client
 from ..core.models import ID, ColorID, LEDEffectID, LEDMap, ModelName, PartName
@@ -26,7 +25,8 @@ from ..graphqls.queries import GET_LED_MAP, QueryLEDMapData
 
 @dataclass
 class LEDAgent:
-    async def get_led_map(self) -> Optional[LEDMap]:
+    async def get_led_map(self) -> LEDMap | None:
+        """Get the LED effect map from the server."""
         try:
             response = await client.execute(QueryLEDMapData, GET_LED_MAP)
             ledMap = response["LEDMap"]
@@ -46,8 +46,9 @@ class LEDAgent:
         name: str,
         model_name: ModelName,
         part_name: PartName,
-        leds: List[Tuple[ColorID, int]],
-    ) -> Optional[MutAddLEDEffectResponse]:
+        leds: list[tuple[ColorID, int]],
+    ) -> MutAddLEDEffectResponse | None:
+        """Add a new LED effect to the server."""
         try:
             response = await client.execute(
                 MutAddLEDEffectResponse,
@@ -75,8 +76,9 @@ class LEDAgent:
         return None
 
     async def save_led_effect(
-        self, id: ID, name: str, leds: List[Tuple[ColorID, int]]
-    ) -> Optional[MutEditLEDEffectResponse]:
+        self, id: ID, name: str, leds: list[tuple[ColorID, int]]
+    ) -> MutEditLEDEffectResponse | None:
+        """Save the LED effect to the server."""
         try:
             response = await client.execute(
                 MutEditLEDEffectResponse,
@@ -102,7 +104,11 @@ class LEDAgent:
 
         return None
 
-    async def request_edit(self, id: LEDEffectID) -> Optional[bool]:
+    async def request_edit(self, id: LEDEffectID) -> bool | None:
+        """Request to edit a led effect.
+        Returns True if the request is successful, the server will prevent other users from editing the effect.
+        Returns False if other users are editing the effect.
+        """
         try:
             response = await client.execute(
                 MutRequestEditLEDEffectResponse,
@@ -119,7 +125,8 @@ class LEDAgent:
 
         return None
 
-    async def cancel_edit(self, id: LEDEffectID) -> Optional[bool]:
+    async def cancel_edit(self, id: LEDEffectID) -> bool | None:
+        """Cancel the edit request of the led effect."""
         try:
             response = await client.execute(
                 MutCancelEditLEDEffectResponse,
@@ -138,7 +145,8 @@ class LEDAgent:
 
     async def delete_led_effect(
         self, id: LEDEffectID
-    ) -> Optional[MutDeleteLEDEffectResponse]:
+    ) -> MutDeleteLEDEffectResponse | None:
+        """Delete a led effect from the server."""
         try:
             response = await client.execute(
                 MutDeleteLEDEffectResponse,

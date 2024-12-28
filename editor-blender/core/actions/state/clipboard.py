@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, List, Optional, cast
+from typing import cast
 
 import bpy
 
@@ -22,7 +22,7 @@ from ..state.pos_editor import add_pos_frame, request_edit_pos
 
 
 def copy_dancer():
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     if len(state.selected_obj_names) != 1:
         return {"CANCELLED"}
@@ -40,7 +40,7 @@ def copy_dancer():
     dancer_name: str = getattr(selected_obj, "ld_dancer_name")
     model_name: str = getattr(selected_obj, "ld_model_name")
 
-    dancer_status: Dict[PartName, CopiedPartData] = {}
+    dancer_status: dict[PartName, CopiedPartData] = {}
     clipboard.dancer = CopiedDancerData(
         name=dancer_name, model=model_name, parts=dancer_status
     )
@@ -73,7 +73,7 @@ def copy_dancer():
 
 
 def copy_part():
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     selected_obj_dancer_names = [
         cast(str, getattr(data_objects[obj_name], "ld_dancer_name"))
@@ -96,7 +96,7 @@ def copy_part():
     clipboard = state.clipboard
     clipboard.type = CopiedType.DANCER
 
-    dancer_status: Dict[PartName, CopiedPartData] = {}
+    dancer_status: dict[PartName, CopiedPartData] = {}
     clipboard.dancer = CopiedDancerData(
         name=dancer_name, model=model_name, parts=dancer_status
     )
@@ -133,7 +133,7 @@ async def paste_dancer() -> bool:
         if not (await request_edit_control()):
             return False
 
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     copied_dancer = state.clipboard.dancer
     if copied_dancer is None:
@@ -161,7 +161,7 @@ async def paste_dancer() -> bool:
                 copied_part_data = copied_dancer.parts[part_name]
 
                 if part_type == LightType.FIBER.value:
-                    copied_color: Optional[str] = copied_part_data.color
+                    copied_color: str | None = copied_part_data.color
                     copied_alpha: int = copied_part_data.alpha
 
                     if copied_color is not None:
@@ -169,7 +169,7 @@ async def paste_dancer() -> bool:
                         setattr(part_obj, "ld_alpha", copied_alpha)
 
                 elif part_type == LightType.LED.value:
-                    copied_effect: Optional[str] = copied_part_data.effect
+                    copied_effect: str | None = copied_part_data.effect
                     copied_alpha: int = copied_part_data.alpha
 
                     if copied_effect is not None:
@@ -184,13 +184,13 @@ async def paste_part() -> bool:
         if not (await request_edit_control()):
             return False
 
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     copied_dancer = state.clipboard.dancer
     if copied_dancer is None:
         return False
 
-    selected_dancer_objs: Dict[str, List[bpy.types.Object]] = {}
+    selected_dancer_objs: dict[str, list[bpy.types.Object]] = {}
     for obj_name in state.selected_obj_names:
         obj = data_objects[obj_name]
         dancer_name: str = getattr(obj, "ld_dancer_name")
@@ -219,7 +219,7 @@ async def paste_part() -> bool:
                 copied_part_data = copied_dancer.parts[part_name]
 
                 if part_type == LightType.FIBER.value:
-                    copied_color: Optional[str] = copied_part_data.color
+                    copied_color: str | None = copied_part_data.color
                     copied_alpha: int = copied_part_data.alpha
 
                     if copied_color is not None:
@@ -227,7 +227,7 @@ async def paste_part() -> bool:
                         setattr(part_obj, "ld_alpha", copied_alpha)
 
                 elif part_type == LightType.LED.value:
-                    copied_effect: Optional[str] = copied_part_data.effect
+                    copied_effect: str | None = copied_part_data.effect
                     copied_alpha: int = copied_part_data.alpha
 
                     if copied_effect is not None:
@@ -238,7 +238,7 @@ async def paste_part() -> bool:
 
 
 def override_control(control_frame: ControlMapElement):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer in state.dancers_array:
         status = control_frame.status[dancer.name]
@@ -283,6 +283,9 @@ def copy_control_frame():
 
 
 async def paste_control_frame(add_frame: bool) -> bool:
+    if not bpy.context:
+        return False
+
     clipboard = state.clipboard
 
     if clipboard.control_frame is None:
@@ -338,7 +341,7 @@ def copy_pos_frame():
 
 
 def override_pos(pos_frame: PosMapElement):
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_name in state.dancer_names:
         location = pos_frame.pos[dancer_name]
@@ -349,6 +352,9 @@ def override_pos(pos_frame: PosMapElement):
 
 
 async def paste_pos_frame(add_frame: bool) -> bool:
+    if not bpy.context:
+        return False
+
     clipboard = state.clipboard
 
     if clipboard.pos_frame is None:

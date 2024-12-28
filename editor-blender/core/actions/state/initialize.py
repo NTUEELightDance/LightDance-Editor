@@ -1,5 +1,4 @@
 import asyncio
-from typing import Dict, List, Optional
 
 import bpy
 
@@ -204,7 +203,7 @@ async def init_editor():
             for batch in range(len(batches_functions)):
                 batch_functions = batches_functions[batch]
                 batch_completes = batches_completes[batch]
-                batch_tasks: List[asyncio.Task[Optional[BaseException]]] = [
+                batch_tasks: list[asyncio.Task[BaseException | None]] = [
                     empty_task
                 ] * len(batch_functions)
 
@@ -237,6 +236,8 @@ async def init_editor():
 
 
 async def init_load():
+    if not bpy.context:
+        return
     state.loading = False
     redraw_area({"VIEW_3D"})
     await load_data()
@@ -284,7 +285,7 @@ async def init_models():
     model_dancer_index_map: ModelDancerIndexMap = {}
 
     for index, model in enumerate(models_array):
-        dancers: Dict[DancerName, int] = dict(
+        dancers: dict[DancerName, int] = dict(
             [
                 (dancer_name, dancer_index)
                 for dancer_index, dancer_name in enumerate(model.dancers)
@@ -330,7 +331,7 @@ async def init_dancers():
     dancer_part_index_map: DancerPartIndexMap = {}
 
     for index, dancer in enumerate(dancers_array):
-        parts: Dict[PartName, int] = dict(
+        parts: dict[PartName, int] = dict(
             [(part.name, part_index) for part_index, part in enumerate(dancer.parts)]
         )
         dancer_part_index_map[dancer.name] = DancerPartIndexMapItem(

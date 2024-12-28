@@ -1,6 +1,6 @@
 import asyncio
 import traceback
-from typing import Any, Dict
+from typing import Any
 
 from ..client import client
 
@@ -8,7 +8,7 @@ from ..client import client
 class PingAgent:
     async def ping(self) -> bool:
         try:
-            res: Dict[str, Any] = await client.get("/ping")
+            res: dict[str, Any] = await client.get("/ping")
             revision = res.get("uuid")
             if not revision:
                 return False

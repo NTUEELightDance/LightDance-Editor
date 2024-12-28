@@ -1,7 +1,6 @@
 import asyncio
 import traceback
 from dataclasses import dataclass
-from typing import Optional
 
 from ..client import client
 from ..core.models import DancersArray
@@ -15,7 +14,8 @@ from ..graphqls.queries import (
 
 @dataclass
 class DancerAgent:
-    async def get_dancers(self) -> Optional[DancersArray]:
+    async def get_dancers(self) -> DancersArray | None:
+        """Get the dancer part list from the server."""
         try:
             response = await client.execute(
                 QueryDancersPayload,

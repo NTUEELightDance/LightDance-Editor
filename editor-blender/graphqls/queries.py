@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple, Union
 
 from dataclass_wizard import JSONWizard
 from gql import gql
@@ -22,13 +21,13 @@ from ..core.models import (
 Fiber
 """
 
-QueryFiberDataPayload = Tuple[ColorID, int]
+QueryFiberDataPayload = tuple[ColorID, int]
 
 """
 LED
 """
 
-QueryLEDDataPayload = Tuple[LEDEffectID, int]
+QueryLEDDataPayload = tuple[LEDEffectID, int]
 
 
 """
@@ -38,7 +37,7 @@ LEDEffect
 
 @dataclass
 class QueryLEDEffectFramePayload(JSONWizard):
-    LEDs: List[Tuple[ColorID, int]]
+    LEDs: list[tuple[ColorID, int]]
     start: int
     fade: bool
 
@@ -47,7 +46,7 @@ class QueryLEDEffectFramePayload(JSONWizard):
 class QueryLEDEffectPayload(JSONWizard):
     id: LEDEffectID
     repeat: int
-    frames: List[QueryLEDEffectFramePayload]
+    frames: list[QueryLEDEffectFramePayload]
 
 
 """
@@ -59,10 +58,10 @@ Model
 class QueryModelPayloadItem(JSONWizard):
     id: ID
     name: str
-    dancers: List[str]
+    dancers: list[str]
 
 
-QueryModelPayload = List[QueryModelPayloadItem]
+QueryModelPayload = list[QueryModelPayloadItem]
 
 
 GET_MODELS = gql(
@@ -83,8 +82,8 @@ Dancer
 """
 
 
-QueryDancerStatusPayloadItem = Union[QueryFiberDataPayload, QueryLEDDataPayload]
-QueryDancerStatusPayload = List[QueryDancerStatusPayloadItem]
+QueryDancerStatusPayloadItem = QueryFiberDataPayload | QueryLEDDataPayload
+QueryDancerStatusPayload = list[QueryDancerStatusPayloadItem]
 
 
 @dataclass
@@ -94,27 +93,27 @@ class QueryPartOrderByWithRelationInput(JSONWizard):
 
     # controlData: Optional[ControlDataOrderByRelationAggregateInput]
     # dancer: Optional[DancerOrderByWithRelationInput]
-    id: Optional[str] = None
-    dancerId: Optional[str] = None
-    length: Optional[str] = None
-    name: Optional[str] = None
-    type: Optional[str] = None
+    id: str | None = None
+    dancerId: str | None = None
+    length: str | None = None
+    name: str | None = None
+    type: str | None = None
 
 
 @dataclass
 class QueryDancersPayloadPartItem(JSONWizard):
     name: PartName
     type: PartType
-    length: Optional[int] = None
+    length: int | None = None
 
 
 @dataclass
 class QueryDancersPayloadItem(JSONWizard):
     name: str
-    parts: List[QueryDancersPayloadPartItem]
+    parts: list[QueryDancersPayloadPartItem]
 
 
-QueryDancersPayload = List[QueryDancersPayloadItem]
+QueryDancersPayload = list[QueryDancersPayloadItem]
 
 
 GET_DANCERS = gql(
@@ -149,7 +148,7 @@ GET_DANCERS = gql(
 Coordinates
 """
 
-QueryCoordinatesPayload = Tuple[float, float, float]
+QueryCoordinatesPayload = tuple[float, float, float]
 
 
 """
@@ -168,7 +167,7 @@ PositionRecord
 """
 
 
-QueryPosRecordData = List[ID]
+QueryPosRecordData = list[ID]
 
 
 GET_POS_RECORD = gql(
@@ -189,10 +188,10 @@ PositionMap
 class QueryPosFrame(JSONWizard):
     start: int
     rev: QueryRevision
-    pos: List[QueryCoordinatesPayload]
+    pos: list[QueryCoordinatesPayload]
 
 
-QueryPosMapPayload = Dict[ID, QueryPosFrame]
+QueryPosMapPayload = dict[ID, QueryPosFrame]
 
 
 @dataclass
@@ -216,7 +215,7 @@ ControlRecord
 """
 
 
-QueryControlRecordData = List[ID]
+QueryControlRecordData = list[ID]
 
 GET_CONTROL_RECORD = gql(
     """
@@ -237,10 +236,10 @@ class QueryControlFrame(JSONWizard):
     start: int
     fade: bool
     rev: QueryRevision
-    status: List[QueryDancerStatusPayload]
+    status: list[QueryDancerStatusPayload]
 
 
-QueryControlMapPayload = Dict[ID, QueryControlFrame]
+QueryControlMapPayload = dict[ID, QueryControlFrame]
 
 
 @dataclass
@@ -283,11 +282,11 @@ class QueryEffectListItem(JSONWizard):
     end: int
     description: str
     id: LEDEffectID
-    controlFrames: List[QueryEffectListControlFrame]
-    positionFrames: List[QueryEffectListPositionFrame]
+    controlFrames: list[QueryEffectListControlFrame]
+    positionFrames: list[QueryEffectListPositionFrame]
 
 
-QueryEffectListData = List[QueryEffectListItem]
+QueryEffectListData = list[QueryEffectListItem]
 
 
 GET_EFFECT_LIST = gql(
@@ -310,8 +309,8 @@ GET_EFFECT_LIST = gql(
 LEDMap
 """
 
-QueryLEDMapPayload = Dict[
-    LEDModelName, Dict[LEDPartName, Dict[LEDEffectName, QueryLEDEffectPayload]]
+QueryLEDMapPayload = dict[
+    LEDModelName, dict[LEDPartName, dict[LEDEffectName, QueryLEDEffectPayload]]
 ]
 
 
@@ -342,7 +341,7 @@ class QueryColorMapPayloadItem(JSONWizard):
     colorCode: RGB
 
 
-QueryColorMapPayload = Dict[ColorID, QueryColorMapPayloadItem]
+QueryColorMapPayload = dict[ColorID, QueryColorMapPayloadItem]
 
 
 @dataclass

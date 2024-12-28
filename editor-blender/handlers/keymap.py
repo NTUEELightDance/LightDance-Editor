@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, cast
+from typing import cast
 
 import bpy
 
@@ -11,23 +11,25 @@ default_delete_keymaps = {
     "User Interface": ["anim.keyframe_delete_button"],
 }
 
-default_keymaps: List[bpy.types.KeyMapItem] = []
-clipboard_keymaps: List[bpy.types.KeyMapItem] = []
+default_keymaps: list[bpy.types.KeyMapItem] = []
+clipboard_keymaps: list[bpy.types.KeyMapItem] = []
 
 
 def check_keymaps_exist(
-    keymaps: List[bpy.types.KeyMapItem],
-    names: List[str],
-    ctrl: List[int],
-    oskey: List[int],
-) -> List[Optional[bpy.types.KeyMapItem]]:
+    keymaps: list[bpy.types.KeyMapItem],
+    names: list[str],
+    ctrl: list[int],
+    oskey: list[int],
+) -> list[bpy.types.KeyMapItem | None]:
+    if not bpy.context:
+        return []
     wm = bpy.context.window_manager
-    kc_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
+    kc_items = cast(dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
         "3D View"
     ].keymap_items
-    kc_items = cast(List[bpy.types.KeyMapItem], kc_items)
+    kc_items = cast(list[bpy.types.KeyMapItem], kc_items)
 
-    results: List[Optional[bpy.types.KeyMapItem]] = [None] * len(names)
+    results: list[bpy.types.KeyMapItem | None] = [None] * len(names)
 
     for keymap in keymaps:
         for i in range(len(names)):
@@ -42,15 +44,17 @@ def check_keymaps_exist(
 
 
 def mount():
+    if not bpy.context:
+        return
     wm = bpy.context.window_manager
     global default_keymaps
-    default_keymaps = cast(List[bpy.types.KeyMapItem], [])
+    default_keymaps = cast(list[bpy.types.KeyMapItem], [])
     # Disable delete keymaps
     for keymap_class, keymap_list in default_delete_keymaps.items():
-        km_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
+        km_items = cast(dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
             keymap_class
         ].keymap_items
-        km_items = cast(List[bpy.types.KeyMapItem], km_items)
+        km_items = cast(list[bpy.types.KeyMapItem], km_items)
         for keymap in km_items:
             if keymap.idname in keymap_list:
                 keymap.active = False
@@ -58,9 +62,9 @@ def mount():
 
     # Active select all keymaps and disable default keymaps
     object_mode_km_items = cast(
-        Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps
+        dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps
     )["Object Mode"].keymap_items
-    object_mode_km_items = cast(List[bpy.types.KeyMapItem], object_mode_km_items)
+    object_mode_km_items = cast(list[bpy.types.KeyMapItem], object_mode_km_items)
 
     for keymap in object_mode_km_items:
         if keymap.idname in default_select_all_keymaps:
@@ -98,13 +102,13 @@ def mount():
             new_keymap.active = True
 
     global select_all_keymaps
-    select_all_keymaps = cast(List[bpy.types.KeyMapItem], new_keymaps)
+    select_all_keymaps = cast(list[bpy.types.KeyMapItem], new_keymaps)
 
     # Active clipboard keymaps and disable default keymaps
-    view_3d_km_items = cast(Dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
+    view_3d_km_items = cast(dict[str, bpy.types.KeyMap], wm.keyconfigs.default.keymaps)[
         "3D View"
     ].keymap_items
-    view_3d_km_items = cast(List[bpy.types.KeyMapItem], view_3d_km_items)
+    view_3d_km_items = cast(list[bpy.types.KeyMapItem], view_3d_km_items)
 
     for keymap in view_3d_km_items:
         if keymap.idname in default_clipboard_keymaps:
@@ -147,7 +151,7 @@ def mount():
             new_keymap.active = True
 
     global clipboard_keymaps
-    clipboard_keymaps = cast(List[bpy.types.KeyMapItem], new_keymaps)
+    clipboard_keymaps = cast(list[bpy.types.KeyMapItem], new_keymaps)
 
 
 def unmount():
