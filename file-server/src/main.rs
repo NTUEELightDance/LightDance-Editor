@@ -9,14 +9,14 @@ async fn main() {
 
     let port = var("PORT").unwrap_or_else(|_| "8081".to_string());
 
-    let assets_path = "../files/assets";
+    let assets_path = "../files/asset";
     let data_path = "../files/data";
     let music_path = "../files/music";
 
     let app = Router::new()
         .nest_service("/music", ServeDir::new(music_path))
         .nest_service("/data", ServeDir::new(data_path))
-        .nest_service("/assets", ServeDir::new(assets_path));
+        .nest_service("/asset", ServeDir::new(assets_path));
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
         .await
