@@ -40,7 +40,7 @@ async def fetch_data(reload: bool = False):
         local_load_hash: dict[str, Any] = {}
 
         if not os.path.exists(config.ASSET_PATH):
-            os.mkdir(config.ASSET_PATH)
+            os.makedirs(config.ASSET_PATH, exist_ok=True)
 
         if not os.path.exists(local_load_hash_path):
             with open(local_load_hash_path, "w") as file:
