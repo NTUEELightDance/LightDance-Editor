@@ -119,8 +119,6 @@ pub async fn init_redis_control(
                 status,
             };
 
-            println!("Redis key: {}", redis_key);
-
             result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
         });
 
@@ -279,7 +277,6 @@ pub async fn update_redis_control(
     };
 
     let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
-    println!("Redis key: {}", redis_key);
 
     let status = dancer_controls
         .iter()
@@ -370,7 +367,6 @@ pub async fn update_redis_position(
     };
 
     let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
-    println!("Redis key: {}", redis_key);
 
     let pos = dancer_positions
         .iter()
