@@ -7,7 +7,9 @@ class SliderDraggingListener(bpy.types.Operator):
     bl_idname = "lightdance.slider_dragging_listener"
     bl_label = "Listens for slider dragging"
 
-    def modal(self, context: bpy.types.Context, event: bpy.types.Event):
+    def modal(self, context: bpy.types.Context | None, event: bpy.types.Event):
+        if not context:
+            return {"CANCELLED"}
         wm = context.window_manager
         dragging_slider = getattr(wm, "dragging_slider")
 
@@ -20,7 +22,9 @@ class SliderDraggingListener(bpy.types.Operator):
 
         return {"PASS_THROUGH"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
+        if not context:
+            return {"CANCELLED"}
         if event.type == "LEFTMOUSE":
             print("Drag")
             wm = context.window_manager

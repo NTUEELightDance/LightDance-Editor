@@ -46,13 +46,13 @@ class ToggleControlEditor(bpy.types.Operator):
     bl_label = "Toggle Control Editor"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return (
             state.edit_state != EditMode.EDITING
             or state.editor == Editor.CONTROL_EDITOR
         )
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         if set_editor(Editor.CONTROL_EDITOR):
             notify("INFO", "Switched to Control Editor")
         else:
@@ -68,10 +68,10 @@ class TogglePosEditor(bpy.types.Operator):
     bl_label = "Toggle Position Editor"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.edit_state != EditMode.EDITING or state.editor == Editor.POS_EDITOR
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         if set_editor(Editor.POS_EDITOR):
             notify("INFO", "Switched to Position Editor")
         else:
@@ -87,10 +87,10 @@ class ToggleLEDEditor(bpy.types.Operator):
     bl_label = "Toggle LED Editor"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.edit_state != EditMode.EDITING or state.editor == Editor.LED_EDITOR
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         if set_editor(Editor.LED_EDITOR):
             notify("INFO", "Switched to LED Editor")
         else:
@@ -106,10 +106,10 @@ class SyncColorUpdates(bpy.types.Operator):
     bl_label = "Sync Color Updates"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.color_map_pending.update or state.led_map_pending.update
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         if state.color_map_pending.update:
             apply_color_map_updates_update()
         if state.led_map_pending.update:
@@ -127,7 +127,7 @@ class SyncMapUpdates(bpy.types.Operator):
     bl_label = "Sync Map Updates"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return (
             state.color_map_pending.add_or_delete
             or state.led_map_pending.add_or_delete
@@ -135,7 +135,7 @@ class SyncMapUpdates(bpy.types.Operator):
             or state.pos_map_pending
         )
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         if state.control_map_pending:
             apply_control_map_updates()
         if state.pos_map_pending:
@@ -157,7 +157,9 @@ class RequestEdit(AsyncOperator):
     bl_label = "Request Edit"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
+        if not bpy.context:
+            return state.ready
         if state.editor == Editor.LED_EDITOR:
             ld_ui_led_editor: LEDEditorStatusType = getattr(
                 bpy.context.window_manager, "ld_ui_led_editor"
@@ -184,7 +186,9 @@ class Add(AsyncOperator):
     bl_label = "Add"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
+        if not bpy.context:
+            return state.ready
         if state.editor == Editor.LED_EDITOR:
             ld_ui_led_editor: LEDEditorStatusType = getattr(
                 bpy.context.window_manager, "ld_ui_led_editor"
@@ -217,10 +221,12 @@ class Save(AsyncOperator):
     )
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
+        if not bpy.context:
+            return
         modify_start: bool = getattr(self, "modify_start")
 
         if modify_start:
@@ -243,7 +249,9 @@ class Save(AsyncOperator):
                 case Editor.LED_EDITOR:
                     await save_led_effect()
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):  # type: ignore
+        if not context:
+            return
         if (
             state.editor == Editor.CONTROL_EDITOR and state.current_editing_detached
         ) or (state.editor == Editor.POS_EDITOR and state.current_editing_detached):
@@ -265,7 +273,9 @@ class Delete(AsyncOperator):
     )
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
+        if not bpy.context:
+            return state.ready
         if state.editor == Editor.LED_EDITOR:
             ld_ui_led_editor: LEDEditorStatusType = getattr(
                 bpy.context.window_manager, "ld_ui_led_editor"
@@ -292,7 +302,9 @@ class Delete(AsyncOperator):
         else:
             notify("ERROR", "Cancelled")
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
+        if not context:
+            return {"CANCELLED"}
         return context.window_manager.invoke_props_dialog(self)
 
 
@@ -303,7 +315,7 @@ class CancelEdit(AsyncOperator):
     bl_label = "Cancel Edit"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):

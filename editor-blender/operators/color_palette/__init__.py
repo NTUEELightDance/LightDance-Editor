@@ -1,5 +1,4 @@
 import traceback
-from typing import Optional
 
 import bpy
 
@@ -12,7 +11,7 @@ from ...properties.ui.types import ColorPaletteEditModeType, ColorPaletteStatusT
 from ..async_core import AsyncOperator
 
 
-def fix_color_name(name: str) -> Optional[str]:
+def fix_color_name(name: str) -> str | None:
     if len(name) == 0:
         return None
 
@@ -31,10 +30,12 @@ class ColorPaletteEditModeOperator(bpy.types.Operator):
     edit_index: bpy.props.IntProperty()  # type: ignore
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELLED"}
         edit_index: int = getattr(self, "edit_index")
 
         ld_ui_color_palette: ColorPaletteStatusType = getattr(
@@ -45,7 +46,7 @@ class ColorPaletteEditModeOperator(bpy.types.Operator):
         ld_ui_color_palette.edit_mode = ColorPaletteEditModeType.EDIT.value
 
         ld_color_palette: ColorPaletteType = getattr(
-            context.window_manager, "ld_color_palette"
+            bpy.context.window_manager, "ld_color_palette"
         )
         color_edit = ld_color_palette[edit_index]
 
@@ -66,10 +67,12 @@ class ColorPaletteNewModeOperator(bpy.types.Operator):
     bl_label = "New"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELLED"}
         ld_ui_color_palette: ColorPaletteStatusType = getattr(
             bpy.context.window_manager, "ld_ui_color_palette"
         )
@@ -94,7 +97,7 @@ class ColorDeleteOperator(AsyncOperator):
     delete_index: bpy.props.IntProperty()  # type: ignore
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
@@ -123,10 +126,12 @@ class ColorCancelOperator(bpy.types.Operator):
     bl_label = "Cancel"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELLED"}
         ld_ui_color_palette: ColorPaletteStatusType = getattr(
             bpy.context.window_manager, "ld_ui_color_palette"
         )
@@ -140,10 +145,12 @@ class ColorConfirmOperator(AsyncOperator):
     state = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
+        if not bpy.context:
+            return {"CANCELLED"}
         ld_ui_color_palette: ColorPaletteStatusType = getattr(
             bpy.context.window_manager, "ld_ui_color_palette"
         )

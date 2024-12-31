@@ -11,7 +11,7 @@ class AttachEditingControlFrame(bpy.types.Operator):
     bl_idname = "lightdance.attach_editing_control_frame"
     bl_label = "Attach to Editing Control Frame"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         attach_editing_control_frame()
 
         return {"FINISHED"}
@@ -21,7 +21,7 @@ class ToggleDancerMode(bpy.types.Operator):
     bl_idname = "lightdance.toggle_dancer_mode"
     bl_label = "Toggle Dancer Mode"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         toggle_dancer_mode()
         return {"FINISHED"}
 
@@ -30,7 +30,7 @@ class TogglePartMode(bpy.types.Operator):
     bl_idname = "lightdance.toggle_part_mode"
     bl_label = "Toggle Part Mode"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         toggle_part_mode()
         return {"FINISHED"}
 

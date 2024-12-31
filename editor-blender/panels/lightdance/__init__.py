@@ -7,6 +7,8 @@ from ...storage import get_storage
 
 
 def draw_time_shift(layout: bpy.types.UILayout):
+    if not bpy.context:
+        return
     ld_ui_time_shift: TimeShiftStatusType = getattr(
         bpy.context.window_manager, "ld_ui_time_shift"
     )
@@ -33,7 +35,7 @@ class LightDancePreferencesPanel(bpy.types.Panel):
     bl_category = "LightDance"
     bl_options = {"INSTANCED"}
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
         layout = self.layout
         col = layout.column(align=True)
 
@@ -53,7 +55,7 @@ class LightDanceToolsPanel(bpy.types.Panel):
     bl_category = "LightDance"
     bl_options = {"INSTANCED"}
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
         layout = self.layout
 
         if state.logged_in:
@@ -83,7 +85,7 @@ class LightDancePanel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = "LightDance"
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
         # Draw header
         layout = self.layout
         layout.enabled = not state.requesting

@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, cast
+from typing import cast
 
 import bpy
 
@@ -14,17 +14,15 @@ from .types import ColorPaletteItemType, LightType, ObjectType
 
 
 def get_color_lists(
-    self: bpy.types.Object, context: bpy.types.Context
-) -> List[
-    Tuple[str, str, str, str, int]
-    | Tuple[str, str, str, int, int]
-    | Tuple[str, str, str]
-]:
+    self: bpy.types.Object, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, int, int]]:
     collection = icon_collections["main"]
+    if not bpy.context:
+        return []
 
     ld_object_type: str = getattr(self, "ld_object_type")
     if ld_object_type == ObjectType.LIGHT.value:
-        ld_color_palette: List[ColorPaletteItemType] = getattr(
+        ld_color_palette: list[ColorPaletteItemType] = getattr(
             bpy.context.window_manager, "ld_color_palette"
         )
         color_list = [
@@ -32,7 +30,7 @@ def get_color_lists(
                 color.color_name,
                 color.color_name,
                 "",
-                cast(Dict[str, bpy.types.ImagePreview], collection)[
+                cast(dict[str, bpy.types.ImagePreview], collection)[
                     color.color_name
                 ].icon_id,
                 color.color_id,
@@ -47,8 +45,8 @@ def get_color_lists(
 
 
 def get_effect_lists(
-    self: bpy.types.Object, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    self: bpy.types.Object, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
     ld_object_type: str = getattr(self, "ld_object_type")
     if ld_object_type == ObjectType.LIGHT.value:
         ld_model_name: str = getattr(self, "ld_model_name")
@@ -159,7 +157,7 @@ def register():
         bpy.props.EnumProperty(
             name="Color",
             description="Part fiber color",
-            items=get_color_lists,
+            items=get_color_lists,  # type: ignore
             # get=get_color,
             # set=set_color,
             update=update_current_color,

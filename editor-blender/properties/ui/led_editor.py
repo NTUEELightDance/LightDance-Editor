@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 import bpy
 
 from ...core.actions.property.led_editor import (
@@ -16,8 +14,8 @@ from .types import LEDEditorEditModeType
 
 
 def get_model_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
     model_list = []
     if get_edit_model(self) == -1:
         model_list.append(("NONE", "", "", "", -1))
@@ -42,8 +40,8 @@ def set_edit_model(self: bpy.types.PropertyGroup, value: int):
 
 
 def get_dancer_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
     dancer_list = []
     if get_edit_dancer(self) == -1:
         dancer_list.append(("NONE", "", "", "", -1))
@@ -75,8 +73,8 @@ def set_edit_dancer(self: bpy.types.PropertyGroup, value: int):
 
 
 def get_part_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
     part_list = []
     if get_edit_part(self) == -1:
         part_list.append(("NONE", "", "", "", -1))
@@ -121,8 +119,8 @@ def set_edit_effect(self: bpy.types.PropertyGroup, value: int):
 
 
 def get_effect_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
     effect_list = []
     if get_edit_effect(self) == -1:
         effect_list.append(("NONE", "", "", "", -1))
@@ -142,9 +140,11 @@ def get_effect_lists(
 
 
 def get_color_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
-    ld_color_palette: List[ColorPaletteItemType] = getattr(
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
+    if not bpy.context:
+        return []
+    ld_color_palette: list[ColorPaletteItemType] = getattr(
         bpy.context.window_manager, "ld_color_palette"
     )
     color_list = [

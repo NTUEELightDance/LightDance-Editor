@@ -13,10 +13,12 @@ class ColorPalettePanel(bpy.types.Panel):
     bl_category = "ColorPalette"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context) -> bool:
+    def poll(cls, context: bpy.types.Context | None) -> bool:
         return state.ready
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return
         layout = self.layout
         layout.enabled = not state.requesting
 
@@ -29,7 +31,7 @@ class ColorPalettePanel(bpy.types.Panel):
 
         if ld_ui_color_palette.edit_mode == ColorPaletteEditModeType.IDLE.value:
             loaded_colors: ColorPaletteType = getattr(
-                context.window_manager, "ld_color_palette"
+                bpy.context.window_manager, "ld_color_palette"
             )
             row = layout.row()
             row.operator("lightdance.color_palette_new_mode", icon="ADD")
@@ -48,7 +50,7 @@ class ColorPalettePanel(bpy.types.Panel):
                 setattr(op, "delete_index", i)
         else:
             temp_item: ColorPaletteItemType = getattr(
-                context.window_manager, "ld_color_palette_temp"
+                bpy.context.window_manager, "ld_color_palette_temp"
             )
             row = layout.row()
             row.label(text="Editing Color")

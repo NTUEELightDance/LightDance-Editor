@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal, Tuple
+from typing import Literal
 
 
 class LoginPanelStatusType:
@@ -30,8 +30,8 @@ class ControlEditorStatusType:
 
 class PosEditorStatusType:
     multi_select: bool
-    multi_select_delta_transform: Tuple[float, float, float]
-    multi_select_delta_transform_ref: Tuple[float, float, float]
+    multi_select_delta_transform: tuple[float, float, float]
+    multi_select_delta_transform_ref: tuple[float, float, float]
 
 
 class LEDEditorEditModeType(Enum):

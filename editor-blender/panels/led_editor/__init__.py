@@ -16,10 +16,12 @@ class LEDEditor(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready and state.sync and state.editor == Editor.LED_EDITOR
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
         layout = self.layout
         layout.enabled = not state.shifting and not state.requesting
 

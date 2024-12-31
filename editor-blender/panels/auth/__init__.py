@@ -14,10 +14,12 @@ class AuthenticationPanel(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.running and not state.logged_in
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
         layout = self.layout
         layout.enabled = not state.requesting
 

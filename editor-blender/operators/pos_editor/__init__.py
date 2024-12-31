@@ -7,7 +7,7 @@ class AttachEditingPosFrame(bpy.types.Operator):
     bl_idname = "lightdance.attach_editing_pos_frame"
     bl_label = "Attach to Editing Position Frame"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         attach_editing_pos_frame()
 
         return {"FINISHED"}

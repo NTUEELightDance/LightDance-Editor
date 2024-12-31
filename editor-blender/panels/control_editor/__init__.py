@@ -1,5 +1,3 @@
-from typing import List
-
 import bpy
 
 from ...core.models import EditMode, Editor, SelectedPartType, SelectMode
@@ -13,8 +11,8 @@ def draw_dancer_parts(
     dancer_obj: bpy.types.Object,
     ui_status: ControlEditorStatusType,
 ):
-    fibers: List[bpy.types.Object] = []
-    leds: List[bpy.types.Object] = []
+    fibers: list[bpy.types.Object] = []
+    leds: list[bpy.types.Object] = []
 
     for part in dancer_obj.children:
         ld_object_type: str = getattr(part, "ld_object_type")
@@ -54,10 +52,12 @@ class ControlEditor(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready and state.sync and state.editor == Editor.CONTROL_EDITOR
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
         layout = self.layout
         layout.enabled = not state.shifting and not state.requesting
 

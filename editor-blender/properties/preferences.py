@@ -19,6 +19,8 @@ def set_auto_sync(self: bpy.types.PropertyGroup, value: bool):
 
 
 def set_follow_frame(self: bpy.types.PropertyGroup, value: bool):
+    if not bpy.context:
+        return
     self["follow_frame"] = value
     state.preferences.follow_frame = value
     bpy.context.screen.use_follow = value

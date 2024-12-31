@@ -1,5 +1,6 @@
 import traceback
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import bpy
 
@@ -26,7 +27,7 @@ class EmptyOperator(bpy.types.Operator):
     bl_idname = "lightdance.empty"
     bl_label = "Empty Operator"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         return {"FINISHED"}
 
 

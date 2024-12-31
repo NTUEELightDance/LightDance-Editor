@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List, Tuple
 
 
 class ObjectType(Enum):
@@ -15,21 +14,21 @@ class LightType(Enum):
 
 
 class PositionPropertyType:
-    transform: Tuple[float, float, float]
-    rotation: Tuple[float, float, float]
+    transform: tuple[float, float, float]
+    rotation: tuple[float, float, float]
 
 
 class ColorPaletteItemType:
     color_id: int
     color_name: str
-    color_float: Tuple[float, float, float]
+    color_float: tuple[float, float, float]
 
-    color_rgb: Tuple[int, int, int]
+    color_rgb: tuple[int, int, int]
     color_alpha: float
     color_code: str
 
 
-ColorPaletteType = List[ColorPaletteItemType]
+ColorPaletteType = list[ColorPaletteItemType]
 
 
 class RevisionPropertyItemType:
@@ -39,7 +38,7 @@ class RevisionPropertyItemType:
     data: int
 
 
-RevisionPropertyType = List[RevisionPropertyItemType]
+RevisionPropertyType = list[RevisionPropertyItemType]
 
 
 class DancerModelHashItemType:

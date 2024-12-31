@@ -1,6 +1,6 @@
 from asyncio import Task
 from time import time
-from typing import Any, Optional
+from typing import Any
 
 import bpy
 
@@ -22,12 +22,14 @@ class PingOperator(bpy.types.Operator):
 
         is_ping_running = False
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, _: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
         global is_ping_running
 
+        if not context:
+            return {"CANCELLED"}
         if is_ping_running:
             return {"PASS_THROUGH"}
 
@@ -41,7 +43,7 @@ class PingOperator(bpy.types.Operator):
 
         return {"RUNNING_MODAL"}
 
-    def modal(self, context: bpy.types.Context, event: bpy.types.Event):
+    def modal(self, context: bpy.types.Context | None, event: bpy.types.Event):
         global is_ping_running
 
         if not is_ping_running:
@@ -54,7 +56,7 @@ class PingOperator(bpy.types.Operator):
             self.last_ping_time = time()
 
             if state.ready and state.sync:
-                last_ping: Optional[Task[Any]] = getattr(self, "last_ping", None)
+                last_ping: Task[Any] | None = getattr(self, "last_ping", None)
                 if last_ping is None or last_ping.done():
                     self.last_ping = AsyncTask(ping_server).exec()
 

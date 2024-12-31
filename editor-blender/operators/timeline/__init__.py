@@ -9,7 +9,7 @@ class IncreaseFrameIndex(bpy.types.Operator):
     bl_idname = "lightdance.increase_frame_index"
     bl_label = "Increase Frame Index"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         increase_frame_index()
         return {"FINISHED"}
 
@@ -20,7 +20,7 @@ class DecreaseFrameIndex(bpy.types.Operator):
     bl_idname = "lightdance.decrease_frame_index"
     bl_label = "Decrease Frame Index"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         decrease_frame_index()
         return {"FINISHED"}
 

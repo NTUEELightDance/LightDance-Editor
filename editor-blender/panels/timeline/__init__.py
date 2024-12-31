@@ -16,7 +16,9 @@ class TimelinePanel(bpy.types.Panel):
     # def poll(cls, context: bpy.types.Context):
     #     return state.ready
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
         if not state.ready:
             return
 

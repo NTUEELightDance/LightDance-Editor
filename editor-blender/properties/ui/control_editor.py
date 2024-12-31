@@ -1,4 +1,4 @@
-from typing import Dict, List, Set, Tuple, cast
+from typing import cast
 
 import bpy
 
@@ -13,11 +13,11 @@ from ..types import ColorPaletteItemType, LightType, ObjectType
 
 
 def get_effect_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
-    possible_effects: Set[str] = set()
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
+    possible_effects: set[str] = set()
 
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
     for obj_name in state.selected_obj_names:
         obj = data_objects[obj_name]
         ld_object_type: str = getattr(obj, "ld_object_type")
@@ -38,7 +38,7 @@ def get_effect_lists(
                 state.led_map[ld_model_name][ld_part_name]
             )
 
-    effect_list: List[str] = list(possible_effects)
+    effect_list: list[str] = list(possible_effects)
     effect_list.sort()
 
     effect_list = ["no-change"] + effect_list
@@ -47,11 +47,13 @@ def get_effect_lists(
 
 
 def get_color_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
     collection = icon_collections["main"]
 
-    ld_color_palette: List[ColorPaletteItemType] = getattr(
+    if not bpy.context:
+        return []
+    ld_color_palette: list[ColorPaletteItemType] = getattr(
         bpy.context.window_manager, "ld_color_palette"
     )
     return [
