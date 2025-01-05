@@ -59,7 +59,12 @@ class Config:
         Assets
         """
         library_path = cast(
-            str, bpy.context.preferences.filepaths.asset_libraries["User Library"].path
+            str,
+            (
+                bpy.context.preferences.filepaths.asset_libraries["User Library"].path
+                if bpy.context
+                else ""
+            ),
         )
         self.ASSET_PATH = os.path.join(library_path, "LightDance")
 

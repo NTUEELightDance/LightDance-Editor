@@ -23,7 +23,10 @@ uv sync
 # editor-blender/
 
 # Download wheels
-pip download -r requirements.prod.txt --dest wheels/ --python-version 311 --only-binary=:all:
+# For Linux/MacOS
+pip download -r requirements.prod.txt --dest wheels/ --python-version 311 --only-binary=:all: 
+ # For Windows
+pip download -r requirements.prod.txt --dest wheels/ --python-version 311 --only-binary=:all: --platform win_amd64
 
 # Pack add-on
 python pack/pack.py # For development
