@@ -3,6 +3,7 @@ pub mod global;
 pub mod graphql;
 pub mod routes;
 pub mod server;
+pub mod tracing;
 pub mod types;
 pub mod utils;
 
@@ -62,10 +63,14 @@ pub async fn main() {
         .nest("/", build_graphql_routes(schema))
         .nest("/api", build_api_routes());
 
-    let server_port = std::env::var("SERVER_PORT").unwrap_or_else(|_| "4000".to_string());
+    let server_port: u16 = std::env::var("SERVER_PORT")
+        .unwrap_or_else(|_| "4000".to_string())
+        .parse()
+        .unwrap();
 
     println!("Server is ready!");
-    println!("Listening on port {}", server_port);
+    tracing::init_tracing(server_port);
+
     println!("GraphiQL: http://localhost:{}/graphql", server_port);
 
     // Start server

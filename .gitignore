@@ -155,3 +155,5 @@ editor-blender.zip
 target/
 
 .venv
+*/.idea
+utils/createUsers.js
