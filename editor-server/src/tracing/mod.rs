@@ -6,11 +6,10 @@ pub fn init_tracing(server_port: u16) {
 
     if env_type == "development" {
         tracing_subscriber::registry()
-            .with(
-                tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                    format!("{}=debug,tower_http=debug", env!("CARGO_CRATE_NAME")).into()
-                }),
-            )
+            .with(tracing_subscriber::EnvFilter::new(format!(
+                "{}=debug,tower_http=debug",
+                env!("CARGO_CRATE_NAME")
+            )))
             .with(tracing_subscriber::fmt::layer())
             .init();
 

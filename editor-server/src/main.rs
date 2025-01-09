@@ -16,7 +16,6 @@ use crate::utils::{
 };
 
 use axum::Router;
-use std::env::var;
 use std::fs;
 use std::path::Path;
 
@@ -28,9 +27,9 @@ pub async fn main() {
     global::envs::set();
 
     // Set database clients in global clients
-    let mysql_host = var("DATABASE_URL").expect("DATABASE_URL is not set");
-    let redis_host = var("REDIS_HOST").expect("REDIS_HOST is not set");
-    let redis_port = var("REDIS_PORT").expect("REDIS_PORT is not set");
+    let mysql_host = env!("DATABASE_URL", "DATABASE_URL is not set");
+    let redis_host = env!("REDIS_HOST", "REDIS_HOST is not set");
+    let redis_port = env!("REDIS_PORT", "REDIS_PORT is not set");
 
     global::clients::set(AppClients::connect(mysql_host, (redis_host, redis_port)).await).unwrap();
 
@@ -63,14 +62,13 @@ pub async fn main() {
         .nest("/", build_graphql_routes(schema))
         .nest("/api", build_api_routes());
 
-    let server_port: u16 = std::env::var("SERVER_PORT")
-        .unwrap_or_else(|_| "4000".to_string())
+    let server_port: u16 = option_env!("SERVER_PORT")
+        .unwrap_or("4000")
         .parse()
         .unwrap();
 
     println!("Server is ready!");
     tracing::init_tracing(server_port);
-
     println!("GraphiQL: http://localhost:{}/graphql", server_port);
 
     // Start server
