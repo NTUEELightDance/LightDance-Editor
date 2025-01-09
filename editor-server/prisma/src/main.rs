@@ -1,4 +1,4 @@
-use std::env::{var, args};
+use std::env::{args, var};
 use std::time;
 
 fn main() {

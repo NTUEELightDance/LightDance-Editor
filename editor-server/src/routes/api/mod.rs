@@ -17,7 +17,6 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use tower_http::trace::TraceLayer;
 
 /// Build REST API routes for Axum server.
 pub fn build_api_routes() -> Router {
@@ -38,5 +37,4 @@ pub fn build_api_routes() -> Router {
         .route("/exportData", get(export_data::export_data))
         .route("/uploadData", post(upload_data::upload_data))
         .layer(DefaultBodyLimit::max(128 * 1000 * 1000))
-        .layer(TraceLayer::new_for_http())
 }

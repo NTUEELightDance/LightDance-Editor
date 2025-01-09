@@ -18,6 +18,7 @@ use crate::utils::{
 use axum::Router;
 use std::fs;
 use std::path::Path;
+use tracing::build_trace_layer;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 20)]
 pub async fn main() {
@@ -60,9 +61,9 @@ pub async fn main() {
     // Build server
     let app = Router::new()
         .nest("/", build_graphql_routes(schema))
-        .nest("/api", build_api_routes());
+        .nest("/api", build_trace_layer(build_api_routes()));
 
-    let server_port: u16 = option_env!("SERVER_PORT")
+    let server_port = option_env!("SERVER_PORT")
         .unwrap_or("4000")
         .parse()
         .unwrap();
