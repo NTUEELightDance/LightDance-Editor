@@ -31,9 +31,11 @@ slab = "0.4.9"
 sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "migrate", "postgres", "chrono"] }
 tokio = { version = "1.32.0", features = ["full"] }
 tower = "0.4.13"
-tower-http = { version = "0.5.2", features = ["cors"] }
+tower-http = { version = "0.3.0", features = ["cors", "trace"] }
 tower-service = "0.3.2"
 uuid = { version = "1.6.1", features = ["v4"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 [profile.dev]
 opt-level = 0
