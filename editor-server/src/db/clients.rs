@@ -10,7 +10,7 @@ pub struct AppClients {
 }
 
 impl AppClients {
-    pub async fn connect(mysql: String, redis: (String, String)) -> Self {
+    pub async fn connect(mysql: &'static str, redis: (&'static str, &'static str)) -> Self {
         Self {
             mysql_pool: build_mysql_pool(mysql).await,
             redis_client: build_redis_client(redis.0, redis.1).await,
@@ -26,12 +26,12 @@ impl AppClients {
     }
 }
 
-pub async fn build_mysql_pool(host: String) -> Pool<MySql> {
-    MySqlPool::connect(host.as_str())
+pub async fn build_mysql_pool(host: &'static str) -> Pool<MySql> {
+    MySqlPool::connect(host)
         .await
         .expect("Failed to create mysql pool")
 }
 
-pub async fn build_redis_client(host: String, port: String) -> Client {
+pub async fn build_redis_client(host: &'static str, port: &'static str) -> Client {
     Client::open(format!("redis://{}:{}", host, port)).expect("Failed to create redis client")
 }
