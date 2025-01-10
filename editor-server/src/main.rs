@@ -10,6 +10,7 @@ pub mod utils;
 use crate::db::clients::AppClients;
 use crate::graphql::schema::build_schema;
 use crate::routes::{api::build_api_routes, graphql::build_graphql_routes};
+use crate::tracing::{build_api_tracer, build_graphql_tracer};
 use crate::utils::{
     authentication::create_admin_user,
     data::{init_redis_control, init_redis_position},
@@ -18,7 +19,6 @@ use crate::utils::{
 use axum::Router;
 use std::fs;
 use std::path::Path;
-use tracing::build_trace_layer;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 20)]
 pub async fn main() {
@@ -60,15 +60,17 @@ pub async fn main() {
 
     // Build server
     let app = Router::new()
-        .nest("/", build_graphql_routes(schema))
-        .nest("/api", build_trace_layer(build_api_routes()));
+        .nest("/", build_graphql_tracer(build_graphql_routes(schema)))
+        .nest("/api", build_api_tracer(build_api_routes()));
 
-    let server_port = option_env!("SERVER_PORT")
+    let server_port: u16 = option_env!("SERVER_PORT")
         .unwrap_or("4000")
         .parse()
         .unwrap();
 
     println!("Server is ready!");
+
+    // initialize api tracing
     tracing::init_tracing(server_port);
     println!("GraphiQL: http://localhost:{}/graphql", server_port);
 
