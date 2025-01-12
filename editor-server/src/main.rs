@@ -63,7 +63,7 @@ pub async fn main() {
         .nest("/", build_graphql_tracer(build_graphql_routes(schema)))
         .nest("/api", build_api_tracer(build_api_routes()));
 
-    let server_port: u16 = option_env!("SERVER_PORT")
+    let server_port = option_env!("SERVER_PORT")
         .unwrap_or("4000")
         .parse()
         .unwrap();

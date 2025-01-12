@@ -24,7 +24,7 @@ pub fn init_tracing(server_port: u16) {
         .with(fmt::layer().without_time().with_target(false).compact())
         .init();
 
-    tracing::debug!("Listening on port {}", server_port);
+    tracing::info!("Listening on port {}", server_port);
 }
 
 /// Trace layer for the api router, logs time, status, and size of response
@@ -40,7 +40,7 @@ pub fn build_api_tracer(router: Router) -> Router {
                     .and_then(|value| value.to_str().ok())
                     .unwrap_or("0");
 
-                tracing::debug!(
+                tracing::info!(
                     "\x1b[1;32mtime:\x1b[0m {:<10?} \x1b[1;32mstatus:\x1b[0m {:<12} \x1b[1;32msize:\x1b[0m {:<6}",
                     latency,
                     response.status(),
@@ -63,7 +63,7 @@ pub fn build_graphql_tracer(router: Router) -> Router {
                     .and_then(|value| value.to_str().ok())
                     .unwrap_or("0");
 
-                tracing::debug!(
+                tracing::info!(
                     "\x1b[1;32mtime:\x1b[0m {:<10?} \x1b[1;32mstatus:\x1b[0m {:<12} \x1b[1;32msize:\x1b[0m {:<6}",
                     latency,
                     response.status(),
