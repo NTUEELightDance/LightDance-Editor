@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from ..client import client
 from ..core.models import FrameType
-from ..graphqls.mutations import SHIFT_TIME, MutTimeShiftResponse
+from ..schemas.mutations import SHIFT_TIME, MutTimeShiftResponse
 
 
 @dataclass

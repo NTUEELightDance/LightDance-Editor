@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from ..client import client
 from ..core.models import DancersArray
 from ..core.utils.convert import dancers_query_to_state
-from ..graphqls.queries import (
+from ..schemas.queries import (
     GET_DANCERS,
     QueryDancersPayload,
     QueryPartOrderByWithRelationInput,

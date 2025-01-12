@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from ..client import client
 from ..core.models import RGB, ColorID, ColorMap, ColorName
 from ..core.utils.convert import color_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_COLOR,
     DELETE_COLOR,
     EDIT_COLOR,
@@ -18,7 +18,7 @@ from ..graphqls.mutations import (
     MutEditColorResponse,
     StringFieldUpdateOperationsInput,
 )
-from ..graphqls.queries import GET_COLOR_MAP, QueryColorMapData
+from ..schemas.queries import GET_COLOR_MAP, QueryColorMapData
 
 
 @dataclass

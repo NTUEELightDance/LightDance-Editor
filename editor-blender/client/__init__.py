@@ -16,7 +16,7 @@ from websockets.client import WebSocketClientProtocol, connect
 
 from ..core.config import config
 from ..core.states import state
-from ..graphqls.command import (
+from ..schemas.command import (
     FromControllerServer,
     FromControllerServerBoardInfo,
     FromControllerServerCommandResponse,

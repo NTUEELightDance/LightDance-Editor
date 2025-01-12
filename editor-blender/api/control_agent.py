@@ -7,7 +7,7 @@ from typing import Any
 from ..client import client
 from ..core.models import ColorID, ControlMap, ControlRecord, LEDEffectID, MapID
 from ..core.utils.convert import control_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_CONTROL_FRAME,
     CANCEL_EDIT_CONTROL_BY_ID,
     DELETE_CONTROL_FRAME,
@@ -20,7 +20,7 @@ from ..graphqls.mutations import (
     MutEditControlFrameTimeInput,
     MutRequestEditControlResponse,
 )
-from ..graphqls.queries import (
+from ..schemas.queries import (
     GET_CONTROL_MAP,
     GET_CONTROL_RECORD,
     QueryControlMapData,

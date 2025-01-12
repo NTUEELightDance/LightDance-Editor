@@ -29,7 +29,7 @@ from ..core.utils.convert import (
 )
 from ..core.utils.notification import notify
 from ..core.utils.ui import redraw_area
-from ..graphqls.queries import (
+from ..schemas.queries import (
     QueryColorMapData,
     QueryColorMapPayloadItem,
     QueryControlMapData,
@@ -38,7 +38,7 @@ from ..graphqls.queries import (
     QueryPosMapData,
     QueryPosRecordData,
 )
-from ..graphqls.subscriptions import (
+from ..schemas.subscriptions import (
     SUB_COLOR_MAP,
     SUB_CONTROL_MAP,
     SUB_CONTROL_RECORD,

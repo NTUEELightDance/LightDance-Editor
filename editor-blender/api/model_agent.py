@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from ..client import client
 from ..core.models import ModelsArray
 from ..core.utils.convert import models_query_to_state
-from ..graphqls.queries import GET_MODELS, QueryModelPayload
+from ..schemas.queries import GET_MODELS, QueryModelPayload
 
 
 @dataclass

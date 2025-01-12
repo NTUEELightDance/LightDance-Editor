@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from ..client import client
 from ..core.models import ID, ColorID, LEDEffectID, LEDMap, ModelName, PartName
 from ..core.utils.convert import led_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_LED_EFFECT,
     CANCEL_EDIT_LED_EFFECT_BY_ID,
     DELETE_LED_EFFECT,
@@ -20,7 +20,7 @@ from ..graphqls.mutations import (
     MutLEDEffectFramePayload,
     MutRequestEditLEDEffectResponse,
 )
-from ..graphqls.queries import GET_LED_MAP, QueryLEDMapData
+from ..schemas.queries import GET_LED_MAP, QueryLEDMapData
 
 
 @dataclass

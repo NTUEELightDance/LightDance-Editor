@@ -3,8 +3,8 @@ import traceback
 import bpy
 
 from ....api.control_agent import control_agent
-from ....graphqls.mutations import MutDancerStatusPayload
 from ....properties.types import LightType
+from ....schemas.mutations import MutDancerStatusPayload
 from ...models import EditingData, EditMode, PartType, SelectMode
 from ...states import state
 from ...utils.convert import control_status_state_to_mut

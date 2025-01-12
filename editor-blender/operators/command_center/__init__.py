@@ -18,7 +18,8 @@ from ...core.asyncio import AsyncTask
 from ...core.states import state
 from ...core.utils.convert import is_color_code
 from ...core.utils.notification import notify
-from ...graphqls.command import (
+from ...properties.ui.types import CommandCenterStatusType
+from ...schemas.command import (
     ToControllerServerBoardInfoPartial,
     ToControllerServerCloseGPIOPartial,
     ToControllerServerColorPartial,
@@ -33,7 +34,6 @@ from ...graphqls.command import (
     ToControllerServerUploadPartial,
     ToControllerServerWebShellPartial,
 )
-from ...properties.ui.types import CommandCenterStatusType
 from ..async_core import AsyncOperator
 
 

@@ -1,7 +1,7 @@
 from typing import cast
 
-from ...graphqls.mutations import MutDancerStatusPayload
-from ...graphqls.queries import (
+from ...schemas.mutations import MutDancerStatusPayload
+from ...schemas.queries import (
     QueryColorMapPayload,
     QueryColorMapPayloadItem,
     QueryControlFrame,
@@ -19,7 +19,7 @@ from ...graphqls.queries import (
     QueryPosMapPayload,
     QueryRevision,
 )
-from ...graphqls.subscriptions import (
+from ...schemas.subscriptions import (
     SubControlFrame,
     SubEffectListItemData,
     SubLEDRecordDataItem,

@@ -7,7 +7,7 @@ from typing import Any
 from ..client import client
 from ..core.models import MapID, PosMap, PosRecord
 from ..core.utils.convert import pos_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_POS_FRAME,
     CANCEL_EDIT_POS_BY_ID,
     DELETE_POS_FRAME,
@@ -24,7 +24,7 @@ from ..graphqls.mutations import (
     MutEditPositionFrameTimeResponse,
     MutRequestEditPositionResponse,
 )
-from ..graphqls.queries import (
+from ..schemas.queries import (
     GET_POS_MAP,
     GET_POS_RECORD,
     QueryPosMapData,
