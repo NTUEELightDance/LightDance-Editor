@@ -8,6 +8,7 @@ from mathutils import Vector
 
 from ..core.states import state
 from ..core.utils.ui import redraw_area
+from ..storage import get_storage
 
 
 class NameTagSettings:
@@ -28,6 +29,9 @@ name_tag_settings = NameTagSettings()
 
 def name_tag_draw():
     global name_tag_settings
+
+    if not getattr(get_storage("preferences"), "show_nametag"):
+        return
 
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 

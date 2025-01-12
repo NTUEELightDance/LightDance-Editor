@@ -76,10 +76,14 @@ def read_preferences():
     preferences: Preferences = get_storage("preferences")
     state.preferences.auto_sync = preferences.auto_sync
     state.preferences.follow_frame = preferences.follow_frame
+    state.preferences.show_waveform = preferences.show_waveform
+    state.preferences.show_nametag = preferences.show_nametag
 
     # Trigger property setter
     preferences.auto_sync = state.preferences.auto_sync
     preferences.follow_frame = state.preferences.follow_frame
+    preferences.show_waveform = state.preferences.show_waveform
+    preferences.show_nametag = state.preferences.show_nametag
 
 
 async def init():

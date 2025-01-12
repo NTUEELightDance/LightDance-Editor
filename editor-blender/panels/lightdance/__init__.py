@@ -45,6 +45,10 @@ class LightDancePreferencesPanel(bpy.types.Panel):
         row.prop(preferences, "auto_sync", text="Auto Sync")
         row = col.row()
         row.prop(preferences, "follow_frame", text="Follow Frame")
+        row = col.row()
+        row.prop(preferences, "show_waveform", text="Show Waveform")
+        row = col.row()
+        row.prop(preferences, "show_nametag", text="Show Nametag")
 
 
 class LightDanceToolsPanel(bpy.types.Panel):

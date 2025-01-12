@@ -9,6 +9,7 @@ from gpu_extras import batch as g_batch
 
 from ..core.config import config
 from ..core.utils.ui import redraw_area
+from ..storage import get_storage
 
 
 class WaveformSettings:
@@ -32,6 +33,9 @@ def draw():
     region = waveform_settings.region
 
     if shader is None or batch is None or region is None:
+        return
+
+    if getattr(get_storage("preferences"), "show_waveform") is False:
         return
 
     x0 = cast(float, region.view2d.region_to_view(0, 0)[0])
