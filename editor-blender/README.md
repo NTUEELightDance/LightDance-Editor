@@ -42,3 +42,10 @@ The bundled add-on will be in the `LightDance-Editor` folder as a zip file.
 "Settings" -> "Add-ons" -> menu(upper-right corner) -> "Install from disk" -> select the zip file
 
 #### 5. Restart Blender
+
+#### Type checking over all files
+```bash
+# editor-blender/
+uv run pyright
+```
+Make sure no errors are present before committing.

@@ -385,7 +385,7 @@ def add_partial_ctrl_single_object_action(
     frames: list[tuple[int, bool, tuple[float, float, float]]],
 ):
     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
-    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
+    # kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
     for d, curve in enumerate(curves):
         # WARNING: Not sure which is faster

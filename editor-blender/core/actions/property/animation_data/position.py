@@ -8,14 +8,11 @@ from typing import cast
 
 import bpy
 
-from .....properties.types import RevisionPropertyItemType, RevisionPropertyType
+from .....properties.types import RevisionPropertyItemType
 from ....models import MapID, PosMapElement
 from ....states import state
-from ....utils.convert import (
-    PosAddCurveData,
-    PosDeleteCurveData,
+from ....utils.convert import (  # PosAddCurveData,; PosDeleteCurveData,; PosUpdateCurveData,
     PosModifyAnimationData,
-    PosUpdateCurveData,
 )
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 

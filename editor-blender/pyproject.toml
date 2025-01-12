@@ -12,7 +12,8 @@ dependencies = [
   "python-dotenv",
   "typeguard",
   "websockets",
-  "pip"
+  "pip",
+  "pyright",
 ]
 license = "MIT"
 
