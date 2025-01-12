@@ -3,7 +3,7 @@ from ...states import state
 from ...utils.convert import pos_modify_to_animation_data
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
-from ..property.animation_data import (  # update_pos_frames,
+from ..property.animation_data import (
     modify_partial_pos_keyframes,
     reset_pos_frames,
     reset_pos_rev,

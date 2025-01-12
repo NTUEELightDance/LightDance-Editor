@@ -6,7 +6,7 @@ from ...utils.convert import (
     control_modify_to_animation_data,
     pos_modify_to_animation_data,
 )
-from .animation_data import (  # update_control_frames_and_fade_sequence,; update_pos_frames,
+from .animation_data import (
     modify_partial_ctrl_keyframes,
     modify_partial_pos_keyframes,
     reset_control_frames_and_fade_sequence,
