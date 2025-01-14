@@ -20,6 +20,8 @@ jobs:
         run: cargo clippy --manifest-path ./editor-server/Cargo.toml
       - name: fmt check
         run: cargo fmt --manifest-path ./editor-server/Cargo.toml
+      - name: tests
+        run: cargo test --manifest-path ./editor-server/Cargo.toml --test '*'
   file-server-test:
      runs-on: ubuntu-latest
      steps: 
