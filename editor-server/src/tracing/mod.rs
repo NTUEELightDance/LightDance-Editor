@@ -8,11 +8,10 @@ use tracing::Span;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 /// Initialize api tracing
-pub fn init_tracing(server_port: u16) {
+pub fn init_tracing() {
     let env_type = &global::envs::get().env;
 
     if env_type == "production" {
-        println!("Listening on port {}", server_port);
         return;
     }
 
@@ -23,8 +22,6 @@ pub fn init_tracing(server_port: u16) {
         )))
         .with(fmt::layer().without_time().with_target(false).compact())
         .init();
-
-    tracing::info!("Listening on port {}", server_port);
 }
 
 /// Trace layer for the api router, logs time, status, and size of response

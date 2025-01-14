@@ -1,16 +1,27 @@
-use reqwest::Client;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use axum::{
+        body::Body,
+        http::{Request, StatusCode},
+    };
+    use tower::util::ServiceExt;
+
+    use editor_server::build_app;
 
     #[tokio::test]
     async fn ping() {
-        let client = Client::new();
+        let app = build_app().await;
 
-        let url = "http://localhost:4000/api/ping"; 
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/ping")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
 
-        let response = client.get(url).send().await.unwrap();
-        assert_eq!(response.status(), 200);
+        assert_eq!(response.status(), StatusCode::OK);
     }
 }
