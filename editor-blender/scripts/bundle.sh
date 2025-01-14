@@ -95,7 +95,7 @@ fi
 # For Windows
 if pip download -r "$PACK_BLENDER_PATH/requirements.prod.txt" --dest "$WHEELS_DIR" --python-version 311 --only-binary=:all: --platform win_amd64 -q; then
   pack
-  mv "$FOLDER_NAME.zip" "$ROOT_DIR/$FOLDER_NAME-unix.zip"
+  mv "$FOLDER_NAME.zip" "$ROOT_DIR/$FOLDER_NAME-win.zip"
   echo Bundled Windows version successfully.
   rm -rf "$WHEELS_DIR"
 fi
