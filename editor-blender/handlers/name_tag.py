@@ -1,4 +1,3 @@
-import traceback
 from typing import Any, cast
 
 import blf
@@ -6,6 +5,7 @@ import bpy
 from bpy_extras.view3d_utils import location_3d_to_region_2d
 from mathutils import Vector
 
+from ..core.log import logger
 from ..core.states import state
 from ..core.utils.ui import redraw_area
 from ..storage import get_storage
@@ -77,10 +77,10 @@ def name_tag_draw():
             blf.draw(name_tag_settings.font_id, name)
 
         except AttributeError:
-            traceback.print_exc()
+            logger.exception("Failed to draw name tag")
 
         except TypeError:
-            traceback.print_exc()
+            logger.exception("Failed to draw name tag")
 
 
 def name_tag_handler():
@@ -111,7 +111,7 @@ def mount():
     name_tag_settings.name_tag_handle = bpy.types.SpaceView3D.draw_handler_add(
         name_tag_handler, (), "WINDOW", "POST_PIXEL"
     )
-    print("Name tag mounted")
+    logger.info("Name tag mounted")
     redraw_area({"VIEW_3D"})
 
 

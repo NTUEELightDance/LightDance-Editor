@@ -25,6 +25,7 @@ from ....core.actions.state.current_status import (
 from ....core.actions.state.editor import setup_control_editor
 from ....core.actions.state.led_map import set_led_map
 from ....core.asyncio import AsyncTask
+from ....core.log import logger
 from ....core.states import state
 from ....core.utils.get_data import get_control, get_pos
 from ....core.utils.ui import redraw_area
@@ -145,7 +146,7 @@ async def reload():
     set_ready(False)
 
     unmount_handlers()
-    print("Handlers unmounted")
+    logger.info("Handlers unmounted")
 
     await init_blender()
 
@@ -187,7 +188,7 @@ def close_blender():
     ]
     asyncio.get_event_loop().run_until_complete(asyncio.gather(*close_client_tasks))
 
-    print("Blender closed")
+    logger.info("Blender closed")
 
 
 async def init_editor():
@@ -223,16 +224,17 @@ async def init_editor():
                 for index, result in enumerate(batch_results):
                     if isinstance(result, BaseException):
                         batch_done = False
-                        print(f"Batch {batch} failed: {result}")
+                        logger.error(f"Batch {batch} failed: {result}")
                     else:
                         batch_completes[index] = True
 
                 if not batch_done:
-                    raise Exception(f"Batch {batch} failed")
+                    logger.exception(f"Batch {batch} failed")
+                    raise
 
             break
         except Exception as e:
-            print(e)
+            logger.exception(e)
 
         await asyncio.sleep(2)
     state.user_log = ""
@@ -245,7 +247,7 @@ async def init_load():
     state.loading = False
     redraw_area({"VIEW_3D"})
     await load_data()
-    print("Editor initialized")
+    logger.info("Editor initialized")
     # In case the connection is lost during long initialization
     await client.restart_http()
     await client.restart_graphql()
@@ -255,7 +257,7 @@ async def init_load():
 
     # Mount handlers
     mount_handlers()
-    print("Handlers mounted")
+    logger.info("Handlers mounted")
 
     # Initialize current index and time
     bpy.context.scene.frame_current = 0
@@ -304,7 +306,7 @@ async def init_models():
     state.models_array = models_array
     state.model_dancer_index_map = model_dancer_index_map
 
-    print("Models initialized")
+    logger.info("Models initialized")
 
 
 async def init_dancers():
@@ -350,7 +352,7 @@ async def init_dancers():
     state.dancers_array = dancers_array
     state.dancer_part_index_map = dancer_part_index_map
 
-    print("Dancers initialized")
+    logger.info("Dancers initialized")
 
 
 async def init_color_map():
@@ -362,7 +364,7 @@ async def init_color_map():
         raise Exception("Failed to initialize color map")
 
     set_color_map(color_map)
-    print("Color map initialized")
+    logger.info("Color map initialized")
 
 
 async def init_led_map():
@@ -374,7 +376,7 @@ async def init_led_map():
 
     set_led_map(led_map)
 
-    print("LED map initialized")
+    logger.info("LED map initialized")
 
 
 async def init_control_map():
@@ -392,7 +394,7 @@ async def init_control_map():
     state.current_control_index = 0
     update_current_status_by_index()
 
-    print("Control map initialized")
+    logger.info("Control map initialized")
 
 
 async def init_pos_map():
@@ -409,4 +411,4 @@ async def init_pos_map():
     state.current_pos_index = 0
     update_current_pos_by_index()
 
-    print("Pos map initialized")
+    logger.info("Pos map initialized")

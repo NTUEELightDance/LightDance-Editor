@@ -2,6 +2,7 @@ from ....api.auth_agent import auth_agent
 from ....client import client
 from ....core.actions.state.app_state import set_logged_in, set_ready
 from ....core.actions.state.initialize import init_blender
+from ....core.log import logger
 from ....core.states import state
 from ....core.utils.ui import redraw_area
 from ....handlers import unmount_handlers
@@ -68,7 +69,7 @@ async def logout() -> None:
         await client.close_command()
 
         unmount_handlers()
-        print("Handlers unmounted")
+        logger.info("Handlers unmounted")
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 

@@ -1,8 +1,8 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import RGB, ColorID, ColorMap, ColorName
 from ..core.utils.convert import color_map_query_to_state
 from ..schemas.mutations import (
@@ -35,7 +35,7 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get color map")
 
         return None
 
@@ -63,7 +63,7 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to add color")
 
         return None
 
@@ -92,7 +92,7 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to edit color")
 
         return None
 
@@ -109,7 +109,7 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to delete color")
 
         return None
 

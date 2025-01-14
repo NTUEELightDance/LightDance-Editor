@@ -6,6 +6,7 @@ import bpy
 
 from ...core.actions.state.ping import ping_server
 from ...core.asyncio import AsyncTask
+from ...core.log import logger
 from ...core.states import state
 
 is_ping_running = False
@@ -18,7 +19,7 @@ class PingOperator(bpy.types.Operator):
     def __del__(self):
         global is_ping_running
 
-        print("Stopping ping...")
+        logger.info("Stopping ping...")
 
         is_ping_running = False
 
@@ -39,7 +40,7 @@ class PingOperator(bpy.types.Operator):
         self.last_ping_time = time()
         self.ping_interval = 60
 
-        print("Starting ping...")
+        logger.info("Starting ping...")
 
         return {"RUNNING_MODAL"}
 

@@ -1,8 +1,7 @@
-import traceback
-
 import bpy
 
 from ....api.led_agent import led_agent
+from ....core.log import logger
 from ....core.models import ColorID, EditMode, LEDEffect
 from ....core.states import state
 from ....core.utils.operator import execute_operator
@@ -111,7 +110,7 @@ async def save_led_effect():
                 else:
                     notify("WARNING", "Cannot exit editing")
             except Exception:
-                traceback.print_exc()
+                logger.exception("Failed to save LED effect")
                 notify("WARNING", "Cannot save LED effect")
 
         case LEDEditorEditModeType.NEW.value:
@@ -142,7 +141,7 @@ async def save_led_effect():
                 else:
                     notify("WARNING", "Cannot add LED effect")
             except Exception:
-                traceback.print_exc()
+                logger.exception("Failed to add LED effect")
                 notify("WARNING", "Cannot add LED effect")
 
         case _:
@@ -163,7 +162,7 @@ async def delete_led_effect():
         else:
             notify("WARNING", "Cannot delete LED effect")
     except Exception:
-        traceback.print_exc()
+        logger.exception("Failed to delete LED effect")
         notify("WARNING", "Cannot delete LED effect")
 
 

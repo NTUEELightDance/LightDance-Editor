@@ -1,8 +1,8 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import FrameType
 from ..schemas.mutations import SHIFT_TIME, MutTimeShiftResponse
 
@@ -46,7 +46,7 @@ class TimeShiftAgent:
             return ShiftResult(ok=False, msg="Timeout")
 
         except Exception as e:
-            traceback.print_exc()
+            logger.exception("Failed to shift time")
             return ShiftResult(ok=False, msg=str(e))
 
 

@@ -1,5 +1,6 @@
 import bpy
 
+from ...core.log import logger
 from ...core.utils.notification import notifications
 
 is_notification_running = False
@@ -34,7 +35,7 @@ class NotificationOperator(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         is_notification_running = True
 
-        print("Starting notification...")
+        logger.info("Starting notification...")
 
         return {"RUNNING_MODAL"}
 
@@ -44,7 +45,7 @@ class NotificationOperator(bpy.types.Operator):
     def __del__(self):
         global is_notification_running
 
-        print("Stopping notification...")
+        logger.info("Stopping notification...")
 
         is_notification_running = False
 

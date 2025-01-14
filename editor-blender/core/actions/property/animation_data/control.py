@@ -9,6 +9,7 @@ from typing import cast
 import bpy
 
 from .....properties.types import RevisionPropertyItemType
+from ....log import logger
 from ....models import ControlMapElement, MapID, PartType
 from ....states import state
 from ....utils.convert import (
@@ -186,7 +187,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 
-        print("[CTRL INIT]", dancer_name)
+        logger.info(f"[CTRL INIT] {dancer_name}")
 
         for part in parts:
             part_name = part.name
@@ -335,7 +336,7 @@ def modify_partial_ctrl_keyframes(
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 
-        print("[CTRL MODIFY]", dancer_name)
+        logger.info(f"[CTRL MODIFY] {dancer_name}")
 
         for part in parts:
             part_name = part.name
@@ -414,7 +415,7 @@ def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 
-        print("[CTRL ADD]", dancer_name)
+        logger.info(f"[CTRL ADD] {dancer_name}")
 
         for part in parts:
             part_name = part.name
@@ -499,7 +500,7 @@ def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 
-        print("[CTRL UPDATE]", dancer_name)
+        logger.info(f"[CTRL UPDATE] {dancer_name}")
 
         for part in parts:
             part_name = part.name
@@ -565,7 +566,7 @@ def delete_partial_ctrl_keyframes(animation_data: ControlDeleteAnimationData):
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 
-        print("[CTRL DELETE]", dancer_name)
+        logger.info(f"[CTRL DELETE] {dancer_name}")
 
         for part in parts:
             part_name = part.name

@@ -67,6 +67,9 @@ class Config:
             ),
         )
         self.ASSET_PATH = os.path.join(library_path, "LightDance")
+        os.makedirs(self.ASSET_PATH, exist_ok=True)
+
+        self.LOG_PATH = os.path.join(self.ASSET_PATH, "log.txt")
 
 
 config = Config()
