@@ -16,12 +16,12 @@ jobs:
         run: docker compose -f dev.docker-compose.yml up -d
       - name: Migrate database
         run: cd editor-server && cargo prisma migrate dev --skip-generate --name init
-      - name: build test and clippy check
+      - name: Build and clippy check
         run: cargo clippy --manifest-path ./editor-server/Cargo.toml
       - name: fmt check
         run: cargo fmt --manifest-path ./editor-server/Cargo.toml
-      - name: tests
-        run: cargo test --manifest-path ./editor-server/Cargo.toml --test '*'
+      - name: Run tests
+        run: cargo test --manifest-path ./editor-server/Cargo.toml --test '*' -- --nocapture
   file-server-test:
      runs-on: ubuntu-latest
      steps: 
