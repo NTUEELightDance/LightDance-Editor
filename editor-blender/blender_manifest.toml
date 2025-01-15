@@ -9,6 +9,38 @@ blender_version_min = "4.2.0"
 license = [
   "SPDX:GPL-3.0-or-later",
 ]
-wheels = []
+wheels = [
+  "./wheels/aiohappyeyeballs-2.4.4-py3-none-any.whl",
+  "./wheels/aiohttp-3.11.11-cp311-cp311-macosx_11_0_arm64.whl",
+  "./wheels/aiosignal-1.3.2-py2.py3-none-any.whl",
+  "./wheels/anyio-4.8.0-py3-none-any.whl",
+  "./wheels/attrs-24.3.0-py3-none-any.whl",
+  "./wheels/backoff-2.2.1-py3-none-any.whl",
+  "./wheels/botocore-1.35.99-py3-none-any.whl",
+  "./wheels/certifi-2024.12.14-py3-none-any.whl",
+  "./wheels/charset_normalizer-3.4.1-cp311-cp311-macosx_10_9_universal2.whl",
+  "./wheels/dataclass_wizard-0.34.0-py2.py3-none-any.whl",
+  "./wheels/frozenlist-1.5.0-cp311-cp311-macosx_11_0_arm64.whl",
+  "./wheels/gql-3.5.0-py2.py3-none-any.whl",
+  "./wheels/graphql_core-3.2.5-py3-none-any.whl",
+  "./wheels/h11-0.14.0-py3-none-any.whl",
+  "./wheels/httpcore-1.0.7-py3-none-any.whl",
+  "./wheels/httpx-0.28.1-py3-none-any.whl",
+  "./wheels/idna-3.10-py3-none-any.whl",
+  "./wheels/jmespath-1.0.1-py3-none-any.whl",
+  "./wheels/multidict-6.1.0-cp311-cp311-macosx_11_0_arm64.whl",
+  "./wheels/propcache-0.2.1-cp311-cp311-macosx_11_0_arm64.whl",
+  "./wheels/python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+  "./wheels/python_dotenv-1.0.1-py3-none-any.whl",
+  "./wheels/requests-2.32.3-py3-none-any.whl",
+  "./wheels/requests_toolbelt-1.0.0-py2.py3-none-any.whl",
+  "./wheels/six-1.17.0-py2.py3-none-any.whl",
+  "./wheels/sniffio-1.3.1-py3-none-any.whl",
+  "./wheels/typeguard-4.4.1-py3-none-any.whl",
+  "./wheels/typing_extensions-4.12.2-py3-none-any.whl",
+  "./wheels/urllib3-2.3.0-py3-none-any.whl",
+  "./wheels/websockets-11.0.3-cp311-cp311-macosx_11_0_arm64.whl",
+  "./wheels/yarl-1.18.3-cp311-cp311-macosx_11_0_arm64.whl"
+]
 network = "Connect with the editor backend"
 files = "Store and load assets"
