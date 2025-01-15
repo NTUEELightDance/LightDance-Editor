@@ -76,8 +76,15 @@ pack() {
   WHEELS_TOML=$(printf "\"./wheels/%s\", " "${WHEELS_LIST[@]}")
   WHEELS_TOML="[${WHEELS_TOML%, }]"
 
-  # Update the manifest file (not working on MacOS)
-  # sed -i '' "/wheels =/c\wheels = $WHEELS_TOML" "$MANIFEST_FILE"
+  # Update the manifest file
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "/wheels =/c\\
+wheels = $WHEELS_TOML\\
+
+" "$MANIFEST_FILE"
+  else
+    sed -i "/wheels =/c\wheels = $WHEELS_TOML" "$MANIFEST_FILE"
+  fi
 
   # Zip the folder
   cd "$PACK_DIR"
