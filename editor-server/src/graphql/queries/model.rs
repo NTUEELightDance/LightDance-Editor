@@ -17,6 +17,8 @@ impl ModelQuery {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Query: models");
+
         let result = sqlx::query!(
             r#"
                 SELECT
@@ -49,6 +51,8 @@ impl ModelQuery {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+
+        tracing::info!("Query: model");
 
         let result = sqlx::query!(
             r#"

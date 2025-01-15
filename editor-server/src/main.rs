@@ -1,6 +1,7 @@
 use editor_server::build_app;
 
-#[tokio::main(flavor = "multi_thread", worker_threads = 20)]
+// #[tokio::main(flavor = "multi_thread", worker_threads = 20)]
+#[tokio::main]
 pub async fn main() {
     // Build server
     let app = build_app().await;
@@ -11,7 +12,7 @@ pub async fn main() {
         .unwrap();
 
     println!("GraphiQL: http://localhost:{}/graphql", server_port);
-    println!("Editor-server listening on port {}", server_port);
+    println!("Server listening on port {}", server_port);
 
     // Start server
     axum::Server::bind(&format!("[::]:{}", server_port).parse().unwrap())

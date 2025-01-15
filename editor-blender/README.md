@@ -5,6 +5,7 @@
 Recommended to use uv for environment management.
 
 #### 1. Create virtual environment
+
 ```bash
 # editor-blender/
 
@@ -19,6 +20,7 @@ uv sync
 #### 2. Develop :D
 
 #### 3. Bundle blender add-on
+
 ```bash
 # editor-blender/
 
@@ -34,6 +36,7 @@ The bundled add-on will be in the `LightDance-Editor` folder as a zip file.
 #### 5. Restart Blender
 
 #### Type checking over all files
+
 ```bash
 # editor-blender/
 uv run pyright

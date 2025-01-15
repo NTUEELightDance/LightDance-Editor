@@ -50,6 +50,8 @@ impl DancerMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: addDancer");
+
         let dancer_name = input.name.clone();
 
         let dancer_result = sqlx::query_as!(
@@ -122,6 +124,8 @@ impl DancerMutation {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editDancer");
+
         let dancer_id = input.id;
         let dancer_name = input.name.clone();
 
@@ -192,6 +196,8 @@ impl DancerMutation {
 
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
+
+        tracing::info!("Mutation: deleteDancer");
 
         let dancer_id = input.id;
 

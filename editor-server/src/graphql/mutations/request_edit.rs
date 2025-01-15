@@ -32,6 +32,8 @@ impl RequestEditMutation {
         #[allow(unused_variables)]
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: requestEditControl");
+
         let check_editing_control_frame = sqlx::query_as!(
             EditingControlFrameData,
             r#"
@@ -102,6 +104,8 @@ impl RequestEditMutation {
         let mysql = clients.mysql_pool();
         #[allow(unused_variables)]
         let redis = clients.redis_client();
+
+        tracing::info!("Mutation: requestEditPosition");
 
         let check_editing_position_frame = sqlx::query_as!(
             EditingPositionFrameData,
@@ -176,6 +180,8 @@ impl RequestEditMutation {
         #[allow(unused_variables)]
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: requestEditLEDEffect");
+
         let check_editing_led_effect = sqlx::query_as!(
             EditingLEDEffectData,
             r#"
@@ -247,6 +253,8 @@ impl RequestEditMutation {
         #[allow(unused_variables)]
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: cancelEditPosition");
+
         let exist_frame = sqlx::query_as!(
             PositionFrameData,
             r#"
@@ -292,6 +300,8 @@ impl RequestEditMutation {
         #[allow(unused_variables)]
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: cancelEditControl");
+
         let exist_frame = sqlx::query!(
             r#"
                 SELECT * FROM ControlFrame
@@ -335,6 +345,8 @@ impl RequestEditMutation {
         let mysql = clients.mysql_pool();
         #[allow(unused_variables)]
         let redis = clients.redis_client();
+
+        tracing::info!("Mutation: cancelEditLEDEffect");
 
         let exist_led_effect = sqlx::query_as!(
             LEDEffectData,

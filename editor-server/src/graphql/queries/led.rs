@@ -23,6 +23,8 @@ impl LEDQuery {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Query: LEDMap");
+
         let led_effect_states = sqlx::query!(
             r#"
                 SELECT

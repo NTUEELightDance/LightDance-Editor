@@ -37,7 +37,7 @@ class PingOperator(bpy.types.Operator):
         is_ping_running = True
 
         self.last_ping_time = time()
-        self.ping_interval = 5
+        self.ping_interval = 60
 
         print("Starting ping...")
 

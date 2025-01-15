@@ -50,6 +50,8 @@ impl PartMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: addPart");
+
         let _check = match input.part_type {
             PartType::FIBER | PartType::LED => true,
         };
@@ -206,6 +208,8 @@ impl PartMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: deletePart");
+
         let deleted_part = sqlx::query_as!(
             PartData,
             r#"
@@ -295,6 +299,8 @@ impl PartMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+
+        tracing::info!("Mutation: editPart");
 
         let _check = match input.part_type {
             PartType::FIBER | PartType::LED => true,

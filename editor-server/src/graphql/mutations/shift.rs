@@ -40,6 +40,8 @@ impl FrameMutation {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: shift");
+
         //check negative
         if start + mv < 0 {
             return Err(GQLError::new("Negative start is not legal"));

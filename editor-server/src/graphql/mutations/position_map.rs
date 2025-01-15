@@ -40,6 +40,8 @@ impl PositionMapMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: editPosMap");
+
         //check payload correctness
         let frame_to_edit = sqlx::query_as!(
             PositionFrameData,

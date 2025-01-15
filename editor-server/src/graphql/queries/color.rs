@@ -15,6 +15,8 @@ impl ColorQuery {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
+        tracing::info!("Query: colorMap");
+
         let mysql = clients.mysql_pool();
         #[allow(unused)]
         let redis = clients.redis_client();
