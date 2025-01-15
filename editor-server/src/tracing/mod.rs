@@ -38,7 +38,7 @@ pub fn build_api_tracer(router: Router) -> Router {
                     .unwrap_or("0");
 
                 tracing::info!(
-                    "\x1b[1;32mtime:\x1b[0m {:<10?} \x1b[1;32mstatus:\x1b[0m {:<12} \x1b[1;32msize:\x1b[0m {:<6}",
+                    "\x1b[1m\x1b[38;2;0;191;255mtime:\x1b[0m {:<10?} \x1b[1m\x1b[38;2;0;191;255mstatus:\x1b[0m {:<12} \x1b[1m\x1b[38;2;0;191;255msize:\x1b[0m {:<6}",
                     latency,
                     response.status(),
                     content_length
@@ -61,7 +61,7 @@ pub fn build_graphql_tracer(router: Router) -> Router {
                     .unwrap_or("0");
 
                 tracing::info!(
-                    "\x1b[1;32mtime:\x1b[0m {:<10?} \x1b[1;32mstatus:\x1b[0m {:<12} \x1b[1;32msize:\x1b[0m {:<6}",
+                    "\x1b[1m\x1b[38;2;225;0;152mtime:\x1b[0m {:<10?} \x1b[1m\x1b[38;2;225;0;152mstatus:\x1b[0m {:<12} \x1b[1m\x1b[38;2;225;0;152msize:\x1b[0m {:<6}",
                     latency,
                     response.status(),
                     content_length
