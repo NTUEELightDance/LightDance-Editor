@@ -61,7 +61,7 @@ class LogWindow:
         """Opens a new terminal window and tails the log file."""
 
         UNIX_COMMAND = f"tail -f {config.LOG_PATH} -n 5"
-        WINDOWS_COMMAND = f'Get-Content "{config.LOG_PATH}" -Wait'
+        WINDOWS_COMMAND = f'Get-Content "{config.LOG_PATH}" -Wait -Tail 15'
 
         if sys.platform.startswith("win"):
             self.process = subprocess.Popen(
@@ -121,9 +121,17 @@ class LogWindow:
 
     def close(self):
         if self.process:
-            self.process.terminate()
+            if sys.platform.startswith("win"):
+                logger.info("\x1b[31;1mBlender terminated\x1b[0m")
+                logger.debug(
+                    "Can't close log window automaticly on Windows for now, please close manually."
+                )
+                # subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)])
+                return  # FIXME: This isn't working = =
+            else:
+                self.process.terminate()
+                logger.info("\x1b[31;1mLog window closed.\x1b[0m")
             self.process = None
-        logger.info("Log window closed.")
 
 
 log_window = LogWindow()
