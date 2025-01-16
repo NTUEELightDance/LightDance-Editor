@@ -124,16 +124,16 @@ OUTPUT_DIR=${OUTPUT_DIR:-$ROOT_DIR}
 
 # Download wheels
 # For Linux/MacOS
-cp "$WHEELS_CACHE_DIR/unix" "$WHEELS_DIR" -r
+cp -r "$WHEELS_CACHE_DIR/unix" "$WHEELS_DIR"
 pack
 mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-unix.zip"
-echo Bundled Linux/MacOS version at "$(realpath $OUTPUT_DIR/$FOLDER_NAME-unix.zip --relative-to $PWD_DIR)".
+echo Bundled Linux/MacOS version at "$OUTPUT_DIR/$FOLDER_NAME-unix.zip".
 
 # For Windows
-rm -rf "$WHEELS_DIR" && cp "$WHEELS_CACHE_DIR/win" "$WHEELS_DIR" -r
+rm -rf "$WHEELS_DIR" && cp -r "$WHEELS_CACHE_DIR/win" "$WHEELS_DIR"
 pack
 mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-win.zip"
-echo Bundled Windows version at "$(realpath $OUTPUT_DIR/$FOLDER_NAME-win.zip --relative-to $PWD_DIR)".
+echo Bundled Windows version at "$OUTPUT_DIR/$FOLDER_NAME-win.zip".
 
 # Remove temp folder
 rm -rf "$PACK_DIR"
