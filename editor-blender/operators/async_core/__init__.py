@@ -7,7 +7,7 @@ from typing import Any
 import bpy
 
 from ...core.actions.state.initialize import close_blender
-from ...core.log import logger
+from ...core.log import log_window, logger
 from ...core.utils.operator import execute_operator
 
 
@@ -57,6 +57,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
 
         logger.info("Stopping asyncio loop...")
         close_blender()
+        log_window.close()
 
         if is_async_loop_running and hasattr(self, "timer"):  # type: ignore
             if not bpy.context:
@@ -76,6 +77,9 @@ class AsyncLoopModalOperator(bpy.types.Operator):
 
         if not context:
             return {"CANCELLED"}
+
+        log_window.open()
+
         context.window_manager.modal_handler_add(self)
         is_async_loop_running = True
 

@@ -1,4 +1,7 @@
 import logging
+import shutil
+import subprocess
+import sys
 
 from ..config import config
 
@@ -40,7 +43,6 @@ def get_logger():
 
     if log_to_file:
         fh = logging.FileHandler(config.LOG_PATH)
-        # fh = logging.FileHandler("log.txt")
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(CustomFormatter())
         logger.addHandler(fh)
@@ -49,3 +51,79 @@ def get_logger():
 
 
 logger = get_logger()
+
+
+class LogWindow:
+    def __init__(self):
+        self.process = None
+
+    def open(self):
+        """Opens a new terminal window and tails the log file."""
+
+        UNIX_COMMAND = f"tail -f {config.LOG_PATH} -n 5"
+        WINDOWS_COMMAND = f'Get-Content "{config.LOG_PATH}" -Wait'
+
+        if sys.platform.startswith("win"):
+            self.process = subprocess.Popen(
+                [
+                    "start",
+                    "powershell",
+                    "-NoExit",
+                    "-Command",
+                    WINDOWS_COMMAND,
+                ],
+                shell=True,
+                stdin=subprocess.PIPE,
+            )
+        elif sys.platform.startswith("darwin"):
+            self.process = subprocess.Popen(
+                [
+                    "open",
+                    "-a",
+                    "Terminal",
+                    "-n",
+                    "--args",
+                    "bash",
+                    "-c",
+                    UNIX_COMMAND,
+                ],
+                stdin=subprocess.PIPE,
+            )
+        else:
+            # NOTE: Only support gnome-terminal and konsole currently
+            if shutil.which("konsole"):
+                self.process = subprocess.Popen(
+                    [
+                        "konsole",
+                        "--hold",
+                        "-e",
+                        "bash",
+                        "-c",
+                        UNIX_COMMAND,
+                    ],
+                    stdin=subprocess.PIPE,
+                )
+            elif shutil.which("gnome-terminal"):
+                self.process = subprocess.Popen(
+                    [
+                        "gnome-terminal",
+                        "--",
+                        "bash",
+                        "-c",
+                        UNIX_COMMAND,
+                    ],
+                    stdin=subprocess.PIPE,
+                )
+            else:
+                logger.error("Unsupported platform for opening log window.")
+                return
+        logger.info("\x1b[32;1mLog window opened.\x1b[0m")
+
+    def close(self):
+        if self.process:
+            self.process.terminate()
+            self.process = None
+        logger.info("Log window closed.")
+
+
+log_window = LogWindow()
