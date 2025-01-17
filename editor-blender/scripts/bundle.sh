@@ -35,6 +35,16 @@ done
 PACK_NAME="__blender_temp__"
 FOLDER_NAME="editor-blender"
 
+# Check if pip is available, otherwise use pip3
+if ! command -v pip &> /dev/null; then
+  if command -v pip3 &> /dev/null; then
+    alias pip=pip3
+  else
+    echo "Error: pip or pip3 not found"
+    exit 1
+  fi
+fi
+
 PWD_DIR=$(pwd)
 CURRENT_DIR=$(dirname $(realpath $0))
 ROOT_DIR=$(dirname $(dirname $CURRENT_DIR))
