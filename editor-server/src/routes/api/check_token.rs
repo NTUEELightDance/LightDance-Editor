@@ -20,33 +20,33 @@ pub struct CheckTokenFailedResponse {
 /// Logout handler.
 /// Remove token from redis and return success message.
 /// Otherwise return an error message.
+#[axum::debug_handler]
 pub async fn check_token(
-    cookie_jar: Option<CookieJar>,
+    cookie_jar: CookieJar,
 ) -> Result<(StatusCode, Json<CheckTokenResponse>), (StatusCode, Json<CheckTokenFailedResponse>)> {
-    // Get token from cookie jar
-    let cookie_jar = match cookie_jar {
-        Some(cookie_jar) => cookie_jar,
-        None => {
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(CheckTokenFailedResponse {
-                    err: "Failed to retrieve cookies.".to_string(),
-                }),
-            ))
-        }
-    };
+    // 處理空cookieJar
+    // let cookie_jar = cookie_jar.ok_or_else(|| {
+    //     (
+    //         StatusCode::INTERNAL_SERVER_ERROR,
+    //         Json(CheckTokenFailedResponse {
+    //             err: "Cookies are missing in the request.".to_string(),
+    //         }),
+    //     )
+    // })?;
 
-    let token = match cookie_jar.get("token") {
-        Some(token) => token.value().to_string(),
-        None => {
-            return Err((
+    // 從 CookieJar 中提取 token
+    let token = cookie_jar
+        .get("token")
+        .map(|cookie| cookie.value().to_string())
+        .ok_or_else(|| {
+            (
                 StatusCode::BAD_REQUEST,
                 Json(CheckTokenFailedResponse {
                     err: "Token is required.".to_string(),
                 }),
-            ))
-        }
-    };
+            )
+        })?;
+
     let env_type = &global::envs::get().env;
 
     if env_type == "development" {

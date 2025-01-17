@@ -1,11 +1,9 @@
 use crate::global;
 
 use axum::{
-    headers::{HeaderMap, HeaderValue},
-    http::StatusCode,
+    http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
-use http::header::CONTENT_TYPE;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -196,7 +194,7 @@ pub async fn get_dancer_fiber_data(
     let response = frames.into_iter().map(|(_, frame)| frame).collect();
 
     let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    headers.insert("content-type", HeaderValue::from_static("application/json"));
 
     Ok((StatusCode::OK, (headers, Json(response))))
 }

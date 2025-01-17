@@ -2,7 +2,7 @@ use crate::db::types::user::UserData;
 use crate::global;
 use crate::utils::authentication;
 
-use axum::{headers::HeaderMap, http::StatusCode, response::Json};
+use axum::{http::HeaderMap, http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use std::env::var;

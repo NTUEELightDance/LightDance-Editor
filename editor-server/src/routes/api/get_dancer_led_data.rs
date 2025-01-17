@@ -2,11 +2,9 @@ use crate::global;
 use crate::utils::vector::partition_by_field;
 
 use axum::{
-    headers::{HeaderMap, HeaderValue},
-    http::StatusCode,
+    http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
-use http::header::CONTENT_TYPE;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -388,7 +386,7 @@ pub async fn get_dancer_led_data(
     }
 
     let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    headers.insert("content-type", HeaderValue::from_static("application/json"));
 
     // return data of form {part_name: [{status: [[r, g, b, a], [r, g, b, a]]}, ...}, ...]
     // index of status array is position of led

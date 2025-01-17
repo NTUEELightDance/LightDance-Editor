@@ -12,8 +12,9 @@ argon2 = "0.5.2"
 async-graphql = "6.0.6"
 async-graphql-axum = "6.0.6"
 async-trait = "0.1.74"
-axum = { version = "0.6.20", features = ["ws", "form", "multipart"] }
+axum = { version = "0.8.1", features = ["ws", "form", "multipart", "macros", "json"] }
 axum-extra = { version = "0.8.0", features = ["cookie"] }
+axum-server = "0.7.1"
 bcrypt = "0.15.0"
 dotenv = "0.15.0"
 futures = "0.3.30"
@@ -31,7 +32,7 @@ slab = "0.4.9"
 sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "migrate", "postgres", "chrono"] }
 tokio = { version = "1.32.0", features = ["full"] }
 tower = "0.4.13"
-tower-http = { version = "0.3.0", features = ["cors", "trace"] }
+tower-http = { version = "0.6.1", features = ["cors", "trace"] }
 tower-service = "0.3.2"
 uuid = { version = "1.6.1", features = ["v4"] }
 tracing = "0.1.41"
