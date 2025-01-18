@@ -2,7 +2,6 @@ use crate::db::types::{
     color::ColorData, control_frame::ControlFrameData, position_frame::PositionFrameData,
 };
 use crate::global;
-use crate::types::global::PositionPos;
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
@@ -16,9 +15,10 @@ use sqlx::Type;
 use std::collections::BTreeMap;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct ExPositionData {
-    pub start: i32,
-    pub pos: Vec<PositionPos>,
+pub struct PositionData {
+    start: i32,
+    position: Vec<[f64; 3]>,
+    rotation: Vec<[f64; 3]>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -87,7 +87,7 @@ pub struct ExPartControl(pub String, pub i32); // TLEDControl: [src: string, alp
 pub struct ExportDataResponse {
     pub dancer: Vec<ExDancerData>,
     pub color: BTreeMap<String, ExColorData>,
-    pub position: BTreeMap<String, ExPositionData>,
+    pub position: BTreeMap<String, PositionData>,
     pub control: BTreeMap<String, ExControlData>,
     #[serde(rename = "LEDEffects")]
     pub led_effects: BTreeMap<String, BTreeMap<String, BTreeMap<String, ExLEDPart>>>,
@@ -350,7 +350,7 @@ pub async fn export_data() -> Result<
     .await
     .into_result()?;
 
-    let mut position = BTreeMap::<String, ExPositionData>::new();
+    let mut position = BTreeMap::<String, PositionData>::new();
 
     for position_frame in position_frames {
         let redis_position = get_redis_position(redis, position_frame.id)
@@ -358,27 +358,25 @@ pub async fn export_data() -> Result<
             .into_result()?;
         position.insert(
             position_frame.id.to_string(),
-            ExPositionData {
+            PositionData {
                 start: position_frame.start,
-                pos: redis_position.pos,
+                position: redis_position.position,
+                rotation: redis_position.rotation,
             },
         );
     }
 
     for key in position.keys().cloned().collect::<Vec<_>>() {
         if let Some(mut value) = position.remove(&key) {
-            value.pos = value
-                .pos
+            value.position = value
+                .position
                 .iter()
-                .map(|dancer_pos| {
-                    PositionPos(
-                        ((dancer_pos.0 + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_pos.1 + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_pos.2 + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_pos.3 + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_pos.4 + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_pos.5 + f64::EPSILON) * 100.0).round() / 100.0,
-                    )
+                .map(|dancer_position| {
+                    [
+                        ((dancer_position[1] + f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_position[0] + f64::EPSILON) * 100.0).round() / 100.0,
+                        ((dancer_position[2] + f64::EPSILON) * 100.0).round() / 100.0,
+                    ]
                 })
                 .collect();
             position.insert(key, value);

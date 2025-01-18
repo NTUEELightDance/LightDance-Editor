@@ -9,7 +9,7 @@ use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
 use crate::graphql::types::pos_frame::{PositionFrame, PositionFrameRevision};
-use crate::types::global::{PositionPos, RedisPosition, Revision, UserContext};
+use crate::types::global::{RedisPosition, Revision, UserContext};
 use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
 use crate::utils::revision::update_revision;
 
@@ -140,11 +140,13 @@ impl PositionFrameMutation {
                         start,
                         editing: None,
                         rev: Revision::default(),
-                        pos: data
+                        position: data
                             .iter()
-                            .map(|coor| {
-                                PositionPos(coor[0], coor[1], coor[2], coor[3], coor[4], coor[5])
-                            })
+                            .map(|coor| [coor[0], coor[1], coor[2]])
+                            .collect(),
+                        rotation: data
+                            .iter()
+                            .map(|coor| [coor[3], coor[4], coor[5]])
                             .collect(),
                     },
                 );

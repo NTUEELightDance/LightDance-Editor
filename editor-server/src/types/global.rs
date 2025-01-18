@@ -36,14 +36,12 @@ pub struct RedisControl {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PositionPos(pub f64, pub f64, pub f64, pub f64, pub f64, pub f64);
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisPosition {
     pub start: i32,
     pub editing: Option<String>,
     pub rev: Revision,
-    pub pos: Vec<PositionPos>,
+    pub position: Vec<[f64; 3]>,
+    pub rotation: Vec<[f64; 3]>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

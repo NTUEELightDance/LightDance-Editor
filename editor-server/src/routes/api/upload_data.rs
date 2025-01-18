@@ -17,8 +17,8 @@ struct ControlData {
 #[derive(Debug, Deserialize, Serialize)]
 struct PositionData {
     start: i32,
-    pos: Vec<[f32; 3]>,
-    rotation: Option<Vec<[f32; 3]>>,
+    position: Vec<[f64; 3]>,
+    rotation: Option<Vec<[f64; 3]>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -361,12 +361,12 @@ pub async fn upload_data(
         println!("Create Position Data...");
 
         for frame_obj in data_obj.position.values() {
-            if frame_obj.pos.len() != data_obj.dancer.len() {
+            if frame_obj.position.len() != data_obj.dancer.len() {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     Json(UploadDataFailedResponse {
                         err: format!("Error: Position frame starting at {} has invalid number of dancers. Found {}, Expected {}.",
-                         frame_obj.start, frame_obj.pos.len(), data_obj.dancer.len()),
+                         frame_obj.start, frame_obj.position.len(), data_obj.dancer.len()),
                     }),
                 ));
             }
@@ -385,10 +385,13 @@ pub async fn upload_data(
             let rotation_data = frame_obj
                 .rotation
                 .clone()
-                .unwrap_or_else(|| vec![[0.0, 0.0, 0.0]; frame_obj.pos.len()]);
+                .unwrap_or_else(|| vec![[0.0, 0.0, 0.0]; frame_obj.position.len()]);
 
-            for (index, (pos_data, rotation_data)) in
-                frame_obj.pos.iter().zip(rotation_data.iter()).enumerate()
+            for (index, (pos_data, rotation_data)) in frame_obj
+                .position
+                .iter()
+                .zip(rotation_data.iter())
+                .enumerate()
             {
                 let dancer_id = all_dancer[&data_obj.dancer[index].name].0;
 
