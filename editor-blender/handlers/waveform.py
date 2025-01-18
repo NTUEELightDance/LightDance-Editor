@@ -8,6 +8,7 @@ import gpu
 from gpu_extras import batch as g_batch
 
 from ..core.config import config
+from ..core.log import logger
 from ..core.utils.ui import redraw_area
 from ..storage import get_storage
 
@@ -73,7 +74,7 @@ def mount():
     try:
         waveform_file = open(waveform_path, "r")
     except FileNotFoundError:
-        print(f"Waveform file not found: {waveform_path}")
+        logger.error(f"Waveform file not found: {waveform_path}")
         return
 
     waveform_data = json.load(waveform_file)
@@ -173,7 +174,7 @@ def mount():
         draw, (), "WINDOW", "POST_PIXEL"
     )
 
-    print("Waveform loaded")
+    logger.info("Waveform loaded")
     redraw_area({"DOPESHEET_EDITOR"})
 
 

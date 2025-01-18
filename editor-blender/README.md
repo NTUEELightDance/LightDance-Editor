@@ -27,13 +27,25 @@ uv sync
 bash scripts/bundle.sh # For development
 bash scripts/bundle.sh -r # For release
 ```
+(See more with `bash scripts/bundle.sh -h`)
+
 The bundled add-on will be in the `LightDance-Editor` folder as a zip file.
 
 #### 4. Install add-on in Blender:
 
+##### Method 1:
+In Blender:
 "Settings" -> "Add-ons" -> menu(upper-right corner) -> "Install from disk" -> select the zip file
 
-#### 5. Restart Blender
+Then restart Blender.
+
+##### Method 2: (Much quicker)
+Make sure the Blender executable is in the PATH, then run the following command:
+```bash
+blender --command extension install-file -r user_default ${path_to_zip}
+```
+NOTE: For WSL users, set a `blender` alias for  `blender.exe` from WSL
+
 
 #### Type checking over all files
 

@@ -1,8 +1,8 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import DancersArray
 from ..core.utils.convert import dancers_query_to_state
 from ..schemas.queries import (
@@ -30,7 +30,7 @@ class DancerAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get dancers")
 
         return None
 

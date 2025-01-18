@@ -1,8 +1,8 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import ModelsArray
 from ..core.utils.convert import models_query_to_state
 from ..schemas.queries import GET_MODELS, QueryModelPayload
@@ -22,7 +22,7 @@ class ModelAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get models")
 
         return None
 

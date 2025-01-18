@@ -1,3 +1,4 @@
+from ...log import logger
 from ...models import EditMode, MapID, PosMap, PosMapElement, PosRecord
 from ...states import state
 from ...utils.convert import pos_modify_to_animation_data
@@ -20,7 +21,7 @@ def set_pos_record(pos_record: PosRecord):
 
 
 def add_pos(id: MapID, frame: PosMapElement):
-    print(f"Add pos {id} at {frame.start}")
+    logger.info(f"Add pos {id} at {frame.start}")
 
     pos_map_updates = state.pos_map_updates
     pos_map_updates.added[id] = frame
@@ -38,7 +39,7 @@ def add_pos(id: MapID, frame: PosMapElement):
 
 
 def delete_pos(id: MapID):
-    print(f"Delete pos {id}")
+    logger.info(f"Delete pos {id}")
 
     old_frame = state.pos_map.get(id)
     if old_frame is None:
@@ -78,7 +79,7 @@ def delete_pos(id: MapID):
 
 
 def update_pos(id: MapID, frame: PosMapElement):
-    print(f"Update pos {id} at {frame.start}")
+    logger.info(f"Update pos {id} at {frame.start}")
 
     pos_map_updates = state.pos_map_updates
 

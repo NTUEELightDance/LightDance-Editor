@@ -1,5 +1,6 @@
 import bpy
 
+from ...core.log import logger
 from ...core.utils.operator import execute_slider_dragging_callback
 
 
@@ -26,7 +27,7 @@ class SliderDraggingListener(bpy.types.Operator):
         if not context:
             return {"CANCELLED"}
         if event.type == "LEFTMOUSE":
-            print("Drag")
+            logger.info("Drag")
             wm = context.window_manager
             wm.modal_handler_add(self)
 
