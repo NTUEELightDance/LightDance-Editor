@@ -162,7 +162,10 @@ pub async fn init_redis_position(
                     PositionData.frame_id,
                     PositionData.x,
                     PositionData.y,
-                    PositionData.z
+                    PositionData.z,
+                    PositionData.rx,
+                    PositionData.ry,
+                    PositionData.rz
                 FROM Dancer
                 INNER JOIN PositionData
                 ON Dancer.id = PositionData.dancer_id
@@ -187,7 +190,14 @@ pub async fn init_redis_position(
                     .find(|position| position.frame_id == frame.id)
                     .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-                PositionPos(position.x, position.y, position.z)
+                PositionPos(
+                    position.x,
+                    position.y,
+                    position.z,
+                    position.rx,
+                    position.ry,
+                    position.rz,
+                )
             })
             .collect_vec();
 
@@ -346,7 +356,10 @@ pub async fn update_redis_position(
                     PositionData.frame_id,
                     PositionData.x,
                     PositionData.y,
-                    PositionData.z
+                    PositionData.z,
+                    PositionData.rx,
+                    PositionData.ry,
+                    PositionData.rz
                 FROM Dancer
                 INNER JOIN PositionData
                 ON Dancer.id = PositionData.dancer_id
@@ -372,7 +385,14 @@ pub async fn update_redis_position(
                 .find(|position| position.frame_id == frame.id)
                 .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-            PositionPos(position.x, position.y, position.z)
+            PositionPos(
+                position.x,
+                position.y,
+                position.z,
+                position.rx,
+                position.ry,
+                position.rz,
+            )
         })
         .collect_vec();
 
