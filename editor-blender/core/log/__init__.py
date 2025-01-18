@@ -60,7 +60,7 @@ class LogWindow:
     def open(self):
         """Opens a new terminal window and tails the log file."""
 
-        UNIX_COMMAND = f"tail -f {config.LOG_PATH} -n 5"
+        UNIX_COMMAND = f"tail -f -n 5 {config.LOG_PATH}"
         WINDOWS_COMMAND = f'Get-Content "{config.LOG_PATH}" -Wait -Tail 15'
 
         if sys.platform.startswith("win"):
@@ -76,16 +76,15 @@ class LogWindow:
                 stdin=subprocess.PIPE,
             )
         elif sys.platform.startswith("darwin"):
+            with open("/tmp/lightdance_log.sh", "w") as f:
+                f.write(f"#!/bin/bash\n{UNIX_COMMAND}")
+            subprocess.run(["chmod", "+x", "/tmp/lightdance_log.sh"])
             self.process = subprocess.Popen(
                 [
                     "open",
                     "-a",
                     "Terminal",
-                    "-n",
-                    "--args",
-                    "bash",
-                    "-c",
-                    UNIX_COMMAND,
+                    "/tmp/lightdance_log.sh",
                 ],
                 stdin=subprocess.PIPE,
             )
@@ -121,14 +120,16 @@ class LogWindow:
 
     def close(self):
         if self.process:
-            if sys.platform.startswith("win"):
+            if sys.platform.startswith("win") or sys.platform.startswith("darwin"):
                 logger.info("\x1b[31;1mBlender terminated\x1b[0m")
                 logger.debug(
-                    "Can't close log window automaticly on Windows for now, please close manually."
+                    "Can't close log window automaticly for now, please close manually."
                 )
-                # subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)])
-                return  # FIXME: This isn't working = =
-            else:
+                # subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)]) # Windows
+                # FIXME: This isn't working = =
+                if sys.platform.startswith("darwin"):
+                    subprocess.run(["rm", "/tmp/lightdance_log.sh"])
+            elif sys.platform.startswith("linux"):
                 self.process.terminate()
                 logger.info("\x1b[31;1mLog window closed.\x1b[0m")
             self.process = None
