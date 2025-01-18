@@ -385,14 +385,17 @@ pub async fn upload_data(
                 let dancer_id = all_dancer[&data_obj.dancer[index].name].0;
                 let _ = sqlx::query!(
                     r#"
-                        INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
-                        VALUES (?, ?, ?, ?, ?);
+                        INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                     "#,
                     dancer_id,
                     frame_id,
                     dancer_pos_data[0],
                     dancer_pos_data[1],
                     dancer_pos_data[2],
+                    dancer_pos_data[3],
+                    dancer_pos_data[4],
+                    dancer_pos_data[5],
                 )
                 .execute(&mut *tx)
                 .await

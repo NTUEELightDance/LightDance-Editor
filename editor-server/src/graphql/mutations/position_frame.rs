@@ -118,14 +118,17 @@ impl PositionFrameMutation {
                 for (idx, coor) in (*data).iter().enumerate() {
                     let _ = sqlx::query!(
                         r#"
-                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
-                            VALUES (?, ?, ?, ?, ?);
+                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                         "#,
                         dancers[idx].id,
                         id,
                         coor[0],
                         coor[1],
-                        coor[2]
+                        coor[2],
+                        coor[3],
+                        coor[4],
+                        coor[5],
                     )
                     .execute(mysql)
                     .await?;
@@ -139,7 +142,9 @@ impl PositionFrameMutation {
                         rev: Revision::default(),
                         pos: data
                             .iter()
-                            .map(|coor| PositionPos(coor[0], coor[1], coor[2]))
+                            .map(|coor| {
+                                PositionPos(coor[0], coor[1], coor[2], coor[3], coor[4], coor[5])
+                            })
                             .collect(),
                     },
                 );
@@ -148,14 +153,17 @@ impl PositionFrameMutation {
                 for dancer in dancers {
                     let _ = sqlx::query!(
                         r#"
-                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
-                            VALUES (?, ?, ?, ?, ?);
+                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                         "#,
                         dancer.id,
                         id,
                         0.0,
                         0.0,
-                        0.0
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
                     )
                     .execute(mysql)
                     .await?;
