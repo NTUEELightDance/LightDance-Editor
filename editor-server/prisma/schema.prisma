@@ -138,7 +138,7 @@ model PositionData {
   frame_id  Int
   x         Float
   y         Float
-  z         Float
+  z         Float 
   rx        Float @default(0)
   ry        Float @default(0)
   rz        Float @default(0)
