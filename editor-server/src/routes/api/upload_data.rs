@@ -18,6 +18,7 @@ struct ControlData {
 struct PositionData {
     start: i32,
     pos: Vec<[f32; 3]>,
+    rotation: Option<Vec<[f32; 3]>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -381,21 +382,29 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            for (index, dancer_pos_data) in frame_obj.pos.iter().enumerate() {
+            let rotation_data = frame_obj
+                .rotation
+                .clone()
+                .unwrap_or_else(|| vec![[0.0, 0.0, 0.0]; frame_obj.pos.len()]);
+
+            for (index, (pos_data, rotation_data)) in
+                frame_obj.pos.iter().zip(rotation_data.iter()).enumerate()
+            {
                 let dancer_id = all_dancer[&data_obj.dancer[index].name].0;
-                let _ = sqlx::query!(
+
+                sqlx::query!(
                     r#"
-                        INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                    INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                     "#,
                     dancer_id,
                     frame_id,
-                    dancer_pos_data[0],
-                    dancer_pos_data[1],
-                    dancer_pos_data[2],
-                    dancer_pos_data[3],
-                    dancer_pos_data[4],
-                    dancer_pos_data[5],
+                    pos_data[0],
+                    pos_data[1],
+                    pos_data[2],
+                    rotation_data[0],
+                    rotation_data[1],
+                    rotation_data[2]
                 )
                 .execute(&mut *tx)
                 .await
