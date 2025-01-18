@@ -138,10 +138,10 @@ model PositionData {
   frame_id  Int
   x         Float
   y         Float
-  z         Float
-  rx        Float
-  ry        Float
-  rz        Float
+  z         Float 
+  rx        Float @default(0)
+  ry        Float @default(0)
+  rz        Float @default(0)
 
   // relation => not in db
   dancer    Dancer        @relation(fields: [dancer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
