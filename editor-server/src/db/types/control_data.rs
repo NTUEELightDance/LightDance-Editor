@@ -1,6 +1,6 @@
 //! ControlData type.
 
-use crate::db::types::part::PartType;
+use crate::types::global::PartType;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct ControlData {

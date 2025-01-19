@@ -1,7 +1,9 @@
 //! Global structs and enums that are used throughout the application.
 
 use crate::db::clients::AppClients;
+use async_graphql::Enum;
 use serde::{Deserialize, Serialize};
+use sqlx::Type;
 
 #[derive(Debug)]
 pub struct UserContext {
@@ -13,12 +15,22 @@ pub struct UserContext {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PartControl(pub i32, pub i32); // [id: number, alpha: number]
 
-// pub enum PartControl {
-//     #[serde(untagged)]
-//     LED(String, i32),
-//     #[serde(untagged)]
-//     FIBER(String, i32),
-// }
+impl From<String> for PartType {
+    fn from(data: String) -> Self {
+        match data.as_str() {
+            "LED" => PartType::LED,
+            "FIBER" => PartType::FIBER,
+            _ => panic!("Invalid PartType value: {}", data),
+        }
+    }
+}
+
+#[derive(Type, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
+pub enum PartType {
+    #[default]
+    LED,
+    FIBER,
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct Revision {

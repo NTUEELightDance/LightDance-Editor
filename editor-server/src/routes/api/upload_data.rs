@@ -1,4 +1,5 @@
 use crate::global;
+use crate::types::global::PartType;
 use crate::utils::data::{init_redis_control, init_redis_position};
 
 use axum::{extract::Multipart, http::StatusCode, response::Json};
@@ -35,15 +36,10 @@ struct LEDPart {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-enum DancerPartType {
-    Led,
-    Fiber,
-}
-#[derive(Debug, Deserialize, Serialize)]
 struct DancerPart {
     name: String,
     #[serde(rename = "type")]
-    part_type: DancerPartType,
+    part_type: PartType,
     length: Option<i32>,
 }
 #[derive(Debug, Deserialize, Serialize)]
@@ -227,11 +223,11 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            let mut part_dict: HashMap<&String, (i32, &DancerPartType)> = HashMap::new();
+            let mut part_dict: HashMap<&String, (i32, &PartType)> = HashMap::new();
             for part in &dancer.parts {
                 let type_string = match &part.part_type {
-                    DancerPartType::Led => "LED",
-                    DancerPartType::Fiber => "FIBER",
+                    PartType::LED => "LED",
+                    PartType::FIBER => "FIBER",
                 };
 
                 let part_id = sqlx::query!(
@@ -467,8 +463,8 @@ pub async fn upload_data(
 
                     // This is apparently wrong currently
                     let type_string = match &real_part.1 {
-                        DancerPartType::Led => "EFFECT",
-                        DancerPartType::Fiber => "COLOR",
+                        PartType::LED => "EFFECT",
+                        PartType::FIBER => "COLOR",
                     };
                     let color_id = color_dict.get(&part_control_data.0);
                     let effect_id = match led_dict.get(model_name) {

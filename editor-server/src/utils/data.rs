@@ -1,7 +1,7 @@
 //! Database setting utilities.
 
-use crate::db::types::part::PartType;
 use crate::global;
+use crate::types::global::PartType;
 use crate::types::global::{PartControl, RedisControl, RedisPosition, Revision};
 use crate::utils::vector::partition_by_field;
 

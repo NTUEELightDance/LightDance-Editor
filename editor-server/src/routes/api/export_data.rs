@@ -2,16 +2,15 @@ use crate::db::types::{
     color::ColorData, control_frame::ControlFrameData, position_frame::PositionFrameData,
 };
 use crate::global;
+use crate::types::global::PartType;
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
-use async_graphql::Enum;
 use axum::{http::StatusCode, response::Json};
 use http::header::CONTENT_TYPE;
 use http::HeaderMap;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use sqlx::Type;
 use std::collections::BTreeMap;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -21,30 +20,10 @@ pub struct PositionData {
     rotation: Vec<[f64; 3]>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ExColorData(pub i32, pub i32, pub i32); // [r: number, g: number, b: number]
-
-impl From<String> for ExPartType {
-    fn from(data: String) -> Self {
-        match data.as_str() {
-            "LED" => ExPartType::Led,
-            "FIBER" => ExPartType::Fiber,
-            _ => panic!("Invalid TPartType value: {}", data),
-        }
-    }
-}
-
-#[derive(Type, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
-pub enum ExPartType {
-    #[default]
-    Led,
-    Fiber,
-}
-
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExPartData {
     pub name: String,
-    pub r#type: ExPartType,
+    pub r#type: PartType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub length: Option<i32>,
 }
@@ -86,7 +65,7 @@ pub struct ExPartControl(pub String, pub i32); // TLEDControl: [src: string, alp
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExportDataResponse {
     pub dancer: Vec<ExDancerData>,
-    pub color: BTreeMap<String, ExColorData>,
+    pub color: BTreeMap<String, [i32; 3]>,
     pub position: BTreeMap<String, PositionData>,
     pub control: BTreeMap<String, ExControlData>,
     #[serde(rename = "LEDEffects")]
@@ -138,14 +117,14 @@ pub async fn export_data() -> Result<
     .await
     .into_result()?;
 
-    let mut color = BTreeMap::<String, ExColorData>::new();
+    let mut color = BTreeMap::<String, [i32; 3]>::new();
     let mut color_dict = BTreeMap::new();
 
     // IColor
     for color_obj in color_data {
         color.insert(
             color_obj.name.to_string(),
-            ExColorData(color_obj.r, color_obj.g, color_obj.b),
+            [color_obj.r, color_obj.g, color_obj.b],
         );
         color_dict.insert(color_obj.id, color_obj.name.to_string());
     }
@@ -315,7 +294,7 @@ pub async fn export_data() -> Result<
                     .enumerate()
                     .map(|(part_idx, part_status)| {
                         let part_type = dancer[dancer_idx].parts[part_idx].r#type;
-                        if part_type == ExPartType::Fiber {
+                        if part_type == PartType::FIBER {
                             if part_status.0 == -1 {
                                 return ExPartControl(String::new(), part_status.1);
                             }

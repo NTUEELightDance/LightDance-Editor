@@ -2,8 +2,7 @@
 
 // import types
 use crate::db::types::editing_control_frame::EditingControlFrameData;
-use crate::db::types::part::PartType;
-use crate::types::global::UserContext;
+use crate::types::global::{PartType, UserContext};
 use crate::utils::revision::update_revision;
 
 // import modules and functions
