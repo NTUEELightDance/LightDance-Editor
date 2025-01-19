@@ -344,11 +344,13 @@ def override_pos(pos_frame: PosMapElement):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_name in state.dancer_names:
-        location = pos_frame.pos[dancer_name]
+        location = pos_frame.pos[dancer_name].location
+        rotation = pos_frame.pos[dancer_name].rotation
         dancer_obj = data_objects[dancer_name]
 
         ld_position: PositionPropertyType = getattr(dancer_obj, "ld_position")
         ld_position.transform = (location.x, location.y, location.z)
+        ld_position.rotation = (rotation.rx, rotation.ry, rotation.rz)
 
 
 async def paste_pos_frame(add_frame: bool) -> bool:

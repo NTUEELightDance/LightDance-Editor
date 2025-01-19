@@ -23,7 +23,7 @@ class SubRevision(JSONWizard):
 
 
 """
-PositoinRecord
+PositionRecord
 """
 
 
@@ -66,13 +66,14 @@ PositionMap
 """
 
 
-SubPosition = tuple[float, float, float]
+SubCoordinatesPayload = tuple[float, float, float]
 
 
 @dataclass
 class SubPositionFrame(JSONWizard):
     start: int
-    pos: list[SubPosition]
+    location: list[SubCoordinatesPayload]
+    rotation: list[SubCoordinatesPayload]
     rev: SubRevision
     editing: str | None = None
 

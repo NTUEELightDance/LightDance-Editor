@@ -101,7 +101,20 @@ class Location:
     z: float
 
 
-PosMapStatus = dict[DancerName, Location]
+@dataclass
+class Rotation:
+    rx: float
+    ry: float
+    rz: float
+
+
+@dataclass
+class Position:
+    location: Location
+    rotation: Rotation
+
+
+PosMapStatus = dict[DancerName, Position]
 
 
 @dataclass

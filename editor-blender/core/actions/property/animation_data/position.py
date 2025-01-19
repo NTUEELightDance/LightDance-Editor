@@ -139,27 +139,41 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if dancers_reset and not dancers_reset[dancer_index]:
                 continue
 
-            dancer_location = (pos.x, pos.y, pos.z)
+            dancer_location = (pos.location.x, pos.location.y, pos.location.z)
+            dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
 
             dancer_obj = data_objects[dancer_name]
             action = ensure_action(dancer_obj, dancer_name + "Action")
 
             for d in range(3):
-                curve = ensure_curve(
+                loc_curve = ensure_curve(
                     action,
                     "location",
                     index=d,
                     keyframe_points=pos_frame_number,
                     clear=i == 0,
                 )
+                rot_curve = ensure_curve(
+                    action,
+                    "rotation_euler",
+                    index=d,
+                    keyframe_points=pos_frame_number,
+                    clear=i == 0,
+                )
 
-                _, kpoints_list = get_keyframe_points(curve)
-                point = kpoints_list[i]
-                point.co = frame_start, dancer_location[d]
+                _, loc_kpoints_list = get_keyframe_points(loc_curve)
+                _, rot_kpoints_list = get_keyframe_points(rot_curve)
 
-                point.interpolation = "LINEAR"
+                loc_point = loc_kpoints_list[i]
+                rot_point = rot_kpoints_list[i]
+                loc_point.co = frame_start, dancer_location[d]
+                rot_point.co = frame_start, dancer_rotation[d]
 
-                point.select_control_point = False
+                loc_point.interpolation = "LINEAR"
+                rot_point.interpolation = "LINEAR"
+
+                loc_point.select_control_point = False
+                rot_point.select_control_point = False
 
         # insert fake frame
         scene = bpy.context.scene
@@ -196,6 +210,10 @@ update position keyframes
 
 
 def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
+    """
+    Modify the position keyframes in Blender based on the given data.
+    NOTE: Only one of the three arrays (delete / update / add) will be non-empty at a time.
+    """
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     for dancer_item in state.dancers_array:
@@ -209,10 +227,12 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         add = len(frames[2]) > 0
 
         action = ensure_action(dancer_obj, dancer_name + "Action")
-        curves = [ensure_curve(action, "location", index=d) for d in range(3)]
-        kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
+        loc_curves = [ensure_curve(action, "location", index=d) for d in range(3)]
+        rot_curves = [ensure_curve(action, "rotation_euler", index=d) for d in range(3)]
+        loc_kpoints_lists = [get_keyframe_points(curve)[1] for curve in loc_curves]
+        rot_kpoints_lists = [get_keyframe_points(curve)[1] for curve in rot_curves]
 
-        kpoints_len = len(kpoints_lists[0])
+        kpoints_len = len(loc_kpoints_lists[0])
 
         if delete:
             curve_index = 0
@@ -220,56 +240,66 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
             for old_start in frames[0]:
                 while (
                     curve_index < kpoints_len
-                    and int(kpoints_lists[0][curve_index].co[0]) != old_start
+                    and int(loc_kpoints_lists[0][curve_index].co[0]) != old_start
                 ):
                     curve_index += 1
 
                 if curve_index < kpoints_len:
                     for d in range(3):
-                        point = kpoints_lists[d][curve_index]
-                        curves[d].keyframe_points.remove(point)
+                        loc_point = loc_kpoints_lists[d][curve_index]
+                        rot_point = rot_kpoints_lists[d][curve_index]
+                        loc_curves[d].keyframe_points.remove(loc_point)
+                        rot_curves[d].keyframe_points.remove(rot_point)
 
-        kpoints_len = len(kpoints_lists[0])
+        kpoints_len = len(loc_kpoints_lists[0])
 
         update_reorder = False
         if update:
             curve_index = 0
             points_to_update: list[tuple[int, bpy.types.Keyframe, float]] = []
 
-            for old_start, frame_start, pos in frames[1]:
+            for old_start, frame_start, loc, rot in frames[1]:
                 if old_start != frame_start:
                     update_reorder = True
 
                 while (
                     curve_index < kpoints_len
-                    and int(kpoints_lists[0][curve_index].co[0]) != old_start
+                    and int(loc_kpoints_lists[0][curve_index].co[0]) != old_start
                 ):
                     curve_index += 1
 
                 if curve_index < kpoints_len:
                     for d in range(3):
-                        point = kpoints_lists[d][curve_index]
-                        points_to_update.append((frame_start, point, pos[d]))
+                        loc_point = loc_kpoints_lists[d][curve_index]
+                        rot_point = rot_kpoints_lists[d][curve_index]
+                        points_to_update.append((frame_start, loc_point, loc[d]))
+                        points_to_update.append((frame_start, rot_point, rot[d]))
 
-            for frame_start, point, pos in points_to_update:
-                point.co = frame_start, pos
-                point.interpolation = "LINEAR"
-                point.select_control_point = False
+            for frame_start, kpoint, co in points_to_update:
+                kpoint.co = frame_start, co
+                kpoint.interpolation = "LINEAR"
+                kpoint.select_control_point = False
 
-        kpoints_len = len(kpoints_lists[0])
+        kpoints_len = len(loc_kpoints_lists[0])
 
         # Add frames
         if add:
             for d in range(3):
-                curves[d].keyframe_points.add(len(frames[2]))
+                loc_curves[d].keyframe_points.add(len(frames[2]))
 
-                for i, (frame_start, pos) in enumerate(frames[2]):
-                    point = kpoints_lists[d][kpoints_len + i]
+                for i, (frame_start, loc, rot) in enumerate(frames[2]):
+                    loc_point = loc_kpoints_lists[d][kpoints_len + i]
+                    rot_point = rot_kpoints_lists[d][kpoints_len + i]
 
-                    point.co = frame_start, pos[d]
-                    point.interpolation = "LINEAR"
-                    point.select_control_point = True
+                    loc_point.co = frame_start, loc[d]
+                    rot_point.co = frame_start, rot[d]
+                    loc_point.interpolation = "LINEAR"
+                    rot_point.interpolation = "LINEAR"
+                    loc_point.select_control_point = True
+                    rot_point.select_control_point = True
 
         if update_reorder or add:
-            for curve in curves:
+            for curve in loc_curves:
+                curve.keyframe_points.sort()
+            for curve in rot_curves:
                 curve.keyframe_points.sort()

@@ -281,6 +281,7 @@ async def setup_objects():
             ld_dancer_name=dancer.name,
             ld_model_name=model_name,
             ld_object_type=ObjectType.DANCER.value,
+            rotation_mode="XYZ",
         )
         bpy.context.scene.collection.objects.link(dancer_obj)
 
@@ -383,6 +384,8 @@ async def setup_objects():
         new_dancer_models_hash.model_hash = state.init_temps.dancer_models_hash[
             dancer_name
         ]
+
+    bpy.ops.object.transform_apply(rotation=True)  # Reset all meshes rotation to 0
 
     setup_dancer_part_objects_map()
 

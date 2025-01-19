@@ -188,7 +188,8 @@ PositionMap
 class QueryPosFrame(JSONWizard):
     start: int
     rev: QueryRevision
-    pos: list[QueryCoordinatesPayload]
+    location: list[QueryCoordinatesPayload]
+    rotation: list[QueryCoordinatesPayload]
 
 
 QueryPosMapPayload = dict[ID, QueryPosFrame]
