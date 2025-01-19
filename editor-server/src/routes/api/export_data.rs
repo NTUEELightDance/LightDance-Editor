@@ -79,10 +79,12 @@ pub struct ExControlData {
     pub fade: bool,
     pub start: i32,
     pub status: Vec<Vec<ExPartControl>>,
+    pub led_status: Vec<Vec<ExPartControlBulbs>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ExPartControl(pub String, pub i32); // TLEDControl: [src: string, alpha: number] or TFiberControl: [color: string, alpha: number]
+pub type ExPartControlBulbs = Vec<(String, i32)>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExportDataResponse {
@@ -302,40 +304,66 @@ pub async fn export_data() -> Result<
     .into_result()?;
     let mut control = BTreeMap::<String, ExControlData>::new();
     for control_frame in control_frames {
-        let redis_contol = get_redis_control(redis, control_frame.id)
+        let redis_control = get_redis_control(redis, control_frame.id)
             .await
             .into_result()?;
-        let fade = redis_contol.fade;
-        let start = redis_contol.start;
-        let status = redis_contol.status;
+        let fade = redis_control.fade;
+        let start = redis_control.start;
+        let status = redis_control.status;
+        let led_status = redis_control.led_status;
+
         let new_status: Vec<Vec<ExPartControl>> = status
             .into_iter()
             .enumerate()
-            .map(|(dancer_idx, dancer_statue)| {
-                dancer_statue
+            .map(|(dancer_idx, dancer_status)| {
+                dancer_status
                     .into_iter()
                     .enumerate()
                     .map(|(part_idx, part_status)| {
                         let part_type = dancer[dancer_idx].parts[part_idx].r#type;
-                        if part_type == ExPartType::Fiber {
-                            if part_status.0 == -1 {
-                                return ExPartControl(String::new(), part_status.1);
+                        match part_type {
+                            ExPartType::Fiber => {
+                                let color_id = part_status.0;
+                                let alpha = part_status.1;
+                                ExPartControl(color_dict[&color_id].clone(), alpha)
                             }
-                            ExPartControl(color_dict[&part_status.0].clone(), part_status.1)
-                        } else {
-                            if part_status.0 == -1 {
-                                return ExPartControl(String::new(), part_status.1);
+                            ExPartType::Led => {
+                                let effect_id = part_status.0;
+                                let alpha = part_status.1;
+                                if effect_id == 0 {
+                                    ExPartControl("".to_string(), alpha)
+                                } else if effect_id == -1 {
+                                    ExPartControl("no-change".to_string(), alpha)
+                                } else {
+                                    ExPartControl(led_dict[&effect_id].clone(), alpha)
+                                }
                             }
-                            ExPartControl(led_dict[&part_status.0].clone(), part_status.1)
                         }
                     })
                     .collect::<Vec<ExPartControl>>()
             })
             .collect();
+
+        let new_led_status: Vec<Vec<ExPartControlBulbs>> = led_status
+            .into_iter()
+            .map(|dancer_led_status| {
+                dancer_led_status
+                    .into_iter()
+                    .map(|part_led_status| {
+                        part_led_status
+                            .into_iter()
+                            .map(|(color_id, alpha)| (color_dict[&color_id].clone(), alpha))
+                            .collect::<ExPartControlBulbs>()
+                    })
+                    .collect()
+            })
+            .collect();
+
         let new_cache_obj = ExControlData {
             fade,
             start,
             status: new_status,
+            led_status: new_led_status,
         };
         control.insert(control_frame.id.to_string(), new_cache_obj);
     }

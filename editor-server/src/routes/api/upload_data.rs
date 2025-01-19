@@ -1,3 +1,4 @@
+use crate::db::types::control_data::ControlType;
 use crate::global;
 use crate::utils::data::{init_redis_control, init_redis_position};
 
@@ -12,6 +13,7 @@ struct ControlData {
     start: i32,
     fade: bool,
     status: Vec<Vec<(String, i32)>>,
+    led_status: Vec<Vec<Vec<(String, i32)>>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -279,7 +281,7 @@ pub async fn upload_data(
 
             let model = all_model
                 .get(model_name)
-                .ok_or(format!("Error: Unknown Model Name {model_name}"))
+                .ok_or("Error: Unknown Dancer Name")
                 .into_result()?;
 
             let model_id = model.0;
@@ -290,7 +292,7 @@ pub async fn upload_data(
 
                 let part = all_part
                     .get(part_name)
-                    .ok_or(format!("Error: Unknown Part Name {part_name}"))
+                    .ok_or("Error: Unknown Part Name")
                     .into_result()?;
 
                 let part_id = part.0;
@@ -420,7 +422,12 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            for (i, dancer_control_data) in frame_obj.status.iter().enumerate() {
+            for (i, (dancer_status, dancer_led_status)) in frame_obj
+                .status
+                .iter()
+                .zip(frame_obj.led_status.iter())
+                .enumerate()
+            {
                 if frame_obj.status[i].len() != data_obj.dancer[i].parts.len() {
                     return Err((
                         StatusCode::BAD_REQUEST,
@@ -435,27 +442,44 @@ pub async fn upload_data(
                 let model_name = &data_obj.dancer[i].model;
                 let real_dancer = &all_dancer[dancer_name];
 
-                for (j, part_control_data) in dancer_control_data.iter().enumerate() {
+                for (j, (part_status, part_led_status)) in dancer_status
+                    .iter()
+                    .zip(dancer_led_status.iter())
+                    .enumerate()
+                {
                     let part_name = &data_obj.dancer[i].parts[j].name;
                     let real_part = &real_dancer.1[part_name];
 
-                    // This is apparently wrong currently
-                    let type_string = match &real_part.1 {
-                        DancerPartType::Led => "EFFECT",
-                        DancerPartType::Fiber => "COLOR",
+                    // ""          => effect_id =        NULL, type = "LED_BULBS"
+                    // "no-change" => effect_id =        NULL, type =    "EFFECT"
+                    // "<EFFECT>"  => effect_id = <EFFECT_ID>, type =    "EFFECT"
+
+                    let r#type = match &real_part.1 {
+                        DancerPartType::Fiber => ControlType::Color,
+                        DancerPartType::Led => {
+                            // LED_BULBS or EFFECT
+                            if part_status.0.is_empty() {
+                                ControlType::LEDBulbs
+                            } else {
+                                ControlType::Effect
+                            }
+                        }
                     };
-                    let color_id = color_dict.get(&part_control_data.0);
+
+                    let type_string: String = r#type.clone().into();
+
+                    let color_id = color_dict.get(&part_status.0);
                     let effect_id = match led_dict.get(model_name) {
                         Some(parts_dict) => match parts_dict.get(part_name) {
-                            Some(effect_dict) => effect_dict.get(&part_control_data.0),
+                            Some(effect_dict) => effect_dict.get(&part_status.0),
                             None => None,
                         },
                         None => None,
                     };
 
-                    let alpha = part_control_data.1;
+                    let alpha = part_status.1;
 
-                    sqlx::query!(
+                    let control_id = sqlx::query!(
                         r#"
                             INSERT INTO ControlData (dancer_id, part_id, frame_id, type, color_id, effect_id, alpha)
                             VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -470,7 +494,38 @@ pub async fn upload_data(
                     )
                     .execute(&mut *tx)
                     .await
-                    .into_result()?;
+                    .into_result()?
+                    .last_insert_id() as i32;
+
+                    if r#type == ControlType::LEDBulbs {
+                        for (index, (color, alpha)) in part_led_status.iter().enumerate() {
+                            let color_id = match color_dict.get(color) {
+                                Some(i) => i,
+                                None => {
+                                    return Err((
+                                        StatusCode::BAD_REQUEST,
+                                        Json(UploadDataFailedResponse {
+                                            err: format!("Error: Unknown Color Name {color} in ControlData/{dancer_name}/{part_name} at frame {}, index {index}.", frame_obj.start),
+                                        }),
+                                    ))
+                                }
+                            };
+
+                            sqlx::query!(
+                                r#"
+                                    INSERT INTO LEDBulb (control_id, position, color_id, alpha)
+                                    VALUES (?, ?, ?, ?);
+                                "#,
+                                control_id,
+                                index as i32,
+                                color_id,
+                                alpha,
+                            )
+                            .execute(&mut *tx)
+                            .await
+                            .into_result()?;
+                        }
+                    }
                 }
             }
             control_progress.inc(1);

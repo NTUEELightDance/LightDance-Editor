@@ -9,6 +9,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::iter::FromIterator;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Status {
@@ -26,6 +27,8 @@ pub struct GetDataFailedResponse {
 
 #[derive(Debug)]
 struct Part {
+    control_id: i32,
+    r#type: String,
     length: Option<i32>,
     effect_id: Option<i32>,
     start: i32,
@@ -238,6 +241,8 @@ pub async fn get_dancer_led_data(
                 Part.name as "part_name",
                 Part.id as "part_id",
                 Part.length as "part_length",
+                ControlData.id as "control_data_id",
+                ControlData.type,
                 ControlData.effect_id,
                 ControlFrame.start,
                 ControlFrame.fade
@@ -262,6 +267,52 @@ pub async fn get_dancer_led_data(
     .into_iter()
     .filter(|data| parts_filter.contains(&data.part_name))
     .collect_vec();
+    let all_control_id_set: HashSet<i32> =
+        HashSet::from_iter(dancer_data.iter().map(|data| data.control_data_id));
+
+    let dancer_bulbs_data = sqlx::query!(
+        r#"
+            SELECT
+                ControlData.id as "control_data_id", 
+                LEDBulb.position,
+                LEDBulb.color_id,
+                LEDBulb.alpha
+            FROM Dancer
+            INNER JOIN Model
+                ON Dancer.model_id = Model.id
+            INNER JOIN Part
+                ON Model.id = Part.model_id
+            INNER JOIN ControlData
+                ON Part.id = ControlData.part_id AND
+                ControlData.dancer_id = Dancer.id
+            INNER JOIN ControlFrame
+                ON ControlData.frame_id = ControlFrame.id
+            INNER JOIN LEDBulb
+                ON LEDBulb.control_id = ControlData.id
+            WHERE Dancer.name = ? AND Part.type = 'LED'
+            ORDER BY ControlData.id, LEDBulb.position;
+        "#,
+        dancer
+    )
+    .fetch_all(mysql_pool)
+    .await
+    .into_result()?
+    .into_iter()
+    .filter(|data| all_control_id_set.contains(&data.control_data_id))
+    .map(|data| {
+        (
+            data.control_data_id,
+            data.position,
+            data.color_id,
+            data.alpha,
+        )
+    })
+    .collect_vec();
+
+    let dancer_bulbs_data = partition_by_field(|data| data.0, dancer_bulbs_data);
+
+    let dancer_bulbs_data: HashMap<i32, Vec<(i32, i32, i32, i32)>> =
+        HashMap::from_iter(dancer_bulbs_data.into_iter().map(|data| (data[0].0, data)));
 
     if dancer_data.is_empty() {
         return Err((
@@ -277,6 +328,8 @@ pub async fn get_dancer_led_data(
     // organize control data into their respective parts
     for data in dancer_data.into_iter() {
         fetched_parts.entry(data.part_name).or_default().push(Part {
+            control_id: data.control_data_id,
+            r#type: data.r#type,
             length: data.part_length,
             effect_id: data.effect_id,
             start: data.start,
@@ -295,12 +348,13 @@ pub async fn get_dancer_led_data(
                     let control_data = fetched_parts.get(sub_part_name);
 
                     if let Some(control_data) = control_data {
-                        for data in control_data.iter() {
-                            let start = data.start;
-                            let fade = data.fade;
-                            let length = data.length.ok_or("Length not found").into_result()?;
+                        for part_data in control_data.iter() {
+                            let start = part_data.start;
+                            let fade = part_data.fade;
+                            let length =
+                                part_data.length.ok_or("Length not found").into_result()?;
 
-                            if let Some(effect_id) = data.effect_id {
+                            if let Some(effect_id) = part_data.effect_id {
                                 let effect_data = effect_states_map
                                     .get(&effect_id)
                                     .ok_or("Effect data not found")
@@ -312,7 +366,10 @@ pub async fn get_dancer_led_data(
                                     .or_insert((start, fade, Vec::new()))
                                     .2
                                     .extend_from_slice(&effect_data);
-                            } else {
+                                continue;
+                            }
+
+                            if part_data.r#type == "EFFECT" {
                                 let previous_part_status = match response.get(part_name) {
                                     Some(status) => status.last().unwrap().status.clone(),
                                     None => vec![[0, 0, 0, 0]; length as usize],
@@ -323,7 +380,30 @@ pub async fn get_dancer_led_data(
                                     .or_insert((start, fade, Vec::new()))
                                     .2
                                     .extend_from_slice(&previous_part_status);
+                                continue;
                             }
+                            let bulbs_data = dancer_bulbs_data
+                                .get(&part_data.control_id)
+                                .ok_or("Bulbs data not found")
+                                .into_result()?;
+
+                            frame_effect_datas
+                                .entry(start)
+                                .or_insert((start, fade, Vec::new()))
+                                .2
+                                .extend_from_slice(
+                                    &bulbs_data
+                                        .iter()
+                                        .map(|(_, _, color_id, alpha)| {
+                                            let color = color_map.get(color_id).unwrap_or(&Color {
+                                                r: 0,
+                                                g: 0,
+                                                b: 0,
+                                            });
+                                            [color.r, color.g, color.b, *alpha]
+                                        })
+                                        .collect_vec(),
+                                );
                         }
                     }
                 }
@@ -364,7 +444,10 @@ pub async fn get_dancer_led_data(
                                 status: effect_data,
                                 fade,
                             });
-                        } else {
+                            continue;
+                        }
+
+                        if data.r#type == "EFFECT" {
                             let previous_part_status = match part_data.last() {
                                 Some(status) => status.status.clone(),
                                 None => vec![[0, 0, 0, 0]; length as usize],
@@ -375,7 +458,28 @@ pub async fn get_dancer_led_data(
                                 status: previous_part_status,
                                 fade,
                             });
+                            continue;
                         }
+                        let bulbs_data = dancer_bulbs_data
+                            .get(&data.control_id)
+                            .ok_or("Bulbs data not found")
+                            .into_result()?;
+
+                        part_data.push(Status {
+                            start,
+                            status: bulbs_data
+                                .iter()
+                                .map(|(_, _, color_id, alpha)| {
+                                    let color = color_map.get(color_id).unwrap_or(&Color {
+                                        r: 0,
+                                        g: 0,
+                                        b: 0,
+                                    });
+                                    [color.r, color.g, color.b, *alpha]
+                                })
+                                .collect_vec(),
+                            fade,
+                        });
                     }
 
                     part_data.sort_by_key(|status| status.start);
