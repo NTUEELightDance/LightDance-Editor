@@ -9,7 +9,7 @@ mod api_tests {
     use editor_server::build_app;
 
     #[tokio::test]
-    async fn upload_data() {
+    async fn upload_and_export_data() {
         let mut app = build_app().await;
 
         let file_path = "../utils/jsons/exportDataEmpty.json";
