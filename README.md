@@ -15,9 +15,8 @@
   An online editor to design, simulate and control the lights
 </p>
 <div align="center" >
-    <img src="https://github.com/user-attachments/assets/31783e15-0606-47ef-8204-50068e81d938" width="100%">
+    <img src="https://github.com/user-attachments/assets/31783e15-0606-47ef-8204-50068e81d938" width="100%" alt="Editor">
 </div>
-
 
 ## Architecture
 
@@ -34,33 +33,43 @@ http://localhost:8082 - controller-server
 ## Development
 
 ### Local
+
 #### Install Pre-Commit
+
 ```sh
 # in Lightdance-Editor
 pre-commit install
 ```
 
 #### Configure node environment
+
 ```sh
 # in Lightdance-Editor
 nvm install
 corepack enable
 corepack install
 ```
+
 Then by executing `nvm use` you can choose the specified version of node and pnpm
 
 #### Start database
+
 copy the environment variables for development
+
 ```sh
 # in Lightdance-Editor/editor-server
 cp .env.development .env
 ```
+
 start mySQL and redisDB
+
 ```sh
 # in Lightdance-Editor
 docker compose -f dev.docker-compose.yml up -d
 ```
+
 migrate the database
+
 ```sh
 # in Lightdance-Editor/editor-server
 cargo prisma migrate dev --skip-generate --name init
@@ -69,10 +78,12 @@ cargo prisma migrate dev --skip-generate --name init
 #### Install the dependencies
 
 This will install all dependencies for the app.
+
 ```sh
 # in Lightdance-Editor
 pnpm install:all
 ```
+
 This will setup a venv for python (>3.10 recommended), remember to select it as interpreter before developing frontend.
 
 #### Run all services
@@ -95,10 +106,12 @@ pnpm dev:controller-server
 ```
 
 To bundle the frontend blender add-on, run:
+
 ```sh
 pnpm dev:bundle # For local development
 pnpm prod:bundle # For production
 ```
+
 The bundled extension will be stored at `./editor-blender-{unix,win}.zip` for Linux/MacOS and Windows respectively
 , to install the add-on, see [Blender Add-ons Documentation](https://docs.blender.org/manual/en/latest/editors/preferences/addons.html) or `editor-blender/README.md`.
 
@@ -121,11 +134,14 @@ node initDB.js jsons/exportDataEmpty.json
 ```
 
 ## Production
+
 migrate the database
+
 ```sh
 # in Lightdance-Editor/editor-server
 cargo prisma migrate dev --skip-generate --name init
 ```
+
 Start all services
 
 ```sh
