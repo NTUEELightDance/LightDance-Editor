@@ -27,7 +27,7 @@ pub async fn init() {
     let redis_host = env!("REDIS_HOST", "REDIS_HOST is not set");
     let redis_port = env!("REDIS_PORT", "REDIS_PORT is not set");
 
-    global::clients::set(AppClients::connect(mysql_host, (redis_host, redis_port)).await).unwrap();
+    global::clients::set(AppClients::connect(mysql_host, (redis_host, redis_port)).await);
 
     create_admin_user()
         .await
@@ -42,14 +42,14 @@ pub async fn init() {
     init_redis_position(clients.mysql_pool(), clients.redis_client())
         .await
         .expect("Error initializing redis position.");
-}
-
-pub async fn build_app() -> Router {
-    init().await;
-    let schema = schema::build_schema();
 
     // initialize api tracing
     tracing::init_tracing();
+}
+
+pub async fn build_app() -> Router {
+    let schema = schema::build_schema();
+
     Router::new()
         .nest("/", build_graphql_tracer(build_graphql_routes(schema)))
         .nest("/api", build_api_tracer(build_api_routes()))

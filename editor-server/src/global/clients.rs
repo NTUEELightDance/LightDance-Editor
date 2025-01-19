@@ -7,8 +7,8 @@ use once_cell::sync::OnceCell;
 static APP_CLIENTS: OnceCell<AppClients> = OnceCell::new();
 
 /// Set the database clients in global clients
-pub fn set(clients: AppClients) -> Result<(), AppClients> {
-    APP_CLIENTS.set(clients)
+pub fn set(clients: AppClients) {
+    APP_CLIENTS.set(clients).unwrap();
 }
 
 /// Get the database clients from global clients

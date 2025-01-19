@@ -32,11 +32,11 @@ pub async fn ping(
     )
     .fetch_one(mysql)
     .await
-    .map_err(|e| {
+    .map_err(|err| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(PingFailedResponse {
-                err: format!("Failed to get db revision: {}", e),
+                err: err.to_string(),
             }),
         )
     })?;

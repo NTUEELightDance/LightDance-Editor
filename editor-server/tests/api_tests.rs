@@ -1,19 +1,56 @@
 #[cfg(test)]
 mod api_tests {
-    use axum::{
-        body::Body,
-        http::{Request, StatusCode},
-    };
-    use tower::util::ServiceExt;
+    use std::fs;
 
-    use editor_server::build_app;
+    use axum::{body::Body, http::Request};
+    use http::StatusCode;
+    use tower::{util::ServiceExt, Service};
+
+    use editor_server::{build_app, init};
 
     #[tokio::test]
-    async fn ping() {
-        let app = build_app().await;
+    async fn upload_data_and_ping() {
+        init().await;
+        let mut app = build_app().await;
 
-        let response = app
-            .oneshot(
+        let file_path = "../utils/jsons/exportDataEmpty.json";
+        let file_bytes = fs::read(file_path).unwrap();
+
+        let boundary = "----test-boundary";
+        let multipart_body = format!(
+            "--{boundary}\r\n\
+             Content-Disposition: form-data; name=\"data\"; filename=\"exportDataEmpty.json\"\r\n\
+             Content-Type: application/json\r\n\
+             \r\n\
+             {file_content}\r\n\
+             --{boundary}--\r\n",
+            boundary = boundary,
+            file_content = String::from_utf8_lossy(&file_bytes),
+        );
+
+        let request = Request::builder()
+            .method("POST")
+            .uri("/api/uploadData")
+            .header(
+                "Content-Type",
+                format!("multipart/form-data; boundary={boundary}"),
+            )
+            .body(Body::from(multipart_body))
+            .unwrap();
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(
                 Request::builder()
                     .uri("/api/ping")
                     .body(Body::empty())
