@@ -42,12 +42,12 @@ pub async fn init() {
     init_redis_position(clients.mysql_pool(), clients.redis_client())
         .await
         .expect("Error initializing redis position.");
-
-    // initialize api tracing
-    tracing::init_tracing();
 }
 
 pub async fn build_app() -> Router {
+    init().await;
+    tracing::init_tracing();
+
     let schema = schema::build_schema();
 
     Router::new()

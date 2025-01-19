@@ -8,6 +8,10 @@ static APP_CLIENTS: OnceCell<AppClients> = OnceCell::new();
 
 /// Set the database clients in global clients
 pub fn set(clients: AppClients) {
+    if APP_CLIENTS.get().is_some() {
+        return;
+    }
+
     APP_CLIENTS.set(clients).unwrap();
 }
 

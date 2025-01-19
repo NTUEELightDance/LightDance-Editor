@@ -13,6 +13,10 @@ pub struct Env {
 static ENV: OnceCell<Env> = OnceCell::new();
 
 pub fn set() {
+    if ENV.get().is_some() {
+        return;
+    }
+
     let env = var("ENV").expect("ENV not set");
     let redis_ctrl_prefix = var("REDIS_CTRL_PREFIX").unwrap_or_else(|_| "CTRLFRAME_".to_string());
     let redis_pos_prefix = var("REDIS_POS_PREFIX").unwrap_or_else(|_| "POSFRAME_".to_string());

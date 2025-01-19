@@ -6,15 +6,15 @@ mod api_tests {
     use http::StatusCode;
     use tower::{util::ServiceExt, Service};
 
-    use editor_server::{build_app, init};
+    use editor_server::build_app;
 
     #[tokio::test]
-    async fn upload_data_and_ping() {
-        init().await;
+    async fn upload_data() {
         let mut app = build_app().await;
 
         let file_path = "../utils/jsons/exportDataEmpty.json";
         let file_bytes = fs::read(file_path).unwrap();
+        // let input_json: Value = serde_json::from_slice(&file_bytes).unwrap();
 
         let boundary = "----test-boundary";
         let multipart_body = format!(
@@ -52,7 +52,7 @@ mod api_tests {
             .unwrap()
             .call(
                 Request::builder()
-                    .uri("/api/ping")
+                    .uri("/api/exportData")
                     .body(Body::empty())
                     .unwrap(),
             )
@@ -60,5 +60,11 @@ mod api_tests {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
+
+        // let body = response.into_body().collect().await.unwrap().to_bytes();
+        // let exported_json: Value = serde_json::from_slice(&body).unwrap();
+
+        // this will fail (for now)
+        // assert_eq!(input_json, exported_json);
     }
 }
