@@ -44,6 +44,7 @@ pub struct DancerData {
     pub dancer_id: i32,
     pub part_type: PartType,
     pub part_id: i32,
+    pub length: Option<i32>,
 }
 
 #[derive(Default)]
@@ -58,12 +59,13 @@ impl ControlFrameMutation {
         start: i32,
         fade: bool,
         control_data: Vec<Vec<Vec<i32>>>,
+        led_control_data: Vec<Vec<Vec<Vec<i32>>>>,
     ) -> FieldResult<String> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
-        tracing::info!("Mutation: addControlFrame");
+        let mut tx = mysql.begin().await?;
 
         // check if the control frame already exists on the start time
         let exist = sqlx::query!(
@@ -77,14 +79,13 @@ impl ControlFrameMutation {
            "#,
             start
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await?
-        .exist;
-
-        let exist_bool = exist == 1;
+        .exist
+            == 1;
 
         // if the control frame already exists, return error
-        if exist_bool {
+        if exist {
             return Err(Error::new("Control frame already exists on the start time"));
         }
 
@@ -97,14 +98,15 @@ impl ControlFrameMutation {
                 SELECT
                     Dancer.id AS "dancer_id",
                     Part.type AS "part_type: PartType",
-                    Part.id AS "part_id"
+                    Part.id AS "part_id",
+                    Part.length
                 FROM Dancer
                 INNER JOIN Model ON Dancer.model_id = Model.id
                 INNER JOIN Part ON Model.id = Part.model_id
                 ORDER BY Dancer.id ASC, Part.id ASC;
             "#,
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         // Use the partition_by_field function to group raw_dancer_data by dancer_id
@@ -116,134 +118,184 @@ impl ControlFrameMutation {
         // the first dimension is the dancer id, the second dimension is the part id, and the third dimension is the data
         // the data is a 1d array of length 2, first element representing the Color id or LEDEffect id, the second element representing the alpha value
 
-        if !control_data.is_empty() {
-            // first, check if the data have all information about all dancers
-            if control_data.len() != dancers.len() {
-                // to avoid subtract overflow when dancers.len() < control_data.len()
-                if dancers.len() < control_data.len() {
-                    let error_message = format!(
-                        "Control data is more than dancers in payload. Extra number: {}",
-                        control_data.len() - dancers.len()
-                    );
-                    return Err(Error::new(error_message));
+        if control_data.is_empty() || led_control_data.is_empty() {
+            let error_message = "Control data is empty.".to_string();
+            return Err(Error::new(error_message));
+        }
+
+        // if !control_data.is_empty() {
+        // first, check if the data have all information about all dancers
+        if control_data.len() != dancers.len() || led_control_data.len() != dancers.len() {
+            // to avoid subtract overflow when dancers.len() < control_data.len()
+            if dancers.len() < control_data.len() || dancers.len() < led_control_data.len() {
+                let error_message = "Control data is more than dancers in payload.".to_string();
+                return Err(Error::new(error_message));
+            } else {
+                let error_message = "Control data is less than dancers in payload.".to_string();
+                return Err(Error::new(error_message));
+            }
+        }
+
+        // fetch data about colors and LED effects
+        let all_color_ids = sqlx::query!(
+            r#"
+                SELECT id FROM Color ORDER BY id ASC;
+            "#,
+        )
+        .fetch_all(&mut *tx)
+        .await?
+        .iter()
+        .map(|color_id| color_id.id)
+        .collect::<Vec<i32>>();
+
+        let all_led_effect_ids = sqlx::query!(
+            r#"
+                    SELECT id FROM LEDEffect ORDER BY id ASC;
+                "#,
+        )
+        .fetch_all(&mut *tx)
+        .await?
+        .into_iter()
+        .map(|effect_id| effect_id.id)
+        .collect::<Vec<i32>>();
+
+        let mut errors: Vec<String> = Vec::new();
+
+        // please check the syntax of for loop in rust
+        // the iter() method will return an iterator of the array
+        // the enumerate() method will return a tuple of (index, value)
+        for (index, data) in control_data.iter().enumerate() {
+            let dancer = &dancers[index];
+            let dancer_bulb_datas = &led_control_data[index];
+
+            // second, check if the data of each dancer have all information about all parts
+            if data.len() != dancer.len() || dancer_bulb_datas.len() != dancer.len() {
+                if dancer.len() < data.len() || dancer.len() < dancer_bulb_datas.len() {
+                    errors.push(format!(
+                        "Control data in dancer {} is more than parts in payload.",
+                        index
+                    ));
+                    // if the data is more than the parts, when iter through parts will have "out of bound" error
+                    // so we need to skip the rest of the iteration
+                    break;
                 } else {
-                    let error_message = format!(
-                        "Control data is less than dancers in payload. Missing number: {}",
-                        dancers.len() - control_data.len()
-                    );
-                    return Err(Error::new(error_message));
+                    errors.push(format!(
+                        "Control data in dancer {} is less than parts in payload.",
+                        index
+                    ));
+                    break;
                 }
             }
 
-            // fetch data about colors and LED effects
-            let all_fiber_color_ids = sqlx::query!(
-                r#"
-                    SELECT id FROM Color ORDER BY id ASC;
-                "#,
-            )
-            .fetch_all(mysql)
-            .await?
-            .iter()
-            .map(|color_id| color_id.id)
-            .collect::<Vec<i32>>();
+            for (_index, _data) in data.iter().enumerate() {
+                let part = &dancer[_index];
+                let part_type = &part.part_type;
 
-            let all_led_effect_ids = sqlx::query!(
-                r#"
-                    SELECT id FROM LEDEffect ORDER BY id ASC;
-                "#,
-            )
-            .fetch_all(mysql)
-            .await?
-            .into_iter()
-            .map(|effect_id| effect_id.id)
-            .collect::<Vec<i32>>();
+                let part_bulb_datas = &dancer_bulb_datas[_index];
+                let is_data_led_bulb = !part_bulb_datas.is_empty();
 
-            let mut errors: Vec<String> = Vec::new();
+                // third, check if the data of each part have proper format
+                // if !_data.is_empty() && !part_bulb_datas.is_empty() {
+                //     errors.push(format!(
+                //         "There are both effect/color data and LED bulb data in dancer {} part {}.",
+                //         index + 1,
+                //         _index + 1
+                //     ));
+                //     break;
+                // }
 
-            // please check the syntax of for loop in rust
-            // the iter() method will return an iterator of the array
-            // the enumerate() method will return a tuple of (index, value)
-            for (index, data) in control_data.iter().enumerate() {
-                let dancer = &dancers[index];
-
-                // second, check if the data of each dancer have all information about all parts
-                if data.len() != dancer.len() {
-                    if dancer.len() < data.len() {
-                        let error_message = format!(
-                        "Control data in dancer {} is more than parts in payload. Extra number: {}",
-                        index, data.len() - dancer.len()
-                    );
-                        errors.push(error_message);
-                        // if the data is more than the parts, when iter through parts will have "out of bound" error
-                        // so we need to skip the rest of the iteration
-                        break;
-                    } else {
-                        let error_message = format!(
-                        "Control data in dancer {} is less than parts in payload. Missing number: {}",
-                        index, dancer.len() - data.len()
-                    );
-                        errors.push(error_message);
-                    }
+                // if _data is not an array, return error
+                if _data.is_empty() && part_bulb_datas.is_empty() {
+                    errors.push(format!(
+                            "There are neither effect/color data or LED bulb data in dancer {} part {}.",
+                            index + 1, _index + 1
+                        ));
+                    break;
                 }
 
-                for (_index, _data) in data.iter().enumerate() {
-                    let part = &dancer[_index];
-                    let part_type = &part.part_type;
-
-                    // third, check if the data of each part have proper format
-
-                    // if _data is not an array, return error
-                    if _data.is_empty() || _data.len() < 2 {
-                        let error_message =
-                            format!("Data of dancer #{} part #{} is not an array", index, _index);
-                        errors.push(error_message);
-                    }
-
-                    // if _data is an array, check if the length of the array is 2
-                    if _data.len() != 2 {
+                // check if the led_control_data is an array of length 2
+                for bulb_data in part_bulb_datas.iter() {
+                    if bulb_data.len() != 2 && !_data.is_empty() {
                         let error_message = format!(
-                            "Data of dancer #{} part #{} is not an array of length 2",
-                            index, _index
+                            "LED Bulb data of dancer #{} part #{} is not an array of length 2",
+                            index + 1,
+                            _index + 1
                         );
                         errors.push(error_message);
                     }
+                }
 
-                    match part_type {
-                        // if the part is Fiber, check if the color is valid
-                        PartType::FIBER => {
-                            let color_id = _data[0];
+                // if _data is an array, check if the length of the array is 2
+                if _data.len() != 2 && !_data.is_empty() {
+                    let error_message = format!(
+                        "Data of dancer #{} part #{} is not an array of length 2",
+                        index, _index
+                    );
+                    errors.push(error_message);
+                }
 
-                            // check if the color is valid
-                            if !all_fiber_color_ids.contains(&color_id) {
+                match part_type {
+                    // if the part is Fiber, check if the color is valid
+                    PartType::FIBER => {
+                        let color_id = _data[0];
+
+                        // check if the color is valid
+                        if !all_color_ids.contains(&color_id) {
+                            let error_message = format!(
+                                "Color of dancer #{} part #{} is not a valid color",
+                                index, _index
+                            );
+                            errors.push(error_message);
+                        }
+                    }
+                    // if the part is LED, check if the effect is valid
+                    PartType::LED => {
+                        if is_data_led_bulb {
+                            if part_bulb_datas.len() != part.length.unwrap() as usize {
                                 let error_message = format!(
-                                    "Color of dancer #{} part #{} is not a valid color",
-                                    index, _index
-                                );
+                                        "LED Bulb data of dancer #{} part #{} is not an array of length {}",
+                                        index + 1, _index + 1, part.length.unwrap()
+                                    );
                                 errors.push(error_message);
                             }
-                        }
-                        // if the part is LED, check if the effect is valid
-                        PartType::LED => {
+
+                            for bulb_data in part_bulb_datas.iter() {
+                                let color_id = bulb_data[0];
+
+                                // check if the color is valid
+                                if !all_color_ids.contains(&color_id) && color_id != 0 {
+                                    let error_message = format!(
+                                            "Color of LED Bulb of dancer #{} part #{} is not a valid color",
+                                            index + 1, _index + 1
+                                        );
+                                    errors.push(error_message);
+                                }
+                            }
+                        } else {
                             let effect_id = _data[0];
 
                             // check if the effect is valid
-                            if effect_id > 0 && !all_led_effect_ids.contains(&effect_id) {
+                            if !all_led_effect_ids.contains(&effect_id)
+                                && effect_id != 0
+                                && effect_id != -1
+                            {
                                 let error_message = format!(
                                     "Effect of dancer #{} part #{} is not a valid effect",
-                                    index, _index
+                                    index + 1,
+                                    _index + 1
                                 );
                                 errors.push(error_message);
                             }
                         }
-                    };
-                }
+                    }
+                };
             }
-            // if there are errors, return the errors
-            if !errors.is_empty() {
-                // turn errors from Vec<String> into a string
-                let errors = errors.join("\n");
-                return Err(Error::new(errors));
-            }
+        }
+
+        if !errors.is_empty() {
+            // turn errors from Vec<String> into a string
+            let errors = errors.join("\n");
+            return Err(Error::new(errors));
         }
 
         // after checking the data, insert the data into the database
@@ -255,140 +307,112 @@ impl ControlFrameMutation {
                 VALUES (?, ?);
             "#,
             start,
-            fade
+            fade,
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         let new_control_frame_id = new_control_frame.last_insert_id() as i32;
 
         // create control frame data
         // if the control data is given, use the given data
-        if !control_data.is_empty() {
-            // iterate through every dancer
-            for (index, data) in control_data.iter().enumerate() {
-                let dancer = &dancers[index];
+        // if !control_data.is_empty() || !led_control_data.is_empty() {
+        // iterate through every dancer
+        for (index, data) in control_data.iter().enumerate() {
+            let dancer = &dancers[index];
+            let dancer_bulb_datas = &led_control_data[index];
 
-                // iterate through every part of the dancer
-                for (_index, _data) in data.iter().enumerate() {
-                    let dancer_id = &dancer[_index].dancer_id;
-                    let part = &dancer[_index];
-                    let part_type = &part.part_type;
+            // iterate through every part of the dancer
+            for (_index, _data) in data.iter().enumerate() {
+                let dancer_id = &dancer[_index].dancer_id;
+                let part = &dancer[_index];
+                let part_type = &part.part_type;
 
-                    match part_type {
-                        PartType::FIBER => {
-                            // create a new control data and insert it into the database
-                            // please refer to the schema of ControlData table
-                            sqlx::query!(
+                let part_bulb_datas = &dancer_bulb_datas[_index];
+                let is_data_led_bulb = !part_bulb_datas.is_empty();
+
+                match part_type {
+                    PartType::FIBER => {
+                        // create a new control data and insert it into the database
+                        // please refer to the schema of ControlData table
+                        sqlx::query!(
+                            r#"
+                                INSERT INTO ControlData
+                                (dancer_id, part_id, frame_id, type, color_id, alpha)
+                                VALUES (?, ?, ?, ?, ?, ?);
+                            "#,
+                            dancer_id,
+                            part.part_id,
+                            new_control_frame_id,
+                            "COLOR",
+                            _data[0],
+                            _data[1],
+                        )
+                        .execute(&mut *tx)
+                        .await?;
+                    }
+                    PartType::LED => {
+                        let effect_id = _data[0];
+                        let alpha = _data[1];
+
+                        // create a new control data and insert it into the database
+                        if is_data_led_bulb {
+                            let new_control_data = sqlx::query!(
                                 r#"
-                                    INSERT INTO ControlData
-                                    (dancer_id, part_id, frame_id, type, color_id, alpha)
-                                    VALUES (?, ?, ?, ?, ?, ?);
+                                    INSERT INTO ControlData 
+                                    (dancer_id, part_id, frame_id, type, alpha)
+                                    VALUES (?, ?, ?, ?, ?);
                                 "#,
                                 dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
-                                "COLOR": ControlDataType,
-                                _data[0],
-                                _data[1],
+                                "LED_BULBS",
+                                alpha
                             )
-                            .execute(mysql)
+                            .execute(&mut *tx)
                             .await?;
-                        }
-                        PartType::LED => {
-                            let effect_id = _data[0];
-                            let alpha = _data[1];
 
-                            // create a new control data and insert it into the database
-                            if effect_id > 0 {
+                            let control_id = new_control_data.last_insert_id() as i32;
+
+                            for (position, bulb_data) in part_bulb_datas.iter().enumerate() {
                                 sqlx::query!(
                                     r#"
-                                        INSERT INTO ControlData 
-                                        (dancer_id, part_id, frame_id, type, effect_id, alpha)
-                                        VALUES (?, ?, ?, ?, ?, ?);
+                                        INSERT INTO LEDBulb 
+                                        (control_id, color_id, alpha, position)
+                                        VALUES (?, ?, ?, ?);
                                     "#,
-                                    dancer_id,
-                                    part.part_id,
-                                    new_control_frame_id,
-                                    "EFFECT": ControlDataType,
-                                    effect_id,
-                                    alpha,
+                                    control_id,
+                                    bulb_data[0],
+                                    bulb_data[1],
+                                    position as i32,
                                 )
-                                .execute(mysql)
-                                .await?;
-                            } else {
-                                sqlx::query!(
-                                    r#"
-                                        INSERT INTO ControlData 
-                                        (dancer_id, part_id, frame_id, type, alpha)
-                                        VALUES (?, ?, ?, ?, ?);
-                                    "#,
-                                    dancer_id,
-                                    part.part_id,
-                                    new_control_frame_id,
-                                    "EFFECT": ControlDataType,
-                                    alpha,
-                                )
-                                .execute(mysql)
+                                .execute(&mut *tx)
                                 .await?;
                             }
-                        }
-                    }
-                }
-            }
-        }
-        // if the control data is not given, use the default data
-        // the default data set color_id/effect_id to -1 and alpha to 0
-        else {
-            // iterate through every dancer
-            for dancer in dancers.iter() {
-                // iterate through every part of the dancer
-                for part in dancer.iter() {
-                    let dancer_id = &part.dancer_id;
-                    let part_type = &part.part_type;
-
-                    match part_type {
-                        PartType::FIBER => {
-                            // create a new control data and insert it into the database
-                            // please refer to the schema of ControlData table
+                        } else {
                             sqlx::query!(
                                 r#"
-                                    INSERT INTO ControlData
-                                    (dancer_id, part_id, frame_id, type, color_id, alpha)
-                                    VALUES (?, ?, ?, ?, ?, ?);
-                                "#,
-                                dancer_id,
-                                part.part_id,
-                                new_control_frame_id,
-                                "COLOR": ControlDataType,
-                                -1,
-                                0,
-                            )
-                            .execute(mysql)
-                            .await?;
-                        }
-                        PartType::LED => {
-                            // create a new control data and insert it into the database
-                            sqlx::query!(
-                                r#"
-                                    INSERT INTO ControlData
+                                    INSERT INTO ControlData 
                                     (dancer_id, part_id, frame_id, type, effect_id, alpha)
                                     VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
                                 dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
-                                "EFFECT": ControlDataType,
-                                -1,
-                                0,
+                                "EFFECT",
+                                effect_id,
+                                alpha,
                             )
-                            .execute(mysql)
+                            .execute(&mut *tx)
                             .await?;
                         }
                     }
                 }
             }
         }
+
+        // commit the transaction
+        tx.commit().await?;
 
         // update redis control
         update_redis_control(mysql, &clients.redis_client, new_control_frame_id).await?;
@@ -472,8 +496,6 @@ impl ControlFrameMutation {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
         let mysql = clients.mysql_pool();
-
-        tracing::info!("Mutation: editControlFrame");
 
         // get the input data
         let frame_id = input.frame_id;
@@ -699,8 +721,6 @@ impl ControlFrameMutation {
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
-        tracing::info!("Mutation: deleteControlFrame");
-
         // get the input data
         let frame_id = input.frame_id;
 
@@ -773,6 +793,31 @@ impl ControlFrameMutation {
             r#"
               DELETE FROM ControlFrame
               WHERE id = ?;
+            "#,
+            frame_id
+        )
+        .execute(mysql)
+        .await?;
+
+        // delete LED bulb data
+        sqlx::query!(
+            r#"
+                DELETE FROM LEDBulb
+                WHERE control_id IN (
+                    SELECT id FROM ControlData
+                    WHERE frame_id = ?
+                );
+            "#,
+            frame_id
+        )
+        .execute(mysql)
+        .await?;
+
+        // delete control data
+        sqlx::query!(
+            r#"
+                DELETE FROM ControlData
+                WHERE frame_id = ?;
             "#,
             frame_id
         )
