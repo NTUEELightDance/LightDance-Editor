@@ -1,5 +1,5 @@
 use crate::global;
-use crate::types::global::PartType;
+use crate::types::global::{JsonData, PartType};
 use crate::utils::data::{init_redis_control, init_redis_position};
 
 use axum::{extract::Multipart, http::StatusCode, response::Json};
@@ -7,57 +7,6 @@ use indicatif::ProgressBar;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
-
-#[derive(Debug, Deserialize, Serialize)]
-struct ControlData {
-    start: i32,
-    fade: bool,
-    status: Vec<Vec<(String, i32)>>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct PositionData {
-    start: i32,
-    position: Vec<[f64; 3]>,
-    rotation: Option<Vec<[f64; 3]>>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct LEDFrame {
-    #[serde(rename = "LEDs")]
-    leds: Vec<(String, i32)>,
-    start: i32,
-    fade: bool,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct LEDPart {
-    repeat: i32,
-    frames: Vec<LEDFrame>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct DancerPart {
-    name: String,
-    #[serde(rename = "type")]
-    part_type: PartType,
-    length: Option<i32>,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct Dancer {
-    name: String,
-    model: String,
-    parts: Vec<DancerPart>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct DataObj {
-    position: HashMap<String, PositionData>,
-    control: HashMap<String, ControlData>,
-    dancer: Vec<Dancer>,
-    color: HashMap<String, [i32; 3]>,
-    #[serde(rename = "LEDEffects")]
-    led_effects: HashMap<String, HashMap<String, HashMap<String, LEDPart>>>,
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UploadDataResponse(String);
@@ -99,7 +48,7 @@ pub async fn upload_data(
         }
         let raw_data = concatenated_bytes.as_slice();
         // parse json & check types
-        let data_obj: DataObj = match serde_json::from_slice(raw_data) {
+        let data_obj: JsonData = match serde_json::from_slice(raw_data) {
             Ok(data_obj) => data_obj,
             Err(e) => {
                 return Err((
@@ -225,7 +174,7 @@ pub async fn upload_data(
 
             let mut part_dict: HashMap<&String, (i32, &PartType)> = HashMap::new();
             for part in &dancer.parts {
-                let type_string = match &part.part_type {
+                let type_string = match &part.r#type {
                     PartType::LED => "LED",
                     PartType::FIBER => "FIBER",
                 };
@@ -260,7 +209,7 @@ pub async fn upload_data(
                     .last_insert_id() as i32,
                 };
 
-                part_dict.insert(&part.name, (part_id, &part.part_type));
+                part_dict.insert(&part.name, (part_id, &part.r#type));
             }
             all_dancer.insert(&dancer.name, (dancer_id, part_dict.clone()));
             all_model.insert(&dancer.model, (model_id, part_dict));
@@ -378,15 +327,10 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            let rotation_data = frame_obj
-                .rotation
-                .clone()
-                .unwrap_or_else(|| vec![[0.0, 0.0, 0.0]; frame_obj.position.len()]);
-
             for (index, (pos_data, rotation_data)) in frame_obj
                 .position
                 .iter()
-                .zip(rotation_data.iter())
+                .zip(frame_obj.rotation.iter())
                 .enumerate()
             {
                 let dancer_id = all_dancer[&data_obj.dancer[index].name].0;

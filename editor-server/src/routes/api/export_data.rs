@@ -2,7 +2,10 @@ use crate::db::types::{
     color::ColorData, control_frame::ControlFrameData, position_frame::PositionFrameData,
 };
 use crate::global;
-use crate::types::global::PartType;
+use crate::types::global::{
+    ControlData, Dancer, DancerPart, JsonData, LEDFrame, LEDPart, PartControlString, PartType,
+    PositionData,
+};
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
@@ -12,65 +15,6 @@ use http::HeaderMap;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct PositionData {
-    start: i32,
-    position: Vec<[f64; 3]>,
-    rotation: Vec<[f64; 3]>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ExPartData {
-    pub name: String,
-    pub r#type: PartType,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub length: Option<i32>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ExDancerData {
-    pub parts: Vec<ExPartData>,
-    pub name: String,
-    pub model: String,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ExLEDFrameLED(pub String, pub i32);
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct TExportLEDFrame {
-    #[serde(rename = "LEDs")]
-    pub leds: Vec<ExLEDFrameLED>,
-    pub start: i32,
-    pub fade: bool,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ExLEDPart {
-    pub repeat: i32,
-    pub frames: Vec<TExportLEDFrame>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ExControlData {
-    pub fade: bool,
-    pub start: i32,
-    pub status: Vec<Vec<ExPartControl>>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ExPartControl(pub String, pub i32); // TLEDControl: [src: string, alpha: number] or TFiberControl: [color: string, alpha: number]
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ExportDataResponse {
-    pub dancer: Vec<ExDancerData>,
-    pub color: BTreeMap<String, [i32; 3]>,
-    pub position: BTreeMap<String, PositionData>,
-    pub control: BTreeMap<String, ExControlData>,
-    #[serde(rename = "LEDEffects")]
-    pub led_effects: BTreeMap<String, BTreeMap<String, BTreeMap<String, ExLEDPart>>>,
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ExportDataFailedResponse {
@@ -98,10 +42,9 @@ where
     }
 }
 
-pub async fn export_data() -> Result<
-    (StatusCode, (HeaderMap, Json<ExportDataResponse>)),
-    (StatusCode, Json<ExportDataFailedResponse>),
-> {
+pub async fn export_data(
+) -> Result<(StatusCode, (HeaderMap, Json<JsonData>)), (StatusCode, Json<ExportDataFailedResponse>)>
+{
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
     let redis = clients.redis_client();
@@ -151,14 +94,14 @@ pub async fn export_data() -> Result<
 
     let dancer_data = partition_by_field(|row| row.id, result);
 
-    let dancer: Vec<ExDancerData> = dancer_data
+    let dancer: Vec<Dancer> = dancer_data
         .into_iter()
-        .map(|dancer_obj| ExDancerData {
+        .map(|dancer_obj| Dancer {
             name: dancer_obj[0].name.clone(),
             model: dancer_obj[0].model_name.clone(),
             parts: dancer_obj
                 .into_iter()
-                .map(|part| ExPartData {
+                .map(|part| DancerPart {
                     name: part.part_name,
                     r#type: part.part_type.into(),
                     length: part.part_length,
@@ -201,7 +144,7 @@ pub async fn export_data() -> Result<
             let part_id = parts[0].part_id;
             let part_name = &parts[0].part_name;
 
-            let mut led_part = BTreeMap::<String, ExLEDPart>::new();
+            let mut led_part = BTreeMap::<String, LEDPart>::new();
             // LEDEffectState
             let led_effects_states = {
                 let result = sqlx::query!(
@@ -229,11 +172,11 @@ pub async fn export_data() -> Result<
             };
 
             led_effects_states.iter().for_each(|led_effect_states| {
-                let led_frames = vec![TExportLEDFrame {
+                let led_frames = vec![LEDFrame {
                     leds: led_effect_states
                         .iter()
                         .map(|led_effect_state| {
-                            ExLEDFrameLED(
+                            (
                                 color_dict[&led_effect_state.color_id].clone(),
                                 led_effect_state.alpha,
                             )
@@ -245,7 +188,7 @@ pub async fn export_data() -> Result<
 
                 led_part.insert(
                     led_effect_states[0].name.clone(),
-                    ExLEDPart {
+                    LEDPart {
                         repeat: 0,
                         frames: led_frames,
                     },
@@ -277,7 +220,7 @@ pub async fn export_data() -> Result<
     .fetch_all(mysql_pool)
     .await
     .into_result()?;
-    let mut control = BTreeMap::<String, ExControlData>::new();
+    let mut control = BTreeMap::<String, ControlData>::new();
     for control_frame in control_frames {
         let redis_contol = get_redis_control(redis, control_frame.id)
             .await
@@ -285,7 +228,7 @@ pub async fn export_data() -> Result<
         let fade = redis_contol.fade;
         let start = redis_contol.start;
         let status = redis_contol.status;
-        let new_status: Vec<Vec<ExPartControl>> = status
+        let new_status: Vec<Vec<PartControlString>> = status
             .into_iter()
             .enumerate()
             .map(|(dancer_idx, dancer_statue)| {
@@ -296,20 +239,20 @@ pub async fn export_data() -> Result<
                         let part_type = dancer[dancer_idx].parts[part_idx].r#type;
                         if part_type == PartType::FIBER {
                             if part_status.0 == -1 {
-                                return ExPartControl(String::new(), part_status.1);
+                                return PartControlString(String::new(), part_status.1);
                             }
-                            ExPartControl(color_dict[&part_status.0].clone(), part_status.1)
+                            PartControlString(color_dict[&part_status.0].clone(), part_status.1)
                         } else {
                             if part_status.0 == -1 {
-                                return ExPartControl(String::new(), part_status.1);
+                                return PartControlString(String::new(), part_status.1);
                             }
-                            ExPartControl(led_dict[&part_status.0].clone(), part_status.1)
+                            PartControlString(led_dict[&part_status.0].clone(), part_status.1)
                         }
                     })
-                    .collect::<Vec<ExPartControl>>()
+                    .collect::<Vec<PartControlString>>()
             })
             .collect();
-        let new_cache_obj = ExControlData {
+        let new_cache_obj = ControlData {
             fade,
             start,
             status: new_status,
@@ -365,7 +308,7 @@ pub async fn export_data() -> Result<
     let mut header = HeaderMap::new();
     header.insert(CONTENT_TYPE, "application/json".parse().unwrap());
 
-    let export_data_response = ExportDataResponse {
+    let export_data_response = JsonData {
         position,
         control,
         dancer,
