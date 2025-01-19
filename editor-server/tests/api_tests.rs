@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod tests {
+mod api_tests {
     use axum::{
         body::Body,
         http::{Request, StatusCode},

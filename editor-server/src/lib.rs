@@ -1,6 +1,7 @@
 use axum::Router;
 use db::clients::AppClients;
-use graphql::schema::build_schema;
+use graphql::schema::{self, AppSchema};
+use server::extractors::Authentication;
 
 pub mod db;
 pub mod global;
@@ -18,9 +19,8 @@ use crate::utils::{
     data::{init_redis_control, init_redis_position},
 };
 
-pub async fn build_app() -> Router {
+pub async fn init() {
     dotenv::dotenv().ok();
-
     global::envs::set();
 
     let mysql_host = env!("DATABASE_URL", "DATABASE_URL is not set");
@@ -32,7 +32,6 @@ pub async fn build_app() -> Router {
     create_admin_user()
         .await
         .expect("Error creating admin user.");
-
     println!("Admin user created.");
 
     let clients = global::clients::get();
@@ -43,13 +42,21 @@ pub async fn build_app() -> Router {
     init_redis_position(clients.mysql_pool(), clients.redis_client())
         .await
         .expect("Error initializing redis position.");
+}
 
-    let schema = build_schema();
+pub async fn build_app() -> Router {
+    init().await;
+    let schema = schema::build_schema();
 
     // initialize api tracing
     tracing::init_tracing();
-
     Router::new()
         .nest("/", build_graphql_tracer(build_graphql_routes(schema)))
         .nest("/api", build_api_tracer(build_api_routes()))
+}
+
+pub async fn build_graphql() -> AppSchema {
+    init().await;
+    let user_context = Authentication::get_test_user().await.unwrap();
+    schema::build_schema_with_context(user_context).await
 }
