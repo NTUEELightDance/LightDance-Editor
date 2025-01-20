@@ -65,6 +65,8 @@ impl ControlFrameMutation {
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: addControlFrame");
+
         let mut tx = mysql.begin().await?;
 
         // check if the control frame already exists on the start time
@@ -187,15 +189,15 @@ impl ControlFrameMutation {
                 }
             }
 
-            for (_index, _data) in data.iter().enumerate() {
-                let part = &dancer[_index];
+            for (part_index, part_data) in data.iter().enumerate() {
+                let part = &dancer[part_index];
                 let part_type = &part.part_type;
 
-                let part_bulb_datas = &dancer_bulb_datas[_index];
+                let part_bulb_datas = &dancer_bulb_datas[part_index];
                 let is_data_led_bulb = !part_bulb_datas.is_empty();
 
                 // third, check if the data of each part have proper format
-                // if !_data.is_empty() && !part_bulb_datas.is_empty() {
+                // if !part_data.is_empty() && !part_bulb_datas.is_empty() {
                 //     errors.push(format!(
                 //         "There are both effect/color data and LED bulb data in dancer {} part {}.",
                 //         index + 1,
@@ -204,32 +206,32 @@ impl ControlFrameMutation {
                 //     break;
                 // }
 
-                // if _data is not an array, return error
-                if _data.is_empty() && part_bulb_datas.is_empty() {
+                // if part_data is not an array, return error
+                if part_data.is_empty() && part_bulb_datas.is_empty() {
                     errors.push(format!(
                             "There are neither effect/color data or LED bulb data in dancer {} part {}.",
-                            index + 1, _index + 1
+                            index + 1, part_index + 1
                         ));
                     break;
                 }
 
                 // check if the led_control_data is an array of length 2
                 for bulb_data in part_bulb_datas.iter() {
-                    if bulb_data.len() != 2 && !_data.is_empty() {
+                    if bulb_data.len() != 2 && !part_data.is_empty() {
                         let error_message = format!(
                             "LED Bulb data of dancer #{} part #{} is not an array of length 2",
                             index + 1,
-                            _index + 1
+                            part_index + 1
                         );
                         errors.push(error_message);
                     }
                 }
 
-                // if _data is an array, check if the length of the array is 2
-                if _data.len() != 2 && !_data.is_empty() {
+                // if part_data is an array, check if the length of the array is 2
+                if part_data.len() != 2 && !part_data.is_empty() {
                     let error_message = format!(
                         "Data of dancer #{} part #{} is not an array of length 2",
-                        index, _index
+                        index, part_index
                     );
                     errors.push(error_message);
                 }
@@ -237,13 +239,13 @@ impl ControlFrameMutation {
                 match part_type {
                     // if the part is Fiber, check if the color is valid
                     PartType::FIBER => {
-                        let color_id = _data[0];
+                        let color_id = part_data[0];
 
                         // check if the color is valid
                         if !all_color_ids.contains(&color_id) {
                             let error_message = format!(
                                 "Color of dancer #{} part #{} is not a valid color",
-                                index, _index
+                                index, part_index
                             );
                             errors.push(error_message);
                         }
@@ -254,7 +256,7 @@ impl ControlFrameMutation {
                             if part_bulb_datas.len() != part.length.unwrap() as usize {
                                 let error_message = format!(
                                         "LED Bulb data of dancer #{} part #{} is not an array of length {}",
-                                        index + 1, _index + 1, part.length.unwrap()
+                                        index + 1, part_index + 1, part.length.unwrap()
                                     );
                                 errors.push(error_message);
                             }
@@ -266,13 +268,13 @@ impl ControlFrameMutation {
                                 if !all_color_ids.contains(&color_id) && color_id != 0 {
                                     let error_message = format!(
                                             "Color of LED Bulb of dancer #{} part #{} is not a valid color",
-                                            index + 1, _index + 1
+                                            index + 1, part_index + 1
                                         );
                                     errors.push(error_message);
                                 }
                             }
                         } else {
-                            let effect_id = _data[0];
+                            let effect_id = part_data[0];
 
                             // check if the effect is valid
                             if !all_led_effect_ids.contains(&effect_id)
@@ -282,7 +284,7 @@ impl ControlFrameMutation {
                                 let error_message = format!(
                                     "Effect of dancer #{} part #{} is not a valid effect",
                                     index + 1,
-                                    _index + 1
+                                    part_index + 1
                                 );
                                 errors.push(error_message);
                             }
@@ -323,12 +325,12 @@ impl ControlFrameMutation {
             let dancer_bulb_datas = &led_control_data[index];
 
             // iterate through every part of the dancer
-            for (_index, _data) in data.iter().enumerate() {
-                let dancer_id = &dancer[_index].dancer_id;
-                let part = &dancer[_index];
+            for (part_index, part_data) in data.iter().enumerate() {
+                let dancer_id = &dancer[part_index].dancer_id;
+                let part = &dancer[part_index];
                 let part_type = &part.part_type;
 
-                let part_bulb_datas = &dancer_bulb_datas[_index];
+                let part_bulb_datas = &dancer_bulb_datas[part_index];
                 let is_data_led_bulb = !part_bulb_datas.is_empty();
 
                 match part_type {
@@ -345,15 +347,15 @@ impl ControlFrameMutation {
                             part.part_id,
                             new_control_frame_id,
                             "COLOR",
-                            _data[0],
-                            _data[1],
+                            part_data[0],
+                            part_data[1],
                         )
                         .execute(&mut *tx)
                         .await?;
                     }
                     PartType::LED => {
-                        let effect_id = _data[0];
-                        let alpha = _data[1];
+                        let effect_id = part_data[0];
+                        let alpha = part_data[1];
 
                         // create a new control data and insert it into the database
                         if is_data_led_bulb {
@@ -496,6 +498,8 @@ impl ControlFrameMutation {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
         let mysql = clients.mysql_pool();
+
+        tracing::info!("Mutation: editControlFrame");
 
         // get the input data
         let frame_id = input.frame_id;
@@ -720,6 +724,8 @@ impl ControlFrameMutation {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
         let mysql = clients.mysql_pool();
+
+        tracing::info!("Mutation: deleteControlFrame");
 
         // get the input data
         let frame_id = input.frame_id;
