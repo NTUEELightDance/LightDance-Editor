@@ -37,7 +37,7 @@ pub enum PartType {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PositionData {
     pub start: i32,
-    pub position: Vec<[f64; 3]>,
+    pub location: Vec<[f64; 3]>,
     pub rotation: Vec<[f64; 3]>,
 }
 
@@ -110,7 +110,7 @@ pub struct RedisPosition {
     pub start: i32,
     pub editing: Option<String>,
     pub rev: Revision,
-    pub position: Vec<[f64; 3]>,
+    pub location: Vec<[f64; 3]>,
     pub rotation: Vec<[f64; 3]>,
 }
 

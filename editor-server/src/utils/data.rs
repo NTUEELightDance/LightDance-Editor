@@ -182,7 +182,7 @@ pub async fn init_redis_position(
     frames.iter().for_each(|frame| {
         let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
 
-        let position = dancer_positions
+        let location = dancer_positions
             .iter()
             .map(|dancer_position| {
                 let position = dancer_position
@@ -213,7 +213,7 @@ pub async fn init_redis_position(
                 meta: frame.meta_rev,
                 data: frame.data_rev,
             },
-            position,
+            location,
             rotation,
         };
 
@@ -383,7 +383,7 @@ pub async fn update_redis_position(
 
     let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
 
-    let position = dancer_positions
+    let location = dancer_positions
         .iter()
         .map(|dancer_position| {
             let position = dancer_position
@@ -414,7 +414,7 @@ pub async fn update_redis_position(
             meta: frame.meta_rev,
             data: frame.data_rev,
         },
-        position,
+        location,
         rotation,
     };
 

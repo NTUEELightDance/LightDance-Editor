@@ -282,7 +282,7 @@ pub async fn export_data(
             position_frame.id.to_string(),
             PositionData {
                 start: position_frame.start,
-                position: redis_position.position,
+                location: redis_position.location,
                 rotation: redis_position.rotation,
             },
         );
@@ -290,8 +290,8 @@ pub async fn export_data(
 
     for key in position.keys().cloned().collect::<Vec<_>>() {
         if let Some(mut value) = position.remove(&key) {
-            value.position = value
-                .position
+            value.location = value
+                .location
                 .iter()
                 .map(|dancer_position| {
                     [

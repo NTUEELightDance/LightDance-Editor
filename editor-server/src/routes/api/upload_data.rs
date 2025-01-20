@@ -306,12 +306,12 @@ pub async fn upload_data(
         println!("Create Position Data...");
 
         for frame_obj in data_obj.position.values() {
-            if frame_obj.position.len() != data_obj.dancer.len() {
+            if frame_obj.location.len() != data_obj.dancer.len() {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     Json(UploadDataFailedResponse {
                         err: format!("Error: Position frame starting at {} has invalid number of dancers. Found {}, Expected {}.",
-                         frame_obj.start, frame_obj.position.len(), data_obj.dancer.len()),
+                         frame_obj.start, frame_obj.location.len(), data_obj.dancer.len()),
                     }),
                 ));
             }
@@ -327,8 +327,8 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            for (index, (pos_data, rotation_data)) in frame_obj
-                .position
+            for (index, (location_data, rotation_data)) in frame_obj
+                .location
                 .iter()
                 .zip(frame_obj.rotation.iter())
                 .enumerate()

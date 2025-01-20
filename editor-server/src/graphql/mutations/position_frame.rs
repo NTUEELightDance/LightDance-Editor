@@ -140,7 +140,7 @@ impl PositionFrameMutation {
                         start,
                         editing: None,
                         rev: Revision::default(),
-                        position: data
+                        location: data
                             .iter()
                             .map(|coor| [coor[0], coor[1], coor[2]])
                             .collect(),
