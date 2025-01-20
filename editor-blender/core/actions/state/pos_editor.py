@@ -53,10 +53,13 @@ async def add_pos_frame():
                     ld_position.transform[0],
                     ld_position.transform[1],
                     ld_position.transform[2],
+                    ld_position.rotation[0],
+                    ld_position.rotation[1],
+                    ld_position.rotation[2],
                 ]
             )
         else:
-            positionData.append([0, 0, 0])
+            positionData.append([0, 0, 0, 0, 0, 0])
 
     set_requesting(True)
     try:
@@ -83,6 +86,9 @@ async def save_pos_frame(start: int | None = None):
                     ld_position.transform[0],
                     ld_position.transform[1],
                     ld_position.transform[2],
+                    ld_position.rotation[0],
+                    ld_position.rotation[1],
+                    ld_position.rotation[2],
                 ]
             )
         else:
