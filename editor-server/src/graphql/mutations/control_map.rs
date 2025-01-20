@@ -76,6 +76,8 @@ impl ControlMapMutation {
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editControlMap");
+
         // get the input data
         let frame_id = input.frame_id;
         let control_data = input.control_data;
@@ -259,17 +261,17 @@ impl ControlMapMutation {
             }
 
             // iterate through each part of the dancer
-            for (_index, _data) in data.iter().enumerate() {
-                let part = &dancer[_index];
+            for (part_index, part_data) in data.iter().enumerate() {
+                let part = &dancer[part_index];
                 let part_type = &part.part_type;
-                let led_bulb_data = &led_bulb_data[_index];
+                let led_bulb_data = &led_bulb_data[part_index];
 
                 // third, make sure every part has original control data (so that we can update the data)
                 if part.control_data_frame_id != frame_id {
                     let error_message = format!(
                         "Dancer #{} part #{} does not have original control data in frame #{}",
                         index + 1,
-                        _index + 1,
+                        part_index + 1,
                         frame_id
                     );
                     errors.push(error_message);
@@ -278,9 +280,11 @@ impl ControlMapMutation {
                 // fourth , check if the data of each part have proper format
 
                 // if _data is not an array, return error
-                if _data.is_empty() || _data.len() < 2 {
-                    let error_message =
-                        format!("Data of dancer #{} part #{} is not an array", index, _index);
+                if part_data.is_empty() || part_data.len() < 2 {
+                    let error_message = format!(
+                        "Data of dancer #{} part #{} is not an array",
+                        index, part_index
+                    );
                     errors.push(error_message);
                 }
 
@@ -290,18 +294,18 @@ impl ControlMapMutation {
                         let error_message = format!(
                             "LED Bulb data of dancer #{} part #{} is not an array of length 2",
                             index + 1,
-                            _index + 1
+                            part_index + 1
                         );
                         errors.push(error_message);
                     }
                 }
 
                 // if _data is an array, check if the length of the array is 2
-                if _data.len() != 2 {
+                if part_data.len() != 2 {
                     let error_message = format!(
                         "Data of dancer #{} part #{} is not an array of length 2",
                         index + 1,
-                        _index + 1
+                        part_index + 1
                     );
                     errors.push(error_message.clone());
                     break;
@@ -310,28 +314,28 @@ impl ControlMapMutation {
                 match part_type {
                     // if the part is Fiber, check if the color is valid
                     PartType::FIBER => {
-                        let color_id = _data[0];
+                        let color_id = part_data[0];
 
                         // check if the color is valid
                         if !all_color_ids.contains(&color_id) {
                             let error_message = format!(
                                 "Color of dancer #{} part #{} is not a valid color",
                                 index + 1,
-                                _index + 1
+                                part_index + 1
                             );
                             errors.push(error_message);
                         }
                     }
                     // if the part is LED, check if the effect is valid
                     PartType::LED => {
-                        let effect_id = _data[0];
+                        let effect_id = part_data[0];
 
                         if effect_id == 0 {
                             // LED bulbs
                             if led_bulb_data.len() != part.length.unwrap() as usize {
                                 let error_message = format!(
                                         "LED Bulb data of dancer #{} part #{} is not an array of length {}",
-                                        index + 1, _index + 1, part.length.unwrap()
+                                        index + 1, part_index + 1, part.length.unwrap()
                                     );
                                 errors.push(error_message);
                             }
@@ -343,7 +347,7 @@ impl ControlMapMutation {
                                 if !all_color_ids.contains(&color_id) && color_id != -1 {
                                     let error_message = format!(
                                             "Color of LED Bulb of dancer #{} part #{} is not a valid color",
-                                            index + 1, _index + 1
+                                            index + 1, part_index + 1
                                         );
                                     errors.push(error_message);
                                 }
@@ -354,7 +358,7 @@ impl ControlMapMutation {
                                 let error_message = format!(
                                     "Effect of dancer #{} part #{} is not a valid effect",
                                     index + 1,
-                                    _index + 1
+                                    part_index + 1
                                 );
                                 errors.push(error_message);
                             }
@@ -366,7 +370,7 @@ impl ControlMapMutation {
                                 let error_message = format!(
                                     "Effect of dancer #{} part #{} is not a valid effect",
                                     index + 1,
-                                    _index + 1
+                                    part_index + 1
                                 );
                                 errors.push(error_message);
                             }
