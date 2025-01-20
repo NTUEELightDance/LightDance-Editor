@@ -35,6 +35,7 @@ struct LEDPart {
     frames: Vec<LEDFrame>,
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Deserialize, Serialize)]
 enum DancerPartType {
     LED,
