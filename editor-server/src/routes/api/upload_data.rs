@@ -342,9 +342,9 @@ pub async fn upload_data(
                     "#,
                     dancer_id,
                     frame_id,
-                    pos_data[0],
-                    pos_data[1],
-                    pos_data[2],
+                    location_data[0],
+                    location_data[1],
+                    location_data[2],
                     rotation_data[0],
                     rotation_data[1],
                     rotation_data[2]
