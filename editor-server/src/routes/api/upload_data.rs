@@ -37,8 +37,8 @@ struct LEDPart {
 
 #[derive(Debug, Deserialize, Serialize)]
 enum DancerPartType {
-    Led,
-    Fiber,
+    LED,
+    FIBER,
 }
 #[derive(Debug, Deserialize, Serialize)]
 struct DancerPart {
@@ -231,8 +231,8 @@ pub async fn upload_data(
             let mut part_dict: HashMap<&String, (i32, &DancerPartType)> = HashMap::new();
             for part in &dancer.parts {
                 let type_string = match &part.part_type {
-                    DancerPartType::Led => "LED",
-                    DancerPartType::Fiber => "FIBER",
+                    DancerPartType::LED => "LED",
+                    DancerPartType::FIBER => "FIBER",
                 };
 
                 let part_id = sqlx::query!(
@@ -465,8 +465,8 @@ pub async fn upload_data(
                     // "<EFFECT>"  => effect_id = <EFFECT_ID>, type =    "EFFECT"
 
                     let r#type = match &real_part.1 {
-                        DancerPartType::Fiber => ControlType::Color,
-                        DancerPartType::Led => {
+                        DancerPartType::FIBER => ControlType::Color,
+                        DancerPartType::LED => {
                             // LED_BULBS or EFFECT
                             if part_status.0.is_empty() {
                                 ControlType::LEDBulbs
@@ -488,7 +488,6 @@ pub async fn upload_data(
                     };
 
                     let alpha = part_status.1;
-
                     let control_id = sqlx::query!(
                         r#"
                             INSERT INTO ControlData (dancer_id, part_id, frame_id, type, color_id, effect_id, alpha)

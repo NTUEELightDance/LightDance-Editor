@@ -94,13 +94,13 @@ cp .env.defaults .env
 pnpm dev:controller-server
 ```
 
-To bundle the frontend blender add-on, run:
+To pack the frontend blender add-on, run:
 ```sh
-pnpm dev:bundle # For local development
-pnpm prod:bundle # For production
+pnpm dev:pack # For local development
+pnpm prod:pack # For production
 ```
-The bundled extension will be stored at `./editor-blender-{unix,win}.zip` for Linux/MacOS and Windows respectively
-, to install the add-on, see [Blender Add-ons Documentation](https://docs.blender.org/manual/en/latest/editors/preferences/addons.html) or `editor-blender/README.md`.
+The packed file will be stored at `./editor-blender.zip`
+, to install the add-on, see [Blender Add-ons Documentation](https://docs.blender.org/manual/en/latest/editors/preferences/addons.html).
 
 #### Run all services in parallel
 

@@ -80,7 +80,7 @@ where
     }
 }
 
-fn convert_true_color_wo_norm(color: &[i32; 4]) -> [i32; 3] {
+fn convert_true_color_to_norm(color: &[i32; 4]) -> [i32; 3] {
     [
         color[0] * color[3],
         color[1] * color[3],
@@ -94,8 +94,8 @@ fn check_same_status(s1: &Status, s2: &Status) -> bool {
     }
 
     for (c1, c2) in s1.status.iter().zip(s2.status.iter()) {
-        let c1 = convert_true_color_wo_norm(c1);
-        let c2 = convert_true_color_wo_norm(c2);
+        let c1 = convert_true_color_to_norm(c1);
+        let c2 = convert_true_color_to_norm(c2);
         if c1 != c2 {
             return false;
         }
