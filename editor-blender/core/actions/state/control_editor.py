@@ -5,7 +5,6 @@ import bpy
 from ....api.control_agent import control_agent
 from ....properties.types import LightType
 from ....schemas.mutations import MutDancerStatusPayload
-from ...log import logger
 from ...models import EditingData, EditMode, PartType, SelectMode
 from ...states import state
 from ...utils.convert import control_status_state_to_mut
@@ -82,7 +81,7 @@ async def add_control_frame():
         await control_agent.add_frame(start, False, controlData)
         notify("INFO", "Added control frame")
     except Exception:
-        logger.exception("Failed to add control frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot add control frame")
 
     set_requesting(False)
@@ -159,7 +158,7 @@ async def save_control_frame(start: int | None = None):
         else:
             notify("WARNING", "Cannot exit editing")
     except Exception:
-        logger.exception("Failed to save control frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot save control frame")
 
     set_requesting(False)
@@ -174,7 +173,7 @@ async def delete_control_frame():
         await control_agent.delete_frame(id)
         notify("INFO", f"Deleted control frame: {id}")
     except Exception:
-        logger.exception("Failed to delete control frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot delete control frame")
 
     set_requesting(False)
@@ -241,7 +240,7 @@ async def cancel_edit_control():
             notify("WARNING", "Cannot cancel edit")
 
     except Exception:
-        logger.exception("Failed to cancel edit control frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot cancel edit")
 
     set_requesting(False)

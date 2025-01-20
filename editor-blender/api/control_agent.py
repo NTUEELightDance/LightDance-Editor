@@ -1,10 +1,10 @@
 import asyncio
+import traceback
 from collections.abc import Coroutine
 from dataclasses import dataclass
 from typing import Any
 
 from ..client import client
-from ..core.log import logger
 from ..core.models import ColorID, ControlMap, ControlRecord, LEDEffectID, MapID
 from ..core.utils.convert import control_map_query_to_state
 from ..schemas.mutations import (
@@ -46,7 +46,7 @@ class ControlAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to get control record")
+            traceback.print_exc()
 
         return None
 
@@ -62,7 +62,7 @@ class ControlAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to get control map payload")
+            traceback.print_exc()
 
         return None
 
@@ -78,7 +78,7 @@ class ControlAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to get control map")
+            traceback.print_exc()
 
         return None
 
@@ -101,7 +101,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            logger.exception("Failed to add control frame")
+            print(err)
             raise err
 
     # TODO: Support only change fade
@@ -147,7 +147,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            logger.exception("Failed to save control frame")
+            print(err)
             raise err
 
     async def delete_frame(self, id: MapID) -> str | None:
@@ -164,7 +164,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            logger.exception("Failed to delete control frame")
+            print(err)
             raise err
 
     async def request_edit(self, id: MapID) -> bool | None:
@@ -184,7 +184,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            logger.exception("Failed to request edit control frame")
+            print(err)
             raise err
 
     async def cancel_edit(self, id: MapID) -> bool | None:
@@ -199,7 +199,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            logger.exception("Failed to cancel edit control frame")
+            print(err)
             raise err
 
 

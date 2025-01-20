@@ -15,7 +15,6 @@ from graphql import DocumentNode
 from websockets.client import WebSocketClientProtocol, connect
 
 from ..core.config import config
-from ..core.log import logger
 from ..core.states import state
 from ..schemas.command import (
     FromControllerServer,
@@ -132,7 +131,7 @@ class Clients:
 
         path = remove_wrapped_slash(path)
         http_path = f"/{path}"
-        logger.debug(f"Fetching {http_path}")
+        print(http_path)
         async with self.file_client.get(http_path) as response:
             return await response.json()
 
@@ -142,7 +141,7 @@ class Clients:
 
         path = remove_wrapped_slash(path)
         http_path = f"/{path}"
-        logger.debug(f"Fetching {http_path}")
+        print(http_path)
         async with self.file_client.get(http_path) as response:
             return await response.content.read()
 
@@ -236,7 +235,7 @@ class Clients:
 
         # HTTP client
         self.http_client = ClientSession(config.SERVER_URL, cookies=token_payload)
-        logger.info("HTTP client opened")
+        print("HTTP client opened")
 
     async def close_http(self) -> None:
         if self.http_client is not None:
@@ -249,7 +248,7 @@ class Clients:
     async def open_file(self) -> None:
         # File client
         self.file_client = ClientSession(config.FILE_SERVER_URL)
-        logger.info("File client opened")
+        print("File client opened")
 
     async def close_file(self) -> None:
         if self.file_client is not None:
@@ -273,7 +272,7 @@ class Clients:
         self.client = await Client(
             transport=transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
-        logger.info("GraphQL client opened")
+        print("GraphQL client opened")
 
         # GraphQL subscription client
         ws_url = config.SERVER_URL.replace("http", "ws")
@@ -286,7 +285,7 @@ class Clients:
         self.sub_client = await Client(
             transport=sub_transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
-        logger.info("GraphQL subscription client opened")
+        print("GraphQL subscription client opened")
 
     async def close_graphql(self) -> None:
         if self.client is not None:
@@ -304,7 +303,7 @@ class Clients:
             uri=config.CONTROLLER_WS_URL,
             extra_headers=[("token", state.token)],
         )
-        logger.info("Command client opened")
+        print("Command client opened")
 
     async def close_command(self):
         if self.command_client is not None:

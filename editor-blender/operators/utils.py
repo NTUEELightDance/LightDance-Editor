@@ -1,15 +1,14 @@
+import traceback
 from collections.abc import Callable
 from typing import Any
 
 import bpy
 
-from ..core.log import logger
-
 
 def execute_operator(idname: str):
     attrs = idname.split(".")
     if len(attrs) != 2:
-        logger.error(f"Invalid idname: {idname}")
+        print("Invalid idname:", idname)
         return
 
     module_name, ops_name = attrs
@@ -18,9 +17,10 @@ def execute_operator(idname: str):
         module = getattr(bpy.ops, module_name)
         ops: Callable[[str], Any] = getattr(module, ops_name)
         ops("INVOKE_DEFAULT")
-        logger.debug(f"Executed operator: {idname}")
+        print("Executed operator:", idname)
     except:
-        logger.exception(f"Failed to execute operator {idname}")
+        traceback.print_exc()
+        print("Failed to execute operator:", idname)
 
 
 class EmptyOperator(bpy.types.Operator):

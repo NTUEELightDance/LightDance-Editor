@@ -17,7 +17,6 @@ from ..core.actions.state.led_map import (
     edit_led_effect,
 )
 from ..core.actions.state.pos_map import add_pos, delete_pos, set_pos_record, update_pos
-from ..core.log import logger
 from ..core.models import ID, LEDMap
 from ..core.utils.convert import (
     color_query_to_state,
@@ -352,7 +351,7 @@ subscription_task: asyncio.Task[None] | None = None
 
 async def subscribe():
     while True:
-        logger.info("Subscribing...")
+        print("Subscribing...")
 
         tasks = [
             # asyncio.create_task(sub_pos_record(client)),
@@ -370,11 +369,11 @@ async def subscribe():
             await fut
 
         except asyncio.CancelledError:
-            logger.exception("Subscription cancelled.")
+            print("Subscription cancelled.")
             break
 
         except Exception as e:
-            logger.exception("Subscription closed with error.")
+            print("Subscription closed with error:", e)
             fut.cancel()
 
         print("Reconnecting subscription...")
@@ -386,13 +385,11 @@ async def sub_controller_server(client: Clients):
         match controller_data.topic:
             case "boardInfo":
                 notify("INFO", "Board info updated")
-                logger.info("Board info from controller server")
+                print("Board info from controller server")
                 read_board_info_payload(controller_data.payload)
             case "command":
                 notify("INFO", "Command response received")
-                logger.info(
-                    f"Command response from controller server: {controller_data}"
-                )
+                print(f"Command response from controller server: {controller_data}")
                 read_command_response(controller_data)
         redraw_area({"VIEW_3D"})
 
@@ -400,7 +397,7 @@ async def sub_controller_server(client: Clients):
 async def subscribe_command():
     while True:
         try:
-            logger.info("Subscribing controller server...")
+            print("Subscribing controller server...")
 
             tasks = [
                 asyncio.create_task(sub_controller_server(client)),
@@ -409,12 +406,12 @@ async def subscribe_command():
             await asyncio.gather(*tasks)
 
         except asyncio.CancelledError:
-            logger.exception("Subscription cancelled.")
+            print("Subscription cancelled.")
             break
 
         except Exception as e:
-            logger.exception("Subscription closed with error:", e)
+            print("Subscription closed with error:", e)
 
         set_command_status(False)
-        logger.info("Reconnecting subscription...")
+        print("Reconnecting subscription...")
         await asyncio.sleep(3)

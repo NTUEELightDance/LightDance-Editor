@@ -1,5 +1,6 @@
+import traceback
+
 from ....actions.property.revision import update_rev_changes
-from ....log import logger
 from ....states import state
 from ...property.animation_data import (
     init_ctrl_keyframes_from_state,
@@ -27,6 +28,6 @@ def setup_animation_data():
         update_rev_changes(state.pos_map, state.control_map, dancers_reset_animation)
 
     except Exception:
-        logger.exception("Failed to setup animation data")
+        traceback.print_exc()
         init_ctrl_keyframes_from_state()
         init_pos_keyframes_from_state()

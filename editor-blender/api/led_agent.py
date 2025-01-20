@@ -1,8 +1,8 @@
 import asyncio
+import traceback
 from dataclasses import dataclass
 
 from ..client import client
-from ..core.log import logger
 from ..core.models import ID, ColorID, LEDEffectID, LEDMap, ModelName, PartName
 from ..core.utils.convert import led_map_query_to_state
 from ..schemas.mutations import (
@@ -37,7 +37,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to get LED map")
+            traceback.print_exc()
 
         return None
 
@@ -71,7 +71,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to add LED effect")
+            traceback.print_exc()
 
         return None
 
@@ -100,7 +100,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to save LED effect")
+            traceback.print_exc()
 
         return None
 
@@ -121,7 +121,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to request edit LED effect")
+            traceback.print_exc()
 
         return None
 
@@ -139,7 +139,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to cancel edit LED effect")
+            traceback.print_exc()
 
         return None
 
@@ -161,7 +161,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            logger.exception("Failed to delete LED effect")
+            traceback.print_exc()
 
         return None
 

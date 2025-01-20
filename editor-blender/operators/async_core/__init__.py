@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import traceback
 from collections.abc import Coroutine
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
@@ -7,7 +8,6 @@ from typing import Any
 import bpy
 
 from ...core.actions.state.initialize import close_blender
-from ...core.log import log_window, logger
 from ...core.utils.operator import execute_operator
 
 
@@ -55,9 +55,8 @@ class AsyncLoopModalOperator(bpy.types.Operator):
 
         is_async_loop_running = False
 
-        logger.info("Stopping asyncio loop...")
+        print("Stopping asyncio loop...")
         close_blender()
-        log_window.close()
 
         if is_async_loop_running and hasattr(self, "timer"):  # type: ignore
             if not bpy.context:
@@ -77,16 +76,13 @@ class AsyncLoopModalOperator(bpy.types.Operator):
 
         if not context:
             return {"CANCELLED"}
-
-        log_window.open()
-
         context.window_manager.modal_handler_add(self)
         is_async_loop_running = True
 
         wm = context.window_manager
         self.timer = wm.event_timer_add(0.001, window=context.window)
 
-        logger.info("Starting asyncio loop...")
+        print("Starting asyncio loop...")
         execute_operator("lightdance.setup_blender")
 
         return {"RUNNING_MODAL"}
@@ -158,7 +154,7 @@ class AsyncOperator(bpy.types.Operator):
                     self._finish(context)
                     return {"FINISHED"}
 
-                logger.error(ex)
+                print(ex)
 
                 return {"RUNNING_MODAL"}
 
@@ -201,7 +197,7 @@ class AsyncOperator(bpy.types.Operator):
         except asyncio.CancelledError:
             pass
         except Exception:
-            logger.exception("Failed to run async task")
+            traceback.print_exc()
 
 
 def register():

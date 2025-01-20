@@ -1,8 +1,8 @@
 import asyncio
+import traceback
 from typing import Any
 
 from ..client import client
-from ..core.log import logger
 
 
 class PingAgent:
@@ -19,7 +19,7 @@ class PingAgent:
             return False
 
         except Exception:
-            logger.exception("Failed to ping")
+            traceback.print_exc()
             return False
 
 

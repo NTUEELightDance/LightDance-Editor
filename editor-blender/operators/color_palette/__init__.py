@@ -1,7 +1,8 @@
+import traceback
+
 import bpy
 
 from ...core.actions.state.color_palette import add_color, delete_color, edit_color
-from ...core.log import logger
 from ...core.states import state
 from ...core.utils.notification import notify
 from ...core.utils.ui import redraw_area
@@ -114,7 +115,7 @@ class ColorDeleteOperator(AsyncOperator):
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
         except Exception:
-            logger.exception("Failed to delete color")
+            traceback.print_exc()
             notify("ERROR", "Failed to delete color")
 
         return {"FINISHED"}
@@ -181,7 +182,7 @@ class ColorConfirmOperator(AsyncOperator):
                     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
                 except Exception:
-                    logger.exception("Failed to edit color")
+                    traceback.print_exc()
                     notify("ERROR", "Failed to edit color")
 
             case ColorPaletteEditModeType.NEW.value:
@@ -206,7 +207,7 @@ class ColorConfirmOperator(AsyncOperator):
                     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
                 except Exception:
-                    logger.exception("Failed to add color")
+                    traceback.print_exc()
                     notify("ERROR", "Failed to add color")
 
             case _:

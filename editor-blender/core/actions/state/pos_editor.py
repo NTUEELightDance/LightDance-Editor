@@ -1,8 +1,9 @@
+import traceback
+
 import bpy
 
 from ....api.pos_agent import pos_agent
 from ....properties.types import PositionPropertyType
-from ...log import logger
 from ...models import EditingData, EditMode
 from ...states import state
 from ...utils.notification import notify
@@ -63,7 +64,7 @@ async def add_pos_frame():
         id = await pos_agent.add_frame(start, positionData)
         notify("INFO", f"Added position frame: {id}")
     except:
-        logger.exception("Failed to add position frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot add position frame")
 
     set_requesting(False)
@@ -110,7 +111,7 @@ async def save_pos_frame(start: int | None = None):
         else:
             notify("WARNING", "Cannot exit editing")
     except:
-        logger.exception("Failed to save position frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot save position frame")
 
     set_requesting(False)
@@ -125,7 +126,7 @@ async def delete_pos_frame():
         await pos_agent.delete_frame(id)
         notify("INFO", f"Deleted position frame: {id}")
     except:
-        logger.exception("Failed to delete position frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot delete position frame")
 
     set_requesting(False)
@@ -184,7 +185,7 @@ async def cancel_edit_pos():
             notify("WARNING", "Cannot cancel edit")
 
     except:
-        logger.exception("Failed to cancel edit position frame")
+        traceback.print_exc()
         notify("WARNING", "Cannot cancel edit")
 
     set_requesting(False)

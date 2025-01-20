@@ -1,9 +1,8 @@
 import asyncio
 import inspect
+import traceback
 from collections.abc import Callable, Coroutine
 from typing import Any, Generic, TypeVar
-
-from ...core.log import logger
 
 R = TypeVar("R")
 
@@ -38,7 +37,7 @@ class AsyncTask(Generic[R]):
 
         except Exception as err:
             if self.catch_callback is not None:
-                logger.exception("Failed to run task")
+                traceback.print_exc()
                 if inspect.iscoroutinefunction(self.catch_callback):
                     await self.catch_callback(err)
                 else:

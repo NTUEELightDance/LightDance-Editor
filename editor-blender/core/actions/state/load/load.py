@@ -1,10 +1,10 @@
 import json
 import os
+import traceback
 from typing import Any, cast
 
 from .....client import client
 from ....config import config
-from ....log import logger
 from ....states import state
 from ....utils.ui import update_user_log
 from .animation import setup_animation_data
@@ -62,7 +62,7 @@ async def fetch_data(reload: bool = False):
                 url_set.add((assets_load[tag], hash_match))
 
                 if not hash_match:
-                    logger.warning(f"Hash mismatch for {tag}")
+                    print(f"Hash mismatch for {tag}")
 
             dancer_model_update: dict[str, bool] = {}
             dancer_models_hash: dict[str, str] = {}
@@ -86,7 +86,7 @@ async def fetch_data(reload: bool = False):
                 url_set.add((model_url, hash_match))
 
                 if not hash_match:
-                    logger.warning(f"Hash mismatch for DancerMap/{key}/url")
+                    print(f"Hash mismatch for DancerMap/{key}/url")
                     dancer_model_update[key] = True
                 else:
                     dancer_model_update[key] = False
@@ -101,10 +101,10 @@ async def fetch_data(reload: bool = False):
 
                 if not os.path.exists(file_dir):
                     os.makedirs(file_dir)
-                    logger.info(f"created folder: {file_dir}")
+                    print("created folder: ", file_dir)
 
                 data = await client.download_binary(url)
-                logger.info(f"fetched file {url} from server")
+                print("fetched file ", url, "from server")
                 with open(file_path, "w+b") as file:
                     file.write(data)
 
@@ -112,12 +112,11 @@ async def fetch_data(reload: bool = False):
                 json.dump(assets_load_hash, file)
 
         except Exception:
-            logger.exception("Failed to fetch assets")
-            raise
+            traceback.print_exc()
+            raise Exception("Failed to fetch assets")
 
     else:
-        logger.exception("File client is not initialized")
-        raise
+        raise Exception("File client is not initialized")
 
     state.init_temps.assets_load = assets_load
     state.init_temps.dancer_model_update = dancer_model_update
@@ -140,8 +139,8 @@ async def load_data():
     try:
         await setup_objects()
     except Exception:
-        logger.exception("Failed to setup objects")
-        raise
+        traceback.print_exc()
+        raise Exception("Failed to setup objects")
     setup_floor()
 
     await update_user_log("Setting up animation data...")

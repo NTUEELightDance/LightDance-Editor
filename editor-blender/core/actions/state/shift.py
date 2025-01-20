@@ -1,8 +1,9 @@
+import traceback
+
 import bpy
 
 from ....api.time_shift_agent import time_shift_agent
 from ....properties.ui.types import TimeShiftStatusType
-from ...log import logger
 from ...models import FrameType
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
@@ -55,7 +56,7 @@ async def confirm_shift():
         notify("INFO", "Time shift success")
 
     except Exception as e:
-        logger.exception("Failed to shift time")
+        traceback.print_exc()
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify("ERROR", f"Time shift failed: {e}")
 
