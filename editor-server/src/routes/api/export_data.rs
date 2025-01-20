@@ -34,6 +34,7 @@ impl From<String> for ExPartType {
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Type, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
 pub enum ExPartType {
     #[default]
