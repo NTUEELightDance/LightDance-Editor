@@ -28,8 +28,8 @@ pub struct ExColorData(pub i32, pub i32, pub i32); // [r: number, g: number, b: 
 impl From<String> for ExPartType {
     fn from(data: String) -> Self {
         match data.as_str() {
-            "LED" => ExPartType::Led,
-            "FIBER" => ExPartType::Fiber,
+            "LED" => ExPartType::LED,
+            "FIBER" => ExPartType::FIBER,
             _ => panic!("Invalid TPartType value: {}", data),
         }
     }
@@ -38,8 +38,8 @@ impl From<String> for ExPartType {
 #[derive(Type, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
 pub enum ExPartType {
     #[default]
-    Led,
-    Fiber,
+    LED,
+    FIBER,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -302,7 +302,9 @@ pub async fn export_data() -> Result<
     .fetch_all(mysql_pool)
     .await
     .into_result()?;
+
     let mut control = BTreeMap::<String, ExControlData>::new();
+
     for control_frame in control_frames {
         let redis_control = get_redis_control(redis, control_frame.id)
             .await
@@ -322,12 +324,12 @@ pub async fn export_data() -> Result<
                     .map(|(part_idx, part_status)| {
                         let part_type = dancer[dancer_idx].parts[part_idx].r#type;
                         match part_type {
-                            ExPartType::Fiber => {
+                            ExPartType::FIBER => {
                                 let color_id = part_status.0;
                                 let alpha = part_status.1;
                                 ExPartControl(color_dict[&color_id].clone(), alpha)
                             }
-                            ExPartType::Led => {
+                            ExPartType::LED => {
                                 let effect_id = part_status.0;
                                 let alpha = part_status.1;
                                 if effect_id == 0 {
