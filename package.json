@@ -10,12 +10,12 @@
     "dev:controller-server": "cd controller-server && pnpm start",
     "dev:editor-server": "cd editor-server && cargo run",
     "dev:file-server": "cd file-server && cargo run",
-    "dev:pack": "python3 editor-blender/pack/pack.py",
+    "dev:bundle": "bash editor-blender/scripts/bundle.sh",
     "dev": "run-p dev:*",
     "lint:controller-server": "pnpm --dir controller-server lint",
     "lint:editor-server": "cargo clippy --manifest-path ./editor-server/Cargo.toml",
     "lint": "pnpm lint:controller-server && pnpm lint:editor-server",
-    "prod:pack": "python3 editor-blender/pack/pack.py -r"
+    "prod:bundle": "bash editor-blender/scripts/bundle.sh -r"
   },
   "browserslist": {
     "production": [
