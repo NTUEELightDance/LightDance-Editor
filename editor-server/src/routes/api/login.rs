@@ -1,11 +1,11 @@
 use crate::db::types::user::UserData;
 use crate::global;
-use crate::utils::authentication;
 
 use axum::{http::HeaderMap, http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use std::env::var;
+use reqwest;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginQuery {
@@ -21,6 +21,25 @@ pub struct LoginResponse {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginFailedResponse {
     err: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct Auth0LoginRes {
+    access_token: String,
+    // id_token: String,
+    // scope: String,
+    // expires_in: i32,
+    // token_type: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Auth0LoginReq {
+    grant_type: String,
+    username: String,
+    password: String,
+    scope: String,
+    client_id: String,
+    client_secret: String
 }
 
 /// Login handler.
@@ -65,6 +84,47 @@ pub async fn login(
         //     }
         // };
 
+        // login specs
+        let username = query.username;
+        let password = query.password;
+        let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
+        let auth0_client_id = var("AUTH0_CLIENT_ID").expect("id not set");
+        let auth0_client_secret = var("AUTH0_CLIENT_SECRET").expect("secret not set");
+        let url = format!("https://{auth0_domain}/oauth/token");
+
+        let params = Auth0LoginReq {
+            grant_type: "password".to_string(),
+            username: username.to_string(),
+            password: password.to_string(),
+            scope: "openid profile email".to_string(),
+            client_id: auth0_client_id.to_string(),
+            client_secret: auth0_client_secret.to_string()
+        };
+
+        // get response from Auth0
+
+        let client = reqwest::Client::new();
+        let res = client.post(url)
+            .form(&params)
+            .send()
+            .await;
+
+        let res = match res {
+            Ok(res) => res,
+            Err(err) => {
+                let status = match err.status() {
+                    Some(stat) => stat,
+                    None => reqwest::StatusCode::BAD_REQUEST,
+                };
+                return Err((
+                    http::StatusCode::from_u16(status.as_u16()).expect("invalid status code"),
+                    Json(LoginFailedResponse {
+                        err: err.to_string(),
+                    }),
+                ))
+            }
+        };
+
         // Get app state
         let clients = global::clients::get();
 
@@ -88,14 +148,14 @@ pub async fn login(
             )
         })?;
 
-        if !authentication::compare_password(&query.password, &user.password) {
-            return Err((
-                StatusCode::UNAUTHORIZED,
-                Json(LoginFailedResponse {
-                    err: "Password incorrect.".to_string(),
-                }),
-            ));
-        }
+        // if !authentication::compare_password(&query.password, &user.password) {
+        //     return Err((
+        //         StatusCode::UNAUTHORIZED,
+        //         Json(LoginFailedResponse {
+        //             err: "Password incorrect.".to_string(),
+        //         }),
+        //     ));
+        // }
 
         // Get expiration time from env
         let expiration_time_hours: u64 = match var("TOKEN_EXPIRATION_TIME_HOURS") {
@@ -111,7 +171,11 @@ pub async fn login(
             .await
             .unwrap();
 
-        let token = authentication::generate_csrf_token();
+        let token = res.json::<Auth0LoginRes>()
+            .await
+            .unwrap()
+            .access_token;
+
         let _: Result<(), _> = conn.set_ex(&token, user.id, expiration_time_seconds).await;
         let _: Result<(), _> = conn.set_ex(user.id, &token, expiration_time_seconds).await;
 
