@@ -23,7 +23,6 @@ pub struct CheckTokenFailedResponse {
 pub async fn check_token(
     cookie_jar: CookieJar,
 ) -> Result<(StatusCode, Json<CheckTokenResponse>), (StatusCode, Json<CheckTokenFailedResponse>)> {
-
     // get token from cookieJar
     let token = cookie_jar
         .get("token")

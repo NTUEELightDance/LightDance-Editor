@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::global;
-use axum::http::{header::CONTENT_LENGTH, Request, Response};
+use axum::http::{header::CONTENT_LENGTH, Response};
 use axum::Router;
 use tower_http::trace::{DefaultMakeSpan, TraceLayer};
 use tracing::Span;

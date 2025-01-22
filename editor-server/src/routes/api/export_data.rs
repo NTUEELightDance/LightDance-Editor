@@ -119,10 +119,8 @@ where
     }
 }
 
-pub async fn export_data() -> Result<
-    (StatusCode, Json<ExportDataResponse>),
-    (StatusCode, Json<ExportDataFailedResponse>),
-> {
+pub async fn export_data(
+) -> Result<(StatusCode, Json<ExportDataResponse>), (StatusCode, Json<ExportDataFailedResponse>)> {
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
     let redis = clients.redis_client();

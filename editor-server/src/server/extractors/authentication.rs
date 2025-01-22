@@ -46,7 +46,6 @@ impl Authentication {
     }
 }
 
-#[async_trait]
 impl FromRequestParts<()> for Authentication {
     type Rejection = &'static str;
 

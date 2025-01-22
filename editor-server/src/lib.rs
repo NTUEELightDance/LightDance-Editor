@@ -51,7 +51,7 @@ pub async fn build_app() -> Router {
     let schema = schema::build_schema();
 
     Router::new()
-        .nest("/", build_graphql_tracer(build_graphql_routes(schema)))
+        .merge(build_graphql_tracer(build_graphql_routes(schema)))
         .nest("/api", build_api_tracer(build_api_routes()))
 }
 
