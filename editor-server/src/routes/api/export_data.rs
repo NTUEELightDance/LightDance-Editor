@@ -9,7 +9,7 @@ use crate::utils::vector::partition_by_field;
 use async_graphql::Enum;
 use axum::{http::StatusCode, response::Json};
 use http::header::CONTENT_TYPE;
-use http::HeaderMap;
+use http::{HeaderMap, HeaderValue};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
@@ -120,7 +120,7 @@ where
 }
 
 pub async fn export_data() -> Result<
-    (StatusCode, (HeaderMap, Json<ExportDataResponse>)),
+    (StatusCode, Json<ExportDataResponse>),
     (StatusCode, Json<ExportDataFailedResponse>),
 > {
     let clients = global::clients::get();
@@ -383,7 +383,7 @@ pub async fn export_data() -> Result<
     }
 
     let mut header = HeaderMap::new();
-    header.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+    header.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
     let export_data_response = ExportDataResponse {
         position,
@@ -393,5 +393,5 @@ pub async fn export_data() -> Result<
         led_effects,
     };
 
-    Ok((StatusCode::OK, (header, Json(export_data_response))))
+    Ok((StatusCode::OK, Json(export_data_response)))
 }

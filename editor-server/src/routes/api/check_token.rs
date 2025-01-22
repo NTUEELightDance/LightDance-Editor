@@ -20,21 +20,11 @@ pub struct CheckTokenFailedResponse {
 /// Logout handler.
 /// Remove token from redis and return success message.
 /// Otherwise return an error message.
-#[axum::debug_handler]
 pub async fn check_token(
     cookie_jar: CookieJar,
 ) -> Result<(StatusCode, Json<CheckTokenResponse>), (StatusCode, Json<CheckTokenFailedResponse>)> {
-    // 處理空cookieJar
-    // let cookie_jar = cookie_jar.ok_or_else(|| {
-    //     (
-    //         StatusCode::INTERNAL_SERVER_ERROR,
-    //         Json(CheckTokenFailedResponse {
-    //             err: "Cookies are missing in the request.".to_string(),
-    //         }),
-    //     )
-    // })?;
 
-    // 從 CookieJar 中提取 token
+    // get token from cookieJar
     let token = cookie_jar
         .get("token")
         .map(|cookie| cookie.value().to_string())

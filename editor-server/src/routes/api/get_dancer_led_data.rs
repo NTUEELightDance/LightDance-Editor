@@ -133,28 +133,28 @@ fn filter_identical_frames(statuses: Vec<Status>) -> Vec<Status> {
 }
 
 pub async fn get_dancer_led_data(
-    query: Option<Json<GetLEDDataQuery>>,
+    query: Json<GetLEDDataQuery>,
 ) -> Result<
     (StatusCode, (HeaderMap, Json<GetDataResponse>)),
     (StatusCode, Json<GetDataFailedResponse>),
 > {
-    let query = match query {
-        Some(query) => query.0,
-        None => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                Json(GetDataFailedResponse {
-                    err: "Query not found.".to_string(),
-                }),
-            ))
-        }
-    };
+    // let query = match query {
+    //     Some(query) => query.0,
+    //     None => {
+    //         return Err((
+    //             StatusCode::BAD_REQUEST,
+    //             Json(GetDataFailedResponse {
+    //                 err: "Query not found.".to_string(),
+    //             }),
+    //         ))
+    //     }
+    // };
 
     let GetLEDDataQuery {
         dancer,
         led_parts: required_parts,
         led_parts_merge: parts_merge,
-    } = query;
+    } = query.0;
 
     let mut parts_filter = HashSet::new();
     required_parts

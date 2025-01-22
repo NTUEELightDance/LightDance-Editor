@@ -59,27 +59,27 @@ where
 }
 
 pub async fn get_dancer_fiber_data(
-    query: Option<Json<GetFiberDataQuery>>,
+    query: Json<GetFiberDataQuery>,
 ) -> Result<
     (StatusCode, (HeaderMap, Json<GetDataResponse>)),
     (StatusCode, Json<GetDataFailedResponse>),
 > {
-    let query = match query {
-        Some(query) => query.0,
-        None => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                Json(GetDataFailedResponse {
-                    err: "Query is required.".to_string(),
-                }),
-            ))
-        }
-    };
+    // let query = match query {
+    //     Some(query) => query.0,
+    //     None => {
+    //         return Err((
+    //             StatusCode::BAD_REQUEST,
+    //             Json(GetDataFailedResponse {
+    //                 err: "Query is required.".to_string(),
+    //             }),
+    //         ))
+    //     }
+    // };
 
     let GetFiberDataQuery {
         dancer,
         of_parts: required_parts,
-    } = query;
+    } = query.0;
 
     let mut parts_filter = HashSet::new();
     required_parts.keys().for_each(|part_name| {

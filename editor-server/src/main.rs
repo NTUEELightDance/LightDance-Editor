@@ -15,12 +15,12 @@ use crate::utils::{
     data::{init_redis_control, init_redis_position},
 };
 
-use axum::Router;
-use axum_server;
+use axum::{Router, serve};
 use std::fs;
 use std::net::SocketAddr;
 use std::path::Path;
 use tracing::build_trace_layer;
+use tokio::net::TcpListener;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 20)]
 pub async fn main() {
@@ -67,15 +67,13 @@ pub async fn main() {
 
     let server_port = 4000;
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], server_port));
+    let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], server_port)))
+    .await
+    .expect("Failed to bind to address");
 
     println!("Server is ready!");
     tracing::init_tracing(server_port);
     println!("GraphiQL: http://localhost:{}/graphql", server_port);
 
-    // Start server Ref : https://github.com/programatik29/axum-server/blob/v0.3.0/examples/http_and_https.rs
-    axum_server::bind(addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    serve(listener, app).await.unwrap();
 }

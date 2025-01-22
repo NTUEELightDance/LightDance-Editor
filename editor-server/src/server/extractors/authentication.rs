@@ -20,6 +20,7 @@ pub struct Authentication(pub UserContext);
 #[derive(Debug, Deserialize, Serialize)]
 struct Token(String);
 
+
 impl FromRequestParts<()> for Authentication {
     type Rejection = &'static str;
 
