@@ -16,11 +16,10 @@ use axum::{
     Extension,
     Router,
 };
-use std::sync::Arc;
 
 async fn graphql(
     Authentication(context): Authentication,
-    Extension(schema): Extension<Arc<AppSchema>>,
+    Extension(schema): Extension<AppSchema>,
     req: axum::http::Request<Body>,
 ) -> impl IntoResponse {
     let body_bytes = to_bytes(req.into_body(), 1024 * 1024)
@@ -50,7 +49,6 @@ async fn graphiql() -> impl IntoResponse {
 
 /// Build GraphQL routes for Axum server.
 pub fn build_graphql_routes(schema: AppSchema) -> Router {
-    let schema = Arc::new(schema);
     Router::new()
         // Main routes for GraphQL
         .route("/graphql", get(graphiql).post(graphql))
