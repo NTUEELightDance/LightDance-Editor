@@ -62,7 +62,7 @@ pub async fn main() {
 
     // Build server
     let app = Router::new()
-        .nest("/", build_graphql_routes(schema))
+        .nest("/graphql", build_graphql_routes(schema))
         .nest("/api", build_trace_layer(build_api_routes()));
 
     let server_port = 4000;

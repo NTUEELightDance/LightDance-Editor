@@ -12,7 +12,6 @@ use axum::{
     body::{Body , to_bytes},
     // http::{Request as HttpRequest, StatusCode},
     response::{Html, IntoResponse},
-    extract::State,
     routing::{get, get_service},
     Extension, Router,
 };
@@ -20,7 +19,7 @@ use std::sync::Arc;
 
 async fn graphql(
     Authentication(context): Authentication,
-    State(schema): State<Arc<AppSchema>>,
+    Extension(schema): Extension<Arc<AppSchema>>,
     req: axum::http::Request<Body>,
 ) -> impl IntoResponse {
     let body_bytes = to_bytes(req.into_body() , 1024 * 1024).await.unwrap_or_default();
@@ -42,8 +41,8 @@ async fn graphql(
 async fn graphiql() -> impl IntoResponse {
     Html(
         GraphiQLSource::build()
-            .endpoint("/graphql")
-            .subscription_endpoint("/graphql-websocket")
+            .endpoint("/graphql/graphql")
+            .subscription_endpoint("/graphql/graphql-websocket")
             .finish(),
     )
 }
