@@ -11,9 +11,9 @@ use async_graphql::{
     Data, Executor, Result,
 };
 use axum::{
-    body::{boxed, BoxBody, HttpBody},
+    body::{Body, HttpBody},
     extract::{
-        ws::{CloseFrame, Message},
+        ws::{CloseFrame, Message, Utf8Bytes},
         FromRequestParts, WebSocketUpgrade,
     },
     http::{self, request::Parts, Request, Response, StatusCode},
@@ -27,7 +27,7 @@ use futures_util::{
     Sink, SinkExt, Stream, StreamExt,
 };
 use std::sync::Arc;
-use std::{borrow::Cow, convert::Infallible, future::Future, str::FromStr};
+use std::{convert::Infallible, future::Future, str::FromStr};
 use tower_service::Service;
 
 /// A GraphQL protocol extractor.
@@ -36,7 +36,6 @@ use tower_service::Service;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct GraphQLProtocol(WebSocketProtocols);
 
-#[async_trait::async_trait]
 impl<S> FromRequestParts<S> for GraphQLProtocol
 where
     S: Send + Sync,
@@ -112,7 +111,7 @@ where
     OnConnClose: Fn(UserContext) -> OnConnCloseFut + Send + Sync + 'static,
     OnConnCloseFut: Future<Output = ()> + Send + 'static,
 {
-    type Response = Response<BoxBody>;
+    type Response = Response<Body>;
     type Error = Infallible;
     type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
 
@@ -130,11 +129,11 @@ where
 
             let protocol = match GraphQLProtocol::from_request_parts(&mut parts, &()).await {
                 Ok(protocol) => protocol,
-                Err(err) => return Ok(err.into_response().map(boxed)),
+                Err(err) => return Ok(err.into_response()),
             };
             let upgrade = match WebSocketUpgrade::from_request_parts(&mut parts, &()).await {
                 Ok(protocol) => protocol,
-                Err(err) => return Ok(err.into_response().map(boxed)),
+                Err(err) => return Ok(err.into_response()),
             };
 
             let resp = upgrade
@@ -143,7 +142,7 @@ where
                     GraphQLWebSocket::new(stream, executor, protocol)
                         .serve(on_connect, on_disconnect)
                 });
-            Ok(resp.into_response().map(boxed))
+            Ok(resp.into_response())
         })
     }
 }
@@ -238,12 +237,12 @@ where
                     Ok(Data::default())
                 })
                 .map(|msg| match msg {
-                    WsMessage::Text(text) => Message::Text(text),
+                    WsMessage::Text(text) => Message::Text(Utf8Bytes::from(text)),
                     WsMessage::Close(code, status) => {
                         is_closed = true;
                         Message::Close(Some(CloseFrame {
                             code,
-                            reason: Cow::from(status),
+                            reason: Utf8Bytes::from(status),
                         }))
                     }
                 });
@@ -268,7 +267,7 @@ where
                             let _ = sink
                                 .send(Message::Close(Some(CloseFrame {
                                     code: 400,
-                                    reason: Cow::from(err),
+                                    reason: Utf8Bytes::from(err),
                                 })))
                                 .await;
                             break;

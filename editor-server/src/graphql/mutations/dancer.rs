@@ -230,8 +230,8 @@ impl DancerMutation {
         .execute(mysql)
         .await?;
 
-        let _ = init_redis_control(mysql, redis).await;
-        let _ = init_redis_position(mysql, redis).await;
+        init_redis_control(mysql, redis).await?;
+        init_redis_position(mysql, redis).await?;
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Deleted,

@@ -9,11 +9,11 @@ members = ["prisma"]
 
 [dependencies]
 argon2 = "0.5.2"
-async-graphql = { version = "6.0.6", features = ["tracing"] }
-async-graphql-axum = "6.0.6"
+async-graphql = { version = "7.0.13", features = ["tracing"] }
+async-graphql-axum = "7.0.13"
 async-trait = "0.1.74"
-axum = { version = "0.6.20", features = ["ws", "form", "multipart"] }
-axum-extra = { version = "0.8.0", features = ["cookie"] }
+axum = { version = "0.8.1", features = ["ws", "form", "multipart", "macros", "json"] }
+axum-extra = { version = "0.11.0", features = ["cookie"] }
 bcrypt = "0.15.0"
 dotenv = "0.15.0"
 futures = "0.3.30"
@@ -30,13 +30,12 @@ serde_json = "1.0.107"
 slab = "0.4.9"
 sqlx = { version = "0.7.1", features = ["mysql", "runtime-tokio", "migrate", "postgres", "chrono"] }
 tokio = { version = "1.32.0", features = ["full"] }
-tower = "0.4.13"
-tower-http = { version = "0.3.0", features = ["cors", "trace"] }
+tower = { version = "0.4.13", features = ["util"] }
+tower-http = { version = "0.6.1", features = ["cors", "trace"] }
 tower-service = "0.3.2"
 uuid = { version = "1.6.1", features = ["v4"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-reqwest = { version = "0.12.12", features = ["json"] }
 
 [profile.dev]
 opt-level = 0

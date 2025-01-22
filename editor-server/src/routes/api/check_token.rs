@@ -21,32 +21,21 @@ pub struct CheckTokenFailedResponse {
 /// Remove token from redis and return success message.
 /// Otherwise return an error message.
 pub async fn check_token(
-    cookie_jar: Option<CookieJar>,
+    cookie_jar: CookieJar,
 ) -> Result<(StatusCode, Json<CheckTokenResponse>), (StatusCode, Json<CheckTokenFailedResponse>)> {
-    // Get token from cookie jar
-    let cookie_jar = match cookie_jar {
-        Some(cookie_jar) => cookie_jar,
-        None => {
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(CheckTokenFailedResponse {
-                    err: "Failed to retrieve cookies.".to_string(),
-                }),
-            ))
-        }
-    };
-
-    let token = match cookie_jar.get("token") {
-        Some(token) => token.value().to_string(),
-        None => {
-            return Err((
+    // get token from cookieJar
+    let token = cookie_jar
+        .get("token")
+        .map(|cookie| cookie.value().to_string())
+        .ok_or_else(|| {
+            (
                 StatusCode::BAD_REQUEST,
                 Json(CheckTokenFailedResponse {
                     err: "Token is required.".to_string(),
                 }),
-            ))
-        }
-    };
+            )
+        })?;
+
     let env_type = &global::envs::get().env;
 
     if env_type == "development" {

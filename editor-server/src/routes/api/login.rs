@@ -2,7 +2,7 @@ use crate::db::types::user::UserData;
 use crate::global;
 use crate::utils::authentication;
 
-use axum::{headers::HeaderMap, http::StatusCode, response::Json};
+use axum::{http::HeaderMap, http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use std::env::var;
@@ -27,7 +27,7 @@ pub struct LoginFailedResponse {
 /// Return a token in cookie if login is successful.
 /// Otherwise return an error message.
 pub async fn login(
-    query: Option<Json<LoginQuery>>,
+    query: Json<LoginQuery>,
 ) -> Result<(StatusCode, (HeaderMap, Json<LoginResponse>)), (StatusCode, Json<LoginFailedResponse>)>
 {
     // Check env type
@@ -52,18 +52,18 @@ pub async fn login(
 
         Ok((StatusCode::OK, (header, Json(login_response))))
     } else {
-        // Check query
-        let query = match query {
-            Some(query) => query.0,
-            None => {
-                return Err((
-                    StatusCode::BAD_REQUEST,
-                    Json(LoginFailedResponse {
-                        err: "No query.".to_string(),
-                    }),
-                ))
-            }
-        };
+        // // Check query
+        // let query = match query {
+        //     Some(query) => query.0,
+        //     None => {
+        //         return Err((
+        //             StatusCode::BAD_REQUEST,
+        //             Json(LoginFailedResponse {
+        //                 err: "No query.".to_string(),
+        //             }),
+        //         ))
+        //     }
+        // };
 
         // Get app state
         let clients = global::clients::get();

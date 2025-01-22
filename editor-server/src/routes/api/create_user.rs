@@ -22,21 +22,21 @@ pub struct CreateUserFailedResponse {
 /// CreateUser handler.
 /// Verify admin previlige and create a user.
 pub async fn create_user(
-    cookie_jar: Option<CookieJar>,
-    query: Option<Json<CreateUserQuery>>,
+    cookie_jar: CookieJar,
+    query: Json<CreateUserQuery>,
 ) -> Result<(StatusCode, Json<CreateUserResponse>), (StatusCode, Json<CreateUserFailedResponse>)> {
     // Get token from cookie jar
-    let cookie_jar = match cookie_jar {
-        Some(cookie_jar) => cookie_jar,
-        None => {
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(CreateUserFailedResponse {
-                    err: "Failed to retrieve cookies.".to_string(),
-                }),
-            ))
-        }
-    };
+    // let cookie_jar = match cookie_jar {
+    //     Some(cookie_jar) => cookie_jar,
+    //     None => {
+    //         return Err((
+    //             StatusCode::INTERNAL_SERVER_ERROR,
+    //             Json(CreateUserFailedResponse {
+    //                 err: "Failed to retrieve cookies.".to_string(),
+    //             }),
+    //         ))
+    //     }
+    // };
 
     let token = match cookie_jar.get("token") {
         Some(token) => token.value().to_string(),
@@ -51,17 +51,17 @@ pub async fn create_user(
     };
 
     // Check query
-    let query = match query {
-        Some(query) => query.0,
-        None => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                Json(CreateUserFailedResponse {
-                    err: "No query.".to_string(),
-                }),
-            ))
-        }
-    };
+    // let query = match query {
+    //     Some(query) => query.0,
+    //     None => {
+    //         return Err((
+    //             StatusCode::BAD_REQUEST,
+    //             Json(CreateUserFailedResponse {
+    //                 err: "No query.".to_string(),
+    //             }),
+    //         ))
+    //     }
+    // };
 
     let clients = global::clients::get();
 

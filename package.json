@@ -15,7 +15,8 @@
     "lint:controller-server": "pnpm --dir controller-server lint",
     "lint:editor-server": "cargo clippy --manifest-path ./editor-server/Cargo.toml",
     "lint": "pnpm lint:controller-server && pnpm lint:editor-server",
-    "prod:bundle": "bash editor-blender/scripts/bundle.sh -r"
+    "prod:bundle": "bash editor-blender/scripts/bundle.sh -r",
+    "test:editor-server": "cargo test --test '*' --manifest-path ./editor-server/Cargo.toml"
   },
   "browserslist": {
     "production": [
