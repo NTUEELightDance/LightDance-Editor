@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod api_tests {
-    use std::fs;
     use axum::{body::Body, http::Request, http::StatusCode};
+    use std::fs;
     use tower::{Service, ServiceExt};
 
     use editor_server::build_app;

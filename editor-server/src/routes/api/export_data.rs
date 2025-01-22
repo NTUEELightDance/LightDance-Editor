@@ -9,7 +9,6 @@ use crate::types::global::{
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
-use async_graphql::Enum;
 use axum::{
     http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode},
     response::Json,
@@ -44,10 +43,9 @@ where
     }
 }
 
-pub async fn export_data() -> Result<
-    (StatusCode, (HeaderMap, Json<ExportDataResponse>)),
-    (StatusCode, Json<ExportDataFailedResponse>),
-> {
+pub async fn export_data(
+) -> Result<(StatusCode, (HeaderMap, Json<JsonData>)), (StatusCode, Json<ExportDataFailedResponse>)>
+{
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
     let redis = clients.redis_client();
