@@ -7,9 +7,10 @@ use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
 use async_graphql::Enum;
-use axum::{http::StatusCode, response::Json};
-use http::header::CONTENT_TYPE;
-use http::HeaderMap;
+use axum::{
+    http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode},
+    response::Json,
+};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
@@ -119,6 +120,7 @@ where
     }
 }
 
+#[axum::debug_handler]
 pub async fn export_data() -> Result<
     (StatusCode, (HeaderMap, Json<ExportDataResponse>)),
     (StatusCode, Json<ExportDataFailedResponse>),
@@ -383,7 +385,7 @@ pub async fn export_data() -> Result<
     }
 
     let mut header = HeaderMap::new();
-    header.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+    header.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
     let export_data_response = ExportDataResponse {
         position,

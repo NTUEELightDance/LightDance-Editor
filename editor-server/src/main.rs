@@ -5,17 +5,14 @@ pub async fn main() {
     // Build server
     let app = build_app().await;
 
-    let server_port: u16 = option_env!("SERVER_PORT")
-        .unwrap_or("4000")
-        .parse()
-        .unwrap();
+    let server_port = option_env!("SERVER_PORT").unwrap_or("4000");
+
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{server_port}"))
+        .await
+        .expect("Failed to bind to address");
 
     println!("GraphiQL: http://localhost:{}/graphql", server_port);
     println!("Server listening on port {}", server_port);
 
-    // Start server
-    axum::Server::bind(&format!("[::]:{}", server_port).parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    axum::serve(listener, app).await.unwrap();
 }

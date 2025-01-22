@@ -5,7 +5,7 @@ use crate::db::types::user::UserData;
 use crate::global;
 use crate::types::global::UserContext;
 
-use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
+use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::extract::CookieJar;
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
@@ -46,7 +46,6 @@ impl Authentication {
     }
 }
 
-#[async_trait]
 impl FromRequestParts<()> for Authentication {
     type Rejection = &'static str;
 

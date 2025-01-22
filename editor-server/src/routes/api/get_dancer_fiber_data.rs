@@ -1,11 +1,9 @@
 use crate::global;
 
 use axum::{
-    headers::{HeaderMap, HeaderValue},
-    http::StatusCode,
+    http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
-use http::header::CONTENT_TYPE;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -61,27 +59,27 @@ where
 }
 
 pub async fn get_dancer_fiber_data(
-    query: Option<Json<GetFiberDataQuery>>,
+    query: Json<GetFiberDataQuery>,
 ) -> Result<
     (StatusCode, (HeaderMap, Json<GetDataResponse>)),
     (StatusCode, Json<GetDataFailedResponse>),
 > {
-    let query = match query {
-        Some(query) => query.0,
-        None => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                Json(GetDataFailedResponse {
-                    err: "Query is required.".to_string(),
-                }),
-            ))
-        }
-    };
+    // let query = match query {
+    //     Some(query) => query.0,
+    //     None => {
+    //         return Err((
+    //             StatusCode::BAD_REQUEST,
+    //             Json(GetDataFailedResponse {
+    //                 err: "Query is required.".to_string(),
+    //             }),
+    //         ))
+    //     }
+    // };
 
     let GetFiberDataQuery {
         dancer,
         of_parts: required_parts,
-    } = query;
+    } = query.0;
 
     let mut parts_filter = HashSet::new();
     required_parts.keys().for_each(|part_name| {
@@ -196,7 +194,7 @@ pub async fn get_dancer_fiber_data(
     let response = frames.into_iter().map(|(_, frame)| frame).collect();
 
     let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    headers.insert("content-type", HeaderValue::from_static("application/json"));
 
     Ok((StatusCode::OK, (headers, Json(response))))
 }

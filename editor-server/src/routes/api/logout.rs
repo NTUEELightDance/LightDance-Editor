@@ -19,20 +19,20 @@ pub struct LogoutFailedResponse {
 /// Remove token from redis and return success message.
 /// Otherwise return an error message.
 pub async fn logout(
-    cookie_jar: Option<CookieJar>,
+    cookie_jar: CookieJar,
 ) -> Result<(StatusCode, Json<LogoutResponse>), (StatusCode, Json<LogoutFailedResponse>)> {
     // Get token from cookie jar
-    let cookie_jar = match cookie_jar {
-        Some(cookie_jar) => cookie_jar,
-        None => {
-            return Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(LogoutFailedResponse {
-                    err: "Failed to retrieve cookies.".to_string(),
-                }),
-            ))
-        }
-    };
+    // let cookie_jar = match cookie_jar {
+    //     Some(cookie_jar) => cookie_jar,
+    //     None => {
+    //         return Err((
+    //             StatusCode::INTERNAL_SERVER_ERROR,
+    //             Json(LogoutFailedResponse {
+    //                 err: "Failed to retrieve cookies.".to_string(),
+    //             }),
+    //         ))
+    //     }
+    // };
 
     let token = match cookie_jar.get("token") {
         Some(token) => token.value().to_string(),

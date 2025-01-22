@@ -2,9 +2,8 @@
 mod api_tests {
     use std::fs;
 
-    use axum::{body::Body, http::Request};
-    use http::StatusCode;
-    use tower::{util::ServiceExt, Service};
+    use axum::{body::Body, http::Request, http::StatusCode};
+    use tower::{Service, ServiceExt};
 
     use editor_server::build_app;
 

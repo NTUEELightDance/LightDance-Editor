@@ -2,11 +2,9 @@ use crate::global;
 use crate::utils::vector::partition_by_field;
 
 use axum::{
-    headers::{HeaderMap, HeaderValue},
-    http::StatusCode,
+    http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
-use http::header::CONTENT_TYPE;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -135,28 +133,28 @@ fn filter_identical_frames(statuses: Vec<Status>) -> Vec<Status> {
 }
 
 pub async fn get_dancer_led_data(
-    query: Option<Json<GetLEDDataQuery>>,
+    query: Json<GetLEDDataQuery>,
 ) -> Result<
     (StatusCode, (HeaderMap, Json<GetDataResponse>)),
     (StatusCode, Json<GetDataFailedResponse>),
 > {
-    let query = match query {
-        Some(query) => query.0,
-        None => {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                Json(GetDataFailedResponse {
-                    err: "Query not found.".to_string(),
-                }),
-            ))
-        }
-    };
+    // let query = match query {
+    //     Some(query) => query.0,
+    //     None => {
+    //         return Err((
+    //             StatusCode::BAD_REQUEST,
+    //             Json(GetDataFailedResponse {
+    //                 err: "Query not found.".to_string(),
+    //             }),
+    //         ))
+    //     }
+    // };
 
     let GetLEDDataQuery {
         dancer,
         led_parts: required_parts,
         led_parts_merge: parts_merge,
-    } = query;
+    } = query.0;
 
     let mut parts_filter = HashSet::new();
     required_parts
@@ -388,7 +386,7 @@ pub async fn get_dancer_led_data(
     }
 
     let mut headers = HeaderMap::new();
-    headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
+    headers.insert("content-type", HeaderValue::from_static("application/json"));
 
     // return data of form {part_name: [{status: [[r, g, b, a], [r, g, b, a]]}, ...}, ...]
     // index of status array is position of led
