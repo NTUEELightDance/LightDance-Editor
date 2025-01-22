@@ -7,9 +7,10 @@ use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
 
 use async_graphql::Enum;
-use axum::{http::StatusCode, response::Json};
-use http::header::CONTENT_TYPE;
-use http::{HeaderMap, HeaderValue};
+use axum::{
+    http::{header::CONTENT_TYPE, HeaderMap, HeaderValue, StatusCode},
+    response::Json,
+};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
@@ -119,8 +120,11 @@ where
     }
 }
 
-pub async fn export_data(
-) -> Result<(StatusCode, Json<ExportDataResponse>), (StatusCode, Json<ExportDataFailedResponse>)> {
+#[axum::debug_handler]
+pub async fn export_data() -> Result<
+    (StatusCode, (HeaderMap, Json<ExportDataResponse>)),
+    (StatusCode, Json<ExportDataFailedResponse>),
+> {
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
     let redis = clients.redis_client();
@@ -391,5 +395,5 @@ pub async fn export_data(
         led_effects,
     };
 
-    Ok((StatusCode::OK, Json(export_data_response)))
+    Ok((StatusCode::OK, (header, Json(export_data_response))))
 }
