@@ -86,11 +86,11 @@ impl PositionFrameMutation {
             }
             let mut errors = Vec::<String>::new();
             for (idx, coor) in (*data).iter().enumerate() {
-                if coor.len() != 3 {
+                if coor.len() != 6 {
                     errors.push(format!(
                         "Not all coordinates in dancer #{} in payload. Missing number: {}",
                         idx,
-                        3 - coor.len()
+                        6 - coor.len()
                     ));
                 }
             }
