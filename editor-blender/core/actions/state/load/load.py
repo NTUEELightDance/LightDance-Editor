@@ -7,6 +7,7 @@ from ....config import config
 from ....log import logger
 from ....states import state
 from ....utils.ui import update_user_log
+from ..current_pos import update_current_pos_by_index
 from .animation import setup_animation_data
 from .display import setup_display
 from .music import setup_music
@@ -146,3 +147,4 @@ async def load_data():
 
     await update_user_log("Setting up animation data...")
     setup_animation_data()
+    update_current_pos_by_index()

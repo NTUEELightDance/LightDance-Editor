@@ -37,7 +37,7 @@ def update_current_pos_by_index():
             if obj is not None:
                 ld_position: PositionPropertyType = getattr(obj, "ld_position")
                 # This also sets the actual location by update handler
-                ld_position.transform = (
+                ld_position.location = (
                     dancer_pos.location.x,
                     dancer_pos.location.y,
                     dancer_pos.location.z,
@@ -71,7 +71,7 @@ def update_current_pos_by_index():
             if obj is not None:
                 ld_position: PositionPropertyType = getattr(obj, "ld_position")
                 # This also sets the actual location by update handler
-                ld_position.transform = (  # NOTE: Linear interpolation
+                ld_position.location = (  # NOTE: Linear interpolation
                     dancer_pos.location.x
                     + (next_dancer_pos.location.x - dancer_pos.location.x) * ratio,
                     dancer_pos.location.y

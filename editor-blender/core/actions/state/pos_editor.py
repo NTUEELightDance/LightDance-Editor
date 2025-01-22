@@ -34,7 +34,7 @@ def sync_editing_pos_frame_properties():
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            obj.location = ld_position.transform
+            obj.location = ld_position.location
             obj.rotation_euler = ld_position.rotation
 
 
@@ -50,9 +50,9 @@ async def add_pos_frame():
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             positionData.append(
                 [
-                    ld_position.transform[0],
-                    ld_position.transform[1],
-                    ld_position.transform[2],
+                    ld_position.location[0],
+                    ld_position.location[1],
+                    ld_position.location[2],
                     ld_position.rotation[0],
                     ld_position.rotation[1],
                     ld_position.rotation[2],
@@ -83,16 +83,16 @@ async def save_pos_frame(start: int | None = None):
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             positionData.append(
                 [
-                    ld_position.transform[0],
-                    ld_position.transform[1],
-                    ld_position.transform[2],
+                    ld_position.location[0],
+                    ld_position.location[1],
+                    ld_position.location[2],
                     ld_position.rotation[0],
                     ld_position.rotation[1],
                     ld_position.rotation[2],
                 ]
             )
         else:
-            positionData.append([0, 0, 0])
+            positionData.append([0, 0, 0, 0, 0, 0])
 
     set_requesting(True)
     try:

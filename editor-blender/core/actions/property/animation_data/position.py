@@ -286,6 +286,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         if add:
             for d in range(3):
                 loc_curves[d].keyframe_points.add(len(frames[2]))
+                rot_curves[d].keyframe_points.add(len(frames[2]))
 
                 for i, (frame_start, loc, rot) in enumerate(frames[2]):
                     loc_point = loc_kpoints_lists[d][kpoints_len + i]

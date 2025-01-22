@@ -349,7 +349,7 @@ def override_pos(pos_frame: PosMapElement):
         dancer_obj = data_objects[dancer_name]
 
         ld_position: PositionPropertyType = getattr(dancer_obj, "ld_position")
-        ld_position.transform = (location.x, location.y, location.z)
+        ld_position.location = (location.x, location.y, location.z)
         ld_position.rotation = (rotation.rx, rotation.ry, rotation.rz)
 
 
