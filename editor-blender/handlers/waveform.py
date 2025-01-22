@@ -8,7 +8,9 @@ import gpu
 from gpu_extras import batch as g_batch
 
 from ..core.config import config
+from ..core.log import logger
 from ..core.utils.ui import redraw_area
+from ..storage import get_storage
 
 
 class WaveformSettings:
@@ -32,6 +34,9 @@ def draw():
     region = waveform_settings.region
 
     if shader is None or batch is None or region is None:
+        return
+
+    if getattr(get_storage("preferences"), "show_waveform") is False:
         return
 
     x0 = cast(float, region.view2d.region_to_view(0, 0)[0])
@@ -69,7 +74,7 @@ def mount():
     try:
         waveform_file = open(waveform_path, "r")
     except FileNotFoundError:
-        print(f"Waveform file not found: {waveform_path}")
+        logger.error(f"Waveform file not found: {waveform_path}")
         return
 
     waveform_data = json.load(waveform_file)
@@ -169,7 +174,7 @@ def mount():
         draw, (), "WINDOW", "POST_PIXEL"
     )
 
-    print("Waveform loaded")
+    logger.info("Waveform loaded")
     redraw_area({"DOPESHEET_EDITOR"})
 
 

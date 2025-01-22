@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from ....graphqls.command import (
+from ....schemas.command import (
     FromControllerServerBoardInfoPayload,
     FromControllerServerCommandResponse,
 )

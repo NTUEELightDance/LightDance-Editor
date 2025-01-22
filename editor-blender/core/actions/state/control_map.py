@@ -1,3 +1,4 @@
+from ...log import logger
 from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, MapID
 from ...states import state
 from ...utils.convert import control_modify_to_animation_data
@@ -20,7 +21,7 @@ def set_control_record(control_record: ControlRecord):
 
 
 def add_control(id: MapID, frame: ControlMapElement):
-    print(f"Add control {id} at {frame.start}")
+    logger.info(f"Add control {id} at {frame.start}")
 
     control_map_updates = state.control_map_updates
     control_map_updates.added[id] = frame
@@ -38,7 +39,7 @@ def add_control(id: MapID, frame: ControlMapElement):
 
 
 def delete_control(id: MapID):
-    print(f"Delete control {id}")
+    logger.info(f"Delete control {id}")
 
     old_frame = state.control_map.get(id)
     if old_frame is None:
@@ -78,7 +79,7 @@ def delete_control(id: MapID):
 
 
 def update_control(id: MapID, frame: ControlMapElement):
-    print(f"Update control {id} at {frame.start}")
+    logger.info(f"Update control {id} at {frame.start}")
 
     control_map_updates = state.control_map_updates
 

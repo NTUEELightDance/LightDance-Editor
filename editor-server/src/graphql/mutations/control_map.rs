@@ -64,6 +64,8 @@ impl ControlMapMutation {
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editControlMap");
+
         // get the input data
         let frame_id = input.frame_id;
         let fade = input.fade;

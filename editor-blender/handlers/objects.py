@@ -1,5 +1,3 @@
-import traceback
-
 import bpy
 
 from ..core.models import Editor, SelectedPartType, SelectMode

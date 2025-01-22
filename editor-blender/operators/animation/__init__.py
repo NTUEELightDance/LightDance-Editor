@@ -6,6 +6,7 @@ from ...core.actions.property.animation_data import (
 )
 from ...core.actions.state.animation import start_playing, stop_playing
 from ...core.actions.state.app_state import set_playing
+from ...core.log import logger
 from ...core.states import state
 
 is_animation_status_listener_running = False
@@ -18,7 +19,7 @@ class AnimationStatusListenerOperator(bpy.types.Operator):
     def __del__(self):
         global is_animation_status_listener_running
 
-        print("Stopping animation status listener...")
+        logger.info("Stopping animation status listener...")
 
         is_animation_status_listener_running = False
 
@@ -36,7 +37,7 @@ class AnimationStatusListenerOperator(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         is_animation_status_listener_running = True
 
-        print("Starting animation status listener...")
+        logger.info("Starting animation status listener...")
 
         return {"RUNNING_MODAL"}
 

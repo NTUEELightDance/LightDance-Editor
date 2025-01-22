@@ -63,6 +63,8 @@ impl ControlFrameMutation {
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: addControlFrame");
+
         // check if the control frame already exists on the start time
         let exist = sqlx::query!(
             r#"
@@ -471,6 +473,8 @@ impl ControlFrameMutation {
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editControlFrame");
+
         // get the input data
         let frame_id = input.frame_id;
         if frame_id < 0 {
@@ -694,6 +698,8 @@ impl ControlFrameMutation {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
         let mysql = clients.mysql_pool();
+
+        tracing::info!("Mutation: deleteControlFrame");
 
         // get the input data
         let frame_id = input.frame_id;

@@ -1,9 +1,9 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
 from typing import Any
 
 from ..client import client
+from ..core.log import logger
 
 # TODO: Handle returned cookies
 # CookieJar?
@@ -32,7 +32,7 @@ class AuthAgent:
             return LoginResult(success=False, err="Timeout")
 
         except Exception as e:
-            traceback.print_exc()
+            logger.exception("Failed to login")
             return LoginResult(success=False, err=str(e))
 
     async def logout(self) -> bool:
@@ -47,7 +47,7 @@ class AuthAgent:
             return False
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to logout")
             return False
 
     async def check_token(self) -> bool:
@@ -63,7 +63,7 @@ class AuthAgent:
             return False
 
         except Exception:
-            traceback.print_exc()
+            logger.warning("Invalid Token")
             return False
 
 

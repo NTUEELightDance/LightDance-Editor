@@ -285,7 +285,7 @@ pub async fn upload_data(
 
             let model = all_model
                 .get(model_name)
-                .ok_or("Error: Unknown Dancer Name")
+                .ok_or(format!("Error: Unknown Model Name {model_name}"))
                 .into_result()?;
 
             let model_id = model.0;
@@ -294,9 +294,10 @@ pub async fn upload_data(
             for (part_name, effects) in dancer_effects {
                 let mut part_effect_dict: HashMap<&String, i32> = HashMap::new();
 
+                println!("Part: {}", part_name);
                 let part = all_part
                     .get(part_name)
-                    .ok_or("Error: Unknown Part Name")
+                    .ok_or(format!("Error: Unknown Part Name {part_name}"))
                     .into_result()?;
 
                 let part_id = part.0;

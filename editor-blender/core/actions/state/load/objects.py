@@ -6,6 +6,7 @@ import bpy
 
 from .....properties.types import DancerModelHashItemType, LightType, ObjectType
 from ....config import config
+from ....log import logger
 from ....models import DancersArrayPartsItem, ModelName, PartType
 from ....states import state
 from ....utils.convert import rgb_to_float
@@ -67,7 +68,7 @@ def check_local_object_list():
         if local_dancer_model_hash is None or local_dancer_model_hash[
             1
         ].model_hash != dancer_models_hash.get(dancer_name, ""):
-            print(f"Model hash mismatch for {dancer_name}")
+            logger.warning(f"Model hash mismatch for {dancer_name}")
             dancer_model_update[dancer_name] = True
             if local_dancer_model_hash is not None:
                 getattr(bpy.context.scene, "ld_dancer_model_hash").remove(
@@ -139,10 +140,10 @@ async def import_model_to_asset(
             part_obj for part_obj in model_objs if part_obj.name.find(part.name) >= 0
         ]
         if len(part_objects) == 0:
-            print("Dancer part not found (maybe should reload asset)")
+            logger.warning("Dancer part not found (maybe should reload asset)")
 
     bpy.ops.outliner.orphans_purge(do_recursive=True)
-    print(f"Model: {model_name} imported")
+    logger.info(f"Model: {model_name} imported")
 
 
 def find_first_mesh(mesh_name: str) -> bpy.types.Mesh | None:
@@ -229,7 +230,7 @@ async def setup_objects():
             state.init_temps.dancers_reset_animation[dancer_index] = False
             continue
 
-        print(f"Setting up dancer {dancer.name}...")
+        logger.info(f"Setting up dancer {dancer.name}...")
         dancer_load = assets_load["DancerMap"][dancer_name]
 
         # Remove existing dancer object if model needs to be updated
@@ -269,7 +270,7 @@ async def setup_objects():
 
         asset_dancer_obj = dancer_asset_objects.get(f"{model_name}.{model_name}")
         if asset_dancer_obj is None:
-            print(f"Dancer {dancer_name} not found in asset")
+            logger.warning(f"Dancer {dancer_name} not found in asset")
             continue
 
         dancer_obj = cast(bpy.types.Object, asset_dancer_obj.copy())
@@ -285,7 +286,7 @@ async def setup_objects():
 
         asset_human_obj = dancer_asset_objects.get(f"{model_name}.Human")
         if asset_human_obj is None:
-            print(f"Human not found in dancer {dancer_name}")
+            logger.warning(f"Human not found in dancer {dancer_name}")
             continue
 
         human_obj = cast(bpy.types.Object, asset_human_obj.copy())
@@ -304,7 +305,9 @@ async def setup_objects():
             asset_part_obj_name = f"{model_name}.{part_item.name}"
             asset_part_obj = dancer_asset_objects.get(asset_part_obj_name)
             if asset_part_obj is None:
-                print(f"Object {asset_part_obj_name} not found in dancer {dancer_name}")
+                logger.warning(
+                    f"Object {asset_part_obj_name} not found in dancer {dancer_name}"
+                )
                 continue
 
             part_obj = cast(bpy.types.Object, asset_part_obj.copy())
@@ -326,7 +329,7 @@ async def setup_objects():
 
                 length = part_item.length
                 if length is None:
-                    print(
+                    logger.warning(
                         f"LED part {part_item.name} length not found in dancer {dancer_name}"
                     )
                     continue
@@ -335,7 +338,7 @@ async def setup_objects():
                     asset_sub_obj_name = f"{asset_part_obj_name}.{position:03}"
                     asset_led_obj = dancer_asset_objects.get(asset_sub_obj_name)
                     if asset_led_obj is None:
-                        print(
+                        logger.warning(
                             f"LED part {part_item.name} position {position} not found in dancer {dancer_name}"
                         )
                         continue

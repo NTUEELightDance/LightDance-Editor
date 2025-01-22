@@ -20,7 +20,9 @@ state = State(
     running=False,
     sync=False,
     user_log="Loading...",
-    preferences=Preferences(auto_sync=True, follow_frame=True),
+    preferences=Preferences(
+        auto_sync=True, follow_frame=True, show_waveform=True, show_nametag=True
+    ),
     logged_in=False,
     loading=False,
     partial_load_frames=(0, 0),

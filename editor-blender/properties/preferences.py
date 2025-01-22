@@ -13,6 +13,14 @@ def get_follow_frame(self: bpy.types.PropertyGroup) -> bool:
     return cast(bool, self.get("follow_frame", False))
 
 
+def get_show_waveform(self: bpy.types.PropertyGroup) -> bool:
+    return cast(bool, self.get("show_waveform", True))
+
+
+def get_show_nametag(self: bpy.types.PropertyGroup) -> bool:
+    return cast(bool, self.get("show_nametag", True))
+
+
 def set_auto_sync(self: bpy.types.PropertyGroup, value: bool):
     self["auto_sync"] = value
     state.preferences.auto_sync = value
@@ -26,6 +34,16 @@ def set_follow_frame(self: bpy.types.PropertyGroup, value: bool):
     bpy.context.screen.use_follow = value
 
 
+def set_show_waveform(self: bpy.types.PropertyGroup, value: bool):
+    self["show_waveform"] = value
+    state.preferences.show_waveform = value
+
+
+def set_show_nametag(self: bpy.types.PropertyGroup, value: bool):
+    self["show_nametag"] = value
+    state.preferences.show_nametag = value
+
+
 class Preferences(bpy.types.PropertyGroup):
     """Preferences"""
 
@@ -37,9 +55,21 @@ class Preferences(bpy.types.PropertyGroup):
     )
     follow_frame: bpy.props.BoolProperty(  # type: ignore
         name="Follow Frame",
-        description="Follow frame",
+        description="Follow frame in timeline",
         get=get_follow_frame,
         set=set_follow_frame,
+    )
+    show_waveform: bpy.props.BoolProperty(  # type: ignore
+        name="Show Waveform",
+        description="Show waveform in timeline",
+        get=get_show_waveform,
+        set=set_show_waveform,
+    )
+    show_nametag: bpy.props.BoolProperty(  # type: ignore
+        name="Show Nametag",
+        description="Show name tags in viewport",
+        get=get_show_nametag,
+        set=set_show_nametag,
     )
 
 

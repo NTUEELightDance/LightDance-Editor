@@ -129,8 +129,6 @@ pub async fn init_redis_control(
             .map_err(|e| e.to_string())?;
     }
 
-    println!("Redis done initializing ControlMap");
-
     Ok(())
 }
 
@@ -212,8 +210,6 @@ pub async fn init_redis_position(
             .await
             .map_err(|e| e.to_string())?;
     }
-
-    println!("Redis done initializing PositionMap");
 
     Ok(())
 }

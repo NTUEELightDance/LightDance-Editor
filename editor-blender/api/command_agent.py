@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 
 from ..client import client
-from ..graphqls.command import ToControllerServerPartial
+from ..schemas.command import ToControllerServerPartial
 
 
 @dataclass

@@ -5,6 +5,7 @@
 Recommended to use uv for environment management.
 
 #### 1. Create virtual environment
+
 ```bash
 # editor-blender/
 
@@ -19,26 +20,37 @@ uv sync
 #### 2. Develop :D
 
 #### 3. Bundle blender add-on
+
 ```bash
 # editor-blender/
 
-# Download wheels
-# For Linux/MacOS
-pip download -r requirements.prod.txt --dest wheels/ --python-version 311 --only-binary=:all: 
- # For Windows
-pip download -r requirements.prod.txt --dest wheels/ --python-version 311 --only-binary=:all: --platform win_amd64
-
-# Pack add-on
-python pack/pack.py # For development
-python pack/pack.py -r # For release
-
-# Clean up
-rm -rf wheels/
+bash scripts/bundle.sh # For development
+bash scripts/bundle.sh -r # For release
 ```
+(See more with `bash scripts/bundle.sh -h`)
+
 The bundled add-on will be in the `LightDance-Editor` folder as a zip file.
 
 #### 4. Install add-on in Blender:
 
+##### Method 1:
+In Blender:
 "Settings" -> "Add-ons" -> menu(upper-right corner) -> "Install from disk" -> select the zip file
 
-#### 5. Restart Blender
+Then restart Blender.
+
+##### Method 2: (Much quicker)
+Make sure the Blender executable is in the PATH, then run the following command:
+```bash
+blender --command extension install-file -r user_default ${path_to_zip}
+```
+NOTE: For WSL users, set a `blender` alias for  `blender.exe` from WSL
+
+
+#### Type checking over all files
+
+```bash
+# editor-blender/
+uv run pyright
+```
+Make sure no errors are present before committing.

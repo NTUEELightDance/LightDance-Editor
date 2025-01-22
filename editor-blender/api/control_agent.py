@@ -1,13 +1,13 @@
 import asyncio
-import traceback
 from collections.abc import Coroutine
 from dataclasses import dataclass
 from typing import Any
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import ColorID, ControlMap, ControlRecord, LEDEffectID, MapID
 from ..core.utils.convert import control_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_CONTROL_FRAME,
     CANCEL_EDIT_CONTROL_BY_ID,
     DELETE_CONTROL_FRAME,
@@ -20,7 +20,7 @@ from ..graphqls.mutations import (
     MutEditControlFrameTimeInput,
     MutRequestEditControlResponse,
 )
-from ..graphqls.queries import (
+from ..schemas.queries import (
     GET_CONTROL_MAP,
     GET_CONTROL_RECORD,
     QueryControlMapData,
@@ -46,7 +46,7 @@ class ControlAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get control record")
 
         return None
 
@@ -62,7 +62,7 @@ class ControlAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get control map payload")
 
         return None
 
@@ -78,7 +78,7 @@ class ControlAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get control map")
 
         return None
 
@@ -101,7 +101,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to add control frame")
             raise err
 
     # TODO: Support only change fade
@@ -147,7 +147,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to save control frame")
             raise err
 
     async def delete_frame(self, id: MapID) -> str | None:
@@ -164,7 +164,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to delete control frame")
             raise err
 
     async def request_edit(self, id: MapID) -> bool | None:
@@ -184,7 +184,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to request edit control frame")
             raise err
 
     async def cancel_edit(self, id: MapID) -> bool | None:
@@ -199,7 +199,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to cancel edit control frame")
             raise err
 
 

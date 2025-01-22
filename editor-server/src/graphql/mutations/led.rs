@@ -64,6 +64,8 @@ impl LEDMutation {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: addLEDEffect");
+
         let effect_name = input.name.clone();
         let model_name = input.model_name.clone();
         let part_name = input.part_name.clone();
@@ -241,6 +243,8 @@ impl LEDMutation {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editLEDEffect");
+
         let id = input.id;
         let effect_name = input.name.clone();
         let repeat = input.repeat;
@@ -409,6 +413,8 @@ impl LEDMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+
+        tracing::info!("Mutation: deleteLEDEffect");
 
         // check if effect exists
         let led_effect = match sqlx::query!(

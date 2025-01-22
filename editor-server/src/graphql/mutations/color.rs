@@ -65,6 +65,8 @@ impl ColorMutation {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editColor");
+
         let _ = sqlx::query!(
             r#"
                 UPDATE Color SET name = ?, r = ?, g = ?, b = ?

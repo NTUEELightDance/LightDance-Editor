@@ -1,13 +1,13 @@
 import asyncio
-import traceback
 from collections.abc import Coroutine
 from dataclasses import dataclass
 from typing import Any
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import MapID, PosMap, PosRecord
 from ..core.utils.convert import pos_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_POS_FRAME,
     CANCEL_EDIT_POS_BY_ID,
     DELETE_POS_FRAME,
@@ -24,7 +24,7 @@ from ..graphqls.mutations import (
     MutEditPositionFrameTimeResponse,
     MutRequestEditPositionResponse,
 )
-from ..graphqls.queries import (
+from ..schemas.queries import (
     GET_POS_MAP,
     GET_POS_RECORD,
     QueryPosMapData,
@@ -50,7 +50,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get position record")
 
     async def get_pos_map_payload(self) -> QueryPosMapPayload | None:
         """Get the position map raw payload from the server"""
@@ -64,7 +64,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get position map payload")
 
     async def get_pos_map(self) -> PosMap | None:
         """Get the position map from the server."""
@@ -78,7 +78,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get position map")
 
     async def add_frame(
         self, start: int, positionData: list[list[float]]
@@ -96,7 +96,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to add position frame")
 
     async def save_frame(
         self, id: MapID, positionData: list[list[float]], start: int | None = None
@@ -136,7 +136,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to save position frame")
 
     async def delete_frame(self, id: MapID) -> MapID | None:
         """Delete a position frame from the position map."""
@@ -152,7 +152,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to delete position frame")
 
     async def request_edit(self, id: MapID) -> bool | None:
         """Request to edit a position frame.
@@ -169,7 +169,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to request edit position frame")
 
     async def cancel_edit(self, id: MapID) -> bool | None:
         """Cancel the edit request of the position frame."""
@@ -183,7 +183,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to cancel edit position frame")
 
 
 pos_agent = PosAgent()

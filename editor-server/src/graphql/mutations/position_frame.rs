@@ -45,6 +45,8 @@ impl PositionFrameMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: addPositionFrame");
+
         let check = sqlx::query_as!(
             PositionFrameData,
             r#"
@@ -223,6 +225,8 @@ impl PositionFrameMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: editPositionFrame");
+
         let check = sqlx::query_as!(
             PositionFrameData,
             r#"
@@ -387,6 +391,8 @@ impl PositionFrameMutation {
 
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
+
+        tracing::info!("Mutation: deletePositionFrame");
 
         let frame_to_delete = sqlx::query_as!(
             EditingPositionFrameData,

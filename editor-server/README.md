@@ -39,12 +39,13 @@ If you have initialized the database before, and you want to get a clean databas
 
 1. shutdown the database with `docker compose -f dev.docker-compose.yml down`
 2. Delete the `data` folder
-4. Delete the `editor-server/prisma/migrations` folder
-5. follow the steps above to initialize the database again
+3. Delete the `editor-server/prisma/migrations` folder
+4. follow the steps above to initialize the database again
 
 ## Tip
 
 If you want to browse the database with a GUI
+
 ```sh
 # Lightdance-Editor/editor-server
 npx prisma studio

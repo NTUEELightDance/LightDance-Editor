@@ -9,7 +9,7 @@ members = ["prisma"]
 
 [dependencies]
 argon2 = "0.5.2"
-async-graphql = "7.0.13"
+async-graphql = { version = "7.0.13", features = ["tracing"] }
 async-graphql-axum = "7.0.13"
 async-trait = "0.1.74"
 axum = { version = "0.8.1", features = ["ws", "form", "multipart", "macros", "json"] }
