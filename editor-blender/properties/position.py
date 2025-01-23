@@ -4,9 +4,9 @@ from ..core.actions.property.position import update_current_position
 
 
 class PositionProperty(bpy.types.PropertyGroup):
-    transform: bpy.props.FloatVectorProperty(  # type: ignore
-        name="Transform",
-        description="Transform",
+    location: bpy.props.FloatVectorProperty(  # type: ignore
+        name="Location",
+        description="Location",
         default=(0.0, 0.0, 0.0),
         subtype="XYZ",
         unit="LENGTH",

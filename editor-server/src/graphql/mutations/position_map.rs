@@ -96,12 +96,15 @@ impl PositionMapMutation {
             let _ = sqlx::query!(
                 r#"
                 	UPDATE PositionData
-                	SET x = ?, y = ?, z = ?
+                	SET x = ?, y = ?, z = ?, rx = ?, ry = ?, rz = ?
                 	WHERE dancer_id = ? AND frame_id = ?;
                 "#,
                 coor[0],
                 coor[1],
                 coor[2],
+                coor[3],
+                coor[4],
+                coor[5],
                 dancer.id,
                 frame_to_edit.id
             )

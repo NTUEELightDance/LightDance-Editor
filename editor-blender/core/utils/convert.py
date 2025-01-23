@@ -50,10 +50,12 @@ from ..models import (
     PartData,
     PartName,
     PartType,
+    Position,
     PosMap,
     PosMapElement,
     PosMapStatus,
     Revision,
+    Rotation,
 )
 from ..states import state
 
@@ -90,7 +92,7 @@ def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
     rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
 
     pos_map_element = PosMapElement(start=payload.start, pos={}, rev=rev)
-    pos_map_element.pos = pos_status_query_to_state(payload.pos)
+    pos_map_element.pos = pos_status_query_to_state(payload.location, payload.rotation)
 
     return pos_map_element
 
@@ -98,24 +100,37 @@ def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
 def pos_frame_sub_to_query(data: SubPositionFrame) -> QueryPosFrame:
     rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
 
-    response = QueryPosFrame(start=data.start, pos=[], rev=rev)
-    response.pos = [(pos[0], pos[1], pos[2]) for pos in data.pos]
+    response = QueryPosFrame(start=data.start, location=[], rotation=[], rev=rev)
+    response.location = [(loc[0], loc[1], loc[2]) for loc in data.location]
+    response.rotation = [(rot[0], rot[1], rot[2]) for rot in data.rotation]
 
     return response
 
 
-def coordinates_query_to_state(payload: QueryCoordinatesPayload) -> Location:
-    return Location(x=payload[0], y=payload[1], z=payload[2])
+def coordinates_query_to_state(
+    loc_payload: QueryCoordinatesPayload, rot_payload: QueryCoordinatesPayload
+) -> Position:
+    return Position(
+        Location(x=loc_payload[0], y=loc_payload[1], z=loc_payload[2]),
+        rotation=Rotation(rx=rot_payload[0], ry=rot_payload[1], rz=rot_payload[2]),
+    )
 
 
-def pos_status_query_to_state(payload: list[QueryCoordinatesPayload]) -> PosMapStatus:
+def pos_status_query_to_state(
+    loc_payload: list[QueryCoordinatesPayload],
+    rot_payload: list[QueryCoordinatesPayload],
+) -> PosMapStatus:
     pos_map_status: PosMapStatus = {}
 
-    for dancerIndex, dancerStatus in enumerate(payload):
+    for dancerIndex, (dancerLocStatus, dancerRotStatus) in enumerate(
+        zip(loc_payload, rot_payload)
+    ):
         dancers_array_item = state.dancers_array[dancerIndex]
         dancer_name = dancers_array_item.name
 
-        pos_map_status[dancer_name] = coordinates_query_to_state(dancerStatus)
+        pos_map_status[dancer_name] = coordinates_query_to_state(
+            dancerLocStatus, dancerRotStatus
+        )
 
     return pos_map_status
 
@@ -356,8 +371,12 @@ def time_to_frame(time: str) -> int:
 
 
 PosDeleteCurveData = list[int]
-PosUpdateCurveData = list[tuple[int, int, tuple[float, float, float]]]
-PosAddCurveData = list[tuple[int, tuple[float, float, float]]]
+PosUpdateCurveData = list[
+    tuple[int, int, tuple[float, float, float], tuple[float, float, float]]
+]
+PosAddCurveData = list[
+    tuple[int, tuple[float, float, float], tuple[float, float, float]]
+]
 
 PosModifyAnimationData = dict[
     DancerName, tuple[PosDeleteCurveData, PosUpdateCurveData, PosAddCurveData]
@@ -384,7 +403,12 @@ def pos_modify_to_animation_data(
             pos = pos_status[dancer_item.name]
             dancer = dancer_item.name
             new_map[dancer_item.name][1].append(
-                (old_start, frame.start, (pos.x, pos.y, pos.z))
+                (
+                    old_start,
+                    frame.start,
+                    (pos.location.x, pos.location.y, pos.location.z),
+                    (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz),
+                )
             )
 
     for _, frame in pos_add:
@@ -392,7 +416,13 @@ def pos_modify_to_animation_data(
         for _, dancer_item in enumerate(state.dancers_array):
             pos = pos_status[dancer_item.name]
             dancer = dancer_item.name
-            new_map[dancer_item.name][2].append((frame.start, (pos.x, pos.y, pos.z)))
+            new_map[dancer_item.name][2].append(
+                (
+                    frame.start,
+                    (pos.location.x, pos.location.y, pos.location.z),
+                    (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz),
+                )
+            )
 
     return new_map
 

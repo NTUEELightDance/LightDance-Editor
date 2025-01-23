@@ -9,7 +9,7 @@ use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
 use crate::graphql::types::pos_frame::{PositionFrame, PositionFrameRevision};
-use crate::types::global::{PositionPos, RedisPosition, Revision, UserContext};
+use crate::types::global::{RedisPosition, Revision, UserContext};
 use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
 use crate::utils::revision::update_revision;
 
@@ -86,11 +86,11 @@ impl PositionFrameMutation {
             }
             let mut errors = Vec::<String>::new();
             for (idx, coor) in (*data).iter().enumerate() {
-                if coor.len() != 3 {
+                if coor.len() != 6 {
                     errors.push(format!(
                         "Not all coordinates in dancer #{} in payload. Missing number: {}",
                         idx,
-                        3 - coor.len()
+                        6 - coor.len()
                     ));
                 }
             }
@@ -118,14 +118,17 @@ impl PositionFrameMutation {
                 for (idx, coor) in (*data).iter().enumerate() {
                     let _ = sqlx::query!(
                         r#"
-                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
-                            VALUES (?, ?, ?, ?, ?);
+                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                         "#,
                         dancers[idx].id,
                         id,
                         coor[0],
                         coor[1],
-                        coor[2]
+                        coor[2],
+                        coor[3],
+                        coor[4],
+                        coor[5],
                     )
                     .execute(mysql)
                     .await?;
@@ -137,9 +140,13 @@ impl PositionFrameMutation {
                         start,
                         editing: None,
                         rev: Revision::default(),
-                        pos: data
+                        location: data
                             .iter()
-                            .map(|coor| PositionPos(coor[0], coor[1], coor[2]))
+                            .map(|coor| [coor[0], coor[1], coor[2]])
+                            .collect(),
+                        rotation: data
+                            .iter()
+                            .map(|coor| [coor[3], coor[4], coor[5]])
                             .collect(),
                     },
                 );
@@ -148,14 +155,17 @@ impl PositionFrameMutation {
                 for dancer in dancers {
                     let _ = sqlx::query!(
                         r#"
-                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
-                            VALUES (?, ?, ?, ?, ?);
+                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                         "#,
                         dancer.id,
                         id,
                         0.0,
                         0.0,
-                        0.0
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
                     )
                     .execute(mysql)
                     .await?;

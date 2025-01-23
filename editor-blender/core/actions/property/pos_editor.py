@@ -30,10 +30,10 @@ def update_multi_select_delta_transform(
         obj: bpy.types.Object | None = bpy.data.objects.get(obj_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            ld_position.transform = (
-                delta[0] + ld_position.transform[0],
-                delta[1] + ld_position.transform[1],
-                delta[2] + ld_position.transform[2],
+            ld_position.location = (
+                delta[0] + ld_position.location[0],
+                delta[1] + ld_position.location[1],
+                delta[2] + ld_position.location[2],
             )
 
     setattr(self, "multi_select_delta_transform_ref", delta_transform)
