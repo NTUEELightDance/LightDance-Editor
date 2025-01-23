@@ -4,7 +4,6 @@ mod check_token;
 mod create_user;
 mod delete_user;
 mod export_data;
-mod export_logger;
 mod get_dancer_fiber_data;
 mod get_dancer_led_data;
 mod login;
