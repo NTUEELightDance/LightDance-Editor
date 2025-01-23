@@ -51,7 +51,10 @@ pub async fn logout(
 
     // Generate token and store it in redis
     let redis_client = clients.redis_client();
-    let mut conn = redis_client.get_tokio_connection().await.unwrap();
+    let mut conn = redis_client
+        .get_multiplexed_async_connection()
+        .await
+        .unwrap();
 
     let id: String = conn.get(&token).await.map_err(|_| {
         (

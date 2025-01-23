@@ -72,7 +72,7 @@ impl FromRequestParts<()> for Authentication {
         // Verify token
         let redis_client = clients.redis_client();
         let mut redis_conn = redis_client
-            .get_async_connection()
+            .get_multiplexed_async_connection()
             .await
             .map_err(|_| "Failed to get redis connection.")?;
 

@@ -10,4 +10,4 @@ prisma-client-rust-cli = { git = "https://github.com/Brendonovich/prisma-client-
     "mysql",
 ], default-features = false }
 dotenv = "0.15.0"
-mysql = "24.0.0"
+mysql = "26.0.0"

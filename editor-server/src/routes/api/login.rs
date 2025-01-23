@@ -98,15 +98,18 @@ pub async fn login(
         }
 
         // Get expiration time from env
-        let expiration_time_hours = match var("TOKEN_EXPIRATION_TIME_HOURS") {
-            Ok(expiration_time_hours) => expiration_time_hours.parse::<usize>().unwrap(),
+        let expiration_time_hours: u64 = match var("TOKEN_EXPIRATION_TIME_HOURS") {
+            Ok(expiration_time_hours) => expiration_time_hours.parse::<u64>().unwrap(),
             Err(_) => 24,
         };
-        let expiration_time_seconds = expiration_time_hours * 60 * 60;
+        let expiration_time_seconds: u64 = expiration_time_hours * 60 * 60;
 
         // Generate token and store it in redis
         let redis_client = clients.redis_client();
-        let mut conn = redis_client.get_tokio_connection().await.unwrap();
+        let mut conn = redis_client
+            .get_multiplexed_async_connection()
+            .await
+            .unwrap();
 
         let token = authentication::generate_csrf_token();
         let _: Result<(), _> = conn.set_ex(&token, user.id, expiration_time_seconds).await;

@@ -48,7 +48,7 @@ pub async fn verify_token(clients: &AppClients, token: &str) -> Result<UserData,
     // Get token from redis
     let redis_client = clients.redis_client();
     let mut redis_conn = redis_client
-        .get_async_connection()
+        .get_multiplexed_async_connection()
         .await
         .map_err(|_| "Error getting redis connection.")?;
 
