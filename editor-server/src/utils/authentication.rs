@@ -10,6 +10,7 @@ use argon2::{
 };
 // use bcrypt;
 use redis::AsyncCommands;
+use serde::Deserialize;
 use std::env::var;
 use uuid::Uuid;
 
@@ -18,6 +19,20 @@ use uuid::Uuid;
 /// Generate a random string for CSRF token.
 pub fn generate_csrf_token() -> String {
     Uuid::new_v4().to_string()
+}
+
+// custom type for user data from auth0
+#[derive(Debug, Deserialize)]
+struct UserMetadata {
+    id: i32,
+    name: String,
+    password: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct UserInfo {
+    #[serde(rename = "https://foo.com/mtdt")]
+    metadata: UserMetadata,
 }
 
 /// Hash password with argon2.
@@ -42,38 +57,66 @@ pub fn compare_password(password: &str, hashed_password: &str) -> bool {
         .is_ok()
 }
 
-/// Authencate user by token stored in cookie.
+/// Authenticate user by token stored in cookie.
 /// Then return the user data.
 pub async fn verify_token(clients: &AppClients, token: &str) -> Result<UserData, String> {
+    dotenv::dotenv().ok();
+
+    // specs
+    let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
+    let url = format!("https://{auth0_domain}/userinfo");
+
+    // get response from Auth0
+    let client = reqwest::Client::new();
+    let res = client
+        .get(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .send()
+        .await
+        .map_err(|_| "Error retrieving user info")?;
+
+    let res_data = res
+        .json::<UserInfo>()
+        .await
+        .map_err(|_| "Error getting metadata")?;
+
+    let user_metadata = res_data.metadata;
+
+    Ok(UserData {
+        id: user_metadata.id,
+        name: user_metadata.name,
+        password: user_metadata.password,
+    })
+
     // Get token from redis
-    let redis_client = clients.redis_client();
-    let mut redis_conn = redis_client
-        .get_multiplexed_async_connection()
-        .await
-        .map_err(|_| "Error getting redis connection.")?;
+    // let redis_client = clients.redis_client();
+    // let mut redis_conn = redis_client
+    //     .get_async_connection()
+    //     .await
+    //     .map_err(|_| "Error getting redis connection.")?;
+    //
+    // let user_id: u32 = redis_conn
+    //     .get(token)
+    //     .await
+    //     .map_err(|_| "Error getting token.")?;
+    //
+    // // Get user from mysql
+    // // TODO: This part can be removed if we add deleteUser route
+    // // When user is deleted, the token will be deleted from redis
+    // let mysql_pool = clients.mysql_pool();
+    //
+    // let user = sqlx::query_as!(
+    //     UserData,
+    //     r#"
+    //         SELECT * FROM User WHERE id = ? LIMIT 1;
+    //     "#,
+    //     user_id,
+    // )
+    // .fetch_one(mysql_pool)
+    // .await
+    // .map_err(|_| "Error getting user.")?;
 
-    let user_id: u32 = redis_conn
-        .get(token)
-        .await
-        .map_err(|_| "Error getting token.")?;
-
-    // Get user from mysql
-    // TODO: This part can be removed if we add deleteUser route
-    // When user is deleted, the token will be deleted from redis
-    let mysql_pool = clients.mysql_pool();
-
-    let user = sqlx::query_as!(
-        UserData,
-        r#"
-            SELECT * FROM User WHERE id = ? LIMIT 1;
-        "#,
-        user_id,
-    )
-    .fetch_one(mysql_pool)
-    .await
-    .map_err(|_| "Error getting user.")?;
-
-    Ok(user)
+    // Ok(user)
 }
 
 /// Verify if the user token is admin.
