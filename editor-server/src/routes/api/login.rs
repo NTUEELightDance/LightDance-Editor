@@ -3,9 +3,9 @@ use crate::global;
 
 use axum::{http::HeaderMap, http::StatusCode, response::Json};
 use redis::AsyncCommands;
+use reqwest;
 use serde::{Deserialize, Serialize};
 use std::env::var;
-use reqwest;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginQuery {
@@ -37,9 +37,10 @@ struct Auth0LoginReq {
     grant_type: String,
     username: String,
     password: String,
+    audience: String,
     scope: String,
     client_id: String,
-    client_secret: String
+    client_secret: String,
 }
 
 /// Login handler.
@@ -71,6 +72,8 @@ pub async fn login(
 
         Ok((StatusCode::OK, (header, Json(login_response))))
     } else {
+        dotenv::dotenv().ok();
+
         // // Check query
         // let query = match query {
         //     Some(query) => query.0,
@@ -85,8 +88,8 @@ pub async fn login(
         // };
 
         // login specs
-        let username = query.username;
-        let password = query.password;
+        let username = query.username.clone();
+        let password = query.password.clone();
         let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
         let auth0_client_id = var("AUTH0_CLIENT_ID").expect("id not set");
         let auth0_client_secret = var("AUTH0_CLIENT_SECRET").expect("secret not set");
@@ -94,20 +97,18 @@ pub async fn login(
 
         let params = Auth0LoginReq {
             grant_type: "password".to_string(),
-            username: username.to_string(),
-            password: password.to_string(),
+            username,
+            password,
+            audience: "https://test/".to_string(),
             scope: "openid profile email".to_string(),
             client_id: auth0_client_id.to_string(),
-            client_secret: auth0_client_secret.to_string()
+            client_secret: auth0_client_secret.to_string(),
         };
 
         // get response from Auth0
 
         let client = reqwest::Client::new();
-        let res = client.post(url)
-            .form(&params)
-            .send()
-            .await;
+        let res = client.post(url).form(&params).send().await;
 
         let res = match res {
             Ok(res) => res,
@@ -121,7 +122,7 @@ pub async fn login(
                     Json(LoginFailedResponse {
                         err: err.to_string(),
                     }),
-                ))
+                ));
             }
         };
 
@@ -171,10 +172,7 @@ pub async fn login(
             .await
             .unwrap();
 
-        let token = res.json::<Auth0LoginRes>()
-            .await
-            .unwrap()
-            .access_token;
+        let token = res.json::<Auth0LoginRes>().await.unwrap().access_token;
 
         let _: Result<(), _> = conn.set_ex(&token, user.id, expiration_time_seconds).await;
         let _: Result<(), _> = conn.set_ex(user.id, &token, expiration_time_seconds).await;
