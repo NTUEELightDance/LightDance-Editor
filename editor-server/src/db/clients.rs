@@ -1,7 +1,7 @@
 //! App clients and related functions.
 
 use redis::Client;
-use sqlx::{MySql, MySqlPool, Pool};
+use sqlx::{pool::PoolOptions, MySql, Pool};
 
 #[derive(Clone, Debug)]
 pub struct AppClients {
@@ -27,7 +27,9 @@ impl AppClients {
 }
 
 pub async fn build_mysql_pool(host: &'static str) -> Pool<MySql> {
-    MySqlPool::connect(host)
+    PoolOptions::new()
+        .max_connections(20)
+        .connect(host)
         .await
         .expect("Failed to create mysql pool")
 }

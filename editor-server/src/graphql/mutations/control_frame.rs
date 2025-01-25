@@ -817,12 +817,6 @@ impl ControlFrameMutation {
 
         update_revision(mysql).await?;
 
-        // logging
-        println!(
-            "Control frame #{} is deleted by user #{}",
-            frame_id, context.user_id
-        );
-
         Ok("ok".to_string())
     }
 }

@@ -167,7 +167,7 @@ pub async fn create_admin_user() -> Result<(), String> {
     let mysql_pool = app_state.mysql_pool();
 
     // Delete existing admin user
-    let _ = sqlx::query!(
+    sqlx::query!(
         r#"
             DELETE FROM User WHERE name = ?;
         "#,
@@ -180,7 +180,7 @@ pub async fn create_admin_user() -> Result<(), String> {
     let hashed_password = hash_password(&admin_password)?;
 
     // TODO: Link frame id?
-    let _ = sqlx::query!(
+    sqlx::query!(
         r#"
             INSERT INTO User (name, password) VALUES (?, ?);
         "#,
