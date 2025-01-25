@@ -31,7 +31,7 @@ ColorMap = dict[ColorID, Color]
 class LEDBulbData:
     color_id: ColorID
     alpha: int
-    rgb: RGB | None = None  # for calculating fade
+    rgb: RGB | None = None  # for calculating gradient
 
 
 @dataclass
@@ -68,6 +68,7 @@ class FiberData:
 
 PartData = LEDData | FiberData
 DancerStatus = dict[PartName, PartData]
+DancerLEDStatus = dict[PartName, list[LEDBulbData]]
 
 
 @dataclass
@@ -77,6 +78,7 @@ class Revision:
 
 
 ControlMapStatus = dict[DancerName, DancerStatus]
+ControlMapLEDStatus = dict[DancerName, DancerLEDStatus]
 
 
 @dataclass
@@ -85,6 +87,7 @@ class ControlMapElement:
     fade: bool
     rev: Revision
     status: ControlMapStatus
+    led_status: ControlMapLEDStatus
 
 
 ControlMap = dict[MapID, ControlMapElement]
@@ -187,6 +190,7 @@ class SelectedPartType(Enum):
     FIBER = 1
     LED = 2
     MIXED_LIGHT = 3
+    LED_BULB = 4
 
 
 @dataclass
@@ -387,6 +391,7 @@ class State:
     # NOTE: Maybe we don't need these
     current_fade: bool
     current_status: ControlMapStatus
+    current_led_status: ControlMapLEDStatus
     current_pos: PosMapStatus
 
     current_editing_frame: int

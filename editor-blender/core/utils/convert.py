@@ -174,7 +174,7 @@ def control_frame_query_to_state(payload: QueryControlFrame) -> ControlMapElemen
     rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
 
     control_map_element = ControlMapElement(
-        start=payload.start, fade=payload.fade, status={}, rev=rev
+        start=payload.start, fade=payload.fade, status={}, led_status={}, rev=rev
     )
 
     control_map_element.status = control_status_query_to_state(payload.status)

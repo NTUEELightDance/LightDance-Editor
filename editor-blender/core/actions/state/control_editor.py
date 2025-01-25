@@ -1,5 +1,3 @@
-import traceback
-
 import bpy
 
 from ....api.control_agent import control_agent
@@ -11,6 +9,7 @@ from ...states import state
 from ...utils.convert import control_status_state_to_mut
 from ...utils.notification import notify
 from ...utils.object import clear_selection
+from ...utils.operator import execute_operator
 from ...utils.ui import redraw_area
 from .app_state import set_requesting
 
@@ -236,6 +235,10 @@ async def cancel_edit_control():
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
+            if state.local_view:
+                execute_operator("view3d.localview")
+                state.local_view = False
+
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot cancel edit")
@@ -261,3 +264,17 @@ def toggle_part_mode():
     clear_selection()
     state.selection_mode = SelectMode.PART_MODE
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+def toggle_led_focus(obj: bpy.types.Object):
+    toggle_part_mode()
+    if not state.local_view:
+        bpy.ops.object.select_all(action="DESELECT")
+        for bulb in obj.children:
+            bulb.select_set(True)
+        execute_operator("view3d.localview")
+        state.local_view = True
+    else:
+        bpy.ops.object.select_all(action="DESELECT")
+        execute_operator("view3d.localview")
+        state.local_view = False

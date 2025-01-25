@@ -29,6 +29,8 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
     effect_id: int = self["ld_effect"]
     effect = None
+    ld_dancer_name: str = getattr(self, "ld_dancer_name")
+    ld_part_name: str = getattr(self, "ld_part_name")
 
     if effect_id == -1:
         control_index = state.editing_data.index
@@ -53,10 +55,17 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
             control_index -= 1
 
-    if effect_id != -1:
-        effect = state.led_effect_id_table[effect_id]
+    else:
+        if effect_id == 0:
+            control_index = state.editing_data.frame_id
+            bulb_data = state.control_map[control_index].led_status[ld_dancer_name][
+                ld_part_name
+            ]
+        else:
+            effect = state.led_effect_id_table[effect_id]
 
-        bulb_data = effect.effect
+            bulb_data = effect.effect
+
         led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
 
         for led_bulb_obj in led_bulb_objs:
@@ -65,11 +74,6 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
             color = state.color_map[data.color_id]
             setattr(led_bulb_obj, "ld_color", color.name)
-
-    else:
-        led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
-        for led_bulb_obj in led_bulb_objs:
-            setattr(led_bulb_obj, "ld_color", "black")
 
 
 def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
