@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod api_tests {
+mod data_test {
     use std::fs;
 
     use axum::{body::Body, http::Request, http::StatusCode};
