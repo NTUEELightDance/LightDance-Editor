@@ -41,7 +41,7 @@ def get_effect_lists(
     effect_list: list[str] = list(possible_effects)
     effect_list.sort()
 
-    effect_list = ["no-change"] + effect_list
+    effect_list = ["[gradient]", "no-change"] + effect_list
 
     return [(effect, effect, "", "", index) for index, effect in enumerate(effect_list)]
 
@@ -102,7 +102,7 @@ def set_show_all(self: bpy.types.PropertyGroup, value: bool) -> None:
 
 
 class ControlEditorStatus(bpy.types.PropertyGroup):
-    """Status of the PosEditor"""
+    """Status of the Control Editor"""
 
     multi_select: bpy.props.BoolProperty(  # type: ignore
         name="Multi Select",

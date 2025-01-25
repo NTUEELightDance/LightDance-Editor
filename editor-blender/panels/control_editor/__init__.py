@@ -39,7 +39,11 @@ def draw_dancer_parts(
             ld_part_name: str = getattr(part, "ld_part_name")
             row.label(text=ld_part_name)
             row.prop(part, "ld_effect", text="")
-            row.prop(part, "ld_alpha", text="", slider=True)
+            if part["ld_effect"] == 0:
+                op = row.operator("lightdance.toggle_led_focus", icon="VIEWZOOM")
+                setattr(op, "led_obj_name", part.name)
+            else:
+                row.prop(part, "ld_alpha", text="", slider=True)
 
 
 class ControlEditor(bpy.types.Panel):
@@ -111,6 +115,14 @@ class ControlEditor(bpy.types.Panel):
                     text="Alpha",
                     slider=True,
                 )
+            elif state.selected_obj_type == SelectedPartType.LED_BULB:
+                column.prop(ld_ui_control_editor, "multi_select_color", text="Color")
+                column.prop(
+                    ld_ui_control_editor,
+                    "multi_select_alpha",
+                    text="Alpha",
+                    slider=True,
+                )
             else:
                 column.prop(ld_ui_control_editor, "multi_select_effect", text="Effect")
                 column.prop(
@@ -149,6 +161,28 @@ class ControlEditor(bpy.types.Panel):
                         icon="LIGHTPROBE_VOLUME",
                     )
                     column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                    if context.object and context.object["ld_effect"] == 0:
+                        column.operator(
+                            "lightdance.toggle_led_focus",
+                            text="Unfocus" if state.local_view else "Focus",
+                            icon="VIEWZOOM",
+                        )
+                elif ld_light_type == LightType.LED_BULB.value and context.object:
+                    row = column.row()
+                    row.prop(
+                        context.object.parent,
+                        "ld_effect",
+                        text="Effect",
+                        icon="LIGHTPROBE_VOLUME",
+                    )
+                    row.prop(context.object, "ld_color", text="Color")
+                    row.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                    row = column.row()
+                    row.operator(
+                        "lightdance.toggle_led_focus",
+                        text="Unfocus" if state.local_view else "Focus",
+                        icon="VIEWZOOM",
+                    )
 
             elif ld_object_type == ObjectType.DANCER.value:
                 ld_dancer_name: str = getattr(context.object, "ld_dancer_name")
