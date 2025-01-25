@@ -46,6 +46,7 @@ struct Auth0LoginReq {
 /// Login handler.
 /// Return a token in cookie if login is successful.
 /// Otherwise return an error message.
+#[allow(unused)]
 pub async fn login(
     query: Json<LoginQuery>,
 ) -> Result<(StatusCode, (HeaderMap, Json<LoginResponse>)), (StatusCode, Json<LoginFailedResponse>)>
@@ -110,21 +111,30 @@ pub async fn login(
         let client = reqwest::Client::new();
         let res = client.post(url).form(&params).send().await;
 
+        // println!("{:?}", res);
+
         let res = match res {
             Ok(res) => res,
             Err(err) => {
-                let status = match err.status() {
-                    Some(stat) => stat,
-                    None => reqwest::StatusCode::BAD_REQUEST,
-                };
                 return Err((
-                    http::StatusCode::from_u16(status.as_u16()).expect("invalid status code"),
+                    StatusCode::BAD_REQUEST,
                     Json(LoginFailedResponse {
                         err: err.to_string(),
                     }),
                 ));
             }
         };
+
+        if res.status() != reqwest::StatusCode::OK {
+            return Err((
+                http::StatusCode::from_u16(res.status().as_u16()).expect("invalid status code"),
+                Json(LoginFailedResponse {
+                    err: "auth0 authentication error".to_string(),
+                }),
+            ));
+        }
+
+        // println!("{}", res.status());
 
         // Get app state
         let clients = global::clients::get();

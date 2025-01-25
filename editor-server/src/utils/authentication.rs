@@ -9,6 +9,7 @@ use argon2::{
     Argon2,
 };
 // use bcrypt;
+#[allow(unused_imports)]
 use redis::AsyncCommands;
 use serde::Deserialize;
 use std::env::var;
@@ -59,6 +60,7 @@ pub fn compare_password(password: &str, hashed_password: &str) -> bool {
 
 /// Authenticate user by token stored in cookie.
 /// Then return the user data.
+#[allow(unused_variables)]
 pub async fn verify_token(clients: &AppClients, token: &str) -> Result<UserData, String> {
     dotenv::dotenv().ok();
 
