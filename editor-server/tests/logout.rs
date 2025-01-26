@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod logout_test {
+mod login_and_logout_test {
     use axum::{
         body::Body,
         http::{Request, StatusCode},
@@ -9,7 +9,8 @@ mod logout_test {
     use tower::{Service, ServiceExt};
 
     #[tokio::test]
-    async fn logout() {
+    async fn login_and_logout() {
+        // test for login and logout functionality
         // this test is only nontrivial when run under development mode
         // for successful login, AUTH0_TEST_USERNAME and AUTH0_TEST_PASSWORD must be set in .env
         dotenv::dotenv().ok();
