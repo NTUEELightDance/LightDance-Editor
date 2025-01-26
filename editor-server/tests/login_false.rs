@@ -11,6 +11,7 @@ mod false_login_test {
 
     #[tokio::test]
     async fn login_false() {
+        // test for login with false username and password
         // this test is only nontrivial when run in production mode
         dotenv::dotenv().ok();
 
