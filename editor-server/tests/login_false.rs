@@ -9,10 +9,11 @@ mod false_login_test {
     };
     use tower::{Service, ServiceExt};
 
+    /// test for login with false username and password
+    /// this test requires the presence of a .env file containing necessary information
+    /// this test is only nontrivial when run in production mode
     #[tokio::test]
     async fn login_false() {
-        // test for login with false username and password
-        // this test is only nontrivial when run in production mode
         dotenv::dotenv().ok();
 
         let mut app = build_app().await;
