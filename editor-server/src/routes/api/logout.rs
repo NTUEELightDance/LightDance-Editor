@@ -1,5 +1,3 @@
-use crate::global;
-
 use axum::{http::StatusCode, response::Json};
 use axum_extra::extract::CookieJar;
 use redis::AsyncCommands;
@@ -34,7 +32,7 @@ pub async fn logout(
     //     }
     // };
 
-    let token = match cookie_jar.get("token") {
+    let _ = match cookie_jar.get("token") {
         Some(token) => token.value().to_string(),
         None => {
             return Err((
@@ -46,27 +44,30 @@ pub async fn logout(
         }
     };
 
-    // Get app state
-    let clients = global::clients::get();
+    // // Get app state
+    // let clients = global::clients::get();
+    //
+    // // Generate token and store it in redis
+    // let redis_client = clients.redis_client();
+    // let mut conn = redis_client
+    //     .get_multiplexed_async_connection()
+    //     .await
+    //     .unwrap();
+    //
+    // let id: String = conn.get(&token).await.map_err(|_| {
+    //     (
+    //         StatusCode::UNAUTHORIZED,
+    //         Json(LogoutFailedResponse {
+    //             err: "Unauthorized.".to_string(),
+    //         }),
+    //     )
+    // })?;
+    //
+    // let _: Result<(), _> = conn.del(&id).await;
+    // let _: Result<(), _> = conn.del(&token).await;
 
-    // Generate token and store it in redis
-    let redis_client = clients.redis_client();
-    let mut conn = redis_client
-        .get_multiplexed_async_connection()
-        .await
-        .unwrap();
-
-    let id: String = conn.get(&token).await.map_err(|_| {
-        (
-            StatusCode::UNAUTHORIZED,
-            Json(LogoutFailedResponse {
-                err: "Unauthorized.".to_string(),
-            }),
-        )
-    })?;
-
-    let _: Result<(), _> = conn.del(&id).await;
-    let _: Result<(), _> = conn.del(&token).await;
+    // remove token form cokoie jar
+    let _ = cookie_jar.remove("token");
 
     Ok((StatusCode::OK, Json(LogoutResponse { success: true })))
 }
