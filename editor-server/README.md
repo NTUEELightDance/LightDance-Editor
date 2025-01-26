@@ -1,5 +1,7 @@
 # Editor Server
 
+[TOC]
+
 ## When `prisma.schema` changes
 
 When you change the prisma schema, you need to regenerate the prisma client code and migrate the database.
@@ -50,3 +52,34 @@ If you want to browse the database with a GUI
 # Lightdance-Editor/editor-server
 npx prisma studio
 ```
+
+## User Management with Auth0
+
+Follow the steps below if you hope to create, delete or modify users.
+
+### Login to Auth0
+1. Sign in with GitHub account. (now under my personal account, should be migrated to LightDance account soon)
+2. Go to `Dashboard > User Management > Users`
+
+### Create User
+1. click on the `Create User` button
+2. set username and password, and create
+3. **Important!** \
+click on the new user, scroll down until you see `User Metadata`
+4. set three fields (JSON syntax): `id`, `name`, `password`, see the following example\
+**`name` and `password` value must be inside quotations, while `id` must not**
+```json
+{
+  "id": 2,
+  "name": "the_username_for_your_user",
+  "password": "the_password_for_your_user"
+}
+```
+5. click the `save` button
+
+### Delete User
+should be trivial
+
+### Modify User
+should be trivial\
+**Remember to update User Metadata accordingly to your changes in the format introduced above**
