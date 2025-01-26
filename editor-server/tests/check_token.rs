@@ -9,6 +9,7 @@ mod check_token {
     use tower::{Service, ServiceExt};
 
     /// test for check token functionality
+    /// also tests login functionality
     /// this test requires the presence of a .env file containing necessary information
     /// this test is only nontrivial when run under productioin mode
     /// for successful login, AUTH0_TEST_USERNAME and AUTH0_TEST_PASSWORD must be set in .env
