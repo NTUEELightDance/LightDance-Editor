@@ -11,6 +11,7 @@ mod false_login_test {
 
     #[tokio::test]
     async fn login_false() {
+        // this test is only nontrivial when run in production mode
         dotenv::dotenv().ok();
 
         let mut app = build_app().await;
