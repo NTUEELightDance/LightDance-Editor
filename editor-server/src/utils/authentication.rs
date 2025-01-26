@@ -89,36 +89,6 @@ pub async fn verify_token(clients: &AppClients, token: &str) -> Result<UserData,
         name: user_metadata.name,
         password: user_metadata.password,
     })
-
-    // Get token from redis
-    // let redis_client = clients.redis_client();
-    // let mut redis_conn = redis_client
-    //     .get_async_connection()
-    //     .await
-    //     .map_err(|_| "Error getting redis connection.")?;
-    //
-    // let user_id: u32 = redis_conn
-    //     .get(token)
-    //     .await
-    //     .map_err(|_| "Error getting token.")?;
-    //
-    // // Get user from mysql
-    // // TODO: This part can be removed if we add deleteUser route
-    // // When user is deleted, the token will be deleted from redis
-    // let mysql_pool = clients.mysql_pool();
-    //
-    // let user = sqlx::query_as!(
-    //     UserData,
-    //     r#"
-    //         SELECT * FROM User WHERE id = ? LIMIT 1;
-    //     "#,
-    //     user_id,
-    // )
-    // .fetch_one(mysql_pool)
-    // .await
-    // .map_err(|_| "Error getting user.")?;
-
-    // Ok(user)
 }
 
 /// Verify if the user token is admin.
