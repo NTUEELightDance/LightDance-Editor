@@ -109,8 +109,6 @@ pub async fn login(
         let client = reqwest::Client::new();
         let res = client.post(url).form(&params).send().await;
 
-        // println!("{:?}", res);
-
         let res = match res {
             Ok(res) => res,
             Err(err) => {
