@@ -1,8 +1,6 @@
-use crate::db::types::user::UserData;
 use crate::global;
 
 use axum::{http::HeaderMap, http::StatusCode, response::Json};
-use redis::AsyncCommands;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::env::var;
@@ -134,39 +132,8 @@ pub async fn login(
             ));
         }
 
-        // println!("{}", res.status());
-
         // Get app state
         let clients = global::clients::get();
-
-        // Query user
-        let mysql_pool = clients.mysql_pool();
-        let user = sqlx::query_as!(
-            UserData,
-            r#"
-                SELECT * FROM User WHERE name = ? LIMIT 1;
-            "#,
-            query.username
-        )
-        .fetch_one(mysql_pool)
-        .await
-        .map_err(|_| {
-            (
-                StatusCode::NOT_FOUND,
-                Json(LoginFailedResponse {
-                    err: "User not found.".to_string(),
-                }),
-            )
-        })?;
-
-        // if !authentication::compare_password(&query.password, &user.password) {
-        //     return Err((
-        //         StatusCode::UNAUTHORIZED,
-        //         Json(LoginFailedResponse {
-        //             err: "Password incorrect.".to_string(),
-        //         }),
-        //     ));
-        // }
 
         // Get expiration time from env
         let expiration_time_hours: u64 = match var("TOKEN_EXPIRATION_TIME_HOURS") {
@@ -175,17 +142,8 @@ pub async fn login(
         };
         let expiration_time_seconds: u64 = expiration_time_hours * 60 * 60;
 
-        // Generate token and store it in redis
-        let redis_client = clients.redis_client();
-        let mut conn = redis_client
-            .get_multiplexed_async_connection()
-            .await
-            .unwrap();
-
+        // get token from Auth0 response
         let token = res.json::<Auth0LoginRes>().await.unwrap().access_token;
-
-        let _: Result<(), _> = conn.set_ex(&token, user.id, expiration_time_seconds).await;
-        let _: Result<(), _> = conn.set_ex(user.id, &token, expiration_time_seconds).await;
 
         // Set cookie
         let http_only = true;
