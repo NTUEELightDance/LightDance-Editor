@@ -1,28 +1,21 @@
 #[cfg(test)]
-mod logout_test {
+mod auth {
     use axum::{
         body::Body,
         http::{Request, StatusCode},
     };
-    use editor_server::{build_app, global};
+    use editor_server::build_app;
     use std::env::var;
     use tower::{Service, ServiceExt};
 
-    /// test for logout functionality
-    /// also tests login functionality
+    /// test for check_token, login, logout functionality
     /// this test requires the presence of a .env file containing necessary information
-    /// this test is only nontrivial when run under production mode
     /// for successful login, AUTH0_TEST_USERNAME and AUTH0_TEST_PASSWORD must be set in .env
     #[tokio::test]
-    async fn logout() {
+    async fn auth() {
         dotenv::dotenv().ok();
 
         let mut app = build_app().await;
-
-        let env_type = &global::envs::get().env;
-        if env_type == "development" {
-            return;
-        }
 
         // login
         let username = var("AUTH0_TEST_USERNAME").expect("test username not set");
@@ -54,6 +47,24 @@ mod logout_test {
 
         assert_eq!(response.status(), StatusCode::OK);
 
+        // get response from /api/check_token endpoint
+        let request = Request::builder()
+            .method("GET")
+            .uri("/api/checkToken")
+            .header("Content-Type", "application/json")
+            .header("Cookie", cookie)
+            .body(Body::empty())
+            .unwrap();
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+
         let request = Request::builder()
             .method("POST")
             .uri("/api/logout")
@@ -70,5 +81,23 @@ mod logout_test {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
+
+        let login_data = " { \"username\": \"foo\", \"password\": \"bar\" } ";
+
+        let request = Request::builder()
+            .method("POST")
+            .uri("/api/login")
+            .header("Content-Type", "application/json")
+            .body(Body::from(login_data))
+            .unwrap();
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
     }
 }
