@@ -1,6 +1,5 @@
 use axum::{http::StatusCode, response::Json};
 use axum_extra::extract::CookieJar;
-use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
