@@ -1,5 +1,3 @@
-use crate::global;
-
 use crate::utils::authentication::verify_token;
 
 use axum::{http::StatusCode, response::Json};
@@ -34,9 +32,7 @@ pub async fn check_token(
             )
         })?;
 
-    let clients = global::clients::get();
-
-    let user = verify_token(clients, token.as_str()).await;
+    let user = verify_token(token.as_str()).await;
 
     match user {
         Ok(_) => Ok((StatusCode::OK, Json(CheckTokenResponse { token }))),

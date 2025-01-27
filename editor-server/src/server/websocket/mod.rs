@@ -48,18 +48,7 @@ pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<User
         };
 
         let clients = global::clients::get();
-        let user = verify_token(clients, &token).await?;
-
-        // let user = match verify_token(clients, &token).await {
-        //     Ok(user) => {
-        //         println!("WS User: {:?}", user);
-        //         user
-        //     },
-        //     Err(err) => {
-        //         println!("WS User Error: {:?}", err);
-        //         return Err("Unauthorized".to_string());
-        //     },
-        // };
+        let user = verify_token(&token).await?;
 
         Ok(UserContext {
             username: user.name,
