@@ -1,7 +1,5 @@
 # Editor Server
 
-[TOC]
-
 ## When `prisma.schema` changes
 
 When you change the prisma schema, you need to regenerate the prisma client code and migrate the database.
