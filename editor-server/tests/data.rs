@@ -59,5 +59,11 @@ mod data_test {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
+
+        // let body = response.into_body().collect().await.unwrap().to_bytes();
+        // let exported_json: Value = serde_json::from_slice(&body).unwrap();
+
+        // this will fail (for now)
+        // assert_eq!(input_json, exported_json);
     }
 }
