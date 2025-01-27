@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cd editor-server && cp .env.development .env
+      - run: cd editor-server && cp .env.production .env
       - name: Start database
         run: docker compose -f dev.docker-compose.yml up -d
       - name: Migrate database
