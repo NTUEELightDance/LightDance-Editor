@@ -1,5 +1,3 @@
-use crate::global;
-
 use axum::{http::HeaderMap, http::StatusCode, response::Json};
 use reqwest;
 use serde::{Deserialize, Serialize};
@@ -48,9 +46,6 @@ pub async fn login(
     query: Json<LoginQuery>,
 ) -> Result<(StatusCode, (HeaderMap, Json<LoginResponse>)), (StatusCode, Json<LoginFailedResponse>)>
 {
-    // Check env type
-    let env_type = &global::envs::get().env;
-
     dotenv::dotenv().ok();
 
     // login specs
