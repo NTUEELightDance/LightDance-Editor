@@ -162,12 +162,17 @@ class ControlEditor(bpy.types.Panel):
                     )
                     column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
                     if context.object and context.object["ld_effect"] == 0:
-                        column.operator(
+                        op = column.operator(
                             "lightdance.toggle_led_focus",
                             text="Unfocus" if state.local_view else "Focus",
                             icon="VIEWZOOM",
                         )
-                elif ld_light_type == LightType.LED_BULB.value and context.object:
+                        setattr(op, "led_obj_name", context.object.name)
+                elif (
+                    ld_light_type == LightType.LED_BULB.value
+                    and context.object
+                    and context.object.parent
+                ):
                     row = column.row()
                     row.prop(
                         context.object.parent,
@@ -178,11 +183,12 @@ class ControlEditor(bpy.types.Panel):
                     row.prop(context.object, "ld_color", text="Color")
                     row.prop(context.object, "ld_alpha", text="Alpha", slider=True)
                     row = column.row()
-                    row.operator(
+                    op = row.operator(
                         "lightdance.toggle_led_focus",
                         text="Unfocus" if state.local_view else "Focus",
                         icon="VIEWZOOM",
                     )
+                    setattr(op, "led_obj_name", context.object.parent.name)
 
             elif ld_object_type == ObjectType.DANCER.value:
                 ld_dancer_name: str = getattr(context.object, "ld_dancer_name")
