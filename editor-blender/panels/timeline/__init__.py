@@ -46,6 +46,11 @@ class TimelinePanel(bpy.types.Panel):
         row.operator("lightdance.increase_frame_index", text="", icon="TRIA_RIGHT")
 
         row = layout.row(align=True)
+        row.label(text="Beat")
+        row.operator("lightdance.decrease_beat_index", text="", icon="TRIA_LEFT")
+        row.operator("lightdance.increase_beat_index", text="", icon="TRIA_RIGHT")
+
+        row = layout.row(align=True)
         row.operator("lightdance.copy_frame", text="Copy", icon="PLAY")
         row.operator("lightdance.paste_frame", text="Paste", icon="PLAY")
 

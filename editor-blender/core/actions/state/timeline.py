@@ -1,7 +1,10 @@
+from typing import cast
+
 import bpy
 
 from ...models import Editor
 from ...states import state
+from ...utils.algorithms import binary_search
 
 
 def increase_frame_index():
@@ -50,3 +53,25 @@ def decrease_frame_index():
                 )
         case Editor.LED_EDITOR:
             pass
+
+
+def increase_beat_index():
+    if not bpy.context:
+        return
+    data = state.music_beats
+    current_time = cast(int, bpy.context.scene.frame_current)
+    index = binary_search(arr=data, x=current_time)
+    if index < len(data) - 1:
+        index += 1
+    bpy.context.scene.frame_current = data[index]
+
+
+def decrease_beat_index():
+    if not bpy.context:
+        return
+    data = state.music_beats
+    current_time = cast(int, bpy.context.scene.frame_current)
+    index = binary_search(arr=data, x=current_time)
+    if index > 0:
+        index -= 1
+    bpy.context.scene.frame_current = data[index]
