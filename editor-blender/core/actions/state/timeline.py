@@ -60,9 +60,8 @@ def increase_beat_index():
         return
     data = state.music_beats
     current_time = cast(int, bpy.context.scene.frame_current)
-    index = binary_search(arr=data, x=current_time)
-    if index < len(data) - 1:
-        index += 1
+    index = binary_search(arr=data, x=current_time) + 1
+    index = min(len(data) - 1, index)
     bpy.context.scene.frame_current = data[index]
 
 
@@ -72,6 +71,7 @@ def decrease_beat_index():
     data = state.music_beats
     current_time = cast(int, bpy.context.scene.frame_current)
     index = binary_search(arr=data, x=current_time)
-    if index > 0:
+    if data[index] == current_time:
         index -= 1
+    index = max(0, index)
     bpy.context.scene.frame_current = data[index]

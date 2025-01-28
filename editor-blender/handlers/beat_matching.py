@@ -7,11 +7,9 @@ import bpy.path
 import gpu
 from gpu_extras import batch as g_batch
 
-from ..core.config import config
 from ..core.log import logger
 from ..core.states import state  # temporary beat data source
 from ..core.utils.ui import redraw_area
-from ..storage import get_storage
 
 
 class BeatSettings:
@@ -42,23 +40,8 @@ def draw():
     x_mid = (x0 + x1) / 2
     x_scale = x1 - x_mid
 
-    height = region.height
-    top_offset = beat_settings.top_offset
-    bottom_offset = beat_settings.bottom_offset
-
-    y0 = bottom_offset
-    y1 = height - top_offset
-    if height == 0:
-        y_mid = 0
-        y_scale = 1
-    else:
-        y_mid = (y0 + y1 - height) / height
-        y_scale = (y1 - y0) / height
-
     shader.uniform_float("view_x_mid", x_mid)  # type: ignore
     shader.uniform_float("view_x_scale", x_scale)  # type: ignore
-    shader.uniform_float("view_y_mid", y_mid)  # type: ignore
-    shader.uniform_float("view_y_scale", y_scale)  # type: ignore
 
     for batch in batches:
         batch.draw(shader)
@@ -97,8 +80,6 @@ def mount():
     shader_info = gpu.types.GPUShaderCreateInfo()
     shader_info.push_constant("FLOAT", "view_x_mid")
     shader_info.push_constant("FLOAT", "view_x_scale")
-    shader_info.push_constant("FLOAT", "view_y_mid")
-    shader_info.push_constant("FLOAT", "view_y_scale")
     shader_info.vertex_in(0, "VEC2", "position")
     shader_info.vertex_out(vert_out)
     shader_info.fragment_out(0, "VEC4", "FragColor")
@@ -107,7 +88,6 @@ def mount():
         """
         void main() {
             float x = (position[0] - view_x_mid) / view_x_scale;
-            float y = position[1] * view_y_scale + view_y_mid;
             gl_Position = vec4(x, position[1], 0.0, 1.0);
         }
         """
