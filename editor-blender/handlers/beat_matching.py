@@ -1,5 +1,3 @@
-import json
-import os
 from typing import Any, cast
 
 import bpy
@@ -14,8 +12,6 @@ from ..core.utils.ui import redraw_area
 
 class BeatSettings:
     def __init__(self):
-        self.top_offset: int = 0
-        self.bottom_offset: int = 0
         self.region: bpy.types.Region | None = None
         self.shader: gpu.types.GPUShader | None = None
         self.batches: list[gpu.types.GPUBatch] = []
@@ -65,13 +61,6 @@ def mount():
         for region in cast(list[bpy.types.Region], area.regions)
         if region.type == "WINDOW"
     )
-
-    header_region = next(
-        region
-        for region in cast(list[bpy.types.Region], area.regions)
-        if region.type == "HEADER"
-    )
-    beat_settings.top_offset = int(header_region.height * 0.8)
 
     # Create shader
     vert_out = gpu.types.GPUStageInterfaceInfo("my_interface")  # type: ignore
