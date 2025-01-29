@@ -2,8 +2,8 @@
 //! The callbacks are used to authenticate user when a connection is established.
 //! and clean up the database when a connection is closed.
 
-use crate::db::types::user::UserData;
 use crate::global;
+use crate::server::extractors::Authentication;
 use crate::types::global::UserContext;
 use crate::utils::authentication::verify_token;
 
@@ -15,26 +15,11 @@ use std::env::var;
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
     // Use test user in development
     if var("ENV").map_err(|_| "ENV not set")? == "development" {
-        let clients = global::clients::get();
-        let mysql_pool = clients.mysql_pool();
+        let test_user = Authentication::get_test_user().await;
 
-        let test_user = sqlx::query_as!(
-            UserData,
-            r#"
-                SELECT * FROM User ORDER BY id LIMIT 1;
-            "#,
-        )
-        .fetch_one(mysql_pool)
-        .await;
-
-        if let Ok(test_user) = test_user {
-            Ok(UserContext {
-                username: test_user.name,
-                user_id: test_user.id,
-                clients,
-            })
-        } else {
-            Err("No test user found".to_string())
+        match test_user {
+            Ok(user) => Ok(user),
+            Err(err) => Err(err.to_string()),
         }
     } else {
         let token = match _connection_params.get("token") {
