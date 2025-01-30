@@ -11,15 +11,16 @@ use redis::AsyncCommands;
 use redis::Client;
 use sqlx::{MySql, Pool};
 
+#[allow(unused_variables)]
 pub async fn init_data(mysql: &Pool<MySql>) -> Result<(), sqlx::Error> {
-    sqlx::query!(
-        r#"
-            DELETE FROM User;
-        "#,
-    )
-    .execute(mysql)
-    .await?;
-
+    // sqlx::query!(
+    //     r#"
+    //         DELETE FROM User;
+    //     "#,
+    // )
+    // .execute(mysql)
+    // .await?;
+    //
     Ok(())
 }
 
@@ -31,12 +32,10 @@ pub async fn init_redis_control(
 
     let frames = sqlx::query!(
         r#"
-            SELECT ControlFrame.*, User.name AS user_name
+            SELECT ControlFrame.*, EditingControlFrame.user_id AS user_id
             FROM ControlFrame
             LEFT JOIN EditingControlFrame
-            ON ControlFrame.id = EditingControlFrame.frame_id
-            LEFT JOIN User
-            ON EditingControlFrame.user_id = User.id;
+            ON ControlFrame.id = EditingControlFrame.frame_id;
         "#,
     )
     .fetch_all(mysql_pool)
@@ -115,7 +114,7 @@ pub async fn init_redis_control(
                     meta: frame.meta_rev,
                     data: frame.data_rev,
                 },
-                editing: frame.user_name.clone(),
+                editing: frame.user_id,
                 status,
             };
 
@@ -143,12 +142,10 @@ pub async fn init_redis_position(
 
     let frames = sqlx::query!(
         r#"
-            SELECT PositionFrame.*, User.name AS user_name
+            SELECT PositionFrame.*, EditingPositionFrame.user_id AS user_id
             FROM PositionFrame
             LEFT JOIN EditingPositionFrame
-            ON PositionFrame.id = EditingPositionFrame.frame_id
-            LEFT JOIN User
-            ON EditingPositionFrame.user_id = User.id;
+            ON PositionFrame.id = EditingPositionFrame.frame_id;
         "#,
     )
     .fetch_all(mysql_pool)
@@ -196,7 +193,7 @@ pub async fn init_redis_position(
 
         let result_control = RedisPosition {
             start: frame.start,
-            editing: frame.user_name.clone(),
+            editing: frame.user_id,
             rev: Revision {
                 meta: frame.meta_rev,
                 data: frame.data_rev,
@@ -229,12 +226,10 @@ pub async fn update_redis_control(
 
     let frame = sqlx::query!(
         r#"
-            SELECT ControlFrame.*, User.name AS user_name
+            SELECT ControlFrame.*, EditingControlFrame.user_id AS user_id
             FROM ControlFrame
             LEFT JOIN EditingControlFrame
             ON ControlFrame.id = EditingControlFrame.frame_id
-            LEFT JOIN User
-            ON EditingControlFrame.user_id = User.id
             WHERE ControlFrame.id = ?;
         "#,
         frame_id
@@ -304,7 +299,7 @@ pub async fn update_redis_control(
             meta: frame.meta_rev,
             data: frame.data_rev,
         },
-        editing: frame.user_name.clone(),
+        editing: frame.user_id,
         status,
     };
 
@@ -328,12 +323,10 @@ pub async fn update_redis_position(
 
     let frame = sqlx::query!(
         r#"
-            SELECT PositionFrame.*, User.name AS user_name
+            SELECT PositionFrame.*, EditingPositionFrame.user_id AS user_id
             FROM PositionFrame
             LEFT JOIN EditingPositionFrame
             ON PositionFrame.id = EditingPositionFrame.frame_id
-            LEFT JOIN User
-            ON EditingPositionFrame.user_id = User.id
             WHERE PositionFrame.id = ?;
         "#,
         frame_id
@@ -387,7 +380,7 @@ pub async fn update_redis_position(
 
     let result_pos = RedisPosition {
         start: frame.start,
-        editing: frame.user_name.clone(),
+        editing: frame.user_id,
         rev: Revision {
             meta: frame.meta_rev,
             data: frame.data_rev,
