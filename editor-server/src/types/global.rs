@@ -24,7 +24,7 @@ pub struct RedisControl {
     pub fade: bool,
     pub start: i32,
     pub rev: Revision,
-    pub editing: Option<String>,
+    pub editing: Option<i32>,
     pub status: Vec<Vec<PartControl>>,
 }
 
@@ -34,7 +34,7 @@ pub struct PositionPos(pub f64, pub f64, pub f64);
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisPosition {
     pub start: i32,
-    pub editing: Option<String>,
+    pub editing: Option<i32>,
     pub rev: Revision,
     pub pos: Vec<PositionPos>,
 }
