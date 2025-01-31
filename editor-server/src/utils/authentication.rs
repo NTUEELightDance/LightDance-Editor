@@ -14,11 +14,10 @@ use std::env::var;
 pub struct UserMetadata {
     pub id: i32,
     pub name: String,
-    pub password: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct UserInfo {
+struct UserInfo {
     #[serde(rename = "https://foo.com/mtdt")]
     metadata: UserMetadata,
 }
@@ -64,7 +63,6 @@ pub async fn verify_token(token: &str) -> Result<UserData, String> {
     Ok(UserData {
         id: user_metadata.id,
         name: user_metadata.name,
-        password: user_metadata.password,
     })
 }
 
