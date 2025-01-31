@@ -1,5 +1,7 @@
-use crate::utils::authentication::get_token;
+use crate::global;
+use crate::utils::authentication::{get_token, get_user_metadata};
 use axum::{http::HeaderMap, http::StatusCode, response::Json};
+use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use std::env::var;
 
@@ -36,12 +38,44 @@ pub async fn login(
         .await
         .map_err(|err| (err.0, Json(LoginFailedResponse { err: err.1 })))?;
 
+    // get user info
+    let user_metadata = get_user_metadata(token.as_str())
+        .await
+        .map_err(|err| (StatusCode::NOT_FOUND, Json(LoginFailedResponse { err })))?;
+
     // Get expiration time from env
     let expiration_time_hours: u64 = match var("TOKEN_EXPIRATION_TIME_HOURS") {
         Ok(expiration_time_hours) => expiration_time_hours.parse::<u64>().unwrap(),
         Err(_) => 24,
     };
     let expiration_time_seconds: u64 = expiration_time_hours * 60 * 60;
+
+    // store token and user info in redis
+    let clients = global::clients::get();
+    let redis_client = clients.redis_client();
+    let mut redis_connection = redis_client
+        .get_multiplexed_async_connection()
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(LoginFailedResponse {
+                    err: "error getting redis connection".to_string(),
+                }),
+            )
+        })?;
+
+    let _: () = redis_connection
+        .set_ex(token.as_str(), user_metadata, expiration_time_seconds)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(LoginFailedResponse {
+                    err: "error storing token in redis".to_string(),
+                }),
+            )
+        })?;
 
     // Set cookie
     let http_only = true;
