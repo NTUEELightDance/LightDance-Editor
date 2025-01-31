@@ -64,13 +64,12 @@ Follow the steps below if you hope to create, delete or modify users.
 2. set username and password, and create
 3. **Important!** \
 click on the new user, scroll down until you see `User Metadata`
-4. set three fields (JSON syntax): `id`, `name`, `password`, see the following example\
-**`name` and `password` value must be inside quotations, while `id` must not**
+4. set three fields (JSON syntax): `id`, `name`, see the following example\
+**`name` must be a string, while `id` must not**
 ```json
 {
   "id": 2,
   "name": "the_username_for_your_user",
-  "password": "the_password_for_your_user"
 }
 ```
 5. click the `save` button
