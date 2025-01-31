@@ -3,12 +3,13 @@
 
 use crate::global;
 use crate::types::global::UserContext;
-use crate::utils::authentication::{get_token, verify_token};
+use crate::utils::authentication::{get_token, get_user_metadata, verify_token, UserMetadata};
 
 use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::extract::CookieJar;
 use dotenv;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use std::env::var;
 use std::fmt::Debug;
 
@@ -33,16 +34,20 @@ impl Authentication {
             .await
             .map_err(|_| "error getting token for test user")?;
 
-        let test_user = verify_token(token.as_str()).await;
+        let test_user = get_user_metadata(token.as_str())
+            .await
+            .map_err(|_| "error getting user metadata")?;
 
-        match test_user {
-            Ok(user) => Ok(UserContext {
-                username: user.name,
-                user_id: user.id,
-                clients,
-            }),
-            Err(_) => Err("no test user found"),
-        }
+        println!("{:?}", test_user);
+
+        let test_user_data: UserMetadata =
+            serde_json::from_str(test_user.as_str()).map_err(|_| "error parsing test user data")?;
+
+        Ok(UserContext {
+            user_id: test_user_data.id,
+            username: test_user_data.name,
+            clients,
+        })
     }
 }
 

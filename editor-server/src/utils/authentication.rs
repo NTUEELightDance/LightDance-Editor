@@ -2,22 +2,23 @@
 
 use crate::db::types::user::UserData;
 
+use crate::global;
 use axum::http::StatusCode;
+use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use std::env::var;
 
-use dotenv;
-
 // custom type for user data from auth0
-#[derive(Debug, Deserialize)]
-struct UserMetadata {
-    id: i32,
-    name: String,
-    password: String,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UserMetadata {
+    pub id: i32,
+    pub name: String,
+    pub password: String,
 }
 
-#[derive(Debug, Deserialize)]
-struct UserInfo {
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UserInfo {
     #[serde(rename = "https://foo.com/mtdt")]
     metadata: UserMetadata,
 }
@@ -45,27 +46,20 @@ struct Auth0LoginReq {
 /// Authenticate user by token stored in cookie.
 /// Then return the user data.
 pub async fn verify_token(token: &str) -> Result<UserData, String> {
-    dotenv::dotenv().ok();
-
-    // specs
-    let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
-    let url = format!("https://{auth0_domain}/userinfo");
-
-    // get response from Auth0
-    let client = reqwest::Client::new();
-    let res = client
-        .get(url)
-        .header("Authorization", format!("Bearer {}", token))
-        .send()
+    // get redis connection
+    let redis_client = global::clients::get().redis_client();
+    let mut redis_connection = redis_client
+        .get_multiplexed_async_connection()
         .await
-        .map_err(|_| "Error retrieving user info")?;
+        .map_err(|_| "error getting redis connection".to_string())?;
 
-    let res_data = res
-        .json::<UserInfo>()
+    let user_metadata: String = redis_connection
+        .get(token)
         .await
-        .map_err(|_| "Error getting metadata")?;
+        .map_err(|_| "token not stored in redis")?;
 
-    let user_metadata = res_data.metadata;
+    let user_metadata: UserMetadata = serde_json::from_str(user_metadata.as_str())
+        .map_err(|_| "error parsing json string from redis to user metadata".to_string())?;
 
     Ok(UserData {
         id: user_metadata.id,
@@ -74,6 +68,7 @@ pub async fn verify_token(token: &str) -> Result<UserData, String> {
     })
 }
 
+/// get access token from Auth0 using username and password
 pub async fn get_token(username: String, password: String) -> Result<String, (StatusCode, String)> {
     // login specs
     let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
@@ -120,4 +115,31 @@ pub async fn get_token(username: String, password: String) -> Result<String, (St
         .access_token;
 
     Ok(token)
+}
+
+/// retrieve user info from Auth0 /userinfo endpoint
+pub async fn get_user_metadata(token: &str) -> Result<String, String> {
+    // specs
+    let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
+    let url = format!("https://{auth0_domain}/userinfo");
+
+    // get response from Auth0
+    let client = reqwest::Client::new();
+    let res = client
+        .get(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .send()
+        .await
+        .map_err(|_| "Error retrieving user info")?;
+
+    let user_info = res
+        .json::<UserInfo>()
+        .await
+        .map_err(|_| "Error getting metadata".to_string())?;
+
+    let user_metadata = user_info.metadata;
+
+    let user_metadata = serde_json::to_string(&user_metadata).map_err(|err| err.to_string())?;
+
+    Ok(user_metadata)
 }
