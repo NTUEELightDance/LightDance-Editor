@@ -38,6 +38,8 @@ mod auth {
             .await
             .unwrap();
 
+        println!("{:?}", response.body());
+
         let cookie = response
             .headers()
             .get("Set-Cookie")
@@ -47,7 +49,7 @@ mod auth {
 
         assert_eq!(response.status(), StatusCode::OK);
 
-        // get response from /api/check_token endpoint
+        // get response from /api/checkToken endpoint
         let request = Request::builder()
             .method("GET")
             .uri("/api/checkToken")
@@ -65,6 +67,7 @@ mod auth {
 
         assert_eq!(response.status(), StatusCode::OK);
 
+        // logout
         let request = Request::builder()
             .method("POST")
             .uri("/api/logout")
@@ -81,6 +84,24 @@ mod auth {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
+
+        // after logout check_token should return NOT_FOUND
+        let request = Request::builder()
+            .method("GET")
+            .uri("/api/checkToken")
+            .header("Content-Type", "application/json")
+            .header("Cookie", cookie)
+            .body(Body::empty())
+            .unwrap();
+
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
         let login_data = " { \"username\": \"foo\", \"password\": \"bar\" } ";
 
