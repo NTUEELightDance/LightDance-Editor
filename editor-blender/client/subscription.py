@@ -370,7 +370,7 @@ async def subscribe():
             await fut
 
         except asyncio.CancelledError:
-            logger.exception("Subscription cancelled.")
+            logger.info("Subscription cancelled.")
             break
 
         except Exception as e:
