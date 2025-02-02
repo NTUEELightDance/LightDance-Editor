@@ -69,6 +69,7 @@ def mount():
     shader_info = gpu.types.GPUShaderCreateInfo()
     shader_info.push_constant("FLOAT", "view_x_mid")
     shader_info.push_constant("FLOAT", "view_x_scale")
+
     shader_info.vertex_in(0, "VEC2", "position")
     shader_info.vertex_out(vert_out)
     shader_info.fragment_out(0, "VEC4", "FragColor")
@@ -77,7 +78,8 @@ def mount():
         """
         void main() {
             float x = (position[0] - view_x_mid) / view_x_scale;
-            gl_Position = vec4(x, position[1], 0.0, 1.0);
+            float y = position[1];
+            gl_Position = vec4(x, y, 0.0, 1.0);
         }
         """
     )
@@ -99,10 +101,12 @@ def mount():
     beat_settings.region = region
 
     # Create batches for drawing lines
+    top = region.view2d.region_to_view(0, region.height)[1]
+
     for x in data:
         points = [
-            (x, region.view2d.region_to_view(0, 0)[1]),
-            (x, region.view2d.region_to_view(region.width, region.height)[1]),
+            (x, top * (-0.55)),
+            (x, top * 0.46),
         ]
         batch = g_batch.batch_for_shader(shader, "LINES", {"position": points})
         if beat_settings.batches is not None:
