@@ -55,10 +55,6 @@ impl FromRequestParts<()> for Authentication {
     type Rejection = &'static str;
 
     async fn from_request_parts(_parts: &mut Parts, _state: &()) -> Result<Self, Self::Rejection> {
-        if var("ENV").map_err(|_| "ENV not set")? == "development" {
-            return Self::get_test_user().await.map(Authentication);
-        }
-
         // Load cookie jar for fetching token
         let cookie_jar = CookieJar::from_request_parts(_parts, &()).await;
         let cookie_jar = match cookie_jar {
