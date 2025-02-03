@@ -13,7 +13,7 @@ mod led_effect_test {
 
         let mutation = r#"
             mutation {
-                editLEDEffect(id: 123, input: { name: "Updated Effect", repeat: 3, frames: [] }) {
+                editLEDEffect(id: 1, input: { name: "Updated Effect", repeat: 3, frames: [] }) {
                     id
                     effect_name
                     ok

@@ -5,13 +5,11 @@ mod position_map_test {
         http::{Request, StatusCode},
     };
     use editor_server::build_app;
-    use tower::{Service, ServiceExt}; // 根據你的專案，請確認 `build_app` 是否正確
+    use tower::{Service, ServiceExt};
 
     #[tokio::test]
     async fn test_edit_position_map() {
         let mut app = build_app().await;
-
-        // 模擬輸入的正確 GraphQL Mutation
         let mutation = r#"
             mutation {
                 editPositionMap(input: { frameId: 123, positionData: [[0.0, 1.0, 2.0], [1.0, 2.0, 3.0]] }) {
@@ -48,8 +46,6 @@ mod position_map_test {
             .call(request)
             .await
             .unwrap();
-
-        // 檢查是否返回了 200 成功
         assert_eq!(response.status(), StatusCode::OK);
     }
 }
