@@ -3,44 +3,31 @@
 //! and clean up the database when a connection is closed.
 
 use crate::global;
-use crate::server::extractors::Authentication;
 use crate::types::global::UserContext;
 use crate::utils::authentication::verify_token;
-
-use std::env::var;
 
 /// Callback for websocket connection
 /// A user context is returned if the connection is successful
 /// The context will be used to clean up the database when the connection is closed
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
-    // Use test user in development
-    if var("ENV").map_err(|_| "ENV not set")? == "development" {
-        let test_user = Authentication::get_test_user().await;
+    let token = match _connection_params.get("token") {
+        Some(token) => token.as_str(),
+        None => return Err("No token".to_string()),
+    };
 
-        match test_user {
-            Ok(user) => Ok(user),
-            Err(err) => Err(err.to_string()),
-        }
-    } else {
-        let token = match _connection_params.get("token") {
-            Some(token) => token.as_str(),
-            None => return Err("No token".to_string()),
-        };
+    let token = match token {
+        Some(token) => token.to_string(),
+        None => return Err("No token".to_string()),
+    };
 
-        let token = match token {
-            Some(token) => token.to_string(),
-            None => return Err("No token".to_string()),
-        };
+    let clients = global::clients::get();
+    let user = verify_token(&token).await?;
 
-        let clients = global::clients::get();
-        let user = verify_token(&token).await?;
-
-        Ok(UserContext {
-            username: user.name,
-            user_id: user.id,
-            clients,
-        })
-    }
+    Ok(UserContext {
+        username: user.name,
+        user_id: user.id,
+        clients,
+    })
 }
 
 /// Callback for websocket disconnection
