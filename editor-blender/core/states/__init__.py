@@ -91,16 +91,6 @@ state = State(
     pos_map_updates=PosMapUpdates(added={}, updated={}, deleted={}),
     pos_map_pending=False,
     dancer_part_objects_map={},
-    music_beats=[
-        0,
-        500,
-        1000,
-        1500,
-        2000,
-        2500,
-        3000,
-        3500,
-        4000,
-        4500,
-    ],  # testdata for beat matching
+    music_beats=[],
+    scene_start_point=[],
 )

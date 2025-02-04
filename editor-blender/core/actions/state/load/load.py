@@ -55,7 +55,9 @@ async def fetch_data(reload: bool = False):
 
         try:
             url_set: set[tuple[str, bool]] = set()
-            for tag in ["Waveform", "Music", "LightPresets", "PosPresets"]:
+            for tag in ["Beat", "Waveform", "Music", "LightPresets", "PosPresets"]:
+                if tag not in local_load_hash:
+                    local_load_hash[tag] = 0
                 hash_match = not new_load_hash and (
                     assets_load_hash[tag] == local_load_hash[tag]
                 )

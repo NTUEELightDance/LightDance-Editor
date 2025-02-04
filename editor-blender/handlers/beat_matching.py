@@ -1,3 +1,5 @@
+import csv
+import os
 from typing import Any, cast
 
 import bpy
@@ -5,6 +7,7 @@ import bpy.path
 import gpu
 from gpu_extras import batch as g_batch
 
+from ..core.config import config
 from ..core.log import logger
 from ..core.states import state  # temporary beat data source
 from ..core.utils.ui import redraw_area
@@ -47,7 +50,31 @@ def mount():
     global beat_settings
 
     # Load beat data
-    data = state.music_beats
+    # data = state.music_beats
+    data = []
+    beat_path = os.path.join(config.ASSET_PATH, "data/beat.csv")
+
+    with open(beat_path, "r", encoding="utf-8") as file:
+        reader = list(csv.reader(file))  # Convert reader object to list
+
+    # Transpose and flatten (column-wise reading)
+    top_row = reader[0]
+    data = [
+        reader[row][col] for col in range(len(reader[0])) for row in range(len(reader))
+    ]
+
+    # Ensure are integras
+    top_row = list(map(int, top_row))
+    data = list(map(int, data))
+
+    state.music_beats = data
+    state.scene_start_point = top_row
+
+    # Add timeline marker for the start point of each scene
+    scene = bpy.data.scenes["Scene"]
+    for i, timepoint in enumerate(top_row):
+        marker_name = f"Scene {i+1}"
+        scene.timeline_markers.new(marker_name, frame=timepoint)
 
     # Find timeline region
     screen = cast(bpy.types.Screen, bpy.data.screens["Layout"])
