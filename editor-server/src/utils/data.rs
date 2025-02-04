@@ -11,19 +11,6 @@ use redis::AsyncCommands;
 use redis::Client;
 use sqlx::{MySql, Pool};
 
-#[allow(unused_variables)]
-pub async fn init_data(mysql: &Pool<MySql>) -> Result<(), sqlx::Error> {
-    // sqlx::query!(
-    //     r#"
-    //         DELETE FROM User;
-    //     "#,
-    // )
-    // .execute(mysql)
-    // .await?;
-    //
-    Ok(())
-}
-
 pub async fn init_redis_control(
     mysql_pool: &Pool<MySql>,
     redis_client: &Client,

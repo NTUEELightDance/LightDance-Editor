@@ -56,27 +56,33 @@ npx prisma studio
 Follow the steps below if you hope to create, delete or modify users.
 
 ### Login to Auth0
+
 1. Sign in with GitHub account. (now under my personal account, should be migrated to LightDance account soon)
 2. Go to `Dashboard > User Management > Users`
 
 ### Create User
+
 1. click on the `Create User` button
 2. set username and password, and create
 3. **Important!** \
 click on the new user, scroll down until you see `User Metadata`
 4. set three fields (JSON syntax): `id`, `name`, see the following example\
 **`name` must be a string, while `id` must not**
+
 ```json
 {
   "id": 2,
   "name": "the_username_for_your_user",
 }
 ```
+
 5. click the `save` button
 
 ### Delete User
+
 should be trivial
 
 ### Modify User
+
 should be trivial\
-**Remember to update User Metadata accordingly to your changes in the format introduced above**
+**Remember to update User Metadata according to your changes in the format introduced above**
