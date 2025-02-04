@@ -38,8 +38,6 @@ impl Authentication {
             .await
             .map_err(|_| "error getting user metadata")?;
 
-        println!("{:?}", test_user);
-
         let test_user_data: UserMetadata =
             serde_json::from_str(test_user.as_str()).map_err(|_| "error parsing test user data")?;
 
