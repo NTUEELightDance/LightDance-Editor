@@ -38,8 +38,6 @@ mod auth {
             .await
             .unwrap();
 
-        println!("{:?}", response.body());
-
         let cookie = response
             .headers()
             .get("Set-Cookie")
