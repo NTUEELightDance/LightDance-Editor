@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install corepack
+        run: npm install -g corepack@latest
       - name: enable pnpm
         run: corepack enable
       - name: Install modules in controller-server
