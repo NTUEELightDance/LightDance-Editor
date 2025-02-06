@@ -78,3 +78,8 @@ class TimeShiftStatusType:
     start: int
     end: int
     displacement: int
+
+
+class DancerSelectionType:
+    name: str
+    shown: bool

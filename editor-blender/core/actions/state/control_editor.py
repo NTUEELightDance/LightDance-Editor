@@ -1,8 +1,10 @@
-import traceback
+# import traceback
+from typing import cast
 
 import bpy
 
 from ....api.control_agent import control_agent
+from ....core.models import FiberData, LEDData
 from ....properties.types import LightType
 from ....schemas.mutations import MutDancerStatusPayload
 from ...log import logger
@@ -41,7 +43,10 @@ def attach_editing_control_frame():
 
 def sync_editing_control_frame_properties():
     """Sync location to ld_position"""
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer in state.dancers_array:
+        if not show_dancer_dict[dancer.name]:
+            continue
         dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
             part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
@@ -88,6 +93,7 @@ async def add_control_frame():
     set_requesting(False)
 
 
+# TODO finish this function
 async def save_control_frame(start: int | None = None):
     if not bpy.context:
         return
@@ -98,10 +104,36 @@ async def save_control_frame(start: int | None = None):
     controlData: list[MutDancerStatusPayload] = []
     default_color = list(state.color_map.keys())[0]
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
     for dancer in state.dancers_array:
         partControlData: MutDancerStatusPayload = []
-        obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
 
+        if not show_dancer_dict[dancer.name]:
+            ctrl_part_dict = state.control_map[id].status[dancer.name]
+            for part in dancer.parts:
+                if part.name not in ctrl_part_dict.keys():
+                    if part.type == PartType.FIBER:
+                        partControlData.append((default_color, 0))
+                    elif part.type == PartType.LED:
+                        partControlData.append((-1, 0))
+                    continue
+
+                if part.type == PartType.FIBER:
+                    part_data = cast(FiberData, ctrl_part_dict[part.name])
+                    color_id = part_data.color_id
+                    ld_alpha = part_data.alpha
+                    partControlData.append((color_id, ld_alpha))
+                elif part.type == PartType.LED:
+                    part_data = cast(LEDData, ctrl_part_dict[part.name])
+                    effect_id = part_data.effect_id
+                    ld_alpha = part_data.alpha
+                    partControlData.append((effect_id, ld_alpha))
+
+            controlData.append(partControlData)
+            continue
+
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if obj is not None:
             part_objs: list[bpy.types.Object] = getattr(obj, "children")
             part_obj_names: list[str] = [

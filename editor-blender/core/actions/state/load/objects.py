@@ -28,6 +28,7 @@ def check_local_object_list():
         getattr(bpy.context.scene, "ld_dancer_model_hash"),
     )
 
+    # Do NOT skip unselected dancers here
     for dancer_item in state.dancers_array:
         dancer_name = dancer_item.name
         dancer_objects_exist[dancer_name] = True
@@ -164,10 +165,15 @@ def find_first_mesh(mesh_name: str) -> bpy.types.Mesh | None:
 def setup_dancer_part_objects_map():
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer = state.show_dancers
+
     dancer_array = state.dancers_array
     for dancer in dancer_array:
         dancer_name = dancer.name
         dancer_index = state.dancer_part_index_map[dancer_name].index
+
+        if not show_dancer[dancer_index]:
+            continue
 
         dancer_obj = data_objects[dancer_name]
         state.dancer_part_objects_map[dancer_name] = (dancer_obj, {})
@@ -219,11 +225,19 @@ async def setup_objects():
 
     models_ready: dict[ModelName, bool] = {}
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
     dancer_array = state.dancers_array
     for dancer_index, dancer in enumerate(dancer_array):
         dancer_name = dancer.name
         dancer_object_exist = dancers_object_exist[dancer_name]
         dancer_model_update = dancers_model_update[dancer_name]
+
+        if not show_dancer_dict[dancer.name]:
+            if dancer_object_exist:
+                dancer_obj = data_objects[dancer_name]
+                recursive_remove_object(dancer_obj)
+            continue
 
         # Dancer object exists and model doesn't need to be updated
         if dancer_object_exist and not dancer_model_update:

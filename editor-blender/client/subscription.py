@@ -373,7 +373,7 @@ async def subscribe():
             logger.info("Subscription cancelled.")
             break
 
-        except Exception as e:
+        except Exception as _:
             logger.exception("Subscription closed with error.")
             fut.cancel()
 
