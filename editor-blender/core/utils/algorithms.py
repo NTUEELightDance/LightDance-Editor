@@ -31,7 +31,7 @@ def _binary_search_with_lr(
     :param x: integer to search for
     :return: (index of the last number in arr that is less than or equal to x,
               index of the first number in arr that is larger than or equal to x)
-             or tuple of 'out of range' error: showing that the number is bigger/smaller than all num. in array
+             or tuple of 'out of range' error: showing that the number is bigger/smaller than all numbers in array
     """
     l, r = 0, len(arr) - 1
     if x > arr[r]:
