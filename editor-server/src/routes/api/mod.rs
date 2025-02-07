@@ -1,7 +1,6 @@
 //! REST API routes.
 
 mod check_token;
-mod delete_user;
 mod export_data;
 mod get_dancer_fiber_data;
 mod get_dancer_led_data;
