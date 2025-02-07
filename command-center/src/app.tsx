@@ -28,21 +28,14 @@ export default function App() {
         width={dimensions[0] && dimensions[0]}
       >
         <Box flexDirection="row" height="100%">
-          {/* Control Panel */}
-          <Box width="40%" height="100%" borderStyle="round" borderColor="cyan">
-            <StatusPanel />
-          </Box>
-
           {/* Right Section (Status + Log) */}
-          <Box width="60%" height="100%" flexDirection="column">
+          <Box width="100%" height="100%" flexDirection="column">
             {/* Status */}
-            <Box height="70%" borderStyle="round" borderColor="green">
+            <Box height="30%" borderStyle="round" borderColor="green">
               <ControlPanel />
             </Box>
-
-            {/* Log */}
-            <Box height="30%" borderStyle="round" borderColor="yellow">
-              <LogPanel />
+            <Box height="70%" borderStyle="round" borderColor="blue">
+              <StatusPanel />
             </Box>
           </Box>
         </Box>
