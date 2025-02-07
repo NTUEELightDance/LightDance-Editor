@@ -24,7 +24,7 @@ const TestDancerData: DancerData = Array.from({ length: 10 }, (_, i) => ({
   dancer: `${dancerTemplate.dancer}${i}`,
   hostname: `${dancerTemplate.hostname}${i}`,
 })).reduce((acc: DancerData, dancer, index) => {
-  acc[index] = dancer;
+  acc[dancer.MAC] = dancer;
   return acc;
 }, {});
 
