@@ -68,7 +68,6 @@ impl ControlMapMutation {
 
         // get the input data
         let frame_id = input.frame_id;
-        let fade = input.fade;
         let control_data = input.control_data;
 
         // check if the control_data is given
@@ -377,44 +376,6 @@ impl ControlMapMutation {
                 };
             }
         }
-
-        // TODO: check the necessity of the code below
-        // the code below update the "fade" field of the frame if the fade is given
-        // not sure why this is needed since "fade" field can be updated by edit_control_frame(in control_frame.rs)
-        // since our task is to translate last year typescript code into rust, I will keep this code for now
-        // but we might need to examine the logic of how the "fade" field is updated in the future
-
-        // if fade is given, update the fade field of the frame
-        if let Some(fade) = fade {
-            sqlx::query!(
-                r#"
-                    UPDATE ControlFrame
-                    SET
-                        fade = ?,
-                        meta_rev = meta_rev + 1
-                    WHERE id = ?;
-                "#,
-                fade,
-                frame_id,
-            )
-            .execute(mysql)
-            .await?;
-        };
-
-        // TODO: check the necessity of the code below
-        // the code below update the editingControlFrame state after finish editing the frame
-        // not sure if this is needed since the other functions that edit the frame does not have this code
-        // I will keep this code for now, but we might need to examine the necessity in the future
-        sqlx::query!(
-            r#"
-                UPDATE EditingControlFrame
-                SET frame_id = NULL
-                WHERE user_id = ?
-            "#,
-            context.user_id,
-        )
-        .execute(mysql)
-        .await?;
 
         // update revision of the frame
         sqlx::query!(
