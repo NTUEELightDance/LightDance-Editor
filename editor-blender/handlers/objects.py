@@ -1,6 +1,6 @@
 import bpy
 
-from ..core.models import Editor, SelectedPartType, SelectMode
+from ..core.models import EditMode, Editor, SelectedPartType, SelectMode
 from ..core.states import state
 from ..properties.types import LightType, ObjectType
 from ..properties.ui.types import (
@@ -158,7 +158,9 @@ def handle_autoselect_in_control_editor_part_mode():
     if active_obj:
         if is_led_bulb(active_obj):
             active_obj_parent = active_obj.parent
-            if active_obj_parent and active_obj_parent["ld_effect"] != 0:
+            if (
+                active_obj_parent and active_obj_parent["ld_effect"] != 0
+            ) or state.edit_state == EditMode.IDLE:
                 active_obj = active_obj_parent
             active_obj.select_set(True)  # type: ignore
             bpy.context.view_layer.objects.active = active_obj
