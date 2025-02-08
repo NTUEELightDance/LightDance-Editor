@@ -3,7 +3,7 @@ import bpy
 from ....properties.types import LightType
 from ...models import ColorID, EditMode, LEDData
 from ...states import state
-from ...utils.convert import rgb_to_float, rgba_to_float
+from ...utils.convert import interpolate_gradient, rgba_to_float
 
 """
 Controlling temporary object color in Blender using lightdance props as edit preview.
@@ -94,6 +94,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
             color = state.color_map[data.color_id]
             setattr(led_bulb_obj, "ld_color", color.name)
+            setattr(led_bulb_obj, "ld_alpha", data.alpha)
 
 
 def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
@@ -111,7 +112,7 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
             led_bulb_obj.color[0] = bulb_ld_color_float[0] * (ld_alpha / 255)
             led_bulb_obj.color[1] = bulb_ld_color_float[1] * (ld_alpha / 255)
             led_bulb_obj.color[2] = bulb_ld_color_float[2] * (ld_alpha / 255)
-    else:
+    elif ld_light_type == LightType.FIBER.value:
         self.color[0] = ld_color_float[0] * (ld_alpha / 255)
         self.color[1] = ld_color_float[1] * (ld_alpha / 255)
         self.color[2] = ld_color_float[2] * (ld_alpha / 255)
@@ -150,7 +151,6 @@ def update_gradient_color(led_obj: bpy.types.Object):
 
     rgb_float_list: list[tuple[float, ...]] = []
     for segment in segments:
-        print(interpolate_gradient(segment))
         rgb_float_list.extend(interpolate_gradient(segment))
 
     for index, (led_bulb_obj, rgb_float) in enumerate(
@@ -160,46 +160,3 @@ def update_gradient_color(led_obj: bpy.types.Object):
         setattr(led_bulb_obj, "ld_color_float", rgb_float)
         if led_status[index][0] == -1:
             setattr(led_bulb_obj, "ld_alpha", 255)
-
-
-def interpolate_gradient(
-    bulb_segment: list[tuple[ColorID, int]]
-) -> list[tuple[float, ...]]:
-    """
-    Linearly interpolate color gradient.
-    Rules:
-    - If input is a single color, return it.
-    - If both head and tail are specified, interpolate between them.
-    - If head color is -1, fill with tail color.
-    - If tail color is -1, fill with head color.
-    - If both head and tail are -1, fill with black.
-    """
-    color_map = state.color_map
-    length = len(bulb_segment) - 2
-
-    head_color_id, head_alpha = bulb_segment[0]
-    if length == -1:  # Single specified color
-        return [rgba_to_float(color_map[head_color_id].rgb, head_alpha)]
-    if length == 0:
-        return []
-
-    tail_color_id, tail_alpha = bulb_segment[-1]
-    if head_color_id == -1:
-        if tail_color_id == -1:
-            return [(0.0, 0.0, 0.0)] * length  # No color specified, return black
-        else:
-            return [rgba_to_float(color_map[tail_color_id].rgb, tail_alpha)] * (
-                length + 1
-            )  # Fill with tail color
-    elif tail_color_id == -1:
-        return [rgba_to_float(color_map[head_color_id].rgb, head_alpha)] * (length + 1)
-
-    head_rgb_float = rgba_to_float(color_map[head_color_id].rgb, head_alpha)
-    tail_rgb_float = rgba_to_float(color_map[tail_color_id].rgb, tail_alpha)
-    delta_float = [
-        (tail_rgb_float[i] - head_rgb_float[i]) / (length + 1) for i in range(3)
-    ]
-    return [
-        tuple(head_rgb_float[d] + delta_float[d] * (i + 1) for d in range(3))
-        for i in range(length)
-    ]
