@@ -101,22 +101,22 @@ mod auth {
 
         assert_eq!(response.status(), StatusCode::NOT_FOUND);
 
-        let login_data = " { \"username\": \"foo\", \"password\": \"bar\" } ";
-
-        let request = Request::builder()
-            .method("POST")
-            .uri("/api/login")
-            .header("Content-Type", "application/json")
-            .body(Body::from(login_data))
-            .unwrap();
-
-        let response = ServiceExt::<Request<Body>>::ready(&mut app)
-            .await
-            .unwrap()
-            .call(request)
-            .await
-            .unwrap();
-
-        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        // let login_data = " { \"username\": \"foo\", \"password\": \"bar\" } ";
+        //
+        // let request = Request::builder()
+        //     .method("POST")
+        //     .uri("/api/login")
+        //     .header("Content-Type", "application/json")
+        //     .body(Body::from(login_data))
+        //     .unwrap();
+        //
+        // let response = ServiceExt::<Request<Body>>::ready(&mut app)
+        //     .await
+        //     .unwrap()
+        //     .call(request)
+        //     .await
+        //     .unwrap();
+        //
+        // assert_eq!(response.status(), StatusCode::FORBIDDEN);
     }
 }

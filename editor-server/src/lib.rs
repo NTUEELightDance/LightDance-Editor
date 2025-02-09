@@ -1,7 +1,7 @@
 use axum::Router;
 use db::clients::AppClients;
 use graphql::schema::{self, AppSchema};
-use server::extractors::Authentication;
+use utils::authentication::get_test_user_context;
 
 pub mod db;
 pub mod global;
@@ -49,6 +49,6 @@ pub async fn build_app() -> Router {
 
 pub async fn build_graphql() -> AppSchema {
     init().await;
-    let user_context = Authentication::get_test_user().await.unwrap();
+    let user_context = get_test_user_context().await.unwrap();
     schema::build_schema_with_context(user_context).await
 }

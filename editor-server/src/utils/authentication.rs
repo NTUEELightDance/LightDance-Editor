@@ -1,9 +1,10 @@
 //! Authencation functions.
 
-use crate::db::types::user::UserData;
+use crate::{db::types::user::UserData, types::global::UserContext};
 
 use crate::global;
 use axum::http::StatusCode;
+use dotenv;
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -140,4 +141,80 @@ pub async fn get_user_metadata(token: &str) -> Result<String, String> {
     let user_metadata = serde_json::to_string(&user_metadata).map_err(|err| err.to_string())?;
 
     Ok(user_metadata)
+}
+
+/// login with test username/password and store in redis
+/// return if already initialized
+pub async fn init_test_user() -> Result<(), String> {
+    dotenv::dotenv().ok();
+
+    let test_token = var("AUTH0_TEST_TOKEN").expect("test token not set");
+
+    // get redis connection
+    let clients = global::clients::get();
+    let redis_client = clients.redis_client();
+    let mut redis_connection = redis_client
+        .get_multiplexed_async_connection()
+        .await
+        .map_err(|_| "error getting redis connection".to_string())?;
+
+    if !redis_connection
+        .exists::<&String, bool>(&test_token)
+        .await
+        .unwrap()
+    {
+        let test_username = var("AUTH0_TEST_USERNAME").expect("test username not set");
+        let test_password = var("AUTH0_TEST_PASSWORD").expect("test password not set");
+        let expiration_time_seconds: u64 = 24 * 60 * 60; // 24 hours
+
+        let token = get_token(test_username, test_password)
+            .await
+            .map_err(|err| err.1)?;
+
+        let test_user_metadata = get_user_metadata(token.as_str()).await?;
+
+        // store token and user info in redis
+        let _: () = redis_connection
+            .set_ex(
+                test_token.as_str(),
+                test_user_metadata,
+                expiration_time_seconds,
+            )
+            .await
+            .map_err(|_| "error storing token to redis")?;
+    }
+
+    Ok(())
+}
+
+/// get UserData for test user
+async fn get_test_user() -> Result<UserData, String> {
+    dotenv::dotenv().ok();
+
+    let test_token = var("AUTH0_TEST_TOKEN").expect("test token not set");
+
+    let test_user = verify_token(test_token.as_str()).await;
+
+    if let Ok(user) = test_user {
+        return Ok(user);
+    } else {
+        init_test_user().await?;
+    }
+
+    verify_token(test_token.as_str())
+        .await
+        .map_err(|_| "error initializing test user".to_string())
+}
+
+/// get UserContext for test user
+pub async fn get_test_user_context() -> Result<UserContext, String> {
+    let test_user = get_test_user().await?;
+
+    let clients = global::clients::get();
+
+    Ok(UserContext {
+        user_id: test_user.id,
+        username: test_user.name,
+        clients,
+    })
 }
