@@ -19,34 +19,6 @@ pub struct Authentication(pub UserContext);
 #[derive(Debug, Deserialize, Serialize)]
 struct Token(String);
 
-// impl Authentication {
-//     pub async fn get_test_user() -> Result<UserContext, &'static str> {
-//         dotenv::dotenv().ok();
-//
-//         let clients = global::clients::get();
-//
-//         let username = var("AUTH0_TEST_USERNAME").expect("test username not set");
-//         let password = var("AUTH0_TEST_PASSWORD").expect("test password not set");
-//
-//         let token = get_token(username, password)
-//             .await
-//             .map_err(|_| "error getting token for test user")?;
-//
-//         let test_user = get_user_metadata(token.as_str())
-//             .await
-//             .map_err(|_| "error getting user metadata")?;
-//
-//         let test_user_data: UserMetadata =
-//             serde_json::from_str(test_user.as_str()).map_err(|_| "error parsing test user data")?;
-//
-//         Ok(UserContext {
-//             user_id: test_user_data.id,
-//             username: test_user_data.name,
-//             clients,
-//         })
-//     }
-// }
-
 impl FromRequestParts<()> for Authentication {
     type Rejection = &'static str;
 

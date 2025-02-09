@@ -143,6 +143,8 @@ pub async fn get_user_metadata(token: &str) -> Result<String, String> {
     Ok(user_metadata)
 }
 
+/// login with test username/password and store in redis
+/// return if already initialized
 pub async fn init_test_user() -> Result<(), String> {
     dotenv::dotenv().ok();
 
@@ -185,6 +187,7 @@ pub async fn init_test_user() -> Result<(), String> {
     Ok(())
 }
 
+/// get UserData for test user
 async fn get_test_user() -> Result<UserData, String> {
     dotenv::dotenv().ok();
 
@@ -203,6 +206,7 @@ async fn get_test_user() -> Result<UserData, String> {
         .map_err(|_| "error initializing test user".to_string())
 }
 
+/// get UserContext for test user
 pub async fn get_test_user_context() -> Result<UserContext, String> {
     let test_user = get_test_user().await?;
 
