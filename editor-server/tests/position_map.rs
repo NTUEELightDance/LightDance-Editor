@@ -6,11 +6,11 @@ mod graphql_tests {
     pub async fn test_add_position_frame() {
         let schema = build_graphql().await;
 
-        let start_time = 101; // This can be any unique start time you want to test
+        let start_time = 108; 
         let position_data = vec![
-            vec![1.0, 2.0, 3.0], // Coordinates for dancer 1
-            vec![4.0, 5.0, 6.0], // Coordinates for dancer 2
-            vec![7.0, 8.0, 9.0], // Coordinates for dancer 3
+            vec![1.0, 2.0, 3.0],
+            vec![4.0, 5.0, 6.0],
+            vec![7.0, 8.0, 10.0], 
         ];
 
         let mutation = format!(
@@ -26,10 +26,10 @@ mod graphql_tests {
             position_data = position_data,
         );
 
-        // Execute the GraphQL mutation
+
         let data = schema.execute(mutation).await;
 
-        // Ensure the response is successful
+        println!("{:?}",data);
         assert!(data.is_ok());
     }
 }

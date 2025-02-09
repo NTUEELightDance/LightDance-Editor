@@ -5,7 +5,7 @@ mod graphql_tests {
     #[tokio::test]
     pub async fn test_add_position_frame() {
         let schema = build_graphql().await;
-        let start_time = 101;
+        let start_time = 102;
         let position_data = vec![
             vec![1.0, 2.0, 3.0],
             vec![4.0, 5.0, 6.0],
