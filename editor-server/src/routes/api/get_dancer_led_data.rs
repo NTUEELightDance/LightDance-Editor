@@ -8,7 +8,10 @@ use axum::{
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::iter::FromIterator;
-use std::{collections::{HashMap, HashSet}, vec};
+use std::{
+    collections::{HashMap, HashSet},
+    vec,
+};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Status {
@@ -174,25 +177,16 @@ fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
                 continue;
             }
 
-            let r: f32 = start_bulb[0] as f32
-                + (end_bulb[0] as f32 - start_bulb[0] as f32) * i as f32
-                    / (segment.len() - 1) as f32;
-            let g: f32 = start_bulb[1] as f32
-                + (end_bulb[1] as f32 - start_bulb[1] as f32) * i as f32
-                    / (segment.len() - 1) as f32;
-            let b: f32 = start_bulb[2] as f32
-                + (end_bulb[2] as f32 - start_bulb[2] as f32) * i as f32
-                    / (segment.len() - 1) as f32;
-            let alpha: f32 = start_bulb[3] as f32
-                + (end_bulb[3] as f32 - start_bulb[3] as f32) * i as f32
-                    / (segment.len() - 1) as f32;
+            let r: f32 = start_bulb[0]
+                + (end_bulb[0] - start_bulb[0]) * i as f32 / (segment.len() - 1) as f32;
+            let g: f32 = start_bulb[1]
+                + (end_bulb[1] - start_bulb[1]) * i as f32 / (segment.len() - 1) as f32;
+            let b: f32 = start_bulb[2]
+                + (end_bulb[2] - start_bulb[2]) * i as f32 / (segment.len() - 1) as f32;
+            let alpha: f32 = start_bulb[3]
+                + (end_bulb[3] - start_bulb[3]) * i as f32 / (segment.len() - 1) as f32;
 
-            interpolated_status.push([
-                r,
-                g,
-                b,
-                alpha,
-            ]);
+            interpolated_status.push([r, g, b, alpha]);
         }
     }
 
@@ -201,7 +195,7 @@ fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
 
 /// computes rgb gradient by separating the bulb colors into segments of -1.
 /// if color is not -1, it is a new segment.
-fn gradient_to_rgb_float(status : Vec<[f32; 4]>) -> Vec<Vec<[f32; 4]>> {
+fn gradient_to_rgb_float(status: Vec<[f32; 4]>) -> Vec<Vec<[f32; 4]>> {
     let mut segments: Vec<Vec<[f32; 4]>> = vec![];
     let mut head = 0;
 
@@ -211,7 +205,7 @@ fn gradient_to_rgb_float(status : Vec<[f32; 4]>) -> Vec<Vec<[f32; 4]>> {
         } else if (i != 0 && status[i - 1][0] == -1.0) || i == status.len() - 1 {
             segments.push(status[head..i + 1].to_vec());
             head = i;
-        } 
+        }
         if bulb_status[0] != -1.0 {
             segments.push(vec![*bulb_status]);
             head = i;
@@ -320,7 +314,12 @@ pub async fn get_dancer_led_data(
             let color = color_map
                 .get(&state.color_id)
                 .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-            effect_data[state.position as usize] = [color.r as f32, color.g as f32, color.b as f32, state.alpha as f32];
+            effect_data[state.position as usize] = [
+                color.r as f32,
+                color.g as f32,
+                color.b as f32,
+                state.alpha as f32,
+            ];
         }
 
         effect_states_map.insert(effect_id, effect_data);
@@ -494,7 +493,12 @@ pub async fn get_dancer_led_data(
                                                 g: 0,
                                                 b: 0,
                                             });
-                                            [color.r as f32, color.g as f32, color.b as f32, *alpha as f32]
+                                            [
+                                                color.r as f32,
+                                                color.g as f32,
+                                                color.b as f32,
+                                                *alpha as f32,
+                                            ]
                                         })
                                         .collect_vec(),
                                 );
@@ -509,7 +513,7 @@ pub async fn get_dancer_led_data(
                     let mut head = 0;
 
                     for (i, bulb_status) in status.iter().enumerate() {
-                        if bulb_status[0] != -1 as f32 {
+                        if bulb_status[0] != -1_f32 {
                             segments.push(status[head..i + 1].to_vec());
                             head = i;
                         }
@@ -578,7 +582,12 @@ pub async fn get_dancer_led_data(
                                     color_map
                                         .get(color_id)
                                         .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-                                [color.r as f32, color.g as f32, color.b as f32, *alpha as f32]
+                                [
+                                    color.r as f32,
+                                    color.g as f32,
+                                    color.b as f32,
+                                    *alpha as f32,
+                                ]
                             })
                             .collect_vec();
 

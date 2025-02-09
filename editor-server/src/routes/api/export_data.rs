@@ -154,6 +154,7 @@ pub async fn export_data() -> Result<
         );
         color_dict.insert(color_obj.id, color_obj.name.to_string());
     }
+    color_dict.insert(-1, "none".to_string());
 
     // grab dancer data include parts (INNER JOIN)
     let result = sqlx::query!(

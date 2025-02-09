@@ -176,6 +176,8 @@ pub async fn upload_data(
             color_dict.insert(color_key, color_id);
             color_progress.inc(1);
         }
+        let none_string = "none".to_string();
+        color_dict.insert(&none_string, -1);
         color_progress.finish();
 
         // HashMap<DancerName, (DancerID, HashMap<PartName, (PartID, PartType)>)>
