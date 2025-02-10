@@ -20,7 +20,7 @@ def increase_frame_index():
             if current_frame_index < len(state.control_record) - 1:
                 if (
                     sorted_ctrl_frames[current_frame_index + 1]
-                    >= state.dancer_load_frames[1]
+                    > state.dancer_load_frames[1]
                 ):
                     return
                 setattr(
@@ -37,7 +37,7 @@ def increase_frame_index():
             if current_frame_index < len(state.pos_record) - 1:
                 if (
                     sorted_pos_frames[current_frame_index + 1]
-                    >= state.dancer_load_frames[1]
+                    > state.dancer_load_frames[1]
                 ):
                     return
                 setattr(
