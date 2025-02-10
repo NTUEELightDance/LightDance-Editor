@@ -31,6 +31,12 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                     current_frame = state.control_map[current_frame_id]
                     start = current_frame.start
 
+                    if (
+                        start < state.dancer_load_frames[0]
+                        or start > state.dancer_load_frames[1]
+                    ):
+                        return
+
                     bpy.context.scene.frame_current = start
                     state.current_control_index = current_frame_index
 
@@ -43,6 +49,12 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                     current_frame_id = state.pos_record[current_frame_index]
                     current_frame = state.pos_map[current_frame_id]
                     start = current_frame.start
+
+                    if (
+                        start < state.dancer_load_frames[0]
+                        or start > state.dancer_load_frames[1]
+                    ):
+                        return
 
                     bpy.context.scene.frame_current = start
                     state.current_pos_index = current_frame_index
@@ -104,7 +116,7 @@ def set_time(self: bpy.types.WindowManager, value: str):
     if not bpy.context:
         return
     frame = time_to_frame(value)
-    if frame < 0:
+    if frame < state.dancer_load_frames[0] or frame > state.dancer_load_frames[1]:
         return
 
     self["ld_time"] = value

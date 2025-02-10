@@ -5,6 +5,7 @@ from ....properties.types import PositionPropertyType
 from ...log import logger
 from ...models import DancerName, EditingData, EditMode, Location
 from ...states import state
+from ...utils.algorithms import linear_interpolation
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from .app_state import set_requesting
@@ -76,13 +77,6 @@ def pos_frame_neighbors(
         (pos_map[left].start, pos_map[left].pos[dancer_name]),
         (pos_map[right].start, pos_map[right].pos[dancer_name]),
     )
-
-
-def linear_interpolation(lval: float, ldist: int, rval: float, rdist: int):
-    if ldist == 0 and rdist == 0:
-        return lval
-    else:
-        return (lval * float(rdist) + rval * float(ldist)) / float(ldist + rdist)
 
 
 async def add_pos_frame():

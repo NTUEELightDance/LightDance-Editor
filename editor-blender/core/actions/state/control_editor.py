@@ -93,7 +93,6 @@ async def add_control_frame():
     set_requesting(False)
 
 
-# TODO finish this function
 async def save_control_frame(start: int | None = None):
     if not bpy.context:
         return

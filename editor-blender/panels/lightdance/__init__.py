@@ -1,7 +1,6 @@
 from typing import Any
 
 import bpy
-from bpy.types import Context, UILayout
 
 from ...core.states import state
 from ...properties.types import Preferences
@@ -44,8 +43,8 @@ class LD_UL_PartialDancerLoad(bpy.types.UIList):
 
     def draw_item(
         self,
-        context: Context | None,
-        layout: UILayout,
+        context: bpy.types.Context | None,
+        layout: bpy.types.UILayout,
         data: Any | None,
         item: DancerSelectionType | None,
         icon: int | None,
@@ -61,7 +60,9 @@ class LD_UL_PartialDancerLoad(bpy.types.UIList):
         row.prop(item, "shown", text="", emboss=True)
         row.label(text=item.name)
 
-    def draw_filter(self, context: Context | None, layout: UILayout):
+    def draw_filter(
+        self, context: bpy.types.Context | None, layout: bpy.types.UILayout
+    ):
         row = layout.row()
         row.prop(self, "select_all_connect", text="Select all connected RPi")
         row.prop(self, "select_all", text="Select all RPi")

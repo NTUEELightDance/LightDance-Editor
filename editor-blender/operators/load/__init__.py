@@ -13,11 +13,9 @@ from ...operators.async_core import AsyncOperator
 # import state
 class LoadPartialOperator(AsyncOperator):
     bl_idname = "lightdance.load_partial"
-    bl_label = "Load frames for selected dancers"
-    # bl_label = "Load frames in selected interval"
+    bl_label = "Load frames of selected dancers and time interval"
 
     async def async_execute(self, context: bpy.types.Context):
-        # TODO
         set_state_of_dancer_selection()
         set_state_of_loaded_frame_range()
         await init_load()

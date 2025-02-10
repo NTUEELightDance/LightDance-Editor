@@ -24,12 +24,10 @@ def set_loaded_frame_at_full_range():
     music_frame = state.partial_load_frames
     state.dancer_load_frames = music_frame
 
-    state.dancer_load_frames = (music_frame[0], music_frame[1])
+    set_min_max_frame(music_frame[0], music_frame[1])
 
     if not bpy.context:
         return
-    bpy.context.scene.frame_start = music_frame[0]
-    bpy.context.scene.frame_end = music_frame[1]
 
 
 def set_state_of_loaded_frame_range():
@@ -42,8 +40,6 @@ def set_state_of_loaded_frame_range():
 
     if not bpy.context:
         return
-    bpy.context.scene.frame_start = min_frame
-    bpy.context.scene.frame_end = max_frame
 
 
 def init_loaded_frame_range():

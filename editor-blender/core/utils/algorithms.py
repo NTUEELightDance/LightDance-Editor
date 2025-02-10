@@ -17,7 +17,7 @@ def binary_search(arr: list[int], x: int) -> int:
     return r
 
 
-def _binary_search_with_lr(
+def binary_search_for_neighbors(
     arr: list[int], x: int
 ) -> (
     tuple[int, int]
@@ -59,8 +59,8 @@ def binary_search_for_range(arr: list[int], left: int, right: int) -> tuple[int,
     :param left, right: designated range
     :return: the smallest continuous range in arr that includes [left, right], which is in the form of indexes
     """
-    search_l = _binary_search_with_lr(arr, left)[0]
-    search_r = _binary_search_with_lr(arr, right)[1]
+    search_l = binary_search_for_neighbors(arr, left)[0]
+    search_r = binary_search_for_neighbors(arr, right)[1]
 
     if search_l == "OutOfRange_Larger":
         return (len(arr) - 1, len(arr) - 1)
@@ -71,3 +71,10 @@ def binary_search_for_range(arr: list[int], left: int, right: int) -> tuple[int,
     if search_r == "OutOfRange_Larger":
         search_r = len(arr) - 1
     return (search_l, search_r)
+
+
+def linear_interpolation(lval: float, ldist: int, rval: float, rdist: int):
+    if ldist == 0 and rdist == 0:
+        return lval
+    else:
+        return (lval * float(rdist) + rval * float(ldist)) / float(ldist + rdist)
