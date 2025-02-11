@@ -78,3 +78,11 @@ class TimeShiftStatusType:
     start: int
     end: int
     displacement: int
+
+
+class CameraStatusType:
+    camera_on: bool
+    camera_y: float
+    camera_x: float
+    camera_focal_length: float
+    world_light_intensity: float
