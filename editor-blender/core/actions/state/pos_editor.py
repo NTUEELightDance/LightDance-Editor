@@ -3,8 +3,9 @@ import bpy
 from ....api.pos_agent import pos_agent
 from ....properties.types import PositionPropertyType
 from ...log import logger
-from ...models import EditingData, EditMode
+from ...models import DancerName, EditingData, EditMode, Location
 from ...states import state
+from ...utils.algorithms import linear_interpolation
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from .app_state import set_requesting
@@ -29,7 +30,12 @@ def attach_editing_pos_frame():
 
 def sync_editing_pos_frame_properties():
     """Sync location to ld_position"""
+
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancer_names:
+        if not show_dancer_dict[dancer_name]:
+            continue
+
         # print(f"Syncing {dancer_name} to editing frame")
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
@@ -38,13 +44,71 @@ def sync_editing_pos_frame_properties():
             obj.rotation_euler = ld_position.rotation
 
 
+def pos_frame_neighbors(
+    frame: int, dancer_name: DancerName
+) -> tuple[tuple[int, Location], tuple[int, Location]] | None:
+    pos_map = sorted(state.pos_map.values(), key=lambda elem: elem.start)
+    if len(pos_map) == 0:
+        return None
+
+    left, right = 0, len(pos_map) - 1
+    while right - left > 1:
+        mid = (right + left) // 2
+        if pos_map[mid].start > frame:
+            right = mid
+        elif pos_map[mid].start < frame:
+            left = mid
+        else:
+            right = mid
+            left = mid
+            break
+
+    if frame < pos_map[left].start:
+        return (
+            (frame, pos_map[left].pos[dancer_name]),
+            (frame, pos_map[left].pos[dancer_name]),
+        )
+    elif frame > pos_map[right].start:
+        return (
+            (frame, pos_map[right].pos[dancer_name]),
+            (frame, pos_map[right].pos[dancer_name]),
+        )
+    return (
+        (pos_map[left].start, pos_map[left].pos[dancer_name]),
+        (pos_map[right].start, pos_map[right].pos[dancer_name]),
+    )
+
+
 async def add_pos_frame():
     if not bpy.context:
         return
     start = bpy.context.scene.frame_current
+
+    show_dancer = state.show_dancers
     # Get current position data from ld_position
     positionData: list[list[float]] = []
-    for dancer_name in state.dancer_names:
+    for index in range(len(state.dancer_names)):
+        if not show_dancer[index]:
+            neighbor_frame = pos_frame_neighbors(start, state.dancer_names[index])
+            if neighbor_frame != None:
+                new_position: list[float] = [0.0, 0.0, 0.0]
+                location_attribute = ["x", "y", "z"]
+
+                for index in range(3):
+                    llocation = neighbor_frame[0][1]
+                    lpos = getattr(llocation, location_attribute[index])
+                    ldist = start - neighbor_frame[0][0]
+                    rlocation = neighbor_frame[1][1]
+                    rpos = getattr(rlocation, location_attribute[index])
+                    rdist = neighbor_frame[1][0] - start
+                    new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
+
+                positionData.append(new_position)
+            else:
+                positionData.append([0, 0, 0])
+            continue
+
+        dancer_name = state.dancer_names[index]
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
@@ -71,10 +135,17 @@ async def add_pos_frame():
 
 async def save_pos_frame(start: int | None = None):
     id = state.editing_data.frame_id
+    show_dancer = state.show_dancers
     # Get current position data from ld_position
     positionData: list[list[float]] = []
 
-    for dancer_name in state.dancer_names:
+    for index in range(len(state.dancer_names)):
+        if not show_dancer[index]:
+            pos = state.pos_map[id].pos[state.dancer_names[index]]
+            positionData.append([pos.x, pos.y, pos.z])
+            continue
+
+        dancer_name = state.dancer_names[index]
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")

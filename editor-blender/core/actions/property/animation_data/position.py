@@ -11,6 +11,7 @@ import bpy
 from .....properties.types import RevisionPropertyItemType
 from ....models import MapID, PosMapElement
 from ....states import state
+from ....utils.algorithms import binary_search_for_range
 from ....utils.convert import PosModifyAnimationData
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 
@@ -18,17 +19,23 @@ from .utils import ensure_action, ensure_curve, get_keyframe_points
 def reset_pos_frames():
     if not bpy.context:
         return
+
+    pos_start_record_to_load = []
+    for index in range(len(state.pos_record)):
+        if state.pos_record[index] not in state.not_loaded_pos_frames:
+            pos_start_record_to_load.append(state.pos_start_record[index])
+
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
     curve = ensure_curve(
         action,
         "ld_pos_frame",
-        keyframe_points=len(state.pos_start_record),
+        keyframe_points=len(pos_start_record_to_load),
         clear=True,
     )
 
     _, kpoints_list = get_keyframe_points(curve)
-    for i, start in enumerate(state.pos_start_record):
+    for i, start in enumerate(pos_start_record_to_load):
         point = kpoints_list[i]
         point.co = start, start
 
@@ -126,22 +133,64 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     pos_map = state.pos_map
-    pos_frame_number = len(pos_map)
 
     sorted_pos_map = sorted(pos_map.items(), key=lambda item: item[1].start)
 
-    for i, (id, pos_map_element) in enumerate(sorted_pos_map):
+    sorted_frame_pos_map = [item[1].start for item in sorted_pos_map]
+    frame_range_l, frame_range_r = state.dancer_load_frames
+
+    filtered_pos_map_start, filtered_pos_map_end = binary_search_for_range(
+        sorted_frame_pos_map, frame_range_l, frame_range_r
+    )
+    filtered_pos_map = sorted_pos_map[filtered_pos_map_start : filtered_pos_map_end + 1]
+
+    # state.not_loaded_pos_frames: a list of pos map ID that is not loaded
+    not_loaded_pos_frames: list[MapID] = []
+    filtered_index = 0
+    for sorted_index in range(len(sorted_pos_map)):
+        if filtered_index >= len(filtered_pos_map):
+            not_loaded_pos_frames.append(sorted_pos_map[sorted_index][0])
+        elif filtered_pos_map[filtered_index][0] != sorted_pos_map[sorted_index][0]:
+            not_loaded_pos_frames.append(sorted_pos_map[sorted_index][0])
+        else:
+            filtered_index += 1
+    state.not_loaded_pos_frames = not_loaded_pos_frames
+
+    pos_frame_number = len(filtered_pos_map)
+    show_dancer = state.show_dancers
+
+    for dancer_name in state.dancer_names:
+        dancer_index = state.dancer_part_index_map[dancer_name].index
+        if not show_dancer[dancer_index]:
+            continue
+
+        dancer_obj = data_objects[dancer_name]
+
+        if dancer_obj.animation_data is not None:
+            action = cast(bpy.types.Action | None, dancer_obj.animation_data.action)
+            if action != None:
+                bpy.data.actions.remove(action, do_unlink=True)
+
+    for i, (id, pos_map_element) in enumerate(filtered_pos_map):
+        if pos_frame_number == 0:
+            break
+
         frame_start = pos_map_element.start
         pos_status = pos_map_element.pos
 
         for dancer_name, pos in pos_status.items():
             dancer_index = state.dancer_part_index_map[dancer_name].index
-            if dancers_reset and not dancers_reset[dancer_index]:
+            # if ((dancers_reset and not dancers_reset[dancer_index])
+            #     or not show_dancer[dancer_index]
+            # ):
+            #     continue
+            if not show_dancer[dancer_index]:
                 continue
 
             dancer_location = (pos.x, pos.y, pos.z)
 
             dancer_obj = data_objects[dancer_name]
+
             action = ensure_action(dancer_obj, dancer_name + "Action")
 
             for d in range(3):
@@ -163,8 +212,8 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
         # insert fake frame
         scene = bpy.context.scene
-        action = ensure_action(scene, "SceneAction")
 
+        action = ensure_action(scene, "SceneAction")
         curve = ensure_curve(
             action, "ld_pos_frame", keyframe_points=pos_frame_number, clear=i == 0
         )
@@ -198,8 +247,12 @@ update position keyframes
 def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_item in state.dancers_array:
         dancer_name = dancer_item.name
+        if not show_dancer_dict[dancer_name]:
+            continue
+
         dancer_obj = data_objects[dancer_name]
 
         frames = modify_animation_data[dancer_name]
@@ -227,6 +280,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                 if curve_index < kpoints_len:
                     for d in range(3):
                         point = kpoints_lists[d][curve_index]
+
                         curves[d].keyframe_points.remove(point)
 
         kpoints_len = len(kpoints_lists[0])

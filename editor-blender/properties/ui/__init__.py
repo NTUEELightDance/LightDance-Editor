@@ -3,6 +3,8 @@ from . import (
     color_palette,
     command_center,
     control_editor,
+    dancer_selection,
+    frame_range,
     led_editor,
     login,
     pos_editor,
@@ -19,6 +21,8 @@ def register():
     control_editor.register()
     led_editor.register()
     shift.register()
+    dancer_selection.register()
+    frame_range.register()
 
 
 def unregister():
@@ -30,3 +34,5 @@ def unregister():
     control_editor.unregister()
     led_editor.unregister()
     shift.unregister()
+    dancer_selection.unregister()
+    frame_range.unregister()

@@ -9,6 +9,11 @@ from ....api.led_agent import led_agent
 from ....api.model_agent import model_agent
 from ....client import client
 from ....client.subscription import subscribe
+from ....core.actions.property.partial_load import (
+    init_dancer_selection_from_state,
+    init_loaded_frame_range,
+    move_current_frame_to_min_loaded_frame,
+)
 from ....core.actions.state.app_state import (
     set_logged_in,
     set_ready,
@@ -49,6 +54,7 @@ from ...utils.convert import frame_to_time
 from ...utils.operator import execute_operator
 from ..state.load import init_assets, load_data
 
+# from ....core.actions.state.load.objects import check_local_object_list
 # async def __merge_pos_map(
 #     existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
 # ) -> QueryPosMapPayload:
@@ -240,6 +246,12 @@ async def init_editor():
     state.user_log = ""
     state.loading = True
 
+    # Must place here, or else init_ctrl_map may access obj of previously unselected dancers after reloading files that are partialy loaded.
+
+    state.show_dancers = [True] * len(state.dancers)
+    init_dancer_selection_from_state()
+    init_loaded_frame_range()
+
 
 async def init_load():
     if not bpy.context:
@@ -260,7 +272,7 @@ async def init_load():
     logger.info("Handlers mounted")
 
     # Initialize current index and time
-    bpy.context.scene.frame_current = 0
+    move_current_frame_to_min_loaded_frame()
     state.current_control_index = calculate_current_status_index()
     update_current_status_by_index()
 
@@ -270,6 +282,20 @@ async def init_load():
     setup_control_editor()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+    area_ui_type = "TIMELINE"
+    areas = [
+        area for area in bpy.context.window.screen.areas if area.ui_type == area_ui_type
+    ]
+
+    with bpy.context.temp_override(
+        window=bpy.context.window,
+        area=areas[0],
+        region=[region for region in areas[0].regions if region.type == "WINDOW"][0],
+        screen=bpy.context.window.screen,
+    ):
+        if bpy.ops.action.view_frame.poll():  # type:ignore
+            bpy.ops.action.view_frame()
 
 
 async def init_models():
@@ -351,6 +377,9 @@ async def init_dancers():
 
     state.dancers_array = dancers_array
     state.dancer_part_index_map = dancer_part_index_map
+
+    if len(state.show_dancers) == 0:
+        state.show_dancers = [True] * len(state.dancer_names)
 
     logger.info("Dancers initialized")
 

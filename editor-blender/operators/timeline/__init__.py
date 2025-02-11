@@ -6,6 +6,9 @@ from ...core.actions.state.timeline import (
     increase_beat_index,
     increase_frame_index,
 )
+from ...core.models import Editor
+from ...core.states import state
+from ...core.utils.algorithms import binary_search_for_neighbors
 
 
 class IncreaseFrameIndex(bpy.types.Operator):
