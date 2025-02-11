@@ -144,7 +144,7 @@ utils/door_led/
 !.yarn/versions
 
 mongodbData
-data
+/data
 
 pg
 redisData

@@ -658,7 +658,7 @@ def control_add_to_animation_data(
 
 
 def control_delete_to_animation_data(
-    control_delete: list[tuple[int, MapID]]
+    control_delete: list[tuple[int, MapID]],
 ) -> ControlDeleteAnimationData:
     new_map: ControlDeleteAnimationData = {}
     for dancer_name in state.dancers_array:

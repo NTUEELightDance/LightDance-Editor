@@ -436,3 +436,6 @@ class State:
     led_map_pending: LEDMapPending
 
     dancer_part_objects_map: DancerPartObjectsMap
+
+    music_beats: list[int]
+    scene_start_point: list[int]

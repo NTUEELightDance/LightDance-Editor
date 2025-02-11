@@ -1,6 +1,7 @@
 {
   "Music": "/music/2024EEcamp.mp3",
   "Waveform": "/data/waveform.json",
+  "Beat": "/data/beat.csv",
   "LightPresets": "/data/default_lightPresets.json",
   "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
