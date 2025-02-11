@@ -509,21 +509,14 @@ pub async fn get_dancer_led_data(
                 let mut part_data = Vec::<Status>::new();
 
                 for (_, (start, fade, status)) in frame_effect_datas {
-                    let mut segments: Vec<Vec<[f32; 4]>> = vec![];
-                    let mut head = 0;
+                    let segments = gradient_to_rgb_float(status);
 
-                    for (i, bulb_status) in status.iter().enumerate() {
-                        if bulb_status[0] != -1_f32 {
-                            segments.push(status[head..i + 1].to_vec());
-                            head = i;
-                        }
-                    }
-                    println!("{:#?}", segments);
+                    let status = interpolate_gradient(segments);
 
                     part_data.push(Status {
                         start,
-                        fade,
                         status,
+                        fade,
                     });
                 }
 
@@ -592,8 +585,6 @@ pub async fn get_dancer_led_data(
                             .collect_vec();
 
                         let segments = gradient_to_rgb_float(status);
-                        println!("{:#?}", segments);
-                        println!("{}", segments.len());
 
                         let status = interpolate_gradient(segments);
 
