@@ -149,10 +149,15 @@ def setup_floor() -> None:
             bpy.data.objects.remove(obj, do_unlink=True)
 
     # Add new floor
-    bpy.ops.mesh.primitive_cube_add(scale=(stage_width / 2, stage_length / 2, 0.01))
+    bpy.ops.mesh.primitive_cube_add(
+        scale=(stage_width / 2, stage_length / 2, 0.01),
+        location=(0,0,-0.03)
+    )
+    
     obj = bpy.context.object
     if obj:
         obj.rotation_euler.z = 1.5708
         obj.name = flr
         obj.color = (0.00315199, 0.00315199, 0.00315199, 1)
         obj.active_material = material_wooden
+        obj.hide_select = True

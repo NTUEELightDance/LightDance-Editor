@@ -20,6 +20,7 @@ def toggle_camera_view(context):
             bpy.ops.object.camera_add()
             camera = bpy.context.object
             camera.name = "lightdance_camera"  # type: ignore
+            camera.hide_select = True  # type: ignore
 
         scene.camera = camera
 
