@@ -25,11 +25,7 @@ def setup_music(assets_load: dict[str, Any]):
         "music", filepath=music_filepath, channel=1, frame_start=0
     )
 
-    # set frame range
-    bpy.context.scene.frame_start = 0
-    bpy.context.scene.frame_end = bpy.context.scene.sequence_editor.sequences[
-        0
-    ].frame_duration
+    bpy.context.scene.lock_frame_selection_to_range = True
 
     # set retiming
     duration = strip.frame_duration

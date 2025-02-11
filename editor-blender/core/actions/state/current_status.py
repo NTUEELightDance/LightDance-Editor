@@ -16,6 +16,7 @@ def update_current_status_by_index():
     """Update current status by index and set ld_color and ld_effect"""
     if not bpy.context:
         return
+
     index = state.current_control_index
 
     control_map = state.control_map
@@ -31,7 +32,11 @@ def update_current_status_by_index():
     current_status = current_control_map.status
     state.current_status = current_status
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer in state.dancers_array:
+        if not show_dancer_dict[dancer.name]:
+            continue
+
         dancer_status = current_status.get(dancer.name)
         if dancer_status is None:
             continue

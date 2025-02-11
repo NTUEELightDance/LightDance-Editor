@@ -124,11 +124,16 @@ def apply_control_map_updates():
         [
             (start, id, frame)
             for id, (start, frame) in control_map_updates.updated.items()
+            if id not in state.not_loaded_control_frames
         ],
         key=lambda x: x[0],
     )
     added = sorted(
-        [(id, frame) for id, frame in control_map_updates.added.items()],
+        [
+            (id, frame)
+            for id, frame in control_map_updates.added.items()
+            if id not in state.not_loaded_control_frames
+        ],
         key=lambda x: x[1].start,
     )
     deleted = sorted(
@@ -176,7 +181,12 @@ def apply_control_map_updates():
     #     delete_frames, update_frames, add_frames, fade_seq
     # )
     sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
-    fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
+    filtered_ctrl_map = [
+        ctrl_item
+        for ctrl_item in sorted_ctrl_map
+        if ctrl_item[0] not in state.not_loaded_control_frames
+    ]
+    fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
     reset_control_frames_and_fade_sequence(fade_seq)
     reset_ctrl_rev(sorted_ctrl_map)
 

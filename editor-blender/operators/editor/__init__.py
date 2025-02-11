@@ -1,3 +1,5 @@
+from functools import reduce
+
 import bpy
 
 from ...core.actions.state.color_map import (
@@ -195,6 +197,11 @@ class Add(AsyncOperator):
             )
             return state.ready and ld_ui_led_editor.edit_part != ""
 
+        elif state.editor == Editor.CONTROL_EDITOR:
+            shown_all_dancer = reduce(
+                lambda acc, cur: acc & cur, state.show_dancers, True
+            )
+            return state.ready and shown_all_dancer
         else:
             return state.ready
 
@@ -283,7 +290,10 @@ class Delete(AsyncOperator):
             return state.ready and ld_ui_led_editor.edit_effect != ""
 
         else:
-            return state.ready
+            shown_all_dancer = reduce(
+                lambda acc, cur: acc & cur, state.show_dancers, True
+            )
+            return state.ready and shown_all_dancer
 
     async def async_execute(self, context: bpy.types.Context):
         confirm: bool = getattr(self, "confirm")

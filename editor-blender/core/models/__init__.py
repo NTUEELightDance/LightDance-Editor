@@ -371,6 +371,8 @@ class State:
 
     control_map: ControlMap
     pos_map: PosMap
+    not_loaded_control_frames: list[MapID]
+    not_loaded_pos_frames: list[MapID]
 
     control_record: ControlRecord
     control_start_record: ControlStartRecord
@@ -414,6 +416,8 @@ class State:
     dancer_names: list[DancerName]
     dancers_array: DancersArray
     dancer_part_index_map: DancerPartIndexMap
+    show_dancers: list[bool]
+    dancer_load_frames: tuple[int, int]
 
     part_type_map: PartTypeMap
     led_part_length_map: LEDPartLengthMap

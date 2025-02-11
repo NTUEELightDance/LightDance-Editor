@@ -12,6 +12,7 @@ from .....properties.types import RevisionPropertyItemType
 from ....log import logger
 from ....models import ControlMapElement, MapID, PartType
 from ....states import state
+from ....utils.algorithms import binary_search_for_range
 from ....utils.convert import (
     ControlAddAnimationData,
     ControlAddCurveData,
@@ -34,6 +35,7 @@ def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
         action, "ld_control_frame", keyframe_points=len(fade_seq), clear=True
     )
 
+    # fade_seq contains only loaded frames
     _, kpoints_list = get_keyframe_points(curve)
     for i, (start, _) in enumerate(fade_seq):
         point = kpoints_list[i]
@@ -175,15 +177,76 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     ctrl_map = state.control_map
-    ctrl_frame_number = len(ctrl_map)
 
     sorted_ctrl_map = sorted(ctrl_map.items(), key=lambda item: item[1].start)
-    animation_data = control_map_to_animation_data(sorted_ctrl_map)
+
+    sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
+    frame_range_l, frame_range_r = state.dancer_load_frames
+
+    filtered_ctrl_map_start, filtered_ctrl_map_end = binary_search_for_range(
+        sorted_frame_ctrl_map, frame_range_l, frame_range_r
+    )
+    filtered_ctrl_map = sorted_ctrl_map[
+        filtered_ctrl_map_start : filtered_ctrl_map_end + 1
+    ]
+
+    # state.not_loaded_ctrl_frames: a list of ctrl map ID that is not loaded
+    not_loaded_ctrl_frames: list[MapID] = []
+    filtered_index = 0
+    for sorted_index in range(len(sorted_ctrl_map)):
+        if filtered_index >= len(filtered_ctrl_map):
+            not_loaded_ctrl_frames.append(sorted_ctrl_map[sorted_index][0])
+        elif filtered_ctrl_map[filtered_index][0] != sorted_ctrl_map[sorted_index][0]:
+            not_loaded_ctrl_frames.append(sorted_ctrl_map[sorted_index][0])
+        else:
+            filtered_index += 1
+    state.not_loaded_control_frames = not_loaded_ctrl_frames
+
+    animation_data = control_map_to_animation_data(filtered_ctrl_map)
+
+    ctrl_frame_number = len(filtered_ctrl_map)
+
+    show_dancer = state.show_dancers
 
     for dancer_index, dancer_item in enumerate(state.dancers_array):
-        if dancers_reset is not None and not dancers_reset[dancer_index]:
+        if not show_dancer[dancer_index]:
             continue
 
+        parts = dancer_item.parts
+
+        for part in parts:
+            part_name = part.name
+            part_type = part.type
+
+            part_obj_name = f"{dancer_index}_{part_name}"
+            part_obj = data_objects[part_obj_name]
+
+            if part_type == PartType.LED:
+                for led_obj in part_obj.children:
+                    if led_obj.animation_data is not None:
+                        action = cast(
+                            bpy.types.Action | None, led_obj.animation_data.action
+                        )
+                        if action != None:
+                            bpy.data.actions.remove(action, do_unlink=True)
+
+            else:
+                if part_obj.animation_data is not None:
+                    action = cast(
+                        bpy.types.Action | None, part_obj.animation_data.action
+                    )
+                    if action != None:
+                        bpy.data.actions.remove(action, do_unlink=True)
+
+    for dancer_index, dancer_item in enumerate(state.dancers_array):
+        # if ((dancers_reset is not None and not dancers_reset[dancer_index])
+        #     or not show_dancer[dancer_index]
+        # ):
+        #     continue
+        if ctrl_frame_number == 0:
+            break
+        if not show_dancer[dancer_index]:
+            continue
         dancer_name = dancer_item.name
         parts = dancer_item.parts
 
@@ -199,6 +262,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if part_type == PartType.LED:
                 for led_obj in part_obj.children:
                     position: int = getattr(led_obj, "ld_led_pos")
+
                     action = ensure_action(
                         led_obj, f"{part_obj_name}Action.{position:03}"
                     )
@@ -222,10 +286,19 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
     # insert fake frame and update fade sequence
     scene = bpy.context.scene
+
+    if scene.animation_data is not None:
+        del_action = cast(bpy.types.Action | None, scene.animation_data.action)
+        if del_action != None:
+            bpy.data.actions.remove(del_action, do_unlink=True)
+
+    if ctrl_frame_number == 0:
+        return
+
     action = ensure_action(scene, "SceneAction")
 
     if dancers_reset is None or all(dancers_reset):
-        fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
+        fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
         reset_control_frames_and_fade_sequence(fade_seq)
 
 
@@ -329,12 +402,17 @@ def modify_partial_ctrl_keyframes(
 ):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         if dancers_reset is not None and dancers_reset[dancer_index]:
             continue
 
         dancer_name = dancer_item.name
         parts = dancer_item.parts
+
+        if not show_dancer_dict[dancer_name]:
+            continue
 
         logger.info(f"[CTRL MODIFY] {dancer_name}")
 
@@ -411,9 +489,14 @@ def add_partial_ctrl_single_object_action(
 def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         dancer_name = dancer_item.name
         parts = dancer_item.parts
+
+        if not show_dancer_dict[dancer_name]:
+            continue
 
         logger.info(f"[CTRL ADD] {dancer_name}")
 
@@ -496,9 +579,13 @@ def edit_partial_ctrl_single_object_action(
 def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         dancer_name = dancer_item.name
         parts = dancer_item.parts
+
+        if not show_dancer_dict[dancer_name]:
+            continue
 
         logger.info(f"[CTRL UPDATE] {dancer_name}")
 
@@ -562,9 +649,13 @@ def delete_partial_ctrl_single_object_action(
 def delete_partial_ctrl_keyframes(animation_data: ControlDeleteAnimationData):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_index, dancer_item in enumerate(state.dancers_array):
         dancer_name = dancer_item.name
         parts = dancer_item.parts
+
+        if not show_dancer_dict[dancer_name]:
+            continue
 
         logger.info(f"[CTRL DELETE] {dancer_name}")
 
