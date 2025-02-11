@@ -1,6 +1,11 @@
 import bpy
 
-from ...core.actions.state.timeline import decrease_frame_index, increase_frame_index
+from ...core.actions.state.timeline import (
+    decrease_beat_index,
+    decrease_frame_index,
+    increase_beat_index,
+    increase_frame_index,
+)
 
 
 class IncreaseFrameIndex(bpy.types.Operator):
@@ -25,11 +30,37 @@ class DecreaseFrameIndex(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class IncreaseBeatIndex(bpy.types.Operator):
+    """Increase beat index by 1"""
+
+    bl_idname = "lightdance.increase_beat_index"
+    bl_label = "Increase Beat Index"
+
+    def execute(self, context: bpy.types.Context | None):
+        increase_beat_index()
+        return {"FINISHED"}
+
+
+class DecreaseBeatIndex(bpy.types.Operator):
+    """Decrease beat index by 1"""
+
+    bl_idname = "lightdance.decrease_beat_index"
+    bl_label = "Decrease Beat Index"
+
+    def execute(self, context: bpy.types.Context | None):
+        decrease_beat_index()
+        return {"FINISHED"}
+
+
 def register():
     bpy.utils.register_class(IncreaseFrameIndex)
     bpy.utils.register_class(DecreaseFrameIndex)
+    bpy.utils.register_class(IncreaseBeatIndex)
+    bpy.utils.register_class(DecreaseBeatIndex)
 
 
 def unregister():
     bpy.utils.unregister_class(IncreaseFrameIndex)
     bpy.utils.unregister_class(DecreaseFrameIndex)
+    bpy.utils.unregister_class(IncreaseBeatIndex)
+    bpy.utils.unregister_class(DecreaseBeatIndex)
