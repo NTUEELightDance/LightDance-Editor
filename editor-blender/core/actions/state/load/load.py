@@ -9,8 +9,9 @@ from ....states import state
 from ....utils.ui import update_user_log
 from .animation import setup_animation_data
 from .display import setup_display
+from .floor import setup_floor
 from .music import setup_music
-from .objects import setup_floor, setup_objects
+from .objects import setup_objects
 from .render import setup_render
 
 
