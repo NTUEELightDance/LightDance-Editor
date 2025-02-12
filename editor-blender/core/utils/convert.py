@@ -438,21 +438,36 @@ def interpolate_gradient(
 def gradient_to_rgb_float(
     bulb_sequence: list[tuple[ColorID, int]],
 ) -> list[tuple[float, ...]]:
+    """
+    Cut LED bulb sequence into segments and interpolate gradient for color_id=-1.
+    NOTE: The segments are sliced while preserving head and tail.
+    e.g. Color ID : `-1, 1, -1, -1, 2, 3 -> [[-1, 1], [1], [1, -1, -1, 2], [2], [3]]`
+    """
     segments: list[list[tuple[ColorID, int]]] = []
     head = 0
     for i, bulb_status in enumerate(bulb_sequence):
         if bulb_status[0] == -1 and i != len(bulb_sequence) - 1:
             continue
-        elif head != i:
+        elif (i != 0 and bulb_sequence[i - 1][0] == -1) or i == len(bulb_sequence) - 1:
             segments.append(bulb_sequence[head : i + 1])
             head = i
         if bulb_status[0] != -1:
             segments.append([bulb_status])
             head = i
 
+    free_l, free_r = bulb_sequence[0][0] == -1, bulb_sequence[-1][0] == -1
+    if free_l or free_r:
+        offset = len(segments[-1]) - 1
+        segments = [[*(segments[-1]), *(segments[0])]] + segments[
+            (1 if free_l else 0) : (-1 if free_r else len(segments))
+        ]
+    else:
+        offset = 0
+
     rgb_float_list: list[tuple[float, ...]] = []
     for segment in segments:
         rgb_float_list.extend(interpolate_gradient(segment))
+    rgb_float_list = rgb_float_list[offset:] + rgb_float_list[:offset]
     return rgb_float_list
 
 

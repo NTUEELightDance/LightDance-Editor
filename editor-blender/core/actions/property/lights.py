@@ -3,7 +3,7 @@ import bpy
 from ....properties.types import LightType
 from ...models import ColorID, EditMode, LEDData
 from ...states import state
-from ...utils.convert import interpolate_gradient, rgba_to_float
+from ...utils.convert import gradient_to_rgb_float, interpolate_gradient, rgba_to_float
 
 """
 Controlling temporary object color in Blender using lightdance props as edit preview.
@@ -119,11 +119,6 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
 
 
 def update_gradient_color(led_obj: bpy.types.Object):
-    """
-    Cut LED status into segments and interpolate gradient for color_id=-1. Then update color.
-    NOTE: The segments are sliced while preserving head and tail.
-    e.g. Color ID : `-1, 1, -1, -1, 2, 3 -> [[-1, 1], [1], [1, -1, -1, 2], [2], [3]]`
-    """
     for led_bulb_obj in led_obj.children:
         if "ld_color" not in led_bulb_obj:
             led_bulb_obj["ld_color"] = -1
@@ -137,21 +132,8 @@ def update_gradient_color(led_obj: bpy.types.Object):
         )
         for led_bulb_obj in led_obj.children
     ]
-    segments: list[list[tuple[ColorID, int]]] = []
-    head = 0
-    for i, bulb_status in enumerate(led_status):
-        if bulb_status[0] == -1 and i != len(led_status) - 1:
-            continue
-        elif head != i:
-            segments.append(led_status[head : i + 1])
-            head = i
-        if bulb_status[0] != -1:
-            segments.append([bulb_status])
-            head = i
 
-    rgb_float_list: list[tuple[float, ...]] = []
-    for segment in segments:
-        rgb_float_list.extend(interpolate_gradient(segment))
+    rgb_float_list: list[tuple[float, ...]] = gradient_to_rgb_float(led_status)
 
     for index, (led_bulb_obj, rgb_float) in enumerate(
         zip(led_obj.children, rgb_float_list)
