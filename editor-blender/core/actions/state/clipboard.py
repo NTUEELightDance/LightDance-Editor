@@ -353,11 +353,13 @@ def override_pos(pos_frame: PosMapElement):
         if not show_dancer_dict[dancer_name]:
             continue
 
-        location = pos_frame.pos[dancer_name]
+        location = pos_frame.pos[dancer_name].location
+        rotation = pos_frame.pos[dancer_name].rotation
         dancer_obj = data_objects[dancer_name]
 
         ld_position: PositionPropertyType = getattr(dancer_obj, "ld_position")
-        ld_position.transform = (location.x, location.y, location.z)
+        ld_position.location = (location.x, location.y, location.z)
+        ld_position.rotation = (rotation.rx, rotation.ry, rotation.rz)
 
 
 async def paste_pos_frame(add_frame: bool) -> bool:

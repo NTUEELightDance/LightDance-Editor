@@ -65,7 +65,7 @@ class SetCameraY(bpy.types.Operator):
     def execute(self, context):
         camera = bpy.data.objects.get("lightdance_camera")
         if not bpy.context:
-            return
+            return {"CANCELLED"}
         ld_camera_status: CameraStatusType = getattr(
             bpy.context.window_manager, "ld_ui_camera"
         )
@@ -85,7 +85,7 @@ class SetCameraX(bpy.types.Operator):
     def execute(self, context):
         camera = bpy.data.objects.get("lightdance_camera")
         if not bpy.context:
-            return
+            return {"CANCELLED"}
         ld_camera_status: CameraStatusType = getattr(
             bpy.context.window_manager, "ld_ui_camera"
         )
@@ -104,7 +104,7 @@ class SetCameraFocal(bpy.types.Operator):
 
     def execute(self, context):
         if not bpy.context:
-            return
+            return {"CANCELLED"}
         camera = bpy.data.objects.get("lightdance_camera")
 
         ld_camera_status: CameraStatusType = getattr(
@@ -126,7 +126,7 @@ class ToggleCameraOperator(bpy.types.Operator):
 
     def execute(self, context):
         if not bpy.context:
-            return
+            return {"CANCELLED"}
         ld_camera_status: CameraStatusType = getattr(
             bpy.context.window_manager, "ld_ui_camera"
         )

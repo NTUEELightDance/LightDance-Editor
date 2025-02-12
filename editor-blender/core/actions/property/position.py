@@ -13,7 +13,7 @@ from ...states import state
 #     obj = context.object
 #     ld_position: PositionPropertyType = getattr(obj, "ld_position")
 #
-#     obj.location = ld_position.transform
+#     obj.location = ld_position.location
 #     obj.rotation_euler = ld_position.rotation
 #
 #
@@ -31,6 +31,7 @@ def update_current_position(self: bpy.types.PropertyGroup, context: bpy.types.Co
 
     obj: bpy.types.Object = self.id_data  # type: ignore
     ld_position: PositionPropertyType = getattr(obj, "ld_position")
+    print("Updating current position in state from property")
 
-    obj.location = ld_position.transform
+    obj.location = ld_position.location
     obj.rotation_euler = ld_position.rotation

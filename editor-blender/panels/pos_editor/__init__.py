@@ -60,7 +60,7 @@ class PosEditor(bpy.types.Panel):
 
         else:
             position: PositionPropertyType = getattr(context.object, "ld_position")
-            column.prop(position, "transform", text="Transform")
+            column.prop(position, "location", text="Transform")
             column.prop(position, "rotation", text="Rotation")
 
 

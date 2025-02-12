@@ -1,4 +1,5 @@
 use crate::global;
+use crate::types::global::{JsonData, PartType};
 use crate::utils::data::{init_redis_control, init_redis_position};
 
 use axum::{extract::Multipart, http::StatusCode, response::Json};
@@ -6,61 +7,6 @@ use indicatif::ProgressBar;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
-
-#[derive(Debug, Deserialize, Serialize)]
-struct ControlData {
-    start: i32,
-    fade: bool,
-    status: Vec<Vec<(String, i32)>>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct PositionData {
-    start: i32,
-    pos: Vec<[f32; 3]>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct LEDFrame {
-    #[serde(rename = "LEDs")]
-    leds: Vec<(String, i32)>,
-    start: i32,
-    fade: bool,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct LEDPart {
-    repeat: i32,
-    frames: Vec<LEDFrame>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-enum DancerPartType {
-    Led,
-    Fiber,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct DancerPart {
-    name: String,
-    #[serde(rename = "type")]
-    part_type: DancerPartType,
-    length: Option<i32>,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct Dancer {
-    name: String,
-    model: String,
-    parts: Vec<DancerPart>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct DataObj {
-    position: HashMap<String, PositionData>,
-    control: HashMap<String, ControlData>,
-    dancer: Vec<Dancer>,
-    color: HashMap<String, [i32; 3]>,
-    #[serde(rename = "LEDEffects")]
-    led_effects: HashMap<String, HashMap<String, HashMap<String, LEDPart>>>,
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UploadDataResponse(String);
@@ -102,7 +48,7 @@ pub async fn upload_data(
         }
         let raw_data = concatenated_bytes.as_slice();
         // parse json & check types
-        let data_obj: DataObj = match serde_json::from_slice(raw_data) {
+        let data_obj: JsonData = match serde_json::from_slice(raw_data) {
             Ok(data_obj) => data_obj,
             Err(e) => {
                 return Err((
@@ -222,11 +168,11 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            let mut part_dict: HashMap<&String, (i32, &DancerPartType)> = HashMap::new();
+            let mut part_dict: HashMap<&String, (i32, &PartType)> = HashMap::new();
             for part in &dancer.parts {
-                let type_string = match &part.part_type {
-                    DancerPartType::Led => "LED",
-                    DancerPartType::Fiber => "FIBER",
+                let type_string = match &part.r#type {
+                    PartType::LED => "LED",
+                    PartType::FIBER => "FIBER",
                 };
 
                 let part_id = sqlx::query!(
@@ -259,7 +205,7 @@ pub async fn upload_data(
                     .last_insert_id() as i32,
                 };
 
-                part_dict.insert(&part.name, (part_id, &part.part_type));
+                part_dict.insert(&part.name, (part_id, &part.r#type));
             }
             all_dancer.insert(&dancer.name, (dancer_id, part_dict.clone()));
             all_model.insert(&dancer.model, (model_id, part_dict));
@@ -351,12 +297,12 @@ pub async fn upload_data(
             ProgressBar::new(data_obj.position.len().try_into().unwrap_or_default());
 
         for frame_obj in data_obj.position.values() {
-            if frame_obj.pos.len() != data_obj.dancer.len() {
+            if frame_obj.location.len() != data_obj.dancer.len() {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     Json(UploadDataFailedResponse {
                         err: format!("Error: Position frame starting at {} has invalid number of dancers. Found {}, Expected {}.",
-                         frame_obj.start, frame_obj.pos.len(), data_obj.dancer.len()),
+                         frame_obj.start, frame_obj.location.len(), data_obj.dancer.len()),
                     }),
                 ));
             }
@@ -372,18 +318,27 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            for (index, dancer_pos_data) in frame_obj.pos.iter().enumerate() {
+            for (index, (location_data, rotation_data)) in frame_obj
+                .location
+                .iter()
+                .zip(frame_obj.rotation.iter())
+                .enumerate()
+            {
                 let dancer_id = all_dancer[&data_obj.dancer[index].name].0;
-                let _ = sqlx::query!(
+
+                sqlx::query!(
                     r#"
-                        INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
-                        VALUES (?, ?, ?, ?, ?);
+                    INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                     "#,
                     dancer_id,
                     frame_id,
-                    dancer_pos_data[0],
-                    dancer_pos_data[1],
-                    dancer_pos_data[2],
+                    location_data[0],
+                    location_data[1],
+                    location_data[2],
+                    rotation_data[0],
+                    rotation_data[1],
+                    rotation_data[2]
                 )
                 .execute(&mut *tx)
                 .await
@@ -441,8 +396,8 @@ pub async fn upload_data(
 
                     // This is apparently wrong currently
                     let type_string = match &real_part.1 {
-                        DancerPartType::Led => "EFFECT",
-                        DancerPartType::Fiber => "COLOR",
+                        PartType::LED => "EFFECT",
+                        PartType::FIBER => "COLOR",
                     };
                     let color_id = color_dict.get(&part_control_data.0);
                     let effect_id = match led_dict.get(model_name) {

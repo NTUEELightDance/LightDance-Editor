@@ -14,7 +14,7 @@ class LightType(Enum):
 
 
 class PositionPropertyType:
-    transform: tuple[float, float, float]
+    location: tuple[float, float, float]
     rotation: tuple[float, float, float]
 
 

@@ -1,8 +1,8 @@
 //! Database setting utilities.
 
-use crate::db::types::part::PartType;
 use crate::global;
-use crate::types::global::{PartControl, PositionPos, RedisControl, RedisPosition, Revision};
+use crate::types::global::PartType;
+use crate::types::global::{PartControl, RedisControl, RedisPosition, Revision};
 use crate::utils::vector::partition_by_field;
 
 use itertools::Itertools;
@@ -149,7 +149,10 @@ pub async fn init_redis_position(
                     PositionData.frame_id,
                     PositionData.x,
                     PositionData.y,
-                    PositionData.z
+                    PositionData.z,
+                    PositionData.rx,
+                    PositionData.ry,
+                    PositionData.rz
                 FROM Dancer
                 INNER JOIN PositionData
                 ON Dancer.id = PositionData.dancer_id
@@ -166,7 +169,7 @@ pub async fn init_redis_position(
     frames.iter().for_each(|frame| {
         let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
 
-        let pos = dancer_positions
+        let location = dancer_positions
             .iter()
             .map(|dancer_position| {
                 let position = dancer_position
@@ -174,7 +177,19 @@ pub async fn init_redis_position(
                     .find(|position| position.frame_id == frame.id)
                     .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-                PositionPos(position.x, position.y, position.z)
+                [position.x, position.y, position.z]
+            })
+            .collect_vec();
+
+        let rotation = dancer_positions
+            .iter()
+            .map(|dancer_position| {
+                let position = dancer_position
+                    .iter()
+                    .find(|position| position.frame_id == frame.id)
+                    .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+
+                [position.rx, position.ry, position.rz]
             })
             .collect_vec();
 
@@ -185,7 +200,8 @@ pub async fn init_redis_position(
                 meta: frame.meta_rev,
                 data: frame.data_rev,
             },
-            pos,
+            location,
+            rotation,
         };
 
         result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
@@ -335,7 +351,10 @@ pub async fn update_redis_position(
                     PositionData.frame_id,
                     PositionData.x,
                     PositionData.y,
-                    PositionData.z
+                    PositionData.z,
+                    PositionData.rx,
+                    PositionData.ry,
+                    PositionData.rz
                 FROM Dancer
                 INNER JOIN PositionData
                 ON Dancer.id = PositionData.dancer_id
@@ -353,7 +372,7 @@ pub async fn update_redis_position(
 
     let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
 
-    let pos = dancer_positions
+    let location = dancer_positions
         .iter()
         .map(|dancer_position| {
             let position = dancer_position
@@ -361,7 +380,19 @@ pub async fn update_redis_position(
                 .find(|position| position.frame_id == frame.id)
                 .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-            PositionPos(position.x, position.y, position.z)
+            [position.x, position.y, position.z]
+        })
+        .collect_vec();
+
+    let rotation = dancer_positions
+        .iter()
+        .map(|dancer_position| {
+            let position = dancer_position
+                .iter()
+                .find(|position| position.frame_id == frame.id)
+                .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+
+            [position.rx, position.ry, position.rz]
         })
         .collect_vec();
 
@@ -372,7 +403,8 @@ pub async fn update_redis_position(
             meta: frame.meta_rev,
             data: frame.data_rev,
         },
-        pos,
+        location,
+        rotation,
     };
 
     let mut conn: MultiplexedConnection = redis_client

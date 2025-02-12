@@ -3,7 +3,7 @@ import bpy
 from ....api.pos_agent import pos_agent
 from ....properties.types import PositionPropertyType
 from ...log import logger
-from ...models import DancerName, EditingData, EditMode, Location
+from ...models import DancerName, EditingData, EditMode, Position
 from ...states import state
 from ...utils.algorithms import linear_interpolation
 from ...utils.notification import notify
@@ -40,13 +40,13 @@ def sync_editing_pos_frame_properties():
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            obj.location = ld_position.transform
+            obj.location = ld_position.location
             obj.rotation_euler = ld_position.rotation
 
 
 def pos_frame_neighbors(
     frame: int, dancer_name: DancerName
-) -> tuple[tuple[int, Location], tuple[int, Location]] | None:
+) -> tuple[tuple[int, Position], tuple[int, Position]] | None:
     pos_map = sorted(state.pos_map.values(), key=lambda elem: elem.start)
     if len(pos_map) == 0:
         return None
@@ -91,15 +91,23 @@ async def add_pos_frame():
         if not show_dancer[index]:
             neighbor_frame = pos_frame_neighbors(start, state.dancer_names[index])
             if neighbor_frame != None:
-                new_position: list[float] = [0.0, 0.0, 0.0]
-                location_attribute = ["x", "y", "z"]
+                new_position: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+                location_attribute = ["x", "y", "z", "rx", "ry", "rz"]
 
                 for index in range(3):
-                    llocation = neighbor_frame[0][1]
+                    llocation = neighbor_frame[0][1].location
                     lpos = getattr(llocation, location_attribute[index])
                     ldist = start - neighbor_frame[0][0]
-                    rlocation = neighbor_frame[1][1]
+                    rlocation = neighbor_frame[1][1].location
                     rpos = getattr(rlocation, location_attribute[index])
+                    rdist = neighbor_frame[1][0] - start
+                    new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
+                for index in range(3, 6):
+                    lrotation = neighbor_frame[0][1].rotation
+                    lpos = getattr(lrotation, location_attribute[index])
+                    ldist = start - neighbor_frame[0][0]
+                    rrotation = neighbor_frame[1][1].rotation
+                    rpos = getattr(rrotation, location_attribute[index])
                     rdist = neighbor_frame[1][0] - start
                     new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
 
@@ -114,13 +122,16 @@ async def add_pos_frame():
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             positionData.append(
                 [
-                    ld_position.transform[0],
-                    ld_position.transform[1],
-                    ld_position.transform[2],
+                    ld_position.location[0],
+                    ld_position.location[1],
+                    ld_position.location[2],
+                    ld_position.rotation[0],
+                    ld_position.rotation[1],
+                    ld_position.rotation[2],
                 ]
             )
         else:
-            positionData.append([0, 0, 0])
+            positionData.append([0, 0, 0, 0, 0, 0])
 
     set_requesting(True)
     try:
@@ -142,7 +153,16 @@ async def save_pos_frame(start: int | None = None):
     for index in range(len(state.dancer_names)):
         if not show_dancer[index]:
             pos = state.pos_map[id].pos[state.dancer_names[index]]
-            positionData.append([pos.x, pos.y, pos.z])
+            positionData.append(
+                [
+                    pos.location.x,
+                    pos.location.y,
+                    pos.location.z,
+                    pos.rotation.rx,
+                    pos.rotation.ry,
+                    pos.rotation.rz,
+                ]
+            )
             continue
 
         dancer_name = state.dancer_names[index]
@@ -151,13 +171,16 @@ async def save_pos_frame(start: int | None = None):
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             positionData.append(
                 [
-                    ld_position.transform[0],
-                    ld_position.transform[1],
-                    ld_position.transform[2],
+                    ld_position.location[0],
+                    ld_position.location[1],
+                    ld_position.location[2],
+                    ld_position.rotation[0],
+                    ld_position.rotation[1],
+                    ld_position.rotation[2],
                 ]
             )
         else:
-            positionData.append([0, 0, 0])
+            positionData.append([0, 0, 0, 0, 0, 0])
 
     set_requesting(True)
     try:

@@ -1,4 +1,4 @@
-from typing import Literal, cast
+from typing import cast
 
 import bpy
 

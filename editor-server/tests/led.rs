@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod combined_mutation_tests {
-    use editor_server::build_graphql;
     use async_graphql::Response;
+    use editor_server::build_graphql;
 
     #[tokio::test]
     async fn test_add_model_part_and_led() {
@@ -22,7 +22,7 @@ mod combined_mutation_tests {
         assert!(response.is_ok());
         let part_name = "NewLEDPart";
         let part_type = "LED";
-        let length = 50; 
+        let length = 50;
         let mutation = format!(
             r#"
             mutation {{

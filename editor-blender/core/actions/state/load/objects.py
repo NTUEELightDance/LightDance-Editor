@@ -321,6 +321,7 @@ async def setup_objects():
             ld_dancer_name=dancer.name,
             ld_model_name=model_name,
             ld_object_type=ObjectType.DANCER.value,
+            rotation_mode="XYZ",
         )
         bpy.context.scene.collection.objects.link(dancer_obj)
 
@@ -413,6 +414,10 @@ async def setup_objects():
                     ld_model_name=model_name,
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
+
+        bpy.ops.object.select_all(action="DESELECT")
+        dancer_obj.select_set(True)
+        bpy.ops.object.transform_apply(rotation=True)
 
         # Add model hash to blender if dancer is successfully loaded
         new_dancer_models_hash = cast(
