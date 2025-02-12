@@ -164,16 +164,26 @@ pub async fn init_test_user() -> Result<(), String> {
         .unwrap()
     {
         let test_username = var("AUTH0_TEST_USERNAME").expect("test username not set");
-        let test_password = var("AUTH0_TEST_PASSWORD").expect("test password not set");
         let expiration_time_seconds: u64 = 24 * 60 * 60; // 24 hours
 
-        let token = get_token(test_username, test_password)
-            .await
-            .map_err(|err| err.1)?;
-
-        let test_user_metadata = get_user_metadata(token.as_str()).await?;
+        // use pre-defined test user data
+        // let token = get_token(test_username, test_password)
+        //     .await
+        //     .map_err(|err| err.1)?;
+        //
+        // let test_user_metadata = get_user_metadata(token.as_str()).await?;
 
         // store token and user info in redis
+        let test_user_id = var("AUTH0_TEST_USER_ID").expect("test user id not set");
+
+        let test_user_metadata = UserMetadata {
+            id: test_user_id.parse().map_err(|_| "invalid user id")?,
+            name: test_username,
+        };
+
+        let test_user_metadata =
+            serde_json::to_string(&test_user_metadata).map_err(|err| err.to_string())?;
+
         let _: () = redis_connection
             .set_ex(
                 test_token.as_str(),

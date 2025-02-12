@@ -33,7 +33,9 @@ pub async fn login(
     let env_type = &global::envs::get().env;
 
     if env_type == "development" {
-        let _ = init_test_user().await;
+        init_test_user()
+            .await
+            .map_err(|err| (StatusCode::IM_A_TEAPOT, Json(LoginFailedResponse { err })))?;
 
         let token = var("AUTH0_TEST_TOKEN").expect("test token not set");
         let http_only = true;
