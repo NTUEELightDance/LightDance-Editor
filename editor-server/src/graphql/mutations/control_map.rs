@@ -430,10 +430,6 @@ impl ControlMapMutation {
                                 let color_id = bulb_data[0];
                                 let alpha = bulb_data[1];
 
-                                if color_id == -1 {
-                                    continue;
-                                }
-
                                 // check if led bulb exists
                                 let is_led_bulb_exists = sqlx::query!(
                                     r#"
