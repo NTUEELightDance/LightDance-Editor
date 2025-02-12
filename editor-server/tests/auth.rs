@@ -17,8 +17,7 @@ mod auth {
         let mut app = build_app().await;
 
         // login
-        let login_data =
-            " { \"username\": \"foo\", \"password\": \"bar\" } ".to_string();
+        let login_data = " { \"username\": \"foo\", \"password\": \"bar\" } ".to_string();
 
         let request = Request::builder()
             .method("POST")
