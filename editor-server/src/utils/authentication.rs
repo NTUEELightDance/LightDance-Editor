@@ -1,195 +1,220 @@
 //! Authencation functions.
 
-use crate::db::clients::AppClients;
-use crate::db::types::user::UserData;
+use crate::{db::types::user::UserData, types::global::UserContext};
+
 use crate::global;
-
-use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
-    Argon2,
-};
-// use bcrypt;
+use axum::http::StatusCode;
+use dotenv;
 use redis::AsyncCommands;
+use serde::{Deserialize, Serialize};
+use serde_json;
 use std::env::var;
-use uuid::Uuid;
 
-// const HASH_ROUNDS: u32 = 8;
-
-/// Generate a random string for CSRF token.
-pub fn generate_csrf_token() -> String {
-    Uuid::new_v4().to_string()
+// custom type for user data from auth0
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UserMetadata {
+    pub id: i32,
+    pub name: String,
 }
 
-/// Hash password with argon2.
-pub fn hash_password(password: &str) -> Result<String, String> {
-    // bcrypt::hash(password, HASH_ROUNDS).map_err(|_| "Error hashing password.".into())
-    let salt = SaltString::generate(&mut OsRng);
-    let argon2 = Argon2::default();
-    let password_hash = argon2
-        .hash_password(password.as_bytes(), &salt)
-        .map_err(|_| "Error hashing password.")?;
-
-    Ok(password_hash.to_string())
+#[derive(Debug, Deserialize, Serialize)]
+struct UserInfo {
+    #[serde(rename = "https://foo.com/mtdt")]
+    metadata: UserMetadata,
 }
 
-/// Compare password with hashed password.
-pub fn compare_password(password: &str, hashed_password: &str) -> bool {
-    // bcrypt::verify(password, hashed_password).unwrap_or(false)
-    let argon2 = Argon2::default();
-    let password_hash = PasswordHash::new(hashed_password).unwrap();
-    argon2
-        .verify_password(password.as_bytes(), &password_hash)
-        .is_ok()
+#[derive(Debug, Deserialize)]
+struct Auth0LoginRes {
+    access_token: String,
+    // id_token: String,
+    // scope: String,
+    // expires_in: i32,
+    // token_type: String,
 }
 
-/// Authencate user by token stored in cookie.
+#[derive(Debug, Serialize, Deserialize)]
+struct Auth0LoginReq {
+    grant_type: String,
+    username: String,
+    password: String,
+    audience: String,
+    scope: String,
+    client_id: String,
+    client_secret: String,
+}
+
+/// Authenticate user by token stored in cookie.
 /// Then return the user data.
-pub async fn verify_token(clients: &AppClients, token: &str) -> Result<UserData, String> {
-    // Get token from redis
-    let redis_client = clients.redis_client();
-    let mut redis_conn = redis_client
-        .get_async_connection()
+pub async fn verify_token(token: &str) -> Result<UserData, String> {
+    // get redis connection
+    let redis_client = global::clients::get().redis_client();
+    let mut redis_connection = redis_client
+        .get_multiplexed_async_connection()
         .await
-        .map_err(|_| "Error getting redis connection.")?;
+        .map_err(|_| "error getting redis connection".to_string())?;
 
-    let user_id: u32 = redis_conn
+    let user_metadata: String = redis_connection
         .get(token)
         .await
-        .map_err(|_| "Error getting token.")?;
+        .map_err(|_| "token not stored in redis")?;
 
-    // Get user from mysql
-    // TODO: This part can be removed if we add deleteUser route
-    // When user is deleted, the token will be deleted from redis
-    let mysql_pool = clients.mysql_pool();
+    let user_metadata: UserMetadata = serde_json::from_str(user_metadata.as_str())
+        .map_err(|_| "error parsing json string from redis to user metadata".to_string())?;
 
-    let user = sqlx::query_as!(
-        UserData,
-        r#"
-            SELECT * FROM User WHERE id = ? LIMIT 1;
-        "#,
-        user_id,
-    )
-    .fetch_one(mysql_pool)
-    .await
-    .map_err(|_| "Error getting user.")?;
-
-    Ok(user)
+    Ok(UserData {
+        id: user_metadata.id,
+        name: user_metadata.name,
+    })
 }
 
-/// Verify if the user token is admin.
-pub async fn verify_admin_token(clients: &AppClients, token: &str) -> Result<(), String> {
-    let user = verify_token(clients, token).await?;
+/// get access token from Auth0 using username and password
+pub async fn get_token(username: String, password: String) -> Result<String, (StatusCode, String)> {
+    // login specs
+    let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
+    let auth0_client_id = var("AUTH0_CLIENT_ID").expect("id not set");
+    let auth0_client_secret = var("AUTH0_CLIENT_SECRET").expect("secret not set");
+    let url = format!("https://{auth0_domain}/oauth/token");
 
-    if user.name != var("ADMIN_USERNAME").expect("ADMIN_USERNAME is not set") {
-        return Err("Unauthorized.".into());
-    }
-
-    Ok(())
-}
-
-/// Create user with username and password.
-/// If user already exists, update password.
-pub async fn create_user(
-    clients: &AppClients,
-    username: &str,
-    password: &str,
-) -> Result<(), String> {
-    if username.is_empty() || password.is_empty() {
-        return Err("Username and password are required.".into());
-    }
-
-    if username.contains(' ') {
-        return Err("Username cannot contain spaces.".into());
-    }
-
-    if username.len() > 30 {
-        return Err("Username cannot be longer than 30 characters.".into());
-    }
-
-    if password.len() > 100 {
-        return Err("Password cannot be longer than 100 characters.".into());
-    }
-
-    let admin_username = var("ADMIN_USERNAME").expect("ADMIN_USERNAME is not set");
-    if username == admin_username {
-        return Err("Admin user already exists.".into());
-    }
-
-    let mysql_pool = clients.mysql_pool();
-
-    let user = sqlx::query_as!(
-        UserData,
-        r#"
-            SELECT * FROM User WHERE name = ? LIMIT 1;
-        "#,
+    let params = Auth0LoginReq {
+        grant_type: "password".to_string(),
         username,
-    )
-    .fetch_one(mysql_pool)
-    .await;
+        password,
+        audience: "https://test/".to_string(),
+        scope: "openid profile email".to_string(),
+        client_id: auth0_client_id.to_string(),
+        client_secret: auth0_client_secret.to_string(),
+    };
 
-    let hashed_password = hash_password(password)?;
+    let client = reqwest::Client::new();
+    let res = client.post(url).form(&params).send().await;
 
-    // TODO: Link frame id?
-    if let Ok(user) = user {
-        let _ = sqlx::query!(
-            r#"
-                UPDATE User SET password = ? WHERE id = ?;
-            "#,
-            hashed_password,
-            user.id,
-        )
-        .execute(mysql_pool)
+    let res = match res {
+        Ok(res) => res,
+        Err(err) => {
+            return Err((StatusCode::BAD_REQUEST, err.to_string()));
+        }
+    };
+
+    if res.status() != reqwest::StatusCode::OK {
+        return Err((
+            StatusCode::from_u16(res.status().as_u16()).expect("invalid status code"),
+            "Auth0 authentication error".to_string(),
+        ));
+    }
+
+    let token = res
+        .json::<Auth0LoginRes>()
         .await
-        .map_err(|_| "Error updating user.")?;
-    } else {
-        let _ = sqlx::query!(
-            r#"
-                INSERT INTO User (name, password) VALUES (?, ?);
-            "#,
-            username,
-            hashed_password,
-        )
-        .execute(mysql_pool)
+        .map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                "error getting token from Auth0 response".to_string(),
+            )
+        })?
+        .access_token;
+
+    Ok(token)
+}
+
+/// retrieve user info from Auth0 /userinfo endpoint
+pub async fn get_user_metadata(token: &str) -> Result<String, String> {
+    // specs
+    let auth0_domain = var("AUTH0_DOMAIN").expect("domain not set");
+    let url = format!("https://{auth0_domain}/userinfo");
+
+    // get response from Auth0
+    let client = reqwest::Client::new();
+    let res = client
+        .get(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .send()
         .await
-        .map_err(|_| "Error creating user.")?;
+        .map_err(|_| "Error retrieving user info")?;
+
+    let user_info = res
+        .json::<UserInfo>()
+        .await
+        .map_err(|_| "Error getting metadata".to_string())?;
+
+    let user_metadata = user_info.metadata;
+
+    let user_metadata = serde_json::to_string(&user_metadata).map_err(|err| err.to_string())?;
+
+    Ok(user_metadata)
+}
+
+/// login with test username/password and store in redis
+/// return if already initialized
+pub async fn init_test_user() -> Result<(), String> {
+    dotenv::dotenv().ok();
+
+    let test_token = var("AUTH0_TEST_TOKEN").expect("test token not set");
+
+    // get redis connection
+    let clients = global::clients::get();
+    let redis_client = clients.redis_client();
+    let mut redis_connection = redis_client
+        .get_multiplexed_async_connection()
+        .await
+        .map_err(|_| "error getting redis connection".to_string())?;
+
+    if !redis_connection
+        .exists::<&String, bool>(&test_token)
+        .await
+        .unwrap()
+    {
+        let test_username = var("AUTH0_TEST_USERNAME").expect("test username not set");
+        let test_password = var("AUTH0_TEST_PASSWORD").expect("test password not set");
+        let expiration_time_seconds: u64 = 24 * 60 * 60; // 24 hours
+
+        let token = get_token(test_username, test_password)
+            .await
+            .map_err(|err| err.1)?;
+
+        let test_user_metadata = get_user_metadata(token.as_str()).await?;
+
+        // store token and user info in redis
+        let _: () = redis_connection
+            .set_ex(
+                test_token.as_str(),
+                test_user_metadata,
+                expiration_time_seconds,
+            )
+            .await
+            .map_err(|_| "error storing token to redis")?;
     }
 
     Ok(())
 }
 
-/// Create admin user with username and password.
-/// If user already exists, update password.
-pub async fn create_admin_user() -> Result<(), String> {
-    let admin_username = var("ADMIN_USERNAME").expect("ADMIN_USERNAME is not set");
-    let admin_password = var("ADMIN_PASSWORD").expect("ADMIN_PASSWORD is not set");
+/// get UserData for test user
+async fn get_test_user() -> Result<UserData, String> {
+    dotenv::dotenv().ok();
 
-    let app_state = global::clients::get();
-    let mysql_pool = app_state.mysql_pool();
+    let test_token = var("AUTH0_TEST_TOKEN").expect("test token not set");
 
-    // Delete existing admin user
-    let _ = sqlx::query!(
-        r#"
-            DELETE FROM User WHERE name = ?;
-        "#,
-        admin_username,
-    )
-    .execute(mysql_pool)
-    .await
-    .map_err(|_| "Error deleting admin user.")?;
+    let test_user = verify_token(test_token.as_str()).await;
 
-    let hashed_password = hash_password(&admin_password)?;
+    if let Ok(user) = test_user {
+        return Ok(user);
+    } else {
+        init_test_user().await?;
+    }
 
-    // TODO: Link frame id?
-    let _ = sqlx::query!(
-        r#"
-            INSERT INTO User (name, password) VALUES (?, ?);
-        "#,
-        admin_username,
-        hashed_password,
-    )
-    .execute(mysql_pool)
-    .await
-    .map_err(|_| "Error creating admin user.")?;
+    verify_token(test_token.as_str())
+        .await
+        .map_err(|_| "error initializing test user".to_string())
+}
 
-    Ok(())
+/// get UserContext for test user
+pub async fn get_test_user_context() -> Result<UserContext, String> {
+    let test_user = get_test_user().await?;
+
+    let clients = global::clients::get();
+
+    Ok(UserContext {
+        user_id: test_user.id,
+        username: test_user.name,
+        clients,
+    })
 }

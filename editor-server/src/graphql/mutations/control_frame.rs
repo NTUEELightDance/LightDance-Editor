@@ -287,7 +287,7 @@ impl ControlFrameMutation {
                                 dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
-                                "COLOR": ControlDataType,
+                                "COLOR",
                                 _data[0],
                                 _data[1],
                             )
@@ -309,7 +309,7 @@ impl ControlFrameMutation {
                                     dancer_id,
                                     part.part_id,
                                     new_control_frame_id,
-                                    "EFFECT": ControlDataType,
+                                    "EFFECT",
                                     effect_id,
                                     alpha,
                                 )
@@ -325,7 +325,7 @@ impl ControlFrameMutation {
                                     dancer_id,
                                     part.part_id,
                                     new_control_frame_id,
-                                    "EFFECT": ControlDataType,
+                                    "EFFECT",
                                     alpha,
                                 )
                                 .execute(mysql)
@@ -359,7 +359,7 @@ impl ControlFrameMutation {
                                 dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
-                                "COLOR": ControlDataType,
+                                "COLOR",
                                 -1,
                                 0,
                             )
@@ -377,7 +377,7 @@ impl ControlFrameMutation {
                                 dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
-                                "EFFECT": ControlDataType,
+                                "EFFECT",
                                 -1,
                                 0,
                             )
@@ -815,12 +815,6 @@ impl ControlFrameMutation {
         Subscriptor::publish(control_record_payload);
 
         update_revision(mysql).await?;
-
-        // logging
-        println!(
-            "Control frame #{} is deleted by user #{}",
-            frame_id, context.user_id
-        );
 
         Ok("ok".to_string())
     }

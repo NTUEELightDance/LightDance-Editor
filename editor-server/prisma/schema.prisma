@@ -51,23 +51,11 @@ model LEDEffect {
   @@unique([name, model_id, part_id])
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  name     String @unique
-  password String
-
-  // relation => not in db
-  editing_positionFrame_id EditingPositionFrame?
-  editing_controlFrame_id  EditingControlFrame?
-  editing_led_effect_id    EditingLEDEffect?
-}
-
 model EditingPositionFrame {
   user_id  Int  @id
   frame_id Int? @unique
 
   // relation => not in db
-  user         User           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   editingFrame PositionFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
@@ -76,7 +64,6 @@ model EditingControlFrame {
   frame_id Int? @unique
 
   // relation => not in db
-  user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   editing_frame ControlFrame? @relation(fields: [frame_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
@@ -85,7 +72,6 @@ model EditingLEDEffect {
   led_effect_id Int? @unique
 
   // relation => not in db
-  user               User       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   editing_led_effect LEDEffect? @relation(fields: [led_effect_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 

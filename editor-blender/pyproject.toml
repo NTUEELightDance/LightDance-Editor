@@ -14,6 +14,7 @@ dependencies = [
   "websockets",
   "pip",
   "pyright",
+  "tzdata",
 ]
 license = "MIT"
 

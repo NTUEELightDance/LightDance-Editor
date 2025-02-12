@@ -135,7 +135,11 @@ def apply_led_map_updates_update():
 
 
 def remove_effect_in_editing_status(effect_id: LEDEffectID):
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer in state.dancers_array:
+        if not show_dancer_dict[dancer.name]:
+            continue
+
         dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
             part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")

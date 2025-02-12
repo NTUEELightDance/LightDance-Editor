@@ -94,14 +94,12 @@ pub async fn upload_data(
             .execute(mysql)
             .await;
 
-        println!("DB cleared");
-
         let mut tx = mysql.begin().await.into_result()?;
 
         // HashMap<ColorName, ColorID>
         let mut color_dict: HashMap<&String, i32> = HashMap::new();
         let color_progress = ProgressBar::new(data_obj.color.len().try_into().unwrap_or_default());
-        println!("Create Colors...");
+
         for (color_key, color_code) in &data_obj.color {
             let color_id = sqlx::query!(
                 r#"
@@ -129,8 +127,6 @@ pub async fn upload_data(
 
         let dancer_progress =
             ProgressBar::new(data_obj.dancer.len().try_into().unwrap_or_default());
-
-        println!("Create Dancers...");
 
         for dancer in &data_obj.dancer {
             // Create model if not exist
@@ -224,8 +220,6 @@ pub async fn upload_data(
         let led_progress =
             ProgressBar::new(data_obj.led_effects.len().try_into().unwrap_or_default());
 
-        println!("Create LED Effects...");
-
         for (model_name, dancer_effects) in &data_obj.led_effects {
             let mut model_effect_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
 
@@ -240,7 +234,6 @@ pub async fn upload_data(
             for (part_name, effects) in dancer_effects {
                 let mut part_effect_dict: HashMap<&String, i32> = HashMap::new();
 
-                println!("Part: {}", part_name);
                 let part = all_part
                     .get(part_name)
                     .ok_or(format!("Error: Unknown Part Name {part_name}"))
@@ -303,8 +296,6 @@ pub async fn upload_data(
         let position_progress =
             ProgressBar::new(data_obj.position.len().try_into().unwrap_or_default());
 
-        println!("Create Position Data...");
-
         for frame_obj in data_obj.position.values() {
             if frame_obj.location.len() != data_obj.dancer.len() {
                 return Err((
@@ -359,8 +350,6 @@ pub async fn upload_data(
 
         let control_progress =
             ProgressBar::new(data_obj.control.len().try_into().unwrap_or_default());
-
-        println!("Create Control Data...");
 
         for frame_obj in data_obj.control.values() {
             if frame_obj.status.len() != data_obj.dancer.len() {
@@ -456,7 +445,6 @@ pub async fn upload_data(
         .into_result()?;
 
         tx.commit().await.into_result()?;
-        println!("Upload Finish!");
 
         init_redis_control(clients.mysql_pool(), clients.redis_client())
             .await

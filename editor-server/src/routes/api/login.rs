@@ -1,7 +1,5 @@
-use crate::db::types::user::UserData;
 use crate::global;
-use crate::utils::authentication;
-
+use crate::utils::authentication::{get_token, get_user_metadata, init_test_user};
 use axum::{http::HeaderMap, http::StatusCode, response::Json};
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
@@ -30,12 +28,14 @@ pub async fn login(
     query: Json<LoginQuery>,
 ) -> Result<(StatusCode, (HeaderMap, Json<LoginResponse>)), (StatusCode, Json<LoginFailedResponse>)>
 {
-    // Check env type
+    dotenv::dotenv().ok();
+
     let env_type = &global::envs::get().env;
 
     if env_type == "development" {
-        // Set cookie
-        let token = "testToken";
+        let _ = init_test_user().await;
+
+        let token = var("AUTH0_TEST_TOKEN").expect("test token not set");
         let http_only = true;
 
         let mut header = HeaderMap::new();
@@ -46,71 +46,56 @@ pub async fn login(
                 .unwrap(),
         );
 
-        let login_response = LoginResponse {
-            token: "testToken".to_string(),
-        };
+        let login_response = LoginResponse { token };
 
         Ok((StatusCode::OK, (header, Json(login_response))))
     } else {
-        // // Check query
-        // let query = match query {
-        //     Some(query) => query.0,
-        //     None => {
-        //         return Err((
-        //             StatusCode::BAD_REQUEST,
-        //             Json(LoginFailedResponse {
-        //                 err: "No query.".to_string(),
-        //             }),
-        //         ))
-        //     }
-        // };
+        let username = query.username.clone();
+        let password = query.password.clone();
 
-        // Get app state
-        let clients = global::clients::get();
+        // get token
+        let token = get_token(username, password)
+            .await
+            .map_err(|err| (err.0, Json(LoginFailedResponse { err: err.1 })))?;
 
-        // Query user
-        let mysql_pool = clients.mysql_pool();
-        let user = sqlx::query_as!(
-            UserData,
-            r#"
-                SELECT * FROM User WHERE name = ? LIMIT 1;
-            "#,
-            query.username
-        )
-        .fetch_one(mysql_pool)
-        .await
-        .map_err(|_| {
-            (
-                StatusCode::NOT_FOUND,
-                Json(LoginFailedResponse {
-                    err: "User not found.".to_string(),
-                }),
-            )
-        })?;
-
-        if !authentication::compare_password(&query.password, &user.password) {
-            return Err((
-                StatusCode::UNAUTHORIZED,
-                Json(LoginFailedResponse {
-                    err: "Password incorrect.".to_string(),
-                }),
-            ));
-        }
+        // get user info
+        let user_metadata = get_user_metadata(token.as_str())
+            .await
+            .map_err(|err| (StatusCode::NOT_FOUND, Json(LoginFailedResponse { err })))?;
 
         // Get expiration time from env
-        let expiration_time_hours = match var("TOKEN_EXPIRATION_TIME_HOURS") {
-            Ok(expiration_time_hours) => expiration_time_hours.parse::<usize>().unwrap(),
+        let expiration_time_hours: u64 = match var("TOKEN_EXPIRATION_TIME_HOURS") {
+            Ok(expiration_time_hours) => expiration_time_hours.parse::<u64>().unwrap(),
             Err(_) => 24,
         };
-        let expiration_time_seconds = expiration_time_hours * 60 * 60;
+        let expiration_time_seconds: u64 = expiration_time_hours * 60 * 60;
 
-        // Generate token and store it in redis
+        // store token and user info in redis
+        let clients = global::clients::get();
         let redis_client = clients.redis_client();
-        let mut conn = redis_client.get_tokio_connection().await.unwrap();
+        let mut redis_connection = redis_client
+            .get_multiplexed_async_connection()
+            .await
+            .map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(LoginFailedResponse {
+                        err: "error getting redis connection".to_string(),
+                    }),
+                )
+            })?;
 
-        let token = authentication::generate_csrf_token();
-        let _: Result<(), _> = conn.set_ex(&token, user.id, expiration_time_seconds).await;
-        let _: Result<(), _> = conn.set_ex(user.id, &token, expiration_time_seconds).await;
+        let _: () = redis_connection
+            .set_ex(token.as_str(), user_metadata, expiration_time_seconds)
+            .await
+            .map_err(|_| {
+                (
+                    StatusCode::BAD_REQUEST,
+                    Json(LoginFailedResponse {
+                        err: "error storing token in redis".to_string(),
+                    }),
+                )
+            })?;
 
         // Set cookie
         let http_only = true;

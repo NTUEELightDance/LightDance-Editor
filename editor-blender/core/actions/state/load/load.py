@@ -10,8 +10,9 @@ from ....utils.ui import update_user_log
 from ..current_pos import update_current_pos_by_index
 from .animation import setup_animation_data
 from .display import setup_display
+from .floor import setup_floor
 from .music import setup_music
-from .objects import setup_floor, setup_objects
+from .objects import setup_objects
 from .render import setup_render
 
 
@@ -56,7 +57,9 @@ async def fetch_data(reload: bool = False):
 
         try:
             url_set: set[tuple[str, bool]] = set()
-            for tag in ["Waveform", "Music", "LightPresets", "PosPresets"]:
+            for tag in ["Beat", "Waveform", "Music", "LightPresets", "PosPresets"]:
+                if tag not in local_load_hash:
+                    local_load_hash[tag] = None
                 hash_match = not new_load_hash and (
                     assets_load_hash[tag] == local_load_hash[tag]
                 )

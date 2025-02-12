@@ -84,7 +84,7 @@ class AsyncLoopModalOperator(bpy.types.Operator):
         is_async_loop_running = True
 
         wm = context.window_manager
-        self.timer = wm.event_timer_add(0.001, window=context.window)
+        self.timer = wm.event_timer_add(0.5, window=context.window)
 
         logger.info("Starting asyncio loop...")
         execute_operator("lightdance.setup_blender")

@@ -56,6 +56,7 @@ const createHash = (hashJson, loadJson, dataPaths) => {
 };
 
 let hashJson = {};
+createHash(hashJson, loadJson, ["Beat"])
 createHash(hashJson, loadJson, ["Music"]);
 createHash(hashJson, loadJson, ["Waveform"]);
 createHash(hashJson, loadJson, ["LightPresets"]);

@@ -240,7 +240,11 @@ async def paste_part() -> bool:
 def override_control(control_frame: ControlMapElement):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer in state.dancers_array:
+        if not show_dancer_dict[dancer.name]:
+            continue
+
         status = control_frame.status[dancer.name]
         dancer_index = state.dancer_part_index_map[dancer.name].index
 
@@ -340,10 +344,15 @@ def copy_pos_frame():
     clipboard.pos_frame = current_frame
 
 
+# TODO Not sure about this yet
 def override_pos(pos_frame: PosMapElement):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancer_names:
+        if not show_dancer_dict[dancer_name]:
+            continue
+
         location = pos_frame.pos[dancer_name].location
         rotation = pos_frame.pos[dancer_name].rotation
         dancer_obj = data_objects[dancer_name]

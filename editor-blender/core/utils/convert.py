@@ -224,8 +224,13 @@ def control_status_state_to_mut(
 ) -> list[MutDancerStatusPayload]:
     mut_dancer_status_payload: list[MutDancerStatusPayload] = []
 
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
     for dancer in state.dancers_array:
         dancer_name = dancer.name
+        if not show_dancer_dict[dancer_name]:
+            continue
+
         dancer_status = control_status.get(dancer_name)
         if dancer_status is None:
             raise Exception("Dancer status not found")
@@ -389,17 +394,26 @@ def pos_modify_to_animation_data(
     pos_add: list[tuple[MapID, PosMapElement]],
 ) -> PosModifyAnimationData:
     new_map: PosModifyAnimationData = {}
+
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
     for dancer in state.dancers_array:
+        if not show_dancer_dict[dancer.name]:
+            continue
         new_map[dancer.name] = ([], [], [])
 
     for old_start, _ in pos_delete:
         for _, dancer_item in enumerate(state.dancers_array):
+            if not show_dancer_dict[dancer_item.name]:
+                continue
             dancer = dancer_item.name
             new_map[dancer_item.name][0].append(old_start)
 
     for old_start, _, frame in pos_update:
         pos_status = frame.pos
         for _, dancer_item in enumerate(state.dancers_array):
+            if not show_dancer_dict[dancer_item.name]:
+                continue
             pos = pos_status[dancer_item.name]
             dancer = dancer_item.name
             new_map[dancer_item.name][1].append(
@@ -414,6 +428,8 @@ def pos_modify_to_animation_data(
     for _, frame in pos_add:
         pos_status = frame.pos
         for _, dancer_item in enumerate(state.dancers_array):
+            if not show_dancer_dict[dancer_item.name]:
+                continue
             pos = pos_status[dancer_item.name]
             dancer = dancer_item.name
             new_map[dancer_item.name][2].append(
@@ -488,7 +504,10 @@ def control_modify_to_animation_data(
     control_add: list[tuple[MapID, ControlMapElement]],
 ) -> ControlModifyAnimationData:
     new_map: ControlModifyAnimationData = {}
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancers_array:
+        if not show_dancer_dict[dancer_name.name]:
+            continue
         new_map[dancer_name.name] = {}
         for part in dancer_name.parts:
             if part.type == PartType.LED:
@@ -506,6 +525,8 @@ def control_modify_to_animation_data(
     for old_start, _ in control_delete:
         for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
             parts = dancer_item.parts
 
             for _, part in enumerate(parts):
@@ -524,6 +545,9 @@ def control_modify_to_animation_data(
     for old_start, _, frame in control_update:
         for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
+
             parts = dancer_item.parts
 
             for _, part in enumerate(parts):
@@ -571,6 +595,9 @@ def control_modify_to_animation_data(
     for _, frame in control_add:
         for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
+
             parts = dancer_item.parts
 
             for _, part in enumerate(parts):
@@ -625,7 +652,10 @@ def control_add_to_animation_data(
     control_add: list[tuple[MapID, ControlMapElement]],
 ) -> ControlAddAnimationData:
     new_map: ControlAddAnimationData = {}
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancers_array:
+        if not show_dancer_dict[dancer_name.name]:
+            continue
         new_map[dancer_name.name] = {}
         for part_name in dancer_name.parts:
             new_map[dancer_name.name][part_name.name] = []
@@ -637,6 +667,9 @@ def control_add_to_animation_data(
     for _, frame in control_add:
         for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
+
             parts = dancer_item.parts
 
             for _, part in enumerate(parts):
@@ -688,10 +721,13 @@ def control_add_to_animation_data(
 
 
 def control_delete_to_animation_data(
-    control_delete: list[tuple[int, MapID]]
+    control_delete: list[tuple[int, MapID]],
 ) -> ControlDeleteAnimationData:
     new_map: ControlDeleteAnimationData = {}
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancers_array:
+        if not show_dancer_dict[dancer_name.name]:
+            continue
         new_map[dancer_name.name] = {}
         for part_name in dancer_name.parts:
             new_map[dancer_name.name][part_name.name] = []
@@ -699,6 +735,8 @@ def control_delete_to_animation_data(
     for old_start, _ in control_delete:
         for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
             parts = dancer_item.parts
 
             for _, part in enumerate(parts):
@@ -724,7 +762,10 @@ def control_update_to_animation_data(
     control_update: list[tuple[int, MapID, ControlMapElement]],
 ) -> ControlUpdateAnimationData:
     new_map: ControlUpdateAnimationData = {}
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancers_array:
+        if not show_dancer_dict[dancer_name.name]:
+            continue
         new_map[dancer_name.name] = {}
         for part_name in dancer_name.parts:
             new_map[dancer_name.name][part_name.name] = []
@@ -736,6 +777,9 @@ def control_update_to_animation_data(
     for old_start, _, frame in control_update:
         for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
+
             parts = dancer_item.parts
 
             for _, part in enumerate(parts):
@@ -791,7 +835,10 @@ def control_map_to_animation_data(
     control_map: list[tuple[MapID, ControlMapElement]],
 ) -> ControlAnimationData:
     new_map: ControlAnimationData = {}
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancers_array:
+        if not show_dancer_dict[dancer_name.name]:
+            continue
         new_map[dancer_name.name] = {}
         for part_name in dancer_name.parts:
             new_map[dancer_name.name][part_name.name] = []
@@ -802,6 +849,8 @@ def control_map_to_animation_data(
 
     for _, frame in control_map:
         for _, dancer_item in enumerate(state.dancers_array):
+            if not show_dancer_dict[dancer_item.name]:
+                continue
             dancer_name = dancer_item.name
             parts = dancer_item.parts
 

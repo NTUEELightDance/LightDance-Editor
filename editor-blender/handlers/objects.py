@@ -163,8 +163,9 @@ def handle_autoselect_in_control_editor_part_mode():
 
         elif is_human(active_obj):
             active_obj = active_obj.parent
-            active_obj.select_set(True)  # type: ignore
-            bpy.context.view_layer.objects.active = active_obj
+            if active_obj:
+                active_obj.select_set(True)  # type: ignore
+                bpy.context.view_layer.objects.active = active_obj
 
     # Invisible selected objects only show up in view_layer.objects.selected
     context_selected_objects: list[bpy.types.Object] = []

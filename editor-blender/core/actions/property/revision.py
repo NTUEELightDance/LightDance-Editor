@@ -1,5 +1,6 @@
 import bpy
 
+from ....core.states import state
 from ....properties.types import RevisionPropertyType
 from ...log import logger
 from ...models import ControlMap, ControlMapElement, MapID, PosMap, PosMapElement
@@ -25,6 +26,7 @@ def update_rev_changes(
     if not bpy.context:
         return
     # position
+
     ld_pos_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_pos_rev")
     local_rev = [
         (rev.frame_id, rev.frame_start, rev.meta, rev.data) for rev in ld_pos_rev
@@ -141,7 +143,12 @@ def update_rev_changes(
     sorted_ctrl_map = sorted(
         incoming_control_map.items(), key=lambda item: item[1].start
     )
-    fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
+    filtered_ctrl_map = [
+        ctrl_item
+        for ctrl_item in sorted_ctrl_map
+        if ctrl_item[0] not in state.not_loaded_control_frames
+    ]
+    fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
 
     # delete_frames = [frame[0] for frame in control_delete]
     # update_frames = [(frame[0], frame[2].start) for frame in control_update]

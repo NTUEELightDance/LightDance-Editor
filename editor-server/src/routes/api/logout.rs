@@ -1,5 +1,4 @@
 use crate::global;
-
 use axum::{http::StatusCode, response::Json};
 use axum_extra::extract::CookieJar;
 use redis::AsyncCommands;
@@ -21,19 +20,6 @@ pub struct LogoutFailedResponse {
 pub async fn logout(
     cookie_jar: CookieJar,
 ) -> Result<(StatusCode, Json<LogoutResponse>), (StatusCode, Json<LogoutFailedResponse>)> {
-    // Get token from cookie jar
-    // let cookie_jar = match cookie_jar {
-    //     Some(cookie_jar) => cookie_jar,
-    //     None => {
-    //         return Err((
-    //             StatusCode::INTERNAL_SERVER_ERROR,
-    //             Json(LogoutFailedResponse {
-    //                 err: "Failed to retrieve cookies.".to_string(),
-    //             }),
-    //         ))
-    //     }
-    // };
-
     let token = match cookie_jar.get("token") {
         Some(token) => token.value().to_string(),
         None => {
@@ -46,24 +32,29 @@ pub async fn logout(
         }
     };
 
-    // Get app state
+    // remove token from redis
     let clients = global::clients::get();
-
-    // Generate token and store it in redis
     let redis_client = clients.redis_client();
-    let mut conn = redis_client.get_tokio_connection().await.unwrap();
+    let mut redis_connection = redis_client
+        .get_multiplexed_async_connection()
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(LogoutFailedResponse {
+                    err: "error getting redis connection".to_string(),
+                }),
+            )
+        })?;
 
-    let id: String = conn.get(&token).await.map_err(|_| {
+    let _: () = redis_connection.del(token.as_str()).await.map_err(|_| {
         (
-            StatusCode::UNAUTHORIZED,
+            StatusCode::BAD_REQUEST,
             Json(LogoutFailedResponse {
-                err: "Unauthorized.".to_string(),
+                err: "error deleting token from redis".to_string(),
             }),
         )
     })?;
-
-    let _: Result<(), _> = conn.del(&id).await;
-    let _: Result<(), _> = conn.del(&token).await;
 
     Ok((StatusCode::OK, Json(LogoutResponse { success: true })))
 }

@@ -2,40 +2,17 @@
 //! The callbacks are used to authenticate user when a connection is established.
 //! and clean up the database when a connection is closed.
 
-use crate::db::types::user::UserData;
 use crate::global;
 use crate::types::global::UserContext;
-use crate::utils::authentication::verify_token;
-
+use crate::utils::authentication::{get_test_user_context, verify_token};
 use std::env::var;
 
 /// Callback for websocket connection
 /// A user context is returned if the connection is successful
 /// The context will be used to clean up the database when the connection is closed
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
-    // Use test user in development
-    if var("ENV").map_err(|_| "ENV not set")? == "development" {
-        let clients = global::clients::get();
-        let mysql_pool = clients.mysql_pool();
-
-        let test_user = sqlx::query_as!(
-            UserData,
-            r#"
-                SELECT * FROM User ORDER BY id LIMIT 1;
-            "#,
-        )
-        .fetch_one(mysql_pool)
-        .await;
-
-        if let Ok(test_user) = test_user {
-            Ok(UserContext {
-                username: test_user.name,
-                user_id: test_user.id,
-                clients,
-            })
-        } else {
-            Err("No test user found".to_string())
-        }
+    if var("ENV").expect("ENV not set") == "development" {
+        get_test_user_context().await
     } else {
         let token = match _connection_params.get("token") {
             Some(token) => token.as_str(),
@@ -48,18 +25,7 @@ pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<User
         };
 
         let clients = global::clients::get();
-        let user = verify_token(clients, &token).await?;
-
-        // let user = match verify_token(clients, &token).await {
-        //     Ok(user) => {
-        //         println!("WS User: {:?}", user);
-        //         user
-        //     },
-        //     Err(err) => {
-        //         println!("WS User Error: {:?}", err);
-        //         return Err("Unauthorized".to_string());
-        //     },
-        // };
+        let user = verify_token(&token).await?;
 
         Ok(UserContext {
             username: user.name,
