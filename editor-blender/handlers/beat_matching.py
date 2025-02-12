@@ -10,6 +10,7 @@ from gpu_extras import batch as g_batch
 from ..core.config import config
 from ..core.log import logger
 from ..core.states import state
+from ..core.utils.algorithms import binary_search_for_range
 from ..core.utils.ui import redraw_area
 
 
@@ -65,7 +66,14 @@ def mount():
     top_row = list(map(int, top_row))
     data = list(map(int, data))
 
-    state.music_beats = data
+    frame_range_l, frame_range_r = state.dancer_load_frames
+    filtered_data_start, filtered_data_end = binary_search_for_range(
+        data, frame_range_l, frame_range_r
+    )
+    filtered_data = data[filtered_data_start : filtered_data_end + 1]
+
+    state.music_beats = filtered_data
+
     state.scene_start_point = top_row
 
     # Add timeline marker for the start point of each scene
@@ -128,7 +136,7 @@ def mount():
     # Create batches for drawing lines
     top = region.view2d.region_to_view(0, region.height)[1]
 
-    for x in data:
+    for x in filtered_data:
         points = [
             (x, top * (-0.55)),
             (x, top * 0.46),
@@ -154,5 +162,6 @@ def unmount():
             beat_settings.handle_dope, "WINDOW"
         )
         beat_settings.handle_dope = None
+        beat_settings.batches = []
 
     redraw_area({"DOPESHEET_EDITOR"})

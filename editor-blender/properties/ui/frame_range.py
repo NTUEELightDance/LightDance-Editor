@@ -34,7 +34,7 @@ def register():
     setattr(
         bpy.types.WindowManager,
         "ld_ui_frame_range_max",
-        bpy.props.IntProperty(min=1, update=update_frame_range_max),
+        bpy.props.IntProperty(min=1, default=1, update=update_frame_range_max),
     )
 
 
