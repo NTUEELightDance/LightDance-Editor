@@ -1,9 +1,5 @@
 # Editor Server
 
-## When `entities` changes
-
-When you change the entities, you need to manually generate the migration files and migrate the database.
-
 ### 1. Spin up database
 
 ```sh
@@ -41,13 +37,21 @@ If you have initialized the database before, and you want to get a clean databas
 2. Delete the `data` folder
 3. follow the steps above to initialize the database again
 
-## Tip
+## How to create a new migration
 
-If you want to browse the database with a GUI
+1. Create a new migration file `mXXXXXXXX_XXXXX_${File Name}.rs` under `Lightdance-Editor/editor-server/seaorm/migration/src` by typing
 
 ```sh
-# Lightdance-Editor/editor-server
-npx prisma studio
+# Lightdance-Editor/editor-server/seaorm
+sea-orm-cli migrate generate ${File Name}
+```
+
+2. Manually modify the file
+3. Renew the `entities` directory by typing
+
+```sh
+# Lightdance-Editor/editor-server/seaorm
+sea-orm-cli generate entity -o src/entities --overwrite --database-url "mysql://root:password@localhost:3306/editor"
 ```
 
 ## User Management with Auth0
