@@ -5,7 +5,7 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "EditingControlFrame")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false, unique)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub user_id: i32,
     #[sea_orm(unique)]
     pub frame_id: Option<i32>,

@@ -51,7 +51,7 @@ sea-orm-cli migrate generate ${File Name}
 
 ```sh
 # Lightdance-Editor/editor-server/seaorm
-sea-orm-cli generate entity -o src/entities --overwrite --database-url "mysql://root:password@localhost:3306/editor"
+sea-orm-cli generate entity -o src/entities --database-url "mysql://root:password@localhost:3306/editor"
 ```
 
 ## User Management with Auth0
