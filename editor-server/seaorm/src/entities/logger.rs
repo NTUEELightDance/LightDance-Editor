@@ -10,7 +10,7 @@ pub struct Model {
     pub user: i32,
     pub variable_value: Option<Json>,
     pub field_name: String,
-    pub time: DateTime,
+    pub time: DateTimeUtc,
     pub status: String,
     pub error_message: Option<Json>,
     pub result: Option<Json>,
