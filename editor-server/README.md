@@ -1,8 +1,8 @@
 # Editor Server
 
-## When `prisma.schema` changes
+## When `entities` changes
 
-When you change the prisma schema, you need to regenerate the prisma client code and migrate the database.
+When you change the entities, you need to manually generate the migration files and migrate the database.
 
 ### 1. Spin up database
 
@@ -11,11 +11,11 @@ When you change the prisma schema, you need to regenerate the prisma client code
 docker compose -f dev.docker-compose.yml up -d
 ```
 
-### 2. Migrate prisma
+### 2. Migrate seaORM
 
 ```sh
 # Lightdance-Editor/editor-server
-cargo prisma migrate dev --skip-generate
+cargo seaorm migrate
 ```
 
 ### 3. Run editor-server
@@ -39,8 +39,7 @@ If you have initialized the database before, and you want to get a clean databas
 
 1. shutdown the database with `docker compose -f dev.docker-compose.yml down`
 2. Delete the `data` folder
-3. Delete the `editor-server/prisma/migrations` folder
-4. follow the steps above to initialize the database again
+3. follow the steps above to initialize the database again
 
 ## Tip
 

@@ -1,2 +1,2 @@
 [alias]
-prisma = "run -p prisma --"
+seaorm = "run -p seaorm --"
