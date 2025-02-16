@@ -24,10 +24,11 @@ repos:
     rev: 23.12.1
     hooks:
       - id: black
-        files: ^editor-blender/
+        files: ^(editor-blender|command-center)/
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
-        files: ^editor-blender/
+        files: ^(editor-blender|command-center)/
+

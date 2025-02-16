@@ -1,0 +1,50 @@
+Button {
+  padding: 0;
+  margin: 1 2;
+  border: none;
+  color: white;
+  height: 1;
+  min-width: 1;
+}
+
+Toast {
+  height: 1;
+  margin: 0;
+  padding: 0;
+}
+
+Horizontal {
+  overflow-x: auto;
+  height: 1fr
+}
+
+#control-panel-buttons {
+  width: 1fr;
+  background: #000;
+}
+
+#control-panel-2 {
+  width: 2fr;
+}
+
+#color-input {
+  width: 10;
+  height: 3;
+  padding: 0;
+  margin: 0;
+}
+
+#control-danger-zone-label {
+  color: red;
+}
+
+#control-danger-zone > Button {
+  background: red;
+}
+
+#delay-input {
+  width: 10;
+  height: 3;
+  padding: 0;
+  margin: 0;
+}
