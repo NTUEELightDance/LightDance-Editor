@@ -147,7 +147,7 @@ fn filter_identical_frames(statuses: Vec<Status>) -> Vec<Status> {
 fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
     let mut interpolated_status: Vec<[f32; 4]> = vec![];
 
-    for segment in segments {
+    for segment in segments.clone() {
         if segment.len() < 2 {
             interpolated_status.extend_from_slice(&segment);
             continue;
@@ -159,16 +159,53 @@ fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
                 }
                 continue;
             }
-            for _ in 0..segment.len() - 1 {
-                interpolated_status.push(*segment.last().unwrap());
+            for i in 1..segment.len() {
+                let start_bulb = segments.last().unwrap()[0];
+                let end_bulb = segment[segment.len() - 1];
+
+                let r: f32 = start_bulb[0]
+                    + (end_bulb[0] - start_bulb[0])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+                let g: f32 = start_bulb[1]
+                    + (end_bulb[1] - start_bulb[1])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+                let b: f32 = start_bulb[2]
+                    + (end_bulb[2] - start_bulb[2])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+                let alpha: f32 = start_bulb[3]
+                    + (end_bulb[3] - start_bulb[3])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+
+                interpolated_status.push([r, g, b, alpha]);
             }
             continue;
         } else if segment.last().unwrap()[0] == -1.0 {
-            for _ in 0..segment.len() - 1 {
-                interpolated_status.push(segment[0]);
+            for i in 1..segment.len() {
+                let start_bulb = segment[0];
+                let end_bulb = segments[0].last().unwrap();
+
+                let r: f32 = start_bulb[0]
+                    + (end_bulb[0] - start_bulb[0]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+                let g: f32 = start_bulb[1]
+                    + (end_bulb[1] - start_bulb[1]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+                let b: f32 = start_bulb[2]
+                    + (end_bulb[2] - start_bulb[2]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+                let alpha: f32 = start_bulb[3]
+                    + (end_bulb[3] - start_bulb[3]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+
+                interpolated_status.push([r, g, b, alpha]);
             }
             continue;
         }
+
         let start_bulb = segment[0];
         let end_bulb = segment[segment.len() - 1];
 
@@ -480,28 +517,31 @@ pub async fn get_dancer_led_data(
                                 .ok_or("Bulbs data not found")
                                 .into_result()?;
 
+                            let bulbs_data = bulbs_data
+                                .iter()
+                                .map(|(_, _, color_id, alpha)| {
+                                    let color = color_map.get(color_id).unwrap_or(&Color {
+                                        r: 0,
+                                        g: 0,
+                                        b: 0,
+                                    });
+                                    [
+                                        color.r as f32,
+                                        color.g as f32,
+                                        color.b as f32,
+                                        *alpha as f32,
+                                    ]
+                                })
+                                .collect_vec();
+
+                            let segments = gradient_to_rgb_float(bulbs_data);
+                            let status = interpolate_gradient(segments);
+
                             frame_effect_datas
                                 .entry(start)
                                 .or_insert((start, fade, Vec::new()))
                                 .2
-                                .extend_from_slice(
-                                    &bulbs_data
-                                        .iter()
-                                        .map(|(_, _, color_id, alpha)| {
-                                            let color = color_map.get(color_id).unwrap_or(&Color {
-                                                r: 0,
-                                                g: 0,
-                                                b: 0,
-                                            });
-                                            [
-                                                color.r as f32,
-                                                color.g as f32,
-                                                color.b as f32,
-                                                *alpha as f32,
-                                            ]
-                                        })
-                                        .collect_vec(),
-                                );
+                                .extend_from_slice(&status);
                         }
                     }
                 }
@@ -509,10 +549,6 @@ pub async fn get_dancer_led_data(
                 let mut part_data = Vec::<Status>::new();
 
                 for (_, (start, fade, status)) in frame_effect_datas {
-                    let segments = gradient_to_rgb_float(status);
-
-                    let status = interpolate_gradient(segments);
-
                     part_data.push(Status {
                         start,
                         status,
