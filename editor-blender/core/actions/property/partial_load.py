@@ -10,6 +10,18 @@ def move_current_frame_to_min_loaded_frame():
     bpy.context.scene.frame_set(state.dancer_load_frames[0])
 
 
+def show_full_min_max_frame():
+    if bpy.context is None:
+        return
+    dopesheet_editor = next(
+        a for a in bpy.context.screen.areas if a.type == "DOPESHEET_EDITOR"
+    )
+    region = next(r for r in dopesheet_editor.regions if r.type == "WINDOW")
+    space = dopesheet_editor.spaces[0]
+    with bpy.context.temp_override(area=dopesheet_editor, region=region, space=space):
+        bpy.ops.anim.scene_range_frame()
+
+
 # set frame by such way does not trigger limits of frame_range_min/max
 def set_min_max_frame(min: int, max: int):
     if not bpy.context or min >= max:
@@ -18,6 +30,7 @@ def set_min_max_frame(min: int, max: int):
     setattr(bpy.context.window_manager, "ld_ui_frame_range_min", 0)
     setattr(bpy.context.window_manager, "ld_ui_frame_range_max", max)
     setattr(bpy.context.window_manager, "ld_ui_frame_range_min", min)
+    show_full_min_max_frame()
 
 
 def set_loaded_frame_at_full_range():

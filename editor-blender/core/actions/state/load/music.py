@@ -7,7 +7,7 @@ from ....config import config
 from ....states import state
 
 
-def setup_music(assets_load: dict[str, Any]):
+def setup_music():
     """
     set music
     """
@@ -16,7 +16,9 @@ def setup_music(assets_load: dict[str, Any]):
     scene = bpy.context.scene
     if not scene.sequence_editor:
         scene.sequence_editor_create()
-    music_filepath = os.path.normpath(config.ASSET_PATH + assets_load["Music"])
+    music_filepath = os.path.normpath(
+        config.ASSET_PATH + state.init_temps.assets_load["Music"]
+    )
     if scene.sequence_editor.sequences:
         sequence = cast(bpy.types.SoundSequence, scene.sequence_editor.sequences[0])
         scene.sequence_editor.sequences.remove(sequence)

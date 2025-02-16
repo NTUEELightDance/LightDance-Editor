@@ -11,6 +11,7 @@ from ..core.config import config
 from ..core.log import logger
 from ..core.states import state
 from ..core.utils.algorithms import binary_search_for_range
+from ..core.utils.convert import csv_second_to_miliseconds
 from ..core.utils.ui import redraw_area
 
 
@@ -57,14 +58,15 @@ def mount():
         reader = list(csv.reader(file))  # Convert reader object to list
 
     # Transpose and flatten (column-wise reading)
-    top_row = reader[0]
     data = [
-        reader[row][col] for col in range(len(reader[0])) for row in range(len(reader))
+        reader[row][col]
+        for col in range(len(reader[0]))
+        for row in range(1, len(reader))
+        if reader[row][col] != ""
     ]
 
-    # Ensure are integers
-    top_row = list(map(int, top_row))
-    data = list(map(int, data))
+    # Convert to miliseconds
+    data = list(map(csv_second_to_miliseconds, data))
 
     frame_range_l, frame_range_r = state.dancer_load_frames
     filtered_data_start, filtered_data_end = binary_search_for_range(
@@ -73,14 +75,6 @@ def mount():
     filtered_data = data[filtered_data_start : filtered_data_end + 1]
 
     state.music_beats = filtered_data
-
-    state.scene_start_point = top_row
-
-    # Add timeline marker for the start point of each scene
-    scene = bpy.data.scenes["Scene"]
-    for i, timepoint in enumerate(top_row):
-        marker_name = f"Scene {i+1}"
-        scene.timeline_markers.new(marker_name, frame=timepoint)
 
     # Find timeline region
     screen = cast(bpy.types.Screen, bpy.data.screens["Layout"])
@@ -136,7 +130,7 @@ def mount():
     # Create batches for drawing lines
     top = region.view2d.region_to_view(0, region.height)[1]
 
-    for x in filtered_data:
+    for x in state.music_beats:
         points = [
             (x, top * (-0.55)),
             (x, top * 0.46),

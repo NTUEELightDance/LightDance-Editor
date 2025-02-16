@@ -14,6 +14,7 @@ from .floor import setup_floor
 from .music import setup_music
 from .objects import setup_objects
 from .render import setup_render
+from .scene_marker import setup_scene_marker
 
 
 def parse_config(config_dict: dict[str, Any]):
@@ -136,7 +137,8 @@ async def init_assets():
     setup_display()
 
     await update_user_log("Setting up music...")
-    setup_music(state.init_temps.assets_load)
+    setup_music()
+    setup_scene_marker()
 
 
 async def load_data():

@@ -375,6 +375,10 @@ def time_to_frame(time: str) -> int:
     return (minutes * 60 + seconds) * 1000 + milliseconds
 
 
+def csv_second_to_miliseconds(second: str) -> int:
+    return int(float(second) * 1000)
+
+
 PosDeleteCurveData = list[int]
 PosUpdateCurveData = list[
     tuple[int, int, tuple[float, float, float], tuple[float, float, float]]

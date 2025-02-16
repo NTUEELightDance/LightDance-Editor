@@ -9,6 +9,7 @@ from gpu_extras import batch as g_batch
 
 from ..core.config import config
 from ..core.log import logger
+from ..core.states import state
 from ..core.utils.ui import redraw_area
 from ..storage import get_storage
 
@@ -88,9 +89,11 @@ def mount():
     milliseconds = int(length * samples_per_pixel / sample_rate * 1000)
 
     data_range = 1 << (wave_bits - 1)
+    frame_range_l, frame_range_r = state.dancer_load_frames
     point_coords = [
         (milliseconds * pos / (2 * length), val / data_range)
         for pos, val in enumerate(data)
+        if pos >= 2 * frame_range_l and pos <= 2 * frame_range_r
     ]
 
     # Find timeline region

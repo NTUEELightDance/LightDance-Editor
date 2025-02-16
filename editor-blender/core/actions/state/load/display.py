@@ -7,6 +7,8 @@ from ....utils.ui import set_dopesheet_filter
 
 
 # WARNING: This function will crash for now
+# Ref: Issues on context override https://projects.blender.org/blender/blender/issues/114736
+# -> May be fixed in the future
 def close_area(screen: bpy.types.Screen, area_ui_type: str):
     if not bpy.context:
         return
