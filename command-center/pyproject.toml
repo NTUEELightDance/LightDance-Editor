@@ -1,0 +1,31 @@
+[project]
+name = "command-center"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyright>=1.1.394",
+    "textual",
+    "textual-dev",
+    "websocket-client>=1.8.0",
+]
+
+[tool.pyright]
+pythonVersion = "3.12"
+
+typeCheckingMode = "standard"
+reportMissingTypeStubs = false
+
+reportUnusedVariable = "warning"
+reportUnusedImport = "warning"
+reportUnusedFunction = "warning"
+
+reportIncompatibleMethodOverride = false
+
+reportUnknownMemberType = false
+
+[tool.black]
+
+[tool.isort]
+profile = "black"
