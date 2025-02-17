@@ -39,6 +39,9 @@ def get_color_lists(
         ]
         color_list.sort(key=lambda x: x[1])
 
+        if getattr(self, "ld_light_type") == LightType.LED_BULB.value:
+            color_list.insert(0, ("[gradient]", "[gradient]", "", "MOD_ARRAY", -1))  # type: ignore
+
         return color_list  # pyright: ignore
 
     return []
@@ -58,6 +61,7 @@ def get_effect_lists(
         ]
         effect_lists.sort(key=lambda x: x[1])
 
+        effect_lists.insert(0, ("[Bulb Color]", "[Bulb Color]", "", "", 0))
         effect_lists.insert(0, ("no-change", "no-change", "", "", -1))
         return effect_lists  # pyright: ignore
 

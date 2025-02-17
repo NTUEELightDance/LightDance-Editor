@@ -15,6 +15,8 @@ from ..schemas.mutations import (
     EDIT_CONTROL_FRAME_TIME,
     REQUEST_EDIT_CONTROL_BY_ID,
     MutCancelEditControlResponse,
+    MutDancerLEDStatusPayload,
+    MutDancerStatusPayload,
     MutDeleteControlFrameInput,
     MutEditControlFrameInput,
     MutEditControlFrameTimeInput,
@@ -86,14 +88,20 @@ class ControlAgent:
         self,
         start: int,
         fade: bool,
-        controlData: list[list[tuple[ColorID | LEDEffectID, int]]],
+        controlData: list[MutDancerStatusPayload],
+        ledControlData: list[MutDancerLEDStatusPayload],
     ) -> str | None:
         """Add a new control frame to the control map."""
         try:
             response = await client.execute(
                 str,
                 ADD_CONTROL_FRAME,
-                {"start": start, "controlData": controlData, "fade": fade},
+                {
+                    "start": start,
+                    "controlData": controlData,
+                    "fade": fade,
+                    "ledControlData": ledControlData,
+                },
             )
             return response["addControlFrame"]
 
@@ -108,7 +116,8 @@ class ControlAgent:
     async def save_frame(
         self,
         id: MapID,
-        controlData: list[list[tuple[ColorID | LEDEffectID, int]]],
+        controlData: list[MutDancerStatusPayload],
+        ledControlData: list[MutDancerLEDStatusPayload],
         fade: bool | None = None,
         start: int | None = None,
     ):
@@ -122,7 +131,10 @@ class ControlAgent:
                     EDIT_CONTROL_FRAME,
                     {
                         "input": MutEditControlFrameInput(
-                            frameId=id, controlData=controlData, fade=fade
+                            frameId=id,
+                            controlData=controlData,
+                            ledBulbData=ledControlData,
+                            fade=fade,
                         )
                     },
                 )

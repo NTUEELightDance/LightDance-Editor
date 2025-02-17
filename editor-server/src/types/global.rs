@@ -14,9 +14,6 @@ pub struct UserContext {
     pub clients: &'static AppClients,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartControl(pub i32, pub i32); // [id: number, alpha: number]
-
 impl From<String> for PartType {
     fn from(data: String) -> Self {
         match data.as_str() {
@@ -34,6 +31,10 @@ pub enum PartType {
     FIBER,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)] // [id: number, alpha: number]
+pub struct PartControl(pub i32, pub i32);
+pub type PartControlBulbs = Vec<(String, i32)>;
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PositionData {
     pub start: i32,
@@ -43,6 +44,7 @@ pub struct PositionData {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct PartControlString(pub String, pub i32); // LEDControl: [src: string, alpha: number] or FiberControl: [color: string, alpha: number]
+pub type PartControlBulbsData = Vec<(i32, i32)>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DancerPart {
@@ -78,6 +80,7 @@ pub struct ControlData {
     pub fade: bool,
     pub start: i32,
     pub status: Vec<Vec<PartControlString>>,
+    pub led_status: Vec<Vec<PartControlBulbs>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -103,6 +106,7 @@ pub struct RedisControl {
     pub rev: Revision,
     pub editing: Option<i32>,
     pub status: Vec<Vec<PartControl>>,
+    pub led_status: Vec<Vec<PartControlBulbsData>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

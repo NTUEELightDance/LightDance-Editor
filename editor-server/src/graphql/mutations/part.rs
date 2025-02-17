@@ -1,7 +1,8 @@
 //! Part mutation methods.
 use crate::db::types::{model::ModelData, part::PartData, position::PositionData};
 use crate::graphql::types::dancer::Part;
-use crate::types::global::{PartType, UserContext};
+use crate::types::global::PartType;
+use crate::types::global::UserContext;
 use crate::utils::data::{init_redis_control, init_redis_position};
 
 use async_graphql::{Context, InputObject, Object, Result as GQLResult, SimpleObject};

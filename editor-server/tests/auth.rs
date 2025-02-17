@@ -5,7 +5,6 @@ mod auth {
         http::{Request, StatusCode},
     };
     use editor_server::build_app;
-    use std::env::var;
     use tower::{Service, ServiceExt};
 
     /// test for check_token, login, logout functionality
@@ -18,11 +17,7 @@ mod auth {
         let mut app = build_app().await;
 
         // login
-        let username = var("AUTH0_TEST_USERNAME").expect("test username not set");
-        let password = var("AUTH0_TEST_PASSWORD").expect("test password not set");
-
-        let login_data =
-            format!(" {{ \"username\": \"{username}\", \"password\": \"{password}\" }} ");
+        let login_data = " { \"username\": \"foo\", \"password\": \"bar\" } ".to_string();
 
         let request = Request::builder()
             .method("POST")

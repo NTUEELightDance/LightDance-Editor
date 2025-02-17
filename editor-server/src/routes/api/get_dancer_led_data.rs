@@ -7,13 +7,16 @@ use axum::{
 };
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::iter::FromIterator;
+use std::{
+    collections::{HashMap, HashSet},
+    vec,
+};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Status {
     start: i32,
-    status: Vec<[i32; 4]>,
+    status: Vec<[f32; 4]>,
     fade: bool,
 }
 
@@ -26,6 +29,8 @@ pub struct GetDataFailedResponse {
 
 #[derive(Debug)]
 struct Part {
+    control_id: i32,
+    r#type: String,
     length: Option<i32>,
     effect_id: Option<i32>,
     start: i32,
@@ -75,7 +80,7 @@ where
     }
 }
 
-fn convert_true_color_wo_norm(color: &[i32; 4]) -> [i32; 3] {
+fn convert_true_color_to_norm(color: &[f32; 4]) -> [f32; 3] {
     [
         color[0] * color[3],
         color[1] * color[3],
@@ -89,8 +94,8 @@ fn check_same_status(s1: &Status, s2: &Status) -> bool {
     }
 
     for (c1, c2) in s1.status.iter().zip(s2.status.iter()) {
-        let c1 = convert_true_color_wo_norm(c1);
-        let c2 = convert_true_color_wo_norm(c2);
+        let c1 = convert_true_color_to_norm(c1);
+        let c2 = convert_true_color_to_norm(c2);
         if c1 != c2 {
             return false;
         }
@@ -130,6 +135,121 @@ fn filter_identical_frames(statuses: Vec<Status>) -> Vec<Status> {
         .zip(keep_frame)
         .filter_map(|(status, keep)| if keep { Some(status) } else { None })
         .collect_vec()
+}
+
+/// Linearly interpolate color gradient.
+/// Rules:
+/// - If input is a single color, return it.
+/// - If both head and tail are specified, interpolate between them.
+/// - If head color is -1, fill with tail color.
+/// - If tail color is -1, fill with head color.
+/// - If both head and tail are -1, fill with black.
+fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
+    let mut interpolated_status: Vec<[f32; 4]> = vec![];
+
+    for segment in segments.clone() {
+        if segment.len() < 2 {
+            interpolated_status.extend_from_slice(&segment);
+            continue;
+        }
+        if segment[0][0] == -1.0 {
+            if segment.last().unwrap()[0] == -1.0 {
+                for _ in 0..segment.len() {
+                    interpolated_status.push([0.0, 0.0, 0.0, 0.0]);
+                }
+                continue;
+            }
+            for i in 1..segment.len() {
+                let start_bulb = segments.last().unwrap()[0];
+                let end_bulb = segment[segment.len() - 1];
+
+                let r: f32 = start_bulb[0]
+                    + (end_bulb[0] - start_bulb[0])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+                let g: f32 = start_bulb[1]
+                    + (end_bulb[1] - start_bulb[1])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+                let b: f32 = start_bulb[2]
+                    + (end_bulb[2] - start_bulb[2])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+                let alpha: f32 = start_bulb[3]
+                    + (end_bulb[3] - start_bulb[3])
+                        * (i + segments.last().unwrap().len() - 1) as f32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+
+                interpolated_status.push([r, g, b, alpha]);
+            }
+            continue;
+        } else if segment.last().unwrap()[0] == -1.0 {
+            for i in 1..segment.len() {
+                let start_bulb = segment[0];
+                let end_bulb = segments[0].last().unwrap();
+
+                let r: f32 = start_bulb[0]
+                    + (end_bulb[0] - start_bulb[0]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+                let g: f32 = start_bulb[1]
+                    + (end_bulb[1] - start_bulb[1]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+                let b: f32 = start_bulb[2]
+                    + (end_bulb[2] - start_bulb[2]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+                let alpha: f32 = start_bulb[3]
+                    + (end_bulb[3] - start_bulb[3]) * i as f32
+                        / (segment.len() + segments[0].len() - 1) as f32;
+
+                interpolated_status.push([r, g, b, alpha]);
+            }
+            continue;
+        }
+
+        let start_bulb = segment[0];
+        let end_bulb = segment[segment.len() - 1];
+
+        for (i, _color) in segment.iter().enumerate() {
+            if i == 0 || i == segment.len() - 1 {
+                continue;
+            }
+
+            let r: f32 = start_bulb[0]
+                + (end_bulb[0] - start_bulb[0]) * i as f32 / (segment.len() - 1) as f32;
+            let g: f32 = start_bulb[1]
+                + (end_bulb[1] - start_bulb[1]) * i as f32 / (segment.len() - 1) as f32;
+            let b: f32 = start_bulb[2]
+                + (end_bulb[2] - start_bulb[2]) * i as f32 / (segment.len() - 1) as f32;
+            let alpha: f32 = start_bulb[3]
+                + (end_bulb[3] - start_bulb[3]) * i as f32 / (segment.len() - 1) as f32;
+
+            interpolated_status.push([r, g, b, alpha]);
+        }
+    }
+
+    interpolated_status
+}
+
+/// computes rgb gradient by separating the bulb colors into segments of -1.
+/// if color is not -1, it is a new segment.
+fn gradient_to_rgb_float(status: Vec<[f32; 4]>) -> Vec<Vec<[f32; 4]>> {
+    let mut segments: Vec<Vec<[f32; 4]>> = vec![];
+    let mut head = 0;
+
+    for (i, bulb_status) in status.iter().enumerate() {
+        if bulb_status[0] == -1.0 && i != status.len() - 1 {
+            continue;
+        } else if (i != 0 && status[i - 1][0] == -1.0) || i == status.len() - 1 {
+            segments.push(status[head..i + 1].to_vec());
+            head = i;
+        }
+        if bulb_status[0] != -1.0 {
+            segments.push(vec![*bulb_status]);
+            head = i;
+        }
+    }
+
+    segments
 }
 
 pub async fn get_dancer_led_data(
@@ -195,6 +315,14 @@ pub async fn get_dancer_led_data(
             },
         );
     }
+    color_map.insert(
+        -1,
+        Color {
+            r: -1,
+            g: -1,
+            b: -1,
+        },
+    );
 
     let effect_states = sqlx::query!(
         r#"
@@ -213,17 +341,22 @@ pub async fn get_dancer_led_data(
 
     let effect_states = partition_by_field(|state| state.effect_id, effect_states);
 
-    let mut effect_states_map: HashMap<i32, Vec<[i32; 4]>> = HashMap::new();
+    let mut effect_states_map: HashMap<i32, Vec<[f32; 4]>> = HashMap::new();
     for states in effect_states.iter() {
         let effect_id = states[0].effect_id;
 
-        let mut effect_data = vec![[0, 0, 0, 0]; states.len()];
+        let mut effect_data = vec![[0.0, 0.0, 0.0, 0.0]; states.len()];
 
         for state in states.iter() {
             let color = color_map
                 .get(&state.color_id)
                 .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-            effect_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
+            effect_data[state.position as usize] = [
+                color.r as f32,
+                color.g as f32,
+                color.b as f32,
+                state.alpha as f32,
+            ];
         }
 
         effect_states_map.insert(effect_id, effect_data);
@@ -238,6 +371,8 @@ pub async fn get_dancer_led_data(
                 Part.name as "part_name",
                 Part.id as "part_id",
                 Part.length as "part_length",
+                ControlData.id as "control_data_id",
+                ControlData.type,
                 ControlData.effect_id,
                 ControlFrame.start,
                 ControlFrame.fade
@@ -262,6 +397,52 @@ pub async fn get_dancer_led_data(
     .into_iter()
     .filter(|data| parts_filter.contains(&data.part_name))
     .collect_vec();
+    let all_control_id_set: HashSet<i32> =
+        HashSet::from_iter(dancer_data.iter().map(|data| data.control_data_id));
+
+    let dancer_bulbs_data = sqlx::query!(
+        r#"
+            SELECT
+                ControlData.id as "control_data_id", 
+                LEDBulb.position,
+                LEDBulb.color_id,
+                LEDBulb.alpha
+            FROM Dancer
+            INNER JOIN Model
+                ON Dancer.model_id = Model.id
+            INNER JOIN Part
+                ON Model.id = Part.model_id
+            INNER JOIN ControlData
+                ON Part.id = ControlData.part_id AND
+                ControlData.dancer_id = Dancer.id
+            INNER JOIN ControlFrame
+                ON ControlData.frame_id = ControlFrame.id
+            INNER JOIN LEDBulb
+                ON LEDBulb.control_id = ControlData.id
+            WHERE Dancer.name = ? AND Part.type = 'LED'
+            ORDER BY ControlData.id, LEDBulb.position;
+        "#,
+        dancer
+    )
+    .fetch_all(mysql_pool)
+    .await
+    .into_result()?
+    .into_iter()
+    .filter(|data| all_control_id_set.contains(&data.control_data_id))
+    .map(|data| {
+        (
+            data.control_data_id,
+            data.position,
+            data.color_id,
+            data.alpha,
+        )
+    })
+    .collect_vec();
+
+    let dancer_bulbs_data = partition_by_field(|data| data.0, dancer_bulbs_data);
+
+    let dancer_bulbs_data: HashMap<i32, Vec<(i32, i32, i32, i32)>> =
+        HashMap::from_iter(dancer_bulbs_data.into_iter().map(|data| (data[0].0, data)));
 
     if dancer_data.is_empty() {
         return Err((
@@ -277,6 +458,8 @@ pub async fn get_dancer_led_data(
     // organize control data into their respective parts
     for data in dancer_data.into_iter() {
         fetched_parts.entry(data.part_name).or_default().push(Part {
+            control_id: data.control_data_id,
+            r#type: data.r#type,
             length: data.part_length,
             effect_id: data.effect_id,
             start: data.start,
@@ -295,12 +478,13 @@ pub async fn get_dancer_led_data(
                     let control_data = fetched_parts.get(sub_part_name);
 
                     if let Some(control_data) = control_data {
-                        for data in control_data.iter() {
-                            let start = data.start;
-                            let fade = data.fade;
-                            let length = data.length.ok_or("Length not found").into_result()?;
+                        for part_data in control_data.iter() {
+                            let start = part_data.start;
+                            let fade = part_data.fade;
+                            let length =
+                                part_data.length.ok_or("Length not found").into_result()?;
 
-                            if let Some(effect_id) = data.effect_id {
+                            if let Some(effect_id) = part_data.effect_id {
                                 let effect_data = effect_states_map
                                     .get(&effect_id)
                                     .ok_or("Effect data not found")
@@ -312,10 +496,13 @@ pub async fn get_dancer_led_data(
                                     .or_insert((start, fade, Vec::new()))
                                     .2
                                     .extend_from_slice(&effect_data);
-                            } else {
+                                continue;
+                            }
+
+                            if part_data.r#type == "EFFECT" {
                                 let previous_part_status = match response.get(part_name) {
                                     Some(status) => status.last().unwrap().status.clone(),
-                                    None => vec![[0, 0, 0, 0]; length as usize],
+                                    None => vec![[0.0, 0.0, 0.0, 0.0]; length as usize],
                                 };
 
                                 frame_effect_datas
@@ -323,18 +510,49 @@ pub async fn get_dancer_led_data(
                                     .or_insert((start, fade, Vec::new()))
                                     .2
                                     .extend_from_slice(&previous_part_status);
+                                continue;
                             }
+                            let bulbs_data = dancer_bulbs_data
+                                .get(&part_data.control_id)
+                                .ok_or("Bulbs data not found")
+                                .into_result()?;
+
+                            let bulbs_data = bulbs_data
+                                .iter()
+                                .map(|(_, _, color_id, alpha)| {
+                                    let color = color_map.get(color_id).unwrap_or(&Color {
+                                        r: 0,
+                                        g: 0,
+                                        b: 0,
+                                    });
+                                    [
+                                        color.r as f32,
+                                        color.g as f32,
+                                        color.b as f32,
+                                        *alpha as f32,
+                                    ]
+                                })
+                                .collect_vec();
+
+                            let segments = gradient_to_rgb_float(bulbs_data);
+                            let status = interpolate_gradient(segments);
+
+                            frame_effect_datas
+                                .entry(start)
+                                .or_insert((start, fade, Vec::new()))
+                                .2
+                                .extend_from_slice(&status);
                         }
                     }
                 }
 
                 let mut part_data = Vec::<Status>::new();
 
-                for (_, (start, fade, effect_datas)) in frame_effect_datas {
+                for (_, (start, fade, status)) in frame_effect_datas {
                     part_data.push(Status {
                         start,
+                        status,
                         fade,
-                        status: effect_datas,
                     });
                 }
 
@@ -364,10 +582,13 @@ pub async fn get_dancer_led_data(
                                 status: effect_data,
                                 fade,
                             });
-                        } else {
+                            continue;
+                        }
+
+                        if data.r#type == "EFFECT" {
                             let previous_part_status = match part_data.last() {
                                 Some(status) => status.status.clone(),
-                                None => vec![[0, 0, 0, 0]; length as usize],
+                                None => vec![[0.0, 0.0, 0.0, 0.0]; length as usize],
                             };
 
                             part_data.push(Status {
@@ -375,7 +596,39 @@ pub async fn get_dancer_led_data(
                                 status: previous_part_status,
                                 fade,
                             });
+                            continue;
                         }
+
+                        let bulbs_data = dancer_bulbs_data
+                            .get(&data.control_id)
+                            .ok_or("Bulbs data not found")
+                            .into_result()?;
+
+                        let status = bulbs_data
+                            .iter()
+                            .map(|(_, _, color_id, alpha)| {
+                                let color =
+                                    color_map
+                                        .get(color_id)
+                                        .unwrap_or(&Color { r: 0, g: 0, b: 0 });
+                                [
+                                    color.r as f32,
+                                    color.g as f32,
+                                    color.b as f32,
+                                    *alpha as f32,
+                                ]
+                            })
+                            .collect_vec();
+
+                        let segments = gradient_to_rgb_float(status);
+
+                        let status = interpolate_gradient(segments);
+
+                        part_data.push(Status {
+                            start,
+                            status,
+                            fade,
+                        });
                     }
 
                     part_data.sort_by_key(|status| status.start);

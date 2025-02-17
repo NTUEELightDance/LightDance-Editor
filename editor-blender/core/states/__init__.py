@@ -57,6 +57,7 @@ state = State(
     current_led_index=0,
     current_fade=False,
     current_status={},
+    current_led_status={},
     current_pos={},
     current_editing_frame=0,
     current_editing_detached=False,

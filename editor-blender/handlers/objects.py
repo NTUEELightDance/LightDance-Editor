@@ -1,6 +1,6 @@
 import bpy
 
-from ..core.models import Editor, SelectedPartType, SelectMode
+from ..core.models import EditMode, Editor, SelectedPartType, SelectMode
 from ..core.states import state
 from ..properties.types import LightType, ObjectType
 from ..properties.ui.types import (
@@ -157,7 +157,11 @@ def handle_autoselect_in_control_editor_part_mode():
 
     if active_obj:
         if is_led_bulb(active_obj):
-            active_obj = active_obj.parent
+            active_obj_parent = active_obj.parent
+            if (
+                active_obj_parent and active_obj_parent["ld_effect"] != 0
+            ) or state.edit_state == EditMode.IDLE:
+                active_obj = active_obj_parent
             active_obj.select_set(True)  # type: ignore
             bpy.context.view_layer.objects.active = active_obj
 
@@ -183,7 +187,12 @@ def handle_autoselect_in_control_editor_part_mode():
         else:
             ld_light_type: str = getattr(obj, "ld_light_type")
             if ld_light_type == LightType.LED_BULB.value:
-                if not obj.parent.select_get() and obj.parent != active_obj:  # type: ignore
+                if (
+                    obj.parent
+                    and not obj.parent.select_get()
+                    and obj.parent != active_obj
+                    and obj.parent["ld_effect"] != 0
+                ):
                     obj.parent.select_set(True)  # type: ignore
                     context_selected_objects.append(obj.parent)  # type: ignore
 
@@ -196,12 +205,15 @@ def handle_autoselect_in_control_editor_part_mode():
             state.selected_obj_type = SelectedPartType.LED
         elif is_fiber(active_obj):
             state.selected_obj_type = SelectedPartType.FIBER
+        elif is_led_bulb(active_obj):
+            state.selected_obj_type = SelectedPartType.LED_BULB
         # else:
         #     state.selected_obj_type = SelectedPartType.MIXED_LIGHT
 
     selected_base_objs: list[bpy.types.Object] = []
     selected_fiber_objs: list[bpy.types.Object] = []
     selected_led_objs: list[bpy.types.Object] = []
+    selected_led_bulb_objs: list[bpy.types.Object] = []
 
     for obj in context_selected_objects:
         if is_fiber(obj) and (
@@ -214,6 +226,15 @@ def handle_autoselect_in_control_editor_part_mode():
             or state.selected_obj_type is None
         ):
             selected_led_objs.append(obj)
+        elif is_led_bulb(obj) and (
+            (
+                state.selected_obj_type == SelectedPartType.LED_BULB
+                or state.selected_obj_type is None
+            )
+            and obj.parent
+            and obj.parent["ld_effect"] == 0
+        ):
+            selected_led_bulb_objs.append(obj)
 
     # Maintain selected objects type
     # if len(selected_led_objs) > 0 and len(selected_fiber_objs) > 0:
@@ -228,6 +249,10 @@ def handle_autoselect_in_control_editor_part_mode():
     elif len(selected_fiber_objs) > 0:
         state.selected_obj_type = SelectedPartType.FIBER
         selected_base_objs = selected_fiber_objs
+
+    elif len(selected_led_bulb_objs) > 0:
+        state.selected_obj_type = SelectedPartType.LED_BULB
+        selected_base_objs = selected_led_bulb_objs
 
     else:
         state.selected_obj_type = None

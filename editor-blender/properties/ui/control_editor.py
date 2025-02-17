@@ -41,6 +41,7 @@ def get_effect_lists(
     effect_list: list[str] = list(possible_effects)
     effect_list.sort()
 
+    # NOTE: Don't show [bulb Color] here
     effect_list = ["no-change"] + effect_list
 
     return [(effect, effect, "", "", index) for index, effect in enumerate(effect_list)]
@@ -56,7 +57,7 @@ def get_color_lists(
     ld_color_palette: list[ColorPaletteItemType] = getattr(
         bpy.context.window_manager, "ld_color_palette"
     )
-    return [
+    color_list = [
         (
             color.color_name,
             color.color_name,
@@ -66,6 +67,16 @@ def get_color_lists(
         )
         for color in ld_color_palette
     ]
+    if not all(
+        [
+            getattr(bpy.data.objects[obj_name], "ld_object_type")
+            != ObjectType.LIGHT.value
+            for obj_name in state.selected_obj_names
+        ]
+    ):
+        color_list.insert(0, ("[gradient]", "[gradient]", "", "MOD_ARRAY", -1))
+
+    return color_list  # pyright: ignore
 
 
 def get_show_fiber(self: bpy.types.PropertyGroup) -> bool:
@@ -102,7 +113,7 @@ def set_show_all(self: bpy.types.PropertyGroup, value: bool) -> None:
 
 
 class ControlEditorStatus(bpy.types.PropertyGroup):
-    """Status of the PosEditor"""
+    """Status of the Control Editor"""
 
     multi_select: bpy.props.BoolProperty(  # type: ignore
         name="Multi Select",
