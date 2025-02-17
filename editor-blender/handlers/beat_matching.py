@@ -10,7 +10,7 @@ from gpu_extras import batch as g_batch
 from ..core.config import config
 from ..core.log import logger
 from ..core.states import state
-from ..core.utils.algorithms import binary_search_for_range
+from ..core.utils.algorithms import largest_range_in_lr
 from ..core.utils.convert import csv_second_to_miliseconds
 from ..core.utils.ui import redraw_area
 
@@ -69,7 +69,7 @@ def mount():
     data = list(map(csv_second_to_miliseconds, data))
 
     frame_range_l, frame_range_r = state.dancer_load_frames
-    filtered_data_start, filtered_data_end = binary_search_for_range(
+    filtered_data_start, filtered_data_end = largest_range_in_lr(
         data, frame_range_l, frame_range_r
     )
     filtered_data = data[filtered_data_start : filtered_data_end + 1]

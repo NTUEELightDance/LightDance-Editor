@@ -12,7 +12,7 @@ from .....properties.types import RevisionPropertyItemType
 from ....log import logger
 from ....models import ControlMapElement, MapID, PartType
 from ....states import state
-from ....utils.algorithms import binary_search_for_range
+from ....utils.algorithms import smallest_range_including_lr
 from ....utils.convert import (
     ControlAddAnimationData,
     ControlAddCurveData,
@@ -183,7 +183,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
-    filtered_ctrl_map_start, filtered_ctrl_map_end = binary_search_for_range(
+    filtered_ctrl_map_start, filtered_ctrl_map_end = smallest_range_including_lr(
         sorted_frame_ctrl_map, frame_range_l, frame_range_r
     )
     filtered_ctrl_map = sorted_ctrl_map[

@@ -11,7 +11,7 @@ import bpy
 from .....properties.types import RevisionPropertyItemType
 from ....models import MapID, PosMapElement
 from ....states import state
-from ....utils.algorithms import binary_search_for_range
+from ....utils.algorithms import smallest_range_including_lr
 from ....utils.convert import PosModifyAnimationData
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 
@@ -139,7 +139,7 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
     sorted_frame_pos_map = [item[1].start for item in sorted_pos_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
-    filtered_pos_map_start, filtered_pos_map_end = binary_search_for_range(
+    filtered_pos_map_start, filtered_pos_map_end = smallest_range_including_lr(
         sorted_frame_pos_map, frame_range_l, frame_range_r
     )
     filtered_pos_map = sorted_pos_map[filtered_pos_map_start : filtered_pos_map_end + 1]

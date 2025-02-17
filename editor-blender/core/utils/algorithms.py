@@ -53,7 +53,9 @@ def binary_search_for_neighbors(
     return (l, r)
 
 
-def binary_search_for_range(arr: list[int], left: int, right: int) -> tuple[int, int]:
+def smallest_range_including_lr(
+    arr: list[int], left: int, right: int
+) -> tuple[int, int]:
     """
     :param arr: sorted list of integers
     :param left, right: designated range
@@ -61,6 +63,26 @@ def binary_search_for_range(arr: list[int], left: int, right: int) -> tuple[int,
     """
     search_l = binary_search_for_neighbors(arr, left)[0]
     search_r = binary_search_for_neighbors(arr, right)[1]
+
+    if search_l == "OutOfRange_Larger":
+        return (len(arr) - 1, len(arr) - 1)
+    if search_r == "OutOfRange_Smaller":
+        return (0, 0)
+    if search_l == "OutOfRange_Smaller":
+        search_l = 0
+    if search_r == "OutOfRange_Larger":
+        search_r = len(arr) - 1
+    return (search_l, search_r)
+
+
+def largest_range_in_lr(arr: list[int], left: int, right: int) -> tuple[int, int]:
+    """
+    :param arr: sorted list of integers
+    :param left, right: designated range
+    :return: the largest continuous range in arr that are in [left, right], which is in the form of indexes
+    """
+    search_l = binary_search_for_neighbors(arr, left)[1]
+    search_r = binary_search_for_neighbors(arr, right)[0]
 
     if search_l == "OutOfRange_Larger":
         return (len(arr) - 1, len(arr) - 1)
