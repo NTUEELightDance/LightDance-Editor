@@ -1,0 +1,12 @@
+[package]
+rust-version = "1.75.0"
+name = "seaorm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenv = "0.15.0"
+mysql = "26.0.0"
+sea-orm = { version = "1.1.4", features = [ "sqlx-mysql", "runtime-async-std-native-tls", "macros" ] }
+tokio = { version = "1.43.0", features = ["full"] }
+migration = { path = "./migration" }
