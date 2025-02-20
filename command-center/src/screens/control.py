@@ -2,13 +2,19 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal, VerticalScroll
 from textual.screen import Screen
 from textual.validation import Number, Regex
-from textual.widgets import Button, Footer, Input, Label, Placeholder
+from textual.widgets import Button, DataTable, Footer, Input, Label
 
 from ..handlers import control_handler
+from ..types import DancerInfo, DancerItem, DancerStatus
+from ..types.app import LightDanceAppType
 
 
 class ControlScreen(Screen):
     CSS_PATH = "../styles/control.tcss"
+
+    table = DataTable()
+
+    app: LightDanceAppType
 
     def compose(self) -> ComposeResult:
         with Horizontal():
@@ -52,10 +58,54 @@ class ControlScreen(Screen):
                     yield Button("Reboot", id="control-reboot")
                     yield Button("Restart Player")
             with VerticalScroll(id="control-panel-2"):
-                yield Placeholder("Control Panel 2")
+                yield self.table
         yield Footer()
 
+    count = 20
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        self.notify(f"Button {event.button.label} clicked")
+        self.notify(f"Button {event.button.label}")
+        self.app.dancer_status = {
+            **self.app.dancer_status,
+            f"dancer{self.count}": DancerItem(
+                False,
+                f"{self.count}",
+                "hostname",
+                "wifi",
+                True,
+                DancerInfo("IP", "MAC"),
+                DancerInfo("IP", "MAC"),
+            ),
+        }
+        self.count += 1
         if event.button.id:
             control_handler(event.button.id)
+
+    def on_mount(self) -> None:
+        self.table.add_columns(
+            "Name",
+            "Hostname",
+            "Interface",
+            "Connected",
+            "Ethernet IP",
+            "Ethernet MAC",
+            "WiFi IP",
+            "WiFi MAC",
+        )
+        self.watch(self.app, "dancer_status", self.update_dancer_table)
+
+    def update_dancer_table(self) -> None:
+        self.table.clear()
+        new_dancer_status: DancerStatus = getattr(self.app, "dancer_status")
+        for name, dancer in new_dancer_status.items():
+            self.table.add_row(
+                name,
+                dancer.hostname,
+                dancer.interface,
+                dancer.connected,
+                dancer.ethernet_info.IP,
+                dancer.ethernet_info.MAC,
+                dancer.wifi_info.IP,
+                dancer.wifi_info.MAC,
+            )
+        self.refresh()
