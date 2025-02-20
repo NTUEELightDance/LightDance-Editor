@@ -139,7 +139,7 @@ migrate the database
 
 ```sh
 # in Lightdance-Editor/editor-server
-cargo prisma migrate dev --skip-generate --name init
+cargo seaorm migrate
 ```
 
 Start all services
