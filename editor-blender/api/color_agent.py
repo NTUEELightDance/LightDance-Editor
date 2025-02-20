@@ -1,12 +1,11 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
-from typing import Optional
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import RGB, ColorID, ColorMap, ColorName
 from ..core.utils.convert import color_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_COLOR,
     DELETE_COLOR,
     EDIT_COLOR,
@@ -19,12 +18,13 @@ from ..graphqls.mutations import (
     MutEditColorResponse,
     StringFieldUpdateOperationsInput,
 )
-from ..graphqls.queries import GET_COLOR_MAP, QueryColorMapData
+from ..schemas.queries import GET_COLOR_MAP, QueryColorMapData
 
 
 @dataclass
 class ColorAgent:
-    async def get_color_map(self) -> Optional[ColorMap]:
+    async def get_color_map(self) -> ColorMap | None:
+        """Get the color map from the server."""
         try:
             response = await client.execute(QueryColorMapData, GET_COLOR_MAP)
             colorMap = response["colorMap"]
@@ -35,13 +35,19 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get color map")
 
         return None
 
     async def add_color(
         self, color_name: ColorName, color_rgb: RGB
-    ) -> Optional[MutAddColorResponse]:
+    ) -> MutAddColorResponse | None:
+        """Add a new color to the color palette.
+
+        Args:
+            color_name (ColorName): The color's name.
+            color_rgb (RGB): The 3-tuple RGB color (0~255).
+        """
         try:
             variable = {
                 "color": ColorCreateInput(
@@ -57,13 +63,20 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to add color")
 
         return None
 
     async def edit_color(
         self, color_id: ColorID, color_name: ColorName, color_rgb: RGB
-    ) -> Optional[MutEditColorResponse]:
+    ) -> MutEditColorResponse | None:
+        """Edit a color in the color palette.
+
+        Args:
+            color_id (ColorID): The color's ID.
+            color_name (ColorName): The color's name.
+            color_rgb (RGB): The 3-tuple RGB color (0~255).
+        """
         try:
             variable = {
                 "data": ColorUpdateInput(
@@ -79,11 +92,12 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to edit color")
 
         return None
 
-    async def delete_color(self, color_id: ColorID) -> Optional[MutDeleteColorResponse]:
+    async def delete_color(self, color_id: ColorID) -> MutDeleteColorResponse | None:
+        """Delete a color from the color palette."""
         try:
             variable = {"deleteColorId": color_id}
             response = await client.execute(
@@ -95,7 +109,7 @@ class ColorAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to delete color")
 
         return None
 

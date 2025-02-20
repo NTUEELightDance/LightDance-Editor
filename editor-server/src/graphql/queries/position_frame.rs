@@ -26,6 +26,8 @@ impl PositionFrameQuery {
         #[allow(unused)]
         let redis = clients.redis_client();
 
+        tracing::info!("Query: positionFrame");
+
         let frame = sqlx::query_as!(
             PositionFrameData,
             r#"

@@ -3,6 +3,7 @@ from typing import cast
 
 import bpy
 
+from ...core.log import logger
 from ...core.models import Editor, SelectMode
 from ...core.states import state
 
@@ -13,7 +14,7 @@ class SelectAllOperator(bpy.types.Operator):
     bl_description = "Select all target objects"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         match state.editor:
             case Editor.CONTROL_EDITOR:
                 if state.selection_mode == SelectMode.DANCER_MODE:
@@ -44,7 +45,9 @@ class SelectAllLEDOperator(bpy.types.Operator):
     bl_description = "Select all target LEDs"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELLED"}
         if not bpy.context.object:
             return {"FINISHED"}
         current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
@@ -63,7 +66,9 @@ class SelectAllFiberOperator(bpy.types.Operator):
     bl_description = "Select all target fibers"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELLED"}
         if not bpy.context.object:
             return {"FINISHED"}
         current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
@@ -82,7 +87,9 @@ class SelectRandomFiberOperator(bpy.types.Operator):
     bl_description = "Select random target fibers"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELLED"}
         if not bpy.context.object:
             return {"FINISHED"}
         current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
@@ -98,7 +105,7 @@ class SelectRandomFiberOperator(bpy.types.Operator):
         random_list = sample(fiber_list, n_select)
         for obj in random_list:
             obj.select_set(True)
-        print(f"Selected {n_select} fibers out of {N_fiber}")
+        logger.info(f"Selected {n_select} fibers out of {N_fiber}")
         return {"FINISHED"}
 
 
@@ -108,7 +115,9 @@ class SelectRandomLEDOperator(bpy.types.Operator):
     bl_description = "Select random target LEDs"
     bl_options = {"REGISTER", "UNDO"}
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELLED"}
         if not bpy.context.object:
             return {"FINISHED"}
         current_dancer_name = getattr(bpy.context.object, "ld_dancer_name")
@@ -124,7 +133,7 @@ class SelectRandomLEDOperator(bpy.types.Operator):
         random_list = sample(led_list, n_select)
         for obj in random_list:
             obj.select_set(True)
-        print(f"Selected {n_select} LEDs out of {N_led}")
+        logger.info(f"Selected {n_select} LEDs out of {N_led}")
         return {"FINISHED"}
 
 

@@ -13,10 +13,10 @@ class ToggleShifting(bpy.types.Operator):
     bl_label = "Toggle Time Shift"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return not state.edit_state == EditMode.EDITING
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         toggle_shift()
         return {"FINISHED"}
 
@@ -26,10 +26,10 @@ class CancelShifting(bpy.types.Operator):
     bl_label = "Cancel Time Shift"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.shifting
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         cancel_shift()
         return {"FINISHED"}
 
@@ -45,7 +45,9 @@ class ConfirmShifting(AsyncOperator):
     )
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
+        if not bpy.context:
+            return False
         ld_ui_time_shift: TimeShiftStatusType = getattr(
             bpy.context.window_manager, "ld_ui_time_shift"
         )
@@ -67,7 +69,9 @@ class ConfirmShifting(AsyncOperator):
 
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
+        if not context:
+            return {"CANCELLED"}
         return context.window_manager.invoke_props_dialog(self)
 
 

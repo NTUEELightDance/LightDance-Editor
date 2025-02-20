@@ -1,5 +1,3 @@
-from typing import List
-
 import bpy
 
 from ...core.models import EditMode, Editor, SelectedPartType, SelectMode
@@ -13,8 +11,8 @@ def draw_dancer_parts(
     dancer_obj: bpy.types.Object,
     ui_status: ControlEditorStatusType,
 ):
-    fibers: List[bpy.types.Object] = []
-    leds: List[bpy.types.Object] = []
+    fibers: list[bpy.types.Object] = []
+    leds: list[bpy.types.Object] = []
 
     for part in dancer_obj.children:
         ld_object_type: str = getattr(part, "ld_object_type")
@@ -41,7 +39,11 @@ def draw_dancer_parts(
             ld_part_name: str = getattr(part, "ld_part_name")
             row.label(text=ld_part_name)
             row.prop(part, "ld_effect", text="")
-            row.prop(part, "ld_alpha", text="", slider=True)
+            if part["ld_effect"] == 0:
+                op = row.operator("lightdance.toggle_led_focus", icon="VIEWZOOM")
+                setattr(op, "led_obj_name", part.name)
+            else:
+                row.prop(part, "ld_alpha", text="", slider=True)
 
 
 class ControlEditor(bpy.types.Panel):
@@ -54,10 +56,12 @@ class ControlEditor(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready and state.sync and state.editor == Editor.CONTROL_EDITOR
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
         layout = self.layout
         layout.enabled = not state.shifting and not state.requesting
 
@@ -111,6 +115,14 @@ class ControlEditor(bpy.types.Panel):
                     text="Alpha",
                     slider=True,
                 )
+            elif state.selected_obj_type == SelectedPartType.LED_BULB:
+                column.prop(ld_ui_control_editor, "multi_select_color", text="Color")
+                column.prop(
+                    ld_ui_control_editor,
+                    "multi_select_alpha",
+                    text="Alpha",
+                    slider=True,
+                )
             else:
                 column.prop(ld_ui_control_editor, "multi_select_effect", text="Effect")
                 column.prop(
@@ -146,9 +158,37 @@ class ControlEditor(bpy.types.Panel):
                         context.object,
                         "ld_effect",
                         text="Effect",
-                        icon="LIGHTPROBE_GRID",
+                        icon="LIGHTPROBE_VOLUME",
                     )
                     column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                    if context.object and context.object["ld_effect"] == 0:
+                        op = column.operator(
+                            "lightdance.toggle_led_focus",
+                            text="Unfocus" if state.local_view else "Focus",
+                            icon="VIEWZOOM",
+                        )
+                        setattr(op, "led_obj_name", context.object.name)
+                elif (
+                    ld_light_type == LightType.LED_BULB.value
+                    and context.object
+                    and context.object.parent
+                ):
+                    row = column.row()
+                    row.prop(
+                        context.object.parent,
+                        "ld_effect",
+                        text="Effect",
+                        icon="LIGHTPROBE_VOLUME",
+                    )
+                    row.prop(context.object, "ld_color", text="Color")
+                    row.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                    row = column.row()
+                    op = row.operator(
+                        "lightdance.toggle_led_focus",
+                        text="Unfocus" if state.local_view else "Focus",
+                        icon="VIEWZOOM",
+                    )
+                    setattr(op, "led_obj_name", context.object.parent.name)
 
             elif ld_object_type == ObjectType.DANCER.value:
                 ld_dancer_name: str = getattr(context.object, "ld_dancer_name")

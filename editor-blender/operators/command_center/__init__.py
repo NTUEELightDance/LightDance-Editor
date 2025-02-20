@@ -12,13 +12,13 @@ from ...core.actions.property.command import (
     set_command_status,
     set_countdown,
 )
-from ...core.actions.state.app_state import set_requesting
 from ...core.actions.state.load import init_assets
 from ...core.asyncio import AsyncTask
 from ...core.states import state
 from ...core.utils.convert import is_color_code
 from ...core.utils.notification import notify
-from ...graphqls.command import (
+from ...properties.ui.types import CommandCenterStatusType
+from ...schemas.command import (
     ToControllerServerBoardInfoPartial,
     ToControllerServerCloseGPIOPartial,
     ToControllerServerColorPartial,
@@ -33,7 +33,6 @@ from ...graphqls.command import (
     ToControllerServerUploadPartial,
     ToControllerServerWebShellPartial,
 )
-from ...properties.ui.types import CommandCenterStatusType
 from ..async_core import AsyncOperator
 
 
@@ -43,7 +42,7 @@ class CommandCenterStartOperator(AsyncOperator):
     bl_description = "Connect to controller server."
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -73,7 +72,7 @@ class CommandCenterRefreshOperator(AsyncOperator):
     bl_description = "Reconnect to controller server"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -99,7 +98,7 @@ class CommandCenterSyncOperator(AsyncOperator):
     bl_description = "Sync RPi status from controller server"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -122,10 +121,12 @@ class CommandCenterPlayOperator(AsyncOperator):
     bl_label = "Play with delay"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
+        if not bpy.context:
+            return
         command_status: CommandCenterStatusType = getattr(
             bpy.context.window_manager, "ld_ui_command_center"
         )
@@ -158,11 +159,13 @@ class CommandCenterPauseOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
         # bpy.ops.screen.animation_cancel(restore_frame=False)
+        if not bpy.context:
+            return
         try:
             pause_payload = ToControllerServerPausePartial.from_dict(
                 {"topic": "pause", "payload": {"dancers": get_selected_dancer()}}
@@ -187,11 +190,13 @@ class CommandCenterStopOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
         # bpy.ops.screen.animation_cancel(restore_frame=True)
+        if not bpy.context:
+            return
         if countdown_task.task:
             countdown_task.task.cancel()
             countdown_task.task = None
@@ -219,7 +224,7 @@ class CommandCenterLoadOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -242,7 +247,7 @@ class CommandCenterUploadOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -265,7 +270,7 @@ class CommandCenterRebootOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -288,10 +293,12 @@ class CommandCenterTestOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
+        if not bpy.context:
+            return
         try:
             command_status: CommandCenterStatusType = getattr(
                 bpy.context.window_manager, "ld_ui_command_center"
@@ -334,7 +341,7 @@ class CommandCenterColorOperator(AsyncOperator):
     color: bpy.props.StringProperty()  # type: ignore
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -360,7 +367,7 @@ class CommandCenterDarkAllOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -383,7 +390,7 @@ class CommandCenterCloseGPIOOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
@@ -406,10 +413,12 @@ class CommandCenterWebShellOperator(AsyncOperator):
     bl_label = ""
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
+        if not bpy.context:
+            return
         command_status: CommandCenterStatusType = getattr(
             bpy.context.window_manager, "ld_ui_command_center"
         )
@@ -439,10 +448,12 @@ class CommandCenterForceStopOperator(AsyncOperator):
     bl_label = "Force stop"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
     async def async_execute(self, context: bpy.types.Context):
+        if not bpy.context:
+            return
         try:
             bpy.context.scene.frame_current = 0
             if countdown_task.task:

@@ -1,12 +1,13 @@
 import asyncio
-import traceback
+from collections.abc import Coroutine
 from dataclasses import dataclass
-from typing import Any, Coroutine, List, Optional
+from typing import Any
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import MapID, PosMap, PosRecord
 from ..core.utils.convert import pos_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_POS_FRAME,
     CANCEL_EDIT_POS_BY_ID,
     DELETE_POS_FRAME,
@@ -23,7 +24,7 @@ from ..graphqls.mutations import (
     MutEditPositionFrameTimeResponse,
     MutRequestEditPositionResponse,
 )
-from ..graphqls.queries import (
+from ..schemas.queries import (
     GET_POS_MAP,
     GET_POS_RECORD,
     QueryPosMapData,
@@ -34,7 +35,8 @@ from ..graphqls.queries import (
 
 @dataclass
 class PosAgent:
-    async def get_pos_record(self) -> Optional[PosRecord]:
+    async def get_pos_record(self) -> PosRecord | None:
+        """Get the position record from the server."""
         try:
             response = await client.execute(
                 QueryPosRecordData,
@@ -48,9 +50,10 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get position record")
 
-    async def get_pos_map_payload(self) -> Optional[QueryPosMapPayload]:
+    async def get_pos_map_payload(self) -> QueryPosMapPayload | None:
+        """Get the position map raw payload from the server"""
         try:
             response = await client.execute(QueryPosMapData, GET_POS_MAP)
             posMap = response["PosMap"]
@@ -61,9 +64,10 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get position map payload")
 
-    async def get_pos_map(self) -> Optional[PosMap]:
+    async def get_pos_map(self) -> PosMap | None:
+        """Get the position map from the server."""
         try:
             response = await client.execute(QueryPosMapData, GET_POS_MAP)
             posMap = response["PosMap"]
@@ -74,11 +78,12 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get position map")
 
     async def add_frame(
-        self, start: int, positionData: List[List[float]]
-    ) -> Optional[MapID]:
+        self, start: int, positionData: list[list[float]]
+    ) -> MapID | None:
+        """Add a new position frame to the position map."""
         try:
             response = await client.execute(
                 MutAddPositionFrameResponse,
@@ -91,13 +96,14 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to add position frame")
 
     async def save_frame(
-        self, id: MapID, positionData: List[List[float]], start: Optional[int] = None
+        self, id: MapID, positionData: list[list[float]], start: int | None = None
     ):
+        """Edit a position frame in the position map."""
         try:
-            tasks: List[Coroutine[Any, Any, Any]] = []
+            tasks: list[Coroutine[Any, Any, Any]] = []
 
             tasks.append(
                 client.execute(
@@ -130,9 +136,10 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to save position frame")
 
-    async def delete_frame(self, id: MapID) -> Optional[MapID]:
+    async def delete_frame(self, id: MapID) -> MapID | None:
+        """Delete a position frame from the position map."""
         try:
             response = await client.execute(
                 MutDeletePositionFrameResponse,
@@ -145,9 +152,13 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to delete position frame")
 
-    async def request_edit(self, id: MapID) -> Optional[bool]:
+    async def request_edit(self, id: MapID) -> bool | None:
+        """Request to edit a position frame.
+        Returns True if the request is successful, the server will prevent other users from editing the frame.
+        Returns False if other users are editing the frame.
+        """
         try:
             response = await client.execute(
                 MutRequestEditPositionResponse, REQUEST_EDIT_POS_BY_ID, {"frameId": id}
@@ -158,9 +169,10 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to request edit position frame")
 
-    async def cancel_edit(self, id: MapID) -> Optional[bool]:
+    async def cancel_edit(self, id: MapID) -> bool | None:
+        """Cancel the edit request of the position frame."""
         try:
             response = await client.execute(
                 MutCancelEditPositionResponse, CANCEL_EDIT_POS_BY_ID, {"frameId": id}
@@ -171,7 +183,7 @@ class PosAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to cancel edit position frame")
 
 
 pos_agent = PosAgent()

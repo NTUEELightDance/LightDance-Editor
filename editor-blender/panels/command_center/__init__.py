@@ -19,13 +19,15 @@ class LD_UL_DancerList(bpy.types.UIList):
         context: Context | None,
         layout: UILayout,
         data: Any | None,
-        item: CommandCenterRPiStatusType,
+        item: CommandCenterRPiStatusType | None,
         icon: int | None,
         active_data: Any,
-        active_property: str,
+        active_property: str | None,
         index: Any | None = 0,
         flt_flag: Any | None = 0,
     ):
+        if not item:
+            return
         connection_icon = (
             "SEQUENCE_COLOR_04" if item.connected else "SEQUENCE_COLOR_01"
         )  # green and red square
@@ -86,10 +88,12 @@ class ControlPanel(bpy.types.Panel):
     bl_category = "Command center"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return True
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return
         command_center_status: CommandCenterStatusType = getattr(
             bpy.context.window_manager, "ld_ui_command_center"
         )

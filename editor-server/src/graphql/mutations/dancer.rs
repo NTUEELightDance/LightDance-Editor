@@ -50,6 +50,8 @@ impl DancerMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: addDancer");
+
         let dancer_name = input.name.clone();
 
         let dancer_result = sqlx::query_as!(
@@ -122,6 +124,8 @@ impl DancerMutation {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editDancer");
+
         let dancer_id = input.id;
         let dancer_name = input.name.clone();
 
@@ -135,7 +139,7 @@ impl DancerMutation {
         .fetch_one(mysql)
         .await;
 
-        if let Err(_) = raw_dancer {
+        if raw_dancer.is_err() {
             return Ok(DancerMutationResponse {
                 ok: false,
                 msg: "Dancer not found.".to_string(),
@@ -193,6 +197,8 @@ impl DancerMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: deleteDancer");
+
         let dancer_id = input.id;
 
         let raw_dancer = sqlx::query_as!(
@@ -224,8 +230,8 @@ impl DancerMutation {
         .execute(mysql)
         .await?;
 
-        let _ = init_redis_control(mysql, redis).await;
-        let _ = init_redis_position(mysql, redis).await;
+        init_redis_control(mysql, redis).await?;
+        init_redis_position(mysql, redis).await?;
 
         let dancer_payload = DancerPayload {
             mutation: DancerMutationMode::Deleted,

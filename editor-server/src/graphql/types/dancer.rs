@@ -1,6 +1,7 @@
 //! Dancer type.
 
-use crate::db::types::{dancer::DancerData, part::PartType, position::PositionData};
+use crate::db::types::{dancer::DancerData, position::PositionData};
+use crate::types::global::PartType;
 
 use async_graphql::SimpleObject;
 use serde::{Deserialize, Serialize};

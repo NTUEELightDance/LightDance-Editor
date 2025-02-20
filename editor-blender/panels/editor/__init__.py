@@ -15,10 +15,10 @@ class EditorPanel(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready and state.sync
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
         layout = self.layout
         layout.enabled = not state.shifting and not state.requesting
 
@@ -40,7 +40,7 @@ class EditorPanel(bpy.types.Panel):
             "lightdance.toggle_led_editor",
             text="LED",
             depress=state.editor == Editor.LED_EDITOR,
-            icon="LIGHTPROBE_GRID",
+            icon="LIGHTPROBE_VOLUME",
         )
 
         box = layout.box()

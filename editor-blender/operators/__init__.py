@@ -3,6 +3,7 @@ from . import (
     assets,
     async_core,
     auth,
+    camera,
     clipboard,
     color_palette,
     command_center,
@@ -31,6 +32,7 @@ def register():
     animation.register()
     pos_editor.register()
     color_palette.register()
+    camera.register()
     utils.register()
     notification.register()
     timeline.register()
@@ -54,6 +56,7 @@ def unregister():
     animation.unregister()
     pos_editor.unregister()
     color_palette.unregister()
+    camera.unregister()
     utils.unregister()
     notification.unregister()
     timeline.unregister()

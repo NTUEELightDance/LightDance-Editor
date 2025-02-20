@@ -1,12 +1,11 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import ID, ColorID, LEDEffectID, LEDMap, ModelName, PartName
 from ..core.utils.convert import led_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_LED_EFFECT,
     CANCEL_EDIT_LED_EFFECT_BY_ID,
     DELETE_LED_EFFECT,
@@ -21,12 +20,13 @@ from ..graphqls.mutations import (
     MutLEDEffectFramePayload,
     MutRequestEditLEDEffectResponse,
 )
-from ..graphqls.queries import GET_LED_MAP, QueryLEDMapData
+from ..schemas.queries import GET_LED_MAP, QueryLEDMapData
 
 
 @dataclass
 class LEDAgent:
-    async def get_led_map(self) -> Optional[LEDMap]:
+    async def get_led_map(self) -> LEDMap | None:
+        """Get the LED effect map from the server."""
         try:
             response = await client.execute(QueryLEDMapData, GET_LED_MAP)
             ledMap = response["LEDMap"]
@@ -37,7 +37,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get LED map")
 
         return None
 
@@ -46,8 +46,9 @@ class LEDAgent:
         name: str,
         model_name: ModelName,
         part_name: PartName,
-        leds: List[Tuple[ColorID, int]],
-    ) -> Optional[MutAddLEDEffectResponse]:
+        leds: list[tuple[ColorID, int]],
+    ) -> MutAddLEDEffectResponse | None:
+        """Add a new LED effect to the server."""
         try:
             response = await client.execute(
                 MutAddLEDEffectResponse,
@@ -70,13 +71,14 @@ class LEDAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to add LED effect")
 
         return None
 
     async def save_led_effect(
-        self, id: ID, name: str, leds: List[Tuple[ColorID, int]]
-    ) -> Optional[MutEditLEDEffectResponse]:
+        self, id: ID, name: str, leds: list[tuple[ColorID, int]]
+    ) -> MutEditLEDEffectResponse | None:
+        """Save the LED effect to the server."""
         try:
             response = await client.execute(
                 MutEditLEDEffectResponse,
@@ -98,11 +100,15 @@ class LEDAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to save LED effect")
 
         return None
 
-    async def request_edit(self, id: LEDEffectID) -> Optional[bool]:
+    async def request_edit(self, id: LEDEffectID) -> bool | None:
+        """Request to edit a led effect.
+        Returns True if the request is successful, the server will prevent other users from editing the effect.
+        Returns False if other users are editing the effect.
+        """
         try:
             response = await client.execute(
                 MutRequestEditLEDEffectResponse,
@@ -115,11 +121,12 @@ class LEDAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to request edit LED effect")
 
         return None
 
-    async def cancel_edit(self, id: LEDEffectID) -> Optional[bool]:
+    async def cancel_edit(self, id: LEDEffectID) -> bool | None:
+        """Cancel the edit request of the led effect."""
         try:
             response = await client.execute(
                 MutCancelEditLEDEffectResponse,
@@ -132,13 +139,14 @@ class LEDAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to cancel edit LED effect")
 
         return None
 
     async def delete_led_effect(
         self, id: LEDEffectID
-    ) -> Optional[MutDeleteLEDEffectResponse]:
+    ) -> MutDeleteLEDEffectResponse | None:
+        """Delete a led effect from the server."""
         try:
             response = await client.execute(
                 MutDeleteLEDEffectResponse,
@@ -153,7 +161,7 @@ class LEDAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to delete LED effect")
 
         return None
 

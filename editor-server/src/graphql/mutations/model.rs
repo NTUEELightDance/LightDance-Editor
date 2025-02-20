@@ -43,6 +43,8 @@ impl ModelMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: addModel");
+
         let model_name = input.name.clone();
 
         let raw_model = sqlx::query_as!(
@@ -90,6 +92,8 @@ impl ModelMutation {
 
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Mutation: editModel");
+
         let model_id = input.id;
         let model_name = input.name.clone();
 
@@ -132,7 +136,7 @@ impl ModelMutation {
     }
 
     #[allow(unused)]
-    async fn delete_dancer(
+    async fn delete_model(
         &self,
         ctx: &Context<'_>,
         input: ModelDeleteInput,
@@ -142,6 +146,8 @@ impl ModelMutation {
 
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
+
+        tracing::info!("Mutation: deleteModel");
 
         let model_id = input.id;
 

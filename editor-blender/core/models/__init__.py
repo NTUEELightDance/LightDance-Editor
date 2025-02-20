@@ -1,7 +1,7 @@
 from asyncio import Task
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 
 import bpy
 
@@ -10,8 +10,8 @@ ID = int
 ColorName = str
 LEDEffectName = str
 ColorCode = str
-RGB = Tuple[int, int, int]
-RGBA = Tuple[int, int, int, int]
+RGB = tuple[int, int, int]
+RGBA = tuple[int, int, int, int]
 LEDEffectID = int
 ColorID = int
 
@@ -24,24 +24,24 @@ class Color:
     rgb: RGB
 
 
-ColorMap = Dict[ColorID, Color]
+ColorMap = dict[ColorID, Color]
 
 
 @dataclass
 class LEDBulbData:
     color_id: ColorID
     alpha: int
-    rgb: Optional[RGB] = None  # for calculating fade
+    rgb: RGB | None = None  # for calculating gradient
 
 
 @dataclass
 class LEDEffect:
     id: LEDEffectID
     name: LEDEffectName
-    effect: List[LEDBulbData]
+    effect: list[LEDBulbData]
 
 
-LEDEffectIDTable = Dict[LEDEffectID, LEDEffect]
+LEDEffectIDTable = dict[LEDEffectID, LEDEffect]
 
 PartName = str
 DancerName = str
@@ -49,7 +49,7 @@ DancerName = str
 LEDModelName = str
 LEDPartName = str
 
-LEDMap = Dict[LEDModelName, Dict[LEDPartName, Dict[LEDEffectName, LEDEffect]]]
+LEDMap = dict[LEDModelName, dict[LEDPartName, dict[LEDEffectName, LEDEffect]]]
 
 MapID = int
 
@@ -66,8 +66,9 @@ class FiberData:
     alpha: int
 
 
-PartData = Union[LEDData, FiberData]
-DancerStatus = Dict[PartName, PartData]
+PartData = LEDData | FiberData
+DancerStatus = dict[PartName, PartData]
+DancerLEDStatus = dict[PartName, list[LEDBulbData]]
 
 
 @dataclass
@@ -76,7 +77,8 @@ class Revision:
     data: int
 
 
-ControlMapStatus = Dict[DancerName, DancerStatus]
+ControlMapStatus = dict[DancerName, DancerStatus]
+ControlMapLEDStatus = dict[DancerName, DancerLEDStatus]
 
 
 @dataclass
@@ -85,13 +87,14 @@ class ControlMapElement:
     fade: bool
     rev: Revision
     status: ControlMapStatus
+    led_status: ControlMapLEDStatus
 
 
-ControlMap = Dict[MapID, ControlMapElement]
+ControlMap = dict[MapID, ControlMapElement]
 
-ControlRecord = List[MapID]
+ControlRecord = list[MapID]
 
-ControlStartRecord = List[int]
+ControlStartRecord = list[int]
 
 
 @dataclass
@@ -101,7 +104,20 @@ class Location:
     z: float
 
 
-PosMapStatus = Dict[DancerName, Location]
+@dataclass
+class Rotation:
+    rx: float
+    ry: float
+    rz: float
+
+
+@dataclass
+class Position:
+    location: Location
+    rotation: Rotation
+
+
+PosMapStatus = dict[DancerName, Position]
 
 
 @dataclass
@@ -111,11 +127,11 @@ class PosMapElement:
     pos: PosMapStatus
 
 
-PosMap = Dict[MapID, PosMapElement]
+PosMap = dict[MapID, PosMapElement]
 
-PosRecord = List[MapID]
+PosRecord = list[MapID]
 
-PosStartRecord = List[int]
+PosStartRecord = list[int]
 
 
 class EditMode(Enum):
@@ -141,45 +157,45 @@ class PartType(Enum):
     FIBER = "FIBER"
 
 
-PartTypeMap = Dict[PartName, PartType]
-LEDPartLengthMap = Dict[LEDPartName, int]
+PartTypeMap = dict[PartName, PartType]
+LEDPartLengthMap = dict[LEDPartName, int]
 
 
-Dancers = Dict[DancerName, List[PartName]]
+Dancers = dict[DancerName, list[PartName]]
 
 
 @dataclass
 class DancersArrayPartsItem:
     name: PartName
     type: PartType
-    length: Optional[int]
+    length: int | None
 
 
 @dataclass
 class DancersArrayItem:
     name: DancerName
-    parts: List[DancersArrayPartsItem]
+    parts: list[DancersArrayPartsItem]
 
 
-DancersArray = List[DancersArrayItem]
+DancersArray = list[DancersArrayItem]
 
 
 @dataclass
 class DancerPartIndexMapItem:
     index: int
-    parts: Dict[PartName, int]
+    parts: dict[PartName, int]
 
 
-DancerPartIndexMap = Dict[DancerName, DancerPartIndexMapItem]
+DancerPartIndexMap = dict[DancerName, DancerPartIndexMapItem]
 
 
 @dataclass
 class SelectedItem:
     selected: bool
-    parts: List[Tuple[PartName, PartType]]
+    parts: list[tuple[PartName, PartType]]
 
 
-Selected = Dict[DancerName, SelectedItem]
+Selected = dict[DancerName, SelectedItem]
 
 
 class SelectedPartType(Enum):
@@ -187,34 +203,35 @@ class SelectedPartType(Enum):
     FIBER = 1
     LED = 2
     MIXED_LIGHT = 3
+    LED_BULB = 4
 
 
 @dataclass
 class ColorMapUpdates:
-    added: List[Color]
-    updated: List[Color]
-    deleted: List[ColorID]
+    added: list[Color]
+    updated: list[Color]
+    deleted: list[ColorID]
 
 
 @dataclass
 class LEDMapUpdates:
-    added: List[Tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffect]]
-    updated: List[Tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffect]]
-    deleted: List[Tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffectID]]
+    added: list[tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffect]]
+    updated: list[tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffect]]
+    deleted: list[tuple[LEDModelName, LEDPartName, LEDEffectName, LEDEffectID]]
 
 
 @dataclass
 class ControlMapUpdates:
-    added: Dict[MapID, ControlMapElement]
-    updated: Dict[MapID, Tuple[int, ControlMapElement]]
-    deleted: Dict[MapID, int]
+    added: dict[MapID, ControlMapElement]
+    updated: dict[MapID, tuple[int, ControlMapElement]]
+    deleted: dict[MapID, int]
 
 
 @dataclass
 class PosMapUpdates:
-    added: Dict[MapID, PosMapElement]
-    updated: Dict[MapID, Tuple[int, PosMapElement]]
-    deleted: Dict[MapID, int]
+    added: dict[MapID, PosMapElement]
+    updated: dict[MapID, tuple[int, PosMapElement]]
+    deleted: dict[MapID, int]
 
 
 class FrameType(Enum):
@@ -230,25 +247,25 @@ class SelectMode(Enum):
 
 ModelName = str
 
-Models = Dict[ModelName, List[DancerName]]
+Models = dict[ModelName, list[DancerName]]
 
 
 @dataclass
 class ModelsArrayItem:
     name: ModelName
-    dancers: List[DancerName]
+    dancers: list[DancerName]
 
 
-ModelsArray = List[ModelsArrayItem]
+ModelsArray = list[ModelsArrayItem]
 
 
 @dataclass
 class ModelDancerIndexMapItem:
     index: int
-    dancers: Dict[DancerName, int]
+    dancers: dict[DancerName, int]
 
 
-ModelDancerIndexMap = Dict[ModelName, ModelDancerIndexMapItem]
+ModelDancerIndexMap = dict[ModelName, ModelDancerIndexMapItem]
 
 
 class CopiedType(Enum):
@@ -262,23 +279,23 @@ class CopiedType(Enum):
 @dataclass
 class CopiedPartData:
     alpha: int
-    color: Optional[str] = None
-    effect: Optional[str] = None
+    color: str | None = None
+    effect: str | None = None
 
 
 @dataclass
 class CopiedDancerData:
     name: DancerName
     model: ModelName
-    parts: Dict[PartName, CopiedPartData]
+    parts: dict[PartName, CopiedPartData]
 
 
 @dataclass
 class Clipboard:
     type: CopiedType
-    control_frame: Optional[ControlMapElement] = None
-    pos_frame: Optional[PosMapElement] = None
-    dancer: Optional[CopiedDancerData] = None
+    control_frame: ControlMapElement | None = None
+    pos_frame: PosMapElement | None = None
+    dancer: CopiedDancerData | None = None
 
 
 @dataclass
@@ -309,7 +326,7 @@ class RPiStatusItem:
     wifi: InterfaceStatus
 
 
-RPiStatus = Dict[str, RPiStatusItem]
+RPiStatus = dict[str, RPiStatusItem]
 
 
 @dataclass
@@ -318,27 +335,29 @@ class ShellTransaction:
     output: str
 
 
-ShellHistory = Dict[str, List[ShellTransaction]]
+ShellHistory = dict[str, list[ShellTransaction]]
 
 
 @dataclass
 class Preferences:
     auto_sync: bool
     follow_frame: bool
+    show_waveform: bool
+    show_nametag: bool
 
 
-DancerPartObjectsMap = Dict[
-    DancerName, Tuple[bpy.types.Object, Dict[PartName, bpy.types.Object]]
+DancerPartObjectsMap = dict[
+    DancerName, tuple[bpy.types.Object, dict[PartName, bpy.types.Object]]
 ]
 
 
 @dataclass
 class InitializationTemporaries:
-    assets_load: Dict[str, Any]
-    dancer_models_hash: Dict[str, str]
-    dancer_model_update: Dict[DancerName, bool]
-    dancers_object_exist: Dict[DancerName, bool]
-    dancers_reset_animation: List[bool]
+    assets_load: dict[str, Any]
+    dancer_models_hash: dict[str, str]
+    dancer_model_update: dict[DancerName, bool]
+    dancers_object_exist: dict[DancerName, bool]
+    dancers_reset_animation: list[bool]
 
 
 @dataclass
@@ -352,13 +371,13 @@ class State:
 
     logged_in: bool
     loading: bool
-    partial_load_frames: Tuple[int, int]
+    partial_load_frames: tuple[int, int]
     playing: bool
     requesting: bool
 
-    subscription_task: Optional[Task[None]]
-    init_editor_task: Optional[Task[None]]
-    command_task: Optional[Task[None]]
+    subscription_task: Task[None] | None
+    init_editor_task: Task[None] | None
+    command_task: Task[None] | None
 
     init_temps: InitializationTemporaries
     music_frame_length: int
@@ -369,6 +388,8 @@ class State:
 
     control_map: ControlMap
     pos_map: PosMap
+    not_loaded_control_frames: list[MapID]
+    not_loaded_pos_frames: list[MapID]
 
     control_record: ControlRecord
     control_start_record: ControlStartRecord
@@ -385,6 +406,7 @@ class State:
     # NOTE: Maybe we don't need these
     current_fade: bool
     current_status: ControlMapStatus
+    current_led_status: ControlMapLEDStatus
     current_pos: PosMapStatus
 
     current_editing_frame: int
@@ -398,20 +420,22 @@ class State:
     local_view: bool
 
     selection_mode: SelectMode
-    selected_obj_names: List[str]
-    selected_obj_type: Optional[SelectedPartType]
+    selected_obj_names: list[str]
+    selected_obj_type: SelectedPartType | None
 
     clipboard: Clipboard
 
     models: Models
-    model_names: List[ModelName]
+    model_names: list[ModelName]
     models_array: ModelsArray
     model_dancer_index_map: ModelDancerIndexMap
 
     dancers: Dancers
-    dancer_names: List[DancerName]
+    dancer_names: list[DancerName]
     dancers_array: DancersArray
     dancer_part_index_map: DancerPartIndexMap
+    show_dancers: list[bool]
+    dancer_load_frames: tuple[int, int]
 
     part_type_map: PartTypeMap
     led_part_length_map: LEDPartLengthMap
@@ -434,3 +458,6 @@ class State:
     led_map_pending: LEDMapPending
 
     dancer_part_objects_map: DancerPartObjectsMap
+
+    music_beats: list[int]
+    scene_start_point: list[int]

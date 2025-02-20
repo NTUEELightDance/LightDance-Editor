@@ -13,5 +13,5 @@ while true; do
     fi
 done
 
-play '../../files/music/2024.mp3' trim $STARTTIME &
+play '../../files/music/2024EEcamp.mp3' trim $STARTTIME &
 echo "start playing"

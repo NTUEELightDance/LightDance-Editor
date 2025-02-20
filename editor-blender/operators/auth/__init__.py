@@ -1,7 +1,6 @@
 import bpy
 
 from ...core.actions.state.auth import login, logout
-from ...core.utils.notification import notify
 from ...operators.async_core import AsyncOperator
 from ...properties.ui.types import LoginPanelStatusType
 

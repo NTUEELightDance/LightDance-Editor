@@ -52,6 +52,8 @@ impl ControlMapQuery {
         let clients = &context.clients;
         let redis = clients.redis_client();
 
+        tracing::info!("Query: controlMap");
+
         // if "select" or frame_ids are not provided, return all control frame ids
         // if "select" and frame_ids are provided, return the frame ids specified
         let frame_ids = match select {

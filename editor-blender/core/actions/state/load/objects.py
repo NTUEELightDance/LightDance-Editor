@@ -1,19 +1,21 @@
 import asyncio
 import os
-from typing import Dict, List, Optional, cast
+from typing import cast
 
 import bpy
 
 from .....properties.types import DancerModelHashItemType, LightType, ObjectType
 from ....config import config
+from ....log import logger
 from ....models import DancersArrayPartsItem, ModelName, PartType
 from ....states import state
-from ....utils.convert import rgb_to_float
 from ....utils.object import set_bpy_props
 
 
 def check_local_object_list():
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    if not bpy.context:
+        return
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
     dancer_objects_exist = {}
     dancer_model_update = state.init_temps.dancer_model_update
 
@@ -21,10 +23,11 @@ def check_local_object_list():
 
     # local_dancer_models_hash_list = cast(
     local_dancer_models_hash = cast(
-        List[DancerModelHashItemType],
+        list[DancerModelHashItemType],
         getattr(bpy.context.scene, "ld_dancer_model_hash"),
     )
 
+    # Do NOT skip unselected dancers here
     for dancer_item in state.dancers_array:
         dancer_name = dancer_item.name
         dancer_objects_exist[dancer_name] = True
@@ -65,7 +68,7 @@ def check_local_object_list():
         if local_dancer_model_hash is None or local_dancer_model_hash[
             1
         ].model_hash != dancer_models_hash.get(dancer_name, ""):
-            print(f"Model hash mismatch for {dancer_name}")
+            logger.warning(f"Model hash mismatch for {dancer_name}")
             dancer_model_update[dancer_name] = True
             if local_dancer_model_hash is not None:
                 getattr(bpy.context.scene, "ld_dancer_model_hash").remove(
@@ -81,7 +84,7 @@ def check_local_object_list():
 
 
 async def import_model_to_asset(
-    model_name: str, model_filepath: str, parts: List[DancersArrayPartsItem]
+    model_name: str, model_filepath: str, parts: list[DancersArrayPartsItem]
 ):
     """
     set dancer collection asset
@@ -96,7 +99,7 @@ async def import_model_to_asset(
         else:
             break
 
-    model_objs = cast(List[bpy.types.Object], model_objs)
+    model_objs = cast(list[bpy.types.Object], model_objs)
 
     col = bpy.data.collections.new(model_name)
     for obj in model_objs:
@@ -107,13 +110,40 @@ async def import_model_to_asset(
         # avoid part name conflict
         obj.name = f"{model_name}.{obj.name}"
 
+        # Add material to each object
+        material = bpy.data.materials.new(name=f"{obj.name}_Material")
+        material.use_nodes = True
+
+        # Ensure the object has valid data
+        if obj.data is not None and hasattr(obj.data, "materials"):
+            # Create new nodes and some setup
+            bsdf_node = material.node_tree.nodes.new(type="ShaderNodeBsdfPrincipled")  # type: ignore
+            object_node = material.node_tree.nodes.new(type="ShaderNodeObjectInfo")  # type: ignore
+
+            material.node_tree.links.new(object_node.outputs[1], bsdf_node.inputs[0])  # type: ignore
+            material.node_tree.links.new(object_node.outputs[1], bsdf_node.inputs[26])  # type: ignore
+            setattr(bsdf_node.inputs[27], "default_value", 5.0)
+
+            # Material Output node if it doesn't exist
+            material_output_node = material.node_tree.nodes.get("Material Output")  # type: ignore
+            if not material_output_node:
+                material_output_node = material.node_tree.nodes.new(type="ShaderNodeOutputMaterial")  # type: ignore
+
+            material.node_tree.links.new(bsdf_node.outputs[0], material_output_node.inputs["Surface"])  # type: ignore
+
+            # Assign material to the object
+            if obj.data.materials:  # type: ignore
+                obj.data.materials[0] = material  # type: ignore
+            else:
+                obj.data.materials.append(material)  # type: ignore
+
     # Clean meshes
     sphere_mesh = find_first_mesh("Sphere")
     if sphere_mesh is not None:
         sphere_mesh.name = f"{model_name}.Sphere"
 
         for obj in model_objs:
-            if obj.type == "EMPTY":
+            if obj.type == "EMPTY" or not obj.data:
                 continue
             if "Sphere" in obj.data.name and obj.data != sphere_mesh:
                 old_mesh = cast(bpy.types.Mesh, obj.data)
@@ -125,7 +155,7 @@ async def import_model_to_asset(
         human_mesh.name = f"{model_name}.Human"
 
     for obj in model_objs:
-        if obj.type == "EMPTY":
+        if obj.type == "EMPTY" or not obj.data:
             continue
         mesh = obj.data
         if "BezierCurve" in mesh.name and model_name not in mesh.name:
@@ -137,14 +167,14 @@ async def import_model_to_asset(
             part_obj for part_obj in model_objs if part_obj.name.find(part.name) >= 0
         ]
         if len(part_objects) == 0:
-            print("Dancer part not found (maybe should reload asset)")
+            logger.warning("Dancer part not found (maybe should reload asset)")
 
     bpy.ops.outliner.orphans_purge(do_recursive=True)
-    print(f"Model: {model_name} imported")
+    logger.info(f"Model: {model_name} imported")
 
 
-def find_first_mesh(mesh_name: str) -> Optional[bpy.types.Mesh]:
-    data_meshes = cast(Dict[str, bpy.types.Mesh], bpy.data.meshes)
+def find_first_mesh(mesh_name: str) -> bpy.types.Mesh | None:
+    data_meshes = cast(dict[str, bpy.types.Mesh], bpy.data.meshes)
     mesh = data_meshes.get(mesh_name)
 
     if mesh is None:
@@ -159,12 +189,17 @@ def find_first_mesh(mesh_name: str) -> Optional[bpy.types.Mesh]:
 
 
 def setup_dancer_part_objects_map():
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
+
+    show_dancer = state.show_dancers
 
     dancer_array = state.dancers_array
     for dancer in dancer_array:
         dancer_name = dancer.name
         dancer_index = state.dancer_part_index_map[dancer_name].index
+
+        if not show_dancer[dancer_index]:
+            continue
 
         dancer_obj = data_objects[dancer_name]
         state.dancer_part_objects_map[dancer_name] = (dancer_obj, {})
@@ -185,7 +220,9 @@ def recursive_remove_object(obj: bpy.types.Object):
 
 
 async def setup_objects():
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    if not bpy.context:
+        return
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     """
     clear all objects in viewport
@@ -212,7 +249,9 @@ async def setup_objects():
             if old_obj.visible_get():
                 bpy.data.objects.remove(old_obj)
 
-    models_ready: Dict[ModelName, bool] = {}
+    models_ready: dict[ModelName, bool] = {}
+
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
 
     dancer_array = state.dancers_array
     for dancer_index, dancer in enumerate(dancer_array):
@@ -220,12 +259,18 @@ async def setup_objects():
         dancer_object_exist = dancers_object_exist[dancer_name]
         dancer_model_update = dancers_model_update[dancer_name]
 
+        if not show_dancer_dict[dancer.name]:
+            if dancer_object_exist:
+                dancer_obj = data_objects[dancer_name]
+                recursive_remove_object(dancer_obj)
+            continue
+
         # Dancer object exists and model doesn't need to be updated
         if dancer_object_exist and not dancer_model_update:
             state.init_temps.dancers_reset_animation[dancer_index] = False
             continue
 
-        print(f"Setting up dancer {dancer.name}...")
+        logger.info(f"Setting up dancer {dancer.name}...")
         dancer_load = assets_load["DancerMap"][dancer_name]
 
         # Remove existing dancer object if model needs to be updated
@@ -244,7 +289,7 @@ async def setup_objects():
             and model_name in bpy.data.collections.keys()
         ):
             collection = cast(bpy.types.Collection, bpy.data.collections[model_name])
-            all_objects = cast(List[bpy.types.Object], collection.all_objects)
+            all_objects = cast(list[bpy.types.Object], collection.all_objects)
             collection_objects = [obj for obj in all_objects]
 
             bpy.data.collections.remove(collection)
@@ -256,16 +301,16 @@ async def setup_objects():
 
         models_ready[model_name] = True
 
-        data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+        data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
         dancer_asset = cast(bpy.types.Collection, bpy.data.collections[model_name])
         dancer_asset_objects = {
             cast(str, obj.name): obj
-            for obj in cast(List[bpy.types.Object], dancer_asset.all_objects)
+            for obj in cast(list[bpy.types.Object], dancer_asset.all_objects)
         }
 
         asset_dancer_obj = dancer_asset_objects.get(f"{model_name}.{model_name}")
         if asset_dancer_obj is None:
-            print(f"Dancer {dancer_name} not found in asset")
+            logger.warning(f"Dancer {dancer_name} not found in asset")
             continue
 
         dancer_obj = cast(bpy.types.Object, asset_dancer_obj.copy())
@@ -276,12 +321,13 @@ async def setup_objects():
             ld_dancer_name=dancer.name,
             ld_model_name=model_name,
             ld_object_type=ObjectType.DANCER.value,
+            rotation_mode="XYZ",
         )
         bpy.context.scene.collection.objects.link(dancer_obj)
 
         asset_human_obj = dancer_asset_objects.get(f"{model_name}.Human")
         if asset_human_obj is None:
-            print(f"Human not found in dancer {dancer_name}")
+            logger.warning(f"Human not found in dancer {dancer_name}")
             continue
 
         human_obj = cast(bpy.types.Object, asset_human_obj.copy())
@@ -300,7 +346,9 @@ async def setup_objects():
             asset_part_obj_name = f"{model_name}.{part_item.name}"
             asset_part_obj = dancer_asset_objects.get(asset_part_obj_name)
             if asset_part_obj is None:
-                print(f"Object {asset_part_obj_name} not found in dancer {dancer_name}")
+                logger.warning(
+                    f"Object {asset_part_obj_name} not found in dancer {dancer_name}"
+                )
                 continue
 
             part_obj = cast(bpy.types.Object, asset_part_obj.copy())
@@ -322,7 +370,7 @@ async def setup_objects():
 
                 length = part_item.length
                 if length is None:
-                    print(
+                    logger.warning(
                         f"LED part {part_item.name} length not found in dancer {dancer_name}"
                     )
                     continue
@@ -331,7 +379,7 @@ async def setup_objects():
                     asset_sub_obj_name = f"{asset_part_obj_name}.{position:03}"
                     asset_led_obj = dancer_asset_objects.get(asset_sub_obj_name)
                     if asset_led_obj is None:
-                        print(
+                        logger.warning(
                             f"LED part {part_item.name} position {position} not found in dancer {dancer_name}"
                         )
                         continue
@@ -367,6 +415,10 @@ async def setup_objects():
                 )
                 bpy.context.scene.collection.objects.link(part_obj)
 
+        bpy.ops.object.select_all(action="DESELECT")
+        dancer_obj.select_set(True)
+        bpy.ops.object.transform_apply(rotation=True)
+
         # Add model hash to blender if dancer is successfully loaded
         new_dancer_models_hash = cast(
             DancerModelHashItemType,
@@ -378,43 +430,3 @@ async def setup_objects():
         ]
 
     setup_dancer_part_objects_map()
-
-
-def setup_floor():
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
-
-    # Create floor
-    stage_scale: float = getattr(config, "stage_scale")
-    stage_width: float = getattr(config, "stage_width") * stage_scale
-    stage_length: float = getattr(config, "stage_length") * stage_scale
-    stage_stroke = 0.02
-    stage_color = (*rgb_to_float((38, 123, 216)), 1)
-
-    edge_locations = [
-        (0, stage_width / 2, 0),
-        (0, -stage_width / 2, 0),
-        (stage_length / 2, 0, 0),
-        (-stage_length / 2, 0, 0),
-    ]
-    edge_scales = [
-        (stage_length + stage_stroke, stage_stroke, stage_stroke),
-        (stage_length + stage_stroke, stage_stroke, stage_stroke),
-        (stage_stroke, stage_width + stage_stroke, stage_stroke),
-        (stage_stroke, stage_width + stage_stroke, stage_stroke),
-    ]
-
-    for i in range(4):
-        name = f"FloorEdge{i}"
-        if data_objects.get(name) is not None:
-            bpy.data.objects.remove(data_objects[name])
-
-        bpy.ops.mesh.primitive_cube_add(size=1)
-        edge_obj = bpy.context.object
-        edge_obj.name = f"FloorEdge{i}"
-        edge_obj.location = edge_locations[i]
-        edge_obj.scale = edge_scales[i]
-        edge_obj.color = cast(bpy.types.bpy_prop_array, stage_color)
-        edge_obj.hide_select = True
-
-    for obj in cast(List[bpy.types.Object], bpy.context.view_layer.objects.selected):
-        obj.select_set(False)

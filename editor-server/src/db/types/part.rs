@@ -1,7 +1,8 @@
 //! Part data type
-use async_graphql::{Enum, SimpleObject};
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, Type};
+use async_graphql::SimpleObject;
+use sqlx::FromRow;
+
+use crate::types::global::PartType;
 
 #[derive(SimpleObject, FromRow, Debug, Clone)]
 pub struct PartData {
@@ -10,21 +11,4 @@ pub struct PartData {
     pub name: String,
     pub r#type: PartType,
     pub length: Option<i32>,
-}
-
-#[derive(Type, Enum, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Debug, Default)]
-pub enum PartType {
-    #[default]
-    LED,
-    FIBER,
-}
-
-impl From<String> for PartType {
-    fn from(data: String) -> Self {
-        match data.as_str() {
-            "LED" => Self::LED,
-            "FIBER" => Self::FIBER,
-            _ => panic!("Invalid part type."),
-        }
-    }
 }

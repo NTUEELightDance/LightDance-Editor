@@ -15,7 +15,7 @@
   An online editor to design, simulate and control the lights
 </p>
 <div align="center" >
-    <img src="https://user-images.githubusercontent.com/17617373/199907047-a87e1cea-4ff4-45c9-9f41-e05d28a47473.gif" width="100%">
+    <img src="https://github.com/user-attachments/assets/31783e15-0606-47ef-8204-50068e81d938" width="100%" alt="Editor">
 </div>
 
 ## Architecture
@@ -25,7 +25,6 @@
 ### Services
 
 ```text
-http://localhost:8080 - editor
 http://localhost:4000 - editor-server
 http://localhost:8081 - file-server
 http://localhost:8082 - controller-server
@@ -35,29 +34,57 @@ http://localhost:8082 - controller-server
 
 ### Local
 
+#### Install Pre-Commit
+
+```sh
+# in Lightdance-Editor
+pre-commit install
+```
+
+#### Configure node environment
+
+```sh
+# in Lightdance-Editor
+nvm install
+corepack enable
+corepack install
+```
+
+Then by executing `nvm use` you can choose the specified version of node and pnpm
+
+#### Start database
+
+copy the environment variables for development
+
+```sh
+# in Lightdance-Editor/editor-server
+cp .env.development .env
+```
+
+start mySQL and redisDB
+
+```sh
+# in Lightdance-Editor
+docker compose -f dev.docker-compose.yml up -d
+```
+
+migrate the database
+
+```sh
+# in Lightdance-Editor/editor-server
+cargo prisma migrate dev --skip-generate --name init
+```
+
 #### Install the dependencies
 
 This will install all dependencies for the app.
 
 ```sh
+# in Lightdance-Editor
 pnpm install:all
 ```
 
-#### Initialize Prisma
-
-If you are running this for the first time, you need follow the instructions in [editor-server/README.md](editor-server/README.md) to initialize prisma.
-
-```sh
-echo "I know you only want to copy and paste commands, but please read the instructions in editor-server/README.md"
-```
-
-#### Start database
-
-You need to have postgresql and redis running for the backend to work.
-
-```sh
-docker compose -f dev.docker-compose.yml up -d
-```
+This will setup a venv for python (>3.10 recommended), remember to select it as interpreter before developing frontend.
 
 #### Run all services
 
@@ -66,18 +93,31 @@ There are the services you'll need to run if you are developing editor-server. Y
 ```sh
 pnpm dev:file-server
 pnpm dev:editor-server
-pnpm dev:editor
 ```
 
 If you are developing the command center, you may also need to run:
 
 ```sh
+# in Lightdance-Editor/controller-server
+cp .env.defaults .env
+
+# in Lightdance-Editor
 pnpm dev:controller-server
 ```
 
+To bundle the frontend blender add-on, run:
+
+```sh
+pnpm dev:bundle # For local development
+pnpm prod:bundle # For production
+```
+
+The bundled extension will be stored at `./editor-blender-{unix,win}.zip` for Linux/MacOS and Windows respectively
+, to install the add-on, see [Blender Add-ons Documentation](https://docs.blender.org/manual/en/latest/editors/preferences/addons.html) or `editor-blender/README.md`.
+
 #### Run all services in parallel
 
-This command runs all services in parallel. You can see the editor on `http://localhost:8080`. This is useful for demo, yet not recommended in development.
+This command runs all services in parallel. This is useful for demo, yet not recommended in development.
 
 ```sh
 pnpm dev
@@ -95,13 +135,18 @@ node initDB.js jsons/exportDataEmpty.json
 
 ## Production
 
+migrate the database
+
+```sh
+# in Lightdance-Editor/editor-server
+cargo prisma migrate dev --skip-generate --name init
+```
+
 Start all services
 
 ```sh
 docker compose -f prod-support/prod.docker-compose.yml up -d
 ```
-
-Editor will run on `http://localhost:8080`.
 
 Editor-server will run on `http://localhost:4000`.
 

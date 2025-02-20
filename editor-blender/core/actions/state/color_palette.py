@@ -45,6 +45,8 @@ async def edit_color(id: ColorID, name: ColorName, rgb: RGB):
 
 
 def setup_color_palette_from_state(colormap: ColorMap):
+    if not bpy.context:
+        return
     getattr(bpy.context.window_manager, "ld_color_palette").clear()
 
     for id, color in colormap.items():

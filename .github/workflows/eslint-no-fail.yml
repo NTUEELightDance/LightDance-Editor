@@ -1,15 +1,16 @@
-name: eslint no fail
-run-name: eslint no fail ${{ github.event.pull_request.branches[0].name }}
+name: ESLint
 on: [push, pull_request]
 jobs:
-  eslint:
+  controller-server-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install corepack
+        run: npm install -g corepack@latest
       - name: enable pnpm
         run: corepack enable
-      - name: Install modules in editor, controller-server
-        run: pnpm --dir editor install; pnpm --dir controller-server install
-      - name: Run ESLint for editor, controller-server
-        run: pnpm lint
+      - name: Install modules in controller-server
+        run: pnpm --dir controller-server install
+      - name: Run ESLint for controller-server
+        run: pnpm --dir controller-server lint
         continue-on-error: true

@@ -18,6 +18,8 @@ def start_playing():
 
 
 def stop_playing():
+    if not bpy.context:
+        return
     # Update current index
     update_frame_index(bpy.context.scene.frame_current)
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

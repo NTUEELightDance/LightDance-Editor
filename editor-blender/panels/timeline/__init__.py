@@ -16,7 +16,9 @@ class TimelinePanel(bpy.types.Panel):
     # def poll(cls, context: bpy.types.Context):
     #     return state.ready
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
         if not state.ready:
             return
 
@@ -42,6 +44,11 @@ class TimelinePanel(bpy.types.Panel):
         row.operator("lightdance.decrease_frame_index", text="", icon="TRIA_LEFT")
         row.prop(context.window_manager, "ld_current_frame_index", text="")
         row.operator("lightdance.increase_frame_index", text="", icon="TRIA_RIGHT")
+
+        row = layout.row(align=True)
+        row.label(text="Beat")
+        row.operator("lightdance.decrease_beat_index", text="", icon="TRIA_LEFT")
+        row.operator("lightdance.increase_beat_index", text="", icon="TRIA_RIGHT")
 
         row = layout.row(align=True)
         row.operator("lightdance.copy_frame", text="Copy", icon="PLAY")

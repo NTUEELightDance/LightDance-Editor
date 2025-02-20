@@ -1,5 +1,3 @@
-from typing import Optional
-
 import bpy
 
 from ...models import EditMode
@@ -7,8 +5,10 @@ from ...states import state
 
 
 def update_edit_model(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    if not bpy.context:
+        return
     dancer_name: str = getattr(self, "edit_dancer")
-    dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+    dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
 
     if dancer_obj is not None:
         dancer_obj.select_set(True)
@@ -16,8 +16,10 @@ def update_edit_model(self: bpy.types.PropertyGroup, context: bpy.types.Context)
 
 
 def update_edit_dancer(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    if not bpy.context:
+        return
     dancer_name: str = getattr(self, "edit_dancer")
-    dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer_name)
+    dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
 
     if dancer_obj is not None:
         dancer_obj.select_set(True)
@@ -25,10 +27,12 @@ def update_edit_dancer(self: bpy.types.PropertyGroup, context: bpy.types.Context
 
 
 def update_edit_part(self: bpy.types.PropertyGroup, context: bpy.types.Context):
+    if not bpy.context:
+        return
     dancer_index = self["edit_dancer"]
 
     part_obj_name = f"{dancer_index}_" + getattr(self, "edit_part")
-    part_obj: Optional[bpy.types.Object] = bpy.data.objects.get(part_obj_name)
+    part_obj: bpy.types.Object | None = bpy.data.objects.get(part_obj_name)
 
     if part_obj is not None:
         part_obj.select_set(True)
@@ -52,6 +56,6 @@ def update_multi_select_color(
 
     color: str = getattr(self, "multi_select_color")
     for obj_name in state.selected_obj_names:
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(obj_name)
         if obj is not None:
             setattr(obj, "ld_color", color)

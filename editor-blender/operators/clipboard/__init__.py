@@ -22,7 +22,7 @@ class CopyOperator(bpy.types.Operator):
     bl_idname = "lightdance.copy"
     bl_label = "Copy"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         if state.editor != Editor.CONTROL_EDITOR:
             notify("INFO", "Not Control Editor")
             return {"FINISHED"}
@@ -43,7 +43,7 @@ class PasteOperator(AsyncOperator):
     bl_label = "Paste"
     # bl_options = {"REGISTER", "UNDO"}
 
-    async def async_execute(self, context: bpy.types.Context):
+    async def async_execute(self, context: bpy.types.Context | None):
         if state.editor != Editor.CONTROL_EDITOR:
             notify("INFO", f"Not Control Editor")
             return {"FINISHED"}
@@ -71,10 +71,10 @@ class CopyFrameOperator(bpy.types.Operator):
     bl_label = "Copy"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.edit_state == EditMode.IDLE
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         if state.edit_state != EditMode.IDLE:
             notify("INFO", f"Not allowed in Edit Mode")
             return {"CANCELLED"}
@@ -97,7 +97,7 @@ class PasteFrameOperator(AsyncOperator):
     confirm_add: bpy.props.BoolProperty(name="Add a new frame here", default=False)  # type: ignore
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.edit_state == EditMode.IDLE and (
             (
                 state.editor == Editor.CONTROL_EDITOR
@@ -122,9 +122,12 @@ class PasteFrameOperator(AsyncOperator):
 
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
         if state.edit_state != EditMode.IDLE:
             notify("INFO", f"Not allowed in Edit Mode")
+            return {"CANCELLED"}
+
+        if not context:
             return {"CANCELLED"}
 
         clipboard = state.clipboard
@@ -137,7 +140,7 @@ class PasteFrameOperator(AsyncOperator):
             current_frame_id = state.control_record[current_index]
             current_frame = state.control_map[current_frame_id]
 
-            frame_current = bpy.context.scene.frame_current
+            frame_current = context.scene.frame_current
 
             if frame_current != current_frame.start:
                 return context.window_manager.invoke_props_dialog(self)
@@ -150,7 +153,7 @@ class PasteFrameOperator(AsyncOperator):
             current_frame_id = state.pos_record[current_index]
             current_frame = state.pos_map[current_frame_id]
 
-            frame_current = bpy.context.scene.frame_current
+            frame_current = context.scene.frame_current
 
             if frame_current != current_frame.start:
                 return context.window_manager.invoke_props_dialog(self)

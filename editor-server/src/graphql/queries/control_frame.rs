@@ -18,6 +18,8 @@ impl ControlFrameQuery {
         let clients = context.clients;
         let mysql = clients.mysql_pool();
 
+        tracing::info!("Query: controlFrame");
+
         // query the database with the given frame_id
         let result = sqlx::query_as!(
             ControlFrameData,

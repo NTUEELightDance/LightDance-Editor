@@ -1,0 +1,7 @@
+gql[all]
+dataclass_wizard
+aiohttp
+python-dotenv
+typeguard
+websockets
+tzdata

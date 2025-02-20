@@ -17,6 +17,8 @@ from ..core.utils.operator import Debounce
 
 
 def frame_change_post_body():
+    if not bpy.context:
+        return
     if state.edit_state == EditMode.EDITING:
         # When the frame is changed, check where the editing frame is attached
         # If it is attached, sync the properties
@@ -63,6 +65,8 @@ debounce = Debounce(frame_change_post_body, 0.3)
 # This won't be triggered when pause animation
 # Similar logic is implemented in core/actions/state/animation.py
 def frame_change_post(scene: bpy.types.Scene):
+    if not bpy.context:
+        return
     bpy.context.window_manager["ld_time"] = frame_to_time(
         bpy.context.scene.frame_current
     )

@@ -1,13 +1,14 @@
 import asyncio
 import time
-import traceback
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import bpy
 
 from ..asyncio import AsyncTask
+from ..log import logger
 
-slider_dragging_callback: Optional[Callable[[], None]] = None
+slider_dragging_callback: Callable[[], None] | None = None
 
 
 def set_slider_dragging_callback(callback: Callable[[], None]):
@@ -25,7 +26,7 @@ def execute_slider_dragging_callback():
 def execute_operator(idname: str, **kwargs: Any):
     attrs = idname.split(".")
     if len(attrs) != 2:
-        print("Invalid idname:", idname)
+        logger.error(f"Invalid idname: {idname}")
         return
 
     module_name, ops_name = attrs
@@ -34,10 +35,9 @@ def execute_operator(idname: str, **kwargs: Any):
         module = getattr(bpy.ops, module_name)
         ops: Callable[[str], Any] = getattr(module, ops_name)
         ops("INVOKE_DEFAULT", **kwargs)
-        print("Executed operator:", idname)
+        logger.debug(f"Executed operator {idname}")
     except:
-        traceback.print_exc()
-        print("Failed to execute operator:", idname)
+        logger.exception(f"Failed to execute operator {idname}")
 
 
 class Debounce:

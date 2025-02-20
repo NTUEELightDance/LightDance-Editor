@@ -91,7 +91,7 @@ export function handleSync(msg: FromControlPanelSync) {
 
 export function handlePlay(msg: FromControlPanelPlay) {
   const { dancers, start, timestamp } = msg.payload;
-  
+
   const timestampString = Math.round(timestamp).toString();
 
   const toRPiMsg: ToRPiPlay = {
@@ -101,7 +101,7 @@ export function handlePlay(msg: FromControlPanelPlay) {
     payload: [
       "playerctl",
       "play",
-      Math.round(start/1000).toString(),
+      Math.round(start / 1000).toString(),
       "-d",
       timestampString,
     ],
@@ -113,7 +113,7 @@ export function handlePlay(msg: FromControlPanelPlay) {
 
   const _timestampString = Math.round(timestamp - music_delay).toString();
 
-  return exec(`./scripts/schedule_play.sh ${_timestampString} ${start/1000}`);
+  return exec(`./scripts/schedule_play.sh ${_timestampString} ${start / 1000}`);
 }
 
 export function handlePause(msg: FromControlPanelPause) {

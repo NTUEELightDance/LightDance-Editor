@@ -1,5 +1,4 @@
 import asyncio
-from typing import Dict, List, Optional
 
 import bpy
 
@@ -10,6 +9,11 @@ from ....api.led_agent import led_agent
 from ....api.model_agent import model_agent
 from ....client import client
 from ....client.subscription import subscribe
+from ....core.actions.property.partial_load import (
+    init_dancer_selection_from_state,
+    init_loaded_frame_range,
+    move_current_frame_to_min_loaded_frame,
+)
 from ....core.actions.state.app_state import (
     set_logged_in,
     set_ready,
@@ -26,6 +30,7 @@ from ....core.actions.state.current_status import (
 from ....core.actions.state.editor import setup_control_editor
 from ....core.actions.state.led_map import set_led_map
 from ....core.asyncio import AsyncTask
+from ....core.log import logger
 from ....core.states import state
 from ....core.utils.get_data import get_control, get_pos
 from ....core.utils.ui import redraw_area
@@ -45,11 +50,11 @@ from ...models import (
     PartType,
     PartTypeMap,
 )
-from ...states import state
 from ...utils.convert import frame_to_time
 from ...utils.operator import execute_operator
 from ..state.load import init_assets, load_data
 
+# from ....core.actions.state.load.objects import check_local_object_list
 # async def __merge_pos_map(
 #     existing: Optional[QueryPosMapPayload], incoming: QueryPosMapPayload
 # ) -> QueryPosMapPayload:
@@ -78,10 +83,14 @@ def read_preferences():
     preferences: Preferences = get_storage("preferences")
     state.preferences.auto_sync = preferences.auto_sync
     state.preferences.follow_frame = preferences.follow_frame
+    state.preferences.show_waveform = preferences.show_waveform
+    state.preferences.show_nametag = preferences.show_nametag
 
     # Trigger property setter
     preferences.auto_sync = state.preferences.auto_sync
     preferences.follow_frame = state.preferences.follow_frame
+    preferences.show_waveform = state.preferences.show_waveform
+    preferences.show_nametag = state.preferences.show_nametag
 
 
 async def init():
@@ -143,7 +152,7 @@ async def reload():
     set_ready(False)
 
     unmount_handlers()
-    print("Handlers unmounted")
+    logger.info("Handlers unmounted")
 
     await init_blender()
 
@@ -185,7 +194,7 @@ def close_blender():
     ]
     asyncio.get_event_loop().run_until_complete(asyncio.gather(*close_client_tasks))
 
-    print("Blender closed")
+    logger.info("Blender closed")
 
 
 async def init_editor():
@@ -197,6 +206,7 @@ async def init_editor():
         [init_pos_map, init_control_map],
         [init_assets],
     ]
+    ...
     batches_completes = [[False] * len(batch) for batch in batches_functions]
 
     while True:
@@ -204,7 +214,7 @@ async def init_editor():
             for batch in range(len(batches_functions)):
                 batch_functions = batches_functions[batch]
                 batch_completes = batches_completes[batch]
-                batch_tasks: List[asyncio.Task[Optional[BaseException]]] = [
+                batch_tasks: list[asyncio.Task[BaseException | None]] = [
                     empty_task
                 ] * len(batch_functions)
 
@@ -220,27 +230,36 @@ async def init_editor():
                 for index, result in enumerate(batch_results):
                     if isinstance(result, BaseException):
                         batch_done = False
-                        print(f"Batch {batch} failed: {result}")
+                        logger.error(f"Batch {batch} failed: {result}")
                     else:
                         batch_completes[index] = True
 
                 if not batch_done:
-                    raise Exception(f"Batch {batch} failed")
+                    logger.exception(f"Batch {batch} failed")
+                    raise
 
             break
         except Exception as e:
-            print(e)
+            logger.exception(e)
 
         await asyncio.sleep(2)
     state.user_log = ""
     state.loading = True
 
+    # Must place here, or else init_ctrl_map may access obj of previously unselected dancers after reloading files that are partialy loaded.
+
+    state.show_dancers = [True] * len(state.dancers)
+    init_dancer_selection_from_state()
+    init_loaded_frame_range()
+
 
 async def init_load():
+    if not bpy.context:
+        return
     state.loading = False
     redraw_area({"VIEW_3D"})
     await load_data()
-    print("Editor initialized")
+    logger.info("Editor initialized")
     # In case the connection is lost during long initialization
     await client.restart_http()
     await client.restart_graphql()
@@ -250,10 +269,10 @@ async def init_load():
 
     # Mount handlers
     mount_handlers()
-    print("Handlers mounted")
+    logger.info("Handlers mounted")
 
     # Initialize current index and time
-    bpy.context.scene.frame_current = 0
+    move_current_frame_to_min_loaded_frame()
     state.current_control_index = calculate_current_status_index()
     update_current_status_by_index()
 
@@ -263,6 +282,20 @@ async def init_load():
     setup_control_editor()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+    area_ui_type = "TIMELINE"
+    areas = [
+        area for area in bpy.context.window.screen.areas if area.ui_type == area_ui_type
+    ]
+
+    with bpy.context.temp_override(
+        window=bpy.context.window,
+        area=areas[0],
+        region=[region for region in areas[0].regions if region.type == "WINDOW"][0],
+        screen=bpy.context.window.screen,
+    ):
+        if bpy.ops.action.view_frame.poll():  # type:ignore
+            bpy.ops.action.view_frame()
 
 
 async def init_models():
@@ -284,7 +317,7 @@ async def init_models():
     model_dancer_index_map: ModelDancerIndexMap = {}
 
     for index, model in enumerate(models_array):
-        dancers: Dict[DancerName, int] = dict(
+        dancers: dict[DancerName, int] = dict(
             [
                 (dancer_name, dancer_index)
                 for dancer_index, dancer_name in enumerate(model.dancers)
@@ -299,7 +332,7 @@ async def init_models():
     state.models_array = models_array
     state.model_dancer_index_map = model_dancer_index_map
 
-    print("Models initialized")
+    logger.info("Models initialized")
 
 
 async def init_dancers():
@@ -330,7 +363,7 @@ async def init_dancers():
     dancer_part_index_map: DancerPartIndexMap = {}
 
     for index, dancer in enumerate(dancers_array):
-        parts: Dict[PartName, int] = dict(
+        parts: dict[PartName, int] = dict(
             [(part.name, part_index) for part_index, part in enumerate(dancer.parts)]
         )
         dancer_part_index_map[dancer.name] = DancerPartIndexMapItem(
@@ -345,7 +378,10 @@ async def init_dancers():
     state.dancers_array = dancers_array
     state.dancer_part_index_map = dancer_part_index_map
 
-    print("Dancers initialized")
+    if len(state.show_dancers) == 0:
+        state.show_dancers = [True] * len(state.dancer_names)
+
+    logger.info("Dancers initialized")
 
 
 async def init_color_map():
@@ -357,7 +393,7 @@ async def init_color_map():
         raise Exception("Failed to initialize color map")
 
     set_color_map(color_map)
-    print("Color map initialized")
+    logger.info("Color map initialized")
 
 
 async def init_led_map():
@@ -369,7 +405,7 @@ async def init_led_map():
 
     set_led_map(led_map)
 
-    print("LED map initialized")
+    logger.info("LED map initialized")
 
 
 async def init_control_map():
@@ -387,7 +423,7 @@ async def init_control_map():
     state.current_control_index = 0
     update_current_status_by_index()
 
-    print("Control map initialized")
+    logger.info("Control map initialized")
 
 
 async def init_pos_map():
@@ -404,4 +440,4 @@ async def init_pos_map():
     state.current_pos_index = 0
     update_current_pos_by_index()
 
-    print("Pos map initialized")
+    logger.info("Pos map initialized")

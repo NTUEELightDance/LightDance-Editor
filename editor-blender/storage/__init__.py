@@ -4,9 +4,11 @@ import bpy
 
 from ..properties.preferences import Preferences
 
+ext_id = "bl_ext.user_default.lightdance_editor"
+
 
 class LocalStorage(bpy.types.AddonPreferences):
-    bl_idname = "editor-blender"
+    bl_idname = ext_id
 
     token: bpy.props.StringProperty(  # type: ignore
         name="Token",
@@ -31,18 +33,18 @@ class LocalStorage(bpy.types.AddonPreferences):
 
 
 def set_storage(key: str, value: Any):
-    prefs = bpy.context.preferences.addons["editor-blender"].preferences  # type: ignore
+    prefs = bpy.context.preferences.addons[ext_id].preferences  # type: ignore
     setattr(prefs, key, value)  # type: ignore
 
 
 def get_storage(key: str) -> Any:
-    prefs = bpy.context.preferences.addons["editor-blender"].preferences  # type: ignore
+    prefs = bpy.context.preferences.addons[ext_id].preferences  # type: ignore
     return getattr(prefs, key)  # type: ignore
 
 
 def register():
     bpy.utils.register_class(LocalStorage)
-    bpy.context.preferences.use_preferences_save = True
+    bpy.context.preferences.use_preferences_save = True  # type: ignore
 
 
 def unregister():

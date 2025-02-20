@@ -25,7 +25,7 @@ class ClearAssets(bpy.types.Operator):
         default=False,
     )
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         confirm: bool = getattr(self, "confirm")
 
         if not confirm:
@@ -37,7 +37,9 @@ class ClearAssets(bpy.types.Operator):
 
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
+        if not context:
+            return {"CANCELLED"}
         return context.window_manager.invoke_props_dialog(self)
 
 

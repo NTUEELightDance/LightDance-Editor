@@ -20,6 +20,8 @@ impl DancerQuery {
         #[allow(unused)]
         let redis = clients.redis_client();
 
+        tracing::info!("Query: dancers");
+
         let result = sqlx::query!(
             r#"
                 SELECT
@@ -70,6 +72,8 @@ impl DancerQuery {
         let mysql = clients.mysql_pool();
         #[allow(unused)]
         let redis = clients.redis_client();
+
+        tracing::info!("Query: dancer");
 
         let result = sqlx::query!(
             r#"

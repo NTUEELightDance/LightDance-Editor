@@ -1,8 +1,9 @@
 import asyncio
 import json
 from asyncio import Task
+from collections.abc import AsyncGenerator
 from inspect import isclass
-from typing import Any, AsyncGenerator, Dict, Optional, Type, TypeVar, Union
+from typing import Any, TypeVar
 
 from aiohttp import ClientSession
 from dataclass_wizard import JSONWizard
@@ -14,20 +15,21 @@ from graphql import DocumentNode
 from websockets.client import WebSocketClientProtocol, connect
 
 from ..core.config import config
+from ..core.log import logger
 from ..core.states import state
-from ..graphqls.command import (
+from ..schemas.command import (
     FromControllerServer,
     FromControllerServerBoardInfo,
     FromControllerServerCommandResponse,
 )
 from .cache import InMemoryCache, query_defs_to_field_table
 
-GQLSession = Union[AsyncClientSession, ReconnectingAsyncClientSession]
+GQLSession = AsyncClientSession | ReconnectingAsyncClientSession
 
 T = TypeVar("T")
 
 
-def serialize(data: Any) -> Dict[str, Any]:
+def serialize(data: Any) -> dict[str, Any]:
     # TODO: Support enum
     if isinstance(data, JSONWizard):
         return data.to_dict()
@@ -39,7 +41,7 @@ def serialize(data: Any) -> Dict[str, Any]:
         return data
 
 
-def deserialize(response_type: Type[T], data: Any) -> Any:
+def deserialize(response_type: type[T], data: Any) -> Any:
     # TODO: Support enum
     if isclass(response_type) and issubclass(response_type, JSONWizard):
         return response_type.from_dict(data)
@@ -57,36 +59,11 @@ def remove_wrapped_slash(path: str) -> str:
 
 class Clients:
     def __init__(self):
-        # SERVER_URL = os.getenv("SERVER_URL")
-        # if SERVER_URL is None:
-        #     raise Exception("SERVER_URL is not defined")
-        # self.SERVER_URL = remove_wrapped_slash(SERVER_URL)
-        #
-        # HTTP_PATH = os.getenv("HTTP_PATH")
-        # if HTTP_PATH is None:
-        #     raise Exception("HTTP_PATH is not defined")
-        # self.HTTP_PATH = remove_wrapped_slash(HTTP_PATH)
-        #
-        # GRAPHQL_PATH = os.getenv("GRAPHQL_PATH")
-        # if GRAPHQL_PATH is None:
-        #     raise Exception("GRAPHQL_PATH is not defined")
-        # self.GRAPHQL_PATH = remove_wrapped_slash(GRAPHQL_PATH)
-        #
-        # GRAPHQL_WS_PATH = os.getenv("GRAPHQL_WS_PATH")
-        # if GRAPHQL_WS_PATH is None:
-        #     raise Exception("GRAPHQL_WS_PATH is not defined")
-        # self.GRAPHQL_WS_PATH = remove_wrapped_slash(GRAPHQL_WS_PATH)
-        #
-        # FILE_SERVER_URL = os.getenv("FILE_SERVER_URL")
-        # if FILE_SERVER_URL is None:
-        #     raise Exception("FILE_SERVER_URL is not defined")
-        # self.FILE_SERVER_URL = remove_wrapped_slash(FILE_SERVER_URL)
-
-        self.http_client: Optional[ClientSession] = None
-        self.client: Optional[GQLSession] = None
-        self.sub_client: Optional[GQLSession] = None
-        self.file_client: Optional[ClientSession] = None
-        self.command_client: Optional[WebSocketClientProtocol] = None
+        self.http_client: ClientSession | None = None
+        self.client: GQLSession | None = None
+        self.sub_client: GQLSession | None = None
+        self.file_client: ClientSession | None = None
+        self.command_client: WebSocketClientProtocol | None = None
 
         self.cache = InMemoryCache()
 
@@ -98,7 +75,7 @@ class Clients:
         if not task.done():
             task.cancel()
 
-    async def __post__(self, path: str, json: Optional[Any] = None) -> Any:
+    async def __post__(self, path: str, json: Any | None = None) -> Any:
         if self.http_client is None:
             raise Exception("HTTP client is not initialized")
 
@@ -120,8 +97,8 @@ class Clients:
         self,
         document: DocumentNode,
         timeout: int,
-        variable_values: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        variable_values: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         if self.client is None:
             raise Exception("GraphQL client is not initialized")
 
@@ -134,7 +111,7 @@ class Clients:
         return result
 
     async def post(
-        self, path: str, json: Optional[Any] = None, timeout: int = 3000
+        self, path: str, json: Any | None = None, timeout: int = 3000
     ) -> Any:
         task = asyncio.ensure_future(self.__post__(path, json))
         asyncio.ensure_future(self.__timeout__(task, timeout))
@@ -142,9 +119,7 @@ class Clients:
         result = await task
         return result
 
-    async def get(
-        self, path: str, json: Optional[Any] = None, timeout: int = 3000
-    ) -> Any:
+    async def get(self, path: str, json: Any | None = None, timeout: int = 3000) -> Any:
         task = asyncio.ensure_future(self.__get__(path))
         asyncio.ensure_future(self.__timeout__(task, timeout))
 
@@ -157,7 +132,7 @@ class Clients:
 
         path = remove_wrapped_slash(path)
         http_path = f"/{path}"
-        print(http_path)
+        logger.debug(f"Fetching {http_path}")
         async with self.file_client.get(http_path) as response:
             return await response.json()
 
@@ -167,13 +142,13 @@ class Clients:
 
         path = remove_wrapped_slash(path)
         http_path = f"/{path}"
-        print(http_path)
+        logger.debug(f"Fetching {http_path}")
         async with self.file_client.get(http_path) as response:
             return await response.content.read()
 
     async def subscribe(
-        self, data_type: Type[T], query: DocumentNode
-    ) -> AsyncGenerator[Dict[str, T], None]:
+        self, data_type: type[T], query: DocumentNode
+    ) -> AsyncGenerator[dict[str, T], None]:
         if self.sub_client is None:
             raise Exception("GraphQL client is not initialized")
 
@@ -187,11 +162,11 @@ class Clients:
 
     async def execute(
         self,
-        response_type: Type[T],
+        response_type: type[T],
         query: DocumentNode,
-        variables: Optional[Dict[str, Any]] = None,
+        variables: dict[str, Any] | None = None,
         timeout: int = 5000,
-    ) -> Dict[str, T]:
+    ) -> dict[str, T]:
         if self.client is None:
             raise Exception("GraphQL client is not initialized")
 
@@ -213,7 +188,7 @@ class Clients:
 
         if response is None:
             if variables is not None:
-                params: Dict[str, Any] = serialize(variables)
+                params: dict[str, Any] = serialize(variables)
                 response = await self.__execute__(
                     query, variable_values=params, timeout=timeout
                 )
@@ -261,7 +236,7 @@ class Clients:
 
         # HTTP client
         self.http_client = ClientSession(config.SERVER_URL, cookies=token_payload)
-        print("HTTP client opened")
+        logger.info("HTTP client opened")
 
     async def close_http(self) -> None:
         if self.http_client is not None:
@@ -274,7 +249,7 @@ class Clients:
     async def open_file(self) -> None:
         # File client
         self.file_client = ClientSession(config.FILE_SERVER_URL)
-        print("File client opened")
+        logger.info("File client opened")
 
     async def close_file(self) -> None:
         if self.file_client is not None:
@@ -298,7 +273,7 @@ class Clients:
         self.client = await Client(
             transport=transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
-        print("GraphQL client opened")
+        logger.info("GraphQL client opened")
 
         # GraphQL subscription client
         ws_url = config.SERVER_URL.replace("http", "ws")
@@ -311,7 +286,7 @@ class Clients:
         self.sub_client = await Client(
             transport=sub_transport, fetch_schema_from_transport=False
         ).connect_async(reconnecting=True)
-        print("GraphQL subscription client opened")
+        logger.info("GraphQL subscription client opened")
 
     async def close_graphql(self) -> None:
         if self.client is not None:
@@ -329,7 +304,7 @@ class Clients:
             uri=config.CONTROLLER_WS_URL,
             extra_headers=[("token", state.token)],
         )
-        print("Command client opened")
+        logger.info("Command client opened")
 
     async def close_command(self):
         if self.command_client is not None:

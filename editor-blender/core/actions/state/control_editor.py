@@ -1,17 +1,19 @@
-import traceback
-from typing import List, Optional
+from typing import cast
 
 import bpy
 
 from ....api.control_agent import control_agent
-from ....graphqls.mutations import MutDancerStatusPayload
+from ....core.models import FiberData, LEDData
 from ....properties.types import LightType
+from ....schemas.mutations import MutDancerLEDStatusPayload, MutDancerStatusPayload
+from ...log import logger
 from ...models import EditingData, EditMode, PartType, SelectMode
 from ...states import state
-from ...utils.convert import control_status_state_to_mut
+from ...utils.convert import control_status_state_to_mut, led_status_state_to_mut
 from ...utils.notification import notify
 from ...utils.object import clear_selection
-from ...utils.ui import redraw_area
+from ...utils.operator import execute_operator
+from ...utils.ui import redraw_area, set_outliner_filter
 from .app_state import set_requesting
 
 # from .color_map import (
@@ -26,6 +28,8 @@ from .current_status import update_current_status_by_index
 
 def attach_editing_control_frame():
     """Attach to editing frame and sync location to ld_position"""
+    if not bpy.context:
+        return
     current_frame = state.current_editing_frame
 
     state.current_editing_detached = False
@@ -39,11 +43,14 @@ def attach_editing_control_frame():
 
 def sync_editing_control_frame_properties():
     """Sync location to ld_position"""
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer in state.dancers_array:
-        dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        if not show_dancer_dict[dancer.name]:
+            continue
+        dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
-            part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
-            part_obj_names: List[str] = [
+            part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
+            part_obj_names: list[str] = [
                 getattr(obj, "ld_part_name") for obj in part_objs
             ]
 
@@ -70,35 +77,69 @@ def sync_editing_control_frame_properties():
 
 
 async def add_control_frame():
+    if not bpy.context:
+        return
     start = bpy.context.scene.frame_current
     controlData = control_status_state_to_mut(state.current_status)
+    ledControlData = led_status_state_to_mut(state.current_led_status)
 
     set_requesting(True)
     try:
-        await control_agent.add_frame(start, False, controlData)
-        notify("INFO", f"Added control frame")
-    except:
-        traceback.print_exc()
+        await control_agent.add_frame(start, False, controlData, ledControlData)
+        notify("INFO", "Added control frame")
+    except Exception:
+        logger.exception("Failed to add control frame")
         notify("WARNING", "Cannot add control frame")
 
     set_requesting(False)
 
 
-async def save_control_frame(start: Optional[int] = None):
+async def save_control_frame(start: int | None = None):
+    if not bpy.context:
+        return
     id = state.editing_data.frame_id
 
     fade: bool = getattr(bpy.context.window_manager, "ld_fade")
 
-    controlData: List[MutDancerStatusPayload] = []
+    controlData: list[MutDancerStatusPayload] = []
+    ledControlData: list[MutDancerLEDStatusPayload] = []
     default_color = list(state.color_map.keys())[0]
+
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
 
     for dancer in state.dancers_array:
         partControlData: MutDancerStatusPayload = []
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        partLEDControlData: MutDancerLEDStatusPayload = []
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
 
+        if not show_dancer_dict[dancer.name]:
+            ctrl_part_dict = state.control_map[id].status[dancer.name]
+            for part in dancer.parts:
+                if part.name not in ctrl_part_dict.keys():
+                    if part.type == PartType.FIBER:
+                        partControlData.append((default_color, 0))
+                    elif part.type == PartType.LED:
+                        partControlData.append((-1, 0))
+                    continue
+
+                if part.type == PartType.FIBER:
+                    part_data = cast(FiberData, ctrl_part_dict[part.name])
+                    color_id = part_data.color_id
+                    ld_alpha = part_data.alpha
+                    partControlData.append((color_id, ld_alpha))
+                elif part.type == PartType.LED:
+                    part_data = cast(LEDData, ctrl_part_dict[part.name])
+                    effect_id = part_data.effect_id
+                    ld_alpha = part_data.alpha
+                    partControlData.append((effect_id, ld_alpha))
+
+            controlData.append(partControlData)
+            continue
+
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if obj is not None:
-            part_objs: List[bpy.types.Object] = getattr(obj, "children")
-            part_obj_names: List[str] = [
+            part_objs: list[bpy.types.Object] = getattr(obj, "children")
+            part_obj_names: list[str] = [
                 getattr(obj, "ld_part_name") for obj in part_objs
             ]
 
@@ -106,8 +147,10 @@ async def save_control_frame(start: Optional[int] = None):
                 if part.name not in part_obj_names:
                     if part.type == PartType.FIBER:
                         partControlData.append((default_color, 0))
+                        partLEDControlData.append([])
                     elif part.type == PartType.LED:
                         partControlData.append((-1, 0))
+                        partLEDControlData.append([])
                     continue
 
                 part_index = part_obj_names.index(part.name)
@@ -117,24 +160,42 @@ async def save_control_frame(start: Optional[int] = None):
                     color_id = part_obj["ld_color"]
                     ld_alpha: int = getattr(part_obj, "ld_alpha")
                     partControlData.append((color_id, ld_alpha))
+                    partLEDControlData.append([])
                 elif part.type == PartType.LED:
                     effect_id = part_obj["ld_effect"]
                     ld_alpha: int = getattr(part_obj, "ld_alpha")
                     partControlData.append((effect_id, ld_alpha))
+                    if effect_id == 0:
+                        bulb_objs: list[bpy.types.Object] = list(
+                            getattr(part_obj, "children")
+                        )
+                        bulb_objs.sort(key=lambda _obj: getattr(_obj, "ld_led_pos"))
+                        bulb_color_list: list[tuple[int, int]] = [
+                            (obj["ld_color"], getattr(obj, "ld_alpha"))
+                            for obj in bulb_objs
+                        ]
+                        partLEDControlData.append(bulb_color_list)
+                    else:
+                        partLEDControlData.append([])
 
         else:
             for part in dancer.parts:
                 if part.type == PartType.FIBER:
                     partControlData.append((default_color, 0))
+                    ledControlData.append([])
                 elif part.type == PartType.LED:
                     partControlData.append((-1, 0))
+                    ledControlData.append([])
 
         controlData.append(partControlData)
+        ledControlData.append(partLEDControlData)
 
     set_requesting(True)
     try:
-        await control_agent.save_frame(id, controlData, fade=fade, start=start)
-        notify("INFO", f"Saved control frame")
+        await control_agent.save_frame(
+            id, controlData, ledControlData=ledControlData, fade=fade, start=start
+        )
+        notify("INFO", "Saved control frame")
 
         # Cancel editing
         ok = await control_agent.cancel_edit(id)
@@ -146,14 +207,19 @@ async def save_control_frame(start: Optional[int] = None):
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
+            if state.local_view:
+                execute_operator("view3d.localview")
+                state.local_view = False
+            set_outliner_filter("")
+
             # Imediately apply changes produced by editing
             apply_control_map_updates()
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot exit editing")
-    except:
-        traceback.print_exc()
+    except Exception:
+        logger.exception("Failed to save control frame")
         notify("WARNING", "Cannot save control frame")
 
     set_requesting(False)
@@ -167,8 +233,8 @@ async def delete_control_frame():
     try:
         await control_agent.delete_frame(id)
         notify("INFO", f"Deleted control frame: {id}")
-    except:
-        traceback.print_exc()
+    except Exception:
+        logger.exception("Failed to delete control frame")
         notify("WARNING", "Cannot delete control frame")
 
     set_requesting(False)
@@ -230,12 +296,17 @@ async def cancel_edit_control():
             state.current_editing_frame_synced = False
             state.edit_state = EditMode.IDLE
 
+            if state.local_view:
+                execute_operator("view3d.localview")
+                state.local_view = False
+            set_outliner_filter("")
+
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         else:
             notify("WARNING", "Cannot cancel edit")
 
-    except:
-        traceback.print_exc()
+    except Exception:
+        logger.exception("Failed to cancel edit control frame")
         notify("WARNING", "Cannot cancel edit")
 
     set_requesting(False)
@@ -255,3 +326,19 @@ def toggle_part_mode():
     clear_selection()
     state.selection_mode = SelectMode.PART_MODE
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+
+def toggle_led_focus(obj: bpy.types.Object):
+    toggle_part_mode()
+    if not state.local_view:
+        bpy.ops.object.select_all(action="DESELECT")
+        for bulb in obj.children:
+            bulb.select_set(True)
+        execute_operator("view3d.localview")
+        set_outliner_filter(obj.name + ".")
+        state.local_view = True
+    else:
+        bpy.ops.object.select_all(action="DESELECT")
+        execute_operator("view3d.localview")
+        set_outliner_filter("")
+        state.local_view = False

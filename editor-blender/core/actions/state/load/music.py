@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 import bpy
 
@@ -7,14 +7,18 @@ from ....config import config
 from ....states import state
 
 
-def setup_music(assets_load: Dict[str, Any]):
+def setup_music():
     """
     set music
     """
+    if not bpy.context:
+        return
     scene = bpy.context.scene
     if not scene.sequence_editor:
         scene.sequence_editor_create()
-    music_filepath = os.path.normpath(config.ASSET_PATH + assets_load["Music"])
+    music_filepath = os.path.normpath(
+        config.ASSET_PATH + state.init_temps.assets_load["Music"]
+    )
     if scene.sequence_editor.sequences:
         sequence = cast(bpy.types.SoundSequence, scene.sequence_editor.sequences[0])
         scene.sequence_editor.sequences.remove(sequence)
@@ -23,11 +27,7 @@ def setup_music(assets_load: Dict[str, Any]):
         "music", filepath=music_filepath, channel=1, frame_start=0
     )
 
-    # set frame range
-    bpy.context.scene.frame_start = 0
-    bpy.context.scene.frame_end = bpy.context.scene.sequence_editor.sequences[
-        0
-    ].frame_duration
+    bpy.context.scene.lock_frame_selection_to_range = True
 
     # set retiming
     duration = strip.frame_duration

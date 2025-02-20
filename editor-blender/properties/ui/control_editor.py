@@ -1,4 +1,4 @@
-from typing import Dict, List, Set, Tuple, cast
+from typing import cast
 
 import bpy
 
@@ -13,11 +13,11 @@ from ..types import ColorPaletteItemType, LightType, ObjectType
 
 
 def get_effect_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
-    possible_effects: Set[str] = set()
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
+    possible_effects: set[str] = set()
 
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
     for obj_name in state.selected_obj_names:
         obj = data_objects[obj_name]
         ld_object_type: str = getattr(obj, "ld_object_type")
@@ -38,23 +38,26 @@ def get_effect_lists(
                 state.led_map[ld_model_name][ld_part_name]
             )
 
-    effect_list: List[str] = list(possible_effects)
+    effect_list: list[str] = list(possible_effects)
     effect_list.sort()
 
+    # NOTE: Don't show [bulb Color] here
     effect_list = ["no-change"] + effect_list
 
     return [(effect, effect, "", "", index) for index, effect in enumerate(effect_list)]
 
 
 def get_color_lists(
-    self: bpy.types.PropertyGroup, context: bpy.types.Context
-) -> List[Tuple[str, str, str, str, int] | Tuple[str, str, str]]:
+    self: bpy.types.PropertyGroup, context: bpy.types.Context | None
+) -> list[tuple[str, str, str, str, int] | tuple[str, str, str]]:
     collection = icon_collections["main"]
 
-    ld_color_palette: List[ColorPaletteItemType] = getattr(
+    if not bpy.context:
+        return []
+    ld_color_palette: list[ColorPaletteItemType] = getattr(
         bpy.context.window_manager, "ld_color_palette"
     )
-    return [
+    color_list = [
         (
             color.color_name,
             color.color_name,
@@ -64,6 +67,16 @@ def get_color_lists(
         )
         for color in ld_color_palette
     ]
+    if not all(
+        [
+            getattr(bpy.data.objects[obj_name], "ld_object_type")
+            != ObjectType.LIGHT.value
+            for obj_name in state.selected_obj_names
+        ]
+    ):
+        color_list.insert(0, ("[gradient]", "[gradient]", "", "MOD_ARRAY", -1))
+
+    return color_list  # pyright: ignore
 
 
 def get_show_fiber(self: bpy.types.PropertyGroup) -> bool:
@@ -100,7 +113,7 @@ def set_show_all(self: bpy.types.PropertyGroup, value: bool) -> None:
 
 
 class ControlEditorStatus(bpy.types.PropertyGroup):
-    """Status of the PosEditor"""
+    """Status of the Control Editor"""
 
     multi_select: bpy.props.BoolProperty(  # type: ignore
         name="Multi Select",

@@ -1,5 +1,6 @@
 import bpy
 
+from ...core.log import logger
 from ...core.utils.notification import notifications
 
 is_notification_running = False
@@ -9,7 +10,7 @@ class NotificationOperator(bpy.types.Operator):
     bl_idname = "lightdance.notification"
     bl_label = "Notification Operator"
 
-    def modal(self, context: bpy.types.Context, event: bpy.types.Event):
+    def modal(self, context: bpy.types.Context | None, event: bpy.types.Event):
         global is_notification_running
 
         if not is_notification_running:
@@ -23,26 +24,28 @@ class NotificationOperator(bpy.types.Operator):
 
         return {"PASS_THROUGH"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
         global is_notification_running
 
+        if not context:
+            return {"CANCELLED"}
         if is_notification_running:
             return {"PASS_THROUGH"}
 
         context.window_manager.modal_handler_add(self)
         is_notification_running = True
 
-        print("Starting notification...")
+        logger.info("Starting notification...")
 
         return {"RUNNING_MODAL"}
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         return {"FINISHED"}
 
     def __del__(self):
         global is_notification_running
 
-        print("Stopping notification...")
+        logger.info("Stopping notification...")
 
         is_notification_running = False
 

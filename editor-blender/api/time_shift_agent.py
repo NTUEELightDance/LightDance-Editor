@@ -1,11 +1,10 @@
 import asyncio
-import traceback
 from dataclasses import dataclass
-from typing import Tuple
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import FrameType
-from ..graphqls.mutations import SHIFT_TIME, MutTimeShiftResponse
+from ..schemas.mutations import SHIFT_TIME, MutTimeShiftResponse
 
 
 @dataclass
@@ -17,7 +16,7 @@ class ShiftResult:
 @dataclass
 class TimeShiftAgent:
     async def shift(
-        self, frame_type: FrameType, interval: Tuple[int, int], displacement: int
+        self, frame_type: FrameType, interval: tuple[int, int], displacement: int
     ) -> ShiftResult:
         try:
             shiftControl = (
@@ -47,7 +46,7 @@ class TimeShiftAgent:
             return ShiftResult(ok=False, msg="Timeout")
 
         except Exception as e:
-            traceback.print_exc()
+            logger.exception("Failed to shift time")
             return ShiftResult(ok=False, msg=str(e))
 
 

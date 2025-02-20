@@ -144,11 +144,16 @@ utils/door_led/
 !.yarn/versions
 
 mongodbData
-data
+/data
 
 pg
 redisData
 
 editor-server/src/data/private
 
-editor-blender.zip
+*.zip
+target/
+
+.venv
+*/.idea
+utils/createUsers.js

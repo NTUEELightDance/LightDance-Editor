@@ -1,7 +1,27 @@
-[tool.pyright]
-pythonVersion = "3.10"
+[project]
+name = "LightDance-Editor"
+version = "1.3.0"
+description = "A Blender editor for LightDance"
+requires-python = "==3.12.3"
+dependencies = [
+  "fake-bpy-module-4.2",
+  "toml",
+  "gql[all]",
+  "dataclass_wizard",
+  "aiohttp",
+  "python-dotenv",
+  "typeguard",
+  "websockets",
+  "pip",
+  "pyright",
+  "tzdata",
+]
+license = "MIT"
 
-typeCheckingMode = "strict"
+[tool.pyright]
+pythonVersion = "3.12"
+
+typeCheckingMode = "standard"
 reportMissingTypeStubs = false
 
 reportUnusedVariable = "warning"

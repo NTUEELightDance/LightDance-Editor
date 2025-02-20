@@ -1,10 +1,7 @@
 //! Part mutation methods.
-use crate::db::types::{
-    model::ModelData,
-    part::{PartData, PartType},
-    position::PositionData,
-};
+use crate::db::types::{model::ModelData, part::PartData, position::PositionData};
 use crate::graphql::types::dancer::Part;
+use crate::types::global::PartType;
 use crate::types::global::UserContext;
 use crate::utils::data::{init_redis_control, init_redis_position};
 
@@ -49,6 +46,8 @@ impl PartMutation {
 
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
+
+        tracing::info!("Mutation: addPart");
 
         let _check = match input.part_type {
             PartType::FIBER | PartType::LED => true,
@@ -206,6 +205,8 @@ impl PartMutation {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Mutation: deletePart");
+
         let deleted_part = sqlx::query_as!(
             PartData,
             r#"
@@ -295,6 +296,8 @@ impl PartMutation {
         let clients = context.clients;
 
         let mysql = clients.mysql_pool();
+
+        tracing::info!("Mutation: editPart");
 
         let _check = match input.part_type {
             PartType::FIBER | PartType::LED => true,

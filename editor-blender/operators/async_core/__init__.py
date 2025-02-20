@@ -1,12 +1,13 @@
 import asyncio
 import sys
-import traceback
+from collections.abc import Coroutine
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Coroutine
+from typing import Any
 
 import bpy
 
 from ...core.actions.state.initialize import close_blender
+from ...core.log import log_window, logger
 from ...core.utils.operator import execute_operator
 
 
@@ -44,6 +45,8 @@ is_async_loop_running = False
 
 
 class AsyncLoopModalOperator(bpy.types.Operator):
+    """Starts the async loop of editor"""
+
     bl_idname = "lightdance.async_loop"
     bl_label = "Runs the asyncio main loop"
 
@@ -52,35 +55,43 @@ class AsyncLoopModalOperator(bpy.types.Operator):
 
         is_async_loop_running = False
 
-        print("Stopping asyncio loop...")
+        logger.info("Stopping asyncio loop...")
         close_blender()
+        log_window.close()
 
         if is_async_loop_running and hasattr(self, "timer"):  # type: ignore
+            if not bpy.context:
+                return
             wm = bpy.context.window_manager
             wm.event_timer_remove(self.timer)
             delattr(self, "timer")
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         return {"FINISHED"}
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
         global is_async_loop_running
 
         if is_async_loop_running:
             return {"PASS_THROUGH"}
 
+        if not context:
+            return {"CANCELLED"}
+
+        log_window.open()
+
         context.window_manager.modal_handler_add(self)
         is_async_loop_running = True
 
         wm = context.window_manager
-        self.timer = wm.event_timer_add(0.001, window=context.window)
+        self.timer = wm.event_timer_add(0.5, window=context.window)
 
-        print("Starting asyncio loop...")
+        logger.info("Starting asyncio loop...")
         execute_operator("lightdance.setup_blender")
 
         return {"RUNNING_MODAL"}
 
-    def modal(self, context: bpy.types.Context, event: bpy.types.Event):
+    def modal(self, context: bpy.types.Context | None, event: bpy.types.Event):
         global is_async_loop_running
 
         if not is_async_loop_running:
@@ -90,6 +101,8 @@ class AsyncLoopModalOperator(bpy.types.Operator):
 
         stop = tick_loop()
         if stop:
+            if not context:
+                return {"CANCELLED"}
             wm = context.window_manager
             wm.event_timer_remove(self.timer)
             is_async_loop_running = False
@@ -103,10 +116,10 @@ class AsyncOperator(bpy.types.Operator):
     bl_idname = "lightdance.async_operator"
     bl_label = "Base class of async operator"
 
-    def invoke(self, context: bpy.types.Context, event: bpy.types.Event):
+    def invoke(self, context: bpy.types.Context | None, event: bpy.types.Event):
         return self.execute(context)
 
-    async def async_execute(self, context: bpy.types.Context):
+    async def async_execute(self, context: bpy.types.Context) -> set[str] | None:
         """Entry point of the asynchronous operator.
 
         Implement in a subclass.
@@ -117,10 +130,12 @@ class AsyncOperator(bpy.types.Operator):
         """Signals the state machine to stop this operator from running."""
         self.state = "QUIT"
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         self.state = "RUNNING"
         self.stop_upon_exception = True
 
+        if context is None:
+            return {"CANCELLED"}
         context.window_manager.modal_handler_add(self)
         self.timer = context.window_manager.event_timer_add(
             1 / 15,
@@ -131,7 +146,7 @@ class AsyncOperator(bpy.types.Operator):
 
         return {"RUNNING_MODAL"}
 
-    def modal(self, context: bpy.types.Context, event: bpy.types.Event):
+    def modal(self, context: bpy.types.Context | None, event: bpy.types.Event):
         task = self.async_task
 
         if self.state != "EXCEPTION" and task and task.done() and not task.cancelled():
@@ -143,7 +158,7 @@ class AsyncOperator(bpy.types.Operator):
                     self._finish(context)
                     return {"FINISHED"}
 
-                print(ex)
+                logger.error(ex)
 
                 return {"RUNNING_MODAL"}
 
@@ -153,12 +168,14 @@ class AsyncOperator(bpy.types.Operator):
 
         return {"PASS_THROUGH"}
 
-    def _finish(self, context: bpy.types.Context):
+    def _finish(self, context: bpy.types.Context | None):
         self._stop_async_task()
         # if self.timer is not None:
+        if not context:
+            return
         context.window_manager.event_timer_remove(self.timer)
 
-    def _new_async_task(self, async_task: Coroutine[Any, Any, None]):
+    def _new_async_task(self, async_task: Coroutine[Any, Any, set[str] | None]):
         """Stops the currently running async task, and starts another one."""
         self.async_task = asyncio.ensure_future(async_task)
 
@@ -184,7 +201,7 @@ class AsyncOperator(bpy.types.Operator):
         except asyncio.CancelledError:
             pass
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to run async task")
 
 
 def register():

@@ -29,6 +29,8 @@ impl PositionMapQuery {
         let mysql = clients.mysql_pool();
         let redis = clients.redis_client();
 
+        tracing::info!("Query: posMap");
+
         match select {
             Some(select) => {
                 let frame_ids: Vec<MapID> = select.frame_ids.into_iter().collect();

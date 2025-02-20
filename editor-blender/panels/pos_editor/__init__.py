@@ -16,10 +16,12 @@ class PosEditor(bpy.types.Panel):
     bl_options = {"HIDE_HEADER"}
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready and state.sync and state.editor == Editor.POS_EDITOR
 
-    def draw(self, context: bpy.types.Context):
+    def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
         layout = self.layout
         layout.enabled = not state.shifting and not state.requesting
 
@@ -58,7 +60,7 @@ class PosEditor(bpy.types.Panel):
 
         else:
             position: PositionPropertyType = getattr(context.object, "ld_position")
-            column.prop(position, "transform", text="Transform")
+            column.prop(position, "location", text="Transform")
             column.prop(position, "rotation", text="Rotation")
 
 

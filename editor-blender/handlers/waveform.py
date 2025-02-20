@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, List, Optional, cast
+from typing import Any, cast
 
 import bpy
 import bpy.path
@@ -8,16 +8,19 @@ import gpu
 from gpu_extras import batch as g_batch
 
 from ..core.config import config
+from ..core.log import logger
+from ..core.states import state
 from ..core.utils.ui import redraw_area
+from ..storage import get_storage
 
 
 class WaveformSettings:
     def __init__(self):
         self.top_offset: int = 0
         self.bottom_offset: int = 0
-        self.region: Optional[bpy.types.Region] = None
-        self.shader: Optional[gpu.types.GPUShader] = None
-        self.batch: Optional[gpu.types.GPUBatch] = None
+        self.region: bpy.types.Region | None = None
+        self.shader: gpu.types.GPUShader | None = None
+        self.batch: gpu.types.GPUBatch | None = None
         self.handle_dope: Any = None
 
 
@@ -32,6 +35,9 @@ def draw():
     region = waveform_settings.region
 
     if shader is None or batch is None or region is None:
+        return
+
+    if getattr(get_storage("preferences"), "show_waveform") is False:
         return
 
     x0 = cast(float, region.view2d.region_to_view(0, 0)[0])
@@ -69,12 +75,12 @@ def mount():
     try:
         waveform_file = open(waveform_path, "r")
     except FileNotFoundError:
-        print(f"Waveform file not found: {waveform_path}")
+        logger.error(f"Waveform file not found: {waveform_path}")
         return
 
     waveform_data = json.load(waveform_file)
 
-    data: List[int] = waveform_data["data"]
+    data: list[int] = waveform_data["data"]
     length: int = waveform_data["length"]
     wave_bits: int = waveform_data["bits"]
 
@@ -83,27 +89,29 @@ def mount():
     milliseconds = int(length * samples_per_pixel / sample_rate * 1000)
 
     data_range = 1 << (wave_bits - 1)
+    frame_range_l, frame_range_r = state.dancer_load_frames
     point_coords = [
         (milliseconds * pos / (2 * length), val / data_range)
         for pos, val in enumerate(data)
+        if pos >= 2 * frame_range_l and pos <= 2 * frame_range_r
     ]
 
     # Find timeline region
     screen = cast(bpy.types.Screen, bpy.data.screens["Layout"])
     area = next(
         area
-        for area in cast(List[bpy.types.Area], screen.areas)
+        for area in cast(list[bpy.types.Area], screen.areas)
         if area.ui_type == "TIMELINE"
     )
     region = next(
         region
-        for region in cast(List[bpy.types.Region], area.regions)
+        for region in cast(list[bpy.types.Region], area.regions)
         if region.type == "WINDOW"
     )
 
     header_region = next(
         region
-        for region in cast(List[bpy.types.Region], area.regions)
+        for region in cast(list[bpy.types.Region], area.regions)
         if region.type == "HEADER"
     )
     waveform_settings.top_offset = int(header_region.height * 0.8)
@@ -169,7 +177,7 @@ def mount():
         draw, (), "WINDOW", "POST_PIXEL"
     )
 
-    print("Waveform loaded")
+    logger.info("Waveform loaded")
     redraw_area({"DOPESHEET_EDITOR"})
 
 

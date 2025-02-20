@@ -1,4 +1,4 @@
-from typing import Dict, Optional, cast
+from typing import cast
 
 import bpy
 
@@ -19,7 +19,7 @@ def update_multi_select_effect(
 
     effect_name: str = getattr(self, "multi_select_effect")
 
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
     for obj_name in state.selected_obj_names:
         obj = data_objects[obj_name]
         ld_object_type: str = getattr(obj, "ld_object_type")
@@ -45,7 +45,7 @@ def update_multi_select_color(
 
     color: str = getattr(self, "multi_select_color")
     for obj_name in state.selected_obj_names:
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(obj_name)
         if obj is not None:
             setattr(obj, "ld_color", color)
 
@@ -62,6 +62,6 @@ def update_multi_select_alpha(
 
     alpha: int = getattr(self, "multi_select_alpha")
     for obj_name in state.selected_obj_names:
-        obj: Optional[bpy.types.Object] = bpy.data.objects.get(obj_name)
+        obj: bpy.types.Object | None = bpy.data.objects.get(obj_name)
         if obj is not None:
             setattr(obj, "ld_alpha", alpha)

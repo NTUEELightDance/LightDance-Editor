@@ -1,4 +1,4 @@
-from typing import List, Optional, cast
+from typing import cast
 
 import bpy
 
@@ -19,7 +19,7 @@ def set_led_map(led_map: LEDMap):
             for effect in part_effects.values():
                 state.led_effect_id_table[effect.id] = effect
 
-    # TODO: Setup LED Effect List
+    # TODO: Setup LED Effect list
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
@@ -135,11 +135,15 @@ def apply_led_map_updates_update():
 
 
 def remove_effect_in_editing_status(effect_id: LEDEffectID):
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer in state.dancers_array:
-        dancer_obj: Optional[bpy.types.Object] = bpy.data.objects.get(dancer.name)
+        if not show_dancer_dict[dancer.name]:
+            continue
+
+        dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
         if dancer_obj is not None:
-            part_objs: List[bpy.types.Object] = getattr(dancer_obj, "children")
-            part_obj_names: List[str] = [
+            part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
+            part_obj_names: list[str] = [
                 getattr(obj, "ld_part_name") for obj in part_objs
             ]
 

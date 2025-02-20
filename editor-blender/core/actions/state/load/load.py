@@ -1,20 +1,23 @@
 import json
 import os
-import traceback
-from typing import Any, Dict, Set, Tuple, cast
+from typing import Any, cast
 
 from .....client import client
 from ....config import config
+from ....log import logger
 from ....states import state
 from ....utils.ui import update_user_log
+from ..current_pos import update_current_pos_by_index
 from .animation import setup_animation_data
 from .display import setup_display
+from .floor import setup_floor
 from .music import setup_music
-from .objects import setup_floor, setup_objects
+from .objects import setup_objects
 from .render import setup_render
+from .scene_marker import setup_scene_marker
 
 
-def parse_config(config_dict: Dict[str, Any]):
+def parse_config(config_dict: dict[str, Any]):
     stage_config = config_dict["Stage"]
 
     setattr(config, "stage_width", cast(float, stage_config["width"]))
@@ -30,17 +33,17 @@ async def fetch_data(reload: bool = False):
     use_draco = False
 
     if client.file_client:
-        assets_load: Dict[str, Any] = await client.download_json("/data/load.json")
-        assets_load_hash: Dict[str, Any] = await client.download_json(
+        assets_load: dict[str, Any] = await client.download_json("/data/load.json")
+        assets_load_hash: dict[str, Any] = await client.download_json(
             "/data/load_hash.json"
         )
 
         local_load_hash_path = os.path.normpath(config.ASSET_PATH + "/load_hash.json")
         new_load_hash = False
-        local_load_hash: Dict[str, Any] = {}
+        local_load_hash: dict[str, Any] = {}
 
         if not os.path.exists(config.ASSET_PATH):
-            os.mkdir(config.ASSET_PATH)
+            os.makedirs(config.ASSET_PATH, exist_ok=True)
 
         if not os.path.exists(local_load_hash_path):
             with open(local_load_hash_path, "w") as file:
@@ -54,18 +57,20 @@ async def fetch_data(reload: bool = False):
                 local_load_hash = json.load(file)
 
         try:
-            url_set: Set[Tuple[str, bool]] = set()
-            for tag in ["Waveform", "Music", "LightPresets", "PosPresets"]:
+            url_set: set[tuple[str, bool]] = set()
+            for tag in ["Beat", "Waveform", "Music", "LightPresets", "PosPresets"]:
+                if tag not in local_load_hash:
+                    local_load_hash[tag] = None
                 hash_match = not new_load_hash and (
                     assets_load_hash[tag] == local_load_hash[tag]
                 )
                 url_set.add((assets_load[tag], hash_match))
 
                 if not hash_match:
-                    print(f"Hash mismatch for {tag}")
+                    logger.warning(f"Hash mismatch for {tag}")
 
-            dancer_model_update: Dict[str, bool] = {}
-            dancer_models_hash: Dict[str, str] = {}
+            dancer_model_update: dict[str, bool] = {}
+            dancer_models_hash: dict[str, str] = {}
             for key in assets_load["DancerMap"]:
                 raw_url = assets_load["DancerMap"][key]["url"]
 
@@ -76,14 +81,17 @@ async def fetch_data(reload: bool = False):
                     assets_load["DancerMap"][key]["url"] = model_url
 
                 dancer_models_hash[key] = assets_load_hash["DancerMap"][key]["url"]
-                hash_match = not new_load_hash and (
-                    assets_load_hash["DancerMap"][key]["url"]
-                    == local_load_hash["DancerMap"][key]["url"]
-                )
+                if not new_load_hash and key in local_load_hash["DancerMap"]:
+                    hash_match = (
+                        assets_load_hash["DancerMap"][key]["url"]
+                        == local_load_hash["DancerMap"][key]["url"]
+                    )
+                else:
+                    hash_match = False
                 url_set.add((model_url, hash_match))
 
                 if not hash_match:
-                    print(f"Hash mismatch for DancerMap/{key}/url")
+                    logger.warning(f"Hash mismatch for DancerMap/{key}/url")
                     dancer_model_update[key] = True
                 else:
                     dancer_model_update[key] = False
@@ -98,10 +106,10 @@ async def fetch_data(reload: bool = False):
 
                 if not os.path.exists(file_dir):
                     os.makedirs(file_dir)
-                    print("created folder: ", file_dir)
+                    logger.info(f"created folder: {file_dir}")
 
                 data = await client.download_binary(url)
-                print("fetched file ", url, "from server")
+                logger.info(f"fetched file {url} from server")
                 with open(file_path, "w+b") as file:
                     file.write(data)
 
@@ -109,11 +117,12 @@ async def fetch_data(reload: bool = False):
                 json.dump(assets_load_hash, file)
 
         except Exception:
-            traceback.print_exc()
-            raise Exception("Failed to fetch assets")
+            logger.exception("Failed to fetch assets")
+            raise
 
     else:
-        raise Exception("File client is not initialized")
+        logger.exception("File client is not initialized")
+        raise
 
     state.init_temps.assets_load = assets_load
     state.init_temps.dancer_model_update = dancer_model_update
@@ -128,7 +137,8 @@ async def init_assets():
     setup_display()
 
     await update_user_log("Setting up music...")
-    setup_music(state.init_temps.assets_load)
+    setup_music()
+    setup_scene_marker()
 
 
 async def load_data():
@@ -136,9 +146,10 @@ async def load_data():
     try:
         await setup_objects()
     except Exception:
-        traceback.print_exc()
-        raise Exception("Failed to setup objects")
+        logger.exception("Failed to setup objects")
+        raise
     setup_floor()
 
     await update_user_log("Setting up animation data...")
     setup_animation_data()
+    update_current_pos_by_index()

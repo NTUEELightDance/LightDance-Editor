@@ -1,12 +1,13 @@
 import asyncio
-import traceback
+from collections.abc import Coroutine
 from dataclasses import dataclass
-from typing import Any, Coroutine, List, Optional, Tuple, Union
+from typing import Any
 
 from ..client import client
+from ..core.log import logger
 from ..core.models import ColorID, ControlMap, ControlRecord, LEDEffectID, MapID
 from ..core.utils.convert import control_map_query_to_state
-from ..graphqls.mutations import (
+from ..schemas.mutations import (
     ADD_CONTROL_FRAME,
     CANCEL_EDIT_CONTROL_BY_ID,
     DELETE_CONTROL_FRAME,
@@ -14,12 +15,14 @@ from ..graphqls.mutations import (
     EDIT_CONTROL_FRAME_TIME,
     REQUEST_EDIT_CONTROL_BY_ID,
     MutCancelEditControlResponse,
+    MutDancerLEDStatusPayload,
+    MutDancerStatusPayload,
     MutDeleteControlFrameInput,
     MutEditControlFrameInput,
     MutEditControlFrameTimeInput,
     MutRequestEditControlResponse,
 )
-from ..graphqls.queries import (
+from ..schemas.queries import (
     GET_CONTROL_MAP,
     GET_CONTROL_RECORD,
     QueryControlMapData,
@@ -30,7 +33,8 @@ from ..graphqls.queries import (
 
 @dataclass
 class ControlAgent:
-    async def get_control_record(self) -> Optional[ControlRecord]:
+    async def get_control_record(self) -> ControlRecord | None:
+        """Get the control record from the server."""
         try:
             response = await client.execute(
                 QueryControlRecordData,
@@ -44,11 +48,12 @@ class ControlAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get control record")
 
         return None
 
-    async def get_control_map_payload(self) -> Optional[QueryControlMapPayload]:
+    async def get_control_map_payload(self) -> QueryControlMapPayload | None:
+        """Get the control map raw payload from the server"""
         try:
             response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
             controlMap = response["ControlMap"]
@@ -59,11 +64,12 @@ class ControlAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get control map payload")
 
         return None
 
-    async def get_control_map(self) -> Optional[ControlMap]:
+    async def get_control_map(self) -> ControlMap | None:
+        """Get the control map from the server."""
         try:
             response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
             controlMap = response["ControlMap"]
@@ -74,7 +80,7 @@ class ControlAgent:
             pass
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to get control map")
 
         return None
 
@@ -82,13 +88,20 @@ class ControlAgent:
         self,
         start: int,
         fade: bool,
-        controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
-    ) -> Optional[str]:
+        controlData: list[MutDancerStatusPayload],
+        ledControlData: list[MutDancerLEDStatusPayload],
+    ) -> str | None:
+        """Add a new control frame to the control map."""
         try:
             response = await client.execute(
                 str,
                 ADD_CONTROL_FRAME,
-                {"start": start, "controlData": controlData, "fade": fade},
+                {
+                    "start": start,
+                    "controlData": controlData,
+                    "fade": fade,
+                    "ledControlData": ledControlData,
+                },
             )
             return response["addControlFrame"]
 
@@ -96,19 +109,21 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to add control frame")
             raise err
 
     # TODO: Support only change fade
     async def save_frame(
         self,
         id: MapID,
-        controlData: List[List[Tuple[Union[ColorID, LEDEffectID], int]]],
-        fade: Optional[bool] = None,
-        start: Optional[int] = None,
+        controlData: list[MutDancerStatusPayload],
+        ledControlData: list[MutDancerLEDStatusPayload],
+        fade: bool | None = None,
+        start: int | None = None,
     ):
+        """Edit a control frame in the control map."""
         try:
-            tasks: List[Coroutine[Any, Any, Any]] = []
+            tasks: list[Coroutine[Any, Any, Any]] = []
 
             tasks.append(
                 client.execute(
@@ -116,7 +131,10 @@ class ControlAgent:
                     EDIT_CONTROL_FRAME,
                     {
                         "input": MutEditControlFrameInput(
-                            frameId=id, controlData=controlData, fade=fade
+                            frameId=id,
+                            controlData=controlData,
+                            ledBulbData=ledControlData,
+                            fade=fade,
                         )
                     },
                 )
@@ -141,10 +159,11 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to save control frame")
             raise err
 
-    async def delete_frame(self, id: MapID) -> Optional[str]:
+    async def delete_frame(self, id: MapID) -> str | None:
+        """Delete a control frame from the control map."""
         try:
             response = await client.execute(
                 str,
@@ -157,10 +176,14 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to delete control frame")
             raise err
 
-    async def request_edit(self, id: MapID) -> Optional[bool]:
+    async def request_edit(self, id: MapID) -> bool | None:
+        """Request to edit a control frame.
+        Returns True if the request is successful, the server will prevent other users from editing the frame.
+        Returns False if other users are editing the frame.
+        """
         try:
             response = await client.execute(
                 MutRequestEditControlResponse,
@@ -173,10 +196,11 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to request edit control frame")
             raise err
 
-    async def cancel_edit(self, id: MapID) -> Optional[bool]:
+    async def cancel_edit(self, id: MapID) -> bool | None:
+        """Cancel the edit request of the control frame."""
         try:
             response = await client.execute(
                 MutCancelEditControlResponse, CANCEL_EDIT_CONTROL_BY_ID, {"frameId": id}
@@ -187,7 +211,7 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            print(err)
+            logger.exception("Failed to cancel edit control frame")
             raise err
 
 

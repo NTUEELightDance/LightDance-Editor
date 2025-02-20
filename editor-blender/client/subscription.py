@@ -1,10 +1,8 @@
 import asyncio
-from typing import List, Optional
 
 from ..client import Clients, client
 from ..client.cache import Modifiers
 from ..core.actions.property.command import set_command_status
-from ..core.actions.state.app_state import set_requesting
 from ..core.actions.state.color_map import add_color, delete_color, update_color
 from ..core.actions.state.command import read_board_info_payload, read_command_response
 from ..core.actions.state.control_map import (
@@ -19,6 +17,7 @@ from ..core.actions.state.led_map import (
     edit_led_effect,
 )
 from ..core.actions.state.pos_map import add_pos, delete_pos, set_pos_record, update_pos
+from ..core.log import logger
 from ..core.models import ID, LEDMap
 from ..core.utils.convert import (
     color_query_to_state,
@@ -31,7 +30,7 @@ from ..core.utils.convert import (
 )
 from ..core.utils.notification import notify
 from ..core.utils.ui import redraw_area
-from ..graphqls.queries import (
+from ..schemas.queries import (
     QueryColorMapData,
     QueryColorMapPayloadItem,
     QueryControlMapData,
@@ -40,7 +39,7 @@ from ..graphqls.queries import (
     QueryPosMapData,
     QueryPosRecordData,
 )
-from ..graphqls.subscriptions import (
+from ..schemas.subscriptions import (
     SUB_COLOR_MAP,
     SUB_CONTROL_MAP,
     SUB_CONTROL_RECORD,
@@ -64,10 +63,10 @@ async def sub_pos_record(client: Clients):
     async for data in client.subscribe(SubPositionRecordData, SUB_POS_RECORD):
         # print("SubPosRecord:", data)
 
-        async def modifier(posRecord: Optional[QueryPosRecordData]):
+        async def modifier(posRecord: QueryPosRecordData | None):
             subscriptionData = data["positionRecordSubscription"]
 
-            newPosRecord: List[ID] = []
+            newPosRecord: list[ID] = []
             if posRecord is not None:
                 newPosRecord = posRecord
 
@@ -102,7 +101,7 @@ async def sub_pos_map(client: Clients):
     async for data in client.subscribe(SubPositionMapData, SUB_POS_MAP):
         # print("SubPosMap:", data)
 
-        async def modifier(posMap: Optional[QueryPosMapData]):
+        async def modifier(posMap: QueryPosMapData | None):
             subscriptionData = data["positionMapSubscription"]
 
             newPosMap = QueryPosMapData(frameIds={})
@@ -144,10 +143,10 @@ async def sub_control_record(client: Clients):
     async for data in client.subscribe(SubControlRecordData, SUB_CONTROL_RECORD):
         # print("SubControlRecord:", data)
 
-        async def modifier(controlRecord: Optional[QueryControlRecordData]):
+        async def modifier(controlRecord: QueryControlRecordData | None):
             subscriptionData = data["controlRecordSubscription"]
 
-            newControlRecord: List[ID] = []
+            newControlRecord: list[ID] = []
             if controlRecord is not None:
                 newControlRecord = controlRecord
 
@@ -190,7 +189,7 @@ async def sub_control_map(client: Clients):
     async for data in client.subscribe(SubControlMapData, SUB_CONTROL_MAP):
         # print("SubControlMap:", data)
 
-        async def modifier(controlMap: Optional[QueryControlMapData]):
+        async def modifier(controlMap: QueryControlMapData | None):
             subscriptionData = data["controlMapSubscription"]
 
             newControlMap = QueryControlMapData(frameIds={})
@@ -235,7 +234,7 @@ async def sub_effect_list(client: Clients):
     async for data in client.subscribe(SubEffectListData, SUB_EFFECT_LIST):
         # print("SubEffectList:", data)
 
-        async def modifier(effectList: Optional[QueryEffectListData]):
+        async def modifier(effectList: QueryEffectListData | None):
             subscriptionData = data["effectListSubscription"]
 
             newEffectList: QueryEffectListData = []
@@ -262,7 +261,7 @@ async def sub_led_record(client: Clients):
     async for data in client.subscribe(SubLEDRecordData, SUB_LED_RECORD):
         # print("SubEffectRecord:", data)
 
-        async def modifier(LedMap: Optional[LEDMap]):
+        async def modifier(LedMap: LEDMap | None):
             subscriptionData = data["ledRecordSubscription"]
 
             newLedMap: LEDMap = {}
@@ -304,7 +303,7 @@ async def sub_color_map(client: Clients):
     async for data in client.subscribe(SubColorData, SUB_COLOR_MAP):
         # print("SubColorMap:", data)
 
-        async def modifier(colorMap: Optional[QueryColorMapData]):
+        async def modifier(colorMap: QueryColorMapData | None):
             subscriptionData = data["colorSubscription"]
 
             newColorMap = QueryColorMapData(colorMap={})
@@ -348,12 +347,12 @@ async def sub_color_map(client: Clients):
         await client.cache.modify(Modifiers(fields={"colorMap": modifier}))
 
 
-subscription_task: Optional[asyncio.Task[None]] = None
+subscription_task: asyncio.Task[None] | None = None
 
 
 async def subscribe():
     while True:
-        print("Subscribing...")
+        logger.info("Subscribing...")
 
         tasks = [
             # asyncio.create_task(sub_pos_record(client)),
@@ -371,11 +370,11 @@ async def subscribe():
             await fut
 
         except asyncio.CancelledError:
-            print("Subscription cancelled.")
+            logger.info("Subscription cancelled.")
             break
 
-        except Exception as e:
-            print("Subscription closed with error:", e)
+        except Exception:
+            logger.exception("Subscription closed with error.")
             fut.cancel()
 
         print("Reconnecting subscription...")
@@ -387,11 +386,13 @@ async def sub_controller_server(client: Clients):
         match controller_data.topic:
             case "boardInfo":
                 notify("INFO", "Board info updated")
-                print("Board info from controller server")
+                logger.info("Board info from controller server")
                 read_board_info_payload(controller_data.payload)
             case "command":
                 notify("INFO", "Command response received")
-                print(f"Command response from controller server: {controller_data}")
+                logger.info(
+                    f"Command response from controller server: {controller_data}"
+                )
                 read_command_response(controller_data)
         redraw_area({"VIEW_3D"})
 
@@ -399,7 +400,7 @@ async def sub_controller_server(client: Clients):
 async def subscribe_command():
     while True:
         try:
-            print("Subscribing controller server...")
+            logger.info("Subscribing controller server...")
 
             tasks = [
                 asyncio.create_task(sub_controller_server(client)),
@@ -408,12 +409,12 @@ async def subscribe_command():
             await asyncio.gather(*tasks)
 
         except asyncio.CancelledError:
-            print("Subscription cancelled.")
+            logger.exception("Subscription cancelled.")
             break
 
         except Exception as e:
-            print("Subscription closed with error:", e)
+            logger.exception("Subscription closed with error:", e)
 
         set_command_status(False)
-        print("Reconnecting subscription...")
+        logger.info("Reconnecting subscription...")
         await asyncio.sleep(3)

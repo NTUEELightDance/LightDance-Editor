@@ -1,5 +1,4 @@
-from typing import List, Tuple
-
+from ...log import logger
 from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, MapID
 from ...states import state
 from ...utils.convert import control_modify_to_animation_data
@@ -9,7 +8,6 @@ from ..property.animation_data import (
     modify_partial_ctrl_keyframes,
     reset_control_frames_and_fade_sequence,
     reset_ctrl_rev,
-    update_control_frames_and_fade_sequence,
 )
 from .current_status import calculate_current_status_index
 
@@ -23,7 +21,7 @@ def set_control_record(control_record: ControlRecord):
 
 
 def add_control(id: MapID, frame: ControlMapElement):
-    print(f"Add control {id} at {frame.start}")
+    logger.info(f"Add control {id} at {frame.start}")
 
     control_map_updates = state.control_map_updates
     control_map_updates.added[id] = frame
@@ -41,7 +39,7 @@ def add_control(id: MapID, frame: ControlMapElement):
 
 
 def delete_control(id: MapID):
-    print(f"Delete control {id}")
+    logger.info(f"Delete control {id}")
 
     old_frame = state.control_map.get(id)
     if old_frame is None:
@@ -81,7 +79,7 @@ def delete_control(id: MapID):
 
 
 def update_control(id: MapID, frame: ControlMapElement):
-    print(f"Update control {id} at {frame.start}")
+    logger.info(f"Update control {id} at {frame.start}")
 
     control_map_updates = state.control_map_updates
 
@@ -126,11 +124,16 @@ def apply_control_map_updates():
         [
             (start, id, frame)
             for id, (start, frame) in control_map_updates.updated.items()
+            if id not in state.not_loaded_control_frames
         ],
         key=lambda x: x[0],
     )
     added = sorted(
-        [(id, frame) for id, frame in control_map_updates.added.items()],
+        [
+            (id, frame)
+            for id, frame in control_map_updates.added.items()
+            if id not in state.not_loaded_control_frames
+        ],
         key=lambda x: x[1].start,
     )
     deleted = sorted(
@@ -178,7 +181,12 @@ def apply_control_map_updates():
     #     delete_frames, update_frames, add_frames, fade_seq
     # )
     sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
-    fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
+    filtered_ctrl_map = [
+        ctrl_item
+        for ctrl_item in sorted_ctrl_map
+        if ctrl_item[0] not in state.not_loaded_control_frames
+    ]
+    fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
     reset_control_frames_and_fade_sequence(fade_seq)
     reset_ctrl_rev(sorted_ctrl_map)
 

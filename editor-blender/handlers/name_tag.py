@@ -1,13 +1,14 @@
-import traceback
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, cast
 
 import blf
 import bpy
 from bpy_extras.view3d_utils import location_3d_to_region_2d
 from mathutils import Vector
 
+from ..core.log import logger
 from ..core.states import state
 from ..core.utils.ui import redraw_area
+from ..storage import get_storage
 
 
 class NameTagSettings:
@@ -16,11 +17,11 @@ class NameTagSettings:
         self.y_offset: float = 0
         self.z_offset: float = 2.3
         self.fontsize: int = 25
-        self.text_rgba: Tuple[float, float, float, float] = (1, 1, 1, 1)
+        self.text_rgba: tuple[float, float, float, float] = (1, 1, 1, 1)
         self.font_id: int = 0
         self.name_tag_handle: Any = None
         self.name_tag_draw: Any = None
-        self.region: Optional[bpy.types.Region] = None
+        self.region: bpy.types.Region | None = None
 
 
 name_tag_settings = NameTagSettings()
@@ -29,7 +30,10 @@ name_tag_settings = NameTagSettings()
 def name_tag_draw():
     global name_tag_settings
 
-    data_objects = cast(Dict[str, bpy.types.Object], bpy.data.objects)
+    if not getattr(get_storage("preferences"), "show_nametag"):
+        return
+
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     blf.size(name_tag_settings.font_id, name_tag_settings.fontsize)
     blf.color(name_tag_settings.font_id, *name_tag_settings.text_rgba)
@@ -62,7 +66,7 @@ def name_tag_draw():
             if not text_view_2d:
                 continue
             text_w, text_h = cast(
-                Tuple[float, float], blf.dimensions(name_tag_settings.font_id, name)
+                tuple[float, float], blf.dimensions(name_tag_settings.font_id, name)
             )
             blf.position(
                 name_tag_settings.font_id,
@@ -73,10 +77,10 @@ def name_tag_draw():
             blf.draw(name_tag_settings.font_id, name)
 
         except AttributeError:
-            traceback.print_exc()
+            logger.exception("Failed to draw name tag")
 
         except TypeError:
-            traceback.print_exc()
+            logger.exception("Failed to draw name tag")
 
 
 def name_tag_handler():
@@ -95,19 +99,19 @@ def mount():
     screen = cast(bpy.types.Screen, bpy.data.screens["Layout"])
     area = next(
         area
-        for area in cast(List[bpy.types.Area], screen.areas)
+        for area in cast(list[bpy.types.Area], screen.areas)
         if area.type == "VIEW_3D"
     )
     region = next(
         region
-        for region in cast(List[bpy.types.Region], area.regions)
+        for region in cast(list[bpy.types.Region], area.regions)
         if region.type == "WINDOW"
     )
     name_tag_settings.region = region
     name_tag_settings.name_tag_handle = bpy.types.SpaceView3D.draw_handler_add(
         name_tag_handler, (), "WINDOW", "POST_PIXEL"
     )
-    print("Name tag mounted")
+    logger.info("Name tag mounted")
     redraw_area({"VIEW_3D"})
 
 

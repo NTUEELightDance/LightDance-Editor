@@ -1,14 +1,14 @@
 import asyncio
-import traceback
-from typing import Any, Dict
+from typing import Any
 
 from ..client import client
+from ..core.log import logger
 
 
 class PingAgent:
     async def ping(self) -> bool:
         try:
-            res: Dict[str, Any] = await client.get("/ping")
+            res: dict[str, Any] = await client.get("/ping")
             revision = res.get("uuid")
             if not revision:
                 return False
@@ -19,7 +19,7 @@ class PingAgent:
             return False
 
         except Exception:
-            traceback.print_exc()
+            logger.exception("Failed to ping")
             return False
 
 

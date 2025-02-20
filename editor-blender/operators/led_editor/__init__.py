@@ -1,5 +1,3 @@
-from typing import Optional
-
 import bpy
 
 from ...core.states import state
@@ -21,14 +19,16 @@ class LEDEditorEditModeOperator(bpy.types.Operator):
     bl_label = "LED Editor Edit Mode"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         # TODO: Set states
+        if not bpy.context:
+            return {"CANCELLED"}
 
         ld_ui_led_editor: LEDEditorStatusType = getattr(
-            context.window_manager, "ld_ui_led_editor"
+            bpy.context.window_manager, "ld_ui_led_editor"
         )
         ld_ui_led_editor.edit_mode = LEDEditorEditModeType.EDIT.value
 
@@ -37,7 +37,7 @@ class LEDEditorEditModeOperator(bpy.types.Operator):
 
         dancer_index = state.dancer_names.index(edit_dancer)
         part_obj_name = f"{dancer_index}_" + edit_part
-        part_obj: Optional[bpy.types.Object] = bpy.data.objects.get(part_obj_name)
+        part_obj: bpy.types.Object | None = bpy.data.objects.get(part_obj_name)
 
         if part_obj is not None:
             # Only select human and bulbs for local view
@@ -70,14 +70,16 @@ class LEDEditorCancelEditModeOperator(bpy.types.Operator):
     bl_label = "LED Editor Cancel Edit Mode"
 
     @classmethod
-    def poll(cls, context: bpy.types.Context):
+    def poll(cls, context: bpy.types.Context | None):
         return state.ready
 
-    def execute(self, context: bpy.types.Context):
+    def execute(self, context: bpy.types.Context | None):
         # TODO: Set states
+        if not bpy.context:
+            return {"CANCELLED"}
 
         ld_ui_led_editor: LEDEditorStatusType = getattr(
-            context.window_manager, "ld_ui_led_editor"
+            bpy.context.window_manager, "ld_ui_led_editor"
         )
         ld_ui_led_editor.edit_mode = LEDEditorEditModeType.IDLE.value
 

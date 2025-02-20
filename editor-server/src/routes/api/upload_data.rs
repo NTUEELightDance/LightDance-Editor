@@ -1,4 +1,6 @@
+use crate::db::types::control_data::ControlType;
 use crate::global;
+use crate::types::global::{JsonData, PartType};
 use crate::utils::data::{init_redis_control, init_redis_position};
 
 use axum::{extract::Multipart, http::StatusCode, response::Json};
@@ -6,61 +8,6 @@ use indicatif::ProgressBar;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
-
-#[derive(Debug, Deserialize, Serialize)]
-struct ControlData {
-    start: i32,
-    fade: bool,
-    status: Vec<Vec<(String, i32)>>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct PositionData {
-    start: i32,
-    pos: Vec<[f32; 3]>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct LEDFrame {
-    #[serde(rename = "LEDs")]
-    leds: Vec<(String, i32)>,
-    start: i32,
-    fade: bool,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct LEDPart {
-    repeat: i32,
-    frames: Vec<LEDFrame>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-enum DancerPartType {
-    LED,
-    FIBER,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct DancerPart {
-    name: String,
-    #[serde(rename = "type")]
-    part_type: DancerPartType,
-    length: Option<i32>,
-}
-#[derive(Debug, Deserialize, Serialize)]
-struct Dancer {
-    name: String,
-    model: String,
-    parts: Vec<DancerPart>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-struct DataObj {
-    position: HashMap<String, PositionData>,
-    control: HashMap<String, ControlData>,
-    dancer: Vec<Dancer>,
-    color: HashMap<String, [i32; 3]>,
-    #[serde(rename = "LEDEffects")]
-    led_effects: HashMap<String, HashMap<String, HashMap<String, LEDPart>>>,
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UploadDataResponse(String);
@@ -102,7 +49,7 @@ pub async fn upload_data(
         }
         let raw_data = concatenated_bytes.as_slice();
         // parse json & check types
-        let data_obj: DataObj = match serde_json::from_slice(raw_data) {
+        let data_obj: JsonData = match serde_json::from_slice(raw_data) {
             Ok(data_obj) => data_obj,
             Err(e) => {
                 return Err((
@@ -148,14 +95,12 @@ pub async fn upload_data(
             .execute(mysql)
             .await;
 
-        println!("DB cleared");
-
         let mut tx = mysql.begin().await.into_result()?;
 
         // HashMap<ColorName, ColorID>
         let mut color_dict: HashMap<&String, i32> = HashMap::new();
         let color_progress = ProgressBar::new(data_obj.color.len().try_into().unwrap_or_default());
-        println!("Create Colors...");
+
         for (color_key, color_code) in &data_obj.color {
             let color_id = sqlx::query!(
                 r#"
@@ -175,6 +120,8 @@ pub async fn upload_data(
             color_dict.insert(color_key, color_id);
             color_progress.inc(1);
         }
+        let none_string = "none".to_string();
+        color_dict.insert(&none_string, -1);
         color_progress.finish();
 
         // HashMap<DancerName, (DancerID, HashMap<PartName, (PartID, PartType)>)>
@@ -183,8 +130,6 @@ pub async fn upload_data(
 
         let dancer_progress =
             ProgressBar::new(data_obj.dancer.len().try_into().unwrap_or_default());
-
-        println!("Create Dancers...");
 
         for dancer in &data_obj.dancer {
             // Create model if not exist
@@ -226,11 +171,11 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            let mut part_dict: HashMap<&String, (i32, &DancerPartType)> = HashMap::new();
+            let mut part_dict: HashMap<&String, (i32, &PartType)> = HashMap::new();
             for part in &dancer.parts {
-                let type_string = match &part.part_type {
-                    DancerPartType::LED => "LED",
-                    DancerPartType::FIBER => "FIBER",
+                let type_string = match &part.r#type {
+                    PartType::LED => "LED",
+                    PartType::FIBER => "FIBER",
                 };
 
                 let part_id = sqlx::query!(
@@ -263,7 +208,7 @@ pub async fn upload_data(
                     .last_insert_id() as i32,
                 };
 
-                part_dict.insert(&part.name, (part_id, &part.part_type));
+                part_dict.insert(&part.name, (part_id, &part.r#type));
             }
             all_dancer.insert(&dancer.name, (dancer_id, part_dict.clone()));
             all_model.insert(&dancer.model, (model_id, part_dict));
@@ -277,8 +222,6 @@ pub async fn upload_data(
             HashMap::new();
         let led_progress =
             ProgressBar::new(data_obj.led_effects.len().try_into().unwrap_or_default());
-
-        println!("Create LED Effects...");
 
         for (model_name, dancer_effects) in &data_obj.led_effects {
             let mut model_effect_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
@@ -356,15 +299,13 @@ pub async fn upload_data(
         let position_progress =
             ProgressBar::new(data_obj.position.len().try_into().unwrap_or_default());
 
-        println!("Create Position Data...");
-
-        for (_, frame_obj) in &data_obj.position {
-            if frame_obj.pos.len() != data_obj.dancer.len() {
+        for frame_obj in data_obj.position.values() {
+            if frame_obj.location.len() != data_obj.dancer.len() {
                 return Err((
                     StatusCode::BAD_REQUEST,
                     Json(UploadDataFailedResponse {
                         err: format!("Error: Position frame starting at {} has invalid number of dancers. Found {}, Expected {}.",
-                         frame_obj.start, frame_obj.pos.len(), data_obj.dancer.len()),
+                         frame_obj.start, frame_obj.location.len(), data_obj.dancer.len()),
                     }),
                 ));
             }
@@ -380,18 +321,27 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            for (index, dancer_pos_data) in frame_obj.pos.iter().enumerate() {
+            for (index, (location_data, rotation_data)) in frame_obj
+                .location
+                .iter()
+                .zip(frame_obj.rotation.iter())
+                .enumerate()
+            {
                 let dancer_id = all_dancer[&data_obj.dancer[index].name].0;
-                let _ = sqlx::query!(
+
+                sqlx::query!(
                     r#"
-                        INSERT INTO PositionData (dancer_id, frame_id, x, y, z)
-                        VALUES (?, ?, ?, ?, ?);
+                    INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                     "#,
                     dancer_id,
                     frame_id,
-                    dancer_pos_data[0],
-                    dancer_pos_data[1],
-                    dancer_pos_data[2],
+                    location_data[0],
+                    location_data[1],
+                    location_data[2],
+                    rotation_data[0],
+                    rotation_data[1],
+                    rotation_data[2]
                 )
                 .execute(&mut *tx)
                 .await
@@ -403,8 +353,6 @@ pub async fn upload_data(
 
         let control_progress =
             ProgressBar::new(data_obj.control.len().try_into().unwrap_or_default());
-
-        println!("Create Control Data...");
 
         for frame_obj in data_obj.control.values() {
             if frame_obj.status.len() != data_obj.dancer.len() {
@@ -430,7 +378,12 @@ pub async fn upload_data(
             .into_result()?
             .last_insert_id() as i32;
 
-            for (i, dancer_control_data) in frame_obj.status.iter().enumerate() {
+            for (i, (dancer_status, dancer_led_status)) in frame_obj
+                .status
+                .iter()
+                .zip(frame_obj.led_status.iter())
+                .enumerate()
+            {
                 if frame_obj.status[i].len() != data_obj.dancer[i].parts.len() {
                     return Err((
                         StatusCode::BAD_REQUEST,
@@ -445,27 +398,43 @@ pub async fn upload_data(
                 let model_name = &data_obj.dancer[i].model;
                 let real_dancer = &all_dancer[dancer_name];
 
-                for (j, part_control_data) in dancer_control_data.iter().enumerate() {
+                for (j, (part_status, part_led_status)) in dancer_status
+                    .iter()
+                    .zip(dancer_led_status.iter())
+                    .enumerate()
+                {
                     let part_name = &data_obj.dancer[i].parts[j].name;
                     let real_part = &real_dancer.1[part_name];
 
-                    // This is apparently wrong currently
-                    let type_string = match &real_part.1 {
-                        DancerPartType::LED => "EFFECT",
-                        DancerPartType::FIBER => "COLOR",
+                    // ""          => effect_id =        NULL, type = "LED_BULBS"
+                    // "no-change" => effect_id =        NULL, type =    "EFFECT"
+                    // "<EFFECT>"  => effect_id = <EFFECT_ID>, type =    "EFFECT"
+
+                    let r#type = match &real_part.1 {
+                        PartType::FIBER => ControlType::Color,
+                        PartType::LED => {
+                            // LED_BULBS or EFFECT
+                            if part_status.0.is_empty() {
+                                ControlType::LEDBulbs
+                            } else {
+                                ControlType::Effect
+                            }
+                        }
                     };
-                    let color_id = color_dict.get(&part_control_data.0);
+
+                    let type_string: String = r#type.clone().into();
+
+                    let color_id = color_dict.get(&part_status.0);
                     let effect_id = match led_dict.get(model_name) {
                         Some(parts_dict) => match parts_dict.get(part_name) {
-                            Some(effect_dict) => effect_dict.get(&part_control_data.0),
+                            Some(effect_dict) => effect_dict.get(&part_status.0),
                             None => None,
                         },
                         None => None,
                     };
 
-                    let alpha = part_control_data.1;
-
-                    sqlx::query!(
+                    let alpha = part_status.1;
+                    let control_id = sqlx::query!(
                         r#"
                             INSERT INTO ControlData (dancer_id, part_id, frame_id, type, color_id, effect_id, alpha)
                             VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -480,7 +449,38 @@ pub async fn upload_data(
                     )
                     .execute(&mut *tx)
                     .await
-                    .into_result()?;
+                    .into_result()?
+                    .last_insert_id() as i32;
+
+                    if r#type == ControlType::LEDBulbs {
+                        for (index, (color, alpha)) in part_led_status.iter().enumerate() {
+                            let color_id = match color_dict.get(color) {
+                                Some(i) => i,
+                                None => {
+                                    return Err((
+                                        StatusCode::BAD_REQUEST,
+                                        Json(UploadDataFailedResponse {
+                                            err: format!("Error: Unknown Color Name {color} in ControlData/{dancer_name}/{part_name} at frame {}, index {index}.", frame_obj.start),
+                                        }),
+                                    ))
+                                }
+                            };
+
+                            sqlx::query!(
+                                r#"
+                                    INSERT INTO LEDBulb (control_id, position, color_id, alpha)
+                                    VALUES (?, ?, ?, ?);
+                                "#,
+                                control_id,
+                                index as i32,
+                                color_id,
+                                alpha,
+                            )
+                            .execute(&mut *tx)
+                            .await
+                            .into_result()?;
+                        }
+                    }
                 }
             }
             control_progress.inc(1);
@@ -500,7 +500,6 @@ pub async fn upload_data(
         .into_result()?;
 
         tx.commit().await.into_result()?;
-        println!("Upload Finish!");
 
         init_redis_control(clients.mysql_pool(), clients.redis_client())
             .await

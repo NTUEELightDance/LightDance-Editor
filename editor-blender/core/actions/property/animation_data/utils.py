@@ -1,17 +1,17 @@
-from typing import List, Optional, Tuple, Union, cast
+from typing import cast
 
 import bpy
 
 
 def ensure_action(
-    obj: Union[bpy.types.Object, bpy.types.Scene], action_name: str
+    obj: bpy.types.Object | bpy.types.Scene, action_name: str
 ) -> bpy.types.Action:
-    anim_data = cast(Optional[bpy.types.AnimData], obj.animation_data)
+    anim_data = cast(bpy.types.AnimData | None, obj.animation_data)
     if anim_data is None:
         obj.animation_data_create()
         anim_data = obj.animation_data
 
-    action = cast(Optional[bpy.types.Action], anim_data.action)
+    action = cast(bpy.types.Action | None, anim_data.action)
     if action is None:
         obj.animation_data.action = bpy.data.actions.new(action_name)
         action = obj.animation_data.action
@@ -27,7 +27,7 @@ def ensure_curve(
     clear: bool = False,
 ) -> bpy.types.FCurve:
     curves = action.fcurves
-    curve = cast(Optional[bpy.types.FCurve], curves.find(data_path, index=index))
+    curve = cast(bpy.types.FCurve | None, curves.find(data_path, index=index))
 
     if curve is None:
         curves.new(data_path, index=index)
@@ -45,5 +45,5 @@ def ensure_curve(
 
 def get_keyframe_points(
     curve: bpy.types.FCurve,
-) -> Tuple[bpy.types.FCurveKeyframePoints, List[bpy.types.Keyframe]]:
-    return curve.keyframe_points, cast(List[bpy.types.Keyframe], curve.keyframe_points)
+) -> tuple[bpy.types.FCurveKeyframePoints, list[bpy.types.Keyframe]]:
+    return curve.keyframe_points, cast(list[bpy.types.Keyframe], curve.keyframe_points)
