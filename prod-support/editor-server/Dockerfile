@@ -4,16 +4,13 @@ RUN cargo new editor-server
 WORKDIR /editor-server
 
 COPY ./editor-server/.cargo ./.cargo
-RUN echo '\n\n[workspace]\nmembers = ["prisma"]\n' >> ./Cargo.toml
+RUN echo '\n\n[workspace]\nmembers = ["seaorm"]\n' >> ./Cargo.toml
 
-RUN mkdir ./prisma
-COPY ./editor-server/prisma/schema.prisma ./prisma/schema.prisma
-COPY ./editor-server/prisma/Cargo.toml ./prisma/Cargo.toml
-COPY ./editor-server/prisma/src ./prisma/src
+RUN mkdir ./seaorm
+COPY ./editor-server/seaorm/Cargo.toml ./seaorm/Cargo.toml
+COPY ./editor-server/seaorm/src ./seaorm/src
 
-RUN cargo prisma validate
-
-COPY ./editor-server/prisma/migrations ./prisma/migrations
+COPY ./editor-server/seaorm/migration ./seaorm/migration
 COPY ./editor-server/Cargo.toml .
 COPY ./editor-server/Cargo.lock .
 
@@ -23,5 +20,4 @@ RUN rm -r ./src
 COPY ./editor-server/.env.production ./.env
 COPY ./editor-server/src ./src
 
-CMD ["bash", "-c", "./target/debug/prisma migrate deploy && cargo run --release"]
-
+CMD ["bash", "-c", "cargo run -p seaorm --release -- migrate && cargo run --release"]
