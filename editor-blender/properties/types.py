@@ -50,4 +50,5 @@ class Preferences:
     auto_sync: bool
     follow_frame: bool
     show_waveform: bool
+    show_beat: bool
     show_nametag: bool

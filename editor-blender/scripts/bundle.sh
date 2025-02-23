@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 PACK_FOR_RELEASE=false
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -36,8 +38,8 @@ PACK_NAME="__blender_temp__"
 FOLDER_NAME="editor-blender"
 
 # Check if pip is available, otherwise use pip3
-if ! command -v pip &> /dev/null; then
-  if command -v pip3 &> /dev/null; then
+if ! command -v pip &>/dev/null; then
+  if command -v pip3 &>/dev/null; then
     alias pip=pip3
   else
     echo "Error: pip or pip3 not found"
@@ -80,7 +82,7 @@ PACK_BLENDER_PATH="$PACK_DIR/editor-blender"
 
 # Copy dotenv file
 if $PACK_FOR_RELEASE; then
-  cp "$BLENDER_DIR/pack/.env.production" "$PACK_BLENDER_PATH/.env"
+  cp "$BLENDER_DIR/.env.production" "$PACK_BLENDER_PATH/.env"
 else
   cp "$BLENDER_DIR/.env.development" "$PACK_BLENDER_PATH/.env"
 fi

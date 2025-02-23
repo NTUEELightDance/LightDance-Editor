@@ -2,20 +2,42 @@
   "Music": "/music/2025.mp3",
   "Waveform": "/data/waveform.json",
   "Beat": "/data/beat.csv",
-  "LightPresets": "/data/default_lightPresets.json",
-  "PosPresets": "/data/default_posPresets.json",
   "DancerMap": {
-    "0_hjko": {
-      "url": "/asset/models/1_yck.glb",
-      "modelName": "1_yck"
+    "0_durant": {
+      "url": "/asset/models/boss.glb",
+      "modelName": "boss"
     },
-    "1_sauby": {
-      "url": "/asset/models/4_arthur.glb",
-      "modelName": "4_arthur"
+    "1_hsieh": {
+      "url": "/asset/models/bad_men.glb",
+      "modelName": "bad_men"
     },
-    "2_adam": {
-      "url": "/asset/models/9_ricky.glb",
-      "modelName": "9_ricky"
+    "2_yuan": {
+      "url": "/asset/models/bad_men.glb",
+      "modelName": "bad_men"
+    },
+    "3_ping": {
+      "url": "/asset/models/bad_men.glb",
+      "modelName": "bad_men"
+    },
+    "4_wei": {
+      "url": "/asset/models/bad_men.glb",
+      "modelName": "bad_men"
+    },
+    "5_boyu": {
+      "url": "/asset/models/good_men.glb",
+      "modelName": "good_men"
+    },
+    "6_yen": {
+      "url": "/asset/models/good_men.glb",
+      "modelName": "good_men"
+    },
+    "7_samklin": {
+      "url": "/asset/models/good_men.glb",
+      "modelName": "good_men"
+    },
+    "8_how": {
+      "url": "/asset/models/main_character.glb",
+      "modelName": "main_character"
     }
   },
   "Config": {

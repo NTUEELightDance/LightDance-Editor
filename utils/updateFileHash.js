@@ -59,8 +59,6 @@ let hashJson = {};
 createHash(hashJson, loadJson, ["Beat"])
 createHash(hashJson, loadJson, ["Music"]);
 createHash(hashJson, loadJson, ["Waveform"]);
-createHash(hashJson, loadJson, ["LightPresets"]);
-createHash(hashJson, loadJson, ["PosPresets"]);
 createHash(hashJson, loadJson, ["DancerMap", "*", "url"]);
 
 console.log(JSON.stringify(hashJson, null, 2));

@@ -60,17 +60,6 @@ class LD_UL_PartialDancerLoad(bpy.types.UIList):
         row.prop(item, "shown", text="", emboss=True)
         row.label(text=item.name)
 
-    def draw_filter(
-        self, context: bpy.types.Context | None, layout: bpy.types.UILayout
-    ):
-        row = layout.row()
-        row.prop(self, "select_all_connect", text="Select all connected RPi")
-        row.prop(self, "select_all", text="Select all RPi")
-        row = layout.row()
-        row.prop(self, "filtering_connected", text="Show connected RPi's only")
-        row.prop(self, "show_mac", text="Show MAC addresses")
-        pass
-
 
 class LightDancePreferencesPanel(bpy.types.Panel):
     bl_label = "Tools"
@@ -92,6 +81,8 @@ class LightDancePreferencesPanel(bpy.types.Panel):
         row.prop(preferences, "follow_frame", text="Follow Frame")
         row = col.row()
         row.prop(preferences, "show_waveform", text="Show Waveform")
+        row = col.row()
+        row.prop(preferences, "show_beat", text="Show Beat")
         row = col.row()
         row.prop(preferences, "show_nametag", text="Show Nametag")
 

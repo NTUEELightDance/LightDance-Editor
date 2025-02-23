@@ -13,6 +13,7 @@ from ..core.states import state
 from ..core.utils.algorithms import largest_range_in_lr
 from ..core.utils.convert import csv_second_to_miliseconds
 from ..core.utils.ui import redraw_area
+from ..storage import get_storage
 
 
 class BeatSettings:
@@ -34,6 +35,9 @@ def draw():
     region = beat_settings.region
 
     if shader is None or region is None:
+        return
+
+    if getattr(get_storage("preferences"), "show_beat") is False:
         return
 
     x0 = cast(float, region.view2d.region_to_view(0, 0)[0])

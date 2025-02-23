@@ -105,10 +105,12 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
       }
     })
   );
+  const led_status = dancerData.map(({parts}) => parts.map(() => []));
 
   return {
     fade: false,
     start,
+    led_status,
     status,
   };
 }
@@ -116,15 +118,17 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
 function generateEmptyPosMap(dancerData) {
   const length = dancerData.length;
   const spacing = 1;
-  const pos = dancerData.map((val, index) => [
+  const location = dancerData.map((_, index) => [
     0,
     (index - (length - 1) / 2) * spacing,
     0,
   ]);
+  const rotation = dancerData.map(() => [0, 0, 0]);
 
   return {
     start: 0,
-    pos,
+    location,
+    rotation,
   };
 }
 
@@ -215,7 +219,7 @@ function generateEmptyLEDEffects(modelParts) {
   );
 
   const controlData = {
-    1: generateEmptyControlFrame(dancerData, 0, BLACK, NO_EFFECT),
+    1: generateEmptyControlFrame(dancerData, 0, BLACK, ALL_BLACK),
     2: generateEmptyControlFrame(dancerData, 1000, WHITE, ALL_WHITE),
     3: generateEmptyControlFrame(dancerData, 2000, RED, ALL_RED),
     4: generateEmptyControlFrame(dancerData, 3000, GREEN, ALL_GREEN),

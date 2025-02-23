@@ -2,17 +2,33 @@
   "Beat": "2a9d83c74412739a4b0b72698e37097853481d003ab87d55244963fddcdf66d2",
   "Music": "3d02040243a09091ac232b0bf242ee9369421a40e94dc5f7bf6d5ca2f2d04583",
   "Waveform": "dfd43abae9c2cb1b253d4618e02da33dd319a362e1e8ec2fc4fa25b3ea207222",
-  "LightPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
-  "PosPresets": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
   "DancerMap": {
-    "0_hjko": {
-      "url": "eff6166277a0f66d42f909fc7614d96d3448ae789c669e1b6d666fb4b1df53bc"
+    "0_durant": {
+      "url": "8bad6423ff244cbc9c83a1e56dd31e3bf33741238700b0115363e0c65dd753f2"
     },
-    "1_sauby": {
-      "url": "7540b49cb38daa6c44ac1f5704da199af6eb85f457d61935791731c1beb28c1f"
+    "1_hsieh": {
+      "url": "ce0537ec8086cdace9723d2f231105235b99d235b8b1e2610a08236ce6f20977"
     },
-    "2_adam": {
-      "url": "d43a2a813edf6c31c16e12aef6a38618a68ab3264c007c2969990df347818917"
+    "2_yuan": {
+      "url": "ce0537ec8086cdace9723d2f231105235b99d235b8b1e2610a08236ce6f20977"
+    },
+    "3_ping": {
+      "url": "ce0537ec8086cdace9723d2f231105235b99d235b8b1e2610a08236ce6f20977"
+    },
+    "4_wei": {
+      "url": "ce0537ec8086cdace9723d2f231105235b99d235b8b1e2610a08236ce6f20977"
+    },
+    "5_boyu": {
+      "url": "15cd9ca6c473aef586381aac34bf5720453909bd98e2a709a605a7a15b074271"
+    },
+    "6_yen": {
+      "url": "15cd9ca6c473aef586381aac34bf5720453909bd98e2a709a605a7a15b074271"
+    },
+    "7_samklin": {
+      "url": "15cd9ca6c473aef586381aac34bf5720453909bd98e2a709a605a7a15b074271"
+    },
+    "8_how": {
+      "url": "5f2cc3d848d6367ed4b450fbaf1fba793192f07c8fded5b8311be53cf1316b9c"
     }
   }
 }

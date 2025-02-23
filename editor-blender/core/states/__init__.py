@@ -21,7 +21,11 @@ state = State(
     sync=False,
     user_log="Loading...",
     preferences=Preferences(
-        auto_sync=True, follow_frame=True, show_waveform=True, show_nametag=True
+        auto_sync=True,
+        follow_frame=True,
+        show_waveform=True,
+        show_beat=True,
+        show_nametag=True,
     ),
     logged_in=False,
     loading=False,

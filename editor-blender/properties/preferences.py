@@ -17,6 +17,10 @@ def get_show_waveform(self: bpy.types.PropertyGroup) -> bool:
     return cast(bool, self.get("show_waveform", True))
 
 
+def get_show_beat(self: bpy.types.PropertyGroup) -> bool:
+    return cast(bool, self.get("show_beat", True))
+
+
 def get_show_nametag(self: bpy.types.PropertyGroup) -> bool:
     return cast(bool, self.get("show_nametag", True))
 
@@ -37,6 +41,11 @@ def set_follow_frame(self: bpy.types.PropertyGroup, value: bool):
 def set_show_waveform(self: bpy.types.PropertyGroup, value: bool):
     self["show_waveform"] = value
     state.preferences.show_waveform = value
+
+
+def set_show_beat(self: bpy.types.PropertyGroup, value: bool):
+    self["show_beat"] = value
+    state.preferences.show_beat = value
 
 
 def set_show_nametag(self: bpy.types.PropertyGroup, value: bool):
@@ -64,6 +73,12 @@ class Preferences(bpy.types.PropertyGroup):
         description="Show waveform in timeline",
         get=get_show_waveform,
         set=set_show_waveform,
+    )
+    show_beat: bpy.props.BoolProperty(  # type: ignore
+        name="Show Beat",
+        description="Show beat in timeline",
+        get=get_show_beat,
+        set=set_show_beat,
     )
     show_nametag: bpy.props.BoolProperty(  # type: ignore
         name="Show Nametag",
