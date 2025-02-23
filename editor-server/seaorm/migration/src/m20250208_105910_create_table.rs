@@ -238,11 +238,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(EditingControlFrame::FrameId)
-                            .integer()
-                            .null(),
-                    )
+                    .col(ColumnDef::new(EditingControlFrame::FrameId).integer().null())
                     .index(&mut index_editing_control_frame)
                     .foreign_key(
                         ForeignKey::create()
@@ -271,11 +267,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(EditingPositionFrame::FrameId)
-                            .integer()
-                            .null(),
-                    )
+                    .col(ColumnDef::new(EditingPositionFrame::FrameId).integer().null())
                     .index(&mut index_editing_position_frame)
                     .foreign_key(
                         ForeignKey::create()
@@ -304,11 +296,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(EditingLEDEffect::LedEffectId)
-                            .integer()
-                            .null(),
-                    )
+                    .col(ColumnDef::new(EditingLEDEffect::LedEffectId).integer().null())
                     .index(&mut index_editing_led_effect)
                     .foreign_key(
                         ForeignKey::create()
@@ -336,6 +324,24 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(PositionData::X).double().not_null())
                     .col(ColumnDef::new(PositionData::Y).double().not_null())
                     .col(ColumnDef::new(PositionData::Z).double().not_null())
+                    .col(
+                        ColumnDef::new(PositionData::Rx)
+                            .double()
+                            .not_null()
+                            .default(Expr::cust("0")),
+                    )
+                    .col(
+                        ColumnDef::new(PositionData::Ry)
+                            .double()
+                            .not_null()
+                            .default(Expr::cust("0")),
+                    )
+                    .col(
+                        ColumnDef::new(PositionData::Rz)
+                            .double()
+                            .not_null()
+                            .default(Expr::cust("0")),
+                    )
                     .primary_key(&mut pk_position_data)
                     .foreign_key(
                         ForeignKey::create()
@@ -357,7 +363,8 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        let mut pk_control_data = Index::create()
+        let mut index_control_data = Index::create()
+            .unique()
             .col(ControlData::DancerId)
             .col(ControlData::PartId)
             .col(ControlData::FrameId)
@@ -367,18 +374,24 @@ impl MigrationTrait for Migration {
                 Table::create()
                     .table(ControlData::Table)
                     .if_not_exists()
+                    .col(
+                        ColumnDef::new(ControlData::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
                     .col(ColumnDef::new(ControlData::DancerId).integer().not_null())
                     .col(ColumnDef::new(ControlData::PartId).integer().not_null())
                     .col(ColumnDef::new(ControlData::FrameId).integer().not_null())
                     .col(
                         ColumnDef::new(ControlData::Type)
-                            .custom(Alias::new("ENUM('COLOR','EFFECT')"))
+                            .custom(Alias::new("ENUM('COLOR','EFFECT','LED_BULBS')"))
                             .not_null(),
                     )
                     .col(ColumnDef::new(ControlData::ColorId).integer().null())
                     .col(ColumnDef::new(ControlData::EffectId).integer().null())
                     .col(ColumnDef::new(ControlData::Alpha).integer().not_null())
-                    .primary_key(&mut pk_control_data)
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk-control_data-dancer_id")
@@ -419,6 +432,35 @@ impl MigrationTrait for Migration {
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
+                    .index(&mut index_control_data)
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(LEDBulb::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(LEDBulb::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(LEDBulb::ControlId).integer().not_null())
+                    .col(ColumnDef::new(LEDBulb::Position).integer().not_null())
+                    .col(ColumnDef::new(LEDBulb::ColorId).integer().not_null())
+                    .col(ColumnDef::new(LEDBulb::Alpha).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk-ledbulb-control_id")
+                            .from(LEDBulb::Table, LEDBulb::ControlId)
+                            .to(ControlData::Table, ControlData::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -440,16 +482,8 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(LEDEffectState::EffectId)
-                            .integer()
-                            .not_null(),
-                    )
-                    .col(
-                        ColumnDef::new(LEDEffectState::Position)
-                            .integer()
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(LEDEffectState::EffectId).integer().not_null())
+                    .col(ColumnDef::new(LEDEffectState::Position).integer().not_null())
                     .col(ColumnDef::new(LEDEffectState::ColorId).integer().not_null())
                     .col(ColumnDef::new(LEDEffectState::Alpha).integer().not_null())
                     .foreign_key(
@@ -549,6 +583,9 @@ impl MigrationTrait for Migration {
             .await?;
         manager
             .drop_table(Table::drop().table(EffectListData::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(LEDBulb::Table).to_owned())
             .await?;
         manager
             .drop_table(Table::drop().table(LEDEffectState::Table).to_owned())
@@ -696,18 +733,33 @@ pub enum PositionData {
     X,
     Y,
     Z,
+    Rx,
+    Ry,
+    Rz,
 }
 
 #[derive(Iden)]
 pub enum ControlData {
     #[iden = "ControlData"]
     Table,
+    Id,
     DancerId,
     PartId,
     FrameId,
     Type,
     ColorId,
     EffectId,
+    Alpha,
+}
+
+#[derive(Iden)]
+pub enum LEDBulb {
+    #[iden = "LEDBulb"]
+    Table,
+    Id,
+    ControlId,
+    Position,
+    ColorId,
     Alpha,
 }
 

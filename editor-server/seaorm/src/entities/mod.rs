@@ -10,6 +10,7 @@ pub mod editing_control_frame;
 pub mod editing_led_effect;
 pub mod editing_position_frame;
 pub mod effect_list_data;
+pub mod led_bulb;
 pub mod led_effect;
 pub mod led_effect_state;
 pub mod logger;

@@ -15,6 +15,12 @@ pub struct Model {
     pub y: f64,
     #[sea_orm(column_type = "Double")]
     pub z: f64,
+    #[sea_orm(column_type = "Double")]
+    pub rx: f64,
+    #[sea_orm(column_type = "Double")]
+    pub ry: f64,
+    #[sea_orm(column_type = "Double")]
+    pub rz: f64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

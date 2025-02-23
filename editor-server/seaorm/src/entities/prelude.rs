@@ -8,6 +8,7 @@ pub use super::editing_control_frame::Entity as EditingControlFrame;
 pub use super::editing_led_effect::Entity as EditingLedEffect;
 pub use super::editing_position_frame::Entity as EditingPositionFrame;
 pub use super::effect_list_data::Entity as EffectListData;
+pub use super::led_bulb::Entity as LedBulb;
 pub use super::led_effect::Entity as LedEffect;
 pub use super::led_effect_state::Entity as LedEffectState;
 pub use super::logger::Entity as Logger;

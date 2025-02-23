@@ -6,11 +6,10 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "ControlData")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
+    #[sea_orm(primary_key)]
+    pub id: i32,
     pub dancer_id: i32,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub part_id: i32,
-    #[sea_orm(primary_key, auto_increment = false)]
     pub frame_id: i32,
     pub r#type: Type,
     pub color_id: Option<i32>,
@@ -44,6 +43,8 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Dancer,
+    #[sea_orm(has_many = "super::led_bulb::Entity")]
+    LedBulb,
     #[sea_orm(
         belongs_to = "super::led_effect::Entity",
         from = "Column::EffectId",
@@ -77,6 +78,12 @@ impl Related<super::control_frame::Entity> for Entity {
 impl Related<super::dancer::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Dancer.def()
+    }
+}
+
+impl Related<super::led_bulb::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::LedBulb.def()
     }
 }
 
