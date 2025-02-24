@@ -116,6 +116,9 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
         self.color[0] = ld_color_float[0] * (ld_alpha / 255)
         self.color[1] = ld_color_float[1] * (ld_alpha / 255)
         self.color[2] = ld_color_float[2] * (ld_alpha / 255)
+    elif ld_light_type == LightType.LED_BULB.value:
+        if self.parent and self.parent["ld_effect"] == 0:
+            update_gradient_color(self.parent)
 
 
 def update_gradient_color(led_obj: bpy.types.Object):
