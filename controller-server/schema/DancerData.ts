@@ -13,7 +13,7 @@ export const DancerDataSchema = z.record(
     hostname: z.string().regex(/lightdance-[0-9]{2}/),
     connected: z.boolean(),
     interface: z.enum(["wifi", "ethernet"]),
-  })
+  }),
 );
 
 export type MACAddress = z.infer<typeof MACAddressSchema>;

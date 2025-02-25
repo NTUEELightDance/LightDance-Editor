@@ -29,7 +29,7 @@ let music_subprocess: ChildProcess | null = null;
 
 export async function handleOnControlPanelMessage(
   ws: WebSocket,
-  msg: FromControlPanel
+  msg: FromControlPanel,
 ) {
   switch (msg.topic) {
     case "boardInfo":

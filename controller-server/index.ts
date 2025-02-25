@@ -1,4 +1,5 @@
 import { createServer } from "http";
+import { dancerToMAC } from "@/configs/dancerTable";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -9,6 +10,8 @@ import createNTPServer from "@/ntp";
 
 import { handleOnRPiMessage, handleOnControlPanelMessage } from "@/websocket";
 import { Message } from "@/types/global";
+import { ToRPiSync } from "@/types/RPiMessage";
+import { sendBeatToRPi } from "@/websocket/RPi/handlers";
 
 const { SERVER_HOSTNAME, SERVER_PORT, NTPSERVER_PORT } = process.env;
 
@@ -57,10 +60,20 @@ wss.on("connection", function connection(ws: WebSocket) {
   ws.on("error", console.error);
 });
 
+setInterval(() => {
+  const toRPiMsg: ToRPiSync = {
+    from: "server",
+    topic: "sync",
+    statusCode: 0,
+    payload: "",
+  };
+  sendBeatToRPi(Object.keys(dancerToMAC), toRPiMsg);
+}, 5000);
+
 createNTPServer(parseInt(NTPSERVER_PORT));
 
 server.listen(SERVER_PORT, () => {
   console.log(
-    `[TCP Server] Controller Server is listening on port ${SERVER_PORT}\n`
+    `[TCP Server] Controller Server is listening on port ${SERVER_PORT}\n`,
   );
 });
