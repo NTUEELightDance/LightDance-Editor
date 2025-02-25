@@ -1,4 +1,4 @@
-FROM rust:1.75
+FROM rust:1.84
 
 RUN cargo new editor-server
 WORKDIR /editor-server
