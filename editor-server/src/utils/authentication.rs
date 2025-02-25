@@ -19,7 +19,6 @@ pub struct UserMetadata {
 
 #[derive(Debug, Deserialize, Serialize)]
 struct UserInfo {
-    #[serde(rename = "https://foo.com/mtdt")]
     metadata: UserMetadata,
 }
 
@@ -79,7 +78,7 @@ pub async fn get_token(username: String, password: String) -> Result<String, (St
         grant_type: "password".to_string(),
         username,
         password,
-        audience: "https://test/".to_string(),
+        audience: "https://lightdance-editor.ntuee.org".to_string(),
         scope: "openid profile email".to_string(),
         client_id: auth0_client_id.to_string(),
         client_secret: auth0_client_secret.to_string(),
@@ -97,7 +96,7 @@ pub async fn get_token(username: String, password: String) -> Result<String, (St
 
     if res.status() != reqwest::StatusCode::OK {
         return Err((
-            StatusCode::from_u16(res.status().as_u16()).expect("invalid status code"),
+            StatusCode::UNAUTHORIZED,
             "Auth0 authentication error".to_string(),
         ));
     }
@@ -131,10 +130,9 @@ pub async fn get_user_metadata(token: &str) -> Result<String, String> {
         .await
         .map_err(|_| "Error retrieving user info")?;
 
-    let user_info = res
-        .json::<UserInfo>()
-        .await
-        .map_err(|_| "Error getting metadata".to_string())?;
+    let res_text = res.text().await.map_err(|_| "Error retrieving user info text")?;
+    
+    let user_info = serde_json::from_str::<UserInfo>(&res_text).map_err(|_| "Error getting metadata".to_string())?;
 
     let user_metadata = user_info.metadata;
 

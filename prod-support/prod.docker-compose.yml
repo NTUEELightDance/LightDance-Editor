@@ -22,8 +22,6 @@ services:
     build:
       context: ..
       dockerfile: ./prod-support/editor-server/Dockerfile
-    ports:
-      - "4000:4000"
     networks:
       - nginx
     depends_on:
