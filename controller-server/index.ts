@@ -12,6 +12,7 @@ import { handleOnRPiMessage, handleOnControlPanelMessage } from "@/websocket";
 import { Message } from "@/types/global";
 import { ToRPiSync } from "@/types/RPiMessage";
 import { sendBeatToRPi } from "@/websocket/RPi/handlers";
+import pinMapTable from "./configs/pinMapTable";
 
 const { SERVER_HOSTNAME, SERVER_PORT, NTPSERVER_PORT } = process.env;
 
@@ -76,4 +77,8 @@ server.listen(SERVER_PORT, () => {
   console.log(
     `[TCP Server] Controller Server is listening on port ${SERVER_PORT}\n`,
   );
+});
+
+app.get("/pinMapTable", (req, res) => {
+  res.json(pinMapTable);
 });

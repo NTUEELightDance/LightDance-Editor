@@ -1,10 +1,10 @@
 Button {
   padding: 0;
-  margin: 1 2;
+  margin: 0 1;
   border: none;
   color: white;
   height: 1;
-  min-width: 1;
+  min-width: 3;
 }
 
 Toast {
@@ -15,23 +15,26 @@ Toast {
 
 Horizontal {
   overflow-x: auto;
-  height: 1fr
+  # height: 1fr
+}
+
+Input {
+  padding: 0;
+  margin: 0;
+  height: 1;
+  border: none;
 }
 
 #control-panel-buttons {
   width: 1fr;
-  background: #000;
 }
 
 #control-panel-2 {
-  width: 2fr;
+  width: 1fr;
 }
 
 #color-input {
   width: 10;
-  height: 3;
-  padding: 0;
-  margin: 0;
 }
 
 #control-danger-zone-label {
@@ -43,8 +46,5 @@ Horizontal {
 }
 
 #delay-input {
-  width: 10;
-  height: 3;
-  padding: 0;
-  margin: 0;
+  width: 4;
 }

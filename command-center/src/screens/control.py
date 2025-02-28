@@ -5,7 +5,7 @@ from textual.validation import Number, Regex
 from textual.widgets import Button, DataTable, Footer, Input, Label
 
 from ..handlers import control_handler
-from ..types import DancerInfo, DancerItem, DancerStatus
+from ..types import DancerStatus
 from ..types.app import LightDanceAppType
 
 
@@ -30,7 +30,7 @@ class ControlScreen(Screen):
                     yield Button("Pause", id="control-pause")
                     yield Button("Stop", id="control-stop")
                 with Horizontal():
-                    yield Button("Reconnect", id="control-reconnect")
+                    yield Button("Refresh", id="control-refresh")
                     yield Button("Sync", id="control-sync")
                     yield Button("Upload", id="control-upload")
                     yield Button("Load", id="control-load")
@@ -61,51 +61,62 @@ class ControlScreen(Screen):
                 yield self.table
         yield Footer()
 
-    count = 20
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.notify(f"Button {event.button.label}")
-        self.app.dancer_status = {
-            **self.app.dancer_status,
-            f"dancer{self.count}": DancerItem(
-                False,
-                f"{self.count}",
-                "hostname",
-                "wifi",
-                True,
-                DancerInfo("IP", "MAC"),
-                DancerInfo("IP", "MAC"),
-            ),
-        }
-        self.count += 1
         if event.button.id:
-            control_handler(event.button.id)
+            control_handler(
+                event.button.id,
+                [
+                    dancer.name
+                    for dancer in self.app.dancer_status.values()
+                    if dancer.selected
+                ],
+            )
 
     def on_mount(self) -> None:
+        self.table.add_column(
+            "Selected",
+            key="Selected",
+        )
         self.table.add_columns(
             "Name",
             "Hostname",
             "Interface",
-            "Connected",
-            "Ethernet IP",
-            "Ethernet MAC",
-            "WiFi IP",
-            "WiFi MAC",
         )
         self.watch(self.app, "dancer_status", self.update_dancer_table)
 
     def update_dancer_table(self) -> None:
         self.table.clear()
-        new_dancer_status: DancerStatus = getattr(self.app, "dancer_status")
+        new_dancer_status: DancerStatus = self.app.dancer_status
         for name, dancer in new_dancer_status.items():
+            connected = dancer.ethernet_info.connected or dancer.wifi_info.connected
             self.table.add_row(
-                name,
+                dancer.selected,
+                f"[#00ff00]{name}[/]" if connected else f"[#ff0000]{name}[/]",
                 dancer.hostname,
                 dancer.interface,
-                dancer.connected,
-                dancer.ethernet_info.IP,
-                dancer.ethernet_info.MAC,
-                dancer.wifi_info.IP,
-                dancer.wifi_info.MAC,
+                key=name,
+                # label="\u2588\u2588"
             )
         self.refresh()
+
+    def on_data_table_cell_selected(self, event: DataTable.CellSelected):
+        row_key = event.cell_key[0].value
+        column_key = event.cell_key[1].value
+        self.notify(f"Selected {row_key} {column_key}")
+        if not (row_key) or column_key != "Selected":
+            return
+        self.app.dancer_status[row_key].selected ^= True
+        self.table.update_cell(
+            row_key, "Selected", self.app.dancer_status[row_key].selected
+        )
+
+    def on_data_table_header_selected(self, event: DataTable.HeaderSelected):
+        self.notify(f"Selected {event.column_index}")
+        if event.column_index == 0:
+            is_all_selected = all(
+                dancer.selected for dancer in self.app.dancer_status.values()
+            )
+            for dancer in self.app.dancer_status.values():
+                dancer.selected = not is_all_selected
+            self.update_dancer_table()

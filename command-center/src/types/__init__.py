@@ -10,6 +10,7 @@ Core
 
 @dataclass
 class DancerInfo:
+    connected: bool
     IP: str
     MAC: str
 
@@ -20,12 +21,26 @@ class DancerItem:
     name: str
     hostname: str
     interface: Literal["wifi", "ethernet"]
-    connected: bool
     ethernet_info: DancerInfo
     wifi_info: DancerInfo
 
 
 DancerStatus = dict[str, DancerItem]
+
+
+@dataclass
+class DancerPayloadInterfaceItems:
+    IP: str
+    MAC: str
+    dancer: str
+    hostname: str
+    connected: bool
+
+
+DancerPayloadInterface = dict[Literal["wifi", "ethernet"], DancerPayloadInterfaceItems]
+
+DancerPayload = dict[str, DancerPayloadInterface]
+
 
 """
 To controller server

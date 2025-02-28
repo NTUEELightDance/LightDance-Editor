@@ -1,34 +1,26 @@
 import json
 import time
 from collections.abc import Callable
-from typing import Literal
 
 import websocket
+from textual.widgets import Log
+
+from ..types.app import LightDanceAppType
+from .message import on_message
 
 WS_URL = "ws://localhost:8082"
 
 
 class API:
     ws: websocket.WebSocketApp | None = None
+    app_ref: LightDanceAppType
+    log: Callable[[str], Log]
 
-    def set_notifier(self, notifier: Callable[..., None]):
-        self.notify = notifier
-
-    @staticmethod
-    def notify(
-        message: str,
-        *,
-        title: str = "",
-        severity: Literal["information", "warning", "error"] = "information",
-        timeout: float | None = None,
-    ) -> None:
-        """Show a notification.
-        Using Staticmethod since it should be replaced by the actual textual `notify` function.
-        """
-        return
+    def set_app_ref(self, app: LightDanceAppType):
+        self.app_ref = app
 
     def connect(self):
-        self.notify(f"Connecting to {WS_URL}")
+        self.app_ref.notify(f"Connecting to {WS_URL}")
         while True:
             try:
                 self.ws = websocket.WebSocketApp(
@@ -41,26 +33,26 @@ class API:
                 self.ws.run_forever()
                 time.sleep(1)
             except websocket.WebSocketException:
-                self.notify("Connection error. Retrying...")
+                self.app_ref.notify("Connection error. Retrying...")
                 self.ws = None
             except KeyboardInterrupt:
-                self.notify("Exiting...")
+                self.app_ref.notify("Exiting...")
                 break
 
     def on_message(self, ws, message):
-        print(f"Message: {message}")
+        on_message(message, self.app_ref)
 
     def on_error(self, ws, error):
         print(f"Error: {error}")
 
     def on_close(self, ws, close_status_code, close_msg):
-        self.notify(
+        self.app_ref.notify(
             f"Connection closed with code {close_status_code}", severity="error"
         )
 
     def on_open(self, ws):
         assert self.ws
-        self.notify("Connection opened")
+        self.app_ref.notify("Connection opened")
         self.send(
             {
                 "topic": "boardInfo",
@@ -69,7 +61,7 @@ class API:
 
     def send(self, message: dict):
         if self.ws is None:
-            self.notify("Connection is not open")
+            self.app_ref.notify("Connection is not open")
             return
         self.ws.send(
             json.dumps(

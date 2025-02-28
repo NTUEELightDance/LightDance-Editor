@@ -2,10 +2,11 @@ from threading import Thread
 
 from textual.app import App
 from textual.reactive import reactive
+from textual.widgets import RichLog
 
 from .api import api
 from .screens import ControlScreen, InfoScreen, LogScreen
-from .types import DancerInfo, DancerItem, DancerStatus
+from .types import DancerStatus
 
 
 class LightDanceApp(App):
@@ -21,52 +22,12 @@ class LightDanceApp(App):
         "table": InfoScreen,
     }
 
-    dancer_status: reactive[DancerStatus] = reactive(
-        DancerStatus(
-            {
-                "0": DancerItem(
-                    False,
-                    f"0",
-                    "hostname",
-                    "wifi",
-                    True,
-                    DancerInfo("IP", "MAC"),
-                    DancerInfo("IP", "MAC"),
-                ),
-                "1": DancerItem(
-                    False,
-                    f"1",
-                    "hostname",
-                    "wifi",
-                    True,
-                    DancerInfo("IP", "MAC"),
-                    DancerInfo("IP", "MAC"),
-                ),
-                "2": DancerItem(
-                    False,
-                    f"2",
-                    "hostname",
-                    "wifi",
-                    True,
-                    DancerInfo("IP", "MAC"),
-                    DancerInfo("IP", "MAC"),
-                ),
-                "3": DancerItem(
-                    False,
-                    f"3",
-                    "hostname",
-                    "wifi",
-                    True,
-                    DancerInfo("IP", "MAC"),
-                    DancerInfo("IP", "MAC"),
-                ),
-            }
-        )
-    )
+    dancer_status: reactive[DancerStatus] = reactive({})
+    log_instance: RichLog = RichLog(highlight=True, wrap=False)
 
     async def on_mount(self) -> None:
         self.switch_mode(mode="control")
-        api.set_notifier(self.notify)
+        api.set_app_ref(self.app)  # type: ignore
         Thread(target=api.connect, daemon=True).start()
 
 

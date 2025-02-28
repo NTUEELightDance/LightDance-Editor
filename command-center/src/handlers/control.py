@@ -1,4 +1,7 @@
-def control_handler(id: str):  # TODO
+from ..api import api
+
+
+def control_handler(id: str, selected_dancers: list[str]):  # TODO
     match id:
         case "control-play":
             print("Play")
@@ -6,10 +9,21 @@ def control_handler(id: str):  # TODO
             print("Pause")
         case "control-stop":
             print("Stop")
-        case "control-reconnect":
-            print("Reconnect")
+        case "control-refresh":
+            api.send(
+                {
+                    "topic": "boardInfo",
+                }
+            )
         case "control-sync":
-            print("Sync")
+            api.send(
+                {
+                    "topic": "sync",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
         case "control-upload":
             print("Upload")
         case "control-load":
