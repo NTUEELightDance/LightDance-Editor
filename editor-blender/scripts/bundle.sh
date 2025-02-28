@@ -56,17 +56,19 @@ WHEELS_CACHE_DIR="$BLENDER_DIR/.wheels-cache"
 CACHE_HIT=false
 if [ -f $WHEELS_CACHE_DIR/context.sha1 ] &&
   [ $(cat "$BLENDER_DIR/requirements.prod.txt" "$BLENDER_DIR/blender_manifest.toml" | sha1sum | head -c 40) = $(cat "$WHEELS_CACHE_DIR/context.sha1") ] &&
-  [ $(sha1sum "$WHEELS_CACHE_DIR/unix"/* "$WHEELS_CACHE_DIR/win"/* | sha1sum | head -c 40) = $(cat "$WHEELS_CACHE_DIR/integrity.sha1") ]; then
+  [ $(sha1sum "$WHEELS_CACHE_DIR/linux"/* "$WHEELS_CACHE_DIR/win"/* "$WHEELS_CACHE_DIR/macos-arm64"/* | sha1sum | head -c 40) = $(cat "$WHEELS_CACHE_DIR/integrity.sha1") ]; then
   CACHE_HIT=true
   echo Found dependency cache
 fi
 
 if ! $CACHE_HIT; then
+  rm -rf "$WHEELS_CACHE_DIR"
   echo No dependency cache found, creating one
-  pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/unix" --python-version 311 --only-binary=:all: -q && echo Downloaded Linux/MacOS wheels
+  pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/linux" --python-version 311 --only-binary=:all: -q && echo Downloaded Linux wheels # Assume you're bundling from Linux/WSL
   pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/win" --python-version 311 --only-binary=:all: --platform win_amd64 -q && echo Downloaded Windows wheels
+  pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/macos-arm64" --python-version 311 --only-binary=:all: --platform macosx_11_0_arm64 -q && echo Downloaded MacOS wheels
   cat "$BLENDER_DIR/requirements.prod.txt" "$BLENDER_DIR/blender_manifest.toml" | sha1sum | head -c 40 >"$WHEELS_CACHE_DIR/context.sha1"
-  sha1sum "$WHEELS_CACHE_DIR/unix"/* "$WHEELS_CACHE_DIR/win"/* | sha1sum | head -c 40 >"$WHEELS_CACHE_DIR/integrity.sha1"
+  sha1sum "$WHEELS_CACHE_DIR/linux"/* "$WHEELS_CACHE_DIR/win"/* "$WHEELS_CACHE_DIR/macos-arm64"/* | sha1sum | head -c 40 >"$WHEELS_CACHE_DIR/integrity.sha1"
   echo Created dependency cache
 fi
 
@@ -136,16 +138,22 @@ OUTPUT_DIR=${OUTPUT_DIR:-$ROOT_DIR}
 
 # Download wheels
 # For Linux/MacOS
-cp -r "$WHEELS_CACHE_DIR/unix" "$WHEELS_DIR"
+cp -r "$WHEELS_CACHE_DIR/linux" "$WHEELS_DIR"
 pack
-mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-unix.zip"
-echo Bundled Linux/MacOS version at "$OUTPUT_DIR/$FOLDER_NAME-unix.zip".
+mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-linux.zip"
+echo Bundled Linux version at "$OUTPUT_DIR/$FOLDER_NAME-linux.zip".
 
 # For Windows
 rm -rf "$WHEELS_DIR" && cp -r "$WHEELS_CACHE_DIR/win" "$WHEELS_DIR"
 pack
 mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-win.zip"
 echo Bundled Windows version at "$OUTPUT_DIR/$FOLDER_NAME-win.zip".
+
+# For MacOS arm64
+rm -rf "$WHEELS_DIR" && cp -r "$WHEELS_CACHE_DIR/macos-arm64" "$WHEELS_DIR"
+pack
+mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-macos-arm64.zip"
+echo Bundled MacOS arm64 version at "$OUTPUT_DIR/$FOLDER_NAME-macos-arm64.zip".
 
 # Remove temp folder
 rm -rf "$PACK_DIR"
