@@ -16,7 +16,7 @@ use std::{
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Status {
     start: i32,
-    status: Vec<[f32; 4]>,
+    status: Vec<[i32; 4]>,
     fade: bool,
 }
 
@@ -80,7 +80,7 @@ where
     }
 }
 
-fn convert_true_color_to_norm(color: &[f32; 4]) -> [f32; 3] {
+fn convert_true_color_to_norm(color: &[i32; 4]) -> [i32; 3] {
     [
         color[0] * color[3],
         color[1] * color[3],
@@ -144,18 +144,18 @@ fn filter_identical_frames(statuses: Vec<Status>) -> Vec<Status> {
 /// - If head color is -1, fill with tail color.
 /// - If tail color is -1, fill with head color.
 /// - If both head and tail are -1, fill with black.
-fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
-    let mut interpolated_status: Vec<[f32; 4]> = vec![];
+fn interpolate_gradient(segments: Vec<Vec<[i32; 4]>>) -> Vec<[i32; 4]> {
+    let mut interpolated_status: Vec<[i32; 4]> = vec![];
 
     for segment in segments.clone() {
         if segment.len() < 2 {
             interpolated_status.extend_from_slice(&segment);
             continue;
         }
-        if segment[0][0] == -1.0 {
-            if segment.last().unwrap()[0] == -1.0 {
+        if segment[0][0] == -1 {
+            if segment.last().unwrap()[0] == -1 {
                 for _ in 0..segment.len() {
-                    interpolated_status.push([0.0, 0.0, 0.0, 0.0]);
+                    interpolated_status.push([0, 0, 0, 0]);
                 }
                 continue;
             }
@@ -163,43 +163,43 @@ fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
                 let start_bulb = segments.last().unwrap()[0];
                 let end_bulb = segment[segment.len() - 1];
 
-                let r: f32 = start_bulb[0]
+                let r: i32 = start_bulb[0]
                     + (end_bulb[0] - start_bulb[0])
-                        * (i + segments.last().unwrap().len() - 1) as f32
-                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
-                let g: f32 = start_bulb[1]
+                        * (i + segments.last().unwrap().len() - 1) as i32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as i32;
+                let g: i32 = start_bulb[1]
                     + (end_bulb[1] - start_bulb[1])
-                        * (i + segments.last().unwrap().len() - 1) as f32
-                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
-                let b: f32 = start_bulb[2]
+                        * (i + segments.last().unwrap().len() - 1) as i32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as i32;
+                let b: i32 = start_bulb[2]
                     + (end_bulb[2] - start_bulb[2])
-                        * (i + segments.last().unwrap().len() - 1) as f32
-                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
-                let alpha: f32 = start_bulb[3]
+                        * (i + segments.last().unwrap().len() - 1) as i32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as i32;
+                let alpha: i32 = start_bulb[3]
                     + (end_bulb[3] - start_bulb[3])
-                        * (i + segments.last().unwrap().len() - 1) as f32
-                        / (segment.len() + segments.last().unwrap().len() - 1) as f32;
+                        * (i + segments.last().unwrap().len() - 1) as i32
+                        / (segment.len() + segments.last().unwrap().len() - 1) as i32;
 
                 interpolated_status.push([r, g, b, alpha]);
             }
             continue;
-        } else if segment.last().unwrap()[0] == -1.0 {
+        } else if segment.last().unwrap()[0] == -1 {
             for i in 1..segment.len() {
                 let start_bulb = segment[0];
                 let end_bulb = segments[0].last().unwrap();
 
-                let r: f32 = start_bulb[0]
-                    + (end_bulb[0] - start_bulb[0]) * i as f32
-                        / (segment.len() + segments[0].len() - 1) as f32;
-                let g: f32 = start_bulb[1]
-                    + (end_bulb[1] - start_bulb[1]) * i as f32
-                        / (segment.len() + segments[0].len() - 1) as f32;
-                let b: f32 = start_bulb[2]
-                    + (end_bulb[2] - start_bulb[2]) * i as f32
-                        / (segment.len() + segments[0].len() - 1) as f32;
-                let alpha: f32 = start_bulb[3]
-                    + (end_bulb[3] - start_bulb[3]) * i as f32
-                        / (segment.len() + segments[0].len() - 1) as f32;
+                let r: i32 = start_bulb[0]
+                    + (end_bulb[0] - start_bulb[0]) * i as i32
+                        / (segment.len() + segments[0].len() - 1) as i32;
+                let g: i32 = start_bulb[1]
+                    + (end_bulb[1] - start_bulb[1]) * i as i32
+                        / (segment.len() + segments[0].len() - 1) as i32;
+                let b: i32 = start_bulb[2]
+                    + (end_bulb[2] - start_bulb[2]) * i as i32
+                        / (segment.len() + segments[0].len() - 1) as i32;
+                let alpha: i32 = start_bulb[3]
+                    + (end_bulb[3] - start_bulb[3]) * i as i32
+                        / (segment.len() + segments[0].len() - 1) as i32;
 
                 interpolated_status.push([r, g, b, alpha]);
             }
@@ -214,14 +214,14 @@ fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
                 continue;
             }
 
-            let r: f32 = start_bulb[0]
-                + (end_bulb[0] - start_bulb[0]) * i as f32 / (segment.len() - 1) as f32;
-            let g: f32 = start_bulb[1]
-                + (end_bulb[1] - start_bulb[1]) * i as f32 / (segment.len() - 1) as f32;
-            let b: f32 = start_bulb[2]
-                + (end_bulb[2] - start_bulb[2]) * i as f32 / (segment.len() - 1) as f32;
-            let alpha: f32 = start_bulb[3]
-                + (end_bulb[3] - start_bulb[3]) * i as f32 / (segment.len() - 1) as f32;
+            let r: i32 = start_bulb[0]
+                + (end_bulb[0] - start_bulb[0]) * i as i32 / (segment.len() - 1) as i32;
+            let g: i32 = start_bulb[1]
+                + (end_bulb[1] - start_bulb[1]) * i as i32 / (segment.len() - 1) as i32;
+            let b: i32 = start_bulb[2]
+                + (end_bulb[2] - start_bulb[2]) * i as i32 / (segment.len() - 1) as i32;
+            let alpha: i32 = start_bulb[3]
+                + (end_bulb[3] - start_bulb[3]) * i as i32 / (segment.len() - 1) as i32;
 
             interpolated_status.push([r, g, b, alpha]);
         }
@@ -232,18 +232,18 @@ fn interpolate_gradient(segments: Vec<Vec<[f32; 4]>>) -> Vec<[f32; 4]> {
 
 /// computes rgb gradient by separating the bulb colors into segments of -1.
 /// if color is not -1, it is a new segment.
-fn gradient_to_rgb_float(status: Vec<[f32; 4]>) -> Vec<Vec<[f32; 4]>> {
-    let mut segments: Vec<Vec<[f32; 4]>> = vec![];
+fn gradient_to_rgb_float(status: Vec<[i32; 4]>) -> Vec<Vec<[i32; 4]>> {
+    let mut segments: Vec<Vec<[i32; 4]>> = vec![];
     let mut head = 0;
 
     for (i, bulb_status) in status.iter().enumerate() {
-        if bulb_status[0] == -1.0 && i != status.len() - 1 {
+        if bulb_status[0] == -1 && i != status.len() - 1 {
             continue;
-        } else if (i != 0 && status[i - 1][0] == -1.0) || i == status.len() - 1 {
+        } else if (i != 0 && status[i - 1][0] == -1) || i == status.len() - 1 {
             segments.push(status[head..i + 1].to_vec());
             head = i;
         }
-        if bulb_status[0] != -1.0 {
+        if bulb_status[0] != -1 {
             segments.push(vec![*bulb_status]);
             head = i;
         }
@@ -341,22 +341,17 @@ pub async fn get_dancer_led_data(
 
     let effect_states = partition_by_field(|state| state.effect_id, effect_states);
 
-    let mut effect_states_map: HashMap<i32, Vec<[f32; 4]>> = HashMap::new();
+    let mut effect_states_map: HashMap<i32, Vec<[i32; 4]>> = HashMap::new();
     for states in effect_states.iter() {
         let effect_id = states[0].effect_id;
 
-        let mut effect_data = vec![[0.0, 0.0, 0.0, 0.0]; states.len()];
+        let mut effect_data = vec![[0, 0, 0, 0]; states.len()];
 
         for state in states.iter() {
             let color = color_map
                 .get(&state.color_id)
                 .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-            effect_data[state.position as usize] = [
-                color.r as f32,
-                color.g as f32,
-                color.b as f32,
-                state.alpha as f32,
-            ];
+            effect_data[state.position as usize] = [color.r, color.g, color.b, state.alpha];
         }
 
         effect_states_map.insert(effect_id, effect_data);
@@ -502,7 +497,7 @@ pub async fn get_dancer_led_data(
                             if part_data.r#type == "EFFECT" {
                                 let previous_part_status = match response.get(part_name) {
                                     Some(status) => status.last().unwrap().status.clone(),
-                                    None => vec![[0.0, 0.0, 0.0, 0.0]; length as usize],
+                                    None => vec![[0, 0, 0, 0]; length as usize],
                                 };
 
                                 frame_effect_datas
@@ -525,12 +520,7 @@ pub async fn get_dancer_led_data(
                                         g: 0,
                                         b: 0,
                                     });
-                                    [
-                                        color.r as f32,
-                                        color.g as f32,
-                                        color.b as f32,
-                                        *alpha as f32,
-                                    ]
+                                    [color.r, color.g, color.b, *alpha]
                                 })
                                 .collect_vec();
 
@@ -588,7 +578,7 @@ pub async fn get_dancer_led_data(
                         if data.r#type == "EFFECT" {
                             let previous_part_status = match part_data.last() {
                                 Some(status) => status.status.clone(),
-                                None => vec![[0.0, 0.0, 0.0, 0.0]; length as usize],
+                                None => vec![[0, 0, 0, 0]; length as usize],
                             };
 
                             part_data.push(Status {
@@ -611,12 +601,7 @@ pub async fn get_dancer_led_data(
                                     color_map
                                         .get(color_id)
                                         .unwrap_or(&Color { r: 0, g: 0, b: 0 });
-                                [
-                                    color.r as f32,
-                                    color.g as f32,
-                                    color.b as f32,
-                                    *alpha as f32,
-                                ]
+                                [color.r, color.g, color.b, *alpha]
                             })
                             .collect_vec();
 
