@@ -105,7 +105,7 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
       }
     })
   );
-  const led_status = dancerData.map(({parts}) => parts.map(() => []));
+  const led_status = dancerData.map(({ parts }) => parts.map(() => []));
 
   return {
     fade: false,
@@ -165,14 +165,14 @@ function generateEmptyLEDEffects(modelParts) {
         return {
           ...partAcc,
           [part.name]: {
-            [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 0]),
+            [ALL_BLACK]: generateDefaultEffect(part.length, [BLACK, 255]),
             [ALL_WHITE]: generateDefaultEffect(part.length, [WHITE, 255]),
             [ALL_RED]: generateDefaultEffect(part.length, [RED, 255]),
             [ALL_GREEN]: generateDefaultEffect(part.length, [GREEN, 255]),
             [ALL_BLUE]: generateDefaultEffect(part.length, [BLUE, 255]),
           },
         };
-      }, {})
+      }, {}),
     };
   }, {});
 
@@ -205,13 +205,15 @@ function generateEmptyLEDEffects(modelParts) {
     })
   );
 
-  const modelParts = Array.from(modelPartsCache.entries()).map(([modelPath, parts]) => {
-    const modelName = path.basename(modelPath, ".glb");
-    return {
-      name: modelName,
-      parts,
-    };
-  });
+  const modelParts = Array.from(modelPartsCache.entries()).map(
+    ([modelPath, parts]) => {
+      const modelName = path.basename(modelPath, ".glb");
+      return {
+        name: modelName,
+        parts,
+      };
+    }
+  );
 
   // sort by dancer name
   dancerData.sort(

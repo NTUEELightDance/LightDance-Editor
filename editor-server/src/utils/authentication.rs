@@ -130,9 +130,13 @@ pub async fn get_user_metadata(token: &str) -> Result<String, String> {
         .await
         .map_err(|_| "Error retrieving user info")?;
 
-    let res_text = res.text().await.map_err(|_| "Error retrieving user info text")?;
-    
-    let user_info = serde_json::from_str::<UserInfo>(&res_text).map_err(|_| "Error getting metadata".to_string())?;
+    let res_text = res
+        .text()
+        .await
+        .map_err(|_| "Error retrieving user info text")?;
+
+    let user_info = serde_json::from_str::<UserInfo>(&res_text)
+        .map_err(|_| "Error getting metadata".to_string())?;
 
     let user_metadata = user_info.metadata;
 
