@@ -77,8 +77,11 @@ def update_current_status_by_index():
                             for led_bulb_obj in part_obj.children:
                                 pos: int = getattr(led_bulb_obj, "ld_led_pos")
                                 data = part_led_status[pos]
-                                color = state.color_map[data.color_id]
-                                setattr(led_bulb_obj, "ld_color", color.name)
+                                if data.color_id != -1:
+                                    color = state.color_map[data.color_id]
+                                    setattr(led_bulb_obj, "ld_color", color.name)
+                                else:
+                                    setattr(led_bulb_obj, "ld_color", "[gradient]")
                                 setattr(led_bulb_obj, "ld_alpha", data.alpha)
                         else:
                             effect = state.led_effect_id_table[effect_id]

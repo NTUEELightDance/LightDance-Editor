@@ -64,16 +64,16 @@ def sync_editing_control_frame_properties():
 
                 # Re-trigger update
                 if part_type == LightType.FIBER.value:
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+                    setattr(part_obj, "ld_alpha", ld_alpha)
                     ld_color: int = getattr(part_obj, "ld_color")
                     setattr(part_obj, "ld_color", ld_color)
-                    ld_alpha: int = getattr(part_obj, "ld_alpha")
-                    setattr(part_obj, "ld_alpha", ld_alpha)
 
                 elif part_type == LightType.LED.value:
-                    ld_effect: int = getattr(part_obj, "ld_effect")
-                    setattr(part_obj, "ld_effect", ld_effect)
                     ld_alpha: int = getattr(part_obj, "ld_alpha")
                     setattr(part_obj, "ld_alpha", ld_alpha)
+                    ld_effect: int = getattr(part_obj, "ld_effect")
+                    setattr(part_obj, "ld_effect", ld_effect)
 
 
 async def add_control_frame():
@@ -114,12 +114,16 @@ async def save_control_frame(start: int | None = None):
 
         if not show_dancer_dict[dancer.name]:
             ctrl_part_dict = state.control_map[id].status[dancer.name]
+            ctrl_part_led_dict = state.control_map[id].led_status[dancer.name]
+
             for part in dancer.parts:
                 if part.name not in ctrl_part_dict.keys():
                     if part.type == PartType.FIBER:
                         partControlData.append((default_color, 0))
+                        partLEDControlData.append([])
                     elif part.type == PartType.LED:
                         partControlData.append((-1, 0))
+                        partLEDControlData.append([])
                     continue
 
                 if part.type == PartType.FIBER:
@@ -127,13 +131,25 @@ async def save_control_frame(start: int | None = None):
                     color_id = part_data.color_id
                     ld_alpha = part_data.alpha
                     partControlData.append((color_id, ld_alpha))
+                    partLEDControlData.append([])
                 elif part.type == PartType.LED:
                     part_data = cast(LEDData, ctrl_part_dict[part.name])
                     effect_id = part_data.effect_id
                     ld_alpha = part_data.alpha
                     partControlData.append((effect_id, ld_alpha))
 
+                    if effect_id == 0:
+                        bulb_objs_data = ctrl_part_led_dict[part.name]
+                        bulb_color_list: list[tuple[int, int]] = [
+                            (cast(int, obj.color_id), obj.alpha)
+                            for obj in bulb_objs_data
+                        ]
+                        partLEDControlData.append(bulb_color_list)
+                    else:
+                        partLEDControlData.append([])
+
             controlData.append(partControlData)
+            ledControlData.append(partLEDControlData)
             continue
 
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)

@@ -33,8 +33,6 @@ class CopyOperator(bpy.types.Operator):
         elif state.selection_mode == SelectMode.PART_MODE:
             copy_part()
 
-        notify("INFO", "Copied")
-
         return {"FINISHED"}
 
 
@@ -143,6 +141,9 @@ class PasteFrameOperator(AsyncOperator):
             frame_current = context.scene.frame_current
 
             if frame_current != current_frame.start:
+                if not all(state.show_dancers):
+                    notify("WARNING", "Operation not allowed in partial mode")
+                    return {"CANCELLED"}
                 return context.window_manager.invoke_props_dialog(self)
 
         elif state.editor == Editor.POS_EDITOR:
@@ -156,6 +157,9 @@ class PasteFrameOperator(AsyncOperator):
             frame_current = context.scene.frame_current
 
             if frame_current != current_frame.start:
+                if not all(state.show_dancers):
+                    notify("WARNING", "Operation not allowed in partial mode")
+                    return {"CANCELLED"}
                 return context.window_manager.invoke_props_dialog(self)
 
         return self.execute(context)

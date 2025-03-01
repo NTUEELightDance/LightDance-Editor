@@ -3,7 +3,7 @@ import bpy
 from ....properties.types import LightType
 from ...models import ColorID, EditMode, LEDData
 from ...states import state
-from ...utils.convert import gradient_to_rgb_float, interpolate_gradient, rgba_to_float
+from ...utils.convert import gradient_to_rgb_float, rgba_to_float
 
 """
 Controlling temporary object color in Blender using lightdance props as edit preview.
@@ -11,17 +11,20 @@ Controlling temporary object color in Blender using lightdance props as edit pre
 `ld_color`: Color ID
 `ld_alpha`: Alpha value (0-255) == Brightness != Blender object alpha.
 
+`ld_color` + `ld_alpha` => `ld_color_float` (<- This step is done by `update_current_color`)
+`ld_color_float` (+ parent `ld_alpha`) => Blender object color
+
 Fiber: Use `ld_color` and `ld_alpha` to determine blender object color.
 LED:
 - Effect != 0 (Effect mode)
-  - Use effect to determine `ld_color` (on bulb) and `ld_alpha` (on parent).
+  - Use effect to determine `ld_color` (on bulb) and `ld_alpha` (parent).
+  - Bulb color is determined by `ld_color` (on bulb) and `ld_alpha` (on bulb and parent).
   - Effect == -1: Use previous effect ("no effect").
 - Effect == 0 (Single bulb mode)
   - Use `ld_color` and `ld_alpha` (both on bulb) to determine blender object color.
   - If `ld_color` == -1, interpolate gradient between adjacent bulbs.
     - Colors are determined by `ld_color_float`.
     - If both ends are -1, fill with black.
-    - `ld_alpha` is set to 255 to remove effect of `update_current_alpha`.
 """
 
 
@@ -78,23 +81,27 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
             control_index -= 1
 
+        if effect_id == -1:
+            return
+
+    if effect_id == 0:
+        return
     else:
-        if effect_id == 0:
-            return  # Do nothing, let update_current_color handle it
-        else:
-            effect = state.led_effect_id_table[effect_id]
+        effect = state.led_effect_id_table[effect_id]
 
-            bulb_data = effect.effect
+        bulb_data = effect.effect
 
-        led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
+    led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
 
-        for led_bulb_obj in led_bulb_objs:
-            pos: int = getattr(led_bulb_obj, "ld_led_pos")
-            data = bulb_data[pos]
+    for led_bulb_obj in led_bulb_objs:
+        pos: int = getattr(led_bulb_obj, "ld_led_pos")
+        data = bulb_data[pos]
 
-            color = state.color_map[data.color_id]
-            setattr(led_bulb_obj, "ld_color", color.name)
-            setattr(led_bulb_obj, "ld_alpha", data.alpha)
+        color = state.color_map[data.color_id]
+        setattr(led_bulb_obj, "ld_color", color.name)
+        setattr(led_bulb_obj, "ld_alpha", data.alpha)
+
+    update_current_alpha(self, context)
 
 
 def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
@@ -103,20 +110,22 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
 
     ld_light_type: str = getattr(self, "ld_light_type")
     ld_alpha: int = getattr(self, "ld_alpha")
-    ld_color_float: list[float] = getattr(self, "ld_color_float")
 
     if ld_light_type == LightType.LED.value and self["ld_effect"] != 0:
         led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
-        for led_bulb_obj in led_bulb_objs:
+        for (
+            led_bulb_obj
+        ) in led_bulb_objs:  # Stacking ld_alpha's effect of LED and LED_BULB
+            update_current_color(led_bulb_obj, context)
             bulb_ld_color_float: list[float] = getattr(led_bulb_obj, "ld_color_float")
             led_bulb_obj.color[0] = bulb_ld_color_float[0] * (ld_alpha / 255)
             led_bulb_obj.color[1] = bulb_ld_color_float[1] * (ld_alpha / 255)
             led_bulb_obj.color[2] = bulb_ld_color_float[2] * (ld_alpha / 255)
-    elif ld_light_type == LightType.FIBER.value:
-        self.color[0] = ld_color_float[0] * (ld_alpha / 255)
-        self.color[1] = ld_color_float[1] * (ld_alpha / 255)
-        self.color[2] = ld_color_float[2] * (ld_alpha / 255)
-    elif ld_light_type == LightType.LED_BULB.value:
+    elif ld_light_type == LightType.FIBER.value:  # Let update_current_color handle it
+        update_current_color(self, context)
+    elif (
+        ld_light_type == LightType.LED_BULB.value
+    ):  # Let update_gradient_color handle it
         if self.parent and self.parent["ld_effect"] == 0:
             update_gradient_color(self.parent)
 
@@ -143,5 +152,3 @@ def update_gradient_color(led_obj: bpy.types.Object):
     ):
         led_bulb_obj.color = (*rgb_float, 1.0)
         setattr(led_bulb_obj, "ld_color_float", rgb_float)
-        if led_status[index][0] == -1:
-            setattr(led_bulb_obj, "ld_alpha", 255)

@@ -17,6 +17,7 @@ from ...models import (
     PosMapElement,
 )
 from ...states import state
+from ...utils.notification import notify
 from ..state.control_editor import add_control_frame, request_edit_control
 from ..state.pos_editor import add_pos_frame, request_edit_pos
 
@@ -25,14 +26,15 @@ def copy_dancer():
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     if len(state.selected_obj_names) != 1:
-        return {"CANCELLED"}
+        notify("WARNING", "You can only copy one dancer at a time")
+        return
 
     selected_obj_name = state.selected_obj_names[0]
     selected_obj = data_objects[selected_obj_name]
 
     ld_object_type: str = getattr(selected_obj, "ld_object_type")
     if ld_object_type != ObjectType.DANCER.value:
-        return {"CANCELLED"}
+        return
 
     clipboard = state.clipboard
     clipboard.type = CopiedType.DANCER
@@ -69,10 +71,21 @@ def copy_dancer():
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
                 effect=ld_effect,
+                led_status=None
+                if ld_effect == "[Bulb Color]"
+                else [
+                    (
+                        getattr(led_bulb_obj, "ld_color"),
+                        getattr(led_bulb_obj, "ld_alpha"),
+                    )
+                    for led_bulb_obj in part_obj.children
+                ],
             )
+    notify("INFO", "Copied")
 
 
 def copy_part():
+    """Copy the selected part(s) to the clipboard. Note that all selected parts must be from the same dancer."""
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     selected_obj_dancer_names = [
@@ -84,6 +97,7 @@ def copy_part():
     if selected_obj_dancer_names.count(selected_obj_dancer_names[0]) != len(
         selected_obj_dancer_names
     ):
+        notify("WARNING", "All copied parts must be from the same dancer")
         return {"CANCELLED"}
 
     dancer_name = selected_obj_dancer_names[0]
@@ -125,6 +139,15 @@ def copy_part():
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
                 effect=ld_effect,
+                led_status=None
+                if ld_effect != "[Bulb Color]"
+                else [
+                    (
+                        getattr(led_bulb_obj, "ld_color"),
+                        getattr(led_bulb_obj, "ld_alpha"),
+                    )
+                    for led_bulb_obj in part_obj.children
+                ],
             )
 
 
@@ -137,6 +160,7 @@ async def paste_dancer() -> bool:
 
     copied_dancer = state.clipboard.dancer
     if copied_dancer is None:
+        notify("WARNING", "No dancer copied")
         return False
 
     for dancer_obj_name in state.selected_obj_names:
@@ -175,19 +199,29 @@ async def paste_dancer() -> bool:
                     if copied_effect is not None:
                         setattr(part_obj, "ld_effect", copied_effect)
                         setattr(part_obj, "ld_alpha", copied_alpha)
-
+                        if copied_effect == "[Bulb Color]":
+                            copied_led_status = copied_part_data.led_status
+                            if copied_led_status is not None:
+                                for led_bulb_obj, (color, alpha) in zip(
+                                    part_obj.children, copied_led_status
+                                ):
+                                    setattr(led_bulb_obj, "ld_color", color)
+                                    setattr(led_bulb_obj, "ld_alpha", alpha)
+    notify("INFO", "Pasted")
     return True
 
 
 async def paste_part() -> bool:
     if state.edit_state != EditMode.EDITING:
         if not (await request_edit_control()):
+            notify("WARNING", "Failed to request edit control")
             return False
 
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     copied_dancer = state.clipboard.dancer
     if copied_dancer is None:
+        notify("WARNING", "No dancer copied")
         return False
 
     selected_dancer_objs: dict[str, list[bpy.types.Object]] = {}
@@ -233,7 +267,15 @@ async def paste_part() -> bool:
                     if copied_effect is not None:
                         setattr(part_obj, "ld_effect", copied_effect)
                         setattr(part_obj, "ld_alpha", copied_alpha)
-
+                        if copied_effect == "[Bulb Color]":
+                            copied_led_status = copied_part_data.led_status
+                            if copied_led_status is not None:
+                                for led_bulb_obj, (color, alpha) in zip(
+                                    part_obj.children, copied_led_status
+                                ):
+                                    setattr(led_bulb_obj, "ld_color", color)
+                                    setattr(led_bulb_obj, "ld_alpha", alpha)
+    notify("INFO", "Pasted")
     return True
 
 

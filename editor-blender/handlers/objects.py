@@ -159,7 +159,11 @@ def handle_autoselect_in_control_editor_part_mode():
         if is_led_bulb(active_obj):
             active_obj_parent = active_obj.parent
             if (
-                active_obj_parent and active_obj_parent["ld_effect"] != 0
+                active_obj_parent
+                and (
+                    active_obj_parent["ld_effect"] != 0
+                    or (active_obj_parent["ld_effect"] == 0 and not state.local_view)
+                )
             ) or state.edit_state == EditMode.IDLE:
                 active_obj = active_obj_parent
             active_obj.select_set(True)  # type: ignore
@@ -191,7 +195,10 @@ def handle_autoselect_in_control_editor_part_mode():
                     obj.parent
                     and not obj.parent.select_get()
                     and obj.parent != active_obj
-                    and obj.parent["ld_effect"] != 0
+                    and (
+                        obj.parent["ld_effect"] != 0
+                        or (obj.parent["ld_effect"] == 0 and not state.local_view)
+                    )
                 ):
                     obj.parent.select_set(True)  # type: ignore
                     context_selected_objects.append(obj.parent)  # type: ignore

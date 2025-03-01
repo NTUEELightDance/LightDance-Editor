@@ -281,6 +281,7 @@ class CopiedPartData:
     alpha: int
     color: str | None = None
     effect: str | None = None
+    led_status: list[tuple[int, int]] | None = None
 
 
 @dataclass
