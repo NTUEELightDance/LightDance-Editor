@@ -12,6 +12,16 @@ const dancerToRpi: Record<string, string> = {
   "6_yen": "lightdance-06",
   "7_samklin": "lightdance-07",
   "8_how": "lightdance-08",
+  "9_staff": "lightdance-09",
+  "11_small_orb_1": "lightdance-11",
+  "12_small_orb_2": "lightdance-12",
+  "13_big_orb_left": "lightdance-13",
+  "14_big_orb_right": "lightdance-14",
+  "17_pillar_1": "lightdance-17",
+  "18_pillar_2": "lightdance-18",
+  "19_pillar_3": "lightdance-19",
+  "20_pillar_4": "lightdance-20",
+  // "26_saber": "lightdance-26",
 };
 
 // Record the RPi information according to MAC
