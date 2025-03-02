@@ -296,7 +296,8 @@ pub async fn update_redis_control(
                     ControlData.color_id,
                     ControlData.alpha,
                     ControlData.type  AS "type: ControlType",
-                    LEDBulb.color_id AS bulb_color_id
+                    LEDBulb.color_id AS bulb_color_id,
+                    LEDBulb.alpha AS bulb_alpha
                 FROM Dancer
                 INNER JOIN Model
                     ON Dancer.model_id = Model.id
@@ -352,7 +353,12 @@ pub async fn update_redis_control(
                 ControlType::LEDBulbs => {
                     let bulbs = part_control
                         .iter()
-                        .map(|data| (data.bulb_color_id.unwrap_or(-1), data.alpha))
+                        .map(|data| {
+                            (
+                                data.bulb_color_id.unwrap_or(-1),
+                                data.bulb_alpha.unwrap_or(0),
+                            )
+                        })
                         .collect_vec();
 
                     dancer_status.push(PartControl(0, part_control[0].alpha));
