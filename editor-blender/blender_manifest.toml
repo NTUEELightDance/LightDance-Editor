@@ -9,6 +9,5 @@ blender_version_min = "4.2.0"
 license = [
   "SPDX:GPL-3.0-or-later",
 ]
-wheels = []
 network = "Connect with the editor backend"
 files = "Store and load assets"

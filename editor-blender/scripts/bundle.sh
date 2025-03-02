@@ -9,12 +9,13 @@ while [[ $# -gt 0 ]]; do
     echo "Usage: bundle.sh [options]"
     echo "Options:"
     echo "  -h, --help      Show this help message and exit"
-    echo "  -r, --release   Connect to production server if set"
+    echo "  -l, --local     Bundle dependencies for local machine"
     echo "  -o, --output    Specify output directory"
+    echo "  -r, --release   Connect to production server if set"
     exit 0
     ;;
-  -r | --release)
-    PACK_FOR_RELEASE=true
+  -l | --local)
+    LOCAL=true
     shift
     ;;
   -o | --output)
@@ -25,6 +26,10 @@ while [[ $# -gt 0 ]]; do
       echo "Error: Output directory invalid"
       exit 1
     fi
+    shift
+    ;;
+  -r | --release)
+    PACK_FOR_RELEASE=true
     shift
     ;;
   *)
@@ -52,24 +57,41 @@ CURRENT_DIR=$(dirname $(realpath $0))
 ROOT_DIR=$(dirname $(dirname $CURRENT_DIR))
 BLENDER_DIR="$ROOT_DIR/editor-blender"
 
-WHEELS_CACHE_DIR="$BLENDER_DIR/.wheels-cache"
-CACHE_HIT=false
-if [ -f $WHEELS_CACHE_DIR/context.sha1 ] &&
-  [ $(cat "$BLENDER_DIR/requirements.prod.txt" "$BLENDER_DIR/blender_manifest.toml" | sha1sum | head -c 40) = $(cat "$WHEELS_CACHE_DIR/context.sha1") ] &&
-  [ $(sha1sum "$WHEELS_CACHE_DIR/linux"/* "$WHEELS_CACHE_DIR/win"/* "$WHEELS_CACHE_DIR/macos-arm64"/* | sha1sum | head -c 40) = $(cat "$WHEELS_CACHE_DIR/integrity.sha1") ]; then
-  CACHE_HIT=true
-  echo Found dependency cache
-fi
+declare -A PLATFORM_NAMES=(
+  ["manylinux2014_x86_64"]="linux"
+  ["win_amd64"]="windows"
+  ["macosx_10_9_x86_64"]="macos-x86_64"
+  ["macosx_11_0_arm64"]="macos-arm64"
+)
 
-if ! $CACHE_HIT; then
-  rm -rf "$WHEELS_CACHE_DIR"
-  echo No dependency cache found, creating one
-  pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/linux" --python-version 311 --only-binary=:all: -q && echo Downloaded Linux wheels # Assume you're bundling from Linux/WSL
-  pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/win" --python-version 311 --only-binary=:all: --platform win_amd64 -q && echo Downloaded Windows wheels
-  pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/macos-arm64" --python-version 311 --only-binary=:all: --platform macosx_11_0_arm64 -q && echo Downloaded MacOS wheels
-  cat "$BLENDER_DIR/requirements.prod.txt" "$BLENDER_DIR/blender_manifest.toml" | sha1sum | head -c 40 >"$WHEELS_CACHE_DIR/context.sha1"
-  sha1sum "$WHEELS_CACHE_DIR/linux"/* "$WHEELS_CACHE_DIR/win"/* "$WHEELS_CACHE_DIR/macos-arm64"/* | sha1sum | head -c 40 >"$WHEELS_CACHE_DIR/integrity.sha1"
-  echo Created dependency cache
+PLATFORMS=(
+  "manylinux2014_x86_64"
+  "win_amd64"
+  "macosx_10_9_x86_64"
+  "macosx_11_0_arm64"
+)
+
+WHEELS_CACHE_DIR="$BLENDER_DIR/.wheels-cache"
+if [[ -z ${LOCAL+x} ]]; then
+  CACHE_HIT=false
+  if [ -f $WHEELS_CACHE_DIR/context.sha1 ] &&
+    [ $(cat "$BLENDER_DIR/requirements.prod.txt" "$BLENDER_DIR/blender_manifest.toml" | sha1sum | head -c 40) = $(cat "$WHEELS_CACHE_DIR/context.sha1") ] &&
+    [ $(find "$WHEELS_CACHE_DIR" -type f ! -name '*.sha1' -exec sha1sum {} + | sha1sum | head -c 40) = $(cat "$WHEELS_CACHE_DIR/integrity.sha1") ]; then
+    CACHE_HIT=true
+    echo Found dependency cache
+  fi
+
+  if ! $CACHE_HIT; then
+    rm -rf "$WHEELS_CACHE_DIR"
+    echo No dependency cache found, creating one
+    for platform in "${PLATFORMS[@]}"; do
+      folder_name=${PLATFORM_NAMES[$platform]}
+      pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_CACHE_DIR/$folder_name" --python-version 311 --only-binary=:all: --platform $platform -q && echo "Downloaded $folder_name wheels"
+    done
+    cat "$BLENDER_DIR/requirements.prod.txt" "$BLENDER_DIR/blender_manifest.toml" | sha1sum | head -c 40 >"$WHEELS_CACHE_DIR/context.sha1"
+    find "$WHEELS_CACHE_DIR" -type f ! -name '*.sha1' -exec sha1sum {} + | sha1sum | head -c 40 >"$WHEELS_CACHE_DIR/integrity.sha1"
+    echo Created dependency cache
+  fi
 fi
 
 # Create temp folder
@@ -90,7 +112,7 @@ else
 fi
 
 # Remove dev files
-rm -rf "$PACK_BLENDER_PATH"/{.vscode,pack,tests,.venv,.wheels-cache}
+rm -rf "$PACK_BLENDER_PATH"/{.vscode,pack,tests,.venv,.wheels-cache,dist}
 
 # Remove __pycache__ folders
 remove_pycache() {
@@ -117,43 +139,34 @@ pack() {
 
   # Convert wheels list to TOML array
   WHEELS_TOML=$(printf "\"./wheels/%s\", " "${WHEELS_LIST[@]}")
-  WHEELS_TOML="[${WHEELS_TOML%, }]"
+  WHEELS_TOML="wheels = [${WHEELS_TOML%, }]"
 
   # Update the manifest file
-  if [[ "$OSTYPE" == "darwin"* ]]; then # BSD sed, NOTE: missing indent is intentional
-    sed -i '' "/wheels =/c\\
-wheels = $WHEELS_TOML\\
-
-" "$MANIFEST_FILE"
-  else # GNU sed
-    sed -i "/wheels =/c\wheels = $WHEELS_TOML" "$MANIFEST_FILE"
-  fi
+  grep -v '^wheels = \[' $MANIFEST_FILE > temp && mv temp $MANIFEST_FILE
+  echo $WHEELS_TOML >> $MANIFEST_FILE
 
   # Zip the folder
   cd "$PACK_DIR"
   zip -rq "$FOLDER_NAME.zip" "$FOLDER_NAME"
 }
 
-OUTPUT_DIR=${OUTPUT_DIR:-$ROOT_DIR}
+OUTPUT_DIR=${OUTPUT_DIR:-$BLENDER_DIR/dist}
+mkdir -p "$OUTPUT_DIR"
 
-# Download wheels
-# For Linux/MacOS
-cp -r "$WHEELS_CACHE_DIR/linux" "$WHEELS_DIR"
-pack
-mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-linux.zip"
-echo Bundled Linux version at "$OUTPUT_DIR/$FOLDER_NAME-linux.zip".
-
-# For Windows
-rm -rf "$WHEELS_DIR" && cp -r "$WHEELS_CACHE_DIR/win" "$WHEELS_DIR"
-pack
-mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-win.zip"
-echo Bundled Windows version at "$OUTPUT_DIR/$FOLDER_NAME-win.zip".
-
-# For MacOS arm64
-rm -rf "$WHEELS_DIR" && cp -r "$WHEELS_CACHE_DIR/macos-arm64" "$WHEELS_DIR"
-pack
-mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-macos-arm64.zip"
-echo Bundled MacOS arm64 version at "$OUTPUT_DIR/$FOLDER_NAME-macos-arm64.zip".
+if [[ -z ${LOCAL+x} ]]; then
+  for platform in "${!PLATFORM_NAMES[@]}"; do
+    folder_name=${PLATFORM_NAMES[$platform]}
+    rm -rf "$WHEELS_DIR" && cp -r "$WHEELS_CACHE_DIR/$folder_name" "$WHEELS_DIR"
+    pack
+    mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-$folder_name.zip"
+    echo "Bundled $folder_name version at $OUTPUT_DIR/$FOLDER_NAME-$folder_name.zip."
+  done
+else
+  pip download -r "$BLENDER_DIR/requirements.prod.txt" --dest "$WHEELS_DIR" --python-version 311 --only-binary=:all: -q
+  pack
+  mv "$FOLDER_NAME.zip" "$OUTPUT_DIR/$FOLDER_NAME-local.zip"
+  echo "Bundled local version at $OUTPUT_DIR/$FOLDER_NAME-local.zip."
+fi
 
 # Remove temp folder
 rm -rf "$PACK_DIR"

@@ -29,7 +29,7 @@ bash scripts/bundle.sh -r # For release
 ```
 (See more with `bash scripts/bundle.sh -h`)
 
-The bundled add-on will be in the `LightDance-Editor` folder as a zip file.
+The bundled add-on will be in the `dist` folder as zip files.
 
 #### 4. Install add-on in Blender:
 
