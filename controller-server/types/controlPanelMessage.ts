@@ -112,6 +112,20 @@ export interface FromControlPanelCyan extends FromControlPanelBase {
   };
 }
 
+export interface FromControlPanelDark extends FromControlPanelBase {
+  topic: "dark";
+  payload: {
+    dancers: string[];
+  };
+}
+
+export interface FromControlPanelWhite extends FromControlPanelBase {
+  topic: "white";
+  payload: {
+    dancers: string[];
+  };
+}
+
 export interface FromControlPanelDarkAll extends FromControlPanelBase {
   topic: "darkAll";
 }
@@ -147,6 +161,8 @@ export type FromControlPanel =
   | FromControlPanelYellow
   | FromControlPanelMagenta
   | FromControlPanelCyan
+  | FromControlPanelDark
+  | FromControlPanelWhite
   | FromControlPanelDarkAll
   | FromControlPanelCloseGPIO
   | FromControlPanelWebShell;

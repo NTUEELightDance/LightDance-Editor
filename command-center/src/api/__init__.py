@@ -2,6 +2,7 @@ import json
 import time
 from collections.abc import Callable
 
+import requests
 import websocket
 from textual.widgets import Log
 
@@ -9,6 +10,7 @@ from ..types.app import LightDanceAppType
 from .message import on_message
 
 WS_URL = "ws://localhost:8082"
+HTTP_URL = "http://localhost:8082"
 
 
 class API:
@@ -58,6 +60,9 @@ class API:
                 "topic": "boardInfo",
             }
         )
+
+    def get_pin_map(self):
+        return requests.get(f"{HTTP_URL}/pinmaptable").json()
 
     def send(self, message: dict):
         if self.ws is None:

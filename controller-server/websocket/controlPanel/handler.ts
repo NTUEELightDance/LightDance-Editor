@@ -20,6 +20,8 @@ import {
   FromControlPanelCyan,
   FromControlPanelWebShell,
   FromControlPanelSync,
+  FromControlPanelDark,
+  FromControlPanelWhite,
 } from "@/types/controlPanelMessage";
 
 import {
@@ -253,6 +255,18 @@ export function handleMagenta(msg: FromControlPanelMagenta) {
 export function handleCyan(msg: FromControlPanelCyan) {
   const { dancers } = msg.payload;
   const colorCode = "00ffff";
+  sendColor(dancers, colorCode);
+}
+
+export function handleDark(msg: FromControlPanelDark) {
+  const { dancers } = msg.payload;
+  const colorCode = "000000";
+  sendColor(dancers, colorCode);
+}
+
+export function handleWhite(msg: FromControlPanelWhite) {
+  const { dancers } = msg.payload;
+  const colorCode = "ffffff";
   sendColor(dancers, colorCode);
 }
 

@@ -23,6 +23,7 @@ class DancerItem:
     interface: Literal["wifi", "ethernet"]
     ethernet_info: DancerInfo
     wifi_info: DancerInfo
+    response: str
 
 
 DancerStatus = dict[str, DancerItem]

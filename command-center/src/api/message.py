@@ -18,5 +18,10 @@ def on_message(msg: str, app_ref: LightDanceAppType):
             )
         case "command":
             data = FromControllerServerCommandResponse.from_json(msg)
+            if isinstance(data, list):
+                print("Invalid command response")
+                return
+            app_ref.dancer_status[data.payload.dancer].response = data.payload.message
+
         case _:
             print("Invalid message topic")

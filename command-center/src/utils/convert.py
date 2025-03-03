@@ -40,6 +40,7 @@ def update_dancer_status_from_board_info(
                         item.wifi_info.IP,
                         item.wifi_info.MAC,
                     ),
+                    response=item.response,
                 )
                 for name, item in prev_status.items()
             }
@@ -60,6 +61,7 @@ def update_dancer_status_from_board_info(
                     wifi_info=DancerInfo(
                         item["wifi"].connected, item["wifi"].IP, item["wifi"].MAC
                     ),
+                    response="",
                 )
                 for name, item in parsed_dancer_payload.items()
             }
