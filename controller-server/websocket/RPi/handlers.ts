@@ -23,7 +23,10 @@ import {
 export const RPiWSs: Record<string, WebSocket> = {};
 
 export function sendToRPi(dancers: string[], msg: ToRPi) {
-  console.log("[Send]: RPi", msg, dancers, "\n");
+  const color = msg.statusCode !== 0 ? "\x1b[31m" : "\x1b[32m";
+  console.log(
+    `${color}[Send]: RPi (topic: ${msg.topic}, payload: ${msg.payload}, statusCode: ${msg.statusCode})\x1b[0m`,
+  );
   const toSend = JSON.stringify({
     ...msg,
     ...(msg.topic === "command" && { payload: msg.payload.join(" ") }),

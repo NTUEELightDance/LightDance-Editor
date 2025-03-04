@@ -29,7 +29,11 @@ def update_dancer_status_from_board_info(
                     selected=item.selected,
                     name=name,
                     hostname=item.hostname,
-                    interface=("ethernet" if item.ethernet_info.connected else "wifi"),
+                    interface=(
+                        "ethernet"
+                        if board_info.payload[item.ethernet_info.MAC].connected
+                        else "wifi"
+                    ),
                     ethernet_info=DancerInfo(
                         board_info.payload[item.ethernet_info.MAC].connected,
                         item.ethernet_info.IP,

@@ -47,7 +47,7 @@ class ParttestScreen(Screen):
     def on_tree_node_selected(self, message: Tree.NodeSelected[str]):
         if message.node.data:
             self.selected_dancer, self.selected_part = message.node.data.split(".")
-            self.notify(f"Selected node: {message.node.data}")
+            self.notify(f"Selected {message.node.data}")
 
     def action_send_color(self, color_code: str):
         if self.selected_dancer and self.selected_part:
@@ -56,7 +56,7 @@ class ParttestScreen(Screen):
                     "topic": "webShell",
                     "payload": {
                         "dancers": [self.selected_dancer],
-                        "command": f"parttest {self.selected_part} --hex {color_code} -a 200",
+                        "command": f"parttest {self.selected_part} --hex {color_code[1:]} -a 200",
                     },
                 }
             )

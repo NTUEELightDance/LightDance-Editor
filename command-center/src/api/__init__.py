@@ -62,7 +62,15 @@ class API:
         )
 
     def get_pin_map(self):
-        return requests.get(f"{HTTP_URL}/pinmaptable").json()
+        data = None
+        while not data:
+            try:
+                data = requests.get(f"{HTTP_URL}/pinmaptable").json()
+            except requests.RequestException:
+                self.app_ref.notify("Failed to get pin map", severity="error")
+                time.sleep(1)
+        self.app_ref.notify("Pin map loaded")
+        self.app_ref.pinmap = data
 
     def send(self, message: dict):
         if self.ws is None:

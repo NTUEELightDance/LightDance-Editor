@@ -40,8 +40,8 @@ export const characterPinMapTable: ModelPinMapTable = {
       outer_left_pants_bottom: 35,
     },
     LEDPARTS: {
-      left_hand_LED: { id: 1, len: 32 },
-      right_hand_LED: { id: 6, len: 32 },
+      left_hand_LED: { id: 1, len: 36 },
+      right_hand_LED: { id: 6, len: 36 },
       left_feet_LED: { id: 2, len: 41 },
       right_feet_LED: { id: 5, len: 41 },
       mask_LED: { id: 0, len: 18 },
@@ -81,8 +81,8 @@ export const characterPinMapTable: ModelPinMapTable = {
       left_cape: 32,
     },
     LEDPARTS: {
-      left_hand_LED: { id: 1, len: 32 },
-      right_hand_LED: { id: 6, len: 32 },
+      left_hand_LED: { id: 1, len: 36 },
+      right_hand_LED: { id: 6, len: 36 },
       left_feet_LED: { id: 2, len: 56 },
       right_feet_LED: { id: 5, len: 56 },
     },
@@ -125,8 +125,8 @@ export const characterPinMapTable: ModelPinMapTable = {
       outer_left_thin_cloth: 35,
     },
     LEDPARTS: {
-      left_hand_LED: { id: 1, len: 32 },
-      right_hand_LED: { id: 6, len: 32 },
+      left_hand_LED: { id: 1, len: 36 },
+      right_hand_LED: { id: 6, len: 36 },
       left_feet_LED: { id: 2, len: 132 },
       right_feet_LED: { id: 5, len: 132 },
       mask_LED: { id: 0, len: 13 },
@@ -169,8 +169,8 @@ export const characterPinMapTable: ModelPinMapTable = {
       middle_v: 35,
     },
     LEDPARTS: {
-      left_hand_LED: { id: 1, len: 32 },
-      right_hand_LED: { id: 6, len: 32 },
+      left_hand_LED: { id: 1, len: 36 },
+      right_hand_LED: { id: 6, len: 36 },
       left_feet_LED: { id: 2, len: 82 },
       right_feet_LED: { id: 5, len: 82 },
       mask_LED: { id: 0, len: 13 },

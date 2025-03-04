@@ -25,7 +25,7 @@ class LightDanceApp(App):
     }
 
     dancer_status: reactive[DancerStatus] = reactive({})
-    log_instance: RichLog = RichLog(highlight=True, wrap=False)
+    log_instance: RichLog = RichLog(highlight=True, wrap=True)
     pinmap: dict = {}
 
     def on_mount(self) -> None:
@@ -33,7 +33,7 @@ class LightDanceApp(App):
         self.theme = "nord"
         api.set_app_ref(self.app)  # type: ignore
         Thread(target=api.connect, daemon=True).start()
-        self.pinmap = api.get_pin_map()
+        Thread(target=api.get_pin_map, daemon=True).start()
 
 
 app = LightDanceApp()
