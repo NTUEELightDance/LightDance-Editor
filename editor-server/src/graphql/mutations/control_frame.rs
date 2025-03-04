@@ -264,7 +264,10 @@ impl ControlFrameMutation {
                                 let color_id = bulb_data[0];
 
                                 // check if the color is valid
-                                if !all_color_ids.contains(&color_id) && color_id != 0 {
+                                if !all_color_ids.contains(&color_id)
+                                    && color_id != 0
+                                    && color_id != -1
+                                {
                                     let error_message = format!(
                                             "Color of LED Bulb of dancer #{} part #{} is not a valid color",
                                             index + 1, part_index + 1
