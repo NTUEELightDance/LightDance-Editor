@@ -71,15 +71,17 @@ def copy_dancer():
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
                 effect=ld_effect,
-                led_status=None
-                if ld_effect == "[Bulb Color]"
-                else [
-                    (
-                        getattr(led_bulb_obj, "ld_color"),
-                        getattr(led_bulb_obj, "ld_alpha"),
-                    )
-                    for led_bulb_obj in part_obj.children
-                ],
+                led_status=(
+                    None
+                    if ld_effect != "[Bulb Color]"
+                    else [
+                        (
+                            getattr(led_bulb_obj, "ld_color"),
+                            getattr(led_bulb_obj, "ld_alpha"),
+                        )
+                        for led_bulb_obj in part_obj.children
+                    ]
+                ),
             )
     notify("INFO", "Copied")
 
@@ -98,6 +100,9 @@ def copy_part():
         selected_obj_dancer_names
     ):
         notify("WARNING", "All copied parts must be from the same dancer")
+        return {"CANCELLED"}
+
+    if len(selected_obj_dancer_names) == 0:
         return {"CANCELLED"}
 
     dancer_name = selected_obj_dancer_names[0]
@@ -139,15 +144,17 @@ def copy_part():
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
                 effect=ld_effect,
-                led_status=None
-                if ld_effect != "[Bulb Color]"
-                else [
-                    (
-                        getattr(led_bulb_obj, "ld_color"),
-                        getattr(led_bulb_obj, "ld_alpha"),
-                    )
-                    for led_bulb_obj in part_obj.children
-                ],
+                led_status=(
+                    None
+                    if ld_effect != "[Bulb Color]"
+                    else [
+                        (
+                            getattr(led_bulb_obj, "ld_color"),
+                            getattr(led_bulb_obj, "ld_alpha"),
+                        )
+                        for led_bulb_obj in part_obj.children
+                    ]
+                ),
             )
 
 
@@ -288,6 +295,7 @@ def override_control(control_frame: ControlMapElement):
             continue
 
         status = control_frame.status[dancer.name]
+        led_status = control_frame.led_status[dancer.name]
         dancer_index = state.dancer_part_index_map[dancer.name].index
 
         for part in dancer.parts:
@@ -305,17 +313,31 @@ def override_control(control_frame: ControlMapElement):
                 setattr(part_obj, "ld_alpha", fiber_status.alpha)
 
             elif part.type == PartType.LED:
-                led_status = cast(LEDData, status[part.name])
+                led_effect = cast(LEDData, status[part.name])
 
-                effect_id = led_status.effect_id
+                effect_id = led_effect.effect_id
 
                 if effect_id == -1:
                     setattr(part_obj, "ld_effect", "no-change")
+                elif effect_id == 0:
+                    part_led_status = led_status[part.name]
+                    setattr(part_obj, "ld_effect", "[Bulb Color]")
+                    if part_led_status is not None:
+                        for led_bulb_obj, led_bulb_status in zip(
+                            part_obj.children, part_led_status
+                        ):
+                            color = (
+                                state.color_map[led_bulb_status.color_id]
+                                if led_bulb_status.color_id != -1
+                                else "[gradient]"
+                            )
+                            setattr(led_bulb_obj, "ld_color", color)
+                            setattr(led_bulb_obj, "ld_alpha", led_bulb_status.alpha)
                 else:
-                    effect = state.led_effect_id_table[led_status.effect_id]
+                    effect = state.led_effect_id_table[led_effect.effect_id]
                     setattr(part_obj, "ld_effect", effect.name)
 
-                setattr(part_obj, "ld_alpha", led_status.alpha)
+                setattr(part_obj, "ld_alpha", led_effect.alpha)
 
 
 def copy_control_frame():
