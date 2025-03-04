@@ -20,6 +20,8 @@ import {
   FromControlPanelCyan,
   FromControlPanelWebShell,
   FromControlPanelSync,
+  FromControlPanelDark,
+  FromControlPanelWhite,
 } from "@/types/controlPanelMessage";
 
 import {
@@ -43,7 +45,20 @@ import { exec } from "child_process";
 export const controlPanelWSs: Record<string, WebSocket> = {};
 
 export function sendToControlPanel(msg: ToControlPanel) {
-  console.log("[Send]: ControlPanel ", msg, "\n");
+  const color = msg.statusCode !== 0 ? "\x1b[31m" : "\x1b[32m";
+  switch (msg.topic) {
+    case "boardInfo":
+      console.log(
+        `${color}[Send]: ControlPanel (topic: ${msg.topic}, statusCode: ${msg.statusCode})\x1b[0m`,
+      );
+      console.table(msg.payload);
+      break;
+    case "command":
+      console.log(
+        `${color}[Send]: ControlPanel (topic: ${msg.topic}, statusCode: ${msg.statusCode}, payload: ${msg.payload.dancer} - ${msg.payload.command} - ${msg.payload.message})\x1b[0m`,
+      );
+      break;
+  }
   const toSend = JSON.stringify(msg);
 
   Object.values(controlPanelWSs).forEach((ws: WebSocket) => {
@@ -253,6 +268,18 @@ export function handleMagenta(msg: FromControlPanelMagenta) {
 export function handleCyan(msg: FromControlPanelCyan) {
   const { dancers } = msg.payload;
   const colorCode = "00ffff";
+  sendColor(dancers, colorCode);
+}
+
+export function handleDark(msg: FromControlPanelDark) {
+  const { dancers } = msg.payload;
+  const colorCode = "000000";
+  sendColor(dancers, colorCode);
+}
+
+export function handleWhite(msg: FromControlPanelWhite) {
+  const { dancers } = msg.payload;
+  const colorCode = "ffffff";
   sendColor(dancers, colorCode);
 }
 

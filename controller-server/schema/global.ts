@@ -12,7 +12,7 @@ export const OFSchema = z.array(
     start: z.number().int(),
     fade: z.boolean(),
     status: z.record(z.string(), ColorSchema),
-  })
+  }),
 );
 
 export const LEDSchema = z.record(
@@ -22,8 +22,8 @@ export const LEDSchema = z.record(
       start: z.number().int(),
       fade: z.boolean(),
       status: z.array(ColorSchema),
-    })
-  )
+    }),
+  ),
 );
 
 export type Color = z.infer<typeof ColorSchema>;

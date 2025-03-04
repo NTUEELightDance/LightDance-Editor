@@ -1,56 +1,53 @@
 import { MACAddress, DancerDataSchema, DancerData } from "@/schema/DancerData";
+import { rpiTable } from "@/configs/rpiTable";
+
+// Map the dancer to the RPi hostname
+const dancerToRpi: Record<string, string> = {
+  "0_durant": "lightdance-00",
+  "1_hsieh": "lightdance-01",
+  "2_yuan": "lightdance-02",
+  "3_ping": "lightdance-03",
+  "4_wei": "lightdance-04",
+  "5_boyu": "lightdance-05",
+  "6_yen": "lightdance-06",
+  "7_samklin": "lightdance-07",
+  "8_how": "lightdance-08",
+  "9_staff": "lightdance-09",
+  "11_small_orb_1": "lightdance-11",
+  "12_small_orb_2": "lightdance-12",
+  "13_big_orb_left": "lightdance-13",
+  "14_big_orb_right": "lightdance-14",
+  "17_pillar_1": "lightdance-17",
+  "18_pillar_2": "lightdance-18",
+  "19_pillar_3": "lightdance-19",
+  "20_pillar_4": "lightdance-20",
+  // "26_saber": "lightdance-26",
+};
 
 // Record the RPi information according to MAC
-const dancerTable: DancerData = {
-  "B8:27:EB:82:79:49": {
-    IP: "192.168.0.0",
-    MAC: "B8:27:EB:82:79:49",
-    dancer: "0_hjko",
-    hostname: "lightdance-01",
-    connected: false,
-    interface: "ethernet",
+const dancerTable: DancerData = Object.keys(dancerToRpi).reduce(
+  (acc: DancerData, dancer) => {
+    let rpiInfo = rpiTable[dancerToRpi[dancer]];
+    acc[rpiInfo.MAC_WLAN] = {
+      IP: "192.168.0.0",
+      MAC: rpiInfo.MAC_WLAN,
+      dancer,
+      hostname: dancerToRpi[dancer],
+      connected: false,
+      interface: "wifi",
+    };
+    acc[rpiInfo.MAC_ETHER] = {
+      IP: "192.168.0.0",
+      MAC: rpiInfo.MAC_ETHER,
+      dancer,
+      hostname: dancerToRpi[dancer],
+      connected: false,
+      interface: "ethernet",
+    };
+    return acc;
   },
-  "B8:27:EB:D7:2C:1C": {
-    IP: "192.168.0.0",
-    MAC: "B8:27:EB:D7:2C:1C",
-    dancer: "0_hjko",
-    hostname: "lightdance-01",
-    connected: false,
-    interface: "wifi",
-  },
-  "D8:3A:DD:22:AD:41": {
-    IP: "192.168.0.0",
-    MAC: "D8:3A:DD:22:AD:41",
-    dancer: "1_sauby",
-    hostname: "lightdance-14",
-    connected: false,
-    interface: "ethernet",
-  },
-  "D8:3A:DD:22:AD:43": {
-    IP: "192.168.0.0",
-    MAC: "D8:3A:DD:22:AD:43",
-    dancer: "1_sauby",
-    hostname: "lightdance-14",
-    connected: false,
-    interface: "wifi",
-  },
-  "D8:3A:DD:22:AC:FE": {
-    IP: "192.168.0.0",
-    MAC: "D8:3A:DD:22:AC:FE",
-    dancer: "2_adam",
-    hostname: "lightdance-11",
-    connected: false,
-    interface: "ethernet",
-  },
-  "D8:3A:DD:22:AC:FF": {
-    IP: "192.168.0.0",
-    MAC: "D8:3A:DD:22:AC:FF",
-    dancer: "2_adam",
-    hostname: "lightdance-11",
-    connected: false,
-    interface: "wifi",
-  },
-};
+  {},
+);
 
 export const dancerToMAC: Record<
   string,

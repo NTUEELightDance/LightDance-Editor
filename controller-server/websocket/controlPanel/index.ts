@@ -23,13 +23,15 @@ import {
   handleYellow,
   handleMagenta,
   handleWebShell,
+  handleDark,
+  handleWhite,
 } from "./handler";
 
 let music_subprocess: ChildProcess | null = null;
 
 export async function handleOnControlPanelMessage(
   ws: WebSocket,
-  msg: FromControlPanel
+  msg: FromControlPanel,
 ) {
   switch (msg.topic) {
     case "boardInfo":
@@ -100,6 +102,12 @@ export async function handleOnControlPanelMessage(
       break;
     case "cyan":
       handleCyan(msg);
+      break;
+    case "dark":
+      handleDark(msg);
+      break;
+    case "white":
+      handleWhite(msg);
       break;
     case "darkAll":
       handleDarkAll();
