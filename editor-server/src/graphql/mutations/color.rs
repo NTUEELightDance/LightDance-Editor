@@ -67,7 +67,17 @@ impl ColorMutation {
 
         tracing::info!("Mutation: editColor");
 
-        let _ = sqlx::query!(
+        let led_effect = sqlx::query!(
+            r#"
+                SELECT name FROM Color
+                WHERE id = ?;
+            "#,
+            id
+        )
+        .fetch_one(mysql)
+        .await;
+
+        sqlx::query!(
             r#"
                 UPDATE Color SET name = ?, r = ?, g = ?, b = ?
                 WHERE id = ?;
@@ -80,6 +90,19 @@ impl ColorMutation {
         )
         .execute(mysql)
         .await?;
+
+        if let Ok(led_effect) = led_effect {
+            sqlx::query!(
+                r#"
+                    UPDATE LEDEffect SET name = ?
+                    WHERE name = ?;
+                "#,
+                &data.color.set,
+                led_effect.name
+            )
+            .execute(mysql)
+            .await?;
+        }
 
         let color_payload = ColorPayload {
             mutation: ColorMutationMode::Updated,
