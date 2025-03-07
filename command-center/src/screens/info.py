@@ -19,8 +19,9 @@ class InfoScreen(Screen):
             "Name",
             "Hostname",
             "Interface",
+            "WLAN IP",
             "Ethernet MAC",
-            "WiFi MAC",
+            "WLAN MAC",
         )
         self.watch(self.app, "dancer_status", self.update_dancer_table)
 
@@ -32,7 +33,8 @@ class InfoScreen(Screen):
             self.table.add_row(
                 f"[#00ff00]{name}[/]" if connected else f"[#ff0000]{name}[/]",
                 dancer.hostname,
-                dancer.interface,
+                dancer.interface if connected else "none",
+                dancer.wifi_info.IP,
                 dancer.ethernet_info.MAC,
                 dancer.wifi_info.MAC,
                 key=name,

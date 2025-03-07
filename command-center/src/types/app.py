@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from textual.app import App
+from textual.reactive import reactive
 from textual.screen import Screen
 from textual.widgets import RichLog
 
@@ -9,7 +10,7 @@ from ..types import DancerStatus
 
 
 class LightDanceAppType(App[object]):
-    dancer_status: DancerStatus
+    dancer_status: reactive[DancerStatus]
     log_instance: RichLog
     pinmap: dict[
         str,

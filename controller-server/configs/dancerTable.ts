@@ -13,14 +13,22 @@ const dancerToRpi: Record<string, string> = {
   "7_samklin": "lightdance-07",
   "8_how": "lightdance-08",
   "9_staff": "lightdance-09",
+  "10_": "lightdance-10",
   "11_small_orb_1": "lightdance-11",
   "12_small_orb_2": "lightdance-12",
   "13_big_orb_left": "lightdance-13",
   "14_big_orb_right": "lightdance-14",
+  "15_": "lightdance-15",
+  "16_": "lightdance-16",
   "17_pillar_1": "lightdance-17",
   "18_pillar_2": "lightdance-18",
   "19_pillar_3": "lightdance-19",
   "20_pillar_4": "lightdance-20",
+  "21_": "lightdance-21",
+  "22_": "lightdance-22",
+  "23_": "lightdance-23",
+  "24_": "lightdance-24",
+  "25_": "lightdance-25",
   // "26_saber": "lightdance-26",
 };
 
@@ -29,7 +37,7 @@ const dancerTable: DancerData = Object.keys(dancerToRpi).reduce(
   (acc: DancerData, dancer) => {
     let rpiInfo = rpiTable[dancerToRpi[dancer]];
     acc[rpiInfo.MAC_WLAN] = {
-      IP: "192.168.0.0",
+      IP: rpiInfo.IP_WLAN ?? "192.168.0.0",
       MAC: rpiInfo.MAC_WLAN,
       dancer,
       hostname: dancerToRpi[dancer],
@@ -37,7 +45,7 @@ const dancerTable: DancerData = Object.keys(dancerToRpi).reduce(
       interface: "wifi",
     };
     acc[rpiInfo.MAC_ETHER] = {
-      IP: "192.168.0.0",
+      IP: rpiInfo.IP_ETHER ?? "192.168.0.0",
       MAC: rpiInfo.MAC_ETHER,
       dancer,
       hostname: dancerToRpi[dancer],

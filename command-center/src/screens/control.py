@@ -188,7 +188,7 @@ class ControlScreen(Screen):
 
     def on_data_table_header_selected(self, event: DataTable.HeaderSelected):
         self.notify(f"Selected {event.column_index}")
-        if event.column_index == 0:
+        if event.column_index == 1:
             is_all_selected = all(
                 dancer.selected for dancer in self.app.dancer_status.values()
             )
