@@ -33,9 +33,14 @@ def on_message(msg: str, app_ref: LightDanceAppType):
                 f"{time.strftime('%H:%M:%S')} {data.payload.dancer}:{data.payload.command}({data.statusCode}) - {data.payload.message}"
             )
             new_dancer_status = app_ref.dancer_status
-            new_dancer_status[data.payload.dancer].response = data.payload.message
-            app_ref.dancer_status = DancerStatus(
-                new_dancer_status
-            )  # FIXME: Not working
+            new_dancer_status[
+                data.payload.dancer
+            ].response = f"{time.strftime('%H:%M:%S')}|{data.payload.command}|{data.payload.message}"
+            app_ref.dancer_status = DancerStatus(new_dancer_status)
+            app_ref.control_table.update_cell(  # NOTE: Don't use [] in cells, it would be recognized as a markup
+                data.payload.dancer,
+                "Response",
+                f"{time.strftime('%H:%M:%S')}|{data.payload.command}|{data.payload.message}",
+            )
         case _:
             app_ref.notify("Invalid message topic", severity="warning")

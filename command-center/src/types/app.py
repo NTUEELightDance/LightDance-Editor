@@ -4,7 +4,7 @@ from typing import Literal
 from textual.app import App
 from textual.reactive import reactive
 from textual.screen import Screen
-from textual.widgets import RichLog
+from textual.widgets import DataTable, RichLog
 
 from ..types import DancerStatus
 
@@ -16,6 +16,7 @@ class LightDanceAppType(App[object]):
         str,
         dict[Literal["dancer", "fps", "OFPARTS", "LEDPARTS", "LEDPARTS_MERGE"], dict],
     ]
+    control_table: DataTable[str]
 
 
 @dataclass

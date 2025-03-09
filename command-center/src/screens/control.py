@@ -1,7 +1,9 @@
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.coordinate import Coordinate
+from textual.reactive import reactive
 from textual.screen import Screen
+from textual.timer import Timer
 from textual.validation import Number, Regex
 from textual.widgets import Button, DataTable, Footer, Input
 
@@ -22,9 +24,8 @@ class ControlScreen(Screen):
         ("D", "send_color('d')", "D"),
     ]
 
-    table: DataTable[str] = DataTable()
-
     app: LightDanceAppType
+    table: DataTable[str]
     local_vars = ControlScreenParamsType(
         color_code="#000000",
         command="",
@@ -32,6 +33,8 @@ class ControlScreen(Screen):
         start_time=0,
     )
     dancer_table_initialized = False
+    countdown: reactive[int] = reactive(0)
+    timer: Timer
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -91,7 +94,7 @@ class ControlScreen(Screen):
                         classes="danger-buttons",
                     )
             with VerticalScroll(id="control-panel-2"):
-                yield self.table
+                yield self.app.control_table
         yield Footer()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -105,6 +108,14 @@ class ControlScreen(Screen):
                 ],
                 self.screen,  # type: ignore
             )
+        if event.button.id == "control-play":
+            self.countdown = self.local_vars.delay
+            self.timer = self.set_interval(1, self.timer_decrement)
+        elif (
+            event.button.id == "control-stop" or event.button.id == "control-pause"
+        ) and self.timer:
+            self.timer.stop()
+            self.countdown = 0
 
     def on_input_changed(self, event: Input.Changed) -> None:
         value = event.input.value
@@ -122,6 +133,7 @@ class ControlScreen(Screen):
             self.local_vars.command = value
 
     def on_mount(self) -> None:
+        self.table = self.app.control_table
         self.table.add_column("Name", key="Name")
         self.table.add_column("✔", key="Selected")
         self.table.add_column("Interface", key="Interface")
@@ -169,7 +181,6 @@ class ControlScreen(Screen):
         self.table.refresh_column(0)
         self.table.refresh_column(2)
         self.table.refresh_column(3)
-        self.app.log_instance.write(f"{new_dancer_status}")
         self.notify("Updated connection status")
 
     def on_data_table_cell_selected(self, event: DataTable.CellSelected):
@@ -211,3 +222,10 @@ class ControlScreen(Screen):
             ],
             self.screen,  # type: ignore
         )
+
+    def timer_decrement(self) -> None:
+        if self.countdown > 0:
+            self.countdown -= 1
+            self.notify(f"Countdown: {self.countdown}")
+        else:
+            self.timer.stop()

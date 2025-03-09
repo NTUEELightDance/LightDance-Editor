@@ -2,7 +2,7 @@ from threading import Thread
 
 from textual.app import App
 from textual.reactive import reactive
-from textual.widgets import RichLog
+from textual.widgets import DataTable, RichLog
 
 from .api import api
 from .screens import ControlScreen, InfoScreen, LogScreen, ParttestScreen
@@ -27,6 +27,7 @@ class LightDanceApp(App):
     dancer_status: reactive[DancerStatus] = reactive({})
     log_instance: RichLog = RichLog(highlight=True, wrap=True)
     pinmap: dict = {}
+    control_table: DataTable[str] = DataTable()
 
     def on_mount(self) -> None:
         self.switch_mode(mode="control")
