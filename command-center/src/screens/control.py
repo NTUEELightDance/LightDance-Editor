@@ -34,7 +34,7 @@ class ControlScreen(Screen):
     )
     dancer_table_initialized = False
     countdown: reactive[int] = reactive(0)
-    timer: Timer
+    timer: Timer | None = None
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -228,4 +228,5 @@ class ControlScreen(Screen):
             self.countdown -= 1
             self.notify(f"Countdown: {self.countdown}")
         else:
-            self.timer.stop()
+            if self.timer:
+                self.timer.stop()
