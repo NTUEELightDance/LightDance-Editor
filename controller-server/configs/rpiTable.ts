@@ -19,7 +19,7 @@ export const rpiTable: Record<
   },
   "lightdance-02": {
     MAC_WLAN: "B8:27:EB:FA:1B:2B",
-    MAC_ETHER: "B8:27:E8:AF:4E:7E",
+    MAC_ETHER: "B8:27:EB:AF:4E:7E",
     IP_WLAN: "192.168.0.102",
   },
   "lightdance-03": {
@@ -29,7 +29,7 @@ export const rpiTable: Record<
   },
   "lightdance-04": {
     MAC_WLAN: "B8:27:EB:F4:1C:93",
-    MAC_ETHER: "B8:27:E8:A1:49:C6",
+    MAC_ETHER: "B8:27:EB:A1:49:C6",
     IP_WLAN: "192.168.0.104",
   },
   "lightdance-05": {

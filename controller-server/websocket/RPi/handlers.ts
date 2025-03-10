@@ -156,33 +156,33 @@ export async function handleRPiBoardInfo(ws: WebSocket, msg: FromRPiBoardInfo) {
     sendBoardInfoToControlPanel();
   });
 
-  setupTimeoutCheck(ws, MAC);
+  // setupTimeoutCheck(ws, MAC);
 }
 
-function setupTimeoutCheck(ws: WebSocket, MAC: string) {
-  let timeout = setTimeout(() => {
-    console.warn(
-      `[Timeout]: RPi ${dancerTable[MAC].dancer}/${dancerTable[MAC].interface} may have disconnected`,
-    );
-    dancerTable[MAC].connected = false;
-    delete RPiWSs[MAC];
-    sendBoardInfoToControlPanel();
-  }, 7500);
+// function setupTimeoutCheck(ws: WebSocket, MAC: string) {
+//   let timeout = setTimeout(() => {
+//     console.warn(
+//       `[Timeout]: RPi ${dancerTable[MAC].dancer}/${dancerTable[MAC].interface} may have disconnected`,
+//     );
+//     dancerTable[MAC].connected = false;
+//     delete RPiWSs[MAC];
+//     sendBoardInfoToControlPanel();
+//   }, 7500);
 
-  ws.on("message", () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      console.warn(`[Timeout]: RPi ${MAC} may have disconnected`);
-      dancerTable[MAC].connected = false;
-      delete RPiWSs[MAC];
-      sendBoardInfoToControlPanel();
-    }, 7500);
-  });
+//   ws.on("message", () => {
+//     clearTimeout(timeout);
+//     timeout = setTimeout(() => {
+//       console.warn(`[Timeout]: RPi ${MAC} may have disconnected`);
+//       dancerTable[MAC].connected = false;
+//       delete RPiWSs[MAC];
+//       sendBoardInfoToControlPanel();
+//     }, 7500);
+//   });
 
-  ws.on("close", () => {
-    clearTimeout(timeout);
-  });
-}
+//   ws.on("close", () => {
+//     clearTimeout(timeout);
+//   });
+// }
 
 export function handleRPiCommandResponse(
   ws: WebSocket,

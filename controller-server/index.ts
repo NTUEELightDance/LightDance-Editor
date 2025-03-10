@@ -1,5 +1,5 @@
 import { createServer } from "http";
-import { dancerToMAC } from "@/configs/dancerTable";
+import dancerTable from "@/configs/dancerTable";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -32,13 +32,36 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", function connection(ws: WebSocket) {
-  console.log("[Connected]");
+  // console.log("[Connected]");
   ws.on("message", function message(data: Buffer) {
     // Parse incoming message to object
     let msg: Message | null = null;
     try {
       msg = JSON.parse(data.toString());
-      console.log("[Received]:", msg, "\n");
+      const color = msg?.statusCode !== 0 ? "\x1b[31m" : "\x1b[32m";
+      switch (msg?.from) {
+        case "RPi":
+          switch (msg.topic) {
+            case "boardInfo":
+              console.log(
+                `${color}[Received]: ${dancerTable[msg.payload.MAC].dancer} (topic: ${msg.topic}, statusCode: ${msg.statusCode}, payload: ${msg.payload.MAC})\x1b[0m`,
+              );
+              break;
+            case "command":
+              console.log(
+                `${color}[Received]: ${dancerTable[msg.payload.MAC].dancer} (topic: ${msg.topic}, statusCode: ${msg.statusCode}, payload: ${msg.payload.command} - ${msg.payload.message})\x1b[0m`,
+              );
+              break;
+            case "sync":
+              console.log(
+                `${color}[Received]: ${dancerTable[msg.payload.MAC].dancer} (topic: ${msg.topic}, statusCode: ${msg.statusCode}, payload: ${msg.payload.message})\x1b[0m`,
+              );
+              break;
+          }
+          break;
+        case "controlPanel":
+          break;
+      }
     } catch (error) {
       console.error(`[Error]: ${error}`);
     }
@@ -61,15 +84,15 @@ wss.on("connection", function connection(ws: WebSocket) {
   ws.on("error", console.error);
 });
 
-setInterval(() => {
-  const toRPiMsg: ToRPiSync = {
-    from: "server",
-    topic: "sync",
-    statusCode: 0,
-    payload: "",
-  };
-  sendBeatToRPi(Object.keys(dancerToMAC), toRPiMsg);
-}, 5000);
+// setInterval(() => {
+//   const toRPiMsg: ToRPiSync = {
+//     from: "server",
+//     topic: "sync",
+//     statusCode: 0,
+//     payload: "",
+//   };
+//   sendBeatToRPi(Object.keys(dancerToMAC), toRPiMsg);
+// }, 10000);
 
 createNTPServer(parseInt(NTPSERVER_PORT));
 

@@ -59,6 +59,14 @@ const pinMapTable: PinMapTable = {
     dancer: "14_big_orb_right",
     ...modelPinMapTable.big_orb_right,
   },
+  "15_gun_1": {
+    dancer: "15_gun_1",
+    ...modelPinMapTable.gun_1,
+  },
+  "16_gun_2": {
+    dancer: "16_gun_2",
+    ...modelPinMapTable.gun_2,
+  },
   "17_pillar_1": {
     dancer: "17_pillar_1",
     ...modelPinMapTable.pillar_1,
@@ -74,6 +82,14 @@ const pinMapTable: PinMapTable = {
   "20_pillar_4": {
     dancer: "20_pillar_4",
     ...modelPinMapTable.pillar_4,
+  },
+  "21_biochem_left": {
+    dancer: "21_biochem_left",
+    ...modelPinMapTable.biochem_left,
+  },
+  "22_biochem_right": {
+    dancer: "22_biochem_right",
+    ...modelPinMapTable.biochem_right,
   },
   "26_saber": {
     dancer: "26_saber",

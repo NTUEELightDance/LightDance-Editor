@@ -12,7 +12,7 @@ function createNTPServer(port: number) {
   NTPserver.on("message", (msg, rinfo) => {
     // send server's system time
     const sysTime = Date.now();
-    console.log(`RPi should sync with ${sysTime}`);
+    // console.log(`RPi should sync with ${sysTime}`);
     NTPserver.send(`${sysTime}`, rinfo.port, rinfo.address);
   });
 

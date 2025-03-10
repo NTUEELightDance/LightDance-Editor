@@ -51,7 +51,7 @@ export function sendToControlPanel(msg: ToControlPanel) {
       console.log(
         `${color}[Send]: ControlPanel (topic: ${msg.topic}, statusCode: ${msg.statusCode})\x1b[0m`,
       );
-      console.table(msg.payload);
+      // console.table(msg.payload);
       break;
     case "command":
       console.log(
