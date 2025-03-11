@@ -38,6 +38,78 @@
     "8_how": {
       "url": "/asset/models/main_character.glb",
       "modelName": "main_character"
+    },
+    "9_staff": {
+      "url": "/asset/models/props/staff.glb",
+      "modelName": "staff"
+    },
+    "10_shield": {
+      "url": "/asset/models/props/shield.glb",
+      "modelName": "shield"
+    },
+    "11_small_orb_1": {
+      "url": "/asset/models/props/small_orb_1.glb",
+      "modelName": "small_orb_1"
+    },
+    "12_small_orb_2": {
+      "url": "/asset/models/props/small_orb_2.glb",
+      "modelName": "small_orb_2"
+    },
+    "13_big_orb_left": {
+      "url": "/asset/models/props/big_orb_left.glb",
+      "modelName": "big_orb_left"
+    },
+    "14_big_orb_right": {
+      "url": "/asset/models/props/big_orb_right.glb",
+      "modelName": "big_orb_right"
+    },
+    "15_gun_1": {
+      "url": "/asset/models/props/gun.glb",
+      "modelName": "gun"
+    },
+    "16_gun_2": {
+      "url": "/asset/models/props/gun.glb",
+      "modelName": "gun"
+    },
+    "17_pillar_1": {
+      "url": "/asset/models/props/pillar_1.glb",
+      "modelName": "pillar_1"
+    },
+    "18_pillar_2": {
+      "url": "/asset/models/props/pillar_2.glb",
+      "modelName": "pillar_2"
+    },
+    "19_pillar_3": {
+      "url": "/asset/models/props/pillar_3.glb",
+      "modelName": "pillar_3"
+    },
+    "20_pillar_4": {
+      "url": "/asset/models/props/pillar_4.glb",
+      "modelName": "pillar_4"
+    },
+    "21_biochem_left": {
+      "url": "/asset/models/props/biochem_left.glb",
+      "modelName": "biochem_left"
+    },
+    "22_biochem_right": {
+      "url": "/asset/models/props/biochem_right.glb",
+      "modelName": "biochem_right"
+    },
+    "23_small_magic": {
+      "url": "/asset/models/props/small_magic.glb",
+      "modelName": "small_magic"
+    },
+    "24_big_magic_1": {
+      "url": "/asset/models/props/big_magic_1.glb",
+      "modelName": "big_magic_1"
+    },
+    "25_big_magic_2": {
+      "url": "/asset/models/props/big_magic_2.glb",
+      "modelName": "big_magic_2"
+    },
+    "26_saber": {
+      "url": "/asset/models/props/saber.glb",
+      "modelName": "saber"
     }
   },
   "Config": {

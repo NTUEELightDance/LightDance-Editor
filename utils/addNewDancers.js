@@ -1,8 +1,7 @@
 const oldData = require("./out/exportData.json");
 const newData = require("./jsons/exportDataEmpty.json");
 
-const generateDefaultPosition = (dancerData) => {
-
+const generateDefaultLocation = (dancerData) => {
   const length = dancerData.length;
   const spacing = 1;
   const pos = dancerData.map((val, index) => [
@@ -10,11 +9,17 @@ const generateDefaultPosition = (dancerData) => {
     (index - (length - 1) / 2) * spacing,
     0,
   ]);
-
   return pos;
 };
 
-const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffectData) => {
+const merge = (
+  oldData,
+  newData,
+  defaultLocation,
+  defaultRotation,
+  defaultColorData,
+  defaultEffectData
+) => {
   let mergedDancer = newData.dancer;
   let mergedPosition = oldData.position;
   let mergedControl = oldData.control;
@@ -24,9 +29,13 @@ const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffec
   // Create default position for new dancers
   Object.keys(mergedPosition).forEach((id) => {
     let positionFrame = oldData.position[id];
-    let pos = positionFrame.pos;
-    for (let i = pos.length; i < mergedDancer.length; i++) {
-      pos.push(defaultPosition[i]);
+    let loc = positionFrame.location;
+    for (let i = loc.length; i < mergedDancer.length; i++) {
+      loc.push(defaultLocation[i]);
+    }
+    let rot = positionFrame.rotation;
+    for (let i = rot.length; i < mergedDancer.length; i++) {
+      rot.push(defaultRotation);
     }
   });
 
@@ -34,6 +43,7 @@ const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffec
   Object.keys(mergedControl).forEach((id) => {
     let controlFrame = oldData.control[id];
     let status = controlFrame.status;
+    let ledStatus = controlFrame.led_status;
     for (let i = status.length; i < mergedDancer.length; i++) {
       const dancerParts = mergedDancer[i].parts;
       let newStatus = [];
@@ -46,6 +56,18 @@ const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffec
       });
 
       status.push(newStatus);
+    }
+    for (let i = ledStatus.length; i < mergedDancer.length; i++) {
+      const dancerParts = mergedDancer[i].parts;
+      let newLedStatus = [];
+      dancerParts.forEach((part) => {
+        if (part.type == "FIBER") {
+          newLedStatus.push([]);
+        } else {
+          newLedStatus.push([]);
+        }
+      });
+      ledStatus.push(newLedStatus);
     }
   });
 
@@ -66,9 +88,9 @@ const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffec
               {
                 LEDs: Array(part.length).fill([colorName, 255]),
                 start: 0,
-                fade: false
-              }
-            ]
+                fade: false,
+              },
+            ],
           };
         });
 
@@ -88,9 +110,17 @@ const merge = (oldData, newData, defaultPosition, defaultColorData, defaultEffec
   };
 };
 
-const defaultPosition = generateDefaultPosition(newData.dancer);
+const defaultLocation = generateDefaultLocation(newData.dancer);
+const defaultRotation = [0, 0, 0];
 const defaultColorData = ["black", 0];
 const defaultEffectData = ["black", 0];
-const mergedData = merge(oldData, newData, defaultPosition, defaultColorData, defaultEffectData);
+const mergedData = merge(
+  oldData,
+  newData,
+  defaultLocation,
+  defaultRotation,
+  defaultColorData,
+  defaultEffectData
+);
 
 console.log(JSON.stringify(mergedData, null, 2));
