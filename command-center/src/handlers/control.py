@@ -183,7 +183,7 @@ def control_handler(
                 }
             )
             screen_ref.notify(f"Command: {screen_vars.command}")
-        case "control-close-gpio":
+        case "control-danger-close-gpio":
             api.send(
                 {
                     "topic": "close",
@@ -193,7 +193,7 @@ def control_handler(
                 }
             )
             screen_ref.notify("Close GPIO")
-        case "control-reboot":
+        case "control-danger-reboot":
             api.send(
                 {
                     "topic": "reboot",
@@ -203,7 +203,7 @@ def control_handler(
                 }
             )
             screen_ref.notify("Reboot")
-        case "control-forced-restart":
+        case "control-danger-forced-restart":
             api.send(
                 {
                     "topic": "webShell",

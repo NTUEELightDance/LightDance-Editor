@@ -116,7 +116,7 @@ export function handlePlay(msg: FromControlPanelPlay) {
     payload: [
       "playerctl",
       "play",
-      Math.round(start / 1000).toString(),
+      Math.round(start).toString(),
       "-d",
       timestampString,
     ],
