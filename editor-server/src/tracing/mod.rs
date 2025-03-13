@@ -1,6 +1,4 @@
 use std::time::Duration;
-
-use crate::global;
 use axum::http::{header::CONTENT_LENGTH, Response};
 use axum::Router;
 use tower_http::trace::{DefaultMakeSpan, TraceLayer};
@@ -9,12 +7,6 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 
 /// Initialize api tracing
 pub fn init_tracing() {
-    let env_type = &global::envs::get().env;
-
-    if env_type == "production" {
-        return;
-    }
-
     tracing_subscriber::registry()
         .with(EnvFilter::new(format!(
             "{}=debug,tower_http=debug",
