@@ -45,7 +45,7 @@ def csv_to_ts_json(csv_file, ts_file):
             else:
                 part_name, part_id, part_length = row
                 if current_dancer:
-                    dancers[current_dancer.lower()]["LEDPARTS"][part_name.lower()] = {
+                    dancers[current_dancer.lower()]["LEDPARTS"][part_name] = {
                         "id": int(part_id),
                         "len": int(part_length),
                     }

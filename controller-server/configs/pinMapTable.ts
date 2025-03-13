@@ -91,6 +91,18 @@ const pinMapTable: PinMapTable = {
     dancer: "22_biochem_right",
     ...modelPinMapTable.biochem_right,
   },
+  "23_small_magic": {
+    dancer: "23_small_magic",
+    ...modelPinMapTable.small_magic,
+  },
+  "24_big_magic_1": {
+    dancer: "24_big_magic_1",
+    ...modelPinMapTable.big_magic_1,
+  },
+  "25_big_magic_2": {
+    dancer: "25_big_magic_2",
+    ...modelPinMapTable.big_magic_2,
+  },
   "26_saber": {
     dancer: "26_saber",
     ...modelPinMapTable.saber,

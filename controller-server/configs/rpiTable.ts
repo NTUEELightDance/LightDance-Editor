@@ -137,14 +137,34 @@ export const rpiTable: Record<
     MAC_ETHER: "B8:27:EB:98:93:BC",
     IP_WLAN: "192.168.0.125",
   },
-  // "lightdance-26": {
-  // },
-  // "lightdance-28": {
-  // },
-  // "lightdance-29": {
-  // },
-  // "lightdance-30": {
-  // },
-  // "lightdance-31": {
-  // },
+  "lightdance-26": {
+    MAC_WLAN: "D8:3A:DD:7E:9E:64",
+    MAC_ETHER: "D8:3A:DD:7E:9E:63",
+    IP_WLAN: "192.168.0.126",
+  },
+  "lightdance-27": {
+    MAC_WLAN: "D8:3A:DD:7E:9F:08",
+    MAC_ETHER: "D8:3A:DD:7E:9F:06",
+    IP_WLAN: "192.168.0.127",
+  },
+  "lightdance-28": {
+    MAC_WLAN: "D8:3A:DD:7E:9E:34",
+    MAC_ETHER: "D8:3A:DD:7E:9E:33",
+    IP_WLAN: "192.168.0.128",
+  },
+  "lightdance-29": {
+    MAC_WLAN: "D8:3A:DD:7E:9E:B3",
+    MAC_ETHER: "D8:3A:DD:7E:9E:B2",
+    IP_WLAN: "192.168.0.129",
+  },
+  "lightdance-30": {
+    MAC_WLAN: "D8:3A:DD:7E:9D:DB",
+    MAC_ETHER: "D8:3A:DD:7E:9D:D9",
+    IP_WLAN: "192.168.0.130",
+  },
+  "lightdance-31": {
+    MAC_WLAN: "D8:3A:DD:7E:9F:0A",
+    MAC_ETHER: "D8:3A:DD:7E:9F:07",
+    IP_WLAN: "192.168.0.131",
+  },
 };
