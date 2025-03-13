@@ -15,6 +15,7 @@ from ..types.app import ControlScreenParamsType, LightDanceAppType
 class ControlScreen(Screen):
     CSS_PATH = "../styles/control.tcss"
     BINDINGS = [
+        ("S", "sync()", "Sync"),
         ("R", "send_color('r')", "R"),
         ("G", "send_color('g')", "G"),
         ("B", "send_color('b')", "B"),
@@ -90,7 +91,7 @@ class ControlScreen(Screen):
                     )
                     yield Button(
                         "Restart Player",
-                        id="control-danger-restart",
+                        id="control-danger-forced-restart",
                         classes="danger-buttons",
                     )
             with VerticalScroll(id="control-panel-2"):
@@ -215,6 +216,17 @@ class ControlScreen(Screen):
     def action_send_color(self, color: str) -> None:
         control_handler(
             f"control-{color}",
+            [
+                dancer.name
+                for dancer in self.app.dancer_status.values()
+                if dancer.selected
+            ],
+            self.screen,  # type: ignore
+        )
+
+    def action_sync(self) -> None:
+        control_handler(
+            "control-sync",
             [
                 dancer.name
                 for dancer in self.app.dancer_status.values()
