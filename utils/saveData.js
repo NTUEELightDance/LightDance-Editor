@@ -18,7 +18,7 @@ async function main() {
   const response = await instance.get("/api/exportData");
   //   console.log(response.data)
   if (response.status === 200) {
-    file.write(JSON.stringify(response.data, null, 2));
+    file.write(JSON.stringify(response.data, null, 0));
     console.log(`Data saved to '${filePath}' successfully!!`);
   }
   file.close();
