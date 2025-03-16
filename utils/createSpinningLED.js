@@ -12,6 +12,7 @@ const LEDPart = "main_LED";
 const defaultColorData = ["blue", 255];
 const secondaryColorData = ["red", 255];
 const direction = 1;
+const double = true;
 
 const partLength = data.dancer.find(d => d.name === PropName).parts.find(d => d.name === LEDPart).length;
 const index = data.dancer.findIndex(d => d.name === PropName);
@@ -28,7 +29,11 @@ const addFrame = (start) => {
     led_status[index][LEDindex] = Array(partLength).fill(defaultColorData);
 
     for (let i = (start - startTime) * partLength / period; i < (start - startTime) * partLength / period + LEDlength; i++) {
-        led_status[index][LEDindex][((direction * Math.round(i)) % partLength + partLength) % partLength] = secondaryColorData;
+        const bulbIndex = ((direction * Math.round(i)) % partLength + partLength) % partLength
+        led_status[index][LEDindex][bulbIndex] = secondaryColorData;
+        if (double) {
+            led_status[index][LEDindex][(bulbIndex + partLength / 2) % partLength] = secondaryColorData;
+        }   
     }
     
     const controlData = {
