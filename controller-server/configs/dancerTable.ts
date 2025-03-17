@@ -13,7 +13,7 @@ const dancerToRpi: Record<string, string> = {
   "7_samklin": "lightdance-07",
   "8_how": "lightdance-08",
   "9_staff": "lightdance-09",
-  "10_shield": "lightdance-10",
+  "10_shield": "lightdance-21", // NOTE
   "11_small_orb_1": "lightdance-11",
   "12_small_orb_2": "lightdance-12",
   "13_big_orb_left": "lightdance-13",
@@ -24,7 +24,7 @@ const dancerToRpi: Record<string, string> = {
   "18_pillar_2": "lightdance-18",
   "19_pillar_3": "lightdance-19",
   "20_pillar_4": "lightdance-20",
-  "21_biochem_left": "lightdance-21",
+  "21_biochem_left": "lightdance-10", // NOTE
   "22_biochem_right": "lightdance-22",
   "23_small_magic": "lightdance-23",
   "24_big_magic_1": "lightdance-24",

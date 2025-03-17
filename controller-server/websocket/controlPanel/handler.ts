@@ -124,9 +124,9 @@ export function handlePlay(msg: FromControlPanelPlay) {
 
   sendToRPi(dancers, toRPiMsg);
 
-  const music_delay = 0; // time offset of music
+  const music_delay = -350; // time offset of music
 
-  const _timestampString = Math.round(timestamp - music_delay).toString();
+  const _timestampString = Math.round(timestamp + music_delay).toString();
 
   return exec(`./scripts/schedule_play.sh ${_timestampString} ${start / 1000}`);
 }
