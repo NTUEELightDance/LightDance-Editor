@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // const data = require("./../../LightTableBackup/2025.03.17.json");
-const data = require("./jsons/exportDataEmpty.json");
+const data = require("./../../LightTableBackup/2025.03.17.json");
 
 const addFrame = (start, partLength, defaultColorData, secondaryColorData, direction, double, index, LEDindex) => {
     const previousControl = Object.values(data.control)
@@ -83,8 +83,8 @@ let period = 937;
 let LEDlength = 12;
 let PropName = "11_small_orb_1";
 let LEDPart = "main_LED";
-let defaultColorData = ["blue", 255];
-let secondaryColorData = ["red", 255];
+defaultColorData = ["black", 255];
+secondaryColorData = ["yellow", 255];
 let direction = 1;
 let double = true;
 
@@ -100,8 +100,8 @@ period = 937;
 LEDlength = 12;
 PropName = "12_small_orb_2";
 LEDPart = "main_LED";
-defaultColorData = ["blue", 255];
-secondaryColorData = ["red", 255];
+defaultColorData = ["black", 255];
+secondaryColorData = ["yellow", 255];
 direction = -1;
 double = true;
 
@@ -117,8 +117,8 @@ period = 1000;
 LEDlength = 12;
 PropName = "11_small_orb_1";
 LEDPart = "main_LED";
-defaultColorData = ["blue", 255];
-secondaryColorData = ["red", 255];
+defaultColorData = ["black", 255];
+secondaryColorData = ["yellow", 255];
 direction = -1;
 double = true;
 
@@ -134,8 +134,8 @@ period = 1000;
 LEDlength = 12;
 PropName = "12_small_orb_2";
 LEDPart = "main_LED";
-defaultColorData = ["blue", 255];
-secondaryColorData = ["red", 255];
+defaultColorData = ["black", 255];
+secondaryColorData = ["yellow", 255];
 direction = 1;
 double = true;
 
