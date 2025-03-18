@@ -436,15 +436,15 @@ export const PropPinMapTable: ModelPinMapTable = {
     LEDPARTS: {
       left_LED: {
         id: 0,
-        len: 38,
+        len: 41,
       },
       mid_LED: {
         id: 1,
-        len: 90,
+        len: 92,
       },
       bot_LED: {
         id: 2,
-        len: 38,
+        len: 41,
       },
     },
     LEDPARTS_MERGE: {},

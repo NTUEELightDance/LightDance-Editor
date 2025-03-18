@@ -3,7 +3,7 @@
 TIME=$1
 STARTTIME=$2
 
-pgrep 'play' | xargs kill #  Linux: play (from sox) / macOS: afplay
+pgrep 'mpv' | xargs kill #  Linux: mpv / macOS: afplay
 cd "$(dirname "$0")" || exit
 
 while true; do
@@ -13,5 +13,5 @@ while true; do
     fi
 done
 
-play '../../files/music/2025.mp3' trim $STARTTIME &
+mpv '../../files/music/2025.mp3' --start=$STARTTIME &
 echo "start playing"
