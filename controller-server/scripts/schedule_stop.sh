@@ -1,2 +1,2 @@
 #! /usr/bin/env bash
-pgrep 'play' | xargs kill
+pgrep 'mpv' | xargs kill
