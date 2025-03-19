@@ -8,8 +8,15 @@ const updateFrameForDancer = (key, frame, partLength, LEDColor, index, LEDindex)
     const status = JSON.parse(JSON.stringify(frame.status)); 
     const led_status = JSON.parse(JSON.stringify(frame.led_status)); 
 
-    status[index][LEDindex] = LEDColor;
-    led_status[index][LEDindex] = [];
+    for (let i = 0; i < DancerLength; i++) {
+        led_status[index][i] = []
+        if (status[index][LEDindex][0] === "good_pink" || status[index][LEDindex][0] === "peach_pink") {
+            status[index][LEDindex][0] = "sky_blue";
+        }
+        if (status[index][LEDindex][0] === "good_Purple") {
+            status[index][LEDindex][0] = "light_blue";
+        }
+    }
 
     const controlData = {
         ...frame,
@@ -28,11 +35,12 @@ const editDancerPart = (start, end, LEDColor, index, LEDindex) => {
 }
 
 let startTime = 0;
-let endTime = 5000;
+let endTime = 5000000;
 let dancerName = "8_how";
 let LEDPart = "mask_LED";
 let LEDColor = ["black", 100];
 
+let DancerLength = data.dancer.find(d => d.name === dancerName).parts.length;
 let partLength = data.dancer.find(d => d.name === dancerName).parts.find(d => d.name === LEDPart).length;
 let index = data.dancer.findIndex(d => d.name === dancerName);
 let LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
