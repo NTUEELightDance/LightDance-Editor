@@ -6,8 +6,8 @@ const dancerToRpi: Record<string, string> = {
   "0_durant": "lightdance-00",
   "1_hsieh": "lightdance-28", // NOTE
   "2_yuan": "lightdance-02",
-  "3_ping": "lightdance-29",
-  "4_wei": "lightdance-27", // NOTE
+  "3_ping": "lightdance-29", // NOTE
+  "4_wei": "lightdance-04",
   "5_boyu": "lightdance-05",
   "6_yen": "lightdance-06",
   "7_samklin": "lightdance-07",
