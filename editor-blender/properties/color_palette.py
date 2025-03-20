@@ -44,10 +44,16 @@ def register():
         "ld_color_palette_temp",
         bpy.props.PointerProperty(type=ColorPaletteTempItem),
     )
+    setattr(
+        bpy.types.WindowManager,
+        "ld_color_palette_index",
+        bpy.props.IntProperty(),
+    )
 
 
 def unregister():
     delattr(bpy.types.WindowManager, "ld_color_palette")
     delattr(bpy.types.WindowManager, "ld_color_palette_temp")
+    delattr(bpy.types.WindowManager, "ld_color_palette_index")
     bpy.utils.unregister_class(ColorPaletteItem)
     bpy.utils.unregister_class(ColorPaletteTempItem)

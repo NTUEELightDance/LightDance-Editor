@@ -274,8 +274,8 @@ def control_status_state_to_mut(
 
     for dancer in state.dancers_array:
         dancer_name = dancer.name
-        if not show_dancer_dict[dancer_name]:
-            continue
+        # if not show_dancer_dict[dancer_name]:
+        #     continue
 
         dancer_status = control_status.get(dancer_name)
         if dancer_status is None:

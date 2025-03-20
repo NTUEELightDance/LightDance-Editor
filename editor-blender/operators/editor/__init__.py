@@ -201,7 +201,8 @@ class Add(AsyncOperator):
             shown_all_dancer = reduce(
                 lambda acc, cur: acc & cur, state.show_dancers, True
             )
-            return state.ready and shown_all_dancer
+            # return state.ready and shown_all_dancer
+            return state.ready
         else:
             return state.ready
 
@@ -293,7 +294,8 @@ class Delete(AsyncOperator):
             shown_all_dancer = reduce(
                 lambda acc, cur: acc & cur, state.show_dancers, True
             )
-            return state.ready and shown_all_dancer
+            # return state.ready and shown_all_dancer
+            return state.ready
 
     async def async_execute(self, context: bpy.types.Context):
         confirm: bool = getattr(self, "confirm")

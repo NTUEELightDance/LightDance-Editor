@@ -272,8 +272,12 @@ async def request_edit_control() -> bool:
     control_id = state.control_record[index]
     control_frame = state.control_map[control_id]
 
+    ok = None
     set_requesting(True)
-    ok = await control_agent.request_edit(control_id)
+    try:
+        ok = await control_agent.request_edit(control_id)
+    except Exception as e:
+        logger.exception(f"Failed to request edit control frame: {e}")
     set_requesting(False)
 
     if ok is not None and ok:
