@@ -156,6 +156,7 @@ def copy_part():
                     ]
                 ),
             )
+    notify("INFO", "Copied")
 
 
 async def paste_dancer() -> bool:

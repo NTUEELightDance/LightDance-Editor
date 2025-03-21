@@ -1,6 +1,7 @@
 import bpy
 
 from ....properties.types import LightType
+from ...log import logger
 from ...models import ColorID, EditMode, LEDData
 from ...states import state
 from ...utils.convert import gradient_to_rgb_float, rgba_to_float
@@ -40,7 +41,13 @@ def update_current_color(self: bpy.types.Object, context: bpy.types.Context):
         if self.parent and self.parent["ld_effect"] == 0:
             update_gradient_color(self.parent)
             return
+    if "ld_color" not in self:
+        # NOTE: Effect is usually updated before bulb color.
+        return
     color_id: int = self["ld_color"]
+    if color_id == -1 and self.parent:
+        # NOTE: Effect is usually updated before bulb color.
+        return
     color = state.color_map[color_id]
     color_float = rgba_to_float(color.rgb, ld_alpha)
 

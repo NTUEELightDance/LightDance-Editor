@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "lightdance_editor"
-version = "1.3.0"
+version = "1.3.3"
 name = "LightDance Editor"
 tagline = "Addon for LightDance Editor"
 maintainer = "NTUEE LightDance"
