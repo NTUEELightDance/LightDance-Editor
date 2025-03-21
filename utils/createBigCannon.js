@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// const data = require("./../../LightTableBackup/2025.03.20.json");
-const data = require("./jsons/exportDataEmpty.json");
+const data = require("./../../LightTableBackup/2025.03.20.json");
+// const data = require("./jsons/exportDataEmpty.json");
 
 const addFrame = (start) => {
     const previousControl = Object.values(data.control)
@@ -125,20 +125,6 @@ const updateFrame = (key, frame, defaultColorData, secondaryColorData, direction
                 }
             }
         }
-        for (let i = center - 10; i < center + 10; i++) {
-            if (i >= 0 && i < 41) {
-                led_status[24][2][41 - i] = pulseColorData;
-            }
-            if (i >= 41 && i < 133) {
-                led_status[24][1][i - 41] = pulseColorData;
-            }
-            if (i >= 133 && i < 225) {
-                led_status[25][4][92 - i + 133] = pulseColorData;
-            }
-            if (i >= 225 && i < partLength) {
-                led_status[25][1][i - 225] = pulseColorData;
-            }
-        }
         for (let i = (start - startTime) * partLength1 / period; i < (start - startTime) * partLength1 / period + LEDlength; i++) {
             let bulb1 = ((Math.round(i)) % partLength1 + partLength1) % partLength1
             if (bulb1 >= 0 && bulb1 < 41) {
@@ -168,6 +154,20 @@ const updateFrame = (key, frame, defaultColorData, secondaryColorData, direction
             }
             if (bulb2 >= 225 && bulb2 < partLength) {
                 led_status[25][1][bulb2 - 225] = secondaryColorDataLeft;
+            }
+        }
+        for (let i = center - 10; i < center + 10; i++) {
+            if (i >= 0 && i < 41) {
+                led_status[24][2][41 - i] = pulseColorData;
+            }
+            if (i >= 41 && i < 133) {
+                led_status[24][1][i - 41] = pulseColorData;
+            }
+            if (i >= 133 && i < 225) {
+                led_status[25][4][92 - i + 133] = pulseColorData;
+            }
+            if (i >= 225 && i < partLength) {
+                led_status[25][1][i - 225] = pulseColorData;
             }
         }
     }
@@ -239,7 +239,7 @@ let pulseColorData = ["light_blue", 255];
 let secondaryColorData = []
 let double = false;
 
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, secondaryColorData, partLength, 0, 266);
+// createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, secondaryColorData, partLength, 0, 266);
 
 period = 500;
 LEDlength = 15;
@@ -248,15 +248,15 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 391207;
-endTime =  393007;
+startTime = 391206;
+endTime =  392408;
 
 defaultColorData = []
-defaultColorDataRight = ["blue", 255];
+defaultColorDataRight = ["bigmagic_good_1", 255];
 defaultColorDataLeft = ["black", 255];
-secondaryColorDataRight = ["light_blue", 255];
+secondaryColorDataRight = ["bigmagic_good_speed_1", 255];
 secondaryColorDataLeft = ["black", 255];
-pulseColorData = ["light_blue", 255];
+pulseColorData = ["bigmagic_good_speed_1", 255];
 
 secondaryColorData = []
 double = false;
@@ -271,36 +271,15 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 394807;
-endTime =  396007;
-
-defaultColorData = []
-defaultColorDataRight = ["black", 255];
-defaultColorDataLeft = ["red", 255];
-secondaryColorDataRight = ["black", 255];
-secondaryColorDataLeft = ["light_red", 255];
-pulseColorData = ["light_red", 255];
-
-secondaryColorData = []
-double = false;
-
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, secondaryColorData, partLength, 266, 0);
-
-period = 500;
-LEDlength = 15;
-// left: 1. right: -1
-direction = "mid";
-
-partLength = 266;
-
 startTime = 396007;
 endTime =  397207;
 
 defaultColorData = []
 defaultColorDataRight = ["black", 255];
-defaultColorDataLeft = ["red", 255];
+defaultColorDataLeft = ["bigmagic_bad_1", 255];
 secondaryColorDataRight = ["black", 255];
-secondaryColorDataLeft = ["light_red", 255];
+secondaryColorDataLeft = ["bigmagic_bad_speed_1", 255];
+pulseColorData = ["bigmagic_bad_speed_1", 255];
 
 secondaryColorData = []
 double = false;
@@ -315,14 +294,14 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 405607;
-endTime =  406207;
+startTime = 400305;
+endTime =  404407;
 
 defaultColorData = []
-defaultColorDataRight = ["blue", 255];
-defaultColorDataLeft = ["red", 255];
-secondaryColorDataRight = ["light_blue", 255];
-secondaryColorDataLeft = ["light_red", 255];
+defaultColorDataRight = ["bigmagic_good_1", 255];
+defaultColorDataLeft = ["bigmagic_bad_1", 255];
+secondaryColorDataRight = ["bigmagic_good_speed_1", 255];
+secondaryColorDataLeft = ["bigmagic_bad_speed_1", 255];
 pulseColorData = ["white", 255];
 
 secondaryColorData = []
@@ -337,39 +316,37 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 406207;
-endTime =  407407;
-
-
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, 133, 133);
-
-period = 500;
-LEDlength = 15;
-// left: 1. right: -1
-direction = "mid";
-startTime = 407407;
-endTime =  408007;
-
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, 133, 133);
-
-period = 500;
-LEDlength = 15;
-// left: 1. right: -1
-direction = "mid";
-startTime = 408007;
+startTime = 404407;
 endTime =  409207;
 
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, 133, 133);
 
-period = 250;
+defaultColorData = []
+defaultColorDataRight = ["bigmagic_good_1", 255];
+defaultColorDataLeft = ["bigmagic_bad_1", 255];
+secondaryColorDataRight = ["bigmagic_good_speed_1", 255];
+secondaryColorDataLeft = ["bigmagic_bad_speed_1", 255];
+pulseColorData = ["white", 255];
+
+secondaryColorData = []
+double = false;
+
+createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, secondaryColorData, partLength, 133, 80);
+
+period = 500;
 LEDlength = 15;
 // left: 1. right: -1
 direction = "mid";
+defaultColorDataRight = ["baby_blue", 255];
+defaultColorDataLeft = ["bigmagic_bad_1", 255];
+secondaryColorDataRight = ["white", 255];
+secondaryColorDataLeft = ["bigmagic_bad_speed_1", 255];
+partLength = 266;
+
 startTime = 409207;
-endTime =  410407;
+endTime =  411607;
 
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, 133, 133);
 
+createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, 80, 266);
 
 // fs.writeFileSync(path.join(__dirname, "./../../LightTableBackup/2025.03.17.json"), JSON.stringify(data, null, 0));
 fs.writeFileSync(path.join(__dirname, "./props.json"), JSON.stringify(data, null, 2));
