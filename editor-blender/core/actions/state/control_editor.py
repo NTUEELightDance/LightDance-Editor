@@ -74,6 +74,12 @@ def sync_editing_control_frame_properties():
                     setattr(part_obj, "ld_alpha", ld_alpha)
                     ld_effect: int = getattr(part_obj, "ld_effect")
                     setattr(part_obj, "ld_effect", ld_effect)
+                    if ld_effect == 0:
+                        for bulb in part_obj.children:
+                            ld_alpha: int = getattr(bulb, "ld_alpha")
+                            setattr(bulb, "ld_alpha", ld_alpha)
+                            ld_color: int = getattr(bulb, "ld_color")
+                            setattr(bulb, "ld_color", ld_color)
 
 
 async def add_control_frame():

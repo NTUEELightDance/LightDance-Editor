@@ -1,6 +1,7 @@
 import bpy
 
 from ....properties.types import LightType
+from ...log import logger
 from ...models import FiberData, LEDData
 from ...states import state
 from ...utils.algorithms import binary_search
@@ -49,7 +50,13 @@ def update_current_status_by_index():
             part_objects = dancer_part_objects[1]
 
             for part_name, part_obj in part_objects.items():
-                light_type = getattr(part_obj, "ld_light_type")
+                try:
+                    light_type = getattr(part_obj, "ld_light_type")
+                except ReferenceError:
+                    logger.error(
+                        f"StructRNA of part object {part_obj} has been removed"
+                    )
+                    continue
 
                 part_status = dancer_status.get(part_name)
                 part_led_status = dancer_led_status.get(part_name)
