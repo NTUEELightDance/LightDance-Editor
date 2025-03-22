@@ -32,5 +32,5 @@ pub fn build_api_routes() -> Router {
         )
         .route("/exportData", get(export_data::export_data))
         .route("/uploadData", post(upload_data::upload_data))
-        .layer(DefaultBodyLimit::max(128 * 1000 * 1000))
+        .layer(DefaultBodyLimit::max(256 * 1024 * 1024))
 }
