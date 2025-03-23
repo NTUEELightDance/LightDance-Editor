@@ -261,6 +261,17 @@ GET_CONTROL_MAP = gql(
     """
 )
 
+# Control map can be very large (~3000 frames), so pagination is used
+GET_CONTROL_MAP_PARTIAL = gql(
+    """
+    query controlMap($select: QueryMapInput) {
+        ControlMap(select: $select) {
+            frameIds
+        }
+    }
+    """
+)
+
 
 """
 EffectList

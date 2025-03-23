@@ -5,7 +5,9 @@ from ..models import ControlMap, ControlRecord, PosMap, PosRecord
 
 async def get_control() -> tuple[ControlMap | None, ControlRecord | None]:
     control_record = await control_agent.get_control_record()
-    control_map = await control_agent.get_control_map()
+    if control_record is None:
+        raise Exception("Failed to get control record")
+    control_map = await control_agent.get_control_map(control_record)
 
     # Wait for the cache to be updated
     # async def wait_for_control_map(retry: int = 0):

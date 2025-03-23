@@ -24,6 +24,7 @@ from ..schemas.mutations import (
 )
 from ..schemas.queries import (
     GET_CONTROL_MAP,
+    GET_CONTROL_MAP_PARTIAL,
     GET_CONTROL_RECORD,
     QueryControlMapData,
     QueryControlMapPayload,
@@ -45,7 +46,7 @@ class ControlAgent:
             return controlRecord
 
         except asyncio.CancelledError:
-            pass
+            logger.error("Get control record cancelled")
 
         except Exception:
             logger.exception("Failed to get control record")
@@ -68,16 +69,28 @@ class ControlAgent:
 
         return None
 
-    async def get_control_map(self) -> ControlMap | None:
+    async def get_control_map(self, record: list[int]) -> ControlMap | None:
         """Get the control map from the server."""
         try:
-            response = await client.execute(QueryControlMapData, GET_CONTROL_MAP)
-            controlMap = response["ControlMap"]
+            controlMapQuery = QueryControlMapData(frameIds={})
+            page_size = 1000  # Page size
 
-            return control_map_query_to_state(controlMap.frameIds)
+            tasks = [
+                client.execute(
+                    QueryControlMapData,
+                    GET_CONTROL_MAP_PARTIAL,
+                    {"select": {"frameIds": record[i : i + page_size]}},
+                )
+                for i in range(0, len(record), page_size)
+            ]
+            responses = await asyncio.gather(*tasks)
+            for response in responses:
+                controlMapQuery.frameIds.update(response["ControlMap"].frameIds)
+
+            return control_map_query_to_state(controlMapQuery.frameIds)
 
         except asyncio.CancelledError:
-            pass
+            logger.error("Get control map cancelled")
 
         except Exception:
             logger.exception("Failed to get control map")

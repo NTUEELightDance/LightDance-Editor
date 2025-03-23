@@ -165,7 +165,7 @@ class Clients:
         response_type: type[T],
         query: DocumentNode,
         variables: dict[str, Any] | None = None,
-        timeout: int = 5000,
+        timeout: int = 10000,
     ) -> dict[str, T]:
         if self.client is None:
             raise Exception("GraphQL client is not initialized")
