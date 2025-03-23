@@ -442,7 +442,7 @@ export const PropPinMapTable: ModelPinMapTable = {
         id: 1,
         len: 92,
       },
-      bot_LED: {
+      right_LED: {
         id: 2,
         len: 41,
       },

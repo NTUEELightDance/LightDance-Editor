@@ -124,7 +124,7 @@ export function handlePlay(msg: FromControlPanelPlay) {
 
   sendToRPi(dancers, toRPiMsg);
 
-  const music_delay = -350; // time offset of music
+  const music_delay = -200; // time offset of music
 
   const _timestampString = Math.round(timestamp + music_delay).toString();
 
