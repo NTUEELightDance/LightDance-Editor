@@ -1,11 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const data = require("../backup/2025.03.14.json");
+const data = require("./saber.json");
 
-const startTime = 61912;
-const endTime = 6000000000;
-const shift = -14516;
+startTime = 336007;
+endTime = 6000000;
+shift = 12857;
 
 for (const key of Object.keys(data.control)) {
     if (data.control[key].start > startTime && data.control[key].start < endTime) {
@@ -19,4 +19,53 @@ for (const key of Object.keys(data.position)) {
     }
 }
 
-fs.writeFileSync(path.join(__dirname, "jsons/exportDataEmptyNew.json"), JSON.stringify(data, null, 2));
+startTime = 215928;
+endTime = 336007;
+shift = 10050;
+
+for (const key of Object.keys(data.control)) {
+    if (data.control[key].start > startTime && data.control[key].start < endTime) {
+        data.control[key].start += shift;
+    }
+}
+
+for (const key of Object.keys(data.position)) {
+    if (data.position[key].start > startTime && data.position[key].start < endTime) {
+        data.position[key].start += shift;
+    }
+}
+
+startTime = 157289;
+endTime = 215928;
+shift = 7294;
+
+for (const key of Object.keys(data.control)) {
+    if (data.control[key].start > startTime && data.control[key].start < endTime) {
+        data.control[key].start += shift;
+    }
+}
+
+for (const key of Object.keys(data.position)) {
+    if (data.position[key].start > startTime && data.position[key].start < endTime) {
+        data.position[key].start += shift;
+    }
+}
+
+startTime = 98125;
+endTime = 157289;
+shift = 3750;
+
+for (const key of Object.keys(data.control)) {
+    if (data.control[key].start > startTime && data.control[key].start < endTime) {
+        data.control[key].start += shift;
+    }
+}
+
+for (const key of Object.keys(data.position)) {
+    if (data.position[key].start > startTime && data.position[key].start < endTime) {
+        data.position[key].start += shift;
+    }
+}
+
+fs.writeFileSync(path.join(__dirname, "./shifted.json"), JSON.stringify(data, null, 0));
+console.log("saved to ./shifted.json")

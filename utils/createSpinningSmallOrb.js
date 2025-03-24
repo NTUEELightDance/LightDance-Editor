@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // const data = require("./../../LightTableBackup/2025.03.17.json");
-const data = require("./../../LightTableBackup/2025.03.17.json");
+const data = require("./props.json");
 
 const addFrame = (start, partLength, defaultColorData, secondaryColorData, direction, double, index, LEDindex) => {
     const previousControl = Object.values(data.control)
@@ -77,15 +77,15 @@ const createSpinner = (start, end, period, LEDlength, defaultColorData, secondar
     });
 }
 
-let startTime = 48318;
-let endTime = 61912;
-let period = 937;
+let startTime = 40000;
+let endTime = 47448;
+let period = 1000;
 let LEDlength = 12;
 let PropName = "11_small_orb_1";
 let LEDPart = "main_LED";
-defaultColorData = ["black", 255];
-secondaryColorData = ["yellow", 255];
-let direction = 1;
+defaultColorData = ["small_orb", 255];
+secondaryColorData = ["small_orb_speed", 255];
+let direction = -1;
 let double = true;
 
 let partLength = data.dancer.find(d => d.name === PropName).parts.find(d => d.name === LEDPart).length;
@@ -94,31 +94,14 @@ let LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
 
 createSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
-startTime = 49302;
-endTime = 61912;
-period = 937;
-LEDlength = 12;
-PropName = "12_small_orb_2";
-LEDPart = "main_LED";
-defaultColorData = ["black", 255];
-secondaryColorData = ["yellow", 255];
-direction = -1;
-double = true;
-
-partLength = data.dancer.find(d => d.name === PropName).parts.find(d => d.name === LEDPart).length;
-index = data.dancer.findIndex(d => d.name === PropName);
-LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
-
-createSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
-
-startTime = 343522;
-endTime = 346522;
+startTime = 51274;
+endTime = 55006;
 period = 1000;
 LEDlength = 12;
 PropName = "11_small_orb_1";
 LEDPart = "main_LED";
-defaultColorData = ["black", 255];
-secondaryColorData = ["yellow", 255];
+defaultColorData = ["small_orb_bad", 255];
+secondaryColorData = ["small_orb_speed", 255];
 direction = -1;
 double = true;
 
@@ -128,14 +111,32 @@ LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
 
 createSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
-startTime = 343522;
-endTime = 346522;
+
+startTime = 354864;
+endTime = 357389;
+period = 500;
+LEDlength = 12;
+PropName = "11_small_orb_1";
+LEDPart = "main_LED";
+defaultColorData = ["small_orb", 255];
+secondaryColorData = ["small_orb_speed", 255];
+direction = -1;
+double = true;
+
+partLength = data.dancer.find(d => d.name === PropName).parts.find(d => d.name === LEDPart).length;
+index = data.dancer.findIndex(d => d.name === PropName);
+LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
+
+createSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
+
+startTime = 40937;
+endTime = 47448;
 period = 1000;
 LEDlength = 12;
 PropName = "12_small_orb_2";
 LEDPart = "main_LED";
-defaultColorData = ["black", 255];
-secondaryColorData = ["yellow", 255];
+defaultColorData = ["small_orb", 255];
+secondaryColorData = ["small_orb_speed", 255];
 direction = 1;
 double = true;
 
@@ -145,8 +146,27 @@ LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
 
 createSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
+startTime = 353364;
+endTime = 357389;
+period = 500;
+LEDlength = 12;
+PropName = "12_small_orb_2";
+LEDPart = "main_LED";
+defaultColorData = ["small_orb", 255];
+secondaryColorData = ["small_orb_speed", 255];
+direction = 1;
+double = true;
+
+partLength = data.dancer.find(d => d.name === PropName).parts.find(d => d.name === LEDPart).length;
+index = data.dancer.findIndex(d => d.name === PropName);
+LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
+
+createSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
+
+console.log(Object.keys(data.control).length)
+
 
 // fs.writeFileSync(path.join(__dirname, "./../../LightTableBackup/2025.03.17.json"), JSON.stringify(data, null, 0));
-fs.writeFileSync(path.join(__dirname, "./jsons/exportDataEmptyNew.json"), JSON.stringify(data, null, 0));
+fs.writeFileSync(path.join(__dirname, "./props.json"), JSON.stringify(data, null, 0));
 
-console.log("Updated data has been saved to ./jsons/exportDataEmptyNew.json");
+console.log("Updated data has been saved to ./props.json");

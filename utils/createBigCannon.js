@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const data = require("./../../LightTableBackup/2025.03.20.json");
+const data = require("./../../LightTableBackup/2025.03.23.json");
 // const data = require("./jsons/exportDataEmpty.json");
-
+console.log(Object.keys(data.control).length)
 const addFrame = (start) => {
     const previousControl = Object.values(data.control)
         .filter(d => d.start <= start)
@@ -202,7 +202,7 @@ const updateFrame = (key, frame, defaultColorData, secondaryColorData, direction
 }
 
 const createBigCannon = (start, end, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, startPos, endPos) => {
-    for (let t = start; t < end; t += (period / partLength * LEDlength * 2)) {
+    for (let t = start; t <= end; t += (period / partLength * LEDlength * 2)) {
         addFrame(Math.round(t));
     }
     if (direction === "right") {
@@ -248,8 +248,8 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 391206;
-endTime =  392408;
+startTime = 391206 + 12857;
+endTime =  392408 + 12857;
 
 defaultColorData = []
 defaultColorDataRight = ["bigmagic_good_1", 255];
@@ -271,8 +271,8 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 396007;
-endTime =  397207;
+startTime = 396007 + 12857;
+endTime =  397207 + 12857;
 
 defaultColorData = []
 defaultColorDataRight = ["black", 255];
@@ -294,8 +294,8 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 400305;
-endTime =  404407;
+startTime = 400305 + 12857;
+endTime =  404407 + 12857;
 
 defaultColorData = []
 defaultColorDataRight = ["bigmagic_good_1", 255];
@@ -316,8 +316,8 @@ direction = "mid";
 
 partLength = 266;
 
-startTime = 404407;
-endTime =  409207;
+startTime = 404407 + 12857;
+endTime =  409207 + 12857;
 
 
 defaultColorData = []
@@ -330,7 +330,7 @@ pulseColorData = ["white", 255];
 secondaryColorData = []
 double = false;
 
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, secondaryColorData, partLength, 133, 80);
+createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, secondaryColorData, partLength, 133, 60);
 
 period = 500;
 LEDlength = 15;
@@ -342,13 +342,13 @@ secondaryColorDataRight = ["white", 255];
 secondaryColorDataLeft = ["bigmagic_bad_speed_1", 255];
 partLength = 266;
 
-startTime = 409207;
-endTime =  411607;
+startTime = 409207 + 12857;
+endTime =  411607 + 12857;
 
 
-createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, 80, 266);
+createBigCannon(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, 60, 266);
 
 // fs.writeFileSync(path.join(__dirname, "./../../LightTableBackup/2025.03.17.json"), JSON.stringify(data, null, 0));
-fs.writeFileSync(path.join(__dirname, "./props.json"), JSON.stringify(data, null, 2));
-
+fs.writeFileSync(path.join(__dirname, "./props.json"), JSON.stringify(data, null, 0));
+console.log(Object.keys(data.control).length)
 console.log("Updated data has been saved to ./props.json");

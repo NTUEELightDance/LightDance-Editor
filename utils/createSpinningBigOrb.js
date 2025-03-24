@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // const data = require("./../../LightTableBackup/2025.03.17.json");
-const data = require("./jsons/exportDataEmptyNew.json");
+const data = require("./props.json");
 
 const addFrame = (start, cat, defaultColorData, secondaryColorData, direction, double, index, LEDindex, startTime) => {
     const previousControl = Object.values(data.control)
@@ -141,7 +141,7 @@ const createBigSpinner = (start, end, period, LEDlength, defaultColorData, secon
     });
 }
 
-let period = 1874;
+let period = 1000;
 let LEDlength = 20;
 let direction = 1;
 let double = true;
@@ -150,28 +150,44 @@ let partLength = 339
 let index = 0
 let LEDindex = 0
 
-let startTime = 65381;
-let endTime =  71287;
-let defaultColorData = ["good_Purple", 255];
-let secondaryColorData = ["yellow", 255];
+let startTime = 998;
+let endTime =  8500;
+let defaultColorData = ["big_orb", 255];
+let secondaryColorData = ["big_orb_speed", 255];
 
 createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
-startTime = 71287;
-endTime =  79256;
-defaultColorData = ["light_green", 255];
-secondaryColorData = ["light_green", 255];
+startTime = 92515;
+endTime =  95236;
+defaultColorData = ["big_orb", 255];
+secondaryColorData = ["big_orb_speed", 255];
 
 createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
-startTime = 79256;
-endTime =  80193;
-defaultColorData = ["good_Purple", 255];
-secondaryColorData = ["yellow", 255];
+startTime = 153316;
+endTime =  159897;
+defaultColorData = ["big_orb", 255];
+secondaryColorData = ["big_orb_speed", 255];
+
+createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
+
+startTime = 217294;
+endTime =  219794;
+defaultColorData = ["big_orb_broken", 255];
+secondaryColorData = ["big_orb_broken_speed", 255];
+
+createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
+
+startTime = 461464;
+endTime =  464264;
+period = 2000;
+defaultColorData = ["big_orb", 255];
+secondaryColorData = ["big_orb_speed", 255];
 
 createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
 // fs.writeFileSync(path.join(__dirname, "./../../LightTableBackup/2025.03.17.json"), JSON.stringify(data, null, 0));
 fs.writeFileSync(path.join(__dirname, "./props.json"), JSON.stringify(data, null, 0));
+console.log(Object.keys(data.control).length)
 
 console.log("Updated data has been saved to ./props.json");
