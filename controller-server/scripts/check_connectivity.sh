@@ -1,7 +1,7 @@
 #!/bin/bash
 
 START_IP=100
-END_IP=126
+END_IP=131
 SUBNET="192.168.0"
 
 echo "Scanning SSH connectivity from ${SUBNET}.${START_IP} to ${SUBNET}.${END_IP}"

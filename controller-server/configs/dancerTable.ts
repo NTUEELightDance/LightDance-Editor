@@ -3,17 +3,17 @@ import { rpiTable } from "@/configs/rpiTable";
 
 // Map the dancer to the RPi hostname
 const dancerToRpi: Record<string, string> = {
-  "0_durant": "lightdance-00",
-  "1_hsieh": "lightdance-28", // NOTE
-  "2_yuan": "lightdance-02",
+  "0_durant": "lightdance-02", // NOTE
+  "1_hsieh": "lightdance-07", // NOTE
+  "2_yuan": "lightdance-00", // NOTE
   "3_ping": "lightdance-29", // NOTE
   "4_wei": "lightdance-04",
   "5_boyu": "lightdance-05",
   "6_yen": "lightdance-06",
-  "7_samklin": "lightdance-07",
+  "7_samklin": "lightdance-30", // NOTE
   "8_how": "lightdance-08",
   "9_staff": "lightdance-09",
-  "10_shield": "lightdance-21", // NOTE
+  // "10_shield": "lightdance-21", // NOTE
   "11_small_orb_1": "lightdance-11",
   "12_small_orb_2": "lightdance-12",
   "13_big_orb_left": "lightdance-13",

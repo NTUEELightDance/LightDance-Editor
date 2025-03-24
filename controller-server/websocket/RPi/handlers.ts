@@ -49,6 +49,7 @@ export function sendToRPi(dancers: string[], msg: ToRPi) {
           continue;
         }
         RPiWSs[MAC].send(toSend);
+        return;
       } else {
         dancerTable[MAC].connected = false;
         sendBoardInfoToControlPanel();
