@@ -131,7 +131,8 @@ const updateFrame = (key, frame, dog, defaultColorData, secondaryColorData, dire
 }
 
 const createBigSpinner = (start, end, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex) => {
-    for (let t = start; t < end; t += (period / partLength * LEDlength)) {
+    let x = period / 1000
+    for (let t = start; t < end; t += (period / partLength * LEDlength) / x) {
         addFrame(Math.round(t), partLength, defaultColorData, secondaryColorData, direction, double, index, LEDindex, start);
     }
 
@@ -157,10 +158,10 @@ let secondaryColorData = ["big_orb_speed", 255];
 
 createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
-startTime = 92515;
-endTime =  95236;
-defaultColorData = ["big_orb", 255];
-secondaryColorData = ["big_orb_speed", 255];
+startTime = 92133;
+endTime =  95395;
+defaultColorData = ["good_Purple", 255];
+secondaryColorData = ["yellow", 255];
 
 createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
@@ -178,9 +179,9 @@ secondaryColorData = ["big_orb_broken_speed", 255];
 
 createBigSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
-startTime = 461464;
-endTime =  464264;
-period = 2000;
+startTime = 465262;
+endTime =  470000;
+period = 4800;
 defaultColorData = ["big_orb", 255];
 secondaryColorData = ["big_orb_speed", 255];
 

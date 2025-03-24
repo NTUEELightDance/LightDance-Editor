@@ -77,7 +77,7 @@ const createSpinner = (start, end, period, LEDlength, defaultColorData, secondar
     });
 }
 
-let startTime = 40000;
+let startTime = 40200;
 let endTime = 47448;
 let period = 1000;
 let LEDlength = 12;
@@ -129,7 +129,7 @@ LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
 
 createSpinner(startTime, endTime, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex);
 
-startTime = 40937;
+startTime = 40200;
 endTime = 47448;
 period = 1000;
 LEDlength = 12;

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const data = require("./../../LightTableBackup/2025.03.23.json");
+const data = require("./../../LightTableBackup/2025.03.25.json");
 // const data = require("./jsons/exportDataEmpty.json");
 console.log(Object.keys(data.control).length)
 const addFrame = (start) => {
@@ -156,7 +156,7 @@ const updateFrame = (key, frame, defaultColorData, secondaryColorData, direction
                 led_status[25][1][bulb2 - 225] = secondaryColorDataLeft;
             }
         }
-        for (let i = center - 10; i < center + 10; i++) {
+        for (let i = center - 6; i < center + 6; i++) {
             if (i >= 0 && i < 41) {
                 led_status[24][2][41 - i] = pulseColorData;
             }
