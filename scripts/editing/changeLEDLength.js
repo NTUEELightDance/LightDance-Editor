@@ -1,5 +1,5 @@
 const oldData = require("./out/exportData.json");
-const newData = require("./jsons/exportDataEmpty.json");
+const newData = require("../../utils/jsons/exportDataEmpty.json");
 
 const zip = (a, b) => a.map((k, i) => [k, b[i]]);
 

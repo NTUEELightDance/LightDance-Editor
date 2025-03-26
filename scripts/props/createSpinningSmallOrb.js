@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// const data = require("./../../LightTableBackup/2025.03.17.json");
 const data = require("./props.json");
 
 const addFrame = (start, partLength, defaultColorData, secondaryColorData, direction, double, index, LEDindex) => {

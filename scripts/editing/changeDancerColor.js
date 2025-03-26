@@ -1,7 +1,7 @@
 
 
 
-const data = require("../../LightTableBackup/2025.03.19.json");
+const data = require("../../../LightTableBackup/2025.03.19.json");
 const fs = require('fs');
 const path = require('path');
 

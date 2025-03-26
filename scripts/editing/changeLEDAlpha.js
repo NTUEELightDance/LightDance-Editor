@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const data = require("./props.json");
+const data = require("../../../LightTableBackup/2025.03.24.json");
 
 for (const [_, controlData] of Object.entries(data.control)) {
     let status = controlData.status;
@@ -15,6 +15,6 @@ for (const [_, controlData] of Object.entries(data.control)) {
     }
 }
 
-fs.writeFileSync(path.join(__dirname, "./props.json"), JSON.stringify(data, null, 0));
+fs.writeFileSync(path.join(__dirname, "./fiber.json"), JSON.stringify(data, null, 0));
 
-console.log("saved to ./props.json");
+console.log("saved to ./fiber.json");

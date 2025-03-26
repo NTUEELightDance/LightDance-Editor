@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // const data = require("./../../LightTableBackup/2025.03.17.json");
-const data = require("./jsons/exportDataEmpty.json");
+const data = require("../../utils/jsons/exportDataEmpty.json");
 
 const updateFrameForDancer = (key, frame, partLength, LEDColor, index, LEDindex) => {
     const status = JSON.parse(JSON.stringify(frame.status)); 
@@ -36,7 +36,7 @@ const editDancerPart = (start, end, LEDColor, index, LEDindex) => {
 
 let startTime = 0;
 let endTime = 5000000;
-let dancerName = "8_how";
+let dancerName = "0";
 let LEDPart = "mask_LED";
 let LEDColor = ["black", 100];
 
@@ -48,6 +48,6 @@ let LEDindex = data.dancer[index].parts.findIndex(d => d.name === LEDPart);
 editDancerPart(startTime, endTime, LEDColor, index, LEDindex);
 
 // fs.writeFileSync(path.join(__dirname, "./../../LightTableBackup/2025.03.17.json"), JSON.stringify(data, null, 0));
-fs.writeFileSync(path.join(__dirname, "./jsons/exportDataEmptyNew.json"), JSON.stringify(data, null, 2));
+fs.writeFileSync(path.join(__dirname, "./props.json"), JSON.stringify(data, null, 2));
 
-console.log("Updated data has been saved to ./jsons/exportDataEmptyNew.json");
+console.log("Updated data has been saved to ./props.json");

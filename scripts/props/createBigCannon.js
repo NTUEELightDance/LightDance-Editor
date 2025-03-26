@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const data = require("./../../LightTableBackup/2025.03.25.json");
-// const data = require("./jsons/exportDataEmpty.json");
+
 console.log(Object.keys(data.control).length)
 const addFrame = (start) => {
     const previousControl = Object.values(data.control)

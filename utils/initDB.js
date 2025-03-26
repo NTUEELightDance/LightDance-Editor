@@ -24,10 +24,12 @@ async function main() {
       formData.getHeaders()
     ),
   };
+  console.log("Uploading data...");
   const response = await instance
     .post("/api/uploadData", formData, options)
     // .post("/api/editor-server/uploadData", formData, options)
     .catch(function (error) {
+      
       if (error.response) {
         // Request made and server responded
         console.log(error.response.data);

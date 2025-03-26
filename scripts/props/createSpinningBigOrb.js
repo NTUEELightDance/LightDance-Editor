@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// const data = require("./../../LightTableBackup/2025.03.17.json");
 const data = require("./props.json");
 
 const addFrame = (start, cat, defaultColorData, secondaryColorData, direction, double, index, LEDindex, startTime) => {
@@ -131,8 +130,7 @@ const updateFrame = (key, frame, dog, defaultColorData, secondaryColorData, dire
 }
 
 const createBigSpinner = (start, end, period, LEDlength, defaultColorData, secondaryColorData, direction, double, partLength, index, LEDindex) => {
-    let x = period / 1000
-    for (let t = start; t < end; t += (period / partLength * LEDlength) / x) {
+    for (let t = start; t < end; t += (1000 / partLength * LEDlength)) {
         addFrame(Math.round(t), partLength, defaultColorData, secondaryColorData, direction, double, index, LEDindex, start);
     }
 

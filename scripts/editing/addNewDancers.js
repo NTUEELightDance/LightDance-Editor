@@ -1,5 +1,5 @@
 const oldData = require("./out/exportData.json");
-const newData = require("./jsons/exportDataEmpty.json");
+const newData = require("../../utils/jsons/exportDataEmpty.json");
 
 const generateDefaultLocation = (dancerData) => {
   const length = dancerData.length;
