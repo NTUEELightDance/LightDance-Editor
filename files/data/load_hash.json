@@ -3,86 +3,17 @@
   "Music": "9b172c0d93edb9d69b9602150c82be6c1266df790873192d716e9489993ffeef",
   "Waveform": "5bcc73972fc862eab512242e854b77f6fe21462894924bf2365cdc106ca605c2",
   "DancerMap": {
-    "0_durant": {
-      "url": "87007762d587f82beccbeaf719e4a8d2e2de304d20212d4eb55f3b6b04e537f7"
-    },
-    "1_hsieh": {
-      "url": "82d08ac6a9a75d5d45461c0011892b918e35b217a15e1166caf6e39df17e8e0d"
-    },
-    "2_yuan": {
-      "url": "82d08ac6a9a75d5d45461c0011892b918e35b217a15e1166caf6e39df17e8e0d"
-    },
-    "3_ping": {
-      "url": "82d08ac6a9a75d5d45461c0011892b918e35b217a15e1166caf6e39df17e8e0d"
-    },
-    "4_wei": {
-      "url": "82d08ac6a9a75d5d45461c0011892b918e35b217a15e1166caf6e39df17e8e0d"
-    },
-    "5_boyu": {
+    "0_chen": {
       "url": "77ec546cac6b41ea60d31dc3f8d3a0defaceae685239a56519050cb5693eea58"
     },
-    "6_yen": {
+    "1_li": {
       "url": "77ec546cac6b41ea60d31dc3f8d3a0defaceae685239a56519050cb5693eea58"
     },
-    "7_samklin": {
-      "url": "77ec546cac6b41ea60d31dc3f8d3a0defaceae685239a56519050cb5693eea58"
+    "2_lin": {
+      "url": "82d08ac6a9a75d5d45461c0011892b918e35b217a15e1166caf6e39df17e8e0d"
     },
-    "8_how": {
-      "url": "979b29a2388103362946ff734ca5816dcf9996a6e32282863ad21eb5f6937040"
-    },
-    "9_staff": {
-      "url": "7134c850b9a50ba8ebe7d4687288252f72d71b064477ac6382011ae5aae32610"
-    },
-    "10_shield": {
-      "url": "9d08868d1b5fdf90e06be89d1b81509a5762609d4b55f50e2ca4d5351ee76750"
-    },
-    "11_small_orb_1": {
-      "url": "c8712c3fba68ce1ebcb89acfa9923b4ea74cd7e8a6166cbf03bd5a8c2c8bbc9e"
-    },
-    "12_small_orb_2": {
-      "url": "5898b1e9b84912e1f741df774abc1e2d974d22c8ccf21480768be0dfd7d4d1b4"
-    },
-    "13_big_orb_left": {
-      "url": "e189b424c2b0dd732bae90b013b3958feae546d85bc119ea38803b21348958a1"
-    },
-    "14_big_orb_right": {
-      "url": "44ff0c58420ce4a391ad53f9b69dbf65cd03a780ebc1cc9413efc8d13f111d7b"
-    },
-    "15_gun_1": {
-      "url": "047702bc95fa91f64b393bae00c82cf41fab06ef65acbada687e1fba45d8c591"
-    },
-    "16_gun_2": {
-      "url": "047702bc95fa91f64b393bae00c82cf41fab06ef65acbada687e1fba45d8c591"
-    },
-    "17_pillar_1": {
-      "url": "47408bc10ca59fca9f265464defbf5d940d3c3425d422a6931d62cce5edf05c2"
-    },
-    "18_pillar_2": {
-      "url": "f88630c58b095bd76c9e68f6452e4b697f8385d1c91e6fd0a2db31d38c6d8ec1"
-    },
-    "19_pillar_3": {
-      "url": "c61b890a8778578b124f99024ee435f76e37736b39092b5a1b8e7ee171c2bd4a"
-    },
-    "20_pillar_4": {
-      "url": "336372312a1997793eedb1ad3b7f334285b399c4b9bb2d4408a7e9f8a7e95f5c"
-    },
-    "21_biochem_left": {
-      "url": "067c7ae495d149bc0dca51fc041399beb4e500a5c2b2a3ed5bb2b95464a16cf4"
-    },
-    "22_biochem_right": {
-      "url": "281e05a5d4b20812256288e21c97ffa935876067f98b21e2713c7e5e0272bac8"
-    },
-    "23_small_magic": {
-      "url": "c756547cedcf74cfd62c2bbb8933ffde05ea643da698484fe2ace5267ac2538e"
-    },
-    "24_big_magic_1": {
-      "url": "5d7d945e5b072511acbaac980264ae534db5d349f7d3eb51fd98973fb5481b16"
-    },
-    "25_big_magic_2": {
-      "url": "ecffe1955b5559694b7bf2bf4515ef36087f4ceeec476681bd902f91129302c7"
-    },
-    "26_saber": {
-      "url": "6b455910185efd7f2e9cb43261f6d1eb30c547179e1d31bcfb6c12bd91a23193"
+    "3_hsieh": {
+      "url": "82d08ac6a9a75d5d45461c0011892b918e35b217a15e1166caf6e39df17e8e0d"
     }
   }
 }
