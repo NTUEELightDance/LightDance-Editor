@@ -4,8 +4,8 @@ use crate::graphql::schema::AppSchema;
 use crate::graphql::subscriptor::websocket::GraphQLSubscription;
 use crate::server::extractors::Authentication;
 use crate::server::websocket::{ws_on_connect, ws_on_disconnect};
+use crate::utils::graphiql::GraphiQLBuilder;
 
-use async_graphql::http::GraphiQLSource;
 use async_graphql::{Request, Response};
 
 use axum::{
@@ -40,7 +40,8 @@ async fn graphql(
 
 async fn graphiql() -> impl IntoResponse {
     Html(
-        GraphiQLSource::build()
+        GraphiQLBuilder::build()
+            .version("2.0.9")
             .endpoint("/graphql")
             .subscription_endpoint("/graphql-websocket")
             .finish(),
