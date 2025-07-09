@@ -8,16 +8,16 @@ from ....core.utils.ui import redraw_area
 from ....handlers import unmount_handlers
 from ....storage import set_storage
 from ...utils.notification import notify
-from .app_state import set_requesting, set_sync
+from .app_state import send_request, set_sync
 
 
 async def login(username: str, password: str) -> None:
-    set_requesting(True)
-    login_result = await auth_agent.login(
-        username=username,
-        password=password,
-    )
-    set_requesting(False)
+    with send_request():
+        logger.info(f"Current state.requesting: {state.requesting}")
+        login_result = await auth_agent.login(
+            username=username,
+            password=password,
+        )
 
     if login_result.success:
         state.token = login_result.token
@@ -35,9 +35,8 @@ async def login(username: str, password: str) -> None:
 
 
 async def logout() -> None:
-    set_requesting(True)
-    success = await auth_agent.logout()
-    set_requesting(False)
+    with send_request():
+        success = await auth_agent.logout()
 
     if success:
         set_sync(False)

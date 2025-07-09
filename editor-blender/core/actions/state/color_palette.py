@@ -5,13 +5,12 @@ from ....icons import generate_icon_images
 from ....properties.types import ColorPaletteItemType
 from ...models import RGB, ColorID, ColorMap, ColorName
 from ...utils.convert import rgb_to_float
-from .app_state import set_requesting
+from .app_state import send_request
 
 
 async def delete_color(id: ColorID):
-    set_requesting(True)
-    result = await color_agent.delete_color(id)
-    set_requesting(False)
+    with send_request():
+        result = await color_agent.delete_color(id)
 
     if result is None:
         raise Exception("Failed to delete color")
@@ -23,9 +22,8 @@ async def delete_color(id: ColorID):
 
 
 async def add_color(name: ColorName, rgb: RGB):
-    set_requesting(True)
-    result = await color_agent.add_color(name, rgb)
-    set_requesting(False)
+    with send_request():
+        result = await color_agent.add_color(name, rgb)
 
     if result is None:
         raise Exception("Failed to add color")
@@ -34,9 +32,8 @@ async def add_color(name: ColorName, rgb: RGB):
 
 
 async def edit_color(id: ColorID, name: ColorName, rgb: RGB):
-    set_requesting(True)
-    result = await color_agent.edit_color(id, name, rgb)
-    set_requesting(False)
+    with send_request():
+        result = await color_agent.edit_color(id, name, rgb)
 
     if result is None:
         raise Exception("Failed to edit color")

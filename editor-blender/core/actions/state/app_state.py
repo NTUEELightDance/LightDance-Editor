@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from ...states import state
 from ...utils.ui import redraw_area
 
@@ -22,9 +24,18 @@ def set_shifting(value: bool):
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
 
-def set_requesting(value: bool):
-    state.requesting = value
+# Use with send_request(): instead of set_requesting(true)...set_requesting(false)
+# With statement does not create scope, so the variable created in "with" can be accessed outside of "with"
+@contextmanager
+def send_request():
+    state.requesting = True
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+    # when with statement is exited(e.g. due to error), finally will be run
+    try:
+        yield
+    finally:
+        state.requesting = False
 
 
 def set_playing(value: bool):

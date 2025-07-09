@@ -15,9 +15,9 @@ from ....core.actions.property.partial_load import (
     move_current_frame_to_min_loaded_frame,
 )
 from ....core.actions.state.app_state import (
+    send_request,
     set_logged_in,
     set_ready,
-    set_requesting,
     set_running,
     set_sync,
 )
@@ -131,9 +131,8 @@ async def init():
     await client.open_file()
 
     # Check token
-    set_requesting(True)
-    token_valid = await auth_agent.check_token()
-    set_requesting(False)
+    with send_request():
+        token_valid = await auth_agent.check_token()
 
     set_running(True)
 

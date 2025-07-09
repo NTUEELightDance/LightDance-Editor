@@ -14,7 +14,7 @@ from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.operator import execute_operator
 from ...utils.ui import redraw_area, set_outliner_filter
-from .app_state import set_requesting
+from .app_state import send_request
 
 # from .color_map import (
 #     apply_color_map_updates_add_or_delete,
@@ -89,15 +89,13 @@ async def add_control_frame():
     controlData = control_status_state_to_mut(state.current_status)
     ledControlData = led_status_state_to_mut(state.current_led_status)
 
-    set_requesting(True)
-    try:
-        await control_agent.add_frame(start, False, controlData, ledControlData)
-        notify("INFO", "Added control frame")
-    except Exception:
-        logger.exception("Failed to add control frame")
-        notify("WARNING", "Cannot add control frame")
-
-    set_requesting(False)
+    with send_request():
+        try:
+            await control_agent.add_frame(start, False, controlData, ledControlData)
+            notify("INFO", "Added control frame")
+        except Exception:
+            logger.exception("Failed to add control frame")
+            notify("WARNING", "Cannot add control frame")
 
 
 async def save_control_frame(start: int | None = None):
@@ -212,54 +210,50 @@ async def save_control_frame(start: int | None = None):
         controlData.append(partControlData)
         ledControlData.append(partLEDControlData)
 
-    set_requesting(True)
-    try:
-        await control_agent.save_frame(
-            id, controlData, ledControlData=ledControlData, fade=fade, start=start
-        )
-        notify("INFO", "Saved control frame")
+    with send_request():
+        try:
+            await control_agent.save_frame(
+                id, controlData, ledControlData=ledControlData, fade=fade, start=start
+            )
+            notify("INFO", "Saved control frame")
 
-        # Cancel editing
-        ok = await control_agent.cancel_edit(id)
+            # Cancel editing
+            ok = await control_agent.cancel_edit(id)
 
-        if ok is not None and ok:
-            # Reset editing state
-            state.current_editing_frame = -1
-            state.current_editing_detached = False
-            state.current_editing_frame_synced = False
-            state.edit_state = EditMode.IDLE
+            if ok is not None and ok:
+                # Reset editing state
+                state.current_editing_frame = -1
+                state.current_editing_detached = False
+                state.current_editing_frame_synced = False
+                state.edit_state = EditMode.IDLE
 
-            if state.local_view:
-                execute_operator("view3d.localview")
-                state.local_view = False
-            set_outliner_filter("")
+                if state.local_view:
+                    execute_operator("view3d.localview")
+                    state.local_view = False
+                set_outliner_filter("")
 
-            # Imediately apply changes produced by editing
-            apply_control_map_updates()
+                # Imediately apply changes produced by editing
+                apply_control_map_updates()
 
-            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-        else:
-            notify("WARNING", "Cannot exit editing")
-    except Exception:
-        logger.exception("Failed to save control frame")
-        notify("WARNING", "Cannot save control frame")
-
-    set_requesting(False)
+                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            else:
+                notify("WARNING", "Cannot exit editing")
+        except Exception:
+            logger.exception("Failed to save control frame")
+            notify("WARNING", "Cannot save control frame")
 
 
 async def delete_control_frame():
     index = state.current_control_index
     id = state.control_record[index]
 
-    set_requesting(True)
-    try:
-        await control_agent.delete_frame(id)
-        notify("INFO", f"Deleted control frame: {id}")
-    except Exception:
-        logger.exception("Failed to delete control frame")
-        notify("WARNING", "Cannot delete control frame")
-
-    set_requesting(False)
+    with send_request():
+        try:
+            await control_agent.delete_frame(id)
+            notify("INFO", f"Deleted control frame: {id}")
+        except Exception:
+            logger.exception("Failed to delete control frame")
+            notify("WARNING", "Cannot delete control frame")
 
 
 async def request_edit_control() -> bool:
@@ -279,12 +273,11 @@ async def request_edit_control() -> bool:
     control_frame = state.control_map[control_id]
 
     ok = None
-    set_requesting(True)
-    try:
-        ok = await control_agent.request_edit(control_id)
-    except Exception as e:
-        logger.exception(f"Failed to request edit control frame: {e}")
-    set_requesting(False)
+    with send_request():
+        try:
+            ok = await control_agent.request_edit(control_id)
+        except Exception as e:
+            logger.exception(f"Failed to request edit control frame: {e}")
 
     if ok is not None and ok:
         # Init editing state
@@ -308,34 +301,32 @@ async def cancel_edit_control():
     index = state.current_control_index
     id = state.control_record[index]
 
-    set_requesting(True)
-    try:
-        ok = await control_agent.cancel_edit(id)
+    with send_request():
+        try:
+            ok = await control_agent.cancel_edit(id)
 
-        if ok is not None and ok:
-            # Revert modification
-            update_current_status_by_index()
+            if ok is not None and ok:
+                # Revert modification
+                update_current_status_by_index()
 
-            # Reset editing state
-            state.current_editing_frame = -1
-            state.current_editing_detached = False
-            state.current_editing_frame_synced = False
-            state.edit_state = EditMode.IDLE
+                # Reset editing state
+                state.current_editing_frame = -1
+                state.current_editing_detached = False
+                state.current_editing_frame_synced = False
+                state.edit_state = EditMode.IDLE
 
-            if state.local_view:
-                execute_operator("view3d.localview")
-                state.local_view = False
-            set_outliner_filter("")
+                if state.local_view:
+                    execute_operator("view3d.localview")
+                    state.local_view = False
+                set_outliner_filter("")
 
-            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-        else:
+                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            else:
+                notify("WARNING", "Cannot cancel edit")
+
+        except Exception:
+            logger.exception("Failed to cancel edit control frame")
             notify("WARNING", "Cannot cancel edit")
-
-    except Exception:
-        logger.exception("Failed to cancel edit control frame")
-        notify("WARNING", "Cannot cancel edit")
-
-    set_requesting(False)
 
 
 def toggle_dancer_mode():

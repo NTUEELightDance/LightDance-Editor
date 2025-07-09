@@ -16,7 +16,7 @@ from ....core.utils.ui import (
 )
 from ....properties.ui.types import LEDEditorEditModeType, LEDEditorStatusType
 from ...utils.notification import notify
-from .app_state import set_requesting
+from .app_state import send_request
 
 
 async def add_led_effect():
@@ -32,9 +32,8 @@ async def add_led_effect():
 
 async def request_edit_led_effect():
     led_index = state.current_led_index
-    set_requesting(True)
-    ok = await led_agent.request_edit(led_index)
-    set_requesting(False)
+    with send_request():
+        ok = await led_agent.request_edit(led_index)
     if ok is not None and ok:
         enter_editing_led_effect()
     else:
@@ -51,9 +50,8 @@ async def cancel_edit_led_effect():
     edit_mode = ld_ui_led_editor.edit_mode
     match edit_mode:
         case LEDEditorEditModeType.EDIT.value:
-            set_requesting(True)
-            ok = await led_agent.cancel_edit(led_index)
-            set_requesting(False)
+            with send_request():
+                ok = await led_agent.cancel_edit(led_index)
             if ok is not None and ok:
                 exit_editing_led_effect()
                 notify("INFO", "Edit cancelled")
@@ -95,16 +93,15 @@ async def save_led_effect():
                 else:
                     raise Exception(f"LED bulb object missing in {part_obj_name}")
             try:
-                set_requesting(True)
-                await led_agent.save_led_effect(led_index, effect_name, new_effect)
-                notify("INFO", "Saved LED Effect")
+                with send_request():
+                    await led_agent.save_led_effect(led_index, effect_name, new_effect)
+                    notify("INFO", "Saved LED Effect")
 
-                # Imediately apply changes produced by editing
-                # set_ctrl_keyframes_from_state(effect_only=True)
+                    # Imediately apply changes produced by editing
+                    # set_ctrl_keyframes_from_state(effect_only=True)
 
-                # Cancel editing
-                ok = await led_agent.cancel_edit(led_index)
-                set_requesting(False)
+                    # Cancel editing
+                    ok = await led_agent.cancel_edit(led_index)
                 if ok is not None and ok:
                     exit_editing_led_effect()
                 else:
@@ -127,11 +124,10 @@ async def save_led_effect():
             ]
 
             try:
-                set_requesting(True)
-                res = await led_agent.add_led_effect(
-                    new_effect_name, edit_model, edit_part, led_default
-                )
-                set_requesting(False)
+                with send_request():
+                    res = await led_agent.add_led_effect(
+                        new_effect_name, edit_model, edit_part, led_default
+                    )
                 if res and res.ok:
                     notify("INFO", f"Added LED Effect: {new_effect_name}")
                     state.edit_state = EditMode.IDLE
@@ -154,9 +150,8 @@ async def delete_led_effect():
         notify("WARNING", "No LED effect is selected!")
         return
     try:
-        set_requesting(True)
-        res = await led_agent.delete_led_effect(led_index)
-        set_requesting(False)
+        with send_request():
+            res = await led_agent.delete_led_effect(led_index)
         if res and res.ok:
             notify("INFO", f"Deleted LED effect: {led_index}")
         else:

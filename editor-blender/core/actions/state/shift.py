@@ -6,7 +6,7 @@ from ...log import logger
 from ...models import FrameType
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
-from .app_state import set_requesting, set_shifting
+from .app_state import send_request, set_shifting
 
 
 def toggle_shift():
@@ -42,14 +42,13 @@ async def confirm_shift():
     displacement = ld_ui_time_shift.displacement
 
     try:
-        set_requesting(True)
-        retult = await time_shift_agent.shift(
-            frame_type=frame_type, interval=(start, end), displacement=displacement
-        )
-        set_requesting(False)
+        with send_request():
+            result = await time_shift_agent.shift(
+                frame_type=frame_type, interval=(start, end), displacement=displacement
+            )
 
-        if not retult.ok:
-            raise Exception(retult.msg)
+        if not result.ok:
+            raise Exception(result.msg)
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         notify("INFO", "Time shift success")
