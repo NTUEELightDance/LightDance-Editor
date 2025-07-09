@@ -18,7 +18,7 @@ impl<'a> GraphiQLBuilder<'a> {
         GraphiQLBuilder { endpoint, ..self }
     }
 
-    pub fn subscription_endpoint(self, subscription_endpoint: &'a str) -> GraphiQLBuilder {
+    pub fn subscription_endpoint(self, subscription_endpoint: &'a str) -> GraphiQLBuilder<'a> {
         GraphiQLBuilder {
             subscription_endpoint,
             ..self
