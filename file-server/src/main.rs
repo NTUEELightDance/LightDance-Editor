@@ -18,11 +18,11 @@ async fn main() {
         .nest_service("/data", ServeDir::new(data_path))
         .nest_service("/asset", ServeDir::new(assets_path));
 
-    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}"))
         .await
         .unwrap();
 
-    println!("File server listening on port {}", port);
+    println!("File server listening on port {port}");
 
     axum::serve(listener, app).await.unwrap();
 }
