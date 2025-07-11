@@ -35,5 +35,5 @@ pub async fn build_mysql_pool(host: &'static str) -> Pool<MySql> {
 }
 
 pub async fn build_redis_client(host: &'static str, port: &'static str) -> Client {
-    Client::open(format!("redis://{}:{}", host, port)).expect("Failed to create redis client")
+    Client::open(format!("redis://{host}:{port}")).expect("Failed to create redis client")
 }

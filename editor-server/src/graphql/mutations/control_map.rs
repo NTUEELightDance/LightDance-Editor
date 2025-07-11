@@ -120,7 +120,7 @@ impl ControlMapMutation {
 
         // if the frame does not exist, return error
         if is_frame_exists.is_none() {
-            return Err(Error::new(format!("Frame #{} does not exist", frame_id)));
+            return Err(Error::new(format!("Frame #{frame_id} does not exist")));
         }
 
         // check if the frame is being edited by others
@@ -144,8 +144,7 @@ impl ControlMapMutation {
             // if the frame is being edited by others, return error
             if editing_user_id != context.user_id {
                 return Err(Error::new(format!(
-                    "The target frame is being edited by user #{}",
-                    editing_user_id
+                    "The target frame is being edited by user #{editing_user_id}"
                 )));
             }
         };
@@ -186,8 +185,7 @@ impl ControlMapMutation {
         // if dancers is empty, return error
         if dancers.is_empty() {
             return Err(Error::new(format!(
-                "No dancer data is found in frame #{}",
-                frame_id
+                "No dancer data is found in frame #{frame_id}"
             )));
         }
 
@@ -244,16 +242,14 @@ impl ControlMapMutation {
             if data.len() != dancer.len() || led_bulb_data.len() != dancer.len() {
                 if dancer.len() < data.len() || dancer.len() < led_bulb_data.len() {
                     errors.push(format!(
-                        "Control data in dancer {} is more than parts in payload.",
-                        index
+                        "Control data in dancer {index} is more than parts in payload."
                     ));
                     // if the data is more than the parts, when iter through parts will have "out of bound" error
                     // so we need to skip the rest of the iteration
                     break;
                 } else {
                     errors.push(format!(
-                        "Control data in dancer {} is less than parts in payload.",
-                        index
+                        "Control data in dancer {index} is less than parts in payload."
                     ));
                     break;
                 }
@@ -280,10 +276,8 @@ impl ControlMapMutation {
 
                 // if _data is not an array, return error
                 if part_data.is_empty() || part_data.len() < 2 {
-                    let error_message = format!(
-                        "Data of dancer #{} part #{} is not an array",
-                        index, part_index
-                    );
+                    let error_message =
+                        format!("Data of dancer #{index} part #{part_index} is not an array");
                     errors.push(error_message);
                 }
 

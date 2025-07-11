@@ -19,7 +19,7 @@ impl From<String> for PartType {
         match data.as_str() {
             "LED" => PartType::LED,
             "FIBER" => PartType::FIBER,
-            _ => panic!("Invalid PartType value: {}", data),
+            _ => panic!("Invalid PartType value: {data}"),
         }
     }
 }

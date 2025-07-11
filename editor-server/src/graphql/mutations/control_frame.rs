@@ -173,16 +173,14 @@ impl ControlFrameMutation {
             if data.len() != dancer.len() || dancer_bulb_datas.len() != dancer.len() {
                 if dancer.len() < data.len() || dancer.len() < dancer_bulb_datas.len() {
                     errors.push(format!(
-                        "Control data in dancer {} is more than parts in payload.",
-                        index
+                        "Control data in dancer {index} is more than parts in payload."
                     ));
                     // if the data is more than the parts, when iter through parts will have "out of bound" error
                     // so we need to skip the rest of the iteration
                     break;
                 } else {
                     errors.push(format!(
-                        "Control data in dancer {} is less than parts in payload.",
-                        index
+                        "Control data in dancer {index} is less than parts in payload."
                     ));
                     break;
                 }
@@ -229,8 +227,7 @@ impl ControlFrameMutation {
                 // if part_data is an array, check if the length of the array is 2
                 if part_data.len() != 2 && !part_data.is_empty() {
                     let error_message = format!(
-                        "Data of dancer #{} part #{} is not an array of length 2",
-                        index, part_index
+                        "Data of dancer #{index} part #{part_index} is not an array of length 2"
                     );
                     errors.push(error_message);
                 }
@@ -243,8 +240,7 @@ impl ControlFrameMutation {
                         // check if the color is valid
                         if !all_color_ids.contains(&color_id) {
                             let error_message = format!(
-                                "Color of dancer #{} part #{} is not a valid color",
-                                index, part_index
+                                "Color of dancer #{index} part #{part_index} is not a valid color"
                             );
                             errors.push(error_message);
                         }
@@ -596,8 +592,7 @@ impl ControlFrameMutation {
 
             if editing_user_id != context.user_id {
                 return Err(Error::new(format!(
-                    "The target frame is being edited by user #{}",
-                    editing_user_id
+                    "The target frame is being edited by user #{editing_user_id}"
                 )));
             }
         };
@@ -790,8 +785,7 @@ impl ControlFrameMutation {
 
             if editing_user_id != context.user_id {
                 return Err(Error::new(format!(
-                    "The target frame is being edited by user #{}",
-                    editing_user_id
+                    "The target frame is being edited by user #{editing_user_id}"
                 )));
             }
         };

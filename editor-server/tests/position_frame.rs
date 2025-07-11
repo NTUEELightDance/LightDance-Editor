@@ -22,13 +22,11 @@ mod graphql_tests {
                 }}
             }}
             "#,
-            start_time = start_time,
-            position_data = position_data,
         );
 
         let data = schema.execute(mutation).await;
 
-        println!("{:?}", data);
+        println!("{data:?}");
 
         assert!(data.is_ok());
     }

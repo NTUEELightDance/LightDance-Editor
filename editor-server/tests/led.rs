@@ -10,13 +10,12 @@ mod combined_mutation_tests {
         let mutation = format!(
             r#"
             mutation {{
-                addModel(input: {{ name: "{}" }}) {{
+                addModel(input: {{ name: "{model_name}" }}) {{
                     ok
                     msg
                 }}
             }}
-            "#,
-            model_name
+            "#
         );
         let response: Response = schema.execute(mutation).await;
         assert!(response.is_ok());
@@ -27,10 +26,10 @@ mod combined_mutation_tests {
             r#"
             mutation {{
                 addPart(input: {{
-                    name: "{}",
-                    partType: {},
-                    modelName: "{}",
-                    length: {} 
+                    name: "{part_name}",
+                    partType: {part_type},
+                    modelName: "{model_name}",
+                    length: {length} 
                 }}) {{
                     ok
                     msg
@@ -43,8 +42,7 @@ mod combined_mutation_tests {
                     }}
                 }}
             }}
-            "#,
-            part_name, part_type, model_name, length
+            "#
         );
         let response: Response = schema.execute(mutation).await;
         assert!(response.is_ok());
@@ -53,9 +51,9 @@ mod combined_mutation_tests {
             r#"
             mutation {{
                 addLEDEffect(input: {{
-                    name: "{}",
-                    modelName: "{}",
-                    partName: "{}",
+                    name: "{effect_name}",
+                    modelName: "{model_name}",
+                    partName: "{part_name}",
                     repeat: 1,
                     frames: [{{
                         leds: [[1, 255], [2, 128]],
@@ -67,8 +65,7 @@ mod combined_mutation_tests {
                     msg
                 }}
             }}
-            "#,
-            effect_name, model_name, part_name
+            "#
         );
         let response: Response = schema.execute(mutation).await;
         assert!(response.is_ok());

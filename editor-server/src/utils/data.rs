@@ -524,7 +524,7 @@ pub async fn get_redis_control(
             cache.editing = None;
             Ok(cache)
         }
-        Err(_) => Err(format!("Frame {} not found in redis.", frame_id)),
+        Err(_) => Err(format!("Frame {frame_id} not found in redis.")),
     }
 }
 
@@ -550,7 +550,7 @@ pub async fn get_redis_position(
             cache.editing = None;
             Ok(cache)
         }
-        Err(_) => Err(format!("Frame {} not found in redis.", frame_id)),
+        Err(_) => Err(format!("Frame {frame_id} not found in redis.")),
     }
 }
 

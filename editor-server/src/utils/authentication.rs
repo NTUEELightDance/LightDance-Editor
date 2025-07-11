@@ -125,7 +125,7 @@ pub async fn get_user_metadata(token: &str) -> Result<String, String> {
     let client = reqwest::Client::new();
     let res = client
         .get(url)
-        .header("Authorization", format!("Bearer {}", token))
+        .header("Authorization", format!("Bearer {token}"))
         .send()
         .await
         .map_err(|_| "Error retrieving user info")?;

@@ -11,8 +11,8 @@ pub async fn main() {
         .await
         .expect("Failed to bind to address");
 
-    println!("GraphiQL: http://localhost:{}/graphql", server_port);
-    println!("Server listening on port {}", server_port);
+    println!("GraphiQL: http://localhost:{server_port}/graphql");
+    println!("Server listening on port {server_port}");
 
     axum::serve(listener, app).await.unwrap();
 }

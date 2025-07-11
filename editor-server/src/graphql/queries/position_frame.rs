@@ -41,7 +41,7 @@ impl PositionFrameQuery {
 
         match frame {
             Some(frame) => Ok(frame),
-            None => Err(format!("frame id {} not found", frame_id).into()),
+            None => Err(format!("frame id {frame_id} not found").into()),
         }
     }
 

@@ -56,7 +56,7 @@ impl RequestEditMutation {
         .await?;
 
         if exist_frame.is_none() {
-            return Err(format!("frame id {} not found", frame_id).into());
+            return Err(format!("frame id {frame_id} not found").into());
         }
 
         // update EditingControlFrame
@@ -130,7 +130,7 @@ impl RequestEditMutation {
         .await?;
 
         if exist_frame.is_none() {
-            return Err(format!("frame id {} not found", frame_id).into());
+            return Err(format!("frame id {frame_id} not found").into());
         }
 
         // update EditingPositionFrame
@@ -204,7 +204,7 @@ impl RequestEditMutation {
         .fetch_optional(mysql)
         .await?;
         if exist_led_effect.is_none() {
-            return Err(format!("frame id {} not found", led_effect_id).into());
+            return Err(format!("frame id {led_effect_id} not found").into());
         }
 
         match check_editing_led_effect {
@@ -267,7 +267,7 @@ impl RequestEditMutation {
         .await?;
 
         if exist_frame.is_none() {
-            return Err(format!("frame id {} not found", frame_id).into());
+            return Err(format!("frame id {frame_id} not found").into());
         }
 
         let _ = sqlx::query!(
@@ -313,7 +313,7 @@ impl RequestEditMutation {
         .await?;
 
         if exist_frame.is_none() {
-            return Err(format!("frame id {} not found", frame_id).into());
+            return Err(format!("frame id {frame_id} not found").into());
         }
 
         let _ = sqlx::query!(
@@ -360,7 +360,7 @@ impl RequestEditMutation {
         .await?;
 
         if exist_led_effect.is_none() {
-            return Err(format!("frame id {} not found", led_effect_id).into());
+            return Err(format!("frame id {led_effect_id} not found").into());
         }
 
         let _ = sqlx::query!(

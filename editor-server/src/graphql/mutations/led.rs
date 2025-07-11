@@ -437,7 +437,7 @@ impl LEDMutation {
             Err(_) => {
                 return Ok(DeleteLEDEffectResponse {
                     ok: false,
-                    msg: format!("LEDEffect Id {} not found", id),
+                    msg: format!("LEDEffect Id {id} not found"),
                 })
             }
         };
@@ -463,8 +463,7 @@ impl LEDMutation {
             return Ok(DeleteLEDEffectResponse {
                 ok: false,
                 msg: format!(
-                    "LEDEffect Id {} is being used in control frames {:?}.",
-                    id, control_frames
+                    "LEDEffect Id {id} is being used in control frames {control_frames:?}."
                 ),
             });
         }
