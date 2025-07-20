@@ -27,6 +27,8 @@ services:
     depends_on:
       - mysql
       - redisdb
+    ports:
+      - "4001:4000"
 
   file-server:
     image: lightdance-file-server
