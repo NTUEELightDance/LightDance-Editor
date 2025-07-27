@@ -1,6 +1,6 @@
 # Usage: ./backup.py <editorPath> <backupPath>
 # Description: This script is used to backup the data of the editor to the backupPath
-# Example: ./backup.py ~/LightDancer-Editor ~/LightTableBackup
+# Example: ./backup.py ~/production/LightDancer-Editor ~/production/NewLightTableBackup
 
 import sys
 import subprocess
@@ -33,7 +33,7 @@ if not updateTable:
 if updateTable:
     now = datetime.now()
     timestamp = now.strftime('%Y.%m.%d-%H:%M:%S')
-    newTablePath = path.join(backupPath, f"{timestamp}.json")
+    newTablePath = path.join(backupPath, f"lighttable.json")
 
     subprocess.run(["cp", exportTablePath, newTablePath])
     subprocess.run(["git", "add", "."], cwd=backupPath)
