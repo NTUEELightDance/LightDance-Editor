@@ -7,7 +7,7 @@ const fs = require("fs");
 const filePath = process.argv[2];
 
 const instance = axios.create({
-  baseURL: "http://localhost:4000/",
+  baseURL: "http://localhost:4001/",
   maxContentLength: Infinity,
   maxBodyLength: Infinity,
 });
