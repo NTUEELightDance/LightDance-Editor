@@ -1,4 +1,4 @@
-gql[all]
+gql[all] <= 3.5.0
 dataclass_wizard
 aiohttp
 python-dotenv
