@@ -54,7 +54,7 @@ def update_current_status_by_index():
                     light_type = getattr(part_obj, "ld_light_type")
                 except ReferenceError:
                     logger.error(
-                        f"StructRNA of part object {part_obj} has been removed"
+                        f"StructRNA of part object {part_obj} with a part name {part_name} has been removed"
                     )
                     continue
 

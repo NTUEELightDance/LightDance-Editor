@@ -48,6 +48,10 @@ state = State(
     ready=False,
     control_map={},
     pos_map={},
+    #
+    control_mapMODIFIED={},
+    pos_mapMODIFIED={},
+    #
     not_loaded_control_frames=[],
     not_loaded_pos_frames=[],
     control_record=[],
@@ -63,6 +67,10 @@ state = State(
     current_status={},
     current_led_status={},
     current_pos={},
+    #
+    current_statusMODIFIED={},
+    current_posMODIFIED={},
+    #
     current_editing_frame=0,
     current_editing_detached=False,
     current_editing_frame_synced=True,

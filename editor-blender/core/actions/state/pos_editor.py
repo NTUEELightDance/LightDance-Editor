@@ -1,3 +1,5 @@
+from typing import cast
+
 import bpy
 
 from ....api.pos_agent import pos_agent
@@ -67,16 +69,16 @@ def pos_frame_neighbors(
         return (
             (frame, pos_map[left].pos[dancer_name]),
             (frame, pos_map[left].pos[dancer_name]),
-        )
+        )  # type: ignore
     elif frame > pos_map[right].start:
         return (
             (frame, pos_map[right].pos[dancer_name]),
             (frame, pos_map[right].pos[dancer_name]),
-        )
+        )  # type: ignore
     return (
         (pos_map[left].start, pos_map[left].pos[dancer_name]),
         (pos_map[right].start, pos_map[right].pos[dancer_name]),
-    )
+    )  # type: ignore
 
 
 async def add_pos_frame():

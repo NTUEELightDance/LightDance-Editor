@@ -9,7 +9,7 @@ from typing import cast
 import bpy
 
 from .....properties.types import RevisionPropertyItemType
-from ....models import MapID, PosMapElement
+from ....models import MapID, Position, PosMapElement
 from ....states import state
 from ....utils.algorithms import smallest_range_including_lr
 from ....utils.convert import PosModifyAnimationData
@@ -187,6 +187,7 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if not show_dancer[dancer_index]:
                 continue
 
+            pos = cast(Position, pos)
             dancer_location = (pos.location.x, pos.location.y, pos.location.z)
             dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
 
@@ -251,6 +252,46 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
         pos_rev_item.frame_id = id
         pos_rev_item.frame_start = frame_start
+
+    # FIXME delete this after, only for test
+    from .....core.utils.for_dev_only.tmp_format_conv import conv_pos_map_to_old
+
+    conv_pos_map_to_old()
+
+    first_dancer = state.dancer_names[0]
+    total_effective_pos_frame_number = 0
+    for _, pos_map_element in state.pos_mapMODIFIED.items():
+        if pos_map_element.pos[first_dancer] is not None:
+            total_effective_pos_frame_number += 1
+
+    effective_i = 0
+    for i, (id, pos_map_element) in enumerate(state.pos_mapMODIFIED.items()):
+        if total_effective_pos_frame_number == 0:
+            break
+
+        frame_start = pos_map_element.start
+        pos_status = pos_map_element.pos
+
+        if pos_status[first_dancer] is not None:
+            # insert fake frame
+            scene = bpy.context.scene
+            action = ensure_action(scene, "SceneAction")
+            curve = ensure_curve(
+                action,
+                "ld_pos_frame_first_dancer",
+                keyframe_points=total_effective_pos_frame_number,
+                clear=i == 0,
+            )
+
+            _, kpoints_list = get_keyframe_points(curve)
+
+            point = kpoints_list[effective_i]
+            point.co = frame_start, frame_start
+            point.interpolation = "CONSTANT"
+
+            point.select_control_point = False
+
+            effective_i += 1
 
 
 """
