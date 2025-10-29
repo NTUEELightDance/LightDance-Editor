@@ -90,6 +90,27 @@ class ControlMapElement:
     led_status: ControlMapLEDStatus
 
 
+@dataclass
+class PartAndLEDData:
+    part_data: PartData
+    bulb_data: list[LEDBulbData]
+
+
+# None: skip the frame
+DancerStatusMODIFIED = dict[PartName, PartAndLEDData | None]
+ControlMapStatusMODIFIED = dict[DancerName, DancerStatusMODIFIED]
+
+
+@dataclass
+class ControlMapElementMODIFIED:
+    start: int
+    fade: bool  # If overriding fade is true, fade of all part goes true
+    rev: Revision
+    status: ControlMapStatusMODIFIED
+
+
+ControlMapMODIFIED = dict[MapID, ControlMapElementMODIFIED]
+
 ControlMap = dict[MapID, ControlMapElement]
 
 ControlRecord = list[MapID]
@@ -117,7 +138,8 @@ class Position:
     rotation: Rotation
 
 
-PosMapStatus = dict[DancerName, Position]
+# None: skip the frame
+PosMapStatus = dict[DancerName, Position | None]
 
 
 @dataclass
@@ -234,6 +256,13 @@ class PosMapUpdates:
     deleted: dict[MapID, int]
 
 
+@dataclass
+class ControlMapUpdatesMODIFIED:
+    added: dict[MapID, ControlMapElementMODIFIED]
+    updated: dict[MapID, tuple[int, ControlMapElementMODIFIED]]
+    deleted: dict[MapID, int]
+
+
 class FrameType(Enum):
     CONTROL = "CONTROL"
     POS = "POS"
@@ -295,6 +324,14 @@ class CopiedDancerData:
 class Clipboard:
     type: CopiedType
     control_frame: ControlMapElement | None = None
+    pos_frame: PosMapElement | None = None
+    dancer: CopiedDancerData | None = None
+
+
+@dataclass
+class ClipboardMODIFIED:
+    type: CopiedType
+    control_frame: ControlMapElementMODIFIED | None = None
     pos_frame: PosMapElement | None = None
     dancer: CopiedDancerData | None = None
 
@@ -388,6 +425,11 @@ class State:
     username: str
     ready: bool
 
+    # TODO implement these
+    control_mapMODIFIED: ControlMapMODIFIED
+    pos_mapMODIFIED: PosMap
+    # above
+
     control_map: ControlMap
     pos_map: PosMap
     not_loaded_control_frames: list[MapID]
@@ -410,6 +452,11 @@ class State:
     current_status: ControlMapStatus
     current_led_status: ControlMapLEDStatus
     current_pos: PosMapStatus
+
+    # TODO implement these
+    current_statusMODIFIED: ControlMapStatusMODIFIED
+    current_posMODIFIED: PosMapStatus
+    # above
 
     current_editing_frame: int
     current_editing_detached: bool

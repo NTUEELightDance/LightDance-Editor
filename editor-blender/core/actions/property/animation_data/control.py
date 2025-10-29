@@ -10,7 +10,7 @@ import bpy
 
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
-from ....models import ControlMapElement, MapID, PartType
+from ....models import ControlMap, ControlMapElement, MapID, PartType
 from ....states import state
 from ....utils.algorithms import smallest_range_including_lr
 from ....utils.convert import (
@@ -171,15 +171,9 @@ def init_ctrl_single_object_action(
             point.select_control_point = False
 
 
-def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
-    if not bpy.context:
-        return
-    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
-
-    ctrl_map = state.control_map
-
-    sorted_ctrl_map = sorted(ctrl_map.items(), key=lambda item: item[1].start)
-
+def filter_ctrl_map_by_loaded_range(
+    sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]
+) -> tuple[list[int], list[tuple[MapID, ControlMapElement]]]:
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
@@ -190,7 +184,6 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
         filtered_ctrl_map_start : filtered_ctrl_map_end + 1
     ]
 
-    # state.not_loaded_ctrl_frames: a list of ctrl map ID that is not loaded
     not_loaded_ctrl_frames: list[MapID] = []
     filtered_index = 0
     for sorted_index in range(len(sorted_ctrl_map)):
@@ -200,9 +193,24 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
             not_loaded_ctrl_frames.append(sorted_ctrl_map[sorted_index][0])
         else:
             filtered_index += 1
-    state.not_loaded_control_frames = not_loaded_ctrl_frames
+    return not_loaded_ctrl_frames, filtered_ctrl_map
 
-    animation_data = control_map_to_animation_data(filtered_ctrl_map)
+
+def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
+    if not bpy.context:
+        return
+    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
+
+    ctrl_map = state.control_map
+
+    sorted_ctrl_map = sorted(ctrl_map.items(), key=lambda item: item[1].start)
+    not_loaded_ctrl_frames, filtered_ctrl_map = filter_ctrl_map_by_loaded_range(
+        sorted_ctrl_map
+    )
+
+    # state.not_loaded_ctrl_frames: a list of ctrl map ID that is not loaded
+    state.not_loaded_control_frames = not_loaded_ctrl_frames
+    animation_data = control_map_to_animation_data(sorted_ctrl_map)
 
     ctrl_frame_number = len(filtered_ctrl_map)
 

@@ -1,5 +1,7 @@
 from typing import Literal
 
+type OutOfRange = Literal["OutOfRange_Larger", "OutOfRange_Smaller"]
+
 
 def binary_search(arr: list[int], x: int) -> int:
     """
@@ -19,19 +21,13 @@ def binary_search(arr: list[int], x: int) -> int:
 
 def binary_search_for_neighbors(
     arr: list[int], x: int
-) -> (
-    tuple[int, int]
-    | tuple[
-        Literal["OutOfRange_Larger", "OutOfRange_Smaller"],
-        Literal["OutOfRange_Larger", "OutOfRange_Smaller"],
-    ]
-):
+) -> tuple[int, int] | tuple[OutOfRange, OutOfRange]:
     """
     :param arr: sorted list of integers
     :param x: integer to search for
-    :return: (index of the last number in arr that is less than or equal to x,
-              index of the first number in arr that is larger than or equal to x)
-             or tuple of 'out of range' error: showing that the number is bigger/smaller than all numbers in array
+    :return: (index of the last number in arr <= x, index of the first number in arr >= x)
+        or ('OutOfRange_Larger', 'OutOfRange_Larger')/('OutOfRange_Smaller', 'OutOfRange_Smaller'),
+          showing that the number is bigger/smaller than all numbers in array
     """
     l, r = 0, len(arr) - 1
     if x > arr[r]:

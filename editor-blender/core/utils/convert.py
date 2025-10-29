@@ -270,12 +270,8 @@ def control_status_state_to_mut(
 ) -> list[MutDancerStatusPayload]:
     mut_dancer_status_payload: list[MutDancerStatusPayload] = []
 
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-
     for dancer in state.dancers_array:
         dancer_name = dancer.name
-        # if not show_dancer_dict[dancer_name]:
-        #     continue
 
         dancer_status = control_status.get(dancer_name)
         if dancer_status is None:
