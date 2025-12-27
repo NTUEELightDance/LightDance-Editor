@@ -52,6 +52,8 @@ LEDPartName = str
 LEDMap = dict[LEDModelName, dict[LEDPartName, dict[LEDEffectName, LEDEffect]]]
 
 MapID = int
+# TODO: Change 'int as frame' to Frame in below, Ex: start: int -> start: Frame
+Frame = int
 
 
 @dataclass
@@ -91,25 +93,26 @@ class ControlMapElement:
 
 
 @dataclass
-class PartAndLEDData:
+class CtrlData:
     part_data: PartData
     bulb_data: list[LEDBulbData]
+    fade: bool
 
 
 # None: skip the frame
-DancerStatusMODIFIED = dict[PartName, PartAndLEDData | None]
-ControlMapStatusMODIFIED = dict[DancerName, DancerStatusMODIFIED]
+DancerStatus_MODIFIED = dict[PartName, CtrlData | None]
+ControlMapStatus_MODIFIED = dict[DancerName, DancerStatus_MODIFIED]
 
 
 @dataclass
-class ControlMapElementMODIFIED:
+class ControlMapElement_MODIFIED:
     start: int
-    fade: bool  # If overriding fade is true, fade of all part goes true
+    new_fade: bool  # If overriding fade is true, fade of all part goes true
     rev: Revision
-    status: ControlMapStatusMODIFIED
+    status: ControlMapStatus_MODIFIED
 
 
-ControlMapMODIFIED = dict[MapID, ControlMapElementMODIFIED]
+ControlMap_MODIFIED = dict[MapID, ControlMapElement_MODIFIED]
 
 ControlMap = dict[MapID, ControlMapElement]
 
@@ -257,9 +260,9 @@ class PosMapUpdates:
 
 
 @dataclass
-class ControlMapUpdatesMODIFIED:
-    added: dict[MapID, ControlMapElementMODIFIED]
-    updated: dict[MapID, tuple[int, ControlMapElementMODIFIED]]
+class ControlMapUpdates_MODIFIED:
+    added: dict[MapID, ControlMapElement_MODIFIED]
+    updated: dict[MapID, tuple[int, ControlMapElement_MODIFIED]]
     deleted: dict[MapID, int]
 
 
@@ -329,9 +332,9 @@ class Clipboard:
 
 
 @dataclass
-class ClipboardMODIFIED:
+class Clipboard_MODIFIED:
     type: CopiedType
-    control_frame: ControlMapElementMODIFIED | None = None
+    control_frame: ControlMapElement_MODIFIED | None = None
     pos_frame: PosMapElement | None = None
     dancer: CopiedDancerData | None = None
 
@@ -426,8 +429,8 @@ class State:
     ready: bool
 
     # TODO implement these
-    control_mapMODIFIED: ControlMapMODIFIED
-    pos_mapMODIFIED: PosMap
+    control_map_MODIFIED: ControlMap_MODIFIED
+    pos_map_MODIFIED: PosMap
     # above
 
     control_map: ControlMap
@@ -454,8 +457,8 @@ class State:
     current_pos: PosMapStatus
 
     # TODO implement these
-    current_statusMODIFIED: ControlMapStatusMODIFIED
-    current_posMODIFIED: PosMapStatus
+    current_status_MODIFIED: ControlMapStatus_MODIFIED
+    current_pos_MODIFIED: PosMapStatus
     # above
 
     current_editing_frame: int

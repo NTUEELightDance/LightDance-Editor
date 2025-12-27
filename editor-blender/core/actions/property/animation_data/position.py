@@ -260,12 +260,12 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
     first_dancer = state.dancer_names[0]
     total_effective_pos_frame_number = 0
-    for _, pos_map_element in state.pos_mapMODIFIED.items():
+    for _, pos_map_element in state.pos_map_MODIFIED.items():
         if pos_map_element.pos[first_dancer] is not None:
             total_effective_pos_frame_number += 1
 
     effective_i = 0
-    for i, (id, pos_map_element) in enumerate(state.pos_mapMODIFIED.items()):
+    for i, (id, pos_map_element) in enumerate(state.pos_map_MODIFIED.items()):
         if total_effective_pos_frame_number == 0:
             break
 

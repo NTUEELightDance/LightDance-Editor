@@ -16,9 +16,11 @@ from ...models import (
 from ...states import state
 from ...utils.algorithms import OutOfRange, binary_search_for_neighbors
 from ...utils.convert import control_status_state_to_mut, led_status_state_to_mut
-
-# FIXME Fix this
-from ...utils.for_dev_only.formal_color import FormalColor
+from ...utils.for_dev_only.interpolate_color import (
+    RGBAInterpolateData,
+    interpolate,
+    is_interpolation,
+)
 
 type Frame = int
 # model_name, part_name, effect_name, effect_item
