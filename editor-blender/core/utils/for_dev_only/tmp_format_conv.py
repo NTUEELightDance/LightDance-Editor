@@ -1,19 +1,36 @@
 import sys
 from copy import deepcopy
-from typing import cast
+from enum import Enum
+from typing import Literal, cast
+
+from interpolate_color import (
+    ActualRGB,
+    RGBAInterpolateData,
+    interpolate,
+    is_interpolation,
+)
+from interpolate_pos import (
+    PosHistory,
+    PosInterpolateData,
+    interpolate_pos,
+    is_interpolation_of_pos,
+)
 
 from ....core.models import (
     RGB,
+    RGBA,
+    ControlMap_MODIFIED,
     ControlMapElement,
-    ControlMapElementMODIFIED,
-    ControlMapMODIFIED,
-    ControlMapStatusMODIFIED,
+    ControlMapElement_MODIFIED,
+    ControlMapStatus_MODIFIED,
+    CtrlData,
     DancerName,
     FiberData,
+    Frame,
+    LEDBulbData,
     LEDData,
     Location,
     MapID,
-    PartAndLEDData,
     PartName,
     Position,
     PosMap,
@@ -21,16 +38,20 @@ from ....core.models import (
 )
 from ....core.states import state
 
-CtrlHistory = list[tuple[MapID, int, PartAndLEDData]]
-PosHistory = list[tuple[MapID, int, Position]]
-RGBA = tuple[int, int, int, int]
-ActualRGB = tuple[float, float, float]
+CtrlHistory = list[tuple[MapID, Frame, CtrlData]]
+FrameData = tuple[MapID, Frame]
 
 
-def position_of_dancer(
-    pos_map: PosMap, dancer: DancerName, mapID: MapID
-) -> Position | None:
-    return pos_map[mapID].pos[dancer]
+class PartType(Enum):
+    Fiber = 0
+    LED = 1
+
+
+class _EffectType(Enum):
+    NoEffect = 0
+
+
+type NoEffect = Literal[_EffectType.NoEffect]
 
 
 def position_interpolate(
@@ -91,300 +112,365 @@ def color_interpolate(
     return cast(ActualRGB, tuple(target_color_list))
 
 
-def gradient_interpolate(
-    last_actual_rgb_color: ActualRGB,
-    this_color: RGBA,
+def _gradient_interpolate(
+    last_rgba_color: RGBA,
+    this_rgba_color: RGBA,
     num_to_be_interpolate: int,
-    effect_rgba: list[ActualRGB],
+    effect_rgba: list[RGBA],
 ):
-    this_actual_rgb_color = to_actual_rgb(this_color)
-    denominator = num_to_be_interpolate + 1
-    for i in range(1, denominator):
-        gradient_color = color_interpolate(
-            last_actual_rgb_color, this_actual_rgb_color, denominator - i, i
+    total_weight = num_to_be_interpolate + 1
+    for weight in range(1, num_to_be_interpolate + 1):
+        left_interpolate_data: RGBAInterpolateData = (last_rgba_color, weight)
+        right_interpolate_data: RGBAInterpolateData = (
+            this_rgba_color,
+            total_weight - weight,
         )
-        effect_rgba.append(gradient_color)
+        gradient_rgba = interpolate(left_interpolate_data, right_interpolate_data)
+        effect_rgba.append(gradient_rgba)
 
 
-def handle_effect(
+def _handle_each_bulb(bulb_list: list[LEDBulbData]) -> list[RGBA]:
+    BLACK: RGBA = (0, 0, 0, 255)
+    effect_rgba: list[RGBA] = []
+
+    num_of_color_to_be_interpolate = 0
+    last_rgba_color: RGBA = BLACK
+    is_first_color = True
+
+    for bulb in bulb_list:
+        # has color
+        if bulb.color_id != -1:
+            bulb.rgb = cast(RGB, bulb.rgb)
+            this_rgba_color = (*bulb.rgb, bulb.alpha)
+
+            # interpolate colors
+            if num_of_color_to_be_interpolate != 0:
+                _gradient_interpolate(
+                    last_rgba_color,
+                    this_rgba_color,
+                    num_of_color_to_be_interpolate,
+                    effect_rgba,
+                )
+                num_of_color_to_be_interpolate = 0
+
+            last_rgba_color = this_rgba_color
+            effect_rgba.append(this_rgba_color)
+        # waiting for interpolation
+        else:
+            if is_first_color:
+                effect_rgba.append(BLACK)
+            else:
+                num_of_color_to_be_interpolate += 1
+
+        is_first_color = False
+
+    # last color.id = -1
+    if num_of_color_to_be_interpolate > 0:
+        if num_of_color_to_be_interpolate == 1:
+            effect_rgba.append(BLACK)
+        else:
+            _gradient_interpolate(
+                last_rgba_color,
+                BLACK,
+                num_of_color_to_be_interpolate - 1,  # do not count the last color
+                effect_rgba,
+            )
+            effect_rgba.append(BLACK)
+
+    return effect_rgba
+
+
+def _handle_effect(
     part_data: LEDData,
-    flattened_color_list: list[list[ActualRGB]],
-    control_history: CtrlHistory,
-    curent_index: int,
+    flattened_color_list: list[list[RGBA]],
 ):
     effect_id = part_data.effect_id
-    # no effect
-    if part_data.effect_id == -1:
-        prev_index = curent_index - 1
-        while prev_index > 0:
-            prev_ctrl_data = control_history[curent_index][2]
-            prev_part_data = prev_ctrl_data.part_data
-
-            if not isinstance(prev_ctrl_data.part_data, LEDData):
-                raise Exception("LEDData expected")
-
-            prev_part_data = cast(LEDData, prev_part_data)
-            if prev_part_data.effect_id != -1:
-                effect_id = prev_part_data.effect_id
-
-            prev_index -= 1
-
-        if effect_id == -1:
-            raise Exception("There is not previous effect to reference.")
+    # no effect => not possible, for it is picked by _is_no_effect()
+    # if part_data.effect_id == -1:
+    #     flattened_color_list.append(_EffectType.NoEffect)
 
     # effect mode
     if effect_id != 0:
         alpha = part_data.alpha
+        # check effect in led_effect_table
         effect = state.led_effect_id_table[part_data.effect_id]
         effect_rgb = [cast(RGB, bulb.rgb) for bulb in effect.effect]
         effect_rgba = [(*bulb_rgb, alpha) for bulb_rgb in effect_rgb]
-        actual_effect_rgb = [to_actual_rgb(rgba) for rgba in effect_rgba]
-        flattened_color_list.append(actual_effect_rgb)
+        flattened_color_list.append(effect_rgba)
+
     # single bulb mode
     else:
         effect = state.led_effect_id_table[part_data.effect_id]
-        actual_effect_rgb: list[ActualRGB] = []
-        num_to_be_interpolate = 0
-        last_actual_rgb_color: ActualRGB | None = None
-        for bulb in effect.effect:
-            # has color
-            if bulb.color_id != -1:
-                rgba = (*cast(RGB, bulb.rgb), bulb.alpha)
+        bulb_list = effect.effect
+        effect_rgba = _handle_each_bulb(bulb_list)
 
-                if last_actual_rgb_color is not None:
-                    gradient_interpolate(
-                        last_actual_rgb_color,
-                        rgba,
-                        num_to_be_interpolate,
-                        actual_effect_rgb,
-                    )
-
-                actual_rgb = to_actual_rgb(rgba)
-                num_to_ben_interpolate = 0
-                last_actual_rgb_color = actual_rgb
-                actual_effect_rgb.append(actual_rgb)
-            # waiting for interpolation
-            else:
-                if last_actual_rgb_color is None:
-                    actual_effect_rgb.append((0.0, 0.0, 0.0))
-                    last_actual_rgb_color = (0.0, 0.0, 0.0)
-                else:
-                    num_to_be_interpolate += 1
-                    last_actual_rgb_color = actual_effect_rgb[-1]
-
-        if num_to_be_interpolate > 0:
-            last_actual_rgb_color = cast(ActualRGB, last_actual_rgb_color)
-            gradient_interpolate(
-                last_actual_rgb_color,
-                (0, 0, 0, 0),
-                num_to_be_interpolate - 1,
-                actual_effect_rgb,
-            )
-            actual_effect_rgb.append((0.0, 0.0, 0.0))
-        flattened_color_list.append(actual_effect_rgb)
+        flattened_color_list.append(effect_rgba)
 
 
-def ctrl_is_arithmetic_sequence(control_history: CtrlHistory):
-    EPSILON = 1e-4
-    last_control = control_history[-3:]
-    control_list = [control[2] for control in last_control]
-    frame_list = [control[1] for control in last_control]
-
-    flattened_color_list: list[ActualRGB] | list[list[ActualRGB]] = []
-
-    for fake_index, control in enumerate(control_list):
-        true_index = len(control_history) - 3 + fake_index
-        # FiberData
-        if isinstance(control.part_data, FiberData):
-            flattened_color_list = cast(list[ActualRGB], flattened_color_list)
-            rgb = state.color_map[control.part_data.color_id].rgb
-            rgba = *rgb, control.part_data.alpha
-            actual_rgb = to_actual_rgb(rgba)
-            flattened_color_list.append(actual_rgb)
-        # LEDData
-        else:
-            flattened_color_list = cast(list[list[ActualRGB]], flattened_color_list)
-            part_data = cast(LEDData, control.part_data)
-
-            handle_effect(part_data, flattened_color_list, control_history, true_index)
-
-    for prim_color_index in range(3):
-        # list[ActualRGB]
-        if isinstance(flattened_color_list[0], tuple):
-            flattened_color_list = cast(list[ActualRGB], flattened_color_list)
-
-            left_handside = (
-                flattened_color_list[1][prim_color_index]
-                - flattened_color_list[0][prim_color_index]
-            ) * float(frame_list[2] - frame_list[1])
-            right_handside = (
-                flattened_color_list[2][prim_color_index]
-                - flattened_color_list[1][prim_color_index]
-            ) * float(frame_list[1] - frame_list[0])
-
-            if abs(left_handside - right_handside) > EPSILON:
-                return False
-        # list[list[ActualRGB]]
-        else:
-            flattened_color_list = cast(list[list[ActualRGB]], flattened_color_list)
-
-            for bulb_index in range(len(flattened_color_list[0])):
-                left_handside = (
-                    flattened_color_list[1][bulb_index][prim_color_index]
-                    - flattened_color_list[0][bulb_index][prim_color_index]
-                ) * float(frame_list[2] - frame_list[1])
-                right_handside = (
-                    flattened_color_list[2][bulb_index][prim_color_index]
-                    - flattened_color_list[1][bulb_index][prim_color_index]
-                ) * float(frame_list[1] - frame_list[0])
-
-                if abs(left_handside - right_handside) > EPSILON:
-                    return False
-
-        return True
-
-
-def pos_is_arithmetic_sequence(position_history: PosHistory):
-    EPSILON = 0.1
-    last_position = position_history[-3:]
-    position_list = [position[2] for position in last_position]
-    frame_list = [position[1] for position in last_position]
-
-    # dict[str, int] is [x, y, z, rx, ry, rz]
-    flattened_position_list: list[dict[str, int]] = []
-    for position in position_list:
-        flattened_location = position.location.__dict__
-        flattened_rotation = position.rotation.__dict__
-        flattened_position = {**flattened_location, **flattened_rotation}
-        flattened_position_list.append(flattened_position)
-
-    for attr in ["x", "y", "z", "rx", "ry", "rz"]:
-        left_handside = (
-            flattened_position_list[1][attr] - flattened_position_list[0][attr]
-        ) * float(frame_list[2] - frame_list[1])
-        right_handside = (
-            flattened_position_list[2][attr] - flattened_position_list[1][attr]
-        ) * float(frame_list[1] - frame_list[0])
-        if abs(left_handside - right_handside) > EPSILON:
+def _is_ctrl_part_interpolation(
+    part_type: PartType,
+    flattened_color_list: list[RGBA] | list[list[RGBA]],
+    frame_list: list[int],
+):
+    # list[RGBA]
+    if part_type == PartType.Fiber:
+        flattened_color_list = cast(list[RGBA], flattened_color_list)
+        left_data: RGBAInterpolateData = (
+            flattened_color_list[0],
+            (frame_list[1] - frame_list[0]),
+        )
+        right_data: RGBAInterpolateData = (
+            flattened_color_list[2],
+            (frame_list[2] - frame_list[1]),
+        )
+        if not is_interpolation(left_data, right_data, flattened_color_list[1]):
             return False
+    # list[list[ActualRGB]]
+    else:
+        flattened_color_list = cast(list[list[RGBA]], flattened_color_list)
+
+        for bulb_index in range(len(flattened_color_list[0])):
+            first_color = flattened_color_list[0][bulb_index]
+            second_color = flattened_color_list[1][bulb_index]
+            third_color = flattened_color_list[2][bulb_index]
+
+            left_data: RGBAInterpolateData = (
+                first_color,
+                (frame_list[1] - frame_list[0]),
+            )
+            right_data: RGBAInterpolateData = (
+                third_color,
+                (frame_list[2] - frame_list[1]),
+            )
+            if not is_interpolation(left_data, right_data, second_color):
+                return False
+
     return True
 
 
-def control_of_dancer(
-    control_map: ControlMapMODIFIED, dancer: DancerName, part: PartName, mapID: MapID
-) -> PartAndLEDData | None:
-    return control_map[mapID].status[dancer][part]
+def _is_interpolation_of_ctrl(last_three_not_none_ctrl: CtrlHistory):
+    control_list = [control[2] for control in last_three_not_none_ctrl]
+    frame_list = [control[1] for control in last_three_not_none_ctrl]
+
+    flattened_color_list: list[RGBA] | list[list[RGBA]] = []
+
+    part_type: PartType
+    if isinstance(control_list[0].part_data, FiberData):
+        part_type = PartType.Fiber
+    else:
+        part_type = PartType.LED
+
+    for control in control_list:
+        # FiberData
+        if part_type == PartType.Fiber:
+            flattened_color_list = cast(list[RGBA], flattened_color_list)
+            part_data = cast(FiberData, control.part_data)
+
+            rgb = state.color_map[part_data.color_id].rgb
+            rgba = *rgb, control.part_data.alpha
+            flattened_color_list.append(rgba)
+        # LEDData
+        else:
+            flattened_color_list = cast(list[list[RGBA]], flattened_color_list)
+            part_data = cast(LEDData, control.part_data)
+
+            _handle_effect(part_data, flattened_color_list)
+
+    return _is_ctrl_part_interpolation(part_type, flattened_color_list, frame_list)
 
 
-# One-to-one transform without care of has_effect
-def rough_conv_control_status_to_old(
-    old_control_map_element: ControlMapElement,
-) -> ControlMapStatusMODIFIED:
+def _is_no_effect(this_control: tuple[MapID, Frame, CtrlData]):
+    this_control_data = this_control[2]
+
+    if isinstance(this_control_data.part_data, FiberData):
+        return False
+    cast(LEDData, this_control_data)
+
+    if this_control_data.part_data.effect_id == -1:
+        return True
+    else:
+        return False
+
+
+def _rough_conv_control_status_to_old(
+    old_control_map_element: ControlMapElement, fade: bool
+) -> ControlMapStatus_MODIFIED:
+    """
+    One-to-one transform, do not convert stat to None.
+    """
     control_map_status = {}
     for dancer, part_list in state.dancers.items():
         dancer_map = {}
         for part in part_list:
             part_data = old_control_map_element.status[dancer][part]
             bulb_data = old_control_map_element.led_status[dancer][part]
-            dancer_map[part] = PartAndLEDData(part_data=part_data, bulb_data=bulb_data)
+            dancer_map[part] = CtrlData(
+                part_data=part_data, bulb_data=bulb_data, fade=fade
+            )
         control_map_status[dancer] = dancer_map
     return control_map_status
 
 
-# One-to-one transform without care of has_effect
-def rough_conv_control_map_to_old():
-    state.control_mapMODIFIED = {}
+def _rough_conv_control_map_from_old():
+    """
+    One-to-one transform, do not convert stat to None.
+    """
+    state.control_map_MODIFIED = {}
     deepcopy_control_map_items = deepcopy(state.control_map).items()
     for mapID, control_map_element in deepcopy_control_map_items:
-        control_map_status = rough_conv_control_status_to_old(control_map_element)
-        control_map_element_status = ControlMapElementMODIFIED(
+        control_map_status = _rough_conv_control_status_to_old(
+            control_map_element, control_map_element.fade
+        )
+        control_map_element_status = ControlMapElement_MODIFIED(
             start=control_map_element.start,
-            fade=control_map_element.fade,
+            new_fade=False,
             rev=control_map_element.rev,
             status=control_map_status,
         )
-        state.control_mapMODIFIED[mapID] = control_map_element_status
+        state.control_map_MODIFIED[mapID] = control_map_element_status
 
 
-# def conv_control_map_to_new():
-#     pass
+def _init_pos_x(index, total):
+    if total == 1:
+        return 0.0
 
-# #Override state.pos_mapMODIFIED to state.pos_map
-# def conv_pos_map_to_new():
-#     state.pos_map = deepcopy(state.pos_mapMODIFIED)
-#     NumberofPosFrame = len(state.pos_map)
-#     for dancer in state.dancer_names:
-#         last_position: tuple[MapID, int, PosMapPosition] | None = None
-#         no_effect_position_history: PosHistory = []
-#         for mapID in range(0, NumberofPosFrame):
-#             frame_number = state.pos_map[mapID].start
-#             pos_of_dancer = position_of_dancer(state.pos_map, dancer, mapID)
+    total_length = total - 1
+    half_length = total_length / 2
+    left_point = -half_length
+    right_point = half_length
 
-#             if last_position is None:
-#                 if not pos_of_dancer.has_effect:
-#                     empty_position = Position(
-#                         location=Location(x=0, y=0, z=0),
-#                         rotation=Rotation(rx=0, ry=0, rz=0),
-#                         has_effect=True
-#                     )
-#                     last_position = 0, 0, empty_position
-#                     pos_of_dancer.has_effect = True
-#                     pos_of_dancer.location = Location(x=0, y=0, z=0)
-#                     pos_of_dancer.rotation = Rotation(rx=0, ry=0, rz=0)
-#                 else:
-#                     last_position = mapID, frame_number, pos_of_dancer
-#                 continue
-
-#             if not pos_of_dancer.has_effect:
-#                 this_position = mapID, frame_number, pos_of_dancer
-#                 no_effect_position_history.append(this_position)
-#                 continue
-
-#             if no_effect_position_history:
-#                 for _, ne_frame_number, ne_pos_of_dancer in no_effect_position_history:
-#                     position_interpolate([last_position[2], pos_of_dancer], [last_position[1], frame_number], ne_frame_number, ne_pos_of_dancer)
-#                 no_effect_position_history.clear()
-
-# # Override state.control_map to state.control_mapMODIFIED
-# def conv_control_map_to_old():
-#     rough_conv_control_map_to_old()
-#     NumberOfPosFrame = len(state.control_mapMODIFIED)
-#     for dancer, part_list in state.dancers.items():
-#         for part in part_list:
-#             control_history: CtrlHistory = []
-#             for mapID in range(0, NumberOfPosFrame):
-#                 frame_number = state.control_mapMODIFIED[mapID].start
-#                 ctrl_of_dancer = control_of_dancer(state.control_mapMODIFIED, dancer, part, mapID)
-
-#                 this_control = mapID, frame_number, ctrl_of_dancer
-#                 control_history.append(this_control)
-#                 if len(control_history) < 3:
-#                     continue
-
-#                 if ctrl_is_arithmetic_sequence(control_history):
-#                     mid_ctrl_of_dancer = control_history[-2][2]
-#                     mid_ctrl_of_dancer.has_effect = False
-#                     control_history.pop(-2)
+    x = (left_point * (total_length - index) + right_point * index) / total_length
+    return x
 
 
-# Override state.pos_map to state.pos_mapMODIFIED
-def conv_pos_map_to_old():
-    state.pos_mapMODIFIED = deepcopy(state.pos_map)
+def conv_control_map_to_new():
+    pass
+
+
+# Override state.pos_map_MODIFIED to state.pos_map
+def conv_pos_map_to_new():
+    state.pos_map = deepcopy(state.pos_map_MODIFIED)
     pos_map = state.pos_map
     sorted_pos_map = sorted(pos_map.items(), key=lambda item: item[1].start)
+
+    dancer_num = len(state.dancer_names)
+    for index, dancer in enumerate(state.dancer_names):
+        last_position: tuple[MapID, int, Position] | None = None
+
+        init_x = _init_pos_x(index, dancer_num)
+        empty_position = Position(
+            location=Location(x=init_x, y=0, z=0), rotation=Rotation(rx=0, ry=0, rz=0)
+        )
+        nopos_mapData: list[FrameData] = []
+
+        for mapID, pos_elem in sorted_pos_map:
+            frame_number = state.pos_map[mapID].start
+            pos_of_dancer = pos_map[mapID].pos[dancer]
+
+            if last_position is None:
+                if pos_of_dancer is None:
+                    last_position = mapID, frame_number, empty_position
+                else:
+                    last_position = mapID, frame_number, pos_of_dancer
+
+                continue
+
+            if pos_of_dancer is None:
+                frame_data = mapID, frame_number
+                nopos_mapData.append(frame_data)
+                continue
+
+            if nopos_mapData:
+                for nopos_mapID, nopos_frame in nopos_mapData:
+                    left_data: PosInterpolateData = (last_position[2], last_position[1])
+                    right_data: PosInterpolateData = (pos_of_dancer, frame_number)
+                    nopos_pos_of_dancer = interpolate_pos(
+                        left_data, right_data, nopos_frame
+                    )
+                    pos_map[nopos_mapID].pos[dancer] = nopos_pos_of_dancer
+
+                nopos_mapData.clear()
+
+        if nopos_mapData:
+            for nopos_mapID, nopos_frame in nopos_mapData:
+                last_position = cast(tuple[MapID, int, Position], last_position)
+                pos_map[nopos_mapID].pos[dancer] = last_position[2]
+
+            nopos_mapData.clear()
+
+
+# Override state.control_map to state.control_map_MODIFIED
+def sync_control_map_to_old():
+    _rough_conv_control_map_from_old()
+    ctrl_map = state.control_map
+    sorted_ctrl_map = sorted(ctrl_map.items(), key=lambda item: item[1].start)
+
+    for dancer, part_list in state.dancers.items():
+        for part in part_list:
+            # keep all control history that is not None (not interpolated in new map)
+            not_none_control_history: CtrlHistory = []
+
+            for mapID, ctrl_elem in sorted_ctrl_map:
+                start = state.control_map_MODIFIED[mapID].start
+                part_data_of_dancer = ctrl_elem.status[dancer][part]
+                led_data_of_dancer = ctrl_elem.led_status[dancer][part]
+                fade_of_dancer = ctrl_elem.fade
+
+                ctrl_of_dancer = CtrlData(
+                    part_data=part_data_of_dancer,
+                    bulb_data=led_data_of_dancer,
+                    fade=fade_of_dancer,
+                )
+                ctrl_of_dancer = cast(CtrlData, ctrl_of_dancer)
+
+                this_control = mapID, start, ctrl_of_dancer
+
+                if _is_no_effect(this_control):
+                    no_effect_mapID = not_none_control_history[-2][0]
+                    state.control_map_MODIFIED[no_effect_mapID].status[dancer][
+                        part
+                    ] = None
+                    continue
+                else:
+                    not_none_control_history.append(this_control)
+
+                if len(not_none_control_history) < 3:
+                    continue
+
+                # If last three position is arithmetic sequence,
+                # pop the -2th (middle of last three non-None position) position history, and change the corresponding pos map to None
+                if _is_interpolation_of_ctrl(not_none_control_history):
+                    interpolated_dancer_mapID = not_none_control_history[-2][0]
+                    state.control_map_MODIFIED[interpolated_dancer_mapID].status[
+                        dancer
+                    ][part] = None
+                    not_none_control_history.pop(-2)
+
+
+# Override state.pos_map to state.pos_map_MODIFIED
+def sync_new_pos_map_from_old():
+    state.pos_map_MODIFIED = deepcopy(state.pos_map)
+    pos_map = state.pos_map
+    sorted_pos_map = sorted(pos_map.items(), key=lambda item: item[1].start)
+
     for dancer in state.dancer_names:
-        position_history: PosHistory = []
+        # keep all position history that is not None (not interpolated in new map)
+        non_none_position_history: PosHistory = []
+
         for mapID, pos_map_elem in sorted_pos_map:
             start = pos_map_elem.start
             pos_of_dancer = pos_map_elem.pos[dancer]
             pos_of_dancer = cast(Position, pos_of_dancer)
 
             this_position = mapID, start, pos_of_dancer
-            position_history.append(this_position)
-            if len(position_history) < 3:
+            non_none_position_history.append(this_position)
+            if len(non_none_position_history) < 3:
                 continue
 
-            if pos_is_arithmetic_sequence(position_history):
-                deletable_dancer_mapID = position_history[-2][0]
-                state.pos_mapMODIFIED[deletable_dancer_mapID].pos[dancer] = None
-                position_history.pop(-2)
+            # If last three position is arithmetic sequence,
+            # pop the -2th (middle of last three non-None position) position history, and change the corresponding pos map to None
+            last_three_non_none_position = non_none_position_history[-3:]
+            if is_interpolation_of_pos(last_three_non_none_position):
+                interpolated_dancer_mapID = non_none_position_history[-2][0]
+                state.pos_map_MODIFIED[interpolated_dancer_mapID].pos[dancer] = None
+                non_none_position_history.pop(-2)

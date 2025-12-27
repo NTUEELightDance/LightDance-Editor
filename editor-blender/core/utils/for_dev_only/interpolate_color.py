@@ -8,7 +8,7 @@ except ImportError:
 
 ActualRGB = tuple[float, float, float]
 Weight = int
-InterpolateData = tuple[
+RGBAInterpolateData = tuple[
     RGBA, Weight
 ]  # weight ratio = ratio of dist(interpolated value - given value)
 _SIMILARITY_EPSILON = (
@@ -24,6 +24,16 @@ def _toActualRGB(color: RGBA) -> ActualRGB:
 
 
 def _calc_prim(prim: float, a: int) -> int:
+    """
+    Calculate true primary color based on primary color and alpha based on round(prim * a / 255.0)
+
+    Args:
+        prim(float): original primary color
+        a(int): original alpha
+
+    Returns:
+        int: real primary color
+    """
     if a == 0:
         return 0
 
@@ -94,7 +104,9 @@ def _are_similar(a: RGBA, b_rgb: ActualRGB) -> bool:
     return reduce(lambda a, b: a and b, are_similar_list)
 
 
-def _interpolate_actual_rgb(a: InterpolateData, b: InterpolateData) -> ActualRGB:
+def _interpolate_actual_rgb(
+    a: RGBAInterpolateData, b: RGBAInterpolateData
+) -> ActualRGB:
     left_rgba, left_weight = a
     right_rgba, right_weight = b
 
@@ -114,20 +126,36 @@ def _interpolate_actual_rgb(a: InterpolateData, b: InterpolateData) -> ActualRGB
     return interpolated_actual_rgb
 
 
-def interpolate(a: InterpolateData, b: InterpolateData) -> RGBA:
+def interpolate(a: RGBAInterpolateData, b: RGBAInterpolateData) -> RGBA:
+    """
+    Interpolate a and b.
+
+    Consider a line with three points.
+    For left point, its weight to interpolate middle point is its distant to the middle point, so does right point.
+
+    Args:
+        a (RGBAInterpolateData): left point and weight,
+        b (RGBAInterpolateData): right point and weight,
+
+    Returns:
+        RGBA: the interpolation of a and b.
+    """
     interpolated_actual_rgb = _interpolate_actual_rgb(a, b)
     return _toRGBA(interpolated_actual_rgb)
 
 
 def is_interpolation(
-    a: InterpolateData, b: InterpolateData, interpolated_color: RGBA
+    a: RGBAInterpolateData, b: RGBAInterpolateData, interpolated_color: RGBA
 ) -> bool:
     """
     Check if interpolated_color is the interpolation of a and b.
 
+    Consider a line with three points.
+    For left point, its weight to interpolate middle point is its distant to the middle point, so does right point.
+
     Args:
-        a (InterpolateData): left point and weight,
-        b (InterpolateData): right point and weight,
+        a (RGBAInterpolateData): left point and weight,
+        b (RGBAInterpolateData): right point and weight,
         interpolated_color (RGBA): the unsure interpolation of a and b
 
     Returns:

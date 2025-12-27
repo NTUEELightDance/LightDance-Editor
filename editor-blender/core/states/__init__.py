@@ -49,8 +49,8 @@ state = State(
     control_map={},
     pos_map={},
     #
-    control_mapMODIFIED={},
-    pos_mapMODIFIED={},
+    control_map_MODIFIED={},
+    pos_map_MODIFIED={},
     #
     not_loaded_control_frames=[],
     not_loaded_pos_frames=[],
@@ -68,8 +68,8 @@ state = State(
     current_led_status={},
     current_pos={},
     #
-    current_statusMODIFIED={},
-    current_posMODIFIED={},
+    current_status_MODIFIED={},
+    current_pos_MODIFIED={},
     #
     current_editing_frame=0,
     current_editing_detached=False,
