@@ -1,6 +1,6 @@
 from typing import Literal
 
-type OutOfRange = Literal["OutOfRange_Larger", "OutOfRange_Smaller"]
+OutOfRange = Literal["OutOfRange_Larger", "OutOfRange_Smaller"]
 
 
 def binary_search(arr: list[int], x: int) -> int:

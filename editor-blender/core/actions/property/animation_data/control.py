@@ -8,6 +8,8 @@ from typing import cast
 
 import bpy
 
+from .....core.utils.for_dev_only.test_keyframe import renew_ctrl_test_frame
+from .....core.utils.for_dev_only.tmp_format_conv import sync_new_ctrl_map_from_old
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
 from ....models import ControlMap, ControlMapElement, MapID, PartType
@@ -46,6 +48,8 @@ def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
+
+    renew_ctrl_test_frame()
 
 
 def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]):
@@ -142,6 +146,8 @@ def update_control_frames_and_fade_sequence(
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
+
+    renew_ctrl_test_frame()
 
 
 """
@@ -302,6 +308,9 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
     if ctrl_frame_number == 0:
         return
+
+    # FIXME delete this after test
+    sync_new_ctrl_map_from_old()
 
     action = ensure_action(scene, "SceneAction")
 

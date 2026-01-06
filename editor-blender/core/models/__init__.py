@@ -52,8 +52,8 @@ LEDPartName = str
 LEDMap = dict[LEDModelName, dict[LEDPartName, dict[LEDEffectName, LEDEffect]]]
 
 MapID = int
-# TODO: Change 'int as frame' to Frame in below, Ex: start: int -> start: Frame
-Frame = int
+# TODO: Change 'int as time' to Time in below, Ex: start: int -> start: Time
+Time = int
 
 
 @dataclass
@@ -107,7 +107,7 @@ ControlMapStatus_MODIFIED = dict[DancerName, DancerStatus_MODIFIED]
 @dataclass
 class ControlMapElement_MODIFIED:
     start: int
-    new_fade: bool  # If overriding fade is true, fade of all part goes true
+    fade_for_new_status: bool  # If overriding fade is true, fade of all part goes true
     rev: Revision
     status: ControlMapStatus_MODIFIED
 
@@ -476,6 +476,8 @@ class State:
     selected_obj_type: SelectedPartType | None
 
     clipboard: Clipboard
+    # TODO implement these
+    clipboard_MODIFIED: Clipboard_MODIFIED
 
     models: Models
     model_names: list[ModelName]
@@ -501,6 +503,8 @@ class State:
     color_map_pending: ColorMapPending
 
     control_map_updates: ControlMapUpdates
+    # TODO implement these
+    control_map_updates_MODIFIED: ControlMapUpdates_MODIFIED
     control_map_pending: bool
 
     pos_map_updates: PosMapUpdates

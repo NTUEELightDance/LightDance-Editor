@@ -17,7 +17,6 @@ from ...models import (
 )
 from ...states import state
 from ...utils.convert import control_status_state_to_mut, led_status_state_to_mut
-from ...utils.for_dev_only.interpolate_ctrl import interpolate_ctrl
 from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.operator import execute_operator
@@ -94,11 +93,8 @@ async def add_control_frame():
     if not bpy.context:
         return
     start = bpy.context.scene.frame_current
-    (control_data, led_control_data, color_data, effect_data) = interpolate_ctrl(
-        start, state.control_map
-    )
-    # controlData = control_status_state_to_mut(state.current_status)
-    # ledControlData = led_status_state_to_mut(state.current_led_status)
+    controlData = control_status_state_to_mut(state.current_status)
+    ledControlData = led_status_state_to_mut(state.current_led_status)
 
     with send_request():
         try:
