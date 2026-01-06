@@ -8,6 +8,8 @@ from typing import cast
 
 import bpy
 
+from .....core.utils.for_dev_only.test_keyframe import renew_pos_test_frame
+from .....core.utils.for_dev_only.tmp_format_conv import sync_new_pos_map_from_old
 from .....properties.types import RevisionPropertyItemType
 from ....models import MapID, Position, PosMapElement
 from ....states import state
@@ -41,6 +43,8 @@ def reset_pos_frames():
 
         point.interpolation = "LINEAR"
         point.select_control_point = False
+
+    renew_pos_test_frame()
 
 
 def reset_pos_rev(sorted_pos_map: list[tuple[MapID, PosMapElement]]):
@@ -120,6 +124,8 @@ def update_pos_frames(
         point.select_control_point = False
 
     curve.keyframe_points.sort()
+
+    renew_pos_test_frame()
 
 
 """
@@ -254,44 +260,8 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
         pos_rev_item.frame_start = frame_start
 
     # FIXME delete this after, only for test
-    from .....core.utils.for_dev_only.tmp_format_conv import conv_pos_map_to_old
-
-    conv_pos_map_to_old()
-
-    first_dancer = state.dancer_names[0]
-    total_effective_pos_frame_number = 0
-    for _, pos_map_element in state.pos_map_MODIFIED.items():
-        if pos_map_element.pos[first_dancer] is not None:
-            total_effective_pos_frame_number += 1
-
-    effective_i = 0
-    for i, (id, pos_map_element) in enumerate(state.pos_map_MODIFIED.items()):
-        if total_effective_pos_frame_number == 0:
-            break
-
-        frame_start = pos_map_element.start
-        pos_status = pos_map_element.pos
-
-        if pos_status[first_dancer] is not None:
-            # insert fake frame
-            scene = bpy.context.scene
-            action = ensure_action(scene, "SceneAction")
-            curve = ensure_curve(
-                action,
-                "ld_pos_frame_first_dancer",
-                keyframe_points=total_effective_pos_frame_number,
-                clear=i == 0,
-            )
-
-            _, kpoints_list = get_keyframe_points(curve)
-
-            point = kpoints_list[effective_i]
-            point.co = frame_start, frame_start
-            point.interpolation = "CONSTANT"
-
-            point.select_control_point = False
-
-            effective_i += 1
+    sync_new_pos_map_from_old()
+    renew_pos_test_frame()
 
 
 """

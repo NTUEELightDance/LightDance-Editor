@@ -9,11 +9,6 @@ from ....api.led_agent import led_agent
 from ....api.model_agent import model_agent
 from ....client import client
 from ....client.subscription import subscribe
-from ....core.actions.property.partial_load import (
-    init_dancer_selection_from_state,
-    init_loaded_frame_range,
-    move_current_frame_to_min_loaded_frame,
-)
 from ....core.actions.state.app_state import (
     send_request,
     set_logged_in,
@@ -29,6 +24,11 @@ from ....core.actions.state.current_status import (
 )
 from ....core.actions.state.editor import setup_control_editor
 from ....core.actions.state.led_map import set_led_map
+from ....core.actions.state.partial_load import (
+    init_dancer_selection_from_state,
+    init_loaded_frame_range,
+    move_current_frame_to_min_loaded_frame,
+)
 from ....core.asyncio import AsyncTask
 from ....core.log import logger
 from ....core.states import state

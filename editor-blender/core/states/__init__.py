@@ -1,8 +1,10 @@
 from ..models import (
     Clipboard,
+    Clipboard_MODIFIED,
     ColorMapPending,
     ColorMapUpdates,
     ControlMapUpdates,
+    ControlMapUpdates_MODIFIED,
     CopiedType,
     EditingData,
     EditMode,
@@ -70,6 +72,10 @@ state = State(
     #
     current_status_MODIFIED={},
     current_pos_MODIFIED={},
+    clipboard_MODIFIED=Clipboard_MODIFIED(CopiedType.NONE),
+    control_map_updates_MODIFIED=ControlMapUpdates_MODIFIED(
+        added={}, updated={}, deleted={}
+    ),
     #
     current_editing_frame=0,
     current_editing_detached=False,

@@ -70,6 +70,26 @@ class EditorPanel(bpy.types.Panel):
             row.operator("lightdance.request_edit", text="Edit", icon="GREASEPENCIL")
             row.operator("lightdance.delete", text="Delete", icon="X")
 
+        first_dancer = state.dancer_names[0]
+        first_part = state.dancers[first_dancer][0]
+        first_part_LED = [
+            name for name in state.dancers[first_dancer] if name[-3:] == "LED"
+        ][0]
+
+        # FIXME: Delete this after testing
+        if state.editor == Editor.CONTROL_EDITOR:
+            row = layout.row(align=True)
+            row.operator(
+                "lightdance.toggle_test_ctrl_keyframe",
+                text=f"Ctrl Frame of {first_dancer}'s {first_part}",
+            )
+        elif state.editor == Editor.POS_EDITOR:
+            row = layout.row(align=True)
+            row.operator(
+                "lightdance.toggle_test_pos_keyframe",
+                text=f"Pos Frame of {first_dancer}",
+            )
+
 
 def register():
     bpy.utils.register_class(EditorPanel)
