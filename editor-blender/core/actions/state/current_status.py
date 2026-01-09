@@ -20,6 +20,10 @@ def update_current_status_by_index():
 
     index = state.current_control_index
 
+    # if not state.control_map:
+    #     _set_default_status() #FIXME: Make sure that it is handled by "if dancer_status is None or dancer_led_status is None": ?
+    #     return
+
     control_map = state.control_map
     control_id = state.control_record[index]
 
