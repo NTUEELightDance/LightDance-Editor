@@ -11,11 +11,42 @@ def calculate_current_pos_index() -> int:
     return binary_search(state.pos_start_record, bpy.context.scene.frame_current)
 
 
+def _init_pos_y(index: float, total: float):
+    if total == 1:
+        return 0.0
+
+    total_length = total - 1.0
+    half_length = total_length / 2.0
+    left_point = -half_length
+    right_point = half_length
+
+    x = (left_point * (total_length - index) + right_point * index) / total_length
+    return x
+
+
+def _set_default_position():
+    dancer_num = len(state.dancer_names)
+    for index, dancer_name in enumerate(state.dancer_names):
+        init_y = _init_pos_y(index, dancer_num)
+
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
+        if obj is not None:
+            ld_position: PositionPropertyType = getattr(obj, "ld_position")
+            # This also sets the actual location by update handler
+            ld_position.location = (0, init_y, 0)
+            ld_position.rotation = (0, 0, 0)
+            print(ld_position.location)
+
+
 def update_current_pos_by_index():
     """Update current position by index and set ld_position"""
     if not bpy.context:
         return
     index = state.current_pos_index
+
+    if not state.pos_map:
+        _set_default_position()
+        return
 
     pos_map = state.pos_map
     pos_id = state.pos_record[index]

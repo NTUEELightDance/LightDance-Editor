@@ -8,8 +8,8 @@ from ....core.actions.property.animation_data.utils import (
 from ....core.states import state
 from ....core.utils.ui import set_dopesheet_filter
 
-ctrl_test_frame = "ld_control_frame_first_part"
-pos_test_frame = "ld_pos_frame_first_dancer"
+ctrl_test_frame = "ld_control_first_part_frame"
+pos_test_frame = "ld_pos_first_dancer_frame"
 
 
 def renew_pos_test_frame():
