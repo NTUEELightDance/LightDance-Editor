@@ -231,6 +231,7 @@ async def init_editor():
                 for index, result in enumerate(batch_results):
                     if isinstance(result, BaseException):
                         batch_done = False
+                        # FIXME: This function may lose stack trace of result
                         logger.error(f"Batch {batch} failed: {result}")
                     else:
                         batch_completes[index] = True
