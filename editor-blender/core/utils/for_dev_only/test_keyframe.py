@@ -6,8 +6,7 @@ from ....core.actions.property.animation_data.utils import (  # ensure_collectio
     get_keyframe_points,
 )
 from ....core.states import state
-from ....core.utils.notification import notify
-from ....core.utils.ui import set_dopesheet_filter, set_multiple_dopesheet_filter
+from ....core.utils.ui import set_dopesheet_filter
 
 ctrl_test_frame = "ld_control_first_part_frame"
 pos_test_frame = "ld_pos_first_dancer_frame"
