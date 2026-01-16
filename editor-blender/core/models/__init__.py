@@ -465,6 +465,8 @@ class State:
     current_editing_detached: bool
     current_editing_frame_synced: bool
 
+    current_selected_obj_name: str | None
+
     edit_state: EditMode
     editor: Editor
     editing_data: EditingData

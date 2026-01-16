@@ -1,7 +1,10 @@
 import bpy
 
+from ...core.actions.state.dopesheet import handle_select_timeline
 from ...core.models import EditMode, Editor
 from ...core.states import state
+from ...core.utils.notification import notify
+from ...properties.types import LightType, ObjectType
 
 
 # TODO: Add icons
@@ -83,6 +86,57 @@ class EditorPanel(bpy.types.Panel):
                 "lightdance.toggle_test_ctrl_keyframe",
                 text=f"Ctrl Frame of {first_dancer}'s {first_part}",
             )
+
+            obj = (
+                bpy.context.selected_objects[0]
+                if bpy.context.selected_objects
+                else None
+            )
+
+            if obj:
+                ld_object_type = getattr(obj, "ld_object_type")
+                ld_light_type = getattr(obj, "ld_light_type")
+
+                if (
+                    ld_object_type == ObjectType.LIGHT.value
+                    and state.current_selected_obj_name != obj.name
+                    and not obj.name.startswith("Selected_")
+                ):
+                    if ld_light_type == LightType.LED.value:
+                        current_obj_name = f"{obj.name}.000"
+                    else:
+                        current_obj_name = obj.name
+
+                    if state.current_selected_obj_name:
+                        if state.current_selected_obj_name.endswith("_LED"):
+                            old_selected_obj_name = (
+                                f"{state.current_selected_obj_name}.000"
+                            )
+                        else:
+                            old_selected_obj_name = state.current_selected_obj_name
+                    else:
+                        old_selected_obj_name = ""
+
+                    notify("INFO", f"Selected obj is {current_obj_name}")
+                    notify(
+                        "INFO", f"Old selected obj is {state.current_selected_obj_name}"
+                    )
+                    state.current_selected_obj_name = obj.name
+                    handle_select_timeline(current_obj_name, old_selected_obj_name)
+
+            else:
+                if state.current_selected_obj_name:
+                    if state.current_selected_obj_name.endswith("_LED"):
+                        old_selected_obj_name = f"{state.current_selected_obj_name}.000"
+                    else:
+                        old_selected_obj_name = state.current_selected_obj_name
+                    notify("INFO", f"Selected obj is None")
+                    notify(
+                        "INFO", f"Old selected obj is {state.current_selected_obj_name}"
+                    )
+                    state.current_selected_obj_name = None
+                    handle_select_timeline("", old_selected_obj_name)
+
         elif state.editor == Editor.POS_EDITOR:
             row = layout.row(align=True)
             row.operator(

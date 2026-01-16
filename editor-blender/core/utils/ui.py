@@ -26,6 +26,24 @@ def set_dopesheet_filter(content: str):
             area.spaces[0].dopesheet.filter_text = content  # type: ignore
 
 
+def set_multiple_dopesheet_filter(collection_name: str):
+    target_collection = bpy.data.collections.get(collection_name)  # type: ignore
+
+    if target_collection is None:  # type: ignore
+        print(f"Error: Collection '{collection_name}' not found.")  # type: ignore
+        return
+
+    for area in bpy.context.screen.areas:  # type: ignore
+        if area.type == "DOPESHEET_EDITOR":  # type: ignore
+            area.spaces[0].dopesheet.filter_collection = target_collection  # type: ignore
+
+
+def set_dopesheet_show_summary(show: bool):
+    for area in bpy.context.screen.areas:  # type: ignore
+        if area.type == "DOPESHEET_EDITOR":  # type: ignore
+            area.spaces[0].dopesheet.show_summary = show  # type: ignore
+
+
 def set_outliner_filter(content: str):
     for area in bpy.context.screen.areas:  # type: ignore
         if area.type == "OUTLINER":  # type: ignore
