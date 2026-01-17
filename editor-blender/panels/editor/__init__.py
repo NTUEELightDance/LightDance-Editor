@@ -100,7 +100,6 @@ class EditorPanel(bpy.types.Panel):
                 if (
                     ld_object_type == ObjectType.LIGHT.value
                     and state.current_selected_obj_name != obj.name
-                    and not obj.name.startswith("Selected_")
                 ):
                     if ld_light_type == LightType.LED.value:
                         current_obj_name = f"{obj.name}.000"
@@ -122,7 +121,9 @@ class EditorPanel(bpy.types.Panel):
                         "INFO", f"Old selected obj is {state.current_selected_obj_name}"
                     )
                     state.current_selected_obj_name = obj.name
-                    handle_select_timeline(current_obj_name, old_selected_obj_name)
+                    handle_select_timeline(
+                        current_obj_name, old_selected_obj_name, True
+                    )
 
             else:
                 if state.current_selected_obj_name:
@@ -135,7 +136,7 @@ class EditorPanel(bpy.types.Panel):
                         "INFO", f"Old selected obj is {state.current_selected_obj_name}"
                     )
                     state.current_selected_obj_name = None
-                    handle_select_timeline("", old_selected_obj_name)
+                    handle_select_timeline("", old_selected_obj_name, False)
 
         elif state.editor == Editor.POS_EDITOR:
             row = layout.row(align=True)

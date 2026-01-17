@@ -44,6 +44,21 @@ def set_dopesheet_show_summary(show: bool):
             area.spaces[0].dopesheet.show_summary = show  # type: ignore
 
 
+def set_dopesheet_collapse_all(collapse: bool):
+    for area in bpy.context.screen.areas:  # type: ignore
+        if area.type == "DOPESHEET_EDITOR":  # type: ignore
+            region = area.regions[0]  # type: ignore
+            override = bpy.context.copy()  # type: ignore
+            override["area"] = area  # type: ignore
+            override["region"] = region  # type: ignore
+            with bpy.context.temp_override(**override):  # type: ignore
+                if collapse and bpy.ops.anim.channels_collapse.poll():  # type: ignore
+                    bpy.ops.anim.channels_collapse(all=True)  # type: ignore
+                elif bpy.ops.anim.channels_expand.poll():  # type: ignore
+                    bpy.ops.anim.channels_expand(all=True)  # type: ignore
+            break
+
+
 def set_outliner_filter(content: str):
     for area in bpy.context.screen.areas:  # type: ignore
         if area.type == "OUTLINER":  # type: ignore
