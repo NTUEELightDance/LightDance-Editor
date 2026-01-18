@@ -1,6 +1,8 @@
 /*
  * This script deletes frames within a specified time range.
  * Frames with start times strictly between startTime and endTime are removed.
+ * 
+ * The modified data is saved to 'deleted.json'.
  */
 
 const fs = require("fs");
