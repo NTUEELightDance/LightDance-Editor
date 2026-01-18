@@ -6,7 +6,7 @@ from ....core.actions.property.animation_data.utils import (  # ensure_collectio
     get_keyframe_points,
 )
 from ....core.states import state
-from ....core.utils.ui import set_dopesheet_filter
+from ....core.utils.ui import set_dopesheet_collapse_all, set_dopesheet_filter
 
 ctrl_test_frame = "ld_control_first_part_frame"
 pos_test_frame = "ld_pos_first_dancer_frame"
@@ -72,9 +72,6 @@ def renew_ctrl_test_frame():
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
 
-    # delete_curve(action, ctrl_test_frame)
-
-    # ctrl_test_frame = "ld_control_first_part_frame_" + str(index)
     curve = ensure_curve(
         action,
         ctrl_test_frame,
@@ -97,31 +94,10 @@ def renew_ctrl_test_frame():
 def set_ctrl_test_frame():
     renew_ctrl_test_frame()
     set_dopesheet_filter(ctrl_test_frame)
-
-    # action = ensure_action(bpy.context.scene, "SceneAction")
-    # ensure_collection(action, "Ctrl_Pos_Test_Collection", [ctrl_test_frame, pos_test_frame])
-    # set_multiple_dopesheet_filter("Ctrl_Pos_Test_Collection")
-
-    # keywords = [ctrl_test_frame, pos_test_frame]
-    # action = ensure_action(bpy.context.scene, "SceneAction")
-
-    # # 1. Select F-Curves that match any of our keywords
-    # for fcurve in action.fcurves:
-    #     # Check if any keyword is in the data_path (e.g., 'location' or 'rotation')
-    #     if any(key in fcurve.data_path for key in keywords):
-    #         # notify("INFO", f"Selecting F-Curve: {fcurve.data_path}")
-    #         fcurve.select = True
-    #     else:
-    #         fcurve.hide = True
-    #         fcurve.select = False
-
-    # # 2. Tell the Dope Sheet to only show selected channels
-    # for area in bpy.context.screen.areas:
-    #     if area.type == 'DOPESHEET_EDITOR':
-    #         dopesheet = area.spaces.active.dopesheet
-    #         dopesheet.filter_text = "ld"
-    #         dopesheet.show_only_selected = True
+    set_dopesheet_collapse_all(False)
 
 
 def set_pos_test_frame():
+    renew_pos_test_frame()
     set_dopesheet_filter(pos_test_frame)
+    set_dopesheet_collapse_all(False)

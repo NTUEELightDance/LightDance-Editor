@@ -3,8 +3,6 @@ import bpy
 from ...core.actions.state.dopesheet import handle_select_timeline
 from ...core.models import EditMode, Editor
 from ...core.states import state
-from ...core.utils.notification import notify
-from ...properties.types import LightType, ObjectType
 
 
 # TODO: Add icons
@@ -73,15 +71,17 @@ class EditorPanel(bpy.types.Panel):
             row.operator("lightdance.request_edit", text="Edit", icon="GREASEPENCIL")
             row.operator("lightdance.delete", text="Delete", icon="X")
 
+        obj = None
+        if bpy.context.selected_objects:
+            obj = bpy.context.selected_objects[0]
+        if obj or state.current_selected_obj_name:
+            handle_select_timeline(obj)
+
         first_dancer = state.dancer_names[0]
         first_part = state.dancers[first_dancer][0]
         first_part_LED = [
             name for name in state.dancers[first_dancer] if name[-3:] == "LED"
         ][0]
-
-        obj = bpy.context.selected_objects[0] if bpy.context.selected_objects else None
-
-        handle_select_timeline(obj)
 
         # FIXME: Delete this after testing
         if state.editor == Editor.CONTROL_EDITOR:
