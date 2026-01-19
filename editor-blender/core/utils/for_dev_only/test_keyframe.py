@@ -19,6 +19,9 @@ def renew_pos_test_frame():
         if pos_map_element.pos[first_dancer] is not None:
             total_effective_pos_frame_number += 1
 
+    if not state.pos_map_MODIFIED:
+        return
+
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
     curve = ensure_curve(
