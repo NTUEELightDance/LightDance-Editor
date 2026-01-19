@@ -43,11 +43,11 @@ def update_current_pos_by_index():
         return
     index = state.current_pos_index
 
-    if not state.pos_map:
+    if not state.pos_map_MODIFIED:
         _set_default_position()
         return
 
-    pos_map = state.pos_map
+    pos_map_modified = state.pos_map_MODIFIED
     pos_id = state.pos_record[index]
 
     current_pos_map = pos_map.get(pos_id)

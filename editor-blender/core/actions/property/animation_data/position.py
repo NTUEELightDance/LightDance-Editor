@@ -263,9 +263,9 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
         return
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-    pos_map = state.pos_map_MODIFIED
+    pos_map_modified = state.pos_map_MODIFIED
 
-    sorted_pos_map = sorted(pos_map.items(), key=lambda item: item[1].start)
+    sorted_pos_map = sorted(pos_map_modified.items(), key=lambda item: item[1].start)
 
     sorted_frame_pos_map = [item[1].start for item in sorted_pos_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
@@ -315,6 +315,9 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
     # Handle empty pos_map
     if not pos_map:
+    if not pos_map_modified:
+        _set_default_keyframes()
+
         # Delete all fake frame
         scene = bpy.context.scene
         action = ensure_action(scene, "SceneAction")
@@ -351,8 +354,12 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if not (dancer_l <= i and i <= dancer_r):
                 continue
 
-            dancer_location = (pos.location.x, pos.location.y, pos.location.z)
-            dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
+                if pos is None:
+                    continue
+
+                pos = cast(Position, pos)
+                dancer_location = (pos.location.x, pos.location.y, pos.location.z)
+                dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
 
             dancer_obj = data_objects[dancer_name]
 
