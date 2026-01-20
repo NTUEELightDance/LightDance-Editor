@@ -1,6 +1,8 @@
 /*
  * This script copies part status and LED status from one frame to all frames within a time range.
  * Useful for applying the same part configuration across multiple frames.
+ * 
+ * The modified data is saved to 'props.json'.
  */
 
 const fs = require("fs");
