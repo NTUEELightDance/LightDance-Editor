@@ -521,7 +521,7 @@ impl ControlMapMutation {
         sqlx::query!(
             r#"
                 UPDATE ControlFrame
-                SET data_rev = data_rev + 1, fade = ? 
+                SET data_rev = data_rev + 1, fade_for_new_status = ?
                 WHERE id = ?;
             "#,
             input.fade.unwrap_or(false),
