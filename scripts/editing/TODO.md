@@ -1,0 +1,3 @@
+- rewrite the code in rust
+- auto backup database into JSON?
+- use SQL instead of modifying JSON ( directly modify the database is faster )
