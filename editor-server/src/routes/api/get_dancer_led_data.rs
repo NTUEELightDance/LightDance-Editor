@@ -370,7 +370,7 @@ pub async fn get_dancer_led_data(
                 ControlData.type,
                 ControlData.effect_id,
                 ControlFrame.start,
-                ControlFrame.fade
+                ControlFrame.fade_for_new_status AS fade
             FROM Dancer
             INNER JOIN Model
                 ON Dancer.model_id = Model.id
@@ -401,7 +401,7 @@ pub async fn get_dancer_led_data(
                 ControlData.id as "control_data_id", 
                 LEDBulb.position,
                 LEDBulb.color_id,
-                LEDBulb.alpha
+                LEDBulb.alpha AS "alpha: i32"
             FROM Dancer
             INNER JOIN Model
                 ON Dancer.model_id = Model.id

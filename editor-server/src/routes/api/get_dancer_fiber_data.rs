@@ -139,9 +139,9 @@ pub async fn get_dancer_fiber_data(
             SELECT
                 ControlFrame.id,
                 ControlFrame.start,
-                ControlFrame.fade,
+                ControlFrame.fade_for_new_status AS fade,
                 ControlData.color_id,
-                ControlData.alpha,
+                COALESCE(ControlData.alpha, 0) AS "alpha: i32",
                 Part.name
             FROM Dancer
             INNER JOIN Model

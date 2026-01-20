@@ -367,7 +367,7 @@ pub async fn upload_data(
 
             let frame_id = sqlx::query!(
                 r#"
-                    INSERT INTO ControlFrame (start, fade)
+                    INSERT INTO ControlFrame (start, fade_for_new_status)
                     VALUES (?, ?);
                 "#,
                 frame_obj.start,

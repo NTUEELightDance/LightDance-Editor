@@ -20,11 +20,11 @@ pub async fn init() {
     dotenv::dotenv().ok();
     global::envs::set();
 
-    let mysql_host = env!("DATABASE_URL", "DATABASE_URL is not set");
-    let redis_host = env!("REDIS_HOST", "REDIS_HOST is not set");
-    let redis_port = env!("REDIS_PORT", "REDIS_PORT is not set");
+    let mysql_host = std::env::var("DATABASE_URL").expect("DATABASE_URL is not set");
+    let redis_host = std::env::var("REDIS_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let redis_port = std::env::var("REDIS_PORT").unwrap_or_else(|_| "6379".to_string());
 
-    global::clients::set(AppClients::connect(mysql_host, (redis_host, redis_port)).await);
+    global::clients::set(AppClients::connect(&mysql_host, (&redis_host, &redis_port)).await);
 
     let clients = global::clients::get();
 
