@@ -77,6 +77,14 @@ class EditorPanel(bpy.types.Panel):
         if obj or state.current_selected_obj_name:
             handle_select_timeline(obj)
 
+        # TODO: Pin Dancer button
+        # row = layout.row(align=True)
+        # row.operator(
+        #     "lightdance.pin_dancer",
+        #     text="Pin Dancer",
+        #     icon="PINNED"
+        # )
+
         first_dancer = state.dancer_names[0]
         first_part = state.dancers[first_dancer][0]
         first_part_LED = [

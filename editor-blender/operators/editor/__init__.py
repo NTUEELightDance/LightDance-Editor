@@ -152,6 +152,14 @@ class SyncMapUpdates(bpy.types.Operator):
         return {"FINISHED"}
 
 
+# TODO: Implement pin dancer operator
+class PinDancer(bpy.types.Operator):
+    """Pin Dancer"""
+
+    bl_idname = "lightdance.pin_dancer"
+    bl_label = "Pin Dancer"
+
+
 class RequestEdit(AsyncOperator):
     """Request Edit"""
 
@@ -346,6 +354,7 @@ def register():
     bpy.utils.register_class(ToggleLEDEditor)
     bpy.utils.register_class(SyncMapUpdates)
     bpy.utils.register_class(SyncColorUpdates)
+    bpy.utils.register_class(PinDancer)
     bpy.utils.register_class(Add)
     bpy.utils.register_class(Save)
     bpy.utils.register_class(Delete)
@@ -359,6 +368,7 @@ def unregister():
     bpy.utils.unregister_class(ToggleLEDEditor)
     bpy.utils.unregister_class(SyncMapUpdates)
     bpy.utils.unregister_class(SyncColorUpdates)
+    bpy.utils.unregister_class(PinDancer)
     bpy.utils.unregister_class(Add)
     bpy.utils.unregister_class(Save)
     bpy.utils.unregister_class(Delete)

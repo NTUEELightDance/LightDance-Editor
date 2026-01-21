@@ -60,7 +60,17 @@ def draw_fade_on_curve(
         point.select_control_point = False
 
 
-def draw_pos_on_curve(action: bpy.types.Action, data_path: str, pos_seq: list[int]):
+"""
+pos_seq: list of (start_frame(int), is_generated(bool))
+
+is_generated: 0 - "KEYFRAME"(normal keyframe)
+              1 - "GENERATED"(for partial load frame) 
+"""
+
+
+def draw_pos_on_curve(
+    action: bpy.types.Action, data_path: str, pos_seq: list[tuple[int, bool]]
+):
     total_effective_pos_frame_number = len(pos_seq)
     curve = ensure_curve(
         action,
@@ -71,9 +81,12 @@ def draw_pos_on_curve(action: bpy.types.Action, data_path: str, pos_seq: list[in
 
     _, kpoints_list = get_keyframe_points(curve)
 
-    for i, start in enumerate(pos_seq):
+    for i, (start, is_generated) in enumerate(pos_seq):
         point = kpoints_list[i]
         point.co = start, start
+
+        if is_generated:
+            point.keyframe_type = "GENERATED"
 
         point.interpolation = "LINEAR"
         point.select_control_point = False
@@ -88,6 +101,12 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         sorted_ctrl_map = sorted(
             state.control_map_MODIFIED.items(), key=lambda item: item[1].start
         )
+
+        filtered_ctrl_map = [
+            ctrl_item
+            for ctrl_item in sorted_ctrl_map
+            if ctrl_item[0] not in state.not_loaded_control_frames
+        ]
 
         dancer_name = getattr(current_obj, "ld_dancer_name")
         part_name = getattr(current_obj, "ld_part_name")
@@ -104,7 +123,7 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         # fade sequence for fade_for_new_status
         dancer_fade_seq = [
             (frame.start, frame.fade_for_new_status)  # type:ignore
-            for _, frame in sorted_ctrl_map
+            for _, frame in filtered_ctrl_map
         ]
 
         draw_fade_on_curve(ctrl_action, "fade_for_new_status", dancer_fade_seq)
@@ -121,14 +140,15 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         # fade sequence for the selected part object
         part_fade_seq = [
             (frame.start, frame.status[dancer_name][part_name].fade)  # type:ignore
-            for _, frame in sorted_ctrl_map
+            for _, frame in filtered_ctrl_map
             if frame.status[dancer_name][part_name] is not None
         ]
 
+        """ Use old control map to test"""
         # sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
         # filtered_ctrl_map = [
         #     ctrl_item
-        #     for ctrl_item in sorted_ctrl_map
+        #     for ctrl_item in filtered_ctrl_map
         #     if ctrl_item[0] not in state.not_loaded_control_frames
         # ]
         # fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
@@ -156,6 +176,14 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
     current_obj = bpy.data.objects.get(current_obj_name)
 
     if current_obj:
+        sorted_pos_map = sorted(state.pos_map.items(), key=lambda item: item[1].start)
+
+        filtered_pos_map = [
+            pos_item
+            for pos_item in sorted_pos_map
+            if pos_item[0] not in state.not_loaded_pos_frames
+        ]
+
         dancer_name = getattr(current_obj, "ld_dancer_name")
 
         # setup pos for pos frame
@@ -166,7 +194,35 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
 
         action_name = f"{pos_obj.name}Action"
         pos_action = ensure_action(pos_obj, action_name)
-        pos_start_record = [frame.start for _, frame in state.pos_map_MODIFIED.items()]
+
+        # pos_start_record = [(frame.start, 0) for _, frame in filtered_pos_map]
+        pos_start_record = []
+
+        """ Implementation #1 for partial load"""
+        # for _, frame in filtered_pos_map:
+        #     has_not_none = False
+        #     is_generated = True
+
+        #     for (dancer, pos) in frame.pos.items():
+        #         if pos is not None:
+        #             has_not_none = True
+        #             if dancer in state.show_dancers:
+        #                 is_generated = False
+        #                 break
+
+        #     if has_not_none:
+        #         pos_start_record.append((frame.start, is_generated))
+
+        """ Implementation #2  for partial load"""
+        for _, frame in filtered_pos_map:
+            active_dancers = [
+                dancer for dancer, pos in frame.pos.items() if pos is not None
+            ]
+            if active_dancers:
+                is_generated = all(
+                    dancer not in state.show_dancers for dancer in active_dancers
+                )
+                pos_start_record.append((frame.start, is_generated))
 
         draw_pos_on_curve(
             pos_action,
@@ -184,8 +240,8 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         selected_action = ensure_action(selected_dancer, action_name)
 
         dancer_pos_start_record = [
-            frame.start
-            for _, frame in state.pos_map_MODIFIED.items()
+            (frame.start, False)
+            for _, frame in filtered_pos_map
             if frame.pos[dancer_name] is not None
         ]
 
