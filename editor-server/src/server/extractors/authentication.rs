@@ -17,6 +17,7 @@ use std::fmt::Debug;
 pub struct Authentication(pub UserContext);
 
 #[derive(Debug, Deserialize, Serialize)]
+#[allow(dead_code)]
 struct Token(String);
 
 impl FromRequestParts<()> for Authentication {
