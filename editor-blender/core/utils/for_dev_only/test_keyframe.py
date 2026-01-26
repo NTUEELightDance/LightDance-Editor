@@ -1,12 +1,12 @@
 import bpy
 
-from ....core.actions.property.animation_data.utils import (  # ensure_collection,; delete_curve,
+from ....core.actions.property.animation_data.utils import (
     ensure_action,
     ensure_curve,
     get_keyframe_points,
 )
 from ....core.states import state
-from ....core.utils.ui import set_dopesheet_collapse_all, set_dopesheet_filter
+from ....core.utils.ui import set_dopesheet_filter
 
 ctrl_test_frame = "ld_control_first_part_frame"
 pos_test_frame = "ld_pos_first_dancer_frame"
@@ -53,9 +53,6 @@ def renew_ctrl_test_frame():
     if not bpy.context:
         return
 
-    # global ctrl_test_frame
-
-    # index = numpy.random.randint(0, len(state.dancer_names))
     first_dancer = state.dancer_names[0]
     first_part = state.dancers[first_dancer][0]
 
@@ -71,7 +68,6 @@ def renew_ctrl_test_frame():
 
     scene = bpy.context.scene
     action = ensure_action(scene, "SceneAction")
-
     curve = ensure_curve(
         action,
         ctrl_test_frame,
@@ -94,10 +90,8 @@ def renew_ctrl_test_frame():
 def set_ctrl_test_frame():
     renew_ctrl_test_frame()
     set_dopesheet_filter(ctrl_test_frame)
-    set_dopesheet_collapse_all(False)
 
 
 def set_pos_test_frame():
     renew_pos_test_frame()
     set_dopesheet_filter(pos_test_frame)
-    set_dopesheet_collapse_all(False)

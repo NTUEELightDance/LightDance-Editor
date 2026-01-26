@@ -74,9 +74,13 @@ def _rough_conv_control_map_from_old():
 
 # Override state.control_map_MODIFIED to state.control_map
 def sync_new_ctrl_map_from_old():
-    _rough_conv_control_map_from_old()
+    # _rough_conv_control_map_from_old()
+    pass
 
 
 # Override state.pos_map_MODIFIED to state.pos_map
 def sync_new_pos_map_from_old():
-    state.pos_map_MODIFIED = deepcopy(state.pos_map)
+    # state.pos_map_MODIFIED = deepcopy(state.pos_map)
+    from ....core.utils.for_dev_only.insert_map import load_default_map
+
+    load_default_map()

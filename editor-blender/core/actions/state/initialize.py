@@ -231,6 +231,7 @@ async def init_editor():
                 for index, result in enumerate(batch_results):
                     if isinstance(result, BaseException):
                         batch_done = False
+                        # FIXME: This function may lose stack trace of result
                         logger.error(f"Batch {batch} failed: {result}")
                     else:
                         batch_completes[index] = True
@@ -421,6 +422,11 @@ async def init_control_map():
     state.control_record = control_record
     state.control_start_record = [control_map[id].start for id in control_record]
 
+    # FIXME: delete this after test
+    from ....core.utils.for_dev_only.tmp_format_conv import sync_new_ctrl_map_from_old
+
+    sync_new_ctrl_map_from_old()
+
     state.current_control_index = 0
     update_current_status_by_index()
 
@@ -437,6 +443,11 @@ async def init_pos_map():
     state.pos_map = pos_map
     state.pos_record = pos_record
     state.pos_start_record = [pos_map[id].start for id in pos_record]
+
+    # FIXME: delete this after test
+    from ....core.utils.for_dev_only.tmp_format_conv import sync_new_pos_map_from_old
+
+    sync_new_pos_map_from_old()
 
     state.current_pos_index = 0
     update_current_pos_by_index()

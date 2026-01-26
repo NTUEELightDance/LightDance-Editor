@@ -1,9 +1,18 @@
+"""
+Docstring for editor-blender.core.actions.state.dopesheet
+
+-This is a file for handling timeline display when 
+-1. a dancer or part is selected
+-2. a dancer or part is pinned
+"""
+
 from functools import partial
 
 import bpy
 
 from ....core.models import Editor, SelectMode
 from ....core.states import state
+from ....core.utils.algorithms import smallest_range_including_lr
 from ....properties.types import ObjectType
 from ...utils.notification import notify
 from ...utils.ui import redraw_area, set_dopesheet_collapse_all, set_dopesheet_filter
@@ -36,8 +45,16 @@ def delete_obj(obj_name: str):
     return
 
 
+"""
+fade_seq: list of (start_frame(int), is_generated(bool), is_generated(bool))
+
+is_generated: 0 - "KEYFRAME"(normal keyframe)
+              1 - "GENERATED"(for partial load frame) 
+"""
+
+
 def draw_fade_on_curve(
-    action: bpy.types.Action, data_path: str, fade_seq: list[tuple[int, bool]]
+    action: bpy.types.Action, data_path: str, fade_seq: list[tuple[int, bool, bool]]
 ):
     total_effective_ctrl_frame_number = len(fade_seq)
     curve = ensure_curve(
@@ -49,12 +66,15 @@ def draw_fade_on_curve(
 
     _, kpoints_list = get_keyframe_points(curve)
 
-    for i, (start, _) in enumerate(fade_seq):
+    for i, (start, _, is_generated) in enumerate(fade_seq):
         point = kpoints_list[i]
         point.co = start, start
 
         if i > 0 and fade_seq[i - 1][1]:
             point.co = start, kpoints_list[i - 1].co[1]
+
+        if is_generated:
+            point.type = "GENERATED"
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
@@ -86,7 +106,7 @@ def draw_pos_on_curve(
         point.co = start, start
 
         if is_generated:
-            point.keyframe_type = "GENERATED"
+            point.type = "GENERATED"
 
         point.interpolation = "LINEAR"
         point.select_control_point = False
@@ -101,13 +121,7 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         sorted_ctrl_map = sorted(
             state.control_map_MODIFIED.items(), key=lambda item: item[1].start
         )
-
-        filtered_ctrl_map = [
-            ctrl_item
-            for ctrl_item in sorted_ctrl_map
-            if ctrl_item[0] not in state.not_loaded_control_frames
-        ]
-
+        sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
         dancer_name = getattr(current_obj, "ld_dancer_name")
         part_name = getattr(current_obj, "ld_part_name")
 
@@ -120,11 +134,44 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         action_name = f"{ctrl_obj.name}Action"
         ctrl_action = ensure_action(ctrl_obj, action_name)
 
-        # fade sequence for fade_for_new_status
-        dancer_fade_seq = [
-            (frame.start, frame.fade_for_new_status)  # type:ignore
-            for _, frame in filtered_ctrl_map
-        ]
+        # fade sequence for fade_for_new_status (with parital load)
+
+        # filtered_ctrl_map = [
+        #     ctrl_item
+        #     for ctrl_item in sorted_ctrl_map
+        #     if ctrl_item[0] not in state.not_loaded_control_frames
+        # ]
+        filtered_ctrl_map = []
+        filtered_ctrl_map_start = 0
+        filtered_ctrl_map_end = 0
+        frame_range_l, frame_range_r = state.dancer_load_frames
+        if sorted_frame_ctrl_map:
+            (
+                filtered_ctrl_map_start,
+                filtered_ctrl_map_end,
+            ) = smallest_range_including_lr(
+                sorted_frame_ctrl_map, frame_range_l, frame_range_r
+            )
+            filtered_ctrl_map = sorted_ctrl_map[
+                filtered_ctrl_map_start : filtered_ctrl_map_end + 1
+            ]
+
+        dancer_fade_seq = []
+        for _, frame in filtered_ctrl_map:
+            active_dancers = [
+                dancer
+                for dancer, parts in frame.status.items()
+                if any(part is not None for part in parts.values())
+            ]
+
+            if active_dancers:
+                is_generated = all(
+                    not state.show_dancers[state.dancer_names.index(dancer)]
+                    for dancer in active_dancers
+                )
+                dancer_fade_seq.append(
+                    (frame.start, frame.fade_for_new_status, is_generated)
+                )
 
         draw_fade_on_curve(ctrl_action, "fade_for_new_status", dancer_fade_seq)
 
@@ -137,21 +184,48 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
             selected_part, f"selected_{current_obj_name}Action"
         )
 
-        # fade sequence for the selected part object
+        # fade sequence for the selected part object (with parital load)
+        """
+        The code below filters the smallest range in sorted_ctrl_map that satisfies the 3 following conditions:
+        1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
+        2. The borders' frame.start isn't state.dancer_load_frames[0] or state.dancer_load_frames[1]
+        3. The status of the borders' frame isn't None
+        """
+        while True:
+            _, frame = sorted_ctrl_map[filtered_ctrl_map_start]
+            if filtered_ctrl_map_start == 0 or frame.start != frame_range_l:
+                break
+            filtered_ctrl_map_start -= 1
+
+            if frame.status[dancer_name][part_name] is not None:
+                break
+
+        while True:
+            _, frame = sorted_ctrl_map[filtered_ctrl_map_end]
+            if (
+                filtered_ctrl_map_end == len(sorted_ctrl_map) - 1
+                or frame.start != frame_range_r
+            ):
+                break
+
+            filtered_ctrl_map_end += 1
+
+            if frame.status[dancer_name][part_name] is not None:
+                break
+
+        filtered_ctrl_map = sorted_ctrl_map[
+            filtered_ctrl_map_start : filtered_ctrl_map_end + 1
+        ]
+
         part_fade_seq = [
-            (frame.start, frame.status[dancer_name][part_name].fade)  # type:ignore
+            (
+                frame.start,
+                frame.status[dancer_name][part_name].fade,
+                False,
+            )  # type:ignore
             for _, frame in filtered_ctrl_map
             if frame.status[dancer_name][part_name] is not None
         ]
-
-        """ Use old control map to test"""
-        # sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
-        # filtered_ctrl_map = [
-        #     ctrl_item
-        #     for ctrl_item in filtered_ctrl_map
-        #     if ctrl_item[0] not in state.not_loaded_control_frames
-        # ]
-        # fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
 
         draw_fade_on_curve(selected_action, "fade_for_selected_object", part_fade_seq)
 
@@ -159,8 +233,6 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         selected_part.select_set(False)
         bpy.context.collection.objects.link(ctrl_obj)
         bpy.context.collection.objects.link(selected_part)
-        # notify("INFO", f"Added {ctrl_obj.name}")
-        # notify("INFO", f"Added {selected_part.name}")
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
@@ -176,13 +248,10 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
     current_obj = bpy.data.objects.get(current_obj_name)
 
     if current_obj:
-        sorted_pos_map = sorted(state.pos_map.items(), key=lambda item: item[1].start)
-
-        filtered_pos_map = [
-            pos_item
-            for pos_item in sorted_pos_map
-            if pos_item[0] not in state.not_loaded_pos_frames
-        ]
+        sorted_pos_map = sorted(
+            state.pos_map_MODIFIED.items(), key=lambda item: item[1].start
+        )
+        sorted_frame_pos_map = [item[1].start for item in sorted_pos_map]
 
         dancer_name = getattr(current_obj, "ld_dancer_name")
 
@@ -195,32 +264,35 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         action_name = f"{pos_obj.name}Action"
         pos_action = ensure_action(pos_obj, action_name)
 
-        # pos_start_record = [(frame.start, 0) for _, frame in filtered_pos_map]
+        # pos_map for pos frame (with partial load)
+
+        # filtered_pos_map = [
+        #     pos_item
+        #     for pos_item in sorted_pos_map
+        #     if pos_item[0] not in state.not_loaded_pos_frames
+        # ]
+
+        filtered_pos_map = []
+        filtered_pos_map_start = 0
+        filtered_pos_map_end = 0
+        frame_range_l, frame_range_r = state.dancer_load_frames
+        if sorted_frame_pos_map:
+            filtered_pos_map_start, filtered_pos_map_end = smallest_range_including_lr(
+                sorted_frame_pos_map, frame_range_l, frame_range_r
+            )
+            filtered_pos_map = sorted_pos_map[
+                filtered_pos_map_start : filtered_pos_map_end + 1
+            ]
+
         pos_start_record = []
-
-        """ Implementation #1 for partial load"""
-        # for _, frame in filtered_pos_map:
-        #     has_not_none = False
-        #     is_generated = True
-
-        #     for (dancer, pos) in frame.pos.items():
-        #         if pos is not None:
-        #             has_not_none = True
-        #             if dancer in state.show_dancers:
-        #                 is_generated = False
-        #                 break
-
-        #     if has_not_none:
-        #         pos_start_record.append((frame.start, is_generated))
-
-        """ Implementation #2  for partial load"""
         for _, frame in filtered_pos_map:
             active_dancers = [
                 dancer for dancer, pos in frame.pos.items() if pos is not None
             ]
             if active_dancers:
                 is_generated = all(
-                    dancer not in state.show_dancers for dancer in active_dancers
+                    not state.show_dancers[state.dancer_names.index(dancer)]
+                    for dancer in active_dancers
                 )
                 pos_start_record.append((frame.start, is_generated))
 
@@ -239,6 +311,39 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         action_name = f"selected_{current_obj_name}Action"
         selected_action = ensure_action(selected_dancer, action_name)
 
+        # pos map for selected dancer (with partial load)
+        """
+        The code below filters the smallest range in sorted_pos_map that satisfies the 3 following conditions:
+        1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
+        2. The borders' frame.start isn't state.dancer_load_frames[0] or state.dancer_load_frames[1]
+        3. The status of the borders' frame isn't None
+        """
+        while True:
+            _, frame = sorted_pos_map[filtered_pos_map_start]
+            if filtered_pos_map_start == 0 or frame.start != frame_range_l:
+                break
+            filtered_pos_map_start -= 1
+
+            if frame.pos[dancer_name] is not None:
+                break
+
+        while True:
+            _, frame = sorted_pos_map[filtered_pos_map_end]
+            if (
+                filtered_pos_map_end == len(sorted_pos_map) - 1
+                or frame.start != frame_range_r
+            ):
+                break
+
+            filtered_pos_map_end += 1
+
+            if frame.pos[dancer_name] is not None:
+                break
+
+        filtered_pos_map = sorted_pos_map[
+            filtered_pos_map_start : filtered_pos_map_end + 1
+        ]
+
         dancer_pos_start_record = [
             (frame.start, False)
             for _, frame in filtered_pos_map
@@ -255,8 +360,6 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         selected_dancer.select_set(False)
         bpy.context.collection.objects.link(pos_obj)
         bpy.context.collection.objects.link(selected_dancer)
-        # notify("INFO", f"Added {pos_obj.name}")
-        # notify("INFO", f"Added {selected_dancer.name}")
 
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
@@ -328,7 +431,6 @@ def handle_select_timeline(
             bpy.app.timers.register(handle_pos_data_task)
 
         notify("INFO", f"Current Selected: {obj.name}")
-        # notify("INFO", f"Old selected obj is {old_name}")
         return
 
     else:

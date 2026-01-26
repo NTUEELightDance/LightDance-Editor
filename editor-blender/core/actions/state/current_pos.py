@@ -35,7 +35,6 @@ def _set_default_position():
             # This also sets the actual location by update handler
             ld_position.location = (0, init_y, 0)
             ld_position.rotation = (0, 0, 0)
-            print(ld_position.location)
 
 
 def update_current_pos_by_index():
@@ -52,11 +51,15 @@ def update_current_pos_by_index():
     pos_id = state.pos_record[index]
 
     current_pos_map = pos_map.get(pos_id)
-    if current_pos_map is None:
+    is_earlier_than_first_frame = False
+    if state.pos_map and bpy.context.scene.frame_current < state.pos_start_record[0]:
+        is_earlier_than_first_frame = True
+
+    if current_pos_map is None or is_earlier_than_first_frame:
+        _set_default_position()
         return
 
-    state.current_pos = current_pos_map.pos
-    current_pos = state.current_pos
+    current_pos = current_pos_map.pos
 
     if index == len(state.pos_record) - 1:
         for dancer_name in state.dancer_names:
