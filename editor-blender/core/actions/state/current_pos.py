@@ -52,6 +52,7 @@ def update_current_pos_by_index():
 
     current_pos_map = pos_map.get(pos_id)
     is_earlier_than_first_frame = False
+
     if state.pos_map and bpy.context.scene.frame_current < state.pos_start_record[0]:
         is_earlier_than_first_frame = True
 
