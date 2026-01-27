@@ -6,6 +6,7 @@ Docstring for editor-blender.core.actions.state.dopesheet
 -2. a dancer or part is pinned
 """
 
+from enum import Enum
 from functools import partial
 
 import bpy
@@ -21,6 +22,12 @@ from ..property.animation_data.utils import (
     ensure_curve,
     get_keyframe_points,
 )
+
+
+class KeyframeType(Enum):
+    NORMAL = 0
+    GENERATED = 1
+    BREAKDOWN = 2
 
 
 def get_effective_name(name: str) -> str:
@@ -46,15 +53,14 @@ def delete_obj(obj_name: str):
 
 
 """
-fade_seq: list of (start_frame(int), is_generated(bool), is_generated(bool))
-
-is_generated: 0 - "KEYFRAME"(normal keyframe)
-              1 - "GENERATED"(for partial load frame) 
+fade_seq: list of (start_frame(int), fade(bool), keyframe_type(KeyframeType))
 """
 
 
 def draw_fade_on_curve(
-    action: bpy.types.Action, data_path: str, fade_seq: list[tuple[int, bool, bool]]
+    action: bpy.types.Action,
+    data_path: str,
+    fade_seq: list[tuple[int, bool, KeyframeType]],
 ):
     total_effective_ctrl_frame_number = len(fade_seq)
     curve = ensure_curve(
@@ -66,30 +72,29 @@ def draw_fade_on_curve(
 
     _, kpoints_list = get_keyframe_points(curve)
 
-    for i, (start, _, is_generated) in enumerate(fade_seq):
+    for i, (start, _, keyframe_type) in enumerate(fade_seq):
         point = kpoints_list[i]
         point.co = start, start
 
         if i > 0 and fade_seq[i - 1][1]:
             point.co = start, kpoints_list[i - 1].co[1]
 
-        if is_generated:
+        if keyframe_type == KeyframeType.GENERATED:
             point.type = "GENERATED"
+        elif keyframe_type == KeyframeType.BREAKDOWN:
+            point.type = "BREAKDOWN"
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
 
 
 """
-pos_seq: list of (start_frame(int), is_generated(bool))
-
-is_generated: 0 - "KEYFRAME"(normal keyframe)
-              1 - "GENERATED"(for partial load frame) 
+pos_seq: list of (start_frame(int), keyframe_type(KeyframeType))
 """
 
 
 def draw_pos_on_curve(
-    action: bpy.types.Action, data_path: str, pos_seq: list[tuple[int, bool]]
+    action: bpy.types.Action, data_path: str, pos_seq: list[tuple[int, KeyframeType]]
 ):
     total_effective_pos_frame_number = len(pos_seq)
     curve = ensure_curve(
@@ -101,12 +106,14 @@ def draw_pos_on_curve(
 
     _, kpoints_list = get_keyframe_points(curve)
 
-    for i, (start, is_generated) in enumerate(pos_seq):
+    for i, (start, keyframe_type) in enumerate(pos_seq):
         point = kpoints_list[i]
         point.co = start, start
 
-        if is_generated:
+        if keyframe_type == KeyframeType.GENERATED:
             point.type = "GENERATED"
+        elif keyframe_type == KeyframeType.BREAKDOWN:
+            point.type = "BREAKDOWN"
 
         point.interpolation = "LINEAR"
         point.select_control_point = False
@@ -135,12 +142,6 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         ctrl_action = ensure_action(ctrl_obj, action_name)
 
         # fade sequence for fade_for_new_status (with parital load)
-
-        # filtered_ctrl_map = [
-        #     ctrl_item
-        #     for ctrl_item in sorted_ctrl_map
-        #     if ctrl_item[0] not in state.not_loaded_control_frames
-        # ]
         filtered_ctrl_map = []
         filtered_ctrl_map_start = 0
         filtered_ctrl_map_end = 0
@@ -169,8 +170,19 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
                     not state.show_dancers[state.dancer_names.index(dancer)]
                     for dancer in active_dancers
                 )
+
+                if is_generated:
+                    dancer_fade_seq.append(
+                        (frame.start, frame.fade_for_new_status, KeyframeType.GENERATED)
+                    )
+                else:
+                    dancer_fade_seq.append(
+                        (frame.start, frame.fade_for_new_status, KeyframeType.NORMAL)
+                    )
+
+            else:
                 dancer_fade_seq.append(
-                    (frame.start, frame.fade_for_new_status, is_generated)
+                    (frame.start, frame.fade_for_new_status, KeyframeType.BREAKDOWN)
                 )
 
         draw_fade_on_curve(ctrl_action, "fade_for_new_status", dancer_fade_seq)
@@ -221,7 +233,7 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
             (
                 frame.start,
                 frame.status[dancer_name][part_name].fade,
-                False,
+                KeyframeType.NORMAL,
             )  # type:ignore
             for _, frame in filtered_ctrl_map
             if frame.status[dancer_name][part_name] is not None
@@ -265,13 +277,6 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         pos_action = ensure_action(pos_obj, action_name)
 
         # pos_map for pos frame (with partial load)
-
-        # filtered_pos_map = [
-        #     pos_item
-        #     for pos_item in sorted_pos_map
-        #     if pos_item[0] not in state.not_loaded_pos_frames
-        # ]
-
         filtered_pos_map = []
         filtered_pos_map_start = 0
         filtered_pos_map_end = 0
@@ -294,7 +299,14 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
                     not state.show_dancers[state.dancer_names.index(dancer)]
                     for dancer in active_dancers
                 )
-                pos_start_record.append((frame.start, is_generated))
+
+                if is_generated:
+                    pos_start_record.append((frame.start, KeyframeType.GENERATED))
+                else:
+                    pos_start_record.append((frame.start, KeyframeType.NORMAL))
+
+            else:
+                pos_start_record.append((frame.start, KeyframeType.BREAKDOWN))
 
         draw_pos_on_curve(
             pos_action,
@@ -345,7 +357,7 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         ]
 
         dancer_pos_start_record = [
-            (frame.start, False)
+            (frame.start, KeyframeType.NORMAL)
             for _, frame in filtered_pos_map
             if frame.pos[dancer_name] is not None
         ]
