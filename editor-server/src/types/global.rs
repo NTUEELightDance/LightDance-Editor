@@ -32,19 +32,19 @@ pub enum PartType {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)] // [id: number, alpha: number]
-pub struct PartControl(pub i32, pub i32);
-pub type PartControlBulbs = Vec<(String, i32)>;
+pub struct PartControl(pub Option<i32>, pub Option<i32>, pub Option<i32>);
+pub type PartControlBulbs = Vec<(String, Option<i32>)>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PositionData {
     pub start: i32,
-    pub location: Vec<[f64; 3]>,
-    pub rotation: Vec<[f64; 3]>,
+    pub location: Vec<[Option<f64>; 3]>,
+    pub rotation: Vec<[Option<f64>; 3]>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartControlString(pub String, pub i32); // LEDControl: [src: string, alpha: number] or FiberControl: [color: string, alpha: number]
-pub type PartControlBulbsData = Vec<(i32, i32)>;
+pub struct PartControlString(pub Option<String>, pub Option<i32>); // LEDControl: [src: string, alpha: number, fade: number] or FiberControl: [color: string, alpha: number, fade: number]
+pub type PartControlBulbsData = Vec<(i32, Option<i32>)>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DancerPart {
@@ -77,10 +77,13 @@ pub struct LEDPart {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ControlData {
-    pub fade: bool,
+    // pub fade: Option<bool>,
     pub start: i32,
     pub status: Vec<Vec<PartControlString>>,
     pub led_status: Vec<Vec<PartControlBulbs>>,
+    // new
+    pub fade: Vec<bool>,
+    pub has_effect: Vec<bool>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -101,12 +104,15 @@ pub struct Revision {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisControl {
-    pub fade: bool,
+    // temporarily remove fade
+    // pub fade: bool,
     pub start: i32,
     pub rev: Revision,
     pub editing: Option<i32>,
     pub status: Vec<Vec<PartControl>>,
     pub led_status: Vec<Vec<PartControlBulbsData>>,
+    pub fade: Vec<bool>,
+    pub has_effect: Vec<bool>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -114,8 +120,8 @@ pub struct RedisPosition {
     pub start: i32,
     pub editing: Option<i32>,
     pub rev: Revision,
-    pub location: Vec<[f64; 3]>,
-    pub rotation: Vec<[f64; 3]>,
+    pub location: Vec<[Option<f64>; 3]>,
+    pub rotation: Vec<[Option<f64>; 3]>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

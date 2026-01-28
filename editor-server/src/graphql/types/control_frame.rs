@@ -13,7 +13,7 @@ pub struct ControlFrameRevision {
 pub struct ControlFrame {
     pub id: i32,
     pub start: i32,
-    pub fade: bool,
+    // pub fade: bool,
     pub rev: ControlFrameRevision,
 }
 
@@ -22,7 +22,7 @@ impl From<&ControlFrame> for ControlFrame {
         Self {
             id: data.id,
             start: data.start,
-            fade: data.fade,
+            // fade: data.fade,
             rev: ControlFrameRevision {
                 meta: data.rev.meta,
                 data: data.rev.data,

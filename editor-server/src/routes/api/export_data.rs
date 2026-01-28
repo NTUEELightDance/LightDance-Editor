@@ -212,7 +212,6 @@ pub async fn export_data(
             SELECT
                 id,
                 start,
-                fade as "fade: bool", 
                 meta_rev, 
                 data_rev
             FROM ControlFrame
@@ -229,10 +228,13 @@ pub async fn export_data(
         let redis_control = get_redis_control(redis, control_frame.id)
             .await
             .into_result()?;
-        let fade = redis_control.fade;
         let start = redis_control.start;
         let status = redis_control.status;
         let led_status = redis_control.led_status;
+
+        // TODO: figure out how this work & fix if needed
+        let fade = redis_control.fade;
+        let has_effect = redis_control.has_effect;
 
         let new_status: Vec<Vec<PartControlString>> = status
             .into_iter()
@@ -247,17 +249,22 @@ pub async fn export_data(
                             PartType::FIBER => {
                                 let color_id = part_status.0;
                                 let alpha = part_status.1;
-                                PartControlString(color_dict[&color_id].clone(), alpha)
+                                let _fade = part_status.2;
+                                PartControlString(color_id.map(|id| color_dict[&id].clone()), alpha)
                             }
                             PartType::LED => {
                                 let effect_id = part_status.0;
                                 let alpha = part_status.1;
-                                if effect_id == 0 {
-                                    PartControlString("".to_string(), alpha)
-                                } else if effect_id == -1 {
-                                    PartControlString("no-change".to_string(), alpha)
-                                } else {
-                                    PartControlString(led_dict[&effect_id].clone(), alpha)
+                                let _fade = part_status.2;
+                                match effect_id {
+                                    Some(0) => PartControlString(Some("".to_string()), alpha),
+                                    Some(-1) => {
+                                        PartControlString(Some("no-change".to_string()), alpha)
+                                    }
+                                    Some(id) => {
+                                        PartControlString(Some(led_dict[&id].clone()), alpha)
+                                    }
+                                    None => PartControlString(None, alpha),
                                 }
                             }
                         }
@@ -282,10 +289,11 @@ pub async fn export_data(
             .collect();
 
         let new_cache_obj = ControlData {
-            fade,
             start,
             status: new_status,
             led_status: new_led_status,
+            fade,
+            has_effect,
         };
         control.insert(control_frame.id.to_string(), new_cache_obj);
     }
@@ -325,9 +333,15 @@ pub async fn export_data(
                 .iter()
                 .map(|dancer_position| {
                     [
-                        ((dancer_position[0] + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_position[1] + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_position[2] + f64::EPSILON) * 100.0).round() / 100.0,
+                        dancer_position[0]
+                            .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
+                        dancer_position[1]
+                            .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
+                        dancer_position[2]
+                            .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
+                        // ((dancer_position[0] + f64::EPSILON) * 100.0).round() / 100.0,
+                        // ((dancer_position[1] + f64::EPSILON) * 100.0).round() / 100.0,
+                        // ((dancer_position[2] + f64::EPSILON) * 100.0).round() / 100.0,
                     ]
                 })
                 .collect();

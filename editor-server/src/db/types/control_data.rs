@@ -11,6 +11,8 @@ pub enum ControlType {
     Effect,
     #[sqlx(rename = "LED_BULBS")]
     LEDBulbs,
+    #[sqlx(rename = "NO_EFFECT")]
+    NoEffect,
 }
 
 impl From<String> for ControlType {
@@ -30,6 +32,7 @@ impl From<ControlType> for String {
             ControlType::Effect => "EFFECT".to_string(),
             ControlType::Color => "COLOR".to_string(),
             ControlType::LEDBulbs => "LED_BULBS".to_string(),
+            ControlType::NoEffect => "NO_EFFECT".to_string(),
         }
     }
 }

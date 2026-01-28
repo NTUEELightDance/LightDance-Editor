@@ -27,7 +27,6 @@ impl ControlFrameQuery {
                 SELECT
                     id,
                     start,
-                    fade as "fade: bool",
                     meta_rev,
                     data_rev
                 FROM ControlFrame 
@@ -42,7 +41,6 @@ impl ControlFrameQuery {
         Ok(ControlFrame {
             id: result.id,
             start: result.start,
-            fade: result.fade,
             rev: ControlFrameRevision {
                 meta: result.meta_rev,
                 data: result.data_rev,

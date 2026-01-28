@@ -520,10 +520,9 @@ impl ControlMapMutation {
         sqlx::query!(
             r#"
                 UPDATE ControlFrame
-                SET data_rev = data_rev + 1, fade = ? 
+                SET data_rev = data_rev + 1
                 WHERE id = ?;
             "#,
-            input.fade.unwrap_or(false),
             frame_id,
         )
         .execute(mysql)

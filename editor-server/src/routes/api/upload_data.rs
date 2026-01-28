@@ -367,11 +367,11 @@ pub async fn upload_data(
 
             let frame_id = sqlx::query!(
                 r#"
-                    INSERT INTO ControlFrame (start, fade)
-                    VALUES (?, ?);
+                    INSERT INTO ControlFrame (start)
+                    VALUES (?);
                 "#,
                 frame_obj.start,
-                frame_obj.fade,
+                // frame_obj.fade,
             )
             .execute(&mut *tx)
             .await
@@ -405,56 +405,114 @@ pub async fn upload_data(
                 {
                     let part_name = &data_obj.dancer[i].parts[j].name;
                     let real_part = &real_dancer.1[part_name];
+                    let part_fade = frame_obj.fade[i];
+                    let part_has_effect = frame_obj.has_effect[i];
 
                     // ""          => effect_id =        NULL, type = "LED_BULBS"
                     // "no-change" => effect_id =        NULL, type =    "EFFECT"
                     // "<EFFECT>"  => effect_id = <EFFECT_ID>, type =    "EFFECT"
 
-                    let r#type = match &real_part.1 {
-                        PartType::FIBER => ControlType::Color,
-                        PartType::LED => {
-                            // LED_BULBS or EFFECT
-                            if part_status.0.is_empty() {
-                                ControlType::LEDBulbs
-                            } else {
-                                ControlType::Effect
+                    // TODO: add error handling for the dirty code below
+                    let r#type = if !part_has_effect {
+                        ControlType::NoEffect
+                    } else {
+                        match &real_part.1 {
+                            PartType::FIBER => ControlType::Color,
+                            PartType::LED => {
+                                if part_status.0.as_ref().unwrap_or(&"".to_string()).is_empty() {
+                                    ControlType::LEDBulbs
+                                } else {
+                                    ControlType::Effect
+                                }
                             }
                         }
+                        // match &real_part.1 {
+                        //     PartType::FIBER => match part_status.0 {
+                        //         Some(_) => ControlType::Color,
+                        //         None => ControlType::NoEffect,
+                        //     },
+                        //     PartType::LED => {
+                        //         match &part_status.0 {
+                        //             Some(string) => {
+                        //                 if string.is_empty() {
+                        //                     ControlType::LEDBulbs
+                        //                 } else {
+                        //                     ControlType::Effect
+                        //                 }
+                        //             }
+                        //             None => ControlType::NoEffect,
+                        //         }
+                        //     }
+                        // }
                     };
 
                     let type_string: String = r#type.clone().into();
 
-                    let color_id = color_dict.get(&part_status.0);
-                    let effect_id = match led_dict.get(model_name) {
-                        Some(parts_dict) => match parts_dict.get(part_name) {
-                            Some(effect_dict) => effect_dict.get(&part_status.0),
+                    if r#type == ControlType::NoEffect {
+                        let _ = sqlx::query!(
+                            r#"
+                                INSERT INTO ControlData (dancer_id, part_id, frame_id, type)
+                                VALUES (?, ?, ?, ?);
+                            "#,
+                            real_dancer.0,
+                            real_part.0,
+                            frame_id,
+                            type_string,
+                        )
+                        .execute(&mut *tx)
+                        .await
+                        .into_result()?
+                        .last_insert_id() as i32;
+                    } else {
+                        let color_id = match &part_status.0 {
+                            Some(string) => color_dict.get(&string),
                             None => None,
-                        },
-                        None => None,
-                    };
+                        };
 
-                    let alpha = part_status.1;
-                    let control_id = sqlx::query!(
-                        r#"
-                            INSERT INTO ControlData (dancer_id, part_id, frame_id, type, color_id, effect_id, alpha)
-                            VALUES (?, ?, ?, ?, ?, ?, ?);
-                        "#,
-                        real_dancer.0,
-                        real_part.0,
-                        frame_id,
-                        type_string,
-                        color_id,
-                        effect_id,
-                        alpha,
-                    )
-                    .execute(&mut *tx)
-                    .await
-                    .into_result()?
-                    .last_insert_id() as i32;
+                        let effect_id = if let Some(parts_dict) = led_dict.get(model_name) {
+                            if let Some(effect_dict) = parts_dict.get(part_name) {
+                                if let Some(string) = &part_status.0 {
+                                    effect_dict.get(&string)
+                                } else {
+                                    None
+                                }
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        };
 
-                    if r#type == ControlType::LEDBulbs {
-                        for (index, (color, alpha)) in part_led_status.iter().enumerate() {
-                            let color_id = match color_dict.get(color) {
+                        // let effect_id = match &led_dict.get(model_name) {
+                        //     Some(parts_dict) => match &parts_dict.get(part_name) {
+                        //         Some(effect_dict) => effect_dict.get(&part_status.0),
+                        //         None => None,
+                        //     },
+                        //     None => None,
+                        // };
+
+                        let alpha = part_status.1;
+                        let control_id = sqlx::query!(
+                            r#"
+                                INSERT INTO ControlData (dancer_id, part_id, frame_id, type, color_id, effect_id, alpha, fade)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                            "#,
+                            real_dancer.0,
+                            real_part.0,
+                            frame_id,
+                            type_string,
+                            color_id,
+                            effect_id,
+                            alpha,
+                            part_fade,
+                        )
+                        .execute(&mut *tx)
+                        .await
+                        .into_result()?
+                        .last_insert_id() as i32;
+                        if r#type == ControlType::LEDBulbs {
+                            for (index, (color, alpha)) in part_led_status.iter().enumerate() {
+                                let color_id = match color_dict.get(color) {
                                 Some(i) => i,
                                 None => {
                                     return Err((
@@ -466,19 +524,20 @@ pub async fn upload_data(
                                 }
                             };
 
-                            sqlx::query!(
-                                r#"
+                                sqlx::query!(
+                                    r#"
                                     INSERT INTO LEDBulb (control_id, position, color_id, alpha)
                                     VALUES (?, ?, ?, ?);
                                 "#,
-                                control_id,
-                                index as i32,
-                                color_id,
-                                alpha,
-                            )
-                            .execute(&mut *tx)
-                            .await
-                            .into_result()?;
+                                    control_id,
+                                    index as i32,
+                                    color_id,
+                                    alpha,
+                                )
+                                .execute(&mut *tx)
+                                .await
+                                .into_result()?;
+                            }
                         }
                     }
                 }

@@ -118,13 +118,22 @@ model Part {
   @@unique([name, model_id])
 }
 
+enum PositionDataType {
+  POSITION
+  NO_EFFECT
+}
+
 model PositionData {
   // id       Int    @id @default(autoincrement())
   dancer_id Int
   frame_id  Int
-  x         Float
-  y         Float
-  z         Float 
+  
+  //New
+  type      PositionDataType // If no-effect, ignore below
+
+  x         Float?
+  y         Float?
+  z         Float? 
   rx        Float @default(0)
   ry        Float @default(0)
   rz        Float @default(0)
@@ -164,6 +173,8 @@ enum ControlDataType {
   COLOR
   EFFECT
   LED_BULBS
+  //New
+  NO_EFFECT
 }
 
 model ControlData {
@@ -171,10 +182,14 @@ model ControlData {
   dancer_id Int
   part_id   Int
   frame_id  Int
-  type      ControlDataType
+  type      ControlDataType // If no-effect, ignore below
+
+  //New
+  fade      Boolean?
+
   color_id  Int?
   effect_id Int?
-  alpha     Int
+  alpha     Int?
 
   // TODO: Check if one of color_id or effect_id is not null
 
@@ -193,13 +208,16 @@ model ControlData {
 model ControlFrame {
   id       Int     @id @default(autoincrement())
   start    Int     @unique
-  fade     Boolean
+  // fade     Boolean
   meta_rev Int     @default(0)
   data_rev Int     @default(0)
 
   // relation => not in db
   editing       EditingControlFrame?
   control_datas ControlData[]
+
+  // New
+  default_fade Boolean @default(false)
 }
 
 model EffectListData {
