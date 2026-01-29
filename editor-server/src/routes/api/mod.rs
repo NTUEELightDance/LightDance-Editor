@@ -23,6 +23,7 @@ pub fn build_api_routes() -> Router {
         .route("/ping", get(ping::ping))
         .route("/login", post(login::login))
         .route("/logout", post(logout::logout))
+        .route("/controlDat", post(control_dat::control_dat))
         .route(
             "/getDancerFiberData",
             post(get_dancer_fiber_data::get_dancer_fiber_data),
