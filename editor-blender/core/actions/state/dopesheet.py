@@ -11,7 +11,15 @@ from functools import partial
 
 import bpy
 
-from ....core.models import Editor, SelectMode
+from ....core.models import (
+    ControlMap_MODIFIED,
+    ControlMapElement_MODIFIED,
+    Editor,
+    MapID,
+    PosMap,
+    PosMapElement,
+    SelectMode,
+)
 from ....core.states import state
 from ....core.utils.algorithms import smallest_range_including_lr
 from ....properties.types import ObjectType
@@ -119,7 +127,96 @@ def draw_pos_on_curve(
         point.select_control_point = False
 
 
-def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
+def get_filtered_map_for_first_timeline(
+    l_timerange: int,
+    r_timerange: int,
+    sorted_map: ControlMap_MODIFIED | PosMap,
+    sorted_frame_map: list[int],
+) -> tuple[
+    int,
+    int,
+    list[(MapID, ControlMapElement_MODIFIED)] | list[(MapID, PosMapElement)] | list,
+]:
+    filtered_map = []
+    start_index = -1
+    end_index = -1
+    if sorted_frame_map:
+        (start_index, end_index) = smallest_range_including_lr(
+            sorted_frame_map, l_timerange, r_timerange
+        )
+        filtered_map = sorted_map[start_index : end_index + 1]
+
+    return start_index, end_index, filtered_map
+
+
+"""
+The code below filters the smallest range in a sort_map that satisfies the 3 following conditions:
+1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
+2. The borders' frame.start isn't state.dancer_load_frames[0] or state.dancer_load_frames[1]
+3. The status of the borders' frame isn't None
+"""
+
+
+def get_filtered_map_for_second_timeline(
+    l_timerange: int,
+    r_timerange: int,
+    init_start_index: int,
+    init_end_index: int,
+    sorted_map: ControlMap_MODIFIED | PosMap,
+    dancer_name: str,
+    part_name: str | None = None,
+) -> list[(MapID, ControlMapElement_MODIFIED)] | list[(MapID, PosMapElement)] | list:
+    if not sorted_map:
+        return []
+
+    start_index = init_start_index
+    end_index = init_end_index
+
+    def has_status(frame: ControlMapElement_MODIFIED | PosMapElement) -> bool:
+        if state.editor == Editor.CONTROL_EDITOR:
+            dancer_status = frame.status[dancer_name]
+
+            if state.selection_mode == SelectMode.PART_MODE:
+                return dancer_status[part_name] is not None
+            elif state.selection_mode == SelectMode.DANCER_MODE:
+                return any(
+                    part_status is not None for part_status in dancer_status.values()
+                )
+
+        elif state.editor == Editor.POS_EDITOR:
+            return frame.pos[dancer_name] is not None
+
+    while True:
+        if start_index == 0 or (
+            sorted_map[init_start_index][1].start != l_timerange
+            and has_status(sorted_map[start_index][1])
+        ):
+            break
+        start_index -= 1
+
+        if has_status(sorted_map[start_index][1]):
+            break
+
+    while True:
+        if end_index == len(sorted_map) - 1 or (
+            sorted_map[init_end_index][1].start != r_timerange
+            and has_status(sorted_map[start_index][1])
+        ):
+            break
+
+        end_index += 1
+
+        if has_status(sorted_map[end_index][1]):
+            break
+
+    notify("INFO", f"{start_index}")
+    notify("INFO", f"{end_index}")
+    return sorted_map[start_index : end_index + 1]
+
+
+def update_ctrl_data(
+    current_obj_name: str, old_selected_obj_name: str, ld_object_type: str
+):
     delete_obj("control_frame")
     delete_obj(f"selected_{old_selected_obj_name}")
 
@@ -130,7 +227,9 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         )
         sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
         dancer_name = getattr(current_obj, "ld_dancer_name")
-        part_name = getattr(current_obj, "ld_part_name")
+        part_name = None
+        if ld_object_type == ObjectType.LIGHT.value:
+            part_name = getattr(current_obj, "ld_part_name")
 
         # setup fade for control frame
         ctrl_obj = bpy.data.objects.new("control_frame", None)
@@ -142,20 +241,15 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         ctrl_action = ensure_action(ctrl_obj, action_name)
 
         # fade sequence for fade_for_new_status (with parital load)
-        filtered_ctrl_map = []
-        filtered_ctrl_map_start = 0
-        filtered_ctrl_map_end = 0
         frame_range_l, frame_range_r = state.dancer_load_frames
-        if sorted_frame_ctrl_map:
-            (
-                filtered_ctrl_map_start,
-                filtered_ctrl_map_end,
-            ) = smallest_range_including_lr(
-                sorted_frame_ctrl_map, frame_range_l, frame_range_r
-            )
-            filtered_ctrl_map = sorted_ctrl_map[
-                filtered_ctrl_map_start : filtered_ctrl_map_end + 1
-            ]
+
+        (
+            filtered_ctrl_map_start,
+            filtered_ctrl_map_end,
+            filtered_ctrl_map,
+        ) = get_filtered_map_for_first_timeline(
+            frame_range_l, frame_range_r, sorted_ctrl_map, sorted_frame_ctrl_map
+        )
 
         dancer_fade_seq = []
         for _, frame in filtered_ctrl_map:
@@ -197,47 +291,44 @@ def update_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
         )
 
         # fade sequence for the selected part object (with parital load)
-        """
-        The code below filters the smallest range in sorted_ctrl_map that satisfies the 3 following conditions:
-        1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
-        2. The borders' frame.start isn't state.dancer_load_frames[0] or state.dancer_load_frames[1]
-        3. The status of the borders' frame isn't None
-        """
-        while True:
-            _, frame = sorted_ctrl_map[filtered_ctrl_map_start]
-            if filtered_ctrl_map_start == 0 or frame.start != frame_range_l:
-                break
-            filtered_ctrl_map_start -= 1
+        filtered_ctrl_map = get_filtered_map_for_second_timeline(
+            frame_range_l,
+            frame_range_r,
+            filtered_ctrl_map_start,
+            filtered_ctrl_map_end,
+            sorted_ctrl_map,
+            dancer_name,
+            part_name,
+        )
 
-            if frame.status[dancer_name][part_name] is not None:
-                break
+        part_fade_seq = []
+        if ld_object_type == ObjectType.LIGHT.value:
+            part_fade_seq = [
+                (
+                    frame.start,
+                    frame.status[dancer_name][part_name].fade,
+                    KeyframeType.NORMAL,
+                )  # type:ignore
+                for _, frame in filtered_ctrl_map
+                if frame.status[dancer_name][part_name] is not None
+            ]
 
-        while True:
-            _, frame = sorted_ctrl_map[filtered_ctrl_map_end]
-            if (
-                filtered_ctrl_map_end == len(sorted_ctrl_map) - 1
-                or frame.start != frame_range_r
-            ):
-                break
+        elif ld_object_type == ObjectType.DANCER.value:
+            for _, frame in filtered_ctrl_map:
+                active_parts = [
+                    part
+                    for part in frame.status[dancer_name].values()
+                    if part is not None
+                ]
 
-            filtered_ctrl_map_end += 1
-
-            if frame.status[dancer_name][part_name] is not None:
-                break
-
-        filtered_ctrl_map = sorted_ctrl_map[
-            filtered_ctrl_map_start : filtered_ctrl_map_end + 1
-        ]
-
-        part_fade_seq = [
-            (
-                frame.start,
-                frame.status[dancer_name][part_name].fade,
-                KeyframeType.NORMAL,
-            )  # type:ignore
-            for _, frame in filtered_ctrl_map
-            if frame.status[dancer_name][part_name] is not None
-        ]
+                if active_parts:
+                    part_fade_seq.append(
+                        (
+                            frame.start,
+                            any(part.fade for part in active_parts),
+                            KeyframeType.NORMAL,
+                        )
+                    )
 
         draw_fade_on_curve(selected_action, "fade_for_selected_object", part_fade_seq)
 
@@ -277,17 +368,14 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         pos_action = ensure_action(pos_obj, action_name)
 
         # pos_map for pos frame (with partial load)
-        filtered_pos_map = []
-        filtered_pos_map_start = 0
-        filtered_pos_map_end = 0
         frame_range_l, frame_range_r = state.dancer_load_frames
-        if sorted_frame_pos_map:
-            filtered_pos_map_start, filtered_pos_map_end = smallest_range_including_lr(
-                sorted_frame_pos_map, frame_range_l, frame_range_r
-            )
-            filtered_pos_map = sorted_pos_map[
-                filtered_pos_map_start : filtered_pos_map_end + 1
-            ]
+        (
+            filtered_pos_map_start,
+            filtered_pos_map_end,
+            filtered_pos_map,
+        ) = get_filtered_map_for_first_timeline(
+            frame_range_l, frame_range_r, sorted_pos_map, sorted_frame_pos_map
+        )
 
         pos_start_record = []
         for _, frame in filtered_pos_map:
@@ -324,37 +412,14 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
         selected_action = ensure_action(selected_dancer, action_name)
 
         # pos map for selected dancer (with partial load)
-        """
-        The code below filters the smallest range in sorted_pos_map that satisfies the 3 following conditions:
-        1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
-        2. The borders' frame.start isn't state.dancer_load_frames[0] or state.dancer_load_frames[1]
-        3. The status of the borders' frame isn't None
-        """
-        while True:
-            _, frame = sorted_pos_map[filtered_pos_map_start]
-            if filtered_pos_map_start == 0 or frame.start != frame_range_l:
-                break
-            filtered_pos_map_start -= 1
-
-            if frame.pos[dancer_name] is not None:
-                break
-
-        while True:
-            _, frame = sorted_pos_map[filtered_pos_map_end]
-            if (
-                filtered_pos_map_end == len(sorted_pos_map) - 1
-                or frame.start != frame_range_r
-            ):
-                break
-
-            filtered_pos_map_end += 1
-
-            if frame.pos[dancer_name] is not None:
-                break
-
-        filtered_pos_map = sorted_pos_map[
-            filtered_pos_map_start : filtered_pos_map_end + 1
-        ]
+        filtered_pos_map = get_filtered_map_for_second_timeline(
+            frame_range_l,
+            frame_range_r,
+            filtered_pos_map_start,
+            filtered_pos_map_end,
+            sorted_pos_map,
+            dancer_name,
+        )
 
         dancer_pos_start_record = [
             (frame.start, KeyframeType.NORMAL)
@@ -410,11 +475,7 @@ def handle_select_timeline(
         ld_object_type = getattr(obj, "ld_object_type")
 
         # set control frame
-        if (
-            state.editor == Editor.CONTROL_EDITOR
-            and state.selection_mode == SelectMode.PART_MODE
-            and ld_object_type == ObjectType.LIGHT.value
-        ):
+        if state.editor == Editor.CONTROL_EDITOR:
             current_name = get_effective_name(obj.name)
 
             if state_current_name:
@@ -422,17 +483,16 @@ def handle_select_timeline(
 
             state.current_selected_obj_name = obj.name
 
-            handle_ctrl_data_task = partial(update_ctrl_data, current_name, old_name)
+            handle_ctrl_data_task = partial(
+                update_ctrl_data, current_name, old_name, ld_object_type
+            )
             bpy.app.timers.register(handle_ctrl_data_task)
 
         # set pos frame
         elif (
-            (
-                state.editor == Editor.CONTROL_EDITOR
-                and state.selection_mode == SelectMode.DANCER_MODE
-            )
-            or (state.editor == Editor.POS_EDITOR)
-        ) and ld_object_type == ObjectType.DANCER.value:
+            state.editor == Editor.POS_EDITOR
+            and ld_object_type == ObjectType.DANCER.value
+        ):
             current_name = obj.name
             if state_current_name:
                 old_name = state_current_name
