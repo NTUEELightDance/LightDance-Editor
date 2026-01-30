@@ -5,6 +5,7 @@ from ...states import state
 from ...utils.object import clear_selection
 from ...utils.ui import (
     outliner_hide_one_level,
+    set_dopesheet_collapse_all,
     set_dopesheet_filter,
     set_outliner_hide_mesh,
     set_outliner_hide_mode_column,
@@ -20,6 +21,7 @@ def setup_control_editor():
         return
     bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
+    state.pinned_objects = []
     clear_selection()
 
     ld_ui_control_editor = getattr(bpy.context.window_manager, "ld_ui_control_editor")
@@ -37,6 +39,7 @@ def setup_control_editor():
     outliner_hide_one_level()
 
     set_dopesheet_filter("control_frame")
+    set_dopesheet_collapse_all(True)
     state.editor = Editor.CONTROL_EDITOR
 
 
@@ -45,6 +48,7 @@ def setup_pos_editor():
         return
     bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
+    state.pinned_objects = []
     clear_selection()
 
     unset_outliner_hide_empty()

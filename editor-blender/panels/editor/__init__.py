@@ -1,6 +1,6 @@
 import bpy
 
-from ...core.actions.state.dopesheet import handle_select_timeline
+from ...core.actions.state.dopesheet import register_handle_timeline
 from ...core.models import EditMode, Editor
 from ...core.states import state
 
@@ -75,15 +75,7 @@ class EditorPanel(bpy.types.Panel):
         if bpy.context.selected_objects:
             obj = bpy.context.selected_objects[0]
         if obj or state.current_selected_obj_name:
-            handle_select_timeline(obj)
-
-        # TODO: Pin Dancer button
-        # row = layout.row(align=True)
-        # row.operator(
-        #     "lightdance.pin_dancer",
-        #     text="Pin Dancer",
-        #     icon="PINNED"
-        # )
+            register_handle_timeline(obj)
 
         first_dancer = state.dancer_names[0]
         first_part = state.dancers[first_dancer][0]

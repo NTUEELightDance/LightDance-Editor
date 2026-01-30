@@ -60,6 +60,28 @@ def delete_obj(obj_name: str):
     return
 
 
+def add_obj(
+    obj_name: str,
+    action_name: str,
+    map_type: str,
+    curve_name: str,
+    curve_data: list[tuple[int, bool, KeyframeType]] | list[tuple[int, KeyframeType]],
+):
+    new_obj = bpy.data.objects.new(obj_name, None)
+    if new_obj.animation_data is None:
+        new_obj.animation_data_create()
+
+    obj_action = ensure_action(new_obj, action_name)
+
+    if map_type == "CONTROL":
+        draw_fade_on_curve(obj_action, curve_name, curve_data)
+    elif map_type == "POS":
+        draw_pos_on_curve(obj_action, curve_name, curve_data)
+
+    new_obj.select_set(False)
+    bpy.context.collection.objects.link(new_obj)
+
+
 """
 fade_seq: list of (start_frame(int), fade(bool), keyframe_type(KeyframeType))
 """
@@ -126,6 +148,8 @@ def draw_pos_on_curve(
         point.interpolation = "LINEAR"
         point.select_control_point = False
 
+    return
+
 
 def get_filtered_map_for_first_timeline(
     l_timerange: int,
@@ -149,14 +173,6 @@ def get_filtered_map_for_first_timeline(
     return start_index, end_index, filtered_map
 
 
-"""
-The code below filters the smallest range in a sort_map that satisfies the 3 following conditions:
-1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
-2. The borders' frame.start isn't state.dancer_load_frames[0] or state.dancer_load_frames[1]
-3. The status of the borders' frame isn't None
-"""
-
-
 def get_filtered_map_for_second_timeline(
     l_timerange: int,
     r_timerange: int,
@@ -166,6 +182,13 @@ def get_filtered_map_for_second_timeline(
     dancer_name: str,
     part_name: str | None = None,
 ) -> list[(MapID, ControlMapElement_MODIFIED)] | list[(MapID, PosMapElement)] | list:
+    """
+    The code below filters the smallest range in a sort_map that satisfies the 3 following conditions:
+    1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
+    2. The borders' frame.start aren't state.dancer_load_frames[0] or state.dancer_load_frames[1]
+    3. The status of the borders' frames aren't None
+    """
+
     if not sorted_map:
         return []
 
@@ -209,16 +232,18 @@ def get_filtered_map_for_second_timeline(
         if has_status(sorted_map[end_index][1]):
             break
 
-    notify("INFO", f"{start_index}")
-    notify("INFO", f"{end_index}")
     return sorted_map[start_index : end_index + 1]
 
 
-def update_ctrl_data(
+def update_selected_ctrl_data(
     current_obj_name: str, old_selected_obj_name: str, ld_object_type: str
 ):
-    delete_obj("control_frame")
-    delete_obj(f"selected_{old_selected_obj_name}")
+    delete_obj("[0]control_frame")
+    delete_obj(f"[1]selected_{old_selected_obj_name}")
+    delete_obj("[2]blank")
+    for i, part in enumerate(state.pinned_objects):
+        eff_part_name = get_effective_name(part)
+        delete_obj(f"[{3 + i}]pinned_{eff_part_name}")
 
     current_obj = bpy.data.objects.get(current_obj_name)
     if current_obj:
@@ -231,15 +256,7 @@ def update_ctrl_data(
         if ld_object_type == ObjectType.LIGHT.value:
             part_name = getattr(current_obj, "ld_part_name")
 
-        # setup fade for control frame
-        ctrl_obj = bpy.data.objects.new("control_frame", None)
-
-        if ctrl_obj.animation_data is None:
-            ctrl_obj.animation_data_create()
-
-        action_name = f"{ctrl_obj.name}Action"
-        ctrl_action = ensure_action(ctrl_obj, action_name)
-
+        """setup fade for control frame"""
         # fade sequence for fade_for_new_status (with parital load)
         frame_range_l, frame_range_r = state.dancer_load_frames
 
@@ -279,16 +296,15 @@ def update_ctrl_data(
                     (frame.start, frame.fade_for_new_status, KeyframeType.BREAKDOWN)
                 )
 
-        draw_fade_on_curve(ctrl_action, "fade_for_new_status", dancer_fade_seq)
-
-        # setup fade for selected part object
-        selected_part = bpy.data.objects.new(f"selected_{current_obj_name}", None)
-        if selected_part.animation_data is None:
-            selected_part.animation_data_create()
-
-        selected_action = ensure_action(
-            selected_part, f"selected_{current_obj_name}Action"
+        add_obj(
+            "[0]control_frame",
+            "control_frameAction",
+            "CONTROL",
+            "fade_for_new_status",
+            dancer_fade_seq,
         )
+
+        """setup fade for selected part object"""
 
         # fade sequence for the selected part object (with parital load)
         filtered_ctrl_map = get_filtered_map_for_second_timeline(
@@ -330,12 +346,23 @@ def update_ctrl_data(
                         )
                     )
 
-        draw_fade_on_curve(selected_action, "fade_for_selected_object", part_fade_seq)
+        add_obj(
+            f"[1]selected_{current_obj_name}",
+            f"selected_{current_obj_name}Action",
+            "CONTROL",
+            "fade_for_selected_object",
+            part_fade_seq,
+        )
 
-        ctrl_obj.select_set(False)
-        selected_part.select_set(False)
-        bpy.context.collection.objects.link(ctrl_obj)
-        bpy.context.collection.objects.link(selected_part)
+    update_pinned_ctrl_data(
+        True,
+        False,
+        frame_range_l,
+        frame_range_r,
+        filtered_ctrl_map_start,
+        filtered_ctrl_map_end,
+        sorted_ctrl_map,
+    )
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
@@ -345,9 +372,13 @@ def update_ctrl_data(
     return None
 
 
-def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
-    delete_obj("pos_frame")
-    delete_obj(f"selected_{old_selected_obj_name}")
+def update_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
+    delete_obj("[0]pos_frame")
+    delete_obj(f"[1]selected_{old_selected_obj_name}")
+    delete_obj("[2]blank")
+    for i, dancer in enumerate(state.pinned_objects):
+        delete_obj(f"[{3 + i}]pinned_{dancer}")
+
     current_obj = bpy.data.objects.get(current_obj_name)
 
     if current_obj:
@@ -358,14 +389,7 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
 
         dancer_name = getattr(current_obj, "ld_dancer_name")
 
-        # setup pos for pos frame
-        pos_obj = bpy.data.objects.new("pos_frame", None)
-
-        if pos_obj.animation_data is None:
-            pos_obj.animation_data_create()
-
-        action_name = f"{pos_obj.name}Action"
-        pos_action = ensure_action(pos_obj, action_name)
+        """setup pos for pos frame"""
 
         # pos_map for pos frame (with partial load)
         frame_range_l, frame_range_r = state.dancer_load_frames
@@ -396,20 +420,15 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
             else:
                 pos_start_record.append((frame.start, KeyframeType.BREAKDOWN))
 
-        draw_pos_on_curve(
-            pos_action,
-            "pos_selected_overall",
+        add_obj(
+            "[0]pos_frame",
+            "pos_frameAction",
+            "POS",
+            "position_selected_overall",
             pos_start_record,
         )
 
-        # setup pos for selected dancer
-        selected_dancer = bpy.data.objects.new(f"selected_{current_obj_name}", None)
-
-        if selected_dancer.animation_data is None:
-            selected_dancer.animation_data_create()
-
-        action_name = f"selected_{current_obj_name}Action"
-        selected_action = ensure_action(selected_dancer, action_name)
+        """setup pos for selected dancer"""
 
         # pos map for selected dancer (with partial load)
         filtered_pos_map = get_filtered_map_for_second_timeline(
@@ -427,41 +446,169 @@ def update_pos_data(current_obj_name: str, old_selected_obj_name: str):
             if frame.pos[dancer_name] is not None
         ]
 
-        draw_pos_on_curve(
-            selected_action,
-            "pos_selected_dancer",
+        add_obj(
+            f"[1]selected_{current_obj_name}",
+            f"selected_{current_obj_name}Action",
+            "POS",
+            "position_selected_dancer",
             dancer_pos_start_record,
         )
 
-        pos_obj.select_set(False)
-        selected_dancer.select_set(False)
-        bpy.context.collection.objects.link(pos_obj)
-        bpy.context.collection.objects.link(selected_dancer)
+    update_pinned_pos_data(
+        True,
+        False,
+        frame_range_l,
+        frame_range_r,
+        filtered_pos_map_start,
+        filtered_pos_map_end,
+        sorted_pos_map,
+    )
 
-        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
 
-        set_dopesheet_filter(f"selected")
-        set_dopesheet_collapse_all(True)
+    set_dopesheet_filter(f"position")
+    set_dopesheet_collapse_all(True)
 
     return None
 
 
+def update_pinned_ctrl_data(
+    select: bool,
+    old_is_empty: bool,
+    l_timerange: int | None = None,
+    r_timerange: int | None = None,
+    init_start_index: int | None = None,
+    init_end_index: int | None = None,
+    sorted_map: ControlMap_MODIFIED | None = None,
+):
+    if (select and state.pinned_objects) or old_is_empty:
+        add_obj("[2]blank", "blankAction", "CONTROL", "fade_blank", [])
+
+    if not l_timerange:
+        sorted_map = sorted(
+            state.control_map_MODIFIED.items(), key=lambda item: item[1].start
+        )
+        sorted_frame_map = [item[1].start for item in sorted_map]
+
+        l_timerange, r_timerange = state.dancer_load_frames
+
+        (init_start_index, init_end_index, _) = get_filtered_map_for_first_timeline(
+            l_timerange, r_timerange, sorted_map, sorted_frame_map
+        )
+
+    for i, part in enumerate(state.pinned_objects):
+        eff_part_name = get_effective_name(part)
+        part_obj = bpy.data.objects.get(eff_part_name)
+
+        if part_obj:
+            dancer_name = getattr(part_obj, "ld_dancer_name")
+            part_name = getattr(part_obj, "ld_part_name")
+
+            filtered_ctrl_map = get_filtered_map_for_second_timeline(
+                l_timerange,
+                r_timerange,
+                init_start_index,
+                init_end_index,
+                sorted_map,
+                dancer_name,
+                part_name,
+            )
+
+            part_fade_seq = [
+                (
+                    frame.start,
+                    frame.status[dancer_name][part_name].fade,
+                    KeyframeType.NORMAL,
+                )  # type:ignore
+                for _, frame in filtered_ctrl_map
+                if frame.status[dancer_name][part_name] is not None
+            ]
+
+            add_obj(
+                f"[{3 + i}]pinned_{eff_part_name}",
+                f"pinned_{eff_part_name}Action",
+                "CONTROL",
+                "fade_for_pinned_object",
+                part_fade_seq,
+            )
+
+
+def update_pinned_pos_data(
+    select: bool,
+    old_is_empty: bool,
+    l_timerange: int | None = None,
+    r_timerange: int | None = None,
+    init_start_index: int | None = None,
+    init_end_index: int | None = None,
+    sorted_map: PosMap | None = None,
+):
+    if (select and state.pinned_objects) or old_is_empty:
+        add_obj("[2]blank", "blankAction", "POS", "position_blank", [])
+
+    if not l_timerange:
+        sorted_map = sorted(
+            state.pos_map_MODIFIED.items(), key=lambda item: item[1].start
+        )
+        sorted_frame_map = [item[1].start for item in sorted_map]
+
+        l_timerange, r_timerange = state.dancer_load_frames
+
+        (init_start_index, init_end_index, _) = get_filtered_map_for_first_timeline(
+            l_timerange, r_timerange, sorted_map, sorted_frame_map
+        )
+
+    for i, dancer in enumerate(state.pinned_objects):
+        dancer_obj = bpy.data.objects.get(dancer)
+
+        if dancer_obj:
+            dancer_name = getattr(dancer_obj, "ld_dancer_name")
+
+            filtered_pos_map = get_filtered_map_for_second_timeline(
+                l_timerange,
+                r_timerange,
+                init_start_index,
+                init_end_index,
+                sorted_map,
+                dancer_name,
+            )
+
+            dancer_pos_start_record = [
+                (frame.start, KeyframeType.NORMAL)
+                for _, frame in filtered_pos_map
+                if frame.pos[dancer_name] is not None
+            ]
+
+            add_obj(
+                f"[{3 + i}]pinned_{dancer_name}",
+                f"pinned_{dancer_name}Action",
+                "POS",
+                "position_pinned_object",
+                dancer_pos_start_record,
+            )
+
+
 def deselect_timeline(old_selected_obj_name: str):
-    delete_obj("control_frame")
-    delete_obj("pos_frame")
-    delete_obj(f"selected_{old_selected_obj_name}")
+    delete_obj("[0]control_frame")
+    delete_obj("[0]pos_frame")
+    delete_obj(f"[1]selected_{old_selected_obj_name}")
+    delete_obj("[2]blank")
+    for i, obj in enumerate(state.pinned_objects):
+        eff_obj_name = get_effective_name(obj)
+        delete_obj(f"[{3 + i}]pinned_{eff_obj_name}")
 
     if state.editor == Editor.CONTROL_EDITOR:
         set_dopesheet_filter("control_frame")
+        update_pinned_ctrl_data(select=True, old_is_empty=False)
     elif state.editor == Editor.POS_EDITOR:
         set_dopesheet_filter("pos_frame")
-    set_dopesheet_collapse_all(False)
+        update_pinned_pos_data(select=True, old_is_empty=False)
+    set_dopesheet_collapse_all(True)
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     return None
 
 
-def handle_select_timeline(
+def handle_timeline(
     obj: bpy.types.Object | None,
 ):
     state_current_name = state.current_selected_obj_name
@@ -470,7 +617,7 @@ def handle_select_timeline(
 
     if obj:
         if state_current_name == obj.name:
-            return
+            return None
 
         ld_object_type = getattr(obj, "ld_object_type")
 
@@ -482,11 +629,7 @@ def handle_select_timeline(
                 old_name = get_effective_name(state_current_name)
 
             state.current_selected_obj_name = obj.name
-
-            handle_ctrl_data_task = partial(
-                update_ctrl_data, current_name, old_name, ld_object_type
-            )
-            bpy.app.timers.register(handle_ctrl_data_task)
+            update_selected_ctrl_data(current_name, old_name, ld_object_type)
 
         # set pos frame
         elif (
@@ -498,19 +641,21 @@ def handle_select_timeline(
                 old_name = state_current_name
 
             state.current_selected_obj_name = obj.name
-
-            handle_pos_data_task = partial(update_pos_data, current_name, old_name)
-            bpy.app.timers.register(handle_pos_data_task)
+            update_selected_pos_data(current_name, old_name)
 
         notify("INFO", f"Current Selected: {obj.name}")
-        return
+        return None
 
     else:
         if state_current_name:
             old_name = get_effective_name(state_current_name)
             state.current_selected_obj_name = None
-            deselect_task = partial(deselect_timeline, old_name)
-            bpy.app.timers.register(deselect_task)
-            return
+            deselect_timeline(old_name)
+            return None
 
-    return
+    return None
+
+
+def register_handle_timeline(obj: bpy.types.Object):
+    handle_task = partial(handle_timeline, obj)
+    bpy.app.timers.register(handle_task)

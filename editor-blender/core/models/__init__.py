@@ -466,7 +466,7 @@ class State:
     current_editing_frame_synced: bool
 
     current_selected_obj_name: DancerName | None
-    pinned_dancers: list[DancerName]
+    pinned_objects: list[DancerName] | list[PartName]
 
     edit_state: EditMode
     editor: Editor

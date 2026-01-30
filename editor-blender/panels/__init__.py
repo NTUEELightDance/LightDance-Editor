@@ -7,6 +7,7 @@ from . import (
     editor,
     led_editor,
     lightdance,
+    pin,
     pos_editor,
     timeline,
 )
@@ -25,6 +26,7 @@ def register():
     camera.register()
 
     timeline.register()
+    pin.register()
     command_center.register()
 
 
@@ -37,6 +39,7 @@ def unregister():
     color_palette.unregister()
     camera.unregister()
     timeline.unregister()
+    pin.unregister()
     command_center.unregister()
     control_editor.unregister()
 

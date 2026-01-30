@@ -23,8 +23,12 @@ def register():
     setattr(bpy.types.Object, "ld_part_name", bpy.props.StringProperty())
     setattr(bpy.types.Object, "fade_for_selected_object", bpy.props.IntProperty())
     setattr(bpy.types.Object, "fade_for_new_status", bpy.props.IntProperty())
-    setattr(bpy.types.Object, "pos_selected_dancer", bpy.props.BoolProperty())
-    setattr(bpy.types.Object, "pos_selected_overall", bpy.props.BoolProperty())
+    setattr(bpy.types.Object, "fade_for_pinned_object", bpy.props.IntProperty())
+    setattr(bpy.types.Object, "fade_blank", bpy.props.IntProperty())
+    setattr(bpy.types.Object, "position_selected_dancer", bpy.props.BoolProperty())
+    setattr(bpy.types.Object, "position_selected_overall", bpy.props.BoolProperty())
+    setattr(bpy.types.Object, "position_pinned_dancer", bpy.props.BoolProperty())
+    setattr(bpy.types.Object, "position_blank", bpy.props.BoolProperty())
 
 
 def unregister():
@@ -34,5 +38,9 @@ def unregister():
     delattr(bpy.types.Object, "ld_part_name")
     delattr(bpy.types.Object, "fade_for_selected_object")
     delattr(bpy.types.Object, "fade_for_new_status")
-    delattr(bpy.types.Object, "pos_selected_dancer")
-    delattr(bpy.types.Object, "pos_selected_overall")
+    delattr(bpy.types.Object, "fade_for_pinned_object")
+    delattr(bpy.types.Object, "fade_blank")
+    delattr(bpy.types.Object, "position_selected_dancer")
+    delattr(bpy.types.Object, "position_selected_overall")
+    delattr(bpy.types.Object, "position_pinned_dancer")
+    delattr(bpy.types.Object, "position_blank")
