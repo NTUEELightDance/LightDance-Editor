@@ -43,6 +43,33 @@ def ensure_curve(
     return curve
 
 
+def ensure_or_expand_curve(
+    action: bpy.types.Action,
+    data_path: str,
+    index: int = 0,
+    clear: bool = False,
+) -> bpy.types.FCurve:
+    """
+    If the curve exist, return the curve with one more empty slot
+    Else, create a new curve with one slot
+    """
+    curves = action.fcurves
+    curve = cast(bpy.types.FCurve | None, curves.find(data_path, index=index))
+
+    if curve is None:
+        curves.new(data_path, index=index)
+        curve = curves.find(data_path, index=index)
+        curve.keyframe_points.add(1)
+
+        return curve
+
+    if clear:
+        curve.keyframe_points.clear()
+
+    curve.keyframe_points.add(1)
+    return curve
+
+
 def ensure_collection(
     action: bpy.types.Action,
     collection_name: str,

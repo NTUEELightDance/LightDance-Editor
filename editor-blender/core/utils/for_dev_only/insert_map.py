@@ -1,9 +1,10 @@
 import io
+import math
 import os.path
 import pprint
 from contextlib import contextmanager
 from enum import Enum
-from random import randint
+from random import randint, random
 from typing import Literal, Optional
 
 from ....core.models import (
@@ -38,9 +39,23 @@ frames = []
 position_frame: PosMap = {}
 control_frame: ControlMap_MODIFIED = {}
 
-default_position = Position(location=Location(0, 0, 0), rotation=Rotation(0, 0, 0))
-default_fiber = FiberData(color_id=0, alpha=255)
-default_led = LEDData(effect_id=0, alpha=255)
+default_color = list(state.color_map.keys())[2]
+default_effect = list(state.led_effect_id_table.keys())[2]
+default_fiber = FiberData(color_id=default_color, alpha=255)
+default_led = LEDData(effect_id=default_effect, alpha=255)
+
+
+def default_position(i: int):
+    real_i = 1 * (i + 1)
+    theta = random() * 6.28
+    random_x_unround, random_y_unround = real_i * math.cos(theta), real_i * math.sin(
+        theta
+    )
+    random_x, random_y = round(random_x_unround, 2), round(random_y_unround, 2)
+
+    return Position(
+        location=Location(random_x, random_y, 0), rotation=Rotation(0, 0, 0)
+    )
 
 
 @contextmanager
@@ -187,11 +202,15 @@ def _matching(file: File, chr: str):
                         for index, stat in enumerate(new_lines):
                             if stat == "X":
                                 continue
-                            position_frame[index].pos[dancer] = default_position
+                            position_frame[index].pos[dancer] = default_position(
+                                int(index)
+                            )
 
                     else:
                         for index in new_lines:
-                            position_frame[int(index)].pos[dancer] = default_position
+                            position_frame[int(index)].pos[dancer] = default_position(
+                                int(index)
+                            )
 
                     dancer_index += 1
 
@@ -216,14 +235,22 @@ def load_default_map() -> Optional[str]:
 
     from ....core.log import logger
 
-    logger.info(f"Pos Map {state.pos_map_MODIFIED}")
-    logger.info(f"Control Map {state.control_map_MODIFIED}")
+    print(f"Pos Map {state.pos_map_MODIFIED}")
+
+    from copy import deepcopy
+
+    test = deepcopy(state.control_map_MODIFIED)
+    for id, thing in test.items():
+        for dancer, things in state.control_map_MODIFIED[id].status.items():
+            for part, thingy in things.items():
+                if thingy is None:
+                    thing.status[dancer].pop(part)
+
+    print(f"Control Map {test}")
 
 
 if __name__ == "__main__":
     str = load_default_map()
-    if str is not None:
-        print(str)
 
     print(frames)
     print("----Position Frame----\n")

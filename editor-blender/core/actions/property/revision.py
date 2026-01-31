@@ -3,7 +3,15 @@ import bpy
 from ....core.states import state
 from ....properties.types import RevisionPropertyType
 from ...log import logger
-from ...models import ControlMap, ControlMapElement, MapID, PosMap, PosMapElement
+from ...models import (
+    ControlMap,
+    ControlMap_MODIFIED,
+    ControlMapElement,
+    ControlMapElement_MODIFIED,
+    MapID,
+    PosMap,
+    PosMapElement,
+)
 from ...utils.convert import (
     control_modify_to_animation_data,
     pos_modify_to_animation_data,
@@ -20,7 +28,7 @@ from .animation_data import (
 
 def update_rev_changes(
     incoming_pos_map: PosMap,
-    incoming_control_map: ControlMap,
+    incoming_control_map: ControlMap_MODIFIED,
     dancers_reset: list[bool] | None = None,
 ):
     if not bpy.context:
@@ -88,6 +96,7 @@ def update_rev_changes(
     reset_pos_rev(sorted_pos_map)
     logger.info("Done reset pos rev")
 
+    # TODO: Finish control part
     # control
     ld_ctrl_rev: RevisionPropertyType = getattr(bpy.context.scene, "ld_ctrl_rev")
     local_rev = [
@@ -98,9 +107,9 @@ def update_rev_changes(
     incoming_rev = {id: element.rev for id, element in incoming_control_map.items()}
 
     # sorted by old start time
-    control_update: list[tuple[int, MapID, ControlMapElement]] = []
+    control_update: list[tuple[int, MapID, ControlMapElement_MODIFIED]] = []
     # sorted by start time
-    control_add: list[tuple[MapID, ControlMapElement]] = []
+    control_add: list[tuple[MapID, ControlMapElement_MODIFIED]] = []
     # sorted by start time
     control_delete: list[tuple[int, MapID]] = []
 
@@ -148,7 +157,9 @@ def update_rev_changes(
         for ctrl_item in sorted_ctrl_map
         if ctrl_item[0] not in state.not_loaded_control_frames
     ]
-    fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
+    fade_seq = [
+        (frame.start, frame.fade_for_new_status) for _, frame in filtered_ctrl_map
+    ]
 
     # delete_frames = [frame[0] for frame in control_delete]
     # update_frames = [(frame[0], frame[2].start) for frame in control_update]
