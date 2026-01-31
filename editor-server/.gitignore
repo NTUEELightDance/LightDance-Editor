@@ -1,7 +1,1 @@
-src/prisma/
 target/
-
-prisma/migrations
-schema.graphql
-
-src/prisma

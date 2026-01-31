@@ -17,7 +17,7 @@ pub fn set() {
         return;
     }
 
-    let env = var("ENV").expect("ENV not set");
+    let env = var("ENV").unwrap_or_else(|_| "dev".to_string());
     let redis_ctrl_prefix = var("REDIS_CTRL_PREFIX").unwrap_or_else(|_| "CTRLFRAME_".to_string());
     let redis_pos_prefix = var("REDIS_POS_PREFIX").unwrap_or_else(|_| "POSFRAME_".to_string());
 

@@ -15,7 +15,7 @@ jobs:
       - name: Start database
         run: docker compose -f dev.docker-compose.yml up -d
       - name: Migrate database
-        run: cd editor-server && cargo prisma migrate dev --skip-generate --name init
+        run: cd editor-server && set -a && source .env && set +a && cargo run -p migration -- up
       - name: Build and clippy check
         run: cargo clippy --manifest-path ./editor-server/Cargo.toml
       - name: fmt check

@@ -71,8 +71,9 @@ docker compose -f dev.docker-compose.yml up -d
 migrate the database
 
 ```sh
-# in Lightdance-Editor/editor-server
-cargo prisma migrate dev --skip-generate --name init
+# in Lightdance-Editor/editor-server/sea-orm
+DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli migrate up
+DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli generate entity -o sea-orm/src/entity
 ```
 
 #### Install the dependencies
@@ -139,7 +140,8 @@ migrate the database
 
 ```sh
 # in Lightdance-Editor/editor-server
-cargo prisma migrate dev --skip-generate --name init
+DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli migrate up
+DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli generate entity -o sea-orm/src/entity
 ```
 
 Start all services

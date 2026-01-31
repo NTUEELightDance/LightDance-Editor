@@ -303,7 +303,7 @@ impl ControlFrameMutation {
         // create a new control frame and insert it into the database
         let new_control_frame = sqlx::query!(
             r#"
-                INSERT INTO ControlFrame (start, fade)
+                INSERT INTO ControlFrame (start, fade_for_new_status)
                 VALUES (?, ?);
             "#,
             start,
@@ -551,7 +551,7 @@ impl ControlFrameMutation {
                 SELECT
                     id,
                     start,
-                    fade as "fade: bool",
+                    fade_for_new_status as "fade: bool",
                     meta_rev,
                     data_rev
                 FROM ControlFrame
@@ -615,7 +615,7 @@ impl ControlFrameMutation {
         sqlx::query!(
             r#"
                 UPDATE ControlFrame
-                SET start = ?, fade = ?
+                SET start = ?, fade_for_new_status = ?
                 WHERE id = ?;
             "#,
             start,
@@ -739,7 +739,7 @@ impl ControlFrameMutation {
                 SELECT
                     id,
                     start,
-                    fade as "fade: bool",
+                    fade_for_new_status as "fade: bool",
                     meta_rev,
                     data_rev
                 FROM ControlFrame
