@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 
 import bpy
 
@@ -232,7 +233,9 @@ async def init_editor():
                     if isinstance(result, BaseException):
                         batch_done = False
                         # FIXME: This function may lose stack trace of result
-                        logger.error(f"Batch {batch} failed: {result}")
+                        logger.error(
+                            f"Batch {batch} failed: {result}\n{''.join(traceback.format_tb(result.__traceback__))}"
+                        )
                     else:
                         batch_completes[index] = True
 

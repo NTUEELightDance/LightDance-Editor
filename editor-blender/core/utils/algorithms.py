@@ -1,4 +1,6 @@
-from typing import Literal
+from typing import Literal, cast
+
+from ...core.models import ControlMapElement_MODIFIED, MapID, PosMapElement
 
 OutOfRange = Literal["OutOfRange_Larger", "OutOfRange_Smaller"]
 
@@ -54,7 +56,8 @@ def smallest_range_including_lr(
 ) -> tuple[int, int]:
     """
     :param arr: sorted list of integers
-    :param left, right: designated range
+    :param left: designated range of left
+    :param right: designated range of right
     :return: the smallest continuous range in arr that includes [left, right], which is in the form of indexes
     """
     search_l = binary_search_for_neighbors(arr, left)[0]
@@ -69,6 +72,66 @@ def smallest_range_including_lr(
     if search_r == "OutOfRange_Larger":
         search_r = len(arr) - 1
     return (search_l, search_r)
+
+
+def expanded_filtered_map_bound(
+    l_timerange: int,
+    r_timerange: int,
+    init_start_index: int,
+    init_closed_end_index: int,
+    sorted_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
+    | list[tuple[MapID, PosMapElement]],
+    dancer_name: str,
+    part_name: str | None = None,
+) -> tuple[int, int]:
+    """
+    The code below filters the smallest range in a sort_map that satisfies the 3 following conditions, if possible:
+    1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
+    2. The borders' frame.start aren't state.dancer_load_frames[0] or state.dancer_load_frames[1]
+    3. The status of the borders' frames aren't None
+
+    if no sorted_map, return -1, -1
+    """
+
+    if not sorted_map:
+        return (-1, -1)
+
+    start_index = init_start_index
+    end_index = init_closed_end_index
+
+    def has_status(frame: ControlMapElement_MODIFIED | PosMapElement) -> bool:
+        if part_name is not None:
+            frame = cast(ControlMapElement_MODIFIED, frame)
+            dancer_status = frame.status[dancer_name]
+            return dancer_status[part_name] is not None
+        else:
+            frame = cast(PosMapElement, frame)
+            return frame.pos[dancer_name] is not None
+
+    while True:
+        if start_index == 0 or (
+            sorted_map[init_start_index][1].start != l_timerange
+            and has_status(sorted_map[start_index][1])
+        ):
+            break
+        start_index -= 1
+
+        if has_status(sorted_map[start_index][1]):
+            break
+
+    while True:
+        if end_index == len(sorted_map) - 1 or (
+            sorted_map[init_closed_end_index][1].start != r_timerange
+            and has_status(sorted_map[start_index][1])
+        ):
+            break
+
+        end_index += 1
+
+        if has_status(sorted_map[end_index][1]):
+            break
+
+    return start_index, end_index
 
 
 def largest_range_in_lr(arr: list[int], left: int, right: int) -> tuple[int, int]:

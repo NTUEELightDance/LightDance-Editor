@@ -12,7 +12,15 @@ from .....core.utils.for_dev_only.test_keyframe import renew_ctrl_test_frame
 from .....core.utils.for_dev_only.tmp_format_conv import sync_new_ctrl_map_from_old
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
-from ....models import ControlMap, ControlMapElement, MapID, PartType
+from ....models import (
+    ControlMap,
+    ControlMapElement,
+    ControlMapElement_MODIFIED,
+    DancerName,
+    MapID,
+    PartName,
+    PartType,
+)
 from ....states import state
 from ....utils.algorithms import smallest_range_including_lr
 from ....utils.convert import (
@@ -53,7 +61,7 @@ def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
     renew_ctrl_test_frame()
 
 
-def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]):
+def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]]):
     if not bpy.context:
         return
     getattr(bpy.context.scene, "ld_ctrl_rev").clear()
@@ -178,9 +186,9 @@ def init_ctrl_single_object_action(
             point.select_control_point = False
 
 
-def filter_ctrl_map_by_loaded_range(
-    sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]
-) -> tuple[list[int], list[tuple[MapID, ControlMapElement]]]:
+def _filter_ctrl_map_by_loaded_range(
+    sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
+) -> tuple[list[int], list[tuple[MapID, ControlMapElement_MODIFIED]]]:
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
@@ -208,10 +216,12 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
         return
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-    ctrl_map = state.control_map
-
+    ctrl_map = state.control_map_MODIFIED
+    # TODO: CHange this
+    if not state.control_map_MODIFIED:
+        return
     sorted_ctrl_map = sorted(ctrl_map.items(), key=lambda item: item[1].start)
-    not_loaded_ctrl_frames, filtered_ctrl_map = filter_ctrl_map_by_loaded_range(
+    not_loaded_ctrl_frames, filtered_ctrl_map = _filter_ctrl_map_by_loaded_range(
         sorted_ctrl_map
     )
 
@@ -274,6 +284,9 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
             part_obj_name = f"{dancer_index}_{part_name}"
             part_obj = data_objects[part_obj_name]
 
+            if not animation_data[dancer_name][part_name]:
+                continue
+
             if part_type == PartType.LED:
                 for led_obj in part_obj.children:
                     position: int = getattr(led_obj, "ld_led_pos")
@@ -281,7 +294,6 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
                     action = ensure_action(
                         led_obj, f"{part_obj_name}Action.{position:03}"
                     )
-
                     frames = cast(
                         list[tuple[int, bool, tuple[float, float, float]]],
                         animation_data[dancer_name][part_name][position],
@@ -310,13 +322,12 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     if ctrl_frame_number == 0:
         return
 
-    # FIXME delete this after test
-    sync_new_ctrl_map_from_old()
-
     action = ensure_action(scene, "SceneAction")
 
     if dancers_reset is None or all(dancers_reset):
-        fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
+        fade_seq = [
+            (frame.start, frame.fade_for_new_status) for _, frame in filtered_ctrl_map
+        ]
         reset_control_frames_and_fade_sequence(fade_seq)
 
 

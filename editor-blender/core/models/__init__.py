@@ -311,6 +311,7 @@ class CopiedType(Enum):
 @dataclass
 class CopiedPartData:
     alpha: int
+    fade: bool
     color: str | None = None
     effect: str | None = None
     led_status: list[tuple[int, int]] | None = None
@@ -320,19 +321,11 @@ class CopiedPartData:
 class CopiedDancerData:
     name: DancerName
     model: ModelName
-    parts: dict[PartName, CopiedPartData]
+    parts: dict[PartName, CopiedPartData | None]
 
 
 @dataclass
 class Clipboard:
-    type: CopiedType
-    control_frame: ControlMapElement | None = None
-    pos_frame: PosMapElement | None = None
-    dancer: CopiedDancerData | None = None
-
-
-@dataclass
-class Clipboard_MODIFIED:
     type: CopiedType
     control_frame: ControlMapElement_MODIFIED | None = None
     pos_frame: PosMapElement | None = None
@@ -451,10 +444,8 @@ class State:
     current_led_index: int
 
     # NOTE: Maybe we don't need these
-    current_fade: bool
     current_status: ControlMapStatus
     current_led_status: ControlMapLEDStatus
-    current_pos: PosMapStatus
 
     # TODO implement these
     current_status_MODIFIED: ControlMapStatus_MODIFIED
@@ -479,8 +470,7 @@ class State:
     selected_obj_type: SelectedPartType | None
 
     clipboard: Clipboard
-    # TODO implement these
-    clipboard_MODIFIED: Clipboard_MODIFIED
+    # # TODO implement these
 
     models: Models
     model_names: list[ModelName]
