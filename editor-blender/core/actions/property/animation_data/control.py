@@ -25,6 +25,7 @@ from ....utils.convert import (
     ControlUpdateCurveData,
     control_map_to_animation_data,
 )
+from ....utils.notification import notify
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 
 
@@ -216,7 +217,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
     # state.not_loaded_ctrl_frames: a list of ctrl map ID that is not loaded
     state.not_loaded_control_frames = not_loaded_ctrl_frames
-    animation_data = control_map_to_animation_data(sorted_ctrl_map)
+    animation_data = control_map_to_animation_data(filtered_ctrl_map)
 
     ctrl_frame_number = len(filtered_ctrl_map)
 

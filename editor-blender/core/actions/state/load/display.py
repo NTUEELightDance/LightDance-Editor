@@ -3,7 +3,7 @@ from typing import Any, Literal, cast
 
 import bpy
 
-from ....utils.ui import set_dopesheet_filter
+from ....utils.ui import set_dopesheet_filter, set_dopesheet_show_summary
 
 
 # WARNING: This function will crash for now
@@ -158,6 +158,7 @@ def setup_display():
     space.show_region_channels = False
 
     set_dopesheet_filter("control_frame")  # follow default editor
+    set_dopesheet_show_summary(False)
 
     """
     Outliner

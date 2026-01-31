@@ -1,5 +1,6 @@
 import bpy
 
+from ...core.actions.state.dopesheet import register_handle_timeline
 from ...core.models import EditMode, Editor
 from ...core.states import state
 
@@ -70,6 +71,12 @@ class EditorPanel(bpy.types.Panel):
             row.operator("lightdance.request_edit", text="Edit", icon="GREASEPENCIL")
             row.operator("lightdance.delete", text="Delete", icon="X")
 
+        obj = None
+        if bpy.context.selected_objects:
+            obj = bpy.context.selected_objects[0]
+        if obj or state.current_selected_obj_name:
+            register_handle_timeline(obj)
+
         first_dancer = state.dancer_names[0]
         first_part = state.dancers[first_dancer][0]
         first_part_LED = [
@@ -83,6 +90,7 @@ class EditorPanel(bpy.types.Panel):
                 "lightdance.toggle_test_ctrl_keyframe",
                 text=f"Ctrl Frame of {first_dancer}'s {first_part}",
             )
+
         elif state.editor == Editor.POS_EDITOR:
             row = layout.row(align=True)
             row.operator(

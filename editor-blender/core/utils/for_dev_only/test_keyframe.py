@@ -88,8 +88,10 @@ def renew_ctrl_test_frame():
 
 
 def set_ctrl_test_frame():
+    renew_ctrl_test_frame()
     set_dopesheet_filter(ctrl_test_frame)
 
 
 def set_pos_test_frame():
+    renew_pos_test_frame()
     set_dopesheet_filter(pos_test_frame)

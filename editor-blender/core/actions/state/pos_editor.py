@@ -11,7 +11,7 @@ from ...utils.algorithms import linear_interpolation
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from .app_state import send_request
-from .current_pos import update_current_pos_by_index
+from .current_pos import _init_pos_y, update_current_pos_by_index
 from .pos_map import apply_pos_map_updates
 
 
@@ -90,6 +90,11 @@ async def add_pos_frame():
     # Get current position data from ld_position
     positionData: list[list[float]] = []
     for index in range(len(state.dancer_names)):
+        if not state.pos_map:
+            init_y = _init_pos_y(index, len(state.dancer_names))
+            positionData.append([0, init_y, 0, 0, 0, 0])
+            continue
+
         if not show_dancer[index]:
             neighbor_frame = pos_frame_neighbors(start, state.dancer_names[index])
             if neighbor_frame != None:
