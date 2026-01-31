@@ -12,6 +12,7 @@ from . import (
     led_editor,
     load,
     notification,
+    pin,
     ping,
     pos_editor,
     select,
@@ -37,6 +38,7 @@ def register():
     utils.register()
     notification.register()
     timeline.register()
+    pin.register()
     control_editor.register()
     command_center.register()
     led_editor.register()
@@ -63,6 +65,7 @@ def unregister():
     utils.unregister()
     notification.unregister()
     timeline.unregister()
+    pin.unregister()
     control_editor.unregister()
     command_center.unregister()
     led_editor.unregister()

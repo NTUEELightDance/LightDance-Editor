@@ -43,6 +43,35 @@ def ensure_curve(
     return curve
 
 
+def ensure_collection(
+    action: bpy.types.Action,
+    collection_name: str,
+    curve_names: list[str],
+) -> None:
+    if bpy.data.collections.get(collection_name) is None:
+        collection = bpy.data.collections.new(collection_name)
+        bpy.context.scene.collection.children.link(collection)
+
+        for curve_name in curve_names:
+            curve = ensure_curve(
+                action=action,
+                data_path=curve_name,
+            )
+            curve_obj = bpy.data.objects.new(curve_name, curve)
+            collection.objects.link(curve_obj)
+
+
+def delete_curve(
+    action: bpy.types.Action,
+    data_path: str,
+    index: int = 0,
+) -> None:
+    curves = action.fcurves
+    curve = curves.find(data_path, index=index)
+    if curve is not None:
+        curves.remove(curve)
+
+
 def get_keyframe_points(
     curve: bpy.types.FCurve,
 ) -> tuple[bpy.types.FCurveKeyframePoints, list[bpy.types.Keyframe]]:
