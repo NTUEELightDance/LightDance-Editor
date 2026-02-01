@@ -3,62 +3,13 @@ use axum::{
     response::Json,
 };
 
+use super::types::{GetControlDatQuery, GetDataFailedResponse};
+use super::utils::{write_little_endian, IntoResult};
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 use crate::global;
 
 type GetDataResponse = Vec<u8>;
-
-#[derive(Debug, Deserialize, Serialize)]
-struct LEDPart {
-    id: i32,
-    len: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GetControlDatQuery {
-    dancer: String,
-    #[serde(rename = "OFPARTS")]
-    of_parts: HashMap<String, i32>,
-    #[serde(rename = "LEDPARTS")]
-    led_parts: HashMap<String, LEDPart>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GetDataFailedResponse {
-    err: String,
-}
-
-trait IntoResult<T, E> {
-    fn into_result(self) -> Result<T, E>;
-}
-
-fn write_little_endian(num: &u32, v: &mut Vec<u8>) {
-    let mut window: u32 = 0xFF;
-    for _ in 0..4 {
-        v.push((num & window).try_into().unwrap());
-        window <<= 8;
-    }
-}
-
-impl<R, E> IntoResult<R, (StatusCode, Json<GetDataFailedResponse>)> for Result<R, E>
-where
-    E: std::string::ToString,
-{
-    fn into_result(self) -> Result<R, (StatusCode, Json<GetDataFailedResponse>)> {
-        match self {
-            Ok(ok) => Ok(ok),
-            Err(err) => Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(GetDataFailedResponse {
-                    err: err.to_string(),
-                }),
-            )),
-        }
-    }
-}
 
 const VERSION: [u8; 2] = [0, 0];
 
@@ -69,15 +20,15 @@ pub async fn control_dat(
     (StatusCode, Json<GetDataFailedResponse>),
 > {
     let mut response: Vec<u8> = Vec::new();
+    for v in VERSION {
+        response.push(v);
+    }
+
     let GetControlDatQuery {
         dancer,
         of_parts,
         led_parts,
     } = query.0;
-
-    for vi in VERSION {
-        response.push(vi);
-    }
 
     let of_num: u8 = of_parts.len().try_into().map_err(|_| {
         (
@@ -150,7 +101,7 @@ pub async fn control_dat(
 
     // TODO: insert in order specified by the firmware team
     for (_, part) in led_parts {
-        response.push(part.len as u8);
+        response.push(part.get_len() as u8);
     }
 
     let frame_data = sqlx::query!(
@@ -168,7 +119,7 @@ pub async fn control_dat(
             INNER JOIN ControlFrame
                 ON ControlData.frame_id = ControlFrame.id
             WHERE Dancer.name = ? AND Part.type = 'LED'
-            ORDER BY ControlFrame.start
+            ORDER BY ControlFrame.start ASC
         "#,
         dancer
     )

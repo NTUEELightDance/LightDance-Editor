@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use super::types::{Color, GetDataFailedResponse};
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Frame {
     start: i32,
@@ -17,18 +19,6 @@ pub struct Frame {
 }
 
 pub type GetDataResponse = Vec<Frame>;
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct GetDataFailedResponse {
-    err: String,
-}
-
-#[derive(Debug)]
-struct Color {
-    r: i32,
-    g: i32,
-    b: i32,
-}
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct GetFiberDataQuery {
@@ -93,7 +83,7 @@ pub async fn get_dancer_fiber_data(
         r#"
             SELECT Color.r, Color.g, Color.b, Color.id
             FROM Color
-            "#,
+        "#,
     )
     .fetch_all(mysql_pool)
     .await

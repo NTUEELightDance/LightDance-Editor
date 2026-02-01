@@ -3,12 +3,15 @@
 mod check_token;
 mod control_dat;
 mod export_data;
+mod frame_dat;
 mod get_dancer_fiber_data;
 mod get_dancer_led_data;
 mod login;
 mod logout;
 mod ping;
+mod types;
 mod upload_data;
+mod utils;
 
 use axum::{
     extract::DefaultBodyLimit,
