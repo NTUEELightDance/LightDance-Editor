@@ -37,7 +37,7 @@ impl PositionFrameMutation {
         &self,
         ctx: &Context<'_>,
         start: i32,
-        position_data: Option<Vec<Vec<f64>>>,
+        position_data: Option<Vec<Vec<Option<f64>>>>,
     ) -> GQLResult<PositionFrame> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;

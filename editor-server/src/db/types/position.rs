@@ -8,10 +8,11 @@ use serde::{Deserialize, Serialize};
 pub struct PositionData {
     pub dancer_id: i32,
     pub frame_id: i32,
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-    pub rx: f64,
-    pub ry: f64,
-    pub rz: f64,
+    pub r#type: String,
+    pub x: Option<f64>,
+    pub y: Option<f64>,
+    pub z: Option<f64>,
+    pub rx: Option<f64>,
+    pub ry: Option<f64>,
+    pub rz: Option<f64>,
 }

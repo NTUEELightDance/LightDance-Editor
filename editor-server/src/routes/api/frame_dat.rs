@@ -19,7 +19,7 @@ const VERSION: [u8; 2] = [0, 0];
 
 #[derive(Debug)]
 struct Effect {
-    effect_id: i32,
+    // effect_id: i32,
     colors: Vec<[i32; 4]>,
 }
 
@@ -30,7 +30,7 @@ struct Effect {
 
 #[derive(Debug, Default)]
 struct FrameData {
-    id: i32,
+    // id: i32,
     start_time: u32,
     fade: u8,
     // (part_id, color)
@@ -246,7 +246,7 @@ pub async fn frame_dat(
             effects.insert(
                 data.effect_id,
                 Effect {
-                    effect_id: data.effect_id,
+                    // effect_id: data.effect_id,
                     colors: vec![
                         [color.r, color.g, color.b, data.alpha];
                         led_parts.get(&data.part_name).unwrap().get_len() as usize
@@ -376,7 +376,7 @@ pub async fn frame_dat(
     });
 
     led_bulb.iter().for_each(|((frame_id, part_id), v)| {
-        led_data.insert((*frame_id, *part_id), &v);
+        led_data.insert((*frame_id, *part_id), v);
     });
 
     let control_frames = sqlx::query!(
@@ -384,7 +384,7 @@ pub async fn frame_dat(
             SELECT
                 ControlFrame.id,
                 ControlFrame.start,
-                ControlFrame.fade_for_new_status as "fade",
+                ControlFrame.fade,
                 ControlData.type,
                 ControlData.part_id
             FROM Dancer
@@ -418,26 +418,22 @@ pub async fn frame_dat(
         let mut is_no_effect: HashMap<i32, bool> = HashMap::new();
 
         for control_data in frame {
-            is_no_effect.insert(
-                control_data.id,
-                control_data.r#type == "NO_EFFECT".to_string(),
-            );
+            is_no_effect.insert(control_data.id, control_data.r#type == "NO_EFFECT");
         }
 
         let checksum = 0;
 
         let mut of: HashMap<i32, [i32; 3]> = HashMap::new();
 
-        for (_, of_part_id) in &of_parts {
-            let color = if *is_no_effect.get(&of_part_id).unwrap() {
-                frames
+        for of_part_id in of_parts.values() {
+            let color = if *is_no_effect.get(of_part_id).unwrap() {
+                *frames
                     .last()
                     .ok_or("first frame can't be no effect")
                     .into_result()?
                     .of_grb_data
-                    .get(&of_part_id)
+                    .get(of_part_id)
                     .unwrap()
-                    .clone()
             } else {
                 alpha(
                     of_data
@@ -451,7 +447,7 @@ pub async fn frame_dat(
 
         let mut led: HashMap<i32, Vec<[i32; 3]>> = HashMap::new();
 
-        for (_, led_part) in &led_parts {
+        for led_part in led_parts.values() {
             let color = if *is_no_effect.get(&led_part.get_id()).unwrap() {
                 frames
                     .last()
@@ -466,7 +462,7 @@ pub async fn frame_dat(
                     .get(&(frame_id, led_part.get_id()))
                     .unwrap_or(&&vec![[0, 0, 0, 0]; led_part.get_len() as usize])
                     .iter()
-                    .map(|status| alpha(status))
+                    .map(alpha)
                     .collect_vec()
             };
 
@@ -474,7 +470,7 @@ pub async fn frame_dat(
         }
 
         let frame_data = FrameData {
-            id: frame_id,
+            // id: frame_id,
             start_time,
             of_grb_data: of,
             led_grb_data: led,
@@ -488,14 +484,14 @@ pub async fn frame_dat(
     for frame in frames {
         write_little_endian(&frame.start_time, &mut response);
         response.push(frame.fade);
-        for (_, of_part_id) in &of_parts {
-            let color = frame.of_grb_data.get(&of_part_id).unwrap();
+        for of_part_id in of_parts.values() {
+            let color = frame.of_grb_data.get(of_part_id).unwrap();
             response.push(color[1] as u8);
             response.push(color[0] as u8);
             response.push(color[2] as u8);
         }
 
-        for (_, led_part) in &led_parts {
+        for led_part in led_parts.values() {
             let colors = frame.led_grb_data.get(&led_part.get_id()).unwrap();
             colors.iter().for_each(|color| {
                 response.push(color[1] as u8);

@@ -325,9 +325,15 @@ pub async fn export_data(
                 .iter()
                 .map(|dancer_position| {
                     [
-                        ((dancer_position[0] + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_position[1] + f64::EPSILON) * 100.0).round() / 100.0,
-                        ((dancer_position[2] + f64::EPSILON) * 100.0).round() / 100.0,
+                        dancer_position[0]
+                            .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
+                        dancer_position[1]
+                            .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
+                        dancer_position[2]
+                            .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
+                        // ((dancer_position[0] + f64::EPSILON) * 100.0).round() / 100.0,
+                        // ((dancer_position[1] + f64::EPSILON) * 100.0).round() / 100.0,
+                        // ((dancer_position[2] + f64::EPSILON) * 100.0).round() / 100.0,
                     ]
                 })
                 .collect();

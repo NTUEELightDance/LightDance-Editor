@@ -226,7 +226,7 @@ pub async fn init_redis_position(
                     .find(|position| position.frame_id == frame.id)
                     .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-                [position.rx, position.ry, position.rz]
+                [Some(position.rx), Some(position.ry), Some(position.rz)]
             })
             .collect_vec();
 
@@ -353,12 +353,7 @@ pub async fn update_redis_control(
                 ControlType::LEDBulbs => {
                     let bulbs = part_control
                         .iter()
-                        .map(|data| {
-                            (
-                                data.bulb_color_id.unwrap_or(-1),
-                                data.bulb_alpha.unwrap_or(0),
-                            )
-                        })
+                        .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
                         .collect_vec();
 
                     dancer_status.push(PartControl(0, part_control[0].alpha));
@@ -476,7 +471,7 @@ pub async fn update_redis_position(
                 .find(|position| position.frame_id == frame.id)
                 .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-            [position.rx, position.ry, position.rz]
+            [Some(position.rx), Some(position.ry), Some(position.rz)]
         })
         .collect_vec();
 
