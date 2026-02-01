@@ -14,6 +14,7 @@ from ...utils.ui import (
     unset_outliner_hide_mesh,
     unset_outliner_hide_mode_column,
 )
+from ..state.dopesheet import clear_pinned_timeline
 
 
 def setup_control_editor():
@@ -21,6 +22,7 @@ def setup_control_editor():
         return
     bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
+    clear_pinned_timeline()
     state.pinned_objects = []
     clear_selection()
 
@@ -48,6 +50,7 @@ def setup_pos_editor():
         return
     bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
+    clear_pinned_timeline()
     state.pinned_objects = []
     clear_selection()
 

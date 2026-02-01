@@ -40,17 +40,17 @@ class PinObject(bpy.types.Operator):
             if obj.name in state.pinned_objects:
                 notify("INFO", f"{obj.name} already pinned")
             else:
-                for i, obj_name in enumerate(state.pinned_objects):
-                    eff_obj_name = get_effective_name(obj_name)
-                    delete_obj(f"[{3 + i}]pinned_{eff_obj_name}")
-
                 add_blank = True if not state.pinned_objects else False
                 state.pinned_objects.append(obj.name)
 
                 if state.editor == Editor.CONTROL_EDITOR:
-                    update_pinned_ctrl_data(select=False, add_blank=add_blank)
+                    update_pinned_ctrl_data(
+                        add_blank, obj.name, len(state.pinned_objects) - 1
+                    )
                 elif state.editor == Editor.POS_EDITOR:
-                    update_pinned_pos_data(select=False, add_blank=add_blank)
+                    update_pinned_pos_data(
+                        add_blank, obj.name, len(state.pinned_objects) - 1
+                    )
 
                 set_dopesheet_collapse_all(True)
 
@@ -74,19 +74,25 @@ class DeletePinnedObject(bpy.types.Operator):
         )
 
     def execute(self, context: bpy.types.Context | None):
-        notify("INFO", f"{state.pinned_objects[self.index]} is removed")
+        notify("INFO", f"{state.pinned_objects[self.index]} is unpinned")
+
+        is_deleted = False
         for i, obj_name in enumerate(state.pinned_objects):
             eff_obj_name = get_effective_name(obj_name)
-            delete_obj(f"[{3 + i}]pinned_{eff_obj_name}")
+
+            if i == self.index:
+                delete_obj(f"[{3 + i}]pinned_{eff_obj_name}")
+                is_deleted = True
+
+            elif is_deleted:
+                obj = bpy.data.objects.get(f"[{3 + i}]pinned_{eff_obj_name}")
+                if obj:
+                    obj.name = f"[{2 + i}]pinned_{eff_obj_name}"
 
         state.pinned_objects.pop(self.index)
 
         if not state.pinned_objects:
             delete_obj("[2]blank")
-        if state.editor == Editor.CONTROL_EDITOR:
-            update_pinned_ctrl_data(select=False, add_blank=False)
-        elif state.editor == Editor.POS_EDITOR:
-            update_pinned_pos_data(select=False, add_blank=False)
 
         set_dopesheet_collapse_all(True)
 
