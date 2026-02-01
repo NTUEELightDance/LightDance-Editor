@@ -14,7 +14,7 @@ class PinPanel(bpy.types.Panel):
     bl_category = "LightDance"
 
     def draw(self, context: bpy.types.Context | None):
-        if not context:
+        if not bpy.context:
             return
         if not state.ready:
             return
@@ -37,7 +37,7 @@ class PinPanel(bpy.types.Panel):
             row = col.row()
             row.label(text=f"{object}", icon="PINNED")
             op = row.operator(operator="lightdance.delete_pinned_object", text="Delete")
-            op.index = i
+            op.index = i  # type: ignore
 
         obj = None
         if bpy.context.selected_objects:

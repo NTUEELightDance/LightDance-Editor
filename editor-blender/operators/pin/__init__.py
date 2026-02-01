@@ -25,6 +25,9 @@ class PinObject(bpy.types.Operator):
         )
 
     def execute(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return {"CANCELED"}
+
         if len(state.pinned_objects) >= 3:
             notify("INFO", "Maximum pinned objects reached")
             return {"FINISHED"}
@@ -41,13 +44,13 @@ class PinObject(bpy.types.Operator):
                     eff_obj_name = get_effective_name(obj_name)
                     delete_obj(f"[{3 + i}]pinned_{eff_obj_name}")
 
-                is_old_empty = True if not state.pinned_objects else False
+                add_blank = True if not state.pinned_objects else False
                 state.pinned_objects.append(obj.name)
 
                 if state.editor == Editor.CONTROL_EDITOR:
-                    update_pinned_ctrl_data(select=False, old_is_empty=is_old_empty)
+                    update_pinned_ctrl_data(select=False, add_blank=add_blank)
                 elif state.editor == Editor.POS_EDITOR:
-                    update_pinned_pos_data(select=False, old_is_empty=is_old_empty)
+                    update_pinned_pos_data(select=False, add_blank=add_blank)
 
                 set_dopesheet_collapse_all(True)
 
@@ -81,9 +84,9 @@ class DeletePinnedObject(bpy.types.Operator):
         if not state.pinned_objects:
             delete_obj("[2]blank")
         if state.editor == Editor.CONTROL_EDITOR:
-            update_pinned_ctrl_data(select=False, old_is_empty=False)
+            update_pinned_ctrl_data(select=False, add_blank=False)
         elif state.editor == Editor.POS_EDITOR:
-            update_pinned_pos_data(select=False, old_is_empty=False)
+            update_pinned_pos_data(select=False, add_blank=False)
 
         set_dopesheet_collapse_all(True)
 

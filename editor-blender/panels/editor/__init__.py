@@ -20,6 +20,9 @@ class EditorPanel(bpy.types.Panel):
         return state.ready and state.sync
 
     def draw(self, context: bpy.types.Context | None):
+        if not bpy.context:
+            return
+
         layout = self.layout
         layout.enabled = not state.shifting and not state.requesting
 
