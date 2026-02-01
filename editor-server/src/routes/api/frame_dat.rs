@@ -1,16 +1,16 @@
 use std::collections::{HashMap, HashSet};
 
 use axum::{
-    http::{HeaderMap, StatusCode},
+    http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
 use itertools::Itertools;
 
-use crate::global;
+use crate::{global, utils::vector::partition_by_field};
 
 use super::{
     types::{Color, GetControlDatQuery, GetDataFailedResponse},
-    utils::{gradient_to_rgb_float, interpolate_gradient, IntoResult},
+    utils::{alpha, gradient_to_rgb_float, interpolate_gradient, write_little_endian, IntoResult},
 };
 
 type GetDataResponse = Vec<u8>;
@@ -34,9 +34,9 @@ struct FrameData {
     start_time: u32,
     fade: u8,
     // (part_id, color)
-    of_grb_data: HashMap<i32, Color>,
+    of_grb_data: HashMap<i32, [i32; 3]>,
     // (part_id, color[])
-    led_grb_data: HashMap<i32, Vec<Color>>,
+    led_grb_data: HashMap<i32, Vec<[i32; 3]>>,
     checksum: u32,
 }
 
@@ -108,29 +108,29 @@ pub async fn frame_dat(
     })?
     .id;
 
-    // TODO: make this more efficient
-    // now the query goes over all control datas but only retrieves the frames
-    let _frames = sqlx::query!(
-        r#"
-            SELECT
-                ControlFrame.id as "control_frame_id",
-                ControlFrame.start as "control_frame_start",
-                ControlFrame.fade as "control_frame_fade"
-            FROM Dancer
-            INNER JOIN Model
-                ON Model.id = Dancer.model_id
-            INNER JOIN ControlData
-                ON ControlData.dancer_id = Dancer.id
-            INNER JOIN ControlFrame
-                ON ControlFrame.id = ControlData.frame_id
-            WHERE Dancer.id = ?
-            ORDER BY ControlFrame.start ASC;
-        "#,
-        dancer_id
-    )
-    .fetch_all(mysql_pool)
-    .await
-    .into_result()?;
+    // // TODO: make this more efficient
+    // // now the query goes over all control datas but only retrieves the frames
+    // let _frames = sqlx::query!(
+    //     r#"
+    //         SELECT
+    //             ControlFrame.id as "control_frame_id",
+    //             ControlFrame.start as "control_frame_start",
+    //             ControlFrame.fade_for_new_status as "control_frame_fade"
+    //         FROM Dancer
+    //         INNER JOIN Model
+    //             ON Model.id = Dancer.model_id
+    //         INNER JOIN ControlData
+    //             ON ControlData.dancer_id = Dancer.id
+    //         INNER JOIN ControlFrame
+    //             ON ControlFrame.id = ControlData.frame_id
+    //         WHERE Dancer.id = ?
+    //         ORDER BY ControlFrame.start ASC;
+    //     "#,
+    //     dancer_id
+    // )
+    // .fetch_all(mysql_pool)
+    // .await
+    // .into_result()?;
 
     // let parts = sqlx::query!(
     //     r#"
@@ -159,7 +159,7 @@ pub async fn frame_dat(
                 Part.name as "part_name",
                 ControlFrame.id as "contorl_frame_id",
                 ControlData.color_id as "color_id",
-                ControlData.alpha as "alpha"
+                ControlData.alpha
             FROM Dancer
           INNER JOIN Model
                 ON Model.id = Dancer.model_id
@@ -183,13 +183,16 @@ pub async fn frame_dat(
     .collect_vec();
 
     // ((frame_id, part_id), color)
-    let _of_data: HashMap<(i32, i32), Color> = HashMap::from_iter(of_data.iter().map(|data| {
+    let of_data: HashMap<(i32, i32), [i32; 4]> = HashMap::from_iter(of_data.iter().map(|data| {
         let color = match data.color_id {
             Some(id) => colors.get(&id).unwrap_or(&Color { r: 0, g: 0, b: 0 }),
             None => &Color { r: 0, g: 0, b: 0 },
         };
 
-        ((data.contorl_frame_id, data.part_id), color.clone())
+        (
+            (data.contorl_frame_id, data.part_id),
+            [color.r, color.g, color.b, data.alpha.unwrap()],
+        )
     }));
 
     let mut effects: HashMap<i32, Effect> = HashMap::new();
@@ -372,5 +375,140 @@ pub async fn frame_dat(
         *vec = status;
     });
 
-    todo!()
+    led_bulb.iter().for_each(|((frame_id, part_id), v)| {
+        led_data.insert((*frame_id, *part_id), &v);
+    });
+
+    let control_frames = sqlx::query!(
+        r#"
+            SELECT
+                ControlFrame.id,
+                ControlFrame.start,
+                ControlFrame.fade_for_new_status as "fade",
+                ControlData.type,
+                ControlData.part_id
+            FROM Dancer
+            INNER JOIN Model
+                ON Dancer.model_id = Model.id
+            INNER JOIN Part
+                ON Model.id = Part.model_id
+            INNER JOIN ControlData
+                ON Part.id = ControlData.part_id AND
+                ControlData.dancer_id = Dancer.id
+            INNER JOIN ControlFrame
+                ON ControlData.frame_id = ControlFrame.id
+            WHERE Dancer.id = ?
+            ORDER BY ControlFrame.start;
+        "#,
+        dancer_id
+    )
+    .fetch_all(mysql_pool)
+    .await
+    .into_result()?;
+
+    let control_frames = partition_by_field(|cf| cf.start, control_frames);
+
+    let mut frames: Vec<FrameData> = Vec::new();
+
+    for frame in control_frames {
+        let frame_id = frame[0].id;
+        let start_time = frame[0].start as u32;
+        let fade = frame[0].fade as u8;
+
+        let mut is_no_effect: HashMap<i32, bool> = HashMap::new();
+
+        for control_data in frame {
+            is_no_effect.insert(
+                control_data.id,
+                control_data.r#type == "NO_EFFECT".to_string(),
+            );
+        }
+
+        let checksum = 0;
+
+        let mut of: HashMap<i32, [i32; 3]> = HashMap::new();
+
+        for (_, of_part_id) in &of_parts {
+            let color = if *is_no_effect.get(&of_part_id).unwrap() {
+                frames
+                    .last()
+                    .ok_or("first frame can't be no effect")
+                    .into_result()?
+                    .of_grb_data
+                    .get(&of_part_id)
+                    .unwrap()
+                    .clone()
+            } else {
+                alpha(
+                    of_data
+                        .get(&(frame_id, *of_part_id))
+                        .unwrap_or(&[0, 0, 0, 0]),
+                )
+            };
+
+            of.insert(frame_id, color);
+        }
+
+        let mut led: HashMap<i32, Vec<[i32; 3]>> = HashMap::new();
+
+        for (_, led_part) in &led_parts {
+            let color = if *is_no_effect.get(&led_part.get_id()).unwrap() {
+                frames
+                    .last()
+                    .ok_or("first frame can't be no effect")
+                    .into_result()?
+                    .led_grb_data
+                    .get(&led_part.get_id())
+                    .unwrap()
+                    .clone()
+            } else {
+                led_data
+                    .get(&(frame_id, led_part.get_id()))
+                    .unwrap_or(&&vec![[0, 0, 0, 0]; led_part.get_len() as usize])
+                    .iter()
+                    .map(|status| alpha(status))
+                    .collect_vec()
+            };
+
+            led.insert(led_part.get_id(), color);
+        }
+
+        let frame_data = FrameData {
+            id: frame_id,
+            start_time,
+            of_grb_data: of,
+            led_grb_data: led,
+            fade,
+            checksum,
+        };
+
+        frames.push(frame_data);
+    }
+
+    for frame in frames {
+        write_little_endian(&frame.start_time, &mut response);
+        response.push(frame.fade);
+        for (_, of_part_id) in &of_parts {
+            let color = frame.of_grb_data.get(&of_part_id).unwrap();
+            response.push(color[1] as u8);
+            response.push(color[0] as u8);
+            response.push(color[2] as u8);
+        }
+
+        for (_, led_part) in &led_parts {
+            let colors = frame.led_grb_data.get(&led_part.get_id()).unwrap();
+            colors.iter().for_each(|color| {
+                response.push(color[1] as u8);
+                response.push(color[0] as u8);
+                response.push(color[2] as u8);
+            });
+        }
+
+        write_little_endian(&frame.checksum, &mut response);
+    }
+
+    let mut headers = HeaderMap::new();
+    headers.insert("content-type", HeaderValue::from_static("application/json"));
+
+    Ok((StatusCode::OK, (headers, Json(response))))
 }

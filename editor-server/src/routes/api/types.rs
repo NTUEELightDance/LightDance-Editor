@@ -14,6 +14,10 @@ impl LEDPart {
     pub fn get_len(&self) -> i32 {
         self.len
     }
+
+    pub fn get_id(&self) -> i32 {
+        self.id
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
