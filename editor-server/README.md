@@ -14,9 +14,9 @@ docker compose -f dev.docker-compose.yml up -d
 ### 2. Migrate SeaORM
 
 ```sh
-# Lightdance-Editor/editor-server
-DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli migrate up
-DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli generate entity -o sea-orm/src/entity
+# Lightdance-Editor/editor-server/sea-orm
+sea-orm-cli migrate up
+sea-orm-cli generate entity -o src/entity
 ```
 
 ### 3. Run editor-server
