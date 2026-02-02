@@ -1,6 +1,7 @@
 //! Database setting utilities.
 
 use crate::db::types::control_data::ControlType;
+// use crate::db::types::dancer;
 use crate::global;
 use crate::types::global::{PartControl, PartType, RedisControl, RedisPosition, Revision};
 use crate::utils::vector::partition_by_field;
@@ -47,7 +48,8 @@ pub async fn init_redis_control(
                     ControlData.color_id,
                     ControlData.effect_id,
                     COALESCE(ControlData.alpha, 0) AS "alpha: i32",
-                    LEDBulb.color_id AS bulb_color_id
+                    LEDBulb.color_id AS bulb_color_id,
+                    COALESCE(LEDBulb.alpha, 0) AS "bulb_alpha: i32"
                 FROM Dancer
                 INNER JOIN Model
                     ON Dancer.model_id = Model.id
@@ -106,6 +108,11 @@ pub async fn init_redis_control(
                     }
 
                     match part_control[0].r#type {
+                        ControlType::NoEffect => {
+                            // NO_EFFECT: Use -1 as the ID to indicate "no effect"
+                            dancer_status.push(PartControl(-1, 0));
+                            dancer_led_status.push(Vec::new());
+                        }
                         ControlType::Effect => {
                             dancer_status.push(PartControl(
                                 part_control[0].effect_id.unwrap_or(-1),
@@ -116,7 +123,7 @@ pub async fn init_redis_control(
                         ControlType::LEDBulbs => {
                             let bulbs = part_control
                                 .iter()
-                                .map(|data| (data.bulb_color_id.unwrap_or(-1), data.alpha))
+                                .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
                                 .collect_vec();
 
                             dancer_status.push(PartControl(0, part_control[0].alpha));
@@ -195,9 +202,10 @@ pub async fn init_redis_position(
                 SELECT
                     Dancer.id,
                     PositionData.frame_id,
-                    COALESCE(PositionData.x, 0) AS x,
-                    COALESCE(PositionData.y, 0) AS y,
-                    COALESCE(PositionData.z, 0) AS z,
+                    PositionData.type AS "position_type: String",
+                    COALESCE(PositionData.x, 0.0) AS "x!: f64",
+                    COALESCE(PositionData.y, 0.0) AS "y!: f64",
+                    COALESCE(PositionData.z, 0.0) AS "z!: f64",
                     PositionData.rx,
                     PositionData.ry,
                     PositionData.rz
@@ -360,6 +368,11 @@ pub async fn update_redis_control(
             }
 
             match part_control[0].r#type {
+                ControlType::NoEffect => {
+                    // NO_EFFECT: Use -1 as the ID to indicate "no effect"
+                    dancer_status.push(PartControl(-1, 0));
+                    dancer_led_status.push(Vec::new());
+                }
                 ControlType::Effect => {
                     dancer_status.push(PartControl(
                         part_control[0].effect_id.unwrap_or(-1),
