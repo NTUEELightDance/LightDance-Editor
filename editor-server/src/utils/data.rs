@@ -41,6 +41,7 @@ pub async fn init_redis_control(
                     ControlData.color_id,
                     ControlData.effect_id,
                     ControlData.alpha,
+                    ControlData.fade AS "fade: i32",
                     LEDBulb.color_id AS bulb_color_id
                 FROM Dancer
                 INNER JOIN Model
@@ -102,8 +103,9 @@ pub async fn init_redis_control(
                     match part_control[0].r#type {
                         ControlType::Effect => {
                             dancer_status.push(PartControl(
-                                part_control[0].effect_id.unwrap_or(-1),
+                                Some(part_control[0].effect_id.unwrap_or(-1)),
                                 part_control[0].alpha,
+                                part_control[0].fade,
                             ));
                             dancer_led_status.push(Vec::new());
                         }
@@ -113,14 +115,23 @@ pub async fn init_redis_control(
                                 .map(|data| (data.bulb_color_id.unwrap_or(-1), data.alpha))
                                 .collect_vec();
 
-                            dancer_status.push(PartControl(0, part_control[0].alpha));
+                            dancer_status.push(PartControl(
+                                Some(0),
+                                part_control[0].alpha,
+                                part_control[0].fade,
+                            ));
                             dancer_led_status.push(bulbs);
                         }
                         ControlType::Color => {
                             dancer_status.push(PartControl(
-                                part_control[0].color_id.unwrap_or(-1),
+                                Some(part_control[0].color_id.unwrap_or(-1)),
                                 part_control[0].alpha,
+                                part_control[0].fade,
                             ));
+                            dancer_led_status.push(Vec::new());
+                        }
+                        ControlType::NoEffect => {
+                            dancer_status.push(PartControl(None, None, None));
                             dancer_led_status.push(Vec::new());
                         }
                     };
@@ -131,7 +142,7 @@ pub async fn init_redis_control(
             });
 
             let result_control = RedisControl {
-                fade: frame.fade != 0,
+                // fade: frame.fade != 0,
                 start: frame.start,
                 rev: Revision {
                     meta: frame.meta_rev,
@@ -295,6 +306,7 @@ pub async fn update_redis_control(
                     ControlData.effect_id,
                     ControlData.color_id,
                     ControlData.alpha,
+                    ControlData.fade AS "fade: i32",
                     ControlData.type  AS "type: ControlType",
                     LEDBulb.color_id AS bulb_color_id,
                     LEDBulb.alpha AS bulb_alpha
@@ -345,8 +357,9 @@ pub async fn update_redis_control(
             match part_control[0].r#type {
                 ControlType::Effect => {
                     dancer_status.push(PartControl(
-                        part_control[0].effect_id.unwrap_or(-1),
+                        Some(part_control[0].effect_id.unwrap_or(-1)),
                         part_control[0].alpha,
+                        part_control[0].fade,
                     ));
                     dancer_led_status.push(Vec::new());
                 }
@@ -356,14 +369,23 @@ pub async fn update_redis_control(
                         .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
                         .collect_vec();
 
-                    dancer_status.push(PartControl(0, part_control[0].alpha));
+                    dancer_status.push(PartControl(
+                        Some(0),
+                        part_control[0].alpha,
+                        part_control[0].fade,
+                    ));
                     dancer_led_status.push(bulbs);
                 }
                 ControlType::Color => {
                     dancer_status.push(PartControl(
-                        part_control[0].color_id.unwrap_or(-1),
+                        Some(part_control[0].color_id.unwrap_or(-1)),
                         part_control[0].alpha,
+                        part_control[0].fade,
                     ));
+                    dancer_led_status.push(Vec::new());
+                }
+                ControlType::NoEffect => {
+                    dancer_status.push(PartControl(None, None, None));
                     dancer_led_status.push(Vec::new());
                 }
             };
@@ -374,7 +396,7 @@ pub async fn update_redis_control(
     });
 
     let result_control = RedisControl {
-        fade: frame.fade != 0,
+        // fade: frame.fade != 0,
         start: frame.start,
         rev: Revision {
             meta: frame.meta_rev,

@@ -56,7 +56,8 @@ impl ControlFrameMutation {
         &self,
         ctx: &Context<'_>,
         start: i32,
-        fade: bool,
+        // TODO: remove this after new api is finished
+        #[allow(unused)] fade: bool,
         control_data: Vec<Vec<Vec<i32>>>,
         led_control_data: Vec<Vec<Vec<Vec<i32>>>>,
     ) -> FieldResult<String> {
@@ -303,11 +304,10 @@ impl ControlFrameMutation {
         // create a new control frame and insert it into the database
         let new_control_frame = sqlx::query!(
             r#"
-                INSERT INTO ControlFrame (start, fade)
-                VALUES (?, ?);
+                INSERT INTO ControlFrame (start)
+                VALUES (?);
             "#,
             start,
-            fade,
         )
         .execute(&mut *tx)
         .await?;
@@ -551,7 +551,6 @@ impl ControlFrameMutation {
                 SELECT
                     id,
                     start,
-                    fade as "fade: bool",
                     meta_rev,
                     data_rev
                 FROM ControlFrame
@@ -605,21 +604,20 @@ impl ControlFrameMutation {
             original_frame.start
         };
 
-        let fade = if let Some(input_fade) = input.fade {
-            input_fade
-        } else {
-            original_frame.fade
-        };
+        // let fade = if let Some(input_fade) = input.fade {
+        //     input_fade
+        // } else {
+        //     original_frame.fade
+        // };
 
         // update the frame
         sqlx::query!(
             r#"
                 UPDATE ControlFrame
-                SET start = ?, fade = ?
+                SET start = ?
                 WHERE id = ?;
             "#,
             start,
-            fade,
             frame_id
         )
         .execute(mysql)
@@ -739,7 +737,6 @@ impl ControlFrameMutation {
                 SELECT
                     id,
                     start,
-                    fade as "fade: bool",
                     meta_rev,
                     data_rev
                 FROM ControlFrame

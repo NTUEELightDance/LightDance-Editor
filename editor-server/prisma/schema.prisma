@@ -208,7 +208,7 @@ model ControlData {
 model ControlFrame {
   id       Int     @id @default(autoincrement())
   start    Int     @unique
-  fade     Boolean
+  // fade     Boolean
   meta_rev Int     @default(0)
   data_rev Int     @default(0)
 
@@ -217,7 +217,7 @@ model ControlFrame {
   control_datas ControlData[]
 
   // New
-  // fade_for_new_status Boolean
+  default_fade Boolean
 }
 
 model EffectListData {

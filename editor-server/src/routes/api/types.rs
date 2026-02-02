@@ -50,10 +50,3 @@ where
         }
     }
 }
-
-#[derive(Debug, Clone, Default)]
-pub struct Color {
-    pub r: i32,
-    pub g: i32,
-    pub b: i32,
-}

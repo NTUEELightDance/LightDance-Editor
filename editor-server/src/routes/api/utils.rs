@@ -3,11 +3,7 @@ pub trait IntoResult<T, E> {
 }
 
 pub fn write_little_endian(num: &u32, v: &mut Vec<u8>) {
-    let mut window: u32 = 0xFF;
-    for _ in 0..4 {
-        v.push((num & window).try_into().unwrap());
-        window <<= 8;
-    }
+    num.to_le_bytes().iter().for_each(|n| v.push(*n));
 }
 
 pub fn interpolate_gradient(segments: Vec<Vec<[i32; 4]>>) -> Vec<[i32; 4]> {

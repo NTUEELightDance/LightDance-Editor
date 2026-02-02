@@ -32,7 +32,7 @@ pub enum PartType {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)] // [id: number, alpha: number]
-pub struct PartControl(pub i32, pub Option<i32>);
+pub struct PartControl(pub Option<i32>, pub Option<i32>, pub Option<i32>);
 pub type PartControlBulbs = Vec<(String, Option<i32>)>;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -43,7 +43,7 @@ pub struct PositionData {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartControlString(pub String, pub Option<i32>); // LEDControl: [src: string, alpha: number] or FiberControl: [color: string, alpha: number]
+pub struct PartControlString(pub Option<String>, pub Option<i32>, pub Option<i32>); // LEDControl: [src: string, alpha: number, fade: number] or FiberControl: [color: string, alpha: number, fade: number]
 pub type PartControlBulbsData = Vec<(i32, Option<i32>)>;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -77,7 +77,7 @@ pub struct LEDPart {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ControlData {
-    pub fade: bool,
+    // pub fade: bool,
     pub start: i32,
     pub status: Vec<Vec<PartControlString>>,
     pub led_status: Vec<Vec<PartControlBulbs>>,
@@ -101,7 +101,8 @@ pub struct Revision {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisControl {
-    pub fade: bool,
+    // temporarily remove fade
+    // pub fade: bool,
     pub start: i32,
     pub rev: Revision,
     pub editing: Option<i32>,

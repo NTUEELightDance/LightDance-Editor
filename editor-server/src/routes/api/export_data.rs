@@ -212,7 +212,6 @@ pub async fn export_data(
             SELECT
                 id,
                 start,
-                fade as "fade: bool", 
                 meta_rev, 
                 data_rev
             FROM ControlFrame
@@ -229,7 +228,7 @@ pub async fn export_data(
         let redis_control = get_redis_control(redis, control_frame.id)
             .await
             .into_result()?;
-        let fade = redis_control.fade;
+        // let fade = redis_control.fade;
         let start = redis_control.start;
         let status = redis_control.status;
         let led_status = redis_control.led_status;
@@ -247,17 +246,28 @@ pub async fn export_data(
                             PartType::FIBER => {
                                 let color_id = part_status.0;
                                 let alpha = part_status.1;
-                                PartControlString(color_dict[&color_id].clone(), alpha)
+                                let fade = part_status.2;
+                                PartControlString(
+                                    color_id.map(|id| color_dict[&id].clone()),
+                                    alpha,
+                                    fade,
+                                )
                             }
                             PartType::LED => {
                                 let effect_id = part_status.0;
                                 let alpha = part_status.1;
-                                if effect_id == 0 {
-                                    PartControlString("".to_string(), alpha)
-                                } else if effect_id == -1 {
-                                    PartControlString("no-change".to_string(), alpha)
-                                } else {
-                                    PartControlString(led_dict[&effect_id].clone(), alpha)
+                                let fade = part_status.2;
+                                match effect_id {
+                                    Some(0) => PartControlString(Some("".to_string()), alpha, fade),
+                                    Some(-1) => PartControlString(
+                                        Some("no-change".to_string()),
+                                        alpha,
+                                        fade,
+                                    ),
+                                    Some(id) => {
+                                        PartControlString(Some(led_dict[&id].clone()), alpha, fade)
+                                    }
+                                    None => PartControlString(None, alpha, fade),
                                 }
                             }
                         }
@@ -282,7 +292,6 @@ pub async fn export_data(
             .collect();
 
         let new_cache_obj = ControlData {
-            fade,
             start,
             status: new_status,
             led_status: new_led_status,
