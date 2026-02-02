@@ -42,6 +42,8 @@ impl PositionMapMutation {
 
         tracing::info!("Mutation: editPosMap");
 
+        let mut tx = mysql.begin().await?;
+
         //check payload correctness
         let frame_to_edit = sqlx::query_as!(
             PositionFrameData,
@@ -51,7 +53,7 @@ impl PositionMapMutation {
           	"#,
             input.frame_id
         )
-        .fetch_one(mysql)
+        .fetch_one(&mut *tx)
         .await?;
 
         let editing = sqlx::query_as!(
@@ -62,7 +64,7 @@ impl PositionMapMutation {
           	"#,
             frame_to_edit.id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         // to check if the frame is editing by other user
@@ -79,7 +81,7 @@ impl PositionMapMutation {
             	ORDER BY id ASC;
           	"#
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         if input.position_data.len() != dancers.len() {
@@ -90,29 +92,77 @@ impl PositionMapMutation {
             .into());
         }
 
+        const NO_EFFECT: i32 = 0;
+        const POSITION: i32 = 1;
+
+        let mut errors = Vec::<String>::new();
+
         // update position data
-        for (ind, coor) in input.position_data.iter().enumerate() {
-            let dancer = &dancers[ind];
-            let _ = sqlx::query!(
-                r#"
-                	UPDATE PositionData
-                	SET x = ?, y = ?, z = ?, rx = ?, ry = ?, rz = ?
-                	WHERE dancer_id = ? AND frame_id = ?;
-                "#,
-                coor[0],
-                coor[1],
-                coor[2],
-                coor[3],
-                coor[4],
-                coor[5],
-                dancer.id,
-                frame_to_edit.id
-            )
-            .execute(mysql)
-            .await?;
+        for (idx, coor) in input.position_data.iter().enumerate() {
+            // 7 elements: [type, x, y, z, rx, ry, rz]
+            if coor.len() != 7 {
+                errors.push(format!(
+                    "Dancer #{} data must have 7 elements [type, x, y, z, rx, ry, rz]. Got: {}",
+                    idx + 1,
+                    coor.len()
+                ));
+                continue;
+            }
+
+            let type_value = coor[0] as i32;
+
+            if type_value != NO_EFFECT && type_value != POSITION {
+                errors.push(format!(
+                    "Invalid type value {} for dancer #{}. Must be 0 (NO_EFFECT) or 1 (POSITION).",
+                    type_value,
+                    idx + 1
+                ));
+            }
+        }
+        if !errors.is_empty() {
+            return Err(errors.join("; ").into());
         }
 
         // update editing position frame
+        for (idx, coor) in input.position_data.iter().enumerate() {
+            let dancer = &dancers[idx];
+            let type_value = coor[0] as i32;
+
+            if type_value == NO_EFFECT {
+                let _ = sqlx::query!(
+                    r#"
+                        UPDATE PositionData
+                        SET type = ?, x = NULL, y = NULL, z = NULL, rx = 0, ry = 0, rz = 0
+                        WHERE dancer_id = ? AND frame_id = ?;
+                    "#,
+                    "NO_EFFECT",
+                    dancer.id,
+                    frame_to_edit.id
+                )
+                .execute(&mut *tx)
+                .await?;
+            } else {
+                let _ = sqlx::query!(
+                    r#"
+                        UPDATE PositionData
+                        SET type = ?, x = ?, y = ?, z = ?, rx = ?, ry = ?, rz = ?
+                        WHERE dancer_id = ? AND frame_id = ?;
+                    "#,
+                    "POSITION",
+                    coor[1],
+                    coor[2],
+                    coor[3],
+                    coor[4],
+                    coor[5],
+                    coor[6],
+                    dancer.id,
+                    frame_to_edit.id
+                )
+                .execute(&mut *tx)
+                .await?;
+            }
+        }
+
         let _ = sqlx::query!(
             r#"
             	UPDATE EditingPositionFrame
@@ -121,8 +171,10 @@ impl PositionMapMutation {
           	"#,
             context.user_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        tx.commit().await?;
 
         update_redis_position(mysql, redis, frame_to_edit.id).await?;
         let redis_position = get_redis_position(redis, frame_to_edit.id).await?;
