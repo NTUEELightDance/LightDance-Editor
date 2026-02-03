@@ -1,0 +1,16 @@
+[package]
+rust-version = "1.75.0"
+name = "migration"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "migration"
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { version = "1.43.0", features = ["full"] }
+
+[dependencies.sea-orm-migration]
+version = "1.1.0"
+features = [ "sqlx-mysql", "runtime-async-std-native-tls" ]

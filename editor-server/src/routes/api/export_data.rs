@@ -212,7 +212,7 @@ pub async fn export_data(
             SELECT
                 id,
                 start,
-                fade as "fade: bool", 
+                fade_for_new_status as "fade: bool",
                 meta_rev, 
                 data_rev
             FROM ControlFrame
