@@ -217,7 +217,7 @@ model ControlFrame {
   control_datas ControlData[]
 
   // New
-  default_fade Boolean
+  default_fade Boolean @default(false)
 }
 
 model EffectListData {

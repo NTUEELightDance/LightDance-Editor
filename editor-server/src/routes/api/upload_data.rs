@@ -464,21 +464,32 @@ pub async fn upload_data(
                         .into_result()?
                         .last_insert_id() as i32;
                     } else {
-                        let color_id = color_dict.get(&part_status.0
-                            .clone()
-                            .ok_or("non-no effect control data should have color id (part_status.0)")
-                            .into_result()?);
-
-                        let effect_id = match led_dict.get(model_name) {
-                            Some(parts_dict) => match parts_dict.get(part_name) {
-                                Some(effect_dict) => effect_dict.get(&part_status.0
-                                    .clone()
-                                    .ok_or("non-no effect control data should have effect id (part_status.0)")
-                                    .into_result()?),
-                                None => None,
-                            },
+                        let color_id = match &part_status.0 {
+                            Some(string) => color_dict.get(&string),
                             None => None,
                         };
+
+                        let effect_id = if let Some(parts_dict) = led_dict.get(model_name) {
+                            if let Some(effect_dict) = parts_dict.get(part_name) {
+                                if let Some(string) = &part_status.0 {
+                                    effect_dict.get(&string)
+                                } else {
+                                    None
+                                }
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        };
+
+                        // let effect_id = match &led_dict.get(model_name) {
+                        //     Some(parts_dict) => match &parts_dict.get(part_name) {
+                        //         Some(effect_dict) => effect_dict.get(&part_status.0),
+                        //         None => None,
+                        //     },
+                        //     None => None,
+                        // };
 
                         let alpha = part_status.1;
                         let control_id = sqlx::query!(

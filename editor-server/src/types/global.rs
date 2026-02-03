@@ -43,7 +43,7 @@ pub struct PositionData {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartControlString(pub Option<String>, pub Option<i32>, pub Option<i32>); // LEDControl: [src: string, alpha: number, fade: number] or FiberControl: [color: string, alpha: number, fade: number]
+pub struct PartControlString(pub Option<String>, pub Option<i32>); // LEDControl: [src: string, alpha: number, fade: number] or FiberControl: [color: string, alpha: number, fade: number]
 pub type PartControlBulbsData = Vec<(i32, Option<i32>)>;
 
 #[derive(Debug, Deserialize, Serialize)]

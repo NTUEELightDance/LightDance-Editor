@@ -6,8 +6,8 @@ use super::utils::IntoResult;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LEDPart {
-    id: i32,
-    len: i32,
+    pub id: i32,
+    pub len: i32,
 }
 
 impl LEDPart {

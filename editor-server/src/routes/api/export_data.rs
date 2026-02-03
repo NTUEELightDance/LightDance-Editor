@@ -249,28 +249,22 @@ pub async fn export_data(
                             PartType::FIBER => {
                                 let color_id = part_status.0;
                                 let alpha = part_status.1;
-                                let fade = part_status.2;
-                                PartControlString(
-                                    color_id.map(|id| color_dict[&id].clone()),
-                                    alpha,
-                                    fade,
-                                )
+                                let _fade = part_status.2;
+                                PartControlString(color_id.map(|id| color_dict[&id].clone()), alpha)
                             }
                             PartType::LED => {
                                 let effect_id = part_status.0;
                                 let alpha = part_status.1;
-                                let fade = part_status.2;
+                                let _fade = part_status.2;
                                 match effect_id {
-                                    Some(0) => PartControlString(Some("".to_string()), alpha, fade),
-                                    Some(-1) => PartControlString(
-                                        Some("no-change".to_string()),
-                                        alpha,
-                                        fade,
-                                    ),
-                                    Some(id) => {
-                                        PartControlString(Some(led_dict[&id].clone()), alpha, fade)
+                                    Some(0) => PartControlString(Some("".to_string()), alpha),
+                                    Some(-1) => {
+                                        PartControlString(Some("no-change".to_string()), alpha)
                                     }
-                                    None => PartControlString(None, alpha, fade),
+                                    Some(id) => {
+                                        PartControlString(Some(led_dict[&id].clone()), alpha)
+                                    }
+                                    None => PartControlString(None, alpha),
                                 }
                             }
                         }
