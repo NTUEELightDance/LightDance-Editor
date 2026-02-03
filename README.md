@@ -72,8 +72,8 @@ migrate the database
 
 ```sh
 # in Lightdance-Editor/editor-server/sea-orm
-DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli migrate up
-DATABASE_URL="mysql://root:password@localhost:3306/editor" sea-orm-cli generate entity -o sea-orm/src/entity
+sea-orm-cli migrate up
+sea-orm-cli generate entity -o src/entity
 ```
 
 #### Install the dependencies
