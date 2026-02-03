@@ -617,8 +617,7 @@ impl ControlFrameMutation {
 
         // if the start time is given, check if the new time is already been occupied by another frame
         // also check if the new time is valid
-        if input.start.is_some() {
-            let start = input.start.unwrap();
+        if let Some(start) = input.start {
 
             // check if the new time is already been occupied by another frame
 
