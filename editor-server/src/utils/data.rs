@@ -1,5 +1,7 @@
 //! Database setting utilities.
 
+use std::collections::BTreeMap;
+
 use crate::db::types::control_data::ControlType;
 use crate::global;
 use crate::types::global::{PartControl, PartType, RedisControl, RedisPosition, Revision};
@@ -88,12 +90,22 @@ pub async fn init_redis_control(
         .for_each(|(frame, frame_control)| {
             let redis_key = format!("{}{}", envs.redis_ctrl_prefix, frame.id);
 
+            let mut fade: BTreeMap<i32, bool> = BTreeMap::new();
+            let mut has_effect: BTreeMap<i32, bool> = BTreeMap::new();
+
             let mut frame_status = Vec::new();
             let mut frame_led_status = Vec::new();
 
             frame_control.iter().for_each(|dancer_control| {
                 let mut dancer_status = Vec::new();
                 let mut dancer_led_status = Vec::new();
+
+                let dancer_id = dancer_control[0][0].dancer_id;
+                let dancer_fade = dancer_control[0][0].fade.unwrap_or(0) == 1;
+                let dancer_has_effect = dancer_control[0][0].r#type != ControlType::NoEffect;
+
+                fade.insert(dancer_id, dancer_fade);
+                has_effect.insert(dancer_id, dancer_has_effect);
 
                 dancer_control.iter().for_each(|part_control| {
                     if part_control.is_empty() {
@@ -141,8 +153,10 @@ pub async fn init_redis_control(
                 frame_led_status.push(dancer_led_status);
             });
 
+            let fade: Vec<bool> = Vec::from_iter(fade.into_values());
+            let has_effect: Vec<bool> = Vec::from_iter(has_effect.into_values());
+
             let result_control = RedisControl {
-                // fade: frame.fade != 0,
                 start: frame.start,
                 rev: Revision {
                     meta: frame.meta_rev,
@@ -151,6 +165,8 @@ pub async fn init_redis_control(
                 editing: frame.user_id,
                 status: frame_status,
                 led_status: frame_led_status,
+                fade,
+                has_effect,
             };
 
             result.push((redis_key, serde_json::to_string(&result_control).unwrap()));
@@ -345,9 +361,20 @@ pub async fn update_redis_control(
     let mut frame_status = Vec::new();
     let mut frame_led_status = Vec::new();
 
+    let mut fade: BTreeMap<i32, bool> = BTreeMap::new();
+    let mut has_effect: BTreeMap<i32, bool> = BTreeMap::new();
+
     frame_control.iter().for_each(|dancer_control| {
         let mut dancer_status = Vec::new();
         let mut dancer_led_status = Vec::new();
+
+        // TODO: check implementation correctness
+        let dancer_id = dancer_control[0][0].dancer_id;
+        let dancer_fade = dancer_control[0][0].fade.unwrap_or(0) == 1;
+        let dancer_has_effect = dancer_control[0][0].r#type != ControlType::NoEffect;
+
+        fade.insert(dancer_id, dancer_fade);
+        has_effect.insert(dancer_id, dancer_has_effect);
 
         dancer_control.iter().for_each(|part_control| {
             if part_control.is_empty() {
@@ -395,6 +422,9 @@ pub async fn update_redis_control(
         frame_led_status.push(dancer_led_status);
     });
 
+    let fade: Vec<bool> = Vec::from_iter(fade.into_values());
+    let has_effect: Vec<bool> = Vec::from_iter(has_effect.into_values());
+
     let result_control = RedisControl {
         // fade: frame.fade != 0,
         start: frame.start,
@@ -405,6 +435,8 @@ pub async fn update_redis_control(
         editing: frame.user_id,
         status: frame_status,
         led_status: frame_led_status,
+        fade,
+        has_effect,
     };
 
     let mut conn: MultiplexedConnection = redis_client

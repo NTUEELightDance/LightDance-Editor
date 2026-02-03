@@ -405,34 +405,45 @@ pub async fn upload_data(
                 {
                     let part_name = &data_obj.dancer[i].parts[j].name;
                     let real_part = &real_dancer.1[part_name];
+                    let part_fade = frame_obj.fade[i];
+                    let part_has_effect = frame_obj.has_effect[i];
 
                     // ""          => effect_id =        NULL, type = "LED_BULBS"
                     // "no-change" => effect_id =        NULL, type =    "EFFECT"
                     // "<EFFECT>"  => effect_id = <EFFECT_ID>, type =    "EFFECT"
 
-                    let r#type = match &real_part.1 {
-                        PartType::FIBER => match part_status.0 {
-                            Some(_) => ControlType::Color,
-                            None => ControlType::NoEffect,
-                        },
-                        PartType::LED => {
-                            match &part_status.0 {
-                                Some(string) => {
-                                    if string.is_empty() {
-                                        ControlType::LEDBulbs
-                                    } else {
-                                        ControlType::Effect
-                                    }
+                    // TODO: add error handling for the dirty code below
+                    let r#type = if !part_has_effect {
+                        ControlType::NoEffect
+                    } else {
+                        match &real_part.1 {
+                            PartType::FIBER => ControlType::Color,
+                            PartType::LED => {
+                                if part_status.0.as_ref().unwrap_or(&"".to_string()).is_empty() {
+                                    ControlType::LEDBulbs
+                                } else {
+                                    ControlType::Effect
                                 }
-                                None => ControlType::NoEffect,
                             }
-                            // LED_BULBS or EFFECT
-                            // if part_status.0.is_empty() {
-                            //     ControlType::LEDBulbs
-                            // } else {
-                            //     ControlType::Effect
-                            // }
                         }
+                        // match &real_part.1 {
+                        //     PartType::FIBER => match part_status.0 {
+                        //         Some(_) => ControlType::Color,
+                        //         None => ControlType::NoEffect,
+                        //     },
+                        //     PartType::LED => {
+                        //         match &part_status.0 {
+                        //             Some(string) => {
+                        //                 if string.is_empty() {
+                        //                     ControlType::LEDBulbs
+                        //                 } else {
+                        //                     ControlType::Effect
+                        //                 }
+                        //             }
+                        //             None => ControlType::NoEffect,
+                        //         }
+                        //     }
+                        // }
                     };
 
                     let type_string: String = r#type.clone().into();
@@ -472,8 +483,8 @@ pub async fn upload_data(
                         let alpha = part_status.1;
                         let control_id = sqlx::query!(
                             r#"
-                                INSERT INTO ControlData (dancer_id, part_id, frame_id, type, color_id, effect_id, alpha)
-                                VALUES (?, ?, ?, ?, ?, ?, ?);
+                                INSERT INTO ControlData (dancer_id, part_id, frame_id, type, color_id, effect_id, alpha, fade)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                             "#,
                             real_dancer.0,
                             real_part.0,
@@ -482,6 +493,7 @@ pub async fn upload_data(
                             color_id,
                             effect_id,
                             alpha,
+                            part_fade,
                         )
                         .execute(&mut *tx)
                         .await

@@ -77,10 +77,13 @@ pub struct LEDPart {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ControlData {
-    // pub fade: bool,
+    // pub fade: Option<bool>,
     pub start: i32,
     pub status: Vec<Vec<PartControlString>>,
     pub led_status: Vec<Vec<PartControlBulbs>>,
+    // new
+    pub fade: Vec<bool>,
+    pub has_effect: Vec<bool>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -108,6 +111,8 @@ pub struct RedisControl {
     pub editing: Option<i32>,
     pub status: Vec<Vec<PartControl>>,
     pub led_status: Vec<Vec<PartControlBulbsData>>,
+    pub fade: Vec<bool>,
+    pub has_effect: Vec<bool>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

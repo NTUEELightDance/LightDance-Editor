@@ -228,10 +228,13 @@ pub async fn export_data(
         let redis_control = get_redis_control(redis, control_frame.id)
             .await
             .into_result()?;
-        // let fade = redis_control.fade;
         let start = redis_control.start;
         let status = redis_control.status;
         let led_status = redis_control.led_status;
+
+        // TODO: figure out how this work & fix if needed
+        let fade = redis_control.fade;
+        let has_effect = redis_control.has_effect;
 
         let new_status: Vec<Vec<PartControlString>> = status
             .into_iter()
@@ -295,6 +298,8 @@ pub async fn export_data(
             start,
             status: new_status,
             led_status: new_led_status,
+            fade,
+            has_effect,
         };
         control.insert(control_frame.id.to_string(), new_cache_obj);
     }
