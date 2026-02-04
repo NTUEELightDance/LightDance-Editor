@@ -12,7 +12,7 @@ use crate::{
 };
 
 use super::{
-    types::{GetControlDatQuery, GetDataFailedResponse},
+    types::{GetDataFailedResponse, LEDPart},
     utils::{alpha, gradient_to_rgb_float, interpolate_gradient, write_little_endian, IntoResult},
 };
 
@@ -41,9 +41,7 @@ struct FrameData {
     checksum: u32,
 }
 
-pub async fn frame_dat(
-    query: Json<GetControlDatQuery>,
-) -> Result<
+pub async fn test_frame_dat() -> Result<
     (StatusCode, (HeaderMap, Json<GetDataResponse>)),
     (StatusCode, Json<GetDataFailedResponse>),
 > {
@@ -55,11 +53,12 @@ pub async fn frame_dat(
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
 
-    let GetControlDatQuery {
-        dancer,
-        of_parts,
-        led_parts,
-    } = query.0;
+    let dancer = "2_feng".to_string();
+    let mut of_parts = HashMap::new();
+    of_parts.insert("shirt_bottom_bottom".to_string(), 1);
+
+    let mut led_parts = HashMap::new();
+    led_parts.insert("mask_LED".to_string(), LEDPart { id: 1, len: 28 });
 
     let mut of_parts = Vec::from_iter(of_parts.into_iter());
     let mut led_parts = Vec::from_iter(led_parts.into_iter());

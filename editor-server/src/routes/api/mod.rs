@@ -7,6 +7,7 @@ mod frame_dat;
 mod login;
 mod logout;
 mod ping;
+mod test_frame_dat;
 mod types;
 mod upload_data;
 mod utils;
@@ -28,5 +29,6 @@ pub fn build_api_routes() -> Router {
         .route("/frameDat", post(frame_dat::frame_dat))
         .route("/exportData", get(export_data::export_data))
         .route("/uploadData", post(upload_data::upload_data))
+        .route("/testFrameDat", get(test_frame_dat::test_frame_dat))
         .layer(DefaultBodyLimit::max(256 * 1024 * 1024))
 }
