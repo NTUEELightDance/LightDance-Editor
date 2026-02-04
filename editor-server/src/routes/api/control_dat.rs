@@ -1,24 +1,24 @@
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+
 use axum::{
+    body::Bytes,
     http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
 
-use super::types::{GetControlDatQuery, GetDataFailedResponse};
+use super::types::{GetControlDatQuery, GetDataFailedResponse, LEDPart};
 use super::utils::{write_little_endian, IntoResult};
 use itertools::Itertools;
 
 use crate::global;
 
-type GetDataResponse = Vec<u8>;
-
-const VERSION: [u8; 2] = [0, 0];
+const VERSION: [u8; 2] = [1, 1];
+const TOTAL_OF_NUM: usize = 40;
+const TOTAL_STRIP_NUM: usize = 8;
 
 pub async fn control_dat(
     query: Json<GetControlDatQuery>,
-) -> Result<
-    (StatusCode, (HeaderMap, Json<GetDataResponse>)),
-    (StatusCode, Json<GetDataFailedResponse>),
-> {
+) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
     let mut response: Vec<u8> = Vec::new();
     for v in VERSION {
         response.push(v);
@@ -30,79 +30,32 @@ pub async fn control_dat(
         led_parts,
     } = query.0;
 
-    let of_num: u8 = of_parts.len().try_into().map_err(|_| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(GetDataFailedResponse {
-                err: "Optical Fiber number out of bounds".to_string(),
-            }),
-        )
-    })?;
+    let mut of_parts = Vec::from_iter(of_parts.into_iter());
+    of_parts.sort_unstable_by_key(|part| part.1);
+    let mut led_parts = Vec::from_iter(led_parts.into_iter());
+    led_parts.sort_unstable_by_key(|part| part.1.id);
 
-    response.push(of_num);
+    // TODO: Find better way (without using HashSet)
+    let of_parts_filter: HashSet<i32> = HashSet::from_iter(of_parts.iter().map(|(_, id)| *id));
 
-    let strip_num: u8 = led_parts.len().try_into().map_err(|_| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(GetDataFailedResponse {
-                err: "LED strip number out of bounds".to_string(),
-            }),
-        )
-    })?;
+    for i in 0..TOTAL_OF_NUM {
+        if of_parts_filter.contains(&(i as i32)) {
+            response.push(1);
+        } else {
+            response.push(0);
+        }
+    }
 
-    response.push(strip_num);
+    // (id, len)
+    let led_parts: BTreeMap<i32, u8> =
+        BTreeMap::from_iter(led_parts.iter().map(|(_, part)| (part.id, part.len as u8)));
+
+    for i in 0..TOTAL_STRIP_NUM {
+        response.push(*led_parts.get(&(i as i32)).unwrap_or(&0));
+    }
 
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
-
-    // let mut parts_filter = HashSet::new();
-    // led_parts.keys().for_each(|part_name| {
-    //     parts_filter.insert(part_name);
-    // });
-
-    // TODO: Do some checks on input validity
-
-    // let part_data = sqlx::query!(
-    //     r#"
-    //         SELECT
-    //             Part.name as "part_name",
-    //             Part.length
-    //         FROM Dancer
-    //         INNER JOIN Model
-    //             ON Dancer.model_id = Model.id
-    //         INNER JOIN Part
-    //             ON Model.id = Part.model_id
-    //         WHERE Dancer.name = ?
-    //     "#,
-    //     dancer
-    // )
-    // .fetch_all(mysql_pool)
-    // .await
-    // .into_result()?
-    // .into_iter()
-    // .filter(|data| parts_filter.contains(&data.part_name))
-    // .collect_vec();
-    //
-    // if part_data.is_empty() {
-    //     return Err((
-    //         StatusCode::BAD_REQUEST,
-    //         Json(GetDataFailedResponse {
-    //             err: "Dancer parts not found.".to_string(),
-    //         }),
-    //     ));
-    // }
-    //
-    // let mut part_data_map: HashMap<String, u8> = HashMap::new();
-    //
-    // for part in part_data {
-    //     let len = part.length.ok_or("part length not found").into_result()? as u8;
-    //     part_data_map.insert(part.part_name, len);
-    // }
-
-    // TODO: insert in order specified by the firmware team
-    for (_, part) in led_parts {
-        response.push(part.get_len() as u8);
-    }
 
     let frame_data = sqlx::query!(
         r#"
@@ -129,21 +82,48 @@ pub async fn control_dat(
     .into_iter()
     .collect_vec();
 
-    response.push(frame_data.len().try_into().map_err(|_| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(GetDataFailedResponse {
-                err: "number out of bounds".to_string(),
-            }),
-        )
-    })?);
+    let frame_start_times: BTreeSet<i32> =
+        BTreeSet::from_iter(frame_data.into_iter().map(|data| data.control_frame_start));
 
-    frame_data.iter().for_each(|f| {
-        write_little_endian(&(f.control_frame_start as u32), &mut response);
+    response.push(
+        frame_start_times
+            .len()
+            .try_into()
+            .map_err(|_| {
+                format!(
+                    "The number of frames {} is not valid",
+                    frame_start_times.len()
+                )
+            })
+            .into_result()?,
+    );
+
+    frame_start_times.iter().for_each(|f| {
+        write_little_endian(&(*f as u32), &mut response);
     });
 
     let mut headers = HeaderMap::new();
-    headers.insert("content-type", HeaderValue::from_static("application/json"));
+    headers.insert(
+        "content-type",
+        HeaderValue::from_static("application/octect-stream"),
+    );
 
-    Ok((StatusCode::OK, (headers, Json(response))))
+    let response_bytes = Bytes::from(response);
+
+    Ok((StatusCode::OK, (headers, response_bytes)))
+}
+
+pub async fn test_control_dat(
+) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
+    let dancer = "2_feng".to_string();
+    let of_parts = HashMap::new();
+    let mut led_parts: HashMap<String, LEDPart> = HashMap::new();
+    led_parts.insert("mask_LED".to_string(), LEDPart { id: 0, len: 28 });
+
+    control_dat(Json::from(GetControlDatQuery {
+        dancer,
+        of_parts,
+        led_parts,
+    }))
+    .await
 }

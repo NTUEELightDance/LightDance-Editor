@@ -1,8 +1,5 @@
-use axum::{http::StatusCode, response::Json};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-use super::utils::IntoResult;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LEDPart {
@@ -32,21 +29,4 @@ pub struct GetControlDatQuery {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetDataFailedResponse {
     pub err: String,
-}
-
-impl<R, E> IntoResult<R, (StatusCode, Json<GetDataFailedResponse>)> for Result<R, E>
-where
-    E: std::string::ToString,
-{
-    fn into_result(self) -> Result<R, (StatusCode, Json<GetDataFailedResponse>)> {
-        match self {
-            Ok(ok) => Ok(ok),
-            Err(err) => Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(GetDataFailedResponse {
-                    err: err.to_string(),
-                }),
-            )),
-        }
-    }
 }

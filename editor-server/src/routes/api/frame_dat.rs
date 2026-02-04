@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use axum::{
+    body::Bytes,
     http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
@@ -9,15 +10,14 @@ use itertools::Itertools;
 use crate::{global, utils::vector::partition_by_field};
 
 use super::{
-    types::{GetControlDatQuery, GetDataFailedResponse},
+    types::{GetControlDatQuery, GetDataFailedResponse, LEDPart},
     utils::{alpha, gradient_to_rgb_float, interpolate_gradient, write_little_endian, IntoResult},
 };
 
-type GetDataResponse = Vec<u8>;
 type Color = [i32; 3];
 type LEDStatus = [i32; 4];
 
-const VERSION: [u8; 2] = [0, 0];
+const VERSION: [u8; 2] = [1, 1];
 const DEFAULT_COLOR: Color = [0, 0, 0];
 
 #[derive(Debug)]
@@ -40,10 +40,7 @@ struct FrameData {
 
 pub async fn frame_dat(
     query: Json<GetControlDatQuery>,
-) -> Result<
-    (StatusCode, (HeaderMap, Json<GetDataResponse>)),
-    (StatusCode, Json<GetDataFailedResponse>),
-> {
+) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
     let mut response: Vec<u8> = Vec::new();
     for v in VERSION {
         response.push(v);
@@ -58,6 +55,48 @@ pub async fn frame_dat(
         led_parts,
     } = query.0;
 
+    let mut of_parts = Vec::from_iter(of_parts.into_iter());
+    let mut led_parts = Vec::from_iter(led_parts.into_iter());
+
+    of_parts.sort_unstable_by_key(|part| part.1);
+    led_parts.sort_unstable_by_key(|part| part.1.id);
+
+    let led_parts_ids: HashMap<String, i32> = HashMap::from_iter(
+        sqlx::query!(
+            r#"
+            SELECT
+                Part.id,
+                Part.name
+            FROM Dancer
+            INNER JOIN Model
+                ON Dancer.model_id = Model.id
+            INNER JOIN Part
+                ON Part.model_id = Model.id
+            WHERE Dancer.name = ? AND
+                Part.type = 'LED'
+        "#,
+            dancer
+        )
+        .fetch_all(mysql_pool)
+        .await
+        .into_result()?
+        .into_iter()
+        .map(|data| (data.name, data.id)),
+    );
+
+    let led_parts = led_parts
+        .into_iter()
+        .map(|part| {
+            (
+                part.0.clone(),
+                LEDPart {
+                    id: *led_parts_ids.get(&part.0).unwrap(),
+                    len: part.1.len,
+                },
+            )
+        })
+        .collect_vec();
+
     let colors = sqlx::query!(
         r#"
             SELECT Color.r, Color.g, Color.b, Color.id
@@ -68,17 +107,17 @@ pub async fn frame_dat(
     .await
     .into_result()?;
 
-    let of_filter: HashSet<String> = HashSet::from_iter(of_parts.iter().map(|part| part.0.clone()));
-
-    let led_filter: HashSet<String> =
-        HashSet::from_iter(led_parts.iter().map(|part| part.0.clone()));
-
     // (id, color)
     let color_map: HashMap<i32, Color> = HashMap::from_iter(
         colors
             .iter()
             .map(|color| (color.id, [color.r, color.g, color.b])),
     );
+
+    let of_filter: HashSet<String> = HashSet::from_iter(of_parts.iter().map(|part| part.0.clone()));
+
+    let led_filter: HashSet<String> =
+        HashSet::from_iter(led_parts.iter().map(|part| part.0.clone()));
 
     let dancer_id = sqlx::query!(
         r#"
@@ -110,7 +149,7 @@ pub async fn frame_dat(
                 ControlData.color_id as "color_id",
                 ControlData.alpha
             FROM Dancer
-          INNER JOIN Model
+            INNER JOIN Model
                 ON Model.id = Dancer.model_id
             INNER JOIN Part
                 ON Part.model_id = Model.id
@@ -134,16 +173,17 @@ pub async fn frame_dat(
     .collect_vec();
 
     // ((frame_id, part_id), color)
+    // TODO: error handling for the code below
     let of_data_map: HashMap<(i32, i32), LEDStatus> =
         HashMap::from_iter(of_data.iter().map(|data| {
             let color = match data.color_id {
                 Some(id) => color_map.get(&id).unwrap_or(&[0, 0, 0]),
-                None => &[0, 0, 0],
+                None => &DEFAULT_COLOR,
             };
 
             (
                 (data.contorl_frame_id, data.part_id),
-                [color[0], color[0], color[0], data.alpha.unwrap()],
+                [color[0], color[0], color[0], data.alpha.unwrap_or(255)],
             )
         }));
 
@@ -176,6 +216,8 @@ pub async fn frame_dat(
 
     let effect_data = partition_by_field(|data| data.effect_id, effect_data);
 
+    // group LEDEffectState from same frame and part into an array
+    // TODO: ensure that position is 0 ~ part.len - 1
     for effect in effect_data {
         let effect_id = effect[0].effect_id;
         let effect_status = Vec::from_iter(effect.into_iter().map(|data| {
@@ -191,33 +233,6 @@ pub async fn frame_dat(
         );
     }
 
-    // TODO: fix super super dirty code
-    // for data in effect_state_data {
-    //     if let Some(effect) = effects_map.get_mut(&data.effect_id) {
-    //         let color_value = effect
-    //             .colors
-    //             .get_mut(data.position as usize)
-    //             .ok_or("LED position out of bounds")
-    //             .into_result()?;
-    //
-    //         let color = color_map.get(&data.color_id).unwrap_or(&DEFAULT_COLOR);
-    //
-    //         *color_value = [color[0], color[0], color[0], data.alpha];
-    //     } else {
-    //         let color = color_map.get(&data.color_id).unwrap_or(&DEFAULT_COLOR);
-    //         effects_map.insert(
-    //             data.effect_id,
-    //             Effect {
-    //                 // effect_id: data.effect_id,
-    //                 colors: vec![
-    //                     [color[0], color[1], color[2], data.alpha];
-    //                     led_parts.get(&data.part_name).unwrap().get_len() as usize
-    //                 ],
-    //             },
-    //         );
-    //     }
-    // }
-
     // ((frame_id, part_id), color[]
     let mut led_data: HashMap<(i32, i32), &Vec<LEDStatus>> = HashMap::new();
 
@@ -227,7 +242,8 @@ pub async fn frame_dat(
                 ControlData.id as "control_data_id", 
                 ControlData.part_id,
                 ControlData.frame_id,
-                ControlData.effect_id
+                ControlData.effect_id,
+                Part.name as "part_name"
             FROM Dancer
             INNER JOIN Model
                 ON Dancer.model_id = Model.id
@@ -245,15 +261,26 @@ pub async fn frame_dat(
     )
     .fetch_all(mysql_pool)
     .await
-    .into_result()?;
+    .into_result()?
+    .into_iter()
+    .filter(|data| led_filter.contains(&data.part_name))
+    .collect_vec();
 
-    // TODO: don't use unwrap down there
     for data in led_effect_data {
         led_data.insert(
             (data.frame_id, data.part_id),
             &effects_map
-                .get(&data.effect_id.unwrap())
-                .ok_or("effect not found")
+                .get(
+                    &data
+                        .effect_id
+                        .ok_or(format!(
+                            "ControlData with type EFFECT does not have effect_id. ControlData.id={}",
+                            data.control_data_id
+                        ))
+                        .into_result()?,
+                )
+                .ok_or(format!("ControlData has invalid effect_id. ControlData.id={}, ControlData.effect_id={}",
+                        data.control_data_id, data.effect_id.unwrap()))
                 .into_result()?
                 .status,
         );
@@ -284,7 +311,9 @@ pub async fn frame_dat(
                 ON LEDBulb.control_id = ControlData.id
             INNER JOIN ControlFrame
                 ON ControlData.frame_id = ControlFrame.id
-            WHERE Dancer.id = ? AND Part.type = 'LED'
+            WHERE Dancer.id = ? AND
+                Part.type = 'LED' AND
+                ControlData.type = "LED_BULBS"
             ORDER BY ControlData.id ASC, LEDBulb.position ASC;
         "#,
         dancer_id
@@ -295,6 +324,7 @@ pub async fn frame_dat(
 
     let bulb_data = partition_by_field(|data| data.control_data_id, bulb_data);
 
+    // group LED status for LEDs in same part and frame into arrays
     for data in bulb_data {
         let frame_id = data[0].frame_id;
         let part_id = data[0].part_id;
@@ -306,28 +336,6 @@ pub async fn frame_dat(
 
         led_bulb_data_map.insert((frame_id, part_id), bulb_status);
     }
-
-    // TODO: fix super super dirty code
-    // for data in bulb_data {
-    //     let color = color_map.get(&data.color_id).unwrap_or(&[0, 0, 0]);
-    //
-    //     if let Some(bulb) = led_bulb.get_mut(&(data.frame_id, data.part_id)) {
-    //         let color_value = bulb
-    //             .get_mut(data.position as usize)
-    //             .ok_or("LED position out of bounds")
-    //             .into_result()?;
-    //
-    //         *color_value = [color[0], color[1], color[2], data.alpha];
-    //     } else {
-    //         led_bulb.insert(
-    //             (data.frame_id, data.part_id),
-    //             vec![
-    //                 [color[0], color[1], color[2], data.alpha];
-    //                 led_parts.get(&data.part_name).unwrap().get_len() as usize
-    //             ],
-    //         );
-    //     }
-    // }
 
     led_bulb_data_map.iter_mut().for_each(|(_, vec)| {
         let segments = gradient_to_rgb_float((*vec).clone());
@@ -394,14 +402,14 @@ pub async fn frame_dat(
 
         for control_data in frame {
             if control_data.r#type == "NO_EFFECT" {
-                no_effect.insert(control_data.id);
+                no_effect.insert(control_data.part_id);
             }
         }
 
         // (part_id, color)
         let mut of: HashMap<i32, Color> = HashMap::new();
 
-        for of_part_id in of_parts.values() {
+        for (_, of_part_id) in &of_parts {
             let color = if no_effect.contains(of_part_id) {
                 *frames
                     .last()
@@ -425,9 +433,10 @@ pub async fn frame_dat(
             checksum += color[2] as u32;
         }
 
+        // (part_id, color[])
         let mut led: HashMap<i32, Vec<Color>> = HashMap::new();
 
-        for led_part in led_parts.values() {
+        for (_, led_part) in &led_parts {
             let color = if no_effect.contains(&led_part.get_id()) {
                 frames
                     .last()
@@ -472,14 +481,14 @@ pub async fn frame_dat(
     for frame in frames {
         write_little_endian(&frame.start_time, &mut response);
         response.push(frame.fade);
-        for of_part_id in of_parts.values() {
+        for (_, of_part_id) in &of_parts {
             let color = frame.of_grb_data.get(of_part_id).unwrap();
             response.push(color[1] as u8);
             response.push(color[0] as u8);
             response.push(color[2] as u8);
         }
 
-        for led_part in led_parts.values() {
+        for (_, led_part) in &led_parts {
             let colors = frame.led_grb_data.get(&led_part.get_id()).unwrap();
             colors.iter().for_each(|color| {
                 response.push(color[1] as u8);
@@ -492,7 +501,27 @@ pub async fn frame_dat(
     }
 
     let mut headers = HeaderMap::new();
-    headers.insert("content-type", HeaderValue::from_static("application/json"));
+    headers.insert(
+        "content-type",
+        HeaderValue::from_static("application/octect-stream"),
+    );
 
-    Ok((StatusCode::OK, (headers, Json(response))))
+    let response_bytes = Bytes::from(response);
+
+    Ok((StatusCode::OK, (headers, response_bytes)))
+}
+
+pub async fn test_frame_dat(
+) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
+    let dancer = "2_feng".to_string();
+    let of_parts = HashMap::new();
+    let mut led_parts: HashMap<String, LEDPart> = HashMap::new();
+    led_parts.insert("mask_LED".to_string(), LEDPart { id: 0, len: 28 });
+
+    frame_dat(Json::from(GetControlDatQuery {
+        dancer,
+        of_parts,
+        led_parts,
+    }))
+    .await
 }
