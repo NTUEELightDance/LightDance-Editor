@@ -7,7 +7,7 @@ use super::types::{GetControlDatQuery, GetDataFailedResponse};
 use super::utils::{write_little_endian, IntoResult};
 use itertools::Itertools;
 
-use crate::global;
+use crate::global::{self, channel_table::ChannelTable};
 
 type GetDataResponse = Vec<u8>;
 
@@ -29,6 +29,15 @@ pub async fn control_dat(
         of_parts,
         led_parts,
     } = query.0;
+
+    let mut of_parts = Vec::from_iter(of_parts.into_iter());
+    let mut led_parts = Vec::from_iter(led_parts.into_iter());
+
+    ChannelTable::init();
+
+    // TODO: find cleaner way for this
+    of_parts.sort_unstable_by_key(|part| ChannelTable::get_part_id(&part.0).unwrap_or(-1));
+    led_parts.sort_unstable_by_key(|part| ChannelTable::get_part_id(&part.0).unwrap_or(-1));
 
     let of_num: u8 = of_parts.len().try_into().map_err(|_| {
         (
