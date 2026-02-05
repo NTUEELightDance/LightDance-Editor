@@ -10,6 +10,7 @@ from ..property.animation_data import (
     reset_pos_rev,
 )
 from .current_pos import calculate_current_pos_index
+from .dopesheet import update_pos_seq_from_state
 
 
 def set_pos_map(pos_map: PosMap):
@@ -167,5 +168,6 @@ def apply_pos_map_updates():
     sorted_pos_map = sorted(state.pos_map.items(), key=lambda item: item[1].start)
     reset_pos_frames()
     reset_pos_rev(sorted_pos_map)
+    update_pos_seq_from_state()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

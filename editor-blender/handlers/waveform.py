@@ -174,7 +174,7 @@ def mount():
     # Enable handler
 
     waveform_settings.handle_dope = bpy.types.SpaceDopeSheetEditor.draw_handler_add(
-        draw, (), "WINDOW", "POST_PIXEL"
+        draw, (), "WINDOW", "PRE_VIEW"  # 這裡原本是POST_PIXEL，改成PRE_VIEW
     )
 
     logger.info("Waveform loaded")

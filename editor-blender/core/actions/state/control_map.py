@@ -10,6 +10,7 @@ from ..property.animation_data import (
     reset_ctrl_rev,
 )
 from .current_status import calculate_current_status_index
+from .dopesheet import update_fade_seq_from_state
 
 
 def set_control_map(control_map: ControlMap):
@@ -189,5 +190,6 @@ def apply_control_map_updates():
     fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
     reset_control_frames_and_fade_sequence(fade_seq)
     reset_ctrl_rev(sorted_ctrl_map)
+    update_fade_seq_from_state()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

@@ -14,7 +14,7 @@ class PinPanel(bpy.types.Panel):
     bl_category = "LightDance"
 
     def draw(self, context: bpy.types.Context | None):
-        if not bpy.context:
+        if not context:
             return
         if not state.ready:
             return
@@ -39,23 +39,23 @@ class PinPanel(bpy.types.Panel):
             op = row.operator(operator="lightdance.delete_pinned_object", text="Delete")
             op.index = i  # type: ignore
 
-        obj = None
-        if bpy.context.selected_objects:
-            obj = bpy.context.selected_objects[0]
-
+        obj = context.object
         row = layout.row(align=True)
         if obj:
+            dancer_name = getattr(obj, "ld_dancer_name")
             row.operator(
-                operator="lightdance.pin_object", text=f"Pin {obj.name}", icon="ADD"
+                operator="lightdance.pin_object", text=f"Pin {dancer_name}", icon="ADD"
             )
+
         else:
             if state.editor == Editor.POS_EDITOR:
                 row.label(text="Select a dancer to pin", icon="ADD")
+
             elif state.editor == Editor.CONTROL_EDITOR:
                 if state.selection_mode == SelectMode.DANCER_MODE:
-                    row.label(text="Please switch to PART mode")
+                    row.label(text="Select a dancer to pin")
                 else:
-                    row.label(text="Select a part to pin", icon="ADD")
+                    row.label(text="Select a part to pin dancer", icon="ADD")
 
 
 def register():

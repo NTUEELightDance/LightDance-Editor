@@ -1,5 +1,6 @@
 import bpy
 
+from ...core.actions.state.dopesheet import register_handle_timeline
 from ...core.states import state
 
 
@@ -53,6 +54,10 @@ class TimelinePanel(bpy.types.Panel):
         row = layout.row(align=True)
         row.operator("lightdance.copy_frame", text="Copy", icon="PLAY")
         row.operator("lightdance.paste_frame", text="Paste", icon="PLAY")
+
+        obj = context.object
+        if obj or state.current_selected_obj_name:
+            register_handle_timeline(obj)
 
 
 def register():

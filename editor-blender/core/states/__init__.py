@@ -116,6 +116,10 @@ state = State(
     pos_map_updates=PosMapUpdates(added={}, updated={}, deleted={}),
     pos_map_pending=False,
     dancer_part_objects_map={},
+    overall_fade_sequence=[],
+    overall_pos_sequence=[],
+    dancer_fade_sequence_map={},
+    dancer_pos_sequence_map={},
     music_beats=[],
     scene_start_point=[],
 )
