@@ -31,7 +31,7 @@ def increase_frame_index():
                 )
         case Editor.POS_EDITOR:
             sorted_pos_frames = sorted(
-                [item[1].start for item in state.pos_map.items()]
+                [item[1].start for item in state.pos_map_MODIFIED.items()]
             )
             current_frame_index = state.current_pos_index
 
@@ -73,7 +73,7 @@ def decrease_frame_index():
                 )
         case Editor.POS_EDITOR:
             sorted_pos_frames = sorted(
-                [item[1].start for item in state.pos_map.items()]
+                [item[1].start for item in state.pos_map_MODIFIED.items()]
             )
             current_frame_index = state.current_pos_index
 

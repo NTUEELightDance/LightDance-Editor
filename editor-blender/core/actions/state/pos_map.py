@@ -96,7 +96,7 @@ def update_pos(id: MapID, frame: PosMapElement):
             pos_map_updates.updated[id] = (old_frame.start, frame)
             return
 
-    pos_map_updates.updated[id] = (frame.start, frame)
+    pos_map_updates.updated[id] = (state.pos_map_MODIFIED[id].start, frame)
 
     if (
         state.edit_state == EditMode.EDITING

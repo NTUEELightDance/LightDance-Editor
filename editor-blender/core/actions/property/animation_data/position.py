@@ -311,10 +311,9 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if action != None:
                 bpy.data.actions.remove(action, do_unlink=True)
 
-    _set_default_keyframes()
+    # _set_default_keyframes()
 
     # Handle empty pos_map
-    if not pos_map:
     if not pos_map_modified:
         _set_default_keyframes()
 
@@ -335,6 +334,8 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
     # for dancer_name in state.dancer_names:
     #     has_cleared_dict[dancer_name] = False
 
+    getattr(bpy.context.scene, "ld_pos_rev").clear()
+
     for i, (id, pos_map_element) in enumerate(sorted_pos_map):
         frame_start = pos_map_element.start
         pos_status = pos_map_element.pos
@@ -354,12 +355,9 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if not (dancer_l <= i and i <= dancer_r):
                 continue
 
-                if pos == None:
-                    continue
-
-                pos = cast(Position, pos)
-                dancer_location = (pos.location.x, pos.location.y, pos.location.z)
-                dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
+            pos = cast(Position, pos)
+            dancer_location = (pos.location.x, pos.location.y, pos.location.z)
+            dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
 
             dancer_obj = data_objects[dancer_name]
 
@@ -449,7 +447,6 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
             continue
 
         dancer_obj = data_objects[dancer_name]
-
         frames = modify_animation_data[dancer_name]
 
         delete = len(frames[0]) > 0
@@ -468,6 +465,8 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         # If exist default keyframe(Pos keyframe is originally empty), clear default keyframe
         if kpoints_len == 1 and loc_kpoints_lists[0][0].co[0] == default_keyframe_start:
             _clear_default_keyframes()
+            loc_kpoints_lists = [get_keyframe_points(curve)[1] for curve in loc_curves]
+            rot_kpoints_lists = [get_keyframe_points(curve)[1] for curve in rot_curves]
 
         kpoints_len = len(loc_kpoints_lists[0])
 
@@ -494,8 +493,9 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         if update:
             curve_index = 0
             points_to_update: list[tuple[int, bpy.types.Keyframe, float]] = []
+            frames_to_delete: list[int] = []
 
-            for old_start, frame_start, loc, rot in frames[1]:
+            for old_start, frame_start, bundle in frames[1]:
                 if old_start != frame_start:
                     update_reorder = True
 
@@ -506,16 +506,37 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                     curve_index += 1
 
                 if curve_index < kpoints_len:
-                    for d in range(3):
-                        loc_point = loc_kpoints_lists[d][curve_index]
-                        rot_point = rot_kpoints_lists[d][curve_index]
-                        points_to_update.append((frame_start, loc_point, loc[d]))
-                        points_to_update.append((frame_start, rot_point, rot[d]))
+                    if bundle is None:
+                        frames_to_delete.append(old_start)
+                    else:
+                        loc, rot = bundle
+                        for d in range(3):
+                            loc_point = loc_kpoints_lists[d][curve_index]
+                            rot_point = rot_kpoints_lists[d][curve_index]
+                            points_to_update.append((frame_start, loc_point, loc[d]))
+                            points_to_update.append((frame_start, rot_point, rot[d]))
 
             for frame_start, kpoint, co in points_to_update:
                 kpoint.co = frame_start, co
                 kpoint.interpolation = "LINEAR"
                 kpoint.select_control_point = False
+
+            # Delete frames where all dancers are None
+            if frames_to_delete:
+                curve_index = 0
+                for old_start in frames_to_delete:
+                    while (
+                        curve_index < len(loc_kpoints_lists[0])
+                        and int(loc_kpoints_lists[0][curve_index].co[0]) != old_start
+                    ):
+                        curve_index += 1
+
+                    if curve_index < len(loc_kpoints_lists[0]):
+                        for d in range(3):
+                            loc_point = loc_kpoints_lists[d][curve_index]
+                            rot_point = rot_kpoints_lists[d][curve_index]
+                            loc_curves[d].keyframe_points.remove(loc_point)
+                            rot_curves[d].keyframe_points.remove(rot_point)
 
         kpoints_len = len(loc_kpoints_lists[0])
 
@@ -525,7 +546,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                 loc_curves[d].keyframe_points.add(len(frames[2]))
                 rot_curves[d].keyframe_points.add(len(frames[2]))
 
-                for i, (frame_start, loc, rot) in enumerate(frames[2]):
+                for i, (frame_start, (loc, rot)) in enumerate(frames[2]):
                     loc_point = loc_kpoints_lists[d][kpoints_len + i]
                     rot_point = rot_kpoints_lists[d][kpoints_len + i]
 
@@ -541,7 +562,3 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                 curve.keyframe_points.sort()
             for curve in rot_curves:
                 curve.keyframe_points.sort()
-
-        kpoints_len = len(loc_kpoints_lists[0])
-        if kpoints_len == 0:
-            _set_default_keyframes()
