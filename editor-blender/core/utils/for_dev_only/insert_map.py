@@ -232,6 +232,8 @@ def load_default_map() -> Optional[str]:
 
     state.pos_map_MODIFIED = position_frame
     state.control_map_MODIFIED = control_frame
+    state.pos_record = list(state.pos_map_MODIFIED.keys())
+    state.control_record = list(state.control_map_MODIFIED.keys())
 
     from ....core.log import logger
 
