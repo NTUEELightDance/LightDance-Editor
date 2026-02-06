@@ -94,10 +94,10 @@ async def add_pos_frame():
         positionData.append(None)
 
     try:
-        mock_sub_pos_map(SubType.CreateFrames, start=start)
+        mock_sub_pos_map(SubType.CreateFrames, start=start, positionData=positionData)
         notify("INFO", "Added position frame (mock)")
-        apply_pos_map_updates()
-        update_current_pos_by_index()
+        # apply_pos_map_updates()
+        # update_current_pos_by_index()
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     except Exception:
         logger.exception("Failed to add position frame (mock)")
@@ -178,7 +178,10 @@ async def save_pos_frame(start: int | None = None):
     state.edit_state = EditMode.IDLE
 
     apply_pos_map_updates()
+    update_current_pos_by_index()
+    sync_editing_pos_frame_properties()
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    return
 
     # # Cancel editing
     # ok = await pos_agent.cancel_edit(id)
@@ -286,7 +289,6 @@ async def delete_pos_frame():
         setattr(ld_position, "is_none", True)
 
     await save_pos_frame()
-    notify("INFO", "Hidden dancers have non-None states; cleared shown dancers to None")
 
 
 async def request_edit_pos() -> bool:
@@ -323,24 +325,33 @@ async def cancel_edit_pos():
     index = state.current_pos_index
     id = state.pos_record[index]
 
-    with send_request():
-        try:
-            ok = await pos_agent.cancel_edit(id)
+    update_current_pos_by_index()
 
-            if ok is not None and ok:
-                # Revert modification
-                update_current_pos_by_index()
+    # Reset editing state
+    state.current_editing_frame = -1
+    state.current_editing_detached = False
+    state.current_editing_frame_synced = False
+    state.edit_state = EditMode.IDLE
 
-                # Reset editing state
-                state.current_editing_frame = -1
-                state.current_editing_detached = False
-                state.current_editing_frame_synced = False
-                state.edit_state = EditMode.IDLE
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    # with send_request():
+    #     try:
+    #         ok = await pos_agent.cancel_edit(id)
 
-                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-            else:
-                notify("WARNING", "Cannot cancel edit")
+    #         if ok is not None and ok:
+    #             # Revert modification
+    #             update_current_pos_by_index()
 
-        except:
-            logger.exception("Failed to cancel edit position frame")
-            notify("WARNING", "Cannot cancel edit")
+    #             # Reset editing state
+    #             state.current_editing_frame = -1
+    #             state.current_editing_detached = False
+    #             state.current_editing_frame_synced = False
+    #             state.edit_state = EditMode.IDLE
+
+    #             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    #         else:
+    #             notify("WARNING", "Cannot cancel edit")
+
+    #     except:
+    #         logger.exception("Failed to cancel edit position frame")
+    #         notify("WARNING", "Cannot cancel edit")

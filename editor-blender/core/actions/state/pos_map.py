@@ -1,3 +1,5 @@
+import bpy
+
 from ...log import logger
 from ...models import EditMode, MapID, PosMap, PosMapElement, PosRecord
 from ...states import state
@@ -112,7 +114,8 @@ def update_pos(id: MapID, frame: PosMapElement):
 
 def apply_pos_map_updates():
     if not state.ready:
-        return
+        if not bpy.context or not state.pos_map_MODIFIED:
+            return
 
     pos_map_updates = state.pos_map_updates
 
