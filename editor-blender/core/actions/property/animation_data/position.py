@@ -354,7 +354,7 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if not (dancer_l <= i and i <= dancer_r):
                 continue
 
-                if pos is None:
+                if pos == [None, None, None, None, None, None]:
                     continue
 
                 pos = cast(Position, pos)

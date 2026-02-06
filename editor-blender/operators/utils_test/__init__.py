@@ -25,6 +25,10 @@ class ToggleTestPosKeyframe(bpy.types.Operator):
 
     def execute(self, context: bpy.types.Context | None):
         set_pos_test_frame()
+        from ...core.log import logger
+        from ...core.states import state
+
+        logger.info(state.pos_map_MODIFIED)
         return {"FINISHED"}
 
 

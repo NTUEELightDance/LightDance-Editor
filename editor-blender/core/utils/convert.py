@@ -562,6 +562,8 @@ def pos_modify_to_animation_data(
             if not show_dancer_dict[dancer_item.name]:
                 continue
             pos = pos_status[dancer_item.name]
+            if pos == [None, None, None, None, None, None]:
+                continue
             dancer = dancer_item.name
 
             location, rotation = None, None
@@ -584,6 +586,8 @@ def pos_modify_to_animation_data(
             if not show_dancer_dict[dancer_item.name]:
                 continue
             pos = pos_status[dancer_item.name]
+            if pos is None:
+                continue
             dancer = dancer_item.name
 
             if pos is None:
