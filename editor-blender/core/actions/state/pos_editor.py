@@ -174,16 +174,19 @@ async def save_pos_frame(start: int | None = None):
     for index in range(len(state.dancer_names)):
         if not show_dancer[index]:
             pos = state.pos_map_MODIFIED[id].pos[state.dancer_names[index]]
-            positionData.append(
-                [
-                    pos.location.x,
-                    pos.location.y,
-                    pos.location.z,
-                    pos.rotation.rx,
-                    pos.rotation.ry,
-                    pos.rotation.rz,
-                ]
-            )
+            if pos is None:
+                positionData.append(None)
+            else:
+                positionData.append(
+                    [
+                        pos.location.x,
+                        pos.location.y,
+                        pos.location.z,
+                        pos.rotation.rx,
+                        pos.rotation.ry,
+                        pos.rotation.rz,
+                    ]
+                )
             continue
 
         dancer_name = state.dancer_names[index]
