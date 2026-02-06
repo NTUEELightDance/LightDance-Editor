@@ -26,11 +26,7 @@ class SetPosNone(bpy.types.Operator):
         if pos is None:
             return {"CANCELLED"}
 
-        pos.is_none = True
-
-        # FIXME: To make the UI clear, I tentatively set location and rotation to 0.
-        pos.location = (0.0, 0.0, 0.0)
-        pos.rotation = (0.0, 0.0, 0.0)
+        pos.is_none = not pos.is_none
 
         return {"FINISHED"}
 

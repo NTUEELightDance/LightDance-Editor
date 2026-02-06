@@ -156,7 +156,7 @@ CANCEL_EDIT_POS_BY_ID = gql(
 @dataclass
 class MutEditPositionFrameInput(JSONWizard):
     frameId: MapID
-    positionData: list[list[float | None]]
+    positionData: list[list[float] | None]
 
 
 @dataclass
