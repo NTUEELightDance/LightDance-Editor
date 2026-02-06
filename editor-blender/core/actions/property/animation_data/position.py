@@ -490,6 +490,9 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         kpoints_len = len(loc_kpoints_lists[0])
 
         update_reorder = False
+        add_from_update: list[
+            tuple[int, tuple[tuple[float, float, float], tuple[float, float, float]]]
+        ] = []
         if update:
             curve_index = 0
             points_to_update: list[tuple[int, bpy.types.Keyframe, float]] = []
@@ -515,6 +518,9 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                             rot_point = rot_kpoints_lists[d][curve_index]
                             points_to_update.append((frame_start, loc_point, loc[d]))
                             points_to_update.append((frame_start, rot_point, rot[d]))
+                else:
+                    if bundle is not None:
+                        add_from_update.append((frame_start, bundle))
 
             for frame_start, kpoint, co in points_to_update:
                 kpoint.co = frame_start, co
@@ -541,12 +547,13 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         kpoints_len = len(loc_kpoints_lists[0])
 
         # Add frames
-        if add:
+        add_bundle = frames[2] + add_from_update
+        if add_bundle:
             for d in range(3):
-                loc_curves[d].keyframe_points.add(len(frames[2]))
-                rot_curves[d].keyframe_points.add(len(frames[2]))
+                loc_curves[d].keyframe_points.add(len(add_bundle))
+                rot_curves[d].keyframe_points.add(len(add_bundle))
 
-                for i, (frame_start, (loc, rot)) in enumerate(frames[2]):
+                for i, (frame_start, (loc, rot)) in enumerate(add_bundle):
                     loc_point = loc_kpoints_lists[d][kpoints_len + i]
                     rot_point = rot_kpoints_lists[d][kpoints_len + i]
 
@@ -557,7 +564,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                     loc_point.select_control_point = True
                     rot_point.select_control_point = True
 
-        if update_reorder or add:
+        if update_reorder or add or add_from_update:
             for curve in loc_curves:
                 curve.keyframe_points.sort()
             for curve in rot_curves:
