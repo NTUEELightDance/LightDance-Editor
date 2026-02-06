@@ -88,6 +88,9 @@ async def add_pos_frame():
 
     show_dancer = state.show_dancers
     # Get current position data from ld_position
+    positionData: list[list[float | None]] = [
+        [None, None, None, None, None, None] for _ in range(len(state.dancer_names))
+    ]
     positionData: list[list[float]] = []
     for index in range(len(state.dancer_names)):
         if not state.pos_map:
@@ -101,44 +104,44 @@ async def add_pos_frame():
                 new_position: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
                 location_attribute = ["x", "y", "z", "rx", "ry", "rz"]
 
-                for index in range(3):
-                    llocation = neighbor_frame[0][1].location
-                    lpos = getattr(llocation, location_attribute[index])
-                    ldist = start - neighbor_frame[0][0]
-                    rlocation = neighbor_frame[1][1].location
-                    rpos = getattr(rlocation, location_attribute[index])
-                    rdist = neighbor_frame[1][0] - start
-                    new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
-                for index in range(3, 6):
-                    lrotation = neighbor_frame[0][1].rotation
-                    lpos = getattr(lrotation, location_attribute[index])
-                    ldist = start - neighbor_frame[0][0]
-                    rrotation = neighbor_frame[1][1].rotation
-                    rpos = getattr(rrotation, location_attribute[index])
-                    rdist = neighbor_frame[1][0] - start
-                    new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
+        #             for index in range(3):
+        #                 llocation = neighbor_frame[0][1].location
+        #                 lpos = getattr(llocation, location_attribute[index])
+        #                 ldist = start - neighbor_frame[0][0]
+        #                 rlocation = neighbor_frame[1][1].location
+        #                 rpos = getattr(rlocation, location_attribute[index])
+        #                 rdist = neighbor_frame[1][0] - start
+        #                 new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
+        #             for index in range(3, 6):
+        #                 lrotation = neighbor_frame[0][1].rotation
+        #                 lpos = getattr(lrotation, location_attribute[index])
+        #                 ldist = start - neighbor_frame[0][0]
+        #                 rrotation = neighbor_frame[1][1].rotation
+        #                 rpos = getattr(rrotation, location_attribute[index])
+        #                 rdist = neighbor_frame[1][0] - start
+        #                 new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
 
-                positionData.append(new_position)
-            else:
-                positionData.append([0, 0, 0])
-            continue
+        #             positionData.append(new_position)
+        #         else:
+        #             positionData.append([0, 0, 0])
+        #         continue
 
         dancer_name = state.dancer_names[index]
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
-        if obj is not None:
-            ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            positionData.append(
-                [
-                    ld_position.location[0],
-                    ld_position.location[1],
-                    ld_position.location[2],
-                    ld_position.rotation[0],
-                    ld_position.rotation[1],
-                    ld_position.rotation[2],
-                ]
-            )
-        else:
-            positionData.append([0, 0, 0, 0, 0, 0])
+        # if obj is not None:
+        #     ld_position: PositionPropertyType = getattr(obj, "ld_position")
+        #     positionData.append(
+        #         [
+        #             ld_position.location[0],
+        #             ld_position.location[1],
+        #             ld_position.location[2],
+        #             ld_position.rotation[0],
+        #             ld_position.rotation[1],
+        #             ld_position.rotation[2],
+        #         ]
+        #     )
+        # else:
+        positionData.append([0, 0, 0, 0, 0, 0])
 
     with send_request():
         try:
@@ -153,7 +156,7 @@ async def save_pos_frame(start: int | None = None):
     id = state.editing_data.frame_id
     show_dancer = state.show_dancers
     # Get current position data from ld_position
-    positionData: list[list[float]] = []
+    positionData: list[list[float | None]] = []
 
     for index in range(len(state.dancer_names)):
         if not show_dancer[index]:
@@ -174,56 +177,74 @@ async def save_pos_frame(start: int | None = None):
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            positionData.append(
-                [
-                    ld_position.location[0],
-                    ld_position.location[1],
-                    ld_position.location[2],
-                    ld_position.rotation[0],
-                    ld_position.rotation[1],
-                    ld_position.rotation[2],
-                ]
-            )
-        else:
-            positionData.append([0, 0, 0, 0, 0, 0])
-
-    with send_request():
-        try:
-            await pos_agent.save_frame(id, positionData, start=start)
-            notify("INFO", f"Saved position frame: {id}")
-
-            # Cancel editing
-            ok = await pos_agent.cancel_edit(id)
-
-            if ok is not None and ok:
-                # Reset editing state
-                state.current_editing_frame = -1
-                state.current_editing_detached = False
-                state.current_editing_frame_synced = False
-                state.edit_state = EditMode.IDLE
-
-                # Imediately apply changes produced by editing
-                apply_pos_map_updates()
-
-                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            if getattr(ld_position, "is_none", False):
+                positionData.append([None, None, None, None, None, None])
             else:
-                notify("WARNING", "Cannot exit editing")
-        except:
-            logger.exception("Failed to save position frame")
-            notify("WARNING", "Cannot save position frame")
+                positionData.append(
+                    [
+                        ld_position.location[0],
+                        ld_position.location[1],
+                        ld_position.location[2],
+                        ld_position.rotation[0],
+                        ld_position.rotation[1],
+                        ld_position.rotation[2],
+                    ]
+                )
+        else:
+            # positionData.append([0, 0, 0, 0, 0, 0])
+            positionData.append([None, None, None, None, None, None])
+
+        # Cancel editing
+        ok = await pos_agent.cancel_edit(id)
+
+        if ok is not None and ok:
+            # Reset editing state
+            state.current_editing_frame = -1
+            state.current_editing_detached = False
+            state.current_editing_frame_synced = False
+            state.edit_state = EditMode.IDLE
+
+            # Imediately apply changes produced by editing
+            apply_pos_map_updates()
+
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    # with send_request():
+    #     try:
+    #         await pos_agent.save_frame(id, positionData, start=start)
+    #         notify("INFO", f"Saved position frame: {id}")
+
+    #         # Cancel editing
+    #         ok = await pos_agent.cancel_edit(id)
+
+    #         if ok is not None and ok:
+    #             # Reset editing state
+    #             state.current_editing_frame = -1
+    #             state.current_editing_detached = False
+    #             state.current_editing_frame_synced = False
+    #             state.edit_state = EditMode.IDLE
+
+    #             # Imediately apply changes produced by editing
+    #             apply_pos_map_updates()
+
+    #             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    #         else:
+    #             notify("WARNING", "Cannot exit editing")
+    #     except:
+    #         logger.exception("Failed to save position frame")
+    #         notify("WARNING", "Cannot save position frame")
 
 
 async def delete_pos_frame():
     index = state.current_pos_index
     id = state.pos_record[index]
 
-    with send_request():
-        try:
-            await pos_agent.delete_frame(id)
-            notify("INFO", f"Deleted position frame: {id}")
-        except:
-            logger.exception("Failed to delete position frame")
-            notify("WARNING", "Cannot delete position frame")
+    # with send_request():
+    #     try:
+    #         await pos_agent.delete_frame(id)
+    #         notify("INFO", f"Deleted position frame: {id}")
+    #     except:
+    #         logger.exception("Failed to delete position frame")
+    #         notify("WARNING", "Cannot delete position frame")
 
 
 async def request_edit_pos() -> bool:

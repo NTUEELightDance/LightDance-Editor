@@ -81,7 +81,7 @@ class PosAgent:
             logger.exception("Failed to get position map")
 
     async def add_frame(
-        self, start: int, positionData: list[list[float] | None]
+        self, start: int, positionData: list[list[float | None]]
     ) -> MapID | None:
         """Add a new position frame to the position map."""
         try:
@@ -101,7 +101,7 @@ class PosAgent:
     async def save_frame(
         self,
         id: MapID,
-        positionData: list[list[float] | None],
+        positionData: list[list[float | None]],
         start: int | None = None,
     ):
         """Edit a position frame in the position map."""

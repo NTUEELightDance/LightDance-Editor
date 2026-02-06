@@ -22,6 +22,10 @@ class PositionProperty(bpy.types.PropertyGroup):
         precision=4,
         update=update_current_position,
     )
+    is_none: bpy.props.BoolProperty(  # type: ignore
+        name="None",
+        default=False,
+    )
 
 
 def register():
