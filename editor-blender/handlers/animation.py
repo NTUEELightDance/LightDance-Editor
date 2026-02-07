@@ -54,6 +54,7 @@ def frame_change_post_body():
             state.current_pos_index = calculate_current_pos_index()
             if old_index != state.current_pos_index:
                 update_current_pos_by_index()
+                sync_editing_pos_frame_properties()
 
         case Editor.LED_EDITOR:
             pass

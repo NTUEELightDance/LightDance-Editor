@@ -63,6 +63,9 @@ class PosEditor(bpy.types.Panel):
             column.prop(position, "location", text="Transform")
             column.prop(position, "rotation", text="Rotation")
 
+            row2 = column.row(align=True)
+            row2.prop(position, "is_none", text="None")
+
 
 def register():
     bpy.utils.register_class(PosEditor)
