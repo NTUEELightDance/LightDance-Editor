@@ -4,7 +4,7 @@ use async_graphql::SimpleObject;
 use serde::{Deserialize, Serialize};
 
 #[derive(SimpleObject, Serialize, Deserialize, Default, Debug, Clone)]
-// ref: prisma/schema.prisma PositionData type
+// ref: sea-orm/migration/src/m20260131_000001_create_table.rs PositionData type
 pub struct PositionData {
     pub dancer_id: i32,
     pub frame_id: i32,

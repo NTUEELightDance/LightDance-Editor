@@ -155,7 +155,17 @@ impl PartMutation {
         let _all_dancer_pos = sqlx::query_as!(
             PositionData,
             r#"
-                SELECT * FROM PositionData
+                SELECT
+                    dancer_id,
+                    frame_id,
+                    type,
+                    COALESCE(x, 0) AS x,
+                    COALESCE(y, 0) AS y,
+                    COALESCE(z, 0) AS z,
+                    rx,
+                    ry,
+                    rz
+                FROM PositionData
                 WHERE dancer_id = ?
                 ORDER BY frame_id ASC;
             "#,

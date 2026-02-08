@@ -47,6 +47,8 @@ impl PositionFrameMutation {
 
         tracing::info!("Mutation: addPositionFrame");
 
+        let mut tx = mysql.begin().await?;
+
         let check = sqlx::query_as!(
             PositionFrameData,
             r#"
@@ -55,7 +57,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(check) = check {
@@ -73,8 +75,12 @@ impl PositionFrameMutation {
                 ORDER BY id ASC;
             "#
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
+
+        // type constants
+        const NO_EFFECT: i32 = 0;
+        const POSITION: i32 = 1;
 
         if let Some(data) = &position_data {
             if (*data).len() != dancers.len() {
@@ -85,12 +91,26 @@ impl PositionFrameMutation {
                 .into());
             }
             let mut errors = Vec::<String>::new();
+
             for (idx, coor) in (*data).iter().enumerate() {
-                if coor.len() != 6 {
+                // 7 elements: [type, x, y, z, rx, ry, rz]
+                if coor.len() != 7 {
                     errors.push(format!(
-                        "Not all coordinates in dancer #{} in payload. Missing number: {}",
-                        idx,
-                        6 - coor.len()
+                        "Dancer #{} data must have 7 elements [type, x, y, z, rx, ry, rz]. Got: {}",
+                        idx + 1,
+                        coor.len()
+                    ));
+                    continue;
+                }
+
+                let type_value = coor[0].unwrap_or(-1_f64) as i32;
+
+                // validate type value
+                if type_value != NO_EFFECT && type_value != POSITION {
+                    errors.push(format!(
+                        "Invalid type value {} for dancer #{}. Must be 0 (NO_EFFECT) or 1 (POSITION).",
+                        type_value,
+                        idx + 1
                     ));
                 }
             }
@@ -107,7 +127,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?
         .last_insert_id() as i32;
 
@@ -115,39 +135,56 @@ impl PositionFrameMutation {
 
         match &position_data {
             Some(data) => {
+                let mut location = Vec::new();
+                let mut rotation = Vec::new();
                 for (idx, coor) in (*data).iter().enumerate() {
-                    let _ = sqlx::query!(
-                        r#"
-                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-                        "#,
-                        dancers[idx].id,
-                        id,
-                        coor[0],
-                        coor[1],
-                        coor[2],
-                        coor[3],
-                        coor[4],
-                        coor[5],
-                    )
-                    .execute(mysql)
-                    .await?;
-                }
+                    let type_value = coor[0].unwrap_or(-1_f64) as i32;
+                    if type_value == NO_EFFECT {
+                        let _ = sqlx::query!(
+                            r#"
+                                INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
+                                VALUES (?, ?, ?, NULL, NULL, NULL, 0, 0, 0);
+                            "#,
+                            dancers[idx].id,
+                            id,
+                            "NO_EFFECT"
+                        )
+                        .execute(&mut *tx)
+                        .await?;
 
+                        location.push([Some(0.0), Some(0.0), Some(0.0)]);
+                        rotation.push([Some(0.0), Some(0.0), Some(0.0)]);
+                    } else {
+                        let _ = sqlx::query!(
+                            r#"
+                                INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                            "#,
+                            dancers[idx].id,
+                            id,
+                            "POSITION",
+                            coor[1],
+                            coor[2],
+                            coor[3],
+                            coor[4],
+                            coor[5],
+                            coor[6],
+                        )
+                        .execute(&mut *tx)
+                        .await?;
+
+                        location.push([coor[1], coor[2], coor[3]]);
+                        rotation.push([coor[4], coor[5], coor[6]]);
+                    }
+                }
                 create_frames.insert(
                     id.to_string(),
                     RedisPosition {
                         start,
                         editing: None,
                         rev: Revision::default(),
-                        location: data
-                            .iter()
-                            .map(|coor| [coor[0], coor[1], coor[2]])
-                            .collect(),
-                        rotation: data
-                            .iter()
-                            .map(|coor| [coor[3], coor[4], coor[5]])
-                            .collect(),
+                        location,
+                        rotation,
                     },
                 );
             }
@@ -155,11 +192,12 @@ impl PositionFrameMutation {
                 for dancer in dancers {
                     let _ = sqlx::query!(
                         r#"
-                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                            INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                         "#,
                         dancer.id,
                         id,
+                        "POSITION",
                         0.0,
                         0.0,
                         0.0,
@@ -167,11 +205,13 @@ impl PositionFrameMutation {
                         0.0,
                         0.0,
                     )
-                    .execute(mysql)
+                    .execute(&mut *tx)
                     .await?;
                 }
             }
         }
+
+        tx.commit().await?;
 
         update_redis_position(mysql, redis, id).await?;
 
@@ -237,6 +277,8 @@ impl PositionFrameMutation {
 
         tracing::info!("Mutation: editPositionFrame");
 
+        let mut tx = mysql.begin().await?;
+
         let check = sqlx::query_as!(
             PositionFrameData,
             r#"
@@ -245,7 +287,7 @@ impl PositionFrameMutation {
             "#,
             input.start
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(check) = check {
@@ -266,7 +308,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(frame_to_edit) = frame_to_edit {
@@ -285,7 +327,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         match position_frame {
@@ -305,7 +347,7 @@ impl PositionFrameMutation {
             input.start,
             input.frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         let _ = sqlx::query_as!(
@@ -317,7 +359,7 @@ impl PositionFrameMutation {
             "#,
             context.user_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         // update revision of the frame
@@ -330,8 +372,10 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        tx.commit().await?;
 
         let position_frame = position_frame.unwrap();
         update_redis_position(mysql, redis, position_frame.id).await?;
@@ -404,6 +448,8 @@ impl PositionFrameMutation {
 
         tracing::info!("Mutation: deletePositionFrame");
 
+        let mut tx = mysql.begin().await?;
+
         let frame_to_delete = sqlx::query_as!(
             EditingPositionFrameData,
             r#"
@@ -412,7 +458,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(frame_to_delete) = frame_to_delete {
@@ -431,7 +477,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if deleted_frame.is_none() {
@@ -446,7 +492,7 @@ impl PositionFrameMutation {
             "#,
             input.frame_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
 
         let _ = sqlx::query_as!(
@@ -458,8 +504,10 @@ impl PositionFrameMutation {
             "#,
             context.user_id
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?;
+
+        tx.commit().await?;
 
         // subscription
         let map_payload = PositionMapPayload {

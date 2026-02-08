@@ -3,6 +3,7 @@
 use std::collections::BTreeMap;
 
 use crate::db::types::control_data::ControlType;
+// use crate::db::types::dancer;
 use crate::global;
 use crate::types::global::{PartControl, PartType, RedisControl, RedisPosition, Revision};
 use crate::utils::vector::partition_by_field;
@@ -20,7 +21,12 @@ pub async fn init_redis_control(
 
     let frames = sqlx::query!(
         r#"
-            SELECT ControlFrame.*, EditingControlFrame.user_id AS user_id
+            SELECT
+                ControlFrame.id,
+                ControlFrame.start,
+                ControlFrame.meta_rev,
+                ControlFrame.data_rev,
+                EditingControlFrame.user_id AS user_id
             FROM ControlFrame
             LEFT JOIN EditingControlFrame
             ON ControlFrame.id = EditingControlFrame.frame_id;
@@ -42,9 +48,10 @@ pub async fn init_redis_control(
                     ControlData.type  AS "type: ControlType",
                     ControlData.color_id,
                     ControlData.effect_id,
-                    ControlData.alpha,
                     ControlData.fade AS "fade: i32",
-                    LEDBulb.color_id AS bulb_color_id
+                    COALESCE(ControlData.alpha, 0) AS "alpha: i32",
+                    LEDBulb.color_id AS bulb_color_id,
+                    COALESCE(LEDBulb.alpha, 0) AS "bulb_alpha: i32"
                 FROM Dancer
                 INNER JOIN Model
                     ON Dancer.model_id = Model.id
@@ -113,10 +120,15 @@ pub async fn init_redis_control(
                     }
 
                     match part_control[0].r#type {
+                        ControlType::NoEffect => {
+                            // NO_EFFECT: Use -1 as the ID to indicate "no effect"
+                            dancer_status.push(PartControl(None, None, None));
+                            dancer_led_status.push(Vec::new());
+                        }
                         ControlType::Effect => {
                             dancer_status.push(PartControl(
                                 Some(part_control[0].effect_id.unwrap_or(-1)),
-                                part_control[0].alpha,
+                                Some(part_control[0].alpha),
                                 part_control[0].fade,
                             ));
                             dancer_led_status.push(Vec::new());
@@ -124,12 +136,14 @@ pub async fn init_redis_control(
                         ControlType::LEDBulbs => {
                             let bulbs = part_control
                                 .iter()
-                                .map(|data| (data.bulb_color_id.unwrap_or(-1), data.alpha))
+                                .map(|data| {
+                                    (data.bulb_color_id.unwrap_or(-1), Some(data.bulb_alpha))
+                                })
                                 .collect_vec();
 
                             dancer_status.push(PartControl(
                                 Some(0),
-                                part_control[0].alpha,
+                                Some(part_control[0].alpha),
                                 part_control[0].fade,
                             ));
                             dancer_led_status.push(bulbs);
@@ -137,13 +151,9 @@ pub async fn init_redis_control(
                         ControlType::Color => {
                             dancer_status.push(PartControl(
                                 Some(part_control[0].color_id.unwrap_or(-1)),
-                                part_control[0].alpha,
+                                Some(part_control[0].alpha),
                                 part_control[0].fade,
                             ));
-                            dancer_led_status.push(Vec::new());
-                        }
-                        ControlType::NoEffect => {
-                            dancer_status.push(PartControl(None, None, None));
                             dancer_led_status.push(Vec::new());
                         }
                     };
@@ -193,7 +203,12 @@ pub async fn init_redis_position(
 
     let frames = sqlx::query!(
         r#"
-            SELECT PositionFrame.*, EditingPositionFrame.user_id AS user_id
+            SELECT
+                PositionFrame.id,
+                PositionFrame.start,
+                PositionFrame.meta_rev,
+                PositionFrame.data_rev,
+                EditingPositionFrame.user_id AS user_id
             FROM PositionFrame
             LEFT JOIN EditingPositionFrame
             ON PositionFrame.id = EditingPositionFrame.frame_id;
@@ -211,9 +226,10 @@ pub async fn init_redis_position(
                 SELECT
                     Dancer.id,
                     PositionData.frame_id,
-                    PositionData.x,
-                    PositionData.y,
-                    PositionData.z,
+                    PositionData.type AS "position_type: String",
+                    COALESCE(PositionData.x, 0.0) AS "x!: f64",
+                    COALESCE(PositionData.y, 0.0) AS "y!: f64",
+                    COALESCE(PositionData.z, 0.0) AS "z!: f64",
                     PositionData.rx,
                     PositionData.ry,
                     PositionData.rz
@@ -241,7 +257,7 @@ pub async fn init_redis_position(
                     .find(|position| position.frame_id == frame.id)
                     .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-                [position.x, position.y, position.z]
+                [Some(position.x), Some(position.y), Some(position.z)]
             })
             .collect_vec();
 
@@ -293,7 +309,13 @@ pub async fn update_redis_control(
 
     let frame = sqlx::query!(
         r#"
-            SELECT ControlFrame.*, EditingControlFrame.user_id AS user_id
+            SELECT
+                ControlFrame.id,
+                ControlFrame.start,
+                ControlFrame.meta_rev,
+                ControlFrame.data_rev,
+                ControlFrame.fade_for_new_status AS fade,
+                EditingControlFrame.user_id AS user_id
             FROM ControlFrame
             LEFT JOIN EditingControlFrame
             ON ControlFrame.id = EditingControlFrame.frame_id
@@ -321,11 +343,11 @@ pub async fn update_redis_control(
                     ControlData.id AS control_id,
                     ControlData.effect_id,
                     ControlData.color_id,
-                    ControlData.alpha,
                     ControlData.fade AS "fade: i32",
+                    COALESCE(ControlData.alpha, 0) AS "alpha: i32",
                     ControlData.type  AS "type: ControlType",
                     LEDBulb.color_id AS bulb_color_id,
-                    LEDBulb.alpha AS bulb_alpha
+                    COALESCE(LEDBulb.alpha, 0) AS "bulb_alpha: i32"
                 FROM Dancer
                 INNER JOIN Model
                     ON Dancer.model_id = Model.id
@@ -382,10 +404,15 @@ pub async fn update_redis_control(
             }
 
             match part_control[0].r#type {
+                ControlType::NoEffect => {
+                    // NO_EFFECT: Use -1 as the ID to indicate "no effect"
+                    dancer_status.push(PartControl(None, None, None));
+                    dancer_led_status.push(Vec::new());
+                }
                 ControlType::Effect => {
                     dancer_status.push(PartControl(
                         Some(part_control[0].effect_id.unwrap_or(-1)),
-                        part_control[0].alpha,
+                        Some(part_control[0].alpha),
                         part_control[0].fade,
                     ));
                     dancer_led_status.push(Vec::new());
@@ -393,12 +420,12 @@ pub async fn update_redis_control(
                 ControlType::LEDBulbs => {
                     let bulbs = part_control
                         .iter()
-                        .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
+                        .map(|data| (data.bulb_color_id.unwrap_or(-1), Some(data.bulb_alpha)))
                         .collect_vec();
 
                     dancer_status.push(PartControl(
                         Some(0),
-                        part_control[0].alpha,
+                        Some(part_control[0].alpha),
                         part_control[0].fade,
                     ));
                     dancer_led_status.push(bulbs);
@@ -406,13 +433,9 @@ pub async fn update_redis_control(
                 ControlType::Color => {
                     dancer_status.push(PartControl(
                         Some(part_control[0].color_id.unwrap_or(-1)),
-                        part_control[0].alpha,
+                        Some(part_control[0].alpha),
                         part_control[0].fade,
                     ));
-                    dancer_led_status.push(Vec::new());
-                }
-                ControlType::NoEffect => {
-                    dancer_status.push(PartControl(None, None, None));
                     dancer_led_status.push(Vec::new());
                 }
             };
@@ -459,7 +482,12 @@ pub async fn update_redis_position(
 
     let frame = sqlx::query!(
         r#"
-            SELECT PositionFrame.*, EditingPositionFrame.user_id AS user_id
+            SELECT
+                PositionFrame.id,
+                PositionFrame.start,
+                PositionFrame.meta_rev,
+                PositionFrame.data_rev,
+                EditingPositionFrame.user_id AS user_id
             FROM PositionFrame
             LEFT JOIN EditingPositionFrame
             ON PositionFrame.id = EditingPositionFrame.frame_id
@@ -482,9 +510,9 @@ pub async fn update_redis_position(
                 SELECT
                     Dancer.id,
                     PositionData.frame_id,
-                    PositionData.x,
-                    PositionData.y,
-                    PositionData.z,
+                    COALESCE(PositionData.x, 0) AS x,
+                    COALESCE(PositionData.y, 0) AS y,
+                    COALESCE(PositionData.z, 0) AS z,
                     PositionData.rx,
                     PositionData.ry,
                     PositionData.rz
@@ -513,7 +541,7 @@ pub async fn update_redis_position(
                 .find(|position| position.frame_id == frame.id)
                 .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-            [position.x, position.y, position.z]
+            [Some(position.x), Some(position.y), Some(position.z)]
         })
         .collect_vec();
 
