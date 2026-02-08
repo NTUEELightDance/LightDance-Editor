@@ -59,7 +59,8 @@ impl MigrationTrait for Migration {
                     .col(
                         ColumnDef::new(ControlFrame::FadeForNewStatus)
                             .boolean()
-                            .not_null(),
+                            .not_null()
+                            .default(false),
                     )
                     .index(&mut index_control_frame_start)
                     .to_owned(),
@@ -242,7 +243,11 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(EditingControlFrame::FrameId).integer().null())
+                    .col(
+                        ColumnDef::new(EditingControlFrame::FrameId)
+                            .integer()
+                            .null(),
+                    )
                     .index(&mut index_editing_control_frame)
                     .foreign_key(
                         ForeignKey::create()
@@ -271,7 +276,11 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(EditingPositionFrame::FrameId).integer().null())
+                    .col(
+                        ColumnDef::new(EditingPositionFrame::FrameId)
+                            .integer()
+                            .null(),
+                    )
                     .index(&mut index_editing_position_frame)
                     .foreign_key(
                         ForeignKey::create()
@@ -300,7 +309,11 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(EditingLEDEffect::LedEffectId).integer().null())
+                    .col(
+                        ColumnDef::new(EditingLEDEffect::LedEffectId)
+                            .integer()
+                            .null(),
+                    )
                     .index(&mut index_editing_led_effect)
                     .foreign_key(
                         ForeignKey::create()
@@ -492,8 +505,16 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(LEDEffectState::EffectId).integer().not_null())
-                    .col(ColumnDef::new(LEDEffectState::Position).integer().not_null())
+                    .col(
+                        ColumnDef::new(LEDEffectState::EffectId)
+                            .integer()
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(LEDEffectState::Position)
+                            .integer()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(LEDEffectState::ColorId).integer().not_null())
                     .col(ColumnDef::new(LEDEffectState::Alpha).integer().not_null())
                     .foreign_key(

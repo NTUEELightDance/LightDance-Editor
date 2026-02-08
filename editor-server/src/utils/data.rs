@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use crate::db::types::control_data::ControlType;
 // use crate::db::types::dancer;
 use crate::global;
-use crate::types::global::{PartControl, PartType, RedisControl, RedisPosition, Revision};
+use crate::types::global::{PartType, RedisControl, RedisPartControlData, RedisPosition, Revision};
 use crate::utils::vector::partition_by_field;
 use itertools::Itertools;
 use redis::aio::MultiplexedConnection;
@@ -48,7 +48,7 @@ pub async fn init_redis_control(
                     ControlData.type  AS "type: ControlType",
                     ControlData.color_id,
                     ControlData.effect_id,
-                    ControlData.fade AS "fade: i32",
+                    ControlData.fade AS "fade: bool",
                     COALESCE(ControlData.alpha, 0) AS "alpha: i32",
                     LEDBulb.color_id AS bulb_color_id,
                     COALESCE(LEDBulb.alpha, 0) AS "bulb_alpha: i32"
@@ -59,7 +59,7 @@ pub async fn init_redis_control(
                     ON Model.id = Part.model_id
                 INNER JOIN ControlData
                     ON Part.id = ControlData.part_id AND
-                        Dancer.id = ControlData.dancer_id
+                    Dancer.id = ControlData.dancer_id
                 LEFT JOIN Color
                     ON ControlData.color_id = Color.id
                 LEFT JOIN LEDEffect
@@ -108,7 +108,7 @@ pub async fn init_redis_control(
                 let mut dancer_led_status = Vec::new();
 
                 let dancer_id = dancer_control[0][0].dancer_id;
-                let dancer_fade = dancer_control[0][0].fade.unwrap_or(0) == 1;
+                let dancer_fade = dancer_control[0][0].fade.unwrap_or(false);
                 let dancer_has_effect = dancer_control[0][0].r#type != ControlType::NoEffect;
 
                 fade.insert(dancer_id, dancer_fade);
@@ -122,38 +122,36 @@ pub async fn init_redis_control(
                     match part_control[0].r#type {
                         ControlType::NoEffect => {
                             // NO_EFFECT: Use -1 as the ID to indicate "no effect"
-                            dancer_status.push(PartControl(None, None, None));
+                            dancer_status.push(None);
                             dancer_led_status.push(Vec::new());
                         }
                         ControlType::Effect => {
-                            dancer_status.push(PartControl(
-                                Some(part_control[0].effect_id.unwrap_or(-1)),
-                                Some(part_control[0].alpha),
-                                part_control[0].fade,
-                            ));
+                            dancer_status.push(Some(RedisPartControlData(
+                                part_control[0].effect_id.unwrap_or(-1),
+                                part_control[0].alpha,
+                                part_control[0].fade.unwrap_or(false),
+                            )));
                             dancer_led_status.push(Vec::new());
                         }
                         ControlType::LEDBulbs => {
                             let bulbs = part_control
                                 .iter()
-                                .map(|data| {
-                                    (data.bulb_color_id.unwrap_or(-1), Some(data.bulb_alpha))
-                                })
+                                .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
                                 .collect_vec();
 
-                            dancer_status.push(PartControl(
-                                Some(0),
-                                Some(part_control[0].alpha),
-                                part_control[0].fade,
-                            ));
+                            dancer_status.push(Some(RedisPartControlData(
+                                0,
+                                part_control[0].alpha,
+                                part_control[0].fade.unwrap_or(false),
+                            )));
                             dancer_led_status.push(bulbs);
                         }
                         ControlType::Color => {
-                            dancer_status.push(PartControl(
-                                Some(part_control[0].color_id.unwrap_or(-1)),
-                                Some(part_control[0].alpha),
-                                part_control[0].fade,
-                            ));
+                            dancer_status.push(Some(RedisPartControlData(
+                                part_control[0].color_id.unwrap_or(-1),
+                                part_control[0].alpha,
+                                part_control[0].fade.unwrap_or(false),
+                            )));
                             dancer_led_status.push(Vec::new());
                         }
                     };
@@ -343,7 +341,7 @@ pub async fn update_redis_control(
                     ControlData.id AS control_id,
                     ControlData.effect_id,
                     ControlData.color_id,
-                    ControlData.fade AS "fade: i32",
+                    ControlData.fade AS "fade: bool",
                     COALESCE(ControlData.alpha, 0) AS "alpha: i32",
                     ControlData.type  AS "type: ControlType",
                     LEDBulb.color_id AS bulb_color_id,
@@ -391,8 +389,13 @@ pub async fn update_redis_control(
         let mut dancer_led_status = Vec::new();
 
         // TODO: check implementation correctness
+        // I think this is correct, as in the same frame each part
+        // on the same dancer should have the same status (no_effect or not),
+        // and in the case where it's not no_effect the fade should also be
+        // the same
+
         let dancer_id = dancer_control[0][0].dancer_id;
-        let dancer_fade = dancer_control[0][0].fade.unwrap_or(0) == 1;
+        let dancer_fade = dancer_control[0][0].fade.unwrap_or(false);
         let dancer_has_effect = dancer_control[0][0].r#type != ControlType::NoEffect;
 
         fade.insert(dancer_id, dancer_fade);
@@ -405,37 +408,36 @@ pub async fn update_redis_control(
 
             match part_control[0].r#type {
                 ControlType::NoEffect => {
-                    // NO_EFFECT: Use -1 as the ID to indicate "no effect"
-                    dancer_status.push(PartControl(None, None, None));
+                    dancer_status.push(None);
                     dancer_led_status.push(Vec::new());
                 }
                 ControlType::Effect => {
-                    dancer_status.push(PartControl(
-                        Some(part_control[0].effect_id.unwrap_or(-1)),
-                        Some(part_control[0].alpha),
-                        part_control[0].fade,
-                    ));
+                    dancer_status.push(Some(RedisPartControlData(
+                        part_control[0].effect_id.unwrap_or(-1),
+                        part_control[0].alpha,
+                        part_control[0].fade.unwrap_or(false),
+                    )));
                     dancer_led_status.push(Vec::new());
                 }
                 ControlType::LEDBulbs => {
                     let bulbs = part_control
                         .iter()
-                        .map(|data| (data.bulb_color_id.unwrap_or(-1), Some(data.bulb_alpha)))
+                        .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
                         .collect_vec();
 
-                    dancer_status.push(PartControl(
-                        Some(0),
-                        Some(part_control[0].alpha),
-                        part_control[0].fade,
-                    ));
+                    dancer_status.push(Some(RedisPartControlData(
+                        0,
+                        part_control[0].alpha,
+                        part_control[0].fade.unwrap_or(false),
+                    )));
                     dancer_led_status.push(bulbs);
                 }
                 ControlType::Color => {
-                    dancer_status.push(PartControl(
-                        Some(part_control[0].color_id.unwrap_or(-1)),
-                        Some(part_control[0].alpha),
-                        part_control[0].fade,
-                    ));
+                    dancer_status.push(Some(RedisPartControlData(
+                        part_control[0].color_id.unwrap_or(-1),
+                        part_control[0].alpha,
+                        part_control[0].fade.unwrap_or(false),
+                    )));
                     dancer_led_status.push(Vec::new());
                 }
             };

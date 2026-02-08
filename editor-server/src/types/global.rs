@@ -31,9 +31,17 @@ pub enum PartType {
     FIBER,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)] // [id: number, alpha: number]
-pub struct PartControl(pub Option<i32>, pub Option<i32>, pub Option<i32>);
-pub type PartControlBulbs = Vec<(String, Option<i32>)>;
+// data types used for Redis
+#[derive(Debug, Deserialize, Serialize, Clone)] // [id: number, alpha: number, fade: number]
+pub struct RedisPartControlData(pub i32, pub i32, pub bool);
+pub type RedisPartControl = Option<RedisPartControlData>;
+pub type RedisPartControlBulbs = Vec<(i32, i32)>;
+
+// data types used elsewhere
+
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub struct PartControl(pub String, pub i32); // LEDControl: [src: string, alpha: number] or FiberControl: [color: string, alpha: number]
+pub type PartControlBulbs = Vec<(String, i32)>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PositionData {
@@ -41,10 +49,6 @@ pub struct PositionData {
     pub location: Vec<[Option<f64>; 3]>,
     pub rotation: Vec<[Option<f64>; 3]>,
 }
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct PartControlString(pub Option<String>, pub Option<i32>); // LEDControl: [src: string, alpha: number, fade: number] or FiberControl: [color: string, alpha: number, fade: number]
-pub type PartControlBulbsData = Vec<(i32, Option<i32>)>;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DancerPart {
@@ -77,9 +81,8 @@ pub struct LEDPart {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ControlData {
-    // pub fade: Option<bool>,
     pub start: i32,
-    pub status: Vec<Vec<PartControlString>>,
+    pub status: Vec<Vec<PartControl>>,
     pub led_status: Vec<Vec<PartControlBulbs>>,
     // new
     pub fade: Vec<bool>,
@@ -109,8 +112,8 @@ pub struct RedisControl {
     pub start: i32,
     pub rev: Revision,
     pub editing: Option<i32>,
-    pub status: Vec<Vec<PartControl>>,
-    pub led_status: Vec<Vec<PartControlBulbsData>>,
+    pub status: Vec<Vec<RedisPartControl>>,
+    pub led_status: Vec<Vec<RedisPartControlBulbs>>,
     pub fade: Vec<bool>,
     pub has_effect: Vec<bool>,
 }

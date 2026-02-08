@@ -419,31 +419,13 @@ pub async fn upload_data(
                         match &real_part.1 {
                             PartType::FIBER => ControlType::Color,
                             PartType::LED => {
-                                if part_status.0.as_ref().unwrap_or(&"".to_string()).is_empty() {
+                                if part_status.0.is_empty() {
                                     ControlType::LEDBulbs
                                 } else {
                                     ControlType::Effect
                                 }
                             }
                         }
-                        // match &real_part.1 {
-                        //     PartType::FIBER => match part_status.0 {
-                        //         Some(_) => ControlType::Color,
-                        //         None => ControlType::NoEffect,
-                        //     },
-                        //     PartType::LED => {
-                        //         match &part_status.0 {
-                        //             Some(string) => {
-                        //                 if string.is_empty() {
-                        //                     ControlType::LEDBulbs
-                        //                 } else {
-                        //                     ControlType::Effect
-                        //                 }
-                        //             }
-                        //             None => ControlType::NoEffect,
-                        //         }
-                        //     }
-                        // }
                     };
 
                     let type_string: String = r#type.clone().into();
@@ -464,32 +446,15 @@ pub async fn upload_data(
                         .into_result()?
                         .last_insert_id() as i32;
                     } else {
-                        let color_id = match &part_status.0 {
-                            Some(string) => color_dict.get(&string),
+                        let color_id = color_dict.get(&part_status.0);
+
+                        let effect_id = match led_dict.get(model_name) {
+                            Some(parts_dict) => match parts_dict.get(part_name) {
+                                Some(effect_dict) => effect_dict.get(&part_status.0),
+                                None => None,
+                            },
                             None => None,
                         };
-
-                        let effect_id = if let Some(parts_dict) = led_dict.get(model_name) {
-                            if let Some(effect_dict) = parts_dict.get(part_name) {
-                                if let Some(string) = &part_status.0 {
-                                    effect_dict.get(&string)
-                                } else {
-                                    None
-                                }
-                            } else {
-                                None
-                            }
-                        } else {
-                            None
-                        };
-
-                        // let effect_id = match &led_dict.get(model_name) {
-                        //     Some(parts_dict) => match &parts_dict.get(part_name) {
-                        //         Some(effect_dict) => effect_dict.get(&part_status.0),
-                        //         None => None,
-                        //     },
-                        //     None => None,
-                        // };
 
                         let alpha = part_status.1;
                         let control_id = sqlx::query!(

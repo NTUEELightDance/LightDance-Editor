@@ -256,7 +256,7 @@ impl ControlFrameMutation {
                     let fade_value = part_data[3];
 
                     // check if control_type is valid
-                    if control_type < 0 || control_type > 3 {
+                    if !(0..=3).contains(&control_type) {
                         errors.push(format!(
                             "Invalid type value {} for dancer #{} part #{} (must be 0-3: NO_EFFECT=0, COLOR=1, EFFECT=2, LED_BULBS=3)",
                             control_type, index + 1, part_index + 1
@@ -273,7 +273,7 @@ impl ControlFrameMutation {
                         ));
                     }
                     // For non-NO_EFFECT types, validate alpha
-                    if control_type != NO_EFFECT && (alpha < 0 || alpha > 255) {
+                    if control_type != NO_EFFECT && !(0..=255).contains(&alpha) {
                         errors.push(format!(
                             "Alpha value of dancer #{} part #{} must be between 0 and 255",
                             index + 1,
@@ -332,7 +332,7 @@ impl ControlFrameMutation {
                                             color_id, bulb_index + 1, index + 1, part_index + 1
                                         ));
                                     }
-                                    if bulb_alpha < 0 || bulb_alpha > 255 {
+                                    if !(0..=255).contains(&bulb_alpha) {
                                         errors.push(format!(
                                             "Alpha {} of LED Bulb #{} in dancer #{} part #{} must be between 0 and 255",
                                             bulb_alpha, bulb_index + 1, index + 1, part_index + 1

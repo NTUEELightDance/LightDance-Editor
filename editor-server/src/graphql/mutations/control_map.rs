@@ -312,7 +312,7 @@ impl ControlMapMutation {
                 let alpha = part_data[2];
                 let fade_value = part_data[3];
 
-                if control_type < 0 || control_type > 3 {
+                if !(0..=3).contains(&control_type) {
                     errors.push(format!(
                         "Invalid type {} for dancer #{} part #{} (0..3 expected)",
                         control_type,
@@ -323,7 +323,7 @@ impl ControlMapMutation {
                 }
 
                 if control_type != NO_EFFECT {
-                    if alpha < 0 || alpha > 255 {
+                    if !(0..=255).contains(&alpha) {
                         errors.push(format!(
                             "Alpha out of range for dancer #{} part #{}: {} (0..255 expected)",
                             index + 1,
@@ -416,7 +416,7 @@ impl ControlMapMutation {
                                             bulb_color_id, index + 1, part_index + 1, bulb_index + 1
                                         ));
                                     }
-                                    if bulb_alpha < 0 || bulb_alpha > 255 {
+                                    if !(0..=255).contains(&bulb_alpha) {
                                         errors.push(format!(
                                             "Invalid bulb_alpha {} for dancer #{} part #{} bulb #{}",
                                             bulb_alpha, index + 1, part_index + 1, bulb_index + 1

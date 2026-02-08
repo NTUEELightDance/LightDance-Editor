@@ -3,8 +3,8 @@ use crate::db::types::{
 };
 use crate::global;
 use crate::types::global::{
-    ControlData, Dancer, DancerPart, JsonData, LEDFrame, LEDPart, PartControlBulbs,
-    PartControlString, PartType, PositionData,
+    ControlData, Dancer, DancerPart, JsonData, LEDFrame, LEDPart, PartControl, PartControlBulbs,
+    PartType, PositionData,
 };
 use crate::utils::data::{get_redis_control, get_redis_position};
 use crate::utils::vector::partition_by_field;
@@ -179,7 +179,20 @@ pub async fn export_data(
                         .iter()
                         .map(|led_effect_state| {
                             (
-                                color_dict[&led_effect_state.color_id].clone(),
+                                color_dict
+                                    .get(&led_effect_state.color_id)
+                                    .unwrap_or_else(|| {
+                                        panic!(
+                                            "Invalid color id in LEDEffect.
+                                LEDEffect.id = {}, 
+                                LEDEffect.name = {},
+                                LEDEffect.color_id = {}",
+                                            led_effect_state.id,
+                                            led_effect_state.name,
+                                            led_effect_state.color_id
+                                        )
+                                    })
+                                    .clone(),
                                 led_effect_state.alpha,
                             )
                         })
@@ -236,7 +249,7 @@ pub async fn export_data(
         let fade = redis_control.fade;
         let has_effect = redis_control.has_effect;
 
-        let new_status: Vec<Vec<PartControlString>> = status
+        let new_status: Vec<Vec<PartControl>> = status
             .into_iter()
             .enumerate()
             .map(|(dancer_idx, dancer_status)| {
@@ -246,30 +259,29 @@ pub async fn export_data(
                     .map(|(part_idx, part_status)| {
                         let part_type = dancer[dancer_idx].parts[part_idx].r#type;
                         match part_type {
-                            PartType::FIBER => {
-                                let color_id = part_status.0;
-                                let alpha = part_status.1;
-                                let _fade = part_status.2;
-                                PartControlString(color_id.map(|id| color_dict[&id].clone()), alpha)
-                            }
-                            PartType::LED => {
-                                let effect_id = part_status.0;
-                                let alpha = part_status.1;
-                                let _fade = part_status.2;
-                                match effect_id {
-                                    Some(0) => PartControlString(Some("".to_string()), alpha),
-                                    Some(-1) => {
-                                        PartControlString(Some("no-change".to_string()), alpha)
-                                    }
-                                    Some(id) => {
-                                        PartControlString(Some(led_dict[&id].clone()), alpha)
-                                    }
-                                    None => PartControlString(None, alpha),
+                            PartType::FIBER => match part_status {
+                                None => PartControl::default(),
+                                Some(status) => {
+                                    let color_id = status.0;
+                                    let alpha = status.1;
+                                    PartControl(color_dict[&color_id].clone(), alpha)
                                 }
-                            }
+                            },
+                            PartType::LED => match part_status {
+                                None => PartControl::default(),
+                                Some(status) => {
+                                    let effect_id = status.0;
+                                    let alpha = status.1;
+                                    match effect_id {
+                                        0 => PartControl("".to_string(), alpha),
+                                        -1 => PartControl("no-change".to_string(), alpha),
+                                        id => PartControl(led_dict[&id].clone(), alpha),
+                                    }
+                                }
+                            },
                         }
                     })
-                    .collect::<Vec<PartControlString>>()
+                    .collect::<Vec<PartControl>>()
             })
             .collect();
 
