@@ -37,6 +37,7 @@ uuid = { version = "1.12.1", features = ["v4"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 reqwest = { version = "0.12.12", features = ["json"] }
+load-dotenv = "0.1.2"
 
 [profile.dev]
 opt-level = 0

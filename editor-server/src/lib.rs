@@ -1,6 +1,7 @@
 use axum::Router;
 use db::clients::AppClients;
 use graphql::schema::{self, AppSchema};
+use load_dotenv::load_dotenv;
 use utils::authentication::get_test_user_context;
 
 pub mod db;
@@ -17,7 +18,7 @@ use crate::tracing::{build_api_tracer, build_graphql_tracer};
 use crate::utils::data::{init_redis_control, init_redis_position};
 
 pub async fn init() {
-    dotenv::dotenv().ok();
+    load_dotenv!();
     global::envs::set();
 
     let mysql_host = env!("DATABASE_URL", "DATABASE_URL is not set");

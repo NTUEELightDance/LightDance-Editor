@@ -1127,6 +1127,7 @@ dependencies = [
  "http",
  "indicatif",
  "itertools",
+ "load-dotenv",
  "once_cell",
  "redis",
  "reqwest",
@@ -2099,6 +2100,15 @@ name = "litemap"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23fb14cb19457329c82206317a5663005a4d404783dc74f4252769b0d5f42856"
+
+[[package]]
+name = "load-dotenv"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71abcf6d8da2a6c163554a61cdbca2438bbe9e687a9c5ebeee12e9af42864b54"
+dependencies = [
+ "dotenv",
+]
 
 [[package]]
 name = "lock_api"
