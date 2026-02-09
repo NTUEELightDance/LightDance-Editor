@@ -7,29 +7,28 @@ When you change the SeaORM migration, you need to re-run the migration and regen
 ### 1. Spin up database
 
 ```sh
-# Lightdance-Editor
+# LightDance-Editor
 docker compose -f dev.docker-compose.yml up -d
 ```
 
 ### 2. Migrate SeaORM
 
 ```sh
-# Lightdance-Editor/editor-server/sea-orm
-sea-orm-cli migrate up
-sea-orm-cli generate entity -o src/entity
+# LightDance-Editor/editor-server/
+cargo migrate
 ```
 
 ### 3. Run editor-server
 
 ```sh
-# Lightdance-Editor
+# LightDance-Editor
 pnpm dev:editor-server
 ```
 
 ### 4. Initialize database
 
 ```sh
-# Lightdance-Editor/utils
+# LightDance-Editor/utils
 pnpm install
 node initDB.js jsons/exportDataEmpty.json
 ```
@@ -38,10 +37,18 @@ node initDB.js jsons/exportDataEmpty.json
 
 If you have initialized the database before, and you want to get a clean database, you should follow the steps below:
 
-1. shutdown the database with `docker compose -f dev.docker-compose.yml down`
-2. Delete the `data` folder
-3. Delete the `editor-server/sea-orm/migration/src` generated tables if you want a clean re-run (or drop and recreate the DB)
-4. follow the steps above to initialize the database again
+```sh
+# 1.
+# LightDance-Editor/
+docker compose -f dev.docker-compose.yml down
+
+#2.
+# LightDance-Editor/
+rm -rf data
+
+#3.
+Follow the steps above to restart the DB and migrate.
+```
 
 ## Tip
 
