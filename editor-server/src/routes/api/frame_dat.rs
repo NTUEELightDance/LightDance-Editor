@@ -434,7 +434,7 @@ pub async fn frame_dat(
             }
         };
 
-        checksum += fade as u32;
+        checksum = checksum.wrapping_add(fade as u32);
 
         let mut no_effect: HashSet<i32> = HashSet::new();
 
@@ -466,9 +466,9 @@ pub async fn frame_dat(
 
             of.insert(*of_part_id, color);
 
-            checksum += color[0] as u32;
-            checksum += color[1] as u32;
-            checksum += color[2] as u32;
+            checksum = checksum.wrapping_add(color[0] as u32);
+            checksum = checksum.wrapping_add(color[1] as u32);
+            checksum = checksum.wrapping_add(color[2] as u32);
         }
 
         // (part_id, color[])
@@ -494,15 +494,17 @@ pub async fn frame_dat(
             };
 
             color.iter().for_each(|c| {
-                checksum += c[0] as u32;
-                checksum += c[1] as u32;
-                checksum += c[2] as u32;
+                checksum = checksum.wrapping_add(c[0] as u32);
+                checksum = checksum.wrapping_add(c[1] as u32);
+                checksum = checksum.wrapping_add(c[2] as u32);
             });
 
             led.insert(led_part.get_id(), color);
         }
 
-        checksum += start_time.to_le_bytes().iter().sum::<u8>() as u32;
+        for num in start_time.to_le_bytes() {
+            checksum = checksum.wrapping_add(num as u32);
+        }
 
         let frame_data = FrameData {
             // id: frame_id,
