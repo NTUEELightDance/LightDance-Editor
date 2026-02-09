@@ -85,18 +85,18 @@ pub async fn control_dat(
     let frame_start_times: BTreeSet<i32> =
         BTreeSet::from_iter(frame_data.into_iter().map(|data| data.control_frame_start));
 
-    response.push(
-        frame_start_times
-            .len()
-            .try_into()
-            .map_err(|_| {
-                format!(
-                    "The number of frames {} is not valid",
-                    frame_start_times.len()
-                )
-            })
-            .into_result()?,
-    );
+    let frame_num: u32 = frame_start_times
+        .len()
+        .try_into()
+        .map_err(|_| {
+            format!(
+                "The number of frames {} is not valid",
+                frame_start_times.len()
+            )
+        })
+        .into_result()?;
+
+    write_little_endian(&frame_num, &mut response);
 
     frame_start_times.iter().for_each(|f| {
         write_little_endian(&(*f as u32), &mut response);
