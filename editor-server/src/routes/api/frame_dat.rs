@@ -55,8 +55,46 @@ pub async fn frame_dat(
         led_parts,
     } = query.0;
 
-    let mut of_parts = Vec::from_iter(of_parts.into_iter());
-    let mut led_parts = Vec::from_iter(led_parts.into_iter());
+    let parts = sqlx::query!(
+        r#"
+        SELECT
+            Part.id,
+            Part.name
+        FROM Dancer
+        INNER JOIN Model
+            ON Dancer.model_id = Model.id
+        INNER JOIN Part
+            ON Part.model_id = Model.id
+        WHERE Dancer.name = ?
+        "#,
+        dancer
+    )
+    .fetch_all(mysql_pool)
+    .await
+    .into_result()?;
+
+    let part_name_id_map: HashMap<String, i32> =
+        HashMap::from_iter(parts.into_iter().map(|part| (part.name, part.id)));
+
+    let of_parts = Vec::from_iter(of_parts.into_iter());
+    let led_parts = Vec::from_iter(led_parts.into_iter());
+
+    // TODO: find cleaner way to do this
+    let mut of_parts = Vec::from_iter(
+        of_parts
+            .into_iter()
+            .map(|part| (part.0.clone(), *part_name_id_map.get(&part.0).unwrap())),
+    );
+
+    let mut led_parts = Vec::from_iter(led_parts.into_iter().map(|part| {
+        (
+            part.0.clone(),
+            LEDPart {
+                id: *part_name_id_map.get(&part.0).unwrap(),
+                len: part.1.len,
+            },
+        )
+    }));
 
     of_parts.sort_unstable_by_key(|part| part.1);
     led_parts.sort_unstable_by_key(|part| part.1.id);
@@ -514,8 +552,9 @@ pub async fn frame_dat(
 pub async fn test_frame_dat(
 ) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
     let dancer = "2_feng".to_string();
-    let of_parts = HashMap::new();
+    let mut of_parts = HashMap::new();
     let mut led_parts: HashMap<String, LEDPart> = HashMap::new();
+    of_parts.insert("cloak_out".to_string(), 0);
     led_parts.insert("mask_LED".to_string(), LEDPart { id: 0, len: 28 });
 
     frame_dat(Json::from(GetControlDatQuery {
