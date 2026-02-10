@@ -358,8 +358,8 @@ class KeyframeType(Enum):
 
 
 Fade = bool
-FadeSequence = list[tuple[Time, Fade, KeyframeType]]
-PosSequence = list[tuple[Time, KeyframeType]]
+FadeSequence = dict[MapID, tuple[Time, Fade, KeyframeType]]
+PosSequence = dict[MapID, tuple[Time, KeyframeType]]
 FadeSequenceMap = dict[DancerName, FadeSequence]
 PosSequenceMap = dict[DancerName, PosSequence]
 
@@ -531,10 +531,10 @@ class State:
 
     dancer_part_objects_map: DancerPartObjectsMap
 
-    overall_fade_sequence: FadeSequence
-    overall_pos_sequence: PosSequence
-    dancer_fade_sequence_map: FadeSequenceMap
-    dancer_pos_sequence_map: PosSequenceMap
+    fade_sequence_map: FadeSequenceMap
+    pos_sequence_map: PosSequenceMap
+    fade_load_frames: dict[DancerName, tuple[Time, Time]]
+    pos_load_frames: dict[DancerName, tuple[Time, Time]]
 
     music_beats: list[int]
     scene_start_point: list[int]

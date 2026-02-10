@@ -11,10 +11,16 @@ from typing import cast
 
 import bpy
 
-from ....core.models import ControlMapElement_MODIFIED, Editor, MapID, PosMapElement
+from ....core.models import (
+    ControlMapElement_MODIFIED,
+    Editor,
+    FadeSequence,
+    MapID,
+    PosMapElement,
+    PosSequence,
+)
 from ....core.states import state
 from ....core.utils.algorithms import smallest_range_including_lr
-from ....properties.types import ObjectType
 from ...models import KeyframeType
 from ...utils.notification import notify
 from ...utils.ui import redraw_area, set_dopesheet_collapse_all, set_dopesheet_filter
@@ -144,39 +150,19 @@ def draw_pos_on_curve(
     return
 
 
-def get_filtered_map_for_first_timeline(
+def get_filtered_index_for_first_timeline(
     l_timerange: int,
     r_timerange: int,
-    sorted_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
-    | list[tuple[MapID, PosMapElement]],
     sorted_frame_map: list[int],
-    return_filtered_map: bool,
-) -> (
-    tuple[
-        int,
-        int,
-        list[tuple[MapID, ControlMapElement_MODIFIED]]
-        | list[tuple[MapID, PosMapElement]],
-    ]
-    | tuple[int, int]
-):
-    filtered_map = []
-    start_index = -1
-    end_index = -1
-    if sorted_frame_map:
-        (start_index, end_index) = smallest_range_including_lr(
-            sorted_frame_map, l_timerange, r_timerange
-        )
+) -> tuple[int, int]:
+    (start_index, end_index) = smallest_range_including_lr(
+        sorted_frame_map, l_timerange, r_timerange
+    )
 
-        if not return_filtered_map:
-            return start_index, end_index
-
-        filtered_map = sorted_map[start_index : end_index + 1]
-
-    return start_index, end_index, filtered_map
+    return start_index, end_index
 
 
-def get_filtered_map_for_second_timeline(
+def get_filtered_index_for_second_timeline(
     l_timerange: int,
     r_timerange: int,
     init_start_index: int,
@@ -185,26 +171,23 @@ def get_filtered_map_for_second_timeline(
     | list[tuple[MapID, PosMapElement]],
     dancer_name: str,
     map_type: str,
-) -> list[tuple[MapID, ControlMapElement_MODIFIED]] | list[tuple[MapID, PosMapElement]]:
+) -> tuple[int, int]:
     """
-    The code below filters the smallest range in a sort_map that satisfies the 3 following conditions:
+    The code below filters the smallest range in a sorted_map that satisfies the 3 following conditions:
     1. [state.dancer_load_frames[0], state.dancer_load_frames[1]] is included
     2. The borders' frame.start aren't state.dancer_load_frames[0] or state.dancer_load_frames[1]
     3. The status of the borders' frames aren't None
     """
 
-    if not sorted_map:
-        return []
-
     start_index = init_start_index
     end_index = init_end_index
+    l_index = init_start_index
+    r_index = init_end_index
 
     def has_status(frame: ControlMapElement_MODIFIED | PosMapElement) -> bool:
         if map_type == "CONTROL":
             frame = cast(ControlMapElement_MODIFIED, frame)
-
             dancer_status = frame.status[dancer_name]
-
             return any(
                 part_status is not None for part_status in dancer_status.values()
             )
@@ -215,30 +198,35 @@ def get_filtered_map_for_second_timeline(
 
         return False
 
-    while True:
-        if start_index == 0 or (
-            sorted_map[init_start_index][1].start != l_timerange
-            and has_status(sorted_map[start_index][1])
-        ):
-            break
-        start_index -= 1
+    if not (
+        sorted_map[init_start_index][1].start != l_timerange
+        and has_status(sorted_map[init_start_index][1])
+    ):
+        while True:
+            if l_index == 0:
+                break
 
-        if has_status(sorted_map[start_index][1]):
-            break
+            l_index -= 1
 
-    while True:
-        if end_index == len(sorted_map) - 1 or (
-            sorted_map[init_end_index][1].start != r_timerange
-            and has_status(sorted_map[end_index][1])
-        ):
-            break
+            if has_status(sorted_map[l_index][1]):
+                start_index = l_index
+                break
 
-        end_index += 1
+    if not (
+        sorted_map[init_end_index][1].start != r_timerange
+        and has_status(sorted_map[init_end_index][1])
+    ):
+        while True:
+            if r_index == len(sorted_map) - 1:
+                break
 
-        if has_status(sorted_map[end_index][1]):
-            break
+            r_index += 1
 
-    return sorted_map[start_index : end_index + 1]
+            if has_status(sorted_map[r_index][1]):
+                end_index = r_index
+                break
+
+    return start_index, end_index
 
 
 def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
@@ -247,6 +235,10 @@ def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
 
     if current_obj:
         dancer_name = getattr(current_obj, "ld_dancer_name")
+        fade_seq = sorted(
+            [seq for seq in state.fade_sequence_map[dancer_name].values()],
+            key=lambda x: x[0],
+        )
 
         if not old_obj:
             add_obj(
@@ -254,7 +246,7 @@ def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
                 f"selected_{current_obj_name}Action",
                 "CONTROL",
                 "ld_fade_seq",
-                state.dancer_fade_sequence_map[dancer_name],
+                fade_seq,
             )
 
         else:
@@ -262,18 +254,19 @@ def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
             draw_fade_on_curve(
                 action,
                 "ld_fade_seq",
-                state.dancer_fade_sequence_map[dancer_name],
+                fade_seq,
             )
 
             action.name = f"selected_{current_obj_name}Action"
             old_obj.name = f"[1]selected_{current_obj_name}"
 
-    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+        overall = state.fade_load_frames["Overall"]
 
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     set_dopesheet_filter(f"fade_seq")
     set_dopesheet_collapse_all(True)
 
-    return None
+    return
 
 
 def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
@@ -281,6 +274,10 @@ def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
     current_obj = bpy.data.objects.get(current_obj_name)
     if current_obj:
         dancer_name = getattr(current_obj, "ld_dancer_name")
+        pos_seq = sorted(
+            [seq for seq in state.pos_sequence_map[dancer_name].values()],
+            key=lambda x: x[0],
+        )
 
         if not old_obj:
             add_obj(
@@ -288,7 +285,7 @@ def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
                 f"selected_{current_obj_name}Action",
                 "POS",
                 "ld_pos_seq",
-                state.dancer_pos_sequence_map[dancer_name],
+                pos_seq,
             )
 
         else:
@@ -296,7 +293,7 @@ def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
             draw_pos_on_curve(
                 action,
                 "ld_pos_seq",
-                state.dancer_pos_sequence_map[dancer_name],
+                pos_seq,
             )
 
             action.name = f"selected_{current_obj_name}Action"
@@ -306,7 +303,7 @@ def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
     set_dopesheet_filter(f"pos_seq")
     set_dopesheet_collapse_all(True)
 
-    return None
+    return
 
 
 def add_pinned_ctrl_data(
@@ -321,13 +318,17 @@ def add_pinned_ctrl_data(
 
     if dancer_obj:
         dancer_name = getattr(dancer_obj, "ld_dancer_name")
+        fade_seq = sorted(
+            [seq for seq in state.fade_sequence_map[dancer_name].values()],
+            key=lambda x: x[0],
+        )
 
         add_obj(
             f"[{3 + index}]pinned_{dancer_name}",
             f"pinned_{dancer_name}Action",
             "CONTROL",
             "ld_fade_seq",
-            state.dancer_fade_sequence_map[dancer_name],
+            fade_seq,
         )
 
 
@@ -343,13 +344,17 @@ def add_pinned_pos_data(
 
     if dancer_obj:
         dancer_name = getattr(dancer_obj, "ld_dancer_name")
+        pos_seq = sorted(
+            [seq for seq in state.pos_sequence_map[dancer_name].values()],
+            key=lambda x: x[0],
+        )
 
         add_obj(
             f"[{3 + index}]pinned_{dancer_name}",
             f"pinned_{dancer_name}Action",
             "POS",
             "ld_pos_seq",
-            state.dancer_pos_sequence_map[dancer_name],
+            pos_seq,
         )
 
 
@@ -441,7 +446,7 @@ def clear_timeline(old_selected_obj_name: str):
     set_dopesheet_collapse_all(True)
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-    return None
+    return
 
 
 def handle_timeline(
@@ -492,191 +497,346 @@ def register_handle_timeline(obj: bpy.types.Object | None):
     bpy.app.timers.register(handle_task)
 
 
-def update_fade_seq_from_state():
+def get_load_range(
+    sorted_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
+    | list[tuple[MapID, PosMapElement]],
+    filtered_start_index: int,
+    filtered_end_index: int,
+    selected_start_time: int,
+    selected_end_time: int,
+) -> tuple[int, int]:
+    filtered_start_time = sorted_map[filtered_start_index][1].start
+    filtered_end_time = sorted_map[filtered_end_index][1].start
+
+    load_start_time = min(filtered_start_time, selected_start_time)
+    load_end_time = max(filtered_end_time, selected_end_time)
+
+    return load_start_time, load_end_time
+
+
+def get_overall_fade_seq_for_frame(
+    frame: ControlMapElement_MODIFIED,
+) -> tuple[int, bool, KeyframeType]:
+    keyframe_type = KeyframeType.GENERATED
+    active_dancers = [
+        dancer
+        for dancer, parts in frame.status.items()
+        if any(part is not None for part in parts.values())
+    ]
+
+    if active_dancers:
+        is_breakdown = all(
+            not state.show_dancers[state.dancer_names.index(dancer)]
+            for dancer in active_dancers
+        )
+
+        if is_breakdown:
+            keyframe_type = KeyframeType.BREAKDOWN
+        else:
+            keyframe_type = KeyframeType.NORMAL
+
+    return frame.start, frame.fade_for_new_status, keyframe_type
+
+
+def get_overall_pos_seq_for_frame(frame: PosMapElement) -> tuple[int, KeyframeType]:
+    keyframe_type = KeyframeType.BREAKDOWN
+    active_dancers = [dancer for dancer, pos in frame.pos.items() if pos is not None]
+    if active_dancers:
+        is_generated = all(
+            not state.show_dancers[state.dancer_names.index(dancer)]
+            for dancer in active_dancers
+        )
+
+        if is_generated:
+            keyframe_type = KeyframeType.GENERATED
+        else:
+            keyframe_type = KeyframeType.NORMAL
+
+    return frame.start, keyframe_type
+
+
+def init_fade_seq_from_state():
     sorted_ctrl_map = sorted(
         state.control_map_MODIFIED.items(), key=lambda item: item[1].start
     )
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
 
-    """setup fade for control frame"""
-    # fade sequence for fade_for_new_status (with parital load)
-    frame_range_l, frame_range_r = state.dancer_load_frames
+    if sorted_ctrl_map:
+        """setup fade for control frame"""
+        # fade sequence for fade_for_new_status (with parital load)
+        selected_start_time, selected_end_time = state.dancer_load_frames
 
-    (
-        filtered_ctrl_map_start,
-        filtered_ctrl_map_end,
-        filtered_ctrl_map,
-    ) = get_filtered_map_for_first_timeline(  # type: ignore
-        frame_range_l, frame_range_r, sorted_ctrl_map, sorted_frame_ctrl_map, True
-    )
-
-    filtered_ctrl_map = cast(
-        list[tuple[MapID, ControlMapElement_MODIFIED]], filtered_ctrl_map
-    )
-
-    overall_fade_seq = []
-    for _, frame in filtered_ctrl_map:
-        active_dancers = [
-            dancer
-            for dancer, parts in frame.status.items()
-            if any(part is not None for part in parts.values())
-        ]
-
-        if active_dancers:
-            is_generated = all(
-                not state.show_dancers[state.dancer_names.index(dancer)]
-                for dancer in active_dancers
-            )
-
-            if is_generated:
-                overall_fade_seq.append(
-                    (frame.start, frame.fade_for_new_status, KeyframeType.GENERATED)
-                )
-            else:
-                overall_fade_seq.append(
-                    (frame.start, frame.fade_for_new_status, KeyframeType.NORMAL)
-                )
-
-        else:
-            overall_fade_seq.append(
-                (frame.start, frame.fade_for_new_status, KeyframeType.BREAKDOWN)
-            )
-
-    state.overall_fade_sequence = overall_fade_seq
-
-    """setup fade for each dancer"""
-    dancer_fade_sequence = {}
-    for dancer_name in state.dancer_names:
-        # fade sequence for the selected part object (with parital load)
-        filtered_ctrl_map = cast(
-            list[tuple[MapID, ControlMapElement_MODIFIED]],
-            get_filtered_map_for_second_timeline(
-                frame_range_l,
-                frame_range_r,
-                filtered_ctrl_map_start,
-                filtered_ctrl_map_end,
-                sorted_ctrl_map,
-                dancer_name,
-                "CONTROL",
-            ),
+        (
+            filtered_start_index,
+            filtered_end_index,
+        ) = get_filtered_index_for_first_timeline(
+            selected_start_time,
+            selected_end_time,
+            sorted_frame_ctrl_map,
         )
 
-        part_fade_seq = []
-        for _, frame in filtered_ctrl_map:
-            active_parts = [
-                part for part in frame.status[dancer_name].values() if part is not None
-            ]
+        overall_fade_seq: FadeSequence = {}
+        for id, frame in sorted_ctrl_map[filtered_start_index : filtered_end_index + 1]:
+            overall_fade_seq[id] = get_overall_fade_seq_for_frame(frame)
 
-            if active_parts:
-                part_fade_seq.append(
-                    (
+        sorted_overall_fade_seq_list = sorted(
+            [seq for seq in overall_fade_seq.values()], key=lambda x: x[0]
+        )
+
+        first_obj = bpy.data.objects.get("[0]control_frame")
+        if not first_obj:
+            add_obj(
+                "[0]control_frame",
+                "control_frameAction",
+                "CONTROL",
+                "ld_fade_seq",
+                sorted_overall_fade_seq_list,
+            )
+
+        else:
+            action = ensure_action(first_obj, "control_frameAction")
+            draw_fade_on_curve(action, "ld_fade_seq", sorted_overall_fade_seq_list)
+
+        state.fade_sequence_map["Overall"] = overall_fade_seq
+        state.fade_load_frames["Overall"] = get_load_range(
+            sorted_ctrl_map,
+            filtered_start_index,
+            filtered_end_index,
+            selected_start_time,
+            selected_end_time,
+        )
+
+        """setup fade for each dancer"""
+        for dancer_name in state.dancer_names:
+            # fade sequence for the selected part object (with parital load)
+            (
+                dancer_filtered_start_index,
+                dancer_filtered_end_index,
+            ) = cast(
+                tuple[int, int],
+                get_filtered_index_for_second_timeline(
+                    selected_start_time,
+                    selected_end_time,
+                    filtered_start_index,
+                    filtered_end_index,
+                    sorted_ctrl_map,
+                    dancer_name,
+                    "CONTROL",
+                ),
+            )
+
+            dancer_fade_seq = {}
+            for id, frame in sorted_ctrl_map[
+                dancer_filtered_start_index : dancer_filtered_end_index + 1
+            ]:
+                active_parts = [
+                    part
+                    for part in frame.status[dancer_name].values()
+                    if part is not None
+                ]
+
+                if active_parts:
+                    dancer_fade_seq[id] = (
                         frame.start,
                         any(part.fade for part in active_parts),
                         KeyframeType.NORMAL,
                     )
-                )
 
-        dancer_fade_sequence[dancer_name] = part_fade_seq
-
-    state.dancer_fade_sequence_map = dancer_fade_sequence
-
-    first_obj = bpy.data.objects.get("[0]control_frame")
-    if not first_obj:
-        add_obj(
-            "[0]control_frame",
-            "control_frameAction",
-            "CONTROL",
-            "ld_fade_seq",
-            state.overall_fade_sequence,
-        )
-
-    else:
-        action = ensure_action(first_obj, "control_frameAction")
-        draw_fade_on_curve(action, "ld_fade_seq", state.overall_fade_sequence)
+            state.fade_sequence_map[dancer_name] = dancer_fade_seq
+            state.fade_load_frames[dancer_name] = get_load_range(
+                sorted_ctrl_map,
+                dancer_filtered_start_index,
+                dancer_filtered_end_index,
+                selected_start_time,
+                selected_end_time,
+            )
 
 
-def update_pos_seq_from_state():
+def init_pos_seq_from_state():
     sorted_pos_map = sorted(
         state.pos_map_MODIFIED.items(), key=lambda item: item[1].start
     )
     sorted_frame_pos_map = [item[1].start for item in sorted_pos_map]
 
-    """setup pos for pos frame"""
-    # pos_map for pos frame (with partial load)
-    frame_range_l, frame_range_r = state.dancer_load_frames
-    (
-        filtered_pos_map_start,
-        filtered_pos_map_end,
-        filtered_pos_map,
-    ) = get_filtered_map_for_first_timeline(  # type: ignore
-        frame_range_l, frame_range_r, sorted_pos_map, sorted_frame_pos_map, True
-    )
+    if sorted_pos_map:
+        """setup pos for pos frame"""
+        # pos_map for pos frame (with partial load)
+        selected_start_time, selected_end_time = state.dancer_load_frames
+        (
+            filtered_start_index,
+            filtered_end_index,
+        ) = get_filtered_index_for_first_timeline(
+            selected_start_time, selected_end_time, sorted_frame_pos_map
+        )
 
-    filtered_pos_map = cast(list[tuple[MapID, PosMapElement]], filtered_pos_map)
+        pos_start_record: PosSequence = {}
+        for id, frame in sorted_pos_map[filtered_start_index : filtered_end_index + 1]:
+            pos_start_record[id] = get_overall_pos_seq_for_frame(frame)
 
-    pos_start_record = []
-    for _, frame in filtered_pos_map:
-        active_dancers = [
-            dancer for dancer, pos in frame.pos.items() if pos is not None
-        ]
-        if active_dancers:
-            is_generated = all(
-                not state.show_dancers[state.dancer_names.index(dancer)]
-                for dancer in active_dancers
+        sorted_pos_start_record_list = sorted(
+            [seq for seq in pos_start_record.values()], key=lambda x: x[0]
+        )
+
+        first_obj = bpy.data.objects.get("[0]pos_frame")
+        if not first_obj:
+            add_obj(
+                "[0]pos_frame",
+                "pos_frameAction",
+                "POS",
+                "ld_pos_seq",
+                sorted_pos_start_record_list,
             )
 
-            if is_generated:
-                pos_start_record.append((frame.start, KeyframeType.GENERATED))
-            else:
-                pos_start_record.append((frame.start, KeyframeType.NORMAL))
-
         else:
-            pos_start_record.append((frame.start, KeyframeType.BREAKDOWN))
+            action = ensure_action(first_obj, "pos_frameAction")
+            draw_pos_on_curve(action, "ld_pos_seq", sorted_pos_start_record_list)
 
-    state.overall_pos_sequence = pos_start_record
+        state.pos_sequence_map["Overall"] = pos_start_record
+        state.fade_load_frames["Overall"] = get_load_range(
+            sorted_pos_map,
+            filtered_start_index,
+            filtered_end_index,
+            selected_start_time,
+            selected_end_time,
+        )
 
-    """setup pos for selected dancer"""
-    dancer_pos_seq = {}
-    for dancer_name in state.dancer_names:
-        # pos map for selected dancer (with partial load)
-        filtered_pos_map = cast(
-            list[tuple[MapID, PosMapElement]],
-            get_filtered_map_for_second_timeline(
-                frame_range_l,
-                frame_range_r,
-                filtered_pos_map_start,
-                filtered_pos_map_end,
+        """setup pos for selected dancer"""
+        for dancer_name in state.dancer_names:
+            # pos map for selected dancer (with partial load)
+            (
+                dancer_filtered_start_index,
+                dancer_filtered_end_index,
+            ) = cast(
+                tuple[int, int],
+                get_filtered_index_for_second_timeline(
+                    selected_start_time,
+                    selected_end_time,
+                    filtered_start_index,
+                    filtered_end_index,
+                    sorted_pos_map,
+                    dancer_name,
+                    "POS",
+                ),
+            )
+
+            dancer_pos_start_record = {}
+            for id, frame in sorted_pos_map[
+                dancer_filtered_start_index : dancer_filtered_end_index + 1
+            ]:
+                if frame.pos[dancer_name] is not None:
+                    dancer_pos_start_record[id] = (frame.start, KeyframeType.NORMAL)
+
+            state.pos_sequence_map[dancer_name] = dancer_pos_start_record
+            state.pos_load_frames[dancer_name] = get_load_range(
                 sorted_pos_map,
-                dancer_name,
-                "POS",
-            ),
-        )
-
-        dancer_pos_start_record = [
-            (frame.start, KeyframeType.NORMAL)
-            for _, frame in filtered_pos_map
-            if frame.pos[dancer_name] is not None
-        ]
-
-        dancer_pos_seq[dancer_name] = dancer_pos_start_record
-
-    state.dancer_pos_sequence_map = dancer_pos_seq
-
-    first_obj = bpy.data.objects.get("[0]pos_frame")
-    if not first_obj:
-        add_obj(
-            "[0]pos_frame",
-            "pos_frameAction",
-            "POS",
-            "ld_pos_seq",
-            state.overall_pos_sequence,
-        )
-
-    else:
-        action = ensure_action(first_obj, "pos_frameAction")
-        draw_pos_on_curve(action, "ld_pos_seq", state.overall_pos_sequence)
+                dancer_filtered_start_index,
+                dancer_filtered_end_index,
+                selected_start_time,
+                selected_end_time,
+            )
 
 
 def setup_seq_map():
-    update_fade_seq_from_state()
-    update_pos_seq_from_state()
+    init_fade_seq_from_state()
+    init_pos_seq_from_state()
+
+
+def update_fade_seq():
+    # init_fade_seq_from_state()
+
+    """Can pass in these params from the func apply_control_map_updates() for state.control_map_updates_MODIFIED after it is implemented"""
+    control_map_updates = state.control_map_updates_MODIFIED
+    updated = sorted(
+        [
+            (start, id, frame)
+            for id, (start, frame) in control_map_updates.updated.items()
+            if id not in state.not_loaded_control_frames
+        ],
+        key=lambda x: x[0],
+    )
+    added = sorted(
+        [
+            (id, frame)
+            for id, frame in control_map_updates.added.items()
+            if id not in state.not_loaded_control_frames
+        ],
+        key=lambda x: x[1].start,
+    )
+    deleted = sorted(
+        [(start, id) for id, start in control_map_updates.deleted.items()],
+        key=lambda x: x[0],
+    )
+
+    fade_seq_map = state.fade_sequence_map
+
+    for _, id, frame in updated:
+        for name, fade_seq in fade_seq_map.items():
+            if name == "Overall":
+                fade_seq[id] = get_overall_fade_seq_for_frame(frame)
+
+            else:
+                active_parts = [
+                    part for part in frame.status[name].values() if part is not None
+                ]
+
+                if active_parts:
+                    fade_seq[id] = (
+                        frame.start,
+                        any(part.fade for part in active_parts),
+                        KeyframeType.NORMAL,
+                    )
+
+    for id, frame in added:
+        for name, fade_seq in fade_seq_map.items():
+            if name == "Overall":
+                fade_seq[id] = get_overall_fade_seq_for_frame(frame)
+
+            else:
+                active_parts = [
+                    part for part in frame.status[name].values() if part is not None
+                ]
+
+                if active_parts:
+                    fade_seq[id] = (
+                        frame.start,
+                        any(part.fade for part in active_parts),
+                        KeyframeType.NORMAL,
+                    )
+
+    for _, id in deleted:
+        for fade_seq in fade_seq_map.values():
+            fade_seq.pop(id, None)
+
+    return
+
+
+def update_pos_seq(
+    updated: list[tuple[int, MapID, PosMapElement]],
+    added: list[tuple[MapID, PosMapElement]],
+    deleted: list[tuple[int, MapID]],
+):
+    pos_seq_map = state.pos_sequence_map
+
+    for _, id, frame in updated:
+        for name, pos_seq in pos_seq_map.items():
+            if name == "Overall":
+                pos_seq[id] = get_overall_pos_seq_for_frame(frame)
+
+            else:
+                if frame.pos[name] is not None:
+                    pos_seq[id] = (frame.start, KeyframeType.NORMAL)
+
+    for id, frame in added:
+        for name, pos_seq in pos_seq_map.items():
+            if name == "Overall":
+                pos_seq[id] = get_overall_pos_seq_for_frame(frame)
+
+            else:
+                if frame.pos[name] is not None:
+                    pos_seq[id] = (frame.start, KeyframeType.NORMAL)
+
+    for _, id in deleted:
+        for pos_seq in pos_seq_map.values():
+            pos_seq.pop(id, None)
+
+    return
