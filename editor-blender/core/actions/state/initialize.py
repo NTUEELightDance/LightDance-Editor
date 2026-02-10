@@ -422,8 +422,9 @@ async def init_control_map():
         raise Exception("Failed to initialize control map")
 
     state.control_map = control_map
-    state.control_record = control_record
-    state.control_start_record = [control_map[id].start for id in control_record]
+    # FIXME: Uncomment this after test
+    # state.control_record = control_record
+    # state.control_start_record = [control_map[id].start for id in control_record]
 
     # FIXME: delete this after test
     from ....core.utils.for_dev_only.tmp_format_conv import sync_new_ctrl_map_from_old

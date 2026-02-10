@@ -1,5 +1,13 @@
 from ...log import logger
-from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, MapID
+from ...models import (
+    ControlMap,
+    ControlMap_MODIFIED,
+    ControlMapElement,
+    ControlMapElement_MODIFIED,
+    ControlRecord,
+    EditMode,
+    MapID,
+)
 from ...states import state
 from ...utils.convert import control_modify_to_animation_data
 from ...utils.notification import notify
@@ -12,18 +20,18 @@ from ..property.animation_data import (
 from .current_status import calculate_current_status_index
 
 
-def set_control_map(control_map: ControlMap):
-    state.control_map = control_map
+def set_control_map(control_map: ControlMap_MODIFIED):
+    state.control_map_MODIFIED = control_map
 
 
 def set_control_record(control_record: ControlRecord):
     state.control_record = control_record
 
 
-def add_control(id: MapID, frame: ControlMapElement):
+def add_control(id: MapID, frame: ControlMapElement_MODIFIED):
     logger.info(f"Add control {id} at {frame.start}")
 
-    control_map_updates = state.control_map_updates
+    control_map_updates = state.control_map_updates_MODIFIED
     control_map_updates.added[id] = frame
 
     if (

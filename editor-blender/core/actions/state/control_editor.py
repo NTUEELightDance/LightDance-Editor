@@ -69,6 +69,9 @@ def sync_editing_control_frame_properties():
                 part_obj = part_objs[part_index]
                 part_type = getattr(part_obj, "ld_light_type")
 
+                ld_no_effect: bool = getattr(part_obj, "ld_is_none")
+                if not ld_no_effect:
+                    continue
                 # Re-trigger update
                 if part_type == LightType.FIBER.value:
                     ld_alpha: int = getattr(part_obj, "ld_alpha")
@@ -238,13 +241,14 @@ async def save_control_frame(start: int | None = None):
 
     with send_request():
         try:
-            await control_agent.save_frame(
-                id, controlData, ledControlData=ledControlData, fade=fade, start=start
-            )
+            # await control_agent.save_frame(
+            #     id, controlData, ledControlData=ledControlData, fade=fade, start=start
+            # )
             notify("INFO", "Saved control frame")
 
             # Cancel editing
-            ok = await control_agent.cancel_edit(id)
+            ok = True
+            # ok = await control_agent.cancel_edit(id)
 
             if ok is not None and ok:
                 # Reset editing state
@@ -296,14 +300,15 @@ async def request_edit_control() -> bool:
 
     index = state.current_control_index
     control_id = state.control_record[index]
-    control_frame = state.control_map[control_id]
+    control_frame = state.control_map_MODIFIED[control_id]
 
     ok = None
     with send_request():
-        try:
-            ok = await control_agent.request_edit(control_id)
-        except Exception as e:
-            logger.exception(f"Failed to request edit control frame: {e}")
+        ok = True
+        # try:
+        #     ok = await control_agent.request_edit(control_id)
+        # except Exception as e:
+        #     logger.exception(f"Failed to request edit control frame: {e}")
 
     if ok is not None and ok:
         # Init editing state
@@ -329,7 +334,8 @@ async def cancel_edit_control():
 
     with send_request():
         try:
-            ok = await control_agent.cancel_edit(id)
+            ok = True
+            # ok = await control_agent.cancel_edit(id)
 
             if ok is not None and ok:
                 # Revert modification
