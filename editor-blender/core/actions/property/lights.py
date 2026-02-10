@@ -33,6 +33,10 @@ def update_current_color(self: bpy.types.Object, context: bpy.types.Context):
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
 
+    ld_is_none: bool = getattr(self, "ld_is_none")
+    if ld_is_none:
+        return
+
     ld_alpha: int = getattr(self, "ld_alpha")
 
     if (ld_light_type := getattr(self, "ld_light_type")) == LightType.LED.value:
@@ -58,6 +62,10 @@ def update_current_color(self: bpy.types.Object, context: bpy.types.Context):
 
 def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
+        return
+
+    ld_is_none: bool = getattr(self, "ld_is_none")
+    if ld_is_none:
         return
 
     effect_id: int = self["ld_effect"]
@@ -113,6 +121,10 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
 def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
+        return
+
+    ld_is_none: bool = getattr(self, "ld_is_none")
+    if ld_is_none:
         return
 
     ld_light_type: str = getattr(self, "ld_light_type")

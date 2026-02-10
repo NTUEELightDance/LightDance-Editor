@@ -25,6 +25,13 @@ def draw_dancer_parts(
         elif ld_light_type == LightType.LED.value:
             leds.append(part)
 
+    ld_is_none: bool = getattr(dancer_obj.children[0], "ld_is_none")
+    if ld_is_none:
+        row = layout.row()
+        row.label(text="Current Dancer Has No Status")
+        row = layout.row()
+        row.label(text="Prev Status:")
+
     if ui_status.show_fiber or ui_status.show_all:
         for part in fibers:
             row = layout.row()
@@ -44,6 +51,205 @@ def draw_dancer_parts(
                 setattr(op, "led_obj_name", part.name)
             else:
                 row.prop(part, "ld_alpha", text="", slider=True)
+
+
+def _draw_control_status(
+    layout: bpy.types.UILayout,
+    context: bpy.types.Context,
+    ld_object_type: object,
+    properties_enabled: bool,
+    obj,
+    ld_ui_control_editor,
+):
+    if ld_object_type == ObjectType.LIGHT.value:
+        ld_part_name: str = getattr(context.object, "ld_part_name")
+        row = layout.row()
+        row.label(text=ld_part_name, icon="OBJECT_DATA")
+
+        # show properties of light
+        box = layout.box()
+        column = box.column()
+        column.enabled = properties_enabled
+
+        ld_dancer_name = getattr(context.object, "ld_dancer_name")
+        ld_is_none: bool = getattr(context.object, "ld_is_none")
+        ld_light_type: str = getattr(context.object, "ld_light_type")
+
+        if ld_light_type == LightType.FIBER.value:
+            if ld_is_none:
+                column.label(text=f"No Effect")
+                column.prop(context.object, "ld_color", text="Prev Color")
+                column.prop(context.object, "ld_alpha", text="Prev Alpha", slider=True)
+                column.prop(context.object, "ld_fade", text="Prev Fade")
+            else:
+                column.prop(context.object, "ld_color", text="Color")
+                column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                column.prop(context.object, "ld_fade", text="Fade")
+        elif ld_light_type == LightType.LED.value:
+            if ld_is_none:
+                column.label(text=f"No Effect")
+                column.prop(
+                    context.object,
+                    "ld_effect",
+                    text="Prev Effect",
+                    icon="LIGHTPROBE_VOLUME",
+                )
+                column.prop(context.object, "ld_alpha", text="Prev Alpha", slider=True)
+                if context.object and context.object["ld_effect"] == 0:
+                    op = column.operator(
+                        "lightdance.toggle_led_focus",
+                        text="Unfocus" if state.local_view else "Focus",
+                        icon="VIEWZOOM",
+                    )
+                    setattr(op, "led_obj_name", context.object.name)
+                column.prop(context.object, "ld_fade", text="Prev Fade")
+            else:
+                column.prop(
+                    context.object,
+                    "ld_effect",
+                    text="Effect",
+                    icon="LIGHTPROBE_VOLUME",
+                )
+                column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                if context.object and context.object["ld_effect"] == 0:
+                    op = column.operator(
+                        "lightdance.toggle_led_focus",
+                        text="Unfocus" if state.local_view else "Focus",
+                        icon="VIEWZOOM",
+                    )
+                    setattr(op, "led_obj_name", context.object.name)
+                column.prop(context.object, "ld_fade", text="Fade")
+        elif (
+            ld_light_type == LightType.LED_BULB.value
+            and context.object
+            and context.object.parent
+        ):
+            if ld_is_none:
+                row = column.row()
+                column.label(text=f"No Effect")
+                row.prop(
+                    context.object.parent,
+                    "ld_effect",
+                    text="Prev Effect",
+                    icon="LIGHTPROBE_VOLUME",
+                )
+                row.prop(context.object, "ld_color", text="Prev Color")
+                row.prop(context.object, "ld_alpha", text="Prev Alpha", slider=True)
+                column.prop(context.object, "ld_fade", text="Prev Fade")
+            else:
+                row = column.row()
+                row.prop(
+                    context.object.parent,
+                    "ld_effect",
+                    text="Effect",
+                    icon="LIGHTPROBE_VOLUME",
+                )
+                row.prop(context.object, "ld_color", text="Color")
+                row.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+                row = column.row()
+                op = row.operator(
+                    "lightdance.toggle_led_focus",
+                    text="Unfocus" if state.local_view else "Focus",
+                    icon="VIEWZOOM",
+                )
+                setattr(op, "led_obj_name", context.object.parent.name)
+                column.prop(context.object, "ld_fade", text="Fade")
+
+    elif ld_object_type == ObjectType.DANCER.value:
+        ld_dancer_name: str = getattr(context.object, "ld_dancer_name")
+        row = layout.row()
+        row.label(text=ld_dancer_name, icon="POSE_HLT")
+
+        row = layout.row(align=True)
+        row.prop(ld_ui_control_editor, "show_fiber", toggle=True, text="FIBER")
+        row.prop(ld_ui_control_editor, "show_led", toggle=True, text="LED")
+        row.prop(ld_ui_control_editor, "show_all", toggle=True, text="ALL")
+
+        box = layout.box()
+        box.enabled = properties_enabled
+        draw_dancer_parts(box, obj, ld_ui_control_editor)
+
+
+def _draw_editing_control_status(
+    layout: bpy.types.UILayout,
+    context: bpy.types.Context,
+    ld_object_type: object,
+    properties_enabled: bool,
+    obj,
+    ld_ui_control_editor,
+):
+    if ld_object_type == ObjectType.LIGHT.value:
+        ld_part_name: str = getattr(context.object, "ld_part_name")
+        row = layout.row()
+        row.label(text=ld_part_name, icon="OBJECT_DATA")
+
+        # show properties of light
+        box = layout.box()
+        column = box.column()
+        column.enabled = properties_enabled
+
+        ld_dancer_name = getattr(context.object, "ld_dancer_name")
+        ld_light_type: str = getattr(context.object, "ld_light_type")
+
+        if ld_light_type == LightType.FIBER.value:
+            column.prop(context.object, "ld_color", text="Color")
+            column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+            column.prop(context.object, "ld_fade", text="Fade")
+            column.prop(context.object, "ld_is_none", text="Set No Status")
+        elif ld_light_type == LightType.LED.value:
+            column.prop(
+                context.object,
+                "ld_effect",
+                text="Effect",
+                icon="LIGHTPROBE_VOLUME",
+            )
+            column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+            if context.object and context.object["ld_effect"] == 0:
+                op = column.operator(
+                    "lightdance.toggle_led_focus",
+                    text="Unfocus" if state.local_view else "Focus",
+                    icon="VIEWZOOM",
+                )
+                setattr(op, "led_obj_name", context.object.name)
+            column.prop(context.object, "ld_fade", text="Fade")
+            column.prop(context.object, "ld_is_none", text="Set No Status")
+        elif (
+            ld_light_type == LightType.LED_BULB.value
+            and context.object
+            and context.object.parent
+        ):
+            row = column.row()
+            row.prop(
+                context.object.parent,
+                "ld_effect",
+                text="Effect",
+                icon="LIGHTPROBE_VOLUME",
+            )
+            row.prop(context.object, "ld_color", text="Color")
+            row.prop(context.object, "ld_alpha", text="Alpha", slider=True)
+            row = column.row()
+            op = row.operator(
+                "lightdance.toggle_led_focus",
+                text="Unfocus" if state.local_view else "Focus",
+                icon="VIEWZOOM",
+            )
+            setattr(op, "led_obj_name", context.object.parent.name)
+            column.prop(context.object, "ld_fade", text="Fade")
+            column.prop(context.object, "ld_is_none", text="Set No Status")
+
+    elif ld_object_type == ObjectType.DANCER.value:
+        ld_dancer_name: str = getattr(context.object, "ld_dancer_name")
+        row = layout.row()
+        row.label(text=ld_dancer_name, icon="POSE_HLT")
+
+        row = layout.row(align=True)
+        row.prop(ld_ui_control_editor, "show_fiber", toggle=True, text="FIBER")
+        row.prop(ld_ui_control_editor, "show_led", toggle=True, text="LED")
+        row.prop(ld_ui_control_editor, "show_all", toggle=True, text="ALL")
+
+        box = layout.box()
+        box.enabled = properties_enabled
+        draw_dancer_parts(box, obj, ld_ui_control_editor)
 
 
 class ControlEditor(bpy.types.Panel):
@@ -88,7 +294,7 @@ class ControlEditor(bpy.types.Panel):
 
         row = split.row()
         row.label(text="Fade: ")
-        row.prop(context.window_manager, "ld_fade", text="")
+        row.prop(context.window_manager, "ld_default_fade", text="")
         row.enabled = editing
 
         if state.current_editing_detached and editing:
@@ -139,70 +345,24 @@ class ControlEditor(bpy.types.Panel):
 
             ld_object_type: str = getattr(obj, "ld_object_type")
 
-            if ld_object_type == ObjectType.LIGHT.value:
-                ld_part_name: str = getattr(context.object, "ld_part_name")
-                row = layout.row()
-                row.label(text=ld_part_name, icon="OBJECT_DATA")
-
-                # show properties of light
-                box = layout.box()
-                column = box.column()
-                column.enabled = properties_enabled
-
-                ld_light_type: str = getattr(context.object, "ld_light_type")
-                if ld_light_type == LightType.FIBER.value:
-                    column.prop(context.object, "ld_color", text="Color")
-                    column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
-                elif ld_light_type == LightType.LED.value:
-                    column.prop(
-                        context.object,
-                        "ld_effect",
-                        text="Effect",
-                        icon="LIGHTPROBE_VOLUME",
-                    )
-                    column.prop(context.object, "ld_alpha", text="Alpha", slider=True)
-                    if context.object and context.object["ld_effect"] == 0:
-                        op = column.operator(
-                            "lightdance.toggle_led_focus",
-                            text="Unfocus" if state.local_view else "Focus",
-                            icon="VIEWZOOM",
-                        )
-                        setattr(op, "led_obj_name", context.object.name)
-                elif (
-                    ld_light_type == LightType.LED_BULB.value
-                    and context.object
-                    and context.object.parent
-                ):
-                    row = column.row()
-                    row.prop(
-                        context.object.parent,
-                        "ld_effect",
-                        text="Effect",
-                        icon="LIGHTPROBE_VOLUME",
-                    )
-                    row.prop(context.object, "ld_color", text="Color")
-                    row.prop(context.object, "ld_alpha", text="Alpha", slider=True)
-                    row = column.row()
-                    op = row.operator(
-                        "lightdance.toggle_led_focus",
-                        text="Unfocus" if state.local_view else "Focus",
-                        icon="VIEWZOOM",
-                    )
-                    setattr(op, "led_obj_name", context.object.parent.name)
-
-            elif ld_object_type == ObjectType.DANCER.value:
-                ld_dancer_name: str = getattr(context.object, "ld_dancer_name")
-                row = layout.row()
-                row.label(text=ld_dancer_name, icon="POSE_HLT")
-
-                row = layout.row(align=True)
-                row.prop(ld_ui_control_editor, "show_fiber", toggle=True, text="FIBER")
-                row.prop(ld_ui_control_editor, "show_led", toggle=True, text="LED")
-                row.prop(ld_ui_control_editor, "show_all", toggle=True, text="ALL")
-
-                box = layout.box()
-                box.enabled = properties_enabled
-                draw_dancer_parts(box, obj, ld_ui_control_editor)
+            if editing:
+                _draw_editing_control_status(
+                    layout,
+                    context,
+                    ld_object_type,
+                    properties_enabled,
+                    obj,
+                    ld_ui_control_editor,
+                )
+            else:
+                _draw_control_status(
+                    layout,
+                    context,
+                    ld_object_type,
+                    properties_enabled,
+                    obj,
+                    ld_ui_control_editor,
+                )
 
 
 def register():

@@ -7,6 +7,7 @@ from ...states import state
 from ...utils.algorithms import binary_search
 
 
+# FIXME: Delete this after start record is fixed
 def _pos_frame_starts() -> list[int | None]:
     """
     Return a list aligned with pos_record containing frame start times.
@@ -29,16 +30,17 @@ def increase_frame_index():
 
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            sorted_ctrl_frames = sorted(
-                [item[1].start for item in state.control_map.items()]
-            )
+            sorted_ctrl_frames = state.control_start_record
             current_frame_index = state.current_control_index
 
             if current_frame_index < len(state.control_record) - 1:
-                if (
-                    sorted_ctrl_frames[current_frame_index + 1]
-                    > state.dancer_load_frames[1]
-                ):
+                next_index = current_frame_index + 1
+                next_start = (
+                    sorted_ctrl_frames[next_index]
+                    if next_index < len(sorted_ctrl_frames)
+                    else None
+                )
+                if next_start is not None and next_start > state.dancer_load_frames[1]:
                     return
                 setattr(
                     bpy.context.window_manager,
@@ -72,12 +74,15 @@ def decrease_frame_index():
         return
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            sorted_ctrl_frames = sorted(
-                [item[1].start for item in state.control_map.items()]
-            )
+            sorted_ctrl_frames = state.control_start_record
             current_frame_index = state.current_control_index
 
             if current_frame_index > 0:
+                current_start = (
+                    sorted_ctrl_frames[current_frame_index]
+                    if current_frame_index < len(sorted_ctrl_frames)
+                    else None
+                )
                 if (
                     sorted_ctrl_frames[current_frame_index]
                     <= state.dancer_load_frames[0]

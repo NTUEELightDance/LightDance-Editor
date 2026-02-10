@@ -39,10 +39,22 @@ frames = []
 position_frame: PosMap = {}
 control_frame: ControlMap_MODIFIED = {}
 
+
+def default_effect(dancer_name, part_name):
+    for model_array_item in state.models_array:
+        model_name = model_array_item.name
+        model_dancers = model_array_item.dancers
+        if dancer_name in model_dancers:
+            return list(state.led_map[model_name][part_name].values())[2].id
+    return -1
+
+
+def default_led(dancer_name, part_name):
+    return LEDData(effect_id=default_effect(dancer_name, part_name), alpha=255)
+
+
 default_color = list(state.color_map.keys())[2]
-default_effect = list(state.led_effect_id_table.keys())[2]
 default_fiber = FiberData(color_id=default_color, alpha=255)
-default_led = LEDData(effect_id=default_effect, alpha=255)
 
 
 def default_position(i: int):
@@ -89,7 +101,14 @@ def _create_frames():
             pos[dancer] = None
             status[dancer] = {}
             for part in state.dancers[dancer]:
-                status[dancer][part] = None
+                if state.part_type_map[part] == PartType.FIBER:
+                    status[dancer][part] = CtrlData(
+                        part_data=default_fiber, bulb_data=[], fade=False
+                    )
+                else:
+                    status[dancer][part] = CtrlData(
+                        part_data=default_led(dancer, part), bulb_data=[], fade=False
+                    )
 
         position_frame[id] = PosMapElement(start=start, rev=_random_revision(), pos=pos)
         control_frame[id] = ControlMapElement_MODIFIED(
@@ -132,66 +151,76 @@ def _matching(file: File, chr: str):
                         part_index = 0
                         continue
                     dancer = state.dancer_names[dancer_index]
-                    part = state.dancers[dancer][part_index]
+                    for part in state.dancers[dancer]:
+                        if new_lines[0] in ["X", "O", "O-"]:
+                            for index, stat in enumerate(new_lines):
+                                if stat == "X":
+                                    control_frame[index].status[dancer][part] = None
+                                    continue
+                                if dancer_index == -1:
+                                    control_frame[index].fade_for_new_status = True
+                                    continue
 
-                    if new_lines[0] in ["X", "O", "O-"]:
-                        for index, stat in enumerate(new_lines):
-                            if stat == "X":
-                                continue
-                            if dancer_index == -1:
-                                control_frame[index].fade_for_new_status = True
-                                continue
-
-                            if state.part_type_map[part] == PartType.FIBER:
-                                if stat == "O-":
-                                    control_frame[index].status[dancer][
-                                        part
-                                    ] = CtrlData(
-                                        part_data=default_fiber, bulb_data=[], fade=True
-                                    )
+                                if state.part_type_map[part] == PartType.FIBER:
+                                    if stat == "O-":
+                                        control_frame[index].status[dancer][
+                                            part
+                                        ] = CtrlData(
+                                            part_data=default_fiber,
+                                            bulb_data=[],
+                                            fade=True,
+                                        )
+                                    else:
+                                        control_frame[index].status[dancer][
+                                            part
+                                        ] = CtrlData(
+                                            part_data=default_fiber,
+                                            bulb_data=[],
+                                            fade=False,
+                                        )
                                 else:
-                                    control_frame[index].status[dancer][
-                                        part
-                                    ] = CtrlData(
-                                        part_data=default_fiber,
-                                        bulb_data=[],
-                                        fade=False,
-                                    )
-                            else:
-                                if stat == "O-":
-                                    control_frame[index].status[dancer][
-                                        part
-                                    ] = CtrlData(
-                                        part_data=default_led, bulb_data=[], fade=True
-                                    )
-                                else:
-                                    control_frame[index].status[dancer][
-                                        part
-                                    ] = CtrlData(
-                                        part_data=default_led, bulb_data=[], fade=False
-                                    )
-                    else:
-                        fade = False
-                        for index in new_lines:
+                                    if stat == "O-":
+                                        control_frame[index].status[dancer][
+                                            part
+                                        ] = CtrlData(
+                                            part_data=default_led(dancer, part),
+                                            bulb_data=[],
+                                            fade=True,
+                                        )
+                                    else:
+                                        control_frame[index].status[dancer][
+                                            part
+                                        ] = CtrlData(
+                                            part_data=default_led(dancer, part),
+                                            bulb_data=[],
+                                            fade=False,
+                                        )
+                        else:
                             fade = False
-                            num = index
-                            if index[-1] == "-":
-                                num = index[:-1]
-                                fade = True
+                            for index in new_lines:
+                                fade = False
+                                num = index
+                                if index[-1] == "-":
+                                    num = index[:-1]
+                                    fade = True
 
-                            if dancer_index == -1:
-                                control_frame[int(num)].fade_for_new_status = True
+                                if dancer_index == -1:
+                                    control_frame[int(num)].fade_for_new_status = True
 
-                            if state.part_type_map[part] == PartType.FIBER:
-                                control_frame[int(num)].status[dancer][part] = CtrlData(
-                                    part_data=default_fiber, bulb_data=[], fade=fade
-                                )
-                            else:
-                                control_frame[int(num)].status[dancer][part] = CtrlData(
-                                    part_data=default_led, bulb_data=[], fade=fade
-                                )
-
-                    part_index += 1
+                                if state.part_type_map[part] == PartType.FIBER:
+                                    control_frame[int(num)].status[dancer][
+                                        part
+                                    ] = CtrlData(
+                                        part_data=default_fiber, bulb_data=[], fade=fade
+                                    )
+                                else:
+                                    control_frame[int(num)].status[dancer][
+                                        part
+                                    ] = CtrlData(
+                                        part_data=default_led(dancer, part),
+                                        bulb_data=[],
+                                        fade=fade,
+                                    )
         case "p":
             dancer_index = 0
             with _read_new_strips(file) as read_strips:
@@ -232,27 +261,29 @@ def load_default_map() -> Optional[str]:
 
     state.pos_map_MODIFIED = position_frame
     state.control_map_MODIFIED = control_frame
-    state.pos_record = list(state.pos_map_MODIFIED.keys())
-    state.control_record = list(state.control_map_MODIFIED.keys())
-    state.pos_start_record = [item[1].start for item in state.pos_map_MODIFIED.items()]
-    state.control_start_record = [
-        item[1].start for item in state.control_map_MODIFIED.items()
-    ]
+    state.pos_record = sorted(list(state.pos_map_MODIFIED.keys()))
+    state.control_record = sorted(list(state.control_map_MODIFIED.keys()))
+    state.pos_start_record = sorted(
+        [item[1].start for item in state.pos_map_MODIFIED.items()]
+    )
+    state.control_start_record = sorted(
+        [item[1].start for item in state.control_map_MODIFIED.items()]
+    )
 
-    from ....core.log import logger
+    # from ....core.log import logger
 
-    print(f"Pos Map {state.pos_map_MODIFIED}")
+    # print(f"Pos Map {state.pos_map_MODIFIED}")
 
-    from copy import deepcopy
+    # from copy import deepcopy
 
-    test = deepcopy(state.control_map_MODIFIED)
-    for id, thing in test.items():
-        for dancer, things in state.control_map_MODIFIED[id].status.items():
-            for part, thingy in things.items():
-                if thingy is None:
-                    thing.status[dancer].pop(part)
+    # test = deepcopy(state.control_map_MODIFIED)
+    # for id, thing in test.items():
+    #     for dancer, things in state.control_map_MODIFIED[id].status.items():
+    #         for part, thingy in things.items():
+    #             if thingy is None:
+    #                 thing.status[dancer].pop(part)
 
-    print(f"Control Map {test}")
+    # print(f"Control Map {state.control_map_MODIFIED}")
 
 
 if __name__ == "__main__":

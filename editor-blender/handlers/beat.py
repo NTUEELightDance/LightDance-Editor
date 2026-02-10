@@ -145,7 +145,7 @@ def mount():
 
     # Enable handler
     beat_settings.handle_dope = bpy.types.SpaceDopeSheetEditor.draw_handler_add(
-        draw, (), "WINDOW", "POST_PIXEL"
+        draw, (), "WINDOW", "PRE_VIEW"
     )
 
     logger.info("Beatpoints loaded")

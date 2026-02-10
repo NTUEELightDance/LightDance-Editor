@@ -115,29 +115,40 @@ def set_effect(self: bpy.types.Object, value: int) -> None:
     self["ld_effect"] = value
 
 
-# def get_alpha(self: bpy.types.Object) -> int:
-#     if not state.ready:
-#         return 1
-#
-#     if state.edit_state == EditMode.EDITING:
-#         return cast(int, self.get("ld_alpha", 1))
-#
-#     ld_object_type: str = getattr(self, "ld_object_type")
-#     if ld_object_type == ObjectType.LIGHT.value:
-#         frame_index = state.current_control_index
-#         frame_id = state.control_record[frame_index]
-#
-#         ld_dancer_name: str = getattr(self, "ld_dancer_name")
-#         ld_part_name: str = getattr(self, "ld_part_name")
-#
-#         status = state.control_map[frame_id].status[ld_dancer_name][ld_part_name]
-#         return status.alpha
-#
-#     return 1
+def update_is_none(self: bpy.types.Object, context: bpy.types.Context) -> None:
+    """
+    On update ld_is_none, update every part of same dancer to same is_none
+    """
+    ld_dancer_name: str = getattr(self, "ld_dancer_name")
+    this_part_name: str = getattr(self, "ld_part_name")
+
+    this_is_none: bool = getattr(self, "ld_is_none")
+    part_map = state.dancer_part_objects_map[ld_dancer_name][1]
+    for part_name, part_obj in part_map.items():
+        if part_name == this_part_name:
+            continue
+
+        other_is_none = getattr(part_obj, "ld_is_none")
+        if other_is_none != this_is_none:
+            setattr(part_obj, "ld_is_none", this_is_none)
 
 
-# def set_alpha(self: bpy.types.Object, value: int) -> None:
-#     self["ld_alpha"] = value
+def update_fade(self: bpy.types.Object, context: bpy.types.Context) -> None:
+    """
+    On update ld_fade, update every part of same dancer to same fade
+    """
+    ld_dancer_name: str = getattr(self, "ld_dancer_name")
+    this_part_name: str = getattr(self, "ld_part_name")
+
+    this_fade: bool = getattr(self, "ld_fade")
+    part_map = state.dancer_part_objects_map[ld_dancer_name][1]
+    for part_name, part_obj in part_map.items():
+        if part_name == this_part_name:
+            continue
+
+        other_fade = getattr(part_obj, "ld_fade")
+        if other_fade != this_fade:
+            setattr(part_obj, "ld_fade", this_fade)
 
 
 def register():
@@ -210,6 +221,28 @@ def register():
             # get=get_alpha,
             # set=set_alpha,
             update=update_current_alpha,
+        ),
+    )
+
+    setattr(
+        bpy.types.Object,
+        "ld_is_none",
+        bpy.props.BoolProperty(
+            name="Set None",
+            description="Determine if the dancer in this frame has effect",
+            default=False,
+            update=update_is_none,
+        ),
+    )
+
+    setattr(
+        bpy.types.Object,
+        "ld_fade",
+        bpy.props.BoolProperty(
+            name="Fade",
+            description="Fade for the dancer of this frame",
+            default=False,
+            update=update_fade,
         ),
     )
 
