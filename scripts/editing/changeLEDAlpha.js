@@ -26,7 +26,7 @@ const updateFiberAlphaInDatabase = async () => {
                     type: TARGET_PART_TYPE,
                 },
                 dancer_id: {
-                    in: Array.from({ length: DANCER_COUNT }, (_, i) => i + 1),
+                    in: Array.from({ length: DANCER_COUNT }, (_, i) => i + 1), // [1, 2, 3, 4, 5]
                 },
             },
             data: {
