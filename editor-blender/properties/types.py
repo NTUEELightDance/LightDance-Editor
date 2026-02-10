@@ -16,6 +16,7 @@ class LightType(Enum):
 class PositionPropertyType:
     location: tuple[float, float, float]
     rotation: tuple[float, float, float]
+    is_none: bool
 
 
 class ColorPaletteItemType:
