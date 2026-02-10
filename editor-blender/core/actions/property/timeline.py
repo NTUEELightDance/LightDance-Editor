@@ -47,8 +47,18 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                 if num >= 0 and num < len(state.pos_record):
                     current_frame_index = num
                     current_frame_id = state.pos_record[current_frame_index]
-                    current_frame = state.pos_map[current_frame_id]
-                    start = current_frame.start
+                    current_frame = state.pos_map_MODIFIED.get(
+                        current_frame_id
+                    ) or state.pos_map.get(current_frame_id)
+
+                    if current_frame is not None:
+                        start = current_frame.start
+                    elif state.pos_start_record and len(state.pos_start_record) == len(
+                        state.pos_record
+                    ):
+                        start = state.pos_start_record[current_frame_index]
+                    else:
+                        return
 
                     if (
                         start < state.dancer_load_frames[0]

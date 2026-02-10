@@ -549,25 +549,50 @@ def pos_modify_to_animation_data(
             continue
         new_map[dancer.name] = ([], [], [])
 
-    for old_start, _ in pos_delete:
-        for _, dancer_item in enumerate(state.dancers_array):
-            if not show_dancer_dict[dancer_item.name]:
-                continue
-            dancer = dancer_item.name
-            new_map[dancer][0].append(old_start)
+    for old_start, id in pos_delete:
+        # Get the original frame to find which dancers have position data
+        original_frame = state.pos_map_MODIFIED.get(id)
+        if original_frame:
+            for dancer_item in state.dancers_array:
+                if not show_dancer_dict[dancer_item.name]:
+                    continue
+                if original_frame.pos[dancer_item.name] is None:
+                    continue
+                dancer = dancer_item.name
+                new_map[dancer][0].append(old_start)
+        else:
+            for _, dancer_item in enumerate(state.dancers_array):
+                if not show_dancer_dict[dancer_item.name]:
+                    continue
+                dancer = dancer_item.name
+                new_map[dancer][0].append(old_start)
 
     for old_start, _, frame in pos_update:
         pos_status = frame.pos
+        # Get the old frame to compare if data has actually changed
+        old_frame_id = None
+        for id, map_elem in state.pos_map_MODIFIED.items():
+            if map_elem.start == old_start:
+                old_frame_id = id
+                break
+
+        old_pos_status = (
+            state.pos_map_MODIFIED.get(old_frame_id).pos if old_frame_id else {}
+        )
+
         for _, dancer_item in enumerate(state.dancers_array):
             if not show_dancer_dict[dancer_item.name]:
                 continue
             pos = pos_status[dancer_item.name]
+            old_pos = old_pos_status.get(dancer_item.name) if old_frame_id else None
             dancer = dancer_item.name
 
-            location, rotation = None, None
-            if pos is None:
+            # Only add update if the position data has actually changed
+            if pos is None and old_pos is None:
+                continue
+            elif pos is None and old_pos is not None:
                 new_map[dancer][1].append((old_start, frame.start, None))
-            else:
+            elif pos is not None and old_pos is None:
                 location = (pos.location.x, pos.location.y, pos.location.z)
                 rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
                 new_map[dancer][1].append(
@@ -577,6 +602,28 @@ def pos_modify_to_animation_data(
                         (location, rotation),
                     )
                 )
+            else:
+                location = (pos.location.x, pos.location.y, pos.location.z)
+                rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
+                old_location = (
+                    old_pos.location.x,
+                    old_pos.location.y,
+                    old_pos.location.z,
+                )
+                old_rotation = (
+                    old_pos.rotation.rx,
+                    old_pos.rotation.ry,
+                    old_pos.rotation.rz,
+                )
+
+                if location != old_location or rotation != old_rotation:
+                    new_map[dancer][1].append(
+                        (
+                            old_start,
+                            frame.start,
+                            (location, rotation),
+                        )
+                    )
 
     for _, frame in pos_add:
         pos_status = frame.pos
@@ -584,6 +631,8 @@ def pos_modify_to_animation_data(
             if not show_dancer_dict[dancer_item.name]:
                 continue
             pos = pos_status[dancer_item.name]
+            if pos is None:
+                continue
             dancer = dancer_item.name
 
             if pos is None:
