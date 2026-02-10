@@ -586,7 +586,8 @@ impl ControlFrameMutation {
         .fetch_optional(mysql)
         .await?;
 
-        if let Some(editing_control_frame) = is_editing {
+        if is_editing.is_some() {
+            let editing_control_frame = is_editing.unwrap();
             let editing_user_id = editing_control_frame.user_id;
 
             if editing_user_id != context.user_id {
@@ -778,7 +779,8 @@ impl ControlFrameMutation {
         .fetch_optional(mysql)
         .await?;
 
-        if let Some(editing_control_frame) = is_editing {
+        if is_editing.is_some() {
+            let editing_control_frame = is_editing.unwrap();
             let editing_user_id = editing_control_frame.user_id;
 
             if editing_user_id != context.user_id {
@@ -786,7 +788,7 @@ impl ControlFrameMutation {
                     "The target frame is being edited by user #{editing_user_id}"
                 )));
             }
-        }
+        };
 
         // after checking the possible errors, we can delete the frame
         sqlx::query!(
