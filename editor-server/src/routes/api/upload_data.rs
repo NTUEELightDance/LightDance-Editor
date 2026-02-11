@@ -371,7 +371,6 @@ pub async fn upload_data(
                     VALUES (?);
                 "#,
                 frame_obj.start,
-                // frame_obj.fade,
             )
             .execute(&mut *tx)
             .await
@@ -397,6 +396,15 @@ pub async fn upload_data(
                 let dancer_name = &data_obj.dancer[i].name;
                 let model_name = &data_obj.dancer[i].model;
                 let real_dancer = &all_dancer[dancer_name];
+
+                if dancer_status.len() != dancer_led_status.len() {
+                    return Err((
+                        StatusCode::BAD_REQUEST,
+                        Json(UploadDataFailedResponse {
+                            err: format!("Error: Fields status and led_status has different length in frame starting at {} for dancer {}. Length of status is {} but length of led_status is {} ", frame_obj.start, dancer_name, dancer_status.len(), dancer_led_status.len()),
+                        }),
+                    ));
+                }
 
                 for (j, (part_status, part_led_status)) in dancer_status
                     .iter()
@@ -478,22 +486,22 @@ pub async fn upload_data(
                         if r#type == ControlType::LEDBulbs {
                             for (index, (color, alpha)) in part_led_status.iter().enumerate() {
                                 let color_id = match color_dict.get(color) {
-                                Some(i) => i,
-                                None => {
-                                    return Err((
-                                        StatusCode::BAD_REQUEST,
-                                        Json(UploadDataFailedResponse {
-                                            err: format!("Error: Unknown Color Name {color} in ControlData/{dancer_name}/{part_name} at frame {}, index {index}.", frame_obj.start),
-                                        }),
-                                    ))
-                                }
-                            };
+                                    Some(i) => i,
+                                    None => {
+                                        return Err((
+                                            StatusCode::BAD_REQUEST,
+                                            Json(UploadDataFailedResponse {
+                                                err: format!("Error: Unknown Color Name {color} in ControlData/{dancer_name}/{part_name} at frame {}, index {index}.", frame_obj.start),
+                                            }),
+                                        ));
+                                    }
+                                };
 
                                 sqlx::query!(
                                     r#"
-                                    INSERT INTO LEDBulb (control_id, position, color_id, alpha)
-                                    VALUES (?, ?, ?, ?);
-                                "#,
+                                        INSERT INTO LEDBulb (control_id, position, color_id, alpha)
+                                        VALUES (?, ?, ?, ?);
+                                    "#,
                                     control_id,
                                     index as i32,
                                     color_id,

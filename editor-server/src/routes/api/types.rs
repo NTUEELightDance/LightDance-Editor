@@ -7,16 +7,6 @@ pub struct LEDPart {
     pub len: i32,
 }
 
-impl LEDPart {
-    pub fn get_len(&self) -> i32 {
-        self.len
-    }
-
-    pub fn get_id(&self) -> i32 {
-        self.id
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetControlDatQuery {
     pub dancer: String,

@@ -260,7 +260,7 @@ pub async fn export_data(
                         let part_type = dancer[dancer_idx].parts[part_idx].r#type;
                         match part_type {
                             PartType::FIBER => match part_status {
-                                None => PartControl::default(),
+                                None => PartControl("black".to_string(), 0),
                                 Some(status) => {
                                     let color_id = status.0;
                                     let alpha = status.1;
@@ -268,7 +268,7 @@ pub async fn export_data(
                                 }
                             },
                             PartType::LED => match part_status {
-                                None => PartControl::default(),
+                                None => PartControl("black".to_string(), 0),
                                 Some(status) => {
                                     let effect_id = status.0;
                                     let alpha = status.1;
@@ -351,9 +351,6 @@ pub async fn export_data(
                             .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
                         dancer_position[2]
                             .map(|pos| ((pos + f64::EPSILON) * 100.0).round() / 100.0),
-                        // ((dancer_position[0] + f64::EPSILON) * 100.0).round() / 100.0,
-                        // ((dancer_position[1] + f64::EPSILON) * 100.0).round() / 100.0,
-                        // ((dancer_position[2] + f64::EPSILON) * 100.0).round() / 100.0,
                     ]
                 })
                 .collect();

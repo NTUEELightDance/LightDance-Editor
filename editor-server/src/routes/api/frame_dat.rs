@@ -55,86 +55,6 @@ pub async fn frame_dat(
         led_parts,
     } = query.0;
 
-    let parts = sqlx::query!(
-        r#"
-        SELECT
-            Part.id,
-            Part.name
-        FROM Dancer
-        INNER JOIN Model
-            ON Dancer.model_id = Model.id
-        INNER JOIN Part
-            ON Part.model_id = Model.id
-        WHERE Dancer.name = ?
-        "#,
-        dancer
-    )
-    .fetch_all(mysql_pool)
-    .await
-    .into_result()?;
-
-    let part_name_id_map: HashMap<String, i32> =
-        HashMap::from_iter(parts.into_iter().map(|part| (part.name, part.id)));
-
-    let of_parts = Vec::from_iter(of_parts.into_iter());
-    let led_parts = Vec::from_iter(led_parts.into_iter());
-
-    // TODO: find cleaner way to do this
-    let mut of_parts = Vec::from_iter(
-        of_parts
-            .into_iter()
-            .map(|part| (part.0.clone(), *part_name_id_map.get(&part.0).unwrap())),
-    );
-
-    let mut led_parts = Vec::from_iter(led_parts.into_iter().map(|part| {
-        (
-            part.0.clone(),
-            LEDPart {
-                id: *part_name_id_map.get(&part.0).unwrap(),
-                len: part.1.len,
-            },
-        )
-    }));
-
-    of_parts.sort_unstable_by_key(|part| part.1);
-    led_parts.sort_unstable_by_key(|part| part.1.id);
-
-    let led_parts_ids: HashMap<String, i32> = HashMap::from_iter(
-        sqlx::query!(
-            r#"
-            SELECT
-                Part.id,
-                Part.name
-            FROM Dancer
-            INNER JOIN Model
-                ON Dancer.model_id = Model.id
-            INNER JOIN Part
-                ON Part.model_id = Model.id
-            WHERE Dancer.name = ? AND
-                Part.type = 'LED'
-        "#,
-            dancer
-        )
-        .fetch_all(mysql_pool)
-        .await
-        .into_result()?
-        .into_iter()
-        .map(|data| (data.name, data.id)),
-    );
-
-    let led_parts = led_parts
-        .into_iter()
-        .map(|part| {
-            (
-                part.0.clone(),
-                LEDPart {
-                    id: *led_parts_ids.get(&part.0).unwrap(),
-                    len: part.1.len,
-                },
-            )
-        })
-        .collect_vec();
-
     let colors = sqlx::query!(
         r#"
             SELECT Color.r, Color.g, Color.b, Color.id
@@ -178,6 +98,45 @@ pub async fn frame_dat(
     })?
     .id;
 
+    let of_parts = Vec::from_iter(of_parts.into_iter());
+    let led_parts = Vec::from_iter(led_parts.into_iter());
+
+    let led_parts_ids: HashMap<String, i32> = HashMap::from_iter(
+        sqlx::query!(
+            r#"
+            SELECT
+                Part.id,
+                Part.name
+            FROM Dancer
+            INNER JOIN Model
+                ON Dancer.model_id = Model.id
+            INNER JOIN Part
+                ON Part.model_id = Model.id
+            WHERE Dancer.name = ? AND
+                Part.type = 'LED'
+        "#,
+            dancer
+        )
+        .fetch_all(mysql_pool)
+        .await
+        .into_result()?
+        .into_iter()
+        .map(|data| (data.name, data.id)),
+    );
+
+    let mut led_parts = led_parts
+        .into_iter()
+        .map(|part| {
+            (
+                part.0.clone(),
+                LEDPart {
+                    id: *led_parts_ids.get(&part.0).unwrap(),
+                    len: part.1.len,
+                },
+            )
+        })
+        .collect_vec();
+
     let of_data = sqlx::query!(
         r#"
             SELECT
@@ -209,6 +168,21 @@ pub async fn frame_dat(
     .into_iter()
     .filter(|data| of_filter.contains(&data.part_name))
     .collect_vec();
+
+    let of_parts_ids: HashMap<String, i32> = HashMap::from_iter(
+        of_data
+            .iter()
+            .map(|part| (part.part_name.clone(), part.part_id)),
+    );
+
+    let mut of_parts: Vec<(String, i32)> = Vec::from_iter(
+        of_parts
+            .into_iter()
+            .map(|part| (part.0.clone(), *of_parts_ids.get(&part.0).unwrap())),
+    );
+
+    led_parts.sort_unstable_by_key(|part| part.1.id);
+    of_parts.sort_unstable_by_key(|part| part.1);
 
     // ((frame_id, part_id), color)
     // TODO: error handling for the code below
@@ -475,19 +449,19 @@ pub async fn frame_dat(
         let mut led: HashMap<i32, Vec<Color>> = HashMap::new();
 
         for (_, led_part) in &led_parts {
-            let color = if no_effect.contains(&led_part.get_id()) {
+            let color = if no_effect.contains(&led_part.id) {
                 frames
                     .last()
                     .ok_or("first frame can't be no effect")
                     .into_result()?
                     .led_grb_data
-                    .get(&led_part.get_id())
+                    .get(&led_part.id)
                     .unwrap()
                     .clone()
             } else {
                 led_data
-                    .get(&(frame_id, led_part.get_id()))
-                    .unwrap_or(&&vec![[0, 0, 0, 0]; led_part.get_len() as usize])
+                    .get(&(frame_id, led_part.id))
+                    .unwrap_or(&&vec![[0, 0, 0, 0]; led_part.len as usize])
                     .iter()
                     .map(alpha)
                     .collect_vec()
@@ -499,7 +473,7 @@ pub async fn frame_dat(
                 checksum = checksum.wrapping_add(c[2] as u32);
             });
 
-            led.insert(led_part.get_id(), color);
+            led.insert(led_part.id, color);
         }
 
         for num in start_time.to_le_bytes() {
@@ -529,7 +503,7 @@ pub async fn frame_dat(
         }
 
         for (_, led_part) in &led_parts {
-            let colors = frame.led_grb_data.get(&led_part.get_id()).unwrap();
+            let colors = frame.led_grb_data.get(&led_part.id).unwrap();
             colors.iter().for_each(|color| {
                 response.push(color[1] as u8);
                 response.push(color[0] as u8);
