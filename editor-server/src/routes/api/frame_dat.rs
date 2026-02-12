@@ -245,6 +245,21 @@ pub async fn frame_dat(
         );
     }
 
+    let no_change_effects = sqlx::query!(
+        r#"
+            SELECT LEDEffect.id
+            FROM LEDEffect
+            WHERE LEDEffect.name = 'no-change'
+        "#
+    )
+    .fetch_all(mysql_pool)
+    .await
+    .into_result()?;
+
+    for effect in no_change_effects {
+        effects_map.insert(effect.id, Effect { status: vec![] });
+    }
+
     // ((frame_id, part_id), color[]
     let mut led_data: HashMap<(i32, i32), &Vec<LEDStatus>> = HashMap::new();
 

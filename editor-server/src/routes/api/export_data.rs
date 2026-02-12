@@ -138,6 +138,22 @@ pub async fn export_data(
     let mut led_effects = BTreeMap::new();
     let mut led_dict = BTreeMap::new();
 
+    let no_change_effects = sqlx::query!(
+        r#"
+            SELECT
+                LEDEffect.id
+            FROM LEDEffect
+            WHERE LEDEffect.name = 'no-change'
+        "#,
+    )
+    .fetch_all(mysql_pool)
+    .await
+    .into_result()?;
+
+    for effect in no_change_effects {
+        led_dict.insert(effect.id, "no-change".to_string());
+    }
+
     for dancer_parts in led_dancer_parts {
         for parts in dancer_parts {
             let model_id = parts[0].model_id;
