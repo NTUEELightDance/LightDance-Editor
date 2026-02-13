@@ -4,11 +4,19 @@ import bpy
 
 from ....api.control_agent import control_agent
 from ....core.models import FiberData, LEDData
+from ....core.utils.for_dev_only.mock_sub_map import SubType, mock_sub_control_map
 from ....properties.types import LightType
-from ....schemas.mutations import MutDancerLEDStatusPayload, MutDancerStatusPayload
+from ....schemas.mutations import (
+    MutDancerFade,
+    MutDancerHasEffect,
+    MutDancerLEDStatusPayload,
+    MutDancerStatusPayload,
+)
 from ...log import logger
 from ...models import (
     ColorID,
+    ControlMapElement_MODIFIED,
+    ControlMapStatus_MODIFIED,
     DancersArrayItem,
     EditingData,
     EditMode,
@@ -16,7 +24,7 @@ from ...models import (
     SelectMode,
 )
 from ...states import state
-from ...utils.convert import control_status_state_to_mut, led_status_state_to_mut
+from ...utils.convert import control_status_state_to_mut
 from ...utils.notification import notify
 from ...utils.object import clear_selection
 from ...utils.operator import execute_operator
@@ -96,12 +104,29 @@ async def add_control_frame():
     if not bpy.context:
         return
     start = bpy.context.scene.frame_current
-    controlData = control_status_state_to_mut(state.current_status)
-    ledControlData = led_status_state_to_mut(state.current_led_status)
+
+    empty_status: ControlMapStatus_MODIFIED = {}
+    for dancer, parts in state.dancers.items():
+        empty_status[dancer] = {}
+        for part in parts:
+            empty_status[dancer][part] = None
+
+    hasEffectData, fadeData, controlData, ledControlData = control_status_state_to_mut(
+        empty_status
+    )
 
     with send_request():
         try:
-            await control_agent.add_frame(start, False, controlData, ledControlData)
+            # await control_agent.add_frame(start, False, controlData, ledControlData)
+            mock_sub_control_map(
+                SubType.CreateFrames,
+                fade_for_new_status=False,
+                start=start,
+                hasEffectData=hasEffectData,
+                fadeData=fadeData,
+                controlData=controlData,
+                ledControlData=ledControlData,
+            )
             notify("INFO", "Added control frame")
         except Exception:
             logger.exception("Failed to add control frame")
@@ -114,8 +139,7 @@ def copy_ctrl_data_from_state(
     partControlData: MutDancerStatusPayload = []
     partLEDControlData: MutDancerLEDStatusPayload = []
 
-    ctrl_part_dict = state.control_map[id].status[dancer.name]
-    ctrl_part_led_dict = state.control_map[id].led_status[dancer.name]
+    ctrl_part_dict = state.control_map_MODIFIED[id].status[dancer.name]
 
     for part in dancer.parts:
         if part.name not in ctrl_part_dict.keys():
@@ -127,20 +151,26 @@ def copy_ctrl_data_from_state(
                 partLEDControlData.append([])
             continue
 
+        ctrl_data = ctrl_part_dict[part.name]
+        if ctrl_data is None:
+            partControlData.append((0, 0))  # Placeholder
+            partLEDControlData.append([])
+            continue
+
         if part.type == PartType.FIBER:
-            part_data = cast(FiberData, ctrl_part_dict[part.name])
+            part_data = cast(FiberData, ctrl_data.part_data)
             color_id = part_data.color_id
             ld_alpha = part_data.alpha
             partControlData.append((color_id, ld_alpha))
             partLEDControlData.append([])
         elif part.type == PartType.LED:
-            part_data = cast(LEDData, ctrl_part_dict[part.name])
+            part_data = cast(LEDData, ctrl_data.part_data)
             effect_id = part_data.effect_id
             ld_alpha = part_data.alpha
             partControlData.append((effect_id, ld_alpha))
 
             if effect_id == 0:
-                bulb_objs_data = ctrl_part_led_dict[part.name]
+                bulb_objs_data = ctrl_data.bulb_data
                 bulb_color_list: list[tuple[int, int]] = [
                     (cast(int, obj.color_id), obj.alpha) for obj in bulb_objs_data
                 ]
@@ -174,6 +204,12 @@ def take_ctrl_data_from_model(
 
             part_index = part_obj_names.index(part.name)
             part_obj = part_objs[part_index]
+
+            is_none = getattr(part_obj, "ld_is_none")
+            if is_none:
+                partControlData.append((0, 0))  # Placeholder only
+                partLEDControlData.append([])
+                continue
 
             if part.type == PartType.FIBER:
                 color_id = part_obj["ld_color"]
@@ -213,10 +249,12 @@ async def save_control_frame(start: int | None = None):
         return
     id = state.editing_data.frame_id
 
-    fade: bool = getattr(bpy.context.window_manager, "ld_fade")
+    default_fade: bool = getattr(bpy.context.window_manager, "ld_default_fade")
 
     controlData: list[MutDancerStatusPayload] = []
     ledControlData: list[MutDancerLEDStatusPayload] = []
+    hasEffectData: list[MutDancerHasEffect] = []
+    fadeData: list[MutDancerFade] = []
     default_color = list(state.color_map.keys())[0]
 
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
@@ -228,10 +266,24 @@ async def save_control_frame(start: int | None = None):
 
         if not show_dancer_dict[dancer.name]:
             # for the dancer not shown, copy their ctrl data from state.control_map
+            first_part = state.control_map_MODIFIED[id].status[dancer.name][
+                dancer.parts[0].name
+            ]
+            hasEffectData.append(first_part is not None)
+            fadeData.append(False if first_part is None else first_part.fade)
+
             partControlData, partLEDControlData = copy_ctrl_data_from_state(
                 dancer, id, default_color
             )
         else:
+            part_objs: list[bpy.types.Object] = getattr(obj, "children")
+            first_part_obj = part_objs[0]
+            noEffectPartData = getattr(first_part_obj, "ld_is_none")
+            hasEffectPartData = not noEffectPartData
+            hasEffectData.append(hasEffectPartData)
+            fadePartData = getattr(first_part_obj, "ld_fade")
+            fadeData.append(fadePartData)
+
             # for the dancer shown, take their ctrl data from their model
             partControlData, partLEDControlData = take_ctrl_data_from_model(
                 dancer, id, default_color
@@ -244,6 +296,16 @@ async def save_control_frame(start: int | None = None):
             # await control_agent.save_frame(
             #     id, controlData, ledControlData=ledControlData, fade=fade, start=start
             # )
+            mock_sub_control_map(
+                SubType.UpdateFrames,
+                id=id,
+                fade_for_new_status=default_fade,
+                controlData=controlData,
+                ledControlData=ledControlData,
+                fadeData=fadeData,
+                hasEffectData=hasEffectData,
+                start=start,
+            )
             notify("INFO", "Saved control frame")
 
             # Cancel editing
@@ -277,13 +339,56 @@ async def delete_control_frame():
     index = state.current_control_index
     id = state.control_record[index]
 
-    with send_request():
+    # Get the frame data
+    frame = state.control_map_MODIFIED.get(id)
+    if frame is None:
+        notify("WARNING", "Frame not found")
+        return
+
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
+    shown_dancer_names = [
+        dancer_name
+        for dancer_name in state.dancer_names
+        if show_dancer_dict.get(dancer_name, False)
+    ]
+    hidden_dancer_names = [
+        dancer_name
+        for dancer_name in state.dancer_names
+        if not show_dancer_dict.get(dancer_name, False)
+    ]
+
+    # If all hidden dancers are None state -> delete frame
+    hidden_all_none = True
+    for dancer_name in hidden_dancer_names:
+        pos = frame.status.get(dancer_name)
+        if not pos is None:
+            hidden_all_none = False
+            break
+
+    if hidden_all_none:
         try:
-            await control_agent.delete_frame(id)
-            notify("INFO", f"Deleted control frame: {id}")
+            # await control_agent.delete_frame(id)
+            mock_sub_control_map(SubType.DeleteFrames, id=id)
+            notify("INFO", f"Deleted position frame (mock): {id}")
+
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         except Exception:
-            logger.exception("Failed to delete control frame")
-            notify("WARNING", "Cannot delete control frame")
+            logger.exception("Failed to delete position frame (mock)")
+            notify("WARNING", "Cannot delete position frame")
+    else:
+        # There exists hidden dancer with non-None state -> set all shown dancers to None state.
+        ok = await request_edit_control()
+        if not ok:
+            return
+
+        for dancer_name in shown_dancer_names:
+            obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
+            if obj is None:
+                continue
+            setattr(obj, "ld_is_none", True)
+
+        await save_control_frame()
 
 
 async def request_edit_control() -> bool:

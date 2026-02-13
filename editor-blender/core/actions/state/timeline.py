@@ -30,23 +30,27 @@ def increase_frame_index():
 
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            sorted_ctrl_frames = state.control_start_record
+            sorted_ctrl_start = state.control_start_record
             current_frame_index = state.current_control_index
 
-            if current_frame_index < len(state.control_record) - 1:
-                next_index = current_frame_index + 1
-                next_start = (
-                    sorted_ctrl_frames[next_index]
-                    if next_index < len(sorted_ctrl_frames)
-                    else None
-                )
-                if next_start is not None and next_start > state.dancer_load_frames[1]:
-                    return
-                setattr(
-                    bpy.context.window_manager,
-                    "ld_current_frame_index",
-                    str(current_frame_index + 1),
-                )
+            if current_frame_index >= len(sorted_ctrl_start) - 1:
+                return
+
+            next_index = current_frame_index + 1
+            next_start = (
+                sorted_ctrl_start[next_index]
+                if next_index < len(sorted_ctrl_start)
+                else None
+            )
+
+            if next_start is None or next_start > state.dancer_load_frames[1]:
+                return
+
+            setattr(
+                bpy.context.window_manager,
+                "ld_current_frame_index",
+                str(next_index),
+            )
         case Editor.POS_EDITOR:
             sorted_pos_frames = _pos_frame_starts()
             current_frame_index = state.current_pos_index
@@ -74,25 +78,23 @@ def decrease_frame_index():
         return
     match state.editor:
         case Editor.CONTROL_EDITOR:
-            sorted_ctrl_frames = state.control_start_record
+            sorted_ctrl_start = state.control_start_record
             current_frame_index = state.current_control_index
 
-            if current_frame_index > 0:
-                current_start = (
-                    sorted_ctrl_frames[current_frame_index]
-                    if current_frame_index < len(sorted_ctrl_frames)
-                    else None
-                )
-                if (
-                    sorted_ctrl_frames[current_frame_index]
-                    <= state.dancer_load_frames[0]
-                ):
-                    return
-                setattr(
-                    bpy.context.window_manager,
-                    "ld_current_frame_index",
-                    str(current_frame_index - 1),
-                )
+            if current_frame_index <= 0:
+                return
+
+            prev_frame_index = current_frame_index - 1
+            prev_start = (
+                sorted_ctrl_start[prev_frame_index] if prev_frame_index >= 0 else None
+            )
+            if prev_start is None or prev_start < state.dancer_load_frames[0]:
+                return
+            setattr(
+                bpy.context.window_manager,
+                "ld_current_frame_index",
+                str(prev_frame_index),
+            )
         case Editor.POS_EDITOR:
             sorted_pos_frames = _pos_frame_starts()
             current_frame_index = state.current_pos_index

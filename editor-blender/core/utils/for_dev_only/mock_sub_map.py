@@ -104,16 +104,17 @@ def mock_sub_control_map(
     type: SubType,
     id: int = 0,
     fade_for_new_status=False,
+    hasEffectData=None,
     controlData=None,
     ledControlData=None,
     fadeData=None,
-    start: int = 0,
+    start=None,
 ):
     """
     這個函數是用來代替control_agent.add/save/delete_frame的。
     在control_editor.py的add/save/delete_control_frame使用。
-    add_frame => mock...(SubType.CreateFrames, fade_for_new_status, start)*
-    save_frame => ...(SubType.UpdateFrames, id, fade_for_new_status, controlData, ledControlData, fadeData, start)**
+    add_frame => mock...(SubType.CreateFrames, fade_for_new_status, controlData, ledControlData, fadeData, hasEffectData, start)*
+    save_frame => ...(SubType.UpdateFrames, id, fade_for_new_status, controlData, ledControlData, fadeData, hasEffectData, start)**
     delete_frame => ...(SubType.DeleteFrames, id)
 
     如果狀態是None，對應的part(LED)ControlData.append(None)
@@ -130,50 +131,54 @@ def mock_sub_control_map(
         new_sublist = []
         for j in range(len(state.dancers[dancer])):
             part = state.dancers[dancer][j]
-            new_sublist.append((part, controlData[i][j], ledControlData[i][j], fadeData[i][j]))  # type: ignore
-        new_zip.append((dancer, new_sublist))
+            new_sublist.append((part, controlData[i][j], ledControlData[i][j]))  # type: ignore
+        new_zip.append((dancer, hasEffectData[i], fadeData[i], new_sublist))  # type: ignore
 
     new_ctrl_frame = None
-    if type == SubType.UpdateFrames:
+    if type == SubType.UpdateFrames or type == SubType.CreateFrames:
         ctrl_stat: ControlMapStatus_MODIFIED = {}
-        for dancer, ctrl_dancer_data in new_zip:
+        for dancer, hasEffectData, fadeData, ctrl_dancer_data in new_zip:
             ctrl_stat[dancer] = {}
-            for part, ctrl_data, led_ctrl_data, fade in ctrl_dancer_data:
-                if ctrl_data is None:
+            for part, ctrl_data, led_ctrl_data in ctrl_dancer_data:
+                if not hasEffectData:
                     ctrl_stat[dancer][part] = None
                 elif state.part_type_map[part] == PartType.FIBER:
                     part_data = FiberData(color_id=ctrl_data[0], alpha=ctrl_data[1])
                     led = []
                     ctrl_stat[dancer][part] = CtrlData(
-                        part_data=part_data, bulb_data=led, fade=fade
+                        part_data=part_data, bulb_data=led, fade=fadeData
                     )
                 else:
                     part_data = LEDData(effect_id=ctrl_data[0], alpha=ctrl_data[1])
                     led = []
                     for colorid, alpha in led_ctrl_data:
-                        rgb = state.color_map[colorid].rgb
+                        rgb = None
+                        if colorid != -1:
+                            rgb = state.color_map[colorid].rgb
                         led.append(LEDBulbData(color_id=colorid, alpha=alpha, rgb=rgb))
                     ctrl_stat[dancer][part] = CtrlData(
-                        part_data=part_data, bulb_data=led, fade=fade
+                        part_data=part_data, bulb_data=led, fade=fadeData
                     )
+        if start is None:
+            start = state.control_map_MODIFIED[id].start
         new_ctrl_frame = ControlMapElement_MODIFIED(
             start=start,
             fade_for_new_status=fade_for_new_status,
             rev=Revision(meta=randint(1, 300), data=randint(1, 300)),
             status=ctrl_stat,
         )
-    elif type == SubType.CreateFrames:
-        ctrl_stat: ControlMapStatus_MODIFIED = {}
-        for dancer in state.dancer_names:
-            ctrl_stat[dancer] = {}
-            for part in state.dancers[dancer]:
-                ctrl_stat[dancer][part] = None
-        new_ctrl_frame = ControlMapElement_MODIFIED(
-            start=start,
-            fade_for_new_status=fade_for_new_status,
-            rev=Revision(meta=randint(1, 300), data=randint(1, 300)),
-            status=ctrl_stat,
-        )
+    # elif type == SubType.CreateFrames:
+    #     ctrl_stat: ControlMapStatus_MODIFIED = {}
+    #     for dancer in state.dancer_names:
+    #         ctrl_stat[dancer] = {}
+    #         for part in state.dancers[dancer]:
+    #             ctrl_stat[dancer][part] = None
+    #     new_ctrl_frame = ControlMapElement_MODIFIED(
+    #         start=start,
+    #         fade_for_new_status=fade_for_new_status,
+    #         rev=Revision(meta=randint(1, 300), data=randint(1, 300)),
+    #         status=ctrl_stat,
+    #     )
 
     match type:
         case SubType.CreateFrames:

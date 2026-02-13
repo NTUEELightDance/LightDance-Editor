@@ -1,6 +1,11 @@
 from typing import cast
 
-from ...schemas.mutations import MutDancerLEDStatusPayload, MutDancerStatusPayload
+from ...schemas.mutations import (
+    MutDancerFade,
+    MutDancerHasEffect,
+    MutDancerLEDStatusPayload,
+    MutDancerStatusPayload,
+)
 from ...schemas.queries import (
     QueryColorMapPayload,
     QueryColorMapPayloadItem,
@@ -36,6 +41,8 @@ from ..models import (
     ControlMapElement_MODIFIED,
     ControlMapLEDStatus,
     ControlMapStatus,
+    ControlMapStatus_MODIFIED,
+    CtrlData,
     DancerLEDStatus,
     DancerName,
     DancersArray,
@@ -165,8 +172,12 @@ def part_led_data_query_to_state(payload: QueryLEDBulbDataPayload) -> list[LEDBu
 
 
 def part_data_state_to_mut(
-    part_data: PartData,
+    part_ctrl_data: CtrlData | None,
 ) -> tuple[LEDEffectID | ColorID, int]:
+    if part_ctrl_data is None:
+        return (0, 0)  # Only a placeholder
+
+    part_data = part_ctrl_data.part_data
     if isinstance(part_data, LEDData):
         return (part_data.effect_id, part_data.alpha)
     else:
@@ -174,8 +185,12 @@ def part_data_state_to_mut(
 
 
 def part_led_data_state_to_mut(
-    led_data: list[LEDBulbData],
+    part_ctrl_data: CtrlData | None,
 ) -> list[tuple[ColorID, int]]:
+    if part_ctrl_data is None:
+        return []  # Only a placeholder
+
+    led_data = part_ctrl_data.bulb_data
     return [(bulb.color_id, bulb.alpha) for bulb in led_data]
 
 
@@ -268,43 +283,68 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
 
 
 def control_status_state_to_mut(
-    control_status: ControlMapStatus,
-) -> list[MutDancerStatusPayload]:
+    control_status: ControlMapStatus_MODIFIED,
+) -> tuple[
+    MutDancerHasEffect,
+    MutDancerFade,
+    list[MutDancerStatusPayload],
+    list[MutDancerLEDStatusPayload],
+]:
+    mut_dancer_has_effect_payload: list[MutDancerHasEffect] = []
+    mut_dancer_fade_payload: list[MutDancerFade] = []
     mut_dancer_status_payload: list[MutDancerStatusPayload] = []
+    mut_dancer_led_status_payload: list[MutDancerLEDStatusPayload] = []
 
     for dancer in state.dancers_array:
         dancer_name = dancer.name
+        first_part_name = dancer.parts[0].name
 
         dancer_status = control_status.get(dancer_name)
         if dancer_status is None:
             raise Exception("Dancer status not found")
 
+        mut_dancer_has_effect_payload.append(dancer_status[first_part_name] is not None)
+        mut_dancer_fade_payload.append(
+            False
+            if dancer_status[first_part_name] is None
+            else dancer_status[first_part_name].fade  # type: ignore
+        )
         mut_dancer_status_payload.append(
             [part_data_state_to_mut(dancer_status[part.name]) for part in dancer.parts]
         )
-
-    return mut_dancer_status_payload
-
-
-def led_status_state_to_mut(
-    led_status: ControlMapLEDStatus,
-) -> list[MutDancerLEDStatusPayload]:
-    mut_dancer_status_payload: list[MutDancerLEDStatusPayload] = []
-
-    for dancer in state.dancers_array:
-        dancer_name = dancer.name
-        dancer_status = led_status.get(dancer_name)
-        if dancer_status is None:
-            raise Exception("Dancer LED status not found")
-
-        mut_dancer_status_payload.append(
+        mut_dancer_led_status_payload.append(
             [
                 part_led_data_state_to_mut(dancer_status[part.name])
                 for part in dancer.parts
             ]
         )
+    return (
+        mut_dancer_has_effect_payload,
+        mut_dancer_fade_payload,
+        mut_dancer_status_payload,
+        mut_dancer_led_status_payload,
+    )
 
-    return mut_dancer_status_payload
+
+# def led_status_state_to_mut(
+#     led_status: ControlMapLEDStatus,
+# ) -> list[MutDancerLEDStatusPayload]:
+#     mut_dancer_status_payload: list[MutDancerLEDStatusPayload] = []
+
+#     for dancer in state.dancers_array:
+#         dancer_name = dancer.name
+#         dancer_status = led_status.get(dancer_name)
+#         if dancer_status is None:
+#             raise Exception("Dancer LED status not found")
+
+#         mut_dancer_status_payload.append(
+#             [
+#                 part_led_data_state_to_mut(dancer_status[part.name])
+#                 for part in dancer.parts
+#             ]
+#         )
+
+#     return mut_dancer_status_payload
 
 
 def rgb_to_hex(rgb: tuple[int, int, int]) -> str:
@@ -770,10 +810,10 @@ def control_modify_to_animation_data(
                             part_length = cast(int, part.length)
 
                             for i in range(part_length):
-                                part_map[i][1].append(old_start, frame.start, None)  # type: ignore
+                                part_map[i][1].append((old_start, frame.start, None))  # type: ignore
 
                         case PartType.FIBER:
-                            part_map[1].append(old_start, frame.start, None)  # type: ignore
+                            part_map[1].append((old_start, frame.start, None))  # type: ignore
                     continue
 
                 part_status = part_ctrl_data.part_data
@@ -826,13 +866,13 @@ def control_modify_to_animation_data(
                         led_rgb_floats = [(0, 0, 0)] * part_length
 
                     for i in range(part_length):
-                        part_map[i][1].append((old_start, frame.start, (frame.fade, led_rgb_floats[i])))  # type: ignore
+                        part_map[i][1].append((old_start, frame.start, (part_ctrl_data.fade, led_rgb_floats[i])))  # type: ignore
 
                 else:
                     part_rgb = color_map[part_status.color_id].rgb
                     fiber_rgb_float = rgba_to_float(part_rgb, part_status.alpha)
 
-                    part_map[1].append((old_start, frame.start, (frame.fade, fiber_rgb_float)))  # type: ignore
+                    part_map[1].append((old_start, frame.start, (part_ctrl_data.fade, fiber_rgb_float)))  # type: ignore
 
     for _, frame in control_add:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -853,10 +893,10 @@ def control_modify_to_animation_data(
                             part_length = cast(int, part.length)
 
                             for i in range(part_length):
-                                part_map[i][2].append(frame.start, None)  # type: ignore
+                                part_map[i][2].append((frame.start, None))  # type: ignore
 
                         case PartType.FIBER:
-                            part_map[2].append(frame.start, None)  # type: ignore
+                            part_map[2].append((frame.start, None))  # type: ignore
                     continue
 
                 part_status = part_ctrl_data.part_data
@@ -912,13 +952,13 @@ def control_modify_to_animation_data(
                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
 
                     for i in range(part_length):
-                        part_map[i][2].append((frame.start, (frame.fade, led_rgb_floats[i])))  # type: ignore
+                        part_map[i][2].append((frame.start, (part_ctrl_data.fade, led_rgb_floats[i])))  # type: ignore
 
                 else:
                     part_rgb = color_map[part_status.color_id].rgb
                     fiber_rgb_float = rgba_to_float(part_rgb, part_status.alpha)
 
-                    part_map[2].append((frame.start, (frame.fade, fiber_rgb_float)))  # type: ignore
+                    part_map[2].append((frame.start, (part_ctrl_data.fade, fiber_rgb_float)))  # type: ignore
 
     return new_map
 
