@@ -14,3 +14,19 @@ services:
       - "3306:3306"
     volumes:
       - ./data/mysql:/var/lib/mysql
+  directus:
+    image: directus/directus:latest
+    ports:
+      - "8055:8055"
+    environment:
+      KEY: "key"
+      SECRET: "secret"
+      ADMIN_EMAIL: "lightdance@ntuee.org"
+      ADMIN_PASSWORD: "password"
+      DB_CLIENT: "mysql"
+      DB_HOST: "mysql"
+      DB_PORT: "3306"
+      DB_DATABASE: "editor"
+      DB_USER: "root"
+      DB_PASSWORD: "password"
+    restart: "unless-stopped"
