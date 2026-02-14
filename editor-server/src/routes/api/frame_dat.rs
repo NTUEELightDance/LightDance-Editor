@@ -38,6 +38,47 @@ struct FrameData {
     checksum: u32,
 }
 
+fn interpolate_no_change_effects(
+    frames: &mut [FrameData],
+    intervals: &HashMap<i32, Vec<(usize, usize)>>,
+) {
+    for (part_id, part_intervals) in intervals {
+        for interval in part_intervals {
+            let left_color = frames[interval.0]
+                .led_grb_data
+                .get(part_id)
+                .unwrap()
+                .clone();
+            let right_color = frames[interval.1]
+                .led_grb_data
+                .get(part_id)
+                .unwrap()
+                .clone();
+            let len = interval.1 - interval.0;
+
+            #[allow(clippy::needless_range_loop)]
+            for i in interval.0..interval.1 {
+                for (j, color) in frames[i]
+                    .led_grb_data
+                    .get_mut(part_id)
+                    .unwrap()
+                    .iter_mut()
+                    .enumerate()
+                {
+                    *color = [
+                        (left_color[j][0] * (len - i) as i32 + right_color[j][0] * i as i32)
+                            / len as i32,
+                        (left_color[j][1] * (len - i) as i32 + right_color[j][1] * i as i32)
+                            / len as i32,
+                        (left_color[j][2] * (len - i) as i32 + right_color[j][2] * i as i32)
+                            / len as i32,
+                    ]
+                }
+            }
+        }
+    }
+}
+
 pub async fn frame_dat(
     query: Json<GetControlDatQuery>,
 ) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
@@ -199,6 +240,22 @@ pub async fn frame_dat(
             )
         }));
 
+    let no_change_effects: HashSet<i32> = HashSet::from_iter(
+        sqlx::query!(
+            r#"
+                SELECT
+                    LEDEffect.id
+                FROM LEDEffect
+                WHERE LEDEffect.name = 'no-change'
+            "#,
+        )
+        .fetch_all(mysql_pool)
+        .await
+        .into_result()?
+        .into_iter()
+        .map(|data| data.id),
+    );
+
     // (id, color[])
     let mut effects_map: HashMap<i32, Effect> = HashMap::new();
 
@@ -245,20 +302,12 @@ pub async fn frame_dat(
         );
     }
 
-    let no_change_effects = sqlx::query!(
-        r#"
-            SELECT LEDEffect.id
-            FROM LEDEffect
-            WHERE LEDEffect.name = 'no-change'
-        "#
-    )
-    .fetch_all(mysql_pool)
-    .await
-    .into_result()?;
-
-    for effect in no_change_effects {
-        effects_map.insert(effect.id, Effect { status: vec![] });
+    for id in &no_change_effects {
+        effects_map.insert(*id, Effect { status: vec![] });
     }
+
+    // (frame_id, part_id)
+    let mut no_change_parts: HashSet<(i32, i32)> = HashSet::new();
 
     // ((frame_id, part_id), color[]
     let mut led_data: HashMap<(i32, i32), &Vec<LEDStatus>> = HashMap::new();
@@ -294,18 +343,22 @@ pub async fn frame_dat(
     .collect_vec();
 
     for data in led_effect_data {
+        let effect_id = &data
+            .effect_id
+            .ok_or(format!(
+                "ControlData with type EFFECT does not have effect_id. ControlData.id={}",
+                data.control_data_id
+            ))
+            .into_result()?;
+
+        if no_change_effects.contains(effect_id) {
+            no_change_parts.insert((data.frame_id, data.part_id));
+        }
+
         led_data.insert(
             (data.frame_id, data.part_id),
             &effects_map
-                .get(
-                    &data
-                        .effect_id
-                        .ok_or(format!(
-                            "ControlData with type EFFECT does not have effect_id. ControlData.id={}",
-                            data.control_data_id
-                        ))
-                        .into_result()?,
-                )
+                .get(effect_id)
                 .ok_or(format!("ControlData has invalid effect_id. ControlData.id={}, ControlData.effect_id={}",
                         data.control_data_id, data.effect_id.unwrap()))
                 .into_result()?
@@ -408,7 +461,11 @@ pub async fn frame_dat(
 
     let mut frames: Vec<FrameData> = Vec::new();
 
-    for frame in control_frames {
+    // ((frame_id, part_id), [[l, r)])
+    let mut no_change_intervals: HashMap<i32, Vec<(usize, usize)>> = HashMap::new();
+    let mut no_change_intervals_left: HashMap<i32, i32> = HashMap::new();
+
+    for (i, frame) in control_frames.iter().enumerate() {
         let frame_id = frame[0].id;
         let start_time = frame[0].start as u32;
         let mut checksum: u32 = 0;
@@ -464,10 +521,12 @@ pub async fn frame_dat(
         let mut led: HashMap<i32, Vec<Color>> = HashMap::new();
 
         for (_, led_part) in &led_parts {
-            let color = if no_effect.contains(&led_part.id) {
+            let color = if no_effect.contains(&led_part.id)
+                || no_change_parts.contains(&(frame_id, led_part.id))
+            {
                 frames
                     .last()
-                    .ok_or("first frame can't be no effect")
+                    .ok_or("first frame can't be no effect/no-change")
                     .into_result()?
                     .led_grb_data
                     .get(&led_part.id)
@@ -489,6 +548,21 @@ pub async fn frame_dat(
             });
 
             led.insert(led_part.id, color);
+
+            if no_change_parts.contains(&(frame_id, led_part.id)) && fade == 1 {
+                if *no_change_intervals_left.entry(led_part.id).or_insert(-1) == -1 {
+                    *no_change_intervals_left.get_mut(&led_part.id).unwrap() = i as i32;
+                }
+            } else {
+                let left = no_change_intervals_left.entry(led_part.id).or_insert(-1);
+
+                if *left != -1 {
+                    no_change_intervals
+                        .entry(led_part.id)
+                        .or_default()
+                        .push((*left as usize, i));
+                }
+            }
         }
 
         for num in start_time.to_le_bytes() {
@@ -506,6 +580,8 @@ pub async fn frame_dat(
 
         frames.push(frame_data);
     }
+
+    interpolate_no_change_effects(&mut frames, &no_change_intervals);
 
     for frame in frames {
         write_little_endian(&frame.start_time, &mut response);
