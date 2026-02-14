@@ -28,6 +28,12 @@ pub struct DeletePositionFrameInput {
     pub frame_id: i32,
 }
 
+#[derive(InputObject)]
+pub struct PositionDataInput {
+    pub is_position: bool,
+    pub coor: Vec<Option<f64>>
+}
+
 #[derive(Default)]
 pub struct PositionFrameMutation;
 
@@ -37,7 +43,7 @@ impl PositionFrameMutation {
         &self,
         ctx: &Context<'_>,
         start: i32,
-        position_data: Option<Vec<Vec<f64>>>,
+        position_data: Option<Vec<PositionDataInput>>,
     ) -> GQLResult<PositionFrame> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -78,39 +84,23 @@ impl PositionFrameMutation {
         .fetch_all(&mut *tx)
         .await?;
 
-        // type constants
-        const NO_EFFECT: i32 = 0;
-        const POSITION: i32 = 1;
-
         if let Some(data) = &position_data {
-            if (*data).len() != dancers.len() {
+            if data.len() != dancers.len() {
                 return Err(format!(
                     "Not all dancers in payload. Missing number: {}",
-                    dancers.len() as i32 - (*data).len() as i32,
+                    dancers.len() as i32 - data.len() as i32,
                 )
                 .into());
             }
             let mut errors = Vec::<String>::new();
 
-            for (idx, coor) in (*data).iter().enumerate() {
-                // 7 elements: [type, x, y, z, rx, ry, rz]
-                if coor.len() != 7 {
+            for (idx, pos_data) in data.iter().enumerate() {
+                // (bool, [x, y, z, rx, ry, rz])
+                if pos_data.coor.len() != 6 {
                     errors.push(format!(
-                        "Dancer #{} data must have 7 elements [type, x, y, z, rx, ry, rz]. Got: {}",
+                        "Dancer #{} data must have 6 elements [x, y, z, rx, ry, rz]. Got: {}",
                         idx + 1,
-                        coor.len()
-                    ));
-                    continue;
-                }
-                
-                let type_value = coor[0] as i32;
-
-                // validate type value
-                if type_value != NO_EFFECT && type_value != POSITION {
-                    errors.push(format!(
-                        "Invalid type value {} for dancer #{}. Must be 0 (NO_EFFECT) or 1 (POSITION).",
-                        type_value,
-                        idx + 1
+                        pos_data.coor.len()
                     ));
                 }
             }
@@ -137,17 +127,18 @@ impl PositionFrameMutation {
             Some(data) => {
                 let mut location = Vec::new();
                 let mut rotation = Vec::new();
-                for (idx, coor) in (*data).iter().enumerate() {
-                    let type_value = coor[0] as i32;
-                    if type_value == NO_EFFECT {
+
+                for (idx, pos_data) in data.iter().enumerate() {
+                    if !pos_data.is_position {
+                        // NO_EFFECT
                         let _ = sqlx::query!(
                             r#"
                                 INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
-                                VALUES (?, ?, ?, NULL, NULL, NULL, 0, 0, 0);
+                                VALUES (?, ?, ?, NULL, NULL, NULL, 0, 0, 0);   
                             "#,
                             dancers[idx].id,
                             id,
-                            "NO_EFFECT"
+                            "NO_EFFECT",
                         )
                         .execute(&mut *tx)
                         .await?;
@@ -155,6 +146,7 @@ impl PositionFrameMutation {
                         location.push([0.0, 0.0, 0.0]);
                         rotation.push([0.0, 0.0, 0.0]);
                     } else {
+                        // POSITION
                         let _ = sqlx::query!(
                             r#"
                                 INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
@@ -163,19 +155,28 @@ impl PositionFrameMutation {
                             dancers[idx].id,
                             id,
                             "POSITION",
-                            coor[1],
-                            coor[2],
-                            coor[3],
-                            coor[4],
-                            coor[5],
-                            coor[6],
+                            pos_data.coor[0],
+                            pos_data.coor[1],
+                            pos_data.coor[2],
+                            pos_data.coor[3],
+                            pos_data.coor[4],
+                            pos_data.coor[5],
                         )
                         .execute(&mut *tx)
                         .await?;
 
-                        location.push([coor[1], coor[2], coor[3]]);
-                        rotation.push([coor[4], coor[5], coor[6]]);
-                    }   
+                        location.push([
+                            pos_data.coor[0].unwrap_or(0.0),
+                            pos_data.coor[1].unwrap_or(0.0),
+                            pos_data.coor[2].unwrap_or(0.0)
+                        ]);
+
+                        rotation.push([
+                            pos_data.coor[3].unwrap_or(0.0),
+                            pos_data.coor[4].unwrap_or(0.0),
+                            pos_data.coor[5].unwrap_or(0.0)
+                        ]);
+                    }  
                 }
                 create_frames.insert(
                     id.to_string(),
@@ -264,6 +265,7 @@ impl PositionFrameMutation {
             rev: PositionFrameRevision::default(),
         })
     }
+
     async fn edit_position_frame(
         &self,
         ctx: &Context<'_>,
