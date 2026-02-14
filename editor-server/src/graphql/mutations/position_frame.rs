@@ -38,7 +38,7 @@ impl PositionFrameMutation {
         ctx: &Context<'_>,
         start: i32,
         position_data: Option<Vec<Vec<f64>>>,
-        has_effect: Vec<bool>,
+        has_position: Vec<bool>,
     ) -> GQLResult<PositionFrame> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -48,7 +48,7 @@ impl PositionFrameMutation {
 
         tracing::info!("Mutation: addPositionFrame");
 
-        // let mut tx = mysql.begin().await?;
+        let mut tx = mysql.begin().await?;
 
         let check = sqlx::query_as!(
             PositionFrameData,
@@ -58,7 +58,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .fetch_optional(mysql)
+        .fetch_optional(&mut *tx)
         .await?;
 
         if let Some(check) = check {
@@ -76,34 +76,34 @@ impl PositionFrameMutation {
                 ORDER BY id ASC;
             "#
         )
-        .fetch_all(mysql)
+        .fetch_all(&mut *tx)
         .await?;
 
         if let Some(data) = &position_data {
-            if has_effect.len() != data.len() {
+            if has_position.len() != data.len() {
                 return Err(format!(
-                        "Position data and has_effect has different length. Position data length: {}, has_effect length: {}",
+                        "Position data and has_position has different length. Position data length: {}, has_position length: {}",
                         data.len(),
-                        has_effect.len(),
+                        has_position.len(),
                 ).into());
             }
 
-            if (*data).len() != dancers.len() {
+            if data.len() != dancers.len() {
                 return Err(format!(
                     "Not all dancers in payload. Missing number: {}",
-                    dancers.len() as i32 - (*data).len() as i32,
+                    dancers.len() as i32 - data.len() as i32,
                 )
                 .into());
             }
             let mut errors = Vec::<String>::new();
 
-            for (idx, coor) in (*data).iter().enumerate() {
-                // 6 elements: [x, y, z, rx, ry, rz]
-                if coor.len() != 6 {
+            for (idx, coordinatesdinates) in data.iter().enumerate() {
+                // (bool, [x, y, z, rx, ry, rz])
+                if coordinatesdinates.len() != 6 {
                     errors.push(format!(
                         "Dancer #{} data must have 6 elements [x, y, z, rx, ry, rz]. Got: {}",
                         idx + 1,
-                        coor.len()
+                        coordinatesdinates.len()
                     ));
                     continue;
                 }
@@ -123,7 +123,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .execute(mysql)
+        .execute(&mut *tx)
         .await?
         .last_insert_id() as i32;
 
@@ -132,8 +132,8 @@ impl PositionFrameMutation {
         match &position_data {
             Some(data) => {
                 let mut r#type: Vec<PositionType> = Vec::new();
-                for (idx, coor) in (*data).iter().enumerate() {
-                    if !has_effect[idx] {
+                for (idx, coordinates) in (*data).iter().enumerate() {
+                    if !has_position[idx] {
                         r#type.push(PositionType::NoEffect);
                         sqlx::query!(
                             r#"
@@ -156,17 +156,18 @@ impl PositionFrameMutation {
                         r#type.push(PositionType::Position);
                         sqlx::query!(
                             r#"
-                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                            INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                         "#,
                             dancers[idx].id,
                             id,
-                            coor[0],
-                            coor[1],
-                            coor[2],
-                            coor[3],
-                            coor[4],
-                            coor[5],
+                            "POSITION",
+                            coordinates[0],
+                            coordinates[1],
+                            coordinates[2],
+                            coordinates[3],
+                            coordinates[4],
+                            coordinates[5],
                         )
                         .execute(mysql)
                         .await?;
@@ -207,13 +208,17 @@ impl PositionFrameMutation {
                         0.0,
                         0.0,
                     )
-                    .execute(mysql)
+                    .execute(&mut *tx)
                     .await?;
                 }
             }
         }
 
-        // tx.commit().await?;
+        // <<<<<<< HEAD
+        //         // tx.commit().await?;
+        // =======
+        //         tx.commit().await?;
+        // >>>>>>> 2edb296 (AddPositionFrame)
 
         update_redis_position(mysql, redis, id).await?;
 
@@ -266,6 +271,7 @@ impl PositionFrameMutation {
             rev: PositionFrameRevision::default(),
         })
     }
+
     async fn edit_position_frame(
         &self,
         ctx: &Context<'_>,
