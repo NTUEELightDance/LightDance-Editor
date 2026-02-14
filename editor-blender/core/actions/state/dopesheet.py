@@ -269,6 +269,26 @@ def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
     return
 
 
+def reset_overall_ctrl_data():
+    sorted_overall_fade_seq_list = sorted(
+        [seq for seq in state.fade_sequence_map["Overall"].values()], key=lambda x: x[0]
+    )
+
+    first_obj = bpy.data.objects.get("[0]control_frame")
+    if not first_obj:
+        add_obj(
+            "[0]control_frame",
+            "control_frameAction",
+            "CONTROL",
+            "ld_fade_seq",
+            sorted_overall_fade_seq_list,
+        )
+
+    else:
+        action = ensure_action(first_obj, "control_frameAction")
+        draw_fade_on_curve(action, "ld_fade_seq", sorted_overall_fade_seq_list)
+
+
 def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
     old_obj = bpy.data.objects.get(f"[1]selected_{old_selected_obj_name}")
     current_obj = bpy.data.objects.get(current_obj_name)
@@ -304,6 +324,26 @@ def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
     set_dopesheet_collapse_all(True)
 
     return
+
+
+def reset_overall_pos_data():
+    sorted_pos_start_record_list = sorted(
+        [seq for seq in state.pos_sequence_map["Overall"].values()], key=lambda x: x[0]
+    )
+
+    first_obj = bpy.data.objects.get("[0]pos_frame")
+    if not first_obj:
+        add_obj(
+            "[0]pos_frame",
+            "pos_frameAction",
+            "POS",
+            "ld_pos_seq",
+            sorted_pos_start_record_list,
+        )
+
+    else:
+        action = ensure_action(first_obj, "pos_frameAction")
+        draw_pos_on_curve(action, "ld_pos_seq", sorted_pos_start_record_list)
 
 
 def add_pinned_ctrl_data(
@@ -362,9 +402,10 @@ def handle_pinned_object():
     if not bpy.context:
         return
 
-    if len(state.pinned_objects) >= 3:
-        notify("INFO", "Maximum pinned objects reached")
-        return
+    # Set pinned object count limit
+    # if len(state.pinned_objects) >= 3:
+    #     notify("INFO", "Maximum pinned objects reached")
+    #     return
 
     obj = None
     if bpy.context.selected_objects:
@@ -416,6 +457,25 @@ def handle_delete_pinned_object(index: int):
 
     set_dopesheet_collapse_all(True)
     return
+
+
+def reset_pinned_object():
+    for i, obj_name in enumerate(state.pinned_objects):
+        obj = bpy.data.objects.get(f"[{3+i}]pinned_{obj_name}")
+        if obj:
+            if state.editor == Editor.CONTROL_EDITOR:
+                fade_seq = sorted(
+                    [seq for seq in state.fade_sequence_map[obj.name].values()],
+                    key=lambda x: x[0],
+                )
+                draw_fade_on_curve(obj, "ld_fade_seq", fade_seq)
+
+            elif state.editor == Editor.POS_EDITOR:
+                pos_seq = sorted(
+                    [seq for seq in state.pos_sequence_map[obj.name].values()],
+                    key=lambda x: x[0],
+                )
+                draw_pos_on_curve(obj, "ld_pos_seq", pos_seq)
 
 
 def clear_pinned_timeline():
@@ -539,16 +599,16 @@ def get_overall_fade_seq_for_frame(
 
 
 def get_overall_pos_seq_for_frame(frame: PosMapElement) -> tuple[int, KeyframeType]:
-    keyframe_type = KeyframeType.BREAKDOWN
+    keyframe_type = KeyframeType.GENERATED
     active_dancers = [dancer for dancer, pos in frame.pos.items() if pos is not None]
     if active_dancers:
-        is_generated = all(
+        is_breakdown = all(
             not state.show_dancers[state.dancer_names.index(dancer)]
             for dancer in active_dancers
         )
 
-        if is_generated:
-            keyframe_type = KeyframeType.GENERATED
+        if is_breakdown:
+            keyframe_type = KeyframeType.BREAKDOWN
         else:
             keyframe_type = KeyframeType.NORMAL
 
@@ -579,24 +639,6 @@ def init_fade_seq_from_state():
         for id, frame in sorted_ctrl_map[filtered_start_index : filtered_end_index + 1]:
             overall_fade_seq[id] = get_overall_fade_seq_for_frame(frame)
 
-        sorted_overall_fade_seq_list = sorted(
-            [seq for seq in overall_fade_seq.values()], key=lambda x: x[0]
-        )
-
-        first_obj = bpy.data.objects.get("[0]control_frame")
-        if not first_obj:
-            add_obj(
-                "[0]control_frame",
-                "control_frameAction",
-                "CONTROL",
-                "ld_fade_seq",
-                sorted_overall_fade_seq_list,
-            )
-
-        else:
-            action = ensure_action(first_obj, "control_frameAction")
-            draw_fade_on_curve(action, "ld_fade_seq", sorted_overall_fade_seq_list)
-
         state.fade_sequence_map["Overall"] = overall_fade_seq
         state.fade_load_frames["Overall"] = get_load_range(
             sorted_ctrl_map,
@@ -605,6 +647,8 @@ def init_fade_seq_from_state():
             selected_start_time,
             selected_end_time,
         )
+
+        reset_overall_ctrl_data()
 
         """setup fade for each dancer"""
         for dancer_name in state.dancer_names:
@@ -673,24 +717,6 @@ def init_pos_seq_from_state():
         for id, frame in sorted_pos_map[filtered_start_index : filtered_end_index + 1]:
             pos_start_record[id] = get_overall_pos_seq_for_frame(frame)
 
-        sorted_pos_start_record_list = sorted(
-            [seq for seq in pos_start_record.values()], key=lambda x: x[0]
-        )
-
-        first_obj = bpy.data.objects.get("[0]pos_frame")
-        if not first_obj:
-            add_obj(
-                "[0]pos_frame",
-                "pos_frameAction",
-                "POS",
-                "ld_pos_seq",
-                sorted_pos_start_record_list,
-            )
-
-        else:
-            action = ensure_action(first_obj, "pos_frameAction")
-            draw_pos_on_curve(action, "ld_pos_seq", sorted_pos_start_record_list)
-
         state.pos_sequence_map["Overall"] = pos_start_record
         state.fade_load_frames["Overall"] = get_load_range(
             sorted_pos_map,
@@ -699,6 +725,8 @@ def init_pos_seq_from_state():
             selected_start_time,
             selected_end_time,
         )
+
+        reset_overall_pos_data()
 
         """setup pos for selected dancer"""
         for dancer_name in state.dancer_names:
@@ -739,6 +767,7 @@ def init_pos_seq_from_state():
 def setup_seq_map():
     init_fade_seq_from_state()
     init_pos_seq_from_state()
+    clear_pinned_timeline()
 
 
 def update_fade_seq():
@@ -807,6 +836,14 @@ def update_fade_seq():
         for fade_seq in fade_seq_map.values():
             fade_seq.pop(id, None)
 
+    current_sel_obj = state.current_selected_obj_name
+    if current_sel_obj:
+        eff_obj_name = get_effective_name(current_sel_obj)
+        reset_selected_ctrl_data(eff_obj_name, eff_obj_name)
+
+    reset_overall_ctrl_data()
+    reset_pinned_object()
+
     return
 
 
@@ -838,5 +875,13 @@ def update_pos_seq(
     for _, id in deleted:
         for pos_seq in pos_seq_map.values():
             pos_seq.pop(id, None)
+
+    current_sel_obj = state.current_selected_obj_name
+    if current_sel_obj:
+        eff_obj_name = get_effective_name(current_sel_obj)
+        reset_selected_pos_data(eff_obj_name, eff_obj_name)
+
+    reset_overall_pos_data()
+    reset_pinned_object()
 
     return
