@@ -20,7 +20,7 @@ type LEDStatus = [i32; 4];
 const VERSION: [u8; 2] = [1, 1];
 const DEFAULT_COLOR: Color = [0, 0, 0];
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Effect {
     // effect_id: i32,
     status: Vec<[i32; 4]>,
@@ -240,21 +240,21 @@ pub async fn frame_dat(
             )
         }));
 
-    let no_change_effects: HashSet<i32> = HashSet::from_iter(
-        sqlx::query!(
-            r#"
-                SELECT
-                    LEDEffect.id
-                FROM LEDEffect
-                WHERE LEDEffect.name = 'no-change'
-            "#,
-        )
-        .fetch_all(mysql_pool)
-        .await
-        .into_result()?
-        .into_iter()
-        .map(|data| data.id),
-    );
+    // let no_change_effects: HashSet<i32> = HashSet::from_iter(
+    //     sqlx::query!(
+    //         r#"
+    //             SELECT
+    //                 LEDEffect.id
+    //             FROM LEDEffect
+    //             WHERE LEDEffect.name = 'no-change'
+    //         "#,
+    //     )
+    //     .fetch_all(mysql_pool)
+    //     .await
+    //     .into_result()?
+    //     .into_iter()
+    //     .map(|data| data.id),
+    // );
 
     // (id, color[])
     let mut effects_map: HashMap<i32, Effect> = HashMap::new();
@@ -302,14 +302,15 @@ pub async fn frame_dat(
         );
     }
 
-    for id in &no_change_effects {
-        effects_map.insert(*id, Effect { status: vec![] });
-    }
+    // for id in &no_change_effects {
+    //     effects_map.insert(*id, Effect { status: vec![] });
+    // }
 
     // (frame_id, part_id)
     let mut no_change_parts: HashSet<(i32, i32)> = HashSet::new();
 
     // ((frame_id, part_id), color[]
+    // None means no-change
     let mut led_data: HashMap<(i32, i32), &Vec<LEDStatus>> = HashMap::new();
 
     let led_effect_data = sqlx::query!(
@@ -343,27 +344,18 @@ pub async fn frame_dat(
     .collect_vec();
 
     for data in led_effect_data {
-        let effect_id = &data
-            .effect_id
-            .ok_or(format!(
-                "ControlData with type EFFECT does not have effect_id. ControlData.id={}",
-                data.control_data_id
-            ))
-            .into_result()?;
+        if let Some(id) = &data.effect_id {
+            let effect_status = &effects_map
+                .get(id)
+                .ok_or(format!("ControlData has invalid effect_id. ControlData.id={}, ControlData.effect_id={}",
+                        data.control_data_id, id))
+                .into_result()?
+                .status;
 
-        if no_change_effects.contains(effect_id) {
+            led_data.insert((data.frame_id, data.part_id), effect_status);
+        } else {
             no_change_parts.insert((data.frame_id, data.part_id));
         }
-
-        led_data.insert(
-            (data.frame_id, data.part_id),
-            &effects_map
-                .get(effect_id)
-                .ok_or(format!("ControlData has invalid effect_id. ControlData.id={}, ControlData.effect_id={}",
-                        data.control_data_id, data.effect_id.unwrap()))
-                .into_result()?
-                .status,
-        );
     }
 
     // ((frame_id, part_id), color[])
@@ -526,7 +518,7 @@ pub async fn frame_dat(
             {
                 frames
                     .last()
-                    .ok_or("first frame can't be no effect/no-change")
+                    .ok_or("First frame can't be no effect/no-change")
                     .into_result()?
                     .led_grb_data
                     .get(&led_part.id)

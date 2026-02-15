@@ -223,7 +223,7 @@ pub async fn upload_data(
         let led_progress =
             ProgressBar::new(data_obj.led_effects.len().try_into().unwrap_or_default());
 
-        let no_change_string = "no-change".to_string();
+        // let no_change_string = "no-change".to_string();
 
         for (model_name, dancer_effects) in &data_obj.led_effects {
             let mut model_effect_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
@@ -246,21 +246,21 @@ pub async fn upload_data(
 
                 let part_id = part.0;
 
-                let no_change_id = sqlx::query!(
-                    r#"
-                        INSERT INTO LEDEffect (name, model_id, part_id)
-                        VALUES (?, ?, ?);
-                    "#,
-                    no_change_string,
-                    model_id,
-                    part_id,
-                )
-                .execute(&mut *tx)
-                .await
-                .into_result()?
-                .last_insert_id() as i32;
-
-                part_effect_dict.insert(&no_change_string, no_change_id);
+                // let no_change_id = sqlx::query!(
+                //     r#"
+                //         INSERT INTO LEDEffect (name, model_id, part_id)
+                //         VALUES (?, ?, ?);
+                //     "#,
+                //     no_change_string,
+                //     model_id,
+                //     part_id,
+                // )
+                // .execute(&mut *tx)
+                // .await
+                // .into_result()?
+                // .last_insert_id() as i32;
+                //
+                // part_effect_dict.insert(&no_change_string, no_change_id);
 
                 for (effect_name, effect_data) in effects {
                     let effect_id = sqlx::query!(
