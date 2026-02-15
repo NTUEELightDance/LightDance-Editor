@@ -463,19 +463,21 @@ def reset_pinned_object():
     for i, obj_name in enumerate(state.pinned_objects):
         obj = bpy.data.objects.get(f"[{3+i}]pinned_{obj_name}")
         if obj:
+            action = ensure_action(obj, f"[{3+i}]pinned_{obj_name}Action")
+
             if state.editor == Editor.CONTROL_EDITOR:
                 fade_seq = sorted(
-                    [seq for seq in state.fade_sequence_map[obj.name].values()],
+                    [seq for seq in state.fade_sequence_map[obj_name].values()],
                     key=lambda x: x[0],
                 )
-                draw_fade_on_curve(obj, "ld_fade_seq", fade_seq)
+                draw_fade_on_curve(action, "ld_fade_seq", fade_seq)
 
             elif state.editor == Editor.POS_EDITOR:
                 pos_seq = sorted(
-                    [seq for seq in state.pos_sequence_map[obj.name].values()],
+                    [seq for seq in state.pos_sequence_map[obj_name].values()],
                     key=lambda x: x[0],
                 )
-                draw_pos_on_curve(obj, "ld_pos_seq", pos_seq)
+                draw_pos_on_curve(action, "ld_pos_seq", pos_seq)
 
 
 def clear_pinned_timeline():
@@ -493,12 +495,10 @@ def clear_timeline(old_selected_obj_name: str):
         )
 
         if state.editor == Editor.CONTROL_EDITOR:
-            delete_curve(action, "fade_for_selected_object")
-            set_dopesheet_filter("control_frame")
+            delete_curve(action, "ld_fade_seq")
 
         elif state.editor == Editor.POS_EDITOR:
-            delete_curve(action, "position_selected_dancer")
-            set_dopesheet_filter("pos_frame")
+            delete_curve(action, "ld_pos_seq")
 
         action.name = f"[1]selected_Action"
         deselect_obj.name = f"[1]selected_"

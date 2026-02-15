@@ -39,7 +39,7 @@ def setup_control_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("control_frame")
+    set_dopesheet_filter("fade_seq")
     set_dopesheet_collapse_all(True)
     state.editor = Editor.CONTROL_EDITOR
 
@@ -61,7 +61,8 @@ def setup_pos_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("pos_frame")
+    set_dopesheet_filter("pos_seq")
+    set_dopesheet_collapse_all(True)
     state.editor = Editor.POS_EDITOR
 
 
@@ -70,6 +71,7 @@ def setup_led_editor():
         return
     bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
+    clear_pinned_timeline()
     clear_selection()
 
     ld_ui_led_editor = getattr(bpy.context.window_manager, "ld_ui_led_editor")
