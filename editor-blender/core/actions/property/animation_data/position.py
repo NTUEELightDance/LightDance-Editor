@@ -8,17 +8,26 @@ from typing import cast
 
 import bpy
 
+from .....core.actions.state.dopesheet import register_handle_timeline
 from .....core.utils.for_dev_only.test_keyframe import renew_pos_test_frame
 from .....core.utils.for_dev_only.tmp_format_conv import sync_new_pos_map_from_old
 from .....properties.types import RevisionPropertyItemType
-from ....models import MapID, Position, PosMapElement
+from ....models import MapID, Position, PosMap, PosMapElement
 from ....states import state
-from ....utils.algorithms import smallest_range_including_lr
+from ....utils.algorithms import (
+    expanded_filtered_map_bound,
+    smallest_range_including_lr,
+)
 from ....utils.convert import PosModifyAnimationData
-from .utils import ensure_action, ensure_curve, get_keyframe_points
+from .utils import (
+    ensure_action,
+    ensure_curve,
+    ensure_or_expand_curve,
+    get_keyframe_points,
+)
 
 # if state.pos_map is empty, insert a default keyframe here
-default_keyframe_start = -100
+default_keyframe_start = -1
 
 
 def _init_pos_y(index: float, total: float):
@@ -131,7 +140,7 @@ def reset_pos_frames():
         point.interpolation = "LINEAR"
         point.select_control_point = False
 
-    renew_pos_test_frame()
+    # renew_pos_test_frame()
 
 
 def reset_pos_rev(sorted_pos_map: list[tuple[MapID, PosMapElement]]):
@@ -220,26 +229,60 @@ setups & update colormap(===setups)
 """
 
 
+def _init_pos_dancer_action_keyframes(
+    init_indexs_r_closed: tuple[int, int] | tuple[()],
+    sorted_pos_map: list[tuple[MapID, PosMapElement]],
+) -> dict[str, tuple[()] | tuple[int, int]]:
+    frame_range_l, frame_range_r = state.dancer_load_frames
+    init_index_l, init_index_r_closed = -1, -1
+    if init_indexs_r_closed:
+        (
+            init_index_l,
+            init_index_r_closed,
+        ) = init_indexs_r_closed  # r is included in range
+
+    dancer_dict = {}
+    for dancer in state.dancer_names:
+        if not init_indexs_r_closed:
+            dancer_dict[dancer] = ()
+            continue
+
+        dancer_dict[dancer] = expanded_filtered_map_bound(
+            frame_range_l,
+            frame_range_r,
+            init_index_l,
+            init_index_r_closed,
+            sorted_pos_map,
+            dancer,
+        )
+    return dancer_dict
+
+
 def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
     if not bpy.context:
         return
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-    pos_map = state.pos_map
+    pos_map_modified = state.pos_map_MODIFIED
 
-    sorted_pos_map = sorted(pos_map.items(), key=lambda item: item[1].start)
+    sorted_pos_map = sorted(pos_map_modified.items(), key=lambda item: item[1].start)
 
     sorted_frame_pos_map = [item[1].start for item in sorted_pos_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
     filtered_pos_map = []
-    if state.pos_map:
+    init_indexs_r_closed = ()
+    if state.pos_map_MODIFIED:
         filtered_pos_map_start, filtered_pos_map_end = smallest_range_including_lr(
             sorted_frame_pos_map, frame_range_l, frame_range_r
         )
         filtered_pos_map = sorted_pos_map[
             filtered_pos_map_start : filtered_pos_map_end + 1
         ]
+        init_indexs_r_closed = (
+            filtered_pos_map_start,
+            filtered_pos_map_end,
+        )  # end is included in the range
 
     # state.not_loaded_pos_frames: a list of pos map ID that is not loaded
     not_loaded_pos_frames: list[MapID] = []
@@ -268,98 +311,120 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if action != None:
                 bpy.data.actions.remove(action, do_unlink=True)
 
-    if not pos_map:
+    # _set_default_keyframes()
+
+    # Handle empty pos_map
+    if not pos_map_modified:
         _set_default_keyframes()
 
         # Delete all fake frame
         scene = bpy.context.scene
         action = ensure_action(scene, "SceneAction")
         curve = ensure_curve(action, "ld_pos_frame", keyframe_points=0, clear=True)
-    else:
-        for i, (id, pos_map_element) in enumerate(filtered_pos_map):
-            if pos_frame_number == 0:
-                break
 
-            frame_start = pos_map_element.start
-            pos_status = pos_map_element.pos
+        # FIXME delete this after, only for test
+        renew_pos_test_frame()
 
-            for dancer_name, pos in pos_status.items():
-                dancer_index = state.dancer_part_index_map[dancer_name].index
-                # if ((dancers_reset and not dancers_reset[dancer_index])
-                #     or not show_dancer[dancer_index]
-                # ):
-                #     continue
-                if not show_dancer[dancer_index]:
-                    continue
+        return
 
-                pos = cast(Position, pos)
-                dancer_location = (pos.location.x, pos.location.y, pos.location.z)
-                dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
+    dancer_range_dict = _init_pos_dancer_action_keyframes(
+        init_indexs_r_closed, sorted_pos_map
+    )
+    # has_cleared_dict = {}
+    # for dancer_name in state.dancer_names:
+    #     has_cleared_dict[dancer_name] = False
 
-                dancer_obj = data_objects[dancer_name]
+    getattr(bpy.context.scene, "ld_pos_rev").clear()
 
-                action = ensure_action(dancer_obj, dancer_name + "Action")
+    for i, (id, pos_map_element) in enumerate(sorted_pos_map):
+        frame_start = pos_map_element.start
+        pos_status = pos_map_element.pos
 
-                for d in range(3):
-                    loc_curve = ensure_curve(
-                        action,
-                        "location",
-                        index=d,
-                        keyframe_points=pos_frame_number,
-                        clear=i == 0,
-                    )
-                    rot_curve = ensure_curve(
-                        action,
-                        "rotation_euler",
-                        index=d,
-                        keyframe_points=pos_frame_number,
-                        clear=i == 0,
-                    )
+        for dancer_name, pos in pos_status.items():
+            dancer_index = state.dancer_part_index_map[dancer_name].index
+            dancer_shown_indexs_dict = dancer_range_dict[dancer_name]
 
-                    _, loc_kpoints_list = get_keyframe_points(loc_curve)
-                    _, rot_kpoints_list = get_keyframe_points(rot_curve)
+            if (
+                not show_dancer[dancer_index]
+                or not dancer_shown_indexs_dict
+                or pos is None
+            ):
+                continue
 
-                    loc_point = loc_kpoints_list[i]
-                    rot_point = rot_kpoints_list[i]
-                    loc_point.co = frame_start, dancer_location[d]
-                    rot_point.co = frame_start, dancer_rotation[d]
+            dancer_l, dancer_r = dancer_shown_indexs_dict
+            if not (dancer_l <= i <= dancer_r):
+                continue
 
-                    loc_point.interpolation = "LINEAR"
-                    rot_point.interpolation = "LINEAR"
+            pos = cast(Position, pos)
+            dancer_location = (pos.location.x, pos.location.y, pos.location.z)
+            dancer_rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
 
-                    loc_point.select_control_point = False
-                    rot_point.select_control_point = False
+            dancer_obj = data_objects[dancer_name]
 
-            # insert fake frame
-            scene = bpy.context.scene
+            action = ensure_action(dancer_obj, dancer_name + "Action")
+            # is_cleared = has_cleared_dict[dancer_name]
+            for d in range(3):
+                loc_curve = ensure_or_expand_curve(
+                    action,
+                    "location",
+                    index=d,
+                    clear=False,
+                )
+                rot_curve = ensure_or_expand_curve(
+                    action,
+                    "rotation_euler",
+                    index=d,
+                    clear=False,
+                )
 
-            action = ensure_action(scene, "SceneAction")
-            curve = ensure_curve(
-                action, "ld_pos_frame", keyframe_points=pos_frame_number, clear=i == 0
-            )
-            _, kpoints_list = get_keyframe_points(curve)
+                _, loc_kpoints_list = get_keyframe_points(loc_curve)
+                _, rot_kpoints_list = get_keyframe_points(rot_curve)
 
-            point = kpoints_list[i]
-            point.co = frame_start, frame_start
-            point.interpolation = "CONSTANT"
+                loc_point = loc_kpoints_list[-1]
+                rot_point = rot_kpoints_list[-1]
+                loc_point.co = frame_start, dancer_location[d]
+                rot_point.co = frame_start, dancer_rotation[d]
 
-            point.select_control_point = False
+                loc_point.interpolation = "LINEAR"
+                rot_point.interpolation = "LINEAR"
 
-            # set revision
-            rev = pos_map_element.rev
+                loc_point.select_control_point = False
+                rot_point.select_control_point = False
 
-            pos_rev_item: RevisionPropertyItemType = getattr(
-                bpy.context.scene, "ld_pos_rev"
-            ).add()
+            # has_cleared_dict[dancer_name] = True
 
-            pos_rev_item.data = rev.data if rev else -1
-            pos_rev_item.meta = rev.meta if rev else -1
+    for i, (id, pos_map_element) in enumerate(filtered_pos_map):
+        frame_start = pos_map_element.start
 
-            pos_rev_item.frame_id = id
-            pos_rev_item.frame_start = frame_start
+        # insert fake frame
+        scene = bpy.context.scene
+
+        action = ensure_action(scene, "SceneAction")
+        curve = ensure_curve(
+            action, "ld_pos_frame", keyframe_points=pos_frame_number, clear=i == 0
+        )
+        _, kpoints_list = get_keyframe_points(curve)
+
+        point = kpoints_list[i]
+        point.co = frame_start, frame_start
+        point.interpolation = "CONSTANT"
+
+        point.select_control_point = False
+
+        # set revision
+        rev = pos_map_element.rev
+
+        pos_rev_item: RevisionPropertyItemType = getattr(
+            bpy.context.scene, "ld_pos_rev"
+        ).add()
+
+        pos_rev_item.data = rev.data if rev else -1
+        pos_rev_item.meta = rev.meta if rev else -1
+
+        pos_rev_item.frame_id = id
+        pos_rev_item.frame_start = frame_start
 
     # FIXME delete this after, only for test
-    sync_new_pos_map_from_old()
     renew_pos_test_frame()
 
 
@@ -382,7 +447,6 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
             continue
 
         dancer_obj = data_objects[dancer_name]
-
         frames = modify_animation_data[dancer_name]
 
         delete = len(frames[0]) > 0
@@ -401,6 +465,8 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         # If exist default keyframe(Pos keyframe is originally empty), clear default keyframe
         if kpoints_len == 1 and loc_kpoints_lists[0][0].co[0] == default_keyframe_start:
             _clear_default_keyframes()
+            loc_kpoints_lists = [get_keyframe_points(curve)[1] for curve in loc_curves]
+            rot_kpoints_lists = [get_keyframe_points(curve)[1] for curve in rot_curves]
 
         kpoints_len = len(loc_kpoints_lists[0])
 
@@ -424,11 +490,15 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         kpoints_len = len(loc_kpoints_lists[0])
 
         update_reorder = False
+        add_from_update: list[
+            tuple[int, tuple[tuple[float, float, float], tuple[float, float, float]]]
+        ] = []
         if update:
             curve_index = 0
             points_to_update: list[tuple[int, bpy.types.Keyframe, float]] = []
+            frames_to_delete: list[int] = []
 
-            for old_start, frame_start, loc, rot in frames[1]:
+            for old_start, frame_start, bundle in frames[1]:
                 if old_start != frame_start:
                     update_reorder = True
 
@@ -439,26 +509,51 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                     curve_index += 1
 
                 if curve_index < kpoints_len:
-                    for d in range(3):
-                        loc_point = loc_kpoints_lists[d][curve_index]
-                        rot_point = rot_kpoints_lists[d][curve_index]
-                        points_to_update.append((frame_start, loc_point, loc[d]))
-                        points_to_update.append((frame_start, rot_point, rot[d]))
+                    if bundle is None:
+                        frames_to_delete.append(old_start)
+                    else:
+                        loc, rot = bundle
+                        for d in range(3):
+                            loc_point = loc_kpoints_lists[d][curve_index]
+                            rot_point = rot_kpoints_lists[d][curve_index]
+                            points_to_update.append((frame_start, loc_point, loc[d]))
+                            points_to_update.append((frame_start, rot_point, rot[d]))
+                else:
+                    if bundle is not None:
+                        add_from_update.append((frame_start, bundle))
 
             for frame_start, kpoint, co in points_to_update:
                 kpoint.co = frame_start, co
                 kpoint.interpolation = "LINEAR"
                 kpoint.select_control_point = False
 
+            # Delete frames where all dancers are None
+            if frames_to_delete:
+                curve_index = 0
+                for old_start in frames_to_delete:
+                    while (
+                        curve_index < len(loc_kpoints_lists[0])
+                        and int(loc_kpoints_lists[0][curve_index].co[0]) != old_start
+                    ):
+                        curve_index += 1
+
+                    if curve_index < len(loc_kpoints_lists[0]):
+                        for d in range(3):
+                            loc_point = loc_kpoints_lists[d][curve_index]
+                            rot_point = rot_kpoints_lists[d][curve_index]
+                            loc_curves[d].keyframe_points.remove(loc_point)
+                            rot_curves[d].keyframe_points.remove(rot_point)
+
         kpoints_len = len(loc_kpoints_lists[0])
 
         # Add frames
-        if add:
+        add_bundle = frames[2] + add_from_update
+        if add_bundle:
             for d in range(3):
-                loc_curves[d].keyframe_points.add(len(frames[2]))
-                rot_curves[d].keyframe_points.add(len(frames[2]))
+                loc_curves[d].keyframe_points.add(len(add_bundle))
+                rot_curves[d].keyframe_points.add(len(add_bundle))
 
-                for i, (frame_start, loc, rot) in enumerate(frames[2]):
+                for i, (frame_start, (loc, rot)) in enumerate(add_bundle):
                     loc_point = loc_kpoints_lists[d][kpoints_len + i]
                     rot_point = rot_kpoints_lists[d][kpoints_len + i]
 
@@ -469,12 +564,8 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                     loc_point.select_control_point = True
                     rot_point.select_control_point = True
 
-        if update_reorder or add:
+        if update_reorder or add or add_from_update:
             for curve in loc_curves:
                 curve.keyframe_points.sort()
             for curve in rot_curves:
                 curve.keyframe_points.sort()
-
-        kpoints_len = len(loc_kpoints_lists[0])
-        if kpoints_len == 0:
-            _set_default_keyframes()

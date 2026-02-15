@@ -161,7 +161,9 @@ def handle_autoselect_in_control_editor_part_mode():
             if (
                 active_obj_parent
                 and (
-                    active_obj_parent["ld_effect"] != 0
+                    # FIXME: Must fix this
+                    active_obj_parent["ld_is_none"] == True
+                    or active_obj_parent["ld_effect"] != 0
                     or (active_obj_parent["ld_effect"] == 0 and not state.local_view)
                 )
             ) or state.edit_state == EditMode.IDLE:

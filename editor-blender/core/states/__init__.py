@@ -1,6 +1,5 @@
 from ..models import (
     Clipboard,
-    Clipboard_MODIFIED,
     ColorMapPending,
     ColorMapUpdates,
     ControlMapUpdates,
@@ -65,14 +64,11 @@ state = State(
     current_control_index=0,
     current_pos_index=0,
     current_led_index=0,
-    current_fade=False,
     current_status={},
     current_led_status={},
-    current_pos={},
     #
     current_status_MODIFIED={},
     current_pos_MODIFIED={},
-    clipboard_MODIFIED=Clipboard_MODIFIED(CopiedType.NONE),
     control_map_updates_MODIFIED=ControlMapUpdates_MODIFIED(
         added={}, updated={}, deleted={}
     ),

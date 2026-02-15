@@ -8,6 +8,7 @@ from ...log import logger
 from ...models import DancerName, EditingData, EditMode, Position
 from ...states import state
 from ...utils.algorithms import linear_interpolation
+from ...utils.for_dev_only.mock_sub_map import SubType, mock_sub_pos_map
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
 from .app_state import send_request
@@ -49,7 +50,7 @@ def sync_editing_pos_frame_properties():
 def pos_frame_neighbors(
     frame: int, dancer_name: DancerName
 ) -> tuple[tuple[int, Position], tuple[int, Position]] | None:
-    pos_map = sorted(state.pos_map.values(), key=lambda elem: elem.start)
+    pos_map = sorted(state.pos_map_MODIFIED.values(), key=lambda elem: elem.start)
     if len(pos_map) == 0:
         return None
 
@@ -87,143 +88,207 @@ async def add_pos_frame():
     start = bpy.context.scene.frame_current
 
     show_dancer = state.show_dancers
-    # Get current position data from ld_position
-    positionData: list[list[float]] = []
+    # Get position data: None for all dancers, will use neighbor frames for interpolation
+    positionData: list[list[float] | None] = []
     for index in range(len(state.dancer_names)):
-        if not state.pos_map:
-            init_y = _init_pos_y(index, len(state.dancer_names))
-            positionData.append([0, init_y, 0, 0, 0, 0])
-            continue
+        positionData.append(None)
 
-        if not show_dancer[index]:
-            neighbor_frame = pos_frame_neighbors(start, state.dancer_names[index])
-            if neighbor_frame != None:
-                new_position: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-                location_attribute = ["x", "y", "z", "rx", "ry", "rz"]
+    try:
+        mock_sub_pos_map(SubType.CreateFrames, start=start, positionData=positionData)
+        notify("INFO", "Added position frame (mock)")
+        # apply_pos_map_updates()
+        # update_current_pos_by_index()
+        redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    except Exception:
+        logger.exception("Failed to add position frame (mock)")
+        notify("WARNING", "Cannot add position frame")
 
-                for index in range(3):
-                    llocation = neighbor_frame[0][1].location
-                    lpos = getattr(llocation, location_attribute[index])
-                    ldist = start - neighbor_frame[0][0]
-                    rlocation = neighbor_frame[1][1].location
-                    rpos = getattr(rlocation, location_attribute[index])
-                    rdist = neighbor_frame[1][0] - start
-                    new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
-                for index in range(3, 6):
-                    lrotation = neighbor_frame[0][1].rotation
-                    lpos = getattr(lrotation, location_attribute[index])
-                    ldist = start - neighbor_frame[0][0]
-                    rrotation = neighbor_frame[1][1].rotation
-                    rpos = getattr(rrotation, location_attribute[index])
-                    rdist = neighbor_frame[1][0] - start
-                    new_position[index] = linear_interpolation(lpos, ldist, rpos, rdist)
-
-                positionData.append(new_position)
-            else:
-                positionData.append([0, 0, 0])
-            continue
-
-        dancer_name = state.dancer_names[index]
-        obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
-        if obj is not None:
-            ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            positionData.append(
-                [
-                    ld_position.location[0],
-                    ld_position.location[1],
-                    ld_position.location[2],
-                    ld_position.rotation[0],
-                    ld_position.rotation[1],
-                    ld_position.rotation[2],
-                ]
-            )
-        else:
-            positionData.append([0, 0, 0, 0, 0, 0])
-
-    with send_request():
-        try:
-            id = await pos_agent.add_frame(start, positionData)
-            notify("INFO", f"Added position frame: {id}")
-        except:
-            logger.exception("Failed to add position frame")
-            notify("WARNING", "Cannot add position frame")
+    # with send_request():
+    #     try:
+    #         id = await pos_agent.add_frame(start, positionData)
+    #         notify("INFO", f"Added position frame: {id}")
+    #     except:
+    #         logger.exception("Failed to add position frame")
+    #         notify("WARNING", "Cannot add position frame")
 
 
 async def save_pos_frame(start: int | None = None):
     id = state.editing_data.frame_id
     show_dancer = state.show_dancers
     # Get current position data from ld_position
-    positionData: list[list[float]] = []
+    positionData: list[list[float] | None] = []
 
     for index in range(len(state.dancer_names)):
         if not show_dancer[index]:
-            pos = state.pos_map[id].pos[state.dancer_names[index]]
-            positionData.append(
-                [
-                    pos.location.x,
-                    pos.location.y,
-                    pos.location.z,
-                    pos.rotation.rx,
-                    pos.rotation.ry,
-                    pos.rotation.rz,
-                ]
-            )
+            pos = state.pos_map_MODIFIED[id].pos[state.dancer_names[index]]
+            if pos is None:
+                positionData.append(None)
+            else:
+                positionData.append(
+                    [
+                        pos.location.x,
+                        pos.location.y,
+                        pos.location.z,
+                        pos.rotation.rx,
+                        pos.rotation.ry,
+                        pos.rotation.rz,
+                    ]
+                )
             continue
 
         dancer_name = state.dancer_names[index]
         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            positionData.append(
-                [
-                    ld_position.location[0],
-                    ld_position.location[1],
-                    ld_position.location[2],
-                    ld_position.rotation[0],
-                    ld_position.rotation[1],
-                    ld_position.rotation[2],
-                ]
-            )
-        else:
-            positionData.append([0, 0, 0, 0, 0, 0])
-
-    with send_request():
-        try:
-            await pos_agent.save_frame(id, positionData, start=start)
-            notify("INFO", f"Saved position frame: {id}")
-
-            # Cancel editing
-            ok = await pos_agent.cancel_edit(id)
-
-            if ok is not None and ok:
-                # Reset editing state
-                state.current_editing_frame = -1
-                state.current_editing_detached = False
-                state.current_editing_frame_synced = False
-                state.edit_state = EditMode.IDLE
-
-                # Imediately apply changes produced by editing
-                apply_pos_map_updates()
-
-                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            if getattr(ld_position, "is_none", False):
+                positionData.append(None)
             else:
-                notify("WARNING", "Cannot exit editing")
-        except:
-            logger.exception("Failed to save position frame")
-            notify("WARNING", "Cannot save position frame")
+                positionData.append(
+                    [
+                        ld_position.location[0],
+                        ld_position.location[1],
+                        ld_position.location[2],
+                        ld_position.rotation[0],
+                        ld_position.rotation[1],
+                        ld_position.rotation[2],
+                    ]
+                )
+        else:
+            # positionData.append([0, 0, 0, 0, 0, 0])
+            positionData.append(None)
+
+    save_start = start if start is not None else state.pos_map_MODIFIED[id].start
+    try:
+        mock_sub_pos_map(
+            SubType.UpdateFrames,
+            id=id,
+            positionData=positionData,
+            start=save_start,
+        )
+        notify("INFO", f"Saved position frame (mock): {id}")
+    except Exception:
+        logger.exception("Failed to save position frame (mock)")
+        notify("WARNING", "Cannot save position frame")
+        return
+
+    # finish editing
+    state.current_editing_frame = -1
+    state.current_editing_detached = False
+    state.current_editing_frame_synced = False
+    state.edit_state = EditMode.IDLE
+
+    apply_pos_map_updates()
+    update_current_pos_by_index()
+    sync_editing_pos_frame_properties()
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    return
+
+    # # Cancel editing
+    # ok = await pos_agent.cancel_edit(id)
+
+    # if ok is not None and ok:
+    #     # Reset editing state
+    #     state.current_editing_frame = -1
+    #     state.current_editing_detached = False
+    #     state.current_editing_frame_synced = False
+    #     state.edit_state = EditMode.IDLE
+
+    #     # Imediately apply changes produced by editing
+    #     apply_pos_map_updates()
+
+    #     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+
+    # with send_request():
+    #     try:
+    #         await pos_agent.save_frame(id, positionData, start=start)
+    #         notify("INFO", f"Saved position frame: {id}")
+
+    #         # Cancel editing
+    #         ok = await pos_agent.cancel_edit(id)
+
+    #         if ok is not None and ok:
+    #             # Reset editing state
+    #             state.current_editing_frame = -1
+    #             state.current_editing_detached = False
+    #             state.current_editing_frame_synced = False
+    #             state.edit_state = EditMode.IDLE
+
+    #             # Imediately apply changes produced by editing
+    #             apply_pos_map_updates()
+
+    #             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    #         else:
+    #             notify("WARNING", "Cannot exit editing")
+    #     except:
+    #         logger.exception("Failed to save position frame")
+    #         notify("WARNING", "Cannot save position frame")
 
 
 async def delete_pos_frame():
     index = state.current_pos_index
     id = state.pos_record[index]
 
-    with send_request():
+    # Get the frame data
+    frame = state.pos_map_MODIFIED.get(id)
+    if frame is None:
+        notify("WARNING", "Frame not found")
+        return
+
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
+    shown_dancer_names = [
+        dancer_name
+        for dancer_name in state.dancer_names
+        if show_dancer_dict.get(dancer_name, False)
+    ]
+    hidden_dancer_names = [
+        dancer_name
+        for dancer_name in state.dancer_names
+        if not show_dancer_dict.get(dancer_name, False)
+    ]
+
+    # If all hidden dancers are None state -> delete frame
+    hidden_all_none = True
+    for dancer_name in hidden_dancer_names:
+        pos = frame.pos.get(dancer_name)
+        if not pos is None:
+            hidden_all_none = False
+            break
+
+    if hidden_all_none:
         try:
-            await pos_agent.delete_frame(id)
-            notify("INFO", f"Deleted position frame: {id}")
-        except:
-            logger.exception("Failed to delete position frame")
+            mock_sub_pos_map(SubType.DeleteFrames, id=id)
+            notify("INFO", f"Deleted position frame (mock): {id}")
+
+            apply_pos_map_updates()
+            update_current_pos_by_index()
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+        except Exception:
+            logger.exception("Failed to delete position frame (mock)")
             notify("WARNING", "Cannot delete position frame")
+        return
+        # with send_request():
+        #     try:
+        #         await pos_agent.delete_frame(id)
+        #         notify("INFO", f"Deleted position frame: {id}")
+        #     except Exception:
+        #         logger.exception("Failed to delete position frame")
+        #         notify("WARNING", "Cannot delete position frame")
+        # return
+
+    # There exists hidden dancer with non-None state -> set all shown dancers to None state.
+    ok = await request_edit_pos()
+    if not ok:
+        return
+
+    for dancer_name in shown_dancer_names:
+        obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
+        if obj is None:
+            continue
+        ld_position: PositionPropertyType = getattr(obj, "ld_position")
+        setattr(ld_position, "is_none", True)
+
+    await save_pos_frame()
 
 
 async def request_edit_pos() -> bool:
@@ -232,10 +297,11 @@ async def request_edit_pos() -> bool:
 
     index = state.current_pos_index
     pos_id = state.pos_record[index]
-    pos_frame = state.pos_map[pos_id]
+    pos_frame = state.pos_map_MODIFIED[pos_id]
 
-    with send_request():
-        ok = await pos_agent.request_edit(pos_id)
+    # with send_request():
+    #     ok = await pos_agent.request_edit(pos_id)
+    ok = True
 
     if ok is not None and ok:
         # Init editing state
@@ -259,24 +325,33 @@ async def cancel_edit_pos():
     index = state.current_pos_index
     id = state.pos_record[index]
 
-    with send_request():
-        try:
-            ok = await pos_agent.cancel_edit(id)
+    update_current_pos_by_index()
 
-            if ok is not None and ok:
-                # Revert modification
-                update_current_pos_by_index()
+    # Reset editing state
+    state.current_editing_frame = -1
+    state.current_editing_detached = False
+    state.current_editing_frame_synced = False
+    state.edit_state = EditMode.IDLE
 
-                # Reset editing state
-                state.current_editing_frame = -1
-                state.current_editing_detached = False
-                state.current_editing_frame_synced = False
-                state.edit_state = EditMode.IDLE
+    redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    # with send_request():
+    #     try:
+    #         ok = await pos_agent.cancel_edit(id)
 
-                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-            else:
-                notify("WARNING", "Cannot cancel edit")
+    #         if ok is not None and ok:
+    #             # Revert modification
+    #             update_current_pos_by_index()
 
-        except:
-            logger.exception("Failed to cancel edit position frame")
-            notify("WARNING", "Cannot cancel edit")
+    #             # Reset editing state
+    #             state.current_editing_frame = -1
+    #             state.current_editing_detached = False
+    #             state.current_editing_frame_synced = False
+    #             state.edit_state = EditMode.IDLE
+
+    #             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+    #         else:
+    #             notify("WARNING", "Cannot cancel edit")
+
+    #     except:
+    #         logger.exception("Failed to cancel edit position frame")
+    #         notify("WARNING", "Cannot cancel edit")

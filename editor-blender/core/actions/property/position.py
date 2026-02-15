@@ -35,3 +35,6 @@ def update_current_position(self: bpy.types.PropertyGroup, context: bpy.types.Co
 
     obj.location = ld_position.location
     obj.rotation_euler = ld_position.rotation
+
+    if ld_position.is_none:
+        ld_position.is_none = False

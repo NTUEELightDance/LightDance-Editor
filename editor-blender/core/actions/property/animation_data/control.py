@@ -12,9 +12,20 @@ from .....core.utils.for_dev_only.test_keyframe import renew_ctrl_test_frame
 from .....core.utils.for_dev_only.tmp_format_conv import sync_new_ctrl_map_from_old
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
-from ....models import ControlMap, ControlMapElement, MapID, PartType
+from ....models import (
+    ControlMap,
+    ControlMapElement,
+    ControlMapElement_MODIFIED,
+    DancerName,
+    MapID,
+    PartName,
+    PartType,
+)
 from ....states import state
-from ....utils.algorithms import smallest_range_including_lr
+from ....utils.algorithms import (
+    expanded_filtered_map_bound,
+    smallest_range_including_lr,
+)
 from ....utils.convert import (
     ControlAddAnimationData,
     ControlAddCurveData,
@@ -53,7 +64,7 @@ def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
     renew_ctrl_test_frame()
 
 
-def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]):
+def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]]):
     if not bpy.context:
         return
     getattr(bpy.context.scene, "ld_ctrl_rev").clear()
@@ -159,12 +170,9 @@ initiate control keyframes
 def init_ctrl_single_object_action(
     action: bpy.types.Action,
     frames: list[tuple[int, bool, tuple[float, float, float]]],
-    ctrl_frame_number: int,
 ):
     curves = [
-        ensure_curve(
-            action, "color", index=d, keyframe_points=ctrl_frame_number, clear=True
-        )
+        ensure_curve(action, "color", index=d, keyframe_points=len(frames), clear=True)
         for d in range(3)
     ]
     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
@@ -178,9 +186,9 @@ def init_ctrl_single_object_action(
             point.select_control_point = False
 
 
-def filter_ctrl_map_by_loaded_range(
-    sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]
-) -> tuple[list[int], list[tuple[MapID, ControlMapElement]]]:
+def _filter_ctrl_map_by_loaded_range(
+    sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
+) -> tuple[list[int], list[tuple[MapID, ControlMapElement_MODIFIED]], tuple[int, int],]:
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
@@ -200,7 +208,46 @@ def filter_ctrl_map_by_loaded_range(
             not_loaded_ctrl_frames.append(sorted_ctrl_map[sorted_index][0])
         else:
             filtered_index += 1
-    return not_loaded_ctrl_frames, filtered_ctrl_map
+
+    init_indexs_r_closed = (
+        filtered_ctrl_map_start,
+        filtered_ctrl_map_end,
+    )
+
+    return not_loaded_ctrl_frames, filtered_ctrl_map, init_indexs_r_closed
+
+
+def _init_control_part_action_keyframes(
+    init_indexs_r_closed: tuple[int, int] | tuple[()],
+    sorted_control_map: list[tuple[MapID, ControlMapElement_MODIFIED]],
+) -> dict[PartName, tuple[()] | tuple[int, int]]:
+    frame_range_l, frame_range_r = state.dancer_load_frames
+    init_index_l, init_index_r_closed = -1, -1
+    if init_indexs_r_closed:
+        (
+            init_index_l,
+            init_index_r_closed,
+        ) = init_indexs_r_closed  # r is included in range
+
+    part_dict = {}
+
+    for dancer, parts in state.dancers.items():
+        for part in parts:
+            if not init_indexs_r_closed:
+                part_dict[part] = ()
+                continue
+
+            part_dict[part] = expanded_filtered_map_bound(
+                frame_range_l,
+                frame_range_r,
+                init_index_l,
+                init_index_r_closed,
+                sorted_control_map,
+                dancer,
+                part,
+            )
+
+    return part_dict
 
 
 def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
@@ -208,16 +255,32 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
         return
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-    ctrl_map = state.control_map
+    ctrl_map = state.control_map_MODIFIED
 
     sorted_ctrl_map = sorted(ctrl_map.items(), key=lambda item: item[1].start)
-    not_loaded_ctrl_frames, filtered_ctrl_map = filter_ctrl_map_by_loaded_range(
-        sorted_ctrl_map
-    )
+    sorted_ctrl_start_map = [item[1].start for item in sorted_ctrl_map]
+    frame_range_l, frame_range_r = state.dancer_load_frames
 
+    filtered_ctrl_map = []
+    init_indexs_r_closed = ()
+    not_loaded_ctrl_frames = []
+    if state.control_map_MODIFIED:
+        filtered_ctrl_map_start, filtered_ctrl_map_end = smallest_range_including_lr(
+            sorted_ctrl_start_map, frame_range_l, frame_range_r
+        )
+        init_indexs_r_closed = filtered_ctrl_map_start, filtered_ctrl_map_end
+        (
+            not_loaded_ctrl_frames,
+            filtered_ctrl_map,
+            init_indexs_r_closed,
+        ) = _filter_ctrl_map_by_loaded_range(sorted_ctrl_map)
+
+    part_range_dict = _init_control_part_action_keyframes(
+        init_indexs_r_closed, sorted_ctrl_map
+    )
     # state.not_loaded_ctrl_frames: a list of ctrl map ID that is not loaded
     state.not_loaded_control_frames = not_loaded_ctrl_frames
-    animation_data = control_map_to_animation_data(filtered_ctrl_map)
+    animation_data = control_map_to_animation_data(filtered_ctrl_map, part_range_dict)
 
     ctrl_frame_number = len(filtered_ctrl_map)
 
@@ -274,6 +337,9 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
             part_obj_name = f"{dancer_index}_{part_name}"
             part_obj = data_objects[part_obj_name]
 
+            if not animation_data[dancer_name][part_name]:
+                continue
+
             if part_type == PartType.LED:
                 for led_obj in part_obj.children:
                     position: int = getattr(led_obj, "ld_led_pos")
@@ -281,12 +347,11 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
                     action = ensure_action(
                         led_obj, f"{part_obj_name}Action.{position:03}"
                     )
-
                     frames = cast(
                         list[tuple[int, bool, tuple[float, float, float]]],
                         animation_data[dancer_name][part_name][position],
                     )
-                    init_ctrl_single_object_action(action, frames, ctrl_frame_number)
+                    init_ctrl_single_object_action(action, frames)
 
             else:
                 action = ensure_action(part_obj, f"{part_obj_name}Action")
@@ -295,7 +360,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
                     list[tuple[int, bool, tuple[float, float, float]]],
                     animation_data[dancer_name][part_name],
                 )
-                init_ctrl_single_object_action(action, frames, ctrl_frame_number)
+                init_ctrl_single_object_action(action, frames)
 
     reset_ctrl_rev(sorted_ctrl_map)
 
@@ -310,13 +375,12 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     if ctrl_frame_number == 0:
         return
 
-    # FIXME delete this after test
-    sync_new_ctrl_map_from_old()
-
     action = ensure_action(scene, "SceneAction")
 
     if dancers_reset is None or all(dancers_reset):
-        fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
+        fade_seq = [
+            (frame.start, frame.fade_for_new_status) for _, frame in filtered_ctrl_map
+        ]
         reset_control_frames_and_fade_sequence(fade_seq)
 
 
@@ -364,14 +428,24 @@ def modify_partial_ctrl_single_object_action(
         curve_index = 0
         points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
 
-        for old_start, frame_start, fade, rgb in frames[1]:
+        for old_start, frame_start, package in frames[1]:
             while (
                 curve_index < kpoints_len
                 and int(kpoints_lists[0][curve_index].co[0]) != old_start
             ):
                 curve_index += 1
 
-            if curve_index < kpoints_len:
+            original_status_is_not_None = curve_index < kpoints_len
+            if original_status_is_not_None:
+                if package is None:
+                    # Have Status to No Status => Delete corresponding kpoint
+                    for d in range(3):
+                        point = kpoints_lists[d][curve_index]
+                        curves[d].keyframe_points.remove(point)
+                    kpoints_len -= 1
+                    continue
+
+                fade, rgb = package
                 for d in range(3):
                     point = kpoints_lists[d][curve_index]
                     points_to_update.append((frame_start, point, rgb[d], fade))
@@ -380,6 +454,22 @@ def modify_partial_ctrl_single_object_action(
                     kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
                     and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
                     >= frame_start
+                ):
+                    update_reorder = True
+            else:
+                if package is None:
+                    continue
+
+                # No Status to Have Status => Add corresponding kpoint
+                fade, rgb = package
+                for d in range(3):
+                    point = curves[d].keyframe_points.insert(frame_start, rgb[d])
+                    point.interpolation = "LINEAR" if fade else "CONSTANT"
+                    point.select_control_point = True
+
+                if (
+                    len(kpoints_lists[0]) >= 2
+                    and kpoints_lists[0][-2].co[0] > frame_start
                 ):
                     update_reorder = True
 
@@ -403,13 +493,16 @@ def modify_partial_ctrl_single_object_action(
             #
             #     point.interpolation = "LINEAR" if fade else "CONSTANT"
             #     point.select_control_point = True
-            for frame_start, fade, rgb_float in frames[2]:
+            for frame_start, package in frames[2]:
+                if package is None:
+                    continue
+                fade, rgb_float = package
                 point = curve.keyframe_points.insert(frame_start, rgb_float[d])
 
                 point.interpolation = "LINEAR" if fade else "CONSTANT"
                 point.select_control_point = True
 
-    if update_reorder:
+    if add or update_reorder:
         for curve in curves:
             curve.keyframe_points.sort()
 
@@ -477,231 +570,231 @@ add control keyframes
 """
 
 
-def add_partial_ctrl_single_object_action(
-    action: bpy.types.Action,
-    frames: list[tuple[int, bool, tuple[float, float, float]]],
-):
-    curves = [ensure_curve(action, "color", index=d) for d in range(3)]
-    # kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
+# def add_partial_ctrl_single_object_action(
+#     action: bpy.types.Action,
+#     frames: list[tuple[int, bool, tuple[float, float, float]]],
+# ):
+#     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
+#     # kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
-    for d, curve in enumerate(curves):
-        # WARNING: Not sure which is faster
-        # kpoints_len = len(kpoints_lists[d])
-        # curve.keyframe_points.add(len(frames))
-        #
-        # for i, (frame_start, fade, rgb_float) in enumerate(frames):
-        #     point = kpoints_lists[d][kpoints_len + i]
-        #     point.co = frame_start, rgb_float[d]
-        #
-        #     point.interpolation = "LINEAR" if fade else "CONSTANT"
-        #     point.select_control_point = True
-        #
-        # curve.keyframe_points.sort()
-        for frame_start, fade, rgb_float in frames:
-            point = curve.keyframe_points.insert(frame_start, rgb_float[d])
+#     for d, curve in enumerate(curves):
+#         # WARNING: Not sure which is faster
+#         # kpoints_len = len(kpoints_lists[d])
+#         # curve.keyframe_points.add(len(frames))
+#         #
+#         # for i, (frame_start, fade, rgb_float) in enumerate(frames):
+#         #     point = kpoints_lists[d][kpoints_len + i]
+#         #     point.co = frame_start, rgb_float[d]
+#         #
+#         #     point.interpolation = "LINEAR" if fade else "CONSTANT"
+#         #     point.select_control_point = True
+#         #
+#         # curve.keyframe_points.sort()
+#         for frame_start, fade, rgb_float in frames:
+#             point = curve.keyframe_points.insert(frame_start, rgb_float[d])
 
-            point.interpolation = "LINEAR" if fade else "CONSTANT"
-            point.select_control_point = True
-
-
-def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
-    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
-
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-
-    for dancer_index, dancer_item in enumerate(state.dancers_array):
-        dancer_name = dancer_item.name
-        parts = dancer_item.parts
-
-        if not show_dancer_dict[dancer_name]:
-            continue
-
-        logger.info(f"[CTRL ADD] {dancer_name}")
-
-        for part in parts:
-            part_name = part.name
-            part_type = part.type
-
-            part_obj_name = f"{dancer_index}_{part_name}"
-            part_obj = data_objects[part_obj_name]
-
-            if part_type == PartType.LED:
-                for led_obj in part_obj.children:
-                    position: int = getattr(led_obj, "ld_led_pos")
-                    action = ensure_action(
-                        led_obj, f"{part_obj_name}Action.{position:03}"
-                    )
-
-                    frames = cast(
-                        list[tuple[int, bool, tuple[float, float, float]]],
-                        animation_data[dancer_name][part_name][position],
-                    )
-                    add_partial_ctrl_single_object_action(action, frames)
-
-            else:
-                action = ensure_action(part_obj, f"{part_obj_name}Action")
-
-                frames = cast(
-                    list[tuple[int, bool, tuple[float, float, float]]],
-                    animation_data[dancer_name][part_name],
-                )
-                add_partial_ctrl_single_object_action(action, frames)
+#             point.interpolation = "LINEAR" if fade else "CONSTANT"
+#             point.select_control_point = True
 
 
-"""
-update control keyframes
-"""
+# def add_partial_ctrl_keyframes(animation_data: ControlAddAnimationData):
+#     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
+
+#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+
+#     for dancer_index, dancer_item in enumerate(state.dancers_array):
+#         dancer_name = dancer_item.name
+#         parts = dancer_item.parts
+
+#         if not show_dancer_dict[dancer_name]:
+#             continue
+
+#         logger.info(f"[CTRL ADD] {dancer_name}")
+
+#         for part in parts:
+#             part_name = part.name
+#             part_type = part.type
+
+#             part_obj_name = f"{dancer_index}_{part_name}"
+#             part_obj = data_objects[part_obj_name]
+
+#             if part_type == PartType.LED:
+#                 for led_obj in part_obj.children:
+#                     position: int = getattr(led_obj, "ld_led_pos")
+#                     action = ensure_action(
+#                         led_obj, f"{part_obj_name}Action.{position:03}"
+#                     )
+
+#                     frames = cast(
+#                         list[tuple[int, bool, tuple[float, float, float]]],
+#                         animation_data[dancer_name][part_name][position],
+#                     )
+#                     add_partial_ctrl_single_object_action(action, frames)
+
+#             else:
+#                 action = ensure_action(part_obj, f"{part_obj_name}Action")
+
+#                 frames = cast(
+#                     list[tuple[int, bool, tuple[float, float, float]]],
+#                     animation_data[dancer_name][part_name],
+#                 )
+#                 add_partial_ctrl_single_object_action(action, frames)
 
 
-def edit_partial_ctrl_single_object_action(
-    action: bpy.types.Action,
-    frames: list[tuple[int, int, bool, tuple[float, float, float]]],
-):
-    curves = [ensure_curve(action, "color", index=d) for d in range(3)]
-    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
-
-    update_reorder = False
-    kpoints_len = len(kpoints_lists[0])
-    points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
-    curve_index = 0
-
-    for old_start, frame_start, fade, led_rgb_float in frames:
-        while (
-            curve_index < kpoints_len
-            and int(kpoints_lists[0][curve_index].co[0]) != old_start
-        ):
-            curve_index += 1
-
-        if curve_index < kpoints_len:
-            for d, (curve, kpoints_list) in enumerate(zip(curves, kpoints_lists)):
-                point = kpoints_list[curve_index]
-                points_to_update.append((frame_start, point, led_rgb_float[d], fade))
-
-            if old_start != frame_start and not (
-                kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
-                and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
-                >= frame_start
-            ):
-                update_reorder = True
-
-    for frame_start, point, led_rgb_float, fade in points_to_update:
-        point.co = frame_start, led_rgb_float
-        point.interpolation = "LINEAR" if fade else "CONSTANT"
-        point.select_control_point = False
-
-    if update_reorder:
-        for curve in curves:
-            curve.keyframe_points.sort()
+# """
+# update control keyframes
+# """
 
 
-def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
-    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
+# def edit_partial_ctrl_single_object_action(
+#     action: bpy.types.Action,
+#     frames: list[tuple[int, int, bool, tuple[float, float, float]]],
+# ):
+#     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
+#     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-    for dancer_index, dancer_item in enumerate(state.dancers_array):
-        dancer_name = dancer_item.name
-        parts = dancer_item.parts
+#     update_reorder = False
+#     kpoints_len = len(kpoints_lists[0])
+#     points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
+#     curve_index = 0
 
-        if not show_dancer_dict[dancer_name]:
-            continue
+#     for old_start, frame_start, fade, led_rgb_float in frames:
+#         while (
+#             curve_index < kpoints_len
+#             and int(kpoints_lists[0][curve_index].co[0]) != old_start
+#         ):
+#             curve_index += 1
 
-        logger.info(f"[CTRL UPDATE] {dancer_name}")
+#         if curve_index < kpoints_len:
+#             for d, (curve, kpoints_list) in enumerate(zip(curves, kpoints_lists)):
+#                 point = kpoints_list[curve_index]
+#                 points_to_update.append((frame_start, point, led_rgb_float[d], fade))
 
-        for part in parts:
-            part_name = part.name
-            part_type = part.type
+#             if old_start != frame_start and not (
+#                 kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
+#                 and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
+#                 >= frame_start
+#             ):
+#                 update_reorder = True
 
-            part_obj_name = f"{dancer_index}_{part_name}"
-            part_obj = data_objects[part_obj_name]
+#     for frame_start, point, led_rgb_float, fade in points_to_update:
+#         point.co = frame_start, led_rgb_float
+#         point.interpolation = "LINEAR" if fade else "CONSTANT"
+#         point.select_control_point = False
 
-            if part_type == PartType.LED:
-                for led_obj in part_obj.children:
-                    position: int = getattr(led_obj, "ld_led_pos")
-                    action = ensure_action(
-                        led_obj, f"{part_obj_name}Action.{position:03}"
-                    )
-
-                    frames = cast(
-                        list[tuple[int, int, bool, tuple[float, float, float]]],
-                        animation_data[dancer_name][part_name][position],
-                    )
-                    edit_partial_ctrl_single_object_action(action, frames)
-
-            else:
-                action = ensure_action(part_obj, f"{part_obj_name}Action")
-
-                frames = cast(
-                    list[tuple[int, int, bool, tuple[float, float, float]]],
-                    animation_data[dancer_name][part_name],
-                )
-                edit_partial_ctrl_single_object_action(action, frames)
+#     if update_reorder:
+#         for curve in curves:
+#             curve.keyframe_points.sort()
 
 
-"""
-delete control keyframes
-"""
+# def edit_partial_ctrl_keyframes(animation_data: ControlUpdateAnimationData):
+#     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
+
+#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+#     for dancer_index, dancer_item in enumerate(state.dancers_array):
+#         dancer_name = dancer_item.name
+#         parts = dancer_item.parts
+
+#         if not show_dancer_dict[dancer_name]:
+#             continue
+
+#         logger.info(f"[CTRL UPDATE] {dancer_name}")
+
+#         for part in parts:
+#             part_name = part.name
+#             part_type = part.type
+
+#             part_obj_name = f"{dancer_index}_{part_name}"
+#             part_obj = data_objects[part_obj_name]
+
+#             if part_type == PartType.LED:
+#                 for led_obj in part_obj.children:
+#                     position: int = getattr(led_obj, "ld_led_pos")
+#                     action = ensure_action(
+#                         led_obj, f"{part_obj_name}Action.{position:03}"
+#                     )
+
+#                     frames = cast(
+#                         list[tuple[int, int, bool, tuple[float, float, float]]],
+#                         animation_data[dancer_name][part_name][position],
+#                     )
+#                     edit_partial_ctrl_single_object_action(action, frames)
+
+#             else:
+#                 action = ensure_action(part_obj, f"{part_obj_name}Action")
+
+#                 frames = cast(
+#                     list[tuple[int, int, bool, tuple[float, float, float]]],
+#                     animation_data[dancer_name][part_name],
+#                 )
+#                 edit_partial_ctrl_single_object_action(action, frames)
 
 
-def delete_partial_ctrl_single_object_action(
-    action: bpy.types.Action, frames: list[int]
-):
-    curves = [ensure_curve(action, "color", index=d) for d in range(3)]
-    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
-
-    kpoints_len = len(kpoints_lists[0])
-    curve_index = 0
-
-    for old_start in frames:
-        while (
-            curve_index < kpoints_len
-            and int(kpoints_lists[0][curve_index].co[0]) != old_start
-        ):
-            curve_index += 1
-
-        if curve_index < kpoints_len:
-            for curve, kpoints_list in zip(curves, kpoints_lists):
-                point = kpoints_list[curve_index]
-                curve.keyframe_points.remove(point)
+# """
+# delete control keyframes
+# """
 
 
-def delete_partial_ctrl_keyframes(animation_data: ControlDeleteAnimationData):
-    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
+# def delete_partial_ctrl_single_object_action(
+#     action: bpy.types.Action, frames: list[int]
+# ):
+#     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
+#     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-    for dancer_index, dancer_item in enumerate(state.dancers_array):
-        dancer_name = dancer_item.name
-        parts = dancer_item.parts
+#     kpoints_len = len(kpoints_lists[0])
+#     curve_index = 0
 
-        if not show_dancer_dict[dancer_name]:
-            continue
+#     for old_start in frames:
+#         while (
+#             curve_index < kpoints_len
+#             and int(kpoints_lists[0][curve_index].co[0]) != old_start
+#         ):
+#             curve_index += 1
 
-        logger.info(f"[CTRL DELETE] {dancer_name}")
+#         if curve_index < kpoints_len:
+#             for curve, kpoints_list in zip(curves, kpoints_lists):
+#                 point = kpoints_list[curve_index]
+#                 curve.keyframe_points.remove(point)
 
-        for part in parts:
-            part_name = part.name
-            part_type = part.type
 
-            part_obj_name = f"{dancer_index}_{part_name}"
-            part_obj = data_objects[part_obj_name]
+# def delete_partial_ctrl_keyframes(animation_data: ControlDeleteAnimationData):
+#     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-            if part_type == PartType.LED:
-                for led_obj in part_obj.children:
-                    position: int = getattr(led_obj, "ld_led_pos")
-                    action = ensure_action(
-                        led_obj, f"{part_obj_name}Action.{position:03}"
-                    )
+#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+#     for dancer_index, dancer_item in enumerate(state.dancers_array):
+#         dancer_name = dancer_item.name
+#         parts = dancer_item.parts
 
-                    frames = cast(
-                        list[int],
-                        animation_data[dancer_name][part_name][position],
-                    )
-                    delete_partial_ctrl_single_object_action(action, frames)
+#         if not show_dancer_dict[dancer_name]:
+#             continue
 
-            else:
-                action = ensure_action(part_obj, f"{part_obj_name}Action")
+#         logger.info(f"[CTRL DELETE] {dancer_name}")
 
-                frames = cast(
-                    list[int],
-                    animation_data[dancer_name][part_name],
-                )
-                delete_partial_ctrl_single_object_action(action, frames)
+#         for part in parts:
+#             part_name = part.name
+#             part_type = part.type
+
+#             part_obj_name = f"{dancer_index}_{part_name}"
+#             part_obj = data_objects[part_obj_name]
+
+#             if part_type == PartType.LED:
+#                 for led_obj in part_obj.children:
+#                     position: int = getattr(led_obj, "ld_led_pos")
+#                     action = ensure_action(
+#                         led_obj, f"{part_obj_name}Action.{position:03}"
+#                     )
+
+#                     frames = cast(
+#                         list[int],
+#                         animation_data[dancer_name][part_name][position],
+#                     )
+#                     delete_partial_ctrl_single_object_action(action, frames)
+
+#             else:
+#                 action = ensure_action(part_obj, f"{part_obj_name}Action")
+
+#                 frames = cast(
+#                     list[int],
+#                     animation_data[dancer_name][part_name],
+#                 )
+#                 delete_partial_ctrl_single_object_action(action, frames)

@@ -1,6 +1,7 @@
 import bpy
 
 from ....properties.types import PositionPropertyType
+from ...models import Position
 from ...states import state
 from ...utils.algorithms import binary_search
 
@@ -37,27 +38,131 @@ def _set_default_position():
             ld_position.rotation = (0, 0, 0)
 
 
+def _set_from_object_transform(
+    obj: bpy.types.Object, ld_position: PositionPropertyType
+) -> None:
+    """Fill ld_position using the object's evaluated transform (keyframe value at current frame)."""
+    loc = tuple(obj.location)
+    rot = tuple(obj.rotation_euler)
+    ld_position.location = (loc[0], loc[1], loc[2])
+    ld_position.rotation = (rot[0], rot[1], rot[2])
+    ld_position.is_none = True
+
+
+def _interpolate_dancer_position(
+    dancer_name: str, frame: int, current_index: int
+) -> tuple[tuple[float, float, float], tuple[float, float, float]] | None:
+    """
+    Reconstruct the pose Blender would show for a None slot by linearly
+    interpolating the nearest frames that have concrete positions.
+    """
+
+    def _frame_at(idx: int):
+        frame_id = state.pos_record[idx]
+        return state.pos_map_MODIFIED.get(frame_id) or state.pos_map.get(frame_id)
+
+    prev_pos: tuple[int, Position] | None = None
+    for idx in range(current_index, -1, -1):
+        pos_frame = _frame_at(idx)
+        if pos_frame is None:
+            continue
+        dancer_pos = pos_frame.pos.get(dancer_name)
+        if dancer_pos is not None:
+            prev_pos = (pos_frame.start, dancer_pos)
+            break
+
+    next_pos: tuple[int, Position] | None = None
+    for idx in range(current_index + 1, len(state.pos_record)):
+        pos_frame = _frame_at(idx)
+        if pos_frame is None:
+            continue
+        dancer_pos = pos_frame.pos.get(dancer_name)
+        if dancer_pos is not None:
+            next_pos = (pos_frame.start, dancer_pos)
+            break
+
+    if prev_pos is None and next_pos is None:
+        return None
+    if next_pos is None:
+        _, dancer_pos = prev_pos
+        return (
+            (dancer_pos.location.x, dancer_pos.location.y, dancer_pos.location.z),
+            (dancer_pos.rotation.rx, dancer_pos.rotation.ry, dancer_pos.rotation.rz),
+        )
+    if prev_pos is None:
+        _, dancer_pos = next_pos
+        return (
+            (dancer_pos.location.x, dancer_pos.location.y, dancer_pos.location.z),
+            (dancer_pos.rotation.rx, dancer_pos.rotation.ry, dancer_pos.rotation.rz),
+        )
+
+    prev_start, prev_dancer_pos = prev_pos
+    next_start, next_dancer_pos = next_pos
+    if next_start == prev_start:
+        return (
+            (
+                prev_dancer_pos.location.x,
+                prev_dancer_pos.location.y,
+                prev_dancer_pos.location.z,
+            ),
+            (
+                prev_dancer_pos.rotation.rx,
+                prev_dancer_pos.rotation.ry,
+                prev_dancer_pos.rotation.rz,
+            ),
+        )
+
+    ratio = (frame - prev_start) / (next_start - prev_start)
+    location = (
+        prev_dancer_pos.location.x
+        + (next_dancer_pos.location.x - prev_dancer_pos.location.x) * ratio,
+        prev_dancer_pos.location.y
+        + (next_dancer_pos.location.y - prev_dancer_pos.location.y) * ratio,
+        prev_dancer_pos.location.z
+        + (next_dancer_pos.location.z - prev_dancer_pos.location.z) * ratio,
+    )
+    rotation = (
+        prev_dancer_pos.rotation.rx
+        + (next_dancer_pos.rotation.rx - prev_dancer_pos.rotation.rx) * ratio,
+        prev_dancer_pos.rotation.ry
+        + (next_dancer_pos.rotation.ry - prev_dancer_pos.rotation.ry) * ratio,
+        prev_dancer_pos.rotation.rz
+        + (next_dancer_pos.rotation.rz - prev_dancer_pos.rotation.rz) * ratio,
+    )
+    return (location, rotation)
+
+
 def update_current_pos_by_index():
     """Update current position by index and set ld_position"""
     if not bpy.context:
         return
     index = state.current_pos_index
+    frame = bpy.context.scene.frame_current
 
-    if not state.pos_map:
-        _set_default_position()
+    def _sync_all_dancers_from_blender():
+        for dancer_name in state.dancer_names:
+            obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
+            if obj:
+                ld_position: PositionPropertyType = getattr(obj, "ld_position")
+                _set_from_object_transform(obj, ld_position)
+
+    if not state.pos_map_MODIFIED:
+        _sync_all_dancers_from_blender()
         return
 
-    pos_map = state.pos_map
+    pos_map_modified = state.pos_map_MODIFIED
     pos_id = state.pos_record[index]
 
-    current_pos_map = pos_map.get(pos_id)
+    current_pos_map = pos_map_modified.get(pos_id)
     is_earlier_than_first_frame = False
 
     if state.pos_map and bpy.context.scene.frame_current < state.pos_start_record[0]:
         is_earlier_than_first_frame = True
 
-    if current_pos_map is None or is_earlier_than_first_frame:
+    if is_earlier_than_first_frame:
         _set_default_position()
+
+    if current_pos_map is None:
         return
 
     current_pos = current_pos_map.pos
@@ -65,27 +170,38 @@ def update_current_pos_by_index():
     if index == len(state.pos_record) - 1:
         for dancer_name in state.dancer_names:
             dancer_pos = current_pos.get(dancer_name)
-            if dancer_pos is None:
-                continue
 
             obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
             if obj is not None:
                 ld_position: PositionPropertyType = getattr(obj, "ld_position")
-                # This also sets the actual location by update handler
-                ld_position.location = (
-                    dancer_pos.location.x,
-                    dancer_pos.location.y,
-                    dancer_pos.location.z,
-                )
-                ld_position.rotation = (
-                    dancer_pos.rotation.rx,
-                    dancer_pos.rotation.ry,
-                    dancer_pos.rotation.rz,
-                )
+                if dancer_pos is None:
+                    interpolated = _interpolate_dancer_position(
+                        dancer_name, frame, index
+                    )
+                    if interpolated is None:
+                        _set_from_object_transform(obj, ld_position)
+                    else:
+                        loc, rot = interpolated
+                        ld_position.location = loc
+                        ld_position.rotation = rot
+                        ld_position.is_none = True
+                else:
+                    # This also sets the actual location by update handler
+                    ld_position.location = (
+                        dancer_pos.location.x,
+                        dancer_pos.location.y,
+                        dancer_pos.location.z,
+                    )
+                    ld_position.rotation = (
+                        dancer_pos.rotation.rx,
+                        dancer_pos.rotation.ry,
+                        dancer_pos.rotation.rz,
+                    )
+                    ld_position.is_none = False
 
     else:
         next_pos_id = state.pos_record[index + 1]
-        next_pos_map = pos_map.get(next_pos_id)
+        next_pos_map = pos_map_modified.get(next_pos_id)
         if next_pos_map is None:
             return
 
@@ -98,19 +214,53 @@ def update_current_pos_by_index():
         for dancer_name in state.dancer_names:
             dancer_pos = current_pos.get(dancer_name)
             next_dancer_pos = next_pos.get(dancer_name)
-            if dancer_pos is None or next_dancer_pos is None:
-                continue
 
             obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
-            ratio = (frame - current_start) / (next_start - current_start)
-            if obj is not None:
-                ld_position: PositionPropertyType = getattr(obj, "ld_position")
-                # This also sets the actual location by update handler
-                ld_position.location = (  # NOTE: Linear interpolation
-                    dancer_pos.location.x
-                    + (next_dancer_pos.location.x - dancer_pos.location.x) * ratio,
-                    dancer_pos.location.y
-                    + (next_dancer_pos.location.y - dancer_pos.location.y) * ratio,
-                    dancer_pos.location.z
-                    + (next_dancer_pos.location.z - dancer_pos.location.z) * ratio,
+            if obj is None:
+                continue
+
+            ld_position: PositionPropertyType = getattr(obj, "ld_position")
+            if dancer_pos is None:
+                interpolated = _interpolate_dancer_position(dancer_name, frame, index)
+                if interpolated is None:
+                    _set_from_object_transform(obj, ld_position)
+                else:
+                    loc, rot = interpolated
+                    ld_position.location = loc
+                    ld_position.rotation = rot
+                    ld_position.is_none = True
+                continue
+
+            if next_dancer_pos is None:
+                ld_position.location = (
+                    dancer_pos.location.x,
+                    dancer_pos.location.y,
+                    dancer_pos.location.z,
                 )
+                ld_position.rotation = (
+                    dancer_pos.rotation.rx,
+                    dancer_pos.rotation.ry,
+                    dancer_pos.rotation.rz,
+                )
+                ld_position.is_none = False
+                continue
+
+            ratio = (frame - current_start) / (next_start - current_start)
+            # This also sets the actual location by update handler
+            ld_position.location = (  # NOTE: Linear interpolation
+                dancer_pos.location.x
+                + (next_dancer_pos.location.x - dancer_pos.location.x) * ratio,
+                dancer_pos.location.y
+                + (next_dancer_pos.location.y - dancer_pos.location.y) * ratio,
+                dancer_pos.location.z
+                + (next_dancer_pos.location.z - dancer_pos.location.z) * ratio,
+            )
+            ld_position.rotation = (
+                dancer_pos.rotation.rx
+                + (next_dancer_pos.rotation.rx - dancer_pos.rotation.rx) * ratio,
+                dancer_pos.rotation.ry
+                + (next_dancer_pos.rotation.ry - dancer_pos.rotation.ry) * ratio,
+                dancer_pos.rotation.rz
+                + (next_dancer_pos.rotation.rz - dancer_pos.rotation.rz) * ratio,
+            )
+            ld_position.is_none = False

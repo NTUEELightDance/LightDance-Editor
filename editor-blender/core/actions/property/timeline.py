@@ -28,7 +28,9 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                 if num >= 0 and num < len(state.control_record):
                     current_frame_index = num
                     current_frame_id = state.control_record[current_frame_index]
-                    current_frame = state.control_map[current_frame_id]
+                    current_frame = state.control_map_MODIFIED.get(current_frame_id)
+                    if current_frame is None:
+                        return
                     start = current_frame.start
 
                     if (
@@ -47,8 +49,16 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                 if num >= 0 and num < len(state.pos_record):
                     current_frame_index = num
                     current_frame_id = state.pos_record[current_frame_index]
-                    current_frame = state.pos_map[current_frame_id]
-                    start = current_frame.start
+                    current_frame = state.pos_map_MODIFIED.get(current_frame_id)
+
+                    if current_frame is not None:
+                        start = current_frame.start
+                    elif state.pos_start_record and len(state.pos_start_record) == len(
+                        state.pos_record
+                    ):
+                        start = state.pos_start_record[current_frame_index]
+                    else:
+                        return
 
                     if (
                         start < state.dancer_load_frames[0]
@@ -66,24 +76,24 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                 pass
 
 
-def get_fade(self: bpy.types.WindowManager) -> bool:
+def get_default_fade(self: bpy.types.WindowManager) -> bool:
     # return self.get("ld_current_frame_index", "0")  # type: ignore
     match state.editor:
         case Editor.CONTROL_EDITOR:
             id = state.control_record[state.current_control_index]
-            return state.control_map[id].fade
+            return state.control_map_MODIFIED[id].fade_for_new_status
         case Editor.POS_EDITOR:
             return False
         case Editor.LED_EDITOR:
             return False
 
 
-def set_fade(self: bpy.types.WindowManager, value: bool):
+def set_default_fade(self: bpy.types.WindowManager, value: bool):
     if state.edit_state == EditMode.EDITING:
         match state.editor:
             case Editor.CONTROL_EDITOR:
                 id = state.control_record[state.current_control_index]
-                state.control_map[id].fade = value
+                state.control_map_MODIFIED[id].fade_for_new_status = value
             case Editor.POS_EDITOR:
                 pass
             case Editor.LED_EDITOR:

@@ -1,7 +1,4 @@
-from .control import (
-    add_partial_ctrl_keyframes,
-    delete_partial_ctrl_keyframes,
-    edit_partial_ctrl_keyframes,
+from .control import (  # add_partial_ctrl_keyframes,; delete_partial_ctrl_keyframes,; edit_partial_ctrl_keyframes,
     init_ctrl_keyframes_from_state,
     modify_partial_ctrl_keyframes,
     reset_control_frames_and_fade_sequence,
@@ -17,9 +14,9 @@ from .position import (
 )
 
 __all__ = [
-    "add_partial_ctrl_keyframes",
-    "delete_partial_ctrl_keyframes",
-    "edit_partial_ctrl_keyframes",
+    # "add_partial_ctrl_keyframes",
+    # "delete_partial_ctrl_keyframes",
+    # "edit_partial_ctrl_keyframes",
     "init_ctrl_keyframes_from_state",
     "modify_partial_ctrl_keyframes",
     "reset_control_frames_and_fade_sequence",

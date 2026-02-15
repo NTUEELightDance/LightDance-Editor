@@ -1,6 +1,11 @@
 from typing import cast
 
-from ...schemas.mutations import MutDancerLEDStatusPayload, MutDancerStatusPayload
+from ...schemas.mutations import (
+    MutDancerFade,
+    MutDancerHasEffect,
+    MutDancerLEDStatusPayload,
+    MutDancerStatusPayload,
+)
 from ...schemas.queries import (
     QueryColorMapPayload,
     QueryColorMapPayloadItem,
@@ -33,8 +38,11 @@ from ..models import (
     ColorMap,
     ControlMap,
     ControlMapElement,
+    ControlMapElement_MODIFIED,
     ControlMapLEDStatus,
     ControlMapStatus,
+    ControlMapStatus_MODIFIED,
+    CtrlData,
     DancerLEDStatus,
     DancerName,
     DancersArray,
@@ -62,6 +70,7 @@ from ..models import (
     Rotation,
 )
 from ..states import state
+from ..utils.algorithms import expanded_filtered_map_bound, smallest_range_including_lr
 
 
 def models_query_to_state(payload: QueryModelPayload) -> ModelsArray:
@@ -163,8 +172,12 @@ def part_led_data_query_to_state(payload: QueryLEDBulbDataPayload) -> list[LEDBu
 
 
 def part_data_state_to_mut(
-    part_data: PartData,
+    part_ctrl_data: CtrlData | None,
 ) -> tuple[LEDEffectID | ColorID, int]:
+    if part_ctrl_data is None:
+        return (0, 0)  # Only a placeholder
+
+    part_data = part_ctrl_data.part_data
     if isinstance(part_data, LEDData):
         return (part_data.effect_id, part_data.alpha)
     else:
@@ -172,8 +185,12 @@ def part_data_state_to_mut(
 
 
 def part_led_data_state_to_mut(
-    led_data: list[LEDBulbData],
+    part_ctrl_data: CtrlData | None,
 ) -> list[tuple[ColorID, int]]:
+    if part_ctrl_data is None:
+        return []  # Only a placeholder
+
+    led_data = part_ctrl_data.bulb_data
     return [(bulb.color_id, bulb.alpha) for bulb in led_data]
 
 
@@ -266,43 +283,68 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
 
 
 def control_status_state_to_mut(
-    control_status: ControlMapStatus,
-) -> list[MutDancerStatusPayload]:
+    control_status: ControlMapStatus_MODIFIED,
+) -> tuple[
+    MutDancerHasEffect,
+    MutDancerFade,
+    list[MutDancerStatusPayload],
+    list[MutDancerLEDStatusPayload],
+]:
+    mut_dancer_has_effect_payload: list[MutDancerHasEffect] = []
+    mut_dancer_fade_payload: list[MutDancerFade] = []
     mut_dancer_status_payload: list[MutDancerStatusPayload] = []
+    mut_dancer_led_status_payload: list[MutDancerLEDStatusPayload] = []
 
     for dancer in state.dancers_array:
         dancer_name = dancer.name
+        first_part_name = dancer.parts[0].name
 
         dancer_status = control_status.get(dancer_name)
         if dancer_status is None:
             raise Exception("Dancer status not found")
 
+        mut_dancer_has_effect_payload.append(dancer_status[first_part_name] is not None)
+        mut_dancer_fade_payload.append(
+            False
+            if dancer_status[first_part_name] is None
+            else dancer_status[first_part_name].fade  # type: ignore
+        )
         mut_dancer_status_payload.append(
             [part_data_state_to_mut(dancer_status[part.name]) for part in dancer.parts]
         )
-
-    return mut_dancer_status_payload
-
-
-def led_status_state_to_mut(
-    led_status: ControlMapLEDStatus,
-) -> list[MutDancerLEDStatusPayload]:
-    mut_dancer_status_payload: list[MutDancerLEDStatusPayload] = []
-
-    for dancer in state.dancers_array:
-        dancer_name = dancer.name
-        dancer_status = led_status.get(dancer_name)
-        if dancer_status is None:
-            raise Exception("Dancer LED status not found")
-
-        mut_dancer_status_payload.append(
+        mut_dancer_led_status_payload.append(
             [
                 part_led_data_state_to_mut(dancer_status[part.name])
                 for part in dancer.parts
             ]
         )
+    return (
+        mut_dancer_has_effect_payload,
+        mut_dancer_fade_payload,
+        mut_dancer_status_payload,
+        mut_dancer_led_status_payload,
+    )
 
-    return mut_dancer_status_payload
+
+# def led_status_state_to_mut(
+#     led_status: ControlMapLEDStatus,
+# ) -> list[MutDancerLEDStatusPayload]:
+#     mut_dancer_status_payload: list[MutDancerLEDStatusPayload] = []
+
+#     for dancer in state.dancers_array:
+#         dancer_name = dancer.name
+#         dancer_status = led_status.get(dancer_name)
+#         if dancer_status is None:
+#             raise Exception("Dancer LED status not found")
+
+#         mut_dancer_status_payload.append(
+#             [
+#                 part_led_data_state_to_mut(dancer_status[part.name])
+#                 for part in dancer.parts
+#             ]
+#         )
+
+#     return mut_dancer_status_payload
 
 
 def rgb_to_hex(rgb: tuple[int, int, int]) -> str:
@@ -521,13 +563,12 @@ def csv_second_to_miliseconds(second: str) -> int:
     return int(float(second) * 1000)
 
 
+PositionData = tuple[float, float, float]
+RotationData = tuple[float, float, float]
+LocationData = tuple[PositionData, RotationData]
 PosDeleteCurveData = list[int]
-PosUpdateCurveData = list[
-    tuple[int, int, tuple[float, float, float], tuple[float, float, float]]
-]
-PosAddCurveData = list[
-    tuple[int, tuple[float, float, float], tuple[float, float, float]]
-]
+PosUpdateCurveData = list[tuple[int, int, LocationData | None]]
+PosAddCurveData = list[tuple[int, LocationData | None]]
 
 PosModifyAnimationData = dict[
     DancerName, tuple[PosDeleteCurveData, PosUpdateCurveData, PosAddCurveData]
@@ -548,28 +589,81 @@ def pos_modify_to_animation_data(
             continue
         new_map[dancer.name] = ([], [], [])
 
-    for old_start, _ in pos_delete:
-        for _, dancer_item in enumerate(state.dancers_array):
-            if not show_dancer_dict[dancer_item.name]:
-                continue
-            dancer = dancer_item.name
-            new_map[dancer_item.name][0].append(old_start)
+    for old_start, id in pos_delete:
+        # Get the original frame to find which dancers have position data
+        original_frame = state.pos_map_MODIFIED.get(id)
+        if original_frame:
+            for dancer_item in state.dancers_array:
+                if not show_dancer_dict[dancer_item.name]:
+                    continue
+                if original_frame.pos[dancer_item.name] is None:
+                    continue
+                dancer = dancer_item.name
+                new_map[dancer][0].append(old_start)
+        else:
+            for _, dancer_item in enumerate(state.dancers_array):
+                if not show_dancer_dict[dancer_item.name]:
+                    continue
+                dancer = dancer_item.name
+                new_map[dancer][0].append(old_start)
 
     for old_start, _, frame in pos_update:
         pos_status = frame.pos
+        # Get the old frame to compare if data has actually changed
+        old_frame_id = None
+        for id, map_elem in state.pos_map_MODIFIED.items():
+            if map_elem.start == old_start:
+                old_frame_id = id
+                break
+
+        old_pos_status = (
+            state.pos_map_MODIFIED.get(old_frame_id).pos if old_frame_id else {}
+        )
+
         for _, dancer_item in enumerate(state.dancers_array):
             if not show_dancer_dict[dancer_item.name]:
                 continue
             pos = pos_status[dancer_item.name]
+            old_pos = old_pos_status.get(dancer_item.name) if old_frame_id else None
             dancer = dancer_item.name
-            new_map[dancer_item.name][1].append(
-                (
-                    old_start,
-                    frame.start,
-                    (pos.location.x, pos.location.y, pos.location.z),
-                    (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz),
+
+            # Only add update if the position data has actually changed
+            if pos is None and old_pos is None:
+                continue
+            elif pos is None and old_pos is not None:
+                new_map[dancer][1].append((old_start, frame.start, None))
+            elif pos is not None and old_pos is None:
+                location = (pos.location.x, pos.location.y, pos.location.z)
+                rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
+                new_map[dancer][1].append(
+                    (
+                        old_start,
+                        frame.start,
+                        (location, rotation),
+                    )
                 )
-            )
+            else:
+                location = (pos.location.x, pos.location.y, pos.location.z)
+                rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
+                old_location = (
+                    old_pos.location.x,
+                    old_pos.location.y,
+                    old_pos.location.z,
+                )
+                old_rotation = (
+                    old_pos.rotation.rx,
+                    old_pos.rotation.ry,
+                    old_pos.rotation.rz,
+                )
+
+                if location != old_location or rotation != old_rotation:
+                    new_map[dancer][1].append(
+                        (
+                            old_start,
+                            frame.start,
+                            (location, rotation),
+                        )
+                    )
 
     for _, frame in pos_add:
         pos_status = frame.pos
@@ -577,14 +671,22 @@ def pos_modify_to_animation_data(
             if not show_dancer_dict[dancer_item.name]:
                 continue
             pos = pos_status[dancer_item.name]
+            if pos is None:
+                continue
             dancer = dancer_item.name
-            new_map[dancer_item.name][2].append(
-                (
-                    frame.start,
-                    (pos.location.x, pos.location.y, pos.location.z),
-                    (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz),
+
+            if pos is None:
+                new_map[dancer_item.name][2].append((frame.start, None))
+            else:
+                new_map[dancer_item.name][2].append(
+                    (
+                        frame.start,
+                        (
+                            (pos.location.x, pos.location.y, pos.location.z),
+                            (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz),
+                        ),
+                    )
                 )
-            )
 
     return new_map
 
@@ -600,25 +702,24 @@ ControlAnimationData = dict[
     ],
 ]
 
+FadeData = bool
+ColorData = tuple[float, float, float]
+CtrlKeyframeData = tuple[FadeData, ColorData]
 ControlDeleteCurveData = list[int]
-ControlUpdateCurveData = list[tuple[int, int, bool, tuple[float, float, float]]]
-ControlAddCurveData = list[tuple[int, bool, tuple[float, float, float]]]
+ControlUpdateCurveData = list[tuple[int, int, CtrlKeyframeData | None]]
+
+# TODO: Delete us
+ControlAddCurveData = list[tuple[int, CtrlKeyframeData | None]]
 
 ControlModifyAnimationData = dict[
     DancerName,
     dict[
         PartName,
         (
-            tuple[
-                ControlDeleteCurveData,
-                ControlUpdateCurveData,
-                ControlAddCurveData,
-            ]
+            tuple[ControlDeleteCurveData, ControlUpdateCurveData, ControlAddCurveData]
             | list[
                 tuple[
-                    ControlDeleteCurveData,
-                    ControlUpdateCurveData,
-                    ControlAddCurveData,
+                    ControlDeleteCurveData, ControlUpdateCurveData, ControlAddCurveData
                 ]
             ]
         ),
@@ -638,6 +739,7 @@ ControlDeleteAnimationData = dict[
     dict[PartName, ControlDeleteCurveData | list[ControlDeleteCurveData]],
 ]
 
+# TODO: Delete us
 ControlAddAnimationData = dict[
     DancerName,
     dict[PartName, ControlAddCurveData | list[ControlAddCurveData]],
@@ -646,8 +748,8 @@ ControlAddAnimationData = dict[
 
 def control_modify_to_animation_data(
     control_delete: list[tuple[int, MapID]],
-    control_update: list[tuple[int, MapID, ControlMapElement]],
-    control_add: list[tuple[MapID, ControlMapElement]],
+    control_update: list[tuple[int, MapID, ControlMapElement_MODIFIED]],
+    control_add: list[tuple[MapID, ControlMapElement_MODIFIED]],
 ) -> ControlModifyAnimationData:
     new_map: ControlModifyAnimationData = {}
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
@@ -700,12 +802,25 @@ def control_modify_to_animation_data(
             for _, part in enumerate(parts):
                 part_name = part.name
                 part_map = new_map[dancer_name][part_name]
-                part_led_status = frame.led_status[dancer_name][part_name]
+                part_ctrl_data = frame.status[dancer_name][part_name]
 
-                part_data = frame.status[dancer_name][part_name]
-                part_alpha = part_data.alpha
+                if part_ctrl_data is None:
+                    match part.type:
+                        case PartType.LED:
+                            part_length = cast(int, part.length)
 
-                if isinstance(part_data, LEDData):
+                            for i in range(part_length):
+                                part_map[i][1].append((old_start, frame.start, None))  # type: ignore
+
+                        case PartType.FIBER:
+                            part_map[1].append((old_start, frame.start, None))  # type: ignore
+                    continue
+
+                part_status = part_ctrl_data.part_data
+                part_led_status = part_ctrl_data.bulb_data
+                part_alpha = part_status.alpha
+
+                if isinstance(part_status, LEDData):
                     part_length = cast(int, part.length)
                     prev_effect_id = prev_effect_ids.setdefault(
                         dancer_name, {}
@@ -715,22 +830,23 @@ def control_modify_to_animation_data(
                     ).setdefault(part_name, [[]])
 
                     led_rgb_floats = []
-                    if part_data.effect_id > 0:
-                        part_effect = led_effect_table[part_data.effect_id].effect
+                    if part_status.effect_id > 0:
+                        part_effect = led_effect_table[part_status.effect_id].effect
                         led_rgb_floats = [
                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
                             for led_data in part_effect
                         ]
 
-                        prev_effect_id[0] = part_data.effect_id
+                        prev_effect_id[0] = part_status.effect_id
 
-                    elif part_data.effect_id == 0:
+                    elif part_status.effect_id == 0:
                         led_rgb_floats = gradient_to_rgb_float(
                             [
                                 (led_data.color_id, led_data.alpha)
                                 for led_data in part_led_status
                             ]
                         )
+                        prev_effect_id[0] = 0
                         prev_led_bulbs[0] = [
                             (led_data.color_id, led_data.alpha)
                             for led_data in part_led_status
@@ -750,13 +866,13 @@ def control_modify_to_animation_data(
                         led_rgb_floats = [(0, 0, 0)] * part_length
 
                     for i in range(part_length):
-                        part_map[i][1].append((old_start, frame.start, frame.fade, led_rgb_floats[i]))  # type: ignore
+                        part_map[i][1].append((old_start, frame.start, (part_ctrl_data.fade, led_rgb_floats[i])))  # type: ignore
 
                 else:
-                    part_rgb = color_map[part_data.color_id].rgb
-                    fiber_rgb_float = rgba_to_float(part_rgb, part_data.alpha)
+                    part_rgb = color_map[part_status.color_id].rgb
+                    fiber_rgb_float = rgba_to_float(part_rgb, part_status.alpha)
 
-                    part_map[1].append((old_start, frame.start, frame.fade, fiber_rgb_float))  # type: ignore
+                    part_map[1].append((old_start, frame.start, (part_ctrl_data.fade, fiber_rgb_float)))  # type: ignore
 
     for _, frame in control_add:
         for _, dancer_item in enumerate(state.dancers_array):
@@ -769,12 +885,25 @@ def control_modify_to_animation_data(
             for _, part in enumerate(parts):
                 part_name = part.name
                 part_map = new_map[dancer_name][part_name]
-                part_led_status = frame.led_status[dancer_name][part_name]
+                part_ctrl_data = frame.status[dancer_name][part_name]
 
-                part_data = frame.status[dancer_name][part_name]
-                part_alpha = part_data.alpha
+                if part_ctrl_data is None:
+                    match part.type:
+                        case PartType.LED:
+                            part_length = cast(int, part.length)
 
-                if isinstance(part_data, LEDData):
+                            for i in range(part_length):
+                                part_map[i][2].append((frame.start, None))  # type: ignore
+
+                        case PartType.FIBER:
+                            part_map[2].append((frame.start, None))  # type: ignore
+                    continue
+
+                part_status = part_ctrl_data.part_data
+                part_led_status = part_ctrl_data.bulb_data
+                part_alpha = part_status.alpha
+
+                if isinstance(part_status, LEDData):
                     part_length = cast(int, part.length)
                     prev_effect_id = prev_effect_ids.setdefault(
                         dancer_name, {}
@@ -784,22 +913,23 @@ def control_modify_to_animation_data(
                     ).setdefault(part_name, [[]])
 
                     led_rgb_floats = []
-                    if part_data.effect_id > 0:
-                        part_effect = led_effect_table[part_data.effect_id].effect
+                    if part_status.effect_id > 0:
+                        part_effect = led_effect_table[part_status.effect_id].effect
                         led_rgb_floats = [
                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
                             for led_data in part_effect
                         ]
 
-                        prev_effect_id[0] = part_data.effect_id
+                        prev_effect_id[0] = part_status.effect_id
 
-                    elif part_data.effect_id == 0:
+                    elif part_status.effect_id == 0:
                         led_rgb_floats = gradient_to_rgb_float(
                             [
                                 (led_data.color_id, led_data.alpha)
                                 for led_data in part_led_status
                             ]
                         )
+                        prev_effect_id[0] = 0
                         prev_led_bulbs[0] = [
                             (led_data.color_id, led_data.alpha)
                             for led_data in part_led_status
@@ -822,242 +952,270 @@ def control_modify_to_animation_data(
                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
 
                     for i in range(part_length):
-                        part_map[i][2].append((frame.start, frame.fade, led_rgb_floats[i]))  # type: ignore
+                        part_map[i][2].append((frame.start, (part_ctrl_data.fade, led_rgb_floats[i])))  # type: ignore
 
                 else:
-                    part_rgb = color_map[part_data.color_id].rgb
-                    fiber_rgb_float = rgba_to_float(part_rgb, part_data.alpha)
+                    part_rgb = color_map[part_status.color_id].rgb
+                    fiber_rgb_float = rgba_to_float(part_rgb, part_status.alpha)
 
-                    part_map[2].append((frame.start, frame.fade, fiber_rgb_float))  # type: ignore
+                    part_map[2].append((frame.start, (part_ctrl_data.fade, fiber_rgb_float)))  # type: ignore
 
     return new_map
 
 
-def control_add_to_animation_data(
-    control_add: list[tuple[MapID, ControlMapElement]],
-) -> ControlAddAnimationData:
-    new_map: ControlAddAnimationData = {}
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-    for dancer_name in state.dancers_array:
-        if not show_dancer_dict[dancer_name.name]:
-            continue
-        new_map[dancer_name.name] = {}
-        for part_name in dancer_name.parts:
-            new_map[dancer_name.name][part_name.name] = []
+# def control_add_to_animation_data(
+#     control_add: list[tuple[MapID, ControlMapElement]],
+# ) -> ControlAddAnimationData:
+#     new_map: ControlAddAnimationData = {}
+#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+#     for dancer_name in state.dancers_array:
+#         if not show_dancer_dict[dancer_name.name]:
+#             continue
+#         new_map[dancer_name.name] = {}
+#         for part_name in dancer_name.parts:
+#             new_map[dancer_name.name][part_name.name] = []
 
-    color_map = state.color_map
-    led_effect_table = state.led_effect_id_table
-    prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
-    prev_led_status: dict[DancerName, dict[PartName, list[list[tuple[int, int]]]]] = {}
+#     color_map = state.color_map
+#     led_effect_table = state.led_effect_id_table
+#     prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
+#     prev_led_status: dict[DancerName, dict[PartName, list[list[tuple[int, int]]]]] = {}
 
-    for _, frame in control_add:
-        for _, dancer_item in enumerate(state.dancers_array):
-            dancer_name = dancer_item.name
-            if not show_dancer_dict[dancer_name]:
-                continue
+#     for _, frame in control_add:
+#         for _, dancer_item in enumerate(state.dancers_array):
+#             dancer_name = dancer_item.name
+#             if not show_dancer_dict[dancer_name]:
+#                 continue
 
-            parts = dancer_item.parts
+#             parts = dancer_item.parts
 
-            for _, part in enumerate(parts):
-                part_name = part.name
-                part_map = new_map[dancer_name][part_name]
+#             for _, part in enumerate(parts):
+#                 part_name = part.name
+#                 part_map = new_map[dancer_name][part_name]
 
-                part_data = frame.status[dancer_name][part_name]
-                part_led_status = frame.led_status[dancer_name][part_name]
-                part_alpha = part_data.alpha
+#                 part_data = frame.status[dancer_name][part_name]
+#                 part_led_status = frame.led_status[dancer_name][part_name]
+#                 part_alpha = part_data.alpha
 
-                if isinstance(part_data, LEDData):
-                    part_length = cast(int, part.length)
-                    prev_effect_id = prev_effect_ids.setdefault(
-                        dancer_name, {}
-                    ).setdefault(part_name, [-1])
-                    prev_led_bulbs = prev_led_status.setdefault(
-                        dancer_name, {}
-                    ).setdefault(part_name, [[]])
+#                 if isinstance(part_data, LEDData):
+#                     part_length = cast(int, part.length)
+#                     prev_effect_id = prev_effect_ids.setdefault(
+#                         dancer_name, {}
+#                     ).setdefault(part_name, [-1])
+#                     prev_led_bulbs = prev_led_status.setdefault(
+#                         dancer_name, {}
+#                     ).setdefault(part_name, [[]])
 
-                    led_rgb_floats = []
-                    if part_data.effect_id > 0:
-                        part_effect = led_effect_table[part_data.effect_id].effect
-                        led_rgb_floats = [
-                            rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
-                            for led_data in part_effect
-                        ]
+#                     led_rgb_floats = []
+#                     if part_data.effect_id > 0:
+#                         part_effect = led_effect_table[part_data.effect_id].effect
+#                         led_rgb_floats = [
+#                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
+#                             for led_data in part_effect
+#                         ]
 
-                        prev_effect_id[0] = part_data.effect_id
+#                         prev_effect_id[0] = part_data.effect_id
 
-                    elif part_data.effect_id == 0:
-                        led_rgb_floats = gradient_to_rgb_float(
-                            [
-                                (led_data.color_id, led_data.alpha)
-                                for led_data in part_led_status
-                            ]
-                        )
-                        prev_led_bulbs[0] = [
-                            (led_data.color_id, led_data.alpha)
-                            for led_data in part_led_status
-                        ]
+#                     elif part_data.effect_id == 0:
+#                         led_rgb_floats = gradient_to_rgb_float(
+#                             [
+#                                 (led_data.color_id, led_data.alpha)
+#                                 for led_data in part_led_status
+#                             ]
+#                         )
+#                         prev_led_bulbs[0] = [
+#                             (led_data.color_id, led_data.alpha)
+#                             for led_data in part_led_status
+#                         ]
 
-                    elif prev_effect_id[0] > 0:
-                        prev_effect = led_effect_table[prev_effect_id[0]].effect
-                        led_rgb_floats = [
-                            rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
-                            for led_data in prev_effect
-                        ]
+#                     elif prev_effect_id[0] > 0:
+#                         prev_effect = led_effect_table[prev_effect_id[0]].effect
+#                         led_rgb_floats = [
+#                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
+#                             for led_data in prev_effect
+#                         ]
 
-                    elif prev_effect_id[0] == 0:
-                        led_rgb_floats = gradient_to_rgb_float(prev_led_bulbs[0])
+#                     elif prev_effect_id[0] == 0:
+#                         led_rgb_floats = gradient_to_rgb_float(prev_led_bulbs[0])
 
-                    else:
-                        led_rgb_floats = [(0, 0, 0)] * part_length
+#                     else:
+#                         led_rgb_floats = [(0, 0, 0)] * part_length
 
-                    if len(part_map) == 0:
-                        part_map.extend([[] for _ in range(part_length)])  # type: ignore
+#                     if len(part_map) == 0:
+#                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
 
-                    for i in range(part_length):
-                        part_map[i].append((frame.start, frame.fade, led_rgb_floats[i]))  # type: ignore
+#                     for i in range(part_length):
+#                         part_map[i].append((frame.start, frame.fade, led_rgb_floats[i]))  # type: ignore
 
-                else:
-                    part_rgb = color_map[part_data.color_id].rgb
-                    fiber_rgb_float = rgba_to_float(part_rgb, part_data.alpha)
+#                 else:
+#                     part_rgb = color_map[part_data.color_id].rgb
+#                     fiber_rgb_float = rgba_to_float(part_rgb, part_data.alpha)
 
-                    part_map.append((frame.start, frame.fade, fiber_rgb_float))  # type: ignore
+#                     part_map.append((frame.start, frame.fade, fiber_rgb_float))  # type: ignore
 
-    return new_map
-
-
-def control_delete_to_animation_data(
-    control_delete: list[tuple[int, MapID]],
-) -> ControlDeleteAnimationData:
-    new_map: ControlDeleteAnimationData = {}
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-    for dancer_name in state.dancers_array:
-        if not show_dancer_dict[dancer_name.name]:
-            continue
-        new_map[dancer_name.name] = {}
-        for part_name in dancer_name.parts:
-            new_map[dancer_name.name][part_name.name] = []
-
-    for old_start, _ in control_delete:
-        for _, dancer_item in enumerate(state.dancers_array):
-            dancer_name = dancer_item.name
-            if not show_dancer_dict[dancer_name]:
-                continue
-            parts = dancer_item.parts
-
-            for _, part in enumerate(parts):
-                part_name = part.name
-                part_map = new_map[dancer_name][part_name]
-
-                if part.type == PartType.LED:
-                    part_length = cast(int, part.length)
-
-                    if len(part_map) == 0:
-                        part_map.extend([[] for _ in range(part_length)])  # type: ignore
-
-                    for i in range(part_length):
-                        part_map[i].append(old_start)  # type: ignore
-
-                else:
-                    part_map.append(old_start)  # type: ignore
-
-    return new_map
+#     return new_map
 
 
-def control_update_to_animation_data(
-    control_update: list[tuple[int, MapID, ControlMapElement]],
-) -> ControlUpdateAnimationData:
-    new_map: ControlUpdateAnimationData = {}
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-    for dancer_name in state.dancers_array:
-        if not show_dancer_dict[dancer_name.name]:
-            continue
-        new_map[dancer_name.name] = {}
-        for part_name in dancer_name.parts:
-            new_map[dancer_name.name][part_name.name] = []
+# def control_delete_to_animation_data(
+#     control_delete: list[tuple[int, MapID]],
+# ) -> ControlDeleteAnimationData:
+#     new_map: ControlDeleteAnimationData = {}
+#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+#     for dancer_name in state.dancers_array:
+#         if not show_dancer_dict[dancer_name.name]:
+#             continue
+#         new_map[dancer_name.name] = {}
+#         for part_name in dancer_name.parts:
+#             new_map[dancer_name.name][part_name.name] = []
 
-    color_map = state.color_map
-    led_effect_table = state.led_effect_id_table
-    prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
-    prev_led_status: dict[DancerName, dict[PartName, list[list[tuple[int, int]]]]] = {}
+#     for old_start, _ in control_delete:
+#         for _, dancer_item in enumerate(state.dancers_array):
+#             dancer_name = dancer_item.name
+#             if not show_dancer_dict[dancer_name]:
+#                 continue
+#             parts = dancer_item.parts
 
-    for old_start, _, frame in control_update:
-        for _, dancer_item in enumerate(state.dancers_array):
-            dancer_name = dancer_item.name
-            if not show_dancer_dict[dancer_name]:
-                continue
+#             for _, part in enumerate(parts):
+#                 part_name = part.name
+#                 part_map = new_map[dancer_name][part_name]
 
-            parts = dancer_item.parts
+#                 if part.type == PartType.LED:
+#                     part_length = cast(int, part.length)
 
-            for _, part in enumerate(parts):
-                part_name = part.name
-                part_map = new_map[dancer_name][part_name]
+#                     if len(part_map) == 0:
+#                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
 
-                part_data = frame.status[dancer_name][part_name]
-                part_led_status = frame.led_status[dancer_name][part_name]
-                part_alpha = part_data.alpha
+#                     for i in range(part_length):
+#                         part_map[i].append(old_start)  # type: ignore
 
-                if isinstance(part_data, LEDData):
-                    part_length = cast(int, part.length)
-                    prev_effect_id = prev_effect_ids.setdefault(
-                        dancer_name, {}
-                    ).setdefault(part_name, [-1])
-                    prev_led_bulbs = prev_led_status.setdefault(
-                        dancer_name, {}
-                    ).setdefault(part_name, [[]])
+#                 else:
+#                     part_map.append(old_start)  # type: ignore
 
-                    led_rgb_floats = []
-                    if part_data.effect_id > 0:
-                        part_effect = led_effect_table[part_data.effect_id].effect
-                        led_rgb_floats = [
-                            rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
-                            for led_data in part_effect
-                        ]
-
-                        prev_effect_id[0] = part_data.effect_id
-
-                    elif part_data.effect_id == 0:
-                        led_rgb_floats = gradient_to_rgb_float(
-                            [
-                                (led_data.color_id, led_data.alpha)
-                                for led_data in part_led_status
-                            ]
-                        )
-                        prev_led_bulbs[0] = [
-                            (led_data.color_id, led_data.alpha)
-                            for led_data in part_led_status
-                        ]
-
-                    elif prev_effect_id[0] > 0:
-                        prev_effect = led_effect_table[prev_effect_id[0]].effect
-                        led_rgb_floats = [
-                            rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
-                            for led_data in prev_effect
-                        ]
-
-                    elif prev_effect_id[0] == 0:
-                        led_rgb_floats = gradient_to_rgb_float(prev_led_bulbs[0])
-
-                    else:
-                        led_rgb_floats = [(0, 0, 0)] * part_length
-
-                    if len(part_map) == 0:
-                        part_map.extend([[] for _ in range(part_length)])  # type: ignore
-
-                    for i in range(part_length):
-                        part_map[i].append((old_start, frame.start, frame.fade, led_rgb_floats[i]))  # type: ignore
-
-                else:
-                    part_rgb = color_map[part_data.color_id].rgb
-                    fiber_rgb_float = rgba_to_float(part_rgb, part_data.alpha)
-
-                    part_map.append((old_start, frame.start, frame.fade, fiber_rgb_float))  # type: ignore
-
-    return new_map
+#     return new_map
 
 
+# def control_update_to_animation_data(
+#     control_update: list[tuple[int, MapID, ControlMapElement]],
+# ) -> ControlUpdateAnimationData:
+#     new_map: ControlUpdateAnimationData = {}
+#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+#     for dancer_name in state.dancers_array:
+#         if not show_dancer_dict[dancer_name.name]:
+#             continue
+#         new_map[dancer_name.name] = {}
+#         for part_name in dancer_name.parts:
+#             new_map[dancer_name.name][part_name.name] = []
+
+#     color_map = state.color_map
+#     led_effect_table = state.led_effect_id_table
+#     prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
+#     prev_led_status: dict[DancerName, dict[PartName, list[list[tuple[int, int]]]]] = {}
+
+#     for old_start, _, frame in control_update:
+#         for _, dancer_item in enumerate(state.dancers_array):
+#             dancer_name = dancer_item.name
+#             if not show_dancer_dict[dancer_name]:
+#                 continue
+
+#             parts = dancer_item.parts
+
+#             for _, part in enumerate(parts):
+#                 part_name = part.name
+#                 part_map = new_map[dancer_name][part_name]
+
+#                 part_data = frame.status[dancer_name][part_name]
+#                 part_led_status = frame.led_status[dancer_name][part_name]
+#                 part_alpha = part_data.alpha
+
+#                 if isinstance(part_data, LEDData):
+#                     part_length = cast(int, part.length)
+#                     prev_effect_id = prev_effect_ids.setdefault(
+#                         dancer_name, {}
+#                     ).setdefault(part_name, [-1])
+#                     prev_led_bulbs = prev_led_status.setdefault(
+#                         dancer_name, {}
+#                     ).setdefault(part_name, [[]])
+
+#                     led_rgb_floats = []
+#                     if part_data.effect_id > 0:
+#                         part_effect = led_effect_table[part_data.effect_id].effect
+#                         led_rgb_floats = [
+#                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
+#                             for led_data in part_effect
+#                         ]
+
+#                         prev_effect_id[0] = part_data.effect_id
+
+#                     elif part_data.effect_id == 0:
+#                         led_rgb_floats = gradient_to_rgb_float(
+#                             [
+#                                 (led_data.color_id, led_data.alpha)
+#                                 for led_data in part_led_status
+#                             ]
+#                         )
+#                         prev_led_bulbs[0] = [
+#                             (led_data.color_id, led_data.alpha)
+#                             for led_data in part_led_status
+#                         ]
+
+#                     elif prev_effect_id[0] > 0:
+#                         prev_effect = led_effect_table[prev_effect_id[0]].effect
+#                         led_rgb_floats = [
+#                             rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
+#                             for led_data in prev_effect
+#                         ]
+
+#                     elif prev_effect_id[0] == 0:
+#                         led_rgb_floats = gradient_to_rgb_float(prev_led_bulbs[0])
+
+#                     else:
+#                         led_rgb_floats = [(0, 0, 0)] * part_length
+
+#                     if len(part_map) == 0:
+#                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
+
+#                     for i in range(part_length):
+#                         part_map[i].append((old_start, frame.start, frame.fade, led_rgb_floats[i]))  # type: ignore
+
+#                 else:
+#                     part_rgb = color_map[part_data.color_id].rgb
+#                     fiber_rgb_float = rgba_to_float(part_rgb, part_data.alpha)
+
+#                     part_map.append((old_start, frame.start, frame.fade, fiber_rgb_float))  # type: ignore
+
+#     return new_map
+
+
+# def _mapids_of_notnone_loaded_frame_of_part(
+#     sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]],
+#     dancer: DancerName,
+#     part: PartName,
+# ) -> list[MapID]:
+#     if not sorted_ctrl_map:
+#         return []
+
+#     notnone_ctrl_map = [
+#         item for item in sorted_ctrl_map if item[1].status[dancer][part] is not None
+#     ]
+#     if not notnone_ctrl_map:
+#         return []
+
+#     notnone_mapid_ctrl_map = [item[0] for item in notnone_ctrl_map]
+#     notnone_frame_ctrl_map = [item[1].start for item in notnone_ctrl_map]
+#     frame_range_l, frame_range_r = state.dancer_load_frames
+
+#     # Get mapid of left/right boundaries of loaded frames
+#     notnone_index_start, notnone_index_end = smallest_range_including_lr(
+#         notnone_frame_ctrl_map, frame_range_l, frame_range_r
+#     )
+
+#     return notnone_mapid_ctrl_map[notnone_index_start : notnone_index_end + 1]
+
+
+# FIXME: To Be Done!
 # Control map needs to be sorted by start time
 def control_map_to_animation_data(
-    control_map: list[tuple[MapID, ControlMapElement]],
+    sorted_control_map: list[tuple[MapID, ControlMapElement_MODIFIED]],
+    part_range_dict: dict[PartName, tuple[()] | tuple[int, int]],
 ) -> ControlAnimationData:
     new_map: ControlAnimationData = {}
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
@@ -1073,7 +1231,7 @@ def control_map_to_animation_data(
     prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
     prev_led_status: dict[DancerName, dict[PartName, list[list[tuple[int, int]]]]] = {}
 
-    for _, frame in control_map:
+    for mapIndex, (_, frame) in enumerate(sorted_control_map):
         for _, dancer_item in enumerate(state.dancers_array):
             if not show_dancer_dict[dancer_item.name]:
                 continue
@@ -1083,9 +1241,22 @@ def control_map_to_animation_data(
             for _, part in enumerate(parts):
                 part_name = part.name
                 part_map = new_map[dancer_name][part_name]
+                part_ctrl_data = frame.status[dancer_name][part_name]
 
-                part_data = frame.status[dancer_name][part_name]
-                part_led_status = frame.led_status[dancer_name][part_name]
+                # If this status is (1) None or (2) out of load range, continue
+                load_range = part_range_dict[part_name]
+                if not load_range:
+                    continue
+                load_range_l, load_range_r_closed = load_range
+                if (
+                    not (load_range_l <= mapIndex <= load_range_r_closed)
+                    or part_ctrl_data is None
+                ):
+                    continue
+
+                part_data = part_ctrl_data.part_data
+                part_led_status = part_ctrl_data.bulb_data
+                part_fade = part_ctrl_data.fade
                 part_alpha = part_data.alpha
 
                 if isinstance(part_data, LEDData):
@@ -1114,6 +1285,7 @@ def control_map_to_animation_data(
                                 for led_data in part_led_status
                             ]
                         )
+                        prev_effect_id[0] = 0
                         prev_led_bulbs[0] = [
                             (led_data.color_id, led_data.alpha)
                             for led_data in part_led_status
@@ -1136,13 +1308,13 @@ def control_map_to_animation_data(
                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
 
                     for i in range(part_length):
-                        part_map[i].append((frame.start, frame.fade, led_rgb_floats[i]))  # type: ignore
+                        part_map[i].append((frame.start, part_fade, led_rgb_floats[i]))  # type: ignore
 
                 else:
                     part_rgb = color_map[part_data.color_id].rgb
                     fiber_rgb_float = rgba_to_float(part_rgb, part_data.alpha)
 
-                    part_map.append((frame.start, frame.fade, fiber_rgb_float))  # type: ignore
+                    part_map.append((frame.start, part_fade, fiber_rgb_float))  # type: ignore
 
         # print("Frame: ", frame.start)
 
