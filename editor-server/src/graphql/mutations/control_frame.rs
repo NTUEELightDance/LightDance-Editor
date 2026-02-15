@@ -56,11 +56,10 @@ impl ControlFrameMutation {
         &self,
         ctx: &Context<'_>,
         start: i32,
-        // TODO: remove this after new api is finished
-        #[allow(unused)] fade: bool,
         control_data: Vec<Vec<Vec<i32>>>,
-        // [dancer][part][type, id, alpha, fade]
         led_control_data: Vec<Vec<Vec<Vec<i32>>>>,
+        has_effect: Vec<bool>,
+        fade: Vec<bool>,
     ) -> FieldResult<String> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -139,6 +138,14 @@ impl ControlFrameMutation {
             }
         }
 
+        if control_data.len() != fade.len() {
+            return Err(Error::new(format!("Control data and fade has different length. Control data length: {}, fade length: {}", control_data.len(), fade.len()).to_string()));
+        }
+
+        if control_data.len() != has_effect.len() {
+            return Err(Error::new(format!("Control data and has_effect has different length. Control data length: {}, has_effect length: {}", control_data.len(), has_effect.len()).to_string()));
+        }
+
         // fetch data about colors and LED effects
         let all_color_ids = sqlx::query!(
             r#"
@@ -153,8 +160,8 @@ impl ControlFrameMutation {
 
         let all_led_effect_ids = sqlx::query!(
             r#"
-                    SELECT id FROM LEDEffect ORDER BY id ASC;
-                "#,
+                SELECT id FROM LEDEffect ORDER BY id ASC;
+            "#,
         )
         .fetch_all(&mut *tx)
         .await?
@@ -163,11 +170,6 @@ impl ControlFrameMutation {
         .collect::<Vec<i32>>();
 
         let mut errors: Vec<String> = Vec::new();
-
-        const NO_EFFECT: i32 = 0;
-        const COLOR: i32 = 1;
-        const EFFECT: i32 = 2;
-        const LED_BULBS: i32 = 3;
 
         // please check the syntax of for loop in rust
         // the iter() method will return an iterator of the array
@@ -195,6 +197,8 @@ impl ControlFrameMutation {
                 }
             }
 
+            let has_effect = has_effect[index];
+
             for (part_index, part_data) in data.iter().enumerate() {
                 let part = &dancer[part_index];
                 let part_type = &part.part_type;
@@ -211,18 +215,9 @@ impl ControlFrameMutation {
                 //     ));
                 //     break;
                 // }
-                if part_data.is_empty() && part_bulb_datas.is_empty() {
+                if has_effect && part_data.is_empty() && part_bulb_datas.is_empty() {
                     errors.push(format!(
-                        "There are neither effect/color data or LED bulb data in dancer {} part {}.",
-                        index + 1,
-                        part_index + 1
-                    ));
-                    continue;
-                }
-
-                if !part_bulb_datas.is_empty() && part_data.is_empty() {
-                    errors.push(format!(
-                        "Bulb data provided but part_data is empty for dancer #{} part #{} (expected [type,id,alpha,fade])",
+                        "There are neither effect/color data or LED bulb data for a non-NO_EFFECT control data in dancer {} part {}.",
                         index + 1,
                         part_index + 1
                     ));
@@ -243,37 +238,17 @@ impl ControlFrameMutation {
 
                 // if part_data is an array, check if the length of the array is 4
                 if !part_data.is_empty() {
-                    if part_data.len() != 4 {
+                    if part_data.len() != 2 {
                         errors.push(format!(
-                            "Control data of dancer #{} part #{} is not an array  of length 4 (expected: [type, id, alpha, fade])",
-                            index + 1, part_index + 1
-                        ));
-                        continue;
-                    }
-                    let control_type = part_data[0];
-                    let id_value = part_data[1];
-                    let alpha = part_data[2];
-                    let fade_value = part_data[3];
-
-                    // check if control_type is valid
-                    if !(0..=3).contains(&control_type) {
-                        errors.push(format!(
-                            "Invalid type value {} for dancer #{} part #{} (must be 0-3: NO_EFFECT=0, COLOR=1, EFFECT=2, LED_BULBS=3)",
-                            control_type, index + 1, part_index + 1
-                        ));
-                        continue;
-                    }
-
-                    // check if fade_value is valid
-                    if fade_value != 0 && fade_value != 1 {
-                        errors.push(format!(
-                            "Fade value of dancer #{} part #{} must be 0 or 1",
+                            "Control data of dancer #{} part #{} is not an array  of length 2",
                             index + 1,
                             part_index + 1
                         ));
+                        continue;
                     }
+
                     // For non-NO_EFFECT types, validate alpha
-                    if control_type != NO_EFFECT && !(0..=255).contains(&alpha) {
+                    if has_effect && !(0..=255).contains(&part_data[1]) {
                         errors.push(format!(
                             "Alpha value of dancer #{} part #{} must be between 0 and 255",
                             index + 1,
@@ -283,34 +258,20 @@ impl ControlFrameMutation {
 
                     match part_type {
                         PartType::FIBER => {
-                            // only COLOR or NO_EFFECT is valid for Fiber
-                            match control_type {
-                                NO_EFFECT => {}
-                                COLOR => {
-                                    if !all_color_ids.contains(&id_value) {
-                                        errors.push(format!(
-                                            "Color ID {} of dancer #{} part #{} is not a valid color",
-                                            id_value, index + 1, part_index + 1
-                                        ));
-                                    }
-                                }
-                                _ => {
-                                    errors.push(format!(
-                                        "Invalid type {} for FIBER part in dancer #{} part #{} (FIBER only supports NO_EFFECT=0 or COLOR=1)",
-                                        control_type, index + 1, part_index + 1
-                                    ));
+                            if has_effect {
+                                let color_id = part_data[0];
+
+                                if !all_color_ids.contains(&color_id) && color_id != -1 {
+                                    let error_message = format!(
+                                        "Color of dancer #{}, part #{} is not a valid color",
+                                        index, part_index,
+                                    );
+                                    errors.push(error_message);
                                 }
                             }
                         }
                         PartType::LED => {
                             if is_data_led_bulb {
-                                if control_type != LED_BULBS {
-                                    errors.push(format!(
-                                        "Type mismatch for dancer #{} part #{}: LED bulb data provided but type is {} (expected LED_BULBS=3)",
-                                        index + 1, part_index + 1, control_type
-                                    ));
-                                }
-
                                 // validate bulb count
                                 if part_bulb_datas.len() != part.length.unwrap() as usize {
                                     errors.push(format!(
@@ -340,37 +301,15 @@ impl ControlFrameMutation {
                                     }
                                 }
                             } else {
-                                // only EFFECT or NO_EFFECT is valid for LED
-                                match control_type {
-                                    NO_EFFECT => {}
-                                    EFFECT => {
-                                        if !all_led_effect_ids.contains(&id_value) {
-                                            errors.push(format!(
-                                                "Effect ID {} of dancer #{} part #{} is not a valid effect",
-                                                id_value, index + 1, part_index + 1
-                                            ));
-                                        }
-                                    }
-                                    LED_BULBS => {
-                                        errors.push(format!(
-                                            "Type is LED_BULBS but no bulb data provided for dancer #{} part #{}",
-                                            index + 1, part_index + 1
-                                        ));
-                                    }
-                                    COLOR => {
-                                        errors.push(format!(
-                                            "Invalid type COLOR for LED part in dancer #{} part #{} (LED only supports NO_EFFECT, EFFECT, or LED_BULBS)",
-                                            index + 1, part_index + 1
-                                        ));
-                                    }
-                                    _ => {
-                                        errors.push(format!(
-                                            "Invalid type {} for LED part in dancer #{} part #{}",
-                                            control_type,
-                                            index + 1,
-                                            part_index + 1
-                                        ));
-                                    }
+                                let effect_id = part_data[0];
+
+                                if !all_led_effect_ids.contains(&effect_id) && effect_id != -1 {
+                                    let error_message = format!(
+                                        "Effect of dancer #{} part #{} is not a valid effect",
+                                        index + 1,
+                                        part_index + 1
+                                    );
+                                    errors.push(error_message);
                                 }
                             }
                         }
@@ -408,11 +347,18 @@ impl ControlFrameMutation {
             let dancer = &dancers[index];
             let dancer_bulb_datas = &led_control_data[index];
 
+            let has_effect = has_effect[index];
+            let fade = fade[index];
+
             // iterate through every part of the dancer
             for (part_index, part_data) in data.iter().enumerate() {
                 let dancer_id = &dancer[part_index].dancer_id;
                 let part = &dancer[part_index];
+                let part_type = &part.part_type;
+
                 let part_bulb_datas = &dancer_bulb_datas[part_index];
+                let is_data_led_bulb = !part_bulb_datas.is_empty();
+
                 if part_data.is_empty() {
                     return Err(Error::new(format!(
                         "part_data is empty during insertion for dancer #{} part #{}",
@@ -420,104 +366,100 @@ impl ControlFrameMutation {
                         part_index + 1
                     )));
                 }
-                let control_type = part_data[0];
-                let id_value = part_data[1];
-                let alpha = part_data[2];
-                let fade_bool = part_data[3] == 1;
-                match control_type {
-                    NO_EFFECT => {
-                        // store all null for fade, color_id, effect_id, alpha
-                        sqlx::query!(
-                            r#"
-                                INSERT INTO ControlData 
-                                (dancer_id, part_id, frame_id, type, fade, color_id, effect_id, alpha)
-                                VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL);
-                            "#,
-                            dancer_id,
-                            part.part_id,
-                            new_control_frame_id,
-                            "NO_EFFECT",
-                        )
-                        .execute(&mut *tx)
-                        .await?;
-                    }
-                    COLOR => {
+                match part_type {
+                    PartType::FIBER => {
+                        let r#type = match has_effect {
+                            true => "COLOR",
+                            false => "NO_EFFECT",
+                        };
                         sqlx::query!(
                             r#"
                                 INSERT INTO ControlData
-                                (dancer_id, part_id, frame_id, type, color_id, fade, alpha)
+                                (dancer_id, part_id, frame_id, type, color_id, alpha, fade)
                                 VALUES (?, ?, ?, ?, ?, ?, ?);
                             "#,
                             dancer_id,
                             part.part_id,
                             new_control_frame_id,
-                            "COLOR",
-                            id_value,
-                            fade_bool,
-                            alpha,
+                            r#type,
+                            part_data[0],
+                            part_data[1],
+                            fade as i32,
                         )
                         .execute(&mut *tx)
                         .await?;
                     }
-                    EFFECT => {
-                        sqlx::query!(
-                            r#"
-                                INSERT INTO ControlData
-                                (dancer_id, part_id, frame_id, type, effect_id, fade, alpha)
-                                VALUES (?, ?, ?, ?, ?, ?, ?);
-                            "#,
-                            dancer_id,
-                            part.part_id,
-                            new_control_frame_id,
-                            "EFFECT",
-                            id_value,
-                            fade_bool,
-                            alpha,
-                        )
-                        .execute(&mut *tx)
-                        .await?;
-                    }
-                    LED_BULBS => {
-                        let new_control_data = sqlx::query!(
-                            r#"
-                                INSERT INTO ControlData
-                                (dancer_id, part_id, frame_id, type, fade, alpha)
-                                VALUES (?, ?, ?, ?, ?, ?);
-                            "#,
-                            dancer_id,
-                            part.part_id,
-                            new_control_frame_id,
-                            "LED_BULBS",
-                            fade_bool,
-                            alpha,
-                        )
-                        .execute(&mut *tx)
-                        .await?;
+                    PartType::LED => {
+                        let effect_id = part_data[0];
+                        let alpha = part_data[1];
 
-                        let control_id = new_control_data.last_insert_id() as i32;
-
-                        // Insert individual bulb data
-                        for (position, bulb_data) in part_bulb_datas.iter().enumerate() {
+                        if !has_effect {
                             sqlx::query!(
                                 r#"
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, alpha, fade)
+                                    VALUES (?, ?, ?, ?, ?, ?);
+                                "#,
+                                dancer_id,
+                                part.part_id,
+                                new_control_frame_id,
+                                "NO_EFFECT",
+                                alpha,
+                                fade,
+                            )
+                            .execute(&mut *tx)
+                            .await?;
+                        } else if is_data_led_bulb {
+                            let new_control_data = sqlx::query!(
+                                r#"
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, alpha, fade)
+                                    VALUES (?, ?, ?, ?, ?, ?);
+                                "#,
+                                dancer_id,
+                                part.part_id,
+                                new_control_frame_id,
+                                "LED_BULBS",
+                                alpha,
+                                fade,
+                            )
+                            .execute(&mut *tx)
+                            .await?;
+
+                            let control_id = new_control_data.last_insert_id() as i32;
+                            for (position, bulb_data) in part_bulb_datas.iter().enumerate() {
+                                sqlx::query!(
+                                    r#"
                                     INSERT INTO LEDBulb
                                     (control_id, color_id, alpha, position)
-                                    VALUES(?, ?, ?, ?);
+                                    VALUES (?, ?, ?, ?);
                                 "#,
-                                control_id,
-                                bulb_data[0],
-                                bulb_data[1],
-                                position as i32,
+                                    control_id,
+                                    bulb_data[0],
+                                    bulb_data[1],
+                                    position as i32,
+                                )
+                                .execute(&mut *tx)
+                                .await?;
+                            }
+                        } else {
+                            sqlx::query!(
+                                r#"
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, effect_id, alpha, fade)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?);
+                                "#,
+                                dancer_id,
+                                part.part_id,
+                                new_control_frame_id,
+                                "EFFECT",
+                                effect_id,
+                                alpha,
+                                fade,
                             )
                             .execute(&mut *tx)
                             .await?;
                         }
-                    }
-                    _ => {
-                        return Err(Error::new(format!(
-                            "Invalid control type {} encountered during insertion",
-                            control_type
-                        )));
                     }
                 }
             }

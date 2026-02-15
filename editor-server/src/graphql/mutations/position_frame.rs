@@ -9,7 +9,7 @@ use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
 use crate::graphql::types::pos_frame::{PositionFrame, PositionFrameRevision};
-use crate::types::global::{RedisPosition, Revision, UserContext};
+use crate::types::global::{PositionType, RedisPosition, Revision, UserContext};
 use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
 use crate::utils::revision::update_revision;
 
@@ -37,7 +37,8 @@ impl PositionFrameMutation {
         &self,
         ctx: &Context<'_>,
         start: i32,
-        position_data: Option<Vec<Vec<Option<f64>>>>,
+        position_data: Option<Vec<Vec<f64>>>,
+        has_effect: Vec<bool>,
     ) -> GQLResult<PositionFrame> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -78,11 +79,15 @@ impl PositionFrameMutation {
         .fetch_all(&mut *tx)
         .await?;
 
-        // type constants
-        const NO_EFFECT: i32 = 0;
-        const POSITION: i32 = 1;
-
         if let Some(data) = &position_data {
+            if has_effect.len() != data.len() {
+                return Err(format!(
+                        "Position data and has_effect has different length. Position data length: {}, has_effect length: {}",
+                        data.len(),
+                        has_effect.len(),
+                ).into());
+            }
+
             if (*data).len() != dancers.len() {
                 return Err(format!(
                     "Not all dancers in payload. Missing number: {}",
@@ -93,26 +98,17 @@ impl PositionFrameMutation {
             let mut errors = Vec::<String>::new();
 
             for (idx, coor) in (*data).iter().enumerate() {
-                // 7 elements: [type, x, y, z, rx, ry, rz]
+                // 6 elements: [x, y, z, rx, ry, rz]
                 if coor.len() != 7 {
                     errors.push(format!(
-                        "Dancer #{} data must have 7 elements [type, x, y, z, rx, ry, rz]. Got: {}",
+                        "Dancer #{} data must have 6 elements [x, y, z, rx, ry, rz]. Got: {}",
                         idx + 1,
                         coor.len()
                     ));
                     continue;
                 }
 
-                let type_value = coor[0].unwrap_or(-1_f64) as i32;
-
                 // validate type value
-                if type_value != NO_EFFECT && type_value != POSITION {
-                    errors.push(format!(
-                        "Invalid type value {} for dancer #{}. Must be 0 (NO_EFFECT) or 1 (POSITION).",
-                        type_value,
-                        idx + 1
-                    ));
-                }
             }
             if !errors.is_empty() {
                 return Err(errors.join("\n").into());
@@ -135,46 +131,45 @@ impl PositionFrameMutation {
 
         match &position_data {
             Some(data) => {
-                let mut location = Vec::new();
-                let mut rotation = Vec::new();
+                let mut r#type: Vec<PositionType> = Vec::new();
                 for (idx, coor) in (*data).iter().enumerate() {
-                    let type_value = coor[0].unwrap_or(-1_f64) as i32;
-                    if type_value == NO_EFFECT {
-                        let _ = sqlx::query!(
-                            r#"
-                                INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
-                                VALUES (?, ?, ?, NULL, NULL, NULL, 0, 0, 0);
-                            "#,
-                            dancers[idx].id,
-                            id,
-                            "NO_EFFECT"
-                        )
-                        .execute(&mut *tx)
-                        .await?;
-
-                        location.push([Some(0.0), Some(0.0), Some(0.0)]);
-                        rotation.push([Some(0.0), Some(0.0), Some(0.0)]);
-                    } else {
-                        let _ = sqlx::query!(
+                    if !has_effect[idx] {
+                        r#type.push(PositionType::NoEffect);
+                        sqlx::query!(
                             r#"
                                 INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                             "#,
                             dancers[idx].id,
                             id,
-                            "POSITION",
+                            "NO_EFFECT",
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                        )
+                        .execute(mysql)
+                        .await?;
+                    } else {
+                        r#type.push(PositionType::Position);
+                        sqlx::query!(
+                            r#"
+                            INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                        "#,
+                            dancers[idx].id,
+                            id,
+                            coor[0],
                             coor[1],
                             coor[2],
                             coor[3],
                             coor[4],
                             coor[5],
-                            coor[6],
                         )
-                        .execute(&mut *tx)
+                        .execute(mysql)
                         .await?;
-
-                        location.push([coor[1], coor[2], coor[3]]);
-                        rotation.push([coor[4], coor[5], coor[6]]);
                     }
                 }
                 create_frames.insert(
@@ -182,9 +177,16 @@ impl PositionFrameMutation {
                     RedisPosition {
                         start,
                         editing: None,
+                        r#type,
                         rev: Revision::default(),
-                        location,
-                        rotation,
+                        location: data
+                            .iter()
+                            .map(|coor| [coor[0], coor[1], coor[2]])
+                            .collect(),
+                        rotation: data
+                            .iter()
+                            .map(|coor| [coor[3], coor[4], coor[5]])
+                            .collect(),
                     },
                 );
             }

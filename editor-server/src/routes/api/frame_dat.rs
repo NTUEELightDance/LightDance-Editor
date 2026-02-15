@@ -57,7 +57,7 @@ fn interpolate_no_change_effects(
             let len = interval.1 - interval.0;
 
             #[allow(clippy::needless_range_loop)]
-            for i in interval.0..interval.1 {
+            for i in 0..len {
                 for (j, color) in frames[i]
                     .led_grb_data
                     .get_mut(part_id)

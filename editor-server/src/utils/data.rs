@@ -5,7 +5,9 @@ use std::collections::BTreeMap;
 use crate::db::types::control_data::ControlType;
 // use crate::db::types::dancer;
 use crate::global;
-use crate::types::global::{PartType, RedisControl, RedisPartControlData, RedisPosition, Revision};
+use crate::types::global::{
+    PartType, PositionType, RedisControl, RedisPartControlData, RedisPosition, Revision,
+};
 use crate::utils::vector::partition_by_field;
 use itertools::Itertools;
 use redis::aio::MultiplexedConnection;
@@ -247,33 +249,55 @@ pub async fn init_redis_position(
     frames.iter().for_each(|frame| {
         let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
 
-        let location = dancer_positions
-            .iter()
-            .map(|dancer_position| {
-                let position = dancer_position
-                    .iter()
-                    .find(|position| position.frame_id == frame.id)
-                    .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+        let mut location: Vec<[f64; 3]> = Vec::new();
+        let mut rotation: Vec<[f64; 3]> = Vec::new();
+        let mut r#type: Vec<PositionType> = Vec::new();
 
-                [Some(position.x), Some(position.y), Some(position.z)]
-            })
-            .collect_vec();
+        dancer_positions.iter().for_each(|dancer_position| {
+            let pos = dancer_position
+                .iter()
+                .find(|position| position.frame_id == frame.id)
+                .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-        let rotation = dancer_positions
-            .iter()
-            .map(|dancer_position| {
-                let position = dancer_position
-                    .iter()
-                    .find(|position| position.frame_id == frame.id)
-                    .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+            location.push([pos.x, pos.y, pos.z]);
+            rotation.push([pos.rx, pos.ry, pos.rz]);
+            r#type.push(match pos.position_type.as_str() {
+                "NO_EFFECT" => PositionType::NoEffect,
+                "POSITION" => PositionType::Position,
+                other => {
+                    panic!("Invalid type for position data: {}", other);
+                }
+            });
+        });
 
-                [Some(position.rx), Some(position.ry), Some(position.rz)]
-            })
-            .collect_vec();
+        // let location = dancer_positions
+        //     .iter()
+        //     .map(|dancer_position| {
+        //         let position = dancer_position
+        //             .iter()
+        //             .find(|position| position.frame_id == frame.id)
+        //             .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+        //
+        //         [position.x, position.y, position.z]
+        //     })
+        //     .collect_vec();
+        //
+        // let rotation = dancer_positions
+        //     .iter()
+        //     .map(|dancer_position| {
+        //         let position = dancer_position
+        //             .iter()
+        //             .find(|position| position.frame_id == frame.id)
+        //             .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+        //
+        //         [position.rx, position.ry, position.rz]
+        //     })
+        //     .collect_vec();
 
         let result_control = RedisPosition {
             start: frame.start,
             editing: frame.user_id,
+            r#type,
             rev: Revision {
                 meta: frame.meta_rev,
                 data: frame.data_rev,
@@ -512,6 +536,7 @@ pub async fn update_redis_position(
                 SELECT
                     Dancer.id,
                     PositionData.frame_id,
+                    PositionData.type AS "position_type: String",
                     COALESCE(PositionData.x, 0) AS x,
                     COALESCE(PositionData.y, 0) AS y,
                     COALESCE(PositionData.z, 0) AS z,
@@ -535,33 +560,31 @@ pub async fn update_redis_position(
 
     let redis_key = format!("{}{}", envs.redis_pos_prefix, frame.id);
 
-    let location = dancer_positions
-        .iter()
-        .map(|dancer_position| {
-            let position = dancer_position
-                .iter()
-                .find(|position| position.frame_id == frame.id)
-                .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
+    let mut location: Vec<[f64; 3]> = Vec::new();
+    let mut rotation: Vec<[f64; 3]> = Vec::new();
+    let mut r#type: Vec<PositionType> = Vec::new();
 
-            [Some(position.x), Some(position.y), Some(position.z)]
-        })
-        .collect_vec();
+    dancer_positions.iter().for_each(|dancer_position| {
+        let pos = dancer_position
+            .iter()
+            .find(|position| position.frame_id == frame.id)
+            .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
 
-    let rotation = dancer_positions
-        .iter()
-        .map(|dancer_position| {
-            let position = dancer_position
-                .iter()
-                .find(|position| position.frame_id == frame.id)
-                .unwrap_or_else(|| panic!("PositionData {} not found", frame.id));
-
-            [Some(position.rx), Some(position.ry), Some(position.rz)]
-        })
-        .collect_vec();
+        location.push([pos.x, pos.y, pos.z]);
+        rotation.push([pos.rx, pos.ry, pos.rz]);
+        r#type.push(match pos.position_type.as_str() {
+            "NO_EFFECT" => PositionType::NoEffect,
+            "POSITION" => PositionType::Position,
+            other => {
+                panic!("Invalid type for position data: {}", other);
+            }
+        });
+    });
 
     let result_pos = RedisPosition {
         start: frame.start,
         editing: frame.user_id,
+        r#type,
         rev: Revision {
             meta: frame.meta_rev,
             data: frame.data_rev,

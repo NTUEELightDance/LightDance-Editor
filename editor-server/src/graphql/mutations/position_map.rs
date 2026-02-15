@@ -22,6 +22,7 @@ use std::collections::HashMap;
 pub struct EditPositionMapInput {
     pub frame_id: i32,
     pub position_data: Vec<Vec<f64>>,
+    pub has_effect: Vec<bool>,
 }
 
 #[derive(Default)]
@@ -29,7 +30,7 @@ pub struct PositionMapMutation;
 
 #[Object]
 impl PositionMapMutation {
-    async fn edit_pos_map(
+    async fn edit_position_map(
         &self,
         ctx: &Context<'_>,
         input: EditPositionMapInput,
@@ -84,6 +85,15 @@ impl PositionMapMutation {
         .fetch_all(&mut *tx)
         .await?;
 
+        if input.has_effect.len() != input.position_data.len() {
+            return Err(format!(
+                "Position data and has_effect have difference length. Position data length: {}, has_effect length: {}",
+                input.position_data.len(),
+                input.has_effect.len(),
+            )
+            .into());
+        }
+
         if input.position_data.len() != dancers.len() {
             return Err(format!(
                 "Not all dancers in payload. Missing number: {}",
@@ -92,43 +102,29 @@ impl PositionMapMutation {
             .into());
         }
 
-        const NO_EFFECT: i32 = 0;
-        const POSITION: i32 = 1;
-
         let mut errors = Vec::<String>::new();
 
-        // update position data
+        // check input correctness
         for (idx, coor) in input.position_data.iter().enumerate() {
-            // 7 elements: [type, x, y, z, rx, ry, rz]
-            if coor.len() != 7 {
+            // 6 elements: [x, y, z, rx, ry, rz]
+            if coor.len() != 6 {
                 errors.push(format!(
-                    "Dancer #{} data must have 7 elements [type, x, y, z, rx, ry, rz]. Got: {}",
+                    "Dancer #{} data must have 6 elements [x, y, z, rx, ry, rz]. Got: {}",
                     idx + 1,
                     coor.len()
                 ));
                 continue;
-            }
-
-            let type_value = coor[0] as i32;
-
-            if type_value != NO_EFFECT && type_value != POSITION {
-                errors.push(format!(
-                    "Invalid type value {} for dancer #{}. Must be 0 (NO_EFFECT) or 1 (POSITION).",
-                    type_value,
-                    idx + 1
-                ));
             }
         }
         if !errors.is_empty() {
             return Err(errors.join("; ").into());
         }
 
-        // update editing position frame
+        // update editing position data
         for (idx, coor) in input.position_data.iter().enumerate() {
             let dancer = &dancers[idx];
-            let type_value = coor[0] as i32;
 
-            if type_value == NO_EFFECT {
+            if !input.has_effect[idx] {
                 let _ = sqlx::query!(
                     r#"
                         UPDATE PositionData
@@ -149,12 +145,12 @@ impl PositionMapMutation {
                         WHERE dancer_id = ? AND frame_id = ?;
                     "#,
                     "POSITION",
+                    coor[0],
                     coor[1],
                     coor[2],
                     coor[3],
                     coor[4],
                     coor[5],
-                    coor[6],
                     dancer.id,
                     frame_to_edit.id
                 )
@@ -163,6 +159,7 @@ impl PositionMapMutation {
             }
         }
 
+        // update editing position frame
         let _ = sqlx::query!(
             r#"
             	UPDATE EditingPositionFrame

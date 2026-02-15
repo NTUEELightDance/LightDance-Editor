@@ -46,8 +46,8 @@ pub type PartControlBulbs = Vec<(String, i32)>;
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PositionData {
     pub start: i32,
-    pub location: Vec<[Option<f64>; 3]>,
-    pub rotation: Vec<[Option<f64>; 3]>,
+    pub location: Vec<[f64; 3]>,
+    pub rotation: Vec<[f64; 3]>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -119,12 +119,19 @@ pub struct RedisControl {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+pub enum PositionType {
+    NoEffect,
+    Position,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisPosition {
     pub start: i32,
+    pub r#type: Vec<PositionType>,
     pub editing: Option<i32>,
     pub rev: Revision,
-    pub location: Vec<[Option<f64>; 3]>,
-    pub rotation: Vec<[Option<f64>; 3]>,
+    pub location: Vec<[f64; 3]>,
+    pub rotation: Vec<[f64; 3]>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
