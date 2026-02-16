@@ -77,8 +77,9 @@ def sync_editing_control_frame_properties():
                 part_obj = part_objs[part_index]
                 part_type = getattr(part_obj, "ld_light_type")
 
-                ld_no_effect: bool = getattr(part_obj, "ld_is_none")
-                if not ld_no_effect:
+                ld_no_status: bool = getattr(part_obj, "ld_no_status")
+                setattr(part_obj, "ld_no_status", ld_no_status)
+                if ld_no_status:
                     continue
                 # Re-trigger update
                 if part_type == LightType.FIBER.value:
@@ -205,8 +206,8 @@ def take_ctrl_data_from_model(
             part_index = part_obj_names.index(part.name)
             part_obj = part_objs[part_index]
 
-            is_none = getattr(part_obj, "ld_is_none")
-            if is_none:
+            is_no_status = getattr(part_obj, "ld_no_status")
+            if is_no_status:
                 partControlData.append((0, 0))  # Placeholder only
                 partLEDControlData.append([])
                 continue
@@ -278,7 +279,7 @@ async def save_control_frame(start: int | None = None):
         else:
             part_objs: list[bpy.types.Object] = getattr(obj, "children")
             first_part_obj = part_objs[0]
-            noEffectPartData = getattr(first_part_obj, "ld_is_none")
+            noEffectPartData = getattr(first_part_obj, "ld_no_status")
             hasEffectPartData = not noEffectPartData
             hasEffectData.append(hasEffectPartData)
             fadePartData = getattr(first_part_obj, "ld_fade")
@@ -386,7 +387,7 @@ async def delete_control_frame():
             obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
             if obj is None:
                 continue
-            setattr(obj, "ld_is_none", True)
+            setattr(obj, "ld_no_status", True)
 
         await save_control_frame()
 

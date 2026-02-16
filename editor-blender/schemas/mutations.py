@@ -17,7 +17,8 @@ from ..core.models import (
 Dancer
 """
 
-
+MutDancerHasEffect = bool
+MutDancerFade = bool
 MutDancerStatusPayload = list[tuple[ColorID | LEDEffectID, int] | None]
 MutDancerLEDStatusPayload = list[list[tuple[ColorID, int]] | None]
 

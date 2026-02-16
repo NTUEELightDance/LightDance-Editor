@@ -311,21 +311,7 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             if action != None:
                 bpy.data.actions.remove(action, do_unlink=True)
 
-    # _set_default_keyframes()
-
-    # Handle empty pos_map
-    if not pos_map_modified:
-        _set_default_keyframes()
-
-        # Delete all fake frame
-        scene = bpy.context.scene
-        action = ensure_action(scene, "SceneAction")
-        curve = ensure_curve(action, "ld_pos_frame", keyframe_points=0, clear=True)
-
-        # FIXME delete this after, only for test
-        renew_pos_test_frame()
-
-        return
+    _set_default_keyframes()
 
     dancer_range_dict = _init_pos_dancer_action_keyframes(
         init_indexs_r_closed, sorted_pos_map
