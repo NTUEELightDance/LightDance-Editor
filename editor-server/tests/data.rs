@@ -11,7 +11,7 @@ mod data_test {
     async fn upload_and_export_data() {
         let mut app = build_app().await;
 
-        let file_path = "../utils/jsons/exportDataEmpty.json";
+        let file_path = "../files/data/small_lighttable.json";
         let file_bytes = fs::read(file_path).unwrap();
         // let input_json: Value = serde_json::from_slice(&file_bytes).unwrap();
 

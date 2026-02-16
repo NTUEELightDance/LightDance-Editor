@@ -48,7 +48,7 @@ impl PositionFrameMutation {
 
         tracing::info!("Mutation: addPositionFrame");
 
-        let mut tx = mysql.begin().await?;
+        // let mut tx = mysql.begin().await?;
 
         let check = sqlx::query_as!(
             PositionFrameData,
@@ -58,7 +58,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .fetch_optional(&mut *tx)
+        .fetch_optional(mysql)
         .await?;
 
         if let Some(check) = check {
@@ -76,7 +76,7 @@ impl PositionFrameMutation {
                 ORDER BY id ASC;
             "#
         )
-        .fetch_all(&mut *tx)
+        .fetch_all(mysql)
         .await?;
 
         if let Some(data) = &position_data {
@@ -99,7 +99,7 @@ impl PositionFrameMutation {
 
             for (idx, coor) in (*data).iter().enumerate() {
                 // 6 elements: [x, y, z, rx, ry, rz]
-                if coor.len() != 7 {
+                if coor.len() != 6 {
                     errors.push(format!(
                         "Dancer #{} data must have 6 elements [x, y, z, rx, ry, rz]. Got: {}",
                         idx + 1,
@@ -123,7 +123,7 @@ impl PositionFrameMutation {
             "#,
             start
         )
-        .execute(&mut *tx)
+        .execute(mysql)
         .await?
         .last_insert_id() as i32;
 
@@ -207,13 +207,13 @@ impl PositionFrameMutation {
                         0.0,
                         0.0,
                     )
-                    .execute(&mut *tx)
+                    .execute(mysql)
                     .await?;
                 }
             }
         }
 
-        tx.commit().await?;
+        // tx.commit().await?;
 
         update_redis_position(mysql, redis, id).await?;
 

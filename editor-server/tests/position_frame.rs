@@ -8,20 +8,23 @@ mod graphql_tests {
         let start_time = 142;
         let position_data = vec![
             vec![1.0, 2.0, 3.0, 0.1, 0.2, 0.3],
-            vec![4.0, 5.0, 6.0, 0.4, 0.5, 0.6],
-            vec![7.0, 8.0, 9.0, 0.7, 0.8, 0.9],
-            vec![1.0, 2.0, 3.0, 0.1, 0.2, 0.3],
+            // vec![4.0, 5.0, 6.0, 0.4, 0.5, 0.6],
+            // vec![7.0, 8.0, 9.0, 0.7, 0.8, 0.9],
+            // vec![1.0, 2.0, 3.0, 0.1, 0.2, 0.3],
         ];
+        // let has_effect = [true, true, true, true];
+        let has_effect = [true];
 
         let mutation = format!(
             r#"
             mutation {{
-                addPositionFrame(start: {start_time}, positionData: {position_data:?}) {{
+                addPositionFrame(start: {}, positionData: {:?}, hasEffect: {:?}) {{
                     id
                     start
                 }}
             }}
             "#,
+            start_time, position_data, has_effect,
         );
 
         let data = schema.execute(mutation).await;

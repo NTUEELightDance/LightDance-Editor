@@ -1,3 +1,4 @@
+use dotenv::dotenv;
 use editor_server::build_app;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 20)]
@@ -6,6 +7,7 @@ pub async fn main() {
     let app = build_app().await;
 
     let server_port = option_env!("SERVER_PORT").unwrap_or("4000");
+    dotenv().ok();
 
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{server_port}"))
         .await
