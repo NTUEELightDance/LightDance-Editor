@@ -20,7 +20,7 @@ from ..property.animation_data import (
     reset_ctrl_rev,
 )
 from .current_status import calculate_current_status_index
-from .dopesheet import get_effective_name, update_fade_seq
+from .dopesheet import update_fade_seq
 
 
 def set_control_map(control_map: ControlMap_MODIFIED):
@@ -179,7 +179,7 @@ def apply_control_map_updates():
     state.control_map_pending = False
 
     # Update fade sequence
-    update_fade_seq()
+    update_fade_seq(updated, added, deleted)
 
     control_map_updates.added.clear()
     control_map_updates.updated.clear()

@@ -770,35 +770,15 @@ def setup_seq_map():
     clear_pinned_timeline()
 
 
-def update_fade_seq():
-    # init_fade_seq_from_state()
-
-    """Can pass in these params from the func apply_control_map_updates() for state.control_map_updates_MODIFIED after it is implemented"""
-    control_map_updates = state.control_map_updates_MODIFIED
-    updated = sorted(
-        [
-            (start, id, frame)
-            for id, (start, frame) in control_map_updates.updated.items()
-            if id not in state.not_loaded_control_frames
-        ],
-        key=lambda x: x[0],
-    )
-    added = sorted(
-        [
-            (id, frame)
-            for id, frame in control_map_updates.added.items()
-            if id not in state.not_loaded_control_frames
-        ],
-        key=lambda x: x[1].start,
-    )
-    deleted = sorted(
-        [(start, id) for id, start in control_map_updates.deleted.items()],
-        key=lambda x: x[0],
-    )
-
+def update_fade_seq(
+    updated: list[tuple[int, MapID, ControlMapElement_MODIFIED]],
+    added: list[tuple[MapID, ControlMapElement_MODIFIED]],
+    deleted: list[tuple[int, MapID]],
+):
     fade_seq_map = state.fade_sequence_map
 
     for _, id, frame in updated:
+        notify("INFO", f"{frame}")
         for name, fade_seq in fade_seq_map.items():
             if name == "Overall":
                 fade_seq[id] = get_overall_fade_seq_for_frame(frame)
@@ -814,6 +794,9 @@ def update_fade_seq():
                         any(part.fade for part in active_parts),
                         KeyframeType.NORMAL,
                     )
+
+                else:
+                    fade_seq.pop(id, None)
 
     for id, frame in added:
         for name, fade_seq in fade_seq_map.items():
@@ -862,6 +845,8 @@ def update_pos_seq(
             else:
                 if frame.pos[name] is not None:
                     pos_seq[id] = (frame.start, KeyframeType.NORMAL)
+                else:
+                    pos_seq.pop(id, None)
 
     for id, frame in added:
         for name, pos_seq in pos_seq_map.items():
