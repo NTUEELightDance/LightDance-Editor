@@ -19,14 +19,28 @@ def _update_current_status(
     light_type: str,
     part_obj,
 ):
+    ld_color, ld_alpha, ld_fade, ld_effect = (
+        "ld_color",
+        "ld_alpha",
+        "ld_fade",
+        "ld_effect",
+    )
+    ld_no_status = getattr(part_obj, "ld_no_status")
+    if ld_no_status:
+        ld_color, ld_alpha, ld_fade, ld_effect = (
+            "ld_prev_color",
+            "ld_prev_alpha",
+            "ld_prev_fade",
+            "ld_prev_effect",
+        )
     match light_type:
         case LightType.FIBER.value:
             if ctrl_data is None and prev_ctrl_data is None:
                 default_color = list(state.color_map.keys())[0]
                 default_color_name = state.color_map[default_color].name
-                setattr(part_obj, "ld_color", default_color_name)
-                setattr(part_obj, "ld_alpha", 0)
-                setattr(part_obj, "ld_fade", False)
+                setattr(part_obj, ld_color, default_color_name)
+                setattr(part_obj, ld_alpha, 0)
+                setattr(part_obj, ld_fade, False)
                 return
             elif ctrl_data is None:
                 prev_data: FiberData = prev_ctrl_data.part_data  # type: ignore
@@ -34,9 +48,9 @@ def _update_current_status(
                     raise Exception("FiberData expected")
 
                 color = state.color_map[prev_data.color_id].name
-                setattr(part_obj, "ld_color", color)
-                setattr(part_obj, "ld_alpha", prev_data.alpha)
-                setattr(part_obj, "ld_fade", prev_ctrl_data.fade)  # type: ignore
+                setattr(part_obj, ld_color, color)
+                setattr(part_obj, ld_alpha, prev_data.alpha)
+                setattr(part_obj, ld_fade, prev_ctrl_data.fade)  # type: ignore
                 return
 
             part_status = ctrl_data.part_data
@@ -44,16 +58,16 @@ def _update_current_status(
                 raise Exception("FiberData expected")
 
             color = state.color_map[part_status.color_id]
-            setattr(part_obj, "ld_color", color.name)
+            setattr(part_obj, ld_color, color.name)
             alpha = part_status.alpha
-            setattr(part_obj, "ld_alpha", alpha)
+            setattr(part_obj, ld_alpha, alpha)
             fade = ctrl_data.fade
-            setattr(part_obj, "ld_fade", fade)
+            setattr(part_obj, ld_fade, fade)
         case LightType.LED.value:
             if ctrl_data is None and prev_ctrl_data is None:
-                setattr(part_obj, "ld_effect", "no-change")
-                setattr(part_obj, "ld_alpha", 0)
-                setattr(part_obj, "ld_fade", False)
+                setattr(part_obj, ld_effect, "no-change")
+                setattr(part_obj, ld_alpha, 0)
+                setattr(part_obj, ld_fade, False)
                 return
             elif ctrl_data is None:
                 prev_data: LEDData = prev_ctrl_data.part_data  # type: ignore
@@ -64,26 +78,26 @@ def _update_current_status(
 
                 prev_effect_id = prev_data.effect_id
                 if prev_effect_id == -1:
-                    setattr(part_obj, "ld_effect", "no-change")
+                    setattr(part_obj, ld_effect, "no-change")
                 elif prev_effect_id == 0:
-                    setattr(part_obj, "ld_effect", "[Bulb Color]")
+                    setattr(part_obj, ld_effect, "[Bulb Color]")
                     for led_bulb_obj in part_obj.children:
                         pos: int = getattr(led_bulb_obj, "ld_led_pos")
                         data = prev_led_status[pos]
                         if data.color_id != -1:
                             color = state.color_map[data.color_id]
-                            setattr(led_bulb_obj, "ld_color", color.name)
+                            setattr(led_bulb_obj, ld_color, color.name)
                         else:
-                            setattr(led_bulb_obj, "ld_color", "[gradient]")
-                        setattr(led_bulb_obj, "ld_alpha", data.alpha)
+                            setattr(led_bulb_obj, ld_color, "[gradient]")
+                        setattr(led_bulb_obj, ld_alpha, data.alpha)
                 else:
                     effect = state.led_effect_id_table[prev_effect_id]
-                    setattr(part_obj, "ld_effect", effect.name)
+                    setattr(part_obj, ld_effect, effect.name)
 
                 alpha = prev_data.alpha
-                setattr(part_obj, "ld_alpha", alpha)
+                setattr(part_obj, ld_alpha, alpha)
                 fade = prev_ctrl_data.fade  # type: ignore
-                setattr(part_obj, "ld_fade", fade)
+                setattr(part_obj, ld_fade, fade)
                 return
 
             part_status = ctrl_data.part_data
@@ -94,26 +108,26 @@ def _update_current_status(
 
             effect_id = part_status.effect_id
             if effect_id == -1:
-                setattr(part_obj, "ld_effect", "no-change")
+                setattr(part_obj, ld_effect, "no-change")
             elif effect_id == 0:
-                setattr(part_obj, "ld_effect", "[Bulb Color]")
+                setattr(part_obj, ld_effect, "[Bulb Color]")
                 for led_bulb_obj in part_obj.children:
                     pos: int = getattr(led_bulb_obj, "ld_led_pos")
                     data = part_led_status[pos]
                     if data.color_id != -1:
                         color = state.color_map[data.color_id]
-                        setattr(led_bulb_obj, "ld_color", color.name)
+                        setattr(led_bulb_obj, ld_color, color.name)
                     else:
-                        setattr(led_bulb_obj, "ld_color", "[gradient]")
-                    setattr(led_bulb_obj, "ld_alpha", data.alpha)
+                        setattr(led_bulb_obj, ld_color, "[gradient]")
+                    setattr(led_bulb_obj, ld_alpha, data.alpha)
             else:
                 effect = state.led_effect_id_table[effect_id]
-                setattr(part_obj, "ld_effect", effect.name)
+                setattr(part_obj, ld_effect, effect.name)
 
             alpha = part_status.alpha
-            setattr(part_obj, "ld_alpha", alpha)
+            setattr(part_obj, ld_alpha, alpha)
             fade = ctrl_data.fade
-            setattr(part_obj, "ld_fade", fade)
+            setattr(part_obj, ld_fade, fade)
         case _:
             pass
 
@@ -139,7 +153,6 @@ def update_current_status_by_index():
     )
     setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
 
-    # INFO: Let current status be status + led_status
     current_ctrl_status = current_control_map.status
     state.current_status_MODIFIED = current_control_map.status
     # state.current_led_status = current_led_status
@@ -170,10 +183,9 @@ def update_current_status_by_index():
                 ctrl_data = dancer_status.get(part_name)
                 prev_ctrl_data = None
                 if ctrl_data is None:
-                    setattr(part_obj, "ld_is_none", True)
-
                     prev_notnone_index = index
                     while True:
+                        setattr(part_obj, "ld_no_status", True)
                         prev_notnone_index -= 1
                         if prev_notnone_index == -1:
                             prev_ctrl_data = None
@@ -185,7 +197,11 @@ def update_current_status_by_index():
                         ].status[dancer.name][part_name]
                         if prev_ctrl_data is not None:
                             break
+                    _update_current_status(
+                        ctrl_data, prev_ctrl_data, light_type, part_obj
+                    )
                 else:
-                    setattr(part_obj, "ld_is_none", False)
-
-                _update_current_status(ctrl_data, prev_ctrl_data, light_type, part_obj)
+                    setattr(part_obj, "ld_no_status", False)
+                    _update_current_status(
+                        ctrl_data, prev_ctrl_data, light_type, part_obj
+                    )

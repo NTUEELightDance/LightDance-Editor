@@ -3,6 +3,7 @@ from typing import cast
 
 import bpy
 
+from ....core.actions.state.current_pos import _interpolate_dancer_position
 from ....properties.types import LightType, ObjectType, PositionPropertyType
 from ...models import (
     ControlMapElement_MODIFIED,
@@ -17,6 +18,7 @@ from ...models import (
     PosMapElement,
 )
 from ...states import state
+from ...utils.algorithms import binary_search
 from ...utils.notification import notify
 from ..state.control_editor import add_control_frame, request_edit_control
 from ..state.pos_editor import add_pos_frame, request_edit_pos
@@ -56,13 +58,12 @@ def copy_dancer():
         part_type: str = getattr(part_obj, "ld_light_type")
 
         # TODO: implement this
-        ld_has_effect: bool = getattr(part_obj, "ld_has_effect")
-        if not ld_has_effect:
+        ld_no_status: bool = getattr(part_obj, "ld_no_status")
+        if ld_no_status:
             dancer_status[part_name] = None
         elif part_type == LightType.FIBER.value:
             ld_color: str = getattr(part_obj, "ld_color")
             ld_alpha: int = getattr(part_obj, "ld_alpha")
-            # TODO: Implement ld_fade
             ld_fade: bool = getattr(part_obj, "ld_fade")
 
             dancer_status[part_name] = CopiedPartData(
@@ -137,8 +138,8 @@ def copy_part():
         part_name: str = getattr(part_obj, "ld_part_name")
         part_type: str = getattr(part_obj, "ld_light_type")
 
-        ld_has_effect: bool = getattr(part_obj, "ld_has_effect")
-        if not ld_has_effect:
+        ld_no_status: bool = getattr(part_obj, "ld_no_status")
+        if ld_no_status:
             dancer_status[part_name] = None
         elif part_type == LightType.FIBER.value:
             ld_color: str = getattr(part_obj, "ld_color")
@@ -209,10 +210,10 @@ async def paste_dancer() -> bool:
                 copied_part_data = copied_dancer.parts[part_name]
 
                 if copied_part_data is None:
-                    setattr(part_obj, "ld_has_effect", False)
+                    setattr(part_obj, "ld_no_status", True)
                     continue
 
-                setattr(part_obj, "ld_has_effect", True)
+                setattr(part_obj, "ld_no_status", False)
                 if part_type == LightType.FIBER.value:
                     copied_color: str | None = copied_part_data.color
                     copied_alpha: int = copied_part_data.alpha
@@ -287,9 +288,9 @@ async def paste_part() -> bool:
                 copied_part_data = copied_dancer.parts[part_name]
 
                 if copied_part_data is None:
-                    setattr(part_obj, "ld_has_effect", False)
+                    setattr(part_obj, "ld_no_status", True)
                     continue
-                setattr(part_obj, "ld_has_effect", True)
+                setattr(part_obj, "ld_no_status", False)
 
                 if part_type == LightType.FIBER.value:
                     copied_color: str | None = copied_part_data.color
@@ -344,17 +345,17 @@ def override_control(control_frame: ControlMapElement_MODIFIED):
 
             part_ctrl_data = status[part.name]
             if part_ctrl_data is None:
-                # TODO: implement this
-                setattr(part_obj, "ld_has_effect", False)
+                setattr(part_obj, "ld_no_status", True)
                 continue
 
-            setattr(part_obj, "ld_has_effect", True)
+            setattr(part_obj, "ld_no_status", False)
             if part.type == PartType.FIBER:
                 fiber_status = cast(FiberData, part_ctrl_data.part_data)
                 color = state.color_map[fiber_status.color_id]
 
                 setattr(part_obj, "ld_color", color.name)
                 setattr(part_obj, "ld_alpha", fiber_status.alpha)
+                setattr(part_obj, "ld_fade", part_ctrl_data.fade)
 
             elif part.type == PartType.LED:
                 led_effect = cast(LEDData, part_ctrl_data.part_data)
@@ -383,6 +384,7 @@ def override_control(control_frame: ControlMapElement_MODIFIED):
                     setattr(part_obj, "ld_effect", effect.name)
 
                 setattr(part_obj, "ld_alpha", led_effect.alpha)
+                setattr(part_obj, "ld_fade", part_ctrl_data.fade)
 
 
 def copy_control_frame():
@@ -395,6 +397,7 @@ def copy_control_frame():
     clipboard.control_frame = current_frame
 
 
+# FIXME: check if this is correct
 async def paste_control_frame(add_frame: bool) -> bool:
     if not bpy.context:
         return False
@@ -406,7 +409,7 @@ async def paste_control_frame(add_frame: bool) -> bool:
 
     current_index = state.current_control_index
     current_frame_id = state.control_record[current_index]
-    current_frame = state.control_map[current_frame_id]
+    current_frame = state.control_map_MODIFIED[current_frame_id]
 
     frame_current = bpy.context.scene.frame_current
 
@@ -419,7 +422,7 @@ async def paste_control_frame(add_frame: bool) -> bool:
                 try:
                     next(
                         frame
-                        for frame in state.control_map.values()
+                        for frame in state.control_map_MODIFIED.values()
                         if frame.start == frame_current
                     )
                     break
@@ -453,8 +456,10 @@ def copy_pos_frame():
     clipboard.pos_frame = current_frame
 
 
-# TODO Not sure about this yet
 def override_pos(pos_frame: PosMapElement):
+    if not bpy.context:
+        return
+
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
@@ -465,7 +470,14 @@ def override_pos(pos_frame: PosMapElement):
 
         pos_data = pos_frame.pos[dancer_name]
         if pos_data is None:
-            setattr(dancer_obj, "ld_has_effect", False)
+            frame = bpy.context.scene.frame_current
+            index = state.current_pos_index
+            ld_position: PositionPropertyType = getattr(dancer_obj, "ld_position")
+            ld_position.is_none = True
+            position = _interpolate_dancer_position(dancer_name, frame, index)
+            ld_position.location, ld_position.rotation = (
+                ((0, 0, 0), (0, 0, 0)) if position is None else position
+            )
             continue
 
         setattr(dancer_obj, "ld_has_effect", True)
