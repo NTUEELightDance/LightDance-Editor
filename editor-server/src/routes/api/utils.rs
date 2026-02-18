@@ -1,25 +1,5 @@
-use super::types::GetDataFailedResponse;
-use axum::{http::StatusCode, response::Json};
-
 pub trait IntoResult<T, E> {
     fn into_result(self) -> Result<T, E>;
-}
-
-impl<R, E> IntoResult<R, (StatusCode, Json<GetDataFailedResponse>)> for Result<R, E>
-where
-    E: std::string::ToString,
-{
-    fn into_result(self) -> Result<R, (StatusCode, Json<GetDataFailedResponse>)> {
-        match self {
-            Ok(ok) => Ok(ok),
-            Err(err) => Err((
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(GetDataFailedResponse {
-                    err: err.to_string(),
-                }),
-            )),
-        }
-    }
 }
 
 pub fn write_little_endian(num: &u32, v: &mut Vec<u8>) {
@@ -132,7 +112,7 @@ pub fn gradient_to_rgb_float(status: Vec<[i32; 4]>) -> Vec<Vec<[i32; 4]>> {
     segments
 }
 
-// also RGB -> GRB
+/// Apply alpha to LED status, also reorder from RGB to GRB
 pub fn alpha(status: &[i32; 4]) -> [i32; 3] {
     [
         (status[0] as f32 * status[3] as f32 / 255.0_f32) as i32,
