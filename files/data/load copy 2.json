@@ -1,0 +1,30 @@
+{
+  "Music": "/music/2025EECamp.mp3",
+  "Waveform": "/data/waveform.json",
+  "Beat": "/data/beat.csv",
+  "DancerMap": {
+    "0_coffin": {
+      "url": "/asset/models/props/coffin.glb",
+      "modelName": "coffin"
+    },
+    "1_cross": {
+      "url": "/asset/models/props/cross.glb",
+      "modelName": "cross"
+    },
+    "2_gem": {
+      "url": "/asset/models/props/gem.glb",
+      "modelName": "gem"
+    },
+    "3_window": {
+      "url": "/asset/models/props/window.glb",
+      "modelName": "window"
+    }
+  },
+  "Config": {
+    "Stage": {
+      "width": 11.5,
+      "length": 8.0,
+      "scale": 1.0
+    }
+  }
+}

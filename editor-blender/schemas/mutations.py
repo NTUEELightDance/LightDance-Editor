@@ -158,6 +158,7 @@ CANCEL_EDIT_POS_BY_ID = gql(
 class MutEditPositionFrameInput(JSONWizard):
     frameId: MapID
     positionData: list[list[float] | None]
+    hasEffect: list[bool]
 
 
 @dataclass
@@ -183,8 +184,8 @@ class MutAddPositionFrameResponse(JSONWizard):
 
 ADD_POS_FRAME = gql(
     """
-    mutation AddPositionFrame($start: Int!, $positionData: [[Float!]!]) {
-        addPositionFrame(start: $start, positionData: $positionData) {
+    mutation AddPositionFrame($start: Int!, $positionData: [[Float!]!], $hasEffectData: [Boolean!]) {
+        addPositionFrame(start: $start, positionData: $positionData, hasPosition: $hasEffectData) {
             id
         }
     }
@@ -285,7 +286,8 @@ class MutEditControlFrameInput(JSONWizard):
     frameId: MapID
     controlData: list[MutDancerStatusPayload]
     ledBulbData: list[MutDancerLEDStatusPayload]
-    fade: bool | None = None
+    fade: list[bool]
+    hasEffect: list[bool]
 
 
 EDIT_CONTROL_FRAME = gql(
@@ -301,11 +303,12 @@ ADD_CONTROL_FRAME = gql(
     """
     mutation AddControlFrame(
         $start: Int!
-        $fade: Boolean
         $controlData: [[[Int!]!]!]
         $ledControlData: [[[[Int!]!]!]!]!
+        $hasEffect: [Boolean!]
+        $fade: [Boolean!]
     ) {
-        addControlFrame(start: $start, fade: $fade, controlData: $controlData, ledControlData: $ledControlData)
+        addControlFrame(start: $start, fade: $fade, controlData: $controlData, ledControlData: $ledControlData, hasEffect: $hasEffect, fade: $fade)
     }
     """
 )

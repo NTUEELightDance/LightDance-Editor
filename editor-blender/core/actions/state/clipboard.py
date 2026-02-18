@@ -1,4 +1,5 @@
 import asyncio
+from copy import deepcopy
 from typing import cast
 
 import bpy
@@ -57,25 +58,28 @@ def copy_dancer():
         part_name: str = getattr(part_obj, "ld_part_name")
         part_type: str = getattr(part_obj, "ld_light_type")
 
-        # TODO: implement this
         ld_no_status: bool = getattr(part_obj, "ld_no_status")
+        ld_color_str, ld_alpha_str, ld_effect_str = "ld_color", "ld_alpha", "ld_effect"
         if ld_no_status:
-            dancer_status[part_name] = None
-        elif part_type == LightType.FIBER.value:
-            ld_color: str = getattr(part_obj, "ld_color")
-            ld_alpha: int = getattr(part_obj, "ld_alpha")
-            ld_fade: bool = getattr(part_obj, "ld_fade")
+            ld_color_str, ld_alpha_str, ld_effect_str = (
+                "ld_prev_color",
+                "ld_prev_alpha",
+                "ld_prev_effect",
+            )
+        print(ld_color_str)
+
+        if part_type == LightType.FIBER.value:
+            ld_color: str = getattr(part_obj, ld_color_str)
+            ld_alpha: int = getattr(part_obj, ld_alpha_str)
 
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
                 color=ld_color,
-                fade=ld_fade,
             )
 
         elif part_type == LightType.LED.value:
-            ld_effect: str = getattr(part_obj, "ld_effect")
-            ld_alpha: int = getattr(part_obj, "ld_alpha")
-            ld_fade: bool = getattr(part_obj, "ld_fade")
+            ld_effect: str = getattr(part_obj, ld_effect_str)
+            ld_alpha: int = getattr(part_obj, ld_alpha_str)
 
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
@@ -85,13 +89,12 @@ def copy_dancer():
                     if ld_effect != "[Bulb Color]"
                     else [
                         (
-                            getattr(led_bulb_obj, "ld_color"),
-                            getattr(led_bulb_obj, "ld_alpha"),
+                            getattr(led_bulb_obj, ld_color_str),
+                            getattr(led_bulb_obj, ld_alpha_str),
                         )
                         for led_bulb_obj in part_obj.children
                     ]
                 ),
-                fade=ld_fade,
             )
     notify("INFO", "Copied")
 
@@ -139,23 +142,26 @@ def copy_part():
         part_type: str = getattr(part_obj, "ld_light_type")
 
         ld_no_status: bool = getattr(part_obj, "ld_no_status")
+        ld_color_str, ld_alpha_str, ld_effect_str = "ld_color", "ld_alpha", "ld_effect"
         if ld_no_status:
-            dancer_status[part_name] = None
+            ld_color_str, ld_alpha_str, ld_effect_str = (
+                "ld_prev_color",
+                "ld_prev_alpha",
+                "ld_prev_effect",
+            )
+
         elif part_type == LightType.FIBER.value:
-            ld_color: str = getattr(part_obj, "ld_color")
-            ld_alpha: int = getattr(part_obj, "ld_alpha")
-            ld_fade: bool = getattr(part_obj, "ld_fade")
+            ld_color: str = getattr(part_obj, ld_color_str)
+            ld_alpha: int = getattr(part_obj, ld_alpha_str)
 
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
                 color=ld_color,
-                fade=ld_fade,
             )
 
         elif part_type == LightType.LED.value:
-            ld_effect: str = getattr(part_obj, "ld_effect")
-            ld_alpha: int = getattr(part_obj, "ld_alpha")
-            ld_fade: bool = getattr(part_obj, "ld_fade")
+            ld_effect: str = getattr(part_obj, ld_effect_str)
+            ld_alpha: int = getattr(part_obj, ld_alpha_str)
 
             dancer_status[part_name] = CopiedPartData(
                 alpha=ld_alpha,
@@ -165,13 +171,12 @@ def copy_part():
                     if ld_effect != "[Bulb Color]"
                     else [
                         (
-                            getattr(led_bulb_obj, "ld_color"),
-                            getattr(led_bulb_obj, "ld_alpha"),
+                            getattr(led_bulb_obj, ld_color_str),
+                            getattr(led_bulb_obj, ld_alpha_str),
                         )
                         for led_bulb_obj in part_obj.children
                     ]
                 ),
-                fade=ld_fade,
             )
     notify("INFO", "Copied")
 
@@ -210,29 +215,25 @@ async def paste_dancer() -> bool:
                 copied_part_data = copied_dancer.parts[part_name]
 
                 if copied_part_data is None:
-                    setattr(part_obj, "ld_no_status", True)
-                    continue
-
+                    notify("INFO", "There is no Data to Paste")
+                    return True
                 setattr(part_obj, "ld_no_status", False)
+
                 if part_type == LightType.FIBER.value:
                     copied_color: str | None = copied_part_data.color
                     copied_alpha: int = copied_part_data.alpha
-                    copied_fade: bool = copied_part_data.fade
 
                     if copied_color is not None:
                         setattr(part_obj, "ld_color", copied_color)
                         setattr(part_obj, "ld_alpha", copied_alpha)
-                        setattr(part_obj, "ld_fade", copied_fade)
 
                 elif part_type == LightType.LED.value:
                     copied_effect: str | None = copied_part_data.effect
                     copied_alpha: int = copied_part_data.alpha
-                    copied_fade: bool = copied_part_data.fade
 
                     if copied_effect is not None:
                         setattr(part_obj, "ld_effect", copied_effect)
                         setattr(part_obj, "ld_alpha", copied_alpha)
-                        setattr(part_obj, "ld_fade", copied_fade)
 
                         if copied_effect == "[Bulb Color]":
                             copied_led_status = copied_part_data.led_status
@@ -288,29 +289,26 @@ async def paste_part() -> bool:
                 copied_part_data = copied_dancer.parts[part_name]
 
                 if copied_part_data is None:
-                    setattr(part_obj, "ld_no_status", True)
-                    continue
+                    notify("INFO", "There is no Data to Paste")
+                    return True
+
                 setattr(part_obj, "ld_no_status", False)
 
                 if part_type == LightType.FIBER.value:
                     copied_color: str | None = copied_part_data.color
                     copied_alpha: int = copied_part_data.alpha
-                    copied_fade: bool = copied_part_data.fade
 
                     if copied_color is not None:
                         setattr(part_obj, "ld_color", copied_color)
                         setattr(part_obj, "ld_alpha", copied_alpha)
-                        setattr(part_obj, "ld_fade", copied_fade)
 
                 elif part_type == LightType.LED.value:
                     copied_effect: str | None = copied_part_data.effect
                     copied_alpha: int = copied_part_data.alpha
-                    copied_fade: bool = copied_part_data.fade
 
                     if copied_effect is not None:
                         setattr(part_obj, "ld_effect", copied_effect)
                         setattr(part_obj, "ld_alpha", copied_alpha)
-                        setattr(part_obj, "ld_fade", copied_fade)
 
                         if copied_effect == "[Bulb Color]":
                             copied_led_status = copied_part_data.led_status
@@ -394,6 +392,7 @@ def copy_control_frame():
     current_index = state.current_control_index
     current_frame_id = state.control_record[current_index]
     current_frame = state.control_map_MODIFIED[current_frame_id]
+
     clipboard.control_frame = current_frame
 
 
@@ -469,6 +468,7 @@ def override_pos(pos_frame: PosMapElement):
         dancer_obj = data_objects[dancer_name]
 
         pos_data = pos_frame.pos[dancer_name]
+        print(pos_data)
         if pos_data is None:
             frame = bpy.context.scene.frame_current
             index = state.current_pos_index
@@ -480,11 +480,11 @@ def override_pos(pos_frame: PosMapElement):
             )
             continue
 
-        setattr(dancer_obj, "ld_has_effect", True)
         location = pos_data.location
         rotation = pos_data.rotation
 
         ld_position: PositionPropertyType = getattr(dancer_obj, "ld_position")
+        ld_position.is_none = False
         ld_position.location = (location.x, location.y, location.z)
         ld_position.rotation = (rotation.rx, rotation.ry, rotation.rz)
 

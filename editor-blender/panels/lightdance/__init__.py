@@ -181,7 +181,6 @@ class LightDancePanel(bpy.types.Panel):
                     bpy.context.window_manager,
                     "ld_ui_dancer_selection_index",
                 )
-                bpy.context.window_manager
                 return
 
             if state.ready:

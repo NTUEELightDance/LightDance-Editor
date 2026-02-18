@@ -311,7 +311,7 @@ class CopiedType(Enum):
 @dataclass
 class CopiedPartData:
     alpha: int
-    fade: bool
+    # fade: bool
     color: str | None = None
     effect: str | None = None
     led_status: list[tuple[int, int]] | None = None

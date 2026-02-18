@@ -126,13 +126,14 @@ def mock_sub_control_map(
     next_id = cur_max_id + 1
 
     new_zip = []
-    for i in range(len(state.dancer_names)):
-        dancer = state.dancer_names[i]
-        new_sublist = []
-        for j in range(len(state.dancers[dancer])):
-            part = state.dancers[dancer][j]
-            new_sublist.append((part, controlData[i][j], ledControlData[i][j]))  # type: ignore
-        new_zip.append((dancer, hasEffectData[i], fadeData[i], new_sublist))  # type: ignore
+    if type == SubType.UpdateFrames or type == SubType.CreateFrames:
+        for i in range(len(state.dancer_names)):
+            dancer = state.dancer_names[i]
+            new_sublist = []
+            for j in range(len(state.dancers[dancer])):
+                part = state.dancers[dancer][j]
+                new_sublist.append((part, controlData[i][j], ledControlData[i][j]))  # type: ignore
+            new_zip.append((dancer, hasEffectData[i], fadeData[i], new_sublist))  # type: ignore
 
     new_ctrl_frame = None
     if type == SubType.UpdateFrames or type == SubType.CreateFrames:

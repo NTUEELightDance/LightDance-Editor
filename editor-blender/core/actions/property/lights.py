@@ -93,6 +93,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
             if prev_part_status is None:
                 continue
+            print(prev_part_status)
             if not isinstance(prev_part_status, LEDData):
                 raise Exception("LEDData expected")
 
@@ -275,20 +276,27 @@ def _ctrl_data_to_float(ctrl_data: CtrlData):
         return cast(tuple[float, float, float], color_float)
     elif isinstance(part_data, LEDData):
         effect_id, effect_alpha = part_data.effect_id, part_data.alpha
-        effect = state.led_effect_id_table[effect_id]
-        bulb_list = [(bulb.color_id, bulb.alpha) for bulb in effect.effect]
-        bulb_floats = gradient_to_rgb_float(bulb_list)
+        bulb_floats = []
 
-        if effect_id != 0:
+        if effect_id == 0:
+            # Effect is bulb color
+            bulb_orig_list = ctrl_data.bulb_data
+            bulb_list = [(bulb.color_id, bulb.alpha) for bulb in bulb_orig_list]
+            bulb_floats = gradient_to_rgb_float(bulb_list)
+        else:
             # If effect is not bulb color, handle effect alpha
             # Effect id may not be -1 (This case in handled before this function)
+            effect = state.led_effect_id_table[effect_id]
+            bulb_list = [(bulb.color_id, bulb.alpha) for bulb in effect.effect]
+            bulb_prealpha_floats = gradient_to_rgb_float(bulb_list)
+
             bulb_floats = [
                 tuple(
                     map(
                         lambda prim_color: prim_color * effect_alpha / 255.0, bulb_float
                     )
                 )
-                for bulb_float in bulb_floats
+                for bulb_float in bulb_prealpha_floats
             ]
         bulb_floats = cast(list[tuple[float, float, float]], bulb_floats)
         return bulb_floats
@@ -358,9 +366,8 @@ def update_current_is_no_effect(self: bpy.types.Object, context: bpy.types.Conte
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
 
-    ld_has_effect: bool = not getattr(self, "ld_no_status")
-
-    if ld_has_effect:
+    ld_has_status: bool = not getattr(self, "ld_no_status")
+    if ld_has_status:
         ld_allow_override = getattr(self, "ld_allow_override_from_prev")
         if not ld_allow_override:
             return
@@ -369,6 +376,8 @@ def update_current_is_no_effect(self: bpy.types.Object, context: bpy.types.Conte
         setattr(self, "ld_fade", default_fade)
 
         prev_alpha = getattr(self, "ld_prev_alpha")
+        setattr(self, "ld_alpha", prev_alpha)
+
         ld_light_type = getattr(self, "ld_light_type")
         if ld_light_type == LightType.FIBER.value:
             prev_color = getattr(self, "ld_prev_color")

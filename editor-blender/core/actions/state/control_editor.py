@@ -362,8 +362,10 @@ async def delete_control_frame():
     # If all hidden dancers are None state -> delete frame
     hidden_all_none = True
     for dancer_name in hidden_dancer_names:
-        pos = frame.status.get(dancer_name)
-        if not pos is None:
+        control_dancer = frame.status[dancer_name]
+        any_part_ctrl_data = list(control_dancer.values())[0]
+        print(any_part_ctrl_data)
+        if any_part_ctrl_data is not None:
             hidden_all_none = False
             break
 
@@ -371,11 +373,11 @@ async def delete_control_frame():
         try:
             # await control_agent.delete_frame(id)
             mock_sub_control_map(SubType.DeleteFrames, id=id)
-            notify("INFO", f"Deleted position frame (mock): {id}")
+            notify("INFO", f"Deleted control frame: {id}")
 
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         except Exception:
-            logger.exception("Failed to delete position frame (mock)")
+            logger.exception("Failed to delete control frame")
             notify("WARNING", "Cannot delete position frame")
     else:
         # There exists hidden dancer with non-None state -> set all shown dancers to None state.

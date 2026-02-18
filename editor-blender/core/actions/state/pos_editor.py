@@ -93,19 +93,25 @@ async def add_pos_frame():
     for index in range(len(state.dancer_names)):
         positionData.append(None)
 
+    positionDataPrime: list[list[float]] = []
+    hasEffectData: list[bool] = []
+    for index in range(len(state.dancer_names)):
+        positionDataPrime.append([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        hasEffectData.append(False)
+
     try:
         mock_sub_pos_map(SubType.CreateFrames, start=start, positionData=positionData)
-        notify("INFO", "Added position frame (mock)")
+        notify("INFO", "Added position frame")
         # apply_pos_map_updates()
         # update_current_pos_by_index()
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     except Exception:
-        logger.exception("Failed to add position frame (mock)")
+        logger.exception("Failed to add position frame")
         notify("WARNING", "Cannot add position frame")
 
     # with send_request():
     #     try:
-    #         id = await pos_agent.add_frame(start, positionData)
+    #         id = await pos_agent.add_frame(start, positionDataPrime, hasEffectData)
     #         notify("INFO", f"Added position frame: {id}")
     #     except:
     #         logger.exception("Failed to add position frame")
@@ -165,9 +171,9 @@ async def save_pos_frame(start: int | None = None):
             positionData=positionData,
             start=save_start,
         )
-        notify("INFO", f"Saved position frame (mock): {id}")
+        notify("INFO", f"Saved position frame: {id}")
     except Exception:
-        logger.exception("Failed to save position frame (mock)")
+        logger.exception("Failed to save position frame")
         notify("WARNING", "Cannot save position frame")
         return
 
@@ -258,13 +264,13 @@ async def delete_pos_frame():
     if hidden_all_none:
         try:
             mock_sub_pos_map(SubType.DeleteFrames, id=id)
-            notify("INFO", f"Deleted position frame (mock): {id}")
+            notify("INFO", f"Deleted position frame: {id}")
 
             apply_pos_map_updates()
             update_current_pos_by_index()
             redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         except Exception:
-            logger.exception("Failed to delete position frame (mock)")
+            logger.exception("Failed to delete position frame")
             notify("WARNING", "Cannot delete position frame")
         return
         # with send_request():

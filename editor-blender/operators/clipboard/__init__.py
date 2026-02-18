@@ -141,9 +141,9 @@ class PasteFrameOperator(AsyncOperator):
             frame_current = context.scene.frame_current
 
             if frame_current != current_frame.start:
-                if not all(state.show_dancers):
-                    notify("WARNING", "Operation not allowed in partial mode")
-                    return {"CANCELLED"}
+                # if not all(state.show_dancers):
+                #     notify("WARNING", "Operation not allowed in partial mode")
+                #     return {"CANCELLED"}
                 return context.window_manager.invoke_props_dialog(self)
 
         elif state.editor == Editor.POS_EDITOR:
@@ -152,14 +152,11 @@ class PasteFrameOperator(AsyncOperator):
 
             current_index = state.current_pos_index
             current_frame_id = state.pos_record[current_index]
-            current_frame = state.pos_map[current_frame_id]
+            current_frame = state.pos_map_MODIFIED[current_frame_id]
 
             frame_current = context.scene.frame_current
 
             if frame_current != current_frame.start:
-                if not all(state.show_dancers):
-                    notify("WARNING", "Operation not allowed in partial mode")
-                    return {"CANCELLED"}
                 return context.window_manager.invoke_props_dialog(self)
 
         return self.execute(context)
