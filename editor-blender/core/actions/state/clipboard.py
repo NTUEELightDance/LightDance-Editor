@@ -513,7 +513,7 @@ async def paste_pos_frame(add_frame: bool) -> bool:
                 try:
                     next(
                         frame
-                        for frame in state.pos_map.values()
+                        for frame in state.pos_map_MODIFIED.values()
                         if frame.start == frame_current
                     )
                     break
