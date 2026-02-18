@@ -28,6 +28,13 @@ pub struct DeletePositionFrameInput {
     pub frame_id: i32,
 }
 
+#[derive(InputObject)]
+pub struct AddPositionFrameInput {
+    start: i32,
+    position_data: Option<Vec<Vec<f64>>>,
+    has_position: Vec<bool>,
+}
+
 #[derive(Default)]
 pub struct PositionFrameMutation;
 
@@ -36,10 +43,14 @@ impl PositionFrameMutation {
     async fn add_position_frame(
         &self,
         ctx: &Context<'_>,
-        start: i32,
-        position_data: Option<Vec<Vec<f64>>>,
-        has_effect: Vec<bool>,
+        input: AddPositionFrameInput,
     ) -> GQLResult<PositionFrame> {
+        let AddPositionFrameInput {
+            start,
+            position_data,
+            has_position,
+        } = input;
+
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
 
@@ -80,11 +91,11 @@ impl PositionFrameMutation {
         .await?;
 
         if let Some(data) = &position_data {
-            if has_effect.len() != data.len() {
+            if has_position.len() != data.len() {
                 return Err(format!(
-                        "Position data and has_effect has different length. Position data length: {}, has_effect length: {}",
+                        "Position data and has_position has different length. Position data length: {}, has_position length: {}",
                         data.len(),
-                        has_effect.len(),
+                        has_position.len(),
                 ).into());
             }
 
@@ -133,7 +144,7 @@ impl PositionFrameMutation {
             Some(data) => {
                 let mut r#type: Vec<PositionType> = Vec::new();
                 for (idx, coor) in (*data).iter().enumerate() {
-                    if !has_effect[idx] {
+                    if !has_position[idx] {
                         r#type.push(PositionType::NoEffect);
                         sqlx::query!(
                             r#"

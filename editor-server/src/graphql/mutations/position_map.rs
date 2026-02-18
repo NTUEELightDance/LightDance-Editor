@@ -22,7 +22,7 @@ use std::collections::HashMap;
 pub struct EditPositionMapInput {
     pub frame_id: i32,
     pub position_data: Vec<Vec<f64>>,
-    pub has_effect: Vec<bool>,
+    pub has_position: Vec<bool>,
 }
 
 #[derive(Default)]
@@ -85,11 +85,11 @@ impl PositionMapMutation {
         .fetch_all(&mut *tx)
         .await?;
 
-        if input.has_effect.len() != input.position_data.len() {
+        if input.has_position.len() != input.position_data.len() {
             return Err(format!(
-                "Position data and has_effect have difference length. Position data length: {}, has_effect length: {}",
+                "Position data and has_position have difference length. Position data length: {}, has_position length: {}",
                 input.position_data.len(),
-                input.has_effect.len(),
+                input.has_position.len(),
             )
             .into());
         }
@@ -124,7 +124,7 @@ impl PositionMapMutation {
         for (idx, coor) in input.position_data.iter().enumerate() {
             let dancer = &dancers[idx];
 
-            if !input.has_effect[idx] {
+            if !input.has_position[idx] {
                 let _ = sqlx::query!(
                     r#"
                         UPDATE PositionData

@@ -38,6 +38,15 @@ pub struct DeleteControlFrameInput {
     pub frame_id: i32,
 }
 
+#[derive(InputObject)]
+pub struct AddControlFrameInput {
+    pub start: i32,
+    pub control_data: Vec<Vec<Vec<i32>>>,
+    pub led_control_data: Vec<Vec<Vec<Vec<i32>>>>,
+    pub has_effect: Vec<bool>,
+    pub fade: Vec<bool>,
+}
+
 #[derive(Debug, sqlx::FromRow)]
 pub struct DancerData {
     pub dancer_id: i32,
@@ -55,12 +64,16 @@ impl ControlFrameMutation {
     async fn add_control_frame(
         &self,
         ctx: &Context<'_>,
-        start: i32,
-        control_data: Vec<Vec<Vec<i32>>>,
-        led_control_data: Vec<Vec<Vec<Vec<i32>>>>,
-        has_effect: Vec<bool>,
-        fade: Vec<bool>,
+        input: AddControlFrameInput,
     ) -> FieldResult<String> {
+        let AddControlFrameInput {
+            start,
+            control_data,
+            led_control_data,
+            has_effect,
+            fade,
+        } = input;
+
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
         let mysql = clients.mysql_pool();

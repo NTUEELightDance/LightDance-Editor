@@ -23,9 +23,10 @@ use crate::graphql::{
 #[derive(InputObject, Default)]
 pub struct EditControlMapInput {
     pub frame_id: i32,
-    pub fade: Option<bool>,
     pub control_data: Option<Vec<Vec<Vec<i32>>>>,
     pub led_bulb_data: Option<Vec<Vec<Vec<Vec<i32>>>>>,
+    pub fade: Vec<bool>,
+    pub has_effect: Vec<bool>,
 }
 
 // query type
