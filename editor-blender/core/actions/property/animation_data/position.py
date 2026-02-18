@@ -49,6 +49,7 @@ def _set_default_keyframes():
     for dancer_index, dancer_name in enumerate(state.dancer_names):
         total_num_of_dancer = len(state.dancer_names)
         init_y = _init_pos_y(dancer_index, total_num_of_dancer)
+
         if not state.show_dancers[dancer_index]:
             continue
 
@@ -88,30 +89,30 @@ def _set_default_keyframes():
             rot_point.select_control_point = False
 
 
-def _clear_default_keyframes():
-    data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
+# def _clear_default_keyframes():
+#     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-    for dancer_index, dancer_name in enumerate(state.dancer_names):
-        if not state.show_dancers[dancer_index]:
-            continue
-        dancer_obj = data_objects[dancer_name]
-        action = ensure_action(dancer_obj, dancer_name + "Action")
+#     for dancer_index, dancer_name in enumerate(state.dancer_names):
+#         if not state.show_dancers[dancer_index]:
+#             continue
+#         dancer_obj = data_objects[dancer_name]
+#         action = ensure_action(dancer_obj, dancer_name + "Action")
 
-        for d in range(3):
-            ensure_curve(
-                action,
-                "location",
-                index=d,
-                keyframe_points=0,
-                clear=True,
-            )
-            ensure_curve(
-                action,
-                "rotation_euler",
-                index=d,
-                keyframe_points=0,
-                clear=True,
-            )
+#         for d in range(3):
+#             ensure_curve(
+#                 action,
+#                 "location",
+#                 index=d,
+#                 keyframe_points=0,
+#                 clear=True,
+#             )
+#             ensure_curve(
+#                 action,
+#                 "rotation_euler",
+#                 index=d,
+#                 keyframe_points=0,
+#                 clear=True,
+#             )
 
 
 def reset_pos_frames():
@@ -449,10 +450,10 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
         kpoints_len = len(loc_kpoints_lists[0])
 
         # If exist default keyframe(Pos keyframe is originally empty), clear default keyframe
-        if kpoints_len == 1 and loc_kpoints_lists[0][0].co[0] == default_keyframe_start:
-            _clear_default_keyframes()
-            loc_kpoints_lists = [get_keyframe_points(curve)[1] for curve in loc_curves]
-            rot_kpoints_lists = [get_keyframe_points(curve)[1] for curve in rot_curves]
+        # if kpoints_len == 1 and loc_kpoints_lists[0][0].co[0] == default_keyframe_start:
+        #     _clear_default_keyframes()
+        #     loc_kpoints_lists = [get_keyframe_points(curve)[1] for curve in loc_curves]
+        #     rot_kpoints_lists = [get_keyframe_points(curve)[1] for curve in rot_curves]
 
         kpoints_len = len(loc_kpoints_lists[0])
 

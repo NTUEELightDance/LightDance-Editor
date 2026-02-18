@@ -81,14 +81,18 @@ class PosAgent:
             logger.exception("Failed to get position map")
 
     async def add_frame(
-        self, start: int, positionData: list[list[float] | None]
+        self, start: int, positionData: list[list[float]], hasEffectData: list[bool]
     ) -> MapID | None:
         """Add a new position frame to the position map."""
         try:
             response = await client.execute(
                 MutAddPositionFrameResponse,
                 ADD_POS_FRAME,
-                {"start": start, "positionData": positionData},
+                {
+                    "start": start,
+                    "positionData": positionData,
+                    "hasEffectData": hasEffectData,
+                },
             )
             return response["addPositionFrame"].id
 
@@ -102,6 +106,7 @@ class PosAgent:
         self,
         id: MapID,
         positionData: list[list[float] | None],
+        hasEffectData: list[bool],
         start: int | None = None,
     ):
         """Edit a position frame in the position map."""
@@ -114,7 +119,9 @@ class PosAgent:
                     EDIT_POS_FRAME,
                     {
                         "input": MutEditPositionFrameInput(
-                            frameId=id, positionData=positionData
+                            frameId=id,
+                            positionData=positionData,
+                            hasEffectData=hasEffectData,
                         )
                     },
                 )

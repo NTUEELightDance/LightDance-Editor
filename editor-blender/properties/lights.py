@@ -120,6 +120,7 @@ def update_is_none(self: bpy.types.Object, context: bpy.types.Context) -> None:
     """
     On update ld_no_status, update every part of same dancer to same is_none
     """
+
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
 

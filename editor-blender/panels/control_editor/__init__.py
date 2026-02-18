@@ -32,8 +32,12 @@ def draw_dancer_parts(
     if ld_no_status:
         row = layout.row()
         row.label(text="Current Dancer Has No Status")
+
+        if state.edit_state == EditMode.EDITING:
+            return
+
         row = layout.row()
-        row.label(text="Prev Status:")
+        row.label(text="Previous Status:")
 
     if ui_status.show_fiber or ui_status.show_all:
         for part in fibers:
@@ -349,6 +353,7 @@ class ControlEditor(bpy.types.Panel):
         editing = state.edit_state == EditMode.EDITING
         properties_enabled = editing and not state.playing
 
+        row = layout.row()
         split = row.split()
         row = split.row(align=True)
         row.operator(

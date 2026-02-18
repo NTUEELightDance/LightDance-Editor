@@ -1,0 +1,38 @@
+{
+  "Music": "/music/2025EECamp.mp3",
+  "Waveform": "/data/waveform.json",
+  "Beat": "/data/beat.csv",
+  "DancerMap": {
+    "0_ethan": {
+      "url": "/asset/models/hunter.glb",
+      "modelName": "hunter"
+    },
+    "1_ai": {
+      "url": "/asset/models/jane.glb",
+      "modelName": "jane"
+    },
+    "2_ert": {
+      "url": "/asset/models/rob.glb",
+      "modelName": "rob"
+    },
+    "3_twilight": {
+      "url": "/asset/models/vampire_king.glb",
+      "modelName": "vampire_king"
+    },
+    "4_bloodphile": {
+      "url": "/asset/models/vampire.glb",
+      "modelName": "vampire"
+    },
+    "5_doe_a": {
+      "url": "/asset/models/props/fireplace.glb",
+      "modelName": "fireplace"
+    }
+  },
+  "Config": {
+    "Stage": {
+      "width": 11.5,
+      "length": 8.0,
+      "scale": 1.0
+    }
+  }
+}

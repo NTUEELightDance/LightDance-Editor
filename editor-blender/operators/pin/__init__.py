@@ -25,10 +25,6 @@ class PinObject(bpy.types.Operator):
         )
 
     def execute(self, context: bpy.types.Context | None):
-        if len(state.pinned_objects) >= 3:
-            notify("INFO", "Maximum pinned objects reached")
-            return {"FINISHED"}
-
         obj = None
         if bpy.context.selected_objects:
             obj = bpy.context.selected_objects[0]

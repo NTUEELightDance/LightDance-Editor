@@ -18,21 +18,9 @@ def _update_current_status(
     prev_ctrl_data: CtrlData | None,
     light_type: str,
     part_obj,
+    ld_attr_types: tuple[str, str, str, str],
 ):
-    ld_color, ld_alpha, ld_fade, ld_effect = (
-        "ld_color",
-        "ld_alpha",
-        "ld_fade",
-        "ld_effect",
-    )
-    ld_no_status = getattr(part_obj, "ld_no_status")
-    if ld_no_status:
-        ld_color, ld_alpha, ld_fade, ld_effect = (
-            "ld_prev_color",
-            "ld_prev_alpha",
-            "ld_prev_fade",
-            "ld_prev_effect",
-        )
+    ld_color, ld_alpha, ld_fade, ld_effect = ld_attr_types
     match light_type:
         case LightType.FIBER.value:
             if ctrl_data is None and prev_ctrl_data is None:
@@ -181,27 +169,48 @@ def update_current_status_by_index():
                     continue
 
                 ctrl_data = dancer_status.get(part_name)
-                prev_ctrl_data = None
-                if ctrl_data is None:
-                    prev_notnone_index = index
-                    while True:
-                        setattr(part_obj, "ld_no_status", True)
-                        prev_notnone_index -= 1
-                        if prev_notnone_index == -1:
-                            prev_ctrl_data = None
-                            break
 
-                        prev_control_id = state.control_record[prev_notnone_index]
-                        prev_ctrl_data = state.control_map_MODIFIED[
-                            prev_control_id
-                        ].status[dancer.name][part_name]
-                        if prev_ctrl_data is not None:
-                            break
-                    _update_current_status(
-                        ctrl_data, prev_ctrl_data, light_type, part_obj
-                    )
+                prev_ctrl_data = None
+                prev_notnone_index = index
+                while True:
+                    prev_notnone_index -= 1
+                    if prev_notnone_index == -1:
+                        prev_ctrl_data = None
+                        break
+
+                    prev_control_id = state.control_record[prev_notnone_index]
+                    prev_ctrl_data = state.control_map_MODIFIED[prev_control_id].status[
+                        dancer.name
+                    ][part_name]
+                    if prev_ctrl_data is not None:
+                        break
+
+                # update previous status
+                current_ld_attr_type = (
+                    "ld_prev_color",
+                    "ld_prev_alpha",
+                    "ld_prev_fade",
+                    "ld_prev_effect",
+                )
+                _update_current_status(
+                    None, prev_ctrl_data, light_type, part_obj, current_ld_attr_type
+                )
+
+                if ctrl_data is None:
+                    setattr(part_obj, "ld_no_status", True)
                 else:
                     setattr(part_obj, "ld_no_status", False)
+
+                    current_ld_attr_type = (
+                        "ld_color",
+                        "ld_alpha",
+                        "ld_fade",
+                        "ld_effect",
+                    )
                     _update_current_status(
-                        ctrl_data, prev_ctrl_data, light_type, part_obj
+                        ctrl_data,
+                        prev_ctrl_data,
+                        light_type,
+                        part_obj,
+                        current_ld_attr_type,
                     )

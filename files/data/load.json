@@ -3,21 +3,53 @@
   "Waveform": "/data/waveform.json",
   "Beat": "/data/beat.csv",
   "DancerMap": {
-    "0_chen": {
-      "url": "/asset/models/good_men.glb",
-      "modelName": "good_men"
+    "0_liao": {
+      "url": "/asset/models/vampire_king.glb",
+      "modelName": "vampire_king"
     },
-    "1_li": {
-      "url": "/asset/models/good_men.glb",
-      "modelName": "good_men"
+    "1_lin": {
+      "url": "/asset/models/vampire_king.glb",
+      "modelName": "vampire_king"
     },
-    "2_lin": {
-      "url": "/asset/models/bad_men.glb",
-      "modelName": "bad_men"
+    "2_feng": {
+      "url": "/asset/models/jane.glb",
+      "modelName": "jane"
     },
-    "3_hsieh": {
-      "url": "/asset/models/bad_men.glb",
-      "modelName": "bad_men"
+    "3_chen": {
+      "url": "/asset/models/jane.glb",
+      "modelName": "jane"
+    },
+    "4_roy": {
+      "url": "/asset/models/vampire.glb",
+      "modelName": "vampire"
+    },
+    "5_chiu": {
+      "url": "/asset/models/vampire.glb",
+      "modelName": "vampire"
+    },
+    "6_su": {
+      "url": "/asset/models/rob.glb",
+      "modelName": "rob"
+    },
+    "7_li": {
+      "url": "/asset/models/rob.glb",
+      "modelName": "rob"
+    },
+    "8_hsieh": {
+      "url": "/asset/models/hunter.glb",
+      "modelName": "hunter"
+    },
+    "9_yang": {
+      "url": "/asset/models/hunter.glb",
+      "modelName": "hunter"
+    },
+    "10_tsai": {
+      "url": "/asset/models/hunter.glb",
+      "modelName": "hunter"
+    },
+    "11_luo": {
+      "url": "/asset/models/hunter.glb",
+      "modelName": "hunter"
     }
   },
   "Config": {

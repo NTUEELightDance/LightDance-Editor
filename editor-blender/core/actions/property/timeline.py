@@ -1,3 +1,5 @@
+from typing import cast
+
 import bpy
 
 from ...actions.state.current_pos import update_current_pos_by_index

@@ -100,9 +100,10 @@ class ControlAgent:
     async def add_frame(
         self,
         start: int,
-        fade: bool,
         controlData: list[MutDancerStatusPayload],
         ledControlData: list[MutDancerLEDStatusPayload],
+        hasEffectData: list[bool],
+        fadeData: list[bool],
     ) -> str | None:
         """Add a new control frame to the control map."""
         try:
@@ -112,8 +113,9 @@ class ControlAgent:
                 {
                     "start": start,
                     "controlData": controlData,
-                    "fade": fade,
                     "ledControlData": ledControlData,
+                    "hasEffect": hasEffectData,
+                    "fade": fadeData,
                 },
             )
             return response["addControlFrame"]
@@ -131,7 +133,8 @@ class ControlAgent:
         id: MapID,
         controlData: list[MutDancerStatusPayload],
         ledControlData: list[MutDancerLEDStatusPayload],
-        fade: bool | None = None,
+        fade: list[bool],
+        hasEffect: list[bool],
         start: int | None = None,
     ):
         """Edit a control frame in the control map."""
@@ -148,6 +151,7 @@ class ControlAgent:
                             controlData=controlData,
                             ledBulbData=ledControlData,
                             fade=fade,
+                            hasEffect=hasEffect,
                         )
                     },
                 )

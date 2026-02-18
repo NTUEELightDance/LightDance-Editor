@@ -1,7 +1,7 @@
 import bpy
 
 from ....properties.types import PositionPropertyType
-from ...models import Position
+from ...models import Location, Position, Rotation
 from ...states import state
 from ...utils.algorithms import binary_search
 
@@ -25,6 +25,14 @@ def _init_pos_y(index: float, total: float):
     return x
 
 
+def _default_position(index):
+    total = len(state.dancer_names)
+    init_y = _init_pos_y(index, total)
+    return Position(
+        location=Location(0.0, init_y, 0.0), rotation=Rotation(0.0, 0.0, 0.0)
+    )
+
+
 def _set_default_position():
     dancer_num = len(state.dancer_names)
     for index, dancer_name in enumerate(state.dancer_names):
@@ -34,8 +42,8 @@ def _set_default_position():
         if obj is not None:
             ld_position: PositionPropertyType = getattr(obj, "ld_position")
             # This also sets the actual location by update handler
-            ld_position.location = (0, init_y, 0)
-            ld_position.rotation = (0, 0, 0)
+            ld_position.location = (0.0, init_y, 0.0)
+            ld_position.rotation = (0.0, 0.0, 0.0)
 
 
 def _set_from_object_transform(
@@ -82,19 +90,28 @@ def _interpolate_dancer_position(
             break
 
     if prev_pos is None and next_pos is None:
-        return None
+        dancer_index = state.dancer_names.index(dancer_name)
+        total = len(state.dancer_names)
+        init_y = _init_pos_y(dancer_index, total)
+        return ((0.0, init_y, 0.0), (0.0, 0.0, 0.0))
+
     if next_pos is None:
-        _, dancer_pos = prev_pos
+        _, dancer_pos = prev_pos  # type: ignore
         return (
             (dancer_pos.location.x, dancer_pos.location.y, dancer_pos.location.z),
             (dancer_pos.rotation.rx, dancer_pos.rotation.ry, dancer_pos.rotation.rz),
         )
     if prev_pos is None:
-        _, dancer_pos = next_pos
-        return (
-            (dancer_pos.location.x, dancer_pos.location.y, dancer_pos.location.z),
-            (dancer_pos.rotation.rx, dancer_pos.rotation.ry, dancer_pos.rotation.rz),
-        )
+        # _, dancer_pos = next_pos
+        # return (
+        #     (dancer_pos.location.x, dancer_pos.location.y, dancer_pos.location.z),
+        #     (dancer_pos.rotation.rx, dancer_pos.rotation.ry, dancer_pos.rotation.rz),
+        # )
+        prev_start = -1
+        dancer_index = state.dancer_names.index(dancer_name)
+        prev_dancer_pos = _default_position(dancer_index)
+
+        prev_pos = prev_start, prev_dancer_pos
 
     prev_start, prev_dancer_pos = prev_pos
     next_start, next_dancer_pos = next_pos

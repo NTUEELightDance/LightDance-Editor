@@ -66,7 +66,7 @@ def init_loaded_frame_range():
         set_min_max_frame(bpy.context.scene.frame_start, bpy.context.scene.frame_end)
 
 
-def init_show_dancer():
+def show_all_dancers():
     state.show_dancers = [True] * len(state.dancer_names)
 
     if bpy.context is None:
@@ -102,11 +102,11 @@ def init_dancer_selection_from_state():
     )
 
     if not dancer_props:
-        for dancer in state.dancer_names:
+        for i, dancer in enumerate(state.dancer_names):
             dancer_selection_item: DancerSelectionType = getattr(
                 bpy.context.window_manager, "ld_ui_dancers_selection"
             ).add()
             dancer_selection_item.name = dancer
-            dancer_selection_item.shown = True
+            dancer_selection_item.shown = False
     else:
         return

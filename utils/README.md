@@ -7,6 +7,9 @@ Once configured, you can generate empty data for database and upload.
 ```sh
 # LightDance-Editor/utils
 node generateInitialExport.js ../files/data/load.json ../files > jsons/exportDataEmpty.json
+
+#Same as above, if wanting to create exportData directly
+node generateInitialExport.js ../files/data/load.json ../files > jsons/exportData.json
 ```
 
 Everytime you modified assets, remember to update [files/data/load_hash.json](../files/data/load_hash.json) for auto-update in blender.
