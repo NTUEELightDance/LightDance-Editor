@@ -33,7 +33,7 @@ pub enum PartType {
 
 // data types used for Redis
 #[derive(Debug, Deserialize, Serialize, Clone)] // [id: number, alpha: number, fade: number]
-pub struct RedisPartControlData(pub i32, pub i32, pub bool);
+pub struct RedisPartControlData(pub i32, pub i32);
 pub type RedisPartControl = Option<RedisPartControlData>;
 pub type RedisPartControlBulbs = Vec<(i32, i32)>;
 
@@ -48,6 +48,7 @@ pub struct PositionData {
     pub start: i32,
     pub location: Vec<[f64; 3]>,
     pub rotation: Vec<[f64; 3]>,
+    pub has_position: Vec<bool>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -122,6 +123,15 @@ pub struct RedisControl {
 pub enum PositionType {
     NoEffect,
     Position,
+}
+
+impl From<&PositionType> for bool {
+    fn from(val: &PositionType) -> Self {
+        match val {
+            PositionType::NoEffect => false,
+            PositionType::Position => true,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

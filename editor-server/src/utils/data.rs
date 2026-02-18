@@ -131,7 +131,6 @@ pub async fn init_redis_control(
                             dancer_status.push(Some(RedisPartControlData(
                                 part_control[0].effect_id.unwrap_or(-1),
                                 part_control[0].alpha,
-                                part_control[0].fade.unwrap_or(false),
                             )));
                             dancer_led_status.push(Vec::new());
                         }
@@ -141,18 +140,14 @@ pub async fn init_redis_control(
                                 .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
                                 .collect_vec();
 
-                            dancer_status.push(Some(RedisPartControlData(
-                                0,
-                                part_control[0].alpha,
-                                part_control[0].fade.unwrap_or(false),
-                            )));
+                            dancer_status
+                                .push(Some(RedisPartControlData(0, part_control[0].alpha)));
                             dancer_led_status.push(bulbs);
                         }
                         ControlType::Color => {
                             dancer_status.push(Some(RedisPartControlData(
                                 part_control[0].color_id.unwrap_or(-1),
                                 part_control[0].alpha,
-                                part_control[0].fade.unwrap_or(false),
                             )));
                             dancer_led_status.push(Vec::new());
                         }
@@ -439,7 +434,6 @@ pub async fn update_redis_control(
                     dancer_status.push(Some(RedisPartControlData(
                         part_control[0].effect_id.unwrap_or(-1),
                         part_control[0].alpha,
-                        part_control[0].fade.unwrap_or(false),
                     )));
                     dancer_led_status.push(Vec::new());
                 }
@@ -449,18 +443,13 @@ pub async fn update_redis_control(
                         .map(|data| (data.bulb_color_id.unwrap_or(-1), data.bulb_alpha))
                         .collect_vec();
 
-                    dancer_status.push(Some(RedisPartControlData(
-                        0,
-                        part_control[0].alpha,
-                        part_control[0].fade.unwrap_or(false),
-                    )));
+                    dancer_status.push(Some(RedisPartControlData(0, part_control[0].alpha)));
                     dancer_led_status.push(bulbs);
                 }
                 ControlType::Color => {
                     dancer_status.push(Some(RedisPartControlData(
                         part_control[0].color_id.unwrap_or(-1),
                         part_control[0].alpha,
-                        part_control[0].fade.unwrap_or(false),
                     )));
                     dancer_led_status.push(Vec::new());
                 }

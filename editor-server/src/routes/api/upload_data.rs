@@ -142,10 +142,10 @@ async fn collect_dancers_and_models<'a>(
     ),
     UploadDataError,
 > {
-    let mut all_dancer: HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)> =
-        HashMap::new();
-    let mut all_model: HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)> =
-        HashMap::new();
+    // HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)>
+    let mut all_dancer = HashMap::new();
+    // HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)>
+    let mut all_model = HashMap::new();
 
     for dancer in dancer_data {
         // Create model if not exist
@@ -336,7 +336,7 @@ async fn collect_led_effects<'a>(
 
 async fn check_position_data_shape(
     position_data: &BTreeMap<String, PositionData>,
-    dancer_data: &Vec<Dancer>,
+    dancer_data: &[Dancer],
 ) -> Result<(), UploadDataError> {
     for frame_obj in position_data.values() {
         if frame_obj.location.len() != dancer_data.len() {
@@ -363,7 +363,7 @@ async fn collect_position(
     tx: &mut Transaction<'static, MySql>,
     progress_bar: Option<&ProgressBar>,
     all_dancer: &HashMap<&String, (i32, HashMap<&String, (i32, &PartType)>)>,
-    dancer_data: &Vec<Dancer>,
+    dancer_data: &[Dancer],
 ) -> Result<(), UploadDataError> {
     for frame_obj in position_data.values() {
         let frame_id = sqlx::query!(
@@ -378,22 +378,28 @@ async fn collect_position(
         .into_result()?
         .last_insert_id() as i32;
 
-        for (index, (location_data, rotation_data)) in frame_obj
+        for (index, ((location_data, rotation_data), has_position)) in frame_obj
             .location
             .iter()
             .zip(frame_obj.rotation.iter())
+            .zip(frame_obj.has_position.iter())
             .enumerate()
         {
             // TODO: add proper error handling
             let dancer_id = all_dancer[&dancer_data[index].name].0;
+            let r#type = match has_position {
+                true => "POSITION",
+                false => "NO_EFFECt",
+            };
 
             sqlx::query!(
                 r#"
-                    INSERT INTO PositionData (dancer_id, frame_id, x, y, z, rx, ry, rz)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                    INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
                     "#,
                 dancer_id,
                 frame_id,
+                r#type,
                 location_data[0],
                 location_data[1],
                 location_data[2],
@@ -419,7 +425,7 @@ async fn collect_position(
 
 async fn check_control_data_shape(
     control_data: &BTreeMap<String, ControlData>,
-    dancer_data: &Vec<Dancer>,
+    dancer_data: &[Dancer],
 ) -> Result<(), UploadDataError> {
     for frame_obj in control_data.values() {
         if frame_obj.status.len() != dancer_data.len() {
@@ -445,7 +451,7 @@ async fn collect_control_data(
     tx: &mut Transaction<'static, MySql>,
     progress_bar: Option<&ProgressBar>,
     control_data: &BTreeMap<String, ControlData>,
-    dancer_data: &Vec<Dancer>,
+    dancer_data: &[Dancer],
     all_dancer: &HashMap<&String, (i32, HashMap<&String, (i32, &PartType)>)>,
     color_dict: &HashMap<&String, i32>,
     led_dict: &HashMap<&String, HashMap<&String, HashMap<&String, i32>>>,

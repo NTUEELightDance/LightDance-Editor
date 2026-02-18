@@ -350,6 +350,7 @@ pub async fn export_data(
                 start: position_frame.start,
                 location: redis_position.location,
                 rotation: redis_position.rotation,
+                has_position: redis_position.r#type.iter().map(|t| t.into()).collect_vec(),
             },
         );
     }
