@@ -421,7 +421,7 @@ async def init_control_map():
     if control_map is None or control_record is None:
         raise Exception("Failed to initialize control map")
 
-    state.control_map = control_map
+    # state.control_map = control_map
     # FIXME: Uncomment this after test
     # state.control_record = control_record
     # state.control_start_record = [control_map[id].start for id in control_record]
@@ -444,9 +444,9 @@ async def init_pos_map():
     if pos_map is None or pos_record is None:
         raise Exception("Failed to initialize pos map")
 
-    state.pos_map = pos_map
-    state.pos_record = pos_record
-    state.pos_start_record = [pos_map[id].start for id in pos_record]
+    # state.pos_map = pos_map
+    # state.pos_record = pos_record
+    # state.pos_start_record = [pos_map[id].start for id in pos_record]
 
     # FIXME: delete this after test
     from ....core.utils.for_dev_only.tmp_format_conv import sync_new_pos_map_from_old
