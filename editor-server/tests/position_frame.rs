@@ -13,18 +13,18 @@ mod graphql_tests {
             // vec![1.0, 2.0, 3.0, 0.1, 0.2, 0.3],
         ];
         // let has_effect = [true, true, true, true];
-        let has_effect = [true];
+        let has_position = [true];
 
         let mutation = format!(
             r#"
             mutation {{
-                addPositionFrame(start: {}, positionData: {:?}, hasEffect: {:?}) {{
+                addPositionFrame(input: {{ start: {}, positionData: {:?} hasPosition: {:?} }}) {{
                     id
                     start
                 }}
             }}
             "#,
-            start_time, position_data, has_effect,
+            start_time, position_data, has_position,
         );
 
         let data = schema.execute(mutation).await;

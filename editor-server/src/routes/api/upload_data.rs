@@ -14,6 +14,10 @@ use std::collections::{BTreeMap, HashMap};
 use uuid::Uuid;
 
 type UploadDataError = (StatusCode, Json<UploadDataFailedResponse>);
+// HashMap<&part_name, (part_id, part_type)>
+type Parts<'a> = HashMap<&'a String, (i32, &'a PartType)>;
+// HashMap<&part_name, HashMap<effect_name, effect_id>>
+type LEDEffects<'a> = HashMap<&'a String, HashMap<&'a String, i32>>;
 
 async fn parse_input_files(files: &mut Multipart) -> Result<JsonData, UploadDataError> {
     let mut field = match files.next_field().await.into_result()? {
@@ -132,19 +136,19 @@ async fn collect_colors<'a>(
 /// HashMap<&dancer_name, (dancer_id, HashMap<&part_name, (part_id, &part_type))>
 /// and HashMap<&model_name, (model_id, HashMap<&part_name, (part_id, &part_type))>
 async fn collect_dancers_and_models<'a>(
-    dancer_data: &'a Vec<Dancer>,
+    dancer_data: &'a [Dancer],
     tx: &mut Transaction<'static, MySql>,
-    progress_bar: Option<&'a ProgressBar>,
+    progress_bar: Option<&ProgressBar>,
 ) -> Result<
     (
-        HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)>,
-        HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)>,
+        HashMap<&'a String, (i32, Parts<'a>)>,
+        HashMap<&'a String, (i32, Parts<'a>)>,
     ),
     UploadDataError,
 > {
-    // HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)>
+    // HashMap<&String, (i32, HashMap<&String, (i32, &PartType)>)>
     let mut all_dancer = HashMap::new();
-    // HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)>
+    // HashMap<&String, (i32, HashMap<&String, (i32, &PartType)>)>
     let mut all_model = HashMap::new();
 
     for dancer in dancer_data {
@@ -245,12 +249,11 @@ async fn collect_dancers_and_models<'a>(
 async fn collect_led_effects<'a>(
     led_data: &'a BTreeMap<String, BTreeMap<String, BTreeMap<String, LEDPart>>>,
     tx: &mut Transaction<'static, MySql>,
-    progress_bar: Option<&'a ProgressBar>,
-    all_model: &'a HashMap<&'a String, (i32, HashMap<&'a String, (i32, &'a PartType)>)>,
+    progress_bar: Option<&ProgressBar>,
+    all_model: &'a HashMap<&'a String, (i32, Parts<'a>)>,
     color_dict: &'a HashMap<&String, i32>,
-) -> Result<HashMap<&'a String, HashMap<&'a String, HashMap<&'a String, i32>>>, UploadDataError> {
-    let mut led_dict: HashMap<&'a String, HashMap<&'a String, HashMap<&'a String, i32>>> =
-        HashMap::new();
+) -> Result<HashMap<&'a String, LEDEffects<'a>>, UploadDataError> {
+    let mut led_dict = HashMap::new();
 
     for (model_name, dancer_effects) in led_data {
         let mut model_effect_dict: HashMap<&String, HashMap<&String, i32>> = HashMap::new();
@@ -362,7 +365,7 @@ async fn collect_position(
     position_data: &BTreeMap<String, PositionData>,
     tx: &mut Transaction<'static, MySql>,
     progress_bar: Option<&ProgressBar>,
-    all_dancer: &HashMap<&String, (i32, HashMap<&String, (i32, &PartType)>)>,
+    all_dancer: &HashMap<&String, (i32, Parts<'_>)>,
     dancer_data: &[Dancer],
 ) -> Result<(), UploadDataError> {
     for frame_obj in position_data.values() {
@@ -452,9 +455,9 @@ async fn collect_control_data(
     progress_bar: Option<&ProgressBar>,
     control_data: &BTreeMap<String, ControlData>,
     dancer_data: &[Dancer],
-    all_dancer: &HashMap<&String, (i32, HashMap<&String, (i32, &PartType)>)>,
+    all_dancer: &HashMap<&String, (i32, Parts<'_>)>,
     color_dict: &HashMap<&String, i32>,
-    led_dict: &HashMap<&String, HashMap<&String, HashMap<&String, i32>>>,
+    led_dict: &HashMap<&String, LEDEffects<'_>>,
 ) -> Result<(), UploadDataError> {
     for frame_obj in control_data.values() {
         let frame_id = sqlx::query!(

@@ -161,7 +161,7 @@ impl PositionFrameMutation {
                             0.0,
                             0.0,
                         )
-                        .execute(mysql)
+                        .execute(&mut *tx)
                         .await?;
                     } else {
                         r#type.push(PositionType::Position);
@@ -180,7 +180,7 @@ impl PositionFrameMutation {
                             coordinates[4],
                             coordinates[5],
                         )
-                        .execute(mysql)
+                        .execute(&mut *tx)
                         .await?;
                     }
                 }
@@ -224,6 +224,8 @@ impl PositionFrameMutation {
                 }
             }
         }
+
+        tx.commit().await?;
 
         // <<<<<<< HEAD
         //         // tx.commit().await?;
