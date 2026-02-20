@@ -203,8 +203,8 @@ impl ControlFrameMutation {
                     continue;
                 } else {
                     errors.push(format!(
-                        "Control data in dancer {} is less than parts in payload.",
-                        index + 1
+                        "Control data in dancer {} is less than parts in payload. Control data length: {}, parts length: {}, bulb data length: {}",
+                        index + 1, dancer.len(), data.len(), dancer_bulb_datas.len()
                     ));
                     continue;
                 }
@@ -274,7 +274,7 @@ impl ControlFrameMutation {
                             if has_effect {
                                 let color_id = part_data[0];
 
-                                if !all_color_ids.contains(&color_id) && color_id != -1 {
+                                if !all_color_ids.contains(&color_id) {
                                     let error_message = format!(
                                         "Color of dancer #{}, part #{} is not a valid color",
                                         index, part_index,
