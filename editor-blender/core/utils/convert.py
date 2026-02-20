@@ -36,20 +36,14 @@ from ..models import (
     Color,
     ColorID,
     ColorMap,
-    ControlMap,
     ControlMap_MODIFIED,
-    ControlMapElement,
     ControlMapElement_MODIFIED,
-    ControlMapLEDStatus,
-    ControlMapStatus,
     ControlMapStatus_MODIFIED,
     CtrlData,
-    DancerLEDStatus,
     DancerName,
     DancersArray,
     DancersArrayItem,
     DancersArrayPartsItem,
-    DancerStatus,
     DancerStatus_MODIFIED,
     FiberData,
     LEDBulbData,
@@ -1243,8 +1237,6 @@ def control_modify_to_animation_data(
 #     return notnone_mapid_ctrl_map[notnone_index_start : notnone_index_end + 1]
 
 
-# FIXME: To Be Done!
-# Control map needs to be sorted by start time
 def control_map_to_animation_data(
     sorted_control_map: list[tuple[MapID, ControlMapElement_MODIFIED]],
     part_range_dict: dict[PartName, tuple[()] | tuple[int, int]],

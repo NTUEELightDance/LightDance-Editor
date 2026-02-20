@@ -7,7 +7,6 @@ from ..client import client
 from ..core.log import logger
 from ..core.models import (
     ColorID,
-    ControlMap,
     ControlMap_MODIFIED,
     ControlRecord,
     LEDEffectID,

@@ -10,15 +10,7 @@ import bpy
 
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
-from ....models import (
-    ControlMap,
-    ControlMapElement,
-    ControlMapElement_MODIFIED,
-    DancerName,
-    MapID,
-    PartName,
-    PartType,
-)
+from ....models import ControlMapElement_MODIFIED, DancerName, MapID, PartName, PartType
 from ....states import state
 from ....utils.algorithms import (
     expanded_filtered_map_bound,
