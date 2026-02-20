@@ -9,8 +9,6 @@ from typing import cast
 import bpy
 
 from .....core.actions.state.dopesheet import register_handle_timeline
-from .....core.utils.for_dev_only.test_keyframe import renew_pos_test_frame
-from .....core.utils.for_dev_only.tmp_format_conv import sync_new_pos_map_from_old
 from .....properties.types import RevisionPropertyItemType
 from ....models import MapID, Position, PosMap, PosMapElement
 from ....states import state
@@ -141,8 +139,6 @@ def reset_pos_frames():
         point.interpolation = "LINEAR"
         point.select_control_point = False
 
-    # renew_pos_test_frame()
-
 
 def reset_pos_rev(sorted_pos_map: list[tuple[MapID, PosMapElement]]):
     if not bpy.context:
@@ -221,8 +217,6 @@ def update_pos_frames(
         point.select_control_point = False
 
     curve.keyframe_points.sort()
-
-    renew_pos_test_frame()
 
 
 """
@@ -411,9 +405,6 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
         pos_rev_item.frame_id = id
         pos_rev_item.frame_start = frame_start
 
-    # FIXME delete this after, only for test
-    renew_pos_test_frame()
-
 
 """
 update position keyframes
@@ -540,7 +531,7 @@ def modify_partial_pos_keyframes(modify_animation_data: PosModifyAnimationData):
                 loc_curves[d].keyframe_points.add(len(add_bundle))
                 rot_curves[d].keyframe_points.add(len(add_bundle))
 
-                for i, (frame_start, (loc, rot)) in enumerate(add_bundle):
+                for i, (frame_start, (loc, rot)) in enumerate(add_bundle):  # type: ignore
                     loc_point = loc_kpoints_lists[d][kpoints_len + i]
                     rot_point = rot_kpoints_lists[d][kpoints_len + i]
 

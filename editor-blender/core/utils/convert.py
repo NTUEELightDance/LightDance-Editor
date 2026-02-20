@@ -37,6 +37,7 @@ from ..models import (
     ColorID,
     ColorMap,
     ControlMap,
+    ControlMap_MODIFIED,
     ControlMapElement,
     ControlMapElement_MODIFIED,
     ControlMapLEDStatus,
@@ -49,6 +50,7 @@ from ..models import (
     DancersArrayItem,
     DancersArrayPartsItem,
     DancerStatus,
+    DancerStatus_MODIFIED,
     FiberData,
     LEDBulbData,
     LEDData,
@@ -105,7 +107,9 @@ def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
     rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
 
     pos_map_element = PosMapElement(start=payload.start, pos={}, rev=rev)
-    pos_map_element.pos = pos_status_query_to_state(payload.location, payload.rotation)
+    pos_map_element.pos = pos_status_query_to_state(
+        payload.location, payload.rotation, payload.has_effect
+    )
 
     return pos_map_element
 
@@ -132,18 +136,24 @@ def coordinates_query_to_state(
 def pos_status_query_to_state(
     loc_payload: list[QueryCoordinatesPayload],
     rot_payload: list[QueryCoordinatesPayload],
+    has_effect_payload: list[bool],
 ) -> PosMapStatus:
     pos_map_status: PosMapStatus = {}
 
-    for dancerIndex, (dancerLocStatus, dancerRotStatus) in enumerate(
-        zip(loc_payload, rot_payload)
-    ):
+    for dancerIndex, (
+        dancerLocStatus,
+        dancerRotStatus,
+        dancerHasEffectStatus,
+    ) in enumerate(zip(loc_payload, rot_payload, has_effect_payload)):
         dancers_array_item = state.dancers_array[dancerIndex]
         dancer_name = dancers_array_item.name
 
-        pos_map_status[dancer_name] = coordinates_query_to_state(
-            dancerLocStatus, dancerRotStatus
-        )
+        if dancerHasEffectStatus:
+            pos_map_status[dancer_name] = coordinates_query_to_state(
+                dancerLocStatus, dancerRotStatus
+            )
+        else:
+            pos_map_status[dancer_name] = None
 
     return pos_map_status
 
@@ -195,64 +205,84 @@ def part_led_data_state_to_mut(
 
 
 def control_status_query_to_state(
-    payload: list[QueryDancerStatusPayload],
-) -> ControlMapStatus:
-    control_map_status: ControlMapStatus = {}
+    status_payload: list[QueryDancerStatusPayload],
+    led_status_payload: list[QueryDancerLEDBulbStatusPayload],
+    fade_payload: list[bool],
+    has_effect_payload: list[bool],
+) -> ControlMapStatus_MODIFIED:
+    control_map_status: ControlMapStatus_MODIFIED = {}
 
-    for dancerIndex, dancerStatus in enumerate(payload):
+    for dancerIndex, dancerStatus in enumerate(status_payload):
         dancers_array_item = state.dancers_array[dancerIndex]
         dancer_name = dancers_array_item.name
         dancer_parts = dancers_array_item.parts
-        dancer_status: DancerStatus = {}
+        dancer_status: DancerStatus_MODIFIED = {}
+
+        dancerLEDStatus = led_status_payload[dancerIndex]
+        fadeStatus = fade_payload[dancerIndex]
+        hasEffectStatus = has_effect_payload[dancerIndex]
 
         for partIndex, partStatus in enumerate(dancerStatus):
             part_name = dancer_parts[partIndex].name
             part_type = state.part_type_map[part_name]
 
-            dancer_status[part_name] = part_data_query_to_state(part_type, partStatus)
+            partLEDStatus = dancerLEDStatus[partIndex]
+
+            if not hasEffectStatus:
+                dancer_status[part_name] = None
+                continue
+
+            part_status = part_data_query_to_state(part_type, partStatus)
+            part_led_status = part_led_data_query_to_state(partLEDStatus)
+            dancer_status[part_name] = CtrlData(
+                part_data=part_status, bulb_data=part_led_status, fade=fadeStatus
+            )
 
         control_map_status[dancer_name] = dancer_status
 
     return control_map_status
 
 
-def led_status_query_to_state(
-    payload: list[QueryDancerLEDBulbStatusPayload],
-) -> ControlMapLEDStatus:
-    control_map_led_status: ControlMapLEDStatus = {}
+# def led_status_query_to_state(
+#     payload: list[QueryDancerLEDBulbStatusPayload],
+# ) -> ControlMapLEDStatus:
+#     control_map_led_status: ControlMapLEDStatus = {}
 
-    for dancerIndex, dancerStatus in enumerate(payload):
-        dancers_array_item = state.dancers_array[dancerIndex]
-        dancer_name = dancers_array_item.name
-        dancer_parts = dancers_array_item.parts
-        dancer_status: DancerLEDStatus = {}
+#     for dancerIndex, dancerStatus in enumerate(payload):
+#         dancers_array_item = state.dancers_array[dancerIndex]
+#         dancer_name = dancers_array_item.name
+#         dancer_parts = dancers_array_item.parts
+#         dancer_status: DancerLEDStatus = {}
 
-        for partIndex, partStatus in enumerate(dancerStatus):
-            part_name = dancer_parts[partIndex].name
-            part_type = state.part_type_map[part_name]
+#         for partIndex, partStatus in enumerate(dancerStatus):
+#             part_name = dancer_parts[partIndex].name
+#             part_type = state.part_type_map[part_name]
 
-            dancer_status[part_name] = part_led_data_query_to_state(partStatus)
+#             dancer_status[part_name] = part_led_data_query_to_state(partStatus)
 
-        control_map_led_status[dancer_name] = dancer_status
+#         control_map_led_status[dancer_name] = dancer_status
 
-    return control_map_led_status
+#     return control_map_led_status
 
 
-def control_frame_query_to_state(payload: QueryControlFrame) -> ControlMapElement:
+def control_frame_query_to_state(
+    payload: QueryControlFrame,
+) -> ControlMapElement_MODIFIED:
     rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
 
-    control_map_element = ControlMapElement(
-        start=payload.start, fade=payload.fade, status={}, led_status={}, rev=rev
+    control_map_element = ControlMapElement_MODIFIED(
+        start=payload.start, status={}, rev=rev, fade_for_new_status=False
     )
 
-    control_map_element.status = control_status_query_to_state(payload.status)
-    control_map_element.led_status = led_status_query_to_state(payload.led_status)
+    control_map_element.status = control_status_query_to_state(
+        payload.status, payload.led_status, payload.fade, payload.has_effect
+    )
 
     return control_map_element
 
 
-def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
-    control_map: ControlMap = {}
+def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap_MODIFIED:
+    control_map: ControlMap_MODIFIED = {}
 
     for id, frame in frames.items():
         control_map[id] = control_frame_query_to_state(frame)
@@ -285,8 +315,8 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
 def control_status_state_to_mut(
     control_status: ControlMapStatus_MODIFIED,
 ) -> tuple[
-    MutDancerHasEffect,
-    MutDancerFade,
+    list[MutDancerHasEffect],
+    list[MutDancerFade],
     list[MutDancerStatusPayload],
     list[MutDancerLEDStatusPayload],
 ]:
@@ -617,7 +647,7 @@ def pos_modify_to_animation_data(
                 break
 
         old_pos_status = (
-            state.pos_map_MODIFIED.get(old_frame_id).pos if old_frame_id else {}
+            state.pos_map_MODIFIED.get(old_frame_id).pos if old_frame_id else {}  # type: ignore
         )
 
         for _, dancer_item in enumerate(state.dancers_array):
@@ -643,6 +673,8 @@ def pos_modify_to_animation_data(
                     )
                 )
             else:
+                pos = cast(Position, pos)
+                old_pos = cast(Position, pos)
                 location = (pos.location.x, pos.location.y, pos.location.z)
                 rotation = (pos.rotation.rx, pos.rotation.ry, pos.rotation.rz)
                 old_location = (
