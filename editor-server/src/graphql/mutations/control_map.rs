@@ -26,6 +26,7 @@ pub struct EditControlMapInput {
     pub fade: Option<bool>,
     pub control_data: Option<Vec<Vec<Vec<i32>>>>,
     pub led_bulb_data: Option<Vec<Vec<Vec<Vec<i32>>>>>,
+    pub no_effect: Option<Vec<Vec<bool>>>,
 }
 
 // query type
@@ -81,6 +82,7 @@ impl ControlMapMutation {
         let frame_id = input.frame_id;
         let control_data = input.control_data;
         let led_bulb_data = input.led_bulb_data;
+        let no_effect_data = input.no_effect;
 
         // check if the control_data is given
         let control_data = match control_data {
@@ -188,6 +190,27 @@ impl ControlMapMutation {
             )));
         }
 
+        // Handle no_effect: if not provided, fetch existing values from database
+        let no_effect_data = if let Some(no_effect) = no_effect_data {
+            // Validate no_effect structure matches dancers
+            if no_effect.len() != dancers.len() {
+                let error_message = format!(
+                    "No effect data length ({}) does not match dancers length ({})",
+                    no_effect.len(),
+                    dancers.len()
+                );
+                return Err(Error::new(error_message));
+            }
+            no_effect
+        } else {
+            // If not provided, we'll fetch existing values during update
+            // For now, create default structure (will be replaced during update)
+            dancers
+                .iter()
+                .map(|dancer| vec![false; dancer.len()])
+                .collect()
+        };
+
         // first, check if the data have all information about all dancers
         if control_data.len() != dancers.len() {
             // to avoid subtract overflow when dancers.len() < control_data.len()
@@ -236,6 +259,17 @@ impl ControlMapMutation {
         for (index, data) in control_data.iter().enumerate() {
             let dancer = &dancers[index];
             let led_bulb_data = &led_bulb_data[index];
+            let dancer_no_effect = &no_effect_data[index];
+
+            // Validate no_effect length matches parts
+            if dancer_no_effect.len() != dancer.len() {
+                errors.push(format!(
+                    "No effect data in dancer {index} length ({}) does not match parts length ({})",
+                    dancer_no_effect.len(),
+                    dancer.len()
+                ));
+                break;
+            }
 
             // second, check if the data of each dancer have all information about all parts
             if data.len() != dancer.len() || led_bulb_data.len() != dancer.len() {
@@ -390,6 +424,7 @@ impl ControlMapMutation {
                 let part = &dancer[_index];
                 let part_type = &part.part_type;
                 let led_bulb_data = &led_bulb_data[_index];
+                let part_no_effect = dancer_no_effect[_index];
 
                 match part_type {
                     // if the part is Fiber, update the color and alpha
@@ -400,11 +435,12 @@ impl ControlMapMutation {
                         sqlx::query!(
                             r#"
                                 UPDATE ControlData
-                                SET color_id = ?, alpha = ?
+                                SET color_id = ?, alpha = ?, no_effect = ?
                                 WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                             "#,
                             color_id,
                             alpha,
+                            part_no_effect,
                             frame_id,
                             part.part_id,
                             dancer_id,
@@ -465,10 +501,11 @@ impl ControlMapMutation {
                                 sqlx::query!(
                                     r#"
                                         UPDATE ControlData
-                                        SET effect_id = NULL, alpha = ?, type = "LED_BULBS"
+                                        SET effect_id = NULL, alpha = ?, type = "LED_BULBS", no_effect = ?
                                         WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                     "#,
                                     alpha,
+                                    part_no_effect,
                                     frame_id,
                                     part.part_id,
                                     dancer_id,
@@ -484,11 +521,12 @@ impl ControlMapMutation {
                                 sqlx::query!(
                                     r#"
                                         UPDATE ControlData
-                                        SET effect_id = ?, alpha = ?, type = "EFFECT"
+                                        SET effect_id = ?, alpha = ?, type = "EFFECT", no_effect = ?
                                         WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                     "#,
                                     effect_id,
                                     alpha,
+                                    part_no_effect,
                                     frame_id,
                                     part.part_id,
                                     dancer_id,
@@ -499,10 +537,11 @@ impl ControlMapMutation {
                                 sqlx::query!(
                                     r#"
                                         UPDATE ControlData
-                                        SET effect_id = NULL, alpha = ?, type = "EFFECT"
+                                        SET effect_id = NULL, alpha = ?, type = "EFFECT", no_effect = ?
                                         WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                     "#,
                                     alpha,
+                                    part_no_effect,
                                     frame_id,
                                     part.part_id,
                                     dancer_id,

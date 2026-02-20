@@ -30,6 +30,8 @@ pub struct EditControlFrameInput {
     pub frame_id: i32,
     pub start: Option<i32>,
     pub fade: Option<bool>,
+    /// Optional no_effect matrix: [dancer][part]
+    pub no_effect: Option<Vec<Vec<bool>>>,
 }
 
 #[derive(InputObject, Default)]
@@ -59,6 +61,7 @@ impl ControlFrameMutation {
         fade: bool,
         control_data: Vec<Vec<Vec<i32>>>,
         led_control_data: Vec<Vec<Vec<Vec<i32>>>>,
+        no_effect: Option<Vec<Vec<bool>>>,
     ) -> FieldResult<String> {
         let context = ctx.data::<UserContext>()?;
         let clients = context.clients;
@@ -124,6 +127,24 @@ impl ControlFrameMutation {
             return Err(Error::new(error_message));
         }
 
+        // Handle no_effect: default to all false if not provided
+        let no_effect_data = no_effect.unwrap_or_else(|| {
+            dancers
+                .iter()
+                .map(|dancer| vec![false; dancer.len()])
+                .collect()
+        });
+
+        // Validate no_effect structure matches dancers
+        if no_effect_data.len() != dancers.len() {
+            let error_message = format!(
+                "No effect data length ({}) does not match dancers length ({})",
+                no_effect_data.len(),
+                dancers.len()
+            );
+            return Err(Error::new(error_message));
+        }
+
         // if !control_data.is_empty() {
         // first, check if the data have all information about all dancers
         if control_data.len() != dancers.len() || led_control_data.len() != dancers.len() {
@@ -168,6 +189,17 @@ impl ControlFrameMutation {
         for (index, data) in control_data.iter().enumerate() {
             let dancer = &dancers[index];
             let dancer_bulb_datas = &led_control_data[index];
+            let dancer_no_effect = &no_effect_data[index];
+
+            // Validate no_effect length matches parts
+            if dancer_no_effect.len() != dancer.len() {
+                errors.push(format!(
+                    "No effect data in dancer {index} length ({}) does not match parts length ({})",
+                    dancer_no_effect.len(),
+                    dancer.len()
+                ));
+                break;
+            }
 
             // second, check if the data of each dancer have all information about all parts
             if data.len() != dancer.len() || dancer_bulb_datas.len() != dancer.len() {
@@ -330,6 +362,7 @@ impl ControlFrameMutation {
 
                 let part_bulb_datas = &dancer_bulb_datas[part_index];
                 let is_data_led_bulb = !part_bulb_datas.is_empty();
+                let part_no_effect = dancer_no_effect[part_index];
 
                 match part_type {
                     PartType::FIBER => {
@@ -338,8 +371,8 @@ impl ControlFrameMutation {
                         sqlx::query!(
                             r#"
                                 INSERT INTO ControlData
-                                (dancer_id, part_id, frame_id, type, color_id, alpha)
-                                VALUES (?, ?, ?, ?, ?, ?);
+                                (dancer_id, part_id, frame_id, type, color_id, alpha, no_effect)
+                                VALUES (?, ?, ?, ?, ?, ?, ?);
                             "#,
                             dancer_id,
                             part.part_id,
@@ -347,6 +380,7 @@ impl ControlFrameMutation {
                             "COLOR",
                             part_data[0],
                             part_data[1],
+                            part_no_effect,
                         )
                         .execute(&mut *tx)
                         .await?;
@@ -360,14 +394,15 @@ impl ControlFrameMutation {
                             let new_control_data = sqlx::query!(
                                 r#"
                                     INSERT INTO ControlData 
-                                    (dancer_id, part_id, frame_id, type, alpha)
-                                    VALUES (?, ?, ?, ?, ?);
+                                    (dancer_id, part_id, frame_id, type, alpha, no_effect)
+                                    VALUES (?, ?, ?, ?, ?, ?);
                                 "#,
                                 dancer_id,
                                 part.part_id,
                                 new_control_frame_id,
                                 "LED_BULBS",
-                                alpha
+                                alpha,
+                                part_no_effect,
                             )
                             .execute(&mut *tx)
                             .await?;
@@ -393,8 +428,8 @@ impl ControlFrameMutation {
                             sqlx::query!(
                                 r#"
                                     INSERT INTO ControlData 
-                                    (dancer_id, part_id, frame_id, type, effect_id, alpha)
-                                    VALUES (?, ?, ?, ?, ?, ?);
+                                    (dancer_id, part_id, frame_id, type, effect_id, alpha, no_effect)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?);
                                 "#,
                                 dancer_id,
                                 part.part_id,
@@ -402,6 +437,7 @@ impl ControlFrameMutation {
                                 "EFFECT",
                                 effect_id,
                                 alpha,
+                                part_no_effect,
                             )
                             .execute(&mut *tx)
                             .await?;
@@ -487,6 +523,7 @@ impl ControlFrameMutation {
 
     // Edit a control frame
     // the purpose of this function is to edit the start time and fade of a existing frame
+    // Additionally, this function can update the per-part no_effect flag when provided.
     async fn edit_control_frame(
         &self,
         ctx: &Context<'_>,
@@ -611,7 +648,71 @@ impl ControlFrameMutation {
             original_frame.fade
         };
 
-        // update the frame
+        // If no_effect is provided, update ControlData.no_effect for this frame
+        if let Some(no_effect_matrix) = input.no_effect {
+            // 1) Fetch the dancer/part layout (same order as in add_control_frame)
+            let raw_dancer_data = sqlx::query_as!(
+                DancerData,
+                r#"
+                    SELECT
+                        Dancer.id AS "dancer_id",
+                        Part.type AS "part_type: PartType",
+                        Part.id AS "part_id",
+                        Part.length
+                    FROM Dancer
+                    INNER JOIN Model ON Dancer.model_id = Model.id
+                    INNER JOIN Part ON Model.id = Part.model_id
+                    ORDER BY Dancer.id ASC, Part.id ASC;
+                "#,
+            )
+            .fetch_all(mysql)
+            .await?;
+
+            // Group by dancer_id → Vec<Vec<DancerData>>
+            let dancers: Vec<Vec<DancerData>> =
+                partition_by_field(|data| data.dancer_id, raw_dancer_data);
+
+            // Basic shape checks
+            if no_effect_matrix.len() != dancers.len() {
+                return Err(Error::new(format!(
+                    "no_effect length ({}) does not match dancers length ({})",
+                    no_effect_matrix.len(),
+                    dancers.len()
+                )));
+            }
+
+            // 2) Apply no_effect per dancer/part
+            for (d_idx, dancer_parts) in dancers.iter().enumerate() {
+                let dancer_row = &no_effect_matrix[d_idx];
+                if dancer_row.len() != dancer_parts.len() {
+                    return Err(Error::new(format!(
+                        "no_effect row {} length ({}) does not match parts length ({})",
+                        d_idx,
+                        dancer_row.len(),
+                        dancer_parts.len()
+                    )));
+                }
+
+                for (p_idx, part) in dancer_parts.iter().enumerate() {
+                    let value = dancer_row[p_idx];
+                    sqlx::query!(
+                        r#"
+                            UPDATE ControlData
+                            SET no_effect = ?
+                            WHERE frame_id = ? AND dancer_id = ? AND part_id = ?;
+                        "#,
+                        value,
+                        frame_id,
+                        part.dancer_id,
+                        part.part_id,
+                    )
+                    .execute(mysql)
+                    .await?;
+                }
+            }
+        }
+
+        // update the frame (start, fade)
         sqlx::query!(
             r#"
                 UPDATE ControlFrame
