@@ -30,6 +30,9 @@ def update_multi_select_effect(
         if ld_light_type != LightType.LED.value:
             continue
 
+        ld_no_status = getattr(obj, "ld_no_status")
+        if ld_no_status:
+            setattr(obj, "ld_no_status", False)
         setattr(obj, "ld_effect", effect_name)
 
 
@@ -47,6 +50,9 @@ def update_multi_select_color(
     for obj_name in state.selected_obj_names:
         obj: bpy.types.Object | None = bpy.data.objects.get(obj_name)
         if obj is not None:
+            ld_no_status = getattr(obj, "ld_no_status")
+            if ld_no_status:
+                setattr(obj, "ld_no_status", False)
             setattr(obj, "ld_color", color)
 
 
@@ -64,4 +70,7 @@ def update_multi_select_alpha(
     for obj_name in state.selected_obj_names:
         obj: bpy.types.Object | None = bpy.data.objects.get(obj_name)
         if obj is not None:
+            ld_no_status = getattr(obj, "ld_no_status")
+            if ld_no_status:
+                setattr(obj, "ld_no_status", False)
             setattr(obj, "ld_alpha", alpha)

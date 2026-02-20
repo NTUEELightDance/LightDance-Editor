@@ -19,6 +19,16 @@ def ensure_action(
     return action
 
 
+def get_curve(
+    action: bpy.types.Action,
+    data_path: str,
+    index: int = 0,
+) -> bpy.types.FCurve | None:
+    curves = action.fcurves
+    curve = cast(bpy.types.FCurve | None, curves.find(data_path, index=index))
+    return curve
+
+
 def ensure_curve(
     action: bpy.types.Action,
     data_path: str,

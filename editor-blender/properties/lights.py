@@ -7,6 +7,8 @@ from ..core.actions.property.lights import (
     update_current_color,
     update_current_effect,
     update_current_is_no_effect,
+    update_prev_attr,
+    update_prev_fade,
 )
 from ..core.models import EditMode, FiberData, LEDData
 from ..core.states import state
@@ -123,19 +125,6 @@ def update_is_none(self: bpy.types.Object, context: bpy.types.Context) -> None:
 
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
-
-    ld_dancer_name: str = getattr(self, "ld_dancer_name")
-    this_part_name: str = getattr(self, "ld_part_name")
-
-    this_is_none: bool = getattr(self, "ld_no_status")
-    part_map = state.dancer_part_objects_map[ld_dancer_name][1]
-    for part_name, part_obj in part_map.items():
-        if part_name == this_part_name:
-            continue
-
-        other_is_none = getattr(part_obj, "ld_no_status")
-        if other_is_none != this_is_none:
-            setattr(part_obj, "ld_no_status", this_is_none)
 
     update_current_is_no_effect(self, context)
 
@@ -263,6 +252,7 @@ def register():
             name="Color",
             description="Prev Part fiber color for No Status fiber",
             items=get_color_lists,  # type: ignore
+            update=update_prev_attr,
         ),
     )
 
@@ -273,6 +263,7 @@ def register():
             name="Effect",
             description="Prev Part LED effect for No Status LED",
             items=get_effect_lists,
+            update=update_prev_attr,
         ),
     )
 
@@ -285,6 +276,7 @@ def register():
             min=1,
             max=255,
             default=150,
+            update=update_prev_attr,
         ),
     )
 
@@ -292,10 +284,10 @@ def register():
         bpy.types.Object,
         "ld_prev_fade",
         bpy.props.BoolProperty(
-            name="Fade",
+            name="Prev Fade",
             description="Prev Fade for the dancer of No Status of this frame",
             default=False,
-            update=update_fade,
+            update=update_prev_fade,
         ),
     )
 
@@ -303,13 +295,12 @@ def register():
         bpy.types.Object,
         "ld_allow_override_from_prev",
         bpy.props.BoolProperty(
-            name="Fade",
+            name="Allow Override",
             description="Allow prev color/ prev alpha/ prev effect override color/ alpha/ effect when gain effect",
             default=False,
             update=update_fade,
         ),
     )
-    # Properties for the states
 
 
 def unregister():

@@ -460,6 +460,7 @@ class State:
     pinned_objects: list[DancerName] | list[PartName]
 
     edit_state: EditMode
+    ready_to_edit_control: bool
     editor: Editor
     editing_data: EditingData
     shifting: bool

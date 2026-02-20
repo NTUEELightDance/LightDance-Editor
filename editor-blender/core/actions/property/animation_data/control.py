@@ -9,7 +9,6 @@ from typing import cast
 import bpy
 
 from .....core.utils.for_dev_only.test_keyframe import renew_ctrl_test_frame
-from .....core.utils.for_dev_only.tmp_format_conv import sync_new_ctrl_map_from_old
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
 from ....models import (

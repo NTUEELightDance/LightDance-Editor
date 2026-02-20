@@ -50,58 +50,6 @@
     "11_luo": {
       "url": "/asset/models/hunter.glb",
       "modelName": "hunter"
-    },
-    "12_coffin": {
-      "url": "/asset/models/props/coffin.glb",
-      "modelName": "coffin"
-    },
-    "13_altar1tmp": {
-      "url": "/asset/models/props/pole.glb",
-      "modelName": "pole"
-    },
-    "14_altar2tmp": {
-      "url": "/asset/models/props/pole.glb",
-      "modelName": "pole"
-    },
-    "15_cross": {
-      "url": "/asset/models/props/cross.glb",
-      "modelName": "cross"
-    },
-    "16_gem": {
-      "url": "/asset/models/props/gem.glb",
-      "modelName": "gem"
-    },
-    "17_pole": {
-      "url": "/asset/models/props/pole.glb",
-      "modelName": "pole"
-    },
-    "18_fireplace": {
-      "url": "/asset/models/props/fireplace.glb",
-      "modelName": "fireplace"
-    },
-    "19_axe1": {
-      "url": "/asset/models/props/axe.glb",
-      "modelName": "axe"
-    },
-    "20_axe2": {
-      "url": "/asset/models/props/axe.glb",
-      "modelName": "axe"
-    },
-    "21_balcony": {
-      "url": "/asset/models/props/balcony.glb",
-      "modelName": "balcony"
-    },
-    "22_gun": {
-      "url": "/asset/models/props/gun.glb",
-      "modelName": "gun"
-    },
-    "23_staff1": {
-      "url": "/asset/models/props/staff.glb",
-      "modelName": "staff"
-    },
-    "24_staff2": {
-      "url": "/asset/models/props/staff.glb",
-      "modelName": "staff"
     }
   },
   "Config": {

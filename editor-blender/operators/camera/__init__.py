@@ -18,7 +18,8 @@ def toggle_camera_view(context):
         camera = bpy.data.objects.get("lightdance_camera")
         if not camera:
             bpy.ops.object.camera_add()
-            camera = bpy.context.object
+            # camera = bpy.context.object
+            camera = bpy.data.objects["Camera"]
             camera.name = "lightdance_camera"  # type: ignore
             camera.hide_select = True  # type: ignore
 

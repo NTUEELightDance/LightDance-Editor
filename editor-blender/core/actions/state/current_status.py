@@ -134,11 +134,11 @@ def update_current_status_by_index():
     if current_control_map is None:
         return
 
-    setattr(
-        bpy.context.window_manager,
-        "ld_default_fade",
-        current_control_map.fade_for_new_status,
-    )
+    # setattr(
+    #     bpy.context.window_manager,
+    #     "ld_default_fade",
+    #     current_control_map.fade_for_new_status,
+    # )
     setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
 
     current_ctrl_status = current_control_map.status
@@ -159,6 +159,20 @@ def update_current_status_by_index():
         if dancer_part_objects is not None:
             part_objects = dancer_part_objects[1]
 
+            first_part_name = list(part_objects)[0]
+            prev_notnone_index = index
+            while True:
+                prev_notnone_index -= 1
+                if prev_notnone_index == -1:
+                    break
+
+                prev_control_id = state.control_record[prev_notnone_index]
+                prev_ctrl_data = state.control_map_MODIFIED[prev_control_id].status[
+                    dancer.name
+                ][first_part_name]
+                if prev_ctrl_data is not None:
+                    break
+
             for part_name, part_obj in part_objects.items():
                 try:
                     light_type = getattr(part_obj, "ld_light_type")
@@ -171,19 +185,10 @@ def update_current_status_by_index():
                 ctrl_data = dancer_status.get(part_name)
 
                 prev_ctrl_data = None
-                prev_notnone_index = index
-                while True:
-                    prev_notnone_index -= 1
-                    if prev_notnone_index == -1:
-                        prev_ctrl_data = None
-                        break
-
-                    prev_control_id = state.control_record[prev_notnone_index]
+                if prev_notnone_index >= 0:
                     prev_ctrl_data = state.control_map_MODIFIED[prev_control_id].status[
                         dancer.name
                     ][part_name]
-                    if prev_ctrl_data is not None:
-                        break
 
                 # update previous status
                 current_ld_attr_type = (
@@ -197,10 +202,9 @@ def update_current_status_by_index():
                 )
 
                 if ctrl_data is None:
+                    pass
                     setattr(part_obj, "ld_no_status", True)
                 else:
-                    setattr(part_obj, "ld_no_status", False)
-
                     current_ld_attr_type = (
                         "ld_color",
                         "ld_alpha",
@@ -214,3 +218,4 @@ def update_current_status_by_index():
                         part_obj,
                         current_ld_attr_type,
                     )
+                    setattr(part_obj, "ld_no_status", False)

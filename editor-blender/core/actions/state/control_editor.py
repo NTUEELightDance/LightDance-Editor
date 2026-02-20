@@ -50,10 +50,12 @@ def attach_editing_control_frame():
     state.current_editing_detached = False
     state.current_editing_frame_synced = True
 
-    if current_frame != bpy.context.scene.frame_current:
-        bpy.context.scene.frame_current = current_frame
+    bpy.context.scene.frame_set(current_frame)
 
-    sync_editing_control_frame_properties()
+    # if current_frame != bpy.context.scene.frame_current:
+    #     bpy.context.scene.frame_current = current_frame
+
+    # sync_editing_control_frame_properties()
 
 
 def sync_editing_control_frame_properties():
@@ -78,7 +80,6 @@ def sync_editing_control_frame_properties():
                 part_type = getattr(part_obj, "ld_light_type")
 
                 ld_no_status: bool = getattr(part_obj, "ld_no_status")
-                setattr(part_obj, "ld_no_status", ld_no_status)
                 if ld_no_status:
                     continue
                 # Re-trigger update
@@ -250,7 +251,7 @@ async def save_control_frame(start: int | None = None):
         return
     id = state.editing_data.frame_id
 
-    default_fade: bool = getattr(bpy.context.window_manager, "ld_default_fade")
+    # default_fade: bool = getattr(bpy.context.window_manager, "ld_default_fade")
 
     controlData: list[MutDancerStatusPayload] = []
     ledControlData: list[MutDancerLEDStatusPayload] = []
@@ -300,7 +301,7 @@ async def save_control_frame(start: int | None = None):
             mock_sub_control_map(
                 SubType.UpdateFrames,
                 id=id,
-                fade_for_new_status=default_fade,
+                fade_for_new_status=False,
                 controlData=controlData,
                 ledControlData=ledControlData,
                 fadeData=fadeData,
@@ -314,6 +315,7 @@ async def save_control_frame(start: int | None = None):
             # ok = await control_agent.cancel_edit(id)
 
             if ok is not None and ok:
+                state.ready_to_edit_control = False
                 # Reset editing state
                 state.current_editing_frame = -1
                 state.current_editing_detached = False
@@ -364,7 +366,6 @@ async def delete_control_frame():
     for dancer_name in hidden_dancer_names:
         control_dancer = frame.status[dancer_name]
         any_part_ctrl_data = list(control_dancer.values())[0]
-        print(any_part_ctrl_data)
         if any_part_ctrl_data is not None:
             hidden_all_none = False
             break
@@ -389,7 +390,9 @@ async def delete_control_frame():
             obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
             if obj is None:
                 continue
-            setattr(obj, "ld_no_status", True)
+            part_obj_list = list(state.dancer_part_objects_map[dancer_name][1].values())
+            first_part_obj = part_obj_list[0]
+            setattr(first_part_obj, "ld_no_status", True)
 
         await save_control_frame()
 
@@ -429,6 +432,7 @@ async def request_edit_control() -> bool:
         attach_editing_control_frame()
         update_current_status_by_index()
 
+        state.ready_to_edit_control = True
         redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
         return True
     else:
@@ -447,6 +451,7 @@ async def cancel_edit_control():
 
             if ok is not None and ok:
                 # Revert modification
+                state.ready_to_edit_control = False
                 update_current_status_by_index()
 
                 # Reset editing state

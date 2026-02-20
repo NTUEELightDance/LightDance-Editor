@@ -79,6 +79,7 @@ state = State(
     current_selected_obj_name=None,
     pinned_objects=[],
     edit_state=EditMode.IDLE,
+    ready_to_edit_control=False,
     editor=Editor.CONTROL_EDITOR,
     local_view=False,
     editing_data=EditingData(frame_id=-1, start=0, index=0),
