@@ -192,6 +192,7 @@ class QueryPosFrame(JSONWizard):
     rev: QueryRevision
     location: list[QueryCoordinatesPayload]
     rotation: list[QueryCoordinatesPayload]
+    has_effect: list[bool]
 
 
 QueryPosMapPayload = dict[ID, QueryPosFrame]
@@ -237,10 +238,11 @@ ControlMap
 @dataclass
 class QueryControlFrame(JSONWizard):
     start: int
-    fade: bool
     rev: QueryRevision
     status: list[QueryDancerStatusPayload]
     led_status: list[QueryDancerLEDBulbStatusPayload]
+    fade: list[bool]
+    has_effect: list[bool]
 
 
 QueryControlMapPayload = dict[ID, QueryControlFrame]

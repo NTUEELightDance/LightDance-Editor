@@ -21,7 +21,6 @@ from . import (
     slider,
     timeline,
     utils,
-    utils_test,
 )
 
 
@@ -49,8 +48,6 @@ def register():
     select.register()
     load.register()
 
-    utils_test.register()
-
 
 def unregister():
     async_core.unregister()
@@ -75,5 +72,3 @@ def unregister():
     ping.unregister()
     select.unregister()
     load.unregister()
-
-    utils_test.unregister()

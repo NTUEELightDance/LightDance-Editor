@@ -8,7 +8,6 @@ from typing import cast
 
 import bpy
 
-from .....core.utils.for_dev_only.test_keyframe import renew_ctrl_test_frame
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
 from ....models import (
@@ -59,8 +58,6 @@ def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
-
-    renew_ctrl_test_frame()
 
 
 def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]]):
@@ -157,8 +154,6 @@ def update_control_frames_and_fade_sequence(
 
         point.interpolation = "CONSTANT"
         point.select_control_point = False
-
-    renew_ctrl_test_frame()
 
 
 """

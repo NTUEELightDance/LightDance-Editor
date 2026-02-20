@@ -4,7 +4,6 @@ import bpy
 
 from ....api.control_agent import control_agent
 from ....core.models import FiberData, LEDData
-from ....core.utils.for_dev_only.mock_sub_map import SubType, mock_sub_control_map
 from ....properties.types import LightType
 from ....schemas.mutations import (
     MutDancerFade,
@@ -58,48 +57,48 @@ def attach_editing_control_frame():
     # sync_editing_control_frame_properties()
 
 
-def sync_editing_control_frame_properties():
-    """Sync location to ld_position"""
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-    for dancer in state.dancers_array:
-        if not show_dancer_dict[dancer.name]:
-            continue
-        dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
-        if dancer_obj is not None:
-            part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
-            part_obj_names: list[str] = [
-                getattr(obj, "ld_part_name") for obj in part_objs
-            ]
+# def sync_editing_control_frame_properties():
+#     """Sync location to ld_position"""
+#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+#     for dancer in state.dancers_array:
+#         if not show_dancer_dict[dancer.name]:
+#             continue
+#         dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
+#         if dancer_obj is not None:
+#             part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
+#             part_obj_names: list[str] = [
+#                 getattr(obj, "ld_part_name") for obj in part_objs
+#             ]
 
-            for part in dancer.parts:
-                if part.name not in part_obj_names:
-                    continue
+#             for part in dancer.parts:
+#                 if part.name not in part_obj_names:
+#                     continue
 
-                part_index = part_obj_names.index(part.name)
-                part_obj = part_objs[part_index]
-                part_type = getattr(part_obj, "ld_light_type")
+#                 part_index = part_obj_names.index(part.name)
+#                 part_obj = part_objs[part_index]
+#                 part_type = getattr(part_obj, "ld_light_type")
 
-                ld_no_status: bool = getattr(part_obj, "ld_no_status")
-                if ld_no_status:
-                    continue
-                # Re-trigger update
-                if part_type == LightType.FIBER.value:
-                    ld_alpha: int = getattr(part_obj, "ld_alpha")
-                    setattr(part_obj, "ld_alpha", ld_alpha)
-                    ld_color: int = getattr(part_obj, "ld_color")
-                    setattr(part_obj, "ld_color", ld_color)
+#                 ld_no_status: bool = getattr(part_obj, "ld_no_status")
+#                 if ld_no_status:
+#                     continue
+#                 # Re-trigger update
+#                 if part_type == LightType.FIBER.value:
+#                     ld_alpha: int = getattr(part_obj, "ld_alpha")
+#                     setattr(part_obj, "ld_alpha", ld_alpha)
+#                     ld_color: int = getattr(part_obj, "ld_color")
+#                     setattr(part_obj, "ld_color", ld_color)
 
-                elif part_type == LightType.LED.value:
-                    ld_alpha: int = getattr(part_obj, "ld_alpha")
-                    setattr(part_obj, "ld_alpha", ld_alpha)
-                    ld_effect: int = getattr(part_obj, "ld_effect")
-                    setattr(part_obj, "ld_effect", ld_effect)
-                    if ld_effect == 0:
-                        for bulb in part_obj.children:
-                            ld_alpha: int = getattr(bulb, "ld_alpha")
-                            setattr(bulb, "ld_alpha", ld_alpha)
-                            ld_color: int = getattr(bulb, "ld_color")
-                            setattr(bulb, "ld_color", ld_color)
+#                 elif part_type == LightType.LED.value:
+#                     ld_alpha: int = getattr(part_obj, "ld_alpha")
+#                     setattr(part_obj, "ld_alpha", ld_alpha)
+#                     ld_effect: int = getattr(part_obj, "ld_effect")
+#                     setattr(part_obj, "ld_effect", ld_effect)
+#                     if ld_effect == 0:
+#                         for bulb in part_obj.children:
+#                             ld_alpha: int = getattr(bulb, "ld_alpha")
+#                             setattr(bulb, "ld_alpha", ld_alpha)
+#                             ld_color: int = getattr(bulb, "ld_color")
+#                             setattr(bulb, "ld_color", ld_color)
 
 
 async def add_control_frame():
@@ -119,15 +118,8 @@ async def add_control_frame():
 
     with send_request():
         try:
-            # await control_agent.add_frame(start, False, controlData, ledControlData)
-            mock_sub_control_map(
-                SubType.CreateFrames,
-                fade_for_new_status=False,
-                start=start,
-                hasEffectData=hasEffectData,
-                fadeData=fadeData,
-                controlData=controlData,
-                ledControlData=ledControlData,
+            await control_agent.add_frame(
+                start, controlData, ledControlData, hasEffectData, fadeData
             )
             notify("INFO", "Added control frame")
         except Exception:
@@ -295,24 +287,18 @@ async def save_control_frame(start: int | None = None):
 
     with send_request():
         try:
-            # await control_agent.save_frame(
-            #     id, controlData, ledControlData=ledControlData, fade=fade, start=start
-            # )
-            mock_sub_control_map(
-                SubType.UpdateFrames,
-                id=id,
-                fade_for_new_status=False,
-                controlData=controlData,
+            await control_agent.save_frame(
+                id,
+                controlData,
                 ledControlData=ledControlData,
-                fadeData=fadeData,
-                hasEffectData=hasEffectData,
+                fade=fadeData,
+                hasEffect=hasEffectData,
                 start=start,
             )
             notify("INFO", "Saved control frame")
 
             # Cancel editing
-            ok = True
-            # ok = await control_agent.cancel_edit(id)
+            ok = await control_agent.cancel_edit(id)
 
             if ok is not None and ok:
                 state.ready_to_edit_control = False
@@ -370,31 +356,33 @@ async def delete_control_frame():
             hidden_all_none = False
             break
 
-    if hidden_all_none:
-        try:
-            # await control_agent.delete_frame(id)
-            mock_sub_control_map(SubType.DeleteFrames, id=id)
-            notify("INFO", f"Deleted control frame: {id}")
+    with send_request():
+        if hidden_all_none:
+            try:
+                await control_agent.delete_frame(id)
+                notify("INFO", f"Deleted control frame: {id}")
 
-            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-        except Exception:
-            logger.exception("Failed to delete control frame")
-            notify("WARNING", "Cannot delete position frame")
-    else:
-        # There exists hidden dancer with non-None state -> set all shown dancers to None state.
-        ok = await request_edit_control()
-        if not ok:
-            return
+                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+            except Exception:
+                logger.exception("Failed to delete control frame")
+                notify("WARNING", "Cannot delete position frame")
+        else:
+            # There exists hidden dancer with non-None state -> set all shown dancers to None state.
+            ok = await request_edit_control()
+            if not ok:
+                return
 
-        for dancer_name in shown_dancer_names:
-            obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
-            if obj is None:
-                continue
-            part_obj_list = list(state.dancer_part_objects_map[dancer_name][1].values())
-            first_part_obj = part_obj_list[0]
-            setattr(first_part_obj, "ld_no_status", True)
+            for dancer_name in shown_dancer_names:
+                obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
+                if obj is None:
+                    continue
+                part_obj_list = list(
+                    state.dancer_part_objects_map[dancer_name][1].values()
+                )
+                first_part_obj = part_obj_list[0]
+                setattr(first_part_obj, "ld_no_status", True)
 
-        await save_control_frame()
+            await save_control_frame()
 
 
 async def request_edit_control() -> bool:
@@ -416,10 +404,10 @@ async def request_edit_control() -> bool:
     ok = None
     with send_request():
         ok = True
-        # try:
-        #     ok = await control_agent.request_edit(control_id)
-        # except Exception as e:
-        #     logger.exception(f"Failed to request edit control frame: {e}")
+        try:
+            ok = await control_agent.request_edit(control_id)
+        except Exception as e:
+            logger.exception(f"Failed to request edit control frame: {e}")
 
     if ok is not None and ok:
         # Init editing state
@@ -446,8 +434,7 @@ async def cancel_edit_control():
 
     with send_request():
         try:
-            ok = True
-            # ok = await control_agent.cancel_edit(id)
+            ok = await control_agent.cancel_edit(id)
 
             if ok is not None and ok:
                 # Revert modification

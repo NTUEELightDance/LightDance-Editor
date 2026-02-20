@@ -105,7 +105,7 @@ class PosAgent:
     async def save_frame(
         self,
         id: MapID,
-        positionData: list[list[float] | None],
+        positionData: list[list[float]],
         hasEffectData: list[bool],
         start: int | None = None,
     ):
