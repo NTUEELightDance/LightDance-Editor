@@ -38,6 +38,45 @@
     },
     "11_luo": {
       "url": "1e7f8c1a23bcf2b8e3dfaacab6eb0ce57488c6ebeea387b808851751b9a24e1d"
+    },
+    "12_coffin": {
+      "url": "0e2a60d2dd2a6792e1bdafa2f0e4deb413dd77ee28600a896df261f01bed201b"
+    },
+    "13_altar1tmp": {
+      "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
+    },
+    "14_altar2tmp": {
+      "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
+    },
+    "15_cross": {
+      "url": "c13d7413b2464fa6583fb4b49fd86b5e46fe1bba014a34c7e028b3dd4d276d3a"
+    },
+    "16_gem": {
+      "url": "698beb161cfe82f5fbf650703175e9b9f5c2f44363fae91b97ea1be643e5a9ab"
+    },
+    "17_pole": {
+      "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
+    },
+    "18_fireplace": {
+      "url": "22316c0d1da907e3561437c22303647c96ea86cad4b75b399ec43db3737e06f2"
+    },
+    "19_axe1": {
+      "url": "e6acee9f5931528c8703325b47c2e615d66b56e8baa3e28991a6dfea3bb922cb"
+    },
+    "20_axe2": {
+      "url": "e6acee9f5931528c8703325b47c2e615d66b56e8baa3e28991a6dfea3bb922cb"
+    },
+    "21_balcony": {
+      "url": "85491d5ecef32745f88e19c30ed4d5fc8f6f63b8c3437b99e4a16ed8f13be6bc"
+    },
+    "22_gun": {
+      "url": "b8abd9d5016ade8380daf162d3b9e501e04efc02b593aaaa5461b2f3785d5065"
+    },
+    "23_staff1": {
+      "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
+    },
+    "24_staff2": {
+      "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
     }
   }
 }

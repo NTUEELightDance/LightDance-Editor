@@ -40,7 +40,7 @@ def copy_dancer():
         return
 
     clipboard = state.clipboard
-    clipboard.type = CopiedType.DANCER
+    clipboard.type = CopiedType.PARTS
 
     dancer_name: str = getattr(selected_obj, "ld_dancer_name")
     model_name: str = getattr(selected_obj, "ld_model_name")
@@ -66,7 +66,6 @@ def copy_dancer():
                 "ld_prev_alpha",
                 "ld_prev_effect",
             )
-        print(ld_color_str)
 
         if part_type == LightType.FIBER.value:
             ld_color: str = getattr(part_obj, ld_color_str)
@@ -178,6 +177,7 @@ def copy_part():
                     ]
                 ),
             )
+    # print(clipboard.dancer)
     notify("INFO", "Copied")
 
 
@@ -287,7 +287,6 @@ async def paste_part() -> bool:
 
             if part_name in copied_dancer.parts:
                 copied_part_data = copied_dancer.parts[part_name]
-
                 if copied_part_data is None:
                     notify("INFO", "There is no Data to Paste")
                     return True
@@ -468,7 +467,6 @@ def override_pos(pos_frame: PosMapElement):
         dancer_obj = data_objects[dancer_name]
 
         pos_data = pos_frame.pos[dancer_name]
-        print(pos_data)
         if pos_data is None:
             frame = bpy.context.scene.frame_current
             index = state.current_pos_index

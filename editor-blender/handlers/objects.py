@@ -185,7 +185,9 @@ def handle_autoselect_in_control_editor_part_mode():
     # Select parent if child is selected
     for obj in context_selected_objects:
         ld_object_type: str = getattr(obj, "ld_object_type")
-        if ld_object_type == ObjectType.HUMAN.value:
+        if obj.name == "Camera":
+            continue
+        elif ld_object_type == ObjectType.HUMAN.value:
             if not obj.parent.select_get() and obj.parent != active_obj:  # type: ignore
                 obj.parent.select_set(True)  # type: ignore
                 context_selected_objects.append(obj.parent)  # type: ignore

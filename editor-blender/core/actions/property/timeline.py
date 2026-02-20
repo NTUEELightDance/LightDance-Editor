@@ -78,28 +78,28 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                 pass
 
 
-def get_default_fade(self: bpy.types.WindowManager) -> bool:
-    # return self.get("ld_current_frame_index", "0")  # type: ignore
-    match state.editor:
-        case Editor.CONTROL_EDITOR:
-            id = state.control_record[state.current_control_index]
-            return state.control_map_MODIFIED[id].fade_for_new_status
-        case Editor.POS_EDITOR:
-            return False
-        case Editor.LED_EDITOR:
-            return False
+# def get_default_fade(self: bpy.types.WindowManager) -> bool:
+#     # return self.get("ld_current_frame_index", "0")  # type: ignore
+#     match state.editor:
+#         case Editor.CONTROL_EDITOR:
+#             id = state.control_record[state.current_control_index]
+#             return state.control_map_MODIFIED[id].fade_for_new_status
+#         case Editor.POS_EDITOR:
+#             return False
+#         case Editor.LED_EDITOR:
+#             return False
 
 
-def set_default_fade(self: bpy.types.WindowManager, value: bool):
-    if state.edit_state == EditMode.EDITING:
-        match state.editor:
-            case Editor.CONTROL_EDITOR:
-                id = state.control_record[state.current_control_index]
-                state.control_map_MODIFIED[id].fade_for_new_status = value
-            case Editor.POS_EDITOR:
-                pass
-            case Editor.LED_EDITOR:
-                pass
+# def set_default_fade(self: bpy.types.WindowManager, value: bool):
+#     if state.edit_state == EditMode.EDITING:
+#         match state.editor:
+#             case Editor.CONTROL_EDITOR:
+#                 id = state.control_record[state.current_control_index]
+#                 state.control_map_MODIFIED[id].fade_for_new_status = value
+#             case Editor.POS_EDITOR:
+#                 pass
+#             case Editor.LED_EDITOR:
+#                 pass
 
 
 def get_play_speed(self: bpy.types.WindowManager) -> float:

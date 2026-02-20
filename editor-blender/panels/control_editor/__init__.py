@@ -16,6 +16,10 @@ def draw_dancer_parts(
     fibers: list[bpy.types.Object] = []
     leds: list[bpy.types.Object] = []
 
+    row = layout.row()
+    row.label(text="Has Status: ")
+    row.prop(dancer_obj, "ld_no_status", text="", invert_checkbox=True)
+
     ld_no_status = False
     for part in dancer_obj.children:
         ld_object_type: str = getattr(part, "ld_object_type")
@@ -30,8 +34,8 @@ def draw_dancer_parts(
             leds.append(part)
 
     if ld_no_status:
-        row = layout.row()
-        row.label(text="Current Dancer Has No Status")
+        column = layout.column()
+        column.label(text="Current Dancer Has No Status")
 
         if state.edit_state == EditMode.EDITING:
             return
@@ -218,6 +222,7 @@ def _draw_control_status(
 
         box = layout.box()
         box.enabled = properties_enabled
+
         draw_dancer_parts(box, obj, ld_ui_control_editor)
 
 
@@ -368,11 +373,6 @@ class ControlEditor(bpy.types.Panel):
             text="",
             depress=state.selection_mode == SelectMode.PART_MODE,
         )
-
-        row = split.row()
-        row.label(text="Default Fade: ")
-        row.prop(context.window_manager, "ld_default_fade", text="")
-        row.enabled = editing
 
         if state.current_editing_detached and editing:
             row = layout.row()
