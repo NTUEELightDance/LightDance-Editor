@@ -459,6 +459,26 @@ def handle_delete_pinned_object(index: int):
     return
 
 
+def pin_all_dancers():
+    for dancer_name in state.dancer_names:
+        if dancer_name not in state.pinned_objects:
+            if state.editor == Editor.CONTROL_EDITOR:
+                add_pinned_ctrl_data(
+                    add_blank=not state.pinned_objects,
+                    obj_name=dancer_name,
+                    index=len(state.pinned_objects),
+                )
+            elif state.editor == Editor.POS_EDITOR:
+                add_pinned_pos_data(
+                    add_blank=not state.pinned_objects,
+                    obj_name=dancer_name,
+                    index=len(state.pinned_objects),
+                )
+            state.pinned_objects.append(dancer_name)
+
+    set_dopesheet_collapse_all(True)
+
+
 def reset_pinned_object():
     for i, obj_name in enumerate(state.pinned_objects):
         obj = bpy.data.objects.get(f"[{3+i}]pinned_{obj_name}")
@@ -595,7 +615,8 @@ def get_overall_fade_seq_for_frame(
         else:
             keyframe_type = KeyframeType.NORMAL
 
-    return frame.start, frame.fade_for_new_status, keyframe_type
+    # return frame.start, frame.fade_for_new_status, keyframe_type
+    return frame.start, False, keyframe_type
 
 
 def get_overall_pos_seq_for_frame(frame: PosMapElement) -> tuple[int, KeyframeType]:

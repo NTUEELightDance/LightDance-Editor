@@ -57,6 +57,11 @@ class PinPanel(bpy.types.Panel):
                 else:
                     row.label(text="Select a part to pin dancer", icon="ADD")
 
+        row = layout.row(align=True)
+        row.operator(
+            operator="lightdance.pin_all_dancers", text="Pin All Dancers", icon="ADD"
+        )
+
 
 def register():
     bpy.utils.register_class(PinPanel)

@@ -3,6 +3,7 @@ import bpy
 from ...core.actions.state.dopesheet import (
     handle_delete_pinned_object,
     handle_pinned_object,
+    pin_all_dancers,
 )
 from ...core.models import EditMode, Editor
 from ...core.states import state
@@ -44,11 +45,30 @@ class DeletePinnedObject(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class PinAllDancers(bpy.types.Operator):
+    """Pin All Dancers"""
+
+    bl_idname = "lightdance.pin_all_dancers"
+    bl_label = "Pin All Dancers"
+
+    @classmethod
+    def poll(cls, context: bpy.types.Context | None):
+        return state.edit_state != EditMode.EDITING and (
+            state.editor == Editor.CONTROL_EDITOR or state.editor == Editor.POS_EDITOR
+        )
+
+    def execute(self, context: bpy.types.Context | None):
+        pin_all_dancers()
+        return {"FINISHED"}
+
+
 def register():
     bpy.utils.register_class(PinObject)
     bpy.utils.register_class(DeletePinnedObject)
+    bpy.utils.register_class(PinAllDancers)
 
 
 def unregister():
     bpy.utils.unregister_class(PinObject)
     bpy.utils.unregister_class(DeletePinnedObject)
+    bpy.utils.unregister_class(PinAllDancers)
