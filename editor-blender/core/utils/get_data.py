@@ -1,6 +1,6 @@
 from ...api.control_agent import control_agent
 from ...api.pos_agent import pos_agent
-from ..models import ControlMap, ControlMap_MODIFIED, ControlRecord, PosMap, PosRecord
+from ..models import ControlMap_MODIFIED, ControlRecord, PosMap, PosRecord
 
 
 async def get_control() -> tuple[ControlMap_MODIFIED | None, ControlRecord | None]:

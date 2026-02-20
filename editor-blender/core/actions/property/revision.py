@@ -4,9 +4,7 @@ from ....core.states import state
 from ....properties.types import RevisionPropertyType
 from ...log import logger
 from ...models import (
-    ControlMap,
     ControlMap_MODIFIED,
-    ControlMapElement,
     ControlMapElement_MODIFIED,
     MapID,
     PosMap,
