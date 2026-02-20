@@ -9,7 +9,7 @@ use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::pos_data::{FrameData, PosDataScalar};
 use crate::graphql::types::pos_frame::{PositionFrame, PositionFrameRevision};
-use crate::types::global::{PositionType, RedisPosition, Revision, UserContext};
+use crate::types::global::{RedisPosition, Revision, UserContext};
 use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
 use crate::utils::revision::update_revision;
 
@@ -142,10 +142,10 @@ impl PositionFrameMutation {
 
         match &position_data {
             Some(data) => {
-                let mut r#type: Vec<PositionType> = Vec::new();
+                let mut has_position: Vec<bool> = Vec::new();
                 for (idx, coordinates) in (*data).iter().enumerate() {
                     if !has_position[idx] {
-                        r#type.push(PositionType::NoEffect);
+                        has_position.push(false);
                         sqlx::query!(
                             r#"
                                 INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
@@ -164,7 +164,7 @@ impl PositionFrameMutation {
                         .execute(&mut *tx)
                         .await?;
                     } else {
-                        r#type.push(PositionType::Position);
+                        has_position.push(true);
                         sqlx::query!(
                             r#"
                             INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
@@ -189,7 +189,7 @@ impl PositionFrameMutation {
                     RedisPosition {
                         start,
                         editing: None,
-                        r#type,
+                        has_position,
                         rev: Revision::default(),
                         location: data
                             .iter()

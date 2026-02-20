@@ -120,24 +120,9 @@ pub struct RedisControl {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub enum PositionType {
-    NoEffect,
-    Position,
-}
-
-impl From<&PositionType> for bool {
-    fn from(val: &PositionType) -> Self {
-        match val {
-            PositionType::NoEffect => false,
-            PositionType::Position => true,
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RedisPosition {
     pub start: i32,
-    pub r#type: Vec<PositionType>,
+    pub has_position: Vec<bool>,
     pub editing: Option<i32>,
     pub rev: Revision,
     pub location: Vec<[f64; 3]>,
