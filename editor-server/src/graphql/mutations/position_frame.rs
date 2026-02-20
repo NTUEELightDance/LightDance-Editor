@@ -142,10 +142,8 @@ impl PositionFrameMutation {
 
         match &position_data {
             Some(data) => {
-                let mut has_position: Vec<bool> = Vec::new();
                 for (idx, coordinates) in (*data).iter().enumerate() {
                     if !has_position[idx] {
-                        has_position.push(false);
                         sqlx::query!(
                             r#"
                                 INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
@@ -164,7 +162,6 @@ impl PositionFrameMutation {
                         .execute(&mut *tx)
                         .await?;
                     } else {
-                        has_position.push(true);
                         sqlx::query!(
                             r#"
                             INSERT INTO PositionData (dancer_id, frame_id, type, x, y, z, rx, ry, rz)
