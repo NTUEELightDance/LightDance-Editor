@@ -1,8 +1,8 @@
 //! ControlMap query methods
 
+use crate::graphql::types::control_data::RedisControlSubscription;
 // import types
 use crate::graphql::types::map::{ControlMap, ControlMapScalar};
-use crate::types::global::RedisControl;
 use crate::types::global::UserContext;
 use crate::utils::data::get_redis_control;
 use std::collections::HashMap;
@@ -65,11 +65,11 @@ impl ControlMapQuery {
         };
 
         // get redis control data for each frame id
-        let mut result: HashMap<String, RedisControl> = HashMap::new();
+        let mut result: HashMap<String, RedisControlSubscription> = HashMap::new();
         for frame_id in frame_ids {
             result.insert(
                 frame_id.to_string(),
-                get_redis_control(redis, frame_id).await?,
+                RedisControlSubscription::from(get_redis_control(redis, frame_id).await?),
             );
         }
 

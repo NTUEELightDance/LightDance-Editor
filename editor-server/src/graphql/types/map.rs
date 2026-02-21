@@ -1,6 +1,6 @@
 //! PositionMap scalar types
 
-use crate::types::global::{RedisControl, RedisPosition};
+use crate::{graphql::types::control_data::RedisControlSubscription, types::global::RedisPosition};
 use async_graphql::{InputObject, Scalar, ScalarType, SimpleObject, Value};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -42,7 +42,7 @@ pub struct PositionMap {
 
 // ControlMap scalar types
 #[derive(Serialize, Deserialize)]
-pub struct ControlMapScalar(pub HashMap<String, RedisControl>);
+pub struct ControlMapScalar(pub HashMap<String, RedisControlSubscription>);
 
 #[Scalar]
 impl ScalarType for ControlMapScalar {
