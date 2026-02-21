@@ -230,8 +230,7 @@ impl FrameMutation {
                 .collect_vec();
 
             //subscription
-            let mut update_control_frames: HashMap<String, RedisControlSubscription> =
-                HashMap::new();
+            let mut update_control_frames: HashMap<String, RedisControlMandatory> = HashMap::new();
             for id in &update_control_ids {
                 let result = {
                     let update_result = update_redis_control(mysql, redis_client, *id).await;
@@ -250,10 +249,8 @@ impl FrameMutation {
                     Ok(redis_control) => redis_control,
                     Err(msg) => return Err(GQLError::new(msg)),
                 };
-                update_control_frames.insert(
-                    id.to_string(),
-                    RedisControlSubscription::from(redis_control),
-                );
+                update_control_frames
+                    .insert(id.to_string(), RedisControlMandatory::from(redis_control));
             }
 
             let control_map_payload = ControlMapPayload {
