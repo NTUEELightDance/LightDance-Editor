@@ -134,8 +134,8 @@ def apply_pos_map_updates():
         key=lambda x: x[0],
     )
 
-    # TODO:
     modify_animation_data = pos_modify_to_animation_data(deleted, updated, added)
+    # print(deleted, updated, added, modify_animation_data)
     modify_partial_pos_keyframes(modify_animation_data)
 
     # Update control map

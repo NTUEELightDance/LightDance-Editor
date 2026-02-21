@@ -112,7 +112,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
             control_index -= 1
 
         if effect_id == -1:
-            setattr(prev_part_status, "ld_alpha", 1)
+            setattr(self, "ld_alpha", 1)
             return
 
     if effect_id == 0:
@@ -271,106 +271,6 @@ def _update_interpolate_color(dancer_name, part_name, part_obj):
             led_obj.color = (*rgb_float, 1.0)
     else:
         return
-
-
-# def _interpolate_floats(prev_color_float, next_color_float, starts):
-#     prev_start, current_start, next_start = starts
-#     left_weight = (next_start - current_start) / (next_start - prev_start)
-#     right_weight = (current_start - prev_start) / (next_start - prev_start)
-
-#     if isinstance(prev_color_float, tuple):
-#         prev_color_float = cast(tuple[float, float, float], prev_color_float)
-#         next_color_float = cast(tuple[float, float, float], next_color_float)
-
-#         color_zips = zip(prev_color_float, next_color_float)
-#         interpolate_color = tuple(
-#             map(
-#                 lambda color_zip: color_zip[0] * left_weight
-#                 + color_zip[1] * right_weight,
-#                 color_zips,
-#             )
-#         )
-#         return cast(tuple[float, float, float], interpolate_color)
-#     else:
-#         prev_color_float = cast(list[tuple[float, float, float]], prev_color_float)
-#         next_color_float = cast(list[tuple[float, float, float]], next_color_float)
-#         interpolate_colors: list[tuple[float, float, float]] = []
-#         for i in range(len(prev_color_float)):
-#             prev_bulb_float, next_bulb_float = prev_color_float[i], next_color_float[i]
-#             bulb_zips = zip(prev_bulb_float, next_bulb_float)
-#             interpolate_bulb = tuple(
-#                 map(
-#                     lambda color_zip: color_zip[0] * left_weight
-#                     + color_zip[1] * right_weight,
-#                     bulb_zips,
-#                 )
-#             )
-#             interpolate_bulb = cast(tuple[float, float, float], interpolate_bulb)
-#             interpolate_colors.append(interpolate_bulb)
-#         return interpolate_colors
-
-
-# def _set_current_floats(
-#     self: bpy.types.Object,
-#     color_float: tuple[float, float, float] | list[tuple[float, float, float]],
-# ):
-#     if isinstance(color_float, tuple):
-#         color_float = cast(tuple[float, float, float], color_float)
-
-#         setattr(self, "ld_color_float", color_float)
-#         self.color = (*color_float, 1.0)
-#         print(self.color)
-#     else:
-#         color_floats = cast(list[tuple[float, float, float]], color_float)
-#         led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
-#         color_bulb_zips = zip(color_floats, led_bulb_objs)
-#         for color_float, led_bulb_obj in color_bulb_zips:
-#             setattr(led_bulb_obj, "ld_color_float", color_float)
-#             led_bulb_obj.color = (*color_float, 1.0)
-
-
-# def sync_editing_control_frame_properties():
-#     """Sync location to ld_position"""
-#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-#     for dancer in state.dancers_array:
-#         if not show_dancer_dict[dancer.name]:
-#             continue
-#         dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
-#         if dancer_obj is not None:
-#             part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
-#             part_obj_names: list[str] = [
-#                 getattr(obj, "ld_part_name") for obj in part_objs
-#             ]
-
-#             for part in dancer.parts:
-#                 if part.name not in part_obj_names:
-#                     continue
-
-#                 part_index = part_obj_names.index(part.name)
-#                 part_obj = part_objs[part_index]
-#                 part_type = getattr(part_obj, "ld_light_type")
-
-#                 ld_no_status: bool = getattr(part_obj, "ld_no_status")
-#                 if ld_no_status:
-#                     continue
-#                 # Re-trigger update
-#                 if part_type == LightType.FIBER.value:
-#                     ld_alpha: int = getattr(part_obj, "ld_alpha")
-#                     setattr(part_obj, "ld_alpha", ld_alpha)
-#                     ld_color: int = getattr(part_obj, "ld_color")
-#                     setattr(part_obj, "ld_color", ld_color)
-
-#                 elif part_type == LightType.LED.value:
-#                     ld_alpha: int = getattr(part_obj, "ld_alpha")
-#                     setattr(part_obj, "ld_alpha", ld_alpha)
-#                     ld_effect: int = getattr(part_obj, "ld_effect")
-#                     setattr(part_obj, "ld_effect", ld_effect)
-#                     if ld_effect == 0:
-#                         for bulb in part_obj.children:
-#                             ld_alpha: int = getattr(bulb, "ld_alpha")
-#                             setattr(bulb, "ld_alpha", ld_alpha)
-#                             ld_color: int = getattr(bulb, "ld_color")
-#                             setattr(bulb, "ld_color", ld_color)
 
 
 def update_current_is_no_effect(self: bpy.types.Object, context: bpy.types.Context):
