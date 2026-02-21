@@ -37,25 +37,30 @@ class PinPanel(bpy.types.Panel):
             row = col.row()
             row.label(text=f"{object}", icon="PINNED")
             op = row.operator(operator="lightdance.delete_pinned_object", text="Delete")
-            op.index = i
+            op.index = i  # type: ignore
 
-        obj = None
-        if bpy.context.selected_objects:
-            obj = bpy.context.selected_objects[0]
-
+        obj = context.object
         row = layout.row(align=True)
         if obj:
+            dancer_name = getattr(obj, "ld_dancer_name")
             row.operator(
-                operator="lightdance.pin_object", text=f"Pin {obj.name}", icon="ADD"
+                operator="lightdance.pin_object", text=f"Pin {dancer_name}", icon="ADD"
             )
+
         else:
             if state.editor == Editor.POS_EDITOR:
                 row.label(text="Select a dancer to pin", icon="ADD")
+
             elif state.editor == Editor.CONTROL_EDITOR:
                 if state.selection_mode == SelectMode.DANCER_MODE:
-                    row.label(text="Please switch to PART mode")
+                    row.label(text="Select a dancer to pin")
                 else:
-                    row.label(text="Select a part to pin", icon="ADD")
+                    row.label(text="Select a part to pin dancer", icon="ADD")
+
+        row = layout.row(align=True)
+        row.operator(
+            operator="lightdance.pin_all_dancers", text="Pin All Dancers", icon="ADD"
+        )
 
 
 def register():

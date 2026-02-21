@@ -157,7 +157,7 @@ def setup_display():
     # space.show_region_header = False
     space.show_region_channels = False
 
-    set_dopesheet_filter("control_frame")  # follow default editor
+    set_dopesheet_filter("fade_seq")  # follow default editor
     set_dopesheet_show_summary(False)
 
     """

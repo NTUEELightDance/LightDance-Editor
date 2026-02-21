@@ -20,14 +20,6 @@ def register():
             set=set_current_frame_index,
         ),
     )
-    # setattr(
-    #     bpy.types.WindowManager,
-    #     "ld_default_fade",
-    #     bpy.props.BoolProperty(
-    #         default=False,
-    #         description="Fade in/out",
-    #     ),
-    # )
     setattr(
         bpy.types.WindowManager,
         "ld_start",
@@ -60,7 +52,6 @@ def register():
 
 def unregister():
     delattr(bpy.types.WindowManager, "ld_current_frame_index")
-    # delattr(bpy.types.WindowManager, "ld_default_fade")
     delattr(bpy.types.WindowManager, "ld_start")
     delattr(bpy.types.WindowManager, "ld_play_speed")
     delattr(bpy.types.WindowManager, "ld_time")
