@@ -385,22 +385,41 @@ impl ControlFrameMutation {
                             true => "COLOR",
                             false => "NO_EFFECT",
                         };
-                        sqlx::query!(
-                            r#"
-                                INSERT INTO ControlData
-                                (dancer_id, part_id, frame_id, type, color_id, alpha, fade)
-                                VALUES (?, ?, ?, ?, ?, ?, ?);
-                            "#,
-                            dancer_id,
-                            part.part_id,
-                            new_control_frame_id,
-                            r#type,
-                            part_data[0],
-                            part_data[1],
-                            fade as i32,
-                        )
-                        .execute(&mut *tx)
-                        .await?;
+
+                        if !has_effect {
+                            sqlx::query!(
+                                r#"
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, alpha, fade)
+                                    VALUES (?, ?, ?, ?, ?, ?);
+                                "#,
+                                dancer_id,
+                                part.part_id,
+                                new_control_frame_id,
+                                r#type,
+                                part_data[1],
+                                fade as i32,
+                            )
+                            .execute(&mut *tx)
+                            .await?;
+                        } else {
+                            sqlx::query!(
+                                r#"
+                                    INSERT INTO ControlData
+                                    (dancer_id, part_id, frame_id, type, color_id, alpha, fade)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?);
+                                "#,
+                                dancer_id,
+                                part.part_id,
+                                new_control_frame_id,
+                                r#type,
+                                part_data[0],
+                                part_data[1],
+                                fade as i32,
+                            )
+                            .execute(&mut *tx)
+                            .await?;
+                        }
                     }
                     PartType::LED => {
                         let effect_id = part_data[0];
