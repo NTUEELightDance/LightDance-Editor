@@ -252,6 +252,7 @@ impl ControlMapMutation {
         for (index, data) in control_data.iter().enumerate() {
             let dancer = &dancers[index];
             let led_bulb_data = &led_bulb_data[index];
+            let has_effect = has_effect[index];
 
             // second, check if the data of each dancer have all information about all parts
             if data.len() != dancer.len() || led_bulb_data.len() != dancer.len() {
@@ -327,65 +328,68 @@ impl ControlMapMutation {
                 match part_type {
                     // if the part is Fiber, check if the color is valid
                     PartType::FIBER => {
-                        let color_id = part_data[0];
+                        if has_effect {
+                            let color_id = part_data[0];
 
-                        // check if the color is valid
-                        if !all_color_ids.contains(&color_id) {
-                            let error_message = format!(
-                                "Color of dancer #{} part #{} is not a valid color",
-                                index + 1,
-                                part_index + 1
-                            );
-                            errors.push(error_message);
+                            // check if the color is valid
+                            if !all_color_ids.contains(&color_id) {
+                                let error_message = format!(
+                                    "Color of dancer #{} part #{} is not a valid color",
+                                    index + 1,
+                                    part_index + 1
+                                );
+                                errors.push(error_message);
+                            }
                         }
                     }
                     // if the part is LED, check if the effect is valid
                     PartType::LED => {
-                        let effect_id = part_data[0];
-
-                        if effect_id == 0 {
-                            // LED bulbs
-                            if led_bulb_data.len() != part.length.unwrap() as usize {
-                                let error_message = format!(
+                        if has_effect {
+                            let effect_id = part_data[0];
+                            if effect_id == 0 {
+                                // LED bulbs
+                                if led_bulb_data.len() != part.length.unwrap() as usize {
+                                    let error_message = format!(
                                         "LED Bulb data of dancer #{} part #{} is not an array of length {}",
                                         index + 1, part_index + 1, part.length.unwrap()
                                     );
-                                errors.push(error_message);
-                            }
+                                    errors.push(error_message);
+                                }
 
-                            for bulb_data in led_bulb_data.iter() {
-                                let color_id = bulb_data[0];
+                                for bulb_data in led_bulb_data.iter() {
+                                    let color_id = bulb_data[0];
 
-                                // check if the color is valid
-                                if !all_color_ids.contains(&color_id) && color_id != -1 {
-                                    let error_message = format!(
+                                    // check if the color is valid
+                                    if !all_color_ids.contains(&color_id) && color_id != -1 {
+                                        let error_message = format!(
                                             "Color of LED Bulb of dancer #{} part #{} is not a valid color",
                                             index + 1, part_index + 1
                                         );
+                                        errors.push(error_message);
+                                    }
+                                }
+                            } else {
+                                // LED effect
+                                if effect_id > 0 && !all_led_effect_ids.contains(&effect_id) {
+                                    let error_message = format!(
+                                        "Effect of dancer #{} part #{} is not a valid effect",
+                                        index + 1,
+                                        part_index + 1
+                                    );
                                     errors.push(error_message);
                                 }
-                            }
-                        } else {
-                            // LED effect
-                            if effect_id > 0 && !all_led_effect_ids.contains(&effect_id) {
-                                let error_message = format!(
-                                    "Effect of dancer #{} part #{} is not a valid effect",
-                                    index + 1,
-                                    part_index + 1
-                                );
-                                errors.push(error_message);
-                            }
-                            // check if the effect is valid
-                            if !all_led_effect_ids.contains(&effect_id)
-                                && effect_id != -1
-                                && effect_id != 0
-                            {
-                                let error_message = format!(
-                                    "Effect of dancer #{} part #{} is not a valid effect",
-                                    index + 1,
-                                    part_index + 1
-                                );
-                                errors.push(error_message);
+                                // check if the effect is valid
+                                if !all_led_effect_ids.contains(&effect_id)
+                                    && effect_id != -1
+                                    && effect_id != 0
+                                {
+                                    let error_message = format!(
+                                        "Effect of dancer #{} part #{} is not a valid effect",
+                                        index + 1,
+                                        part_index + 1
+                                    );
+                                    errors.push(error_message);
+                                }
                             }
                         }
                     }
@@ -420,51 +424,67 @@ impl ControlMapMutation {
                         let color_id = _data[0];
                         let alpha = _data[1];
 
-                        sqlx::query!(
-                            r#"
-                                UPDATE ControlData
-                                SET color_id = ?, alpha = ?, type = ?, fade = ?
-                                WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
-                            "#,
-                            color_id,
-                            alpha,
-                            match has_effect {
-                                true => "COLOR",
-                                false => "NO_EFFECT",
-                            },
-                            fade,
-                            frame_id,
-                            part.part_id,
-                            dancer_id,
-                        )
-                        .execute(mysql)
-                        .await?;
+                        if has_effect {
+                            sqlx::query!(
+                                r#"
+                                    UPDATE ControlData
+                                    SET color_id = ?, alpha = ?, type = ?, fade = ?
+                                    WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
+                                "#,
+                                color_id,
+                                alpha,
+                                "COLOR",
+                                fade,
+                                frame_id,
+                                part.part_id,
+                                dancer_id,
+                            )
+                            .execute(mysql)
+                            .await?;
+                        } else {
+                            sqlx::query!(
+                                r#"
+                                    UPDATE ControlData
+                                    SET alpha = ?, type = ?, fade = ?
+                                    WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
+                                "#,
+                                alpha,
+                                "COLOR",
+                                fade,
+                                frame_id,
+                                part.part_id,
+                                dancer_id,
+                            )
+                            .execute(mysql)
+                            .await?;
+                        }
                     }
                     // if the part is LED, update the effect and alpha
                     PartType::LED => {
-                        let effect_id = _data[0];
+                        if has_effect {
+                            let effect_id = _data[0];
 
-                        if effect_id == 0 {
-                            // LED bulbs
-                            for (i, bulb_data) in led_bulb_data.iter().enumerate() {
-                                let color_id = bulb_data[0];
-                                let alpha = bulb_data[1];
+                            if effect_id == 0 {
+                                // LED bulbs
+                                for (i, bulb_data) in led_bulb_data.iter().enumerate() {
+                                    let color_id = bulb_data[0];
+                                    let alpha = bulb_data[1];
 
-                                // check if led bulb exists
-                                let is_led_bulb_exists = sqlx::query!(
-                                    r#"
+                                    // check if led bulb exists
+                                    let is_led_bulb_exists = sqlx::query!(
+                                        r#"
                                       SELECT id FROM LEDBulb
                                       WHERE control_id = ? AND position = ?
                                     "#,
-                                    part.control_id,
-                                    i as i32
-                                )
-                                .fetch_optional(mysql)
-                                .await?;
+                                        part.control_id,
+                                        i as i32
+                                    )
+                                    .fetch_optional(mysql)
+                                    .await?;
 
-                                if is_led_bulb_exists.is_none() {
-                                    // insert led bulb
-                                    sqlx::query!(
+                                    if is_led_bulb_exists.is_none() {
+                                        // insert led bulb
+                                        sqlx::query!(
                                         r#"
                                           INSERT INTO LEDBulb (control_id, position, color_id, alpha)
                                           VALUES (?, ?, ?, ?)
@@ -474,23 +494,23 @@ impl ControlMapMutation {
                                         color_id,
                                         alpha
                                     ).execute(mysql).await?;
-                                } else {
-                                    sqlx::query!(
-                                        r#"
+                                    } else {
+                                        sqlx::query!(
+                                            r#"
                                           UPDATE LEDBulb
                                           SET color_id = ?, alpha = ?
                                           WHERE control_id = ? AND position = ?;
                                         "#,
-                                        color_id,
-                                        alpha,
-                                        part.control_id,
-                                        i as i32
-                                    )
-                                    .execute(mysql)
-                                    .await?;
-                                }
+                                            color_id,
+                                            alpha,
+                                            part.control_id,
+                                            i as i32
+                                        )
+                                        .execute(mysql)
+                                        .await?;
+                                    }
 
-                                sqlx::query!(
+                                    sqlx::query!(
                                     r#"
                                         UPDATE ControlData
                                         SET effect_id = NULL, alpha = ?, type = "LED_BULBS", fade = ?
@@ -504,43 +524,74 @@ impl ControlMapMutation {
                                 )
                                 .execute(mysql)
                                 .await?;
-                            }
-                        } else {
-                            // LED effect
-                            let alpha = _data[1];
+                                }
+                            } else {
+                                // LED effect
+                                let alpha = _data[1];
 
-                            if effect_id > 0 {
-                                sqlx::query!(
-                                    r#"
+                                if effect_id > 0 {
+                                    sqlx::query!(
+                                        r#"
                                         UPDATE ControlData
                                         SET effect_id = ?, alpha = ?, type = "EFFECT", fade = ?
                                         WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                     "#,
-                                    effect_id,
-                                    alpha,
-                                    fade,
-                                    frame_id,
-                                    part.part_id,
-                                    dancer_id,
-                                )
-                                .execute(mysql)
-                                .await?;
-                            } else {
-                                sqlx::query!(
-                                    r#"
+                                        effect_id,
+                                        alpha,
+                                        fade,
+                                        frame_id,
+                                        part.part_id,
+                                        dancer_id,
+                                    )
+                                    .execute(mysql)
+                                    .await?;
+                                } else {
+                                    sqlx::query!(
+                                        r#"
                                         UPDATE ControlData
                                         SET effect_id = NULL, alpha = ?, type = "EFFECT", fade = ?
                                         WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                     "#,
-                                    alpha,
-                                    fade,
-                                    frame_id,
-                                    part.part_id,
-                                    dancer_id,
-                                )
-                                .execute(mysql)
-                                .await?;
+                                        alpha,
+                                        fade,
+                                        frame_id,
+                                        part.part_id,
+                                        dancer_id,
+                                    )
+                                    .execute(mysql)
+                                    .await?;
+                                }
                             }
+                        } else {
+                            let alpha = _data[1];
+                            sqlx::query!(
+                                r#"
+                                    UPDATE ControlData
+                                    SET alpha = ?, type = "NO_EFFECT", fade = ?
+                                    WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
+                                "#,
+                                alpha,
+                                fade,
+                                frame_id,
+                                part.part_id,
+                                dancer_id,
+                            )
+                            .execute(mysql)
+                            .await?;
+
+                            // sqlx::query!(
+                            //     r#"
+                            //         DELETE FROM LEDBulb
+                            //         WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
+                            //     "#,
+                            //     alpha,
+                            //     fade,
+                            //     frame_id,
+                            //     part.part_id,
+                            //     dancer_id,
+                            // )
+                            // .execute(mysql)
+                            // .await?;
                         }
                     }
                 };

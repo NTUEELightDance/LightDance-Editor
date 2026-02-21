@@ -254,7 +254,7 @@ impl ControlFrameMutation {
                 if !part_data.is_empty() {
                     if part_data.len() != 2 {
                         errors.push(format!(
-                            "Control data of dancer #{} part #{} is not an array  of length 2",
+                            "Control data of dancer #{} part #{} is not an array of length 2",
                             index + 1,
                             part_index + 1
                         ));
