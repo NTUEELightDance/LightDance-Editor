@@ -69,6 +69,7 @@ PositionMap
 
 
 SubCoordinatesPayload = tuple[float, float, float]
+SubHasPositionPayload = bool
 
 
 @dataclass
@@ -76,6 +77,7 @@ class SubPositionFrame(JSONWizard):
     start: int
     location: list[SubCoordinatesPayload]
     rotation: list[SubCoordinatesPayload]
+    has_position: list[SubHasPositionPayload]
     rev: SubRevision
     editing: str | None = None
 
@@ -151,7 +153,8 @@ ControlMap
 
 @dataclass
 class SubControlFrame(JSONWizard):
-    fade: bool
+    fade: list[bool]
+    has_effect: list[bool]
     start: int
     rev: SubRevision
     status: list[list[SubPartControl]]

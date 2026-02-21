@@ -113,15 +113,18 @@ class ControlAgent:
     ) -> str | None:
         """Add a new control frame to the control map."""
         try:
+            # FIXME: 把下面的Input取名
             response = await client.execute(
                 str,
                 ADD_CONTROL_FRAME,
                 {
-                    "start": start,
-                    "controlData": controlData,
-                    "ledControlData": ledControlData,
-                    "hasEffect": hasEffectData,
-                    "fade": fadeData,
+                    "input": {
+                        "start": start,
+                        "controlData": controlData,
+                        "ledControlData": ledControlData,
+                        "hasEffect": hasEffectData,
+                        "fade": fadeData,
+                    }
                 },
             )
             return response["addControlFrame"]

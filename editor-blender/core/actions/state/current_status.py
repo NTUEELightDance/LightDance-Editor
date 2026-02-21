@@ -163,7 +163,7 @@ def update_current_status_by_index():
             prev_notnone_index = index
             while True:
                 prev_notnone_index -= 1
-                if prev_notnone_index == -1:
+                if prev_notnone_index <= -1:
                     break
 
                 prev_control_id = state.control_record[prev_notnone_index]

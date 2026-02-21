@@ -15,7 +15,6 @@ class ModelAgent:
         try:
             response = await client.execute(QueryModelPayload, GET_MODELS)
             models = response["models"]
-
             return models_query_to_state(models)
 
         except asyncio.CancelledError:

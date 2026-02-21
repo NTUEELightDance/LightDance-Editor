@@ -109,6 +109,7 @@ def apply_led_map_updates_add_or_delete():
         state.led_effect_id_table[effect.id] = effect
 
     for model, part, name, effect_id in led_map_update.deleted:
+        print(state.led_map[model][part])
         del state.led_map[model][part][name]
         del state.led_effect_id_table[effect_id]
 

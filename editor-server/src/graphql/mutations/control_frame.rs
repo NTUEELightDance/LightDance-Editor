@@ -317,7 +317,10 @@ impl ControlFrameMutation {
                             } else {
                                 let effect_id = part_data[0];
 
-                                if !all_led_effect_ids.contains(&effect_id) && effect_id != -1 {
+                                if !all_led_effect_ids.contains(&effect_id)
+                                    && effect_id != -1
+                                    && effect_id != 0
+                                {
                                     let error_message = format!(
                                         "Effect of dancer #{} part #{} is not a valid effect",
                                         index + 1,

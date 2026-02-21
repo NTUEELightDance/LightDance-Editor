@@ -103,7 +103,6 @@ async def sub_pos_map(client: Clients):
 
         async def modifier(posMap: QueryPosMapData | None):
             subscriptionData = data["positionMapSubscription"]
-
             newPosMap = QueryPosMapData(frameIds={})
             if posMap is not None:
                 newPosMap = posMap
@@ -191,7 +190,7 @@ async def sub_control_map(client: Clients):
 
         async def modifier(controlMap: QueryControlMapData | None):
             subscriptionData = data["controlMapSubscription"]
-
+            print(data)
             newControlMap = QueryControlMapData(frameIds={})
             if controlMap is not None:
                 newControlMap = controlMap
@@ -306,6 +305,7 @@ async def sub_color_map(client: Clients):
         async def modifier(colorMap: QueryColorMapData | None):
             subscriptionData = data["colorSubscription"]
 
+            print(data)
             newColorMap = QueryColorMapData(colorMap={})
             if colorMap is not None:
                 newColorMap = colorMap

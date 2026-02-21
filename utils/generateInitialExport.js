@@ -106,9 +106,11 @@ function generateEmptyControlFrame(dancerData, start, color, effect) {
     })
   );
   const led_status = dancerData.map(({ parts }) => parts.map(() => []));
+  const length = dancerData.length
 
   return {
-    fade: false,
+    has_effect: Array(length).fill(true),
+    fade: Array(length).fill(false),
     start,
     led_status,
     status,
@@ -126,6 +128,7 @@ function generateEmptyPosMap(dancerData) {
   const rotation = dancerData.map(() => [0, 0, 0]);
 
   return {
+    has_position: Array(length).fill(true),
     start: 0,
     location,
     rotation,

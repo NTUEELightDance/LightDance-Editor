@@ -57,48 +57,48 @@ def attach_editing_control_frame():
     # sync_editing_control_frame_properties()
 
 
-# def sync_editing_control_frame_properties():
-#     """Sync location to ld_position"""
-#     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-#     for dancer in state.dancers_array:
-#         if not show_dancer_dict[dancer.name]:
-#             continue
-#         dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
-#         if dancer_obj is not None:
-#             part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
-#             part_obj_names: list[str] = [
-#                 getattr(obj, "ld_part_name") for obj in part_objs
-#             ]
+def sync_editing_control_frame_properties():
+    """Sync location to ld_position"""
+    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+    for dancer in state.dancers_array:
+        if not show_dancer_dict[dancer.name]:
+            continue
+        dancer_obj: bpy.types.Object | None = bpy.data.objects.get(dancer.name)
+        if dancer_obj is not None:
+            part_objs: list[bpy.types.Object] = getattr(dancer_obj, "children")
+            part_obj_names: list[str] = [
+                getattr(obj, "ld_part_name") for obj in part_objs
+            ]
 
-#             for part in dancer.parts:
-#                 if part.name not in part_obj_names:
-#                     continue
+            for part in dancer.parts:
+                if part.name not in part_obj_names:
+                    continue
 
-#                 part_index = part_obj_names.index(part.name)
-#                 part_obj = part_objs[part_index]
-#                 part_type = getattr(part_obj, "ld_light_type")
+                part_index = part_obj_names.index(part.name)
+                part_obj = part_objs[part_index]
+                part_type = getattr(part_obj, "ld_light_type")
 
-#                 ld_no_status: bool = getattr(part_obj, "ld_no_status")
-#                 if ld_no_status:
-#                     continue
-#                 # Re-trigger update
-#                 if part_type == LightType.FIBER.value:
-#                     ld_alpha: int = getattr(part_obj, "ld_alpha")
-#                     setattr(part_obj, "ld_alpha", ld_alpha)
-#                     ld_color: int = getattr(part_obj, "ld_color")
-#                     setattr(part_obj, "ld_color", ld_color)
+                ld_no_status: bool = getattr(part_obj, "ld_no_status")
+                if ld_no_status:
+                    continue
+                # Re-trigger update
+                if part_type == LightType.FIBER.value:
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+                    setattr(part_obj, "ld_alpha", ld_alpha)
+                    ld_color: int = getattr(part_obj, "ld_color")
+                    setattr(part_obj, "ld_color", ld_color)
 
-#                 elif part_type == LightType.LED.value:
-#                     ld_alpha: int = getattr(part_obj, "ld_alpha")
-#                     setattr(part_obj, "ld_alpha", ld_alpha)
-#                     ld_effect: int = getattr(part_obj, "ld_effect")
-#                     setattr(part_obj, "ld_effect", ld_effect)
-#                     if ld_effect == 0:
-#                         for bulb in part_obj.children:
-#                             ld_alpha: int = getattr(bulb, "ld_alpha")
-#                             setattr(bulb, "ld_alpha", ld_alpha)
-#                             ld_color: int = getattr(bulb, "ld_color")
-#                             setattr(bulb, "ld_color", ld_color)
+                elif part_type == LightType.LED.value:
+                    ld_alpha: int = getattr(part_obj, "ld_alpha")
+                    setattr(part_obj, "ld_alpha", ld_alpha)
+                    ld_effect: int = getattr(part_obj, "ld_effect")
+                    setattr(part_obj, "ld_effect", ld_effect)
+                    if ld_effect == 0:
+                        for bulb in part_obj.children:
+                            ld_alpha: int = getattr(bulb, "ld_alpha")
+                            setattr(bulb, "ld_alpha", ld_alpha)
+                            ld_color: int = getattr(bulb, "ld_color")
+                            setattr(bulb, "ld_color", ld_color)
 
 
 async def add_control_frame():
@@ -115,7 +115,6 @@ async def add_control_frame():
     hasEffectData, fadeData, controlData, ledControlData = control_status_state_to_mut(
         empty_status
     )
-
     with send_request():
         try:
             await control_agent.add_frame(

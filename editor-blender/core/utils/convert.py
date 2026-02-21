@@ -102,7 +102,7 @@ def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
 
     pos_map_element = PosMapElement(start=payload.start, pos={}, rev=rev)
     pos_map_element.pos = pos_status_query_to_state(
-        payload.location, payload.rotation, payload.has_effect
+        payload.location, payload.rotation, payload.has_position
     )
 
     return pos_map_element
@@ -111,7 +111,14 @@ def pos_frame_query_to_state(payload: QueryPosFrame) -> PosMapElement:
 def pos_frame_sub_to_query(data: SubPositionFrame) -> QueryPosFrame:
     rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
 
-    response = QueryPosFrame(start=data.start, location=[], rotation=[], rev=rev)
+    response = QueryPosFrame(
+        start=data.start,
+        location=[],
+        rotation=[],
+        rev=rev,
+        has_position=data.has_position,
+    )
+
     response.location = [(loc[0], loc[1], loc[2]) for loc in data.location]
     response.rotation = [(rot[0], rot[1], rot[2]) for rot in data.rotation]
 
@@ -133,7 +140,6 @@ def pos_status_query_to_state(
     has_effect_payload: list[bool],
 ) -> PosMapStatus:
     pos_map_status: PosMapStatus = {}
-
     for dancerIndex, (
         dancerLocStatus,
         dancerRotStatus,
@@ -201,8 +207,8 @@ def part_led_data_state_to_mut(
 def control_status_query_to_state(
     status_payload: list[QueryDancerStatusPayload],
     led_status_payload: list[QueryDancerLEDBulbStatusPayload],
-    fade_payload: list[bool],
-    has_effect_payload: list[bool],
+    fade_payload: list[MutDancerFade],
+    has_effect_payload: list[MutDancerHasEffect],
 ) -> ControlMapStatus_MODIFIED:
     control_map_status: ControlMapStatus_MODIFIED = {}
 
@@ -288,7 +294,12 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
     rev = QueryRevision(meta=data.rev.meta, data=data.rev.data)
 
     response = QueryControlFrame(
-        start=data.start, fade=data.fade, status=[], led_status=[], rev=rev
+        start=data.start,
+        fade=data.fade,
+        status=[],
+        led_status=[],
+        rev=rev,
+        has_effect=data.has_effect,
     )
 
     response.status = [

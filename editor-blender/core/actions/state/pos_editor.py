@@ -93,14 +93,14 @@ async def add_pos_frame():
         positionData.append(None)
 
     positionDataPrime: list[list[float]] = []
-    hasEffectData: list[bool] = []
+    hasPositionData: list[bool] = []
     for index in range(len(state.dancer_names)):
         positionDataPrime.append([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-        hasEffectData.append(False)
+        hasPositionData.append(False)
 
     with send_request():
         try:
-            id = await pos_agent.add_frame(start, positionDataPrime, hasEffectData)
+            id = await pos_agent.add_frame(start, positionDataPrime, hasPositionData)
             notify("INFO", f"Added position frame: {id}")
         except:
             logger.exception("Failed to add position frame")

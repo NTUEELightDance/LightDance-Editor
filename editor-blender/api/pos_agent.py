@@ -71,7 +71,6 @@ class PosAgent:
         try:
             response = await client.execute(QueryPosMapData, GET_POS_MAP)
             posMap = response["PosMap"]
-
             return pos_map_query_to_state(posMap.frameIds)
 
         except asyncio.CancelledError:
@@ -81,7 +80,7 @@ class PosAgent:
             logger.exception("Failed to get position map")
 
     async def add_frame(
-        self, start: int, positionData: list[list[float]], hasEffectData: list[bool]
+        self, start: int, positionData: list[list[float]], hasPositionData: list[bool]
     ) -> MapID | None:
         """Add a new position frame to the position map."""
         try:
@@ -89,9 +88,11 @@ class PosAgent:
                 MutAddPositionFrameResponse,
                 ADD_POS_FRAME,
                 {
-                    "start": start,
-                    "positionData": positionData,
-                    "hasEffectData": hasEffectData,
+                    "input": {
+                        "start": start,
+                        "positionData": positionData,
+                        "hasPosition": hasPositionData,
+                    }
                 },
             )
             return response["addPositionFrame"].id
@@ -121,7 +122,7 @@ class PosAgent:
                         "input": MutEditPositionFrameInput(
                             frameId=id,
                             positionData=positionData,
-                            hasEffectData=hasEffectData,
+                            hasPosition=hasEffectData,
                         )
                     },
                 )

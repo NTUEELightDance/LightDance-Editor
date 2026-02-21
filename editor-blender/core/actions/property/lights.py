@@ -98,6 +98,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
             ld_part_name: str = getattr(self, "ld_part_name")
             prev_ctrl_status = prev_dancer_status[ld_part_name]
             if prev_ctrl_status is None:
+                control_index -= 1
                 continue
 
             prev_part_status = prev_ctrl_status.part_data
@@ -111,6 +112,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
             control_index -= 1
 
         if effect_id == -1:
+            setattr(prev_part_status, "ld_alpha", 1)
             return
 
     if effect_id == 0:

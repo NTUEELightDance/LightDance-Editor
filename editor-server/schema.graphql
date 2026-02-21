@@ -1,0 +1,439 @@
+
+type Color {
+	id: Int!
+	color: String!
+	colorCode: [Int!]!
+}
+
+input ColorCreateColorCodeInput {
+	set: [Int!]!
+}
+
+input ColorCreateInput {
+	color: String!
+	colorCode: ColorCreateColorCodeInput!
+	autoCreateEffect: Boolean
+}
+
+type ColorMap {
+	colorMap: ColorMapScalar!
+}
+
+scalar ColorMapScalar
+
+enum ColorMutationMode {
+	UPDATED
+	CREATED
+	DELETED
+}
+
+type ColorPayload {
+	mutation: ColorMutationMode!
+	id: Int!
+	color: String
+	colorCode: [Int!]
+	editBy: Int!
+}
+
+type ColorResponse {
+	id: Int!
+	msg: String!
+	ok: Boolean!
+}
+
+input ColorUpdateColorCodeInput {
+	set: [Int!]!
+}
+
+input ColorUpdateInput {
+	color: StringFieldUpdateOperationsInput!
+	colorCode: ColorUpdateColorCodeInput!
+}
+
+type ControlFrame {
+	id: Int!
+	start: Int!
+	fade: Boolean!
+	rev: ControlFrameRevision!
+}
+
+type ControlFrameRevision {
+	meta: Int!
+	data: Int!
+}
+
+scalar ControlFramesSubDatScalar
+
+type ControlMap {
+	frameIds: ControlMapScalar!
+}
+
+type ControlMapPayload {
+	frame: ControlFramesSubDatScalar!
+	editBy: Int!
+}
+
+scalar ControlMapScalar
+
+enum ControlRecordMutationMode {
+	UPDATED
+	CREATED
+	DELETED
+	UPDATED_DELETED
+	CREATED_DELETED
+}
+
+type ControlRecordPayload {
+	mutation: ControlRecordMutationMode!
+	index: Int!
+	addID: [Int!]!
+	updateID: [Int!]!
+	deleteID: [Int!]!
+	editBy: Int!
+}
+
+type Dancer {
+	id: Int!
+	name: String!
+	parts: [Part!]
+	positionDatas: [PositionData!]
+}
+
+input DancerCreateInput {
+	name: String!
+	model: String!
+}
+
+enum DancerMutationMode {
+	UPDATED
+	CREATED
+	DELETED
+}
+
+type DancerMutationResponse {
+	ok: Boolean!
+	msg: String!
+}
+
+type DancerPayload {
+	mutation: DancerMutationMode!
+	dancerData: Dancer
+	editBy: Int!
+}
+
+input DancerUpdateInput {
+	name: String!
+	id: Int!
+}
+
+input DeleteControlFrameInput {
+	frameID: Int!
+}
+
+type DeleteLEDEffectResponse {
+	ok: Boolean!
+	msg: String!
+}
+
+input DeletePositionFrameInput {
+	frameID: Int!
+}
+
+input EditControlFrameInput {
+	frameId: Int!
+	start: Int
+	fade: Boolean
+}
+
+input EditControlMapInput {
+	frameId: Int!
+	fade: Boolean
+	controlData: [[[Int!]!]!]
+}
+
+input EditLEDInput {
+	id: Int!
+	name: String!
+	repeat: Int!
+	frames: [Frame!]!
+}
+
+input EditPositionFrameInput {
+	frameId: Int!
+	start: Int!
+}
+
+input EditPositionMapInput {
+	frameId: Int!
+	positionData: [[Float!]!]!
+}
+
+
+input Frame {
+	leds: [[Int!]!]!
+	fade: Boolean!
+	start: Int!
+}
+
+
+
+input LEDEffectCreateInput {
+	name: String!
+	modelName: String!
+	partName: String!
+	repeat: Int!
+	frames: [Frame!]!
+}
+
+type LEDEffectData {
+	id: Int!
+	name: String!
+	modelName: String!
+	partName: String!
+	repeat: Int!
+	frames: [LEDEffectFrame!]!
+}
+
+type LEDEffectFrame {
+	LEDs: [[Int!]!]!
+	fade: Boolean!
+	start: Int!
+}
+
+type LEDEffectResponse {
+	id: Int!
+	modelName: String!
+	partName: String!
+	effectName: String!
+	repeat: Int!
+	effects: [LEDEffectFrame!]!
+	ok: Boolean!
+	msg: String!
+}
+
+type LEDMap {
+	LEDMap: LEDMapCustomScalar!
+}
+
+scalar LEDMapCustomScalar
+
+type LEDPayload {
+	createEffects: [LEDEffectData!]!
+	updateEffects: [LEDEffectData!]!
+	deleteEffects: [LEDEffectData!]!
+}
+
+input MapID {
+	id: Int!
+}
+
+type Model {
+	id: Int!
+	name: String!
+	dancers: [String!]!
+}
+
+input ModelCreateInput {
+	name: String!
+}
+
+input ModelDeleteInput {
+	id: Int!
+}
+
+type ModelMutationResponse {
+	ok: Boolean!
+	msg: String!
+}
+
+input ModelUpdateInput {
+	name: String!
+	id: Int!
+}
+
+type MutationRoot {
+	editColor(id: Int!, data: ColorUpdateInput!): Color!
+	addColor(color: ColorCreateInput!): Color!
+	deleteColor(id: Int!): ColorResponse!
+	addControlFrame(start: Int!, fade: Boolean!, controlData: [[[Int!]!]!]!): String!
+	editControlFrame(input: EditControlFrameInput!): String!
+	deleteControlFrame(input: DeleteControlFrameInput!): String!
+	editControlMap(input: EditControlMapInput!): String!
+	addPositionFrame(start: Int!, positionData: [[Float!]!]): PositionFrame!
+	editPositionFrame(input: EditPositionFrameInput!): PositionFrame!
+	deletePositionFrame(input: DeletePositionFrameInput!): PositionFrame!
+	editPosMap(input: EditPositionMapInput!): PositionMap!
+	RequestEditControl(FrameID: Int!): RequestEditResponse!
+	RequestEditPosition(FrameID: Int!): RequestEditResponse!
+	RequestEditLEDEffect(ledEffectId: Int!): RequestEditResponse!
+	CancelEditPosition(FrameID: Int!): RequestEditResponse!
+	CancelEditControl(FrameID: Int!): RequestEditResponse!
+	CancelEditLEDEffect(ledEffectId: Int!): RequestEditResponse!
+	addLEDEffect(input: LEDEffectCreateInput!): LEDEffectResponse!
+	editLEDEffect(input: EditLEDInput!): LEDEffectResponse!
+	deleteLEDEffect(id: Int!): DeleteLEDEffectResponse!
+	addDancer(input: DancerCreateInput!): DancerMutationResponse!
+	editDancer(input: DancerUpdateInput!): DancerMutationResponse!
+	deleteDancer(input: ModelDeleteInput!): ModelMutationResponse!
+	addPart(input: PartCreateInput!): PartResponse!
+	deletePart(input: PartDeleteInput!): PartResponse!
+	editPart(input: PartUpdateInput!): PartResponse!
+	shift(start: Int!, end: Int!, move: Int!, shiftControl: Boolean!, shiftPosition: Boolean!): ShiftResponse!
+	addModel(input: ModelCreateInput!): ModelMutationResponse!
+	editModel(input: ModelUpdateInput!): ModelMutationResponse!
+}
+
+type Part {
+	id: Int!
+	modelId: Int!
+	name: String!
+	type: PartType!
+	length: Int
+}
+
+input PartCreateInput {
+	name: String!
+	partType: PartType!
+	modelName: String!
+	length: Int
+}
+
+type PartData {
+	id: Int!
+	modelId: Int!
+	name: String!
+	type: PartType!
+	length: Int
+}
+
+input PartDeleteInput {
+	id: Int!
+}
+
+type PartResponse {
+	ok: Boolean!
+	msg: String
+	partData: PartData
+}
+
+enum PartType {
+	LED
+	FIBER
+}
+
+input PartUpdateInput {
+	id: Int!
+	name: String!
+	partType: PartType!
+	length: Int
+}
+
+scalar PosDataScalar
+
+type PositionData {
+	dancerId: Int!
+	frameId: Int!
+	x: Float!
+	y: Float!
+	z: Float!
+}
+
+type PositionFrame {
+	id: Int!
+	start: Int!
+	rev: PositionFrameRevision!
+}
+
+type PositionFrameData {
+	id: Int!
+	start: Int!
+	metaRev: Int!
+	dataRev: Int!
+}
+
+type PositionFrameRevision {
+	meta: Int!
+	data: Int!
+}
+
+type PositionMap {
+	frameIds: PositionMapScalar!
+}
+
+type PositionMapPayload {
+	editBy: Int!
+	frame: PosDataScalar!
+}
+
+scalar PositionMapScalar
+
+enum PositionRecordMutationMode {
+	CREATED_DELETED
+	UPDATED_DELETED
+	CREATED
+	UPDATED
+	DELETED
+}
+
+type PositionRecordPayload {
+	mutation: PositionRecordMutationMode!
+	editBy: Int!
+	addID: [Int!]!
+	updateID: [Int!]!
+	deleteID: [Int!]!
+	index: Int!
+}
+
+input QueryMapInput {
+	frameIds: [Int!]
+}
+
+input QueryPositionMapInput {
+	frameIds: [MapID!]!
+}
+
+type QueryRoot {
+	colorMap: ColorMap!
+	positionFrame(frameId: Int!): PositionFrameData!
+	positionFrameIDs: [Int!]!
+	PosMap(select: QueryPositionMapInput): PositionMap!
+	controlFrame(frameId: Int!): ControlFrame!
+	controlFrameIDs: [Int!]!
+	ControlMap(select: QueryMapInput): ControlMap!
+	LEDMap: LEDMap!
+	dancers: [Dancer!]!
+	dancer(dancerName: String!): Dancer!
+	models: [Model!]!
+	model(modelName: String!): Model!
+}
+
+type RequestEditResponse {
+	editing: Int
+	ok: Boolean!
+}
+
+type ShiftResponse {
+	msg: String!
+	ok: Boolean!
+}
+
+
+input StringFieldUpdateOperationsInput {
+	set: String!
+}
+
+type SubscriptionRoot {
+	colorSubscription: ColorPayload!
+	controlRecordSubscription: ControlRecordPayload!
+	controlMapSubscription: ControlMapPayload!
+	positionMapSubscription: PositionMapPayload!
+	positionRecordSubscription: PositionRecordPayload!
+	ledRecordSubscription: LEDPayload!
+	dancerSubscription: DancerPayload!
+}
+
+schema {
+	query: QueryRoot
+	mutation: MutationRoot
+	subscription: SubscriptionRoot
+}

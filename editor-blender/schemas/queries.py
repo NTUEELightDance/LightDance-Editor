@@ -192,7 +192,7 @@ class QueryPosFrame(JSONWizard):
     rev: QueryRevision
     location: list[QueryCoordinatesPayload]
     rotation: list[QueryCoordinatesPayload]
-    has_effect: list[bool]
+    has_position: list[bool]
 
 
 QueryPosMapPayload = dict[ID, QueryPosFrame]

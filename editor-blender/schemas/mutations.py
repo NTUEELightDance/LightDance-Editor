@@ -158,7 +158,7 @@ CANCEL_EDIT_POS_BY_ID = gql(
 class MutEditPositionFrameInput(JSONWizard):
     frameId: MapID
     positionData: list[list[float] | None]
-    hasEffect: list[bool]
+    hasPosition: list[bool]
 
 
 @dataclass
@@ -169,7 +169,7 @@ class MutEditPositionFrameResponse(JSONWizard):
 EDIT_POS_FRAME = gql(
     """
     mutation EditPosMap($input: EditPositionMapInput!) {
-        editPosMap(input: $input) {
+        editPositionMap(input: $input) {
             frameIds
         }
     }
@@ -184,8 +184,8 @@ class MutAddPositionFrameResponse(JSONWizard):
 
 ADD_POS_FRAME = gql(
     """
-    mutation AddPositionFrame($start: Int!, $positionData: [[Float!]!], $hasEffectData: [Boolean!]) {
-        addPositionFrame(start: $start, positionData: $positionData, hasPosition: $hasEffectData) {
+    mutation AddPositionFrame($input: AddPositionFrameInput!) {
+        addPositionFrame(input: $input) {
             id
         }
     }
@@ -301,14 +301,8 @@ EDIT_CONTROL_FRAME = gql(
 
 ADD_CONTROL_FRAME = gql(
     """
-    mutation AddControlFrame(
-        $start: Int!
-        $controlData: [[[Int!]!]!]
-        $ledControlData: [[[[Int!]!]!]!]!
-        $hasEffect: [Boolean!]
-        $fade: [Boolean!]
-    ) {
-        addControlFrame(start: $start, fade: $fade, controlData: $controlData, ledControlData: $ledControlData, hasEffect: $hasEffect, fade: $fade)
+    mutation AddControlFrame($input: AddControlFrameInput!) {
+        addControlFrame(input: $input)
     }
     """
 )
