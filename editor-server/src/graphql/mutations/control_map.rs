@@ -449,7 +449,7 @@ impl ControlMapMutation {
                                     WHERE frame_id = ? AND part_id = ? AND dancer_id = ?;
                                 "#,
                                 alpha,
-                                "COLOR",
+                                "NO_EFFECT",
                                 fade,
                                 frame_id,
                                 part.part_id,
