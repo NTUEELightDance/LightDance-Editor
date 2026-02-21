@@ -3,7 +3,7 @@ use crate::graphql::subscriptions::{
 };
 use crate::graphql::subscriptor::Subscriptor;
 use crate::graphql::types::{control_data::*, pos_data::*};
-use crate::types::global::{RedisControl, RedisPosition, UserContext};
+use crate::types::global::{RedisPosition, UserContext};
 use crate::utils::data::{
     get_redis_control, get_redis_position, update_redis_control, update_redis_position,
 };
@@ -230,7 +230,8 @@ impl FrameMutation {
                 .collect_vec();
 
             //subscription
-            let mut update_control_frames: HashMap<String, RedisControl> = HashMap::new();
+            let mut update_control_frames: HashMap<String, RedisControlSubscription> =
+                HashMap::new();
             for id in &update_control_ids {
                 let result = {
                     let update_result = update_redis_control(mysql, redis_client, *id).await;
@@ -249,7 +250,10 @@ impl FrameMutation {
                     Ok(redis_control) => redis_control,
                     Err(msg) => return Err(GQLError::new(msg)),
                 };
-                update_control_frames.insert(id.to_string(), redis_control);
+                update_control_frames.insert(
+                    id.to_string(),
+                    RedisControlSubscription::from(redis_control),
+                );
             }
 
             let control_map_payload = ControlMapPayload {

@@ -2,6 +2,7 @@
 
 // import types
 use crate::db::types::editing_control_frame::EditingControlFrameData;
+use crate::graphql::types::control_data::RedisControlSubscription;
 use crate::types::global::{PartType, UserContext};
 use crate::utils::revision::update_revision;
 
@@ -561,7 +562,10 @@ impl ControlMapMutation {
         // update redis
         update_redis_control(mysql, &clients.redis_client, frame_id).await?;
         let redis_control = get_redis_control(&clients.redis_client, frame_id).await?;
-        let update_frames = HashMap::from([(frame_id.to_string(), redis_control)]);
+        let update_frames = HashMap::from([(
+            frame_id.to_string(),
+            RedisControlSubscription::from(redis_control),
+        )]);
 
         // publish the control map
 
