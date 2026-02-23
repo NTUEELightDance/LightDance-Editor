@@ -3,6 +3,7 @@
 // import types
 use crate::db::types::control_frame::ControlFrameData;
 use crate::db::types::editing_control_frame::EditingControlFrameData;
+use crate::graphql::request_edit::RequestEditMutation;
 use crate::graphql::types::control_data::RedisControlMandatory;
 use crate::types::global::{PartType, UserContext};
 use crate::utils::revision::update_revision;
@@ -37,6 +38,7 @@ pub struct EditControlFrameInput {
 pub struct DeleteControlFrameInput {
     #[graphql(name = "frameID")]
     pub frame_id: i32,
+    pub loaded_dancers: Vec<bool>,
 }
 
 #[derive(InputObject)]
@@ -822,7 +824,10 @@ impl ControlFrameMutation {
         let mut tx = mysql.begin().await?;
 
         // get the input data
-        let frame_id = input.frame_id;
+        let DeleteControlFrameInput {
+            frame_id,
+            loaded_dancers,
+        } = input;
 
         // if the frame id is not valid, return error
         if frame_id < 0 {
@@ -885,16 +890,88 @@ impl ControlFrameMutation {
             }
         }
 
-        // after checking the possible errors, we can delete the frame
-        sqlx::query!(
-            r#"
-              DELETE FROM ControlFrame
-              WHERE id = ?;
-            "#,
-            frame_id
-        )
-        .execute(&mut *tx)
-        .await?;
+        // TODO: I think this is very ugly, should have this fixed later
+        let request = RequestEditMutation;
+        let request_result = request.request_edit_control(ctx, frame_id).await??;
+
+        if !request_result.ok {
+            return Err(Error::new(format!(
+                "Request edit failed because frame is edited by user {}",
+                request_result.editing.unwrap()
+            )));
+        }
+
+        let dancer_has_effect = {
+            let control_data = sqlx::query!(
+                r#"
+                    SELECT
+                        ControlData.type,
+                        ControlData.dancer_id
+                    FROM ControlData
+                    WHERE ControlData.frame_id = ?
+                    ORDER BY ControlData.dancer_id ASC;
+                "#,
+                frame_id
+            )
+            .fetch_all(&mut *tx)
+            .await?;
+            Vec::from_iter(
+                control_data
+                    .into_iter()
+                    .map(|data| data.r#type.as_str() != "NO_EFFECT"),
+            )
+        };
+
+        // We can directly delete the frame iff there does not exist
+        // a dancer that is loaded and is not NO_EFFECT in this frame
+        // NOTE: We can probably return when can_delete_frame is or'ed
+        // with the first true, but there is only about 10 dancers, so
+        // the performance difference can be (I think) ignored
+        // TODO: Perhaps fix this with some pretty syntax later
+        let mut can_delete_frame = false;
+        for (i, has_effect) in dancer_has_effect.iter().enumerate() {
+            can_delete_frame |= *has_effect && (!loaded_dancers[i]);
+        }
+
+        if can_delete_frame {
+            sqlx::query!(
+                r#"
+                  DELETE FROM ControlFrame
+                  WHERE id = ?;
+                "#,
+                frame_id
+            )
+            .execute(&mut *tx)
+            .await?;
+        } else {
+            let dancers_id = Vec::from_iter(
+                sqlx::query!(
+                    r#"
+                        SELECT Dancer.id FROM Dancer
+                        ORDER BY Dancer.id ASC;
+                    "#
+                )
+                .fetch_all(&mut *tx)
+                .await?
+                .into_iter()
+                .map(|data| data.id),
+            );
+
+            // We make every loaded dancer in the frame NO_EFFECT
+            for (i, loaded) in loaded_dancers.iter().enumerate() {
+                if *loaded {
+                    let _ = sqlx::query!(
+                        r#"
+                            UPDATE ControlData
+                            SET type = "NO_EFFECT"
+                            WHERE ControlData.dancer_id = ? AND ControlData.frame_id = ?;
+                        "#,
+                        dancers_id[i],
+                        frame_id,
+                    );
+                }
+            }
+        }
 
         tx.commit().await?;
 
@@ -904,10 +981,26 @@ impl ControlFrameMutation {
         // below is the code for publishing control map
 
         // create frame
+        let create_frames = HashMap::new();
+
+        let (delete_frames, update_frames) = if can_delete_frame {
+            (vec![frame_id], HashMap::new())
+        } else {
+            (
+                vec![],
+                HashMap::from([(
+                    frame_id.to_string(),
+                    RedisControlMandatory::from(
+                        get_redis_control(&clients.redis_client, frame_id).await?,
+                    ),
+                )]),
+            )
+        };
+
         let frame = ControlFramesSubDatScalar(ControlFramesSubData {
-            create_frames: HashMap::new(), // Assuming you want an empty vector for create_list
-            delete_frames: vec![frame_id],
-            update_frames: HashMap::new(), // Assuming you want an empty vector for update_list
+            create_frames,
+            delete_frames,
+            update_frames,
         });
 
         // create control map payload
@@ -922,11 +1015,17 @@ impl ControlFrameMutation {
         // below is the code for publishing control record
 
         // create control map payload
+        let (mutation, update_id, delete_id) = if can_delete_frame {
+            (ControlRecordMutationMode::Deleted, vec![], vec![frame_id])
+        } else {
+            (ControlRecordMutationMode::Updated, vec![frame_id], vec![])
+        };
+
         let control_record_payload = ControlRecordPayload {
-            mutation: ControlRecordMutationMode::Deleted,
+            mutation,
             add_id: vec![],
-            update_id: vec![],
-            delete_id: vec![frame_id],
+            update_id,
+            delete_id,
             edit_by: context.user_id,
             index: -1,
         };
