@@ -149,7 +149,6 @@ def apply_control_map_updates():
         key=lambda x: x[0],
     )
 
-    # TODO: Implement new add, update, delete so we don't need to add, update, delete all the time
     modify_animation_data, no_change_dict = control_modify_to_animation_data(
         deleted, updated, added
     )

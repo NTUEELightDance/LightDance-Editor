@@ -5,10 +5,11 @@ use async_graphql::{scalar, InputObject, SimpleObject};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// This is basically RedisControl but used for
+/// data sent to the frontend.
+/// There is no Option<T> in this struct
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RedisControlSubscription {
-    // temporarily remove fade
-    // pub fade: bool,
+pub struct RedisControlMandatory {
     pub start: i32,
     pub rev: Revision,
     pub editing: i32,
@@ -18,7 +19,7 @@ pub struct RedisControlSubscription {
     pub has_effect: Vec<bool>,
 }
 
-impl From<RedisControl> for RedisControlSubscription {
+impl From<RedisControl> for RedisControlMandatory {
     fn from(value: RedisControl) -> Self {
         Self {
             start: value.start,
@@ -46,11 +47,11 @@ impl From<RedisControl> for RedisControlSubscription {
 #[derive(InputObject, SimpleObject, Serialize, Deserialize, Default, Clone)]
 pub struct ControlFramesSubData {
     #[serde(rename = "createFrames")]
-    pub create_frames: HashMap<String, RedisControlSubscription>,
+    pub create_frames: HashMap<String, RedisControlMandatory>,
     #[serde(rename = "deleteFrames")]
     pub delete_frames: Vec<i32>,
     #[serde(rename = "updateFrames")]
-    pub update_frames: HashMap<String, RedisControlSubscription>,
+    pub update_frames: HashMap<String, RedisControlMandatory>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Default)]

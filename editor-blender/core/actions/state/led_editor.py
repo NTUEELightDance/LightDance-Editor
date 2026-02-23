@@ -32,6 +32,15 @@ async def add_led_effect():
 
 async def request_edit_led_effect():
     led_index = state.current_led_index
+
+    ld_ui_led_editor: LEDEditorStatusType = getattr(
+        bpy.context.window_manager, "ld_ui_led_editor"
+    )
+    print(ld_ui_led_editor.edit_effect)
+    if not ld_ui_led_editor.edit_effect or ld_ui_led_editor.edit_effect == "NONE":
+        notify("WARNING", "LED Effect to edit is not chosen")
+        return
+
     with send_request():
         ok = await led_agent.request_edit(led_index)
     if ok is not None and ok:

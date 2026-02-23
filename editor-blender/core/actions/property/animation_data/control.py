@@ -34,6 +34,9 @@ from ....utils.convert import (
 from ....utils.notification import notify
 from .utils import ensure_action, ensure_curve, get_keyframe_points
 
+# Insert a default keyframe here
+default_keyframe_start = -1
+
 
 def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
     if not bpy.context:
@@ -342,6 +345,10 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
                         list[tuple[int, bool, tuple[float, float, float]]],
                         animation_data[dancer_name][part_name][position],
                     )
+
+                    default_frame = (default_keyframe_start, False, (0.0, 0.0, 0.0))
+                    frames.insert(0, default_frame)
+
                     init_ctrl_single_object_action(action, frames)
 
             else:
@@ -351,6 +358,10 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
                     list[tuple[int, bool, tuple[float, float, float]]],
                     animation_data[dancer_name][part_name],
                 )
+
+                default_frame = (default_keyframe_start, False, (0.0, 0.0, 0.0))
+                frames.insert(0, default_frame)
+
                 init_ctrl_single_object_action(action, frames)
 
     reset_ctrl_rev(sorted_ctrl_map)

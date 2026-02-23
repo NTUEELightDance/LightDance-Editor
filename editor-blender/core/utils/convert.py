@@ -812,12 +812,14 @@ def _seek_no_change_data(start, dancer_name, part_name) -> list[int]:
             part_name
         ]
         if check_status is None:
+            right_index += 1
             continue
         elif isinstance(check_status.part_data, FiberData):
             raise Exception(f"This function should not input FiberData of {part_name}")
         elif check_status.part_data.effect_id == -1:
             no_change_start_list.append(state.control_start_record[right_index])
             right_index += 1
+            continue
         else:
             break
     return no_change_start_list

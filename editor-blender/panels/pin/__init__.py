@@ -28,10 +28,7 @@ class PinPanel(bpy.types.Panel):
         col = box.column(align=True)
 
         row = col.row(align=True)
-        if state.editor == Editor.CONTROL_EDITOR:
-            row.label(text="Pinned Parts")
-        elif state.editor == Editor.POS_EDITOR:
-            row.label(text="Pinned Dancers")
+        row.label(text="Pinned Dancers")
 
         for i, object in enumerate(state.pinned_objects):
             row = col.row()

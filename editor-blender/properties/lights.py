@@ -16,6 +16,19 @@ from ..icons import icon_collections
 from .types import ColorPaletteItemType, LightType, ObjectType
 
 
+def sort_considering_order(name: str):
+    if not name:
+        return name
+
+    initial_index = len(name) - 1
+    while initial_index >= 0 and name[initial_index:].isnumeric():
+        initial_index -= 1
+    if initial_index == -1 or initial_index == len(name) - 1:
+        return name
+    else:
+        return name[0 : initial_index + 1] + f"{int(name[initial_index + 1:]):09}"
+
+
 def get_color_lists(
     self: bpy.types.Object, context: bpy.types.Context | None
 ) -> list[tuple[str, str, str, int, int]]:
@@ -40,7 +53,7 @@ def get_color_lists(
             )
             for color in ld_color_palette
         ]
-        color_list.sort(key=lambda x: x[1])
+        color_list.sort(key=lambda x: sort_considering_order(x[1]))
 
         if getattr(self, "ld_light_type") == LightType.LED_BULB.value:
             color_list.insert(0, ("[gradient]", "[gradient]", "", "MOD_ARRAY", -1))  # type: ignore
@@ -62,7 +75,7 @@ def get_effect_lists(
             (effect.name, effect.name, "", "", effect.id)
             for effect in state.led_map[ld_model_name][ld_part_name].values()
         ]
-        effect_lists.sort(key=lambda x: x[1])
+        effect_lists.sort(key=lambda x: sort_considering_order(x[1]))
 
         effect_lists.insert(0, ("[Bulb Color]", "[Bulb Color]", "", "", 0))
         effect_lists.insert(0, ("no-change", "no-change", "", "", -1))
@@ -136,18 +149,25 @@ def update_fade(self: bpy.types.Object, context: bpy.types.Context) -> None:
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
 
+    ld_object_type = getattr(self, "ld_object_type")
+    if ld_object_type != ObjectType.LIGHT.value:
+        return
+
     ld_dancer_name: str = getattr(self, "ld_dancer_name")
     this_part_name: str = getattr(self, "ld_part_name")
 
     this_fade: bool = getattr(self, "ld_fade")
     part_map = state.dancer_part_objects_map[ld_dancer_name][1]
-    for part_name, part_obj in part_map.items():
-        if part_name == this_part_name:
-            continue
 
-        other_fade = getattr(part_obj, "ld_fade")
-        if other_fade != this_fade:
-            setattr(part_obj, "ld_fade", this_fade)
+    dancer_obj = getattr(self, "parent")
+    dancer_obj_fade = getattr(dancer_obj, "ld_fade")
+    if dancer_obj_fade != this_fade:
+        setattr(dancer_obj, "ld_fade", this_fade)
+
+        for part_obj in dancer_obj.children:
+            other_fade = getattr(part_obj, "ld_fade")
+            if other_fade != this_fade:
+                setattr(part_obj, "ld_fade", this_fade)
 
 
 def register():
@@ -298,7 +318,6 @@ def register():
             name="Allow Override",
             description="Allow prev color/ prev alpha/ prev effect override color/ alpha/ effect when gain effect",
             default=False,
-            update=update_fade,
         ),
     )
 

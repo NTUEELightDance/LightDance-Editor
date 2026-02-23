@@ -146,7 +146,7 @@ def copy_ctrl_data_from_state(
 
         ctrl_data = ctrl_part_dict[part.name]
         if ctrl_data is None:
-            partControlData.append((0, 0))  # Placeholder
+            partControlData.append((-1, 0))  # Placeholder
             partLEDControlData.append([])
             continue
 
@@ -170,7 +170,6 @@ def copy_ctrl_data_from_state(
                 partLEDControlData.append(bulb_color_list)
             else:
                 partLEDControlData.append([])
-
     return partControlData, partLEDControlData
 
 
@@ -200,7 +199,7 @@ def take_ctrl_data_from_model(
 
             is_no_status = getattr(part_obj, "ld_no_status")
             if is_no_status:
-                partControlData.append((0, 0))  # Placeholder only
+                partControlData.append((-1, 0))  # Placeholder only
                 partLEDControlData.append([])
                 continue
 
@@ -269,8 +268,11 @@ async def save_control_frame(start: int | None = None):
                 dancer, id, default_color
             )
         else:
-            part_objs: list[bpy.types.Object] = getattr(obj, "children")
+            part_objs: list[bpy.types.Object] = list(
+                state.dancer_part_objects_map[dancer.name][1].values()
+            )
             first_part_obj = part_objs[0]
+
             noEffectPartData = getattr(first_part_obj, "ld_no_status")
             hasEffectPartData = not noEffectPartData
             hasEffectData.append(hasEffectPartData)
@@ -286,6 +288,7 @@ async def save_control_frame(start: int | None = None):
 
     with send_request():
         try:
+            print(controlData, ledControlData, fadeData, hasEffectData, start)
             await control_agent.save_frame(
                 id,
                 controlData,

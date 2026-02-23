@@ -41,6 +41,7 @@ LED:
 def update_current_color(self: bpy.types.Object, context: bpy.types.Context):
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
+    # print(self["ld_color"], "color")
 
     ld_light_type = getattr(self, "ld_light_type")
     ld_no_status = getattr(self, "ld_no_status")
@@ -73,6 +74,7 @@ def update_current_color(self: bpy.types.Object, context: bpy.types.Context):
 def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
+    # print(self["ld_effect"], "effect")
 
     ld_light_type = getattr(self, "ld_light_type")
     ld_no_status = getattr(self, "ld_no_status")
@@ -138,6 +140,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
+    # print(self["ld_alpha"], "alpha")
 
     ld_light_type = getattr(self, "ld_light_type")
     ld_no_status = getattr(self, "ld_no_status")
@@ -279,29 +282,26 @@ def update_current_is_no_effect(self: bpy.types.Object, context: bpy.types.Conte
 
     if state.edit_state != EditMode.EDITING or state.current_editing_detached:
         return
+    # print(self["ld_no_status"], "no status")
+
+    ld_object_type = getattr(self, "ld_object_type")
+    if ld_object_type != ObjectType.LIGHT.value:
+        return
 
     ld_dancer_name: str = getattr(self, "ld_dancer_name")
     this_part_name: str = getattr(self, "ld_part_name")
 
     this_is_none: bool = getattr(self, "ld_no_status")
-    dancer_obj = state.dancer_part_objects_map[ld_dancer_name][0]
-    part_map = state.dancer_part_objects_map[ld_dancer_name][1]
+    dancer_obj = getattr(self, "parent")
 
     dancer_obj_is_none = getattr(dancer_obj, "ld_no_status")
     if dancer_obj_is_none != this_is_none:
         setattr(dancer_obj, "ld_no_status", this_is_none)
 
-        for part_name, part_obj in part_map.items():
-            if part_name == this_part_name:
-                continue
-
+        for part_obj in dancer_obj.children:
             other_is_none = getattr(part_obj, "ld_no_status")
             if other_is_none != this_is_none:
                 setattr(part_obj, "ld_no_status", this_is_none)
-
-    ld_object_type = getattr(self, "ld_object_type")
-    if ld_object_type != ObjectType.LIGHT.value:
-        return
 
     ld_has_status: bool = not getattr(self, "ld_no_status")
     if ld_has_status:
@@ -329,36 +329,6 @@ def update_current_is_no_effect(self: bpy.types.Object, context: bpy.types.Conte
         _update_interpolate_color(ld_dancer_name, this_part_name, self)
 
     setattr(self, "ld_allow_override_from_prev", True)
-
-    # ld_dancer_name: str = getattr(self, "ld_dancer_name")
-    # ld_part_name: str = getattr(self, "ld_part_name")
-
-    # control_index = state.editing_data.index
-    # current_start = state.control_start_record[control_index]
-
-    # (prev_color_float, prev_fade, prev_start) = _get_prev_ctrl_data(
-    #     control_index, ld_dancer_name, ld_part_name
-    # )
-    # if prev_color_float is not None and not prev_fade:
-    #     _set_current_floats(self, prev_color_float)
-    #     return
-
-    # (next_color_float, next_start) = _get_next_ctrl_data(
-    #     control_index, ld_dancer_name, ld_part_name, prev_color_float
-    # )
-    # if next_color_float is None:
-    #     if prev_color_float is None:
-    #         _set_current_floats(self, _default_float(ld_part_name))
-    #     else:
-    #         _set_current_floats(self, prev_color_float)
-    # elif prev_color_float is None:
-    #     _set_current_floats(self, next_color_float)
-    # else:
-    #     starts = prev_start, current_start, next_start
-    #     interpolated_float = _interpolate_floats(
-    #         prev_color_float, next_color_float, starts
-    #     )
-    #     _set_current_floats(self, interpolated_float)
 
 
 def update_prev_attr(self: bpy.types.Object, context: bpy.types.Context):

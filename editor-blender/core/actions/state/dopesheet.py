@@ -38,6 +38,12 @@ def get_effective_name(name: str) -> str:
     return name
 
 
+def index_to_string(index: int) -> str:
+    if index < 10:
+        return f"0{index}"
+    return str(index)
+
+
 def delete_obj(obj_name: str):
     obj = bpy.data.objects.get(obj_name)
 
@@ -231,7 +237,7 @@ def get_filtered_index_for_second_timeline(
 
 def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
     current_obj = bpy.data.objects.get(current_obj_name)
-    old_obj = bpy.data.objects.get(f"[1]selected_{old_selected_obj_name}")
+    old_obj = bpy.data.objects.get(f"[01]selected_{old_selected_obj_name}")
 
     if current_obj:
         dancer_name = getattr(current_obj, "ld_dancer_name")
@@ -242,7 +248,7 @@ def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
 
         if not old_obj:
             add_obj(
-                f"[1]selected_{current_obj_name}",
+                f"[01]selected_{current_obj_name}",
                 f"selected_{current_obj_name}Action",
                 "CONTROL",
                 "ld_fade_seq",
@@ -258,9 +264,7 @@ def reset_selected_ctrl_data(current_obj_name: str, old_selected_obj_name: str):
             )
 
             action.name = f"selected_{current_obj_name}Action"
-            old_obj.name = f"[1]selected_{current_obj_name}"
-
-        overall = state.fade_load_frames["Overall"]
+            old_obj.name = f"[01]selected_{current_obj_name}"
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     set_dopesheet_filter(f"fade_seq")
@@ -274,10 +278,10 @@ def reset_overall_ctrl_data():
         [seq for seq in state.fade_sequence_map["Overall"].values()], key=lambda x: x[0]
     )
 
-    first_obj = bpy.data.objects.get("[0]control_frame")
+    first_obj = bpy.data.objects.get("[00]control_frame")
     if not first_obj:
         add_obj(
-            "[0]control_frame",
+            "[00]control_frame",
             "control_frameAction",
             "CONTROL",
             "ld_fade_seq",
@@ -290,7 +294,7 @@ def reset_overall_ctrl_data():
 
 
 def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
-    old_obj = bpy.data.objects.get(f"[1]selected_{old_selected_obj_name}")
+    old_obj = bpy.data.objects.get(f"[01]selected_{old_selected_obj_name}")
     current_obj = bpy.data.objects.get(current_obj_name)
     if current_obj:
         dancer_name = getattr(current_obj, "ld_dancer_name")
@@ -301,7 +305,7 @@ def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
 
         if not old_obj:
             add_obj(
-                f"[1]selected_{current_obj_name}",
+                f"[01]selected_{current_obj_name}",
                 f"selected_{current_obj_name}Action",
                 "POS",
                 "ld_pos_seq",
@@ -317,7 +321,7 @@ def reset_selected_pos_data(current_obj_name: str, old_selected_obj_name: str):
             )
 
             action.name = f"selected_{current_obj_name}Action"
-            old_obj.name = f"[1]selected_{current_obj_name}"
+            old_obj.name = f"[01]selected_{current_obj_name}"
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
     set_dopesheet_filter(f"pos_seq")
@@ -331,10 +335,10 @@ def reset_overall_pos_data():
         [seq for seq in state.pos_sequence_map["Overall"].values()], key=lambda x: x[0]
     )
 
-    first_obj = bpy.data.objects.get("[0]pos_frame")
+    first_obj = bpy.data.objects.get("[00]pos_frame")
     if not first_obj:
         add_obj(
-            "[0]pos_frame",
+            "[00]pos_frame",
             "pos_frameAction",
             "POS",
             "ld_pos_seq",
@@ -352,7 +356,7 @@ def add_pinned_ctrl_data(
     index: int,
 ):
     if add_blank:
-        add_obj("[2]blank", "blankAction", "CONTROL", "ld_fade_seq", [])
+        add_obj("[02]blank", "blankAction", "CONTROL", "ld_fade_seq", [])
 
     dancer_obj = bpy.data.objects.get(obj_name)
 
@@ -363,8 +367,9 @@ def add_pinned_ctrl_data(
             key=lambda x: x[0],
         )
 
+        index_string = index_to_string(3 + index)
         add_obj(
-            f"[{3 + index}]pinned_{dancer_name}",
+            f"[{index_string}]pinned_{dancer_name}",
             f"pinned_{dancer_name}Action",
             "CONTROL",
             "ld_fade_seq",
@@ -378,7 +383,7 @@ def add_pinned_pos_data(
     index: int,
 ):
     if add_blank:
-        add_obj("[2]blank", "blankAction", "POS", "ld_pos_seq", [])
+        add_obj("[02]blank", "blankAction", "POS", "ld_pos_seq", [])
 
     dancer_obj = bpy.data.objects.get(obj_name)
 
@@ -389,8 +394,9 @@ def add_pinned_pos_data(
             key=lambda x: x[0],
         )
 
+        index_string = index_to_string(3 + index)
         add_obj(
-            f"[{3 + index}]pinned_{dancer_name}",
+            f"[{index_string}]pinned_{dancer_name}",
             f"pinned_{dancer_name}Action",
             "POS",
             "ld_pos_seq",
@@ -442,18 +448,21 @@ def handle_delete_pinned_object(index: int):
     is_deleted = False
     for i, obj_name in enumerate(state.pinned_objects):
         if i == index:
-            delete_obj(f"[{3 + i}]pinned_{obj_name}")
+            string_index = index_to_string(3 + i)
+            delete_obj(f"[{string_index}]pinned_{obj_name}")
             is_deleted = True
 
         elif is_deleted:
-            obj = bpy.data.objects.get(f"[{3 + i}]pinned_{obj_name}")
+            old_string_index = index_to_string(3 + i)
+            obj = bpy.data.objects.get(f"[{old_string_index}]pinned_{obj_name}")
             if obj:
-                obj.name = f"[{2 + i}]pinned_{obj_name}"
+                new_string_index = index_to_string(2 + i)
+                obj.name = f"[{new_string_index}]pinned_{obj_name}"
 
     state.pinned_objects.pop(index)
 
     if not state.pinned_objects:
-        delete_obj("[2]blank")
+        delete_obj("[02]blank")
 
     set_dopesheet_collapse_all(True)
     return
@@ -480,10 +489,14 @@ def pin_all_dancers():
 
 
 def reset_pinned_object():
+    if not state.pinned_objects:
+        return
+
     for i, obj_name in enumerate(state.pinned_objects):
-        obj = bpy.data.objects.get(f"[{3+i}]pinned_{obj_name}")
+        string_index = index_to_string(3 + i)
+        obj = bpy.data.objects.get(f"[{string_index}]pinned_{obj_name}")
         if obj:
-            action = ensure_action(obj, f"[{3+i}]pinned_{obj_name}Action")
+            action = ensure_action(obj, f"[{string_index}]pinned_{obj_name}Action")
 
             if state.editor == Editor.CONTROL_EDITOR:
                 fade_seq = sorted(
@@ -501,17 +514,18 @@ def reset_pinned_object():
 
 
 def clear_pinned_timeline():
-    delete_obj("[2]blank")
+    delete_obj("[02]blank")
     for i, obj_name in enumerate(state.pinned_objects):
-        delete_obj(f"[{3 + i}]pinned_{obj_name}")
+        string_index = index_to_string(3 + i)
+        delete_obj(f"[{string_index}]pinned_{obj_name}")
     state.pinned_objects = []
 
 
 def clear_timeline(old_selected_obj_name: str):
-    deselect_obj = bpy.data.objects.get(f"[1]selected_{old_selected_obj_name}")
+    deselect_obj = bpy.data.objects.get(f"[01]selected_{old_selected_obj_name}")
     if deselect_obj:
         action = ensure_action(
-            deselect_obj, f"[1]selected_{old_selected_obj_name}Action"
+            deselect_obj, f"[01]selected_{old_selected_obj_name}Action"
         )
 
         if state.editor == Editor.CONTROL_EDITOR:
@@ -520,8 +534,8 @@ def clear_timeline(old_selected_obj_name: str):
         elif state.editor == Editor.POS_EDITOR:
             delete_curve(action, "ld_pos_seq")
 
-        action.name = f"[1]selected_Action"
-        deselect_obj.name = f"[1]selected_"
+        action.name = f"[01]selected_Action"
+        deselect_obj.name = f"[01]selected_"
 
     set_dopesheet_collapse_all(True)
 
@@ -799,7 +813,7 @@ def update_fade_seq(
     fade_seq_map = state.fade_sequence_map
 
     for _, id, frame in updated:
-        notify("INFO", f"{frame}")
+        # notify("INFO", f"{frame}")
         for name, fade_seq in fade_seq_map.items():
             if name == "Overall":
                 fade_seq[id] = get_overall_fade_seq_for_frame(frame)
