@@ -12,7 +12,7 @@ use itertools::Itertools;
 
 use crate::global;
 
-const VERSION: [u8; 2] = [1, 1];
+const VERSION: [u8; 2] = [1, 2];
 const TOTAL_OF_NUM: usize = 40;
 const TOTAL_STRIP_NUM: usize = 8;
 
@@ -20,8 +20,11 @@ pub async fn control_dat(
     query: Json<GetControlDatQuery>,
 ) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
     let mut response: Vec<u8> = Vec::new();
+    let mut checksum: u32 = 0;
+
     for v in VERSION {
         response.push(v);
+        checksum = checksum.wrapping_add(v as u32);
     }
 
     let GetControlDatQuery {
@@ -39,11 +42,14 @@ pub async fn control_dat(
     let of_parts_filter: HashSet<i32> = HashSet::from_iter(of_parts.iter().map(|(_, id)| *id));
 
     for i in 0..TOTAL_OF_NUM {
-        if of_parts_filter.contains(&(i as i32)) {
-            response.push(1);
+        let of_present: u8 = if of_parts_filter.contains(&(i as i32)) {
+            1
         } else {
-            response.push(0);
-        }
+            0
+        };
+
+        response.push(of_present);
+        checksum = checksum.wrapping_add(of_present as u32);
     }
 
     // (id, len)
@@ -51,7 +57,10 @@ pub async fn control_dat(
         BTreeMap::from_iter(led_parts.iter().map(|(_, part)| (part.id, part.len as u8)));
 
     for i in 0..TOTAL_STRIP_NUM {
-        response.push(*led_parts.get(&(i as i32)).unwrap_or(&0));
+        let led_part_length = *led_parts.get(&(i as i32)).unwrap_or(&0);
+
+        response.push(led_part_length);
+        checksum = checksum.wrapping_add(led_part_length as u32);
     }
 
     let clients = global::clients::get();
@@ -97,10 +106,14 @@ pub async fn control_dat(
         .into_result()?;
 
     write_little_endian(&frame_num, &mut response);
+    checksum = checksum.wrapping_add(frame_num);
 
     frame_start_times.iter().for_each(|f| {
         write_little_endian(&(*f as u32), &mut response);
+        checksum = checksum.wrapping_add(*f as u32);
     });
+
+    write_little_endian(&checksum, &mut response);
 
     let mut headers = HeaderMap::new();
     headers.insert(
