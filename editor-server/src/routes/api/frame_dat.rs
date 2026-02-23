@@ -17,7 +17,7 @@ use super::{
 type Color = [i32; 3];
 type LEDStatus = [i32; 4];
 
-const VERSION: [u8; 2] = [1, 1];
+const VERSION: [u8; 2] = [1, 2];
 const DEFAULT_COLOR: Color = [0, 0, 0];
 
 #[derive(Debug, Default)]
