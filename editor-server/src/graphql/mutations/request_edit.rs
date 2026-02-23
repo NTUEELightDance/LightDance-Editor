@@ -20,7 +20,7 @@ pub struct RequestEditMutation;
 #[Object]
 impl RequestEditMutation {
     #[graphql(name = "RequestEditControl")]
-    async fn request_edit_control(
+    pub async fn request_edit_control(
         &self,
         ctx: &Context<'_>,
         #[graphql(name = "FrameID")] frame_id: i32,
@@ -93,7 +93,7 @@ impl RequestEditMutation {
         }
     }
     #[graphql(name = "RequestEditPosition")]
-    async fn request_edit_position(
+    pub async fn request_edit_position(
         &self,
         ctx: &Context<'_>,
         #[graphql(name = "FrameID")] frame_id: i32,

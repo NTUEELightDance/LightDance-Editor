@@ -4,6 +4,7 @@ use crate::db::types::{
     dancer::DancerData, editing_position_frame::EditingPositionFrameData,
     position_frame::PositionFrameData,
 };
+use crate::graphql::mutations::request_edit::RequestEditMutation;
 use crate::graphql::position_record::{PositionRecordMutationMode, PositionRecordPayload};
 use crate::graphql::subscriptions::position_map::PositionMapPayload;
 use crate::graphql::subscriptor::Subscriptor;
@@ -13,7 +14,7 @@ use crate::types::global::{RedisPosition, Revision, UserContext};
 use crate::utils::data::{delete_redis_position, get_redis_position, update_redis_position};
 use crate::utils::revision::update_revision;
 
-use async_graphql::{Context, InputObject, Object, Result as GQLResult};
+use async_graphql::{Context, Error, InputObject, Object, Result as GQLResult};
 use std::collections::HashMap;
 
 #[derive(InputObject, Default)]
@@ -26,6 +27,7 @@ pub struct EditPositionFrameInput {
 pub struct DeletePositionFrameInput {
     #[graphql(name = "frameID")]
     pub frame_id: i32,
+    pub loaded_dancers: Vec<bool>,
 }
 
 #[derive(InputObject)]
@@ -466,6 +468,11 @@ impl PositionFrameMutation {
 
         tracing::info!("Mutation: deletePositionFrame");
 
+        let DeletePositionFrameInput {
+            frame_id,
+            loaded_dancers,
+        } = input;
+
         let mut tx = mysql.begin().await?;
 
         let frame_to_delete = sqlx::query_as!(
@@ -474,7 +481,7 @@ impl PositionFrameMutation {
                 SELECT * FROM EditingPositionFrame
                 WHERE frame_id = ?;
             "#,
-            input.frame_id
+            frame_id
         )
         .fetch_optional(&mut *tx)
         .await?;
@@ -502,48 +509,145 @@ impl PositionFrameMutation {
             return Err("frame id not found".to_string().into());
         }
 
-        let _ = sqlx::query_as!(
-            PositionFrameData,
-            r#"
+        // TODO: I think this is very ugly, should have this fixed later
+        let request = RequestEditMutation;
+        let request_result = request.request_edit_position(ctx, frame_id).await??;
+
+        if !request_result.ok {
+            return Err(Error::new(format!(
+                "Request edit failed because frame is edited by user {}",
+                request_result.editing.unwrap()
+            )));
+        }
+
+        let dancer_has_effect = {
+            let control_data = sqlx::query!(
+                r#"
+                    SELECT
+                        PositionData.type,
+                        PositionData.dancer_id
+                    FROM PositionData
+                    WHERE PositionData.frame_id = ?
+                    ORDER BY PositionData.dancer_id ASC;
+                "#,
+                frame_id
+            )
+            .fetch_all(&mut *tx)
+            .await?;
+            Vec::from_iter(
+                control_data
+                    .into_iter()
+                    .map(|data| data.r#type.as_str() != "NO_EFFECT"),
+            )
+        };
+
+        // We can directly delete the frame iff there does not exist
+        // a dancer that is loaded and is not NO_EFFECT in this frame
+        // NOTE: We can probably return when can_delete_frame is or'ed
+        // with the first true, but there is only about 10 dancers, so
+        // the performance difference can be (I think) ignored
+        // TODO: Perhaps fix this with some pretty syntax later
+        let mut can_delete_frame = false;
+        for (i, has_effect) in dancer_has_effect.iter().enumerate() {
+            can_delete_frame |= *has_effect && (!loaded_dancers[i]);
+        }
+
+        if can_delete_frame {
+            let _ = sqlx::query_as!(
+                PositionFrameData,
+                r#"
                 DELETE FROM PositionFrame
                 WHERE id = ?;
             "#,
-            input.frame_id
-        )
-        .execute(&mut *tx)
-        .await?;
+                input.frame_id
+            )
+            .execute(&mut *tx)
+            .await?;
 
-        let _ = sqlx::query_as!(
-            EditingPositionFrameData,
-            r#"
+            let _ = sqlx::query_as!(
+                EditingPositionFrameData,
+                r#"
                 UPDATE EditingPositionFrame
                 SET frame_id = NULL
                 WHERE user_id = ?;
             "#,
-            context.user_id
-        )
-        .execute(&mut *tx)
-        .await?;
+                context.user_id
+            )
+            .execute(&mut *tx)
+            .await?;
+        } else {
+            let dancers_id = Vec::from_iter(
+                sqlx::query!(
+                    r#"
+                        SELECT Dancer.id FROM Dancer
+                        ORDER BY Dancer.id ASC;
+                    "#
+                )
+                .fetch_all(&mut *tx)
+                .await?
+                .into_iter()
+                .map(|data| data.id),
+            );
+
+            // We make every loaded dancer in the frame NO_EFFECT
+            for (i, loaded) in loaded_dancers.iter().enumerate() {
+                if *loaded {
+                    let _ = sqlx::query!(
+                        r#"
+                            UPDATE PositionData
+                            SET type = "NO_EFFECT"
+                            WHERE PositionData.dancer_id = ? AND PositionData.frame_id = ?;
+                        "#,
+                        dancers_id[i],
+                        frame_id,
+                    );
+                }
+            }
+        }
 
         tx.commit().await?;
+
+        let (delete_frames, update_frames) = if can_delete_frame {
+            (vec![frame_id.to_string()], HashMap::new())
+        } else {
+            (
+                vec![],
+                HashMap::from([(
+                    frame_id.to_string(),
+                    get_redis_position(redis, frame_id).await?,
+                )]),
+            )
+        };
 
         // subscription
         let map_payload = PositionMapPayload {
             edit_by: context.user_id,
             frame: PosDataScalar(FrameData {
                 create_frames: HashMap::new(),
-                delete_frames: vec![input.frame_id.to_string()],
-                update_frames: HashMap::new(),
+                delete_frames,
+                update_frames,
             }),
         };
-        delete_redis_position(redis, input.frame_id).await?;
+
+        if can_delete_frame {
+            delete_redis_position(redis, frame_id).await?;
+        } else {
+            update_redis_position(mysql, redis, frame_id).await?;
+        }
+
         Subscriptor::publish(map_payload);
 
+        let (mutation, update_id, delete_id) = if can_delete_frame {
+            (PositionRecordMutationMode::Deleted, vec![], vec![frame_id])
+        } else {
+            (PositionRecordMutationMode::Updated, vec![frame_id], vec![])
+        };
+
         let record_payload = PositionRecordPayload {
-            mutation: PositionRecordMutationMode::Deleted,
+            mutation,
             add_id: vec![],
-            update_id: vec![],
-            delete_id: vec![input.frame_id],
+            update_id,
+            delete_id,
             edit_by: context.user_id,
             index: -1,
         };
