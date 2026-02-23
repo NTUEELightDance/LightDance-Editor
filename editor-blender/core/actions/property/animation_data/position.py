@@ -24,7 +24,7 @@ from .utils import (
     get_keyframe_points,
 )
 
-# if state.pos_map is empty, insert a default keyframe here
+# Insert a default keyframe here
 default_keyframe_start = -1
 
 

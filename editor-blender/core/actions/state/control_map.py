@@ -1,3 +1,5 @@
+import bpy
+
 from ...log import logger
 from ...models import (
     ControlMap_MODIFIED,
@@ -16,6 +18,7 @@ from ..property.animation_data import (
     reset_ctrl_rev,
 )
 from .current_status import calculate_current_status_index
+from .dopesheet import update_fade_seq
 
 
 def set_control_map(control_map: ControlMap_MODIFIED):
@@ -146,9 +149,10 @@ def apply_control_map_updates():
         key=lambda x: x[0],
     )
 
-    # TODO: Implement new add, update, delete so we don't need to add, update, delete all the time
-    modify_animation_data = control_modify_to_animation_data(deleted, updated, added)
-    modify_partial_ctrl_keyframes(modify_animation_data)
+    modify_animation_data, no_change_dict = control_modify_to_animation_data(
+        deleted, updated, added
+    )
+    modify_partial_ctrl_keyframes(modify_animation_data, no_change_dict)
 
     # Update control map
     for id, frame in added:
@@ -173,30 +177,16 @@ def apply_control_map_updates():
     state.current_control_index = calculate_current_status_index()
     state.control_map_pending = False
 
+    # Update fade sequence
+    update_fade_seq(updated, added, deleted)
+
     control_map_updates.added.clear()
     control_map_updates.updated.clear()
     control_map_updates.deleted.clear()
 
-    # WARNING: This i buggy, use reset instead
-    # sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
-    # fade_seq = [(frame.start, frame.fade) for _, frame in sorted_ctrl_map]
-    #
-    # delete_frames = [frame[0] for frame in control_delete]
-    # update_frames = [(frame[0], frame[2].start) for frame in control_update]
-    # add_frames = [frame[1].start for frame in control_add]
-    # update_control_frames_and_fade_sequence(
-    #     delete_frames, update_frames, add_frames, fade_seq
-    # )
     sorted_ctrl_map = sorted(
         state.control_map_MODIFIED.items(), key=lambda item: item[1].start
     )
-    # filtered_ctrl_map = [
-    #     ctrl_item
-    #     for ctrl_item in sorted_ctrl_map
-    #     if ctrl_item[0] not in state.not_loaded_control_frames
-    # ]
-    # fade_seq = [(frame.start, frame.fade) for _, frame in filtered_ctrl_map]
-    # reset_control_frames_and_fade_sequence(fade_seq)
     reset_ctrl_rev(sorted_ctrl_map)
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

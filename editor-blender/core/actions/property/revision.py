@@ -142,10 +142,10 @@ def update_rev_changes(
     control_add.sort(key=lambda x: x[1].start)
     control_delete.sort(key=lambda x: x[0])
 
-    modify_animation_data = control_modify_to_animation_data(
+    modify_animation_data, no_change_dict = control_modify_to_animation_data(
         control_delete, control_update, control_add
     )
-    modify_partial_ctrl_keyframes(modify_animation_data, dancers_reset)
+    modify_partial_ctrl_keyframes(modify_animation_data, no_change_dict, dancers_reset)
 
     sorted_ctrl_map = sorted(
         incoming_control_map.items(), key=lambda item: item[1].start

@@ -344,6 +344,19 @@ class LEDMapPending:
     update: bool
 
 
+class KeyframeType(Enum):
+    NORMAL = 0
+    GENERATED = 1
+    BREAKDOWN = 2
+
+
+Fade = bool
+FadeSequence = dict[MapID, tuple[Time, Fade, KeyframeType]]
+PosSequence = dict[MapID, tuple[Time, KeyframeType]]
+FadeSequenceMap = dict[DancerName, FadeSequence]
+PosSequenceMap = dict[DancerName, PosSequence]
+
+
 @dataclass
 class InterfaceStatus:
     name: str
@@ -508,6 +521,11 @@ class State:
     led_map_pending: LEDMapPending
 
     dancer_part_objects_map: DancerPartObjectsMap
+
+    fade_sequence_map: FadeSequenceMap
+    pos_sequence_map: PosSequenceMap
+    fade_load_frames: dict[DancerName, tuple[Time, Time]]
+    pos_load_frames: dict[DancerName, tuple[Time, Time]]
 
     music_beats: list[int]
     scene_start_point: list[int]

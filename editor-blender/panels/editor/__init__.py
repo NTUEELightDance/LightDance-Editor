@@ -20,6 +20,9 @@ class EditorPanel(bpy.types.Panel):
         return state.ready and state.sync
 
     def draw(self, context: bpy.types.Context | None):
+        if not context:
+            return
+
         layout = self.layout
         layout.enabled = not state.shifting and not state.requesting
 
@@ -70,12 +73,6 @@ class EditorPanel(bpy.types.Panel):
             row.operator("lightdance.add", text="Add", icon="ADD")
             row.operator("lightdance.request_edit", text="Edit", icon="GREASEPENCIL")
             row.operator("lightdance.delete", text="Delete", icon="X")
-
-        obj = None
-        if bpy.context.selected_objects:
-            obj = bpy.context.selected_objects[0]
-        if obj or state.current_selected_obj_name:
-            register_handle_timeline(obj)
 
 
 def register():

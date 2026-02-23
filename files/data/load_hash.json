@@ -1,7 +1,7 @@
 {
-  "Beat": "384d4006f8fc7710b27c913f4fc9ce295bd84169cab1b30cad422fec14195a20",
-  "Music": "3f921ac93fb0028dc7c0aa6b8e61c3526f5a1c5d9ff5e0255871edb5863532d5",
-  "Waveform": "23fcbb2242f8eaaf6f2070a1e62de46a539f70cab488a35be509f9a73984441d",
+  "Beat": "d4de03e5cc5bd1f0a637b647424061b9770732cb62cea8272bb9c466cf490fd7",
+  "Music": "c3c285cf46b926990e3bffa1e29937b5c777fd334d2be7b4b8760fe3a3be347e",
+  "Waveform": "b5c144b66894df18b0f0915adc1aa6e7da8839fcfc4edcd9321608d7e79c45fc",
   "DancerMap": {
     "0_liao": {
       "url": "e8edd76c24c1817273b564f25a74514f6d8332236bdf1dd38c20976b410779b5"
@@ -42,40 +42,46 @@
     "12_coffin": {
       "url": "0e2a60d2dd2a6792e1bdafa2f0e4deb413dd77ee28600a896df261f01bed201b"
     },
-    "13_altar1tmp": {
-      "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
+    "13_altar_top1": {
+      "url": "d77166569a1bf94a5ab81701ef17baf8013ef2bc279d5fa198fd143b9b9bdea6"
     },
-    "14_altar2tmp": {
-      "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
+    "14_altar_bottom1": {
+      "url": "d37689743e2c3916b65d949864cc9ea87277606a6351d61c4e9092183f13c5f2"
     },
-    "15_cross": {
+    "15_altar_top2": {
+      "url": "d77166569a1bf94a5ab81701ef17baf8013ef2bc279d5fa198fd143b9b9bdea6"
+    },
+    "16_altar_bottom2": {
+      "url": "d37689743e2c3916b65d949864cc9ea87277606a6351d61c4e9092183f13c5f2"
+    },
+    "17_cross": {
       "url": "c13d7413b2464fa6583fb4b49fd86b5e46fe1bba014a34c7e028b3dd4d276d3a"
     },
-    "16_gem": {
+    "18_gem": {
       "url": "698beb161cfe82f5fbf650703175e9b9f5c2f44363fae91b97ea1be643e5a9ab"
     },
-    "17_pole": {
+    "19_pole": {
       "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
     },
-    "18_fireplace": {
+    "20_fireplace": {
       "url": "22316c0d1da907e3561437c22303647c96ea86cad4b75b399ec43db3737e06f2"
     },
-    "19_axe1": {
+    "21_axe1": {
       "url": "e6acee9f5931528c8703325b47c2e615d66b56e8baa3e28991a6dfea3bb922cb"
     },
-    "20_axe2": {
+    "22_axe2": {
       "url": "e6acee9f5931528c8703325b47c2e615d66b56e8baa3e28991a6dfea3bb922cb"
     },
-    "21_balcony": {
+    "23_balcony": {
       "url": "85491d5ecef32745f88e19c30ed4d5fc8f6f63b8c3437b99e4a16ed8f13be6bc"
     },
-    "22_gun": {
+    "24_gun": {
       "url": "b8abd9d5016ade8380daf162d3b9e501e04efc02b593aaaa5461b2f3785d5065"
     },
-    "23_staff1": {
+    "25_staff1": {
       "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
     },
-    "24_staff2": {
+    "26_staff2": {
       "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
     }
   }

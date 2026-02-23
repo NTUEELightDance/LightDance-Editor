@@ -8,6 +8,7 @@ from ....log import logger
 from ....states import state
 from ....utils.ui import update_user_log
 from ..current_pos import update_current_pos_by_index
+from ..dopesheet import setup_seq_map
 from .animation import setup_animation_data
 from .display import setup_display
 from .floor import setup_floor
@@ -153,3 +154,4 @@ async def load_data():
     await update_user_log("Setting up animation data...")
     setup_animation_data()
     update_current_pos_by_index()
+    setup_seq_map()

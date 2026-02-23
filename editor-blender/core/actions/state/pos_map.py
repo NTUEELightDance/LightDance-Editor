@@ -12,6 +12,7 @@ from ..property.animation_data import (
     reset_pos_rev,
 )
 from .current_pos import calculate_current_pos_index
+from .dopesheet import update_pos_seq
 
 
 def set_pos_map(pos_map_modified: PosMap):
@@ -133,8 +134,8 @@ def apply_pos_map_updates():
         key=lambda x: x[0],
     )
 
-    # TODO:
     modify_animation_data = pos_modify_to_animation_data(deleted, updated, added)
+    # print(deleted, updated, added, modify_animation_data)
     modify_partial_pos_keyframes(modify_animation_data)
 
     # Update control map
@@ -157,6 +158,9 @@ def apply_pos_map_updates():
     # Update current pos index
     state.current_pos_index = calculate_current_pos_index()
     state.pos_map_pending = False
+
+    # Update pos sequence
+    update_pos_seq(updated, added, deleted)
 
     pos_map_updates.added.clear()
     pos_map_updates.updated.clear()

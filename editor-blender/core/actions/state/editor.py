@@ -14,6 +14,7 @@ from ...utils.ui import (
     unset_outliner_hide_mesh,
     unset_outliner_hide_mode_column,
 )
+from ..state.dopesheet import reset_pinned_object
 
 
 def setup_control_editor():
@@ -21,7 +22,6 @@ def setup_control_editor():
         return
     bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
-    state.pinned_objects = []
     clear_selection()
 
     ld_ui_control_editor = getattr(bpy.context.window_manager, "ld_ui_control_editor")
@@ -38,9 +38,11 @@ def setup_control_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("control_frame")
+    set_dopesheet_filter("fade_seq")
     set_dopesheet_collapse_all(True)
     state.editor = Editor.CONTROL_EDITOR
+
+    reset_pinned_object()
 
 
 def setup_pos_editor():
@@ -48,7 +50,6 @@ def setup_pos_editor():
         return
     bpy.context.view_layer.objects.active = None
     state.selected_obj_type = None
-    state.pinned_objects = []
     clear_selection()
 
     unset_outliner_hide_empty()
@@ -60,8 +61,11 @@ def setup_pos_editor():
     outliner_hide_one_level()
     outliner_hide_one_level()
 
-    set_dopesheet_filter("pos_frame")
+    set_dopesheet_filter("pos_seq")
+    set_dopesheet_collapse_all(True)
     state.editor = Editor.POS_EDITOR
+
+    reset_pinned_object()
 
 
 def setup_led_editor():

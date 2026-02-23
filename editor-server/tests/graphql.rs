@@ -8,7 +8,7 @@ mod graphql_tests {
     static SCHEMA: OnceCell<AppSchema> = OnceCell::const_new();
 
     pub async fn get_schema() -> &'static AppSchema {
-        SCHEMA.get_or_init(|| build_graphql()).await
+        SCHEMA.get_or_init(build_graphql).await
     }
 
     #[tokio::test]

@@ -54,6 +54,7 @@ from ...models import (
 from ...utils.convert import frame_to_time
 from ...utils.operator import execute_operator
 from ..state.load import init_assets, load_data
+from .dopesheet import clear_pinned_timeline
 
 # from ....core.actions.state.load.objects import check_local_object_list
 # async def __merge_pos_map(
@@ -284,6 +285,7 @@ async def init_load():
     bpy.context.window_manager["ld_time"] = frame_to_time(0)
 
     # Setup control editor UI
+    clear_pinned_timeline()
     setup_control_editor()
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
