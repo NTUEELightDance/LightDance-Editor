@@ -10,7 +10,7 @@ use crate::utils::revision::update_revision;
 
 // import modules and functions
 use async_graphql::{Context, Error, FieldResult, InputObject, Object};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::utils::data::{get_redis_control, update_redis_control};
 use crate::utils::vector::partition_by_field;
@@ -915,10 +915,10 @@ impl ControlFrameMutation {
             )
             .fetch_all(&mut *tx)
             .await?;
-            Vec::from_iter(
+            BTreeMap::from_iter(
                 control_data
                     .into_iter()
-                    .map(|data| data.r#type.as_str() != "NO_EFFECT"),
+                    .map(|data| (data.dancer_id, data.r#type.as_str() != "NO_EFFECT")),
             )
         };
 
@@ -929,7 +929,7 @@ impl ControlFrameMutation {
         // the performance difference can be (I think) ignored
         // TODO: Perhaps fix this with some pretty syntax later
         let mut can_delete_frame = false;
-        for (i, has_effect) in dancer_has_effect.iter().enumerate() {
+        for (i, (_, has_effect)) in dancer_has_effect.iter().enumerate() {
             can_delete_frame |= *has_effect && (!loaded_dancers[i]);
         }
 
