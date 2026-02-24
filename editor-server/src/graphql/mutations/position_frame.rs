@@ -544,12 +544,12 @@ impl PositionFrameMutation {
         // We can directly delete the frame iff there does not exist
         // a dancer that is loaded and is not NO_EFFECT in this frame
         // NOTE: We can probably return when can_delete_frame is or'ed
-        // with the first true, but there is only about 10 dancers, so
+        // with the first false, but there is only about 10 dancers, so
         // the performance difference can be (I think) ignored
         // TODO: Perhaps fix this with some pretty syntax later
-        let mut can_delete_frame = false;
+        let mut can_delete_frame = true;
         for (i, (_, has_effect)) in dancer_has_effect.iter().enumerate() {
-            can_delete_frame |= *has_effect && (!loaded_dancers[i]);
+            can_delete_frame &= !(has_effect & !loaded_dancers[i]);
         }
 
         if can_delete_frame {
