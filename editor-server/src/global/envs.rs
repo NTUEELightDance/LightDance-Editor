@@ -1,7 +1,7 @@
 //! Environment variables
 
+use load_dotenv::load_dotenv;
 use once_cell::sync::OnceCell;
-use std::env::var;
 
 #[derive(Debug)]
 pub struct Env {
@@ -17,9 +17,10 @@ pub fn set() {
         return;
     }
 
-    let env = var("ENV").unwrap_or_else(|_| "dev".to_string());
-    let redis_ctrl_prefix = var("REDIS_CTRL_PREFIX").unwrap_or_else(|_| "CTRLFRAME_".to_string());
-    let redis_pos_prefix = var("REDIS_POS_PREFIX").unwrap_or_else(|_| "POSFRAME_".to_string());
+    load_dotenv!();
+    let env = env!("ENV").to_string();
+    let redis_ctrl_prefix = env!("REDIS_CTRL_PREFIX").to_string();
+    let redis_pos_prefix = env!("REDIS_POS_PREFIX").to_string();
 
     ENV.set(Env {
         env,
