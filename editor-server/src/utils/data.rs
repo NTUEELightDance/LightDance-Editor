@@ -335,7 +335,7 @@ pub async fn update_redis_control(
                     ControlData.color_id,
                     ControlData.fade AS "fade: bool",
                     COALESCE(ControlData.alpha, 0) AS "alpha: i32",
-                    ControlData.type  AS "type: ControlType",
+                    ControlData.type AS "type: ControlType",
                     LEDBulb.color_id AS bulb_color_id,
                     COALESCE(LEDBulb.alpha, 0) AS "bulb_alpha: i32"
                 FROM Dancer

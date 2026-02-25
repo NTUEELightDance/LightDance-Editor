@@ -958,7 +958,7 @@ impl ControlFrameMutation {
             );
 
             // We make every loaded dancer in the frame NO_EFFECT
-            for (i, loaded) in loaded_dancers.iter().enumerate() {
+            for (loaded, id) in loaded_dancers.iter().zip(dancers_id.iter()) {
                 if *loaded {
                     let _ = sqlx::query!(
                         r#"
@@ -966,9 +966,11 @@ impl ControlFrameMutation {
                             SET type = "NO_EFFECT"
                             WHERE ControlData.dancer_id = ? AND ControlData.frame_id = ?;
                         "#,
-                        dancers_id[i],
+                        id,
                         frame_id,
-                    );
+                    )
+                    .execute(&mut *tx)
+                    .await?;
                 }
             }
         }
