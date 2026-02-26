@@ -74,7 +74,7 @@ pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<User
     if editing_position_frame.is_none() {
         let _ = sqlx::query!(
             r#"
-                INSERT INTO EditingControlFrame (user_id, frame_id)
+                INSERT INTO EditingPositionFrame (user_id, frame_id)
                 VALUES (?, NULL)
             "#,
             user_id
