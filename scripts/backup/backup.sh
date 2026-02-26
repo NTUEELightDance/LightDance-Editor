@@ -7,4 +7,6 @@
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
+nvm install 20.18.0
+nvm use 20.18.0
 python3 ~/production/LightDance-Editor/scripts/backup/backup.py ~/production/LightDance-Editor ~/production/NewLightTableBackup

@@ -196,6 +196,7 @@ ADD_POS_FRAME = gql(
 @dataclass
 class MutDeletePositionFrameInput(JSONWizard):
     frameID: MapID
+    loadedDancers: list[bool]
 
 
 @dataclass
@@ -311,6 +312,7 @@ ADD_CONTROL_FRAME = gql(
 @dataclass
 class MutDeleteControlFrameInput(JSONWizard):
     frameID: MapID
+    loadedDancers: list[bool]
 
 
 DELETE_CONTROL_FRAME = gql(

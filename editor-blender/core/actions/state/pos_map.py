@@ -44,11 +44,11 @@ def add_pos(id: MapID, frame: PosMapElement):
 def delete_pos(id: MapID):
     logger.info(f"Delete pos {id}")
 
-    old_frame = state.pos_map_MODIFIED.get(id)
-    if old_frame is None:
-        return
-
     pos_map_updates = state.pos_map_updates
+
+    for updated_id, _ in pos_map_updates.updated.items():
+        if updated_id == id:
+            pos_map_updates.updated.pop(updated_id)
 
     for added_id, _ in pos_map_updates.added.items():
         if added_id == id:
@@ -63,9 +63,9 @@ def delete_pos(id: MapID):
 
             return
 
-    for updated_id, _ in pos_map_updates.updated.items():
-        if updated_id == id:
-            pos_map_updates.updated.pop(updated_id)
+    old_frame = state.pos_map_MODIFIED.get(id)
+    if old_frame is None:
+        return
 
     pos_map_updates.deleted[id] = old_frame.start
 

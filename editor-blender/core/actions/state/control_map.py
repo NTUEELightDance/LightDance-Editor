@@ -50,28 +50,27 @@ def add_control(id: MapID, frame: ControlMapElement_MODIFIED):
 def delete_control(id: MapID):
     logger.info(f"Delete control {id}")
 
+    control_map_updates = state.control_map_updates_MODIFIED
+
+    if id in control_map_updates.updated:
+        control_map_updates.updated.pop(id)
+
+    if id in control_map_updates.added:
+        control_map_updates.added.pop(id)
+
+        if (
+            len(control_map_updates.added) == 0
+            or len(control_map_updates.updated) == 0
+            or len(control_map_updates.deleted) == 0
+        ):
+            state.control_map_pending = False
+
+        print("KILLER:", control_map_updates)
+        return
+
     old_frame = state.control_map_MODIFIED.get(id)
     if old_frame is None:
         return
-
-    control_map_updates = state.control_map_updates_MODIFIED
-
-    for added_id, _ in control_map_updates.added.items():
-        if added_id == id:
-            control_map_updates.added.pop(added_id)
-
-            if (
-                len(control_map_updates.added) == 0
-                or len(control_map_updates.updated) == 0
-                or len(control_map_updates.deleted) == 0
-            ):
-                state.control_map_pending = False
-
-            return
-
-    for updated_id, _ in control_map_updates.updated.items():
-        if updated_id == id:
-            control_map_updates.updated.pop(updated_id)
 
     control_map_updates.deleted[id] = old_frame.start
 
@@ -148,19 +147,20 @@ def apply_control_map_updates():
         [(start, id) for id, start in control_map_updates.deleted.items()],
         key=lambda x: x[0],
     )
-
+    print(state.control_map_updates_MODIFIED)
+    print(updated, added, deleted)
     modify_animation_data, no_change_dict = control_modify_to_animation_data(
         deleted, updated, added
     )
     modify_partial_ctrl_keyframes(modify_animation_data, no_change_dict)
 
     # Update control map
+    for _, id in deleted:
+        state.control_map_MODIFIED.pop(id)
     for id, frame in added:
         state.control_map_MODIFIED[id] = frame
     for _, id, frame in updated:
         state.control_map_MODIFIED[id] = frame
-    for _, id in deleted:
-        state.control_map_MODIFIED.pop(id)
 
     # Update control record
     control_record = list(state.control_map_MODIFIED.keys())

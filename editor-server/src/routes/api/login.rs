@@ -31,6 +31,7 @@ pub async fn login(
     dotenv::dotenv().ok();
 
     let env_type = &global::envs::get().env;
+    println!("{}", env_type);
 
     if env_type == "development" {
         init_test_user().await.map_err(|err| {

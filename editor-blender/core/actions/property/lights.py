@@ -344,18 +344,17 @@ def update_prev_fade(self: bpy.types.Object, context: bpy.types.Context):
     if not state.ready_to_edit_control or state.current_editing_detached:
         return
 
-    ld_dancer_name: str = getattr(self, "ld_dancer_name")
-    this_part_name: str = getattr(self, "ld_part_name")
-
     this_prev_fade: bool = getattr(self, "ld_prev_fade")
-    part_map = state.dancer_part_objects_map[ld_dancer_name][1]
-    for part_name, part_obj in part_map.items():
-        if part_name == this_part_name:
-            continue
+    dancer_obj = getattr(self, "parent")
 
-        other_prev_fade = getattr(part_obj, "ld_prev_fade")
-        if other_prev_fade != this_prev_fade:
-            setattr(part_obj, "ld_prev_fade", this_prev_fade)
+    dancer_obj_prev_fade = getattr(dancer_obj, "ld_prev_fade")
+    if dancer_obj_prev_fade != this_prev_fade:
+        setattr(dancer_obj, "ld_prev_fade", this_prev_fade)
+
+        for part_obj in dancer_obj.children:
+            other_prev_fade = getattr(part_obj, "ld_prev_fade")
+            if other_prev_fade != this_prev_fade:
+                setattr(part_obj, "ld_prev_fade", this_prev_fade)
 
     ld_has_status = not getattr(self, "ld_no_status")
     if ld_has_status:

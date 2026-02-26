@@ -128,6 +128,9 @@ def update_current_status_by_index():
     index = state.current_control_index
 
     control_map = state.control_map_MODIFIED
+    if not control_map:
+        return
+
     control_id = state.control_record[index]
     current_control_map = control_map.get(control_id)
 
