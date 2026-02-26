@@ -11,7 +11,7 @@ use std::env::var;
 /// A user context is returned if the connection is successful
 /// The context will be used to clean up the database when the connection is closed
 pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<UserContext, String> {
-    if var("ENV").expect("ENV not set") == "development" {
+    let user_context = if var("ENV").expect("ENV not set") == "development" {
         get_test_user_context().await
     } else {
         let token = match _connection_params.get("token") {
@@ -32,7 +32,83 @@ pub async fn ws_on_connect(_connection_params: serde_json::Value) -> Result<User
             user_id: user.id,
             clients,
         })
+    }?;
+
+    let mysql = user_context.clients.mysql_pool();
+    let user_id = user_context.user_id;
+    let editing_control_frame = sqlx::query!(
+        r#"
+            SELECT EditingControlFrame.* FROM EditingControlFrame
+            WHERE EditingControlFrame.user_id = ?
+        "#,
+        user_id
+    )
+    .fetch_optional(mysql)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    if editing_control_frame.is_none() {
+        let _ = sqlx::query!(
+            r#"
+                INSERT INTO EditingControlFrame (user_id, frame_id)
+                VALUES (?, NULL)
+            "#,
+            user_id
+        )
+        .execute(mysql)
+        .await
+        .map_err(|e| e.to_string())?;
     }
+
+    let editing_position_frame = sqlx::query!(
+        r#"
+            SELECT EditingPositionFrame.* FROM EditingPositionFrame
+            WHERE EditingPositionFrame.user_id = ?
+        "#,
+        user_id
+    )
+    .fetch_optional(mysql)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    if editing_position_frame.is_none() {
+        let _ = sqlx::query!(
+            r#"
+                INSERT INTO EditingControlFrame (user_id, frame_id)
+                VALUES (?, NULL)
+            "#,
+            user_id
+        )
+        .execute(mysql)
+        .await
+        .map_err(|e| e.to_string())?;
+    }
+
+    let editing_led_effect = sqlx::query!(
+        r#"
+            SELECT EditingLEDEffect.* FROM EditingLEDEffect
+            WHERE EditingLEDEffect.user_id = ?
+        "#,
+        user_id
+    )
+    .fetch_optional(mysql)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    if editing_led_effect.is_none() {
+        let _ = sqlx::query!(
+            r#"
+                INSERT INTO EditingLEDEffect (user_id, led_effect_id)
+                VALUES (?, NULL)
+            "#,
+            user_id
+        )
+        .execute(mysql)
+        .await
+        .map_err(|e| e.to_string())?;
+    }
+
+    Ok(user_context)
 }
 
 /// Callback for websocket disconnection
