@@ -188,13 +188,17 @@ class ControlAgent:
             logger.exception("Failed to save control frame")
             raise err
 
-    async def delete_frame(self, id: MapID) -> str | None:
+    async def delete_frame(self, id: MapID, shown_dancers: list[bool]) -> str | None:
         """Delete a control frame from the control map."""
         try:
             response = await client.execute(
                 str,
                 DELETE_CONTROL_FRAME,
-                {"input": MutDeleteControlFrameInput(frameID=id)},
+                {
+                    "input": MutDeleteControlFrameInput(
+                        frameID=id, loadedDancers=shown_dancers
+                    )
+                },
             )
             return response["deleteControlFrame"]
 

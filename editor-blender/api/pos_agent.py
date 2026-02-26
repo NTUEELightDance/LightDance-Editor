@@ -149,20 +149,25 @@ class PosAgent:
         except Exception:
             logger.exception("Failed to save position frame")
 
-    async def delete_frame(self, id: MapID) -> MapID | None:
+    async def delete_frame(self, id: MapID, shown_dancers: list[bool]) -> MapID | None:
         """Delete a position frame from the position map."""
         try:
             response = await client.execute(
                 MutDeletePositionFrameResponse,
                 DELETE_POS_FRAME,
-                {"input": MutDeletePositionFrameInput(frameID=id)},
+                {
+                    "input": MutDeletePositionFrameInput(
+                        frameID=id, loadedDancers=shown_dancers
+                    )
+                },
             )
             return response["deletePositionFrame"].id
 
         except asyncio.CancelledError:
             pass
 
-        except Exception:
+        except Exception as e:
+            print(e)
             logger.exception("Failed to delete position frame")
 
     async def request_edit(self, id: MapID) -> bool | None:

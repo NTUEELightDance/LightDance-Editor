@@ -20,6 +20,7 @@ use crate::utils::data::{init_redis_control, init_redis_position};
 pub async fn init() {
     load_dotenv!();
     global::envs::set();
+    dotenv::dotenv().ok();
 
     let mysql_host = env!("DATABASE_URL", "DATABASE_URL is not set");
     let redis_host = env!("REDIS_HOST", "REDIS_HOST is not set");

@@ -1,3 +1,4 @@
+import json
 from typing import cast
 
 import bpy
@@ -288,7 +289,6 @@ async def save_control_frame(start: int | None = None):
 
     with send_request():
         try:
-            print(controlData, ledControlData, fadeData, hasEffectData, start)
             await control_agent.save_frame(
                 id,
                 controlData,
@@ -336,55 +336,20 @@ async def delete_control_frame():
         notify("WARNING", "Frame not found")
         return
 
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
-
-    shown_dancer_names = [
-        dancer_name
-        for dancer_name in state.dancer_names
-        if show_dancer_dict.get(dancer_name, False)
-    ]
-    hidden_dancer_names = [
-        dancer_name
-        for dancer_name in state.dancer_names
-        if not show_dancer_dict.get(dancer_name, False)
-    ]
-
-    # If all hidden dancers are None state -> delete frame
-    hidden_all_none = True
-    for dancer_name in hidden_dancer_names:
-        control_dancer = frame.status[dancer_name]
-        any_part_ctrl_data = list(control_dancer.values())[0]
-        if any_part_ctrl_data is not None:
-            hidden_all_none = False
-            break
-
     with send_request():
-        if hidden_all_none:
-            try:
-                await control_agent.delete_frame(id)
-                notify("INFO", f"Deleted control frame: {id}")
+        try:
+            await control_agent.delete_frame(id, state.show_dancers)
+            notify("INFO", f"Deleted control frame: {id}")
 
-                redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
-            except Exception:
+            redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})
+        except Exception as e:
+            e_str = str(e)
+            e_json = json.loads(e_str)
+            if e_json["message"].startswith("The target frame is being edited by user"):
+                notify("WARNING", "Delete frame rejected, for the frame is being edit")
+            else:
                 logger.exception("Failed to delete control frame")
                 notify("WARNING", "Cannot delete position frame")
-        else:
-            # There exists hidden dancer with non-None state -> set all shown dancers to None state.
-            ok = await request_edit_control()
-            if not ok:
-                return
-
-            for dancer_name in shown_dancer_names:
-                obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
-                if obj is None:
-                    continue
-                part_obj_list = list(
-                    state.dancer_part_objects_map[dancer_name][1].values()
-                )
-                first_part_obj = part_obj_list[0]
-                setattr(first_part_obj, "ld_no_status", True)
-
-            await save_control_frame()
 
 
 async def request_edit_control() -> bool:

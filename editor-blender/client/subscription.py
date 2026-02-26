@@ -190,7 +190,9 @@ async def sub_control_map(client: Clients):
 
         async def modifier(controlMap: QueryControlMapData | None):
             subscriptionData = data["controlMapSubscription"]
-            print(data)
+
+            from ..core.states import state
+
             newControlMap = QueryControlMapData(frameIds={})
             if controlMap is not None:
                 newControlMap = controlMap
@@ -199,7 +201,6 @@ async def sub_control_map(client: Clients):
             createFrames = frame.createFrames
             updateFrames = frame.updateFrames
             deleteFrames = frame.deleteFrames
-
             # NOTE: There's only one modification at a time in fact
 
             for id, frameSub in createFrames.items():

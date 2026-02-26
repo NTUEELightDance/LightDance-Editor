@@ -812,6 +812,10 @@ def update_fade_seq(
 ):
     fade_seq_map = state.fade_sequence_map
 
+    for _, id in deleted:
+        for fade_seq in fade_seq_map.values():
+            fade_seq.pop(id, None)
+
     for _, id, frame in updated:
         # notify("INFO", f"{frame}")
         for name, fade_seq in fade_seq_map.items():
@@ -849,10 +853,6 @@ def update_fade_seq(
                         any(part.fade for part in active_parts),
                         KeyframeType.NORMAL,
                     )
-
-    for _, id in deleted:
-        for fade_seq in fade_seq_map.values():
-            fade_seq.pop(id, None)
 
     current_sel_obj = state.current_selected_obj_name
     if current_sel_obj:

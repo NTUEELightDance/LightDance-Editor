@@ -1,3 +1,4 @@
+import json
 from typing import cast
 
 import bpy
@@ -193,54 +194,70 @@ async def delete_pos_frame():
         notify("WARNING", "Frame not found")
         return
 
-    show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
+    with send_request():
+        try:
+            await pos_agent.delete_frame(id, state.show_dancers)
+            notify("INFO", f"Deleted position frame: {id}")
 
-    shown_dancer_names = [
-        dancer_name
-        for dancer_name in state.dancer_names
-        if show_dancer_dict.get(dancer_name, False)
-    ]
-    hidden_dancer_names = [
-        dancer_name
-        for dancer_name in state.dancer_names
-        if not show_dancer_dict.get(dancer_name, False)
-    ]
-
-    # If all hidden dancers are None state -> delete frame
-    hidden_all_none = True
-    for dancer_name in hidden_dancer_names:
-        pos = frame.pos.get(dancer_name)
-        if not pos is None:
-            hidden_all_none = False
-            break
-
-    if hidden_all_none:
-        with send_request():
-            try:
-                await pos_agent.delete_frame(id)
-                notify("INFO", f"Deleted position frame: {id}")
-
-                # apply_pos_map_updates()
-                # update_current_pos_by_index()
-            except Exception:
+            # apply_pos_map_updates()
+            # update_current_pos_by_index()
+        except Exception as e:
+            e_str = str(e)
+            e_json = json.loads(e_str)
+            if e_json["message"].startswith("The target frame is being edited by user"):
+                notify("WARNING", "Delete frame rejected, for the frame is being edit")
+            else:
                 logger.exception("Failed to delete position frame")
                 notify("WARNING", "Cannot delete position frame")
-        return
+    return
+    # show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
 
-    # There exists hidden dancer with non-None state -> set all shown dancers to None state.
-    with send_request():
-        ok = await request_edit_pos()
-        if not ok:
-            return
+    # shown_dancer_names = [
+    #     dancer_name
+    #     for dancer_name in state.dancer_names
+    #     if show_dancer_dict.get(dancer_name, False)
+    # ]
+    # hidden_dancer_names = [
+    #     dancer_name
+    #     for dancer_name in state.dancer_names
+    #     if not show_dancer_dict.get(dancer_name, False)
+    # ]
 
-        for dancer_name in shown_dancer_names:
-            obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
-            if obj is None:
-                continue
-            ld_position: PositionPropertyType = getattr(obj, "ld_position")
-            setattr(ld_position, "is_none", True)
+    # # If all hidden dancers are None state -> delete frame
+    # hidden_all_none = True
+    # for dancer_name in hidden_dancer_names:
+    #     pos = frame.pos.get(dancer_name)
+    #     if not pos is None:
+    #         hidden_all_none = False
+    #         break
 
-        await save_pos_frame()
+    # if hidden_all_none:
+    #     with send_request():
+    #         try:
+    #             await pos_agent.delete_frame(id)
+    #             notify("INFO", f"Deleted position frame: {id}")
+
+    #             # apply_pos_map_updates()
+    #             # update_current_pos_by_index()
+    #         except Exception:
+    #             logger.exception("Failed to delete position frame")
+    #             notify("WARNING", "Cannot delete position frame")
+    #     return
+
+    # # There exists hidden dancer with non-None state -> set all shown dancers to None state.
+    # with send_request():
+    #     ok = await request_edit_pos()
+    #     if not ok:
+    #         return
+
+    #     for dancer_name in shown_dancer_names:
+    #         obj: bpy.types.Object | None = bpy.data.objects.get(dancer_name)
+    #         if obj is None:
+    #             continue
+    #         ld_position: PositionPropertyType = getattr(obj, "ld_position")
+    #         setattr(ld_position, "is_none", True)
+
+    #     await save_pos_frame()
 
 
 async def request_edit_pos() -> bool:
