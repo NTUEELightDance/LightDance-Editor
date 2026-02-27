@@ -116,7 +116,7 @@ pub fn gradient_to_rgb_float(status: Vec<[i32; 4]>) -> Vec<Vec<[i32; 4]>> {
 pub fn alpha(status: &[i32; 4]) -> [i32; 3] {
     [
         (status[0] as f32 * status[3] as f32 / 255.0_f32) as i32,
-        (status[2] as f32 * status[3] as f32 / 255.0_f32) as i32,
         (status[1] as f32 * status[3] as f32 / 255.0_f32) as i32,
+        (status[2] as f32 * status[3] as f32 / 255.0_f32) as i32,
     ]
 }

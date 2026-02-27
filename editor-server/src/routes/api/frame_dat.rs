@@ -38,6 +38,31 @@ struct FrameData {
     checksum: u32,
 }
 
+fn write_checksum(frame: &mut FrameData) {
+    let mut checksum: u32 = 0;
+    for num in frame.start_time.to_le_bytes() {
+        checksum = checksum.wrapping_add(num as u32);
+    }
+
+    checksum = checksum.wrapping_add(frame.fade as u32);
+
+    for color in frame.of_grb_data.values() {
+        checksum = checksum.wrapping_add(color[0] as u32);
+        checksum = checksum.wrapping_add(color[1] as u32);
+        checksum = checksum.wrapping_add(color[2] as u32);
+    }
+
+    for color_vec in frame.led_grb_data.values() {
+        for color in color_vec {
+            checksum = checksum.wrapping_add(color[0] as u32);
+            checksum = checksum.wrapping_add(color[1] as u32);
+            checksum = checksum.wrapping_add(color[2] as u32);
+        }
+    }
+
+    frame.checksum = checksum;
+}
+
 fn interpolate_no_change_effects(
     frames: &mut [FrameData],
     intervals: &HashMap<i32, Vec<(usize, usize)>>,
@@ -58,7 +83,7 @@ fn interpolate_no_change_effects(
 
             #[allow(clippy::needless_range_loop)]
             for i in 0..len {
-                for (j, color) in frames[i]
+                for (j, color) in frames[interval.0 + i]
                     .led_grb_data
                     .get_mut(part_id)
                     .unwrap()
@@ -139,8 +164,10 @@ pub async fn frame_dat(
     })?
     .id;
 
-    let of_parts = Vec::from_iter(of_parts.into_iter());
-    let led_parts = Vec::from_iter(led_parts.into_iter());
+    let mut of_parts = Vec::from_iter(of_parts.into_iter());
+    of_parts.sort_by_key(|part| part.1);
+    let mut led_parts = Vec::from_iter(led_parts.into_iter());
+    led_parts.sort_by_key(|part| part.1.id);
 
     let led_parts_ids: HashMap<String, i32> = HashMap::from_iter(
         sqlx::query!(
@@ -165,7 +192,7 @@ pub async fn frame_dat(
         .map(|data| (data.name, data.id)),
     );
 
-    let mut led_parts = led_parts
+    let led_parts = led_parts
         .into_iter()
         .map(|part| {
             (
@@ -216,14 +243,11 @@ pub async fn frame_dat(
             .map(|part| (part.part_name.clone(), part.part_id)),
     );
 
-    let mut of_parts: Vec<(String, i32)> = Vec::from_iter(
+    let of_parts: Vec<(String, i32)> = Vec::from_iter(
         of_parts
             .into_iter()
             .map(|part| (part.0.clone(), *of_parts_ids.get(&part.0).unwrap())),
     );
-
-    led_parts.sort_unstable_by_key(|part| part.1.id);
-    of_parts.sort_unstable_by_key(|part| part.1);
 
     // ((frame_id, part_id), color)
     // TODO: error handling for the code below
@@ -239,22 +263,6 @@ pub async fn frame_dat(
                 [color[0], color[0], color[0], data.alpha.unwrap_or(255)],
             )
         }));
-
-    // let no_change_effects: HashSet<i32> = HashSet::from_iter(
-    //     sqlx::query!(
-    //         r#"
-    //             SELECT
-    //                 LEDEffect.id
-    //             FROM LEDEffect
-    //             WHERE LEDEffect.name = 'no-change'
-    //         "#,
-    //     )
-    //     .fetch_all(mysql_pool)
-    //     .await
-    //     .into_result()?
-    //     .into_iter()
-    //     .map(|data| data.id),
-    // );
 
     // (id, color[])
     let mut effects_map: HashMap<i32, Effect> = HashMap::new();
@@ -301,10 +309,6 @@ pub async fn frame_dat(
             },
         );
     }
-
-    // for id in &no_change_effects {
-    //     effects_map.insert(*id, Effect { status: vec![] });
-    // }
 
     // (frame_id, part_id)
     let mut no_change_parts: HashSet<(i32, i32)> = HashSet::new();
@@ -460,7 +464,6 @@ pub async fn frame_dat(
     for (i, frame) in control_frames.iter().enumerate() {
         let frame_id = frame[0].id;
         let start_time = frame[0].start as u32;
-        let mut checksum: u32 = 0;
         let fade: u8 = match frame[0].fade {
             Some(f) => f as u8,
             None => {
@@ -471,8 +474,6 @@ pub async fn frame_dat(
                     .fade
             }
         };
-
-        checksum = checksum.wrapping_add(fade as u32);
 
         let mut no_effect: HashSet<i32> = HashSet::new();
 
@@ -503,27 +504,26 @@ pub async fn frame_dat(
             };
 
             of.insert(*of_part_id, color);
-
-            checksum = checksum.wrapping_add(color[0] as u32);
-            checksum = checksum.wrapping_add(color[1] as u32);
-            checksum = checksum.wrapping_add(color[2] as u32);
         }
 
         // (part_id, color[])
         let mut led: HashMap<i32, Vec<Color>> = HashMap::new();
 
         for (_, led_part) in &led_parts {
-            let color = if no_effect.contains(&led_part.id)
-                || no_change_parts.contains(&(frame_id, led_part.id))
-            {
+            let color = if no_effect.contains(&led_part.id) {
                 frames
                     .last()
-                    .ok_or("First frame can't be no effect/no-change")
+                    .ok_or("First frame can't be no effect")
                     .into_result()?
                     .led_grb_data
                     .get(&led_part.id)
                     .unwrap()
                     .clone()
+            } else if no_change_parts.contains(&(frame_id, led_part.id)) {
+                match frames.last() {
+                    Some(frame) => frame.led_grb_data.get(&led_part.id).unwrap().clone(),
+                    None => vec![[0, 0, 0]; led_part.len as usize],
+                }
             } else {
                 led_data
                     .get(&(frame_id, led_part.id))
@@ -532,12 +532,6 @@ pub async fn frame_dat(
                     .map(alpha)
                     .collect_vec()
             };
-
-            color.iter().for_each(|c| {
-                checksum = checksum.wrapping_add(c[0] as u32);
-                checksum = checksum.wrapping_add(c[1] as u32);
-                checksum = checksum.wrapping_add(c[2] as u32);
-            });
 
             led.insert(led_part.id, color);
 
@@ -557,23 +551,23 @@ pub async fn frame_dat(
             }
         }
 
-        for num in start_time.to_le_bytes() {
-            checksum = checksum.wrapping_add(num as u32);
-        }
-
         let frame_data = FrameData {
             // id: frame_id,
             start_time,
             of_grb_data: of,
             led_grb_data: led,
             fade,
-            checksum,
+            checksum: 0_u32,
         };
 
         frames.push(frame_data);
     }
 
     interpolate_no_change_effects(&mut frames, &no_change_intervals);
+
+    for frame in &mut frames {
+        write_checksum(frame);
+    }
 
     for frame in frames {
         write_little_endian(&frame.start_time, &mut response);
@@ -587,6 +581,7 @@ pub async fn frame_dat(
 
         for (_, led_part) in &led_parts {
             let colors = frame.led_grb_data.get(&led_part.id).unwrap();
+            assert_eq!(led_part.len as usize, colors.len());
             colors.iter().for_each(|color| {
                 response.push(color[1] as u8);
                 response.push(color[0] as u8);
