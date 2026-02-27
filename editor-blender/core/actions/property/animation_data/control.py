@@ -510,6 +510,8 @@ def modify_partial_ctrl_single_object_action(
 
 
 def _upsert_no_change_data(
+    dancer_name: str,
+    part_name: str,
     part_obj_name: str,
     action: bpy.types.Action,
     no_change_dict: dict[str, list[int]],
@@ -520,18 +522,37 @@ def _upsert_no_change_data(
     kpoints_start_list = [point.co[0] for point in kpoints_lists[0]]
     no_change_starts = no_change_dict[part_obj_name]
     no_change_tuple_list = [
-        kpoints_start_list.index(start)
+        (kpoints_start_list.index(start), start)
         for start in no_change_starts
         if start in kpoints_start_list
     ]
-    for d in range(3):
-        for index in no_change_tuple_list:
+    for index, start in no_change_tuple_list:
+        current_index = state.control_start_record.index(start)
+        current_mapID = state.control_record[current_index]
+        current_alpha = state.control_map_MODIFIED[current_mapID].status[dancer_name][part_name].part_data.alpha  # type: ignore
+
+        prev_index = index - 1
+        prev_point = kpoints_lists[0][prev_index]
+        prev_start = int(prev_point.co[0])
+        prev_index = state.control_start_record.index(prev_start)
+        prev_mapID = state.control_record[prev_index]
+
+        prev_part_data = state.control_map_MODIFIED[prev_mapID].status[dancer_name][part_name].part_data  # type: ignore
+        prev_alpha = prev_part_data.alpha  # type: ignore
+        ratio = 0
+        if prev_alpha != 0:
+            ratio = current_alpha / prev_alpha
+        else:
+            notify("WARNING", "Prev alpha should not be zero")
+
+        for d in range(3):
             point = kpoints_lists[d][index]
+
             if index == 0:
                 point.co[1] = 0
             else:
                 prev_point = kpoints_lists[d][index - 1]
-                point.co[1] = prev_point.co[1]
+                point.co[1] = prev_point.co[1] * ratio
 
 
 def modify_partial_ctrl_keyframes(
@@ -594,7 +615,11 @@ def modify_partial_ctrl_keyframes(
 
     for part_obj_name in no_change_dict:
         part_obj = data_objects[part_obj_name]
+        dancer_name = getattr(part_obj, "ld_dancer_name")
+        part_name = getattr(part_obj, "ld_part_name")
         for led_obj in part_obj.children:
             position: int = getattr(led_obj, "ld_led_pos")
             action = ensure_action(led_obj, f"{part_obj_name}Action.{position:03}")
-            _upsert_no_change_data(part_obj_name, action, no_change_dict)
+            _upsert_no_change_data(
+                dancer_name, part_name, part_obj_name, action, no_change_dict
+            )

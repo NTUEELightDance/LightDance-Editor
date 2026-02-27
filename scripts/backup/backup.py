@@ -38,4 +38,4 @@ if updateTable:
     subprocess.run(["cp", exportTablePath, newTablePath])
     subprocess.run(["git", "add", "."], cwd=backupPath)
     subprocess.run(["git", "commit", "-m", f"backup {timestamp}"], cwd=backupPath)
-    subprocess.run(["git", "push"], cwd=backupPath)
+    subprocess.run(["git", "push", "origin", "main"], cwd=backupPath)
