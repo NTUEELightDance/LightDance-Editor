@@ -91,8 +91,11 @@ pub async fn control_dat(
     .into_iter()
     .collect_vec();
 
-    let frame_start_times: BTreeSet<i32> =
-        BTreeSet::from_iter(frame_data.into_iter().map(|data| data.control_frame_start));
+    let frame_start_times: BTreeSet<u32> = BTreeSet::from_iter(
+        frame_data
+            .into_iter()
+            .map(|data| data.control_frame_start as u32),
+    );
 
     let frame_num: u32 = frame_start_times
         .len()
@@ -106,11 +109,15 @@ pub async fn control_dat(
         .into_result()?;
 
     write_little_endian(&frame_num, &mut response);
-    checksum = checksum.wrapping_add(frame_num);
+    for num in frame_num.to_le_bytes() {
+        checksum = checksum.wrapping_add(num as u32);
+    }
 
     frame_start_times.iter().for_each(|f| {
-        write_little_endian(&(*f as u32), &mut response);
-        checksum = checksum.wrapping_add(*f as u32);
+        write_little_endian(f, &mut response);
+        for byte in f.to_le_bytes() {
+            checksum = checksum.wrapping_add(byte as u32);
+        }
     });
 
     write_little_endian(&checksum, &mut response);
