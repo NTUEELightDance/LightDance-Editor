@@ -195,10 +195,9 @@ class Clients:
             else:
                 response = await self.__execute__(query, timeout=timeout)
 
+            # print(response)
             query_name = query_def[0]
-            print(response[query_name])
             response[query_name] = deserialize(response_type, response[query_name])
-            print(response[query_name])
             # NOTE: Cache is disabled for now
             # if is_query:
             #     await self.cache.write_query(response)
@@ -283,7 +282,7 @@ class Clients:
             url=f"{ws_url}/{config.GRAPHQL_WS_PATH}",
             subprotocols=[WebsocketsTransport.GRAPHQLWS_SUBPROTOCOL],
             init_payload=token_payload,
-            connect_args={"max_size": 300_0000},
+            connect_args={"max_size": 600_0000},
         )
 
         self.sub_client = await Client(

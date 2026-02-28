@@ -59,10 +59,12 @@ class ColorAgent:
             response = await client.execute(MutAddColorResponse, ADD_COLOR, variable)
             return response["addColor"]
 
-        except asyncio.CancelledError:
+        except asyncio.CancelledError as e:
+            print("Color error:", e)
             pass
 
-        except Exception:
+        except Exception as e:
+            print("Color error:", e)
             logger.exception("Failed to add color")
 
         return None
