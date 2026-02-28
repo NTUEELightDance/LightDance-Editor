@@ -345,6 +345,8 @@ async def delete_control_frame():
         except Exception as e:
             e_str = str(e)
             e_json = json.loads(e_str)
+            e_str = e_str.replace("'", '"')
+            print("current delete error:", e_str)
             if e_json["message"].startswith("The target frame is being edited by user"):
                 notify("WARNING", "Delete frame rejected, for the frame is being edit")
             else:
