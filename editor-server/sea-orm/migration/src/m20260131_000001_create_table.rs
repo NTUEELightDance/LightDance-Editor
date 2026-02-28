@@ -249,14 +249,6 @@ impl MigrationTrait for Migration {
                             .null(),
                     )
                     .index(&mut index_editing_control_frame)
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("fk-editing_control_frame-frame_id")
-                            .from(EditingControlFrame::Table, EditingControlFrame::FrameId)
-                            .to(ControlFrame::Table, ControlFrame::Id)
-                            .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade),
-                    )
                     .to_owned(),
             )
             .await?;
