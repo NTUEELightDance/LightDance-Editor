@@ -4,55 +4,55 @@
   "Waveform": "b5c144b66894df18b0f0915adc1aa6e7da8839fcfc4edcd9321608d7e79c45fc",
   "DancerMap": {
     "0_liao": {
-      "url": "e8edd76c24c1817273b564f25a74514f6d8332236bdf1dd38c20976b410779b5"
+      "url": "743bb6f8ced1980289a71c9dbd925f89e6630356a7a54a6bd828c799da2e1556"
     },
     "1_lin": {
-      "url": "e8edd76c24c1817273b564f25a74514f6d8332236bdf1dd38c20976b410779b5"
+      "url": "743bb6f8ced1980289a71c9dbd925f89e6630356a7a54a6bd828c799da2e1556"
     },
     "2_feng": {
-      "url": "04c62584ea9d7a38e49644c0ac926791019cb7855d4c28a2b174b060c7729d12"
+      "url": "829d3e4e6e2b9f9ab94e1de373671bcfd754ed2da835838ecde9a5126c539258"
     },
     "3_chen": {
-      "url": "04c62584ea9d7a38e49644c0ac926791019cb7855d4c28a2b174b060c7729d12"
+      "url": "829d3e4e6e2b9f9ab94e1de373671bcfd754ed2da835838ecde9a5126c539258"
     },
     "4_roy": {
-      "url": "2430aaaa6adb7b9fe3f79c51558352fae4ace07d4333b27c172d2323859f6f0d"
+      "url": "f24a998e6ce78e50fb9dd0e64ad48f077cf6ee23c3a1e359b4a09766a6953100"
     },
     "5_chiu": {
-      "url": "2430aaaa6adb7b9fe3f79c51558352fae4ace07d4333b27c172d2323859f6f0d"
+      "url": "f24a998e6ce78e50fb9dd0e64ad48f077cf6ee23c3a1e359b4a09766a6953100"
     },
     "6_su": {
-      "url": "9511accdc224945fb525e9f3a15e84406c893589615d78d994ce7daff780fb95"
+      "url": "203c3b7671d11894809cbc8adfcdcf59f2c0ef8b29a3487dfe6dbcb990550257"
     },
     "7_li": {
-      "url": "9511accdc224945fb525e9f3a15e84406c893589615d78d994ce7daff780fb95"
+      "url": "203c3b7671d11894809cbc8adfcdcf59f2c0ef8b29a3487dfe6dbcb990550257"
     },
     "8_hsieh": {
-      "url": "1e7f8c1a23bcf2b8e3dfaacab6eb0ce57488c6ebeea387b808851751b9a24e1d"
+      "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
     },
     "9_yang": {
-      "url": "1e7f8c1a23bcf2b8e3dfaacab6eb0ce57488c6ebeea387b808851751b9a24e1d"
+      "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
     },
     "10_tsai": {
-      "url": "1e7f8c1a23bcf2b8e3dfaacab6eb0ce57488c6ebeea387b808851751b9a24e1d"
+      "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
     },
     "11_luo": {
-      "url": "1e7f8c1a23bcf2b8e3dfaacab6eb0ce57488c6ebeea387b808851751b9a24e1d"
+      "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
     },
     "12_coffin": {
       "url": "0e2a60d2dd2a6792e1bdafa2f0e4deb413dd77ee28600a896df261f01bed201b"
     },
     "13_altar_top1": {
-      "url": "d77166569a1bf94a5ab81701ef17baf8013ef2bc279d5fa198fd143b9b9bdea6"
+      "url": "be08aab1d77a7ed48a796fce3e88f0b75ae81e7974073c8dfb52f9e72683fa86"
     },
     "14_altar_bottom1": {
-      "url": "d37689743e2c3916b65d949864cc9ea87277606a6351d61c4e9092183f13c5f2"
+      "url": "540a010e6e7d20f5773f2c93dc798fd9d42cbfd5685c5c8b15eee6ad5d1464f8"
     },
     "15_altar_top2": {
-      "url": "d77166569a1bf94a5ab81701ef17baf8013ef2bc279d5fa198fd143b9b9bdea6"
+      "url": "be08aab1d77a7ed48a796fce3e88f0b75ae81e7974073c8dfb52f9e72683fa86"
     },
     "16_altar_bottom2": {
-      "url": "d37689743e2c3916b65d949864cc9ea87277606a6351d61c4e9092183f13c5f2"
+      "url": "540a010e6e7d20f5773f2c93dc798fd9d42cbfd5685c5c8b15eee6ad5d1464f8"
     },
     "17_cross": {
       "url": "c13d7413b2464fa6583fb4b49fd86b5e46fe1bba014a34c7e028b3dd4d276d3a"
@@ -64,13 +64,13 @@
       "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
     },
     "20_fireplace": {
-      "url": "22316c0d1da907e3561437c22303647c96ea86cad4b75b399ec43db3737e06f2"
+      "url": "bd5b971e5b041fa176ce4196292719e6f418c8e345d7877f77a34ea894bb9736"
     },
     "21_axe1": {
-      "url": "e6acee9f5931528c8703325b47c2e615d66b56e8baa3e28991a6dfea3bb922cb"
+      "url": "7040e93c31bcf959317ff11b43da658dbd78bf4528aa0e4060d84674d58b30a2"
     },
     "22_axe2": {
-      "url": "e6acee9f5931528c8703325b47c2e615d66b56e8baa3e28991a6dfea3bb922cb"
+      "url": "7040e93c31bcf959317ff11b43da658dbd78bf4528aa0e4060d84674d58b30a2"
     },
     "23_balcony": {
       "url": "85491d5ecef32745f88e19c30ed4d5fc8f6f63b8c3437b99e4a16ed8f13be6bc"
