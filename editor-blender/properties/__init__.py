@@ -5,7 +5,6 @@ from . import (
     position,
     preferences,
     revision,
-    scene,
     timeline,
     ui,
 )
@@ -18,7 +17,6 @@ def register():
     position.register()
     color_palette.register()
     timeline.register()
-    scene.register()
     revision.register()
     preferences.register()
 
@@ -30,6 +28,5 @@ def unregister():
     position.unregister()
     color_palette.unregister()
     timeline.unregister()
-    scene.unregister()
     revision.unregister()
     preferences.unregister()
