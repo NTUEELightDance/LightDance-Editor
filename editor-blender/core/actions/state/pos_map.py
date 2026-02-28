@@ -6,11 +6,7 @@ from ...states import state
 from ...utils.convert import pos_modify_to_animation_data
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
-from ..property.animation_data import (
-    modify_partial_pos_keyframes,
-    reset_pos_frames,
-    reset_pos_rev,
-)
+from ..property.animation_data import modify_partial_pos_keyframes, reset_pos_rev
 from .current_pos import calculate_current_pos_index
 from .dopesheet import update_pos_seq
 
@@ -166,13 +162,7 @@ def apply_pos_map_updates():
     pos_map_updates.updated.clear()
     pos_map_updates.deleted.clear()
 
-    # WARNING: This i buggy, use reset instead
-    # delete_frames = [frame[0] for frame in pos_delete]
-    # update_frames = [(frame[0], frame[2].start) for frame in pos_update]
-    # add_frames = [frame[1].start for frame in pos_add]
-    # update_pos_frames(delete_frames, update_frames, add_frames)
     sorted_pos_map = sorted(state.pos_map.items(), key=lambda item: item[1].start)
-    reset_pos_frames()
     reset_pos_rev(sorted_pos_map)
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

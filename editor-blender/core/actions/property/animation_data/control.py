@@ -8,6 +8,7 @@ from typing import cast
 
 import bpy
 
+from .....core.actions.state.dopesheet import init_fade_seq_from_state
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
 from ....models import RGB, ControlMapElement, DancerName, MapID, PartName, PartType
@@ -31,28 +32,6 @@ from .utils import ensure_action, ensure_curve, get_keyframe_points
 default_keyframe_start = -1
 
 
-def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
-    if not bpy.context:
-        return
-    scene = bpy.context.scene
-    action = ensure_action(scene, "SceneAction")
-    curve = ensure_curve(
-        action, "ld_control_frame", keyframe_points=len(fade_seq), clear=True
-    )
-
-    # fade_seq contains only loaded frames
-    _, kpoints_list = get_keyframe_points(curve)
-    for i, (start, _) in enumerate(fade_seq):
-        point = kpoints_list[i]
-        point.co = start, start
-
-        if i > 0 and fade_seq[i - 1][1]:
-            point.co = start, kpoints_list[i - 1].co[1]
-
-        point.interpolation = "CONSTANT"
-        point.select_control_point = False
-
-
 def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]):
     if not bpy.context:
         return
@@ -70,83 +49,6 @@ def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]):
 
         ctrl_rev_item.frame_id = id
         ctrl_rev_item.frame_start = frame_start
-
-
-def update_control_frames_and_fade_sequence(
-    delete_frames: list[int],
-    update_frames: list[tuple[int, int]],
-    add_frames: list[int],
-    fade_seq: list[tuple[int, bool]],
-):
-    if not bpy.context:
-        return
-    scene = bpy.context.scene
-    action = ensure_action(scene, "SceneAction")
-
-    curve = ensure_curve(action, "ld_control_frame")
-    _, kpoints_list = get_keyframe_points(curve)
-
-    # Delete frames
-    kpoints_len = len(kpoints_list)
-    curve_index = 0
-
-    for old_start in delete_frames:
-        while (
-            curve_index < kpoints_len
-            and int(kpoints_list[curve_index].co[0]) != old_start
-        ):
-            curve_index += 1
-
-        if curve_index < kpoints_len:
-            point = kpoints_list[curve_index]
-            curve.keyframe_points.remove(point)
-
-    # Update frames
-    kpoints_len = len(kpoints_list)
-    curve_index = 0
-    points_to_update: list[tuple[int, bpy.types.Keyframe]] = []
-
-    for old_start, frame_start in update_frames:
-        while (
-            curve_index < kpoints_len
-            and int(kpoints_list[curve_index].co[0]) != old_start
-        ):
-            curve_index += 1
-
-        if curve_index < kpoints_len:
-            point = kpoints_list[curve_index]
-            points_to_update.append((frame_start, point))
-
-    for frame_start, point in points_to_update:
-        point.co = frame_start, frame_start
-
-    # Add frames
-    kpoints_len = len(kpoints_list)
-    curve.keyframe_points.add(len(add_frames))
-
-    for i, frame_start in enumerate(add_frames):
-        point = kpoints_list[kpoints_len + i]
-        point.co = frame_start, frame_start
-
-    curve.keyframe_points.sort()
-
-    # WARNING: This is a temporary fix for the fade sequence
-    if len(fade_seq) != len(kpoints_list):
-        curve = ensure_curve(
-            action, "ld_control_frame", keyframe_points=len(fade_seq), clear=True
-        )
-        _, kpoints_list = get_keyframe_points(curve)
-
-    # update fade sequence
-    for i, (start, _) in enumerate(fade_seq):
-        point = kpoints_list[i]
-        point.co = start, start
-
-        if i > 0 and fade_seq[i - 1][1]:
-            point.co = start, kpoints_list[i - 1].co[1]
-
-        point.interpolation = "CONSTANT"
-        point.select_control_point = False
 
 
 """
@@ -360,23 +262,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     reset_ctrl_rev(sorted_ctrl_map)
 
     # insert fake frame and update fade sequence
-    scene = bpy.context.scene
-
-    if scene.animation_data is not None:
-        del_action = cast(bpy.types.Action | None, scene.animation_data.action)
-        if del_action != None:
-            bpy.data.actions.remove(del_action, do_unlink=True)
-
-    if ctrl_frame_number == 0:
-        return
-
-    action = ensure_action(scene, "SceneAction")
-
-    if dancers_reset is None or all(dancers_reset):
-        fade_seq = [
-            (frame.start, frame.fade_for_new_status) for _, frame in filtered_ctrl_map
-        ]
-        reset_control_frames_and_fade_sequence(fade_seq)
+    init_fade_seq_from_state()
 
 
 """

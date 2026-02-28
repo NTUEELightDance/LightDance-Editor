@@ -6,11 +6,7 @@ from ...states import state
 from ...utils.convert import control_modify_to_animation_data
 from ...utils.notification import notify
 from ...utils.ui import redraw_area
-from ..property.animation_data import (
-    modify_partial_ctrl_keyframes,
-    reset_control_frames_and_fade_sequence,
-    reset_ctrl_rev,
-)
+from ..property.animation_data import modify_partial_ctrl_keyframes, reset_ctrl_rev
 from .current_status import calculate_current_status_index
 from .dopesheet import update_fade_seq
 

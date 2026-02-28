@@ -1,5 +1,9 @@
 import bpy
 
+from ....core.actions.state.dopesheet import (
+    init_fade_seq_from_state,
+    init_pos_seq_from_state,
+)
 from ....core.states import state
 from ....properties.types import RevisionPropertyType
 from ...log import logger
@@ -11,9 +15,7 @@ from ...utils.convert import (
 from .animation_data import (
     modify_partial_ctrl_keyframes,
     modify_partial_pos_keyframes,
-    reset_control_frames_and_fade_sequence,
     reset_ctrl_rev,
-    reset_pos_frames,
     reset_pos_rev,
 )
 
@@ -78,11 +80,7 @@ def update_rev_changes(
 
     sorted_pos_map = sorted(incoming_pos_map.items(), key=lambda item: item[1].start)
 
-    # delete_frames = [frame[0] for frame in pos_delete]
-    # update_frames = [(frame[0], frame[2].start) for frame in pos_update]
-    # add_frames = [frame[1].start for frame in pos_add]
-    # update_pos_frames(delete_frames, update_frames, add_frames)
-    reset_pos_frames()
+    init_pos_seq_from_state()
     logger.info("Done reset pos frames")
 
     reset_pos_rev(sorted_pos_map)
@@ -144,22 +142,8 @@ def update_rev_changes(
     sorted_ctrl_map = sorted(
         incoming_control_map.items(), key=lambda item: item[1].start
     )
-    filtered_ctrl_map = [
-        ctrl_item
-        for ctrl_item in sorted_ctrl_map
-        if ctrl_item[0] not in state.not_loaded_control_frames
-    ]
-    fade_seq = [
-        (frame.start, frame.fade_for_new_status) for _, frame in filtered_ctrl_map
-    ]
 
-    # delete_frames = [frame[0] for frame in control_delete]
-    # update_frames = [(frame[0], frame[2].start) for frame in control_update]
-    # add_frames = [frame[1].start for frame in control_add]
-    # update_control_frames_and_fade_sequence(
-    #     delete_frames, update_frames, add_frames, fade_seq
-    # )
-    reset_control_frames_and_fade_sequence(fade_seq)
+    init_fade_seq_from_state()
     logger.info("Done reset control frames and fade sequence")
 
     reset_ctrl_rev(sorted_ctrl_map)
