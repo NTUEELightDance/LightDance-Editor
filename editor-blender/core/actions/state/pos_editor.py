@@ -199,12 +199,16 @@ async def delete_pos_frame():
             await pos_agent.delete_frame(id, state.show_dancers)
             notify("INFO", f"Deleted position frame: {id}")
 
+            try:
+                await pos_agent.cancel_edit(id)
+            except:
+                pass
             # apply_pos_map_updates()
             # update_current_pos_by_index()
         except Exception as e:
             e_str = str(e)
-            e_json = json.loads(e_str)
             e_str = e_str.replace("'", '"')
+            e_json = json.loads(e_str)
             print("current delete error:", e_str)
             if e_json["message"].startswith("The target frame is being edited by user"):
                 notify("WARNING", "Delete frame rejected, for the frame is being edit")
