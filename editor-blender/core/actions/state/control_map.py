@@ -1,13 +1,7 @@
 import bpy
 
 from ...log import logger
-from ...models import (
-    ControlMap_MODIFIED,
-    ControlMapElement_MODIFIED,
-    ControlRecord,
-    EditMode,
-    MapID,
-)
+from ...models import ControlMap, ControlMapElement, ControlRecord, EditMode, MapID
 from ...states import state
 from ...utils.convert import control_modify_to_animation_data
 from ...utils.notification import notify
@@ -21,18 +15,18 @@ from .current_status import calculate_current_status_index
 from .dopesheet import update_fade_seq
 
 
-def set_control_map(control_map: ControlMap_MODIFIED):
-    state.control_map_MODIFIED = control_map
+def set_control_map(control_map: ControlMap):
+    state.control_map = control_map
 
 
 def set_control_record(control_record: ControlRecord):
     state.control_record = control_record
 
 
-def add_control(id: MapID, frame: ControlMapElement_MODIFIED):
+def add_control(id: MapID, frame: ControlMapElement):
     logger.info(f"Add control {id} at {frame.start}")
 
-    control_map_updates = state.control_map_updates_MODIFIED
+    control_map_updates = state.control_map_updates
     control_map_updates.added[id] = frame
 
     if (
@@ -50,7 +44,7 @@ def add_control(id: MapID, frame: ControlMapElement_MODIFIED):
 def delete_control(id: MapID):
     logger.info(f"Delete control {id}")
 
-    control_map_updates = state.control_map_updates_MODIFIED
+    control_map_updates = state.control_map_updates
 
     if id in control_map_updates.updated:
         control_map_updates.updated.pop(id)
@@ -68,7 +62,7 @@ def delete_control(id: MapID):
         print("KILLER:", control_map_updates)
         return
 
-    old_frame = state.control_map_MODIFIED.get(id)
+    old_frame = state.control_map.get(id)
     if old_frame is None:
         return
 
@@ -86,10 +80,10 @@ def delete_control(id: MapID):
         notify("INFO", f"Deleted control frame {id}")
 
 
-def update_control(id: MapID, frame: ControlMapElement_MODIFIED):
+def update_control(id: MapID, frame: ControlMapElement):
     logger.info(f"Update control {id} at {frame.start}")
 
-    control_map_updates = state.control_map_updates_MODIFIED
+    control_map_updates = state.control_map_updates
 
     for added_id, _ in control_map_updates.added.items():
         if added_id == id:
@@ -99,7 +93,7 @@ def update_control(id: MapID, frame: ControlMapElement_MODIFIED):
 
     for updated_id, _ in control_map_updates.updated.items():
         if updated_id == id:
-            old_frame = state.control_map_MODIFIED[id]
+            old_frame = state.control_map[id]
             control_map_updates.updated.pop(updated_id)
             control_map_updates.updated[id] = (old_frame.start, frame)
             return
@@ -124,7 +118,7 @@ def apply_control_map_updates():
     if not state.ready:
         return
 
-    control_map_updates = state.control_map_updates_MODIFIED
+    control_map_updates = state.control_map_updates
 
     # Update animation data
     updated = sorted(
@@ -147,7 +141,7 @@ def apply_control_map_updates():
         [(start, id) for id, start in control_map_updates.deleted.items()],
         key=lambda x: x[0],
     )
-    print(state.control_map_updates_MODIFIED)
+    print(state.control_map_updates)
     print(updated, added, deleted)
     modify_animation_data, no_change_dict = control_modify_to_animation_data(
         deleted, updated, added
@@ -156,19 +150,17 @@ def apply_control_map_updates():
 
     # Update control map
     for _, id in deleted:
-        state.control_map_MODIFIED.pop(id)
+        state.control_map.pop(id)
     for id, frame in added:
-        state.control_map_MODIFIED[id] = frame
+        state.control_map[id] = frame
     for _, id, frame in updated:
-        state.control_map_MODIFIED[id] = frame
+        state.control_map[id] = frame
 
     # Update control record
-    control_record = list(state.control_map_MODIFIED.keys())
-    control_record.sort(key=lambda id: state.control_map_MODIFIED[id].start)
+    control_record = list(state.control_map.keys())
+    control_record.sort(key=lambda id: state.control_map[id].start)
 
-    control_start_record = [
-        state.control_map_MODIFIED[id].start for id in control_record
-    ]
+    control_start_record = [state.control_map[id].start for id in control_record]
 
     state.control_record = control_record
     state.control_start_record = control_start_record
@@ -184,9 +176,7 @@ def apply_control_map_updates():
     control_map_updates.updated.clear()
     control_map_updates.deleted.clear()
 
-    sorted_ctrl_map = sorted(
-        state.control_map_MODIFIED.items(), key=lambda item: item[1].start
-    )
+    sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
     reset_ctrl_rev(sorted_ctrl_map)
 
     redraw_area({"VIEW_3D", "DOPESHEET_EDITOR"})

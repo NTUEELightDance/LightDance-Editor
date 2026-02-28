@@ -15,8 +15,8 @@ from ....schemas.mutations import (
 from ...log import logger
 from ...models import (
     ColorID,
-    ControlMapElement_MODIFIED,
-    ControlMapStatus_MODIFIED,
+    ControlMapElement,
+    ControlMapStatus,
     DancersArrayItem,
     EditingData,
     EditMode,
@@ -107,7 +107,7 @@ async def add_control_frame():
         return
     start = bpy.context.scene.frame_current
 
-    empty_status: ControlMapStatus_MODIFIED = {}
+    empty_status: ControlMapStatus = {}
     for dancer, parts in state.dancers.items():
         empty_status[dancer] = {}
         for part in parts:
@@ -133,7 +133,7 @@ def copy_ctrl_data_from_state(
     partControlData: MutDancerStatusPayload = []
     partLEDControlData: MutDancerLEDStatusPayload = []
 
-    ctrl_part_dict = state.control_map_MODIFIED[id].status[dancer.name]
+    ctrl_part_dict = state.control_map[id].status[dancer.name]
 
     for part in dancer.parts:
         if part.name not in ctrl_part_dict.keys():
@@ -259,9 +259,7 @@ async def save_control_frame(start: int | None = None):
 
         if not show_dancer_dict[dancer.name]:
             # for the dancer not shown, copy their ctrl data from state.control_map
-            first_part = state.control_map_MODIFIED[id].status[dancer.name][
-                dancer.parts[0].name
-            ]
+            first_part = state.control_map[id].status[dancer.name][dancer.parts[0].name]
             hasEffectData.append(first_part is not None)
             fadeData.append(False if first_part is None else first_part.fade)
 
@@ -331,7 +329,7 @@ async def delete_control_frame():
     id = state.control_record[index]
 
     # Get the frame data
-    frame = state.control_map_MODIFIED.get(id)
+    frame = state.control_map.get(id)
     if frame is None:
         notify("WARNING", "Frame not found")
         return
@@ -372,7 +370,7 @@ async def request_edit_control() -> bool:
 
     index = state.current_control_index
     control_id = state.control_record[index]
-    control_frame = state.control_map_MODIFIED[control_id]
+    control_frame = state.control_map[control_id]
 
     ok = None
     with send_request():

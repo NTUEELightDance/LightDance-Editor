@@ -30,7 +30,7 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                 if num >= 0 and num < len(state.control_record):
                     current_frame_index = num
                     current_frame_id = state.control_record[current_frame_index]
-                    current_frame = state.control_map_MODIFIED.get(current_frame_id)
+                    current_frame = state.control_map.get(current_frame_id)
                     if current_frame is None:
                         return
                     start = current_frame.start
@@ -51,7 +51,7 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
                 if num >= 0 and num < len(state.pos_record):
                     current_frame_index = num
                     current_frame_id = state.pos_record[current_frame_index]
-                    current_frame = state.pos_map_MODIFIED.get(current_frame_id)
+                    current_frame = state.pos_map.get(current_frame_id)
 
                     if current_frame is not None:
                         start = current_frame.start
@@ -83,7 +83,7 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
 #     match state.editor:
 #         case Editor.CONTROL_EDITOR:
 #             id = state.control_record[state.current_control_index]
-#             return state.control_map_MODIFIED[id].fade_for_new_status
+#             return state.control_map[id].fade_for_new_status
 #         case Editor.POS_EDITOR:
 #             return False
 #         case Editor.LED_EDITOR:
@@ -95,7 +95,7 @@ def set_current_frame_index(self: bpy.types.WindowManager, value: str):
 #         match state.editor:
 #             case Editor.CONTROL_EDITOR:
 #                 id = state.control_record[state.current_control_index]
-#                 state.control_map_MODIFIED[id].fade_for_new_status = value
+#                 state.control_map[id].fade_for_new_status = value
 #             case Editor.POS_EDITOR:
 #                 pass
 #             case Editor.LED_EDITOR:

@@ -5,13 +5,7 @@ from typing import Any
 
 from ..client import client
 from ..core.log import logger
-from ..core.models import (
-    ColorID,
-    ControlMap_MODIFIED,
-    ControlRecord,
-    LEDEffectID,
-    MapID,
-)
+from ..core.models import ColorID, ControlMap, ControlRecord, LEDEffectID, MapID
 from ..core.utils.convert import control_map_query_to_state
 from ..schemas.mutations import (
     ADD_CONTROL_FRAME,
@@ -75,7 +69,7 @@ class ControlAgent:
 
         return None
 
-    async def get_control_map(self, record: list[int]) -> ControlMap_MODIFIED | None:
+    async def get_control_map(self, record: list[int]) -> ControlMap | None:
         """Get the control map from the server."""
         try:
             controlMapQuery = QueryControlMapData(frameIds={})

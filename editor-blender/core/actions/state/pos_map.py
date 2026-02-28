@@ -16,7 +16,7 @@ from .dopesheet import update_pos_seq
 
 
 def set_pos_map(pos_map_modified: PosMap):
-    state.pos_map_MODIFIED = pos_map_modified
+    state.pos_map = pos_map_modified
 
 
 def set_pos_record(pos_record: PosRecord):
@@ -63,7 +63,7 @@ def delete_pos(id: MapID):
 
             return
 
-    old_frame = state.pos_map_MODIFIED.get(id)
+    old_frame = state.pos_map.get(id)
     if old_frame is None:
         return
 
@@ -94,12 +94,12 @@ def update_pos(id: MapID, frame: PosMapElement):
 
     for updated_id, _ in pos_map_updates.updated.items():
         if updated_id == id:
-            old_frame = state.pos_map_MODIFIED[id]
+            old_frame = state.pos_map[id]
             pos_map_updates.updated.pop(updated_id)
             pos_map_updates.updated[id] = (old_frame.start, frame)
             return
 
-    pos_map_updates.updated[id] = (state.pos_map_MODIFIED[id].start, frame)
+    pos_map_updates.updated[id] = (state.pos_map[id].start, frame)
 
     if (
         state.edit_state == EditMode.EDITING
@@ -115,7 +115,7 @@ def update_pos(id: MapID, frame: PosMapElement):
 
 def apply_pos_map_updates():
     if not state.ready:
-        if not bpy.context or not state.pos_map_MODIFIED:
+        if not bpy.context or not state.pos_map:
             return
 
     pos_map_updates = state.pos_map_updates
@@ -140,17 +140,17 @@ def apply_pos_map_updates():
 
     # Update control map
     for id, frame in added:
-        state.pos_map_MODIFIED[id] = frame
+        state.pos_map[id] = frame
     for _, id, frame in updated:
-        state.pos_map_MODIFIED[id] = frame
+        state.pos_map[id] = frame
     for _, id in deleted:
-        state.pos_map_MODIFIED.pop(id)
+        state.pos_map.pop(id)
 
     # Update pos record
-    pos_record = list(state.pos_map_MODIFIED.keys())
-    pos_record.sort(key=lambda id: state.pos_map_MODIFIED[id].start)
+    pos_record = list(state.pos_map.keys())
+    pos_record.sort(key=lambda id: state.pos_map[id].start)
 
-    pos_start_record = [state.pos_map_MODIFIED[id].start for id in pos_record]
+    pos_start_record = [state.pos_map[id].start for id in pos_record]
 
     state.pos_record = pos_record
     state.pos_start_record = pos_start_record
@@ -171,9 +171,7 @@ def apply_pos_map_updates():
     # update_frames = [(frame[0], frame[2].start) for frame in pos_update]
     # add_frames = [frame[1].start for frame in pos_add]
     # update_pos_frames(delete_frames, update_frames, add_frames)
-    sorted_pos_map = sorted(
-        state.pos_map_MODIFIED.items(), key=lambda item: item[1].start
-    )
+    sorted_pos_map = sorted(state.pos_map.items(), key=lambda item: item[1].start)
     reset_pos_frames()
     reset_pos_rev(sorted_pos_map)
 

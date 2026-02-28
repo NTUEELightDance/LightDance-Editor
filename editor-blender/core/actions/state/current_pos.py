@@ -67,7 +67,7 @@ def _interpolate_dancer_position(
 
     def _frame_at(idx: int):
         frame_id = state.pos_record[idx]
-        return state.pos_map_MODIFIED.get(frame_id) or state.pos_map.get(frame_id)
+        return state.pos_map.get(frame_id) or state.pos_map.get(frame_id)
 
     prev_pos: tuple[int, Position] | None = None
     for idx in range(current_index, -1, -1):
@@ -163,11 +163,11 @@ def update_current_pos_by_index():
                 ld_position: PositionPropertyType = getattr(obj, "ld_position")
                 _set_from_object_transform(obj, ld_position)
 
-    if not state.pos_map_MODIFIED:
+    if not state.pos_map:
         _sync_all_dancers_from_blender()
         return
 
-    pos_map_modified = state.pos_map_MODIFIED
+    pos_map_modified = state.pos_map
     pos_id = state.pos_record[index]
 
     current_pos_map = pos_map_modified.get(pos_id)

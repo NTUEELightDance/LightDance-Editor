@@ -12,7 +12,7 @@ from typing import cast
 import bpy
 
 from ....core.models import (
-    ControlMapElement_MODIFIED,
+    ControlMapElement,
     Editor,
     FadeSequence,
     MapID,
@@ -173,7 +173,7 @@ def get_filtered_index_for_second_timeline(
     r_timerange: int,
     init_start_index: int,
     init_end_index: int,
-    sorted_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
+    sorted_map: list[tuple[MapID, ControlMapElement]]
     | list[tuple[MapID, PosMapElement]],
     dancer_name: str,
     map_type: str,
@@ -190,9 +190,9 @@ def get_filtered_index_for_second_timeline(
     l_index = init_start_index
     r_index = init_end_index
 
-    def has_status(frame: ControlMapElement_MODIFIED | PosMapElement) -> bool:
+    def has_status(frame: ControlMapElement | PosMapElement) -> bool:
         if map_type == "CONTROL":
-            frame = cast(ControlMapElement_MODIFIED, frame)
+            frame = cast(ControlMapElement, frame)
             dancer_status = frame.status[dancer_name]
             return any(
                 part_status is not None for part_status in dancer_status.values()
@@ -592,7 +592,7 @@ def register_handle_timeline(obj: bpy.types.Object | None):
 
 
 def get_load_range(
-    sorted_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
+    sorted_map: list[tuple[MapID, ControlMapElement]]
     | list[tuple[MapID, PosMapElement]],
     filtered_start_index: int,
     filtered_end_index: int,
@@ -609,7 +609,7 @@ def get_load_range(
 
 
 def get_overall_fade_seq_for_frame(
-    frame: ControlMapElement_MODIFIED,
+    frame: ControlMapElement,
 ) -> tuple[int, bool, KeyframeType]:
     keyframe_type = KeyframeType.GENERATED
     active_dancers = [
@@ -651,9 +651,7 @@ def get_overall_pos_seq_for_frame(frame: PosMapElement) -> tuple[int, KeyframeTy
 
 
 def init_fade_seq_from_state():
-    sorted_ctrl_map = sorted(
-        state.control_map_MODIFIED.items(), key=lambda item: item[1].start
-    )
+    sorted_ctrl_map = sorted(state.control_map.items(), key=lambda item: item[1].start)
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
 
     if sorted_ctrl_map:
@@ -732,9 +730,7 @@ def init_fade_seq_from_state():
 
 
 def init_pos_seq_from_state():
-    sorted_pos_map = sorted(
-        state.pos_map_MODIFIED.items(), key=lambda item: item[1].start
-    )
+    sorted_pos_map = sorted(state.pos_map.items(), key=lambda item: item[1].start)
     sorted_frame_pos_map = [item[1].start for item in sorted_pos_map]
 
     if sorted_pos_map:
@@ -806,8 +802,8 @@ def setup_seq_map():
 
 
 def update_fade_seq(
-    updated: list[tuple[int, MapID, ControlMapElement_MODIFIED]],
-    added: list[tuple[MapID, ControlMapElement_MODIFIED]],
+    updated: list[tuple[int, MapID, ControlMapElement]],
+    added: list[tuple[MapID, ControlMapElement]],
     deleted: list[tuple[int, MapID]],
 ):
     fade_seq_map = state.fade_sequence_map

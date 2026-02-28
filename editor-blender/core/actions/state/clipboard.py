@@ -7,7 +7,7 @@ import bpy
 from ....core.actions.state.current_pos import _interpolate_dancer_position
 from ....properties.types import LightType, ObjectType, PositionPropertyType
 from ...models import (
-    ControlMapElement_MODIFIED,
+    ControlMapElement,
     CopiedDancerData,
     CopiedPartData,
     CopiedType,
@@ -321,7 +321,7 @@ async def paste_part() -> bool:
     return True
 
 
-def override_control(control_frame: ControlMapElement_MODIFIED):
+def override_control(control_frame: ControlMapElement):
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
@@ -390,7 +390,7 @@ def copy_control_frame():
 
     current_index = state.current_control_index
     current_frame_id = state.control_record[current_index]
-    current_frame = state.control_map_MODIFIED[current_frame_id]
+    current_frame = state.control_map[current_frame_id]
 
     clipboard.control_frame = current_frame
 
@@ -407,7 +407,7 @@ async def paste_control_frame(add_frame: bool) -> bool:
 
     current_index = state.current_control_index
     current_frame_id = state.control_record[current_index]
-    current_frame = state.control_map_MODIFIED[current_frame_id]
+    current_frame = state.control_map[current_frame_id]
 
     frame_current = bpy.context.scene.frame_current
 
@@ -420,7 +420,7 @@ async def paste_control_frame(add_frame: bool) -> bool:
                 try:
                     next(
                         frame
-                        for frame in state.control_map_MODIFIED.values()
+                        for frame in state.control_map.values()
                         if frame.start == frame_current
                     )
                     break
@@ -450,7 +450,7 @@ def copy_pos_frame():
 
     current_index = state.current_pos_index
     current_frame_id = state.pos_record[current_index]
-    current_frame = state.pos_map_MODIFIED[current_frame_id]
+    current_frame = state.pos_map[current_frame_id]
     clipboard.pos_frame = current_frame
 
 
@@ -498,7 +498,7 @@ async def paste_pos_frame(add_frame: bool) -> bool:
 
     current_index = state.current_pos_index
     current_frame_id = state.pos_record[current_index]
-    current_frame = state.pos_map_MODIFIED[current_frame_id]
+    current_frame = state.pos_map[current_frame_id]
 
     frame_current = bpy.context.scene.frame_current
 
@@ -511,7 +511,7 @@ async def paste_pos_frame(add_frame: bool) -> bool:
                 try:
                     next(
                         frame
-                        for frame in state.pos_map_MODIFIED.values()
+                        for frame in state.pos_map.values()
                         if frame.start == frame_current
                     )
                     break

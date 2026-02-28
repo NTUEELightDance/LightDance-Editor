@@ -7,23 +7,6 @@ from ...states import state
 from ...utils.algorithms import binary_search
 
 
-# FIXME: Delete this after start record is fixed
-def _pos_frame_starts() -> list[int | None]:
-    """
-    Return a list aligned with pos_record containing frame start times.
-    Prefer cached pos_start_record; fall back to pos_map (which keeps the
-    original frame info even if pos_map_MODIFIED has None placeholders).
-    """
-    if state.pos_start_record and len(state.pos_start_record) == len(state.pos_record):
-        return state.pos_start_record
-
-    starts: list[int | None] = []
-    for frame_id in state.pos_record:
-        frame = state.pos_map.get(frame_id) or state.pos_map_MODIFIED.get(frame_id)
-        starts.append(frame.start if frame is not None else None)
-    return starts
-
-
 def increase_frame_index():
     if not bpy.context:
         return
@@ -52,7 +35,7 @@ def increase_frame_index():
                 str(next_index),
             )
         case Editor.POS_EDITOR:
-            sorted_pos_frames = _pos_frame_starts()
+            sorted_pos_frames = state.pos_start_record
             current_frame_index = state.current_pos_index
             if current_frame_index < len(state.pos_record) - 1:
                 next_index = current_frame_index + 1
@@ -96,7 +79,7 @@ def decrease_frame_index():
                 str(prev_frame_index),
             )
         case Editor.POS_EDITOR:
-            sorted_pos_frames = _pos_frame_starts()
+            sorted_pos_frames = state.pos_start_record
             current_frame_index = state.current_pos_index
             if current_frame_index > 0:
                 current_start = (

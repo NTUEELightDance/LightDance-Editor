@@ -1,9 +1,9 @@
 from ...api.control_agent import control_agent
 from ...api.pos_agent import pos_agent
-from ..models import ControlMap_MODIFIED, ControlRecord, PosMap, PosRecord
+from ..models import ControlMap, ControlRecord, PosMap, PosRecord
 
 
-async def get_control() -> tuple[ControlMap_MODIFIED | None, ControlRecord | None]:
+async def get_control() -> tuple[ControlMap | None, ControlRecord | None]:
     control_record = await control_agent.get_control_record()
     if control_record is None:
         raise Exception("Failed to get control record")

@@ -19,14 +19,12 @@ def setup_animation_data():
 
     try:
         if update_all:
-            update_rev_changes(state.pos_map_MODIFIED, state.control_map_MODIFIED)
+            update_rev_changes(state.pos_map, state.control_map)
             return
 
         init_ctrl_keyframes_from_state(dancers_reset_animation)
         init_pos_keyframes_from_state(dancers_reset_animation)
-        update_rev_changes(
-            state.pos_map_MODIFIED, state.control_map_MODIFIED, dancers_reset_animation
-        )
+        update_rev_changes(state.pos_map, state.control_map, dancers_reset_animation)
 
     except Exception:
         logger.exception("Failed to setup animation data")

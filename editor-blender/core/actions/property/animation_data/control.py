@@ -10,14 +10,7 @@ import bpy
 
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
-from ....models import (
-    RGB,
-    ControlMapElement_MODIFIED,
-    DancerName,
-    MapID,
-    PartName,
-    PartType,
-)
+from ....models import RGB, ControlMapElement, DancerName, MapID, PartName, PartType
 from ....states import state
 from ....utils.algorithms import (
     binary_search,
@@ -60,7 +53,7 @@ def reset_control_frames_and_fade_sequence(fade_seq: list[tuple[int, bool]]):
         point.select_control_point = False
 
 
-def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]]):
+def reset_ctrl_rev(sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]):
     if not bpy.context:
         return
     getattr(bpy.context.scene, "ld_ctrl_rev").clear()
@@ -181,8 +174,8 @@ def init_ctrl_single_object_action(
 
 
 def _filter_ctrl_map_by_loaded_range(
-    sorted_ctrl_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
-) -> tuple[list[int], list[tuple[MapID, ControlMapElement_MODIFIED]], tuple[int, int],]:
+    sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]
+) -> tuple[list[int], list[tuple[MapID, ControlMapElement]], tuple[int, int],]:
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
@@ -213,7 +206,7 @@ def _filter_ctrl_map_by_loaded_range(
 
 def _init_control_part_action_keyframes(
     init_indexs_r_closed: tuple[int, int] | tuple[()],
-    sorted_control_map: list[tuple[MapID, ControlMapElement_MODIFIED]],
+    sorted_control_map: list[tuple[MapID, ControlMapElement]],
 ) -> dict[PartName, tuple[()] | tuple[int, int]]:
     frame_range_l, frame_range_r = state.dancer_load_frames
     init_index_l, init_index_r_closed = -1, -1
@@ -249,7 +242,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
         return
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-    ctrl_map = state.control_map_MODIFIED
+    ctrl_map = state.control_map
 
     sorted_ctrl_map = sorted(ctrl_map.items(), key=lambda item: item[1].start)
     sorted_ctrl_start_map = [item[1].start for item in sorted_ctrl_map]
@@ -258,7 +251,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     filtered_ctrl_map = []
     init_indexs_r_closed = ()
     not_loaded_ctrl_frames = []
-    if state.control_map_MODIFIED:
+    if state.control_map:
         filtered_ctrl_map_start, filtered_ctrl_map_end = smallest_range_including_lr(
             sorted_ctrl_start_map, frame_range_l, frame_range_r
         )
@@ -529,7 +522,7 @@ def _upsert_no_change_data(
     for index, start in no_change_tuple_list:
         current_index = state.control_start_record.index(start)
         current_mapID = state.control_record[current_index]
-        current_alpha = state.control_map_MODIFIED[current_mapID].status[dancer_name][part_name].part_data.alpha  # type: ignore
+        current_alpha = state.control_map[current_mapID].status[dancer_name][part_name].part_data.alpha  # type: ignore
 
         prev_index = index - 1
         prev_point = kpoints_lists[0][prev_index]
@@ -537,7 +530,7 @@ def _upsert_no_change_data(
         prev_index = state.control_start_record.index(prev_start)
         prev_mapID = state.control_record[prev_index]
 
-        prev_part_data = state.control_map_MODIFIED[prev_mapID].status[dancer_name][part_name].part_data  # type: ignore
+        prev_part_data = state.control_map[prev_mapID].status[dancer_name][part_name].part_data  # type: ignore
         prev_alpha = prev_part_data.alpha  # type: ignore
         ratio = 0
         if prev_alpha != 0:

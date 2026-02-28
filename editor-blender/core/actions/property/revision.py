@@ -3,13 +3,7 @@ import bpy
 from ....core.states import state
 from ....properties.types import RevisionPropertyType
 from ...log import logger
-from ...models import (
-    ControlMap_MODIFIED,
-    ControlMapElement_MODIFIED,
-    MapID,
-    PosMap,
-    PosMapElement,
-)
+from ...models import ControlMap, ControlMapElement, MapID, PosMap, PosMapElement
 from ...utils.convert import (
     control_modify_to_animation_data,
     pos_modify_to_animation_data,
@@ -26,7 +20,7 @@ from .animation_data import (
 
 def update_rev_changes(
     incoming_pos_map: PosMap,
-    incoming_control_map: ControlMap_MODIFIED,
+    incoming_control_map: ControlMap,
     dancers_reset: list[bool] | None = None,
 ):
     if not bpy.context:
@@ -105,9 +99,9 @@ def update_rev_changes(
     incoming_rev = {id: element.rev for id, element in incoming_control_map.items()}
 
     # sorted by old start time
-    control_update: list[tuple[int, MapID, ControlMapElement_MODIFIED]] = []
+    control_update: list[tuple[int, MapID, ControlMapElement]] = []
     # sorted by start time
-    control_add: list[tuple[MapID, ControlMapElement_MODIFIED]] = []
+    control_add: list[tuple[MapID, ControlMapElement]] = []
     # sorted by start time
     control_delete: list[tuple[int, MapID]] = []
 

@@ -37,15 +37,15 @@ from ..models import (
     Color,
     ColorID,
     ColorMap,
-    ControlMap_MODIFIED,
-    ControlMapElement_MODIFIED,
-    ControlMapStatus_MODIFIED,
+    ControlMap,
+    ControlMapElement,
+    ControlMapStatus,
     CtrlData,
     DancerName,
     DancersArray,
     DancersArrayItem,
     DancersArrayPartsItem,
-    DancerStatus_MODIFIED,
+    DancerStatus,
     FiberData,
     LEDBulbData,
     LEDData,
@@ -214,14 +214,14 @@ def control_status_query_to_state(
     led_status_payload: list[QueryDancerLEDBulbStatusPayload],
     fade_payload: list[MutDancerFade],
     has_effect_payload: list[MutDancerHasEffect],
-) -> ControlMapStatus_MODIFIED:
-    control_map_status: ControlMapStatus_MODIFIED = {}
+) -> ControlMapStatus:
+    control_map_status: ControlMapStatus = {}
 
     for dancerIndex, dancerStatus in enumerate(status_payload):
         dancers_array_item = state.dancers_array[dancerIndex]
         dancer_name = dancers_array_item.name
         dancer_parts = dancers_array_item.parts
-        dancer_status: DancerStatus_MODIFIED = {}
+        dancer_status: DancerStatus = {}
 
         dancerLEDStatus = led_status_payload[dancerIndex]
         fadeStatus = fade_payload[dancerIndex]
@@ -272,10 +272,10 @@ def control_status_query_to_state(
 
 def control_frame_query_to_state(
     payload: QueryControlFrame,
-) -> ControlMapElement_MODIFIED:
+) -> ControlMapElement:
     rev = Revision(meta=payload.rev.meta, data=payload.rev.data)
 
-    control_map_element = ControlMapElement_MODIFIED(
+    control_map_element = ControlMapElement(
         start=payload.start, status={}, rev=rev, fade_for_new_status=False
     )
 
@@ -286,8 +286,8 @@ def control_frame_query_to_state(
     return control_map_element
 
 
-def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap_MODIFIED:
-    control_map: ControlMap_MODIFIED = {}
+def control_map_query_to_state(frames: QueryControlMapPayload) -> ControlMap:
+    control_map: ControlMap = {}
 
     for id, frame in frames.items():
         control_map[id] = control_frame_query_to_state(frame)
@@ -323,7 +323,7 @@ def control_frame_sub_to_query(data: SubControlFrame) -> QueryControlFrame:
 
 
 def control_status_state_to_mut(
-    control_status: ControlMapStatus_MODIFIED,
+    control_status: ControlMapStatus,
 ) -> tuple[
     list[MutDancerHasEffect],
     list[MutDancerFade],
@@ -631,7 +631,7 @@ def pos_modify_to_animation_data(
 
     for old_start, id in pos_delete:
         # Get the original frame to find which dancers have position data
-        original_frame = state.pos_map_MODIFIED.get(id)
+        original_frame = state.pos_map.get(id)
         if original_frame:
             for dancer_item in state.dancers_array:
                 if not show_dancer_dict[dancer_item.name]:
@@ -653,7 +653,7 @@ def pos_modify_to_animation_data(
         old_frame_id = mapID
 
         old_pos_status = (
-            state.pos_map_MODIFIED.get(old_frame_id).pos if old_frame_id else {}  # type: ignore
+            state.pos_map.get(old_frame_id).pos if old_frame_id else {}  # type: ignore
         )
 
         for _, dancer_item in enumerate(state.dancers_array):
@@ -808,9 +808,7 @@ def _seek_no_change_data(start, dancer_name, part_name) -> list[int]:
     no_change_start_list = []
     while right_index < len(state.control_start_record):
         right_id = state.control_record[right_index]
-        check_status = state.control_map_MODIFIED[right_id].status[dancer_name][
-            part_name
-        ]
+        check_status = state.control_map[right_id].status[dancer_name][part_name]
         if check_status is None:
             right_index += 1
             continue
@@ -827,8 +825,8 @@ def _seek_no_change_data(start, dancer_name, part_name) -> list[int]:
 
 def control_modify_to_animation_data(
     control_delete: list[tuple[int, MapID]],
-    control_update: list[tuple[int, MapID, ControlMapElement_MODIFIED]],
-    control_add: list[tuple[MapID, ControlMapElement_MODIFIED]],
+    control_update: list[tuple[int, MapID, ControlMapElement]],
+    control_add: list[tuple[MapID, ControlMapElement]],
 ) -> tuple[ControlModifyAnimationData, dict[str, list[int]]]:
     new_map: ControlModifyAnimationData = {}
     no_change_dict: dict[str, list[int]] = {}
@@ -1049,7 +1047,7 @@ def control_modify_to_animation_data(
 
 
 def control_map_to_animation_data(
-    sorted_control_map: list[tuple[MapID, ControlMapElement_MODIFIED]],
+    sorted_control_map: list[tuple[MapID, ControlMapElement]],
     part_range_dict: dict[PartName, tuple[()] | tuple[int, int]],
 ) -> ControlAnimationData:
     new_map: ControlAnimationData = {}

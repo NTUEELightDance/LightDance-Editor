@@ -1,6 +1,6 @@
 from typing import Literal, cast
 
-from ...core.models import ControlMapElement_MODIFIED, LEDData, MapID, PosMapElement
+from ...core.models import ControlMapElement, LEDData, MapID, PosMapElement
 
 
 def binary_search(arr: list[int], x: int) -> int:
@@ -90,7 +90,7 @@ def expanded_filtered_map_bound(
     r_timerange: int,
     init_start_index: int,
     init_closed_end_index: int,
-    sorted_map: list[tuple[MapID, ControlMapElement_MODIFIED]]
+    sorted_map: list[tuple[MapID, ControlMapElement]]
     | list[tuple[MapID, PosMapElement]],
     dancer_name: str,
     part_name: str | None = None,
@@ -111,10 +111,10 @@ def expanded_filtered_map_bound(
     end_index = init_closed_end_index
 
     def has_status_and_not_no_change(
-        frame: ControlMapElement_MODIFIED | PosMapElement,
+        frame: ControlMapElement | PosMapElement,
     ) -> bool:
         if part_name is not None:
-            frame = cast(ControlMapElement_MODIFIED, frame)
+            frame = cast(ControlMapElement, frame)
             dancer_status = frame.status[dancer_name]
             if dancer_status[part_name] is None:
                 return False
@@ -130,9 +130,9 @@ def expanded_filtered_map_bound(
             frame = cast(PosMapElement, frame)
             return frame.pos[dancer_name] is not None
 
-    def has_status(frame: ControlMapElement_MODIFIED | PosMapElement) -> bool:
+    def has_status(frame: ControlMapElement | PosMapElement) -> bool:
         if part_name is not None:
-            frame = cast(ControlMapElement_MODIFIED, frame)
+            frame = cast(ControlMapElement, frame)
             dancer_status = frame.status[dancer_name]
             return dancer_status[part_name] is not None
         else:

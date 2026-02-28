@@ -258,7 +258,7 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
         return
     data_objects = cast(dict[str, bpy.types.Object], bpy.data.objects)
 
-    pos_map_modified = state.pos_map_MODIFIED
+    pos_map_modified = state.pos_map
 
     sorted_pos_map = sorted(pos_map_modified.items(), key=lambda item: item[1].start)
 
@@ -267,7 +267,7 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
     filtered_pos_map = []
     init_indexs_r_closed = ()
-    if state.pos_map_MODIFIED:
+    if state.pos_map:
         filtered_pos_map_start, filtered_pos_map_end = smallest_range_including_lr(
             sorted_frame_pos_map, frame_range_l, frame_range_r
         )

@@ -127,7 +127,7 @@ def update_current_status_by_index():
 
     index = state.current_control_index
 
-    control_map = state.control_map_MODIFIED
+    control_map = state.control_map
     if not control_map:
         return
 
@@ -145,7 +145,7 @@ def update_current_status_by_index():
     setattr(bpy.context.window_manager, "ld_start", current_control_map.start)
 
     current_ctrl_status = current_control_map.status
-    state.current_status_MODIFIED = current_control_map.status
+    state.current_status = current_control_map.status
     # state.current_led_status = current_led_status
 
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
@@ -170,9 +170,9 @@ def update_current_status_by_index():
                     break
 
                 prev_control_id = state.control_record[prev_notnone_index]
-                prev_ctrl_data = state.control_map_MODIFIED[prev_control_id].status[
-                    dancer.name
-                ][first_part_name]
+                prev_ctrl_data = state.control_map[prev_control_id].status[dancer.name][
+                    first_part_name
+                ]
                 if prev_ctrl_data is not None:
                     break
 
@@ -189,7 +189,7 @@ def update_current_status_by_index():
 
                 prev_ctrl_data = None
                 if prev_notnone_index >= 0:
-                    prev_ctrl_data = state.control_map_MODIFIED[prev_control_id].status[
+                    prev_ctrl_data = state.control_map[prev_control_id].status[
                         dancer.name
                     ][part_name]
 

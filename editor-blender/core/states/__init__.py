@@ -3,7 +3,6 @@ from ..models import (
     ColorMapPending,
     ColorMapUpdates,
     ControlMapUpdates,
-    ControlMapUpdates_MODIFIED,
     CopiedType,
     EditingData,
     EditMode,
@@ -49,10 +48,6 @@ state = State(
     ready=False,
     control_map={},
     pos_map={},
-    #
-    control_map_MODIFIED={},
-    pos_map_MODIFIED={},
-    #
     not_loaded_control_frames=[],
     not_loaded_pos_frames=[],
     control_record=[],
@@ -65,14 +60,7 @@ state = State(
     current_pos_index=0,
     current_led_index=0,
     current_status={},
-    current_led_status={},
-    #
-    current_status_MODIFIED={},
-    current_pos_MODIFIED={},
-    control_map_updates_MODIFIED=ControlMapUpdates_MODIFIED(
-        added={}, updated={}, deleted={}
-    ),
-    #
+    current_pos={},
     current_editing_frame=0,
     current_editing_detached=False,
     current_editing_frame_synced=True,

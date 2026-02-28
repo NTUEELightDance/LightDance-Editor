@@ -136,7 +136,7 @@ class PasteFrameOperator(AsyncOperator):
 
             current_index = state.current_control_index
             current_frame_id = state.control_record[current_index]
-            current_frame = state.control_map_MODIFIED[current_frame_id]
+            current_frame = state.control_map[current_frame_id]
 
             frame_current = context.scene.frame_current
 
@@ -152,7 +152,7 @@ class PasteFrameOperator(AsyncOperator):
 
             current_index = state.current_pos_index
             current_frame_id = state.pos_record[current_index]
-            current_frame = state.pos_map_MODIFIED[current_frame_id]
+            current_frame = state.pos_map[current_frame_id]
 
             frame_current = context.scene.frame_current
 

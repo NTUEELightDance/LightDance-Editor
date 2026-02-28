@@ -50,7 +50,7 @@ def sync_editing_pos_frame_properties():
 def pos_frame_neighbors(
     frame: int, dancer_name: DancerName
 ) -> tuple[tuple[int, Position], tuple[int, Position]] | None:
-    pos_map = sorted(state.pos_map_MODIFIED.values(), key=lambda elem: elem.start)
+    pos_map = sorted(state.pos_map.values(), key=lambda elem: elem.start)
     if len(pos_map) == 0:
         return None
 
@@ -116,7 +116,7 @@ async def save_pos_frame(start: int | None = None):
     hasEffectData: list[bool] = []
     for index in range(len(state.dancer_names)):
         if not show_dancer[index]:
-            pos = state.pos_map_MODIFIED[id].pos[state.dancer_names[index]]
+            pos = state.pos_map[id].pos[state.dancer_names[index]]
             if pos is None:
                 positionData.append([0, 0, 0, 0, 0, 0])
                 hasEffectData.append(False)
@@ -189,7 +189,7 @@ async def delete_pos_frame():
     id = state.pos_record[index]
 
     # Get the frame data
-    frame = state.pos_map_MODIFIED.get(id)
+    frame = state.pos_map.get(id)
     if frame is None:
         notify("WARNING", "Frame not found")
         return
@@ -272,7 +272,7 @@ async def request_edit_pos() -> bool:
 
     index = state.current_pos_index
     pos_id = state.pos_record[index]
-    pos_frame = state.pos_map_MODIFIED[pos_id]
+    pos_frame = state.pos_map[pos_id]
 
     with send_request():
         ok = await pos_agent.request_edit(pos_id)

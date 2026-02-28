@@ -92,7 +92,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
         # Find previous effect
         while control_index > 0:
             prev_control_id = state.control_record[control_index - 1]
-            prev_control_map = state.control_map_MODIFIED[prev_control_id]
+            prev_control_map = state.control_map[prev_control_id]
 
             ld_dancer_name: str = getattr(self, "ld_dancer_name")
             prev_dancer_status = prev_control_map.status[ld_dancer_name]

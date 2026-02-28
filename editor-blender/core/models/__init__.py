@@ -69,27 +69,12 @@ class FiberData:
 
 
 PartData = LEDData | FiberData
-DancerStatus = dict[PartName, PartData]
-DancerLEDStatus = dict[PartName, list[LEDBulbData]]
 
 
 @dataclass
 class Revision:
     meta: int
     data: int
-
-
-ControlMapStatus = dict[DancerName, DancerStatus]
-ControlMapLEDStatus = dict[DancerName, DancerLEDStatus]
-
-
-@dataclass
-class ControlMapElement:
-    start: int
-    fade: bool
-    rev: Revision
-    status: ControlMapStatus
-    led_status: ControlMapLEDStatus
 
 
 @dataclass
@@ -100,21 +85,20 @@ class CtrlData:
 
 
 # None: skip the frame
-DancerStatus_MODIFIED = dict[PartName, CtrlData | None]
-ControlMapStatus_MODIFIED = dict[DancerName, DancerStatus_MODIFIED]
+DancerStatus = dict[PartName, CtrlData | None]
+ControlMapStatus = dict[DancerName, DancerStatus]
 
 
 @dataclass
-class ControlMapElement_MODIFIED:
+class ControlMapElement:
     start: int
     fade_for_new_status: bool  # If overriding fade is true, fade of all part goes true
     rev: Revision
-    status: ControlMapStatus_MODIFIED
+    status: ControlMapStatus
 
-
-ControlMap_MODIFIED = dict[MapID, ControlMapElement_MODIFIED]
 
 ControlMap = dict[MapID, ControlMapElement]
+
 
 ControlRecord = list[MapID]
 
@@ -246,13 +230,6 @@ class LEDMapUpdates:
 
 
 @dataclass
-class ControlMapUpdates:
-    added: dict[MapID, ControlMapElement]
-    updated: dict[MapID, tuple[int, ControlMapElement]]
-    deleted: dict[MapID, int]
-
-
-@dataclass
 class PosMapUpdates:
     added: dict[MapID, PosMapElement]
     updated: dict[MapID, tuple[int, PosMapElement]]
@@ -260,9 +237,9 @@ class PosMapUpdates:
 
 
 @dataclass
-class ControlMapUpdates_MODIFIED:
-    added: dict[MapID, ControlMapElement_MODIFIED]
-    updated: dict[MapID, tuple[int, ControlMapElement_MODIFIED]]
+class ControlMapUpdates:
+    added: dict[MapID, ControlMapElement]
+    updated: dict[MapID, tuple[int, ControlMapElement]]
     deleted: dict[MapID, int]
 
 
@@ -327,7 +304,7 @@ class CopiedDancerData:
 @dataclass
 class Clipboard:
     type: CopiedType
-    control_frame: ControlMapElement_MODIFIED | None = None
+    control_frame: ControlMapElement | None = None
     pos_frame: PosMapElement | None = None
     dancer: CopiedDancerData | None = None
 
@@ -435,10 +412,6 @@ class State:
     ready: bool
 
     # TODO implement these
-    control_map_MODIFIED: ControlMap_MODIFIED
-    pos_map_MODIFIED: PosMap
-    # above
-
     control_map: ControlMap
     pos_map: PosMap
     not_loaded_control_frames: list[MapID]
@@ -456,13 +429,8 @@ class State:
     current_pos_index: int
     current_led_index: int
 
-    # NOTE: Maybe we don't need these
     current_status: ControlMapStatus
-    current_led_status: ControlMapLEDStatus
-
-    # TODO implement these
-    current_status_MODIFIED: ControlMapStatus_MODIFIED
-    current_pos_MODIFIED: PosMapStatus
+    current_pos: PosMapStatus
     # above
 
     current_editing_frame: int
@@ -484,7 +452,6 @@ class State:
     selected_obj_type: SelectedPartType | None
 
     clipboard: Clipboard
-    # # TODO implement these
 
     models: Models
     model_names: list[ModelName]
@@ -510,8 +477,6 @@ class State:
     color_map_pending: ColorMapPending
 
     control_map_updates: ControlMapUpdates
-    # TODO implement these
-    control_map_updates_MODIFIED: ControlMapUpdates_MODIFIED
     control_map_pending: bool
 
     pos_map_updates: PosMapUpdates
