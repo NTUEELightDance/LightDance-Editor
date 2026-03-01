@@ -260,7 +260,7 @@ pub async fn frame_dat(
 
             (
                 (data.contorl_frame_id, data.part_id),
-                [color[0], color[0], color[0], data.alpha.unwrap_or(255)],
+                [color[0], color[1], color[2], data.alpha.unwrap_or(255)],
             )
         }));
 
