@@ -406,7 +406,12 @@ pub async fn frame_dat(
         let part_id = data[0].part_id;
 
         let bulb_status: Vec<LEDStatus> = Vec::from_iter(data.into_iter().map(|bulb| {
-            let color = color_map.get(&bulb.color_id).unwrap_or(&DEFAULT_COLOR);
+            // let color = color_map.get(&bulb.color_id).unwrap_or(&DEFAULT_COLOR);
+            let color = if bulb.color_id == -1 {
+                &[-1, -1, -1]
+            } else {
+                color_map.get(&bulb.color_id).unwrap_or(&DEFAULT_COLOR)
+            };
             [color[0], color[1], color[2], bulb.alpha]
         }));
 
