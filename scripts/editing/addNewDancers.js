@@ -1,126 +1,116 @@
-const oldData = require("./out/exportData.json");
-const newData = require("../../utils/jsons/exportDataEmpty.json");
+/* 
+ * This script merges old dancer data with new dancer data, ensuring that new dancers
+ * are properly initialized with default positions, rotations, and effects.
+ * 
+ * To test out this script, simply run 
+ * `node scripts/editing/addNewDancers.test.js` 
+ * 
+ * The merged data will be saved to `out/exportData_merged.json`.
+ */
 
-const generateDefaultLocation = (dancerData) => {
-  const length = dancerData.length;
-  const spacing = 1;
-  const pos = dancerData.map((val, index) => [
-    -5,
-    (index - (length - 1) / 2) * spacing,
-    0,
-  ]);
-  return pos;
+const fs = require("fs");
+const path = require("path");
+
+const DEFAULT_POSITION_X = -5;
+const DEFAULT_SPACING = 1;
+const DEFAULT_ROTATION = [0, 0, 0];
+const DEFAULT_COLOR = ["black", 0];
+
+const generateDefaultLocation = (dancers) => {
+    const length = dancers.length;
+    return dancers.map((_, index) => [
+        DEFAULT_POSITION_X,
+        (index - (length - 1) / 2) * DEFAULT_SPACING,
+        0,
+    ]);
 };
 
-const merge = (
-  oldData,
-  newData,
-  defaultLocation,
-  defaultRotation,
-  defaultColorData,
-  defaultEffectData
-) => {
-  let mergedDancer = newData.dancer;
-  let mergedPosition = oldData.position;
-  let mergedControl = oldData.control;
-  let mergedColor = oldData.color;
-  let mergedLEDEffects = oldData.LEDEffects;
-
-  // Create default position for new dancers
-  Object.keys(mergedPosition).forEach((id) => {
-    let positionFrame = oldData.position[id];
-    let loc = positionFrame.location;
-    for (let i = loc.length; i < mergedDancer.length; i++) {
-      loc.push(defaultLocation[i]);
+const extendArray = (arr, targetLength, fillFn) => {
+    for (let i = arr.length; i < targetLength; i++) {
+        arr.push(fillFn(i));
     }
-    let rot = positionFrame.rotation;
-    for (let i = rot.length; i < mergedDancer.length; i++) {
-      rot.push(defaultRotation);
-    }
-  });
+};
 
-  // Create default status for new dancers
-  Object.keys(mergedControl).forEach((id) => {
-    let controlFrame = oldData.control[id];
-    let status = controlFrame.status;
-    let ledStatus = controlFrame.led_status;
-    for (let i = status.length; i < mergedDancer.length; i++) {
-      const dancerParts = mergedDancer[i].parts;
-      let newStatus = [];
-      dancerParts.forEach((part) => {
-        if (part.type == "FIBER") {
-          newStatus.push(defaultColorData);
-        } else {
-          newStatus.push(defaultEffectData);
-        }
-      });
+const merge = (oldData, newData, defaultLocation) => {
+    const mergedDancer = newData.dancer;
+    const mergedPosition = oldData.position;
+    const mergedControl = oldData.control;
+    const mergedColor = oldData.color;
+    const mergedLEDEffects = oldData.LEDEffects;
 
-      status.push(newStatus);
-    }
-    for (let i = ledStatus.length; i < mergedDancer.length; i++) {
-      const dancerParts = mergedDancer[i].parts;
-      let newLedStatus = [];
-      dancerParts.forEach((part) => {
-        if (part.type == "FIBER") {
-          newLedStatus.push([]);
-        } else {
-          newLedStatus.push([]);
-        }
-      });
-      ledStatus.push(newLedStatus);
-    }
-  });
-
-  // Create default effects for new dancers
-  newData.dancer.forEach((dancer) => {
-    if (dancer.model in mergedLEDEffects) {
-      return;
-    }
-
-    let dancerEffects = {};
-    dancer.parts.forEach((part) => {
-      let partEffects = {};
-      if (part.type == "LED") {
-        Object.keys(mergedColor).forEach((colorName) => {
-          partEffects[colorName] = {
-            repeat: 0,
-            frames: [
-              {
-                LEDs: Array(part.length).fill([colorName, 255]),
-                start: 0,
-                fade: false,
-              },
-            ],
-          };
-        });
-
-        dancerEffects[part.name] = partEffects;
-      }
+    // Extend positions for new dancers
+    Object.values(mergedPosition).forEach((frame) => {
+        extendArray(frame.location, mergedDancer.length, (i) => defaultLocation[i]);
+        extendArray(frame.rotation, mergedDancer.length, () => DEFAULT_ROTATION);
     });
 
-    mergedLEDEffects[dancer.model] = dancerEffects;
-  });
+    // Extend control status for new dancers
+    Object.values(mergedControl).forEach((frame) => {
+        extendArray(frame.status, mergedDancer.length, (i) => {
+            return mergedDancer[i].parts.map(() => DEFAULT_COLOR);
+        });
 
-  return {
-    dancer: mergedDancer,
-    position: mergedPosition,
-    control: mergedControl,
-    color: mergedColor,
-    LEDEffects: mergedLEDEffects,
-  };
+        extendArray(frame.led_status, mergedDancer.length, (i) => {
+            return mergedDancer[i].parts.map(() => []);
+        });
+    });
+
+    // Initialize LED effects for new dancers
+    mergedDancer.forEach((dancer) => {
+        if (dancer.model in mergedLEDEffects) return;
+
+        const dancerEffects = {};
+
+        dancer.parts.forEach((part) => {
+            if (part.type !== "LED") return;
+
+            const partEffects = {};
+
+            Object.keys(mergedColor).forEach((colorName) => {
+                partEffects[colorName] = {
+                    repeat: 0,
+                    frames: [
+                        {
+                            LEDs: Array(part.length).fill([colorName, 255]),
+                            start: 0,
+                            fade: false,
+                        },
+                    ],
+                };
+            });
+
+            dancerEffects[part.name] = partEffects;
+        });
+
+        mergedLEDEffects[dancer.model] = dancerEffects;
+    });
+
+    return {
+        dancer: mergedDancer,
+        position: mergedPosition,
+        control: mergedControl,
+        color: mergedColor,
+        LEDEffects: mergedLEDEffects,
+    };
 };
 
-const defaultLocation = generateDefaultLocation(newData.dancer);
-const defaultRotation = [0, 0, 0];
-const defaultColorData = ["black", 0];
-const defaultEffectData = ["black", 0];
-const mergedData = merge(
-  oldData,
-  newData,
-  defaultLocation,
-  defaultRotation,
-  defaultColorData,
-  defaultEffectData
-);
+// Main execution
+if (require.main === module) {
+    try {
+        const oldData = JSON.parse(fs.readFileSync("./out/exportData.json", "utf-8"));
+        const newData = JSON.parse(fs.readFileSync("../../utils/jsons/exportDataEmpty.json", "utf-8"));
 
-console.log(JSON.stringify(mergedData, null, 2));
+        const defaultLocation = generateDefaultLocation(newData.dancer);
+        const mergedData = merge(oldData, newData, defaultLocation);
+
+        const outputPath = path.join("./out", "exportData_merged.json");
+        fs.writeFileSync(outputPath, JSON.stringify(mergedData, null, 2));
+        console.log(JSON.stringify(mergedData, null, 2));
+        console.log(`✓ Merged data written to ${outputPath}`);
+    } catch (error) {
+        console.error("Error:", error.message);
+        process.exit(1);
+    }
+}
+
+module.exports = { merge, generateDefaultLocation, extendArray };
