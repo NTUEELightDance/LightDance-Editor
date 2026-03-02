@@ -54,9 +54,9 @@ export async function handleOnControlPanelMessage(
       break;
     case "pause":
       if (music_subprocess?.pid && !music_subprocess.killed) {
-        console.log(music_subprocess.pid + 1);
+        console.log(music_subprocess.pid);
         try {
-          process.kill(music_subprocess.pid + 1, "SIGHUP");
+          process.kill(music_subprocess.pid, "SIGHUP");
         } catch {
           console.log("failed to kill music");
         }
@@ -66,9 +66,9 @@ export async function handleOnControlPanelMessage(
       break;
     case "stop":
       if (music_subprocess?.pid && !music_subprocess.killed) {
-        console.log(music_subprocess.pid + 1);
+        console.log(music_subprocess.pid);
         try {
-          process.kill(music_subprocess.pid + 1, "SIGHUP");
+          process.kill(music_subprocess.pid, "SIGHUP");
         } catch {
           console.log("failed to kill music");
         }

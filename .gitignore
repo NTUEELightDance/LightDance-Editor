@@ -157,3 +157,6 @@ target/
 .venv
 */.idea
 utils/createUsers.js
+
+# Local lighttable data
+lighttable

@@ -18,22 +18,22 @@ export const rpiTable: Record<
     IP_WLAN: "192.168.0.101",
   },
   "lightdance-02": {
-    MAC_WLAN: "B8:27:EB:FA:1B:2B",
+    MAC_WLAN: "B8:27:EB:EF:6B:36",
     MAC_ETHER: "B8:27:EB:AF:4E:7E",
     IP_WLAN: "192.168.0.102",
   },
   "lightdance-03": {
-    MAC_WLAN: "B8:27:EB:B1:28:F7",
+    MAC_WLAN: "D8:3A:DD:7E:9E:64",
     MAC_ETHER: "B8:27:EB:E4:7D:A2",
     IP_WLAN: "192.168.0.103",
   },
   "lightdance-04": {
-    MAC_WLAN: "B8:27:EB:F4:1C:93",
+    MAC_WLAN: "D8:3A:DD:22:AD:1F",
     MAC_ETHER: "B8:27:EB:A1:49:C6",
     IP_WLAN: "192.168.0.104",
   },
   "lightdance-05": {
-    MAC_WLAN: "D8:3A:DD:7E:6C:98",
+    MAC_WLAN: "D8:3A:DD:7E:B8:EC",
     MAC_ETHER: "D8:3A:DD:7E:6C:97",
     IP_WLAN: "192.168.0.105",
   },
@@ -73,7 +73,7 @@ export const rpiTable: Record<
     IP_WLAN: "192.168.0.112",
   },
   "lightdance-13": {
-    MAC_WLAN: "B8:27:EB:15:62:C5",
+    MAC_WLAN: "D8:3A:DD:7E:9F:08",
     MAC_ETHER: "B8:27:EB:40:37:90",
     IP_WLAN: "192.168.0.113",
   },
@@ -108,7 +108,7 @@ export const rpiTable: Record<
     IP_WLAN: "192.168.0.119",
   },
   "lightdance-20": {
-    MAC_WLAN: "D8:3A:DD:7E:B8:EC",
+    MAC_WLAN: "D8:3A:DD:7E:B8:EE",
     MAC_ETHER: "D8:3A:DD:7E:B8:EB",
     IP_WLAN: "192.168.0.120",
   },
@@ -128,9 +128,9 @@ export const rpiTable: Record<
     IP_WLAN: "192.168.0.123",
   },
   "lightdance-24": {
-    MAC_WLAN: "B8:27:EB:D6:5E:11",
+    MAC_WLAN: "D8:3A:DD:7E:9E:34",
     MAC_ETHER: "B8:27:EB:83:0B:44",
-    IP_WLAN: "192.168.0.124",
+    IP_WLAN: "192.168.0.212",
   },
   "lightdance-25": {
     MAC_WLAN: "B8:27:EB:CD:C6:E9",
@@ -138,17 +138,17 @@ export const rpiTable: Record<
     IP_WLAN: "192.168.0.125",
   },
   "lightdance-26": {
-    MAC_WLAN: "D8:3A:DD:7E:9E:64",
+    MAC_WLAN: "D8:3A:DD:7E:9E:65",
     MAC_ETHER: "D8:3A:DD:7E:9E:63",
     IP_WLAN: "192.168.0.126",
   },
   "lightdance-27": {
-    MAC_WLAN: "D8:3A:DD:7E:9F:08",
+    MAC_WLAN: "D8:3A:DD:7E:9F:09",
     MAC_ETHER: "D8:3A:DD:7E:9F:06",
     IP_WLAN: "192.168.0.127",
   },
   "lightdance-28": {
-    MAC_WLAN: "D8:3A:DD:7E:9E:34",
+    MAC_WLAN: "D8:3A:DD:7E:9E:35",
     MAC_ETHER: "D8:3A:DD:7E:9E:33",
     IP_WLAN: "192.168.0.128",
   },
