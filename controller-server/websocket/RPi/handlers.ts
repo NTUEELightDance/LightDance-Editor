@@ -13,12 +13,15 @@ import { MACAddress, MACAddressSchema } from "@/schema/DancerData";
 import dancerTable, { dancerToMAC } from "@/configs/dancerTable";
 import pinMapTable from "@/configs/pinMapTable";
 
-import { getDancerLEDDataAPI, getDancerFiberDataAPI } from "@/api";
+import { getDancerLEDDataAPI, getDancerFiberDataAPI, getDancerFrameDataAPI, getDancerControlDataAPI } from "@/api";
 
 import {
   sendToControlPanel,
   sendBoardInfoToControlPanel,
 } from "@/websocket/controlPanel/handler";
+
+import * as fs from 'fs';
+import * as path from 'path';
 
 export const RPiWSs: Record<string, WebSocket> = {};
 
@@ -92,33 +95,89 @@ export function sendBeatToRPi(dancers: string[], msg: ToRPi) {
   if (update) sendBoardInfoToControlPanel();
 }
 
+// export async function sendBoardInfoToRPi(dancer: string) {
+//   // send pinMap, LED and OF to RPi
+//   const [LEDresult, OFresult] = await Promise.allSettled([
+//     getDancerLEDDataAPI(dancer),
+//     getDancerFiberDataAPI(dancer),
+//   ]);
+
+//   if (LEDresult.status === "rejected") {
+//     console.error(`[Error]: failed to fetch LED data ${LEDresult.reason}`);
+//     return;
+//   }
+//   if (OFresult.status === "rejected") {
+//     console.error(`[Error]: failed to fetch OF data ${OFresult.reason}`);
+//     return;
+//   }
+
+//   const LEDData = LEDresult.value;
+//   const OFData = OFresult.value;
+
+//   const toRPiMsg: ToRPiUpload = {
+//     from: "server",
+//     topic: "upload",
+//     statusCode: 0,
+//     payload: [pinMapTable[dancer], OFData, LEDData],
+//   };
+
+//   const payload = [pinMapTable[dancer], OFData, LEDData];
+
+//   sendToRPi([dancer], toRPiMsg);
+// }
+
 export async function sendBoardInfoToRPi(dancer: string) {
   // send pinMap, LED and OF to RPi
-  const [LEDresult, OFresult] = await Promise.allSettled([
-    getDancerLEDDataAPI(dancer),
-    getDancerFiberDataAPI(dancer),
+  const [frameResult, controlResult] = await Promise.allSettled([
+    getDancerFrameDataAPI(dancer),
+    getDancerControlDataAPI(dancer),
   ]);
 
-  if (LEDresult.status === "rejected") {
-    console.error(`[Error]: failed to fetch LED data ${LEDresult.reason}`);
+  if (frameResult.status === "rejected") {
+    console.error(`[Error]: failed to fetch frame data ${frameResult.reason}`);
     return;
   }
-  if (OFresult.status === "rejected") {
-    console.error(`[Error]: failed to fetch OF data ${OFresult.reason}`);
+  if (controlResult.status === "rejected") {
+    console.error(`[Error]: failed to fetch control data ${controlResult.reason}`);
     return;
   }
 
-  const LEDData = LEDresult.value;
-  const OFData = OFresult.value;
+  // const LEDData = LEDresult.value;
+  // const OFData = OFresult.value;
 
-  const toRPiMsg: ToRPiUpload = {
-    from: "server",
-    topic: "upload",
-    statusCode: 0,
-    payload: [pinMapTable[dancer], OFData, LEDData],
-  };
+  // const toRPiMsg: ToRPiUpload = {
+  //   from: "server",
+  //   topic: "upload",
+  //   statusCode: 0,
+  //   payload: [pinMapTable[dancer], OFData, LEDData],
+  // };
 
-  sendToRPi([dancer], toRPiMsg);
+  // --- Save file locally in Node.js ---
+  try {
+    const fileName = `../../../lighttable/frame_${dancer.toString().split('_')[0]}.dat`
+    const filePath = path.join(__dirname, fileName); // Saves in the same folder as the script
+    
+    fs.writeFileSync(filePath, Buffer.from(frameResult.value));
+    
+    console.log(`[Success]: Data saved locally to ${filePath}`);
+  } catch (err) {
+    console.error(`[Error]: Failed to save file locally: ${err}`);
+  }
+
+  // console.log(controlResult.value.toString('hex'));
+  
+  try {
+    const fileName = `../../../lighttable/control_${dancer.toString().split('_')[0]}.dat`
+    const filePath = path.join(__dirname, fileName); // Saves in the same folder as the script
+    
+    fs.writeFileSync(filePath, Buffer.from(controlResult.value));
+    
+    console.log(`[Success]: Data saved locally to ${filePath}`);
+  } catch (err) {
+    console.error(`[Error]: Failed to save file locally: ${err}`);
+  }
+
+  // sendToRPi([dancer], toRPiMsg);
 }
 
 function validateMAC(MAC: MACAddress) {

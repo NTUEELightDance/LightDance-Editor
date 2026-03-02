@@ -128,7 +128,15 @@ export function handlePlay(msg: FromControlPanelPlay) {
 
   const _timestampString = Math.round(timestamp + music_delay).toString();
 
-  return exec(`./scripts/schedule_play.sh ${_timestampString} ${start / 1000}`);
+  // return exec(`./scripts/schedule_play.sh ${_timestampString} ${start / 1000}`);
+  return exec(
+    `./scripts/schedule_play.sh ${_timestampString} ${start / 1000}`,
+    (error, stdout, stderr) => {
+      if (error) console.error("error:", error);
+      if (stdout) console.log("stdout:", stdout);
+      if (stderr) console.error("stderr:", stderr);
+    }
+  );
 }
 
 export function handlePause(msg: FromControlPanelPause) {
