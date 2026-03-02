@@ -3,109 +3,113 @@ import modelPinMapTable from "@/configs/modelPinMapTable";
 
 // Record the pinmap for every dancer
 const pinMapTable: PinMapTable = {
-  "0_durant": {
-    dancer: "0_durant",
-    ...modelPinMapTable.boss,
+  "0_liao": {
+    dancer: "0_liao",
+    ...modelPinMapTable.ghost_king,
   },
-  "1_hsieh": {
-    dancer: "1_hsieh",
-    ...modelPinMapTable.bad_men,
+  "1_lin": {
+    dancer: "1_lin",
+    ...modelPinMapTable.ghost_king,
   },
-  "2_yuan": {
-    dancer: "2_yuan",
-    ...modelPinMapTable.bad_men,
+  "2_feng": {
+    dancer: "2_feng",
+    ...modelPinMapTable.main_girl,
   },
-  "3_ping": {
-    dancer: "3_ping",
-    ...modelPinMapTable.bad_men,
+  "3_chen": {
+    dancer: "3_chen",
+    ...modelPinMapTable.main_girl,
   },
-  "4_wei": {
-    dancer: "4_wei",
-    ...modelPinMapTable.bad_men,
+  "4_roy": {
+    dancer: "4_roy",
+    ...modelPinMapTable.vampire,
   },
-  "5_boyu": {
-    dancer: "5_boyu",
-    ...modelPinMapTable.good_men,
+  "5_chiu": {
+    dancer: "5_chiu",
+    ...modelPinMapTable.vampire,
   },
-  "6_yen": {
-    dancer: "6_yen",
-    ...modelPinMapTable.good_men,
+  "6_su": {
+    dancer: "6_su",
+    ...modelPinMapTable.main_boy,
   },
-  "7_samklin": {
-    dancer: "7_samklin",
-    ...modelPinMapTable.good_men,
+  "7_li": {
+    dancer: "7_li",
+    ...modelPinMapTable.main_boy,
   },
-  "8_how": {
-    dancer: "8_how",
-    ...modelPinMapTable.main_character,
+  "8_hsieh": {
+    dancer: "8_hsieh",
+    ...modelPinMapTable.hunter,
   },
-  "9_staff": {
-    dancer: "9_staff",
+  "9_yang": {
+    dancer: "9_yang",
+    ...modelPinMapTable.hunter,
+  },
+  "10_tsai": {
+    dancer: "10_tsai",
+    ...modelPinMapTable.hunter,
+  },
+  "11_luo": {
+    dancer: "11_luo",
+    ...modelPinMapTable.hunter,
+  },
+  "12_coffin": {
+    dancer: "12_coffin",
+    ...modelPinMapTable.coffin,
+  },
+  "13_altar_top1": {
+    dancer: "13_altar_top1",
+    ...modelPinMapTable.altar1_top,
+  },
+  "14_altar_bottom1": {
+    dancer: "14_altar_bottom1",
+    ...modelPinMapTable.altar1_bottom,
+  },
+  "15_altar_top2": {
+    dancer: "15_altar_top2",
+    ...modelPinMapTable.altar2_top,
+  },
+  "16_altar_bottom2": {
+    dancer: "16_altar_bottom2",
+    ...modelPinMapTable.altar2_bottom,
+  },
+  "17_cross": {
+    dancer: "17_cross",
+    ...modelPinMapTable.cross,
+  },
+  "18_gem": {
+    dancer: "18_gem",
+    ...modelPinMapTable.gem,
+  },
+  "19_pole": {
+    dancer: "19_pole",
+    ...modelPinMapTable.pole,
+  },
+  "20_fireplace": {
+    dancer: "20_fireplace",
+    ...modelPinMapTable.fireplace,
+  },
+  "21_axe1": {
+    dancer: "21_axe1",
+    ...modelPinMapTable.axe,
+  },
+  "22_axe2": {
+    dancer: "22_axe2",
+    ...modelPinMapTable.axe,
+  },
+  "23_balcony": {
+    dancer: "23_balcony",
+    ...modelPinMapTable.balcony,
+  },
+  "24_gun": {
+    dancer: "24_gun",
+    ...modelPinMapTable.gun,
+  },
+  "25_staff1": {
+    dancer: "25_staff1",
     ...modelPinMapTable.staff,
   },
-  "11_small_orb_1": {
-    dancer: "11_small_orb_1",
-    ...modelPinMapTable.small_orb_1,
-  },
-  "12_small_orb_2": {
-    dancer: "12_small_orb_2",
-    ...modelPinMapTable.small_orb_2,
-  },
-  "13_big_orb_left": {
-    dancer: "13_big_orb_left",
-    ...modelPinMapTable.big_orb_left,
-  },
-  "14_big_orb_right": {
-    dancer: "14_big_orb_right",
-    ...modelPinMapTable.big_orb_right,
-  },
-  "15_gun_1": {
-    dancer: "15_gun_1",
-    ...modelPinMapTable.gun_1,
-  },
-  "16_gun_2": {
-    dancer: "16_gun_2",
-    ...modelPinMapTable.gun_2,
-  },
-  "17_pillar_1": {
-    dancer: "17_pillar_1",
-    ...modelPinMapTable.pillar_1,
-  },
-  "18_pillar_2": {
-    dancer: "18_pillar_2",
-    ...modelPinMapTable.pillar_2,
-  },
-  "19_pillar_3": {
-    dancer: "19_pillar_3",
-    ...modelPinMapTable.pillar_3,
-  },
-  "20_pillar_4": {
-    dancer: "20_pillar_4",
-    ...modelPinMapTable.pillar_4,
-  },
-  "21_biochem_left": {
-    dancer: "21_biochem_left",
-    ...modelPinMapTable.biochem_left,
-  },
-  "22_biochem_right": {
-    dancer: "22_biochem_right",
-    ...modelPinMapTable.biochem_right,
-  },
-  "23_small_magic": {
-    dancer: "23_small_magic",
-    ...modelPinMapTable.small_magic,
-  },
-  "24_big_magic_1": {
-    dancer: "24_big_magic_1",
-    ...modelPinMapTable.big_magic_1,
-  },
-  "25_big_magic_2": {
-    dancer: "25_big_magic_2",
-    ...modelPinMapTable.big_magic_2,
-  },
-  "26_saber": {
-    dancer: "26_saber",
-    ...modelPinMapTable.saber,
+  "26_staff2": {
+    dancer: "26_staff2",
+    ...modelPinMapTable.staff,
   },
 };
 

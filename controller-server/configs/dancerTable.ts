@@ -3,33 +3,33 @@ import { rpiTable } from "@/configs/rpiTable";
 
 // Map the dancer to the RPi hostname
 const dancerToRpi: Record<string, string> = {
-  "0_durant": "lightdance-02", // NOTE
-  "1_hsieh": "lightdance-07", // NOTE
-  "2_yuan": "lightdance-00", // NOTE
-  "3_ping": "lightdance-29", // NOTE
-  "4_wei": "lightdance-04",
-  "5_boyu": "lightdance-05",
-  "6_yen": "lightdance-06",
-  "7_samklin": "lightdance-30", // NOTE
-  "8_how": "lightdance-08",
-  "9_staff": "lightdance-09",
-  // "10_shield": "lightdance-21", // NOTE
-  "11_small_orb_1": "lightdance-11",
-  "12_small_orb_2": "lightdance-12",
-  "13_big_orb_left": "lightdance-13",
-  "14_big_orb_right": "lightdance-14",
-  "15_gun_1": "lightdance-15",
-  "16_gun_2": "lightdance-16",
-  "17_pillar_1": "lightdance-17",
-  "18_pillar_2": "lightdance-18",
-  "19_pillar_3": "lightdance-19",
-  "20_pillar_4": "lightdance-20",
-  "21_biochem_left": "lightdance-10", // NOTE
-  "22_biochem_right": "lightdance-22",
-  "23_small_magic": "lightdance-23",
-  "24_big_magic_1": "lightdance-24",
-  "25_big_magic_2": "lightdance-25",
-  "26_saber": "lightdance-26",
+  "0_liao": "lightdance-25",
+  "1_lin": "lightdance-05",
+  "2_feng": "lightdance-03",
+  "3_chen": "lightdance-24",
+  "4_roy": "lightdance-04",
+  "5_chiu": "lightdance-01",
+  "6_su": "lightdance-06",
+  "7_li": "lightdance-30",
+  "8_hsieh": "lightdance-08",
+  "9_yang": "lightdance-09",
+  "10_tsai": "lightdance-21",
+  "11_luo": "lightdance-11",
+  "12_coffin": "lightdance-12",
+  "13_altar_top1": "lightdance-13",
+  "14_altar_bottom1": "lightdance-14",
+  "15_altar_top2": "lightdance-15",
+  "16_altar_bottom2": "lightdance-16",
+  "17_cross": "lightdance-17",
+  "18_gem": "lightdance-18",
+  "19_pole": "lightdance-19",
+  "20_fireplace": "lightdance-10",
+  "21_axe1": "lightdance-20",
+  "22_axe2": "lightdance-22",
+  "23_balcony": "lightdance-23",
+  "24_gun": "lightdance-26",
+  "25_staff1": "lightdance-27",
+  "26_staff2": "lightdance-28",
 };
 
 // Record the RPi information according to MAC

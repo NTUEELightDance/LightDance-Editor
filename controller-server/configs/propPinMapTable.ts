@@ -1,485 +1,187 @@
 import { ModelPinMapTable } from "@/schema/PinMapTable";
 
 export const PropPinMapTable: ModelPinMapTable = {
+  coffin: {
+    fps: 30,
+    OFPARTS: {
+      outline_BRU: 0,
+      outline_BRD: 1,
+      outline_BLU: 2,
+      outline_BLD: 3,
+      outline_BT: 4,
+      outline_BB: 5,
+    },
+    LEDPARTS: {
+      frontL_LED: { id: 0, len: 60 },
+      frontR_LED: { id: 1, len: 60 },
+      left_LED: { id: 2, len: 70 },
+      right_LED: { id: 3, len: 70 },
+      cross_LED: { id: 4, len: 100 },
+      outline_DU_LED: { id: 5, len: 33 },
+      outline_DD_LED: { id: 6, len: 27 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  cross: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      wingleft_LED: { id: 0, len: 76 },
+      wingright_LED: { id: 1, len: 76 },
+      top_LED: { id: 2, len: 99 },
+      centerpiece_LED: { id: 3, len: 104 },
+      baseleft_LED: { id: 4, len: 58 },
+      baseright_LED: { id: 5, len: 58 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  altar1_bottom: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      front_LED: { id: 0, len: 80 },
+      side_LED: { id: 1, len: 80 },
+      frontdecor_LED: { id: 2, len: 46 },
+      sidedecor_LED: { id: 3, len: 46 },
+      edge_LED: { id: 4, len: 40 },
+      pillar_right_LED: { id: 5, len: 54 },
+      pillar_left_LED: { id: 6, len: 54 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  altar1_top: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      fire_left_LED: { id: 0, len: 62 },
+      fire_right_LED: { id: 1, len: 62 },
+      chain1_LED: { id: 2, len: 75 },
+      chain2_LED: { id: 3, len: 75 },
+      fire_front1_LED: { id: 4, len: 46 },
+      fire_front2_LED: { id: 5, len: 46 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  altar2_bottom: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      front_LED: { id: 0, len: 80 },
+      side_LED: { id: 1, len: 80 },
+      frontdecor_LED: { id: 2, len: 46 },
+      sidedecor_LED: { id: 3, len: 46 },
+      edge_LED: { id: 4, len: 40 },
+      pillar_right_LED: { id: 5, len: 54 },
+      pillar_left_LED: { id: 6, len: 54 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  altar2_top: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      fire_left_LED: { id: 0, len: 62 },
+      fire_right_LED: { id: 1, len: 62 },
+      chain1_LED: { id: 2, len: 75 },
+      chain2_LED: { id: 3, len: 75 },
+      fire_front1_LED: { id: 4, len: 46 },
+      fire_front2_LED: { id: 5, len: 46 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  gem: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      intact_LED: { id: 0, len: 30 },
+      broken_LED: { id: 1, len: 30 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  pole: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      out_left_LED: { id: 0, len: 53 },
+      out_right_LED: { id: 1, len: 53 },
+      in_midright_LED: { id: 2, len: 53 },
+      in_midleft_LED: { id: 3, len: 53 },
+      in_right_LED: { id: 4, len: 53 },
+      in_left_LED: { id: 5, len: 53 },
+      top_LED: { id: 6, len: 50 },
+      side_LED: { id: 7, len: 38 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  balcony: {
+    fps: 30,
+    OFPARTS: {
+      bottom: 0,
+      mid_horizontal: 1,
+      mid_vertical_right: 2,
+      mid_vertical_left: 3,
+      top_right_left: 4,
+      top_right_right: 5,
+      top_left_right: 6,
+      top_left_left: 7,
+      roof_horizontal: 8,
+      roof_top: 9,
+    },
+    LEDPARTS: {
+      bottom_right_LED: { id: 0, len: 36 },
+      bottom_left_LED: { id: 1, len: 36 },
+      mid_right_LED: { id: 2, len: 36 },
+      mid_mid_LED: { id: 3, len: 48 },
+      mid_left_LED: { id: 4, len: 36 },
+      top_right_LED: { id: 5, len: 43 },
+      top_left_LED: { id: 6, len: 43 },
+      window_LED: { id: 7, len: 72 },
+    },
+    LEDPARTS_MERGE: {},
+  },
+  fireplace: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      left_LED: { id: 0, len: 76 },
+      middleright_LED: { id: 1, len: 90 },
+      face_LED: { id: 3, len: 12 },
+      middleleft_LED: { id: 4, len: 80 },
+      right_LED: { id: 5, len: 78 },
+      head_LED: { id: 6, len: 51 },
+    },
+    LEDPARTS_MERGE: {},    
+  },
+  gun: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      left_logo_LED: { id: 0, len: 30 },
+      left_trigger_LED: { id: 1, len: 36 },
+      left_barrel_LED: { id: 2, len: 36 },
+      right_logo_LED: { id: 3, len: 30 },
+      right_trigger_LED: { id: 4, len: 36 },
+      right_barrel_LED: { id: 5, len: 36 },
+      acrylic_LED: { id: 6, len: 3 },
+    },
+    LEDPARTS_MERGE: {},   
+  },
+  axe: {
+    fps: 30,
+    OFPARTS: {},
+    LEDPARTS: {
+      main_LED: { id: 1, len: 88 },
+    },
+    LEDPARTS_MERGE: {}, 
+  },
   staff: {
     fps: 30,
     OFPARTS: {},
     LEDPARTS: {
-      main_1_LED: {
-        id: 0,
-        len: 82,
-      },
-      main_2_LED: {
-        id: 1,
-        len: 82,
-      },
-      leaf_1_LED: {
-        id: 2,
-        len: 34,
-      },
-      leaf_2_LED: {
-        id: 3,
-        len: 34,
-      },
-      leaf_3_LED: {
-        id: 4,
-        len: 34,
-      },
-      leaf_4_LED: {
-        id: 5,
-        len: 34,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  saber: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      saber_main_left_LED: {
-        id: 0,
-        len: 61,
-      },
-      saber_main_right_LED: {
-        id: 1,
-        len: 60,
-      },
-      saber_side_left_LED: {
-        id: 2,
-        len: 28,
-      },
-      saber_side_right_LED: {
-        id: 3,
-        len: 29,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  big_orb_left: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      upper_LED: {
-        id: 0,
-        len: 90,
-      },
-      lower_LED: {
-        id: 1,
-        len: 91,
-      },
-      mid_LED: {
-        id: 2,
-        len: 54,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  big_orb_right: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      upper_LED: {
-        id: 0,
-        len: 78,
-      },
-      lower_LED: {
-        id: 1,
-        len: 80,
-      },
-      mid_LED: {
-        id: 2,
-        len: 54,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  small_orb_1: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      main_LED: {
-        id: 0,
-        len: 126,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  small_orb_2: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      main_LED: {
-        id: 0,
-        len: 122,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  pillar_1: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_top_LED: {
-        id: 0,
-        len: 48,
-      },
-      left_down_LED: {
-        id: 1,
-        len: 48,
-      },
-      mid_top_LED: {
-        id: 2,
-        len: 48,
-      },
-      mid_down_LED: {
-        id: 3,
-        len: 48,
-      },
-      right_top_LED: {
-        id: 4,
-        len: 48,
-      },
-      right_down_LED: {
-        id: 5,
-        len: 48,
-      },
-      chain_left_LED: {
-        id: 6,
-        len: 27,
-      },
-      chain_right_LED: {
-        id: 7,
-        len: 27,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  pillar_2: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_top_LED: {
-        id: 0,
-        len: 48,
-      },
-      left_down_LED: {
-        id: 1,
-        len: 47,
-      },
-      mid_top_LED: {
-        id: 2,
-        len: 49,
-      },
-      mid_down_LED: {
-        id: 3,
-        len: 49,
-      },
-      right_top_LED: {
-        id: 4,
-        len: 48,
-      },
-      right_down_LED: {
-        id: 5,
-        len: 48,
-      },
-      chain_left_LED: {
-        id: 6,
-        len: 27,
-      },
-      chain_right_LED: {
-        id: 7,
-        len: 27,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  pillar_3: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_top_LED: {
-        id: 0,
-        len: 48,
-      },
-      left_down_LED: {
-        id: 1,
-        len: 47,
-      },
-      mid_top_LED: {
-        id: 2,
-        len: 48,
-      },
-      mid_down_LED: {
-        id: 3,
-        len: 48,
-      },
-      right_top_LED: {
-        id: 4,
-        len: 48,
-      },
-      right_down_LED: {
-        id: 5,
-        len: 48,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  pillar_4: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_top_LED: {
-        id: 0,
-        len: 49,
-      },
-      left_down_LED: {
-        id: 1,
-        len: 48,
-      },
-      mid_top_LED: {
-        id: 2,
-        len: 48,
-      },
-      mid_down_LED: {
-        id: 3,
-        len: 48,
-      },
-      right_top_LED: {
-        id: 4,
-        len: 48,
-      },
-      right_down_LED: {
-        id: 5,
-        len: 48,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  biochem_left: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      side_left_top_LED: {
-        id: 0,
-        len: 56,
-      },
-      side_left_down_LED: {
-        id: 1,
-        len: 58,
-      },
-      side_right_top_LED: {
-        id: 2,
-        len: 58,
-      },
-      side_right_down_LED: {
-        id: 3,
-        len: 61,
-      },
-      door_top_LED: {
-        id: 4,
-        len: 61,
-      },
-      door_down_LED: {
-        id: 5,
-        len: 58,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  biochem_right: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      side_right_top_LED: {
-        id: 0,
-        len: 56,
-      },
-      side_right_down_LED: {
-        id: 1,
-        len: 58,
-      },
-      side_left_top_LED: {
-        id: 2,
-        len: 58,
-      },
-      side_left_down_LED: {
-        id: 3,
-        len: 58,
-      },
-      door_top_LED: {
-        id: 4,
-        len: 59,
-      },
-      door_down_LED: {
-        id: 5,
-        len: 54,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  gun_1: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_top_LED: {
-        id: 0,
-        len: 75,
-      },
-      left_mid_top_LED: {
-        id: 1,
-        len: 39,
-      },
-      left_mid_bottom_LED: {
-        id: 2,
-        len: 30,
-      },
-      left_bottom_LED: {
-        id: 3,
-        len: 61,
-      },
-      right_top_LED: {
-        id: 4,
-        len: 75,
-      },
-      right_mid_top_LED: {
-        id: 5,
-        len: 39,
-      },
-      right_mid_bottom_LED: {
-        id: 6,
-        len: 30,
-      },
-      right_bottom_LED: {
-        id: 7,
-        len: 61,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  gun_2: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_top_LED: {
-        id: 0,
-        len: 75,
-      },
-      left_mid_top_LED: {
-        id: 1,
-        len: 39,
-      },
-      left_mid_bottom_LED: {
-        id: 2,
-        len: 30,
-      },
-      left_bottom_LED: {
-        id: 3,
-        len: 61,
-      },
-      right_top_LED: {
-        id: 4,
-        len: 75,
-      },
-      right_mid_top_LED: {
-        id: 5,
-        len: 39,
-      },
-      right_mid_bottom_LED: {
-        id: 6,
-        len: 30,
-      },
-      right_bottom_LED: {
-        id: 7,
-        len: 61,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  big_magic_2: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_top_LED: {
-        id: 0,
-        len: 30,
-      },
-      left_LED: {
-        id: 1,
-        len: 41,
-      },
-      left_bot_LED: {
-        id: 2,
-        len: 30,
-      },
-      mid_top_LED: {
-        id: 3,
-        len: 24,
-      },
-      mid_LED: {
-        id: 4,
-        len: 92,
-      },
-      mid_bot_LED: {
-        id: 5,
-        len: 24,
-      },
-      right_LED: {
-        id: 6,
-        len: 41,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  big_magic_1: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      left_LED: {
-        id: 0,
-        len: 41,
-      },
-      mid_LED: {
-        id: 1,
-        len: 92,
-      },
-      right_LED: {
-        id: 2,
-        len: 41,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  small_magic: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      far_rpi_LED: {
-        id: 0,
-        len: 37,
-      },
-      near_rpi_LED: {
-        id: 1,
-        len: 58,
-      },
-    },
-    LEDPARTS_MERGE: {},
-  },
-  shield: {
-    fps: 30,
-    OFPARTS: {},
-    LEDPARTS: {
-      ch1_LED: {
-        id: 0,
-        len: 200,
-      },
-      ch2_LED: {
-        id: 1,
-        len: 200,
-      },
-      ch3_LED: {
-        id: 2,
-        len: 200,
-      },
+      skeleton_LED: { id: 0, len: 16 },
+      stick_LED: { id: 1, len: 60 },
+      snake_LED: { id: 2, len: 50 },
+      eyes_LED: { id: 3, len: 6 },
     },
     LEDPARTS_MERGE: {},
   },
