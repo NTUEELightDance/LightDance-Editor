@@ -68,36 +68,29 @@ fn interpolate_no_effect_leds(
     intervals: &HashMap<i32, Vec<(usize, usize)>>,
 ) {
     for (part_id, part_intervals) in intervals {
-        for interval in part_intervals {
-            let left_color = frames[interval.0]
-                .led_grb_data
-                .get(part_id)
-                .unwrap()
-                .clone();
-            let right_color = frames[interval.1]
-                .led_grb_data
-                .get(part_id)
-                .unwrap()
-                .clone();
-            let len = interval.1 - interval.0;
+        for (l, r) in part_intervals {
+            let left_led_color = frames[*l].led_grb_data.get(part_id).unwrap().clone();
+            let right_led_color = frames[*r].led_grb_data.get(part_id).unwrap().clone();
 
-            #[allow(clippy::needless_range_loop)]
-            for i in 0..len {
-                for (j, color) in frames[interval.0 + i]
+            let left_time = frames[*l].start_time;
+            let right_time = frames[*r].start_time;
+
+            for frame in frames.iter_mut().take(*r).skip(*l) {
+                for (color, (left_color, right_color)) in frame
                     .led_grb_data
                     .get_mut(part_id)
                     .unwrap()
                     .iter_mut()
-                    .enumerate()
+                    .zip(left_led_color.iter().zip(right_led_color.iter()))
                 {
-                    *color = [
-                        (left_color[j][0] * (len - i) as i32 + right_color[j][0] * i as i32)
-                            / len as i32,
-                        (left_color[j][1] * (len - i) as i32 + right_color[j][1] * i as i32)
-                            / len as i32,
-                        (left_color[j][2] * (len - i) as i32 + right_color[j][2] * i as i32)
-                            / len as i32,
-                    ]
+                    color
+                        .iter_mut()
+                        .zip(left_color.iter().zip(right_color.iter()))
+                        .for_each(|(c, (lc, rc))| {
+                            *c = (lc * (right_time - frame.start_time) as i32
+                                + rc * (left_time - frame.start_time) as i32)
+                                / (right_time - left_time) as i32;
+                        });
                 }
             }
         }
