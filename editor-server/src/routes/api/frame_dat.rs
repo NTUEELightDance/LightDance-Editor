@@ -63,42 +63,57 @@ fn write_checksum(frame: &mut FrameData) {
     frame.checksum = checksum;
 }
 
-fn interpolate_no_change_effects(
+fn interpolate_no_effect_leds(
+    frames: &mut [FrameData],
+    intervals: &HashMap<i32, Vec<(usize, usize)>>,
+) {
+    for (part_id, part_intervals) in intervals {
+        for (l, r) in part_intervals {
+            let left_led_color = frames[*l].led_grb_data.get(part_id).unwrap().clone();
+            let right_led_color = frames[*r].led_grb_data.get(part_id).unwrap().clone();
+
+            let left_time = frames[*l].start_time;
+            let right_time = frames[*r].start_time;
+
+            for frame in frames.iter_mut().take(*r).skip(*l) {
+                for (color, (left_color, right_color)) in frame
+                    .led_grb_data
+                    .get_mut(part_id)
+                    .unwrap()
+                    .iter_mut()
+                    .zip(left_led_color.iter().zip(right_led_color.iter()))
+                {
+                    color
+                        .iter_mut()
+                        .zip(left_color.iter().zip(right_color.iter()))
+                        .for_each(|(c, (lc, rc))| {
+                            *c = (lc * (right_time - frame.start_time) as i32
+                                + rc * (left_time - frame.start_time) as i32)
+                                / (right_time - left_time) as i32;
+                        });
+                }
+            }
+        }
+    }
+}
+
+fn interpolate_no_effect_of(
     frames: &mut [FrameData],
     intervals: &HashMap<i32, Vec<(usize, usize)>>,
 ) {
     for (part_id, part_intervals) in intervals {
         for interval in part_intervals {
-            let left_color = frames[interval.0]
-                .led_grb_data
-                .get(part_id)
-                .unwrap()
-                .clone();
-            let right_color = frames[interval.1]
-                .led_grb_data
-                .get(part_id)
-                .unwrap()
-                .clone();
+            let left_color = *frames[interval.0].of_grb_data.get(part_id).unwrap();
+            let right_color = *frames[interval.1].of_grb_data.get(part_id).unwrap();
             let len = interval.1 - interval.0;
 
             #[allow(clippy::needless_range_loop)]
             for i in 0..len {
-                for (j, color) in frames[interval.0 + i]
-                    .led_grb_data
-                    .get_mut(part_id)
-                    .unwrap()
-                    .iter_mut()
-                    .enumerate()
-                {
-                    *color = [
-                        (left_color[j][0] * (len - i) as i32 + right_color[j][0] * i as i32)
-                            / len as i32,
-                        (left_color[j][1] * (len - i) as i32 + right_color[j][1] * i as i32)
-                            / len as i32,
-                        (left_color[j][2] * (len - i) as i32 + right_color[j][2] * i as i32)
-                            / len as i32,
-                    ]
-                }
+                *frames[interval.0 + i].of_grb_data.get_mut(part_id).unwrap() = [
+                    (left_color[0] * (len - i) as i32 + right_color[0] * i as i32) / len as i32,
+                    (left_color[1] * (len - i) as i32 + right_color[1] * i as i32) / len as i32,
+                    (left_color[2] * (len - i) as i32 + right_color[2] * i as i32) / len as i32,
+                ]
             }
         }
     }
@@ -310,9 +325,6 @@ pub async fn frame_dat(
         );
     }
 
-    // (frame_id, part_id)
-    let mut no_change_parts: HashSet<(i32, i32)> = HashSet::new();
-
     // ((frame_id, part_id), color[]
     // None means no-change
     let mut led_data: HashMap<(i32, i32), &Vec<LEDStatus>> = HashMap::new();
@@ -346,6 +358,9 @@ pub async fn frame_dat(
     .into_iter()
     .filter(|data| led_filter.contains(&data.part_name))
     .collect_vec();
+
+    // (frame_id, part_id)
+    let mut no_change_parts: HashSet<(i32, i32)> = HashSet::new();
 
     for data in led_effect_data {
         if let Some(id) = &data.effect_id {
@@ -463,8 +478,11 @@ pub async fn frame_dat(
     let mut frames: Vec<FrameData> = Vec::new();
 
     // ((frame_id, part_id), [[l, r)])
-    let mut no_change_intervals: HashMap<i32, Vec<(usize, usize)>> = HashMap::new();
-    let mut no_change_intervals_left: HashMap<i32, i32> = HashMap::new();
+    let mut led_no_effect_intervals: HashMap<i32, Vec<(usize, usize)>> = HashMap::new();
+    let mut led_no_effect_intervals_left: HashMap<i32, i32> = HashMap::new();
+    let mut of_no_effect_intervals: HashMap<i32, Vec<(usize, usize)>> = HashMap::new();
+    let mut of_no_effect_intervals_left: HashMap<i32, i32> = HashMap::new();
+    let mut no_effect_parts: HashSet<(i32, i32)> = HashSet::new();
 
     for (i, frame) in control_frames.iter().enumerate() {
         let frame_id = frame[0].id;
@@ -480,11 +498,9 @@ pub async fn frame_dat(
             }
         };
 
-        let mut no_effect: HashSet<i32> = HashSet::new();
-
         for control_data in frame {
             if control_data.r#type == "NO_EFFECT" {
-                no_effect.insert(control_data.part_id);
+                no_effect_parts.insert((frame_id, control_data.part_id));
             }
         }
 
@@ -492,7 +508,7 @@ pub async fn frame_dat(
         let mut of: HashMap<i32, Color> = HashMap::new();
 
         for (_, of_part_id) in &of_parts {
-            let color = if no_effect.contains(of_part_id) {
+            let color = if no_effect_parts.contains(&(frame_id, *of_part_id)) {
                 *frames
                     .last()
                     .ok_or("first frame can't be no effect")
@@ -509,13 +525,28 @@ pub async fn frame_dat(
             };
 
             of.insert(*of_part_id, color);
+
+            if no_effect_parts.contains(&(frame_id, *of_part_id)) && fade == 1 {
+                if *of_no_effect_intervals_left.entry(*of_part_id).or_insert(-1) == -1 {
+                    *of_no_effect_intervals_left.get_mut(of_part_id).unwrap() = i as i32;
+                }
+            } else {
+                let left = of_no_effect_intervals_left.entry(*of_part_id).or_insert(-1);
+
+                if *left != -1 {
+                    of_no_effect_intervals
+                        .entry(*of_part_id)
+                        .or_default()
+                        .push((*left as usize, i));
+                }
+            }
         }
 
         // (part_id, color[])
         let mut led: HashMap<i32, Vec<Color>> = HashMap::new();
 
         for (_, led_part) in &led_parts {
-            let color = if no_effect.contains(&led_part.id) {
+            let color = if no_effect_parts.contains(&(frame_id, led_part.id)) {
                 frames
                     .last()
                     .ok_or("First frame can't be no effect")
@@ -540,15 +571,21 @@ pub async fn frame_dat(
 
             led.insert(led_part.id, color);
 
-            if no_change_parts.contains(&(frame_id, led_part.id)) && fade == 1 {
-                if *no_change_intervals_left.entry(led_part.id).or_insert(-1) == -1 {
-                    *no_change_intervals_left.get_mut(&led_part.id).unwrap() = i as i32;
+            if no_effect_parts.contains(&(frame_id, led_part.id)) && fade == 1 {
+                if *led_no_effect_intervals_left
+                    .entry(led_part.id)
+                    .or_insert(-1)
+                    == -1
+                {
+                    *led_no_effect_intervals_left.get_mut(&led_part.id).unwrap() = i as i32;
                 }
             } else {
-                let left = no_change_intervals_left.entry(led_part.id).or_insert(-1);
+                let left = led_no_effect_intervals_left
+                    .entry(led_part.id)
+                    .or_insert(-1);
 
                 if *left != -1 {
-                    no_change_intervals
+                    led_no_effect_intervals
                         .entry(led_part.id)
                         .or_default()
                         .push((*left as usize, i));
@@ -568,7 +605,8 @@ pub async fn frame_dat(
         frames.push(frame_data);
     }
 
-    interpolate_no_change_effects(&mut frames, &no_change_intervals);
+    interpolate_no_effect_of(&mut frames, &of_no_effect_intervals);
+    interpolate_no_effect_leds(&mut frames, &led_no_effect_intervals);
 
     for frame in &mut frames {
         write_checksum(frame);

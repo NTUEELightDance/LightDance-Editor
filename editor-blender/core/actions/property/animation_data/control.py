@@ -109,7 +109,7 @@ def _filter_ctrl_map_by_loaded_range(
 def _init_control_part_action_keyframes(
     init_indexs_r_closed: tuple[int, int] | tuple[()],
     sorted_control_map: list[tuple[MapID, ControlMapElement]],
-) -> dict[PartName, tuple[()] | tuple[int, int]]:
+) -> dict[tuple[DancerName, PartName], tuple[()] | tuple[int, int]]:
     frame_range_l, frame_range_r = state.dancer_load_frames
     init_index_l, init_index_r_closed = -1, -1
     if init_indexs_r_closed:
@@ -123,10 +123,10 @@ def _init_control_part_action_keyframes(
     for dancer, parts in state.dancers.items():
         for part in parts:
             if not init_indexs_r_closed:
-                part_dict[part] = ()
+                part_dict[(dancer, part)] = ()
                 continue
 
-            part_dict[part] = expanded_filtered_map_bound(
+            part_dict[(dancer, part)] = expanded_filtered_map_bound(
                 frame_range_l,
                 frame_range_r,
                 init_index_l,
@@ -169,7 +169,7 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     )
     # state.not_loaded_ctrl_frames: a list of ctrl map ID that is not loaded
     state.not_loaded_control_frames = not_loaded_ctrl_frames
-    animation_data = control_map_to_animation_data(filtered_ctrl_map, part_range_dict)
+    animation_data = control_map_to_animation_data(sorted_ctrl_map, part_range_dict)
 
     ctrl_frame_number = len(filtered_ctrl_map)
 

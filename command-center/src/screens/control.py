@@ -107,11 +107,18 @@ class ControlScreen(Screen):
 
     async def init_server(self):
         uploadServer = Esp32TcpServer(
+            screen_ref=self.screen,
+            dancer_status=self.app.dancer_status,
+            act_fcn=self.update_connection_status,
             control_paths_list=[
-                "../../../lighttable/control_" + str(i) + ".dat" for i in range(27)
+                "../lighttable/control_" + str(i) + ".dat"
+                for i in range(0, 27)
+                # "../lighttable/control_" + str(i) + ".dat" for i in range(27)
             ],
             frame_paths_list=[
-                "../../../lighttable/frame_" + str(i) + ".dat" for i in range(27)
+                "../lighttable/frame_" + str(i) + ".dat"
+                for i in range(0, 27)
+                # "../lighttable/frame_" + str(i) + ".dat" for i in range(27)
             ],
             port=3333,
         )
@@ -161,10 +168,8 @@ class ControlScreen(Screen):
             self.local_vars.command = value
 
     def on_mount(self) -> None:
-        server_thread = threading.Thread(target=self.start_server_thread, daemon=True)
-        server_thread.start()
         self.sender = ESP32BTSender(
-            screen_ref=self.screen, port="/dev/tty.usbserial-140", baud_rate=115200
+            screen_ref=self.screen, port="/dev/tty.usbserial-1130", baud_rate=115200
         )
         try:
             self.sender.connect()
@@ -176,6 +181,8 @@ class ControlScreen(Screen):
         self.table.add_column("Interface", key="Interface")
         self.table.add_column("Command response", key="Response", width=80)
         self.watch(self.app, "dancer_status", self.update_connection_status)
+        server_thread = threading.Thread(target=self.start_server_thread, daemon=True)
+        server_thread.start()
 
     def init_dancer_table(self) -> None:
         new_dancer_status: DancerStatus = self.app.dancer_status

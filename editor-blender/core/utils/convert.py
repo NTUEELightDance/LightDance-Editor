@@ -1048,7 +1048,7 @@ def control_modify_to_animation_data(
 
 def control_map_to_animation_data(
     sorted_control_map: list[tuple[MapID, ControlMapElement]],
-    part_range_dict: dict[PartName, tuple[()] | tuple[int, int]],
+    part_range_dict: dict[tuple[DancerName, PartName], tuple[()] | tuple[int, int]],
 ) -> ControlAnimationData:
     new_map: ControlAnimationData = {}
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
@@ -1077,7 +1077,8 @@ def control_map_to_animation_data(
                 part_ctrl_data = frame.status[dancer_name][part_name]
 
                 # If this status is (1) None or (2) out of load range, continue
-                load_range = part_range_dict[part_name]
+                load_range = part_range_dict[(dancer_name, part_name)]
+
                 if not load_range:
                     continue
                 load_range_l, load_range_r_closed = load_range
