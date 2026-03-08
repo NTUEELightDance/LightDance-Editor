@@ -88,7 +88,7 @@ fn interpolate_no_effect_leds(
                         .zip(left_color.iter().zip(right_color.iter()))
                         .for_each(|(c, (lc, rc))| {
                             *c = (lc * (right_time - frame.start_time) as i32
-                                + rc * (left_time - frame.start_time) as i32)
+                                + rc * (frame.start_time - left_time) as i32)
                                 / (right_time - left_time) as i32;
                         });
                 }
@@ -107,7 +107,6 @@ fn interpolate_no_effect_of(
             let right_color = *frames[interval.1].of_grb_data.get(part_id).unwrap();
             let len = interval.1 - interval.0;
 
-            #[allow(clippy::needless_range_loop)]
             for i in 0..len {
                 *frames[interval.0 + i].of_grb_data.get_mut(part_id).unwrap() = [
                     (left_color[0] * (len - i) as i32 + right_color[0] * i as i32) / len as i32,
@@ -518,9 +517,8 @@ pub async fn frame_dat(
                     .unwrap()
             } else {
                 alpha(
-                    of_data_map
-                        .get(&(frame_id, *of_part_id))
-                        .unwrap_or(&[0, 0, 0, 0]),
+                    of_data_map.get(&(frame_id, *of_part_id)).unwrap(),
+                    // .unwrap_or(&[0, 0, 0, 0]),
                 )
             };
 
@@ -537,7 +535,9 @@ pub async fn frame_dat(
                     of_no_effect_intervals
                         .entry(*of_part_id)
                         .or_default()
-                        .push((*left as usize, i));
+                        .push(((*left - 1) as usize, i));
+
+                    *left = -1;
                 }
             }
         }
@@ -588,7 +588,9 @@ pub async fn frame_dat(
                     led_no_effect_intervals
                         .entry(led_part.id)
                         .or_default()
-                        .push((*left as usize, i));
+                        .push(((*left - 1) as usize, i));
+
+                    *left = -1;
                 }
             }
         }
@@ -612,7 +614,7 @@ pub async fn frame_dat(
         write_checksum(frame);
     }
 
-    for frame in frames {
+    for frame in &frames {
         write_little_endian(&frame.start_time, &mut response);
         response.push(frame.fade);
         for (_, of_part_id) in &of_parts {
