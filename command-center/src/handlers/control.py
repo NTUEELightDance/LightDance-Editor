@@ -1,7 +1,20 @@
+import threading
 import time
+
+import pygame
 
 from ..api import api
 from ..types.app import ControlScreenParamsType, ControlScreenType
+
+pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load("../files/music/0307.wav")
+START_MUSIC_EVENT = pygame.USEREVENT + 1
+music_timer = None
+
+
+def play_music():
+    pygame.mixer.music.play()
 
 
 def control_handler(
@@ -9,20 +22,24 @@ def control_handler(
 ):  # TODO
     # sender = ESP32BTSender(port="dev/tty3")
     screen_vars: ControlScreenParamsType = screen_ref.local_vars
+    global music_timer
     match id:
         case "control-play":
-            timestamp = int(time.time() * 1000) + screen_vars.delay * 1000
+            # timestamp = int(time.time() * 1000) + screen_vars.delay * 1000
             # timestamp = screen_vars.delay * 1000
-            api.send(
-                {
-                    "topic": "play",
-                    "payload": {
-                        "dancers": selected_dancers,
-                        "timestamp": timestamp,
-                        "start": screen_vars.start_time,
-                    },
-                }
-            )
+            # pygame.time.set_timer(START_MUSIC_EVENT, screen_vars.delay * 1000)
+            music_timer = threading.Timer(screen_vars.delay, play_music)
+            music_timer.start()
+            # api.send(
+            #     {
+            #         "topic": "play",
+            #         "payload": {
+            #             "dancers": selected_dancers,
+            #             "timestamp": timestamp,
+            #             "start": screen_vars.start_time,
+            #         },
+            #     }
+            # )
             # screen_ref.notify(
             #     f"Play: delay={screen_vars.delay} / start time={screen_vars.start_time}"
             # )
@@ -66,6 +83,12 @@ def control_handler(
                 f"BTSender Response: {str(response['payload']['message'])}"
             )
         case "control-stop":
+            try:
+                if music_timer:
+                    music_timer.cancel()
+                pygame.mixer.music.stop()
+            except:
+                screen_ref.notify("Nothing to stop!")
             api.send(
                 {
                     "topic": "stop",
@@ -114,8 +137,8 @@ def control_handler(
             #         },
             #     }
             # )
-            sender.connect()
-            screen_ref.notify("Sync (undone)")
+            # sender.connect()
+            screen_ref.notify("Sync")
         case "control-upload":
             api.send(
                 {
@@ -351,9 +374,9 @@ def control_handler(
                     int(dancer.split("_")[0]) + 1 for dancer in selected_dancers
                 ],
                 data=[
-                    int(screen_vars.color_code[0:1], 16),
-                    int(screen_vars.color_code[2:3], 16),
-                    int(screen_vars.color_code[4, 5], 16),
+                    int(screen_vars.color_code[1:3], 16),
+                    int(screen_vars.color_code[3:5], 16),
+                    int(screen_vars.color_code[5:7], 16),
                 ],
                 # retries=3,
             )

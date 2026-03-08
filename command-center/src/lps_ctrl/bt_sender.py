@@ -9,6 +9,37 @@ from ..types.app import ControlScreenParamsType, ControlScreenType
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 # logger = logging.getLogger(__name__)
 
+dancer_list = [
+    "all",
+    "0_liao",
+    "1_lin",
+    "2_feng",
+    "3_chen",
+    "4_roy",
+    "5_chiu",
+    "6_su",
+    "7_li",
+    "8_hsieh",
+    "9_yang",
+    "10_tsai",
+    "11_luo",
+    "12_coffin",
+    "13_altar_top1",
+    "14_altar_bottom1",
+    "15_altar_top2",
+    "16_altar_bottom2",
+    "17_cross",
+    "18_gem",
+    "19_pole",
+    "20_fireplace",
+    "21_axe1",
+    "22_axe2",
+    "23_balcony",
+    "24_gun",
+    "25_staff1",
+    "26_staff2",
+]
+
 
 class ESP32BTSender:
     # Maps user-friendly command strings to internal hexadecimal IDs
@@ -29,11 +60,11 @@ class ESP32BTSender:
     def __init__(
         self, screen_ref: ControlScreenType, port, baud_rate=115200, timeout=1
     ):
+        self.screen_ref = screen_ref
         self.port = port
         self.baud_rate = baud_rate
         self.timeout = timeout
         self.ser = None
-        self.screen_ref = screen_ref
 
         self.found_devices_buffer = []  # Buffer to store ACK reports from receivers
         self.cmd_list = [0] * 16  # Tracks execution timestamps for the 16 command slots
@@ -121,9 +152,20 @@ class ESP32BTSender:
                     "cmd_type": int(parts[2]),
                     "target_delay": int(parts[3]),
                     "state": state,
+                    "timestamp": time.time(),
                 }
                 # Prevent duplicate entries in the buffer
-                if packet not in self.found_devices_buffer:
+                is_duplicate = False
+                for existing_packet in self.found_devices_buffer:
+                    if (
+                        existing_packet["target_id"] == packet["target_id"]
+                        and abs(packet["timestamp"] - existing_packet["timestamp"])
+                        < 0.01
+                    ):
+                        is_duplicate = True
+                        break
+
+                if not is_duplicate:
                     self.found_devices_buffer.append(packet)
         except Exception as e:
             # logger.error(f"Parse error: {e}")
@@ -131,6 +173,7 @@ class ESP32BTSender:
 
     def send_burst(self, cmd_input, delay_sec, prep_led_sec, target_ids, data):
         """Sends a scheduled broadcast command to the ESP32 Sender."""
+        self._drain_serial()
         error_response = self._format_response(
             -1, cmd_input, target_ids, -1, "Port not open"
         )
@@ -175,7 +218,6 @@ class ESP32BTSender:
 
         # logger.info(f"Sending: {packet.strip()}")
         self.screen_ref.notify(f"Sending: {packet.strip()}")
-
         self.ser.write(packet.encode("utf-8"))
 
         success, msg = self._read_until_ack_or_timeout(
@@ -192,7 +234,7 @@ class ESP32BTSender:
 
         resp = self.send_burst(
             cmd_input="CHECK",
-            delay_sec=0.6,
+            delay_sec=1.0,
             prep_led_sec=0,
             target_ids=target_ids,
             data=[0, 0, 0],
@@ -200,7 +242,6 @@ class ESP32BTSender:
         if resp["statusCode"] != 0:
             return resp
 
-        self.found_devices_buffer = []  # Clear buffer before scanning
         cmd_id = resp["payload"]["command_id"]
         return {
             "from": "Host_PC",
@@ -217,15 +258,16 @@ class ESP32BTSender:
     def get_latest_report(self):
         """Fetches the aggregated status report after a CHECK scan."""
         self._drain_serial()  # Ensure all pending data is read
-
+        report_snapshot = list(self.found_devices_buffer)
+        self.found_devices_buffer = []
         return {
             "from": "Host_PC",
             "topic": "check_report",
             "statusCode": 0,
             "payload": {
                 "scan_duration_sec": 2,
-                "found_count": len(self.found_devices_buffer),
-                "found_devices": self.found_devices_buffer,
+                "found_count": len(report_snapshot),
+                "found_devices": report_snapshot,
             },
         }
 
