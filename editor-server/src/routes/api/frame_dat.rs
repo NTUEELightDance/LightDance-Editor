@@ -386,6 +386,7 @@ pub async fn frame_dat(
                 ControlFrame.id as "frame_id",
                 Part.id as "part_id",
                 Part.name as "part_name",
+                Part.length,
                 LEDBulb.position,
                 LEDBulb.color_id,
                 LEDBulb.alpha
@@ -418,6 +419,8 @@ pub async fn frame_dat(
     for data in bulb_data {
         let frame_id = data[0].frame_id;
         let part_id = data[0].part_id;
+        // TODO: error handling here
+        let length = data[0].length.unwrap();
 
         let bulb_status: Vec<LEDStatus> = Vec::from_iter(data.into_iter().map(|bulb| {
             // let color = color_map.get(&bulb.color_id).unwrap_or(&DEFAULT_COLOR);
@@ -429,7 +432,10 @@ pub async fn frame_dat(
             [color[0], color[1], color[2], bulb.alpha]
         }));
 
-        led_bulb_data_map.insert((frame_id, part_id), bulb_status);
+        led_bulb_data_map.insert(
+            (frame_id, part_id),
+            bulb_status.into_iter().take(length as usize).collect_vec(),
+        );
     }
 
     led_bulb_data_map.iter_mut().for_each(|(_, vec)| {
@@ -442,6 +448,9 @@ pub async fn frame_dat(
     led_bulb_data_map
         .iter()
         .for_each(|((frame_id, part_id), v)| {
+            // if v.len() == 120 {
+            //     println!("{}, {}", frame_id, part_id);
+            // }
             led_data.insert((*frame_id, *part_id), v);
         });
 

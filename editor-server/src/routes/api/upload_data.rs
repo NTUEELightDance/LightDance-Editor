@@ -87,6 +87,10 @@ async fn delete_existing_data(tx: &mut Transaction<'static, MySql>) -> Result<()
         .execute(&mut **tx)
         .await;
 
+    let _ = sqlx::query!(r#"DELETE FROM LEDBulb"#,)
+        .execute(&mut **tx)
+        .await;
+
     Ok(())
 }
 
