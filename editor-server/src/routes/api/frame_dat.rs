@@ -635,7 +635,17 @@ pub async fn frame_dat(
 
         for (_, led_part) in &led_parts {
             let colors = frame.led_grb_data.get(&led_part.id).unwrap();
-            assert_eq!(led_part.len as usize, colors.len());
+            if led_part.len as usize != colors.len() {
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json::<GetDataFailedResponse>(GetDataFailedResponse {
+                        err: format!(
+                            "LED part and color have different length at part_id: {}",
+                            led_part.id
+                        ),
+                    }),
+                ));
+            }
             colors.iter().for_each(|color| {
                 response.push(color[1] as u8);
                 response.push(color[0] as u8);
