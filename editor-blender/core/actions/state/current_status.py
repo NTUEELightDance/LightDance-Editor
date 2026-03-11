@@ -163,6 +163,7 @@ def update_current_status_by_index():
             part_objects = dancer_part_objects[1]
 
             first_part_name = list(part_objects)[0]
+            prev_control_id = -1
             prev_notnone_index = index
             while True:
                 prev_notnone_index -= 1
@@ -208,6 +209,7 @@ def update_current_status_by_index():
                     pass
                     setattr(part_obj, "ld_no_status", True)
                 else:
+                    setattr(part_obj, "ld_no_status", False)
                     current_ld_attr_type = (
                         "ld_color",
                         "ld_alpha",
@@ -221,4 +223,3 @@ def update_current_status_by_index():
                         part_obj,
                         current_ld_attr_type,
                     )
-                    setattr(part_obj, "ld_no_status", False)
