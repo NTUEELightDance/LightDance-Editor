@@ -307,7 +307,7 @@ def modify_partial_ctrl_single_object_action(
     update_reorder = False
     if update:
         curve_index = 0
-        points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
+        # points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
 
         for old_start, frame_start, package in frames[1]:
             while (
@@ -323,13 +323,20 @@ def modify_partial_ctrl_single_object_action(
                     for d in range(3):
                         point = kpoints_lists[d][curve_index]
                         curves[d].keyframe_points.remove(point)
+
+                    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
                     kpoints_len -= 1
                     continue
 
                 fade, rgb = package
                 for d in range(3):
                     point = kpoints_lists[d][curve_index]
-                    points_to_update.append((frame_start, point, rgb[d], fade))
+                    point.co = frame_start, rgb[d]
+                    point.interpolation = "LINEAR" if fade else "CONSTANT"
+                    point.select_control_point = False
+
+                if old_start != frame_start:
+                    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
                 if old_start != frame_start and not (
                     kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
@@ -348,16 +355,18 @@ def modify_partial_ctrl_single_object_action(
                     point.interpolation = "LINEAR" if fade else "CONSTANT"
                     point.select_control_point = True
 
+                kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
+                kpoints_len += 1
                 if (
                     len(kpoints_lists[0]) >= 2
                     and kpoints_lists[0][-2].co[0] > frame_start
                 ):
                     update_reorder = True
 
-        for frame_start, point, value, fade in points_to_update:
-            point.co = frame_start, value
-            point.interpolation = "LINEAR" if fade else "CONSTANT"
-            point.select_control_point = False
+        # for frame_start, point, value, fade in points_to_update:
+        #     point.co = frame_start, value
+        #     point.interpolation = "LINEAR" if fade else "CONSTANT"
+        #     point.select_control_point = False
 
     kpoints_len = len(kpoints_lists[0])
 
@@ -389,12 +398,12 @@ def modify_partial_ctrl_single_object_action(
 
 
 def _upsert_no_change_data(
-    dancer_name: str,
-    part_name: str,
+    obj_data: tuple[DancerName, PartName],
     part_obj_name: str,
     action: bpy.types.Action,
     no_change_dict: dict[str, list[int]],
 ):
+    dancer_name, part_name = obj_data
     curves = [ensure_curve(action, "color", index=d) for d in range(3)]
     kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
 
@@ -410,28 +419,34 @@ def _upsert_no_change_data(
         current_mapID = state.control_record[current_index]
         current_alpha = state.control_map[current_mapID].status[dancer_name][part_name].part_data.alpha  # type: ignore
 
-        prev_index = index - 1
-        prev_point = kpoints_lists[0][prev_index]
-        prev_start = int(prev_point.co[0])
-        prev_index = state.control_start_record.index(prev_start)
-        prev_mapID = state.control_record[prev_index]
+        if index != 0:
+            prev_index = index - 1
+            prev_point = kpoints_lists[0][prev_index]
+            prev_start = int(prev_point.co[0])
+            prev_index = state.control_start_record.index(prev_start)
+            prev_mapID = state.control_record[prev_index]
 
-        prev_part_data = state.control_map[prev_mapID].status[dancer_name][part_name].part_data  # type: ignore
-        prev_alpha = prev_part_data.alpha  # type: ignore
-        ratio = 0
-        if prev_alpha != 0:
-            ratio = current_alpha / prev_alpha
-        else:
-            notify("WARNING", "Prev alpha should not be zero")
-
-        for d in range(3):
-            point = kpoints_lists[d][index]
-
-            if index == 0:
-                point.co[1] = 0
+            try:
+                prev_part_data = state.control_map[prev_mapID].status[dancer_name][part_name].part_data  # type: ignore
+            except Exception as e:
+                print(prev_mapID, dancer_name, part_name, index, start)
+                raise e
+            prev_alpha = prev_part_data.alpha  # type: ignore
+            ratio = 0
+            if prev_alpha != 0:
+                ratio = current_alpha / prev_alpha
             else:
+                notify("WARNING", "Prev alpha should not be zero")
+
+            for d in range(3):
+                point = kpoints_lists[d][index]
+
                 prev_point = kpoints_lists[d][index - 1]
                 point.co[1] = prev_point.co[1] * ratio
+        else:
+            for d in range(3):
+                point = kpoints_lists[d][index]
+                point.co[1] = 0
 
 
 def modify_partial_ctrl_keyframes(
@@ -499,6 +514,5 @@ def modify_partial_ctrl_keyframes(
         for led_obj in part_obj.children:
             position: int = getattr(led_obj, "ld_led_pos")
             action = ensure_action(led_obj, f"{part_obj_name}Action.{position:03}")
-            _upsert_no_change_data(
-                dancer_name, part_name, part_obj_name, action, no_change_dict
-            )
+            obj_data = dancer_name, part_name
+            _upsert_no_change_data(obj_data, part_obj_name, action, no_change_dict)

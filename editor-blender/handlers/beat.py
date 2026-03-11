@@ -56,7 +56,7 @@ def mount():
     global beat_settings
 
     # Load beat data
-    beat_path = os.path.join(config.ASSET_PATH, "data/beat.csv")
+    beat_path = os.path.join(config.ASSET_PATH, "data", "beat.csv")
 
     with open(beat_path, "r", encoding="utf-8") as file:
         reader = list(csv.reader(file))  # Convert reader object to list

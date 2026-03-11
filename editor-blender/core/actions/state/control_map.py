@@ -137,12 +137,6 @@ def apply_control_map_updates():
         [(start, id) for id, start in control_map_updates.deleted.items()],
         key=lambda x: x[0],
     )
-    print(state.control_map_updates)
-    print(updated, added, deleted)
-    modify_animation_data, no_change_dict = control_modify_to_animation_data(
-        deleted, updated, added
-    )
-    modify_partial_ctrl_keyframes(modify_animation_data, no_change_dict)
 
     # Update control map
     for _, id in deleted:
@@ -164,6 +158,11 @@ def apply_control_map_updates():
     # Update current control index
     state.current_control_index = calculate_current_status_index()
     state.control_map_pending = False
+
+    modify_animation_data, no_change_dict = control_modify_to_animation_data(
+        deleted, updated, added
+    )
+    modify_partial_ctrl_keyframes(modify_animation_data, no_change_dict)
 
     # Update fade sequence
     update_fade_seq(updated, added, deleted)
