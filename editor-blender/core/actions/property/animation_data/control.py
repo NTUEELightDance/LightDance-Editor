@@ -302,6 +302,8 @@ def modify_partial_ctrl_single_object_action(
                     point = kpoints_lists[d][curve_index]
                     curves[d].keyframe_points.remove(point)
 
+                kpoints_len -= 1
+
     kpoints_len = len(kpoints_lists[0])
 
     update_reorder = False

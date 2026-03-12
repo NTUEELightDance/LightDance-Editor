@@ -191,8 +191,6 @@ async def sub_control_map(client: Clients):
         async def modifier(controlMap: QueryControlMapData | None):
             subscriptionData = data["controlMapSubscription"]
 
-            from ..core.states import state
-
             newControlMap = QueryControlMapData(frameIds={})
             if controlMap is not None:
                 newControlMap = controlMap
@@ -306,7 +304,7 @@ async def sub_color_map(client: Clients):
         async def modifier(colorMap: QueryColorMapData | None):
             subscriptionData = data["colorSubscription"]
 
-            print(data)
+            # print(data)
             newColorMap = QueryColorMapData(colorMap={})
             if colorMap is not None:
                 newColorMap = colorMap
