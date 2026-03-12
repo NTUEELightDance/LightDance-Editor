@@ -613,19 +613,35 @@ async fn collect_control_data(
                                 }
                             };
 
-                            sqlx::query!(
+                            let bulb_exists = sqlx::query!(
                                 r#"
+                                    SELECT LEDBulb.id from LEDBulb
+                                    WHERE LEDBulb.control_id = ?
+                                    AND LEDBulb.position = ?
+                                "#,
+                                control_id,
+                                index as i32
+                            )
+                            .fetch_optional(&mut **tx)
+                            .await
+                            .into_result()?
+                            .is_some();
+
+                            if !bulb_exists {
+                                sqlx::query!(
+                                    r#"
                                         INSERT INTO LEDBulb (control_id, position, color_id, alpha)
                                         VALUES (?, ?, ?, ?);
                                     "#,
-                                control_id,
-                                index as i32,
-                                color_id,
-                                alpha,
-                            )
-                            .execute(&mut **tx)
-                            .await
-                            .into_result()?;
+                                    control_id,
+                                    index as i32,
+                                    color_id,
+                                    alpha,
+                                )
+                                .execute(&mut **tx)
+                                .await
+                                .into_result()?;
+                            }
                         }
                     }
                 }
