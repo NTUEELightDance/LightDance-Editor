@@ -54,7 +54,7 @@ const readInput = async (prompt, defaultValue) => {
 
 const main = async () => {
   const pixelsPerSecond = await readIntegerInput("Enter pixels-per-second (1000): ", 1000, true);
-  const audioFileName = await readInput("Enter audio filename (2026LightDance.wav): ", "2026LightDance.wav");
+  const audioFileName = await readInput("Enter audio filename (2026LightDance.mp3): ", "2026LightDance.mp3");
   const waveformFileName = await readInput("Enter waveform filename (waveform.json): ", "waveform.json");
 
   const audioFilePath = path.join(musicFolder, audioFileName);
