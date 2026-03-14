@@ -11,7 +11,16 @@ import bpy
 from .....core.actions.state.dopesheet import init_fade_seq_from_state
 from .....properties.types import RevisionPropertyItemType
 from ....log import logger
-from ....models import RGB, ControlMapElement, DancerName, MapID, PartName, PartType
+from ....models import (
+    RGB,
+    ControlMapElement,
+    DancerName,
+    LEDData,
+    MapID,
+    PartName,
+    PartType,
+    Time,
+)
 from ....states import state
 from ....utils.algorithms import (
     binary_search,
@@ -24,6 +33,8 @@ from ....utils.convert import (
     ControlModifyAnimationData,
     ControlUpdateCurveData,
     control_map_to_animation_data,
+    gradient_to_rgb_float,
+    rgba_to_float,
 )
 from ....utils.notification import notify
 from .utils import ensure_action, ensure_curve, get_keyframe_points
@@ -399,56 +410,94 @@ def modify_partial_ctrl_single_object_action(
             curve.keyframe_points.sort()
 
 
-def _upsert_no_change_data(
-    obj_data: tuple[DancerName, PartName],
-    part_obj_name: str,
-    action: bpy.types.Action,
+def _update_no_change_keyframe(
+    data_objects,
     no_change_dict: dict[str, list[int]],
 ):
-    dancer_name, part_name = obj_data
-    curves = [ensure_curve(action, "color", index=d) for d in range(3)]
-    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
+    sorted_control_map = sorted(state.control_map.values(), key=lambda item: item.start)
 
-    kpoints_start_list = [point.co[0] for point in kpoints_lists[0]]
-    no_change_starts = no_change_dict[part_obj_name]
-    no_change_tuple_list = [
-        (kpoints_start_list.index(start), start)
-        for start in no_change_starts
-        if start in kpoints_start_list
-    ]
-    for index, start in no_change_tuple_list:
-        current_index = state.control_start_record.index(start)
-        current_mapID = state.control_record[current_index]
-        current_alpha = state.control_map[current_mapID].status[dancer_name][part_name].part_data.alpha  # type: ignore
+    for part_obj_name in no_change_dict:
+        part_obj = data_objects[part_obj_name]
+        dancer_name = getattr(part_obj, "ld_dancer_name")
+        part_name = getattr(part_obj, "ld_part_name")
+        part_length = state.led_part_length_map[part_name]
 
-        if index != 0:
-            prev_index = index - 1
-            prev_point = kpoints_lists[0][prev_index]
-            prev_start = int(prev_point.co[0])
-            prev_index = state.control_start_record.index(prev_start)
-            prev_mapID = state.control_record[prev_index]
+        led_effect_table = state.led_effect_id_table
 
-            try:
-                prev_part_data = state.control_map[prev_mapID].status[dancer_name][part_name].part_data  # type: ignore
-            except Exception as e:
-                print(prev_mapID, dancer_name, part_name, index, start)
-                raise e
-            prev_alpha = prev_part_data.alpha  # type: ignore
-            ratio = 0
-            if prev_alpha != 0:
-                ratio = current_alpha / prev_alpha
-            else:
-                notify("WARNING", "Prev alpha should not be zero")
+        no_change_list: list[tuple[Time, list[tuple[float, float, float]]]] = []
+        cached_index, cached_led_floats, cached_alpha = -9, [], -1
+        for start in no_change_dict[part_obj_name]:
+            current_index = state.control_start_record.index(start)
+            current_alpha = sorted_control_map[current_index].status[dancer_name][part_name].part_data.alpha  # type: ignore
+            prev_index = current_index - 1
 
-            for d in range(3):
-                point = kpoints_lists[d][index]
+            led_rgb_floats = []
+            while prev_index >= 0:
+                if prev_index == cached_index:
+                    if cached_alpha > 0:
+                        led_rgb_floats = list(
+                            map(
+                                lambda tup: (
+                                    tup[0] * current_alpha / cached_alpha,
+                                    tup[1] * current_alpha / cached_alpha,
+                                    tup[2] * current_alpha / cached_alpha,
+                                ),
+                                cached_led_floats,
+                            )
+                        )
+                    else:
+                        led_rgb_floats = cached_led_floats
+                    break
 
-                prev_point = kpoints_lists[d][index - 1]
-                point.co[1] = prev_point.co[1] * ratio
-        else:
-            for d in range(3):
-                point = kpoints_lists[d][index]
-                point.co[1] = 0
+                control_status = sorted_control_map[prev_index].status[dancer_name][
+                    part_name
+                ]
+                if control_status is None:
+                    prev_index -= 1
+                    continue
+
+                part_status = cast(LEDData, control_status.part_data)
+                if part_status.effect_id > 0:
+                    part_effect = led_effect_table[part_status.effect_id].effect
+                    led_rgb_floats = [
+                        rgba_to_float(
+                            state.color_map[led_data.color_id].rgb, current_alpha
+                        )
+                        for led_data in part_effect
+                    ]
+                    cached_alpha = current_alpha
+                    break
+                elif part_status.effect_id == 0:
+                    part_led_status = control_status.bulb_data
+                    led_rgb_floats = gradient_to_rgb_float(
+                        [
+                            (led_data.color_id, led_data.alpha)
+                            for led_data in part_led_status
+                        ]
+                    )
+                    cached_alpha = -1
+                    break
+                else:
+                    prev_index -= 1
+
+            if prev_index == -1:
+                led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
+
+            cached_index, cached_led_floats = current_index, led_rgb_floats
+            no_change_list.append((start, led_rgb_floats))  # type: ignore
+
+        for led_obj in part_obj.children:
+            position: int = getattr(led_obj, "ld_led_pos")
+            action = ensure_action(led_obj, f"{part_obj_name}Action.{position:03}")
+            curves = [ensure_curve(action, "color", index=d) for d in range(3)]
+            kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
+            kpoints_start_lists = [kpoint.co[0] for kpoint in kpoints_lists[0]]
+            for start, led_rgb_floats in no_change_list:
+                for d in range(3):
+                    index = kpoints_start_lists.index(start)
+                    point = kpoints_lists[d][index]
+
+                    point.co[1] = led_rgb_floats[position][d]
 
 
 def modify_partial_ctrl_keyframes(
@@ -509,12 +558,4 @@ def modify_partial_ctrl_keyframes(
                 )
                 modify_partial_ctrl_single_object_action(action, frames)
 
-    for part_obj_name in no_change_dict:
-        part_obj = data_objects[part_obj_name]
-        dancer_name = getattr(part_obj, "ld_dancer_name")
-        part_name = getattr(part_obj, "ld_part_name")
-        for led_obj in part_obj.children:
-            position: int = getattr(led_obj, "ld_led_pos")
-            action = ensure_action(led_obj, f"{part_obj_name}Action.{position:03}")
-            obj_data = dancer_name, part_name
-            _upsert_no_change_data(obj_data, part_obj_name, action, no_change_dict)
+    _update_no_change_keyframe(data_objects, no_change_dict)
