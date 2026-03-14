@@ -461,22 +461,19 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(LEDBulb::Id)
                             .integer()
                             .not_null()
-                            .auto_increment(),
-                    )
-                    .col(
-                        ColumnDef::new(LEDBulb::ControlId)
-                            .integer()
-                            .not_null()
+                            .auto_increment()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(LEDBulb::Position)
-                            .integer()
-                            .not_null()
-                            .primary_key(),
-                    )
+                    .col(ColumnDef::new(LEDBulb::ControlId).integer().not_null())
+                    .col(ColumnDef::new(LEDBulb::Position).integer().not_null())
                     .col(ColumnDef::new(LEDBulb::ColorId).integer().not_null())
                     .col(ColumnDef::new(LEDBulb::Alpha).integer().not_null())
+                    .index(
+                        Index::create()
+                            .unique()
+                            .col(LEDBulb::Position)
+                            .col(LEDBulb::ControlId),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk-ledbulb-control_id")
