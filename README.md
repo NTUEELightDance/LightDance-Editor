@@ -27,7 +27,6 @@
 ```text
 http://localhost:4000 - editor-server
 http://localhost:8081 - file-server
-http://localhost:8082 - controller-server
 ```
 
 ## Development
@@ -95,14 +94,11 @@ pnpm dev:file-server
 pnpm dev:editor-server
 ```
 
-If you are developing the command center, you may also need to run:
+If you are developing the command center, run:
 
 ```sh
-# in Lightdance-Editor/controller-server
-cp .env.defaults .env
-
-# in Lightdance-Editor
-pnpm dev:controller-server
+# in Lightdance-Editor/command-center
+uv run textual run src.__main__:LightDanceApp
 ```
 
 To bundle the frontend blender add-on, run:
