@@ -169,7 +169,7 @@ class ControlScreen(Screen):
 
     def on_mount(self) -> None:
         self.sender = ESP32BTSender(
-            screen_ref=self.screen, port="/dev/tty.usbserial-1130", baud_rate=115200
+            screen_ref=self.screen, port="/dev/tty.usbserial-0001", baud_rate=115200
         )
         try:
             self.sender.connect()

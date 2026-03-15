@@ -6,6 +6,11 @@ import { instance } from "./axios";
 
 export async function getDancerFrameDataAPI(RPiName: string) {
   const getRPiDataJSON = pinMapTable[RPiName];
+  // console.log(JSON.stringify({
+  //   dancer: getRPiDataJSON.dancer,
+  //   OFPARTS: getRPiDataJSON.OFPARTS,
+  //   LEDPARTS: getRPiDataJSON.LEDPARTS,
+  // }));
   const { data } = await instance.post("/frameDat", {
     dancer: getRPiDataJSON.dancer,
     OFPARTS: getRPiDataJSON.OFPARTS,

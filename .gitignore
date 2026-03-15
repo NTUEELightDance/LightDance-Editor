@@ -160,3 +160,7 @@ utils/createUsers.js
 
 # Local lighttable data
 lighttable
+
+# large music files
+*mp3
+*wav

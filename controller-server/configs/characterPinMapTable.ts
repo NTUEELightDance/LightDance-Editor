@@ -28,6 +28,8 @@ export const characterPinMapTable: ModelPinMapTable = {
       cloak_left_in: 23,
       cloak_bottom_left_out: 24,
       cloak_bottom_left_in: 25,
+      shoes_left_top: 26,
+      shoes_left_bottom: 27,
       leg_right_in: 30,
       leg_right_out: 31,
       cloak_right_out: 32,

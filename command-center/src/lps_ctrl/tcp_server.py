@@ -4,38 +4,8 @@ import socket
 import struct
 import time
 
+from ..config import DANCER_LIST
 from ..types.app import ControlScreenParamsType, ControlScreenType
-
-dancer_list = [
-    "all",
-    "0_liao",
-    "1_lin",
-    "2_feng",
-    "3_chen",
-    "4_roy",
-    "5_chiu",
-    "6_su",
-    "7_li",
-    "8_hsieh",
-    "9_yang",
-    "10_tsai",
-    "11_luo",
-    "12_coffin",
-    "13_altar_top1",
-    "14_altar_bottom1",
-    "15_altar_top2",
-    "16_altar_bottom2",
-    "17_cross",
-    "18_gem",
-    "19_pole",
-    "20_fireplace",
-    "21_axe1",
-    "22_axe2",
-    "23_balcony",
-    "24_gun",
-    "25_staff1",
-    "26_staff2",
-]
 
 
 class Esp32TcpServer:
@@ -70,7 +40,7 @@ class Esp32TcpServer:
 
     def _update_response(self, id, text):
         try:
-            self.dancer_status[dancer_list[id]].response = text
+            self.dancer_status[DANCER_LIST[id][0]].response = text
             self.act_fcn()
         except:
             self.screen_ref.notify(
