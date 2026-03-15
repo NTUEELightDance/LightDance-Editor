@@ -1,3 +1,7 @@
+BT_SENDER_PORT = "/dev/tty.usbserial-0001"
+
+MUSIC_FILE_PATH = "../files/music/0314_480.wav"
+
 DANCER_LIST = [
     ("all", "none"),
     ("0_liao", "ghost_king"),

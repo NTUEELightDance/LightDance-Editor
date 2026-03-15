@@ -11,6 +11,7 @@ from textual.timer import Timer
 from textual.validation import Number, Regex
 from textual.widgets import Button, DataTable, Footer, Input
 
+from ..config import BT_SENDER_PORT
 from ..handlers import control_handler
 from ..lps_ctrl import ESP32BTSender, Esp32TcpServer
 from ..types import DancerStatus
@@ -169,7 +170,7 @@ class ControlScreen(Screen):
 
     def on_mount(self) -> None:
         self.sender = ESP32BTSender(
-            screen_ref=self.screen, port="/dev/tty.usbserial-0001", baud_rate=115200
+            screen_ref=self.screen, port=BT_SENDER_PORT, baud_rate=115200
         )
         try:
             self.sender.connect()

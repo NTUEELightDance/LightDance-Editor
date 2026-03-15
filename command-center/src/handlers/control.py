@@ -5,16 +5,16 @@ import wave
 import pygame
 
 from ..api import api
+from ..config import MUSIC_FILE_PATH
 from ..types.app import ControlScreenParamsType, ControlScreenType
 
-file_path = "../files/music/0314_480.wav"
-file_wav = wave.open(file_path)
+file_wav = wave.open(MUSIC_FILE_PATH)
 frequency = file_wav.getframerate()
 pygame.mixer.pre_init(frequency=frequency, size=-16, channels=2)
 pygame.init()
 pygame.mixer.init(frequency=frequency, size=-16, channels=2)
 # print(pygame.mixer.get_init())
-pygame.mixer.music.load(file_path)
+pygame.mixer.music.load(MUSIC_FILE_PATH)
 START_MUSIC_EVENT = pygame.USEREVENT + 1
 music_timer = None
 play_cmd = None
