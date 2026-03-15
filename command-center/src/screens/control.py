@@ -1,3 +1,7 @@
+import asyncio
+import threading
+import time
+
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.coordinate import Coordinate
@@ -7,7 +11,9 @@ from textual.timer import Timer
 from textual.validation import Number, Regex
 from textual.widgets import Button, DataTable, Footer, Input
 
+from ..config import BT_SENDER_PORT
 from ..handlers import control_handler
+from ..lps_ctrl import ESP32BTSender, Esp32TcpServer
 from ..types import DancerStatus
 from ..types.app import ControlScreenParamsType, LightDanceAppType
 
@@ -36,6 +42,8 @@ class ControlScreen(Screen):
     dancer_table_initialized = False
     countdown: reactive[int] = reactive(0)
     timer: Timer | None = None
+    sender: ESP32BTSender | None = None
+    uploadServer: Esp32TcpServer | None = None
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -58,10 +66,10 @@ class ControlScreen(Screen):
                     )
                     yield Button("Pause", id="control-pause")
                     yield Button("Stop", id="control-stop")
-                    yield Button("Refresh", id="control-refresh")
+                    yield Button("Reset", id="control-refresh")
                     yield Button("Sync", id="control-sync")
-                    yield Button("Upload", id="control-upload")
-                    yield Button("Load", id="control-load")
+                    yield Button("Download", id="control-upload")
+                    yield Button("Upload", id="control-load")
                 with Horizontal():
                     yield Button("R", id="control-r")
                     yield Button("G", id="control-g")
@@ -69,7 +77,7 @@ class ControlScreen(Screen):
                     yield Button("RG/Y", id="control-rg")
                     yield Button("GB/C", id="control-gb")
                     yield Button("RB/M", id="control-rb")
-                    yield Button("D", id="control-d")
+                    yield Button("Rainbow", id="control-d")
                     yield Button("W", id="control-w")
                     yield Button("Send color", id="control-send-color")
                     yield Input(
@@ -98,6 +106,30 @@ class ControlScreen(Screen):
                 yield self.app.control_table
         yield Footer()
 
+    async def init_server(self):
+        uploadServer = Esp32TcpServer(
+            screen_ref=self.screen,
+            dancer_status=self.app.dancer_status,
+            act_fcn=self.update_connection_status,
+            control_paths_list=[
+                "../lighttable/control_" + str(i) + ".dat"
+                for i in range(0, 27)
+                # "../lighttable/control_" + str(i) + ".dat" for i in range(27)
+            ],
+            frame_paths_list=[
+                "../lighttable/frame_" + str(i) + ".dat"
+                for i in range(0, 27)
+                # "../lighttable/frame_" + str(i) + ".dat" for i in range(27)
+            ],
+            port=3333,
+        )
+        await uploadServer.start()
+
+    def start_server_thread(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.init_server())
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id:
             control_handler(
@@ -108,8 +140,11 @@ class ControlScreen(Screen):
                     if dancer.selected
                 ],
                 self.screen,  # type: ignore
+                self.sender,
             )
-        if event.button.id == "control-play":
+        if event.button.id == "control-sync":
+            self.update_connection_status()
+        elif event.button.id == "control-play":
             self.countdown = self.local_vars.delay
             self.timer = self.set_interval(1, self.timer_decrement)
         elif (
@@ -134,12 +169,21 @@ class ControlScreen(Screen):
             self.local_vars.command = value
 
     def on_mount(self) -> None:
+        self.sender = ESP32BTSender(
+            screen_ref=self.screen, port=BT_SENDER_PORT, baud_rate=115200
+        )
+        try:
+            self.sender.connect()
+        except:
+            self.notify("BTSender is not connected", severity="error")
         self.table = self.app.control_table
         self.table.add_column("Name", key="Name")
         self.table.add_column("✔", key="Selected")
         self.table.add_column("Interface", key="Interface")
         self.table.add_column("Command response", key="Response", width=80)
         self.watch(self.app, "dancer_status", self.update_connection_status)
+        server_thread = threading.Thread(target=self.start_server_thread, daemon=True)
+        server_thread.start()
 
     def init_dancer_table(self) -> None:
         new_dancer_status: DancerStatus = self.app.dancer_status
@@ -159,6 +203,22 @@ class ControlScreen(Screen):
             self.init_dancer_table()
             self.dancer_table_initialized = True
             return
+        # self.sender.trigger_check([0])
+        # time.sleep(2)  # Wait for ESP32 to scan
+        # connection_result = self.sender.get_latest_report()
+        # self.notify(str(connection_result['payload']))
+
+        # for item in connection_result["payload"]["found_devices"]:
+        #     self.notify(item["target_id"])
+        # name = self.app.dancer_status[item['target_id']]
+        # try:
+        #     self.table.update_cell(
+        #         name,
+        #         "Name",
+        #         f"[#00ff00]{name}[/]",
+        #     )
+        # except:
+        #     pass
         new_dancer_status: DancerStatus = self.app.dancer_status
         for name, dancer in new_dancer_status.items():
             try:
@@ -222,6 +282,7 @@ class ControlScreen(Screen):
                 if dancer.selected
             ],
             self.screen,  # type: ignore
+            self.sender,
         )
 
     def action_sync(self) -> None:
@@ -233,6 +294,7 @@ class ControlScreen(Screen):
                 if dancer.selected
             ],
             self.screen,  # type: ignore
+            self.sender,
         )
 
     def timer_decrement(self) -> None:
