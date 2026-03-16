@@ -166,18 +166,6 @@ def init_pos_keyframes_from_state(dancers_reset: list[bool] | None = None):
             filtered_pos_map_end,
         )  # end is included in the range
 
-    # state.not_loaded_pos_frames: a list of pos map ID that is not loaded
-    not_loaded_pos_frames: list[MapID] = []
-    filtered_index = 0
-    for sorted_index in range(len(sorted_pos_map)):
-        if filtered_index >= len(filtered_pos_map):
-            not_loaded_pos_frames.append(sorted_pos_map[sorted_index][0])
-        elif filtered_pos_map[filtered_index][0] != sorted_pos_map[sorted_index][0]:
-            not_loaded_pos_frames.append(sorted_pos_map[sorted_index][0])
-        else:
-            filtered_index += 1
-    state.not_loaded_pos_frames = not_loaded_pos_frames
-
     pos_frame_number = len(filtered_pos_map)
     show_dancer = state.show_dancers
 

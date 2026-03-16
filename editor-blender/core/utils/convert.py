@@ -65,6 +65,7 @@ from ..models import (
     PosMapStatus,
     Revision,
     Rotation,
+    Time,
 )
 from ..states import state
 from ..utils.algorithms import (
@@ -801,7 +802,20 @@ def _upsert(dict, key, val):
             dict[key].extend(val)
 
 
-def _seek_no_change_data(start, dancer_name, part_name) -> list[int]:
+def _delete(dict, key, val):
+    if not val or key not in dict:
+        return
+
+    if not isinstance(val, list):
+        if val in dict.values():
+            dict[key].pop(val)
+    else:
+        for one_val in val:
+            if one_val in dict.values():
+                dict[key].pop(one_val)
+
+
+def _find_no_change_effect_starts(start, dancer_name, part_name) -> list[int]:
     # Not Include Self
     left_index = binary_search(state.control_start_record, start)
     right_index = left_index + 1
@@ -823,13 +837,149 @@ def _seek_no_change_data(start, dancer_name, part_name) -> list[int]:
     return no_change_start_list
 
 
+def _possible_changed_no_change_effect(
+    control_delete: list[tuple[int, MapID]],
+    control_update: list[tuple[int, MapID, ControlMapElement]],
+    control_add: list[tuple[MapID, ControlMapElement]],
+    show_dancer_dict,
+) -> dict[str, list[Time]]:
+    """
+    The color of a no-change effect is subject to the effect before it,
+    this function finds the start list of parts.
+    For a start in the start list of a part,
+    the corresponding part has a no-change effect that may change color.
+
+    Return:
+        dict[str, list[Time]]
+    Where str is the name of part object, f"{dancer_index}_{part_name}"
+    """
+    no_change_dict = {}
+    for old_start, _ in control_delete:
+        for dancer_index, dancer_item in enumerate(state.dancers_array):
+            dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
+            parts = dancer_item.parts
+
+            for _, part in enumerate(parts):
+                part_name = part.name
+
+                if part.type == PartType.LED:
+                    no_change_effect_starts = _find_no_change_effect_starts(
+                        old_start, dancer_name, part_name
+                    )
+                    _upsert(
+                        no_change_dict,
+                        f"{dancer_index}_{part_name}",
+                        no_change_effect_starts,
+                    )
+                    _delete(no_change_dict, f"{dancer_index}_{part_name}", old_start)
+                else:
+                    continue
+
+    for old_start, _, frame in control_update:
+        for dancer_index, dancer_item in enumerate(state.dancers_array):
+            dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
+
+            parts = dancer_item.parts
+
+            for _, part in enumerate(parts):
+                part_name = part.name
+                part_ctrl_data = frame.status[dancer_name][part_name]
+
+                if part_ctrl_data is None:
+                    if part.type == PartType.LED:
+                        no_change_effect_starts = _find_no_change_effect_starts(
+                            old_start, dancer_name, part_name
+                        )
+                        _upsert(
+                            no_change_dict,
+                            f"{dancer_index}_{part_name}",
+                            no_change_effect_starts,
+                        )
+                        _delete(
+                            no_change_dict, f"{dancer_index}_{part_name}", frame.start
+                        )
+                    continue
+
+                part_status = part_ctrl_data.part_data
+                if isinstance(part_status, LEDData):
+                    if part_status.effect_id >= 0:
+                        _delete(
+                            no_change_dict, f"{dancer_index}_{part_name}", frame.start
+                        )
+                    else:
+                        _upsert(
+                            no_change_dict, f"{dancer_index}_{part_name}", frame.start
+                        )
+
+                    no_change_effect_starts = _find_no_change_effect_starts(
+                        old_start, dancer_name, part_name
+                    )
+                    _upsert(
+                        no_change_dict,
+                        f"{dancer_index}_{part_name}",
+                        no_change_effect_starts,
+                    )
+                    _delete(no_change_dict, f"{dancer_index}_{part_name}", old_start)
+
+                    no_change_effect_starts = _find_no_change_effect_starts(
+                        frame.start, dancer_name, part_name
+                    )
+                    _upsert(
+                        no_change_dict,
+                        f"{dancer_index}_{part_name}",
+                        no_change_effect_starts,
+                    )
+
+    for frame_start, frame in control_add:
+        for dancer_index, dancer_item in enumerate(state.dancers_array):
+            dancer_name = dancer_item.name
+            if not show_dancer_dict[dancer_name]:
+                continue
+
+            parts = dancer_item.parts
+
+            for _, part in enumerate(parts):
+                part_name = part.name
+                part_ctrl_data = frame.status[dancer_name][part_name]
+                if part_ctrl_data is None:
+                    if part.type == PartType.LED:
+                        no_change_effect_starts = _find_no_change_effect_starts(
+                            frame_start, dancer_name, part_name
+                        )
+                        _upsert(
+                            no_change_dict,
+                            f"{dancer_index}_{part_name}",
+                            no_change_effect_starts,
+                        )
+                    continue
+
+                part_status = part_ctrl_data.part_data
+                if isinstance(part_status, LEDData):
+                    if part_status.effect_id == -1:
+                        _upsert(no_change_dict, part_name, frame.start)
+
+                    no_change_effect_starts = _find_no_change_effect_starts(
+                        frame_start, dancer_name, part_name
+                    )
+                    _upsert(
+                        no_change_dict,
+                        f"{dancer_index}_{part_name}",
+                        no_change_effect_starts,
+                    )
+
+    return no_change_dict
+
+
 def control_modify_to_animation_data(
     control_delete: list[tuple[int, MapID]],
     control_update: list[tuple[int, MapID, ControlMapElement]],
     control_add: list[tuple[MapID, ControlMapElement]],
 ) -> tuple[ControlModifyAnimationData, dict[str, list[int]]]:
     new_map: ControlModifyAnimationData = {}
-    no_change_dict: dict[str, list[int]] = {}
 
     show_dancer_dict = dict(zip(state.dancer_names, state.show_dancers))
     for dancer_name in state.dancers_array:
@@ -847,11 +997,13 @@ def control_modify_to_animation_data(
 
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
-    prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
-    prev_led_status: dict[DancerName, dict[PartName, list[list[tuple[int, int]]]]] = {}
+
+    no_change_dict: dict[str, list[Time]] = _possible_changed_no_change_effect(
+        control_delete, control_update, control_add, show_dancer_dict
+    )  # type: ignore
 
     for old_start, _ in control_delete:
-        for dancer_index, dancer_item in enumerate(state.dancers_array):
+        for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
             if not show_dancer_dict[dancer_name]:
                 continue
@@ -866,19 +1018,11 @@ def control_modify_to_animation_data(
 
                     for i in range(part_length):
                         part_map[i][0].append(old_start)  # type: ignore
-
-                    no_change_data = _seek_no_change_data(
-                        old_start, dancer_name, part_name
-                    )
-                    _upsert(
-                        no_change_dict, f"{dancer_index}_{part_name}", no_change_data
-                    )
-
                 else:
                     part_map[0].append(old_start)  # type: ignore
 
     for old_start, _, frame in control_update:
-        for dancer_index, dancer_item in enumerate(state.dancers_array):
+        for _, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
             if not show_dancer_dict[dancer_name]:
                 continue
@@ -898,14 +1042,6 @@ def control_modify_to_animation_data(
                             for i in range(part_length):
                                 part_map[i][1].append((old_start, frame.start, None))  # type: ignore
 
-                            no_change_data = _seek_no_change_data(
-                                old_start, dancer_name, part_name
-                            )
-                            _upsert(
-                                no_change_dict,
-                                f"{dancer_index}_{part_name}",
-                                no_change_data,
-                            )
                         case PartType.FIBER:
                             part_map[1].append((old_start, frame.start, None))  # type: ignore
                     continue
@@ -934,25 +1070,10 @@ def control_modify_to_animation_data(
                     else:
                         part_length = state.led_part_length_map[part_name]
                         led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
-                        _upsert(
-                            no_change_dict, f"{dancer_index}_{part_name}", frame.start
-                        )
 
                     for i in range(part_length):
                         part_map[i][1].append((old_start, frame.start, (part_ctrl_data.fade, led_rgb_floats[i])))  # type: ignore
 
-                    no_change_data = _seek_no_change_data(
-                        old_start, dancer_name, part_name
-                    )
-                    _upsert(
-                        no_change_dict, f"{dancer_index}_{part_name}", no_change_data
-                    )
-                    no_change_data = _seek_no_change_data(
-                        frame.start, dancer_name, part_name
-                    )
-                    _upsert(
-                        no_change_dict, f"{dancer_index}_{part_name}", no_change_data
-                    )
                 else:
                     part_rgb = color_map[part_status.color_id].rgb
                     fiber_rgb_float = rgba_to_float(part_rgb, part_status.alpha)
@@ -979,15 +1100,6 @@ def control_modify_to_animation_data(
 
                             for i in range(part_length):
                                 part_map[i][2].append((frame.start, None))  # type: ignore
-
-                            no_change_data = _seek_no_change_data(
-                                frame_start, dancer_name, part_name
-                            )
-                            _upsert(
-                                no_change_dict,
-                                f"{dancer_index}_{part_name}",
-                                no_change_data,
-                            )
 
                         case PartType.FIBER:
                             part_map[2].append((frame.start, None))  # type: ignore
@@ -1017,20 +1129,12 @@ def control_modify_to_animation_data(
                     else:
                         part_length = state.led_part_length_map[part_name]
                         led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
-                        _upsert(no_change_dict, part_name, frame.start)
 
                     if len(part_map) == 0:
                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
 
                     for i in range(part_length):
                         part_map[i][2].append((frame.start, (part_ctrl_data.fade, led_rgb_floats[i])))  # type: ignore
-
-                    no_change_data = _seek_no_change_data(
-                        frame_start, dancer_name, part_name
-                    )
-                    _upsert(
-                        no_change_dict, f"{dancer_index}_{part_name}", no_change_data
-                    )
 
                 else:
                     part_rgb = color_map[part_status.color_id].rgb

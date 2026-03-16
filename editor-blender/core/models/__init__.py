@@ -414,8 +414,6 @@ class State:
     # TODO implement these
     control_map: ControlMap
     pos_map: PosMap
-    not_loaded_control_frames: list[MapID]
-    not_loaded_pos_frames: list[MapID]
 
     control_record: ControlRecord
     control_start_record: ControlStartRecord
