@@ -50,12 +50,11 @@ def delete_control(id: MapID):
 
         if (
             len(control_map_updates.added) == 0
-            or len(control_map_updates.updated) == 0
-            or len(control_map_updates.deleted) == 0
+            and len(control_map_updates.updated) == 0
+            and len(control_map_updates.deleted) == 0
         ):
             state.control_map_pending = False
 
-        print("KILLER:", control_map_updates)
         return
 
     old_frame = state.control_map.get(id)
@@ -121,16 +120,11 @@ def apply_control_map_updates():
         [
             (start, id, frame)
             for id, (start, frame) in control_map_updates.updated.items()
-            if id not in state.not_loaded_control_frames
         ],
         key=lambda x: x[0],
     )
     added = sorted(
-        [
-            (id, frame)
-            for id, frame in control_map_updates.added.items()
-            if id not in state.not_loaded_control_frames
-        ],
+        [(id, frame) for id, frame in control_map_updates.added.items()],
         key=lambda x: x[1].start,
     )
     deleted = sorted(
@@ -139,8 +133,14 @@ def apply_control_map_updates():
     )
 
     # Update control map
-    for _, id in deleted:
-        state.control_map.pop(id)
+    for start, id in deleted:
+        # FIXME: Only a quickfix
+        if id in state.control_map:
+            state.control_map.pop(id)
+        else:
+            logger.warning(
+                f"Frame {id} with start {start}, which is to be deleted, is gone."
+            )
     for id, frame in added:
         state.control_map[id] = frame
     for _, id, frame in updated:

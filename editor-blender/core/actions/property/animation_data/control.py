@@ -88,7 +88,7 @@ def init_ctrl_single_object_action(
 
 def _filter_ctrl_map_by_loaded_range(
     sorted_ctrl_map: list[tuple[MapID, ControlMapElement]]
-) -> tuple[list[int], list[tuple[MapID, ControlMapElement]], tuple[int, int],]:
+) -> tuple[list[tuple[MapID, ControlMapElement]], tuple[int, int],]:
     sorted_frame_ctrl_map = [item[1].start for item in sorted_ctrl_map]
     frame_range_l, frame_range_r = state.dancer_load_frames
 
@@ -99,22 +99,12 @@ def _filter_ctrl_map_by_loaded_range(
         filtered_ctrl_map_start : filtered_ctrl_map_end + 1
     ]
 
-    not_loaded_ctrl_frames: list[MapID] = []
-    filtered_index = 0
-    for sorted_index in range(len(sorted_ctrl_map)):
-        if filtered_index >= len(filtered_ctrl_map):
-            not_loaded_ctrl_frames.append(sorted_ctrl_map[sorted_index][0])
-        elif filtered_ctrl_map[filtered_index][0] != sorted_ctrl_map[sorted_index][0]:
-            not_loaded_ctrl_frames.append(sorted_ctrl_map[sorted_index][0])
-        else:
-            filtered_index += 1
-
     init_indexs_r_closed = (
         filtered_ctrl_map_start,
         filtered_ctrl_map_end,
     )
 
-    return not_loaded_ctrl_frames, filtered_ctrl_map, init_indexs_r_closed
+    return filtered_ctrl_map, init_indexs_r_closed
 
 
 def _init_control_part_action_keyframes(
@@ -163,14 +153,12 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
 
     filtered_ctrl_map = []
     init_indexs_r_closed = ()
-    not_loaded_ctrl_frames = []
     if state.control_map:
         filtered_ctrl_map_start, filtered_ctrl_map_end = smallest_range_including_lr(
             sorted_ctrl_start_map, frame_range_l, frame_range_r
         )
         init_indexs_r_closed = filtered_ctrl_map_start, filtered_ctrl_map_end
         (
-            not_loaded_ctrl_frames,
             filtered_ctrl_map,
             init_indexs_r_closed,
         ) = _filter_ctrl_map_by_loaded_range(sorted_ctrl_map)
@@ -178,8 +166,6 @@ def init_ctrl_keyframes_from_state(dancers_reset: list[bool] | None = None):
     part_range_dict = _init_control_part_action_keyframes(
         init_indexs_r_closed, sorted_ctrl_map
     )
-    # state.not_loaded_ctrl_frames: a list of ctrl map ID that is not loaded
-    state.not_loaded_control_frames = not_loaded_ctrl_frames
     animation_data = control_map_to_animation_data(sorted_ctrl_map, part_range_dict)
 
     ctrl_frame_number = len(filtered_ctrl_map)
@@ -414,6 +400,7 @@ def _update_no_change_keyframe(
     data_objects,
     no_change_dict: dict[str, list[int]],
 ):
+    # This function update keyframe colors of the no-change effect in no_change_dict
     sorted_control_map = sorted(state.control_map.values(), key=lambda item: item.start)
 
     for part_obj_name in no_change_dict:
@@ -427,6 +414,7 @@ def _update_no_change_keyframe(
         no_change_list: list[tuple[Time, list[tuple[float, float, float]]]] = []
         cached_index, cached_led_floats, cached_alpha = -9, [], -1
         for start in no_change_dict[part_obj_name]:
+            # Decide the color of LED with no-change effect
             current_index = state.control_start_record.index(start)
             current_alpha = sorted_control_map[current_index].status[dancer_name][part_name].part_data.alpha  # type: ignore
             prev_index = current_index - 1
@@ -487,6 +475,7 @@ def _update_no_change_keyframe(
             no_change_list.append((start, led_rgb_floats))  # type: ignore
 
         for led_obj in part_obj.children:
+            # Set the color on animation
             position: int = getattr(led_obj, "ld_led_pos")
             action = ensure_action(led_obj, f"{part_obj_name}Action.{position:03}")
             curves = [ensure_curve(action, "color", index=d) for d in range(3)]
@@ -494,6 +483,11 @@ def _update_no_change_keyframe(
             kpoints_start_lists = [kpoint.co[0] for kpoint in kpoints_lists[0]]
             for start, led_rgb_floats in no_change_list:
                 for d in range(3):
+                    if start not in kpoints_start_lists:
+                        # If this is true, the kpoint has been change to no-status/other status or deleted.
+                        # Though it is checked before, this make sure that error will not happen.
+                        break
+
                     index = kpoints_start_lists.index(start)
                     point = kpoints_lists[d][index]
 
