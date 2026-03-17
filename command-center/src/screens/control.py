@@ -11,7 +11,7 @@ from textual.timer import Timer
 from textual.validation import Number, Regex
 from textual.widgets import Button, DataTable, Footer, Input
 
-from ..config import BT_SENDER_PORT
+from ..config import BT_SENDER_PORT, DANCER_LIST
 from ..handlers import control_handler
 from ..lps_ctrl import ESP32BTSender, Esp32TcpServer
 from ..types import DancerStatus
@@ -203,22 +203,51 @@ class ControlScreen(Screen):
             self.init_dancer_table()
             self.dancer_table_initialized = True
             return
-        # self.sender.trigger_check([0])
-        # time.sleep(2)  # Wait for ESP32 to scan
-        # connection_result = self.sender.get_latest_report()
-        # self.notify(str(connection_result['payload']))
+        try:
+            self.sender.trigger_check([0])
+            time.sleep(2)  # Wait for ESP32 to scan
+            connection_result = self.sender.get_latest_report()
+            # connection_result = {
+            #     "from": "Host_PC",
+            #     "topic": "check_report",
+            #     "statusCode": 0,
+            #     "payload": {
+            #         "scan_duration_sec": 2,
+            #         "found_count": 1,
+            #         "found_devices": [
+            #             {
+            #                 "target_id": 1,
+            #                 "cmd_id": 0,
+            #                 "cmd_type": "PLAY",
+            #                 "target_delay": 9365664,
+            #                 "state": "TEST",
+            #                 "timestamp": 1773239516.9176354
+            #             }
+            #         ]
+            #     }
+            # }
+        except:
+            self.notify("Can't get connection report", severity="error")
+            return
 
-        # for item in connection_result["payload"]["found_devices"]:
-        #     self.notify(item["target_id"])
-        # name = self.app.dancer_status[item['target_id']]
-        # try:
-        #     self.table.update_cell(
-        #         name,
-        #         "Name",
-        #         f"[#00ff00]{name}[/]",
-        #     )
-        # except:
-        #     pass
+        for name, dancer in self.app.dancer_status.items():
+            self.app.dancer_status[name].interface = "none"
+            self.app.dancer_status[name].wifi_info.connected = False
+            self.app.dancer_status[name].response = ""
+
+        for item in connection_result["payload"]["found_devices"]:
+            target_id = item["target_id"]
+            cmd_id = item["cmd_id"]
+            cmd_type = item["cmd_type"]
+            target_delay = item["target_delay"]
+            state = item["state"]
+            timestamp = item["timestamp"]
+            self.app.dancer_status[DANCER_LIST[target_id][0]].interface = "BLE"
+            self.app.dancer_status[DANCER_LIST[target_id][0]].wifi_info.connected = True
+            self.app.dancer_status[
+                DANCER_LIST[target_id][0]
+            ].response = f"State: {state}, Type: {cmd_type}, CID: {cmd_id}, Target Delay: {target_delay}, Timestamp: {timestamp}"
+
         new_dancer_status: DancerStatus = self.app.dancer_status
         for name, dancer in new_dancer_status.items():
             try:

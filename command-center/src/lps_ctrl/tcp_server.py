@@ -40,6 +40,7 @@ class Esp32TcpServer:
 
     def _update_response(self, id, text):
         try:
+            self.dancer_status[DANCER_LIST[id][0]].interface = "wifi"
             self.dancer_status[DANCER_LIST[id][0]].response = text
             self.act_fcn()
         except:
