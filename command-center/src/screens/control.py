@@ -11,7 +11,7 @@ from textual.timer import Timer
 from textual.validation import Number, Regex
 from textual.widgets import Button, DataTable, Footer, Input
 
-from ..config import BT_SENDER_PORT, DANCER_LIST
+from ..config import BT_SENDER_PORT, DANCER_LIST, MUSIC_FILE_PATH
 from ..handlers import control_handler
 from ..lps_ctrl import ESP32BTSender, Esp32TcpServer
 from ..types import DancerStatus
@@ -36,6 +36,7 @@ class ControlScreen(Screen):
     local_vars = ControlScreenParamsType(
         color_code="#000000",
         command="",
+        music=MUSIC_FILE_PATH,
         delay=30,
         start_time=0,
     )
@@ -57,14 +58,14 @@ class ControlScreen(Screen):
                         value="30",
                         restrict=r"\d{0,3}",
                     )
-                    yield Input(
-                        name="starttime",
-                        id="starttime-input",
-                        validators=[Number(0, 999999)],
-                        value="0",
-                        restrict=r"\d{0,6}",
-                    )
-                    yield Button("Pause", id="control-pause")
+                    # yield Input(
+                    #     name="starttime",
+                    #     id="starttime-input",
+                    #     validators=[Number(0, 999999)],
+                    #     value="0",
+                    #     restrict=r"\d{0,6}",
+                    # )
+                    # yield Button("Pause", id="control-pause")
                     yield Button("Stop", id="control-stop")
                     yield Button("Reset", id="control-refresh")
                     yield Button("Sync", id="control-sync")
@@ -87,21 +88,23 @@ class ControlScreen(Screen):
                         restrict=r"#[0-9a-f]{0,6}",
                     )
                 with Horizontal():
-                    yield Button("Send Command", id="control-send-command")
-                    yield Input(id="command-input")
-                    yield Button(
-                        "Close GPIO",
-                        id="control-danger-close-gpio",
-                        classes="danger-buttons",
-                    )
-                    yield Button(
-                        "Reboot", id="control-danger-reboot", classes="danger-buttons"
-                    )
-                    yield Button(
-                        "Restart Player",
-                        id="control-danger-forced-restart",
-                        classes="danger-buttons",
-                    )
+                    yield Button("Connect serial port", id="control-connect-serial")
+                    yield Input(id="command-input", value=BT_SENDER_PORT)
+                    yield Button("Load music file", id="control-load-music")
+                    yield Input(id="command-music", value=MUSIC_FILE_PATH)
+                    # yield Button(
+                    #     "Close GPIO",
+                    #     id="control-danger-close-gpio",
+                    #     classes="danger-buttons",
+                    # )
+                    # yield Button(
+                    #     "Reboot", id="control-danger-reboot", classes="danger-buttons"
+                    # )
+                    # yield Button(
+                    #     "Restart Player",
+                    #     id="control-danger-forced-restart",
+                    #     classes="danger-buttons",
+                    # )
             with VerticalScroll(id="control-panel-2"):
                 yield self.app.control_table
         yield Footer()
@@ -142,7 +145,19 @@ class ControlScreen(Screen):
                 self.screen,  # type: ignore
                 self.sender,
             )
-        if event.button.id == "control-sync":
+        if event.button.id == "control-connect-serial":
+            BT_SENDER_PORT = self.screen.local_vars.command
+            self.sender = ESP32BTSender(
+                screen_ref=self.screen, port=BT_SENDER_PORT, baud_rate=115200
+            )
+            try:
+                self.sender.connect()
+            except:
+                self.notify(
+                    f"Failed to connect to BTSender via {BT_SENDER_PORT}",
+                    severity="error",
+                )
+        elif event.button.id == "control-sync":
             self.update_connection_status()
         elif event.button.id == "control-play":
             self.countdown = self.local_vars.delay
@@ -167,6 +182,8 @@ class ControlScreen(Screen):
             self.local_vars.color_code = value
         elif event.input.id == "command-input":
             self.local_vars.command = value
+        elif event.input.id == "command-music":
+            self.local_vars.music = value
 
     def on_mount(self) -> None:
         self.sender = ESP32BTSender(
@@ -174,8 +191,19 @@ class ControlScreen(Screen):
         )
         try:
             self.sender.connect()
+            self.notify("BTSender connected", severity="error")
         except:
             self.notify("BTSender is not connected", severity="error")
+        control_handler(
+            "control-load-music",
+            [
+                dancer.name
+                for dancer in self.app.dancer_status.values()
+                if dancer.selected
+            ],
+            self.screen,  # type: ignore
+            self.sender,
+        )
         self.table = self.app.control_table
         self.table.add_column("Name", key="Name")
         self.table.add_column("✔", key="Selected")

@@ -8,13 +8,6 @@ from ..api import api
 from ..config import MUSIC_FILE_PATH
 from ..types.app import ControlScreenParamsType, ControlScreenType
 
-file_wav = wave.open(MUSIC_FILE_PATH)
-frequency = file_wav.getframerate()
-pygame.mixer.pre_init(frequency=frequency, size=-16, channels=2)
-pygame.init()
-pygame.mixer.init(frequency=frequency, size=-16, channels=2)
-# print(pygame.mixer.get_init())
-pygame.mixer.music.load(MUSIC_FILE_PATH)
 START_MUSIC_EVENT = pygame.USEREVENT + 1
 music_timer = None
 play_cmd = None
@@ -46,7 +39,15 @@ def control_handler(
         screen_ref.notify(
             f"Play: delay={screen_vars.delay} / start time={screen_vars.start_time}"
         )
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-pause":
         response = sender.send_burst(
             cmd_input="PAUSE",
@@ -57,7 +58,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Pause")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-stop":
         try:
             if music_timer:
@@ -78,14 +87,6 @@ def control_handler(
                 play_cmd = None
         except:
             screen_ref.notify("Nothing to stop!")
-        api.send(
-            {
-                "topic": "stop",
-                "payload": {
-                    "dancers": selected_dancers,
-                },
-            }
-        )
         response = sender.send_burst(
             cmd_input="STOP",
             delay_sec=1,
@@ -95,7 +96,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Stop")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-refresh":
         response = sender.send_burst(
             cmd_input="RESET",
@@ -107,15 +116,6 @@ def control_handler(
         )
         screen_ref.notify("Reset")
     elif id == "control-sync":
-        # api.send(
-        #     {
-        #         "topic": "sync",
-        #         "payload": {
-        #             "dancers": selected_dancers,
-        #         },
-        #     }
-        # )
-        # sender.connect()
         screen_ref.notify("Sync")
     elif id == "control-upload":
         # api.send(
@@ -138,7 +138,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Upload")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-r":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -149,7 +157,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Red")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-g":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -160,7 +176,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Green")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-b":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -171,7 +195,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Blue")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-rg":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -182,7 +214,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Yellow/RG")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-gb":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -193,7 +233,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Cyan/GB")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-rb":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -204,7 +252,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Magenta/RB")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-d":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -215,7 +271,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("Rainbow")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-w":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -226,7 +290,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify("White")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-send-color":
         response = sender.send_burst(
             cmd_input="TEST",
@@ -241,7 +313,15 @@ def control_handler(
             # retries=3,
         )
         screen_ref.notify(f"Color: {screen_vars.color_code}")
-        screen_ref.notify(f"BTSender Response: {str(response['payload']['message'])}")
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
     elif id == "control-send-command":
         api.send(
             {
@@ -253,6 +333,21 @@ def control_handler(
             }
         )
         screen_ref.notify(f"Command: {screen_vars.command} (abandoned)")
+    elif id == "control-connect-serial":
+        screen_ref.notify("Connect")
+    elif id == "control-load-music":
+        MUSIC_FILE_PATH = screen_vars.music
+        try:
+            file_wav = wave.open(MUSIC_FILE_PATH)
+            frequency = file_wav.getframerate()
+            pygame.mixer.pre_init(frequency=frequency, size=-16, channels=2)
+            pygame.init()
+            pygame.mixer.init(frequency=frequency, size=-16, channels=2)
+            # print(pygame.mixer.get_init())
+            pygame.mixer.music.load(MUSIC_FILE_PATH)
+            screen_ref.notify("Music loaded")
+        except:
+            screen_ref.notify("Failed to load the music!", severity="error")
     elif id == "control-danger-close-gpio":
         api.send(
             {

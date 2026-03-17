@@ -9,6 +9,7 @@ dependencies = [
     "pyright>=1.1.394",
     "requests>=2.32.3",
     "pyserial",
+    "pygame",
     "textual",
     "textual-dev",
     "websocket-client>=1.8.0",
