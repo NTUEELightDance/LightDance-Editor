@@ -9,7 +9,7 @@ This is a textual TUI panel for the controller server.
 Run the following command to open command center in terminal.
 
 ```sh
-uv run textual run -m src
+uv run textual run src.__main__:app
 ```
 
 In order to open command center in browser, run
