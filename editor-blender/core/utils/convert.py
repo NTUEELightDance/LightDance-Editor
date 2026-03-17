@@ -1068,7 +1068,6 @@ def control_modify_to_animation_data(
                             ]
                         )
                     else:
-                        part_length = state.led_part_length_map[part_name]
                         led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
 
                     for i in range(part_length):
@@ -1127,7 +1126,6 @@ def control_modify_to_animation_data(
                             ]
                         )
                     else:
-                        part_length = state.led_part_length_map[part_name]
                         led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
 
                     if len(part_map) == 0:
@@ -1228,6 +1226,25 @@ def control_map_to_animation_data(
                             (led_data.color_id, led_data.alpha)
                             for led_data in part_led_status
                         ]
+                        # try:
+                        #     led_rgb_floats = gradient_to_rgb_float(
+                        #         [
+                        #             (led_data.color_id, led_data.alpha)
+                        #             for led_data in part_led_status
+                        #         ]
+                        #     )
+                        #     prev_effect_id[0] = 0
+                        #     prev_led_bulbs[0] = [
+                        #         (led_data.color_id, led_data.alpha)
+                        #         for led_data in part_led_status
+                        #     ]
+                        # except:
+                        #     print(dancer_name, part_name, frame.start, part_data.effect_id)
+                        #     print(part_led_status, [
+                        #         (led_data.color_id, led_data.alpha)
+                        #         for led_data in part_led_status
+                        #     ])
+                        #     led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
 
                     elif prev_effect_id[0] > 0:
                         prev_effect = led_effect_table[prev_effect_id[0]].effect
@@ -1240,13 +1257,27 @@ def control_map_to_animation_data(
                         led_rgb_floats = gradient_to_rgb_float(prev_led_bulbs[0])
 
                     else:
-                        led_rgb_floats = [(0, 0, 0)] * part_length
+                        led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
 
                     if len(part_map) == 0:
                         part_map.extend([[] for _ in range(part_length)])  # type: ignore
 
+                    # FIXME: delete this
+                    if len(led_rgb_floats) != part_length:
+                        print(
+                            frame.start,
+                            dancer_name,
+                            part_name,
+                            len(led_rgb_floats),
+                            part_length,
+                        )
                     for i in range(part_length):
                         part_map[i].append((frame.start, part_fade, led_rgb_floats[i]))  # type: ignore
+                        # try:
+                        #     part_map[i].append((frame.start, part_fade, led_rgb_floats[i]))  # type: ignore
+                        # except Exception as _:
+                        #     #FIXME: This is just a quickfix, find a better way to do this!
+                        #     part_map[i].append((frame.start, part_fade, (0.0, 0.0, 0.0)))  # type: ignore
 
                 else:
                     part_rgb = color_map[part_data.color_id].rgb

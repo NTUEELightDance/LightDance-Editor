@@ -167,7 +167,7 @@ class PartType(Enum):
 
 
 PartTypeMap = dict[PartName, PartType]
-LEDPartLengthMap = dict[LEDPartName, int]
+LEDPartLengthMap = dict[DancerName, dict[LEDPartName, int]]
 
 
 Dancers = dict[DancerName, list[PartName]]

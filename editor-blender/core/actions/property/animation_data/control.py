@@ -411,7 +411,7 @@ def _update_no_change_keyframe(
         part_obj = data_objects[part_obj_name]
         dancer_name = getattr(part_obj, "ld_dancer_name")
         part_name = getattr(part_obj, "ld_part_name")
-        part_length = state.led_part_length_map[part_name]
+        part_length = state.led_part_length_map[dancer_name][part_name]
 
         led_effect_table = state.led_effect_id_table
 

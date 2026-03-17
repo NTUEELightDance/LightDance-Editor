@@ -214,6 +214,8 @@ def take_ctrl_data_from_model(
                 ld_alpha: int = getattr(part_obj, "ld_alpha")
                 partControlData.append((effect_id, ld_alpha))
                 if effect_id == 0:
+                    part_length = part.length
+
                     bulb_objs: list[bpy.types.Object] = list(
                         getattr(part_obj, "children")
                     )
@@ -221,6 +223,11 @@ def take_ctrl_data_from_model(
                     bulb_color_list: list[tuple[int, int]] = [
                         (obj["ld_color"], getattr(obj, "ld_alpha")) for obj in bulb_objs
                     ]
+                    if len(bulb_color_list) != part_length:
+                        raise Exception(
+                            f"Bulb number {len(bulb_color_list)} does not match actual part length {part_length}"
+                        )
+
                     partLEDControlData.append(bulb_color_list)
                 else:
                     partLEDControlData.append([])
@@ -287,6 +294,7 @@ async def save_control_frame(start: int | None = None):
 
     with send_request():
         try:
+            print(controlData, ledControlData, fadeData, hasEffectData, start)
             await control_agent.save_frame(
                 id,
                 controlData,

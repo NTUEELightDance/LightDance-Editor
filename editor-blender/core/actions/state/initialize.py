@@ -362,10 +362,11 @@ async def init_dancers():
     led_part_length_map: LEDPartLengthMap = {}
 
     for dancer in dancers_array:
+        led_part_length_map[dancer.name] = {}
         for part in dancer.parts:
             part_type_map[part.name] = part.type
             if part.type == PartType.LED and part.length is not None:
-                led_part_length_map[part.name] = part.length
+                led_part_length_map[dancer.name][part.name] = part.length
 
     dancer_part_index_map: DancerPartIndexMap = {}
 
