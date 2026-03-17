@@ -369,12 +369,12 @@ def override_control(control_frame: ControlMapElement):
                         for led_bulb_obj, led_bulb_status in zip(
                             part_obj.children, part_led_status
                         ):
-                            color = (
-                                state.color_map[led_bulb_status.color_id]
+                            color_name = (
+                                state.color_map[led_bulb_status.color_id].name
                                 if led_bulb_status.color_id != -1
                                 else "[gradient]"
                             )
-                            setattr(led_bulb_obj, "ld_color", color)
+                            setattr(led_bulb_obj, "ld_color", color_name)
                             setattr(led_bulb_obj, "ld_alpha", led_bulb_status.alpha)
                 else:
                     effect = state.led_effect_id_table[led_effect.effect_id]
