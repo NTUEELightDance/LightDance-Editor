@@ -53,6 +53,10 @@ class API:
                 "OFPARTS": MODEL_PIN_MAP_TABLE[DANCER_LIST[dancer_id][1]]["OFPARTS"],
                 "LEDPARTS": MODEL_PIN_MAP_TABLE[DANCER_LIST[dancer_id][1]]["LEDPARTS"],
             }
+            # payload_json = json.dumps(payload)
+
+            # with open(current_dir + "/body.txt", "w") as f:
+            #     f.write(payload_json)
 
             control_result_value = requests.post(
                 f"{HTTPS_URL}/controlDat", json=payload

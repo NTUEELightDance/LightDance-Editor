@@ -152,6 +152,7 @@ class ControlScreen(Screen):
             )
             try:
                 self.sender.connect()
+                self.notify("BTSender connected")
             except:
                 self.notify(
                     f"Failed to connect to BTSender via {BT_SENDER_PORT}",
@@ -191,7 +192,7 @@ class ControlScreen(Screen):
         )
         try:
             self.sender.connect()
-            self.notify("BTSender connected", severity="error")
+            self.notify("BTSender connected")
         except:
             self.notify("BTSender is not connected", severity="error")
         control_handler(
@@ -232,9 +233,10 @@ class ControlScreen(Screen):
             self.dancer_table_initialized = True
             return
         try:
-            self.sender.trigger_check([0])
+            self.sender.trigger_check([])
             time.sleep(2)  # Wait for ESP32 to scan
             connection_result = self.sender.get_latest_report()
+            # self.notify(str(connection_result["payload"]))
             # connection_result = {
             #     "from": "Host_PC",
             #     "topic": "check_report",
@@ -269,12 +271,12 @@ class ControlScreen(Screen):
             cmd_type = item["cmd_type"]
             target_delay = item["target_delay"]
             state = item["state"]
-            timestamp = item["timestamp"]
+            # timestamp = item["timestamp"]
             self.app.dancer_status[DANCER_LIST[target_id][0]].interface = "BLE"
             self.app.dancer_status[DANCER_LIST[target_id][0]].wifi_info.connected = True
             self.app.dancer_status[
                 DANCER_LIST[target_id][0]
-            ].response = f"State: {state}, Type: {cmd_type}, CID: {cmd_id}, Target Delay: {target_delay}, Timestamp: {timestamp}"
+            ].response = f"State: {state}, Type: {cmd_type}, CID: {cmd_id}, Target Delay: {target_delay}"
 
         new_dancer_status: DancerStatus = self.app.dancer_status
         for name, dancer in new_dancer_status.items():
