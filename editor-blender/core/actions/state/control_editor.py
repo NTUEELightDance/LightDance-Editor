@@ -339,7 +339,7 @@ async def delete_control_frame():
             await control_agent.delete_frame(id, state.show_dancers)
             notify("INFO", f"Deleted control frame: {id}")
             try:
-                await control_agent.cancel_edit(id)
+                await control_agent.cancel_edit(id, is_delete_frame=True)
             except:
                 pass
 
@@ -352,6 +352,7 @@ async def delete_control_frame():
             if e_json["message"].startswith("The target frame is being edited by user"):
                 notify("WARNING", "Delete frame rejected, for the frame is being edit")
             else:
+                print(e)
                 logger.exception("Failed to delete control frame")
                 notify("WARNING", "Cannot delete position frame")
 

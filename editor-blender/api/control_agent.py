@@ -223,7 +223,7 @@ class ControlAgent:
             logger.exception("Failed to request edit control frame")
             raise err
 
-    async def cancel_edit(self, id: MapID) -> bool | None:
+    async def cancel_edit(self, id: MapID, is_delete_frame=False) -> bool | None:
         """Cancel the edit request of the control frame."""
         try:
             response = await client.execute(
@@ -235,7 +235,9 @@ class ControlAgent:
             pass
 
         except Exception as err:
-            logger.exception("Failed to cancel edit control frame")
+            if not is_delete_frame:
+                # If is delete frame, after "delete frame" (instead of set loaded dancer no effect), one cannot cancel edit (because the frame is deleted)
+                logger.exception("Failed to cancel edit control frame")
             raise err
 
 

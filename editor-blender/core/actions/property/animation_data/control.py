@@ -290,32 +290,40 @@ def modify_partial_ctrl_single_object_action(
         for old_start in frames[0]:
             while (
                 curve_index < kpoints_len
-                and int(kpoints_lists[0][curve_index].co[0]) != old_start
+                and int(kpoints_lists[0][curve_index].co[0]) < old_start
             ):
                 curve_index += 1
 
-            if curve_index < kpoints_len:
-                for d in range(3):
-                    point = kpoints_lists[d][curve_index]
-                    curves[d].keyframe_points.remove(point)
+            if curve_index >= kpoints_len:
+                break
+            elif int(kpoints_lists[0][curve_index].co[0]) != old_start:
+                continue
 
-                kpoints_len -= 1
+            for d in range(3):
+                point = kpoints_lists[d][curve_index]
+                curves[d].keyframe_points.remove(point)
+
+            kpoints_len -= 1
 
     kpoints_len = len(kpoints_lists[0])
 
     update_reorder = False
     if update:
         curve_index = 0
-        # points_to_update: list[tuple[int, bpy.types.Keyframe, float, bool]] = []
+        points_to_update: list[tuple[Time, bpy.types.Keyframe, float, bool]] = []
+        points_to_add: list[tuple[Time, tuple[float, float, float], bool]] = []
 
         for old_start, frame_start, package in frames[1]:
             while (
                 curve_index < kpoints_len
-                and int(kpoints_lists[0][curve_index].co[0]) != old_start
+                and int(kpoints_lists[0][curve_index].co[0]) < old_start
             ):
                 curve_index += 1
 
-            original_status_is_not_None = curve_index < kpoints_len
+            original_status_is_not_None = (
+                curve_index < kpoints_len
+                and int(kpoints_lists[0][curve_index].co[0]) == old_start
+            )
             if original_status_is_not_None:
                 if package is None:
                     # Have Status to No Status => Delete corresponding kpoint
@@ -323,49 +331,45 @@ def modify_partial_ctrl_single_object_action(
                         point = kpoints_lists[d][curve_index]
                         curves[d].keyframe_points.remove(point)
 
-                    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
                     kpoints_len -= 1
                     continue
 
                 fade, rgb = package
                 for d in range(3):
                     point = kpoints_lists[d][curve_index]
-                    point.co = frame_start, rgb[d]
-                    point.interpolation = "LINEAR" if fade else "CONSTANT"
-                    point.select_control_point = False
+                    points_to_update.append((frame_start, point, rgb[d], fade))
 
+                # and not (
+                #     kpoints_lists[0][max(0, curve_index - 1)].co[0] < frame_start
+                #     and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
+                #     > frame_start
+                # )
                 if old_start != frame_start:
-                    kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
-
-                if old_start != frame_start and not (
-                    kpoints_lists[0][max(0, curve_index - 1)].co[0] <= frame_start
-                    and kpoints_lists[0][min(kpoints_len - 1, curve_index + 1)].co[0]
-                    >= frame_start
-                ):
                     update_reorder = True
             else:
                 if package is None:
                     continue
 
-                # No Status to Have Status => Add corresponding kpoint
                 fade, rgb = package
-                for d in range(3):
-                    point = curves[d].keyframe_points.insert(frame_start, rgb[d])
-                    point.interpolation = "LINEAR" if fade else "CONSTANT"
-                    point.select_control_point = True
+                # No Status to Have Status => Add corresponding kpoint
+                points_to_add.append((frame_start, rgb, fade))
 
-                kpoints_lists = [get_keyframe_points(curve)[1] for curve in curves]
-                kpoints_len += 1
                 if (
-                    len(kpoints_lists[0]) >= 2
-                    and kpoints_lists[0][-2].co[0] > frame_start
+                    len(kpoints_lists[0]) >= 1
+                    and kpoints_lists[0][-1].co[0] > frame_start
                 ):
                     update_reorder = True
 
-        # for frame_start, point, value, fade in points_to_update:
-        #     point.co = frame_start, value
-        #     point.interpolation = "LINEAR" if fade else "CONSTANT"
-        #     point.select_control_point = False
+        for frame_start, point, value, fade in points_to_update:
+            point.co = frame_start, value
+            point.interpolation = "LINEAR" if fade else "CONSTANT"
+            point.select_control_point = False
+
+        for frame_start, rgb, fade in points_to_add:
+            for d in range(3):
+                point = curves[d].keyframe_points.insert(frame_start, rgb[d])
+                point.interpolation = "LINEAR" if fade else "CONSTANT"
+                point.select_control_point = False
 
     kpoints_len = len(kpoints_lists[0])
 
