@@ -7,6 +7,7 @@ use crate::graphql::request_edit::RequestEditMutation;
 use crate::graphql::types::control_data::RedisControlMandatory;
 use crate::types::global::{PartType, UserContext};
 use crate::utils::revision::update_revision;
+use itertools::Itertools;
 
 // import modules and functions
 use async_graphql::{Context, Error, FieldResult, InputObject, Object};
@@ -934,6 +935,41 @@ impl ControlFrameMutation {
         }
 
         if can_delete_frame {
+            let control_ids = sqlx::query!(
+                r#"
+                    SELECT * FROM ControlData
+                    WHERE ControlData.frame_id = ?
+                "#,
+                frame_id
+            )
+            .fetch_all(&mut *tx)
+            .await?
+            .into_iter()
+            .map(|d| d.id)
+            .collect_vec();
+
+            for control_id in control_ids {
+                sqlx::query!(
+                    r#"
+                    DELETE FROM LEDBulb
+                    WHERE LEDBulb.control_id = ?
+                "#,
+                    control_id
+                )
+                .execute(&mut *tx)
+                .await?;
+
+                sqlx::query!(
+                    r#"
+                    DELETE FROM ControlData
+                    WHERE ControlData.id = ?
+                "#,
+                    control_id
+                )
+                .execute(&mut *tx)
+                .await?;
+            }
+
             sqlx::query!(
                 r#"
                   DELETE FROM ControlFrame

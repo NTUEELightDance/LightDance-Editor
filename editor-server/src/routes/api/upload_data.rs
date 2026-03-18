@@ -204,8 +204,8 @@ async fn collect_dancers_and_models<'a>(
 
             let part_id = sqlx::query!(
                 r#"
-                        SELECT id FROM Part WHERE model_id = ? AND name = ?;
-                    "#,
+                    SELECT id FROM Part WHERE model_id = ? AND name = ?;
+                "#,
                 model_id,
                 part.name
             )
@@ -218,9 +218,9 @@ async fn collect_dancers_and_models<'a>(
                 Some(part) => part,
                 None => sqlx::query!(
                     r#"
-                            INSERT INTO Part (model_id, name, type, length)
-                            VALUES (?, ?, ?, ?);
-                        "#,
+                        INSERT INTO Part (model_id, name, type, length)
+                        VALUES (?, ?, ?, ?);
+                    "#,
                     model_id,
                     part.name,
                     type_string,
@@ -466,9 +466,9 @@ async fn collect_control_data(
     for frame_obj in control_data.values() {
         let frame_id = sqlx::query!(
             r#"
-                    INSERT INTO ControlFrame (start)
-                    VALUES (?);
-                "#,
+                INSERT INTO ControlFrame (start)
+                VALUES (?);
+            "#,
             frame_obj.start,
         )
         .execute(&mut **tx)
@@ -598,7 +598,32 @@ async fn collect_control_data(
                         .into_result()?
                         .last_insert_id() as i32;
                     if r#type == ControlType::LEDBulbs {
-                        for (index, (color, alpha)) in part_led_status.iter().enumerate() {
+                        let part_length = match &dancer_data[i].parts[j].length {
+                            Some(length) => *length as usize,
+                            None => {
+                                return Err((
+                                    StatusCode::BAD_REQUEST,
+                                    Json(UploadDataFailedResponse {
+                                        err: "No part length provided in LEDBulb control data"
+                                            .to_string(),
+                                    }),
+                                ));
+                            }
+                        };
+
+                        if part_led_status.len() < part_length {
+                            return Err((
+                                StatusCode::BAD_REQUEST,
+                                Json(UploadDataFailedResponse {
+                                    // TODO: write better error message
+                                    err: "LED status too short".to_string(),
+                                }),
+                            ));
+                        }
+
+                        for (index, (color, alpha)) in
+                            part_led_status.iter().take(part_length).enumerate()
+                        {
                             let color_id = match color_dict.get(color) {
                                 Some(i) => i,
                                 None => {

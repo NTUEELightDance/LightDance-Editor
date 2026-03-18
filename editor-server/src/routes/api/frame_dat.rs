@@ -448,9 +448,6 @@ pub async fn frame_dat(
     led_bulb_data_map
         .iter()
         .for_each(|((frame_id, part_id), v)| {
-            // if v.len() == 120 {
-            //     println!("{}, {}", frame_id, part_id);
-            // }
             led_data.insert((*frame_id, *part_id), v);
         });
 
@@ -622,6 +619,14 @@ pub async fn frame_dat(
     for frame in &mut frames {
         write_checksum(frame);
     }
+
+    // for frame in &frames {
+    //     if frame.start_time < 20000 {
+    //         println!("======{}=====", frame.start_time);
+    //         println!("{:?}", frame.of_grb_data);
+    //         println!("{:?}", frame.led_grb_data);
+    //     }
+    // }
 
     for frame in &frames {
         write_little_endian(&frame.start_time, &mut response);
