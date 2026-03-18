@@ -82,11 +82,14 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
         return
 
     effect_id: int = self["ld_effect"]
+    is_no_change = effect_id == -1
+    prev_alpha = 1
+
     effect = None
     ld_dancer_name: str = getattr(self, "ld_dancer_name")
     ld_part_name: str = getattr(self, "ld_part_name")
 
-    if effect_id == -1:
+    if is_no_change:
         control_index = state.editing_data.index
 
         # Find previous effect
@@ -109,6 +112,7 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
 
             if prev_part_status.effect_id != -1:
                 effect_id = prev_part_status.effect_id
+                prev_alpha = prev_part_status.alpha if effect_id != 0 else -1
                 break
 
             control_index -= 1
@@ -134,6 +138,12 @@ def update_current_effect(self: bpy.types.Object, context: bpy.types.Context):
         setattr(led_bulb_obj, "ld_color", color.name)
         setattr(led_bulb_obj, "ld_alpha", data.alpha)
 
+    if is_no_change:
+        if prev_alpha > 0:
+            for led_bulb_obj in led_bulb_objs:
+                setattr(led_bulb_obj, "ld_alpha", prev_alpha)
+        return
+
     update_current_alpha(self, context)
 
 
@@ -148,7 +158,9 @@ def update_current_alpha(self: bpy.types.Object, context: bpy.types.Context):
     if ld_no_status:
         return
 
-    if ld_light_type == LightType.LED.value and self["ld_effect"] != 0:
+    if ld_light_type == LightType.LED.value and self["ld_effect"] == -1:
+        return
+    elif ld_light_type == LightType.LED.value and self["ld_effect"] != 0:
         led_bulb_objs: list[bpy.types.Object] = getattr(self, "children")
         for (
             led_bulb_obj

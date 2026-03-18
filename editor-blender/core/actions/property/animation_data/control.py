@@ -416,29 +416,16 @@ def _update_no_change_keyframe(
         led_effect_table = state.led_effect_id_table
 
         no_change_list: list[tuple[Time, list[tuple[float, float, float]]]] = []
-        cached_index, cached_led_floats, cached_alpha = -9, [], -1
+        cached_index, cached_led_floats = -9, []
         for start in no_change_dict[part_obj_name]:
             # Decide the color of LED with no-change effect
             current_index = state.control_start_record.index(start)
-            current_alpha = sorted_control_map[current_index].status[dancer_name][part_name].part_data.alpha  # type: ignore
             prev_index = current_index - 1
 
             led_rgb_floats = []
             while prev_index >= 0:
                 if prev_index == cached_index:
-                    if cached_alpha > 0:
-                        led_rgb_floats = list(
-                            map(
-                                lambda tup: (
-                                    tup[0] * current_alpha / cached_alpha,
-                                    tup[1] * current_alpha / cached_alpha,
-                                    tup[2] * current_alpha / cached_alpha,
-                                ),
-                                cached_led_floats,
-                            )
-                        )
-                    else:
-                        led_rgb_floats = cached_led_floats
+                    led_rgb_floats = cached_led_floats
                     break
 
                 control_status = sorted_control_map[prev_index].status[dancer_name][
@@ -453,11 +440,10 @@ def _update_no_change_keyframe(
                     part_effect = led_effect_table[part_status.effect_id].effect
                     led_rgb_floats = [
                         rgba_to_float(
-                            state.color_map[led_data.color_id].rgb, current_alpha
+                            state.color_map[led_data.color_id].rgb, part_status.alpha
                         )
                         for led_data in part_effect
                     ]
-                    cached_alpha = current_alpha
                     break
                 elif part_status.effect_id == 0:
                     part_led_status = control_status.bulb_data
@@ -467,7 +453,6 @@ def _update_no_change_keyframe(
                             for led_data in part_led_status
                         ]
                     )
-                    cached_alpha = -1
                     break
                 else:
                     prev_index -= 1

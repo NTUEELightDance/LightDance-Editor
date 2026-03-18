@@ -854,6 +854,7 @@ def _possible_changed_no_change_effect(
     Where str is the name of part object, f"{dancer_index}_{part_name}"
     """
     no_change_dict = {}
+    not_no_change_dict = {}
     for old_start, _ in control_delete:
         for dancer_index, dancer_item in enumerate(state.dancers_array):
             dancer_name = dancer_item.name
@@ -873,7 +874,9 @@ def _possible_changed_no_change_effect(
                         f"{dancer_index}_{part_name}",
                         no_change_effect_starts,
                     )
-                    _delete(no_change_dict, f"{dancer_index}_{part_name}", old_start)
+                    _upsert(
+                        not_no_change_dict, f"{dancer_index}_{part_name}", old_start
+                    )
                 else:
                     continue
 
@@ -899,16 +902,20 @@ def _possible_changed_no_change_effect(
                             f"{dancer_index}_{part_name}",
                             no_change_effect_starts,
                         )
-                        _delete(
-                            no_change_dict, f"{dancer_index}_{part_name}", frame.start
+                        _upsert(
+                            not_no_change_dict,
+                            f"{dancer_index}_{part_name}",
+                            frame.start,
                         )
                     continue
 
                 part_status = part_ctrl_data.part_data
                 if isinstance(part_status, LEDData):
                     if part_status.effect_id >= 0:
-                        _delete(
-                            no_change_dict, f"{dancer_index}_{part_name}", frame.start
+                        _upsert(
+                            not_no_change_dict,
+                            f"{dancer_index}_{part_name}",
+                            frame.start,
                         )
                     else:
                         _upsert(
@@ -923,7 +930,9 @@ def _possible_changed_no_change_effect(
                         f"{dancer_index}_{part_name}",
                         no_change_effect_starts,
                     )
-                    _delete(no_change_dict, f"{dancer_index}_{part_name}", old_start)
+                    _upsert(
+                        not_no_change_dict, f"{dancer_index}_{part_name}", old_start
+                    )
 
                     no_change_effect_starts = _find_no_change_effect_starts(
                         frame.start, dancer_name, part_name
@@ -970,6 +979,11 @@ def _possible_changed_no_change_effect(
                         f"{dancer_index}_{part_name}",
                         no_change_effect_starts,
                     )
+
+    for part_obj_name in no_change_dict:
+        if part_obj_name in not_no_change_dict:
+            not_no_change_list = not_no_change_dict[part_obj_name]
+            _delete(no_change_dict, part_obj_name, not_no_change_list)
 
     return no_change_dict
 
@@ -1164,6 +1178,7 @@ def control_map_to_animation_data(
     color_map = state.color_map
     led_effect_table = state.led_effect_id_table
     prev_effect_ids: dict[DancerName, dict[PartName, list[int]]] = {}
+    prev_effect_alphas: dict[DancerName, dict[PartName, list[int]]] = {}
     prev_led_status: dict[DancerName, dict[PartName, list[list[tuple[int, int]]]]] = {}
 
     for mapIndex, (_, frame) in enumerate(sorted_control_map):
@@ -1203,6 +1218,9 @@ def control_map_to_animation_data(
                     prev_led_bulbs = prev_led_status.setdefault(
                         dancer_name, {}
                     ).setdefault(part_name, [[]])
+                    prev_effect_alpha = prev_effect_alphas.setdefault(
+                        dancer_name, {}
+                    ).setdefault(part_name, [1])
 
                     led_rgb_floats = []
                     if part_data.effect_id > 0:
@@ -1213,6 +1231,7 @@ def control_map_to_animation_data(
                         ]
 
                         prev_effect_id[0] = part_data.effect_id
+                        prev_effect_alpha[0] = part_data.alpha
 
                     elif part_data.effect_id == 0:
                         led_rgb_floats = gradient_to_rgb_float(
@@ -1226,30 +1245,12 @@ def control_map_to_animation_data(
                             (led_data.color_id, led_data.alpha)
                             for led_data in part_led_status
                         ]
-                        # try:
-                        #     led_rgb_floats = gradient_to_rgb_float(
-                        #         [
-                        #             (led_data.color_id, led_data.alpha)
-                        #             for led_data in part_led_status
-                        #         ]
-                        #     )
-                        #     prev_effect_id[0] = 0
-                        #     prev_led_bulbs[0] = [
-                        #         (led_data.color_id, led_data.alpha)
-                        #         for led_data in part_led_status
-                        #     ]
-                        # except:
-                        #     print(dancer_name, part_name, frame.start, part_data.effect_id)
-                        #     print(part_led_status, [
-                        #         (led_data.color_id, led_data.alpha)
-                        #         for led_data in part_led_status
-                        #     ])
-                        #     led_rgb_floats = [(0.0, 0.0, 0.0)] * part_length
-
+                        prev_effect_alpha[0] = -1
                     elif prev_effect_id[0] > 0:
                         prev_effect = led_effect_table[prev_effect_id[0]].effect
+                        prev_alpha = prev_effect_alpha[0]
                         led_rgb_floats = [
-                            rgba_to_float(color_map[led_data.color_id].rgb, part_alpha)
+                            rgba_to_float(color_map[led_data.color_id].rgb, prev_alpha)
                             for led_data in prev_effect
                         ]
 
