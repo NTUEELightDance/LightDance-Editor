@@ -168,6 +168,12 @@ def copy_ctrl_data_from_state(
                 bulb_color_list: list[tuple[int, int]] = [
                     (cast(int, obj.color_id), obj.alpha) for obj in bulb_objs_data
                 ]
+
+                # Currently some LEDBulb effect has more bulb then it should, this truncate these effect
+                part_length = state.led_part_length_map[dancer.name][part.name]
+                if len(bulb_color_list) != part_length:
+                    bulb_color_list = bulb_color_list[:part_length]
+
                 partLEDControlData.append(bulb_color_list)
             else:
                 partLEDControlData.append([])
@@ -294,7 +300,6 @@ async def save_control_frame(start: int | None = None):
 
     with send_request():
         try:
-            print(controlData, ledControlData, fadeData, hasEffectData, start)
             await control_agent.save_frame(
                 id,
                 controlData,

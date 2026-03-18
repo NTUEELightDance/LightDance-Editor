@@ -1273,11 +1273,6 @@ def control_map_to_animation_data(
                         )
                     for i in range(part_length):
                         part_map[i].append((frame.start, part_fade, led_rgb_floats[i]))  # type: ignore
-                        # try:
-                        #     part_map[i].append((frame.start, part_fade, led_rgb_floats[i]))  # type: ignore
-                        # except Exception as _:
-                        #     #FIXME: This is just a quickfix, find a better way to do this!
-                        #     part_map[i].append((frame.start, part_fade, (0.0, 0.0, 0.0)))  # type: ignore
 
                 else:
                     part_rgb = color_map[part_data.color_id].rgb

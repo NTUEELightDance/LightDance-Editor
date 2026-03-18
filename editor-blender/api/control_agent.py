@@ -180,6 +180,9 @@ class ControlAgent:
 
         except Exception as err:
             logger.exception("Failed to save control frame")
+            logger.info(
+                f"Using {id, controlData, ledControlData, fade, hasEffect} as inputs"
+            )
             raise err
 
     async def delete_frame(self, id: MapID, shown_dancers: list[bool]) -> str | None:
