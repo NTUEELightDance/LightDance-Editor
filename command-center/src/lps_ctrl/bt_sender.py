@@ -22,6 +22,7 @@ class ESP32BTSender:
         "CHECK": 0x07,
         "UPLOAD": 0x08,
         "RESET": 0x09,
+        "SEEK": 0x0A,
     }
     CMD_MAP_INV = {
         0x01: "PLAY",
@@ -33,6 +34,7 @@ class ESP32BTSender:
         0x07: "CHECK",
         0x08: "UPLOAD",
         0x09: "RESET",
+        0x0A: "SEEK",
     }
     # Maps internal state integers to readable strings for reporting
     STATE_MAP = {0: "UNLOADED", 1: "READY", 2: "PLAYING", 3: "PAUSE", 4: "TEST"}
@@ -155,7 +157,13 @@ class ESP32BTSender:
             self.screen_ref.notify(f"Parse error: {e}", severity="error")
 
     def send_burst(
-        self, cmd_input, delay_sec, prep_led_sec=0.0, target_ids=None, data=None
+        self,
+        cmd_input,
+        delay_sec,
+        prep_led_sec=0.0,
+        target_time_sec=0.0,
+        target_ids=None,
+        data=None,
     ):
         """Sends a scheduled broadcast command to the ESP32 Sender."""
         self._drain_serial()
@@ -176,6 +184,7 @@ class ESP32BTSender:
         )
         delay_ms = int(delay_sec * 1000)
         prep_led_ms = int(prep_led_sec * 1000)
+        target_time_ms = int(target_time_sec * 1000)
 
         target_mask = 0
         if not target_ids:
@@ -193,7 +202,7 @@ class ESP32BTSender:
             if self.cmd_list[i] < t_start_pc and i != self.idx:
                 self.cmd_list[i] = target_time
                 cmd_int = i * 16 + cmd_int
-                packet = f"{cmd_int},{delay_ms},{prep_led_ms},{target_mask:x},{data[0]},{data[1]},{data[2]}\n"
+                packet = f"{cmd_int},{delay_ms},{prep_led_ms},{target_mask:x},{data[0]},{data[1]},{data[2]},{target_time_ms}\n"
                 add_cmd_fail = 0
                 self.idx = i
                 break

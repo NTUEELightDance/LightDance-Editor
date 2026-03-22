@@ -63,6 +63,17 @@ class API:
             )
             frame_result_value = requests.post(f"{HTTPS_URL}/frameDat", json=payload)
 
+            if (
+                control_result_value.status_code != 200
+                or frame_result_value.status_code != 200
+            ):
+                self.app_ref.control_table.update_cell(
+                    DANCER_LIST[dancer_id][0],
+                    "Response",
+                    f"Failed to save file locally. Status code: {control_result_value.status_code}, {frame_result_value.status_code}.",
+                )
+                continue
+
             files_to_save = [
                 (f"control_{dancer_id-1}.dat", control_result_value.content),
                 (f"frame_{dancer_id-1}.dat", frame_result_value.content),

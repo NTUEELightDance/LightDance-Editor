@@ -159,7 +159,7 @@ target/
 utils/createUsers.js
 
 # Local lighttable data
-lighttable
+lighttable*
 
 # large music files
 *mp3

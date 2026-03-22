@@ -71,6 +71,7 @@ class ControlScreen(Screen):
                     yield Button("Sync", id="control-sync")
                     yield Button("Download", id="control-upload")
                     yield Button("Upload", id="control-load")
+                    yield Button("Seek", id="control-seek", classes="danger-buttons")
                 with Horizontal():
                     yield Button("R", id="control-r")
                     yield Button("G", id="control-g")
@@ -266,6 +267,8 @@ class ControlScreen(Screen):
             self.app.dancer_status[name].response = ""
 
         for item in connection_result["payload"]["found_devices"]:
+            if target_id == 0:
+                continue
             target_id = item["target_id"]
             cmd_id = item["cmd_id"]
             cmd_type = item["cmd_type"]

@@ -11,10 +11,35 @@ from ..types.app import ControlScreenParamsType, ControlScreenType
 START_MUSIC_EVENT = pygame.USEREVENT + 1
 music_timer = None
 play_cmd = None
+time_stamp = None
 
 
 def play_music():
     pygame.mixer.music.play()
+
+
+def revive(screen_ref, sender, target_ids):
+    try:
+        response = sender.send_burst(
+            cmd_input="PLAY",
+            delay_sec=1.0,
+            prep_led_sec=0.0,
+            target_ids=target_ids,
+            data=[0, 0, 0],
+            # retries=3,
+        )
+        if response["statusCode"] == 0:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}"
+            )
+        else:
+            screen_ref.notify(
+                f"BTSender Response: {str(response['payload']['message'])}",
+                severity="error",
+            )
+        # screen_ref.notify("Seek")
+    except:
+        screen_ref.notify("Seek failed", severity="error")
 
 
 def control_handler(
@@ -24,7 +49,9 @@ def control_handler(
     screen_vars: ControlScreenParamsType = screen_ref.local_vars
     global music_timer
     global play_cmd
+    global time_stamp
     if id == "control-play":
+        time_stamp = time.time_ns() // 1000000 + screen_vars.delay * 1000
         music_timer = threading.Timer(screen_vars.delay, play_music)
         music_timer.start()
         response = sender.send_burst(
@@ -68,6 +95,7 @@ def control_handler(
                 severity="error",
             )
     elif id == "control-stop":
+        time_stamp = None
         try:
             if music_timer:
                 music_timer.cancel()
@@ -379,5 +407,35 @@ def control_handler(
             }
         )
         screen_ref.notify("Forced Restart")
+    elif id == "control-seek":
+        now = time.time_ns() // 1000000 + 7000
+        if time_stamp is None or now < time_stamp:
+            screen_ref.notify(f"Invalid timestamp", severity="error")
+        try:
+            screen_ref.notify(f"Seek will play at {(now-time_stamp)/1000} s")
+            reviver = threading.Timer(
+                6,
+                revive,
+                args=[
+                    screen_ref,
+                    sender,
+                    [int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
+                ],
+            )
+            reviver.start()
+            response = sender.send_burst(
+                cmd_input="SEEK",
+                delay_sec=0.0,
+                prep_led_sec=0.0,
+                target_time_sec=(now - time_stamp) / 1000,
+                target_ids=[
+                    int(dancer.split("_")[0]) + 1 for dancer in selected_dancers
+                ],
+                data=[255, 255, 255],
+                # retries=3,
+            )
+        except:
+            screen_ref.notify(f"Seek failed", severity="error")
+
     else:
         screen_ref.notify(f"Unknown button {id}")
