@@ -42,6 +42,21 @@ class Esp32TcpServer:
         try:
             self.dancer_status[DANCER_LIST[id][0]].interface = "wifi"
             self.dancer_status[DANCER_LIST[id][0]].response = text
+            # self.app_ref.table.update_cell(
+            #     DANCER_LIST[id][0],
+            #     "Name",
+            #     f"[#00ff00]{DANCER_LIST[id][0]}[/]",
+            # )
+            # self.app_ref.table.update_cell(
+            #     DANCER_LIST[id][0],
+            #     "wifi",
+            #     text,
+            # )
+            # self.app_ref.table.update_cell(
+            #     DANCER_LIST[id][0],
+            #     "Response",
+            #     text,
+            # )
             self.act_fcn()
         except:
             self.screen_ref.notify(

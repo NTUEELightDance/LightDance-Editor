@@ -408,13 +408,13 @@ def control_handler(
         )
         screen_ref.notify("Forced Restart")
     elif id == "control-seek":
-        now = time.time_ns() // 1000000 + 7000
+        now = time.time_ns() // 1000000 + 4000
         if time_stamp is None or now < time_stamp:
             screen_ref.notify(f"Invalid timestamp", severity="error")
         try:
             screen_ref.notify(f"Seek will play at {(now-time_stamp)/1000} s")
             reviver = threading.Timer(
-                6,
+                3,
                 revive,
                 args=[
                     screen_ref,
@@ -425,13 +425,13 @@ def control_handler(
             reviver.start()
             response = sender.send_burst(
                 cmd_input="SEEK",
-                delay_sec=0.0,
+                delay_sec=1.0,
                 prep_led_sec=0.0,
                 target_time_sec=(now - time_stamp) / 1000,
                 target_ids=[
                     int(dancer.split("_")[0]) + 1 for dancer in selected_dancers
                 ],
-                data=[255, 255, 255],
+                data=[0, 0, 0],
                 # retries=3,
             )
         except:

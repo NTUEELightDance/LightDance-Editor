@@ -114,7 +114,7 @@ class ControlScreen(Screen):
         uploadServer = Esp32TcpServer(
             screen_ref=self.screen,
             dancer_status=self.app.dancer_status,
-            act_fcn=self.update_connection_status,
+            act_fcn=self.update_connection_status_wifi,
             control_paths_list=[
                 "../lighttable/control_" + str(i) + ".dat"
                 for i in range(0, 27)
@@ -267,7 +267,7 @@ class ControlScreen(Screen):
             self.app.dancer_status[name].response = ""
 
         for item in connection_result["payload"]["found_devices"]:
-            if target_id == 0:
+            if item["target_id"] == 0 or item["target_id"] > 27:
                 continue
             target_id = item["target_id"]
             cmd_id = item["cmd_id"]
@@ -281,6 +281,32 @@ class ControlScreen(Screen):
                 DANCER_LIST[target_id][0]
             ].response = f"State: {state}, Type: {cmd_type}, CID: {cmd_id}, Target Delay: {target_delay}"
 
+        new_dancer_status: DancerStatus = self.app.dancer_status
+        for name, dancer in new_dancer_status.items():
+            try:
+                self.table.update_cell(
+                    name,
+                    "Name",
+                    f"[#00ff00]{name}[/]"
+                    if dancer.ethernet_info.connected or dancer.wifi_info.connected
+                    else f"[#ff0000]{name}[/]",
+                )
+                self.table.update_cell(
+                    name,
+                    "Interface",
+                    dancer.interface
+                    if dancer.ethernet_info.connected or dancer.wifi_info.connected
+                    else "none",
+                )
+                self.table.update_cell(name, "Response", dancer.response)
+            except:
+                continue
+        self.table.refresh_column(0)
+        self.table.refresh_column(2)
+        self.table.refresh_column(3)
+        self.notify("Updated connection status")
+
+    def update_connection_status_wifi(self) -> None:  # TODO: Test this
         new_dancer_status: DancerStatus = self.app.dancer_status
         for name, dancer in new_dancer_status.items():
             try:
